@@ -4,11 +4,23 @@
  * Board Pass link. Mobile first, 320-1440; every selector is scoped under `.lt-pk` (a lazy route's CSS is global once loaded). No
  * horizontal carousel. Sizes are fixed per breakpoint and every text box that can re-wrap on the web-font swap has a reserved height.
  */
+/*
+ * A2 (speed): the first screen's serif text uses the SAME Fraunces file as everywhere (same URL, one download, preloaded in the head)
+ * with font-display: block. Measured on a 4x-CPU 4G phone with the shared swap face: the font arrived after first paint, the H1 painted
+ * in the fallback (2 lines), re-wrapped to 3 in Fraunces, and when the app took over the page the app's H1 was a NEW, larger
+ * largest-contentful-paint candidate: LCP 0.5 s -> 2.4 s. (optional did not help: Chrome still uses a late optional face for the
+ * app's new nodes.) With block the H1 is painted once, in Fraunces, ~1 round trip after the HTML (the file is preloaded); its three
+ * fixed lines (PacksPage PACKS_H1_LINES) keep its height the same while it waits, so nothing below it moves. Below the first screen: unchanged.
+ */
+@font-face { font-family: "LT Fraunces First"; font-style: normal; font-weight: 700; font-display: block; src: url(/fonts/fraunces-700-latin.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+.lt-pk { --pk-serif-first: "LT Fraunces First", "Fraunces Fallback", Georgia, serif; }
+.lt-pk .lt-pk-hero__h1, .lt-pk .lt-pk-bundle__name, .lt-pk-bundle__amt, .lt-pk-tile__fig { font-family: var(--pk-serif-first); }
 .lt-pk-hero { background: var(--pk-navy); color: #fff; padding: 12px 0 18px; }
 .lt-pk-hero__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .lt-pk-hero__copy { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .lt-pk-hero__eyebrow { margin: 0; font-size: 11px; font-weight: 800; letter-spacing: 0.06em; line-height: 1.4; color: #6fe0a8; }
 .lt-pk .lt-pk-hero__h1 { font-size: 22px; line-height: 1.18; font-weight: 700; color: #fff; }
+.lt-pk-hero__l { display: block; white-space: nowrap; }
 .lt-pk-hero__line { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.35; color: #f1f4f8; }
 .lt-pk-hero__copy .lt-founder-badge { align-self: flex-start; margin: 0; font-size: 13px; padding: 4px 10px; }
 .lt-pk-hero__terms { margin: 0; font-size: 12.5px; line-height: 1.4; color: #c9d4e3; }
@@ -109,7 +121,7 @@
   .lt-pk-hero__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 440px); gap: 40px; align-items: center; }
   .lt-pk-hero__copy { gap: 12px; }
   .lt-pk-hero__eyebrow { font-size: 14px; letter-spacing: 0.08em; }
-  .lt-pk .lt-pk-hero__h1 { font-size: 44px; line-height: 1.1; }
+  .lt-pk .lt-pk-hero__h1 { font-size: clamp(34px, 3.4vw, 44px); line-height: 1.1; }
   .lt-pk-hero__line { font-size: 21px; }
   .lt-pk-hero__terms { font-size: 16px; }
   .lt-pk-bundle { padding: 20px 22px 22px; gap: 10px; }

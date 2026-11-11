@@ -80,6 +80,13 @@ function BoardPassOwnerLine() {
 export const PACKS_EYEBROW = `${QUESTION_BANK_NAME.toUpperCase()} · CBSE CLASS 10 · BOARDS 2027`;
 export const PACKS_H1 = `${QUESTION_BANK_NAME}: Class 10 Maths and Science PDF packs`;
 /**
+ * A2 (speed): the H1 is drawn as three fixed lines, each short enough for ONE line at 320 px in Fraunces and in any fallback. Its line
+ * count (so its height and the page below it) is then the same in every font, and with the first screen's font-display: block
+ * (packsHub.css) the H1 is painted once, in Fraunces, and never grows into a new, later largest-contentful-paint when the app takes
+ * over. Joined, the lines are PACKS_H1 exactly (the heading's text for crawlers and screen readers is unchanged).
+ */
+export const PACKS_H1_LINES: readonly string[] = [`${QUESTION_BANK_NAME}: `, "Class 10 Maths and ", "Science PDF packs"];
+/**
  * The hero sentence. Owner 11 Nov 19:21 asked for "… Worked solutions as per the CBSE marking scheme." ONLY if every question sold here is
  * step-marked; measured 11 Nov on the real selections it is not (Bundle sheets 9,420 of 10,686 step-marked; mocks and CBQ packs 100%), so
  * the standing wording stays (owner ruling 25 Oct: no "every question step-marked" claim until the rest have step-wise solutions).
@@ -216,7 +223,11 @@ function Hero({ api }: { api: PacksShopApi }) {
       <div className="lt-packs__w lt-pk-hero__grid">
         <div className="lt-pk-hero__copy">
           <p className="lt-pk-hero__eyebrow">{PACKS_EYEBROW}</p>
-          <h1 id="packs-h1" className="lt-pk-hero__h1">{PACKS_H1}</h1>
+          <h1 id="packs-h1" className="lt-pk-hero__h1">
+            {PACKS_H1_LINES.map((line) => (
+              <span key={line} className="lt-pk-hero__l">{line}</span>
+            ))}
+          </h1>
           <p className="lt-pk-hero__line">{PACKS_HERO_LINE}</p>
           <BoardPassOwnerLine />
           <FounderBadge tone="dark" />

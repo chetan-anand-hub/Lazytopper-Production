@@ -41,7 +41,7 @@ vi.mock("../lib/packs/buildPackFiles", () => ({
   groupPackFiles: (files: Array<{ group: string }>) => [{ group: "Triangles", files }],
 }));
 
-import PacksPage from "./PacksPage";
+import PacksPage, { PACKS_H1, PACKS_H1_LINES } from "./PacksPage";
 import * as packs from "../services/packs";
 // GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPayLabel } from "../services/packs";
@@ -81,6 +81,9 @@ describe("PacksPage", () => {
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Question Bank + Mocks: Class 10 Maths and Science PDF packs");
     expect(document.querySelector(".lt-pk-hero__line")?.textContent).toBe("Every question. Worked solutions.");
+    // A2: the H1 is three fixed lines (one height in every font); joined they are the heading's text, word for word.
+    expect(PACKS_H1_LINES.join("")).toBe(PACKS_H1);
+    expect(document.querySelectorAll("h1 .lt-pk-hero__l")).toHaveLength(3);
     for (const id of ["chapter", "mock", "subject", "bundle"]) expect(screen.getByTestId(`packs-card-${id}`)).toBeTruthy();
     const text = document.body.textContent ?? "";
     for (const price of ["₹49", "₹99", "₹199", "₹299"]) expect(text).toContain(price);
