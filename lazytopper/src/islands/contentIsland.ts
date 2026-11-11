@@ -199,7 +199,7 @@ export interface Descriptor {
   /**
    * PRICING-PAGES-2 F1 - the key of the nearest `[data-lt-twin]` around the control, when there is one. The served page and the app
    * may label the same control differently (the prerender is captured with packs dark, so /cbq-packs' Buy reads "Maths CBQ Pack ·
-   * ₹199 + GST" there and "Buy Maths CBQ · ₹235" in the app): a tap is then replayed on the app's first control of the same tag inside
+   * <price>" there and "Buy Maths CBQ · <total>" in the app): a tap is then replayed on the app's first control of the same tag inside
    * the element with the same key. No `data-lt-twin` on the page (every page but /cbq-packs): unused, matching exactly as before.
    */
   twin?: string;

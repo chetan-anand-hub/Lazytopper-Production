@@ -153,7 +153,7 @@ function CbqBuyCard({ api, subject, onSubject }: { api: PacksShopApi; subject: P
           <h2 className="lt-cbq__name" id="cq-card-h">{subjectLabel(subject)} CBQ Pack</h2>
           <p className="lt-cbq__price lt-cq-card__price">{packPriceLabel("pack_cbq")}</p>
         </div>
-        {/* R4: the shop's own button (packs off: /packs' neutral "Maths CBQ Pack · ₹199 + GST"; on: Buy). F1: `data-lt-twin` lets
+        {/* R4: the shop's own button (packs off: /packs' neutral "<Subject> CBQ Pack · <price>"; on: Buy). F1: `data-lt-twin` lets
             the island replay a tap made on the static copy onto the app's button here even though their labels differ. */}
         <div className="lt-cq-card__buy" data-lt-twin={`cq-buy-${subject}`}>
           <PackCbqBuy subject={subject} api={api} testPrefix="cq-card" />
