@@ -63,8 +63,14 @@
 }
 
 /* Price: the figures arrive after mount into a slot that already has their height. */
+/* Measured (Inter / Fraunces): the figures are 105 px tall below ~408 px (the meta and the founding line wrap) and 63 px above. */
 .lt-bp-price {
-  min-height: 62px;
+  min-height: 106px;
+}
+@media (min-width: 410px) {
+  .lt-bp-price {
+    min-height: 64px;
+  }
 }
 .lt-bp-price__line {
   margin: 0;

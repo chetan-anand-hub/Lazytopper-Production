@@ -16,8 +16,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve, relative } from "node:path";
 import { parentPriceModel } from "../pages/ForParentsPage";
 import { predictCbseExamDate } from "../services/cbseExamDate";
-import { PACK_PRICE_INR, type PackSku } from "../services/packs";
-import { boardPassGstExclusive, displayPlusGst, GST_EXCLUSIVE_FROM_MS, payDisplay } from "./pricing";
+import { PACK_PRICE_INR, packGstBreakdown, type PackSku } from "../services/packs";
+import { boardPassGstBreakdown, boardPassGstExclusive, displayPlusGst, GST_EXCLUSIVE_FROM_MS, payDisplay } from "./pricing";
 
 const ROOT = resolve(__dirname, "../../prerendered");
 
@@ -89,6 +89,22 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   take(new RegExp(`Buy (Maths|Science) CBQ · ${AMT}<`), (m) => `${m[1]} CBQ Pack (one-tap button)`, (m) => packPay(`${m[1]} CBQ Pack`));
   take(new RegExp(`CBQ Pack ${AMT} per subject`), () => "CBQ Pack (hub hero price line)", () => packExp("Maths CBQ Pack"));
   take(new RegExp(`One-time ${AMT} per pack`), () => "CBQ Pack (one-time line)", () => packExp("Maths CBQ Pack"));
+  // PRICING-PAGES-1: the two dedicated sales pages (only there: /pricing carries the same Pay markup and is not a scanned page).
+  if (/(^|\/)(board-pass|cbq-packs)\.html$/.test(file)) {
+    take(/>Pay ₹([\d,]+) once till your boards</, () => "Board Pass (Pay button)", () => model?.boardPassPayDisplay ?? null);
+    take(new RegExp(`class="lt-cbq__name"[^>]*>(${LABELS})</h2><p class="lt-cbq__price[^"]*">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
+    take(new RegExp(`>${AMT} per subject →<`), () => "CBQ Pack (sales link)", () => packExp("Maths CBQ Pack"));
+    take(new RegExp(`>Bundle ${AMT} →<`), () => "Maths + Science Bundle (sales link)", () => packExp("Maths + Science Bundle"));
+    take(new RegExp(`>from ${AMT} →<`), () => "Chapter Pack (sales 'from' link)", () => packExp("Chapter Pack"));
+    // The GST breakups ("₹199 + ₹36 GST (18%) = ₹235"): a pack's under its Buy, the Board Pass's under its Pay. All three figures claimed.
+    for (const m of html.matchAll(/(?:data-testid="tile-gst-(pack_\w+)">)?(₹[\d,]+ \+ ₹[\d,]+ GST \(18%\) = ₹[\d,]+)/g)) {
+      const line = m[2];
+      const start = m.index! + m[0].indexOf(line);
+      for (const t of line.matchAll(/₹/g)) claimed.add(start + t.index!);
+      const expected = m[1] ? packGstBreakdown(m[1] as PackSku, now) : boardPassGstBreakdown(now);
+      found.push({ file, product: m[1] ? `${m[1]} (GST breakup)` : "Board Pass (GST breakup)", shown: line, expected: expected ?? "(unquotable)" });
+    }
+  }
 
   // Unclaimed rupee tokens in a page that carries priced markup: fail rather than ignore.
   // The per-day line is a different, daily-moving figure and is deliberately not guarded.
@@ -141,6 +157,13 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
       // PACKS-TIDY-1: ONE CBQ card with a Maths/Science switch - the static page shows the Maths card (the Science card is the same price, swapped in by the switch).
       for (const l of ["Chapter Pack", "Mock Pack", "Subject Pack", "Maths + Science Bundle", "Maths CBQ Pack"]) expect(pk).toContain(l);
       expect(of("packs.html").length).toBeGreaterThanOrEqual(7); // PACKS-TIDY-1: 10 -> 7 (one CBQ card, one terms line)
+    }
+    // PRICING-PAGES-1: both sales pages are scanned in both variants (the Pay / Buy, the card price, the links, the GST breakups).
+    for (const dir of ["", "__desktop/"]) {
+      const bp = scan.found.filter((x) => x.file === `${dir}board-pass.html`).map((x) => x.product);
+      expect(bp).toEqual(expect.arrayContaining(["Board Pass (Pay button)", "Board Pass (GST breakup)", "CBQ Pack (sales link)", "Maths + Science Bundle (sales link)"]));
+      const cq = scan.found.filter((x) => x.file === `${dir}cbq-packs.html`).map((x) => x.product);
+      expect(cq).toEqual(expect.arrayContaining(["Maths CBQ Pack", "Maths CBQ Pack (one-tap button)", "pack_cbq (GST breakup)", "CBQ Pack (one-time line)", "Chapter Pack (sales 'from' link)"]));
     }
     expect(scan.found.length).toBeGreaterThanOrEqual(28); // PACKS-TIDY-1: 34 -> 28 (packs.html: 7 per variant, was 10)
   });

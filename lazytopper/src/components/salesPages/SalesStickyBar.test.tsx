@@ -9,8 +9,12 @@ function rect(top: number, height: number) {
 function Page({ heroTop, secondTop, onGo }: { heroTop: number; secondTop: number; onGo: () => void }) {
   return (
     <>
-      <div data-testid="hero-pay" ref={(el) => el && (el.getBoundingClientRect = () => rect(heroTop, 60))} />
-      <div data-testid="second-pay" ref={(el) => el && (el.getBoundingClientRect = () => rect(secondTop, 60))} />
+      <div data-testid="hero-pay" ref={(el) => {
+          if (el) el.getBoundingClientRect = () => rect(heroTop, 60);
+        }} />
+      <div data-testid="second-pay" ref={(el) => {
+          if (el) el.getBoundingClientRect = () => rect(secondTop, 60);
+        }} />
       <SalesStickyBar watch={["hero-pay", "second-pay"]} copy={() => ({ label: "Board Pass ₹1,917 + GST", button: "Pay ₹2,262" })} onGo={onGo} ariaLabel="Board Pass shortcut" testId="bar" />
     </>
   );

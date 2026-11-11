@@ -47,6 +47,8 @@ const P8_PAGES = [
   "ncert-class-10.html",
   "pricing.html",
   "packs.html", // PACKS-LEGAL-1 — /packs renders the public footer, now prerendered
+  "board-pass.html", // PRICING-PAGES-1 — the two dedicated sales pages render the public footer
+  "cbq-packs.html",
   // SOLUTIONS-1/2: every published solutions page carries the public footer (derived, not hand-listed).
   ...solutionsPaths().map((p) => `${p.slice(1)}.html`),
   // CBQ-SEO-1: the CBQ hub and its chapter pages render the public footer (derived from the chapter registry, not hand-listed).
