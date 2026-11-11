@@ -41,8 +41,8 @@ export const ISLAND_PATH_PREFIXES: readonly string[] = [
  * strip, and a visitor who read the page and left without touching it must still be counted.
  */
 export const IDLE_UPGRADE_PATHS: readonly string[] = ["/packs"];
-/** The idle wait (requestIdleCallback timeout, ms) after `load` before an idle-upgrade page loads the app. */
-export const IDLE_UPGRADE_TIMEOUT_MS = 800;
+/** The idle wait (requestIdleCallback timeout, ms) after `load` (SPEED-PACKS-3 round 3: 200, so the app-rendered Buy buttons appear soon) before an idle-upgrade page loads the app. */
+export const IDLE_UPGRADE_TIMEOUT_MS = 200;
 
 /** The Rollup input name of the island entry (`vite.config.ts` build.rollupOptions.input). */
 export const ISLAND_ENTRY_NAME = "contentIsland";
