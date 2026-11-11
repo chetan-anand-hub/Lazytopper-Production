@@ -42,8 +42,8 @@ export interface PackDialogProps {
 }
 
 const TITLES: Record<PackSku, { name: string; line: string }> = {
-  pack_chapter: { name: "Chapter Pack", line: "Important questions for one chapter, with CBSE step-marking key" },
-  pack_mock: { name: "Mock Pack", line: "8 board-pattern mock papers for 2027, with step-marking keys" },
+  pack_chapter: { name: "Chapter Pack", line: "Important questions for one chapter, with CBSE step-marking guide" },
+  pack_mock: { name: "Mock Pack", line: "8 board-pattern mock papers for 2027, with step-marking guide" },
   pack_subject: { name: "Subject Pack", line: "Every chapter of Maths or Science — chapter-wise question bank 2026-27" },
   pack_bundle: { name: "Maths + Science Bundle", line: `Maths + Science: all ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks — the whole year at one price` },
   pack_cbq: { name: "CBQ Pack", line: "About half your 2027 paper is competency-based. Curated CBQs, chapter-wise and topic-wise — MCQ, assertion-reason, short, case study and long answer, Sections A to E." },
@@ -52,7 +52,7 @@ const TITLES: Record<PackSku, { name: string; line: string }> = {
 const SLIDES: ReadonlyArray<{ page: PreviewPage; alt: string; num: string; bold: string; rest: string }> = [
   { page: "cover", alt: "The PDF cover page with the buyer's name", num: "2", bold: "Your cover", rest: ", your name on every page" },
   { page: "questions", alt: "A question page in board order", num: "3", bold: "Questions", rest: ", board order, A to E" },
-  { page: "answer-key", alt: "An answer-key page with worked solutions", num: "4", bold: "Answer key", rest: " with worked solutions" },
+  { page: "answer-key", alt: "A page of step-by-step worked solutions", num: "4", bold: "Worked solutions", rest: ", step by step" },
 ];
 
 /** PARENT-PACKS-1 - the picker's empty option (the chevron is drawn by CSS beside it). */
@@ -289,7 +289,7 @@ export default function PackDialog(props: PackDialogProps) {
                       <li key={g.chapter}>{g.heading}</li>
                     ))}
                   </ul>
-                  <p>Each chapter: question sheets A to E, 2 chapter tests and a worksheet, all with keys.</p>
+                  <p>Each chapter: question sheets A to E, 2 chapter tests and a worksheet, all with a marking guide.</p>
                 </details>
               )}
             </section>

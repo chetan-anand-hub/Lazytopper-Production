@@ -112,8 +112,8 @@ export const OFFER_LINES = {
   bundle: `All ${PACK_CHAPTER_SLUGS.length} chapters + ${BUNDLE_MOCKS} mocks, the whole year`,
   subject: (s: PackSubject) => `Every ${subjectLabel(s)} chapter, chapter-wise question bank`,
   cbq: "Competency questions of every type, chapter-wise",
-  mock: `${MOCKS_PER_SUBJECT} board-pattern mock papers with step-marking keys`,
-  chapter: "Important questions with answer keys",
+  mock: `${MOCKS_PER_SUBJECT} board-pattern mock papers with step-marking guide`,
+  chapter: "Important questions with worked solutions",
 } as const;
 
 /** Every row this surface may offer, in the order shown (price high to low). Unknown subject / chapter drops the rows that need it. */

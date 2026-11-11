@@ -87,7 +87,7 @@ afterEach(async () => {
 });
 
 describe("BRIDGE-CODES-1 - a CBQ chapter is ONE row with its parts inside (owner 8 Nov 23:30)", () => {
-  it("one row per chapter: Questions / Answer keys, a button per part; a tap shows set progress, then Saved", async () => {
+  it("one row per chapter: Questions / Solutions, a button per part; a tap shows set progress, then Saved", async () => {
     shop();
     fireEvent.click(await screen.findByText("Download files"));
     const rows = await screen.findAllByTestId("cbq-chapter-row");

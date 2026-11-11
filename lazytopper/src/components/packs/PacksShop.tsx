@@ -1363,7 +1363,7 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
                   if (parts.length === 0) return null;
                   return (
                     <div key={mode} className="lt-packs__partrow">
-                      <span className="lt-packs__partkind">{mode === "questions" ? "Questions" : "Answer keys"}</span>
+                      <span className="lt-packs__partkind">{mode === "questions" ? "Questions" : "Solutions"}</span>
                       <div className="lt-packs__partbtns">
                         {parts.map((f) => (
                           <button

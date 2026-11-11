@@ -52,11 +52,11 @@ describe("saleOfferText", () => {
       saleOfferText(pickSaleOffer({ subject: "science" })!),
       saleOfferText(pickSaleOffer({ mock: true, subject: "maths" })!),
     ];
-    expect(texts[0]).toBe(`Trigonometry Chapter Pack ${packPriceLabel("pack_chapter")} — printed questions with answer keys →`);
+    expect(texts[0]).toBe(`Trigonometry Chapter Pack ${packPriceLabel("pack_chapter")} — printed questions with worked solutions →`);
     expect(texts[1]).toContain("This chapter's Chapter Pack");
     expect(texts[2]).toContain(`Board CBQ Pack ${packPriceLabel("pack_cbq")}`);
     expect(texts[3]).toContain(`Science Subject Pack ${packPriceLabel("pack_subject")}`);
-    expect(texts[4]).toBe(`Maths Mock Pack ${packPriceLabel("pack_mock")} \u2014 8 full board mocks, printed with answer keys \u2192`);
+    expect(texts[4]).toBe(`Maths Mock Pack ${packPriceLabel("pack_mock")} \u2014 8 full board mocks, printed with marking guide \u2192`);
     for (const t of texts) expect(t).not.toMatch(/599|999|save|%|off\b/i);
   });
 });

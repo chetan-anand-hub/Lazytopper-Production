@@ -25,7 +25,7 @@ describe("showPackLine", () => {
 
 describe("the one line", () => {
   it("is the owner's words with the catalogue price, linking to the packs strip", () => {
-    expect(PACK_LINE_TEXT).toBe(`Not ready for the Board Pass yet? Try our PDF packs from ${chapterPackPriceTag()} \u2014 printed questions with answer keys, no marking \u2192`);
+    expect(PACK_LINE_TEXT).toBe(`Not ready for the Board Pass yet? Try our PDF packs from ${chapterPackPriceTag()} \u2014 printed questions with worked solutions, no marking \u2192`);
     expect(PACK_LINE_TEXT).toContain(`\u20b9${PACK_PRICE_INR.pack_chapter}`);
     expect(PACK_LINE_HREF).toBe("/pricing#packs");
   });

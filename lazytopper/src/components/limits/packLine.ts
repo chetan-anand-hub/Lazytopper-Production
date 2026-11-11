@@ -22,4 +22,4 @@ export function showPackLine(status: Pick<SubscriptionStatus, "tier"> | null | u
 export const PACK_LINE_HREF = "/pricing#packs";
 
 /** The ONE line, on every surface. The price is the catalogue's cheapest pack (packEntry), never a literal. */
-export const PACK_LINE_TEXT = `Not ready for the Board Pass yet? Try our PDF packs from ${chapterPackPriceTag()} \u2014 printed questions with answer keys, no marking \u2192`;
+export const PACK_LINE_TEXT = `Not ready for the Board Pass yet? Try our PDF packs from ${chapterPackPriceTag()} \u2014 printed questions with worked solutions, no marking \u2192`;

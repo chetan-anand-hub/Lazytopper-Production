@@ -93,9 +93,9 @@ describe("PACKS-CONVERT-1 · /packs order", () => {
     page();
     const maths = packs.chaptersOfSubject("maths").length;
     const science = packs.chaptersOfSubject("science").length;
-    expect(screen.getByTestId("packs-contents-subject").textContent).toBe(`${maths} Maths or ${science} Science chapters · Sections A–E · with keys`);
-    expect(screen.getByTestId("packs-contents-mock").textContent).toBe(`${MOCKS_PER_SUBJECT} full papers for Maths or Science · step-marking keys`);
-    expect(screen.getByTestId("packs-contents-chapter").textContent).toBe("Sections A–E · chapter tests · a worksheet · with keys");
+    expect(screen.getByTestId("packs-contents-subject").textContent).toBe(`${maths} Maths or ${science} Science chapters · Sections A–E · with marking guide`);
+    expect(screen.getByTestId("packs-contents-mock").textContent).toBe(`${MOCKS_PER_SUBJECT} full papers for Maths or Science · marking guide`);
+    expect(screen.getByTestId("packs-contents-chapter").textContent).toBe("Sections A–E · chapter tests · a worksheet · with marking guide");
     expect(screen.getByTestId("packs-cell-bundle").textContent).toContain(`${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS}`);
     // above the Buy
     const line = screen.getByTestId("packs-contents-mock");

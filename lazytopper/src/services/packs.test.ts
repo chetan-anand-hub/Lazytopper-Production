@@ -129,8 +129,8 @@ function deps(over: Partial<PackBuyDeps> & { dismiss?: boolean } = {}): PackBuyD
 
 describe("PAY-PHONE-1 (B) · packCheckoutDescription", () => {
   it.each([
-    ["pack_chapter", "triangles", "Triangles", "Chapter Pack · Triangles · important questions with CBSE step-marking key"],
-    ["pack_mock", "maths", undefined, "Maths Mock Pack · 8 board-pattern mock papers for 2027, with step-marking keys"],
+    ["pack_chapter", "triangles", "Triangles", "Chapter Pack · Triangles · important questions with CBSE step-marking guide"],
+    ["pack_mock", "maths", undefined, "Maths Mock Pack · 8 board-pattern mock papers for 2027, with step-marking guide"],
     ["pack_subject", "science", undefined, "Science Subject Pack · every chapter, chapter-wise question bank 2026-27"],
     ["pack_cbq", "science", undefined, "Science CBQ Pack · chapter-wise competency questions, every type"],
     ["pack_bundle", undefined, undefined, "Maths + Science Bundle · all 26 chapters + 16 mocks"],
@@ -148,7 +148,7 @@ describe("buyPack", () => {
       amount: 4900,
       order_id: "order_1",
       // PAY-PHONE-1 (B): the payment window says what is inside, from the existing pack copy.
-      description: "Chapter Pack · Triangles · important questions with CBSE step-marking key",
+      description: "Chapter Pack · Triangles · important questions with CBSE step-marking guide",
     });
     expect(out).toEqual({
       status: "paid",

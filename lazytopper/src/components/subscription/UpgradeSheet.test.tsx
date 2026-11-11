@@ -567,16 +567,16 @@ describe("UpgradeSheet pack line", () => {
     const bpEl = screen.getByTestId("upgrade-sheet-board-pass");
     const packEl = screen.getByTestId("upgrade-sheet-pack");
     expect(bpEl.compareDocumentPosition(packEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(packEl.textContent).toBe("Maths Mock Pack ₹99 — 8 full board mocks, printed with answer keys →");
+    expect(packEl.textContent).toBe("Maths Mock Pack ₹99 — 8 full board mocks, printed with marking guide →");
     expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/pricing?mock=maths#packs");
   });
   it("SALE-MOMENT-2: names the pack the paper wall was given (Mock, Chapter) and keeps the generic line for plain", () => {
     on();
     for (const [line, text, href] of [
-      [paperPackLine("full-mock", { subject: "maths" }), `Maths Mock Pack ${displayPlusGst(99)} — 8 full board mocks, printed with answer keys →`, "/pricing?mock=maths#packs"],
-      [paperPackLine("full-mock", { subject: "science" }), `Science Mock Pack ${displayPlusGst(99)} — 8 full board mocks, printed with answer keys →`, "/pricing?mock=science#packs"],
-      [paperPackLine("chapter-test", { chapters: ["triangles"] }), `Chapter Pack ${displayPlusGst(49)} — printed questions with answer keys →`, "/pricing?chapter=triangles#packs"],
-      [paperPackLine("worksheet", { chapters: ["triangles", "electricity"] }), `Not ready for the Board Pass yet? Try our PDF packs from ${displayPlusGst(49)} — printed questions with answer keys, no marking →`, "/pricing#packs"],
+      [paperPackLine("full-mock", { subject: "maths" }), `Maths Mock Pack ${displayPlusGst(99)} — 8 full board mocks, printed with marking guide →`, "/pricing?mock=maths#packs"],
+      [paperPackLine("full-mock", { subject: "science" }), `Science Mock Pack ${displayPlusGst(99)} — 8 full board mocks, printed with marking guide →`, "/pricing?mock=science#packs"],
+      [paperPackLine("chapter-test", { chapters: ["triangles"] }), `Chapter Pack ${displayPlusGst(49)} — printed questions with worked solutions →`, "/pricing?chapter=triangles#packs"],
+      [paperPackLine("worksheet", { chapters: ["triangles", "electricity"] }), `Not ready for the Board Pass yet? Try our PDF packs from ${displayPlusGst(49)} — printed questions with worked solutions, no marking →`, "/pricing#packs"],
     ] as const) {
       mount(line);
       const el = screen.getByTestId("upgrade-sheet-pack");
@@ -629,7 +629,7 @@ describe("FairUseLimitPanel on a trial paper refusal", () => {
     expect(bpEl.textContent).toContain(bp());
     const packEl = screen.getByTestId("fair-use-pack-line");
     expect(bpEl.compareDocumentPosition(packEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(packEl.textContent).toContain(`Not ready for the Board Pass yet? Try our PDF packs from ${displayPlusGst(49)} — printed questions with answer keys, no marking →`);
+    expect(packEl.textContent).toContain(`Not ready for the Board Pass yet? Try our PDF packs from ${displayPlusGst(49)} — printed questions with worked solutions, no marking →`);
     expect(packEl.querySelector("a")?.getAttribute("href")).toBe("/pricing#packs");
   });
   it("PACK-BASIC-ONLY-1: also shown in the trial daily-checks dialog", () => {
