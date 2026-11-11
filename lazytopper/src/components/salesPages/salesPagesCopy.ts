@@ -2,7 +2,7 @@
  * PRICING-PAGES-1 (owner, 11 Nov 2026) - the copy of the two dedicated sales pages, /board-pass and /cbq-packs. Step 1 of the
  * owner-approved pricing redesign: each package gets its own page (the /pricing hub and the ad landings come later).
  *
- * Standing rules this copy keeps (pinned by salesPagesCopy.test.ts): prices read "₹X + GST" and the Pay / Buy button names the
+ * Standing rules this copy keeps (pinned by BoardPassPage.test.tsx and CbqPacksPage.test.tsx): prices read "₹X + GST" and the Pay / Buy button names the
  * total; every figure comes from src/config/pricing, services/packs or lib/packs/packLabels (never typed here); no "AI" in selling
  * copy; never "answer key"; never "optional"; the parent route says "Forward", never "ask"; no refund promise; no crossed-out price.
  */

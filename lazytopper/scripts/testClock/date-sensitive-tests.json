@@ -680,6 +680,7 @@
     "src/config/pricing.guard.test.ts",
     "src/config/pricing.tillBoards.test.ts",
     "src/config/pricingCompare.test.ts",
+    "src/config/salesPageHeads.guard.test.ts",
     "src/config/searchPing.guard.test.ts",
     "src/config/sitemapUrls.guard.test.ts",
     "src/config/syllabus2026-27.test.ts",
