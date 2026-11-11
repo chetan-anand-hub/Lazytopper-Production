@@ -87,7 +87,6 @@ vi.mock("../PackDialog", () => ({
 import PricingPage from "../PricingPage";
 import { cardForHash, nearestCard } from "./PricingHub";
 import { hubBankTag, hubPositionLine, hubTabPrice } from "./hubCopy";
-import { isPricingHubEnabled, PRICING_HUB_KILL_VALUE } from "./hubFlag";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
@@ -152,22 +151,22 @@ afterEach(() => {
 });
 
 describe("§0a.1 kill switch", () => {
-  it("unset -> the hub; VITE_PRICING_HUB_DISABLED=1 -> the legacy page, unchanged", async () => {
-    expect(isPricingHubEnabled()).toBe(true);
+  it("unset -> the hub; VITE_PRICING_HUB_DISABLED=1 -> the legacy page, unchanged; any other value -> the hub", async () => {
     await renderAt("/pricing");
     expect(screen.getByTestId("pricing-hub")).toBeInTheDocument();
     expect(screen.queryByTestId("pricing-board-pass")).toBeNull();
     cleanup();
-    vi.stubEnv("VITE_PRICING_HUB_DISABLED", "true");
-    expect(isPricingHubEnabled()).toBe(true); // only "1" kills it (the documented value)
-    // PricingPage.tsx writes the same comparison inline (so the build drops the page it does not render): keep them one rule.
-    const src = readFileSync(resolve(process.cwd(), "src/pages/PricingPage.tsx"), "utf8");
-    expect(src).toContain('if (import.meta.env.VITE_PRICING_HUB_DISABLED !== "1") return <PricingHub');
-    expect(PRICING_HUB_KILL_VALUE).toBe("1");
+    vi.stubEnv("VITE_PRICING_HUB_DISABLED", "true"); // only "1" kills it (the documented value)
+    await renderAt("/pricing");
+    expect(screen.getByTestId("pricing-hub")).toBeInTheDocument();
+    cleanup();
     vi.stubEnv("VITE_PRICING_HUB_DISABLED", "1");
     await renderAt("/pricing");
     expect(screen.queryByTestId("pricing-hub")).toBeNull();
     expect(screen.getByTestId("pricing-board-pass")).toBeInTheDocument();
+    // The comparison is written inline so the production build drops the page it does not render.
+    const src = readFileSync(resolve(process.cwd(), "src/pages/PricingPage.tsx"), "utf8");
+    expect(src).toContain('if (import.meta.env.VITE_PRICING_HUB_DISABLED !== "1") return <PricingHub');
   });
 });
 
