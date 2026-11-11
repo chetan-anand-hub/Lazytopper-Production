@@ -1,3 +1,15 @@
+## 2026-11-11 (daily; written 11 Nov) - #1660 - #1667 - MERGED
+
+- DONE. `#1660` (`c0aa7c7`) docs: the previous daily docs PR (records `#1657` and `#1658`). NEXT: this block's PR.
+- DONE. `#1661` (`19819fd`) TEST-ACCOUNTS-1: env `TEST_ACCOUNT_EMAILS` marks owner test accounts "ADMIN / TEST" in admin Purchases and excludes them from totals (no admin access granted). Owner set it on Railway 06:15 IST. NEXT: offer phone-number support if the owner wants his Rs58 phone test excluded.
+- DONE. `#1663` (`489000c`) SPEED-FIX-1: /for-parents preloads only its route chunk (24 -> 3); local LCP 1.35-1.47 -> 0.92-1.04 s. The all-pages version was NOT kept (made /pricing slower on slow 3G). NEXT: `[FU-FORPARENTS-INP]` (needs a device trace).
+- DONE. `#1662` (`2bbfa06`) CHECKOUT-SELF-2: the signed-out checkout opens on "Buy for yourself"; the server reads the payer's contact from Razorpay's payment record and the order waits `paid_unclaimed`. NEXT: `[FU-SELF-PAY-ADMIN-ATTACH]`; the owner's live phone check.
+- DONE. `#1665` (`2f4477a`) SELF-PAY-LAND-1: a self-pay buyer lands on `/packs?from=pay#my-packs`, which suppresses the trial-end screen, countdown bar and early strip for that load. NEXT: `[FU-META-FROM-PARAM]`.
+- DONE. `#1664` (`8f13164`) URGENCY-1: the boards countdown strip on /packs, /pricing and the upgrade sheet; the founding-price line; a pack-tile pre-board line. NEXT: `[FU-URGENCY-TILE-CLEANUP]` (after 16 Feb); the scorecard upgrade line and sale-moment offers are NOT built (no countdown slot).
+- DONE. `#1666` (`f49cac1`) SPEED-PH-1: /practice-hub preloads 44 -> 25 chunks (-84.7 KB gz); PDF export and history reopen are lazy. Owner signed-in check passed 09:33 IST.
+- DONE. `#1667` (`1cb0aae`) SPEED-PACKS-3: /packs is an island (paints from prerendered HTML; app loads on idle or at once for `?buy=`/`?from=`/hash/signed-in); "answer key" and "+ keys" removed from website copy. NEXT: `[FU-PACKS-SIGNEDIN-CLS]`; the 13-15 Nov Quality Score check; the 15 Nov Speed Insights reading.
+- NEXT (not built, owner order): **the pricing page redesign (mock-up first; owner 11 Nov 10:07 IST; no longer on hold)**; the owner's live phone check; dated checks (12 Nov, 13-15 Nov, about 14 Nov Resend Pro then `GST_INVOICE_EMAIL_DAILY_CAP` 10 -> 30, 15 Nov, 16 Nov, 18 Nov, 1 Dec); growth plan step 2 (a)-(d). ON HOLD (owner): `[FU-YT-DEMO-VIDEO]`.
+
 ## 2026-11-09 (daily, evening; written 11 Nov) - #1657 - #1658 - MERGED
 
 - DONE. `#1657` (`b59bbf8`) docs: the previous daily docs PR (`#1652` - `#1656`, 7 handoff files). NEXT: this block's PR.

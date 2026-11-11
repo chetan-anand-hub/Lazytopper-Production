@@ -23,6 +23,34 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-11 (daily; written 11 Nov) - #1660 - #1667 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `1cb0aae`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items come from the PR bodies **[gh]** and the coordinator's 11 Nov handoff and ops log (`HANDOFF_COFOUNDER_SESSION_2026-11-11.md`, section 4 item 5) **[coordinator]**. No grading behaviour changed.*
+
+**New:** `[FU-SELF-PAY-ADMIN-ATTACH]`, `[FU-META-FROM-PARAM]`, `[FU-FORPARENTS-INP]`, `[FU-URGENCY-TILE-CLEANUP]`, `[FU-PACKS-SIGNEDIN-CLS]`.
+
+**Still open, carried (their earlier entries stand):** `[FU-PACKS-FIRSTBUY-PHONE-CHECK]` (kept OPEN: no source says the owner ran the 360 check of `#1658`; his 11 Nov 07:32 IST phone purchase was a different path, the self-pay checkout), `[FU-PACKS-FIRSTBUY-SKELETON-FILL]` (parked), `[FU-PACKS-SIGNEDIN-CLS-MEASURE]`, `[FU-ADS-SOLUTIONS-SITELINKS]` (owner to decide; the suggestion is "Class 10 CBQs + Step Marking" in place of "Class 10 CBQs + Solutions", and the policy risk of "Solutions" is flagged), `[FU-PACKS-PAPER-LINE-MERGE]`, `[FU-PACKS-CSS-BUDGET]`, `[FU-CBQ-SAMPLE-2-LIVE]`, `[FU-RESEND-PRO]` (about 14 Nov; then `GST_INVOICE_EMAIL_DAILY_CAP` 10 -> 30 on Railway), `[FU-PAINT-SHELL-1DEC-RECAPTURE]`, and `[FU-YT-DEMO-VIDEO]` (ON HOLD, owner). `LIMITS_ENFORCE` must stay ON in Railway.
+
+### [FU-SELF-PAY-ADMIN-ATTACH]
+
+OPEN, rare **[coordinator, handoff section 4 item 5; gh, `#1662`]**. There is no admin route to attach a stuck self-pay pack order to an account. After `#1662`, an order whose Razorpay record carries no usable phone or email stays `paid_unclaimed` with admin note `self_pay_no_usable_contact` (a failed contact read sets `self_pay_contact_read_failed`); it is claimable the moment an identifier is attached, so nothing is lost, but today the only fallback shown to the buyer is WhatsApp. The `void@razorpay.com` placeholder counts as no email. Touch points if picked up: `server/routes/guestPay.cjs` (`ensureSelfContact`, the claim and `attachOrder` path) and `PurchasesCard`. Money path: an Opus builder and an independent reviewer.
+
+### [FU-META-FROM-PARAM]
+
+OPEN, minor **[coordinator, ops log, `#1665`]**. The Meta pixel's `META_QUERY_KEEP` list does not include `from`, so Meta events are suppressed on the one landing `/packs?from=pay#my-packs` (the self-pay landing from `#1665`). Fix: add `from` to `META_QUERY_KEEP` so Meta sees that landing. Not started; it does not affect any student, only Meta attribution on a post-purchase page.
+
+### [FU-FORPARENTS-INP]
+
+OPEN **[gh, `#1663` body; coordinator]**. INP on /for-parents measured 536 ms and was NOT investigated or fixed in `#1663` (it was not measured by the builder; it needs a field or device trace). `#1663` improved only the late LCP of that page (route-chunk-only preloads). Next step: a device trace on the owner's phone or a field reading, then propose.
+
+### [FU-URGENCY-TILE-CLEANUP]
+
+OPEN, dated **[gh, `#1664` body; coordinator]**. The Mock Pack and Maths + Science Bundle tile line ("Sit your pre-board before your pre-board... or get it marked like a CBSE examiner with the Board Pass.") is NOT date-gated, unlike the countdown strip (hidden from 16 Feb 2027). Remove or reword it after 16 Feb 2027. Related, not built: the scorecard upgrade line and the sale-moment offers have no one-line slot for the countdown (the dense `OffersBlock`), so urgency is not shown there.
+
+### [FU-PACKS-SIGNEDIN-CLS]
+
+OPEN, measured **[gh, `#1667` and `#1664` bodies; coordinator]**. Signed-in /packs at 1280 reads CLS 0.116 on BOTH trunk and the `#1667` head (0.10-0.15 at desktop widths 1023-1440 on trunk and the `#1664` head); at 360 unthrottled 0, but 0.202 appears on both trunk and PR when the first paint precedes the app under 4x CPU and 4G (hero 115 -> 292 px). The cause is the pre-existing My packs arrival shift, not `#1667` or `#1664`. This is the measured follow-on of `[FU-PACKS-SIGNEDIN-CLS-MEASURE]` (the unverified signal from 9 Nov; its rule stands: measure at top level with a buffered `PerformanceObserver` and prove the instrument fires first) and of `[FU-PACKS-FIRSTBUY-SKELETON-FILL]`. Do not act before a top-level signed-in re-measure.
+
 ## 2026-11-09 (daily, evening; written 11 Nov) - #1657 - #1658 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `62f1483`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items come from the `#1658` body **[gh]** and the coordinator's 9 Nov evening handoff and ops log (`claude/HANDOFF_COFOUNDER_SESSION_2026-11-09_EVENING.md`) **[coordinator]**. No grading behaviour changed.*
