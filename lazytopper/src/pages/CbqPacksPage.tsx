@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { setSalesPageSurface } from "../analytics/analytics";
+import { currentSalesPageSurface, setSalesPageSurface } from "../analytics/analytics";
 import { preloadBuyChunks } from "../components/packs/PacksShop";
 import { Link, useLocation } from "react-router-dom";
 import PacksShop, { type PacksShopApi } from "../components/packs/PacksShop";
@@ -50,7 +50,10 @@ export default function CbqPacksPage() {
     setSalesPageSurface("cbq-packs");
     // F1: the Buy opens the pack pop-up and the checkout sheet, both lazy chunks: fetch them now (same specifiers, same chunks).
     if (isPacksClientEnabled()) preloadBuyChunks();
-    return () => setSalesPageSurface(null);
+    // N1: clear only our own value - on /cbq-packs -> /board-pass the arriving page has already set its own in its first render.
+    return () => {
+      if (currentSalesPageSurface() === "cbq-packs") setSalesPageSurface(null);
+    };
   }, []);
   const { search } = useLocation();
   // `?subject=maths|science` (and the one-tap `?buy=pack_cbq&t=science`) picks the switch in the FIRST render; default Maths.

@@ -16,6 +16,7 @@ export default function SalesStickyBar({
   onGo,
   ariaLabel,
   testId,
+  copyKey,
 }: {
   watch: readonly string[];
   footerSelector?: string;
@@ -24,6 +25,8 @@ export default function SalesStickyBar({
   onGo: () => void;
   ariaLabel: string;
   testId: string;
+  /** N5: changes whenever the copy's source changes (/board-pass: the hero Pay's label); the bar re-reads its copy at once. */
+  copyKey?: string | null;
 }) {
   const [text, setText] = useState<{ label: string; button: string } | null>(null);
   const [hidden, setHidden] = useState(true);
@@ -61,6 +64,13 @@ export default function SalesStickyBar({
     // The ids and the copy reader are fixed for the bar's life.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // N5: the copy's source changed (a pack credit renamed the hero Pay): re-read now, not on the next scroll.
+  useEffect(() => {
+    const next = copy();
+    setText((was) => (was && next && was.label === next.label && was.button === next.button ? was : next));
+    // `copy` is a fresh closure each render; `copyKey` is what says its answer changed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [copyKey]);
   if (!text || hidden) return null;
   return (
     <div className="lt-stickybar" data-testid={testId} data-mode="pass" role="region" aria-label={ariaLabel}>

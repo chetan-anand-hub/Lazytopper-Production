@@ -79,6 +79,21 @@ function salesSurface(): { surface: string } | Record<string, never> {
   return s ? { surface: s } : {};
 }
 
+/**
+ * PRICING-PAGES-2 N2 - the page each pack's checkout STARTED on (sku -> surface, null = not a sales page), captured at
+ * `pack_checkout`. A purchase confirmed later (a pending order the shop keeps polling after the student moved on) reports the page it
+ * started on, not the page open when it settles. A purchase with no recorded start (none in this tab) uses the page open now.
+ */
+const checkoutStartedOn = new Map<string, string | null>();
+function purchaseSurface(sku: string): { surface: string } | Record<string, never> {
+  const s = checkoutStartedOn.has(sku) ? checkoutStartedOn.get(sku) ?? null : currentSalesPageSurface();
+  return s ? { surface: s } : {};
+}
+/** Test seam: forget the recorded checkout starts. */
+export function __resetPackCheckoutStartsForTests(): void {
+  checkoutStartedOn.clear();
+}
+
 /** `pack_view` (page opened) and `pack_download` (a file saved). `sku` is the pack kind, never an id. `surface` (pack_view only) says which page. */
 export function trackPackEvent(name: "pack_view" | "pack_download", sku?: PackSkuName, surface?: PackViewSurface): void {
   try {
@@ -142,6 +157,7 @@ export function trackPackCheckout(details: PackCheckoutDetails, ctx: { signedIn?
       ...(ctx.from ? { from: ctx.from } : {}),
       ...salesSurface(),
     };
+    checkoutStartedOn.set(details.sku, currentSalesPageSurface());
     sendAnalyticsHit("event", { name: "pack_checkout", data: { ...money, sku: details.sku, ...who } }, { ga4: { ...money, sku: details.sku, ...who } });
     sendGa4Only("begin_checkout", { ...money, items: [packItem(details)], ...who });
   } catch {
@@ -156,7 +172,7 @@ export function trackPackPurchase(details: PackCheckoutDetails & { transactionId
     if (!id || purchaseSentMemory.has(id) || readPurchaseSent().includes(id)) return;
     rememberPurchaseSent(id);
     const money = packMoney(details);
-    const where = salesSurface();
+    const where = purchaseSurface(details.sku);
     sendAnalyticsHit("event", { name: "pack_purchase", data: { ...money, sku: details.sku, ...where } }, { ga4: { ...money, sku: details.sku, ...where }, meta: { ...money, ...where } });
     sendGa4Only("purchase", {
       transaction_id: id,

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
 import { TRIAL_DAYS } from "../services/subscriptionService";
-import { setSalesPageSurface, trackNamedEvent, trackPaywallAction } from "../analytics/analytics";
+import { currentSalesPageSurface, setSalesPageSurface, trackNamedEvent, trackPaywallAction } from "../analytics/analytics";
 import { isPaymentsClientEnabled } from "../services/checkout";
 import { isParentPayClientEnabled } from "../services/parentPay";
 import { isCheckoutWhoClientEnabled } from "../services/checkoutWhoFlag";
@@ -208,7 +208,10 @@ export default function BoardPassPage() {
     // F1: a signed-out Pay opens the "Buy for yourself" sheet, a lazy chunk fetched only at the tap. Fetch it as the page mounts
     // (the same specifier PassCheckout's lazy() uses, so the same chunk, once). Nothing is opened or ordered.
     if (isPaymentsClientEnabled() && isCheckoutWhoClientEnabled()) void import("../components/checkoutWho/CheckoutSheet").catch(() => undefined);
-    return () => setSalesPageSurface(null);
+    // N1: clear only our own value - on /board-pass -> /cbq-packs the arriving page has already set its own in its first render.
+    return () => {
+      if (currentSalesPageSurface() === "board-pass") setSalesPageSurface(null);
+    };
   }, []);
   const heroPayLabel = useHeroPayLabel();
   const navigate = useNavigate();
@@ -406,6 +409,7 @@ export default function BoardPassPage() {
             watch={[BP_PAY_HERO_TESTID, BP_PAY_SECOND_TESTID]}
             copy={() => boardPassStickyCopy(boardPassPriceDisplay(), payAmountOf(heroPayLabelNow()) ?? boardPassPayDisplay())}
             onGo={payFromHero}
+            copyKey={heroPayLabel}
             ariaLabel={`${BOARD_PASS_NAME} shortcut`}
             testId="bp-sticky"
           />
