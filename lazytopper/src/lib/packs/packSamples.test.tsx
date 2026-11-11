@@ -139,7 +139,7 @@ describe("/packs", () => {
       </MemoryRouter>,
     );
 
-  it("every pack tile has a sample link beside (not inside) the tile button, and so do both CBQ tiles", () => {
+  it("every pack tile has a sample link beside (not inside) the tile button (the CBQ samples moved with the CBQ card to /cbq-packs)", () => {
     page();
     for (const id of ["chapter", "mock", "subject", "bundle"]) {
       const tile = screen.getByTestId(`packs-card-${id}`);
@@ -148,20 +148,17 @@ describe("/packs", () => {
     }
     expect(hrefOf("lazytopper-sample-chapter-maths")).toBe("/samples/lazytopper-sample-chapter-maths.pdf");
     expect(hrefOf("lazytopper-sample-bundle")).toBe("/samples/lazytopper-sample-bundle.pdf");
-    expect(hrefOf("lazytopper-sample-cbq-maths")).toBe("/samples/lazytopper-sample-cbq-maths.pdf");
-    fireEvent.click(screen.getByTestId("cbq-subject-science"));
-    expect(hrefOf("lazytopper-sample-cbq-science")).toBe("/samples/lazytopper-sample-cbq-science.pdf");
-    fireEvent.click(screen.getByTestId("cbq-subject-maths"));
+    // PACKS-TIDY-2: no CBQ sample on /packs (CbqPacksPage.test pins it on /cbq-packs).
+    expect(screen.queryByTestId("pack-sample-lazytopper-sample-cbq-maths")).toBeNull();
     // subject-less tiles offer BOTH subjects (never a hard-coded Maths under a generic label); the bundle has one file, labelled
     // PACKS-TIDY-1: the Chapter Pack still offers both; Subject and Mock rows have a Maths / Science switch and ONE sample for the chosen subject.
     const chapterCell = screen.getByTestId("packs-card-chapter").parentElement as HTMLElement;
     expect(chapterCell.textContent).toContain("Free sample:");
     expect(hrefOf("lazytopper-sample-chapter-science")).toBe("/samples/lazytopper-sample-chapter-science.pdf");
     expect(chapterCell.querySelectorAll("a.lt-psl")).toHaveLength(2);
+    fireEvent.click(screen.getByTestId("packs-subject-science")); // PACKS-TIDY-2: ONE switch for both rows
     for (const kind of ["mock", "subject"]) {
       const cell = screen.getByTestId(`packs-card-${kind}`).parentElement as HTMLElement;
-      expect(cell.querySelectorAll("a.lt-psl"), kind).toHaveLength(1);
-      fireEvent.click(screen.getByTestId(`packs-subject-${kind}-science`));
       expect(cell.querySelectorAll("a.lt-psl"), kind).toHaveLength(1);
       expect(hrefOf(`lazytopper-sample-${kind}-science`), kind).toBe(`/samples/lazytopper-sample-${kind}-science.pdf`);
     }
@@ -170,9 +167,6 @@ describe("/packs", () => {
     expect(sampleEvent).toHaveBeenCalledWith("pack_mock:science", "packs_tile");
     fireEvent.click(screen.getByTestId("pack-sample-lazytopper-sample-bundle"));
     expect(sampleEvent).toHaveBeenCalledWith("pack_bundle:all", "packs_tile");
-    fireEvent.click(screen.getByTestId("cbq-subject-science"));
-    fireEvent.click(screen.getByTestId("pack-sample-lazytopper-sample-cbq-science"));
-    expect(sampleEvent).toHaveBeenCalledWith("pack_cbq:science", "packs_cbq");
   });
 
   it("the sample link is secondary: it comes after the buy / open control in its cell", () => {

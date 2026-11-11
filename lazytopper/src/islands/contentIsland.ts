@@ -173,7 +173,11 @@ export const PEEK_UPGRADE_FRACTION = 0.25;
 export const PEEK_UPGRADE_DWELL_MS = 8_000;
 
 /** Full-page navigation (an object so the tests can observe it). */
-export const nav = { go: (url: string): void => window.location.assign(url) };
+export const nav = {
+  go: (url: string): void => window.location.assign(url),
+  /** PACKS-TIDY-2: a redirect that replaces the history entry (/packs#cbq -> /cbq-packs). */
+  replace: (url: string): void => window.location.replace(url),
+};
 
 const ACTIONABLE = 'a[href], button, input, select, textarea, summary, label, [role="button"], [role="tab"]';
 const BUSY_CLASS = "lt-island-busy";
@@ -260,6 +264,17 @@ const toggleState = new Map<string, { d: Descriptor; open: boolean; kind: Toggle
 const typed = new Map<string, string>();
 /** SPEED-ISLANDS-2: dropdown choices (the Important Questions topic filter, the NCERT Hub chapter), by select id. */
 const chosen = new Map<string, string>();
+/**
+ * PACKS-TIDY-2: radio choices made on the static page (the /packs Maths / Science switch), by group name. Without this the app's
+ * switch came up on its own default, so a Science tap followed by an early Buy bought Maths. Only opted-in radios (below).
+ */
+const radios = new Map<string, string>();
+/**
+ * Opt-in: only radios inside an element carrying this attribute are replayed (today: /packs' switch, whose Buy boxes have
+ * subject-independent `data-lt-twin` keys, so the held tap lands on the Buy of the replayed subject). A page whose twin keys name the
+ * subject (/cbq-packs: `cq-buy-maths`) must not opt in, or a replayed switch would hide its held tap's twin.
+ */
+export const RADIO_REPLAY_ATTR = "data-lt-radio-replay";
 
 function noteRoots(): Element[] {
   return [...document.querySelectorAll(".lt-note")].filter((el) => !isReactOwned(el));
@@ -804,6 +819,17 @@ async function find(d: Descriptor, until: (el: HTMLElement) => boolean = () => t
   }
 }
 
+/**
+ * PACKS-TIDY-2 - the radio choices made on the static page, into the app's radios of the same group and value (React-controlled: a
+ * click reaches onChange). Idempotent; nothing recorded -> nothing done.
+ */
+export function replayRadios(): void {
+  for (const [name, value] of radios) {
+    const radio = [...(appRoot()?.querySelectorAll<HTMLInputElement>(`input[type="radio"][name="${cssString(name)}"]`) ?? [])].find((r) => r.value === value);
+    if (radio && isReactOwned(radio) && !radio.disabled && !radio.checked) radio.click();
+  }
+}
+
 /** Put the visitor's state (tabs, toggles, details, typed answers) into the app. Idempotent. */
 async function replayState(findTimeoutMs: number): Promise<void> {
   // 1. Tabs.
@@ -832,6 +858,8 @@ async function replayState(findTimeoutMs: number): Promise<void> {
     setter?.call(input, value);
     input.dispatchEvent(new Event("input", { bubbles: true }));
   }
+  // 3b. PACKS-TIDY-2: radio choices.
+  replayRadios();
   // 4. Dropdown choices (React-controlled selects: the native setter + a change event reaches onChange). The app may
   //    render the select a moment after its route mark (data-driven options): wait for it as for a held tap.
   const pick = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value")?.set;
@@ -947,6 +975,7 @@ export function __resetIslandForTests(): void {
   toggleState.clear();
   typed.clear();
   chosen.clear();
+  radios.clear();
 }
 
 /* ------------------------------------------------------------------ events */
@@ -1031,6 +1060,14 @@ function onInput(event: Event): void {
  * the choice is recorded, the app is loaded, and the choice is replayed into it (`replayState` step 4).
  */
 function onChange(event: Event): void {
+  const target = event.target;
+  // PACKS-TIDY-2: a radio switch on the static page (its native control already shows the choice): record it and load the app,
+  // which receives it in replayState (3b) before any held tap completes.
+  if (!finished && target instanceof HTMLInputElement && target.type === "radio" && target.name && !isReactOwned(target) && target.closest(`[${RADIO_REPLAY_ATTR}]`)) {
+    radios.set(target.name, target.value);
+    if (!failed) upgrade();
+    return;
+  }
   const select = event.target;
   if (finished || !(select instanceof HTMLSelectElement) || isReactOwned(select) || !select.id) return;
   chosen.set(select.id, select.value);
@@ -1195,6 +1232,9 @@ export function appViewRequested(loc: { pathname: string; search: string; hash: 
     // hash (#my-packs, #cbq: the app scrolls and shows the signed-out / owned states) is the app's to render at once.
     // utm_* and other tracking params do NOT change the view (the ad landing carries them).
     if (has("buy") || has("t") || has("from")) return true;
+    // PACKS-TIDY-2: the page's ONE Maths / Science switch reads ?subject= (and ?mock= / ?chapter=, as /cbq-packs does): the served
+    // view is Maths, so a visit naming a subject gets the app at once (never Maths first, then a switch).
+    if (has("subject") || has("mock") || has("chapter")) return true;
     return loc.hash.replace(/^#/, "") !== "";
   }
   if (loc.pathname === "/board-pass") {
@@ -1214,6 +1254,30 @@ export function appViewRequested(loc: { pathname: string; search: string; hash: 
     return topic !== "" && topic !== "all";
   }
   return false;
+}
+
+/**
+ * PACKS-TIDY-2 - `/packs#cbq` -> /cbq-packs, the island's copy of lib/packs/cbqRedirect.ts `cbqRedirectTarget` (the app's PacksPage
+ * uses that one). A COPY on purpose: importing the shared module made Rollup split it into its own chunk, one more request chained
+ * behind the island's script on every island page. contentIsland.packsTidy.test.ts runs both on the same table of URLs.
+ */
+export function islandCbqRedirect(loc: { pathname: string; search: string; hash: string }): string | null {
+  if (loc.pathname !== "/packs" || loc.hash.toLowerCase() !== "#cbq") return null;
+  let q: URLSearchParams;
+  try {
+    q = new URLSearchParams(loc.search);
+  } catch {
+    q = new URLSearchParams();
+  }
+  if (["buy", "pack", "chapter", "mock", "view"].some((k) => q.has(k))) return null;
+  const out = new URLSearchParams();
+  const subject = [q.get("subject"), q.get("t")].find((v) => v === "maths" || v === "science");
+  if (subject) out.set("subject", subject);
+  q.forEach((value, key) => {
+    if (/^(utm_[a-z_]{1,32}|gclid|gbraid|wbraid|fbclid|msclkid|from)$/.test(key) && !out.has(key) && value.length <= 200) out.set(key, value);
+  });
+  const search = out.toString();
+  return `/cbq-packs${search ? `?${search}` : ""}`;
 }
 
 /* ------------------------------------------------------------------ signed in? (rule a) */
@@ -1312,6 +1376,13 @@ function injectBusyStyle(): void {
 export async function boot(): Promise<void> {
   config = readConfig();
   if (!config) return;
+  // PACKS-TIDY-2: the CBQ Packs' block left /packs; a `/packs#cbq` link lands on /cbq-packs in one step (replace, before anything
+  // here is wired). Any other page or hash: null, nothing happens.
+  const cbq = islandCbqRedirect(window.location);
+  if (cbq) {
+    nav.replace(cbq);
+    return;
+  }
   setState("island");
   injectBusyStyle();
   listen(document, "click", onClick as (e: Event) => void, { capture: true });
