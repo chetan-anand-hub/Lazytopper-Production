@@ -9,7 +9,7 @@ import { premiumOffer, premiumShortLine } from "../pricing/boardPassOffer";
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
 import { isPaymentsClientEnabled } from "../../services/checkout";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
-import { trialAskRouteAllowed } from "./trialAskRoutes";
+import { notePaidLanding, trialAskRouteAllowed } from "./trialAskRoutes";
 import { TRIAL_BANNER_FIRST_DAY, TRIAL_BAR_FIRST_DAY, istDayKeyOf, trialBannerTiming } from "./trialEndBannerModel";
 
 /**
@@ -80,7 +80,8 @@ const BAR_CSS = `
 export default function TrialCountdownBar() {
   const { user } = useAuth();
   const sub = useSubscription();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  notePaidLanding(search); // SELF-PAY-LAND-1
   const uid = user && !user.isLocalSession ? user.uid : null;
   const eligible = Boolean(uid) && sub.hydrated && sub.isTrialActive && sub.status?.tier === "trial";
   const nowMs = eligible ? Date.now() : 0;

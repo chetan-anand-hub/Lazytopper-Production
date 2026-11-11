@@ -25,6 +25,7 @@ import {
   trialEndScreenSeen,
   writeTrialEndScreen,
 } from "./trialEndScreenModel";
+import { notePaidLanding } from "./trialAskRoutes";
 
 /**
  * TrialEndScreen — ASK-FIX-1, reworked by TRIAL-END-OFFER-1. "Your free week is over": on the first visit after the 7-day trial
@@ -247,6 +248,7 @@ export default function TrialEndScreen() {
   const sub = useSubscription();
   const { pathname, search } = useLocation();
   const uid = user && !user.isLocalSession ? user.uid : null;
+  notePaidLanding(search); // SELF-PAY-LAND-1: a just-paid buyer's landing is never covered
   const key = trialEndScreenKey({
     uid,
     hydrated: sub.hydrated,

@@ -194,7 +194,7 @@ describe("PAY-ACCOUNT-1 · client switch and share helpers", () => {
     expect(childShareText("Board Pass", { phone: "+919876543210", first: "phone" })).toContain("sign in with your mobile number");
     for (const t of [both]) expect(t).not.toMatch(/98765|a@b\.in/);
     expect(whatsappShareUrl("hi there")).toBe("https://wa.me/?text=hi%20there");
-    expect(landingPath("pack")).toBe("/packs#my-packs");
+    expect(landingPath("pack")).toBe("/packs?from=pay#my-packs");
     expect(landingPath("pass")).toBe("/");
   });
 });

@@ -8,7 +8,7 @@ import { trackPaywallAction, type PaywallSurface } from "../../analytics/analyti
 import { isPaymentsClientEnabled } from "../../services/checkout";
 import PaywallActions, { PAY_LABEL } from "../pricing/PaywallActions";
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
-import { trialAskRouteAllowed } from "./trialAskRoutes";
+import { notePaidLanding, trialAskRouteAllowed } from "./trialAskRoutes";
 import { istDayKeyOf } from "./trialEndBannerModel";
 import { trialEarlyStripDay, trialEarlyStripDayText, trialEarlyStripOfferText } from "./trialEarlyStripModel";
 import "./trialEarlyStrip.css";
@@ -51,7 +51,8 @@ export default function TrialEarlyStrip() {
   const isDesktop = useIsDesktop();
   const { user } = useAuth();
   const sub = useSubscription();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  notePaidLanding(search); // SELF-PAY-LAND-1
   const uid = user && !user.isLocalSession ? user.uid : null;
   const eligible = isDesktop && Boolean(uid) && sub.hydrated && sub.isTrialActive && sub.status?.tier === "trial";
   const nowMs = eligible ? Date.now() : 0;

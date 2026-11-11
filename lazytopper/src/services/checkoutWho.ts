@@ -98,8 +98,11 @@ export const MESSAGE_COPIED = "Message copied";
 export const CHILD_LOGIN_URL = "https://www.lazytopper.com/login";
 
 /** Where the buyer lands once signed in: My packs for a pack, Home for the Board Pass. Fixed internal paths. */
+/** SELF-PAY-LAND-1: My packs, marked `from=pay` so the trial-ended screen stays out of a just-paid buyer's way (trialAskRoutes). */
+export const PAID_PACKS_LANDING = "/packs?from=pay#my-packs";
+
 export function landingPath(kind: GuestItem["kind"]): string {
-  return kind === "pack" ? "/packs#my-packs" : "/";
+  return kind === "pack" ? PAID_PACKS_LANDING : "/";
 }
 
 /**
