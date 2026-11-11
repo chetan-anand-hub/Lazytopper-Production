@@ -227,9 +227,12 @@ describe("every host mount passes limitKey (the six surfaces, by call site)", ()
     expect(mounts(t)).toBe(3);
   });
   it("SurfaceHistory's stored re-open locks by its own surface (worksheet / CT / FM / C&I / QP)", () => {
-    const t = src("components/results/SurfaceHistory.tsx");
-    expect(t).toMatch(/limitKey=\{\{\s*kind: reopen\.surface,/);
-    expect(t).toMatch(/reopen\.surface === "quick-practice" \? practiceSetPaperKey\(reopen\.questionIds\) : reopen\.id/);
+    // SPEED-PH-1: the re-opened card moved verbatim into its own lazy chunk (SurfaceHistoryReopen.tsx);
+    // SurfaceHistory only hands it the record. The key logic is unchanged (record === the old `reopen`).
+    const t = src("components/results/SurfaceHistoryReopen.tsx");
+    expect(t).toMatch(/limitKey=\{\{\s*kind: record\.surface,/);
+    expect(t).toMatch(/record\.surface === "quick-practice" \? practiceSetPaperKey\(record\.questionIds\) : record\.id/);
+    expect(src("components/results/SurfaceHistory.tsx")).toMatch(/<ReopenedScorecard\s+record=\{reopen\}/);
   });
   it("the live and stored cards of one result use the SAME key (the surface code), so a re-open of the free one stays open", () => {
     expect(src("pages/ChapterTestPage.tsx")).toContain("resultKey: nomen.code");
