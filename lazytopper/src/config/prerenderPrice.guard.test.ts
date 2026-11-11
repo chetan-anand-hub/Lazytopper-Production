@@ -95,16 +95,25 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   if (/(^|\/)packs\.html$/.test(file)) {
     take(new RegExp(`class="lt-pk-bundle__amt">${AMT}`), () => "Maths + Science Bundle", () => packExp("Maths + Science Bundle"));
     take(new RegExp(`class="lt-pk-row__name">(${LABELS})</span><span class="lt-pk-row__price">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
-    // (the Bundle / Subject / Mock neutral buttons, ">Subject Pack · ₹199 + GST<", are claimed by the shared "<label> · <amt><" rule above)
-    take(new RegExp(`>Choose a chapter · ${AMT}<`), () => "Chapter Pack (neutral button)", () => packExp("Chapter Pack"));
-    take(new RegExp(`CBQs per subject · ${AMT} →`), () => "CBQ Pack (packs link card)", () => packExp("Maths CBQ Pack"));
+    // (the Bundle's neutral button, ">Maths + Science Bundle · ₹299 + GST<", is claimed by the shared "<label> · <amt><" rule above)
+    // v1.2 L2: a folded row's compact neutral button is its price alone, read with the row it sits in.
+    const neutralSku: Record<string, string> = { subject: "Subject Pack", mock: "Mock Pack" };
+    take(new RegExp(`data-testid="pk-buy-(subject|mock)-neutral">${AMT}<`), (m) => `${neutralSku[m[1]]} (neutral button)`, (m) => packExp(neutralSku[m[1]]));
+    // v1.2: the accessible names that carry a price (a compact button's "<Pack> · <price>", the CBQ link's full line).
+    take(new RegExp(`aria-label="(${LABELS}) · ${AMT}"`), (m) => `${m[1]} (accessible name)`, (m) => packExp(m[1]));
+    take(new RegExp(`aria-label="CBQ Packs · [^"·]*· ${AMT}\\.`), () => "CBQ Pack (packs link name)", () => packExp("Maths CBQ Pack"));
+    // v1.2 L3: the one-line CBQ link.
+    take(new RegExp(`CBQ Packs · ${AMT} per subject<`), () => "CBQ Pack (packs link card)", () => packExp("Maths CBQ Pack"));
     take(new RegExp(`their own page, ${AMT} per subject`), () => "CBQ Pack (packs FAQ)", () => packExp("Maths CBQ Pack"));
     const twinSku: Record<string, PackSku> = { bundle: "pack_bundle", subject: "pack_subject", mock: "pack_mock", chapter: "pack_chapter" };
-    for (const m of html.matchAll(/data-lt-twin="pk-buy-(\w+)"[\s\S]*?<span class="lt-ptb__gst">(₹[\d,]+ \+ ₹[\d,]+ GST \(18%\) = ₹[\d,]+)</g)) {
-      const sku = twinSku[m[1]];
-      const start = m.index! + m[0].lastIndexOf(m[2]);
-      for (const t of m[2].matchAll(/₹/g)) claimed.add(start + t.index!);
-      found.push({ file, product: `${sku ?? m[1]} (GST breakup)`, shown: m[2], expected: (sku && packGstBreakdown(sku, now)) || "(unknown pack)" });
+    // The Bundle's breakup sits under its Buy (twin box); a row's (v1.2 L2) inside the opened row, marked with its sku.
+    for (const m of html.matchAll(/(?:data-lt-twin="pk-buy-(bundle)"[^>]*>(?:(?!data-lt-twin)[\s\S])*?<span class="lt-ptb__gst">|data-testid="tile-gst-pack_(\w+)">)(₹[\d,]+ \+ ₹[\d,]+ GST \(18%\) = ₹[\d,]+)</g)) {
+      const key = m[1] ?? m[2];
+      const line = m[3];
+      const sku = twinSku[key];
+      const start = m.index! + m[0].lastIndexOf(line);
+      for (const t of line.matchAll(/₹/g)) claimed.add(start + t.index!);
+      found.push({ file, product: `${sku ?? key} (GST breakup)`, shown: line, expected: (sku && packGstBreakdown(sku, now)) || "(unknown pack)" });
     }
   }
   // PRICING-PAGES-1: the two dedicated sales pages (only there: /pricing carries the same Pay markup and is not a scanned page).
@@ -231,12 +240,13 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     const after = new Date(GST_EXCLUSIVE_FROM_MS + 1);
     const html =
       `<span class="lt-pk-row__name">Mock Pack</span><span class="lt-pk-row__price">₹98 + GST</span>` +
-      `<div data-lt-twin="pk-buy-mock"><button>Mock Pack · ₹98 + GST</button><span class="lt-ptb__gst">₹98 + ₹18 GST (18%) = ₹116</span></div>`;
+      `<p class="lt-pk-row__gst" data-testid="tile-gst-pack_mock">₹98 + ₹18 GST (18%) = ₹116</p>` +
+      `<div data-lt-twin="pk-buy-mock"><button data-testid="pk-buy-mock-neutral">₹98 + GST</button></div>`;
     const r = scanSnapshot("packs.html", html, after, predictCbseExamDate("10"));
     expect(r.unclaimed).toEqual([]);
     expect(mismatchMessages(r.found)).toHaveLength(3);
-    // the /packs-only extractors (row price, GST breakup) read nothing on another page; only the shared "<label> · <amt><" rule does
-    expect(scanSnapshot("pricing.html", html, after, predictCbseExamDate("10")).found.map((f) => f.product)).toEqual(["Mock Pack"]);
+    // the /packs-only extractors (row price, GST breakup, compact neutral button) read nothing on another page
+    expect(scanSnapshot("pricing.html", html, after, predictCbseExamDate("10")).found).toHaveLength(0);
   });
 
   it("MUTATION PROOF: a changed pack price is caught", () => {
