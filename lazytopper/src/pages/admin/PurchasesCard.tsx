@@ -49,10 +49,12 @@ export function whoLine(w: WhoFields): string {
       ? " · NOTE: phone and email are two different accounts; the first-entered one got it"
       : w.adminNote === "second_identifier_not_linked"
         ? " · NOTE: only one of phone / email had an account; the other was NOT linked to it (the student can link it after verifying)"
+        : w.adminNote === "self_pay_no_usable_contact" && !w.claimedBy
+          ? " · NOTE: paid via Buy for yourself, but Razorpay's record had no Indian mobile and no email - attach it to the student by hand"
         : w.adminNote === "account_not_created" && !w.claimedBy
           ? " · account not created (waiting for the student's sign-in)"
           : "";
-  return `For ${ids} · ${payer}${landed}${note}`;
+  return `For ${ids || "(no contact on the payment)"} · ${payer}${landed}${note}`;
 }
 
 function WhoRow({ w, id }: { w: WhoFields; id: string }) {

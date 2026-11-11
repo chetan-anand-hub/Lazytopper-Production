@@ -7,6 +7,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   alreadyCoveredLine,
   buyForRecipient,
+  buyForSelf,
+  createSelfOrder,
+  readSelfContact,
+  isCheckoutSelfClientEnabled,
   createWhoOrder,
   detectIdentifier,
   isCheckoutWhoClientEnabled,
@@ -19,6 +23,7 @@ import {
   selfLine,
   whoPrefill,
   WHO_UNAVAILABLE,
+  type SelfBuyDeps,
   type WhoBuyDeps,
 } from "./checkoutWho";
 import { alsoSignInLine, maskEmail as flagMaskEmail } from "./checkoutWhoFlag";
@@ -191,5 +196,81 @@ describe("PAY-ACCOUNT-1 · client switch and share helpers", () => {
     expect(whatsappShareUrl("hi there")).toBe("https://wa.me/?text=hi%20there");
     expect(landingPath("pack")).toBe("/packs#my-packs");
     expect(landingPath("pass")).toBe("/");
+  });
+});
+
+describe("CHECKOUT-SELF-2 - Buy for yourself (the browser half)", () => {
+  const SUCCESS = { razorpay_order_id: "order_1", razorpay_payment_id: "pay_1", razorpay_signature: "s" };
+  function selfDeps(over: Partial<SelfBuyDeps> = {}, success: unknown = SUCCESS) {
+    const opened: Array<Record<string, unknown>> = [];
+    const Razorpay = class {
+      opts: Record<string, unknown>;
+      constructor(o: Record<string, unknown>) {
+        this.opts = o;
+        opened.push(o);
+      }
+      open() {
+        const o = this.opts as { handler: (s: unknown) => void; modal: { ondismiss: () => void } };
+        if (success) o.handler(success);
+        else o.modal.ondismiss();
+      }
+    };
+    const d: SelfBuyDeps = {
+      createOrder: vi.fn(async () => ({ orderId: "order_1", keyId: "k", amountPaise: 5800 })),
+      loadScript: async () => Razorpay as never,
+      verify: vi.fn(async () => ({ ok: true, selfContact: { phone: "+919876543210", email: "a@b.in", first: "phone" } })),
+      ...over,
+    };
+    return { d, opened };
+  }
+
+  it("flag: on with CHECKOUT_WHO, off with the kill switch or when the sheet itself is off", () => {
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
+    vi.stubEnv("VITE_CHECKOUT_SELF_DISABLED", "");
+    expect(isCheckoutSelfClientEnabled()).toBe(true);
+    vi.stubEnv("VITE_CHECKOUT_SELF_DISABLED", "1");
+    expect(isCheckoutSelfClientEnabled()).toBe(false);
+    vi.stubEnv("VITE_CHECKOUT_SELF_DISABLED", "");
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "");
+    expect(isCheckoutSelfClientEnabled()).toBe(false);
+  });
+
+  it("the order body is sku (+ target) + self:true: no amount, no phone, no email, no recipient", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ ok: true, orderId: "order_1", keyId: "k", amountPaise: 5800 }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    expect(await createSelfOrder(CBQ)).toEqual({ orderId: "order_1", keyId: "k", amountPaise: 5800 });
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("/api/pay/guest/order");
+    expect(JSON.parse(String(init.body))).toEqual({ sku: "pack_cbq", target: "maths", self: true });
+  });
+
+  it("paid: Razorpay opens with the server amount and NO prefill; the contact is what the SERVER read off the payment", async () => {
+    const { d, opened } = selfDeps();
+    const out = await buyForSelf(CBQ, d);
+    expect(out).toEqual({ status: "paid", confirmed: true, contact: { phone: "+919876543210", email: "a@b.in", first: "phone" }, amountInr: 58, paymentId: "pay_1" });
+    expect(opened[0].amount).toBe(5800);
+    expect(opened[0].prefill).toBeUndefined();
+    expect(opened[0].readonly).toBeUndefined();
+  });
+
+  it("outcomes: dismissed; verify fails -> paid unconfirmed with no contact; nothing usable -> contact null; failures map", async () => {
+    expect(await buyForSelf(CBQ, selfDeps({}, null).d)).toEqual({ status: "dismissed" });
+    expect(await buyForSelf(CBQ, selfDeps({ verify: vi.fn(async () => { throw new Error("x"); }) }).d)).toMatchObject({ status: "paid", confirmed: false, contact: null });
+    expect(await buyForSelf(CBQ, selfDeps({ verify: vi.fn(async () => ({ ok: true, selfContact: null })) }).d)).toMatchObject({ confirmed: true, contact: null });
+    for (const [status, body, want] of [
+      [409, { ok: false, error: "payment_unavailable" }, "unavailable"],
+      [409, { ok: false, error: "payment_rejected", reason: "self_requires_signed_out" }, "failed"],
+      [500, { ok: false }, "failed"],
+    ] as const) {
+      vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(body), { status })));
+      expect(await buyForSelf(CBQ, { ...selfDeps().d, createOrder: createSelfOrder })).toEqual({ status: want });
+    }
+  });
+
+  it("readSelfContact re-validates the shape: phone / email / both, junk -> null", () => {
+    expect(readSelfContact({ phone: "+919876543210", first: "phone" })).toEqual({ phone: "+919876543210", first: "phone" });
+    expect(readSelfContact({ email: "A@B.in", first: "email" })).toEqual({ email: "a@b.in", first: "email" });
+    expect(readSelfContact({ phone: "+919876543210", email: "a@b.in", first: "email" })).toEqual({ phone: "+919876543210", email: "a@b.in", first: "email" });
+    for (const bad of [null, undefined, 5, {}, { phone: "123" }, { email: "nope" }]) expect(readSelfContact(bad)).toBeNull();
   });
 });

@@ -14,6 +14,20 @@ export function isCheckoutWhoClientEnabled(): boolean {
 }
 
 /**
+ * CHECKOUT-SELF-2 - kill switch for the signed-out "Buy for yourself" first screen (the identifier box becomes the secondary
+ * link). ON whenever the "Who will use it?" sheet is; VITE_CHECKOUT_SELF_DISABLED=1 restores the identifier box as the first
+ * screen. The server has its own (CHECKOUT_SELF_DISABLED).
+ */
+export function isCheckoutSelfClientEnabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_CHECKOUT_SELF_DISABLED;
+    return isCheckoutWhoClientEnabled() && !/^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
+
+/**
  * PAY-ACCOUNT-1 - the client switch VITE_PAY_AUTO_ACCOUNT_ENABLED ("pay first, the account is made for them": the thank-you
  * screen opens the account or sends it to the child). Needs CHECKOUT-WHO on too. The server has its own switch
  * (PAY_AUTO_ACCOUNT_ENABLED); BOTH are needed. Off -> the CHECKOUT-WHO thank-you screen, unchanged.

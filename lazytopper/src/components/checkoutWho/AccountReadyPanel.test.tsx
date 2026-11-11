@@ -33,6 +33,7 @@ function mountSheet(over: Partial<Parameters<typeof CheckoutSheet>[0]> = {}) {
     onSignInWithEmail: vi.fn(),
     onClose: vi.fn(),
     buy: vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "paid", confirmed: true, amountInr: 199, paymentId: "pay_1" })),
+    selfFirst: false, // these tests drive the identifier box (CHECKOUT-SELF-2: signed out now opens at "Buy for yourself" with the flag on)
     ...over,
   };
   render(<CheckoutSheet {...props} />);

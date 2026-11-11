@@ -6,6 +6,10 @@
  *
  *   SIGNED IN      "For: you · <masked own email/phone>" + "Pay ₹X" -> the caller's EXISTING signed-in checkout (one tap,
  *                  same Razorpay, same events). "Buying for someone else?" opens the box below.
+ *   SIGNED OUT     (CHECKOUT-SELF-2, owner 11 Nov 2026) "Buy for yourself": the price + one "Pay ₹X" -> Razorpay straight away; the server
+ *                  reads the buyer's mobile / email from the VERIFIED payment (never from here) and the purchase waits on /
+ *                  creates that account, so after paying: "sign in with that number / Google". "Buying for someone else?" is the
+ *                  secondary link to the box below. /for-parents (audience="parent") and VITE_CHECKOUT_SELF_DISABLED keep the box first.
  *   SIGNED OUT /   "Who will use it?" - ONE box for a mobile number or an email (detected), "+ Add their email / mobile too
  *   SOMEONE ELSE   (optional)", and a Pay button that reads back exactly what was typed. Server-priced guest order with a
  *                  recipient -> Razorpay -> server verify -> "Sign in with <masked> — the Board Pass is already there."
@@ -18,7 +22,15 @@ import { createPortal } from "react-dom";
 import { newCheckoutAttemptId, trackNamedEvent } from "../../analytics/analytics";
 import { trackGuestPurchase } from "../guestPay/GuestPaySheet";
 import { tenDigits, type GuestItem } from "../../services/guestPay";
+import { WHATSAPP_URL } from "../../config/socialProfiles";
 import {
+  SELF_HELP,
+  SELF_PAID_NO_CONTACT,
+  SELF_PAID_UNCONFIRMED,
+  SELF_TITLE,
+  buyForSelf,
+  isCheckoutSelfClientEnabled,
+  type SelfBuyOutcome,
   WHO_ADD_EMAIL,
   WHO_ADD_MOBILE,
   WHO_BAD_EMAIL,
@@ -93,10 +105,16 @@ export interface CheckoutSheetProps {
   startAt?: "other";
   /** Test seam. */
   buy?: (item: GuestItem, recipient: Recipient, signedIn: boolean) => Promise<WhoBuyOutcome>;
+  /** CHECKOUT-SELF-2 test seams: the "Buy for yourself" purchase, and the kill switch (default: the build flag). */
+  buySelf?: (item: GuestItem) => Promise<SelfBuyOutcome>;
+  selfFirst?: boolean;
 }
 
 type Step =
   | { name: "self" }
+  | { name: "selfOut"; error?: string; closed?: boolean }
+  | { name: "selfBusy" }
+  | { name: "paidSelf"; confirmed: boolean }
   | { name: "form"; error?: string; closed?: boolean }
   | { name: "busy" }
   | { name: "paid"; recipient: Recipient; confirmed: boolean }
@@ -117,9 +135,13 @@ export default function CheckoutSheet({
   audience,
   startAt,
   buy = buyForRecipient,
+  buySelf = buyForSelf,
+  selfFirst,
 }: CheckoutSheetProps) {
   const surfaceData = audience === "parent" ? ({ surface: "for_parents" } as const) : {};
-  const [step, setStep] = useState<Step>(signedIn && startAt !== "other" ? { name: "self" } : { name: "form" });
+  // CHECKOUT-SELF-2: signed out, student-side, not asked to open at the box -> "Buy for yourself" first.
+  const [selfOutFirst] = useState(() => !signedIn && startAt !== "other" && audience !== "parent" && (selfFirst ?? isCheckoutSelfClientEnabled()));
+  const [step, setStep] = useState<Step>(selfOutFirst ? { name: "selfOut" } : signedIn && startAt !== "other" ? { name: "self" } : { name: "form" });
   const [first, setFirst] = useState("");
   const [second, setSecond] = useState("");
   const [showSecond, setShowSecond] = useState(false);
@@ -130,7 +152,7 @@ export default function CheckoutSheet({
   useEffect(() => {
     if (shown.current) return;
     shown.current = true;
-    trackNamedEvent("guest_pay_option_shown", { recipient: signedIn && startAt !== "other" ? "self" : "other", ...surfaceData });
+    trackNamedEvent("guest_pay_option_shown", { recipient: (signedIn && startAt !== "other") || selfOutFirst ? "self" : "other", ...surfaceData });
   // `startAt` is a mount-time choice (the sheet is mounted fresh per open); it must not re-fire the once-only event.
   }, [signedIn]);
 
@@ -138,7 +160,7 @@ export default function CheckoutSheet({
     panelRef.current?.focus();
   }, [step.name]);
 
-  const busy = step.name === "busy";
+  const busy = step.name === "busy" || step.name === "selfBusy";
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !busy) onClose();
@@ -180,8 +202,65 @@ export default function CheckoutSheet({
     }
   }
 
+  async function paySelf() {
+    if (busy) return;
+    // The funnel stays comparable: guest_pay_start fires for BOTH paths (recipient "self" here, "other" for the box); the new
+    // event marks the new primary tap. Names + the path only - nothing about the buyer.
+    trackNamedEvent("guest_pay_self_start", { recipient: "self", ...surfaceData });
+    trackNamedEvent("guest_pay_start", { recipient: "self", ...surfaceData });
+    setStep({ name: "selfBusy" });
+    const attemptId = newCheckoutAttemptId();
+    const outcome = await buySelf(item);
+    if (outcome.status === "paid") {
+      trackNamedEvent("guest_pay_paid", { recipient: "self", ...surfaceData });
+      if (outcome.confirmed) trackGuestPurchase(item, outcome, attemptId);
+      setStep(outcome.contact ? { name: "paid", recipient: outcome.contact, confirmed: outcome.confirmed } : { name: "paidSelf", confirmed: outcome.confirmed });
+    } else if (outcome.status === "unavailable") {
+      setStep({ name: "unavailable" });
+    } else if (outcome.status === "dismissed") {
+      setStep({ name: "selfOut", closed: true });
+    } else {
+      setStep({ name: "selfOut", error: WHO_FAILED });
+    }
+  }
+
   let body;
-  if (step.name === "self") {
+  if (step.name === "selfOut" || step.name === "selfBusy") {
+    const selfError = step.name === "selfOut" ? step.error : undefined;
+    body = (
+      <>
+        <p className="lt-gps__line" data-testid="who-self-help">{SELF_HELP}</p>
+        {selfError && <p className="lt-gps__error" role="alert">{selfError}</p>}
+        {step.name === "selfOut" && step.closed && <p className="lt-gps__fine" role="status">{WHO_CLOSED}</p>}
+        <button type="button" className="lt-gps__primary" disabled={busy} data-testid="who-pay-self-out" onClick={() => void paySelf()}>
+          {busy ? "Opening payment…" : payReadBack(item.priceDisplay, "")}
+        </button>
+        <button type="button" className="lt-gps__textlink" disabled={busy} data-testid="who-someone-else" onClick={() => setStep({ name: "form" })}>
+          {WHO_SOMEONE_ELSE}
+        </button>
+        <button type="button" className="lt-gps__textlink" disabled={busy} onClick={onSignIn} data-testid="who-sign-in-first">
+          {WHO_HAVE_ACCOUNT}
+        </button>
+      </>
+    );
+  } else if (step.name === "paidSelf") {
+    body = (
+      <>
+        <p className="lt-gps__ok" role="status" data-testid="who-paid">Payment received ✓ {item.label}</p>
+        {step.confirmed ? (
+          <>
+            <p className="lt-gps__line" data-testid="who-paid-no-contact">{SELF_PAID_NO_CONTACT}</p>
+            <a className="lt-gps__primary" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" data-testid="who-paid-whatsapp">Message us on WhatsApp</a>
+          </>
+        ) : (
+          <>
+            <p className="lt-gps__line" data-testid="who-paid-unconfirmed">{SELF_PAID_UNCONFIRMED}</p>
+            <button type="button" className="lt-gps__primary" onClick={onSignInWithEmail} data-testid="who-signin">Sign in</button>
+          </>
+        )}
+      </>
+    );
+  } else if (step.name === "self") {
     body = (
       <>
         <p className="lt-gps__line" data-testid="who-self">{selfLine(selfMasked)}</p>
@@ -324,7 +403,7 @@ export default function CheckoutSheet({
     );
   }
 
-  const title = step.name === "paid" ? "Thank you" : step.name === "self" ? item.label : WHO_TITLE;
+  const title = step.name === "paid" || step.name === "paidSelf" ? "Thank you" : step.name === "self" ? item.label : step.name === "selfOut" || step.name === "selfBusy" ? SELF_TITLE : WHO_TITLE;
 
   return createPortal(
     <div className="lt-gps" data-testid="who-sheet" onClick={(e) => e.target === e.currentTarget && !busy && onClose()}>
@@ -332,13 +411,13 @@ export default function CheckoutSheet({
         <div className="lt-gps__head">
           <div>
             <h2 className="lt-gps__title" id="lt-who-title">{title}</h2>
-            {step.name !== "paid" && step.name !== "self" && (
+            {step.name !== "paid" && step.name !== "paidSelf" && step.name !== "self" && (
               <p className="lt-gps__item">
                 {item.label} · {item.priceDisplay}
               </p>
             )}
             {step.name === "self" && <p className="lt-gps__item">{selfPriceDisplay || item.priceDisplay}</p>}
-            {step.name !== "paid" && (step.name === "self" && selfPriceDisplay ? selfPriceNote : item.priceBreakdown) && (
+            {step.name !== "paid" && step.name !== "paidSelf" && (step.name === "self" && selfPriceDisplay ? selfPriceNote : item.priceBreakdown) && (
               <p className="lt-gps__fine" data-testid="who-gst-breakdown">
                 {step.name === "self" && selfPriceDisplay ? selfPriceNote : item.priceBreakdown}
               </p>

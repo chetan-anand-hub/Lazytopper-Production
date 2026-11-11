@@ -220,6 +220,7 @@ const EVENT_LABELS: Record<string, string> = {
   board_pass_direct_checkout: "Opened the Board Pass checkout straight from a Pay button",
   guest_pay_option_shown: "Was shown \"Pay now with your phone number\"",
   guest_pay_start: "Started paying with a phone number",
+  guest_pay_self_start: "Tapped Pay on \"Buy for yourself\" (before signing in)",
   guest_pay_paid: "Paid with a phone number (before signing in)",
   guest_pay_claimed: "Signed in and got a purchase paid with a phone number",
 };

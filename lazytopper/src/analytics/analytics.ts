@@ -1006,6 +1006,8 @@ export type NamedAnalyticsEvent =
   // PAY-PHONE-1 - pay first with a phone number, then sign in with the same number. Names only (never the number).
   | "guest_pay_option_shown"
   | "guest_pay_start"
+  // CHECKOUT-SELF-2 - the signed-out Buy-for-yourself primary Pay tap (guest_pay_start fires too, with recipient self). Name only.
+  | "guest_pay_self_start"
   | "guest_pay_paid"
   | "guest_pay_claimed";
 
