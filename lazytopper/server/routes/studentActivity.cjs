@@ -259,6 +259,7 @@ const ACTIVITY_EVENTS = Object.freeze([
   // PAY-PHONE-1 - pay first with a phone number, then sign in with it. Names only (never the number).
   'guest_pay_option_shown',
   'guest_pay_start',
+  'guest_pay_self_start',
   'guest_pay_paid',
   'guest_pay_claimed',
 ]);

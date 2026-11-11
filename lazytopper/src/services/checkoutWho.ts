@@ -19,7 +19,7 @@ import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normalis
 import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
-export { isCheckoutWhoClientEnabled, isPayAutoAccountClientEnabled } from "./checkoutWhoFlag";
+export { isCheckoutWhoClientEnabled, isPayAutoAccountClientEnabled, isCheckoutSelfClientEnabled } from "./checkoutWhoFlag";
 
 /* ── copy (owner prototype Checkout-Flow, 3 Nov 2026) ─────────────────────────── */
 
@@ -48,6 +48,14 @@ export const WHO_CLOSED = "Payment window closed. Tap Pay to try again.";
 export const WHO_UNAVAILABLE = "This can't be bought for that number or email right now. If the student already has it, they can sign in to check.";
 export const WHO_EMAILED = "We've emailed this to them too.";
 export const WHO_HAVE_ACCOUNT = "Have an account? Sign in first";
+
+/* ── CHECKOUT-SELF-2 (owner 11 Nov 2026): signed out, "Buy for yourself" comes first ─────────────────────────── */
+export const SELF_TITLE = "Buy for yourself";
+export const SELF_HELP = "Pay first. Then sign in with the same mobile number or email you give at payment to open it.";
+/** Razorpay itself asks for the mobile number (and email); LazyTopper reads them from the verified payment, never from this page. */
+export const SELF_PAID_NO_CONTACT =
+  "We couldn't read a mobile number or email from your payment, so we can't open it for you automatically. Your payment is safe: message us on WhatsApp and we will attach it to your account.";
+export const SELF_PAID_UNCONFIRMED = "We are still confirming it with the payment provider. Sign in with the mobile number or email you paid with; it will be there.";
 
 /** "For: you · an••••@gmail.com" (the signed-in student's own masked email or phone). */
 export function selfLine(masked: string | null): string {
@@ -280,6 +288,87 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
   } catch (e) {
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof WhoError && e.code !== "failed") return { status: e.code };
+    return { status: "failed" };
+  }
+}
+
+/* ── CHECKOUT-SELF-2: "Buy for yourself" - no identifier typed; the server reads the buyer's contact from the verified payment ── */
+
+export type SelfBuyOutcome =
+  /** `contact`: the buyer's mobile / email as the server read them off the verified payment (null = nothing usable, or not confirmed). */
+  | { status: "paid"; confirmed: boolean; contact: Recipient | null; amountInr?: number; paymentId?: string }
+  | { status: "dismissed" }
+  | { status: "unavailable" }
+  | { status: "failed" };
+
+export interface SelfBuyDeps {
+  createOrder: (item: GuestItem) => Promise<WhoOrder>;
+  loadScript: () => Promise<RazorpayConstructor>;
+  verify: (success: RazorpaySuccess) => Promise<Record<string, unknown>>;
+}
+
+/** Exported for tests. The body carries the SKU (+ target) and `self: true`; never an amount, a phone or an email. */
+export async function createSelfOrder(item: GuestItem): Promise<WhoOrder> {
+  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null) : {};
+  const json = await postJson(GUEST_ORDER_ENDPOINT, { sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), self: true, ...gst });
+  const { orderId, keyId, amountPaise } = json;
+  if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new WhoError("failed");
+  return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
+}
+
+async function verifySelfPayment(success: RazorpaySuccess): Promise<Record<string, unknown>> {
+  return postJson(GUEST_VERIFY_ENDPOINT, {
+    orderId: success.razorpay_order_id,
+    paymentId: success.razorpay_payment_id,
+    signature: success.razorpay_signature,
+  });
+}
+
+/** The server's `selfContact` -> a Recipient, re-validated here (shape only; the server decided what it is). Null when unusable. */
+export function readSelfContact(raw: unknown): Recipient | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as { phone?: unknown; email?: unknown; first?: unknown };
+  const phone = typeof r.phone === "string" ? normaliseIndianMobile(r.phone) : null;
+  const email = typeof r.email === "string" ? normaliseEmail(r.email) : null;
+  if (!phone && !email) return null;
+  return { ...(phone ? { phone } : {}), ...(email ? { email } : {}), first: phone && (r.first !== "email" || !email) ? "phone" : "email" };
+}
+
+const SELF_DEPS: SelfBuyDeps = { createOrder: createSelfOrder, loadScript: () => loadCheckoutScript(), verify: verifySelfPayment };
+
+/** Order (server-priced, no identifier) -> Razorpay (no prefill: it asks the buyer) -> server verify -> the contact it read. Never throws. */
+export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS): Promise<SelfBuyOutcome> {
+  try {
+    const [order, Razorpay] = await Promise.all([deps.createOrder(item), deps.loadScript()]);
+    if (!(await confirmServerPrice(order))) return { status: "dismissed" };
+    const success = await new Promise<RazorpaySuccess | null>((resolve) => {
+      const checkout = new Razorpay({
+        key: order.keyId,
+        amount: order.amountPaise,
+        currency: "INR",
+        order_id: order.orderId,
+        name: "LazyTopper",
+        description: razorpayDescription(item.description, order),
+        handler: (response) => resolve(response),
+        modal: { ondismiss: () => resolve(null) },
+      });
+      watchPaymentFailed(checkout, () => undefined);
+      checkout.open();
+    });
+    if (!success) return { status: "dismissed" };
+    const amountInr = order.amountPaise > 0 ? order.amountPaise / 100 : undefined;
+    const paymentId = typeof success.razorpay_payment_id === "string" && success.razorpay_payment_id ? success.razorpay_payment_id : undefined;
+    let confirmed = true;
+    let contact: Recipient | null = null;
+    try {
+      contact = readSelfContact((await deps.verify(success)).selfContact);
+    } catch {
+      confirmed = false; // Razorpay SIGNED a success: never "didn't go through"; the webhook records it and reads the contact.
+    }
+    return { status: "paid", confirmed, contact, ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}) };
+  } catch (e) {
+    if (isGstBuyerCancelled(e)) return { status: "dismissed" };
+    if (e instanceof WhoError && e.code !== "failed") return { status: e.code === "unavailable" || e.code === "already_covered" ? "unavailable" : "failed" };
     return { status: "failed" };
   }
 }

@@ -170,9 +170,9 @@ function fakeRazorpay() {
     }
     return reply(404, {});
   }
-  function pay(orderId, { id = `pay_${orderId}`, amount, status = 'captured', currency = 'INR' } = {}) {
+  function pay(orderId, { id = `pay_${orderId}`, amount, status = 'captured', currency = 'INR', contact, email } = {}) {
     const order = orders.get(orderId);
-    const p = { id, order_id: orderId, amount: amount === undefined ? order.amount : amount, currency, status };
+    const p = { id, order_id: orderId, amount: amount === undefined ? order.amount : amount, currency, status, ...(contact !== undefined ? { contact } : {}), ...(email !== undefined ? { email } : {}) };
     payments.set(id, p);
     return p;
   }
@@ -1792,4 +1792,301 @@ test('GST-EXCL-1 · receipt: an order with a stored breakup shows "₹1,917 + �
   // A breakup that does not add up to the amount charged is never printed.
   const wrong = buildReceiptEmail({ ...base, amountPaise: 191700, gst: { baseInr: 1917, gstInr: 345 } });
   assert.ok(!/GST/.test(wrong.text));
+});
+
+/* ══ SELF · CHECKOUT-SELF-2 "Buy for me": the signed-out buyer's contact is read from the VERIFIED payment ═══════════════
+ *
+ * ★ MUTATIONS (run against THIS file only, each shown red, each restored):
+ *   M11 guestPay.cjs ensureSelfContact takes the contact from the verify BODY instead of Razorpay's payment record
+ *        -> "SELF · the contact comes ONLY from Razorpay's record ..." red
+ *   M12 guestPay.cjs handleSelfOrder accepts a signed-in caller (drops the payerUidOf refusal)
+ *        -> "SELF · a signed-in caller ..." red
+ */
+const SELF_ENV = { ...AUTO_ENV };
+const selfOrder = (srv, body = {}, headers = {}) => request(srv.port, GUEST_ORDER_PATH, { body: { self: true, ...body }, headers });
+async function paidSelfOrder(srv, payOpts, body = { sku: 'pack_cbq', target: 'maths' }) {
+  const o = await selfOrder(srv, body);
+  assert.equal(o.status, 200, o.text);
+  const p = srv.rzp.pay(o.json.orderId, payOpts);
+  const v = await guestVerify(srv, o.json.orderId, p.id);
+  return { orderId: o.json.orderId, paymentId: p.id, order: o.json, verify: v };
+}
+
+test('SELF · order: no identifier is asked or stored; server price; kill switch and CHECKOUT_WHO both gate it', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const o = await selfOrder(srv, { sku: 'till_boards', amountPaise: 1, uid: 'x', phone: PHONE });
+  assert.equal(o.status, 200, o.text);
+  assert.equal(srv.rzp.orders.get(o.json.orderId).amount, o.json.amountPaise, 'the Razorpay order carries the server amount');
+  assert.notEqual(o.json.amountPaise, 1);
+  const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(stored.selfPay, true);
+  assert.equal(stored.checkoutWho, true);
+  assert.equal(stored.guestPhone, undefined, 'a body phone is not stored for a self order');
+  assert.equal(stored.guestEmail, undefined);
+  assert.equal(stored.uid, null);
+  assert.equal(JSON.stringify(srv.rzp.orders.get(o.json.orderId).notes).includes('+91'), false);
+  assert.equal((await selfOrder(srv, { sku: 'nope' })).status, 400);
+  assert.equal((await selfOrder(srv, { sku: 'pack_cbq', target: 'bad-target' })).status, 400);
+  // kill switch: a self body is then treated like a body with no phone (400/404), and no Razorpay order is made
+  const off = await startRoutes({ env: { ...SELF_ENV, CHECKOUT_SELF_DISABLED: '1' } });
+  t.after(off.close);
+  const before = off.rzp.calls.length;
+  assert.notEqual((await selfOrder(off, { sku: 'till_boards' })).status, 200);
+  assert.equal(off.rzp.calls.length, before);
+  // CHECKOUT_WHO off -> not available
+  const nowho = await startRoutes({ env: { ...ENV_ON } });
+  t.after(nowho.close);
+  assert.notEqual((await selfOrder(nowho, { sku: 'till_boards' })).status, 200);
+});
+
+test('SELF · a signed-in caller is refused (409): signed-in flows keep their own checkout', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const r = await selfOrder(srv, { sku: 'till_boards' }, whoAuth('uSignedIn', { phone: PHONE }));
+  assert.equal(r.status, 409);
+  assert.equal(srv.rzp.calls.length, 0);
+});
+
+test("SELF · the contact comes ONLY from Razorpay's record of the verified payment, never the verify body", async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const o = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths' });
+  const p = srv.rzp.pay(o.json.orderId, { contact: '+91 98765 43948', email: 'Anaya.K@Gmail.com' });
+  const v = await request(srv.port, GUEST_VERIFY_PATH, {
+    body: { orderId: o.json.orderId, paymentId: p.id, signature: checkoutSig(o.json.orderId, p.id), phone: OTHER_PHONE, recipient: { phone: OTHER_PHONE }, contact: OTHER_PHONE },
+  });
+  assert.equal(v.status, 200, v.text);
+  assert.deepEqual(v.json.selfContact, { phone: PHONE, email: EMAIL, first: 'phone' });
+  const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(stored.guestPhone, PHONE);
+  assert.equal(stored.guestEmail, EMAIL);
+  assert.equal(stored.recipientFirst, 'phone');
+  await srv.idle();
+  assert.ok(auth.created.every((u) => u.phoneNumber !== OTHER_PHONE));
+});
+
+test('SELF · phone only, email only, both: derived, first = phone when present', async (t) => {
+  const cases = [
+    [{ contact: '+919876543948' }, { phone: PHONE, first: 'phone' }],
+    [{ contact: '9876543948', email: 'ignored-not-an-email' }, { phone: PHONE, first: 'phone' }],
+    [{ email: 'Anaya.K@gmail.com' }, { email: EMAIL, first: 'email' }],
+    [{ contact: '+14155550100', email: 'anaya.k@gmail.com' }, { email: EMAIL, first: 'email' }],
+    [{ contact: '+919876543948', email: 'anaya.k@gmail.com' }, { phone: PHONE, email: EMAIL, first: 'phone' }],
+  ];
+  for (const [pay, want] of cases) {
+    const { srv } = await autoRoutes({ env: SELF_ENV });
+    t.after(srv.close);
+    const r = await paidSelfOrder(srv, pay);
+    assert.equal(r.verify.status, 200, r.verify.text);
+    assert.deepEqual(r.verify.json.selfContact, want, JSON.stringify(pay));
+  }
+});
+
+test('SELF · phone paid -> the account is made for that phone and the pack is delivered; a later phone sign-in finds it', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const { orderId } = await paidSelfOrder(srv, { contact: '+919876543948' });
+  await srv.idle();
+  const uid = autoAccountUid(orderId);
+  assert.deepEqual(auth.created, [{ uid, emailVerified: false, phoneNumber: PHONE }]);
+  assert.ok(srv.db.read(`packEntitlements/${uid}/packs/pack_cbq:maths`));
+  assert.equal(srv.db.read(`payOrders/${orderId}`).claimedVia, 'account_created');
+});
+
+test('SELF · PAY_AUTO_ACCOUNT off: the order waits paid_unclaimed and the buyer\'s verified phone sign-in claims it', async (t) => {
+  const { srv } = await autoRoutes({ env: { ...WHO_ENV } });
+  t.after(srv.close);
+  const { orderId, verify } = await paidSelfOrder(srv, { contact: '+919876543948' });
+  assert.equal(verify.json.selfContact.phone, PHONE);
+  await srv.idle();
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'paid_unclaimed');
+  assert.deepEqual(packDocs(srv.db), []);
+  const c = await claim(srv, whoAuth('uBuyer', { phone: PHONE }));
+  assert.equal(c.json.claimed.length, 1);
+  assert.ok(srv.db.read('packEntitlements/uBuyer/packs/pack_cbq:maths'));
+});
+
+test('SELF · email-only payment: claimable by the VERIFIED email (Google), not by an unverified one', async (t) => {
+  const { srv } = await autoRoutes({ env: { ...WHO_ENV } });
+  t.after(srv.close);
+  await paidSelfOrder(srv, { email: 'anaya.k@gmail.com' });
+  assert.deepEqual((await claim(srv, whoAuth('uA', { email: EMAIL, ev: false }))).json.claimed, []);
+  assert.equal((await claim(srv, whoAuth('uB', { email: EMAIL, ev: true }))).json.claimed.length, 1);
+});
+
+test('SELF · no usable contact (foreign number, no email): honest null, order stays paid_unclaimed with an admin note, nothing granted, no account, no lost grant', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const { orderId, verify } = await paidSelfOrder(srv, { contact: '+14155550100' });
+  assert.equal(verify.status, 200, verify.text);
+  assert.equal(verify.json.selfContact, null);
+  await srv.idle();
+  const stored = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(stored.status, 'paid_unclaimed');
+  assert.equal(stored.adminNote, 'self_pay_no_usable_contact');
+  assert.equal(stored.guestPhone, undefined);
+  assert.deepEqual(auth.created, []);
+  assert.deepEqual(packDocs(srv.db), []);
+  // a repeat verify answers the same and does not re-fetch / overwrite
+  const again = await guestVerify(srv, orderId, `pay_${orderId}`);
+  assert.equal(again.json.selfContact, null);
+  // the order is not claimable by an unrelated verified phone
+  assert.deepEqual((await claim(srv, whoAuth('uX', { phone: OTHER_PHONE }))).json.claimed, []);
+  // ...and once the owner attaches an identifier (admin), the existing claim path takes it
+  await srv.db.collection('payOrders').doc(orderId).set({ guestPhone: PHONE }, { merge: true });
+  assert.equal((await claim(srv, whoAuth('uY', { phone: PHONE }))).json.claimed.length, 1);
+});
+
+test('SELF · webhook only (verify never arrives): the contact is read from Razorpay, the account made, the pack delivered', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const o = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths' });
+  const p = srv.rzp.pay(o.json.orderId, { contact: '+919876543948' });
+  const w = await sendWebhook(srv, p);
+  assert.equal(w.status, 200, w.text);
+  await srv.idle();
+  const uid = autoAccountUid(o.json.orderId);
+  assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).guestPhone, PHONE);
+  assert.deepEqual(auth.created, [{ uid, emailVerified: false, phoneNumber: PHONE }]);
+  assert.ok(srv.db.read(`packEntitlements/${uid}/packs/pack_cbq:maths`));
+  // the late verify then replays the same contact
+  const v = await guestVerify(srv, o.json.orderId, p.id);
+  assert.equal(v.json.selfContact.phone, PHONE);
+});
+
+test('SELF · verify + webhook racing on one self order: ONE account, ONE grant', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const o = await selfOrder(srv, { sku: 'till_boards' });
+  const p = srv.rzp.pay(o.json.orderId, { contact: '+919876543948' });
+  await Promise.all([guestVerify(srv, o.json.orderId, p.id), sendWebhook(srv, p)]);
+  await srv.idle();
+  assert.equal(auth.created.length, 1);
+  assert.equal(srv.db.read(`subscriptions/${autoAccountUid(o.json.orderId)}`).tier, 'premium');
+});
+
+test('SELF · every payment check still applies: a bad signature, a wrong-amount payment, or an uncaptured one reads and attaches NOTHING', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const o = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths' });
+  const p = srv.rzp.pay(o.json.orderId, { contact: '+919876543948' });
+  assert.equal((await guestVerify(srv, o.json.orderId, p.id, 'ab'.repeat(32))).status, 400);
+  const o2 = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths' });
+  const p2 = srv.rzp.pay(o2.json.orderId, { contact: '+919876543948', amount: 100 });
+  assert.equal((await guestVerify(srv, o2.json.orderId, p2.id)).status, 400);
+  const o3 = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths' });
+  const p3 = srv.rzp.pay(o3.json.orderId, { contact: '+919876543948', status: 'failed' });
+  assert.notEqual((await guestVerify(srv, o3.json.orderId, p3.id)).status, 200);
+  for (const id of [o.json.orderId, o2.json.orderId, o3.json.orderId]) {
+    assert.equal(srv.db.read(`payOrders/${id}`).guestPhone, undefined);
+    assert.equal(srv.db.read(`payOrders/${id}`).status, 'created');
+  }
+  assert.deepEqual(auth.created, []);
+});
+
+test('SELF · an existing account with that phone gets it (never a second account); a duplicate is labelled, not swallowed', async (t) => {
+  const auth = fakeAuth({ users: [{ uid: 'uOld', phoneNumber: PHONE, emailVerified: false }] });
+  const { srv } = await autoRoutes({ env: SELF_ENV, auth });
+  t.after(srv.close);
+  const { orderId } = await paidSelfOrder(srv, { contact: '+919876543948' });
+  await srv.idle();
+  assert.deepEqual(auth.created, []);
+  assert.equal(srv.db.read(`payOrders/${orderId}`).uid, 'uOld');
+  assert.ok(srv.db.read('packEntitlements/uOld/packs/pack_cbq:maths'));
+  const second = await paidSelfOrder(srv, { contact: '+919876543948', id: 'pay_second' });
+  await srv.idle();
+  assert.equal(srv.db.read(`payOrders/${second.orderId}`).status, 'duplicate_purchase');
+});
+
+test('SELF · the old recipient order and phone order are untouched with the self path present', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const r = await paidWhoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE } });
+  assert.equal(srv.db.read(`payOrders/${r.orderId}`).selfPay, undefined);
+  assert.equal(r.verify.selfContact, undefined);
+});
+
+test('SELF · phone AND email on the payment: both are claim keys, no account is made at payment, ONE grant whichever sign-in comes first', async (t) => {
+  for (const order of ['phone-first', 'google-first']) {
+    const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+    t.after(srv.close);
+    const { orderId, verify } = await paidSelfOrder(srv, { contact: '+919876543948', email: 'anaya.k@gmail.com' });
+    assert.deepEqual(verify.json.selfContact, { phone: PHONE, email: EMAIL, first: 'phone' });
+    await srv.idle();
+    const stored = srv.db.read(`payOrders/${orderId}`);
+    assert.equal(stored.status, 'paid_unclaimed');
+    assert.equal(stored.guestPhone, PHONE);
+    assert.equal(stored.guestEmail, EMAIL);
+    assert.deepEqual(auth.created, [], 'no account made at payment');
+    const phoneSide = () => claim(srv, whoAuth('uPhone', { phone: PHONE }));
+    const googleSide = () => claim(srv, whoAuth('uGoogle', { email: EMAIL, ev: true }));
+    const [first, second] = order === 'phone-first' ? [phoneSide, googleSide] : [googleSide, phoneSide];
+    assert.equal((await first()).json.claimed.length, 1, order);
+    assert.deepEqual((await second()).json.claimed, [], `${order}: the other sign-in claims nothing`);
+    assert.equal(srv.db.keys('packEntitlements/').filter((k) => k.includes('/packs/pack_cbq:maths')).length, 1, 'exactly one grant');
+  }
+});
+
+test('SELF · precedence unchanged: phone only and email only still get their one account at payment', async (t) => {
+  for (const [pay, carried] of [[{ contact: '+919876543948' }, { phoneNumber: PHONE }], [{ email: 'anaya.k@gmail.com' }, { email: EMAIL }]]) {
+    const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+    t.after(srv.close);
+    const { orderId } = await paidSelfOrder(srv, pay);
+    await srv.idle();
+    assert.deepEqual(auth.created, [{ uid: autoAccountUid(orderId), emailVerified: false, ...carried }]);
+  }
+});
+
+test("SELF · F1: Razorpay's placeholder email (void@razorpay.com) is NOT an email: Indian phone -> phone-only path, account at payment as before", async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const { orderId, verify } = await paidSelfOrder(srv, { contact: '+919876543948', email: 'void@razorpay.com' });
+  assert.deepEqual(verify.json.selfContact, { phone: PHONE, first: 'phone' });
+  await srv.idle();
+  assert.equal(srv.db.read(`payOrders/${orderId}`).guestEmail, undefined);
+  assert.deepEqual(auth.created, [{ uid: autoAccountUid(orderId), emailVerified: false, phoneNumber: PHONE }]);
+  assert.ok(srv.db.read(`packEntitlements/${autoAccountUid(orderId)}/packs/pack_cbq:maths`));
+});
+
+test('SELF · F1: placeholder email + foreign phone -> no usable contact: paid_unclaimed, admin note, no account, nothing sent to void@', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  for (const email of ['void@razorpay.com', 'VOID@Razorpay.com']) {
+    const { orderId, verify } = await paidSelfOrder(srv, { contact: '+14155550100', email });
+    assert.equal(verify.json.selfContact, null);
+    await srv.idle();
+    const stored = srv.db.read(`payOrders/${orderId}`);
+    assert.equal(stored.status, 'paid_unclaimed');
+    assert.equal(stored.adminNote, 'self_pay_no_usable_contact');
+    assert.equal(stored.guestEmail, undefined);
+  }
+  assert.deepEqual(auth.created, []);
+  assert.deepEqual(packDocs(srv.db), []);
+});
+
+test('SELF · F2: the Razorpay payment read failing flags the order for the admin, and a later successful read clears the note and delivers', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const o = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths' });
+  const p = srv.rzp.pay(o.json.orderId, { contact: '+919876543948' });
+  srv.rzp.payments.delete(p.id); // the GET inside the contact read now fails
+  const w = await sendWebhook(srv, p);
+  assert.equal(w.status, 200, w.text);
+  await srv.idle();
+  const flagged = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(flagged.status, 'paid_unclaimed');
+  assert.equal(flagged.adminNote, 'self_pay_contact_read_failed');
+  assert.equal(flagged.guestPhone, undefined);
+  assert.deepEqual(auth.created, []);
+  assert.ok(srv.events.includes('payments.guest.self.contact_read_failed'));
+  // Razorpay answers again: the next verify reads it, clears the flag, and the order is delivered
+  srv.rzp.payments.set(p.id, p);
+  const v = await guestVerify(srv, o.json.orderId, p.id);
+  assert.equal(v.json.selfContact.phone, PHONE);
+  await srv.idle();
+  const ok = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(ok.adminNote, null);
+  assert.equal(ok.guestPhone, PHONE);
+  assert.equal(auth.created.length, 1);
 });

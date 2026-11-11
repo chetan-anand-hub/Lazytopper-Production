@@ -12,7 +12,7 @@ const packAnalytics = vi.hoisted(() => ({ trackPackPurchase: vi.fn() }));
 vi.mock("../../lib/packs/packAnalytics", () => packAnalytics);
 
 import CheckoutSheet, { type CheckoutSheetItem } from "./CheckoutSheet";
-import type { WhoBuyOutcome } from "../../services/checkoutWho";
+import type { SelfBuyOutcome, WhoBuyOutcome } from "../../services/checkoutWho";
 
 const PASS: CheckoutSheetItem = { kind: "pass", sku: "till_boards", label: "Board Pass", description: "Board Pass", priceDisplay: "₹1,917" };
 const CBQ: CheckoutSheetItem = { kind: "pack", sku: "pack_cbq", target: "maths", label: "Maths CBQ Pack", description: "x", priceDisplay: "₹199" };
@@ -269,5 +269,85 @@ describe("CHECKOUT-SELF-1 · link wording", () => {
     const { SOMEONE_ELSE_LINK } = await import("./SomeoneElseLink");
     const { WHO_SOMEONE_ELSE } = await import("../../services/checkoutWho");
     expect(SOMEONE_ELSE_LINK).toBe(WHO_SOMEONE_ELSE);
+  });
+});
+
+describe("CHECKOUT-SELF-2 - signed out opens at \"Buy for yourself\"", () => {
+  const CBQ_GST: CheckoutSheetItem = { ...CBQ, priceDisplay: "₹58", priceBreakdown: "₹49 + ₹9 GST (18%) = ₹58" };
+  const selfPaid = (over: Partial<Extract<SelfBuyOutcome, { status: "paid" }>> = {}) =>
+    vi.fn(async (): Promise<SelfBuyOutcome> => ({ status: "paid", confirmed: true, contact: { phone: "+919876543210", first: "phone" }, amountInr: 58, paymentId: "pay_s", ...over }));
+
+  it("first screen: title, the real price + breakup, ONE Pay button, no identifier box; the box is a secondary link", () => {
+    const buySelf = selfPaid();
+    mount({ item: CBQ_GST, selfFirst: true, buySelf });
+    expect(screen.getByText("Buy for yourself")).toBeTruthy();
+    expect(screen.queryByTestId("who-first")).toBeNull();
+    expect(screen.getByTestId("who-gst-breakdown").textContent).toBe("₹49 + ₹9 GST (18%) = ₹58");
+    expect(screen.getByTestId("who-pay-self-out").textContent).toBe("Pay ₹58");
+    expect(screen.getByTestId("who-someone-else").textContent).toBe("Buying for someone else?");
+    expect(screen.getByTestId("who-sign-in-first")).toBeTruthy();
+    expect(buySelf).not.toHaveBeenCalled();
+    expect(analytics.trackNamedEvent).toHaveBeenCalledWith("guest_pay_option_shown", { recipient: "self" });
+  });
+
+  it("Pay: Razorpay straight away (no typed identifier), events in order, then the existing 'sign in with that number' screen", async () => {
+    const buySelf = selfPaid();
+    mount({ item: CBQ_GST, selfFirst: true, buySelf, buy: vi.fn() });
+    fireEvent.click(screen.getByTestId("who-pay-self-out"));
+    await screen.findByTestId("who-paid");
+    expect(buySelf).toHaveBeenCalledWith(CBQ_GST);
+    expect(analytics.trackNamedEvent.mock.calls.map((c) => c[0])).toEqual(["guest_pay_option_shown", "guest_pay_self_start", "guest_pay_start", "guest_pay_paid"]);
+    expect(analytics.trackNamedEvent).toHaveBeenCalledWith("guest_pay_start", { recipient: "self" });
+    expect(analytics.trackNamedEvent).toHaveBeenCalledWith("guest_pay_self_start", { recipient: "self" });
+    expect(analytics.trackNamedEvent).toHaveBeenCalledWith("guest_pay_paid", { recipient: "self" });
+    expect(packAnalytics.trackPackPurchase).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("who-paid-line").textContent).toBe("Sign in with +91 98•••••210 and open My packs to download.");
+  });
+
+  it("unconfirmed verify: the sale is NOT counted; no contact: an honest message and a WhatsApp link, never a made-up number", async () => {
+    mount({ item: CBQ_GST, selfFirst: true, buySelf: selfPaid({ confirmed: false, contact: null }) });
+    fireEvent.click(screen.getByTestId("who-pay-self-out"));
+    await screen.findByTestId("who-paid-unconfirmed");
+    expect(packAnalytics.trackPackPurchase).not.toHaveBeenCalled();
+    cleanup();
+    mount({ item: CBQ_GST, selfFirst: true, buySelf: selfPaid({ contact: null }) });
+    fireEvent.click(screen.getByTestId("who-pay-self-out"));
+    await screen.findByTestId("who-paid-no-contact");
+    expect(screen.getByTestId("who-paid-whatsapp").getAttribute("href")).toMatch(/^https:\/\/wa\.me\//);
+  });
+
+  it("dismissed / failed return to the same screen, nothing charged claimed", async () => {
+    const buySelf = vi.fn(async (): Promise<SelfBuyOutcome> => ({ status: "dismissed" }));
+    mount({ item: CBQ_GST, selfFirst: true, buySelf });
+    fireEvent.click(screen.getByTestId("who-pay-self-out"));
+    await screen.findByText("Payment window closed. Tap Pay to try again.");
+    buySelf.mockResolvedValueOnce({ status: "failed" });
+    fireEvent.click(screen.getByTestId("who-pay-self-out"));
+    await screen.findByRole("alert");
+    expect(screen.getByTestId("who-pay-self-out")).toBeTruthy();
+  });
+
+  it("'Buying for someone else?' opens today's identifier box, unchanged (recipient order, guest_pay_start 'other')", async () => {
+    const buy = vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "paid", confirmed: true, amountInr: 58, paymentId: "p" }));
+    mount({ item: CBQ_GST, selfFirst: true, buy });
+    fireEvent.click(screen.getByTestId("who-someone-else"));
+    type("who-first", "98765 43210");
+    fireEvent.click(screen.getByTestId("who-pay"));
+    await screen.findByTestId("who-paid");
+    expect(buy).toHaveBeenCalledWith(CBQ_GST, { phone: "+919876543210", first: "phone" }, false);
+    expect(analytics.trackNamedEvent).toHaveBeenCalledWith("guest_pay_start", { recipient: "other" });
+    expect(analytics.trackNamedEvent).not.toHaveBeenCalledWith("guest_pay_self_start", expect.anything());
+  });
+
+  it("/for-parents, a signed-in student and the kill switch keep their screens", () => {
+    mount({ audience: "parent", selfFirst: true });
+    expect(screen.getByTestId("who-first")).toBeTruthy();
+    cleanup();
+    mount({ signedIn: true, selfMasked: null, selfFirst: true });
+    expect(screen.getByTestId("who-self")).toBeTruthy();
+    cleanup();
+    mount({ selfFirst: false });
+    expect(screen.getByTestId("who-first")).toBeTruthy();
+    expect(screen.queryByTestId("who-pay-self-out")).toBeNull();
   });
 });

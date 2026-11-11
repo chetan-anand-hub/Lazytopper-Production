@@ -98,6 +98,7 @@ const {
 } = require('../services/guestPay.cjs');
 // GST-INVOICE-1 (DARK): the buyer's confirmed state on the order, and the tax invoice after a verified capture.
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
+const { isPlaceholderAddress } = require('../services/paymentReceiptEmail.cjs');
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('../services/packGrant.cjs');
 
 const GUEST_ORDER_PATH = '/api/pay/guest/order';
@@ -152,6 +153,18 @@ function isCheckoutWhoEnabled(env = process.env) {
 function isPayAutoAccountEnabled(env = process.env) {
   return isCheckoutWhoEnabled(env) && isPayAutoAccountFlagOn(env);
 }
+
+/**
+ * CHECKOUT-SELF-2 - the kill switch for "Buy for me" (signed-out checkout, identifier read from the verified payment). ON by
+ * default once CHECKOUT_WHO is on; CHECKOUT_SELF_DISABLED=1 answers a `self` order like any unknown body (404/guest-pay rules).
+ */
+function isSelfPayDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.CHECKOUT_SELF_DISABLED) || '').trim());
+}
+/** CHECKOUT-SELF-2 admin note: the payment carried no Indian mobile and no valid email, so nobody can claim it yet. */
+const SELF_NO_CONTACT_NOTE = 'self_pay_no_usable_contact';
+/** CHECKOUT-SELF-2 admin note: Razorpay's payment record could not be read (it is retried by the next verify / webhook). */
+const SELF_READ_FAILED_NOTE = 'self_pay_contact_read_failed';
 
 /** PAY-ACCOUNT-1 - the prefix of a uid this server created at payment. The client SDK's uids are [A-Za-z0-9] only. */
 const AUTO_ACCOUNT_UID_PREFIX = 'pay-';
@@ -419,6 +432,8 @@ function createGuestPayRoutes(deps = {}) {
 
     // CHECKOUT-WHO-1: a `recipient` is read ONLY while its switch is on; off, the body is read exactly as before.
     if (isCheckoutWhoEnabled(env) && body.recipient !== undefined) return handleWhoOrder(req, res, keys, body);
+    // CHECKOUT-SELF-2: `self: true` = "Buy for me" - no identifier yet, it is read from the VERIFIED payment afterwards.
+    if (isCheckoutWhoEnabled(env) && body.self === true && !isSelfPayDisabled(env)) return handleSelfOrder(req, res, keys, body);
     if (!isGuestPayEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
 
     const phone = normaliseIndianMobile(body.phone);
@@ -717,6 +732,134 @@ function createGuestPayRoutes(deps = {}) {
     return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, 0), ...recipientMasked(stored) });
   }
 
+  /* ── POST /api/pay/guest/order with `self: true` (CHECKOUT-SELF-2, "Buy for me") ─────────────────────────────── */
+  /**
+   * The signed-out buyer pays for THEMSELVES: the order names no identifier. Same SKU whitelist, same server amount, same
+   * Razorpay order, same verify. The phone / email the order will be claimed by is read AFTER payment from Razorpay's own
+   * record of the verified payment (ensureSelfContact), never from this request. A signed-in caller uses its own checkout.
+   */
+  async function handleSelfOrder(req, res, keys, body) {
+    if (await payerUidOf(req)) return reject(res, 'order', 'self_requires_signed_out', 409);
+    const sku = body.sku;
+    const isPack = isPackProduct(sku) && packsEnabled(env);
+    if (!isPack && sku !== GUEST_PASS_SKU) return reject(res, 'order', 'invalid_sku');
+    let packTarget = null;
+    if (isPack) {
+      packTarget = validateTarget(sku, body.target);
+      if (packTarget === null) return reject(res, 'order', 'invalid_target');
+    }
+    let quote;
+    try {
+      quote = isPack ? tableQuote(PACK_PRODUCTS[sku].priceInr, now()) : quotePass({}, GUEST_PASS_SKU, now(), { foundingOfferOpen });
+    } catch (e) {
+      emit('payments.guest.order.quote_failed');
+      console.error('[pay/guest/order] quote failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not price this.' });
+    }
+    let created;
+    try {
+      created = await razorpay(keys, 'POST', '/orders', {
+        amount: quote.amountPaise,
+        currency: CURRENCY,
+        notes: { payer: GUEST_PAYER, passType: sku, ...(isPack ? { packTarget } : {}), ...(quote.offerKey ? { offerKey: quote.offerKey } : {}) },
+      });
+    } catch (e) {
+      emit('payments.guest.order.razorpay_unreachable');
+      console.error('[pay/guest/order] razorpay unreachable:', e && e.message);
+      return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
+    }
+    const order = created.json || {};
+    if (!created.ok || typeof order.id !== 'string' || !ID_PATTERN.test(order.id) || order.amount !== quote.amountPaise || order.currency !== CURRENCY) {
+      emit('payments.guest.order.razorpay_refused');
+      console.error('[pay/guest/order] razorpay refused the order, status', created.status);
+      return sendJson(res, 502, { ok: false, error: 'Payment provider refused the order.' });
+    }
+    try {
+      await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(order.id).set({
+        uid: null,
+        payer: GUEST_PAYER,
+        checkoutWho: true,
+        selfPay: true,
+        payerType: PAYER_TYPE.signedOut,
+        passType: sku,
+        ...(isPack ? { packTarget } : {}),
+        amountPaise: quote.amountPaise,
+        ...gstOrderFields(quote),
+        ...gstBuyerFields(body),
+        offerKey: quote.offerKey,
+        status: GUEST_STATUS.created,
+        createdAt: new Date(now()),
+      });
+    } catch (e) {
+      emit('payments.guest.order.store_failed');
+      console.error('[pay/guest/order] could not store the order:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not record the order.' });
+    }
+    emit('payments.guest.order.created');
+    emit('payments.guest.order.self_created');
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, 0) });
+  }
+
+  /**
+   * CHECKOUT-SELF-2 - read the buyer's own contact from Razorpay's record of the VERIFIED payment (never the browser) and
+   * store it on the order as its claim keys, exactly as if the buyer had typed it. `payment` is passed by verify (already
+   * checked); otherwise it is fetched with our keys and passed through the SAME paymentMismatch checks first.
+   * Phone = the payment's `contact` when it is an Indian mobile; email = its `email` when valid; phone is first-entered
+   * (Razorpay requires a contact), so the account made at payment carries the phone, as for any two-identifier order.
+   * Neither usable -> the order stays `paid_unclaimed` with the admin note SELF_NO_CONTACT_NOTE (nothing is lost; the owner
+   * attaches it). Idempotent; never throws. Returns the order's current data (or null).
+   */
+  async function ensureSelfContact(orderId, paymentId, knownPayment) {
+    try {
+      const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
+      const snap = await ref.get();
+      const order = snap && snap.exists ? snap.data() || {} : null;
+      if (!order || order.payer !== GUEST_PAYER || order.selfPay !== true) return order;
+      if (order.paymentId !== paymentId || order.status === GUEST_STATUS.created) return order;
+      if (order.guestPhone || order.guestEmail || order.adminNote === SELF_NO_CONTACT_NOTE) return order;
+      let payment = knownPayment;
+      if (!payment) {
+        const keys = readKeys();
+        if (!keys.keyId || !keys.keySecret) return order;
+        let fetched = null;
+        try {
+          fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
+        } catch {
+          fetched = null;
+        }
+        if (!fetched || !fetched.ok || !fetched.json) {
+          // F2: flag it for the admin list (a later verify / webhook / delivery retries the read; the note never blocks that).
+          emit('payments.guest.self.contact_read_failed');
+          await ref.set({ adminNote: SELF_READ_FAILED_NOTE }, { merge: true });
+          return order;
+        }
+        payment = fetched.json;
+        if (payment.id !== undefined && payment.id !== paymentId) return order;
+        if (paymentMismatch(payment, { orderId, amountPaise: order.amountPaise })) return order;
+      }
+      const phone = typeof payment.contact === 'string' ? normaliseIndianMobile(payment.contact) : null;
+      // F1: Razorpay's placeholder (void@razorpay.com, no email given at checkout) is never the buyer's address.
+      const email = typeof payment.email === 'string' && !isPlaceholderAddress(payment.email) ? normaliseEmail(payment.email) : null;
+      const fields = phone || email
+        ? { ...(phone ? { guestPhone: phone } : {}), ...(email ? { guestEmail: email } : {}), recipientFirst: phone ? 'phone' : 'email', selfContactFrom: 'payment', ...(order.adminNote === SELF_READ_FAILED_NOTE ? { adminNote: null } : {}) }
+        : { adminNote: SELF_NO_CONTACT_NOTE };
+      const result = await adminFirestore.runTransaction(async (tx) => {
+        const cur = await tx.get(ref);
+        const o = cur && cur.exists ? cur.data() || {} : null;
+        // Re-check INSIDE the transaction: still this payment's self order, and nothing attached by a racing run.
+        if (!o || o.selfPay !== true || o.paymentId !== paymentId || o.guestPhone || o.guestEmail) return o;
+        tx.set(ref, fields, { merge: true });
+        return { ...o, ...fields };
+      });
+      emit(phone || email ? 'payments.guest.self.contact_read' : 'payments.guest.self.no_usable_contact');
+      return result;
+    } catch (e) {
+      emit('payments.guest.self.contact_failed');
+      console.error('[pay/guest/self] could not read the payer contact:', e && e.message);
+      return null;
+    }
+  }
+
   /* ── POST /api/pay/guest/verify — every check, then paid_unclaimed (no grant) ── */
   async function handleVerify(req, res) {
     if (!admitGuestCall(req, res, 'verify', GUEST_VERIFY_PATH)) return undefined;
@@ -748,18 +891,28 @@ function createGuestPayRoutes(deps = {}) {
     }
     if (!order) return reject(res, 'verify', 'unknown_order');
     // CHECKOUT-WHO-1: a recipient order may name an email and no phone.
-    const whoOrder = order && order.checkoutWho === true && typeof order.guestEmail === 'string';
+    // CHECKOUT-SELF-2: a "Buy for me" order carries no identifier until its payment is verified.
+    const whoOrder = order && order.checkoutWho === true && (typeof order.guestEmail === 'string' || order.selfPay === true);
     if (order.payer !== GUEST_PAYER || (typeof order.guestPhone !== 'string' && !whoOrder)) return reject(res, 'verify', 'not_guest');
     if (!Number.isInteger(order.amountPaise) || order.amountPaise <= 0) return reject(res, 'verify', 'bad_order');
 
-    const done = () =>
+    // CHECKOUT-SELF-2: the buyer's own contact, as Razorpay recorded it on THEIR verified payment, is handed back to THEM (this
+    // call proves the payment with Razorpay's signature) so the thank-you screen can open the account. null = nothing usable.
+    const selfContactOf = (o) => {
+      if (!o || o.selfPay !== true) return {};
+      const phone = typeof o.guestPhone === 'string' && o.guestPhone ? o.guestPhone : null;
+      const email = typeof o.guestEmail === 'string' && o.guestEmail ? o.guestEmail : null;
+      return { selfContact: phone || email ? { ...(phone ? { phone } : {}), ...(email ? { email } : {}), first: phone ? 'phone' : 'email' } : null };
+    };
+    const done = (current = order) =>
       sendJson(res, 200, {
         ok: true,
         status: GUEST_STATUS.paidUnclaimed,
         ...describeOrder(order),
-        phoneMasked: maskIndianMobile(order.guestPhone),
+        phoneMasked: maskIndianMobile(current.guestPhone),
+        ...selfContactOf(current),
         // CHECKOUT-WHO-1: the masked email too. ONE answer whether or not an account exists (delivery runs AFTER it).
-        ...(order.checkoutWho === true ? recipientMasked(order) : {}),
+        ...(order.checkoutWho === true ? recipientMasked(current) : {}),
       });
     // CHECKOUT-WHO-1: after the response, a recipient who already has an account gets it now; an email recipient is told.
     const afterPaid = async () => {
@@ -770,7 +923,7 @@ function createGuestPayRoutes(deps = {}) {
     // Already recorded for THIS payment (a retry, or the webhook got there first): nothing to ask Razorpay.
     if (order.status !== GUEST_STATUS.created && order.paymentId === paymentId) {
       emit('payments.guest.verify.replayed');
-      done();
+      done(order.selfPay === true ? (await ensureSelfContact(orderId, paymentId, null)) || order : order);
       return afterPaid();
     }
 
@@ -814,7 +967,7 @@ function createGuestPayRoutes(deps = {}) {
       console.error('[pay/guest/verify] could not record the payment:', e && e.message);
       return sendJson(res, 500, { ok: false, error: 'Could not record the payment.' });
     }
-    done();
+    done(order.selfPay === true ? (await ensureSelfContact(orderId, paymentId, payment)) || order : order);
     return afterPaid();
   }
 
@@ -834,6 +987,8 @@ function createGuestPayRoutes(deps = {}) {
       console.error('[pay/guest/deliver] could not read the order:', e && e.message);
       return;
     }
+    // CHECKOUT-SELF-2: a "Buy for me" order paid with no verify (webhook only) has no identifier yet - read it from Razorpay now.
+    await ensureSelfContact(orderId, paymentId, null);
     await deliverToExistingAccount(orderId);
     if (receiptEmailer && typeof receiptEmailer.sendRecipientReady === 'function') {
       await receiptEmailer.sendRecipientReady({ orderId, paymentId });
@@ -851,6 +1006,8 @@ function createGuestPayRoutes(deps = {}) {
       const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).get();
       const order = snap && snap.exists ? snap.data() || {} : null;
       if (!order || order.checkoutWho !== true || order.status !== GUEST_STATUS.paidUnclaimed) return;
+      // CHECKOUT-SELF-2: a "Buy for me" order with no usable contact on its payment waits for the owner (admin note), never an account.
+      if (!order.guestPhone && !order.guestEmail) return;
       const target = await resolveRecipientAccount({
         phone: typeof order.guestPhone === 'string' ? order.guestPhone : null,
         email: typeof order.guestEmail === 'string' ? order.guestEmail : null,
@@ -861,7 +1018,11 @@ function createGuestPayRoutes(deps = {}) {
       // MED 2: the account found may be THIS order's own (a concurrent run made it a moment ago) - still "created at
       // payment", through the same path (its labels, its sign-in email, its first sign-in).
       if (!target.uid || (auto && target.uid === autoAccountUid(orderId))) {
-        if (auto) await deliverToNewAccount(orderId, order);
+        // CHECKOUT-SELF-2: a "Buy for me" payment naming BOTH a mobile and an email makes NO account at payment (a new account may
+        // carry only one identifier). The order waits `paid_unclaimed` with BOTH claim keys, so whichever the buyer signs in with
+        // (phone OTP, or Google / email verified) takes it through the ordinary claim: one account, one grant.
+        const selfBoth = order.selfPay === true && !!order.guestPhone && !!order.guestEmail;
+        if (auto && !selfBoth) await deliverToNewAccount(orderId, order);
         return;
       }
       // PAY-ACCOUNT-1 addendum A: one identifier on an account, the other on none -> the existing account gets it and the
@@ -1230,6 +1391,9 @@ module.exports = {
   isGuestPayEnabled,
   isCheckoutWhoEnabled,
   isPayAutoAccountEnabled,
+  isSelfPayDisabled,
+  SELF_NO_CONTACT_NOTE,
+  SELF_READ_FAILED_NOTE,
   autoAccountUid,
   isAutoAccountUid,
   SECOND_NOT_LINKED_NOTE,
