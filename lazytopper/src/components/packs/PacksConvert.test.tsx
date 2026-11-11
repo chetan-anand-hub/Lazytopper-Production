@@ -77,16 +77,16 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe("PACKS-CONVERT-1 · /packs order", () => {
-  it("DOM (= visual) order: Bundle, CBQ (switch), Subject, Mock, Chapter", () => {
+  it("DOM (= visual) order: Bundle, Subject, Mock, Chapter, then the CBQ Packs link card", () => {
     page();
-    // PACKS-TIDY-1: the CBQ Pack is ONE card with a Maths / Science switch; Subject, Mock and Chapter are collapsed rows.
-    const ids = ["packs-cell-bundle", "cbq-card-maths", "packs-row-subject", "packs-row-mock", "packs-row-chapter"];
+    // PACKS-TIDY-2: the CBQ Packs' buy block moved to /cbq-packs; a link card to it follows the three folded rows.
+    const ids = ["packs-cell-bundle", "packs-row-subject", "packs-row-mock", "packs-row-chapter", "packs-link-cbq"];
     const els = ids.map((id) => screen.getByTestId(id));
     for (let i = 1; i < els.length; i++) {
       expect(els[i - 1].compareDocumentPosition(els[i]) & Node.DOCUMENT_POSITION_FOLLOWING, `${ids[i - 1]} before ${ids[i]}`).toBeTruthy();
     }
-    // the Bundle keeps its season badge / line and the #cbq anchor still lands on the band
-    expect(screen.getByTestId("cbq-band").id).toBe("cbq");
+    // (the #cbq anchor now redirects to /cbq-packs: PacksPage.test / cbqRedirect.test)
+    expect(screen.queryByTestId("cbq-band")).toBeNull();
   });
 
   it("item 4: one line of contents above Buy, counts from the pack constants (the Bundle and CBQ cards already carry theirs)", () => {
@@ -123,16 +123,17 @@ describe("PACKS-CONVERT-1 · sample -> buy", () => {
     expect(track.checkout).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_mock" }), expect.objectContaining({ signedIn: true, from: "sample" }));
   });
 
-  it("the CBQ card: Science sample -> buy Science CBQ ₹199; the Bundle sample -> buy the Bundle ₹299", async () => {
+  it("the switch on Science: Subject sample -> buy Science Subject Pack; the Bundle sample -> buy the Bundle ₹299", async () => {
+    // PACKS-TIDY-2: (was the CBQ card's sample; the CBQ card left /packs, /cbq-packs carries the same sample -> buy.)
     page();
     await waitFor(() => expect(mineMock).toHaveBeenCalled());
-    fireEvent.click(screen.getByTestId("cbq-subject-science"));
-    fireEvent.click(sampleLink("cbq-science"));
-    const cbq = await screen.findByTestId("sample-buy-pack_cbq-science");
-    expect(cbq.textContent).toBe(`Liked the sample? Get the Science CBQ Pack · ${packs.packPayLabel("pack_cbq")}`);
-    fireEvent.click(cbq);
+    fireEvent.click(screen.getByTestId("packs-subject-science"));
+    fireEvent.click(sampleLink("subject-science"));
+    const sub = await screen.findByTestId("sample-buy-pack_subject-science");
+    expect(sub.textContent).toBe(`Liked the sample? Get the Science Subject Pack · ${packs.packPayLabel("pack_subject")}`);
+    fireEvent.click(sub);
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
-    expect(buyMock.mock.calls[0].slice(0, 2)).toEqual(["pack_cbq", "science"]);
+    expect(buyMock.mock.calls[0].slice(0, 2)).toEqual(["pack_subject", "science"]);
     fireEvent.click(sampleLink("bundle"));
     expect((await screen.findByTestId("sample-buy-pack_bundle")).textContent).toBe(sampleBuyLabel("pack_bundle"));
   });
@@ -154,28 +155,28 @@ describe("PACKS-CONVERT-1 · sample -> buy", () => {
     auth.user = null;
     flags.guest = true;
     page();
-    fireEvent.click(sampleLink("cbq-maths"));
-    fireEvent.click(await screen.findByTestId("sample-buy-pack_cbq-maths"));
+    fireEvent.click(sampleLink("mock-maths"));
+    fireEvent.click(await screen.findByTestId("sample-buy-pack_mock-maths"));
     const sheet = await screen.findByTestId("guest-sheet");
-    expect(sheet.getAttribute("data-sku")).toBe("pack_cbq");
+    expect(sheet.getAttribute("data-sku")).toBe("pack_mock");
     expect(sheet.getAttribute("data-target")).toBe("maths");
     expect(screen.getByTestId("where").textContent).toBe("/packs");
-    expect(track.checkout).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_cbq" }), expect.objectContaining({ signedIn: false, from: "sample" }));
+    expect(track.checkout).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_mock" }), expect.objectContaining({ signedIn: false, from: "sample" }));
     expect(buyMock).not.toHaveBeenCalled();
   });
 
   it("an owned pack shows no sample buy; packs dark shows none", async () => {
-    owned.packs = [{ packId: "pack_cbq:maths", sku: "pack_cbq", target: "maths", pricePaidInr: 199, paidAt: 1, orderId: "o" }];
+    owned.packs = [{ packId: "pack_subject:maths", sku: "pack_subject", target: "maths", pricePaidInr: 199, paidAt: 1, orderId: "o" }];
     page();
     await waitFor(() => expect(mineMock).toHaveBeenCalled());
-    await screen.findByTestId("tile-owned-pack_cbq-maths");
-    fireEvent.click(sampleLink("cbq-maths"));
-    expect(screen.queryByTestId("sample-buy-pack_cbq-maths")).toBeNull();
+    await screen.findByTestId("tile-owned-pack_subject-maths");
+    fireEvent.click(sampleLink("subject-maths"));
+    expect(screen.queryByTestId("sample-buy-pack_subject-maths")).toBeNull();
     cleanup();
     owned.packs = [];
     flags.packs = false;
     page();
-    fireEvent.click(screen.getByTestId("packs-subject-mock-science"));
+    fireEvent.click(screen.getByTestId("packs-subject-science"));
     fireEvent.click(sampleLink("mock-science"));
     expect(screen.queryByTestId("sample-buy-pack_mock-science")).toBeNull();
   });

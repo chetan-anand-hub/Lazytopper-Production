@@ -502,16 +502,27 @@ export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
   NcertBooksPage: OWN_ONLY,
   SolutionsPage: OWN_ONLY,
   ContactPage: ["ParentReturnLink"],
-  PacksPage: ["FounderBadge", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy", "TestimonialVideo"],
+  // PACKS-TIDY-2 (A2, owner 11 Nov "improve the speed to rank higher in Google ads"): + the four small sheets the island used to LINK
+  // (render-blocking: SubjectSwitch, packReady, myInvoices, ~4 KB in all), so /packs paints with no blocking stylesheet.
+  PacksPage: ["FounderBadge", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy", "TestimonialVideo", "SubjectSwitch", "packReady", "myInvoices"],
   CbqHubPage: ["PackSampleLink", "CbqBand", "CbqChapterPage", "faqContent"],
   CbqChapterPage: ["CbqChapterPage"],
   PricingPage: ["TestimonialVideo"],
   // PRICING-PAGES-1 (11 Nov 2026): the two sales pages paint from their prerendered bodies (islands); the shared sales-page sheet,
   // the student video's frame and (CBQ) the shop's CBQ band / tile / sample CSS are needed by that first screen.
-  BoardPassPage: ["salesPages", "TestimonialVideo", "PricingProof"],
-  CbqPacksPage: ["salesPages", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy"],
+  // PACKS-TIDY-2 review F1: /packs no longer imports CbqBand and lazy-loads SalesStickyBar, so Rollup split SubjectSwitch (was inside
+  // cbqBand.css) and stickyPassBar (was inside BoardPassPage's CSS) into chunks of their own; inlined here so neither page gains a
+  // render-blocking stylesheet.
+  BoardPassPage: ["salesPages", "TestimonialVideo", "PricingProof", "stickyPassBar"],
+  CbqPacksPage: ["salesPages", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy", "SubjectSwitch"],
 };
 export const INLINE_ROUTE_CSS_MODULES: readonly string[] = Object.keys(INLINE_ROUTE_CSS);
+
+/**
+ * PACKS-TIDY-2 (A2) - island MARKUP sheets (ISLAND_MARKUP_CSS below) inlined instead of linked on these paths, so the page has no
+ * render-blocking stylesheet left. Small sheets only (WhatsAppFab: < 1 KB). Every other island page links them exactly as before.
+ */
+export const INLINE_MARKUP_CSS: Readonly<Record<string, readonly string[]>> = { "/packs": ["WhatsAppFab"] };
 
 /** The allowlisted route's own CSS files (never shared deps such as KaTeX) for `path`, in order. */
 export function routeCssFor(
@@ -891,7 +902,8 @@ export function verifyBuiltPages(
           }
           const body = html.slice(Math.max(0, html.indexOf("<body")));
           for (const { name, marker } of ISLAND_MARKUP_CSS) {
-            if (marker.test(body) && !sheets.some((href) => new RegExp(`/assets/${name}-[A-Za-z0-9_-]{8}\\.css$`).test(href))) {
+            const inlined = inlinedStylesIn(html).some((file) => new RegExp(`^${name}-[A-Za-z0-9_-]{8}\\.css$`).test(file)); // PACKS-TIDY-2: INLINE_MARKUP_CSS
+            if (marker.test(body) && !inlined && !sheets.some((href) => new RegExp(`/assets/${name}-[A-Za-z0-9_-]{8}\\.css$`).test(href))) {
               failures.push(`${path}: the ${variant} file ${file} is an island with ${name} markup but does not link its stylesheet`);
             }
           }
@@ -1285,7 +1297,7 @@ export function applyArtifact(
     for (const path of expected) {
       routeStyles.set(
         path,
-        routeCssFor(path, assetsDir, cleanShell, assetFiles).map((file) => ({
+        [...routeCssFor(path, assetsDir, cleanShell, assetFiles), ...(INLINE_MARKUP_CSS[path] ?? []).map((name) => resolveStylesheet(name, assetFiles))].map((file) => ({
           file,
           css: inlinableCss(file, readFileSync(join(assetsDir, file), "utf8")),
         })),

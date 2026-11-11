@@ -1,64 +1,9 @@
 /*
- * PACKS-TIDY-1 (owner, 9 Nov 2026) - /packs as one short page: hero, the Bundle and the CBQ Pack (Maths / Science switch), then ONE
- * group of collapsed rows (Subject, Mock, Chapter). Mobile first (360px); every selector is scoped under `.lt-packs`; native <details>
- * rows (zero JS to open, keyboard and screen readers for free), summary rows >= 56px, buttons >= 44px, 8px spacing scale.
+ * PACKS-TIDY-1 (owner, 9 Nov 2026) / PACKS-TIDY-2 (11 Nov): what is left of the first tidy layout's sheet. The page's layout now lives in
+ * packsHub.css (hero + Bundle block, one switch, folding rows); the old `.lt-pt__*` card / row / hero rules were removed with the
+ * markup that used them (they were inlined into every /packs first paint for nothing). Only the two blocks the new page reuses stay.
  */
-.lt-pt__hero { background: var(--pk-navy); }
-.lt-pt__copy { padding: 22px 4px 24px; display: flex; flex-direction: column; gap: 8px; color: #fff; }
-.lt-pt__copy .lt-founder-badge { align-self: flex-start; margin: 2px 0 4px; }
-.lt-pt__copy h1 { font-size: 29px; line-height: 1.15; font-weight: 700; }
-.lt-packs .lt-pt__terms { color: #dbe4f0; }
-.lt-pt { padding: 16px 0 8px; }
-.lt-pt__samples { margin: 0 0 12px; font-size: 14px; line-height: 1.5; color: var(--pk-ink2); }
-.lt-pt__top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-.lt-pt__top > * { min-width: 0; }
-.lt-packs .lt-pt .lt-cbq { margin: 0; }
-
-.lt-pt__card { background: #fff; border: 1px solid var(--pk-line2); border-radius: 18px; padding: 18px 16px; display: flex; flex-direction: column; gap: 8px; align-items: start; }
-.lt-pt__card--best { border: 2px solid var(--pk-g); padding: 17px 15px; }
-.lt-pt__badge { align-self: flex-start; background: #e6f4ec; color: var(--pk-gt); font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; line-height: 1.3; }
-.lt-pt__name { font-size: 24px; line-height: 1.2; font-weight: 700; }
-.lt-pt__price { margin: 0; font-family: var(--pk-serif); font-size: 32px; line-height: 1.1; font-weight: 700; }
-.lt-pt__line { margin: 0 0 4px; font-size: 15px; line-height: 1.45; color: var(--pk-ink2); }
-.lt-pt__card .lt-ptb { margin-top: 4px; }
-.lt-pt__card .lt-ptb__see, .lt-pt__body .lt-ptb__see { align-self: center; color: var(--pk-gt); }
-.lt-pt__card .lt-psl, .lt-pt__body .lt-psl { align-self: center; }
-
-.lt-pt__more { margin-top: 24px; }
-.lt-packs .lt-pt__morehd { font-size: 20px; line-height: 1.25; margin-bottom: 12px; }
-.lt-pt__rows { display: flex; flex-direction: column; gap: 8px; }
-.lt-pt__row { background: #fff; border: 1px solid var(--pk-line); border-radius: 14px; }
-.lt-pt__row[open] { border-color: var(--pk-line2); }
-.lt-pt__sum { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; align-items: center; min-height: 64px; padding: 8px 14px; cursor: pointer; list-style: none; -webkit-tap-highlight-color: transparent; }
-.lt-pt__sum::-webkit-details-marker { display: none; }
-.lt-pt__sname { grid-column: 1; font-family: var(--pk-serif); font-size: 18px; font-weight: 700; line-height: 1.25; }
-.lt-pt__sprice { grid-column: 2; grid-row: 1; font-family: var(--pk-serif); font-size: 20px; font-weight: 700; padding-right: 22px; position: relative; justify-self: end; }
-.lt-pt__sprice::after {
-  content: ""; position: absolute; right: 2px; top: 50%; width: 9px; height: 9px; margin-top: -7px; border-right: 2px solid var(--pk-ink2); border-bottom: 2px solid var(--pk-ink2);
-  transform: rotate(45deg); transition: transform 0.15s ease;
-}
-.lt-pt__row[open] > .lt-pt__sum .lt-pt__sprice::after { transform: rotate(-135deg); margin-top: -3px; }
-.lt-pt__sline { grid-column: 1 / -1; font-size: 14px; line-height: 1.4; color: var(--pk-ink2); }
-.lt-pt__body { display: flex; flex-direction: column; gap: 8px; padding: 0 14px 14px; border-top: 1px solid var(--pk-line); padding-top: 12px; }
 .lt-pt__contents { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.4; color: var(--pk-ink2); }
-.lt-pt__body .lt-ptb { margin-top: 0; }
-@media (prefers-reduced-motion: reduce) { .lt-pt__sprice::after { transition: none; } }
-
-@media (min-width: 640px) {
-  .lt-pt__copy { padding: 28px 0 28px; }
-}
-@media (min-width: 1024px) {
-  .lt-pt__copy { padding: 40px 0 40px; gap: 16px; max-width: 760px; }
-  .lt-pt__copy .lt-packs__kicker { font-size: 15px; letter-spacing: 0.1em; }
-  .lt-pt__copy h1 { font-size: clamp(40px, 3.9vw, 54px); line-height: 1.08; }
-  .lt-pt__copy .lt-packs__lede { font-size: 19px; line-height: 1.55; }
-  .lt-pt__copy .lt-packs__terms { font-size: 16px; }
-  .lt-pt { padding: 32px 0 16px; }
-  .lt-pt__top { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
-  .lt-pt__card { padding: 24px; }
-  .lt-pt__card--best { padding: 23px; }
-  .lt-pt__more { margin-top: 32px; }
-}
 
 /* URGENCY-1: the pack tile's pre-board line. The short wording shows on phones, the long one from 640px. */
 .lt-pt__preboard { margin: 0 0 8px; font-size: 13px; line-height: 1.4; color: var(--pk-ink2); font-weight: 600; }
