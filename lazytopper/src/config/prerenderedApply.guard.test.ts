@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 
 import {
   PRERENDERED_DIR,
+  ROUTE_CHUNK_ONLY_PATHS,
   SPA_SHELL,
   applicablePaths,
   applyArtifact,
@@ -628,5 +629,11 @@ describe("SEO-5 PR-2 — the committed prerendered/ artifact carries both varian
     expect(missing).toEqual([]);
     const manifest = readFileSync(resolve(PRERENDERED_DIR, "manifest.json"), "utf8");
     expect(validateManifest(paths, manifest)).toEqual([]);
+  });
+});
+
+describe("SPEED-FIX-1 — route-chunk-only preloads are a deliberate, tiny allowlist", () => {
+  it("only /for-parents preloads its route chunk without the static-import closure (/pricing, /practice-hub, /packs measured slower or no gain)", () => {
+    expect([...ROUTE_CHUNK_ONLY_PATHS]).toEqual(["/for-parents"]);
   });
 });

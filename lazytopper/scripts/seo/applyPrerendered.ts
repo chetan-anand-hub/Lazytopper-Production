@@ -384,6 +384,16 @@ export function staticImportClosure(start: string, readChunk: (file: string) => 
 }
 
 /**
+ * SPEED-FIX-1 (11 Nov 2026): paths whose head preloads ONLY the route chunk, not its whole static-import closure.
+ * /for-parents' closure is 22 chunks (the pack shop and its checkout pieces); fetched up front they compete with the
+ * stylesheet and the Fraunces font, and the hero H1 only gets its final size when the font applies (the H1 text box
+ * grows, a later LCP candidate): local 360 px / 4x CPU / 4G, LCP 1.4 s -> 0.9 s, slow-3G neutral. The chunks still load
+ * (the route chunk's static imports), just after the first paint's critical files. NOT applied to /pricing (slow-3G
+ * late LCP +1.0 s), /practice-hub or /packs: measured no gain or slower (FU-SPEED-2A-RETRY).
+ */
+export const ROUTE_CHUNK_ONLY_PATHS: ReadonlySet<string> = new Set(["/for-parents"]);
+
+/**
  * The `<link rel="modulepreload">` hrefs for one advertised path, resolved against THIS build.
  *
  * ★ P9 — NO MANIFEST, NO COMMITTED HASH. The route's module name comes from
@@ -403,7 +413,8 @@ export function preloadHrefsFor(
   const alreadyLoading = new Set(staticImportClosure(entry, readChunk));
   const hrefs: string[] = [];
   for (const moduleName of routeChunkModulesFor(path)) {
-    for (const file of staticImportClosure(resolveRouteChunk(moduleName, assetFiles), readChunk)) {
+    const routeChunk = resolveRouteChunk(moduleName, assetFiles);
+    for (const file of ROUTE_CHUNK_ONLY_PATHS.has(path) ? [routeChunk] : staticImportClosure(routeChunk, readChunk)) {
       const href = `${base}assets/${file}`;
       if (!alreadyLoading.has(file) && !hrefs.includes(href)) hrefs.push(href);
     }
