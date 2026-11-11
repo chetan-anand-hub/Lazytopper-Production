@@ -235,8 +235,8 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     const r = scanSnapshot("packs.html", html, after, predictCbseExamDate("10"));
     expect(r.unclaimed).toEqual([]);
     expect(mismatchMessages(r.found)).toHaveLength(3);
-    // the same markup is not read off any other page
-    expect(scanSnapshot("pricing.html", html, after, predictCbseExamDate("10")).found).toHaveLength(0);
+    // the /packs-only extractors (row price, GST breakup) read nothing on another page; only the shared "<label> · <amt><" rule does
+    expect(scanSnapshot("pricing.html", html, after, predictCbseExamDate("10")).found.map((f) => f.product)).toEqual(["Mock Pack"]);
   });
 
   it("MUTATION PROOF: a changed pack price is caught", () => {
