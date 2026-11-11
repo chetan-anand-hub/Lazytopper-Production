@@ -522,7 +522,7 @@ export const HUB_CSS = `
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 0 16px;
+    gap: 0 12px;
     width: 100%;
     max-width: none;
     margin: 0;
@@ -530,15 +530,20 @@ export const HUB_CSS = `
   .lt-ph-share .lt-paywall-parent {
     width: auto;
     min-height: 44px;
-    padding: 0 4px;
+    padding: 0 2px;
     border: 0;
     border-radius: 6px;
     background: transparent;
     color: var(--ph-green-dark);
-    font-size: 0.84rem;
+    font-size: 0.8rem;
+    line-height: 1.2;
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+  /* One pack, two actions (the Bundle): side by side on one line from 360 px. */
+  .lt-ph-share:not(.lt-ph-share--pair) .lt-paywall-parent {
+    white-space: nowrap;
   }
   .lt-ph-share .lt-paywall-parent:hover {
     background: transparent;
