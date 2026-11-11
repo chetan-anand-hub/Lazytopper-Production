@@ -92,6 +92,10 @@ const ROUTES: Record<string, Array<[string, string | null]>> = {
   "/legal/:slug": [["/legal/privacy", "legal/privacy"], ["/legal/refunds", "legal/other"]],
   "/pricing": [["/pricing", "pricing"], ["/pricing/", "pricing"]],
   "/packs": [["/packs", "packs"], ["/packs/", "packs"], ["/packs/x", null]], // PACKS-CLIENT-1 — public PDF packs page
+  // PRICING-PAGES-1 — the two public sales pages. No page name (null), like /for-parents: naming them would need the server's
+  // drift-tested page list (server/** is out of this lane's scope).
+  "/board-pass": [["/board-pass", null]],
+  "/cbq-packs": [["/cbq-packs", null]],
   "/cbse/class-10": [["/cbse/class-10", "cbse/class-10"]],
   // SEO-5 PR-3 — the public answer-writing guide. Records no page name (null): naming it
   // would need the server's drift-tested page list (server/** is out of that lane's scope).
