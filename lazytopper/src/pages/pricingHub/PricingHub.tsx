@@ -141,8 +141,12 @@ export function cardForHash(hash: string): number {
   return 0;
 }
 
-/** Which card is snapped at the track's left edge (the card whose start is nearest the scroll position). Pure. */
-export function nearestCard(scrollLeft: number, starts: readonly number[]): number {
+/**
+ * Which card a swipe has brought into place. Pure. At the track's end the last card is selected even when it cannot reach the left
+ * edge (wide phones and tablets show more than one card); otherwise the card whose start is nearest the scroll position.
+ */
+export function nearestCard(scrollLeft: number, starts: readonly number[], maxScroll = Infinity): number {
+  if (starts.length > 1 && maxScroll > 0 && scrollLeft >= maxScroll - 2) return starts.length - 1;
   let best = 0;
   let bestGap = Infinity;
   starts.forEach((start, i) => {
@@ -173,6 +177,8 @@ function useCarousel(initial: number) {
     const base = cards[0]?.offsetLeft ?? 0;
     return cards.map((c) => c.offsetLeft - base);
   }, []);
+  /** A tapped tab owns the selection while the track travels to (or rests at) its card, even where the scroll clamps short of it. */
+  const pinned = useRef<{ index: number; until: number } | null>(null);
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return undefined;
@@ -182,7 +188,15 @@ function useCarousel(initial: number) {
       frame = window.requestAnimationFrame(() => {
         frame = 0;
         const s = starts();
-        if (s.length) setIndex(nearestCard(track.scrollLeft, s));
+        if (!s.length) return;
+        const max = track.scrollWidth - track.clientWidth;
+        const pin = pinned.current;
+        if (pin) {
+          const target = Math.min(Math.max(s[pin.index] ?? 0, 0), max);
+          if (Math.abs(track.scrollLeft - target) <= 2 || Date.now() < pin.until) return;
+          pinned.current = null;
+        }
+        setIndex(nearestCard(track.scrollLeft, s, max));
       });
     };
     track.addEventListener("scroll", onScroll, { passive: true });
@@ -196,6 +210,7 @@ function useCarousel(initial: number) {
     const track = trackRef.current;
     const s = starts();
     if (!track || s[i] === undefined || track.scrollWidth <= track.clientWidth) return;
+    pinned.current = { index: i, until: Date.now() + 900 };
     if (typeof track.scrollTo === "function") track.scrollTo({ left: s[i], behavior: prefersCalm() ? "auto" : "smooth" });
     else track.scrollLeft = s[i];
   };

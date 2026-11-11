@@ -42,6 +42,11 @@ export const HUB_CSS = `
     max-width: 1180px;
     margin: 0 auto;
   }
+  /* The shop's (empty) My packs wrapper: packs.css pads it 28 px once its lazy sheet lands, ABOVE the cards here (CLS). Hidden while
+     empty, as the legacy page does (.lt-pricing-body .lt-packs--embedded:empty); the post-pay status line still shows in it. */
+  .lt-ph-body .lt-packs--embedded:empty {
+    display: none;
+  }
   .lt-ph-body > .lt-boards-slot {
     margin-top: 14px;
   }

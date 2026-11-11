@@ -529,6 +529,9 @@ describe("pure helpers", () => {
     expect(nearestCard(170, starts)).toBe(1);
     expect(nearestCard(596, starts)).toBe(2);
     expect(nearestCard(0, [])).toBe(0);
+    // A tablet: the last card cannot reach the left edge; at the end of the track it is still the selected one.
+    expect(nearestCard(308, [0, 352, 704], 308)).toBe(2);
+    expect(nearestCard(200, [0, 352, 704], 308)).toBe(1);
   });
   it("hubPositionLine names the next card and wraps", () => {
     expect([0, 1, 2].map(hubPositionLine)).toEqual(["1 of 3 · next: CBQ Packs", "2 of 3 · next: Question Bank", "3 of 3 · next: Board Pass"]);
