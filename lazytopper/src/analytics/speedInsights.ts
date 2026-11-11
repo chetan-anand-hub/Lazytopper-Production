@@ -38,7 +38,7 @@ export const SPEED_SAMPLE_RATE = 0.5;
  * carry what a student typed into the address bar.
  */
 export const KNOWN_TOP_LEVEL = new Set([
-  "/", "/welcome", "/browse", "/login", "/sign-up", "/pricing", "/packs", "/exam-trends", "/practice-hub",
+  "/", "/welcome", "/browse", "/login", "/sign-up", "/pricing", "/packs", "/board-pass", "/cbq-packs", "/exam-trends", "/practice-hub",
   "/check-improve", "/check-your-answer", "/for-parents", "/contact", "/cbq-class-10", "/highly-probable",
   "/ncert-class-10", "/topic-hub", "/me", "/tutor", "/intent", "/practice", "/notes", "/funnel", "/admin",
 ]);

@@ -506,6 +506,10 @@ export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
   CbqHubPage: ["PackSampleLink", "CbqBand", "CbqChapterPage", "faqContent"],
   CbqChapterPage: ["CbqChapterPage"],
   PricingPage: ["TestimonialVideo"],
+  // PRICING-PAGES-1 (11 Nov 2026): the two sales pages paint from their prerendered bodies (islands); the shared sales-page sheet,
+  // the student video's frame and (CBQ) the shop's CBQ band / tile / sample CSS are needed by that first screen.
+  BoardPassPage: ["salesPages", "TestimonialVideo", "PricingProof"],
+  CbqPacksPage: ["salesPages", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy"],
 };
 export const INLINE_ROUTE_CSS_MODULES: readonly string[] = Object.keys(INLINE_ROUTE_CSS);
 
