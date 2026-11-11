@@ -1,7 +1,8 @@
 /**
  * PurchasesCard - ADMIN-PURCHASES-1. "Purchases" on /admin/students: who bought what, from paid orders only
  * (status "paid" with a payment id, written only by the server-verified grant). Read-only; grants nothing.
- * Test purchases by admin accounts carry an "ADMIN / TEST" pill and are left out of the totals.
+ * Test purchases by admin accounts, and by owner test accounts listed in the server env TEST_ACCOUNT_EMAILS (TEST-ACCOUNTS-1; same
+ * isAdminAccount flag), carry an "ADMIN / TEST" pill and are left out of the totals.
  *
  * CHECKOUT-1: below the purchases, "Abandoned checkouts" lists orders opened but never paid (older than 30 minutes, last 30
  * days, newest first). Read-only.

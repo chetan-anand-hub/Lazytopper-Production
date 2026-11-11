@@ -408,3 +408,39 @@ test('review D6/D4: erased_unclaimed counts; a claimed order by an admin payer o
   assert.equal(r2.body.totals.guestTruncated, true);
   assert.equal(r2.body.totals.complete, true);
 });
+
+test('TEST-ACCOUNTS-1: TEST_ACCOUNT_EMAILS flags + excludes test accounts (case-insensitive); unset = unchanged; no admin access', async () => {
+  const lookups = [];
+  const auth = { auth: () => ({
+    getUsers: fakeAuth.auth().getUsers,
+    getUserByEmail: async (e) => { lookups.push(e); if (e === 'tester@x.in') return { uid: 'tu1' }; const err = new Error('nf'); err.code = 'auth/user-not-found'; throw err; },
+  }) };
+  const orders = [paid('p1', 'u1', 'pack_chapter', 199, 1000), paid('p2', 'tu1', 'pack_chapter', 235, 2000)];
+  const run = async (env) => {
+    process.env.ADMIN_FIREBASE_UIDS = 'admin1';
+    if (env === undefined) delete process.env.TEST_ACCOUNT_EMAILS; else process.env.TEST_ACCOUNT_EMAILS = env;
+    const route = createAdminPurchasesRoutes({
+      sendJson: (res, s, b) => { res.status = s; res.body = b; }, adminFirestore: fakeFirestore(orders), firebaseAdmin: auth, now: () => NOW,
+      requireAdmin: async () => ({ ok: true, uid: 'admin1' }),
+    });
+    const r = {}; await route.list({}, r); return r.body;
+  };
+  const off = await run(undefined);
+  assert.equal(lookups.length, 0);
+  assert.equal(off.items.find((i) => i.uid === 'tu1').isAdminAccount, false);
+  assert.deepEqual(off.totals.last7.packs, { count: 2, inr: 434 });
+  const on = await run(' Tester@X.in , missing@x.in ');
+  assert.equal(on.items.find((i) => i.uid === 'tu1').isAdminAccount, true);
+  assert.equal(on.items.find((i) => i.uid === 'u1').isAdminAccount, false);
+  assert.deepEqual(on.totals.last7.packs, { count: 1, inr: 199 });
+  assert.equal(JSON.stringify(on).includes('TEST_ACCOUNT'), false);
+  delete process.env.TEST_ACCOUNT_EMAILS;
+});
+
+test('TEST-ACCOUNTS-1: a guest order whose guestEmail is a test email is flagged and left out of guest totals', async () => {
+  process.env.TEST_ACCOUNT_EMAILS = 'Tester@x.in';
+  const g = (id, extra) => ({ id, data: { uid: null, payer: 'guest', passType: 'pack_chapter', packTarget: 'triangles', amountPaise: 4900, status: 'paid_unclaimed', paymentId: `pay_${id}`, guestPaidAt: new Date(NOW - 3600000), ...extra } });
+  const r = {}; await harness({ orders: [g('t1', { guestEmail: 'tester@X.in' }), g('r1', { guestEmail: 'real@x.in' })] }).route.list({}, r);
+  assert.deepEqual(r.body.totals.last7.guestUnclaimed, { count: 1, inr: 49 });
+  delete process.env.TEST_ACCOUNT_EMAILS;
+});
