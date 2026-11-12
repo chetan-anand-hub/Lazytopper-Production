@@ -686,7 +686,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         const status = await checkPackOrder(outcome.orderId);
         if (status.state === "paid") {
           resetOwnedPacksCache();
-          trackPackPurchase({ ...details, valueInr: status.amountInr ?? details.valueInr, transactionId: status.paymentId || outcome.paymentId || attemptId });
+          trackPackPurchase({ ...details, valueInr: status.amountInr ?? details.valueInr, transactionId: status.orderId || outcome.orderId || status.paymentId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
           settled = true;
           break;
         }
