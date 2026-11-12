@@ -109,6 +109,12 @@ export interface CheckoutSheetProps {
    * a signed-in student's one Pay button). Absent = as before (signed in -> the "For: you" step).
    */
   startAt?: "other";
+  /**
+   * PARENTS-V2-1: "other" = the pay-first flow for a parent (/for-parents): a signed-out visitor goes straight to the one Pay button
+   * (the "Buy for yourself" step, even with audience "parent"), and after the verified payment the "Who will use it?" step opens with
+   * "My child / someone else" PRE-SELECTED. Absent = unchanged everywhere else.
+   */
+  attachPreselect?: "other";
   /** Test seam. */
   buy?: (item: GuestItem, recipient: Recipient, signedIn: boolean) => Promise<WhoBuyOutcome>;
   /**
@@ -151,6 +157,7 @@ export default function CheckoutSheet({
   onClose,
   audience,
   startAt,
+  attachPreselect,
   buy = buyForRecipient,
   buySelf = buyForSelf,
   selfFirst,
@@ -160,7 +167,7 @@ export default function CheckoutSheet({
 }: CheckoutSheetProps) {
   const surfaceData = audience === "parent" ? ({ surface: "for_parents" } as const) : {};
   // CHECKOUT-SELF-2: signed out, student-side, not asked to open at the box -> "Buy for yourself" first.
-  const [selfOutFirst] = useState(() => !signedIn && startAt !== "other" && audience !== "parent" && (selfFirst ?? isCheckoutSelfClientEnabled()));
+  const [selfOutFirst] = useState(() => !signedIn && startAt !== "other" && (audience !== "parent" || attachPreselect === "other") && (selfFirst ?? isCheckoutSelfClientEnabled()));
   const [step, setStep] = useState<Step>(holder && signedIn ? { name: "holder" } : selfOutFirst ? { name: "selfOut" } : signedIn && startAt !== "other" ? { name: "self" } : { name: "form" });
   const showAttach = attachOn ?? isSelfAttachClientEnabled();
   const goTo = onGoTo || ((path: string) => window.location.assign(path));
@@ -466,7 +473,7 @@ export default function CheckoutSheet({
       </>
     );
   } else if (step.name === "attach") {
-    body = <AttachFlow item={item} proof={step.proof} contact={step.contact} onTitle={onAttachTitle} onClose={onClose} onSettled={onAttachSettled} meNow={meNow} />;
+    body = <AttachFlow item={item} proof={step.proof} contact={step.contact} onTitle={onAttachTitle} onClose={onClose} onSettled={onAttachSettled} meNow={meNow} {...(attachPreselect ? { preselect: attachPreselect } : {})} />;
   } else {
     body = (
       <>

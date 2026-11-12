@@ -86,12 +86,17 @@ export interface AttachFlowProps {
   holdMs?: number;
   /** F1: bumped by the close-confirm's "Put it on <masked> now" - answers "me" with the paid-with contact. */
   meNow?: number;
+  /**
+   * PARENTS-V2-1: "other" = the "Who will use it?" step opens with "My child / someone else" PRE-SELECTED (selected state + a
+   * Continue button; a tap on either choice still goes straight on). Absent = unchanged everywhere else.
+   */
+  preselect?: "other";
 }
 
 /** "Board Pass" / the pack's name, as the copy names it. */
 const whatOf = (item: { kind: GuestItem["kind"]; label: string }): string => (item.kind === "pack" ? item.label : "Board Pass");
 
-export default function AttachFlow({ item, proof, contact, onTitle, onClose, onSettled, attach = attachPayment, holdMs = ATTACH_HOLD_MS, meNow = 0 }: AttachFlowProps) {
+export default function AttachFlow({ item, proof, contact, onTitle, onClose, onSettled, attach = attachPayment, holdMs = ATTACH_HOLD_MS, meNow = 0, preselect }: AttachFlowProps) {
   const [view, setView] = useState<View>({ name: "who" });
   const [typed, setTyped] = useState("");
   const viewRef = useRef<View>(view);
@@ -287,17 +292,26 @@ export default function AttachFlow({ item, proof, contact, onTitle, onClose, onS
   }
 
   // who
+  const goOther = () => {
+    setTyped("");
+    setView({ name: "other", byEmail: false });
+  };
   return (
     <>
       <p className="lt-gps__ok" role="status" data-testid="who-paid">Payment received ✓ {what}</p>
-      <button type="button" className="lt-who__choice" onClick={() => { if (contact) setView({ name: "me" }); else { setTyped(""); setView({ name: "meForm" }); } }} data-testid="attach-choose-me">
+      <button type="button" className="lt-who__choice" onClick={() => { if (contact) setView({ name: "me" }); else { setTyped(""); setView({ name: "meForm" }); } }} data-testid="attach-choose-me" {...(preselect ? { "aria-pressed": false } : {})}>
         <strong>{ATTACH_ME}</strong>
         <small>{ATTACH_ME_SUB}</small>
       </button>
-      <button type="button" className="lt-who__choice" onClick={() => { setTyped(""); setView({ name: "other", byEmail: false }); }} data-testid="attach-choose-other">
+      <button type="button" className={preselect ? "lt-who__choice lt-who__choice--on" : "lt-who__choice"} onClick={goOther} data-testid="attach-choose-other" {...(preselect ? { "aria-pressed": true } : {})}>
         <strong>{ATTACH_OTHER}</strong>
         <small>{ATTACH_OTHER_SUB}</small>
       </button>
+      {preselect && (
+        <button type="button" className="lt-gps__primary" onClick={goOther} data-testid="attach-continue">
+          Continue
+        </button>
+      )}
       {contact && <p className="lt-who__note" data-testid="attach-hold-note">{attachHoldNote(paidWith, paidWithIsPhone)}</p>}
       {!contact && <a className="lt-gps__textlink" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">Message us on WhatsApp</a>}
     </>

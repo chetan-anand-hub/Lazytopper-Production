@@ -27,7 +27,8 @@ describe("one sheet behind every Pay / Buy", () => {
     expect(read("components/pricing/PassCheckout.tsx")).toMatch(SHEET_IMPORT);
     expect(read("components/packs/PacksShop.tsx")).toMatch(SHEET_IMPORT);
     // PARENTS-PAY-1: the /for-parents host lazy-loads the same module too.
-    expect(read("components/parents/ParentBoardPassSheet.tsx")).toMatch(SHEET_IMPORT);
+    // PARENTS-V2-1: the page itself lazy-loads it now (the old ParentBoardPassSheet wrapper is retired).
+    expect(read("pages/ForParentsPage.tsx")).toMatch(/lazy\(\(\) => import\("\.\.\/components\/checkoutWho\/CheckoutSheet"\)\)/);
   });
 
   it("PassCheckout: a SIGNED-OUT Board Pass Pay opens the sheet; a signed-in one buys directly (CHECKOUT-SELF-1)", () => {
@@ -53,6 +54,6 @@ describe("one sheet behind every Pay / Buy", () => {
       .map((f) => f.slice(SRC.length + 1).split("\\").join("/"))
       .sort();
     // PARENTS-PAY-1: /for-parents mounts the SAME sheet for the Board Pass (audience="parent"); still one sheet component, three hosts.
-    expect(hosts).toEqual(["components/packs/PacksShop.tsx", "components/parents/ParentBoardPassSheet.tsx", "components/pricing/PassCheckout.tsx"]);
+    expect(hosts).toEqual(["components/packs/PacksShop.tsx", "components/parents/ParentBoardPassSheet.tsx", "components/pricing/PassCheckout.tsx", "pages/ForParentsPage.tsx"]);
   });
 });

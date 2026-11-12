@@ -296,3 +296,27 @@ describe("a signed-in holder taps Buy", () => {
     expect(onGoTo).toHaveBeenCalledWith("/packs#my-packs");
   });
 });
+
+describe("PARENTS-V2-1 - attachPreselect (the /for-parents pay-first flow)", () => {
+  it("signed out with audience 'parent' + attachPreselect: straight to the one Pay (not the number box), and the who step opens with 'My child / someone else' selected", async () => {
+    mount({ audience: "parent", attachPreselect: "other" });
+    expect(screen.queryByTestId("who-first")).toBeNull();
+    await payToWho();
+    expect(screen.getByTestId("attach-choose-other").getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByTestId("attach-choose-me").getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(screen.getByTestId("attach-continue"));
+    expect(screen.getByTestId("attach-other-input")).toBeTruthy();
+  });
+
+  it("without the prop nothing changes: no selected state, no Continue button", async () => {
+    mount();
+    await payToWho();
+    expect(screen.getByTestId("attach-choose-other").getAttribute("aria-pressed")).toBeNull();
+    expect(screen.queryByTestId("attach-continue")).toBeNull();
+  });
+
+  it("audience 'parent' WITHOUT the prop keeps the old number-box start (default unchanged)", () => {
+    mount({ audience: "parent" });
+    expect(screen.queryByTestId("who-pay-self-out")).toBeNull();
+  });
+});

@@ -145,6 +145,8 @@ describe("VIDEO-EMBED-1 (c) — consent and naming", () => {
     const hits = scanned
       .filter((f) => /swajeet/i.test(readFileSync(f, "utf8")))
       .filter((f) => f !== builder && !/[\\/]TestimonialVideo[^\\/]*$/.test(f))
+      // PARENTS-V2-1: the owner's visible line "— Swajeet, Class 10" on /for-parents (first name only, as in the module above).
+      .filter((f) => !/[\\/]config[\\/]forParentsPage\.ts$/.test(f))
       .map((f) => relative(LAZYTOPPER, f).replace(/\\/g, "/"));
     expect(hits).toEqual([]);
     // precondition: the allowed home really holds it (a scan that finds nothing anywhere would pass)
