@@ -18,6 +18,7 @@ import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
 import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
+import { isCheckoutSelfClientEnabled } from "./checkoutWhoFlag";
 
 export { isCheckoutWhoClientEnabled, isPayAutoAccountClientEnabled, isCheckoutSelfClientEnabled } from "./checkoutWhoFlag";
 
@@ -77,6 +78,125 @@ export function paidLine(kind: GuestItem["kind"], ids: readonly string[]): strin
 /** CHECKOUT-WHO-2: kept for callers; the same generic line as WHO_UNAVAILABLE (nothing account-revealing). */
 export function alreadyCoveredLine(_kind: GuestItem["kind"]): string {
   return WHO_UNAVAILABLE;
+}
+
+/* ── SELFPAY-ATTACH-1 (owner 12 Nov 2026): pay first, then "who will use it?" - copy follows the approved mock-up ─────── */
+
+/**
+ * ON whenever "Buy for yourself" is; VITE_CHECKOUT_SELF_ATTACH_DISABLED=1 restores the previous flow (the order carries no
+ * `attach` marker, so the server delivers at payment as before). The server has its own switch (CHECKOUT_SELF_ATTACH_DISABLED).
+ */
+export function isSelfAttachClientEnabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_CHECKOUT_SELF_ATTACH_DISABLED;
+    return isCheckoutSelfClientEnabled() && !/^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
+
+/** SELFPAY-ATTACH-1: the choose-who endpoint (kept here: this lane may not edit services/guestPay.ts). */
+export const GUEST_ATTACH_ENDPOINT = "/api/pay/guest/attach";
+/** The server holds a paid attach order for 10 minutes (owner: "make it 10 mins"); the screen's timer is only the screen. */
+export const ATTACH_HOLD_MS = 10 * 60 * 1000;
+export const ATTACH_BEFORE_PAY = "After paying, you'll choose who uses it: you or someone else.";
+export const attachWhoTitle = (kind: GuestItem["kind"]): string => (kind === "pack" ? "Who will use this pack?" : "Who will use this Board Pass?");
+export const ATTACH_ME = "Me";
+export const ATTACH_ME_SUB = "I'm the student";
+export const ATTACH_OTHER = "My child / someone else";
+export const ATTACH_OTHER_SUB = "We'll put it on their mobile or email";
+/** `masked` = the paid-with number / email, already masked. */
+export const attachHoldNote = (masked: string, isPhone: boolean): string =>
+  `If you don't choose in 10 minutes, it goes on ${masked}, the ${isPhone ? "number" : "email"} you paid with. You can sign in with ${isPhone ? "that number" : "that email"}.`;
+export const ATTACH_ME_TITLE = "Put it on this number?";
+export const attachMeLine = (what: string, masked: string, isPhone: boolean): string => `We'll put your ${what} on ${masked}, the ${isPhone ? "number" : "email"} you paid with.`;
+export const ATTACH_ME_YES = "Yes, that's me";
+export const ATTACH_ME_DIFFERENT = "Use a different mobile or email";
+export const attachMeFine = (isPhone: boolean): string => `You'll sign in with this ${isPhone ? "number" : "email"} to use it.`;
+export const ATTACH_ME_FORM_TITLE = "Which mobile or email is yours?";
+export const ATTACH_ME_FORM_LABEL = "Your mobile number or email";
+export const ATTACH_OTHER_TITLE = "Who should get it?";
+export const ATTACH_OTHER_PHONE_LABEL = "Their WhatsApp number";
+export const ATTACH_OTHER_EMAIL_LABEL = "Their email";
+export const ATTACH_USE_EMAIL = "Use their email instead";
+export const ATTACH_USE_PHONE = "Use their WhatsApp number instead";
+export const attachOtherLine = (what: string, isPhone: boolean): string => `We'll activate the ${what} on this ${isPhone ? "number" : "email"}. They sign in with it.`;
+export const attachActivateLabel = (typed: string): string => (typed.trim() ? `Activate on ${typed.trim()}` : "Activate");
+export const ATTACH_ANOTHER_TITLE = "Who should this one go to?";
+export const ATTACH_ANOTHER_LABEL = "Another WhatsApp number or email";
+export const ATTACH_ACTIVATE = "Activate";
+export const attachAlreadyHasWarn = (masked: string, kind: GuestItem["kind"]): string =>
+  kind === "pack" ? `${masked} already owns this pack.` : `${masked} already has the Board Pass till the boards.`;
+/** BEFORE payment (the "someone else" box): the same plain answer, about the number / email just typed. */
+export const alreadyHasLine = (kind: GuestItem["kind"], isEmail: boolean): string =>
+  kind === "pack" ? `This ${isEmail ? "email" : "number"} already owns this pack.` : `This ${isEmail ? "email" : "number"} already has the Board Pass till the boards.`;
+export const attachDoneOk = (what: string): string => `${what} activated \u2713`;
+export const attachDoneTitle = (masked: string): string => `${masked} can sign in now`;
+export const attachDoneLine = (isPhone: boolean): string => `They open LazyTopper and sign in with this ${isPhone ? "number" : "email"}. Everything is already there.`;
+export const ATTACH_SEND_WHATSAPP = "Send them the link on WhatsApp";
+export const ATTACH_DONE = "Done";
+export const ATTACH_OPEN_TITLE = "Open your Board Pass";
+export const attachFallbackTitle = (what: string, masked: string): string => `Your ${what} is on ${masked}`;
+export const attachFallbackLine = (what: string, isPhone: boolean): string =>
+  `This is the ${isPhone ? "number" : "email"} you paid with. Sign in with it to use the ${what}.`;
+export const ATTACH_START = "Start";
+export const attachCloseConfirm = (masked: string): string => `Your payment is safe. Sign in with ${masked} to use it.`;
+export const ATTACH_FAILED = "We couldn't save that just now. Your payment is safe. Please try again.";
+export const ATTACH_BAD_ID = "Enter a 10-digit Indian mobile number or an email address.";
+
+/** Where an attach buyer lands: Home (Board Pass) or My packs, with the one-time welcome flag (?welcome=board_pass | pack). */
+export function welcomeLandingPath(kind: GuestItem["kind"], desktop: boolean): string {
+  if (kind === "pack") return `/packs?from=pay&welcome=pack#my-packs`;
+  // Mobile Home is /browse (RootEntry would drop the query on its redirect from "/").
+  return desktop ? "/?welcome=board_pass" : "/browse?welcome=board_pass";
+}
+
+export interface AttachProof {
+  orderId: string;
+  paymentId: string;
+  signature: string;
+}
+
+export type AttachOutcome =
+  | { status: "ok"; phoneMasked?: string; emailMasked?: string }
+  | { status: "already_has" }
+  | { status: "invalid" }
+  | { status: "failed" };
+
+/**
+ * POST /api/pay/guest/attach - say who a PAID attach order is for. The proof is Razorpay's checkout signature, held in memory only
+ * (never a URL, storage or an analytics event). `recipient` absent + choice "me" = the number / email read off the payment.
+ */
+export async function attachPayment(proof: AttachProof, choice: "me" | "other", recipient?: Recipient | null, fetchImpl: typeof fetch = fetch): Promise<AttachOutcome> {
+  try {
+    const res = await fetchImpl(GUEST_ATTACH_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...proof,
+        choice,
+        ...(recipient ? { recipient: { ...(recipient.phone ? { phone: recipient.phone } : {}), ...(recipient.email ? { email: recipient.email } : {}), first: recipient.first } } : {}),
+      }),
+    });
+    let parsed: Record<string, unknown> | null = null;
+    try {
+      parsed = (await res.json()) as Record<string, unknown>;
+    } catch {
+      parsed = null;
+    }
+    if (res.ok && parsed && parsed.ok === true) {
+      return {
+        status: "ok",
+        ...(typeof parsed.phoneMasked === "string" ? { phoneMasked: parsed.phoneMasked } : {}),
+        ...(typeof parsed.emailMasked === "string" ? { emailMasked: parsed.emailMasked } : {}),
+      };
+    }
+    if (res.ok && parsed && parsed.ok === false && parsed.reason === "already_has") return { status: "already_has" };
+    if (parsed && parsed.reason === "invalid_recipient") return { status: "invalid" };
+    return { status: "failed" };
+  } catch {
+    return { status: "failed" };
+  }
 }
 
 /* ── PAY-ACCOUNT-1: the thank-you screen (the account is made at payment) ─────────── */
@@ -299,7 +419,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
 
 export type SelfBuyOutcome =
   /** `contact`: the buyer's mobile / email as the server read them off the verified payment (null = nothing usable, or not confirmed). */
-  | { status: "paid"; confirmed: boolean; contact: Recipient | null; amountInr?: number; paymentId?: string }
+  | { status: "paid"; confirmed: boolean; contact: Recipient | null; amountInr?: number; paymentId?: string; attach?: AttachProof }
   | { status: "dismissed" }
   | { status: "unavailable" }
   | { status: "failed" };
@@ -313,7 +433,7 @@ export interface SelfBuyDeps {
 /** Exported for tests. The body carries the SKU (+ target) and `self: true`; never an amount, a phone or an email. */
 export async function createSelfOrder(item: GuestItem): Promise<WhoOrder> {
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null) : {};
-  const json = await postJson(GUEST_ORDER_ENDPOINT, { sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), self: true, ...gst });
+  const json = await postJson(GUEST_ORDER_ENDPOINT, { sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), self: true, ...(isSelfAttachClientEnabled() ? { attach: true } : {}), ...gst });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new WhoError("failed");
   return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
@@ -363,12 +483,19 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
     const paymentId = typeof success.razorpay_payment_id === "string" && success.razorpay_payment_id ? success.razorpay_payment_id : undefined;
     let confirmed = true;
     let contact: Recipient | null = null;
+    let attach: AttachProof | undefined;
     try {
-      contact = readSelfContact((await deps.verify(success)).selfContact);
+      const verified = await deps.verify(success);
+      contact = readSelfContact(verified.selfContact);
+      // SELFPAY-ATTACH-1: the server says the choice of WHO is still open -> keep Razorpay's signature (memory only) to answer it.
+      const open = verified.attach as { attached?: unknown } | undefined;
+      if (open && open.attached === false && typeof success.razorpay_signature === "string" && success.razorpay_signature) {
+        attach = { orderId: success.razorpay_order_id, paymentId: success.razorpay_payment_id, signature: success.razorpay_signature };
+      }
     } catch {
       confirmed = false; // Razorpay SIGNED a success: never "didn't go through"; the webhook records it and reads the contact.
     }
-    return { status: "paid", confirmed, contact, ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}) };
+    return { status: "paid", confirmed, contact, ...(attach ? { attach } : {}), ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}) };
   } catch (e) {
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof WhoError && e.code !== "failed") return { status: e.code === "unavailable" || e.code === "already_covered" ? "unavailable" : "failed" };

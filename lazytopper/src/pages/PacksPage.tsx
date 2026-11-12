@@ -1,3 +1,4 @@
+import WelcomeBannerGate from "../components/welcome/WelcomeBannerGate";
 import { Suspense, lazy, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -134,6 +135,7 @@ function PacksPageBody() {
   const [subject, setSubject] = useState<PackSubject>(() => packsUrlSubject(search) ?? "maths");
   return (
     <main className="lt-packs lt-pk" aria-label="LazyTopper PDF packs">
+      <WelcomeBannerGate />
       <PacksShop returnPath={PACKS_RETURN_PATH}>
         {(api) => (
           <>

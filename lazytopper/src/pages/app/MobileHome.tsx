@@ -1,3 +1,4 @@
+import WelcomeBannerGate from "../../components/welcome/WelcomeBannerGate";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -577,6 +578,7 @@ export default function MobileHome() {
 
       {/* 96px bottom padding clears App.tsx's 60px BottomNav. */}
       <div style={{ padding: "15px 14px 96px", maxWidth: "100%" }}>
+        <WelcomeBannerGate />
         {/* BROWSE-VISITOR-CARD-1 - signed-out visitors only (the mount renders nothing while auth loads or for any signed-in user). */}
         <BrowseVisitorCard />
 

@@ -1,3 +1,4 @@
+import WelcomeBannerGate from "../../components/welcome/WelcomeBannerGate";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -355,6 +356,7 @@ export default function DesktopHome() {
           gap: 24,
         }}
       >
+        <WelcomeBannerGate />
         {/* ── The greeting band is GONE (AUTH-2-FU §1/§2) ────────
             The greeting itself moved INLINE into DesktopShell's header, which
             wraps this page at every entry ("/" signed-in and "/browse", both

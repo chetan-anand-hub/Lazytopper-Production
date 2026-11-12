@@ -153,3 +153,35 @@ describe("CHECKOUT-WHO-1 · flag OFF = the old flow", () => {
     expect(screen.queryByTestId("who-sheet")).toBeNull();
   });
 });
+
+describe("SELFPAY-ATTACH-1 · an owner taps an owned pack's Buy", () => {
+  const OWNED = { packs: [{ packId: "pack_mock:maths", sku: "pack_mock", target: "maths", pricePaidInr: 149, paidAt: 1 }], licensee: { name: "Asha", email: "a@b.in" } };
+  it("flag on, signed in: 'You own this' opens 'You already own the ...' with Buy for someone else and Open My packs; nothing is bought", async () => {
+    auth.user = { uid: "u1", email: "anaya.k@gmail.com" };
+    (packs.fetchMyPacks as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(OWNED);
+    shop();
+    fireEvent.click(screen.getByText("open mock"));
+    const btn = await screen.findByTestId("packs-buy-pack_mock");
+    await waitFor(() => expect(btn.textContent).toBe("You own this"));
+    expect((btn as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(btn);
+    expect(await screen.findByTestId("who-holder-tag")).toBeTruthy();
+    expect(screen.getByTestId("who-holder-title").textContent).toMatch(/^You already own the /);
+    expect(screen.getByTestId("who-holder-line").textContent).toBe("Your files are in My packs, ready to download.");
+    expect(screen.getByTestId("who-holder-go").textContent).toBe("Open My packs");
+    fireEvent.click(screen.getByTestId("who-holder-other"));
+    expect(screen.getByTestId("who-first")).toBeTruthy();
+    expect(buyMock).not.toHaveBeenCalled();
+  });
+
+  it("flag off: 'You own this' stays a disabled label, exactly as before", async () => {
+    flags.who = false;
+    auth.user = { uid: "u1", email: "anaya.k@gmail.com" };
+    (packs.fetchMyPacks as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(OWNED);
+    shop();
+    fireEvent.click(screen.getByText("open mock"));
+    const btn = await screen.findByTestId("packs-buy-pack_mock");
+    await waitFor(() => expect(btn.textContent).toBe("You own this"));
+    expect((btn as HTMLButtonElement).disabled).toBe(true);
+  });
+});
