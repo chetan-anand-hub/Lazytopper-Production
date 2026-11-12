@@ -192,7 +192,7 @@ function fakeRazorpay() {
 }
 
 /* ── parent-pay routes AND the existing payment routes, behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), clock, displayNames = { child1: 'Aarav Sharma' }, rateLimiter } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), clock, displayNames = { child1: 'Aarav Sharma' }, rateLimiter, receiptEmailer } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -207,6 +207,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
   const parent = createParentPayRoutes({
     sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now,
     foundingOfferOpen: true,
+    ...(receiptEmailer ? { receiptEmailer } : {}),
     getDisplayName: async (uid) => displayNames[uid] || '',
     ...(rateLimiter ? { rateLimiter } : {}),
   });
@@ -1382,4 +1383,54 @@ test('GST-EXCL-1 · pack link: view names base, GST and total; the parent order 
   const v = await parentVerify(srv, m.token, o.json.orderId, p.id);
   assert.equal(v.status, 200, v.text);
   assert.ok(srv.db.read('packEntitlements/child1/packs/pack_cbq:maths'));
+});
+
+/* ══ RECEIPT-EMAIL-1 · the receipt after a parent-pay grant (REAL emailer wired; fails if the hook is removed) ══ */
+const { createPaymentReceiptEmailer } = require('../services/paymentReceiptEmail.cjs');
+function parentReceiptHarness() {
+  const db = memoryFirestore();
+  const sent = [];
+  const fetchImpl = async (url, init) => {
+    sent.push(JSON.parse(init.body));
+    return { ok: true, status: 200, json: async () => ({ id: `em_${sent.length}` }) };
+  };
+  const receiptEmailer = createPaymentReceiptEmailer({
+    env: { PAYMENT_EMAIL_ENABLED: '1', RESEND_API_KEY: 're_test_key' },
+    adminFirestore: db,
+    fetchImpl,
+    now: () => NOW,
+    getAuthUser: async () => ({ email: 'kid@example.com', phoneNumber: '+919876543210', providerIds: ['google.com'] }),
+  });
+  return { db, sent, receiptEmailer };
+}
+
+test('RECEIPT · a parent-paid PASS: ONE receipt to the parent and the child account; a replayed verify adds none', async (t) => {
+  const { db, sent, receiptEmailer } = parentReceiptHarness();
+  const srv = await startRoutes({ db, receiptEmailer });
+  t.after(srv.close);
+  const { token } = await mint(srv);
+  const { json: o } = await parentOrder(srv, token);
+  const p = srv.rzp.pay(o.orderId);
+  srv.rzp.payments.get(p.id).email = 'parent@example.com';
+  assert.equal((await parentVerify(srv, token, o.orderId, p.id)).status, 200);
+  assert.equal((await parentVerify(srv, token, o.orderId, p.id)).status, 200);
+  await receiptEmailer.whenIdle();
+  assert.deepEqual(sent.map((m) => m.to[0]).sort(), ['kid@example.com', 'parent@example.com']);
+  assert.match(sent[0].text, /Sign in at lazytopper\.com with phone 98•••••210 \/ Google ki•••@example\.com/);
+  assert.doesNotMatch(sent[0].text, /Premium/);
+});
+
+test('RECEIPT · a parent-paid PACK: ONE receipt to the parent and the child account', async (t) => {
+  const { db, sent, receiptEmailer } = parentReceiptHarness();
+  const srv = await startRoutes({ env: ENV_PACKS, db, receiptEmailer });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_cbq', target: 'maths' });
+  const o = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack', passType: 'pack_cbq', sku: 'pack_cbq', packTarget: 'maths', target: 'maths' }, headers: asUid('parentOwnAccount') });
+  assert.equal(o.status, 200, o.text);
+  const p = srv.rzp.pay(o.json.orderId);
+  srv.rzp.payments.get(p.id).email = 'parent@example.com';
+  assert.equal((await parentVerify(srv, m.token, o.json.orderId, p.id)).status, 200);
+  await receiptEmailer.whenIdle();
+  assert.deepEqual(sent.map((x) => x.to[0]).sort(), ['kid@example.com', 'parent@example.com']);
+  assert.match(sent[0].text, /My packs to download/);
 });

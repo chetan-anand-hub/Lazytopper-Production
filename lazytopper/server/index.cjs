@@ -442,7 +442,19 @@ const payEmailSignInLink = async (email, continueUrl) => {
   if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
   return firebaseAdmin.auth().generateSignInWithEmailLink(email, { url: continueUrl, handleCodeInApp: true });
 };
-const paymentReceiptEmailer = require('./services/paymentReceiptEmail.cjs').createPaymentReceiptEmailer({ adminFirestore, telemetry, emailSignInLink: payEmailSignInLink });
+const paymentReceiptEmailer = require('./services/paymentReceiptEmail.cjs').createPaymentReceiptEmailer({
+  adminFirestore,
+  telemetry,
+  emailSignInLink: payEmailSignInLink,
+  // RECEIPT-EMAIL-1: the recipient account's own record (masked sign-ins + its email), and Razorpay's payment record (the
+  // PAYER's checkout email when the caller has none, e.g. after an attach choice).
+  getAuthUser: async (uid) => {
+    if (!firebaseAdmin) return null;
+    const r = await authRecordOrNull((a) => a.getUser(uid));
+    return r ? { email: r.email || '', phoneNumber: r.phoneNumber || '', providerIds: (r.providerData || []).map((x) => x.providerId) } : null;
+  },
+  fetchPayment: require('./services/gstInvoice.cjs').createRazorpayPaymentFetcher(),
+});
 // GST-INVOICE-1 (DARK behind GST_INVOICE_ENABLED): the tax invoice, issued after a verified capture on every pay path.
 const gstInvoicer = require('./services/gstInvoice.cjs').createGstInvoicer({
   adminFirestore,
@@ -485,6 +497,7 @@ const parentPayRoutes = createParentPayRoutes({
   verifiedCaller,
   adminFirestore,
   telemetry,
+  receiptEmailer: paymentReceiptEmailer,
   invoicer: gstInvoicer,
   // The child's display name from the server's own auth record — never from a request.
   getDisplayName: async (uid) => {
@@ -1229,6 +1242,8 @@ server.listen(config.PORT, () => {
   opsReporter.schedule();
   // GST-INVOICE-2a — the hourly drain of queued invoice emails; armed ONLY while invoicing AND payment email are on.
   if (gstInvoicer.config.enabled && paymentReceiptEmailer.config.mode === 'send') paymentReceiptEmailer.startInvoiceEmailRunner();
+  // RECEIPT-EMAIL-1 — the hourly sweep of attach-order receipts the hold deferred; its own timer, whatever invoicing says.
+  paymentReceiptEmailer.startHeldReceiptRunner();
   // GST-INVOICE-BACKDATE-1 — the hourly drain of state forms + reminders; armed only with invoicing, email and the link secret.
   gstBackdate.startRunner();
 

@@ -269,6 +269,7 @@ function createParentPayRoutes(deps = {}) {
     getDisplayName = async () => '',
     tokenFactory = mintToken,
     invoicer, // GST-INVOICE-1: optional { issueForPayment, config }; absent or off -> nothing changes
+    receiptEmailer, // RECEIPT-EMAIL-1: optional; the ONE receipt email (payer + the child's account), after the invoice
   } = deps;
 
   /** GST-INVOICE-1 - the parent's confirmed state (+ PIN / business) for the stored order; {} when none. Never refuses. */
@@ -277,9 +278,14 @@ function createParentPayRoutes(deps = {}) {
     for (const d of g.dropped) emit(`payments.parent.order.gst_buyer_dropped.${d}`);
     return g.fields;
   }
-  /** GST-INVOICE-1 - after a verified capture: the invoice, fired and forgotten (no receipt email on this path). */
+  /** GST-INVOICE-1 - after a verified capture AND the grant: the invoice, then (RECEIPT-EMAIL-1) the receipt; fired and forgotten. */
   function issueInvoice(orderId, paymentId, payment) {
-    afterCapture({ invoicer, input: { orderId, paymentId, payment }, sendReceipt: null });
+    const wantsReceipt = !!receiptEmailer && typeof receiptEmailer.sendForPayment === 'function';
+    afterCapture({
+      invoicer,
+      input: { orderId, paymentId, payment },
+      sendReceipt: wantsReceipt ? () => void receiptEmailer.sendForPayment({ orderId, paymentId, email: payment && typeof payment.email === 'string' ? payment.email : '' }) : null,
+    });
   }
 
   const rateLimiter = deps.rateLimiter || createParentPayLimiter({ telemetry, now });

@@ -177,6 +177,8 @@ export interface PurchaseItem extends WhoFields {
   gstInr?: number;
   channel: "student" | "parent";
   isAdminAccount: boolean;
+  /** RECEIPT-EMAIL-1: when the receipt email was sent; absent when none went out. */
+  receiptEmailedAtMs?: number;
 }
 /** CHECKOUT-1 - an order that was opened ("created") and never paid, older than 30 minutes. */
 export interface AbandonedItem {
@@ -502,6 +504,11 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
                     )}
                   </span>
                   <WhoRow w={p} id={p.orderId} />
+                  {typeof p.receiptEmailedAtMs === "number" && (
+                    <span className="pu-reason sa-muted" data-testid={`pu-receipt-${p.orderId}`}>
+                      Receipt emailed {formatIstDateTime(p.receiptEmailedAtMs)}
+                    </span>
+                  )}
                   {p.kind === "pack" && <MoveControl p={p} getToken={getToken} />}
                   {/* ADMIN-MOVE-1: only an account the server created at payment (uid pay-...) can be merged */}
                   {p.uid.startsWith("pay-") && <MoveControl p={p} getToken={getToken} mode="merge" />}

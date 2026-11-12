@@ -25,7 +25,7 @@ const {
 } = require('./trialEndingEmail.cjs');
 const { senderOnVerifiedDomain } = require('./nudgeEmail.cjs');
 const { isPackProduct, validateTarget } = require('./packProducts.cjs');
-const { maskIndianMobile, maskEmail, GUEST_PAYER } = require('./guestPay.cjs');
+const { maskIndianMobile, maskEmail, GUEST_PAYER, normaliseIndianMobile, normaliseEmail } = require('./guestPay.cjs');
 const { GST_RATE_PERCENT } = require('./passPricing.cjs');
 // GST-INVOICE-1: the tax invoice link (a signed link for a purchase made without this account's sign-in).
 const { invoiceToken, invoiceLinkSecret, invoiceOwnedBy } = require('./gstInvoice.cjs');
@@ -42,6 +42,12 @@ const SUPPORT_EMAIL = 'support@lazytopper.com';
 /** The ONE support WhatsApp number (mirror of src/config/socialProfiles.ts WHATSAPP_URL / WHATSAPP_DISPLAY_NUMBER). */
 const SUPPORT_WHATSAPP_URL = 'https://wa.me/919714568948';
 const SUPPORT_WHATSAPP_DISPLAY = '+91 97145 68948';
+/** SELFPAY-ATTACH-1: how long a signed-out payer may choose who an attach order is for (mirror of routes/guestPay.cjs). */
+const ATTACH_HOLD_MS = 10 * 60 * 1000;
+/** A receipt marker in one of these states may be taken again (a failed send; or nothing was sendable yet: no address). */
+const RETRYABLE_RECEIPT = Object.freeze(['failed', 'no_address']);
+/** The hourly sweep only looks at attach orders paid this recently (an older one is never mass-mailed days later). */
+const HELD_RECEIPT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const PAID_STATES = Object.freeze(['paid', 'paid_unclaimed', 'claimed']);
 const EMAIL_PATTERN = /^[^\s@<>()",;:]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,}$/;
 /**
@@ -93,6 +99,8 @@ function resolveReceiptEmailConfig(env = process.env) {
   const ready = enabled && !!apiKey && senderOnVerifiedDomain(from);
   return {
     enabled,
+    // RECEIPT-EMAIL-1 kill switch: stops the receipt / recipient emails only (invoice emails keep their own switches).
+    receiptDisabled: isOnFlag(e.RECEIPT_EMAIL_DISABLED),
     mode: ready ? 'send' : 'off',
     apiKey,
     from,
@@ -137,6 +145,31 @@ function itemLabel(passType, packTarget) {
 }
 
 /**
+ * RECEIPT-EMAIL-1 (F1) - the item as an EMAIL names it: "Board Pass", never "Premium" (owner ruling). `itemLabel` itself is
+ * shared with the tax invoice / state form and stays as it was.
+ */
+function emailItemLabel(passType, packTarget) {
+  const label = itemLabel(passType, packTarget);
+  if (!label) return null;
+  if (passType === 'till_boards') return 'Board Pass';
+  if (passType === 'month') return 'Month pass';
+  return label;
+}
+const passNameOf = (passType) => (passType === 'month' ? 'Month pass' : 'Board Pass');
+
+/** "98•••••210" - the first two and last three digits of an Indian mobile, or ''. */
+function maskPhoneDigits(raw) {
+  const n = normaliseIndianMobile(typeof raw === 'string' ? raw : '');
+  return n ? `${n.slice(3, 5)}•••••${n.slice(10)}` : '';
+}
+/** "ch•••@gmail.com", or ''. */
+function maskMailShort(raw) {
+  const e = normaliseEmail(typeof raw === 'string' ? raw : '');
+  const at = e ? e.indexOf('@') : -1;
+  return at < 1 ? '' : `${e.slice(0, Math.min(2, at))}•••${e.slice(at)}`;
+}
+
+/**
  * GST-EXCL-1 - the receipt's GST line from the order's STORED breakup: "₹1,917 + ₹345 GST (18%) = ₹2,262 paid", or with a pack
  * credit "... = ₹2,262, less pack credit ₹199: ₹2,063 paid". Null when the order carries no breakup or it does not add up.
  */
@@ -175,8 +208,8 @@ function formatIstDay(ms) {
  * PURE. The email for one paid order. `guestPhoneMasked` set -> the "sign in with your phone" instructions; else the
  * direct link. Returns null when the order is not something we send a receipt for.
  */
-function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst, invoice, invoiceResend = false }) {
-  const item = itemLabel(passType, packTarget);
+function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst, invoice, invoiceResend = false, signIns }) {
+  const item = emailItemLabel(passType, packTarget);
   if (!item || !Number.isInteger(amountPaise) || amountPaise <= 0 || typeof paymentId !== 'string' || !paymentId) return null;
   // GST-INVOICE-2a: the receipt RE-SENT with an invoice issued later ("Issue now") - only with a usable invoice link.
   if (invoiceResend && !(invoice && typeof invoice.number === 'string' && typeof invoice.url === 'string' && /^https:\/\//.test(invoice.url))) return null;
@@ -201,7 +234,7 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
 <p>Use exactly what was entered at checkout. Anything else will not find this purchase.</p>`;
   } else if (guestPhoneMasked) {
     const loginUrl = `${appUrl}/login?method=phone&redirect=${encodeURIComponent(isPack ? PAID_PACKS_LANDING : where)}`;
-    const lands = isPack ? 'your pack is in My packs' : 'your Premium is switched on';
+    const lands = isPack ? 'your pack is in My packs' : `your ${passNameOf(passType)} is switched on`;
     howText = `Sign in at lazytopper.com/login with your phone number ${guestPhoneMasked}, and ${lands}.\nSign in: ${loginUrl}\nUse the same number you paid with. A different number will not find this purchase.`;
     howHtml = `<p>Sign in at lazytopper.com/login with your phone number <strong>${escapeHtml(guestPhoneMasked)}</strong>, and ${lands}.</p>
 <p><a href="${escapeHtml(loginUrl)}">Sign in with your phone number</a></p>
@@ -212,8 +245,8 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
     const lands = isPack
       ? 'It is in My packs on your account'
       : payer === 'parent'
-        ? "Premium is now active on the student's account"
-        : 'Premium is switched on for your account';
+        ? `${passNameOf(passType)} is now active on the student's account`
+        : `${passNameOf(passType)} is switched on for your account`;
     howText = `${lands}.\nOpen it: ${url}`;
     howHtml = `<p>${lands}.</p>\n<p><a href="${escapeHtml(url)}">${isPack ? 'Open My packs' : 'Open LazyTopper'}</a></p>`;
   }
@@ -222,18 +255,28 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
   const inv = invoice && typeof invoice.number === 'string' && typeof invoice.url === 'string' && /^https:\/\//.test(invoice.url) ? invoice : null;
   const invoiceText = inv ? `\n\nGST tax invoice ${inv.number}: ${inv.url}` : '';
   const invoiceHtml = inv ? `\n<p>GST tax invoice ${escapeHtml(inv.number)}: <a href="${escapeHtml(inv.url)}">Download the invoice (PDF)</a></p>` : '';
+  // RECEIPT-EMAIL-1: when the account the purchase is ON is known (granted / attached / fallback decided), name its MASKED sign-ins.
+  const ids = Array.isArray(signIns) ? signIns.filter(Boolean) : null;
+  let readyText = '';
+  let readyHtml = '';
+  if (ids) {
+    const signInLine = ids.length ? `Sign in at lazytopper.com with ${ids.join(' / ')} to use it.` : 'Sign in at lazytopper.com to use it.';
+    const usage = isPack ? 'Open the menu \u2192 My packs to download.' : passType === 'till_boards' ? 'Everything is unlocked till the Feb 2027 boards.' : `${passNameOf(passType)} is unlocked on your account.`;
+    readyText = `\n\n${signInLine}\n${usage}`;
+    readyHtml = `\n<p>${escapeHtml(signInLine)}</p>\n<p>${escapeHtml(usage)}</p>`;
+  }
   const supportText = `Need help? Reply to this email, write to ${SUPPORT_EMAIL}, or message us on WhatsApp: ${SUPPORT_WHATSAPP_DISPLAY} (${SUPPORT_WHATSAPP_URL}).`;
   const text = [
     opening,
     `Item: ${item}\nAmount: ${amount}${gstLine ? `\nGST: ${gstLine}` : ''}\nRazorpay payment ID: ${paymentId}\nDate: ${date}${invoiceText}`,
-    `How to get it\n${howText}`,
+    `How to get it\n${howText}${readyText}`,
     supportText,
     'LazyTopper',
   ].join('\n\n');
   const html = `<p>${opening}</p>
 <p>Item: ${escapeHtml(item)}<br>Amount: ${escapeHtml(amount)}${gstLine ? `<br>GST: ${escapeHtml(gstLine)}` : ''}<br>Razorpay payment ID: ${escapeHtml(paymentId)}<br>Date: ${escapeHtml(date)}</p>${invoiceHtml}
 <p><strong>How to get it</strong></p>
-${howHtml}
+${howHtml}${readyHtml}
 <p>Need help? Reply to this email, write to <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>, or message us on WhatsApp: <a href="${SUPPORT_WHATSAPP_URL}">${SUPPORT_WHATSAPP_DISPLAY}</a>.</p>
 <p>LazyTopper</p>`;
   return { subject, text, html };
@@ -244,7 +287,7 @@ ${howHtml}
  * typed it at checkout). The sign-in instruction only: no price, no payer details, the phone masked.
  */
 function buildRecipientReadyEmail({ passType, packTarget, phoneMasked, emailMasked, appUrl }) {
-  const item = itemLabel(passType, packTarget);
+  const item = emailItemLabel(passType, packTarget);
   if (!item || passType === 'month') return null;
   const isPack = isPackProduct(passType);
   const name = isPack ? item : 'Board Pass';
@@ -276,7 +319,7 @@ function buildRecipientReadyEmail({ passType, packTarget, phoneMasked, emailMask
  * "or sign in any time with this email". No price, no payer details, the phone masked. The link is never logged or stored.
  */
 function buildAccountReadyEmail({ passType, packTarget, signInLink, newAccount, appUrl }) {
-  const item = itemLabel(passType, packTarget);
+  const item = emailItemLabel(passType, packTarget);
   if (!item || passType === 'month' || typeof signInLink !== 'string' || !/^https:\/\//.test(signInLink)) return null;
   const isPack = isPackProduct(passType);
   const name = isPack ? item : 'Board Pass';
@@ -306,7 +349,7 @@ function buildAccountReadyEmail({ passType, packTarget, signInLink, newAccount, 
  * the account must never be sent) and no number in it.
  */
 function buildPhoneAccountNoticeEmail({ passType, packTarget }) {
-  const item = itemLabel(passType, packTarget);
+  const item = emailItemLabel(passType, packTarget);
   if (!item || passType === 'month') return null;
   const name = isPackProduct(passType) ? item : 'Board Pass';
   const line = `${name} was bought for you on LazyTopper \u2014 sign in with the mobile number it was bought for; it's already in your account.`;
@@ -341,7 +384,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       const order = snap && snap.exists ? snap.data() || {} : null;
       if (!order || !PAID_STATES.includes(order.status) || order.paymentId !== paymentId) return null;
       const prior = order.receiptEmail && typeof order.receiptEmail === 'object' ? order.receiptEmail : null;
-      if (prior && prior.status !== 'failed') return null;
+      if (prior && !RETRYABLE_RECEIPT.includes(prior.status)) return null;
       tx.set(ref, { receiptEmail: { status: 'sending', at: new Date(now()) } }, { merge: true });
       return order;
     });
@@ -389,41 +432,137 @@ function createPaymentReceiptEmailer(deps = {}) {
     }
   }
 
+  /** SELFPAY-ATTACH-1 mirror: when an attach order's hold on the payer's choice ends (NaN: not an attach order / decided). */
+  function attachHoldEndsMs(o) {
+    if (!o || o.attachFlow !== true || o.attachedAt) return NaN;
+    const stored = msOf(o.attachHoldUntil);
+    if (Number.isFinite(stored)) return stored;
+    const paid = msOf(o.guestPaidAt);
+    return Number.isFinite(paid) ? paid + ATTACH_HOLD_MS : NaN;
+  }
+
+  /** The recipient ACCOUNT's own record (Firebase Auth), or null. Never throws; never logged. */
+  async function accountOf(uid) {
+    if (typeof deps.getAuthUser !== 'function' || typeof uid !== 'string' || !uid || uid === 'erased') return null;
+    try {
+      return (await deps.getAuthUser(uid)) || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * RECEIPT-EMAIL-1 - every address held for the purchase: the PAYER's checkout email (the one the caller has, else
+   * Razorpay's payment record, so a "someone else" order still reaches its payer) and the recipient ACCOUNT's email when it
+   * differs. The typed recipient address of a "Who will use it?" order is NOT here: its own "ready" email covers it, so
+   * nobody gets two. Plus the masked sign-ins the purchase is on (only when the account is known).
+   */
+  async function contactsFor(order, paymentId, email) {
+    let payer = typeof email === 'string' ? email.trim() : '';
+    if (!payer && typeof deps.fetchPayment === 'function') {
+      try {
+        const p = await deps.fetchPayment(paymentId);
+        if (p && typeof p.email === 'string') payer = p.email.trim();
+      } catch {
+        payer = '';
+      }
+    }
+    const account = await accountOf(order.uid);
+    const candidates = [payer];
+    if (account && typeof account.email === 'string') candidates.push(account.email.trim());
+    const recipientTyped = order.checkoutWho === true && typeof order.guestEmail === 'string' ? order.guestEmail.trim().toLowerCase() : '';
+    const seen = new Set();
+    const to = [];
+    for (const c of candidates) {
+      const k = c.toLowerCase();
+      if (!c || seen.has(k) || k === recipientTyped || c.length > 254 || !EMAIL_PATTERN.test(c) || isPlaceholderAddress(c)) continue;
+      seen.add(k);
+      to.push(c);
+      if (to.length >= 3) break;
+    }
+    let signIns = null;
+    if (account) {
+      signIns = [];
+      const phone = maskPhoneDigits(account.phoneNumber);
+      if (phone) signIns.push(`phone ${phone}`);
+      const mail = maskMailShort(account.email);
+      if (mail) signIns.push(Array.isArray(account.providerIds) && account.providerIds.includes('google.com') ? `Google ${mail}` : `email ${mail}`);
+    }
+    return { to, signIns };
+  }
+
   async function run({ orderId, paymentId, email }) {
-    if (config.mode !== 'send' || !adminFirestore || typeof fetchImpl !== 'function') return { skipped: 'off' };
-    const to = typeof email === 'string' ? email.trim() : '';
-    if (!to || to.length > 254 || !EMAIL_PATTERN.test(to) || isPlaceholderAddress(to)) {
+    if (config.receiptDisabled || config.mode !== 'send' || !adminFirestore || typeof fetchImpl !== 'function') return { skipped: 'off' };
+    if (typeof orderId !== 'string' || !orderId || typeof paymentId !== 'string' || !paymentId) return { skipped: 'bad_input' };
+    const first = await readOrder(orderId);
+    if (!first || !PAID_STATES.includes(first.status) || first.paymentId !== paymentId) return { skipped: 'already_or_unpaid' };
+    if (first.receiptEmail && !RETRYABLE_RECEIPT.includes(first.receiptEmail.status)) return { skipped: 'already_or_unpaid' };
+    // The email names the account the purchase LANDS on, so an attach order waits for the payer's choice (or the 10-minute
+    // fallback). It is never dropped: the attach / claim grant calls this again, a timer fires at the end of the hold, and the
+    // hourly sweep picks up anything a restart lost.
+    const holdEnds = attachHoldEndsMs(first);
+    if (Number.isFinite(holdEnds) && now() < holdEnds) {
+      scheduleHeld(orderId, paymentId, holdEnds);
+      return { skipped: 'attach_hold' };
+    }
+    const { to: addresses, signIns } = await contactsFor(first, paymentId, email);
+    if (!addresses.length) {
       emit('payments.receipt_email.no_address');
       return { skipped: 'no_address' };
     }
-    if (typeof orderId !== 'string' || !orderId || typeof paymentId !== 'string' || !paymentId) return { skipped: 'bad_input' };
     const order = await claim(orderId, paymentId);
     if (!order) return { skipped: 'already_or_unpaid' };
-    const built = buildReceiptEmail(receiptArgsFor(order, orderId, paymentId, now()));
+    const built = buildReceiptEmail({ ...receiptArgsFor(order, orderId, paymentId, now()), ...(signIns ? { signIns } : {}) });
     if (!built) {
       await settle(orderId, 'skipped');
       return { skipped: 'not_receipted' };
     }
-    const sent = await sendViaResend({
-      fetchImpl,
-      apiKey: config.apiKey,
-      from: config.from,
-      replyTo: config.replyTo,
-      to,
-      subject: built.subject,
-      text: built.text,
-      html: built.html,
-      idempotencyKey: `payment-receipt-${paymentId}`,
-      category: 'payment_receipt',
-    });
-    if (sent.ok) {
+    let okCount = 0;
+    let retryable = true;
+    let lastCode = null;
+    for (let i = 0; i < addresses.length; i += 1) {
+      const sent = await sendViaResend({
+        fetchImpl,
+        apiKey: config.apiKey,
+        from: config.from,
+        replyTo: config.replyTo,
+        to: addresses[i],
+        subject: built.subject,
+        text: built.text,
+        html: built.html,
+        idempotencyKey: i === 0 ? `payment-receipt-${paymentId}` : `payment-receipt-${paymentId}-${i}`,
+        category: 'payment_receipt',
+      });
+      if (sent.ok) {
+        okCount += 1;
+        emit('payments.receipt_email.sent');
+      } else {
+        lastCode = sent.code;
+        if (!sent.retryable) retryable = false;
+        emit('payments.receipt_email.failed');
+      }
+    }
+    if (okCount > 0) {
       await settle(orderId, 'sent');
-      emit('payments.receipt_email.sent');
       return { sent: true };
     }
-    await settle(orderId, sent.retryable ? 'failed' : 'refused');
-    emit('payments.receipt_email.failed');
-    return { sent: false, code: sent.code };
+    await settle(orderId, retryable ? 'failed' : 'refused');
+    return { sent: false, code: lastCode };
+  }
+
+  async function readOrder(orderId) {
+    const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).get();
+    return snap && snap.exists ? snap.data() || {} : null;
+  }
+
+  /** At the end of an attach hold, send the receipt then (in-process; the hourly sweep covers a restart). */
+  function scheduleHeld(orderId, paymentId, holdEnds) {
+    try {
+      const timer = setTimeout(() => void sendForPayment({ orderId, paymentId, email: '' }), Math.max(1000, holdEnds - now() + 5000));
+      if (timer && typeof timer.unref === 'function') timer.unref();
+    } catch {
+      /* the sweep covers it */
+    }
   }
 
   /** Never throws. Callers do NOT await it on the payment path (fire and forget); `whenIdle` exists for tests. */
@@ -444,7 +583,7 @@ function createPaymentReceiptEmailer(deps = {}) {
    * The address is read from the order (it is the claim key) and goes nowhere else. Never throws.
    */
   async function runRecipient({ orderId, paymentId }) {
-    if (config.mode !== 'send' || !adminFirestore || typeof fetchImpl !== 'function') return { skipped: 'off' };
+    if (config.receiptDisabled || config.mode !== 'send' || !adminFirestore || typeof fetchImpl !== 'function') return { skipped: 'off' };
     if (typeof orderId !== 'string' || !orderId || typeof paymentId !== 'string' || !paymentId) return { skipped: 'bad_input' };
     const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
     const order = await adminFirestore.runTransaction(async (tx) => {
@@ -740,6 +879,44 @@ function createPaymentReceiptEmailer(deps = {}) {
     return () => clearInterval(timer);
   }
 
+  /** Hourly: paid, unclaimed attach orders whose hold has ended and that never got their receipt (a restart lost the timer). */
+  async function drainHeldReceipts() {
+    try {
+      if (config.mode !== 'send' || !adminFirestore) return 0;
+      let q = adminFirestore.collection(PAY_ORDERS_COLLECTION).where('status', '==', 'paid_unclaimed');
+      // Attach orders only, so the read cap cannot be starved by ordinary unclaimed orders.
+      if (typeof q.where === 'function') q = q.where('attachFlow', '==', true);
+      if (typeof q.limit === 'function') q = q.limit(200);
+      const snap = await q.get();
+      const jobs = [];
+      snap.forEach((d) => {
+        const o = d.data() || {};
+        // `no_address` is final for the sweep (it must not re-look-up an address-less order every hour, forever).
+        if (o.attachFlow !== true || o.attachedAt || (o.receiptEmail && o.receiptEmail.status !== 'failed') || typeof o.paymentId !== 'string') return;
+        const paidMs = msOf(o.guestPaidAt);
+        if (paidMs === null || now() - paidMs > HELD_RECEIPT_MAX_AGE_MS) return;
+        const ends = attachHoldEndsMs(o);
+        if (Number.isFinite(ends) && now() >= ends) jobs.push([d.id, o.paymentId]);
+      });
+      for (const [orderId, paymentId] of jobs.slice(0, 25)) {
+        const r = await sendForPayment({ orderId, paymentId, email: '' });
+        if (r && r.skipped === 'no_address') await settle(orderId, 'no_address');
+      }
+      return jobs.length;
+    } catch (e) {
+      emit('payments.receipt_email.error');
+      return 0;
+    }
+  }
+
+  /** R2: the held-receipt sweep runs on its OWN hourly timer (not only while invoicing is on). Returns stop(). */
+  function startHeldReceiptRunner({ intervalMs = INVOICE_EMAIL_INTERVAL_MS } = {}) {
+    if (config.mode !== 'send' || config.receiptDisabled) return () => {};
+    const timer = setInterval(() => void drainHeldReceipts(), intervalMs);
+    if (timer && typeof timer.unref === 'function') timer.unref();
+    return () => clearInterval(timer);
+  }
+
   async function whenIdle() {
     while (inFlight.size) await Promise.all([...inFlight]);
   }
@@ -758,7 +935,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       sendViaResend({ fetchImpl, apiKey: config.apiKey, from: config.from, replyTo: config.replyTo, to, subject, text, html, idempotencyKey, category }),
   };
 
-  return { sendForPayment, sendRecipientReady, queueInvoiceEmail, drainInvoiceEmails, startInvoiceEmailRunner, whenIdle, config, rails };
+  return { sendForPayment, sendRecipientReady, drainHeldReceipts, startHeldReceiptRunner, queueInvoiceEmail, drainInvoiceEmails, startInvoiceEmailRunner, whenIdle, config, rails };
 }
 
 module.exports = {
@@ -769,6 +946,9 @@ module.exports = {
   buildReceiptEmail,
   buildRecipientReadyEmail,
   itemLabel,
+  emailItemLabel,
+  maskPhoneDigits,
+  maskMailShort,
   chapterTitle,
   SUPPORT_WHATSAPP_URL,
   SUPPORT_WHATSAPP_DISPLAY,
