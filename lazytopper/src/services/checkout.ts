@@ -344,7 +344,7 @@ export async function verifyPackPayment(success: RazorpaySuccess): Promise<PackG
 }
 
 export type PackStatusResult =
-  | { state: "paid"; grant: PackGrant; paymentId?: string; amountInr?: number }
+  | { state: "paid"; grant: PackGrant; orderId?: string; paymentId?: string; amountInr?: number }
   | { state: "pending" }
   | { state: "expired" }
   | { state: "unknown" };
@@ -366,7 +366,7 @@ export async function checkPackPayStatus(orderId: string, deps: PayStatusDeps = 
     if (!grant) return { state: "unknown" };
     const paymentId = typeof json.paymentId === "string" && json.paymentId ? json.paymentId : undefined;
     const amountInr = typeof json.amountInr === "number" && Number.isFinite(json.amountInr) && json.amountInr > 0 ? json.amountInr : undefined;
-    return { state: "paid", grant, ...(paymentId !== undefined ? { paymentId } : {}), ...(amountInr !== undefined ? { amountInr } : {}) };
+    return { state: "paid", grant, orderId, ...(paymentId !== undefined ? { paymentId } : {}), ...(amountInr !== undefined ? { amountInr } : {}) };
   }
   return json.state === "pending" ? { state: "pending" } : { state: "unknown" };
 }
@@ -375,6 +375,8 @@ export type BuyOutcome =
   | {
       status: "paid";
       passEnd: string;
+      /** META-PURCHASE-DEDUP-1 — Razorpay's ORDER id: the one id of the sale for analytics. Analytics only. */
+      orderId?: string;
       /** FOLLOWUPS-1 A4 — Razorpay's payment id (from its signed result). Analytics only. */
       paymentId?: string;
       /** FOLLOWUPS-1 A4 — the SERVER order's amount in rupees (amountPaise / 100). Analytics only. */
@@ -467,6 +469,7 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS):
     return {
       status: "paid",
       passEnd,
+      orderId: order.orderId,
       ...(paymentId !== undefined ? { paymentId } : {}),
       ...(amountInr !== undefined ? { amountInr } : {}),
     };
@@ -578,7 +581,7 @@ export function clearPayPending(orderId?: string): void {
 }
 
 export type PayStatusResult =
-  | { state: "paid"; passEnd: string; paymentId?: string; amountInr?: number }
+  | { state: "paid"; passEnd: string; orderId?: string; paymentId?: string; amountInr?: number }
   | { state: "pending" }
   /** PRICING-1 — the server refused the order as expired; it will never be paid. */
   | { state: "expired" }
@@ -678,6 +681,7 @@ export async function checkPayStatus(orderId: string, deps: PayStatusDeps = DEFA
     const paid: Extract<PayStatusResult, { state: "paid" }> = {
       state: "paid",
       passEnd: json.passEnd,
+      orderId,
       ...(paymentId !== undefined ? { paymentId } : {}),
       ...(amountInr !== undefined ? { amountInr } : {}),
     };

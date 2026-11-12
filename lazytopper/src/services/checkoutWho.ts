@@ -338,7 +338,7 @@ export function maskedIds(r: Recipient): string[] {
 
 export type WhoBuyOutcome =
   /** `confirmed: false`: Razorpay signed a success but our verify did not answer (the webhook records it). */
-  | { status: "paid"; confirmed: boolean; amountInr?: number; paymentId?: string }
+  | { status: "paid"; confirmed: boolean; amountInr?: number; paymentId?: string; orderId?: string }
   | { status: "dismissed" }
   | { status: "already_covered" }
   | { status: "unavailable" }
@@ -460,7 +460,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
     } catch {
       confirmed = false; // Razorpay SIGNED a success: never "didn't go through"; the webhook records it.
     }
-    return { status: "paid", confirmed, ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}) };
+    return { status: "paid", confirmed, ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}), orderId: order.orderId };
   } catch (e) {
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof WhoError && e.code !== "failed") return { status: e.code };
@@ -472,7 +472,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
 
 export type SelfBuyOutcome =
   /** `contact`: the buyer's mobile / email as the server read them off the verified payment (null = nothing usable, or not confirmed). */
-  | { status: "paid"; confirmed: boolean; contact: Recipient | null; amountInr?: number; paymentId?: string; attach?: AttachProof }
+  | { status: "paid"; confirmed: boolean; contact: Recipient | null; amountInr?: number; paymentId?: string; orderId?: string; attach?: AttachProof }
   | { status: "dismissed" }
   | { status: "unavailable" }
   | { status: "failed" };
@@ -551,7 +551,7 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
     } catch {
       confirmed = false; // Razorpay SIGNED a success: never "didn't go through"; the webhook records it and reads the contact.
     }
-    return { status: "paid", confirmed, contact, ...(attach ? { attach } : {}), ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}) };
+    return { status: "paid", confirmed, contact, ...(attach ? { attach } : {}), ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}), orderId: order.orderId };
   } catch (e) {
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof WhoError && e.code !== "failed") return { status: e.code === "unavailable" || e.code === "already_covered" ? "unavailable" : "failed" };

@@ -38,6 +38,7 @@ beforeEach(() => {
   setSalesPageSurface(null);
   try {
     window.sessionStorage.clear();
+    window.localStorage.clear();
   } catch {
     /* ignore */
   }
@@ -71,6 +72,7 @@ describe("PRICING-PAGES-2 F4 - sales-page surface on the money events", () => {
     __resetPurchaseMemoryForTests();
     __resetPackCheckoutStartsForTests();
     window.sessionStorage.clear();
+    window.localStorage.clear();
     const d = { passType: "till_boards" as const, itemName: "Board Pass", valueInr: 2262 };
     trackBeginCheckoutTap(d, false);
     trackPurchase({ ...d, transactionId: "pay_1" });
@@ -402,12 +404,22 @@ describe("pack analytics", () => {
     trackPackPurchase(d);
     trackPackPurchase(d);
     expect(names()).toEqual(["pack_purchase"]);
-    expect(metaCalls).toEqual([["trackCustom", "PackPurchase", { currency: "INR", value: 299 }]]);
+    expect(metaCalls).toEqual([["trackCustom", "PackPurchase", { currency: "INR", value: 299 }, { eventID: "pay_1" }]]);
     const purchases = gtagCalls.filter((c) => c[0] === "event" && c[1] === "purchase");
     expect(purchases).toHaveLength(1);
     expect(purchases[0][2]).toMatchObject({ transaction_id: "pay_1", currency: "INR", value: 299, items: [{ item_id: "pack_bundle", price: 299, quantity: 1 }] });
     expect(ga4Names()).toContain("pack_purchase");
     expect(metaCalls.some((c) => c[1] === "Purchase")).toBe(false);
+  });
+
+  it("META-PURCHASE-DEDUP-1: the pack sale id is Meta's eventID, and a second tab (shared localStorage) sends nothing", () => {
+    const d = { sku: "pack_bundle" as const, itemName: "Complete Bundle", valueInr: 299, transactionId: "order_PK" };
+    trackPackPurchase(d);
+    __resetPurchaseMemoryForTests();
+    window.sessionStorage.clear();
+    trackPackPurchase(d);
+    expect(metaCalls).toEqual([["trackCustom", "PackPurchase", { currency: "INR", value: 299 }, { eventID: "order_PK" }]]);
+    expect(gtagCalls.filter((c) => c[0] === "event" && c[1] === "purchase")).toHaveLength(1);
   });
 
   it("an empty transaction id sends nothing", () => {
@@ -417,7 +429,7 @@ describe("pack analytics", () => {
 
   it("CBQ-PACK-1: pack_cbq purchase reports item_id pack_cbq and value 199 to GA4 and Meta", () => {
     trackPackPurchase({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199, transactionId: "pay_cbq" });
-    expect(metaCalls).toEqual([["trackCustom", "PackPurchase", { currency: "INR", value: 199 }]]);
+    expect(metaCalls).toEqual([["trackCustom", "PackPurchase", { currency: "INR", value: 199 }, { eventID: "pay_cbq" }]]);
     const p = gtagCalls.filter((c) => c[0] === "event" && c[1] === "purchase");
     expect(p).toHaveLength(1);
     expect(p[0][2]).toMatchObject({ transaction_id: "pay_cbq", currency: "INR", value: 199, items: [{ item_id: "pack_cbq", item_name: "Maths CBQ Pack" }] });

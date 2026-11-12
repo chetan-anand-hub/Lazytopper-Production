@@ -50,12 +50,13 @@ const PACK_SKU_NAMES: readonly PackSkuName[] = ["pack_chapter", "pack_mock", "pa
 /**
  * BUY-PATH-1 - a pay-by-phone purchase counts as a sale in the funnel, exactly like a signed-in one: `purchase` (Board Pass) or
  * `pack_purchase` (a pack), each with its GA4 `purchase` and the Google Ads conversion, through the SAME once-per-transaction
- * helpers. Called ONLY for a SERVER-verified paid outcome (`confirmed`); the Razorpay payment id is the transaction id (else a
- * per-attempt id, as the signed-in paths fall back), the server order's rupee amount the value. NOTHING about the phone number
+ * helpers. Called ONLY for a SERVER-verified paid outcome (`confirmed`); the Razorpay order id is the transaction id (else the payment id,
+ * else a per-attempt id, as the signed-in paths fall back), the server order's rupee amount the value. NOTHING about the phone number
  * is passed: the event carries the sku, the item name, the amount and the id only.
  */
-export function trackGuestPurchase(item: GuestItem, outcome: { amountInr?: number; paymentId?: string }, attemptId: string): void {
-  const transactionId = outcome.paymentId || attemptId;
+export function trackGuestPurchase(item: GuestItem, outcome: { amountInr?: number; paymentId?: string; orderId?: string }, attemptId: string): void {
+  // META-PURCHASE-DEDUP-1: the Razorpay ORDER id is the one id of the sale (else the payment id, else the attempt id).
+  const transactionId = outcome.orderId || outcome.paymentId || attemptId;
   const valueInr = typeof outcome.amountInr === "number" && Number.isFinite(outcome.amountInr) && outcome.amountInr > 0 ? outcome.amountInr : null;
   if (item.kind === "pass") {
     trackPurchase({ passType: "till_boards", itemName: "Premium pass till your boards", valueInr, transactionId });

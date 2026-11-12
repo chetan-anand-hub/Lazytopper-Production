@@ -137,19 +137,25 @@ describe("BUY-PATH-1 · a pay-by-phone sale is a purchase in the funnel", () => 
   const allArgs = () => JSON.stringify([...track.trackPurchase.mock.calls, ...packTrack.trackPackPurchase.mock.calls, ...track.trackNamedEvent.mock.calls]);
 
   it("a server-verified PACK payment -> ONE pack_purchase: Razorpay payment id as transaction id, the server amount as value", async () => {
-    await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 99, paymentId: "pay_G1" });
+    await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 99, paymentId: "pay_G1", orderId: "order_G1" });
     await screen.findByTestId("guest-pay-paid");
     expect(packTrack.trackPackPurchase).toHaveBeenCalledTimes(1);
-    expect(packTrack.trackPackPurchase.mock.calls[0][0]).toEqual({ sku: "pack_mock", itemName: "Mock Pack · Maths", valueInr: 99, transactionId: "pay_G1" });
+    expect(packTrack.trackPackPurchase.mock.calls[0][0]).toEqual({ sku: "pack_mock", itemName: "Mock Pack · Maths", valueInr: 99, transactionId: "order_G1" });
     expect(track.trackPurchase).not.toHaveBeenCalled();
   });
 
   it("a server-verified BOARD PASS payment -> ONE purchase (till_boards), same id / value rule", async () => {
-    await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 1917, paymentId: "pay_G2" }, PASS);
+    await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 1917, paymentId: "pay_G2", orderId: "order_G2" }, PASS);
     await screen.findByTestId("guest-pay-paid");
     expect(track.trackPurchase).toHaveBeenCalledTimes(1);
-    expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({ passType: "till_boards", valueInr: 1917, transactionId: "pay_G2" });
+    expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({ passType: "till_boards", valueInr: 1917, transactionId: "order_G2" });
     expect(packTrack.trackPackPurchase).not.toHaveBeenCalled();
+  });
+
+  it("META-PURCHASE-DEDUP-1: an outcome without an order id falls back to the payment id", async () => {
+    await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 99, paymentId: "pay_G9" });
+    await screen.findByTestId("guest-pay-paid");
+    expect(packTrack.trackPackPurchase.mock.calls[0][0]).toMatchObject({ transactionId: "pay_G9" });
   });
 
   it("no payment id -> the per-attempt id (as the signed-in paths fall back)", async () => {

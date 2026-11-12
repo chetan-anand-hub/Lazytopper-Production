@@ -168,6 +168,7 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
       status: "paid",
       passEnd: "",
       firstName: verified.firstName,
+      orderId: order.orderId, // META-PURCHASE-DEDUP-1: the one id of the sale (analytics only)
       ...(paymentId !== undefined ? { paymentId } : {}),
       ...(amountInr !== undefined ? { amountInr } : {}),
       ...(verified.duplicate ? { duplicate: true } : {}),

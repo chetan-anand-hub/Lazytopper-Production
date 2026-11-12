@@ -131,7 +131,7 @@ describe("buyPass after a signed success", () => {
       loadScript: async () => razorpay("pay"),
       verify: async () => ({ passEnd: "2026-11-18T06:30:00.000Z" }),
     });
-    expect(out).toEqual({ status: "paid", passEnd: "2026-11-18T06:30:00.000Z", paymentId: "pay_R1", amountInr: 599 });
+    expect(out).toEqual({ status: "paid", passEnd: "2026-11-18T06:30:00.000Z", orderId: "order_R1", paymentId: "pay_R1", amountInr: 599 });
     expect(storedMarker()).toBeNull();
   });
 
@@ -184,6 +184,7 @@ describe("checkPayStatus", () => {
     expect(await checkPayStatus("order_R1", { post })).toEqual({
       state: "paid",
       passEnd: "2026-11-18T06:30:00.000Z",
+      orderId: "order_R1",
       paymentId: "pay_S",
       amountInr: 599,
     });
@@ -257,7 +258,7 @@ describe("checkPayStatus", () => {
       await checkPayStatus("order_R1", {
         post: async () => ({ ok: true, state: "paid", passEnd: "2026-11-18T06:30:00.000Z", paymentId: "pay_S", amountInr: 599 }),
       });
-      expect(seen).toEqual([["order_R1", { state: "paid", passEnd: "2026-11-18T06:30:00.000Z", paymentId: "pay_S", amountInr: 599 }]]);
+      expect(seen).toEqual([["order_R1", { state: "paid", passEnd: "2026-11-18T06:30:00.000Z", orderId: "order_R1", paymentId: "pay_S", amountInr: 599 }]]);
     } finally {
       off();
     }

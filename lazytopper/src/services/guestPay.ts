@@ -103,7 +103,7 @@ export type GuestItem =
 export type GuestBuyOutcome =
   /** The server verified the payment and recorded it for this number. `confirmed: false`: Razorpay signed a success
    *  but our verify did not answer (the webhook records it) — the student is still told to sign in with the number. */
-  | { status: "paid"; confirmed: boolean; phoneMasked: string; phone: string; amountInr?: number; paymentId?: string }
+  | { status: "paid"; confirmed: boolean; phoneMasked: string; phone: string; amountInr?: number; paymentId?: string; orderId?: string }
   | { status: "dismissed" }
   | { status: "already_paid"; phoneMasked: string; phone: string }
   /** Owner ruling 2 Nov 2026: this number already has a LazyTopper account - sign in with it instead of paying as a guest. */
@@ -222,6 +222,7 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
       phone,
       ...(amountInr !== undefined ? { amountInr } : {}),
       ...(paymentId !== undefined ? { paymentId } : {}),
+      orderId: order.orderId, // META-PURCHASE-DEDUP-1: the one id of the sale (analytics only)
     };
   } catch (e) {
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };

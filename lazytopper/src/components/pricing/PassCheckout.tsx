@@ -344,7 +344,8 @@ export function PassCheckoutView({
     trackPurchase({
       ...pending.details,
       ...(result.amountInr !== undefined ? { valueInr: result.amountInr } : {}),
-      transactionId: result.paymentId || pending.paymentId || pending.attemptId,
+      // META-PURCHASE-DEDUP-1: the ORDER id (the pending order always has one), so this and the verify-time purchase are ONE id.
+      transactionId: result.orderId || pending.orderId || result.paymentId || pending.paymentId || pending.attemptId,
     });
     setRecovery(null);
     const label = formatPassDate(result.passEnd);
@@ -423,7 +424,8 @@ export function PassCheckoutView({
       trackPurchase({
         ...details,
         ...(outcome.amountInr !== undefined ? { valueInr: outcome.amountInr } : {}),
-        transactionId: outcome.paymentId || attemptId,
+        // META-PURCHASE-DEDUP-1: the ORDER id (a later status poll for the same order settles under the same id).
+        transactionId: outcome.orderId || outcome.paymentId || attemptId,
       });
       const label = formatPassDate(outcome.passEnd);
       if (label) setPaidUntil(label, passType);

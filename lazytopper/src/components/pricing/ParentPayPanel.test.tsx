@@ -117,7 +117,7 @@ describe("ParentPayPanel", () => {
     const scrubAddress = vi.fn(() => order.push("scrub"));
     const buy = vi.fn(async (): Promise<ParentBuyOutcome> => {
       order.push("buy");
-      return { status: "paid", passEnd: "2026-11-18T06:30:00.000Z", firstName: "Aarav", paymentId: "pay_9", amountInr: 599 };
+      return { status: "paid", passEnd: "2026-11-18T06:30:00.000Z", firstName: "Aarav", orderId: "order_9", paymentId: "pay_9", amountInr: 599 };
     });
     await renderPanel({ scrubAddress, buy });
     await act(async () => {
@@ -129,7 +129,7 @@ describe("ParentPayPanel", () => {
     expect(screen.getByTestId("parent-pay-paid")).toHaveTextContent("Aarav's monthly pass is active until 18 November 2026");
     expect(begin).toHaveBeenCalledWith(expect.objectContaining({ passType: "month", valueInr: 599, payer: "parent" }));
     expect(purchase).toHaveBeenCalledTimes(1);
-    expect(purchase).toHaveBeenCalledWith(expect.objectContaining({ payer: "parent", transactionId: "pay_9", valueInr: 599 }));
+    expect(purchase).toHaveBeenCalledWith(expect.objectContaining({ payer: "parent", transactionId: "order_9", valueInr: 599 }));
   });
 
   it("dismissed or failed: no purchase event, no 'active' claim", async () => {
@@ -256,7 +256,7 @@ describe("PARENT-PACKS-1 · a pack link", () => {
   });
 
   it("pay: the order names no pack (the token only); 'in Aarav's account' only after the server's verify; pack events, not pass events", async () => {
-    const buy = vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "paid", passEnd: "", firstName: "Aarav", paymentId: "pay_P1", amountInr: 199 }));
+    const buy = vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "paid", passEnd: "", firstName: "Aarav", orderId: "order_P1", paymentId: "pay_P1", amountInr: 199 }));
     await renderPanel({ view: vi.fn(async () => PACK_VIEW), buy });
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Pay ₹199 once" }));
@@ -265,7 +265,7 @@ describe("PARENT-PACKS-1 · a pack link", () => {
     expect(screen.getByTestId("parent-pay-paid")).toHaveTextContent("Done — the Maths CBQ Pack is in Aarav's LazyTopper account.");
     expect(packBegin).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_cbq", valueInr: 199 }), { signedIn: false });
     expect(packPurchase).toHaveBeenCalledTimes(1);
-    expect(packPurchase).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_cbq", transactionId: "pay_P1", valueInr: 199 }));
+    expect(packPurchase).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_cbq", transactionId: "order_P1", valueInr: 199 }));
     expect(begin).not.toHaveBeenCalled();
     expect(purchase).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));

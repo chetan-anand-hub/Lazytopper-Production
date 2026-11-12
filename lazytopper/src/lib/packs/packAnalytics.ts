@@ -165,7 +165,7 @@ export function trackPackCheckout(details: PackCheckoutDetails, ctx: { signedIn?
   }
 }
 
-/** Once per `transactionId`, ever in this tab. Call ONLY from the server-verified paid branch. */
+/** Once per `transactionId`, ever in this browser (every tab). Call ONLY from the server-verified paid branch. */
 export function trackPackPurchase(details: PackCheckoutDetails & { transactionId: string }): void {
   try {
     const id = details.transactionId;
@@ -173,7 +173,7 @@ export function trackPackPurchase(details: PackCheckoutDetails & { transactionId
     rememberPurchaseSent(id);
     const money = packMoney(details);
     const where = purchaseSurface(details.sku);
-    sendAnalyticsHit("event", { name: "pack_purchase", data: { ...money, sku: details.sku, ...where } }, { ga4: { ...money, sku: details.sku, ...where }, meta: { ...money, ...where } });
+    sendAnalyticsHit("event", { name: "pack_purchase", data: { ...money, sku: details.sku, ...where } }, { ga4: { ...money, sku: details.sku, ...where }, meta: { ...money, ...where }, metaEventId: id });
     sendGa4Only("purchase", {
       transaction_id: id,
       ...money,

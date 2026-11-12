@@ -196,7 +196,7 @@ export async function viewParentLink(token: string): Promise<ParentLinkView> {
 
 export type ParentBuyOutcome =
   /** `duplicate` (PARENT-PACKS-1, pack links only - parentPayPack): the child already had the pack; nothing new was added. */
-  | { status: "paid"; passEnd: string; firstName: string; paymentId?: string; amountInr?: number; duplicate?: boolean }
+  | { status: "paid"; passEnd: string; firstName: string; orderId?: string; paymentId?: string; amountInr?: number; duplicate?: boolean }
   | { status: "dismissed" }
   /** PAY-RECOVER-1 — a verify error AFTER Razorpay's signed success. Never shown as a failure. */
   | { status: "pending" }
@@ -281,6 +281,7 @@ export async function buyPassAsParent(
       status: "paid",
       passEnd,
       firstName,
+      orderId: order.orderId, // META-PURCHASE-DEDUP-1: the one id of the sale (analytics only)
       ...(paymentId !== undefined ? { paymentId } : {}),
       ...(amountInr !== undefined ? { amountInr } : {}),
     };

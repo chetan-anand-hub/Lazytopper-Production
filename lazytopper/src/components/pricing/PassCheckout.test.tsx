@@ -361,7 +361,7 @@ describe("buyPass", () => {
     const out = await buyPass("month", { createOrder: async () => order, loadScript: async () => rz.Ctor, verify });
     // FOLLOWUPS-1 A4: the paid outcome additionally carries Razorpay's payment id and the
     // SERVER order's amount in rupees (analytics only); passEnd is unchanged.
-    expect(out).toEqual({ status: "paid", passEnd: "2026-10-27T06:30:00.000Z", paymentId: "pay_1", amountInr: 599 });
+    expect(out).toEqual({ status: "paid", passEnd: "2026-10-27T06:30:00.000Z", orderId: "order_1", paymentId: "pay_1", amountInr: 599 });
     expect(rz.seen[0]).toMatchObject({ key: "rzp_test_x", amount: 59900, currency: "INR", order_id: "order_1" });
     expect(verify).toHaveBeenCalledWith({ razorpay_payment_id: "pay_1", razorpay_order_id: "order_1", razorpay_signature: "sig" });
   });
@@ -387,7 +387,7 @@ describe("buyPass", () => {
     } as unknown as RazorpayConstructor;
     const verify = vi.fn(async () => ({ passEnd: "2026-10-27T06:30:00.000Z" }));
     const out = await buyPass("month", { createOrder: async () => order, loadScript: async () => Ctor, verify });
-    expect(out).toEqual({ status: "paid", passEnd: "2026-10-27T06:30:00.000Z", amountInr: 599 });
+    expect(out).toEqual({ status: "paid", passEnd: "2026-10-27T06:30:00.000Z", orderId: "order_1", amountInr: 599 });
   });
 
   it("dismissed checkout -> dismissed, no verify", async () => {

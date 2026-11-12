@@ -99,7 +99,7 @@ describe("PAY-PHONE-1 · buyAsGuest", () => {
       prefill: { contact: "+919876543948" },
       readonly: { contact: true },
     });
-    expect(out).toEqual({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 99, paymentId: "pay_1" });
+    expect(out).toEqual({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 99, paymentId: "pay_1", orderId: "order_1" });
   });
 
   it("a bad number never reaches the server", async () => {
