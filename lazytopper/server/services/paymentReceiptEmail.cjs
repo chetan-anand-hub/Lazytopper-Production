@@ -23,6 +23,7 @@ const {
   normaliseAppUrl,
   escapeHtml,
 } = require('./trialEndingEmail.cjs');
+const { randomBytes } = require('node:crypto');
 const { senderOnVerifiedDomain } = require('./nudgeEmail.cjs');
 const { isPackProduct, validateTarget } = require('./packProducts.cjs');
 const { maskIndianMobile, maskEmail, GUEST_PAYER, normaliseIndianMobile, normaliseEmail } = require('./guestPay.cjs');
@@ -70,6 +71,7 @@ const INVOICE_EMAIL_BATCH = 25;
 const INVOICE_EMAIL_INTERVAL_MS = 60 * 60 * 1000;
 /** Review F2: a `sending` claim older than this was lost in a crash; it is taken again (Resend's key dedupes a real send). */
 const INVOICE_EMAIL_STALE_SENDING_MS = 30 * 60 * 1000;
+const RECEIPT_RECLAIM_MAX_MS = 20 * 60 * 60 * 1000;
 /** Review F3: at most this many send attempts; after that the email is `failed` and shown to the admin. */
 const INVOICE_EMAIL_MAX_ATTEMPTS = 3;
 /**
@@ -386,7 +388,12 @@ function createPaymentReceiptEmailer(deps = {}) {
   function receiptRetryable(prior) {
     if (!prior || typeof prior !== 'object') return true;
     if (RETRYABLE_RECEIPT.includes(prior.status)) return true;
-    return prior.status === 'sending' && !(now() - (msOf(prior.at) || 0) < INVOICE_EMAIL_STALE_SENDING_MS);
+    if (prior.status !== 'sending') return false;
+    // M1: Resend idempotency keys last 24h, so only a claim aged 30 min .. 20 h is safe to retake; a missing / unparseable `at` is not.
+    const at = msOf(prior.at);
+    if (!Number.isFinite(at)) return false;
+    const age = now() - at;
+    return age >= INVOICE_EMAIL_STALE_SENDING_MS && age < RECEIPT_RECLAIM_MAX_MS;
   }
 
   async function claim(orderId, paymentId) {
@@ -397,8 +404,9 @@ function createPaymentReceiptEmailer(deps = {}) {
       if (!order || !PAID_STATES.includes(order.status) || order.paymentId !== paymentId) return null;
       const prior = order.receiptEmail && typeof order.receiptEmail === 'object' ? order.receiptEmail : null;
       if (prior && !receiptRetryable(prior)) return null;
-      tx.set(ref, { receiptEmail: { status: 'sending', at: new Date(now()) } }, { merge: true });
-      return order;
+      const token = randomBytes(12).toString('hex');
+      tx.set(ref, { receiptEmail: { status: 'sending', at: new Date(now()), token } }, { merge: true });
+      return { order, token };
     });
   }
 
@@ -437,9 +445,19 @@ function createPaymentReceiptEmailer(deps = {}) {
     };
   }
 
-  async function settle(orderId, status) {
+  /** S2: only the claimer whose token is on the doc may settle it, so a stalled first sender cannot overwrite a later outcome. */
+  async function settle(orderId, status, token) {
     try {
-      await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).set({ receiptEmail: { status, at: new Date(now()) } }, { merge: true });
+      const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
+      await adminFirestore.runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        const order = snap && snap.exists ? snap.data() || {} : null;
+        if (!order) return;
+        const cur = order.receiptEmail && typeof order.receiptEmail === 'object' ? order.receiptEmail : null;
+        // a pre-token `sending` claim (written before this deploy) has no token and may still settle
+        if (cur && cur.token !== undefined && cur.token !== token) return;
+        tx.set(ref, { receiptEmail: { status, at: new Date(now()), ...(token ? { token } : {}) } }, { merge: true });
+      });
     } catch {
       /* the claim stands: at most once */
     }
@@ -540,11 +558,12 @@ function createPaymentReceiptEmailer(deps = {}) {
       emit('payments.receipt_email.no_address');
       return { skipped: 'no_address' };
     }
-    const order = await claim(orderId, paymentId);
-    if (!order) return { skipped: 'already_or_unpaid' };
+    const claimed = await claim(orderId, paymentId);
+    if (!claimed) return { skipped: 'already_or_unpaid' };
+    const { order, token } = claimed;
     const built = buildReceiptEmail({ ...receiptArgsFor(order, orderId, paymentId, now()), ...(signIns ? { signIns } : {}) });
     if (!built) {
-      await settle(orderId, 'skipped');
+      await settle(orderId, 'skipped', token);
       return { skipped: 'not_receipted' };
     }
     let okCount = 0;
@@ -573,10 +592,10 @@ function createPaymentReceiptEmailer(deps = {}) {
       }
     }
     if (okCount > 0) {
-      await settle(orderId, 'sent');
+      await settle(orderId, 'sent', token);
       return { sent: true };
     }
-    await settle(orderId, retryable ? 'failed' : 'refused');
+    await settle(orderId, retryable ? 'failed' : 'refused', token);
     return { sent: false, code: lastCode };
   }
 
@@ -965,7 +984,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       sendViaResend({ fetchImpl, apiKey: config.apiKey, from: config.from, replyTo: config.replyTo, to, subject, text, html, idempotencyKey, category }),
   };
 
-  return { sendForPayment, sendRecipientReady, drainHeldReceipts, startHeldReceiptRunner, queueInvoiceEmail, drainInvoiceEmails, startInvoiceEmailRunner, whenIdle, config, rails };
+  return { __settleForTest: settle, sendForPayment, sendRecipientReady, drainHeldReceipts, startHeldReceiptRunner, queueInvoiceEmail, drainInvoiceEmails, startInvoiceEmailRunner, whenIdle, config, rails };
 }
 
 module.exports = {

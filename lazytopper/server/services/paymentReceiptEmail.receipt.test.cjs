@@ -303,3 +303,28 @@ test('RECEIPT-RACE-1 R4 - the sweep picks up a stale `sending` attach order but 
   assert.equal(await emailer.drainHeldReceipts(), 1);
   assert.deepEqual(fetchImpl.sent.map((s) => s.key), ['payment-receipt-pay_st']);
 });
+
+test('RECEIPT-RACE-1 M1 - a `sending` claim 25h old (past the Resend key window) or with no timestamp is NOT re-claimed; 2h old is', async () => {
+  for (const [at, expectSent] of [[new Date(NOW - 25 * 3600_000), false], [undefined, false], [new Date(NOW - 2 * 3600_000), true]]) {
+    const { emailer, fetchImpl } = make({ order: { ...PASS, receiptEmail: { status: 'sending', ...(at ? { at } : {}) } } });
+    await emailer.sendForPayment(input());
+    assert.equal(fetchImpl.sent.length > 0, expectSent);
+  }
+});
+
+test('RECEIPT-RACE-1 S2 - a stalled first claimer cannot overwrite a later sender: its late settle(failed) is ignored', async () => {
+  const stale = { ...PASS, receiptEmail: { status: 'sending', at: new Date(NOW - 2 * 3600_000), token: 'first' } };
+  const { emailer, fetchImpl, db } = make({ order: stale });
+  await emailer.sendForPayment(input());
+  assert.ok(fetchImpl.sent.length > 0);
+  const after = db.docs.get('payOrders/order_X1').receiptEmail;
+  assert.equal(after.status, 'sent');
+  assert.notEqual(after.token, 'first');
+  // the first (stalled) sender wakes up and settles with its own token
+  const doc = db.docs.get('payOrders/order_X1');
+  assert.equal(emailer.rails === undefined, false);
+  assert.equal(typeof emailer.__settleForTest, 'function');
+  await emailer.__settleForTest('order_X1', 'failed', 'first');
+  assert.equal(db.docs.get('payOrders/order_X1').receiptEmail.status, 'sent');
+  assert.equal(doc.receiptEmail.status, 'sent');
+});
