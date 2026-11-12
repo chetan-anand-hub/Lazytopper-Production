@@ -169,27 +169,60 @@ export interface LinkError {
   /** Show the WhatsApp support link (the join is done by us, never by the client). */
   whatsapp: boolean;
   code: string;
+  /** Offer "Send a new code" beside the message (expired code, or a wrong code after a long wait). */
+  resend?: boolean;
 }
 
-export const IN_USE_TEXT =
-  "That phone number or Google account already has its own LazyTopper account, so it can't be added here. Message us on WhatsApp and we'll help.";
+export const BTN_RESEND_CODE = "Send a new code";
+
+/** What the user tried to add, already masked (never raw): the typed phone, or the Google / email address. */
+export interface LinkErrorContext {
+  phone?: string;
+  email?: string;
+}
+
+/**
+ * SIGNIN-INUSE-1 (owner wording 12 Nov 2026): the "already opens another account" message, naming the contact the user tried.
+ * The WhatsApp link is appended by the UI after the last line ("Want the two accounts joined?" + link).
+ */
+export function inUseText(masked: string, kind: "phone" | "email"): string {
+  const who = masked || (kind === "phone" ? "That phone number" : "That Google account");
+  const signIn = masked ? `with ${masked}` : kind === "phone" ? "with that phone number" : "with that Google account";
+  const addLine = kind === "phone" ? "Add a number that isn't on LazyTopper yet, or" : "Add an email that isn't on LazyTopper yet, or";
+  return (
+    `${who} already opens another LazyTopper account, so it can't be added here.\n` +
+    `\u2022 ${addLine}\n` +
+    `\u2022 Sign in ${signIn} to use that account.\n` +
+    "Want the two accounts joined?"
+  );
+}
+/** Context-free default (no contact known). */
+export const IN_USE_TEXT = inUseText("", "phone");
+
+/** The Google popup error may carry the email Firebase saw (customData.email); masked here, never shown raw. */
+function emailFromError(err: unknown): string {
+  const cd = typeof err === "object" && err !== null ? (err as { customData?: { email?: unknown } }).customData : undefined;
+  return typeof cd?.email === "string" ? maskEmail(cd.email) : "";
+}
 
 /** Honest, specific, allowlisted: an unknown code gets the neutral line, never a raw Firebase string. */
-export function describeLinkError(err: unknown): LinkError {
+export function describeLinkError(err: unknown, ctx: LinkErrorContext = {}): LinkError {
   const code = typeof err === "object" && err !== null && "code" in err ? String((err as { code?: unknown }).code || "") : "";
   switch (code) {
     case "auth/credential-already-in-use":
     case "auth/account-exists-with-different-credential":
     case "auth/email-already-in-use":
     case "auth/phone-number-already-exists":
+      if (ctx.phone) return { kind: "in_use", text: inUseText(ctx.phone, "phone"), whatsapp: true, code };
+      if (ctx.email || emailFromError(err)) return { kind: "in_use", text: inUseText(ctx.email || emailFromError(err), "email"), whatsapp: true, code };
       return { kind: "in_use", text: IN_USE_TEXT, whatsapp: true, code };
     case "auth/provider-already-linked":
       // Raised when THIS account already has that kind of login (stale screen): not another account's credential.
       return { kind: "notice", text: "This account already has that way to sign in, so you can use it now.", whatsapp: false, code };
     case "auth/invalid-verification-code":
-      return { kind: "error", text: "That code isn't right. Check it and try again.", whatsapp: false, code };
+      return { kind: "error", text: "That code isn't right. Check it and try again.", whatsapp: false, code, resend: true };
     case "auth/code-expired":
-      return { kind: "error", text: "That code has expired. Send a new one.", whatsapp: false, code };
+      return { kind: "error", text: "That code has expired. Send a new one.", whatsapp: false, code, resend: true };
     case "auth/invalid-phone-number":
       return { kind: "error", text: "That doesn't look like a valid mobile number.", whatsapp: false, code };
     case "auth/popup-closed-by-user":
