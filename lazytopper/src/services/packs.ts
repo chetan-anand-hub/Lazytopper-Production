@@ -356,7 +356,7 @@ export function packCheckoutDescription(sku: PackSku, target: string | undefined
 }
 
 export type PackBuyOutcome =
-  | { status: "paid"; grant: PackGrant; paymentId?: string; amountInr?: number }
+  | { status: "paid"; grant: PackGrant; orderId?: string; paymentId?: string; amountInr?: number }
   /** `afterFailure`: Razorpay reported a failed payment before the sheet was closed (PAY-RESCUE-1). */
   | { status: "dismissed"; afterFailure?: boolean }
   /** The server says the student already owns everything this would grant: nothing was charged. */
@@ -433,6 +433,7 @@ export async function buyPack(
     return {
       status: "paid",
       grant,
+      orderId: order.orderId, // META-PURCHASE-DEDUP-1: the one id of the sale (analytics only)
       ...(paymentId !== undefined ? { paymentId } : {}),
       ...(amountInr !== undefined ? { amountInr } : {}),
     };

@@ -153,6 +153,7 @@ describe("buyPack", () => {
     expect(out).toEqual({
       status: "paid",
       grant: { packId: "pack_chapter:triangles", sku: "pack_chapter", target: "triangles" },
+      orderId: "order_1",
       paymentId: "pay_1",
       amountInr: 49,
     });

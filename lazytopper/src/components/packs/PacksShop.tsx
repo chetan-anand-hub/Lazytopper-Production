@@ -667,7 +667,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.
     if (outcome.status === "paid") {
       resetOwnedPacksCache(); // client cache only: the sale-moment rows must re-ask the server, not offer what was just bought
-      trackPackPurchase({ ...details, valueInr: outcome.amountInr ?? details.valueInr, transactionId: outcome.paymentId || attemptId });
+      trackPackPurchase({ ...details, valueInr: outcome.amountInr ?? details.valueInr, transactionId: outcome.orderId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
     }
     if (!mounted.current && outcome.status !== "pending") return;
     if (outcome.status === "paid") {
