@@ -442,20 +442,19 @@ const payEmailSignInLink = async (email, continueUrl) => {
   if (!firebaseAdmin) throw new Error('firebase-admin is unavailable');
   return firebaseAdmin.auth().generateSignInWithEmailLink(email, { url: continueUrl, handleCodeInApp: true });
 };
-// RECEIPT-EMAIL-1: ONE "Your LazyTopper <item> is ready" email per granted order (on by default; kill switch
-// RECEIPT_EMAIL_DISABLED). It SUPERSEDES the older PAY-PHONE-1 receipt and the recipient-ready email, so a buyer never gets two.
-const receiptEmailer = require('./services/receiptEmail.cjs').createReceiptEmailer({
+const paymentReceiptEmailer = require('./services/paymentReceiptEmail.cjs').createPaymentReceiptEmailer({
   adminFirestore,
   telemetry,
+  emailSignInLink: payEmailSignInLink,
+  // RECEIPT-EMAIL-1: the recipient account's own record (masked sign-ins + its email), and Razorpay's payment record (the
+  // PAYER's checkout email when the caller has none, e.g. after an attach choice).
   getAuthUser: async (uid) => {
     if (!firebaseAdmin) return null;
     const r = await authRecordOrNull((a) => a.getUser(uid));
-    return r ? { email: r.email || '', phoneNumber: r.phoneNumber || '', providerIds: (r.providerData || []).map((p) => p.providerId) } : null;
+    return r ? { email: r.email || '', phoneNumber: r.phoneNumber || '', providerIds: (r.providerData || []).map((x) => x.providerId) } : null;
   },
   fetchPayment: require('./services/gstInvoice.cjs').createRazorpayPaymentFetcher(),
 });
-const grantReceipt = (input) => void receiptEmailer.sendForOrder(input);
-const paymentReceiptEmailer = require('./services/paymentReceiptEmail.cjs').createPaymentReceiptEmailer({ adminFirestore, telemetry, emailSignInLink: payEmailSignInLink, supersededBy: () => receiptEmailer.config.active });
 // GST-INVOICE-1 (DARK behind GST_INVOICE_ENABLED): the tax invoice, issued after a verified capture on every pay path.
 const gstInvoicer = require('./services/gstInvoice.cjs').createGstInvoicer({
   adminFirestore,
@@ -474,7 +473,6 @@ const paymentRoutes = createPaymentRoutes({
   adminFirestore,
   telemetry,
   receiptEmailer: paymentReceiptEmailer,
-  grantReceipt,
   invoicer: gstInvoicer,
   // CHECKOUT-WHO-2: the webhook runs the guest routes' recipient delivery too (late-bound: guestPayRoutes is built below).
   afterGuestPaid: (input) => guestPayRoutes.afterRecipientPaid(input),
@@ -499,7 +497,7 @@ const parentPayRoutes = createParentPayRoutes({
   verifiedCaller,
   adminFirestore,
   telemetry,
-  grantReceipt,
+  receiptEmailer: paymentReceiptEmailer,
   invoicer: gstInvoicer,
   // The child's display name from the server's own auth record — never from a request.
   getDisplayName: async (uid) => {
@@ -514,7 +512,6 @@ const guestPayRoutes = createGuestPayRoutes({
   adminFirestore,
   telemetry,
   receiptEmailer: paymentReceiptEmailer,
-  grantReceipt,
   invoicer: gstInvoicer,
   // Owner ruling 2 Nov 2026: a number that already has an account signs in instead of paying as a guest.
   accountExistsForPhone: async (e164) => {

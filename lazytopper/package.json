@@ -131,7 +131,7 @@
     "test:server:signup-source": "node --test server/routes/signupSource.test.cjs",
     "test:server:trial-ensure": "node --test server/routes/trialEnsure.test.cjs",
     "test:server:pack-sample-seen": "node --test server/routes/packSampleSeen.test.cjs",
-    "test:server:receipt-email": "node --test server/services/receiptEmail.test.cjs",
+    "test:server:receipt-email": "node --test server/services/paymentReceiptEmail.receipt.test.cjs",
     "test:server:trial-email": "node --test server/services/trialEndingEmail.test.cjs",
     "test:server:ops-report": "node --test server/services/opsReport.test.cjs",
     "test:server:nudge-email": "node --test server/services/nudgeEmail.test.cjs server/services/emailSendWindow.test.cjs server/services/abandonedCheckout.test.cjs server/services/sampleFollowup.test.cjs",

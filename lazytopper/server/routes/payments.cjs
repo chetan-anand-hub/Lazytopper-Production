@@ -337,8 +337,6 @@ function createPaymentRoutes(deps = {}) {
     foundingOfferOpen,
     topupBonus, // test seam only: { percent, endsIso }; production passes nothing (the constants decide)
     receiptEmailer, // PAY-PHONE-1 (A): optional; absent -> no receipt email (it is off by default anyway)
-    /** RECEIPT-EMAIL-1 - optional ({ orderId, buyerEmail }) => void, fired AFTER a successful grant; never awaited, never throws. */
-    grantReceipt,
     /**
      * CHECKOUT-WHO-2 - optional async ({ orderId, paymentId }) => void: the guest routes' post-payment step for a
      * "Who will use it?" order (attach to an existing recipient account + the recipient email), the SAME one verify runs.
@@ -821,7 +819,7 @@ function createPaymentRoutes(deps = {}) {
     if (mismatch) return reject(res, 'verify', mismatch);
 
     // 4. Grant — idempotent, with the order's created -> paid in the same transaction.
-    const answered = await grantAndRespond(res, 'verify', { uid: order.uid, passType: order.passType, paymentId, orderId, buyerEmail: payment.email });
+    const answered = await grantAndRespond(res, 'verify', { uid: order.uid, passType: order.passType, paymentId, orderId });
     sendReceipt(orderId, paymentId, payment, order.passType);
     return answered;
   }
@@ -835,15 +833,7 @@ function createPaymentRoutes(deps = {}) {
    * order never reaches grantTopup: the branch is on the STORED order's passType, which only
    * handleOrder wrote. Verify, webhook and status all arrive here after the SAME Z4 checks.
    */
-  function fireGrantReceipt(orderId, buyerEmail) {
-    try {
-      if (typeof grantReceipt === 'function') grantReceipt({ orderId, buyerEmail: typeof buyerEmail === 'string' ? buyerEmail : '' });
-    } catch {
-      /* a receipt never touches the payment path */
-    }
-  }
-
-  async function grantAndRespond(res, scope, { uid, passType, paymentId, orderId, buyerEmail }, extra) {
+  async function grantAndRespond(res, scope, { uid, passType, paymentId, orderId }, extra) {
     if (isPackProduct(passType)) {
       // PACKS-SERVER-1: a paid pack is always granted, even if PACKS_ENABLED was switched off after the order
       // was made. It NEVER reaches grantPass / grantTopup (no passEnd, no Premium, no credit). The sku, target
@@ -853,7 +843,6 @@ function createPaymentRoutes(deps = {}) {
         emit(granted.replayed ? `payments.${scope}.pack_replayed` : `payments.${scope}.pack_granted`);
         if (granted.duplicate) emit(`payments.${scope}.pack_duplicate_payment`);
         if (extra && extra.counter) emit(extra.counter);
-        if (!granted.duplicate) fireGrantReceipt(orderId, buyerEmail);
         const body = { ok: true, kind: 'pack', packId: granted.pack.packId, sku: granted.pack.sku, target: granted.pack.target, replayed: granted.replayed };
         return sendJson(res, 200, extra && extra.body ? { ...body, ...extra.body } : body);
       } catch (e) {
@@ -892,7 +881,6 @@ function createPaymentRoutes(deps = {}) {
         if (granted.packCredit.conflict) emit(`payments.${scope}.pack_credit_conflict`);
       }
       if (extra && extra.counter) emit(extra.counter);
-      fireGrantReceipt(orderId, buyerEmail);
       const body = {
         ok: true,
         replayed: granted.replayed,
@@ -1018,7 +1006,7 @@ function createPaymentRoutes(deps = {}) {
     const mismatch = paymentMismatch(entity, { orderId, amountPaise: order.amountPaise });
     if (mismatch) return reject(res, 'webhook', mismatch);
 
-    const answered = await grantAndRespond(res, 'webhook', { uid: order.uid, passType: order.passType, paymentId, orderId, buyerEmail: entity.email });
+    const answered = await grantAndRespond(res, 'webhook', { uid: order.uid, passType: order.passType, paymentId, orderId });
     sendReceipt(orderId, paymentId, entity, order.passType);
     return answered;
   }
@@ -1201,7 +1189,7 @@ function createPaymentRoutes(deps = {}) {
     const reconciled = await grantAndRespond(
       res,
       'status',
-      { uid: order.uid, passType: order.passType, paymentId, orderId, buyerEmail: found.payment.email },
+      { uid: order.uid, passType: order.passType, paymentId, orderId },
       { body: { state: 'paid', paymentId, amountInr }, counter: 'payments.status.reconciled' },
     );
     sendReceipt(orderId, paymentId, found.payment, order.passType);

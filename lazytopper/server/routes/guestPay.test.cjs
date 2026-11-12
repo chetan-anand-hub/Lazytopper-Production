@@ -708,7 +708,7 @@ test('E · guest paid by webhook only: one email from the webhook', async (t) =>
   await sendWebhook(srv, p);
   await receiptEmailer.whenIdle();
   assert.equal(resend.sent.length, 1);
-  assert.ok(resend.sent[0].body.text.includes('your Premium is switched on'));
+  assert.ok(resend.sent[0].body.text.includes('your Board Pass is switched on'));
   assert.ok(resend.sent[0].body.text.includes('redirect=%2F\n') || resend.sent[0].body.text.includes('redirect=%2F'));
 });
 
@@ -826,9 +826,9 @@ test('R5 · a Board Pass for an account already Premium till the boards: duplica
 
 test('R7 · a parent-paid pass receipt says Premium is active on the STUDENT\'s account', () => {
   const m = buildReceiptEmail({ passType: 'till_boards', amountPaise: 191700, paymentId: 'pay_p', paidAtMs: NOW, appUrl: 'https://www.lazytopper.com', payer: 'parent' });
-  assert.ok(m.text.includes("Premium is now active on the student's account"));
+  assert.ok(m.text.includes("Board Pass is now active on the student's account"));
   const own = buildReceiptEmail({ passType: 'till_boards', amountPaise: 191700, paymentId: 'pay_s', paidAtMs: NOW, appUrl: 'https://www.lazytopper.com' });
-  assert.ok(own.text.includes('Premium is switched on for your account'));
+  assert.ok(own.text.includes('Board Pass is switched on for your account'));
 });
 
 test('OWNER · a number that already has an account cannot pay as a guest: one generic answer, no Razorpay order, limits first', async (t) => {

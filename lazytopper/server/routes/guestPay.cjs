@@ -308,7 +308,6 @@ function createGuestPayRoutes(deps = {}) {
     now = () => Date.now(),
     foundingOfferOpen,
     receiptEmailer, // PAY-PHONE-1 (A): optional, fire and forget, idempotent per payment
-    grantReceipt, // RECEIPT-EMAIL-1: optional ({ orderId }) => void, fired AFTER a successful claim/attach/fallback grant
     invoicer, // GST-INVOICE-1: optional { issueForPayment, config }; absent or off -> nothing changes
     /**
      * Owner ruling 2 Nov 2026 (prevent duplicates): async (e164) => boolean - does ANY Firebase account already use this
@@ -1287,12 +1286,11 @@ function createGuestPayRoutes(deps = {}) {
         entry = { orderId, ...describeOrder(order), passEnd: granted.pass.passEnd };
       }
       emit('payments.guest.claim.granted');
-      // RECEIPT-EMAIL-1: the grant is done (so a pay-first order still inside its attach hold was never here): one receipt,
-      // naming the account it landed on. Fire and forget; the order's own marker makes a replay send nothing.
-      try {
-        if (typeof grantReceipt === 'function') grantReceipt({ orderId });
-      } catch {
-        /* never touches the grant */
+      // RECEIPT-EMAIL-1: the grant is done, so the account the purchase landed on is known (an attach order waited for the
+      // payer's choice or the 10-minute fallback). ONE receipt per order: a no-op when the capture-time receipt already went.
+      // Fire and forget; never throws, never awaited.
+      if (receiptEmailer && typeof receiptEmailer.sendForPayment === 'function') {
+        void receiptEmailer.sendForPayment({ orderId, paymentId, email: '' });
       }
       return { claimed: entry, order };
     } catch (e) {

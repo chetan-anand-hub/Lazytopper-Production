@@ -392,7 +392,7 @@ function createAdminPurchasesRoutes(deps = {}) {
           isAdminAccount: admins.has(v.uid),
           ...whoFields(v),
           // RECEIPT-EMAIL-1: when the receipt email went out; nothing when it did not (no address, off, failed).
-          ...(v.receiptEmailStatus === 'sent' && msOf(v.receiptEmailAt) !== null ? { receiptEmailedAtMs: msOf(v.receiptEmailAt) } : {}),
+          ...(v.receiptEmail && v.receiptEmail.status === 'sent' && msOf(v.receiptEmail.at) !== null ? { receiptEmailedAtMs: msOf(v.receiptEmail.at) } : {}),
           // PARENT-PACKS-1 review M2: a paid pack order whose pack the student already had (packGrant `duplicate`). Facts only.
           ...(v.duplicate === true ? { duplicate: true, flag: DUPLICATE_FLAG } : {}),
         });

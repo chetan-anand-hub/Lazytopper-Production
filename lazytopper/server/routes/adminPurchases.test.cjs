@@ -717,3 +717,18 @@ test('ADMIN-MERGE: a Board Pass subscription and every order move; a failed phon
   assert.equal((await mergeHarness(s2, fa2)({ fromUid: 'pay-src', toEmail: 'priya@gmail.com' }))[0], 500);
   assert.equal(fa2.users['pay-src'].phoneNumber, '+919611111555');
 });
+
+test('RECEIPT-EMAIL-1 · a sent receipt shows its time; failed / sending / none shows nothing', async () => {
+  const sentAt = new Date(NOW - 500);
+  const orders = [
+    paid('s', 'u1', 'pack_subject', 199, 1000, { packTarget: 'maths', receiptEmail: { status: 'sent', at: sentAt } }),
+    paid('f', 'u2', 'pack_subject', 199, 2000, { packTarget: 'maths', receiptEmail: { status: 'failed', at: sentAt } }),
+    paid('n', 'u3', 'pack_subject', 199, 3000, { packTarget: 'maths' }),
+  ];
+  const { route } = harness({ orders });
+  const res = {}; await route.list({}, res);
+  const by = Object.fromEntries(res.body.items.map((i) => [i.orderId, i]));
+  assert.equal(by.s.receiptEmailedAtMs, sentAt.getTime());
+  assert.equal('receiptEmailedAtMs' in by.f, false);
+  assert.equal('receiptEmailedAtMs' in by.n, false);
+});

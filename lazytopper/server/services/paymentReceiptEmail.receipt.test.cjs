@@ -1,0 +1,239 @@
+// RECEIPT-EMAIL-1 - the ONE live receipt email (PAY-PHONE-1 emailer, extended): every address held for the purchase, the
+// masked sign-in of the account it landed on, after the attach decision, once per order, exempt from the one-a-day ledgers.
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const { createPaymentReceiptEmailer } = require('./paymentReceiptEmail.cjs');
+
+const NOW = Date.parse('2030-06-15T04:30:00.000Z');
+const ENV = { PAYMENT_EMAIL_ENABLED: '1', RESEND_API_KEY: 're_test_key' };
+
+function makeDb(seed = {}) {
+  const docs = new Map(Object.entries(seed));
+  const writes = [];
+  const ref = (col, id) => ({
+    async get() {
+      const d = docs.get(`${col}/${id}`);
+      return { exists: d !== undefined, data: () => (d ? { ...d } : undefined) };
+    },
+    async set(data) {
+      writes.push(`${col}/${id}`);
+      docs.set(`${col}/${id}`, { ...(docs.get(`${col}/${id}`) || {}), ...data });
+    },
+  });
+  return {
+    docs,
+    writes,
+    collection: (col) => ({
+      doc: (id) => ref(col, id),
+      where: (field, _op, value) => ({
+        limit: () => ({
+          async get() {
+            const rows = [...docs].filter(([k, v]) => k.startsWith(`${col}/`) && v[field] === value);
+            return { forEach: (fn) => rows.forEach(([k, v]) => fn({ id: k.split('/')[1], data: () => v })) };
+          },
+        }),
+      }),
+    }),
+    chain: Promise.resolve(),
+    runTransaction(fn) {
+      const tx = { get: (r) => r.get(), set: (r, d) => r.set(d) };
+      const next = this.chain.then(() => fn(tx));
+      this.chain = next.catch(() => null);
+      return next;
+    },
+  };
+}
+
+function makeFetch(status = 200) {
+  const sent = [];
+  const impl = async (url, init) => {
+    const body = JSON.parse(init.body);
+    sent.push({ to: body.to[0], subject: body.subject, text: body.text, html: body.html, key: init.headers['Idempotency-Key'] });
+    return { ok: status < 400, status, json: async () => ({ id: `em_${sent.length}` }) };
+  };
+  impl.sent = sent;
+  return impl;
+}
+
+const PASS = { status: 'paid', paymentId: 'pay_ABC123', passType: 'till_boards', amountPaise: 59900, uid: 'u1', paidAt: new Date(NOW) };
+const ACCOUNT = { email: 'chetan@gmail.com', phoneNumber: '+919876543210', providerIds: ['google.com'] };
+
+function make({ order = PASS, account = ACCOUNT, env = ENV, status, extra = {}, seed = {} } = {}) {
+  const db = makeDb({ 'payOrders/order_X1': order, ...seed });
+  const fetchImpl = makeFetch(status);
+  const events = [];
+  const emailer = createPaymentReceiptEmailer({
+    adminFirestore: db,
+    telemetry: { increment: (e) => events.push(e) },
+    env,
+    fetchImpl,
+    now: () => NOW,
+    getAuthUser: async () => account,
+    ...extra,
+  });
+  return { db, fetchImpl, emailer, events };
+}
+const input = (extra = {}) => ({ orderId: 'order_X1', paymentId: 'pay_ABC123', email: 'parent@example.com', ...extra });
+
+test('goes to the payer AND the account email when different; names the masked sign-ins, Board Pass, no "Premium"', async () => {
+  const { emailer, fetchImpl, db } = make();
+  await emailer.sendForPayment(input());
+  assert.deepEqual(fetchImpl.sent.map((s) => s.to).sort(), ['chetan@gmail.com', 'parent@example.com']);
+  const m = fetchImpl.sent[0];
+  assert.match(m.text, /Sign in at lazytopper\.com with phone 98•••••210 \/ Google ch•••@gmail\.com to use it\./);
+  assert.match(m.text, /Everything is unlocked till the Feb 2027 boards\./);
+  assert.match(m.text, /Item: Board Pass\n/);
+  assert.match(m.text, /Razorpay payment ID: pay_ABC123/);
+  for (const s of fetchImpl.sent) assert.doesNotMatch(s.subject + s.text + s.html, /Premium/);
+  assert.equal(db.docs.get('payOrders/order_X1').receiptEmail.status, 'sent');
+});
+
+test('a pack says My packs; the same address (payer = account) gets ONE email', async () => {
+  const { emailer, fetchImpl } = make({ order: { ...PASS, passType: 'pack_chapter', packTarget: 'human-eye-and-colourful-world', amountPaise: 5800 } });
+  await emailer.sendForPayment(input({ email: 'Chetan@Gmail.com' }));
+  assert.equal(fetchImpl.sent.length, 1);
+  assert.match(fetchImpl.sent[0].text, /My packs to download/);
+});
+
+test('exactly once per order: replay, duplicate webhook and racing verify + claim send nothing more', async () => {
+  const { emailer, fetchImpl } = make({ account: { ...ACCOUNT, email: '' } });
+  await Promise.all([emailer.sendForPayment(input()), emailer.sendForPayment(input())]);
+  await emailer.sendForPayment(input());
+  await emailer.sendForPayment(input({ email: '' }));
+  assert.equal(fetchImpl.sent.length, 1);
+});
+
+test('B2 · a "someone else" order: the PAYER (via the Razorpay record) AND the recipient each get exactly one email', async () => {
+  const order = { ...PASS, status: 'claimed', payer: 'guest', checkoutWho: true, guestEmail: 'recipient@example.com', guestPhone: '+919000000001', uid: 'u9' };
+  const { emailer, fetchImpl } = make({
+    order,
+    account: { email: '', phoneNumber: '+919123456789', providerIds: ['phone'] },
+    extra: { fetchPayment: async () => ({ email: 'payer@example.com' }) },
+  });
+  await emailer.sendForPayment({ orderId: 'order_X1', paymentId: 'pay_ABC123', email: '' }); // after the attach / claim grant: no email in hand
+  await emailer.sendRecipientReady({ orderId: 'order_X1', paymentId: 'pay_ABC123' });
+  await emailer.sendForPayment({ orderId: 'order_X1', paymentId: 'pay_ABC123', email: '' });
+  assert.deepEqual(fetchImpl.sent.map((s) => s.to).sort(), ['payer@example.com', 'recipient@example.com']);
+  const payer = fetchImpl.sent.find((s) => s.to === 'payer@example.com');
+  assert.match(payer.text, /phone 91•••••789/);
+  assert.doesNotMatch(payer.text, /9123456789|recipient@example/);
+});
+
+test('attach hold: nothing until the choice or the 10-minute fallback; then ONE email naming the chosen account; the sweep covers a restart', async () => {
+  const held = { ...PASS, status: 'paid_unclaimed', uid: null, payer: 'guest', attachFlow: true, guestPaidAt: new Date(NOW - 60_000), guestPhone: '+919000000001' };
+  let clock = NOW;
+  const db = makeDb({ 'payOrders/order_X1': held });
+  const fetchImpl = makeFetch();
+  const emailer = createPaymentReceiptEmailer({
+    adminFirestore: db, env: ENV, fetchImpl, now: () => clock, getAuthUser: async () => ACCOUNT,
+    fetchPayment: async () => ({ email: 'buyer@example.com' }),
+  });
+  const r = await emailer.sendForPayment({ orderId: 'order_X1', paymentId: 'pay_ABC123', email: 'buyer@example.com' });
+  assert.equal(r.skipped, 'attach_hold');
+  assert.equal(fetchImpl.sent.length, 0);
+  // the payer attaches it to an account: the grant calls the receipt again
+  db.docs.set('payOrders/order_X1', { ...held, status: 'claimed', uid: 'u9', attachedAt: new Date(NOW) });
+  await emailer.sendForPayment({ orderId: 'order_X1', paymentId: 'pay_ABC123', email: '' });
+  await emailer.sendForPayment({ orderId: 'order_X1', paymentId: 'pay_ABC123', email: '' });
+  assert.equal(fetchImpl.sent.filter((s) => s.to === 'buyer@example.com').length, 1);
+  assert.match(fetchImpl.sent[0].text, /Sign in at lazytopper\.com with phone 98•••••210/);
+  // fallback with nobody choosing: the hourly sweep sends once the hold is over (a paid-but-unclaimed order is never left with no email)
+  const db2 = makeDb({ 'payOrders/order_X1': held });
+  const f2 = makeFetch();
+  const e2 = createPaymentReceiptEmailer({ adminFirestore: db2, env: ENV, fetchImpl: f2, now: () => clock, fetchPayment: async () => ({ email: 'buyer@example.com' }) });
+  assert.equal(await e2.drainHeldReceipts(), 0);
+  clock = NOW + 11 * 60_000;
+  assert.equal(await e2.drainHeldReceipts(), 1);
+  assert.equal(await e2.drainHeldReceipts(), 0);
+  assert.equal(f2.sent.length, 1);
+});
+
+test('a plain paid-but-unclaimed pay-first order still gets its capture-time receipt (the live behaviour)', async () => {
+  const unclaimed = { ...PASS, status: 'paid_unclaimed', uid: null, payer: 'guest', guestPhone: '+919000000001' };
+  const { emailer, fetchImpl } = make({ order: unclaimed });
+  await emailer.sendForPayment(input());
+  assert.equal(fetchImpl.sent.length, 1);
+  assert.match(fetchImpl.sent[0].text, /phone number \+91 90•••••001/);
+});
+
+test('no address held -> no email and the order stays unmarked; placeholder address is no address', async () => {
+  const { emailer, fetchImpl, db } = make({ account: { email: '', phoneNumber: '+919876543210' } });
+  await emailer.sendForPayment(input({ email: 'void@razorpay.com' }));
+  assert.equal(fetchImpl.sent.length, 0);
+  assert.equal(db.docs.get('payOrders/order_X1').receiptEmail, undefined);
+});
+
+test('kill switch RECEIPT_EMAIL_DISABLED silences receipt and recipient-ready; PAYMENT_EMAIL_ENABLED unset is off', async () => {
+  for (const env of [{ ...ENV, RECEIPT_EMAIL_DISABLED: '1' }, { RESEND_API_KEY: 're_x' }]) {
+    const { emailer, fetchImpl } = make({ env, order: { ...PASS, checkoutWho: true, payer: 'guest', guestEmail: 'r@example.com' } });
+    await emailer.sendForPayment(input());
+    await emailer.sendRecipientReady({ orderId: 'order_X1', paymentId: 'pay_ABC123' });
+    assert.equal(fetchImpl.sent.length, 0);
+  }
+});
+
+test('cap exemption: sent with every one-a-day ledger full, writes to none, and no cap owner reads the receipt marker', async () => {
+  const today = { lastClaimMs: NOW - 1000, count: 9999 };
+  const seed = {
+    'nudgeEmails/u1': today, 'trialEmails/u1': { status: 'sent', sentAt: new Date(NOW - 1000) }, 'guestNudgeEmails/k': today,
+    'nudgeEmailDaily/2030-06-15': today, 'trialEmailDaily/2030-06-15': today, 'gstInvoiceEmailDaily/2030-06-15': today,
+  };
+  const { emailer, fetchImpl, db } = make({ seed });
+  const ledgers = () => JSON.stringify([...db.docs].filter(([k]) => !k.startsWith('payOrders/')));
+  const before = ledgers();
+  await emailer.sendForPayment(input());
+  assert.equal(fetchImpl.sent.length, 2);
+  assert.equal(ledgers(), before);
+  assert.ok(db.writes.every((w) => w.startsWith('payOrders/')));
+  for (const f of ['nudgeEmail.cjs', 'trialEndingEmail.cjs', 'guestAbandonEmail.cjs']) {
+    assert.doesNotMatch(fs.readFileSync(path.join(__dirname, f), 'utf8'), /receiptEmail\b/, f);
+  }
+});
+
+test('a send failure never throws; only a retryable total failure frees the claim', async () => {
+  const a = make({ status: 503, account: { ...ACCOUNT, email: '' } });
+  assert.equal((await a.emailer.sendForPayment(input())).sent, false);
+  assert.equal(a.db.docs.get('payOrders/order_X1').receiptEmail.status, 'failed');
+  const b = make({ status: 422, account: { ...ACCOUNT, email: '' } });
+  await b.emailer.sendForPayment(input());
+  await b.emailer.sendForPayment(input());
+  assert.equal(b.fetchImpl.sent.length, 1);
+  const boom = createPaymentReceiptEmailer({ adminFirestore: { collection: () => { throw new Error('down'); } }, env: ENV, fetchImpl: makeFetch(), now: () => NOW });
+  assert.deepEqual(await boom.sendForPayment(input()), { error: true });
+});
+
+test('the body carries no full phone / address; copy rules hold', async () => {
+  const { emailer, fetchImpl } = make({ order: { ...PASS, guestPhone: '+919876543210' } });
+  await emailer.sendForPayment(input());
+  for (const m of fetchImpl.sent) {
+    for (const body of [m.text, m.html]) {
+      assert.doesNotMatch(body, /9876543210|chetan@gmail|parent@example/);
+      assert.doesNotMatch(body, /\bAI\b|answer key|optional|refund|<s>|<del>|line-through/i);
+    }
+  }
+});
+
+test('F2 · the hooks exist: payments verify/webhook/status receipt, parent pack + pass receipt, guest attach/claim receipt, index wiring', () => {
+  const read = (...p) => fs.readFileSync(path.join(__dirname, ...p), 'utf8');
+  const pay = read('..', 'routes', 'payments.cjs');
+  // every grantAndRespond (pack AND pass share it) is followed by sendReceipt, in verify, webhook and status
+  assert.equal((pay.match(/grantAndRespond\([^;]*;\s*sendReceipt\(/g) || []).length, 3);
+  assert.match(pay, /receiptEmailer\.sendForPayment\(\{ orderId, paymentId, email \}\)/);
+  const parent = read('..', 'routes', 'parentPay.cjs');
+  assert.match(parent, /receiptEmailer\.sendForPayment\(/);
+  const packSite = parent.slice(parent.indexOf('packGranted = await grantPack('));
+  assert.ok(packSite.indexOf('issueInvoice(orderId, paymentId, payment)') > 0, 'parent pack path');
+  const passSite = parent.slice(parent.indexOf('granted = await grantPass('));
+  assert.ok(passSite.indexOf('issueInvoice(orderId, paymentId, payment)') > 0, 'parent pass path');
+  const guest = read('..', 'routes', 'guestPay.cjs');
+  assert.ok(guest.indexOf('receiptEmailer.sendForPayment({ orderId, paymentId, email: \'\' })') > guest.indexOf("emit('payments.guest.claim.granted')"));
+  assert.match(guest, /receiptEmailer\.sendForPayment\(\{ orderId, paymentId, email: typeof payment\.email/);
+  const index = read('..', 'index.cjs');
+  assert.match(index, /receiptEmailer: paymentReceiptEmailer/);
+  assert.match(index, /createParentPayRoutes\(\{[^}]*receiptEmailer: paymentReceiptEmailer/s);
+  assert.match(index, /getAuthUser:/);
+  assert.match(index, /fetchPayment: require\('\.\/services\/gstInvoice\.cjs'\)\.createRazorpayPaymentFetcher\(\)/);
+});
