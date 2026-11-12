@@ -230,6 +230,12 @@ function resolveVendor(): VendorSend | null {
 interface VendorParams {
   ga4?: Record<string, unknown>;
   meta?: Record<string, unknown>;
+  /**
+   * META-PURCHASE-DEDUP-1 - Meta's `eventID` (4th fbq argument): the ONE id of a sale, so Meta discards a repeat of
+   * the same event name + id within 48 h. Only the sale events (`purchase`, `pack_purchase`) set it. Never a uid,
+   * email or phone: the id is Razorpay's order id (else payment id, else the per-attempt fallback).
+   */
+  metaEventId?: string;
 }
 
 /**
@@ -319,7 +325,7 @@ function sendToVendors(kind: "pageview" | "event", payload: Record<string, unkno
     /* analytics must never break the page */
   }
   try {
-    sendToMeta(kind, payload, params.meta);
+    sendToMeta(kind, payload, params.meta, params.metaEventId);
   } catch {
     /* analytics must never break the page */
   }
@@ -475,7 +481,8 @@ function resolveFbq(): Fbq | null {
  */
 type MetaCall =
   | readonly ["track" | "trackCustom", string]
-  | readonly ["track" | "trackCustom", string, Record<string, unknown>];
+  | readonly ["track" | "trackCustom", string, Record<string, unknown>]
+  | readonly ["track" | "trackCustom", string, Record<string, unknown>, { eventID: string }];
 
 export const META_EVENTS: Readonly<
   Partial<Record<"sign_up" | "first_graded" | NamedAnalyticsEvent, readonly ["track" | "trackCustom", string]>>
@@ -595,6 +602,7 @@ function sendToMeta(
   kind: "pageview" | "event",
   payload: Record<string, unknown>,
   eventParams?: Record<string, unknown>,
+  eventId?: string,
 ): void {
   const fbq = resolveFbq();
   if (!fbq) return;
@@ -611,7 +619,13 @@ function sendToMeta(
         ? META_EVENTS[name as keyof typeof META_EVENTS]
         : undefined;
   if (!mapped) return;
-  const call: MetaCall = kind === "event" && eventParams ? [mapped[0], mapped[1], eventParams] : mapped;
+  // META-PURCHASE-DEDUP-1: a sale event carries its id as Meta's `eventID` (4th argument; the 3rd must then be an object).
+  const call: MetaCall =
+    kind === "event" && eventId
+      ? [mapped[0], mapped[1], eventParams ?? {}, { eventID: eventId }]
+      : kind === "event" && eventParams
+        ? [mapped[0], mapped[1], eventParams]
+        : mapped;
   if (metaLibraryLoaded(fbq)) fbq(...call);
   else holdMetaCall(call);
 }
@@ -1165,11 +1179,18 @@ export function trackBeginCheckoutTap(details: CheckoutDetails, signedIn: boolea
 
 export const PURCHASE_SENT_KEY = "lazytopper.purchaseSent";
 const PURCHASE_SENT_CAP = 20;
+/**
+ * META-PURCHASE-DEDUP-1 - the SAME ids, kept in localStorage too (cap 50), because sessionStorage is per TAB: a second tab (the
+ * Razorpay return, a rescue dialog, the sign-in attach flow) never saw the first tab's sale. Ids only - a Razorpay order / payment
+ * id or a random attempt id; never a phone, email or name. Analytics bookkeeping, not premium / trial state (CLAUDE.md s7).
+ */
+export const PURCHASE_SENT_LOCAL_KEY = "lazytopper.purchaseSent.v2";
+const PURCHASE_SENT_LOCAL_CAP = 50;
 const purchaseSentMemory = new Set<string>();
 
-function readPurchaseSent(): string[] {
+function readIdList(storage: () => Storage, key: string): string[] {
   try {
-    const raw = window.sessionStorage.getItem(PURCHASE_SENT_KEY);
+    const raw = storage().getItem(key);
     const parsed: unknown = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === "string") : [];
   } catch {
@@ -1177,16 +1198,36 @@ function readPurchaseSent(): string[] {
   }
 }
 
-function rememberPurchaseSent(transactionId: string): void {
-  purchaseSentMemory.add(transactionId);
+function writeIdList(storage: () => Storage, key: string, id: string, cap: number): void {
   try {
-    const ids = readPurchaseSent().filter((id) => id !== transactionId);
-    ids.push(transactionId);
-    window.sessionStorage.setItem(PURCHASE_SENT_KEY, JSON.stringify(ids.slice(-PURCHASE_SENT_CAP)));
+    const ids = readIdList(storage, key).filter((x) => x !== id);
+    ids.push(id);
+    storage().setItem(key, JSON.stringify(ids.slice(-cap)));
   } catch {
     /* the in-memory set still dedupes this page load */
   }
 }
+
+/** Every sale id this browser has already sent: this tab's sessionStorage plus the cross-tab localStorage list. */
+function readPurchaseSent(): string[] {
+  return [
+    ...readIdList(() => window.sessionStorage, PURCHASE_SENT_KEY),
+    ...readIdList(() => window.localStorage, PURCHASE_SENT_LOCAL_KEY),
+  ];
+}
+
+function rememberPurchaseSent(transactionId: string): void {
+  purchaseSentMemory.add(transactionId);
+  writeIdList(() => window.sessionStorage, PURCHASE_SENT_KEY, transactionId, PURCHASE_SENT_CAP);
+  writeIdList(() => window.localStorage, PURCHASE_SENT_LOCAL_KEY, transactionId, PURCHASE_SENT_LOCAL_CAP);
+}
+
+/*
+ * META-PURCHASE-DEDUP-1 - the ONE id of a sale is Razorpay's ORDER id (`order_...`) when the client has it - it is the same on the pay
+ * tap, the verify answer, the status poll and the webhook - else the payment id, else the per-attempt id. The call sites build it as
+ * `orderId || paymentId || attemptId` (inline: several component tests replace this module, so no new export is needed). The attempt
+ * id is the rare fallback: it is minted client-side, so it can differ from the id the same sale fires under later.
+ */
 
 /**
  * ADS-TAG-1 (owner ruling 2026-11-01, spec ADS-TAG-1) - the Google Ads purchase conversion, so Ads credits the
@@ -1219,14 +1260,14 @@ export function sendAdsConversion(transactionId: string, valueInr: number | null
   }
 }
 
-/** Once per `transactionId`, ever in this tab. Call ONLY from the server-verified paid branch. */
+/** Once per `transactionId`, ever in this browser (every tab). Call ONLY from the server-verified paid branch. */
 export function trackPurchase(details: CheckoutDetails & { transactionId: string }): void {
   try {
     const id = details.transactionId;
     if (!id || purchaseSentMemory.has(id) || readPurchaseSent().includes(id)) return;
     rememberPurchaseSent(id);
     const p = checkoutParams(details);
-    send("event", { name: "purchase", data: p.vercel }, { ga4: { transaction_id: id, ...p.ga4 }, meta: p.meta });
+    send("event", { name: "purchase", data: p.vercel }, { ga4: { transaction_id: id, ...p.ga4 }, meta: p.meta, metaEventId: id });
     sendAdsConversion(id, details.valueInr);
   } catch {
     /* analytics must never break the page */

@@ -151,7 +151,7 @@ describe("the order body and the Razorpay prefill", () => {
   it("paid: server amount, verify called, Razorpay gets no recipient for a signed-in payer", async () => {
     const { d, opened } = deps();
     const out = await buyForRecipient(PASS, { phone: "+919876543210", first: "phone" }, true, d);
-    expect(out).toEqual({ status: "paid", confirmed: true, amountInr: 1917, paymentId: "pay_1" });
+    expect(out).toEqual({ status: "paid", confirmed: true, amountInr: 1917, paymentId: "pay_1", orderId: "order_1" });
     expect(opened[0].amount).toBe(191700);
     expect(opened[0].prefill).toBeUndefined();
     expect(opened[0].readonly).toBeUndefined();
@@ -256,7 +256,7 @@ describe("CHECKOUT-SELF-2 - Buy for yourself (the browser half)", () => {
   it("paid: Razorpay opens with the server amount and NO prefill; the contact is what the SERVER read off the payment", async () => {
     const { d, opened } = selfDeps();
     const out = await buyForSelf(CBQ, d);
-    expect(out).toEqual({ status: "paid", confirmed: true, contact: { phone: "+919876543210", email: "a@b.in", first: "phone" }, amountInr: 58, paymentId: "pay_1" });
+    expect(out).toEqual({ status: "paid", confirmed: true, contact: { phone: "+919876543210", email: "a@b.in", first: "phone" }, amountInr: 58, paymentId: "pay_1", orderId: "order_1" });
     expect(opened[0].amount).toBe(5800);
     expect(opened[0].prefill).toBeUndefined();
     expect(opened[0].readonly).toBeUndefined();

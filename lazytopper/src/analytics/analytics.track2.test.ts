@@ -7,6 +7,7 @@ vi.mock("../services/activityClient", () => ({ recordActivity }));
 import {
   INTERNAL_DEVICE_KEY,
   PURCHASE_SENT_KEY,
+  PURCHASE_SENT_LOCAL_KEY,
   __resetPurchaseMemoryForTests,
   trackBeginCheckout,
   trackOnboardingEvent,
@@ -93,7 +94,8 @@ describe("TRACK-2 · checkout events", () => {
     trackPurchase({ ...month, transactionId: "lt_a" });
     expect(ga4Events().filter((e) => e[1] === "purchase")).toHaveLength(1);
     expect(ga4Events().filter((e) => e[1] === "purchase")[0][2]).toMatchObject({ transaction_id: "lt_a", currency: "INR", value: 599 });
-    expect(meta).toEqual([["track", "Purchase", { currency: "INR", value: 599 }]]);
+    // META-PURCHASE-DEDUP-1: the sale id rides as Meta's eventID (4th argument).
+    expect(meta).toEqual([["track", "Purchase", { currency: "INR", value: 599 }, { eventID: "lt_a" }]]);
   });
 
   it("a reload (memory cleared, tab storage kept) does not count the same transaction twice", () => {
@@ -177,5 +179,58 @@ describe("TRACK-2 · admin traffic stays out of analytics", () => {
   it("an unmarked device carries no traffic_type (control)", () => {
     trackPageview("/pricing");
     expect(ga4Events()[0][2]).not.toHaveProperty("traffic_type");
+  });
+});
+
+describe("META-PURCHASE-DEDUP-1 · one sale = one Purchase", () => {
+  const purchases = () => meta.filter((c) => c[1] === "Purchase");
+
+  it("Meta gets the sale id as eventID (4th argument); GA4 transaction_id and the Ads conversion use the same id", () => {
+    trackPurchase({ ...month, transactionId: "order_ABC" });
+    expect(purchases()).toEqual([["track", "Purchase", { currency: "INR", value: 599 }, { eventID: "order_ABC" }]]);
+    expect(ga4Events().find((e) => e[1] === "purchase")![2]).toMatchObject({ transaction_id: "order_ABC" });
+    const ads = ga4.find((e) => e[0] === "event" && e[1] === "conversion");
+    expect(ads![2]).toMatchObject({ transaction_id: "order_ABC", value: 599 });
+  });
+
+  it("a second TAB (fresh memory and sessionStorage, shared localStorage) sends nothing for the same sale", () => {
+    trackPurchase({ ...month, transactionId: "order_TAB" });
+    __resetPurchaseMemoryForTests();
+    window.sessionStorage.clear(); // a new tab has its own sessionStorage
+    trackPurchase({ ...month, transactionId: "order_TAB" });
+    expect(purchases()).toHaveLength(1);
+    expect(ga4Events().filter((e) => e[1] === "purchase")).toHaveLength(1);
+    expect(ga4.filter((e) => e[1] === "conversion")).toHaveLength(1);
+  });
+
+  it("localStorage holds ids only (cap 50), never anything personal", () => {
+    for (let i = 0; i < 55; i++) trackPurchase({ ...month, transactionId: `order_${i}` });
+    const stored = JSON.parse(window.localStorage.getItem(PURCHASE_SENT_LOCAL_KEY) || "[]") as string[];
+    expect(stored).toHaveLength(50);
+    expect(stored[49]).toBe("order_54");
+    expect(stored.every((x) => /^order_\d+$/.test(x))).toBe(true);
+  });
+
+  it("storage that throws still sends once per page load", () => {
+    const get = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    const set = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    try {
+      trackPurchase({ ...month, transactionId: "order_NOSTORE" });
+      trackPurchase({ ...month, transactionId: "order_NOSTORE" });
+      expect(purchases()).toHaveLength(1);
+    } finally {
+      get.mockRestore();
+      set.mockRestore();
+    }
+  });
+
+  it("two different sales are two Purchases with their own eventIDs", () => {
+    trackPurchase({ ...month, transactionId: "order_1" });
+    trackPurchase({ ...month, transactionId: "order_2" });
+    expect(purchases().map((c) => (c[3] as { eventID: string }).eventID)).toEqual(["order_1", "order_2"]);
   });
 });

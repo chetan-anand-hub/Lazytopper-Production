@@ -936,8 +936,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "it, expired after 7 days; it never holds a phone number, email or click-id value). TRACK-2: plus localStorage `lazytopper.internal` (the single character 1, " +
       "set when this device opens /admin, so analytics can tag the owner's own browsing as " +
       "internal traffic; it holds no id and never leaves the device) and, in THIS TAB's " +
-      "sessionStorage, `lazytopper.purchaseSent` (up to 20 random per-attempt checkout ids, so a " +
-      "reload cannot count one payment twice). START-HERE-1: plus, in THIS TAB's sessionStorage, " +
+      "sessionStorage, `lazytopper.purchaseSent` (up to 20 checkout ids) and, in localStorage, " +
+      "`lazytopper.purchaseSent.v2` (up to 50 checkout ids; each is the payment provider's order or payment id, or a random per-attempt id; " +
+      "never a phone number, email or name), so a reload or a second tab cannot count one payment twice. START-HERE-1: plus, in THIS TAB's sessionStorage, " +
       "`lazytopper.startHereSubject` (one word, Maths or Science, read from the landing's ad tag so " +
       "the Start-here card can pre-pick a subject; never sent anywhere) and " +
       "`lazytopper.startHereDismissed` (the single character 1 after Not now, so the card stays " +

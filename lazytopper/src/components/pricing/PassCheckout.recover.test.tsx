@@ -83,8 +83,23 @@ describe("PAY-RECOVER-1 · PassCheckout pending", () => {
     expect(await screen.findByTestId("pass-checkout-paid")).toHaveTextContent(/Your monthly pass is active until 1 January 2027/);
     expect(status).toHaveBeenCalledTimes(2);
     expect(track.trackPurchase).toHaveBeenCalledTimes(1);
-    expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({ passType: "month", valueInr: 599, transactionId: "pay_SERVER" });
+    expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({ passType: "month", valueInr: 599, transactionId: "order_R1" });
     expect(document.body.textContent).not.toContain(PAYMENT_FAILED_COPY);
+  });
+
+  it("META-PURCHASE-DEDUP-1: a lost verify answer then a status poll fires under the SAME id the verified path uses (the order id), not attempt-then-payment", async () => {
+    // Path A: the verify answered. Path B: the verify was lost (pending), then the poll said paid. One sale -> one id.
+    const paidAtVerify: BuyOutcome = { status: "paid", passEnd: "2027-01-01T00:00:00.000Z", orderId: "order_R1", paymentId: "pay_R1", amountInr: 599 };
+    view(async () => SERVER_PAID, async () => paidAtVerify);
+    tapMonth();
+    await screen.findByTestId("pass-checkout-paid");
+    cleanup();
+    view(async () => SERVER_PAID);
+    tapMonth();
+    await screen.findByTestId("pass-checkout-paid");
+    const ids = track.trackPurchase.mock.calls.map((c) => (c[0] as { transactionId: string }).transactionId);
+    expect(ids).toEqual(["order_R1", "order_R1"]);
+    expect(ids.some((id) => id.startsWith("lt_") || id.startsWith("pay_"))).toBe(false);
   });
 
   it("no purchase fires while the payment is only pending", async () => {
@@ -232,7 +247,7 @@ describe("PAY-RECOVER-1 review fixes · the Pay buttons and the return-to-tab se
     expect(screen.getByTestId("pass-checkout-paid")).toHaveTextContent(/Your monthly pass is active until 1 January 2027/);
     expect(screen.queryByTestId("pass-checkout-confirming")).toBeNull();
     expect(track.trackPurchase).toHaveBeenCalledTimes(1);
-    expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({ valueInr: 599, transactionId: "pay_FOCUS" });
+    expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({ valueInr: 599, transactionId: "order_R1" });
   });
 
   it("a settle for ANOTHER order is ignored", async () => {

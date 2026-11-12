@@ -272,7 +272,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
       trackPurchase({
         ...details,
         ...(outcome.amountInr !== undefined ? { valueInr: outcome.amountInr } : {}),
-        transactionId: outcome.paymentId || attemptId,
+        transactionId: outcome.orderId || outcome.paymentId || attemptId, // META-PURCHASE-DEDUP-1: the order id
       });
       const date = formatPassDate(outcome.passEnd);
       if (date) setPaidUntil({ name: outcome.firstName || name, date, passType });
@@ -303,7 +303,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
       if (!outcome.duplicate) trackPackPurchase({
         ...details,
         ...(outcome.amountInr !== undefined ? { valueInr: outcome.amountInr } : {}),
-        transactionId: outcome.paymentId || attemptId,
+        transactionId: outcome.orderId || outcome.paymentId || attemptId, // META-PURCHASE-DEDUP-1: the order id
       });
       setPackPaid({ name: outcome.firstName || name, duplicate: outcome.duplicate === true });
     } else if (outcome.status === "pending") {

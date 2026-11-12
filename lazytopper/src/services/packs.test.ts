@@ -153,6 +153,7 @@ describe("buyPack", () => {
     expect(out).toEqual({
       status: "paid",
       grant: { packId: "pack_chapter:triangles", sku: "pack_chapter", target: "triangles" },
+      orderId: "order_1",
       paymentId: "pay_1",
       amountInr: 49,
     });
@@ -227,7 +228,7 @@ describe("checkout.ts pack variants", () => {
     const checkout = await import("./checkout");
     checkout.resetPayStatusBudgetForTests();
     const ok = await checkout.checkPackPayStatus("o9", { post: async () => ({ ok: true, state: "paid", kind: "pack", packId: "pack_bundle:all", sku: "pack_bundle", target: "all", paymentId: "p", amountInr: 299 }) });
-    expect(ok).toEqual({ state: "paid", grant: { packId: "pack_bundle:all", sku: "pack_bundle", target: "all" }, paymentId: "p", amountInr: 299 });
+    expect(ok).toEqual({ state: "paid", grant: { packId: "pack_bundle:all", sku: "pack_bundle", target: "all" }, orderId: "o9", paymentId: "p", amountInr: 299 });
     const pass = await checkout.checkPackPayStatus("o10", { post: async () => ({ ok: true, state: "paid", passEnd: "pass-end-token" }) });
     expect(pass).toEqual({ state: "unknown" });
     expect(await checkout.checkPackPayStatus("o11", { post: async () => ({ ok: true, state: "pending" }) })).toEqual({ state: "pending" });

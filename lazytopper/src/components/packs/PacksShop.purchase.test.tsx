@@ -170,17 +170,17 @@ describe("PURCHASE-EVENT-1 · pack purchase", () => {
     const view = shop("/pricing?buy=pack_chapter&t=real-numbers");
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
     view.unmount();
-    finish({ status: "paid", grant, paymentId: "pay_gone", amountInr: 49 });
+    finish({ status: "paid", grant, orderId: "order_gone", paymentId: "pay_gone", amountInr: 49 });
     await waitFor(() => expect(ga4("purchase")).toHaveLength(1));
-    expect(ga4("purchase")[0]).toMatchObject({ transaction_id: "pay_gone", value: 49, currency: "INR" });
+    expect(ga4("purchase")[0]).toMatchObject({ transaction_id: "order_gone", value: 49, currency: "INR" });
   });
 
-  it("pending order that the server settles as paid: purchase fires then (with the server payment id), once", async () => {
+  it("pending order that the server settles as paid: purchase fires then (with the order id), once", async () => {
     buyMock.mockResolvedValue({ status: "pending", orderId: "order_1", paymentId: "pay_p" });
-    checkMock.mockResolvedValue({ state: "paid", paymentId: "pay_p", amountInr: 99 });
+    checkMock.mockResolvedValue({ state: "paid", orderId: "order_1", paymentId: "pay_p", amountInr: 99 });
     shop("/pricing?buy=pack_mock&t=maths");
     await waitFor(() => expect(ga4("purchase")).toHaveLength(1));
-    expect(ga4("purchase")[0]).toMatchObject({ transaction_id: "pay_p", currency: "INR", value: 99, items: [{ item_id: "pack_mock", quantity: 1 }] });
+    expect(ga4("purchase")[0]).toMatchObject({ transaction_id: "order_1", currency: "INR", value: 99, items: [{ item_id: "pack_mock", quantity: 1 }] });
     await new Promise((r) => setTimeout(r, 30));
     expect(ga4("purchase")).toHaveLength(1);
   });
