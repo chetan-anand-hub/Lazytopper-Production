@@ -207,6 +207,9 @@ const EVENT_LABELS: Record<string, string> = {
   pack_purchase: "Bought a PDF pack",
   pack_download: "Downloaded a PDF from a pack",
   pack_ready_shown: "Saw \"Your pack is ready\"",
+  signin_link_shown: "Was asked who else will sign in",
+  signin_link_added: "Added another way to sign in",
+  signin_link_failed: "Could not add another way to sign in",
   pack_sample_download: "Downloaded a free pack sample page",
   // PACKS-ENTRY-1
   pack_entry_click: "Tapped a PDF packs link",

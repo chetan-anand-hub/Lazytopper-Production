@@ -1,0 +1,22 @@
+/* LINK-SIGNIN-1 - the after-purchase card and the Settings section. Navy / soft white / green; no inline styles. */
+.lt-sil__card { box-sizing: border-box; margin: 14px 0 0; padding: 14px 16px; border-radius: 14px; border: 1px solid #dde2ee; background: #fff; color: #0e1729; display: flex; flex-direction: column; gap: 8px; }
+.lt-sil__card--plain { margin: 16px 0; }
+.lt-sil__h { margin: 0; font-size: 1rem; font-weight: 800; }
+.lt-sil__p { margin: 0; font-size: 0.88rem; line-height: 1.5; color: #3c4b60; }
+.lt-sil__list { margin: 0; padding-left: 18px; font-size: 0.9rem; line-height: 1.6; }
+.lt-sil { display: flex; flex-direction: column; gap: 10px; }
+.lt-sil__row { display: flex; flex-wrap: wrap; gap: 8px; }
+.lt-sil__form { display: flex; flex-direction: column; gap: 8px; }
+.lt-sil__label { font-size: 0.8rem; font-weight: 700; }
+.lt-sil__phone { display: flex; gap: 8px; align-items: center; }
+.lt-sil__cc { font-weight: 700; }
+.lt-sil__input { box-sizing: border-box; width: 100%; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1.5px solid #c9d0de; font: inherit; font-size: 16px; background: #fff; color: inherit; }
+.lt-sil__btn { min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #c9d0de; background: #fff; color: #0e1729; font: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.lt-sil__btn--primary { border-color: transparent; background: #0b1f44; color: #fff; }
+.lt-sil__btn--quiet { border-color: transparent; background: transparent; color: #3c4b60; text-decoration: underline; }
+.lt-sil__btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.lt-sil__btn:focus-visible, .lt-sil__input:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }
+.lt-sil__done { margin: 0; font-size: 0.9rem; font-weight: 600; color: hsl(152, 45%, 26%); }
+.lt-sil__err { margin: 0; font-size: 0.85rem; line-height: 1.5; color: #b42318; }
+.lt-sil__err--in_use, .lt-sil__err--notice { padding: 10px 12px; border-radius: 10px; background: rgba(22, 185, 106, 0.08); border: 1px solid rgba(22, 185, 106, 0.28); color: #0e1729; }
+.lt-sil__err a { color: inherit; font-weight: 700; }

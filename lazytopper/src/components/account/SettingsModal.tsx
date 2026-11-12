@@ -31,6 +31,7 @@ import { deriveAccountStatus } from "../../utils/accountStatus";
 import MascotsSetting from "../guide/MascotsSetting";
 import UsageCard from "../usage/UsageCard";
 import AccountDataControls from "./AccountDataControls";
+import SigninMethodsSectionLazy from "../signinLink/SigninMethodsSectionLazy";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import type { SettingsSection } from "./settingsDoor";
 
@@ -192,6 +193,9 @@ export default function SettingsModal({
           {/* SETTINGS-USAGE-1: fair use lives here, not on Me / Progress. Renders nothing at all
               (no card, no heading) unless the server says it is enforced for a trial/premium pass. */}
           <UsageCard variant="settings" autoScroll={section === "usage"} />
+
+          {/* LINK-SIGNIN-1: the linked methods (masked) and the Add buttons; lazy, hidden by VITE_SIGNIN_LINK_DISABLED. */}
+          <SigninMethodsSectionLazy headingId={`${titleId}-ways`} />
 
           <section className="lt-set__card" aria-labelledby={`${titleId}-signin`}>
             <h3 className="lt-set__h" id={`${titleId}-signin`}>

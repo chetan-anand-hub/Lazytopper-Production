@@ -60,6 +60,7 @@ const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 // PAID-SHOWS-1: the purchase card again after a reload of the paid screen (this tab's proof only).
 const PurchaseCard = lazy(() => import("../checkoutWho/PurchaseCard"));
 import { resolvePaidBoardPass, usePaidPremium } from "../../lib/packs/usePaidPremium";
+import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 // PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
 import PaywallActions from "../pricing/PaywallActions";
 import { parentPackName } from "../../services/parentPayPack";
@@ -1130,6 +1131,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               <span data-testid="packs-status-cbq-tutor"> Includes 3 tutor questions.</span>
             )}
           </p>
+          {/* LINK-SIGNIN-1: only on a real paid outcome, for a signed-in buyer. */}
+          {buy.phase === "paid" && <SigninLinkCardLazy signedIn={signedIn} />}
           {/* PARENTS-PAY-1: the My packs block is hidden on /for-parents, so the downloads are one clear link away. */}
           {hideMyPacks && signedIn && (
             <p className="lt-packs__status">

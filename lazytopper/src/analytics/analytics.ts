@@ -998,6 +998,10 @@ export type NamedAnalyticsEvent =
   | "pack_download"
   // PACK-READY-1 - the "Your pack is ready" banner / toast was shown after a claim (data: sku, surface). No phone, no name.
   | "pack_ready_shown"
+  // LINK-SIGNIN-1 - the "Who else will sign in to use this?" card shown / a way added (data: method) / failed (data: code). No contact data.
+  | "signin_link_shown"
+  | "signin_link_added"
+  | "signin_link_failed"
   // PACK-SAMPLE-1 — the free sample page of a pack downloaded without signing up (data: pack, surface).
   | "pack_sample_download"
   // PACKS-ENTRY-1 — a tap on a small "PDF packs" link beside an ask (download wall, notes, footer, account).

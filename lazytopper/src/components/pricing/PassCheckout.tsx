@@ -38,6 +38,7 @@ import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { fetchMyPacks, type BoardPassCredit } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
 import PayRescueCard from "../payRescue/PayRescueCard";
+import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
 import { isGuestPayClientEnabled, maskIndianMobile, type GuestSigninState } from "../../services/guestPay";
 import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
@@ -505,6 +506,8 @@ export function PassCheckoutView({
         </p>
         {/* PASS-OWNER-PACKS-1 (owner 3 Nov): once, on the payment-success screen - the CBQ Packs, both subjects. Its own lazy chunk. */}
         <PassOwnerOfferLazy placement="pass_success" assumePaid />
+        {/* LINK-SIGNIN-1: a signed-in buyer is asked who else will sign in (own lazy chunk; below the purchase line, so nothing moves). */}
+        <SigninLinkCardLazy signedIn={signedIn} />
       </div>
     );
   }
