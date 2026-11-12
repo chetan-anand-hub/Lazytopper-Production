@@ -68,6 +68,8 @@ const HOW_STEPS: ReadonlyArray<{ title: string; text: string }> = [
 /** Template render: the three buyer-specific texts keep their layout but are not painted (visibility only - nothing reflows). */
 const TEMPLATE_CSS = `
 .lt-cover--tpl [${STAMP_ATTR}="licence"], .lt-cover--tpl [${STAMP_ATTR}="redownload"], .lt-cover--tpl [${STAMP_ATTR}="edition"] { visibility: hidden; }
+/* the text column is the room a licence line may take (box less label and gap), not the width of the placeholder: its measured width is the stamper's fit width */
+.lt-cover--tpl [${STAMP_ATTR}="textcol"] { flex: 1 1 auto; min-width: 0; }
 `;
 
 /** The attribute a template render puts on a blanked text; nothing at all on a real render. */

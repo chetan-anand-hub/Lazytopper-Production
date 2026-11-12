@@ -3,7 +3,7 @@
 //
 // What a template leaves blank, and where this puts it back (every position, size and style is read from the template's own
 // recorded `marks`, never re-derived):
-//   cover   licence line (Inter, the box's text column, <= licenceFit.maxLines lines), "Download again any time until <date>.",
+//   cover   licence line (Inter, the box's text column, ONE line: licenceFit), "Download again any time until <date>.",
 //           "Edition <date>" right-anchored. The "Your copy" frame, "Please do not share or resell this file." are already ink.
 //   body    "Generated <date>" under each paper's title row.
 //   footer  "Licensed to <name> - <e-mail or masked phone> - Order <id> - personal use only" on every body page, with the SAME
@@ -191,10 +191,19 @@ function fitCoverLicence(l, rule, baseSizePx, widthPx, measure) {
   const min = sizes[sizes.length - 1];
   const name = String(l.name ?? '').trim();
   const email = String(l.email ?? '').trim();
-  for (let drop = 1; drop <= name.length + email.length; drop += 1) {
-    const nameDrop = Math.min(drop, Math.max(0, name.length - 1));
-    const text = licenseeLine({ name: shorten(name, nameDrop), email: shorten(email, drop - nameDrop), orderId: l.orderId });
-    const lines = attempt(text, min);
+  // shorten with "…": the name first (down to one letter), then the e-mail's local part (the domain stays); a masked phone has no "@"
+  const at = email.lastIndexOf('@');
+  const local = at > 0 ? email.slice(0, at) : email;
+  const domain = at > 0 ? email.slice(at) : '';
+  const cut = (v, drop) => (drop <= 0 ? v : `${v.slice(0, Math.max(1, v.length - drop))}\u2026`);
+  const room = (v) => Math.max(0, v.length - 1);
+  const dom = domain.slice(1);
+  for (let drop = 1; drop <= room(name) + room(local) + room(dom); drop += 1) {
+    const nameDrop = Math.min(drop, room(name));
+    const localDrop = Math.min(drop - nameDrop, room(local));
+    const domDrop = drop - nameDrop - localDrop;
+    const mail = domain ? `${cut(local, localDrop)}@${cut(dom, domDrop)}` : cut(local, localDrop);
+    const lines = attempt(licenseeLine({ name: cut(name, nameDrop), email: mail, orderId: l.orderId }), min);
     if (lines) return { lines, sizePx: min };
   }
   const bare = licenseeLine({ name: '', email: '', orderId: l.orderId });

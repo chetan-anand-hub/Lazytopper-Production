@@ -34,10 +34,10 @@ const box = (name, o) => ({ name, xPx: 0, yPx: 0, wPx: 0, hPx: 0, wMm: 0, hMm: 0
 const MARKS = {
   version: 1, pageWmm: 210, pageHmm: 297, pages: 7,
   cover: {
-    licenceFit: { maxLines: 2, minFontSizePx: 11, stepPx: 0.5 }, wPx: 794, hPx: 1123, mmPerPx: 0.26448362720403024,
+    licenceFit: { maxLines: 1, minFontSizePx: 10.5, stepPx: 0.5 }, wPx: 794, hPx: 1123, mmPerPx: 0.26448362720403024,
     stamps: [
       box('textcol', { xMm: 24.068, yMm: 247.292, wMm: 138.829, hMm: 20.63, lines: 4 }),
-      box('licence', { xMm: 24.068, yMm: 247.557, wMm: 129.651, hMm: 9.389, lines: 2, style: style({ fontWeight: '700', color: 'rgb(21, 35, 58)' }) }),
+      box('licence', { xMm: 24.068, yMm: 247.557, wMm: 129.651, hMm: 5.1, lines: 1, style: style({ fontWeight: '700', color: 'rgb(21, 35, 58)' }) }),
       box('redownload', { xMm: 24.068, yMm: 262.764, wMm: 138.829, hMm: 5.157 }),
       box('edition', { xMm: 161.773, yMm: 280.088, wMm: 32.358, hMm: 4.232, anchor: 'right', rightEdgeMm: 194.131, style: style({ color: 'rgb(58, 74, 96)', lineHeightPx: 15.6 }) }),
     ],
@@ -396,31 +396,39 @@ test('stamp: the bridge swap keeps its link annotations on pages 2 and 3 and lea
   for (const i of [0, 3, 4, 5, 6]) assert.deepEqual(uriOf(doc.getPage(i)), []);
 });
 
-test('cover licence: a line that fits keeps the recorded size; a 3-line line shrinks (never under 11px) before anything is cut', async () => {
+test('cover licence: ONE line - it shrinks 13px to 10.5px first, then the name and the e-mail local part are cut with an ellipsis', async () => {
   const f = fonts();
   const font = fontOf(f['Inter-700']);
   const rule = MARKS.cover.licenceFit;
   const widthPx = MARKS.cover.stamps[0].wMm / MARKS.cover.mmPerPx;
   const measure = (t, px) => (widthOf(font, t, px * MARKS.cover.mmPerPx * (72 / 25.4)) * (25.4 / 72)) / MARKS.cover.mmPerPx;
-  const short = fitCoverLicence({ name: 'Asha Rao', email: 'asha@example.in', orderId: 'order_Abc123' }, rule, 13, widthPx, measure);
+  const fitOf = (l) => fitCoverLicence(l, rule, 13, widthPx, measure);
+  const ok = (fit) => assert.ok(fit.lines.length === 1 && measure(fit.lines[0], fit.sizePx) <= widthPx + 0.01 && fit.sizePx >= 10.5 && fit.sizePx <= 13);
+  const short = fitOf({ name: 'Asha', email: 'asha@x.in', orderId: 'order_Abc123' });
   assert.equal(short.sizePx, 13);
-  assert.ok(short.lines.length <= 2);
-  assert.equal(short.lines.join(' '), 'Licensed to Asha Rao · asha@example.in · Order order_Abc123 — personal use only');
-  // a long name + e-mail: 3 lines at 13px
+  assert.equal(short.lines.join(' '), 'Licensed to Asha \u00b7 asha@x.in \u00b7 Order order_Abc123 \u2014 personal use only');
+  const typical = fitOf({ name: 'Asha Rao', email: 'asha.rao@gmail.com', orderId: 'order_RxkLm3ab9QzP1' });
+  ok(typical);
+  assert.doesNotMatch(typical.lines[0], /\u2026/, 'a typical buyer is shrunk, not cut');
+  // the line that wrapped to THREE lines in the old 2-line box: still one line now
   const long = { name: 'Venkata Subramanian Raghunathan Iyer', email: 'venkata.subramanian.raghunathan.iyer@example-school.edu.in', orderId: 'order_PlaceholderOrder0000' };
-  assert.ok(measure(`Licensed to ${long.name} · ${long.email} · Order ${long.orderId} — personal use only`, 13) > 2 * widthPx, 'needs 3 lines at the recorded size');
-  const fit = fitCoverLicence(long, rule, 13, widthPx, measure);
-  assert.ok(fit.lines.length <= rule.maxLines, 'two lines at most');
-  assert.ok(fit.sizePx >= rule.minFontSizePx && fit.sizePx <= 13);
-  assert.ok(fit.lines.every((x) => measure(x, fit.sizePx) <= widthPx + 0.01), 'no line overflows the box');
-  const joined = fit.lines.join(' ');
-  assert.match(joined, /Order order_PlaceholderOrder0000 — personal use only$/, 'the order id and "personal use only" are never cut');
-  // absurd: shortened with "..." at the minimum size, still two lines
-  const absurd = fitCoverLicence({ name: 'N'.repeat(120), email: 'e'.repeat(120) + '@x.in', orderId: 'order_1' }, rule, 13, widthPx, measure);
-  assert.equal(absurd.sizePx, rule.minFontSizePx);
-  assert.ok(absurd.lines.length <= 2);
-  assert.match(absurd.lines.join(' '), /\.\.\./);
-  assert.match(absurd.lines.join(' '), /Order order_1 — personal use only$/);
+  assert.ok(measure(`Licensed to ${long.name} \u00b7 ${long.email} \u00b7 Order ${long.orderId} \u2014 personal use only`, 13) > 2 * widthPx, 'three lines at the recorded size');
+  const fit = fitOf(long);
+  ok(fit);
+  assert.match(fit.lines[0], /\u2026/, 'cut with an ellipsis');
+  assert.match(fit.lines[0], /@example-school\.edu\.in|\u2026/, 'the domain is kept while the local part can still give');
+  assert.match(fit.lines[0], /Order order_PlaceholderOrder0000 \u2014 personal use only$/, 'order id and "personal use only" are never cut');
+  assert.equal(fit.sizePx, 10.5, 'shrunk to the minimum before anything was cut');
+  // a line that only needs a smaller size is not cut
+  const mid = { name: 'Venkata Iyer', email: 'venkata@example.in', orderId: 'order_Abc123XYZ' };
+  const midFit = fitOf(mid);
+  ok(midFit);
+  assert.doesNotMatch(midFit.lines[0], /\u2026/);
+  // absurd inputs still fit one line, and a masked phone (no "@") is cut at its tail
+  const absurd = fitOf({ name: 'N'.repeat(120), email: `${'e'.repeat(120)}@x.in`, orderId: 'order_1' });
+  ok(absurd);
+  assert.match(absurd.lines[0], /Order order_1 \u2014 personal use only$/);
+  ok(fitOf({ name: '', email: '+91 98\u2022\u2022\u2022\u2022\u2022948', orderId: 'order_1' }));
 });
 
 test('footer fit: the browser build\'s ladder (10 -> 9 pt, then name, then e-mail shortened; Latin-1 only; bullets become "*")', async () => {
