@@ -157,7 +157,10 @@ export default function PurchaseCard({ proof, onHide, fetchReceiptImpl = fetchRe
     <section className="lt-rcpt" data-testid="purchase-card">
       <p className="lt-rcpt__ok" role="status">{RECEIPT_PAYMENT_RECEIVED}</p>
       <p className="lt-rcpt__title" data-testid="receipt-title">{pack ? receiptPackTitle(meCardPackTitle(pack)) : "Your pack"}</p>
-      {files.phase === "idle" || files.phase === "loading" ? <p className="lt-rcpt__line">{RECEIPT_PREPARING}</p> : null}
+      {pack && !licensee && (
+        <p className="lt-rcpt__line" data-testid="receipt-no-contact">{receiptExpired(ok?.savedTo ?? "")}</p>
+      )}
+      {licensee && (files.phase === "idle" || files.phase === "loading") ? <p className="lt-rcpt__line">{RECEIPT_PREPARING}</p> : null}
       {files.phase === "error" && (
         <p className="lt-rcpt__line" role="alert">
           {RECEIPT_FILES_FAILED}{" "}
@@ -188,7 +191,7 @@ export default function PurchaseCard({ proof, onHide, fetchReceiptImpl = fetchRe
             </details>
           );
         })}
-      {saved && <p className="lt-rcpt__fine" data-testid="receipt-saved">{saved}</p>}
+      {saved && licensee && <p className="lt-rcpt__fine" data-testid="receipt-saved">{saved}</p>}
       {hide}
     </section>
   );

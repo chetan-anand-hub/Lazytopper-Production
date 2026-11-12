@@ -1505,7 +1505,9 @@ function createGuestPayRoutes(deps = {}) {
     }
 
     emit('payments.guest.receipt.shown');
-    const common = { ok: true, attached: !!order.attachedAt, ...(savedTo ? { savedTo, savedToKind } : {}) };
+    // Only an open attach order is "pending": a someone-else / parent order, or one made with the attach switch off, already names its recipient.
+    const attached = !!order.attachedAt || order.attachFlow !== true;
+    const common = { ok: true, attached, ...(savedTo ? { savedTo, savedToKind } : {}) };
     if (!isPack) return sendJson(res, 200, { ...common, item: { kind: 'pass', label: 'Board Pass' } });
     const packId = packIdFor(sku, target);
     return sendJson(res, 200, {

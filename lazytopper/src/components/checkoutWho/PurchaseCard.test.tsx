@@ -73,6 +73,22 @@ describe("a pack", () => {
     expect(screen.getAllByTestId("receipt-download")[0].textContent).toBe("Retry");
   });
 
+  it("someone-else / parent order (attached:true): the plain 'Saved to' line, never 'the one you paid with' / 'choose someone else below'", async () => {
+    render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => ({ ...PACK, attached: true } as ReceiptOutcome)} />);
+    await screen.findAllByTestId("receipt-download");
+    const line = screen.getByTestId("receipt-saved").textContent || "";
+    expect(line).toBe("Saved to +91 98•••••948. Sign in with it any time to download again.");
+    expect(line).not.toMatch(/paid with|below/);
+  });
+
+  it("no licensee contact: no endless 'Preparing', no files built, an honest sign-in line", async () => {
+    render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => ({ status: "ok", kind: "pack", attached: true, savedTo: "", pack: PACK.status === "ok" ? PACK.pack : undefined } as ReceiptOutcome)} />);
+    expect((await screen.findByTestId("receipt-no-contact")).textContent).toBe("Sign in with the number or email you paid with to download.");
+    expect(screen.queryByText("Preparing your files…")).toBeNull();
+    expect(screen.queryByTestId("receipt-download")).toBeNull();
+    expect(build.buildPackFiles).not.toHaveBeenCalled();
+  });
+
   it("an email recipient: the masked email is the licence line", async () => {
     render(
       <PurchaseCard

@@ -2401,3 +2401,27 @@ test('RECEIPT · dark with the payment switches off; no Razorpay call is made (t
   const r = await request(off.port, GUEST_RECEIPT_PATH, { body: { orderId: 'order_x', paymentId: 'pay_x', signature: checkoutSig('order_x', 'pay_x') } });
   assert.equal(r.status, 404);
 });
+
+test('RECEIPT · a someone-else order (no attach flow) is NOT "pending": attached:true, licence = the recipient masked', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const paid = await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: OTHER_PHONE } });
+  const orderId = paid.orderId || paid.json?.orderId;
+  const paymentId = paid.paymentId;
+  assert.ok(orderId && paymentId, JSON.stringify(Object.keys(paid)));
+  const r = await receipt(srv, { orderId, paymentId });
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.attached, true, 'the recipient is already named: the card must not say "choose someone else below"');
+  assert.deepEqual(r.json.licensee, { name: '', email: '', phone: maskIndianMobile(OTHER_PHONE) });
+});
+
+test('RECEIPT · the not_paid guard: an order that has a paymentId but is still `created` is refused (409), not answered', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const o = await attachSelf(srv);
+  const pid = 'pay_neverpaid2';
+  await srv.db.collection('payOrders').doc(o.json.orderId).set({ paymentId: pid }, { merge: true });
+  const r = await request(srv.port, GUEST_RECEIPT_PATH, { body: { orderId: o.json.orderId, paymentId: pid, signature: checkoutSig(o.json.orderId, pid) } });
+  assert.equal(r.status, 409, r.text);
+  assert.equal(r.json.reason, 'not_paid');
+});

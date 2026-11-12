@@ -231,6 +231,24 @@ describe("PAID-SHOWS-1 - the count on the row, and the Home card", () => {
     expect(fetchMyPacksMock).not.toHaveBeenCalled();
     expect(screen.queryByTestId("home-your-packs")).toBeNull();
   });
+  it("cold load on a device that knows this account owns packs: the card's space is held (no shift), then filled; a 'no packs' answer collapses it", async () => {
+    window.localStorage.setItem("lt.packs.mineHint.v1", JSON.stringify({ u: "u1", t: Date.now(), h: {} }));
+    let resolve!: (v: unknown) => void;
+    fetchMyPacksMock.mockReturnValue(new Promise((r) => { resolve = r; }));
+    renderHome();
+    expect(screen.getByTestId("home-your-packs-hold").getAttribute("aria-hidden")).toBe("true");
+    expect(screen.queryByTestId("home-your-packs")).toBeNull();
+    resolve(mine([pack("pack_chapter", "real-numbers")]));
+    await screen.findByTestId("home-your-packs");
+    expect(screen.queryByTestId("home-your-packs-hold")).toBeNull();
+    window.localStorage.clear();
+  });
+  it("no device hint: nothing is held", () => {
+    window.localStorage.clear();
+    fetchMyPacksMock.mockReturnValue(new Promise(() => undefined));
+    renderHome();
+    expect(screen.queryByTestId("home-your-packs-hold")).toBeNull();
+  });
   it("both Homes mount it for a real account only, from the lazy entry", () => {
     for (const f of ["../../pages/app/MobileHome.tsx", "../../pages/desktop/DesktopHome.tsx"]) {
       const src = readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), f), "utf8");
