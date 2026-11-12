@@ -19,5 +19,7 @@
 .lt-sil__done { margin: 0; font-size: 0.9rem; font-weight: 600; color: hsl(152, 45%, 26%); }
 .lt-sil__err { margin: 0; font-size: 0.85rem; line-height: 1.5; color: #b42318; }
 .lt-sil__err--in_use, .lt-sil__err--notice { padding: 10px 12px; border-radius: 10px; background: rgba(22, 185, 106, 0.08); border: 1px solid rgba(22, 185, 106, 0.28); color: #0e1729; }
+.lt-sil__err { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; scroll-margin: 8px; }
+.lt-sil__errtext { margin: 0; white-space: pre-line; }
 .lt-sil__err a { color: inherit; font-weight: 700; }
 .lt-sil__choices { display: flex; flex-direction: column; gap: 8px; }

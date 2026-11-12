@@ -31,7 +31,7 @@ vi.mock("../../analytics/analytics", () => ({
 
 import SigninLinkCardLazy from "./SigninLinkCardLazy";
 import SigninMethodsSectionLazy from "./SigninMethodsSectionLazy";
-import { describeLinkError, IN_USE_TEXT, successLine, listLinkedMethods } from "./signinLinkModel";
+import { describeLinkError, inUseText, IN_USE_TEXT, successLine, listLinkedMethods } from "./signinLinkModel";
 
 const settle = () => act(async () => { await new Promise((r) => setTimeout(r, 80)); }); // inside act: a lazy chunk that resolves is flushed
 const googleUser = () => {
@@ -195,9 +195,76 @@ describe("SigninLinkCard (after a paid outcome)", () => {
   });
 });
 
+describe("SIGNIN-INUSE-1", () => {
+  const phoneText =
+    "+91 97\u2022\u2022\u2022\u2022\u2022236 already opens another LazyTopper account, so it can't be added here.\n" +
+    "\u2022 Add a number that isn't on LazyTopper yet, or\n" +
+    "\u2022 Sign in with +91 97\u2022\u2022\u2022\u2022\u2022236 to use that account.\n" +
+    "Want the two accounts joined?";
+  it("describeLinkError: phone variant is the owner wording with the masked typed number", () => {
+    const e = describeLinkError({ code: "auth/credential-already-in-use" }, { phone: "+91 97\u2022\u2022\u2022\u2022\u2022236" });
+    expect(e.text).toBe(phoneText);
+    expect(e.whatsapp).toBe(true);
+    expect(e.text).not.toMatch(/9\d{9}/);
+  });
+  it("describeLinkError: email variant uses the masked email (context or Firebase customData), never raw", () => {
+    const a = describeLinkError({ code: "auth/credential-already-in-use" }, { email: "pr\u2022\u2022\u2022\u2022@gmail.com" });
+    expect(a.text).toContain("pr\u2022\u2022\u2022\u2022@gmail.com already opens another LazyTopper account, so it can't be added here.");
+    expect(a.text).toContain("Sign in with pr\u2022\u2022\u2022\u2022@gmail.com to use that account.");
+    const b = describeLinkError({ code: "auth/email-already-in-use", customData: { email: "priya@gmail.com" } });
+    expect(b.text).toContain("pr\u2022\u2022\u2022\u2022@gmail.com already opens");
+    expect(b.text).not.toContain("priya@gmail.com");
+    expect(inUseText("", "email")).toContain("That Google account already opens another");
+  });
+  it("expired / wrong code carry resend; others do not", () => {
+    expect(describeLinkError({ code: "auth/code-expired" }).resend).toBe(true);
+    expect(describeLinkError({ code: "auth/invalid-verification-code" }).resend).toBe(true);
+    expect(describeLinkError({ code: "auth/too-many-requests" }).resend).toBeUndefined();
+  });
+  it("phone in use at confirm: alert inside the form (near the code box), masked number, WhatsApp link", async () => {
+    googleUser();
+    state.confirmLink.mockRejectedValue({ code: "auth/credential-already-in-use" });
+    ui(<SigninLinkCardLazy signedIn />);
+    await choose("signin-choice-child");
+    fireEvent.click(screen.getByTestId("signin-link-add-phone"));
+    fireEvent.change(screen.getByTestId("signin-link-phone"), { target: { value: "9712345236" } });
+    fireEvent.click(screen.getByTestId("signin-link-submit"));
+    await screen.findByTestId("signin-link-otp");
+    fireEvent.change(screen.getByTestId("signin-link-otp"), { target: { value: "123456" } });
+    fireEvent.click(screen.getByTestId("signin-link-submit"));
+    const err = await screen.findByTestId("signin-link-error");
+    expect(err.getAttribute("role")).toBe("alert");
+    expect(err.closest("form")).toBeTruthy();
+    expect(err.textContent).toContain("+91 97\u2022\u2022\u2022\u2022\u2022236 already opens another LazyTopper account");
+    expect(err.textContent).not.toContain("9712345236");
+    expect(screen.getByTestId("signin-link-whatsapp").getAttribute("href")).toMatch(/^https:\/\/wa\.me\//);
+    expect(screen.queryByTestId("signin-link-resend")).toBeNull();
+  });
+  it("expired code: 'Send a new code' re-sends to the same number, clears the code box, keeps the sent line", async () => {
+    googleUser();
+    state.confirmLink.mockRejectedValue({ code: "auth/code-expired" });
+    ui(<SigninLinkCardLazy signedIn />);
+    await choose("signin-choice-child");
+    fireEvent.click(screen.getByTestId("signin-link-add-phone"));
+    fireEvent.change(screen.getByTestId("signin-link-phone"), { target: { value: "9123456789" } });
+    fireEvent.click(screen.getByTestId("signin-link-submit"));
+    await screen.findByTestId("signin-link-otp");
+    fireEvent.change(screen.getByTestId("signin-link-otp"), { target: { value: "123456" } });
+    fireEvent.click(screen.getByTestId("signin-link-submit"));
+    const resend = await screen.findByTestId("signin-link-resend");
+    expect(resend.textContent).toBe("Send a new code");
+    fireEvent.click(resend);
+    await waitFor(() => expect(state.sendLink).toHaveBeenCalledTimes(2));
+    expect(state.sendLink).toHaveBeenLastCalledWith("+919123456789", expect.any(String));
+    await waitFor(() => expect(screen.queryByTestId("signin-link-error")).toBeNull());
+    expect((screen.getByTestId("signin-link-otp") as HTMLInputElement).value).toBe("");
+    expect(screen.getByTestId("signin-link-otp-sent").textContent).toContain("We've sent a code to");
+  });
+});
+
 describe("describeLinkError", () => {
   it.each([
-    ["auth/credential-already-in-use", /already has its own LazyTopper account/, true],
+    ["auth/credential-already-in-use", /already opens another LazyTopper account/, true],
     ["auth/provider-already-linked", /already has that way to sign in/, false],
     ["auth/invalid-verification-code", /isn't right/, false],
     ["auth/code-expired", /expired/, false],

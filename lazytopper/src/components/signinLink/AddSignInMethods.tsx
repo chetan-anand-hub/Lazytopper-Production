@@ -6,7 +6,7 @@
  * Phone: the existing AuthContext.sendLinkPhoneOtp / confirmLinkPhoneOtp (linkWithPhoneNumber + the ONE invisible reCAPTCHA
  * lifecycle in initPhoneRecaptcha - reused, not duplicated). Google: services/linkSignInEmail.linkGoogleToCurrentAccount.
  */
-import { useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { authClient } from "../../services/firebaseClient";
 import { normaliseTypedIndianMobile } from "../../utils/indianMobileInput";
@@ -15,6 +15,7 @@ import { WHATSAPP_URL } from "../../config/socialProfiles";
 import {
   BTN_ADD_GOOGLE,
   BTN_ADD_PHONE,
+  BTN_RESEND_CODE,
   currentSignInMasked,
   describeLinkError,
   entriesFromAuthUser,
@@ -49,8 +50,15 @@ export default function AddSignInMethods({ methods, onLinked, extra }: AddSignIn
   /** The current sign-in as it was BEFORE this add, so the success line names both credentials. */
   const beforeRef = useRef("");
 
+  const errRef = useRef<HTMLDivElement | null>(null);
+  /** Keep the message in view inside its own container (block "nearest": never drags the page behind a modal). */
+  useEffect(() => {
+    const el = errRef.current;
+    if (error && el && typeof el.scrollIntoView === "function") el.scrollIntoView({ block: "nearest" });
+  }, [error]);
+
   const fail = (err: unknown) => {
-    const e = describeLinkError(err);
+    const e = describeLinkError(err, phone.length === 10 ? { phone: maskPhone(`+91${phone}`) } : {});
     setError(e);
     trackSigninLinkFailed(e.code);
   };
@@ -90,6 +98,23 @@ export default function AddSignInMethods({ methods, onLinked, extra }: AddSignIn
       const { linkGoogleToCurrentAccount } = await import("../../services/linkSignInEmail");
       await linkGoogleToCurrentAccount();
       finish("google");
+    } catch (err) {
+      const e = describeLinkError(err);
+      setError(e);
+      trackSigninLinkFailed(e.code);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const resend = async () => {
+    if (busy || phone.length !== 10) return;
+    setError(null);
+    setOtp("");
+    setBusy(true);
+    try {
+      await sendLinkPhoneOtp(`+91${phone}`, RECAPTCHA_ID);
+      setMode("otp");
     } catch (err) {
       fail(err);
     } finally {
@@ -131,6 +156,25 @@ export default function AddSignInMethods({ methods, onLinked, extra }: AddSignIn
       setBusy(false);
     }
   };
+
+  const errorBox = error && (
+    <div ref={errRef} className={`lt-sil__err lt-sil__err--${error.kind}`} role="alert" data-testid="signin-link-error" data-code={error.code}>
+      <p className="lt-sil__errtext">{error.text}</p>
+      {error.whatsapp && (
+        <p className="lt-sil__errtext">
+          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" data-testid="signin-link-whatsapp">
+            Message us on WhatsApp
+          </a>
+          .
+        </p>
+      )}
+      {error.resend && mode === "otp" && (
+        <button type="button" className="lt-sil__btn" onClick={() => void resend()} disabled={busy} data-testid="signin-link-resend">
+          {BTN_RESEND_CODE}
+        </button>
+      )}
+    </div>
+  );
 
   const showPhone = canAddPhone(methods);
   const showGoogle = canAddGoogle(methods);
@@ -204,6 +248,7 @@ export default function AddSignInMethods({ methods, onLinked, extra }: AddSignIn
               />
             </>
           )}
+          {errorBox}
           <div className="lt-sil__row">
             <button type="submit" className="lt-sil__btn lt-sil__btn--primary" disabled={busy} data-testid="signin-link-submit">
               {mode === "number" ? (busy ? "Sending code..." : "Send code") : busy ? "Adding..." : "Add this number"}
@@ -224,19 +269,7 @@ export default function AddSignInMethods({ methods, onLinked, extra }: AddSignIn
         </form>
       )}
 
-      {error && (
-        <p className={`lt-sil__err lt-sil__err--${error.kind}`} role="alert" data-testid="signin-link-error" data-code={error.code}>
-          {error.text}
-          {error.whatsapp && (
-            <>
-              {" "}
-              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" data-testid="signin-link-whatsapp">
-                Message us on WhatsApp
-              </a>
-            </>
-          )}
-        </p>
-      )}
+      {mode === "idle" && errorBox}
 
       {/* The ONE invisible reCAPTCHA host (AuthContext.initPhoneRecaptcha reuses / rebuilds it). */}
       <div id={RECAPTCHA_ID} />
