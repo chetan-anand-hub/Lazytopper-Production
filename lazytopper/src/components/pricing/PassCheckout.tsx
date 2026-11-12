@@ -237,6 +237,8 @@ export interface PassCheckoutViewProps {
   pendingHoldMs?: number;
   /** PACK-CREDIT-1 - the server's Board Pass credit for this student, or null. Hidden when signed out or Premium is active. */
   packCredit?: BoardPassCredit | null;
+  /** SIGNED-IN-MOVE-1: the Board Pass was moved to the child's own account - re-read this account's entitlement. */
+  onPassMoved?: () => void;
   /**
    * OFFERS-V2 A2 - start the Board Pass checkout ONCE, as if the Pay button was tapped. The connected half sets it only for a signed-in,
    * hydrated, non-Premium student who arrived on /pricing?buy=board_pass (and has already removed that param). Never repeats on re-render.
@@ -272,6 +274,7 @@ export function PassCheckoutView({
   pollDelaysMs = PAY_STATUS_POLL_DELAYS_MS,
   pendingHoldMs = PAY_PENDING_TTL_MS,
   packCredit = null,
+  onPassMoved,
   autoStart = false,
   holderAutoOpen = false,
   who,
@@ -286,6 +289,8 @@ export function PassCheckoutView({
   const [busy, setBusy] = useState<PassType | null>(null);
   const [paidUntil, setPaidUntilState] = useState<{ label: string; passType: PassType; orderId?: string } | null>(null);
   const setPaidUntil = (label: string, passType: PassType, orderId?: string) => setPaidUntilState({ label, passType, ...(orderId ? { orderId } : {}) });
+  /** SIGNED-IN-MOVE-1: after a successful move the paid screen must not keep saying the pass is this account's. */
+  const [movedAway, setMovedAway] = useState(false);
   const [failed, setFailed] = useState(false);
   /** PRICING-1 — the server refused the order as expired: "start again", never the pending copy. */
   const [expired, setExpired] = useState(false);
@@ -501,13 +506,15 @@ export function PassCheckoutView({
   if (paidUntil) {
     return (
       <div className="lt-pricing-checkout" data-testid="pass-checkout">
-        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" role="status" data-testid="pass-checkout-paid">
-          {paidUntilCopy(paidUntil.passType, paidUntil.label)}
-        </p>
+        {!movedAway && (
+          <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" role="status" data-testid="pass-checkout-paid">
+            {paidUntilCopy(paidUntil.passType, paidUntil.label)}
+          </p>
+        )}
         {/* PASS-OWNER-PACKS-1 (owner 3 Nov): once, on the payment-success screen - the CBQ Packs, both subjects. Its own lazy chunk. */}
-        <PassOwnerOfferLazy placement="pass_success" assumePaid />
+        {!movedAway && <PassOwnerOfferLazy placement="pass_success" assumePaid />}
         {/* LINK-SIGNIN-1: a signed-in buyer is asked who else will sign in (own lazy chunk; below the purchase line, so nothing moves). */}
-        <SigninLinkCardLazy signedIn={signedIn} {...(paidUntil.passType === "till_boards" && paidUntil.orderId ? { move: { orderId: paidUntil.orderId, item: "the Board Pass" } } : {})} />
+        <SigninLinkCardLazy signedIn={signedIn} onMoved={() => { setMovedAway(true); onPassMoved?.(); }} {...(paidUntil.passType === "till_boards" && paidUntil.orderId ? { move: { orderId: paidUntil.orderId, item: "the Board Pass" } } : {})} />
       </div>
     );
   }
@@ -829,6 +836,7 @@ function PassCheckoutConnected() {
             },
           }
         : {})}
+      onPassMoved={() => { if (uid) void hydrateSubscriptionFromCloud(uid).catch(() => undefined); }}
       onSignIn={() => (guestEnabled ? setShowGuest(true) : navigate(withSigninRedirect("/login", PASS_CHECKOUT_RETURN_PATH)))}
       onBuy={async (passType) => {
         const outcome = await buyPass(passType);

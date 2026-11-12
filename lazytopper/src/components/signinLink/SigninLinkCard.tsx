@@ -25,7 +25,7 @@ import {
 import { trackSigninLinkShown } from "./signinLinkAnalytics";
 import "./signinLink.css";
 
-export default function SigninLinkCard({ move }: { move?: MoveTarget }) {
+export default function SigninLinkCard({ move, onMoved }: { move?: MoveTarget; onMoved?: () => void }) {
   const { uid, methods, refresh, signedIn } = useLinkedMethods();
   const [answered] = useState(() => (uid ? isDismissed(uid) : false));
   const [choice, setChoice] = useState<null | "child" | "me" | "move">(null);
@@ -65,7 +65,10 @@ export default function SigninLinkCard({ move }: { move?: MoveTarget }) {
           )}
         </div>
       ) : choice === "move" && move ? (
-        <MoveToOtherFlow target={move} onCancel={() => setChoice(null)} onMoved={() => rememberDismissed(uid)} />
+        <MoveToOtherFlow target={move} onCancel={() => setChoice(null)} onMoved={() => {
+          rememberDismissed(uid);
+          onMoved?.(); // the host stops showing it as this account's
+        }} />
       ) : (
         <>
           <p className="lt-sil__p" data-testid="signin-choice-body">

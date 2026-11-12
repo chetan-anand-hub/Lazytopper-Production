@@ -29,8 +29,9 @@ function seedPass(extra = {}) {
   };
 }
 
-function harness({ seed, env = {}, uid = 'buyer', finder, now = NOW } = {}) {
+function harness({ seed, env = {}, uid = 'buyer', finder, now = NOW, accounts: seedAccounts = {} } = {}) {
   const db = fakeDb(seed);
+  const accounts = new Map(Object.entries(seedAccounts)); // the fake Firebase Auth directory: uid -> { phoneNumber, email, emailVerified }
   const created = [];
   const counters = [];
   const receipts = [];
@@ -43,7 +44,15 @@ function harness({ seed, env = {}, uid = 'buyer', finder, now = NOW } = {}) {
     env,
     now: () => now,
     receiptEmailer: { sendForPayment: async (a) => { receipts.push(a); } },
-    findOrCreateAccount: finder || (async (orderId, input) => { created.push({ orderId, input }); return { uid: 'child', created: true }; }),
+    authAccounts: {
+      getUser: async (u) => (accounts.has(u) ? { uid: u, ...accounts.get(u) } : null),
+      getUserByEmail: async (e) => { for (const [u, a] of accounts) if (String(a.email || '').toLowerCase() === e) return { uid: u, ...a }; return null; },
+    },
+    findOrCreateAccount: finder || (async (orderId, input) => {
+      created.push({ orderId, input });
+      accounts.set('child', { phoneNumber: input.phone || '', email: input.email || '', emailVerified: false });
+      return { uid: 'child', created: true };
+    }),
   });
   async function post(body, { auth = true, raw } = {}) {
     const req = Readable.from([Buffer.from(raw !== undefined ? raw : JSON.stringify(body))]);
@@ -52,7 +61,7 @@ function harness({ seed, env = {}, uid = 'buyer', finder, now = NOW } = {}) {
     await routes.handleMoveToOther(req, res);
     return res;
   }
-  return { db, post, created, counters, receipts, routes, logs };
+  return { db, post, created, counters, receipts, routes, logs, accounts };
 }
 
 test('PACK by phone: 200, masked target, account made for exactly that phone, order moved, receipt re-sent', async () => {
@@ -132,7 +141,7 @@ test('REFUSALS leave NO stray account: not yours, unpaid, >24 h, moved before, u
     [harness({ seed: seedPack({ paidAt: new Date(NOW - 25 * HOUR) }) }), 'o1', 'too_late', 409],
     [harness({ seed: seedPack({ movedToOtherAt: new Date(NOW - HOUR) }) }), 'o1', 'moved_before', 409],
     [harness({ seed: seedPack({ payer: 'guest' }) }), 'o1', 'unsupported', 409],
-    [harness({ seed: seedPass({ [`usageLedger/buyer/days/2026-11-12`]: { calls: 3 } }) }), 'o2', 'used', 409],
+    [harness({ seed: seedPass({ [`usageLedger/buyer/days/2026-11-12`]: { hourCostMicroInr: { 14: 5 } } }) }), 'o2', 'used', 409],
   ];
   for (const [h, orderId, reason, status] of cases) {
     const res = await h.post({ orderId, phone: '9876543210' });
@@ -157,14 +166,14 @@ test('TARGET refusals: already has the pack / already has a pass / typed email o
   assert.equal(r2.body.reason, 'target_has_pass');
   assert.equal(hPass.db.read('subscriptions/buyer').passType, 'till_boards');
 
-  const hUse = harness({ seed: seedPack(), finder: async () => ({ uid: null, reason: 'email_in_use' }) });
-  const r3 = await hUse.post({ orderId: 'o1', email: 'a@b.co' });
+  const hUse = harness({ seed: seedPack(), finder: async () => ({ uid: null, reason: 'phone_in_use' }) });
+  const r3 = await hUse.post({ orderId: 'o1', phone: '9876543210' });
   assert.equal(r3.body.reason, 'target_in_use');
   assert.equal(hUse.db.read('payOrders/o1').uid, 'buyer');
 });
 
 test('SELF: the target resolving to the caller is refused', async () => {
-  const h = harness({ seed: seedPack(), finder: async () => ({ uid: 'buyer' }) });
+  const h = harness({ seed: seedPack(), accounts: { buyer: { phoneNumber: '+919876543210' } }, finder: async () => ({ uid: 'buyer' }) });
   const res = await h.post({ orderId: 'o1', phone: '9876543210' });
   assert.equal(res.body.reason, 'self');
   assert.equal(h.db.read('payOrders/o1').uid, 'buyer');
@@ -201,4 +210,68 @@ test('RECEIPT: a moved order never names the old account; it says it was moved t
   assert.ok(/210/.test(text), 'the new account\'s masked sign-in is named');
   const plain = JSON.stringify(buildReceiptEmail({ ...base }));
   assert.ok(!/moved to the account you chose/i.test(plain));
+});
+
+/* ── F1: the resolved account must be the one for the contact typed THIS time ─────────────────────── */
+test('F1: a retry with a corrected phone can NEVER land on the account made for the earlier phone', async () => {
+  // attempt 1 made `child` for phone A, then failed; attempt 2 types phone B and guest-pay's order-derived uid returns the SAME account.
+  const h = harness({
+    seed: seedPack(),
+    accounts: { child: { phoneNumber: '+919111111111', emailVerified: false } },
+    finder: async () => ({ uid: 'child', created: true }),
+  });
+  const res = await h.post({ orderId: 'o1', phone: '9876543210' });
+  assert.equal(res.status, 409);
+  assert.equal(res.body.reason, 'target_mismatch');
+  assert.equal(h.db.read('payOrders/o1').uid, 'buyer');
+  assert.equal(h.db.read('packEntitlements/child/packs/pack_cbq:maths'), undefined);
+});
+test('F1: an account that cannot be read back fails closed (cannot_check)', async () => {
+  const h = harness({ seed: seedPack(), finder: async () => ({ uid: 'ghost' }) });
+  const res = await h.post({ orderId: 'o1', phone: '9876543210' });
+  assert.equal(res.body.reason, 'target_mismatch');
+  assert.equal(h.db.read('payOrders/o1').uid, 'buyer');
+});
+
+/* ── F7: email accounts ───────────────────────────────────────────────────────────────────────── */
+test('F7: an existing account whose email is VERIFIED (a Google account) receives the move; no account is made', async () => {
+  const h = harness({ seed: seedPack(), accounts: { kidG: { email: 'kid@example.com', emailVerified: true } } });
+  const res = await h.post({ orderId: 'o1', email: 'Kid@Example.com' });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.to.kind, 'email');
+  assert.equal(h.created.length, 0);
+  assert.equal(h.db.read('payOrders/o1').uid, 'kidG');
+  assert.ok(h.db.read('packEntitlements/kidG/packs/pack_cbq:maths'));
+});
+test('F7: an existing account with an UNVERIFIED email is refused (target_unverified), nothing moves, nothing is made', async () => {
+  const h = harness({
+    seed: seedPack(),
+    accounts: { kidU: { email: 'kid@example.com', emailVerified: false } },
+    finder: async () => ({ uid: null, reason: 'email_in_use' }),
+  });
+  const res = await h.post({ orderId: 'o1', email: 'kid@example.com' });
+  assert.equal(res.status, 409);
+  assert.equal(res.body.reason, 'target_unverified');
+  assert.equal(h.db.read('payOrders/o1').uid, 'buyer');
+});
+test('F7: no account has that email -> one is made for exactly that email', async () => {
+  const h = harness({ seed: seedPack() });
+  const res = await h.post({ orderId: 'o1', email: 'new.kid@example.com' });
+  assert.equal(res.status, 200);
+  assert.equal(h.created.length, 1);
+  assert.equal(h.created[0].input.email, 'new.kid@example.com');
+});
+
+/* ── F3 / F5 at the route ─────────────────────────────────────────────────────────────────────── */
+test('F3: a pass whose account holds another payment record is refused BEFORE any account is made', async () => {
+  const h = harness({ seed: seedPass({ 'subscriptions/buyer/payments/pay_older': { amountPaise: 1 } }) });
+  const res = await h.post({ orderId: 'o2', phone: '9876543210' });
+  assert.equal(res.body.reason, 'unsupported');
+  assert.equal(h.created.length, 0);
+});
+test('F5: a recorded pack download refuses before any account is made', async () => {
+  const h = harness({ seed: { ...seedPack(), 'activityLog/buyer/activityDays/2026-11-12': { feed: [{ t: NOW - HOUR, k: 'event', n: 'pack_download' }] } } });
+  const res = await h.post({ orderId: 'o1', phone: '9876543210' });
+  assert.equal(res.body.reason, 'downloaded');
+  assert.equal(h.created.length, 0);
 });

@@ -25,7 +25,7 @@ const ERASED_UID = 'erased';
 const MAX_PER_HOUR = 10;
 
 function createMoveToOtherRoutes(deps = {}) {
-  const { sendJson, verifiedCaller, adminFirestore, telemetry, env = process.env, now = () => Date.now(), receiptEmailer } = deps;
+  const { sendJson, verifiedCaller, adminFirestore, telemetry, env = process.env, now = () => Date.now(), receiptEmailer, authAccounts } = deps;
   /** Late-bound (guestPayRoutes is built after this): async (orderId, { phone, email, first }) => { uid, ... } | { uid: null, reason }. */
   const findOrCreateAccount = (...a) => (typeof deps.findOrCreateAccount === 'function' ? deps.findOrCreateAccount(...a) : Promise.resolve({ uid: null, reason: 'create_failed' }));
   const hits = new Map();
@@ -75,6 +75,45 @@ function createMoveToOtherRoutes(deps = {}) {
     }
   }
 
+  /**
+   * Phone: the account with that SMS-verified phone, else a new one (guest-pay rules). Email: an existing account whose email is
+   * VERIFIED (Google / verified email login) is the target; an UNVERIFIED real one is refused; else a new one is made.
+   * Either way the resolved account must itself carry exactly the contact typed THIS time (a retry with a corrected contact can
+   * never land on an account made for an earlier attempt, whose uid is derived from the order).
+   */
+  async function resolveTarget(orderId, phone, email) {
+    const getUser = authAccounts && typeof authAccounts.getUser === 'function' ? authAccounts.getUser : null;
+    const byEmail = authAccounts && typeof authAccounts.getUserByEmail === 'function' ? authAccounts.getUserByEmail : null;
+    if (!getUser || (email && !byEmail)) return { uid: null, reason: 'cannot_check' };
+    try {
+      let uid = null;
+      let unverifiedReal = false;
+      if (email) {
+        const rec = await byEmail(email);
+        if (rec && typeof rec.uid === 'string' && rec.uid) {
+          if (rec.emailVerified === true) uid = rec.uid;
+          else unverifiedReal = true;
+        }
+      }
+      if (!uid) {
+        let made;
+        try {
+          made = await findOrCreateAccount(orderId, { phone, email, first: phone ? 'phone' : 'email' });
+        } catch {
+          made = { uid: null, reason: 'create_failed' };
+        }
+        if (made && made.uid) uid = made.uid;
+        else if (unverifiedReal || (made && /email_in_use/.test(String(made.reason || '')))) return { uid: null, reason: 'target_unverified' };
+        else return { uid: null, reason: made && /in_use|taken/.test(String(made.reason || '')) ? 'target_in_use' : 'cannot_check' };
+      }
+      const rec = await getUser(uid);
+      const ok = rec && (phone ? rec.phoneNumber === phone : String(rec.email || '').toLowerCase() === email);
+      return ok ? { uid } : { uid: null, reason: 'target_mismatch' };
+    } catch {
+      return { uid: null, reason: 'cannot_check' };
+    }
+  }
+
   async function handleMoveToOther(req, res) {
     if (isMoveToOtherDisabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
     if (!adminFirestore) return sendJson(res, 503, { ok: false, error: 'Unavailable right now.' });
@@ -99,14 +138,9 @@ function createMoveToOtherRoutes(deps = {}) {
     try {
       // 1. Everything that does not depend on the target, BEFORE an account is made for them.
       await precheck({ db: adminFirestore, orderId, callerUid: uid, nowMs });
-      // 2. The target account: found, or made for exactly the identifier typed.
-      let made;
-      try {
-        made = await findOrCreateAccount(orderId, { phone, email, first: phone ? 'phone' : 'email' });
-      } catch {
-        made = { uid: null, reason: 'create_failed' };
-      }
-      if (!made || !made.uid) return refuse(res, made && /in_use|taken/.test(String(made.reason || '')) ? 'target_in_use' : 'cannot_check');
+      // 2. The target account: found, or made for exactly the identifier typed - and proven to be THAT identifier's account.
+      const made = await resolveTarget(orderId, phone, email);
+      if (!made.uid) return refuse(res, made.reason);
       // 3. The move (re-checks everything inside its own transaction).
       const out = await moveOrderToOther({ db: adminFirestore, orderId, callerUid: uid, toUid: made.uid, nowMs, env });
       emit(`payments.move_to_other.moved.${out.kind}`);

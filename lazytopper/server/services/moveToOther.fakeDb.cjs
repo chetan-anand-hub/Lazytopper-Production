@@ -24,7 +24,17 @@ function fakeDb(seed = {}) {
     path,
     kind: 'col',
     doc: (id) => docRef(`${path}/${id || `auto${(auto += 1)}`}`),
-    limit(n) { return { kind: 'query', path, n }; },
+    limit(n) {
+      return {
+        kind: 'query',
+        path,
+        n,
+        async get() {
+          const keys = childrenOf(path, n);
+          return { docs: keys.map((k) => snapOf(k, docs.get(k))), size: keys.length, empty: keys.length === 0 };
+        },
+      };
+    },
   });
   const childrenOf = (path, n) =>
     [...docs.keys()].filter((k) => k.startsWith(`${path}/`) && !k.slice(path.length + 1).includes('/')).sort().slice(0, n);

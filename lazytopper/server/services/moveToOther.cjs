@@ -11,29 +11,30 @@
  *   holder `uid` is the target afterwards, so it is no longer the caller's anyway.
  * ★ 24 h from the payment (`paidAt` on the order, the server's own write), on the SERVER clock.
  * ★ "UNUSED" IS DECIDED FROM WHAT THE SERVER ACTUALLY RECORDS - and this file says exactly what that is:
- *     PASS  - the buyer's `usageLedger/{uid}/days/{IST day}` documents (fairUse / usageLedger.cjs: one per IST day, written by every
- *             graded or tutor AI call and by the trial-allowance counters) from the IST day of payment up to today: used when any of
- *             them shows `calls`, a provider spend, or a trial counter above zero. Practice that never calls the AI (a quick set from
- *             the bank) leaves no server record, so it is NOT visible here. A ledger that cannot be read refuses the move (fail
- *             closed): a move is never done on a guess.
- *     PACK  - NOTHING about a download or an open is stored on the server (packGrant writes the entitlement and the replay marker
- *             only; downloads are built in the browser). So a pack's only guard is the 24 h window: stated, not hidden.
+ *     PASS  - the buyer's `usageLedger/{uid}/days/{IST day}` documents (usageLedger.cjs, one per IST day, written by every metered
+ *             AI call). Used when the day doc of the payment day shows cost in an IST HOUR at or after the payment hour
+ *             (`hourCostMicroInr`), or a LATER day shows any calls / spend. Earlier use on the payment day (the trial check that
+ *             made the parent buy) and the trial counters are ignored. Practice that never calls a model leaves no server
+ *             record, so it is NOT visible here. A ledger that cannot be read refuses the move (fail closed).
+ *     PACK  - the server stores no download. BEST EFFORT, client-reported: a `pack_download` entry at or after payment in the
+ *             buyer's activity feed (`activityLog/{uid}/activityDays/{day}.feed`) refuses the move ("downloaded"). None found, or
+ *             the feed unreadable, allows it (fail open): a move is a convenience, the 24 h window still applies.
  * ★ AUDIT: uids only (adminMoves, `byUid`), no phone and no email, ever.
  */
 const { movePackOrder, MoveError } = require('./adminMovePurchase.cjs');
 const { isPackProduct } = require('./packProducts.cjs');
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('./packGrant.cjs');
 const { istDayKey } = require('./rateLimiter.cjs');
+const { LEDGER_SEGMENTS, LEDGER_HOUR_FIELD, istHourKey } = require('./usageLedger.cjs');
+const { PAYMENT_SEGMENTS } = require('./passGrant.cjs');
+const { ACTIVITY_COLLECTION, ACTIVITY_SEGMENTS } = require('../routes/studentActivity.cjs');
 
 const MOVE_WINDOW_MS = 24 * 60 * 60 * 1000;
 const PAY_ORDERS_COLLECTION = 'payOrders';
 const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
-const PAYMENT_SEGMENT = 'payments';
 const USAGE_LEDGER_COLLECTION = 'usageLedger';
-const LEDGER_DAYS_SEGMENT = 'days';
 const MOVE_REASON = 'buyer move';
 const DAY_MS = 24 * 60 * 60 * 1000;
-const TRIAL_COUNTER_FIELDS = Object.freeze(['trialChecks', 'trialChapterTests', 'trialMocks', 'trialWorksheets']);
 
 /** Kill switch: PAY_MOVE_TO_OTHER_DISABLED=1 -> the route answers 404 and nothing moves. */
 function isMoveToOtherDisabled(env = process.env) {
@@ -49,6 +50,9 @@ const REFUSALS = Object.freeze({
   moved_before: [409, 'This purchase was already moved once, so it cannot be moved again. Message us on WhatsApp and we will help.'],
   too_late: [409, 'It can only be moved within 24 hours of paying. Message us on WhatsApp and we will help.'],
   used: [409, 'It has already been used on this account, so it cannot be moved. Message us on WhatsApp and we will help.'],
+  downloaded: [409, 'You have already downloaded from it, so it cannot be moved. Message us on WhatsApp and we will help.'],
+  target_unverified: [409, 'That email already has an account whose email is not verified yet, so it cannot be used here. Use their mobile number instead, or message us on WhatsApp and we will help.'],
+  target_mismatch: [409, 'We could not set up an account for exactly that contact. Nothing was moved. Message us on WhatsApp and we will help.'],
   target_has_pass: [409, 'That account already has a Board Pass. Message us on WhatsApp and we will help.'],
   target_has_pack: [409, 'That account already has this pack. Message us on WhatsApp and we will help.'],
   target_in_use: [409, 'That phone number or email already has its own LazyTopper account, so it cannot be used here. Message us on WhatsApp and we will help.'],
@@ -111,16 +115,50 @@ function dayKeysBetween(sinceMs, nowMs) {
   return keys;
 }
 
-/** Has the buyer's ledger any graded / metered use from the day of payment? Throws when it cannot be read (the caller refuses). */
+/** Has the buyer's ledger any metered use from the payment hour on? Throws when it cannot be read (the caller refuses). */
 async function passUsedSince(db, uid, paidMs, nowMs) {
+  const paidDay = istDayKey(paidMs);
+  const paidHour = istHourKey(paidMs);
   for (const key of dayKeysBetween(paidMs, nowMs)) {
-    const snap = await db.collection(USAGE_LEDGER_COLLECTION).doc(uid).collection(LEDGER_DAYS_SEGMENT).doc(key).get();
+    const snap = await db.collection(USAGE_LEDGER_COLLECTION).doc(uid).collection(LEDGER_SEGMENTS.days).doc(key).get();
     if (!snap || typeof snap.exists === 'undefined') throw new Error('ledger read gave no snapshot');
     const d = snap.exists && typeof snap.data === 'function' ? snap.data() || {} : {};
-    if (Number(d.calls) > 0 || Number(d.providerSpendMicroInr) > 0) return true;
-    for (const f of TRIAL_COUNTER_FIELDS) if (Number(d[f]) > 0) return true;
+    if (key !== paidDay) {
+      // A later day is wholly after the payment.
+      if (Number(d.calls) > 0 || Number(d.providerSpendMicroInr) > 0) return true;
+      continue;
+    }
+    const hours = d[LEDGER_HOUR_FIELD] && typeof d[LEDGER_HOUR_FIELD] === 'object' ? d[LEDGER_HOUR_FIELD] : {};
+    for (const [hour, cost] of Object.entries(hours)) if (hour >= paidHour && Number(cost) > 0) return true;
   }
   return false;
+}
+
+/** Best effort: did the buyer's activity feed record a pack download at or after payment? Never throws; unreadable -> false. */
+async function packDownloadedSince(db, uid, paidMs, nowMs) {
+  try {
+    for (const key of dayKeysBetween(paidMs, nowMs)) {
+      const snap = await db.collection(ACTIVITY_COLLECTION).doc(uid).collection(ACTIVITY_SEGMENTS.days).doc(key).get();
+      const d = snap && snap.exists && typeof snap.data === 'function' ? snap.data() || {} : {};
+      const feed = Array.isArray(d.feed) ? d.feed : [];
+      if (feed.some((e) => e && e.n === 'pack_download' && Number(e.t) >= paidMs)) return true;
+    }
+  } catch {
+    /* fail open */
+  }
+  return false;
+}
+
+/**
+ * The buyer's subscription must be exactly this order's pass (lastPaymentRef is this payment, till_boards, ONE payment record which is
+ * this one). Read OUTSIDE the move so a mismatch is refused before any account is made; movePassOrder re-checks it inside.
+ */
+async function passIsOnlyThisOrder(db, uid, order) {
+  const sub = await db.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
+  const from = sub && sub.exists ? sub.data() || {} : {};
+  const pays = await db.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).collection(PAYMENT_SEGMENTS.payments).limit(2).get();
+  const docs = (pays && pays.docs) || [];
+  return from.lastPaymentRef === order.paymentId && from.passType === 'till_boards' && docs.length === 1 && docs[0].id === order.paymentId;
 }
 
 /**
@@ -144,7 +182,7 @@ async function movePassOrder({ db, orderId, toUid, byUid, nowMs, guard }) {
     const ref = order.paymentId;
     const fromSnap = await tx.get(subRef(fromUid));
     const toSnap = await tx.get(subRef(toUid));
-    const paysSnap = await tx.get(subRef(fromUid).collection(PAYMENT_SEGMENT).limit(2));
+    const paysSnap = await tx.get(subRef(fromUid).collection(PAYMENT_SEGMENTS.payments).limit(2));
     const from = fromSnap && fromSnap.exists ? fromSnap.data() || {} : {};
     const to = toSnap && toSnap.exists ? toSnap.data() || {} : {};
     const payDocs = (paysSnap && paysSnap.docs) || [];
@@ -153,7 +191,7 @@ async function movePassOrder({ db, orderId, toUid, byUid, nowMs, guard }) {
     }
     const toEnd = msOf(to.passEnd);
     if (Number.isFinite(toEnd) && toEnd > nowMs) throw new MoveRefusal('target_has_pass');
-    const toPay = await tx.get(subRef(toUid).collection(PAYMENT_SEGMENT).doc(ref));
+    const toPay = await tx.get(subRef(toUid).collection(PAYMENT_SEGMENTS.payments).doc(ref));
     if (toPay && toPay.exists) throw new MoveError(409, 'That account already has this payment');
     const moved = {};
     for (const k of PASS_KEYS) moved[k] = from[k] === undefined ? null : from[k];
@@ -161,13 +199,13 @@ async function movePassOrder({ db, orderId, toUid, byUid, nowMs, guard }) {
     for (const k of PASS_KEYS) cleared[k] = null;
     // Writes.
     tx.set(subRef(toUid), { tier: 'premium', plan: 'pass_till_boards', ...moved }, { merge: true });
-    tx.set(subRef(toUid).collection(PAYMENT_SEGMENT).doc(ref), payDocs[0].data() || {});
+    tx.set(subRef(toUid).collection(PAYMENT_SEGMENTS.payments).doc(ref), payDocs[0].data() || {});
     tx.set(
       subRef(fromUid),
       { ...cleared, foundingMember: false, tier: 'free', plan: from.trialStartDate ? 'trial_7day' : 'none' },
       { merge: true },
     );
-    tx.delete(subRef(fromUid).collection(PAYMENT_SEGMENT).doc(ref));
+    tx.delete(subRef(fromUid).collection(PAYMENT_SEGMENTS.payments).doc(ref));
     tx.set(orderRef, { uid: toUid, movedToOtherAt: new Date(nowMs), movedFromUid: fromUid }, { merge: true });
     tx.set(db.collection('adminMoves').doc(), { at: new Date(nowMs), byUid, orderId, fromUid, toUid, reason: MOVE_REASON });
     return { moved: true, fromUid, toUid, kind: 'pass' };
@@ -186,12 +224,17 @@ async function precheck({ db, orderId, callerUid, nowMs }) {
   const { kind, paidMs } = assertMovable(order, callerUid, nowMs);
   if (kind === 'pass') {
     let used;
+    let only;
     try {
       used = await passUsedSince(db, callerUid, paidMs, nowMs);
+      only = await passIsOnlyThisOrder(db, callerUid, order);
     } catch {
       throw new MoveRefusal('cannot_check');
     }
     if (used) throw new MoveRefusal('used');
+    if (!only) throw new MoveRefusal('unsupported');
+  } else if (await packDownloadedSince(db, callerUid, paidMs, nowMs)) {
+    throw new MoveRefusal('downloaded');
   }
   return { kind, paidMs };
 }
@@ -230,6 +273,7 @@ module.exports = {
   movePassOrder,
   assertMovable,
   passUsedSince,
+  packDownloadedSince,
   isMoveToOtherDisabled,
   MoveRefusal,
   REFUSALS,

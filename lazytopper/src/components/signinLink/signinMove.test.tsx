@@ -119,6 +119,29 @@ describe("the move flow", () => {
     expect(window.localStorage.getItem("lazytopper.signinLink.dismissed.v1:u1")).toBe("1");
   });
 
+  it("F6: the host's onMoved is called exactly once, only after the server confirms the move", async () => {
+    const onMoved = vi.fn();
+    mockServer(200, { ok: true, moved: true, kind: "pack", to: { kind: "phone", masked: "+91 98\u2022\u2022\u2022\u2022\u2022210" } });
+    render(<SigninLinkCardLazy signedIn move={MOVE} onMoved={onMoved} />);
+    fireEvent.click(await screen.findByTestId("signin-choice-move"));
+    typeAndContinue("9876543210");
+    expect(onMoved).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("signin-move-confirm-yes"));
+    await waitFor(() => expect(screen.getByTestId("signin-move-done")).toBeTruthy());
+    expect(onMoved).toHaveBeenCalledTimes(1);
+    cleanup();
+    window.localStorage.clear(); // the first move marked the card answered
+    fetchMock.mockReset();
+    mockServer(409, { ok: false, reason: "used" });
+    const onMoved2 = vi.fn();
+    render(<SigninLinkCardLazy signedIn move={MOVE} onMoved={onMoved2} />);
+    fireEvent.click(await screen.findByTestId("signin-choice-move"));
+    typeAndContinue("9876543210");
+    fireEvent.click(screen.getByTestId("signin-move-confirm-yes"));
+    await waitFor(() => expect(screen.getByTestId("signin-move-refused")).toBeTruthy());
+    expect(onMoved2).not.toHaveBeenCalled();
+  });
+
   it("email: confirm shows the masked email and the request carries the lowercased address", async () => {
     mockServer(200, { ok: true, moved: true, kind: "pass", to: { kind: "email", masked: "ki••••@example.com" } });
     await openMove();

@@ -18,12 +18,12 @@ function killed(): boolean {
 }
 
 /** `move`: the order this card may move to the child's own phone or email (hosts pass it only for a movable purchase). */
-export default function SigninLinkCardLazy({ signedIn, move }: { signedIn: boolean; move?: MoveTarget }) {
+export default function SigninLinkCardLazy({ signedIn, move, onMoved }: { signedIn: boolean; move?: MoveTarget; onMoved?: () => void }) {
   if (!signedIn || killed()) return null;
   return (
     <Quiet>
       <Suspense fallback={null}>
-        <SigninLinkCard {...(move ? { move } : {})} />
+        <SigninLinkCard {...(move ? { move } : {})} {...(onMoved ? { onMoved } : {})} />
       </Suspense>
     </Quiet>
   );

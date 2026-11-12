@@ -583,6 +583,7 @@ const moveToOtherRoutes = createMoveToOtherRoutes({
   adminFirestore,
   telemetry,
   receiptEmailer: paymentReceiptEmailer,
+  authAccounts: payAuthAccounts,
   findOrCreateAccount: (orderId, input) => guestPayRoutes.findOrCreateAccount(orderId, input),
 });
 const parentReportRoutes = createParentReportRoutes({

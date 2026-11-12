@@ -142,25 +142,26 @@ test('target with an EXPIRED pass may receive one', async () => {
   assert.equal((await move(db, { orderId: 'o2' })).moved, true);
 });
 
-/* ── "used": the pass reads the server usage ledger ────────────────────── */
+/* ── "used": the pass reads the server usage ledger, by IST hour from the payment hour on ───────────── */
+// NOW = 15:00 IST; the payment is at 13:00 IST (2 h earlier), the same IST day.
 const ledgerKey = (ms) => `usageLedger/buyer/days/${istDayKey(ms)}`;
-test('GUARD used: ledger calls on the day of payment', async () => {
-  await refuses(passSeed({ extra: { [ledgerKey(NOW - HOUR)]: { calls: 1 } } }), 'used', { orderId: 'o2' });
+test('GUARD used: metered cost in the payment hour or after, on the payment day', async () => {
+  await refuses(passSeed({ extra: { [ledgerKey(NOW)]: { calls: 1, hourCostMicroInr: { 13: 40 } } } }), 'used', { orderId: 'o2' });
+  await refuses(passSeed({ extra: { [ledgerKey(NOW)]: { calls: 1, hourCostMicroInr: { 14: 10 } } } }), 'used', { orderId: 'o2' });
 });
-test('GUARD used: provider spend, and each trial counter, count as use', async () => {
-  await refuses(passSeed({ extra: { [ledgerKey(NOW)]: { providerSpendMicroInr: 5 } } }), 'used', { orderId: 'o2' });
-  for (const f of ['trialChecks', 'trialChapterTests', 'trialMocks', 'trialWorksheets']) {
-    await refuses(passSeed({ extra: { [ledgerKey(NOW)]: { [f]: 1 } } }), 'used', { orderId: 'o2' });
-  }
+test('F4: use EARLIER on the payment day (before the payment hour) and the trial counters do NOT block the move', async () => {
+  const db = fakeDb(passSeed({ extra: { [ledgerKey(NOW)]: { calls: 9, providerSpendMicroInr: 500, trialChecks: 2, trialMocks: 1, trialChapterTests: 1, trialWorksheets: 1, hourCostMicroInr: { 11: 500, 12: 90 } } } }));
+  assert.equal((await move(db, { orderId: 'o2' })).moved, true);
 });
-test('GUARD used: use on a DIFFERENT IST day inside the window (paid yesterday evening, used today) is seen', async () => {
+test('GUARD used: calls or spend on a LATER IST day inside the window (paid yesterday evening, used today) is seen', async () => {
   const paid = Date.parse('2026-11-11T22:00:00+05:30');
   const now = Date.parse('2026-11-12T09:00:00+05:30');
-  const seed = passSeed({ order: { paidAt: new Date(paid) }, extra: { [ledgerKey(now)]: { calls: 2 } } });
-  await refuses(seed, 'used', { orderId: 'o2', nowMs: now });
+  for (const field of [{ calls: 2 }, { providerSpendMicroInr: 7 }]) {
+    await refuses(passSeed({ order: { paidAt: new Date(paid) }, extra: { [ledgerKey(now)]: field } }), 'used', { orderId: 'o2', nowMs: now });
+  }
 });
 test('an all-zero ledger is NOT use; use from BEFORE the payment day is ignored', async () => {
-  const db = fakeDb(passSeed({ extra: { [ledgerKey(NOW)]: { calls: 0, providerSpendMicroInr: 0 }, [ledgerKey(NOW - 3 * 24 * HOUR)]: { calls: 40 } } }));
+  const db = fakeDb(passSeed({ extra: { [ledgerKey(NOW)]: { calls: 0, providerSpendMicroInr: 0, hourCostMicroInr: { 13: 0 } }, [ledgerKey(NOW - 3 * 24 * HOUR)]: { calls: 40 } } }));
   assert.equal((await move(db, { orderId: 'o2' })).moved, true);
 });
 test('GUARD cannot_check (fail closed): an unreadable usage ledger refuses a pass move', async () => {
@@ -173,24 +174,46 @@ test('GUARD cannot_check (fail closed): an unreadable usage ledger refuses a pas
   await assert.rejects(() => move(db, { orderId: 'o2' }), refusal('cannot_check'));
   assert.equal(db.read('subscriptions/buyer').passType, 'till_boards');
 });
-test('a PACK is not judged on the ledger (nothing about downloads is stored): heavy AI use does not block it', async () => {
-  const db = fakeDb({ ...packSeed(), [ledgerKey(NOW)]: { calls: 50 } });
+
+/* ── a PACK: best-effort "downloaded" from the activity feed; the ledger is not consulted ───────────── */
+const feedKey = (ms) => `activityLog/buyer/activityDays/${istDayKey(ms)}`;
+test('a PACK is not judged on the AI ledger: heavy AI use does not block it', async () => {
+  const db = fakeDb({ ...packSeed(), [ledgerKey(NOW)]: { calls: 50, hourCostMicroInr: { 14: 900 } } });
+  assert.equal((await move(db)).moved, true);
+});
+test('F5 GUARD downloaded: a pack_download feed entry at or after payment refuses a pack move', async () => {
+  await refuses({ ...packSeed(), [feedKey(NOW)]: { feed: [{ t: NOW - HOUR, k: 'event', n: 'pack_download' }] } }, 'downloaded');
+  await refuses({ ...packSeed(), [feedKey(NOW)]: { feed: [{ t: NOW - 2 * HOUR, k: 'event', n: 'pack_download' }] } }, 'downloaded'); // exactly at payment
+});
+test('F5: a download BEFORE payment, another event, or no feed does not block; an unreadable feed fails OPEN', async () => {
+  const before = { ...packSeed(), [feedKey(NOW)]: { feed: [{ t: NOW - 3 * HOUR, k: 'event', n: 'pack_download' }, { t: NOW - HOUR, k: 'event', n: 'pack_purchase' }] } };
+  assert.equal((await move(fakeDb(before))).moved, true);
+  assert.equal((await move(fakeDb(packSeed()))).moved, true);
+  const db = fakeDb(packSeed());
+  const realCollection = db.collection;
+  db.collection = (name) => {
+    if (name === 'activityLog') throw new Error('feed down');
+    return realCollection(name);
+  };
   assert.equal((await move(db)).moved, true);
 });
 
 /* ── the pass is exact or refused ──────────────────────────────────────── */
-test('GUARD pass-not-only-this-purchase: a second payment record, or another lastPaymentRef, refuses (409 MoveError -> unsupported)', async () => {
-  const { MoveError } = require('./adminMovePurchase.cjs');
+test('GUARD pass-not-only-this-purchase: a second payment record, another lastPaymentRef or passType refuses as unsupported BEFORE the move', async () => {
   for (const seed of [
     passSeed({ extra: { 'subscriptions/buyer/payments/pay_older': { amountPaise: 1 } } }),
     passSeed({ sub: { lastPaymentRef: 'pay_other' } }),
     passSeed({ sub: { passType: 'month' } }),
   ]) {
-    const db = fakeDb(seed);
-    const before = JSON.stringify([...db.docs.entries()]);
-    await assert.rejects(() => move(db, { orderId: 'o2' }), (e) => e instanceof MoveError && e.status === 409);
-    assert.equal(JSON.stringify([...db.docs.entries()]), before);
+    await refuses(seed, 'unsupported', { orderId: 'o2' });
   }
+});
+test('the in-transaction pass shape check still holds if the pre-check is bypassed (movePassOrder alone)', async () => {
+  const { movePassOrder } = require('./moveToOther.cjs');
+  const { MoveError } = require('./adminMovePurchase.cjs');
+  const db = fakeDb(passSeed({ extra: { 'subscriptions/buyer/payments/pay_older': { amountPaise: 1 } } }));
+  await assert.rejects(() => movePassOrder({ db, orderId: 'o2', toUid: 'child', byUid: 'buyer', nowMs: NOW }), (e) => e instanceof MoveError && e.status === 409);
+  assert.equal(db.read('subscriptions/child'), undefined);
 });
 
 /* ── once, and race safety ─────────────────────────────────────────────── */

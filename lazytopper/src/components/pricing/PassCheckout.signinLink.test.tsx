@@ -5,8 +5,12 @@ import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("../signinLink/SigninLinkCard", () => ({
-  default: (p: { move?: { orderId: string; item: string } }) => (
-    <div data-testid="signin-link-card-stub" data-move-order={p.move?.orderId ?? ""} data-move-item={p.move?.item ?? ""} />
+  default: (p: { move?: { orderId: string; item: string }; onMoved?: () => void }) => (
+    <div data-testid="signin-link-card-stub" data-move-order={p.move?.orderId ?? ""} data-move-item={p.move?.item ?? ""}>
+      <button type="button" data-testid="stub-moved" onClick={() => p.onMoved?.()}>
+        moved
+      </button>
+    </div>
   ),
 }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: { uid: "u1" } }) }));
@@ -59,6 +63,16 @@ describe("PassCheckout paid screen · sign-in card", () => {
     view({ onBuy: vi.fn(async () => ({ status: "paid" as const, passEnd: "2027-02-17T18:29:59.999Z" })) });
     fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
     expect((await screen.findByTestId("signin-link-card-stub")).getAttribute("data-move-order")).toBe("");
+  });
+
+  it("F6: after the card reports a move, the paid screen stops saying the pass is this account's and the entitlement is re-read", async () => {
+    const onPassMoved = vi.fn();
+    view({ onPassMoved, onBuy: vi.fn(async () => ({ status: "paid" as const, passEnd: "2027-02-17T18:29:59.999Z", orderId: "order_B1" })) });
+    fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
+    await screen.findByTestId("pass-checkout-paid");
+    fireEvent.click(await screen.findByTestId("stub-moved"));
+    await waitFor(() => expect(screen.queryByTestId("pass-checkout-paid")).toBeNull());
+    expect(onPassMoved).toHaveBeenCalledTimes(1);
   });
 
   it("a signed-out view never shows it, even at the paid state", async () => {

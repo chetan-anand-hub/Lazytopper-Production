@@ -7,8 +7,12 @@ import { MemoryRouter } from "react-router-dom";
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 vi.mock("../../services/activityClient", () => ({ recordActivity: vi.fn() }));
 vi.mock("../signinLink/SigninLinkCard", () => ({
-  default: (p: { move?: { orderId: string; item: string } }) => (
-    <div data-testid="signin-link-card-stub" data-move-order={p.move?.orderId ?? ""} data-move-item={p.move?.item ?? ""} />
+  default: (p: { move?: { orderId: string; item: string }; onMoved?: () => void }) => (
+    <div data-testid="signin-link-card-stub" data-move-order={p.move?.orderId ?? ""} data-move-item={p.move?.item ?? ""}>
+      <button type="button" data-testid="stub-moved" onClick={() => p.onMoved?.()}>
+        moved
+      </button>
+    </div>
   ),
 }));
 
@@ -99,6 +103,17 @@ describe("PacksShop · sign-in card", () => {
     const card = await screen.findByTestId("signin-link-card-stub");
     expect(card.getAttribute("data-move-order")).toBe("order_P1");
     expect(card.getAttribute("data-move-item")).toMatch(/Chapter Pack$/);
+  });
+
+  it("F6: after the card reports a move, My packs is re-read and the status no longer says it is this account's", async () => {
+    buyMock.mockResolvedValue({ status: "paid", grant, orderId: "order_P1", paymentId: "pay_49", amountInr: 49 });
+    shop("/pricing?buy=pack_chapter&t=real-numbers");
+    const fetchMine = packs.fetchMyPacks as unknown as ReturnType<typeof vi.fn>;
+    fireEvent.click(await screen.findByTestId("stub-moved"));
+    const before = fetchMine.mock.calls.length;
+    await waitFor(() => expect(screen.getByTestId("packs-status").textContent).toBe("Moved to your child's account."));
+    await waitFor(() => expect(fetchMine.mock.calls.length).toBeGreaterThanOrEqual(before));
+    expect(screen.queryByTestId("packs-status-cbq-tutor")).toBeNull();
   });
 
   it("SIGNED-IN-MOVE-1: a paid outcome with NO order id offers nothing to move", async () => {
