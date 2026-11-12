@@ -111,6 +111,7 @@ describe("PacksShop · sign-in card", () => {
     const fetchMine = packs.fetchMyPacks as unknown as ReturnType<typeof vi.fn>;
     fireEvent.click(await screen.findByTestId("stub-moved"));
     const before = fetchMine.mock.calls.length;
+    fireEvent.click(await screen.findByTestId("paid-sheet-close")); // PAID-SHEET-1: the card lives in the pop-up; the status line shows once it is closed
     await waitFor(() => expect(screen.getByTestId("packs-status").textContent).toBe("Moved to your child's account."));
     await waitFor(() => expect(fetchMine.mock.calls.length).toBeGreaterThanOrEqual(before));
     expect(screen.queryByTestId("packs-status-cbq-tutor")).toBeNull();

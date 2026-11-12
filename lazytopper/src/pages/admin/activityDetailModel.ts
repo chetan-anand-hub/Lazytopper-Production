@@ -213,6 +213,7 @@ const EVENT_LABELS: Record<string, string> = {
   signin_move_confirmed: "Confirmed moving a purchase to their child's own sign-in",
   signin_move_done: "Moved a purchase to their child's own sign-in",
   signin_move_refused: "Could not move a purchase to their child's own sign-in",
+  paid_sheet_shown: "Saw the payment-received pop-up",
   pack_sample_download: "Downloaded a free pack sample page",
   // PACKS-ENTRY-1
   pack_entry_click: "Tapped a PDF packs link",

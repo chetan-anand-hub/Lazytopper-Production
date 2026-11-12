@@ -61,6 +61,8 @@ const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 const PurchaseCard = lazy(() => import("../checkoutWho/PurchaseCard"));
 import { resolvePaidBoardPass, usePaidPremium } from "../../lib/packs/usePaidPremium";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
+import PaidSheetLazy, { paidSheetEnabled, paidSheetReceiptLine, preloadPaidSheet } from "../checkoutWho/PaidSheetLazy";
+import { maskEmail as maskReceiptEmail } from "../../lib/maskContact";
 // PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
 import PaywallActions from "../pricing/PaywallActions";
 import { parentPackName } from "../../services/parentPayPack";
@@ -271,6 +273,8 @@ interface BuyState {
   /** SIGNED-IN-MOVE-1: the paid order and its plain name, so the "Who will use this?" card can move it. */
   orderId?: string;
   item?: string;
+  /** PAID-SHEET-1: the plain pack name for the pop-up (always set on a confirmed paid outcome, with or without an order id). */
+  name?: string;
   /** The purchase was moved to the child's own account: this tab must stop showing it as the buyer's. */
   moved?: boolean;
 }
@@ -380,6 +384,14 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const mounted = useRef(true);
   const viewSent = useRef(false);
   const myPacksRef = useRef<HTMLElement | null>(null);
+  // PAID-SHEET-1: the signed-in "Payment received" pop-up. A ref carries the latest switch into the async buy handler.
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetFailed, setSheetFailed] = useState(false); // the pop-up chunk did not load: today's inline status + card instead
+  const sheetOn = paidSheetEnabled() && signedIn && !sheetFailed;
+  const sheetOnRef = useRef(sheetOn);
+  sheetOnRef.current = sheetOn;
+  // While the pop-up is up nothing behind it may scroll (a move of the purchase re-reads My packs; on /packs#my-packs that used to re-assert the scroll to the top).
+  const sheetHold = sheetOn && sheetOpen;
 
   useEffect(() => {
     mounted.current = true;
@@ -605,7 +617,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   // embedded (/pricing, /for-parents) and never fake content.
   const signedOutMine = !embedded && !hideMyPacks && !authLoading && !user && location.hash.toLowerCase() === "#my-packs";
   useEffect(() => {
-    if (location.hash !== "#my-packs") return undefined;
+    if (location.hash !== "#my-packs" || sheetHold) return undefined;
     let stopped = false;
     const timers: number[] = [];
     const frames: number[] = [];
@@ -626,7 +638,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     }));
     timers.push(window.setTimeout(assert, 300), window.setTimeout(assert, 900), window.setTimeout(stop, 950));
     return stop;
-  }, [location.hash, mine, myPacksMounted, signedOutMine, bridgeSettled]);
+  }, [location.hash, mine, myPacksMounted, signedOutMine, bridgeSettled, sheetHold]);
 
   /** GST-FU-1 review F4: a ?buy= resume held at the pop-up's Pay (remembered state) - the pack and the link's source. */
   const heldResume = useRef<{ key: string; from?: PackCheckoutFrom } | null>(null);
@@ -677,6 +689,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const details = packCheckoutDetails(sku, target);
     const attemptId = newCheckoutAttemptId();
     trackPackCheckout(details, { signedIn: true, resumed, ...(from ? { from } : {}) });
+    if (sheetOnRef.current) preloadPaidSheet(); // warm the post-payment pop-up chunk at the Pay tap
     const outcome = await buyPack(sku, target, { chapterName: target ? chapterLabel(target) : undefined });
     // PURCHASE-EVENT-1: a server-verified payment is counted even if the shop unmounted while Razorpay was open
     // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.
@@ -686,9 +699,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     }
     if (!mounted.current && outcome.status !== "pending") return;
     if (outcome.status === "paid") {
-      setBuy({ key, phase: "paid", ...(outcome.orderId ? { orderId: outcome.orderId, item: parentPackName(sku, target, target ? chapterLabel(target) : undefined) } : {}) });
+      const packName = parentPackName(sku, target, target ? chapterLabel(target) : undefined);
+      setBuy({ key, phase: "paid", name: packName, ...(outcome.orderId ? { orderId: outcome.orderId, item: packName } : {}) });
+      // PAID-SHEET-1: a signed-in buyer sees the "Payment received" pop-up first; My packs scrolls into view when it closes.
+      if (sheetOnRef.current) setSheetOpen(true);
       await loadMine();
-      myPacksRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      if (!sheetOnRef.current) myPacksRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
     } else if (outcome.status === "pending") {
       if (mounted.current) setBuy({ key, phase: "checking" });
       let settled = false;
@@ -714,7 +730,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       }
       if (!mounted.current) return;
       if (settled) {
-        setBuy({ key, phase: "paid", ...(settledOrderId ? { orderId: settledOrderId, item: parentPackName(sku, target, target ? chapterLabel(target) : undefined) } : {}) });
+        const packName = parentPackName(sku, target, target ? chapterLabel(target) : undefined);
+        setBuy({ key, phase: "paid", name: packName, ...(settledOrderId ? { orderId: settledOrderId, item: packName } : {}) });
+        if (sheetOnRef.current) setSheetOpen(true); // PAID-SHEET-1: pending -> paid by polling opens the same pop-up
         await loadMine();
       } else {
         setBuy({ key, phase: "confirming" });
@@ -956,6 +974,20 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const justBoughtKey = buy.phase === "paid" && !buy.moved ? buy.key : "";
   const readyPackIds = readyRows.map((r) => r.packId).filter(Boolean).join("|");
   const openFilesOf = (packId: string) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }));
+  // PAID-SHEET-1: closing the pop-up (X / Esc / backdrop / Download files) lands the buyer on My packs; "Download files" also opens that pack's files.
+  const sheetUp = sheetOn && sheetOpen && buy.phase === "paid";
+  const closePaidSheet = (openFiles: boolean) => {
+    setSheetOpen(false);
+    if (hideMyPacks) {
+      if (openFiles) navigate(`${PACKS_RETURN_PATH}#my-packs`);
+      return;
+    }
+    window.requestAnimationFrame(() => {
+      myPacksRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      if (openFiles && buy.key) openFilesOf(buy.key);
+    });
+  };
+  const paidSurface = surface === "for_parents" ? "for_parents" : embedded ? "pricing" : location.pathname.startsWith("/cbq-packs") ? "cbq_packs" : "packs";
   const tidyList = (withRows: boolean): ReactNode =>
     mine && hasLicenseeContact(mine.licensee)
       ? mine.packs.map((p) => {
@@ -1133,7 +1165,23 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         mineSections
       )}
 
-      {afterPay && openSku === null && (
+      {sheetUp && (
+        <PaidSheetLazy
+          surface={paidSurface}
+          itemKind="pack"
+          itemName={buy.name || "PDF pack"}
+          primaryLabel="Download files"
+          {...(maskReceiptEmail(user?.email || mine?.licensee.email) ? { receiptLine: paidSheetReceiptLine(maskReceiptEmail(user?.email || mine?.licensee.email)) } : {})}
+          onFail={() => { setSheetFailed(true); setSheetOpen(false); }}
+          onPrimary={() => closePaidSheet(true)}
+          onClose={() => closePaidSheet(false)}
+          moved={Boolean(buy.moved)}
+          onMoved={() => { resetOwnedPacksCache(); setBuy((b) => ({ ...b, moved: true })); void loadMine(); }}
+          {...(buy.orderId ? { move: { orderId: buy.orderId, item: buy.item ?? "" } } : {})}
+        />
+      )}
+
+      {afterPay && openSku === null && !sheetUp && (
         <div className="lt-packs__w">
           <p className="lt-packs__status" role="status" data-testid="packs-status">
             {buy.phase === "paid" ? (buy.moved ? PACK_MOVED_COPY : PACK_PAID_COPY) : buy.phase === "checking" ? PACK_CHECKING_COPY : PACK_STILL_CONFIRMING_COPY}
@@ -1147,8 +1195,14 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               <Link to={`${PACKS_RETURN_PATH}#my-packs`} data-testid="packs-open-my-packs">Open My packs &rarr;</Link>
             </p>
           )}
+          {/* PAID-SHEET-1: closed without moving it? The who-card lives in the pop-up, so one button brings the pop-up back (no page jump). */}
+          {buy.phase === "paid" && sheetOn && !buy.moved && (
+            <p className="lt-packs__status">
+              <button type="button" className="lt-packs__link" onClick={() => setSheetOpen(true)} data-testid="paid-sheet-reopen">Who will use this?</button>
+            </p>
+          )}
           {/* LINK-SIGNIN-1: only on a confirmed paid outcome, for a signed-in buyer; last, so nothing above it moves. */}
-          {buy.phase === "paid" && <SigninLinkCardLazy signedIn={signedIn} onMoved={() => { resetOwnedPacksCache(); setBuy((b) => ({ ...b, moved: true })); void loadMine(); }} {...(buy.orderId ? { move: { orderId: buy.orderId, item: buy.item ?? "" } } : {})} />}
+          {buy.phase === "paid" && !sheetOn && <SigninLinkCardLazy signedIn={signedIn} onMoved={() => { resetOwnedPacksCache(); setBuy((b) => ({ ...b, moved: true })); void loadMine(); }} {...(buy.orderId ? { move: { orderId: buy.orderId, item: buy.item ?? "" } } : {})} />}
         </div>
       )}
     </>
