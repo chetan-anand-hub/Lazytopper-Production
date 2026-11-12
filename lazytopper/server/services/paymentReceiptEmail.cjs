@@ -44,6 +44,10 @@ const SUPPORT_WHATSAPP_URL = 'https://wa.me/919714568948';
 const SUPPORT_WHATSAPP_DISPLAY = '+91 97145 68948';
 /** SELFPAY-ATTACH-1: how long a signed-out payer may choose who an attach order is for (mirror of routes/guestPay.cjs). */
 const ATTACH_HOLD_MS = 10 * 60 * 1000;
+/** A receipt marker in one of these states may be taken again (a failed send; or nothing was sendable yet: no address). */
+const RETRYABLE_RECEIPT = Object.freeze(['failed', 'no_address']);
+/** The hourly sweep only looks at attach orders paid this recently (an older one is never mass-mailed days later). */
+const HELD_RECEIPT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const PAID_STATES = Object.freeze(['paid', 'paid_unclaimed', 'claimed']);
 const EMAIL_PATTERN = /^[^\s@<>()",;:]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,}$/;
 /**
@@ -380,7 +384,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       const order = snap && snap.exists ? snap.data() || {} : null;
       if (!order || !PAID_STATES.includes(order.status) || order.paymentId !== paymentId) return null;
       const prior = order.receiptEmail && typeof order.receiptEmail === 'object' ? order.receiptEmail : null;
-      if (prior && prior.status !== 'failed') return null;
+      if (prior && !RETRYABLE_RECEIPT.includes(prior.status)) return null;
       tx.set(ref, { receiptEmail: { status: 'sending', at: new Date(now()) } }, { merge: true });
       return order;
     });
@@ -492,7 +496,7 @@ function createPaymentReceiptEmailer(deps = {}) {
     if (typeof orderId !== 'string' || !orderId || typeof paymentId !== 'string' || !paymentId) return { skipped: 'bad_input' };
     const first = await readOrder(orderId);
     if (!first || !PAID_STATES.includes(first.status) || first.paymentId !== paymentId) return { skipped: 'already_or_unpaid' };
-    if (first.receiptEmail && first.receiptEmail.status !== 'failed') return { skipped: 'already_or_unpaid' };
+    if (first.receiptEmail && !RETRYABLE_RECEIPT.includes(first.receiptEmail.status)) return { skipped: 'already_or_unpaid' };
     // The email names the account the purchase LANDS on, so an attach order waits for the payer's choice (or the 10-minute
     // fallback). It is never dropped: the attach / claim grant calls this again, a timer fires at the end of the hold, and the
     // hourly sweep picks up anything a restart lost.
@@ -870,10 +874,7 @@ function createPaymentReceiptEmailer(deps = {}) {
   /** The hourly drain (started by server/index.cjs only while invoicing AND payment email are on). Returns stop(). */
   function startInvoiceEmailRunner({ intervalMs = INVOICE_EMAIL_INTERVAL_MS } = {}) {
     if (config.mode !== 'send') return () => {};
-    const timer = setInterval(() => {
-      void drainInvoiceEmails();
-      void drainHeldReceipts();
-    }, intervalMs);
+    const timer = setInterval(() => void drainInvoiceEmails(), intervalMs);
     if (timer && typeof timer.unref === 'function') timer.unref();
     return () => clearInterval(timer);
   }
@@ -883,21 +884,37 @@ function createPaymentReceiptEmailer(deps = {}) {
     try {
       if (config.mode !== 'send' || !adminFirestore) return 0;
       let q = adminFirestore.collection(PAY_ORDERS_COLLECTION).where('status', '==', 'paid_unclaimed');
+      // Attach orders only, so the read cap cannot be starved by ordinary unclaimed orders.
+      if (typeof q.where === 'function') q = q.where('attachFlow', '==', true);
       if (typeof q.limit === 'function') q = q.limit(200);
       const snap = await q.get();
       const jobs = [];
       snap.forEach((d) => {
         const o = d.data() || {};
+        // `no_address` is final for the sweep (it must not re-look-up an address-less order every hour, forever).
         if (o.attachFlow !== true || o.attachedAt || (o.receiptEmail && o.receiptEmail.status !== 'failed') || typeof o.paymentId !== 'string') return;
+        const paidMs = msOf(o.guestPaidAt);
+        if (paidMs === null || now() - paidMs > HELD_RECEIPT_MAX_AGE_MS) return;
         const ends = attachHoldEndsMs(o);
         if (Number.isFinite(ends) && now() >= ends) jobs.push([d.id, o.paymentId]);
       });
-      for (const [orderId, paymentId] of jobs.slice(0, 25)) await sendForPayment({ orderId, paymentId, email: '' });
+      for (const [orderId, paymentId] of jobs.slice(0, 25)) {
+        const r = await sendForPayment({ orderId, paymentId, email: '' });
+        if (r && r.skipped === 'no_address') await settle(orderId, 'no_address');
+      }
       return jobs.length;
     } catch (e) {
       emit('payments.receipt_email.error');
       return 0;
     }
+  }
+
+  /** R2: the held-receipt sweep runs on its OWN hourly timer (not only while invoicing is on). Returns stop(). */
+  function startHeldReceiptRunner({ intervalMs = INVOICE_EMAIL_INTERVAL_MS } = {}) {
+    if (config.mode !== 'send' || config.receiptDisabled) return () => {};
+    const timer = setInterval(() => void drainHeldReceipts(), intervalMs);
+    if (timer && typeof timer.unref === 'function') timer.unref();
+    return () => clearInterval(timer);
   }
 
   async function whenIdle() {
@@ -918,7 +935,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       sendViaResend({ fetchImpl, apiKey: config.apiKey, from: config.from, replyTo: config.replyTo, to, subject, text, html, idempotencyKey, category }),
   };
 
-  return { sendForPayment, sendRecipientReady, drainHeldReceipts, queueInvoiceEmail, drainInvoiceEmails, startInvoiceEmailRunner, whenIdle, config, rails };
+  return { sendForPayment, sendRecipientReady, drainHeldReceipts, startHeldReceiptRunner, queueInvoiceEmail, drainInvoiceEmails, startInvoiceEmailRunner, whenIdle, config, rails };
 }
 
 module.exports = {

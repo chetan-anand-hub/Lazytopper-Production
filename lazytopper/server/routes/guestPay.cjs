@@ -1246,6 +1246,21 @@ function createGuestPayRoutes(deps = {}) {
    * delivery to an existing account, so there is one copy of the take, the duplicate rules and the grant.
    * Returns { claimed } | { duplicate: true } | { failed: true } | null (not this caller's to take).
    */
+  /**
+   * RECEIPT-EMAIL-1 - the ONE receipt after a grant, fired and forgotten. Own try/catch (sync throw AND rejected promise): it
+   * can never change a grant's result. The emailer sends at most one per order, so a capture-time receipt makes this a no-op.
+   */
+  function fireReceipt(orderId, paymentId) {
+    try {
+      if (receiptEmailer && typeof receiptEmailer.sendForPayment === 'function') {
+        const r = receiptEmailer.sendForPayment({ orderId, paymentId, email: '' });
+        if (r && typeof r.catch === 'function') r.catch(() => null);
+      }
+    } catch {
+      /* never touches the grant */
+    }
+  }
+
   async function attachOrder(orderId, uid, matches, via, extra) {
     try {
       const order = await takeOrder(orderId, uid, matches, via, extra);
@@ -1288,10 +1303,8 @@ function createGuestPayRoutes(deps = {}) {
       emit('payments.guest.claim.granted');
       // RECEIPT-EMAIL-1: the grant is done, so the account the purchase landed on is known (an attach order waited for the
       // payer's choice or the 10-minute fallback). ONE receipt per order: a no-op when the capture-time receipt already went.
-      // Fire and forget; never throws, never awaited.
-      if (receiptEmailer && typeof receiptEmailer.sendForPayment === 'function') {
-        void receiptEmailer.sendForPayment({ orderId, paymentId, email: '' });
-      }
+      // Fire and forget through fireReceipt (its own try/catch): nothing on the receipt side can relabel a committed grant.
+      fireReceipt(orderId, paymentRef);
       return { claimed: entry, order };
     } catch (e) {
       const refused = e instanceof PassGrantInputError || e instanceof PackGrantInputError;

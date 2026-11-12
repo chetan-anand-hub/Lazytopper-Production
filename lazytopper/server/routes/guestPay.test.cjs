@@ -2425,3 +2425,98 @@ test('RECEIPT · the not_paid guard: an order that has a paymentId but is still 
   assert.equal(r.status, 409, r.text);
   assert.equal(r.json.reason, 'not_paid');
 });
+
+/* ══ RECEIPT-EMAIL-1 · B3: the receipt after a pay-first grant, REAL emailer wired ═══════════════════════════════
+ * Each path must (a) still answer a SUCCESSFUL claim with no claimError, and (b) send exactly one receipt. */
+function receiptRig({ clock = { t: NOW }, db = memoryFirestore() } = {}) {
+  const resend = resendRecorder();
+  const receiptEmailer = createPaymentReceiptEmailer({
+    env: EMAIL_ENV,
+    adminFirestore: db,
+    fetchImpl: resend.fetchImpl,
+    now: () => clock.t,
+    getAuthUser: async () => ({ email: '', phoneNumber: PHONE, providerIds: ['phone'] }),
+    fetchPayment: async () => ({ email: 'buyer@example.com' }),
+  });
+  return { db, resend, receiptEmailer, clock };
+}
+const noClaimError = (db, orderId) => assert.equal(db.read(`payOrders/${orderId}`).claimError, undefined);
+
+test('RECEIPT · plain pay-first claim: claimed 1, no claimError, ONE receipt (the payer address read from the Razorpay record)', async (t) => {
+  const { db, resend, receiptEmailer } = receiptRig();
+  const srv = await startRoutes({ db, receiptEmailer });
+  t.after(srv.close);
+  const paid = await paidGuestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE }); // no email in hand: read from the Razorpay record
+  await receiptEmailer.whenIdle();
+  assert.equal(resend.sent.length, 1, 'the capture-time receipt');
+  const c = await claim(srv, signedIn('u1', PHONE));
+  assert.equal(c.json.claimed.length, 1, c.text);
+  assert.equal(c.json.failed, undefined);
+  noClaimError(db, paid.orderId);
+  await receiptEmailer.whenIdle();
+  assert.deepEqual(resend.sent.map((m) => m.body.to[0]), ['buyer@example.com'], 'the claim hook adds nothing: one receipt per order');
+  assert.match(resend.sent[0].body.text, /your pack is in My packs/);
+});
+
+test('RECEIPT · attach "me": the attach succeeds, no claimError, ONE receipt naming the account', async (t) => {
+  const { db, resend, receiptEmailer } = receiptRig();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db, receiptEmailer });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  await receiptEmailer.whenIdle();
+  assert.equal(resend.sent.length, 0, 'held: nothing before the choice');
+  const r = await doAttach(srv, paid, { choice: 'me' });
+  assert.equal(r.json.ok, true, r.text);
+  await srv.idle();
+  await receiptEmailer.whenIdle();
+  noClaimError(db, paid.orderId);
+  assert.equal(db.read(`payOrders/${paid.orderId}`).status, 'paid');
+  assert.deepEqual(resend.sent.map((m) => m.body.to[0]), ['buyer@example.com']);
+});
+
+test('RECEIPT · attach "other": the attach succeeds, no claimError, ONE receipt to the payer', async (t) => {
+  const { db, resend, receiptEmailer } = receiptRig();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db, receiptEmailer });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const r = await doAttach(srv, paid, { choice: 'other', recipient: { phone: OTHER_PHONE } });
+  assert.equal(r.json.ok, true, r.text);
+  await srv.idle();
+  await receiptEmailer.whenIdle();
+  noClaimError(db, paid.orderId);
+  assert.equal(resend.sent.length, 1);
+  assert.equal(resend.sent[0].body.to[0], 'buyer@example.com');
+});
+
+test('RECEIPT · 10-minute fallback (nobody chose): the claim takes it, claimed 1, no claimError, ONE receipt', async (t) => {
+  const clock = { t: NOW };
+  const { db, resend, receiptEmailer } = receiptRig({ clock });
+  const { srv } = await autoRoutes({ env: SELF_ENV, db, receiptEmailer });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  await receiptEmailer.whenIdle();
+  assert.equal(resend.sent.length, 0);
+  clock.t = NOW + ATTACH_HOLD_MS + 1000;
+  const later = await startRoutes({ env: SELF_ENV, db, nowMs: clock.t, receiptEmailer });
+  t.after(later.close);
+  const c = await claim(later, signedIn('uPaidWith', PHONE));
+  assert.equal(c.json.claimed.length, 1, c.text);
+  noClaimError(db, paid.orderId);
+  await receiptEmailer.whenIdle();
+  assert.equal(resend.sent.length, 1);
+  assert.equal(resend.sent[0].body.to[0], 'buyer@example.com');
+});
+
+test('RECEIPT · a THROWING or REJECTING emailer can never change the grant: claimed 1, no claimError', async (t) => {
+  for (const boom of [() => { throw new Error('boom'); }, () => { const p = Promise.reject(new Error('boom')); p.catch(() => null); return p; }]) {
+    const db = memoryFirestore();
+    const srv = await startRoutes({ db, receiptEmailer: { sendForPayment: boom } });
+    t.after(srv.close);
+    const paid = await paidGuestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+    const c = await claim(srv, signedIn('u1', PHONE));
+    assert.equal(c.json.claimed.length, 1, c.text);
+    noClaimError(db, paid.orderId);
+    assert.equal(db.read(`payOrders/${paid.orderId}`).status, 'paid');
+    assert.ok(db.read(`payOrders/${paid.orderId}`).uid);
+  }
+});

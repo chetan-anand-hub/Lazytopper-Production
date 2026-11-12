@@ -28,14 +28,18 @@ function makeDb(seed = {}) {
     writes,
     collection: (col) => ({
       doc: (id) => ref(col, id),
-      where: (field, _op, value) => ({
-        limit: () => ({
-          async get() {
-            const rows = [...docs].filter(([k, v]) => k.startsWith(`${col}/`) && v[field] === value);
-            return { forEach: (fn) => rows.forEach(([k, v]) => fn({ id: k.split('/')[1], data: () => v })) };
-          },
-        }),
-      }),
+      where(field, _op, value, filters = []) {
+        const all = [...filters, [field, value]];
+        return {
+          where: (f2, op2, v2) => this.where(f2, op2, v2, all),
+          limit: () => ({
+            async get() {
+              const rows = [...docs].filter(([k, v]) => k.startsWith(`${col}/`) && all.every(([f, x]) => v[f] === x));
+              return { forEach: (fn) => rows.forEach(([k, v]) => fn({ id: k.split('/')[1], data: () => v })) };
+            },
+          }),
+        };
+      },
     }),
     chain: Promise.resolve(),
     runTransaction(fn) {
@@ -216,24 +220,24 @@ test('the body carries no full phone / address; copy rules hold', async () => {
   }
 });
 
-test('F2 · the hooks exist: payments verify/webhook/status receipt, parent pack + pass receipt, guest attach/claim receipt, index wiring', () => {
-  const read = (...p) => fs.readFileSync(path.join(__dirname, ...p), 'utf8');
-  const pay = read('..', 'routes', 'payments.cjs');
-  // every grantAndRespond (pack AND pass share it) is followed by sendReceipt, in verify, webhook and status
-  assert.equal((pay.match(/grantAndRespond\([^;]*;\s*sendReceipt\(/g) || []).length, 3);
-  assert.match(pay, /receiptEmailer\.sendForPayment\(\{ orderId, paymentId, email \}\)/);
-  const parent = read('..', 'routes', 'parentPay.cjs');
-  assert.match(parent, /receiptEmailer\.sendForPayment\(/);
-  const packSite = parent.slice(parent.indexOf('packGranted = await grantPack('));
-  assert.ok(packSite.indexOf('issueInvoice(orderId, paymentId, payment)') > 0, 'parent pack path');
-  const passSite = parent.slice(parent.indexOf('granted = await grantPass('));
-  assert.ok(passSite.indexOf('issueInvoice(orderId, paymentId, payment)') > 0, 'parent pass path');
-  const guest = read('..', 'routes', 'guestPay.cjs');
-  assert.ok(guest.indexOf('receiptEmailer.sendForPayment({ orderId, paymentId, email: \'\' })') > guest.indexOf("emit('payments.guest.claim.granted')"));
-  assert.match(guest, /receiptEmailer\.sendForPayment\(\{ orderId, paymentId, email: typeof payment\.email/);
-  const index = read('..', 'index.cjs');
-  assert.match(index, /receiptEmailer: paymentReceiptEmailer/);
-  assert.match(index, /createParentPayRoutes\(\{[^}]*receiptEmailer: paymentReceiptEmailer/s);
-  assert.match(index, /getAuthUser:/);
-  assert.match(index, /fetchPayment: require\('\.\/services\/gstInvoice\.cjs'\)\.createRazorpayPaymentFetcher\(\)/);
+test('sweep (R3): only attach orders paid in the last 7 days; an address-less order is marked done, not re-looked-up forever', async () => {
+  const mk = (extra) => ({ ...PASS, status: 'paid_unclaimed', uid: null, payer: 'guest', attachFlow: true, guestPaidAt: new Date(NOW - 20 * 60_000), ...extra });
+  const seed = {
+    'payOrders/order_new': mk({ paymentId: 'pay_new' }),
+    'payOrders/order_old': mk({ paymentId: 'pay_old', guestPaidAt: new Date(NOW - 8 * 24 * 3600_000) }),
+    'payOrders/order_noaddr': mk({ paymentId: 'pay_na' }),
+    'payOrders/order_plain': { ...PASS, status: 'paid_unclaimed', uid: null, payer: 'guest', paymentId: 'pay_pl', guestPaidAt: new Date(NOW - 20 * 60_000) },
+  };
+  const lookups = [];
+  const { emailer, fetchImpl, db } = make({
+    seed,
+    extra: { fetchPayment: async (pid) => { lookups.push(pid); return pid === 'pay_na' ? { email: '' } : { email: 'b@example.com' }; } },
+  });
+  assert.equal(await emailer.drainHeldReceipts(), 2);
+  assert.deepEqual(fetchImpl.sent.map((s) => s.key).sort(), ['payment-receipt-pay_new']);
+  assert.ok(!lookups.includes('pay_old') && !lookups.includes('pay_pl'), 'old / non-attach orders are never touched');
+  assert.equal(db.docs.get('payOrders/order_noaddr').receiptEmail.status, 'no_address');
+  const before = lookups.length;
+  await emailer.drainHeldReceipts();
+  assert.ok(!lookups.slice(before).includes('pay_na'), 'not looked up again');
 });

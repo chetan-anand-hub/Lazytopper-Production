@@ -1242,6 +1242,8 @@ server.listen(config.PORT, () => {
   opsReporter.schedule();
   // GST-INVOICE-2a — the hourly drain of queued invoice emails; armed ONLY while invoicing AND payment email are on.
   if (gstInvoicer.config.enabled && paymentReceiptEmailer.config.mode === 'send') paymentReceiptEmailer.startInvoiceEmailRunner();
+  // RECEIPT-EMAIL-1 — the hourly sweep of attach-order receipts the hold deferred; its own timer, whatever invoicing says.
+  paymentReceiptEmailer.startHeldReceiptRunner();
   // GST-INVOICE-BACKDATE-1 — the hourly drain of state forms + reminders; armed only with invoicing, email and the link secret.
   gstBackdate.startRunner();
 
