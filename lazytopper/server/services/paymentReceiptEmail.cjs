@@ -23,6 +23,7 @@ const {
   normaliseAppUrl,
   escapeHtml,
 } = require('./trialEndingEmail.cjs');
+const { randomBytes } = require('node:crypto');
 const { senderOnVerifiedDomain } = require('./nudgeEmail.cjs');
 const { isPackProduct, validateTarget } = require('./packProducts.cjs');
 const { maskIndianMobile, maskEmail, GUEST_PAYER, normaliseIndianMobile, normaliseEmail } = require('./guestPay.cjs');
@@ -70,6 +71,7 @@ const INVOICE_EMAIL_BATCH = 25;
 const INVOICE_EMAIL_INTERVAL_MS = 60 * 60 * 1000;
 /** Review F2: a `sending` claim older than this was lost in a crash; it is taken again (Resend's key dedupes a real send). */
 const INVOICE_EMAIL_STALE_SENDING_MS = 30 * 60 * 1000;
+const RECEIPT_RECLAIM_MAX_MS = 20 * 60 * 60 * 1000;
 /** Review F3: at most this many send attempts; after that the email is `failed` and shown to the admin. */
 const INVOICE_EMAIL_MAX_ATTEMPTS = 3;
 /**
@@ -382,6 +384,18 @@ function createPaymentReceiptEmailer(deps = {}) {
   }
 
   /** Claim the order's receipt slot. Returns the order to email about, or null (not paid, already sent / sending). */
+  /** R4: a `sending` claim older than the stale window (the process died mid-send) may be taken again (Resend's idempotency key dedupes a real earlier send). */
+  function receiptRetryable(prior) {
+    if (!prior || typeof prior !== 'object') return true;
+    if (RETRYABLE_RECEIPT.includes(prior.status)) return true;
+    if (prior.status !== 'sending') return false;
+    // M1: Resend idempotency keys last 24h, so only a claim aged 30 min .. 20 h is safe to retake; a missing / unparseable `at` is not.
+    const at = msOf(prior.at);
+    if (!Number.isFinite(at)) return false;
+    const age = now() - at;
+    return age >= INVOICE_EMAIL_STALE_SENDING_MS && age < RECEIPT_RECLAIM_MAX_MS;
+  }
+
   async function claim(orderId, paymentId) {
     const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
     return adminFirestore.runTransaction(async (tx) => {
@@ -389,9 +403,10 @@ function createPaymentReceiptEmailer(deps = {}) {
       const order = snap && snap.exists ? snap.data() || {} : null;
       if (!order || !PAID_STATES.includes(order.status) || order.paymentId !== paymentId) return null;
       const prior = order.receiptEmail && typeof order.receiptEmail === 'object' ? order.receiptEmail : null;
-      if (prior && !RETRYABLE_RECEIPT.includes(prior.status)) return null;
-      tx.set(ref, { receiptEmail: { status: 'sending', at: new Date(now()) } }, { merge: true });
-      return order;
+      if (prior && !receiptRetryable(prior)) return null;
+      const token = randomBytes(12).toString('hex');
+      tx.set(ref, { receiptEmail: { status: 'sending', at: new Date(now()), token } }, { merge: true });
+      return { order, token };
     });
   }
 
@@ -430,11 +445,38 @@ function createPaymentReceiptEmailer(deps = {}) {
     };
   }
 
-  async function settle(orderId, status) {
+  /** S2: only the claimer whose token is on the doc may settle it, so a stalled first sender cannot overwrite a later outcome. */
+  async function settle(orderId, status, token) {
     try {
-      await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).set({ receiptEmail: { status, at: new Date(now()) } }, { merge: true });
+      const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
+      await adminFirestore.runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        const order = snap && snap.exists ? snap.data() || {} : null;
+        if (!order) return;
+        const cur = order.receiptEmail && typeof order.receiptEmail === 'object' ? order.receiptEmail : null;
+        // a pre-token `sending` claim (written before this deploy) has no token and may still settle
+        if (cur && cur.token !== undefined && cur.token !== token) return;
+        tx.set(ref, { receiptEmail: { status, at: new Date(now()), ...(token ? { token } : {}) } }, { merge: true });
+      });
     } catch {
       /* the claim stands: at most once */
+    }
+  }
+
+  /** R5: mark `no_address` only if no receipt outcome landed meanwhile (never over sent / sending / refused / skipped). */
+  async function settleIfUnsent(orderId, status) {
+    try {
+      const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
+      await adminFirestore.runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        const order = snap && snap.exists ? snap.data() || {} : null;
+        if (!order) return;
+        const cur = order.receiptEmail && typeof order.receiptEmail === 'object' ? order.receiptEmail.status : null;
+        if (cur && cur !== 'failed' && cur !== 'no_address') return;
+        tx.set(ref, { receiptEmail: { status, at: new Date(now()) } }, { merge: true });
+      });
+    } catch {
+      /* best effort */
     }
   }
 
@@ -502,7 +544,7 @@ function createPaymentReceiptEmailer(deps = {}) {
     if (typeof orderId !== 'string' || !orderId || typeof paymentId !== 'string' || !paymentId) return { skipped: 'bad_input' };
     const first = await readOrder(orderId);
     if (!first || !PAID_STATES.includes(first.status) || first.paymentId !== paymentId) return { skipped: 'already_or_unpaid' };
-    if (first.receiptEmail && !RETRYABLE_RECEIPT.includes(first.receiptEmail.status)) return { skipped: 'already_or_unpaid' };
+    if (first.receiptEmail && !receiptRetryable(first.receiptEmail)) return { skipped: 'already_or_unpaid' };
     // The email names the account the purchase LANDS on, so an attach order waits for the payer's choice (or the 10-minute
     // fallback). It is never dropped: the attach / claim grant calls this again, a timer fires at the end of the hold, and the
     // hourly sweep picks up anything a restart lost.
@@ -516,11 +558,12 @@ function createPaymentReceiptEmailer(deps = {}) {
       emit('payments.receipt_email.no_address');
       return { skipped: 'no_address' };
     }
-    const order = await claim(orderId, paymentId);
-    if (!order) return { skipped: 'already_or_unpaid' };
+    const claimed = await claim(orderId, paymentId);
+    if (!claimed) return { skipped: 'already_or_unpaid' };
+    const { order, token } = claimed;
     const built = buildReceiptEmail({ ...receiptArgsFor(order, orderId, paymentId, now()), ...(signIns ? { signIns } : {}) });
     if (!built) {
-      await settle(orderId, 'skipped');
+      await settle(orderId, 'skipped', token);
       return { skipped: 'not_receipted' };
     }
     let okCount = 0;
@@ -549,10 +592,10 @@ function createPaymentReceiptEmailer(deps = {}) {
       }
     }
     if (okCount > 0) {
-      await settle(orderId, 'sent');
+      await settle(orderId, 'sent', token);
       return { sent: true };
     }
-    await settle(orderId, retryable ? 'failed' : 'refused');
+    await settle(orderId, retryable ? 'failed' : 'refused', token);
     return { sent: false, code: lastCode };
   }
 
@@ -898,7 +941,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       snap.forEach((d) => {
         const o = d.data() || {};
         // `no_address` is final for the sweep (it must not re-look-up an address-less order every hour, forever).
-        if (o.attachFlow !== true || o.attachedAt || (o.receiptEmail && o.receiptEmail.status !== 'failed') || typeof o.paymentId !== 'string') return;
+        if (o.attachFlow !== true || o.attachedAt || (o.receiptEmail && o.receiptEmail.status !== 'failed' && !(o.receiptEmail.status === 'sending' && receiptRetryable(o.receiptEmail))) || typeof o.paymentId !== 'string') return;
         const paidMs = msOf(o.guestPaidAt);
         if (paidMs === null || now() - paidMs > HELD_RECEIPT_MAX_AGE_MS) return;
         const ends = attachHoldEndsMs(o);
@@ -906,7 +949,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       });
       for (const [orderId, paymentId] of jobs.slice(0, 25)) {
         const r = await sendForPayment({ orderId, paymentId, email: '' });
-        if (r && r.skipped === 'no_address') await settle(orderId, 'no_address');
+        if (r && r.skipped === 'no_address') await settleIfUnsent(orderId, 'no_address');
       }
       return jobs.length;
     } catch (e) {
@@ -941,7 +984,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       sendViaResend({ fetchImpl, apiKey: config.apiKey, from: config.from, replyTo: config.replyTo, to, subject, text, html, idempotencyKey, category }),
   };
 
-  return { sendForPayment, sendRecipientReady, drainHeldReceipts, startHeldReceiptRunner, queueInvoiceEmail, drainInvoiceEmails, startInvoiceEmailRunner, whenIdle, config, rails };
+  return { __settleForTest: settle, sendForPayment, sendRecipientReady, drainHeldReceipts, startHeldReceiptRunner, queueInvoiceEmail, drainInvoiceEmails, startInvoiceEmailRunner, whenIdle, config, rails };
 }
 
 module.exports = {

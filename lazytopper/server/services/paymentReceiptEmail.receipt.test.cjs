@@ -258,3 +258,73 @@ test('sweep (R3): only attach orders paid in the last 7 days; an address-less or
   await emailer.drainHeldReceipts();
   assert.ok(!lookups.slice(before).includes('pay_na'), 'not looked up again');
 });
+
+const sweepOrder = (extra = {}) => ({ ...PASS, status: 'paid_unclaimed', uid: null, payer: 'guest', attachFlow: true, guestPaidAt: new Date(NOW - 20 * 60_000), ...extra });
+
+test('RECEIPT-RACE-1 R5 - sweep never overwrites a receipt sent meanwhile; absent / failed still becomes no_address', async () => {
+  for (const [prior, expected] of [[{ status: 'sent', at: new Date(NOW) }, 'sent'], [{ status: 'refused', at: new Date(NOW) }, 'refused'], [{ status: 'failed', at: new Date(NOW) }, 'no_address'], [undefined, 'no_address']]) {
+    const seed = { 'payOrders/order_R': sweepOrder({ paymentId: 'pay_R', ...(prior && prior.status === 'failed' ? { receiptEmail: prior } : {}) }) };
+    const { emailer, db } = make({
+      seed,
+      extra: {
+        fetchPayment: async () => {
+          // the attach / claim grant path lands between the sweep's run() and its settle write
+          if (prior && prior.status !== 'failed') db.docs.set('payOrders/order_R', { ...db.docs.get('payOrders/order_R'), receiptEmail: prior });
+          return { email: '' };
+        },
+      },
+    });
+    await emailer.drainHeldReceipts();
+    assert.equal(db.docs.get('payOrders/order_R').receiptEmail.status, expected);
+  }
+});
+
+test('RECEIPT-RACE-1 R4 - a stale `sending` claim is re-claimed (same idempotency key); a fresh one is not', async () => {
+  const stale = { ...PASS, receiptEmail: { status: 'sending', at: new Date(NOW - 31 * 60_000) } };
+  const a = make({ order: stale });
+  await a.emailer.sendForPayment(input());
+  assert.ok(a.fetchImpl.sent.length >= 1);
+  assert.ok(a.fetchImpl.sent.every((m) => /^payment-receipt-pay_ABC123(-\d+)?$/.test(m.key)));
+  assert.equal(a.db.docs.get('payOrders/order_X1').receiptEmail.status, 'sent');
+
+  const fresh = { ...PASS, receiptEmail: { status: 'sending', at: new Date(NOW - 5 * 60_000) } };
+  const b = make({ order: fresh });
+  await b.emailer.sendForPayment(input());
+  assert.equal(b.fetchImpl.sent.length, 0);
+  assert.equal(b.db.docs.get('payOrders/order_X1').receiptEmail.status, 'sending');
+});
+
+test('RECEIPT-RACE-1 R4 - the sweep picks up a stale `sending` attach order but not a fresh one', async () => {
+  const seed = {
+    'payOrders/order_st': sweepOrder({ paymentId: 'pay_st', receiptEmail: { status: 'sending', at: new Date(NOW - 40 * 60_000) } }),
+    'payOrders/order_fr': sweepOrder({ paymentId: 'pay_fr', receiptEmail: { status: 'sending', at: new Date(NOW - 60_000) } }),
+  };
+  const { emailer, fetchImpl } = make({ seed, extra: { fetchPayment: async () => ({ email: 'b@example.com' }) } });
+  assert.equal(await emailer.drainHeldReceipts(), 1);
+  assert.deepEqual(fetchImpl.sent.map((s) => s.key), ['payment-receipt-pay_st']);
+});
+
+test('RECEIPT-RACE-1 M1 - a `sending` claim 25h old (past the Resend key window) or with no timestamp is NOT re-claimed; 2h old is', async () => {
+  for (const [at, expectSent] of [[new Date(NOW - 25 * 3600_000), false], [undefined, false], [new Date(NOW - 2 * 3600_000), true]]) {
+    const { emailer, fetchImpl } = make({ order: { ...PASS, receiptEmail: { status: 'sending', ...(at ? { at } : {}) } } });
+    await emailer.sendForPayment(input());
+    assert.equal(fetchImpl.sent.length > 0, expectSent);
+  }
+});
+
+test('RECEIPT-RACE-1 S2 - a stalled first claimer cannot overwrite a later sender: its late settle(failed) is ignored', async () => {
+  const stale = { ...PASS, receiptEmail: { status: 'sending', at: new Date(NOW - 2 * 3600_000), token: 'first' } };
+  const { emailer, fetchImpl, db } = make({ order: stale });
+  await emailer.sendForPayment(input());
+  assert.ok(fetchImpl.sent.length > 0);
+  const after = db.docs.get('payOrders/order_X1').receiptEmail;
+  assert.equal(after.status, 'sent');
+  assert.notEqual(after.token, 'first');
+  // the first (stalled) sender wakes up and settles with its own token
+  const doc = db.docs.get('payOrders/order_X1');
+  assert.equal(emailer.rails === undefined, false);
+  assert.equal(typeof emailer.__settleForTest, 'function');
+  await emailer.__settleForTest('order_X1', 'failed', 'first');
+  assert.equal(db.docs.get('payOrders/order_X1').receiptEmail.status, 'sent');
+  assert.equal(doc.receiptEmail.status, 'sent');
+});
