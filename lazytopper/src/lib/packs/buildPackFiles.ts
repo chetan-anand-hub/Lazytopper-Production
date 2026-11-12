@@ -152,18 +152,20 @@ export interface BuildContext {
 }
 
 /**
- * The server path of one file (SERVER-PDF-1 PR-C): true = the browser is downloading the server's file and the papers it prints are
- * registered from the server's own ws; false = nothing was downloaded, build it here. Never throws.
+ * The server path of one file (SERVER-PDF-1 PR-C): "done" = the browser is downloading the server's file and the papers it prints are
+ * registered from the server's own ws (all of the file's paper codes covered); "build" = nothing was downloaded, build it here;
+ * "build-counted" = same, but the server had already counted the download (do not send the client event). Never throws.
  */
-async function downloadFromServer(ctx: BuildContext, fileId: string): Promise<boolean> {
-  if (!ctx.serverLinks) return false;
+async function downloadFromServer(ctx: BuildContext, fileId: string, expectCodes: readonly string[]): Promise<"done" | "build" | "build-counted"> {
+  if (!ctx.serverLinks) return "build";
   try {
     const { downloadFileFromServer } = await import("./serverPdfDownload");
-    const packId = packOfFileId(fileId);
-    const res = await downloadFileFromServer({ packId, fileId, user: ctx.user }, { ...ctx.serverPdf, nowIso: ctx.nowIso });
-    return res.ok;
+    const res = await downloadFileFromServer({ packId: packOfFileId(fileId), fileId, user: ctx.user, expectCodes }, { ...ctx.serverPdf, nowIso: ctx.nowIso });
+    if (res.ok) return "done";
+    // A link was issued (the server already counted this download) but nothing reached the browser: build here WITHOUT a second count.
+    return res.counted ? "build-counted" : "build";
   } catch {
-    return false;
+    return "build";
   }
 }
 
@@ -256,7 +258,8 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
       // No licensee email (or, for a phone-only account, its masked phone): no PDF. A pack file is never produced unwatermarked.
       if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
       // SERVER-PDF-1 PR-C: the server's stamped file first; on any failure fall through to the in-browser build below.
-      if (await downloadFromServer(ctx, spec.id)) return;
+      const served = await downloadFromServer(ctx, spec.id, spec.paper ? [spec.paper.code] : []);
+      if (served === "done") return;
       const exportPdf = ctx.exportPdf ?? (await defaultExport());
       const ws = { ...spec.ws(), createdAt: (ctx.nowIso ?? (() => new Date().toISOString()))() };
       // A paper file shows its OWN printed code; any other file the pack's first paper code (null: no "e.g." clause).
@@ -275,7 +278,7 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
       // PACKS-GRADE-1: the PDF is out; now the EXISTING download path files the paper under its printed
       // code so the student can upload answers. Best-effort: it never blocks or fails the download.
       if (spec.paper) await registerPackPaper(ctx.user, { ...spec.paper, paper: ws });
-      ctx.onDownload?.(sku);
+      if (served !== "build-counted") ctx.onDownload?.(sku);
     },
   };
 }
@@ -312,7 +315,8 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
     },
     build: async (onProgress) => {
       if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
-      if (await downloadFromServer(ctx, spec.id)) return;
+      const served = await downloadFromServer(ctx, spec.id, spec.sets.map((x) => x.paper.code));
+      if (served === "done") return;
       const now = (ctx.nowIso ?? (() => new Date().toISOString()))();
       const papers = spec.sets.map((x) => ({ ws: { ...x.ws(), createdAt: now }, reg: x.paper }));
       const bridge: BridgePagesData | undefined =
@@ -335,7 +339,7 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
       }
       // Every set of the file waits on Home under its own code, exactly as a one-paper file does.
       for (const p of papers) await registerPackPaper(ctx.user, { ...p.reg, paper: p.ws });
-      ctx.onDownload?.(sku);
+      if (served !== "build-counted") ctx.onDownload?.(sku);
     },
   };
 }

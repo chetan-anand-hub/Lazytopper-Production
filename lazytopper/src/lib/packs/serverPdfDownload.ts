@@ -32,26 +32,38 @@ async function registerPapers(user: AuthUser | null | undefined, papers: readonl
   for (const p of papers) await registerPackPaper(user, { ...p.reg, code: p.code, paper: { ...p.ws, createdAt: nowIso } });
 }
 
-type Done = { ok: true } | { ok: false; reason: ServerLinkFailure };
+/** `counted`: a link was issued (the server already wrote the `pack_download` entry) although nothing was downloaded. */
+export type Done = { ok: true } | { ok: false; reason: ServerLinkFailure; counted?: true };
 
-async function finish(res: LinkResult<ServerFileLink | ServerZipLink>, user: AuthUser | null | undefined, deps: ServerDownloadDeps): Promise<Done> {
+/**
+ * Grading safety: the papers the server returned must cover EVERY printed paper code of the file(s) asked for, or the upload could not be
+ * graded against the paper that was printed. Anything short of that and nothing is downloaded (the caller builds in the browser).
+ */
+function coversAll(link: ServerFileLink, expectCodes: readonly string[] | undefined): boolean {
+  if (!expectCodes || expectCodes.length === 0) return true;
+  const have = new Set(link.papers.map((p) => p.code));
+  return expectCodes.every((c) => have.has(c));
+}
+
+async function finish(res: LinkResult<ServerFileLink | ServerZipLink>, user: AuthUser | null | undefined, deps: ServerDownloadDeps, expectCodes?: readonly string[]): Promise<Done> {
   if (!res.ok) return res;
+  if (!coversAll(res.link, expectCodes)) return { ok: false, reason: "bad_response", counted: true };
   try {
     (deps.startDownload ?? startBrowserDownload)(res.link.url, res.link.filename);
   } catch {
     // Nothing was handed to the browser: the caller builds the file itself.
-    return { ok: false, reason: "network" };
+    return { ok: false, reason: "network", counted: true };
   }
   await registerPapers(user, res.link.papers, (deps.nowIso ?? (() => new Date().toISOString()))());
   return { ok: true };
 }
 
 /** One file from the server. `{ok:false}` means NOTHING was downloaded: build it in the browser. */
-export async function downloadFileFromServer(args: { packId: string; fileId: string; user?: AuthUser | null }, deps: ServerDownloadDeps = {}): Promise<Done> {
-  return finish(await requestFileLink(args.packId, args.fileId, deps), args.user, deps);
+export async function downloadFileFromServer(args: { packId: string; fileId: string; user?: AuthUser | null; expectCodes?: readonly string[] }, deps: ServerDownloadDeps = {}): Promise<Done> {
+  return finish(await requestFileLink(args.packId, args.fileId, deps), args.user, deps, args.expectCodes);
 }
 
 /** A whole group as one ZIP. `{ok:false}` means nothing was downloaded (the files stay one tap each). */
-export async function downloadZipFromServer(args: { packId: string; groupId: string; user?: AuthUser | null }, deps: ServerDownloadDeps = {}): Promise<Done> {
-  return finish(await requestZipLink(args.packId, args.groupId, deps), args.user, deps);
+export async function downloadZipFromServer(args: { packId: string; groupId: string; user?: AuthUser | null; expectCodes?: readonly string[] }, deps: ServerDownloadDeps = {}): Promise<Done> {
+  return finish(await requestZipLink(args.packId, args.groupId, deps), args.user, deps, args.expectCodes);
 }

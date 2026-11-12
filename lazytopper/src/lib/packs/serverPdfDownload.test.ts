@@ -6,7 +6,7 @@ vi.mock("./packPaperRecord", async (orig) => ({ ...(await orig<typeof import("./
 
 import { buildPackFiles, type BuildContext } from "./buildPackFiles";
 import { downloadFileFromServer, downloadZipFromServer } from "./serverPdfDownload";
-import { isServerPdfDisabled, requestFileLink, requestZipLink, SERVER_LINK_TIMEOUT_MS } from "./serverPdfLinks";
+import { isServerPdfDisabled, requestFileLink, requestZipLink, SERVER_LINK_TIMEOUT_MS, SERVER_ZIP_TIMEOUT_MS } from "./serverPdfLinks";
 import { groupIdForTemplateId, planUnit, templateIdForPackFile } from "./packTemplatePlan";
 import type { OwnedPack } from "../../services/packs";
 
@@ -99,7 +99,7 @@ describe("requestFileLink / requestZipLink", () => {
     expect(await requestFileLink(pack.packId, CT1, { fetchImpl: hang, headers, timeoutMs: 20 })).toEqual({ ok: false, reason: "timeout" });
     expect(await requestFileLink(pack.packId, CT1, { fetchImpl: (async () => resp(200, okBody())) as never, headers: async () => Promise.reject(new Error("signed-out")) })).toEqual({ ok: false, reason: "network" });
     for (const bad of [{}, okBody({ url: "http://insecure/x.pdf" }), okBody({ url: 5 }), okBody({ papers: "no" }), okBody({ papers: [{ code: "X" }] })]) {
-      expect(await requestFileLink(pack.packId, CT1, { fetchImpl: (async () => resp(200, bad)) as never, headers })).toEqual({ ok: false, reason: "bad_response" });
+      expect(await requestFileLink(pack.packId, CT1, { fetchImpl: (async () => resp(200, bad)) as never, headers })).toEqual({ ok: false, reason: "bad_response", counted: true });
     }
     expect(SERVER_LINK_TIMEOUT_MS).toBe(20_000);
   });
@@ -148,13 +148,68 @@ describe("a pack file with serverLinks", () => {
     ["503 not_ready", () => resp(503, { ok: false, error: "not_ready" })],
     ["429", () => resp(429)],
     ["500", () => resp(500)],
-    ["malformed", () => resp(200, { ok: true })],
   ])("falls back silently to the in-browser builder on %s", async (_n, answer) => {
     const h = harness((async () => answer()) as never);
     await h.build();
     expect(h.startDownload).not.toHaveBeenCalled();
     expect(h.exportPdf).toHaveBeenCalledTimes(1);
-    expect(h.onDownload).toHaveBeenCalledTimes(1); // the fallback still counts its own download
+    expect(h.onDownload).toHaveBeenCalledTimes(1); // no link was issued, so the fallback counts its own download
+  });
+
+  it("a link was issued (the server counted) but the answer is unusable or the download cannot start: build here, send NO client pack_download", async () => {
+    const malformed = harness((async () => resp(200, { ok: true })) as never);
+    await malformed.build();
+    expect(malformed.exportPdf).toHaveBeenCalledTimes(1);
+    expect(malformed.onDownload).not.toHaveBeenCalled();
+    const blocked = harness((async () => resp(200, okBody())) as never);
+    blocked.startDownload.mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    await blocked.build();
+    expect(blocked.exportPdf).toHaveBeenCalledTimes(1);
+    expect(blocked.onDownload).not.toHaveBeenCalled();
+    expect(reg.registerPackPaper).toHaveBeenCalledTimes(2); // one per fallback build; nothing from the unused links
+  });
+
+  it("grading safety: a returned paper list that does not cover the file's printed paper code falls back (and does not count twice)", async () => {
+    const h = harness((async () => resp(200, okBody({ papers: [] }))) as never);
+    await h.build();
+    expect(h.startDownload).not.toHaveBeenCalled();
+    expect(h.exportPdf).toHaveBeenCalledTimes(1);
+    expect(h.onDownload).not.toHaveBeenCalled();
+    const other = harness((async () => resp(200, okBody({ papers: [{ ...paper, code: "PK-M-RN-CT9" }] }))) as never);
+    await other.build();
+    expect(other.startDownload).not.toHaveBeenCalled();
+    expect(other.exportPdf).toHaveBeenCalledTimes(1);
+  });
+
+  it("a several-paper (CBQ chapter) file: one server link, every paper registered from the server ws, one download, no client count; a short paper list falls back", async () => {
+    const cbq: OwnedPack = { packId: "pack_cbq:maths", sku: "pack_cbq", target: "maths", pricePaidInr: 199, paidAt: 1, orderId: "order_Cbq1" };
+    const mk = (over: Partial<BuildContext> = {}) => {
+      const exportSetsPdf = vi.fn(async () => "");
+      const onDownload = vi.fn();
+      const startDownload = vi.fn();
+      return { exportSetsPdf, onDownload, startDownload, ctx: { licensee: { name: "Asha Rao", email: "asha@example.in" }, owned: [cbq], user: { uid: "u1" } as never, nowIso: () => NOW, exportSetsPdf, onDownload, serverLinks: true, ...over } as BuildContext };
+    };
+    const probe = mk();
+    const files = await buildPackFiles({ packId: cbq.packId, sku: "pack_cbq", target: "maths" }, probe.ctx);
+    const file = files.find((f) => (f.codes?.length ?? 0) > 1);
+    if (!file || !file.codes) throw new Error("no several-paper file");
+    const papers = file.codes.map((code) => ({ ...paper, code, reg: { ...paper.reg, kind: "worksheet" }, ws: { ...serverWs, worksheetId: `ws-${code}` } }));
+    const good = mk();
+    good.ctx.serverPdf = { fetchImpl: (async () => resp(200, okBody({ papers }))) as never, headers, startDownload: good.startDownload };
+    await (await buildPackFiles({ packId: cbq.packId, sku: "pack_cbq", target: "maths" }, good.ctx)).find((f) => f.id === file.id)!.build();
+    expect(good.startDownload).toHaveBeenCalledTimes(1);
+    expect(good.exportSetsPdf).not.toHaveBeenCalled();
+    expect(good.onDownload).not.toHaveBeenCalled();
+    expect(reg.registerPackPaper.mock.calls.map((c) => (c as unknown as [unknown, { code: string; paper: { createdAt: string } }])[1]).map((x) => [x.code, x.paper.createdAt])).toEqual(file.codes.map((c) => [c, NOW]));
+    reg.registerPackPaper.mockClear();
+    const short = mk();
+    short.ctx.serverPdf = { fetchImpl: (async () => resp(200, okBody({ papers: papers.slice(0, 1) }))) as never, headers, startDownload: short.startDownload };
+    await (await buildPackFiles({ packId: cbq.packId, sku: "pack_cbq", target: "maths" }, short.ctx)).find((f) => f.id === file.id)!.build();
+    expect(short.startDownload).not.toHaveBeenCalled();
+    expect(short.exportSetsPdf).toHaveBeenCalledTimes(1);
+    expect(short.onDownload).not.toHaveBeenCalled(); // the server had counted this link
   });
 
   it("falls back on a network error and on a timeout", async () => {
@@ -202,6 +257,27 @@ describe("a pack file with serverLinks", () => {
 });
 
 describe("downloadZipFromServer", () => {
+  it("a ZIP waits up to 90 s for its link (a file link 20 s); a short paper list means no download", async () => {
+    expect(SERVER_ZIP_TIMEOUT_MS).toBe(90_000);
+    vi.useFakeTimers();
+    try {
+      let aborted = false;
+      const slow = ((_u: string, init: RequestInit) => new Promise((_r, rej) => init.signal?.addEventListener("abort", () => { aborted = true; rej(new Error("abort")); }))) as never;
+      const pending = requestZipLink(pack.packId, "real-numbers", { fetchImpl: slow, headers: async () => ({}) });
+      await vi.advanceTimersByTimeAsync(30_000);
+      expect(aborted).toBe(false);
+      await vi.advanceTimersByTimeAsync(61_000);
+      expect(aborted).toBe(true);
+      expect(await pending).toEqual({ ok: false, reason: "timeout" });
+    } finally {
+      vi.useRealTimers();
+    }
+    const startDownload = vi.fn();
+    const r = await downloadZipFromServer({ packId: pack.packId, groupId: "real-numbers", expectCodes: ["PK-M-RN-CT1", "PK-M-RN-CT2"] }, { fetchImpl: (async () => resp(200, okBody({ files: [] }))) as never, headers, startDownload });
+    expect(r).toEqual({ ok: false, reason: "bad_response", counted: true });
+    expect(startDownload).not.toHaveBeenCalled();
+  });
+
   it("starts the ZIP and registers every paper the ZIP prints from the server's ws (createdAt = the download time)", async () => {
     const two = { ...paper, code: "PK-M-RN-CT2", ws: { ...serverWs, worksheetId: "pack-real-numbers-ct2" } };
     const startDownload = vi.fn();

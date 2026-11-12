@@ -1344,7 +1344,7 @@ type FilesState =
   | { phase: "closed" }
   | { phase: "loading" }
   | { phase: "error" }
-  | { phase: "ready"; groups: Array<{ group: string; files: Array<{ id: string; label: string; codes?: string[]; packId?: string; groupId?: string; build: (onProgress?: (set: number, of: number) => void) => Promise<void> }> }> };
+  | { phase: "ready"; groups: Array<{ group: string; files: Array<{ id: string; label: string; code?: string; codes?: string[]; packId?: string; groupId?: string; build: (onProgress?: (set: number, of: number) => void) => Promise<void> }> }> };
 
 /** PACKS-TIDY-1: what a collapsed owned-pack row (tidy My packs) needs beyond the pack itself. */
 interface TidyRow {
@@ -1434,14 +1434,14 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
     }
   }
 
-  async function downloadZip(g: { group: string; files: Array<{ packId?: string; groupId?: string }> }) {
+  async function downloadZip(g: { group: string; files: Array<{ packId?: string; groupId?: string; code?: string; codes?: string[] }> }) {
     const groupId = g.files[0]?.groupId;
     if (zipBusy || busyId || !groupId) return;
     setZipBusy(groupId);
     setZipFailed(null);
     try {
       const { downloadZipFromServer } = await import("../../lib/packs/serverPdfDownload");
-      const res = await downloadZipFromServer({ packId: pack.packId, groupId, user });
+      const res = await downloadZipFromServer({ packId: pack.packId, groupId, user, expectCodes: [...new Set(g.files.flatMap((f) => f.codes ?? (f.code ? [f.code] : [])))] });
       if (res.ok) setZipSaved((prev) => new Set(prev).add(groupId));
       else if (res.reason === "disabled" || res.reason === "unavailable") setZipOff(true);
       else setZipFailed(groupId);

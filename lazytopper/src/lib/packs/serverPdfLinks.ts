@@ -16,6 +16,8 @@ export const PACK_FILE_LINK_ENDPOINT = "/api/packs/file-link";
 export const PACK_ZIP_LINK_ENDPOINT = "/api/packs/zip-link";
 /** How long the browser waits for a link before it builds the file itself. */
 export const SERVER_LINK_TIMEOUT_MS = 20_000;
+/** A ZIP of a cold chapter is stamped file by file on the server and can take well over 20 s: it waits longer (the button says "Preparing" meanwhile). */
+export const SERVER_ZIP_TIMEOUT_MS = 90_000;
 
 export type ServerLinkFailure = "disabled" | "unavailable" | "not_ready" | "busy" | "refused" | "timeout" | "network" | "bad_response";
 
@@ -35,7 +37,8 @@ export interface ServerZipLink extends ServerFileLink {
   files: Array<{ fileId: string; filename: string; label: string; codes: string[] }>;
 }
 
-export type LinkResult<T> = { ok: true; link: T } | { ok: false; reason: ServerLinkFailure };
+/** `counted`: the server DID answer 200 (so it already wrote the `pack_download` entry) but the answer was unusable. */
+export type LinkResult<T> = { ok: true; link: T } | { ok: false; reason: ServerLinkFailure; counted?: true };
 
 export interface LinkDeps {
   fetchImpl?: typeof fetch;
@@ -104,7 +107,7 @@ async function post<T>(endpoint: string, payload: Record<string, string>, read: 
       return { ok: false, reason: "refused" };
     }
     const link = read(await res.json().catch(() => null));
-    return link ? { ok: true, link } : { ok: false, reason: "bad_response" };
+    return link ? { ok: true, link } : { ok: false, reason: "bad_response", counted: true };
   } catch {
     return { ok: false, reason: timedOut ? "timeout" : "network" };
   } finally {
@@ -117,5 +120,5 @@ export function requestFileLink(packId: string, fileId: string, deps: LinkDeps =
 }
 
 export function requestZipLink(packId: string, group: string, deps: LinkDeps = {}): Promise<LinkResult<ServerZipLink>> {
-  return post(PACK_ZIP_LINK_ENDPOINT, { packId, group }, readZip, deps);
+  return post(PACK_ZIP_LINK_ENDPOINT, { packId, group }, readZip, { timeoutMs: SERVER_ZIP_TIMEOUT_MS, ...deps });
 }
