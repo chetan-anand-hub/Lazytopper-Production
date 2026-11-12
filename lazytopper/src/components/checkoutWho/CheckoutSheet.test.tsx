@@ -278,7 +278,7 @@ describe("CHECKOUT-SELF-2 - signed out opens at \"Buy for yourself\"", () => {
 
   it("first screen: title, the real price + breakup, ONE Pay button, no identifier box; the box is a secondary link", () => {
     const buySelf = selfPaid();
-    mount({ item: CBQ_GST, selfFirst: true, buySelf });
+    mount({ item: CBQ_GST, selfFirst: true, buySelf, attachOn: false });
     expect(screen.getByText("Buy for yourself")).toBeTruthy();
     expect(screen.queryByTestId("who-first")).toBeNull();
     expect(screen.getByTestId("who-gst-breakdown").textContent).toBe("₹49 + ₹9 GST (18%) = ₹58");
@@ -328,7 +328,7 @@ describe("CHECKOUT-SELF-2 - signed out opens at \"Buy for yourself\"", () => {
 
   it("'Buying for someone else?' opens today's identifier box, unchanged (recipient order, guest_pay_start 'other')", async () => {
     const buy = vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "paid", confirmed: true, amountInr: 58, paymentId: "p" }));
-    mount({ item: CBQ_GST, selfFirst: true, buy });
+    mount({ item: CBQ_GST, selfFirst: true, buy, attachOn: false });
     fireEvent.click(screen.getByTestId("who-someone-else"));
     type("who-first", "98765 43210");
     fireEvent.click(screen.getByTestId("who-pay"));
@@ -348,5 +348,14 @@ describe("CHECKOUT-SELF-2 - signed out opens at \"Buy for yourself\"", () => {
     mount({ selfFirst: false });
     expect(screen.getByTestId("who-first")).toBeTruthy();
     expect(screen.queryByTestId("who-pay-self-out")).toBeNull();
+  });
+
+  it("SELFPAY-ATTACH-1c: with the pay-first flow ON, the signed-out sheet drops the old help line and the pre-payment someone-else link", () => {
+    mount({ item: CBQ_GST, selfFirst: true, attachOn: true });
+    expect(screen.getByTestId("who-pay-self-out")).toBeTruthy();
+    expect(screen.getByTestId("who-attach-before")).toBeTruthy();
+    expect(screen.queryByTestId("who-self-help")).toBeNull();
+    expect(screen.queryByTestId("who-someone-else")).toBeNull();
+    expect(screen.getByTestId("who-sign-in-first")).toBeTruthy();
   });
 });

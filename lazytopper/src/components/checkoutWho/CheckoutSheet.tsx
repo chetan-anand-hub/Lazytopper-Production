@@ -267,16 +267,20 @@ export default function CheckoutSheet({
     const selfError = step.name === "selfOut" ? step.error : undefined;
     body = (
       <>
-        <p className="lt-gps__fine" data-testid="who-self-help">{SELF_HELP}</p>
+        {/* SELFPAY-ATTACH-1c (owner 12 Nov): with the pay-first flow the choice comes AFTER payment, so the old "Pay first. Then sign
+            in…" line and the pre-payment "Buying for someone else?" link are dropped; both stay when the attach flow is switched off. */}
+        {!showAttach && <p className="lt-gps__fine" data-testid="who-self-help">{SELF_HELP}</p>}
         {selfError && <p className="lt-gps__error" role="alert">{selfError}</p>}
         {step.name === "selfOut" && step.closed && <p className="lt-gps__fine" role="status">{WHO_CLOSED}</p>}
         <button type="button" className="lt-gps__primary" disabled={busy} data-testid="who-pay-self-out" onClick={() => void paySelf()}>
           {busy ? "Opening payment…" : payReadBack(item.priceDisplay, "")}
         </button>
         {showAttach && <p className="lt-gps__fine" data-testid="who-attach-before">{ATTACH_BEFORE_PAY}</p>}
-        <button type="button" className="lt-gps__textlink" disabled={busy} data-testid="who-someone-else" onClick={() => setStep({ name: "form" })}>
-          {WHO_SOMEONE_ELSE}
-        </button>
+        {!showAttach && (
+          <button type="button" className="lt-gps__textlink" disabled={busy} data-testid="who-someone-else" onClick={() => setStep({ name: "form" })}>
+            {WHO_SOMEONE_ELSE}
+          </button>
+        )}
         <button type="button" className="lt-gps__textlink" disabled={busy} onClick={onSignIn} data-testid="who-sign-in-first">
           {WHO_HAVE_ACCOUNT}
         </button>
