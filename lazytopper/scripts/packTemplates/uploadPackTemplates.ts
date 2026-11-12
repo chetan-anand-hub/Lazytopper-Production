@@ -19,6 +19,7 @@ import { cert, initializeApp } from "firebase-admin/app";
 import { getStorage } from "firebase-admin/storage";
 import { putRendered, publishManifest, type TemplateStore } from "../../src/lib/packs/packTemplatePublish";
 import type { ManifestFont } from "../../src/lib/packs/packTemplateManifest";
+import { PINNED_FONTS } from "../../src/lib/packs/packTemplateFonts";
 import type { PlanFileJson } from "./generatePackTemplates";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -78,14 +79,14 @@ function dryStore(): TemplateStore {
   };
 }
 
+/** The pinned fonts, each checked against its pinned sha256 (a swapped file aborts; the manifest records the constants). */
 function fontsOf(): ManifestFont[] {
-  const dir = path.join(here, "fonts");
-  return [[400, "Inter-Regular.otf"], [500, "Inter-Medium.otf"], [600, "Inter-SemiBold.otf"], [700, "Inter-Bold.otf"], [800, "Inter-ExtraBold.otf"]].map(([weight, file]) => ({
-    family: "Inter" as const,
-    weight: weight as number,
-    file: `lazytopper/scripts/packTemplates/fonts/${file}`,
-    sha256: sha(fs.readFileSync(path.join(dir, file as string))),
-  }));
+  const repoRoot = path.resolve(here, "../../..");
+  for (const f of PINNED_FONTS) {
+    const actual = sha(fs.readFileSync(path.join(repoRoot, f.file)));
+    if (actual !== f.sha256) throw new Error(`font ${f.file} does not match its pinned sha256`);
+  }
+  return [...PINNED_FONTS];
 }
 
 async function main(): Promise<void> {

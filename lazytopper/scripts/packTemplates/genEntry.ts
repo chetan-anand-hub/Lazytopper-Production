@@ -4,10 +4,16 @@
 //                                       `template` option); the PDF arrives as a browser download, the measured marks are returned
 //   window.__renderBridge(data)      -> pages 2-3 of a file (one buyer variant) as a 2-page PDF, base64
 // No auth, no Firestore, no licensee: the licensee is a placeholder and its text is never painted.
+// The SAME global stylesheet a buyer's browser has (main.tsx imports it): the Fraunces @font-face, its metric-matched fallback and the
+// `* { margin: 0; padding: 0; box-sizing: border-box }` reset the print documents were laid out against.
+import "../../src/styles.css";
 import { packIdOf, type OwnedPack, type PackSku, type PackSubject } from "../../src/services/packs";
 import { buildPackFiles, type BuildContext } from "../../src/lib/packs/buildPackFiles";
 import { planAll, planBridges, packUnits, templateIdForPackFile, templateUnits, type PackUnitsDef, type PlanBridge, type PlanFile, type TemplateUnit } from "../../src/lib/packs/packTemplatePlan";
 import { PACK_SYLLABUS_EXCLUDED } from "../../src/lib/packs/packContent";
+import { PINNED_FONTS } from "../../src/lib/packs/packTemplateFonts";
+import { getFiguresForQuestion } from "../../src/data/visualConceptRegistry";
+import { printFigureSrc } from "../../src/components/worksheet/printFigures";
 import type { TemplateMarks } from "../../src/components/worksheet/worksheetPdfExport";
 import type { BridgePagesData } from "../../src/lib/packs/packBridge";
 
@@ -17,6 +23,42 @@ declare global {
     __renderTemplate?: (templateId: string) => Promise<TemplateMarks>;
     __renderBridge?: (data: BridgePagesData) => Promise<string>;
   }
+}
+
+/**
+ * Every pinned family/weight must be LOADED before anything is rasterised: html2canvas paints with whatever face is ready, and a fresh
+ * page's lazily-declared @font-face may not be. A face that did not load fails the render (a template in a fallback font is worse than none).
+ */
+async function ensureFonts(): Promise<void> {
+  for (const f of PINNED_FONTS) {
+    const spec = `${f.weight} 16px "${f.family}"`;
+    const faces = await document.fonts.load(spec, "Aa0 Real Numbers");
+    if (faces.length === 0 || faces.some((x) => x.status !== "loaded")) throw new Error(`font not loaded: ${spec}`);
+  }
+  await document.fonts.ready;
+}
+
+const figureHashes = new Map<string, Promise<string>>();
+async function sha256OfUrl(src: string): Promise<string> {
+  const res = await fetch(src);
+  if (!res.ok) throw new Error(`figure image missing: ${src} (${res.status})`);
+  const digest = await crypto.subtle.digest("SHA-256", await res.arrayBuffer());
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** The official figures each file prints (registry lookup by question id, as the print document does) + their image hashes. */
+async function figuresOf(f: PlanFile): Promise<NonNullable<PlanFile["figures"]>> {
+  const out: NonNullable<PlanFile["figures"]> = [];
+  for (const ws of [f.ws, ...f.papers.map((p) => p.ws)]) {
+    for (const q of ws?.questions ?? []) {
+      for (const fig of getFiguresForQuestion(q.id)) {
+        const src = printFigureSrc(fig.filePath);
+        if (!figureHashes.has(src)) figureHashes.set(src, sha256OfUrl(src));
+        out.push({ questionId: q.id, id: fig.id, filePath: fig.filePath, sha256: await (figureHashes.get(src) as Promise<string>) });
+      }
+    }
+  }
+  return out;
 }
 
 /** The drawn papers carry this stamp; the printed dates are blank in a template, so the value never reaches a page. */
@@ -36,6 +78,7 @@ function packOf(unit: TemplateUnit): { packId: string; sku: PackSku; target: str
 
 window.__plan = async () => {
   const files = await planAll(templateUnits());
+  for (const f of files) f.figures = await figuresOf(f);
   // Rows judged OUT of the 2026-27 syllabus never reach a pack file (packContent); a template that held one is refused here too.
   for (const f of files) {
     for (const ws of [f.ws, ...f.papers.map((p) => p.ws)]) {
@@ -48,6 +91,7 @@ window.__plan = async () => {
 };
 
 window.__renderTemplate = async (templateId) => {
+  await ensureFonts();
   const mod = await import("../../src/components/worksheet/worksheetPdfExport");
   const unit = unitOf(templateId);
   const ref = packOf(unit);
@@ -70,6 +114,7 @@ window.__renderTemplate = async (templateId) => {
 };
 
 window.__renderBridge = async (data) => {
+  await ensureFonts();
   const [{ default: html2canvas }, { jsPDF }, mod] = await Promise.all([
     import("html2canvas"),
     import("jspdf"),
@@ -86,4 +131,3 @@ window.__renderBridge = async (data) => {
   const uri = pdf.output("datauristring");
   return uri.slice(uri.indexOf("base64,") + 7);
 };
-

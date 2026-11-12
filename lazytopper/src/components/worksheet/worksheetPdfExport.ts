@@ -35,6 +35,7 @@ import type { BridgePagesData } from "../../lib/packs/packBridge";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import {
   measureStamps,
+  LICENCE_FIT_RULE,
   newTemplateMarks,
   TEMPLATE_PLACEHOLDER,
   type FooterMarks,
@@ -290,7 +291,7 @@ export function licenseeLine(l: { name: string; email: string; orderId: string }
   return `Licensed to ${who ? `${who} \u00b7 ` : ""}Order ${clean(l.orderId)} \u2014 personal use only`;
 }
 
-/** Fit the licensee line on one footer row: shrink 9pt down to 7pt, then shorten the name, then the e-mail. */
+/** Fit the licensee line on one footer row: shrink 10pt down to 9pt, then shorten the name, then the e-mail. */
 function fitLicensee(pdf: Doc, l: { name: string; email: string; orderId: string }, maxW: number): { text: string; size: number } {
   const measure = (t: string, size: number): number => {
     pdf.setFontSize(size);
@@ -498,11 +499,15 @@ function recordCoverMarks(marks: TemplateMarks, coverHost: HTMLElement): void {
   const cover = (coverHost.querySelector(".lt-cover") as HTMLElement | null) ?? coverHost;
   const r = cover.getBoundingClientRect();
   const mmPerPx = PAGE_W / (r.width || 1);
+  const stamps = measureStamps(cover, (x, y) => ({ xMm: x * mmPerPx, yMm: y * mmPerPx }), mmPerPx);
+  // "Edition <date>" is pushed to the right by flex (space-between): a real date is shorter or longer, so it is anchored by its right edge
+  for (const s of stamps) if (s.name === "edition") Object.assign(s, { anchor: "right", rightEdgeMm: s.xMm + s.wMm });
   marks.cover = {
+    licenceFit: LICENCE_FIT_RULE,
     wPx: Math.round(r.width),
     hPx: Math.round(r.height),
     mmPerPx,
-    stamps: measureStamps(cover, (x, y) => ({ xMm: x * mmPerPx, yMm: y * mmPerPx }), mmPerPx),
+    stamps,
   };
 }
 

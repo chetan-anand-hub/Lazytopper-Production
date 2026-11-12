@@ -51,9 +51,26 @@ export interface StampBox {
   /** Number of text lines the placeholder wrapped to (the stamper re-wraps real text to the same width). */
   lines: number;
   style: StampStyle;
+  /** Which edge the real text is aligned to inside the box: "right" -> stamp it so its RIGHT edge is at `rightEdgeMm` (the edition). */
+  anchor?: "left" | "right";
+  rightEdgeMm?: number;
 }
 
+/**
+ * How the stamper must fit a real licence line into the template box (recorded in every manifest entry so PR-B cannot overflow it):
+ * the box is laid out for `maxLines` lines at the recorded size. A longer line is shrunk in `stepPx` steps down to `minFontSizePx`
+ * (same weight and colour), then the name and finally the e-mail are shortened with "..." (the order id and "personal use only"
+ * are never cut) - the footer line's own rule (fitLicensee).
+ */
+export interface LicenceFitRule {
+  maxLines: number;
+  minFontSizePx: number;
+  stepPx: number;
+}
+export const LICENCE_FIT_RULE: LicenceFitRule = { maxLines: 2, minFontSizePx: 11, stepPx: 0.5 };
+
 export interface CoverMarks {
+  licenceFit: LicenceFitRule;
   /** The cover is laid out at wPx x hPx CSS px and placed full-bleed on A4. */
   wPx: number;
   hPx: number;

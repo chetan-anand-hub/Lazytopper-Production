@@ -111,6 +111,8 @@ describe("exportWorksheetPdf - template option", () => {
     expect(marks.footer).toMatchObject({ xMm: 12, baselineYMm: PACK_QR_GEOMETRY.licY, withQr: true, firstPage: firstBody, lastPage: pages, font: "Helvetica" });
     expect(marks.footer?.maxWidthMm).toBeCloseTo(210 - 24 - 18 - 4, 5);
     expect(marks.cover?.stamps.map((s) => s.name).sort()).toEqual(["box", "boxlabel", "edition", "licence", "redownload", "textcol"]);
+    expect(marks.cover?.licenceFit).toEqual({ maxLines: 2, minFontSizePx: 11, stepPx: 0.5 });
+    expect(marks.cover?.stamps.find((s) => s.name === "edition")).toMatchObject({ anchor: "right" });
     expect(marks.body.map((b) => b.name)).toEqual(["generated"]);
     expect(marks.body[0].page).toBe(firstBody);
   });

@@ -62,6 +62,8 @@ const opts = {
   cover: { kicker: "CHAPTER QUESTION BANK", title: "Real Numbers", subtitle: "Class 10 CBSE", stats: [{ value: "2", label: "questions" }, { value: "3", label: "marks" }] },
   paidAtMs: 1794249000000,
   filename: "golden.pdf",
+  // pages 2-3 (BRIDGE-PDF-1) are part of the default path the template option touched: they must be in the golden too
+  bridge: { packLabel: "Real Numbers \u00b7 Chapter Pack", exampleCode: "PK-M-RN-CT1", ownCode: true, boardPassCard: true },
 };
 const GOLDEN = path.join(__dirname, "worksheetPdfExport.defaultRender.golden.json");
 

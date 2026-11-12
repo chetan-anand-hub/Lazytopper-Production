@@ -6,6 +6,14 @@
   ],
   [
    "html2canvas",
+   "<div aria-hidden=\"true\" style=\"position: fixed; left: -100000px; top: 0px; width: 794px; background: rgb(255, 255, 255); z-index: -1; pointer-events: none;\"><div class=\"lt-br\" data-testid=\"print-bridge-mark\"><style> /* Page 2 runs 20 px tighter than the mock-up (gap 26 -> 20, top 56 -> 48): with the real fonts its last line (the footer) fell off A4. */ .lt-br { width: 794px; height: 1123px; box-sizing: border-box; padding: 48px 60px 44px; background: #ffffff; font-family: \"Inter\", ui-sans-serif, system-ui, sans-serif; color: #0f1b33; display: flex; flex-direction: column; gap: 20px; overflow: hidden; } .lt-br--views { gap: 22px; } .lt-br *, .lt-br *::before, .lt-br *::after { box-sizing: border-box; } .lt-br b { color: #0f1b33; } .lt-br__code { white-space: nowrap; } .lt-br__hd { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #0f1b33; padding-bottom: 12px; gap: 16px; } .lt-br__pk { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #46536b; min-width: 0; overflow-wrap: anywhere; } .lt-br__site { font-size: 13px; color: #46536b; flex-shrink: 0; } .lt-br__intro { display: flex; flex-direction: column; gap: 8px; } .lt-br__intro--tight { gap: 6px; } .lt-br__h1 { margin: 0; font-family: \"Fraunces\", Georgia, serif; font-weight: 600; font-size: 40px; line-height: 1.1; color: #0f1b33; } .lt-br__h1--s { font-size: 32px; line-height: 1.15; } .lt-br__lede { margin: 0; font-size: 16px; line-height: 1.5; color: #33405a; max-width: 600px; } .lt-br__lede--s { font-size: 14px; max-width: none; } .lt-br__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } .lt-br__step { border: 1px solid #d5dbe6; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px; } .lt-br__stepn { font-size: 13px; font-weight: 700; color: #15803d; } .lt-br__stept { font-size: 15px; font-weight: 600; } .lt-br__stepb { font-size: 13px; line-height: 1.45; color: #46536b; overflow-wrap: anywhere; } .lt-br__real { display: flex; gap: 24px; align-items: flex-start; } .lt-br__realL { display: flex; flex-direction: column; gap: 8px; width: 300px; flex-shrink: 0; } .lt-br__realR { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; } .lt-br__cap { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #46536b; } .lt-br__note { font-size: 11px; line-height: 1.4; color: #5a667d; } .lt-br__shot { position: relative; overflow: hidden; background: #0f1b33; } .lt-br__shot img { display: block; width: 100%; height: 100%; } .lt-br__shot--total { width: 300px; height: 302px; border-radius: 12px; } .lt-br__shot--q7 { width: 100%; height: 150px; border-radius: 10px; margin-top: 4px; } .lt-br__shot--tile { width: 210px; height: 212px; border-radius: 10px; flex-shrink: 0; } .lt-br__caught { display: flex; flex-direction: column; gap: 8px; font-size: 13px; line-height: 1.4; } .lt-br__crow { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #e6eaf1; padding-bottom: 6px; } .lt-br__crow:last-child { border-bottom: 0; padding-bottom: 0; } .lt-br__cmark { font-weight: 600; white-space: nowrap; } .lt-br__pass { background: #f0f7f2; border: 1px solid #bfe0c9; border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; } .lt-br__passh { font-size: 16px; font-weight: 700; color: #0f1b33; } .lt-br__passb { font-size: 14px; line-height: 1.5; color: #33405a; } .lt-br__passl { align-self: flex-start; font-size: 13px; color: #15803d; font-weight: 600; } .lt-br__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 22px; } .lt-br__view { display: flex; flex-direction: column; gap: 6px; } .lt-br__vl { font-size: 12px; line-height: 1.4; } .lt-br__next { display: flex; gap: 22px; align-items: center; border: 1px solid #d5dbe6; border-radius: 14px; padding: 16px 18px; } .lt-br__nextt { display: flex; flex-direction: column; gap: 8px; min-width: 0; } .lt-br__nexth { font-size: 15px; font-weight: 700; } .lt-br__nextb { font-size: 13px; line-height: 1.5; color: #33405a; } .lt-br__foot { margin-top: auto; display: flex; justify-content: space-between; gap: 16px; font-size: 11px; color: #5a667d; border-top: 1px solid #e6eaf1; padding-top: 10px; } </style><div class=\"lt-br__hd\"><span class=\"lt-br__pk\">Real Numbers · Chapter Pack</span><span class=\"lt-br__site\">lazytopper.com</span></div><div class=\"lt-br__intro\"><h1 class=\"lt-br__h1\">Get this paper marked like a CBSE examiner</h1><p class=\"lt-br__lede\">Write your answers on paper, then upload a photo. You get your marks step by step, where each half-mark went, and what to fix first.</p></div><div class=\"lt-br__steps\"><div class=\"lt-br__step\"><span class=\"lt-br__stepn\">STEP 1</span><span class=\"lt-br__stept\">Write your answers</span><span class=\"lt-br__stepb\">On plain paper. Write the paper code at the top — it is printed on every paper, e.g. <b class=\"lt-br__code\">PK-M-RN-CT1</b>. Or photograph the QR at the bottom of the paper.</span></div><div class=\"lt-br__step\"><span class=\"lt-br__stepn\">STEP 2</span><span class=\"lt-br__stept\">Open My packs</span><span class=\"lt-br__stepb\">Sign in at <b data-pdf-link=\"https://www.lazytopper.com/packs#my-packs\">lazytopper.com/packs</b> with the email or phone number you bought with, and tap the paper.</span></div><div class=\"lt-br__step\"><span class=\"lt-br__stepn\">STEP 3</span><span class=\"lt-br__stept\">Upload and get marked</span><span class=\"lt-br__stepb\">Tap your MCQ options, add a photo of each page. Marks arrive in about a minute.</span></div></div><div class=\"lt-br__real\"><div class=\"lt-br__realL\"><span class=\"lt-br__cap\">A real marked paper</span><div class=\"lt-br__shot lt-br__shot--total\"><img alt=\"Scorecard: Real Numbers Chapter Test 1, 25.5 out of 31\" src=\"/media/pack-bridge/sample-total.jpg\"></div><span class=\"lt-br__note\">This paper (PK-M-RN-CT1) was written by our team with six deliberate mistakes, then marked by LazyTopper exactly as yours will be.</span></div><div class=\"lt-br__realR\"><span class=\"lt-br__cap\">What the marking caught</span><div class=\"lt-br__caught\"><div class=\"lt-br__crow\"><span>Q7 · answer <b>x = 60</b>, no unit</span><span class=\"lt-br__cmark\">−½ · Presentation</span></div><div class=\"lt-br__crow\"><span>Q10 · used HCF where LCM was needed</span><span class=\"lt-br__cmark\">−1 · Concept gap</span></div><div class=\"lt-br__crow\"><span>Q11 · copied 1512 as 1152 from own line</span><span class=\"lt-br__cmark\">−½ · Silly slip</span></div><div class=\"lt-br__crow\"><span>Q14 · 5000 ÷ 25 = 250; later steps still credited</span><span class=\"lt-br__cmark\">−½ · Calculation</span></div><div class=\"lt-br__crow\"><span>Q3 · wrong option, marked on the answer alone</span><span class=\"lt-br__cmark\">0 / 1</span></div><div class=\"lt-br__crow\"><span>Q9 · left blank</span><span class=\"lt-br__cmark\">0 / 2</span></div></div><div class=\"lt-br__shot lt-br__shot--q7\"><img alt=\"Question 7 marked 1.5 out of 2: write the unit cm with your final answer\" src=\"/media/pack-bridge/q7-strip.jpg\"></div></div></div><div class=\"lt-br__pass\" data-testid=\"print-bridge-pass\"><span class=\"lt-br__passh\">Every account gets its first paper of each kind marked free.</span><span class=\"lt-br__passb\">This pack gives you every question at once. <b>Board Pass</b> marks every paper you write till your boards — with CBSE examiner style marking, practice aimed at the topics where you lose marks, and your personal tutor for any doubt.</span><span class=\"lt-br__passl\" data-pdf-link=\"https://www.lazytopper.com/pricing\">lazytopper.com/pricing</span></div><div class=\"lt-br__foot\"><span>CBSE Class 10 · 2026-27 syllabus</span><span>Page 2</span></div></div></div>"
+  ],
+  [
+   "html2canvas",
+   "<div aria-hidden=\"true\" style=\"position: fixed; left: -100000px; top: 0px; width: 794px; background: rgb(255, 255, 255); z-index: -1; pointer-events: none;\"><div class=\"lt-br lt-br--views\" data-testid=\"print-bridge-views\"><style> /* Page 2 runs 20 px tighter than the mock-up (gap 26 -> 20, top 56 -> 48): with the real fonts its last line (the footer) fell off A4. */ .lt-br { width: 794px; height: 1123px; box-sizing: border-box; padding: 48px 60px 44px; background: #ffffff; font-family: \"Inter\", ui-sans-serif, system-ui, sans-serif; color: #0f1b33; display: flex; flex-direction: column; gap: 20px; overflow: hidden; } .lt-br--views { gap: 22px; } .lt-br *, .lt-br *::before, .lt-br *::after { box-sizing: border-box; } .lt-br b { color: #0f1b33; } .lt-br__code { white-space: nowrap; } .lt-br__hd { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #0f1b33; padding-bottom: 12px; gap: 16px; } .lt-br__pk { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #46536b; min-width: 0; overflow-wrap: anywhere; } .lt-br__site { font-size: 13px; color: #46536b; flex-shrink: 0; } .lt-br__intro { display: flex; flex-direction: column; gap: 8px; } .lt-br__intro--tight { gap: 6px; } .lt-br__h1 { margin: 0; font-family: \"Fraunces\", Georgia, serif; font-weight: 600; font-size: 40px; line-height: 1.1; color: #0f1b33; } .lt-br__h1--s { font-size: 32px; line-height: 1.15; } .lt-br__lede { margin: 0; font-size: 16px; line-height: 1.5; color: #33405a; max-width: 600px; } .lt-br__lede--s { font-size: 14px; max-width: none; } .lt-br__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } .lt-br__step { border: 1px solid #d5dbe6; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px; } .lt-br__stepn { font-size: 13px; font-weight: 700; color: #15803d; } .lt-br__stept { font-size: 15px; font-weight: 600; } .lt-br__stepb { font-size: 13px; line-height: 1.45; color: #46536b; overflow-wrap: anywhere; } .lt-br__real { display: flex; gap: 24px; align-items: flex-start; } .lt-br__realL { display: flex; flex-direction: column; gap: 8px; width: 300px; flex-shrink: 0; } .lt-br__realR { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; } .lt-br__cap { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #46536b; } .lt-br__note { font-size: 11px; line-height: 1.4; color: #5a667d; } .lt-br__shot { position: relative; overflow: hidden; background: #0f1b33; } .lt-br__shot img { display: block; width: 100%; height: 100%; } .lt-br__shot--total { width: 300px; height: 302px; border-radius: 12px; } .lt-br__shot--q7 { width: 100%; height: 150px; border-radius: 10px; margin-top: 4px; } .lt-br__shot--tile { width: 210px; height: 212px; border-radius: 10px; flex-shrink: 0; } .lt-br__caught { display: flex; flex-direction: column; gap: 8px; font-size: 13px; line-height: 1.4; } .lt-br__crow { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #e6eaf1; padding-bottom: 6px; } .lt-br__crow:last-child { border-bottom: 0; padding-bottom: 0; } .lt-br__cmark { font-weight: 600; white-space: nowrap; } .lt-br__pass { background: #f0f7f2; border: 1px solid #bfe0c9; border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; } .lt-br__passh { font-size: 16px; font-weight: 700; color: #0f1b33; } .lt-br__passb { font-size: 14px; line-height: 1.5; color: #33405a; } .lt-br__passl { align-self: flex-start; font-size: 13px; color: #15803d; font-weight: 600; } .lt-br__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 22px; } .lt-br__view { display: flex; flex-direction: column; gap: 6px; } .lt-br__vl { font-size: 12px; line-height: 1.4; } .lt-br__next { display: flex; gap: 22px; align-items: center; border: 1px solid #d5dbe6; border-radius: 14px; padding: 16px 18px; } .lt-br__nextt { display: flex; flex-direction: column; gap: 8px; min-width: 0; } .lt-br__nexth { font-size: 15px; font-weight: 700; } .lt-br__nextb { font-size: 13px; line-height: 1.5; color: #33405a; } .lt-br__foot { margin-top: auto; display: flex; justify-content: space-between; gap: 16px; font-size: 11px; color: #5a667d; border-top: 1px solid #e6eaf1; padding-top: 10px; } </style><div class=\"lt-br__hd\"><span class=\"lt-br__pk\">Real Numbers · Chapter Pack</span><span class=\"lt-br__site\">lazytopper.com</span></div><div class=\"lt-br__intro lt-br__intro--tight\"><h1 class=\"lt-br__h1 lt-br__h1--s\">What you get back, screen by screen</h1><p class=\"lt-br__lede lt-br__lede--s\">The scorecard for the sample paper PK-M-RN-CT1 — 25.5 / 31. Scroll down it on your phone the same way.</p></div><div class=\"lt-br__grid\"><div class=\"lt-br__view\"><div class=\"lt-br__shot lt-br__shot--tile\"><img alt=\"Scorecard first view: 25.5 out of 31 and what to fix first\" src=\"/media/pack-bridge/view1-score.jpg\"></div><span class=\"lt-br__vl\"><b>1 · Your score</b> and the one thing to fix first</span></div><div class=\"lt-br__view\"><div class=\"lt-br__shot lt-br__shot--tile\"><img alt=\"Marks by section and by concept\" src=\"/media/pack-bridge/view2-sections.jpg\"></div><span class=\"lt-br__vl\"><b>2 · By section and concept</b> — where the paper went well</span></div><div class=\"lt-br__view\"><div class=\"lt-br__shot lt-br__shot--tile\"><img alt=\"Where your marks went: careless slips, not attempted\" src=\"/media/pack-bridge/view3-where.jpg\"></div><span class=\"lt-br__vl\"><b>3 · Where your marks went</b> — concept gap, slips, presentation</span></div><div class=\"lt-br__view\"><div class=\"lt-br__shot lt-br__shot--tile\"><img alt=\"Question 10 marked 1 out of 2: LCM needed, not HCF\" src=\"/media/pack-bridge/view4-q10.jpg\"></div><span class=\"lt-br__vl\"><b>4 · Each answer, step by step</b> — Q10, HCF used where LCM was needed</span></div><div class=\"lt-br__view\"><div class=\"lt-br__shot lt-br__shot--tile\"><img alt=\"Question 11 marked 2.5 out of 3: 1512 miscopied as 1152\" src=\"/media/pack-bridge/view5-q11.jpg\"></div><span class=\"lt-br__vl\"><b>5 · Silly slips caught</b> — Q11, 1512 copied as 1152</span></div><div class=\"lt-br__view\"><div class=\"lt-br__shot lt-br__shot--tile\"><img alt=\"Question 14 marked 3.5 out of 4 with error carried forward\" src=\"/media/pack-bridge/view6-q14.jpg\"></div><span class=\"lt-br__vl\"><b>6 · Fair like the board</b> — Q14, later steps credited after a slip</span></div></div><div class=\"lt-br__next\"><div class=\"lt-br__shot lt-br__shot--tile\"><img alt=\"What next: graded answer sheet, practise the marks you lost, solution key\" src=\"/media/pack-bridge/view7-next.jpg\"></div><div class=\"lt-br__nextt\"><span class=\"lt-br__nexth\">7 · Then: a graded answer sheet PDF</span><span class=\"lt-br__nextb\">Every answer marked step by step with \"should be\" lines, ready to keep in your file — plus practice for the marks you lost.</span><span class=\"lt-br__nextb\">The full sample graded sheet is in <b data-pdf-link=\"https://www.lazytopper.com/media/lazytopper-marked-sample-PK-M-RN-CT1.pdf\">My packs → See a marked sample</b>.</span></div></div><div class=\"lt-br__foot\"><span>Sample paper written by our team with deliberate mistakes; marked by LazyTopper.</span><span>Page 3</span></div></div></div>"
+  ],
+  [
+   "html2canvas",
    "<div aria-hidden=\"true\" style=\"position: fixed; left: -100000px; top: 0px; width: 760px; background: rgb(255, 255, 255); z-index: -1; pointer-events: none;\"><div class=\"lt-wsp\" data-kind=\"questions\" data-question-count=\"2\"><style> .lt-wsp { --p-accent: #3fbf82; --p-navy: #15233a; --p-ink: #0f1b2d; --p-body: #0f1b2d; --p-muted: #3a4a60; --p-line: #c9d1dc; --p-line2: #dde3ea; --p-chip-bg: #e3f5ec; --p-chip-fg: #14573a; --p-green: hsl(152, 55%, 30%); --p-fd: \"Fraunces\", Georgia, serif; --p-fb: \"Inter\", ui-sans-serif, system-ui, sans-serif; position: relative; background: #ffffff; color: var(--p-ink); font-family: var(--p-fb); font-size: 17px; line-height: 1.6; padding: 0 22px 18px; overflow: hidden; } .lt-wsp__content { position: relative; z-index: 1; } .lt-wsp__wm { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; display: grid; grid-template-columns: repeat(3, 1fr); align-content: start; gap: 64px 0; padding-top: 70px; } .lt-wsp__wm span { font-family: var(--p-fd); font-weight: 600; font-size: 30px; color: var(--p-green); transform: rotate(-30deg); text-align: center; letter-spacing: 0.05em; white-space: nowrap; } .lt-wsp__wm--light span { opacity: 0.05; } .lt-wsp__wm--key span { opacity: 0.10; } .lt-wsp__mast { display: flex; align-items: center; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--p-line); padding-bottom: 12px; margin-bottom: 4px; } .lt-wsp__brand { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; } .lt-wsp__logo { width: 32px; height: 32px; border-radius: 8px; display: block; } .lt-wsp__wmk { height: 30px; width: auto; display: block; } .lt-wsp__right { font-size: 14px; color: var(--p-muted); text-align: right; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .lt-wsp__titlerow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 18px 0 2px; flex-wrap: wrap; } .lt-wsp__title { font-family: var(--p-fd); font-weight: 600; font-size: 26px; line-height: 1.2; margin: 0; color: var(--p-ink); } .lt-wsp__meta { font-size: 14px; color: var(--p-muted); } .lt-wsp__badge { display: inline-block; background: var(--p-chip-bg); color: var(--p-chip-fg); font-size: 14px; font-weight: 600; padding: 2px 10px; border-radius: 6px; } .lt-wsp__sub { display: flex; gap: 14px; font-size: 14px; color: var(--p-muted); margin-bottom: 2px; } .lt-wsp__code { font-weight: 600; letter-spacing: 0.06em; } .lt-wsp__instr { font-size: 15px; color: var(--p-ink); border-radius: 8px; padding: 10px 14px; margin: 10px 0 8px; background: #eef1f5; } .lt-wsp__instr b { color: var(--p-ink); } .lt-wsp__nowrap { white-space: nowrap; } .lt-wsp__sechead { margin: 32px 0 18px; } .lt-wsp__sechrow { display: flex; align-items: baseline; justify-content: space-between; } .lt-wsp__sectitle { font-family: var(--p-fd); font-weight: 600; font-size: 29px; line-height: 1.2; color: var(--p-ink); } .lt-wsp__sechint { font-size: 15px; color: var(--p-muted); font-weight: 500; } .lt-wsp__secrule { display: block; margin-top: 4px; height: 3px; width: 56px; background: var(--p-accent); } .lt-wsp__q { display: flex; gap: 15px; margin-bottom: 30px; } .lt-wsp__qn { font-weight: 600; flex-shrink: 0; min-width: 36px; } .lt-wsp__qbody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; } .lt-wsp__qtext { font-size: 17px; } .lt-wsp__qmarks { color: var(--p-muted); font-size: 14px; white-space: nowrap; float: right; margin-left: 10px; } .lt-wsp__opts { list-style: none; margin: 0; padding: 0; color: var(--p-body); display: grid; gap: 6px 9px; } .lt-wsp__opts--four { grid-template-columns: repeat(4, minmax(0, 1fr)); } .lt-wsp__opts--two { grid-template-columns: repeat(2, minmax(0, 1fr)); } .lt-wsp__opts--stack { grid-template-columns: minmax(0, 1fr); gap: 5px; } .lt-wsp__opts li { font-size: 17px; } .lt-wsp__optl { color: var(--p-body); } .lt-wsp__ans { display: flex; flex-direction: column; gap: 16px; margin-top: 4px; } .lt-wsp__rule { display: block; border-bottom: 1px dotted #9aa6b6; height: 0; } .lt-wsp__src { font-size: 14px; color: var(--p-muted); } .lt-wsp__sol { margin-bottom: 22px; padding-bottom: 20px; border-bottom: 1px solid var(--p-line2); font-size: 16px; } .lt-wsp__solhead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 600; margin-bottom: 9px; } .lt-wsp__sqn { color: var(--p-ink); } .lt-wsp__solmk { color: var(--p-ink); text-align: right; } .lt-wsp__steps { display: flex; flex-direction: column; gap: 9px; } .lt-wsp__step { display: flex; gap: 12px; align-items: flex-start; } .lt-wsp__chip { flex-shrink: 0; width: 86px; box-sizing: border-box; text-align: center; padding: 1px 8px; border-radius: 6px; background: var(--p-chip-bg); color: var(--p-chip-fg); font-weight: 600; font-size: 14px; line-height: 1.6; white-space: nowrap; } .lt-wsp__chip--none { background: transparent; padding: 0; width: 0; margin-right: -12px; } .lt-wsp__steptext { min-width: 0; flex: 1; } .lt-wsp__final { margin-top: 9px; font-weight: 600; color: var(--p-ink); font-size: 16px; } .lt-wsp__nosol { margin-top: 4px; font-size: 15px; color: var(--p-muted); } .lt-wsp__cta { margin-top: 28px; padding: 18px 20px; border-radius: 12px; background: var(--p-navy); color: #ffffff; display: flex; justify-content: space-between; align-items: center; gap: 16px; } .lt-wsp__ctatext { display: flex; flex-direction: column; gap: 3px; min-width: 0; } .lt-wsp__ctah { font-weight: 600; font-size: 17px; } .lt-wsp__ctas { font-size: 15px; color: #e9eef5; } .lt-pfig { margin: 6px 0 4px; break-inside: avoid; } .lt-pfig__fig { margin: 0 0 6px; text-align: center; } .lt-pfig__img { max-width: 100%; max-height: 260px; width: auto; height: auto; border: 1px solid #d8d8d8; background: #ffffff; } .lt-pfig__fig svg { display: block; margin: 0 auto; width: 100%; max-width: 340px; height: auto; } .lt-pfig__svgimg { display: block; margin: 0 auto; max-width: 100%; height: auto; } .lt-pfig__cap { font-size: 10px; color: #555; margin-top: 2px; } </style><div class=\"lt-wsp__content\"><header class=\"lt-wsp__mast\"><span class=\"lt-wsp__brand\"><img class=\"lt-wsp__logo\" alt=\"\" aria-hidden=\"true\" src=\"/brand/lazytopper-fingerprint-icon-128.png\"><img class=\"lt-wsp__wmk\" alt=\"LazyTopper\" src=\"/brand/lazytopper-wordmark.png\"></span><span class=\"lt-wsp__right\">Maths · Real Numbers · Questions</span></header><div class=\"lt-wsp__titlerow\"><h1 class=\"lt-wsp__title\"><span>Real Numbers</span></h1><span class=\"lt-wsp__meta\">2 questions · 3 marks · All</span></div><div class=\"lt-wsp__sub\"><span class=\"lt-wsp__code\">PK-M-RN-CT1</span><span>Generated 20 Jun 2026</span></div><p class=\"lt-wsp__instr\"><b>Instructions:</b> Solve on this sheet or separate paper. <b>Label each answer with its question number (Q1, Q2 …).</b> When done, upload your answers to get them marked: lazytopper.com → My packs, or Home → Papers waiting for your answers (code <span class=\"lt-wsp__nowrap\">PK-M-RN-CT1</span>).</p><section class=\"lt-wsp__section\"><div class=\"lt-wsp__sechead\"><div class=\"lt-wsp__sechrow\"><span class=\"lt-wsp__sectitle\">Section A</span><span class=\"lt-wsp__sechint\">1 mark each</span></div><span class=\"lt-wsp__secrule\"></span></div><div class=\"lt-wsp__q\"><span class=\"lt-wsp__qn\">Q1.</span><div class=\"lt-wsp__qbody\"><div class=\"lt-wsp__qtext\"><span>Prove 2√5 irrational.</span></div><div class=\"lt-wsp__ans\"><span class=\"lt-wsp__rule\"></span><span class=\"lt-wsp__rule\"></span></div></div></div></section><section class=\"lt-wsp__section\"><div class=\"lt-wsp__sechead\"><div class=\"lt-wsp__sechrow\"><span class=\"lt-wsp__sectitle\">Section C</span><span class=\"lt-wsp__sechint\">3 marks each</span></div><span class=\"lt-wsp__secrule\"></span></div><div class=\"lt-wsp__q\"><span class=\"lt-wsp__qn\">Q2.</span><div class=\"lt-wsp__qbody\"><div class=\"lt-wsp__qtext\"><span>Evaluate a² − b².</span><span class=\"lt-wsp__qmarks\">[2]</span></div><div class=\"lt-wsp__ans\"><span class=\"lt-wsp__rule\"></span><span class=\"lt-wsp__rule\"></span></div></div></div></section></div></div></div>"
   ],
   [
@@ -16,6 +24,30 @@
     "keywords": "PK-M-RN-CT1",
     "author": "LazyTopper"
    }
+  ],
+  [
+   "addImage",
+   "data:image/jpeg;base64,AAA",
+   "JPEG",
+   0,
+   0,
+   210,
+   297
+  ],
+  [
+   "addPage"
+  ],
+  [
+   "addImage",
+   "data:image/jpeg;base64,AAA",
+   "JPEG",
+   0,
+   0,
+   210,
+   297
+  ],
+  [
+   "addPage"
   ],
   [
    "addImage",
@@ -86,7 +118,7 @@
   ],
   [
    "text",
-   "Page 2 of 4",
+   "Page 4 of 6",
    12,
    282
   ],
@@ -2105,7 +2137,7 @@
   ],
   [
    "text",
-   "Page 3 of 4",
+   "Page 5 of 6",
    12,
    282
   ],
@@ -4124,7 +4156,7 @@
   ],
   [
    "text",
-   "Page 4 of 4",
+   "Page 6 of 6",
    12,
    282
   ],
@@ -6055,6 +6087,30 @@
    "addImage",
    "data:image/jpeg;base64,AAA",
    "JPEG",
+   0,
+   0,
+   210,
+   297
+  ],
+  [
+   "addPage"
+  ],
+  [
+   "addImage",
+   "data:image/jpeg;base64,AAA",
+   "JPEG",
+   0,
+   0,
+   210,
+   297
+  ],
+  [
+   "addPage"
+  ],
+  [
+   "addImage",
+   "data:image/jpeg;base64,AAA",
+   "JPEG",
    12,
    22,
    186,
@@ -6108,7 +6164,7 @@
   ],
   [
    "text",
-   "Page 2 of 7",
+   "Page 4 of 9",
    12,
    282
   ],
@@ -8111,7 +8167,7 @@
   ],
   [
    "text",
-   "Page 3 of 7",
+   "Page 5 of 9",
    12,
    282
   ],
@@ -10114,7 +10170,7 @@
   ],
   [
    "text",
-   "Page 4 of 7",
+   "Page 6 of 9",
    12,
    282
   ],
@@ -12055,7 +12111,7 @@
   ],
   [
    "text",
-   "Page 5 of 7",
+   "Page 7 of 9",
    12,
    282
   ],
@@ -13946,7 +14002,7 @@
   ],
   [
    "text",
-   "Page 6 of 7",
+   "Page 8 of 9",
    12,
    282
   ],
@@ -15837,7 +15893,7 @@
   ],
   [
    "text",
-   "Page 7 of 7",
+   "Page 9 of 9",
    12,
    282
   ],

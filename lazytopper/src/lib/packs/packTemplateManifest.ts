@@ -13,6 +13,7 @@
  */
 import type { TemplateMarks } from "../../components/worksheet/pdfTemplateMarks";
 import type { BridgePagesData } from "./packBridge";
+import type { PinnedFont } from "./packTemplateFonts";
 import { bridgeHashInput, canonicalJson, templateHashInput, type PackUnitsDef, type PlanBridge, type PlanFile } from "./packTemplateCore";
 
 export const MANIFEST_VERSION = 1;
@@ -77,13 +78,8 @@ export interface ManifestPack {
   bridge: Record<string, { noCard: string; card: string }>;
 }
 
-export interface ManifestFont {
-  family: "Inter";
-  weight: number;
-  /** Repo path of the font file the cover and the body were rendered with: the server embeds THIS file to stamp the cover. */
-  file: string;
-  sha256: string;
-}
+/** A pinned font (packTemplateFonts.ts): the file the cover and the body were rendered with, which the server embeds to stamp the cover. */
+export type ManifestFont = PinnedFont;
 
 export interface PackManifest {
   version: typeof MANIFEST_VERSION;
@@ -221,6 +217,8 @@ export function validateManifest(m: PackManifest, plan: readonly PlanFile[], pac
     else {
       for (const need of ["box", "textcol", "licence", "redownload", "edition"]) if (!f.marks.cover.stamps.some((s) => s.name === need)) bad.push(`${f.templateId}: cover has no "${need}" mark`);
     }
+    if (f.marks.cover && f.marks.cover.licenceFit.maxLines < 2) bad.push(`${f.templateId}: no licence fit rule`);
+    if (f.marks.cover && f.marks.cover.stamps.find((s) => s.name === "edition")?.anchor !== "right") bad.push(`${f.templateId}: edition is not right-anchored`);
     if (f.marks.footer && (f.marks.footer.firstPage > f.marks.footer.lastPage)) bad.push(`${f.templateId}: footer page range`);
     if (f.pages !== f.marks.pages) bad.push(`${f.templateId}: page count ${f.pages} vs marks ${f.marks.pages}`);
     for (const code of f.codes) if (!m.papers[code]) bad.push(`${f.templateId}: paper ${code} not stored`);
@@ -231,6 +229,7 @@ export function validateManifest(m: PackManifest, plan: readonly PlanFile[], pac
   }
   for (const b of Object.values(m.bridges)) if (!b.path.startsWith(STORAGE_PREFIX)) bad.push(`bridge ${b.key}: path outside ${STORAGE_PREFIX}`);
   if (!m.fonts.length) bad.push("no fonts recorded");
+  for (const need of ["Inter", "Fraunces"]) if (!m.fonts.some((f) => f.family === need)) bad.push(`font ${need} is not recorded`);
   return bad;
 }
 

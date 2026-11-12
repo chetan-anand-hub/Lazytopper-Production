@@ -22,6 +22,14 @@ export interface PlanPaper {
   ws: PersistedWorksheet;
 }
 
+export interface PlanFigure {
+  questionId: string;
+  id: string;
+  filePath: string;
+  /** sha256 of the image bytes the render fetches; "" when it cannot be read (the plan then fails). */
+  sha256: string;
+}
+
 export interface PlanFile {
   templateId: string;
   unit: TemplateUnit;
@@ -36,6 +44,8 @@ export interface PlanFile {
   /** Does the file carry bridge pages 2-3 at all? (Their content is per pack: see `planBridges`.) */
   hasBridge: boolean;
   papers: PlanPaper[];
+  /** Every official figure the file prints (resolved from the figure registry in the plan) with the sha256 of its image: a figure change re-makes the file. */
+  figures?: PlanFigure[];
   /** The worksheet of a paper-less file. */
   ws?: PersistedWorksheet;
 }
@@ -87,6 +97,7 @@ export function templateHashInput(f: PlanFile): unknown {
     hasBridge: f.hasBridge,
     papers: f.papers.map((p) => ({ code: p.code, reg: p.reg, ws: p.ws })),
     ws: f.ws ?? null,
+    figures: f.figures ?? [],
   };
 }
 

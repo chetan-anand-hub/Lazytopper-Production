@@ -8,8 +8,11 @@
  *   3. publishing: nothing outside packs/, nothing overwritten, a half-finished run never moves the pointer, current.json is last
  */
 import { createHash } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { PACK_CHAPTER_SLUGS, PACK_SUBJECTS } from "../../services/packs";
+import { PACK_CHAPTER_SLUGS, PACK_SKUS, PACK_SUBJECTS, isValidPackTarget, packIdOf } from "../../services/packs";
+import { PINNED_FONTS } from "./packTemplateFonts";
 import type { TemplateMarks } from "../../components/worksheet/pdfTemplateMarks";
 import { buildPackFiles } from "./buildPackFiles";
 import { PACK_SYLLABUS_EXCLUDED } from "./packContent";
@@ -19,6 +22,8 @@ import { bridgeKeyOf, buildManifest, fileHashOf, validateManifest, type Template
 import { assertPackPath, putRendered, publishManifest, CURRENT_POINTER_PATH, type TemplateStore } from "./packTemplatePublish";
 
 const sha = (t: string): string => createHash("sha256").update(t).digest("hex");
+const REPO = path.resolve(__dirname, "../../../..");
+const FONTS = [...PINNED_FONTS];
 const RV = "test-renderer";
 const enc = new TextEncoder();
 
@@ -31,7 +36,7 @@ function marksFor(f: PlanFile): TemplateMarks {
     pageWmm: 210,
     pageHmm: 297,
     pages,
-    cover: { wPx: 794, hPx: 1123, mmPerPx: 210 / 794, stamps: (["box", "textcol", "licence", "redownload", "edition", "boxlabel"] as const).map(box) },
+    cover: { licenceFit: { maxLines: 2, minFontSizePx: 11, stepPx: 0.5 }, wPx: 794, hPx: 1123, mmPerPx: 210 / 794, stamps: (["box", "textcol", "licence", "redownload", "edition", "boxlabel"] as const).map((n) => (n === "edition" ? { ...box(n), anchor: "right" as const, rightEdgeMm: 1 } : box(n))) },
     footer: { xMm: 12, baselineYMm: 276.5, maxWidthMm: 186, fontSizesPt: [10, 9.5, 9], colorRgb: [58, 74, 96], font: "Helvetica", firstPage: 4, lastPage: pages, withQr: false },
     body: Array.from({ length: Math.max(1, f.codes.length) }, (_, i) => ({ ...box("licence"), name: "generated" as const, page: 4, set: i })),
   };
@@ -45,7 +50,7 @@ function manifestOf(plan: PlanFile[], bridges: PlanBridge[]) {
   for (const f of plan) metas[fileHashOf(f, RV, sha)] = { bytes: 10, sha256: sha(f.templateId), pages: 5, marks: marksFor(f) };
   const bridgeMetas: Record<string, { bytes: number; sha256: string }> = {};
   for (const b of bridges) for (const c of [false, true]) bridgeMetas[bridgeKeyOf(b.data, c, RV, sha)] = { bytes: 5, sha256: sha(JSON.stringify(b.data)) };
-  return buildManifest({ plan, bridges, packDefs: packUnits(), metas, bridgeMetas, rendererVersion: RV, fonts: [{ family: "Inter", weight: 400, file: "f", sha256: "x" }], createdAt: "2026-11-12T00:00:00.000Z", commit: "abc", sha });
+  return buildManifest({ plan, bridges, packDefs: packUnits(), metas, bridgeMetas, rendererVersion: RV, fonts: FONTS, createdAt: "2026-11-12T00:00:00.000Z", commit: "abc", sha });
 }
 
 describe("the template plan", () => {
@@ -181,7 +186,7 @@ async function seed(store: MemStore, plan: PlanFile[], bridges: PlanBridge[], sk
   }
 }
 const pub = (store: TemplateStore, plan: PlanFile[], bridges: PlanBridge[]) =>
-  publishManifest(store, { plan, bridges, packDefs: packUnits(), rendererVersion: RV, fonts: [{ family: "Inter", weight: 400, file: "f", sha256: "x" }], createdAt: "2026-11-12T00:00:00.000Z", commit: "abc", sha });
+  publishManifest(store, { plan, bridges, packDefs: packUnits(), rendererVersion: RV, fonts: FONTS, createdAt: "2026-11-12T00:00:00.000Z", commit: "abc", sha });
 
 describe("publishing", () => {
   it("refuses every path outside packs/", () => {
@@ -236,5 +241,53 @@ describe("publishing", () => {
     expect(wrote).toEqual(["packs/files/bbb.pdf", "packs/files/bbb.meta.json"]);
     expect(new TextDecoder().decode(store.objects.get("packs/files/aaa.pdf")!)).toBe("x");
     await expect(putRendered(store, [{ path: "cbse/evil.pdf", data: enc.encode("x"), contentType: "application/pdf" }])).rejects.toThrow(/outside packs\//);
+  });
+});
+
+describe("pinned fonts, figures and wiring", () => {
+  it("every pinned font file is exactly the pinned bytes (Inter x5 for the cover and papers, Fraunces 700 for titles)", () => {
+    expect(PINNED_FONTS.map((f) => `${f.family}${f.weight}`)).toEqual(["Inter400", "Inter500", "Inter600", "Inter700", "Inter800", "Fraunces700"]);
+    for (const f of PINNED_FONTS) {
+      expect(createHash("sha256").update(fs.readFileSync(path.join(REPO, f.file))).digest("hex"), f.file).toBe(f.sha256);
+    }
+  });
+
+  it("the harness loads the app's own stylesheet (Fraunces face, fallback, reset) and refuses to render with a font missing", () => {
+    const entry = fs.readFileSync(path.join(REPO, "lazytopper/scripts/packTemplates/genEntry.ts"), "utf8");
+    expect(entry).toContain('import "../../src/styles.css";');
+    expect(entry).toContain("document.fonts.load");
+    expect(entry).toContain("document.fonts.ready");
+    expect(entry).toContain("font not loaded");
+    // ensureFonts runs before a template and before a bridge page set is rendered
+    expect(entry.match(/await ensureFonts\(\);/g)?.length).toBe(2);
+    const css = fs.readFileSync(path.join(REPO, "lazytopper/src/styles.css"), "utf8");
+    expect(css).toContain("fraunces-700-latin.woff2");
+    expect(css).toMatch(/box-sizing:\s*border-box/);
+  });
+
+  it("changing the figure bound to ONE question, or its image bytes, changes only that file's hash", async () => {
+    const { plan } = await getPlan();
+    const f = plan[0];
+    const fig = { questionId: "Q1", id: "fig-1", filePath: "/figures/a.png", sha256: "aa" };
+    const withFig: PlanFile = { ...f, figures: [fig] };
+    expect(fileHashOf(withFig, RV, sha)).not.toBe(fileHashOf(f, RV, sha));
+    expect(fileHashOf({ ...withFig, figures: [{ ...fig, sha256: "bb" }] }, RV, sha)).not.toBe(fileHashOf(withFig, RV, sha));
+    expect(fileHashOf({ ...withFig, figures: [{ ...fig, id: "fig-2" }] }, RV, sha)).not.toBe(fileHashOf(withFig, RV, sha));
+    const other = plan[1];
+    expect(fileHashOf(other, RV, sha)).toBe(fileHashOf({ ...other, figures: [] }, RV, sha));
+  }, 300_000);
+
+  it("the plan's 33 packs are exactly the sellable packs (a new pack cannot be missed)", () => {
+    const sellable: string[] = [];
+    const targets = [...PACK_CHAPTER_SLUGS, ...PACK_SUBJECTS, "all"];
+    for (const sku of PACK_SKUS) for (const t of targets) if (isValidPackTarget(sku, t)) sellable.push(packIdOf(sku, t));
+    expect(packUnits().map((p) => p.packId).sort()).toEqual([...new Set(sellable)].sort());
+  });
+
+  it("the workflow publishes live only from the trunk, never from a pull request, and watches the renderer's inputs", () => {
+    const wf = fs.readFileSync(path.join(REPO, ".github/workflows/pack-templates.yml"), "utf8");
+    expect(wf).toMatch(/LIVE: \$\{\{ github\.ref == 'refs\/heads\/base\/approved-thru-437' &&/);
+    expect(wf).not.toMatch(/^\s*pull_request/m);
+    for (const p of ["public/visuals/**", "public/fonts/**", "src/components/question/**", "src/styles.css", "src/config/brandMark.ts", "pnpm-lock.yaml"]) expect(wf).toContain(p);
   });
 });

@@ -25,6 +25,15 @@ on:
       - "lazytopper/src/diagrams/**"
       - "lazytopper/src/services/packs.ts"
       - "lazytopper/public/brand/**"
+      - "lazytopper/public/fonts/**"
+      - "lazytopper/public/visuals/**"
+      - "lazytopper/src/components/question/**"
+      - "lazytopper/src/config/brandMark.ts"
+      - "lazytopper/src/lib/mistakeDisplay.ts"
+      - "lazytopper/src/lib/figureSafe.ts"
+      - "lazytopper/src/styles.css"
+      - "lazytopper/package.json"
+      - "pnpm-lock.yaml"
       - "lazytopper/scripts/packTemplates/**"
       - ".github/workflows/pack-templates.yml"
   workflow_dispatch:
@@ -43,7 +52,9 @@ concurrency:
 
 env:
   # Resolved once: a dispatch is live when dry_run is unticked; a push is live only when the repository variable says so.
-  LIVE: ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run == false) || (github.event_name == 'push' && vars.PACK_TEMPLATES_LIVE == '1') }}
+  # ★ ONLY FROM THE TRUNK: a manual run picked on any other branch runs that branch's code, so it is never live there (it would run
+  #   unreviewed code with the Storage key and move packs/current.json).
+  LIVE: ${{ github.ref == 'refs/heads/base/approved-thru-437' && ((github.event_name == 'workflow_dispatch' && inputs.dry_run == false) || (github.event_name == 'push' && vars.PACK_TEMPLATES_LIVE == '1')) }}
   FIREBASE_STORAGE_BUCKET: lazzyy-topper.firebasestorage.app
 
 jobs:
