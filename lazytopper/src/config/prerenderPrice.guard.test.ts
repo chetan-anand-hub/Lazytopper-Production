@@ -17,7 +17,7 @@ import { join, resolve, relative } from "node:path";
 import { parentPriceModel } from "../pages/ForParentsPage";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import { PACK_PRICE_INR, packGstBreakdown, type PackSku } from "../services/packs";
-import { boardPassGstBreakdown, boardPassGstExclusive, displayPlusGst, GST_EXCLUSIVE_FROM_MS, payDisplay } from "./pricing";
+import { boardPassFoundingPriceLine, boardPassGstBreakdown, boardPassGstExclusive, displayPlusGst, GST_EXCLUSIVE_FROM_MS, payDisplay } from "./pricing";
 
 const ROOT = resolve(__dirname, "../../prerendered");
 
@@ -63,10 +63,20 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   const packExp = (label: string) => displayPlusGst(PACK_PRICE_INR[PACK_BY_LABEL[label]], now);
   const packPay = (label: string) => payDisplay(PACK_PRICE_INR[PACK_BY_LABEL[label]], now);
   // /for-parents Board Pass (ForParentsPage: <span class="lt-fp__price-amt">). PRICE-FIXED-1: there is no Month pass line.
-  take(new RegExp(`class="lt-fp__price-amt">${AMT}`), () => "Board Pass", () => model?.boardPassDisplay ?? null);
+  // PARENTS-V2-1: the hero price card (`fp-price-amt`), the two Pay buttons (hero + second), the founding-price line and the CBQ price.
+  take(new RegExp(`data-testid="fp-price-amt">${AMT}`), () => "Board Pass", () => model?.boardPassDisplay ?? null);
   // PARENTS-PAY-1: the two "Pay for my child · ₹N" buttons (hero + price section) carry the Board Pass price (boardPassPriceDisplay, read after mount).
-  take(new RegExp(`data-testid="fp-pay-(?:hero|price)"[^>]*>Pay for my child · ${AMT}<`), () => "Board Pass (Pay button)", () => model?.boardPassPayDisplay ?? null);
-  // /for-parents packs (ParentPacksSection): name span, then the price span in the same <li>.
+  take(new RegExp(`data-testid="fp-pay-(?:hero|second)"[^>]*>Pay for my child · ${AMT}<`), () => "Board Pass (Pay button)", () => model?.boardPassPayDisplay ?? null);
+  // PARENTS-V2-1: the founding-price line "Founding price ends 30 Nov · ₹1,917 + GST, then ₹2,499 + GST": both figures claimed, the whole line
+  // compared with the live config line (it is gone from 1 Dec, so a stale snapshot fails until re-captured).
+  for (const m of html.matchAll(/data-testid="fp-price-deadline">([^<]*)</g)) {
+    const line = m[1];
+    const start = m.index! + m[0].indexOf(line);
+    for (const t of line.matchAll(/₹/g)) claimed.add(start + t.index!);
+    found.push({ file, product: "Board Pass (founding line)", shown: line, expected: boardPassFoundingPriceLine(now) ?? "" });
+  }
+  take(new RegExp(`data-testid="fp-cbq-price">${AMT}<`), () => "Maths CBQ Pack (for-parents link)", () => packExp("Maths CBQ Pack"));
+  // (retired from /for-parents by PARENTS-V2-1, still scanned where they appear) packs (ParentPacksSection): name span, then the price span in the same <li>.
   for (const li of html.matchAll(/<li class="lt-fpk__item">([\s\S]*?)<\/li>/g)) {
     const name = /class="lt-fpk__name">([^<]+)/.exec(li[1])?.[1]?.trim() ?? "";
     const p = new RegExp(`data-testid="fp-packs-price">${AMT}<`).exec(li[1]);
@@ -177,8 +187,10 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
       expect(fp).toContain("Board Pass");
       expect(fp).toContain("Board Pass (Pay button)");
       expect(fp).not.toContain("Month pass");
-      for (const l of ["Maths CBQ Pack", "Science CBQ Pack", "Mock Pack", "Chapter Pack", "Maths + Science Bundle"]) expect(fp).toContain(l);
-      expect(of("for-parents.html").length).toBeGreaterThanOrEqual(7);
+      // PARENTS-V2-1: the price card, the founding line, both Pay buttons and the CBQ link price.
+      for (const l of ["Board Pass (founding line)", "Maths CBQ Pack (for-parents link)"]) expect(fp).toContain(l);
+      expect(fp.filter((x) => x === "Board Pass (Pay button)").length).toBe(2);
+      expect(of("for-parents.html").length).toBeGreaterThanOrEqual(5);
       const pk = of("packs.html").map((x) => x.product);
       // PACKS-TIDY-2: the CBQ card left /packs (a link card + an FAQ line name its price); each Buy's place is a neutral button + GST line.
       for (const l of ["Chapter Pack", "Mock Pack", "Subject Pack", "Maths + Science Bundle", "CBQ Pack (packs link card)", "pack_bundle (GST breakup)", "pack_chapter (GST breakup)"]) expect(pk).toContain(l);
@@ -194,7 +206,7 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
       expect(cq).toEqual(expect.arrayContaining(["Maths CBQ Pack", "CBQ Pack (one-time line)", "Chapter Pack (sales 'from' link)"]));
       expect(cq.filter((x) => x === "Maths CBQ Pack").length).toBeGreaterThanOrEqual(2);
     }
-    expect(scan.found.length).toBeGreaterThanOrEqual(28); // PACKS-TIDY-1: 34 -> 28 (packs.html: 7 per variant, was 10)
+    expect(scan.found.length).toBeGreaterThanOrEqual(26); // PACKS-TIDY-1: 34 -> 28; PARENTS-V2-1: for-parents 7 -> 5 per variant
   });
 
   it("no rupee amount on a priced page is left unchecked", () => {
@@ -221,7 +233,7 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
   });
 
   it("MUTATION PROOF: a stale Board Pass price in a snapshot is caught (PRICE-FIXED-1: the live price no longer moves with the date)", () => {
-    const stale = `<p><span class="lt-fp__price-amt">₹2,396</span></p>`;
+    const stale = `<p><strong data-testid="fp-price-amt">₹2,396</strong></p>`;
     const pinned = new Date("2026-11-18T10:00:00+05:30");
     const r = scanSnapshot("for-parents.html", stale, pinned, predictCbseExamDate("10"));
     expect(mismatchMessages(r.found)).toEqual([

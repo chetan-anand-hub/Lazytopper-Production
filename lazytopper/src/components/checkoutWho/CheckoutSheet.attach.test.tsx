@@ -297,6 +297,48 @@ describe("a signed-in holder taps Buy", () => {
   });
 });
 
+describe("PARENTS-V2-1 - attachPreselect (the /for-parents pay-first flow)", () => {
+  it("signed out with audience 'parent' + attachPreselect: straight to the one Pay (not the number box), and the who step opens with 'My child / someone else' selected", async () => {
+    mount({ audience: "parent", attachPreselect: "other" });
+    expect(screen.queryByTestId("who-first")).toBeNull();
+    await payToWho();
+    expect(screen.getByTestId("attach-choose-other").getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByTestId("attach-choose-me").getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(screen.getByTestId("attach-continue"));
+    expect(screen.getByTestId("attach-other-input")).toBeTruthy();
+  });
+
+  it("F3: the parent pay-first path reports recipient 'other' (as before), a student's pay-first path still reports 'self'", async () => {
+    mount({ audience: "parent", attachPreselect: "other" });
+    await payToWho();
+    const calls = analytics.trackNamedEvent.mock.calls.map((c) => [c[0], (c[1] as { recipient?: string }).recipient]);
+    expect(calls).toContainEqual(["guest_pay_option_shown", "other"]);
+    expect(calls).toContainEqual(["guest_pay_start", "other"]);
+    expect(calls).toContainEqual(["guest_pay_paid", "other"]);
+    expect(calls.some(([n]) => n === "guest_pay_self_start")).toBe(false);
+    expect(calls.some(([, r]) => r === "self")).toBe(false);
+    cleanup();
+    analytics.trackNamedEvent.mockClear();
+    mount();
+    await payToWho();
+    const student = analytics.trackNamedEvent.mock.calls.map((c) => [c[0], (c[1] as { recipient?: string }).recipient]);
+    expect(student).toContainEqual(["guest_pay_start", "self"]);
+    expect(student).toContainEqual(["guest_pay_paid", "self"]);
+  });
+
+  it("without the prop nothing changes: no selected state, no Continue button", async () => {
+    mount();
+    await payToWho();
+    expect(screen.getByTestId("attach-choose-other").getAttribute("aria-pressed")).toBeNull();
+    expect(screen.queryByTestId("attach-continue")).toBeNull();
+  });
+
+  it("audience 'parent' WITHOUT the prop keeps the old number-box start (default unchanged)", () => {
+    mount({ audience: "parent" });
+    expect(screen.queryByTestId("who-pay-self-out")).toBeNull();
+  });
+});
+
 describe("PAID-SHOWS-1 - the purchase card is the first block of the paid screen", () => {
   it("signed out, attach flow: the card (from the receipt) sits ABOVE 'Who will use it?', and the proof is kept in this tab only", async () => {
     sessionStorage.clear();

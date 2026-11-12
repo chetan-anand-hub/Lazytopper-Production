@@ -1243,6 +1243,12 @@ export function appViewRequested(loc: { pathname: string; search: string; hash: 
     if (has("buy") || has("from")) return true;
     return loc.hash.replace(/^#/, "") !== "";
   }
+  if (loc.pathname === "/for-parents") {
+    // PARENTS-V2-1: the served view is the signed-out page. A one-tap pay link (?buy=...), a parents' return (?from=...) or any hash
+    // is the app's to render at once. utm_* / gclid do not change the view.
+    if (has("buy") || has("from")) return true;
+    return loc.hash.replace(/^#/, "") !== "";
+  }
   if (loc.pathname === "/cbq-packs") {
     // PRICING-PAGES-1: the served view is the Maths switch. ?subject= / ?t= (a subject), a one-tap buy (?buy=), the shop's entry
     // links (?pack= / ?view= / ?chapter= / ?mock=), a sample return or a parents' visit (?from=) or any hash load the app at once.

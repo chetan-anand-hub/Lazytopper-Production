@@ -113,6 +113,12 @@ export interface CheckoutSheetProps {
    * a signed-in student's one Pay button). Absent = as before (signed in -> the "For: you" step).
    */
   startAt?: "other";
+  /**
+   * PARENTS-V2-1: "other" = the pay-first flow for a parent (/for-parents): a signed-out visitor goes straight to the one Pay button
+   * (the "Buy for yourself" step, even with audience "parent"), and after the verified payment the "Who will use it?" step opens with
+   * "My child / someone else" PRE-SELECTED. Absent = unchanged everywhere else.
+   */
+  attachPreselect?: "other";
   /** Test seam. */
   buy?: (item: GuestItem, recipient: Recipient, signedIn: boolean) => Promise<WhoBuyOutcome>;
   /**
@@ -155,6 +161,7 @@ export default function CheckoutSheet({
   onClose,
   audience,
   startAt,
+  attachPreselect,
   buy = buyForRecipient,
   buySelf = buyForSelf,
   selfFirst,
@@ -163,8 +170,12 @@ export default function CheckoutSheet({
   attachOn,
 }: CheckoutSheetProps) {
   const surfaceData = audience === "parent" ? ({ surface: "for_parents" } as const) : {};
+  // PARENTS-V2-1 review F3: the /for-parents pay-first path reports recipient "other" exactly as before (a parent pays for the child); it
+  // would say "self" only if the buyer actually picks "me" (that choice is made after payment and sends no guest_pay_* event).
+  const parentPayFirst = audience === "parent" && attachPreselect === "other";
+  const selfRecipient = parentPayFirst ? "other" : "self";
   // CHECKOUT-SELF-2: signed out, student-side, not asked to open at the box -> "Buy for yourself" first.
-  const [selfOutFirst] = useState(() => !signedIn && startAt !== "other" && audience !== "parent" && (selfFirst ?? isCheckoutSelfClientEnabled()));
+  const [selfOutFirst] = useState(() => !signedIn && startAt !== "other" && (audience !== "parent" || attachPreselect === "other") && (selfFirst ?? isCheckoutSelfClientEnabled()));
   const [step, setStep] = useState<Step>(holder && signedIn ? { name: "holder" } : selfOutFirst ? { name: "selfOut" } : signedIn && startAt !== "other" ? { name: "self" } : { name: "form" });
   const showAttach = attachOn ?? isSelfAttachClientEnabled();
   const goTo = onGoTo || ((path: string) => window.location.assign(path));
@@ -188,7 +199,7 @@ export default function CheckoutSheet({
   useEffect(() => {
     if (shown.current) return;
     shown.current = true;
-    trackNamedEvent("guest_pay_option_shown", { recipient: (signedIn && startAt !== "other") || selfOutFirst ? "self" : "other", ...surfaceData });
+    trackNamedEvent("guest_pay_option_shown", { recipient: ((signedIn && startAt !== "other") || selfOutFirst) && !parentPayFirst ? "self" : "other", ...surfaceData });
   // `startAt` is a mount-time choice (the sheet is mounted fresh per open); it must not re-fire the once-only event.
   }, [signedIn]);
 
@@ -253,13 +264,13 @@ export default function CheckoutSheet({
     if (busy) return;
     // The funnel stays comparable: guest_pay_start fires for BOTH paths (recipient "self" here, "other" for the box); the new
     // event marks the new primary tap. Names + the path only - nothing about the buyer.
-    trackNamedEvent("guest_pay_self_start", { recipient: "self", ...surfaceData });
-    trackNamedEvent("guest_pay_start", { recipient: "self", ...surfaceData });
+    if (!parentPayFirst) trackNamedEvent("guest_pay_self_start", { recipient: "self", ...surfaceData });
+    trackNamedEvent("guest_pay_start", { recipient: selfRecipient, ...surfaceData });
     setStep({ name: "selfBusy" });
     const attemptId = newCheckoutAttemptId();
     const outcome = await buySelf(item);
     if (outcome.status === "paid") {
-      trackNamedEvent("guest_pay_paid", { recipient: "self", ...surfaceData });
+      trackNamedEvent("guest_pay_paid", { recipient: selfRecipient, ...surfaceData });
       if (outcome.confirmed) trackGuestPurchase(item, outcome, attemptId);
       if (outcome.receipt) {
         storeReceiptProof(outcome.receipt);
@@ -481,7 +492,7 @@ export default function CheckoutSheet({
       </>
     );
   } else if (step.name === "attach") {
-    body = <AttachFlow item={item} proof={step.proof} contact={step.contact} onTitle={onAttachTitle} onClose={onClose} onSettled={onAttachSettled} meNow={meNow} />;
+    body = <AttachFlow item={item} proof={step.proof} contact={step.contact} onTitle={onAttachTitle} onClose={onClose} onSettled={onAttachSettled} meNow={meNow} {...(attachPreselect ? { preselect: attachPreselect } : {})} />;
   } else {
     body = (
       <>

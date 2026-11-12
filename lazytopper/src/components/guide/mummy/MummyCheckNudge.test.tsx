@@ -9,8 +9,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 // PARENTS-PAY-1: the page mounts the shared pack shop, which reads the auth context (signed out here).
 vi.mock("../../../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
-import ForParentsPage, { FREE_CHECK_TO } from "../../../pages/ForParentsPage";
-import { MUMMY_CHECK_LINE } from "./MummyCheckNudge";
+import { FREE_CHECK_TO } from "../../../pages/ForParentsPage";
+import MummyCheckNudge, { MUMMY_CHECK_LINE } from "./MummyCheckNudge";
 import { MASCOTS_HIDDEN_KEY, __resetMascotsForTests, mascotsHidden } from "../mascotsMute";
 import { __removeMascotsToastForTests } from "../moments/mascotsToast";
 
@@ -18,7 +18,10 @@ const LINE =
   "Have your child write one answer on paper. One photo — and you'll see every step marked the way a CBSE examiner does, and exactly where marks were lost.";
 const page = () => (
   <MemoryRouter initialEntries={["/for-parents"]}>
-    <ForParentsPage />
+    {/* PARENTS-V2-1: retired from /for-parents; the component is tested on its own, with the page's free-check link as its action. */}
+    <main data-testid="for-parents-page">
+      <MummyCheckNudge action={<a data-testid="fp-free-check-mummy_check" href={FREE_CHECK_TO}>Check one answer free</a>} />
+    </main>
   </MemoryRouter>
 );
 

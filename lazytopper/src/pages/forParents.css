@@ -56,349 +56,120 @@
   padding: 0 16px;
 }
 
-/* HERO — deep navy band */
-.lt-fp__hero {
-  background: var(--fp-navy);
-  color: #eaf2fb;
-  padding: 28px 0 26px;
-}
-.lt-fp__eyebrow {
-  font-size: 12px;
-  color: #8fb3d9;
-  margin: 0 0 10px;
-}
-.lt-fp__hero h1 {
-  font-size: clamp(26px, 7vw, 40px);
-  line-height: 1.12;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 12px;
-  max-width: 18ch;
-}
-.lt-fp__sub {
-  color: #b9d0e8;
-  font-size: 15px;
-  margin: 0 0 20px;
-  max-width: 56ch;
+/* PARENTS-V2-1 (12 Nov 2026) - the sales page. Phone first (<= 3 screens); two columns from 1024 px (<= 2 screens). */
+.lt-fp__top { background: var(--fp-navy); }
+.lt-fp__hero { color: #fff; padding: 12px 0 10px; }
+.lt-fp__hero-in { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+.lt-fp__eyebrow { margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #b9d7c6; }
+.lt-fp__hero h1 { font-size: 24px; line-height: 1.18; color: #fff; }
+.lt-fp__lead { margin: 6px 0 0; font-size: 14.5px; line-height: 1.45; color: #e1e9f3; }
+.lt-fp__chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 10px; padding: 0; list-style: none; }
+.lt-fp__chips li { padding: 3px 9px; border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 999px; font-size: 12.5px; font-weight: 600; color: #fff; }
+
+.lt-fp__card { background: #fff; color: var(--fp-ink); border-radius: 14px; padding: 12px 14px 12px; box-shadow: var(--fp-sh); }
+.lt-fp__card-name { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0; font-weight: 700; min-height: 28px; }
+.lt-fp__card-amt { font-family: var(--fp-serif); font-size: 22px; color: var(--fp-ink); }
+.lt-fp__card-once { margin: 0; font-size: 13.5px; color: var(--fp-ink2); min-height: 20px; }
+.lt-fp__card-deadline { margin: 2px 0 8px; font-size: 13px; font-weight: 700; color: #8a4b00; min-height: 20px; }
+.lt-fp__card-deadline:empty { min-height: 0; margin: 0; }
+.lt-fp .lt-fp__pay { display: block; width: 100%; min-height: 48px; padding: 0 16px; border: 0; border-radius: 12px; background: #087a43; color: #fff; font: 700 16px var(--fp-sans); cursor: pointer; }
+.lt-fp .lt-fp__pay:hover { background: #06663a; }
+.lt-fp__card-note { margin: 6px 0 0; font-size: 12.5px; color: var(--fp-ink2); text-align: center; min-height: 18px; }
+.lt-fp .lt-fp__free { display: flex; align-items: center; justify-content: center; min-height: 44px; margin-top: 4px; color: #fff; font-weight: 600; font-size: 14.5px; text-decoration: underline; text-underline-offset: 3px; }
+
+/* PROOF - a CSS scroll-snap row (no carousel JS) */
+.lt-fp__proof { padding: 8px 0 4px; background: var(--fp-bg); }
+.lt-fp__h2 { font-size: 17px; line-height: 1.25; margin: 0 0 6px; }
+.lt-fp__proof .lt-fp__h2 { padding: 0 16px; }
+.lt-fp__swipe { display: flex; gap: 12px; margin: 0; padding: 0 16px 6px; list-style: none; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 16px; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+.lt-fp__pc { flex: 0 0 78%; max-width: 330px; scroll-snap-align: start; background: #fff; border: 1px solid var(--fp-line); border-radius: 14px; padding: 8px 8px 10px; box-shadow: var(--fp-sh); }
+.lt-fp__pc-media { height: 140px; display: flex; align-items: center; justify-content: center; background: #eef2f7; border-radius: 10px; overflow: hidden; }
+.lt-fp__pc-media img, .lt-fp__pc-media video { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+.lt-fp__pc-media--video video { width: 100%; height: 100%; background: #0b1b3a; }
+.lt-fp__pc-cap { margin: 8px 4px 0; font-weight: 700; font-size: 14.5px; line-height: 1.3; }
+.lt-fp__pc-det { margin: 2px 4px 0; font-size: 13px; line-height: 1.4; color: var(--fp-ink2); }
+.lt-fp__pc--tv { padding: 8px; }
+.lt-fp__pc--tv .lt-tv__title { font-family: var(--fp-sans); font-size: 13.5px; font-weight: 700; line-height: 1.3; margin: 0 0 2px; }
+.lt-fp__pc--tv .lt-tv__lede { margin: 0 0 6px; font-size: 12.5px; }
+.lt-fp__pc--tv .lt-tv__frame { border-radius: 10px; }
+.lt-fp__pc--tv .lt-tv__transcript { margin-top: 4px; font-size: 12.5px; }
+.lt-fp__dots { display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 28px; }
+.lt-fp__swipe-hint { margin-right: 6px; font-size: 12px; color: var(--fp-ink2); }
+.lt-fp .lt-fp__dot { position: relative; width: 24px; height: 24px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.lt-fp .lt-fp__dot::after { content: ""; position: absolute; left: 7px; top: 7px; width: 10px; height: 10px; border-radius: 50%; background: #b8c6d8; }
+.lt-fp .lt-fp__dot--on::after { background: var(--fp-gt); }
+
+/* FOUNDER */
+.lt-fp__rest { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+.lt-fp__founder { margin: 10px 0 0; background: #fff; border: 1px solid var(--fp-line); border-radius: 14px; overflow: hidden; box-shadow: var(--fp-sh); }
+.lt-fp__founder-photo { height: 96px; overflow: hidden; background: #dde5ef; }
+.lt-fp__founder-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; }
+.lt-fp__founder-body { padding: 8px 12px 6px; }
+.lt-fp__eyebrow-h { font-family: var(--fp-sans); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fp-gt); }
+.lt-fp__quote { margin: 3px 0 0; font-size: 13px; line-height: 1.42; color: var(--fp-ink); }
+.lt-fp__founder-line { margin: 4px 0 0; font-size: 12.5px; line-height: 1.35; font-weight: 700; }
+.lt-fp__google { margin: 2px 0 0; font-size: 13px; color: var(--fp-ink2); }
+.lt-fp__google a { display: inline-block; padding: 8px 0; }
+
+.lt-fp__students { margin: 8px 0 0; padding: 8px 12px; background: var(--fp-gw); border-radius: 14px; }
+.lt-fp__students p { margin: 2px 0 0; font-size: 13.5px; line-height: 1.4; }
+.lt-fp__osfo { margin: 6px 0 0; font-family: var(--fp-serif); font-size: 14.5px; line-height: 1.35; font-weight: 600; text-align: center; }
+.lt-fp__helps { margin: 8px 0 0; }
+.lt-fp__helps ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.lt-fp__helps li { display: flex; flex-direction: column; padding: 5px 10px; background: #fff; border: 1px solid var(--fp-line); border-radius: 12px; }
+.lt-fp__helps strong { font-size: 14px; line-height: 1.25; }
+.lt-fp__helps span { font-size: 12.5px; line-height: 1.3; color: var(--fp-ink2); }
+.lt-fp__second-wrap { display: none; }
+
+.lt-fp__pills { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0 0; padding: 0; list-style: none; }
+.lt-fp__pills li { padding: 2px 8px; background: var(--fp-gw); border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--fp-gt); }
+.lt-fp__cbq { margin: 4px 0 0; font-size: 13.5px; }
+.lt-fp__cbq a { display: inline-block; padding: 6px 0; font-weight: 700; }
+.lt-fp__cbq-price { font-weight: 700; }
+.lt-fp__faq { margin: 4px 0 0; }
+.lt-fp__faq details { border-bottom: 1px solid var(--fp-line); }
+.lt-fp__faq summary { min-height: 42px; display: flex; align-items: center; font-weight: 600; font-size: 14.5px; cursor: pointer; }
+.lt-fp__faq details p { margin: 0 0 10px; font-size: 14px; color: var(--fp-ink2); }
+.lt-fp__foot { margin: 4px 0 0; font-size: 13.5px; }
+.lt-fp__foot a { display: inline-block; padding: 8px 2px; }
+.lt-fp__fine { margin: 4px 0 14px; font-size: 12px; color: var(--fp-ink3); }
+.lt-fp__small-link { font-size: 13.5px; }
+.lt-fp .lt-tv__thumb { object-fit: cover; }
+
+@media (min-width: 768px) {
+  .lt-fp__hero h1 { font-size: 30px; }
+  .lt-fp__pc { flex-basis: 360px; }
+  .lt-fp__pc-media { height: 190px; }
 }
 
-/* CTA — the green accent; a full-width tap target on a phone */
-.lt-fp .lt-fp__cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 12px 20px;
-  border-radius: 12px;
-  background: var(--fp-g);
-  color: #fff;
-  font-weight: 600;
-  font-size: 15px;
-  text-decoration: none;
+/* DESKTOP - screen 1: copy and price card left, the proof row right; screen 2: founder left, the rest right. */
+@media (min-width: 1024px) {
+  .lt-fp__top { display: grid; grid-template-columns: minmax(0, 560px) minmax(0, 1fr); column-gap: 32px; align-items: start; padding: 0 max(24px, calc((100vw - 1232px) / 2)); }
+  .lt-fp__hero { padding: 28px 0 24px; }
+  .lt-fp__hero-in { padding: 0; margin: 0; max-width: none; }
+  .lt-fp__hero h1 { font-size: 34px; }
+  .lt-fp__lead { font-size: 16px; }
+  .lt-fp__card { max-width: 420px; }
+  .lt-fp .lt-fp__free { justify-content: flex-start; }
+  .lt-fp__proof { background: transparent; padding: 28px 0 20px; min-width: 0; }
+  .lt-fp__proof .lt-fp__h2 { color: #fff; padding: 0; }
+  .lt-fp__swipe { padding: 0 0 8px; scroll-padding: 0; }
+  .lt-fp__pc { flex-basis: 400px; }
+  .lt-fp__pc-media { height: 250px; }
+  .lt-fp__swipe-hint { color: #c9d6e6; }
+  .lt-fp .lt-fp__dot::after { background: rgba(255, 255, 255, 0.45); }
+  .lt-fp .lt-fp__dot--on::after { background: #fff; }
+  .lt-fp__rest { max-width: 1232px; padding: 0 24px; display: grid; grid-template-columns: minmax(0, 520px) minmax(0, 1fr); column-gap: 32px; align-items: start; }
+  .lt-fp__founder { margin-top: 20px; }
+  .lt-fp__founder-photo { height: 220px; }
+  .lt-fp__quote { font-size: 14.5px; }
+  .lt-fp__col2 { grid-column: 2; grid-row: 1; }
+  .lt-fp__students { margin-top: 20px; }
+  .lt-fp__second-wrap { display: block; margin-top: 12px; }
+  .lt-fp__second { max-width: 360px; }
+  .lt-fp__card-note--dark { color: var(--fp-ink2); }
+  .lt-fp__pills, .lt-fp__cbq, .lt-fp__faq, .lt-fp__foot, .lt-fp__fine { grid-column: 1 / -1; }
+  .lt-fp__faq { display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
+  .lt-fp__faq .lt-fp__h2 { grid-column: 1 / -1; }
+  .lt-stickybar { display: none; }
 }
-.lt-fp .lt-fp__cta:hover {
-  background: var(--fp-gt);
-}
-
-/* BODY */
-.lt-fp__body {
-  padding-top: 30px;
-  padding-bottom: 40px;
-}
-.lt-fp section {
-  margin-bottom: 38px;
-}
-.lt-fp h2 {
-  font-size: clamp(21px, 5vw, 26px);
-  font-weight: 600;
-  line-height: 1.2;
-  margin-bottom: 12px;
-}
-.lt-fp section > p {
-  margin: 0 0 12px;
-  color: var(--fp-ink);
-}
-.lt-fp__lede {
-  color: var(--fp-ink2);
-}
-
-/* WHAT YOUR CHILD GETS */
-.lt-fp__tiles {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 10px;
-}
-.lt-fp__tiles li {
-  background: var(--fp-card);
-  border: 1px solid var(--fp-line);
-  border-left: 4px solid var(--fp-g);
-  border-radius: 10px;
-  padding: 14px;
-  box-shadow: var(--fp-sh);
-  font-weight: 600;
-}
-.lt-fp__tiles a {
-  text-decoration: none;
-}
-.lt-fp__tiles a:hover {
-  text-decoration: underline;
-}
-
-/* FAQ — plain <details> */
-.lt-fp__faq details {
-  background: var(--fp-card);
-  border: 1px solid var(--fp-line);
-  border-radius: 10px;
-  padding: 0 14px;
-  margin-bottom: 8px;
-}
-.lt-fp__faq summary {
-  cursor: pointer;
-  min-height: 44px;
-  padding: 10px 0;
-  font-weight: 600;
-}
-.lt-fp__faq details p {
-  margin: 0 0 12px;
-  color: var(--fp-ink2);
-}
-
-/* THE SEND — the closing call to action */
-.lt-fp__send {
-  background: var(--fp-navy);
-  color: #eaf2fb;
-  border-radius: 16px;
-  padding: 22px 18px;
-}
-.lt-fp__send h2 {
-  color: #fff;
-}
-.lt-fp .lt-fp__send > p {
-  color: #b9d0e8;
-  margin-bottom: 16px;
-}
-.lt-fp__fine {
-  font-size: 13px;
-  color: var(--fp-ink3);
-  margin: 0;
-}
-
-/* Tablet and up: the CTA sizes to its label instead of spanning the column. */
-@media (min-width: 760px) {
-  .lt-fp__hero {
-    padding: 44px 0 40px;
-  }
-  .lt-fp .lt-fp__cta {
-    display: inline-flex;
-  }
-  .lt-fp__ex {
-    padding: 20px 22px;
-  }
-  .lt-fp__send {
-    padding: 28px 30px;
-  }
-}
-
-/*
- * THE VIDEO FACADE'S BOX, reserved here on purpose. The `TestimonialVideo` component's own
- * stylesheet (`.lt-tv*`) is a shared lazy file that is NOT inlined with this page's CSS
- * (only the route's own CSS is, D63a/D137), so on /for-parents, where the video sits above the
- * fold at desktop width, the frame was laid out without its 16:9 box and jumped when that file
- * arrived (CLS 0.11 at 1440 px after the page CSS was inlined). These four rules repeat ONLY the
- * geometry (never colours or type), so the first paint already holds the final box. They are the
- * component's own values; keep them equal to `components/marketing/testimonialVideo.css`.
- */
-.lt-fp .lt-tv {
-  max-width: 760px;
-  width: 100%;
-  margin: 0 auto;
-}
-.lt-fp .lt-tv__frame {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-}
-.lt-fp .lt-tv__thumb {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.lt-fp .lt-tv__play {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-/*
- * PARENTS-CTA-1 (owner ruling 2026-10-19) — the action row: the green share button (primary)
- * and "Check one answer free" (secondary, outlined). Stacked full-width on a phone, side by
- * side from tablet width. Both sit on the navy hero / closing band, so the secondary is a
- * light outline on navy.
- */
-.lt-fp__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.lt-fp .lt-fp__cta2 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 12px 20px;
-  border-radius: 12px;
-  border: 1.5px solid #8fb3d9;
-  background: transparent;
-  color: #fff;
-  font-weight: 600;
-  font-size: 15px;
-  text-decoration: none;
-}
-.lt-fp .lt-fp__cta2:hover {
-  border-color: #fff;
-  background: rgba(255, 255, 255, 0.08);
-}
-@media (min-width: 760px) {
-  .lt-fp__actions {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .lt-fp .lt-fp__cta2 {
-    display: inline-flex;
-  }
-}
-
-/*
- * PARENTS-NAV-1 — "See the price": a TERTIARY text link on navy (hero + closing section).
- * Quieter than both the green share button and the outlined free-check link: no fill, no
- * border, underlined, still a 44px tap target.
- */
-.lt-fp .lt-fp__cta3 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 8px 12px;
-  color: #cfe0f2;
-  font-weight: 600;
-  font-size: 15px;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.lt-fp .lt-fp__cta3:hover {
-  color: #fff;
-}
-@media (min-width: 760px) {
-  .lt-fp .lt-fp__cta3 {
-    display: inline-flex;
-  }
-}
-
-/* PARENTS-PAY-1 — the price and how a parent pays. Figures arrive after mount; the slot holds their height. */
-.lt-fp .lt-fp__price {
-  background: var(--fp-card);
-  border: 1px solid var(--fp-line);
-  border-radius: 16px;
-  box-shadow: var(--fp-sh);
-  padding: 20px 16px;
-}
-.lt-fp__price-slot {
-  min-height: 132px;
-  margin: 8px 0 4px;
-}
-.lt-fp__price-main {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 10px;
-  margin: 0;
-}
-.lt-fp__price-name {
-  font-weight: 700;
-}
-.lt-fp__price-amt {
-  font-family: var(--fp-serif);
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--fp-gt);
-}
-.lt-fp__price-once {
-  color: var(--fp-ink2);
-  font-size: 14px;
-}
-.lt-fp .lt-fp__price-day {
-  margin: 2px 0 8px;
-  font-weight: 600;
-}
-.lt-fp .lt-fp__price-alt {
-  margin: 0 0 4px;
-  color: var(--fp-ink2);
-}
-.lt-fp .lt-fp__price .lt-founder-badge {
-  margin: 10px 0 0;
-}
-@media (min-width: 760px) {
-  .lt-fp .lt-fp__price {
-    padding: 24px 26px;
-  }
-  .lt-fp__price-slot {
-    min-height: 104px;
-  }
-}
-
-/* PARENTS-PAY-1 - the Pay button (a <button> styled as the page's primary CTA), the outlined hero Share, and the price block's one line + WhatsApp help. */
-.lt-fp button.lt-fp__cta {
-  border: 0;
-  cursor: pointer;
-  font-family: inherit;
-  width: 100%;
-}
-.lt-fp .lt-fp__cta--alt {
-  background: transparent;
-  border: 1.5px solid #b9d0e8;
-  color: #fff;
-}
-.lt-fp .lt-fp__cta--alt:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-.lt-fp .lt-fp__price-line {
-  margin: 12px 0 14px;
-  color: var(--fp-ink2);
-}
-.lt-fp__price-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.lt-fp .lt-fp__help {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  font-weight: 600;
-  color: var(--fp-gt);
-}
-@media (min-width: 760px) {
-  .lt-fp button.lt-fp__cta {
-    width: auto;
-  }
-  .lt-fp__price-actions {
-    flex-direction: row;
-    align-items: center;
-    gap: 18px;
-  }
-}
-
-/* SPEED-CLS-2 - the PacksShop wrapper that sits before the page (`.lt-packs--embedded`, empty here: the shop's tiles render in the page).
-   Its own stylesheet (packs.css, a shared lazy chunk) gives it `padding-bottom: 28px` wherever no bottom nav is mounted (signed-out
-   visitors, desktop) - see `body:not(:has([data-lt-bottomnav])) .lt-packs` there - and it arrives ~0.6 s after the prerendered hero has
-   painted, pushing the whole page down 28px (CLS 0.019 at 1280). Stating the same final value here, in the page's own (inlined) CSS,
-   makes the first paint match the settled one. Same selector condition and value as packs.css, so nothing changes on screen once it loads. */
-body:not(:has([data-lt-bottomnav])) .lt-packs.lt-packs--embedded { padding-bottom: 28px; }

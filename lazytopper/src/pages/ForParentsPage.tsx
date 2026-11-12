@@ -1,175 +1,103 @@
-import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, lazy, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import TestimonialVideo from "../components/marketing/TestimonialVideo";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
-import MummyJourney from "../components/guide/mummy/MummyJourney";
-// MOMENTS-1 M11b — Mummy's "one written answer" line, beside the page's own free-check action.
-import MummyCheckNudge from "../components/guide/mummy/MummyCheckNudge";
+import SalesStickyBar from "../components/salesPages/SalesStickyBar";
 import { trackBeginCheckoutTap, trackParentShareClick, type ParentSharePlacement } from "../analytics/analytics";
 import { useAuth } from "../context/AuthContext";
-import PacksShop, { type PacksShopApi } from "../components/packs/PacksShop";
 import { isCheckoutWhoClientEnabled } from "../services/checkoutWhoFlag";
+import { BOARD_PASS_CHECKOUT_DESCRIPTION, isPaymentsClientEnabled } from "../services/checkout";
+import { withSigninRedirect } from "../services/freeCheckClient";
+import type { GuestSigninState } from "../services/guestPay";
 import { BOARD_PASS_BUY_PATH } from "../components/pricing/boardPassBuy";
 import { withParentFlag } from "../lib/parentReturn";
-import FounderBadge from "../components/brand/FounderBadge";
-import { BOARD_PASS_NAME, boardPassGstExclusive, boardPassPayDisplay, formatInr, tillBoardsPriceInr, tillBoardsQuote } from "../config/pricing";
+import {
+  BOARD_PASS_NAME,
+  boardPassFoundingPriceLine,
+  boardPassGstBreakdown,
+  boardPassGstExclusive,
+  boardPassPayDisplay,
+  boardPassPriceDisplay,
+  formatInr,
+  tillBoardsPriceInr,
+  tillBoardsQuote,
+} from "../config/pricing";
+import { BANK_QUESTIONS_CLAIM } from "../lib/packs/packLabels";
+import { packPriceLabel } from "../services/packs";
 import { WHATSAPP_URL } from "../config/socialProfiles";
 import { predictCbseExamDate } from "../services/cbseExamDate";
-import ParentPacksSection, { ParentPacksBand, ParentPacksHeroLink } from "../components/parents/ParentPacksSection";
+import {
+  FP_CBQ_LINE,
+  FP_CBQ_LINK,
+  FP_CHIPS,
+  FP_EYEBROW,
+  FP_FAQ_SIGNIN_A,
+  FP_FAQ_SIGNIN_Q,
+  FP_FOUNDER_ALT,
+  FP_FOUNDER_EYEBROW,
+  FP_FOUNDER_LINE,
+  FP_FOUNDER_QUOTE,
+  FP_FREE_CHECK_LINK,
+  FP_H1,
+  FP_HELPS,
+  FP_HELPS_TITLE,
+  FP_LEAD,
+  FP_ONE_PAYMENT,
+  FP_OSFO,
+  FP_PAY_NOTE,
+  FP_PILLS,
+  FP_PROOF,
+  FP_PROOF_TITLE,
+  FP_STUDENTS_BODY,
+  FP_STUDENTS_TITLE,
+  FP_STUDENT_BY,
+  FP_STUDENT_QUOTE,
+  GOOGLE_RATING,
+} from "../config/forParentsPage";
 import "./forParents.css";
 
-/** PARENTS-PAY-1 (4 Nov 2026): the Board Pass checkout ("Who will use it?"), lazy: loaded only when a Pay is tapped. */
-const ParentBoardPassSheet = lazy(() => import("../components/parents/ParentBoardPassSheet"));
+/** The signed-out Board Pass checkout (pay first, then "Who will use it?"), lazy: fetched when the page is idle, opened on a Pay tap. */
+const CheckoutSheet = lazy(() => import("../components/checkoutWho/CheckoutSheet"));
+const loadCheckoutSheet = () => import("../components/checkoutWho/CheckoutSheet");
 
 /**
- * ★ PARENTS-PAY-1 (owner ruling 28 Oct 2026, 07:51 IST) SUPERSEDES the "no price figure" rulings above:
- * the page now shows the price and how a parent pays for the child. The figures come from
- * `config/pricing.ts` (`tillBoardsQuote`; PRICE-FIXED-1: no month price). Since SPEED-CLS-2 (#1629) the Pay buttons and the
- * pack prices are in React's FIRST client commit (`useMounted`); only the "What it costs" figures block fills in just after, inside
- * a slot that is always rendered. The raw string render (renderToStaticMarkup) still has no rupee figure, which is what the unit
- * contract checks; the prerendered page carries the prices (PRERENDER-PRICE-GUARD-1). The number-free steps are static. A parent cannot start a payment without the child's
- * account: the server prices the order from the child's record (`ParentPayPanel`), so there is NO
- * checkout here, only the true flow and the WhatsApp contact for help.
- */
-
-/**
- * ★ PARENTS-PAY-1 (owner, 4 Nov 2026) SUPERSEDES the "there is NO checkout here" note above: a parent now pays ON this page. The
- * primary "Pay for my child" opens the same "Who will use it?" checkout /pricing opens for the Board Pass (the box says any mobile
- * number or email works - many children have no phone), and every pack card has its own Buy through the shared pack shop
- * (`PacksShop`, the one /packs and /pricing use). The old three-step "child taps Forward link to parents" block and the "opens
- * WhatsApp, no payment on this page" note are gone; WhatsApp is a secondary "Questions?" link. The price on the Pay buttons and pack
- * cards is in React's first client commit (SPEED-CLS-2; pinned by forParents.price.test.tsx).
- */
-
-/**
- * ForParentsPage — `/for-parents` (PARENTS-1): the public page a PARENT lands on from an
- * ad, which explains LazyTopper in parent terms and makes the next step handing it to the
- * child.
+ * ForParentsPage - `/for-parents`, rebuilt for sales (PARENTS-V2-1, owner 12 Nov 2026; approved mock-up). One Pay, four times: the hero
+ * price card, the phone bar, and (desktop) a second Pay at the end of the second screen. Every Pay opens the pay-first checkout with
+ * "My child / someone else" pre-selected for the "Who will use it?" step (CheckoutSheet `attachPreselect`); a signed-in visitor takes
+ * today's Board Pass checkout (the one-tap pay link /board-pass?buy=board_pass), a Board Pass holder sees its holder card there.
  *
- * ★ WHY NO SIGN-UP BUTTON. Most people the ads reach are parents, and a parent who signs up
- * on their own phone is not the user: that is the dead-account pattern this page exists to
- * stop. The primary action is "Send LazyTopper to my child", a WhatsApp share of the free
- * answer check. No sign-up CTA, no price figure, no parent account (owner rulings, 12–13 Oct).
+ * SPEED (the Google Ads landing-page experience): served as an island like /board-pass (islandConfig), so the first paint needs no app
+ * JS. The hero has no image; every image below it is lazy, sized and WebP with a JPEG fallback; both videos are poster-only until
+ * tapped (`preload="none"`). The price card is in React's first client commit (`useMounted`), which is what the prerender captures; the
+ * 1 Dec re-capture of prerendered/for-parents.html (+ __desktop/) freezes the new price.
  *
- * ★ WHAT THE 19 OCT RULING ADDED (PARENTS-CTA-1, owner ruling 2026-10-19). Three things, and
- * only these three:
- *   1. A SECONDARY "Check one answer free" link (hero and closing section) straight to the
- *      free answer check, `/check-improve?from=for_parents&utm_source=for_parents`, for the
- *      parent (or the child beside them) who wants to see it work right here. `from=` makes
- *      /check-improve show a "Back to parents page" link (`lib/parentReturn.ts`).
- *      `utm_source=for_parents` is NOT reliable attribution for these clicks: the visit
- *      source is FIRST-TOUCH per tab (`rememberVisitSourceOnce`, analytics/visitSource.ts
- *      ~L166: it runs once per page load and keeps any source the tab already stored), and a
- *      click from this page is an in-app navigation in the same tab. The tag only records for
- *      a visitor who opens the URL directly in a fresh tab (e.g. the link shared on). No new analytics event: the
- *      named-event union lives in `analytics/analytics.ts`, outside this lane.
- *   2. A "See pricing" link to `/pricing` in the "What does it cost?" answer. The page itself
- *      still states NO rupee figure (19 Oct; superseded by PARENTS-PAY-1 above: the page now shows the Board Pass price).
- *   3. A fifth "What your child gets" tile, "A tutor for doubts, explained step by step", with
- *      NO link: the tutor needs an account, and this page offers no route to make one.
- * Still NO sign-up / login link or button on this page. The share button is unchanged.
- *
- * ★ PARENTS-NAV-1 (owner, 20 Oct 2026): "parents would like to see the price … and then every
- * link of for parents page should navigate back to the for parents page."
- *   1. A visible "See the price" link (hero and closing section, a quiet text link — never louder
- *      than the share button) to `/pricing?from=for_parents`. The page itself STILL states no
- *      rupee figure: the price lives on /pricing.
- *   2. EVERY in-app link here (tiles, FAQ, the free-check and pricing links, and the footer via
- *      `fromParents`) carries `from=for_parents` (`withParentFlag`), and each page they open shows
- *      "← Back to parents page" (`components/parents/ParentReturnLink`). The WhatsApp share link
- *      is external and unchanged.
- *
- * ★ THE SHARE LINK USES UTM TAGS, NOT `?ref=`. `referralService` reads `?ref=` as a
- * referral code and `visitSource.ref` is the referrer host; a third meaning would be a trap.
- * `utm_source=parent_share` is captured by SOURCE-1 and read as "Parent share" in the admin
- * Students list. The link is a plain `<a href>` so it exists in the prerendered HTML and
- * works with no JavaScript.
- *
- * ★ EVERY FAQ ANSWER IS TRUE AT THE TIP (spec P12): the free first check
- * (`services/freeCheckClient.ts`), the 7-day trial at sign-up (`newAccountTrial.ts`,
- * `TRIAL_DAYS`), no user-to-user messaging, no ad network. It does NOT claim "no tracking":
- * the analytics pixels are not ads, and the privacy policy is linked instead.
- *
- * ★ ONE COMPONENT AT EVERY WIDTH, RESPONSIVE BY CSS ALONE, nothing fetched: the page renders
- * the same for a signed-out reader and a crawler, which is what the prerender freezes.
+ * Grading is untouched (CLAUDE.md 4a): nothing here reads or writes a grade.
  */
 
 /** The page the shared link opens: the free answer check, tagged so the sign-up reads "Parent share". */
 export const PARENT_SHARE_URL =
   "https://www.lazytopper.com/check-improve?utm_source=parent_share&utm_medium=whatsapp";
-
-/** The message a parent sends. Plain words, no promise, no price. */
 export const PARENT_SHARE_MESSAGE =
   "Try this for your Class 10 board prep: photograph a written answer and see the marks for every step, " +
   `the way a CBSE examiner marks it. ${PARENT_SHARE_URL}`;
-
 /** `https://wa.me/?text=…` opens WhatsApp's own contact picker with the message filled in. */
 export const PARENT_SHARE_HREF = `https://wa.me/?text=${encodeURIComponent(PARENT_SHARE_MESSAGE)}`;
 
-const SHARE_LABEL = "Send LazyTopper to my child";
-
-/** PARENTS-CTA-1 — the secondary link to the free answer check (owner ruling 2026-10-19). */
+/** The free answer check (existing route; `from=` makes /check-improve show "Back to parents page"). */
 export const FREE_CHECK_LABEL = "Check one answer free";
 export const FREE_CHECK_TO = "/check-improve?from=for_parents&utm_source=for_parents";
-
-/** PARENTS-NAV-1 — the visible pricing link (hero + closing section). No figure on this page. */
 export const PRICING_LABEL = "See the price";
 export const PRICING_TO = withParentFlag("/pricing");
-
-/** PARENTS-NAV-1 review — the CBSE page's OWN back link (its return ticket) also leads here. */
 export const CBSE_PAGE_TO = withParentFlag(`/cbse/class-10?returnTo=${encodeURIComponent("/for-parents")}`);
+/** The CBQ pack's own page. */
+export const CBQ_PACKS_TO = "/cbq-packs";
 
-interface Tile {
-  readonly title: string;
-  /** An existing public page, or none. */
-  readonly to?: string;
-}
-
-const TILES: readonly Tile[] = [
-  { title: "Answer checking with step marks", to: withParentFlag("/check-your-answer") },
-  { title: "Chapter tests and full mocks in the CBSE pattern", to: withParentFlag("/practice-hub") },
-  { title: "Important Questions from 10 years of CBSE papers", to: withParentFlag("/highly-probable/10/Maths") },
-  { title: "Practice on weak topics" },
-  // PARENTS-CTA-1 (owner ruling 2026-10-19): deliberately NO link — the tutor needs an account,
-  // and this page carries no sign-up route.
-  { title: "A tutor for doubts, explained step by step" },
-];
-
-/** A plain link (in the prerendered HTML, works with no JavaScript), styled secondary. */
-function FreeCheckLink({ placement }: { placement: ParentSharePlacement | "mummy_check" }) {
-  return (
-    <Link className="lt-fp__cta2" to={FREE_CHECK_TO} data-testid={`fp-free-check-${placement}`}>
-      {FREE_CHECK_LABEL}
-    </Link>
-  );
-}
-
-/** PARENTS-NAV-1 — a quiet text link to /pricing (in the prerendered HTML), styled tertiary. */
-function PricingLink({ placement }: { placement: "hero" | "footer" }) {
-  return (
-    <Link className="lt-fp__cta3" to={PRICING_TO} data-testid={`fp-pricing-${placement}`}>
-      {PRICING_LABEL}
-    </Link>
-  );
-}
-
-function ShareButton({ placement, secondary = false }: { placement: ParentSharePlacement; secondary?: boolean }) {
-  const onClick = () => trackParentShareClick(placement);
-  return (
-    <a
-      className={secondary ? "lt-fp__cta lt-fp__cta--alt" : "lt-fp__cta"}
-      href={PARENT_SHARE_HREF}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={onClick}
-      data-testid={`fp-share-${placement}`}
-    >
-      {SHARE_LABEL}
-    </a>
-  );
-}
-
+export const PAY_LABEL = "Pay for my child";
+export const PAY_HELP_LABEL = "Questions? WhatsApp us";
+export const PAY_HELP_HREF = `${WHATSAPP_URL}?text=${encodeURIComponent("Hi, I am a parent. I have a question about the LazyTopper Board Pass.")}`;
+/** Kept for the pay-flow tests: the old one-line explanation is replaced by FP_PAY_NOTE. */
+export const PAY_ONE_LINE = FP_PAY_NOTE;
 
 const DAY_MS = 86_400_000;
 const IST_OFFSET_MS = 330 * 60_000;
@@ -197,13 +125,10 @@ export interface ParentPriceModel {
 
 /** PURE: the clock and the board date are arguments. Null when the Board Pass cannot be quoted. */
 export function parentPriceModel(now: Date, boardIso: string): ParentPriceModel | null {
-  // PRICE-FIXED-1 (owner, 31 Oct 2026): the Board Pass only, at its fixed price; the month price is hidden.
   const quote = tillBoardsQuote(now, boardIso);
   if (!quote) return null;
   const days = daysToBoards(now, boardIso);
   const perDay = days ? Math.ceil(quote.priceInr / days) : NaN;
-  // GST-EXCL-1 (owner, 4 Nov 18:20 IST): from the GST cut-off the per-day line is REMOVED (never computed from a base price
-  // that understates the charge). Before it, unchanged.
   const gst = boardPassGstExclusive(now);
   return {
     boardPassDisplay: quote.priceDisplay,
@@ -213,153 +138,291 @@ export function parentPriceModel(now: Date, boardIso: string): ParentPriceModel 
   };
 }
 
-export const PAY_LABEL = "Pay for my child";
-export const PAY_HELP_LABEL = "Questions? Ask us on WhatsApp";
-export const PAY_HELP_HREF = `${WHATSAPP_URL}?text=${encodeURIComponent("Hi, I am a parent. I have a question about the LazyTopper Board Pass.")}`;
-/** The one line that replaces the old three steps (owner wording, 4 Nov 2026). */
-export const PAY_ONE_LINE =
-  "Type the mobile number or email your child will sign in with, pay on Razorpay, and it\u2019s on their account. You don\u2019t need an account.";
+/** "Feb 2027" out of "till your boards (Feb 2027)". */
+export function boardsMonthYear(untilLabel: string): string {
+  return /\(([^)]+)\)/.exec(untilLabel)?.[1] ?? "";
+}
 
-/** The Pay opener the page passes to its two Pay buttons (hero + price section). */
-type PayPlacement = "hero" | "price";
+/** The price card's figures at `now` (pure): the tag, the amount charged, the deadline line and the "till the Feb 2027 boards" line. */
+export function parentCardModel(now: Date, boardIso: string) {
+  const model = parentPriceModel(now, boardIso);
+  if (!model) return null;
+  const until = boardsMonthYear(model.untilLabel);
+  return {
+    tag: model.boardPassDisplay,
+    pay: model.boardPassPayDisplay,
+    deadline: boardPassFoundingPriceLine(now),
+    once: FP_ONE_PAYMENT.replace("{until}", until || "Feb 2027"),
+    until: until ? `till the ${until} boards` : "till the boards",
+  };
+}
 
 /**
- * SPEED-CLS-2: true from the FIRST client render, false in a string render (renderToString / renderToStaticMarkup use the server
- * snapshot, so a raw string render has no price: a unit-level contract, not what the prerendered page serves). The prerendered page already carries these prices
- * (PRERENDER-PRICE-GUARD-1) and React's first commit replaces that markup, so a first render WITHOUT them narrowed the Pay /
- * packs-link buttons and emptied the band chips for a frame before the effect filled them in: two layout shifts at hand-over
- * (CLS 0.03-0.06 at 1280). createRoot does not hydrate, so there is no markup to match.
+ * SPEED-CLS-2: true from the FIRST client render, false in a string render. The prerendered page carries the price (it is captured
+ * from a real browser, PRERENDER-PRICE-GUARD-1), and React's first commit replaces that markup, so a first render WITHOUT the figures
+ * would shift the card. createRoot does not hydrate, so there is no markup to match.
  */
 const subscribeNever = () => () => undefined;
 function useMounted(): boolean {
   return useSyncExternalStore(subscribeNever, () => true, () => false);
 }
 
-/** "Pay for my child · ₹1,917" (GST-EXCL-1: the amount CHARGED, ₹2,262 from 7 Nov 2026): the figure shows from the first client commit (founding/regular logic of /pricing; `useMounted`); only a string render omits it. */
+type PayPlacement = "hero" | "second" | "sticky";
+
 function PayButton({ placement, onPay }: { placement: PayPlacement; onPay: (placement: PayPlacement) => void }) {
   const mounted = useMounted();
   return (
-    <button type="button" className="lt-fp__cta lt-fp__cta--primary" onClick={() => onPay(placement)} aria-haspopup="dialog" data-testid={`fp-pay-${placement}`}>
-      {mounted ? `${PAY_LABEL} \u00b7 ${boardPassPayDisplay()}` : PAY_LABEL}
+    <button type="button" className="lt-fp__pay" onClick={() => onPay(placement)} aria-haspopup="dialog" data-testid={`fp-pay-${placement}`}>
+      {mounted ? `${PAY_LABEL} · ${boardPassPayDisplay()}` : PAY_LABEL}
     </button>
   );
 }
 
-/** PARENTS-PAY-1 — the price and the real way a parent pays. The figures block fills in after the first commit, into a slot that is always rendered (see above). */
-function ParentPriceSection({ onPay }: { onPay: (placement: PayPlacement) => void }) {
-  const [model, setModel] = useState<ParentPriceModel | null>(null);
-  useEffect(() => {
-    setModel(parentPriceModel(new Date(), predictCbseExamDate("10")));
-  }, []);
+/** The white price card (hero) and its Pay. Figures are clock-derived in the first client commit (see useMounted). */
+function PriceCard({ onPay }: { onPay: (placement: PayPlacement) => void }) {
+  const mounted = useMounted();
+  const card = mounted ? parentCardModel(new Date(), predictCbseExamDate("10")) : null;
   return (
-    <section aria-labelledby="fp-price" className="lt-fp__price" data-testid="fp-price">
-      <h2 id="fp-price">What it costs, and how to pay</h2>
-      {/* The slot is always rendered so the figures' arrival shifts nothing. */}
-      <div className="lt-fp__price-slot">
-        {model && (
-          <div data-testid="fp-price-figures">
-            <p className="lt-fp__price-main">
-              <span className="lt-fp__price-name">{BOARD_PASS_NAME}</span>
-              <span className="lt-fp__price-amt">{model.boardPassDisplay}</span>
-              <span className="lt-fp__price-once">one-time, {model.untilLabel}</span>
-            </p>
-            {model.perDayLine && <p className="lt-fp__price-day">{model.perDayLine}</p>}
-          </div>
-        )}
-      </div>
-      <FounderBadge tone="light" />
-      <p className="lt-fp__price-line" data-testid="fp-pay-line">{PAY_ONE_LINE}</p>
-      <div className="lt-fp__price-actions">
-        <PayButton placement="price" onPay={onPay} />
-        <a className="lt-fp__help" href={PAY_HELP_HREF} target="_blank" rel="noopener noreferrer" data-testid="fp-pay-help">
-          {PAY_HELP_LABEL}
-        </a>
+    <div className="lt-fp__card" data-testid="fp-price" data-lt-pay-area="hero">
+      <p className="lt-fp__card-name">
+        <span>{BOARD_PASS_NAME}</span>
+        <strong className="lt-fp__card-amt" data-testid="fp-price-amt">{card?.tag ?? ""}</strong>
+      </p>
+      <p className="lt-fp__card-once">{card?.once ?? ""}</p>
+      <p className="lt-fp__card-deadline" data-testid="fp-price-deadline">{card?.deadline ?? ""}</p>
+      <PayButton placement="hero" onPay={onPay} />
+      <p className="lt-fp__card-note">{FP_PAY_NOTE}</p>
+    </div>
+  );
+}
+
+/** One picture: WebP with a JPEG fallback, sized, lazy. */
+function Pic({ base, widths, dims, alt, sizes, className, eager = false }: { base: string; widths: readonly number[]; dims: readonly (readonly [number, number])[]; alt: string; sizes: string; className?: string; eager?: boolean }) {
+  const set = (ext: "webp" | "jpg") => widths.map((w) => `${base}-${w}${base.includes("founder") ? "x" + Math.round((w * 9) / 16) : "w"}.${ext} ${w}w`).join(", ");
+  const last = widths.length - 1;
+  const [w, h] = dims[last];
+  return (
+    <picture>
+      <source type="image/webp" srcSet={set("webp")} sizes={sizes} />
+      <img
+        className={className}
+        src={`${base}-${widths[last]}${base.includes("founder") ? "x" + Math.round((widths[last] * 9) / 16) : "w"}.jpg`}
+        srcSet={set("jpg")}
+        sizes={sizes}
+        width={w}
+        height={h}
+        alt={alt}
+        decoding="async"
+        {...(eager ? { fetchPriority: "high" as const } : { loading: "lazy" as const })}
+      />
+    </picture>
+  );
+}
+
+const MEDIA = "/media/for-parents/";
+
+function ProofCards() {
+  return (
+    <>
+      <li className="lt-fp__pc" data-testid="fp-proof-handwritten">
+        <div className="lt-fp__pc-media">
+          <Pic base={`${MEDIA}proof-handwritten`} widths={[480, 662]} dims={[[480, 373], [662, 514]]} alt="A Class 10 student's handwritten answer on paper" sizes="(min-width: 1024px) 330px, (min-width: 768px) 250px, 190px" />
+        </div>
+        <p className="lt-fp__pc-cap">{FP_PROOF[0].caption}</p>
+        <p className="lt-fp__pc-det">{FP_PROOF[0].detail}</p>
+      </li>
+      <li className="lt-fp__pc" data-testid="fp-proof-steps">
+        <div className="lt-fp__pc-media">
+          <Pic base={`${MEDIA}proof-steps`} widths={[480, 720]} dims={[[480, 565], [720, 847]]} alt="The same answer marked step by step, with the marks for each step" sizes="(min-width: 1024px) 215px, (min-width: 768px) 160px, 125px" />
+        </div>
+        <p className="lt-fp__pc-cap">{FP_PROOF[1].caption}</p>
+        <p className="lt-fp__pc-det">{FP_PROOF[1].detail}</p>
+      </li>
+      <li className="lt-fp__pc" data-testid="fp-proof-scorecard">
+        <div className="lt-fp__pc-media">
+          <Pic base={`${MEDIA}proof-scorecard`} widths={[360, 540]} dims={[[360, 640], [540, 960]]} alt="The scorecard: where marks were lost and why" sizes="(min-width: 1024px) 140px, (min-width: 768px) 110px, 80px" />
+        </div>
+        <p className="lt-fp__pc-cap">{FP_PROOF[2].caption}</p>
+        <p className="lt-fp__pc-det">{FP_PROOF[2].detail}</p>
+      </li>
+      <li className="lt-fp__pc" data-testid="fp-proof-tutor">
+        <div className="lt-fp__pc-media lt-fp__pc-media--video">
+          <video muted playsInline preload="none" controls poster={`${MEDIA}tutor-demo-poster.webp`} width={960} height={474} aria-label="Recording of the tutor explaining a mistake, from the live product">
+            <source src={`${MEDIA}tutor-demo-960.mp4`} type="video/mp4" />
+          </video>
+        </div>
+        <p className="lt-fp__pc-cap">{FP_PROOF[3].caption}</p>
+        <p className="lt-fp__pc-det">{FP_PROOF[3].detail}</p>
+      </li>
+      <li className="lt-fp__pc lt-fp__pc--tv" data-testid="fp-proof-student">
+        <TestimonialVideo headingAs="h3" heading={`“${FP_STUDENT_QUOTE}”`} lede={FP_STUDENT_BY} />
+      </li>
+    </>
+  );
+}
+
+/** Five cards in a CSS scroll-snap row. The dots follow the scroll (after the app is up); the first dot is on in the served HTML. */
+function ProofSwipe() {
+  const ref = useRef<HTMLUListElement | null>(null);
+  const [active, setActive] = useState(0);
+  const onScroll = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const kids = Array.from(el.children) as HTMLElement[];
+    const mid = el.scrollLeft + el.clientWidth / 2;
+    let best = 0;
+    kids.forEach((k, i) => {
+      if (Math.abs(k.offsetLeft + k.offsetWidth / 2 - mid) < Math.abs(kids[best].offsetLeft + kids[best].offsetWidth / 2 - mid)) best = i;
+    });
+    setActive(best);
+  }, []);
+  const go = (i: number) => {
+    const el = ref.current;
+    const kid = el?.children[i] as HTMLElement | undefined;
+    if (el && kid) el.scrollTo({ left: kid.offsetLeft - 16, behavior: "smooth" });
+  };
+  return (
+    <section className="lt-fp__proof" aria-labelledby="fp-proof-h" data-testid="fp-proof">
+      <h2 id="fp-proof-h" className="lt-fp__h2">{FP_PROOF_TITLE}</h2>
+      <ul className="lt-fp__swipe" ref={ref} onScroll={onScroll} data-testid="fp-swipe">
+        <ProofCards />
+      </ul>
+      <div className="lt-fp__dots" aria-hidden="false">
+        <span className="lt-fp__swipe-hint">Swipe</span>
+        {FP_PROOF.map((p, i) => (
+          <button key={p.id} type="button" className={i === active ? "lt-fp__dot lt-fp__dot--on" : "lt-fp__dot"} aria-label={`Show card ${i + 1} of ${FP_PROOF.length}`} aria-current={i === active} onClick={() => go(i)} />
+        ))}
       </div>
     </section>
   );
 }
 
-export default function ForParentsPage() {
-  // The shop is the one /packs and /pricing sell packs through (its checkout sheet is lazy, its "Who will use it?" says any number or email).
+function FounderCard() {
   return (
-    <PacksShop embedded surface="for_parents" checkoutAudience="parent" hideMyPacks returnPath="/for-parents">
-      {(api) => <ForParentsBody api={api} />}
-    </PacksShop>
+    <section className="lt-fp__founder" aria-labelledby="fp-founder-h" data-testid="fp-founder">
+      <div className="lt-fp__founder-photo">
+        <Pic base={`${MEDIA}founder-chetan`} widths={[640, 960, 1280]} dims={[[640, 360], [960, 540], [1280, 720]]} alt={FP_FOUNDER_ALT} sizes="(min-width: 1024px) 520px, calc(100vw - 32px)" />
+      </div>
+      <div className="lt-fp__founder-body">
+        <h2 id="fp-founder-h" className="lt-fp__eyebrow-h">{FP_FOUNDER_EYEBROW}</h2>
+        <blockquote className="lt-fp__quote">{FP_FOUNDER_QUOTE}</blockquote>
+        <p className="lt-fp__founder-line">{FP_FOUNDER_LINE}</p>
+        <p className="lt-fp__google" data-testid="fp-google">
+          <span aria-hidden="true">{"★"}</span> {GOOGLE_RATING.stars} on Google {"·"} {GOOGLE_RATING.reviews} reviews {"·"}{" "}
+          <a href={GOOGLE_RATING.url} target="_blank" rel="noopener noreferrer">See them {"→"}</a>
+        </p>
+      </div>
+    </section>
   );
 }
 
-function ForParentsBody({ api }: { api: PacksShopApi }) {
+function ShareLink() {
+  return (
+    <a className="lt-fp__small-link" href={PARENT_SHARE_HREF} target="_blank" rel="noopener noreferrer" onClick={() => trackParentShareClick("footer" as ParentSharePlacement)} data-testid="fp-share-footer">
+      Send LazyTopper to my child
+    </a>
+  );
+}
+
+export default function ForParentsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const signedIn = Boolean(user) && !user?.isLocalSession;
   const [payOpen, setPayOpen] = useState(false);
-  const onPay = () => {
-    // `begin_checkout` at the TAP (no PII), tagged `surface: "for_parents"`; the checkout itself is /pricing's, unchanged.
+  const mounted = useMounted();
+
+  // Fetch the checkout sheet once the page is idle, so a Pay tap opens it at once (nothing is opened or ordered).
+  useEffect(() => {
+    if (!isPaymentsClientEnabled() || !isCheckoutWhoClientEnabled()) return undefined;
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(() => void loadCheckoutSheet().catch(() => undefined), { timeout: 2500 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const t = window.setTimeout(() => void loadCheckoutSheet().catch(() => undefined), 1500);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  const onPay = useCallback(() => {
+    // `begin_checkout` at the TAP (no PII), tagged `surface: "for_parents"`; the checkout itself is the shared one.
     trackBeginCheckoutTap(
       { passType: "till_boards", itemName: "Premium pass till your boards", valueInr: tillBoardsPriceInr(), surface: "for_parents" },
       signedIn,
     );
-    // Flag off: the existing one-tap Board Pass start on /pricing (the same entry every other Pay button uses).
-    if (!isCheckoutWhoClientEnabled()) {
+    // Signed in (a buyer or a holder) or the checkout switched off: today's Board Pass checkout, the one-tap pay link on /board-pass.
+    if (signedIn || !isPaymentsClientEnabled() || !isCheckoutWhoClientEnabled()) {
       navigate(BOARD_PASS_BUY_PATH);
       return;
     }
     setPayOpen(true);
-  };
+  }, [navigate, signedIn]);
+
+  const second = (
+    <div className="lt-fp__second" data-testid="fp-pay-area-second" data-lt-pay-area="second">
+      <PayButton placement="second" onPay={onPay} />
+      <p className="lt-fp__card-note lt-fp__card-note--dark">{FP_PAY_NOTE}</p>
+    </div>
+  );
+
   return (
     <main className="lt-fp" data-testid="for-parents-page">
-      <header className="lt-fp__hero">
-        <div className="lt-fp__w">
-          <p className="lt-fp__eyebrow">For parents · CBSE Class 10 · Maths and Science</p>
-          <h1>See exactly where your child loses marks in CBSE Class 10.</h1>
-          <p className="lt-fp__sub">
-            Your child writes the answer on paper and takes a photo. LazyTopper marks it step by step, the way a CBSE
-            examiner does, and shows what to fix.
-          </p>
-          <div className="lt-fp__actions">
-            <PayButton placement="hero" onPay={onPay} />
-            <ShareButton placement="hero" secondary />
-            <ParentPacksHeroLink />
-            <FreeCheckLink placement="hero" />
-            <PricingLink placement="hero" />
+      <div className="lt-fp__top">
+        <header className="lt-fp__hero">
+          <div className="lt-fp__hero-in">
+            <p className="lt-fp__eyebrow">{FP_EYEBROW}</p>
+            <h1>{FP_H1}</h1>
+            <p className="lt-fp__lead">{FP_LEAD}</p>
+            <ul className="lt-fp__chips">
+              {FP_CHIPS.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ul>
+            <PriceCard onPay={onPay} />
+            <Link className="lt-fp__free" to={FREE_CHECK_TO} data-testid="fp-free-check-hero">
+              {FP_FREE_CHECK_LINK}
+            </Link>
           </div>
+        </header>
+        <ProofSwipe />
+      </div>
+
+      <div className="lt-fp__rest">
+        <FounderCard />
+
+        <div className="lt-fp__col2">
+          <section className="lt-fp__students" aria-labelledby="fp-students-h" data-testid="fp-students">
+            <h2 id="fp-students-h" className="lt-fp__h2">{FP_STUDENTS_TITLE}</h2>
+            <p>{FP_STUDENTS_BODY}</p>
+          </section>
+          <p className="lt-fp__osfo" data-testid="fp-osfo">{FP_OSFO}</p>
+
+          <section aria-labelledby="fp-helps-h" className="lt-fp__helps" data-testid="fp-helps">
+            <h2 id="fp-helps-h" className="lt-fp__h2">{FP_HELPS_TITLE}</h2>
+            <ul>
+              {FP_HELPS.map((r) => (
+                <li key={r.title}>
+                  <strong>{r.title}</strong>
+                  <span>{r.body.replace("{bank}", BANK_QUESTIONS_CLAIM)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+          <div className="lt-fp__second-wrap">{second}</div>
         </div>
-      </header>
 
-      <div className="lt-fp__w lt-fp__body">
-        <ParentPacksBand />
-        <MummyJourney actions={<><ShareButton placement="journey" /><FreeCheckLink placement="journey" /></>} />
-        <MummyCheckNudge action={<FreeCheckLink placement="mummy_check" />} />
-        <ParentPriceSection onPay={onPay} />
+        <ul className="lt-fp__pills" data-testid="fp-pills">
+          {FP_PILLS.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
 
-        <ParentPacksSection api={api} />
+        <p className="lt-fp__cbq" data-testid="fp-cbq">
+          {FP_CBQ_LINE} <span className="lt-fp__cbq-price" data-testid="fp-cbq-price">{packPriceLabel("pack_cbq")}</span>{" "}
+          {"·"} <Link to={CBQ_PACKS_TO}>{FP_CBQ_LINK}</Link>
+        </p>
 
-        <section aria-labelledby="fp-video">
-          <TestimonialVideo
-            headingId="fp-video"
-            heading="See it on a real answer sheet"
-            lede="A Class 10 student photographs his written answer and sees exactly where he lost ½ mark."
-          />
-        </section>
-
-        <section aria-labelledby="fp-gets">
-          <h2 id="fp-gets">What your child gets</h2>
-          <ul className="lt-fp__tiles">
-            {TILES.map((tile) => (
-              <li key={tile.title}>
-                {tile.to ? <Link to={tile.to}>{tile.title}</Link> : <span>{tile.title}</span>}
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section aria-labelledby="fp-routine">
-          <h2 id="fp-routine">A routine that fits</h2>
-          <p>15–20 minutes a day, on the phone or the laptop, up to the February 2027 boards.</p>
-        </section>
-
-        <section aria-labelledby="fp-faq" className="lt-fp__faq">
-          <h2 id="fp-faq">Questions parents ask</h2>
+        <section aria-labelledby="fp-faq" className="lt-fp__faq" data-testid="fp-faq">
+          <h2 id="fp-faq" className="lt-fp__h2">Questions parents ask</h2>
           <details>
             <summary>Does it follow the CBSE syllabus?</summary>
             <p>
@@ -372,41 +435,54 @@ function ForParentsBody({ api }: { api: PacksShopApi }) {
             <p>No. The phone camera works: write the answer on paper, take a photo, and see the marks for each step.</p>
           </details>
           <details>
+            <summary>{FP_FAQ_SIGNIN_Q}</summary>
+            <p>{FP_FAQ_SIGNIN_A}</p>
+          </details>
+          <details>
             <summary>Is it safe?</summary>
             <p>
               There is no chat with other users, and no ads inside the app. How we handle your child’s data is in the{" "}
               <Link to={withParentFlag("/legal/privacy")}>privacy policy</Link>.
             </p>
           </details>
-          <details>
-            <summary>What does it cost?</summary>
-            <p>
-              The first answer check is free, without an account. A new account gets a free 7-day trial.{" "}
-              <Link to={PRICING_TO}>See pricing</Link>
-            </p>
-          </details>
-          <details>
-            <summary>Can I see my child’s progress?</summary>
-            <p>Not yet. A weekly parent summary is planned.</p>
-          </details>
         </section>
 
-        <section aria-labelledby="fp-send" className="lt-fp__send">
-          <h2 id="fp-send">Hand it to your child</h2>
-          <p>One tap opens WhatsApp with a message and a link. Your child opens it on their own phone and tries a free check.</p>
-          <div className="lt-fp__actions">
-            <ShareButton placement="footer" />
-            <FreeCheckLink placement="footer" />
-            <PricingLink placement="footer" />
-          </div>
-        </section>
-
+        <p className="lt-fp__foot" data-testid="fp-foot">
+          Questions?{" "}
+          <a href={PAY_HELP_HREF} target="_blank" rel="noopener noreferrer" data-testid="fp-pay-help">WhatsApp us</a>
+          {" · "}
+          <ShareLink />
+        </p>
         <p className="lt-fp__fine">LazyTopper is an independent platform and is not affiliated with CBSE.</p>
       </div>
       <PublicLegalFooter fromParents />
+
+      {mounted && !payOpen && (
+        <SalesStickyBar
+          watch={["fp-price", "fp-pay-area-second"]}
+          copy={() => ({ label: `${BOARD_PASS_NAME} ${boardPassPriceDisplay()} · ${parentCardModel(new Date(), predictCbseExamDate("10"))?.until ?? "till the boards"}`, button: `Pay ${boardPassPayDisplay()}` })}
+          onGo={() => onPay()}
+          ariaLabel={`${BOARD_PASS_NAME} shortcut`}
+          testId="fp-sticky"
+        />
+      )}
       {payOpen && (
         <Suspense fallback={null}>
-          <ParentBoardPassSheet onClose={() => setPayOpen(false)} />
+          <CheckoutSheet
+            item={{ kind: "pass", sku: "till_boards", label: BOARD_PASS_NAME, description: BOARD_PASS_CHECKOUT_DESCRIPTION, priceDisplay: boardPassPayDisplay(), priceBreakdown: boardPassGstBreakdown() }}
+            signedIn={false}
+            selfMasked={null}
+            audience="parent"
+            attachPreselect="other"
+            onPaySelf={() => undefined}
+            onSignIn={() => navigate(withSigninRedirect("/login", BOARD_PASS_BUY_PATH))}
+            onSignInWithNumber={(digits) => {
+              const state: GuestSigninState = { guestPayPhone: digits };
+              navigate(withSigninRedirect("/login", "/"), { state });
+            }}
+            onSignInWithEmail={() => navigate(withSigninRedirect("/login", "/"))}
+            onClose={() => setPayOpen(false)}
+          />
         </Suspense>
       )}
     </main>

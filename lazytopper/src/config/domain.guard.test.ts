@@ -377,6 +377,9 @@ describe("index.html SERP length caps — the counts are pinned, not asserted in
 const RATING_CLAIM =
   /★\s*[0-5]\.\d|\b[0-5]\.\d\s*(?:stars?\b|★\s*(?:from|rating|rated|by|\d))|\b\d[\d,]*\+?\s+(?:reviews|ratings)\b|"(?:aggregateRating|ratingValue|reviewCount)"/i;
 
+/** The single file allowed to state the owner-verified Google Business Profile rating (src/config/forParentsPage.ts GOOGLE_RATING). */
+const GBP_FIGURE_FILE = "src/config/forParentsPage.ts";
+
 describe("HYGIENE-2 — no invented rating or review count ships", () => {
   it("public/og-image.svg (the fabricated-rating share card) is ABSENT", () => {
     expect(existsSync(join(PUBLIC_ROOT, "og-image.svg"))).toBe(false);
@@ -395,6 +398,9 @@ describe("HYGIENE-2 — no invented rating or review count ships", () => {
       const r = rel(abs);
       if (isExempt(r) || r.startsWith("src/data/")) continue;
       scanned += 1;
+      // PARENTS-V2-1 (owner-verified 12 Nov 2026): the ONE real Google Business Profile figure (5.0 stars, 3 reviews), kept in one
+      // constant. Exempt that single file only; every other file is still scanned, see the control below.
+      if (r === GBP_FIGURE_FILE) continue;
       readFileSync(abs, "utf8")
         .split(/\r?\n/)
         .forEach((line, i) => {
@@ -405,6 +411,15 @@ describe("HYGIENE-2 — no invented rating or review count ships", () => {
     expect(scanned).toBeGreaterThan(300);
     expect(files.map(rel)).toContain("public/llms.txt");
     expect(hits).toEqual([]);
+  });
+
+  it("PARENTS-V2-1: the exception is ONE file, holds the real figure, and the same claim elsewhere is still caught", () => {
+    expect(GBP_FIGURE_FILE).toBe("src/config/forParentsPage.ts");
+    const src = readFileSync(join(ROOT, GBP_FIGURE_FILE), "utf8");
+    expect(src).toContain('stars: "5.0"');
+    expect(src).toContain("reviews: 3");
+    expect(RATING_CLAIM.test("5.0 stars, 3 Google reviews")).toBe(true); // an invented rating in any other file is a hit
+    expect(RATING_CLAIM.test("\u2605 5.0 on Google")).toBe(true);
   });
 
   it("CONTROL — the matcher fires on the deleted claim and ignores ordinary ★ / decimals", () => {

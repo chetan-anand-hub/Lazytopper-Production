@@ -37,7 +37,7 @@ describe("which paths are islands", () => {
 
   it("exactly the notes, NCERT-solutions and Exemplar chapter pages (phase 1), Important Questions, CBQ chapters and the NCERT Hub (phase 2), and the PDF Packs landing (SPEED-PACKS-3) and the two sales pages (PRICING-PAGES-1)", () => {
     const expected = advertised.filter(
-      (p) => /^\/(notes|ncert-solutions|ncert-exemplar|highly-probable|cbq-class-10)\/.+$/.test(p) || p === "/ncert-class-10" || p === "/packs" || p === "/board-pass" || p === "/cbq-packs",
+      (p) => /^\/(notes|ncert-solutions|ncert-exemplar|highly-probable|cbq-class-10)\/.+$/.test(p) || p === "/ncert-class-10" || p === "/packs" || p === "/board-pass" || p === "/cbq-packs" || p === "/for-parents",
     );
     expect([...islands].sort()).toEqual(expected.sort());
     // CONTROL — the families are really advertised, so the equality above is not vacuous.
@@ -50,6 +50,7 @@ describe("which paths are islands", () => {
     expect(islands.has("/packs")).toBe(true);
     expect(islands.has("/board-pass")).toBe(true);
     expect(islands.has("/cbq-packs")).toBe(true);
+    expect(islands.has("/for-parents")).toBe(true); // PARENTS-V2-1
   });
 
   it("never the root, pricing, the CBQ landing (its chooser stays on the app), the hubs or topic hubs", () => {
@@ -78,7 +79,7 @@ describe("which paths are islands", () => {
     // The family allowlist is the per-family switch.
     expect([...islandPathsFor(advertised, { islandPrefixes: ["/notes/"] }, {})].every((p) => p.startsWith("/notes/"))).toBe(true);
     // Each phase-2 family turns off on its own.
-    for (const off of ["/highly-probable/", "/cbq-class-10/", "/ncert-class-10", "/packs", "/board-pass", "/cbq-packs"]) {
+    for (const off of ["/highly-probable/", "/cbq-class-10/", "/ncert-class-10", "/packs", "/board-pass", "/cbq-packs", "/for-parents"]) {
       const rest = islandPathsFor(advertised, { islandPrefixes: ISLAND_PATH_PREFIXES.filter((p) => p !== off) }, {});
       expect([...rest].some((p) => (off.endsWith("/") ? p.startsWith(off) : p === off))).toBe(false);
       expect(rest.size).toBeGreaterThan(0);

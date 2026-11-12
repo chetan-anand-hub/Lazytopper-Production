@@ -322,6 +322,6 @@ describe("MUMMY-1 · the copy rules and the chunk boundary", () => {
       expect(src, name).not.toMatch(/import\s+(?!type\b)[^("']*from\s+["']\.\/mummyChunk["']/);
     }
     expect(journey).toContain('import("./mummyChunk")');
-    expect(page.match(/<MummyJourney\b/g)?.length).toBe(1);
+    expect(page.match(/<MummyJourney\b/g)?.length ?? 0).toBe(0); // PARENTS-V2-1: retired from the page
   });
 });
