@@ -1,3 +1,24 @@
+## 2026-11-12 (daily, second; written 12 Nov) - #1676 - #1685: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Owner rulings of 12 Nov 2026 (IST) and builder decisions in the PR bodies, each with its reason. Tags: **[owner]**, **[gh]**. Where a source gives the owner's words they are quoted; where it does not, none are, and a reason the sources do not state is marked as not given.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **One pass or pack = one student account** [owner, 12 Nov] | A purchase belongs to exactly one account. | Not given in the words received; it follows from the entitlement model (one `subscriptions/{uid}` and one owned-pack record per account) [gh, `#1685` body]. |
+| **One phone and one email per account; no self-service swaps** [owner, 12 Nov] | A buyer may ADD a phone or a Google credential to the same account (`#1684`) but cannot swap or unlink one; "Ways to sign in" has no unlink. | Not given in the words received. `#1684` builds exactly this: add only, no unlink [gh]. |
+| **Pay first, then choose who uses it** [owner, 12 Nov] | `#1676`; `#1678` removes the pre-payment "Buying for someone else?" link and the "Pay first. Then sign in..." line. | The choice is easier after the money is paid; owner ruling on `#1678` at 09:04 IST: "I agree with your recommendation" [gh, `#1678` body]. |
+| **10-minute fallback to the number paid with** [owner, 12 Nov] | If the buyer does not choose, `takeOrder` releases the order at `paidAt + 10 min` to the paid-with contact; the client's own timer runs 10 minutes from the verify answer, so it is always later than the server hold. | Nothing paid is lost: the order stays `paid_unclaimed` with its claim keys [gh, `#1676` runbook]. |
+| **Receipt email is exempt from the one-email-a-day rule** [owner, 12 Nov] | `#1683` neither reads nor writes the one-a-day ledger (a test pins it). | A receipt is a transaction record the buyer needs, not a nudge [reason is the builder's reading; the owner's words are not given]. |
+| **The buyer is always shown what they got** [owner, 12 Nov: "a buyer paid for a pack and could not find it"] | `#1680`: a purchase card first on the paid screen, a count on the My packs row, a Home card, an honest empty line. | The reported case: a buyer paid and could not find the pack [gh, `#1680` body]. |
+| **`#1680` adaptation: no minted download URL** [coordinator approval, per the PR body] | `/receipt` returns the OwnedPack-shaped record plus the masked licensee; the client feeds it to the existing `buildPackFiles`. | The spec's "mint a download URL" does not exist in the code, because PDFs are built in the browser [gh]. |
+| **`#1683` keeps the live subject "Payment received: <item> (Rs x)"** [builder spec call, `#1683` body] | Not changed to "Your LazyTopper <item> is ready". | Live behaviour preserved. |
+| **`#1683` reworked, not a new emailer** [gh] | The existing PAY-PHONE-1 receipt is the one receipt; nothing superseded. | Avoids two emails for one order; the typed recipient keeps its own ready email so no address gets two. |
+| **`#1685` "unused" fails closed for a Board Pass, open for a pack** [gh] | An unreadable usage ledger refuses the move; an unreadable pack-download feed allows it. | The server stores no pack download, so a client-reported `pack_download` is best effort; the 24 h window is the real guard for a pack [gh]. |
+| **`#1685` ships ON with kill switches** [gh] | Not behind an off-by-default flag. | The owner's ruling to ship it on; the live PASS of 12 Nov followed. |
+| **`#1679` sale id = order id, then payment id, then attempt id** [gh] | One `eventID` per sale, remembered across tabs. | Meta over-counted Board Pass sales when the same sale fired as `attemptId`, then `paymentId` [gh]. |
+| **`#1682` Pay opens the pay-first CheckoutSheet, not ParentBoardPassSheet** [gh] | Four v1 parent components retired (kept for deletion, `[FU-PARENTS-V1-RETIRE]`). | The owner-approved mock-up and spec; owner changes of 12 Nov 10:04 IST to the lead line and the pill [gh]. |
+| **PAID-SHEET-1 opened** [owner, live test of 12 Nov] | The confirmation and the "Who will use this?" card become a pop-up. | After a signed-in purchase and after a move they sit at the page bottom and the page scrolls away. |
+
 ## 2026-11-12 (daily; written 12 Nov) - #1669 - #1674: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Owner rulings on the /pricing redesign, each with its reason. Tags: **[owner]**, **[coordinator]**, **[gh]**. Rows come from the coordinator's 12 Nov handoff (`HANDOFF_COFOUNDER_SESSION_2026-11-12.md`) and the PR bodies. Where a source gives the owner's words they are quoted; where it does not, none are, and a reason the sources do not state is marked as not given.

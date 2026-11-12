@@ -1,3 +1,17 @@
+## 2026-11-12 (daily, second; written 12 Nov) - #1676 - #1685 - MERGED
+
+- DONE. `#1676` (`be239cb`) SELFPAY-ATTACH-1: pay first, then "Who will use it?". NEXT: PAID-SHEET-1 (pop-up), then the live checks (c), (d), (e).
+- DONE. `#1677` (`ae700e9`) SELFPAY-ATTACH-1b: the sheet body stacks again.
+- DONE. `#1678` (`2025371`) SELFPAY-ATTACH-1c: signed-out sheet copy after pay-first.
+- DONE. `#1679` (`f64dd1d`) META-PURCHASE-DEDUP-1. NEXT: the Meta test-event check; thread `orderId` through `PacksShop.tsx`.
+- DONE. `#1680` (`9948dec`) PAID-SHOWS-1. NEXT: a real signed-out payment check; the reload card only shows on /packs.
+- DONE. `#1681` (`da405f2`) ADMIN-MOVE-1. NEXT: a live admin run.
+- DONE. `#1682` (`8e85d8a`) PARENTS-V2-1: /for-parents is the sales page (mock-up C of the 12 Nov plan). NEXT: a real payment from the page on a Vercel preview; `[FU-PARENTS-V1-RETIRE]`.
+- DONE. `#1683` (`a51ed53`) RECEIPT-EMAIL-1 (live PASS by the owner).
+- DONE. `#1684` (`02c8170`) LINK-SIGNIN-1. NEXT: live check (d).
+- DONE. `#1685` (`2545468`) SIGNED-IN-MOVE-1 (live PASS by the owner).
+- NEXT (not built): **PAID-SHEET-1** (in progress; pop-up, plus the My packs paper rows squeezed on desktop); live tests (c) signed-out "someone else", (d) Ways to sign in, (e) Meta test-event; the earlier owner list (two ad edits, Track B, D mock-up, E and F decisions) stands as written in the previous block.
+
 ## 2026-11-12 (daily; written 12 Nov) - #1669 - #1674 - MERGED
 
 - DONE. `#1669` (`1b0607e`) PRICING-PAGES-1: new /board-pass and /cbq-packs pages (routes, prerendered heads, Buy on the page). NEXT: none beyond `#1670`.

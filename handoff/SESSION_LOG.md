@@ -1,3 +1,24 @@
+## 2026-11-12 (daily, second; written 12 Nov) - #1676 - #1685: pay first then choose who uses it, one receipt email, signed-in link and move (trunk `2545468`)
+
+**PROVENANCE.** *(Daily handoff of 12 Nov, CLAUDE.md section 10. Covers `#1676` - `#1685`, all merged 06:57 - 15:22 IST. **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; owner rulings and live tests **[owner]** as given to the docs builder.)*
+
+**How the window went (IST) [gh for merge times; owner].**
+- **06:57 - 07:09.** `#1676` merged: pay first, then "Who will use it?" (money path, with kill switches); a live regression (the links ran together at 1280) was fixed by `#1677` at 07:09.
+- **09:04 - 09:14.** Owner ruling on the signed-out sheet copy ("I agree with your recommendation"); `#1678` merged.
+- **09:49.** `#1679` merged: one sale = one Purchase for Meta.
+- **11:49 - 12:08.** `#1680` (the buyer is shown what they bought), `#1681` (admin move and merge), `#1682` (/for-parents sales page) merged.
+- **13:03.** `#1683` merged: one receipt email per paid order.
+- **14:20.** `#1684` merged: signed-in buyers asked who else will sign in; Ways to sign in in Settings.
+- **15:22.** `#1685` merged: move a just-bought pass or pack to the child's own phone or email.
+
+**Owner rulings of the day [owner].** One pass or pack = one student account; one phone and one email per account, no self-service swaps; pay first then choose who uses it; 10-minute fallback to the paid-with number; the receipt email is exempt from one-email-a-day; the buyer is always shown what they got. Reasons in DECISION_LOG.
+
+**Live tests [owner].** `#1683` receipt email PASS (one email, GST invoice link, masked sign-in line). `#1685` move to the child's phone PASS (moved, gone from the payer, card single-use). **Defect found:** after a signed-in purchase and after a move, the confirmation and the "Who will use this?" card sit at the page bottom and the page scrolls away; PAID-SHEET-1 (pop-up) in progress. Also: My packs paper rows squeezed on desktop (same lane). Owed: (c) signed-out "someone else", (d) Ways to sign in, (e) Meta test-event.
+
+**Process notes [gh].** `#1685` had a review round 1 (HOLD on CI) fixed in `dc7f339` (CI drift guard, target proof, hour-level "used", verified-email targets, pack-download check, shape precheck, host refresh); F8-F10 left as follow-ups. `#1683` was reworked after review so the live PAY-PHONE-1 receipt is the one receipt. `#1682` perf numbers were measured on a local static build, not a Vercel preview.
+
+**State at the end.** Trunk `2545468`; open: this docs PR.
+
 ## 2026-11-12 (daily; written 12 Nov) - #1669 - #1674: the /pricing redesign in five PRs (trunk `9670339`)
 
 **PROVENANCE.** *(Daily handoff of 12 Nov, CLAUDE.md section 10. Covers `#1669`, `#1670`, `#1671`, `#1672`, `#1673` and `#1674` (all merged; `#1674` merged after the first draft of this PR). **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; the story and live measurements **[coordinator]** from `HANDOFF_COFOUNDER_SESSION_2026-11-12.md`; owner words **[owner]** as quoted there or in the PR bodies.)*

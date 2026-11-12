@@ -23,6 +23,74 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-12 (daily, second; written 12 Nov) - #1676 - #1685 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `2545468`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items come from the PR bodies **[gh]** and the owner's live tests of 12 Nov **[owner]**. No grading behaviour changed.*
+
+**New:** `[FU-PAID-SHEET-1]`, `[FU-MYPACKS-DESKTOP-SQUEEZE]`, `[FU-LIVE-TESTS-C-D-E]`, `[FU-RECEIPT-EMAIL-REVIEW-ITEMS]` (the #1683 R4, R5, R6 items), `[FU-RELOAD-CARD-PACKS-ONLY]`, `[FU-ADMIN-MERGE-GAPS]`, `[FU-PARENTS-V1-RETIRE]`, `[FU-PARENTS-V2-PREVIEW-REMEASURE]`, `[FU-ORPHAN-COMPONENTS-1682]`, `[FU-PURCHASE-ORDERID-PACKSSHOP]`, `[FU-STUDENTDATAMAP-PURCHASE-IDS]`, `[FU-MOVE-REVIEW-F8-F10]`, `[FU-SELFATTACH-LIVE-RUN]`, `[FU-MOBILE-WELCOME-QUERY]`.
+
+**Still open, carried:** every item named in the 12 Nov block below that this block does not close. `[FU-SELFPAY-DUPLICATE-RISK]` is narrowed by `#1676` (see CURRENT_STATE) and stays open for the no-marker path.
+
+### [FU-PAID-SHEET-1]
+
+OPEN, lane in progress [owner, live test 12 Nov]. After a signed-in purchase, and after a move (`#1685`), the confirmation and the "Who will use this?" card sit at the page bottom and the page scrolls away from them. Fix: show them as a pop-up. Builder: lane PAID-SHEET-1.
+
+### [FU-MYPACKS-DESKTOP-SQUEEZE]
+
+OPEN, same lane as `[FU-PAID-SHEET-1]` [owner]. The My packs paper rows are squeezed on desktop.
+
+### [FU-LIVE-TESTS-C-D-E]
+
+OPEN, owner [owner]. (c) signed-out "someone else" (payer and recipient one receipt email each, invoice link present, `#1676` + `#1683`); (d) "Ways to sign in" (Firebase phone linking and the Google link popup on production, `#1684`); (e) Meta test-event (one paid test order = one Purchase with `eventID` = order id; none on reload or a second tab, `#1679`). Already PASSED: `#1683` receipt email; `#1685` move to the child's phone.
+
+### [FU-RECEIPT-EMAIL-REVIEW-ITEMS]
+
+OPEN. The `#1683` review follow-ups R4, R5 and R6, verbatim from the 12 Nov PM handoff section 5.3 [coordinator]:
+
+- R4: a `sending` marker left by a crash is never retried.
+- R5 (narrow race): the sweep's `no_address` write can overwrite a just-`sent` marker → possible second receipt. Fix with a conditional write in the transaction. Next in the engineering queue.
+- R6: the hold-end receipt is generic when nobody chose (no "Me / Someone else" answer before the 10-min fallback).
+
+### [FU-RELOAD-CARD-PACKS-ONLY]
+
+OPEN [gh, `#1680` body]. After a reload of the paid screen the purchase card shows again only on /packs, not on /pricing, /board-pass or /cbq-packs. Also: the Home "Your packs (N)" card can shift the layout slightly when it arrives. The 24 h boundary of `/receipt` is covered by tests only.
+
+### [FU-ADMIN-MERGE-GAPS]
+
+OPEN [gh, `#1681` body]. (1) A single Board Pass order MOVE returns 400: the pass is merged, stackable fields on `subscriptions/{uid}` with no per-order record; the account merge does move a Board Pass whole. (2) The merge refuses a target with a different phone (restored on failure) and refuses a `pay-...` account that has activity of its own (409 with the reason). (3) Needs a live admin run before it is relied on.
+
+### [FU-PARENTS-V1-RETIRE]
+
+OPEN [gh, `#1682` body]. Delete the four retired v1 parent components (MummyJourney, MummyCheckNudge, ParentBoardPassSheet, ParentPacksSection), registered in the noOrphans test.
+
+### [FU-ORPHAN-COMPONENTS-1682]
+
+OPEN [gh, `#1682` body]. The orphan-component registration for those four files is a temporary allowance in the noOrphans test; remove it together with the files under `[FU-PARENTS-V1-RETIRE]`. A full local prerender capture also touched 57 unrelated pages that were not committed; if CI's capture job reports stale, take its artifact. The repo's `checks/lcp.cjs`, `cls` and `inp` scripts were not present in the tree; CLS was measured with a layout-shift PerformanceObserver.
+
+### [FU-PARENTS-V2-PREVIEW-REMEASURE]
+
+OPEN [gh, `#1682` body]. The branch numbers (mobile Lighthouse 99, LCP 1.05 s) came from a local brotli static server, not a Vercel preview. Re-run on the live page, and take a real payment from the page (sheet, Razorpay, the who-step preselect).
+
+### [FU-PURCHASE-ORDERID-PACKSSHOP]
+
+OPEN [gh, `#1679` body]. `components/packs/PacksShop.tsx` (~L670, ~L689, the signed-in pack buy) still passes `paymentId || attemptId`, and `services/packs.ts` `PackBuyOutcome` has no `orderId`. Meta still gets an `eventID` and cross-tab dedupe applies; only the rare no-payment-id fallback can differ. Thread `orderId` there.
+
+### [FU-STUDENTDATAMAP-PURCHASE-IDS]
+
+OPEN [gh, `#1679` body]. `services/studentDataMap.ts` (~L939, the data-use disclosure) still says purchase ids live only in sessionStorage; it should mention the new localStorage list `lazytopper.purchaseSent.v2`.
+
+### [FU-MOVE-REVIEW-F8-F10]
+
+OPEN [gh, `#1685` body]. Review round 1 follow-ups F8, F9 and F10 were left (the body does not state their content). Also: for a pack, "unused" rests on a client-reported `pack_download` entry (fail open); practice that never calls a model leaves no server record, so a Board Pass used that way looks unused.
+
+### [FU-SELFATTACH-LIVE-RUN]
+
+OPEN [gh, `#1676` body]. Not live-verified at merge: signed out at 360 and 1280, Buy -> pay -> "Me" -> code -> Home banner; "Someone else" -> share; a covered number -> already_has (before and after payment); the 10-minute fallback -> Start -> code -> Home banner; a signed-in holder taps Buy on /pricing and /board-pass -> holder card; a pack buyer lands on My packs with the banner. Runbook: `CHECKOUT_SELF_ATTACH_DISABLED=1`; orders already marked `attachFlow` still honour their hold.
+
+### [FU-MOBILE-WELCOME-QUERY]
+
+OPEN [gh, `#1676` body]. RootEntry's redirect from `/` drops the query on mobile, so a Board Pass buyer on mobile lands on `/browse?welcome=board_pass` (desktop `/?welcome=...`). `App.tsx` was not touched.
+
 ## 2026-11-12 (daily; written 12 Nov) - #1669 - #1674 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `65a63b1`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items come from the coordinator's 12 Nov handoff section 7 and `FOLLOWUPS_PRICING_REDESIGN_2026-11-11.md` **[coordinator]** and the PR bodies **[gh]**. The numbers in brackets are the handoff's own numbering. No grading behaviour changed.*

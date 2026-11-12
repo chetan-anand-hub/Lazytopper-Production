@@ -1,3 +1,20 @@
+> **2026-11-12 (daily, second; written 12 Nov) - #1676 - #1685 (CLAUDE.md section 10).** Scope: the checkout sheet and paid screens, owned-pack and receipt surfaces, /for-parents, Settings sign-in methods, and admin purchases. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none (grading) | unchanged | the 6 Nov second-surface checks stay owed |
+| Checkout sheet, signed out (/pricing, /board-pass, /cbq-packs, /packs, /for-parents) | pay first, then "Who will use it?" (`#1676`); stacked layout (`#1677`); copy after pay-first (`#1678`); /for-parents Pay opens it preselected "someone else" (`#1682`) | **merged, live** | live run of the five paths (`#1676`); test (c) signed-out "someone else"; PAID-SHEET-1 (the card sits at the page bottom) |
+| Paid screen, signed in (PassCheckout, PacksShop) | "Who else will sign in?" card (`#1684`); move to the child's phone or email (`#1685`) | **merged, live** | `#1685` live PASS by the owner; test (d); PAID-SHEET-1 (confirmation and card scroll away) |
+| Purchase card and My packs | purchase card, count on the row, Home card, honest empty line (`#1680`) | **merged, live** | a real signed-out payment and reload; the reload card shows only on /packs; My packs paper rows squeezed on desktop (PAID-SHEET-1) |
+| Settings | "Ways to sign in" (`#1684`) | **merged, live** | test (d): Firebase phone linking and the Google link on production |
+| Receipt email | one receipt per paid order (`#1683`) | **merged, live** | live PASS by the owner (single email, GST invoice link, masked sign-in line); `[FU-RECEIPT-EMAIL-REVIEW-ITEMS]` |
+| /for-parents | rebuilt as a sales page, island, pay-first (`#1682`) | **merged, live** | a real payment on the Vercel preview; Lighthouse re-run there; `[FU-PARENTS-V1-RETIRE]`; 1 Dec re-capture |
+| Meta and GA4 Purchase | `eventID` and cross-tab dedupe (`#1679`) | **merged, live** | test (e) Meta test-event; `[FU-PURCHASE-ORDERID-PACKSSHOP]` |
+| Admin Purchases | move a pack, merge a `pay-...` account (`#1681`); "Receipt emailed" (`#1683`) | **merged, live** | a live admin run |
+| Other surfaces | not moved by these PRs | unchanged | |
+
+No grading surface moved.
+
 > **2026-11-12 (daily; written 12 Nov) - #1669 - #1674 (CLAUDE.md section 10).** Scope: the /pricing hub, /packs, and the two new pages /board-pass and /cbq-packs. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling. `#1674` merged (`9670339`, 12 Nov 04:57 IST); the page-name cells are flipped for it.
 
 | surface | what moved (PR) | state | owed |
