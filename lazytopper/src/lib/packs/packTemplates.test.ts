@@ -288,6 +288,6 @@ describe("pinned fonts, figures and wiring", () => {
     const wf = fs.readFileSync(path.join(REPO, ".github/workflows/pack-templates.yml"), "utf8");
     expect(wf).toMatch(/LIVE: \$\{\{ github\.ref == 'refs\/heads\/base\/approved-thru-437' &&/);
     expect(wf).not.toMatch(/^\s*pull_request/m);
-    for (const p of ["public/visuals/**", "public/fonts/**", "src/components/question/**", "src/styles.css", "src/config/brandMark.ts", "pnpm-lock.yaml"]) expect(wf).toContain(p);
+    for (const p of ["public/visuals/**", "public/figures/**", "public/fonts/**", "src/components/question/**", "src/styles.css", "src/config/brandMark.ts", "pnpm-lock.yaml"]) expect(wf).toContain(p);
   });
 });

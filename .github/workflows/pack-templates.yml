@@ -27,6 +27,7 @@ on:
       - "lazytopper/public/brand/**"
       - "lazytopper/public/fonts/**"
       - "lazytopper/public/visuals/**"
+      - "lazytopper/public/figures/**"
       - "lazytopper/src/components/question/**"
       - "lazytopper/src/config/brandMark.ts"
       - "lazytopper/src/lib/mistakeDisplay.ts"
