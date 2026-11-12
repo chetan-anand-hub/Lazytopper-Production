@@ -1,3 +1,13 @@
+## 2026-11-12 (daily, second; written 12 Nov) - #1676 - #1685
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`2545468`** [git].
+
+- **Done [gh]:** `#1676` - `#1685` merged (table in CURRENT_STATE). No grading change. Owner live tests: `#1683` receipt email PASS; `#1685` move to the child's phone PASS [owner].
+- **Build next: PAID-SHEET-1** (in progress). After a signed-in purchase and after a move, the confirmation and the "Who will use this?" card sit at the page bottom and the page scrolls away; show them as a pop-up. Same lane: My packs paper rows are squeezed on desktop.
+- **Owner live tests still owed [owner; PR bodies]:** (c) signed-out "someone else" (payer and recipient one email each, invoice link present); (d) "Ways to sign in" (Firebase phone linking and the Google link popup, once on production); (e) Meta test-event: one paid test order = one Purchase with `eventID` = order id, none on reload or a second tab. Also `#1676` (all five paths), `#1680` (real signed-out Rs58 payment and reload), `#1681` (a live admin run), `#1682` (a real payment from /for-parents on the Vercel preview, and re-run its Lighthouse there).
+- **Kill switches now live [gh]:** `CHECKOUT_SELF_ATTACH_DISABLED=1` (server) and `VITE_CHECKOUT_SELF_ATTACH_DISABLED` (client); `RECEIPT_EMAIL_DISABLED`; `VITE_SIGNIN_LINK_DISABLED`; the move-to-other kill switches named in the `#1685` body. Plus the hub switch `VITE_PRICING_HUB_DISABLED=1` from the previous block.
+- **Owner items from the previous block that this block does not touch** (two approved ad edits, Track B funnel measurement, D mock-up, E and F decisions, dated checks 13-15 Nov / 15 Nov / 15-16 Nov / 18 Nov / 1 Dec) **stand.** The 1 Dec prerender re-capture now also reads the `/for-parents` captures (`#1682`).
+
 ## 2026-11-12 (daily; written 12 Nov) - #1669 - #1674
 
 *(The owner items of every block below stand, except where this block narrows them. The 11 Nov item "Pricing page redesign" is DONE by `#1669` - `#1673`.)* Trunk at writing: **`9670339`** [coordinator]. `#1674` MERGED (`9670339`, 12 Nov 04:57 IST).
