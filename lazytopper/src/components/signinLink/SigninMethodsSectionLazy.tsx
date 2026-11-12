@@ -1,7 +1,9 @@
 /** SigninMethodsSectionLazy - LINK-SIGNIN-1: Settings' lazy mount of "Ways to sign in" (kill switch checked before anything loads). */
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
+import { lazyWithRetry } from "../../lib/lazyWithRetry";
+import { Quiet } from "./Quiet";
 
-const SigninMethodsSection = lazy(() => import("./SigninMethodsSection"));
+const SigninMethodsSection = lazyWithRetry(() => import("./SigninMethodsSection"));
 
 function killed(): boolean {
   try {
@@ -11,11 +13,14 @@ function killed(): boolean {
   }
 }
 
+/** A failure here (chunk, auth) renders nothing: it must never close the whole Settings window. */
 export default function SigninMethodsSectionLazy({ headingId }: { headingId?: string }) {
   if (killed()) return null;
   return (
-    <Suspense fallback={null}>
-      <SigninMethodsSection {...(headingId ? { headingId } : {})} />
-    </Suspense>
+    <Quiet>
+      <Suspense fallback={null}>
+        <SigninMethodsSection {...(headingId ? { headingId } : {})} />
+      </Suspense>
+    </Quiet>
   );
 }

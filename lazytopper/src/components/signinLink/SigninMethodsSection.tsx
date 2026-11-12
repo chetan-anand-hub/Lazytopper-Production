@@ -4,7 +4,8 @@
  */
 import AddSignInMethods from "./AddSignInMethods";
 import { useLinkedMethods } from "./useLinkedMethods";
-import { isSigninLinkDisabled, methodLabel } from "./signinLinkModel";
+import { WHATSAPP_CHANGE_LINE, isSigninLinkDisabled, methodLabel } from "./signinLinkModel";
+import { WHATSAPP_URL } from "../../config/socialProfiles";
 import "./signinLink.css";
 
 export default function SigninMethodsSection({ headingId }: { headingId?: string }) {
@@ -26,8 +27,13 @@ export default function SigninMethodsSection({ headingId }: { headingId?: string
       ) : (
         <p className="lt-sil__p">No sign-in method is listed for this account.</p>
       )}
-      <p className="lt-sil__p">Add a phone number or Google account and any of them opens this same account.</p>
       <AddSignInMethods methods={methods} onLinked={refresh} />
+      <p className="lt-sil__p" data-testid="signin-methods-change">
+        {WHATSAPP_CHANGE_LINE}{" "}
+        <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+          WhatsApp
+        </a>
+      </p>
     </section>
   );
 }

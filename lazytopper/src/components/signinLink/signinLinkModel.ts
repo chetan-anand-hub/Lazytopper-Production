@@ -79,9 +79,29 @@ export function currentSignInMasked(m: readonly LinkedMethod[]): string {
   return first ? first.masked : "";
 }
 
-export const CARD_TITLE = "Who else will sign in to use this?";
-export const cardBody = (maskedCurrent: string): string =>
-  `It's on this account${maskedCurrent ? `: ${maskedCurrent}` : ""}. Add your child's phone number or Google account here, and either one opens this same account — with everything you bought.`;
+/**
+ * LINK-SIGNIN v1.1 (owner 12 Nov): one purchase = ONE student account, with at most ONE phone and ONE email login (Google OR
+ * email/password, never both). No self-service swap or unlink: changes go through support.
+ */
+export const hasEmailLogin = (m: readonly LinkedMethod[]): boolean => hasKind(m, "google") || hasKind(m, "email");
+export const canAddPhone = (m: readonly LinkedMethod[]): boolean => !hasKind(m, "phone");
+export const canAddGoogle = (m: readonly LinkedMethod[]): boolean => !hasEmailLogin(m);
+
+export const CARD_TITLE = "Who will use this?";
+export const CHOICE_CHILD = "My child will sign in with my login";
+export const CHOICE_ME = "This is for me";
+export const CHOICE_MOVE = "Move it to my child's own phone or email";
+const CAP_LINE =
+  "This account can have one phone number and one email to sign in with; both open the same account and everything you bought.";
+export const childBody = (masked: string): string =>
+  `Done \u2014 this stays on this account. Your child signs in with ${masked || "your login"} on their phone or laptop. ${CAP_LINE}`;
+export const meBody = (masked: string): string => `You can sign in with ${masked || "your login"}. ${CAP_LINE}`;
+export const WHATSAPP_CHANGE_LINE = "To change a sign-in, message us on WhatsApp.";
+
+/** Option 3 is Part 2 (SIGNED-IN-MOVE-1). Hidden until that ships and its flag is wired here: never a dead button. */
+export function isMoveToOtherAvailable(): boolean {
+  return false;
+}
 export const BTN_ADD_PHONE = "Add a phone number";
 export const BTN_ADD_GOOGLE = "Add a Google account";
 export const BTN_JUST_ME = "No, just me";
@@ -89,7 +109,7 @@ export const BTN_JUST_ME = "No, just me";
 export const otpSentLine = (maskedPhone: string): string =>
   `We've sent a code to ${maskedPhone}. If this is your child's phone, ask them for the code.`;
 export const successLine = (a: string, b: string): string =>
-  `Done. You can now sign in with ${a || "your current sign-in"} or ${b || "the new one"} — both open this account.`;
+  `Done. ${a || "Your current sign-in"} and ${b || "the new one"} both open this account now.`;
 
 export type LinkErrorKind = "in_use" | "notice" | "error";
 export interface LinkError {
@@ -101,18 +121,20 @@ export interface LinkError {
 }
 
 export const IN_USE_TEXT =
-  "That phone number (or Google account) already has its own LazyTopper account, so it can't be added here. Message us on WhatsApp and we'll join them.";
+  "That phone number or Google account already has its own LazyTopper account, so it can't be added here. Message us on WhatsApp and we'll help.";
 
 /** Honest, specific, allowlisted: an unknown code gets the neutral line, never a raw Firebase string. */
 export function describeLinkError(err: unknown): LinkError {
   const code = typeof err === "object" && err !== null && "code" in err ? String((err as { code?: unknown }).code || "") : "";
   switch (code) {
     case "auth/credential-already-in-use":
-    case "auth/provider-already-linked":
     case "auth/account-exists-with-different-credential":
     case "auth/email-already-in-use":
     case "auth/phone-number-already-exists":
       return { kind: "in_use", text: IN_USE_TEXT, whatsapp: true, code };
+    case "auth/provider-already-linked":
+      // Raised when THIS account already has that kind of login (stale screen): not another account's credential.
+      return { kind: "notice", text: "This account already has that way to sign in, so you can use it now.", whatsapp: false, code };
     case "auth/invalid-verification-code":
       return { kind: "error", text: "That code isn't right. Check it and try again.", whatsapp: false, code };
     case "auth/code-expired":

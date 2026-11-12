@@ -77,12 +77,12 @@ function modal(props: Partial<React.ComponentProps<typeof SettingsModal>> = {}) 
 }
 
 describe("SettingsModal · Your limits", () => {
-  it.each([["premium", premium], ["trial", trial]])("%s: the limits card sits right after Your pass, before Sign-in methods", async (_n, snap) => {
+  it.each([["premium", premium], ["trial", trial]])("%s: the limits card sits right after Your pass, before Your data", async (_n, snap) => {
     usage.snap = snap;
     modal();
     const card = await screen.findByTestId("usage-card");
     const pass = screen.getByRole("heading", { name: "Your pass" });
-    const signIn = screen.getAllByRole("heading", { name: "Sign-in methods" })[0];
+    const signIn = screen.getByRole("region", { name: "Your data and your account" });
     expect(pass.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(card.compareDocumentPosition(signIn) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(card.closest(".lt-usage-settings")).toBeTruthy();

@@ -56,11 +56,11 @@ const SURFACEABLE: Record<string, { text: string; tone: Tone }> = {
   // and it is the moment they learn their work is in two places and we cannot
   // join them yet. It must not read like a validation error.
   "auth/credential-already-in-use": {
-    text: "That number is already registered to another account. You can sign in with it instead, or use a different number here. Your work on each account stays where it is — we can't join them together yet.",
+    text: "That number is already registered to another account. You can sign in with it instead, or use a different number here. Your work on each account stays where it is. Message us on WhatsApp and we'll help.",
     tone: "notice",
   },
   "auth/account-exists-with-different-credential": {
-    text: "That number is already registered to another account. You can sign in with it instead, or use a different number here. Your work on each account stays where it is — we can't join them together yet.",
+    text: "That number is already registered to another account. You can sign in with it instead, or use a different number here. Your work on each account stays where it is. Message us on WhatsApp and we'll help.",
     tone: "notice",
   },
   "auth/invalid-phone-number": {
@@ -142,6 +142,7 @@ export default function LinkSignInMethodModalSheet({
   }, [step]);
 
   const phoneLinked = hasPhoneLinked(user);
+  const hasEmailLoginProvider = Boolean(user?.providerIds?.some(id => id === "google.com" || id === "password"));
 
   // Reset on close so reopening never resumes a half-finished attempt with a
   // stale code on screen.
@@ -231,7 +232,12 @@ export default function LinkSignInMethodModalSheet({
           )}
         </ul>
 
-        {alsoKind === "email" || emailLinkReturn ? (
+        {(alsoKind === "email" || emailLinkReturn) && hasEmailLoginProvider ? (
+          // LINK-SIGNIN v1.1: one email login per account (Google OR email/password); a second one is never added here.
+          <p style={doneStyle} role="status" data-testid="link-email-cap">
+            This account already has an email to sign in with. To change a sign-in, message us on WhatsApp.
+          </p>
+        ) : alsoKind === "email" || emailLinkReturn ? (
           <LinkEmailPanel {...(alsoMasked && alsoKind === "email" ? { alsoMasked } : {})} returning={emailLinkReturn} />
         ) : phoneLinked ? (
           <p style={doneStyle} role="status">

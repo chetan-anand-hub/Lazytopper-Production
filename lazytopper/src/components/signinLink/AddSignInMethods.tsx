@@ -18,7 +18,8 @@ import {
   currentSignInMasked,
   describeLinkError,
   entriesFromAuthUser,
-  hasKind,
+  canAddGoogle,
+  canAddPhone,
   listLinkedMethods,
   otpSentLine,
   successLine,
@@ -131,8 +132,8 @@ export default function AddSignInMethods({ methods, onLinked, extra }: AddSignIn
     }
   };
 
-  const showPhone = !hasKind(methods, "phone");
-  const showGoogle = !hasKind(methods, "google");
+  const showPhone = canAddPhone(methods);
+  const showGoogle = canAddGoogle(methods);
 
   return (
     <div className="lt-sil" data-testid="signin-link-panel">

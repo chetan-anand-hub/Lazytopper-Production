@@ -90,6 +90,8 @@ describe("CHECKOUT-WHO-2 · an email to add", () => {
 
   it("back from the email link (one-time code in the URL): the finish step opens; flag off: nothing", async () => {
     window.history.replaceState(null, "", "/?apiKey=k&oobCode=abc&mode=signIn");
+    // LINK-SIGNIN v1.1: one email login per account, so the finish step is for an account that has no email yet.
+    H.user = { uid: "PH", email: null, phoneNumber: "+919876543948", displayName: "A", providerIds: ["phone"] };
     render(<LinkPhoneNudge />);
     expect(await screen.findByText("Confirm the email you opened the link from")).toBeTruthy();
     cleanup();

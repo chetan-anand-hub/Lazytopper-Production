@@ -1131,14 +1131,14 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               <span data-testid="packs-status-cbq-tutor"> Includes 3 tutor questions.</span>
             )}
           </p>
-          {/* LINK-SIGNIN-1: only on a real paid outcome, for a signed-in buyer. */}
-          {buy.phase === "paid" && <SigninLinkCardLazy signedIn={signedIn} />}
           {/* PARENTS-PAY-1: the My packs block is hidden on /for-parents, so the downloads are one clear link away. */}
           {hideMyPacks && signedIn && (
             <p className="lt-packs__status">
               <Link to={`${PACKS_RETURN_PATH}#my-packs`} data-testid="packs-open-my-packs">Open My packs &rarr;</Link>
             </p>
           )}
+          {/* LINK-SIGNIN-1: only on a confirmed paid outcome, for a signed-in buyer; last, so nothing above it moves. */}
+          {buy.phase === "paid" && <SigninLinkCardLazy signedIn={signedIn} />}
         </div>
       )}
     </>

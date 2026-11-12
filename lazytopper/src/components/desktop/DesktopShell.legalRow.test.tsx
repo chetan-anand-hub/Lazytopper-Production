@@ -114,17 +114,6 @@ describe("DesktopShell account dropdown — SETTINGS-1 · one Settings entry" , 
     expect(await screen.findByRole("dialog", { name: "Settings" })).toBeTruthy();
   });
 
-  it("Settings -> Sign-in methods swaps to the existing linking modal (one modal at a time)", async () => {
-    signInAndOpenMenu();
-    // the real modal reads providerIds off the auth user
-    (authState.user as unknown as { providerIds: string[] }).providerIds = ["google.com"];
-    fireEvent.click(screen.getByRole("menuitem", { name: "Settings" }));
-    await screen.findByRole("dialog", { name: "Settings" });
-    fireEvent.click(screen.getAllByRole("button", { name: "Sign-in methods" })[0]);
-    expect(screen.queryByRole("dialog", { name: "Settings" })).toBeNull();
-    expect(await screen.findByRole("dialog", { name: "Sign-in methods" })).toBeTruthy(); // PERF-TRIM-1: lazy sheet
-  });
-
   it("closing Settings returns focus to the avatar and restores page scroll", async () => {
     signInAndOpenMenu();
     fireEvent.click(screen.getByRole("menuitem", { name: "Settings" }));

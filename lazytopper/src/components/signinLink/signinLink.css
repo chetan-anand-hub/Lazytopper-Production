@@ -20,3 +20,4 @@
 .lt-sil__err { margin: 0; font-size: 0.85rem; line-height: 1.5; color: #b42318; }
 .lt-sil__err--in_use, .lt-sil__err--notice { padding: 10px 12px; border-radius: 10px; background: rgba(22, 185, 106, 0.08); border: 1px solid rgba(22, 185, 106, 0.28); color: #0e1729; }
 .lt-sil__err a { color: inherit; font-weight: 700; }
+.lt-sil__choices { display: flex; flex-direction: column; gap: 8px; }

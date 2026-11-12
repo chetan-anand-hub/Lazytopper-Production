@@ -211,6 +211,9 @@ describe("linking is OPTIONAL — nothing gates on it", () => {
       // The modal and its own tests legitimately read link status.
       if (rel.includes("LinkSignInMethodModal")) continue;
       if (rel.includes("LinkPhoneNudge")) continue;
+      // LINK-SIGNIN-1: the card / Settings section ARE linking surfaces (they read the linked credentials only to hide an Add
+      // button the account already has, and to show the masked list); nothing in them gates a feature, route or login.
+      if (rel.startsWith("src/components/signinLink/")) continue;
       if (rel === "src/context/AuthContext.tsx") continue;
       // The helper module IS the definition of link status; exempting it is not
       // a hole, because a gate elsewhere would still have to call it and would
