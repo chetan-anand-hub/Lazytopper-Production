@@ -106,6 +106,10 @@ const GUEST_VERIFY_PATH = '/api/pay/guest/verify';
 const GUEST_CLAIM_PATH = '/api/pay/guest/claim';
 /** SELFPAY-ATTACH-1 - the signed-out payer says WHO the paid order is for (after payment). */
 const GUEST_ATTACH_PATH = '/api/pay/guest/attach';
+/** PAID-SHOWS-1 - the payer's receipt: what they bought, so the paid screen can show it (and its downloads) before any sign-in. */
+const GUEST_RECEIPT_PATH = '/api/pay/guest/receipt';
+/** PAID-SHOWS-1: how long after the payment time (guestPaidAt; paidAt only if absent) the signed-out receipt is answered. */
+const RECEIPT_WINDOW_MS = 24 * 60 * 60 * 1000;
 /** SELFPAY-ATTACH-1 (owner 12 Nov 2026: "make it 10 mins"): how long a paid attach order waits for its payer's choice. */
 const ATTACH_HOLD_MS = 10 * 60 * 1000;
 
@@ -260,7 +264,7 @@ function createGuestPayLimiters({ telemetry, now } = {}) {
     client: createRateLimiter({
       telemetry,
       now,
-      paidEndpoints: { [GUEST_ORDER_PATH]: 'guestPay', [GUEST_VERIFY_PATH]: 'guestPay', [GUEST_ATTACH_PATH]: 'guestPay' },
+      paidEndpoints: { [GUEST_ORDER_PATH]: 'guestPay', [GUEST_VERIFY_PATH]: 'guestPay', [GUEST_ATTACH_PATH]: 'guestPay', [GUEST_RECEIPT_PATH]: 'guestPay' },
       limits: {
         [ANONYMOUS_CLASS]: { soft: Math.ceil(MAX_GUEST_CALLS_PER_CLIENT_PER_DAY / 2), hard: MAX_GUEST_CALLS_PER_CLIENT_PER_DAY },
       },
@@ -1443,6 +1447,75 @@ function createGuestPayRoutes(deps = {}) {
     return afterRecipientPaid({ orderId, paymentId });
   }
 
+  /* ── POST /api/pay/guest/receipt (PAID-SHOWS-1) - "once somebody has paid, show them what they got" ─────────────────── */
+  /**
+   * Body { orderId, paymentId, signature }. Signed out only. Auth = EXACTLY /attach's: Razorpay's checkout signature (the same
+   * timing-safe check), the stored order is a guest order for THIS payment, already paid (paid_unclaimed | claimed | paid), and
+   * `now < payment time + 24 h` (guestPaidAt; paidAt only when absent). A READ: it never changes ownership, never creates an
+   * account, never ends the attach hold. Answers { ok, item:{kind,label}, pass? | pack?:{packId,sku,target,paidAt,orderId},
+   * licensee?:{name,email,phone}, savedTo, savedToKind }. The licensee is what a pack PDF prints: the order's RECIPIENT contact
+   * (the paid-with contact while no recipient is chosen yet), MASKED - never the payer's other details, never a full number.
+   * The PDFs themselves are built in the browser from the pack (as in My packs): the server hands out no files or URLs.
+   * Past the window: { ok:false, reason:"expired", savedTo } so the card can say "Sign in with <masked> to download".
+   */
+  async function handleReceipt(req, res) {
+    if (!isCheckoutWhoEnabled(env) && !isGuestPayEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
+    if (!admitGuestCall(req, res, 'receipt', GUEST_RECEIPT_PATH)) return undefined;
+    const keys = readKeys();
+    if (!keys.keyId || !keys.keySecret) return unavailable(res);
+    const body = await readJsonBody(req, res);
+    if (!body) return undefined;
+    const orderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
+    const paymentId = typeof body.paymentId === 'string' ? body.paymentId.trim() : '';
+    const signature = typeof body.signature === 'string' ? body.signature.trim() : '';
+    if (!ID_PATTERN.test(orderId) || !ID_PATTERN.test(paymentId) || !HEX_PATTERN.test(signature)) return reject(res, 'receipt', 'malformed');
+    if (await payerUidOf(req)) return reject(res, 'receipt', 'requires_signed_out', 409);
+    if (!isCheckoutSignatureValid({ orderId, paymentId, signature, keySecret: keys.keySecret })) return reject(res, 'receipt', 'bad_signature');
+
+    let order;
+    try {
+      const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).get();
+      order = snap && snap.exists ? snap.data() || {} : null;
+    } catch (e) {
+      emit('payments.guest.receipt.store_read_failed');
+      console.error('[pay/guest/receipt] read failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not read the order.' });
+    }
+    if (!order || order.payer !== GUEST_PAYER || typeof order.paymentId !== 'string' || order.paymentId !== paymentId) return reject(res, 'receipt', 'unknown_order');
+    if (order.status !== GUEST_STATUS.paidUnclaimed && order.status !== GUEST_STATUS.claimed && order.status !== GUEST_STATUS.paid) {
+      return reject(res, 'receipt', 'not_paid', 409);
+    }
+    const sku = typeof order.passType === 'string' ? order.passType : '';
+    const isPack = isPackProduct(sku);
+    const target = isPack ? validateTarget(sku, order.packTarget) : null;
+    if (isPack ? target === null : sku !== GUEST_PASS_SKU) return reject(res, 'receipt', 'unknown_order');
+
+    // The recipient's contact, masked: the chosen recipient, else the paid-with contact. Phone first unless the payer typed the email first.
+    const phoneMasked = typeof order.guestPhone === 'string' && order.guestPhone ? maskIndianMobile(order.guestPhone) : '';
+    const emailMasked = typeof order.guestEmail === 'string' && order.guestEmail ? maskEmail(order.guestEmail) : '';
+    const useEmail = !!emailMasked && (!phoneMasked || order.recipientFirst === 'email');
+    const savedTo = useEmail ? emailMasked : phoneMasked;
+    const savedToKind = savedTo ? (useEmail ? 'email' : 'phone') : null;
+
+    let paidMs = timeMs(order.guestPaidAt);
+    if (!Number.isFinite(paidMs)) paidMs = timeMs(order.paidAt);
+    if (!Number.isFinite(paidMs) || now() >= paidMs + RECEIPT_WINDOW_MS) {
+      emit('payments.guest.receipt.expired');
+      return sendJson(res, 200, { ok: false, reason: 'expired', ...(savedTo ? { savedTo, savedToKind } : {}) });
+    }
+
+    emit('payments.guest.receipt.shown');
+    const common = { ok: true, attached: !!order.attachedAt, ...(savedTo ? { savedTo, savedToKind } : {}) };
+    if (!isPack) return sendJson(res, 200, { ...common, item: { kind: 'pass', label: 'Board Pass' } });
+    const packId = packIdFor(sku, target);
+    return sendJson(res, 200, {
+      ...common,
+      item: { kind: 'pack', label: 'PDF pack' },
+      pack: { packId, sku, target, paidAt: paidMs, orderId },
+      licensee: savedTo ? { name: '', email: useEmail ? emailMasked : '', ...(useEmail ? {} : { phone: phoneMasked }) } : null,
+    });
+  }
+
   /* ── POST /api/pay/guest/claim — the verified phone (or verified email) takes its paid orders ── */
   async function handleClaim(req, res) {
     if (!isPaymentsEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
@@ -1579,7 +1652,7 @@ function createGuestPayRoutes(deps = {}) {
     });
   }
 
-  return { handleOrder, handleVerify, handleClaim, handleAttach, afterRecipientPaid, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
+  return { handleOrder, handleVerify, handleClaim, handleAttach, handleReceipt, afterRecipientPaid, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
 }
 
 module.exports = {
@@ -1606,6 +1679,8 @@ module.exports = {
   GUEST_VERIFY_PATH,
   GUEST_CLAIM_PATH,
   GUEST_ATTACH_PATH,
+  GUEST_RECEIPT_PATH,
+  RECEIPT_WINDOW_MS,
   ATTACH_HOLD_MS,
   isSelfAttachDisabled,
   GUEST_PASS_SKU,

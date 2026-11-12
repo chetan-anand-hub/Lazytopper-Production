@@ -6,6 +6,8 @@ import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { withSigninRedirect } from "../../services/freeCheckClient";
+import { WHATSAPP_URL } from "../../config/socialProfiles";
+import { clearReceiptProof, readReceiptProof, type ReceiptProof } from "../../services/paidReceiptProof";
 import { newCheckoutAttemptId } from "../../analytics/analytics";
 import { trackPackCheckout, trackPackEvent, trackPackPurchase, type PackCheckoutDetails, type PackCheckoutFrom } from "../../lib/packs/packAnalytics";
 import {
@@ -55,6 +57,8 @@ import { maskEmail } from "../../services/checkoutWhoFlag";
 /** PREEXIST-FIX-1: the same specifier as the lazy() below (one chunk), for the ?buy= warm-up. */
 const loadCheckoutSheet = () => import("../checkoutWho/CheckoutSheet");
 const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
+// PAID-SHOWS-1: the purchase card again after a reload of the paid screen (this tab's proof only).
+const PurchaseCard = lazy(() => import("../checkoutWho/PurchaseCard"));
 import { resolvePaidBoardPass, usePaidPremium } from "../../lib/packs/usePaidPremium";
 // PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
 import PaywallActions from "../pricing/PaywallActions";
@@ -332,10 +336,12 @@ export interface PacksShopProps {
  * handleBuy and the pack pop-up. Only the catalogue markup is the caller's (`children`).
  */
 export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = false, surface, checkoutAudience, hideMyPacks = false, children }: PacksShopProps) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const enabled = isPacksClientEnabled();
+  // PAID-SHOWS-1: a signed-out buyer who reloads the paid screen finds what they bought again (ids + signature of THIS tab only).
+  const [restoredProof, setRestoredProof] = useState<ReceiptProof | null>(() => (!embedded && !hideMyPacks ? readReceiptProof() : null));
   const { counts, failed: countsFailed, request: requestCounts } = useChapterCounts();
 
   const [mine, setMine] = useState<MyPacks | null>(null);
@@ -985,7 +991,27 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         <section className="lt-packs__mine lt-packs__mine--note" id="my-packs" ref={myPacksRef} aria-labelledby="packs-mine-h" data-testid="packs-mine-empty">
           <div className="lt-packs__w">
             <h2 id="packs-mine-h">My packs</h2>
-            <p className="lt-packs__note">No packs on this account yet. Pick one below.</p>
+            <p className="lt-packs__note" data-testid="packs-mine-empty-line">No packs on this account.</p>
+            <p className="lt-packs__note">
+              Paid with a different number or email?{" "}
+              <button
+                type="button"
+                className="lt-packs__link"
+                data-testid="packs-mine-other-signin"
+                onClick={() => {
+                  // Sign out, then the existing sign-in (code to the number, or email), back to this page.
+                  void Promise.resolve(logout())
+                    .catch(() => undefined)
+                    .then(() => navigate(withSigninRedirect("/login", `${PACKS_RETURN_PATH}#my-packs`)));
+                }}
+              >
+                Sign in with that one
+              </button>
+            </p>
+            <p className="lt-packs__note">
+              Still stuck?{" "}
+              <a className="lt-packs__link" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" data-testid="packs-mine-whatsapp">WhatsApp us</a>
+            </p>
           </div>
         </section>
       )}
@@ -1056,6 +1082,19 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const noteSlot = slotEnabled && !reserve && location.hash.toLowerCase() === "#my-packs";
   const mineAndStatus = (
     <>
+      {restoredProof && !user && !authLoading && slotEnabled && (
+        <div className="lt-packs__w" data-testid="packs-restored-receipt">
+          <Suspense fallback={null}>
+            <PurchaseCard
+              proof={restoredProof}
+              onHide={() => {
+                clearReceiptProof();
+                setRestoredProof(null);
+              }}
+            />
+          </Suspense>
+        </div>
+      )}
       {slotEnabled ? (
         <>
           {/* BRIDGE-PANEL-1 round 3: My packs lives in a slot that holds the space a returning owner's My packs needs (device hint)

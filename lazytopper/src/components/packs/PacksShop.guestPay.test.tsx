@@ -10,8 +10,8 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 vi.mock("../../services/activityClient", () => ({ recordActivity: vi.fn() }));
 
-const auth = vi.hoisted(() => ({ user: null as null | { uid: string } }));
-vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
+const auth = vi.hoisted(() => ({ user: null as null | { uid: string }, logout: vi.fn(async () => undefined) }));
+vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false, logout: auth.logout }) }));
 const flags = vi.hoisted(() => ({ guest: true }));
 const guestBuy = vi.hoisted(() => ({ buyAsGuest: vi.fn() }));
 vi.mock("../../services/guestPay", async (orig) => ({
@@ -163,5 +163,41 @@ describe("PAY-PHONE-1 · My packs for a phone-only account", () => {
     fireEvent.click(await screen.findByTestId("guest-pay-exists-signin"));
     expect(await screen.findByText("LOGIN PAGE")).toBeTruthy();
     expect(loginState).toEqual({ guestPayPhone: "9876543948", guestPayExisting: true });
+  });
+});
+
+describe("PAID-SHOWS-1 · PacksShop", () => {
+  it("a signed-out reload finds the purchase card again from this tab's proof; Hide clears it", async () => {
+    sessionStorage.setItem("lt.paidReceipt.v1", JSON.stringify({ orderId: "order_1", paymentId: "pay_1", signature: "ab".repeat(32) }));
+    const f = vi.fn(async (..._a: unknown[]) => ({ ok: true, status: 200, json: async () => ({ ok: false, reason: "expired", savedTo: "+91 98•••••948" }) }) as unknown as Response);
+    vi.stubGlobal("fetch", f);
+    shop();
+    await screen.findByTestId("receipt-expired");
+    expect(screen.getByTestId("receipt-expired").textContent).toBe("Sign in with +91 98•••••948 to download.");
+    expect(f.mock.calls[0][0]).toBe("/api/pay/guest/receipt");
+    fireEvent.click(screen.getByTestId("receipt-hide"));
+    expect(sessionStorage.getItem("lt.paidReceipt.v1")).toBeNull();
+    expect(screen.queryByTestId("purchase-card")).toBeNull();
+    vi.unstubAllGlobals();
+  });
+
+  it("no proof in this tab: no card", () => {
+    sessionStorage.clear();
+    shop();
+    expect(screen.queryByTestId("packs-restored-receipt")).toBeNull();
+  });
+
+  it("a signed-in account with NO packs that follows #my-packs: the honest line, 'Sign in with that one' (signs out, then sign-in back to My packs) and WhatsApp", async () => {
+    sessionStorage.clear();
+    auth.user = { uid: "u1" };
+    shop("/packs#my-packs");
+    await screen.findByTestId("packs-mine-empty");
+    expect(screen.getByTestId("packs-mine-empty-line").textContent).toBe("No packs on this account.");
+    expect(screen.getByText(/Paid with a different number or email\?/)).toBeTruthy();
+    expect(screen.getByTestId("packs-mine-whatsapp").getAttribute("href")).toMatch(/^https:\/\/wa\.me\//);
+    fireEvent.click(screen.getByTestId("packs-mine-other-signin"));
+    await waitFor(() => expect(screen.getByText("LOGIN PAGE")).toBeTruthy());
+    expect(auth.logout).toHaveBeenCalled();
+    expect(JSON.stringify(loginState)).not.toContain("undefined");
   });
 });
