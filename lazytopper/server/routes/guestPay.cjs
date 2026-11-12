@@ -1673,7 +1673,7 @@ function createGuestPayRoutes(deps = {}) {
     });
   }
 
-  return { handleOrder, handleVerify, handleClaim, handleAttach, handleReceipt, afterRecipientPaid, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
+  return { handleOrder, handleVerify, handleClaim, handleAttach, handleReceipt, afterRecipientPaid, findOrCreateAccount, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
 }
 
 module.exports = {

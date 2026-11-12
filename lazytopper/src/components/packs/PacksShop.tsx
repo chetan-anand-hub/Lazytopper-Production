@@ -262,9 +262,17 @@ function useChapterCounts(): { counts: Counts; failed: boolean; request: (first?
   return { counts, failed, request };
 }
 
+/** SIGNED-IN-MOVE-1: the status line once the purchase has moved to the child's own account. */
+const PACK_MOVED_COPY = "Moved to your child's account.";
+
 interface BuyState {
   key: string;
   phase: "idle" | "busy" | "checking" | "confirming" | "paid" | "failed" | "expired" | "owned" | "dismissed";
+  /** SIGNED-IN-MOVE-1: the paid order and its plain name, so the "Who will use this?" card can move it. */
+  orderId?: string;
+  item?: string;
+  /** The purchase was moved to the child's own account: this tab must stop showing it as the buyer's. */
+  moved?: boolean;
 }
 
 /** What the catalogue (hero tiles on /packs, the strip on /pricing) can do: open a pack's pop-up, optionally on a subject. */
@@ -678,12 +686,13 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     }
     if (!mounted.current && outcome.status !== "pending") return;
     if (outcome.status === "paid") {
-      setBuy({ key, phase: "paid" });
+      setBuy({ key, phase: "paid", ...(outcome.orderId ? { orderId: outcome.orderId, item: parentPackName(sku, target, target ? chapterLabel(target) : undefined) } : {}) });
       await loadMine();
       myPacksRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
     } else if (outcome.status === "pending") {
       if (mounted.current) setBuy({ key, phase: "checking" });
       let settled = false;
+      let settledOrderId = "";
       let elapsed = 0;
       for (const at of POLL_DELAYS_MS) {
         const wait = Math.max(0, at - elapsed);
@@ -695,6 +704,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           resetOwnedPacksCache();
           trackPackPurchase({ ...details, valueInr: status.amountInr ?? details.valueInr, transactionId: status.orderId || outcome.orderId || status.paymentId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
           settled = true;
+          settledOrderId = status.orderId || outcome.orderId || "";
           break;
         }
         if (status.state === "expired") {
@@ -704,7 +714,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       }
       if (!mounted.current) return;
       if (settled) {
-        setBuy({ key, phase: "paid" });
+        setBuy({ key, phase: "paid", ...(settledOrderId ? { orderId: settledOrderId, item: parentPackName(sku, target, target ? chapterLabel(target) : undefined) } : {}) });
         await loadMine();
       } else {
         setBuy({ key, phase: "confirming" });
@@ -846,7 +856,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   /** The buy button (and its status notes) for one SKU. `prefix` picks the pop-up's or the page's class set. */
   function buyArea(sku: PackSku, target: string | undefined, ready: boolean, prefix: "lt-pkd" | "lt-packs" = "lt-pkd") {
     const key = packIdOf(sku, target);
-    const isOwned = ready && (isAlreadyOwned(owned, sku, target) || (buy.key === key && buy.phase === "paid"));
+    const isOwned = ready && (isAlreadyOwned(owned, sku, target) || (buy.key === key && buy.phase === "paid" && !buy.moved));
     const mine_ = buy.key === key;
     const busy = mine_ && (buy.phase === "busy" || buy.phase === "checking");
     const confirming = ready && mine_ && buy.phase === "confirming";
@@ -943,7 +953,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       return null;
     }
   }, [tidyMine, bridgeMine, bridge, mine]);
-  const justBoughtKey = buy.phase === "paid" ? buy.key : "";
+  const justBoughtKey = buy.phase === "paid" && !buy.moved ? buy.key : "";
   const readyPackIds = readyRows.map((r) => r.packId).filter(Boolean).join("|");
   const openFilesOf = (packId: string) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }));
   const tidyList = (withRows: boolean): ReactNode =>
@@ -1126,8 +1136,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       {afterPay && openSku === null && (
         <div className="lt-packs__w">
           <p className="lt-packs__status" role="status" data-testid="packs-status">
-            {buy.phase === "paid" ? PACK_PAID_COPY : buy.phase === "checking" ? PACK_CHECKING_COPY : PACK_STILL_CONFIRMING_COPY}
-            {buy.phase === "paid" && buy.key.startsWith("pack_cbq:") && (
+            {buy.phase === "paid" ? (buy.moved ? PACK_MOVED_COPY : PACK_PAID_COPY) : buy.phase === "checking" ? PACK_CHECKING_COPY : PACK_STILL_CONFIRMING_COPY}
+            {buy.phase === "paid" && !buy.moved && buy.key.startsWith("pack_cbq:") && (
               <span data-testid="packs-status-cbq-tutor"> Includes 3 tutor questions.</span>
             )}
           </p>
@@ -1138,7 +1148,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             </p>
           )}
           {/* LINK-SIGNIN-1: only on a confirmed paid outcome, for a signed-in buyer; last, so nothing above it moves. */}
-          {buy.phase === "paid" && <SigninLinkCardLazy signedIn={signedIn} />}
+          {buy.phase === "paid" && <SigninLinkCardLazy signedIn={signedIn} onMoved={() => { resetOwnedPacksCache(); setBuy((b) => ({ ...b, moved: true })); void loadMine(); }} {...(buy.orderId ? { move: { orderId: buy.orderId, item: buy.item ?? "" } } : {})} />}
         </div>
       )}
     </>

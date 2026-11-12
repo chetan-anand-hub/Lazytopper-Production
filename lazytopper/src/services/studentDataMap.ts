@@ -1143,8 +1143,10 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
 // GST-INVOICE-BACKDATE-1: `gstInvoiceEmailDaily/{IST day}` holds ONE count (the later invoice emails sent that day:
 // state forms, reminders, invoice emails) - the durable daily cap. Written only by server/services/paymentReceiptEmail.cjs.
 // ADMIN-MOVE-1: `adminMoves/{auto-id}` is the admin audit trail of a purchase moved between accounts: { at, adminUid, orderId, fromUid,
-// toUid, reason }. UIDS ONLY - no phone, no email, no name - so it holds no student content, and it is an accounting provenance record
-// (who moved which paid order, when), kept like the order itself. Written only by server/services/adminMovePurchase.cjs; no client rule.
+// toUid, reason }. SIGNED-IN-MOVE-1: a BUYER's own move (a signed-in buyer moving a purchase to their child's account) writes the same
+// record with `byUid` in place of `adminUid`, reason "buyer move". UIDS ONLY - no phone, no email, no name - so it holds no student content,
+// and it is an accounting provenance record (who moved which paid order, when), kept like the order itself. Written only by
+// server/services/adminMovePurchase.cjs and server/services/moveToOther.cjs; no client rule.
 export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily", "nudgeEmailDaily", "opsReports", "gstInvoiceCounters", "gstInvoiceEmailDaily", "adminMoves"]);
 
 /** ★ Locations no browser can erase — the proof that erasure needs a server path. */

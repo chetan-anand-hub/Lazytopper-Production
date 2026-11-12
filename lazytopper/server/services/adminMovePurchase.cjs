@@ -33,7 +33,11 @@ class MoveError extends Error {
 const docId = (v) => (typeof v === 'string' && v.trim() && !v.includes('/') && v.trim() !== '.' && v.trim() !== '..' ? v.trim() : '');
 
 /**
- * @param {{ db: object, orderId: string, toUid: string, adminUid: string, nowMs: number }} input   toUid is already resolved.
+ * SIGNED-IN-MOVE-1 reuses this SAME transaction for a buyer's own one-time move (routes/moveToOther.cjs): `byUid` (the buyer)
+ * instead of `adminUid`, `reason`, a `guard(order, srcPack)` that runs INSIDE the transaction (the 24 h / moved-before /
+ * ownership refusals can then never race the move), and `orderPatch` (fields merged onto the order in the same transaction).
+ *
+ * @param {{ db: object, orderId: string, toUid: string, adminUid?: string, byUid?: string, reason?: string, guard?: Function, orderPatch?: object, nowMs: number }} input   toUid is already resolved.
  * @returns {Promise<{ moved: boolean, fromUid: string, toUid: string, packId: string }>}
  */
 async function movePackOrder(input) {
@@ -42,9 +46,13 @@ async function movePackOrder(input) {
   const orderId = docId(i.orderId);
   const toUid = docId(i.toUid);
   const adminUid = docId(i.adminUid);
+  const byUid = docId(i.byUid);
+  const reason = typeof i.reason === 'string' && i.reason ? i.reason : MOVE_REASON;
+  const guard = typeof i.guard === 'function' ? i.guard : null;
+  const orderPatch = i.orderPatch && typeof i.orderPatch === 'object' ? i.orderPatch : null;
   if (!orderId) throw new MoveError(400, 'orderId must be a document id');
   if (!toUid) throw new MoveError(400, 'target account is invalid');
-  if (!adminUid) throw new MoveError(400, 'admin uid missing');
+  if (!adminUid && !byUid) throw new MoveError(400, 'admin uid missing');
   if (!db || typeof db.runTransaction !== 'function') throw new Error('firebase-admin Firestore is unavailable');
   const nowMs = typeof i.nowMs === 'number' && Number.isFinite(i.nowMs) ? i.nowMs : Date.now();
 
@@ -81,6 +89,7 @@ async function movePackOrder(input) {
     const srcPack = srcPackSnap && srcPackSnap.exists ? srcPackSnap.data() || {} : null;
     if (!srcPack || srcPack.orderId !== orderId) throw new MoveError(409, 'The current holder has no pack from this order to move');
     if (srcPack.creditedToPass === true) throw new MoveError(409, 'This pack was credited to a Board Pass order and cannot be moved');
+    if (guard) guard(order, srcPack);
     const srcMarkerSnap = await tx.get(markerRef(fromUid, paymentRef));
     const srcMarker = srcMarkerSnap && srcMarkerSnap.exists ? srcMarkerSnap.data() || {} : null;
     const tgtMarkerSnap = await tx.get(markerRef(toUid, paymentRef));
@@ -101,8 +110,8 @@ async function movePackOrder(input) {
     tx.set(entRef(toUid), { updatedAt: new Date(nowMs) }, { merge: true });
     tx.delete(packRef(fromUid, packId));
     if (srcMarker) tx.delete(markerRef(fromUid, paymentRef));
-    tx.set(orderRef, { uid: toUid }, { merge: true });
-    tx.set(db.collection(ADMIN_MOVES_COLLECTION).doc(), { at: new Date(nowMs), adminUid, orderId, fromUid, toUid, reason: MOVE_REASON });
+    tx.set(orderRef, { uid: toUid, ...(orderPatch || {}) }, { merge: true });
+    tx.set(db.collection(ADMIN_MOVES_COLLECTION).doc(), { at: new Date(nowMs), ...(adminUid ? { adminUid } : { byUid }), orderId, fromUid, toUid, reason });
     return { moved: true, fromUid, toUid, packId };
   });
 }

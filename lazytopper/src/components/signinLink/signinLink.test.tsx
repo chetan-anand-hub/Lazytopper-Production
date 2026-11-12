@@ -67,7 +67,7 @@ describe("SigninLinkCard (after a paid outcome)", () => {
     expect(screen.queryByTestId("signin-link-card")).toBeNull();
   });
 
-  it("asks 'Who will use this?' with two choices; the move option is hidden until Part 2 ships", async () => {
+  it("asks 'Who will use this?' with two choices; the move option needs a movable purchase from the host (none here)", async () => {
     googleUser();
     ui(<SigninLinkCardLazy signedIn />);
     expect(await screen.findByText("Who will use this?")).toBeTruthy();
