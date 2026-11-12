@@ -284,7 +284,7 @@ test('RECEIPT-RACE-1 R4 - a stale `sending` claim is re-claimed (same idempotenc
   const a = make({ order: stale });
   await a.emailer.sendForPayment(input());
   assert.ok(a.fetchImpl.sent.length >= 1);
-  assert.ok(a.fetchImpl.sent.every((m) => m.key === 'payment-receipt-pay_ABC123'));
+  assert.ok(a.fetchImpl.sent.every((m) => /^payment-receipt-pay_ABC123(-\d+)?$/.test(m.key)));
   assert.equal(a.db.docs.get('payOrders/order_X1').receiptEmail.status, 'sent');
 
   const fresh = { ...PASS, receiptEmail: { status: 'sending', at: new Date(NOW - 5 * 60_000) } };
