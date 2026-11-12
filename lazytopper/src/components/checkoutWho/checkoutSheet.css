@@ -17,3 +17,8 @@
 .lt-who__note { margin: 10px 0 0; padding: 10px 12px; border: 1px solid #f0d9a8; border-radius: 12px; background: #fff7e6; color: #5c4400; font-size: 13px; }
 .lt-who__warn { margin: 0 0 10px; padding: 10px 12px; border: 1px solid #f1c2c2; border-radius: 12px; background: #fdecec; color: #7a1f1f; font-size: 14px; }
 .lt-who__tag { display: inline-block; align-self: flex-start; padding: 4px 10px; border-radius: 999px; background: #15233a; color: #fff; font-size: 12px; font-weight: 600; }
+
+/* SELFPAY-ATTACH-1b: the wrappers #1676 put around the sheet body and the close-confirm must stack their children exactly like the
+   panel itself (flex column, 12px gap); a plain block div ran the two text links together on one line. [hidden] must still hide. */
+.lt-who__stack { display: flex; flex-direction: column; gap: 12px; }
+.lt-who__stack[hidden] { display: none; }
