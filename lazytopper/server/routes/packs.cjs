@@ -7,7 +7,7 @@
 // uid (deps.getLicensee) - never from a header, query or body.
 
 const { listPacks } = require('../services/packGrant.cjs');
-const { toMillis } = require('../services/passGrant.cjs');
+const { deriveEffectiveTier } = require('../services/entitlement.cjs');
 const { readRawBody } = require('./payments.cjs');
 const { templateIdForPackFile } = require('../services/packCovering.cjs');
 const { boardPassCreditFor } = require('../services/packCredit.cjs');
@@ -141,8 +141,10 @@ function createPackRoutes(deps = {}) {
     const t = now();
     const recent = (hits.get(key) || []).filter((x) => t - x < 60 * 60 * 1000);
     recent.push(t);
-    hits.set(key, recent);
-    if (hits.size > 5000) hits.clear();
+    hits.delete(key);
+    hits.set(key, recent); // most recently used last
+    // bound the map by evicting the LEAST recently used keys (never everyone's counters at once). Per instance: a limit per process.
+    while (hits.size > 5000) hits.delete(hits.keys().next().value);
     return recent.length > max;
   }
 
@@ -158,14 +160,18 @@ function createPackRoutes(deps = {}) {
     }
   }
 
-  /** true = a paid Board Pass (a premium tier, not past `passEnd`) - false = known not - null = unknown (no Board Pass card either way). */
+  /**
+   * true = the student holds a PAID pass: the SAME rule the entitlement gate uses (`deriveEffectiveTier(raw, now) === 'premium'`: a
+   * running paid pass, an admin grant, and the sign-up-trial-written-after-a-claimed-pass race all count; an unreadable `passEnd` or a
+   * stray one on a free document does not). false = known not paid (the Board Pass card is shown) - null = the read failed (no card,
+   * like the client's "unknown"). Edge cases where this can differ from the browser's own paid check: the browser reads its cached
+   * subscription, the server the stored document at request time.
+   */
   async function paidBoardPass(uid) {
     try {
       const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
       const d = snap && snap.exists ? snap.data() || {} : {};
-      if (d.tier !== 'premium') return false;
-      const end = d.passEnd === undefined || d.passEnd === null ? null : toMillis(d.passEnd);
-      return end === null || end > now();
+      return deriveEffectiveTier(d, now()).tier === 'premium';
     } catch {
       return null;
     }
@@ -182,6 +188,7 @@ function createPackRoutes(deps = {}) {
       emit(`packs.${scope}.not_ready`);
       return sendJson(res, 503, { ok: false, error: 'not_ready' });
     }
+    if (code === 'busy') return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
     if (code === 'unknown_file' || code === 'unknown_group') return sendJson(res, 404, { ok: false, error: code });
     emit(`packs.${scope}.failed`);
     console.error(`[packs/${scope}] failed:`, e && e.message);

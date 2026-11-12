@@ -490,19 +490,33 @@ async function bridgePagesOf(opts: CoreOptions, html2canvas: Html2Canvas): Promi
 }
 
 /** SERVER-PDF-1: the PrintCover props of a template render (placeholders keep the box and the edition line laid out as a real buyer's). */
-function templateCoverProps(): { licenseeLine: string; edition: string; templateMode: true } {
-  return { licenseeLine: TEMPLATE_PLACEHOLDER.licence, edition: TEMPLATE_PLACEHOLDER.edition, templateMode: true };
+function templateCoverProps(lines: 1 | 2 = 1): { licenseeLine: string; edition: string; templateMode: true } {
+  return { licenseeLine: lines === 2 ? TEMPLATE_PLACEHOLDER.licence2 : TEMPLATE_PLACEHOLDER.licence, edition: TEMPLATE_PLACEHOLDER.edition, templateMode: true };
+}
+
+/**
+ * SERVER-PDF-1: the SECOND cover of a template - the box laid out for a licence that wraps to TWO lines, exactly as the browser build's
+ * cover grows for a typical buyer (full name + e-mail + order id). It is appended as the LAST page of the template; the stamper moves it
+ * to page 1 when the buyer's line needs two lines, and drops it otherwise. Template renders only.
+ */
+async function renderTemplateCover2(cover: NonNullable<CoreOptions["cover"]>, marks: TemplateMarks, html2canvas: Html2Canvas, quality: number): Promise<string> {
+  const { PrintCover, COVER_W } = await import("./PrintCover");
+  return withHost(COVER_W, createElement(PrintCover, { ...cover, ...templateCoverProps(2) }), async (coverHost) => {
+    const c = await html2canvas(coverHost, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
+    recordCoverMarks(marks, coverHost, "cover2");
+    return c.toDataURL("image/jpeg", quality);
+  });
 }
 
 /** SERVER-PDF-1: measure the cover's blanked texts (CSS px on the 794 px cover -> mm on A4) into the template marks. */
-function recordCoverMarks(marks: TemplateMarks, coverHost: HTMLElement): void {
+function recordCoverMarks(marks: TemplateMarks, coverHost: HTMLElement, key: "cover" | "cover2" = "cover"): void {
   const cover = (coverHost.querySelector(".lt-cover") as HTMLElement | null) ?? coverHost;
   const r = cover.getBoundingClientRect();
   const mmPerPx = PAGE_W / (r.width || 1);
   const stamps = measureStamps(cover, (x, y) => ({ xMm: x * mmPerPx, yMm: y * mmPerPx }), mmPerPx);
   // "Edition <date>" is pushed to the right by flex (space-between): a real date is shorter or longer, so it is anchored by its right edge
   for (const s of stamps) if (s.name === "edition") Object.assign(s, { anchor: "right", rightEdgeMm: s.xMm + s.wMm });
-  marks.cover = {
+  marks[key] = {
     licenceFit: LICENCE_FIT_RULE,
     wPx: Math.round(r.width),
     hPx: Math.round(r.height),
@@ -580,6 +594,8 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
       return c.toDataURL("image/jpeg", 0.95);
     });
   }
+
+  const coverJpeg2 = coverJpeg && opts.template && opts.cover ? await renderTemplateCover2(opts.cover, opts.template.marks, html2canvas, 0.95) : null;
 
   // BRIDGE-PDF-1: pages 2-3, right after the cover (only a paid file with a cover; never a sample).
   const bridgePages = coverJpeg && opts.bridge && !opts.sample ? await bridgePagesOf(opts, html2canvas) : [];
@@ -666,6 +682,10 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
       drawChrome(pdf, page + 1 + offset, totalPages, page, opts, brand, qrRows);
     }
 
+    if (coverJpeg2) {
+      pdf.addPage();
+      pdf.addImage(coverJpeg2, "JPEG", 0, 0, PAGE_W, PAGE_H);
+    }
     pdf.save(filename);
     return filename;
   });
@@ -839,6 +859,7 @@ export async function exportWorksheetSetsPdf(
       return c.toDataURL("image/jpeg", SETS_BODY_JPEG_QUALITY);
     });
   }
+  const coverJpeg2 = coverJpeg && opts.template && opts.cover ? await renderTemplateCover2(opts.cover, opts.template.marks, html2canvas, SETS_BODY_JPEG_QUALITY) : null;
   const bridgePages = coverJpeg && opts.bridge && !opts.sample ? await bridgePagesOf(opts, html2canvas) : [];
 
   const geom = pageGeometry(base);
@@ -927,6 +948,10 @@ export async function exportWorksheetSetsPdf(
     };
     drawChrome(pdf, i + 1 + offset, totalPages, pg.bodyIndex, setOpts, brand, qrs[pg.set] ?? null);
   });
+  if (coverJpeg2) {
+    pdf.addPage();
+    pdf.addImage(coverJpeg2, "JPEG", 0, 0, PAGE_W, PAGE_H);
+  }
   pdf.save(filename);
   return filename;
 }

@@ -217,7 +217,9 @@ export function validateManifest(m: PackManifest, plan: readonly PlanFile[], pac
     else {
       for (const need of ["box", "textcol", "licence", "redownload", "edition"]) if (!f.marks.cover.stamps.some((s) => s.name === need)) bad.push(`${f.templateId}: cover has no "${need}" mark`);
     }
-    if (f.marks.cover && f.marks.cover.licenceFit.maxLines !== 1) bad.push(`${f.templateId}: no licence fit rule`);
+    if (f.marks.cover && f.marks.cover.licenceFit.maxLines !== 2) bad.push(`${f.templateId}: no licence fit rule`);
+    if (f.marks.cover && !f.marks.cover2) bad.push(`${f.templateId}: no two-line cover`);
+    if (f.marks.cover2) for (const need of ["box", "textcol", "licence", "redownload", "edition"]) if (!f.marks.cover2.stamps.some((s) => s.name === need)) bad.push(`${f.templateId}: two-line cover has no "${need}" mark`);
     if (f.marks.cover && f.marks.cover.stamps.find((s) => s.name === "edition")?.anchor !== "right") bad.push(`${f.templateId}: edition is not right-anchored`);
     if (f.marks.footer && (f.marks.footer.firstPage > f.marks.footer.lastPage)) bad.push(`${f.templateId}: footer page range`);
     if (f.pages !== f.marks.pages) bad.push(`${f.templateId}: page count ${f.pages} vs marks ${f.marks.pages}`);

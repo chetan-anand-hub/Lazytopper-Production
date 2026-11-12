@@ -31,12 +31,14 @@ function marksFor(f: PlanFile): TemplateMarks {
   const style = { fontFamily: "Inter", fontSizePx: 13, fontWeight: "400", color: "rgb(0,0,0)", lineHeightPx: 19.5, letterSpacingPx: 0, textTransform: "none", textAlign: "left" };
   const box = (name: "box" | "textcol" | "licence" | "redownload" | "edition" | "boxlabel") => ({ name, xPx: 0, yPx: 0, wPx: 1, hPx: 1, xMm: 0, yMm: 0, wMm: 1, hMm: 1, lines: 1, style });
   const pages = 5;
+  const cover = { licenceFit: { maxLines: 2 as const, shorten: "fitLicensee" as const }, wPx: 794, hPx: 1123, mmPerPx: 210 / 794, stamps: (["box", "textcol", "licence", "redownload", "edition", "boxlabel"] as const).map((n) => (n === "edition" ? { ...box(n), anchor: "right" as const, rightEdgeMm: 1 } : box(n))) };
   return {
     version: 1,
     pageWmm: 210,
     pageHmm: 297,
     pages,
-    cover: { licenceFit: { maxLines: 1, minFontSizePx: 10.5, stepPx: 0.5 }, wPx: 794, hPx: 1123, mmPerPx: 210 / 794, stamps: (["box", "textcol", "licence", "redownload", "edition", "boxlabel"] as const).map((n) => (n === "edition" ? { ...box(n), anchor: "right" as const, rightEdgeMm: 1 } : box(n))) },
+    cover,
+    cover2: cover,
     footer: { xMm: 12, baselineYMm: 276.5, maxWidthMm: 186, fontSizesPt: [10, 9.5, 9], colorRgb: [58, 74, 96], font: "Helvetica", firstPage: 4, lastPage: pages, withQr: false },
     body: Array.from({ length: Math.max(1, f.codes.length) }, (_, i) => ({ ...box("licence"), name: "generated" as const, page: 4, set: i })),
   };

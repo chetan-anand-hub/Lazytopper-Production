@@ -23,6 +23,10 @@ const CURRENT_PATH = 'packs/current.json';
 const LINK_TTL_MS = 15 * 60 * 1000;
 const MANIFEST_TTL_MS = 60 * 1000;
 const ZIP_STAMP_CONCURRENCY = 3;
+/** Process-wide bounds on the heavy work (pdf-lib holds a whole template in memory): stamps at once, ZIP builds at once, requests per buyer at once. */
+const STAMP_SLOTS = 4;
+const ZIP_SLOTS = 2;
+const MAX_INFLIGHT_PER_UID = 3;
 const CACHE_BYTES = 64 * 1024 * 1024;
 
 class NotReady extends Error {
@@ -35,6 +39,25 @@ class NotReady extends Error {
 const safeName = (s) => encodeURIComponent(String(s)).replace(/%/g, '_');
 const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'group';
 const headerSafe = (s) => String(s).replace(/["\\\r\n]/g, '');
+
+function createGate(slots) {
+  let active = 0;
+  const waiting = [];
+  const release = () => {
+    active -= 1;
+    const next = waiting.shift();
+    if (next) next();
+  };
+  return async function run(fn) {
+    if (active >= slots) await new Promise((resolve) => waiting.push(resolve));
+    active += 1;
+    try {
+      return await fn();
+    } finally {
+      release();
+    }
+  };
+}
 
 function createPackPdfService(deps = {}) {
   const { bucket, now = () => Date.now(), telemetry, firestore, firestoreApi, fontsLoader = loadFonts } = deps;
@@ -115,7 +138,14 @@ function createPackPdfService(deps = {}) {
 
   let fontsCache = null;
   function getFonts(manifest) {
-    if (!fontsCache || fontsCache.hash !== manifest.contentHash) fontsCache = { hash: manifest.contentHash, fonts: fontsLoader(manifest.fonts) };
+    if (!fontsCache || fontsCache.hash !== manifest.contentHash) {
+      try {
+        fontsCache = { hash: manifest.contentHash, fonts: fontsLoader(manifest.fonts) };
+      } catch (e) {
+        // a missing or altered font file is "not ready" (the client falls back), not a server fault
+        throw e && e.code === 'not_ready' ? e : new NotReady(`fonts: ${e && e.message}`);
+      }
+    }
     return fontsCache.fonts;
   }
 
@@ -132,10 +162,33 @@ function createPackPdfService(deps = {}) {
     const { orderId, paidAtMs } = buyerRefFor(manifest, owned, packId, templateId);
     const variants = pack.bridge && pack.bridge[templateId];
     const bridgeKey = file.hasBridge && variants ? (boardPass === false ? variants.card : variants.noCard) : null;
+    // FAIL CLOSED: a file with bridge pages is never stamped with the template's blank ones
+    if (file.hasBridge && (!bridgeKey || !manifest.bridges || !manifest.bridges[bridgeKey])) throw new NotReady(`no bridge pages for ${templateId}`);
     const day = dateLabel(now());
     const stampKey = sha256Hex(JSON.stringify([manifest.contentHash, templateId, packId, buyer.name, buyer.contact, orderId, paidAtMs ?? null, bridgeKey, day]));
     const fileId = fileIdFor(packId, templateId);
     return { file, templateId, packId, orderId, paidAtMs, bridgeKey, stampKey, fileId, path: `stamped/${uid}/${manifest.contentHash}/${safeName(fileId)}.pdf`, buyer };
+  }
+
+  const stampGate = createGate(STAMP_SLOTS);
+  const zipGate = createGate(ZIP_SLOTS);
+  const busy = new Map();
+  /** At most MAX_INFLIGHT_PER_UID requests of one buyer at a time (per instance): a loop of requests cannot queue the whole server. */
+  async function perUid(uid, fn) {
+    const n = busy.get(uid) || 0;
+    if (n >= MAX_INFLIGHT_PER_UID) {
+      const e = new Error('busy');
+      e.code = 'busy';
+      throw e;
+    }
+    busy.set(uid, n + 1);
+    try {
+      return await fn();
+    } finally {
+      const left = (busy.get(uid) || 1) - 1;
+      if (left <= 0) busy.delete(uid);
+      else busy.set(uid, left);
+    }
   }
 
   const inflight = new Map();
@@ -156,17 +209,20 @@ function createPackPdfService(deps = {}) {
           return { path: plan.path, bytes: wantBytes ? Buffer.from((await obj.download())[0]) : null };
         }
       }
-      const template = await readVerified(plan.file.path, plan.file.sha256);
-      const bridge = plan.bridgeKey && manifest.bridges[plan.bridgeKey] ? await readVerified(manifest.bridges[plan.bridgeKey].path, manifest.bridges[plan.bridgeKey].sha256) : undefined;
-      const out = await stampTemplate({
-        templateBytes: template,
-        marks: plan.file.marks,
-        buyer: { name: plan.buyer.name, contact: plan.buyer.contact, orderId: plan.orderId, paidAtMs: plan.paidAtMs },
-        nowMs: now(),
-        fonts: getFonts(manifest),
-        bridgeBytes: bridge,
+      const bytes = await stampGate(async () => {
+        const template = await readVerified(plan.file.path, plan.file.sha256);
+        const bridge = plan.bridgeKey ? await readVerified(manifest.bridges[plan.bridgeKey].path, manifest.bridges[plan.bridgeKey].sha256) : undefined;
+        const out = await stampTemplate({
+          templateBytes: template,
+          marks: plan.file.marks,
+          buyer: { name: plan.buyer.name, contact: plan.buyer.contact, orderId: plan.orderId, paidAtMs: plan.paidAtMs },
+          nowMs: now(),
+          fonts: getFonts(manifest),
+          bridgeBytes: bridge,
+          requireBridge: Boolean(plan.file.hasBridge),
+        });
+        return Buffer.from(out);
       });
-      const bytes = Buffer.from(out);
       await obj.save(bytes, { resumable: false, contentType: 'application/pdf', metadata: { cacheControl: 'private, max-age=0', metadata: { stampKey: plan.stampKey } } });
       emit('packs.pdf.stamped');
       return { path: plan.path, bytes };
@@ -205,6 +261,9 @@ function createPackPdfService(deps = {}) {
 
   /** One file: stamped, kept, signed. */
   async function fileLink(args) {
+    return perUid(args.uid, () => fileLinkInner(args));
+  }
+  async function fileLinkInner(args) {
     const manifest = await getManifest();
     const plan = planFile({ manifest, ...args });
     await ensureStamped(manifest, plan, false);
@@ -213,7 +272,10 @@ function createPackPdfService(deps = {}) {
   }
 
   /** A group of files as one store-only ZIP (stamped 3 at a time), kept and signed. */
-  async function zipLink({ uid, buyer, owned, packId, groupId, boardPass }) {
+  async function zipLink(args) {
+    return perUid(args.uid, () => zipLinkInner(args));
+  }
+  async function zipLinkInner({ uid, buyer, owned, packId, groupId, boardPass }) {
     const manifest = await getManifest();
     const pack = manifest.packs[packId];
     const group = pack && pack.groups.find((g) => g.groupId === groupId);
@@ -234,35 +296,50 @@ function createPackPdfService(deps = {}) {
       have = Boolean(meta && meta.metadata && meta.metadata.stampKey === zipKey);
     }
     if (!have) {
-      const stamped = new Array(plans.length);
-      let next = 0;
-      const worker = async () => {
-        for (;;) {
-          const i = next;
-          next += 1;
-          if (i >= plans.length) return;
-          stamped[i] = await ensureStamped(manifest, plans[i], true);
-        }
-      };
-      await Promise.all(Array.from({ length: Math.min(ZIP_STAMP_CONCURRENCY, plans.length) }, worker));
-      await new Promise((resolve, reject) => {
-        const archive = archiver('zip', { zlib: { level: 0 } });
-        const sink = new PassThrough();
-        const ws = obj.createWriteStream({ resumable: false, contentType: 'application/zip', metadata: { cacheControl: 'private, max-age=0', metadata: { stampKey: zipKey } } });
-        archive.on('error', reject);
-        sink.on('error', reject);
-        ws.on('error', reject);
-        ws.on('finish', resolve);
-        archive.pipe(sink).pipe(ws);
-        const used = new Set();
-        plans.forEach((p, i) => {
-          let name = p.file.filename;
-          for (let n = 2; used.has(name); n += 1) name = p.file.filename.replace(/(\.[^.]*)?$/, ` (${n})$1`);
-          used.add(name);
-          archive.append(stamped[i].bytes, { name, store: true });
-        });
-        archive.finalize().catch(reject);
-      });
+      await zipGate(
+        () =>
+          new Promise((resolve, reject) => {
+            const archive = archiver('zip', { zlib: { level: 0 } });
+            const sink = new PassThrough();
+            const ws = obj.createWriteStream({ resumable: false, contentType: 'application/zip', metadata: { cacheControl: 'private, max-age=0', metadata: { stampKey: zipKey } } });
+            const fail = (e) => {
+              try {
+                archive.abort();
+                ws.destroy(e);
+              } catch {
+                /* already torn down */
+              }
+              reject(e);
+            };
+            archive.on('error', fail);
+            sink.on('error', fail);
+            ws.on('error', fail);
+            ws.on('finish', resolve);
+            archive.pipe(sink).pipe(ws);
+            // stamp up to ZIP_STAMP_CONCURRENCY files ahead, and append each as soon as it is its turn, so only a few are in memory
+            const pending = new Map();
+            const start = (i) => {
+              if (i >= plans.length) return;
+              const pr = ensureStamped(manifest, plans[i], true);
+              pr.catch(() => {});
+              pending.set(i, pr);
+            };
+            (async () => {
+              for (let i = 0; i < Math.min(ZIP_STAMP_CONCURRENCY, plans.length); i += 1) start(i);
+              const used = new Set();
+              for (let i = 0; i < plans.length; i += 1) {
+                const r = await pending.get(i);
+                pending.delete(i);
+                start(i + ZIP_STAMP_CONCURRENCY);
+                let name = plans[i].file.filename;
+                for (let n = 2; used.has(name); n += 1) name = plans[i].file.filename.replace(/(\.[^.]*)?$/, ` (${n})$1`);
+                used.add(name);
+                archive.append(r.bytes, { name, store: true });
+              }
+              await archive.finalize();
+            })().catch(fail);
+          }),
+      );
       emit('packs.pdf.zip_built');
     } else emit('packs.pdf.zip_cache_hit');
     const signed = await sign(zipPath, zipName, 'application/zip');

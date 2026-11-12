@@ -31,24 +31,26 @@ const fontEntries = Object.entries(FONT_FILES).map(([weight, f]) => {
 });
 const style = (over = {}) => ({ fontFamily: 'Inter, sans-serif', fontSizePx: 13, fontWeight: '400', color: 'rgb(42, 58, 82)', lineHeightPx: 19.5, letterSpacingPx: 0, textTransform: 'none', textAlign: 'start', ...over });
 const box = (name, o) => ({ name, xPx: 0, yPx: 0, wPx: 0, hPx: 0, wMm: 0, hMm: 0, lines: 1, style: style(), ...o });
+const COVER_STAMPS = (licH, licLines) => [
+  box('textcol', { xMm: 24.068, yMm: 247.292, wMm: 138.829, hMm: 20.63, lines: 4 }),
+  box('licence', { xMm: 24.068, yMm: 247.557, wMm: 129.651, hMm: licH, lines: licLines, style: style({ fontWeight: '700', color: 'rgb(21, 35, 58)' }) }),
+  box('redownload', { xMm: 24.068, yMm: 262.764, wMm: 138.829, hMm: 5.157 }),
+  box('edition', { xMm: 161.773, yMm: 280.088, wMm: 32.358, hMm: 4.232, anchor: 'right', rightEdgeMm: 194.131, style: style({ color: 'rgb(58, 74, 96)', lineHeightPx: 15.6 }) }),
+];
+const coverMarks = (licH, licLines) => ({ licenceFit: { maxLines: 2, shorten: 'fitLicensee' }, wPx: 794, hPx: 1123, mmPerPx: 0.26448362720403024, stamps: COVER_STAMPS(licH, licLines) });
 const MARKS = {
   version: 1, pageWmm: 210, pageHmm: 297, pages: 7,
-  cover: {
-    licenceFit: { maxLines: 1, minFontSizePx: 10.5, stepPx: 0.5 }, wPx: 794, hPx: 1123, mmPerPx: 0.26448362720403024,
-    stamps: [
-      box('textcol', { xMm: 24.068, yMm: 247.292, wMm: 138.829, hMm: 20.63, lines: 4 }),
-      box('licence', { xMm: 24.068, yMm: 247.557, wMm: 129.651, hMm: 5.1, lines: 1, style: style({ fontWeight: '700', color: 'rgb(21, 35, 58)' }) }),
-      box('redownload', { xMm: 24.068, yMm: 262.764, wMm: 138.829, hMm: 5.157 }),
-      box('edition', { xMm: 161.773, yMm: 280.088, wMm: 32.358, hMm: 4.232, anchor: 'right', rightEdgeMm: 194.131, style: style({ color: 'rgb(58, 74, 96)', lineHeightPx: 15.6 }) }),
-    ],
-  },
+  cover: coverMarks(4.232, 1),
+  cover2: coverMarks(9.389, 2),
   footer: { xMm: 12, baselineYMm: 273, maxWidthMm: 164, fontSizesPt: [10, 9.5, 9], colorRgb: [58, 74, 96], font: 'Helvetica', firstPage: 4, lastPage: 7, withQr: true },
   body: [box('generated', { page: 4, set: 0, xMm: 46.408, yMm: 45.542, wMm: 35.632, hMm: 5.48 })],
 };
 
-async function blankPdf(pages, marker) {
+/** A template: `pages` body+cover pages, then the two-line cover as the LAST page (it is 600 pt wide so a test can tell which cover won). */
+async function blankPdf(pages, marker, extraCover = true) {
   const doc = await PDFDocument.create();
   for (let i = 0; i < pages; i += 1) doc.addPage(A4);
+  if (extraCover) doc.addPage([600, A4[1]]);
   doc.setTitle(marker);
   return Buffer.from(await doc.save());
 }
@@ -111,10 +113,14 @@ async function world(over = {}) {
   put('packs/current.json', Buffer.from(JSON.stringify({ version: 1, contentHash: 'c0ffee', manifestPath: 'packs/manifests/c0ffee.json', createdAt: 'x' })));
   const signed = [];
   const writes = [];
+  const delay = { ms: 0 };
   const bucket = {
     file: (p) => ({
       exists: async () => [objects.has(p)],
-      download: async () => [objects.get(p).bytes],
+      download: async () => {
+        if (delay.ms) await new Promise((r) => setTimeout(r, delay.ms));
+        return [objects.get(p).bytes];
+      },
       getMetadata: async () => [{ metadata: objects.get(p).metadata }],
       save: async (bytes, opts) => { writes.push(p); objects.set(p, { bytes: Buffer.from(bytes), metadata: (opts.metadata && opts.metadata.metadata) || {} }); },
       createWriteStream: (opts) => {
@@ -125,7 +131,7 @@ async function world(over = {}) {
       getSignedUrl: async (o) => { signed.push({ path: p, ...o }); return [`https://signed.example/${encodeURIComponent(p)}?X-Goog-Expires=900`]; },
     }),
   };
-  return { objects, bucket, signed, writes, manifest, ...over };
+  return { objects, bucket, signed, writes, manifest, delay, ...over };
 }
 
 // ---- Firestore + request fakes ----------------------------------------------------------------------------------------------
@@ -378,11 +384,44 @@ test('stamp: the footer licence line is on every body page and only those; the c
   assert.ok((await text(doc, 3)).length > (await text(doc, 4)).length);
 });
 
-test('stamp: with no bridge bytes the template\'s own pages 2-3 stay', async () => {
-  const bytes = await stampTemplate({ templateBytes: await blankPdf(7, 't'), marks: { ...MARKS, cover: undefined, body: [] }, fonts: fonts(), nowMs: NOW, buyer: { name: 'A', contact: 'a@b.in', orderId: 'o', paidAtMs: PAID } });
-  const doc = await PDFDocument.load(bytes);
-  assert.equal(doc.getPageCount(), 7);
-  assert.deepEqual(uriOf(doc.getPage(1)), []);
+const BUYER = { name: 'A', contact: 'a@b.in', orderId: 'o', paidAtMs: PAID };
+const stampWith = async (over = {}, templatePages = 7) =>
+  stampTemplate({ templateBytes: await blankPdf(templatePages, 't'), marks: MARKS, fonts: fonts(), nowMs: NOW, buyer: BUYER, ...over });
+const notReady = (re = /not_ready/) => (e) => e.code === 'not_ready' && re.test(e.message);
+
+test('fail closed: a template that lacks any mark the stamp needs is never returned (not_ready)', async () => {
+  await assert.rejects(stampWith({ marks: { ...MARKS, footer: undefined } }), notReady());
+  await assert.rejects(stampWith({ marks: { ...MARKS, cover: undefined } }), notReady());
+  await assert.rejects(stampWith({ marks: { ...MARKS, cover2: undefined } }), notReady());
+  for (const name of ['licence', 'textcol', 'redownload', 'edition']) {
+    const bad = { ...MARKS, cover: { ...MARKS.cover, stamps: MARKS.cover.stamps.filter((x) => x.name !== name) } };
+    await assert.rejects(stampWith({ marks: bad }), notReady(new RegExp(name)), `cover without ${name}`);
+  }
+  // a footer range that points past the file, or a generated-date mark on a page that is not there
+  await assert.rejects(stampWith({ marks: { ...MARKS, footer: { ...MARKS.footer, lastPage: 9 } } }), notReady());
+  await assert.rejects(stampWith({ marks: { ...MARKS, body: [{ ...MARKS.body[0], page: 40 }] } }), notReady());
+  // the template does not have the page count its marks say (no two-line cover appended, or extra pages)
+  await assert.rejects(stampWith({}, 6), notReady());
+  await assert.rejects(stampTemplate({ templateBytes: await blankPdf(7, 't', false), marks: MARKS, fonts: fonts(), nowMs: NOW, buyer: BUYER }), notReady());
+  // a font the cover needs is missing
+  await assert.rejects(stampWith({ fonts: {} }), notReady(/font/));
+});
+
+test('fail closed: bridge pages that are required but absent or the wrong size are never replaced by the template\'s blank ones', async () => {
+  await assert.rejects(stampWith({ requireBridge: true }), notReady(/bridge/));
+  await assert.rejects(stampWith({ requireBridge: true, bridgeBytes: await blankPdf(1, 'b', false) }), notReady(/bridge/));
+  await assert.rejects(stampWith({ bridgeBytes: await blankPdf(3, 'b', false) }), notReady(/bridge/));
+  const ok = await stampWith({ requireBridge: true, bridgeBytes: await bridgePdf(['https://x.in/a', 'https://x.in/b']) });
+  assert.equal((await PDFDocument.load(ok)).getPageCount(), 7);
+});
+
+test('the right cover: a one-line licence keeps the one-line cover; a two-line one moves the two-line cover to page 1', async () => {
+  const w0 = async (buyer) => (await PDFDocument.load(await stampWith({ buyer }))).getPage(0).getWidth();
+  assert.ok(Math.abs((await w0({ name: 'Asha', contact: 'a@x.in', orderId: 'order_1', paidAtMs: PAID })) - A4[0]) < 0.01, 'one-line cover');
+  assert.equal(await w0({ name: 'Priya Venkataraman', contact: 'priya.venkataraman.10b@gmail.com', orderId: 'order_RxkLm3ab9QzP1x', paidAtMs: PAID }), 600, 'two-line cover');
+  const doc = await PDFDocument.load(await stampWith({ buyer: { name: 'Priya Venkataraman', contact: 'priya.venkataraman.10b@gmail.com', orderId: 'order_RxkLm3ab9QzP1x', paidAtMs: PAID } }));
+  assert.equal(doc.getPageCount(), 7, 'the unused cover is gone either way');
+  assert.ok(doc.getPages().slice(1).every((p) => Math.abs(p.getWidth() - A4[0]) < 0.01));
 });
 
 test('stamp: the bridge swap keeps its link annotations on pages 2 and 3 and leaves the other pages alone', async () => {
@@ -396,39 +435,41 @@ test('stamp: the bridge swap keeps its link annotations on pages 2 and 3 and lea
   for (const i of [0, 3, 4, 5, 6]) assert.deepEqual(uriOf(doc.getPage(i)), []);
 });
 
-test('cover licence: ONE line - it shrinks 13px to 10.5px first, then the name and the e-mail local part are cut with an ellipsis', async () => {
+test('cover licence: the FULL line is tried on one line, then on two lines; only then is it shortened (never before)', async () => {
   const f = fonts();
   const font = fontOf(f['Inter-700']);
-  const rule = MARKS.cover.licenceFit;
-  const widthPx = MARKS.cover.stamps[0].wMm / MARKS.cover.mmPerPx;
-  const measure = (t, px) => (widthOf(font, t, px * MARKS.cover.mmPerPx * (72 / 25.4)) * (25.4 / 72)) / MARKS.cover.mmPerPx;
-  const fitOf = (l) => fitCoverLicence(l, rule, 13, widthPx, measure);
-  const ok = (fit) => assert.ok(fit.lines.length === 1 && measure(fit.lines[0], fit.sizePx) <= widthPx + 0.01 && fit.sizePx >= 10.5 && fit.sizePx <= 13);
-  const short = fitOf({ name: 'Asha', email: 'asha@x.in', orderId: 'order_Abc123' });
-  assert.equal(short.sizePx, 13);
-  assert.equal(short.lines.join(' '), 'Licensed to Asha \u00b7 asha@x.in \u00b7 Order order_Abc123 \u2014 personal use only');
-  const typical = fitOf({ name: 'Asha Rao', email: 'asha.rao@gmail.com', orderId: 'order_RxkLm3ab9QzP1' });
-  ok(typical);
-  assert.doesNotMatch(typical.lines[0], /\u2026/, 'a typical buyer is shrunk, not cut');
-  // the line that wrapped to THREE lines in the old 2-line box: still one line now
-  const long = { name: 'Venkata Subramanian Raghunathan Iyer', email: 'venkata.subramanian.raghunathan.iyer@example-school.edu.in', orderId: 'order_PlaceholderOrder0000' };
-  assert.ok(measure(`Licensed to ${long.name} \u00b7 ${long.email} \u00b7 Order ${long.orderId} \u2014 personal use only`, 13) > 2 * widthPx, 'three lines at the recorded size');
+  const k = MARKS.cover.mmPerPx;
+  const widthPx = MARKS.cover.stamps[0].wMm / k;
+  const measure = (t) => (widthOf(font, t, 13 * k * (72 / 25.4)) * (25.4 / 72)) / k;
+  const fitOf = (l) => fitCoverLicence(l, widthPx, measure);
+  const real = (name, email, orderId) => ({ name, email, orderId });
+  // short: one line, full text
+  const one = fitOf(real('Asha', 'asha@x.in', 'order_1'));
+  assert.equal(one.variant, 1);
+  assert.equal(one.lines.join(' '), 'Licensed to Asha \u00b7 asha@x.in \u00b7 Order order_1 \u2014 personal use only');
+  // REAL-length buyers (full masked e-mail, order_ + 14 chars): two lines, the FULL name and e-mail survive
+  for (const [name, email] of [['Aarav Sharma', 'fu\u2022\u2022\u2022@gmail.com'], ['Priya Venkataraman', 'priya.venkataraman.10b@gmail.com'], ['Aarav Sharma', 'aarav.sharma2010@gmail.com'], ['Ishita Gupta', 'ishitagupta@gmail.com']]) {
+    const fit = fitOf(real(name, email, 'order_Pq7XyZ12AbCdEf'));
+    assert.ok(fit.variant === 1 || fit.variant === 2, name);
+    const joined = fit.lines.join(' ');
+    assert.ok(joined.includes(name), `${name}: the full name survives`);
+    assert.ok(joined.includes(email), `${name}: the full e-mail survives`);
+    assert.ok(!joined.includes('...'), `${name}: nothing is cut`);
+    assert.ok(fit.lines.every((x) => measure(x) <= widthPx + 0.01));
+  }
+  // a line that is THREE lines at 13px is shortened (name, then e-mail) until it is two - and the order id is never cut
+  const long = real('Venkata Subramanian Raghunathan Iyer', 'venkata.subramanian.raghunathan.iyer@example-school.edu.in', 'order_PlaceholderOrder0000');
+  assert.ok(measure(`Licensed to ${long.name} \u00b7 ${long.email} \u00b7 Order ${long.orderId} \u2014 personal use only`) > 2 * widthPx, 'more than two lines at 13px');
   const fit = fitOf(long);
-  ok(fit);
-  assert.match(fit.lines[0], /\u2026/, 'cut with an ellipsis');
-  assert.match(fit.lines[0], /@example-school\.edu\.in|\u2026/, 'the domain is kept while the local part can still give');
-  assert.match(fit.lines[0], /Order order_PlaceholderOrder0000 \u2014 personal use only$/, 'order id and "personal use only" are never cut');
-  assert.equal(fit.sizePx, 10.5, 'shrunk to the minimum before anything was cut');
-  // a line that only needs a smaller size is not cut
-  const mid = { name: 'Venkata Iyer', email: 'venkata@example.in', orderId: 'order_Abc123XYZ' };
-  const midFit = fitOf(mid);
-  ok(midFit);
-  assert.doesNotMatch(midFit.lines[0], /\u2026/);
-  // absurd inputs still fit one line, and a masked phone (no "@") is cut at its tail
-  const absurd = fitOf({ name: 'N'.repeat(120), email: `${'e'.repeat(120)}@x.in`, orderId: 'order_1' });
-  ok(absurd);
-  assert.match(absurd.lines[0], /Order order_1 \u2014 personal use only$/);
-  ok(fitOf({ name: '', email: '+91 98\u2022\u2022\u2022\u2022\u2022948', orderId: 'order_1' }));
+  assert.equal(fit.variant, 2);
+  assert.match(fit.lines.join(' '), /\.\.\./);
+  assert.match(fit.lines.join(' '), /Order order_PlaceholderOrder0000 \u2014 personal use only$/);
+  // wrapping is at spaces, like the CSS: the lines rejoin into the original text
+  const real2 = fitOf(real('Priya Venkataraman', 'priya.venkataraman.10b@gmail.com', 'order_RxkLm3ab9QzP1x'));
+  assert.equal(real2.lines.join(' '), 'Licensed to Priya Venkataraman \u00b7 priya.venkataraman.10b@gmail.com \u00b7 Order order_RxkLm3ab9QzP1x \u2014 personal use only');
+  // absurd inputs still end at two lines, a masked phone included
+  assert.ok(fitOf(real('N'.repeat(120), `${'e'.repeat(120)}@x.in`, 'order_1')).lines.length <= 2);
+  assert.ok(fitOf(real('', '+91 98\u2022\u2022\u2022\u2022\u2022948', 'order_1')).lines.length <= 2);
 });
 
 test('footer fit: the browser build\'s ladder (10 -> 9 pt, then name, then e-mail shortened; Latin-1 only; bullets become "*")', async () => {
@@ -468,7 +509,7 @@ test('footer run: printed as wide as the browser build measured it (character sp
   const probe = await PDFDocument.create();
   const helv = await probe.embedFont(StandardFonts.Helvetica);
   const buyer = { name: 'Test Student', contact: 'test.student@gmail.com', orderId: 'order_TEST123', paidAtMs: PAID };
-  const bytes = await stampTemplate({ templateBytes: await blankPdf(7, 't'), marks: { ...MARKS, cover: undefined, body: [] }, fonts: fonts(), nowMs: NOW, buyer });
+  const bytes = await stampTemplate({ templateBytes: await blankPdf(7, 't'), marks: MARKS, fonts: fonts(), nowMs: NOW, buyer });
   const doc = await PDFDocument.load(bytes);
   const stream = await text(doc, 3);
   const tc = Number(/([-\d.]+) Tc/.exec(stream)[1]);
@@ -476,4 +517,71 @@ test('footer run: printed as wide as the browser build measured it (character sp
   const drawnMm = helveticaWidthMm(helv, line, 10) + (Array.from(line).length * tc) * (25.4 / 72);
   assert.ok(Math.abs(drawnMm - jspdfWidthMm(line, 10)) < 0.01, `${drawnMm} vs ${jspdfWidthMm(line, 10)}`);
   assert.match(stream, /q\n/, 'inside its own graphics state: the spacing never leaks to other text');
+});
+
+// ---- fail closed, at the route ------------------------------------------------------------------------------------------------------
+const editManifest = (h, fn) => {
+  const m = JSON.parse(h.objects.get('packs/manifests/c0ffee.json').bytes.toString('utf8'));
+  fn(m);
+  h.objects.set('packs/manifests/c0ffee.json', { bytes: Buffer.from(JSON.stringify(m)), metadata: {} });
+};
+const refused = (r) => assert.deepEqual([r.status, r.body.error], [503, 'not_ready']);
+
+test('route: a template without footer marks, or with a mark missing, answers 503 not_ready - nothing saved, signed or counted', async () => {
+  const h = await harness({ owned: [['u1', CH]] });
+  editManifest(h, (m) => { delete m.files['real-numbers|ct1-questions'].marks.footer; });
+  refused(await h.link({ packId: CH, fileId: CT1 }));
+  assert.equal(h.writes.length, 0);
+  assert.equal(h.signed.length, 0);
+  assert.equal(h.firestore.docs.has('activityLog/u1/activityDays/2026-11-12'), false, 'no download recorded');
+  const z = await h.zip({ packId: CH, group: 'real-numbers' });
+  refused(z);
+  assert.equal(h.signed.length, 0);
+});
+
+test('route: a file with bridge pages but no bridge variants in the manifest is never stamped with blank pages 2-3', async () => {
+  const h = await harness({ owned: [['u1', CH]] });
+  editManifest(h, (m) => { delete m.packs[CH].bridge['real-numbers|ct1-questions']; });
+  refused(await h.link({ packId: CH, fileId: CT1 }));
+  const h2 = await harness({ owned: [['u1', CH]] });
+  editManifest(h2, (m) => { delete m.bridges.card; });
+  refused(await h2.link({ packId: CH, fileId: CT1 }));
+  assert.equal(h.writes.length + h2.writes.length, 0);
+});
+
+test('route: a font file that does not match the manifest is 503 not_ready, not a 500', async () => {
+  const h = await harness({ owned: [['u1', CH]] });
+  editManifest(h, (m) => { m.fonts[0].sha256 = '0'.repeat(64); });
+  refused(await h.link({ packId: CH, fileId: CT1 }));
+  const h2 = await harness({ owned: [['u1', CH]] });
+  editManifest(h2, (m) => { m.fonts[0].file = 'lazytopper/scripts/packTemplates/fonts/nope.otf'; });
+  refused(await h2.link({ packId: CH, fileId: CT1 }));
+});
+
+test('route: at most 3 requests of one buyer run at once (429 for the rest); another buyer is not blocked', async () => {
+  const h = await harness({ owned: [['u1', CH], ['u2', CH]] });
+  h.delay.ms = 40;
+  const rs = await Promise.all([1, 2, 3, 4].map(() => h.link({ packId: CH, fileId: CT1 })));
+  assert.equal(rs.filter((r) => r.status === 429).length, 1);
+  assert.equal(rs.filter((r) => r.status === 200).length, 3);
+  assert.equal((await h.link({ packId: CH, fileId: CT1 }, 'u2')).status, 200);
+});
+
+test('Board Pass card rule is the entitlement gate\'s: a stray passEnd on a free document keeps the card; a running paid pass drops it', async () => {
+  const stray = await harness({ owned: [['u1', CH]], subscription: { tier: 'free', passEnd: new Date(NOW + 90 * 86400000) } });
+  await stray.link({ packId: CH, fileId: CT1 });
+  assert.deepEqual(uriOf((await PDFDocument.load(stray.objects.get(stray.writes[0]).bytes)).getPage(1)), ['https://www.lazytopper.com/pricing'], 'card');
+  const ended = await harness({ owned: [['u1', CH]], subscription: { tier: 'premium', passType: 'till_boards', passEnd: new Date(NOW - 86400000) } });
+  await ended.link({ packId: CH, fileId: CT1 });
+  assert.deepEqual(uriOf((await PDFDocument.load(ended.objects.get(ended.writes[0]).bytes)).getPage(1)), ['https://www.lazytopper.com/pricing'], 'an ended pass shows the card');
+});
+
+test('rate limit: a full table evicts the oldest buyers only; everyone else keeps their count', async () => {
+  const h = await harness({ owned: [['u1', CH]] });
+  // 240 links an hour per buyer: the 241st is refused ...
+  for (let i = 0; i < 240; i += 1) assert.equal((await h.link({ packId: CH, fileId: CT1 })).status, 200);
+  assert.equal((await h.link({ packId: CH, fileId: CT1 })).status, 429);
+  // ... and 6000 other buyers hitting the route (refused as not owned, but counted by uid only after ownership) do not reset u1
+  for (let i = 0; i < 6; i += 1) await h.link({ packId: CH, fileId: CT1 }, `other${i}`);
+  assert.equal((await h.link({ packId: CH, fileId: CT1 })).status, 429);
 });

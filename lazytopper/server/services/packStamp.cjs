@@ -21,6 +21,14 @@ const fontkit = require('@pdf-lib/fontkit');
 
 const { redownloadUntilFor } = require('./packTerms.cjs');
 
+/** The stamp could not be made COMPLETE (a mark, a page or a font is missing): the caller answers 503 not_ready, never an unstamped file. */
+class StampIncomplete extends Error {
+  constructor(detail) {
+    super(`not_ready: ${detail}`);
+    this.code = 'not_ready';
+  }
+}
+
 const PT_PER_MM = 72 / 25.4;
 const MM_PER_PT = 25.4 / 72;
 /** The repo root: server/services -> server -> lazytopper -> repo (manifest font paths are relative to it). */
@@ -96,8 +104,13 @@ function sha256Hex(bytes) {
 function loadFonts(manifestFonts, root = REPO_ROOT) {
   const out = {};
   for (const f of manifestFonts || []) {
-    const bytes = fs.readFileSync(path.resolve(root, f.file));
-    if (sha256Hex(bytes) !== f.sha256) throw new Error(`font_mismatch: ${f.file}`);
+    let bytes;
+    try {
+      bytes = fs.readFileSync(path.resolve(root, f.file));
+    } catch {
+      throw new StampIncomplete(`font file missing: ${f.file}`);
+    }
+    if (sha256Hex(bytes) !== f.sha256) throw new StampIncomplete(`font_mismatch: ${f.file}`);
     out[`${f.family}-${f.weight}`] = bytes;
   }
   return out;
@@ -113,7 +126,7 @@ function fontKeyFor(style, fonts) {
   if (/fraunces/i.test(style.fontFamily || '') && fonts['Fraunces-700']) return 'Fraunces-700';
   const want = Number(style.fontWeight) || (/bold/i.test(style.fontWeight || '') ? 700 : 400);
   const weights = Object.keys(fonts).filter((k) => k.startsWith('Inter-')).map((k) => Number(k.slice(6)));
-  if (!weights.length) throw new Error('no_inter_font');
+  if (!weights.length) throw new StampIncomplete('no Inter font');
   const best = weights.reduce((a, b) => (Math.abs(b - want) < Math.abs(a - want) ? b : a));
   return `Inter-${best}`;
 }
@@ -171,43 +184,28 @@ function wrapLines(text, maxWidthPt, widthPt) {
 }
 
 /**
- * The cover licence line in the recorded 2-line box: shrink from the recorded size by `stepPx` down to `minFontSizePx`, then
- * shorten the name, then the e-mail (the order id and "personal use only" are never cut). Pure: `measure(text, sizePx)` -> px width.
- * Returns {lines, sizePx}. A line of one unbreakable word wider than the box counts as not fitting.
+ * The cover licence line, the way the browser build's cover prints it: the FULL line at the recorded size, wrapped at spaces to the
+ * text column. One line -> variant 1 (the one-line cover); two -> variant 2 (the two-line cover). Only a line that needs MORE than two
+ * lines is shortened (fitLicensee's rule: the name first, then the e-mail, with "..."; the order id and "personal use only" are never
+ * cut), and never before two lines have been tried. Pure: `measure(text)` -> width in the same unit as `width`.
+ * Returns {lines, variant}. A single unbreakable word wider than the column counts as not fitting.
  */
-function fitCoverLicence(l, rule, baseSizePx, widthPx, measure) {
-  const attempt = (text, sizePx) => {
-    const lines = wrapLines(text, widthPx, (t) => measure(t, sizePx));
-    return lines.length <= rule.maxLines && lines.every((x) => measure(x, sizePx) <= widthPx + 0.01) ? lines : null;
+function fitCoverLicence(l, width, measure) {
+  const attempt = (text) => {
+    const lines = wrapLines(text, width, measure);
+    return lines.length >= 1 && lines.length <= 2 && lines.every((x) => measure(x) <= width + 0.01) ? { lines, variant: lines.length } : null;
   };
-  const sizes = [];
-  for (let s = baseSizePx; s >= rule.minFontSizePx - 1e-9; s -= rule.stepPx) sizes.push(s);
-  if (!sizes.length || sizes[sizes.length - 1] > rule.minFontSizePx) sizes.push(rule.minFontSizePx);
-  const full = licenseeLine(l);
-  for (const s of sizes) {
-    const lines = attempt(full, s);
-    if (lines) return { lines, sizePx: s };
-  }
-  const min = sizes[sizes.length - 1];
+  const full = attempt(licenseeLine(l));
+  if (full) return full;
   const name = String(l.name ?? '').trim();
   const email = String(l.email ?? '').trim();
-  // shorten with "…": the name first (down to one letter), then the e-mail's local part (the domain stays); a masked phone has no "@"
-  const at = email.lastIndexOf('@');
-  const local = at > 0 ? email.slice(0, at) : email;
-  const domain = at > 0 ? email.slice(at) : '';
-  const cut = (v, drop) => (drop <= 0 ? v : `${v.slice(0, Math.max(1, v.length - drop))}\u2026`);
-  const room = (v) => Math.max(0, v.length - 1);
-  const dom = domain.slice(1);
-  for (let drop = 1; drop <= room(name) + room(local) + room(dom); drop += 1) {
-    const nameDrop = Math.min(drop, room(name));
-    const localDrop = Math.min(drop - nameDrop, room(local));
-    const domDrop = drop - nameDrop - localDrop;
-    const mail = domain ? `${cut(local, localDrop)}@${cut(dom, domDrop)}` : cut(local, localDrop);
-    const lines = attempt(licenseeLine({ name: cut(name, nameDrop), email: mail, orderId: l.orderId }), min);
-    if (lines) return { lines, sizePx: min };
+  for (let drop = 1; drop <= name.length + email.length; drop += 1) {
+    const nameDrop = Math.min(drop, Math.max(0, name.length - 1));
+    const hit = attempt(licenseeLine({ name: shorten(name, nameDrop), email: shorten(email, drop - nameDrop), orderId: l.orderId }));
+    if (hit) return hit;
   }
-  const bare = licenseeLine({ name: '', email: '', orderId: l.orderId });
-  return { lines: wrapLines(bare, widthPx, (t) => measure(t, min)).slice(0, rule.maxLines), sizePx: min };
+  const bare = wrapLines(licenseeLine({ name: '', email: '', orderId: l.orderId }), width, measure).slice(0, 2);
+  return { lines: bare, variant: bare.length === 1 ? 1 : 2 };
 }
 
 /** Where a baseline goes in a one-line box of height hMm for a font (browser rule: half-leading around the content area). */
@@ -226,30 +224,25 @@ function baselineMm(box, fontSizeMm, ascent, descent, lineHMm) {
  *   bridgeBytes    the 2-page bridge PDF to swap in for pages 2-3 (or undefined: leave the template's pages)
  * -> Uint8Array
  */
-async function stampTemplate({ templateBytes, marks, buyer, nowMs, fonts, bridgeBytes }) {
+async function stampTemplate({ templateBytes, marks, buyer, nowMs, fonts, bridgeBytes, requireBridge }) {
   const doc = await PDFDocument.load(templateBytes);
+  const need = (cond, detail) => {
+    if (!cond) throw new StampIncomplete(detail);
+  };
+  // FAIL CLOSED: a pack file is never produced unwatermarked. Every mark the stamp needs must be there, and every one must be drawn.
+  need(marks && marks.cover && marks.cover2 && marks.footer, 'template marks incomplete');
+  need(doc.getPageCount() === marks.pages + 1, 'template page count does not match its marks');
+  const stampOf = (cm, name) => cm.stamps.find((x) => x.name === name);
+  for (const cm of [marks.cover, marks.cover2]) for (const n of ['textcol', 'licence', 'redownload', 'edition']) need(stampOf(cm, n), `cover has no ${n} mark`);
 
-  // ---- bridge pages: 2 for 2, so every page index below is unchanged ----
-  if (bridgeBytes && doc.getPageCount() >= 3) {
-    const bridge = await PDFDocument.load(bridgeBytes);
-    if (bridge.getPageCount() === 2) {
-      const copied = await doc.copyPages(bridge, [0, 1]);
-      doc.removePage(1);
-      doc.removePage(1);
-      doc.insertPage(1, copied[0]);
-      doc.insertPage(2, copied[1]);
-    }
-  }
-
-  const pages = doc.getPages();
   const licensee = { name: buyer.name || '', email: buyer.contact || '', orderId: buyer.orderId || '' };
 
   /** One line of text in a recorded style: font, size (pt), colour, ascent/descent as fractions of the size. */
-  const styled = (style, mmPerPx, sizePx) => {
+  const styled = (style, mmPerPx) => {
     const key = fontKeyFor(style, fonts);
-    if (!fonts[key]) throw new Error(`font_missing: ${key}`);
+    need(fonts && fonts[key], `font missing: ${key}`);
     const font = fontOf(fonts[key]);
-    const fontSizeMm = (sizePx || style.fontSizePx) * mmPerPx;
+    const fontSizeMm = style.fontSizePx * mmPerPx;
     return {
       font,
       fontSizeMm,
@@ -261,61 +254,80 @@ async function stampTemplate({ templateBytes, marks, buyer, nowMs, fonts, bridge
     };
   };
 
+  // ---- which cover: measure the buyer's FULL line at the recorded size ----
+  const lic1 = stampOf(marks.cover, 'licence');
+  const col1 = stampOf(marks.cover, 'textcol');
+  const base = styled(lic1.style, marks.cover.mmPerPx);
+  const fit = fitCoverLicence(licensee, col1.wMm * PT_PER_MM, (t) => widthOf(base.font, t, base.sizePt));
+  const cover = fit.variant === 2 ? marks.cover2 : marks.cover;
+  // the template's last page is the two-line cover: it becomes page 1, or is dropped
+  const last = doc.getPage(doc.getPageCount() - 1);
+  doc.removePage(doc.getPageCount() - 1);
+  if (fit.variant === 2) {
+    doc.removePage(0);
+    doc.insertPage(0, last);
+  }
+  // pdf-lib keeps a page list cache that removePage alone does not refresh
+  if (doc.pageCache && typeof doc.pageCache.invalidate === 'function') doc.pageCache.invalidate();
+
+  // ---- bridge pages: 2 for 2, so every page index below is unchanged ----
+  let bridged = false;
+  if (bridgeBytes) {
+    const bridge = await PDFDocument.load(bridgeBytes);
+    need(bridge.getPageCount() === 2 && doc.getPageCount() >= 3, 'bridge pages do not fit the template');
+    const copied = await doc.copyPages(bridge, [0, 1]);
+    doc.removePage(1);
+    doc.removePage(1);
+    doc.insertPage(1, copied[0]);
+    doc.insertPage(2, copied[1]);
+    bridged = true;
+  }
+  need(!requireBridge || bridged, 'bridge pages missing');
+
+  const pages = doc.getPages();
+  need(pages.length === marks.pages, 'page count after the stamp');
+
   // ---- cover ----
-  const cover = marks && marks.cover;
-  if (cover && pages[0]) {
+  {
     const page = pages[0];
     const pageH = page.getHeight();
-    const byName = (n) => cover.stamps.find((x) => x.name === n);
+    const byName = (n) => stampOf(cover, n);
     const put = (st, text, xPt, baseMm) => drawOutlines(page, st.font, st.upper ? text.toUpperCase() : text, xPt, pageH - baseMm * PT_PER_MM, st.sizePt, st.color);
 
     const lic = byName('licence');
-    const col = byName('textcol') || lic;
-    if (lic) {
-      const base = styled(lic.style, cover.mmPerPx);
-      const widthPx = col.wMm / cover.mmPerPx;
-      const measure = (t, sizePx) => (widthOf(base.font, t, sizePx * cover.mmPerPx * PT_PER_MM) * MM_PER_PT) / cover.mmPerPx;
-      const fit = fitCoverLicence(licensee, cover.licenceFit, lic.style.fontSizePx, widthPx, measure);
-      const st = styled(lic.style, cover.mmPerPx, fit.sizePx);
-      const lineMm = lic.style.lineHeightPx * cover.mmPerPx;
-      // the first line sits on the content-area top of the (inline) licence element; later lines follow the line height
-      fit.lines.forEach((line, i) => put(st, line, lic.xMm * PT_PER_MM, lic.yMm + st.asc * st.fontSizeMm + i * lineMm));
-    }
+    const st = styled(lic.style, cover.mmPerPx);
+    const lineMm = lic.style.lineHeightPx * cover.mmPerPx;
+    need(fit.lines.length >= 1, 'no licence line');
+    // the first line sits on the content-area top of the (inline) licence element; later lines follow the line height
+    fit.lines.forEach((line, i) => put(st, line, lic.xMm * PT_PER_MM, lic.yMm + st.asc * st.fontSizeMm + i * lineMm));
+
     const red = byName('redownload');
-    if (red) {
-      const text = `${redownloadCopy(buyer.paidAtMs)}.`;
-      const maxPt = (col ? col.wMm : red.wMm) * PT_PER_MM;
-      let sizePx = red.style.fontSizePx;
-      let st = styled(red.style, cover.mmPerPx, sizePx);
-      while (widthOf(st.font, text, st.sizePt) > maxPt && sizePx > 8) {
-        sizePx -= 0.5;
-        st = styled(red.style, cover.mmPerPx, sizePx);
-      }
-      put(st, text, red.xMm * PT_PER_MM, baselineMm(red, st.fontSizeMm, st.asc, st.desc));
-    }
+    const rst = styled(red.style, cover.mmPerPx);
+    const rtext = `${redownloadCopy(buyer.paidAtMs)}.`;
+    put(rst, rtext, red.xMm * PT_PER_MM, baselineMm(red, rst.fontSizeMm, rst.asc, rst.desc));
+
     const ed = byName('edition');
-    if (ed) {
-      const text = `Edition ${dateLabel(nowMs)}`;
-      const st = styled(ed.style, cover.mmPerPx);
-      const w = widthOf(st.font, text, st.sizePt);
-      const x = ed.anchor === 'right' && typeof ed.rightEdgeMm === 'number' ? ed.rightEdgeMm * PT_PER_MM - w : ed.xMm * PT_PER_MM;
-      put(st, text, x, baselineMm(ed, st.fontSizeMm, st.asc, st.desc));
-    }
+    const etext = `Edition ${dateLabel(nowMs)}`;
+    const est = styled(ed.style, cover.mmPerPx);
+    const w = widthOf(est.font, etext, est.sizePt);
+    const x = ed.anchor === 'right' && typeof ed.rightEdgeMm === 'number' ? ed.rightEdgeMm * PT_PER_MM - w : ed.xMm * PT_PER_MM;
+    put(est, etext, x, baselineMm(ed, est.fontSizeMm, est.asc, est.desc));
   }
 
   // ---- "Generated <date>" under each paper's title ----
-  for (const b of (marks && marks.body) || []) {
+  for (const b of marks.body || []) {
     if (b.name !== 'generated') continue;
     const page = pages[b.page - 1];
-    if (!page) continue;
-    const mmPerPx = (marks.cover && marks.cover.mmPerPx) || b.wMm / Math.max(1, b.wPx);
+    need(page, `no page ${b.page} for the Generated date`);
+    const mmPerPx = marks.cover.mmPerPx || b.wMm / Math.max(1, b.wPx);
     const st = styled(b.style, mmPerPx);
     drawOutlines(page, st.font, `Generated ${dateLabel(nowMs)}`, b.xMm * PT_PER_MM, page.getHeight() - baselineMm(b, st.fontSizeMm, st.asc, st.desc) * PT_PER_MM, st.sizePt, st.color);
   }
 
   // ---- footer licence line on every body page ----
-  const footer = marks && marks.footer;
-  if (footer) {
+  const footer = marks.footer;
+  let stamped = 0;
+  {
     const helv = await doc.embedFont(StandardFonts.Helvetica);
     const fit = fitFooter(licensee, footer.maxWidthMm, footer.fontSizesPt, jspdfWidthMm);
     // jsPDF set this run ~1% differently from a plain Helvetica run; spread the difference so the printed line is as wide as the
@@ -323,16 +335,19 @@ async function stampTemplate({ templateBytes, marks, buyer, nowMs, fonts, bridge
     const chars = Array.from(fit.text).length;
     const spacingPt = chars ? ((jspdfWidthMm(fit.text, fit.size) - helveticaWidthMm(helv, fit.text, fit.size)) / MM_PER_PT) / chars : 0;
     const color = rgb(footer.colorRgb[0] / 255, footer.colorRgb[1] / 255, footer.colorRgb[2] / 255);
+    need(footer.firstPage >= 2 && footer.lastPage >= footer.firstPage && footer.lastPage <= pages.length, 'footer page range');
     for (let p = footer.firstPage; p <= footer.lastPage; p += 1) {
       const page = pages[p - 1];
-      if (!page) continue;
+      need(page, `no page ${p} for the footer`);
+      stamped += 1;
       page.pushOperators(pushGraphicsState(), setCharacterSpacing(spacingPt));
       page.drawText(fit.text, { x: footer.xMm * PT_PER_MM, y: page.getHeight() - footer.baselineYMm * PT_PER_MM, size: fit.size, font: helv, color });
       page.pushOperators(popGraphicsState());
     }
   }
 
+  need(stamped === footer.lastPage - footer.firstPage + 1 && stamped >= 1, 'footer not on every body page');
   return doc.save();
 }
 
-module.exports = { stampTemplate, helveticaWidthMm, jspdfWidthMm, widthOf, fontOf, loadFonts, fitFooter, fitCoverLicence, licenseeLine, latin1, dateLabel, redownloadCopy, sha256Hex, REPO_ROOT };
+module.exports = { StampIncomplete, stampTemplate, helveticaWidthMm, jspdfWidthMm, widthOf, fontOf, loadFonts, fitFooter, fitCoverLicence, licenseeLine, latin1, dateLabel, redownloadCopy, sha256Hex, REPO_ROOT };
