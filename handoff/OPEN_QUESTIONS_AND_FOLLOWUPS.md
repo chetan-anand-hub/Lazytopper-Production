@@ -23,6 +23,50 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-12 (daily, third; written 12 Nov night) - #1687 - #1692 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `fe82a8b`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items come from the PR bodies **[gh]**, the reviewer files `REVIEW_1687/1688/1690/1691/1692.md` in `/home/claude/lt-specs` **[review]**, and the coordinator's message **[coordinator]**. Where the PR bodies do not say whether a review item was fixed before merge, that is stated and not guessed. No grading behaviour changed.*
+
+**New:** `[FU-PACK-TEMPLATES-LIVE-VARIABLE]`, `[FU-STORAGE-RULES-IN-REPO]`, `[FU-SERVERPDF-LIVE-CHECKS]`, `[FU-TEMPLATE-RENDER-PLAN-CHECK]`, `[FU-TEMPLATE-REMAKE-ALL-ON-VISUALS]`, `[FU-STAMPED-STORAGE-COST]`, `[FU-SERVERPDF-REVIEW-1692]`, `[FU-SERVERPDF-REVIEW-1690-1691]`, `[FU-PAIDSHEET-NITS]`.
+
+**Closed by this window:** `[FU-PAID-SHEET-1]` and `[FU-MYPACKS-DESKTOP-SQUEEZE]` (by `#1687`, live re-test with a Rs58 pack still owed); the `#1683` R4 and R5 items of `[FU-RECEIPT-EMAIL-REVIEW-ITEMS]` (by `#1688`; R6 stays open). **Still open, carried:** every item named in the earlier 12 Nov blocks that this block does not close.
+
+### [FU-PACK-TEMPLATES-LIVE-VARIABLE]
+
+OPEN, owner decision [coordinator]. The repo variable `PACK_TEMPLATES_LIVE` is not set, so a push run of `pack-templates.yml` is dry. After a bank change, re-making templates needs a manual "Run workflow" with "Dry run" unticked. Setting `PACK_TEMPLATES_LIVE=1` makes a push to the trunk (with the workflow's path filters) publish automatically. Review note [review, `#1690` re-review R1]: the push path filters listed `public/visuals/**` but not `public/figures/**`; the fix is on trunk: `pack-templates.yml` now lists `lazytopper/public/figures/**` (checked at `fe82a8b`).
+
+### [FU-STORAGE-RULES-IN-REPO]
+
+OPEN [coordinator; gh, `#1690` and `#1691` bodies]. Storage rules are private by default (only `ncert/` and `cbse/` public); there is no `storage.rules` in the repo, so the deny on `packs/` and `stamped/` is not under version control. Add one. Also open from the `#1691` owner actions: Railway needs an explicit service-account key for V4 signing (the first live link worked, so this is evidently in place; confirm); a bucket lifecycle rule deletes `stamped/` after 2 days [coordinator].
+
+### [FU-SERVERPDF-LIVE-CHECKS]
+
+OPEN [coordinator; `REVIEW_1692.md`]. Not yet live-verified: a ZIP; phone, iOS Safari and in-app browsers (the download is a cross-origin link with `Content-Disposition: attachment`); grading of a server-downloaded paper (R1: upload an answer for a downloaded paper code and confirm it is graded against that paper); exactly one `pack_download` per file; a preview with `VITE_PACK_SERVER_PDF_DISABLED=1` returns the in-browser build. Verified live: one server-stamped file (Surface Areas CT1).
+
+### [FU-TEMPLATE-RENDER-PLAN-CHECK]
+
+OPEN, review nit N3 skipped [coordinator; `REVIEW_1690.md`]. There is no check that the paper rendered in `__renderTemplate` equals the plan's worksheet JSON (both come from the same seeded builders, so fine today). A cheap guard: return `sha(ws)` from `__renderTemplate` and compare it with the plan.
+
+### [FU-TEMPLATE-REMAKE-ALL-ON-VISUALS]
+
+OPEN [coordinator; `REVIEW_1690.md` R2]. Because `public/visuals` is in the `rendererVersion` directories, changing any one visuals image regenerates ALL 828 templates (about 4 GB), even though per-file figure hashes already cover it. Suggested: leave `public/visuals` and `public/figures` out of `rendererVersion`, rely on the per-file figure sha256s, and keep both in the path filters. Costs CI time only; correctness is unaffected.
+
+### [FU-STAMPED-STORAGE-COST]
+
+OPEN [coordinator]. Storage cost of the stamped copies and ZIPs under `stamped/<uid>/<contentHash>/` (a chapter ZIP is about 110 MB; the 2-day lifecycle rule bounds it) and of the templates (about 4 GB for a full re-make). Review it with the first real month of use. Per-key LRU eviction for the rate limiter is DONE (`#1691`, from review S4).
+
+### [FU-SERVERPDF-REVIEW-1692]
+
+OPEN [review, `REVIEW_1692.md`; the PR body does not say which were fixed before merge, so verify each]. S1: the double-count guard for several-paper (CBQ chapter) files is untested. S2: a link whose `papers` does not cover the file's printed codes is accepted, so a paper could download without being registered for grading (fix: `downloadFromServer` passes the expected codes and falls back if they do not match). S3: the ZIP request shares the 20 s timeout although a cold chapter ZIP can take 15-25 s. S4: double `pack_download` counting when the server issued a link but the client fell back. Nits: file buttons are not disabled while a ZIP is preparing; a hanging server makes every tap 20 s slower; accept only the storage host as the link URL; the receipt card registers no papers (`user: null`, same as before).
+
+### [FU-SERVERPDF-REVIEW-1690-1691]
+
+OPEN [review; the PR bodies do not say which were fixed]. `#1690`: the golden test did not cover the bridge pages; a manual dispatch could publish from any branch (guard `LIVE` on `github.ref`); the template cover box is laid out for a 2-line licence (the stamper now handles one-line and two-line variants); `rendererVersion` hashed dependency specifiers, not resolved versions; font hashes were computed at publish time, not pinned; `packUnits()` is a hand list of 33 packs (add a test against the shop's SKU list); R1: PR-C overrides `createdAt` (done in `#1692`). `#1691`: `recordDownloads` counts a re-fetched cached link; the re-download line shrinks to 8 px outside any recorded rule; archiver read-ahead memory bound (R2); the browser and fontkit may measure a line slightly differently and pick the other cover variant (R3, acceptable).
+
+### [FU-PAIDSHEET-NITS]
+
+OPEN [review, `REVIEW_1687.md`]. D-NIT-1: the reopen button stays visible after a "child" or "me" choice made in the sheet, and reopening shows no who-card; have the card report its choice and hide the button. D-NIT-2: the receipt line can name the account email when Resend's one-a-day or IST send-window rules hold the email back; check that the purchase receipt is exempt (the owner ruled it is, `#1683`). D-NIT-3: the receipt line has no full stop, unlike the old copy.
+
 ## 2026-11-12 (daily, second; written 12 Nov) - #1676 - #1685 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `2545468`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items come from the PR bodies **[gh]** and the owner's live tests of 12 Nov **[owner]**. No grading behaviour changed.*

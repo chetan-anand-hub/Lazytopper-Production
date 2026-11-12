@@ -1,3 +1,14 @@
+## 2026-11-12 (daily, third; written 12 Nov night) - #1687 - #1692
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`fe82a8b`** [git].
+
+- **Done [gh]:** `#1687` - `#1692` merged (table in CURRENT_STATE). PAID-SHEET-1 is built (`#1687`); SERVER-PDF-1 (`#1690`, `#1691`, `#1692`) is complete in code and the templates are published. No grading change.
+- **Owner live tests still owed [owner]:** (c) signed-out "someone else" plus the pop-up re-test with a Rs58 pack. (e) the Meta `PackPurchase` check is with the cofounder (`claude/META_PURCHASE_CHECK_FOR_COFOUNDER_2026-11-12.md`).
+- **SERVER-PDF-1 live checks still owed [coordinator; `REVIEW_1692.md`]:** one ZIP (a Subject Pack chapter) with a real-length name; Android Chrome, iOS Safari and one in-app browser (Instagram); upload an answer for a server-downloaded paper code and confirm it is graded against that paper; exactly one `pack_download` per file; a preview with `VITE_PACK_SERVER_PDF_DISABLED=1` returns the in-browser build. One server-stamped file is already live-verified (Surface Areas CT1).
+- **Owner decisions pending:** set the repo variable `PACK_TEMPLATES_LIVE=1` (until then a push run is dry; re-making templates after a bank change needs a manual "Run workflow" with "Dry run" unticked); whether to add a `storage.rules` file to the repo (rules today are private by default with only `ncert/` and `cbse/` public).
+- **Kill switches now live [gh]:** `VITE_PAID_SHEET_DISABLED`, `PACK_SERVER_PDF_DISABLED` (server; both routes 404 so the client falls back), `VITE_PACK_SERVER_PDF_DISABLED` (client; also hides the ZIP buttons), plus those named in the previous blocks.
+- **Owner items from the previous blocks that this block does not touch stand** (two approved ad edits, Track B funnel measurement, D mock-up, E and F decisions, dated checks 13-15 Nov / 15 Nov / 15-16 Nov / 18 Nov / 1 Dec).
+
 ## 2026-11-12 (daily, second; written 12 Nov) - #1676 - #1685
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`2545468`** [git].
