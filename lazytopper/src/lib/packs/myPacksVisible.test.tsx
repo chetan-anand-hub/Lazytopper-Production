@@ -31,6 +31,7 @@ import { DesktopShell } from "../../components/desktop/DesktopShell";
 import { ownedPackTitle } from "../../components/packs/PacksShop";
 import { resetOwnedPacksCache } from "../../components/packs/useOwnedPacks";
 import { PacksEntry } from "./packEntryLazy";
+import { hintNow } from "../../components/packs/mineHint";
 import { meCardPackTitle } from "./MyPacksMeCard";
 import { resetMyPacksCacheForTests } from "./myPacksCache";
 
@@ -232,7 +233,7 @@ describe("PAID-SHOWS-1 - the count on the row, and the Home card", () => {
     expect(screen.queryByTestId("home-your-packs")).toBeNull();
   });
   it("cold load on a device that knows this account owns packs: the card's space is held (no shift), then filled; a 'no packs' answer collapses it", async () => {
-    window.localStorage.setItem("lt.packs.mineHint.v1", JSON.stringify({ u: "u1", t: Date.now(), h: {} }));
+    window.localStorage.setItem("lt.packs.mineHint.v1", JSON.stringify({ u: "u1", t: hintNow(), h: {} }));
     let resolve!: (v: unknown) => void;
     fetchMyPacksMock.mockReturnValue(new Promise((r) => { resolve = r; }));
     renderHome();
