@@ -167,28 +167,61 @@ function drawOutlines(page, font, text, xPt, yPt, sizePt, color) {
   });
 }
 
+/**
+ * Greedy line wrap that breaks where today's cover CSS breaks (`overflow-wrap: anywhere`): at spaces, after "-" and after "/" (not before a
+ * digit), and, as a last resort, inside a token wider than the column. Trailing spaces hang (never counted). Pure.
+ */
 function wrapLines(text, maxWidthPt, widthPt) {
-  const words = text.split(/\s+/).filter(Boolean);
-  const lines = [];
+  const units = [];
   let cur = '';
-  for (const w of words) {
-    const next = cur ? `${cur} ${w}` : w;
-    if (!cur || widthPt(next) <= maxWidthPt) cur = next;
-    else {
-      lines.push(cur);
-      cur = w;
+  const chars = Array.from(String(text).trim());
+  chars.forEach((ch, i) => {
+    cur += ch;
+    const next = chars[i + 1];
+    const soft = /\s/.test(ch) ? next !== undefined && !/\s/.test(next) : (ch === '-' || ch === '/') && next !== undefined && !/[\s\d]/.test(next);
+    if (soft) {
+      units.push(cur);
+      cur = '';
+    }
+  });
+  if (cur) units.push(cur);
+  const fits = (t) => widthPt(t.replace(/\s+$/, '')) <= maxWidthPt;
+  const lines = [];
+  let line = '';
+  const flush = () => {
+    if (line) lines.push(line.replace(/\s+$/, ''));
+    line = '';
+  };
+  for (const u of units) {
+    if (!line || fits(line + u)) {
+      if (!line && !fits(u)) {
+        // a token wider than the column: break inside it
+        for (const ch of Array.from(u)) {
+          if (line && !fits(line + ch)) flush();
+          line += ch;
+        }
+      } else line += u;
+    } else {
+      flush();
+      if (fits(u)) line = u;
+      else {
+        for (const ch of Array.from(u)) {
+          if (line && !fits(line + ch)) flush();
+          line += ch;
+        }
+      }
     }
   }
-  if (cur) lines.push(cur);
+  flush();
   return lines;
 }
 
 /**
- * The cover licence line, the way the browser build's cover prints it: the FULL line at the recorded size, wrapped at spaces to the
+ * The cover licence line, the way the browser build's cover prints it: the FULL line at the recorded size, wrapped like the CSS (spaces, after "-" and "/", inside a too-long token) to the
  * text column. One line -> variant 1 (the one-line cover); two -> variant 2 (the two-line cover). Only a line that needs MORE than two
  * lines is shortened (fitLicensee's rule: the name first, then the e-mail, with "..."; the order id and "personal use only" are never
  * cut), and never before two lines have been tried. Pure: `measure(text)` -> width in the same unit as `width`.
- * Returns {lines, variant}. A single unbreakable word wider than the column counts as not fitting.
+ * Returns {lines, variant}.
  */
 function fitCoverLicence(l, width, measure) {
   const attempt = (text) => {

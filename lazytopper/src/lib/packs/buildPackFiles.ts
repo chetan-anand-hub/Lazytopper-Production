@@ -20,6 +20,8 @@
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { AuthUser } from "../../context/AuthContext";
 import { registerPackPaper, type PackPaperReg } from "./packPaperRecord";
+import { groupIdForTemplateId, templateIdForPackFile } from "./packTemplateCore";
+import type { ServerDownloadDeps } from "./serverPdfDownload";
 import { cbqPackExampleCode, packPaperCode } from "./packPaperCode";
 import {
   chaptersOfSubject,
@@ -85,6 +87,10 @@ export interface PackFile {
   codes?: string[];
   /** The group the file is listed under (a chapter name, or "Mock papers"). */
   group: string;
+  /** SERVER-PDF-1: the id the server zips this file under ("Download all (ZIP)"): a chapter slug, `mocks-<subject>`, `cbq-<subject>-<chapter>`. */
+  groupId: string;
+  /** The pack this file belongs to (the id up to the first "|"). */
+  packId: string;
   filename: string;
   /** `onProgress` (several-paper files only): called as each set starts rendering. */
   build: (onProgress?: (set: number, of: number) => void) => Promise<void>;
@@ -135,6 +141,32 @@ export interface BuildContext {
    * its cover. Absent (free samples, shop previews, tests) -> no extra pages, files exactly as before.
    */
   bridge?: BridgeContext;
+  /**
+   * SERVER-PDF-1 PR-C: set ONLY on the buyer's own download (My packs, the receipt card). The file is then fetched from the server
+   * (a signed 15-minute link to the file stamped for this buyer) and `build()` falls back to the in-browser builder, silently, on ANY
+   * failure. The server counts the `pack_download` itself, so `onDownload` is NOT called for a file a server link delivered.
+   */
+  serverLinks?: boolean;
+  /** Test seam for the server path (fetch, headers, timeout, the download trigger, the clock, the kill switch). */
+  serverPdf?: ServerDownloadDeps;
+}
+
+/**
+ * The server path of one file (SERVER-PDF-1 PR-C): "done" = the browser is downloading the server's file and the papers it prints are
+ * registered from the server's own ws (all of the file's paper codes covered); "build" = nothing was downloaded, build it here;
+ * "build-counted" = same, but the server had already counted the download (do not send the client event). Never throws.
+ */
+async function downloadFromServer(ctx: BuildContext, fileId: string, expectCodes: readonly string[]): Promise<"done" | "build" | "build-counted"> {
+  if (!ctx.serverLinks) return "build";
+  try {
+    const { downloadFileFromServer } = await import("./serverPdfDownload");
+    const res = await downloadFileFromServer({ packId: packOfFileId(fileId), fileId, user: ctx.user, expectCodes }, { ...ctx.serverPdf, nowIso: ctx.nowIso });
+    if (res.ok) return "done";
+    // A link was issued (the server already counted this download) but nothing reached the browser: build here WITHOUT a second count.
+    return res.counted ? "build-counted" : "build";
+  } catch {
+    return "build";
+  }
 }
 
 /** Papers are drawn with this placeholder stamp; the real "Generated <date>" is set when a file is built. */
@@ -190,12 +222,20 @@ function paidAtOf(owned: readonly OwnedPack[], ref: string): number | undefined 
   return hit && typeof hit.paidAt === "number" && hit.paidAt > 0 ? hit.paidAt : undefined;
 }
 
+const packOfFileId = (fileId: string): string => fileId.slice(0, Math.max(0, fileId.indexOf("|")));
+const groupIdOf = (fileId: string): string => {
+  const t = templateIdForPackFile(packOfFileId(fileId), fileId);
+  return (t && groupIdForTemplateId(t)) || "";
+};
+
 function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
   return {
     id: spec.id,
     label: spec.label,
     code: spec.paper?.code,
     group: spec.group,
+    groupId: groupIdOf(spec.id),
+    packId: packOfFileId(spec.id),
     filename: spec.filename,
     source: {
       mode: spec.mode,
@@ -217,6 +257,9 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
     build: async () => {
       // No licensee email (or, for a phone-only account, its masked phone): no PDF. A pack file is never produced unwatermarked.
       if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
+      // SERVER-PDF-1 PR-C: the server's stamped file first; on any failure fall through to the in-browser build below.
+      const served = await downloadFromServer(ctx, spec.id, spec.paper ? [spec.paper.code] : []);
+      if (served === "done") return;
       const exportPdf = ctx.exportPdf ?? (await defaultExport());
       const ws = { ...spec.ws(), createdAt: (ctx.nowIso ?? (() => new Date().toISOString()))() };
       // A paper file shows its OWN printed code; any other file the pack's first paper code (null: no "e.g." clause).
@@ -235,7 +278,7 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
       // PACKS-GRADE-1: the PDF is out; now the EXISTING download path files the paper under its printed
       // code so the student can upload answers. Best-effort: it never blocks or fails the download.
       if (spec.paper) await registerPackPaper(ctx.user, { ...spec.paper, paper: ws });
-      ctx.onDownload?.(sku);
+      if (served !== "build-counted") ctx.onDownload?.(sku);
     },
   };
 }
@@ -251,6 +294,8 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
     label: spec.label,
     codes: spec.sets.map((x) => x.paper.code),
     group: spec.group,
+    groupId: groupIdOf(spec.id),
+    packId: packOfFileId(spec.id),
     filename: spec.filename,
     source: {
       mode: spec.mode,
@@ -270,6 +315,8 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
     },
     build: async (onProgress) => {
       if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
+      const served = await downloadFromServer(ctx, spec.id, spec.sets.map((x) => x.paper.code));
+      if (served === "done") return;
       const now = (ctx.nowIso ?? (() => new Date().toISOString()))();
       const papers = spec.sets.map((x) => ({ ws: { ...x.ws(), createdAt: now }, reg: x.paper }));
       const bridge: BridgePagesData | undefined =
@@ -292,7 +339,7 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
       }
       // Every set of the file waits on Home under its own code, exactly as a one-paper file does.
       for (const p of papers) await registerPackPaper(ctx.user, { ...p.reg, paper: p.ws });
-      ctx.onDownload?.(sku);
+      if (served !== "build-counted") ctx.onDownload?.(sku);
     },
   };
 }
