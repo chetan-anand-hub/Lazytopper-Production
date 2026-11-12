@@ -18,9 +18,12 @@ export const STAMP_ATTR = "data-pdf-stamp";
 /** `textcol` is the box's text column (its width is what the licence line wraps to); `box` the dashed frame; `boxlabel` the green "Your copy". */
 export type StampName = "licence" | "redownload" | "edition" | "generated" | "box" | "boxlabel" | "textcol";
 
-/** What the cover / body print the SAME size as the real text: long enough to wrap like a typical buyer line (the box is two lines tall). */
+/** What the cover / body print the SAME size as the real text: the licence is a typical ONE-line buyer line (the box is one line tall, as today's). */
 export const TEMPLATE_PLACEHOLDER = {
-  licence: "Licensed to Placeholder Student Name · placeholder.student@example.com · Order order_PlaceholderOrder0000 — personal use only",
+  /** A short licence: the cover box laid out for ONE line. */
+  licence: "Licensed to Asha Rao · asha@x.in · Order order_Abc123 — personal use only",
+  /** A typical full licence (full name, full e-mail, a real order id): the cover box laid out for TWO lines, as the browser build grows it. */
+  licence2: "Licensed to Priya Venkataraman · priya.venkataraman.10b@gmail.com · Order order_RxkLm3ab9QzP1x — personal use only",
   redownload: "Download any time until 31 May 2027",
   edition: "25 Oct 2026",
   generated: "25 Oct 2026",
@@ -57,17 +60,18 @@ export interface StampBox {
 }
 
 /**
- * How the stamper must fit a real licence line into the template box (recorded in every manifest entry so PR-B cannot overflow it):
- * the box is laid out for `maxLines` lines at the recorded size. A longer line is shrunk in `stepPx` steps down to `minFontSizePx`
- * (same weight and colour), then the name and finally the e-mail are shortened with "..." (the order id and "personal use only"
- * are never cut) - the footer line's own rule (fitLicensee).
+ * How the stamper fits a real licence line (recorded in every manifest entry). A template carries TWO covers: page 1 laid out for a
+ * one-line licence and a last page laid out for a two-line licence (`marks.cover` / `marks.cover2`), both exactly as the browser build's
+ * CSS grows the box. The stamper measures the buyer's FULL line at the recorded size: it fits one line -> the one-line cover; else it
+ * wraps (at spaces, like the CSS) to two lines -> the two-line cover; only if it still needs more does it shorten the name, then the
+ * e-mail, with "..." (the footer line's fitLicensee rule). The order id and "personal use only" are never cut, and nothing is shortened
+ * before two lines have been tried.
  */
 export interface LicenceFitRule {
-  maxLines: number;
-  minFontSizePx: number;
-  stepPx: number;
+  maxLines: 2;
+  shorten: "fitLicensee";
 }
-export const LICENCE_FIT_RULE: LicenceFitRule = { maxLines: 2, minFontSizePx: 11, stepPx: 0.5 };
+export const LICENCE_FIT_RULE: LicenceFitRule = { maxLines: 2, shorten: "fitLicensee" };
 
 export interface CoverMarks {
   licenceFit: LicenceFitRule;
@@ -106,6 +110,8 @@ export interface TemplateMarks {
   pageHmm: number;
   pages: number;
   cover?: CoverMarks;
+  /** The same cover laid out for a two-line licence: the LAST page of the template (pages = marks.pages + 1 when present). */
+  cover2?: CoverMarks;
   footer?: FooterMarks;
   body: BodyStamp[];
 }

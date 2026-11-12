@@ -105,13 +105,14 @@ describe("exportWorksheetPdf - template option", () => {
     expect(pages).toBeGreaterThanOrEqual(firstBody);
     for (let p = firstBody; p <= pages; p += 1) expect(texts()).toContain(`Page ${p} of ${pages}`);
     // cover + 2 blank bridge placeholders + body pages; only the cover and the body slices carry an image
-    expect(addPageMock.mock.calls.length).toBe(pages - 1);
-    expect(addImageMock.mock.calls.length).toBe(pages - TEMPLATE_BRIDGE_PAGES);
+    expect(addPageMock.mock.calls.length).toBe(pages - 1 + 1); // + the two-line cover, appended as the last page
+    expect(addImageMock.mock.calls.length).toBe(pages - TEMPLATE_BRIDGE_PAGES + 1);
     // a question paper prints the paper QR: its narrower licence row and its own baseline
     expect(marks.footer).toMatchObject({ xMm: 12, baselineYMm: PACK_QR_GEOMETRY.licY, withQr: true, firstPage: firstBody, lastPage: pages, font: "Helvetica" });
     expect(marks.footer?.maxWidthMm).toBeCloseTo(210 - 24 - 18 - 4, 5);
     expect(marks.cover?.stamps.map((s) => s.name).sort()).toEqual(["box", "boxlabel", "edition", "licence", "redownload", "textcol"]);
-    expect(marks.cover?.licenceFit).toEqual({ maxLines: 2, minFontSizePx: 11, stepPx: 0.5 });
+    expect(marks.cover?.licenceFit).toEqual({ maxLines: 2, shorten: "fitLicensee" });
+    expect(marks.cover2?.stamps.map((s) => s.name).sort()).toEqual(["box", "boxlabel", "edition", "licence", "redownload", "textcol"]);
     expect(marks.cover?.stamps.find((s) => s.name === "edition")).toMatchObject({ anchor: "right" });
     expect(marks.body.map((b) => b.name)).toEqual(["generated"]);
     expect(marks.body[0].page).toBe(firstBody);
@@ -135,5 +136,7 @@ describe("exportWorksheetPdf - template option", () => {
   it("the placeholder texts are the ones the cover was laid out with", () => {
     expect(TEMPLATE_PLACEHOLDER.licence.startsWith("Licensed to ")).toBe(true);
     expect(TEMPLATE_PLACEHOLDER.licence.endsWith("personal use only")).toBe(true);
+    expect(TEMPLATE_PLACEHOLDER.licence2.startsWith("Licensed to ")).toBe(true);
+    expect(TEMPLATE_PLACEHOLDER.licence2.length).toBeGreaterThan(TEMPLATE_PLACEHOLDER.licence.length);
   });
 });
