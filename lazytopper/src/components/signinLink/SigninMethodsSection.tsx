@@ -29,10 +29,11 @@ export default function SigninMethodsSection({ headingId }: { headingId?: string
       )}
       <AddSignInMethods methods={methods} onLinked={refresh} />
       <p className="lt-sil__p" data-testid="signin-methods-change">
-        {WHATSAPP_CHANGE_LINE}{" "}
+        {WHATSAPP_CHANGE_LINE.replace(/WhatsApp\.$/, "")}
         <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
           WhatsApp
         </a>
+        .
       </p>
     </section>
   );

@@ -239,7 +239,7 @@ describe("Ways to sign in (Settings)", () => {
     ];
     ui(<SigninMethodsSectionLazy headingId="h" />);
     const sec = await screen.findByTestId("signin-methods-section");
-    expect(sec.textContent).toContain("To change a sign-in, message us on WhatsApp.");
+    expect(screen.getByTestId("signin-methods-change").textContent).toBe("To change a sign-in, message us on WhatsApp.");
     expect(screen.queryByTestId("signin-link-add-phone")).toBeNull();
     expect(screen.queryByTestId("signin-link-add-google")).toBeNull();
     expect(screen.queryByText(/unlink|remove|replace/i)).toBeNull();

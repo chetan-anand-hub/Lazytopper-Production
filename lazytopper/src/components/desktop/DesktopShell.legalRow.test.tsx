@@ -40,6 +40,7 @@ import { DesktopShell } from "./DesktopShell";
 // (under parallel load that alone ran past the 5 s findBy budget). The component still loads them through its own lazy().
 beforeAll(async () => {
   await import("../account/SettingsModal");
+  await import("../signinLink/SigninMethodsSection");
 }, 60_000);
 
 afterEach(() => {
@@ -105,6 +106,15 @@ describe("DesktopShell account dropdown — SETTINGS-1 · one Settings entry" , 
     const names = Array.from(menu.querySelectorAll("[role='menuitem']")).map((n) => n.textContent);
     expect(names).toEqual(["Me / Progress", "Settings", "Log out"]);
     expect(menu.textContent).not.toMatch(/subscription/i);
+  });
+
+  it("LINK-SIGNIN-1: Settings offers 'Ways to sign in' (removing the section turns this red)", async () => {
+    signInAndOpenMenu();
+    fireEvent.click(screen.getByRole("menuitem", { name: "Settings" }));
+    await screen.findByRole("dialog", { name: "Settings" });
+    expect(await screen.findByRole("heading", { name: "Ways to sign in" })).toBeTruthy();
+    expect(screen.getAllByRole("heading", { name: "Ways to sign in" })).toHaveLength(1);
+    expect(screen.queryByRole("heading", { name: "Sign-in methods" })).toBeNull();
   });
 
   it("Settings closes the menu and opens the Settings window", async () => {

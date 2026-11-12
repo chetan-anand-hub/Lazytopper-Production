@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach, beforeAll } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 
@@ -24,6 +24,12 @@ vi.mock("../../hooks/useSubscription", () => ({
 }));
 
 import { MobileAccountMenu } from "./MobileAccountMenu";
+
+// Warm the lazy Settings chunks once so no findBy window pays the cold transform.
+beforeAll(async () => {
+  await import("../account/SettingsModal");
+  await import("../signinLink/SigninMethodsSection");
+}, 60_000);
 
 afterEach(() => {
   cleanup();
@@ -81,6 +87,15 @@ describe("MobileAccountMenu account dropdown — SETTINGS-1 · one Settings entr
     const names = Array.from(menu.querySelectorAll("[role='menuitem']")).map((n) => n.textContent);
     expect(names).toEqual(["Me / Progress", "Settings", "Log out"]);
     expect(menu.textContent).not.toMatch(/subscription/i);
+  });
+
+  it("LINK-SIGNIN-1: Settings offers 'Ways to sign in' (removing the section turns this red)", async () => {
+    signInAndOpenMenu();
+    fireEvent.click(screen.getByRole("menuitem", { name: "Settings" }));
+    await screen.findByRole("dialog", { name: "Settings" });
+    expect(await screen.findByRole("heading", { name: "Ways to sign in" })).toBeTruthy();
+    expect(screen.getAllByRole("heading", { name: "Ways to sign in" })).toHaveLength(1);
+    expect(screen.queryByRole("heading", { name: "Sign-in methods" })).toBeNull();
   });
 
   it("Settings closes the menu and opens the Settings window", async () => {

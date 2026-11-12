@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { authClient } from "../../services/firebaseClient";
 import { hasPhoneLinked } from "../../lib/signInMethods";
 import { normaliseTypedIndianMobile } from "../../utils/indianMobileInput";
 import { alsoSignInLine } from "../../services/checkoutWhoFlag";
@@ -142,7 +143,11 @@ export default function LinkSignInMethodModalSheet({
   }, [step]);
 
   const phoneLinked = hasPhoneLinked(user);
-  const hasEmailLoginProvider = Boolean(user?.providerIds?.some(id => id === "google.com" || id === "password"));
+  // LINK-SIGNIN v1.1 cap: read Firebase's LIVE providerData too. A Google link made earlier in this session (the paid-screen card)
+  // does not re-emit the auth state, so the context's stored providerIds can still be stale.
+  const live = authClient?.currentUser;
+  const liveIds = live && live.uid === user?.uid ? (live.providerData ?? []).map(p => p.providerId) : [];
+  const hasEmailLoginProvider = [...(user?.providerIds ?? []), ...liveIds].some(id => id === "google.com" || id === "password");
 
   // Reset on close so reopening never resumes a half-finished attempt with a
   // stale code on screen.
