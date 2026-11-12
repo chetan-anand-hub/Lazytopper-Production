@@ -13,7 +13,7 @@ const { PDFDocument, PDFName, PDFString, PDFDict, PDFArray } = require('pdf-lib'
 
 const { createPackRoutes } = require('../routes/packs.cjs');
 const { createPackPdfService } = require('./packPdfService.cjs');
-const { stampTemplate, helveticaWidthMm, jspdfWidthMm, fitCoverLicence, fitFooter, widthOf, fontOf, loadFonts, REPO_ROOT } = require('./packStamp.cjs');
+const { stampTemplate, helveticaWidthMm, jspdfWidthMm, fitCoverLicence, licenseeLine, fitFooter, widthOf, fontOf, loadFonts, REPO_ROOT } = require('./packStamp.cjs');
 const { buyerRefFor, templateIdForPackFile, fileIdFor } = require('./packCovering.cjs');
 const { packDownloadedSince } = require('./moveToOther.cjs');
 const { redownloadUntilFor } = require('./packTerms.cjs');
@@ -470,6 +470,52 @@ test('cover licence: the FULL line is tried on one line, then on two lines; only
   // absurd inputs still end at two lines, a masked phone included
   assert.ok(fitOf(real('N'.repeat(120), `${'e'.repeat(120)}@x.in`, 'order_1')).lines.length <= 2);
   assert.ok(fitOf(real('', '+91 98\u2022\u2022\u2022\u2022\u2022948', 'order_1')).lines.length <= 2);
+});
+
+test('cover licence wraps like today\'s CSS (R1): breaks after "-" and "/", inside a too-long token as a last resort, BEFORE any shortening', async () => {
+  const f = fonts();
+  const font = fontOf(f['Inter-700']);
+  const k = MARKS.cover.mmPerPx;
+  const widthPx = MARKS.cover.stamps[0].wMm / k;
+  const measure = (t) => (widthOf(font, t, 13 * k * (72 / 25.4)) * (25.4 / 72)) / k;
+  const fitOf = (l) => fitCoverLicence(l, widthPx, measure);
+  const squash = (t) => t.replace(/\s+/g, '');
+  const full = (l) => licenseeLine(l);
+  // the 7 cases of the PR-B review
+  const cases = [
+    [{ name: 'Aarav Sharma', email: 'fu\u2022\u2022\u2022@gmail.com', orderId: 'order_Qx7LmN2pRt9Vb3' }, 2],
+    [{ name: 'Priya Venkataraman', email: 'pr\u2022\u2022\u2022@gmail.com', orderId: 'order_Kd4HsW8cYz1Ne6' }, 2],
+    [{ name: 'Asha', email: 'asha@x.in', orderId: 'order_1' }, 1],
+    [{ name: '', email: '+91 98\u2022\u2022\u2022\u2022\u2022948', orderId: 'order_1' }, 1],
+    [{ name: 'Ananya Rao', email: 'ananya-rao-class10b-section-a@gmail.com', orderId: 'order_Qx7LmN2pRt9Vb3' }, 2],
+    [{ name: 'Mohammed Abdul Rahman Siddiqui Khan', email: 'mohammed.abdul.rahman.siddiqui.khan.2010@school.in', orderId: 'order_Qx7LmN2pRt9Vb3' }, 'shortened'],
+    [{ name: 'Ananya K', email: 'ananya.krishnamurthy-venkatasubramanian-class-ten-b-section@gmail.com', orderId: 'order_Qx7LmN2pRt9Vb3' }, 2],
+  ];
+  for (const [l, want] of cases) {
+    const fit = fitOf(l);
+    assert.ok(fit.lines.length <= 2 && fit.lines.every((x) => measure(x) <= widthPx + 0.01), l.email);
+    assert.match(fit.lines.join(' '), /personal use only$/);
+    assert.ok(fit.lines.join(' ').includes(l.orderId), 'order id intact');
+    if (want === 'shortened') assert.match(fit.lines.join(' '), /\.\.\./);
+    else {
+      assert.equal(fit.variant, want, l.email);
+      assert.equal(squash(fit.lines.join('')), squash(full(l)), `${l.email}: nothing cut`);
+    }
+  }
+  // the ~70-char hyphenated e-mail keeps its FULL name and e-mail on two lines (today's browser shows the full line on two lines)
+  const long = cases[6][0];
+  const fit = fitOf(long);
+  assert.equal(fit.variant, 2);
+  assert.ok(!fit.lines.join('').includes('...'));
+  assert.ok(fit.lines[0].includes('Licensed to Ananya K'));
+  // a break after "-" is allowed, "/" too, but not before a digit
+  const narrow = (t) => fitCoverLicence({ name: 'A', email: t, orderId: 'o' }, widthPx, measure);
+  assert.equal(squash(narrow('a-b/c-d@x.in').lines.join('')), squash(full({ name: 'A', email: 'a-b/c-d@x.in', orderId: 'o' })));
+  // a token wider than a whole line breaks inside as a last resort (overflow-wrap) - nothing is shortened while it fits two lines
+  const tok = 'x'.repeat(60);
+  const t = fitOf({ name: 'Al', email: `${tok}@gmail.com`, orderId: 'order_1' });
+  assert.ok(t.lines.length <= 2);
+  assert.ok(t.lines.every((x) => measure(x) <= widthPx + 0.01));
 });
 
 test('footer fit: the browser build\'s ladder (10 -> 9 pt, then name, then e-mail shortened; Latin-1 only; bullets become "*")', async () => {
