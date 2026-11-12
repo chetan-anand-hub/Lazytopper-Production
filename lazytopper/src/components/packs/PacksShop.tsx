@@ -73,6 +73,7 @@ import { BridgeBoundary, prepareMyPacksBridge, type BridgeReady } from "./myPack
 // BRIDGE-PANEL-1 round 3 (owner 22:45): the per-device height hint that reserves My packs' space before its data arrives.
 import { MINE_HINT_SCRIPT, clearMineHint, hintNow, readMineHint, staticMineHandover, writeMineHint, writeMineOwner } from "./mineHint";
 import { recoverFromChunkError } from "../../lib/chunkReload";
+import { isServerPdfDisabled } from "../../lib/packs/serverPdfLinks";
 import "../../pages/packs.css";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
@@ -1343,7 +1344,7 @@ type FilesState =
   | { phase: "closed" }
   | { phase: "loading" }
   | { phase: "error" }
-  | { phase: "ready"; groups: Array<{ group: string; files: Array<{ id: string; label: string; codes?: string[]; build: (onProgress?: (set: number, of: number) => void) => Promise<void> }> }> };
+  | { phase: "ready"; groups: Array<{ group: string; files: Array<{ id: string; label: string; codes?: string[]; packId?: string; groupId?: string; build: (onProgress?: (set: number, of: number) => void) => Promise<void> }> }> };
 
 /** PACKS-TIDY-1: what a collapsed owned-pack row (tidy My packs) needs beyond the pack itself. */
 interface TidyRow {
@@ -1363,6 +1364,12 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
   const [progress, setProgress] = useState<string | null>(null);
   // A file that finished says so on its own row ("Saved ✓"), so a student sees Part 1 done before starting Part 2.
   const [savedIds, setSavedIds] = useState<ReadonlySet<string>>(() => new Set());
+  // SERVER-PDF-1 PR-C: "Download all (ZIP)" per group. A ZIP only ever comes from the server, so when the server cannot make one
+  // (kill switch, not ready) the button is simply not shown and each file keeps its own button.
+  const [zipBusy, setZipBusy] = useState<string | null>(null);
+  const [zipFailed, setZipFailed] = useState<string | null>(null);
+  const [zipSaved, setZipSaved] = useState<ReadonlySet<string>>(() => new Set());
+  const [zipOff, setZipOff] = useState<boolean>(() => isServerPdfDisabled());
   // PACKS-TIDY-1: a native <details> row; its files are built the first time it is opened (a closed row costs nothing).
   const [rowOpen, setRowOpen] = useState<boolean>(Boolean(tidy?.autoOpen));
   const autoOpen = Boolean(tidy?.autoOpen);
@@ -1394,6 +1401,8 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
           owned: mine.packs,
           user,
           onDownload: (sku) => trackPackEvent("pack_download", sku),
+          // SERVER-PDF-1 PR-C: the file the server stamped for this buyer; the in-browser build is the silent fallback.
+          serverLinks: true,
           // BRIDGE-PDF-1: the buyer's own files get pages 2-3 ("Get this paper marked" + the sample scorecard).
           bridge: { paidBoardPass },
         },
@@ -1423,6 +1432,44 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
       setBusyId(null);
       setProgress(null);
     }
+  }
+
+  async function downloadZip(g: { group: string; files: Array<{ packId?: string; groupId?: string }> }) {
+    const groupId = g.files[0]?.groupId;
+    if (zipBusy || busyId || !groupId) return;
+    setZipBusy(groupId);
+    setZipFailed(null);
+    try {
+      const { downloadZipFromServer } = await import("../../lib/packs/serverPdfDownload");
+      const res = await downloadZipFromServer({ packId: pack.packId, groupId, user });
+      if (res.ok) setZipSaved((prev) => new Set(prev).add(groupId));
+      else if (res.reason === "disabled" || res.reason === "unavailable") setZipOff(true);
+      else setZipFailed(groupId);
+    } catch (err) {
+      if (!recoverFromChunkError(err)) setZipFailed(groupId);
+    } finally {
+      setZipBusy(null);
+    }
+  }
+  /** One "Download all (ZIP)" row for a group of two or more files (a one-file group has nothing to zip). */
+  function zipRow(g: { group: string; files: Array<{ packId?: string; groupId?: string }> }): ReactNode {
+    const groupId = g.files[0]?.groupId;
+    if (zipOff || !groupId || g.files.length < 2) return null;
+    return (
+      <div className="lt-packs__zip" data-testid="zip-row">
+        <button
+          type="button"
+          className="lt-packs__btn lt-packs__btn--ghost lt-packs__btn--small lt-packs__btn--zip"
+          disabled={zipBusy !== null || busyId !== null}
+          aria-label={`Download all ${g.group} files as one ZIP`}
+          data-testid="zip-download"
+          onClick={() => void downloadZip(g)}
+        >
+          {zipBusy === groupId ? "Preparing ZIP\u2026" : zipFailed === groupId ? "Retry" : zipSaved.has(groupId) ? "Saved \u2713" : "Download all (ZIP)"}
+        </button>
+        {zipFailed === groupId && <span className="lt-packs__note lt-packs__note--bad" role="alert">That didn&rsquo;t work. Try again.</span>}
+      </div>
+    );
   }
 
   // PACK-READY-1: the "Your pack is ready" banner asks for this card's files directly (one tap): open the list and bring it into view.
@@ -1472,6 +1519,7 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
             g.files.length > 0 && g.files.every((f) => f.codes && f.codes.length > 0) ? (
               <div key={g.group} className="lt-packs__grp" data-testid="cbq-chapter-row">
                 {!tidy && <h4>{g.group}</h4>}
+                {zipRow(g)}
                 {(["questions", "answers"] as const).map((mode) => {
                   const parts = g.files.filter((f) => f.id.endsWith(`-${mode}`));
                   if (parts.length === 0) return null;
@@ -1509,6 +1557,7 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
             ) : (
             <div key={g.group} className="lt-packs__grp">
               {!tidy && <h4>{g.group}</h4>}
+              {zipRow(g)}
               <ul className="lt-packs__files">
                 {g.files.map((f) => (
                   <li key={f.id}>

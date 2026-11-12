@@ -62,6 +62,23 @@ export function templateIdForPackFile(packId: string, fileId: string): string | 
   return tail;
 }
 
+/**
+ * The group ("Download all (ZIP)") a template belongs to: a chapter slug, `mocks-<subject>`, `cbq-<subject>-start` or
+ * `cbq-<subject>-<chapter>`. The same value `planUnit` records as `groupId`; the browser derives it from a file id with this, so it
+ * needs no manifest. A test pins it against the real plan.
+ */
+export function groupIdForTemplateId(templateId: string): string | null {
+  const cbq = /^cbq-(maths|science)\|(.+)$/.exec(templateId);
+  if (cbq) {
+    const first = cbq[2].split("|")[0];
+    return first === "intro" ? `cbq-${cbq[1]}-start` : `cbq-${cbq[1]}-${first}`;
+  }
+  const mock = /^mock-(maths|science)-\d+-/.exec(templateId);
+  if (mock) return `mocks-${mock[1]}`;
+  const i = templateId.indexOf("|");
+  return i > 0 ? templateId.slice(0, i) : null;
+}
+
 /** Pages 2-3 of every file of every pack, WITHOUT the Board Pass card (the card variant is the same data with boardPassCard true). */
 export interface PlanBridge {
   packId: string;

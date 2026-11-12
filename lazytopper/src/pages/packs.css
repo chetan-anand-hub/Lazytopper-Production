@@ -58,6 +58,9 @@ body:not(:has([data-lt-bottomnav])) .lt-packs { padding-bottom: 28px; }
 /* BRIDGE-CODES-1: a CBQ chapter file's button says "Preparing… set 9 of 9" while it builds: sized for that from the start (192 px), so the row never shifts. */
 .lt-packs__btn--sets { min-width: 192px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 /* BRIDGE-CODES-1: one CBQ chapter row - "Questions" / "Answer keys", each with its part buttons (wrap on phones). */
+/* SERVER-PDF-1 PR-C: "Download all (ZIP)" - one row per group, a fixed width so "Preparing ZIP…" / "Saved ✓" never shift it. */
+.lt-packs__zip { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 6px 0 4px; }
+.lt-packs__btn--zip { min-width: 176px; white-space: nowrap; }
 .lt-packs__partrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--pk-line); font-size: 14px; }
 .lt-packs__partkind { flex: 0 0 100px; font-weight: 600; }
 .lt-packs__partbtns { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 200px; min-width: 0; }

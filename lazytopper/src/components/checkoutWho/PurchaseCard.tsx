@@ -80,6 +80,8 @@ export default function PurchaseCard({ proof, onHide, fetchReceiptImpl = fetchRe
           owned: [{ packId: pack.packId, sku: pack.sku, target: pack.target, pricePaidInr: 0, paidAt: pack.paidAt, orderId: pack.orderId }],
           user: null,
           onDownload: (sku) => trackPackEvent("pack_download", sku),
+          // SERVER-PDF-1 PR-C: the server's stamped file when the buyer is signed in; the in-browser build is the silent fallback.
+          serverLinks: true,
           // Unknown Board Pass state: the same "left out" the My packs build uses when the entitlement is not resolved.
           bridge: { paidBoardPass: null },
         },

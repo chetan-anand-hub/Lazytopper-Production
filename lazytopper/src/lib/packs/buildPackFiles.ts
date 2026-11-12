@@ -20,6 +20,8 @@
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { AuthUser } from "../../context/AuthContext";
 import { registerPackPaper, type PackPaperReg } from "./packPaperRecord";
+import { groupIdForTemplateId, templateIdForPackFile } from "./packTemplateCore";
+import type { ServerDownloadDeps } from "./serverPdfDownload";
 import { cbqPackExampleCode, packPaperCode } from "./packPaperCode";
 import {
   chaptersOfSubject,
@@ -85,6 +87,10 @@ export interface PackFile {
   codes?: string[];
   /** The group the file is listed under (a chapter name, or "Mock papers"). */
   group: string;
+  /** SERVER-PDF-1: the id the server zips this file under ("Download all (ZIP)"): a chapter slug, `mocks-<subject>`, `cbq-<subject>-<chapter>`. */
+  groupId: string;
+  /** The pack this file belongs to (the id up to the first "|"). */
+  packId: string;
   filename: string;
   /** `onProgress` (several-paper files only): called as each set starts rendering. */
   build: (onProgress?: (set: number, of: number) => void) => Promise<void>;
@@ -135,6 +141,30 @@ export interface BuildContext {
    * its cover. Absent (free samples, shop previews, tests) -> no extra pages, files exactly as before.
    */
   bridge?: BridgeContext;
+  /**
+   * SERVER-PDF-1 PR-C: set ONLY on the buyer's own download (My packs, the receipt card). The file is then fetched from the server
+   * (a signed 15-minute link to the file stamped for this buyer) and `build()` falls back to the in-browser builder, silently, on ANY
+   * failure. The server counts the `pack_download` itself, so `onDownload` is NOT called for a file a server link delivered.
+   */
+  serverLinks?: boolean;
+  /** Test seam for the server path (fetch, headers, timeout, the download trigger, the clock, the kill switch). */
+  serverPdf?: ServerDownloadDeps;
+}
+
+/**
+ * The server path of one file (SERVER-PDF-1 PR-C): true = the browser is downloading the server's file and the papers it prints are
+ * registered from the server's own ws; false = nothing was downloaded, build it here. Never throws.
+ */
+async function downloadFromServer(ctx: BuildContext, fileId: string): Promise<boolean> {
+  if (!ctx.serverLinks) return false;
+  try {
+    const { downloadFileFromServer } = await import("./serverPdfDownload");
+    const packId = packOfFileId(fileId);
+    const res = await downloadFileFromServer({ packId, fileId, user: ctx.user }, { ...ctx.serverPdf, nowIso: ctx.nowIso });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 /** Papers are drawn with this placeholder stamp; the real "Generated <date>" is set when a file is built. */
@@ -190,12 +220,20 @@ function paidAtOf(owned: readonly OwnedPack[], ref: string): number | undefined 
   return hit && typeof hit.paidAt === "number" && hit.paidAt > 0 ? hit.paidAt : undefined;
 }
 
+const packOfFileId = (fileId: string): string => fileId.slice(0, Math.max(0, fileId.indexOf("|")));
+const groupIdOf = (fileId: string): string => {
+  const t = templateIdForPackFile(packOfFileId(fileId), fileId);
+  return (t && groupIdForTemplateId(t)) || "";
+};
+
 function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
   return {
     id: spec.id,
     label: spec.label,
     code: spec.paper?.code,
     group: spec.group,
+    groupId: groupIdOf(spec.id),
+    packId: packOfFileId(spec.id),
     filename: spec.filename,
     source: {
       mode: spec.mode,
@@ -217,6 +255,8 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
     build: async () => {
       // No licensee email (or, for a phone-only account, its masked phone): no PDF. A pack file is never produced unwatermarked.
       if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
+      // SERVER-PDF-1 PR-C: the server's stamped file first; on any failure fall through to the in-browser build below.
+      if (await downloadFromServer(ctx, spec.id)) return;
       const exportPdf = ctx.exportPdf ?? (await defaultExport());
       const ws = { ...spec.ws(), createdAt: (ctx.nowIso ?? (() => new Date().toISOString()))() };
       // A paper file shows its OWN printed code; any other file the pack's first paper code (null: no "e.g." clause).
@@ -251,6 +291,8 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
     label: spec.label,
     codes: spec.sets.map((x) => x.paper.code),
     group: spec.group,
+    groupId: groupIdOf(spec.id),
+    packId: packOfFileId(spec.id),
     filename: spec.filename,
     source: {
       mode: spec.mode,
@@ -270,6 +312,7 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
     },
     build: async (onProgress) => {
       if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
+      if (await downloadFromServer(ctx, spec.id)) return;
       const now = (ctx.nowIso ?? (() => new Date().toISOString()))();
       const papers = spec.sets.map((x) => ({ ws: { ...x.ws(), createdAt: now }, reg: x.paper }));
       const bridge: BridgePagesData | undefined =
