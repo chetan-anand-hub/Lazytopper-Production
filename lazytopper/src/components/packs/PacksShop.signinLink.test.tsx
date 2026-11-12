@@ -6,7 +6,11 @@ import { MemoryRouter } from "react-router-dom";
 
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 vi.mock("../../services/activityClient", () => ({ recordActivity: vi.fn() }));
-vi.mock("../signinLink/SigninLinkCard", () => ({ default: () => <div data-testid="signin-link-card-stub" /> }));
+vi.mock("../signinLink/SigninLinkCard", () => ({
+  default: (p: { move?: { orderId: string; item: string } }) => (
+    <div data-testid="signin-link-card-stub" data-move-order={p.move?.orderId ?? ""} data-move-item={p.move?.item ?? ""} />
+  ),
+}));
 
 const auth = vi.hoisted(() => ({ user: { uid: "u1" } as null | { uid: string } }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
@@ -87,6 +91,21 @@ describe("PacksShop · sign-in card", () => {
     buyMock.mockResolvedValue({ status: "paid", grant, paymentId: "pay_49", amountInr: 49 });
     shop("/pricing?buy=pack_chapter&t=real-numbers");
     expect(await screen.findByTestId("signin-link-card-stub")).toBeTruthy();
+  });
+
+  it("SIGNED-IN-MOVE-1: a paid outcome WITH an order id hands the card that order and the pack's plain name; pending-then-paid does too", async () => {
+    buyMock.mockResolvedValue({ status: "paid", grant, orderId: "order_P1", paymentId: "pay_49", amountInr: 49 });
+    shop("/pricing?buy=pack_chapter&t=real-numbers");
+    const card = await screen.findByTestId("signin-link-card-stub");
+    expect(card.getAttribute("data-move-order")).toBe("order_P1");
+    expect(card.getAttribute("data-move-item")).toMatch(/Chapter Pack$/);
+  });
+
+  it("SIGNED-IN-MOVE-1: a paid outcome with NO order id offers nothing to move", async () => {
+    buyMock.mockResolvedValue({ status: "paid", grant, paymentId: "pay_49", amountInr: 49 });
+    shop("/pricing?buy=pack_chapter&t=real-numbers");
+    const card = await screen.findByTestId("signin-link-card-stub");
+    expect(card.getAttribute("data-move-order")).toBe("");
   });
 
   it("absent for a signed-out visitor, and after a dismissed checkout", async () => {

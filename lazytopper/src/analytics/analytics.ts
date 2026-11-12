@@ -1002,6 +1002,9 @@ export type NamedAnalyticsEvent =
   | "signin_link_shown"
   | "signin_link_added"
   | "signin_link_failed"
+  | "signin_move_confirmed"
+  | "signin_move_done"
+  | "signin_move_refused"
   // PACK-SAMPLE-1 — the free sample page of a pack downloaded without signing up (data: pack, surface).
   | "pack_sample_download"
   // PACKS-ENTRY-1 — a tap on a small "PDF packs" link beside an ask (download wall, notes, footer, account).

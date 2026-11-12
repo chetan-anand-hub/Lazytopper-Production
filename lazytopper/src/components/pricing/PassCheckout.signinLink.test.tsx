@@ -4,7 +4,11 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 import { MemoryRouter } from "react-router-dom";
 
-vi.mock("../signinLink/SigninLinkCard", () => ({ default: () => <div data-testid="signin-link-card-stub" /> }));
+vi.mock("../signinLink/SigninLinkCard", () => ({
+  default: (p: { move?: { orderId: string; item: string } }) => (
+    <div data-testid="signin-link-card-stub" data-move-order={p.move?.orderId ?? ""} data-move-item={p.move?.item ?? ""} />
+  ),
+}));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: { uid: "u1" } }) }));
 vi.mock("../../services/firebaseClient", () => ({ authClient: null, firestoreDb: null, app: null }));
 vi.mock("../../services/subscriptionService", () => ({ hydrateSubscriptionFromCloud: vi.fn(async () => ({})) }));
@@ -43,6 +47,18 @@ describe("PassCheckout paid screen · sign-in card", () => {
     fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
     await screen.findByTestId("pass-checkout-paid");
     expect(await screen.findByTestId("signin-link-card-stub")).toBeTruthy();
+  });
+
+  it("SIGNED-IN-MOVE-1: a Board Pass paid outcome with an order id hands the card that order; without one, nothing to move", async () => {
+    view({ onBuy: vi.fn(async () => ({ status: "paid" as const, passEnd: "2027-02-17T18:29:59.999Z", orderId: "order_B1" })) });
+    fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
+    const card = await screen.findByTestId("signin-link-card-stub");
+    expect(card.getAttribute("data-move-order")).toBe("order_B1");
+    expect(card.getAttribute("data-move-item")).toBe("the Board Pass");
+    cleanup();
+    view({ onBuy: vi.fn(async () => ({ status: "paid" as const, passEnd: "2027-02-17T18:29:59.999Z" })) });
+    fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
+    expect((await screen.findByTestId("signin-link-card-stub")).getAttribute("data-move-order")).toBe("");
   });
 
   it("a signed-out view never shows it, even at the paid state", async () => {

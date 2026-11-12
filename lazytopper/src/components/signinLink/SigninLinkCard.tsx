@@ -1,12 +1,13 @@
 /**
  * SigninLinkCard - LINK-SIGNIN v1.1 (owner 12 Nov 2026): after a signed-in purchase, "Who will use this?" with up to three choices:
- *   1. My child will sign in with my login   2. This is for me   3. Move it to my child's own phone or email (Part 2: hidden
- *   until it ships). One purchase = one account with at most one phone and one email login; no self-service swap or unlink.
+ *   1. My child will sign in with my login   2. This is for me   3. Move it to my child's own phone or email (SIGNED-IN-MOVE-1:
+ *   shown when the host hands over the order and the kill switch is off). One purchase = one account with at most one phone and one email login; no self-service swap or unlink.
  * Rendered only by SigninLinkCardLazy, i.e. only on a real paid outcome for a signed-in buyer; own lazy chunk. Choosing 1 or 2
  * is the answer: remembered per account on this device so the card does not come back.
  */
 import { useEffect, useRef, useState } from "react";
 import AddSignInMethods from "./AddSignInMethods";
+import MoveToOtherFlow from "./MoveToOtherFlow";
 import { useLinkedMethods } from "./useLinkedMethods";
 import {
   CARD_TITLE,
@@ -19,14 +20,15 @@ import {
   isMoveToOtherAvailable,
   meBody,
   rememberDismissed,
+  type MoveTarget,
 } from "./signinLinkModel";
 import { trackSigninLinkShown } from "./signinLinkAnalytics";
 import "./signinLink.css";
 
-export default function SigninLinkCard() {
+export default function SigninLinkCard({ move }: { move?: MoveTarget }) {
   const { uid, methods, refresh, signedIn } = useLinkedMethods();
   const [answered] = useState(() => (uid ? isDismissed(uid) : false));
-  const [choice, setChoice] = useState<null | "child" | "me">(null);
+  const [choice, setChoice] = useState<null | "child" | "me" | "move">(null);
   // The masked login is fixed at first sight, so the line does not change under the buyer once they add one.
   const [current] = useState(() => currentSignInMasked(methods));
   const shown = useRef(false);
@@ -56,12 +58,14 @@ export default function SigninLinkCard() {
           <button type="button" className="lt-sil__btn" onClick={() => pick("me")} data-testid="signin-choice-me">
             {CHOICE_ME}
           </button>
-          {isMoveToOtherAvailable() && (
-            <button type="button" className="lt-sil__btn" data-testid="signin-choice-move">
+          {move && isMoveToOtherAvailable() && (
+            <button type="button" className="lt-sil__btn" onClick={() => setChoice("move")} data-testid="signin-choice-move">
               {CHOICE_MOVE}
             </button>
           )}
         </div>
+      ) : choice === "move" && move ? (
+        <MoveToOtherFlow target={move} onCancel={() => setChoice(null)} onMoved={() => rememberDismissed(uid)} />
       ) : (
         <>
           <p className="lt-sil__p" data-testid="signin-choice-body">

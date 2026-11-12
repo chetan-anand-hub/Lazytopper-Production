@@ -95,6 +95,23 @@ test('goes to the payer AND the account email when different; names the masked s
   assert.equal(db.docs.get('payOrders/order_X1').receiptEmail.status, 'sent');
 });
 
+test('SIGNED-IN-MOVE-1 - a MOVED order: the receipt names the account it now sits on (order.uid), says it was moved, never the old sign-ins', async () => {
+  const OLD = { email: 'oldbuyer@gmail.com', phoneNumber: '+919000000001', providerIds: ['google.com'] };
+  const NEW = { phoneNumber: '+919876543210', providerIds: ['phone'] };
+  const { emailer, fetchImpl } = make({
+    order: { ...PASS, uid: 'child', movedToOtherAt: new Date(NOW), movedFromUid: 'buyer' },
+    extra: { getAuthUser: async (uid) => (uid === 'child' ? NEW : OLD) },
+  });
+  await emailer.sendForPayment(input());
+  const body = fetchImpl.sent.map((s) => s.text).join('\n');
+  assert.match(body, /moved to the account you chose/i);
+  assert.match(body, /98•••••210/);
+  assert.doesNotMatch(body, /ol•••@gmail|oldbuyer|90•••••001|9000000001/);
+  const plain = make();
+  await plain.emailer.sendForPayment(input());
+  assert.doesNotMatch(plain.fetchImpl.sent.map((s) => s.text).join('\n'), /moved to the account you chose/i);
+});
+
 test('a pack says My packs; the same address (payer = account) gets ONE email', async () => {
   const { emailer, fetchImpl } = make({ order: { ...PASS, passType: 'pack_chapter', packTarget: 'human-eye-and-colourful-world', amountPaise: 5800 } });
   await emailer.sendForPayment(input({ email: 'Chetan@Gmail.com' }));
@@ -106,7 +123,7 @@ test('exactly once per order: replay, duplicate webhook and racing verify + clai
   const { emailer, fetchImpl } = make({ account: { ...ACCOUNT, email: '' } });
   await Promise.all([emailer.sendForPayment(input()), emailer.sendForPayment(input())]);
   await emailer.sendForPayment(input());
-  await emailer.sendForPayment(input({ email: '' }));
+  await emailer.sendForPayment(input());
   assert.equal(fetchImpl.sent.length, 1);
 });
 

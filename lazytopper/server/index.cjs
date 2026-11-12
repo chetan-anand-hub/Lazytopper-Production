@@ -212,6 +212,7 @@ const {
 } = require('./routes/parentPay.cjs');
 // PAY-PHONE-1 - "Pay now with your phone number": order/verify dark unless PAYMENTS_ENABLED + GUEST_PAY_ENABLED; the claim
 // (auth required) reads the phone ONLY from the verified ID token.
+const { createMoveToOtherRoutes, MOVE_TO_OTHER_PATH } = require('./routes/moveToOther.cjs');
 const { createGuestPayRoutes, GUEST_ORDER_PATH, GUEST_VERIFY_PATH, GUEST_CLAIM_PATH, GUEST_ATTACH_PATH, GUEST_RECEIPT_PATH } = require('./routes/guestPay.cjs');
 // EMAIL-CODE-1 - sign in with a 6-digit code from email, on the spot. Dark unless EMAIL_CODE_SIGNIN_ENABLED; see the module.
 const { createEmailCodeRoutes, EMAIL_CODE_SEND_PATH, EMAIL_CODE_VERIFY_PATH } = require('./routes/emailCode.cjs');
@@ -573,6 +574,16 @@ const emailCodeRoutes = createEmailCodeRoutes({
   // A pay-first order waiting for this email: the EXISTING delivery (findOrCreate + the same take + grant).
   deliverWaitingOrder: (input) => guestPayRoutes.afterRecipientPaid(input),
   payAutoAccountEnabled: () => require('./routes/guestPay.cjs').isPayAutoAccountEnabled(process.env),
+});
+// SIGNED-IN-MOVE-1 - a signed-in buyer moves what they just paid for to the person who will use it (once, within 24 h, unused). Self-gating
+// (404 under PAY_MOVE_TO_OTHER_DISABLED). The target account is found / made by the "someone else" checkout's own rules.
+const moveToOtherRoutes = createMoveToOtherRoutes({
+  sendJson,
+  verifiedCaller,
+  adminFirestore,
+  telemetry,
+  receiptEmailer: paymentReceiptEmailer,
+  findOrCreateAccount: (orderId, input) => guestPayRoutes.findOrCreateAccount(orderId, input),
 });
 const parentReportRoutes = createParentReportRoutes({
   sendJson,
@@ -947,6 +958,7 @@ async function handleRequest(req, res) {
   // SELFPAY-ATTACH-1 - self-gating (404 while CHECKOUT_SELF_ATTACH_DISABLED or checkout-who is dark); signed out, Razorpay's signature is the proof.
   if (req.method === 'POST' && reqPath === GUEST_ATTACH_PATH) return guestPayRoutes.handleAttach(req, res);
   if (req.method === 'POST' && reqPath === GUEST_RECEIPT_PATH) return guestPayRoutes.handleReceipt(req, res);
+  if (req.method === 'POST' && reqPath === MOVE_TO_OTHER_PATH) return moveToOtherRoutes.handleMoveToOther(req, res);
   // EMAIL-CODE-1 - self-gating (404 while dark); no auth (the code is the proof), per-IP and per-email limits inside.
   if (req.method === 'POST' && reqPath === EMAIL_CODE_SEND_PATH) return emailCodeRoutes.handleSend(req, res);
   if (req.method === 'POST' && reqPath === EMAIL_CODE_VERIFY_PATH) return emailCodeRoutes.handleVerify(req, res);

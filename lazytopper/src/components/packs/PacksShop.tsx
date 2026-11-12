@@ -265,6 +265,9 @@ function useChapterCounts(): { counts: Counts; failed: boolean; request: (first?
 interface BuyState {
   key: string;
   phase: "idle" | "busy" | "checking" | "confirming" | "paid" | "failed" | "expired" | "owned" | "dismissed";
+  /** SIGNED-IN-MOVE-1: the paid order and its plain name, so the "Who will use this?" card can move it. */
+  orderId?: string;
+  item?: string;
 }
 
 /** What the catalogue (hero tiles on /packs, the strip on /pricing) can do: open a pack's pop-up, optionally on a subject. */
@@ -678,12 +681,13 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     }
     if (!mounted.current && outcome.status !== "pending") return;
     if (outcome.status === "paid") {
-      setBuy({ key, phase: "paid" });
+      setBuy({ key, phase: "paid", ...(outcome.orderId ? { orderId: outcome.orderId, item: parentPackName(sku, target, target ? chapterLabel(target) : undefined) } : {}) });
       await loadMine();
       myPacksRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
     } else if (outcome.status === "pending") {
       if (mounted.current) setBuy({ key, phase: "checking" });
       let settled = false;
+      let settledOrderId = "";
       let elapsed = 0;
       for (const at of POLL_DELAYS_MS) {
         const wait = Math.max(0, at - elapsed);
@@ -695,6 +699,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           resetOwnedPacksCache();
           trackPackPurchase({ ...details, valueInr: status.amountInr ?? details.valueInr, transactionId: status.orderId || outcome.orderId || status.paymentId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
           settled = true;
+          settledOrderId = status.orderId || outcome.orderId || "";
           break;
         }
         if (status.state === "expired") {
@@ -704,7 +709,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       }
       if (!mounted.current) return;
       if (settled) {
-        setBuy({ key, phase: "paid" });
+        setBuy({ key, phase: "paid", ...(settledOrderId ? { orderId: settledOrderId, item: parentPackName(sku, target, target ? chapterLabel(target) : undefined) } : {}) });
         await loadMine();
       } else {
         setBuy({ key, phase: "confirming" });
@@ -1138,7 +1143,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             </p>
           )}
           {/* LINK-SIGNIN-1: only on a confirmed paid outcome, for a signed-in buyer; last, so nothing above it moves. */}
-          {buy.phase === "paid" && <SigninLinkCardLazy signedIn={signedIn} />}
+          {buy.phase === "paid" && <SigninLinkCardLazy signedIn={signedIn} {...(buy.orderId ? { move: { orderId: buy.orderId, item: buy.item ?? "" } } : {})} />}
         </div>
       )}
     </>

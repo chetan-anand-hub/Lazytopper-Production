@@ -210,6 +210,9 @@ const EVENT_LABELS: Record<string, string> = {
   signin_link_shown: "Was asked who else will sign in",
   signin_link_added: "Added another way to sign in",
   signin_link_failed: "Could not add another way to sign in",
+  signin_move_confirmed: "Confirmed moving a purchase to their child's own sign-in",
+  signin_move_done: "Moved a purchase to their child's own sign-in",
+  signin_move_refused: "Could not move a purchase to their child's own sign-in",
   pack_sample_download: "Downloaded a free pack sample page",
   // PACKS-ENTRY-1
   pack_entry_click: "Tapped a PDF packs link",

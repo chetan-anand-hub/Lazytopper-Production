@@ -284,8 +284,8 @@ export function PassCheckoutView({
     if (holderAutoOpen && who) setHolderOpen(true);
   }, [holderAutoOpen, who]);
   const [busy, setBusy] = useState<PassType | null>(null);
-  const [paidUntil, setPaidUntilState] = useState<{ label: string; passType: PassType } | null>(null);
-  const setPaidUntil = (label: string, passType: PassType) => setPaidUntilState({ label, passType });
+  const [paidUntil, setPaidUntilState] = useState<{ label: string; passType: PassType; orderId?: string } | null>(null);
+  const setPaidUntil = (label: string, passType: PassType, orderId?: string) => setPaidUntilState({ label, passType, ...(orderId ? { orderId } : {}) });
   const [failed, setFailed] = useState(false);
   /** PRICING-1 — the server refused the order as expired: "start again", never the pending copy. */
   const [expired, setExpired] = useState(false);
@@ -351,7 +351,7 @@ export function PassCheckoutView({
     setRecovery(null);
     const label = formatPassDate(result.passEnd);
     // An unreadable server date: no active copy is invented; the hydrated pass shows instead.
-    if (label) setPaidUntil(label, pending.details.passType);
+    if (label) setPaidUntil(label, pending.details.passType, result.orderId || pending.orderId);
   }
 
   settleRef.current = settlePaid;
@@ -429,7 +429,7 @@ export function PassCheckoutView({
         transactionId: outcome.orderId || outcome.paymentId || attemptId,
       });
       const label = formatPassDate(outcome.passEnd);
-      if (label) setPaidUntil(label, passType);
+      if (label) setPaidUntil(label, passType, outcome.orderId);
       else setFailed(true);
     } else if (outcome.status === "pending") {
       // PAY-RECOVER-1 — Razorpay signed a success; never the failure sentence from here on.
@@ -507,7 +507,7 @@ export function PassCheckoutView({
         {/* PASS-OWNER-PACKS-1 (owner 3 Nov): once, on the payment-success screen - the CBQ Packs, both subjects. Its own lazy chunk. */}
         <PassOwnerOfferLazy placement="pass_success" assumePaid />
         {/* LINK-SIGNIN-1: a signed-in buyer is asked who else will sign in (own lazy chunk; below the purchase line, so nothing moves). */}
-        <SigninLinkCardLazy signedIn={signedIn} />
+        <SigninLinkCardLazy signedIn={signedIn} {...(paidUntil.passType === "till_boards" && paidUntil.orderId ? { move: { orderId: paidUntil.orderId, item: "the Board Pass" } } : {})} />
       </div>
     );
   }

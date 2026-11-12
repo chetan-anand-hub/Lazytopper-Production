@@ -235,6 +235,9 @@ export const ACTIVITY_EVENTS = [
   "signin_link_shown",
   "signin_link_added",
   "signin_link_failed",
+  "signin_move_confirmed",
+  "signin_move_done",
+  "signin_move_refused",
   // PACK-SAMPLE-1 — the free sample page of a pack downloaded (no sign-up needed). Name only.
   "pack_sample_download",
   // PACKS-ENTRY-1 — a tap on a small PDF-packs link beside an ask. Name only.

@@ -208,7 +208,7 @@ function formatIstDay(ms) {
  * PURE. The email for one paid order. `guestPhoneMasked` set -> the "sign in with your phone" instructions; else the
  * direct link. Returns null when the order is not something we send a receipt for.
  */
-function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst, invoice, invoiceResend = false, signIns }) {
+function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst, invoice, invoiceResend = false, signIns, moved = false }) {
   const item = emailItemLabel(passType, packTarget);
   if (!item || !Number.isInteger(amountPaise) || amountPaise <= 0 || typeof paymentId !== 'string' || !paymentId) return null;
   // GST-INVOICE-2a: the receipt RE-SENT with an invoice issued later ("Issue now") - only with a usable invoice link.
@@ -242,7 +242,12 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
   } else {
     const url = `${appUrl}${where}`;
     // Review fix 7: a parent paid through the child's link - the pass is on the STUDENT's account, not the payer's.
-    const lands = isPack
+    // SIGNED-IN-MOVE-1: the buyer moved it to the account of the person who will use it - never "your account" for the buyer.
+    const lands = moved
+      ? isPack
+        ? 'It was moved to the account you chose, and is in My packs there'
+        : `${passNameOf(passType)} was moved to the account you chose`
+      : isPack
       ? 'It is in My packs on your account'
       : payer === 'parent'
         ? `${passNameOf(passType)} is now active on the student's account`
@@ -419,6 +424,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       payer: typeof order.payer === 'string' ? order.payer : null,
       gst: { baseInr: order.baseInr, gstInr: order.gstInr, packCreditInr: order.packCreditInr },
       invoice: invoiceLinkFor(order, orderId, paymentId),
+      ...(order.movedToOtherAt ? { moved: true } : {}),
       // CHECKOUT-WHO-1: a recipient order names the masked phone and/or email to sign in with.
       ...(who ? { recipient: { phoneMasked: maskIndianMobile(order.guestPhone) || null, emailMasked: maskEmail(order.guestEmail) || null } } : {}),
     };

@@ -5,6 +5,7 @@
  */
 import { lazy, Suspense } from "react";
 import { Quiet } from "./Quiet";
+import type { MoveTarget } from "./signinLinkModel";
 
 const SigninLinkCard = lazy(() => import("./SigninLinkCard"));
 
@@ -16,12 +17,13 @@ function killed(): boolean {
   }
 }
 
-export default function SigninLinkCardLazy({ signedIn }: { signedIn: boolean }) {
+/** `move`: the order this card may move to the child's own phone or email (hosts pass it only for a movable purchase). */
+export default function SigninLinkCardLazy({ signedIn, move }: { signedIn: boolean; move?: MoveTarget }) {
   if (!signedIn || killed()) return null;
   return (
     <Quiet>
       <Suspense fallback={null}>
-        <SigninLinkCard />
+        <SigninLinkCard {...(move ? { move } : {})} />
       </Suspense>
     </Quiet>
   );

@@ -98,10 +98,58 @@ export const childBody = (masked: string): string =>
 export const meBody = (masked: string): string => `You can sign in with ${masked || "your login"}. ${CAP_LINE}`;
 export const WHATSAPP_CHANGE_LINE = "To change a sign-in, message us on WhatsApp.";
 
-/** Option 3 is Part 2 (SIGNED-IN-MOVE-1). Hidden until that ships and its flag is wired here: never a dead button. */
+/**
+ * Option 3 (SIGNED-IN-MOVE-1, owner 12 Nov 2026) ships ON. VITE_PAY_MOVE_TO_OTHER_DISABLED=1 hides it (the server's own switch,
+ * PAY_MOVE_TO_OTHER_DISABLED, answers 404 independently). It also needs a purchase to move: the host passes one (see MoveTarget).
+ */
 export function isMoveToOtherAvailable(): boolean {
-  return false;
+  try {
+    const raw: unknown = import.meta.env.VITE_PAY_MOVE_TO_OTHER_DISABLED;
+    return !/^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return true;
+  }
 }
+
+/** What a host hands the card so option 3 can move it: the order (server-side id) and its plain name ("Board Pass", "Maths CBQ Pack"). */
+export interface MoveTarget {
+  orderId: string;
+  item: string;
+}
+
+export const MOVE_PHONE_LABEL = "Their mobile number";
+export const MOVE_EMAIL_LABEL = "Their email";
+export const MOVE_USE_EMAIL = "Use an email instead";
+export const MOVE_USE_PHONE = "Use a mobile number instead";
+export const MOVE_CONTINUE = "Continue";
+export const MOVE_CONFIRM = "Yes, move it";
+export const MOVE_BACK = "Go back";
+export const MOVE_INTRO = "Enter your child's mobile number or email. We'll move this to a new account for them, so it can only be done once.";
+export const MOVE_BAD_PHONE = "Enter a 10-digit mobile number.";
+export const MOVE_BAD_EMAIL = "Enter a valid email address.";
+export const MOVE_BUSY = "Moving it\u2026";
+export const confirmMoveLine = (item: string, masked: string): string =>
+  `Move ${item || "this"} to ${masked}? Your account will keep nothing, and your child signs in with that.`;
+export const movedLine = (masked: string): string => `Done. It is now on the account for ${masked}. Your child signs in with that.`;
+
+/** Server refusal codes (services/moveToOther.cjs REFUSALS) -> plain lines. Unknown -> the neutral line. Never a raw server string. */
+const WA = " Message us on WhatsApp and we'll help.";
+export const MOVE_REFUSALS: Readonly<Record<string, string>> = {
+  not_yours: "That order is not on your account." + WA,
+  not_paid: "We can't find a paid order to move." + WA,
+  unsupported: "This purchase can't be moved." + WA,
+  self: "That is your own account. Enter your child's mobile number or email.",
+  moved_before: "This was already moved once, so it can't be moved again." + WA,
+  too_late: "It can only be moved within 24 hours of paying." + WA,
+  used: "It has already been used on this account, so it can't be moved." + WA,
+  target_has_pass: "That account already has a Board Pass." + WA,
+  target_has_pack: "That account already has this pack." + WA,
+  target_in_use: "That phone number or email already has its own LazyTopper account, so it can't be used here." + WA,
+  cannot_check: "We can't check that right now. Please try again in a few minutes.",
+};
+export const MOVE_FALLBACK_ERROR = "Couldn't move it just now. Nothing was changed. Please try again.";
+/** Refusals worth a WhatsApp link (everything that says "message us"). */
+export const moveRefusalNeedsSupport = (code: string): boolean => (MOVE_REFUSALS[code] ?? "").includes("WhatsApp");
 export const BTN_ADD_PHONE = "Add a phone number";
 export const BTN_ADD_GOOGLE = "Add a Google account";
 export const BTN_JUST_ME = "No, just me";
