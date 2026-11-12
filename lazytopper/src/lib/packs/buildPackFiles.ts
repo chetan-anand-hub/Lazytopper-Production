@@ -88,6 +88,23 @@ export interface PackFile {
   filename: string;
   /** `onProgress` (several-paper files only): called as each set starts rendering. */
   build: (onProgress?: (set: number, of: number) => void) => Promise<void>;
+  /**
+   * SERVER-PDF-1: what this file is made from, as plain data (the pack-template generator reads it; nothing in the buyer's
+   * download path does). Reading it renders nothing and never touches the licensee.
+   */
+  source: PackFileSource;
+}
+
+/** SERVER-PDF-1: the inputs of one pack file, exactly what `build()` hands the exporter, minus the buyer. */
+export interface PackFileSource {
+  mode: "questions" | "answers";
+  cover?: ExportOpts["cover"];
+  /** Page 2-3 data for a buyer's file; `boardPassCard` is the one buyer-specific switch. Undefined: the file has no bridge pages. */
+  bridgeData?: (boardPassCard: boolean) => BridgePagesData;
+  /** Paper-shaped files: each paper's code, registration facts and worksheet (a single-paper file has one; a CBQ chapter file several). */
+  papers: Array<{ reg: Omit<PackPaperReg, "paper">; ws: () => PersistedWorksheet }>;
+  /** The worksheet a paper-less file (question-bank section, CBQ intro) is made from. */
+  ws?: () => PersistedWorksheet;
 }
 
 export interface PackRef {
@@ -180,6 +197,23 @@ function makeFile(spec: DocSpec, sku: PackSku, ctx: BuildContext): PackFile {
     code: spec.paper?.code,
     group: spec.group,
     filename: spec.filename,
+    source: {
+      mode: spec.mode,
+      cover: spec.cover,
+      ...(spec.bridge
+        ? {
+            bridgeData: (boardPassCard: boolean): BridgePagesData => ({
+              packLabel: spec.bridge!.packLabel,
+              exampleCode: spec.paper?.code ?? spec.bridge!.exampleCode(),
+              ownCode: !!spec.paper?.code,
+              boardPassCard,
+              ...(spec.bridge!.sample ? { sample: spec.bridge!.sample } : {}),
+            }),
+          }
+        : {}),
+      papers: spec.paper ? [{ reg: spec.paper, ws: spec.ws }] : [],
+      ws: spec.ws,
+    },
     build: async () => {
       // No licensee email (or, for a phone-only account, its masked phone): no PDF. A pack file is never produced unwatermarked.
       if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
@@ -218,6 +252,22 @@ function makeSetsFile(spec: SetsDocSpec, sku: PackSku, ctx: BuildContext): PackF
     codes: spec.sets.map((x) => x.paper.code),
     group: spec.group,
     filename: spec.filename,
+    source: {
+      mode: spec.mode,
+      cover: spec.cover,
+      ...(spec.bridge && spec.sets.length > 0
+        ? {
+            bridgeData: (boardPassCard: boolean): BridgePagesData => ({
+              packLabel: spec.bridge!.packLabel,
+              exampleCode: spec.sets[0].paper.code,
+              ownCode: true,
+              boardPassCard,
+              ...(spec.bridge!.sample ? { sample: spec.bridge!.sample } : {}),
+            }),
+          }
+        : {}),
+      papers: spec.sets.map((x) => ({ reg: x.paper, ws: x.ws })),
+    },
     build: async (onProgress) => {
       if (!hasLicenseeContact(ctx.licensee)) throw new Error("licensee_unavailable");
       const now = (ctx.nowIso ?? (() => new Date().toISOString()))();

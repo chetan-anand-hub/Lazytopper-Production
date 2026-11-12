@@ -14,6 +14,8 @@
     "predev": "node scripts/prebuild.cjs",
     "gen:pack-samples": "tsx scripts/samples/generatePackSamples.ts",
     "gen:pack-previews": "tsx scripts/packPreviews/generatePackPreviews.ts",
+    "gen:pack-templates": "tsx scripts/packTemplates/generatePackTemplates.ts",
+    "upload:pack-templates": "tsx scripts/packTemplates/uploadPackTemplates.ts",
     "seo:capture": "tsx scripts/seo/captureStaticBodies.ts",
     "seo:index-status": "tsx scripts/seo/indexStatusReport.ts",
     "build": "tsc -b && vite build && tsx scripts/seo/writeStaticHeads.ts && tsx scripts/seo/applyPrerendered.ts && tsx scripts/seo/writeVersion.ts && tsx scripts/ops/perf3_entry_chunk_acceptance.mjs",
