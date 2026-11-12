@@ -497,7 +497,7 @@ export default function CheckoutSheet({
           </button>
         </div>
         {confirmClose && attachPending ? (
-          <div data-testid="who-close-confirm">
+          <div className="lt-who__stack" data-testid="who-close-confirm">
             <p className="lt-who__note" role="alert">{attachContactMasked ? attachCloseConfirm(attachContactMasked) : "Your payment is safe. Sign in with the number or email you paid with to use it."}</p>
             {attachContactMasked && (
               <button type="button" className="lt-gps__primary" onClick={() => { setConfirmClose(false); setMeNow((n) => n + 1); }} data-testid="who-close-me-now">
@@ -509,7 +509,7 @@ export default function CheckoutSheet({
           </div>
         ) : null}
         {/* The flow stays mounted behind the confirm so "Keep choosing" returns to where the payer was. */}
-        <div hidden={confirmClose && attachPending}>{body}</div>
+        <div className="lt-who__stack" hidden={confirmClose && attachPending}>{body}</div>
       </div>
     </div>,
     document.body,
