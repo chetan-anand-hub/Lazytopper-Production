@@ -204,7 +204,9 @@ const { runWithRequestContext, bindRequestUid } = require('./services/usageLedge
 // RAZORPAY-1: a student buys a pass. DARK unless the server env PAYMENTS_ENABLED is on —
 // off, all three routes answer this file's own 404. Keys only from env; see the module.
 const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH, PAY_STATUS_PATH } = require('./routes/payments.cjs');
-const { createPackRoutes, PACKS_MINE_PATH } = require('./routes/packs.cjs'); // PACKS-SERVER-1
+const { createPackRoutes, PACKS_MINE_PATH, PACKS_FILE_LINK_PATH, PACKS_ZIP_LINK_PATH } = require('./routes/packs.cjs'); // PACKS-SERVER-1
+const { createPackPdfService } = require('./services/packPdfService.cjs'); // SERVER-PDF-1 PR-B
+const { __internals: { resolveBucketName } } = require('./services/qrUploadChannel.cjs');
 // ASK-PARENTS-PAY-1: a parent pays for their child from a link the child sends. DARK unless
 // BOTH PAYMENTS_ENABLED and PARENT_PAY_ENABLED are on; the uid comes only from the link.
 const {
@@ -479,7 +481,15 @@ const paymentRoutes = createPaymentRoutes({
   afterGuestPaid: (input) => guestPayRoutes.afterRecipientPaid(input),
 });
 // PACKS-SERVER-1: the packs a verified student owns. Not behind PACKS_ENABLED (owned packs stay downloadable).
+const packPdfService = createPackPdfService({
+  // The private bucket the CI-made templates live in (packs/) and the stamped copies are kept in (stamped/): admin credentials only.
+  bucket: () => (firebaseAdmin && resolveBucketName() ? firebaseAdmin.storage().bucket(resolveBucketName()) : null),
+  telemetry,
+  firestore: adminFirestore,
+  firestoreApi: firebaseAdmin && firebaseAdmin.firestore,
+});
 const packRoutes = createPackRoutes({
+  packPdf: packPdfService,
   sendJson,
   verifiedCaller,
   adminFirestore,
@@ -692,6 +702,9 @@ async function handleRequest(req, res) {
       reqPath === ACCOUNT_EXPORT_PATH ||
       // PACKS-SERVER-1: a credentialed GET, preflighted for the same reason.
       reqPath === PACKS_MINE_PATH ||
+      // SERVER-PDF-1 PR-B: credentialed POSTs - without these entries the preflight fails and the link never leaves the browser.
+      reqPath === PACKS_FILE_LINK_PATH ||
+      reqPath === PACKS_ZIP_LINK_PATH ||
       // GST-INVOICE-1: credentialed GETs, preflighted for the same reason.
       reqPath === GST_CHECKOUT_CONTEXT_PATH ||
       reqPath === GST_INVOICES_PATH ||
@@ -934,6 +947,8 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && reqPath === PAY_WEBHOOK_PATH) return paymentRoutes.handleWebhook(req, res);
   if (req.method === 'POST' && reqPath === PAY_STATUS_PATH) return paymentRoutes.handleStatus(req, res); // PAY-STATUS-1
   if (req.method === 'GET' && reqPath === PACKS_MINE_PATH) return packRoutes.handleMine(req, res); // PACKS-SERVER-1
+  if (req.method === 'POST' && reqPath === PACKS_FILE_LINK_PATH) return packRoutes.handleFileLink(req, res); // SERVER-PDF-1 PR-B: one stamped file, 15-minute link (404 while PACK_SERVER_PDF_DISABLED)
+  if (req.method === 'POST' && reqPath === PACKS_ZIP_LINK_PATH) return packRoutes.handleZipLink(req, res); // SERVER-PDF-1 PR-B: one group as a ZIP
   // GST-INVOICE-1 - read-only. checkout-context is behind PAYMENTS_ENABLED, the invoice list behind GST_INVOICE_ENABLED;
   // a PDF is served only for an invoice already issued (buyer's uid, or the signed guest link). Admin: ADMIN_FIREBASE_UIDS.
   if (req.method === 'GET' && reqPath === GST_CHECKOUT_CONTEXT_PATH) return gstInvoiceRoutes().handleCheckoutContext(req, res);
