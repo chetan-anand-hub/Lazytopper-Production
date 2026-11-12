@@ -40,6 +40,7 @@ import { DesktopShell } from "./DesktopShell";
 // (under parallel load that alone ran past the 5 s findBy budget). The component still loads them through its own lazy().
 beforeAll(async () => {
   await import("../account/SettingsModal");
+  await import("../signinLink/SigninMethodsSection");
 }, 60_000);
 
 afterEach(() => {
@@ -107,22 +108,20 @@ describe("DesktopShell account dropdown — SETTINGS-1 · one Settings entry" , 
     expect(menu.textContent).not.toMatch(/subscription/i);
   });
 
+  it("LINK-SIGNIN-1: Settings offers 'Ways to sign in' (removing the section turns this red)", async () => {
+    signInAndOpenMenu();
+    fireEvent.click(screen.getByRole("menuitem", { name: "Settings" }));
+    await screen.findByRole("dialog", { name: "Settings" });
+    expect(await screen.findByRole("heading", { name: "Ways to sign in" })).toBeTruthy();
+    expect(screen.getAllByRole("heading", { name: "Ways to sign in" })).toHaveLength(1);
+    expect(screen.queryByRole("heading", { name: "Sign-in methods" })).toBeNull();
+  });
+
   it("Settings closes the menu and opens the Settings window", async () => {
     signInAndOpenMenu();
     fireEvent.click(screen.getByRole("menuitem", { name: "Settings" }));
     expect(screen.queryByRole("menu", { name: "Account menu" })).toBeNull();
     expect(await screen.findByRole("dialog", { name: "Settings" })).toBeTruthy();
-  });
-
-  it("Settings -> Sign-in methods swaps to the existing linking modal (one modal at a time)", async () => {
-    signInAndOpenMenu();
-    // the real modal reads providerIds off the auth user
-    (authState.user as unknown as { providerIds: string[] }).providerIds = ["google.com"];
-    fireEvent.click(screen.getByRole("menuitem", { name: "Settings" }));
-    await screen.findByRole("dialog", { name: "Settings" });
-    fireEvent.click(screen.getAllByRole("button", { name: "Sign-in methods" })[0]);
-    expect(screen.queryByRole("dialog", { name: "Settings" })).toBeNull();
-    expect(await screen.findByRole("dialog", { name: "Sign-in methods" })).toBeTruthy(); // PERF-TRIM-1: lazy sheet
   });
 
   it("closing Settings returns focus to the avatar and restores page scroll", async () => {

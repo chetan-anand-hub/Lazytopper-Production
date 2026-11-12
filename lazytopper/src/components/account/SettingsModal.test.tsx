@@ -69,13 +69,12 @@ describe("SettingsModal", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("shows the four sections in order: pass, sign-in methods, mascots (when shown), your data", () => {
+  it("shows the sections in order: pass, mascots (when shown), your data (sign-in lives in the lazy Ways to sign in section)", () => {
     // Mascots hidden on this device => MascotsSetting always renders (the way back).
     hideMascots();
     mount();
     const nodes = [
       screen.getByRole("heading", { name: "Your pass" }),
-      screen.getAllByRole("heading", { name: "Sign-in methods" })[0],
       screen.getByRole("heading", { name: "Mascots" }),
       screen.getByRole("region", { name: "Your data and your account" }),
     ];
@@ -99,10 +98,10 @@ describe("SettingsModal", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it("Sign-in methods hands over to the existing modal via the callback", () => {
-    const { onOpenSignInMethods } = mount();
-    fireEvent.click(screen.getAllByRole("button", { name: "Sign-in methods" })[0]);
-    expect(onOpenSignInMethods).toHaveBeenCalledTimes(1);
+  it("LINK-SIGNIN v1.1: no second 'Sign-in methods' card (one 'Ways to sign in' section only)", () => {
+    mount();
+    expect(screen.queryByRole("button", { name: "Sign-in methods" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Sign-in methods" })).toBeNull();
   });
 
   it("Esc closes; the x closes; a click on the scrim closes", () => {

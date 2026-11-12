@@ -60,6 +60,7 @@ const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 // PAID-SHOWS-1: the purchase card again after a reload of the paid screen (this tab's proof only).
 const PurchaseCard = lazy(() => import("../checkoutWho/PurchaseCard"));
 import { resolvePaidBoardPass, usePaidPremium } from "../../lib/packs/usePaidPremium";
+import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 // PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
 import PaywallActions from "../pricing/PaywallActions";
 import { parentPackName } from "../../services/parentPayPack";
@@ -1136,6 +1137,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               <Link to={`${PACKS_RETURN_PATH}#my-packs`} data-testid="packs-open-my-packs">Open My packs &rarr;</Link>
             </p>
           )}
+          {/* LINK-SIGNIN-1: only on a confirmed paid outcome, for a signed-in buyer; last, so nothing above it moves. */}
+          {buy.phase === "paid" && <SigninLinkCardLazy signedIn={signedIn} />}
         </div>
       )}
     </>

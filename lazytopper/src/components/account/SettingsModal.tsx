@@ -3,7 +3,7 @@
  * phone (MobileAccountMenu) and desktop (DesktopShell). Same component, same words.
  *
  * Sections, in order: Your pass · Your limits (fair use; only when the server enforces it) ·
- * Sign-in methods · Mascots · Your data.
+ * Ways to sign in (LINK-SIGNIN-1: the ONE sign-in section) · Mascots · Your data.
  * Me / Progress now shows only progress; the pass, fair-use limits, linking, mascots switch and
  * the DPDP controls (download / delete) all live here. Their behaviour is unchanged: this file
  * only decides WHERE they are mounted. `MascotsSetting` and `AccountDataControls` are
@@ -31,6 +31,7 @@ import { deriveAccountStatus } from "../../utils/accountStatus";
 import MascotsSetting from "../guide/MascotsSetting";
 import UsageCard from "../usage/UsageCard";
 import AccountDataControls from "./AccountDataControls";
+import SigninMethodsSectionLazy from "../signinLink/SigninMethodsSectionLazy";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import type { SettingsSection } from "./settingsDoor";
 
@@ -38,7 +39,7 @@ export interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
   /** Hands over to the existing sign-in-methods modal. The caller closes this window. */
-  onOpenSignInMethods: () => void;
+  onOpenSignInMethods?: () => void;
   /** The avatar button; focus returns here on close. */
   returnFocusRef?: RefObject<HTMLElement | null>;
   /** "usage": scroll the limits card into view once it has rendered ("See usage"). */
@@ -51,7 +52,6 @@ const FOCUSABLE =
 export default function SettingsModal({
   open,
   onClose,
-  onOpenSignInMethods,
   returnFocusRef,
   section,
 }: SettingsModalProps) {
@@ -193,18 +193,8 @@ export default function SettingsModal({
               (no card, no heading) unless the server says it is enforced for a trial/premium pass. */}
           <UsageCard variant="settings" autoScroll={section === "usage"} />
 
-          <section className="lt-set__card" aria-labelledby={`${titleId}-signin`}>
-            <h3 className="lt-set__h" id={`${titleId}-signin`}>
-              Sign-in methods
-            </h3>
-            <p className="lt-set__p">
-              See how you sign in, and optionally add a phone number as a second way in, so your
-              work stays in one account.
-            </p>
-            <button type="button" className="lt-set__btn" onClick={onOpenSignInMethods}>
-              Sign-in methods
-            </button>
-          </section>
+          {/* LINK-SIGNIN-1: the linked methods (masked) and the Add buttons; lazy, hidden by VITE_SIGNIN_LINK_DISABLED. */}
+          <SigninMethodsSectionLazy headingId={`${titleId}-ways`} />
 
           <MascotsSetting uid={user.uid} />
 

@@ -18,6 +18,16 @@ const confirmLinkPhoneOtp = vi.fn(async (_code: string) => {});
 
 const H = vi.hoisted(() => ({
   user: null as null | Record<string, unknown>,
+  live: null as null | { uid: string; providerData: Array<{ providerId: string }> },
+}));
+vi.mock("../../services/firebaseClient", () => ({
+  authClient: {
+    get currentUser() {
+      return H.live;
+    },
+  },
+  firestoreDb: null,
+  app: null,
 }));
 
 vi.mock("../../context/AuthContext", async (importOriginal) => {
@@ -47,6 +57,7 @@ beforeEach(() => {
   };
 });
 afterEach(() => {
+  H.live = null;
   cleanup();
   sendLinkPhoneOtp.mockReset();
   confirmLinkPhoneOtp.mockReset();
@@ -75,6 +86,38 @@ describe("the modal shows the CREDENTIALS that are linked", () => {
   it("renders nothing when closed", () => {
     const { container } = render(<LinkSignInMethodModal open={false} onClose={() => {}} />);
     expect(container.firstChild).toBeNull();
+  });
+});
+
+describe("LINK-SIGNIN v1.1 · one email login per account", () => {
+  const openEmailAdd = () => render(<LinkSignInMethodModal open onClose={() => {}} alsoKind="email" alsoMasked="ra••••@gmail.com" />);
+
+  it("a phone-only account is still offered the email panel", () => {
+    H.user!.providerIds = ["phone"];
+    openEmailAdd();
+    expect(screen.queryByTestId("link-email-cap")).toBeNull();
+    expect(screen.getByTestId("link-email-panel")).toBeDefined();
+  });
+
+  it("an account with Google (stored list) is refused a second email", () => {
+    openEmailAdd();
+    expect(screen.getByTestId("link-email-cap").textContent).toContain("already has an email");
+    expect(screen.queryByTestId("link-email-panel")).toBeNull();
+  });
+
+  it("STALE stored list, but Firebase's live providerData has Google (linked earlier this session): refused", () => {
+    H.user!.providerIds = ["phone"]; // the context did not re-sync after the Google link
+    H.live = { uid: "GOOGLE-UID", providerData: [{ providerId: "phone" }, { providerId: "google.com" }] };
+    openEmailAdd();
+    expect(screen.getByTestId("link-email-cap")).toBeDefined();
+    expect(screen.queryByTestId("link-email-panel")).toBeNull();
+  });
+
+  it("a live list for ANOTHER uid is ignored", () => {
+    H.user!.providerIds = ["phone"];
+    H.live = { uid: "SOMEONE-ELSE", providerData: [{ providerId: "google.com" }] };
+    openEmailAdd();
+    expect(screen.queryByTestId("link-email-cap")).toBeNull();
   });
 });
 
@@ -211,6 +254,9 @@ describe("linking is OPTIONAL — nothing gates on it", () => {
       // The modal and its own tests legitimately read link status.
       if (rel.includes("LinkSignInMethodModal")) continue;
       if (rel.includes("LinkPhoneNudge")) continue;
+      // LINK-SIGNIN-1: the card / Settings section ARE linking surfaces (they read the linked credentials only to hide an Add
+      // button the account already has, and to show the masked list); nothing in them gates a feature, route or login.
+      if (rel.startsWith("src/components/signinLink/")) continue;
       if (rel === "src/context/AuthContext.tsx") continue;
       // The helper module IS the definition of link status; exempting it is not
       // a hole, because a gate elsewhere would still have to call it and would
