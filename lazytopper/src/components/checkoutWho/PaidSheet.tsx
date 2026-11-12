@@ -13,7 +13,6 @@ import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 import "./paidSheet.css";
 
 export const PAID_SHEET_TITLE = "Payment received";
-export const PAID_SHEET_RECEIPT_LINE = "Receipt sent to your email.";
 export const PAID_SHEET_LOCK_CLASS = "lt-paid-lock";
 
 export interface PaidSheetProps {
@@ -23,6 +22,8 @@ export interface PaidSheetProps {
   /** Plain name of what was bought, e.g. "Circles Chapter Pack", "the Board Pass". */
   itemName: string;
   primaryLabel: string;
+  /** "Receipt sent to <masked email>" - passed only when the account has an email; phone-only accounts show no receipt line. */
+  receiptLine?: string;
   /** The primary button: the host closes the sheet itself as part of this (it moves on to the files / Home). */
   onPrimary: () => void;
   onClose: () => void;
@@ -45,7 +46,7 @@ function sendShown(surface: string, itemKind: string): void {
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export default function PaidSheet({ surface, itemKind, itemName, primaryLabel, onPrimary, onClose, move, onMoved, moved, below }: PaidSheetProps) {
+export default function PaidSheet({ surface, itemKind, itemName, primaryLabel, receiptLine, onPrimary, onClose, move, onMoved, moved, below }: PaidSheetProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const shown = useRef(false);
 
@@ -111,7 +112,7 @@ export default function PaidSheet({ surface, itemKind, itemName, primaryLabel, o
           </div>
           <button type="button" className="lt-paid__close" aria-label="Close" onClick={onClose} data-testid="paid-sheet-close">&times;</button>
         </div>
-        <p className="lt-paid__receipt" data-testid="paid-sheet-receipt">{PAID_SHEET_RECEIPT_LINE}</p>
+        {receiptLine && <p className="lt-paid__receipt" data-testid="paid-sheet-receipt">{receiptLine}</p>}
         {!moved && (
           <button type="button" className="lt-paid__primary" onClick={onPrimary} data-testid="paid-sheet-primary">
             {primaryLabel}

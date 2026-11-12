@@ -12,7 +12,7 @@ vi.mock("../signinLink/SigninLinkCard", () => ({
     </div>
   ),
 }));
-const auth = vi.hoisted(() => ({ user: { uid: "u1" } as null | { uid: string } }));
+const auth = vi.hoisted(() => ({ user: { uid: "u1" } as null | { uid: string; email?: string } }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
 vi.mock("../../services/packs", async (orig) => {
   const actual = await orig<typeof import("../../services/packs")>();
@@ -73,7 +73,7 @@ describe("PacksShop · PAID-SHEET-1", () => {
     const sheet = await screen.findByTestId("paid-sheet");
     expect(sheet.querySelector('[role="dialog"][aria-modal="true"]')).toBeTruthy();
     expect(screen.getByTestId("paid-sheet-item").textContent).toMatch(/Chapter Pack$/);
-    expect(screen.getByTestId("paid-sheet-receipt").textContent).toBe("Receipt sent to your email.");
+    expect(screen.getByTestId("paid-sheet-receipt").textContent).toBe("Receipt sent to a••••@b.in"); // the pack licensee email (account has no email of its own)
     expect(screen.getByTestId("paid-sheet-primary").textContent).toBe("Download files");
     expect(await screen.findByTestId("signin-link-card-stub")).toBeTruthy();
     await settle();
@@ -146,5 +146,22 @@ describe("PacksShop · PAID-SHEET-1", () => {
     expect(scrollTo).not.toHaveBeenCalled();
     fireEvent.click(screen.getByTestId("paid-sheet-close"));
     await waitFor(() => expect(scroll).toHaveBeenCalled());
+  });
+
+  it("closed without a who-choice: the status line stays with a button that reopens the pop-up; once moved it is gone", async () => {
+    auth.user = { uid: "u1", email: "friend@gmail.com" };
+    buyMock.mockResolvedValue({ status: "paid", grant, orderId: "order_P1", paymentId: "pay_49", amountInr: 49 });
+    shop();
+    await screen.findByTestId("paid-sheet");
+    expect(screen.getByTestId("paid-sheet-receipt").textContent).toBe("Receipt sent to fr••••@gmail.com");
+    fireEvent.click(screen.getByTestId("paid-sheet-close"));
+    expect(screen.queryByTestId("paid-sheet")).toBeNull();
+    expect((await screen.findByTestId("packs-status")).textContent).toMatch(/Payment received/);
+    fireEvent.click(screen.getByTestId("paid-sheet-reopen"));
+    expect(await screen.findByTestId("paid-sheet")).toBeTruthy();
+    expect(await screen.findByTestId("signin-link-card-stub")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("stub-moved"));
+    fireEvent.click(screen.getByTestId("paid-sheet-close"));
+    expect(screen.queryByTestId("paid-sheet-reopen")).toBeNull();
   });
 });

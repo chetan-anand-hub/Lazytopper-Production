@@ -61,7 +61,8 @@ const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 const PurchaseCard = lazy(() => import("../checkoutWho/PurchaseCard"));
 import { resolvePaidBoardPass, usePaidPremium } from "../../lib/packs/usePaidPremium";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
-import PaidSheetLazy, { paidSheetEnabled } from "../checkoutWho/PaidSheetLazy";
+import PaidSheetLazy, { paidSheetEnabled, paidSheetReceiptLine, preloadPaidSheet } from "../checkoutWho/PaidSheetLazy";
+import { maskEmail as maskReceiptEmail } from "../../lib/maskContact";
 // PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
 import PaywallActions from "../pricing/PaywallActions";
 import { parentPackName } from "../../services/parentPayPack";
@@ -385,7 +386,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const myPacksRef = useRef<HTMLElement | null>(null);
   // PAID-SHEET-1: the signed-in "Payment received" pop-up. A ref carries the latest switch into the async buy handler.
   const [sheetOpen, setSheetOpen] = useState(false);
-  const sheetOn = paidSheetEnabled() && signedIn;
+  const [sheetFailed, setSheetFailed] = useState(false); // the pop-up chunk did not load: today's inline status + card instead
+  const sheetOn = paidSheetEnabled() && signedIn && !sheetFailed;
   const sheetOnRef = useRef(sheetOn);
   sheetOnRef.current = sheetOn;
   // While the pop-up is up nothing behind it may scroll (a move of the purchase re-reads My packs; on /packs#my-packs that used to re-assert the scroll to the top).
@@ -687,6 +689,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const details = packCheckoutDetails(sku, target);
     const attemptId = newCheckoutAttemptId();
     trackPackCheckout(details, { signedIn: true, resumed, ...(from ? { from } : {}) });
+    if (sheetOnRef.current) preloadPaidSheet(); // warm the post-payment pop-up chunk at the Pay tap
     const outcome = await buyPack(sku, target, { chapterName: target ? chapterLabel(target) : undefined });
     // PURCHASE-EVENT-1: a server-verified payment is counted even if the shop unmounted while Razorpay was open
     // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.
@@ -1168,6 +1171,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           itemKind="pack"
           itemName={buy.name || "PDF pack"}
           primaryLabel="Download files"
+          {...(maskReceiptEmail(user?.email || mine?.licensee.email) ? { receiptLine: paidSheetReceiptLine(maskReceiptEmail(user?.email || mine?.licensee.email)) } : {})}
+          onFail={() => { setSheetFailed(true); setSheetOpen(false); }}
           onPrimary={() => closePaidSheet(true)}
           onClose={() => closePaidSheet(false)}
           moved={Boolean(buy.moved)}
@@ -1176,7 +1181,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         />
       )}
 
-      {afterPay && openSku === null && !sheetUp && !(sheetOn && buy.phase === "paid" && !buy.moved && !hideMyPacks) && (
+      {afterPay && openSku === null && !sheetUp && (
         <div className="lt-packs__w">
           <p className="lt-packs__status" role="status" data-testid="packs-status">
             {buy.phase === "paid" ? (buy.moved ? PACK_MOVED_COPY : PACK_PAID_COPY) : buy.phase === "checking" ? PACK_CHECKING_COPY : PACK_STILL_CONFIRMING_COPY}
@@ -1188,6 +1193,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           {hideMyPacks && signedIn && (
             <p className="lt-packs__status">
               <Link to={`${PACKS_RETURN_PATH}#my-packs`} data-testid="packs-open-my-packs">Open My packs &rarr;</Link>
+            </p>
+          )}
+          {/* PAID-SHEET-1: closed without moving it? The who-card lives in the pop-up, so one button brings the pop-up back (no page jump). */}
+          {buy.phase === "paid" && sheetOn && !buy.moved && (
+            <p className="lt-packs__status">
+              <button type="button" className="lt-packs__link" onClick={() => setSheetOpen(true)} data-testid="paid-sheet-reopen">Who will use this?</button>
             </p>
           )}
           {/* LINK-SIGNIN-1: only on a confirmed paid outcome, for a signed-in buyer; last, so nothing above it moves. */}

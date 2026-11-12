@@ -30,7 +30,7 @@ describe("PaidSheet", () => {
     document.body.appendChild(opener);
     opener.focus();
     const onClose = vi.fn();
-    const { unmount } = render(<PaidSheetLazy surface="packs" itemKind="pack" itemName="Maths + Science Bundle" primaryLabel="Download files" onPrimary={vi.fn()} onClose={onClose} />);
+    const { unmount } = render(<PaidSheetLazy surface="packs" itemKind="pack" itemName="Maths + Science Bundle" primaryLabel="Download files" onPrimary={vi.fn()} onClose={onClose} onFail={vi.fn()} />);
     const sheet = await screen.findByTestId("paid-sheet");
     const dialog = sheet.querySelector('[role="dialog"]') as HTMLElement;
     expect(dialog.getAttribute("aria-modal")).toBe("true");
@@ -49,24 +49,24 @@ describe("PaidSheet", () => {
   });
 
   it("Tab wraps inside the sheet; a moved purchase hides the primary button", async () => {
-    const { rerender } = render(<PaidSheetLazy surface="packs" itemKind="pack" itemName="X" primaryLabel="Download files" onPrimary={vi.fn()} onClose={vi.fn()} />);
+    const { rerender } = render(<PaidSheetLazy surface="packs" itemKind="pack" itemName="X" primaryLabel="Download files" onPrimary={vi.fn()} onClose={vi.fn()} onFail={vi.fn()} />);
     const dialog = (await screen.findByTestId("paid-sheet")).querySelector('[role="dialog"]') as HTMLElement;
     await settle();
     const buttons = Array.from(dialog.querySelectorAll<HTMLElement>("button"));
     buttons[buttons.length - 1].focus();
     fireEvent.keyDown(dialog, { key: "Tab" });
     expect(document.activeElement).toBe(buttons[0]);
-    rerender(<PaidSheetLazy surface="packs" itemKind="pack" itemName="X" primaryLabel="Download files" onPrimary={vi.fn()} onClose={vi.fn()} moved />);
+    rerender(<PaidSheetLazy surface="packs" itemKind="pack" itemName="X" primaryLabel="Download files" onPrimary={vi.fn()} onClose={vi.fn()} onFail={vi.fn()} moved />);
     expect(screen.queryByTestId("paid-sheet-primary")).toBeNull();
   });
 });
 
 describe("PassCheckout paid -> PaidSheet", () => {
   const paid = () => vi.fn(async () => ({ status: "paid" as const, passEnd: "2027-02-17T18:29:59.999Z", orderId: "order_B1" }));
-  const view = (onBuy = paid()) =>
+  const view = (onBuy = paid(), signedIn = true, receiptEmail?: string) =>
     render(
       <MemoryRouter>
-        <PassCheckoutView signedIn offerOpen showMonth={false} activePassEnd={null} onSignIn={vi.fn()} onBuy={onBuy} />
+        <PassCheckoutView signedIn={signedIn} {...(receiptEmail ? { receiptEmail } : {})} offerOpen showMonth={false} activePassEnd={null} onSignIn={vi.fn()} onBuy={onBuy} />
       </MemoryRouter>,
     );
 
@@ -98,6 +98,36 @@ describe("PassCheckout paid -> PaidSheet", () => {
     expect(screen.queryByTestId("paid-sheet-primary")).toBeNull();
     expect(scrollTo).not.toHaveBeenCalled();
     expect(into).not.toHaveBeenCalled();
+  });
+
+  it("closed without a who-choice: the paid line stays and a button brings the pop-up (with the who-card) back", async () => {
+    view(paid(), true, "friend@gmail.com");
+    fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
+    await screen.findByTestId("paid-sheet");
+    expect(screen.getByTestId("paid-sheet-receipt").textContent).toBe("Receipt sent to fr••••@gmail.com");
+    expect(screen.queryByTestId("paid-sheet-reopen")).toBeNull();
+    fireEvent.click(screen.getByTestId("paid-sheet-close"));
+    expect(screen.queryByTestId("paid-sheet")).toBeNull();
+    fireEvent.click(screen.getByTestId("paid-sheet-reopen"));
+    expect(await screen.findByTestId("paid-sheet")).toBeTruthy();
+    expect(await screen.findByTestId("signin-link-card-stub")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("stub-moved"));
+    fireEvent.click(screen.getByTestId("paid-sheet-close"));
+    expect(screen.queryByTestId("paid-sheet-reopen")).toBeNull(); // moved: nothing left to ask
+  });
+
+  it("a phone-only account (no email) gets no receipt line", async () => {
+    view();
+    await (async () => { fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() })); })();
+    await screen.findByTestId("paid-sheet");
+    expect(screen.queryByTestId("paid-sheet-receipt")).toBeNull();
+  });
+
+  it("a signed-out buyer never gets the pop-up", async () => {
+    view(paid(), false);
+    fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
+    await settle();
+    expect(screen.queryByTestId("paid-sheet")).toBeNull();
   });
 
   it("kill switch VITE_PAID_SHEET_DISABLED=1: the old inline paid screen, no pop-up", async () => {

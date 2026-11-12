@@ -39,7 +39,8 @@ import { fetchMyPacks, type BoardPassCredit } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
 import PayRescueCard from "../payRescue/PayRescueCard";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
-import PaidSheetLazy, { paidSheetEnabled } from "../checkoutWho/PaidSheetLazy";
+import PaidSheetLazy, { paidSheetEnabled, paidSheetReceiptLine, preloadPaidSheet } from "../checkoutWho/PaidSheetLazy";
+import { maskEmail as maskReceiptEmail } from "../../lib/maskContact";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
 import { isGuestPayClientEnabled, maskIndianMobile, type GuestSigninState } from "../../services/guestPay";
 import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
@@ -135,21 +136,23 @@ export const paidUntilCopy = (passType: PassType, dateLabel: string): string =>
   passType === "month" ? `Your monthly pass is active until ${dateLabel}.` : boardPassActiveUntilCopy(dateLabel);
 
 /** PAID-SHEET-1: the Board Pass / month pass pop-up. "Start practising" goes Home; the Board Pass also carries the CBQ Packs offer below the who-card. */
-function PassSheetHost(p: { itemName: string; onClose: () => void; moved: boolean; onMoved: () => void; move?: { orderId: string; item: string } }) {
+function PassSheetHost(p: { receiptEmail?: string; onFail: () => void; itemName: string; onClose: () => void; moved: boolean; onMoved: () => void; move?: { orderId: string; item: string } }) {
   return useInRouterContext() ? <PassSheetRouted {...p} /> : <PassSheetShell {...p} surface="pricing" go={() => window.location.assign("/")} />;
 }
-function PassSheetRouted(p: { itemName: string; onClose: () => void; moved: boolean; onMoved: () => void; move?: { orderId: string; item: string } }) {
+function PassSheetRouted(p: { receiptEmail?: string; onFail: () => void; itemName: string; onClose: () => void; moved: boolean; onMoved: () => void; move?: { orderId: string; item: string } }) {
   const navigate = useNavigate();
   const location = useLocation();
   return <PassSheetShell {...p} surface={location.pathname.startsWith("/board-pass") ? "board_pass" : "pricing"} go={() => navigate("/")} />;
 }
-function PassSheetShell({ itemName, onClose, moved, onMoved, move, surface, go }: { itemName: string; onClose: () => void; moved: boolean; onMoved: () => void; move?: { orderId: string; item: string }; surface: string; go: () => void }) {
+function PassSheetShell({ itemName, onClose, moved, onMoved, move, surface, go, receiptEmail, onFail }: { receiptEmail?: string; onFail: () => void; itemName: string; onClose: () => void; moved: boolean; onMoved: () => void; move?: { orderId: string; item: string }; surface: string; go: () => void }) {
   return (
     <PaidSheetLazy
       surface={surface}
       itemKind="pass"
       itemName={itemName}
       primaryLabel="Start practising"
+      {...(maskReceiptEmail(receiptEmail) ? { receiptLine: paidSheetReceiptLine(maskReceiptEmail(receiptEmail)) } : {})}
+      onFail={onFail}
       onPrimary={() => { onClose(); go(); }}
       onClose={onClose}
       moved={moved}
@@ -266,6 +269,8 @@ export interface PassCheckoutViewProps {
   packCredit?: BoardPassCredit | null;
   /** SIGNED-IN-MOVE-1: the Board Pass was moved to the child's own account - re-read this account's entitlement. */
   onPassMoved?: () => void;
+  /** PAID-SHEET-1: the signed-in account's email, for the pop-up's "Receipt sent to ..." line (absent for phone-only accounts). */
+  receiptEmail?: string;
   /**
    * OFFERS-V2 A2 - start the Board Pass checkout ONCE, as if the Pay button was tapped. The connected half sets it only for a signed-in,
    * hydrated, non-Premium student who arrived on /pricing?buy=board_pass (and has already removed that param). Never repeats on re-render.
@@ -302,6 +307,7 @@ export function PassCheckoutView({
   pendingHoldMs = PAY_PENDING_TTL_MS,
   packCredit = null,
   onPassMoved,
+  receiptEmail,
   autoStart = false,
   holderAutoOpen = false,
   who,
@@ -317,9 +323,10 @@ export function PassCheckoutView({
   const [paidUntil, setPaidUntilState] = useState<{ label: string; passType: PassType; orderId?: string } | null>(null);
   // PAID-SHEET-1: a signed-in buyer's confirmed payment opens the "Payment received" pop-up (the inline paid line stays under it).
   const [paidSheetOpen, setPaidSheetOpen] = useState(false);
+  const [paidSheetFailed, setPaidSheetFailed] = useState(false); // the pop-up chunk did not load: the old inline paid screen
   const setPaidUntil = (label: string, passType: PassType, orderId?: string) => {
     setPaidUntilState({ label, passType, ...(orderId ? { orderId } : {}) });
-    if (signedIn && paidSheetEnabled()) setPaidSheetOpen(true);
+    if (signedIn && paidSheetEnabled() && !paidSheetFailed) setPaidSheetOpen(true);
   };
   /** SIGNED-IN-MOVE-1: after a successful move the paid screen must not keep saying the pass is this account's. */
   const [movedAway, setMovedAway] = useState(false);
@@ -453,6 +460,7 @@ export function PassCheckoutView({
     pendingRef.current = null;
     clearHold();
     const attemptId = newCheckoutAttemptId();
+    if (signedIn && paidSheetEnabled()) preloadPaidSheet(); // warm the post-payment pop-up chunk at the Pay tap
     const outcome = await onBuy(passType);
     setBusy(null);
     if (outcome.status === "paid") {
@@ -536,7 +544,7 @@ export function PassCheckoutView({
   }
 
   if (paidUntil) {
-    const sheetOn = signedIn && paidSheetEnabled();
+    const sheetOn = signedIn && paidSheetEnabled() && !paidSheetFailed;
     const isBoardPass = paidUntil.passType === "till_boards";
     const moveTarget = isBoardPass && paidUntil.orderId ? { move: { orderId: paidUntil.orderId, item: "the Board Pass" } } : {};
     return (
@@ -551,8 +559,15 @@ export function PassCheckoutView({
         {/* LINK-SIGNIN-1: a signed-in buyer is asked who else will sign in (own lazy chunk; below the purchase line, so nothing moves). */}
         {!sheetOn && <SigninLinkCardLazy signedIn={signedIn} onMoved={() => { setMovedAway(true); onPassMoved?.(); }} {...moveTarget} />}
         {/* PAID-SHEET-1: the same who-card (and, for the Board Pass, the CBQ Packs offer) inside the pop-up. */}
+        {sheetOn && !paidSheetOpen && !movedAway && (
+          <button type="button" className="lt-pricing-cta lt-pricing-cta--secondary" onClick={() => setPaidSheetOpen(true)} data-testid="paid-sheet-reopen">
+            Who will use this?
+          </button>
+        )}
         {sheetOn && paidSheetOpen && (
           <PassSheetHost
+            receiptEmail={receiptEmail}
+            onFail={() => { setPaidSheetFailed(true); setPaidSheetOpen(false); }}
             itemName={isBoardPass ? "the Board Pass" : "the monthly pass"}
             onClose={() => setPaidSheetOpen(false)}
             moved={movedAway}
@@ -881,6 +896,7 @@ function PassCheckoutConnected() {
             },
           }
         : {})}
+      receiptEmail={user?.email || undefined}
       onPassMoved={() => { if (uid) void hydrateSubscriptionFromCloud(uid).catch(() => undefined); }}
       onSignIn={() => (guestEnabled ? setShowGuest(true) : navigate(withSigninRedirect("/login", PASS_CHECKOUT_RETURN_PATH)))}
       onBuy={async (passType) => {
