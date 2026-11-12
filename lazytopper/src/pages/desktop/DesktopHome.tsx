@@ -1,4 +1,5 @@
 import WelcomeBannerGate from "../../components/welcome/WelcomeBannerGate";
+import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -357,6 +358,8 @@ export default function DesktopHome() {
         }}
       >
         <WelcomeBannerGate />
+        {/* PAID-SHOWS-1 - a pack owner's way back to the packs they paid for; renders nothing for anyone else (lazy chunk). */}
+        {user && !user.isLocalSession && <PacksEntry kind="home-card" uid={user.uid} />}
         {/* ── The greeting band is GONE (AUTH-2-FU §1/§2) ────────
             The greeting itself moved INLINE into DesktopShell's header, which
             wraps this page at every entry ("/" signed-in and "/browse", both
