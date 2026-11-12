@@ -269,6 +269,7 @@ function createParentPayRoutes(deps = {}) {
     getDisplayName = async () => '',
     tokenFactory = mintToken,
     invoicer, // GST-INVOICE-1: optional { issueForPayment, config }; absent or off -> nothing changes
+    grantReceipt, // RECEIPT-EMAIL-1: optional ({ orderId, buyerEmail }) => void, fired after a successful grant
   } = deps;
 
   /** GST-INVOICE-1 - the parent's confirmed state (+ PIN / business) for the stored order; {} when none. Never refuses. */
@@ -278,6 +279,13 @@ function createParentPayRoutes(deps = {}) {
     return g.fields;
   }
   /** GST-INVOICE-1 - after a verified capture: the invoice, fired and forgotten (no receipt email on this path). */
+  function fireGrantReceipt(orderId, payment) {
+    try {
+      if (typeof grantReceipt === 'function') grantReceipt({ orderId, buyerEmail: payment && typeof payment.email === 'string' ? payment.email : '' });
+    } catch {
+      /* a receipt never touches the payment path */
+    }
+  }
   function issueInvoice(orderId, paymentId, payment) {
     afterCapture({ invoicer, input: { orderId, paymentId, payment }, sendReceipt: null });
   }
@@ -981,6 +989,7 @@ function createParentPayRoutes(deps = {}) {
       emit(packGranted.replayed ? 'payments.parent.verify.pack_replayed' : 'payments.parent.verify.pack_granted');
       if (packGranted.duplicate) emit('payments.parent.verify.pack_duplicate_payment');
       issueInvoice(orderId, paymentId, payment);
+      if (!packGranted.duplicate) fireGrantReceipt(orderId, payment);
       try {
         await resolved.ref.set({ status: 'paid', paidOrderId: orderId, paidAt: new Date(now()) }, { merge: true });
       } catch {
@@ -1018,6 +1027,7 @@ function createParentPayRoutes(deps = {}) {
       if (granted.packCredit.conflict) emit('payments.parent.verify.pack_credit_conflict');
     }
     issueInvoice(orderId, paymentId, payment);
+    fireGrantReceipt(orderId, payment);
 
     // 5. The link is spent. Not part of the grant: if this write fails the link still
     //    refuses new orders, because order creation re-reads its orders' status.

@@ -389,7 +389,17 @@ function createPaymentReceiptEmailer(deps = {}) {
     }
   }
 
+  /** RECEIPT-EMAIL-1: while the new receipt (services/receiptEmail.cjs) is active, this older receipt / recipient email stays silent. */
+  const superseded = () => {
+    try {
+      return typeof deps.supersededBy === 'function' && deps.supersededBy() === true;
+    } catch {
+      return false;
+    }
+  };
+
   async function run({ orderId, paymentId, email }) {
+    if (superseded()) return { skipped: 'superseded' };
     if (config.mode !== 'send' || !adminFirestore || typeof fetchImpl !== 'function') return { skipped: 'off' };
     const to = typeof email === 'string' ? email.trim() : '';
     if (!to || to.length > 254 || !EMAIL_PATTERN.test(to) || isPlaceholderAddress(to)) {
@@ -444,6 +454,7 @@ function createPaymentReceiptEmailer(deps = {}) {
    * The address is read from the order (it is the claim key) and goes nowhere else. Never throws.
    */
   async function runRecipient({ orderId, paymentId }) {
+    if (superseded()) return { skipped: 'superseded' };
     if (config.mode !== 'send' || !adminFirestore || typeof fetchImpl !== 'function') return { skipped: 'off' };
     if (typeof orderId !== 'string' || !orderId || typeof paymentId !== 'string' || !paymentId) return { skipped: 'bad_input' };
     const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
