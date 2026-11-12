@@ -45,7 +45,11 @@ OPEN, owner [owner]. (c) signed-out "someone else" (payer and recipient one rece
 
 ### [FU-RECEIPT-EMAIL-REVIEW-ITEMS]
 
-OPEN. The `#1683` review follow-ups R4, R5 and R6 are carried here by reference. **The `#1683` PR body (reworked after review) does not describe R4, R5 or R6, and the docs builder could not read their text from the PR, its reviews or its comments; this entry therefore does NOT restate them.** Before closing, whoever holds the review text copies R4, R5 and R6 into this entry verbatim.
+OPEN. The `#1683` review follow-ups R4, R5 and R6, verbatim from the 12 Nov PM handoff section 5.3 [coordinator]:
+
+- R4: a `sending` marker left by a crash is never retried.
+- R5 (narrow race): the sweep's `no_address` write can overwrite a just-`sent` marker → possible second receipt. Fix with a conditional write in the transaction. Next in the engineering queue.
+- R6: the hold-end receipt is generic when nobody chose (no "Me / Someone else" answer before the 10-min fallback).
 
 ### [FU-RELOAD-CARD-PACKS-ONLY]
 
