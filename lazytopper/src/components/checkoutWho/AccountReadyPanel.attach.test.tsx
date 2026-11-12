@@ -35,8 +35,9 @@ describe("attachMe", () => {
     const go = vi.fn();
     render(<AccountReadyPanel item={PACK} recipient={RECIPIENT} payerSignedIn={false} onClose={vi.fn()} go={go} attachMe />);
     fireEvent.change(await screen.findByTestId("who-otp"), { target: { value: "123456" } });
+    expect(screen.getByTestId("who-otp-verify").textContent).toBe("Sign in");
     fireEvent.click(screen.getByTestId("who-otp-verify"));
-    await waitFor(() => expect(go).toHaveBeenCalledWith("/packs?from=pay&welcome=pack#my-packs"));
+    await waitFor(() => expect(go).toHaveBeenCalledWith("/packs?from=pay&welcome=pack&pack=pack_cbq%3Amaths#my-packs"));
   });
 
   it("without attachMe: nothing is sent on mount and the landing has no welcome flag (today's flow)", async () => {

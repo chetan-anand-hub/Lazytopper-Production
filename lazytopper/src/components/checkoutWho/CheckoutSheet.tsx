@@ -168,6 +168,7 @@ export default function CheckoutSheet({
   const [attachTitle, setAttachTitle] = useState("");
   const [attachSettled, setAttachSettled] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
+  const [meNow, setMeNow] = useState(0);
   const onAttachTitle = useCallback((t: string) => setAttachTitle(t), []);
   const onAttachSettled = useCallback((v: boolean) => setAttachSettled(v), []);
   const [first, setFirst] = useState("");
@@ -461,7 +462,7 @@ export default function CheckoutSheet({
       </>
     );
   } else if (step.name === "attach") {
-    body = <AttachFlow item={item} proof={step.proof} contact={step.contact} onTitle={onAttachTitle} onClose={onClose} onSettled={onAttachSettled} />;
+    body = <AttachFlow item={item} proof={step.proof} contact={step.contact} onTitle={onAttachTitle} onClose={onClose} onSettled={onAttachSettled} meNow={meNow} />;
   } else {
     body = (
       <>
@@ -498,12 +499,17 @@ export default function CheckoutSheet({
         {confirmClose && attachPending ? (
           <div data-testid="who-close-confirm">
             <p className="lt-who__note" role="alert">{attachContactMasked ? attachCloseConfirm(attachContactMasked) : "Your payment is safe. Sign in with the number or email you paid with to use it."}</p>
-            <button type="button" className="lt-gps__primary" onClick={() => setConfirmClose(false)} data-testid="who-close-stay">Choose now</button>
+            {attachContactMasked && (
+              <button type="button" className="lt-gps__primary" onClick={() => { setConfirmClose(false); setMeNow((n) => n + 1); }} data-testid="who-close-me-now">
+                {`Put it on ${attachContactMasked} now`}
+              </button>
+            )}
+            <button type="button" className={attachContactMasked ? "lt-who__secondary" : "lt-gps__primary"} onClick={() => setConfirmClose(false)} data-testid="who-close-stay">Keep choosing</button>
             <button type="button" className="lt-who__secondary" onClick={onClose} data-testid="who-close-anyway">Close</button>
           </div>
-        ) : (
-          body
-        )}
+        ) : null}
+        {/* The flow stays mounted behind the confirm so "Keep choosing" returns to where the payer was. */}
+        <div hidden={confirmClose && attachPending}>{body}</div>
       </div>
     </div>,
     document.body,

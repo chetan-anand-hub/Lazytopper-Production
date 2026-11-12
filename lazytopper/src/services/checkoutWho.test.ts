@@ -13,6 +13,7 @@ import {
   isSelfAttachClientEnabled,
   landingPath,
   welcomeLandingPath,
+  scheduleHoldEndClaim,
   alreadyCoveredLine,
   buyForRecipient,
   buyForSelf,
@@ -358,5 +359,48 @@ describe("SELFPAY-ATTACH-1 - pay first, then say who (the browser half)", () => 
     expect(welcomeLandingPath("pass", false)).toBe("/browse?welcome=board_pass");
     expect(welcomeLandingPath("pack", true)).toBe("/packs?from=pay&welcome=pack#my-packs");
     expect(landingPath("pass")).toBe("/");
+  });
+
+  it("F5: a pack landing carries the bought pack's catalogue id (never anything odd)", () => {
+    expect(welcomeLandingPath("pack", true, "pack_mock:maths")).toBe("/packs?from=pay&welcome=pack&pack=pack_mock%3Amaths#my-packs");
+    expect(welcomeLandingPath("pack", false, "a b&c=d")).toBe("/packs?from=pay&welcome=pack#my-packs");
+    expect(welcomeLandingPath("pass", true, "pack_mock:maths")).toBe("/?welcome=board_pass");
+  });
+
+  it("F1: the hold-end claim runs once at the hold's end for a signed-in user, then re-reads the subscription; signed out does nothing", async () => {
+    const timers: Array<{ fn: () => void; ms: number }> = [];
+    const mk = (uid: string, claimed: unknown[] | null) => ({
+      uid: vi.fn(async () => uid),
+      claim: vi.fn(async () => claimed),
+      afterClaim: vi.fn(async () => undefined),
+      setTimer: (fn: () => void, ms: number) => void timers.push({ fn, ms }),
+      now: () => 1_000_000,
+    });
+    const signedIn = mk("u1", [{ orderId: "o1" }]);
+    scheduleHoldEndClaim(1_000_000 + 600_000, signedIn);
+    expect(timers[0].ms).toBe(602_000);
+    expect(signedIn.claim).not.toHaveBeenCalled();
+    timers[0].fn();
+    await vi.waitFor(() => expect(signedIn.afterClaim).toHaveBeenCalledWith("u1"));
+    expect(signedIn.claim).toHaveBeenCalledTimes(1);
+    const out = mk("", null);
+    scheduleHoldEndClaim(1_000_000 + 1000, out);
+    timers[1].fn();
+    await new Promise((r) => setTimeout(r, 5));
+    expect(out.claim).not.toHaveBeenCalled();
+    const empty = mk("u2", []);
+    scheduleHoldEndClaim(Number.NaN, empty);
+    expect(timers).toHaveLength(2);
+    scheduleHoldEndClaim(1_000_000, empty);
+    timers[2].fn();
+    await vi.waitFor(() => expect(empty.claim).toHaveBeenCalled());
+    expect(empty.afterClaim).not.toHaveBeenCalled();
+  });
+
+  it("F1: a verified attach order schedules the hold-end claim from the server's holdUntilMs", async () => {
+    const scheduleHoldEnd = vi.fn();
+    const out = await buyForSelf(PASS, { ...deps({ ok: true, selfContact: null, attach: { attached: false, holdUntilMs: 12345 } }), scheduleHoldEnd });
+    expect(out).toMatchObject({ status: "paid", attach: { signature: expect.any(String) } });
+    expect(scheduleHoldEnd).toHaveBeenCalledWith(12345);
   });
 });

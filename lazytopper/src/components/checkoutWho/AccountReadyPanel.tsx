@@ -79,7 +79,7 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
   const viaPhone = !!recipient.phone && (recipient.first === "phone" || !recipient.email);
   const navigate = go || ((path: string) => window.location.assign(path));
   const desktop = useIsDesktop();
-  const landing = attachMe ? welcomeLandingPath(item.kind, desktop) : landingPath(item.kind);
+  const landing = attachMe ? welcomeLandingPath(item.kind, desktop, item.kind === "pack" ? `${item.sku}:${item.sku === "pack_bundle" ? "all" : item.target ?? ""}` : undefined) : landingPath(item.kind);
   const autoStarted = useRef(false);
   useEffect(() => {
     if (!attachMe || autoStarted.current) return;
@@ -188,7 +188,7 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
           </div>
           {me.phase === "code" && me.error && <p className="lt-gps__error" role="alert">{me.error}</p>}
           <button type="submit" className="lt-gps__primary" disabled={me.phase === "verifying"} data-testid="who-otp-verify">
-            {me.phase === "verifying" ? "Opening…" : "Open LazyTopper"}
+            {me.phase === "verifying" ? "Opening…" : attachMe ? "Sign in" : "Open LazyTopper"}
           </button>
           {attachMe && (
             <button type="button" className="lt-gps__textlink" disabled={me.phase === "verifying"} onClick={() => void openForMe()} data-testid="who-otp-resend">

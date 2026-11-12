@@ -2218,6 +2218,41 @@ test('ATTACH · idempotent: a second attach answers the same and changes nothing
   assert.equal(auth.created.length, 1);
 });
 
+test('ATTACH · F3: two concurrent attaches with DIFFERENT recipients: exactly one wins, the other gets the first answer, one delivery', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const [a, b] = await Promise.all([
+    doAttach(srv, paid, { choice: 'other', recipient: { phone: OTHER_PHONE } }),
+    doAttach(srv, paid, { choice: 'other', recipient: { phone: '+919811122233' } }),
+  ]);
+  await srv.idle();
+  assert.equal(a.status, 200, a.text);
+  assert.equal(b.status, 200, b.text);
+  assert.deepEqual(a.json, b.json, 'the loser is answered with the winner\'s answer, never its own');
+  const stored = srv.db.read(`payOrders/${paid.orderId}`);
+  assert.equal(stored.status, 'paid');
+  assert.equal(auth.created.length, 1, 'exactly one delivery');
+  assert.equal(auth.created[0].phoneNumber, stored.guestPhone, 'the account is for the recipient that won');
+  assert.equal(a.json.phoneMasked, maskIndianMobile(stored.guestPhone));
+});
+
+test('ATTACH · F3: the hold boundary - one millisecond before +10:00 the claim takes nothing, at exactly +10:00 it takes the order', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const before = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + ATTACH_HOLD_MS - 1 });
+  t.after(before.close);
+  assert.deepEqual((await claim(before, signedIn('uEdge', PHONE))).json.claimed, [], 'still held at +9:59.999');
+  assert.equal(db.read(`payOrders/${paid.orderId}`).status, 'paid_unclaimed');
+  const at = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + ATTACH_HOLD_MS });
+  t.after(at.close);
+  const r = await claim(at, signedIn('uEdge', PHONE));
+  assert.equal(r.json.claimed.length, 1, r.text);
+  assert.equal(db.read(`payOrders/${paid.orderId}`).uid, 'uEdge');
+});
+
 test('ATTACH · the claim does NOT take an attach order during the hold; after it, it takes it for the paid-with number', async (t) => {
   const db = memoryFirestore();
   const { srv } = await autoRoutes({ env: SELF_ENV, db });

@@ -14,16 +14,25 @@ export function readWelcome(search: string): WelcomeKind | null {
   return v === "board_pass" || v === "pack" ? v : null;
 }
 
+/** F5: the bought pack's id from `?pack=` (a catalogue id, not personal data); anything odd is "no pack" (so no banner). */
+export function readWelcomePack(search: string): string {
+  const v = new URLSearchParams(search).get("pack") || "";
+  return /^[a-z_]+:[a-z0-9_-]+$/i.test(v) ? v : "";
+}
+
 export default function WelcomeBannerGate() {
   const { search } = useLocation();
   // Kept once seen: the banner removes the param from the URL itself and must not vanish with it.
   const found = readWelcome(search);
   const [kind, setKind] = useState<WelcomeKind | null>(found);
   if (found && found !== kind) setKind(found);
+  const foundPack = readWelcomePack(search);
+  const [packId, setPackId] = useState(foundPack);
+  if (foundPack && foundPack !== packId) setPackId(foundPack);
   if (!kind) return null;
   return (
     <Suspense fallback={null}>
-      <WelcomeBanner kind={kind} />
+      <WelcomeBanner kind={kind} packId={packId} />
     </Suspense>
   );
 }

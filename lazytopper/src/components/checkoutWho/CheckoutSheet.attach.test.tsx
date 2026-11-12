@@ -226,6 +226,45 @@ describe("closing before choosing", () => {
   });
 });
 
+describe("closing before choosing: F1 + F4", () => {
+  it("close-confirm: 'Put it on 98•••••210 now' answers 'me' with the paid-with contact, then the existing sign-in code", async () => {
+    const p = mount();
+    await payToWho();
+    fireEvent.click(screen.getByLabelText("Close"));
+    expect(screen.getByTestId("who-close-me-now").textContent).toBe("Put it on +91 98•••••210 now");
+    answer({ ok: true, phoneMasked: "98•••••210" });
+    fireEvent.click(screen.getByTestId("who-close-me-now"));
+    await vi.waitFor(() => expect(auth.sendPhoneOtp).toHaveBeenCalledWith("+919876543210", expect.any(String)));
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/pay/guest/attach");
+    expect(lastBody()).toEqual({ ...PROOF, choice: "me" });
+    expect(screen.queryByTestId("who-close-confirm")).toBeNull();
+    expect(p.onClose).not.toHaveBeenCalled();
+  });
+
+  it("'Keep choosing' returns to where the payer was (nothing sent)", async () => {
+    mount();
+    await payToWho();
+    fireEvent.click(screen.getByTestId("attach-choose-other"));
+    fireEvent.click(screen.getByLabelText("Close"));
+    fireEvent.click(screen.getByTestId("who-close-stay"));
+    expect(screen.queryByTestId("who-close-confirm")).toBeNull();
+    expect(screen.getByTestId("attach-other-input")).toBeTruthy();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("F4: the done screen shows the SERVER's echoed mask, not the typed number", async () => {
+    mount();
+    await payToWho();
+    fireEvent.click(screen.getByTestId("attach-choose-other"));
+    type("attach-other-input", "91234 56789");
+    answer({ ok: true, phoneMasked: "98•••••210" }); // a replayed answer for the first recipient
+    fireEvent.click(screen.getByTestId("attach-other-submit"));
+    await screen.findByTestId("attach-done");
+    expect(screen.getByText("+91 98•••••210 can sign in now")).toBeTruthy();
+    expect(document.body.textContent).not.toContain("91•••••789");
+  });
+});
+
 describe("a signed-in holder taps Buy", () => {
   it("Board Pass: 'You already have the Board Pass' with the REAL date; Buy for someone else opens the box; Go to Home navigates", () => {
     const onGoTo = vi.fn();

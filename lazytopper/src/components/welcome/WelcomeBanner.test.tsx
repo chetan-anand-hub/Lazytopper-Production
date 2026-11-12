@@ -101,12 +101,24 @@ describe("WelcomeBanner", () => {
   });
 
   it("pack: shown only when the server lists an owned pack", async () => {
-    mount("/packs?from=pay&welcome=pack#my-packs");
+    mount("/packs?from=pay&welcome=pack&pack=pack_cbq%3Amaths#my-packs");
     expect((await screen.findByTestId("welcome-banner")).textContent).toContain("Your pack is ready ✓Download it below.");
     await waitFor(() => expect(where).toBe("/packs?from=pay#my-packs"));
     cleanup();
     vi.useFakeTimers({ now: NOW });
     packs.mine.mockResolvedValue({ packs: [] });
+    mount("/packs?welcome=pack&pack=pack_cbq%3Amaths");
+    await act(async () => { await vi.advanceTimersByTimeAsync(12_000); });
+    expect(screen.queryByTestId("welcome-banner")).toBeNull();
+  });
+
+  it("F5: a returning owner of ANOTHER pack, or a landing with no pack id, sees no banner", async () => {
+    vi.useFakeTimers({ now: NOW });
+    packs.mine.mockResolvedValue({ packs: [{ packId: "pack_cbq:maths" }] });
+    mount("/packs?welcome=pack&pack=pack_mock%3Ascience");
+    await act(async () => { await vi.advanceTimersByTimeAsync(12_000); });
+    expect(screen.queryByTestId("welcome-banner")).toBeNull();
+    cleanup();
     mount("/packs?welcome=pack");
     await act(async () => { await vi.advanceTimersByTimeAsync(12_000); });
     expect(screen.queryByTestId("welcome-banner")).toBeNull();

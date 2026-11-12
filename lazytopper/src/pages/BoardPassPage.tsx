@@ -44,7 +44,6 @@ import {
   BP_MINUTE_LINE,
   BP_MINUTE_STRONG,
   BP_MINUTE_TILE,
-  BP_OWNER_PRACTICE,
   BP_OWNER_TITLE,
   BP_TILES,
   BP_TUTOR_BODY,
@@ -197,6 +196,9 @@ export function payFromHero(): void {
  * (PassCheckout, unchanged, with /pricing's tap event); the second Pay and the phone bar click that one button. Nothing here writes
  * an entitlement, starts a trial on mount, or prices anything: figures come from src/config/pricing and the bank-claim constants.
  */
+/** Owner ruling 12 Nov 2026: a holder goes to Home (the old "Go to practice" link is retired). */
+const BP_OWNER_HOME = "Go to Home →";
+
 export default function BoardPassPage() {
   // F4: name this page on the checkout / purchase events. Set in the FIRST render (before any child's mount effect), cleared on leave.
   useState(() => {
@@ -296,8 +298,8 @@ export default function BoardPassPage() {
               {owner ? (
                 <div className="lt-bp-owner" data-testid="bp-owner">
                   <p className="lt-bp-owner__title">{BP_OWNER_TITLE}</p>
-                  <Link className="lt-bp-owner__go" to={PRACTICE_PATH} data-testid="bp-owner-practice">
-                    {BP_OWNER_PRACTICE}
+                  <Link className="lt-bp-owner__go" to="/" data-testid="bp-owner-home">
+                    {BP_OWNER_HOME}
                   </Link>
                 </div>
               ) : (

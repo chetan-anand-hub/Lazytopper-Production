@@ -18,7 +18,7 @@ export const WELCOME_PACK_TITLE = "Your pack is ready ✓";
 export const WELCOME_PACK_LINE = "Download it below.";
 const GIVE_UP_MS = 20_000;
 
-export default function WelcomeBanner({ kind, giveUpMs = GIVE_UP_MS }: { kind: WelcomeKind; /** Test seam. */ giveUpMs?: number }) {
+export default function WelcomeBanner({ kind, packId = "", giveUpMs = GIVE_UP_MS }: { kind: WelcomeKind; /** The pack just bought (`sku:target`); a pack banner needs it. */ packId?: string; /** Test seam. */ giveUpMs?: number }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -32,14 +32,14 @@ export default function WelcomeBanner({ kind, giveUpMs = GIVE_UP_MS }: { kind: W
   const real = kind === "board_pass" ? passReal : packOwned;
 
   useEffect(() => {
-    if (kind !== "pack" || !user) return undefined;
+    if (kind !== "pack" || !user || !packId) return undefined;
     let cancelled = false;
     let tries = 0;
     const read = () => {
       fetchMyPacks()
         .then((mine) => {
           if (cancelled) return;
-          if (mine.packs.length > 0) setPackOwned(true);
+          if (mine.packs.some((p) => p.packId === packId)) setPackOwned(true);
           else if (++tries < 4) window.setTimeout(read, 2500);
         })
         .catch(() => undefined);
@@ -48,11 +48,12 @@ export default function WelcomeBanner({ kind, giveUpMs = GIVE_UP_MS }: { kind: W
     return () => {
       cancelled = true;
     };
-  }, [kind, user]);
+  }, [kind, user, packId]);
 
   const clearParam = () => {
     const rest = new URLSearchParams(location.search);
     rest.delete("welcome");
+    rest.delete("pack");
     const search = rest.toString();
     navigate({ pathname: location.pathname, search: search ? `?${search}` : "", hash: location.hash }, { replace: true });
   };

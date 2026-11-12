@@ -145,10 +145,55 @@ export const ATTACH_FAILED = "We couldn't save that just now. Your payment is sa
 export const ATTACH_BAD_ID = "Enter a 10-digit Indian mobile number or an email address.";
 
 /** Where an attach buyer lands: Home (Board Pass) or My packs, with the one-time welcome flag (?welcome=board_pass | pack). */
-export function welcomeLandingPath(kind: GuestItem["kind"], desktop: boolean): string {
-  if (kind === "pack") return `/packs?from=pay&welcome=pack#my-packs`;
+export function welcomeLandingPath(kind: GuestItem["kind"], desktop: boolean, packId?: string): string {
+  // F5: the pack's id rides along (a catalogue id such as "pack_mock:maths" - not personal data) so the banner checks THAT pack.
+  if (kind === "pack") return `/packs?from=pay&welcome=pack${packId && /^[a-z_]+:[a-z0-9_-]+$/i.test(packId) ? `&pack=${encodeURIComponent(packId)}` : ""}#my-packs`;
   // Mobile Home is /browse (RootEntry would drop the query on its redirect from "/").
   return desktop ? "/?welcome=board_pass" : "/browse?welcome=board_pass";
+}
+
+/**
+ * F1: a sign-in DURING the hold claims nothing (the server holds the order), and the claim runs once per page session. So when the page
+ * is still open at the hold's end and the user is signed in, run the claim once more, then re-read the subscription so Premium shows.
+ * Never throws. Memory only: nothing is stored. Without a signed-in user this does nothing (the claim at sign-in works after the hold).
+ */
+export interface HoldEndDeps {
+  uid: () => Promise<string>;
+  claim: (uid: string) => Promise<Array<unknown> | null>;
+  afterClaim: (uid: string) => Promise<void>;
+  setTimer: (fn: () => void, ms: number) => unknown;
+  now: () => number;
+}
+const DEFAULT_HOLD_END_DEPS: HoldEndDeps = {
+  uid: async () => {
+    const { authClient } = await import("./firebaseClient");
+    const u = authClient?.currentUser as { uid?: string; isLocalSession?: boolean } | null | undefined;
+    return u && u.uid && !u.isLocalSession ? u.uid : "";
+  },
+  claim: async (uid) => (await import("./guestPay")).claimOncePerSession(uid, { force: true }),
+  afterClaim: async (uid) => {
+    const { hydrateSubscriptionFromCloud } = await import("./subscriptionService");
+    await hydrateSubscriptionFromCloud(uid);
+  },
+  setTimer: (fn, ms) => window.setTimeout(fn, ms),
+  now: () => Date.now(),
+};
+export function scheduleHoldEndClaim(holdUntilMs: number, deps: HoldEndDeps = DEFAULT_HOLD_END_DEPS): void {
+  if (!Number.isFinite(holdUntilMs)) return;
+  // +2 s so the server clock is surely past the hold; capped so a bad value cannot park a timer for days.
+  const wait = Math.min(Math.max(holdUntilMs - deps.now(), 0) + 2000, ATTACH_HOLD_MS + 60_000);
+  deps.setTimer(() => {
+    void (async () => {
+      try {
+        const uid = await deps.uid();
+        if (!uid) return;
+        const claimed = await deps.claim(uid);
+        if (claimed && claimed.length > 0) await deps.afterClaim(uid);
+      } catch {
+        /* the next sign-in claims */
+      }
+    })();
+  }, wait);
 }
 
 export interface AttachProof {
@@ -428,6 +473,8 @@ export interface SelfBuyDeps {
   createOrder: (item: GuestItem) => Promise<WhoOrder>;
   loadScript: () => Promise<RazorpayConstructor>;
   verify: (success: RazorpaySuccess) => Promise<Record<string, unknown>>;
+  /** Test seam: schedules the one claim at the hold's end (F1). */
+  scheduleHoldEnd?: (holdUntilMs: number) => void;
 }
 
 /** Exported for tests. The body carries the SKU (+ target) and `self: true`; never an amount, a phone or an email. */
@@ -488,8 +535,9 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
       const verified = await deps.verify(success);
       contact = readSelfContact(verified.selfContact);
       // SELFPAY-ATTACH-1: the server says the choice of WHO is still open -> keep Razorpay's signature (memory only) to answer it.
-      const open = verified.attach as { attached?: unknown } | undefined;
+      const open = verified.attach as { attached?: unknown; holdUntilMs?: unknown } | undefined;
       if (open && open.attached === false && typeof success.razorpay_signature === "string" && success.razorpay_signature) {
+        if (typeof open.holdUntilMs === "number") (deps.scheduleHoldEnd || scheduleHoldEndClaim)(open.holdUntilMs);
         attach = { orderId: success.razorpay_order_id, paymentId: success.razorpay_payment_id, signature: success.razorpay_signature };
       }
     } catch {

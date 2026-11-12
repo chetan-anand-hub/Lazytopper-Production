@@ -84,12 +84,14 @@ export interface AttachFlowProps {
   /** Test seams. */
   attach?: typeof attachPayment;
   holdMs?: number;
+  /** F1: bumped by the close-confirm's "Put it on <masked> now" - answers "me" with the paid-with contact. */
+  meNow?: number;
 }
 
 /** "Board Pass" / the pack's name, as the copy names it. */
 const whatOf = (item: { kind: GuestItem["kind"]; label: string }): string => (item.kind === "pack" ? item.label : "Board Pass");
 
-export default function AttachFlow({ item, proof, contact, onTitle, onClose, onSettled, attach = attachPayment, holdMs = ATTACH_HOLD_MS }: AttachFlowProps) {
+export default function AttachFlow({ item, proof, contact, onTitle, onClose, onSettled, attach = attachPayment, holdMs = ATTACH_HOLD_MS, meNow = 0 }: AttachFlowProps) {
   const [view, setView] = useState<View>({ name: "who" });
   const [typed, setTyped] = useState("");
   const viewRef = useRef<View>(view);
@@ -139,7 +141,8 @@ export default function AttachFlow({ item, proof, contact, onTitle, onClose, onS
           return;
         }
       }
-      const masked = (chosen ? maskedIds(chosen)[0] : "") || out.phoneMasked || out.emailMasked || "";
+      // F4: the SERVER's echo is the truth (a replayed attach may carry the first answer); the typed mask only fills a missing echo.
+      const masked = (out.phoneMasked ? `+91 ${out.phoneMasked}` : "") || out.emailMasked || (chosen ? maskedIds(chosen)[0] : "") || "";
       if (chosen) {
         setView({ name: "done", masked, recipient: chosen });
         return;
@@ -160,6 +163,16 @@ export default function AttachFlow({ item, proof, contact, onTitle, onClose, onS
   }
 
   const busy = view.name === "busy";
+  // F1: "Put it on <masked> now" from the close-confirm. Only while nothing is settled or in flight; the server decides the rest.
+  const lastMeNow = useRef(0);
+  useEffect(() => {
+    if (!meNow || meNow === lastMeNow.current) return;
+    lastMeNow.current = meNow;
+    const v = viewRef.current.name;
+    if (!contact || v === "busy" || v === "done" || v === "open" || v === "fallback") return;
+    void send("me", null, { name: "me" }, null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meNow]);
   const shown: View = view.name === "busy" ? view.back : view;
   const detected = detectIdentifier(typed);
   const typedRecipient = readRecipient(typed, "");
