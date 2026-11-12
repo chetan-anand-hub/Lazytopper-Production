@@ -27,7 +27,7 @@ import { isPacksEntryEnabled } from "./packEntryLazy";
 import { displayPlusGst } from "../../config/pricing";
 
 /** PACKS-ENTRY-1 — where the tap on a "PDF packs" link happened. A fixed set, never free text. */
-export type PackEntrySource = "download_wall" | "notes" | "footer" | "account" | "account-desktop" | "me-card" | "for_parents";
+export type PackEntrySource = "download_wall" | "notes" | "footer" | "account" | "account-desktop" | "me-card" | "home-card" | "for_parents";
 
 /** Display price of one Chapter Pack, copy only (the server charges its own amount; a test pins this to the catalogue). */
 export const CHAPTER_PACK_PRICE_INR = 49;

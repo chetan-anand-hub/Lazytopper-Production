@@ -31,6 +31,7 @@ import { DesktopShell } from "../../components/desktop/DesktopShell";
 import { ownedPackTitle } from "../../components/packs/PacksShop";
 import { resetOwnedPacksCache } from "../../components/packs/useOwnedPacks";
 import { PacksEntry } from "./packEntryLazy";
+import { hintNow } from "../../components/packs/mineHint";
 import { meCardPackTitle } from "./MyPacksMeCard";
 import { resetMyPacksCacheForTests } from "./myPacksCache";
 
@@ -73,9 +74,9 @@ describe("desktop account dropdown - My packs row", () => {
   it("owner sees it between Me / Progress and Settings; click goes to /packs#my-packs and closes the menu", async () => {
     fetchMyPacksMock.mockResolvedValue(mine([pack("pack_chapter", "real-numbers")]));
     openMenu();
-    const row = await screen.findByRole("menuitem", { name: "My packs" });
+    const row = await screen.findByRole("menuitem", { name: /^My packs/ });
     const menu = screen.getByRole("menu", { name: "Account menu" });
-    expect(Array.from(menu.querySelectorAll("[role='menuitem']")).map((n) => n.textContent)).toEqual(["Me / Progress", "My packs", "Settings", "Log out"]);
+    expect(Array.from(menu.querySelectorAll("[role='menuitem']")).map((n) => n.textContent)).toEqual(["Me / Progress", "My packs · 1", "Settings", "Log out"]);
     expect(row.className).toContain("lt-packs-row--desktop");
     expect(row.getAttribute("style")).toBeNull();
     fireEvent.click(row);
@@ -88,21 +89,21 @@ describe("desktop account dropdown - My packs row", () => {
     fetchMyPacksMock.mockResolvedValue(mine([]));
     openMenu();
     await waitFor(() => expect(fetchMyPacksMock).toHaveBeenCalled());
-    expect(screen.queryByRole("menuitem", { name: "My packs" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: /^My packs/ })).toBeNull();
   });
 
   it("failed lookup shows no row", async () => {
     fetchMyPacksMock.mockRejectedValue(new Error("boom"));
     openMenu();
     await waitFor(() => expect(fetchMyPacksMock).toHaveBeenCalled());
-    expect(screen.queryByRole("menuitem", { name: "My packs" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: /^My packs/ })).toBeNull();
   });
 
   it("flag off: no row and no request", () => {
     vi.stubEnv("VITE_PACKS_ENABLED", "");
     openMenu();
     expect(fetchMyPacksMock).not.toHaveBeenCalled();
-    expect(screen.queryByRole("menuitem", { name: "My packs" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: /^My packs/ })).toBeNull();
   });
 });
 
@@ -184,5 +185,76 @@ describe("Me / Progress - My packs card", () => {
     const src = readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../pages/MeProgressPage.tsx"), "utf8");
     expect(src).toMatch(/realUid && <PacksEntry kind="me-card" uid=\{realUid\} \/>/);
     expect(src).not.toMatch(/import .*MyPacksMeCard/);
+  });
+});
+
+describe("PAID-SHOWS-1 - the count on the row, and the Home card", () => {
+  it("the account-menu row carries the real count: 'My packs · 2'", async () => {
+    fetchMyPacksMock.mockResolvedValue(mine([pack("pack_chapter", "real-numbers"), pack("pack_cbq", "maths", 2)]));
+    openMenu();
+    expect((await screen.findByRole("menuitem", { name: /^My packs/ })).textContent).toBe("My packs · 2");
+  });
+
+  function renderHome() {
+    return render(
+      <MemoryRouter initialEntries={["/browse"]}>
+        <PacksEntry kind="home-card" uid="u1" />
+        <Where />
+      </MemoryRouter>,
+    );
+  }
+  it("an owner sees one compact card 'Your packs (2)' that opens /packs#my-packs", async () => {
+    fetchMyPacksMock.mockResolvedValue(mine([pack("pack_chapter", "real-numbers"), pack("pack_cbq", "maths", 2)]));
+    renderHome();
+    const card = await screen.findByTestId("home-your-packs");
+    expect(card.textContent).toContain("Your packs (2)");
+    expect(card.textContent).not.toMatch(/₹|Buy|Rs\.?\s?\d/);
+    fireEvent.click(card);
+    expect(screen.getByTestId("where").textContent).toBe("/packs#my-packs");
+    expect(track).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "home-card" } });
+  });
+  it("owns nothing, a failed lookup, or the flag off: nothing is shown", async () => {
+    fetchMyPacksMock.mockResolvedValue(mine([]));
+    renderHome();
+    await waitFor(() => expect(fetchMyPacksMock).toHaveBeenCalled());
+    expect(screen.queryByTestId("home-your-packs")).toBeNull();
+    cleanup();
+    resetMyPacksCacheForTests();
+    fetchMyPacksMock.mockRejectedValue(new Error("x"));
+    renderHome();
+    await waitFor(() => expect(fetchMyPacksMock).toHaveBeenCalledTimes(2));
+    expect(screen.queryByTestId("home-your-packs")).toBeNull();
+    cleanup();
+    resetMyPacksCacheForTests();
+    vi.stubEnv("VITE_PACKS_ENABLED", "");
+    fetchMyPacksMock.mockClear();
+    renderHome();
+    expect(fetchMyPacksMock).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("home-your-packs")).toBeNull();
+  });
+  it("cold load on a device that knows this account owns packs: the card's space is held (no shift), then filled; a 'no packs' answer collapses it", async () => {
+    window.localStorage.setItem("lt.packs.mineHint.v1", JSON.stringify({ u: "u1", t: hintNow(), h: {} }));
+    let resolve!: (v: unknown) => void;
+    fetchMyPacksMock.mockReturnValue(new Promise((r) => { resolve = r; }));
+    renderHome();
+    expect(screen.getByTestId("home-your-packs-hold").getAttribute("aria-hidden")).toBe("true");
+    expect(screen.queryByTestId("home-your-packs")).toBeNull();
+    resolve(mine([pack("pack_chapter", "real-numbers")]));
+    await screen.findByTestId("home-your-packs");
+    expect(screen.queryByTestId("home-your-packs-hold")).toBeNull();
+    window.localStorage.clear();
+  });
+  it("no device hint: nothing is held", () => {
+    window.localStorage.clear();
+    fetchMyPacksMock.mockReturnValue(new Promise(() => undefined));
+    renderHome();
+    expect(screen.queryByTestId("home-your-packs-hold")).toBeNull();
+  });
+  it("both Homes mount it for a real account only, from the lazy entry", () => {
+    for (const f of ["../../pages/app/MobileHome.tsx", "../../pages/desktop/DesktopHome.tsx"]) {
+      const src = readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), f), "utf8");
+      expect(src).toMatch(/user && !user\.isLocalSession && <PacksEntry kind="home-card" uid=\{user\.uid\} \/>/);
+      expect(src).not.toMatch(/import .*YourPacksHomeCard/);
+    }
   });
 });

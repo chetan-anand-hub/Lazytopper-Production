@@ -296,3 +296,43 @@ describe("a signed-in holder taps Buy", () => {
     expect(onGoTo).toHaveBeenCalledWith("/packs#my-packs");
   });
 });
+
+describe("PAID-SHOWS-1 - the purchase card is the first block of the paid screen", () => {
+  it("signed out, attach flow: the card (from the receipt) sits ABOVE 'Who will use it?', and the proof is kept in this tab only", async () => {
+    sessionStorage.clear();
+    answer({ ok: true, attached: false, savedTo: "+91 98•••••210", item: { kind: "pass", label: "Board Pass" } });
+    mount({ buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF })) });
+    await payToWho();
+    const card = await screen.findByTestId("purchase-card");
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/pay/guest/receipt");
+    expect(JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body)).toEqual(PROOF);
+    expect((await screen.findByTestId("receipt-title")).textContent).toBe("Your Board Pass is active till your boards");
+    const who = screen.getByTestId("attach-choose-me");
+    expect(card.compareDocumentPosition(who) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(JSON.parse(sessionStorage.getItem("lt.paidReceipt.v1") || "{}")).toEqual(PROOF);
+  });
+
+  it("no receipt proof (old outcome) or a signed-in payer: no card", async () => {
+    mount();
+    await payToWho();
+    expect(screen.queryByTestId("purchase-card")).toBeNull();
+  });
+
+  it("a SIGNED-IN payer buying for someone else gets no receipt call and no card (the receipt is signed-out only)", async () => {
+    mount({ signedIn: true, startAt: "other", buy: vi.fn(async () => ({ status: "paid" as const, confirmed: true, receipt: PROOF })) });
+    fireEvent.change(screen.getByTestId("who-first"), { target: { value: "anaya@gmail.com" } });
+    fireEvent.click(screen.getByTestId("who-pay"));
+    await screen.findByTestId("who-paid");
+    expect(screen.queryByTestId("purchase-card")).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("the paid-for-someone-else screen (signed out) shows the card too", async () => {
+    answer({ ok: true, attached: true, savedTo: "an••••@gmail.com", item: { kind: "pass", label: "Board Pass" } });
+    mount({ selfFirst: false, startAt: "other", buy: vi.fn(async () => ({ status: "paid" as const, confirmed: true, receipt: PROOF })) });
+    fireEvent.change(screen.getByTestId("who-first"), { target: { value: "anaya@gmail.com" } });
+    fireEvent.click(screen.getByTestId("who-pay"));
+    await screen.findByTestId("purchase-card");
+    expect(screen.getByTestId("who-paid")).toBeTruthy();
+  });
+});

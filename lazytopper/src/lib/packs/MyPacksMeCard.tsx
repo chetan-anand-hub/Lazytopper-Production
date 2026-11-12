@@ -6,29 +6,12 @@
  */
 import { useNavigate } from "react-router-dom";
 import { useOwnedPacks } from "../../components/packs/useOwnedPacks";
-import type { OwnedPack } from "../../services/packs";
 import { firePackEntryClick, packsHref } from "./packEntry";
-import { BUNDLE_NAME, packChapterLabel } from "./packLabels";
+import { meCardPackTitle } from "./packTitle";
 
 const MAX_NAMES = 3;
 
-/** Same wording as PacksShop's `ownedPackTitle` (a test pins the two together); kept here so this chunk never imports the shop. */
-export function meCardPackTitle(p: Pick<OwnedPack, "sku" | "target">): string {
-  switch (p.sku) {
-    case "pack_chapter":
-      return `Chapter Pack · ${packChapterLabel(p.target)}`;
-    case "pack_mock":
-      return `Mock Pack · ${p.target === "science" ? "Science" : "Maths"}`;
-    case "pack_subject":
-      return `Subject Pack · ${p.target === "science" ? "Science" : "Maths"}`;
-    case "pack_cbq":
-      return `${p.target === "science" ? "Science" : "Maths"} CBQ Pack`;
-    case "pack_bundle":
-      return BUNDLE_NAME;
-    default:
-      return "PDF pack";
-  }
-}
+export { meCardPackTitle };
 
 export default function MyPacksMeCard({ uid }: { uid: string }) {
   const navigate = useNavigate();

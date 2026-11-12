@@ -6,12 +6,12 @@
  */
 import { useNavigate } from "react-router-dom";
 import { firePackEntryClick, packsHref } from "./packEntry";
-import { useOwnsAnyPack } from "./myPacksCache";
+import { useOwnedPackCount } from "./myPacksCache";
 
 export default function MyPacksMenuRow({ uid, onDone, variant = "mobile" }: { uid: string; onDone: () => void; variant?: "mobile" | "desktop" }) {
   const navigate = useNavigate();
-  const owns = useOwnsAnyPack(uid, true);
-  if (!owns) return null;
+  const count = useOwnedPackCount(uid, true);
+  if (count < 1) return null;
   return (
     <>
       <button
@@ -29,7 +29,7 @@ export default function MyPacksMenuRow({ uid, onDone, variant = "mobile" }: { ui
           <path d="M14 3v5h5" />
           <path d="M9 13h6M9 17h6" />
         </svg>
-        My packs
+        {`My packs \u00b7 ${count}`}
       </button>
       <style>{ROW_CSS}</style>
     </>

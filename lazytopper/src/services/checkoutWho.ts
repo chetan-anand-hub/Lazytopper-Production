@@ -252,6 +252,67 @@ export async function attachPayment(proof: AttachProof, choice: "me" | "other", 
   }
 }
 
+/* ── PAID-SHOWS-1: the payer's receipt - "once somebody has paid, show them what they got" ─────────────────────────── */
+
+export const GUEST_RECEIPT_ENDPOINT = "/api/pay/guest/receipt";
+export const RECEIPT_PAYMENT_RECEIVED = "Payment received \u2713";
+export const receiptPackTitle = (title: string): string => `Your ${title}`;
+export const RECEIPT_PASS_TITLE = "Your Board Pass is active till your boards";
+export const RECEIPT_LOADING = "Getting your purchase\u2026";
+export const RECEIPT_PREPARING = "Preparing your files\u2026";
+export const RECEIPT_FAILED = "We couldn't load it just now. Your payment is safe.";
+export const RECEIPT_FILES_FAILED = "We couldn't prepare the files just now. Your payment is safe.";
+export const RECEIPT_RETRY = "Try again";
+export const RECEIPT_HIDE = "Hide";
+/** Chosen recipient (or the buyer paid with this contact and nothing else was chosen - attach off): where the pack lives from now on. */
+export const receiptSavedTo = (masked: string): string => `Saved to ${masked}. Sign in with it any time to download again.`;
+/** The attach choice is still open: the files name the paid-with contact for now. */
+export const receiptSavedToPending = (masked: string): string =>
+  `For now it's saved to ${masked}, the one you paid with. If you choose someone else below, it moves to them. Sign in with it any time to download again.`;
+export const receiptExpired = (masked: string): string => (masked ? `Sign in with ${masked} to download.` : "Sign in with the number or email you paid with to download.");
+
+export interface ReceiptPack {
+  packId: string;
+  sku: string;
+  target: string;
+  paidAt: number;
+  orderId: string;
+}
+export type ReceiptOutcome =
+  | { status: "ok"; kind: "pack" | "pass"; attached: boolean; savedTo: string; pack?: ReceiptPack; licensee?: { name: string; email: string; phone?: string } }
+  | { status: "expired"; savedTo: string }
+  | { status: "failed" };
+
+/** POST /api/pay/guest/receipt - proof = Razorpay's checkout signature (memory / this tab's sessionStorage only). Never throws. */
+export async function fetchReceipt(proof: AttachProof, fetchImpl: typeof fetch = fetch): Promise<ReceiptOutcome> {
+  try {
+    const res = await fetchImpl(GUEST_RECEIPT_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(proof) });
+    let j: Record<string, unknown> | null = null;
+    try {
+      j = (await res.json()) as Record<string, unknown>;
+    } catch {
+      j = null;
+    }
+    if (!res.ok || !j) return { status: "failed" };
+    const savedTo = typeof j.savedTo === "string" ? j.savedTo : "";
+    if (j.ok === false && j.reason === "expired") return { status: "expired", savedTo };
+    const item = j.item as { kind?: unknown } | undefined;
+    if (j.ok !== true || !item || (item.kind !== "pack" && item.kind !== "pass")) return { status: "failed" };
+    const out: ReceiptOutcome = { status: "ok", kind: item.kind, attached: j.attached === true, savedTo };
+    const p = j.pack as Partial<ReceiptPack> | undefined;
+    if (item.kind === "pack" && p && typeof p.packId === "string" && typeof p.sku === "string" && typeof p.target === "string") {
+      out.pack = { packId: p.packId, sku: p.sku, target: p.target, paidAt: typeof p.paidAt === "number" ? p.paidAt : 0, orderId: typeof p.orderId === "string" ? p.orderId : "" };
+      const l = j.licensee as { name?: unknown; email?: unknown; phone?: unknown } | null | undefined;
+      if (l && typeof l === "object") out.licensee = { name: typeof l.name === "string" ? l.name : "", email: typeof l.email === "string" ? l.email : "", ...(typeof l.phone === "string" ? { phone: l.phone } : {}) };
+    }
+    return out;
+  } catch {
+    return { status: "failed" };
+  }
+}
+
+export { storeReceiptProof, readReceiptProof, clearReceiptProof } from "./paidReceiptProof";
+
 /* ── PAY-ACCOUNT-1: the thank-you screen (the account is made at payment) ─────────── */
 
 /**
@@ -338,7 +399,7 @@ export function maskedIds(r: Recipient): string[] {
 
 export type WhoBuyOutcome =
   /** `confirmed: false`: Razorpay signed a success but our verify did not answer (the webhook records it). */
-  | { status: "paid"; confirmed: boolean; amountInr?: number; paymentId?: string; orderId?: string }
+  | { status: "paid"; confirmed: boolean; amountInr?: number; paymentId?: string; orderId?: string; receipt?: AttachProof }
   | { status: "dismissed" }
   | { status: "already_covered" }
   | { status: "unavailable" }
@@ -430,6 +491,12 @@ export function whoPrefill(recipient: Recipient, signedIn: boolean): { prefill?:
   return prefill.contact || prefill.email ? { prefill } : {};
 }
 
+/** PAID-SHOWS-1: Razorpay's signed proof of THIS payment, for the receipt card (memory / this tab only). */
+function receiptOf(success: RazorpaySuccess): { receipt?: AttachProof } {
+  const { razorpay_order_id: orderId, razorpay_payment_id: paymentId, razorpay_signature: signature } = success;
+  return typeof orderId === "string" && orderId && typeof paymentId === "string" && paymentId && typeof signature === "string" && signature ? { receipt: { orderId, paymentId, signature } } : {};
+}
+
 /** Order (server-priced) -> Razorpay -> server verify. Never throws. */
 export async function buyForRecipient(item: GuestItem, recipient: Recipient, signedIn: boolean, deps: WhoBuyDeps = DEFAULT_DEPS): Promise<WhoBuyOutcome> {
   try {
@@ -460,7 +527,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
     } catch {
       confirmed = false; // Razorpay SIGNED a success: never "didn't go through"; the webhook records it.
     }
-    return { status: "paid", confirmed, ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}), orderId: order.orderId };
+    return { status: "paid", confirmed, ...(confirmed ? receiptOf(success) : {}), ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}), orderId: order.orderId };
   } catch (e) {
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof WhoError && e.code !== "failed") return { status: e.code };
@@ -472,7 +539,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
 
 export type SelfBuyOutcome =
   /** `contact`: the buyer's mobile / email as the server read them off the verified payment (null = nothing usable, or not confirmed). */
-  | { status: "paid"; confirmed: boolean; contact: Recipient | null; amountInr?: number; paymentId?: string; orderId?: string; attach?: AttachProof }
+  | { status: "paid"; confirmed: boolean; contact: Recipient | null; amountInr?: number; paymentId?: string; orderId?: string; attach?: AttachProof; receipt?: AttachProof }
   | { status: "dismissed" }
   | { status: "unavailable" }
   | { status: "failed" };
@@ -551,7 +618,7 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
     } catch {
       confirmed = false; // Razorpay SIGNED a success: never "didn't go through"; the webhook records it and reads the contact.
     }
-    return { status: "paid", confirmed, contact, ...(attach ? { attach } : {}), ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}), orderId: order.orderId };
+    return { status: "paid", confirmed, contact, ...(attach ? { attach } : {}), ...(confirmed ? receiptOf(success) : {}), ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}), orderId: order.orderId };
   } catch (e) {
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof WhoError && e.code !== "failed") return { status: e.code === "unavailable" || e.code === "already_covered" ? "unavailable" : "failed" };
