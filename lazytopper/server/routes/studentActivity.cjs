@@ -246,6 +246,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'signin_move_confirmed',
   'signin_move_done',
   'signin_move_refused',
+  // PAID-SHEET-1 - the post-payment pop-up opened. Name only.
+  'paid_sheet_shown',
   // PACK-SAMPLE-1 - the free sample page of a pack downloaded (no sign-up needed). Name only.
   'pack_sample_download',
   // PACKS-ENTRY-1 - a tap on a small PDF-packs link beside an ask. Name only.

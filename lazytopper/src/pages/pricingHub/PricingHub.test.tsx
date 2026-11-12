@@ -711,6 +711,12 @@ describe("PRICING-HUB-2 H3 - a VERIFIED pack payment on the hub gets the legacy 
     expect(screen.queryByTestId("packs-mine")).toBeNull();
     await buyScience();
     await closePopUp();
+    // PAID-SHEET-1: a signed-in buyer's confirmed payment opens the "Payment received" pop-up first; closing it lands on My packs.
+    expect(await screen.findByTestId("paid-sheet")).toBeInTheDocument();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("paid-sheet-close"));
+      await new Promise((r) => setTimeout(r, 50));
+    });
     expect(await screen.findByTestId("packs-mine")).toBeInTheDocument();
     expect(screen.queryByTestId("packs-open-my-packs")).toBeNull();
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
