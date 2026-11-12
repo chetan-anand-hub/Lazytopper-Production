@@ -1,3 +1,13 @@
+## 2026-11-12 (daily, third; written 12 Nov night) - #1687 - #1692 - MERGED
+
+- DONE. `#1688` (`b41fbe4`) RECEIPT-RACE-1: one receipt per payment (closes `#1683` R4 and R5). NEXT: R6 (generic hold-end receipt).
+- DONE. `#1687` (`1bbde21`) PAID-SHEET-1: the post-payment pop-up and the My packs row layout (closes PAID-SHEET-1 and the desktop squeeze of the previous block). NEXT: owner re-test with a Rs58 pack.
+- DONE. `#1689` (`e9d484c`) SIGNIN-INUSE-1. NEXT: live check on Settings and the link step.
+- DONE. `#1690` (`16db57b`) SERVER-PDF-1 PR-A: templates made once in CI. Published live by manual run 43267186601.
+- DONE. `#1691` (`9fa42be`) SERVER-PDF-1 PR-B: server stamp, 15-minute links, per-group ZIP, fail closed.
+- DONE. `#1692` (`fe82a8b`) SERVER-PDF-1 PR-C: client switch, silent fallback, Download all (ZIP). SERVER-PDF-1 is complete in code. NEXT: live-verify a ZIP, phone/iOS/in-app browsers, and grading of a server-downloaded paper; owner decides `PACK_TEMPLATES_LIVE=1`; add `storage.rules` to the repo.
+- NEXT (not built): the earlier owner list stands (live tests (c) and (e), the two ad edits, Track B, D mock-up, E and F decisions, dated checks 13-15 Nov / 15 Nov / 15-16 Nov / 18 Nov / 1 Dec).
+
 ## 2026-11-12 (daily, second; written 12 Nov) - #1676 - #1685 - MERGED
 
 - DONE. `#1676` (`be239cb`) SELFPAY-ATTACH-1: pay first, then "Who will use it?". NEXT: PAID-SHEET-1 (pop-up), then the live checks (c), (d), (e).

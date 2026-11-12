@@ -1,3 +1,20 @@
+## 2026-11-12 (daily, third; written 12 Nov night) - #1687 - #1692: the post-payment pop-up, one receipt, and SERVER-PDF-1 (trunk `fe82a8b`)
+
+**PROVENANCE.** *(Daily handoff of 12 Nov, CLAUDE.md section 10. Covers `#1687` - `#1692`, all merged 19:41 - 23:18 IST. **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; live tests and storage state **[coordinator]**/**[owner]** as given to the docs builder; review points **[review]**.)*
+
+**How the window went (IST) [gh for merge times].**
+- **19:41 - 19:48.** `#1688` merged (R5 and R4 of the receipt), then `#1687` (the post-payment pop-up and the My packs row layout), both from the owner's live tests of the day.
+- **20:02.** `#1689` merged: clear "already on another account" wording and "Send a new code", from the owner's test (d).
+- **21:24.** `#1690` merged: SERVER-PDF-1 PR-A, pack templates made once in CI. Templates then published live by a manual workflow run (43267186601, manifest `083fb9c0`, 828 files) [coordinator].
+- **22:25.** `#1691` merged: PR-B, server stamp, 15-minute links, per-group ZIP, fail closed.
+- **23:18.** `#1692` merged: PR-C, the client switch with a silent fallback and "Download all (ZIP)".
+
+**Review rounds [review].** `#1687`, `#1688`, `#1690`, `#1691` and `#1692` each had an independent review. `#1688`: HOLD for one small MUST-FIX (R4 needed an upper age bound), then PASS. `#1690`: HOLD (the CI render did not load Fraunces or the app reset; the per-file hash missed inputs), later PASS-WITH-FOLLOW-UP with one small MUST-FIX (the workflow path filters missed `public/figures/**`). `#1691`: HOLD (the one-line cover rule cut a typical name to two letters; the stamper failed open), later PASS-WITH-FOLLOW-UP. `#1692`: PASS-WITH-FOLLOW-UP, no MUST-FIX. Open items are in OPEN_QUESTIONS_AND_FOLLOWUPS.
+
+**Live state [coordinator].** One server-stamped download (Surface Areas CT1) was live-verified: pdf-lib producer, full-name two-line cover, footer licence, one file only. Not yet verified: a ZIP, phone/iOS/in-app browsers, grading of a server-downloaded paper. Owner tests (a), (b), (d) PASS; (c) owed; (e) with the cofounder.
+
+**State at the end.** Trunk `fe82a8b`; open: this docs PR.
+
 ## 2026-11-12 (daily, second; written 12 Nov) - #1676 - #1685: pay first then choose who uses it, one receipt email, signed-in link and move (trunk `2545468`)
 
 **PROVENANCE.** *(Daily handoff of 12 Nov, CLAUDE.md section 10. Covers `#1676` - `#1685`, all merged 06:57 - 15:22 IST. **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; owner rulings and live tests **[owner]** as given to the docs builder.)*

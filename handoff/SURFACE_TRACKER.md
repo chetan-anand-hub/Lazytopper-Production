@@ -1,3 +1,17 @@
+> **2026-11-12 (daily, third; written 12 Nov night) - #1687 - #1692 (CLAUDE.md section 10).** Scope: the post-payment paid screens, My packs, the receipt email, sign-in-method messages, and the pack PDF download path (templates, server stamp, client switch). **No grading surface moved (CLAUDE.md section 4a);** the one grading-adjacent point is that a server-downloaded paper registers the server's worksheet JSON, not yet live-verified. No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none (grading) | unchanged | the 6 Nov second-surface checks stay owed; upload grading against a server-downloaded paper code (`#1692`) |
+| Paid screen, signed in (PassCheckout, PacksShop; /packs, /cbq-packs, /pricing, /board-pass, /for-parents) | one post-payment pop-up with the who-card (`#1687`); sign-in-in-use wording and "Send a new code" (`#1689`) | **merged, live** | Rs58 pack re-test (owner, test (c)); `#1687` at 360 px and desktop; `#1689` on Settings and the link step |
+| My packs and the receipt card | paper-row layout (`#1687`); downloads from the server link first with silent fallback; "Download all (ZIP)" per group (`#1692`) | **merged, live** | one ZIP; Android Chrome, iOS Safari, an in-app browser; a preview with `VITE_PACK_SERVER_PDF_DISABLED=1` |
+| Pack PDFs (templates, server stamp) | 828 templates in CI and published (`#1690`); `/api/packs/file-link` and `/zip-link` (`#1691`) | **merged, live** (one stamped download live-verified) | `[FU-PACK-TEMPLATES-LIVE-VARIABLE]`; Storage rules in the repo; the open review items |
+| Receipt email | R5 conditional `no_address` write and R4 stale-`sending` re-claim (`#1688`) | **merged, live** | R6 (generic hold-end receipt) |
+| Admin activity | the `paid_sheet_shown` event allowlist line (`#1687`) | **merged, live** | |
+| Other surfaces | not moved by these PRs | unchanged | |
+
+No grading surface moved.
+
 > **2026-11-12 (daily, second; written 12 Nov) - #1676 - #1685 (CLAUDE.md section 10).** Scope: the checkout sheet and paid screens, owned-pack and receipt surfaces, /for-parents, Settings sign-in methods, and admin purchases. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |
