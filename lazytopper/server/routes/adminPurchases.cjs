@@ -30,7 +30,10 @@
 const { istDayKey } = require('../services/rateLimiter.cjs');
 const { istDayStartMs, addIstDays } = require('./adminStudents.cjs');
 // PAY-PHONE-1: guest (phone-number) payments nobody has claimed yet. Read-only; the phone is shown MASKED.
-const { maskIndianMobile, maskEmail, GUEST_STATUS } = require('../services/guestPay.cjs');
+const { maskIndianMobile, maskEmail, GUEST_STATUS, normaliseEmail, normaliseIndianMobile } = require('../services/guestPay.cjs');
+// ADMIN-MOVE-1: move one paid pack order to another account.
+const { movePackOrder, MoveError } = require('../services/adminMovePurchase.cjs');
+const { mergeAccount } = require('../services/adminMergeAccount.cjs');
 
 /**
  * GST-EXCL-1 - an order created at/after the GST cut-off (00:00 IST 7 Nov 2026) stores its breakup; the admin rows carry base and GST
@@ -106,7 +109,7 @@ function guestRecipient(v) {
 }
 
 function createAdminPurchasesRoutes(deps = {}) {
-  const { sendJson, sendJsonWithHeaders, adminFirestore, firebaseAdmin, requireAdmin } = deps;
+  const { sendJson, sendJsonWithHeaders, readJson, adminFirestore, firebaseAdmin, requireAdmin } = deps;
   const now = typeof deps.now === 'function' ? deps.now : () => Date.now();
   const send = (res, status, body) =>
     typeof sendJsonWithHeaders === 'function' ? sendJsonWithHeaders(res, status, body, NO_STORE) : sendJson(res, status, body);
@@ -429,7 +432,90 @@ function createAdminPurchasesRoutes(deps = {}) {
     }
   }
 
-  return { list };
+  /**
+   * ADMIN-MOVE-1 - POST /api/admin/purchases/move  { orderId, toEmail? | toPhone? }  ADMIN-ONLY (the same gate as list; the gate
+   * runs FIRST, before the body is read). 200 { ok, moved } | 400 | 403 | 404 no such account | 409 already has it.
+   */
+  async function move(req, res) {
+    const auth = await gate(req, res);
+    if (!auth) return;
+    try {
+      let body;
+      try {
+        body = typeof readJson === 'function' ? await readJson(req) : null;
+      } catch {
+        return send(res, 400, { ok: false, error: 'Invalid JSON' });
+      }
+      const b = body && typeof body === 'object' ? body : {};
+      const hasEmail = typeof b.toEmail === 'string' && b.toEmail.trim() !== '';
+      const hasPhone = typeof b.toPhone === 'string' && b.toPhone.trim() !== '';
+      if (typeof b.orderId !== 'string' || !b.orderId.trim()) return send(res, 400, { ok: false, error: 'orderId is required' });
+      if (hasEmail === hasPhone) return send(res, 400, { ok: false, error: 'Give exactly one of toEmail or toPhone' });
+      const email = hasEmail ? normaliseEmail(b.toEmail) : null;
+      const phone = hasPhone ? normaliseIndianMobile(b.toPhone) : null;
+      if (hasEmail && !email) return send(res, 400, { ok: false, error: 'That email address is not valid' });
+      if (hasPhone && !phone) return send(res, 400, { ok: false, error: 'That is not an Indian mobile number' });
+      if (!firebaseAdmin || typeof firebaseAdmin.auth !== 'function') return send(res, 503, { ok: false, error: 'firebase-admin Auth is not initialised on this deploy' });
+      let toUid = '';
+      try {
+        const u = email ? await firebaseAdmin.auth().getUserByEmail(email) : await firebaseAdmin.auth().getUserByPhoneNumber(phone);
+        toUid = u && typeof u.uid === 'string' ? u.uid : '';
+      } catch (e) {
+        if (!e || e.code !== 'auth/user-not-found') throw e;
+      }
+      if (!toUid) return send(res, 404, { ok: false, error: 'No LazyTopper account with that email/phone — ask them to sign in once first' });
+      const r = await movePackOrder({ db: adminFirestore, orderId: b.orderId, toUid, adminUid: auth.uid, nowMs: now() });
+      return send(res, 200, { ok: true, moved: r.moved, packId: r.packId });
+    } catch (e) {
+      if (e instanceof MoveError) return send(res, e.status, { ok: false, error: e.message });
+      console.error('[admin-move] failed:', e && e.message);
+      return send(res, 500, { ok: false, error: 'Could not move the purchase' });
+    }
+  }
+
+  /**
+   * ADMIN-MOVE-1 (scope change) - POST /api/admin/accounts/merge  { fromUid, toEmail? | toPhone? }  ADMIN-ONLY, gate first.
+   * Merges an account created at payment (uid pay-...) into the student's real account. 409 with the reason otherwise.
+   */
+  async function merge(req, res) {
+    const auth = await gate(req, res);
+    if (!auth) return;
+    try {
+      let body;
+      try {
+        body = typeof readJson === 'function' ? await readJson(req) : null;
+      } catch {
+        return send(res, 400, { ok: false, error: 'Invalid JSON' });
+      }
+      const b = body && typeof body === 'object' ? body : {};
+      const hasEmail = typeof b.toEmail === 'string' && b.toEmail.trim() !== '';
+      const hasPhone = typeof b.toPhone === 'string' && b.toPhone.trim() !== '';
+      if (typeof b.fromUid !== 'string' || !b.fromUid.trim()) return send(res, 400, { ok: false, error: 'fromUid is required' });
+      if (hasEmail === hasPhone) return send(res, 400, { ok: false, error: 'Give exactly one of toEmail or toPhone' });
+      const email = hasEmail ? normaliseEmail(b.toEmail) : null;
+      const phone = hasPhone ? normaliseIndianMobile(b.toPhone) : null;
+      if (hasEmail && !email) return send(res, 400, { ok: false, error: 'That email address is not valid' });
+      if (hasPhone && !phone) return send(res, 400, { ok: false, error: 'That is not an Indian mobile number' });
+      if (!firebaseAdmin || typeof firebaseAdmin.auth !== 'function') return send(res, 503, { ok: false, error: 'firebase-admin Auth is not initialised on this deploy' });
+      const fa = firebaseAdmin.auth();
+      let toUid = '';
+      try {
+        const u = email ? await fa.getUserByEmail(email) : await fa.getUserByPhoneNumber(phone);
+        toUid = u && typeof u.uid === 'string' ? u.uid : '';
+      } catch (e) {
+        if (!e || e.code !== 'auth/user-not-found') throw e;
+      }
+      if (!toUid) return send(res, 404, { ok: false, error: 'No LazyTopper account with that email/phone — ask them to sign in once first' });
+      const r = await mergeAccount({ db: adminFirestore, auth: fa, fromUid: b.fromUid, toUid, adminUid: auth.uid, nowMs: now() });
+      return send(res, 200, { ok: true, merged: r.merged, replayed: r.replayed, phoneMoved: r.phoneMoved });
+    } catch (e) {
+      if (e instanceof MoveError) return send(res, e.status, { ok: false, error: e.message });
+      console.error('[admin-merge] failed:', e && e.message);
+      return send(res, 500, { ok: false, error: 'Could not merge the accounts' });
+    }
+  }
+
+  return { list, move, merge };
 }
 
 let mounted = null;
@@ -438,4 +524,16 @@ function handleAdminPurchases(req, res, deps) {
   return mounted.list(req, res);
 }
 
-module.exports = { createAdminPurchasesRoutes, handleAdminPurchases, DUPLICATE_FLAG };
+let mountedMove = null;
+function handleAdminMovePurchase(req, res, deps) {
+  if (!mountedMove) mountedMove = createAdminPurchasesRoutes(deps);
+  return mountedMove.move(req, res);
+}
+
+let mountedMerge = null;
+function handleAdminMergeAccount(req, res, deps) {
+  if (!mountedMerge) mountedMerge = createAdminPurchasesRoutes(deps);
+  return mountedMerge.merge(req, res);
+}
+
+module.exports = { createAdminPurchasesRoutes, handleAdminPurchases, handleAdminMovePurchase, handleAdminMergeAccount, DUPLICATE_FLAG };
