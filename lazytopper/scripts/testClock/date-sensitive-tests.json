@@ -741,6 +741,7 @@
     "src/lib/packs/packSampleBuild.test.ts",
     "src/lib/packs/packSamples.test.tsx",
     "src/lib/packs/packsUrlSubject.test.ts",
+    "src/lib/packs/serverPdfDownload.test.ts",
     "src/lib/tutorSticky/dailyFix.test.ts",
     "src/lib/tutorSticky/trialSummary.test.ts",
     "src/pages/BoardPassPage.test.tsx",
