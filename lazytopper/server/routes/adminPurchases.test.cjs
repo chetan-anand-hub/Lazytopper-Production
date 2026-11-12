@@ -444,3 +444,276 @@ test('TEST-ACCOUNTS-1: a guest order whose guestEmail is a test email is flagged
   assert.deepEqual(r.body.totals.last7.guestUnclaimed, { count: 1, inr: 49 });
   delete process.env.TEST_ACCOUNT_EMAILS;
 });
+
+// ───────────── ADMIN-MOVE-1: POST /api/admin/purchases/move ─────────────
+// In-memory Firestore with transactions (reads then writes), subcollections and auto-ids.
+function memStore(initial) {
+  const m = new Map(Object.entries(initial));
+  const writes = [];
+  let auto = 0;
+  const kids = (path) => [...m.keys()].filter((k) => k.startsWith(`${path}/`) && !k.slice(path.length + 1).includes('/'));
+  const collSnap = (path) => { const docs = kids(path).map((k) => ({ id: k.split('/').pop(), exists: true, data: () => structuredClone(m.get(k)) })); return { docs, size: docs.length, empty: docs.length === 0 }; };
+  const snap = (path) => ({ exists: m.has(path), id: path.split('/').pop(), data: () => (m.has(path) ? structuredClone(m.get(path)) : undefined) });
+  const ref = (path) => ({
+    path, id: path.split('/').pop(),
+    collection: (n) => coll(`${path}/${n}`),
+    get: async () => snap(path),
+    listCollections: async () => [...new Set([...m.keys()].filter((k) => k.startsWith(`${path}/`)).map((k) => k.slice(path.length + 1).split('/')[0]))].map((id) => ({ id })),
+  });
+  const coll = (path) => ({
+    isColl: true, path,
+    doc: (id) => ref(`${path}/${id || `auto${++auto}`}`),
+    get: async () => collSnap(path),
+    where: (f, op, v) => ({ get: async () => { const docs = collSnap(path).docs.filter((d) => d.data()[f] === v); return { docs, size: docs.length }; } }),
+  });
+  return {
+    m, writes,
+    collection: (n) => coll(n),
+    async runTransaction(fn) {
+      const pending = [];
+      let wrote = false;
+      const tx = {
+        async get(r) { assert.equal(wrote, false, 'a read after a write'); return r.isColl ? collSnap(r.path) : snap(r.path); },
+        set(r, v, o) { wrote = true; pending.push(() => { m.set(r.path, o && o.merge ? { ...(m.get(r.path) || {}), ...v } : v); writes.push(['set', r.path]); }); },
+        delete(r) { wrote = true; pending.push(() => { m.delete(r.path); writes.push(['delete', r.path]); }); },
+      };
+      const out = await fn(tx);
+      pending.forEach((p) => p());
+      return out;
+    },
+  };
+}
+const PACK = { packId: 'pack_bundle:all', sku: 'pack_bundle', target: 'all', pricePaidInr: 353, paidAt: 1762940000000, orderId: 'order_m', paymentRef: 'pay_m', creditedToPass: false };
+const seed = (over = {}) => ({
+  'payOrders/order_m': { uid: 'pay-src', passType: 'pack_bundle', packTarget: 'all', status: 'paid', paymentId: 'pay_m', paidAt: new Date(NOW), amountPaise: 35300 },
+  'packEntitlements/pay-src/packs/pack_bundle:all': PACK,
+  'packEntitlements/pay-src/grants/pay_m': { paymentRef: 'pay_m', packId: 'pack_bundle:all', orderId: 'order_m', grantedAt: 1 },
+  ...over,
+});
+function moveHarness(store, { admin = true, users } = {}) {
+  const sent = [];
+  const accounts = users || { 'priya@gmail.com': 'google-uid', '+919611111555': 'phone-uid' };
+  const routes = createAdminPurchasesRoutes({
+    sendJson: (res, status, body) => sent.push([status, body]),
+    readJson: async (req) => req.body,
+    adminFirestore: store,
+    firebaseAdmin: { auth: () => ({
+      getUserByEmail: async (e) => { if (!accounts[e]) { const x = new Error('nf'); x.code = 'auth/user-not-found'; throw x; } return { uid: accounts[e] }; },
+      getUserByPhoneNumber: async (p) => { if (!accounts[p]) { const x = new Error('nf'); x.code = 'auth/user-not-found'; throw x; } return { uid: accounts[p] }; },
+    }) },
+    requireAdmin: async () => (admin ? { ok: true, uid: 'admin-1' } : { ok: false, status: 403, error: 'Forbidden' }),
+    now: () => NOW,
+  });
+  const call = async (body) => { sent.length = 0; await routes.move({ body }); return sent[0]; };
+  return { call, sent };
+}
+
+test('ADMIN-MOVE-1: a non-admin gets 403 and nothing is read or written', async () => {
+  const s = memStore(seed());
+  const h = moveHarness(s, { admin: false });
+  const [status] = await h.call({ orderId: 'order_m', toEmail: 'priya@gmail.com' });
+  assert.equal(status, 403);
+  assert.deepEqual(s.writes, []);
+});
+
+test('ADMIN-MOVE-1: bad bodies are 400 (no target, two targets, bad email, bad phone, no order id)', async () => {
+  const s = memStore(seed());
+  const h = moveHarness(s);
+  for (const body of [{ orderId: 'order_m' }, { orderId: 'order_m', toEmail: 'priya@gmail.com', toPhone: '9611111555' }, { orderId: 'order_m', toEmail: 'nope' }, { orderId: 'order_m', toPhone: '12345' }, { toEmail: 'priya@gmail.com' }]) {
+    assert.equal((await h.call(body))[0], 400, JSON.stringify(body));
+  }
+  assert.deepEqual(s.writes, []);
+});
+
+test('ADMIN-MOVE-1: an unpaid order is 400; a Board Pass order is 400; an unknown order is 404', async () => {
+  const s = memStore(seed({ 'payOrders/order_u': { uid: 'pay-src', passType: 'pack_bundle', packTarget: 'all', status: 'created' }, 'payOrders/order_p': { uid: 'pay-src', passType: 'till_boards', status: 'paid', paymentId: 'pay_p' } }));
+  const h = moveHarness(s);
+  assert.equal((await h.call({ orderId: 'order_u', toEmail: 'priya@gmail.com' }))[0], 400);
+  assert.equal((await h.call({ orderId: 'order_p', toEmail: 'priya@gmail.com' }))[0], 400);
+  assert.equal((await h.call({ orderId: 'nope', toEmail: 'priya@gmail.com' }))[0], 404);
+  assert.deepEqual(s.writes, []);
+});
+
+test('ADMIN-MOVE-1: an unknown target account is 404 with the ask-them-to-sign-in copy, no writes', async () => {
+  const s = memStore(seed());
+  const h = moveHarness(s);
+  const [status, body] = await h.call({ orderId: 'order_m', toEmail: 'ghost@gmail.com' });
+  assert.equal(status, 404);
+  assert.match(body.error, /ask them to sign in once first/);
+  assert.deepEqual(s.writes, []);
+});
+
+test('ADMIN-MOVE-1: the target already holds the pack, or a covering pack => 409 and NOTHING written', async () => {
+  const a = memStore(seed({ 'packEntitlements/google-uid/packs/pack_bundle:all': { ...PACK, orderId: 'other', paymentRef: 'pay_o' } }));
+  assert.equal((await moveHarness(a).call({ orderId: 'order_m', toEmail: 'priya@gmail.com' }))[0], 409);
+  assert.deepEqual(a.writes, []);
+  // chapter-pack order; the target holds the Bundle that covers it
+  const b = memStore({
+    'payOrders/order_c': { uid: 'pay-src', passType: 'pack_chapter', packTarget: 'real-numbers', status: 'paid', paymentId: 'pay_c' },
+    'packEntitlements/pay-src/packs/pack_chapter:real-numbers': { packId: 'pack_chapter:real-numbers', sku: 'pack_chapter', target: 'real-numbers', pricePaidInr: 49, paidAt: 1, orderId: 'order_c', paymentRef: 'pay_c', creditedToPass: false },
+    'packEntitlements/google-uid/packs/pack_bundle:all': PACK,
+  });
+  const r = await moveHarness(b).call({ orderId: 'order_c', toEmail: 'priya@gmail.com' });
+  assert.equal(r[0], 409);
+  assert.deepEqual(b.writes, []);
+});
+
+test('ADMIN-MOVE-1: success moves exactly the entitlement + marker, byte-identical, and leaves no copy on the source', async () => {
+  const s = memStore(seed());
+  const h = moveHarness(s);
+  const before = structuredClone(s.m.get('payOrders/order_m'));
+  const [status, body] = await h.call({ orderId: 'order_m', toEmail: 'Priya@Gmail.com' });
+  assert.equal(status, 200);
+  assert.equal(body.moved, true);
+  assert.deepEqual(s.m.get('packEntitlements/google-uid/packs/pack_bundle:all'), PACK);
+  assert.deepEqual(s.m.get('packEntitlements/google-uid/grants/pay_m'), { paymentRef: 'pay_m', packId: 'pack_bundle:all', orderId: 'order_m', grantedAt: 1 });
+  assert.equal(s.m.has('packEntitlements/pay-src/packs/pack_bundle:all'), false);
+  assert.equal(s.m.has('packEntitlements/pay-src/grants/pay_m'), false);
+  const after = s.m.get('payOrders/order_m');
+  assert.equal(after.uid, 'google-uid');
+  // payment state untouched: only `uid` differs
+  assert.deepEqual({ ...after, uid: before.uid }, before);
+});
+
+test('ADMIN-MOVE-1: the audit record has uids only (no phone, no email) and the admin uid', async () => {
+  const s = memStore(seed());
+  await moveHarness(s).call({ orderId: 'order_m', toPhone: '+91 96111 11555' });
+  const audits = [...s.m.entries()].filter(([k]) => k.startsWith('adminMoves/'));
+  assert.equal(audits.length, 1);
+  const a = audits[0][1];
+  assert.deepEqual(Object.keys(a).sort(), ['adminUid', 'at', 'fromUid', 'orderId', 'reason', 'toUid']);
+  assert.equal(a.fromUid, 'pay-src'); assert.equal(a.toUid, 'phone-uid'); assert.equal(a.adminUid, 'admin-1'); assert.equal(a.reason, 'admin move');
+  assert.equal(/@|\+91|9611111555/.test(JSON.stringify(a)), false);
+});
+
+test('ADMIN-MOVE-1: repeating the same move is ok and writes nothing', async () => {
+  const s = memStore(seed());
+  const h = moveHarness(s);
+  await h.call({ orderId: 'order_m', toEmail: 'priya@gmail.com' });
+  const n = s.writes.length;
+  const [status, body] = await h.call({ orderId: 'order_m', toEmail: 'priya@gmail.com' });
+  assert.equal(status, 200);
+  assert.equal(body.moved, false);
+  assert.equal(s.writes.length, n);
+});
+
+test('ADMIN-MOVE-1: a pack credited to a Board Pass is refused; a holder with no pack from the order is 409', async () => {
+  const a = memStore(seed({ 'packEntitlements/pay-src/packs/pack_bundle:all': { ...PACK, creditedToPass: true } }));
+  assert.equal((await moveHarness(a).call({ orderId: 'order_m', toEmail: 'priya@gmail.com' }))[0], 409);
+  const b = memStore(seed({ 'packEntitlements/pay-src/packs/pack_bundle:all': { ...PACK, orderId: 'elsewhere' } }));
+  assert.equal((await moveHarness(b).call({ orderId: 'order_m', toEmail: 'priya@gmail.com' }))[0], 409);
+  assert.deepEqual(a.writes.concat(b.writes), []);
+});
+
+// ───────────── ADMIN-MOVE-1 (scope change): POST /api/admin/accounts/merge ─────────────
+function authFake(users) {
+  const calls = [];
+  const byField = (f, v) => Object.values(users).find((u) => u[f] === v);
+  const fa = {
+    calls, users,
+    auth: () => ({
+      getUser: async (uid) => { if (!users[uid]) { const x = new Error('nf'); x.code = 'auth/user-not-found'; throw x; } return { ...users[uid] }; },
+      getUserByEmail: async (e) => { const u = byField('email', e); if (!u) { const x = new Error('nf'); x.code = 'auth/user-not-found'; throw x; } return { ...u }; },
+      getUserByPhoneNumber: async (p) => { const u = byField('phoneNumber', p); if (!u) { const x = new Error('nf'); x.code = 'auth/user-not-found'; throw x; } return { ...u }; },
+      updateUser: async (uid, patch) => { calls.push(['updateUser', uid, patch]); const u = users[uid]; for (const [k, v] of Object.entries(patch)) { if (v === null) delete u[k]; else u[k] = v; } return { ...u }; },
+      setCustomUserClaims: async (uid, c) => { calls.push(['claims', uid, c]); users[uid].claims = c; },
+      deleteUser: async () => { throw new Error('must never delete'); },
+    }),
+  };
+  return fa;
+}
+const mergeUsers = (over = {}) => ({
+  'pay-src': { uid: 'pay-src', phoneNumber: '+919611111555', disabled: false },
+  'google-uid': { uid: 'google-uid', email: 'priya@gmail.com', disabled: false },
+  ...over,
+});
+function mergeHarness(store, fa, { admin = true } = {}) {
+  const sent = [];
+  const routes = createAdminPurchasesRoutes({
+    sendJson: (res, status, body) => sent.push([status, body]), readJson: async (req) => req.body, adminFirestore: store, firebaseAdmin: fa,
+    requireAdmin: async () => (admin ? { ok: true, uid: 'admin-1' } : { ok: false, status: 403, error: 'Forbidden' }), now: () => NOW,
+  });
+  return async (body) => { sent.length = 0; await routes.merge({ body }); return sent[0]; };
+}
+
+test('ADMIN-MERGE: non-admin 403; bad bodies 400; unknown target 404; nothing written', async () => {
+  const s = memStore(seed()); const fa = authFake(mergeUsers());
+  assert.equal((await mergeHarness(s, fa, { admin: false })({ fromUid: 'pay-src', toEmail: 'priya@gmail.com' }))[0], 403);
+  const call = mergeHarness(s, fa);
+  for (const b of [{ toEmail: 'priya@gmail.com' }, { fromUid: 'pay-src' }, { fromUid: 'pay-src', toEmail: 'priya@gmail.com', toPhone: '9611111555' }, { fromUid: 'pay-src', toEmail: 'x' }]) assert.equal((await call(b))[0], 400);
+  assert.equal((await call({ fromUid: 'pay-src', toEmail: 'ghost@gmail.com' }))[0], 404);
+  assert.deepEqual(s.writes, []); assert.deepEqual(fa.calls, []);
+});
+
+test('ADMIN-MERGE: success moves entitlement + marker + order holder; phone moves to the target; source disabled, NOT deleted', async () => {
+  const s = memStore(seed()); const fa = authFake(mergeUsers());
+  const [status, body] = await mergeHarness(s, fa)({ fromUid: 'pay-src', toEmail: 'priya@gmail.com' });
+  assert.equal(status, 200); assert.equal(body.merged, true); assert.equal(body.phoneMoved, true);
+  assert.deepEqual(s.m.get('packEntitlements/google-uid/packs/pack_bundle:all'), PACK);
+  assert.ok(s.m.has('packEntitlements/google-uid/grants/pay_m'));
+  assert.equal(s.m.has('packEntitlements/pay-src/packs/pack_bundle:all'), false);
+  assert.equal(s.m.has('packEntitlements/pay-src/grants/pay_m'), false);
+  assert.equal(s.m.get('payOrders/order_m').uid, 'google-uid');
+  assert.equal(fa.users['google-uid'].phoneNumber, '+919611111555');
+  assert.equal(fa.users['google-uid'].email, 'priya@gmail.com'); // the target keeps its original sign-in method
+  assert.equal(fa.users['pay-src'].phoneNumber, undefined);
+  assert.equal(fa.users['pay-src'].disabled, true);
+  assert.deepEqual(fa.users['pay-src'].claims, { mergedInto: 'google-uid' });
+  assert.ok(fa.users['pay-src']); // still exists
+  const audit = s.m.get('adminMoves/merge-pay-src');
+  assert.deepEqual(Object.keys(audit).sort(), ['adminUid', 'at', 'fromUid', 'reason', 'toUid']);
+  assert.equal(/@|\+91/.test(JSON.stringify(audit)), false);
+});
+
+test('ADMIN-MERGE: replay is a no-op (no Firestore writes, no Auth changes)', async () => {
+  const s = memStore(seed()); const fa = authFake(mergeUsers());
+  const call = mergeHarness(s, fa);
+  await call({ fromUid: 'pay-src', toEmail: 'priya@gmail.com' });
+  const w = s.writes.length; const c = fa.calls.length;
+  const [status, body] = await call({ fromUid: 'pay-src', toEmail: 'priya@gmail.com' });
+  assert.equal(status, 200); assert.equal(body.merged, false); assert.equal(body.replayed, true);
+  assert.equal(s.writes.length, w);
+  assert.equal(fa.calls.filter((x) => x[0] === 'updateUser').length, c - 1); // only the claims call repeats; no updateUser
+});
+
+test('ADMIN-MERGE: refuses (409, nothing changed) when the target has a DIFFERENT phone', async () => {
+  const s = memStore(seed()); const fa = authFake(mergeUsers({ 'google-uid': { uid: 'google-uid', email: 'priya@gmail.com', phoneNumber: '+919888888888' } }));
+  const [status, body] = await mergeHarness(s, fa)({ fromUid: 'pay-src', toEmail: 'priya@gmail.com' });
+  assert.equal(status, 409); assert.match(body.error, /different phone/);
+  assert.deepEqual(s.writes, []); assert.deepEqual(fa.calls, []);
+});
+
+test('ADMIN-MERGE: refuses a real account (not pay-...) and a source with activity of its own', async () => {
+  const a = memStore(seed()); const faA = authFake(mergeUsers({ real: { uid: 'real', phoneNumber: '+919000000000' } }));
+  assert.equal((await mergeHarness(a, faA)({ fromUid: 'real', toEmail: 'priya@gmail.com' }))[0], 409);
+  const b = memStore(seed({ 'topicMastery/pay-src': { x: 1 }, })); const faB = authFake(mergeUsers());
+  const [st, body] = await mergeHarness(b, faB)({ fromUid: 'pay-src', toEmail: 'priya@gmail.com' });
+  assert.equal(st, 409); assert.match(body.error, /activity of its own/);
+  const c = memStore(seed({ 'learnerProfiles/pay-src/sessions/s1': { x: 1 } })); // a subcollection under a missing parent still counts
+  assert.equal((await mergeHarness(c, authFake(mergeUsers()))({ fromUid: 'pay-src', toEmail: 'priya@gmail.com' }))[0], 409);
+  assert.deepEqual(a.writes.concat(b.writes, c.writes), []); assert.deepEqual(faA.calls.concat(faB.calls), []);
+});
+
+test('ADMIN-MERGE: target already has the pack => 409, nothing changed; already merged elsewhere => 409', async () => {
+  const s = memStore(seed({ 'packEntitlements/google-uid/packs/pack_bundle:all': { ...PACK, orderId: 'other' } })); const fa = authFake(mergeUsers());
+  assert.equal((await mergeHarness(s, fa)({ fromUid: 'pay-src', toEmail: 'priya@gmail.com' }))[0], 409);
+  assert.deepEqual(s.writes, []); assert.deepEqual(fa.calls, []);
+  const t = memStore(seed({ 'adminMoves/merge-pay-src': { toUid: 'someone-else' } }));
+  assert.equal((await mergeHarness(t, authFake(mergeUsers()))({ fromUid: 'pay-src', toEmail: 'priya@gmail.com' }))[0], 409);
+});
+
+test('ADMIN-MERGE: a Board Pass subscription and every order move; a failed phone set restores the source phone', async () => {
+  const sub = { tier: 'premium', plan: 'pass_month', passType: 'month', passEnd: 5, pricePaidInr: 599, lastPaymentRef: 'pay_s' };
+  const s = memStore(seed({ 'subscriptions/pay-src': sub, 'subscriptions/pay-src/payments/pay_s': { passType: 'month' }, 'payOrders/order_s': { uid: 'pay-src', passType: 'month', status: 'paid', paymentId: 'pay_s' } }));
+  const fa = authFake(mergeUsers());
+  assert.equal((await mergeHarness(s, fa)({ fromUid: 'pay-src', toEmail: 'priya@gmail.com' }))[0], 200);
+  assert.deepEqual(s.m.get('subscriptions/google-uid'), sub);
+  assert.ok(s.m.has('subscriptions/google-uid/payments/pay_s'));
+  assert.equal(s.m.has('subscriptions/pay-src'), false);
+  assert.equal(s.m.get('payOrders/order_s').uid, 'google-uid');
+  // phone set fails on the target -> restored on the source, 500
+  const s2 = memStore(seed()); const fa2 = authFake(mergeUsers()); const orig = fa2.auth;
+  fa2.auth = () => { const a = orig(); const u = a.updateUser; a.updateUser = async (uid, p) => { if (uid === 'google-uid' && p.phoneNumber) throw new Error('boom'); return u(uid, p); }; return a; };
+  assert.equal((await mergeHarness(s2, fa2)({ fromUid: 'pay-src', toEmail: 'priya@gmail.com' }))[0], 500);
+  assert.equal(fa2.users['pay-src'].phoneNumber, '+919611111555');
+});

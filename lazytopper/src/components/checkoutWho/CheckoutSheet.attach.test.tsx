@@ -308,6 +308,24 @@ describe("PARENTS-V2-1 - attachPreselect (the /for-parents pay-first flow)", () 
     expect(screen.getByTestId("attach-other-input")).toBeTruthy();
   });
 
+  it("F3: the parent pay-first path reports recipient 'other' (as before), a student's pay-first path still reports 'self'", async () => {
+    mount({ audience: "parent", attachPreselect: "other" });
+    await payToWho();
+    const calls = analytics.trackNamedEvent.mock.calls.map((c) => [c[0], (c[1] as { recipient?: string }).recipient]);
+    expect(calls).toContainEqual(["guest_pay_option_shown", "other"]);
+    expect(calls).toContainEqual(["guest_pay_start", "other"]);
+    expect(calls).toContainEqual(["guest_pay_paid", "other"]);
+    expect(calls.some(([n]) => n === "guest_pay_self_start")).toBe(false);
+    expect(calls.some(([, r]) => r === "self")).toBe(false);
+    cleanup();
+    analytics.trackNamedEvent.mockClear();
+    mount();
+    await payToWho();
+    const student = analytics.trackNamedEvent.mock.calls.map((c) => [c[0], (c[1] as { recipient?: string }).recipient]);
+    expect(student).toContainEqual(["guest_pay_start", "self"]);
+    expect(student).toContainEqual(["guest_pay_paid", "self"]);
+  });
+
   it("without the prop nothing changes: no selected state, no Continue button", async () => {
     mount();
     await payToWho();
@@ -318,5 +336,45 @@ describe("PARENTS-V2-1 - attachPreselect (the /for-parents pay-first flow)", () 
   it("audience 'parent' WITHOUT the prop keeps the old number-box start (default unchanged)", () => {
     mount({ audience: "parent" });
     expect(screen.queryByTestId("who-pay-self-out")).toBeNull();
+  });
+});
+
+describe("PAID-SHOWS-1 - the purchase card is the first block of the paid screen", () => {
+  it("signed out, attach flow: the card (from the receipt) sits ABOVE 'Who will use it?', and the proof is kept in this tab only", async () => {
+    sessionStorage.clear();
+    answer({ ok: true, attached: false, savedTo: "+91 98•••••210", item: { kind: "pass", label: "Board Pass" } });
+    mount({ buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF })) });
+    await payToWho();
+    const card = await screen.findByTestId("purchase-card");
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/pay/guest/receipt");
+    expect(JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body)).toEqual(PROOF);
+    expect((await screen.findByTestId("receipt-title")).textContent).toBe("Your Board Pass is active till your boards");
+    const who = screen.getByTestId("attach-choose-me");
+    expect(card.compareDocumentPosition(who) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(JSON.parse(sessionStorage.getItem("lt.paidReceipt.v1") || "{}")).toEqual(PROOF);
+  });
+
+  it("no receipt proof (old outcome) or a signed-in payer: no card", async () => {
+    mount();
+    await payToWho();
+    expect(screen.queryByTestId("purchase-card")).toBeNull();
+  });
+
+  it("a SIGNED-IN payer buying for someone else gets no receipt call and no card (the receipt is signed-out only)", async () => {
+    mount({ signedIn: true, startAt: "other", buy: vi.fn(async () => ({ status: "paid" as const, confirmed: true, receipt: PROOF })) });
+    fireEvent.change(screen.getByTestId("who-first"), { target: { value: "anaya@gmail.com" } });
+    fireEvent.click(screen.getByTestId("who-pay"));
+    await screen.findByTestId("who-paid");
+    expect(screen.queryByTestId("purchase-card")).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("the paid-for-someone-else screen (signed out) shows the card too", async () => {
+    answer({ ok: true, attached: true, savedTo: "an••••@gmail.com", item: { kind: "pass", label: "Board Pass" } });
+    mount({ selfFirst: false, startAt: "other", buy: vi.fn(async () => ({ status: "paid" as const, confirmed: true, receipt: PROOF })) });
+    fireEvent.change(screen.getByTestId("who-first"), { target: { value: "anaya@gmail.com" } });
+    fireEvent.click(screen.getByTestId("who-pay"));
+    await screen.findByTestId("purchase-card");
+    expect(screen.getByTestId("who-paid")).toBeTruthy();
   });
 });

@@ -27,6 +27,8 @@ const {
   isGuestPayEnabled,
   GUEST_ORDER_PATH,
   GUEST_ATTACH_PATH,
+  GUEST_RECEIPT_PATH,
+  RECEIPT_WINDOW_MS,
   ATTACH_HOLD_MS,
   GUEST_VERIFY_PATH,
   GUEST_CLAIM_PATH,
@@ -209,6 +211,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     [GUEST_VERIFY_PATH]: guest.handleVerify,
     [GUEST_CLAIM_PATH]: guest.handleClaim,
     [GUEST_ATTACH_PATH]: guest.handleAttach,
+    [GUEST_RECEIPT_PATH]: guest.handleReceipt,
     [PAY_ORDER_PATH]: pay.handleOrder,
     [PAY_VERIFY_PATH]: pay.handleVerify,
     [PAY_WEBHOOK_PATH]: pay.handleWebhook,
@@ -2307,4 +2310,118 @@ test('ATTACH · kill switch CHECKOUT_SELF_ATTACH_DISABLED: marker ignored (today
   assert.equal((await doAttach(srv, paid, { choice: 'me' })).status, 404);
   const r = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: OTHER_PHONE } });
   assert.deepEqual(r.json, { ok: false, error: 'payment_unavailable' });
+});
+
+
+/* ══ PAID-SHOWS-1 (12 Nov 2026): once somebody has paid, show them what they got - POST /api/pay/guest/receipt ═════════ */
+const receipt = (srv, paid, extra = {}, headers = {}) =>
+  request(srv.port, GUEST_RECEIPT_PATH, { body: { orderId: paid.orderId, paymentId: paid.paymentId, signature: checkoutSig(paid.orderId, paid.paymentId), ...extra }, headers });
+
+test('RECEIPT · a Board Pass paid and still held: the card is answered with the paid-with contact MASKED; nothing changes, no account, hold untouched', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const before = JSON.stringify(srv.db.read(`payOrders/${paid.orderId}`));
+  const r = await receipt(srv, paid);
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(r.json, { ok: true, attached: false, savedTo: maskIndianMobile(PHONE), savedToKind: 'phone', item: { kind: 'pass', label: 'Board Pass' } });
+  assert.equal(JSON.stringify(r.json).includes('9876543948'), false, 'never the full number');
+  await srv.idle();
+  assert.equal(JSON.stringify(srv.db.read(`payOrders/${paid.orderId}`)), before, 'the order is byte-identical: not attached, hold not ended');
+  assert.deepEqual(auth.created, [], 'no account is made by a receipt');
+  assert.equal(subsDocs(srv.db).length, 0, 'nothing granted');
+  // asking twice answers twice (a reload)
+  assert.deepEqual((await receipt(srv, paid)).json, r.json);
+});
+
+test('RECEIPT · a pack: the OwnedPack-shaped record + licensee = the paid-with number masked (and, once attached, the CHOSEN recipient)', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  const r = await receipt(srv, paid);
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.item.kind, 'pack');
+  assert.deepEqual(r.json.pack, { packId: 'pack_cbq:maths', sku: 'pack_cbq', target: 'maths', paidAt: NOW, orderId: paid.orderId });
+  assert.deepEqual(r.json.licensee, { name: '', email: '', phone: maskIndianMobile(PHONE) });
+  assert.equal(r.json.savedTo, maskIndianMobile(PHONE));
+  assert.equal(r.json.attached, false, 'the card says the number is the paid-with one until a choice is made');
+  // the payer then chooses someone else: the licence line follows the recipient, never the payer's contact
+  const a = await doAttach(srv, paid, { choice: 'other', recipient: { email: 'Anaya.K@Gmail.com' } });
+  assert.equal(a.status, 200, a.text);
+  await srv.idle();
+  const after = await receipt(srv, paid);
+  assert.equal(after.status, 200, after.text);
+  assert.deepEqual(after.json.licensee, { name: '', email: 'an••••@gmail.com' });
+  assert.equal(after.json.savedToKind, 'email');
+  assert.equal(after.json.attached, true);
+  const text = JSON.stringify(after.json);
+  assert.equal(text.includes('9876543948'), false);
+  assert.equal(text.includes('Anaya.K'), false);
+});
+
+test('RECEIPT · refused: bad signature, wrong paymentId, another order\'s id, an unpaid order, a signed-in caller, malformed', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const other = await paidAttach(srv, { contact: '+917012345678' });
+  assert.equal((await receipt(srv, paid, { signature: 'ab'.repeat(32) })).status, 400, 'bad signature');
+  const wrongPay = await request(srv.port, GUEST_RECEIPT_PATH, { body: { orderId: paid.orderId, paymentId: 'pay_other', signature: checkoutSig(paid.orderId, 'pay_other') } });
+  assert.equal(wrongPay.status, 400, 'a payment id that is not this order\'s');
+  // order B's id with order A's (valid for A) proof: the signature does not cover that pair
+  const crossed = await request(srv.port, GUEST_RECEIPT_PATH, { body: { orderId: other.orderId, paymentId: paid.paymentId, signature: checkoutSig(paid.orderId, paid.paymentId) } });
+  assert.equal(crossed.status, 400, 'another order\'s id');
+  // a correct signature for the pair, but the order was never paid (still `created`)
+  const o = await attachSelf(srv);
+  const fakePay = 'pay_neverpaid1';
+  const unpaid = await request(srv.port, GUEST_RECEIPT_PATH, { body: { orderId: o.json.orderId, paymentId: fakePay, signature: checkoutSig(o.json.orderId, fakePay) } });
+  assert.equal(unpaid.status, 400, 'unpaid: no payment is recorded against it');
+  assert.equal((await receipt(srv, paid, {}, signedIn('uX', PHONE))).status, 409, 'signed in');
+  assert.equal((await receipt(srv, paid, { orderId: 'bad id!' })).status, 400, 'malformed');
+  for (const r of [wrongPay, crossed, unpaid]) assert.equal(JSON.stringify(r.json).includes('Board Pass'), false, 'a refusal says nothing about the purchase');
+});
+
+test('RECEIPT · the 24 h window: open at +23:59:59.999 from the payment time, refused (ok:false, expired) at +24:00:00 with the masked contact', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const inside = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + RECEIPT_WINDOW_MS - 1 });
+  t.after(inside.close);
+  assert.equal((await receipt(inside, paid)).json.ok, true);
+  const edge = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + RECEIPT_WINDOW_MS });
+  t.after(edge.close);
+  const r = await receipt(edge, paid);
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.json, { ok: false, reason: 'expired', savedTo: maskIndianMobile(PHONE), savedToKind: 'phone' });
+});
+
+test('RECEIPT · dark with the payment switches off; no Razorpay call is made (the proof is the signature + the stored order)', async (t) => {
+  const off = await startRoutes({ env: { ...ENV_ON, PAYMENTS_ENABLED: '' } });
+  t.after(off.close);
+  const r = await request(off.port, GUEST_RECEIPT_PATH, { body: { orderId: 'order_x', paymentId: 'pay_x', signature: checkoutSig('order_x', 'pay_x') } });
+  assert.equal(r.status, 404);
+});
+
+test('RECEIPT · a someone-else order (no attach flow) is NOT "pending": attached:true, licence = the recipient masked', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const paid = await paidWhoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: OTHER_PHONE } });
+  const orderId = paid.orderId || paid.json?.orderId;
+  const paymentId = paid.paymentId;
+  assert.ok(orderId && paymentId, JSON.stringify(Object.keys(paid)));
+  const r = await receipt(srv, { orderId, paymentId });
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.attached, true, 'the recipient is already named: the card must not say "choose someone else below"');
+  assert.deepEqual(r.json.licensee, { name: '', email: '', phone: maskIndianMobile(OTHER_PHONE) });
+});
+
+test('RECEIPT · the not_paid guard: an order that has a paymentId but is still `created` is refused (409), not answered', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const o = await attachSelf(srv);
+  const pid = 'pay_neverpaid2';
+  await srv.db.collection('payOrders').doc(o.json.orderId).set({ paymentId: pid }, { merge: true });
+  const r = await request(srv.port, GUEST_RECEIPT_PATH, { body: { orderId: o.json.orderId, paymentId: pid, signature: checkoutSig(o.json.orderId, pid) } });
+  assert.equal(r.status, 409, r.text);
+  assert.equal(r.json.reason, 'not_paid');
 });

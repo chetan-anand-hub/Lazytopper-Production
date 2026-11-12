@@ -30,6 +30,7 @@ import {
   attachCloseConfirm,
   isSelfAttachClientEnabled,
   maskedIds as attachMaskedIds,
+  storeReceiptProof,
   type AttachProof,
   SELF_HELP,
   SELF_PAID_NO_CONTACT,
@@ -69,6 +70,9 @@ import {
 } from "../../services/checkoutWho";
 import "../guestPay/guestPaySheet.css";
 import "./checkoutSheet.css";
+
+// PAID-SHOWS-1: the purchase card is its own lazy chunk inside the sheet's.
+const PurchaseCard = lazy(() => import("./PurchaseCard"));
 
 /**
  * `priceDisplay` is the amount CHARGED (it is what the Pay button names). GST-EXCL-1: `priceBreakdown` is the GST breakup shown
@@ -166,6 +170,10 @@ export default function CheckoutSheet({
   attachOn,
 }: CheckoutSheetProps) {
   const surfaceData = audience === "parent" ? ({ surface: "for_parents" } as const) : {};
+  // PARENTS-V2-1 review F3: the /for-parents pay-first path reports recipient "other" exactly as before (a parent pays for the child); it
+  // would say "self" only if the buyer actually picks "me" (that choice is made after payment and sends no guest_pay_* event).
+  const parentPayFirst = audience === "parent" && attachPreselect === "other";
+  const selfRecipient = parentPayFirst ? "other" : "self";
   // CHECKOUT-SELF-2: signed out, student-side, not asked to open at the box -> "Buy for yourself" first.
   const [selfOutFirst] = useState(() => !signedIn && startAt !== "other" && (audience !== "parent" || attachPreselect === "other") && (selfFirst ?? isCheckoutSelfClientEnabled()));
   const [step, setStep] = useState<Step>(holder && signedIn ? { name: "holder" } : selfOutFirst ? { name: "selfOut" } : signedIn && startAt !== "other" ? { name: "self" } : { name: "form" });
@@ -176,6 +184,9 @@ export default function CheckoutSheet({
   const [attachSettled, setAttachSettled] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
   const [meNow, setMeNow] = useState(0);
+  // PAID-SHOWS-1: Razorpay's signed proof of a VERIFIED signed-out payment -> the purchase card, first on the paid screen.
+  const [receipt, setReceipt] = useState<AttachProof | null>(null);
+  const [receiptHidden, setReceiptHidden] = useState(false);
   const onAttachTitle = useCallback((t: string) => setAttachTitle(t), []);
   const onAttachSettled = useCallback((v: boolean) => setAttachSettled(v), []);
   const [first, setFirst] = useState("");
@@ -188,7 +199,7 @@ export default function CheckoutSheet({
   useEffect(() => {
     if (shown.current) return;
     shown.current = true;
-    trackNamedEvent("guest_pay_option_shown", { recipient: (signedIn && startAt !== "other") || selfOutFirst ? "self" : "other", ...surfaceData });
+    trackNamedEvent("guest_pay_option_shown", { recipient: ((signedIn && startAt !== "other") || selfOutFirst) && !parentPayFirst ? "self" : "other", ...surfaceData });
   // `startAt` is a mount-time choice (the sheet is mounted fresh per open); it must not re-fire the once-only event.
   }, [signedIn]);
 
@@ -231,6 +242,10 @@ export default function CheckoutSheet({
       trackNamedEvent("guest_pay_paid", { recipient: "other", ...surfaceData });
       // The sale itself, only once the SERVER verified it (the same helper and event names as pay-by-phone).
       if (outcome.confirmed) trackGuestPurchase(item, outcome, attemptId);
+      if (outcome.receipt && !signedIn) {
+        storeReceiptProof(outcome.receipt);
+        setReceipt(outcome.receipt);
+      }
       setStep({ name: "paid", recipient, confirmed: outcome.confirmed });
     } else if (outcome.status === "already_covered") {
       setStep({ name: "covered" });
@@ -249,14 +264,18 @@ export default function CheckoutSheet({
     if (busy) return;
     // The funnel stays comparable: guest_pay_start fires for BOTH paths (recipient "self" here, "other" for the box); the new
     // event marks the new primary tap. Names + the path only - nothing about the buyer.
-    trackNamedEvent("guest_pay_self_start", { recipient: "self", ...surfaceData });
-    trackNamedEvent("guest_pay_start", { recipient: "self", ...surfaceData });
+    if (!parentPayFirst) trackNamedEvent("guest_pay_self_start", { recipient: "self", ...surfaceData });
+    trackNamedEvent("guest_pay_start", { recipient: selfRecipient, ...surfaceData });
     setStep({ name: "selfBusy" });
     const attemptId = newCheckoutAttemptId();
     const outcome = await buySelf(item);
     if (outcome.status === "paid") {
-      trackNamedEvent("guest_pay_paid", { recipient: "self", ...surfaceData });
+      trackNamedEvent("guest_pay_paid", { recipient: selfRecipient, ...surfaceData });
       if (outcome.confirmed) trackGuestPurchase(item, outcome, attemptId);
+      if (outcome.receipt) {
+        storeReceiptProof(outcome.receipt);
+        setReceipt(outcome.receipt);
+      }
       // SELFPAY-ATTACH-1: the server holds this order until the payer says who it is for.
       if (outcome.attach && outcome.confirmed && showAttach) setStep({ name: "attach", proof: outcome.attach, contact: outcome.contact });
       else setStep(outcome.contact ? { name: "paid", recipient: outcome.contact, confirmed: outcome.confirmed } : { name: "paidSelf", confirmed: outcome.confirmed });
@@ -483,6 +502,7 @@ export default function CheckoutSheet({
     );
   }
 
+  const showReceipt = !receiptHidden && (step.name === "attach" || step.name === "paid" || step.name === "paidSelf");
   const title = step.name === "attach" ? attachTitle || "Thank you" : step.name === "holder" ? item.label : step.name === "paid" || step.name === "paidSelf" ? "Thank you" : step.name === "self" ? item.label : step.name === "selfOut" || step.name === "selfBusy" ? SELF_TITLE : WHO_TITLE;
 
   return createPortal(
@@ -520,7 +540,14 @@ export default function CheckoutSheet({
           </div>
         ) : null}
         {/* The flow stays mounted behind the confirm so "Keep choosing" returns to where the payer was. */}
-        <div className="lt-who__stack" hidden={confirmClose && attachPending}>{body}</div>
+        <div className="lt-who__stack" hidden={confirmClose && attachPending}>
+          {showReceipt && receipt && (
+            <Suspense fallback={null}>
+              <PurchaseCard proof={receipt} onHide={() => setReceiptHidden(true)} />
+            </Suspense>
+          )}
+          {body}
+        </div>
       </div>
     </div>,
     document.body,

@@ -216,7 +216,7 @@ describe("(d) My packs", () => {
     render(<MemoryRouter initialEntries={["/me"]}><MobileAccountMenu /><Where /></MemoryRouter>);
     expect(fetchMyPacksMock).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
-    const item = await screen.findByRole("menuitem", { name: "My packs" });
+    const item = await screen.findByRole("menuitem", { name: /^My packs/ });
     fireEvent.click(item);
     expect(screen.getByTestId("where").textContent).toBe("/packs#my-packs");
     expect(track).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "account" } });
@@ -226,14 +226,14 @@ describe("(d) My packs", () => {
     render(<MemoryRouter initialEntries={["/me"]}><MobileAccountMenu /></MemoryRouter>);
     fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
     await waitFor(() => expect(fetchMyPacksMock).toHaveBeenCalled());
-    expect(screen.queryByRole("menuitem", { name: "My packs" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: /^My packs/ })).toBeNull();
     cleanup();
     resetMyPacksCacheForTests();
     FLAG_OFF();
     fetchMyPacksMock.mockClear();
     render(<MemoryRouter initialEntries={["/me"]}><MobileAccountMenu /></MemoryRouter>);
     fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
-    expect(screen.queryByRole("menuitem", { name: "My packs" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: /^My packs/ })).toBeNull();
     expect(fetchMyPacksMock).not.toHaveBeenCalled();
   });
   it("settings: My packs row only when owned; click closes, goes to /packs#my-packs, fires account", async () => {
@@ -241,7 +241,7 @@ describe("(d) My packs", () => {
     fetchMyPacksMock.mockResolvedValue(owned);
     const onClose = vi.fn();
     render(<MemoryRouter initialEntries={["/me"]}><SettingsModal open onClose={onClose} onOpenSignInMethods={() => {}} /><Where /></MemoryRouter>);
-    fireEvent.click(await screen.findByRole("button", { name: "My packs" }));
+    fireEvent.click(await screen.findByRole("button", { name: /^My packs/ }));
     expect(onClose).toHaveBeenCalled();
     expect(screen.getByTestId("where").textContent).toBe("/packs#my-packs");
     expect(track).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "account" } });
@@ -293,7 +293,7 @@ describe("paid Premium sees no pack offers (owner ruling 25 Oct 19:54)", () => {
     fetchMyPacksMock.mockResolvedValue({ packs: [{ packId: "pack_chapter:triangles", sku: "pack_chapter", target: "triangles", pricePaidInr: 49, paidAt: 1, orderId: "o" }], licensee: { name: "A", email: "a@b.in" } });
     render(<MemoryRouter><MobileAccountMenu /></MemoryRouter>);
     fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
-    expect(await screen.findByRole("menuitem", { name: "My packs" })).toBeTruthy();
+    expect(await screen.findByRole("menuitem", { name: /^My packs/ })).toBeTruthy();
   });
   it("signed out: shown (the visitor default)", async () => {
     FLAG_ON();

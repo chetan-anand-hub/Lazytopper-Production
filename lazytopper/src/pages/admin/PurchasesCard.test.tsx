@@ -254,3 +254,98 @@ describe("GUEST-ABANDON-1 review D4", () => {
     expect(screen.getByTestId("pu-totals").textContent).not.toMatch(/latest 300 paid orders/);
   });
 });
+
+describe("ADMIN-MOVE-1: Move to another account", () => {
+  const load = async (items: unknown[]) => {
+    stub(resp(items));
+    render(<PurchasesCard getToken={async () => "tok"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-list")).toBeTruthy());
+  };
+  it("the button is on paid pack rows only (not on Premium rows)", async () => {
+    await load([item(), item({ orderId: "order_p", passType: "till_boards", packTarget: null, kind: "premium" })]);
+    expect(screen.getByTestId("pu-move-open-order_1")).toBeTruthy();
+    expect(screen.queryByTestId("pu-move-open-order_p")).toBeNull();
+  });
+  it("form -> confirm shows item, MASKED holder and MASKED target; nothing is sent until Yes", async () => {
+    await load([item()]);
+    fireEvent.click(screen.getByTestId("pu-move-open-order_1"));
+    fireEvent.change(screen.getByTestId("pu-move-input-order_1"), { target: { value: "priyapeehu06@gmail.com" } });
+    fireEvent.click(screen.getByTestId("pu-move-review-order_1"));
+    const t = screen.getByTestId("pu-move-confirm-order_1").textContent || "";
+    expect(t).toBe("Move Subject Pack · Maths from s@••••@x.in to pr••••@gmail.com?".replace("s@••••@x.in", "s••••@x.in"));
+    expect(t).not.toMatch(/priyapeehu06/);
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1); // only the list load
+  });
+  it("Yes posts { orderId, toEmail } with the Bearer token and shows the result line", async () => {
+    await load([item()]);
+    fireEvent.click(screen.getByTestId("pu-move-open-order_1"));
+    fireEvent.change(screen.getByTestId("pu-move-input-order_1"), { target: { value: "priyapeehu06@gmail.com" } });
+    fireEvent.click(screen.getByTestId("pu-move-review-order_1"));
+    stub({ ok: true, moved: true, packId: "pack_subject:maths" });
+    fireEvent.click(screen.getByTestId("pu-move-yes-order_1"));
+    await waitFor(() => expect(screen.getByTestId("pu-move-result-order_1").textContent).toMatch(/Moved/));
+    const [url, init] = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls[0] as [string, { method: string; body: string; headers: Record<string, string> }];
+    expect(url).toBe("/api/admin/purchases/move");
+    expect(init.method).toBe("POST");
+    expect(init.headers.Authorization).toBe("Bearer tok");
+    expect(JSON.parse(init.body)).toEqual({ orderId: "order_1", toEmail: "priyapeehu06@gmail.com" });
+  });
+  it("a phone number is sent as toPhone; an invalid entry shows the error and never reaches confirm", async () => {
+    await load([item()]);
+    fireEvent.click(screen.getByTestId("pu-move-open-order_1"));
+    fireEvent.change(screen.getByTestId("pu-move-input-order_1"), { target: { value: "12345" } });
+    fireEvent.click(screen.getByTestId("pu-move-review-order_1"));
+    expect(screen.getByTestId("pu-move-error-order_1").textContent).toMatch(/valid email/);
+    fireEvent.change(screen.getByTestId("pu-move-input-order_1"), { target: { value: "96111 11555" } });
+    fireEvent.click(screen.getByTestId("pu-move-review-order_1"));
+    expect(screen.getByTestId("pu-move-confirm-order_1").textContent).toMatch(/to \+91 96•••••555\?$/);
+    stub({ ok: true, moved: true });
+    fireEvent.click(screen.getByTestId("pu-move-yes-order_1"));
+    await waitFor(() => expect(screen.getByTestId("pu-move-result-order_1")).toBeTruthy());
+    expect(JSON.parse((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1].body)).toEqual({ orderId: "order_1", toPhone: "96111 11555" });
+  });
+  it("server errors (404 / 409) are shown as the server's words", async () => {
+    await load([item()]);
+    fireEvent.click(screen.getByTestId("pu-move-open-order_1"));
+    fireEvent.change(screen.getByTestId("pu-move-input-order_1"), { target: { value: "ghost@gmail.com" } });
+    fireEvent.click(screen.getByTestId("pu-move-review-order_1"));
+    stub({ ok: false, error: "No LazyTopper account with that email/phone — ask them to sign in once first" }, false);
+    fireEvent.click(screen.getByTestId("pu-move-yes-order_1"));
+    await waitFor(() => expect(screen.getByTestId("pu-move-result-order_1").textContent).toMatch(/ask them to sign in once first/));
+  });
+});
+
+describe("ADMIN-MOVE-1: Merge into another account", () => {
+  it("shows only on rows whose account was created at payment; confirm is masked; posts { fromUid, toEmail } to the merge endpoint", async () => {
+    stub(resp([item({ orderId: "o_pay", uid: "pay-2f777cbb", email: null }), item({ orderId: "o_real" })]));
+    render(<PurchasesCard getToken={async () => "tok"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-list")).toBeTruthy());
+    expect(screen.queryByTestId("pu-merge-open-o_real")).toBeNull();
+    fireEvent.click(screen.getByTestId("pu-merge-open-o_pay"));
+    fireEvent.change(screen.getByTestId("pu-merge-input-o_pay"), { target: { value: "priyapeehu06@gmail.com" } });
+    fireEvent.click(screen.getByTestId("pu-merge-review-o_pay"));
+    const t = screen.getByTestId("pu-merge-confirm-o_pay").textContent || "";
+    expect(t).toMatch(/Merge account …777cbb into pr••••@gmail\.com\?/);
+    expect(t).not.toMatch(/priyapeehu06/);
+    stub({ ok: true, merged: true });
+    fireEvent.click(screen.getByTestId("pu-merge-yes-o_pay"));
+    await waitFor(() => expect(screen.getByTestId("pu-merge-result-o_pay").textContent).toMatch(/Merged/));
+    const [url, init] = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls[0] as [string, { body: string }];
+    expect(url).toBe("/api/admin/accounts/merge");
+    expect(JSON.parse(init.body)).toEqual({ fromUid: "pay-2f777cbb", toEmail: "priyapeehu06@gmail.com" });
+  });
+  it("shows the server's 409 reason", async () => {
+    stub(resp([item({ orderId: "o_pay", uid: "pay-1" })]));
+    render(<PurchasesCard getToken={async () => "tok"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-list")).toBeTruthy());
+    fireEvent.click(screen.getByTestId("pu-merge-open-o_pay"));
+    fireEvent.change(screen.getByTestId("pu-merge-input-o_pay"), { target: { value: "9611111555" } });
+    fireEvent.click(screen.getByTestId("pu-merge-review-o_pay"));
+    stub({ ok: false, error: "The target account already has a different phone number" }, false);
+    fireEvent.click(screen.getByTestId("pu-merge-yes-o_pay"));
+    await waitFor(() => expect(screen.getByTestId("pu-merge-result-o_pay").textContent).toMatch(/different phone/));
+  });
+});

@@ -6,6 +6,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   ATTACH_BEFORE_PAY,
+  clearReceiptProof,
+  fetchReceipt,
+  readReceiptProof,
+  storeReceiptProof,
   ATTACH_HOLD_MS,
   alreadyHasLine,
   attachCloseConfirm,
@@ -151,7 +155,7 @@ describe("the order body and the Razorpay prefill", () => {
   it("paid: server amount, verify called, Razorpay gets no recipient for a signed-in payer", async () => {
     const { d, opened } = deps();
     const out = await buyForRecipient(PASS, { phone: "+919876543210", first: "phone" }, true, d);
-    expect(out).toEqual({ status: "paid", confirmed: true, amountInr: 1917, paymentId: "pay_1", orderId: "order_1" });
+    expect(out).toEqual({ status: "paid", confirmed: true, receipt: { orderId: "order_1", paymentId: "pay_1", signature: "s" }, amountInr: 1917, paymentId: "pay_1", orderId: "order_1" });
     expect(opened[0].amount).toBe(191700);
     expect(opened[0].prefill).toBeUndefined();
     expect(opened[0].readonly).toBeUndefined();
@@ -256,7 +260,7 @@ describe("CHECKOUT-SELF-2 - Buy for yourself (the browser half)", () => {
   it("paid: Razorpay opens with the server amount and NO prefill; the contact is what the SERVER read off the payment", async () => {
     const { d, opened } = selfDeps();
     const out = await buyForSelf(CBQ, d);
-    expect(out).toEqual({ status: "paid", confirmed: true, contact: { phone: "+919876543210", email: "a@b.in", first: "phone" }, amountInr: 58, paymentId: "pay_1", orderId: "order_1" });
+    expect(out).toEqual({ status: "paid", confirmed: true, contact: { phone: "+919876543210", email: "a@b.in", first: "phone" }, receipt: { orderId: "order_1", paymentId: "pay_1", signature: "s" }, amountInr: 58, paymentId: "pay_1", orderId: "order_1" });
     expect(opened[0].amount).toBe(5800);
     expect(opened[0].prefill).toBeUndefined();
     expect(opened[0].readonly).toBeUndefined();
@@ -428,5 +432,36 @@ describe("SELFPAY-ATTACH-1 - pay first, then say who (the browser half)", () => 
     const out = await buyForSelf(PASS, { ...deps({ ok: true, selfContact: null, attach: { attached: false, holdUntilMs: 12345, holdRemainingMs: 777 } }), scheduleHoldEnd });
     expect(out).toMatchObject({ status: "paid", attach: { signature: expect.any(String) } });
     expect(scheduleHoldEnd).toHaveBeenCalledWith(12345, 777);
+  });
+});
+
+/* ── PAID-SHOWS-1: the receipt call and this tab's proof ─────────────────────── */
+describe("PAID-SHOWS-1 receipt client", () => {
+  const PROOF = { orderId: "order_1", paymentId: "pay_1", signature: "ab".repeat(32) };
+  const reply = (body: unknown, status = 200) => vi.fn(async () => ({ ok: status < 400, status, json: async () => body }) as unknown as Response);
+
+  it("posts the proof only (no contact data) and reads a pack answer", async () => {
+    const f = reply({ ok: true, attached: false, savedTo: "+91 98•••••948", item: { kind: "pack", label: "PDF pack" }, pack: { packId: "pack_cbq:maths", sku: "pack_cbq", target: "maths", paidAt: 5, orderId: "order_1" }, licensee: { name: "", email: "", phone: "+91 98•••••948" } });
+    const out = await fetchReceipt(PROOF, f as unknown as typeof fetch);
+    const [url, init] = f.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("/api/pay/guest/receipt");
+    expect(JSON.parse(String(init.body))).toEqual(PROOF);
+    expect(out).toMatchObject({ status: "ok", kind: "pack", pack: { packId: "pack_cbq:maths" }, licensee: { phone: "+91 98•••••948" } });
+  });
+  it("expired, a refusal and a network failure", async () => {
+    expect(await fetchReceipt(PROOF, reply({ ok: false, reason: "expired", savedTo: "+91 98•••••948" }) as unknown as typeof fetch)).toEqual({ status: "expired", savedTo: "+91 98•••••948" });
+    expect(await fetchReceipt(PROOF, reply({ ok: false, error: "payment_rejected" }, 400) as unknown as typeof fetch)).toEqual({ status: "failed" });
+    expect(await fetchReceipt(PROOF, (async () => { throw new Error("net"); }) as unknown as typeof fetch)).toEqual({ status: "failed" });
+  });
+  it("the proof survives in this tab's storage (ids + signature only) and clears", () => {
+    const mem = new Map<string, string>();
+    const st = { setItem: (k: string, v: string) => void mem.set(k, v), getItem: (k: string) => mem.get(k) ?? null, removeItem: (k: string) => void mem.delete(k) };
+    storeReceiptProof({ ...PROOF, extra: "x" } as never, st);
+    expect(JSON.parse([...mem.values()][0])).toEqual(PROOF);
+    expect(readReceiptProof(st)).toEqual(PROOF);
+    clearReceiptProof(st);
+    expect(readReceiptProof(st)).toBeNull();
+    mem.set("lt.paidReceipt.v1", "{bad");
+    expect(readReceiptProof(st)).toBeNull();
   });
 });

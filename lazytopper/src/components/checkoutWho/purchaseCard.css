@@ -1,0 +1,15 @@
+.lt-rcpt { display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; padding: 14px 16px; border-radius: 14px; border: 1px solid hsl(150, 30%, 78%); background: hsl(150, 40%, 97%); color: hsl(222, 47%, 20%); min-width: 0; }
+.lt-rcpt__ok { margin: 0; font-weight: 700; color: hsl(152, 60%, 26%); }
+.lt-rcpt__title { margin: 0; font-size: 17px; font-weight: 700; overflow-wrap: anywhere; }
+.lt-rcpt__line, .lt-rcpt__fine { margin: 0; font-size: 14px; line-height: 1.45; }
+.lt-rcpt__fine { font-size: 13px; color: hsl(222, 15%, 38%); }
+.lt-rcpt__files { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.lt-rcpt__files li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; font-size: 14px; }
+.lt-rcpt__files li > span:first-child { flex: 1 1 160px; min-width: 0; overflow-wrap: anywhere; }
+.lt-rcpt__grp > summary { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 600; cursor: pointer; }
+.lt-rcpt__meta { font-weight: 400; color: hsl(222, 15%, 40%); font-size: 13px; }
+.lt-rcpt__btn { min-height: 44px; padding: 10px 16px; border: none; border-radius: 10px; background: hsl(222, 47%, 24%); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.lt-rcpt__btn--small { min-height: 44px; padding: 8px 14px; }
+.lt-rcpt__btn:disabled { opacity: 0.6; cursor: default; }
+.lt-rcpt__link, .lt-rcpt__hide { background: none; border: none; padding: 0; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; min-height: 44px; align-self: flex-start; }
+.lt-rcpt__bad { color: hsl(0, 60%, 40%); font-size: 13px; }

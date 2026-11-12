@@ -17,6 +17,104 @@ import { packChapterLabel, BUNDLE_NAME } from "../../lib/packs/packLabels";
 import { fetchAdmin, formatIstDateTime } from "./studentsAdminModel";
 
 export const PURCHASES_URL = "/api/admin/purchases";
+export const MOVE_URL = "/api/admin/purchases/move";
+export const MERGE_URL = "/api/admin/accounts/merge";
+
+/** ADMIN-MOVE-1 - `pr••••@gmail.com`: first two characters of the local part, then the domain. Not an email -> "". */
+export function maskEmailLocal(raw: string): string {
+  const e = raw.trim().toLowerCase();
+  const at = e.indexOf("@");
+  return at < 1 ? "" : `${e.slice(0, Math.min(2, at))}••••${e.slice(at)}`;
+}
+/** ADMIN-MOVE-1 - `+91 96•••••555`: the first two and last three digits of an Indian mobile. Anything else -> "". */
+export function maskPhoneLocal(raw: string): string {
+  let d = raw.replace(/[\s-]/g, "");
+  if (d.startsWith("+91")) d = d.slice(3);
+  else if (d.length === 12 && d.startsWith("91")) d = d.slice(2);
+  else if (d.length === 11 && d.startsWith("0")) d = d.slice(1);
+  return /^[6-9][0-9]{9}$/.test(d) ? `+91 ${d.slice(0, 2)}•••••${d.slice(7)}` : "";
+}
+/** ADMIN-MOVE-1 - the current holder, masked: the account's email when known, else its uid tail. */
+export function maskHolder(p: Pick<PurchaseItem, "email" | "uid">): string {
+  return (p.email && maskEmailLocal(p.email)) || `account …${p.uid.slice(-6)}`;
+}
+
+type MoveState =
+  | { step: "closed" }
+  | { step: "form"; error?: string }
+  | { step: "confirm"; target: string; masked: string; kind: "email" | "phone" }
+  | { step: "busy" }
+  | { step: "done"; message: string };
+
+/**
+ * ADMIN-MOVE-1 - "Move to another account…" on a paid PDF-pack row: inline form (email or phone) -> a confirm step
+ * ("Move <item> from <masked current> to <masked target>?") -> result line. The server decides everything (admin only).
+ */
+export function MoveControl({ p, getToken, mode = "move" }: { p: PurchaseItem; getToken: () => Promise<string | null>; mode?: "move" | "merge" }) {
+  const merge = mode === "merge";
+  const [st, setSt] = useState<MoveState>({ step: "closed" });
+  const [value, setValue] = useState("");
+  const tid = (k: string) => `pu-${merge ? "merge" : "move"}-${k}-${p.orderId}`;
+
+  const review = () => {
+    const v = value.trim();
+    const isEmail = v.includes("@");
+    const masked = isEmail ? maskEmailLocal(v) : maskPhoneLocal(v);
+    if (!masked) return setSt({ step: "form", error: "Enter a valid email address or an Indian mobile number." });
+    setSt({ step: "confirm", target: v, masked, kind: isEmail ? "email" : "phone" });
+  };
+  const run = async (c: { target: string; kind: "email" | "phone" }) => {
+    setSt({ step: "busy" });
+    let message = "The move failed. Nothing was changed.";
+    try {
+      const token = await getToken();
+      if (!token) throw new Error("no token");
+      const res = await fetch(merge ? MERGE_URL : MOVE_URL, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ ...(merge ? { fromUid: p.uid } : { orderId: p.orderId }), ...(c.kind === "email" ? { toEmail: c.target } : { toPhone: c.target }) }),
+      });
+      const json = (await res.json().catch(() => null)) as { ok?: boolean; moved?: boolean; merged?: boolean; error?: string } | null;
+      if (res.ok && json?.ok) {
+        message = merge
+          ? json.merged === false ? "Already merged. Nothing changed." : "Merged. Her purchases and phone number are now on that account; this account is disabled."
+          : json.moved === false ? "Already on that account. Nothing changed." : "Moved. The pack is now on that account.";
+      } else if (json?.error) message = json.error;
+    } catch {
+      /* keep the generic message */
+    }
+    setSt({ step: "done", message });
+  };
+
+  return (
+    <span className="pu-move" data-testid={`pu-${merge ? "merge" : "move"}-${p.orderId}`}>
+      {st.step === "closed" && (
+        <button type="button" className="sa-btn sa-btn-small" data-testid={tid("open")} onClick={() => setSt({ step: "form" })}>
+          {merge ? "Merge into another account…" : "Move to another account…"}
+        </button>
+      )}
+      {st.step === "form" && (
+        <>
+          <input className="pu-move-input" type="text" aria-label="New account email or phone" placeholder="Email or mobile of the account" value={value} onChange={(e) => setValue(e.target.value)} data-testid={tid("input")} />
+          <button type="button" className="sa-btn sa-btn-small" data-testid={tid("review")} onClick={review}>Review</button>
+          <button type="button" className="sa-btn sa-btn-small" onClick={() => setSt({ step: "closed" })}>Cancel</button>
+          {st.error && <span className="sa-note sa-warn" role="alert" data-testid={tid("error")}>{st.error}</span>}
+        </>
+      )}
+      {st.step === "confirm" && (
+        <>
+          <span data-testid={tid("confirm")}>{merge
+              ? `Merge ${maskHolder(p)} into ${st.masked}? All its purchases and its phone number move to that account, and this account is disabled.`
+              : `Move ${productLabel(p)} from ${maskHolder(p)} to ${st.masked}?`}</span>
+          <button type="button" className="sa-btn sa-btn-small" data-testid={tid("yes")} onClick={() => void run(st)}>Yes, move it</button>
+          <button type="button" className="sa-btn sa-btn-small" onClick={() => setSt({ step: "form" })}>Back</button>
+        </>
+      )}
+      {st.step === "busy" && <span className="sa-muted">Moving…</span>}
+      {st.step === "done" && <span className="pu-reason sa-muted" role="status" data-testid={tid("result")}>{st.message}</span>}
+    </span>
+  );
+}
 
 /**
  * CHECKOUT-WHO-1 - present only on an order bought through "Who will use it?": the recipient as the payer typed it
@@ -404,6 +502,9 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
                     )}
                   </span>
                   <WhoRow w={p} id={p.orderId} />
+                  {p.kind === "pack" && <MoveControl p={p} getToken={getToken} />}
+                  {/* ADMIN-MOVE-1: only an account the server created at payment (uid pay-...) can be merged */}
+                  {p.uid.startsWith("pay-") && <MoveControl p={p} getToken={getToken} mode="merge" />}
                 </li>
               ))}
             </ul>

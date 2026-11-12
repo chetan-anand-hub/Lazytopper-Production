@@ -212,7 +212,7 @@ const {
 } = require('./routes/parentPay.cjs');
 // PAY-PHONE-1 - "Pay now with your phone number": order/verify dark unless PAYMENTS_ENABLED + GUEST_PAY_ENABLED; the claim
 // (auth required) reads the phone ONLY from the verified ID token.
-const { createGuestPayRoutes, GUEST_ORDER_PATH, GUEST_VERIFY_PATH, GUEST_CLAIM_PATH, GUEST_ATTACH_PATH } = require('./routes/guestPay.cjs');
+const { createGuestPayRoutes, GUEST_ORDER_PATH, GUEST_VERIFY_PATH, GUEST_CLAIM_PATH, GUEST_ATTACH_PATH, GUEST_RECEIPT_PATH } = require('./routes/guestPay.cjs');
 // EMAIL-CODE-1 - sign in with a 6-digit code from email, on the spot. Dark unless EMAIL_CODE_SIGNIN_ENABLED; see the module.
 const { createEmailCodeRoutes, EMAIL_CODE_SEND_PATH, EMAIL_CODE_VERIFY_PATH } = require('./routes/emailCode.cjs');
 // PARENT-REPORT-1: a parent's read-only page for ONE result the student chose to share. The
@@ -933,6 +933,7 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && reqPath === GUEST_CLAIM_PATH) return guestPayRoutes.handleClaim(req, res);
   // SELFPAY-ATTACH-1 - self-gating (404 while CHECKOUT_SELF_ATTACH_DISABLED or checkout-who is dark); signed out, Razorpay's signature is the proof.
   if (req.method === 'POST' && reqPath === GUEST_ATTACH_PATH) return guestPayRoutes.handleAttach(req, res);
+  if (req.method === 'POST' && reqPath === GUEST_RECEIPT_PATH) return guestPayRoutes.handleReceipt(req, res);
   // EMAIL-CODE-1 - self-gating (404 while dark); no auth (the code is the proof), per-IP and per-email limits inside.
   if (req.method === 'POST' && reqPath === EMAIL_CODE_SEND_PATH) return emailCodeRoutes.handleSend(req, res);
   if (req.method === 'POST' && reqPath === EMAIL_CODE_VERIFY_PATH) return emailCodeRoutes.handleVerify(req, res);
@@ -1115,6 +1116,8 @@ async function handleRequest(req, res) {
   if (req.method === 'GET' && (reqPath === '/api/admin/students' || reqPath.startsWith('/api/admin/students/'))) return require('./routes/adminStudents.cjs').handleAdminStudents(req, res, { sendJson, sendJsonWithHeaders, firebaseAdmin, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // STUDENT-ACTIVITY-1 PR-2: admin "Students" page, READ-ONLY, behind the shared ADMIN_FIREBASE_UIDS gate (see the module)
   if ((req.method === 'GET' && reqPath === '/api/admin/key-disputes') || (req.method === 'POST' && reqPath === '/api/admin/key-disputes/resolve')) return require('./routes/adminKeyDisputes.cjs').handleAdminKeyDisputes(req, res, { sendJson, sendJsonWithHeaders, readJson, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // TUTOR-KEY-TRUST-1: disputed answer keys queue, behind the SAME ADMIN_FIREBASE_UIDS gate; same-origin from /admin/students
   if (req.method === 'GET' && reqPath === '/api/admin/purchases') return require('./routes/adminPurchases.cjs').handleAdminPurchases(req, res, { sendJson, sendJsonWithHeaders, adminFirestore, firebaseAdmin, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // ADMIN-PURCHASES-1: who bought what, read-only, SAME ADMIN_FIREBASE_UIDS gate
+  if (req.method === 'POST' && reqPath === '/api/admin/purchases/move') return require('./routes/adminPurchases.cjs').handleAdminMovePurchase(req, res, { sendJson, sendJsonWithHeaders, readJson, adminFirestore, firebaseAdmin, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // ADMIN-MOVE-1: admin moves one paid pack order to another account, SAME ADMIN_FIREBASE_UIDS gate; same-origin from /admin/students
+  if (req.method === 'POST' && reqPath === '/api/admin/accounts/merge') return require('./routes/adminPurchases.cjs').handleAdminMergeAccount(req, res, { sendJson, sendJsonWithHeaders, readJson, adminFirestore, firebaseAdmin, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // ADMIN-MOVE-1: admin merges an account created at payment into the student's real account, SAME admin gate
   if (req.method === 'POST' && reqPath === '/api/admin/extend-premium') return require('./routes/adminExtendPremium.cjs').handleAdminExtendPremium(req, res, { sendJson, sendJsonWithHeaders, readJson, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // ADMIN-EXTEND-1: extend Premium by N days at price 0 (feedback-call reward), behind the SAME ADMIN_FIREBASE_UIDS gate as the Students page; same-origin from /admin/students, so no CORS preflight entry
 
   if (req.method === 'POST' && reqPath === OPS_REPORT_SEND_NOW_PATH) return opsReporter.handleSendNow(req, res, { sendJson, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // OPS-REPORT-1: send the daily report now to OPS_REPORT_TO, behind the SAME ADMIN_FIREBASE_UIDS gate; owner tooling (curl), so no CORS preflight entry

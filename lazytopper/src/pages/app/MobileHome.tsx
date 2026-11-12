@@ -1,4 +1,5 @@
 import WelcomeBannerGate from "../../components/welcome/WelcomeBannerGate";
+import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -579,6 +580,8 @@ export default function MobileHome() {
       {/* 96px bottom padding clears App.tsx's 60px BottomNav. */}
       <div style={{ padding: "15px 14px 96px", maxWidth: "100%" }}>
         <WelcomeBannerGate />
+        {/* PAID-SHOWS-1 - a pack owner's way back to the packs they paid for; renders nothing for anyone else (lazy chunk). */}
+        {user && !user.isLocalSession && <PacksEntry kind="home-card" uid={user.uid} />}
         {/* BROWSE-VISITOR-CARD-1 - signed-out visitors only (the mount renders nothing while auth loads or for any signed-in user). */}
         <BrowseVisitorCard />
 

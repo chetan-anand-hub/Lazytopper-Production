@@ -15,6 +15,8 @@ import { isPacksEntryEnabled } from "./packEntry";
 
 let cachedUid: string | null = null;
 let cachedOwns: boolean | null = null;
+/** PAID-SHOWS-1: how many packs (for "My packs · 2" and the Home card); learnt by the same one request. */
+let cachedCount: number | null = null;
 let inflight: { uid: string; promise: Promise<boolean | null> } | null = null;
 
 /** Resolves true / false once known, null when the request failed (not cached). */
@@ -32,6 +34,7 @@ export function loadOwnsAnyPack(uid: string): Promise<boolean | null> {
       if (owns) void import("../../components/packs/mineHint").then((m) => m.writeMineOwner(uid)).catch(() => undefined);
       cachedUid = uid;
       cachedOwns = owns;
+      cachedCount = mine.packs.length;
       return owns;
     } catch {
       return null;
@@ -51,6 +54,7 @@ export function peekOwnsAnyPack(uid: string): boolean | null {
 export function resetMyPacksCacheForTests(): void {
   cachedUid = null;
   cachedOwns = null;
+  cachedCount = null;
   inflight = null;
 }
 
@@ -71,4 +75,11 @@ export function useOwnsAnyPack(uid: string | null | undefined, active: boolean):
   if (!uid) return false;
   if (known && known.uid === uid) return known.owns;
   return peekOwnsAnyPack(uid) === true;
+}
+
+/** PAID-SHOWS-1: the number of packs the student owns (0 = none or not known yet). Same one request per session as `useOwnsAnyPack`. */
+export function useOwnedPackCount(uid: string | null | undefined, active: boolean): number {
+  const owns = useOwnsAnyPack(uid, active);
+  if (!uid || !owns) return 0;
+  return cachedUid === uid && cachedCount !== null ? cachedCount : 1;
 }
