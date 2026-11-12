@@ -945,7 +945,9 @@ function createGuestPayRoutes(deps = {}) {
       if (!o || o.attachFlow !== true) return {};
       if (o.attachedAt) return { attach: { attached: true } };
       const paidMs = timeMs(o.guestPaidAt);
-      return { attach: { attached: false, holdUntilMs: (Number.isFinite(paidMs) ? paidMs : now()) + ATTACH_HOLD_MS } };
+      const holdUntilMs = (Number.isFinite(paidMs) ? paidMs : now()) + ATTACH_HOLD_MS;
+      // F10: the remaining time on the SERVER's clock, so a device with a wrong clock still waits the right time.
+      return { attach: { attached: false, holdUntilMs, holdRemainingMs: Math.max(0, holdUntilMs - now()) } };
     };
     const done = (current = order) =>
       sendJson(res, 200, {

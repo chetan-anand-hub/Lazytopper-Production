@@ -118,11 +118,12 @@ describe("after a verified payment", () => {
     fireEvent.click(screen.getByTestId("attach-choose-other"));
     type("attach-other-input", "91234 56789");
     expect(screen.getByTestId("attach-other-submit").textContent).toBe("Activate on 91234 56789");
-    answer({ ok: true, phoneMasked: "91•••••789" });
+    answer({ ok: true, phoneMasked: "+91 91•••••789" });
     fireEvent.click(screen.getByTestId("attach-other-submit"));
     await screen.findByTestId("attach-done");
     expect(lastBody()).toEqual({ ...PROOF, choice: "other", recipient: { phone: "+919123456789", first: "phone" } });
     expect(screen.getByText("+91 91•••••789 can sign in now")).toBeTruthy();
+    expect(document.body.textContent).not.toContain("+91 +91");
     const href = (screen.getByTestId("attach-share") as HTMLAnchorElement).href;
     expect(href.startsWith("https://wa.me/?text=")).toBe(true);
     expect(href).not.toMatch(/9123|456789|91234/);
@@ -257,10 +258,11 @@ describe("closing before choosing: F1 + F4", () => {
     await payToWho();
     fireEvent.click(screen.getByTestId("attach-choose-other"));
     type("attach-other-input", "91234 56789");
-    answer({ ok: true, phoneMasked: "98•••••210" }); // a replayed answer for the first recipient
+    answer({ ok: true, phoneMasked: "+91 98•••••210" }); // a replayed answer for the first recipient
     fireEvent.click(screen.getByTestId("attach-other-submit"));
     await screen.findByTestId("attach-done");
     expect(screen.getByText("+91 98•••••210 can sign in now")).toBeTruthy();
+    expect(document.body.textContent).not.toContain("+91 +91");
     expect(document.body.textContent).not.toContain("91•••••789");
   });
 });

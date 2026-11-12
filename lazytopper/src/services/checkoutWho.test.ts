@@ -397,10 +397,36 @@ describe("SELFPAY-ATTACH-1 - pay first, then say who (the browser half)", () => 
     expect(empty.afterClaim).not.toHaveBeenCalled();
   });
 
+  it("F10: the delay follows the SERVER's remaining time (a fast device clock cannot fire early); an empty first claim retries exactly once, 60 s later", async () => {
+    const timers: Array<{ fn: () => void; ms: number }> = [];
+    const claim = vi.fn(async () => [] as unknown[]);
+    const d = { uid: vi.fn(async () => "u1"), claim, afterClaim: vi.fn(async () => undefined), setTimer: (fn: () => void, ms: number) => void timers.push({ fn, ms }), now: () => 5_000_000 };
+    // device clock is 10 min ahead of the server's holdUntilMs; the server says 300 s remain
+    scheduleHoldEndClaim(5_000_000 - 600_000, d, 300_000);
+    expect(timers[0].ms).toBe(302_000);
+    timers[0].fn();
+    await vi.waitFor(() => expect(timers).toHaveLength(2));
+    expect(timers[1].ms).toBe(60_000);
+    timers[1].fn();
+    await vi.waitFor(() => expect(claim).toHaveBeenCalledTimes(2));
+    await new Promise((r) => setTimeout(r, 5));
+    expect(timers).toHaveLength(2);
+    expect(d.afterClaim).not.toHaveBeenCalled();
+    // retry that attaches: re-reads the subscription
+    const timers2: Array<() => void> = [];
+    const c2 = vi.fn().mockResolvedValueOnce([]).mockResolvedValueOnce([{}]);
+    const d2 = { ...d, claim: c2, setTimer: (fn: () => void) => void timers2.push(fn) };
+    scheduleHoldEndClaim(0, d2, 0);
+    timers2[0]();
+    await vi.waitFor(() => expect(timers2).toHaveLength(2));
+    timers2[1]();
+    await vi.waitFor(() => expect(d.afterClaim).toHaveBeenCalledWith("u1"));
+  });
+
   it("F1: a verified attach order schedules the hold-end claim from the server's holdUntilMs", async () => {
     const scheduleHoldEnd = vi.fn();
-    const out = await buyForSelf(PASS, { ...deps({ ok: true, selfContact: null, attach: { attached: false, holdUntilMs: 12345 } }), scheduleHoldEnd });
+    const out = await buyForSelf(PASS, { ...deps({ ok: true, selfContact: null, attach: { attached: false, holdUntilMs: 12345, holdRemainingMs: 777 } }), scheduleHoldEnd });
     expect(out).toMatchObject({ status: "paid", attach: { signature: expect.any(String) } });
-    expect(scheduleHoldEnd).toHaveBeenCalledWith(12345);
+    expect(scheduleHoldEnd).toHaveBeenCalledWith(12345, 777);
   });
 });

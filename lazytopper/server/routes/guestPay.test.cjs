@@ -2126,6 +2126,7 @@ test('ATTACH · the marker is stored; verify records the payment, reads the cont
   assert.equal(subsDocs(srv.db).length, 0);
   assert.equal(paid.verify.attach.attached, false);
   assert.equal(paid.verify.attach.holdUntilMs, NOW + ATTACH_HOLD_MS);
+  assert.equal(paid.verify.attach.holdRemainingMs, ATTACH_HOLD_MS, "the server sends its own remaining time (F10)");
 });
 
 test('ATTACH · "me" with no recipient: the paid-with number gets it through the EXISTING delivery', async (t) => {

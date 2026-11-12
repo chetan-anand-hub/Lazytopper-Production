@@ -142,7 +142,7 @@ export default function AttachFlow({ item, proof, contact, onTitle, onClose, onS
         }
       }
       // F4: the SERVER's echo is the truth (a replayed attach may carry the first answer); the typed mask only fills a missing echo.
-      const masked = (out.phoneMasked ? `+91 ${out.phoneMasked}` : "") || out.emailMasked || (chosen ? maskedIds(chosen)[0] : "") || "";
+      const masked = out.phoneMasked || out.emailMasked || (chosen ? maskedIds(chosen)[0] : "") || "";
       if (chosen) {
         setView({ name: "done", masked, recipient: chosen });
         return;

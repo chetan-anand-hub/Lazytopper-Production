@@ -178,22 +178,30 @@ const DEFAULT_HOLD_END_DEPS: HoldEndDeps = {
   setTimer: (fn, ms) => window.setTimeout(fn, ms),
   now: () => Date.now(),
 };
-export function scheduleHoldEndClaim(holdUntilMs: number, deps: HoldEndDeps = DEFAULT_HOLD_END_DEPS): void {
-  if (!Number.isFinite(holdUntilMs)) return;
+export const HOLD_END_RETRY_MS = 60_000;
+/**
+ * `remainingMs` is the SERVER's remaining hold (a device clock may be wrong); absent -> holdUntilMs minus this device's clock.
+ * If the first re-claim attaches nothing, it tries exactly once more 60 s later.
+ */
+export function scheduleHoldEndClaim(holdUntilMs: number, deps: HoldEndDeps = DEFAULT_HOLD_END_DEPS, remainingMs?: number): void {
+  const remaining = typeof remainingMs === "number" && Number.isFinite(remainingMs) ? remainingMs : holdUntilMs - deps.now();
+  if (!Number.isFinite(remaining)) return;
   // +2 s so the server clock is surely past the hold; capped so a bad value cannot park a timer for days.
-  const wait = Math.min(Math.max(holdUntilMs - deps.now(), 0) + 2000, ATTACH_HOLD_MS + 60_000);
-  deps.setTimer(() => {
+  const wait = Math.min(Math.max(remaining, 0) + 2000, ATTACH_HOLD_MS + 60_000);
+  const attempt = (retry: boolean) => {
     void (async () => {
       try {
         const uid = await deps.uid();
         if (!uid) return;
         const claimed = await deps.claim(uid);
         if (claimed && claimed.length > 0) await deps.afterClaim(uid);
+        else if (!retry) deps.setTimer(() => attempt(true), HOLD_END_RETRY_MS);
       } catch {
         /* the next sign-in claims */
       }
     })();
-  }, wait);
+  };
+  deps.setTimer(() => attempt(false), wait);
 }
 
 export interface AttachProof {
@@ -474,7 +482,7 @@ export interface SelfBuyDeps {
   loadScript: () => Promise<RazorpayConstructor>;
   verify: (success: RazorpaySuccess) => Promise<Record<string, unknown>>;
   /** Test seam: schedules the one claim at the hold's end (F1). */
-  scheduleHoldEnd?: (holdUntilMs: number) => void;
+  scheduleHoldEnd?: (holdUntilMs: number, remainingMs?: number) => void;
 }
 
 /** Exported for tests. The body carries the SKU (+ target) and `self: true`; never an amount, a phone or an email. */
@@ -535,9 +543,9 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
       const verified = await deps.verify(success);
       contact = readSelfContact(verified.selfContact);
       // SELFPAY-ATTACH-1: the server says the choice of WHO is still open -> keep Razorpay's signature (memory only) to answer it.
-      const open = verified.attach as { attached?: unknown; holdUntilMs?: unknown } | undefined;
+      const open = verified.attach as { attached?: unknown; holdUntilMs?: unknown; holdRemainingMs?: unknown } | undefined;
       if (open && open.attached === false && typeof success.razorpay_signature === "string" && success.razorpay_signature) {
-        if (typeof open.holdUntilMs === "number") (deps.scheduleHoldEnd || scheduleHoldEndClaim)(open.holdUntilMs);
+        if (typeof open.holdUntilMs === "number") (deps.scheduleHoldEnd || ((u, r) => scheduleHoldEndClaim(u, undefined, r)))(open.holdUntilMs, typeof open.holdRemainingMs === "number" ? open.holdRemainingMs : undefined);
         attach = { orderId: success.razorpay_order_id, paymentId: success.razorpay_payment_id, signature: success.razorpay_signature };
       }
     } catch {
