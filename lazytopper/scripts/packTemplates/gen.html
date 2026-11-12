@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <title>Pack template generator (CI only)</title>
+    <!--
+      SERVER-PDF-1: the cover and the papers are set in Inter. The app does not ship Inter (it uses whatever the device has), so a CI
+      machine would silently fall back to another face. These @font-face rules pin the OFL Inter files in this folder for the
+      template render ONLY (this page is never part of the build) - and the server embeds the SAME files to stamp the cover.
+    -->
+    <style>
+      @font-face { font-family: "Inter"; font-weight: 400; font-style: normal; src: url("./fonts/Inter-Regular.otf") format("opentype"); }
+      @font-face { font-family: "Inter"; font-weight: 500; font-style: normal; src: url("./fonts/Inter-Medium.otf") format("opentype"); }
+      @font-face { font-family: "Inter"; font-weight: 600; font-style: normal; src: url("./fonts/Inter-SemiBold.otf") format("opentype"); }
+      @font-face { font-family: "Inter"; font-weight: 700; font-style: normal; src: url("./fonts/Inter-Bold.otf") format("opentype"); }
+      @font-face { font-family: "Inter"; font-weight: 800; font-style: normal; src: url("./fonts/Inter-ExtraBold.otf") format("opentype"); }
+    </style>
+  </head>
+  <body>
+    <p>SERVER-PDF-1 template generator page. Served only by the Vite dev server for scripts/packTemplates/generatePackTemplates.ts.</p>
+    <script type="module" src="./genEntry.ts"></script>
+  </body>
+</html>

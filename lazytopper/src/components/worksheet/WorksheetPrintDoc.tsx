@@ -3,6 +3,7 @@ import { stripOptionLabels, stripSourceTag } from "./worksheetPrintText";
 import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 import { BRAND_MARK_SRC } from "../../config/brandMark";
+import { STAMP_ATTR } from "./pdfTemplateMarks";
 
 const BRAND_WORDMARK_SRC = BRAND_MARK_SRC.replace(/[^/]+$/, "lazytopper-wordmark.png"); // public/brand/ - the owner's script wordmark
 
@@ -145,9 +146,17 @@ export interface WorksheetPrintDocProps {
   watermark?: boolean;
   /** BRIDGE-PDF-1 - a purchased pack file: its instruction line points to where a pack paper is uploaded (Home), not Worksheets. */
   packFile?: boolean;
+  /**
+   * SERVER-PDF-1 - render the TEMPLATE of a pack paper: the "Generated <date>" text (the buyer's download day) keeps its place but is
+   * not painted, and is tagged so the generator can measure it. Never set on a buyer's device; absent -> markup exactly as before.
+   */
+  templateMode?: boolean;
 }
 
-export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure, watermark = true, packFile = false }: WorksheetPrintDocProps) {
+/** Template render: the blanked text keeps its box (visibility only - nothing reflows). */
+const TEMPLATE_CSS = `.lt-wsp [${STAMP_ATTR}="generated"] { visibility: hidden; }`;
+
+export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure, watermark = true, packFile = false, templateMode = false }: WorksheetPrintDocProps) {
   const isAnswers = kind === "answers";
   const groups = groupBySection(ws.questions);
   // Enough watermark tiles to cover a multi-page worksheet (overflow clips extras).
@@ -157,6 +166,7 @@ export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure, waterm
   return (
     <div className="lt-wsp" data-kind={kind} data-question-count={ws.questions.length}>
       <style>{PRINT_CSS + PRINT_FIGURE_CSS}</style>
+      {templateMode ? <style>{TEMPLATE_CSS}</style> : null}
 
       {/* Subtle tiled diagonal watermark - absolute, BEHIND content (z-index 0). Omitted on a licensed copy. */}
       {watermark && (
@@ -195,7 +205,7 @@ export function WorksheetPrintDoc({ ws, kind, code, renderSolutionFigure, waterm
         {(code || ws.createdAt) && (
           <div className="lt-wsp__sub">
             {code && <span className="lt-wsp__code">{code}</span>}
-            {formatDate(ws.createdAt) && <span>Generated {formatDate(ws.createdAt)}</span>}
+            {formatDate(ws.createdAt) && (templateMode ? <span {...{ [STAMP_ATTR]: "generated" }}>Generated {formatDate(ws.createdAt)}</span> : <span>Generated {formatDate(ws.createdAt)}</span>)}
           </div>
         )}
 

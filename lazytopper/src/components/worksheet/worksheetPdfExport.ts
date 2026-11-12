@@ -33,6 +33,17 @@ import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 import type { PrintCoverProps } from "./PrintCover";
 import type { BridgePagesData } from "../../lib/packs/packBridge";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
+import {
+  measureStamps,
+  LICENCE_FIT_RULE,
+  newTemplateMarks,
+  TEMPLATE_PLACEHOLDER,
+  type FooterMarks,
+  type TemplateMarks,
+  type TemplateOptions,
+} from "./pdfTemplateMarks";
+export type { TemplateMarks, TemplateOptions };
+export const newPackTemplateMarks = (): TemplateMarks => newTemplateMarks(210, 297);
 
 type Doc = import("jspdf").jsPDF;
 
@@ -178,6 +189,12 @@ export interface WorksheetPdfOptions {
    * placed right after the cover. Only with a cover and never on a sample. buildPackFiles passes it only on the buyer's download.
    */
   bridge?: BridgePagesData;
+  /**
+   * SERVER-PDF-1 - render the TEMPLATE of a pack file: the buyer's licence line, the re-download date, the edition and the
+   * "Generated" date are left blank (kept in place) and their position and text style are written to `template.marks`. Only
+   * scripts/packTemplates passes it, together with a placeholder `licensee` (so the paid-pack layout is used). Absent -> unchanged.
+   */
+  template?: TemplateOptions;
 }
 
 interface CoreOptions extends WorksheetPdfOptions {
@@ -274,7 +291,7 @@ export function licenseeLine(l: { name: string; email: string; orderId: string }
   return `Licensed to ${who ? `${who} \u00b7 ` : ""}Order ${clean(l.orderId)} \u2014 personal use only`;
 }
 
-/** Fit the licensee line on one footer row: shrink 9pt down to 7pt, then shorten the name, then the e-mail. */
+/** Fit the licensee line on one footer row: shrink 10pt down to 9pt, then shorten the name, then the e-mail. */
 function fitLicensee(pdf: Doc, l: { name: string; email: string; orderId: string }, maxW: number): { text: string; size: number } {
   const measure = (t: string, size: number): number => {
     pdf.setFontSize(size);
@@ -417,9 +434,11 @@ function drawChrome(pdf: Doc, page: number, total: number, bodyIndex: number, op
   if (opts.licensee) {
     // BRIDGE-PDF-1: with the pack QR at the right, the licence line and the trust line keep to the width left of it.
     const textW = qr ? innerW - PAPER_QR_MM - 4 : innerW;
-    const fit = fitLicensee(pdf, opts.licensee, textW);
-    pdf.setFontSize(fit.size);
-    pdf.text(fit.text, MARGIN_X, g.licY);
+    if (!opts.template) {
+      const fit = fitLicensee(pdf, opts.licensee, textW);
+      pdf.setFontSize(fit.size);
+      pdf.text(fit.text, MARGIN_X, g.licY);
+    }
     pdf.setFontSize(10);
     pdf.text(`Page ${page} of ${total}`, MARGIN_X, g.pageY);
     drawTrustLine(pdf, `Page ${page} of ${total}`, textW, g.pageY, MARGIN_X + textW);
@@ -461,6 +480,77 @@ async function withHost<T>(width: number, element: ReactElement, run: (host: HTM
   }
 }
 
+/** SERVER-PDF-1: pages 2-3 of a template are two BLANK pages (page numbers stay right); the server fills in the buyer's variant. */
+export const TEMPLATE_BRIDGE_PAGES = 2;
+
+/** Pages 2-3: rendered as ever; in a template, two blank placeholders (the bridge pages vary with the pack and the buyer's Board Pass). */
+async function bridgePagesOf(opts: CoreOptions, html2canvas: Html2Canvas): Promise<BridgePageRaster[]> {
+  if (opts.template) return Array.from({ length: TEMPLATE_BRIDGE_PAGES }, () => ({ jpeg: "", links: [] }));
+  return renderBridgePages(opts.bridge as BridgePagesData, html2canvas);
+}
+
+/** SERVER-PDF-1: the PrintCover props of a template render (placeholders keep the box and the edition line laid out as a real buyer's). */
+function templateCoverProps(): { licenseeLine: string; edition: string; templateMode: true } {
+  return { licenseeLine: TEMPLATE_PLACEHOLDER.licence, edition: TEMPLATE_PLACEHOLDER.edition, templateMode: true };
+}
+
+/** SERVER-PDF-1: measure the cover's blanked texts (CSS px on the 794 px cover -> mm on A4) into the template marks. */
+function recordCoverMarks(marks: TemplateMarks, coverHost: HTMLElement): void {
+  const cover = (coverHost.querySelector(".lt-cover") as HTMLElement | null) ?? coverHost;
+  const r = cover.getBoundingClientRect();
+  const mmPerPx = PAGE_W / (r.width || 1);
+  const stamps = measureStamps(cover, (x, y) => ({ xMm: x * mmPerPx, yMm: y * mmPerPx }), mmPerPx);
+  // "Edition <date>" is pushed to the right by flex (space-between): a real date is shorter or longer, so it is anchored by its right edge
+  for (const s of stamps) if (s.name === "edition") Object.assign(s, { anchor: "right", rightEdgeMm: s.xMm + s.wMm });
+  marks.cover = {
+    licenceFit: LICENCE_FIT_RULE,
+    wPx: Math.round(r.width),
+    hPx: Math.round(r.height),
+    mmPerPx,
+    stamps,
+  };
+}
+
+/** SERVER-PDF-1: measure the body host's blanked texts and place each on the page its slice lands on. `firstPage` = absolute page of slice 0. */
+function recordBodyMarks(
+  marks: TemplateMarks,
+  host: HTMLElement,
+  at: { slices: ReadonlyArray<{ y: number }>; yScale: number; pxPerMm: number; topMm: number; firstPage: number; set: number },
+): void {
+  const imgW = PAGE_W - MARGIN_X * 2;
+  const mmPerPx = imgW / HOST_WIDTH;
+  const found = measureStamps(
+    host,
+    (x, y) => {
+      const yCanvas = y * at.yScale;
+      let p = 0;
+      for (let i = 0; i < at.slices.length; i += 1) if ((i === 0 ? 0 : Math.round(at.slices[i].y)) <= yCanvas) p = i;
+      const start = p === 0 ? 0 : Math.round(at.slices[p].y);
+      return { xMm: MARGIN_X + x * mmPerPx, yMm: at.topMm + (yCanvas - start) / at.pxPerMm, page: at.firstPage + p };
+    },
+    mmPerPx,
+  );
+  for (const f of found) marks.body.push({ ...f, page: f.page ?? at.firstPage, set: at.set });
+}
+
+/** SERVER-PDF-1: where the vector licence line goes on every body page (the exact numbers drawChrome uses today). */
+function recordFooterMarks(marks: TemplateMarks, geom: PageGeometry, withQr: boolean, offset: number, totalPages: number): void {
+  const innerW = PAGE_W - MARGIN_X * 2;
+  const footer: FooterMarks = {
+    xMm: MARGIN_X,
+    baselineYMm: geom.licY,
+    maxWidthMm: withQr ? innerW - PAPER_QR_MM - 4 : innerW,
+    fontSizesPt: [10, 9.5, 9],
+    colorRgb: [...MUTED_RGB] as [number, number, number],
+    font: "Helvetica",
+    firstPage: offset + 1,
+    lastPage: totalPages,
+    withQr,
+  };
+  marks.footer = footer;
+  marks.pages = totalPages;
+}
+
 /**
  * Shared core: render a React element into a DETACHED offscreen host containing
  * ONLY that element, rasterise it, paginate across A4 with crisp jsPDF page chrome,
@@ -483,14 +573,16 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
       licenseeLine: opts.licensee ? licenseeLine(opts.licensee) : undefined,
       edition: opts.edition,
       paidAtMs: opts.paidAtMs,
+      ...(opts.template ? templateCoverProps() : {}),
     }), async (coverHost) => {
       const c = await html2canvas(coverHost, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
+      if (opts.template) recordCoverMarks(opts.template.marks, coverHost);
       return c.toDataURL("image/jpeg", 0.95);
     });
   }
 
   // BRIDGE-PDF-1: pages 2-3, right after the cover (only a paid file with a cover; never a sample).
-  const bridgePages = coverJpeg && opts.bridge && !opts.sample ? await renderBridgePages(opts.bridge, html2canvas) : [];
+  const bridgePages = coverJpeg && opts.bridge && !opts.sample ? await bridgePagesOf(opts, html2canvas) : [];
 
   return withHost(HOST_WIDTH, element, async (host) => {
     // Where a page may be cut, measured now (the laid-out DOM) and converted to canvas pixels after the capture.
@@ -542,12 +634,16 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
     const bodyPages = opts.sample ? 1 : Math.max(1, slices.length);
     const offset = (coverJpeg ? 1 : 0) + bridgePages.length;
     const totalPages = bodyPages + offset;
+    if (opts.template) {
+      recordBodyMarks(opts.template.marks, host, { slices, yScale, pxPerMm, topMm: geom.top, firstPage: offset + 1, set: 0 });
+      recordFooterMarks(opts.template.marks, geom, Boolean(qrRows), offset, totalPages);
+    }
 
     const brand = totalPages > 1 ? await loadBrandDataUrls() : null;
     if (coverJpeg) pdf.addImage(coverJpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
     for (const bp of bridgePages) {
       pdf.addPage();
-      pdf.addImage(bp.jpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
+      if (bp.jpeg) pdf.addImage(bp.jpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
       if (typeof pdf.link === "function") for (const l of bp.links) pdf.link(l.x, l.y, l.w, l.h, { url: l.url });
     }
 
@@ -658,7 +754,7 @@ export async function exportWorksheetPdf(
   const filename = opts?.filename || `lazytopper-${slug(ws.title)}-${codeToken(code)}${suffix}.pdf`;
   const renderSolutionFigure = kind === "answers" ? await loadSolutionFigureRenderer() : undefined;
   return renderElementToPdf(
-    createElement(WorksheetPrintDoc, { ws, kind, code, renderSolutionFigure, watermark: !opts?.licensee, packFile: Boolean(opts?.licensee) && !opts?.sample }),
+    createElement(WorksheetPrintDoc, { ws, kind, code, renderSolutionFigure, watermark: !opts?.licensee, packFile: Boolean(opts?.licensee) && !opts?.sample, ...(opts?.template ? { templateMode: true } : {}) }),
     filename,
     {
       ...opts,
@@ -735,13 +831,15 @@ export async function exportWorksheetSetsPdf(
       licenseeLine: opts.licensee ? licenseeLine(opts.licensee) : undefined,
       edition,
       paidAtMs: opts.paidAtMs,
+      ...(opts.template ? templateCoverProps() : {}),
     }), async (coverHost) => {
       const c = await html2canvas(coverHost, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
+      if (opts.template) recordCoverMarks(opts.template.marks, coverHost);
       // a several-paper file's cover: the same quality as its body pages (a CBQ part stays small; owner 8 Nov 22:45)
       return c.toDataURL("image/jpeg", SETS_BODY_JPEG_QUALITY);
     });
   }
-  const bridgePages = coverJpeg && opts.bridge && !opts.sample ? await renderBridgePages(opts.bridge, html2canvas) : [];
+  const bridgePages = coverJpeg && opts.bridge && !opts.sample ? await bridgePagesOf(opts, html2canvas) : [];
 
   const geom = pageGeometry(base);
   const imgW = PAGE_W - MARGIN_X * 2;
@@ -757,6 +855,7 @@ export async function exportWorksheetSetsPdf(
     }
     const element = createElement(WorksheetPrintDoc, {
       ws, kind, code, renderSolutionFigure, watermark: !opts.licensee, packFile: Boolean(opts.licensee) && !opts.sample,
+      ...(opts.template ? { templateMode: true } : {}),
     });
     await withHost(HOST_WIDTH, element, async (host) => {
       const atomsCss = collectPrintAtoms(host);
@@ -778,6 +877,9 @@ export async function exportWorksheetSetsPdf(
       const contentEnd = atoms.reduce((m, a) => Math.max(m, a.bottom), 0);
       let n = opts.sample ? 1 : Math.max(1, slices.length);
       while (n > 1 && contentEnd > 0 && Math.round(slices[n - 1].y) >= contentEnd - 1) n -= 1;
+      if (opts.template) {
+        recordBodyMarks(opts.template.marks, host, { slices, yScale, pxPerMm, topMm: geom.top, firstPage: (coverJpeg ? 1 : 0) + bridgePages.length + pages.length + 1, set: si });
+      }
       for (let page = 0; page < n; page += 1) {
         const yPx = page === 0 ? 0 : Math.round(slices[page].y);
         const nextY = page + 1 < slices.length ? Math.round(slices[page + 1].y) : canvas.height;
@@ -806,11 +908,12 @@ export async function exportWorksheetSetsPdf(
   const qrs = withQr ? await Promise.all(todo.map((t) => buildPaperQrMatrix(t.code))) : todo.map(() => null);
   const offset = (coverJpeg ? 1 : 0) + bridgePages.length;
   const totalPages = pages.length + offset;
+  if (opts.template) recordFooterMarks(opts.template.marks, geom, withQr, offset, totalPages);
   const brand = totalPages > 1 ? await loadBrandDataUrls() : null;
   if (coverJpeg) pdf.addImage(coverJpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
   for (const bp of bridgePages) {
     pdf.addPage();
-    pdf.addImage(bp.jpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
+    if (bp.jpeg) pdf.addImage(bp.jpeg, "JPEG", 0, 0, PAGE_W, PAGE_H);
     if (typeof pdf.link === "function") for (const l of bp.links) pdf.link(l.x, l.y, l.w, l.h, { url: l.url });
   }
   pages.forEach((pg, i) => {

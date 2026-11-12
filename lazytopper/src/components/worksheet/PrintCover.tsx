@@ -1,5 +1,6 @@
 import { BRAND_MARK_SRC } from "../../config/brandMark";
 import { redownloadCopyFor } from "../../lib/packs/packLabels";
+import { STAMP_ATTR } from "./pdfTemplateMarks";
 
 /** The CBSE Class 10 board exam this edition is for (the 2026-27 session sits its boards in 2027). There is no synchronous
  *  helper for this: services/cbseExamDate.ts is a network fetch. Bump it when the next session's packs are issued. */
@@ -43,6 +44,12 @@ export interface PrintCoverProps {
   paidAtMs?: number;
   /** Printed bottom right as "Edition <date>", e.g. "25 Oct 2026"; left out when empty. */
   edition?: string;
+  /**
+   * SERVER-PDF-1: render the TEMPLATE of this cover - the licence line, the re-download date and the edition keep their place but are
+   * not painted (visibility: hidden), and are tagged so the generator can measure them. Never set on a buyer's device; absent -> the
+   * markup is exactly what it always was.
+   */
+  templateMode?: boolean;
 }
 
 function titleSize(title: string): "l" | "m" | "s" {
@@ -58,13 +65,22 @@ const HOW_STEPS: ReadonlyArray<{ title: string; text: string }> = [
   { title: "Mark", text: "Upload your answers to the Answer Checker for CBSE step marking." },
 ];
 
-export function PrintCover({ kicker, title, subtitle, stats, headline, types, licenseeLine, edition, paidAtMs }: PrintCoverProps) {
+/** Template render: the three buyer-specific texts keep their layout but are not painted (visibility only - nothing reflows). */
+const TEMPLATE_CSS = `
+.lt-cover--tpl [${STAMP_ATTR}="licence"], .lt-cover--tpl [${STAMP_ATTR}="redownload"], .lt-cover--tpl [${STAMP_ATTR}="edition"] { visibility: hidden; }
+`;
+
+/** The attribute a template render puts on a blanked text; nothing at all on a real render. */
+const stamp = (on: boolean | undefined, name: string): Record<string, string> => (on ? { [STAMP_ATTR]: name } : {});
+
+export function PrintCover({ kicker, title, subtitle, stats, headline, types, licenseeLine, edition, paidAtMs, templateMode }: PrintCoverProps) {
   const big = headline ?? (stats[0] ? { value: stats[0].value, label: stats[0].label } : undefined);
   const rest = (headline ? stats : stats.slice(1)).slice(0, 4);
   const typeList = (types ?? []).filter(Boolean);
   return (
-    <div className="lt-cover" data-testid="print-cover">
+    <div className={templateMode ? "lt-cover lt-cover--tpl" : "lt-cover"} data-testid="print-cover">
       <style>{COVER_CSS}</style>
+      {templateMode ? <style>{TEMPLATE_CSS}</style> : null}
       <div className="lt-cover__spine" />
       <div className="lt-cover__spine2" />
 
@@ -137,18 +153,18 @@ export function PrintCover({ kicker, title, subtitle, stats, headline, types, li
       <div className="lt-cover__fill" />
 
       {licenseeLine && (
-        <div className="lt-cover__lic">
-          <div>
-            <b className="lt-cover__licl">{licenseeLine}</b>
+        <div className="lt-cover__lic" {...stamp(templateMode, "box")}>
+          <div {...stamp(templateMode, "textcol")}>
+            <b className="lt-cover__licl" {...stamp(templateMode, "licence")}>{licenseeLine}</b>
             <div>Please do not share or resell this file.</div>
-            <div>{redownloadCopyFor(paidAtMs)}.</div>
+            <div {...stamp(templateMode, "redownload")}>{redownloadCopyFor(paidAtMs)}.</div>
           </div>
-          <span className="lt-cover__k">Your copy</span>
+          <span className="lt-cover__k" {...stamp(templateMode, "boxlabel")}>Your copy</span>
         </div>
       )}
       <div className="lt-cover__foot">
         <b>lazytopper.com</b>
-        <span>{edition ? `Edition ${edition}` : ""}</span>
+        <span {...stamp(templateMode, "edition")}>{edition ? `Edition ${edition}` : ""}</span>
       </div>
     </div>
   );

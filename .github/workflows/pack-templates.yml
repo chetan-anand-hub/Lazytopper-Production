@@ -1,0 +1,151 @@
+# Pack templates - SERVER-PDF-1 PR-A. Renders every pack PDF ONCE (buyer text left blank) and, only when LIVE, publishes them to the
+# private bucket under packs/. Nothing in the product reads them yet (PR-B/PR-C), so this changes nothing a buyer receives.
+#
+# ★ NEVER ON A PULL REQUEST. There is deliberately no pull_request trigger: a PR's code must never run with the Storage key
+#   (same rule as cbse-mirror.yml). A merge to the trunk, or a manual run, is the only way this starts.
+# ★ LIVE vs DRY. A run only uploads when it is LIVE: a manual run with "dry_run" unticked, or a push while the repository variable
+#   PACK_TEMPLATES_LIVE is "1". Anything else is a DRY run: it plans, renders a few files to prove the pipeline, and uploads nothing
+#   (the key is not even handed to a dry run). Set PACK_TEMPLATES_LIVE only after the Storage rules for packs/ are confirmed private.
+# ★ THE KEY. FIREBASE_SERVICE_ACCOUNT (cbse-mirror@lazzyy-topper, Storage Object Admin on this one bucket) reaches ONE step per job as
+#   an environment variable and is parsed in memory; it is never echoed or written to a file. The uploader refuses any path outside
+#   packs/, never overwrites an object, and writes packs/current.json last.
+# ★ WHAT RUNS WHERE. The browser work is in CI (ubuntu has the libraries headless Chrome needs; Railway/Vercel do not - see
+#   prerender-capture.yml). Objects are content-addressed, so a re-run only renders what changed.
+name: pack-templates
+
+on:
+  push:
+    branches: [base/approved-thru-437]
+    paths:
+      - "lazytopper/src/data/**"
+      - "lazytopper/src/lib/packs/**"
+      - "lazytopper/src/components/worksheet/**"
+      - "lazytopper/src/components/fullmock/**"
+      - "lazytopper/src/components/chaptertest/**"
+      - "lazytopper/src/diagrams/**"
+      - "lazytopper/src/services/packs.ts"
+      - "lazytopper/public/brand/**"
+      - "lazytopper/public/fonts/**"
+      - "lazytopper/public/visuals/**"
+      - "lazytopper/public/figures/**"
+      - "lazytopper/src/components/question/**"
+      - "lazytopper/src/config/brandMark.ts"
+      - "lazytopper/src/lib/mistakeDisplay.ts"
+      - "lazytopper/src/lib/figureSafe.ts"
+      - "lazytopper/src/styles.css"
+      - "lazytopper/package.json"
+      - "pnpm-lock.yaml"
+      - "lazytopper/scripts/packTemplates/**"
+      - ".github/workflows/pack-templates.yml"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: plan, render a few files, upload NOTHING (untick to publish for real)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pack-templates
+  cancel-in-progress: false
+
+env:
+  # Resolved once: a dispatch is live when dry_run is unticked; a push is live only when the repository variable says so.
+  # ★ ONLY FROM THE TRUNK: a manual run picked on any other branch runs that branch's code, so it is never live there (it would run
+  #   unreviewed code with the Storage key and move packs/current.json).
+  LIVE: ${{ github.ref == 'refs/heads/base/approved-thru-437' && ((github.event_name == 'workflow_dispatch' && inputs.dry_run == false) || (github.event_name == 'push' && vars.PACK_TEMPLATES_LIVE == '1')) }}
+  FIREBASE_STORAGE_BUCKET: lazzyy-topper.firebasestorage.app
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+      - name: Install the headless shell
+        run: pnpm --filter lazytopper exec playwright install --only-shell chromium --no-progress
+      - name: Plan (what must exist; renders nothing)
+        run: pnpm --filter lazytopper run gen:pack-templates -- plan --out "$RUNNER_TEMP/pt"
+      - name: List what storage already holds (live runs only)
+        if: env.LIVE == 'true'
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: pnpm --filter lazytopper run upload:pack-templates -- list --out "$RUNNER_TEMP/pt/existing.txt"
+      - name: Empty existing list (dry runs)
+        if: env.LIVE != 'true'
+        run: touch "$RUNNER_TEMP/pt/existing.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pack-template-plan
+          path: ${{ runner.temp }}/pt
+          retention-days: 3
+
+  render:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+      - name: Install the headless shell
+        run: pnpm --filter lazytopper exec playwright install --only-shell chromium --no-progress
+      - uses: actions/download-artifact@v4
+        with:
+          name: pack-template-plan
+          path: ${{ runner.temp }}/pt
+      - name: Render this shard (a dry run renders three files to prove the pipeline)
+        run: |
+          limit=""
+          if [ "$LIVE" != "true" ]; then limit="--limit 3"; fi
+          pnpm --filter lazytopper run gen:pack-templates -- render --plan "$RUNNER_TEMP/pt/plan.json" --out "$RUNNER_TEMP/pt/render" --shard ${{ matrix.shard }}/8 --existing "$RUNNER_TEMP/pt/existing.txt" $limit
+      - name: Upload this shard's templates (live runs only)
+        if: env.LIVE == 'true'
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: pnpm --filter lazytopper run upload:pack-templates -- put --dir "$RUNNER_TEMP/pt/render"
+
+  publish:
+    needs: render
+    if: ${{ needs.render.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: pack-template-plan
+          path: ${{ runner.temp }}/pt
+      - name: Publish (checks the whole manifest; writes packs/current.json LAST) - live runs only
+        if: env.LIVE == 'true'
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: pnpm --filter lazytopper run upload:pack-templates -- publish --plan "$RUNNER_TEMP/pt/plan.json" --commit "$GITHUB_SHA"
+      - name: Dry run summary
+        if: env.LIVE != 'true'
+        run: echo "DRY RUN - nothing was uploaded. Untick dry_run on a manual run (after the packs/ Storage rules are confirmed private) to publish."
