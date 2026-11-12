@@ -382,6 +382,13 @@ function createPaymentReceiptEmailer(deps = {}) {
   }
 
   /** Claim the order's receipt slot. Returns the order to email about, or null (not paid, already sent / sending). */
+  /** R4: a `sending` claim older than the stale window (the process died mid-send) may be taken again (Resend's idempotency key dedupes a real earlier send). */
+  function receiptRetryable(prior) {
+    if (!prior || typeof prior !== 'object') return true;
+    if (RETRYABLE_RECEIPT.includes(prior.status)) return true;
+    return prior.status === 'sending' && !(now() - (msOf(prior.at) || 0) < INVOICE_EMAIL_STALE_SENDING_MS);
+  }
+
   async function claim(orderId, paymentId) {
     const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
     return adminFirestore.runTransaction(async (tx) => {
@@ -389,7 +396,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       const order = snap && snap.exists ? snap.data() || {} : null;
       if (!order || !PAID_STATES.includes(order.status) || order.paymentId !== paymentId) return null;
       const prior = order.receiptEmail && typeof order.receiptEmail === 'object' ? order.receiptEmail : null;
-      if (prior && !RETRYABLE_RECEIPT.includes(prior.status)) return null;
+      if (prior && !receiptRetryable(prior)) return null;
       tx.set(ref, { receiptEmail: { status: 'sending', at: new Date(now()) } }, { merge: true });
       return order;
     });
@@ -435,6 +442,23 @@ function createPaymentReceiptEmailer(deps = {}) {
       await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).set({ receiptEmail: { status, at: new Date(now()) } }, { merge: true });
     } catch {
       /* the claim stands: at most once */
+    }
+  }
+
+  /** R5: mark `no_address` only if no receipt outcome landed meanwhile (never over sent / sending / refused / skipped). */
+  async function settleIfUnsent(orderId, status) {
+    try {
+      const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
+      await adminFirestore.runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        const order = snap && snap.exists ? snap.data() || {} : null;
+        if (!order) return;
+        const cur = order.receiptEmail && typeof order.receiptEmail === 'object' ? order.receiptEmail.status : null;
+        if (cur && cur !== 'failed' && cur !== 'no_address') return;
+        tx.set(ref, { receiptEmail: { status, at: new Date(now()) } }, { merge: true });
+      });
+    } catch {
+      /* best effort */
     }
   }
 
@@ -502,7 +526,7 @@ function createPaymentReceiptEmailer(deps = {}) {
     if (typeof orderId !== 'string' || !orderId || typeof paymentId !== 'string' || !paymentId) return { skipped: 'bad_input' };
     const first = await readOrder(orderId);
     if (!first || !PAID_STATES.includes(first.status) || first.paymentId !== paymentId) return { skipped: 'already_or_unpaid' };
-    if (first.receiptEmail && !RETRYABLE_RECEIPT.includes(first.receiptEmail.status)) return { skipped: 'already_or_unpaid' };
+    if (first.receiptEmail && !receiptRetryable(first.receiptEmail)) return { skipped: 'already_or_unpaid' };
     // The email names the account the purchase LANDS on, so an attach order waits for the payer's choice (or the 10-minute
     // fallback). It is never dropped: the attach / claim grant calls this again, a timer fires at the end of the hold, and the
     // hourly sweep picks up anything a restart lost.
@@ -898,7 +922,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       snap.forEach((d) => {
         const o = d.data() || {};
         // `no_address` is final for the sweep (it must not re-look-up an address-less order every hour, forever).
-        if (o.attachFlow !== true || o.attachedAt || (o.receiptEmail && o.receiptEmail.status !== 'failed') || typeof o.paymentId !== 'string') return;
+        if (o.attachFlow !== true || o.attachedAt || (o.receiptEmail && o.receiptEmail.status !== 'failed' && !(o.receiptEmail.status === 'sending' && receiptRetryable(o.receiptEmail))) || typeof o.paymentId !== 'string') return;
         const paidMs = msOf(o.guestPaidAt);
         if (paidMs === null || now() - paidMs > HELD_RECEIPT_MAX_AGE_MS) return;
         const ends = attachHoldEndsMs(o);
@@ -906,7 +930,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       });
       for (const [orderId, paymentId] of jobs.slice(0, 25)) {
         const r = await sendForPayment({ orderId, paymentId, email: '' });
-        if (r && r.skipped === 'no_address') await settle(orderId, 'no_address');
+        if (r && r.skipped === 'no_address') await settleIfUnsent(orderId, 'no_address');
       }
       return jobs.length;
     } catch (e) {
