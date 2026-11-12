@@ -63,6 +63,8 @@ export interface PassWhoWiring {
   onSignIn: () => void;
   onSignInWithNumber: (tenDigitNumber: string) => void;
   onSignInWithEmail: () => void;
+  /** SELFPAY-ATTACH-1: the router's navigate, for the holder card's "Go to Home". */
+  onGoTo?: (path: string) => void;
 }
 import "./passCheckoutRepay.css";
 import PassOwnerOfferLazy from "../passOwnerOffers/PassOwnerOfferLazy";
@@ -239,6 +241,8 @@ export interface PassCheckoutViewProps {
    * hydrated, non-Premium student who arrived on /pricing?buy=board_pass (and has already removed that param). Never repeats on re-render.
    */
   autoStart?: boolean;
+  /** SELFPAY-ATTACH-1: a Board Pass holder arrived on /pricing?buy=board_pass - open "You already have the Board Pass" once. */
+  holderAutoOpen?: boolean;
   /** CHECKOUT-WHO-1 - see PassWhoWiring. Undefined = today's flow. */
   who?: PassWhoWiring;
 }
@@ -268,10 +272,16 @@ export function PassCheckoutView({
   pendingHoldMs = PAY_PENDING_TTL_MS,
   packCredit = null,
   autoStart = false,
+  holderAutoOpen = false,
   who,
 }: PassCheckoutViewProps) {
   /** CHECKOUT-WHO-1 - the "Who will use it?" sheet is open (only ever with `who`). */
   const [whoOpen, setWhoOpen] = useState(false);
+  /** SELFPAY-ATTACH-1 - a holder's "You already have the Board Pass" card (only ever with `who`). */
+  const [holderOpen, setHolderOpen] = useState(false);
+  useEffect(() => {
+    if (holderAutoOpen && who) setHolderOpen(true);
+  }, [holderAutoOpen, who]);
   const [busy, setBusy] = useState<PassType | null>(null);
   const [paidUntil, setPaidUntilState] = useState<{ label: string; passType: PassType } | null>(null);
   const setPaidUntil = (label: string, passType: PassType) => setPaidUntilState({ label, passType });
@@ -516,6 +526,29 @@ export function PassCheckoutView({
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" role="status" data-testid="pass-checkout-board-pass-active">
           {boardPassActiveUntilCopy(activeLabel)}
         </p>
+        {/* SELFPAY-ATTACH-1: a holder is told so (never charged again) and can buy it for someone else. The card is the lazy sheet. */}
+        {who && signedIn && (
+          <button type="button" className="lt-pricing-cta lt-pricing-cta--secondary" onClick={() => setHolderOpen(true)} data-testid="pass-checkout-holder-buy">
+            Buy for someone else
+          </button>
+        )}
+        {who && signedIn && holderOpen && (
+          <Suspense fallback={null}>
+            <CheckoutSheet
+              item={{ kind: "pass", sku: "till_boards", label: "Board Pass", description: BOARD_PASS_CHECKOUT_DESCRIPTION, priceDisplay: boardPassPayDisplay(), priceBreakdown: boardPassGstBreakdown() }}
+              signedIn
+              selfMasked={who.selfMasked}
+              onPaySelf={() => undefined}
+              onSignIn={who.onSignIn}
+              onSignInWithNumber={who.onSignInWithNumber}
+              onSignInWithEmail={who.onSignInWithEmail}
+              onClose={() => setHolderOpen(false)}
+              startAt="other"
+              holder={{ until: activeLabel }}
+              {...(who.onGoTo ? { onGoTo: who.onGoTo } : {})}
+            />
+          </Suspense>
+        )}
       </div>
     );
   }
@@ -682,6 +715,7 @@ function PassCheckoutConnected() {
   // re-trigger), then start the existing Board Pass checkout once. Premium (a pass or an admin grant) does nothing. Signed out goes to sign-in
   // with this fixed internal path as the return, so the same link resumes. Payments dark: this component is not mounted, nothing starts.
   const [autoStart, setAutoStart] = useState(false);
+  const [holderAuto, setHolderAuto] = useState(false);
   // PAY-PHONE-1 - "How do you want to pay?" for a signed-out visitor (only while paying-by-phone is on).
   const guestEnabled = isGuestPayClientEnabled();
   const [showGuest, setShowGuest] = useState(false);
@@ -733,7 +767,11 @@ function PassCheckoutConnected() {
     if (status.tier === "premium") {
       const endMs = status.passEnd ? Date.parse(status.passEnd) : NaN;
       const upgradeable = Number.isFinite(endMs) && endMs > Date.now() && status.plan !== "pass_till_boards";
-      if (!upgradeable) return;
+      if (!upgradeable) {
+        // SELFPAY-ATTACH-1: a Board Pass holder (was: nothing happens) is told they have it, with "Buy for someone else".
+        if (whoEnabled && Number.isFinite(endMs) && endMs > Date.now() && status.plan === "pass_till_boards") setHolderAuto(true);
+        return;
+      }
     }
     trackNamedEvent("board_pass_direct_checkout");
     setAutoStart(true);
@@ -771,6 +809,7 @@ function PassCheckoutConnected() {
       activePlan={activePassEnd ? status.plan : null}
       packCredit={packCredit}
       autoStart={autoStart}
+      holderAutoOpen={holderAuto}
       {...(whoEnabled
         ? {
             who: {
@@ -781,6 +820,7 @@ function PassCheckoutConnected() {
                 navigate(withSigninRedirect("/login", "/"), { state });
               },
               onSignInWithEmail: () => navigate(withSigninRedirect("/login", "/")),
+              onGoTo: (path: string) => navigate(path),
             },
           }
         : {})}

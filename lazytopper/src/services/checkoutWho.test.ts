@@ -5,6 +5,15 @@
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  ATTACH_BEFORE_PAY,
+  ATTACH_HOLD_MS,
+  alreadyHasLine,
+  attachCloseConfirm,
+  attachPayment,
+  isSelfAttachClientEnabled,
+  landingPath,
+  welcomeLandingPath,
+  scheduleHoldEndClaim,
   alreadyCoveredLine,
   buyForRecipient,
   buyForSelf,
@@ -272,5 +281,152 @@ describe("CHECKOUT-SELF-2 - Buy for yourself (the browser half)", () => {
     expect(readSelfContact({ email: "A@B.in", first: "email" })).toEqual({ email: "a@b.in", first: "email" });
     expect(readSelfContact({ phone: "+919876543210", email: "a@b.in", first: "email" })).toEqual({ phone: "+919876543210", email: "a@b.in", first: "email" });
     for (const bad of [null, undefined, 5, {}, { phone: "123" }, { email: "nope" }]) expect(readSelfContact(bad)).toBeNull();
+  });
+});
+
+describe("SELFPAY-ATTACH-1 - pay first, then say who (the browser half)", () => {
+  const SUCCESS = { razorpay_order_id: "order_1", razorpay_payment_id: "pay_1", razorpay_signature: "ab".repeat(32) };
+  const deps = (verifyBody: Record<string, unknown>): SelfBuyDeps => ({
+    createOrder: vi.fn(async () => ({ orderId: "order_1", keyId: "k", amountPaise: 5800 })),
+    loadScript: async () =>
+      class {
+        o: { handler: (s: unknown) => void };
+        constructor(o: { handler: (s: unknown) => void }) {
+          this.o = o;
+        }
+        open() {
+          this.o.handler(SUCCESS);
+        }
+      } as never,
+    verify: vi.fn(async () => verifyBody),
+  });
+
+  it("flag: on with Buy for yourself; VITE_CHECKOUT_SELF_ATTACH_DISABLED=1 or the sheet off turns it off", () => {
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
+    vi.stubEnv("VITE_CHECKOUT_SELF_DISABLED", "");
+    vi.stubEnv("VITE_CHECKOUT_SELF_ATTACH_DISABLED", "");
+    expect(isSelfAttachClientEnabled()).toBe(true);
+    vi.stubEnv("VITE_CHECKOUT_SELF_ATTACH_DISABLED", "1");
+    expect(isSelfAttachClientEnabled()).toBe(false);
+    vi.stubEnv("VITE_CHECKOUT_SELF_ATTACH_DISABLED", "");
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "");
+    expect(isSelfAttachClientEnabled()).toBe(false);
+  });
+
+  it("the order carries attach:true only while the flag is on (still no amount / phone / email)", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ ok: true, orderId: "order_1", keyId: "k", amountPaise: 5800 }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
+    await createSelfOrder(CBQ);
+    expect(JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body))).toEqual({ sku: "pack_cbq", target: "maths", self: true, attach: true });
+    vi.stubEnv("VITE_CHECKOUT_SELF_ATTACH_DISABLED", "1");
+    await createSelfOrder(CBQ);
+    expect(JSON.parse(String((fetchMock.mock.calls[1] as unknown as [string, RequestInit])[1].body))).not.toHaveProperty("attach");
+  });
+
+  it("a verified payment whose choice is open returns the proof (memory only); an answer without it does not", async () => {
+    const open = await buyForSelf(PASS, deps({ ok: true, selfContact: { phone: "+919876543210", first: "phone" }, attach: { attached: false, holdUntilMs: 1 } }));
+    expect(open).toMatchObject({ status: "paid", confirmed: true, attach: { orderId: "order_1", paymentId: "pay_1", signature: "ab".repeat(32) } });
+    const old = await buyForSelf(PASS, deps({ ok: true, selfContact: { phone: "+919876543210", first: "phone" } }));
+    expect(old).not.toHaveProperty("attach");
+    const done = await buyForSelf(PASS, deps({ ok: true, selfContact: null, attach: { attached: true } }));
+    expect(done).not.toHaveProperty("attach");
+  });
+
+  it("attachPayment: body = proof + choice (+ recipient); ok / already_has / invalid / failed", async () => {
+    const proof = { orderId: "order_1", paymentId: "pay_1", signature: "ab".repeat(32) };
+    const f = vi.fn();
+    f.mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ ok: true, phoneMasked: "98•••••210" }) });
+    expect(await attachPayment(proof, "me", null, f as never)).toEqual({ status: "ok", phoneMasked: "98•••••210" });
+    expect(f.mock.calls[0][0]).toBe("/api/pay/guest/attach");
+    expect(JSON.parse(f.mock.calls[0][1].body)).toEqual({ ...proof, choice: "me" });
+    f.mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ ok: false, reason: "already_has" }) });
+    expect(await attachPayment(proof, "other", { phone: "+919123456789", first: "phone" }, f as never)).toEqual({ status: "already_has" });
+    expect(JSON.parse(f.mock.calls[1][1].body).recipient).toEqual({ phone: "+919123456789", first: "phone" });
+    f.mockResolvedValueOnce({ ok: false, status: 400, json: async () => ({ ok: false, reason: "invalid_recipient" }) });
+    expect((await attachPayment(proof, "other", { email: "a@b.in", first: "email" }, f as never)).status).toBe("invalid");
+    f.mockRejectedValueOnce(new Error("offline"));
+    expect(await attachPayment(proof, "me", null, f as never)).toEqual({ status: "failed" });
+  });
+
+  it("copy and landing: the mock-up's words; Board Pass lands on Home (mobile Home is /browse), a pack on My packs, both with the welcome flag", () => {
+    expect(ATTACH_BEFORE_PAY).toBe("After paying, you'll choose who uses it: you or someone else.");
+    expect(alreadyHasLine("pass", false)).toBe("This number already has the Board Pass till the boards.");
+    expect(alreadyHasLine("pack", false)).toBe("This number already owns this pack.");
+    expect(attachCloseConfirm("98•••••210")).toBe("Your payment is safe. Sign in with 98•••••210 to use it.");
+    expect(ATTACH_HOLD_MS).toBe(600000);
+    expect(welcomeLandingPath("pass", true)).toBe("/?welcome=board_pass");
+    expect(welcomeLandingPath("pass", false)).toBe("/browse?welcome=board_pass");
+    expect(welcomeLandingPath("pack", true)).toBe("/packs?from=pay&welcome=pack#my-packs");
+    expect(landingPath("pass")).toBe("/");
+  });
+
+  it("F5: a pack landing carries the bought pack's catalogue id (never anything odd)", () => {
+    expect(welcomeLandingPath("pack", true, "pack_mock:maths")).toBe("/packs?from=pay&welcome=pack&pack=pack_mock%3Amaths#my-packs");
+    expect(welcomeLandingPath("pack", false, "a b&c=d")).toBe("/packs?from=pay&welcome=pack#my-packs");
+    expect(welcomeLandingPath("pass", true, "pack_mock:maths")).toBe("/?welcome=board_pass");
+  });
+
+  it("F1: the hold-end claim runs once at the hold's end for a signed-in user, then re-reads the subscription; signed out does nothing", async () => {
+    const timers: Array<{ fn: () => void; ms: number }> = [];
+    const mk = (uid: string, claimed: unknown[] | null) => ({
+      uid: vi.fn(async () => uid),
+      claim: vi.fn(async () => claimed),
+      afterClaim: vi.fn(async () => undefined),
+      setTimer: (fn: () => void, ms: number) => void timers.push({ fn, ms }),
+      now: () => 1_000_000,
+    });
+    const signedIn = mk("u1", [{ orderId: "o1" }]);
+    scheduleHoldEndClaim(1_000_000 + 600_000, signedIn);
+    expect(timers[0].ms).toBe(602_000);
+    expect(signedIn.claim).not.toHaveBeenCalled();
+    timers[0].fn();
+    await vi.waitFor(() => expect(signedIn.afterClaim).toHaveBeenCalledWith("u1"));
+    expect(signedIn.claim).toHaveBeenCalledTimes(1);
+    const out = mk("", null);
+    scheduleHoldEndClaim(1_000_000 + 1000, out);
+    timers[1].fn();
+    await new Promise((r) => setTimeout(r, 5));
+    expect(out.claim).not.toHaveBeenCalled();
+    const empty = mk("u2", []);
+    scheduleHoldEndClaim(Number.NaN, empty);
+    expect(timers).toHaveLength(2);
+    scheduleHoldEndClaim(1_000_000, empty);
+    timers[2].fn();
+    await vi.waitFor(() => expect(empty.claim).toHaveBeenCalled());
+    expect(empty.afterClaim).not.toHaveBeenCalled();
+  });
+
+  it("F10: the delay follows the SERVER's remaining time (a fast device clock cannot fire early); an empty first claim retries exactly once, 60 s later", async () => {
+    const timers: Array<{ fn: () => void; ms: number }> = [];
+    const claim = vi.fn(async () => [] as unknown[]);
+    const d = { uid: vi.fn(async () => "u1"), claim, afterClaim: vi.fn(async () => undefined), setTimer: (fn: () => void, ms: number) => void timers.push({ fn, ms }), now: () => 5_000_000 };
+    // device clock is 10 min ahead of the server's holdUntilMs; the server says 300 s remain
+    scheduleHoldEndClaim(5_000_000 - 600_000, d, 300_000);
+    expect(timers[0].ms).toBe(302_000);
+    timers[0].fn();
+    await vi.waitFor(() => expect(timers).toHaveLength(2));
+    expect(timers[1].ms).toBe(60_000);
+    timers[1].fn();
+    await vi.waitFor(() => expect(claim).toHaveBeenCalledTimes(2));
+    await new Promise((r) => setTimeout(r, 5));
+    expect(timers).toHaveLength(2);
+    expect(d.afterClaim).not.toHaveBeenCalled();
+    // retry that attaches: re-reads the subscription
+    const timers2: Array<() => void> = [];
+    const c2 = vi.fn().mockResolvedValueOnce([]).mockResolvedValueOnce([{}]);
+    const d2 = { ...d, claim: c2, setTimer: (fn: () => void) => void timers2.push(fn) };
+    scheduleHoldEndClaim(0, d2, 0);
+    timers2[0]();
+    await vi.waitFor(() => expect(timers2).toHaveLength(2));
+    timers2[1]();
+    await vi.waitFor(() => expect(d.afterClaim).toHaveBeenCalledWith("u1"));
+  });
+
+  it("F1: a verified attach order schedules the hold-end claim from the server's holdUntilMs", async () => {
+    const scheduleHoldEnd = vi.fn();
+    const out = await buyForSelf(PASS, { ...deps({ ok: true, selfContact: null, attach: { attached: false, holdUntilMs: 12345, holdRemainingMs: 777 } }), scheduleHoldEnd });
+    expect(out).toMatchObject({ status: "paid", attach: { signature: expect.any(String) } });
+    expect(scheduleHoldEnd).toHaveBeenCalledWith(12345, 777);
   });
 });

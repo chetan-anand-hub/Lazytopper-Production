@@ -138,15 +138,14 @@ describe("signed out", () => {
     expect(screen.queryByTestId("who-second")).toBeNull();
   });
 
-  it("already covered: one generic line; closed / failed keep the form", async () => {
+  it("already covered: said plainly (SELFPAY-ATTACH-1, expectation changed from the generic line); closed / failed keep the form", async () => {
     const buy = vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "already_covered" }));
     mount({ buy });
     type("who-first", "9876543210");
     fireEvent.click(screen.getByTestId("who-pay"));
-    // CHECKOUT-WHO-2: the owner-reviewed generic line - nothing says an account exists.
-    expect((await screen.findByTestId("who-covered")).textContent).toBe(
-      "This can't be bought for that number or email right now. If the student already has it, they can sign in to check.",
-    );
+    // SELFPAY-ATTACH-1 (owner 12 Nov): "already has it" is told plainly, and another number can be tried.
+    expect((await screen.findByTestId("who-covered")).textContent).toBe("This number already has the Board Pass till the boards.");
+    expect(screen.getByTestId("who-covered-another")).toBeTruthy();
     cleanup();
     mount({ buy: vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "dismissed" })) });
     type("who-first", "9876543210");

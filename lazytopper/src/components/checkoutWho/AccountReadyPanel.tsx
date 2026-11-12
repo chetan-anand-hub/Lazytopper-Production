@@ -18,7 +18,8 @@
  *
  * What the payer typed lives in memory only: never a URL, storage or an analytics event.
  */
-import { Suspense, lazy, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { useAuth } from "../../context/AuthContext";
 import { isEmailCodeSigninClientEnabled } from "../../services/emailCodeFlag";
 import {
@@ -30,6 +31,7 @@ import {
   ACCOUNT_LINE,
   childShareText,
   landingPath,
+  welcomeLandingPath,
   whatsappShareUrl,
   type Recipient,
 } from "../../services/checkoutWho";
@@ -52,6 +54,12 @@ export interface AccountReadyPanelProps {
   sendEmailLink?: (email: string, landing: string) => Promise<void>;
   /** EMAIL-CODE-1 test seam: the email-code switch (default: VITE_EMAIL_CODE_SIGNIN_ENABLED). */
   emailCodeEnabled?: boolean;
+  /**
+   * SELFPAY-ATTACH-1: the buyer chose "Me" (or the 10 minutes ran out): the code is sent as this mounts (number prefilled, code only),
+   * there is no "send it to my child" and no account line, a "Resend code" link, and the landing carries ?welcome= (Home / My packs
+   * then say the purchase is active). Absent = exactly as before.
+   */
+  attachMe?: boolean;
 }
 
 type Me = { phase: "idle" } | { phase: "sending" } | { phase: "code"; error?: string } | { phase: "verifying" } | { phase: "link-sent" } | { phase: "email-code" } | { phase: "error"; message: string };
@@ -61,7 +69,7 @@ async function defaultSendEmailLink(email: string, landing: string): Promise<voi
   await m.sendSignInLinkForEmail(email, landing);
 }
 
-export default function AccountReadyPanel({ item, recipient, payerSignedIn, onClose, go, sendEmailLink = defaultSendEmailLink, emailCodeEnabled }: AccountReadyPanelProps) {
+export default function AccountReadyPanel({ item, recipient, payerSignedIn, onClose, go, sendEmailLink = defaultSendEmailLink, emailCodeEnabled, attachMe = false }: AccountReadyPanelProps) {
   const { sendPhoneOtp, verifyPhoneOtp } = useAuth();
   const [me, setMe] = useState<Me>({ phase: "idle" });
   const [code, setCode] = useState("");
@@ -70,6 +78,15 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
   const shareText = childShareText(item.label, recipient);
   const viaPhone = !!recipient.phone && (recipient.first === "phone" || !recipient.email);
   const navigate = go || ((path: string) => window.location.assign(path));
+  const desktop = useIsDesktop();
+  const landing = attachMe ? welcomeLandingPath(item.kind, desktop, item.kind === "pack" ? `${item.sku}:${item.sku === "pack_bundle" ? "all" : item.target ?? ""}` : undefined) : landingPath(item.kind);
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (!attachMe || autoStarted.current) return;
+    autoStarted.current = true;
+    void openForMe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const byCode = !viaPhone && !!recipient.email && (emailCodeEnabled ?? isEmailCodeSigninClientEnabled());
 
   async function openForMe() {
@@ -91,7 +108,7 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
     if (recipient.email) {
       setMe({ phase: "sending" });
       try {
-        await sendEmailLink(recipient.email, landingPath(item.kind));
+        await sendEmailLink(recipient.email, landing);
         setMe({ phase: "link-sent" });
       } catch {
         setMe({ phase: "error", message: "We couldn't send the link just now. Please try again." });
@@ -108,7 +125,7 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
     setMe({ phase: "verifying" });
     try {
       await verifyPhoneOtp(c);
-      navigate(landingPath(item.kind));
+      navigate(landing);
     } catch {
       setMe({ phase: "code", error: "That code didn't work. Check it and try again." });
     }
@@ -141,7 +158,7 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
   return (
     <>
       <p className="lt-gps__ok" role="status" data-testid="who-paid">Payment received ✓ {item.label}</p>
-      <p className="lt-gps__line" data-testid="who-account-ready">{ACCOUNT_LINE}</p>
+      {!attachMe && <p className="lt-gps__line" data-testid="who-account-ready">{ACCOUNT_LINE}</p>}
 
       {me.phase === "code" || me.phase === "verifying" ? (
         <form
@@ -171,12 +188,17 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
           </div>
           {me.phase === "code" && me.error && <p className="lt-gps__error" role="alert">{me.error}</p>}
           <button type="submit" className="lt-gps__primary" disabled={me.phase === "verifying"} data-testid="who-otp-verify">
-            {me.phase === "verifying" ? "Opening…" : "Open LazyTopper"}
+            {me.phase === "verifying" ? "Opening…" : attachMe ? "Sign in" : "Open LazyTopper"}
           </button>
+          {attachMe && (
+            <button type="button" className="lt-gps__textlink" disabled={me.phase === "verifying"} onClick={() => void openForMe()} data-testid="who-otp-resend">
+              Resend code
+            </button>
+          )}
         </form>
       ) : me.phase === "email-code" && recipient.email ? (
         <Suspense fallback={<p className="lt-gps__line" role="status">Please wait…</p>}>
-          <EmailCodeSignIn email={recipient.email} sendOnMount onSignedIn={() => navigate(landingPath(item.kind))} />
+          <EmailCodeSignIn email={recipient.email} sendOnMount onSignedIn={() => navigate(landing)} />
         </Suspense>
       ) : me.phase === "link-sent" ? (
         recipient.email && (
@@ -187,7 +209,7 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
           </div>
         )
       ) : (
-        !payerSignedIn && (
+        !payerSignedIn && !attachMe && (
           <button type="button" className="lt-gps__primary" disabled={busy} onClick={() => void openForMe()} data-testid="who-open-me">
             {busy ? "Please wait…" : viaPhone ? OPEN_FOR_ME : byCode ? GET_A_CODE : SEND_ME_LINK}
           </button>
@@ -200,9 +222,11 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
       )}
       {me.phase === "error" && <p className="lt-gps__error" role="alert">{me.message}</p>}
 
-      <button type="button" className={payerSignedIn ? "lt-gps__primary" : "lt-who__secondary"} onClick={() => void sendToChild()} data-testid="who-send-child">
-        {SEND_TO_CHILD}
-      </button>
+      {!attachMe && (
+        <button type="button" className={payerSignedIn ? "lt-gps__primary" : "lt-who__secondary"} onClick={() => void sendToChild()} data-testid="who-send-child">
+          {SEND_TO_CHILD}
+        </button>
+      )}
       {shareFallback && (
         <div className="lt-who__share" data-testid="who-share-fallback">
           <p className="lt-gps__fine lt-who__share-text">{shareText}</p>

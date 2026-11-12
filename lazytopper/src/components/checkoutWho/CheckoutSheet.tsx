@@ -17,13 +17,20 @@
  * Nothing here grants anything. What the payer typed never goes into a URL, storage or an analytics event.
  */
 import GstStateLine from "../gstInvoice/GstStateLine";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { newCheckoutAttemptId, trackNamedEvent } from "../../analytics/analytics";
 import { trackGuestPurchase } from "../guestPay/GuestPaySheet";
 import { tenDigits, type GuestItem } from "../../services/guestPay";
 import { WHATSAPP_URL } from "../../config/socialProfiles";
+import AttachFlow from "./AttachFlow";
 import {
+  ATTACH_BEFORE_PAY,
+  alreadyHasLine,
+  attachCloseConfirm,
+  isSelfAttachClientEnabled,
+  maskedIds as attachMaskedIds,
+  type AttachProof,
   SELF_HELP,
   SELF_PAID_NO_CONTACT,
   SELF_PAID_UNCONFIRMED,
@@ -49,7 +56,6 @@ import {
   WHO_SOMEONE_ELSE,
   WHO_TITLE,
   WHO_UNAVAILABLE,
-  alreadyCoveredLine,
   buyForRecipient,
   detectIdentifier,
   isPayAutoAccountClientEnabled,
@@ -105,6 +111,15 @@ export interface CheckoutSheetProps {
   startAt?: "other";
   /** Test seam. */
   buy?: (item: GuestItem, recipient: Recipient, signedIn: boolean) => Promise<WhoBuyOutcome>;
+  /**
+   * SELFPAY-ATTACH-1 (signed in, a holder tapped Buy): open at "You already have it" with "Buy for someone else" and a way on. `until` is the
+   * REAL end date label (Board Pass); absent -> no date is said.
+   */
+  holder?: { until?: string | null };
+  /** Where "Go to Home" / "Open My packs" go (the caller's router); default a full navigation. */
+  onGoTo?: (path: string) => void;
+  /** SELFPAY-ATTACH-1 test seam: the attach switch (default: the build flag). */
+  attachOn?: boolean;
   /** CHECKOUT-SELF-2 test seams: the "Buy for yourself" purchase, and the kill switch (default: the build flag). */
   buySelf?: (item: GuestItem) => Promise<SelfBuyOutcome>;
   selfFirst?: boolean;
@@ -119,6 +134,8 @@ type Step =
   | { name: "busy" }
   | { name: "paid"; recipient: Recipient; confirmed: boolean }
   | { name: "covered" }
+  | { name: "holder" }
+  | { name: "attach"; proof: AttachProof; contact: Recipient | null }
   | { name: "unavailable" };
 
 export default function CheckoutSheet({
@@ -137,11 +154,23 @@ export default function CheckoutSheet({
   buy = buyForRecipient,
   buySelf = buyForSelf,
   selfFirst,
+  holder,
+  onGoTo,
+  attachOn,
 }: CheckoutSheetProps) {
   const surfaceData = audience === "parent" ? ({ surface: "for_parents" } as const) : {};
   // CHECKOUT-SELF-2: signed out, student-side, not asked to open at the box -> "Buy for yourself" first.
   const [selfOutFirst] = useState(() => !signedIn && startAt !== "other" && audience !== "parent" && (selfFirst ?? isCheckoutSelfClientEnabled()));
-  const [step, setStep] = useState<Step>(selfOutFirst ? { name: "selfOut" } : signedIn && startAt !== "other" ? { name: "self" } : { name: "form" });
+  const [step, setStep] = useState<Step>(holder && signedIn ? { name: "holder" } : selfOutFirst ? { name: "selfOut" } : signedIn && startAt !== "other" ? { name: "self" } : { name: "form" });
+  const showAttach = attachOn ?? isSelfAttachClientEnabled();
+  const goTo = onGoTo || ((path: string) => window.location.assign(path));
+  // SELFPAY-ATTACH-1: the title the after-payment flow wants, and whether closing now needs the "your payment is safe" line.
+  const [attachTitle, setAttachTitle] = useState("");
+  const [attachSettled, setAttachSettled] = useState(false);
+  const [confirmClose, setConfirmClose] = useState(false);
+  const [meNow, setMeNow] = useState(0);
+  const onAttachTitle = useCallback((t: string) => setAttachTitle(t), []);
+  const onAttachSettled = useCallback((v: boolean) => setAttachSettled(v), []);
   const [first, setFirst] = useState("");
   const [second, setSecond] = useState("");
   const [showSecond, setShowSecond] = useState(false);
@@ -161,13 +190,20 @@ export default function CheckoutSheet({
   }, [step.name]);
 
   const busy = step.name === "busy" || step.name === "selfBusy";
+  // SELFPAY-ATTACH-1: closing before choosing who it is for asks first (one line; the payment is already safe).
+  const attachPending = step.name === "attach" && !attachSettled;
+  const attachContactMasked = step.name === "attach" && step.contact ? attachMaskedIds(step.contact)[0] || "" : "";
+  const requestClose = useCallback(() => {
+    if (attachPending) setConfirmClose(true);
+    else onClose();
+  }, [attachPending, onClose]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !busy) onClose();
+      if (e.key === "Escape" && !busy) requestClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose, busy]);
+  }, [requestClose, busy]);
 
   const a = detectIdentifier(first);
   const b = detectIdentifier(second);
@@ -214,7 +250,9 @@ export default function CheckoutSheet({
     if (outcome.status === "paid") {
       trackNamedEvent("guest_pay_paid", { recipient: "self", ...surfaceData });
       if (outcome.confirmed) trackGuestPurchase(item, outcome, attemptId);
-      setStep(outcome.contact ? { name: "paid", recipient: outcome.contact, confirmed: outcome.confirmed } : { name: "paidSelf", confirmed: outcome.confirmed });
+      // SELFPAY-ATTACH-1: the server holds this order until the payer says who it is for.
+      if (outcome.attach && outcome.confirmed && showAttach) setStep({ name: "attach", proof: outcome.attach, contact: outcome.contact });
+      else setStep(outcome.contact ? { name: "paid", recipient: outcome.contact, confirmed: outcome.confirmed } : { name: "paidSelf", confirmed: outcome.confirmed });
     } else if (outcome.status === "unavailable") {
       setStep({ name: "unavailable" });
     } else if (outcome.status === "dismissed") {
@@ -235,6 +273,7 @@ export default function CheckoutSheet({
         <button type="button" className="lt-gps__primary" disabled={busy} data-testid="who-pay-self-out" onClick={() => void paySelf()}>
           {busy ? "Opening payment…" : payReadBack(item.priceDisplay, "")}
         </button>
+        {showAttach && <p className="lt-gps__fine" data-testid="who-attach-before">{ATTACH_BEFORE_PAY}</p>}
         <button type="button" className="lt-gps__textlink" disabled={busy} data-testid="who-someone-else" onClick={() => setStep({ name: "form" })}>
           {WHO_SOMEONE_ELSE}
         </button>
@@ -388,12 +427,42 @@ export default function CheckoutSheet({
       </>
     );
   } else if (step.name === "covered") {
+    // SELFPAY-ATTACH-1 (owner 12 Nov): said plainly, and the box stays one tap away for another number or email. Nothing was charged.
     body = (
       <>
-        <p className="lt-gps__line" role="status" data-testid="who-covered">{alreadyCoveredLine(item.kind)}</p>
-        <button type="button" className="lt-gps__primary" onClick={onClose}>OK</button>
+        <p className="lt-who__warn" role="status" data-testid="who-covered">{alreadyHasLine(item.kind, a.kind === "email")}</p>
+        <button type="button" className="lt-gps__primary" onClick={() => setStep({ name: "form" })} data-testid="who-covered-another">Use another number or email</button>
+        <button type="button" className="lt-gps__textlink" onClick={onClose}>OK</button>
       </>
     );
+  } else if (step.name === "holder") {
+    // SELFPAY-ATTACH-1 (D): a signed-in holder is told, never charged again, and offered the someone-else box.
+    const isPack = item.kind === "pack";
+    body = (
+      <>
+        <span className="lt-who__tag" data-testid="who-holder-tag">{isPack ? "You own this" : "You have it"}</span>
+        <p className="lt-gps__line" data-testid="who-holder-title"><strong>{isPack ? `You already own the ${item.label}` : "You already have the Board Pass"}</strong></p>
+        <p className="lt-gps__line" data-testid="who-holder-line">
+          {isPack
+            ? "Your files are in My packs, ready to download."
+            : `It's active till your boards${holder?.until ? ` (until ${holder.until})` : ""}. There's nothing more to pay.`}
+        </p>
+        <button type="button" className="lt-gps__primary" onClick={() => setStep({ name: "form" })} data-testid="who-holder-other">Buy for someone else</button>
+        <button
+          type="button"
+          className="lt-who__secondary"
+          onClick={() => {
+            onClose();
+            goTo(isPack ? "/packs#my-packs" : "/");
+          }}
+          data-testid="who-holder-go"
+        >
+          {isPack ? "Open My packs" : "Go to Home"}
+        </button>
+      </>
+    );
+  } else if (step.name === "attach") {
+    body = <AttachFlow item={item} proof={step.proof} contact={step.contact} onTitle={onAttachTitle} onClose={onClose} onSettled={onAttachSettled} meNow={meNow} />;
   } else {
     body = (
       <>
@@ -403,31 +472,44 @@ export default function CheckoutSheet({
     );
   }
 
-  const title = step.name === "paid" || step.name === "paidSelf" ? "Thank you" : step.name === "self" ? item.label : step.name === "selfOut" || step.name === "selfBusy" ? SELF_TITLE : WHO_TITLE;
+  const title = step.name === "attach" ? attachTitle || "Thank you" : step.name === "holder" ? item.label : step.name === "paid" || step.name === "paidSelf" ? "Thank you" : step.name === "self" ? item.label : step.name === "selfOut" || step.name === "selfBusy" ? SELF_TITLE : WHO_TITLE;
 
   return createPortal(
-    <div className="lt-gps" data-testid="who-sheet" onClick={(e) => e.target === e.currentTarget && !busy && onClose()}>
+    <div className="lt-gps" data-testid="who-sheet" onClick={(e) => e.target === e.currentTarget && !busy && requestClose()}>
       <div className="lt-gps__panel" role="dialog" aria-modal="true" aria-labelledby="lt-who-title" tabIndex={-1} ref={panelRef}>
         <div className="lt-gps__head">
           <div>
             <h2 className="lt-gps__title" id="lt-who-title">{title}</h2>
-            {step.name !== "paid" && step.name !== "paidSelf" && step.name !== "self" && (
+            {step.name !== "paid" && step.name !== "paidSelf" && step.name !== "self" && step.name !== "attach" && step.name !== "holder" && (
               <p className="lt-gps__item">
                 {item.label} · {item.priceDisplay}
               </p>
             )}
             {step.name === "self" && <p className="lt-gps__item">{selfPriceDisplay || item.priceDisplay}</p>}
-            {step.name !== "paid" && step.name !== "paidSelf" && (step.name === "self" && selfPriceDisplay ? selfPriceNote : item.priceBreakdown) && (
+            {step.name !== "paid" && step.name !== "paidSelf" && step.name !== "attach" && step.name !== "holder" && (step.name === "self" && selfPriceDisplay ? selfPriceNote : item.priceBreakdown) && (
               <p className="lt-gps__fine" data-testid="who-gst-breakdown">
                 {step.name === "self" && selfPriceDisplay ? selfPriceNote : item.priceBreakdown}
               </p>
             )}
           </div>
-          <button type="button" className="lt-gps__close" onClick={onClose} disabled={busy} aria-label="Close">
+          <button type="button" className="lt-gps__close" onClick={requestClose} disabled={busy} aria-label="Close">
             &times;
           </button>
         </div>
-        {body}
+        {confirmClose && attachPending ? (
+          <div data-testid="who-close-confirm">
+            <p className="lt-who__note" role="alert">{attachContactMasked ? attachCloseConfirm(attachContactMasked) : "Your payment is safe. Sign in with the number or email you paid with to use it."}</p>
+            {attachContactMasked && (
+              <button type="button" className="lt-gps__primary" onClick={() => { setConfirmClose(false); setMeNow((n) => n + 1); }} data-testid="who-close-me-now">
+                {`Put it on ${attachContactMasked} now`}
+              </button>
+            )}
+            <button type="button" className={attachContactMasked ? "lt-who__secondary" : "lt-gps__primary"} onClick={() => setConfirmClose(false)} data-testid="who-close-stay">Keep choosing</button>
+            <button type="button" className="lt-who__secondary" onClick={onClose} data-testid="who-close-anyway">Close</button>
+          </div>
+        ) : null}
+        {/* The flow stays mounted behind the confirm so "Keep choosing" returns to where the payer was. */}
+        <div hidden={confirmClose && attachPending}>{body}</div>
       </div>
     </div>,
     document.body,

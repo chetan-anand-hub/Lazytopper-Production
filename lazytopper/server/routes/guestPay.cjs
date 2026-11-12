@@ -104,6 +104,10 @@ const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('../services/packGran
 const GUEST_ORDER_PATH = '/api/pay/guest/order';
 const GUEST_VERIFY_PATH = '/api/pay/guest/verify';
 const GUEST_CLAIM_PATH = '/api/pay/guest/claim';
+/** SELFPAY-ATTACH-1 - the signed-out payer says WHO the paid order is for (after payment). */
+const GUEST_ATTACH_PATH = '/api/pay/guest/attach';
+/** SELFPAY-ATTACH-1 (owner 12 Nov 2026: "make it 10 mins"): how long a paid attach order waits for its payer's choice. */
+const ATTACH_HOLD_MS = 10 * 60 * 1000;
 
 /** The one pass a guest can buy: what a new account is sold (PRICE-FIXED-1 retired the month pass for them). */
 const GUEST_PASS_SKU = 'till_boards';
@@ -160,6 +164,34 @@ function isPayAutoAccountEnabled(env = process.env) {
  */
 function isSelfPayDisabled(env = process.env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.CHECKOUT_SELF_DISABLED) || '').trim());
+}
+/**
+ * SELFPAY-ATTACH-1 - kill switch for "pay first, then choose who uses it". CHECKOUT_SELF_ATTACH_DISABLED=1: the `attach` marker is
+ * ignored (a self order behaves exactly as before), POST /api/pay/guest/attach answers 404, and "already has" is generic again.
+ */
+function isSelfAttachDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.CHECKOUT_SELF_ATTACH_DISABLED) || '').trim());
+}
+
+/** A stored time (Date, Firestore Timestamp, or epoch ms) as epoch ms; NaN when it is none of those. */
+function timeMs(v) {
+  if (v instanceof Date) return v.getTime();
+  if (typeof v === 'number') return v;
+  if (v && typeof v.toMillis === 'function') return v.toMillis();
+  if (v && typeof v.toDate === 'function') return v.toDate().getTime();
+  return NaN;
+}
+
+/**
+ * SELFPAY-ATTACH-1 - when an attach order's hold on the payer's choice ends: the stored `attachHoldUntil`, else the payment time + 10 min.
+ * NaN when the order is not an attach order, is already attached, or has no payment time yet (nothing to hold on).
+ */
+function attachHoldEndsMs(order) {
+  if (!order || order.attachFlow !== true || order.attachedAt) return NaN;
+  const stored = timeMs(order.attachHoldUntil);
+  if (Number.isFinite(stored)) return stored;
+  const paid = timeMs(order.guestPaidAt);
+  return Number.isFinite(paid) ? paid + ATTACH_HOLD_MS : NaN;
 }
 /** CHECKOUT-SELF-2 admin note: the payment carried no Indian mobile and no valid email, so nobody can claim it yet. */
 const SELF_NO_CONTACT_NOTE = 'self_pay_no_usable_contact';
@@ -228,7 +260,7 @@ function createGuestPayLimiters({ telemetry, now } = {}) {
     client: createRateLimiter({
       telemetry,
       now,
-      paidEndpoints: { [GUEST_ORDER_PATH]: 'guestPay', [GUEST_VERIFY_PATH]: 'guestPay' },
+      paidEndpoints: { [GUEST_ORDER_PATH]: 'guestPay', [GUEST_VERIFY_PATH]: 'guestPay', [GUEST_ATTACH_PATH]: 'guestPay' },
       limits: {
         [ANONYMOUS_CLASS]: { soft: Math.ceil(MAX_GUEST_CALLS_PER_CLIENT_PER_DAY / 2), hard: MAX_GUEST_CALLS_PER_CLIENT_PER_DAY },
       },
@@ -637,6 +669,8 @@ function createGuestPayRoutes(deps = {}) {
       const covered = await recipientCovered(target.uid || NO_ACCOUNT_COVERAGE_ID, sku, packTarget);
       if (target.uid && covered) {
         emit('payments.guest.order.recipient_covered');
+        // SELFPAY-ATTACH-1 (owner 12 Nov: say it plainly): "already has it" is its own answer. Switch off: the generic one below.
+        if (!isSelfAttachDisabled(env)) return sendJson(res, 409, { ok: false, error: 'already_covered', reason: 'already_has' });
         // CHECKOUT-WHO-2: the SAME answer as "already paid, not yet claimed" below - nothing says an account exists.
         return sendJson(res, 409, { ok: false, error: 'payment_unavailable' });
       }
@@ -780,6 +814,8 @@ function createGuestPayRoutes(deps = {}) {
         payer: GUEST_PAYER,
         checkoutWho: true,
         selfPay: true,
+        // SELFPAY-ATTACH-1: the new client says it will ask WHO after payment; the delivery then waits for that answer (or 10 min).
+        ...(body.attach === true && !isSelfAttachDisabled(env) ? { attachFlow: true } : {}),
         payerType: PAYER_TYPE.signedOut,
         passType: sku,
         ...(isPack ? { packTarget } : {}),
@@ -904,6 +940,15 @@ function createGuestPayRoutes(deps = {}) {
       const email = typeof o.guestEmail === 'string' && o.guestEmail ? o.guestEmail : null;
       return { selfContact: phone || email ? { ...(phone ? { phone } : {}), ...(email ? { email } : {}), first: phone ? 'phone' : 'email' } : null };
     };
+    // SELFPAY-ATTACH-1: an attach order tells its payer the choice is open (and until when) or already made.
+    const attachInfoOf = (o) => {
+      if (!o || o.attachFlow !== true) return {};
+      if (o.attachedAt) return { attach: { attached: true } };
+      const paidMs = timeMs(o.guestPaidAt);
+      const holdUntilMs = (Number.isFinite(paidMs) ? paidMs : now()) + ATTACH_HOLD_MS;
+      // F10: the remaining time on the SERVER's clock, so a device with a wrong clock still waits the right time.
+      return { attach: { attached: false, holdUntilMs, holdRemainingMs: Math.max(0, holdUntilMs - now()) } };
+    };
     const done = (current = order) =>
       sendJson(res, 200, {
         ok: true,
@@ -911,6 +956,7 @@ function createGuestPayRoutes(deps = {}) {
         ...describeOrder(order),
         phoneMasked: maskIndianMobile(current.guestPhone),
         ...selfContactOf(current),
+        ...attachInfoOf(current),
         // CHECKOUT-WHO-1: the masked email too. ONE answer whether or not an account exists (delivery runs AFTER it).
         ...(order.checkoutWho === true ? recipientMasked(current) : {}),
       });
@@ -978,17 +1024,35 @@ function createGuestPayRoutes(deps = {}) {
    */
   async function afterRecipientPaid({ orderId, paymentId } = {}) {
     if (typeof orderId !== 'string' || !orderId || typeof paymentId !== 'string' || !paymentId || !adminFirestore) return;
+    let first = null;
     try {
       const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).get();
       const o = snap && snap.exists ? snap.data() || {} : null;
       if (!o || o.payer !== GUEST_PAYER || o.checkoutWho !== true || o.paymentId !== paymentId) return;
+      first = o;
     } catch (e) {
       emit('payments.guest.deliver.failed');
       console.error('[pay/guest/deliver] could not read the order:', e && e.message);
       return;
     }
     // CHECKOUT-SELF-2: a "Buy for me" order paid with no verify (webhook only) has no identifier yet - read it from Razorpay now.
-    await ensureSelfContact(orderId, paymentId, null);
+    const contacted = await ensureSelfContact(orderId, paymentId, null);
+    // SELFPAY-ATTACH-1: an attach order is NOT delivered until its payer chooses who it is for (POST /attach) or 10 minutes pass.
+    // The hold is written once (payment time + 10 min); the claim at sign-in honours it, and after it the order goes as today.
+    // It reads the order's own flag from the FIRST read (not from ensureSelfContact, which may fail): fail CLOSED, never deliver early.
+    const latest = { ...first, ...(contacted || {}) };
+    if (latest.attachFlow === true && !latest.attachedAt) {
+      const ends = attachHoldEndsMs(latest);
+      const holdEnds = Number.isFinite(ends) ? ends : now() + ATTACH_HOLD_MS;
+      if (!latest.attachHoldUntil) {
+        try {
+          await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).set({ attachHoldUntil: new Date(holdEnds) }, { merge: true });
+        } catch (e) {
+          console.error('[pay/guest/attach] could not write the hold:', e && e.message);
+        }
+      }
+      if (now() < holdEnds) return;
+    }
     await deliverToExistingAccount(orderId);
     if (receiptEmailer && typeof receiptEmailer.sendRecipientReady === 'function') {
       await receiptEmailer.sendRecipientReady({ orderId, paymentId });
@@ -1155,6 +1219,8 @@ function createGuestPayRoutes(deps = {}) {
       // `matches` re-checks INSIDE the transaction that this order is the caller's (its phone / verified email).
       if (!order || order.payer !== GUEST_PAYER || !matches(order)) return null;
       if (typeof order.paymentId !== 'string' || !order.paymentId) return null;
+      // SELFPAY-ATTACH-1: while its payer may still choose who it is for, no sign-in (or delivery) takes an attach order.
+      if (order.status === GUEST_STATUS.paidUnclaimed && now() < attachHoldEndsMs(order)) return null;
       if (order.status === GUEST_STATUS.paidUnclaimed && (order.uid === null || order.uid === undefined)) {
         tx.set(ref, { uid, status: GUEST_STATUS.claimed, claimedAt: new Date(now()), claimAttempts: 1, ...(via && order.checkoutWho === true ? { claimedVia: via } : {}), ...(extra || {}) }, { merge: true });
         return { ...order, uid, status: GUEST_STATUS.claimed };
@@ -1244,6 +1310,137 @@ function createGuestPayRoutes(deps = {}) {
     if (!phone && typeof o.guestPhone === 'string' && o.guestPhone) return { kind: 'phone', masked: maskIndianMobile(o.guestPhone) };
     if (!email && typeof o.guestEmail === 'string' && o.guestEmail) return { kind: 'email', masked: maskEmail(o.guestEmail) };
     return null;
+  }
+
+
+  /* ── POST /api/pay/guest/attach (SELFPAY-ATTACH-1) - the signed-out payer says WHO a paid self order is for ─────────── */
+  /**
+   * Body { orderId, paymentId, signature, choice: "me" | "other", recipient?: { phone?, email?, first? } }. Signed out only.
+   * Auth = Razorpay's checkout signature (the same timing-safe check as verify) + the stored order being THIS payment's, an attach
+   * order, paid and unclaimed. "me" with no recipient = the contact read off the payment. A recipient that already has what was bought
+   * (Board Pass to the boards / this pack) answers { ok:false, reason:"already_has" } and changes NOTHING. Otherwise the recipient is
+   * written onto the order (the fields a "someone else" order carries), the hold is cleared, and the EXISTING delivery runs.
+   * Idempotent: a second attach after a success answers the same and changes nothing.
+   */
+  async function handleAttach(req, res) {
+    // Kill switch / dark check FIRST: indistinguishable from a route that does not exist.
+    if (isSelfAttachDisabled(env) || !isCheckoutWhoEnabled(env) || isSelfPayDisabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
+    if (!admitGuestCall(req, res, 'attach', GUEST_ATTACH_PATH)) return undefined;
+    const keys = readKeys();
+    if (!keys.keyId || !keys.keySecret) return unavailable(res);
+    const body = await readJsonBody(req, res);
+    if (!body) return undefined;
+    const orderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
+    const paymentId = typeof body.paymentId === 'string' ? body.paymentId.trim() : '';
+    const signature = typeof body.signature === 'string' ? body.signature.trim() : '';
+    if (!ID_PATTERN.test(orderId) || !ID_PATTERN.test(paymentId) || !HEX_PATTERN.test(signature)) return reject(res, 'attach', 'malformed');
+    if (body.choice !== 'me' && body.choice !== 'other') return reject(res, 'attach', 'bad_choice');
+    // A signed-in caller uses its own checkout (as for a self order).
+    if (await payerUidOf(req)) return reject(res, 'attach', 'requires_signed_out', 409);
+    if (!isCheckoutSignatureValid({ orderId, paymentId, signature, keySecret: keys.keySecret })) return reject(res, 'attach', 'bad_signature');
+
+    let order;
+    try {
+      const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).get();
+      order = snap && snap.exists ? snap.data() || {} : null;
+    } catch (e) {
+      emit('payments.guest.attach.store_read_failed');
+      console.error('[pay/guest/attach] read failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not read the order.' });
+    }
+    if (!order || order.payer !== GUEST_PAYER || order.selfPay !== true || order.attachFlow !== true || order.paymentId !== paymentId) {
+      return reject(res, 'attach', 'unknown_order');
+    }
+    const answer = (o) => sendJson(res, 200, { ok: true, ...describeOrder(o), ...recipientMasked(o) });
+    // Already attached (a retry, a double tap): the same answer, nothing changes.
+    if (order.attachedAt) {
+      emit('payments.guest.attach.replayed');
+      return answer(order);
+    }
+    if (order.status !== GUEST_STATUS.paidUnclaimed) return reject(res, 'attach', 'not_attachable', 409);
+
+    // The chosen recipient: typed, else (for "me") the contact read off the payment.
+    let recipient = null;
+    if (body.recipient !== undefined && body.recipient !== null) {
+      recipient = readRecipient(body.recipient);
+      if (!recipient) return reject(res, 'attach', 'invalid_recipient');
+    } else if (body.choice === 'me') {
+      const phone = typeof order.guestPhone === 'string' && order.guestPhone ? order.guestPhone : null;
+      const email = typeof order.guestEmail === 'string' && order.guestEmail ? order.guestEmail : null;
+      if (!phone && !email) return reject(res, 'attach', 'no_recipient');
+      recipient = { phone, email, first: order.recipientFirst === 'email' && email ? 'email' : phone ? 'phone' : 'email' };
+    } else {
+      return reject(res, 'attach', 'invalid_recipient');
+    }
+
+    // The same per-number daily limit as an order, for each identifier TYPED (the paid-with contact is not a guess).
+    if (body.recipient !== undefined && body.recipient !== null) {
+      for (const key of [recipient.phone ? phoneKey(recipient.phone) : null, recipient.email ? emailKey(recipient.email) : null]) {
+        if (!key) continue;
+        if (!limiters.phone.check(req, GUEST_ORDER_PATH, key).allowed) {
+          emit('payments.guest.attach.phone_rate_limited');
+          return sendJson(res, 429, { ok: false, error: 'Too many attempts today. Please try again tomorrow.' });
+        }
+      }
+    }
+
+    // Does the chosen recipient already have it? The SAME helper as the "someone else" order. A lookup that cannot tell fails CLOSED.
+    const sku = order.passType;
+    const packTarget = isPackProduct(sku) ? order.packTarget : null;
+    try {
+      const target = await resolveRecipientAccount(recipient);
+      const covered = await recipientCovered(target.uid || NO_ACCOUNT_COVERAGE_ID, sku, packTarget);
+      let has = !!(target.uid && covered);
+      if (!has) {
+        // Another payment of the same thing already waiting for (or taken by) this recipient is a duplicate too.
+        const wanted = isPackProduct(sku) ? packIdFor(sku, packTarget) : GUEST_PASS_SKU;
+        for (const [field, value] of [['guestPhone', recipient.phone], ['guestEmail', recipient.email]]) {
+          if (!value || has) continue;
+          const others = [...(await ordersFor(field, value, GUEST_STATUS.paidUnclaimed)), ...(await ordersFor(field, value, GUEST_STATUS.claimed))];
+          has = others.some(({ id, order: o }) => id !== orderId && (isPackProduct(o.passType) ? packIdFor(o.passType, o.packTarget) : o.passType) === wanted);
+        }
+      }
+      if (has) {
+        emit('payments.guest.attach.already_has');
+        return sendJson(res, 200, { ok: false, reason: 'already_has', ...describeOrder(order) });
+      }
+    } catch (e) {
+      emit('payments.guest.attach.account_lookup_failed');
+      console.error('[pay/guest/attach] recipient lookup failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not check that number.' });
+    }
+
+    // Write the recipient (and clear the hold) in ONE transaction that re-reads the order: a racing attach / claim cannot be overwritten.
+    let written;
+    try {
+      const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
+      written = await adminFirestore.runTransaction(async (tx) => {
+        const cur = await tx.get(ref);
+        const o = cur && cur.exists ? cur.data() || {} : null;
+        if (!o || o.attachedAt) return { order: o, changed: false };
+        if (o.status !== GUEST_STATUS.paidUnclaimed || o.attachFlow !== true || o.paymentId !== paymentId) return { order: o, changed: false, refused: true };
+        const fields = {
+          guestPhone: recipient.phone || null,
+          guestEmail: recipient.email || null,
+          recipientFirst: recipient.first,
+          attachedAt: new Date(now()),
+          attachChoice: body.choice,
+          attachHoldUntil: null,
+        };
+        tx.set(ref, fields, { merge: true });
+        return { order: { ...o, ...fields }, changed: true };
+      });
+    } catch (e) {
+      emit('payments.guest.attach.store_write_failed');
+      console.error('[pay/guest/attach] could not record the choice:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not record your choice.' });
+    }
+    if (written.refused || !written.order) return reject(res, 'attach', 'not_attachable', 409);
+    if (!written.changed) return answer(written.order);
+    emit('payments.guest.attach.attached');
+    // The response first (the payer waits on it), then the EXISTING delivery: an existing account gets it now, a new one is made.
+    answer(written.order);
+    return afterRecipientPaid({ orderId, paymentId });
   }
 
   /* ── POST /api/pay/guest/claim — the verified phone (or verified email) takes its paid orders ── */
@@ -1382,7 +1579,7 @@ function createGuestPayRoutes(deps = {}) {
     });
   }
 
-  return { handleOrder, handleVerify, handleClaim, afterRecipientPaid, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
+  return { handleOrder, handleVerify, handleClaim, handleAttach, afterRecipientPaid, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
 }
 
 module.exports = {
@@ -1408,6 +1605,9 @@ module.exports = {
   GUEST_ORDER_PATH,
   GUEST_VERIFY_PATH,
   GUEST_CLAIM_PATH,
+  GUEST_ATTACH_PATH,
+  ATTACH_HOLD_MS,
+  isSelfAttachDisabled,
   GUEST_PASS_SKU,
   MAX_CLAIM_ATTEMPTS,
   MAX_GUEST_ORDERS_PER_PHONE_PER_DAY,

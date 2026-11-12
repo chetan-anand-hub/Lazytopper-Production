@@ -26,6 +26,8 @@ const {
   createGuestPayRoutes,
   isGuestPayEnabled,
   GUEST_ORDER_PATH,
+  GUEST_ATTACH_PATH,
+  ATTACH_HOLD_MS,
   GUEST_VERIFY_PATH,
   GUEST_CLAIM_PATH,
   MAX_GUEST_ORDERS_PER_PHONE_PER_DAY,
@@ -206,6 +208,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     [GUEST_ORDER_PATH]: guest.handleOrder,
     [GUEST_VERIFY_PATH]: guest.handleVerify,
     [GUEST_CLAIM_PATH]: guest.handleClaim,
+    [GUEST_ATTACH_PATH]: guest.handleAttach,
     [PAY_ORDER_PATH]: pay.handleOrder,
     [PAY_VERIFY_PATH]: pay.handleVerify,
     [PAY_WEBHOOK_PATH]: pay.handleWebhook,
@@ -1060,11 +1063,12 @@ test('WHO · an already-covered recipient account is refused at the order with o
   const r = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: PHONE } });
   assert.equal(r.status, 409);
   // CHECKOUT-WHO-2: the SAME generic answer as "already paid, not yet claimed" - nothing says an account exists.
-  assert.deepEqual(r.json, { ok: false, error: 'payment_unavailable' });
+  // SELFPAY-ATTACH-1 (owner 12 Nov: say it plainly): "already has it" is now its own answer (expectation changed from the generic one).
+  assert.deepEqual(r.json, { ok: false, error: 'already_covered', reason: 'already_has' });
   assert.equal(srv.rzp.calls.length, 0);
   // An owned pack is the same answer; a lookup that cannot tell fails closed.
   await db.collection('packEntitlements').doc('uCovered').collection('packs').doc('pack_cbq:maths').set({ packId: 'pack_cbq:maths' });
-  assert.deepEqual((await whoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: PHONE } })).json, { ok: false, error: 'payment_unavailable' });
+  assert.deepEqual((await whoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: PHONE } })).json, { ok: false, error: 'already_covered', reason: 'already_has' });
   const down = await startRoutes({ env: WHO_ENV, uidForPhone: async () => { throw new Error('auth down'); } });
   t.after(down.close);
   assert.equal((await whoOrder(down, { sku: 'till_boards', recipient: { phone: PHONE } })).status, 500);
@@ -1219,7 +1223,9 @@ test('WHO-2 · covered recipient and pending purchase answer the SAME generic 40
   const pending = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: OTHER_PHONE } });
   assert.equal(covered.status, 409);
   assert.equal(pending.status, 409);
-  assert.deepEqual(covered.json, pending.json);
+  // SELFPAY-ATTACH-1: expectation changed - "already has it" is said plainly now; a purchase merely WAITING stays the generic answer.
+  assert.deepEqual(covered.json, { ok: false, error: 'already_covered', reason: 'already_has' });
+  assert.deepEqual(pending.json, { ok: false, error: 'payment_unavailable' });
 });
 
 test('WHO-2 · claim: an email prompt when the account has no VERIFIED email; none when it has', async (t) => {
@@ -1532,7 +1538,8 @@ test('AUTO · a recipient who already owns it is refused BEFORE payment (generic
   t.after(srv.close);
   const r = await whoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: PHONE } });
   assert.equal(r.status, 409);
-  assert.equal(r.json.error, 'payment_unavailable');
+  assert.equal(r.json.error, 'already_covered');
+  assert.equal(r.json.reason, 'already_has');
   assert.equal(srv.rzp.calls.length, 0);
   assert.deepEqual(auth.created, []);
 });
@@ -2089,4 +2096,215 @@ test('SELF · F2: the Razorpay payment read failing flags the order for the admi
   assert.equal(ok.adminNote, null);
   assert.equal(ok.guestPhone, PHONE);
   assert.equal(auth.created.length, 1);
+});
+
+
+/* ══ SELFPAY-ATTACH-1 (12 Nov 2026): pay first, then say who uses it ═════════════════════════════════════════════════ */
+const attachSelf = (srv, body = {}, headers = {}) => request(srv.port, GUEST_ORDER_PATH, { body: { self: true, attach: true, sku: 'till_boards', ...body }, headers });
+const doAttach = (srv, paid, extra = {}, headers = {}) =>
+  request(srv.port, GUEST_ATTACH_PATH, { body: { orderId: paid.orderId, paymentId: paid.paymentId, signature: checkoutSig(paid.orderId, paid.paymentId), ...extra }, headers });
+async function paidAttach(srv, payOpts = { contact: '+919876543948' }, body = {}) {
+  const o = await attachSelf(srv, body);
+  assert.equal(o.status, 200, o.text);
+  const p = srv.rzp.pay(o.json.orderId, payOpts);
+  const v = await guestVerify(srv, o.json.orderId, p.id);
+  assert.equal(v.status, 200, v.text);
+  await srv.idle();
+  return { orderId: o.json.orderId, paymentId: p.id, verify: v.json };
+}
+
+test('ATTACH · the marker is stored; verify records the payment, reads the contact, HOLDS delivery (no account, no grant)', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const stored = srv.db.read(`payOrders/${paid.orderId}`);
+  assert.equal(stored.attachFlow, true);
+  assert.equal(stored.status, 'paid_unclaimed');
+  assert.equal(stored.guestPhone, PHONE, 'the paid-with contact is still read');
+  assert.equal(new Date(stored.attachHoldUntil).getTime(), NOW + ATTACH_HOLD_MS, 'hold = payment time + 10 minutes');
+  assert.deepEqual(auth.created, [], 'no account is made while the payer may still choose');
+  assert.equal(subsDocs(srv.db).length, 0);
+  assert.equal(paid.verify.attach.attached, false);
+  assert.equal(paid.verify.attach.holdUntilMs, NOW + ATTACH_HOLD_MS);
+  assert.equal(paid.verify.attach.holdRemainingMs, ATTACH_HOLD_MS, "the server sends its own remaining time (F10)");
+});
+
+test('ATTACH · "me" with no recipient: the paid-with number gets it through the EXISTING delivery', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const r = await doAttach(srv, paid, { choice: 'me' });
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.ok, true);
+  assert.equal(r.json.phoneMasked, maskIndianMobile(PHONE));
+  assert.equal(JSON.stringify(r.json).includes('9876543948'), false, 'never the full number');
+  await srv.idle();
+  assert.equal(auth.created.length, 1);
+  assert.equal(auth.created[0].phoneNumber, PHONE);
+  const uid = autoAccountUid(paid.orderId);
+  assert.equal(srv.db.read(`subscriptions/${uid}`).tier, 'premium');
+  const stored = srv.db.read(`payOrders/${paid.orderId}`);
+  assert.equal(stored.status, 'paid');
+  assert.equal(stored.attachChoice, 'me');
+});
+
+test('ATTACH · "other": the typed recipient REPLACES the paid-with contact and gets the delivery', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const paid = await paidAttach(srv, { contact: '+919876543948', email: 'Anaya.K@Gmail.com' });
+  const r = await doAttach(srv, paid, { choice: 'other', recipient: { phone: OTHER_PHONE } });
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.phoneMasked, maskIndianMobile(OTHER_PHONE));
+  assert.equal(r.json.emailMasked, undefined, 'the paid-with email is not carried over');
+  await srv.idle();
+  const stored = srv.db.read(`payOrders/${paid.orderId}`);
+  assert.equal(stored.guestPhone, OTHER_PHONE);
+  assert.equal(stored.guestEmail, null);
+  assert.equal(stored.attachChoice, 'other');
+  assert.deepEqual(auth.created.map((u) => u.phoneNumber), [OTHER_PHONE]);
+  assert.equal(srv.db.read(`subscriptions/${autoAccountUid(paid.orderId)}`).tier, 'premium');
+});
+
+test('ATTACH · a recipient that already has it: already_has, order UNCHANGED, no delivery (pass and pack)', async (t) => {
+  const auth = fakeAuth({ users: [{ uid: 'uHas', phoneNumber: OTHER_PHONE }] });
+  const db = memoryFirestore();
+  await db.collection('subscriptions').doc('uHas').set(COVERED_SUB);
+  await db.collection('packEntitlements').doc('uHas').collection('packs').doc('pack_cbq:maths').set({ packId: 'pack_cbq:maths' });
+  const { srv } = await autoRoutes({ env: SELF_ENV, auth, db });
+  t.after(srv.close);
+  for (const body of [{}, { sku: 'pack_cbq', target: 'maths' }]) {
+    const paid = await paidAttach(srv, { contact: '+919876543948' }, body);
+    const before = JSON.stringify(srv.db.read(`payOrders/${paid.orderId}`));
+    const r = await doAttach(srv, paid, { choice: 'other', recipient: { phone: OTHER_PHONE } });
+    assert.equal(r.status, 200);
+    assert.equal(r.json.ok, false);
+    assert.equal(r.json.reason, 'already_has');
+    assert.equal(JSON.stringify(srv.db.read(`payOrders/${paid.orderId}`)), before, 'nothing written');
+    await srv.idle();
+    assert.equal(srv.db.read(`payOrders/${paid.orderId}`).status, 'paid_unclaimed');
+  }
+  assert.deepEqual(auth.created, []);
+});
+
+test('ATTACH · refused: bad signature, wrong paymentId, signed-in caller, a non-attach order, a bad choice', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const base = { orderId: paid.orderId, paymentId: paid.paymentId, choice: 'me' };
+  assert.equal((await request(srv.port, GUEST_ATTACH_PATH, { body: { ...base, signature: 'ab'.repeat(32) } })).status, 400);
+  const wrong = await request(srv.port, GUEST_ATTACH_PATH, { body: { ...base, paymentId: 'pay_other', signature: checkoutSig(paid.orderId, 'pay_other') } });
+  assert.equal(wrong.status, 400);
+  assert.equal((await doAttach(srv, paid, { choice: 'me' }, signedIn('uX', PHONE))).status, 409);
+  assert.equal((await doAttach(srv, paid, { choice: 'nope' })).status, 400);
+  assert.equal(srv.db.read(`payOrders/${paid.orderId}`).attachedAt, undefined, 'nothing attached by any refusal');
+  // an old-client self order (no marker) is not attachable
+  const o = await selfOrder(srv, { sku: 'till_boards' });
+  const p = srv.rzp.pay(o.json.orderId, { contact: '+919876543948' });
+  await guestVerify(srv, o.json.orderId, p.id);
+  assert.equal((await doAttach(srv, { orderId: o.json.orderId, paymentId: p.id }, { choice: 'me' })).status, 400);
+});
+
+test('ATTACH · idempotent: a second attach answers the same and changes nothing (even with a different recipient)', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const first = await doAttach(srv, paid, { choice: 'me' });
+  await srv.idle();
+  const stored = JSON.stringify(srv.db.read(`payOrders/${paid.orderId}`));
+  const again = await doAttach(srv, paid, { choice: 'other', recipient: { phone: OTHER_PHONE } });
+  await srv.idle();
+  assert.equal(again.status, 200);
+  assert.deepEqual(again.json, first.json);
+  assert.equal(JSON.stringify(srv.db.read(`payOrders/${paid.orderId}`)), stored);
+  assert.equal(auth.created.length, 1);
+});
+
+test('ATTACH · F3: two concurrent attaches with DIFFERENT recipients: exactly one wins, the other gets the first answer, one delivery', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const [a, b] = await Promise.all([
+    doAttach(srv, paid, { choice: 'other', recipient: { phone: OTHER_PHONE } }),
+    doAttach(srv, paid, { choice: 'other', recipient: { phone: '+919811122233' } }),
+  ]);
+  await srv.idle();
+  assert.equal(a.status, 200, a.text);
+  assert.equal(b.status, 200, b.text);
+  assert.deepEqual(a.json, b.json, 'the loser is answered with the winner\'s answer, never its own');
+  const stored = srv.db.read(`payOrders/${paid.orderId}`);
+  assert.equal(stored.status, 'paid');
+  assert.equal(auth.created.length, 1, 'exactly one delivery');
+  assert.equal(auth.created[0].phoneNumber, stored.guestPhone, 'the account is for the recipient that won');
+  assert.equal(a.json.phoneMasked, maskIndianMobile(stored.guestPhone));
+});
+
+test('ATTACH · F3: the hold boundary - one millisecond before +10:00 the claim takes nothing, at exactly +10:00 it takes the order', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const before = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + ATTACH_HOLD_MS - 1 });
+  t.after(before.close);
+  assert.deepEqual((await claim(before, signedIn('uEdge', PHONE))).json.claimed, [], 'still held at +9:59.999');
+  assert.equal(db.read(`payOrders/${paid.orderId}`).status, 'paid_unclaimed');
+  const at = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + ATTACH_HOLD_MS });
+  t.after(at.close);
+  const r = await claim(at, signedIn('uEdge', PHONE));
+  assert.equal(r.json.claimed.length, 1, r.text);
+  assert.equal(db.read(`payOrders/${paid.orderId}`).uid, 'uEdge');
+});
+
+test('ATTACH · the claim does NOT take an attach order during the hold; after it, it takes it for the paid-with number', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const during = await claim(srv, signedIn('uPaidWith', PHONE));
+  assert.equal(during.status, 200);
+  assert.deepEqual(during.json.claimed, []);
+  assert.equal(srv.db.read(`payOrders/${paid.orderId}`).status, 'paid_unclaimed');
+  const later = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + ATTACH_HOLD_MS + 1000 });
+  t.after(later.close);
+  const after = await claim(later, signedIn('uPaidWith', PHONE));
+  assert.equal(after.json.claimed.length, 1, after.text);
+  assert.equal(db.read(`payOrders/${paid.orderId}`).uid, 'uPaidWith');
+});
+
+test('ATTACH · a webhook-only payment is held too (no verify): nothing delivered until the choice', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const o = await attachSelf(srv);
+  const p = srv.rzp.pay(o.json.orderId, { contact: '+919876543948' });
+  await sendWebhook(srv, p);
+  await srv.idle();
+  assert.deepEqual(auth.created, []);
+  assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'paid_unclaimed');
+  assert.ok(srv.db.read(`payOrders/${o.json.orderId}`).attachHoldUntil);
+});
+
+test('ATTACH · an order with NO marker behaves exactly as before (delivered at payment, no hold)', async (t) => {
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const { orderId } = await paidSelfOrder(srv, { contact: '+919876543948' }, { sku: 'till_boards' });
+  await srv.idle();
+  const stored = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(stored.attachFlow, undefined);
+  assert.equal(stored.attachHoldUntil, undefined);
+  assert.equal(auth.created.length, 1);
+  assert.equal(stored.status, 'paid');
+});
+
+test('ATTACH · kill switch CHECKOUT_SELF_ATTACH_DISABLED: marker ignored (today), /attach is 404, "already has" generic again', async (t) => {
+  const env = { ...SELF_ENV, CHECKOUT_SELF_ATTACH_DISABLED: '1' };
+  const auth = fakeAuth({ users: [{ uid: 'uHas', phoneNumber: OTHER_PHONE }] });
+  const db = memoryFirestore();
+  await db.collection('subscriptions').doc('uHas').set(COVERED_SUB);
+  const { srv } = await autoRoutes({ env, auth, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  assert.equal(srv.db.read(`payOrders/${paid.orderId}`).attachFlow, undefined);
+  assert.equal(srv.db.read(`payOrders/${paid.orderId}`).status, 'paid', 'delivered at payment, as before');
+  assert.equal((await doAttach(srv, paid, { choice: 'me' })).status, 404);
+  const r = await whoOrder(srv, { sku: 'till_boards', recipient: { phone: OTHER_PHONE } });
+  assert.deepEqual(r.json, { ok: false, error: 'payment_unavailable' });
 });

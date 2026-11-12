@@ -192,7 +192,7 @@ describe("PRICING-PAGES-1 /board-pass - account states", () => {
     mockSub.status = { tier: "premium", plan: "pass_till_boards", trialStartDate: null, trialEndDate: null, premiumSince: null, passEnd: new Date(Date.now() + 90 * DAY).toISOString() };
     await mount();
     expect(screen.getByTestId("bp-owner").textContent).toContain(BP_OWNER_TITLE);
-    expect(screen.getByTestId("bp-owner-practice").getAttribute("href")).toBe("/practice-hub");
+    expect(screen.getByTestId("bp-owner-home").getAttribute("href")).toBe("/");
     expect(screen.queryByTestId("bp-price")).toBeNull();
     expect(screen.queryAllByTestId("till-boards-figures")).toHaveLength(0);
     expect(screen.queryByRole("button", { name: tillBoardsButtonLabel() })).toBeNull();

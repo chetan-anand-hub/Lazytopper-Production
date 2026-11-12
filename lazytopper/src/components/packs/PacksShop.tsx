@@ -359,7 +359,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
    * you" + one-tap Pay into the unchanged checkout below; signed out / someone else: a recipient purchase). Off: as before.
    */
   const whoEnabled = enabled && isCheckoutWhoClientEnabled();
-  const [who, setWho] = useState<{ sku: PackSku; target: string | undefined; resumed?: boolean; from?: PackCheckoutFrom } | null>(null);
+  const [who, setWho] = useState<{ sku: PackSku; target: string | undefined; resumed?: boolean; from?: PackCheckoutFrom; holder?: boolean } | null>(null);
   /** Review fix 6: a local (non-cloud) session cannot pay or own anything - it is treated as signed out (as PassCheckout does). */
   const signedIn = Boolean(user) && !user?.isLocalSession;
   const mounted = useRef(true);
@@ -644,6 +644,11 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     }
     const key = packIdOf(sku, target);
     if (isAlreadyOwned(owned, sku, target)) {
+      // SELFPAY-ATTACH-1: an owner is told so with "Buy for someone else" / "Open My packs" (never charged); checkout-who off: as before.
+      if (whoEnabled) {
+        setWho({ sku, target, holder: true });
+        return;
+      }
       setBuy({ key, phase: "owned" });
       return;
     }
@@ -851,7 +856,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // PAY-PHONE-1 (C) - the sheet was closed without paying: the student stays one tap from paying.
     else if (dismissed) label = `Pay ${packPayLabel(sku)}`;
     const showSigninNote = enabled && ready && !isOwned && !busy && !blocked && !signedIn && !authLoading;
-    const off = !enabled || !ready || isOwned || busy || confirming || blocked;
+    // SELFPAY-ATTACH-1: a signed-in owner's "You own this" is a tap that opens the owner card (checkout-who on only).
+    const ownerCard = whoEnabled && signedIn && enabled && ready && isOwned && !busy && !confirming && !blocked && !checkoutAudience;
+    const off = !enabled || !ready || (isOwned && !ownerCard) || busy || confirming || blocked;
     return (
       <>
         {/* GST-INVOICE-1 (D4): a signed-in buyer's remembered state above Pay (nothing while the flag is off). */}
@@ -861,7 +868,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           className={`${prefix}__btn`}
           disabled={off}
           aria-disabled={off}
-          onClick={() => void handleBuy(sku, target)}
+          onClick={() => (ownerCard ? setWho({ sku, target, holder: true }) : void handleBuy(sku, target))}
           data-testid={`packs-buy-${sku}`}
         >
           {label}
@@ -1182,6 +1189,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             }}
             {...(checkoutAudience ? { audience: checkoutAudience } : {})}
             {...(signedIn && !checkoutAudience ? { startAt: "other" as const } : {})}
+            {...(who.holder && signedIn ? { holder: {}, onGoTo: (path: string) => navigate(path) } : {})}
             signedIn={signedIn}
             selfMasked={signedIn ? maskEmail(user?.email) || maskIndianMobile(user?.phoneNumber) || null : null}
             onPaySelf={() => {
