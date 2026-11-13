@@ -137,15 +137,15 @@ export const paidUntilCopy = (passType: PassType, dateLabel: string): string =>
   passType === "month" ? `Your monthly pass is active until ${dateLabel}.` : boardPassActiveUntilCopy(dateLabel);
 
 /** PAID-SHEET-1: the Board Pass / month pass pop-up. "Start practising" goes Home; the Board Pass also carries the CBQ Packs offer below the who-card. */
-function PassSheetHost(p: { receiptEmail?: string; onFail: () => void; itemName: string; onClose: () => void; moved: boolean; onMoved: () => void; move?: { orderId: string; item: string } }) {
+function PassSheetHost(p: { receiptEmail?: string; onFail: () => void; itemName: string; onClose: () => void; moved: boolean; onMoved: () => void; onAnswered?: () => void; move?: { orderId: string; item: string } }) {
   return useInRouterContext() ? <PassSheetRouted {...p} /> : <PassSheetShell {...p} surface="pricing" go={() => window.location.assign("/")} />;
 }
-function PassSheetRouted(p: { receiptEmail?: string; onFail: () => void; itemName: string; onClose: () => void; moved: boolean; onMoved: () => void; move?: { orderId: string; item: string } }) {
+function PassSheetRouted(p: { receiptEmail?: string; onFail: () => void; itemName: string; onClose: () => void; moved: boolean; onMoved: () => void; onAnswered?: () => void; move?: { orderId: string; item: string } }) {
   const navigate = useNavigate();
   const location = useLocation();
   return <PassSheetShell {...p} surface={location.pathname.startsWith("/board-pass") ? "board_pass" : "pricing"} go={() => navigate("/")} />;
 }
-function PassSheetShell({ itemName, onClose, moved, onMoved, move, surface, go, receiptEmail, onFail }: { receiptEmail?: string; onFail: () => void; itemName: string; onClose: () => void; moved: boolean; onMoved: () => void; move?: { orderId: string; item: string }; surface: string; go: () => void }) {
+function PassSheetShell({ itemName, onClose, moved, onMoved, onAnswered, move, surface, go, receiptEmail, onFail }: { receiptEmail?: string; onFail: () => void; itemName: string; onClose: () => void; moved: boolean; onMoved: () => void; onAnswered?: () => void; move?: { orderId: string; item: string }; surface: string; go: () => void }) {
   return (
     <PaidSheetLazy
       surface={surface}
@@ -158,6 +158,7 @@ function PassSheetShell({ itemName, onClose, moved, onMoved, move, surface, go, 
       onClose={onClose}
       moved={moved}
       onMoved={onMoved}
+      {...(onAnswered ? { onAnswered } : {})}
       {...(move ? { move } : {})}
       below={<PassOwnerOfferLazy placement="pass_success" assumePaid />}
     />
@@ -326,6 +327,7 @@ export function PassCheckoutView({
   const [paidUntil, setPaidUntilState] = useState<{ label: string; passType: PassType; orderId?: string } | null>(null);
   // PAID-SHEET-1: a signed-in buyer's confirmed payment opens the "Payment received" pop-up (the inline paid line stays under it).
   const [paidSheetOpen, setPaidSheetOpen] = useState(false);
+  const [whoAnswered, setWhoAnswered] = useState(false); // "Who will use this?" answered in the pop-up: no reopen button
   const [paidSheetFailed, setPaidSheetFailed] = useState(false); // the pop-up chunk did not load: the old inline paid screen
   const setPaidUntil = (label: string, passType: PassType, orderId?: string) => {
     setPaidUntilState({ label, passType, ...(orderId ? { orderId } : {}) });
@@ -563,7 +565,7 @@ export function PassCheckoutView({
         {/* LINK-SIGNIN-1: a signed-in buyer is asked who else will sign in (own lazy chunk; below the purchase line, so nothing moves). */}
         {!sheetOn && <SigninLinkCardLazy signedIn={signedIn} onMoved={() => { setMovedAway(true); onPassMoved?.(); }} {...moveTarget} />}
         {/* PAID-SHEET-1: the same who-card (and, for the Board Pass, the CBQ Packs offer) inside the pop-up. */}
-        {sheetOn && !paidSheetOpen && !movedAway && (
+        {sheetOn && !paidSheetOpen && !movedAway && !whoAnswered && (
           <button type="button" className="lt-pricing-cta lt-pricing-cta--secondary" onClick={() => setPaidSheetOpen(true)} data-testid="paid-sheet-reopen">
             Who will use this?
           </button>
@@ -576,6 +578,7 @@ export function PassCheckoutView({
             onClose={() => setPaidSheetOpen(false)}
             moved={movedAway}
             onMoved={() => { setMovedAway(true); onPassMoved?.(); }}
+            onAnswered={() => setWhoAnswered(true)}
             {...moveTarget}
           />
         )}

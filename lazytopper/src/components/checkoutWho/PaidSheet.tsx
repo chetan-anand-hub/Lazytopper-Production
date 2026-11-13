@@ -30,6 +30,8 @@ export interface PaidSheetProps {
   /** Passed to the who-card only when the host has an order the buyer may move to the child's own phone / email. */
   move?: MoveTarget;
   onMoved?: () => void;
+  /** The buyer answered "Who will use this?" (child / me) in the card: the host drops its reopen button. */
+  onAnswered?: () => void;
   /** The purchase has moved to the child's account: no primary button (nothing of the buyer's to open). */
   moved?: boolean;
   /** Shown below the who-card (the Board Pass sheet passes the CBQ Packs offer). */
@@ -46,7 +48,7 @@ function sendShown(surface: string, itemKind: string): void {
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export default function PaidSheet({ surface, itemKind, itemName, primaryLabel, receiptLine, onPrimary, onClose, move, onMoved, moved, below }: PaidSheetProps) {
+export default function PaidSheet({ surface, itemKind, itemName, primaryLabel, receiptLine, onPrimary, onClose, move, onMoved, onAnswered, moved, below }: PaidSheetProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const shown = useRef(false);
 
@@ -119,7 +121,7 @@ export default function PaidSheet({ surface, itemKind, itemName, primaryLabel, r
           </button>
         )}
         <div className="lt-paid__who" data-testid="paid-sheet-who">
-          <SigninLinkCardLazy signedIn {...(move ? { move } : {})} {...(onMoved ? { onMoved } : {})} />
+          <SigninLinkCardLazy signedIn {...(move ? { move } : {})} {...(onMoved ? { onMoved } : {})} {...(onAnswered ? { onAnswered } : {})} />
         </div>
         {!moved && below}
       </div>

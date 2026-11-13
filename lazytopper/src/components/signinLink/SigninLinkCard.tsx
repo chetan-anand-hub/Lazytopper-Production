@@ -25,7 +25,8 @@ import {
 import { trackSigninLinkShown } from "./signinLinkAnalytics";
 import "./signinLink.css";
 
-export default function SigninLinkCard({ move, onMoved }: { move?: MoveTarget; onMoved?: () => void }) {
+/** `onAnswered`: called once the buyer has answered "child" or "me" (or had answered before), so a host can drop its "Who will use this?" reopen button. */
+export default function SigninLinkCard({ move, onMoved, onAnswered }: { move?: MoveTarget; onMoved?: () => void; onAnswered?: () => void }) {
   const { uid, methods, refresh, signedIn } = useLinkedMethods();
   const [answered] = useState(() => (uid ? isDismissed(uid) : false));
   const [choice, setChoice] = useState<null | "child" | "me" | "move">(null);
@@ -34,6 +35,11 @@ export default function SigninLinkCard({ move, onMoved }: { move?: MoveTarget; o
   const shown = useRef(false);
 
   const visible = signedIn && (!answered || choice !== null);
+  // Answered on an earlier purchase: the card renders nothing, so a host's reopen button would open an empty who-card.
+  useEffect(() => {
+    if (signedIn && answered) onAnswered?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signedIn, answered]);
   useEffect(() => {
     if (visible && !shown.current) {
       shown.current = true;
@@ -46,6 +52,7 @@ export default function SigninLinkCard({ move, onMoved }: { move?: MoveTarget; o
   const pick = (c: "child" | "me") => {
     rememberDismissed(uid);
     setChoice(c);
+    onAnswered?.();
   };
   return (
     <section className="lt-sil__card" aria-label={CARD_TITLE} data-testid="signin-link-card">

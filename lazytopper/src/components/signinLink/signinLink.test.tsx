@@ -54,6 +54,30 @@ beforeEach(() => {
 });
 afterEach(() => cleanup());
 
+describe("SigninLinkCard onAnswered (FU-PAIDSHEET-NITS D-NIT-1)", () => {
+  it("is called when the buyer answers child or me, not before", async () => {
+    googleUser();
+    const onAnswered = vi.fn();
+    ui(<SigninLinkCardLazy signedIn onAnswered={onAnswered} />);
+    await screen.findByTestId("signin-link-card");
+    expect(onAnswered).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByTestId("signin-choice-me"));
+    expect(onAnswered).toHaveBeenCalledTimes(1);
+  });
+  it("is called at once when the buyer answered on an earlier purchase (the card shows nothing)", async () => {
+    googleUser();
+    window.localStorage.clear();
+    const first = ui(<SigninLinkCardLazy signedIn />);
+    fireEvent.click(await screen.findByTestId("signin-choice-child"));
+    first.unmount();
+    const onAnswered = vi.fn();
+    ui(<SigninLinkCardLazy signedIn onAnswered={onAnswered} />);
+    await settle();
+    expect(screen.queryByTestId("signin-link-card")).toBeNull();
+    expect(onAnswered).toHaveBeenCalled();
+  });
+});
+
 const choose = async (id: "signin-choice-child" | "signin-choice-me") => fireEvent.click(await screen.findByTestId(id));
 const passwordUser = () => {
   state.user = { uid: "u4", email: "p@gmail.com", phoneNumber: null, providerIds: ["password"] };

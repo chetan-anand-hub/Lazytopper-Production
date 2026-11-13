@@ -6,9 +6,10 @@ import { MemoryRouter } from "react-router-dom";
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 vi.mock("../../services/activityClient", () => ({ recordActivity: vi.fn() }));
 vi.mock("../signinLink/SigninLinkCard", () => ({
-  default: (p: { onMoved?: () => void }) => (
+  default: (p: { onMoved?: () => void; onAnswered?: () => void }) => (
     <div data-testid="signin-link-card-stub">
       <button type="button" data-testid="stub-moved" onClick={() => p.onMoved?.()}>moved</button>
+      <button type="button" data-testid="stub-answered" onClick={() => p.onAnswered?.()}>answered</button>
     </div>
   ),
 }));
@@ -162,6 +163,18 @@ describe("PacksShop · PAID-SHEET-1", () => {
     expect(await screen.findByTestId("signin-link-card-stub")).toBeTruthy();
     fireEvent.click(screen.getByTestId("stub-moved"));
     fireEvent.click(screen.getByTestId("paid-sheet-close"));
+    expect(screen.queryByTestId("paid-sheet-reopen")).toBeNull();
+  });
+
+  it("FU-PAIDSHEET-NITS D-NIT-1: once the buyer answers me / child in the pop-up, the \"Who will use this?\" reopen button is gone", async () => {
+    auth.user = { uid: "u1", email: "friend@gmail.com" };
+    buyMock.mockResolvedValue({ status: "paid", grant, orderId: "order_P1", paymentId: "pay_49", amountInr: 49 });
+    shop();
+    await screen.findByTestId("paid-sheet");
+    fireEvent.click(await screen.findByTestId("stub-answered"));
+    fireEvent.click(screen.getByTestId("paid-sheet-close"));
+    expect(screen.queryByTestId("paid-sheet")).toBeNull();
+    expect((await screen.findByTestId("packs-status")).textContent).toMatch(/Payment received/);
     expect(screen.queryByTestId("paid-sheet-reopen")).toBeNull();
   });
 });

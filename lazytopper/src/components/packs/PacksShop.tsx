@@ -279,6 +279,8 @@ interface BuyState {
   name?: string;
   /** The purchase was moved to the child's own account: this tab must stop showing it as the buyer's. */
   moved?: boolean;
+  /** PAID-SHEET-1: the buyer answered "Who will use this?" (child / me): no reopen button. */
+  whoAnswered?: boolean;
 }
 
 /** What the catalogue (hero tiles on /packs, the strip on /pricing) can do: open a pack's pop-up, optionally on a subject. */
@@ -1182,6 +1184,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           onClose={() => closePaidSheet(false)}
           moved={Boolean(buy.moved)}
           onMoved={() => { resetOwnedPacksCache(); setBuy((b) => ({ ...b, moved: true })); void loadMine(); }}
+          onAnswered={() => setBuy((b) => (b.whoAnswered ? b : { ...b, whoAnswered: true }))}
           {...(buy.orderId ? { move: { orderId: buy.orderId, item: buy.item ?? "" } } : {})}
         />
       )}
@@ -1201,7 +1204,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             </p>
           )}
           {/* PAID-SHEET-1: closed without moving it? The who-card lives in the pop-up, so one button brings the pop-up back (no page jump). */}
-          {buy.phase === "paid" && sheetOn && !buy.moved && (
+          {buy.phase === "paid" && sheetOn && !buy.moved && !buy.whoAnswered && (
             <p className="lt-packs__status">
               <button type="button" className="lt-packs__link" onClick={() => setSheetOpen(true)} data-testid="paid-sheet-reopen">Who will use this?</button>
             </p>
