@@ -80,6 +80,7 @@ const ABANDONED_READ_CAP = 300;
 const ABANDONED_SHOWN_CAP = 50;
 const PREMIUM_TYPES = Object.freeze(['month', 'till_boards']);
 /** GUEST-ABANDON-1: guest statuses whose money was received but is not (yet) a granted 'paid' order. */
+const { ALERT_AFTER_MS } = require('../services/unclaimedOrders.cjs');
 const GUEST_MONEY_STATUSES = Object.freeze([GUEST_STATUS.paidUnclaimed, 'erased_unclaimed', GUEST_STATUS.claimed]);
 const GUEST_PAYER = 'guest';
 
@@ -290,7 +291,9 @@ function createAdminPurchasesRoutes(deps = {}) {
         });
       });
       rows.sort((a, b) => (a.paidAtMs || 0) - (b.paidAtMs || 0));
-      return { items: rows.slice(0, ABANDONED_SHOWN_CAP), truncated: rows.length > ABANDONED_SHOWN_CAP || snap.size >= ABANDONED_READ_CAP };
+      // UNCLAIMED-ALERT-1: how many have waited past the alert time (the admin badge). Counted over every row read, not the shown 50.
+      const overdue = rows.filter((r) => r.paidAtMs !== null && nowMs - r.paidAtMs >= ALERT_AFTER_MS).length;
+      return { items: rows.slice(0, ABANDONED_SHOWN_CAP), truncated: rows.length > ABANDONED_SHOWN_CAP || snap.size >= ABANDONED_READ_CAP, overdue };
     } catch (e) {
       console.error('[admin-purchases] unclaimed guest read failed:', e && e.message);
       return null;

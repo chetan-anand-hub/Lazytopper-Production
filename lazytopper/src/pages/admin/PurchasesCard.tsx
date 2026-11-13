@@ -228,7 +228,7 @@ export interface PurchasesResponse {
   /** CHECKOUT-1: absent on an older server, null when that read failed. */
   abandoned?: { items: AbandonedItem[]; truncated?: boolean } | null;
   /** PAY-PHONE-1: absent on an older server, null when that read failed. */
-  unclaimedGuest?: { items: UnclaimedGuestItem[]; truncated?: boolean } | null;
+  unclaimedGuest?: { items: UnclaimedGuestItem[]; truncated?: boolean; overdue?: number } | null;
   /** PAY-PHONE-1 review: guest payments the owner should know about (grant failed / duplicate / erased before sign-in). */
   guestAttention?: { items: GuestAttentionItem[]; truncated?: boolean } | null;
   /** WHATSAPP-OPTIN-1: free-sample WhatsApp opt-ins, last 30 days. Absent on an older server, null when that read failed. */
@@ -304,7 +304,14 @@ export function UnclaimedGuestList({ unclaimed }: { unclaimed: PurchasesResponse
   if (unclaimed === undefined) return null;
   return (
     <div className="pu-abandoned" data-testid="pu-unclaimed">
-      <h3 className="gh-title">Paid with a phone number, not yet claimed</h3>
+      <h3 className="gh-title">
+        Paid with a phone number, not yet claimed
+        {typeof unclaimed?.overdue === "number" && unclaimed.overdue > 0 && (
+          <span className="pu-badge" data-testid="pu-unclaimed-badge" title="Waiting 15 minutes or more">
+            {unclaimed.overdue}
+          </span>
+        )}
+      </h3>
       <p className="sa-muted gh-note">
         Paid before signing in. It attaches when someone signs in with the same number. Oldest first. If a student typed a wrong number, find the payment here.
       </p>

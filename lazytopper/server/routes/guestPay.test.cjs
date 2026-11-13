@@ -3081,6 +3081,104 @@ test('GST-PARENT-POSTPAY · switches: all off = 404; PARENT_PAY on but PAYMENTS 
   assert.equal((await parentSave(only, 'order_PAR', 'pay_PAR')).status, 200);
 });
 
+/* ── UNCLAIMED-ALERT-1 · the hold-end sweep runs the SAME delivery step (afterRecipientPaid): no second grant path ── */
+const { createUnclaimedSweeper } = require('../services/unclaimedOrders.cjs');
+const sweeperFor = (srv, clock, over = {}) =>
+  createUnclaimedSweeper({ db: srv.db, now: () => clock.t, env: { ...over.env }, deliver: (i) => srv.guest.afterRecipientPaid(i), ...over.deps });
+const passOf = (db, uid) => db.read(`subscriptions/${uid}`);
+
+test('UNCLAIMED-1 · after the hold, an unchosen self-pay order with NO account gets one, through the existing creation path + grant; a repeat changes nothing', async (t) => {
+  const clock = { t: NOW };
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV, nowFn: () => clock.t });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const key = `payOrders/${paid.orderId}`;
+  assert.equal(srv.db.read(key).status, 'paid_unclaimed');
+  clock.t = NOW + ATTACH_HOLD_MS + 1000;
+  const sweeper = sweeperFor(srv, clock);
+  assert.equal((await sweeper.tick()).delivered, 1);
+  await srv.idle();
+  const uid = autoAccountUid(paid.orderId);
+  assert.deepEqual(auth.created, [{ uid, emailVerified: false, phoneNumber: PHONE }]);
+  const stored = srv.db.read(key);
+  assert.equal(stored.status, 'paid');
+  assert.equal(stored.uid, uid);
+  assert.equal(stored.claimedVia, 'account_created', 'the same label the delivery path writes');
+  assert.ok(passOf(srv.db, uid), 'the Board Pass is granted to the new account');
+  const passAfterFirst = passOf(srv.db, uid);
+  const before = JSON.stringify([...srv.db.docs.entries()].filter(([k]) => !k.startsWith('payOrders/')));
+  await sweeper.tick();
+  await createUnclaimedSweeper({ db: srv.db, now: () => clock.t, env: {}, deliver: (i) => srv.guest.afterRecipientPaid(i) }).tick(); // a restart
+  await srv.idle();
+  assert.equal(auth.created.length, 1, 'no second account');
+  assert.deepEqual(passOf(srv.db, uid), passAfterFirst, 'no second grant');
+  assert.equal(JSON.stringify([...srv.db.docs.entries()].filter(([k]) => !k.startsWith('payOrders/'))), before);
+});
+
+test('UNCLAIMED-1 · an account that already has the paid-with phone receives it (no new account)', async (t) => {
+  const clock = { t: NOW };
+  const auth = fakeAuth({ users: [{ uid: 'uHasPhone', phoneNumber: PHONE }] });
+  const { srv } = await autoRoutes({ env: SELF_ENV, auth, nowFn: () => clock.t });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  clock.t = NOW + ATTACH_HOLD_MS + 1000;
+  await sweeperFor(srv, clock).tick();
+  await srv.idle();
+  const stored = srv.db.read(`payOrders/${paid.orderId}`);
+  assert.equal(stored.uid, 'uHasPhone');
+  assert.equal(stored.claimedVia, 'existing_account');
+  assert.deepEqual(auth.created, []);
+  assert.ok(passOf(srv.db, 'uHasPhone'));
+});
+
+test('UNCLAIMED-1 · nothing happens inside the hold, after the payer chose, or with the kill switch; the sweep never writes an attempt for them', async (t) => {
+  const clock = { t: NOW };
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV, nowFn: () => clock.t });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const key = `payOrders/${paid.orderId}`;
+  clock.t = NOW + ATTACH_HOLD_MS - 1000;
+  assert.deepEqual(await sweeperFor(srv, clock).tick(), { delivered: 0, alerted: 0 });
+  assert.equal(srv.db.read(key).holdSweepAttempts, undefined);
+  clock.t = NOW + ATTACH_HOLD_MS + 1000;
+  assert.equal((await sweeperFor(srv, clock, { env: { UNCLAIMED_SWEEP_DISABLED: '1' } }).tick()).delivered, 0);
+  assert.deepEqual(auth.created, []);
+  assert.equal(srv.db.read(key).status, 'paid_unclaimed');
+  // switched back on, it delivers
+  assert.equal((await sweeperFor(srv, clock).tick()).delivered, 1);
+  await srv.idle();
+  assert.equal(srv.db.read(key).status, 'paid');
+});
+
+test('UNCLAIMED-1 · a payer who chose "someone else" is not swept; the sweep never overrides the choice', async (t) => {
+  const clock = { t: NOW };
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV, nowFn: () => clock.t });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const key = `payOrders/${paid.orderId}`;
+  const cur = srv.db.read(key);
+  srv.db.docs.set(key, { data: { ...cur, attachedAt: new Date(NOW + 1000), attachChoice: 'other' }, version: 50 });
+  clock.t = NOW + ATTACH_HOLD_MS + 1000;
+  assert.equal((await sweeperFor(srv, clock).tick()).delivered, 0);
+  assert.deepEqual(auth.created, []);
+});
+
+test('UNCLAIMED-1 · the payer signing in right at the hold end and the sweep race: ONE grant, whichever wins', async (t) => {
+  const clock = { t: NOW };
+  const auth = fakeAuth({ users: [{ uid: 'uPayer', phoneNumber: PHONE }] });
+  const { srv } = await autoRoutes({ env: SELF_ENV, auth, nowFn: () => clock.t });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  clock.t = NOW + ATTACH_HOLD_MS + 1000;
+  await Promise.all([sweeperFor(srv, clock).tick(), claim(srv, signedIn('uPayer', PHONE))]);
+  await srv.idle();
+  const stored = srv.db.read(`payOrders/${paid.orderId}`);
+  assert.equal(stored.uid, 'uPayer');
+  assert.ok(passOf(srv.db, 'uPayer'));
+  assert.equal(srv.db.keys('subscriptions/uPayer/payments/').length, 1, 'one payment record: one grant');
+  assert.equal(subsDocs(srv.db).filter((k) => !k.startsWith('subscriptions/uPayer')).length, 0);
+});
+
 /* ══ PUT-ON-THIS-ACCOUNT-1: a signed-in buyer who still holds the receipt proof puts the purchase on THIS account ══ */
 const proofClaim = (srv, o, headers, extra = {}, sigFor = [o.orderId, o.paymentId]) =>
   request(srv.port, GUEST_PROOF_CLAIM_PATH, { body: { orderId: o.orderId, paymentId: o.paymentId, signature: checkoutSig(sigFor[0], sigFor[1]), ...extra }, headers });

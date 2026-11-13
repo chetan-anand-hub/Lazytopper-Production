@@ -1282,6 +1282,19 @@ server.listen(config.PORT, () => {
   if (gstInvoicer.config.enabled && paymentReceiptEmailer.config.mode === 'send') paymentReceiptEmailer.startInvoiceEmailRunner();
   // RECEIPT-EMAIL-1 — the hourly sweep of attach-order receipts the hold deferred; its own timer, whatever invoicing says.
   paymentReceiptEmailer.startHeldReceiptRunner();
+  // UNCLAIMED-ALERT-1 — hold-end delivery sweep + one owner alert per paid order on no account. Own switches; restart-safe.
+  require('./services/unclaimedOrders.cjs')
+    .createUnclaimedSweeper({
+      db: adminFirestore,
+      telemetry,
+      deliver: (input) => guestPayRoutes.afterRecipientPaid(input),
+      send: (mail) => paymentReceiptEmailer.rails.send(mail),
+      canSend: () => paymentReceiptEmailer.rails.canSend(),
+      maskPhone: require('./services/guestPay.cjs').maskIndianMobile,
+      maskMail: require('./services/guestPay.cjs').maskEmail,
+      log: (line) => console.log(line),
+    })
+    .start();
   // GST-INVOICE-BACKDATE-1 — the hourly drain of state forms + reminders; armed only with invoicing, email and the link secret.
   gstBackdate.startRunner();
 
