@@ -1647,7 +1647,8 @@ function createGuestPayRoutes(deps = {}) {
   async function handleGstDetails(req, res) {
     // GST-PARENT-POSTPAY-1: parent-pay link orders post their state + PIN here too, so PARENT_PAY_ENABLED (with PAYMENTS_ENABLED) opens it as well.
     const parentOn = /^(1|true|on|yes)$/i.test(String((env && env.PARENT_PAY_ENABLED) || '').trim()) && /^(1|true|on|yes)$/i.test(String((env && env.PAYMENTS_ENABLED) || '').trim());
-    if (!isCheckoutWhoEnabled(env) && !isGuestPayEnabled(env) && !parentOn) return sendJson(res, 404, NOT_FOUND_BODY);
+    const guestSideOn = isCheckoutWhoEnabled(env) || isGuestPayEnabled(env);
+    if (!guestSideOn && !parentOn) return sendJson(res, 404, NOT_FOUND_BODY);
     // The same switch as the signed-in route: invoicing off = dark (404), nothing is read or written.
     if (!/^(1|true|on|yes)$/i.test(String((env && env.GST_INVOICE_ENABLED) || '').trim())) return sendJson(res, 404, NOT_FOUND_BODY);
     if (!admitGuestCall(req, res, 'gst_details', GUEST_GST_DETAILS_PATH, parentOn)) return undefined;
@@ -1671,6 +1672,8 @@ function createGuestPayRoutes(deps = {}) {
         // checkout signature above binds order id + payment id for both. A guest proof is signed-out only; a parent's is not (a parent
         // on a link page may be signed in as themselves).
         if (order.payer !== GUEST_PAYER && order.payer !== PARENT_PAYER_TYPE) return false;
+        // Only the parent-pay switch is on (guest pay and checkout-who both off): a guest order is not served here.
+        if (order.payer === GUEST_PAYER && !guestSideOn) return false;
         if (order.payer === GUEST_PAYER && callerUid) {
           windowMs.signedIn = true;
           return false;

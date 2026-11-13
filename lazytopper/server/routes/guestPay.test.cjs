@@ -2946,3 +2946,19 @@ test('GST-PARENT-POSTPAY · the 24 h window: open at +23:59:59.999, refused (ok:
   assert.equal(np.json.reason, 'not_paid');
   assert.equal(db.read('payOrders/order_NEW').gstBuyer, undefined);
 });
+
+test('GST-PARENT-POSTPAY · switches: all off = 404; PARENT_PAY on but PAYMENTS off = 404; only the parent switch on refuses a GUEST order and serves a parent one', async (t) => {
+  const db = memoryFirestore({ 'payOrders/order_PAR': parentOrder(), 'payOrders/order_GST': parentOrder({ payer: 'guest', parentLinkId: undefined, paymentId: 'pay_GST', guestPaidAt: new Date(NOW) }) });
+  const mk = async (env) => {
+    const srv = await startRoutes({ env: { GST_INVOICE_ENABLED: '1', RAZORPAY_KEY_ID: KEY_ID, RAZORPAY_KEY_SECRET: KEY_SECRET, RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET, ...env }, db, invoicer: fakeInvoicer(db) });
+    t.after(srv.close);
+    return srv;
+  };
+  assert.equal((await parentSave(await mk({}), 'order_PAR', 'pay_PAR')).status, 404);
+  assert.equal((await parentSave(await mk({ PARENT_PAY_ENABLED: '1' }), 'order_PAR', 'pay_PAR')).status, 404);
+  const only = await mk({ PARENT_PAY_ENABLED: '1', PAYMENTS_ENABLED: '1' });
+  const g = await parentSave(only, 'order_GST', 'pay_GST');
+  assert.notEqual(g.status, 200, 'a guest order is refused when only the parent switch is on');
+  assert.equal(db.read('payOrders/order_GST').gstBuyer, undefined);
+  assert.equal((await parentSave(only, 'order_PAR', 'pay_PAR')).status, 200);
+});
