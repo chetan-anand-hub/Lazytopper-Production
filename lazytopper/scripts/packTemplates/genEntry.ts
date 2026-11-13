@@ -9,6 +9,7 @@
 import "../../src/styles.css";
 import { packIdOf, type OwnedPack, type PackSku, type PackSubject } from "../../src/services/packs";
 import { buildPackFiles, type BuildContext } from "../../src/lib/packs/buildPackFiles";
+import { canonicalJson } from "../../src/lib/packs/packTemplateCore";
 import { planAll, planBridges, packUnits, templateIdForPackFile, templateUnits, type PackUnitsDef, type PlanBridge, type PlanFile, type TemplateUnit } from "../../src/lib/packs/packTemplatePlan";
 import { PACK_SYLLABUS_EXCLUDED } from "../../src/lib/packs/packContent";
 import { PINNED_FONTS } from "../../src/lib/packs/packTemplateFonts";
@@ -17,10 +18,16 @@ import { printFigureSrc } from "../../src/components/worksheet/printFigures";
 import type { TemplateMarks } from "../../src/components/worksheet/worksheetPdfExport";
 import type { BridgePagesData } from "../../src/lib/packs/packBridge";
 
+/** What `__renderTemplate` returns: the measured marks, and the digest of the worksheets the exporter was actually handed (see `planPaintedPapers`). */
+export interface RenderedTemplate {
+  marks: TemplateMarks;
+  paintedSha256: string;
+}
+
 declare global {
   interface Window {
     __plan?: () => Promise<{ files: PlanFile[]; bridges: PlanBridge[]; packs: PackUnitsDef[] }>;
-    __renderTemplate?: (templateId: string) => Promise<TemplateMarks>;
+    __renderTemplate?: (templateId: string) => Promise<RenderedTemplate>;
     __renderBridge?: (data: BridgePagesData) => Promise<string>;
   }
 }
@@ -39,11 +46,14 @@ async function ensureFonts(): Promise<void> {
 }
 
 const figureHashes = new Map<string, Promise<string>>();
+const hex = (digest: ArrayBuffer): string => Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+async function sha256Text(text: string): Promise<string> {
+  return hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)));
+}
 async function sha256OfUrl(src: string): Promise<string> {
   const res = await fetch(src);
   if (!res.ok) throw new Error(`figure image missing: ${src} (${res.status})`);
-  const digest = await crypto.subtle.digest("SHA-256", await res.arrayBuffer());
-  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return hex(await crypto.subtle.digest("SHA-256", await res.arrayBuffer()));
 }
 
 /** The official figures each file prints (registry lookup by question id, as the print document does) + their image hashes. */
@@ -96,6 +106,7 @@ window.__renderTemplate = async (templateId) => {
   const unit = unitOf(templateId);
   const ref = packOf(unit);
   const marks = mod.newPackTemplateMarks();
+  const painted: unknown[] = []; // every worksheet the exporter is handed, in order (N3: compared with the plan by the generator)
   const owned: OwnedPack = { ...ref, pricePaidInr: 0, paidAt: 0, orderId: "TEMPLATE" };
   const ctx: BuildContext = {
     licensee: { name: "Template", email: "template@lazytopper.com" },
@@ -103,14 +114,20 @@ window.__renderTemplate = async (templateId) => {
     nowIso: () => NOW_ISO,
     // pages 2-3 are blank placeholders in a template; this switch only makes the file reserve them
     bridge: { paidBoardPass: true },
-    exportPdf: (ws, mode, code, opts) => mod.exportWorksheetPdf(ws, mode, code, { ...opts, template: { marks } }),
-    exportSetsPdf: (sets, mode, opts) => mod.exportWorksheetSetsPdf(sets, mode, { ...opts, template: { marks } }),
+    exportPdf: (ws, mode, code, opts) => {
+      painted.push(ws);
+      return mod.exportWorksheetPdf(ws, mode, code, { ...opts, template: { marks } });
+    },
+    exportSetsPdf: (sets, mode, opts) => {
+      for (const x of sets) painted.push(x.ws);
+      return mod.exportWorksheetSetsPdf(sets, mode, { ...opts, template: { marks } });
+    },
   };
   const files = await buildPackFiles(ref, ctx);
   const file = files.find((f) => templateIdForPackFile(ref.packId, f.id) === templateId);
   if (!file) throw new Error(`unknown template ${templateId}`);
   await file.build();
-  return marks;
+  return { marks, paintedSha256: await sha256Text(canonicalJson(painted)) };
 };
 
 window.__renderBridge = async (data) => {

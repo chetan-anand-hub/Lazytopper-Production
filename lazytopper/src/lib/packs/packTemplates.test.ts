@@ -16,8 +16,8 @@ import { PINNED_FONTS } from "./packTemplateFonts";
 import type { TemplateMarks } from "../../components/worksheet/pdfTemplateMarks";
 import { buildPackFiles } from "./buildPackFiles";
 import { PACK_SYLLABUS_EXCLUDED } from "./packContent";
-import { packUnits, planAll, planBridges, templateUnits } from "./packTemplatePlan";
-import { canonicalJson, templateIdForPackFile, type PlanBridge, type PlanFile } from "./packTemplateCore";
+import { packUnits, planAll, planBridges, templateUnits, type TemplateUnit } from "./packTemplatePlan";
+import { canonicalJson, paintedPapersDigest, planPaintedPapers, templateIdForPackFile, type PlanBridge, type PlanFile } from "./packTemplateCore";
 import { bridgeKeyOf, buildManifest, fileHashOf, validateManifest, type TemplateFileMeta } from "./packTemplateManifest";
 import { assertPackPath, putRendered, publishManifest, CURRENT_POINTER_PATH, type TemplateStore } from "./packTemplatePublish";
 
@@ -291,5 +291,71 @@ describe("pinned fonts, figures and wiring", () => {
     expect(wf).toMatch(/LIVE: \$\{\{ github\.ref == 'refs\/heads\/base\/approved-thru-437' &&/);
     expect(wf).not.toMatch(/^\s*pull_request/m);
     for (const p of ["public/visuals/**", "public/figures/**", "public/fonts/**", "src/components/question/**", "src/styles.css", "src/config/brandMark.ts", "pnpm-lock.yaml"]) expect(wf).toContain(p);
+  });
+});
+
+describe("FU-TEMPLATE-RENDER-PLAN-CHECK (N3): the rendered paper is the plan's paper", () => {
+  const NOW = "2026-01-01T00:00:00.000Z"; // genEntry's NOW_ISO
+  /** What genEntry's __renderTemplate hands the exporter, recorded by stub exporters (no browser): the same ctx, the same build(). One unit at a time. */
+  async function paintedByTemplate(unit: TemplateUnit): Promise<Map<string, unknown[]>> {
+    const sku = unit.kind === "chapter" ? "pack_chapter" : unit.kind === "mocks" ? "pack_mock" : "pack_cbq";
+    const ref = { packId: packIdOf(sku, unit.key), sku, target: unit.key } as const;
+    let seen: unknown[] = [];
+    const files = await buildPackFiles(ref, {
+      licensee: { name: "Template", email: "template@lazytopper.com" },
+      owned: [{ ...ref, pricePaidInr: 0, paidAt: 0, orderId: "TEMPLATE" }],
+      nowIso: () => NOW,
+      bridge: { paidBoardPass: true },
+      exportPdf: (async (ws: unknown) => { seen.push(ws); return ""; }) as never,
+      exportSetsPdf: (async (sets: Array<{ ws: unknown }>) => { for (const x of sets) seen.push(x.ws); return ""; }) as never,
+    });
+    const out = new Map<string, unknown[]>();
+    for (const file of files) {
+      const id = templateIdForPackFile(ref.packId, file.id);
+      if (!id) continue;
+      seen = [];
+      await file.build();
+      out.set(id, seen);
+    }
+    return out;
+  }
+
+  it("for EVERY template the worksheets the builder hands the exporter have the plan's digest", async () => {
+    const { plan } = await getPlan();
+    const units = new Map<string, TemplateUnit>();
+    for (const f of plan) units.set(JSON.stringify(f.unit), f.unit as TemplateUnit);
+    const rendered = new Map<string, unknown[]>();
+    for (const u of units.values()) for (const [id, list] of await paintedByTemplate(u)) rendered.set(id, list);
+    const bad: string[] = [];
+    for (const f of plan) {
+      const got = rendered.get(f.templateId);
+      if (!got || paintedPapersDigest(got, sha) !== paintedPapersDigest(planPaintedPapers(f), sha)) bad.push(f.templateId);
+    }
+    expect(bad).toEqual([]);
+    expect(plan.length).toBeGreaterThan(800);
+  }, 300000);
+
+  it("the digest ignores key order but changes with any question, paper or order", async () => {
+    const { plan } = await getPlan();
+    const f = plan.find((x) => x.papers.length > 0 && (x.papers[0].ws?.questions?.length ?? 0) > 1) as PlanFile;
+    const base = paintedPapersDigest(planPaintedPapers(f), sha);
+    const flip = (v: unknown): unknown =>
+      Array.isArray(v) ? v.map(flip) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v as Record<string, unknown>).reverse().map(([k, x]) => [k, flip(x)])) : v;
+    expect(paintedPapersDigest(flip(planPaintedPapers(f)) as unknown[], sha)).toBe(base);
+    const changed = JSON.parse(JSON.stringify(planPaintedPapers(f))) as Array<{ questions: Array<{ id: string }> }>;
+    changed[0].questions[0].id += "-x";
+    expect(paintedPapersDigest(changed, sha)).not.toBe(base);
+    const swapped = JSON.parse(JSON.stringify(planPaintedPapers(f))) as Array<{ questions: unknown[] }>;
+    swapped[0].questions.reverse();
+    expect(paintedPapersDigest(swapped, sha)).not.toBe(base);
+    expect(paintedPapersDigest([], sha)).not.toBe(base);
+  });
+
+  it("the generator and the renderer are wired to the check", () => {
+    const entry = fs.readFileSync(path.join(REPO, "lazytopper/scripts/packTemplates/genEntry.ts"), "utf8");
+    const gen = fs.readFileSync(path.join(REPO, "lazytopper/scripts/packTemplates/generatePackTemplates.ts"), "utf8");
+    expect(entry).toMatch(/paintedSha256/);
+    expect(gen).toMatch(/planPaintedPapers/);
+    expect(gen).toMatch(/rendered paper differs from the plan/);
   });
 });
