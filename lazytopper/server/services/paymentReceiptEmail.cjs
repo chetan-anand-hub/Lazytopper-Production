@@ -210,7 +210,7 @@ function formatIstDay(ms) {
  * PURE. The email for one paid order. `guestPhoneMasked` set -> the "sign in with your phone" instructions; else the
  * direct link. Returns null when the order is not something we send a receipt for.
  */
-function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst, invoice, invoiceResend = false, signIns, moved = false }) {
+function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst, invoice, invoiceResend = false, signIns, moved = false, holdEndDefault }) {
   const item = emailItemLabel(passType, packTarget);
   if (!item || !Number.isInteger(amountPaise) || amountPaise <= 0 || typeof paymentId !== 'string' || !paymentId) return null;
   // GST-INVOICE-2a: the receipt RE-SENT with an invoice issued later ("Issue now") - only with a usable invoice link.
@@ -234,6 +234,13 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
     howText = `Sign in at lazytopper.com/login with ${ids.join(' or ')}, and ${lands}.\nUse exactly what was entered at checkout. Anything else will not find this purchase.`;
     howHtml = `<p>Sign in at lazytopper.com/login with <strong>${ids.map(escapeHtml).join('</strong> or <strong>')}</strong>, and ${lands}.</p>
 <p>Use exactly what was entered at checkout. Anything else will not find this purchase.</p>`;
+  } else if (holdEndDefault && (holdEndDefault.phoneMasked || holdEndDefault.emailMasked)) {
+    // RECEIPT-HOLD-END-1 (owner ruling 13 Nov 2026, #1683 R6): a signed-out "buy for yourself" payer who never chose who it is for
+    // before the hold ended: assume the PAYER. Owner-approved sentence, the masked number (else the masked email) of the payer.
+    const byPhone = Boolean(holdEndDefault.phoneMasked);
+    const line = `Your ${item} is on the account for ${byPhone ? holdEndDefault.phoneMasked : holdEndDefault.emailMasked}. Sign in with that ${byPhone ? 'number' : 'email'} to open it.`;
+    howText = line;
+    howHtml = `<p>${escapeHtml(line)}</p>`;
   } else if (guestPhoneMasked) {
     const loginUrl = `${appUrl}/login?method=phone&redirect=${encodeURIComponent(isPack ? PAID_PACKS_LANDING : where)}`;
     const lands = isPack ? 'your pack is in My packs' : `your ${passNameOf(passType)} is switched on`;
@@ -561,7 +568,13 @@ function createPaymentReceiptEmailer(deps = {}) {
     const claimed = await claim(orderId, paymentId);
     if (!claimed) return { skipped: 'already_or_unpaid' };
     const { order, token } = claimed;
-    const built = buildReceiptEmail({ ...receiptArgsFor(order, orderId, paymentId, now()), ...(signIns ? { signIns } : {}) });
+    // RECEIPT-HOLD-END-1: only an attach order whose hold ended with nobody choosing AND no account known yet (an account that is known
+    // keeps the masked sign-ins path above). A "Who will use it?" recipient order is not a self-pay order and never takes this.
+    const holdEndDefault =
+      !signIns && order.payer === GUEST_PAYER && order.attachFlow === true && !order.attachedAt && order.checkoutWho !== true
+        ? { phoneMasked: maskIndianMobile(order.guestPhone) || null, emailMasked: maskMailShort(order.guestEmail) || null }
+        : null;
+    const built = buildReceiptEmail({ ...receiptArgsFor(order, orderId, paymentId, now()), ...(signIns ? { signIns } : {}), ...(holdEndDefault ? { holdEndDefault } : {}) });
     if (!built) {
       await settle(orderId, 'skipped', token);
       return { skipped: 'not_receipted' };
