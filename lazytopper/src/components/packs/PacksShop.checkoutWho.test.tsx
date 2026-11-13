@@ -233,6 +233,17 @@ describe("CHECKOUT-ONE-TAP-1 - signed out: the Buy tap IS the Pay tap", () => {
     expect(selfBuy.fn.mock.calls[0][0]).toMatchObject({ sku: "pack_cbq", target: "science" });
   });
 
+  it("a REAL Buy tap after a ?buy= arrival (sheet closed) opens Razorpay at once; the arrival itself never ordered", async () => {
+    shop("/packs?buy=pack_mock&t=maths");
+    await screen.findByTestId("who-pay-self-out");
+    expect(selfBuy.fn).not.toHaveBeenCalled(); // an arrival without a tap never auto-orders
+    fireEvent.click(screen.getByLabelText("Close"));
+    await waitFor(() => expect(screen.queryByTestId("who-sheet")).toBeNull());
+    fireEvent.click(await screen.findByTestId("packs-buy-pack_mock"));
+    await waitFor(() => expect(selfBuy.fn).toHaveBeenCalledTimes(1));
+    expect(screen.queryByTestId("who-pay-self-out")).toBeNull();
+  });
+
   it("the link arrival alone makes no order", async () => {
     shop("/packs?buy=pack_cbq&t=science");
     await screen.findByTestId("who-pay-self-out");

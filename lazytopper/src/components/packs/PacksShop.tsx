@@ -658,8 +658,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       trackPackCheckout(packCheckoutDetails(sku, target), { signedIn: false, ...(from ? { from } : {}) });
       // CHECKOUT-WHO-1 - flag on: "Who will use it?" (before pay-by-phone, which it replaces while on).
       if (whoEnabled) {
-        // CHECKOUT-ONE-TAP-1: a real Buy / Pay tap (not a ?buy= resume, not a Chapter Pack with no chapter chosen yet) buys for yourself at once.
-        setWho({ sku, target, ...(!resumed && !checkoutAudience && (sku !== "pack_chapter" || target) ? { tap: true } : {}) });
+        // CHECKOUT-ONE-TAP-1: a real Buy / Pay tap (not an automatic ?buy= arrival, not a Chapter Pack with no chapter chosen yet) buys for yourself at once.
+        setWho({ sku, target, ...(opts.resumed !== true && !checkoutAudience && (sku !== "pack_chapter" || target) ? { tap: true } : {}) });
         return;
       }
       // PAY-PHONE-1 - with paying-by-phone on, a signed-out tap asks "How do you want to pay?" instead of sending the

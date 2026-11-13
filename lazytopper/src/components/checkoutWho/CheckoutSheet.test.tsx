@@ -4,6 +4,7 @@
  * analytics names (unchanged; only a `recipient: "self" | "other"` param added).
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { StrictMode } from "react";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 const analytics = vi.hoisted(() => ({ trackNamedEvent: vi.fn(), trackPurchase: vi.fn(), newCheckoutAttemptId: vi.fn(() => "lt_attempt") }));
@@ -421,5 +422,31 @@ describe("CHECKOUT-ONE-TAP-1 - autoPaySelf: the opening tap IS the Pay tap", () 
     expect(screen.getByTestId("who-pay-self-out")).toBeTruthy();
     await new Promise((r) => setTimeout(r, 20));
     expect(buySelf).not.toHaveBeenCalled();
+  });
+});
+
+describe("CHECKOUT-ONE-TAP-1 - once-only guard (the `|| autoRan.current` in the mount effect)", () => {
+  const ITEM: CheckoutSheetItem = { ...CBQ, priceDisplay: "₹58" };
+  const props = (buySelf: ReturnType<typeof vi.fn>) => ({
+    item: ITEM, signedIn: false, selfMasked: null, onPaySelf: vi.fn(), onSignIn: vi.fn(), onSignInWithNumber: vi.fn(), onSignInWithEmail: vi.fn(), onClose: vi.fn(),
+    selfFirst: true, attachOn: true, autoPaySelf: true, buySelf: buySelf as unknown as (i: unknown) => Promise<SelfBuyOutcome>,
+  });
+
+  it("StrictMode (effects run twice on mount): buySelf is called exactly once", async () => {
+    const buySelf = vi.fn(() => new Promise<SelfBuyOutcome>(() => undefined));
+    render(<StrictMode><CheckoutSheet {...(props(buySelf) as never)} /></StrictMode>);
+    await new Promise((r) => setTimeout(r, 30));
+    expect(buySelf).toHaveBeenCalledTimes(1);
+  });
+
+  it("dismiss -> fallback Pay step -> parent re-renders: still ONE automatic call (a retry is only the button's own tap)", async () => {
+    const buySelf = vi.fn(async (): Promise<SelfBuyOutcome> => ({ status: "dismissed" }));
+    const p = props(buySelf);
+    const { rerender } = render(<StrictMode><CheckoutSheet {...(p as never)} /></StrictMode>);
+    await screen.findByText("Payment window closed. Tap Pay to try again.");
+    rerender(<StrictMode><CheckoutSheet {...({ ...p, onClose: vi.fn() } as never)} /></StrictMode>);
+    await new Promise((r) => setTimeout(r, 30));
+    expect(buySelf).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("who-pay-self-out")).toBeTruthy();
   });
 });

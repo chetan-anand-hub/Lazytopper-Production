@@ -42,7 +42,7 @@ describe("one sheet behind every Pay / Buy", () => {
   it("PacksShop: the signed-out tap, the signed-in tap and the one-tap entry all set the sheet's state", () => {
     const src = read("components/packs/PacksShop.tsx");
     // CHECKOUT-ONE-TAP-1: a real signed-out tap (not a resume, not /for-parents, not a chapter-less Chapter Pack) marks the sheet `tap`.
-    expect(src).toMatch(/if \(whoEnabled\) \{\s*\/\/[^\n]*\n\s*setWho\(\{ sku, target, \.\.\.\(!resumed && !checkoutAudience && \(sku !== "pack_chapter" \|\| target\) \? \{ tap: true \} : \{\}\) \}\);\s*return;/);
+    expect(src).toMatch(/if \(whoEnabled\) \{\s*\/\/[^\n]*\n\s*setWho\(\{ sku, target, \.\.\.\(opts\.resumed !== true && !checkoutAudience && \(sku !== "pack_chapter" \|\| target\) \? \{ tap: true \} : \{\}\) \}\);\s*return;/);
     expect(src).toMatch(/\.\.\.\(!signedIn && who\.tap \? \{ autoPaySelf: true \} : \{\}\)/);
     // the ?buy= link arrival (line below) never auto-pays: it sets no `tap`.
     // CHECKOUT-SELF-1: the signed-in tap buys directly (only the /for-parents audience keeps the sheet first); the secondary link opens the sheet.
