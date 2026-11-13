@@ -29,6 +29,7 @@ const {
   GUEST_ATTACH_PATH,
   GUEST_RECEIPT_PATH,
   GUEST_GST_DETAILS_PATH,
+  GUEST_PROOF_CLAIM_PATH,
   GUEST_ZIP_LINK_PATH,
   RECEIPT_WINDOW_MS,
   ATTACH_HOLD_MS,
@@ -92,6 +93,8 @@ function memoryFirestore(seed = {}) {
     return {
       key,
       collection: (sub) => ({
+        key: `${key}/${sub}`,
+        isCollection: true,
         doc: (id) => ref(`${key}/${sub}/${id}`),
         ...chain(`${key}/${sub}`, 3),
         // PACK-CREDIT-1: the pack list read (packEntitlements/{uid}/packs).
@@ -125,17 +128,34 @@ function memoryFirestore(seed = {}) {
         const tx = {
           async get(r) {
             await yieldNow();
+            if (r.isCollection) {
+              const prefix = `${r.key}/`;
+              const list = [];
+              for (const [k, e] of docs) if (k.startsWith(prefix) && !k.slice(prefix.length).includes('/')) list.push({ id: k.slice(prefix.length), data: () => ({ ...e.data }) });
+              seen.set(`${r.key}/*`, list.map((d) => `${r.key}/${d.id}`).join(','));
+              return { docs: list };
+            }
             const entry = docs.get(r.key);
             seen.set(r.key, entry ? entry.version : 0);
             return snapOf(entry);
           },
           set(r, data, opts) { pending.push([r.key, data, opts]); },
+          delete(r) { pending.push([r.key, null, { remove: true }]); },
         };
         const out = await fn(tx);
         await yieldNow();
-        const conflict = [...seen].some(([k, v]) => (docs.get(k) ? docs.get(k).version : 0) !== v);
+        const conflict = [...seen].some(([k, v]) => {
+          if (k.endsWith('/*')) {
+            const prefix = `${k.slice(0, -1)}`;
+            return [...docs.keys()].filter((x) => x.startsWith(prefix) && !x.slice(prefix.length).includes('/')).join(',') !== v;
+          }
+          return (docs.get(k) ? docs.get(k).version : 0) !== v;
+        });
         if (conflict) continue;
-        for (const [k, d, o] of pending) write(k, d, o);
+        for (const [k, d, o] of pending) {
+          if (o && o.remove) docs.delete(k);
+          else write(k, d, o);
+        }
         return out;
       }
       throw new Error('transaction contention: too many retries');
@@ -215,6 +235,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     [GUEST_ATTACH_PATH]: guest.handleAttach,
     [GUEST_RECEIPT_PATH]: guest.handleReceipt,
     [GUEST_GST_DETAILS_PATH]: guest.handleGstDetails,
+    [GUEST_PROOF_CLAIM_PATH]: guest.handleClaimWithProof,
     [GUEST_ZIP_LINK_PATH]: guest.handleZipLink,
     [PAY_ORDER_PATH]: pay.handleOrder,
     [PAY_VERIFY_PATH]: pay.handleVerify,
@@ -3058,4 +3079,231 @@ test('GST-PARENT-POSTPAY · switches: all off = 404; PARENT_PAY on but PAYMENTS 
   assert.notEqual(g.status, 200, 'a guest order is refused when only the parent switch is on');
   assert.equal(db.read('payOrders/order_GST').gstBuyer, undefined);
   assert.equal((await parentSave(only, 'order_PAR', 'pay_PAR')).status, 200);
+});
+
+/* ══ PUT-ON-THIS-ACCOUNT-1: a signed-in buyer who still holds the receipt proof puts the purchase on THIS account ══ */
+const proofClaim = (srv, o, headers, extra = {}, sigFor = [o.orderId, o.paymentId]) =>
+  request(srv.port, GUEST_PROOF_CLAIM_PATH, { body: { orderId: o.orderId, paymentId: o.paymentId, signature: checkoutSig(sigFor[0], sigFor[1]), ...extra }, headers });
+const GOOGLE = (uid = 'uGoogle') => ({ Authorization: `Bearer uid:${uid}|email:g.student@gmail.com` });
+const AFTER_HOLD = NOW + ATTACH_HOLD_MS + 1000;
+
+test('PUT-ON · an attach order still waiting: the signed-in Google account takes it with the proof; preview writes nothing; a second tap is "yours"; nothing else moves', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const later = await startRoutes({ env: SELF_ENV, db, nowMs: AFTER_HOLD });
+  t.after(later.close);
+  const key = `payOrders/${paid.orderId}`;
+  const before = JSON.stringify(db.read(key));
+  const pv = await proofClaim(later, paid, GOOGLE(), { preview: true });
+  assert.equal(pv.status, 200, pv.text);
+  assert.deepEqual(pv.json, { ok: true, state: 'can_put', item: { kind: 'pass', label: 'Board Pass', sku: 'till_boards', target: null }, savedTo: '+91 98•••••948' });
+  assert.equal(JSON.stringify(db.read(key)), before, 'a preview writes nothing');
+  const r = await proofClaim(later, paid, GOOGLE());
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(r.json, { ok: true, state: 'put', item: { kind: 'pass', label: 'Board Pass', sku: 'till_boards', target: null } });
+  const stored = db.read(key);
+  assert.equal(stored.uid, 'uGoogle');
+  assert.equal(stored.status, 'paid');
+  assert.equal(db.read('subscriptions/uGoogle').passType, 'till_boards');
+  const again = await proofClaim(later, paid, GOOGLE());
+  assert.deepEqual(again.json, { ok: true, state: 'yours', item: { kind: 'pass', label: 'Board Pass', sku: 'till_boards', target: null } });
+  assert.equal(db.keys('subscriptions/uGoogle/payments/').length, 1, 'ONE grant');
+  // another signed-in account cannot take it now
+  const other = await proofClaim(later, paid, GOOGLE('uOther'));
+  assert.equal(other.json.ok, false);
+  assert.equal(db.read(key).uid, 'uGoogle');
+});
+
+test('PUT-ON · a pack: granted through the same pack grant to THIS account', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  const later = await startRoutes({ env: SELF_ENV, db, nowMs: AFTER_HOLD });
+  t.after(later.close);
+  const r = await proofClaim(later, paid, GOOGLE());
+  assert.deepEqual(r.json, { ok: true, state: 'put', item: { kind: 'pack', label: 'PDF pack', sku: 'pack_cbq', target: 'maths' } });
+  assert.ok(db.read('packEntitlements/uGoogle/packs/pack_cbq:maths'));
+});
+
+test('PUT-ON · the order made an account at payment (pay-): the purchase moves to THIS account; the phone and both sign-ins stay where they are', async (t) => {
+  const db = memoryFirestore();
+  const { srv, auth } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidSelfOrder(srv, { contact: '+919876543948' });
+  await srv.idle();
+  const auto = autoAccountUid(paid.orderId);
+  assert.ok(db.read(`packEntitlements/${auto}/packs/pack_cbq:maths`), 'granted to the pay- account first');
+  assert.equal(db.read(`payOrders/${paid.orderId}`).claimedVia, 'account_created');
+  const usersBefore = JSON.stringify([...auth.byUid.entries()]);
+  const pv = await proofClaim(srv, paid, GOOGLE(), { preview: true });
+  assert.equal(pv.status, 200, pv.text);
+  assert.equal(pv.json.state, 'can_put');
+  assert.equal(db.read(`payOrders/${paid.orderId}`).uid, auto, 'a preview moves nothing');
+  const r = await proofClaim(srv, paid, GOOGLE());
+  assert.deepEqual(r.json, { ok: true, state: 'put', item: { kind: 'pack', label: 'PDF pack', sku: 'pack_cbq', target: 'maths' } });
+  assert.equal(db.read(`payOrders/${paid.orderId}`).uid, 'uGoogle');
+  assert.ok(db.read('packEntitlements/uGoogle/packs/pack_cbq:maths'));
+  assert.equal(db.read(`packEntitlements/${auto}/packs/pack_cbq:maths`), undefined, 'gone from the pay- account');
+  assert.equal(JSON.stringify([...auth.byUid.entries()]), usersBefore, 'Firebase Auth is not touched: the phone is never moved, nothing disabled');
+  assert.equal(db.read(`adminMoves/merge-${auto}`).toUid, 'uGoogle');
+  assert.deepEqual(Object.keys(db.read(`adminMoves/merge-${auto}`)).sort(), ['adminUid', 'at', 'fromUid', 'reason', 'toUid'], 'uids only');
+  assert.equal((await proofClaim(srv, paid, GOOGLE())).json.state, 'yours');
+});
+
+test('PUT-ON · refused, nothing written: signed out, bad / wrong-order / wrong-payment proof, a someone-else order, expired, kill switch, switches off', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const other = await paidAttach(srv);
+  const later = await startRoutes({ env: SELF_ENV, db, nowMs: AFTER_HOLD });
+  t.after(later.close);
+  const key = `payOrders/${paid.orderId}`;
+  const before = JSON.stringify(db.read(key));
+  assert.equal((await proofClaim(later, paid, {})).status, 401);
+  assert.equal((await request(later.port, GUEST_PROOF_CLAIM_PATH, { body: { orderId: paid.orderId, paymentId: paid.paymentId, signature: 'ab'.repeat(32) }, headers: GOOGLE() })).status, 400);
+  assert.equal((await proofClaim(later, paid, GOOGLE(), {}, [other.orderId, other.paymentId])).status, 400, "another order's signature");
+  assert.equal((await proofClaim(later, { orderId: paid.orderId, paymentId: other.paymentId }, GOOGLE())).status, 400, 'a different payment id');
+  assert.equal(JSON.stringify(db.read(key)), before);
+  // a someone-else order (selfPay false) is never taken with a proof
+  db.docs.set(key, { data: { ...db.read(key), selfPay: false }, version: 77 });
+  assert.equal((await proofClaim(later, paid, GOOGLE())).status, 400);
+  db.docs.set(key, { data: { ...JSON.parse(before), attachHoldUntil: db.read(key).attachHoldUntil, guestPaidAt: db.read(key).guestPaidAt, createdAt: db.read(key).createdAt }, version: 78 });
+  // the payer chose 'someone else' (attachedAt): not taken
+  db.docs.set(key, { data: { ...db.read(key), attachedAt: new Date(NOW) }, version: 79 });
+  assert.equal((await proofClaim(later, paid, GOOGLE(), { preview: true })).json.reason, 'not_available', 'a preview says so too');
+  assert.equal((await proofClaim(later, paid, GOOGLE())).json.reason, 'not_available');
+  assert.equal(db.read(key).uid === null || db.read(key).uid === undefined, true);
+  // expired
+  const late = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + RECEIPT_WINDOW_MS });
+  t.after(late.close);
+  assert.deepEqual((await proofClaim(late, other, GOOGLE())).json, { ok: false, reason: 'expired' });
+  // kill switch and the two feature switches
+  const killed = await startRoutes({ env: { ...SELF_ENV, PUT_ON_ACCOUNT_DISABLED: '1' }, db, nowMs: AFTER_HOLD });
+  t.after(killed.close);
+  assert.equal((await proofClaim(killed, other, GOOGLE())).status, 404);
+  const dark = await startRoutes({ env: { PAYMENTS_ENABLED: '1', RAZORPAY_KEY_ID: KEY_ID, RAZORPAY_KEY_SECRET: KEY_SECRET }, db, nowMs: AFTER_HOLD });
+  t.after(dark.close);
+  assert.equal((await proofClaim(dark, other, GOOGLE())).status, 404);
+  assert.equal(db.read(`payOrders/${other.orderId}`).uid === null || db.read(`payOrders/${other.orderId}`).uid === undefined, true);
+});
+
+test('PUT-ON · an order already on a REAL account is never moved; a pay- account with activity of its own is not merged; a second Board Pass is not merged', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const a = await paidSelfOrder(srv, { contact: '+919876543948' });
+  const b = await paidSelfOrder(srv, { contact: '+917012345678' }, { sku: 'till_boards' });
+  await srv.idle();
+  // a: real account holds it (claimedVia claim, real uid)
+  db.docs.set(`payOrders/${a.orderId}`, { data: { ...db.read(`payOrders/${a.orderId}`), uid: 'uReal', claimedVia: 'claim' }, version: 90 });
+  const ra = await proofClaim(srv, a, GOOGLE());
+  assert.equal(ra.json.reason, 'not_available');
+  assert.equal(db.read(`payOrders/${a.orderId}`).uid, 'uReal');
+  // each half of the pay- test on its own: a real uid labelled account_created, and the pay- uid labelled as another way in
+  const autoA = autoAccountUid(a.orderId);
+  db.docs.set(`payOrders/${a.orderId}`, { data: { ...db.read(`payOrders/${a.orderId}`), uid: 'uReal', claimedVia: 'account_created' }, version: 91 });
+  assert.equal((await proofClaim(srv, a, GOOGLE())).json.reason, 'not_available');
+  db.docs.set(`payOrders/${a.orderId}`, { data: { ...db.read(`payOrders/${a.orderId}`), uid: autoA, claimedVia: 'existing_account' }, version: 92 });
+  assert.equal((await proofClaim(srv, a, GOOGLE())).json.reason, 'not_available');
+  assert.equal(db.read(`payOrders/${a.orderId}`).uid, autoA);
+  // b: the pay- account has activity of its own
+  const autoB = autoAccountUid(b.orderId);
+  db.docs.set(`users/${autoB}`, { data: { name: 'x' }, version: 1 });
+  assert.equal((await proofClaim(srv, b, GOOGLE(), { preview: true })).json.reason, 'not_available');
+  assert.equal((await proofClaim(srv, b, GOOGLE())).json.reason, 'not_available');
+  assert.equal(db.read(`payOrders/${b.orderId}`).uid, autoB);
+  db.docs.delete(`users/${autoB}`);
+  // the target already holds a Board Pass: refused (one pass, one account), nothing moves
+  db.docs.set('subscriptions/uGoogle', { data: { tier: 'premium', passType: 'till_boards', passEnd: new Date(Date.parse('2027-12-31T00:00:00Z')) }, version: 1 });
+  assert.equal((await proofClaim(srv, b, GOOGLE())).json.reason, 'not_available');
+  assert.equal(db.read(`payOrders/${b.orderId}`).uid, autoB);
+  assert.ok(db.read(`subscriptions/${autoB}`).passType);
+  assert.equal(db.docs.has(`adminMoves/merge-${autoB}`), false);
+});
+
+test('PUT-ON · a Board Pass the target already covers: the duplicate rule is unchanged (labelled a duplicate, no second grant)', async (t) => {
+  const db = memoryFirestore({ 'subscriptions/uGoogle': COVERED_SUB });
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const later = await startRoutes({ env: SELF_ENV, db, nowMs: AFTER_HOLD });
+  t.after(later.close);
+  const r = await proofClaim(later, paid, GOOGLE());
+  assert.deepEqual(r.json, { ok: true, state: 'duplicate', item: { kind: 'pass', label: 'Board Pass', sku: 'till_boards', target: null } });
+  assert.equal(db.read(`payOrders/${paid.orderId}`).status, 'duplicate_purchase');
+});
+
+test('PUT-ON · during the 10-minute attach hold the buyer holding the proof still takes it (a signed-in payer has chosen); a preview in the hold says the same', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const during = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + 1000 });
+  t.after(during.close);
+  assert.equal((await proofClaim(during, paid, GOOGLE(), { preview: true })).json.state, 'can_put');
+  const r = await proofClaim(during, paid, GOOGLE());
+  assert.equal(r.json.state, 'put', r.text);
+  assert.equal(db.read(`payOrders/${paid.orderId}`).uid, 'uGoogle');
+});
+
+test('PUT-ON · ONE proof moves ONE order: a pay- account that also holds another order (a parent "someone else" purchase), pack or Board Pass is refused, nothing moves', async (t) => {
+  for (const extra of ['order', 'pack', 'marker', 'pass']) {
+    const db = memoryFirestore();
+    const { srv } = await autoRoutes({ env: SELF_ENV, db });
+    t.after(srv.close);
+    const paid = await paidSelfOrder(srv, { contact: '+919876543948' });
+    await srv.idle();
+    const auto = autoAccountUid(paid.orderId);
+    if (extra === 'order') db.docs.set('payOrders/order_second', { data: { uid: auto, payer: 'guest', selfPay: false, passType: 'pack_cbq', packTarget: 'science', status: 'paid', paymentId: 'pay_second' }, version: 1 });
+    if (extra === 'pack') db.docs.set(`packEntitlements/${auto}/packs/pack_cbq:science`, { data: { packId: 'pack_cbq:science', sku: 'pack_cbq', target: 'science', orderId: 'order_second', paymentRef: 'pay_second' }, version: 1 });
+    if (extra === 'marker') db.docs.set(`packEntitlements/${auto}/grants/pay_second`, { data: { paymentRef: 'pay_second', packId: 'pack_cbq:science', orderId: 'order_second' }, version: 1 });
+    if (extra === 'pass') db.docs.set(`subscriptions/${auto}`, { data: { tier: 'premium', passType: 'till_boards', passEnd: new Date(Date.parse('2027-12-31T00:00:00Z')), lastPaymentRef: 'pay_second' }, version: 1 });
+    const r = await proofClaim(srv, paid, GOOGLE());
+    assert.equal(r.json.ok, false, extra);
+    assert.equal(r.json.reason, 'not_available', extra);
+    assert.equal(db.read(`payOrders/${paid.orderId}`).uid, auto, `${extra}: the proven order stays`);
+    if (extra === 'order') assert.equal(db.read('payOrders/order_second').uid, auto);
+    assert.ok(db.read(`packEntitlements/${auto}/packs/pack_cbq:maths`), `${extra}: nothing moved`);
+    assert.equal(db.read('packEntitlements/uGoogle/packs/pack_cbq:maths'), undefined, extra);
+    assert.equal(db.docs.has(`adminMoves/merge-${auto}`), false, extra);
+  }
+});
+
+test('PUT-ON · the order must sit on the pay- account made for EXACTLY this order (any other pay- uid is refused); the take re-checks "not attached" inside the transaction', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidSelfOrder(srv, { contact: '+919876543948' });
+  await srv.idle();
+  const auto = autoAccountUid(paid.orderId);
+  const stranger = `pay-${'a'.repeat(24)}`;
+  assert.notEqual(stranger, auto);
+  db.docs.set(`payOrders/${paid.orderId}`, { data: { ...db.read(`payOrders/${paid.orderId}`), uid: stranger }, version: 40 });
+  const r = await proofClaim(srv, paid, GOOGLE());
+  assert.equal(r.json.reason, 'not_available');
+  assert.equal(db.read(`payOrders/${paid.orderId}`).uid, stranger);
+  // the take: the payer chooses "someone else" between the page read and the transaction
+  const db2 = memoryFirestore();
+  const a2 = await autoRoutes({ env: SELF_ENV, db: db2 });
+  t.after(a2.srv.close);
+  const waiting = await paidAttach(a2.srv);
+  const later = await startRoutes({ env: SELF_ENV, db: db2, nowMs: AFTER_HOLD });
+  t.after(later.close);
+  const key = `payOrders/${waiting.orderId}`;
+  const origTx = db2.runTransaction.bind(db2);
+  let raced = false;
+  db2.runTransaction = (fn) => {
+    if (!raced) {
+      raced = true;
+      db2.docs.set(key, { data: { ...db2.read(key), attachedAt: new Date(NOW) }, version: 99 });
+    }
+    return origTx(fn);
+  };
+  const t2 = await proofClaim(later, waiting, GOOGLE());
+  assert.equal(t2.json.reason, 'not_available');
+  assert.ok(db2.read(key).uid === null || db2.read(key).uid === undefined);
 });

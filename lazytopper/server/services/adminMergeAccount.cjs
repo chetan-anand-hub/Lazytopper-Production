@@ -23,6 +23,7 @@ const PAY_ORDERS_COLLECTION = 'payOrders';
 const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 const AUTO_ACCOUNT_UID_PREFIX = 'pay-';
 const MERGE_REASON = 'admin merge';
+const BUYER_REASON = 'buyer put it on this account';
 const mergeDocId = (fromUid) => `merge-${fromUid}`;
 const PASS_FIELDS = Object.freeze(['tier', 'plan', 'passType', 'passStart', 'passEnd', 'pricePaidInr', 'offerKey', 'foundingMember', 'lastPaymentRef']);
 /** Student-activity locations keyed by uid (studentDataMap), i.e. everything a real student leaves besides purchases. */
@@ -61,20 +62,28 @@ async function mergeAccount(input) {
   if (!fromUid) throw new MoveError(400, 'fromUid must be an account id');
   if (!toUid || !adminUid) throw new MoveError(400, 'target account is invalid');
   if (fromUid === toUid) throw new MoveError(400, 'Cannot merge an account into itself');
-  if (!db || typeof db.runTransaction !== 'function' || !auth) throw new Error('firebase-admin is unavailable');
+  // PUT-ON-THIS-ACCOUNT-1: `purchasesOnly` moves the purchases and orders ONLY - no Firebase Auth call at all (the phone stays where
+  // it is, nothing is disabled). Used when the BUYER (not an admin) puts a purchase on the account they are signed in with: a phone
+  // number typed at a checkout is never moved onto another account by a buyer's say-so.
+  const purchasesOnly = i.purchasesOnly === true;
+  // `onlyOrderId` (+ `onlyPaymentRef`): the buyer's proof covers ONE order, so the account may hold nothing else (a pay- account can also
+  // hold later orders delivered to that phone, e.g. a parent's "someone else" purchase). Anything else on it is refused, nothing moves.
+  const onlyOrderId = purchasesOnly && typeof i.onlyOrderId === 'string' && i.onlyOrderId ? i.onlyOrderId : '';
+  const onlyPaymentRef = onlyOrderId && typeof i.onlyPaymentRef === 'string' ? i.onlyPaymentRef : '';
+  if (!db || typeof db.runTransaction !== 'function' || (!auth && !purchasesOnly)) throw new Error('firebase-admin is unavailable');
   const nowMs = typeof i.nowMs === 'number' && Number.isFinite(i.nowMs) ? i.nowMs : Date.now();
 
   if (!fromUid.startsWith(AUTO_ACCOUNT_UID_PREFIX)) throw new MoveError(409, 'Only an account created at payment can be merged (this one is a real account)');
 
-  let srcUser;
-  try {
+  let srcUser = null;
+  if (!purchasesOnly) try {
     srcUser = await auth.getUser(fromUid);
   } catch (e) {
     if (notFound(e)) throw new MoveError(404, 'That source account does not exist');
     throw e;
   }
-  let tgtUser;
-  try {
+  let tgtUser = null;
+  if (!purchasesOnly) try {
     tgtUser = await auth.getUser(toUid);
   } catch (e) {
     if (notFound(e)) throw new MoveError(404, 'No LazyTopper account with that email/phone — ask them to sign in once first');
@@ -94,8 +103,8 @@ async function mergeAccount(input) {
     if (await hasAnything(db, CREDIT_COLLECTION, fromUid)) throw new MoveError(409, 'That account holds top-up credit, which cannot be merged automatically');
   }
 
-  const srcPhone = typeof srcUser.phoneNumber === 'string' && srcUser.phoneNumber ? srcUser.phoneNumber : '';
-  const tgtPhone = typeof tgtUser.phoneNumber === 'string' && tgtUser.phoneNumber ? tgtUser.phoneNumber : '';
+  const srcPhone = srcUser && typeof srcUser.phoneNumber === 'string' && srcUser.phoneNumber ? srcUser.phoneNumber : '';
+  const tgtPhone = tgtUser && typeof tgtUser.phoneNumber === 'string' && tgtUser.phoneNumber ? tgtUser.phoneNumber : '';
   if (srcPhone && tgtPhone && srcPhone !== tgtPhone) throw new MoveError(409, 'The target account already has a different phone number');
 
   let moved = false;
@@ -141,6 +150,17 @@ async function mergeAccount(input) {
         if (!s || !s.exists || (s.data() || {}).uid !== fromUid) throw new MoveError(409, 'An order changed while merging; try again');
       }
 
+      if (onlyOrderId) {
+        const other = 'That account holds more than this one purchase, so it is not moved automatically';
+        if (orderIds.length !== 1 || orderIds[0] !== onlyOrderId) throw new MoveError(409, other);
+        if (packDocs.some((d) => (d.data() || {}).orderId !== onlyOrderId)) throw new MoveError(409, other);
+        if ((srcMarkers.docs || []).some((d) => (d.data() || {}).orderId !== onlyOrderId && d.id !== onlyPaymentRef)) throw new MoveError(409, other);
+        if (srcHasPass) {
+          const pays = srcSubPays.docs || [];
+          const ref = pays.length > 0 ? pays.every((p) => p.id === onlyPaymentRef) : (srcSubData || {}).lastPaymentRef === onlyPaymentRef;
+          if (!onlyPaymentRef || !ref) throw new MoveError(409, other);
+        }
+      }
       // Writes.
       for (const d of packDocs) {
         tx.set(ent(toUid).collection(PACK_SEGMENTS.packs).doc(d.id), d.data());
@@ -162,10 +182,12 @@ async function mergeAccount(input) {
         tx.delete(sub(fromUid));
       }
       for (const id of orderIds) tx.set(db.collection(PAY_ORDERS_COLLECTION).doc(id), { uid: toUid }, { merge: true });
-      tx.set(markerRef, { at: new Date(nowMs), adminUid, fromUid, toUid, reason: MERGE_REASON });
+      tx.set(markerRef, { at: new Date(nowMs), adminUid, fromUid, toUid, reason: purchasesOnly ? BUYER_REASON : MERGE_REASON });
     });
     moved = true;
   }
+
+  if (purchasesOnly) return { merged: moved, replayed, fromUid, toUid, phoneMoved: false };
 
   // Firebase Auth - idempotent: each step acts only if still needed.
   let phoneMoved = false;
@@ -189,4 +211,10 @@ async function mergeAccount(input) {
   return { merged: moved, replayed, fromUid, toUid, phoneMoved };
 }
 
-module.exports = { mergeAccount, AUTO_ACCOUNT_UID_PREFIX, MERGE_REASON };
+/** PUT-ON-THIS-ACCOUNT-1: does this account hold anything of its own besides purchases (a real student's data, or top-up credit)? */
+async function hasOwnActivity(db, uid) {
+  for (const c of ACTIVITY_COLLECTIONS) if (await hasAnything(db, c, uid)) return true;
+  return hasAnything(db, CREDIT_COLLECTION, uid);
+}
+
+module.exports = { mergeAccount, hasOwnActivity, AUTO_ACCOUNT_UID_PREFIX, MERGE_REASON, BUYER_REASON };

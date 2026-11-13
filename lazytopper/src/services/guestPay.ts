@@ -385,6 +385,11 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
           })
           .catch(() => undefined);
       }
+      // PUT-ON-THIS-ACCOUNT-1: this tab holds the receipt proof of a signed-out purchase and the claim found none of it for this
+      // login (a different sign-in than the paid-with contact): offer to put it here. Only when a proof exists; never throws.
+      if (claimed !== null && claimed.length === 0 && typeof window !== "undefined") {
+        void maybeOfferPutOnAccount(uid);
+      }
       return claimed;
     })
     .finally(() => inFlight.delete(uid));
@@ -409,6 +414,21 @@ function scheduleHoldReclaim(uid: string, holdEndsMs: number, claim?: () => Prom
       void claimOncePerSession(uid, { force: true, claim });
     }, wait),
   );
+}
+
+/** PUT-ON-THIS-ACCOUNT-1: lazy, own chunk; nothing happens without a stored proof and the switch on. */
+async function maybeOfferPutOnAccount(uid: string): Promise<void> {
+  try {
+    const { readReceiptProof } = await import("./paidReceiptProof");
+    if (!readReceiptProof()) return;
+    const { isPutOnAccountEnabled } = await import("./putOnAccount");
+    if (!isPutOnAccountEnabled()) return;
+    const m = await import("../components/checkoutWho/PutOnAccountPrompt");
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+    m.showPutOnAccountPrompt(uid);
+  } catch {
+    /* the offer is optional; the claim result is unchanged */
+  }
 }
 
 /** PAY-ACCOUNT-1 - the server started this account's sign-up trial: re-read it so it shows, and count it. Never throws. */
