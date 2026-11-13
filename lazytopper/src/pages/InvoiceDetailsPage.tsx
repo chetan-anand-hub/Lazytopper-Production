@@ -37,7 +37,7 @@ type View =
   | { kind: "error" }
   | { kind: "form"; d: Details }
   | { kind: "saved"; d: Details }
-  | { kind: "invoiced"; d: Details; invoice: InvoiceLink };
+  | { kind: "invoiced"; d: Details; invoice: InvoiceLink; earlier?: true };
 
 const FIELD_ERRORS: Record<string, string> = {
   state: "Choose your state to continue.",
@@ -86,7 +86,7 @@ export default function InvoiceDetailsPage() {
         if (!res.ok) return setView({ kind: res.status === 404 ? "invalid" : "error" });
         const d = (await res.json()) as Details;
         if (!live) return;
-        if (d.status === "invoiced" && d.invoice) setView({ kind: "invoiced", d, invoice: d.invoice });
+        if (d.status === "invoiced" && d.invoice) setView({ kind: "invoiced", d, invoice: d.invoice, earlier: true });
         else if (d.status === "details_received") setView({ kind: "saved", d });
         else setView({ kind: "form", d });
       } catch {
@@ -239,6 +239,7 @@ export default function InvoiceDetailsPage() {
         {view.kind === "invoiced" && (
           <>
             {summary(view.d)}
+            {view.earlier && <p className="lt-invd__ok" data-testid="invd-already">Your invoice has already been sent.</p>}
             <p className="lt-invd__ok" role="status" data-testid="invd-invoiced">
               Your GST tax invoice {view.invoice.number} is ready. We will also email it to you.
             </p>

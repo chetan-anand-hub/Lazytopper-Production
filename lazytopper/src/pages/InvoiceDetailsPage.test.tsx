@@ -110,6 +110,8 @@ describe("InvoiceDetailsPage", () => {
     mount();
     await screen.findByTestId("invd-download");
     expect(screen.queryByTestId("invd-form")).toBeNull();
+    // GST-EMAIL-LINK-1: the buyer saved in the paid-screen box first, then opened the email's link
+    expect(screen.getByTestId("invd-already").textContent).toBe("Your invoice has already been sent.");
     cleanup();
     vi.stubGlobal("fetch", vi.fn(async () => reply(200, { ...DETAILS, status: "details_received" })));
     mount();
