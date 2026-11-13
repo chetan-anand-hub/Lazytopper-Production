@@ -2399,7 +2399,10 @@ test('Z5 · reject log: amount_mismatch webhook -> one warn line with reason + o
   assert.equal(bad.status, 400);
   assert.equal(bad.json.reason, 'bad_signature');
   assert.equal(warns.length, 1, warns.join('\n'));
-  assert.equal(warns[0], '[pay/webhook] rejected reason=bad_signature event=- order=- pay=- status=-');
+  // WEBHOOK-DIAG-1: ids parsed from the body + byte facts, never the body itself.
+  assert.ok(warns[0].startsWith(`[pay/webhook] rejected reason=bad_signature event=payment.captured order=${orderId} pay=${p.id} status=- `), warns[0]);
+  assert.ok(warns[0].includes(` bytes=${Buffer.byteLength(raw)} cl=${Buffer.byteLength(raw)} `), warns[0]);
+  assert.ok(/ nonascii=\d+ enc=- te=- sigLen=64 evid=- via=direct$/.test(warns[0]), warns[0]);
 
   const all = [...warns, ...mism];
   for (const line of all) {

@@ -36,6 +36,7 @@ const {
   backdateExclusion,
   supplyMsOf,
   gstBuyerFromBody,
+  heldReasonFor,
   invoiceLinkSecret,
   invoiceToken,
   BACKDATE_FROM_MS,
@@ -43,6 +44,7 @@ const {
 const { escapeHtml } = require('./trialEndingEmail.cjs');
 const { itemLabel, formatInr, formatIstDay, payerAccountUid, isPlaceholderAddress } = require('./paymentReceiptEmail.cjs');
 const { maskEmail } = require('./guestPay.cjs');
+const { createGstOrderDetails } = require('./gstOrderDetails.cjs'); // GST-EMAIL-LINK-1: the ONE write path for a post-cutoff order
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DETAILS_TOKEN_TTL_MS = 30 * DAY_MS;
@@ -159,6 +161,7 @@ function createGstBackdate(deps = {}) {
     }
   }
   const enabled = () => !!(invoicer && invoicer.config && invoicer.config.enabled) && !!adminFirestore;
+  const orderDetails = deps.orderDetails || (adminFirestore ? createGstOrderDetails({ adminFirestore, invoicer, mailer }) : null);
   const orderRef = (id) => adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(id);
   const backdateOf = (o) => (o && o.gstBackdate && typeof o.gstBackdate === 'object' ? o.gstBackdate : {});
 
@@ -474,8 +477,13 @@ function createGstBackdate(deps = {}) {
     const snap = await orderRef(parsed.orderId).get();
     const o = snap && snap.exists ? snap.data() || {} : null;
     if (!o) return { error: 'invalid' };
-    if (!o.gstInvoice && backdateExclusion(o)) return { error: 'invalid' };
-    return { orderId: parsed.orderId, order: o };
+    // A PAST sale keeps its form (backdateExclusion null). GST-EMAIL-LINK-1: a sale made AFTER the cut-off ('not_past_sale') that is
+    // paid and has no invoice yet also takes it (the receipt email's link); anything else (top-up, unpaid, refunded...) is invalid.
+    const excluded = o.gstInvoice ? null : backdateExclusion(o);
+    if (excluded && excluded !== 'not_past_sale') return { error: 'invalid' };
+    const postCutoff = !o.gstInvoice && excluded === 'not_past_sale';
+    if (postCutoff && !(typeof o.paymentId === 'string' && o.paymentId)) return { error: 'invalid' };
+    return { orderId: parsed.orderId, order: o, postCutoff };
   }
 
   /** GET /api/gst/invoice-details?t= : what the page shows. No state is ever suggested. */
@@ -487,9 +495,36 @@ function createGstBackdate(deps = {}) {
       item: itemLabel(o.passType, o.packTarget) || '',
       amountPaise: o.amountPaise,
       paidOn: formatIstDay(supplyMsOf(o)),
-      status: o.gstInvoice ? 'invoiced' : o.gstBuyer ? 'details_received' : 'needs_details',
+      status: o.gstInvoice ? 'invoiced' : r.postCutoff ? (['no_state', 'no_pin'].includes(heldReasonFor(o, { ready: true })) ? 'needs_details' : 'details_received') : o.gstBuyer ? 'details_received' : 'needs_details',
       ...(o.gstInvoice ? { invoice: invoiceLink(r.orderId, o.gstInvoice) } : {}),
     };
+  }
+
+  /**
+   * GST-EMAIL-LINK-1: a sale made AFTER the cut-off that was held for its state / PIN. It goes through the SAME write path as the
+   * paid-screen box (gstOrderDetails.submit -> invoicer.issueNow): a NORMAL capture-time invoice, never a worked-back one. The signed
+   * token binds the order id; an order that already holds an invoice is never changed; one that holds a complete state already
+   * (held for another reason) is not overwritten.
+   */
+  async function submitPostCutoff(r, body) {
+    if (!orderDetails) return { error: 'invalid' };
+    const held = heldReasonFor(r.order, { ready: true });
+    if (held !== 'no_state' && held !== 'no_pin') return { ok: true, status: 'details_received' };
+    const out = await orderDetails.submit({
+      orderId: r.orderId,
+      raw: { stateCode: body && body.stateCode, pin: body && body.pin, business: body && body.business },
+      authorize: () => true, // the signed token already bound this order id
+    });
+    if (out.error === 'bad_input') return { error: 'bad_input', field: out.field };
+    if (out.error === 'unknown_order' || out.error === 'forbidden' || out.error === 'unpaid') return { error: 'invalid' };
+    if (out.error) return { error: 'invalid' };
+    if (out.status === 'invoiced') {
+      const after = await orderRef(r.orderId).get();
+      const o = after && after.exists ? after.data() || {} : {};
+      return o.gstInvoice ? { ok: true, status: 'invoiced', invoice: invoiceLink(r.orderId, o.gstInvoice) } : { ok: true, status: 'invoiced' };
+    }
+    emit('payments.gst_backdate.details_saved_not_issued');
+    return { ok: true, status: 'details_received', ...(out.held ? { held: out.held } : {}) };
   }
 
   /**
@@ -500,6 +535,7 @@ function createGstBackdate(deps = {}) {
   async function submitDetails(token, body) {
     const r = await orderForToken(token);
     if (r.error) return r;
+    if (r.postCutoff) return submitPostCutoff(r, body);
     const parsed = gstBuyerFromBody(body);
     const buyer = parsed.fields.gstBuyer;
     if (!buyer) return { error: 'bad_input', field: 'state' };

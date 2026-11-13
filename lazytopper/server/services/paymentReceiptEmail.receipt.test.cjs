@@ -376,3 +376,45 @@ test('R6: not for a chosen / attached order, a known account, a recipient ("Who 
   assert.equal((await emailer.sendForPayment(input())).skipped, 'attach_hold');
   assert.equal(fetchImpl.sent.length, 0);
 });
+
+/* ── GST-EMAIL-LINK-1: the receipt of an order HELD for its state / PIN carries the signed "add your state and PIN" link ── */
+const GST_ENV = { ...ENV, GST_INVOICE_ENABLED: '1', INVOICE_LINK_SECRET: 'test-invoice-link-secret-0123456789abcdef', PAYMENT_EMAIL_APP_URL: 'https://www.lazytopper.com' };
+const HELD_ORDER = { ...PASS, createdAt: new Date(NOW), baseInr: 508, gstInr: 91, totalInr: 599, amountPaise: 59900 };
+const LINE = /Get your GST invoice: add your state and PIN: (https:\/\/www\.lazytopper\.com\/invoice-details\?t=\S+)/;
+
+test('GST-EMAIL-LINK-1 · an order held for no_state carries the line + a signed link that names THIS order', async () => {
+  const { emailer, fetchImpl } = make({ order: HELD_ORDER, env: GST_ENV });
+  await emailer.sendForPayment(input());
+  const m = fetchImpl.sent[0];
+  const hit = LINE.exec(m.text);
+  assert.ok(hit, m.text);
+  assert.match(m.html, /Get your GST invoice: <a href="https:\/\/www\.lazytopper\.com\/invoice-details\?t=[^"]+">add your state and PIN<\/a>/);
+  const { parseDetailsToken } = require('./gstBackdate.cjs');
+  const parsed = parseDetailsToken(decodeURIComponent(new URL(hit[1]).searchParams.get('t')), GST_ENV.INVOICE_LINK_SECRET, NOW);
+  assert.equal(parsed.orderId, 'order_X1');
+  assert.equal(parsed.expMs, NOW + 30 * 24 * 60 * 60 * 1000, '30-day token');
+});
+
+test('GST-EMAIL-LINK-1 · held for no_pin (state only) also gets the link', async () => {
+  const { emailer, fetchImpl } = make({ order: { ...HELD_ORDER, gstBuyer: { stateCode: '29' } }, env: GST_ENV });
+  await emailer.sendForPayment(input());
+  assert.match(fetchImpl.sent[0].text, LINE);
+});
+
+test('GST-EMAIL-LINK-1 · NO link: state + PIN already given, invoice already issued, pre-cutoff sale, top-up, invoicing off, no link secret', async () => {
+  const cases = {
+    complete: { order: { ...HELD_ORDER, gstBuyer: { stateCode: '29', pin: '560001' } }, env: GST_ENV },
+    invoiced: { order: { ...HELD_ORDER, gstInvoice: { number: 'LT/26-27/000001', paymentId: 'pay_ABC123' } }, env: GST_ENV },
+    invoicedOtherPay: { order: { ...HELD_ORDER, gstInvoice: { number: 'LT/26-27/000002', paymentId: 'pay_OTHER' } }, env: GST_ENV },
+    preCutoff: { order: { ...HELD_ORDER, createdAt: new Date('2026-10-01T00:00:00Z') }, env: GST_ENV },
+    topup: { order: { ...HELD_ORDER, passType: 'topup_tutor' }, env: GST_ENV },
+    off: { order: HELD_ORDER, env: { ...GST_ENV, GST_INVOICE_ENABLED: '' } },
+    noSecret: { order: HELD_ORDER, env: { ...GST_ENV, INVOICE_LINK_SECRET: '' } },
+  };
+  for (const [name, c] of Object.entries(cases)) {
+    const { emailer, fetchImpl } = make(c);
+    await emailer.sendForPayment(input());
+    if (name !== 'topup') assert.ok(fetchImpl.sent.length > 0, name);
+    for (const s of fetchImpl.sent) assert.doesNotMatch(s.text + s.html, /invoice-details|Get your GST invoice/, name);
+  }
+});

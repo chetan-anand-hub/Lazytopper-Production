@@ -1164,7 +1164,7 @@ function backdateFor(db, clock, { env = {}, payments = {}, accountEmails = {}, f
   };
   const now = () => clock.t;
   const mailer = createPaymentReceiptEmailer({ adminFirestore: db, fetchImpl, now, env: E });
-  const inv = g.createGstInvoicer({ adminFirestore: db, env: E, now });
+  const inv = g.createGstInvoicer({ adminFirestore: db, env: E, now, fetchPayment: async (id) => (payments[id] === undefined ? null : payments[id]) });
   const fetchPayment = fetchOverride || (async (id) => (payments[id] === undefined ? null : payments[id]));
   const svc = bd.createGstBackdate({ adminFirestore: db, invoicer: inv, mailer, fetchPayment, getAccountEmail: async (uid) => accountEmails[uid] || '', env: E, now });
   return { svc, sent, inv, mailer, env: E };
@@ -1602,4 +1602,104 @@ test('GST-FU-1 review F2: the invoice email to a Razorpay placeholder (buyer.ema
   // The hourly drain never picks it up either.
   assert.deepEqual(await mailer.drainInvoiceEmails(), { sent: 0, queued: 0, skipped: 0, failed: 0 });
   assert.equal(sent.length, 0);
+});
+
+/* ── GST-EMAIL-LINK-1: a sale made AFTER the cut-off, held for its state / PIN, takes the details page and gets a NORMAL invoice ── */
+const heldNew = (extra = {}) => storedOrder({ stateCode: null, paymentId: 'pay_H', extra: { paidAt: new Date(AFTER_CUTOFF), ...extra } });
+const tokenFor = (orderId, clock, exp) => bd.detailsToken(orderId, exp === undefined ? clock.t + bd.DETAILS_TOKEN_TTL_MS : exp, LINK_SECRET);
+
+test('EMAIL-LINK post-cutoff held order: the page asks for details; a valid answer issues ONE normal capture-time invoice (not worked back), emailed once; a second submit changes nothing', async () => {
+  const db = memoryFirestore({ 'payOrders/order_H': heldNew() });
+  const clock = { t: AFTER_CUTOFF + 60 * 60 * 1000 };
+  const { svc, sent } = backdateFor(db, clock, { payments: { pay_H: { id: 'pay_H', order_id: 'order_H', email: 'h.buyer@example.com', contact: '+919800000002', status: 'captured' } } });
+  const tok = tokenFor('order_H', clock);
+  assert.deepEqual(await svc.getDetails(tok), { item: 'Board Pass (Premium till your boards)', amountPaise: db.read('payOrders/order_H').amountPaise, paidOn: '8 November 2026', status: 'needs_details' });
+  assert.deepEqual(await svc.submitDetails(tok, { stateCode: '29' }), { error: 'bad_input', field: 'pin' });
+  assert.deepEqual(await svc.submitDetails(tok, { pin: '560001' }), { error: 'bad_input', field: 'state' });
+  assert.equal(db.read('payOrders/order_H').gstBuyer, undefined, 'a refused answer stores nothing');
+  const r = await svc.submitDetails(tok, { stateCode: '29', pin: '560001' });
+  assert.equal(r.ok, true);
+  assert.equal(r.status, 'invoiced');
+  const rec = db.read('payOrders/order_H').gstInvoice;
+  assert.ok(rec && rec.number, 'an invoice was issued');
+  assert.equal(rec.issuedLater, undefined, 'a NORMAL invoice: not the back-dated one');
+  assert.equal(rec.taxWorkedBack, undefined);
+  assert.equal(db.read('payOrders/order_H').gstBackdate, undefined, 'no back-date marker is written');
+  assert.deepEqual(db.read('payOrders/order_H').gstBuyer, { stateCode: '29', pin: '560001' });
+  assert.equal(db.read('payOrders/order_H').gstInvoiceEmail.status, 'sent');
+  assert.equal(sent.length, 1, 'the invoice email went out once');
+  const number = rec.number;
+  const again = await svc.submitDetails(tok, { stateCode: '27', pin: '411001' });
+  assert.equal(again.status, 'invoiced');
+  assert.equal(db.read('payOrders/order_H').gstInvoice.number, number);
+  assert.equal(db.read('payOrders/order_H').gstBuyer.stateCode, '29', 'an invoiced order is never changed');
+  assert.equal(db.read('gstInvoiceCounters/26-27').last, 1, 'one number used');
+  assert.equal(sent.length, 1, 'a second submit sends no second email');
+  const view = await svc.getDetails(tok);
+  assert.equal(view.status, 'invoiced');
+  assert.ok(view.invoice && view.invoice.number === number);
+});
+
+test('EMAIL-LINK post-cutoff: an order that already holds an invoice (saved in the paid-screen box first) is shown as invoiced and never changed', async () => {
+  const db = memoryFirestore({ 'payOrders/order_I': storedOrder({ paymentId: 'pay_I', extra: { paidAt: new Date(AFTER_CUTOFF), gstInvoice: { number: 'LT/26-27/000009', paymentId: 'pay_I' } } }) });
+  const clock = { t: AFTER_CUTOFF + 1000 };
+  const { svc } = backdateFor(db, clock);
+  const tok = tokenFor('order_I', clock);
+  assert.equal((await svc.getDetails(tok)).status, 'invoiced');
+  const r = await svc.submitDetails(tok, { stateCode: '27', pin: '411001' });
+  assert.equal(r.status, 'invoiced');
+  assert.equal(db.read('payOrders/order_I').gstBuyer.stateCode, '29', 'unchanged');
+  assert.equal(db.read('payOrders/order_I').gstInvoice.number, 'LT/26-27/000009');
+  assert.equal(db.docs.has('gstInvoiceCounters/26-27'), false, 'no number used');
+});
+
+test('EMAIL-LINK refused: a bad token, an expired token, another order id, a top-up, an unpaid order, a post-cutoff order with no payment id', async () => {
+  const db = memoryFirestore({
+    'payOrders/order_H': heldNew(),
+    'payOrders/order_TU': heldNew({ passType: 'topup_tutor' }),
+    'payOrders/order_UP': heldNew({ status: 'created' }),
+    'payOrders/order_NP': heldNew({ paymentId: undefined }),
+  });
+  const clock = { t: AFTER_CUTOFF + 1000 };
+  const { svc } = backdateFor(db, clock, { payments: { pay_H: { id: 'pay_H', order_id: 'order_H', email: 'h.buyer@example.com', contact: '+919800000002', status: 'captured' } } });
+  const good = tokenFor('order_H', clock);
+  const forged = good.slice(0, -2) + (good.endsWith('aa') ? 'bb' : 'aa');
+  assert.deepEqual(await svc.getDetails(forged), { error: 'invalid' });
+  assert.deepEqual(await svc.submitDetails(forged, { stateCode: '29', pin: '560001' }), { error: 'invalid' });
+  assert.deepEqual(await svc.submitDetails(tokenFor('order_H', clock, clock.t - 1), { stateCode: '29', pin: '560001' }), { error: 'expired' });
+  for (const id of ['order_TU', 'order_UP', 'order_NP', 'order_missing']) {
+    assert.deepEqual(await svc.submitDetails(tokenFor(id, clock), { stateCode: '29', pin: '560001' }), { error: 'invalid' }, id);
+    assert.equal(db.read(`payOrders/${id}`) && db.read(`payOrders/${id}`).gstBuyer, undefined, id);
+  }
+  // the token binds the order id: order_H's token never writes another order
+  assert.equal((await svc.submitDetails(good, { stateCode: '29', pin: '560001' })).status, 'invoiced');
+  assert.equal(db.read('payOrders/order_TU').gstInvoice, undefined);
+});
+
+test('EMAIL-LINK a post-cutoff order held for ANOTHER reason (state already given): shown as received, never overwritten', async () => {
+  const db = memoryFirestore({ 'payOrders/order_C': storedOrder({ paymentId: 'pay_C', extra: { paidAt: new Date(AFTER_CUTOFF) } }) });
+  const clock = { t: AFTER_CUTOFF + 1000 };
+  const { svc, inv } = backdateFor(db, clock, { env: { GST_SELLER_GSTIN: '' } });
+  // make the invoicer refuse (seller config) so the order stays un-invoiced with a complete state
+  void inv;
+  const tok = tokenFor('order_C', clock);
+  const before = db.read('payOrders/order_C');
+  if (!before.gstInvoice) {
+    const r = await svc.submitDetails(tok, { stateCode: '27', pin: '411001' });
+    assert.equal(r.status, 'details_received');
+    assert.equal(db.read('payOrders/order_C').gstBuyer.stateCode, '29', 'the given state is not overwritten');
+  }
+});
+
+test('EMAIL-LINK past-sale path unchanged: a past sale still gets the back-dated invoice and a post-cutoff-only rule never touches it', async () => {
+  const db = memoryFirestore({ 'payOrders/order_PS': pastOrder({ paymentId: 'pay_PS' }) });
+  const clock = { t: IST('2026-11-08T12:00:00') };
+  const { svc } = backdateFor(db, clock);
+  const tok = tokenFor('order_PS', clock);
+  assert.equal((await svc.getDetails(tok)).status, 'needs_details');
+  const r = await svc.submitDetails(tok, { stateCode: '29', pin: '560001' });
+  assert.equal(r.status, 'invoiced');
+  const rec = db.read('payOrders/order_PS').gstInvoice;
+  assert.equal(rec.issuedLater, true);
+  assert.equal(rec.taxWorkedBack, true);
 });
