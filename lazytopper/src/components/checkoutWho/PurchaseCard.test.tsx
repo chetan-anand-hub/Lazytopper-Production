@@ -9,6 +9,11 @@ vi.mock("../../lib/packs/buildPackFiles", async (orig) => ({
   ...(await orig<typeof import("../../lib/packs/buildPackFiles")>()),
   buildPackFiles: (...a: unknown[]) => build.buildPackFiles(...a),
 }));
+const zip = vi.hoisted(() => ({ download: vi.fn(async () => ({ ok: true }) as { ok: boolean; reason?: string }) }));
+vi.mock("../../lib/packs/serverPdfDownload", async (orig) => ({
+  ...(await orig<typeof import("../../lib/packs/serverPdfDownload")>()),
+  downloadGuestZipFromServer: (...a: unknown[]) => (zip.download as (...x: unknown[]) => unknown)(...a),
+}));
 vi.mock("../../lib/packs/packAnalytics", () => ({ trackPackEvent: vi.fn(), trackPackPurchase: vi.fn() }));
 
 import PurchaseCard from "./PurchaseCard";
@@ -156,5 +161,75 @@ describe("POSTPAY-WHO-FIRST-1 - folded files and the hidden payment line", () =>
     expect(screen.queryByTestId("receipt-files-fold")).toBeNull();
     expect(screen.getByText("Payment received ✓")).toBeTruthy();
     expect(screen.getByTestId("receipt-saved")).toBeTruthy();
+  });
+});
+
+describe("GUEST-ZIP-1 - Download all (ZIP)", () => {
+  const withCodes = [
+    { id: "f1", label: "A", group: "G1", filename: "a.pdf", codes: ["C1"], build: build.fileBuild },
+    { id: "f2", label: "B", group: "G1", filename: "b.pdf", codes: ["C2"], build: build.fileBuild },
+  ];
+  beforeEach(() => {
+    zip.download.mockReset();
+    zip.download.mockResolvedValue({ ok: true });
+    build.buildPackFiles.mockResolvedValue(withCodes);
+  });
+
+  it("is the FIRST thing in the file list; a tap asks the server for the whole pack with THIS card's proof and every printed code; then 'Saved'", async () => {
+    render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} />);
+    const btn = await screen.findByTestId("receipt-zip");
+    const firstFile = (await screen.findAllByTestId("receipt-download"))[0];
+    expect(btn.compareDocumentPosition(firstFile) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(btn.textContent).toBe("Download all (ZIP)");
+    fireEvent.click(btn);
+    await waitFor(() => expect(screen.getByTestId("receipt-zip").textContent).toBe("Saved ✓"));
+    expect(zip.download).toHaveBeenCalledWith({ proof: PROOF, expectCodes: ["C1", "C2"] });
+  });
+
+  it("a failed ZIP is quiet: 'Try again' + a line, and every single-file Download is still there and works", async () => {
+    zip.download.mockResolvedValue({ ok: false, reason: "timeout" });
+    render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} />);
+    fireEvent.click(await screen.findByTestId("receipt-zip"));
+    await waitFor(() => expect(screen.getByTestId("receipt-zip").textContent).toBe("Try again"));
+    expect(screen.getByRole("alert").textContent).toMatch(/one by one/);
+    const rows = screen.getAllByTestId("receipt-download");
+    expect(rows).toHaveLength(2);
+    fireEvent.click(rows[0]);
+    await waitFor(() => expect(build.fileBuild).toHaveBeenCalledTimes(1));
+  });
+
+  it("an expired link (403) hides the ZIP button for good and says one line; the single files stay", async () => {
+    zip.download.mockResolvedValue({ ok: false, reason: "expired" });
+    render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} />);
+    fireEvent.click(await screen.findByTestId("receipt-zip"));
+    const line = await screen.findByTestId("receipt-zip-expired");
+    expect(line.textContent).toBe("This download link has expired. Sign in with the number or email you paid with to download again.");
+    expect(screen.queryByTestId("receipt-zip")).toBeNull();
+    expect(screen.getAllByTestId("receipt-download")).toHaveLength(2);
+  });
+
+  it("the server saying 'unavailable' (404) removes the button; the kill switch never shows it; one file has nothing to zip", async () => {
+    zip.download.mockResolvedValue({ ok: false, reason: "unavailable" });
+    const { unmount } = render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} />);
+    fireEvent.click(await screen.findByTestId("receipt-zip"));
+    await waitFor(() => expect(screen.queryByTestId("receipt-zip")).toBeNull());
+    expect(screen.getAllByTestId("receipt-download")).toHaveLength(2);
+    unmount();
+    vi.stubEnv("VITE_PACK_SERVER_PDF_DISABLED", "1");
+    const off = render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} />);
+    await screen.findAllByTestId("receipt-download");
+    expect(screen.queryByTestId("receipt-zip")).toBeNull();
+    off.unmount();
+    vi.unstubAllEnvs();
+    build.buildPackFiles.mockResolvedValue([withCodes[0]]);
+    render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} />);
+    await screen.findAllByTestId("receipt-download");
+    expect(screen.queryByTestId("receipt-zip")).toBeNull();
+  });
+
+  it("inside the folded 'Your files (N)' line the ZIP button is inside the fold, at the top", async () => {
+    render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} filesFolded hidePaymentLine />);
+    const fold = await screen.findByTestId("receipt-files-fold");
+    expect(fold.contains(screen.getByTestId("receipt-zip"))).toBe(true);
   });
 });

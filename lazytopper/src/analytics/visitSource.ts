@@ -120,6 +120,13 @@ function bareHost(host: string): string {
 }
 
 /**
+ * Our OWN Firebase Auth hosts. An email sign-in link goes through `<project>.firebaseapp.com` and lands back with that host as the
+ * referrer: a sign-in hop of ours, never where the visitor came from. Treated like our own site (`same`), so it records no source
+ * and never overwrites the stored one. Mirrored in islands/islandAnalytics.ts (parity-tested).
+ */
+const OWN_AUTH_HOSTS: ReadonlySet<string> = new Set(["lazzyy-topper.firebaseapp.com", "lazzyy-topper.web.app"]);
+
+/**
  * What the referrer says about the hop: its HOSTNAME when it is a different site
  * (`cross`), `same` for our own site, `none` for no referrer or one that is not an
  * http(s) address (an app, an email client, junk) — those are a Direct visit, not a hop.
@@ -139,6 +146,7 @@ function classifyReferrer(referrer: string, ownHost: string): ReferrerKind {
   const own = bareHost(ownHost);
   const theirs = bareHost(host);
   if (own && (theirs === own || theirs.endsWith(`.${own}`))) return { kind: "same" };
+  if (OWN_AUTH_HOSTS.has(theirs)) return { kind: "same" };
   return { kind: "cross", host };
 }
 

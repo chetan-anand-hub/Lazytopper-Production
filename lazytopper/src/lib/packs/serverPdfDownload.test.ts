@@ -5,8 +5,8 @@ const reg = vi.hoisted(() => ({ registerPackPaper: vi.fn(async () => undefined) 
 vi.mock("./packPaperRecord", async (orig) => ({ ...(await orig<typeof import("./packPaperRecord")>()), registerPackPaper: (...a: unknown[]) => (reg.registerPackPaper as (...x: unknown[]) => unknown)(...a) }));
 
 import { buildPackFiles, type BuildContext } from "./buildPackFiles";
-import { downloadFileFromServer, downloadZipFromServer } from "./serverPdfDownload";
-import { isServerPdfDisabled, requestFileLink, requestZipLink, SERVER_LINK_TIMEOUT_MS, SERVER_ZIP_TIMEOUT_MS } from "./serverPdfLinks";
+import { downloadFileFromServer, downloadGuestZipFromServer, downloadZipFromServer } from "./serverPdfDownload";
+import { GUEST_ZIP_LINK_ENDPOINT, isServerPdfDisabled, requestFileLink, requestGuestZipLink, requestZipLink, SERVER_LINK_TIMEOUT_MS, SERVER_ZIP_TIMEOUT_MS } from "./serverPdfLinks";
 import { groupIdForTemplateId, planUnit, templateIdForPackFile } from "./packTemplatePlan";
 import type { OwnedPack } from "../../services/packs";
 
@@ -302,5 +302,36 @@ describe("downloadZipFromServer", () => {
 
   it("downloadFileFromServer reports the reason so the caller can fall back", async () => {
     expect(await downloadFileFromServer({ packId: pack.packId, fileId: CT1 }, { fetchImpl: (async () => resp(503)) as never, headers })).toEqual({ ok: false, reason: "not_ready" });
+  });
+});
+
+describe("GUEST-ZIP-1 - the signed-out whole-pack ZIP", () => {
+  const proof = { orderId: "order_1", paymentId: "pay_1", signature: "ab".repeat(32) };
+  const zipBody = () => okBody({ filename: "lazytopper-pack-cbq-maths.zip", files: [{ fileId: "f1", filename: "a.pdf", label: "A", codes: ["PK-M-RN-CT1"] }] });
+
+  it("posts ONLY the receipt proof to the guest endpoint with NO auth header, and the longer ZIP timeout", async () => {
+    const f = vi.fn(async () => resp(200, zipBody()));
+    const r = await requestGuestZipLink(proof, { fetchImpl: f as never });
+    expect(r.ok).toBe(true);
+    const [url, init] = f.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe(GUEST_ZIP_LINK_ENDPOINT);
+    expect(JSON.parse(String(init.body))).toEqual(proof);
+    expect((init.headers as Record<string, string>).Authorization).toBeUndefined();
+    expect(SERVER_ZIP_TIMEOUT_MS).toBeGreaterThan(SERVER_LINK_TIMEOUT_MS);
+  });
+
+  it("downloads the ZIP once, files the papers with NO account (user null), and a refusal downloads nothing", async () => {
+    const startDownload = vi.fn();
+    const ok = await downloadGuestZipFromServer({ proof, expectCodes: ["PK-M-RN-CT1"] }, { fetchImpl: (async () => resp(200, zipBody())) as never, startDownload, nowIso: () => NOW });
+    expect(ok).toEqual({ ok: true });
+    expect(startDownload).toHaveBeenCalledTimes(1);
+    expect(reg.registerPackPaper).toHaveBeenCalledTimes(1);
+    expect((reg.registerPackPaper.mock.calls[0] as unknown[])[0]).toBeNull();
+    startDownload.mockClear();
+    expect(await downloadGuestZipFromServer({ proof }, { fetchImpl: (async () => resp(403, { ok: false, error: "expired" })) as never, startDownload })).toEqual({ ok: false, reason: "expired" });
+    expect(await downloadGuestZipFromServer({ proof }, { fetchImpl: (async () => resp(404)) as never, startDownload })).toEqual({ ok: false, reason: "unavailable" });
+    // the server's papers must cover every printed code, or nothing is downloaded
+    expect(await downloadGuestZipFromServer({ proof, expectCodes: ["PK-OTHER"] }, { fetchImpl: (async () => resp(200, zipBody())) as never, startDownload })).toEqual({ ok: false, reason: "bad_response", counted: true });
+    expect(startDownload).not.toHaveBeenCalled();
   });
 });

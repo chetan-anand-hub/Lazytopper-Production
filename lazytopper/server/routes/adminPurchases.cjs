@@ -439,6 +439,8 @@ function createAdminPurchasesRoutes(deps = {}) {
           channel: v.payer === 'parent' ? 'parent' : 'student',
           isAdminAccount: admins.has(v.uid),
           ...whoFields(v),
+          // WHATSAPP-OPTIN-1 (owner 13 Nov 2026): a paid order carries the buyer's opt-in too (masked + full for the card's Reveal), for the later thank-you.
+          ...waOptInOf(v),
           // RECEIPT-EMAIL-1: when the receipt email went out; nothing when it did not (no address, off, failed).
           ...(v.receiptEmail && v.receiptEmail.status === 'sent' && msOf(v.receiptEmail.at) !== null ? { receiptEmailedAtMs: msOf(v.receiptEmail.at) } : {}),
           // PARENT-PACKS-1 review M2: a paid pack order whose pack the student already had (packGrant `duplicate`). Facts only.

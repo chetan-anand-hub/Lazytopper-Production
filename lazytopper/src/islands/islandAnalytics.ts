@@ -277,6 +277,8 @@ function cleanLanding(pathname: string): string {
 }
 
 const bareHost = (host: string): string => host.toLowerCase().replace(/^www\./, "");
+/** Copy of visitSource.ts OWN_AUTH_HOSTS: our own Firebase sign-in hop is never a visit source. */
+const OWN_AUTH_HOSTS: ReadonlySet<string> = new Set(["lazzyy-topper.firebaseapp.com", "lazzyy-topper.web.app"]);
 
 /** Copy of visitSource.ts `captureVisitSource`. */
 export function captureVisitSource(location: { pathname: string; search: string }, referrer: string, ownHost: string): VisitSource | null {
@@ -295,7 +297,7 @@ export function captureVisitSource(location: { pathname: string; search: string 
       if (HOST_CHARSET.test(host)) {
         const own = bareHost(ownHost);
         const theirs = bareHost(host);
-        kind = own && (theirs === own || theirs.endsWith(`.${own}`)) ? "same" : "cross";
+        kind = (own && (theirs === own || theirs.endsWith(`.${own}`))) || OWN_AUTH_HOSTS.has(theirs) ? "same" : "cross";
       }
     }
   } catch {

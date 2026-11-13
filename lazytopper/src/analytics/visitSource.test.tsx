@@ -52,6 +52,17 @@ describe("captureVisitSource", () => {
     expect(captureVisitSource({ pathname: "/notes", search: "" }, "https://app.lazytopper.com/x", OWN)).toBeNull();
   });
 
+  it("★ our own Firebase sign-in hop is not a source: firebaseapp.com / web.app referrer -> null (untagged); a tag still counts, with no ref host", () => {
+    expect(captureVisitSource({ pathname: "/", search: "" }, "https://lazzyy-topper.firebaseapp.com/__/auth/links?x=1", OWN)).toBeNull();
+    expect(captureVisitSource({ pathname: "/", search: "" }, "https://lazzyy-topper.web.app/", OWN)).toBeNull();
+    const tagged = captureVisitSource({ pathname: "/", search: "?utm_source=youtube" }, "https://lazzyy-topper.firebaseapp.com/", OWN);
+    expect(tagged?.ref).toBeNull();
+    expect(tagged?.utm_source).toBe("youtube");
+    // other hosts, google.com included, are still a source
+    expect(captureVisitSource({ pathname: "/", search: "" }, "https://www.google.com/", OWN)?.ref).toBe("www.google.com");
+    expect(captureVisitSource({ pathname: "/", search: "" }, "https://other-project.firebaseapp.com/", OWN)?.ref).toBe("other-project.firebaseapp.com");
+  });
+
   it("★ a youtube.com referrer with utm_source=youtube -> the expected object", () => {
     const got = captureVisitSource(
       { pathname: "/", search: "?utm_source=youtube&utm_medium=paid&utm_campaign=test&utm_content=v1" },

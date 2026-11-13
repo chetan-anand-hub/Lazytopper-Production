@@ -807,13 +807,31 @@ test('WHATSAPP-OPTIN-1: the admin gate refuses (403) before the opt-in reads too
   assert.equal(r2.body.items.length, 1);
 });
 
-test('WHATSAPP-OPTIN-1 review: a PAID purchase row never carries the WhatsApp number (raw phone only on abandoned rows)', async () => {
+// Superseded 13 Nov 2026 (owner): this test used to assert a paid row NEVER carries the number. The owner now needs it on paid orders
+// (a WhatsApp thank-you later); the admin-gated route, masked + Reveal pattern and "a paid order is not an abandoned row" stay.
+test('WHATSAPP-OPTIN-1 review: a paid order is still not an abandoned row, even with an opt-in', async () => {
   const orders = [paid('p1', 'u1', 'till_boards', 1917, 1000, { waOptIn: { phone: '+919876543948', consentText: 'x', consentVersion: 'wa-optin-v1', consentAt: NOW, source: 'checkout' } })];
   const { route } = harness({ orders });
   const res = {}; await route.list({}, res);
   assert.equal(res.status, 200);
   assert.equal(res.body.items.length, 1);
-  assert.equal(res.body.items[0].waOptIn, undefined);
-  assert.equal(JSON.stringify(res.body.items).includes('9876543948'), false);
   assert.deepEqual(res.body.abandoned.items, [], 'a paid order is not an abandoned row either');
+});
+
+test('WHATSAPP-OPTIN-1 paid: a paid order with a stored opt-in returns it (masked + full); without one, or a malformed one, none; consent text stays in the store', async () => {
+  const HOUR = 3600000;
+  const wa = { phone: '+919876543948', consentText: 'Send me updates on WhatsApp', consentVersion: 'wa-optin-v1', consentAt: NOW - 2 * HOUR, source: 'checkout' };
+  const orders = [
+    paid('pwa', 'u1', 'till_boards', 1917, 3 * HOUR, { waOptIn: wa }),
+    paid('pno', 'u2', 'till_boards', 1917, 4 * HOUR),
+    paid('pbad', 'u3', 'till_boards', 1917, 5 * HOUR, { waOptIn: { phone: '12345', source: 'checkout' } }),
+  ];
+  const { route } = harness({ orders });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 200);
+  const by = Object.fromEntries(res.body.items.map((i) => [i.orderId, i]));
+  assert.deepEqual(by.pwa.waOptIn, { phoneMasked: '+91 98•••••948', phone: '+919876543948', consentAtMs: NOW - 2 * HOUR, source: 'checkout' });
+  assert.equal('waOptIn' in by.pno, false);
+  assert.equal('waOptIn' in by.pbad, false);
+  assert.equal(JSON.stringify(res.body).includes('Send me updates'), false);
 });

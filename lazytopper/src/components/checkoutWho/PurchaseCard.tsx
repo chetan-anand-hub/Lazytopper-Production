@@ -29,6 +29,7 @@ import type { PackLicensee, PackSku } from "../../services/packs";
 import { meCardPackTitle } from "../../lib/packs/packTitle";
 import { trackPackEvent } from "../../lib/packs/packAnalytics";
 import { recoverFromChunkError } from "../../lib/chunkReload";
+import { isServerPdfDisabled } from "../../lib/packs/serverPdfLinks";
 import "./purchaseCard.css";
 
 type Files = { phase: "idle" } | { phase: "loading" } | { phase: "ready"; groups: Array<{ group: string; files: PackFile[] }> } | { phase: "error" };
@@ -45,6 +46,8 @@ export interface PurchaseCardProps {
   fetchReceiptImpl?: typeof fetchReceipt;
 }
 
+export const ZIP_EXPIRED = "This download link has expired. Sign in with the number or email you paid with to download again.";
+
 export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, filesFolded = false, fetchReceiptImpl = fetchReceipt }: PurchaseCardProps) {
   const [receipt, setReceipt] = useState<ReceiptOutcome | null>(null);
   const [files, setFiles] = useState<Files>({ phase: "idle" });
@@ -52,6 +55,13 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
   const [failedId, setFailedId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<ReadonlySet<string>>(() => new Set());
   const [progress, setProgress] = useState<string | null>(null);
+  // GUEST-ZIP-1: "Download all (ZIP)" - one ZIP of the whole pack from the server. It is only ever a shortcut: when the server cannot
+  // make one (kill switch, 404, a slow or failed build) the button goes quiet or says "Try again" and the files stay one tap each.
+  const [zipBusy, setZipBusy] = useState(false);
+  const [zipFailed, setZipFailed] = useState(false);
+  const [zipSaved, setZipSaved] = useState(false);
+  const [zipExpired, setZipExpired] = useState(false);
+  const [zipOff, setZipOff] = useState<boolean>(() => isServerPdfDisabled());
   const alive = useRef(true);
   useEffect(() => {
     alive.current = true;
@@ -117,6 +127,26 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
   }
 
   const payLine = hidePaymentLine ? null : <p className="lt-rcpt__ok" role="status">{RECEIPT_PAYMENT_RECEIVED}</p>;
+  async function downloadZip(groups: Array<{ files: PackFile[] }>) {
+    if (zipBusy || busyId) return;
+    setZipBusy(true);
+    setZipFailed(false);
+    try {
+      const { downloadGuestZipFromServer } = await import("../../lib/packs/serverPdfDownload");
+      const expectCodes = [...new Set(groups.flatMap((g) => g.files.flatMap((f) => f.codes ?? (f.code ? [f.code] : []))))];
+      const res = await downloadGuestZipFromServer({ proof, expectCodes });
+      if (!alive.current) return;
+      if (res.ok) setZipSaved(true);
+      else if (res.reason === "expired") setZipExpired(true);
+      else if (res.reason === "disabled" || res.reason === "unavailable") setZipOff(true);
+      else setZipFailed(true);
+    } catch (err) {
+      if (!recoverFromChunkError(err) && alive.current) setZipFailed(true);
+    } finally {
+      if (alive.current) setZipBusy(false);
+    }
+  }
+
   const hide = onHide ? (
     <button type="button" className="lt-rcpt__hide" onClick={onHide} data-testid="receipt-hide">
       {RECEIPT_HIDE}
@@ -161,8 +191,26 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
       </section>
     );
   }
+  const zipEl = zipExpired ? (
+    <p className="lt-rcpt__line" role="status" data-testid="receipt-zip-expired">{ZIP_EXPIRED}</p>
+  ) : files.phase === "ready" && !zipOff && fileCount >= 2 ? (
+      <div className="lt-rcpt__zip" data-testid="receipt-zip-row">
+        <button
+          type="button"
+          className="lt-rcpt__btn lt-rcpt__btn--ghost"
+          disabled={zipBusy || busyId !== null}
+          aria-label="Download all files of this pack as one ZIP"
+          onClick={() => void downloadZip(files.groups)}
+          data-testid="receipt-zip"
+        >
+          {zipBusy ? "Preparing ZIP\u2026" : zipFailed ? "Try again" : zipSaved ? "Saved \u2713" : "Download all (ZIP)"}
+        </button>
+        {zipFailed && <span className="lt-rcpt__bad" role="alert">That didn&rsquo;t work. Try again, or download the files one by one.</span>}
+      </div>
+    ) : null;
   const groupsEl = (
     <>
+      {zipEl}
       {files.phase === "ready" &&
   files.groups.map((g) => {
     const list = (

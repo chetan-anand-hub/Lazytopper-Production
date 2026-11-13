@@ -340,6 +340,19 @@ test('zip-link: one group = one store-only ZIP of that group\'s stamped files, s
   assert.equal((await h.zip({ packId: CH, group: 'real-numbers' })).body.error, 'not_owned');
 });
 
+test('zip-link GUEST-ZIP-1: the internal "__all__" group is EVERY file of the pack in one ZIP, named for the pack; a real group is unchanged', async () => {
+  const h = await harness({ owned: [['u1', 'pack_subject:maths']] });
+  const r = await h.zip({ packId: 'pack_subject:maths', group: '__all__' });
+  assert.equal(r.status, 200, JSON.stringify(r.body));
+  assert.equal(r.body.files.length, 4, 'both chapters: real-numbers (3) + polynomials (1)');
+  assert.equal(r.body.filename, 'lazytopper-pack-subject-maths.zip');
+  const entries = zipEntries(h.objects.get(h.signed[0].path).bytes);
+  assert.equal(entries.length, 4);
+  assert.ok(entries.some((e) => /Polynomials/.test(e.name)) && entries.some((e) => /Real Numbers/.test(e.name)));
+  assert.equal((await h.zip({ packId: CH, group: '__all__' })).body.error, 'not_owned', 'still only a pack the caller owns');
+  assert.equal((await h.zip({ packId: 'pack_subject:maths', group: 'real-numbers' })).body.files.length, 3);
+});
+
 // ---- the download feed -----------------------------------------------------------------------------------------------------------
 test('download feed: one pack_download entry per file served (a ZIP: one per file), in the shape moveToOther reads', async () => {
   const h = await harness({ owned: [['u1', 'pack_subject:maths']] });

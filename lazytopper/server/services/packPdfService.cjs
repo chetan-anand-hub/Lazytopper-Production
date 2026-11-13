@@ -23,6 +23,8 @@ const CURRENT_PATH = 'packs/current.json';
 const LINK_TTL_MS = 15 * 60 * 1000;
 const MANIFEST_TTL_MS = 60 * 1000;
 const ZIP_STAMP_CONCURRENCY = 3;
+/** GUEST-ZIP-1: the internal group id that means "every file of the pack, as ONE ZIP" (a signed-out buyer has no chapter groups to pick). Never a real group id. */
+const ZIP_ALL_GROUP = '__all__';
 /** Process-wide bounds on the heavy work (pdf-lib holds a whole template in memory): stamps at once, ZIP builds at once, requests per buyer at once. */
 const STAMP_SLOTS = 4;
 const ZIP_SLOTS = 2;
@@ -278,7 +280,7 @@ function createPackPdfService(deps = {}) {
   async function zipLinkInner({ uid, buyer, owned, packId, groupId, boardPass }) {
     const manifest = await getManifest();
     const pack = manifest.packs[packId];
-    const group = pack && pack.groups.find((g) => g.groupId === groupId);
+    const group = pack && (groupId === ZIP_ALL_GROUP ? { groupId: ZIP_ALL_GROUP, group: packId, files: pack.files } : pack.groups.find((g) => g.groupId === groupId));
     if (!group) {
       const e = new Error('unknown_group');
       e.code = 'unknown_group';
@@ -395,4 +397,4 @@ function createPackPdfService(deps = {}) {
   return { getManifest, fileLink, zipLink, recordDownloads, _planFile: planFile };
 }
 
-module.exports = { createPackPdfService, NotReady, templateIdForPackFile, fileIdFor, LINK_TTL_MS, CURRENT_PATH };
+module.exports = { createPackPdfService, ZIP_ALL_GROUP, NotReady, templateIdForPackFile, fileIdFor, LINK_TTL_MS, CURRENT_PATH };

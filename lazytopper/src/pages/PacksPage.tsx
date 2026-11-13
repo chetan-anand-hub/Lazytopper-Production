@@ -508,11 +508,11 @@ function CompactBuy({ t, api, subject }: { t: Tile; api: PacksShopApi; subject: 
  * The phone's Bundle bar (SalesStickyBar: phones only, never in the prerender). OWNER RULING 13 Nov 2026: a Buy button with its price is
  * visible from the FIRST screen on a phone, so the bar mounts right after first paint (no scroll arming). NEVER a payment path of its
  * own: its button is the Bundle's Buy (the shop's buyNow -> handleBuy). Not shown while packs are dark, while the account owns the
- * Bundle, or while a pack pop-up is open. It hides only while the Bundle's OWN Buy box (or the footer) is on screen, so two identical
- * Buy buttons never show at once; the other packs' Buy boxes do NOT hide it (a Buy with a price stays in view; the Subject, Mock and
- * Chapter rows are folded and sell a different pack).
+ * Bundle, or while a pack pop-up is open. OWNER RULING 13 Nov 2026 (second): it hides ONLY while the Bundle's own Buy BUTTON is on screen
+ * (not the whole box, and NOT the footer: the page is short, so the footer is on screen whenever the box leaves it, and the bar never
+ * showed; body.lt-has-pk-sticky already keeps the footer reachable). The other packs' Buy boxes do NOT hide it.
  */
-const STICKY_WATCH = ["pk-buy-bundle-box"] as const;
+const STICKY_WATCH = ["tile-buy-pack_bundle"] as const;
 function BundleStickyBar({ api }: { api: PacksShopApi }) {
   // Phones only (from 768 px the bar's CSS hides it anyway): nothing mounts there. Mounted once the first paint is done (idle, else
   // the next task) so the bar's small chunk never competes with the app taking over.
@@ -540,6 +540,7 @@ function BundleStickyBar({ api }: { api: PacksShopApi }) {
     <Suspense fallback={null}>
     <SalesStickyBar
       watch={STICKY_WATCH}
+      ignoreFooter
       copy={() => ({ label: `${BUNDLE_NAME} · ${packPriceLabel("pack_bundle")}`, button: `Buy · ${packPayLabel("pack_bundle")}` })}
       onGo={() => api.buyNow("pack_bundle")}
       ariaLabel="Buy the Maths + Science Bundle"
