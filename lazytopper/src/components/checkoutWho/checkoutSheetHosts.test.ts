@@ -33,13 +33,18 @@ describe("one sheet behind every Pay / Buy", () => {
 
   it("PassCheckout: a SIGNED-OUT Board Pass Pay opens the sheet; a signed-in one buys directly (CHECKOUT-SELF-1)", () => {
     const src = read("components/pricing/PassCheckout.tsx");
-    expect(src).toMatch(/if \(who && passType === "till_boards" && !opts\.fromWho && !signedIn\) \{\s*setWhoOpen\(true\);\s*return;/);
+    // CHECKOUT-ONE-TAP-1: the same branch records whether a real tap (not a ?buy= resume) opened it, so the sheet pays at once.
+    expect(src).toMatch(/if \(who && passType === "till_boards" && !opts\.fromWho && !signedIn\) \{\s*setWhoTap\(opts\.resumed !== true\);\s*setWhoOpen\(true\);\s*return;/);
+    expect(src).toMatch(/\.\.\.\(!signedIn && whoTap \? \{ autoPaySelf: true \} : \{\}\)/);
     expect(src).toMatch(/\{who && whoOpen && \(/);
   });
 
   it("PacksShop: the signed-out tap, the signed-in tap and the one-tap entry all set the sheet's state", () => {
     const src = read("components/packs/PacksShop.tsx");
-    expect(src).toMatch(/if \(whoEnabled\) \{\s*setWho\(\{ sku, target \}\);\s*return;/);
+    // CHECKOUT-ONE-TAP-1: a real signed-out tap (not a resume, not /for-parents, not a chapter-less Chapter Pack) marks the sheet `tap`.
+    expect(src).toMatch(/if \(whoEnabled\) \{\s*\/\/[^\n]*\n\s*setWho\(\{ sku, target, \.\.\.\(!resumed && !checkoutAudience && \(sku !== "pack_chapter" \|\| target\) \? \{ tap: true \} : \{\}\) \}\);\s*return;/);
+    expect(src).toMatch(/\.\.\.\(!signedIn && who\.tap \? \{ autoPaySelf: true \} : \{\}\)/);
+    // the ?buy= link arrival (line below) never auto-pays: it sets no `tap`.
     // CHECKOUT-SELF-1: the signed-in tap buys directly (only the /for-parents audience keeps the sheet first); the secondary link opens the sheet.
     expect(src).toMatch(/if \(whoEnabled && checkoutAudience && !opts\.fromWho\) \{\s*setWho\(/);
     expect(src).toMatch(/<SomeoneElseLink[^>]*onOpen=\{\(\) => setWho\(\{ sku, target \}\)\}/);

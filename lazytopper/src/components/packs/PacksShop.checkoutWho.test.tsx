@@ -11,7 +11,9 @@ vi.mock("../../services/activityClient", () => ({ recordActivity: vi.fn() }));
 
 const auth = vi.hoisted(() => ({ user: null as null | { uid: string; email?: string } }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
-const flags = vi.hoisted(() => ({ guest: true, who: true }));
+const flags = vi.hoisted(() => ({ guest: true, who: true, self: false }));
+const selfBuy = vi.hoisted(() => ({ fn: vi.fn() }));
+const analytics = vi.hoisted(() => ({ trackPackCheckout: vi.fn(), trackPackPurchase: vi.fn() }));
 vi.mock("../../services/guestPay", async (orig) => ({
   ...(await orig<typeof import("../../services/guestPay")>()),
   isGuestPayClientEnabled: () => flags.guest,
@@ -19,6 +21,16 @@ vi.mock("../../services/guestPay", async (orig) => ({
 vi.mock("../../services/checkoutWhoFlag", async (orig) => ({
   ...(await orig<typeof import("../../services/checkoutWhoFlag")>()),
   isCheckoutWhoClientEnabled: () => flags.who,
+  isCheckoutSelfClientEnabled: () => flags.who && flags.self,
+}));
+vi.mock("../../services/checkoutWho", async (orig) => ({
+  ...(await orig<typeof import("../../services/checkoutWho")>()),
+  buyForSelf: (...a: unknown[]) => selfBuy.fn(...a),
+  isSelfAttachClientEnabled: () => flags.who && flags.self,
+}));
+vi.mock("../../lib/packs/packAnalytics", async (orig) => ({
+  ...(await orig<typeof import("../../lib/packs/packAnalytics")>()),
+  trackPackCheckout: (...a: unknown[]) => analytics.trackPackCheckout(...a),
 }));
 vi.mock("../../services/packs", async (orig) => {
   const actual = await orig<typeof import("../../services/packs")>();
@@ -35,6 +47,7 @@ vi.mock("../../pages/PackDialog", () => ({ default: (p: { buy?: unknown }) => (p
 
 import PacksShop, { PACK_WHO_NOTE } from "./PacksShop";
 import * as packs from "../../services/packs";
+import { resetOwnedPacksCache } from "./useOwnedPacks";
 // GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPayLabel } from "../../services/packs";
 
@@ -66,6 +79,10 @@ beforeEach(() => {
   auth.user = null;
   flags.guest = true;
   flags.who = true;
+  flags.self = false;
+  selfBuy.fn.mockReset();
+  selfBuy.fn.mockReturnValue(new Promise(() => undefined));
+  analytics.trackPackCheckout.mockClear();
   buyMock.mockReset();
 });
 afterEach(() => cleanup());
@@ -183,5 +200,63 @@ describe("SELFPAY-ATTACH-1 · an owner taps an owned pack's Buy", () => {
     const btn = await screen.findByTestId("packs-buy-pack_mock");
     await waitFor(() => expect(btn.textContent).toBe("You own this"));
     expect((btn as HTMLButtonElement).disabled).toBe(true);
+  });
+});
+
+describe("CHECKOUT-ONE-TAP-1 - signed out: the Buy tap IS the Pay tap", () => {
+  beforeEach(() => {
+    flags.self = true;
+    resetOwnedPacksCache(); // the owner tests above leave "owned" in the module cache ...
+    (packs.fetchMyPacks as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ packs: [], licensee: { name: "Asha", email: "a@b.in" } }); // ... and in the mock
+  });
+
+  it("ONE Buy tap fires the self order straight away: no 'Pay' step, no choice, one checkout event", async () => {
+    selfBuy.fn.mockReturnValue(new Promise(() => undefined)); // Razorpay open
+    shop();
+    fireEvent.click(screen.getByText("open mock"));
+    fireEvent.click(await screen.findByTestId("packs-buy-pack_mock"));
+    await waitFor(() => expect(selfBuy.fn).toHaveBeenCalledTimes(1));
+    expect(selfBuy.fn.mock.calls[0][0]).toMatchObject({ kind: "pack", sku: "pack_mock" });
+    expect(screen.getByTestId("who-auto-opening")).toBeTruthy();
+    expect(screen.queryByTestId("who-pay-self-out")).toBeNull();
+    expect(screen.queryByTestId("who-first")).toBeNull();
+    expect(screen.queryByTestId("who-someone-else")).toBeNull();
+    expect(buyMock).not.toHaveBeenCalled(); // not the signed-in path
+    expect(analytics.trackPackCheckout).toHaveBeenCalledTimes(1);
+    expect(analytics.trackPackCheckout.mock.calls[0][1]).toMatchObject({ signedIn: false });
+  });
+
+  it("a ?buy= link arrival does NOT pay by itself: today's Pay step shows, nothing is ordered until a tap", async () => {
+    shop("/packs?buy=pack_cbq&t=science");
+    fireEvent.click(await screen.findByTestId("who-pay-self-out"));
+    await waitFor(() => expect(selfBuy.fn).toHaveBeenCalledTimes(1));
+    expect(selfBuy.fn.mock.calls[0][0]).toMatchObject({ sku: "pack_cbq", target: "science" });
+  });
+
+  it("the link arrival alone makes no order", async () => {
+    shop("/packs?buy=pack_cbq&t=science");
+    await screen.findByTestId("who-pay-self-out");
+    expect(selfBuy.fn).not.toHaveBeenCalled();
+  });
+
+  it("self switch off (VITE_CHECKOUT_SELF_DISABLED): today's sheet, no order on the tap", async () => {
+    flags.self = false;
+    shop();
+    fireEvent.click(screen.getByText("open mock"));
+    fireEvent.click(await screen.findByTestId("packs-buy-pack_mock"));
+    expect(await screen.findByTestId("who-first")).toBeTruthy();
+    expect(selfBuy.fn).not.toHaveBeenCalled();
+  });
+
+  it("signed in is unchanged: buyPack, never the self order", async () => {
+    auth.user = { uid: "u1", email: "anaya.k@gmail.com" };
+    buyMock.mockResolvedValue({ status: "dismissed" });
+    shop();
+    fireEvent.click(screen.getByText("open mock"));
+    const btn = await screen.findByTestId("packs-buy-pack_mock");
+    await waitFor(() => expect((btn as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(btn);
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(selfBuy.fn).not.toHaveBeenCalled();
   });
 });

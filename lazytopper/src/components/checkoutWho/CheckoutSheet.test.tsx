@@ -359,3 +359,67 @@ describe("CHECKOUT-SELF-2 - signed out opens at \"Buy for yourself\"", () => {
     expect(screen.getByTestId("who-sign-in-first")).toBeTruthy();
   });
 });
+
+describe("CHECKOUT-ONE-TAP-1 - autoPaySelf: the opening tap IS the Pay tap", () => {
+  const CBQ_GST: CheckoutSheetItem = { ...CBQ, priceDisplay: "₹58", priceBreakdown: "₹49 + ₹9 GST (18%) = ₹58" };
+  const paid = () => vi.fn(async (): Promise<SelfBuyOutcome> => ({ status: "paid", confirmed: true, contact: { phone: "+919876543210", first: "phone" }, amountInr: 58, paymentId: "pay_s" }));
+
+  it("signed out + self-first + attach on: buySelf fires ONCE at mount, no Pay step or choice is rendered", async () => {
+    const buySelf = vi.fn(() => new Promise<SelfBuyOutcome>(() => undefined)); // Razorpay open, never settles
+    mount({ item: CBQ_GST, selfFirst: true, attachOn: true, autoPaySelf: true, buySelf });
+    await waitFor(() => expect(buySelf).toHaveBeenCalledTimes(1));
+    expect(buySelf).toHaveBeenCalledWith(CBQ_GST);
+    expect(screen.getByTestId("who-auto-opening")).toBeTruthy();
+    expect(screen.queryByTestId("who-pay-self-out")).toBeNull();
+    expect(screen.queryByTestId("who-someone-else")).toBeNull();
+    expect(screen.queryByTestId("who-first")).toBeNull();
+    expect(screen.queryByTestId("who-sign-in-first")).toBeNull();
+  });
+
+  it("the funnel events still fire once each, in the usual order", async () => {
+    mount({ item: CBQ_GST, selfFirst: true, attachOn: true, autoPaySelf: true, buySelf: paid() });
+    await waitFor(() => expect(packAnalytics.trackPackPurchase).toHaveBeenCalledTimes(1));
+    expect(analytics.trackNamedEvent.mock.calls.map((c) => c[0])).toEqual(["guest_pay_option_shown", "guest_pay_self_start", "guest_pay_start", "guest_pay_paid"]);
+  });
+
+  it("after payment the ordinary after-pay states host here: the attach step asks 'Who will use this?' (incl. the child option)", async () => {
+    const buySelf = vi.fn(async (): Promise<SelfBuyOutcome> => ({
+      status: "paid", confirmed: true, contact: { phone: "+919876543210", first: "phone" }, amountInr: 58, paymentId: "pay_s",
+      attach: { orderId: "order_1", paymentId: "pay_s", signature: "sig" } as never,
+    }));
+    mount({ item: CBQ_GST, selfFirst: true, attachOn: true, autoPaySelf: true, buySelf });
+    expect(await screen.findByTestId("attach-choose-me")).toBeTruthy();
+    expect(screen.getByTestId("attach-choose-other")).toBeTruthy();
+  });
+
+  it("dismissed -> the ordinary Pay step (a retry is one tap, today's sheet); failed -> same with the error", async () => {
+    const buySelf = vi.fn(async (): Promise<SelfBuyOutcome> => ({ status: "dismissed" }));
+    mount({ item: CBQ_GST, selfFirst: true, attachOn: true, autoPaySelf: true, buySelf });
+    await screen.findByText("Payment window closed. Tap Pay to try again.");
+    expect(screen.getByTestId("who-pay-self-out").textContent).toBe("Pay ₹58");
+    buySelf.mockResolvedValueOnce({ status: "failed" });
+    fireEvent.click(screen.getByTestId("who-pay-self-out"));
+    await screen.findByRole("alert");
+    expect(buySelf).toHaveBeenCalledTimes(2);
+  });
+
+  it("NOT automatic when: the self flag is off, the attach flow is off, audience is parent, signed in, or autoPaySelf is absent", async () => {
+    const buySelf = paid();
+    mount({ item: CBQ_GST, selfFirst: false, attachOn: true, autoPaySelf: true, buySelf });
+    expect(screen.getByTestId("who-first")).toBeTruthy();
+    cleanup();
+    mount({ item: CBQ_GST, selfFirst: true, attachOn: false, autoPaySelf: true, buySelf });
+    expect(screen.getByTestId("who-pay-self-out")).toBeTruthy();
+    cleanup();
+    mount({ item: CBQ_GST, selfFirst: true, attachOn: true, autoPaySelf: true, audience: "parent", buySelf });
+    expect(screen.getByTestId("who-first")).toBeTruthy();
+    cleanup();
+    mount({ item: CBQ_GST, selfFirst: true, attachOn: true, autoPaySelf: true, signedIn: true, selfMasked: null, buySelf });
+    expect(screen.getByTestId("who-self")).toBeTruthy();
+    cleanup();
+    mount({ item: CBQ_GST, selfFirst: true, attachOn: true, buySelf });
+    expect(screen.getByTestId("who-pay-self-out")).toBeTruthy();
+    await new Promise((r) => setTimeout(r, 20));
+    expect(buySelf).not.toHaveBeenCalled();
+  });
+});

@@ -379,7 +379,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
    * you" + one-tap Pay into the unchanged checkout below; signed out / someone else: a recipient purchase). Off: as before.
    */
   const whoEnabled = enabled && isCheckoutWhoClientEnabled();
-  const [who, setWho] = useState<{ sku: PackSku; target: string | undefined; resumed?: boolean; from?: PackCheckoutFrom; holder?: boolean } | null>(null);
+  const [who, setWho] = useState<{ sku: PackSku; target: string | undefined; resumed?: boolean; from?: PackCheckoutFrom; holder?: boolean; tap?: boolean } | null>(null);
   /** Review fix 6: a local (non-cloud) session cannot pay or own anything - it is treated as signed out (as PassCheckout does). */
   const signedIn = Boolean(user) && !user?.isLocalSession;
   const mounted = useRef(true);
@@ -658,7 +658,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       trackPackCheckout(packCheckoutDetails(sku, target), { signedIn: false, ...(from ? { from } : {}) });
       // CHECKOUT-WHO-1 - flag on: "Who will use it?" (before pay-by-phone, which it replaces while on).
       if (whoEnabled) {
-        setWho({ sku, target });
+        // CHECKOUT-ONE-TAP-1: a real Buy / Pay tap (not a ?buy= resume, not a Chapter Pack with no chapter chosen yet) buys for yourself at once.
+        setWho({ sku, target, ...(!resumed && !checkoutAudience && (sku !== "pack_chapter" || target) ? { tap: true } : {}) });
         return;
       }
       // PAY-PHONE-1 - with paying-by-phone on, a signed-out tap asks "How do you want to pay?" instead of sending the
@@ -1296,6 +1297,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             }}
             {...(checkoutAudience ? { audience: checkoutAudience } : {})}
             {...(signedIn && !checkoutAudience ? { startAt: "other" as const } : {})}
+            {...(!signedIn && who.tap ? { autoPaySelf: true } : {})}
             {...(who.holder && signedIn ? { holder: {}, onGoTo: (path: string) => navigate(path) } : {})}
             signedIn={signedIn}
             selfMasked={signedIn ? maskEmail(user?.email) || maskIndianMobile(user?.phoneNumber) || null : null}
