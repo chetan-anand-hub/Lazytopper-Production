@@ -202,6 +202,7 @@ export default function CheckoutSheet({
   const [receipt, setReceipt] = useState<AttachProof | null>(null);
   const [receiptHidden, setReceiptHidden] = useState(false);
   // GST-AFTER-PAY-1: a SIGNED-IN payer buying for someone else has no receipt proof; the account route takes the verified order id.
+  const [gstProof, setGstProof] = useState<AttachProof | null>(null); // the signed-out payer's proof for the GST block, kept even when /verify failed
   const [accountGstOrder, setAccountGstOrder] = useState<string | null>(null);
   const onAttachTitle = useCallback((t: string) => setAttachTitle(t), []);
   const onAttachSettled = useCallback((v: boolean) => setAttachSettled(v), []);
@@ -270,7 +271,8 @@ export default function CheckoutSheet({
         storeReceiptProof(outcome.receipt);
         setReceipt(outcome.receipt);
       }
-      if (signedIn && outcome.confirmed && outcome.orderId) setAccountGstOrder(outcome.orderId);
+      if (signedIn && outcome.orderId) setAccountGstOrder(outcome.orderId);
+      if (!signedIn && outcome.gstProof) setGstProof(outcome.gstProof);
       setStep({ name: "paid", recipient, confirmed: outcome.confirmed });
     } else if (outcome.status === "already_covered") {
       setStep({ name: "covered" });
@@ -301,6 +303,7 @@ export default function CheckoutSheet({
         storeReceiptProof(outcome.receipt);
         setReceipt(outcome.receipt);
       }
+      if (outcome.gstProof) setGstProof(outcome.gstProof);
       // SELFPAY-ATTACH-1: the server holds this order until the payer says who it is for.
       if (outcome.attach && outcome.confirmed && showAttach) setStep({ name: "attach", proof: outcome.attach, contact: outcome.contact });
       else setStep(outcome.contact ? { name: "paid", recipient: outcome.contact, confirmed: outcome.confirmed } : { name: "paidSelf", confirmed: outcome.confirmed });
@@ -578,12 +581,12 @@ export default function CheckoutSheet({
               <PurchaseCard proof={receipt} onHide={() => setReceiptHidden(true)} hidePaymentLine filesFolded={!attachSettled} />
             </Suspense>
           )}
-          {(step.name === "attach" || step.name === "paid" || step.name === "paidSelf") && receipt && (
+          {(step.name === "attach" || step.name === "paid" || step.name === "paidSelf") && gstProof && (
             <Suspense fallback={null}>
-              <PostPayGst target={{ kind: "guest", proof: receipt }} />
+              <PostPayGst target={{ kind: "guest", proof: gstProof }} />
             </Suspense>
           )}
-          {step.name === "paid" && !receipt && accountGstOrder && (
+          {step.name === "paid" && accountGstOrder && (
             <Suspense fallback={null}>
               <PostPayGst target={{ kind: "account", orderId: accountGstOrder }} />
             </Suspense>

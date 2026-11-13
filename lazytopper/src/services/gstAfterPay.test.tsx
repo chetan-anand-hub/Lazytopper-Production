@@ -189,4 +189,33 @@ describe("PostPayGst", () => {
     await waitFor(() => expect((screen.getByTestId("postpay-gst-state") as HTMLSelectElement).value).toBe("29"));
     expect(save2).not.toHaveBeenCalled();
   });
+
+  it("not_paid: shows 'Confirming your payment…', tries again, and saves when the payment is recorded", async () => {
+    const save = vi.fn().mockResolvedValueOnce({ status: "not_paid" }).mockResolvedValueOnce({ status: "not_paid" }).mockResolvedValueOnce({ status: "saved", invoiced: false });
+    render(<PostPayGst target={{ kind: "guest", proof: PROOF }} saveImpl={save as never} retryWaitMs={5} />);
+    fireEvent.change(screen.getByTestId("postpay-gst-state"), { target: { value: "29" } });
+    fireEvent.change(screen.getByTestId("postpay-gst-pin"), { target: { value: "560001" } });
+    fireEvent.click(screen.getByTestId("postpay-gst-save"));
+    await waitFor(() => expect(screen.getByTestId("postpay-gst-confirming").textContent).toBe("Confirming your payment…"));
+    await waitFor(() => expect(screen.getByTestId("postpay-gst-saved")).toBeTruthy());
+    expect(save).toHaveBeenCalledTimes(3);
+  });
+
+  it("not_paid on every try: 3 tries, then the form stays with Save enabled", async () => {
+    const save = vi.fn(async () => ({ status: "not_paid" as const }));
+    render(<PostPayGst target={{ kind: "guest", proof: PROOF }} saveImpl={save as never} retryWaitMs={5} />);
+    fireEvent.change(screen.getByTestId("postpay-gst-state"), { target: { value: "29" } });
+    fireEvent.change(screen.getByTestId("postpay-gst-pin"), { target: { value: "560001" } });
+    fireEvent.click(screen.getByTestId("postpay-gst-save"));
+    await waitFor(() => expect(save).toHaveBeenCalledTimes(3));
+    await waitFor(() => expect((screen.getByTestId("postpay-gst-save") as HTMLButtonElement).disabled).toBe(false));
+    expect(screen.queryByTestId("postpay-gst-saved")).toBeNull();
+  });
+
+  it("saveGstDetails: a 409 not_paid (account route or guest route) is { status: 'not_paid' }", async () => {
+    const acct = vi.fn(async () => answer({ ok: false, error: "not_paid" }, 409));
+    expect(await saveGstDetails({ kind: "account", orderId: "o" }, { stateCode: "29", pin: "560001" }, acct as never)).toEqual({ status: "not_paid" });
+    const guest = vi.fn(async () => answer({ ok: false, error: "payment_rejected", reason: "not_paid" }, 409));
+    expect(await saveGstDetails({ kind: "guest", proof: PROOF }, { stateCode: "29", pin: "560001" }, guest as never)).toEqual({ status: "not_paid" });
+  });
 });

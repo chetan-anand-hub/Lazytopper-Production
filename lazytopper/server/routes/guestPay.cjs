@@ -1663,7 +1663,11 @@ function createGuestPayRoutes(deps = {}) {
       orderId,
       raw: { stateCode: body.stateCode, pin: body.pin, business: body.business },
       authorize: (order) => {
-        if (order.payer !== GUEST_PAYER || order.paymentId !== paymentId) return false;
+        if (order.payer !== GUEST_PAYER) return false;
+        // Razorpay signed this payment but the server has not recorded it yet (a slow confirm): nothing is written (the service answers
+        // 'unpaid' -> 409 not_paid) and the page tries again shortly.
+        if (typeof order.paymentId !== 'string' || !order.paymentId) return true;
+        if (order.paymentId !== paymentId) return false;
         let paidMs = timeMs(order.guestPaidAt);
         if (!Number.isFinite(paidMs)) paidMs = timeMs(order.paidAt);
         if (!Number.isFinite(paidMs) || now() >= paidMs + RECEIPT_WINDOW_MS) {

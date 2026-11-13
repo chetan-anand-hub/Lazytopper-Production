@@ -400,7 +400,7 @@ export function maskedIds(r: Recipient): string[] {
 
 export type WhoBuyOutcome =
   /** `confirmed: false`: Razorpay signed a success but our verify did not answer (the webhook records it). */
-  | { status: "paid"; confirmed: boolean; amountInr?: number; paymentId?: string; orderId?: string; receipt?: AttachProof }
+  | { status: "paid"; confirmed: boolean; amountInr?: number; paymentId?: string; orderId?: string; receipt?: AttachProof; gstProof?: AttachProof }
   | { status: "dismissed" }
   | { status: "already_covered" }
   | { status: "unavailable" }
@@ -499,6 +499,15 @@ function receiptOf(success: RazorpaySuccess): { receipt?: AttachProof } {
   return typeof orderId === "string" && orderId && typeof paymentId === "string" && paymentId && typeof signature === "string" && signature ? { receipt: { orderId, paymentId, signature } } : {};
 }
 
+/**
+ * GST-AFTER-PAY-1: Razorpay's signed proof of THIS payment for the GST block ONLY - kept even when /verify failed (the server re-checks
+ * the signature itself). It never shows the purchase card; that still needs a confirmed payment (`receipt`).
+ */
+function gstProofOf(success: RazorpaySuccess): { gstProof?: AttachProof } {
+  const r = receiptOf(success).receipt;
+  return r ? { gstProof: r } : {};
+}
+
 /** Order (server-priced) -> Razorpay -> server verify. Never throws. */
 export async function buyForRecipient(item: GuestItem, recipient: Recipient, signedIn: boolean, deps: WhoBuyDeps = DEFAULT_DEPS): Promise<WhoBuyOutcome> {
   try {
@@ -529,7 +538,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
     } catch {
       confirmed = false; // Razorpay SIGNED a success: never "didn't go through"; the webhook records it.
     }
-    return { status: "paid", confirmed, ...(confirmed ? receiptOf(success) : {}), ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}), orderId: order.orderId };
+    return { status: "paid", confirmed, ...(confirmed ? receiptOf(success) : {}), ...gstProofOf(success), ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}), orderId: order.orderId };
   } catch (e) {
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof WhoError && e.code !== "failed") return { status: e.code };
@@ -541,7 +550,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
 
 export type SelfBuyOutcome =
   /** `contact`: the buyer's mobile / email as the server read them off the verified payment (null = nothing usable, or not confirmed). */
-  | { status: "paid"; confirmed: boolean; contact: Recipient | null; amountInr?: number; paymentId?: string; orderId?: string; attach?: AttachProof; receipt?: AttachProof }
+  | { status: "paid"; confirmed: boolean; contact: Recipient | null; amountInr?: number; paymentId?: string; orderId?: string; attach?: AttachProof; receipt?: AttachProof; gstProof?: AttachProof }
   | { status: "dismissed" }
   | { status: "unavailable" }
   | { status: "failed" };
@@ -620,7 +629,7 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
     } catch {
       confirmed = false; // Razorpay SIGNED a success: never "didn't go through"; the webhook records it and reads the contact.
     }
-    return { status: "paid", confirmed, contact, ...(attach ? { attach } : {}), ...(confirmed ? receiptOf(success) : {}), ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}), orderId: order.orderId };
+    return { status: "paid", confirmed, contact, ...(attach ? { attach } : {}), ...(confirmed ? receiptOf(success) : {}), ...gstProofOf(success), ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}), orderId: order.orderId };
   } catch (e) {
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof WhoError && e.code !== "failed") return { status: e.code === "unavailable" || e.code === "already_covered" ? "unavailable" : "failed" };

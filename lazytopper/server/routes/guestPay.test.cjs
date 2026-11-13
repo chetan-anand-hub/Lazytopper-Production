@@ -2659,7 +2659,8 @@ test('GST-AFTER-PAY · bad signature, another payment id, or an unpaid order: re
   const unpaidOrder = await attachSelf(srv, {});
   const fake = { orderId: unpaidOrder.json.orderId, paymentId: 'pay_x' };
   const unpaid = await gstDetails(srv, fake);
-  assert.equal(unpaid.status, 400);
+  assert.equal(unpaid.status, 409, 'signed by Razorpay but not recorded yet: not_paid (the page retries); nothing written');
+  assert.equal(unpaid.json.reason, 'not_paid');
   assert.equal(srv.db.read(`payOrders/${paid.orderId}`).gstBuyer, undefined);
   assert.equal(srv.db.read(`payOrders/${unpaidOrder.json.orderId}`).gstBuyer, undefined);
   assert.equal(invoicer.calls.length, 0);

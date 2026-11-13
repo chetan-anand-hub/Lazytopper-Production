@@ -408,7 +408,7 @@ function createGstInvoiceRoutes(deps = {}) {
     if (!/^[A-Za-z0-9_]{1,64}$/.test(orderId)) return sendJson(res, 400, { ok: false, error: 'bad_input', field: 'order' });
     // Only the account that PAID (invoiceOwnedBy: the D1 rule), checked on the order that is then written.
     // A PAST sale (made before the GST-exclusive cut-off) is invoiced only through the emailed back-dated form, never here.
-    const refused = { pastSale: false };
+    const refused = { hit: false, why: '' };
     const out = await orderDetails.submit({
       orderId,
       raw: { stateCode: body.stateCode, pin: body.pin, business: body.business },
@@ -416,13 +416,15 @@ function createGstInvoiceRoutes(deps = {}) {
         if (!invoiceOwnedBy(o, uid)) return false;
         const why = backdateExclusion(o);
         if (why !== 'not_past_sale' && why !== 'unpaid') {
-          refused.pastSale = true;
+          refused.hit = true;
+          refused.why = why || '';
           return false;
         }
         return true;
       },
     });
-    if (out.error === 'forbidden' && refused.pastSale) return sendJsonWithHeaders(res, 409, { ok: false, error: 'past_sale' }, { 'Cache-Control': 'no-store' });
+    // A product with no SAC (e.g. a top-up) has no invoice to issue; every other exclusion is a past sale (emailed back-dated form).
+    if (out.error === 'forbidden' && refused.hit) return sendJsonWithHeaders(res, 409, { ok: false, error: refused.why === 'no_sac_for_product' ? 'no_sac' : 'past_sale' }, { 'Cache-Control': 'no-store' });
     if (out.error === 'bad_input') return sendJsonWithHeaders(res, 400, { ok: false, error: 'bad_input', field: out.field }, { 'Cache-Control': 'no-store' });
     if (out.error === 'forbidden' || out.error === 'unknown_order') return sendJsonWithHeaders(res, 404, NOT_FOUND_BODY, { 'Cache-Control': 'no-store' });
     if (out.error === 'unpaid') return sendJsonWithHeaders(res, 409, { ok: false, error: 'not_paid' }, { 'Cache-Control': 'no-store' });

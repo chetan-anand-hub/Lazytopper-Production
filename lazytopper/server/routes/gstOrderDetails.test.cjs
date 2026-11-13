@@ -139,3 +139,12 @@ test('service: only a PAID status WITH a payment id is written (an unpaid status
     assert.deepEqual(h.issued, []);
   }
 });
+
+test('signed-in: a product with no SAC (e.g. a top-up) is refused with 409 no_sac, not past_sale; nothing written', async () => {
+  const h = harness({ o1: paidOrder({ passType: 'topup_unknown_product' }) });
+  const r = await call(h, { uid: 'u1', body: BODY });
+  assert.equal(r.status, 409);
+  assert.deepEqual(r.body, { ok: false, error: 'no_sac' });
+  assert.equal(h.store.data.get('o1').gstBuyer, undefined);
+  assert.deepEqual(h.issued, []);
+});

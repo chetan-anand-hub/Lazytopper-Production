@@ -13,20 +13,43 @@ export const POSTPAY_GST_TITLE = "For your GST invoice";
 export const POSTPAY_GST_LEDE = "Your state and PIN code go on the invoice.";
 export const POSTPAY_GST_SAVED = "Saved ✓ Your GST invoice will be sent to you.";
 export const POSTPAY_GST_SAVED_SHORT = "Saved ✓";
+export const POSTPAY_GST_CONFIRMING = "Confirming your payment…";
 export const POSTPAY_GST_EXPIRED = "This can no longer be added here. Message us and we will add it.";
 export const POSTPAY_GST_FAILED = "That did not save. Try again.";
 
-export default function PostPayGst({ target, saveImpl = saveGstDetails }: { target: GstTarget; saveImpl?: typeof saveGstDetails }) {
+/** The payment may not be recorded for a moment (a slow confirm): up to 3 tries, 4 s apart, then the form stays with Save enabled. */
+const NOT_PAID_TRIES = 3;
+const NOT_PAID_WAIT_MS = 4000;
+
+export default function PostPayGst({ target, saveImpl = saveGstDetails, retryWaitMs = NOT_PAID_WAIT_MS }: { target: GstTarget; saveImpl?: typeof saveGstDetails; retryWaitMs?: number }) {
   const uid = useId();
   const [stateCode, setStateCode] = useState("");
   const [pin, setPin] = useState("");
   const [touched, setTouched] = useState(false);
-  const [phase, setPhase] = useState<"idle" | "saving" | "saved" | "expired" | "failed">("idle");
+  const [phase, setPhase] = useState<"idle" | "saving" | "confirming" | "saved" | "expired" | "failed">("idle");
   const [error, setError] = useState<string | null>(null);
   const [invoiced, setInvoiced] = useState(false);
   const on = gstStateFieldOn();
   // A signed-in buyer whose account already holds a state + PIN is sent it ONCE, with no tap, so the order never waits (the guard is a ref).
   const autoSent = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+  /** Saves; on "not paid yet" shows "Confirming your payment…" and tries again (3 tries in all); the last answer is returned. */
+  async function saveWithRetry(buyer: { stateCode: string; pin: string }) {
+    let out = await saveImpl(target, buyer);
+    for (let i = 1; i < NOT_PAID_TRIES && out.status === "not_paid" && mounted.current; i += 1) {
+      setPhase("confirming");
+      await new Promise((r) => setTimeout(r, retryWaitMs));
+      if (!mounted.current) break;
+      out = await saveImpl(target, buyer);
+    }
+    return out;
+  }
 
   // The pre-fill (the account's remembered state + PIN, else the IP region's state): only fills an EMPTY field, never overwrites typing.
   useEffect(() => {
@@ -48,7 +71,7 @@ export default function PostPayGst({ target, saveImpl = saveGstDetails }: { targ
       if (target.kind === "account" && p.remembered && !autoSent.current) {
         autoSent.current = true;
         setPhase("saving");
-        const out = await saveImpl(target, { stateCode: p.stateCode, pin: p.pin });
+        const out = await saveWithRetry({ stateCode: p.stateCode, pin: p.pin });
         if (!alive) return;
         if (out.status === "saved") {
           setInvoiced(out.invoiced);
@@ -81,7 +104,7 @@ export default function PostPayGst({ target, saveImpl = saveGstDetails }: { targ
       </section>
     );
   }
-  const busy = phase === "saving";
+  const busy = phase === "saving" || phase === "confirming";
   async function save() {
     const bad = gstAfterPayError(stateCode, pin);
     setTouched(true);
@@ -91,7 +114,7 @@ export default function PostPayGst({ target, saveImpl = saveGstDetails }: { targ
     }
     setError(null);
     setPhase("saving");
-    const out = await saveImpl(target, { stateCode, pin });
+    const out = await saveWithRetry({ stateCode, pin });
     if (out.status === "saved") {
       setInvoiced(out.invoiced);
       setPhase("saved");
@@ -136,6 +159,7 @@ export default function PostPayGst({ target, saveImpl = saveGstDetails }: { targ
             onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
             data-testid="postpay-gst-pin"
           />
+          {phase === "confirming" ? <p className="lt-ppg__lede" role="status" data-testid="postpay-gst-confirming">{POSTPAY_GST_CONFIRMING}</p> : null}
           {(error && touched) || phase === "failed" ? (
             <p className="lt-ppg__bad" role="alert" data-testid="postpay-gst-error">{phase === "failed" ? POSTPAY_GST_FAILED : error}</p>
           ) : null}

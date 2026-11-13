@@ -468,4 +468,27 @@ describe("GST-AFTER-PAY-1 - a signed-in payer buying for someone else gets the b
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
+
+  it("verify FAILED after Razorpay's signed success (confirmed:false): the GST block still shows (signed-out proof / signed-in order id); the purchase card does not", async () => {
+    vi.stubEnv("VITE_GST_STATE_FIELD", "1");
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, ipStateCode: null, remembered: null }) })));
+    const PROOF = { orderId: "order_9", paymentId: "pay_9", signature: "ab".repeat(32) };
+    // signed out, buy for someone else
+    mount({ buy: vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "paid", confirmed: false, paymentId: "pay_9", orderId: "order_9", gstProof: PROOF })) });
+    type("who-first", "98765 43210");
+    fireEvent.click(screen.getByTestId("who-pay"));
+    await screen.findByTestId("who-paid");
+    expect(await screen.findByTestId("postpay-gst")).toBeTruthy();
+    expect(screen.queryByTestId("purchase-card")).toBeNull();
+    cleanup();
+    // signed in, buy for someone else
+    mount({ signedIn: true, selfMasked: "an••••@gmail.com", buy: vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "paid", confirmed: false, paymentId: "pay_9", orderId: "order_9" })) });
+    fireEvent.click(screen.getByTestId("who-someone-else"));
+    type("who-first", "98765 43210");
+    fireEvent.click(screen.getByTestId("who-pay"));
+    await screen.findByTestId("who-paid");
+    expect(await screen.findByTestId("postpay-gst")).toBeTruthy();
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
 });

@@ -11,7 +11,7 @@ export const GST_GUEST_DETAILS_ENDPOINT = "/api/pay/guest/gst-details";
 export const GST_ORDER_DETAILS_ENDPOINT = "/api/gst/order-details";
 
 export type GstTarget = { kind: "guest"; proof: AttachProof } | { kind: "account"; orderId: string };
-export type GstSaveResult = { status: "saved"; invoiced: boolean } | { status: "expired" } | { status: "bad_input"; field: "state" | "pin" } | { status: "failed" };
+export type GstSaveResult = { status: "saved"; invoiced: boolean } | { status: "expired" } | { status: "not_paid" } | { status: "bad_input"; field: "state" | "pin" } | { status: "failed" };
 
 export { GST_STATES };
 
@@ -43,6 +43,8 @@ export async function saveGstDetails(target: GstTarget, buyer: Pick<GstBuyer, "s
     }
     if (res.ok && j && j.ok === true) return { status: "saved", invoiced: j.status === "invoiced" };
     if (res.ok && j && j.ok === false && j.reason === "expired") return { status: "expired" };
+    // The payment is not recorded yet (the server has not confirmed it): the block waits and tries again.
+    if (res.status === 409 && j && (j.error === "not_paid" || j.reason === "not_paid")) return { status: "not_paid" };
     if (res.status === 400 && j && j.error === "bad_input" && (j.field === "state" || j.field === "pin")) return { status: "bad_input", field: j.field };
     return { status: "failed" };
   } catch {
