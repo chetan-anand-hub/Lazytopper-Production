@@ -2684,3 +2684,47 @@ test('GUEST-ZIP · no PDF service, or the kill switch PACK_SERVER_PDF_DISABLED: 
   assert.equal((await zipLink(off.srv, paid2)).status, 404);
   assert.equal(packPdf.calls.length, 0);
 });
+
+test('GUEST-ZIP · guards pinned: flags off 404; a flood is rate limited; another payer type, an unpaid status and a missing contact are refused', async (t) => {
+  // flags off: the route is dark (404), nothing made
+  const off = await startRoutes({ env: {}, packPdf: fakePackPdf() });
+  t.after(off.close);
+  assert.equal((await request(off.port, GUEST_ZIP_LINK_PATH, { body: { orderId: 'order_x', paymentId: 'pay_x', signature: 'ab'.repeat(32) } })).status, 404);
+
+  const { srv, packPdf } = await zipRoutes(t);
+  const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  const doc = () => srv.db.collection('payOrders').doc(paid.orderId);
+
+  // no_contact: neither a phone nor an email on the order
+  await doc().set({ guestPhone: '', guestEmail: '' }, { merge: true });
+  const nc = await zipLink(srv, paid);
+  assert.equal(nc.status, 400);
+  await doc().set({ guestPhone: PHONE }, { merge: true });
+
+  // status not paid, though the payment id is present
+  await doc().set({ status: 'created' }, { merge: true });
+  assert.equal((await zipLink(srv, paid)).status, 409);
+  await doc().set({ status: 'paid_unclaimed' }, { merge: true });
+
+  // a VALID checkout signature on a NON-guest (signed-in payer's) order is refused
+  await srv.db.collection('payOrders').doc('order_NG').set({ status: 'paid', paymentId: 'pay_NG', payer: 'student', uid: 'u1', passType: 'pack_cbq', packTarget: 'maths', paidAt: new Date(NOW), amountPaise: 19900 });
+  const ng = await request(srv.port, GUEST_ZIP_LINK_PATH, { body: { orderId: 'order_NG', paymentId: 'pay_NG', signature: checkoutSig('order_NG', 'pay_NG') } });
+  assert.equal(ng.status, 400);
+  assert.equal(packPdf.calls.length, 0);
+
+  // the per-order hourly cap: the 31st call inside the hour is refused (429), the ZIP is not built again
+  for (let i = 0; i < 30; i += 1) assert.equal((await zipLink(srv, paid)).status, 200);
+  const capped = await zipLink(srv, paid);
+  assert.equal(capped.status, 429);
+  assert.equal(packPdf.calls.length, 30);
+});
+
+test('GUEST-ZIP · the per-client limiter counts this route (a flood of calls gets 429)', async (t) => {
+  const { srv } = await zipRoutes(t);
+  let limited = 0;
+  for (let i = 0; i < 130; i += 1) {
+    const r = await request(srv.port, GUEST_ZIP_LINK_PATH, { body: { orderId: 'bad', paymentId: 'bad', signature: 'zz' }, headers: { 'X-Forwarded-For': '203.0.113.9' } });
+    if (r.status === 429) limited += 1;
+  }
+  assert.ok(limited > 0, 'the 120/day per-client limit applies to the zip-link path');
+});

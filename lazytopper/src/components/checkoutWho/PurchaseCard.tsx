@@ -46,6 +46,8 @@ export interface PurchaseCardProps {
   fetchReceiptImpl?: typeof fetchReceipt;
 }
 
+export const ZIP_EXPIRED = "This download link has expired. Sign in with the number or email you paid with to download again.";
+
 export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, filesFolded = false, fetchReceiptImpl = fetchReceipt }: PurchaseCardProps) {
   const [receipt, setReceipt] = useState<ReceiptOutcome | null>(null);
   const [files, setFiles] = useState<Files>({ phase: "idle" });
@@ -58,6 +60,7 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
   const [zipBusy, setZipBusy] = useState(false);
   const [zipFailed, setZipFailed] = useState(false);
   const [zipSaved, setZipSaved] = useState(false);
+  const [zipExpired, setZipExpired] = useState(false);
   const [zipOff, setZipOff] = useState<boolean>(() => isServerPdfDisabled());
   const alive = useRef(true);
   useEffect(() => {
@@ -134,6 +137,7 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
       const res = await downloadGuestZipFromServer({ proof, expectCodes });
       if (!alive.current) return;
       if (res.ok) setZipSaved(true);
+      else if (res.reason === "expired") setZipExpired(true);
       else if (res.reason === "disabled" || res.reason === "unavailable") setZipOff(true);
       else setZipFailed(true);
     } catch (err) {
@@ -187,8 +191,9 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
       </section>
     );
   }
-  const zipEl =
-    files.phase === "ready" && !zipOff && fileCount >= 2 ? (
+  const zipEl = zipExpired ? (
+    <p className="lt-rcpt__line" role="status" data-testid="receipt-zip-expired">{ZIP_EXPIRED}</p>
+  ) : files.phase === "ready" && !zipOff && fileCount >= 2 ? (
       <div className="lt-rcpt__zip" data-testid="receipt-zip-row">
         <button
           type="button"

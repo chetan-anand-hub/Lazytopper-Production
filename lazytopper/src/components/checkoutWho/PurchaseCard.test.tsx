@@ -198,6 +198,16 @@ describe("GUEST-ZIP-1 - Download all (ZIP)", () => {
     await waitFor(() => expect(build.fileBuild).toHaveBeenCalledTimes(1));
   });
 
+  it("an expired link (403) hides the ZIP button for good and says one line; the single files stay", async () => {
+    zip.download.mockResolvedValue({ ok: false, reason: "expired" });
+    render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} />);
+    fireEvent.click(await screen.findByTestId("receipt-zip"));
+    const line = await screen.findByTestId("receipt-zip-expired");
+    expect(line.textContent).toBe("This download link has expired. Sign in with the number or email you paid with to download again.");
+    expect(screen.queryByTestId("receipt-zip")).toBeNull();
+    expect(screen.getAllByTestId("receipt-download")).toHaveLength(2);
+  });
+
   it("the server saying 'unavailable' (404) removes the button; the kill switch never shows it; one file has nothing to zip", async () => {
     zip.download.mockResolvedValue({ ok: false, reason: "unavailable" });
     const { unmount } = render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} />);

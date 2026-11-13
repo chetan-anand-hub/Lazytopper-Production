@@ -112,6 +112,8 @@ const GUEST_ATTACH_PATH = '/api/pay/guest/attach';
 /** PAID-SHOWS-1 - the payer's receipt: what they bought, so the paid screen can show it (and its downloads) before any sign-in. */
 const GUEST_RECEIPT_PATH = '/api/pay/guest/receipt';
 /** PAID-SHOWS-1: how long after the payment time (guestPaidAt; paidAt only if absent) the signed-out receipt is answered. */
+/** GUEST-ZIP-1: ZIPs per guest order per hour (parity with packs.cjs ZIPS_PER_HOUR). */
+const GUEST_ZIPS_PER_HOUR = 30;
 const RECEIPT_WINDOW_MS = 24 * 60 * 60 * 1000;
 /** GUEST-ZIP-1 - one ZIP of the whole pack for a signed-out buyer. Same proof and window as the receipt. */
 const GUEST_ZIP_LINK_PATH = '/api/pay/guest/zip-link';
@@ -1483,6 +1485,17 @@ function createGuestPayRoutes(deps = {}) {
    * The files are stamped under a synthetic `guest_<orderId>` path (no account exists), and NO download event is recorded (there is
    * no uid to record it against). Answers the signed-in link's shape: { ok, url, filename, files, papers, ... }.
    */
+  // Hourly cap per guest order (same sliding-hour counter as packs.cjs limited(); ZIPS_PER_HOUR parity). Per instance, LRU-bounded.
+  const zipHits = new Map();
+  function zipLimited(key, max) {
+    const t = now();
+    const recent = (zipHits.get(key) || []).filter((x) => t - x < 60 * 60 * 1000);
+    recent.push(t);
+    zipHits.delete(key);
+    zipHits.set(key, recent);
+    while (zipHits.size > 5000) zipHits.delete(zipHits.keys().next().value);
+    return recent.length > max;
+  }
   async function handleZipLink(req, res) {
     if (!isCheckoutWhoEnabled(env) && !isGuestPayEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
     if (isServerPdfDisabled(env) || !packPdf || typeof packPdf.zipLink !== 'function') return sendJson(res, 404, NOT_FOUND_BODY);
@@ -1523,6 +1536,7 @@ function createGuestPayRoutes(deps = {}) {
     const contact = emailMasked && (!phoneMasked || order.recipientFirst === 'email') ? emailMasked : phoneMasked;
     if (!contact) return reject(res, 'zip_link', 'no_contact');
     const packId = packIdFor(sku, target);
+    if (zipLimited(`z:guest_${orderId}`, GUEST_ZIPS_PER_HOUR)) return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
     try {
       const link = await packPdf.zipLink({
         uid: `guest_${orderId}`,

@@ -21,7 +21,7 @@ export const SERVER_LINK_TIMEOUT_MS = 20_000;
 /** A ZIP of a cold chapter is stamped file by file on the server and can take well over 20 s: it waits longer (the button says "Preparing" meanwhile). */
 export const SERVER_ZIP_TIMEOUT_MS = 90_000;
 
-export type ServerLinkFailure = "disabled" | "unavailable" | "not_ready" | "busy" | "refused" | "timeout" | "network" | "bad_response";
+export type ServerLinkFailure = "disabled" | "unavailable" | "not_ready" | "busy" | "refused" | "expired" | "timeout" | "network" | "bad_response";
 
 /** A paper the server stamped into a file: its printed code, how it is filed, and the worksheet EXACTLY as drawn. */
 export interface ServerPaper {
@@ -106,6 +106,11 @@ async function post<T>(endpoint: string, payload: Record<string, string>, read: 
       if (res.status === 404) return { ok: false, reason: "unavailable" };
       if (res.status === 503) return { ok: false, reason: "not_ready" };
       if (res.status === 429) return { ok: false, reason: "busy" };
+      // The guest ZIP route answers 403 { error: "expired" } once the 24 h window has passed: its own reason, so the card can say so.
+      if (res.status === 403) {
+        const b = (await res.json().catch(() => null)) as { error?: unknown } | null;
+        if (b && b.error === "expired") return { ok: false, reason: "expired" };
+      }
       return { ok: false, reason: "refused" };
     }
     const link = read(await res.json().catch(() => null));

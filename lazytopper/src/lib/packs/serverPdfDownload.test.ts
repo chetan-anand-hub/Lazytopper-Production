@@ -328,7 +328,7 @@ describe("GUEST-ZIP-1 - the signed-out whole-pack ZIP", () => {
     expect(reg.registerPackPaper).toHaveBeenCalledTimes(1);
     expect((reg.registerPackPaper.mock.calls[0] as unknown[])[0]).toBeNull();
     startDownload.mockClear();
-    expect(await downloadGuestZipFromServer({ proof }, { fetchImpl: (async () => resp(403, { ok: false, error: "expired" })) as never, startDownload })).toEqual({ ok: false, reason: "refused" });
+    expect(await downloadGuestZipFromServer({ proof }, { fetchImpl: (async () => resp(403, { ok: false, error: "expired" })) as never, startDownload })).toEqual({ ok: false, reason: "expired" });
     expect(await downloadGuestZipFromServer({ proof }, { fetchImpl: (async () => resp(404)) as never, startDownload })).toEqual({ ok: false, reason: "unavailable" });
     // the server's papers must cover every printed code, or nothing is downloaded
     expect(await downloadGuestZipFromServer({ proof, expectCodes: ["PK-OTHER"] }, { fetchImpl: (async () => resp(200, zipBody())) as never, startDownload })).toEqual({ ok: false, reason: "bad_response", counted: true });
