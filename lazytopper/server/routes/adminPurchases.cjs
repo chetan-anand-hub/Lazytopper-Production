@@ -39,7 +39,7 @@ const { WA_OPTIN_COLLECTION } = require('../services/waOptIn.cjs'); // WHATSAPP-
 // ADMIN-MOVE-1: move one paid pack order to another account.
 const { movePackOrder, MoveError } = require('../services/adminMovePurchase.cjs');
 const { mergeAccount, retireAccount } = require('../services/adminMergeAccount.cjs');
-const { resolveAccount, describeAccount } = require('../services/adminMergeReal.cjs'); // ADMIN-MERGE-REAL-1
+const { resolveAccount, describeAccount, pendingParentLinks } = require('../services/adminMergeReal.cjs'); // ADMIN-MERGE-REAL-1
 
 /**
  * GST-EXCL-1 - an order created at/after the GST cut-off (00:00 IST 7 Nov 2026) stores its breakup; the admin rows carry base and GST
@@ -610,6 +610,9 @@ function createAdminPurchasesRoutes(deps = {}) {
           keep: await describeAccount({ db: adminFirestore, user: keepUser }),
           remove: await describeAccount({ db: adminFirestore, user: removeUser }),
           ...(blocker ? { blocker } : {}),
+          ...((await pendingParentLinks({ db: adminFirestore, uid: removeUser.uid, nowMs: now() })) > 0
+            ? { warning: 'The account to remove has a parent payment link that is still open. If the parent pays it after this merge, the purchase would go to the removed account. Ask the student to make a new link from the kept account.' }
+            : {}),
         });
       }
       const keepUid = typeof b.keepUid === 'string' ? b.keepUid.trim() : '';

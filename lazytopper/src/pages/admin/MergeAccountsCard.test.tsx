@@ -64,4 +64,15 @@ describe("MergeAccountsCard (ADMIN-MERGE-REAL-1)", () => {
     fireEvent.click(screen.getByTestId("mac-review"));
     await waitFor(() => expect(screen.getByTestId("mac-error").textContent).toContain("KEEP was not found"));
   });
+
+  it("a parent-link warning is shown but does not stop the merge (the confirm box is still there)", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ ok: true, keep: side("k1"), remove: side("r2"), warning: "The account to remove has a parent payment link that is still open." }), { status: 200 }));
+    render(<MergeAccountsCard getToken={getToken} />);
+    fireEvent.click(screen.getByTestId("mac-open"));
+    fireEvent.change(screen.getByTestId("mac-keep"), { target: { value: "a@gmail.com" } });
+    fireEvent.change(screen.getByTestId("mac-remove"), { target: { value: "b@gmail.com" } });
+    fireEvent.click(screen.getByTestId("mac-review"));
+    expect((await screen.findByTestId("mac-warning")).textContent).toContain("parent payment link");
+    expect(screen.getByTestId("mac-typed")).toBeTruthy();
+  });
 });

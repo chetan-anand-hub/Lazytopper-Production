@@ -24,7 +24,7 @@ type Step =
   | { s: "closed" }
   | { s: "form"; error?: string }
   | { s: "busy" }
-  | { s: "review"; keep: Side; remove: Side; blocker?: string }
+  | { s: "review"; keep: Side; remove: Side; blocker?: string; warning?: string }
   | { s: "done"; message: string };
 
 const loginLine = (a: Side) => [a.email, a.phone].filter(Boolean).join(" · ") || "no email or phone";
@@ -65,7 +65,7 @@ export default function MergeAccountsCard({ getToken }: { getToken: () => Promis
       const { res, json } = await post({ preview: true, keep: keep.trim(), remove: remove.trim() });
       if (res.ok && json?.ok) {
         setTyped("");
-        return setSt({ s: "review", keep: json.keep as Side, remove: json.remove as Side, ...(typeof json.blocker === "string" ? { blocker: json.blocker } : {}) });
+        return setSt({ s: "review", keep: json.keep as Side, remove: json.remove as Side, ...(typeof json.blocker === "string" ? { blocker: json.blocker } : {}), ...(typeof json.warning === "string" ? { warning: json.warning } : {}) });
       }
       setSt({ s: "form", error: typeof json?.error === "string" ? json.error : "Could not look those accounts up." });
     } catch {
@@ -119,6 +119,11 @@ export default function MergeAccountsCard({ getToken }: { getToken: () => Promis
                 <SideView title="REMOVE" a={st.remove} id="mac-remove-view" />
               </div>
               {st.remove.hasStudyData && <p className="sa-muted">The removed account&apos;s study data is not merged; it stays on its old id.</p>}
+              {st.warning && (
+                <p className="sa-note sa-warn" role="alert" data-testid="mac-warning">
+                  {st.warning}
+                </p>
+              )}
               {st.blocker ? (
                 <p className="sa-note sa-warn" role="alert" data-testid="mac-blocker">
                   Cannot merge: {st.blocker}

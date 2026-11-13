@@ -201,6 +201,81 @@ test('REAL-MERGE: an order that lands on the removed account DURING the move sto
   s.runTransaction = async (fn) => { const out = await origTx(fn); s.m.set('payOrders/order_late', { uid: 'realB', status: 'created' }); return out; };
   const [status, body] = await harness(s, fa)(GO);
   assert.equal(status, 409); assert.match(body.error, /still on the removed account/);
-  assert.deepEqual(fa.calls, [], 'no Auth call: the logins are NOT freed');
-  assert.ok(fa.users.realB);
+  // The sign-in-and-buy window is closed BEFORE the check (revoked + disabled), but the login is NOT deleted.
+  assert.deepEqual(fa.calls, [['revoke', 'realB'], ['update', 'realB', { disabled: true }]]);
+  assert.ok(fa.users.realB); assert.equal(fa.users.realB.disabled, true);
+});
+
+test('REAL-MERGE: M6 - a repeat for a DIFFERENT kept account AFTER the removed user was deleted is refused (409), never reported as success', async () => {
+  const s = memStore(seed()); const u = users({ realC: { uid: 'realC', email: 'c@gmail.com' } });
+  const first = await harness(s, authFake(u))(GO);
+  assert.equal(first[0], 200);
+  assert.equal(u.realB, undefined, 'the removed user is gone');
+  const w = s.writes.length;
+  const fa = authFake(u);
+  const again = await harness(s, fa)({ keepUid: 'realC', removeUid: 'realB', confirm: 'MERGE' });
+  assert.equal(again[0], 409); assert.match(again[1].error, /already merged into a different account/);
+  assert.equal(s.writes.length, w); assert.deepEqual(fa.calls, []);
+  // the same kept account is still the harmless no-op
+  assert.deepEqual((await harness(s, authFake(u))(GO))[1], { ok: true, merged: false, replayed: true, removed: true });
+});
+
+test('REAL-MERGE: orders the removed account PAID for (payerUid) move too, with their payerUid; an order that changes mid-move or lands afterwards stops the run', async () => {
+  const s = memStore(seed({
+    'payOrders/order_child': { uid: 'someChild', payerUid: 'realB', passType: 'till_boards', status: 'paid', paymentId: 'pay_c' },
+    'payOrders/order_both': { uid: 'realB', payerUid: 'realB', passType: 'pack_bundle', packTarget: 'all', status: 'paid', paymentId: 'pay_p' },
+    'payOrders/order_other': { uid: 'someChild', payerUid: 'realZ', status: 'paid', paymentId: 'pay_z' },
+  }));
+  const fa = authFake(users());
+  const [status] = await harness(s, fa)(GO);
+  assert.equal(status, 200);
+  assert.deepEqual([s.m.get('payOrders/order_child').uid, s.m.get('payOrders/order_child').payerUid], ['someChild', 'realA'], 'the payer moves, the child it paid for stays');
+  assert.deepEqual([s.m.get('payOrders/order_both').uid, s.m.get('payOrders/order_both').payerUid], ['realA', 'realA']);
+  assert.deepEqual([s.m.get('payOrders/order_other').uid, s.m.get('payOrders/order_other').payerUid], ['someChild', 'realZ'], 'someone else\'s order is untouched');
+  assert.equal(s.m.get('payOrders/order_p').payerUid, undefined, 'an order with no payerUid gets none written');
+  // a payer order landing after the transaction stops the run before the login is deleted
+  const s2 = memStore(seed()); const fa2 = authFake(users());
+  const origTx = s2.runTransaction.bind(s2);
+  s2.runTransaction = async (fn) => { const out = await origTx(fn); s2.m.set('payOrders/order_late', { uid: 'someChild', payerUid: 'realB', status: 'created' }); return out; };
+  const [st2, b2] = await harness(s2, fa2)(GO);
+  assert.equal(st2, 409); assert.match(b2.error, /still on the removed account/);
+  assert.ok(!fa2.calls.some((c) => c[0] === 'delete'));
+});
+
+test('REAL-MERGE: preview warns when the removed account has an OPEN parent-pay link (not an expired or paid one); it never blocks', async () => {
+  const future = new Date(NOW + 3600000); const past = new Date(NOW - 3600000);
+  const mkRun = async (links) => harness(memStore(seed(links)), authFake(users()))({ keep: 'kid.a@gmail.com', remove: '+91 96111 11555', preview: true });
+  const [st, body] = await mkRun({ 'parentPayLinks/h1': { uid: 'realB', status: 'open', expiresAt: future } });
+  assert.equal(st, 200); assert.match(body.warning, /parent payment link/); assert.equal(body.blocker, undefined);
+  for (const links of [{ 'parentPayLinks/h2': { uid: 'realB', status: 'open', expiresAt: past } }, { 'parentPayLinks/h3': { uid: 'realB', status: 'paid', expiresAt: future } }, { 'parentPayLinks/h4': { uid: 'realA', status: 'open', expiresAt: future } }, {}]) {
+    assert.equal((await mkRun(links))[1].warning, undefined);
+  }
+});
+
+test('REAL-MERGE: `real` and `purchasesOnly` together are refused (they are different trust models)', async () => {
+  const { mergeAccount } = require('../services/adminMergeAccount.cjs');
+  await assert.rejects(() => mergeAccount({ db: memStore(seed()), auth: authFake(users()).auth(), fromUid: 'realB', toUid: 'realA', adminUid: 'admin-1', real: true, purchasesOnly: true }), /mutually exclusive/);
+});
+
+test('REAL-MERGE: a payer-only order that changes between the listing and the move stops the run (409, nothing written)', async () => {
+  const s = memStore(seed({ 'payOrders/order_child': { uid: 'someChild', payerUid: 'realB', status: 'paid', paymentId: 'pay_c' } }));
+  const fa = authFake(users());
+  const origTx = s.runTransaction.bind(s);
+  s.runTransaction = async (fn) => { s.m.set('payOrders/order_child', { uid: 'someChild', payerUid: 'realZ', status: 'paid', paymentId: 'pay_c' }); return origTx(fn); };
+  const [status, body] = await harness(s, fa)(GO);
+  assert.equal(status, 409); assert.match(body.error, /changed while merging/);
+  assert.deepEqual(s.writes, []); assert.deepEqual(fa.calls, []);
+});
+
+test('PAY- MERGE UNCHANGED: the existing payment-account merge still writes ONLY { uid } on its orders (payerUid is a real-merge step only)', async () => {
+  const { mergeAccount } = require('../services/adminMergeAccount.cjs');
+  const s = memStore({
+    'payOrders/o1': { uid: 'pay-abc', payerUid: 'pay-abc', passType: 'pack_bundle', status: 'paid', paymentId: 'pay_p' },
+    'payOrders/o2': { uid: 'someChild', payerUid: 'pay-abc', status: 'paid' },
+  });
+  const a = authFake({ 'pay-abc': { uid: 'pay-abc', disabled: false }, realA: { uid: 'realA' } });
+  await mergeAccount({ db: s, auth: a.auth(), fromUid: 'pay-abc', toUid: 'realA', adminUid: 'admin-1', nowMs: NOW });
+  assert.deepEqual([s.m.get('payOrders/o1').uid, s.m.get('payOrders/o1').payerUid], ['realA', 'pay-abc']);
+  assert.deepEqual([s.m.get('payOrders/o2').uid, s.m.get('payOrders/o2').payerUid], ['someChild', 'pay-abc']);
+  assert.equal(s.m.get('adminMoves/merge-pay-abc').reason, 'admin merge');
 });

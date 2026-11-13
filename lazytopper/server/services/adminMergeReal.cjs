@@ -54,4 +54,21 @@ async function describeAccount({ db, user }) {
   };
 }
 
-module.exports = { resolveAccount, describeAccount };
+/**
+ * Open (unexpired) parent-pay links minted by this account. A parent who pays one AFTER the merge would have the purchase granted to the
+ * removed account, which no longer exists - so the admin is warned before merging. Read-only; 0 when the read fails (a warning, not a gate).
+ */
+async function pendingParentLinks({ db, uid, nowMs = Date.now() }) {
+  try {
+    const snap = await db.collection('parentPayLinks').where('uid', '==', uid).get();
+    const ms = (v) => (v && typeof v.toMillis === 'function' ? v.toMillis() : v instanceof Date ? v.getTime() : typeof v === 'number' ? v : 0);
+    return (snap && snap.docs ? snap.docs : []).filter((d) => {
+      const l = typeof d.data === 'function' ? d.data() || {} : {};
+      return l.status === 'open' && ms(l.expiresAt) > nowMs;
+    }).length;
+  } catch {
+    return 0;
+  }
+}
+
+module.exports = { resolveAccount, describeAccount, pendingParentLinks };

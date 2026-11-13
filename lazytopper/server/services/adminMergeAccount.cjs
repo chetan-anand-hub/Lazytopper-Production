@@ -24,6 +24,7 @@ const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 const AUTO_ACCOUNT_UID_PREFIX = 'pay-';
 const MERGE_REASON = 'admin merge';
 const REAL_REASON = 'admin merge real';
+const BUYER_REASON = 'buyer put it on this account';
 const mergeDocId = (fromUid) => `merge-${fromUid}`;
 const PASS_FIELDS = Object.freeze(['tier', 'plan', 'passType', 'passStart', 'passEnd', 'pricePaidInr', 'offerKey', 'foundingMember', 'lastPaymentRef']);
 /** Student-activity locations keyed by uid (studentDataMap), i.e. everything a real student leaves besides purchases. */
@@ -62,10 +63,19 @@ async function mergeAccount(input) {
   if (!fromUid) throw new MoveError(400, 'fromUid must be an account id');
   if (!toUid || !adminUid) throw new MoveError(400, 'target account is invalid');
   if (fromUid === toUid) throw new MoveError(400, 'Cannot merge an account into itself');
-  if (!db || typeof db.runTransaction !== 'function' || !auth) throw new Error('firebase-admin is unavailable');
+  // PUT-ON-THIS-ACCOUNT-1: `purchasesOnly` moves the purchases and orders ONLY - no Firebase Auth call at all (the phone stays where
+  // it is, nothing is disabled). Used when the BUYER (not an admin) puts a purchase on the account they are signed in with: a phone
+  // number typed at a checkout is never moved onto another account by a buyer's say-so.
+  const purchasesOnly = i.purchasesOnly === true;
+  // `onlyOrderId` (+ `onlyPaymentRef`): the buyer's proof covers ONE order, so the account may hold nothing else (a pay- account can also
+  // hold later orders delivered to that phone, e.g. a parent's "someone else" purchase). Anything else on it is refused, nothing moves.
+  const onlyOrderId = purchasesOnly && typeof i.onlyOrderId === 'string' && i.onlyOrderId ? i.onlyOrderId : '';
+  const onlyPaymentRef = onlyOrderId && typeof i.onlyPaymentRef === 'string' ? i.onlyPaymentRef : '';
+  if (!db || typeof db.runTransaction !== 'function' || (!auth && !purchasesOnly)) throw new Error('firebase-admin is unavailable');
   const nowMs = typeof i.nowMs === 'number' && Number.isFinite(i.nowMs) ? i.nowMs : Date.now();
   // ADMIN-MERGE-REAL-1: `real` merges TWO REAL accounts (neither is a pay- account); `dryRun` runs every check and writes nothing.
   const real = i.real === true;
+  if (real && purchasesOnly) throw new Error('mergeAccount: `real` and `purchasesOnly` are mutually exclusive');
   const dryRun = real && i.dryRun === true;
 
   if (real) {
@@ -73,8 +83,8 @@ async function mergeAccount(input) {
     if (adminUid === fromUid) throw new MoveError(409, 'You cannot remove your own account');
   } else if (!fromUid.startsWith(AUTO_ACCOUNT_UID_PREFIX)) throw new MoveError(409, 'Only an account created at payment can be merged (this one is a real account)');
 
-  let srcUser;
-  try {
+  let srcUser = null;
+  if (!purchasesOnly) try {
     srcUser = await auth.getUser(fromUid);
   } catch (e) {
     if (notFound(e)) {
@@ -83,13 +93,14 @@ async function mergeAccount(input) {
         const done = await db.collection(ADMIN_MOVES_COLLECTION).doc(mergeDocId(fromUid)).get();
         const d = done && done.exists ? done.data() || {} : null;
         if (d && d.toUid === toUid) return { merged: false, replayed: true, fromUid, toUid, phoneMoved: false, removedAlready: true };
+        if (d && d.toUid !== toUid) throw new MoveError(409, 'That account was already merged into a different account');
       }
       throw new MoveError(404, 'That source account does not exist');
     }
     throw e;
   }
-  let tgtUser;
-  try {
+  let tgtUser = null;
+  if (!purchasesOnly) try {
     tgtUser = await auth.getUser(toUid);
   } catch (e) {
     if (notFound(e)) throw new MoveError(404, 'No LazyTopper account with that email/phone — ask them to sign in once first');
@@ -110,8 +121,8 @@ async function mergeAccount(input) {
     if (await hasAnything(db, CREDIT_COLLECTION, fromUid)) throw new MoveError(409, 'That account holds top-up credit, which cannot be merged automatically');
   }
 
-  const srcPhone = typeof srcUser.phoneNumber === 'string' && srcUser.phoneNumber ? srcUser.phoneNumber : '';
-  const tgtPhone = typeof tgtUser.phoneNumber === 'string' && tgtUser.phoneNumber ? tgtUser.phoneNumber : '';
+  const srcPhone = srcUser && typeof srcUser.phoneNumber === 'string' && srcUser.phoneNumber ? srcUser.phoneNumber : '';
+  const tgtPhone = tgtUser && typeof tgtUser.phoneNumber === 'string' && tgtUser.phoneNumber ? tgtUser.phoneNumber : '';
   if (!real && srcPhone && tgtPhone && srcPhone !== tgtPhone) throw new MoveError(409, 'The target account already has a different phone number');
 
   let moved = false;
@@ -119,6 +130,13 @@ async function mergeAccount(input) {
     // Order ids are listed first (a query cannot run in a transaction on every SDK); each is re-read, and re-checked, inside it.
     const ordersSnap = await db.collection(PAY_ORDERS_COLLECTION).where('uid', '==', fromUid).get();
     const orderIds = (ordersSnap && ordersSnap.docs ? ordersSnap.docs : []).map((d) => d.id);
+    // MONEY / GST (real merge): an order the removed account PAID for (payerUid) but that sits on another uid (a parent paying for a child) is
+    // owned by payerUid for its invoice, and listed by payerUid. It moves to the kept account too, or the invoice would point at a deleted login.
+    let payerOnlyIds = [];
+    if (real) {
+      const payerSnap = await db.collection(PAY_ORDERS_COLLECTION).where('payerUid', '==', fromUid).get();
+      payerOnlyIds = (payerSnap && payerSnap.docs ? payerSnap.docs : []).map((d) => d.id).filter((id) => !orderIds.includes(id));
+    }
     const ent = (uid) => db.collection(ENTITLEMENTS_COLLECTION).doc(uid);
     const sub = (uid) => db.collection(SUBSCRIPTIONS_COLLECTION).doc(uid);
 
@@ -133,6 +151,8 @@ async function mergeAccount(input) {
       const tgtSub = await tx.get(sub(toUid));
       const orderSnaps = [];
       for (const id of orderIds) orderSnaps.push(await tx.get(db.collection(PAY_ORDERS_COLLECTION).doc(id)));
+      const payerSnaps = [];
+      for (const id of payerOnlyIds) payerSnaps.push(await tx.get(db.collection(PAY_ORDERS_COLLECTION).doc(id)));
 
       const packDocs = srcPacks.docs || [];
       const owned = (tgtPacks.docs || []).map((d) => ({ ...(d.data() || {}), packId: d.id }));
@@ -156,6 +176,9 @@ async function mergeAccount(input) {
       for (const s of orderSnaps) {
         if (!s || !s.exists || (s.data() || {}).uid !== fromUid) throw new MoveError(409, 'An order changed while merging; try again');
       }
+      for (const s of payerSnaps) {
+        if (!s || !s.exists || (s.data() || {}).payerUid !== fromUid) throw new MoveError(409, 'An order changed while merging; try again');
+      }
       if (real) {
         // Every PAID order of the removed account must have its purchase here to move (a pack row / replay marker, or the Board Pass
         // on the subscription). Anything else is money with nothing to move: refuse, never leave an order pointing at nothing.
@@ -170,6 +193,17 @@ async function mergeAccount(input) {
       }
       if (dryRun) return;
 
+      if (onlyOrderId) {
+        const other = 'That account holds more than this one purchase, so it is not moved automatically';
+        if (orderIds.length !== 1 || orderIds[0] !== onlyOrderId) throw new MoveError(409, other);
+        if (packDocs.some((d) => (d.data() || {}).orderId !== onlyOrderId)) throw new MoveError(409, other);
+        if ((srcMarkers.docs || []).some((d) => (d.data() || {}).orderId !== onlyOrderId && d.id !== onlyPaymentRef)) throw new MoveError(409, other);
+        if (srcHasPass) {
+          const pays = srcSubPays.docs || [];
+          const ref = pays.length > 0 ? pays.every((p) => p.id === onlyPaymentRef) : (srcSubData || {}).lastPaymentRef === onlyPaymentRef;
+          if (!onlyPaymentRef || !ref) throw new MoveError(409, other);
+        }
+      }
       // Writes.
       for (const d of packDocs) {
         tx.set(ent(toUid).collection(PACK_SEGMENTS.packs).doc(d.id), d.data());
@@ -190,18 +224,35 @@ async function mergeAccount(input) {
         }
         tx.delete(sub(fromUid));
       }
-      for (const id of orderIds) tx.set(db.collection(PAY_ORDERS_COLLECTION).doc(id), { uid: toUid }, { merge: true });
-      tx.set(markerRef, { at: new Date(nowMs), adminUid, fromUid, toUid, reason: real ? REAL_REASON : MERGE_REASON });
+      for (let k = 0; k < orderIds.length; k += 1) {
+        // real: an order the removed account also PAID for moves its payerUid with it; every other mode writes exactly { uid } as before.
+        const alsoPayer = real && ((orderSnaps[k].data() || {}).payerUid === fromUid);
+        tx.set(db.collection(PAY_ORDERS_COLLECTION).doc(orderIds[k]), alsoPayer ? { uid: toUid, payerUid: toUid } : { uid: toUid }, { merge: true });
+      }
+      for (const id of payerOnlyIds) tx.set(db.collection(PAY_ORDERS_COLLECTION).doc(id), { payerUid: toUid }, { merge: true });
+      tx.set(markerRef, { at: new Date(nowMs), adminUid, fromUid, toUid, reason: real ? REAL_REASON : purchasesOnly ? BUYER_REASON : MERGE_REASON });
     });
     moved = !dryRun;
   }
   if (dryRun) return { merged: false, replayed: false, dryRun: true, fromUid, toUid, phoneMoved: false };
   if (real) {
-    // Nothing of the removed account's may still point at it before its logins are freed.
-    const left = await db.collection(PAY_ORDERS_COLLECTION).where('uid', '==', fromUid).get();
-    if (left && left.docs && left.docs.length > 0) throw new MoveError(409, 'An order is still on the removed account; its logins were NOT removed. Run it again');
+    // Close the sign-in-and-buy window FIRST: from here the removed account cannot start a session, so nothing new can land on it
+    // between the move and the check below. (Deleting the login stays a later step, after the check.)
+    try {
+      await auth.revokeRefreshTokens(fromUid);
+      await auth.updateUser(fromUid, { disabled: true });
+    } catch (e) {
+      if (!notFound(e)) throw new MoveError(500, 'The purchases are moved but the removed account could not be signed out; run the merge again');
+    }
+    // Nothing of the removed account's may still point at it (as owner OR as payer) before its logins are freed.
+    for (const field of ['uid', 'payerUid']) {
+      const left = await db.collection(PAY_ORDERS_COLLECTION).where(field, '==', fromUid).get();
+      if (left && left.docs && left.docs.length > 0) throw new MoveError(409, 'An order is still on the removed account; its logins were NOT removed. Run it again');
+    }
     return { merged: moved, replayed, fromUid, toUid, phoneMoved: false };
   }
+
+  if (purchasesOnly) return { merged: moved, replayed, fromUid, toUid, phoneMoved: false };
 
   // Firebase Auth - idempotent: each step acts only if still needed.
   let phoneMoved = false;
@@ -226,34 +277,26 @@ async function mergeAccount(input) {
 }
 
 /**
- * ADMIN-MERGE-REAL-1: free the removed account's logins once its data is on the kept account and verified (mergeAccount real mode
- * returns only after that). Order: revoke its sessions -> disable it (a safe stop if the next step fails) -> DELETE the Auth user, so
- * its phone / email / Google provider can be added to the kept account. Why delete and not just unset the phone: a disabled user still
- * owns its email and provider links, and Firebase will not let the student add them elsewhere. The account's Firestore data is NOT deleted.
+ * ADMIN-MERGE-REAL-1: free the removed account's logins once its data is on the kept account and verified. mergeAccount (real) has
+ * already revoked its sessions and disabled it BEFORE its final check; this DELETES the Auth user, so its phone / email / Google
+ * provider can be added to the kept account. Why delete and not just unset the phone: a disabled user still owns its email and provider
+ * links, and Firebase will not let the student add them elsewhere. The account's Firestore data is NOT deleted.
  * Idempotent: an already-removed user is fine.
  */
 async function retireAccount({ auth, uid }) {
-  const gone = (e) => !!e && e.code === 'auth/user-not-found';
-  try {
-    await auth.revokeRefreshTokens(uid);
-    await auth.updateUser(uid, { disabled: true });
-  } catch (e) {
-    if (gone(e)) return { removed: true, already: true };
-    throw e;
-  }
   try {
     await auth.deleteUser(uid);
   } catch (e) {
-    if (gone(e)) return { removed: true, already: true };
+    if (e && e.code === 'auth/user-not-found') return { removed: true, already: true };
     throw e;
   }
   return { removed: true, already: false };
 }
 
-/** Does this account hold anything of its own besides purchases (a real student's data, or top-up credit)? Read-only. */
+/** PUT-ON-THIS-ACCOUNT-1: does this account hold anything of its own besides purchases (a real student's data, or top-up credit)? */
 async function hasOwnActivity(db, uid) {
   for (const c of ACTIVITY_COLLECTIONS) if (await hasAnything(db, c, uid)) return true;
   return hasAnything(db, CREDIT_COLLECTION, uid);
 }
 
-module.exports = { mergeAccount, hasOwnActivity, retireAccount, REAL_REASON, AUTO_ACCOUNT_UID_PREFIX, MERGE_REASON };
+module.exports = { mergeAccount, hasOwnActivity, retireAccount, REAL_REASON, AUTO_ACCOUNT_UID_PREFIX, MERGE_REASON, BUYER_REASON };
