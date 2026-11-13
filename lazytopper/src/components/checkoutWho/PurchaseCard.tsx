@@ -37,11 +37,15 @@ export interface PurchaseCardProps {
   proof: AttachProof;
   /** The attach choice below the card is still open (only the sheet knows; the server's own `attached` answers otherwise). */
   onHide?: () => void;
+  /** Hide the card's own "Payment received" line (the sheet's attach step already says it above). Default off. */
+  hidePaymentLine?: boolean;
+  /** Fold the files (and the "saved to" line) into one "Your files (N) - Show" line. Default off. */
+  filesFolded?: boolean;
   /** Test seams. */
   fetchReceiptImpl?: typeof fetchReceipt;
 }
 
-export default function PurchaseCard({ proof, onHide, fetchReceiptImpl = fetchReceipt }: PurchaseCardProps) {
+export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, filesFolded = false, fetchReceiptImpl = fetchReceipt }: PurchaseCardProps) {
   const [receipt, setReceipt] = useState<ReceiptOutcome | null>(null);
   const [files, setFiles] = useState<Files>({ phase: "idle" });
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -112,6 +116,7 @@ export default function PurchaseCard({ proof, onHide, fetchReceiptImpl = fetchRe
     }
   }
 
+  const payLine = hidePaymentLine ? null : <p className="lt-rcpt__ok" role="status">{RECEIPT_PAYMENT_RECEIVED}</p>;
   const hide = onHide ? (
     <button type="button" className="lt-rcpt__hide" onClick={onHide} data-testid="receipt-hide">
       {RECEIPT_HIDE}
@@ -121,7 +126,7 @@ export default function PurchaseCard({ proof, onHide, fetchReceiptImpl = fetchRe
   if (!receipt) {
     return (
       <section className="lt-rcpt" data-testid="purchase-card" aria-busy="true">
-        <p className="lt-rcpt__ok" role="status">{RECEIPT_PAYMENT_RECEIVED}</p>
+        {payLine}
         <p className="lt-rcpt__line">{RECEIPT_LOADING}</p>
       </section>
     );
@@ -129,7 +134,7 @@ export default function PurchaseCard({ proof, onHide, fetchReceiptImpl = fetchRe
   if (receipt.status === "failed") {
     return (
       <section className="lt-rcpt" data-testid="purchase-card">
-        <p className="lt-rcpt__ok" role="status">{RECEIPT_PAYMENT_RECEIVED}</p>
+        {payLine}
         <p className="lt-rcpt__line" data-testid="receipt-failed">{RECEIPT_FAILED}</p>
         <button type="button" className="lt-rcpt__btn" onClick={() => void load()}>{RECEIPT_RETRY}</button>
         {hide}
@@ -139,25 +144,55 @@ export default function PurchaseCard({ proof, onHide, fetchReceiptImpl = fetchRe
   if (receipt.status === "expired") {
     return (
       <section className="lt-rcpt" data-testid="purchase-card">
-        <p className="lt-rcpt__ok" role="status">{RECEIPT_PAYMENT_RECEIVED}</p>
+        {payLine}
         <p className="lt-rcpt__line" data-testid="receipt-expired">{receiptExpired(receipt.savedTo)}</p>
         {hide}
       </section>
     );
   }
+  const fileCount = files.phase === "ready" ? files.groups.reduce((n, g) => n + g.files.length, 0) : 0;
   const saved = ok && ok.savedTo ? (ok.attached ? receiptSavedTo(ok.savedTo) : receiptSavedToPending(ok.savedTo)) : "";
   if (ok && ok.kind === "pass") {
     return (
       <section className="lt-rcpt" data-testid="purchase-card">
-        <p className="lt-rcpt__ok" role="status">{RECEIPT_PAYMENT_RECEIVED}</p>
+        {payLine}
         <p className="lt-rcpt__title" data-testid="receipt-title">{RECEIPT_PASS_TITLE}</p>
         {hide}
       </section>
     );
   }
+  const groupsEl = (
+    <>
+      {files.phase === "ready" &&
+  files.groups.map((g) => {
+    const list = (
+      <ul className="lt-rcpt__files">
+        {g.files.map((f) => (
+          <li key={f.id}>
+            <span>{f.label}</span>
+            <button type="button" className="lt-rcpt__btn lt-rcpt__btn--small" disabled={busyId !== null} onClick={() => void download(f)} data-testid="receipt-download">
+              {busyId === f.id ? progress ?? "Preparing PDF…" : failedId === f.id ? "Retry" : savedIds.has(f.id) ? "Saved ✓" : "Download"}
+            </button>
+            {failedId === f.id && <span className="lt-rcpt__bad" role="alert">That didn&rsquo;t work. Try again.</span>}
+          </li>
+        ))}
+      </ul>
+    );
+    return files.groups.length === 1 ? (
+      <div key={g.group}>{list}</div>
+    ) : (
+      <details key={g.group} className="lt-rcpt__grp">
+        <summary>{g.group} <span className="lt-rcpt__meta">{g.files.length} {g.files.length === 1 ? "file" : "files"}</span></summary>
+        {list}
+      </details>
+    );
+  })}
+    </>
+  );
+  const savedEl = saved && licensee ? <p className="lt-rcpt__fine" data-testid="receipt-saved">{saved}</p> : null;
   return (
     <section className="lt-rcpt" data-testid="purchase-card">
-      <p className="lt-rcpt__ok" role="status">{RECEIPT_PAYMENT_RECEIVED}</p>
+      {payLine}
       <p className="lt-rcpt__title" data-testid="receipt-title">{pack ? receiptPackTitle(meCardPackTitle(pack)) : "Your pack"}</p>
       {pack && !licensee && (
         <p className="lt-rcpt__line" data-testid="receipt-no-contact">{receiptExpired(ok?.savedTo ?? "")}</p>
@@ -169,31 +204,18 @@ export default function PurchaseCard({ proof, onHide, fetchReceiptImpl = fetchRe
           <button type="button" className="lt-rcpt__link" onClick={() => void buildFiles()}>{RECEIPT_RETRY}</button>
         </p>
       )}
-      {files.phase === "ready" &&
-        files.groups.map((g) => {
-          const list = (
-            <ul className="lt-rcpt__files">
-              {g.files.map((f) => (
-                <li key={f.id}>
-                  <span>{f.label}</span>
-                  <button type="button" className="lt-rcpt__btn lt-rcpt__btn--small" disabled={busyId !== null} onClick={() => void download(f)} data-testid="receipt-download">
-                    {busyId === f.id ? progress ?? "Preparing PDF…" : failedId === f.id ? "Retry" : savedIds.has(f.id) ? "Saved ✓" : "Download"}
-                  </button>
-                  {failedId === f.id && <span className="lt-rcpt__bad" role="alert">That didn&rsquo;t work. Try again.</span>}
-                </li>
-              ))}
-            </ul>
-          );
-          return files.groups.length === 1 ? (
-            <div key={g.group}>{list}</div>
-          ) : (
-            <details key={g.group} className="lt-rcpt__grp">
-              <summary>{g.group} <span className="lt-rcpt__meta">{g.files.length} {g.files.length === 1 ? "file" : "files"}</span></summary>
-              {list}
-            </details>
-          );
-        })}
-      {saved && licensee && <p className="lt-rcpt__fine" data-testid="receipt-saved">{saved}</p>}
+      {filesFolded && files.phase === "ready" ? (
+        <details className="lt-rcpt__fold" data-testid="receipt-files-fold">
+          <summary className="lt-rcpt__foldsum" data-testid="receipt-files-summary">Your files ({fileCount}) &middot; Show</summary>
+          {groupsEl}
+          {savedEl}
+        </details>
+      ) : (
+        <>
+          {groupsEl}
+          {savedEl}
+        </>
+      )}
       {hide}
     </section>
   );

@@ -13,3 +13,5 @@
 .lt-rcpt__btn:disabled { opacity: 0.6; cursor: default; }
 .lt-rcpt__link, .lt-rcpt__hide { background: none; border: none; padding: 0; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; min-height: 44px; align-self: flex-start; }
 .lt-rcpt__bad { color: hsl(0, 60%, 40%); font-size: 13px; }
+.lt-rcpt__fold { display: flex; flex-direction: column; gap: 8px; }
+.lt-rcpt__foldsum { min-height: 44px; display: flex; align-items: center; font-weight: 600; font-size: 15px; cursor: pointer; }

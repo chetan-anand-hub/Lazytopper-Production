@@ -14,6 +14,7 @@
 .lt-who__choice { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; min-height: 64px; margin-top: 10px; padding: 12px 14px; border: 1.5px solid #c7d0dd; border-radius: 14px; background: #fff; color: inherit; font: inherit; text-align: left; cursor: pointer; box-sizing: border-box; }
 .lt-who__choice strong { font-size: 16px; }
 .lt-who__choice small { font-size: 13px; opacity: 0.8; }
+.lt-who__notice { margin: 4px 0; padding: 12px 14px; border: 1px solid #f0d9a8; border-left: 4px solid #e0a526; border-radius: 12px; background: #fff7e6; color: #5c4400; font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; }
 .lt-who__note { margin: 10px 0 0; padding: 10px 12px; border: 1px solid #f0d9a8; border-radius: 12px; background: #fff7e6; color: #5c4400; font-size: 13px; }
 .lt-who__warn { margin: 0 0 10px; padding: 10px 12px; border: 1px solid #f1c2c2; border-radius: 12px; background: #fdecec; color: #7a1f1f; font-size: 14px; }
 .lt-who__tag { display: inline-block; align-self: flex-start; padding: 4px 10px; border-radius: 999px; background: #15233a; color: #fff; font-size: 12px; font-weight: 600; }
