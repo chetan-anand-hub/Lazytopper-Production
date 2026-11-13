@@ -14,6 +14,8 @@ import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 
 export const PACK_FILE_LINK_ENDPOINT = "/api/packs/file-link";
 export const PACK_ZIP_LINK_ENDPOINT = "/api/packs/zip-link";
+/** GUEST-ZIP-1: the signed-out buyer's whole-pack ZIP; proof = the receipt's (order id, payment id, Razorpay signature), no sign-in. */
+export const GUEST_ZIP_LINK_ENDPOINT = "/api/pay/guest/zip-link";
 /** How long the browser waits for a link before it builds the file itself. */
 export const SERVER_LINK_TIMEOUT_MS = 20_000;
 /** A ZIP of a cold chapter is stamped file by file on the server and can take well over 20 s: it waits longer (the button says "Preparing" meanwhile). */
@@ -121,4 +123,9 @@ export function requestFileLink(packId: string, fileId: string, deps: LinkDeps =
 
 export function requestZipLink(packId: string, group: string, deps: LinkDeps = {}): Promise<LinkResult<ServerZipLink>> {
   return post(PACK_ZIP_LINK_ENDPOINT, { packId, group }, readZip, { timeoutMs: SERVER_ZIP_TIMEOUT_MS, ...deps });
+}
+
+/** GUEST-ZIP-1: ONE ZIP of the whole pack for a signed-out buyer. The pack, licensee and files all come from the stored order on the server. */
+export function requestGuestZipLink(proof: { orderId: string; paymentId: string; signature: string }, deps: LinkDeps = {}): Promise<LinkResult<ServerZipLink>> {
+  return post(GUEST_ZIP_LINK_ENDPOINT, { orderId: proof.orderId, paymentId: proof.paymentId, signature: proof.signature }, readZip, { timeoutMs: SERVER_ZIP_TIMEOUT_MS, headers: async () => ({}), ...deps });
 }

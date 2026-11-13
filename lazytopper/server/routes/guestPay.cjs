@@ -99,6 +99,8 @@ const {
 } = require('../services/guestPay.cjs');
 // GST-INVOICE-1 (DARK): the buyer's confirmed state on the order, and the tax invoice after a verified capture.
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
+const { isServerPdfDisabled } = require('./packs.cjs'); // GUEST-ZIP-1: the same kill switch as the signed-in links
+const { ZIP_ALL_GROUP } = require('../services/packPdfService.cjs');
 const { isPlaceholderAddress } = require('../services/paymentReceiptEmail.cjs');
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('../services/packGrant.cjs');
 
@@ -111,6 +113,8 @@ const GUEST_ATTACH_PATH = '/api/pay/guest/attach';
 const GUEST_RECEIPT_PATH = '/api/pay/guest/receipt';
 /** PAID-SHOWS-1: how long after the payment time (guestPaidAt; paidAt only if absent) the signed-out receipt is answered. */
 const RECEIPT_WINDOW_MS = 24 * 60 * 60 * 1000;
+/** GUEST-ZIP-1 - one ZIP of the whole pack for a signed-out buyer. Same proof and window as the receipt. */
+const GUEST_ZIP_LINK_PATH = '/api/pay/guest/zip-link';
 /** SELFPAY-ATTACH-1 (owner 12 Nov 2026: "make it 10 mins"): how long a paid attach order waits for its payer's choice. */
 const ATTACH_HOLD_MS = 10 * 60 * 1000;
 
@@ -265,7 +269,7 @@ function createGuestPayLimiters({ telemetry, now } = {}) {
     client: createRateLimiter({
       telemetry,
       now,
-      paidEndpoints: { [GUEST_ORDER_PATH]: 'guestPay', [GUEST_VERIFY_PATH]: 'guestPay', [GUEST_ATTACH_PATH]: 'guestPay', [GUEST_RECEIPT_PATH]: 'guestPay' },
+      paidEndpoints: { [GUEST_ORDER_PATH]: 'guestPay', [GUEST_VERIFY_PATH]: 'guestPay', [GUEST_ATTACH_PATH]: 'guestPay', [GUEST_RECEIPT_PATH]: 'guestPay', [GUEST_ZIP_LINK_PATH]: 'guestPay' },
       limits: {
         [ANONYMOUS_CLASS]: { soft: Math.ceil(MAX_GUEST_CALLS_PER_CLIENT_PER_DAY / 2), hard: MAX_GUEST_CALLS_PER_CLIENT_PER_DAY },
       },
@@ -309,6 +313,7 @@ function createGuestPayRoutes(deps = {}) {
     now = () => Date.now(),
     foundingOfferOpen,
     receiptEmailer, // PAY-PHONE-1 (A): optional, fire and forget, idempotent per payment
+    packPdf, // GUEST-ZIP-1: the SERVER-PDF-1 service ({ zipLink }); absent -> the guest ZIP is 404
     invoicer, // GST-INVOICE-1: optional { issueForPayment, config }; absent or off -> nothing changes
     /**
      * Owner ruling 2 Nov 2026 (prevent duplicates): async (e164) => boolean - does ANY Firebase account already use this
@@ -1470,6 +1475,76 @@ function createGuestPayRoutes(deps = {}) {
     return afterRecipientPaid({ orderId, paymentId });
   }
 
+  /* ── POST /api/pay/guest/zip-link (GUEST-ZIP-1) - one ZIP of the WHOLE pack, for a signed-out buyer ──────────────────── */
+  /**
+   * Body { orderId, paymentId, signature }. Auth = EXACTLY /receipt's (signed out, Razorpay's checkout signature for this payment, a
+   * guest order for it, already paid, inside the same 24 h window). A PACK order only. The pack, the owned list and the licensee
+   * (the recipient contact, MASKED) are rebuilt from the stored order exactly as /receipt does - nothing is taken from the request.
+   * The files are stamped under a synthetic `guest_<orderId>` path (no account exists), and NO download event is recorded (there is
+   * no uid to record it against). Answers the signed-in link's shape: { ok, url, filename, files, papers, ... }.
+   */
+  async function handleZipLink(req, res) {
+    if (!isCheckoutWhoEnabled(env) && !isGuestPayEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
+    if (isServerPdfDisabled(env) || !packPdf || typeof packPdf.zipLink !== 'function') return sendJson(res, 404, NOT_FOUND_BODY);
+    if (!admitGuestCall(req, res, 'zip_link', GUEST_ZIP_LINK_PATH)) return undefined;
+    const keys = readKeys();
+    if (!keys.keyId || !keys.keySecret) return unavailable(res);
+    const body = await readJsonBody(req, res);
+    if (!body) return undefined;
+    const orderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
+    const paymentId = typeof body.paymentId === 'string' ? body.paymentId.trim() : '';
+    const signature = typeof body.signature === 'string' ? body.signature.trim() : '';
+    if (!ID_PATTERN.test(orderId) || !ID_PATTERN.test(paymentId) || !HEX_PATTERN.test(signature)) return reject(res, 'zip_link', 'malformed');
+    if (await payerUidOf(req)) return reject(res, 'zip_link', 'requires_signed_out', 409);
+    if (!isCheckoutSignatureValid({ orderId, paymentId, signature, keySecret: keys.keySecret })) return reject(res, 'zip_link', 'bad_signature');
+    let order;
+    try {
+      const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).get();
+      order = snap && snap.exists ? snap.data() || {} : null;
+    } catch (e) {
+      emit('payments.guest.zip_link.store_read_failed');
+      console.error('[pay/guest/zip-link] read failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not read the order.' });
+    }
+    if (!order || order.payer !== GUEST_PAYER || typeof order.paymentId !== 'string' || order.paymentId !== paymentId) return reject(res, 'zip_link', 'unknown_order');
+    if (order.status !== GUEST_STATUS.paidUnclaimed && order.status !== GUEST_STATUS.claimed && order.status !== GUEST_STATUS.paid) return reject(res, 'zip_link', 'not_paid', 409);
+    const sku = typeof order.passType === 'string' ? order.passType : '';
+    const target = isPackProduct(sku) ? validateTarget(sku, order.packTarget) : null;
+    if (!isPackProduct(sku) || target === null) return reject(res, 'zip_link', 'unknown_order');
+    let paidMs = timeMs(order.guestPaidAt);
+    if (!Number.isFinite(paidMs)) paidMs = timeMs(order.paidAt);
+    if (!Number.isFinite(paidMs) || now() >= paidMs + RECEIPT_WINDOW_MS) {
+      emit('payments.guest.zip_link.expired');
+      return sendJson(res, 403, { ok: false, error: 'expired' });
+    }
+    // The licensee: the recipient contact, masked, exactly as /receipt shows it (phone first unless the payer typed the email first).
+    const phoneMasked = typeof order.guestPhone === 'string' && order.guestPhone ? maskIndianMobile(order.guestPhone) : '';
+    const emailMasked = typeof order.guestEmail === 'string' && order.guestEmail ? maskEmail(order.guestEmail) : '';
+    const contact = emailMasked && (!phoneMasked || order.recipientFirst === 'email') ? emailMasked : phoneMasked;
+    if (!contact) return reject(res, 'zip_link', 'no_contact');
+    const packId = packIdFor(sku, target);
+    try {
+      const link = await packPdf.zipLink({
+        uid: `guest_${orderId}`,
+        buyer: { name: '', contact },
+        owned: [{ packId, sku, target, pricePaidInr: 0, paidAt: paidMs, orderId }],
+        packId,
+        groupId: ZIP_ALL_GROUP,
+        boardPass: null,
+      });
+      emit('payments.guest.zip_link.issued');
+      return sendJson(res, 200, { ok: true, ...link });
+    } catch (e) {
+      const code = e && e.code;
+      if (code === 'not_ready') return sendJson(res, 503, { ok: false, error: 'not_ready' });
+      if (code === 'busy') return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
+      if (code === 'unknown_file' || code === 'unknown_group') return sendJson(res, 404, { ok: false, error: code });
+      emit('payments.guest.zip_link.failed');
+      console.error('[pay/guest/zip-link] failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not prepare your file.' });
+    }
+  }
+
   /* ── POST /api/pay/guest/receipt (PAID-SHOWS-1) - "once somebody has paid, show them what they got" ─────────────────── */
   /**
    * Body { orderId, paymentId, signature }. Signed out only. Auth = EXACTLY /attach's: Razorpay's checkout signature (the same
@@ -1677,7 +1752,7 @@ function createGuestPayRoutes(deps = {}) {
     });
   }
 
-  return { handleOrder, handleVerify, handleClaim, handleAttach, handleReceipt, afterRecipientPaid, findOrCreateAccount, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
+  return { handleOrder, handleVerify, handleClaim, handleAttach, handleReceipt, handleZipLink, afterRecipientPaid, findOrCreateAccount, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
 }
 
 module.exports = {
@@ -1706,6 +1781,7 @@ module.exports = {
   GUEST_ATTACH_PATH,
   GUEST_RECEIPT_PATH,
   RECEIPT_WINDOW_MS,
+  GUEST_ZIP_LINK_PATH,
   ATTACH_HOLD_MS,
   isSelfAttachDisabled,
   GUEST_PASS_SKU,

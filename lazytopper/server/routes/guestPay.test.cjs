@@ -28,6 +28,7 @@ const {
   GUEST_ORDER_PATH,
   GUEST_ATTACH_PATH,
   GUEST_RECEIPT_PATH,
+  GUEST_ZIP_LINK_PATH,
   RECEIPT_WINDOW_MS,
   ATTACH_HOLD_MS,
   GUEST_VERIFY_PATH,
@@ -185,7 +186,7 @@ function fakeRazorpay() {
 
 
 /* ── guest routes AND the existing payment routes (webhook), behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts, nowMs = NOW } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts, packPdf, nowMs = NOW } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -203,7 +204,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     async resolveVerifiedUid(req) { return identityOf(req).uid; },
     async resolveVerifiedIdentity(req) { return identityOf(req); },
   };
-  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts });
+  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, packPdf, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts });
   // CHECKOUT-WHO-2: the webhook runs the guest routes' recipient delivery, wired exactly as index.cjs does.
   const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, afterGuestPaid: (x) => guest.afterRecipientPaid(x) });
   const table = {
@@ -212,6 +213,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     [GUEST_CLAIM_PATH]: guest.handleClaim,
     [GUEST_ATTACH_PATH]: guest.handleAttach,
     [GUEST_RECEIPT_PATH]: guest.handleReceipt,
+    [GUEST_ZIP_LINK_PATH]: guest.handleZipLink,
     [PAY_ORDER_PATH]: pay.handleOrder,
     [PAY_VERIFY_PATH]: pay.handleVerify,
     [PAY_WEBHOOK_PATH]: pay.handleWebhook,
@@ -2591,4 +2593,94 @@ test('WA-OPTIN · an attacker-supplied consentText / consentVersion / source in 
     assert.equal(w.source, 'checkout');
     assert.notEqual(w.consentAt, 1);
   }
+});
+
+
+/* ══ GUEST-ZIP-1 (13 Nov 2026): one ZIP of the whole pack for a signed-out buyer - POST /api/pay/guest/zip-link ═════════════════ */
+function fakePackPdf() {
+  const calls = [];
+  const recorded = [];
+  return {
+    calls,
+    recorded,
+    async zipLink(args) {
+      calls.push(args);
+      return { url: 'https://storage.example/z.zip', expiresAtMs: NOW + 900000, filename: 'lazytopper-pack-cbq-maths.zip', files: [{ fileId: 'f1', filename: 'a.pdf', label: 'A', codes: ['C1'] }], papers: [] };
+    },
+    async recordDownloads(uid, n) { recorded.push([uid, n]); },
+  };
+}
+const zipLink = (srv, paid, extra = {}, headers = {}) =>
+  request(srv.port, GUEST_ZIP_LINK_PATH, { body: { orderId: paid.orderId, paymentId: paid.paymentId, signature: checkoutSig(paid.orderId, paid.paymentId), ...extra }, headers });
+async function zipRoutes(t, over = {}) {
+  const packPdf = fakePackPdf();
+  const { srv } = await autoRoutes({ env: SELF_ENV, packPdf, ...over });
+  t.after(srv.close);
+  return { srv, packPdf };
+}
+
+test('GUEST-ZIP · a valid guest proof gets ONE whole-pack ZIP link; owned + masked licensee are rebuilt from the ORDER, stamped under guest_<orderId>, nothing recorded', async (t) => {
+  const { srv, packPdf } = await zipRoutes(t);
+  const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  // a hostile body cannot choose the pack, the group or the licensee
+  const r = await zipLink(srv, paid, { packId: 'pack_bundle:all', group: 'x', uid: 'u9', licensee: { name: 'Evil' } });
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.ok, true);
+  assert.equal(r.json.url, 'https://storage.example/z.zip');
+  assert.equal(packPdf.calls.length, 1);
+  const a = packPdf.calls[0];
+  assert.equal(a.uid, `guest_${paid.orderId}`);
+  assert.equal(a.packId, 'pack_cbq:maths');
+  assert.equal(a.groupId, '__all__');
+  assert.deepEqual(a.buyer, { name: '', contact: maskIndianMobile(PHONE) });
+  assert.equal(a.boardPass, null);
+  assert.deepEqual(a.owned, [{ packId: 'pack_cbq:maths', sku: 'pack_cbq', target: 'maths', pricePaidInr: 0, paidAt: NOW, orderId: paid.orderId }]);
+  assert.equal(JSON.stringify(a).includes('9876543948'), false, 'never the full number');
+  assert.deepEqual(packPdf.recorded, [], 'no download event: there is no uid to record it against');
+});
+
+test('GUEST-ZIP · a wrong signature, another payment id, an unpaid order, a signed-in caller, a Board Pass order: refused, no ZIP made', async (t) => {
+  const { srv, packPdf } = await zipRoutes(t);
+  const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  const bad = await request(srv.port, GUEST_ZIP_LINK_PATH, { body: { orderId: paid.orderId, paymentId: paid.paymentId, signature: 'ab'.repeat(32) } });
+  assert.equal(bad.status, 400);
+  const other = await request(srv.port, GUEST_ZIP_LINK_PATH, { body: { orderId: paid.orderId, paymentId: 'pay_other', signature: checkoutSig(paid.orderId, 'pay_other') } });
+  assert.equal(other.status, 400);
+  const unpaidOrder = await attachSelf(srv, { sku: 'pack_cbq', target: 'maths' });
+  assert.equal((await zipLink(srv, { orderId: unpaidOrder.json.orderId, paymentId: 'pay_x' })).status, 400);
+  assert.equal((await zipLink(srv, paid, {}, signedIn('u1'))).status, 409);
+  const pass = await paidAttach(srv);
+  assert.equal((await zipLink(srv, pass)).status, 400, 'a Board Pass order has no pack to zip');
+  assert.equal(packPdf.calls.length, 0);
+});
+
+test('GUEST-ZIP · the 24 h window: open at +23:59:59.999, refused (403 expired) at +24:00:00', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  const p1 = fakePackPdf();
+  const inside = await startRoutes({ env: SELF_ENV, db, packPdf: p1, nowMs: NOW + RECEIPT_WINDOW_MS - 1 });
+  t.after(inside.close);
+  assert.equal((await zipLink(inside, paid)).status, 200);
+  const p2 = fakePackPdf();
+  const edge = await startRoutes({ env: SELF_ENV, db, packPdf: p2, nowMs: NOW + RECEIPT_WINDOW_MS });
+  t.after(edge.close);
+  const r = await zipLink(edge, paid);
+  assert.equal(r.status, 403);
+  assert.deepEqual(r.json, { ok: false, error: 'expired' });
+  assert.equal(p2.calls.length, 0);
+});
+
+test('GUEST-ZIP · no PDF service, or the kill switch PACK_SERVER_PDF_DISABLED: 404, nothing made', async (t) => {
+  const none = await autoRoutes({ env: SELF_ENV });
+  t.after(none.srv.close);
+  const paid = await paidAttach(none.srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  assert.equal((await zipLink(none.srv, paid)).status, 404);
+  const packPdf = fakePackPdf();
+  const off = await autoRoutes({ env: { ...SELF_ENV, PACK_SERVER_PDF_DISABLED: '1' }, packPdf });
+  t.after(off.srv.close);
+  const paid2 = await paidAttach(off.srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  assert.equal((await zipLink(off.srv, paid2)).status, 404);
+  assert.equal(packPdf.calls.length, 0);
 });
