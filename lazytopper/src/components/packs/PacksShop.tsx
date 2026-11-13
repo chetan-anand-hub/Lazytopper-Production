@@ -1,6 +1,4 @@
 import { Suspense, lazy, type MutableRefObject, type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import GstStateLine from "../gstInvoice/GstStateLine";
-import { gstStateFieldOn } from "../../services/gstBuyerOrder";
 import { resetOwnedPacksCache } from "./useOwnedPacks";
 import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -61,6 +59,7 @@ const CheckoutSheet = lazy(() => import("../checkoutWho/CheckoutSheet"));
 const PurchaseCard = lazy(() => import("../checkoutWho/PurchaseCard"));
 import { resolvePaidBoardPass, usePaidPremium } from "../../lib/packs/usePaidPremium";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
+import PostPayGstLazy from "../gstInvoice/PostPayGstLazy";
 import PaidSheetLazy, { paidSheetEnabled, paidSheetReceiptLine, preloadPaidSheet } from "../checkoutWho/PaidSheetLazy";
 import { maskEmail as maskReceiptEmail } from "../../lib/maskContact";
 // PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
@@ -141,40 +140,6 @@ function packCheckoutDetails(sku: PackSku, target: string | undefined): PackChec
 
 /** Student input that ends the #my-packs scroll re-assert: we never fight a deliberate scroll. */
 const MY_PACKS_USER_EVENTS = ["wheel", "touchstart", "keydown"] as const;
-
-/**
- * GST-FU-1 F2 (owner-approved follow-up, 7 Nov 2026) - true when the SIGNED-IN buyer's state + PIN is already on record (or was
- * picked with "Change" on this page), i.e. the order step will ask nothing and Razorpay would open straight away, covering the
- * "State: X · Change" line. A `?buy=` auto-start then stops at the Pay step instead (the line and the total visible, focus on
- * Pay: one tap to Razorpay). Call it ONLY with VITE_GST_STATE_FIELD on: it loads the state module and reads the same cached
- * checkout context the line above Pay reads. False on any doubt (the auto-start then runs as today and the order step asks).
- * Never throws. Also used by PassCheckout (Board Pass ?buy=board_pass).
- */
-export async function hasRememberedGstBuyer(): Promise<boolean> {
-  try {
-    const g = await import("../../services/gstBuyer");
-    const owner = g.ownerTag(await g.currentAuthUid());
-    if (!owner) return false;
-    if (g.isCompleteGstBuyer(g.getSessionGstBuyer(owner))) return true;
-    const { authHeaders } = await import("../../services/checkout");
-    const ctx = await g.loadGstContext(await authHeaders(), undefined, owner);
-    return g.isCompleteGstBuyer(ctx.remembered);
-  } catch {
-    return false;
-  }
-}
-
-/** GST-FU-1 F2 - focus a Pay button once it is on the page (a lazy pop-up may still be mounting). Gives up after ~1.5 s. */
-export function focusPayWhenShown(find: () => HTMLElement | null | undefined, tries = 30): void {
-  if (typeof window === "undefined") return;
-  const el = find();
-  if (el && el.isConnected) {
-    el.scrollIntoView?.({ block: "center" });
-    el.focus();
-    return;
-  }
-  if (tries > 0) window.setTimeout(() => focusPayWhenShown(find, tries - 1), 50);
-}
 
 const loadPackDialog = () => import("../../pages/PackDialog");
 const PackDialog = lazy(() => import("../../pages/PackDialog"));
@@ -275,6 +240,8 @@ interface BuyState {
   /** SIGNED-IN-MOVE-1: the paid order and its plain name, so the "Who will use this?" card can move it. */
   orderId?: string;
   item?: string;
+  /** GST-AFTER-PAY-1: this order was made WITHOUT a pre-pay state step, so the paid screen (sheet or inline) must ask for it. */
+  postPay?: boolean;
   /** PAID-SHEET-1: the plain pack name for the pop-up (always set on a confirmed paid outcome, with or without an order id). */
   name?: string;
   /** The purchase was moved to the child's own account: this tab must stop showing it as the buyer's. */
@@ -644,15 +611,10 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     return stop;
   }, [location.hash, mine, myPacksMounted, signedOutMine, bridgeSettled, sheetHold]);
 
-  /** GST-FU-1 review F4: a ?buy= resume held at the pop-up's Pay (remembered state) - the pack and the link's source. */
-  const heldResume = useRef<{ key: string; from?: PackCheckoutFrom } | null>(null);
   async function handleBuy(sku: PackSku, target: string | undefined, opts: { resumed?: boolean; from?: PackCheckoutFrom; fromWho?: boolean } = {}) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
-    // GST-FU-1 review F4: the tap that completes a ?buy= link held at Pay keeps that link's `resumed` mark and its source.
-    const held = heldResume.current && heldResume.current.key === packIdOf(sku, target) ? heldResume.current : null;
-    heldResume.current = null;
-    const resumed = opts.resumed === true || held !== null;
-    const from = opts.from ?? held?.from ?? (sku === "pack_chapter" && sampleChapterBuy.current ? "sample" : undefined);
+    const resumed = opts.resumed === true;
+    const from = opts.from ?? (sku === "pack_chapter" && sampleChapterBuy.current ? "sample" : undefined);
     // Review fix 1 (double charge): this very pack was just paid, or its payment is still confirming - never a second order.
     if (settling(packIdOf(sku, target))) return;
     if (!signedIn) {
@@ -695,7 +657,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const attemptId = newCheckoutAttemptId();
     trackPackCheckout(details, { signedIn: true, resumed, attemptId, ...(from ? { from } : {}) });
     if (sheetOnRef.current) preloadPaidSheet(); // warm the post-payment pop-up chunk at the Pay tap
-    const outcome = await buyPack(sku, target, { chapterName: target ? chapterLabel(target) : undefined });
+    // GST-AFTER-PAY-1: only when the paid pop-up is up (it mounts the GST block for an order id) is the state step left out of the pre-pay.
+    const postPay = sheetOnRef.current;
+    const outcome = await buyPack(sku, target, { chapterName: target ? chapterLabel(target) : undefined, ...(postPay ? { postPay: true } : {}) });
     // PURCHASE-EVENT-1: a server-verified payment is counted even if the shop unmounted while Razorpay was open
     // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.
     if (outcome.status === "paid") {
@@ -705,7 +669,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     if (!mounted.current && outcome.status !== "pending") return;
     if (outcome.status === "paid") {
       const packName = parentPackName(sku, target, target ? chapterLabel(target) : undefined);
-      setBuy({ key, phase: "paid", name: packName, ...(outcome.orderId ? { orderId: outcome.orderId, item: packName } : {}) });
+      setBuy({ key, phase: "paid", name: packName, ...(outcome.orderId ? { orderId: outcome.orderId, item: packName, ...(postPay ? { postPay: true } : {}) } : {}) });
       // PAID-SHEET-1: a signed-in buyer sees the "Payment received" pop-up first; My packs scrolls into view when it closes.
       if (sheetOnRef.current) setSheetOpen(true);
       await loadMine();
@@ -736,7 +700,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       if (!mounted.current) return;
       if (settled) {
         const packName = parentPackName(sku, target, target ? chapterLabel(target) : undefined);
-        setBuy({ key, phase: "paid", name: packName, ...(settledOrderId ? { orderId: settledOrderId, item: packName } : {}) });
+        setBuy({ key, phase: "paid", name: packName, ...(settledOrderId ? { orderId: settledOrderId, item: packName, ...(postPay ? { postPay: true } : {}) } : {}) });
         if (sheetOnRef.current) setSheetOpen(true); // PAID-SHEET-1: pending -> paid by polling opens the same pop-up
         await loadMine();
       } else {
@@ -799,22 +763,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     requestCounts(want.sku === "pack_chapter" ? want.target : undefined);
     if (mine === null) return;
     const start = () => void handleBuyRef.current(want.sku, want.target, { resumed: true, ...(from ? { from } : {}) });
-    // GST-FU-1 F2: flag off -> exactly as before (no await, no import).
-    if (!gstStateFieldOn()) {
-      start();
-      return;
-    }
-    // Flag on: a remembered state + PIN -> stop at the pop-up's Pay ("State: X · Change" and the total above it, focus on
-    // Pay; one tap to Razorpay). Nothing remembered -> start as today (the order step asks state + PIN).
-    void hasRememberedGstBuyer().then((remembered) => {
-      if (!mounted.current) return;
-      if (!remembered) {
-        start();
-        return;
-      }
-      heldResume.current = { key: packIdOf(want.sku, want.target), ...(from ? { from } : {}) };
-      focusPayWhenShown(() => document.querySelector<HTMLElement>(`[role="dialog"] [data-testid="packs-buy-${want.sku}"]`));
-    });
+    // GST-AFTER-PAY-1: no state + PIN step before Razorpay on any checkout, so the one-tap start never waits for one.
+    start();
   }, [authLoading, user, enabled, mine, mineError, mineSlow, location.search, location.pathname, location.hash, navigate, requestCounts]);
 
   // PAY-PHONE-1 - a SIGNED-OUT visitor on a one-tap `?buy=` link (with paying-by-phone on): strip the params first, open the
@@ -901,8 +851,6 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const off = !enabled || !ready || (isOwned && !ownerCard) || busy || confirming || blocked;
     return (
       <>
-        {/* GST-INVOICE-1 (D4): a signed-in buyer's remembered state above Pay (nothing while the flag is off). */}
-        {signedIn && enabled && ready && !isOwned && <GstStateLine />}
         {/* WHATSAPP-OPTIN-1: number + tick ABOVE Buy; no extra tap; Buy works with it empty. */}
         {enabled && ready && !isOwned && <WhatsAppOptInCheckout testIdPrefix="packs-wa" />}
         <button
@@ -1210,6 +1158,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             </p>
           )}
           {/* LINK-SIGNIN-1: only on a confirmed paid outcome, for a signed-in buyer; last, so nothing above it moves. */}
+          {/* GST-AFTER-PAY-1: the pop-up is off or failed after an order made without a pre-pay state step: the same block, inline. */}
+          {buy.phase === "paid" && !sheetOn && buy.postPay && buy.orderId && <PostPayGstLazy orderId={buy.orderId} />}
           {buy.phase === "paid" && !sheetOn && <SigninLinkCardLazy signedIn={signedIn} onMoved={() => { resetOwnedPacksCache(); setBuy((b) => ({ ...b, moved: true })); void loadMine(); }} {...(buy.orderId ? { move: { orderId: buy.orderId, item: buy.item ?? "" } } : {})} />}
         </div>
       )}

@@ -88,7 +88,7 @@ describe("MONEY-DUPGUARD-1 · PassCheckoutView", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
     await screen.findByTestId("pass-checkout-paid");
-    expect(props.onBuy).toHaveBeenCalledWith("till_boards");
+    expect(props.onBuy).toHaveBeenCalledWith("till_boards", { postPay: true });
     expect(screen.queryByTestId("pass-checkout-already-covered")).toBeNull();
   });
 });

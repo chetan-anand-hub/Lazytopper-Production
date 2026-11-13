@@ -348,7 +348,7 @@ describe("PAID-SHOWS-1 - the purchase card is the first block of the paid screen
   it("signed out, attach flow: the card (from the receipt) sits BELOW 'Who will use it?', and the proof is kept in this tab only", async () => {
     sessionStorage.clear();
     answer({ ok: true, attached: false, savedTo: "+91 98•••••210", item: { kind: "pass", label: "Board Pass" } });
-    mount({ buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF })) });
+    mount({ buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF, gstProof: PROOF })) });
     await payToWho();
     const card = await screen.findByTestId("purchase-card");
     expect(fetchMock.mock.calls[0][0]).toBe("/api/pay/guest/receipt");
@@ -397,7 +397,7 @@ describe("POSTPAY-WHO-FIRST-1 - the choice comes first, the files fold into one 
 
   it("one 'Payment received' line, then the 10-minute notice ABOVE Me / My child, then the buttons", async () => {
     answer({ ok: true, attached: false, savedTo: "+91 98•••••210", item: { kind: "pass", label: "Board Pass" } });
-    mount({ buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF })) });
+    mount({ buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF, gstProof: PROOF })) });
     await payToWho();
     await screen.findByTestId("receipt-title");
     expect(screen.getAllByText(/Payment received/)).toHaveLength(1);
@@ -414,7 +414,7 @@ describe("POSTPAY-WHO-FIRST-1 - the choice comes first, the files fold into one 
   it("the files are one folded line 'Your files (N) · Show' below the choice, and open out once the payer has chosen", async () => {
     built.files = [mk("a", "Real Numbers"), mk("b", "Real Numbers"), mk("c", "Polynomials")];
     answer(PACK_RECEIPT);
-    mount({ item: CBQ, buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF })) });
+    mount({ item: CBQ, buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF, gstProof: PROOF })) });
     await payToWho();
     const fold = await screen.findByTestId("receipt-files-fold");
     expect(screen.getByTestId("receipt-files-summary").textContent).toBe("Your files (3) · Show");
@@ -428,5 +428,31 @@ describe("POSTPAY-WHO-FIRST-1 - the choice comes first, the files fold into one 
     fireEvent.click(screen.getByTestId("attach-me-yes"));
     await waitFor(() => expect(screen.queryByTestId("receipt-files-fold")).toBeNull());
     expect(screen.getAllByTestId("receipt-download").length).toBe(3);
+  });
+});
+
+describe("GST-AFTER-PAY-1 - 'For your GST invoice' on the paid screen", () => {
+  it("flag on: it sits BELOW the Me / My child choice and the files line, never blocks the choice, and saves with the receipt proof", async () => {
+    vi.stubEnv("VITE_GST_STATE_FIELD", "1");
+    built.files = [];
+    answer({ ok: true, attached: false, savedTo: "+91 98•••••210", item: { kind: "pass", label: "Board Pass" } });
+    fetchMock.mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, ipStateCode: null, remembered: null }) });
+    mount({ buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF, gstProof: PROOF })) });
+    await payToWho();
+    const block = await screen.findByTestId("postpay-gst");
+    expect(screen.getByTestId("attach-choose-other").compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByTestId("receipt-title").compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // the choice still works with the block untouched
+    fireEvent.click(screen.getByTestId("attach-choose-me"));
+    expect(screen.getByTestId("attach-me-yes")).toBeTruthy();
+  });
+
+  it("flag off: no block at all", async () => {
+    vi.stubEnv("VITE_GST_STATE_FIELD", "");
+    answer({ ok: true, attached: false, savedTo: "+91 98•••••210", item: { kind: "pass", label: "Board Pass" } });
+    mount({ buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF, gstProof: PROOF })) });
+    await payToWho();
+    await screen.findByTestId("receipt-title");
+    expect(screen.queryByTestId("postpay-gst")).toBeNull();
   });
 });

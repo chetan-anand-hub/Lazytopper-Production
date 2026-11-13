@@ -151,3 +151,25 @@ describe("PassCheckout paid -> PaidSheet", () => {
     expect(screen.queryByTestId("paid-sheet")).toBeNull();
   });
 });
+
+describe("PaidSheet - GST-AFTER-PAY-1", () => {
+  it("flag on: 'For your GST invoice' shows for an order the host knows (move.orderId) and not otherwise; flag off: never", async () => {
+    vi.stubEnv("VITE_GST_STATE_FIELD", "1");
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, ipStateCode: null, remembered: null }) })));
+    const base = { surface: "packs", itemKind: "pack" as const, itemName: "Bundle", primaryLabel: "Download files", onPrimary: vi.fn(), onClose: vi.fn(), onFail: vi.fn() };
+    render(<PaidSheetLazy {...base} move={{ orderId: "order_7", item: "Bundle" }} />);
+    expect(await screen.findByTestId("postpay-gst")).toBeTruthy();
+    cleanup();
+    render(<PaidSheetLazy {...base} />);
+    await screen.findByTestId("paid-sheet");
+    await settle();
+    expect(screen.queryByTestId("postpay-gst")).toBeNull();
+    cleanup();
+    vi.stubEnv("VITE_GST_STATE_FIELD", "");
+    render(<PaidSheetLazy {...base} move={{ orderId: "order_7", item: "Bundle" }} />);
+    await screen.findByTestId("paid-sheet");
+    await settle();
+    expect(screen.queryByTestId("postpay-gst")).toBeNull();
+    vi.unstubAllGlobals();
+  });
+});

@@ -99,6 +99,7 @@ const {
 } = require('../services/guestPay.cjs');
 // GST-INVOICE-1 (DARK): the buyer's confirmed state on the order, and the tax invoice after a verified capture.
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
+const { createGstOrderDetails } = require('../services/gstOrderDetails.cjs'); // GST-AFTER-PAY-1
 const { isServerPdfDisabled } = require('./packs.cjs'); // GUEST-ZIP-1: the same kill switch as the signed-in links
 const { ZIP_ALL_GROUP } = require('../services/packPdfService.cjs');
 const { isPlaceholderAddress } = require('../services/paymentReceiptEmail.cjs');
@@ -111,6 +112,8 @@ const GUEST_CLAIM_PATH = '/api/pay/guest/claim';
 const GUEST_ATTACH_PATH = '/api/pay/guest/attach';
 /** PAID-SHOWS-1 - the payer's receipt: what they bought, so the paid screen can show it (and its downloads) before any sign-in. */
 const GUEST_RECEIPT_PATH = '/api/pay/guest/receipt';
+/** GST-AFTER-PAY-1 - the payer's state + PIN for the GST invoice, given after paying. Same proof as the receipt. */
+const GUEST_GST_DETAILS_PATH = '/api/pay/guest/gst-details';
 /** PAID-SHOWS-1: how long after the payment time (guestPaidAt; paidAt only if absent) the signed-out receipt is answered. */
 /** GUEST-ZIP-1: ZIPs per guest order per hour (parity with packs.cjs ZIPS_PER_HOUR). */
 const GUEST_ZIPS_PER_HOUR = 30;
@@ -271,7 +274,7 @@ function createGuestPayLimiters({ telemetry, now } = {}) {
     client: createRateLimiter({
       telemetry,
       now,
-      paidEndpoints: { [GUEST_ORDER_PATH]: 'guestPay', [GUEST_VERIFY_PATH]: 'guestPay', [GUEST_ATTACH_PATH]: 'guestPay', [GUEST_RECEIPT_PATH]: 'guestPay', [GUEST_ZIP_LINK_PATH]: 'guestPay' },
+      paidEndpoints: { [GUEST_ORDER_PATH]: 'guestPay', [GUEST_VERIFY_PATH]: 'guestPay', [GUEST_ATTACH_PATH]: 'guestPay', [GUEST_RECEIPT_PATH]: 'guestPay', [GUEST_GST_DETAILS_PATH]: 'guestPay', [GUEST_ZIP_LINK_PATH]: 'guestPay' },
       limits: {
         [ANONYMOUS_CLASS]: { soft: Math.ceil(MAX_GUEST_CALLS_PER_CLIENT_PER_DAY / 2), hard: MAX_GUEST_CALLS_PER_CLIENT_PER_DAY },
       },
@@ -337,6 +340,8 @@ function createGuestPayRoutes(deps = {}) {
     authAccounts,
   } = deps;
   const limiters = deps.limiters || createGuestPayLimiters({ telemetry, now });
+  // GST-AFTER-PAY-1: the post-payment state + PIN (issues through the SAME invoicer; the invoice email goes through the receipt emailer).
+  const gstOrderDetails = deps.gstOrderDetails || (adminFirestore ? createGstOrderDetails({ adminFirestore, invoicer, mailer: receiptEmailer }) : null);
 
   /** GST-INVOICE-1 - the buyer's confirmed state (+ PIN / business) for the stored order; {} when none. Never refuses. */
   function gstBuyerFields(body) {
@@ -1630,6 +1635,60 @@ function createGuestPayRoutes(deps = {}) {
     });
   }
 
+  /* ── POST /api/pay/guest/gst-details (GST-AFTER-PAY-1) - the payer's state + PIN, after paying ──────────────────────── */
+  /**
+   * Body { orderId, paymentId, signature, stateCode, pin, business? }. Auth = EXACTLY /receipt's: signed out, Razorpay's checkout
+   * signature, a guest order for THIS payment, already paid, and inside the same 24 h window. Writes `gstBuyer` on the order only
+   * while it has no invoice, then issues it (gstOrderDetails). Never changes ownership, the attach choice or the grant.
+   * Answers { ok, status: 'invoiced' | 'details_saved' } | { ok:false, reason:'expired' } | 400 { error:'bad_input', field }.
+   */
+  async function handleGstDetails(req, res) {
+    if (!isCheckoutWhoEnabled(env) && !isGuestPayEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
+    // The same switch as the signed-in route: invoicing off = dark (404), nothing is read or written.
+    if (!/^(1|true|on|yes)$/i.test(String((env && env.GST_INVOICE_ENABLED) || '').trim())) return sendJson(res, 404, NOT_FOUND_BODY);
+    if (!admitGuestCall(req, res, 'gst_details', GUEST_GST_DETAILS_PATH)) return undefined;
+    const keys = readKeys();
+    if (!keys.keyId || !keys.keySecret) return unavailable(res);
+    const body = await readJsonBody(req, res);
+    if (!body) return undefined;
+    const orderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
+    const paymentId = typeof body.paymentId === 'string' ? body.paymentId.trim() : '';
+    const signature = typeof body.signature === 'string' ? body.signature.trim() : '';
+    if (!ID_PATTERN.test(orderId) || !ID_PATTERN.test(paymentId) || !HEX_PATTERN.test(signature)) return reject(res, 'gst_details', 'malformed');
+    if (await payerUidOf(req)) return reject(res, 'gst_details', 'requires_signed_out', 409);
+    if (!isCheckoutSignatureValid({ orderId, paymentId, signature, keySecret: keys.keySecret })) return reject(res, 'gst_details', 'bad_signature');
+    if (!gstOrderDetails) return unavailable(res);
+    const windowMs = { expired: false };
+    const out = await gstOrderDetails.submit({
+      orderId,
+      raw: { stateCode: body.stateCode, pin: body.pin, business: body.business },
+      authorize: (order) => {
+        if (order.payer !== GUEST_PAYER) return false;
+        // Razorpay signed this payment but the server has not recorded it yet (a slow confirm): nothing is written (the service answers
+        // 'unpaid' -> 409 not_paid) and the page tries again shortly.
+        if (typeof order.paymentId !== 'string' || !order.paymentId) return true;
+        if (order.paymentId !== paymentId) return false;
+        let paidMs = timeMs(order.guestPaidAt);
+        if (!Number.isFinite(paidMs)) paidMs = timeMs(order.paidAt);
+        if (!Number.isFinite(paidMs) || now() >= paidMs + RECEIPT_WINDOW_MS) {
+          windowMs.expired = true;
+          return false;
+        }
+        return true;
+      },
+    });
+    if (out.error === 'bad_input') return sendJson(res, 400, { ok: false, error: 'bad_input', field: out.field });
+    if (out.error === 'forbidden' && windowMs.expired) {
+      emit('payments.guest.gst_details.expired');
+      return sendJson(res, 200, { ok: false, reason: 'expired' });
+    }
+    if (out.error === 'forbidden' || out.error === 'unknown_order') return reject(res, 'gst_details', 'unknown_order');
+    if (out.error === 'unpaid') return reject(res, 'gst_details', 'not_paid', 409);
+    if (out.error) return sendJson(res, 500, { ok: false, error: 'Could not save your details.' });
+    emit(`payments.guest.gst_details.${out.status}`);
+    return sendJson(res, 200, { ok: true, status: out.status });
+  }
+
   /* ── POST /api/pay/guest/claim — the verified phone (or verified email) takes its paid orders ── */
   async function handleClaim(req, res) {
     if (!isPaymentsEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
@@ -1766,7 +1825,7 @@ function createGuestPayRoutes(deps = {}) {
     });
   }
 
-  return { handleOrder, handleVerify, handleClaim, handleAttach, handleReceipt, handleZipLink, afterRecipientPaid, findOrCreateAccount, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
+  return { handleOrder, handleVerify, handleClaim, handleAttach, handleReceipt, handleGstDetails, handleZipLink, afterRecipientPaid, findOrCreateAccount, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
 }
 
 module.exports = {
@@ -1794,6 +1853,7 @@ module.exports = {
   GUEST_CLAIM_PATH,
   GUEST_ATTACH_PATH,
   GUEST_RECEIPT_PATH,
+  GUEST_GST_DETAILS_PATH,
   RECEIPT_WINDOW_MS,
   GUEST_ZIP_LINK_PATH,
   ATTACH_HOLD_MS,

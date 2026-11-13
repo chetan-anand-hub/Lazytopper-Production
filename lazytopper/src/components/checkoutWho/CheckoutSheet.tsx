@@ -16,7 +16,6 @@
  *
  * Nothing here grants anything. What the payer typed never goes into a URL, storage or an analytics event.
  */
-import GstStateLine from "../gstInvoice/GstStateLine";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { newCheckoutAttemptId, trackNamedEvent } from "../../analytics/analytics";
@@ -73,6 +72,8 @@ import "./checkoutSheet.css";
 
 // PAID-SHOWS-1: the purchase card is its own lazy chunk inside the sheet's.
 const PurchaseCard = lazy(() => import("./PurchaseCard"));
+// GST-AFTER-PAY-1: "For your GST invoice" on the paid screens (guest proof only; nothing renders with the flag off).
+const PostPayGst = lazy(() => import("../gstInvoice/PostPayGst"));
 
 /**
  * `priceDisplay` is the amount CHARGED (it is what the Pay button names). GST-EXCL-1: `priceBreakdown` is the GST breakup shown
@@ -200,6 +201,9 @@ export default function CheckoutSheet({
   // PAID-SHOWS-1: Razorpay's signed proof of a VERIFIED signed-out payment -> the purchase card, first on the paid screen.
   const [receipt, setReceipt] = useState<AttachProof | null>(null);
   const [receiptHidden, setReceiptHidden] = useState(false);
+  // GST-AFTER-PAY-1: a SIGNED-IN payer buying for someone else has no receipt proof; the account route takes the verified order id.
+  const [gstProof, setGstProof] = useState<AttachProof | null>(null); // the signed-out payer's proof for the GST block, kept even when /verify failed
+  const [accountGstOrder, setAccountGstOrder] = useState<string | null>(null);
   const onAttachTitle = useCallback((t: string) => setAttachTitle(t), []);
   const onAttachSettled = useCallback((v: boolean) => setAttachSettled(v), []);
   const [first, setFirst] = useState("");
@@ -267,6 +271,8 @@ export default function CheckoutSheet({
         storeReceiptProof(outcome.receipt);
         setReceipt(outcome.receipt);
       }
+      if (signedIn && outcome.orderId) setAccountGstOrder(outcome.orderId);
+      if (!signedIn && outcome.gstProof) setGstProof(outcome.gstProof);
       setStep({ name: "paid", recipient, confirmed: outcome.confirmed });
     } else if (outcome.status === "already_covered") {
       setStep({ name: "covered" });
@@ -297,6 +303,7 @@ export default function CheckoutSheet({
         storeReceiptProof(outcome.receipt);
         setReceipt(outcome.receipt);
       }
+      if (outcome.gstProof) setGstProof(outcome.gstProof);
       // SELFPAY-ATTACH-1: the server holds this order until the payer says who it is for.
       if (outcome.attach && outcome.confirmed && showAttach) setStep({ name: "attach", proof: outcome.attach, contact: outcome.contact });
       else setStep(outcome.contact ? { name: "paid", recipient: outcome.contact, confirmed: outcome.confirmed } : { name: "paidSelf", confirmed: outcome.confirmed });
@@ -357,7 +364,6 @@ export default function CheckoutSheet({
     body = (
       <>
         <p className="lt-gps__line" data-testid="who-self">{selfLine(selfMasked)}</p>
-        <GstStateLine />
         <button
           type="button"
           className="lt-gps__primary"
@@ -439,7 +445,6 @@ export default function CheckoutSheet({
         {secondError && <p className="lt-gps__error" role="alert" data-testid="who-second-error">{secondError}</p>}
         {error && <p className="lt-gps__error" role="alert">{error}</p>}
         {step.name === "form" && step.closed && <p className="lt-gps__fine" role="status">{WHO_CLOSED}</p>}
-        {signedIn && <GstStateLine />}
         <button type="submit" className="lt-gps__primary lt-who__pay" disabled={busy || !recipient} data-testid="who-pay">
           {busy ? "Opening payment…" : payReadBack(item.priceDisplay, first)}
         </button>
@@ -574,6 +579,16 @@ export default function CheckoutSheet({
           {showReceipt && receipt && step.name === "attach" && (
             <Suspense fallback={null}>
               <PurchaseCard proof={receipt} onHide={() => setReceiptHidden(true)} hidePaymentLine filesFolded={!attachSettled} />
+            </Suspense>
+          )}
+          {(step.name === "attach" || step.name === "paid" || step.name === "paidSelf") && gstProof && (
+            <Suspense fallback={null}>
+              <PostPayGst target={{ kind: "guest", proof: gstProof }} />
+            </Suspense>
+          )}
+          {step.name === "paid" && accountGstOrder && (
+            <Suspense fallback={null}>
+              <PostPayGst target={{ kind: "account", orderId: accountGstOrder }} />
             </Suspense>
           )}
         </div>

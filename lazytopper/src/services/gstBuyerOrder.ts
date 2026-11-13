@@ -50,10 +50,18 @@ export function resetPressForTests(): void {
 }
 if (gstStateFieldOn()) armPressCapture();
 
-/** `{ gstBuyer }` for an order body ({} when off; a lazy `authHeaders` is then never called). Throws the dialog's cancel error when the buyer cancels. */
+/**
+ * GST-AFTER-PAY-1 (owner 13 Nov 2026): the state + PIN the GST invoice needs are asked on the PAID screen (components/gstInvoice/PostPayGst)
+ * instead of before Razorpay, BUT ONLY for a caller that passes `{ postPay: true }`, and a caller may do that only from a host proven to
+ * mount the block (CheckoutSheet's attach / paid steps; PaidSheet when it has an order id; see gstAfterPay.test.tsx's caller table).
+ * Every other caller keeps the old pre-pay "Your state" dialog, so no order is left without its invoice details.
+ * Kept as the one door every order function calls.
+ */
 export async function gstBuyerOrderFields(
   authHeaders: Record<string, string> | (() => Promise<Record<string, string>>) | null = null,
+  opts: { postPay?: boolean } = {},
 ): Promise<{ gstBuyer?: GstBuyer }> {
+  if (opts.postPay === true) return {};
   if (!gstStateFieldOn()) return {};
   const headers = typeof authHeaders === "function" ? await authHeaders().catch(() => null) : authHeaders;
   const m = await import("./gstBuyer");
