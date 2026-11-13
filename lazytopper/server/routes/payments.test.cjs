@@ -2361,3 +2361,14 @@ test('WA-OPTIN · the number is not sent to Razorpay (no notes) and never logged
   assert.equal(JSON.stringify(sent.body).includes('9876543948'), false);
   assert.equal(seen.some((l) => l.includes('9876543948')), false);
 });
+
+test('WA-OPTIN · signed-in order: an attacker-supplied consentText / version / source / consentAt is ignored; the stored text is the server constant', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const out = await createOrder(srv, 'u9', 'till_boards', { waOptIn: { phone: '9876543210', consent: true, consentText: 'I agree to anything', consentVersion: 'evil', source: 'admin', consentAt: 1 } });
+  const w = srv.db.read(`payOrders/${out.orderId}`).waOptIn;
+  assert.equal(w.consentText, 'Send me updates on WhatsApp');
+  assert.equal(w.consentVersion, 'wa-optin-v1');
+  assert.equal(w.source, 'checkout');
+  assert.equal(w.consentAt, NOW);
+});

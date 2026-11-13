@@ -6,7 +6,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { WA_OPTIN_ENDPOINT, WA_OPTIN_LABEL, WA_OPTIN_VERSION, postSampleOptIn, setPendingWaOptIn, waOptInOrderFields, waTenDigits } from "./waOptIn";
-import { createSelfOrder } from "./checkoutWho";
+import { createSelfOrder, createWhoOrder } from "./checkoutWho";
+import { createGuestOrder } from "./guestPay";
 import { createPackOrder, createPayOrder } from "./checkout";
 
 vi.mock("./firebaseClient", () => ({ authClient: { currentUser: { getIdToken: async () => "tok" } } }));
@@ -62,6 +63,21 @@ describe("the pending opt-in on order-create bodies", () => {
     await createSelfOrder({ kind: "pack", sku: "pack_cbq", target: "maths", label: "x", description: "x" });
     expect(calls.map((c) => c.url)).toEqual(["/api/pay/order", "/api/pay/order", "/api/pay/guest/order"]);
     for (const c of calls) expect(c.body.waOptIn).toEqual({ phone: "9876543210", consent: true });
+  });
+
+  it("review: the pay-by-phone and the 'someone else' guest orders carry it too (the payer's own number, beside the recipient)", async () => {
+    setPendingWaOptIn("9876543210");
+    const calls = stubFetch();
+    const item = { kind: "pack" as const, sku: "pack_cbq", target: "maths", label: "x", description: "x" };
+    await createGuestOrder(item, "9123456780");
+    await createWhoOrder(item, { phone: "+919123456780", first: "phone" }, false);
+    expect(calls).toHaveLength(2);
+    for (const c of calls) expect(c.body.waOptIn).toEqual({ phone: "9876543210", consent: true });
+    setPendingWaOptIn(null);
+    const none = stubFetch();
+    await createGuestOrder(item, "9123456780");
+    await createWhoOrder(item, { phone: "+919123456780", first: "phone" }, false);
+    for (const c of none) expect("waOptIn" in c.body).toBe(false);
   });
 
   it("cleared -> back to nothing; it is memory only (no storage keys written)", () => {

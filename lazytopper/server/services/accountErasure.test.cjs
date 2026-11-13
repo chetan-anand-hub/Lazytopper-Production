@@ -1002,6 +1002,52 @@ test('WHATSAPP-OPTIN-1: erasure clears the order\'s waOptIn (the WhatsApp number
   assert.equal(Object.prototype.hasOwnProperty.call(store.docs.get('payOrders/order_A'), 'waOptIn'), false);
 });
 
+test('WHATSAPP-OPTIN-1 (review M1): the guestPhone sweep clears waOptIn on an unclaimed order and deletes the account\'s waOptIns row; another number\'s row stays', async () => {
+  const crypto = require('node:crypto');
+  const PHONE = '+919876543948';
+  const row = (p) => `waOptIns/${crypto.createHash('sha256').update(p).digest('hex')}`;
+  const wa = { phone: PHONE, consentText: 'Send me updates on WhatsApp', consentVersion: 'wa-optin-v1', consentAt: 1, source: 'checkout' };
+  const seed = {
+    ...realSeed(),
+    'payOrders/order_P1': { uid: null, payer: 'guest', guestPhone: PHONE, passType: 'pack_mock', amountPaise: 9900, status: 'paid_unclaimed', paymentId: 'pay_P1', waOptIn: wa },
+    'payOrders/order_P2': { uid: null, payer: 'guest', guestPhone: PHONE, passType: 'pack_cbq', amountPaise: 9900, status: 'created', waOptIn: wa },
+    [row(PHONE)]: { phone: PHONE, packIds: ['pack_cbq:maths'], lastAt: 1, source: 'sample' },
+    [row('+917012345678')]: { phone: '+917012345678', packIds: [], lastAt: 1, source: 'sample' },
+  };
+  const store = makeFirestore(seed);
+  const admin = makeAdmin(makeBucket([]), [UID, OTHER]);
+  const baseAuth = admin.auth;
+  admin.auth = () => ({ ...baseAuth(), getUser: async (uid) => ({ uid, phoneNumber: uid === UID ? PHONE : null }) });
+  const result = await createAccountErasureService({ firebaseAdmin: admin, adminFirestore: store.db, resolveBucketName: () => 'test-bucket' }).eraseAccount(UID);
+  assert.equal(result.ok, true);
+  assert.equal(store.docs.get('payOrders/order_P1').waOptIn, null);
+  assert.equal(store.docs.get('payOrders/order_P1').guestPhone, null);
+  assert.equal(store.docs.get('payOrders/order_P1').paymentId, 'pay_P1');
+  assert.equal(store.docs.get('payOrders/order_P2').waOptIn, null);
+  assert.equal(store.docs.has(row(PHONE)), false, 'the sample opt-in row of the account\'s phone is deleted');
+  assert.equal(store.docs.has(row('+917012345678')), true, 'another number\'s row is untouched');
+});
+
+test('WHATSAPP-OPTIN-1 (review M1): the guestEmail sweep clears waOptIn too (unclaimed AND another account\'s order)', async () => {
+  const EMAIL = 'Child.K@Gmail.com';
+  const wa = { phone: '+919876543948', consentText: 'Send me updates on WhatsApp', consentVersion: 'wa-optin-v1', consentAt: 1, source: 'checkout' };
+  const seed = {
+    ...realSeed(),
+    'payOrders/order_E1': { uid: null, payer: 'guest', checkoutWho: true, guestEmail: 'child.k@gmail.com', passType: 'till_boards', amountPaise: 191700, status: 'paid_unclaimed', paymentId: 'pay_E1', waOptIn: wa },
+    'payOrders/order_E2': { uid: OTHER, payer: 'guest', checkoutWho: true, guestEmail: 'child.k@gmail.com', passType: 'pack_cbq', amountPaise: 19900, status: 'paid', paymentId: 'pay_E2', waOptIn: wa },
+  };
+  const store = makeFirestore(seed);
+  const admin = makeAdmin(makeBucket([]), [UID, OTHER]);
+  const baseAuth = admin.auth;
+  admin.auth = () => ({ ...baseAuth(), getUser: async (uid) => ({ uid, email: uid === UID ? EMAIL : null, emailVerified: true }) });
+  const result = await createAccountErasureService({ firebaseAdmin: admin, adminFirestore: store.db, resolveBucketName: () => 'test-bucket' }).eraseAccount(UID);
+  assert.equal(result.ok, true);
+  assert.equal(store.docs.get('payOrders/order_E1').waOptIn, null);
+  assert.equal(store.docs.get('payOrders/order_E1').guestEmail, null);
+  assert.equal(store.docs.get('payOrders/order_E2').waOptIn, null, 'review: the sweep that only removes the erased address also removes the number typed with it');
+  assert.equal(store.docs.get('payOrders/order_E2').status, 'paid');
+});
+
 test('GUEST-ABANDON-1 review D3 + D2: erasure clears guestEmail on the account\'s guest orders, deletes its guest email ledger, KEEPS its stop record', async () => {
   const EMAIL = 'Child.K@Gmail.com';
   const { emailKey } = require('./emailSuppression.cjs');

@@ -453,6 +453,7 @@ export async function createWhoOrder(item: GuestItem, recipient: Recipient, sign
       ...(item.kind === "pack" && item.target ? { target: item.target } : {}),
       recipient: { ...(recipient.phone ? { phone: recipient.phone } : {}), ...(recipient.email ? { email: recipient.email } : {}), first: recipient.first },
       ...gst,
+      ...waOptInOrderFields(), // WHATSAPP-OPTIN-1: the payer's own number + tick, never the recipient's
     },
     headers,
   );

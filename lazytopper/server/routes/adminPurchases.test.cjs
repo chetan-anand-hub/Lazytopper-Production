@@ -806,3 +806,14 @@ test('WHATSAPP-OPTIN-1: the admin gate refuses (403) before the opt-in reads too
   assert.equal(r2.body.waSampleOptIns, null);
   assert.equal(r2.body.items.length, 1);
 });
+
+test('WHATSAPP-OPTIN-1 review: a PAID purchase row never carries the WhatsApp number (raw phone only on abandoned rows)', async () => {
+  const orders = [paid('p1', 'u1', 'till_boards', 1917, 1000, { waOptIn: { phone: '+919876543948', consentText: 'x', consentVersion: 'wa-optin-v1', consentAt: NOW, source: 'checkout' } })];
+  const { route } = harness({ orders });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 200);
+  assert.equal(res.body.items.length, 1);
+  assert.equal(res.body.items[0].waOptIn, undefined);
+  assert.equal(JSON.stringify(res.body.items).includes('9876543948'), false);
+  assert.deepEqual(res.body.abandoned.items, [], 'a paid order is not an abandoned row either');
+});

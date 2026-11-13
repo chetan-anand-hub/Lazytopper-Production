@@ -64,7 +64,8 @@ const { __internals: qrInternals } = require('./qrUploadChannel.cjs');
 // own path, so this walker stays free of ids. See resweepAfterAuth below.
 const { ACTIVITY_DAYS_PATH_TEMPLATE } = require('../routes/studentActivity.cjs');
 const { emailKey } = require('./emailSuppression.cjs'); // GUEST-ABANDON-1 review D2/D3
-const { normaliseEmail } = require('./guestPay.cjs');
+const { normaliseEmail, normaliseIndianMobile } = require('./guestPay.cjs');
+const { WA_OPTIN_COLLECTION, optInDocId } = require('./waOptIn.cjs'); // WHATSAPP-OPTIN-1
 const RESWEEP_AFTER_AUTH_PATHS = new Set([ACTIVITY_DAYS_PATH_TEMPLATE]);
 
 /**
@@ -440,8 +441,21 @@ async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone, 
       const data = typeof doc.data === 'function' ? doc.data() || {} : {};
       // Review fix 10: a PAID order nobody claimed can now never be claimed (its key is gone): mark it
       // `erased_unclaimed` - paymentId kept - an information label the owner sees in admin purchases.
-      await doc.ref.update(data.status === 'paid_unclaimed' ? { guestPhone: null, status: 'erased_unclaimed' } : { guestPhone: null });
+      const waClear = data.waOptIn ? { waOptIn: null } : {}; // WHATSAPP-OPTIN-1: the order's WhatsApp number + consent go too
+      await doc.ref.update(data.status === 'paid_unclaimed' ? { guestPhone: null, status: 'erased_unclaimed', ...waClear } : { guestPhone: null, ...waClear });
       phoneCleared += 1;
+    }
+  }
+  // WHATSAPP-OPTIN-1 - free-sample opt-ins are keyed by sha256(E.164) with no uid: the account's own phone number finds its row.
+  if (typeof phone === 'string' && phone) {
+    const e164 = normaliseIndianMobile(phone);
+    if (e164) {
+      const ref = db.collection(WA_OPTIN_COLLECTION).doc(optInDocId(e164));
+      const snap = await ref.get();
+      if (snap && snap.exists) {
+        await ref.delete();
+        phoneCleared += 1;
+      }
     }
   }
   // GUEST-ABANDON-1 review D3 - the same for a "Who will use it?" order bought with this account's EMAIL address
@@ -458,11 +472,11 @@ async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone, 
       // Review D8: an order that already belongs to ANOTHER account keeps its phone and status; only this erased
       // address is removed from it.
       if (data.uid !== null && data.uid !== undefined) {
-        await doc.ref.update({ guestEmail: null });
+        await doc.ref.update({ guestEmail: null, ...(data.waOptIn ? { waOptIn: null } : {}) });
         emailCleared += 1;
         continue;
       }
-      const clear = { guestEmail: null, ...(data.guestPhone ? { guestPhone: null } : {}) };
+      const clear = { guestEmail: null, ...(data.guestPhone ? { guestPhone: null } : {}), ...(data.waOptIn ? { waOptIn: null } : {}) };
       await doc.ref.update(data.status === 'paid_unclaimed' ? { ...clear, status: 'erased_unclaimed' } : clear);
       emailCleared += 1;
     }

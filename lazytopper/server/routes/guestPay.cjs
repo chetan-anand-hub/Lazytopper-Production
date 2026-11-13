@@ -574,6 +574,7 @@ function createGuestPayRoutes(deps = {}) {
         amountPaise: quote.amountPaise,
         ...gstOrderFields(quote),
         ...gstBuyerFields(body),
+        ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: valid number + explicit tick only
         offerKey: quote.offerKey,
         status: GUEST_STATUS.created,
         createdAt: new Date(now()),
@@ -755,6 +756,7 @@ function createGuestPayRoutes(deps = {}) {
       amountPaise: quote.amountPaise,
       ...gstOrderFields(quote),
       ...gstBuyerFields(body),
+      ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: the visitor's own WhatsApp number (not the recipient's); valid + ticked only
       offerKey: quote.offerKey,
       status: GUEST_STATUS.created,
       createdAt: new Date(now()),
