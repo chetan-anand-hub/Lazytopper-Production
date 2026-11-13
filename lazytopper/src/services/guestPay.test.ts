@@ -78,6 +78,48 @@ describe("SELFPAY-ATTACH-HOLD-1 · a claim that finds an order still held", () =
   });
 });
 
+describe("PUT-ON-THIS-ACCOUNT-1 · the offer after a sign-in claim that found nothing", () => {
+  it("offers only when this tab holds a receipt proof AND the claim attached nothing AND the switch is on; otherwise nothing changes", async () => {
+    const show = vi.fn();
+    vi.doMock("../components/checkoutWho/PutOnAccountPrompt", () => ({ showPutOnAccountPrompt: show }));
+    const proofMod = await import("./paidReceiptProof");
+    const mod = await import("./guestPay");
+    const settle = () => new Promise((r) => setTimeout(r, 20));
+    // no proof: no offer
+    mod.resetGuestClaimSessionForTests();
+    await mod.claimOncePerSession("uA", { claim: async () => [] });
+    await settle();
+    expect(show).not.toHaveBeenCalled();
+    // proof + nothing attached: offered, for THIS uid
+    proofMod.storeReceiptProof({ orderId: "order_1", paymentId: "pay_1", signature: "ab".repeat(32) });
+    mod.resetGuestClaimSessionForTests();
+    await mod.claimOncePerSession("uB", { claim: async () => [] });
+    await settle();
+    expect(show).toHaveBeenCalledTimes(1);
+    expect(show).toHaveBeenCalledWith("uB");
+    // the claim attached something: no offer
+    show.mockClear();
+    mod.resetGuestClaimSessionForTests();
+    await mod.claimOncePerSession("uC", { claim: async () => [{ orderId: "o", kind: "pass", sku: "till_boards", target: null }] });
+    await settle();
+    expect(show).not.toHaveBeenCalled();
+    // a failed claim (null): no offer
+    mod.resetGuestClaimSessionForTests();
+    await mod.claimOncePerSession("uD", { claim: async () => null });
+    await settle();
+    expect(show).not.toHaveBeenCalled();
+    // kill switch
+    vi.stubEnv("VITE_PUT_ON_ACCOUNT_DISABLED", "1");
+    mod.resetGuestClaimSessionForTests();
+    await mod.claimOncePerSession("uE", { claim: async () => [] });
+    await settle();
+    expect(show).not.toHaveBeenCalled();
+    vi.unstubAllEnvs();
+    proofMod.clearReceiptProof();
+    vi.doUnmock("../components/checkoutWho/PutOnAccountPrompt");
+  });
+});
+
 function fakeRazorpay(outcome: "success" | "dismiss") {
   const seen: Record<string, unknown>[] = [];
   class FakeRazorpay {

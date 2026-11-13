@@ -80,6 +80,8 @@ const {
 } = require('./payments.cjs');
 const { grantPass, isStaleFoundingOrder, PassGrantInputError, PAYMENT_SEGMENTS } = require('../services/passGrant.cjs');
 const { grantPack, PackGrantInputError } = require('../services/packGrant.cjs');
+const { mergeAccount, hasOwnActivity } = require('../services/adminMergeAccount.cjs'); // PUT-ON-THIS-ACCOUNT-1
+const { MoveError } = require('../services/adminMovePurchase.cjs');
 const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, packIdFor } = require('../services/packProducts.cjs');
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
@@ -114,6 +116,9 @@ const GUEST_ATTACH_PATH = '/api/pay/guest/attach';
 const GUEST_RECEIPT_PATH = '/api/pay/guest/receipt';
 /** GST-AFTER-PAY-1 - the payer's state + PIN for the GST invoice, given after paying. Same proof as the receipt. */
 const GUEST_GST_DETAILS_PATH = '/api/pay/guest/gst-details';
+/** PUT-ON-THIS-ACCOUNT-1: a signed-in buyer who still holds the receipt proof puts the purchase on THIS account. */
+const GUEST_PROOF_CLAIM_PATH = '/api/pay/guest/claim-with-proof';
+const VIA_PUT_ON_ACCOUNT = 'put_on_account';
 /** PAID-SHOWS-1: how long after the payment time (guestPaidAt; paidAt only if absent) the signed-out receipt is answered. */
 /** GUEST-ZIP-1: ZIPs per guest order per hour (parity with packs.cjs ZIPS_PER_HOUR). */
 const GUEST_ZIPS_PER_HOUR = 30;
@@ -185,6 +190,10 @@ function isSelfPayDisabled(env = process.env) {
  * SELFPAY-ATTACH-1 - kill switch for "pay first, then choose who uses it". CHECKOUT_SELF_ATTACH_DISABLED=1: the `attach` marker is
  * ignored (a self order behaves exactly as before), POST /api/pay/guest/attach answers 404, and "already has" is generic again.
  */
+/** PUT-ON-THIS-ACCOUNT-1 kill switch (default ON: a brand-new route nothing else calls). */
+function isPutOnAccountDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.PUT_ON_ACCOUNT_DISABLED) || '').trim());
+}
 function isSelfAttachDisabled(env = process.env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.CHECKOUT_SELF_ATTACH_DISABLED) || '').trim());
 }
@@ -291,7 +300,7 @@ function createGuestPayLimiters({ telemetry, now } = {}) {
     claim: createRateLimiter({
       telemetry,
       now,
-      paidEndpoints: { [GUEST_CLAIM_PATH]: GUEST_CLAIM_CLASS },
+      paidEndpoints: { [GUEST_CLAIM_PATH]: GUEST_CLAIM_CLASS, [GUEST_PROOF_CLAIM_PATH]: GUEST_CLAIM_CLASS },
       limits: { [GUEST_CLAIM_CLASS]: { soft: Math.ceil(MAX_CLAIMS_PER_UID_PER_DAY / 2), hard: MAX_CLAIMS_PER_UID_PER_DAY } },
     }),
   };
@@ -1246,7 +1255,7 @@ function createGuestPayRoutes(deps = {}) {
       // exists so the payer can choose; the payer who signs in has chosen themselves - the same outcome as the hold's own fallback.
       // `matches` above already proved this caller IS that contact. Any other order (or claimant) still waits out the hold.
       const payerThemselves = order.selfPay === true && order.selfContactFrom === 'payment';
-      if (order.status === GUEST_STATUS.paidUnclaimed && !payerThemselves && now() < attachHoldEndsMs(order)) return null;
+      if (order.status === GUEST_STATUS.paidUnclaimed && !(payerThemselves && (via === 'claim' || via === VIA_PUT_ON_ACCOUNT)) && now() < attachHoldEndsMs(order)) return null;
       if (order.status === GUEST_STATUS.paidUnclaimed && (order.uid === null || order.uid === undefined)) {
         tx.set(ref, { uid, status: GUEST_STATUS.claimed, claimedAt: new Date(now()), claimAttempts: 1, ...(via && order.checkoutWho === true ? { claimedVia: via } : {}), ...(extra || {}) }, { merge: true });
         return { ...order, uid, status: GUEST_STATUS.claimed };
@@ -1641,6 +1650,102 @@ function createGuestPayRoutes(deps = {}) {
     });
   }
 
+  /* ── POST /api/pay/guest/claim-with-proof (PUT-ON-THIS-ACCOUNT-1) ─────────────────────────────────────────────────────── */
+  /**
+   * A buyer paid SIGNED OUT, then signed in with a DIFFERENT login than the paid-with contact, so the sign-in claim found nothing.
+   * The page still holds the receipt proof (orderId, paymentId, Razorpay's checkout signature). Body { orderId, paymentId, signature,
+   * preview? }. Auth = the receipt's (HMAC over orderId|paymentId, a guest order for THIS payment, the same 24 h window) PLUS a
+   * verified signed-in uid. Only the buyer's OWN purchase (selfPay) that is either still waiting (paid_unclaimed, not yet attached to
+   * someone) or was put on an account the server made at payment for exactly this order (`pay-`, no activity of its own) moves.
+   * An order already on a real account is never moved. `preview:true` writes nothing and says what a tap would do.
+   * The paid-with phone is NEVER moved onto this account (a number typed at a checkout is not proof of owning it).
+   */
+  async function handleClaimWithProof(req, res) {
+    if (isPutOnAccountDisabled(env) || !isPaymentsEnabled(env) || (!isCheckoutWhoEnabled(env) && !isGuestPayEnabled(env))) return sendJson(res, 404, NOT_FOUND_BODY);
+    const uid = await payerUidOf(req);
+    if (!uid) return sendJson(res, 401, { ok: false, error: 'unauthenticated' });
+    const verdict = limiters.claim.check(req, GUEST_PROOF_CLAIM_PATH, uid);
+    if (!verdict.allowed) {
+      emit('payments.guest.put_on_account.rate_limited');
+      return sendJson(res, 429, { ok: false, error: 'Too many attempts. Please try again tomorrow.' });
+    }
+    if (!adminFirestore) return unavailable(res);
+    const keys = readKeys();
+    if (!keys.keyId || !keys.keySecret) return unavailable(res);
+    const body = await readJsonBody(req, res);
+    if (!body) return undefined;
+    const orderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
+    const paymentId = typeof body.paymentId === 'string' ? body.paymentId.trim() : '';
+    const signature = typeof body.signature === 'string' ? body.signature.trim() : '';
+    if (!ID_PATTERN.test(orderId) || !ID_PATTERN.test(paymentId) || !HEX_PATTERN.test(signature)) return reject(res, 'put_on_account', 'malformed');
+    if (!isCheckoutSignatureValid({ orderId, paymentId, signature, keySecret: keys.keySecret })) return reject(res, 'put_on_account', 'bad_signature');
+
+    let order;
+    try {
+      const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).get();
+      order = snap && snap.exists ? snap.data() || {} : null;
+    } catch (e) {
+      emit('payments.guest.put_on_account.store_read_failed');
+      console.error('[pay/guest/claim-with-proof] read failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not read the order.' });
+    }
+    if (!order || order.payer !== GUEST_PAYER || order.selfPay !== true || typeof order.paymentId !== 'string' || order.paymentId !== paymentId) return reject(res, 'put_on_account', 'unknown_order');
+    const sku = typeof order.passType === 'string' ? order.passType : '';
+    const isPack = isPackProduct(sku);
+    if (isPack ? validateTarget(sku, order.packTarget) === null : sku !== GUEST_PASS_SKU) return reject(res, 'put_on_account', 'unknown_order');
+    let paidMs = timeMs(order.guestPaidAt);
+    if (!Number.isFinite(paidMs)) paidMs = timeMs(order.paidAt);
+    if (!Number.isFinite(paidMs) || now() >= paidMs + RECEIPT_WINDOW_MS) return sendJson(res, 200, { ok: false, reason: 'expired' });
+
+    // What a tap would do. Checked here (preview) and again INSIDE the transaction / merge (claim).
+    const phoneMasked = typeof order.guestPhone === 'string' && order.guestPhone ? maskIndianMobile(order.guestPhone) : '';
+    const emailMasked = typeof order.guestEmail === 'string' && order.guestEmail ? maskEmail(order.guestEmail) : '';
+    const useEmail = !!emailMasked && (!phoneMasked || order.recipientFirst === 'email');
+    const savedTo = useEmail ? emailMasked : phoneMasked;
+    const item = { kind: isPack ? 'pack' : 'pass', label: isPack ? 'PDF pack' : 'Board Pass', sku, target: isPack ? validateTarget(sku, order.packTarget) : null };
+    let mode = null;
+    if (order.uid === uid && (order.status === GUEST_STATUS.paid || order.status === GUEST_STATUS.claimed)) {
+      return sendJson(res, 200, { ok: true, state: 'yours', item });
+    }
+    if (order.status === GUEST_STATUS.paidUnclaimed && (order.uid === null || order.uid === undefined) && !order.attachedAt) mode = 'take';
+    else if (
+      (order.status === GUEST_STATUS.paid || order.status === GUEST_STATUS.claimed) &&
+      order.uid === autoAccountUid(orderId) &&
+      order.claimedVia === VIA_ACCOUNT_CREATED
+    ) {
+      try {
+        mode = (await hasOwnActivity(adminFirestore, order.uid)) ? null : 'merge';
+      } catch (e) {
+        emit('payments.guest.put_on_account.store_read_failed');
+        console.error('[pay/guest/claim-with-proof] activity read failed:', e && e.message);
+        return sendJson(res, 500, { ok: false, error: 'Could not read the order.' });
+      }
+    }
+    if (!mode) return sendJson(res, 200, { ok: false, reason: 'not_available', ...(savedTo ? { savedTo } : {}) });
+    if (body.preview === true) return sendJson(res, 200, { ok: true, state: 'can_put', item, ...(savedTo ? { savedTo } : {}) });
+
+    if (mode === 'take') {
+      const outcome = await attachOrder(orderId, uid, (o) => o.selfPay === true && o.paymentId === paymentId && !o.attachedAt, VIA_PUT_ON_ACCOUNT);
+      if (!outcome) return sendJson(res, 200, { ok: false, reason: 'not_available' });
+      if (outcome.failed) return sendJson(res, 500, { ok: false, error: 'Could not put it on this account. Please try again.' });
+      emit('payments.guest.put_on_account.taken');
+      return sendJson(res, 200, outcome.duplicate ? { ok: true, state: 'duplicate', item } : { ok: true, state: 'put', item });
+    }
+    try {
+      await mergeAccount({ db: adminFirestore, fromUid: order.uid, toUid: uid, adminUid: uid, nowMs: now(), purchasesOnly: true });
+    } catch (e) {
+      if (e instanceof MoveError) {
+        emit('payments.guest.put_on_account.merge_refused');
+        return sendJson(res, 200, { ok: false, reason: 'not_available' });
+      }
+      emit('payments.guest.put_on_account.merge_failed');
+      console.error('[pay/guest/claim-with-proof] merge failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not put it on this account. Please try again.' });
+    }
+    emit('payments.guest.put_on_account.merged');
+    return sendJson(res, 200, { ok: true, state: 'put', item });
+  }
+
   /* ── POST /api/pay/guest/gst-details (GST-AFTER-PAY-1) - the payer's state + PIN, after paying ──────────────────────── */
   /**
    * Body { orderId, paymentId, signature, stateCode, pin, business? }. Auth = EXACTLY /receipt's: signed out, Razorpay's checkout
@@ -1853,7 +1958,7 @@ function createGuestPayRoutes(deps = {}) {
     });
   }
 
-  return { handleOrder, handleVerify, handleClaim, handleAttach, handleReceipt, handleGstDetails, handleZipLink, afterRecipientPaid, findOrCreateAccount, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
+  return { handleOrder, handleVerify, handleClaim, handleClaimWithProof, handleAttach, handleReceipt, handleGstDetails, handleZipLink, afterRecipientPaid, findOrCreateAccount, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
 }
 
 module.exports = {
@@ -1882,6 +1987,8 @@ module.exports = {
   GUEST_ATTACH_PATH,
   GUEST_RECEIPT_PATH,
   GUEST_GST_DETAILS_PATH,
+  GUEST_PROOF_CLAIM_PATH,
+  isPutOnAccountDisabled,
   RECEIPT_WINDOW_MS,
   GUEST_ZIP_LINK_PATH,
   ATTACH_HOLD_MS,
