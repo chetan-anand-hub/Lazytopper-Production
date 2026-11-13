@@ -3177,6 +3177,7 @@ test('UNCLAIMED-1 · the payer signing in right at the hold end and the sweep ra
   assert.ok(passOf(srv.db, 'uPayer'));
   assert.equal(srv.db.keys('subscriptions/uPayer/payments/').length, 1, 'one payment record: one grant');
   assert.equal(subsDocs(srv.db).filter((k) => !k.startsWith('subscriptions/uPayer')).length, 0);
+});
 
 /* ══ PUT-ON-THIS-ACCOUNT-1: a signed-in buyer who still holds the receipt proof puts the purchase on THIS account ══ */
 const proofClaim = (srv, o, headers, extra = {}, sigFor = [o.orderId, o.paymentId]) =>
