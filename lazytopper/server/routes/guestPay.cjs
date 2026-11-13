@@ -1246,7 +1246,7 @@ function createGuestPayRoutes(deps = {}) {
       // exists so the payer can choose; the payer who signs in has chosen themselves - the same outcome as the hold's own fallback.
       // `matches` above already proved this caller IS that contact. Any other order (or claimant) still waits out the hold.
       const payerThemselves = order.selfPay === true && order.selfContactFrom === 'payment';
-      if (order.status === GUEST_STATUS.paidUnclaimed && !payerThemselves && now() < attachHoldEndsMs(order)) return null;
+      if (order.status === GUEST_STATUS.paidUnclaimed && !(payerThemselves && via === 'claim') && now() < attachHoldEndsMs(order)) return null;
       if (order.status === GUEST_STATUS.paidUnclaimed && (order.uid === null || order.uid === undefined)) {
         tx.set(ref, { uid, status: GUEST_STATUS.claimed, claimedAt: new Date(now()), claimAttempts: 1, ...(via && order.checkoutWho === true ? { claimedVia: via } : {}), ...(extra || {}) }, { merge: true });
         return { ...order, uid, status: GUEST_STATUS.claimed };
