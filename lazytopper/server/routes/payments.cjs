@@ -189,6 +189,36 @@ function isWebhookSignatureValid({ rawBody, signature, webhookSecret }) {
   return timingSafeHexEqual(hmacSha256Hex(webhookSecret, rawBody), signature);
 }
 
+/**
+ * WEBHOOK-DIAG-1 - ids and byte facts only (never the body, the secret or any contact) for a webhook whose signature failed, so the
+ * cause of the 400 bursts can be told apart: a body changed in transit (bytes vs content-length, non-ASCII bytes, encodings), a
+ * missing/odd signature, or a different secret (everything matches and it still fails).
+ */
+function webhookBadSigContext(req, rawBody, signature) {
+  try {
+    const h = (req && req.headers) || {};
+    const text = Buffer.isBuffer(rawBody) ? rawBody.toString('utf8') : '';
+    const pick = (re) => {
+      const m = re.exec(text);
+      return m ? m[1] : undefined;
+    };
+    let nonAscii = 0;
+    if (Buffer.isBuffer(rawBody)) for (const b of rawBody) if (b > 127) nonAscii += 1;
+    const one = (v) => String(v === undefined ? '-' : v).replace(/[^A-Za-z0-9_.,/=-]/g, '').slice(0, 40) || '-';
+    return {
+      event: pick(/"event"\s*:\s*"([a-z_.]{1,40})"/),
+      orderId: pick(/"order_id"\s*:\s*"(order_[A-Za-z0-9_]{1,40})"/),
+      paymentId: pick(/"id"\s*:\s*"(pay_[A-Za-z0-9_]{1,40})"/),
+      diag:
+        `bytes=${Buffer.isBuffer(rawBody) ? rawBody.length : -1} cl=${one(h['content-length'])} nonascii=${nonAscii}` +
+        ` enc=${one(h['content-encoding'])} te=${one(h['transfer-encoding'])} sigLen=${String(signature || '').length}` +
+        ` evid=${one(h['x-razorpay-event-id'])} via=${h['x-vercel-id'] ? 'vercel' : 'direct'}`,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
 /** The unparsed request body, as bytes. Rejects past `maxBytes`. */
 function readRawBody(req, maxBytes) {
   return new Promise((resolve, reject) => {
@@ -401,6 +431,7 @@ function createPaymentRoutes(deps = {}) {
       let line = `[pay/${scope}] rejected reason=${reason} event=${f(c.event)} order=${f(c.orderId)} pay=${f(c.paymentId)} status=${f(c.status)}`;
       if (reason === 'amount_mismatch') line += ` expected=${f(c.expected)} got=${f(c.got)}`;
       if (c.error) line += ` error=${String(c.error).slice(0, 160)}`;
+      if (c.diag) line += ` ${String(c.diag).slice(0, 240)}`;
       console.warn(line);
     } catch {
       /* a log line must never fail a payment */
@@ -986,7 +1017,7 @@ function createPaymentRoutes(deps = {}) {
 
     const signature = String(req.headers['x-razorpay-signature'] || '').trim();
     if (!isWebhookSignatureValid({ rawBody, signature, webhookSecret })) {
-      return reject(res, 'webhook', 'bad_signature');
+      return reject(res, 'webhook', 'bad_signature', webhookBadSigContext(req, rawBody, signature));
     }
 
     let event;
