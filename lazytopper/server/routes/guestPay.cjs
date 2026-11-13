@@ -1242,7 +1242,11 @@ function createGuestPayRoutes(deps = {}) {
       if (!order || order.payer !== GUEST_PAYER || !matches(order)) return null;
       if (typeof order.paymentId !== 'string' || !order.paymentId) return null;
       // SELFPAY-ATTACH-1: while its payer may still choose who it is for, no sign-in (or delivery) takes an attach order.
-      if (order.status === GUEST_STATUS.paidUnclaimed && now() < attachHoldEndsMs(order)) return null;
+      // The ONE exception: the PAYER signing in with the number / email they paid with (selfPay, contact read from the payment). The hold
+      // exists so the payer can choose; the payer who signs in has chosen themselves - the same outcome as the hold's own fallback.
+      // `matches` above already proved this caller IS that contact. Any other order (or claimant) still waits out the hold.
+      const payerThemselves = order.selfPay === true && order.selfContactFrom === 'payment';
+      if (order.status === GUEST_STATUS.paidUnclaimed && !payerThemselves && now() < attachHoldEndsMs(order)) return null;
       if (order.status === GUEST_STATUS.paidUnclaimed && (order.uid === null || order.uid === undefined)) {
         tx.set(ref, { uid, status: GUEST_STATUS.claimed, claimedAt: new Date(now()), claimAttempts: 1, ...(via && order.checkoutWho === true ? { claimedVia: via } : {}), ...(extra || {}) }, { merge: true });
         return { ...order, uid, status: GUEST_STATUS.claimed };
@@ -1757,9 +1761,16 @@ function createGuestPayRoutes(deps = {}) {
     let failed = 0;
     let duplicates = 0;
     let alsoSignIn = null;
-    for (const { id: orderId } of candidates) {
+    // SELFPAY-ATTACH-HOLD-1: orders of this caller still waiting out an attach hold (not the payer's own): only the hold's end time is
+    // told to the client (no id, no contact), so a page that stays open can claim once more just after it.
+    const held = [];
+    for (const { id: orderId, order: seen } of candidates) {
       const outcome = await attachOrder(orderId, uid, matches, 'claim');
-      if (!outcome) continue;
+      if (!outcome) {
+        const ends = attachHoldEndsMs(seen);
+        if (seen && seen.status === GUEST_STATUS.paidUnclaimed && matches(seen) && Number.isFinite(ends) && now() < ends) held.push({ holdEndsMs: ends });
+        continue;
+      }
       if (outcome.failed) failed += 1;
       else if (outcome.duplicate) duplicates += 1;
       else if (outcome.claimed) {
@@ -1838,6 +1849,7 @@ function createGuestPayRoutes(deps = {}) {
       ...(failed ? { failed } : {}),
       ...(duplicates ? { duplicates } : {}),
       ...(alsoSignIn ? { alsoSignIn } : {}),
+      ...(held.length ? { held } : {}),
     });
   }
 

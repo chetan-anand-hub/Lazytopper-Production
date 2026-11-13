@@ -249,6 +249,15 @@ export interface ClaimedPurchase {
  */
 export { ALSO_SIGNIN_EVENT, type AlsoSignIn };
 let lastClaimAlso: AlsoSignIn | null = null;
+/** SELFPAY-ATTACH-HOLD-1: the soonest end of an attach hold the last claim reported (server epoch ms), or null. */
+let lastClaimHoldEndsMs: number | null = null;
+/** The re-claim timer per uid (one at a time), and how many re-claims a page session may schedule per uid. */
+const holdTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const holdRetries = new Map<string, number>();
+const HOLD_RECLAIM_MARGIN_MS = 2000;
+const HOLD_RECLAIM_MAX = 3;
+/** Never wait longer than the hold can be (10 minutes plus slack): a wild server value schedules nothing. */
+const HOLD_RECLAIM_CEILING_MS = 15 * 60 * 1000;
 /** PAY-ACCOUNT-1: the server said THIS claim is the first sign-in of an account made at payment (its sign-up). */
 let lastClaimFirstSignIn: { trialStarted: boolean } | null = null;
 /** ...kept for THIS uid until AuthContext takes it (to count the sign-up, once). */
@@ -260,6 +269,17 @@ function parseAlso(raw: unknown): AlsoSignIn | null {
   const r = raw as Record<string, unknown>;
   // CHECKOUT-WHO-2: a missing phone OR a missing (verified) email.
   return (r.kind === "phone" || r.kind === "email") && typeof r.masked === "string" && r.masked ? { kind: r.kind, masked: r.masked } : null;
+}
+
+/** The soonest `holdEndsMs` in the server's `held` hint (ids are never sent), or null. */
+function parseHoldEnd(raw: unknown): number | null {
+  if (!Array.isArray(raw)) return null;
+  let soonest: number | null = null;
+  for (const h of raw) {
+    const ms = h && typeof h === "object" ? (h as Record<string, unknown>).holdEndsMs : null;
+    if (typeof ms === "number" && Number.isFinite(ms) && (soonest === null || ms < soonest)) soonest = ms;
+  }
+  return soonest;
 }
 
 /** The pending "also sign in" for THIS account only, or null. */
@@ -280,6 +300,7 @@ export async function claimGuestPurchases(): Promise<ClaimedPurchase[] | null> {
     const { authHeaders } = await import("./checkout");
     const json = await postJson(GUEST_CLAIM_ENDPOINT, {}, await authHeaders());
     lastClaimAlso = parseAlso(json.alsoSignIn);
+    lastClaimHoldEndsMs = parseHoldEnd(json.held);
     lastClaimFirstSignIn = json.firstSignIn === true ? { trialStarted: json.trialStarted === true } : null;
     const list = Array.isArray(json.claimed) ? json.claimed : [];
     return list
@@ -323,6 +344,11 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
       // CHECKOUT-WHO-1: remember / announce the masked "also sign in with" for THIS uid (absent on every old-flow claim).
       const also = lastClaimAlso;
       lastClaimAlso = null;
+      // SELFPAY-ATTACH-HOLD-1: an order of this account's is held; the claim above marked the uid as claimed, so without this nothing
+      // would ever try again. While the page stays open, claim once more just after the hold ends.
+      const holdEnds = lastClaimHoldEndsMs;
+      lastClaimHoldEndsMs = null;
+      if (holdEnds !== null) scheduleHoldReclaim(uid, holdEnds, opts.claim);
       // PAY-ACCOUNT-1 - the account was made at payment, so THIS first sign-in is its sign-up. The server said so ONCE
       // (transaction-marked: never on a reload or a later sign-in, never for a client-made account) and, in that same
       // transaction, started the sign-up trial by activateTrial's rules (review LOW 5: a lost response cannot lose it).
@@ -366,6 +392,23 @@ export function claimOncePerSession(uid: string, opts: { force?: boolean; claim?
   return p;
 }
 
+/** One re-claim shortly after an attach hold ends (page open). At most HOLD_RECLAIM_MAX per uid; never throws. */
+function scheduleHoldReclaim(uid: string, holdEndsMs: number, claim?: () => Promise<ClaimedPurchase[] | null>): void {
+  if (typeof window === "undefined") return;
+  if (holdTimers.has(uid)) return;
+  const used = holdRetries.get(uid) ?? 0;
+  if (used >= HOLD_RECLAIM_MAX) return;
+  const wait = Math.min(Math.max(0, holdEndsMs - Date.now()) + HOLD_RECLAIM_MARGIN_MS, HOLD_RECLAIM_CEILING_MS);
+  holdRetries.set(uid, used + 1);
+  holdTimers.set(
+    uid,
+    setTimeout(() => {
+      holdTimers.delete(uid);
+      void claimOncePerSession(uid, { force: true, claim });
+    }, wait),
+  );
+}
+
 /** PAY-ACCOUNT-1 - the server started this account's sign-up trial: re-read it so it shows, and count it. Never throws. */
 async function showServerTrial(uid: string): Promise<void> {
   try {
@@ -395,6 +438,10 @@ export function resetGuestClaimSessionForTests(): void {
   inFlight.clear();
   recentClaim = null;
   lastClaimAlso = null;
+  lastClaimHoldEndsMs = null;
+  for (const t of holdTimers.values()) clearTimeout(t);
+  holdTimers.clear();
+  holdRetries.clear();
   lastClaimFirstSignIn = null;
   pendingFirstSignIn = null;
   pendingAlso = null;
