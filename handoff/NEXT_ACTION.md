@@ -1,3 +1,14 @@
+## 2026-11-13 (daily, fifth; written 13 Nov night) - #1708 - #1724
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`6448258`** [git].
+
+- **Done [gh]:** `#1708` - `#1724` merged (table in CURRENT_STATE). No grading change.
+- **Owner action pending [coordinator]:** point the Razorpay webhook URL at the Railway URL directly (the Vercel `/api` rewrite is the leading cause of every `payment.captured` `bad_signature`). After the change, confirm one real payment is accepted and read the `#1715` log lines.
+- **Owner live tests owed [coordinator]:** the Rs58 pack end to end (pay, who-first pop-up, ZIP, GST after payment); the admin merge with two test accounts; the parent-pay post-pay GST page; with `UNCLAIMED_ALERT_TO` set, one stuck order should email the owner once after 15 minutes.
+- **Engineering next:** after the webhook URL moves, the earlier 12-13 Nov builds stand (Meta CAPI, UPI QR fallback, parent-pay first on Board Pass, sample-to-buy CTA, SEO pages, first-touch attribution). The WhatsApp thank-you with purchase details is ruled but waits for WhatsApp sending to be live.
+- **Follow-ups opened today:** `[FU-WEBHOOK-BAD-SIGNATURE-VERCEL-REWRITE]`, `[FU-PARENTPAY-PROOF-IN-MEMORY]`, `[FU-UNCLAIMED-READ-CAP-200]`, `[FU-GST-SIGNEDIN-HELD-ORDERS]`, `[FU-UNCLAIMED-SWEEP-INTERVAL]`, `[FU-LIVE-TESTS-13NOV-PM]` (bodies in OPEN_QUESTIONS_AND_FOLLOWUPS).
+- **Closed or settled today:** the "Board Pass admin moves stay MANUAL" ruling of the morning is reversed (the real-account merge moves a Board Pass; DECISION_LOG).
+
 ## 2026-11-13 (daily, fourth; written 13 Nov) - #1695 - #1706
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`8eb9b14`** [git].

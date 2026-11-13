@@ -1,3 +1,22 @@
+> **2026-11-13 (daily, fifth; written 13 Nov night) - #1708 - #1724 (CLAUDE.md section 10).** Scope: the post-payment pop-up and GST step on every checkout, the parent-pay link pages, signed-out ZIP, the unclaimed-order paths (claim, put-on-account, second-login prompt, sweep, alert), and admin accounts/purchases. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none (grading) | unchanged | the earlier second-surface checks stay owed |
+| Paid pop-up (PaidSheet) | "Who will use this?" first, files folded (`#1709`) | **merged, live** | Rs58 pack end to end |
+| All checkouts (GST) | state + PIN after payment (`#1713`); email-link fallback (`#1716`) | **merged, live** | live test; held signed-in orders watched |
+| Parent-pay link pages | state + PIN after payment (`#1717`) | **merged, live** | live test of the page |
+| /packs on a phone | sticky Buy bar rule (`#1710`) | **merged, live** | 360 px look |
+| Free sample / WhatsApp opt-in | tick turns green (`#1708`) | **merged, live** | owner check |
+| Signed-out pack download | one ZIP of the whole pack (`#1714`) | **merged, live** | phone ZIP check |
+| Claim at sign-in | payer attached at once in the hold; held claim retries (`#1719`, `#1720`) | **merged, live** | a held order seen live |
+| Put it on this account | proof claim, preview, prompt (`#1721`) | **merged, live** | live test; switch `PUT_ON_ACCOUNT_DISABLED` |
+| Second-login prompt | offered once after a purchase lands (`#1722`) | **merged, live** | live look; switch `VITE_SECOND_LOGIN_PROMPT_DISABLED` |
+| Unclaimed orders (server) | hold-end sweep + owner alert (`#1724`) | **merged, live** | one stuck order emails the owner once; switches `UNCLAIMED_SWEEP_DISABLED`, `UNCLAIMED_ALERT_DISABLED` |
+| Admin /students | merge two real accounts (`#1723`); buyer's opt-in number (`#1711`); unclaimed badge (`#1724`) | **merged, live** | admin merge with two test accounts |
+| Analytics | sign-in hop is not a visit source (`#1712`) | **merged, live** | none stated |
+| Payment webhook | signature failure diagnosis (`#1715`) | **merged, live (logging only)** | owner moves the webhook URL to Railway |
+
 > **2026-11-13 (daily, fourth; written 13 Nov) - #1695 - #1706 (CLAUDE.md section 10).** Scope: the signed-out and signed-in checkout, the abandoned-checkout and receipt emails, the WhatsApp opt-in, Meta events, /packs on a phone, and the retired /for-parents v1 components. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |

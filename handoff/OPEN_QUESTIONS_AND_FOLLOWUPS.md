@@ -23,6 +23,29 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-13 (daily, fifth; written 13 Nov night) - #1708 - #1724 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**New:** `[FU-WEBHOOK-BAD-SIGNATURE-VERCEL-REWRITE]`, `[FU-PARENTPAY-PROOF-IN-MEMORY]`, `[FU-UNCLAIMED-READ-CAP-200]`, `[FU-GST-SIGNEDIN-HELD-ORDERS]`, `[FU-UNCLAIMED-SWEEP-INTERVAL]`, `[FU-LIVE-TESTS-13NOV-PM]`.
+**Narrowed:** `[FU-WEBHOOK-400-ROOT-CAUSE]` (the `#1715` log named a leading cause; see the first new entry). `[FU-ADMIN-MERGE-REVOKE-TOKENS]` is addressed for the real-account merge by `#1723` (sessions are revoked and disabled before the final check, then the user is deleted); it stays open only for any other merge path.
+
+### [FU-WEBHOOK-BAD-SIGNATURE-VERCEL-REWRITE]
+OPEN, owner action. After `#1715`, every real `payment.captured` webhook fails `bad_signature`: bytes equal content-length, 13 - 15 non-ASCII characters, signature length 64, arrived via Vercel. `payment.failed` (no non-ASCII) passed. The body being re-encoded in transit by the Vercel `/api` rewrite is the leading cause (it is not proven). Proposed fix: point the Razorpay webhook URL at the Railway URL directly. Until then payments rely on the verify path and the sweeps, not the webhook. **Check after the change:** one real payment is accepted and no `bad_signature` line appears. [coordinator]
+
+### [FU-PARENTPAY-PROOF-IN-MEMORY]
+OPEN, accepted limit. The parent-pay link's payment proof is held in memory only (it is not stored), so it does not survive a reload or a restart. The receipt email link covers the gap. Revisit if parent-pay volume grows. [coordinator]
+
+### [FU-UNCLAIMED-READ-CAP-200]
+OPEN, accepted at today's volume. The unclaimed sweep and alert queries read at most 200 `paid_unclaimed` orders and cannot order them without a new index. With more than 200 old unclaimed orders, newer ones could be hidden from the alert query. Fix when the backlog grows: an index plus `orderBy`, or a status that ages old orders out. [builder]
+
+### [FU-GST-SIGNEDIN-HELD-ORDERS]
+OPEN, accepted. A signed-in GST order that is closed without saving the state + PIN is held (no invoice issued); the email link covers it (`#1716`). Watch the held count in admin. [coordinator]
+
+### [FU-UNCLAIMED-SWEEP-INTERVAL]
+OPEN, owner choice. The brief said hourly; the sweep defaults to every 5 minutes plus a run 30 seconds after boot (`UNCLAIMED_SWEEP_INTERVAL_MS`, minimum 60 s), so a payer is not left waiting up to an hour after the hold. Cost is one equality query per tick. Say if hourly is wanted. [builder]
+
+### [FU-LIVE-TESTS-13NOV-PM]
+OPEN, owner live tests owed. (1) The Rs58 pack end to end (pay, who-first pop-up with the 10-minute notice, folded files and ZIP, GST after payment). (2) The admin merge with two test accounts (one holding a pack): Review shows both, MERGE moves the pack, the removed account's phone or email can then be added to the kept account. (3) The parent-pay post-pay GST page. (4) With `UNCLAIMED_ALERT_TO` set, one stuck order emails the owner once after 15 minutes. Static gates pass; none of these round-trips has been run live. [coordinator; builder]
+
 ## 2026-11-13 (daily, fourth; written 13 Nov) - #1695 - #1706 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `8eb9b14`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items from the coordinator's message of 13 Nov **[coordinator]** and the PR bodies **[gh]**. No grading behaviour changed.*
