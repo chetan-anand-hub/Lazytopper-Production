@@ -117,6 +117,8 @@ const GUEST_GST_DETAILS_PATH = '/api/pay/guest/gst-details';
 /** PAID-SHOWS-1: how long after the payment time (guestPaidAt; paidAt only if absent) the signed-out receipt is answered. */
 /** GUEST-ZIP-1: ZIPs per guest order per hour (parity with packs.cjs ZIPS_PER_HOUR). */
 const GUEST_ZIPS_PER_HOUR = 30;
+/** The stored `payer` of an order made through a parent-pay link (routes/parentPay.cjs PARENT_PAYER). */
+const PARENT_PAYER_TYPE = 'parent';
 const RECEIPT_WINDOW_MS = 24 * 60 * 60 * 1000;
 /** GUEST-ZIP-1 - one ZIP of the whole pack for a signed-out buyer. Same proof and window as the receipt. */
 const GUEST_ZIP_LINK_PATH = '/api/pay/guest/zip-link';
@@ -431,9 +433,9 @@ function createGuestPayRoutes(deps = {}) {
   }
 
   /** Dark check FIRST, then the per-client limiter (signed out by construction), then the store. */
-  function admitGuestCall(req, res, scope, reqPath) {
+  function admitGuestCall(req, res, scope, reqPath, alsoOn = false) {
     // CHECKOUT-WHO-1: either switch opens order / verify; with CHECKOUT_WHO off this is exactly the old check.
-    if (!isGuestPayEnabled(env) && !isCheckoutWhoEnabled(env)) {
+    if (!isGuestPayEnabled(env) && !isCheckoutWhoEnabled(env) && !alsoOn) {
       sendJson(res, 404, NOT_FOUND_BODY);
       return false;
     }
@@ -1643,10 +1645,12 @@ function createGuestPayRoutes(deps = {}) {
    * Answers { ok, status: 'invoiced' | 'details_saved' } | { ok:false, reason:'expired' } | 400 { error:'bad_input', field }.
    */
   async function handleGstDetails(req, res) {
-    if (!isCheckoutWhoEnabled(env) && !isGuestPayEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
+    // GST-PARENT-POSTPAY-1: parent-pay link orders post their state + PIN here too, so PARENT_PAY_ENABLED (with PAYMENTS_ENABLED) opens it as well.
+    const parentOn = /^(1|true|on|yes)$/i.test(String((env && env.PARENT_PAY_ENABLED) || '').trim()) && /^(1|true|on|yes)$/i.test(String((env && env.PAYMENTS_ENABLED) || '').trim());
+    if (!isCheckoutWhoEnabled(env) && !isGuestPayEnabled(env) && !parentOn) return sendJson(res, 404, NOT_FOUND_BODY);
     // The same switch as the signed-in route: invoicing off = dark (404), nothing is read or written.
     if (!/^(1|true|on|yes)$/i.test(String((env && env.GST_INVOICE_ENABLED) || '').trim())) return sendJson(res, 404, NOT_FOUND_BODY);
-    if (!admitGuestCall(req, res, 'gst_details', GUEST_GST_DETAILS_PATH)) return undefined;
+    if (!admitGuestCall(req, res, 'gst_details', GUEST_GST_DETAILS_PATH, parentOn)) return undefined;
     const keys = readKeys();
     if (!keys.keyId || !keys.keySecret) return unavailable(res);
     const body = await readJsonBody(req, res);
@@ -1655,15 +1659,23 @@ function createGuestPayRoutes(deps = {}) {
     const paymentId = typeof body.paymentId === 'string' ? body.paymentId.trim() : '';
     const signature = typeof body.signature === 'string' ? body.signature.trim() : '';
     if (!ID_PATTERN.test(orderId) || !ID_PATTERN.test(paymentId) || !HEX_PATTERN.test(signature)) return reject(res, 'gst_details', 'malformed');
-    if (await payerUidOf(req)) return reject(res, 'gst_details', 'requires_signed_out', 409);
+    const callerUid = await payerUidOf(req);
     if (!isCheckoutSignatureValid({ orderId, paymentId, signature, keySecret: keys.keySecret })) return reject(res, 'gst_details', 'bad_signature');
     if (!gstOrderDetails) return unavailable(res);
-    const windowMs = { expired: false };
+    const windowMs = { expired: false, signedIn: false };
     const out = await gstOrderDetails.submit({
       orderId,
       raw: { stateCode: body.stateCode, pin: body.pin, business: body.business },
       authorize: (order) => {
-        if (order.payer !== GUEST_PAYER) return false;
+        // GST-PARENT-POSTPAY-1: a guest order OR a parent-pay link order (the stored payer type decides, never the body). The signed
+        // checkout signature above binds order id + payment id for both. A guest proof is signed-out only; a parent's is not (a parent
+        // on a link page may be signed in as themselves).
+        if (order.payer !== GUEST_PAYER && order.payer !== PARENT_PAYER_TYPE) return false;
+        if (order.payer === GUEST_PAYER && callerUid) {
+          windowMs.signedIn = true;
+          return false;
+        }
+        if (order.payer === PARENT_PAYER_TYPE && !(typeof order.parentLinkId === 'string' && order.parentLinkId)) return false;
         // Razorpay signed this payment but the server has not recorded it yet (a slow confirm): nothing is written (the service answers
         // 'unpaid' -> 409 not_paid) and the page tries again shortly.
         if (typeof order.paymentId !== 'string' || !order.paymentId) return true;
@@ -1678,6 +1690,7 @@ function createGuestPayRoutes(deps = {}) {
       },
     });
     if (out.error === 'bad_input') return sendJson(res, 400, { ok: false, error: 'bad_input', field: out.field });
+    if (out.error === 'forbidden' && windowMs.signedIn) return reject(res, 'gst_details', 'requires_signed_out', 409);
     if (out.error === 'forbidden' && windowMs.expired) {
       emit('payments.guest.gst_details.expired');
       return sendJson(res, 200, { ok: false, reason: 'expired' });

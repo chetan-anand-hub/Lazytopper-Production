@@ -2879,3 +2879,70 @@ test('GUEST-ZIP · the per-client limiter counts this route (a flood of calls ge
   }
   assert.ok(limited > 0, 'the 120/day per-client limit applies to the zip-link path');
 });
+
+/* ══ GST-PARENT-POSTPAY-1: a parent-pay link order saves its state + PIN after paying (the same route, the stored payer decides) ══ */
+const PARENT_ENV = { PAYMENTS_ENABLED: '1', PARENT_PAY_ENABLED: '1', GST_INVOICE_ENABLED: '1', RAZORPAY_KEY_ID: KEY_ID, RAZORPAY_KEY_SECRET: KEY_SECRET, RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET };
+const parentOrder = (over = {}) => ({ uid: 'kid1', payer: 'parent', parentLinkId: 'lnk1', passType: 'till_boards', amountPaise: 191700, status: 'paid', paymentId: 'pay_PAR', createdAt: new Date(NOW), paidAt: new Date(NOW), ...over });
+async function parentGst(t, orders = {}, over = {}) {
+  const db = memoryFirestore({ 'payOrders/order_PAR': parentOrder(), ...Object.fromEntries(Object.entries(orders).map(([k, v]) => [`payOrders/${k}`, v])) });
+  const invoicer = fakeInvoicer(db);
+  const queued = [];
+  const srv = await startRoutes({ env: PARENT_ENV, db, invoicer, receiptEmailer: { queueInvoiceEmail: async (x) => { queued.push(x.orderId); return { sent: true }; } }, ...over });
+  t.after(srv.close);
+  return { srv, db, invoicer, queued };
+}
+const parentSave = (srv, orderId, paymentId, extra = {}, headers = {}, sigFor = [orderId, paymentId]) =>
+  request(srv.port, GUEST_GST_DETAILS_PATH, { body: { orderId, paymentId, signature: checkoutSig(sigFor[0], sigFor[1]), stateCode: '29', pin: '560001', ...extra }, headers });
+
+test('GST-PARENT-POSTPAY · a parent-pay order saves: state + PIN stored on the order, ONE invoice issued, its email queued; works with ONLY the parent-pay switch on', async (t) => {
+  const { srv, db, invoicer, queued } = await parentGst(t);
+  const r = await parentSave(srv, 'order_PAR', 'pay_PAR');
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(r.json, { ok: true, status: 'invoiced' });
+  assert.deepEqual(db.read('payOrders/order_PAR').gstBuyer, { stateCode: '29', pin: '560001' });
+  assert.deepEqual(invoicer.calls, ['order_PAR']);
+  assert.deepEqual(queued, ['order_PAR']);
+  // the parent may be signed in as themselves: still accepted (only a GUEST proof is signed-out only)
+  const again = await parentSave(srv, 'order_PAR', 'pay_PAR', { stateCode: '27', pin: '411001' }, signedIn('uParent'));
+  assert.equal(again.status, 200);
+  assert.equal(db.read('payOrders/order_PAR').gstBuyer.stateCode, '29', 'an invoiced order is never changed');
+  assert.equal(invoicer.calls.length, 1);
+});
+
+test('GST-PARENT-POSTPAY · refused, nothing written: wrong signature, another payment id, a signature for ANOTHER order, a non-parent/non-guest payer, a parent order with no link', async (t) => {
+  const { srv, db, invoicer } = await parentGst(t, {
+    order_OTH: parentOrder({ paymentId: 'pay_OTH' }),
+    order_STU: parentOrder({ payer: 'student', paymentId: 'pay_STU' }),
+    order_NOL: parentOrder({ parentLinkId: undefined, paymentId: 'pay_NOL' }),
+  });
+  assert.equal((await request(srv.port, GUEST_GST_DETAILS_PATH, { body: { orderId: 'order_PAR', paymentId: 'pay_PAR', signature: 'ab'.repeat(32), stateCode: '29', pin: '560001' } })).status, 400);
+  assert.equal((await parentSave(srv, 'order_PAR', 'pay_other')).status, 400);
+  // a valid signature for order_OTH can never write order_PAR (the HMAC binds the order id AND the payment id)
+  assert.equal((await parentSave(srv, 'order_PAR', 'pay_PAR', {}, {}, ['order_OTH', 'pay_OTH'])).status, 400);
+  assert.equal((await parentSave(srv, 'order_PAR', 'pay_OTH')).status, 400);
+  for (const id of ['order_STU', 'order_NOL']) {
+    const r = await parentSave(srv, id, `pay_${id.slice(6)}`);
+    assert.equal(r.status, 400, id);
+    assert.equal(db.read(`payOrders/${id}`).gstBuyer, undefined, id);
+  }
+  assert.equal(db.read('payOrders/order_PAR').gstBuyer, undefined);
+  assert.equal(invoicer.calls.length, 0);
+});
+
+test('GST-PARENT-POSTPAY · the 24 h window: open at +23:59:59.999, refused (ok:false, expired) at +24:00:00; and a signed-but-unrecorded payment is 409 not_paid', async (t) => {
+  const db = memoryFirestore({ 'payOrders/order_PAR': parentOrder(), 'payOrders/order_NEW': parentOrder({ status: 'created', paymentId: undefined }) });
+  const inside = await startRoutes({ env: PARENT_ENV, db, invoicer: fakeInvoicer(db), nowMs: NOW + RECEIPT_WINDOW_MS - 1 });
+  t.after(inside.close);
+  assert.equal((await parentSave(inside, 'order_PAR', 'pay_PAR')).status, 200);
+  const db2 = memoryFirestore({ 'payOrders/order_PAR': parentOrder() });
+  const edge = await startRoutes({ env: PARENT_ENV, db: db2, invoicer: fakeInvoicer(db2), nowMs: NOW + RECEIPT_WINDOW_MS });
+  t.after(edge.close);
+  const r = await parentSave(edge, 'order_PAR', 'pay_PAR');
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.json, { ok: false, reason: 'expired' });
+  assert.equal(db2.read('payOrders/order_PAR').gstBuyer, undefined);
+  const np = await parentSave(inside, 'order_NEW', 'pay_NEW');
+  assert.equal(np.status, 409);
+  assert.equal(np.json.reason, 'not_paid');
+  assert.equal(db.read('payOrders/order_NEW').gstBuyer, undefined);
+});

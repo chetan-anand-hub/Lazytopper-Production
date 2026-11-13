@@ -20,6 +20,7 @@ import { createGuestOrder } from "./guestPay";
 import { createPayOrder, createPackOrder } from "./checkout";
 import { createSelfOrder, createWhoOrder } from "./checkoutWho";
 import { createParentPackOrder } from "./parentPayPack";
+import { createParentOrder } from "./parentPay";
 import { saveGstDetails, gstAfterPayError, GST_GUEST_DETAILS_ENDPOINT, GST_ORDER_DETAILS_ENDPOINT } from "./gstAfterPay";
 import PostPayGst from "../components/gstInvoice/PostPayGst";
 
@@ -50,13 +51,14 @@ const POST_PAY_HOSTS: Array<[string, () => Promise<unknown>]> = [
   ["CheckoutSheet paid: signed-in who-order (createWhoOrder)", () => createWhoOrder({ kind: "pass", sku: "till_boards", target: null } as never, { phone: "9876543210" } as never, true)],
   ["CheckoutSheet attach/paidSelf: self order (createSelfOrder)", () => createSelfOrder({ kind: "pass", sku: "till_boards", target: null } as never)],
   ["PaidSheet with an order id: Board Pass (createPayOrder postPay)", () => createPayOrder("till_boards", { postPay: true })],
+  ["ParentPayPanel paid / pending screen: parent-pay pass link (createParentOrder)", () => createParentOrder("tok123", "till_boards" as never)],
+  ["ParentPayPanel paid / pending screen: parent-pay pack link (createParentPackOrder)", () => createParentPackOrder("tok123")],
   ["PaidSheet with an order id: pack (createPackOrder postPay)", () => createPackOrder("pack_bundle", undefined, { postPay: true })],
 ];
 const PRE_PAY_HOSTS: Array<[string, () => Promise<unknown>]> = [
   ["GuestPaySheet pay-by-phone (createGuestOrder)", () => createGuestOrder({ kind: "pass", sku: "till_boards", target: null } as never, "9876543210")],
   ["month pass / any host without the block (createPayOrder default)", () => createPayOrder("till_month" as never)],
   ["inline paid view / sheet off (createPackOrder default)", () => createPackOrder("pack_bundle")],
-  ["parent-pay pack (createParentPackOrder)", () => createParentPackOrder("tok123")],
 ];
 
 describe("GST caller table: post-pay only from a host that mounts the block (flag ON)", () => {
@@ -94,10 +96,12 @@ describe("GST caller table: post-pay only from a host that mounts the block (fla
       "components/packs/PacksShop.tsx",
       "components/pricing/PassCheckout.tsx",
       "services/checkoutWho.ts",
+      "services/parentPay.ts",
+      "services/parentPayPack.ts",
       "services/packs.ts",
     ].concat(["services/gstBuyerOrder.ts"]).sort()); // (gstBuyerOrder.ts: the door's own doc comment)
-    // the door's other callers (guest pay-by-phone, parent pay, parent pay pack) never pass it
-    for (const f of ["services/guestPay.ts", "services/parentPay.ts", "services/parentPayPack.ts"]) {
+    // the door's other caller (guest pay-by-phone) never passes it
+    for (const f of ["services/guestPay.ts"]) {
       expect(fs.readFileSync(path.join(root, f), "utf8")).not.toMatch(/postPay/);
     }
   });

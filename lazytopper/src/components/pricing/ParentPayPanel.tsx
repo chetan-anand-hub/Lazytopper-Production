@@ -21,7 +21,7 @@
  * ★ The token leaves the address bar as soon as the page mounts (Razorpay's checkout.js, a
  * vendor tag or a forwarded tab never sees it); it is kept in this component's memory only.
  */
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   newCheckoutAttemptId,
   trackBeginCheckout,
@@ -37,6 +37,7 @@ import {
   buyPassAsParent,
   ParentLinkError,
   type ParentBuyOutcome,
+  type ParentGstProof,
   type ParentLinkReason,
   type ParentLinkView,
   type ParentPayLang,
@@ -46,6 +47,8 @@ import { buyPackAsParent, parentPackName, viewParentLinkWithPack, type ParentPac
 /** PARENT-PACKS-1 - what a parent buys from a link: a pass type (Board Pass link) or the link's own pack. */
 type ParentBuyItem = PassType | "pack";
 import "./parentShare.css";
+
+const PostPayGst = lazy(() => import("../gstInvoice/PostPayGst"));
 
 type Reason = ParentLinkReason;
 
@@ -198,6 +201,8 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
   const [paidUntil, setPaidUntil] = useState<{ name: string; date: string; passType: PassType } | null>(null);
   /** PARENT-PACKS-1 — the pack link's purchase was verified by the server (`kind: "pack"`). */
   const [packPaid, setPackPaid] = useState<{ name: string; duplicate: boolean } | null>(null);
+  /** GST-PARENT-POSTPAY-1: Razorpay's signed proof of this payment, for the "For your GST invoice" block (kept even while still confirming). */
+  const [gstProof, setGstProof] = useState<ParentGstProof | null>(null);
   const [failed, setFailed] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const scrubbed = useRef(false);
@@ -267,6 +272,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
     trackBeginCheckout(details);
     const outcome = await buy(token, passType);
     setBusy(null);
+    if ((outcome.status === "paid" || outcome.status === "pending") && outcome.gstProof) setGstProof(outcome.gstProof);
     if (outcome.status === "paid") {
       // The ONLY parent `purchase` call site — the server has verified this payment.
       trackPurchase({
@@ -297,6 +303,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
     trackPackCheckout(details, { signedIn: false, attemptId });
     const outcome = await buy(token, "pack", packName);
     setBusy(null);
+    if ((outcome.status === "paid" || outcome.status === "pending") && outcome.gstProof) setGstProof(outcome.gstProof);
     if (outcome.status === "paid") {
       // The ONLY parent pack `purchase` call site — the server has verified this payment. Review F3: a payment the server
       // flagged `duplicate` (the child already had the pack) is NOT a conversion: no purchase event at all.
@@ -373,6 +380,12 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
           <p className="lt-parent-pay-status lt-parent-pay-status--ok" role="status" data-testid="parent-pay-paid">
             {t.paid(paidUntil.name, paidUntil.date, paidUntil.passType)}
           </p>
+        )}
+
+        {gstProof && (
+          <Suspense fallback={null}>
+            <PostPayGst target={{ kind: "guest", proof: gstProof }} />
+          </Suspense>
         )}
 
         {state.kind === "ready" && pack && packPaid && (
