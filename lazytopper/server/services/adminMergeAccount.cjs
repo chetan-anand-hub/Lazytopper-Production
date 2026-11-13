@@ -66,6 +66,10 @@ async function mergeAccount(input) {
   // it is, nothing is disabled). Used when the BUYER (not an admin) puts a purchase on the account they are signed in with: a phone
   // number typed at a checkout is never moved onto another account by a buyer's say-so.
   const purchasesOnly = i.purchasesOnly === true;
+  // `onlyOrderId` (+ `onlyPaymentRef`): the buyer's proof covers ONE order, so the account may hold nothing else (a pay- account can also
+  // hold later orders delivered to that phone, e.g. a parent's "someone else" purchase). Anything else on it is refused, nothing moves.
+  const onlyOrderId = purchasesOnly && typeof i.onlyOrderId === 'string' && i.onlyOrderId ? i.onlyOrderId : '';
+  const onlyPaymentRef = onlyOrderId && typeof i.onlyPaymentRef === 'string' ? i.onlyPaymentRef : '';
   if (!db || typeof db.runTransaction !== 'function' || (!auth && !purchasesOnly)) throw new Error('firebase-admin is unavailable');
   const nowMs = typeof i.nowMs === 'number' && Number.isFinite(i.nowMs) ? i.nowMs : Date.now();
 
@@ -146,6 +150,17 @@ async function mergeAccount(input) {
         if (!s || !s.exists || (s.data() || {}).uid !== fromUid) throw new MoveError(409, 'An order changed while merging; try again');
       }
 
+      if (onlyOrderId) {
+        const other = 'That account holds more than this one purchase, so it is not moved automatically';
+        if (orderIds.length !== 1 || orderIds[0] !== onlyOrderId) throw new MoveError(409, other);
+        if (packDocs.some((d) => (d.data() || {}).orderId !== onlyOrderId)) throw new MoveError(409, other);
+        if ((srcMarkers.docs || []).some((d) => (d.data() || {}).orderId !== onlyOrderId && d.id !== onlyPaymentRef)) throw new MoveError(409, other);
+        if (srcHasPass) {
+          const pays = srcSubPays.docs || [];
+          const ref = pays.length > 0 ? pays.every((p) => p.id === onlyPaymentRef) : (srcSubData || {}).lastPaymentRef === onlyPaymentRef;
+          if (!onlyPaymentRef || !ref) throw new MoveError(409, other);
+        }
+      }
       // Writes.
       for (const d of packDocs) {
         tx.set(ent(toUid).collection(PACK_SEGMENTS.packs).doc(d.id), d.data());

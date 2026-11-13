@@ -3249,3 +3249,61 @@ test('PUT-ON · during the 10-minute attach hold the buyer holding the proof sti
   assert.equal(r.json.state, 'put', r.text);
   assert.equal(db.read(`payOrders/${paid.orderId}`).uid, 'uGoogle');
 });
+
+test('PUT-ON · ONE proof moves ONE order: a pay- account that also holds another order (a parent "someone else" purchase), pack or Board Pass is refused, nothing moves', async (t) => {
+  for (const extra of ['order', 'pack', 'marker', 'pass']) {
+    const db = memoryFirestore();
+    const { srv } = await autoRoutes({ env: SELF_ENV, db });
+    t.after(srv.close);
+    const paid = await paidSelfOrder(srv, { contact: '+919876543948' });
+    await srv.idle();
+    const auto = autoAccountUid(paid.orderId);
+    if (extra === 'order') db.docs.set('payOrders/order_second', { data: { uid: auto, payer: 'guest', selfPay: false, passType: 'pack_cbq', packTarget: 'science', status: 'paid', paymentId: 'pay_second' }, version: 1 });
+    if (extra === 'pack') db.docs.set(`packEntitlements/${auto}/packs/pack_cbq:science`, { data: { packId: 'pack_cbq:science', sku: 'pack_cbq', target: 'science', orderId: 'order_second', paymentRef: 'pay_second' }, version: 1 });
+    if (extra === 'marker') db.docs.set(`packEntitlements/${auto}/grants/pay_second`, { data: { paymentRef: 'pay_second', packId: 'pack_cbq:science', orderId: 'order_second' }, version: 1 });
+    if (extra === 'pass') db.docs.set(`subscriptions/${auto}`, { data: { tier: 'premium', passType: 'till_boards', passEnd: new Date(Date.parse('2027-12-31T00:00:00Z')), lastPaymentRef: 'pay_second' }, version: 1 });
+    const r = await proofClaim(srv, paid, GOOGLE());
+    assert.equal(r.json.ok, false, extra);
+    assert.equal(r.json.reason, 'not_available', extra);
+    assert.equal(db.read(`payOrders/${paid.orderId}`).uid, auto, `${extra}: the proven order stays`);
+    if (extra === 'order') assert.equal(db.read('payOrders/order_second').uid, auto);
+    assert.ok(db.read(`packEntitlements/${auto}/packs/pack_cbq:maths`), `${extra}: nothing moved`);
+    assert.equal(db.read('packEntitlements/uGoogle/packs/pack_cbq:maths'), undefined, extra);
+    assert.equal(db.docs.has(`adminMoves/merge-${auto}`), false, extra);
+  }
+});
+
+test('PUT-ON · the order must sit on the pay- account made for EXACTLY this order (any other pay- uid is refused); the take re-checks "not attached" inside the transaction', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidSelfOrder(srv, { contact: '+919876543948' });
+  await srv.idle();
+  const auto = autoAccountUid(paid.orderId);
+  const stranger = `pay-${'a'.repeat(24)}`;
+  assert.notEqual(stranger, auto);
+  db.docs.set(`payOrders/${paid.orderId}`, { data: { ...db.read(`payOrders/${paid.orderId}`), uid: stranger }, version: 40 });
+  const r = await proofClaim(srv, paid, GOOGLE());
+  assert.equal(r.json.reason, 'not_available');
+  assert.equal(db.read(`payOrders/${paid.orderId}`).uid, stranger);
+  // the take: the payer chooses "someone else" between the page read and the transaction
+  const db2 = memoryFirestore();
+  const a2 = await autoRoutes({ env: SELF_ENV, db: db2 });
+  t.after(a2.srv.close);
+  const waiting = await paidAttach(a2.srv);
+  const later = await startRoutes({ env: SELF_ENV, db: db2, nowMs: AFTER_HOLD });
+  t.after(later.close);
+  const key = `payOrders/${waiting.orderId}`;
+  const origTx = db2.runTransaction.bind(db2);
+  let raced = false;
+  db2.runTransaction = (fn) => {
+    if (!raced) {
+      raced = true;
+      db2.docs.set(key, { data: { ...db2.read(key), attachedAt: new Date(NOW) }, version: 99 });
+    }
+    return origTx(fn);
+  };
+  const t2 = await proofClaim(later, waiting, GOOGLE());
+  assert.equal(t2.json.reason, 'not_available');
+  assert.ok(db2.read(key).uid === null || db2.read(key).uid === undefined);
+});

@@ -1732,7 +1732,7 @@ function createGuestPayRoutes(deps = {}) {
       return sendJson(res, 200, outcome.duplicate ? { ok: true, state: 'duplicate', item } : { ok: true, state: 'put', item });
     }
     try {
-      await mergeAccount({ db: adminFirestore, fromUid: order.uid, toUid: uid, adminUid: uid, nowMs: now(), purchasesOnly: true });
+      await mergeAccount({ db: adminFirestore, fromUid: order.uid, toUid: uid, adminUid: uid, nowMs: now(), purchasesOnly: true, onlyOrderId: orderId, onlyPaymentRef: paymentId });
     } catch (e) {
       if (e instanceof MoveError) {
         emit('payments.guest.put_on_account.merge_refused');
