@@ -1,3 +1,21 @@
+## 2026-11-13 (daily, fourth; written 13 Nov) - #1695 - #1706: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Owner rulings of 13 Nov 2026 as relayed by the coordinator **[coordinator]**, and builder decisions in the PR bodies **[gh]**. Where a source does not state a reason, the reason cell says so and none is invented. No owner quote is given here because none was supplied.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **Payment first, then "Who will use it?"** [owner] | A signed-out Buy / Pay opens Razorpay at once; the who-question comes after payment (`#1698`). | Reason not given in the message. |
+| **Email and phone are hashed to Meta CAPI, with no consent condition** [owner] | The CAPI build (not yet built) sends hashed email and phone without a consent gate. | Reason not given in the message. Recorded as a ruling; it is not built. |
+| **WhatsApp number field and tick live; label "Send me updates on WhatsApp"; the privacy sentence approved** [owner] | `#1700`. | Reason not given in the message. The outbound Cloud API decision is still the owner's (earlier block). |
+| **The phone Buy bar is sticky from the first screen** [owner] | `#1697`. | Reason not given in the message. |
+| **`PACK_TEMPLATES_LIVE=1` is set** [owner] | A push that changes a bank or a figure now re-makes pack templates automatically (closes the pending decision of the 12 Nov block). | Removes the manual "Run workflow" step after a bank change; cost note: a visuals change re-makes all 828 templates (see `[FU-TEMPLATE-REMAKE-ALL-ON-VISUALS]`). |
+| **R6 receipt copy** [owner] | When the hold ends with nobody having chosen, assume the payer: "Your [item] is on the account for +91 98•••••948. Sign in with that number to open it." (masked email, "…with that email…", when there is no phone) (`#1705`). | The payer paid and was the only person who could have chosen; naming their own masked sign-in is better than the generic line [builder reading of the ruling; the owner's own reason was not supplied]. |
+| **Board Pass admin moves stay MANUAL** [owner] | No build for a single Board Pass order MOVE (`#1681` gap 1). | The pass is merged stackable fields with no per-order record, so a move is not a clean operation; the owner chose to handle it by hand [reason as in the `#1681` body; owner's wording not supplied]. |
+| **A re-fetched cached server link counts as a download; no change** [owner] | `[FU-SERVERPDF-REVIEW-1690-1691]`: each tap is a download. | Reason not given in the message. |
+| **The purchase card returns after a reload on /cbq-packs, /pricing and /board-pass** [owner] | `#1706`. | A signed-out buyer who reloads must still be shown what they bought (the PAID-SHOWS-1 principle). |
+| **The repo is public during the session and private at the end** [owner] | Operational note, no code. | Reason not given in the message. |
+| **Builder choices [gh]** | `#1701` records the Storage rules without deploying (`firebase.json` is forbidden); `#1703` fails the render rather than saving a paper that differs from the plan; `#1706` was mounted from the page files so it needs none of `#1700`'s files; `#1704` kept `mummyModel` / `mummyChunk` because `ParentResultPage` still uses them. | Each is stated in its PR body: scope discipline, a loud failure over a silent wrong file, avoiding a conflict, and not breaking a live page. |
+
 ## 2026-11-12 (daily, third; written 12 Nov night) - #1687 - #1692: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Owner rulings of 12 Nov 2026 (IST) and decisions in the PR bodies and reviews, each with its reason. Tags: **[owner]**, **[coordinator]**, **[gh]**, **[review]**. Where a source gives the owner's words they are quoted; where it does not, none are, and a reason the sources do not state is marked as not given.
