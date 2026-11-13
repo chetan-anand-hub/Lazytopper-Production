@@ -16,13 +16,14 @@
  * ★ Not supported (409): a source holding top-up credit (usageCredits) - a stack of spend with no safe move.
  */
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS, coveringPackIds } = require('./packGrant.cjs');
-const { isAlreadyOwned, parsePackId } = require('./packProducts.cjs');
+const { isAlreadyOwned, parsePackId, isPackProduct } = require('./packProducts.cjs');
 const { MoveError, ADMIN_MOVES_COLLECTION } = require('./adminMovePurchase.cjs');
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
 const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 const AUTO_ACCOUNT_UID_PREFIX = 'pay-';
 const MERGE_REASON = 'admin merge';
+const REAL_REASON = 'admin merge real';
 const mergeDocId = (fromUid) => `merge-${fromUid}`;
 const PASS_FIELDS = Object.freeze(['tier', 'plan', 'passType', 'passStart', 'passEnd', 'pricePaidInr', 'offerKey', 'foundingMember', 'lastPaymentRef']);
 /** Student-activity locations keyed by uid (studentDataMap), i.e. everything a real student leaves besides purchases. */
@@ -63,14 +64,28 @@ async function mergeAccount(input) {
   if (fromUid === toUid) throw new MoveError(400, 'Cannot merge an account into itself');
   if (!db || typeof db.runTransaction !== 'function' || !auth) throw new Error('firebase-admin is unavailable');
   const nowMs = typeof i.nowMs === 'number' && Number.isFinite(i.nowMs) ? i.nowMs : Date.now();
+  // ADMIN-MERGE-REAL-1: `real` merges TWO REAL accounts (neither is a pay- account); `dryRun` runs every check and writes nothing.
+  const real = i.real === true;
+  const dryRun = real && i.dryRun === true;
 
-  if (!fromUid.startsWith(AUTO_ACCOUNT_UID_PREFIX)) throw new MoveError(409, 'Only an account created at payment can be merged (this one is a real account)');
+  if (real) {
+    if (fromUid.startsWith(AUTO_ACCOUNT_UID_PREFIX) || toUid.startsWith(AUTO_ACCOUNT_UID_PREFIX)) throw new MoveError(409, 'This merges two real accounts. An account created at payment uses the payment-account merge');
+    if (adminUid === fromUid) throw new MoveError(409, 'You cannot remove your own account');
+  } else if (!fromUid.startsWith(AUTO_ACCOUNT_UID_PREFIX)) throw new MoveError(409, 'Only an account created at payment can be merged (this one is a real account)');
 
   let srcUser;
   try {
     srcUser = await auth.getUser(fromUid);
   } catch (e) {
-    if (notFound(e)) throw new MoveError(404, 'That source account does not exist');
+    if (notFound(e)) {
+      // A real merge that already finished and removed the account: the audit record is the proof, so a repeat is a no-op.
+      if (real) {
+        const done = await db.collection(ADMIN_MOVES_COLLECTION).doc(mergeDocId(fromUid)).get();
+        const d = done && done.exists ? done.data() || {} : null;
+        if (d && d.toUid === toUid) return { merged: false, replayed: true, fromUid, toUid, phoneMoved: false, removedAlready: true };
+      }
+      throw new MoveError(404, 'That source account does not exist');
+    }
     throw e;
   }
   let tgtUser;
@@ -88,7 +103,8 @@ async function mergeAccount(input) {
   const replayed = !!marker;
 
   if (!replayed) {
-    for (const c of ACTIVITY_COLLECTIONS) {
+    // A real student's study data is not merged (it stays under the old id, untouched); only a pay- account must be empty of it.
+    if (!real) for (const c of ACTIVITY_COLLECTIONS) {
       if (await hasAnything(db, c, fromUid)) throw new MoveError(409, 'That account has activity of its own, so it is not merged automatically');
     }
     if (await hasAnything(db, CREDIT_COLLECTION, fromUid)) throw new MoveError(409, 'That account holds top-up credit, which cannot be merged automatically');
@@ -96,7 +112,7 @@ async function mergeAccount(input) {
 
   const srcPhone = typeof srcUser.phoneNumber === 'string' && srcUser.phoneNumber ? srcUser.phoneNumber : '';
   const tgtPhone = typeof tgtUser.phoneNumber === 'string' && tgtUser.phoneNumber ? tgtUser.phoneNumber : '';
-  if (srcPhone && tgtPhone && srcPhone !== tgtPhone) throw new MoveError(409, 'The target account already has a different phone number');
+  if (!real && srcPhone && tgtPhone && srcPhone !== tgtPhone) throw new MoveError(409, 'The target account already has a different phone number');
 
   let moved = false;
   if (!replayed) {
@@ -140,6 +156,19 @@ async function mergeAccount(input) {
       for (const s of orderSnaps) {
         if (!s || !s.exists || (s.data() || {}).uid !== fromUid) throw new MoveError(409, 'An order changed while merging; try again');
       }
+      if (real) {
+        // Every PAID order of the removed account must have its purchase here to move (a pack row / replay marker, or the Board Pass
+        // on the subscription). Anything else is money with nothing to move: refuse, never leave an order pointing at nothing.
+        for (const s of orderSnaps) {
+          const o = s.data() || {};
+          if (o.status !== 'paid' && o.status !== 'claimed') continue;
+          const hasIt = isPackProduct(o.passType)
+            ? packDocs.some((d) => (d.data() || {}).orderId === s.id) || (srcMarkers.docs || []).some((d) => d.id === o.paymentId || (d.data() || {}).orderId === s.id)
+            : !!srcHasPass;
+          if (!hasIt) throw new MoveError(409, 'A paid order on that account has no purchase to move; not merged automatically');
+        }
+      }
+      if (dryRun) return;
 
       // Writes.
       for (const d of packDocs) {
@@ -162,9 +191,16 @@ async function mergeAccount(input) {
         tx.delete(sub(fromUid));
       }
       for (const id of orderIds) tx.set(db.collection(PAY_ORDERS_COLLECTION).doc(id), { uid: toUid }, { merge: true });
-      tx.set(markerRef, { at: new Date(nowMs), adminUid, fromUid, toUid, reason: MERGE_REASON });
+      tx.set(markerRef, { at: new Date(nowMs), adminUid, fromUid, toUid, reason: real ? REAL_REASON : MERGE_REASON });
     });
-    moved = true;
+    moved = !dryRun;
+  }
+  if (dryRun) return { merged: false, replayed: false, dryRun: true, fromUid, toUid, phoneMoved: false };
+  if (real) {
+    // Nothing of the removed account's may still point at it before its logins are freed.
+    const left = await db.collection(PAY_ORDERS_COLLECTION).where('uid', '==', fromUid).get();
+    if (left && left.docs && left.docs.length > 0) throw new MoveError(409, 'An order is still on the removed account; its logins were NOT removed. Run it again');
+    return { merged: moved, replayed, fromUid, toUid, phoneMoved: false };
   }
 
   // Firebase Auth - idempotent: each step acts only if still needed.
@@ -189,4 +225,35 @@ async function mergeAccount(input) {
   return { merged: moved, replayed, fromUid, toUid, phoneMoved };
 }
 
-module.exports = { mergeAccount, AUTO_ACCOUNT_UID_PREFIX, MERGE_REASON };
+/**
+ * ADMIN-MERGE-REAL-1: free the removed account's logins once its data is on the kept account and verified (mergeAccount real mode
+ * returns only after that). Order: revoke its sessions -> disable it (a safe stop if the next step fails) -> DELETE the Auth user, so
+ * its phone / email / Google provider can be added to the kept account. Why delete and not just unset the phone: a disabled user still
+ * owns its email and provider links, and Firebase will not let the student add them elsewhere. The account's Firestore data is NOT deleted.
+ * Idempotent: an already-removed user is fine.
+ */
+async function retireAccount({ auth, uid }) {
+  const gone = (e) => !!e && e.code === 'auth/user-not-found';
+  try {
+    await auth.revokeRefreshTokens(uid);
+    await auth.updateUser(uid, { disabled: true });
+  } catch (e) {
+    if (gone(e)) return { removed: true, already: true };
+    throw e;
+  }
+  try {
+    await auth.deleteUser(uid);
+  } catch (e) {
+    if (gone(e)) return { removed: true, already: true };
+    throw e;
+  }
+  return { removed: true, already: false };
+}
+
+/** Does this account hold anything of its own besides purchases (a real student's data, or top-up credit)? Read-only. */
+async function hasOwnActivity(db, uid) {
+  for (const c of ACTIVITY_COLLECTIONS) if (await hasAnything(db, c, uid)) return true;
+  return hasAnything(db, CREDIT_COLLECTION, uid);
+}
+
+module.exports = { mergeAccount, hasOwnActivity, retireAccount, REAL_REASON, AUTO_ACCOUNT_UID_PREFIX, MERGE_REASON };

@@ -38,7 +38,8 @@ const { maskIndianMobile, maskEmail, GUEST_STATUS, normaliseEmail, normaliseIndi
 const { WA_OPTIN_COLLECTION } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 // ADMIN-MOVE-1: move one paid pack order to another account.
 const { movePackOrder, MoveError } = require('../services/adminMovePurchase.cjs');
-const { mergeAccount } = require('../services/adminMergeAccount.cjs');
+const { mergeAccount, retireAccount } = require('../services/adminMergeAccount.cjs');
+const { resolveAccount, describeAccount } = require('../services/adminMergeReal.cjs'); // ADMIN-MERGE-REAL-1
 
 /**
  * GST-EXCL-1 - an order created at/after the GST cut-off (00:00 IST 7 Nov 2026) stores its breakup; the admin rows carry base and GST
@@ -568,7 +569,64 @@ function createAdminPurchasesRoutes(deps = {}) {
     }
   }
 
-  return { list, move, merge };
+
+  /**
+   * ADMIN-MERGE-REAL-1 - POST /api/admin/accounts/merge-real  ADMIN-ONLY (the same gate), kill switch ADMIN_MERGE_REAL_DISABLED.
+   *   { keep, remove, preview: true }           -> both accounts described (MASKED logins, plan, packs, paid orders) + what would stop it
+   *   { keepUid, removeUid, confirm: 'MERGE' }  -> moves the removed account's packs, Board Pass, payment records and orders to the kept
+   *     account (adminMergeAccount real mode: ONE transaction + a uids-only audit record), then frees its logins: revoke sessions ->
+   *     disable -> delete the Auth user. Refuses when both hold a Board Pass, a pack is already owned, a paid order has nothing to move,
+   *     or top-up credit is held. Study data is NOT merged (it stays, untouched, under the old id).
+   */
+  async function mergeReal(req, res) {
+    const env = deps.env || process.env;
+    if (/^(1|true|on|yes)$/i.test(String((env && env.ADMIN_MERGE_REAL_DISABLED) || '').trim())) return send(res, 404, { ok: false, error: 'Not found' });
+    const auth = await gate(req, res);
+    if (!auth) return;
+    try {
+      let body;
+      try {
+        body = typeof readJson === 'function' ? await readJson(req) : null;
+      } catch {
+        return send(res, 400, { ok: false, error: 'Invalid JSON' });
+      }
+      const b = body && typeof body === 'object' ? body : {};
+      if (!firebaseAdmin || typeof firebaseAdmin.auth !== 'function') return send(res, 503, { ok: false, error: 'firebase-admin Auth is not initialised on this deploy' });
+      const fa = firebaseAdmin.auth();
+      if (b.preview === true) {
+        const [keepUser, removeUser] = [await resolveAccount(fa, b.keep), await resolveAccount(fa, b.remove)];
+        if (!keepUser) return send(res, 404, { ok: false, error: 'The account to KEEP was not found' });
+        if (!removeUser) return send(res, 404, { ok: false, error: 'The account to REMOVE was not found' });
+        if (keepUser.uid === removeUser.uid) return send(res, 400, { ok: false, error: 'Those are the same account' });
+        let blocker = '';
+        try {
+          await mergeAccount({ db: adminFirestore, auth: fa, fromUid: removeUser.uid, toUid: keepUser.uid, adminUid: auth.uid, nowMs: now(), real: true, dryRun: true });
+        } catch (e) {
+          if (!(e instanceof MoveError)) throw e;
+          blocker = e.message;
+        }
+        return send(res, 200, {
+          ok: true,
+          keep: await describeAccount({ db: adminFirestore, user: keepUser }),
+          remove: await describeAccount({ db: adminFirestore, user: removeUser }),
+          ...(blocker ? { blocker } : {}),
+        });
+      }
+      const keepUid = typeof b.keepUid === 'string' ? b.keepUid.trim() : '';
+      const removeUid = typeof b.removeUid === 'string' ? b.removeUid.trim() : '';
+      if (!keepUid || !removeUid) return send(res, 400, { ok: false, error: 'keepUid and removeUid are required' });
+      if (b.confirm !== 'MERGE') return send(res, 400, { ok: false, error: 'Type MERGE to confirm' });
+      const r = await mergeAccount({ db: adminFirestore, auth: fa, fromUid: removeUid, toUid: keepUid, adminUid: auth.uid, nowMs: now(), real: true });
+      // Only after the data is moved and verified (mergeAccount returns past those checks): free the removed account's logins.
+      const gone = r.removedAlready ? { removed: true, already: true } : await retireAccount({ auth: fa, uid: removeUid });
+      return send(res, 200, { ok: true, merged: r.merged, replayed: r.replayed, removed: gone.removed === true });
+    } catch (e) {
+      if (e instanceof MoveError) return send(res, e.status, { ok: false, error: e.message });
+      console.error('[admin-merge-real] failed:', e && e.message);
+      return send(res, 500, { ok: false, error: 'Could not merge the accounts' });
+    }
+  }
+  return { list, move, merge, mergeReal };
 }
 
 let mounted = null;
@@ -589,4 +647,10 @@ function handleAdminMergeAccount(req, res, deps) {
   return mountedMerge.merge(req, res);
 }
 
-module.exports = { createAdminPurchasesRoutes, handleAdminPurchases, handleAdminMovePurchase, handleAdminMergeAccount, DUPLICATE_FLAG };
+let mountedMergeReal = null;
+function handleAdminMergeReal(req, res, deps) {
+  if (!mountedMergeReal) mountedMergeReal = createAdminPurchasesRoutes(deps);
+  return mountedMergeReal.mergeReal(req, res);
+}
+
+module.exports = { createAdminPurchasesRoutes, handleAdminPurchases, handleAdminMovePurchase, handleAdminMergeAccount, handleAdminMergeReal, DUPLICATE_FLAG };
