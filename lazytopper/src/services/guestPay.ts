@@ -398,7 +398,9 @@ function scheduleHoldReclaim(uid: string, holdEndsMs: number, claim?: () => Prom
   if (holdTimers.has(uid)) return;
   const used = holdRetries.get(uid) ?? 0;
   if (used >= HOLD_RECLAIM_MAX) return;
-  const wait = Math.min(Math.max(0, holdEndsMs - Date.now()) + HOLD_RECLAIM_MARGIN_MS, HOLD_RECLAIM_CEILING_MS);
+  // A hold end further away than a hold can last is a wild value (bad clock / bad data): schedule nothing, never clamp to a wrong time.
+  if (holdEndsMs - Date.now() > HOLD_RECLAIM_CEILING_MS) return;
+  const wait = Math.max(0, holdEndsMs - Date.now()) + HOLD_RECLAIM_MARGIN_MS;
   holdRetries.set(uid, used + 1);
   holdTimers.set(
     uid,
