@@ -253,6 +253,15 @@ test('a pack checkout: pack name, catalogue price, the OFFERS-V2 one-tap /packs?
   assert.ok(t3.includes(A.RETRY_LINE));
   assert.equal(A.RETRY_LINE, "If your payment didn't go through, you can simply try again — nothing extra is needed.");
   assert.doesNotMatch(byTo['one@gmail.com'].text, /try again/);
+  // The owner-approved UPI line (13 Nov 2026) rides with the retry line only: text and html both, right after it.
+  assert.equal(A.UPI_LINE, 'If your card was declined, UPI usually works.');
+  assert.ok(t3.includes(`${A.RETRY_LINE}\n\n${A.UPI_LINE}`));
+  assert.ok(byTo['three@gmail.com'].html.includes(A.UPI_LINE));
+  assert.ok(byTo['three@gmail.com'].html.includes(require('./trialEndingEmail.cjs').escapeHtml(A.RETRY_LINE)));
+  for (const k of ['one@gmail.com', 'two@gmail.com']) {
+    assert.doesNotMatch(byTo[k].text, /UPI/);
+    assert.doesNotMatch(byTo[k].html, /UPI/);
+  }
   for (const c of s.calls) assert.doesNotMatch(c.body.text + c.body.html, /2,499|2499/);
 });
 

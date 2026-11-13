@@ -346,6 +346,8 @@ function hadFailedAttempt(order) {
   return !!(order && order.lastFailure && typeof order.lastFailure === 'object');
 }
 const RETRY_LINE = "If your payment didn't go through, you can simply try again — nothing extra is needed.";
+/** Owner-approved copy (13 Nov 2026), verbatim. Shown only after a failed attempt, right after RETRY_LINE. */
+const UPI_LINE = 'If your card was declined, UPI usually works.';
 
 /** The product's name in the email. PURE. */
 function productName(product) {
@@ -379,7 +381,7 @@ function buildAbandonedCheckoutEmail({ product, order, marksLine, appUrl, unsubs
     { t: 'Hi,' },
     { t: `You opened the checkout for the ${name} on LazyTopper but did not finish paying. It is still here when you are ready.` },
   ];
-  if (hadFailedAttempt(order)) paras.push({ t: RETRY_LINE });
+  if (hadFailedAttempt(order)) paras.push({ t: RETRY_LINE }, { t: UPI_LINE });
   paras.push({ t: benefitLine(product) });
   const pl = priceLine(product, order, nowMs, finishQuote);
   if (pl) paras.push({ t: pl });
@@ -444,6 +446,7 @@ module.exports = {
   orderAmountInr,
   hadFailedAttempt,
   RETRY_LINE,
+  UPI_LINE,
   productName,
   buildAbandonedCheckoutEmail,
   runCountLine,
