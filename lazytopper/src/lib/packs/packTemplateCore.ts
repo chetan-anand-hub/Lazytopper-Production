@@ -130,3 +130,14 @@ export interface PackUnitsDef {
   target: string;
   units: TemplateUnit[];
 }
+
+/**
+ * FU-TEMPLATE-RENDER-PLAN-CHECK (review nit N3 of #1690): the papers a template file PAINTS, as the plan states them - the worksheets
+ * the exporter must be handed, in order (a paper file: its one paper; a several-paper file: each set; a paper-less file: its `ws`).
+ * The renderer hashes what it was actually handed and the generator compares it with this, so a render that drifted from the plan
+ * (the plan and the render come from the same seeded builders today, so they agree) fails loudly instead of publishing the wrong paper.
+ */
+export const planPaintedPapers = (f: PlanFile): unknown[] => (f.papers.length > 0 ? f.papers.map((p) => p.ws) : f.ws ? [f.ws] : []);
+
+/** The digest of a list of painted worksheets (the browser's own list, or the plan's): equal lists give equal digests whatever the key order. */
+export const paintedPapersDigest = (papers: readonly unknown[], sha: (text: string) => string): string => sha(canonicalJson(papers));
