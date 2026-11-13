@@ -40,6 +40,7 @@ vi.mock("../../pages/PackDialog", () => ({
 
 import PacksPage from "../../pages/PacksPage";
 import * as packs from "../../services/packs";
+import { setMatchMediaMatches } from "../../test/setup";
 
 const mineMock = packs.fetchMyPacks as unknown as ReturnType<typeof vi.fn>;
 
@@ -196,11 +197,9 @@ describe("PACKS-TIDY-2 · the phone's Bundle bar", () => {
     const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
     buyMock.mockClear();
     page();
-    // review F2: nothing of the bar (chunk, render, watchers) before the visitor's first scroll
-    await new Promise((r) => setTimeout(r, 30));
-    expect(screen.queryByTestId("packs-sticky")).toBeNull();
-    fireEvent.scroll(window);
+    // owner 13 Nov: up from the first screen on a phone, with NO scroll event
     const bar = await screen.findByTestId("packs-sticky");
+    expect(document.body.classList.contains("lt-has-pk-sticky")).toBe(true);
     expect(bar.textContent).toContain(packs.packPayLabel("pack_bundle"));
     await waitFor(() => expect(mineMock).toHaveBeenCalled());
     fireEvent.click(screen.getByTestId("packs-sticky-go"));
@@ -208,6 +207,7 @@ describe("PACKS-TIDY-2 · the phone's Bundle bar", () => {
     expect(buyMock.mock.calls[0].slice(0, 2)).toEqual(["pack_bundle", undefined]);
     expect(screen.getByTestId("dialog").getAttribute("data-sku")).toBe("pack_bundle");
     expect(screen.queryByTestId("packs-sticky")).toBeNull(); // a pop-up is open
+    await waitFor(() => expect(document.body.classList.contains("lt-has-pk-sticky")).toBe(false));
     cleanup();
     flags.packs = false;
     page();
@@ -222,6 +222,39 @@ describe("PACKS-TIDY-2 · the phone's Bundle bar", () => {
     fireEvent.scroll(window);
     await new Promise((r) => setTimeout(r, 30));
     expect(screen.queryByTestId("packs-sticky")).toBeNull();
+  });
+});
+
+describe("PACKS-STICKY-1 · the phone's Bundle bar from the first screen", () => {
+  const rect = (top: number, bottom: number) => ({ top, bottom, left: 0, right: 100, width: 100, height: bottom - top, x: 0, y: top, toJSON: () => ({}) }) as DOMRect;
+  const stub = (testId: string, r: DOMRect) =>
+    vi.spyOn(screen.getByTestId(testId), "getBoundingClientRect").mockReturnValue(r);
+
+  it("hides while the Bundle's OWN Buy box is on screen, returns when it scrolls away; other packs' Buy boxes do not hide it", async () => {
+    page();
+    const bar = await screen.findByTestId("packs-sticky");
+    expect(bar).toBeTruthy();
+    // another pack's Buy box on screen: the bar stays
+    stub("pk-buy-subject-box", rect(100, 200));
+    fireEvent.scroll(window);
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.queryByTestId("packs-sticky")).not.toBeNull();
+    // the Bundle's own box on screen: hidden
+    const own = stub("pk-buy-bundle-box", rect(100, 200));
+    fireEvent.scroll(window);
+    await waitFor(() => expect(screen.queryByTestId("packs-sticky")).toBeNull());
+    // scrolled away: back
+    own.mockReturnValue(rect(-400, -300));
+    fireEvent.scroll(window);
+    await screen.findByTestId("packs-sticky");
+  });
+
+  it("desktop (>= 768 px): nothing mounts, as before", async () => {
+    setMatchMediaMatches(true);
+    page();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.queryByTestId("packs-sticky")).toBeNull();
+    expect(document.body.classList.contains("lt-has-pk-sticky")).toBe(false);
   });
 });
 

@@ -505,23 +505,36 @@ function CompactBuy({ t, api, subject }: { t: Tile; api: PacksShopApi; subject: 
 }
 
 /**
- * The phone's Bundle bar (SalesStickyBar: phones only, hidden while ANY Buy on the page or the footer is on screen, never in the
- * prerender). NEVER a payment path of its own: its button is the Bundle's Buy (the shop's buyNow -> handleBuy). Not shown while packs
- * are dark, while the account owns the Bundle, or while a pack pop-up is open.
+ * The phone's Bundle bar (SalesStickyBar: phones only, never in the prerender). OWNER RULING 13 Nov 2026: a Buy button with its price is
+ * visible from the FIRST screen on a phone, so the bar mounts right after first paint (no scroll arming). NEVER a payment path of its
+ * own: its button is the Bundle's Buy (the shop's buyNow -> handleBuy). Not shown while packs are dark, while the account owns the
+ * Bundle, or while a pack pop-up is open. It hides only while the Bundle's OWN Buy box (or the footer) is on screen, so two identical
+ * Buy buttons never show at once; the other packs' Buy boxes do NOT hide it (a Buy with a price stays in view; the Subject, Mock and
+ * Chapter rows are folded and sell a different pack).
  */
-const STICKY_WATCH = ["pk-buy-bundle-box", "pk-buy-subject-box", "pk-buy-mock-box", "pk-buy-chapter-box"] as const;
+const STICKY_WATCH = ["pk-buy-bundle-box"] as const;
 function BundleStickyBar({ api }: { api: PacksShopApi }) {
-  // Review F2 (main-thread time while the app takes over): the bar's chunk, render and scroll watchers start only after the visitor's
-  // first scroll on a phone. It never shows before a scroll anyway (the Bundle's Buy is on the first screen), nor from 768 px (its CSS).
-  const [armed, setArmed] = useState(false);
+  // Phones only (from 768 px the bar's CSS hides it anyway): nothing mounts there. Mounted once the first paint is done (idle, else
+  // the next task) so the bar's small chunk never competes with the app taking over.
+  const [mobile, setMobile] = useState(false);
   useEffect(() => {
-    if (armed || typeof window === "undefined") return undefined;
+    if (typeof window === "undefined") return undefined;
     if (typeof window.matchMedia === "function" && window.matchMedia("(min-width: 768px)").matches) return undefined;
-    const arm = () => setArmed(true);
-    window.addEventListener("scroll", arm, { passive: true, once: true });
-    return () => window.removeEventListener("scroll", arm);
-  }, [armed]);
-  const show = armed && api.buyEnabled && !api.ownsPack("pack_bundle") && !api.openSku;
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (h: number) => void };
+    if (typeof w.requestIdleCallback === "function") {
+      const h = w.requestIdleCallback(() => setMobile(true), { timeout: 500 });
+      return () => w.cancelIdleCallback?.(h);
+    }
+    const t = window.setTimeout(() => setMobile(true), 0);
+    return () => window.clearTimeout(t);
+  }, []);
+  const show = mobile && api.buyEnabled && !api.ownsPack("pack_bundle") && !api.openSku;
+  // The bar is fixed over the foot of the page: reserve its height (packsTidy.css) so the last content and the footer stay reachable.
+  useEffect(() => {
+    if (!show) return undefined;
+    document.body.classList.add("lt-has-pk-sticky");
+    return () => document.body.classList.remove("lt-has-pk-sticky");
+  }, [show]);
   if (!show) return null;
   return (
     <Suspense fallback={null}>
