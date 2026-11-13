@@ -328,3 +328,51 @@ test('RECEIPT-RACE-1 S2 - a stalled first claimer cannot overwrite a later sende
   assert.equal(db.docs.get('payOrders/order_X1').receiptEmail.status, 'sent');
   assert.equal(doc.receiptEmail.status, 'sent');
 });
+
+// RECEIPT-HOLD-END-1 (owner ruling 13 Nov 2026, #1683 R6): nobody chose before the hold ended -> the receipt assumes the PAYER.
+test('R6: hold ended with nobody choosing -> "Your <item> is on the account for <masked number>. Sign in with that number to open it." (text and HTML)', async () => {
+  const held = { ...PASS, status: 'paid_unclaimed', uid: null, payer: 'guest', attachFlow: true, guestPaidAt: new Date(NOW - 20 * 60_000), guestPhone: '+919800000948' };
+  const { emailer, fetchImpl } = make({ order: held, account: null });
+  await emailer.sendForPayment(input());
+  assert.equal(fetchImpl.sent.length, 1);
+  const line = 'Your Board Pass is on the account for +91 98•••••948. Sign in with that number to open it.';
+  assert.ok(fetchImpl.sent[0].text.includes(line), fetchImpl.sent[0].text);
+  assert.ok(fetchImpl.sent[0].html.includes(`<p>${line}</p>`), fetchImpl.sent[0].html);
+  assert.ok(!/phone number \+91/.test(fetchImpl.sent[0].text), 'the old generic wording is gone for this case');
+});
+
+test('R6: no payer phone but a payer email -> the same sentence with the masked email', async () => {
+  const held = { ...PASS, status: 'paid_unclaimed', uid: null, payer: 'guest', attachFlow: true, guestPaidAt: new Date(NOW - 20 * 60_000), guestEmail: 'abhi@gmail.com' };
+  const { emailer, fetchImpl } = make({ order: held, account: null });
+  await emailer.sendForPayment(input());
+  assert.ok(fetchImpl.sent[0].text.includes('Your Board Pass is on the account for ab•••@gmail.com. Sign in with that email to open it.'), fetchImpl.sent[0].text);
+});
+
+test('R6: a pack names the pack; the sweep path (drainHeldReceipts) sends the same sentence', async () => {
+  const held = { ...PASS, passType: 'pack_chapter', packTarget: 'real-numbers', status: 'paid_unclaimed', uid: null, payer: 'guest', attachFlow: true, guestPaidAt: new Date(NOW - 20 * 60_000), guestPhone: '+919800000948' };
+  const db = makeDb({ 'payOrders/order_X1': held });
+  const f = makeFetch();
+  const e = createPaymentReceiptEmailer({ adminFirestore: db, env: ENV, fetchImpl: f, now: () => NOW, fetchPayment: async () => ({ email: 'buyer@example.com' }) });
+  assert.equal(await e.drainHeldReceipts(), 1);
+  assert.match(f.sent[0].text, /Your .+ is on the account for \+91 98•••••948\. Sign in with that number to open it\./);
+});
+
+test('R6: not for a chosen / attached order, a known account, a recipient ("Who will use it?") order or an ordinary guest order', async () => {
+  const base = { ...PASS, status: 'paid_unclaimed', uid: null, payer: 'guest', guestPhone: '+919800000948', guestPaidAt: new Date(NOW - 20 * 60_000) };
+  const cases = [
+    { ...base, attachFlow: true, attachedAt: new Date(NOW - 60_000), status: 'claimed', uid: 'u9' }, // chosen: account known
+    { ...base, attachFlow: true, checkoutWho: true }, // recipient order
+    { ...base }, // ordinary pay-first order: unchanged wording
+  ];
+  for (const order of cases) {
+    const { emailer, fetchImpl } = make({ order, account: order.uid ? ACCOUNT : null });
+    await emailer.sendForPayment(input());
+    assert.ok(fetchImpl.sent.length >= 1);
+    assert.ok(!/is on the account for/.test(fetchImpl.sent[0].text), JSON.stringify(order));
+  }
+  // a hold still running sends nothing (unchanged)
+  const running = { ...base, attachFlow: true, guestPaidAt: new Date(NOW - 60_000) };
+  const { emailer, fetchImpl } = make({ order: running, account: null });
+  assert.equal((await emailer.sendForPayment(input())).skipped, 'attach_hold');
+  assert.equal(fetchImpl.sent.length, 0);
+});
