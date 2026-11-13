@@ -205,7 +205,7 @@ describe("PRICING-PAGES-1 /board-pass - account states", () => {
     mockAuth.user = { uid: "u1" };
     await mount("/board-pass?buy=board_pass&utm_source=google");
     await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
-    expect(checkout.buyPass).toHaveBeenCalledWith("till_boards");
+    expect(checkout.buyPass).toHaveBeenCalledWith("till_boards", undefined, { postPay: true });
     expect(where).toBe("/board-pass?utm_source=google");
   });
 
