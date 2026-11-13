@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import RestoredPurchaseCard from "../components/checkoutWho/RestoredPurchaseCard";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
@@ -283,6 +284,7 @@ export default function BoardPassPage() {
     <>
       <main className="lt-sp lt-bp" aria-label={`LazyTopper ${BOARD_PASS_NAME}`}>
         <ParentReturnLink />
+        <RestoredPurchaseCard />
         <section className="lt-bp-hero" aria-labelledby="bp-h1">
           <div className="lt-sp__w lt-bp-hero__grid">
             <div className="lt-bp-hero__copy">

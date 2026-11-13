@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import RestoredPurchaseCard from "../components/checkoutWho/RestoredPurchaseCard";
 import BoardsCountdownStrip from "../components/urgency/BoardsCountdownStrip";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -558,6 +559,7 @@ function PricingPlansPage() {
   return (
     <main className="lt-pricing-page" aria-label="LazyTopper pricing">
       <style dangerouslySetInnerHTML={{ __html: PRICING_CSS }} />
+      <RestoredPurchaseCard />
       <div className="lt-pricing-inner">
         <div className="lt-pricing-band">
           <div className="lt-pricing-band-inner">
