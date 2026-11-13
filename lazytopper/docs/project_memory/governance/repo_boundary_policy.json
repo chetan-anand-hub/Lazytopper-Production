@@ -93,6 +93,7 @@
     ],
     "firestore": [
       "firestore.rules",
+      "storage.rules",
       "firestore.indexes.json",
       "firebase.json",
       ".firebaserc",
