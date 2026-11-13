@@ -4,7 +4,7 @@
  * the drawing code (the rig) lives in the lazily loaded ./mummyChunk.tsx only.
  *
  * Every string the section shows is in MUMMY_COPY / MUMMY_BEATS, so the owner can edit the
- * copy in one place. Rules the copy keeps (pinned by MummyJourney.test.tsx): English with light
+ * copy in one place. Rules the copy keeps (pinned by mummyModel.copy.test.tsx): English with light
  * Hinglish only, never the word "Ask", no "½", no price, no seat count, no deadline.
  */
 import { trackOnboardingEvent, type MummyBeatNumber } from "../../../analytics/analytics";

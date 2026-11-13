@@ -3,7 +3,7 @@
 // re-capture instead of relying on memory. See [FU-PRERENDER-FORPARENTS-PRICE-AFTER-30NOV].
 //
 // HOW IT CANNOT GO VACUOUS: the scan pins each product to the markup that renders it (read from
-// ForParentsPage.tsx / ParentPacksSection.tsx / PacksPage.tsx), and the test asserts the scan FOUND
+// ForParentsPage.tsx / PacksPage.tsx), and the test asserts the scan FOUND
 // the known occurrences. A markup change that makes an extractor match nothing fails the "found"
 // test; it does not pass silently. Any rupee token in a priced page that no extractor claimed
 // also fails.
@@ -76,7 +76,7 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
     found.push({ file, product: "Board Pass (founding line)", shown: line, expected: boardPassFoundingPriceLine(now) ?? "" });
   }
   take(new RegExp(`data-testid="fp-cbq-price">${AMT}<`), () => "Maths CBQ Pack (for-parents link)", () => packExp("Maths CBQ Pack"));
-  // (retired from /for-parents by PARENTS-V2-1, still scanned where they appear) packs (ParentPacksSection): name span, then the price span in the same <li>.
+  // (retired from /for-parents by PARENTS-V2-1; the component is deleted, an old snapshot that still carries this markup is still scanned) packs (formerly ParentPacksSection): name span, then the price span in the same <li>.
   for (const li of html.matchAll(/<li class="lt-fpk__item">([\s\S]*?)<\/li>/g)) {
     const name = /class="lt-fpk__name">([^<]+)/.exec(li[1])?.[1]?.trim() ?? "";
     const p = new RegExp(`data-testid="fp-packs-price">${AMT}<`).exec(li[1]);

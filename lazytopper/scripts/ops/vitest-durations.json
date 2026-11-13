@@ -86,7 +86,6 @@
   "src/components/guide/mi/MiVoiceRow.test.tsx": 0.11,
   "src/components/guide/mi/miVoiceModel.test.ts": 0.01,
   "src/components/guide/mi/miVoiceShown.test.ts": 0.02,
-  "src/components/guide/mummy/MummyJourney.test.tsx": 0.63,
   "src/components/guide/public/PublicPeek.mount.test.tsx": 1.91,
   "src/components/guide/public/PublicPeek.test.tsx": 2.27,
   "src/components/guide/public/importantTarget.test.ts": 0.04,

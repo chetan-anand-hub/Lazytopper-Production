@@ -37,12 +37,6 @@ const TEST_DIR = resolve(SRC, "test");
 // that lane closed, by owner ruling. Every src file must now be reachable from a live root.
 // The reason-required rule below still applies to any entry a future lane adds.
 export const ALLOWED_ORPHANS: Record<string, string> = {
-  // PARENTS-V2-1 (12 Nov 2026): the /for-parents rebuild retired these four from the page; kept (own tests still run) and deleted together
-  // with the Mummy chunk by [FU-PARENTS-V1-RETIRE].
-  "src/components/guide/mummy/MummyCheckNudge.tsx": "retired from /for-parents by PARENTS-V2-1; delete with [FU-PARENTS-V1-RETIRE]",
-  "src/components/guide/mummy/MummyJourney.tsx": "retired from /for-parents by PARENTS-V2-1; delete with [FU-PARENTS-V1-RETIRE]",
-  "src/components/parents/ParentBoardPassSheet.tsx": "retired by PARENTS-V2-1 (the page mounts CheckoutSheet itself); delete with [FU-PARENTS-V1-RETIRE]",
-  "src/components/parents/ParentPacksSection.tsx": "retired from /for-parents by PARENTS-V2-1; delete with [FU-PARENTS-V1-RETIRE]",
   // 2026-10-11 ME-CONCEPT-1 PR-B: Weak Area Practice and the Learning Path now read the study model, so nothing live imports
   // getWeakAreas any more. The module is still read by the weakAreaAggregator.* tests and by the ops acceptance scripts
   // (check_improve_convergence_acceptance, topickey_guard_acceptance), so it is registered rather than deleted here.

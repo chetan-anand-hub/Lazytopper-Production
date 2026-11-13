@@ -17,7 +17,6 @@ const FILES = [
   "src/components/packs/saleMomentModel.ts",
   "src/components/pricing/PacksStrip.tsx",
   "src/components/pricing/pricingPlansCopy.ts",
-  "src/components/parents/ParentPacksSection.tsx",
   "src/components/limits/packLine.ts",
   "src/components/passOwnerOffers/passOwnerOffersModel.ts",
   "src/services/packs.ts",
