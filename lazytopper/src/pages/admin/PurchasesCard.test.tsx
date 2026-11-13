@@ -371,6 +371,18 @@ describe("WHATSAPP-OPTIN-1 · WhatsApp opt-ins on the card", () => {
     expect(screen.getByTestId("pu-ab-wa-order_wa-text").textContent).toBe("WhatsApp ✓ +91 98•••••948");
   });
 
+  it("PAID rows with an opt-in show 'WhatsApp ✓ <masked>' with Reveal / Hide; paid rows without one show nothing", async () => {
+    stub(resp([item({ orderId: "order_p1", waOptIn: wa }), item({ orderId: "order_p2" })]));
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-row-order_p1")).toBeTruthy());
+    expect(screen.getByTestId("pu-wa-order_p1-text").textContent).toBe("WhatsApp ✓ +91 98•••••948");
+    expect(screen.queryByTestId("pu-wa-order_p2")).toBeNull();
+    expect(document.body.textContent).not.toContain("9876543948");
+    fireEvent.click(screen.getByTestId("pu-wa-order_p1-toggle"));
+    expect(screen.getByTestId("pu-wa-order_p1-text").textContent).toBe("WhatsApp ✓ +919876543948");
+  });
+
   it("sample opt-ins: read-only list, masked + Reveal per row; empty / failed reads are honest; an older server shows nothing", async () => {
     stub({
       ...resp([]),

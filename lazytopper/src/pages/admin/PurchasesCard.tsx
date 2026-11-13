@@ -179,6 +179,8 @@ export interface PurchaseItem extends WhoFields {
   isAdminAccount: boolean;
   /** RECEIPT-EMAIL-1: when the receipt email was sent; absent when none went out. */
   receiptEmailedAtMs?: number;
+  /** WHATSAPP-OPTIN-1: the buyer's WhatsApp opt-in on this paid order (masked + full for Reveal); absent when none. */
+  waOptIn?: { phoneMasked: string; phone: string; consentAtMs: number | null; source: string };
 }
 /** CHECKOUT-1 - an order that was opened ("created") and never paid, older than 30 minutes. */
 export interface AbandonedItem {
@@ -557,6 +559,7 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
                     )}
                   </span>
                   <WhoRow w={p} id={p.orderId} />
+                  {p.waOptIn && <WaNumber masked={p.waOptIn.phoneMasked} full={p.waOptIn.phone} testId={`pu-wa-${p.orderId}`} />}
                   {typeof p.receiptEmailedAtMs === "number" && (
                     <span className="pu-reason sa-muted" data-testid={`pu-receipt-${p.orderId}`}>
                       Receipt emailed {formatIstDateTime(p.receiptEmailedAtMs)}
