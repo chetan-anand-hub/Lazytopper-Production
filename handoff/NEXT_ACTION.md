@@ -1,3 +1,14 @@
+## 2026-11-13 (daily, fourth; written 13 Nov) - #1695 - #1706
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`8eb9b14`** [git].
+
+- **Done [gh]:** `#1695` - `#1706` merged (table in CURRENT_STATE). No grading change.
+- **First engineering item: the webhook 400s [coordinator].** Cause unknown since 8 Nov; `#1695` logs one reason per rejection. Read the next retry's log, then fix: acknowledge an already-handled business refusal with 200 so Razorpay stops retrying.
+- **Owner live tests owed [coordinator]:** one-tap signed-out checkout; the WhatsApp tick; the pop-up re-test; signed-out "someone else"; server PDFs on a phone and a ZIP; the reload card on /cbq-packs, /pricing, /board-pass.
+- **Awaiting the owner:** ad changes from the analysis doc, conversion counting fix first; a Meta CAPI token from the cofounder before the CAPI build.
+- **Next builds (not started) [coordinator]:** Meta CAPI (email + phone hashed, ruled); UPI QR fallback / retry; parent-pay first on Board Pass; sample-to-buy CTA; SEO pages (CBQ chapter pages, /mock-test-class-10, /question-bank-class-10, /cbse-marking-scheme-class-10); first-touch attribution on orders; `[FU-SELFPAY-DUPLICATE-RISK]`; `#1681` follow-ups (revokeRefreshTokens etc.).
+- **Closed or settled today:** `PACK_TEMPLATES_LIVE=1` set; `storage.rules` in the repo (`#1701`); Board Pass admin moves stay MANUAL (no build); `#1692`'s re-fetched cached link counts as a download (no change).
+
 ## 2026-11-12 (daily, third; written 12 Nov night) - #1687 - #1692
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`fe82a8b`** [git].

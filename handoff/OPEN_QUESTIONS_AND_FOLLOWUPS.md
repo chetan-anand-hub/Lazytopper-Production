@@ -23,6 +23,58 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-13 (daily, fourth; written 13 Nov) - #1695 - #1706 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*Readings are at trunk `8eb9b14`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items from the coordinator's message of 13 Nov **[coordinator]** and the PR bodies **[gh]**. No grading behaviour changed.*
+
+**New:** `[FU-WEBHOOK-400-ROOT-CAUSE]`, `[FU-SELFPAY-DUPLICATE-RISK]`, `[FU-META-CAPI-BUILD]`, `[FU-LIVE-TESTS-13NOV]`, `[FU-ADS-CHANGES-AWAITING-OWNER]`, `[FU-UPI-QR-FALLBACK]`, `[FU-PARENT-PAY-FIRST-BOARD-PASS]`, `[FU-SAMPLE-TO-BUY-CTA]`, `[FU-SEO-PAGES-13NOV]`, `[FU-FIRST-TOUCH-ATTRIBUTION]`, `[FU-ADMIN-MERGE-REVOKE-TOKENS]`.
+
+**Closed by this window:** `[FU-STORAGE-RULES-IN-REPO]` (`#1701`, a record only: verify against the console); `[FU-TEMPLATE-RENDER-PLAN-CHECK]` (`#1703`; a real render run still owed); `[FU-PARENTS-V1-RETIRE]` and `[FU-ORPHAN-COMPONENTS-1682]` allowance part (`#1704`; the Lighthouse and live-payment parts stay owner items); `[FU-RELOAD-CARD-PACKS-ONLY]` (`#1706`, live check owed); the `#1683` R6 item of `[FU-RECEIPT-EMAIL-REVIEW-ITEMS]` (`#1705`); D-NIT-1 of `[FU-PAIDSHEET-NITS]` (`#1702`; D-NIT-2 and D-NIT-3 stay open); the `waOptIns` over-erasure follow-up (resolved in `#1700`). Closed by ruling: `[FU-PACK-TEMPLATES-LIVE-VARIABLE]` (set to 1); `#1681` Board Pass single-order move stays manual (part of `[FU-ADMIN-MERGE-GAPS]`: item 1 is a MANUAL process, no build); the "re-fetched cached link counts" item of `[FU-SERVERPDF-REVIEW-1690-1691]` (counts as a download, no change). **Still open, carried:** everything the earlier blocks name that this block does not close.
+
+### [FU-WEBHOOK-400-ROOT-CAUSE]
+
+OPEN [coordinator]. The payment webhook has returned many 400s since 8 Nov and the cause is unknown. `#1695` logs one reason line (ids only) per rejection. Next: read the next Razorpay retry's log, find the cause, and fix it; the intended fix is to acknowledge with 200 any refusal that is an already-handled business outcome, so Razorpay stops retrying.
+
+### [FU-SELFPAY-DUPLICATE-RISK]
+
+OPEN [coordinator]. Named in the coordinator's list with no detail supplied to the docs builder: a duplicate-payment risk on the self-pay (attach) path. Needs its owner to write the detail.
+
+### [FU-META-CAPI-BUILD]
+
+OPEN [coordinator; owner ruling]. Meta Conversions API: email and phone hashed, no consent condition (owner ruling of 13 Nov). Not built; needs the CAPI token from the cofounder.
+
+### [FU-LIVE-TESTS-13NOV]
+
+OPEN, owner [coordinator]. Live tests owed: one-tap signed-out checkout (`#1698`); the WhatsApp number + tick (`#1700`); the pop-up re-test with a Rs58 pack (`#1687`, `#1702`); signed-out "someone else"; server PDFs on a phone and one ZIP (`#1692`); the reload card on /cbq-packs, /pricing and /board-pass (`#1706`); a real headless render with the N3 check (`#1703`, next template run).
+
+### [FU-ADS-CHANGES-AWAITING-OWNER]
+
+OPEN, owner [coordinator]. Ad changes from the analysis doc wait for the owner; the conversion-counting fix comes first.
+
+### [FU-UPI-QR-FALLBACK]
+
+OPEN [coordinator]. A UPI QR fallback and a retry when a card attempt fails (the abandoned-checkout email now says UPI usually works, `#1696`). Not built.
+
+### [FU-PARENT-PAY-FIRST-BOARD-PASS]
+
+OPEN [coordinator]. Parent-pay first on the Board Pass. Not built.
+
+### [FU-SAMPLE-TO-BUY-CTA]
+
+OPEN [coordinator]. A sample-to-buy call to action after a free sample. Not built.
+
+### [FU-SEO-PAGES-13NOV]
+
+OPEN [coordinator]. New SEO pages: CBQ chapter pages, /mock-test-class-10, /question-bank-class-10, /cbse-marking-scheme-class-10. Not built.
+
+### [FU-FIRST-TOUCH-ATTRIBUTION]
+
+OPEN [coordinator]. First-touch attribution stored on orders. Not built.
+
+### [FU-ADMIN-MERGE-REVOKE-TOKENS]
+
+OPEN [coordinator]. `#1681` follow-ups such as `revokeRefreshTokens` on an admin account merge ("etc." in the coordinator's list; the rest was not supplied). Board Pass single-order moves stay manual.
+
 ## 2026-11-12 (daily, third; written 12 Nov night) - #1687 - #1692 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *Readings are at trunk `fe82a8b`. Earlier dated entries are left as written (standing rule 3); each entry below has its own heading (standing rule 1). Items come from the PR bodies **[gh]**, the reviewer files `REVIEW_1687/1688/1690/1691/1692.md` in `/home/claude/lt-specs` **[review]**, and the coordinator's message **[coordinator]**. Where the PR bodies do not say whether a review item was fixed before merge, that is stated and not guessed. No grading behaviour changed.*

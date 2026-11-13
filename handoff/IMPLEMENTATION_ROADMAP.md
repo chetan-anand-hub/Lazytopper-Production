@@ -1,3 +1,15 @@
+## 2026-11-13 (daily, fourth; written 13 Nov) - #1695 - #1706 - MERGED
+
+- DONE. `#1696` (`9a7de16`) UPI line in the abandoned-checkout email.
+- DONE. `#1695` (`78f904c`) webhook / verify reject logging. NEXT: read the next retry's log, find the 400s' cause, ack already-handled business refusals with 200.
+- DONE. `#1699` (`7f3cdf8`) Meta InitiateCheckout, `_fbc`, gate. NEXT: Meta CAPI (hashed email + phone, no consent condition per the owner); needs a token from the cofounder.
+- DONE. `#1697` (`1fe9ae3`) mobile sticky Buy from the first screen.
+- DONE. `#1698` (`5342746`) signed-out one-tap checkout, payment first. NEXT: owner live test.
+- DONE. `#1701` (`3eeb3fe`) `storage.rules` record. DONE. `#1703` (`92b89ef`) N3 check. DONE. `#1704` (`a64f89c`) v1 parent orphans retired.
+- DONE. `#1700` (`10a7ba4`) WhatsApp number + tick. NEXT: owner live test of the tick; the outbound Cloud API decision is still held by the owner.
+- DONE. `#1705` (`271d871`) R6 hold-end receipt. DONE. `#1702` (`1206f86`) reopen button. DONE. `#1706` (`8eb9b14`) reload card on three more pages (needs a live check).
+- NEXT (not built): UPI QR fallback / retry; parent-pay first on Board Pass; sample-to-buy CTA; SEO pages (CBQ chapter pages, /mock-test-class-10, /question-bank-class-10, /cbse-marking-scheme-class-10); first-touch attribution on orders. The earlier lists stand.
+
 ## 2026-11-12 (daily, third; written 12 Nov night) - #1687 - #1692 - MERGED
 
 - DONE. `#1688` (`b41fbe4`) RECEIPT-RACE-1: one receipt per payment (closes `#1683` R4 and R5). NEXT: R6 (generic hold-end receipt).

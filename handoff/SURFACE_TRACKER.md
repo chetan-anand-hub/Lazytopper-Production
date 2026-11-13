@@ -1,3 +1,20 @@
+> **2026-11-13 (daily, fourth; written 13 Nov) - #1695 - #1706 (CLAUDE.md section 10).** Scope: the signed-out and signed-in checkout, the abandoned-checkout and receipt emails, the WhatsApp opt-in, Meta events, /packs on a phone, and the retired /for-parents v1 components. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none (grading) | unchanged | the earlier second-surface checks stay owed |
+| Signed-out Buy / Pay (PacksShop, PassCheckout, CheckoutSheet) | opens Razorpay at once, "Who will use this?" after payment (`#1698`); WhatsApp number + tick above Buy (`#1700`) | **merged, live** | owner live test of both |
+| Free sample download | WhatsApp number + tick (`#1700`) | **merged, live** | owner live check |
+| /packs on a phone | Bundle Buy bar sticky from the first screen (`#1697`) | **merged, live** | 360 px look |
+| Paid pop-up (PaidSheet) | reopen button hides after "child" / "me" (`#1702`) | **merged, live** | Rs58 pack re-test |
+| Purchase card after a reload | also on /cbq-packs, /pricing, /board-pass (`#1706`) | **merged, live** | one real signed-out payment, reload on each page |
+| Receipt email | hold-end default names the payer's account (`#1705`) | **merged, live** | a held order seen live |
+| Abandoned-checkout email | UPI line after a failed attempt (`#1696`) | **merged, live** | none stated |
+| Meta events | InitiateCheckout, `_fbc`, looser gate (`#1699`) | **merged, live** | Meta Events Manager check; CAPI not built |
+| Payment webhook | reject reason logging (`#1695`) | **merged, live** | find the cause of the 400s |
+| /for-parents | v1 components deleted (`#1704`); page itself unchanged | **merged** | none |
+| Admin / ops | `storage.rules` record (`#1701`); template N3 check (`#1703`) | **merged** | a real template run |
+
 > **2026-11-12 (daily, third; written 12 Nov night) - #1687 - #1692 (CLAUDE.md section 10).** Scope: the post-payment paid screens, My packs, the receipt email, sign-in-method messages, and the pack PDF download path (templates, server stamp, client switch). **No grading surface moved (CLAUDE.md section 4a);** the one grading-adjacent point is that a server-downloaded paper registers the server's worksheet JSON, not yet live-verified. No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |

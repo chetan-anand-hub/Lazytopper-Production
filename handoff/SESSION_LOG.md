@@ -1,3 +1,18 @@
+## 2026-11-13 (daily, fourth; written 13 Nov) - #1695 - #1706: payment-path fixes, Meta events, WhatsApp opt-in and a batch of follow-up closures (trunk `8eb9b14`)
+
+**PROVENANCE.** *(Daily handoff of 13 Nov, CLAUDE.md section 10. Covers `#1695` - `#1706`, merged 08:15 - 13:02 IST. **No grading behaviour changed (CLAUDE.md section 4a).** Merge SHAs and times **[gh]**; `#1695` - `#1699` content and the owner rulings **[coordinator]**; `#1700` - `#1706` from the builder's own work.)*
+
+**How the window went (IST) [gh for times].**
+- **08:15 - 09:20.** `#1696` (UPI line in the abandoned-checkout email), then `#1695` (webhook reject logging), `#1699` (Meta InitiateCheckout, `_fbc`, looser gate) and `#1697` (mobile sticky Buy) within seconds of each other, then `#1698` (signed-out one-tap checkout, payment first).
+- **11:28.** `#1701` (`storage.rules` record) and `#1703` (N3 render-versus-plan check), both builder follow-up PRs from the 12 Nov handoffs.
+- **12:51 - 13:02.** `#1700` (WhatsApp opt-in), `#1705` (R6 hold-end receipt), `#1704` (retire v1 parent components), `#1702` (reopen button), `#1706` (reload card).
+
+**Builder queue of the day [gh].** Seven follow-ups from the 12 Nov handoffs were worked smallest first, one PR each, in separate worktrees. Skipped with reasons: the `#1692` analytics nits (S1 and S4 were already fixed on trunk; the remaining "re-fetched link counts" item was ruled no-change), the `#1681` Board Pass single-order move (owner: handle manually). `#1706` and `#1702` were held until `#1700` merged because they edited files `#1700` also edited (`#1706` was built to avoid them; `#1702` was merged up to trunk with no conflict).
+
+**Review.** `#1705` is money-adjacent (receipt email) and was flagged for an independent review; this docs PR records no review result for it (none was supplied).
+
+**Open item that matters most [coordinator].** The many webhook 400s since 8 Nov have no known cause. `#1695` only adds the reason line.
+
 ## 2026-11-12 (daily, third; written 12 Nov night) - #1687 - #1692: the post-payment pop-up, one receipt, and SERVER-PDF-1 (trunk `fe82a8b`)
 
 **PROVENANCE.** *(Daily handoff of 12 Nov, CLAUDE.md section 10. Covers `#1687` - `#1692`, all merged 19:41 - 23:18 IST. **No grading behaviour changed (CLAUDE.md section 4a).** PR facts **[gh]** via the gh REST API; live tests and storage state **[coordinator]**/**[owner]** as given to the docs builder; review points **[review]**.)*
