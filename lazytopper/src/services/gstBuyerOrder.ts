@@ -62,6 +62,19 @@ export async function gstBuyerOrderFields(
   return {};
 }
 
+/**
+ * GST-AFTER-PAY-1 (coordinator ruling): the parent-pay paths (a parent paying from a link, the parent-pay pack) have no paid-screen
+ * block yet, so they KEEP the old pre-pay "Your state" dialog: no order may lose its GST invoice. Same behaviour as before this PR.
+ */
+export async function gstBuyerOrderFieldsPrePay(
+  authHeaders: Record<string, string> | (() => Promise<Record<string, string>>) | null = null,
+): Promise<{ gstBuyer?: GstBuyer }> {
+  if (!gstStateFieldOn()) return {};
+  const headers = typeof authHeaders === "function" ? await authHeaders().catch(() => null) : authHeaders;
+  const m = await import("./gstBuyer");
+  return m.gstBuyerBody(await m.gstBuyerForOrder(headers));
+}
+
 /** True for the buyer closing the "Your state" dialog: every buy function treats it as "dismissed", never "failed". */
 export function isGstBuyerCancelled(e: unknown): boolean {
   return !!e && typeof e === "object" && (e as { name?: unknown }).name === "GstBuyerCancelledError";

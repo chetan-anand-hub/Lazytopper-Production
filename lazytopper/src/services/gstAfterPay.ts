@@ -11,7 +11,7 @@ export const GST_GUEST_DETAILS_ENDPOINT = "/api/pay/guest/gst-details";
 export const GST_ORDER_DETAILS_ENDPOINT = "/api/gst/order-details";
 
 export type GstTarget = { kind: "guest"; proof: AttachProof } | { kind: "account"; orderId: string };
-export type GstSaveResult = { status: "saved" } | { status: "expired" } | { status: "bad_input"; field: "state" | "pin" } | { status: "failed" };
+export type GstSaveResult = { status: "saved"; invoiced: boolean } | { status: "expired" } | { status: "bad_input"; field: "state" | "pin" } | { status: "failed" };
 
 export { GST_STATES };
 
@@ -41,7 +41,7 @@ export async function saveGstDetails(target: GstTarget, buyer: Pick<GstBuyer, "s
     } catch {
       j = null;
     }
-    if (res.ok && j && j.ok === true) return { status: "saved" };
+    if (res.ok && j && j.ok === true) return { status: "saved", invoiced: j.status === "invoiced" };
     if (res.ok && j && j.ok === false && j.reason === "expired") return { status: "expired" };
     if (res.status === 400 && j && j.error === "bad_input" && (j.field === "state" || j.field === "pin")) return { status: "bad_input", field: j.field };
     return { status: "failed" };
@@ -50,9 +50,16 @@ export async function saveGstDetails(target: GstTarget, buyer: Pick<GstBuyer, "s
   }
 }
 
-/** The pre-fill hint: the signed-in account's remembered state + PIN, else the IP region's state (a hint the buyer sees and confirms; never a default). */
-export async function gstPrefill(headers: Record<string, string> = {}): Promise<{ stateCode: string; pin: string }> {
+/**
+ * The pre-fill hint: the signed-in account's remembered state + PIN, else the IP region's state (a hint the buyer sees and confirms;
+ * never a default). `remembered` is true only when the ACCOUNT holds a complete, valid state + PIN: a returning buyer's details are
+ * then sent once after payment with no tap, so no order waits for an invoice.
+ */
+export async function gstPrefill(headers: Record<string, string> = {}): Promise<{ stateCode: string; pin: string; remembered: boolean }> {
   const ctx = await fetchGstCheckoutContext(headers);
-  if (ctx.remembered) return { stateCode: ctx.remembered.stateCode, pin: ctx.remembered.pin ?? "" };
-  return { stateCode: ctx.ipStateCode ?? "", pin: "" };
+  if (ctx.remembered) {
+    const pin = ctx.remembered.pin ?? "";
+    return { stateCode: ctx.remembered.stateCode, pin, remembered: gstAfterPayError(ctx.remembered.stateCode, pin) === null };
+  }
+  return { stateCode: ctx.ipStateCode ?? "", pin: "", remembered: false };
 }

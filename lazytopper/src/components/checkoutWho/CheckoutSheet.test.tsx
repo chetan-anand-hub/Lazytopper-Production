@@ -450,3 +450,22 @@ describe("CHECKOUT-ONE-TAP-1 - once-only guard (the `|| autoRan.current` in the 
     expect(screen.getByTestId("who-pay-self-out")).toBeTruthy();
   });
 });
+
+describe("GST-AFTER-PAY-1 - a signed-in payer buying for someone else gets the block, keyed on the verified order id", () => {
+  it("flag on + confirmed paid: 'For your GST invoice' shows on the paid screen", async () => {
+    vi.stubEnv("VITE_GST_STATE_FIELD", "1");
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, ipStateCode: null, remembered: null }) })));
+    mount({
+      signedIn: true,
+      selfMasked: "an••••@gmail.com",
+      buy: vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "paid", confirmed: true, amountInr: 1917, paymentId: "pay_1", orderId: "order_77" })),
+    });
+    fireEvent.click(screen.getByTestId("who-someone-else"));
+    type("who-first", "98765 43210");
+    fireEvent.click(screen.getByTestId("who-pay"));
+    await screen.findByTestId("who-paid");
+    expect(await screen.findByTestId("postpay-gst")).toBeTruthy();
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+});

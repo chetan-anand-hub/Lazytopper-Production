@@ -4,7 +4,7 @@
  * a buyer who skips it is paid as normal and the order waits for the invoice details (nothing is lost, nothing is guessed).
  * Renders nothing with VITE_GST_STATE_FIELD off. Plain classes (postPayGst.css); works at 360 px.
  */
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { gstStateFieldOn } from "../../services/gstBuyerOrder";
 import { GST_STATES, gstAfterPayError, gstPrefill, saveGstDetails, type GstTarget } from "../../services/gstAfterPay";
 import "./postPayGst.css";
@@ -12,6 +12,7 @@ import "./postPayGst.css";
 export const POSTPAY_GST_TITLE = "For your GST invoice";
 export const POSTPAY_GST_LEDE = "Your state and PIN code go on the invoice.";
 export const POSTPAY_GST_SAVED = "Saved ✓ Your GST invoice will be sent to you.";
+export const POSTPAY_GST_SAVED_SHORT = "Saved ✓";
 export const POSTPAY_GST_EXPIRED = "This can no longer be added here. Message us and we will add it.";
 export const POSTPAY_GST_FAILED = "That did not save. Try again.";
 
@@ -22,7 +23,10 @@ export default function PostPayGst({ target, saveImpl = saveGstDetails }: { targ
   const [touched, setTouched] = useState(false);
   const [phase, setPhase] = useState<"idle" | "saving" | "saved" | "expired" | "failed">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [invoiced, setInvoiced] = useState(false);
   const on = gstStateFieldOn();
+  // A signed-in buyer whose account already holds a state + PIN is sent it ONCE, with no tap, so the order never waits (the guard is a ref).
+  const autoSent = useRef(false);
 
   // The pre-fill (the account's remembered state + PIN, else the IP region's state): only fills an EMPTY field, never overwrites typing.
   useEffect(() => {
@@ -41,6 +45,17 @@ export default function PostPayGst({ target, saveImpl = saveGstDetails }: { targ
       if (!alive) return;
       setStateCode((s) => s || p.stateCode);
       setPin((v) => v || p.pin);
+      if (target.kind === "account" && p.remembered && !autoSent.current) {
+        autoSent.current = true;
+        setPhase("saving");
+        const out = await saveImpl(target, { stateCode: p.stateCode, pin: p.pin });
+        if (!alive) return;
+        if (out.status === "saved") {
+          setInvoiced(out.invoiced);
+          setPhase("saved");
+        } else if (out.status === "expired") setPhase("expired");
+        else setPhase("idle"); // the form stays, pre-filled: one tap on Save
+      }
     })();
     return () => {
       alive = false;
@@ -54,7 +69,15 @@ export default function PostPayGst({ target, saveImpl = saveGstDetails }: { targ
     return (
       <section className="lt-ppg" data-testid="postpay-gst">
         <h3 className="lt-ppg__title">{POSTPAY_GST_TITLE}</h3>
-        <p className="lt-ppg__ok" role="status" data-testid="postpay-gst-saved">{POSTPAY_GST_SAVED}</p>
+        <p className="lt-ppg__ok" role="status" data-testid="postpay-gst-saved">
+          {target.kind === "account" ? POSTPAY_GST_SAVED_SHORT : POSTPAY_GST_SAVED}
+          {target.kind === "account" && !invoiced ? (
+            <>
+              {" · "}
+              <button type="button" className="lt-ppg__change" data-testid="postpay-gst-change" onClick={() => setPhase("idle")}>Change</button>
+            </>
+          ) : null}
+        </p>
       </section>
     );
   }
@@ -69,8 +92,10 @@ export default function PostPayGst({ target, saveImpl = saveGstDetails }: { targ
     setError(null);
     setPhase("saving");
     const out = await saveImpl(target, { stateCode, pin });
-    if (out.status === "saved") setPhase("saved");
-    else if (out.status === "expired") setPhase("expired");
+    if (out.status === "saved") {
+      setInvoiced(out.invoiced);
+      setPhase("saved");
+    } else if (out.status === "expired") setPhase("expired");
     else if (out.status === "bad_input") {
       setPhase("idle");
       setError(gstAfterPayError(out.field === "state" ? "" : stateCode, out.field === "pin" ? "" : pin) ?? POSTPAY_GST_FAILED);

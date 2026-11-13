@@ -8,3 +8,14 @@
 .lt-ppg__save:disabled { opacity: 0.6; cursor: default; }
 .lt-ppg__ok { margin: 0; font-weight: 700; color: hsl(152, 60%, 26%); }
 .lt-ppg__bad { margin: 0; font-size: 14px; color: hsl(0, 60%, 40%); }
+
+.lt-ppg__change {
+  background: none;
+  border: 0;
+  padding: 0;
+  min-height: 44px;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

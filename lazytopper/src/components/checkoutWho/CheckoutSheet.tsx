@@ -201,6 +201,8 @@ export default function CheckoutSheet({
   // PAID-SHOWS-1: Razorpay's signed proof of a VERIFIED signed-out payment -> the purchase card, first on the paid screen.
   const [receipt, setReceipt] = useState<AttachProof | null>(null);
   const [receiptHidden, setReceiptHidden] = useState(false);
+  // GST-AFTER-PAY-1: a SIGNED-IN payer buying for someone else has no receipt proof; the account route takes the verified order id.
+  const [accountGstOrder, setAccountGstOrder] = useState<string | null>(null);
   const onAttachTitle = useCallback((t: string) => setAttachTitle(t), []);
   const onAttachSettled = useCallback((v: boolean) => setAttachSettled(v), []);
   const [first, setFirst] = useState("");
@@ -268,6 +270,7 @@ export default function CheckoutSheet({
         storeReceiptProof(outcome.receipt);
         setReceipt(outcome.receipt);
       }
+      if (signedIn && outcome.confirmed && outcome.orderId) setAccountGstOrder(outcome.orderId);
       setStep({ name: "paid", recipient, confirmed: outcome.confirmed });
     } else if (outcome.status === "already_covered") {
       setStep({ name: "covered" });
@@ -578,6 +581,11 @@ export default function CheckoutSheet({
           {(step.name === "attach" || step.name === "paid" || step.name === "paidSelf") && receipt && (
             <Suspense fallback={null}>
               <PostPayGst target={{ kind: "guest", proof: receipt }} />
+            </Suspense>
+          )}
+          {step.name === "paid" && !receipt && accountGstOrder && (
+            <Suspense fallback={null}>
+              <PostPayGst target={{ kind: "account", orderId: accountGstOrder }} />
             </Suspense>
           )}
         </div>
