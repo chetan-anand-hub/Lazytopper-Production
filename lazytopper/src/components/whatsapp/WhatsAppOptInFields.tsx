@@ -1,4 +1,3 @@
-import { useId } from "react";
 import { WA_BAD_NUMBER, WA_NUMBER_LABEL, WA_OPTIN_LABEL, waTenDigits } from "../../services/waOptIn";
 import "./whatsAppOptIn.css";
 
@@ -16,7 +15,8 @@ export interface WhatsAppOptInFieldsProps {
 }
 
 export default function WhatsAppOptInFields({ phone, ticked, onPhone, onTick, disabled, testIdPrefix = "wa" }: WhatsAppOptInFieldsProps) {
-  const id = useId();
+  // Deterministic (the static-body capture renders the page twice and compares the DOM): one fixed id per surface (testIdPrefix), never useId / counters.
+  const id = `lt-waopt-${testIdPrefix}`;
   const showError = phone.trim() !== "" && waTenDigits(phone) === null;
   return (
     <div className="lt-waopt" data-testid={`${testIdPrefix}-optin`}>
