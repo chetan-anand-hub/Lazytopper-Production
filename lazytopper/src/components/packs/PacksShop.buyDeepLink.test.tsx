@@ -219,7 +219,7 @@ describe("GST-FU-1 F2 · signed-in ?buy=pack_* with a remembered state", () => {
     expect(packTrack.checkout).not.toHaveBeenCalled();
     fireEvent.click(pay);
     await waitFor(() => expect(packTrack.checkout).toHaveBeenCalledTimes(1));
-    expect(packTrack.checkout.mock.calls[0][1]).toEqual({ signedIn: true, resumed: true, from: "sample" });
+    expect(packTrack.checkout.mock.calls[0][1]).toEqual({ signedIn: true, resumed: true, from: "sample", attemptId: expect.any(String) });
   });
 
   it("CONTROL: no remembered state -> checkout starts at once, as today (the order step asks state + PIN)", async () => {

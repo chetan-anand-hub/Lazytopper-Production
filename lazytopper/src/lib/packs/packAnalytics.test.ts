@@ -7,7 +7,7 @@ const { hint, seen } = vi.hoisted(() => ({ hint: vi.fn<() => boolean | undefined
 vi.mock("./packSampleSeen", () => ({ signedInHint: hint, reportPackSampleSeen: seen }));
 
 import { __resetPurchaseMemoryForTests, setSalesPageSurface, trackBeginCheckoutTap, trackPurchase } from "../../analytics/analytics";
-import { __resetPackCheckoutStartsForTests, trackPackCheckout, trackPackEvent, trackPackPurchase, trackPackSampleDownload } from "./packAnalytics";
+import { __resetPackCheckoutStartsForTests, __resetPackMetaCheckoutForTests, trackPackCheckout, trackPackEvent, trackPackPurchase, trackPackSampleDownload } from "./packAnalytics";
 
 type Win = { gtag?: unknown; va?: unknown; fbq?: unknown };
 const w = window as unknown as Win;
@@ -35,6 +35,7 @@ beforeEach(() => {
   recordActivity.mockClear();
   __resetPurchaseMemoryForTests();
   __resetPackCheckoutStartsForTests();
+  __resetPackMetaCheckoutForTests();
   setSalesPageSurface(null);
   try {
     window.sessionStorage.clear();
@@ -65,6 +66,7 @@ describe("PRICING-PAGES-2 F4 - sales-page surface on the money events", () => {
   const meta = () => metaCalls.map((c) => [c[1], c[2]]);
   const firstParty = () => recordActivity.mock.calls.map((c) => c[1]);
   function run(): unknown {
+    vi.setSystemTime(new Date("2026-11-13T10:00:00Z")); // pin the GST cut-off (7 Nov 2026) so the Meta value is stable
     gtagCalls = [];
     metaCalls = [];
     vendorCalls = [];
@@ -77,11 +79,14 @@ describe("PRICING-PAGES-2 F4 - sales-page surface on the money events", () => {
     trackBeginCheckoutTap(d, false);
     trackPurchase({ ...d, transactionId: "pay_1" });
     trackPackEvent("pack_view", undefined, "packs");
-    trackPackCheckout({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199 }, { signedIn: false });
+    trackPackCheckout({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199 }, { signedIn: false, attemptId: "lt_fixed" });
     trackPackPurchase({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199, transactionId: "pay_2" });
     return { ga4: ga4(), meta: meta(), vendor: vendorCalls.map((c) => c.slice()), firstParty: firstParty() };
   }
-  afterEach(() => setSalesPageSurface(null));
+  afterEach(() => {
+    setSalesPageSurface(null);
+    vi.useRealTimers();
+  });
 
   /**
    * N3: pinned against LITERAL payloads - what trunk (1b0607e) sends for the same calls (the reviewer's trunk/PR dump of these calls
@@ -271,6 +276,17 @@ describe("PRICING-PAGES-2 F4 - sales-page surface on the money events", () => {
             },
           ],
           [
+            "InitiateCheckout",
+            {
+              "content_ids": [
+                "pack_cbq",
+              ],
+              "content_type": "product",
+              "currency": "INR",
+              "value": 235,
+            },
+          ],
+          [
             "PackPurchase",
             {
               "currency": "INR",
@@ -390,13 +406,33 @@ describe("pack analytics", () => {
     expect(names()).toEqual(["pack_view", "pack_view", "pack_view"]);
   });
 
-  it("pack_checkout: first-party pack_checkout, GA4 begin_checkout with the sku as item, and no Meta hit", () => {
+  it("pack_checkout: first-party pack_checkout, GA4 begin_checkout with the sku as item, and one Meta InitiateCheckout (META-PACK-CHECKOUT-1)", () => {
     trackPackCheckout({ sku: "pack_chapter", itemName: "Chapter Pack · Real Numbers", valueInr: 49 });
     expect(names()).toEqual(["pack_checkout"]);
     const begin = gtagCalls.find((c) => c[0] === "event" && c[1] === "begin_checkout");
     expect(begin).toBeTruthy();
     expect((begin![2] as { items: Array<{ item_id: string }> }).items[0].item_id).toBe("pack_chapter");
-    expect(metaCalls).toEqual([]);
+    expect(metaCalls).toHaveLength(1);
+  });
+
+  it("META-PACK-CHECKOUT-1: Meta InitiateCheckout once per attempt id, value = total incl. GST, eventID = the attempt id; a repeat with the same id sends nothing", () => {
+    vi.setSystemTime(new Date("2026-11-13T10:00:00Z")); // after GST-EXCL-1 (7 Nov 2026)
+    const d = { sku: "pack_chapter" as const, itemName: "Chapter Pack", valueInr: 49 };
+    trackPackCheckout(d, { signedIn: true, attemptId: "lt_attempt_1" });
+    trackPackCheckout(d, { signedIn: true, attemptId: "lt_attempt_1" }); // re-render / second call, same attempt
+    expect(metaCalls).toEqual([["track", "InitiateCheckout", { currency: "INR", value: 58, content_ids: ["pack_chapter"], content_type: "product" }, { eventID: "lt_attempt_1" }]]);
+    trackPackCheckout(d, { signedIn: true, attemptId: "lt_attempt_2" }); // a NEW attempt is a new event
+    expect(metaCalls).toHaveLength(2);
+    expect(metaCalls[1][3]).toEqual({ eventID: "lt_attempt_2" });
+    // the Premium pass tap keeps its own event and is not a pack event
+    expect(metaCalls.every((c) => c[1] === "InitiateCheckout")).toBe(true);
+    vi.useRealTimers();
+  });
+
+  it("META-PACK-CHECKOUT-1: a call with no attempt id still gets one id of its own (never a bare, id-less Meta event)", () => {
+    trackPackCheckout({ sku: "pack_mock", itemName: "Mock Pack", valueInr: 99 });
+    expect(metaCalls).toHaveLength(1);
+    expect((metaCalls[0][3] as { eventID: string }).eventID).toMatch(/^lt_/);
   });
 
   it("pack_purchase: once per transaction; Meta gets the custom PackPurchase (never the standard Purchase); GA4 gets purchase; the Premium `purchase` is NOT logged first-party", () => {
