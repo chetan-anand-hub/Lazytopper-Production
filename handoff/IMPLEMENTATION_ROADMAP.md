@@ -1,3 +1,14 @@
+## 2026-11-13 (daily, fifth; written 13 Nov night) - #1708 - #1724 - MERGED
+
+- DONE. `#1708` (`593f1fd`) tick turns green. DONE. `#1709` (`c0eeffb`) who-first pop-up, files folded. NEXT: Rs58 pack live test.
+- DONE. `#1710` (`f66417d`) sticky Buy bar rule. DONE. `#1711` (`4921cea`) admin opt-in number. DONE. `#1712` (`f65c7ab`) analytics hop.
+- DONE. `#1714` (`d228fca`) signed-out ZIP. DONE. `#1713` (`b9b12e0`) state + PIN after payment on all checkouts. NEXT: live test.
+- DONE. `#1715` (`335e750`) webhook signature diagnosis. NEXT (owner): point the Razorpay webhook URL at the Railway URL; then verify.
+- DONE. `#1716` (`40823d6`) GST email-link fallback. DONE. `#1717` (`616bb5e`) parent-pay post-pay GST. NEXT: live test of the parent-pay page. DONE. `#1718` (`a52c3e0`) test pin.
+- DONE. `#1719` (`03b75ba`) payer attach during the hold. DONE. `#1720` (`7654292`) claim-only exemption, held hint pinned.
+- DONE. `#1721` (`6f7d75d`) PUT-ON-THIS-ACCOUNT-1. DONE. `#1722` (`b889346`) SECOND-LOGIN-PROMPT-1. DONE. `#1723` (`4b9262e`) ADMIN-MERGE-REAL-1 (live test with two test accounts owed). DONE. `#1724` (`6448258`) UNCLAIMED-ALERT-1 (live test owed).
+- NEXT (not built): WhatsApp thank-you with purchase details (when sending is live); the earlier lists (Meta CAPI, UPI QR fallback, parent-pay first on Board Pass, sample-to-buy CTA, SEO pages, first-touch attribution) stand.
+
 ## 2026-11-13 (daily, fourth; written 13 Nov) - #1695 - #1706 - MERGED
 
 - DONE. `#1696` (`9a7de16`) UPI line in the abandoned-checkout email.

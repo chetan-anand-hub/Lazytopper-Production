@@ -1,3 +1,22 @@
+## 2026-11-13 (daily, fifth; written 13 Nov night) - #1708 - #1724: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Owner rulings of 13 Nov 2026 as relayed by the coordinator **[coordinator]**, and builder decisions from PR bodies **[builder]**. Where the source does not state a reason, the reason cell says so.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **Standing merge approval** [owner] | The coordinator merges a PR when it is green and reviewed; builders never mark ready or merge. | The product is live with paying students, so a merge must not wait on a round trip, and an independent review plus green CI is the gate. |
+| **Post-pay pop-up order** [owner] | The choice ("Who will use this?") comes first, then the 10-minute notice, with the files folded into one line and the ZIP (`#1709`, `#1714`). | Reason not given in the message beyond the ordering; the choice has to come first because the hold exists for it. |
+| **GST state + PIN after payment on ALL checkouts** [owner] | Asked after payment (`#1713`); the post-pay opt-in applies only where the block mounts; the email link is the fallback (`#1716`); parent-pay pages too (`#1717`). | Reason not given in the message; asking before payment was in front of the Buy step. |
+| **Sticky Buy bar on phones** [owner] | Always shown, except while the Bundle's own Buy button is on screen (`#1710`). | Reason not given in the message. |
+| **WhatsApp thank-you with purchase details** [owner] | Sent once WhatsApp sending is live. Not built. | Depends on the outbound Cloud API decision the owner still holds. |
+| **The five "no lost purchase" changes** [owner, approved 18:59 IST] | Payer attach in the hold (`#1719`, `#1720`), put on this account (`#1721`), second-login prompt (`#1722`), admin real-account merge (`#1723`), unclaimed sweep + alert (`#1724`). | A paid order must never be stranded on no account (the 13 Nov Board Pass case). |
+| **Admin real-account merge moves a Board Pass** [owner] | REVERSES the same-morning "Board Pass admin moves stay MANUAL" ruling. | The manual route was the thing that left students waiting; the merge refuses when both hold a Board Pass or a paid order has nothing to move. |
+| **Owner alert address in env** [owner] | `UNCLAIMED_ALERT_TO` (set in Railway), fallback `OPS_REPORT_TO`; nothing in source. | No new secret or address in source (CLAUDE.md section 7). |
+| **Delete, not disable-and-unset, the removed Auth user** [builder, `#1723`] | Revoke sessions, disable, then delete, after the data is moved and verified. | A disabled user still owns its email and provider links, which blocks adding them to the kept account. |
+| **A phone typed at a checkout is never moved onto another account by a buyer's say-so** [builder, agreed by the coordinator, `#1721`] | The buyer's put-on-account path moves purchases only (`purchasesOnly`), with no Auth call. | A typed phone is not proof of owning it. |
+| **Sweep default 5 minutes, not hourly** [builder, `#1724`] | See `[FU-UNCLAIMED-SWEEP-INTERVAL]`. | An hourly pass leaves a payer waiting up to an hour after the hold. |
+| **New kill switches default ON** [coordinator] | `PUT_ON_ACCOUNT_DISABLED`, `VITE_SECOND_LOGIN_PROMPT_DISABLED`, `ADMIN_MERGE_REAL_DISABLED`, `UNCLAIMED_SWEEP_DISABLED`, `UNCLAIMED_ALERT_DISABLED`. | Existing tests are unchanged and green; each is additive and individually switchable. |
+
 ## 2026-11-13 (daily, fourth; written 13 Nov) - #1695 - #1706: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Owner rulings of 13 Nov 2026 as relayed by the coordinator **[coordinator]**, and builder decisions in the PR bodies **[gh]**. Where a source does not state a reason, the reason cell says so and none is invented. No owner quote is given here because none was supplied.

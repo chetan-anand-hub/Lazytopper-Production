@@ -1,3 +1,19 @@
+## 2026-11-13 (daily, fifth; written 13 Nov night) - #1708 - #1724: the hold bug, the no-lost-purchase set, GST after payment (trunk `6448258`)
+
+**PROVENANCE.** *(Daily handoff of 13 Nov, second session, CLAUDE.md section 10. Covers `#1708` - `#1724`, merged 16:14 - 20:06 IST. **No grading behaviour changed (CLAUDE.md section 4a).** Merge SHAs and times **[gh]**; `#1708` - `#1714` known here by title only; `#1715` - `#1724` from the builder's reports and the coordinator's review outcomes.)*
+
+**How the window went (IST) [gh for times].**
+- **16:14 - 17:49.** `#1708` (tick), `#1709` (who-first pop-up, files folded), `#1710` (sticky Buy bar), `#1711` (admin opt-in number), `#1712` (analytics hop), `#1714` (signed-out ZIP), `#1713` (state + PIN after payment).
+- **18:05 - 18:25.** `#1715` (webhook signature diagnosis), `#1716` (GST email-link fallback), `#1717` (parent-pay post-pay GST), `#1718` (test pin).
+- **19:06 - 19:14.** The live money bug: a signed-out Board Pass order paid at 18:27 IST sat in the 10-minute attach hold and nobody delivered it. `#1719` attached it at once for a payer who signs in during the hold; `#1720` narrowed the exemption to the claim path and pinned the `held` hint.
+- **19:43 - 20:06.** The four "no lost purchase" changes the owner approved at 18:59: `#1721` (put it on this account), `#1722` (second-login prompt), `#1723` (admin real-account merge), `#1724` (hold-end sweep + owner alert).
+
+**Review (Opus, independent).** Money / auth PRs were each reviewed before merge: `#1716` PASS; `#1717` PASS-WITH-FIXES; `#1719` PASS-WITH-FIXES (fixed by `#1720`); `#1720` PASS; `#1721` HOLD then PASS (one valid proof moved other orders on the same pay- account); `#1722` HOLD then PASS (no error boundary around the lazy chunk); `#1723` PASS after fixes (payerUid orders, revoke before the final check, mutually exclusive modes, M6, parent-link warning); `#1724` PASS-WITH-FIXES (per-run cap tests, payer filter). The review outcomes of `#1708` - `#1714` and `#1715` are not recorded in this block.
+
+**Lane overlap handled.** `#1721` and `#1723` both edited `adminMergeAccount.cjs` (one `hasOwnActivity`, union exports, reason constants kept); `#1721` and `#1724` both touched `guestPay.test.cjs`. Each later PR stayed draft until the earlier merged, then trunk was merged in normally (no force-push). One brace was lost in a test-file merge on `#1724` and fixed before merge.
+
+**Standing merge approval.** From this session the coordinator merges a PR when it is green and reviewed (owner ruling, DECISION_LOG); builders never mark ready or merge.
+
 ## 2026-11-13 (daily, fourth; written 13 Nov) - #1695 - #1706: payment-path fixes, Meta events, WhatsApp opt-in and a batch of follow-up closures (trunk `8eb9b14`)
 
 **PROVENANCE.** *(Daily handoff of 13 Nov, CLAUDE.md section 10. Covers `#1695` - `#1706`, merged 08:15 - 13:02 IST. **No grading behaviour changed (CLAUDE.md section 4a).** Merge SHAs and times **[gh]**; `#1695` - `#1699` content and the owner rulings **[coordinator]**; `#1700` - `#1706` from the builder's own work.)*
