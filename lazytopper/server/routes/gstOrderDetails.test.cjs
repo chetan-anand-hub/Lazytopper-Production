@@ -29,7 +29,8 @@ function fakeStore(orders) {
     },
   };
 }
-const paidOrder = (over = {}) => ({ status: 'paid', paymentId: 'pay_1', uid: 'u1', amountPaise: 226200, ...over });
+// A sale made after the GST-exclusive cut-off (7 Nov 2026): the only kind this route takes (earlier sales use the emailed back-dated form).
+const paidOrder = (over = {}) => ({ status: 'paid', paymentId: 'pay_1', uid: 'u1', amountPaise: 226200, passType: 'till_boards', createdAt: new Date('2026-11-12T10:00:00Z'), paidAt: new Date('2026-11-12T10:05:00Z'), ...over });
 
 function harness(orders, { env = { PAYMENTS_ENABLED: '1', GST_INVOICE_ENABLED: '1' }, issue } = {}) {
   const store = fakeStore(orders);
@@ -118,4 +119,23 @@ test('service: authorize runs on the order that is written; a throwing store ans
   assert.equal(store.data.get('o1').gstBuyer, undefined);
   const broken = createGstOrderDetails({ adminFirestore: { collection: () => ({ doc: () => ({}) }), runTransaction: async () => { throw new Error('x'); } } });
   assert.deepEqual(await broken.submit({ orderId: 'o1', raw: { stateCode: '29', pin: '560001' } }), { error: 'unavailable' });
+});
+
+test('signed-in: a PAST sale (before the cut-off) is refused with 409 past_sale; nothing is written, no invoice is issued', async () => {
+  const h = harness({ o1: paidOrder({ createdAt: new Date('2026-11-01T10:00:00Z'), paidAt: new Date('2026-11-01T10:05:00Z') }) });
+  const r = await call(h, { uid: 'u1', body: BODY });
+  assert.equal(r.status, 409);
+  assert.deepEqual(r.body, { ok: false, error: 'past_sale' });
+  assert.equal(h.store.data.get('o1').gstBuyer, undefined);
+  assert.deepEqual(h.issued, []);
+});
+
+test('service: only a PAID status WITH a payment id is written (an unpaid status, or no payment id, is refused; nothing written)', async () => {
+  for (const over of [{ status: 'created' }, { status: 'paid', paymentId: undefined }, { status: 'paid', paymentId: '' }]) {
+    const h = harness({ o1: paidOrder(over) });
+    const r = await call(h, { uid: 'u1', body: BODY });
+    assert.equal(r.status, 409, JSON.stringify(over));
+    assert.equal(h.store.data.get('o1').gstBuyer, undefined);
+    assert.deepEqual(h.issued, []);
+  }
 });

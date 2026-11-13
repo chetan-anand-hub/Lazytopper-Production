@@ -445,7 +445,7 @@ export async function createWhoOrder(item: GuestItem, recipient: Recipient, sign
     headers = await authHeaders().catch(() => ({}));
   }
   // GST-INVOICE-1: the PAYER's state (a signed-in payer's remembered state is used without asking).
-  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(signedIn && headers.Authorization ? headers : null) : {};
+  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(signedIn && headers.Authorization ? headers : null, { postPay: true }) : {}; // host: CheckoutSheet (paid / attach steps mount PostPayGst)
   const json = await postJson(
     GUEST_ORDER_ENDPOINT,
     {
@@ -556,7 +556,7 @@ export interface SelfBuyDeps {
 
 /** Exported for tests. The body carries the SKU (+ target) and `self: true`; never an amount, an account phone or an email. WHATSAPP-OPTIN-1: plus `waOptIn` ({ phone, consent: true }) ONLY when the visitor typed a valid WhatsApp number AND ticked - it is not the account's contact. */
 export async function createSelfOrder(item: GuestItem): Promise<WhoOrder> {
-  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null) : {};
+  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null, { postPay: true }) : {}; // host: CheckoutSheet (attach / paidSelf steps mount PostPayGst)
   const json = await postJson(GUEST_ORDER_ENDPOINT, { sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), self: true, ...(isSelfAttachClientEnabled() ? { attach: true } : {}), ...gst, ...waOptInOrderFields() });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new WhoError("failed");

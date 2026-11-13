@@ -36,6 +36,7 @@ import { fetchMyPacks, type BoardPassCredit } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
 import PayRescueCard from "../payRescue/PayRescueCard";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
+import PostPayGstLazy from "../gstInvoice/PostPayGstLazy";
 import PaidSheetLazy, { paidSheetEnabled, paidSheetReceiptLine, preloadPaidSheet } from "../checkoutWho/PaidSheetLazy";
 import { maskEmail as maskReceiptEmail } from "../../lib/maskContact";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
@@ -253,7 +254,7 @@ export interface PassCheckoutViewProps {
    */
   activePlan?: string | null;
   onSignIn: () => void;
-  onBuy: (passType: PassType) => Promise<BuyOutcome>;
+  onBuy: (passType: PassType, opts?: { postPay?: boolean }) => Promise<BuyOutcome>;
   /** PAY-RECOVER-1 — query the server about an order Razorpay signed as paid. Never throws. */
   onCheckStatus?: (orderId: string) => Promise<PayStatusResult>;
   /** Test seam: the poll schedule (ms from the pending outcome). */
@@ -321,13 +322,13 @@ export function PassCheckoutView({
     if (holderAutoOpen && who) setHolderOpen(true);
   }, [holderAutoOpen, who]);
   const [busy, setBusy] = useState<PassType | null>(null);
-  const [paidUntil, setPaidUntilState] = useState<{ label: string; passType: PassType; orderId?: string } | null>(null);
+  const [paidUntil, setPaidUntilState] = useState<{ label: string; passType: PassType; orderId?: string; postPay?: boolean } | null>(null);
   // PAID-SHEET-1: a signed-in buyer's confirmed payment opens the "Payment received" pop-up (the inline paid line stays under it).
   const [paidSheetOpen, setPaidSheetOpen] = useState(false);
   const [whoAnswered, setWhoAnswered] = useState(false); // "Who will use this?" answered in the pop-up: no reopen button
   const [paidSheetFailed, setPaidSheetFailed] = useState(false); // the pop-up chunk did not load: the old inline paid screen
-  const setPaidUntil = (label: string, passType: PassType, orderId?: string) => {
-    setPaidUntilState({ label, passType, ...(orderId ? { orderId } : {}) });
+  const setPaidUntil = (label: string, passType: PassType, orderId?: string, postPay?: boolean) => {
+    setPaidUntilState({ label, passType, ...(orderId ? { orderId } : {}), ...(postPay ? { postPay: true } : {}) });
     if (signedIn && paidSheetEnabled() && !paidSheetFailed) setPaidSheetOpen(true);
   };
   /** SIGNED-IN-MOVE-1: after a successful move the paid screen must not keep saying the pass is this account's. */
@@ -341,7 +342,7 @@ export function PassCheckoutView({
   const [recovery, setRecovery] = useState<null | "checking" | "confirming">(null);
   /** PAY-RESCUE-1 — the checkout sheet was closed: the pass whose "Can't pay yourself?" card is showing, else null. */
   const [rescue, setRescue] = useState<PassType | null>(null);
-  const pendingRef = useRef<{ orderId: string; details: CheckoutDetails; attemptId: string; paymentId?: string } | null>(null);
+  const pendingRef = useRef<{ orderId: string; details: CheckoutDetails; attemptId: string; paymentId?: string; postPay?: boolean } | null>(null);
   const pollRun = useRef(0);
   const mounted = useRef(true);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -349,8 +350,6 @@ export function PassCheckoutView({
   const boardsPayRef = useRef<HTMLButtonElement | null>(null);
   /** GST-FU-1 review B1: set (synchronously) once any checkout starts on this mount - a held auto-start then never starts a second. */
   const buyStartedRef = useRef(false);
-  /** GST-FU-1 review F4: the auto-start stopped at Pay - the next Board Pass tap keeps the auto-start's `resumed` mark. */
-  const heldResumeRef = useRef(false);
 
   function clearHold() {
     if (holdTimer.current !== null) clearTimeout(holdTimer.current);
@@ -397,7 +396,7 @@ export function PassCheckoutView({
     setRecovery(null);
     const label = formatPassDate(result.passEnd);
     // An unreadable server date: no active copy is invented; the hydrated pass shows instead.
-    if (label) setPaidUntil(label, pending.details.passType, result.orderId || pending.orderId);
+    if (label) setPaidUntil(label, pending.details.passType, result.orderId || pending.orderId, pending.postPay);
   }
 
   settleRef.current = settlePaid;
@@ -435,9 +434,7 @@ export function PassCheckoutView({
   async function handleBuy(passType: PassType, opts: { resumed?: boolean; fromWho?: boolean } = {}) {
     if (busy || recovery !== null) return;
     buyStartedRef.current = true;
-    // GST-FU-1 review F4: the tap that completes a ?buy= link held at Pay is still that link's (resumed) start.
-    const resumed = opts.resumed === true || (passType === "till_boards" && heldResumeRef.current);
-    heldResumeRef.current = false;
+    const resumed = opts.resumed === true;
     const details = checkoutEventDetails(passType, offerOpen);
     // BUY-PATH-1: `begin_checkout` at the TAP, signed in or not (a signed-out tap used to return before any event).
     // ONE call per tap: the signed-in path below no longer sends its own. (CHECKOUT-WHO-1: the sheet's own "Pay" is the
@@ -464,7 +461,10 @@ export function PassCheckoutView({
     clearHold();
     const attemptId = newCheckoutAttemptId();
     if (signedIn && paidSheetEnabled()) preloadPaidSheet(); // warm the post-payment pop-up chunk at the Pay tap
-    const outcome = await onBuy(passType);
+    // GST-AFTER-PAY-1: only the Board Pass with the paid pop-up on mounts the GST block (the pop-up gets the order id for it), so only
+    // that leaves the state step out of the pre-pay. The month pass, and any path without the pop-up, keep the pre-pay dialog.
+    const postPay = passType === "till_boards" && paidSheetEnabled() && !paidSheetFailed;
+    const outcome = await (postPay ? onBuy(passType, { postPay: true }) : onBuy(passType));
     setBusy(null);
     if (outcome.status === "paid") {
       // TRACK-2: the ONLY `purchase` call site — the server has verified this payment.
@@ -477,7 +477,7 @@ export function PassCheckoutView({
         transactionId: outcome.orderId || outcome.paymentId || attemptId,
       });
       const label = formatPassDate(outcome.passEnd);
-      if (label) setPaidUntil(label, passType, outcome.orderId);
+      if (label) setPaidUntil(label, passType, outcome.orderId, postPay);
       else setFailed(true);
     } else if (outcome.status === "pending") {
       // PAY-RECOVER-1 — Razorpay signed a success; never the failure sentence from here on.
@@ -486,6 +486,7 @@ export function PassCheckoutView({
         details,
         attemptId,
         ...(outcome.paymentId ? { paymentId: outcome.paymentId } : {}),
+        ...(postPay ? { postPay: true } : {}),
       };
       // MONEY: the Pay buttons stay held while this order is unresolved, so a student who
       // was charged is never invited to pay a second time. They come back only when the
@@ -522,7 +523,7 @@ export function PassCheckoutView({
     if (!autoStart || autoStarted.current) return;
     autoStarted.current = true;
     const start = () => void handleBuyRef.current("till_boards", { resumed: true }); // the ?buy=board_pass auto-start, not a tap on this page
-    // GST-AFTER-PAY-1: no state + PIN step before Razorpay on any checkout, so the one-tap start never waits for one.
+    // (the auto-start goes through handleBuy: the Board Pass leaves the state step out of the pre-pay only when the paid pop-up mounts the GST block)
     start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoStart]);
@@ -546,6 +547,8 @@ export function PassCheckoutView({
         {/* PASS-OWNER-PACKS-1 (owner 3 Nov): once, on the payment-success screen - the CBQ Packs, both subjects. Its own lazy chunk. */}
         {!sheetOn && !movedAway && <PassOwnerOfferLazy placement="pass_success" assumePaid />}
         {/* LINK-SIGNIN-1: a signed-in buyer is asked who else will sign in (own lazy chunk; below the purchase line, so nothing moves). */}
+        {/* GST-AFTER-PAY-1: the pop-up is off or failed after an order made without a pre-pay state step: the same block, inline. */}
+        {!sheetOn && paidUntil.postPay && paidUntil.orderId && <PostPayGstLazy orderId={paidUntil.orderId} />}
         {!sheetOn && <SigninLinkCardLazy signedIn={signedIn} onMoved={() => { setMovedAway(true); onPassMoved?.(); }} {...moveTarget} />}
         {/* PAID-SHEET-1: the same who-card (and, for the Board Pass, the CBQ Packs offer) inside the pop-up. */}
         {sheetOn && !paidSheetOpen && !movedAway && !whoAnswered && (
@@ -889,8 +892,8 @@ function PassCheckoutConnected() {
       receiptEmail={user?.email || undefined}
       onPassMoved={() => { if (uid) void hydrateSubscriptionFromCloud(uid).catch(() => undefined); }}
       onSignIn={() => (guestEnabled ? setShowGuest(true) : navigate(withSigninRedirect("/login", PASS_CHECKOUT_RETURN_PATH)))}
-      onBuy={async (passType) => {
-        const outcome = await buyPass(passType);
+      onBuy={async (passType, opts) => {
+        const outcome = await buyPass(passType, undefined, opts);
         // Refresh the cached entitlement from the SERVER record the grant just wrote.
         // MONEY-DUPGUARD-1: `already_covered` means the server holds a pass this tab has not loaded yet - load it too.
         if ((outcome.status === "paid" || outcome.status === "already_covered") && uid) void hydrateSubscriptionFromCloud(uid).catch(() => undefined);

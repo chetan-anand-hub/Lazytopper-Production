@@ -49,7 +49,7 @@ describe("PAY-RESCUE-1 · PassCheckoutView", () => {
     expect(onBuy).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByTestId("pay-rescue-retry"));
     await waitFor(() => expect(onBuy).toHaveBeenCalledTimes(2));
-    expect(onBuy).toHaveBeenLastCalledWith("till_boards");
+    expect(onBuy).toHaveBeenLastCalledWith("till_boards", { postPay: true });
   });
 
   it("dismissed after a failed payment (afterFailure) shows the same card", async () => {

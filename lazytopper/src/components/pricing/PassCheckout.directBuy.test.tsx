@@ -115,7 +115,7 @@ describe("OFFERS-V2 A2 - /pricing?buy=board_pass", () => {
   it("a signed-in, hydrated student: the param is removed and the till-boards checkout starts exactly once", async () => {
     const c = mount("/pricing?buy=board_pass&source=scorecard");
     await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
-    expect(checkout.buyPass).toHaveBeenCalledWith("till_boards");
+    expect(checkout.buyPass).toHaveBeenCalledWith("till_boards", undefined, { postPay: true });
     expect(where).toBe("/pricing?source=scorecard");
     expect(track.trackNamedEvent).toHaveBeenCalledTimes(1);
     expect(track.trackNamedEvent).toHaveBeenCalledWith("board_pass_direct_checkout");
@@ -228,7 +228,7 @@ describe("GST-FU-1 F1 · a running month pass + ?buy=board_pass", () => {
     mockSub.status = { ...MONTH };
     mount("/pricing?buy=board_pass");
     await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
-    expect(checkout.buyPass).toHaveBeenCalledWith("till_boards");
+    expect(checkout.buyPass).toHaveBeenCalledWith("till_boards", undefined, { postPay: true });
     expect(where).toBe("/pricing");
     expect(track.trackNamedEvent).toHaveBeenCalledWith("board_pass_direct_checkout");
     expect(screen.getByTestId("pass-checkout-upsell")).toBeTruthy();
@@ -241,7 +241,7 @@ describe("GST-FU-1 F1 · a running month pass + ?buy=board_pass", () => {
     expect(checkout.buyPass).not.toHaveBeenCalled();
     fireEvent.click(c.container.querySelector(".lt-pricing-pay--boards") as HTMLElement);
     await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
-    expect(checkout.buyPass).toHaveBeenCalledWith("till_boards");
+    expect(checkout.buyPass).toHaveBeenCalledWith("till_boards", undefined, { postPay: true });
   });
 
   it("an admin grant with an end date (pass_extension) is upgradeable too; an ENDED month pass is not premium here", async () => {

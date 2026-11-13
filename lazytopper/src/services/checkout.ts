@@ -276,8 +276,8 @@ async function postJson(url: string, body: unknown): Promise<Record<string, unkn
 }
 
 /** Z2 — the server prices and creates the order. Only the pass TYPE is sent. */
-export async function createPayOrder(passType: PassType): Promise<PayOrder> {
-  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(authHeaders) : {};
+export async function createPayOrder(passType: PassType, opts: { postPay?: boolean } = {}): Promise<PayOrder> {
+  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(authHeaders, opts) : {};
   const json = await postJson(PAY_ORDER_ENDPOINT, { passType, ...gst, ...waOptInOrderFields() }); // WHATSAPP-OPTIN-1: only a valid number + the tick
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
@@ -318,8 +318,8 @@ function readPackGrant(json: Record<string, unknown>): PackGrant | null {
 }
 
 /** The server prices and creates a pack order. Only the sku and (where the sku has one) the target are sent. */
-export async function createPackOrder(sku: string, packTarget?: string): Promise<PayOrder> {
-  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(authHeaders) : {};
+export async function createPackOrder(sku: string, packTarget?: string, opts: { postPay?: boolean } = {}): Promise<PayOrder> {
+  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(authHeaders, opts) : {};
   const json = await postJson(PAY_ORDER_ENDPOINT, {
     passType: sku,
     ...(packTarget !== undefined ? { packTarget } : {}),
@@ -418,10 +418,11 @@ const DEFAULT_DEPS: BuyDeps = {
  * Order-creation / script-load failures are `{ status: "failed" }`; closing the checkout is
  * `dismissed`; a verify error AFTER Razorpay's signed success is `pending` (PAY-RECOVER-1).
  */
-export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS): Promise<BuyOutcome> {
+/** `opts.postPay`: the host mounts the paid-screen GST block (PaidSheet with an order id), so no state step comes before Razorpay. */
+export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, opts: { postPay?: boolean } = {}): Promise<BuyOutcome> {
   try {
     const [order, Razorpay, prefill] = await Promise.all([
-      deps.createOrder(passType),
+      opts.postPay ? deps.createOrder(passType, opts) : deps.createOrder(passType),
       deps.loadScript(),
       deps.prefill ? deps.prefill().catch((): CheckoutPrefill => ({})) : Promise.resolve<CheckoutPrefill>({}),
     ]);

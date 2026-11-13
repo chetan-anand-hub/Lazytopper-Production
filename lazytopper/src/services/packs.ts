@@ -367,7 +367,7 @@ export type PackBuyOutcome =
   | { status: "failed" };
 
 export interface PackBuyDeps {
-  createOrder: (sku: PackSku, target?: string) => Promise<PayOrder>;
+  createOrder: (sku: PackSku, target?: string, opts?: { postPay?: boolean }) => Promise<PayOrder>;
   loadScript: () => Promise<RazorpayConstructor>;
   verify: (success: RazorpaySuccess) => Promise<PackGrant>;
   /** PAY-RESCUE-1 - optional; absent in injected test deps. */
@@ -388,14 +388,14 @@ const DEFAULT_BUY_DEPS: PackBuyDeps = {
 export async function buyPack(
   sku: PackSku,
   target?: string,
-  options: { chapterName?: string; deps?: PackBuyDeps } = {},
+  options: { chapterName?: string; deps?: PackBuyDeps; /** the host mounts the paid-screen GST block (PaidSheet with an order id) */ postPay?: boolean } = {},
 ): Promise<PackBuyOutcome> {
   const deps = options.deps ?? DEFAULT_BUY_DEPS;
   if (!isValidPackTarget(sku, target)) return { status: "failed" };
   try {
     const sendTarget = sku === "pack_bundle" ? undefined : target;
     const [order, Razorpay, prefill] = await Promise.all([
-      deps.createOrder(sku, sendTarget),
+      options.postPay ? deps.createOrder(sku, sendTarget, { postPay: true }) : deps.createOrder(sku, sendTarget),
       deps.loadScript(),
       deps.prefill ? deps.prefill().catch((): CheckoutPrefill => ({})) : Promise.resolve<CheckoutPrefill>({}),
     ]);

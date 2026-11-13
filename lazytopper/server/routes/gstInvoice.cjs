@@ -40,6 +40,7 @@ const {
   PAID_STATES,
   invoiceOwnedBy,
   invoiceLinkSecret,
+  backdateExclusion,
 } = require('../services/gstInvoice.cjs');
 const { SECTIONS, heldCsv } = require('../services/gstInvoiceExport.cjs');
 const { createGstOrderDetails } = require('../services/gstOrderDetails.cjs'); // GST-AFTER-PAY-1
@@ -406,7 +407,22 @@ function createGstInvoiceRoutes(deps = {}) {
     const orderId = body && typeof body.orderId === 'string' ? body.orderId.trim() : '';
     if (!/^[A-Za-z0-9_]{1,64}$/.test(orderId)) return sendJson(res, 400, { ok: false, error: 'bad_input', field: 'order' });
     // Only the account that PAID (invoiceOwnedBy: the D1 rule), checked on the order that is then written.
-    const out = await orderDetails.submit({ orderId, raw: { stateCode: body.stateCode, pin: body.pin, business: body.business }, authorize: (o) => invoiceOwnedBy(o, uid) });
+    // A PAST sale (made before the GST-exclusive cut-off) is invoiced only through the emailed back-dated form, never here.
+    const refused = { pastSale: false };
+    const out = await orderDetails.submit({
+      orderId,
+      raw: { stateCode: body.stateCode, pin: body.pin, business: body.business },
+      authorize: (o) => {
+        if (!invoiceOwnedBy(o, uid)) return false;
+        const why = backdateExclusion(o);
+        if (why !== 'not_past_sale' && why !== 'unpaid') {
+          refused.pastSale = true;
+          return false;
+        }
+        return true;
+      },
+    });
+    if (out.error === 'forbidden' && refused.pastSale) return sendJsonWithHeaders(res, 409, { ok: false, error: 'past_sale' }, { 'Cache-Control': 'no-store' });
     if (out.error === 'bad_input') return sendJsonWithHeaders(res, 400, { ok: false, error: 'bad_input', field: out.field }, { 'Cache-Control': 'no-store' });
     if (out.error === 'forbidden' || out.error === 'unknown_order') return sendJsonWithHeaders(res, 404, NOT_FOUND_BODY, { 'Cache-Control': 'no-store' });
     if (out.error === 'unpaid') return sendJsonWithHeaders(res, 409, { ok: false, error: 'not_paid' }, { 'Cache-Control': 'no-store' });

@@ -51,24 +51,17 @@ export function resetPressForTests(): void {
 if (gstStateFieldOn()) armPressCapture();
 
 /**
- * GST-AFTER-PAY-1 (owner 13 Nov 2026): NO state + PIN step before Razorpay on any checkout. The order body carries no `gstBuyer`
- * (the server still accepts one from an old tab). The buyer gives state + PIN on the paid screen instead (components/gstInvoice/
- * PostPayGst). Kept as the one door every order function calls, so a future pre-pay field has one place to go.
+ * GST-AFTER-PAY-1 (owner 13 Nov 2026): the state + PIN the GST invoice needs are asked on the PAID screen (components/gstInvoice/PostPayGst)
+ * instead of before Razorpay, BUT ONLY for a caller that passes `{ postPay: true }`, and a caller may do that only from a host proven to
+ * mount the block (CheckoutSheet's attach / paid steps; PaidSheet when it has an order id; see gstAfterPay.test.tsx's caller table).
+ * Every other caller keeps the old pre-pay "Your state" dialog, so no order is left without its invoice details.
+ * Kept as the one door every order function calls.
  */
 export async function gstBuyerOrderFields(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _authHeaders: Record<string, string> | (() => Promise<Record<string, string>>) | null = null,
-): Promise<{ gstBuyer?: GstBuyer }> {
-  return {};
-}
-
-/**
- * GST-AFTER-PAY-1 (coordinator ruling): the parent-pay paths (a parent paying from a link, the parent-pay pack) have no paid-screen
- * block yet, so they KEEP the old pre-pay "Your state" dialog: no order may lose its GST invoice. Same behaviour as before this PR.
- */
-export async function gstBuyerOrderFieldsPrePay(
   authHeaders: Record<string, string> | (() => Promise<Record<string, string>>) | null = null,
+  opts: { postPay?: boolean } = {},
 ): Promise<{ gstBuyer?: GstBuyer }> {
+  if (opts.postPay === true) return {};
   if (!gstStateFieldOn()) return {};
   const headers = typeof authHeaders === "function" ? await authHeaders().catch(() => null) : authHeaders;
   const m = await import("./gstBuyer");

@@ -122,13 +122,18 @@ describe("gstBuyerForOrder", () => {
     expect(isGstBuyerCancelled(err)).toBe(true);
     expect(isGstBuyerCancelled(new Error("x"))).toBe(false);
   });
-  it("GST-AFTER-PAY-1: the order door is {} EVEN WITH the flag on - no dialog, no network, a lazy auth getter is never called", async () => {
+  it("the order door with the flag off: {} and a lazy auth getter is never called", async () => {
+    const getter = vi.fn(async () => ({ Authorization: "Bearer x" }));
+    expect(await gstBuyerOrderFields(getter)).toEqual({});
+    expect(getter).not.toHaveBeenCalled();
+  });
+  it("GST-AFTER-PAY-1: with the flag on, { postPay: true } is {} - no dialog, no network, the auth getter is never called", async () => {
     vi.stubEnv("VITE_GST_STATE_FIELD", "1");
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
     const getter = vi.fn(async () => ({ Authorization: "Bearer x" }));
-    expect(await gstBuyerOrderFields(getter)).toEqual({});
-    expect(await gstBuyerOrderFields(null)).toEqual({});
+    expect(await gstBuyerOrderFields(getter, { postPay: true })).toEqual({});
+    expect(await gstBuyerOrderFields(null, { postPay: true })).toEqual({});
     expect(getter).not.toHaveBeenCalled();
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(document.querySelector('[data-testid="gst-state-select"]')).toBeNull();

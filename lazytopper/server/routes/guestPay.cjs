@@ -1644,6 +1644,8 @@ function createGuestPayRoutes(deps = {}) {
    */
   async function handleGstDetails(req, res) {
     if (!isCheckoutWhoEnabled(env) && !isGuestPayEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
+    // The same switch as the signed-in route: invoicing off = dark (404), nothing is read or written.
+    if (!/^(1|true|on|yes)$/i.test(String((env && env.GST_INVOICE_ENABLED) || '').trim())) return sendJson(res, 404, NOT_FOUND_BODY);
     if (!admitGuestCall(req, res, 'gst_details', GUEST_GST_DETAILS_PATH)) return undefined;
     const keys = readKeys();
     if (!keys.keyId || !keys.keySecret) return unavailable(res);

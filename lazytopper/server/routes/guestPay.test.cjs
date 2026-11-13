@@ -2600,6 +2600,7 @@ test('WA-OPTIN · an attacker-supplied consentText / consentVersion / source in 
 
 /* ══ GST-AFTER-PAY-1 (13 Nov 2026): the payer's state + PIN AFTER paying - POST /api/pay/guest/gst-details ═══════════ */
 /** A stand-in for the invoicer's `issueNow`: it issues ONLY when the stored order has a complete gstBuyer (as the real one holds `no_state`/`no_pin`), once per order. */
+const GST_ENV = { ...SELF_ENV, GST_INVOICE_ENABLED: '1' };
 function fakeInvoicer(db) {
   const calls = [];
   return {
@@ -2622,7 +2623,7 @@ async function gstRoutes(t, over = {}) {
   const invoicer = fakeInvoicer(db);
   const queued = [];
   const receiptEmailer = { queueInvoiceEmail: async (x) => { queued.push(x.orderId); return { sent: true }; } };
-  const { srv } = await autoRoutes({ env: SELF_ENV, db, invoicer, receiptEmailer, ...over });
+  const { srv } = await autoRoutes({ env: GST_ENV, db, invoicer, receiptEmailer, ...over });
   t.after(srv.close);
   return { srv, db, invoicer, queued };
 }
@@ -2670,18 +2671,18 @@ test('GST-AFTER-PAY · bad signature, another payment id, or an unpaid order: re
 
 test('GST-AFTER-PAY · the 24 h window: open at +23:59:59.999, refused (ok:false, expired) at +24:00:00; nothing written', async (t) => {
   const db = memoryFirestore();
-  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  const { srv } = await autoRoutes({ env: GST_ENV, db });
   t.after(srv.close);
   const paid = await paidAttach(srv);
   const inv = fakeInvoicer(db);
-  const inside = await startRoutes({ env: SELF_ENV, db, invoicer: inv, nowMs: NOW + RECEIPT_WINDOW_MS - 1 });
+  const inside = await startRoutes({ env: GST_ENV, db, invoicer: inv, nowMs: NOW + RECEIPT_WINDOW_MS - 1 });
   t.after(inside.close);
   assert.equal((await gstDetails(inside, paid)).json.ok, true);
   const db2 = memoryFirestore();
-  const { srv: s2 } = await autoRoutes({ env: SELF_ENV, db: db2 });
+  const { srv: s2 } = await autoRoutes({ env: GST_ENV, db: db2 });
   t.after(s2.close);
   const paid2 = await paidAttach(s2);
-  const edge = await startRoutes({ env: SELF_ENV, db: db2, invoicer: fakeInvoicer(db2), nowMs: NOW + RECEIPT_WINDOW_MS });
+  const edge = await startRoutes({ env: GST_ENV, db: db2, invoicer: fakeInvoicer(db2), nowMs: NOW + RECEIPT_WINDOW_MS });
   t.after(edge.close);
   const r = await gstDetails(edge, paid2);
   assert.equal(r.status, 200);
@@ -2711,13 +2712,38 @@ test('GST-AFTER-PAY · invoicing held (e.g. seller config missing): the details 
   const db = memoryFirestore();
   const queued = [];
   const heldInvoicer = { async issueNow() { return { held: 'seller_config_missing' }; } };
-  const { srv } = await autoRoutes({ env: SELF_ENV, db, invoicer: heldInvoicer, receiptEmailer: { queueInvoiceEmail: async (x) => queued.push(x) } });
+  const { srv } = await autoRoutes({ env: GST_ENV, db, invoicer: heldInvoicer, receiptEmailer: { queueInvoiceEmail: async (x) => queued.push(x) } });
   t.after(srv.close);
   const paid = await paidAttach(srv);
   const r = await gstDetails(srv, paid);
   assert.deepEqual(r.json, { ok: true, status: 'details_saved' });
   assert.deepEqual(srv.db.read(`payOrders/${paid.orderId}`).gstBuyer, { stateCode: '29', pin: '560001' });
   assert.deepEqual(queued, []);
+});
+
+test('GST-AFTER-PAY · invoicing off is 404 and writes nothing; a valid signature on a NON-guest order is refused; a flood of calls is rate limited', async (t) => {
+  // invoicing switch off (GST_INVOICE_ENABLED unset): dark, nothing read or written
+  const off = await autoRoutes({ env: SELF_ENV });
+  t.after(off.srv.close);
+  const paidOff = await paidAttach(off.srv);
+  assert.equal((await gstDetails(off.srv, paidOff)).status, 404);
+  assert.equal(off.srv.db.read(`payOrders/${paidOff.orderId}`).gstBuyer, undefined);
+
+  const { srv, invoicer } = await gstRoutes(t);
+  // a signed-in payer's order (payer not 'guest') with a VALID checkout signature is refused; nothing written
+  await srv.db.collection('payOrders').doc('order_NG').set({ status: 'paid', paymentId: 'pay_NG', payer: 'student', uid: 'u1', passType: 'till_boards', amountPaise: 191700, paidAt: new Date(NOW), createdAt: new Date(NOW) });
+  const ng = await request(srv.port, GUEST_GST_DETAILS_PATH, { body: { orderId: 'order_NG', paymentId: 'pay_NG', signature: checkoutSig('order_NG', 'pay_NG'), stateCode: '29', pin: '560001' } });
+  assert.notEqual(ng.status, 200);
+  assert.equal(srv.db.read('payOrders/order_NG').gstBuyer, undefined);
+  assert.equal(invoicer.calls.length, 0);
+
+  // the per-client limiter counts this route
+  let limited = 0;
+  for (let i = 0; i < 130; i += 1) {
+    const r = await request(srv.port, GUEST_GST_DETAILS_PATH, { body: { orderId: 'bad', paymentId: 'bad', signature: 'zz' }, headers: { 'X-Forwarded-For': '203.0.113.77' } });
+    if (r.status === 429) limited += 1;
+  }
+  assert.ok(limited > 0);
 });
 
 /* ══ GUEST-ZIP-1 (13 Nov 2026): one ZIP of the whole pack for a signed-out buyer - POST /api/pay/guest/zip-link ═════════════════ */
