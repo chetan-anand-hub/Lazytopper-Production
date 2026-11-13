@@ -13,7 +13,8 @@ const mockSub = vi.hoisted(() => ({
   hydrated: true,
 }));
 const checkout = vi.hoisted(() => ({ buyPass: vi.fn() }));
-const flags = vi.hoisted(() => ({ guest: false, who: true }));
+const flags = vi.hoisted(() => ({ guest: false, who: true, self: false }));
+const selfBuy = vi.hoisted(() => ({ fn: vi.fn() }));
 const analytics = vi.hoisted(() => ({
   trackNamedEvent: vi.fn(),
   trackBeginCheckoutTap: vi.fn(),
@@ -42,6 +43,12 @@ vi.mock("../../services/guestPay", async (orig) => ({
 vi.mock("../../services/checkoutWhoFlag", async (orig) => ({
   ...(await orig<typeof import("../../services/checkoutWhoFlag")>()),
   isCheckoutWhoClientEnabled: () => flags.who,
+  isCheckoutSelfClientEnabled: () => flags.who && flags.self,
+}));
+vi.mock("../../services/checkoutWho", async (orig) => ({
+  ...(await orig<typeof import("../../services/checkoutWho")>()),
+  buyForSelf: (...a: unknown[]) => selfBuy.fn(...a),
+  isSelfAttachClientEnabled: () => flags.who && flags.self,
 }));
 
 import PassCheckout, { tillBoardsButtonLabel } from "./PassCheckout";
@@ -71,6 +78,8 @@ beforeEach(() => {
   mockAuth.user = null;
   flags.guest = false;
   flags.who = true;
+  flags.self = false;
+  selfBuy.fn.mockReset();
   where = "";
   checkout.buyPass.mockResolvedValue({ status: "paid", passEnd: "2027-03-31T18:29:59.000Z", amountInr: 1917, paymentId: "pay_1" });
 });
@@ -180,5 +189,43 @@ describe("CHECKOUT-WHO-1 · flag OFF = the old flow", () => {
     fireEvent.click(screen.getByText(/once till your boards/));
     expect(await screen.findByTestId("guest-pay-sheet")).toBeTruthy();
     expect(screen.queryByTestId("who-sheet")).toBeNull();
+  });
+});
+
+describe("CHECKOUT-ONE-TAP-1 - signed out: the Pay tap IS the Pay tap", () => {
+  beforeEach(() => {
+    flags.self = true;
+  });
+
+  it("ONE Pay tap fires the self order straight away: no 'Pay' step, no choice; one begin_checkout; no signed-in buyPass", async () => {
+    selfBuy.fn.mockReturnValue(new Promise(() => undefined));
+    mount("/pricing");
+    fireEvent.click(screen.getByText(/once till your boards/));
+    await waitFor(() => expect(selfBuy.fn).toHaveBeenCalledTimes(1));
+    expect(selfBuy.fn.mock.calls[0][0]).toMatchObject({ kind: "pass", sku: "till_boards" });
+    expect(screen.getByTestId("who-auto-opening")).toBeTruthy();
+    expect(screen.queryByTestId("who-pay-self-out")).toBeNull();
+    expect(screen.queryByTestId("who-first")).toBeNull();
+    expect(screen.queryByTestId("who-someone-else")).toBeNull();
+    expect(checkout.buyPass).not.toHaveBeenCalled();
+    expect(analytics.trackBeginCheckoutTap).toHaveBeenCalledTimes(1);
+    expect(analytics.trackBeginCheckoutTap).toHaveBeenCalledWith(expect.anything(), false, false);
+  });
+
+  it("/pricing?buy=board_pass (a link, not a tap): today's Pay step, no order until the tap", async () => {
+    mount("/pricing?buy=board_pass");
+    const pay = await screen.findByTestId("who-pay-self-out");
+    expect(selfBuy.fn).not.toHaveBeenCalled();
+    selfBuy.fn.mockReturnValue(new Promise(() => undefined));
+    fireEvent.click(pay);
+    await waitFor(() => expect(selfBuy.fn).toHaveBeenCalledTimes(1));
+  });
+
+  it("self switch off: today's sheet (the identifier box), no order on the tap", async () => {
+    flags.self = false;
+    mount("/pricing");
+    fireEvent.click(screen.getByText(/once till your boards/));
+    expect(await screen.findByTestId("who-first")).toBeTruthy();
+    expect(selfBuy.fn).not.toHaveBeenCalled();
   });
 });

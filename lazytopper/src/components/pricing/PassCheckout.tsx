@@ -314,6 +314,8 @@ export function PassCheckoutView({
 }: PassCheckoutViewProps) {
   /** CHECKOUT-WHO-1 - the "Who will use it?" sheet is open (only ever with `who`). */
   const [whoOpen, setWhoOpen] = useState(false);
+  // CHECKOUT-ONE-TAP-1: the signed-out sheet opened by a real Pay tap buys for yourself at once; a ?buy= link arrival (resumed) keeps the Pay step.
+  const [whoTap, setWhoTap] = useState(false);
   /** SELFPAY-ATTACH-1 - a holder's "You already have the Board Pass" card (only ever with `who`). */
   const [holderOpen, setHolderOpen] = useState(false);
   useEffect(() => {
@@ -445,6 +447,7 @@ export function PassCheckoutView({
     // CHECKOUT-SELF-1: only a SIGNED-OUT tap opens the sheet; a signed-in student's Pay buys for their own account in one tap
     // (someone else / a mobile number is the secondary link below the button).
     if (who && passType === "till_boards" && !opts.fromWho && !signedIn) {
+      setWhoTap(opts.resumed !== true);
       setWhoOpen(true);
       return;
     }
@@ -767,6 +770,7 @@ export function PassCheckoutView({
             onSignInWithEmail={who.onSignInWithEmail}
             onClose={() => setWhoOpen(false)}
             {...(signedIn ? { startAt: "other" as const } : {})}
+            {...(!signedIn && whoTap ? { autoPaySelf: true } : {})}
           />
         </Suspense>
       )}

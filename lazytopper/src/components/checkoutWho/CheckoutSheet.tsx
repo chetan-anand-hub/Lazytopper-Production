@@ -133,6 +133,15 @@ export interface CheckoutSheetProps {
   /** CHECKOUT-SELF-2 test seams: the "Buy for yourself" purchase, and the kill switch (default: the build flag). */
   buySelf?: (item: GuestItem) => Promise<SelfBuyOutcome>;
   selfFirst?: boolean;
+  /**
+   * CHECKOUT-ONE-TAP-1 (owner 13 Nov 2026, "first take the payment, then ask"): a SIGNED-OUT visitor's Buy / Pay tap opened this sheet, so
+   * it runs the same buy-for-yourself action AT ONCE on mount (Razorpay opens; the pre-pay "Pay ₹X" step is never shown) and stays only as
+   * the host for the after-pay states (the attach step, the thank-you). Honoured only when the self-first step AND the attach flow are on
+   * (the after-pay "My child / someone else" choice is what replaces the pre-pay link) and never for audience "parent" (/for-parents keeps its
+   * own pay-first path). A dismissed or failed payment falls back to the ordinary Pay step, so a retry is one tap. Hosts pass it only for a
+   * real tap, never for a ?buy= link arrival.
+   */
+  autoPaySelf?: boolean;
 }
 
 type Step =
@@ -165,6 +174,7 @@ export default function CheckoutSheet({
   buy = buyForRecipient,
   buySelf = buyForSelf,
   selfFirst,
+  autoPaySelf,
   holder,
   onGoTo,
   attachOn,
@@ -178,6 +188,9 @@ export default function CheckoutSheet({
   const [selfOutFirst] = useState(() => !signedIn && startAt !== "other" && (audience !== "parent" || attachPreselect === "other") && (selfFirst ?? isCheckoutSelfClientEnabled()));
   const [step, setStep] = useState<Step>(holder && signedIn ? { name: "holder" } : selfOutFirst ? { name: "selfOut" } : signedIn && startAt !== "other" ? { name: "self" } : { name: "form" });
   const showAttach = attachOn ?? isSelfAttachClientEnabled();
+  // CHECKOUT-ONE-TAP-1: decided once at mount (like selfOutFirst).
+  const [autoSelf] = useState(() => autoPaySelf === true && selfOutFirst && showAttach && audience !== "parent" && !holder);
+  const autoRan = useRef(false);
   const goTo = onGoTo || ((path: string) => window.location.assign(path));
   // SELFPAY-ATTACH-1: the title the after-payment flow wants, and whether closing now needs the "your payment is safe" line.
   const [attachTitle, setAttachTitle] = useState("");
@@ -206,6 +219,14 @@ export default function CheckoutSheet({
   useEffect(() => {
     panelRef.current?.focus();
   }, [step.name]);
+
+  // CHECKOUT-ONE-TAP-1: the tap that opened the sheet IS the Pay tap. Once per mount (StrictMode / re-render safe).
+  useEffect(() => {
+    if (!autoSelf || autoRan.current) return;
+    autoRan.current = true;
+    void paySelf();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const busy = step.name === "busy" || step.name === "selfBusy";
   // SELFPAY-ATTACH-1: closing before choosing who it is for asks first (one line; the payment is already safe).
@@ -289,7 +310,10 @@ export default function CheckoutSheet({
   }
 
   let body;
-  if (step.name === "selfOut" || step.name === "selfBusy") {
+  if (autoSelf && (step.name === "selfBusy" || (step.name === "selfOut" && !step.error && !step.closed))) {
+    // CHECKOUT-ONE-TAP-1: no pre-pay step - just the status while Razorpay opens. After a dismissal / failure the ordinary Pay step shows.
+    body = <p className="lt-gps__fine" role="status" data-testid="who-auto-opening">Opening payment…</p>;
+  } else if (step.name === "selfOut" || step.name === "selfBusy") {
     const selfError = step.name === "selfOut" ? step.error : undefined;
     body = (
       <>
