@@ -728,3 +728,7 @@
   padding-top: 12px;
   border-top: 1px solid rgba(148, 163, 184, 0.4);
 }
+
+/* ADMIN-MERGE-REAL-1 */
+.mac-sides { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0; }
+.mac-side { flex: 1 1 240px; min-width: 0; padding: 10px 12px; border: 1px solid rgba(15, 27, 45, 0.18); border-radius: 10px; overflow-wrap: anywhere; font-size: 13px; line-height: 1.5; }

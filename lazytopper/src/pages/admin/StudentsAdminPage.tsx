@@ -19,6 +19,7 @@ import StudentDetailPanel from "./StudentDetailPanel";
 import GraderHealthCard from "./GraderHealthCard";
 import KeyDisputesCard from "./KeyDisputesCard";
 import PurchasesCard from "./PurchasesCard";
+import MergeAccountsCard from "./MergeAccountsCard";
 import GstInvoicesCard from "./GstInvoicesCard";
 import AiCostSummaryCard, { useAiCostSummary } from "./AiCostSummaryCard";
 import {
@@ -425,6 +426,9 @@ export default function StudentsAdminPage() {
 
           {/* ADMIN-PURCHASES-1: who bought what (paid orders only), loads on request, admin API answered OK. */}
           {list.status === "ok" && <PurchasesCard getToken={stableGetToken} />}
+
+          {/* ADMIN-MERGE-REAL-1: merge two real accounts (keep one, remove the other). Collapsed; typed confirmation; the server decides. */}
+          {list.status === "ok" && <MergeAccountsCard getToken={stableGetToken} />}
 
           {/* GST-INVOICE-1: seller-config warning, held orders and the GSTR-1 CSVs. Loads on request, admin API answered OK. */}
           {list.status === "ok" && <GstInvoicesCard getToken={stableGetToken} />}
