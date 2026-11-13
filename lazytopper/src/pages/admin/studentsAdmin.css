@@ -728,3 +728,16 @@
   padding-top: 12px;
   border-top: 1px solid rgba(148, 163, 184, 0.4);
 }
+
+/* UNCLAIMED-ALERT-1: count of paid orders on no account for 15+ minutes */
+.pu-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #b42318;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: middle;
+}

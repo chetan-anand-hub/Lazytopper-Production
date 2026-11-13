@@ -135,6 +135,14 @@ describe("PAY-PHONE-1 · unclaimed guest payments", () => {
     expect(row).toContain("₹99");
     expect(row).toContain("3 h");
     c();
+    expect(s.queryByTestId("pu-unclaimed-badge")).toBeNull();
+    c();
+    r(<UnclaimedGuestList unclaimed={{ items: [], overdue: 2 }} />);
+    expect(s.getByTestId("pu-unclaimed-badge").textContent).toBe("2");
+    c();
+    r(<UnclaimedGuestList unclaimed={{ items: [], overdue: 0 }} />);
+    expect(s.queryByTestId("pu-unclaimed-badge")).toBeNull();
+    c();
     r(<UnclaimedGuestList unclaimed={{ items: [] }} />);
     expect(s.getByTestId("pu-unclaimed-empty")).toBeTruthy();
     c();

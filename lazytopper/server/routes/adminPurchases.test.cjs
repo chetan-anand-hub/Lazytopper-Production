@@ -234,6 +234,15 @@ test('PAY-PHONE-1 unclaimedGuest: guest paid_unclaimed only, phone MASKED, oldes
   assert.deepEqual(res.body.items.map((i) => i.orderId), ['p1']);
 });
 
+test('UNCLAIMED-ALERT-1 unclaimedGuest.overdue: counts orders unclaimed for 15 minutes or more (the admin badge), not newer ones', async () => {
+  const MIN = 60000;
+  const guest = (id, ago) => ({ id, data: { uid: null, payer: 'guest', guestPhone: '+919876543948', passType: 'pack_mock', amountPaise: 9900, status: 'paid_unclaimed', paymentId: `pay_${id}`, guestPaidAt: new Date(NOW - ago) } });
+  const { route } = harness({ orders: [guest('a', 14 * MIN), guest('b', 15 * MIN), guest('c', 600 * MIN)] });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.body.unclaimedGuest.overdue, 2);
+  assert.equal(res.body.unclaimedGuest.items.length, 3);
+});
+
 test('PAY-PHONE-1 review · guestAttention: claimed+grant failed, duplicate purchases, erased before claim; masked; in-progress claims hidden', async () => {
   const HOUR = 3600000;
   const g = (id, status, extra = {}) => ({ id, data: { uid: 'u1', payer: 'guest', guestPhone: '+919876543948', passType: 'pack_mock', packTarget: 'maths', amountPaise: 9900, status, paymentId: `pay_${id}`, guestPaidAt: new Date(NOW - 5 * HOUR), ...extra } });
