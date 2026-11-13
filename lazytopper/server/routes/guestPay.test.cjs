@@ -2245,31 +2245,69 @@ test('ATTACH · F3: two concurrent attaches with DIFFERENT recipients: exactly o
   assert.equal(a.json.phoneMasked, maskIndianMobile(stored.guestPhone));
 });
 
-test('ATTACH · F3: the hold boundary - one millisecond before +10:00 the claim takes nothing, at exactly +10:00 it takes the order', async (t) => {
+test('ATTACH-HOLD-1 · the PAYER signs in with the paid-with phone DURING the hold: claimed at once, no hold hint, idempotent', async (t) => {
   const db = memoryFirestore();
   const { srv } = await autoRoutes({ env: SELF_ENV, db });
   t.after(srv.close);
   const paid = await paidAttach(srv);
-  const before = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + ATTACH_HOLD_MS - 1 });
-  t.after(before.close);
-  assert.deepEqual((await claim(before, signedIn('uEdge', PHONE))).json.claimed, [], 'still held at +9:59.999');
   assert.equal(db.read(`payOrders/${paid.orderId}`).status, 'paid_unclaimed');
-  const at = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + ATTACH_HOLD_MS });
-  t.after(at.close);
-  const r = await claim(at, signedIn('uEdge', PHONE));
+  const during = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + ATTACH_HOLD_MS - 1 });
+  t.after(during.close);
+  const r = await claim(during, signedIn('uPayer', PHONE));
+  assert.equal(r.status, 200, r.text);
   assert.equal(r.json.claimed.length, 1, r.text);
-  assert.equal(db.read(`payOrders/${paid.orderId}`).uid, 'uEdge');
+  assert.equal(r.json.held, undefined);
+  const stored = db.read(`payOrders/${paid.orderId}`);
+  assert.equal(stored.status, 'paid');
+  assert.equal(stored.uid, 'uPayer');
+  const again = await claim(during, signedIn('uPayer', PHONE));
+  assert.equal(again.json.claimed.length, 0);
+  assert.equal(db.read(`payOrders/${paid.orderId}`).uid, 'uPayer');
 });
 
-test('ATTACH · the claim does NOT take an attach order during the hold; after it, it takes it for the paid-with number', async (t) => {
+test("ATTACH-HOLD-1 · an attach order that is NOT the payer's own paid-with contact stays refused during the hold, is reported as held (end time only), and is taken at exactly +10:00", async (t) => {
   const db = memoryFirestore();
   const { srv } = await autoRoutes({ env: SELF_ENV, db });
   t.after(srv.close);
   const paid = await paidAttach(srv);
-  const during = await claim(srv, signedIn('uPaidWith', PHONE));
-  assert.equal(during.status, 200);
-  assert.deepEqual(during.json.claimed, []);
-  assert.equal(srv.db.read(`payOrders/${paid.orderId}`).status, 'paid_unclaimed');
+  const key = `payOrders/${paid.orderId}`;
+  const { selfContactFrom, ...rest } = db.read(key);
+  assert.equal(selfContactFrom, 'payment');
+  db.docs.set(key, { data: { ...rest }, version: 99 });
+  const before = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + ATTACH_HOLD_MS - 1 });
+  t.after(before.close);
+  const r = await claim(before, signedIn('uEdge', PHONE));
+  assert.deepEqual(r.json.claimed, [], 'still held at +9:59.999');
+  assert.deepEqual(r.json.held, [{ holdEndsMs: NOW + ATTACH_HOLD_MS }]);
+  assert.equal(JSON.stringify(r.json).includes(paid.orderId), false, 'no order id in the hint');
+  assert.equal(db.read(key).status, 'paid_unclaimed');
+  db.docs.set(key, { data: { ...rest, selfContactFrom: 'payment', selfPay: false }, version: 100 });
+  assert.deepEqual((await claim(before, signedIn('uEdge', PHONE))).json.claimed, [], 'not a self-pay order: still held');
+  db.docs.set(key, { data: { ...rest }, version: 101 });
+  const at = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + ATTACH_HOLD_MS });
+  t.after(at.close);
+  const ok = await claim(at, signedIn('uEdge', PHONE));
+  assert.equal(ok.json.claimed.length, 1, ok.text);
+  assert.equal(ok.json.held, undefined);
+  assert.equal(db.read(key).uid, 'uEdge');
+});
+
+test('ATTACH-HOLD-1 · a DIFFERENT phone never takes the order during the hold', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const r = await claim(srv, signedIn('uOther', '+919811111111'));
+  assert.deepEqual(r.json.claimed, []);
+  assert.equal(r.json.held, undefined);
+  assert.equal(db.read(`payOrders/${paid.orderId}`).status, 'paid_unclaimed');
+});
+
+test('ATTACH · after the hold the claim still takes it for the paid-with number', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
   const later = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + ATTACH_HOLD_MS + 1000 });
   t.after(later.close);
   const after = await claim(later, signedIn('uPaidWith', PHONE));

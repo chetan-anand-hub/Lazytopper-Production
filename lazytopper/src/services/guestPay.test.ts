@@ -18,6 +18,66 @@ import {
 
 const ITEM: GuestItem = { kind: "pack", sku: "pack_mock", target: "maths", label: "Mock Pack · Maths", description: "Maths Mock Pack · 8 board-pattern mock papers" };
 
+describe("SELFPAY-ATTACH-HOLD-1 · a claim that finds an order still held", () => {
+  it("claims once more just after the hold ends (page open), and stops when nothing is held; no timer without a hint", async () => {
+    vi.useFakeTimers();
+    try {
+      vi.doMock("./checkout", async (orig) => ({ ...(await orig<typeof import("./checkout")>()), authHeaders: async () => ({ Authorization: "Bearer t" }) }));
+      const mod = await import("./guestPay");
+      mod.resetGuestClaimSessionForTests();
+      const endsMs = Date.now() + 60_000;
+      const fetchSpy = vi.spyOn(globalThis, "fetch");
+      fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, claimed: [], held: [{ holdEndsMs: endsMs }] }), { status: 200 }));
+      fetchSpy.mockResolvedValue(new Response(JSON.stringify({ ok: true, claimed: [{ orderId: "o1", kind: "pass", sku: "board_pass", target: null }] }), { status: 200 }));
+      const seen: unknown[] = [];
+      const onClaimed = (e: Event) => seen.push((e as CustomEvent).detail);
+      window.addEventListener(mod.GUEST_CLAIMED_EVENT, onClaimed);
+      expect(await mod.claimOncePerSession("uHeld")).toEqual([]);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      // the uid is marked claimed: a plain second call does nothing (this is the bug), only the timer re-claims
+      expect(await mod.claimOncePerSession("uHeld")).toEqual([]);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(59_000);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(4_000);
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+      await vi.advanceTimersByTimeAsync(120_000);
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+      window.removeEventListener(mod.GUEST_CLAIMED_EVENT, onClaimed);
+      expect(seen).toHaveLength(1);
+      // no hint, no timer
+      fetchSpy.mockClear();
+      fetchSpy.mockResolvedValue(new Response(JSON.stringify({ ok: true, claimed: [] }), { status: 200 }));
+      await mod.claimOncePerSession("uPlain", { force: true });
+      await vi.advanceTimersByTimeAsync(20 * 60_000);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      fetchSpy.mockRestore();
+      mod.resetGuestClaimSessionForTests();
+      vi.doUnmock("./checkout");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("a hold that is STILL reported is retried at most three times, one timer at a time", async () => {
+    vi.useFakeTimers();
+    try {
+      vi.doMock("./checkout", async (orig) => ({ ...(await orig<typeof import("./checkout")>()), authHeaders: async () => ({ Authorization: "Bearer t" }) }));
+      const mod = await import("./guestPay");
+      mod.resetGuestClaimSessionForTests();
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response(JSON.stringify({ ok: true, claimed: [], held: [{ holdEndsMs: Date.now() + 1000 }] }), { status: 200 }));
+      await mod.claimOncePerSession("uStuck");
+      await vi.advanceTimersByTimeAsync(60 * 60_000);
+      expect(fetchSpy).toHaveBeenCalledTimes(4);
+      fetchSpy.mockRestore();
+      mod.resetGuestClaimSessionForTests();
+      vi.doUnmock("./checkout");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
 function fakeRazorpay(outcome: "success" | "dismiss") {
   const seen: Record<string, unknown>[] = [];
   class FakeRazorpay {
