@@ -1703,3 +1703,27 @@ test('EMAIL-LINK past-sale path unchanged: a past sale still gets the back-dated
   assert.equal(rec.issuedLater, true);
   assert.equal(rec.taxWorkedBack, true);
 });
+
+test('EMAIL-LINK post-cutoff unpaid order (has a payment id, status not paid): submit maps to invalid, stores nothing, issues nothing, uses no number', async () => {
+  for (const status of ['created', 'failed']) {
+    const db = memoryFirestore({ 'payOrders/order_U': heldNew({ status }) });
+    const clock = { t: AFTER_CUTOFF + 1000 };
+    const { svc, sent } = backdateFor(db, clock, { payments: { pay_H: { id: 'pay_H', order_id: 'order_U', email: 'h.buyer@example.com', contact: '+919800000002', status: 'captured' } } });
+    const tok = tokenFor('order_U', clock);
+    assert.deepEqual(await svc.submitDetails(tok, { stateCode: '29', pin: '560001' }), { error: 'invalid' }, status);
+    assert.equal(db.read('payOrders/order_U').gstBuyer, undefined, status);
+    assert.equal(db.read('payOrders/order_U').gstInvoice, undefined, status);
+    assert.equal(db.docs.has('gstInvoiceCounters/26-27'), false, status);
+    assert.equal(sent.length, 0, status);
+  }
+});
+
+test('EMAIL-LINK post-cutoff: when the write path itself answers unpaid / forbidden / unknown_order (a race after the page check), submit maps each to invalid', async () => {
+  for (const code of ['unpaid', 'forbidden', 'unknown_order', 'unavailable']) {
+    const db = memoryFirestore({ 'payOrders/order_H': heldNew() });
+    const clock = { t: AFTER_CUTOFF + 1000 };
+    const E = { ...ENV_READY, INVOICE_LINK_SECRET: LINK_SECRET };
+    const svc = bd.createGstBackdate({ adminFirestore: db, invoicer: g.createGstInvoicer({ adminFirestore: db, env: E, now: () => clock.t }), mailer: null, fetchPayment: async () => null, getAccountEmail: async () => '', env: E, now: () => clock.t, orderDetails: { submit: async () => ({ error: code }) } });
+    assert.deepEqual(await svc.submitDetails(tokenFor('order_H', clock), { stateCode: '29', pin: '560001' }), { error: 'invalid' }, code);
+  }
+});
