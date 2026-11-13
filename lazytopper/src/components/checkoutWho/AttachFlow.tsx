@@ -299,6 +299,7 @@ export default function AttachFlow({ item, proof, contact, onTitle, onClose, onS
   return (
     <>
       <p className="lt-gps__ok" role="status" data-testid="who-paid">Payment received ✓ {what}</p>
+      {contact && <p className="lt-who__notice" role="note" data-testid="attach-hold-note">{attachHoldNote(paidWith, paidWithIsPhone)}</p>}
       <button type="button" className="lt-who__choice" onClick={() => { if (contact) setView({ name: "me" }); else { setTyped(""); setView({ name: "meForm" }); } }} data-testid="attach-choose-me" {...(preselect ? { "aria-pressed": false } : {})}>
         <strong>{ATTACH_ME}</strong>
         <small>{ATTACH_ME_SUB}</small>
@@ -312,7 +313,6 @@ export default function AttachFlow({ item, proof, contact, onTitle, onClose, onS
           Continue
         </button>
       )}
-      {contact && <p className="lt-who__note" data-testid="attach-hold-note">{attachHoldNote(paidWith, paidWithIsPhone)}</p>}
       {!contact && <a className="lt-gps__textlink" href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">Message us on WhatsApp</a>}
     </>
   );

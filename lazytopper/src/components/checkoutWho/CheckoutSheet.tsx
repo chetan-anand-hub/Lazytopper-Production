@@ -565,12 +565,17 @@ export default function CheckoutSheet({
         ) : null}
         {/* The flow stays mounted behind the confirm so "Keep choosing" returns to where the payer was. */}
         <div className="lt-who__stack" hidden={confirmClose && attachPending}>
-          {showReceipt && receipt && (
+          {showReceipt && receipt && step.name !== "attach" && (
             <Suspense fallback={null}>
               <PurchaseCard proof={receipt} onHide={() => setReceiptHidden(true)} />
             </Suspense>
           )}
           {body}
+          {showReceipt && receipt && step.name === "attach" && (
+            <Suspense fallback={null}>
+              <PurchaseCard proof={receipt} onHide={() => setReceiptHidden(true)} hidePaymentLine filesFolded={!attachSettled} />
+            </Suspense>
+          )}
         </div>
       </div>
     </div>,

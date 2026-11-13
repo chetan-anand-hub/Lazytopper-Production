@@ -131,3 +131,30 @@ describe("a Board Pass, and the other outcomes", () => {
     expect(onHide).toHaveBeenCalled();
   });
 });
+
+describe("POSTPAY-WHO-FIRST-1 - folded files and the hidden payment line", () => {
+  const three = [
+    { id: "f1", label: "A", group: "G1", filename: "a.pdf", build: build.fileBuild },
+    { id: "f2", label: "B", group: "G1", filename: "b.pdf", build: build.fileBuild },
+    { id: "f3", label: "C", group: "G2", filename: "c.pdf", build: build.fileBuild },
+  ];
+
+  it("filesFolded: one 'Your files (N) · Show' summary, N counts every file across groups, 'saved to' is inside it", async () => {
+    build.buildPackFiles.mockResolvedValue(three);
+    render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} filesFolded hidePaymentLine />);
+    const fold = await screen.findByTestId("receipt-files-fold");
+    expect(screen.getByTestId("receipt-files-summary").textContent).toBe("Your files (3) · Show");
+    expect((fold as HTMLDetailsElement).open).toBe(false);
+    expect(fold.contains(screen.getByTestId("receipt-saved"))).toBe(true);
+    expect(screen.queryByText("Payment received ✓")).toBeNull();
+  });
+
+  it("defaults (restored cards, /packs): no fold, the payment line shows, files and saved line as before", async () => {
+    build.buildPackFiles.mockResolvedValue(three);
+    render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} />);
+    await screen.findAllByTestId("receipt-download");
+    expect(screen.queryByTestId("receipt-files-fold")).toBeNull();
+    expect(screen.getByText("Payment received ✓")).toBeTruthy();
+    expect(screen.getByTestId("receipt-saved")).toBeTruthy();
+  });
+});

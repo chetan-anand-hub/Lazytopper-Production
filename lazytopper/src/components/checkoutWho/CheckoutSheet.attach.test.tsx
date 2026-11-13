@@ -3,11 +3,16 @@
  * (WhatsApp share without a number in the URL), already_has, the 10-minute screen fallback (fake timers), the close confirm, the holder card.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 const analytics = vi.hoisted(() => ({ trackNamedEvent: vi.fn(), trackPurchase: vi.fn(), newCheckoutAttemptId: vi.fn(() => "lt_attempt") }));
 vi.mock("../../analytics/analytics", () => analytics);
-vi.mock("../../lib/packs/packAnalytics", () => ({ trackPackPurchase: vi.fn() }));
+vi.mock("../../lib/packs/packAnalytics", () => ({ trackPackPurchase: vi.fn(), trackPackEvent: vi.fn() }));
+const built = vi.hoisted(() => ({ files: [] as unknown[] }));
+vi.mock("../../lib/packs/buildPackFiles", async (orig) => ({
+  ...(await orig<typeof import("../../lib/packs/buildPackFiles")>()),
+  buildPackFiles: async () => built.files,
+}));
 const auth = vi.hoisted(() => ({ sendPhoneOtp: vi.fn(async () => undefined), verifyPhoneOtp: vi.fn(async () => undefined) }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => auth }));
 
@@ -340,7 +345,7 @@ describe("PARENTS-V2-1 - attachPreselect (the /for-parents pay-first flow)", () 
 });
 
 describe("PAID-SHOWS-1 - the purchase card is the first block of the paid screen", () => {
-  it("signed out, attach flow: the card (from the receipt) sits ABOVE 'Who will use it?', and the proof is kept in this tab only", async () => {
+  it("signed out, attach flow: the card (from the receipt) sits BELOW 'Who will use it?', and the proof is kept in this tab only", async () => {
     sessionStorage.clear();
     answer({ ok: true, attached: false, savedTo: "+91 98•••••210", item: { kind: "pass", label: "Board Pass" } });
     mount({ buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF })) });
@@ -350,7 +355,7 @@ describe("PAID-SHOWS-1 - the purchase card is the first block of the paid screen
     expect(JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body)).toEqual(PROOF);
     expect((await screen.findByTestId("receipt-title")).textContent).toBe("Your Board Pass is active till your boards");
     const who = screen.getByTestId("attach-choose-me");
-    expect(card.compareDocumentPosition(who) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(who.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(JSON.parse(sessionStorage.getItem("lt.paidReceipt.v1") || "{}")).toEqual(PROOF);
   });
 
@@ -376,5 +381,52 @@ describe("PAID-SHOWS-1 - the purchase card is the first block of the paid screen
     fireEvent.click(screen.getByTestId("who-pay"));
     await screen.findByTestId("purchase-card");
     expect(screen.getByTestId("who-paid")).toBeTruthy();
+  });
+});
+
+describe("POSTPAY-WHO-FIRST-1 - the choice comes first, the files fold into one line", () => {
+  const PACK_RECEIPT = {
+    ok: true,
+    attached: false,
+    savedTo: "+91 98•••••210",
+    item: { kind: "pack", label: "PDF pack" },
+    pack: { packId: "pack_cbq:maths", sku: "pack_cbq", target: "maths", paidAt: 1, orderId: "order_1" },
+    licensee: { name: "", email: "", phone: "+91 98•••••210" },
+  };
+  const mk = (id: string, group: string) => ({ id, label: id, group, filename: id + ".pdf", build: vi.fn(async () => undefined) });
+
+  it("one 'Payment received' line, then the 10-minute notice ABOVE Me / My child, then the buttons", async () => {
+    answer({ ok: true, attached: false, savedTo: "+91 98•••••210", item: { kind: "pass", label: "Board Pass" } });
+    mount({ buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF })) });
+    await payToWho();
+    await screen.findByTestId("receipt-title");
+    expect(screen.getAllByText(/Payment received/)).toHaveLength(1);
+    const paid = screen.getByTestId("who-paid");
+    const note = screen.getByTestId("attach-hold-note");
+    const me = screen.getByTestId("attach-choose-me");
+    const other = screen.getByTestId("attach-choose-other");
+    expect(note.className).toBe("lt-who__notice");
+    expect(paid.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(note.compareDocumentPosition(me) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(me.compareDocumentPosition(other) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("the files are one folded line 'Your files (N) · Show' below the choice, and open out once the payer has chosen", async () => {
+    built.files = [mk("a", "Real Numbers"), mk("b", "Real Numbers"), mk("c", "Polynomials")];
+    answer(PACK_RECEIPT);
+    mount({ item: CBQ, buySelf: vi.fn(async () => ({ ...PAID, receipt: PROOF })) });
+    await payToWho();
+    const fold = await screen.findByTestId("receipt-files-fold");
+    expect(screen.getByTestId("receipt-files-summary").textContent).toBe("Your files (3) · Show");
+    expect((fold as HTMLDetailsElement).open).toBe(false);
+    expect(screen.getByTestId("attach-choose-me").compareDocumentPosition(fold) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // the "saved to" line lives inside the fold
+    expect(fold.contains(screen.getByTestId("receipt-saved"))).toBe(true);
+    // choose "Me" and confirm: the attach settles, the list is no longer folded
+    answer({ ok: true, status: "attached" });
+    fireEvent.click(screen.getByTestId("attach-choose-me"));
+    fireEvent.click(screen.getByTestId("attach-me-yes"));
+    await waitFor(() => expect(screen.queryByTestId("receipt-files-fold")).toBeNull());
+    expect(screen.getAllByTestId("receipt-download").length).toBe(3);
   });
 });
