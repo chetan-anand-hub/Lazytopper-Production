@@ -1,0 +1,10 @@
+/* PUT-ON-THIS-ACCOUNT-1 - "Put it on this account?": a calm bar, same look as the pack-ready toast. Works from 360 px up. */
+.lt-poa { position: fixed; z-index: 2147483000; left: 16px; right: 16px; bottom: 16px; margin: 0 auto; max-width: 520px; padding: 14px 16px; border: 1.5px solid #3fbf82; border-radius: 14px; background: #e6f4ec; color: #0f1b2d; box-shadow: 0 10px 30px rgba(15, 27, 45, 0.25); display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; }
+.lt-poa__text { flex: 1 1 100%; margin: 0; font-weight: 700; font-size: 16px; line-height: 1.35; overflow-wrap: anywhere; }
+.lt-poa__err { flex: 1 1 100%; margin: 0; font-size: 14px; color: #9b1c1c; }
+.lt-poa__row { display: flex; flex-wrap: wrap; gap: 10px; flex: 1 1 100%; }
+.lt-poa__btn { flex: 1 1 150px; min-height: 48px; border: 0; border-radius: 12px; background: #3fbf82; color: #0f1b2d; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; }
+.lt-poa__ghost { flex: 1 1 150px; min-height: 48px; border: 1.5px solid #1f6b4a; border-radius: 12px; background: transparent; color: #1f6b4a; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; }
+.lt-poa__btn:disabled, .lt-poa__ghost:disabled { opacity: 0.6; cursor: default; }
+.lt-poa__close { margin-left: auto; min-width: 44px; min-height: 44px; border: 0; background: none; color: #1f6b4a; font: inherit; font-size: 20px; cursor: pointer; }
+@media (min-width: 640px) { .lt-poa { left: auto; right: 24px; bottom: 24px; width: 480px; } }

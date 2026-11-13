@@ -1,0 +1,5 @@
+/* SECOND-LOGIN-PROMPT-1 - a calm card above the pack-ready toast. Works from 360 px up. */
+.lt-slp { position: fixed; z-index: 2147482900; left: 16px; right: 16px; bottom: 96px; margin: 0 auto; max-width: 520px; max-height: calc(100vh - 120px); overflow: auto; padding: 14px 16px; border: 1.5px solid #3fbf82; border-radius: 14px; background: #fff; color: #0f1b2d; box-shadow: 0 10px 30px rgba(15, 27, 45, 0.25); }
+.lt-slp__h { margin: 0 0 4px; font-size: 16px; font-weight: 700; line-height: 1.3; }
+.lt-slp__p { margin: 0 0 10px; font-size: 14px; line-height: 1.4; color: #3a4a5c; }
+@media (min-width: 640px) { .lt-slp { left: auto; right: 24px; width: 480px; bottom: 104px; } }

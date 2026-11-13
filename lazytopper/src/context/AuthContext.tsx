@@ -42,6 +42,7 @@ import { sendVisitSourceIfNewUser, sendVisitSourceOnSignUp } from "../analytics/
 import { startTrialForNewAccount, startTrialIfNewAccount } from "../services/newAccountTrial";
 import { startOutboxSync } from "../services/sessionRecordsOutbox";
 import SaveStatusToast from "../components/common/SaveStatusToast";
+import SecondLoginPromptHost from "../components/signinLink/SecondLoginPromptHost";
 import {
   clearSigninIntent,
   hasSigninIntent,
@@ -832,6 +833,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={value}>
       {children}
       <SaveStatusToast />
+      <SecondLoginPromptHost />
     </AuthContext.Provider>
   );
 }

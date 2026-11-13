@@ -215,7 +215,7 @@ const {
 // PAY-PHONE-1 - "Pay now with your phone number": order/verify dark unless PAYMENTS_ENABLED + GUEST_PAY_ENABLED; the claim
 // (auth required) reads the phone ONLY from the verified ID token.
 const { createMoveToOtherRoutes, MOVE_TO_OTHER_PATH } = require('./routes/moveToOther.cjs');
-const { createGuestPayRoutes, GUEST_ORDER_PATH, GUEST_VERIFY_PATH, GUEST_CLAIM_PATH, GUEST_ATTACH_PATH, GUEST_RECEIPT_PATH, GUEST_GST_DETAILS_PATH, GUEST_ZIP_LINK_PATH } = require('./routes/guestPay.cjs');
+const { createGuestPayRoutes, GUEST_ORDER_PATH, GUEST_VERIFY_PATH, GUEST_CLAIM_PATH, GUEST_ATTACH_PATH, GUEST_RECEIPT_PATH, GUEST_GST_DETAILS_PATH, GUEST_PROOF_CLAIM_PATH, GUEST_ZIP_LINK_PATH } = require('./routes/guestPay.cjs');
 // EMAIL-CODE-1 - sign in with a 6-digit code from email, on the spot. Dark unless EMAIL_CODE_SIGNIN_ENABLED; see the module.
 const { createEmailCodeRoutes, EMAIL_CODE_SEND_PATH, EMAIL_CODE_VERIFY_PATH } = require('./routes/emailCode.cjs');
 // PARENT-REPORT-1: a parent's read-only page for ONE result the student chose to share. The
@@ -981,6 +981,7 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && reqPath === GUEST_ATTACH_PATH) return guestPayRoutes.handleAttach(req, res);
   if (req.method === 'POST' && reqPath === GUEST_RECEIPT_PATH) return guestPayRoutes.handleReceipt(req, res);
   if (req.method === 'POST' && reqPath === GUEST_GST_DETAILS_PATH) return guestPayRoutes.handleGstDetails(req, res); // GST-AFTER-PAY-1
+  if (req.method === 'POST' && reqPath === GUEST_PROOF_CLAIM_PATH) return guestPayRoutes.handleClaimWithProof(req, res); // PUT-ON-THIS-ACCOUNT-1
   if (req.method === 'POST' && reqPath === GUEST_ZIP_LINK_PATH) return guestPayRoutes.handleZipLink(req, res); // GUEST-ZIP-1
   if (req.method === 'POST' && reqPath === MOVE_TO_OTHER_PATH) return moveToOtherRoutes.handleMoveToOther(req, res);
   // EMAIL-CODE-1 - self-gating (404 while dark); no auth (the code is the proof), per-IP and per-email limits inside.
