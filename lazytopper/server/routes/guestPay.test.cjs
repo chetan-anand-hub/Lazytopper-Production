@@ -2520,3 +2520,28 @@ test('RECEIPT · a THROWING or REJECTING emailer can never change the grant: cla
     assert.ok(db.read(`payOrders/${paid.orderId}`).uid);
   }
 });
+
+/* ── WHATSAPP-OPTIN-1: the signed-out SELF order stores `waOptIn` only for a valid number + explicit tick ──
+ * MUTATIONS: M1 guestPay.cjs handleSelfOrder drops the orderOptInField spread -> "valid + ticked" red;
+ *            M2 it stores without checking `consent === true` -> "unticked" red.
+ */
+test('WA-OPTIN · self order: valid + ticked -> stored on the order; the claim contact (guestPhone) is NOT set from it', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const o = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths', waOptIn: { phone: '98765 43948', consent: true } });
+  assert.equal(o.status, 200, o.text);
+  const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.deepEqual(stored.waOptIn, { phone: '+919876543948', consentText: 'Send me updates on WhatsApp', consentVersion: 'wa-optin-v1', consentAt: NOW, source: 'checkout' });
+  assert.equal(stored.guestPhone, undefined, 'the WhatsApp number is never the account claim key');
+  assert.equal(JSON.stringify(srv.rzp.orders.get(o.json.orderId).notes).includes('9876543948'), false);
+});
+
+test('WA-OPTIN · self order: unticked / invalid -> nothing stored, order still created', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  for (const waOptIn of [{ phone: '9876543948' }, { phone: '9876543948', consent: false }, { phone: '1234', consent: true }]) {
+    const o = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths', waOptIn });
+    assert.equal(o.status, 200, o.text);
+    assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).waOptIn, undefined, JSON.stringify(waOptIn));
+  }
+});

@@ -987,6 +987,21 @@ test('PAY-PHONE-1: erasure clears guestPhone on the account\'s claimed orders AN
   assert.ok(!store.deleted.some((p) => p.startsWith('payOrders/')));
 });
 
+test('WHATSAPP-OPTIN-1: erasure clears the order\'s waOptIn (the WhatsApp number + consent) on the account\'s orders; orders without one are rewritten as before', async () => {
+  const seed = {
+    ...realSeed(),
+    'payOrders/order_WA': { uid: UID, passType: 'pack_mock', amountPaise: 9900, status: 'paid', paymentId: 'pay_WA', waOptIn: { phone: '+919876543948', consentText: 'Send me updates on WhatsApp', consentVersion: 'wa-optin-v1', consentAt: 1, source: 'checkout' } },
+  };
+  const store = makeFirestore(seed);
+  const service = createAccountErasureService({ firebaseAdmin: makeAdmin(makeBucket([]), [UID, OTHER]), adminFirestore: store.db, resolveBucketName: () => 'test-bucket' });
+  const result = await service.eraseAccount(UID);
+  assert.equal(result.ok, true);
+  assert.equal(store.docs.get('payOrders/order_WA').waOptIn, null);
+  assert.equal(store.docs.get('payOrders/order_WA').uid, 'erased');
+  assert.equal(store.docs.get('payOrders/order_WA').paymentId, 'pay_WA', 'the accounting record is kept');
+  assert.equal(Object.prototype.hasOwnProperty.call(store.docs.get('payOrders/order_A'), 'waOptIn'), false);
+});
+
 test('GUEST-ABANDON-1 review D3 + D2: erasure clears guestEmail on the account\'s guest orders, deletes its guest email ledger, KEEPS its stop record', async () => {
   const EMAIL = 'Child.K@Gmail.com';
   const { emailKey } = require('./emailSuppression.cjs');

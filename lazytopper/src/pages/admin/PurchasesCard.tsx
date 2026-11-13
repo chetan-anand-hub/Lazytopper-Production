@@ -201,6 +201,8 @@ export interface AbandonedItem {
   /** GUEST-ABANDON-1: a guest checkout's recipient, MASKED by the server. */
   recipient?: { phoneMasked?: string; emailMasked?: string };
   payerType?: string | null;
+  /** WHATSAPP-OPTIN-1: the buyer typed a WhatsApp number AND ticked the consent. `phoneMasked` is shown; `phone` only after a per-row Reveal. */
+  waOptIn?: { phoneMasked: string; phone: string; consentAtMs: number | null; source: string };
   /** PAY-RESCUE-1: absent on an older server. True only when Razorpay's `payment.failed` left a note on the order. */
   attempted?: boolean;
   lastFailure?: { code: string; reason: string; source: string; step: string; atMs: number | null } | null;
@@ -227,6 +229,16 @@ export interface PurchasesResponse {
   unclaimedGuest?: { items: UnclaimedGuestItem[]; truncated?: boolean } | null;
   /** PAY-PHONE-1 review: guest payments the owner should know about (grant failed / duplicate / erased before sign-in). */
   guestAttention?: { items: GuestAttentionItem[]; truncated?: boolean } | null;
+  /** WHATSAPP-OPTIN-1: free-sample WhatsApp opt-ins, last 30 days. Absent on an older server, null when that read failed. */
+  waSampleOptIns?: { items: WaSampleOptInItem[]; truncated?: boolean } | null;
+}
+
+export interface WaSampleOptInItem {
+  phoneMasked: string;
+  phone: string;
+  packIds: string[];
+  lastAtMs: number;
+  firstAtMs: number | null;
 }
 
 export interface GuestAttentionItem extends UnclaimedGuestItem {
@@ -390,6 +402,46 @@ export function abandonedReason(a: Pick<AbandonedItem, "attempted" | "lastFailur
   return why ? `Payment failed: ${why}` : "Payment failed";
 }
 
+/** WHATSAPP-OPTIN-1 - "WhatsApp ✓ +91 98•••••948" with a per-row Reveal / Hide (the Students list's pattern). Masked until pressed. */
+export function WaNumber({ masked, full, testId }: { masked: string; full: string; testId: string }) {
+  const [revealed, setRevealed] = useState(false);
+  return (
+    <span className="pu-wa sa-contact" data-testid={testId}>
+      <span className="sa-contact-text" data-testid={`${testId}-text`}>WhatsApp ✓ {revealed ? full : masked}</span>
+      <button type="button" className="sa-btn sa-btn-small" onClick={() => setRevealed((r) => !r)} aria-label={revealed ? "Hide WhatsApp number" : "Reveal WhatsApp number"} data-testid={`${testId}-toggle`}>
+        {revealed ? "Hide" : "Reveal"}
+      </button>
+    </span>
+  );
+}
+
+/** WHATSAPP-OPTIN-1 - read-only list of free-sample opt-ins (last 30 days), masked + Reveal. */
+export function WaSampleOptInList({ list }: { list: PurchasesResponse["waSampleOptIns"] }) {
+  if (list === undefined) return null;
+  return (
+    <div className="pu-abandoned" data-testid="pu-wa-samples">
+      <h3 className="gh-title">Sample WhatsApp opt-ins</h3>
+      <p className="sa-muted gh-note">Numbers given with the tick on a free sample, last 30 days, newest first (shown masked).</p>
+      {list === null ? (
+        <p className="sa-muted" data-testid="pu-wa-samples-unavailable">Sample opt-ins could not be read.</p>
+      ) : list.items.length === 0 ? (
+        <p className="sa-empty" data-testid="pu-wa-samples-empty">No sample opt-ins.</p>
+      ) : (
+        <ul className="pu-list" data-testid="pu-wa-samples-list">
+          {list.items.map((w, i) => (
+            <li key={`${w.lastAtMs}-${i}`} className="pu-row" data-testid={`pu-wa-row-${i}`}>
+              <span className="pu-date">{formatIstDateTime(w.lastAtMs)}</span>
+              <WaNumber masked={w.phoneMasked} full={w.phone} testId={`pu-wa-num-${i}`} />
+              <span className="pu-product sa-muted">{w.packIds.join(", ")}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {list?.truncated && <p className="sa-muted">Showing the latest 50 only.</p>}
+    </div>
+  );
+}
+
 export function AbandonedList({ abandoned }: { abandoned: PurchasesResponse["abandoned"] }) {
   return (
     <div className="pu-abandoned" data-testid="pu-abandoned">
@@ -424,6 +476,7 @@ export function AbandonedList({ abandoned }: { abandoned: PurchasesResponse["aba
               <span className="pu-reason sa-muted" data-testid={`pu-ab-reason-${a.orderId}`}>
                 {abandonedReason(a)}
               </span>
+              {a.waOptIn && <WaNumber masked={a.waOptIn.phoneMasked} full={a.waOptIn.phone} testId={`pu-ab-wa-${a.orderId}`} />}
             </li>
           ))}
         </ul>
@@ -520,6 +573,7 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
           <AbandonedList abandoned={state.data.abandoned} />
           <UnclaimedGuestList unclaimed={state.data.unclaimedGuest} />
           <GuestAttentionList attention={state.data.guestAttention} />
+          <WaSampleOptInList list={state.data.waSampleOptIns} />
         </>
       )}
     </section>

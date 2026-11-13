@@ -71,6 +71,7 @@ export interface PassWhoWiring {
 }
 import "./passCheckoutRepay.css";
 import PassOwnerOfferLazy from "../passOwnerOffers/PassOwnerOfferLazy";
+import WhatsAppOptInCheckout from "../whatsapp/WhatsAppOptInCheckout";
 import {
   newCheckoutAttemptId,
   trackBeginCheckoutTap,
@@ -685,6 +686,8 @@ export function PassCheckoutView({
           {monthButtonLabel(offerOpen)}
         </button>
       )}
+      {/* WHATSAPP-OPTIN-1: number + tick ABOVE Pay; no extra tap; Pay works with it empty. */}
+      {!activeLabel && <WhatsAppOptInCheckout testIdPrefix="pass-wa" />}
       <button
         type="button"
         ref={boardsPayRef}

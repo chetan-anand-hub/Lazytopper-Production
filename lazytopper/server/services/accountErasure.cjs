@@ -411,7 +411,7 @@ async function deleteFirestoreByField(db, pathTemplate, uid, field) {
  * phone number as its claim key (`guestPhone`); it is cleared wherever the uid is blanked. Only a field the document
  * actually has is written, so records without it are rewritten exactly as before.
  */
-const ANONYMISE_ALSO_CLEAR = Object.freeze(['guestPhone', 'guestEmail']);
+const ANONYMISE_ALSO_CLEAR = Object.freeze(['guestPhone', 'guestEmail', 'waOptIn']);
 
 async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone, email } = {}) {
   const segs = templateSegments(pathTemplate);

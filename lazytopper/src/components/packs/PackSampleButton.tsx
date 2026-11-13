@@ -1,6 +1,7 @@
 import { packSampleFor, packSampleHref, PACK_SAMPLE_LINK_TEXT, type PackSampleSurface } from "../../lib/packs/packSamples";
 import { trackPackSampleDownload } from "../../lib/packs/packAnalytics";
 import type { PackSku } from "../../services/packs";
+import WhatsAppSampleOptIn from "../whatsapp/WhatsAppSampleOptIn";
 import "./packSampleButton.css";
 
 /**
@@ -13,6 +14,7 @@ export default function PackSampleButton({ sku, target, surface }: { sku: PackSk
   const sample = packSampleFor(sku, target);
   if (!sample) return null;
   return (
+    <>
     <a
       className="lt-psbtn"
       href={packSampleHref(sample)}
@@ -27,5 +29,8 @@ export default function PackSampleButton({ sku, target, surface }: { sku: PackSk
       {PACK_SAMPLE_LINK_TEXT}
       <span className="lt-psbtn__sr"> (PDF, one page, no sign-up needed)</span>
     </a>
+    {/* WHATSAPP-OPTIN-1: the download above stays one tap and ungated; this line is a separate, collapsed choice. */}
+    <WhatsAppSampleOptIn packId={`${sample.sku}:${sample.target}`} />
+    </>
   );
 }

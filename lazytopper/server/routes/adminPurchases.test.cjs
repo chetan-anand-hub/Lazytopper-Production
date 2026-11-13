@@ -7,11 +7,23 @@ const { createAdminPurchasesRoutes } = require('./adminPurchases.cjs');
 const NOW = Date.parse('2026-10-31T06:00:00Z');
 const DAY = 86400000;
 
-function fakeFirestore(orders) {
+function fakeFirestore(orders, waOptIns = []) {
   let reads = 0;
   return {
     get reads() { return reads; },
     collection(name) {
+      // WHATSAPP-OPTIN-1: the free-sample opt-in list is its own (separate-counter) read: where('lastAt','>=').orderBy('lastAt','desc').limit().
+      if (name === 'waOptIns') {
+        return {
+          where: (f, op, since) => {
+            assert.equal(f, 'lastAt'); assert.equal(op, '>=');
+            return { orderBy: (f2, dir) => { assert.equal(f2, 'lastAt'); assert.equal(dir, 'desc'); return { limit: (n) => ({ async get() {
+              const docs = waOptIns.filter((o) => o.data.lastAt >= since).sort((a, b) => b.data.lastAt - a.data.lastAt).slice(0, n);
+              return { size: docs.length, forEach: (fn) => docs.forEach((o) => fn({ id: o.id, data: () => o.data })) };
+            } }) }; } };
+          },
+        };
+      }
       assert.equal(name, 'payOrders');
       const make = (field, filters) => ({
         orderBy(f, dir) {
@@ -58,9 +70,9 @@ function fakeFirestore(orders) {
 const fakeAuth = { auth: () => ({ getUsers: async (ids) => ({ users: ids.map(({ uid }) => ({ uid, email: `${uid}@x.in`, displayName: `Name ${uid}` })) }) }) };
 const paid = (id, uid, passType, inr, ago, extra = {}) => ({ id, data: { uid, passType, amountPaise: inr * 100, status: 'paid', paymentId: `pay_${id}`, paidAt: new Date(NOW - ago), ...extra } });
 
-function harness({ ok = true, orders = [], admins = 'admin1' } = {}) {
+function harness({ ok = true, orders = [], admins = 'admin1', waOptIns = [] } = {}) {
   process.env.ADMIN_FIREBASE_UIDS = admins;
-  const fs = fakeFirestore(orders);
+  const fs = fakeFirestore(orders, waOptIns);
   const route = createAdminPurchasesRoutes({
     sendJson: (res, status, body) => { res.status = status; res.body = body; },
     adminFirestore: fs, firebaseAdmin: fakeAuth, now: () => NOW,
@@ -731,4 +743,66 @@ test('RECEIPT-EMAIL-1 · a sent receipt shows its time; failed / sending / none 
   assert.equal(by.s.receiptEmailedAtMs, sentAt.getTime());
   assert.equal('receiptEmailedAtMs' in by.f, false);
   assert.equal('receiptEmailedAtMs' in by.n, false);
+});
+
+// ── WHATSAPP-OPTIN-1: abandoned rows carry the WhatsApp opt-in (masked + the full number for the card's Reveal); sample opt-ins list ──
+// MUTATIONS: M1 waOptInOf returns the stored object as-is (raw consent text, unvalidated) -> the shape test goes red;
+//            M2 the sample read ignores the 30-day window -> "sample opt-ins: last 30 days" red;
+//            M3 requireAdmin moved after the read -> the 403 test goes red.
+test('WHATSAPP-OPTIN-1 abandoned: a guest (self) order and a student order show waOptIn masked + full; rows without one, or with a malformed one, show none', async () => {
+  const HOUR = 3600000;
+  const wa = { phone: '+919876543948', consentText: 'Send me updates on WhatsApp', consentVersion: 'wa-optin-v1', consentAt: NOW - 2 * HOUR, source: 'checkout' };
+  const orders = [
+    created('selfwa', null, 'pack_mock', 99, 2 * HOUR, { payer: 'guest', checkoutWho: true, selfPay: true, waOptIn: wa }),
+    created('stuwa', 'u1', 'till_boards', 1917, 3 * HOUR, { waOptIn: { ...wa, phone: '+917012345678' } }),
+    created('none', 'u2', 'till_boards', 1917, 4 * HOUR),
+    created('bad', 'u3', 'till_boards', 1917, 5 * HOUR, { waOptIn: { phone: '12345', source: 'checkout' } }),
+  ];
+  const { route } = harness({ orders });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 200);
+  const by = Object.fromEntries(res.body.abandoned.items.map((i) => [i.orderId, i]));
+  assert.deepEqual(by.selfwa.waOptIn, { phoneMasked: '+91 98•••••948', phone: '+919876543948', consentAtMs: NOW - 2 * HOUR, source: 'checkout' });
+  assert.deepEqual(by.stuwa.waOptIn, { phoneMasked: '+91 70•••••678', phone: '+917012345678', consentAtMs: NOW - 2 * HOUR, source: 'checkout' });
+  assert.equal(by.none.waOptIn, undefined);
+  assert.equal(by.bad.waOptIn, undefined);
+  assert.equal(JSON.stringify(res.body).includes('Send me updates'), false, 'consent text stays in the store');
+  assert.deepEqual(by.selfwa.recipient, {}, 'the claim contact stays masked / absent as before');
+});
+
+test('WHATSAPP-OPTIN-1 sample opt-ins: last 30 days, newest first, masked + full, malformed rows skipped; none -> empty list', async () => {
+  const DAYS = 86400000;
+  const waOptIns = [
+    { id: 'h1', data: { phone: '+919876543948', packIds: ['pack_cbq:maths', 'pack_mock:science'], lastAt: NOW - 2 * DAYS, firstAt: NOW - 5 * DAYS, source: 'sample' } },
+    { id: 'h2', data: { phone: '+917012345678', packIds: ['pack_bundle:all'], lastAt: NOW - 1 * DAYS, firstAt: NOW - 1 * DAYS, source: 'sample' } },
+    { id: 'old', data: { phone: '+918012345678', packIds: [], lastAt: NOW - 40 * DAYS, firstAt: NOW - 40 * DAYS } },
+    { id: 'junk', data: { phone: '123', packIds: [], lastAt: NOW - DAYS } },
+  ];
+  const { route } = harness({ waOptIns });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 200);
+  assert.deepEqual(res.body.waSampleOptIns.items.map((i) => i.phoneMasked), ['+91 70•••••678', '+91 98•••••948']);
+  assert.deepEqual(res.body.waSampleOptIns.items[1], { phoneMasked: '+91 98•••••948', phone: '+919876543948', packIds: ['pack_cbq:maths', 'pack_mock:science'], lastAtMs: NOW - 2 * DAYS, firstAtMs: NOW - 5 * DAYS });
+  assert.equal(res.body.waSampleOptIns.truncated, false);
+  const empty = harness();
+  const r2 = {}; await empty.route.list({}, r2);
+  assert.deepEqual(r2.body.waSampleOptIns, { items: [], truncated: false });
+});
+
+test('WHATSAPP-OPTIN-1: the admin gate refuses (403) before the opt-in reads too; a failed opt-in read leaves the rest intact (null)', async () => {
+  const { route, fs } = harness({ ok: false, waOptIns: [{ id: 'x', data: { phone: '+919876543948', lastAt: NOW, packIds: [] } }] });
+  const res = {}; await route.list({}, res);
+  assert.equal(res.status, 403);
+  assert.equal(fs.reads, 0);
+  assert.equal(res.body.waSampleOptIns, undefined);
+  const base = fakeFirestore([paid('o1', 'u1', 'month', 599, 1000)]);
+  const fs2 = { collection: (n) => (n === 'waOptIns' ? { where() { throw new Error('down'); } } : base.collection(n)) };
+  const route2 = createAdminPurchasesRoutes({
+    sendJson: (r, s, b) => { r.status = s; r.body = b; }, adminFirestore: fs2, firebaseAdmin: fakeAuth, now: () => NOW,
+    requireAdmin: async () => ({ ok: true, uid: 'admin1' }),
+  });
+  const r2 = {}; await route2.list({}, r2);
+  assert.equal(r2.status, 200);
+  assert.equal(r2.body.waSampleOptIns, null);
+  assert.equal(r2.body.items.length, 1);
 });

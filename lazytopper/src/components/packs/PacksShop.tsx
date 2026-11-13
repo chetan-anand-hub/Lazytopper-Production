@@ -75,6 +75,7 @@ import { MINE_HINT_SCRIPT, clearMineHint, hintNow, readMineHint, staticMineHando
 import { recoverFromChunkError } from "../../lib/chunkReload";
 import { isServerPdfDisabled } from "../../lib/packs/serverPdfLinks";
 import "../../pages/packs.css";
+import WhatsAppOptInCheckout from "../whatsapp/WhatsAppOptInCheckout";
 
 /** Where sign-in returns the student. A constant, never taken from the URL. */
 export const PACKS_RETURN_PATH = "/packs";
@@ -899,6 +900,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       <>
         {/* GST-INVOICE-1 (D4): a signed-in buyer's remembered state above Pay (nothing while the flag is off). */}
         {signedIn && enabled && ready && !isOwned && <GstStateLine />}
+        {/* WHATSAPP-OPTIN-1: number + tick ABOVE Buy; no extra tap; Buy works with it empty. */}
+        {enabled && ready && !isOwned && <WhatsAppOptInCheckout testIdPrefix="packs-wa" />}
         <button
           type="button"
           className={`${prefix}__btn`}
