@@ -4,6 +4,7 @@
  * been asked yet, loads the prompt's own lazy chunk. Nothing else happens on any other path.
  */
 import { lazy, Suspense, useEffect, useState } from "react";
+import { Quiet } from "./Quiet";
 import { PURCHASE_LANDED_EVENT, isSecondLoginPromptEnabled } from "../../services/secondLoginPrompt";
 
 const SecondLoginPrompt = lazy(() => import("./SecondLoginPrompt"));
@@ -21,8 +22,10 @@ export default function SecondLoginPromptHost() {
   }, []);
   if (armed === 0) return null;
   return (
-    <Suspense fallback={null}>
-      <SecondLoginPrompt />
-    </Suspense>
+    <Quiet>
+      <Suspense fallback={null}>
+        <SecondLoginPrompt />
+      </Suspense>
+    </Quiet>
   );
 }
