@@ -1,0 +1,3 @@
+/* RestoredPurchaseCard: the same width / gutters the shop's wrapper gives the card on /packs. */
+.lt-rpc { max-width: 1180px; margin: 12px auto; padding: 0 16px; }
+@media (min-width: 720px) { .lt-rpc { padding: 0 24px; } }

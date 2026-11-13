@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import RestoredPurchaseCard from "../../components/checkoutWho/RestoredPurchaseCard";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import BoardsCountdownStrip from "../../components/urgency/BoardsCountdownStrip";
 import { useAuth } from "../../context/AuthContext";
@@ -780,6 +781,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
 
   return (
     <main className="lt-pricing-page lt-ph" aria-label="LazyTopper pricing" data-testid="pricing-hub">
+      <RestoredPurchaseCard />
       <style dangerouslySetInnerHTML={{ __html: PRICING_CSS }} />
       <style dangerouslySetInnerHTML={{ __html: HUB_CSS }} />
       <div className="lt-pricing-inner">

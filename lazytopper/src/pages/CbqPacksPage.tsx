@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import RestoredPurchaseCard from "../components/checkoutWho/RestoredPurchaseCard";
 import { currentSalesPageSurface, setSalesPageSurface } from "../analytics/analytics";
 import { preloadBuyChunks } from "../components/packs/PacksShop";
 import { Link, useLocation } from "react-router-dom";
@@ -62,6 +63,7 @@ export default function CbqPacksPage() {
     <>
       <main className="lt-sp lt-cq" aria-label="LazyTopper CBQ Packs">
         <ParentReturnLink />
+        <RestoredPurchaseCard />
         <PacksShop returnPath={CBQ_PACKS_PAGE_PATH} hideMyPacks>
           {(api) => <CbqCatalogue api={api} subject={subject} onSubject={setSubject} />}
         </PacksShop>
