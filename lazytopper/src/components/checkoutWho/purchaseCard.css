@@ -15,3 +15,5 @@
 .lt-rcpt__bad { color: hsl(0, 60%, 40%); font-size: 13px; }
 .lt-rcpt__fold { display: flex; flex-direction: column; gap: 8px; }
 .lt-rcpt__foldsum { min-height: 44px; display: flex; align-items: center; font-weight: 600; font-size: 15px; cursor: pointer; }
+.lt-rcpt__zip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.lt-rcpt__btn--ghost { background: transparent; color: hsl(222, 47%, 24%); border: 1px solid hsl(222, 47%, 24%); }
