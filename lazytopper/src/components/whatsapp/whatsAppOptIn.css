@@ -1,0 +1,15 @@
+/* WhatsApp opt-in (WHATSAPP-OPTIN-1): compact, >= 48px targets, 16px inputs (no iOS zoom), wraps at 360px. */
+.lt-waopt { display: flex; flex-direction: column; gap: 6px; box-sizing: border-box; width: 100%; margin: 0 0 10px; text-align: left; }
+.lt-waopt__label { font-size: 14px; font-weight: 600; color: #1a2b4a; }
+.lt-waopt__field { display: flex; align-items: stretch; box-sizing: border-box; width: 100%; min-height: 48px; border: 1.5px solid #b8c4d6; border-radius: 12px; background: #fff; overflow: hidden; }
+.lt-waopt__field:focus-within { border-color: #136b43; outline: 2px solid #136b43; outline-offset: 1px; }
+.lt-waopt__prefix { display: flex; align-items: center; padding: 0 10px; background: #f1f4f9; color: #44536b; font-size: 16px; font-weight: 600; }
+.lt-waopt__input { flex: 1 1 auto; min-width: 0; box-sizing: border-box; border: 0; padding: 10px 12px; font: inherit; font-size: 16px; color: #14213d; background: transparent; outline: none; }
+.lt-waopt__tick { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px; line-height: 1.35; color: #1a2b4a; cursor: pointer; }
+.lt-waopt__tick input { flex: 0 0 auto; width: 22px; height: 22px; margin: 0; accent-color: #136b43; }
+.lt-waopt__error { margin: 0; font-size: 13px; color: #b3261e; }
+.lt-waopt__open { display: block; width: 100%; min-height: 44px; margin: 6px 0 0; padding: 8px 10px; border: 0; background: transparent; color: #0e5a36; font: inherit; font-size: 14px; font-weight: 600; text-decoration: underline; text-align: center; cursor: pointer; }
+.lt-waopt__sample { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.lt-waopt__send { min-height: 48px; padding: 10px 14px; border: 2px solid #136b43; border-radius: 14px; background: #fff; color: #0e5a36; font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; }
+.lt-waopt__send:disabled { opacity: 0.5; cursor: default; }
+.lt-waopt__done { margin: 8px 0 0; font-size: 14px; color: #0e5a36; text-align: center; }

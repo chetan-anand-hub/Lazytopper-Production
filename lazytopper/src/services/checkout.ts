@@ -17,6 +17,7 @@
 import { confirmServerPrice, serverPriceFields, type ServerGst, razorpayDescription } from "./priceConfirm";
 // GST-INVOICE-1: "Your state" before the order (off by default: the body is byte-identical).
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
+import { waOptInOrderFields } from "./waOptIn";
 
 /** The two passes the server sells (server/services/passGrant.cjs PASS_TYPES). */
 export type PassType = "month" | "till_boards";
@@ -277,7 +278,7 @@ async function postJson(url: string, body: unknown): Promise<Record<string, unkn
 /** Z2 — the server prices and creates the order. Only the pass TYPE is sent. */
 export async function createPayOrder(passType: PassType): Promise<PayOrder> {
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(authHeaders) : {};
-  const json = await postJson(PAY_ORDER_ENDPOINT, { passType, ...gst });
+  const json = await postJson(PAY_ORDER_ENDPOINT, { passType, ...gst, ...waOptInOrderFields() }); // WHATSAPP-OPTIN-1: only a valid number + the tick
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new Error("malformed order");
@@ -323,6 +324,7 @@ export async function createPackOrder(sku: string, packTarget?: string): Promise
     passType: sku,
     ...(packTarget !== undefined ? { packTarget } : {}),
     ...gst,
+    ...waOptInOrderFields(), // WHATSAPP-OPTIN-1: only a valid number + the tick
   });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {

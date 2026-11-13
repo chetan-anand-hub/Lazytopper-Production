@@ -33,6 +33,17 @@ describe("PackSampleButton", () => {
     expect(sampleEvent).toHaveBeenCalledWith("pack_cbq:science", "packs_dialog");
   });
 
+  it("WHATSAPP-OPTIN-1: the download stays one tap and ungated; the WhatsApp line is a separate collapsed choice under it", () => {
+    render(<PackSampleButton sku="pack_cbq" target="science" surface="packs_dialog" />);
+    const a = screen.getByTestId("pack-sample-lazytopper-sample-cbq-science");
+    expect(a.getAttribute("href")).toBe("/samples/lazytopper-sample-cbq-science.pdf");
+    expect(a.textContent).not.toContain("WhatsApp");
+    expect(screen.getByTestId("wa-sample-open").textContent).toBe("Get this pack's link on WhatsApp");
+    expect(screen.queryByTestId("wa-sample-number")).toBeNull();
+    fireEvent.click(a);
+    expect(sampleEvent).toHaveBeenCalledTimes(1);
+  });
+
   it("renders nothing for a pack without a sample (never a dead button)", () => {
     const { container } = render(<PackSampleButton sku="pack_mock" target="history" surface="packs_dialog" />);
     expect(container.innerHTML).toBe("");

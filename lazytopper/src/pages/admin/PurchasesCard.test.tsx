@@ -349,3 +349,56 @@ describe("ADMIN-MOVE-1: Merge into another account", () => {
     await waitFor(() => expect(screen.getByTestId("pu-merge-result-o_pay").textContent).toMatch(/different phone/));
   });
 });
+
+describe("WHATSAPP-OPTIN-1 · WhatsApp opt-ins on the card", () => {
+  const ab = (over = {}) => ({
+    orderId: "order_x", createdAtMs: 1761890000000, uid: null, email: null, name: null, passType: "pack_cbq", packTarget: "maths", kind: "pack",
+    amountInr: 99, channel: "who", isAdminAccount: false, recipient: {}, ...over,
+  });
+  const wa = { phoneMasked: "+91 98•••••948", phone: "+919876543948", consentAtMs: 1761890000000, source: "checkout" };
+  it("abandoned rows with an opt-in show 'WhatsApp ✓ <masked>' with a per-row Reveal / Hide; rows without one show nothing", async () => {
+    stub({ ...resp([]), abandoned: { items: [ab({ orderId: "order_wa", waOptIn: wa }), ab({ orderId: "order_no" })] } });
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-abandoned-list")).toBeTruthy());
+    expect(screen.getByTestId("pu-ab-wa-order_wa-text").textContent).toBe("WhatsApp ✓ +91 98•••••948");
+    expect(screen.queryByTestId("pu-ab-wa-order_no")).toBeNull();
+    // masked until pressed: the full number is not in the page text
+    expect(document.body.textContent).not.toContain("9876543948");
+    fireEvent.click(screen.getByTestId("pu-ab-wa-order_wa-toggle"));
+    expect(screen.getByTestId("pu-ab-wa-order_wa-text").textContent).toBe("WhatsApp ✓ +919876543948");
+    fireEvent.click(screen.getByTestId("pu-ab-wa-order_wa-toggle"));
+    expect(screen.getByTestId("pu-ab-wa-order_wa-text").textContent).toBe("WhatsApp ✓ +91 98•••••948");
+  });
+
+  it("sample opt-ins: read-only list, masked + Reveal per row; empty / failed reads are honest; an older server shows nothing", async () => {
+    stub({
+      ...resp([]),
+      waSampleOptIns: { items: [{ phoneMasked: "+91 70•••••678", phone: "+917012345678", packIds: ["pack_cbq:maths"], lastAtMs: 1761890000000, firstAtMs: 1761890000000 }, { phoneMasked: "+91 98•••••948", phone: "+919876543948", packIds: [], lastAtMs: 1761800000000, firstAtMs: null }] },
+    });
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-wa-samples-list")).toBeTruthy());
+    expect(screen.getByTestId("pu-wa-num-0-text").textContent).toBe("WhatsApp ✓ +91 70•••••678");
+    expect(document.body.textContent).not.toContain("7012345678");
+    fireEvent.click(screen.getByTestId("pu-wa-num-0-toggle"));
+    expect(screen.getByTestId("pu-wa-num-0-text").textContent).toBe("WhatsApp ✓ +917012345678");
+    expect(screen.getByTestId("pu-wa-num-1-text").textContent).toBe("WhatsApp ✓ +91 98•••••948"); // per row
+    cleanup();
+    stub({ ...resp([]), waSampleOptIns: { items: [] } });
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-wa-samples-empty")).toBeTruthy());
+    cleanup();
+    stub({ ...resp([]), waSampleOptIns: null });
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-wa-samples-unavailable")).toBeTruthy());
+    cleanup();
+    stub({ ...resp([]) });
+    render(<PurchasesCard getToken={async () => "t"} />);
+    fireEvent.click(screen.getByTestId("pu-load"));
+    await waitFor(() => expect(screen.getByTestId("pu-abandoned")).toBeTruthy());
+    expect(screen.queryByTestId("pu-wa-samples")).toBeNull();
+  });
+});

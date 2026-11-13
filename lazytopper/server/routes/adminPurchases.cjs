@@ -26,11 +26,16 @@
  *     completes it is status 'paid' with a uid and counts in premium / packs instead - so it is counted ONCE. A claimed
  *     guest order is dated by `guestPaidAt` (when the money arrived), not by the later grant time, so the claim never
  *     moves it between windows. duplicate_purchase orders are NOT counted (they are flagged under guestAttention).
+ * WHATSAPP-OPTIN-1 (owner 13 Nov 2026): the ONE exception to "no raw phone leaves the store" - a WhatsApp number the visitor
+ *   typed AND ticked consent for (`waOptIn`) is returned to this admin-gated route (requireAdmin first) as `waOptIn.phone`
+ *   beside its masked form, so the card can show it MASKED with a per-row Reveal (the Students-list pattern). The same goes for
+ *   `waSampleOptIns` (free-sample opt-ins, last 30 days). The recipient / claim contact (guestPhone) stays masked as before.
  */
 const { istDayKey } = require('../services/rateLimiter.cjs');
 const { istDayStartMs, addIstDays } = require('./adminStudents.cjs');
 // PAY-PHONE-1: guest (phone-number) payments nobody has claimed yet. Read-only; the phone is shown MASKED.
 const { maskIndianMobile, maskEmail, GUEST_STATUS, normaliseEmail, normaliseIndianMobile } = require('../services/guestPay.cjs');
+const { WA_OPTIN_COLLECTION } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 // ADMIN-MOVE-1: move one paid pack order to another account.
 const { movePackOrder, MoveError } = require('../services/adminMovePurchase.cjs');
 const { mergeAccount } = require('../services/adminMergeAccount.cjs');
@@ -101,6 +106,19 @@ const emptyTotals = () => ({ premium: { count: 0, inr: 0 }, packs: { count: 0, i
  * GUEST-ABANDON-1 - the recipient of ANY guest order, MASKED (a phone order has only guestPhone; a "Who will use it?"
  * order may have either or both). Never the raw value.
  */
+/**
+ * WHATSAPP-OPTIN-1 - the order's WhatsApp opt-in for the admin card: `waOptIn: { phoneMasked, phone, consentAtMs, source }` or nothing.
+ * Admin-gated route only (requireAdmin runs first); the card shows it MASKED with a per-row Reveal, like the Students list's emails.
+ * Only a valid stored E.164 is returned; the consent text/version stay in the store.
+ */
+function waOptInOf(v) {
+  const w = v && v.waOptIn;
+  if (!w || typeof w !== 'object') return {};
+  const phone = normaliseIndianMobile(typeof w.phone === 'string' ? w.phone : '');
+  if (!phone) return {};
+  return { waOptIn: { phoneMasked: maskIndianMobile(phone), phone, consentAtMs: msOf(w.consentAt), source: typeof w.source === 'string' ? w.source : 'checkout' } };
+}
+
 function guestRecipient(v) {
   return {
     ...(typeof v.guestPhone === 'string' && v.guestPhone ? { phoneMasked: maskIndianMobile(v.guestPhone) } : {}),
@@ -210,6 +228,7 @@ function createAdminPurchasesRoutes(deps = {}) {
             recipient: guestRecipient(v),
             payerType: typeof v.payerType === 'string' ? v.payerType : null,
             ...failureFields(v.lastFailure),
+            ...waOptInOf(v),
           });
           return;
         }
@@ -225,6 +244,7 @@ function createAdminPurchasesRoutes(deps = {}) {
           channel: v.payer === 'parent' ? 'parent' : 'student',
           isAdminAccount: admins.has(v.uid),
           ...failureFields(v.lastFailure),
+          ...waOptInOf(v),
         });
       });
       rows.sort((a, b) => b.createdAtMs - a.createdAtMs);
@@ -310,6 +330,34 @@ function createAdminPurchasesRoutes(deps = {}) {
       return { items: rows.slice(0, ABANDONED_SHOWN_CAP), truncated: rows.length > ABANDONED_SHOWN_CAP };
     } catch (e) {
       console.error('[admin-purchases] guest attention read failed:', e && e.message);
+      return null;
+    }
+  }
+
+  /**
+   * WHATSAPP-OPTIN-1 - free-sample opt-ins (waOptIns), last 30 days by lastAt, newest first. Same masked + Reveal shape as the
+   * abandoned rows. null when the read fails (the rest of the response is unaffected).
+   */
+  async function sampleOptIns(nowMs) {
+    try {
+      const sinceMs = nowMs - ABANDONED_WINDOW_DAYS * 86400000;
+      const snap = await adminFirestore.collection(WA_OPTIN_COLLECTION).where('lastAt', '>=', sinceMs).orderBy('lastAt', 'desc').limit(ABANDONED_SHOWN_CAP + 1).get();
+      const rows = [];
+      snap.forEach((d) => {
+        const v = d.data() || {};
+        const phone = normaliseIndianMobile(typeof v.phone === 'string' ? v.phone : '');
+        if (!phone || typeof v.lastAt !== 'number') return;
+        rows.push({
+          phoneMasked: maskIndianMobile(phone),
+          phone,
+          packIds: Array.isArray(v.packIds) ? v.packIds.filter((x) => typeof x === 'string').slice(0, 20) : [],
+          lastAtMs: v.lastAt,
+          firstAtMs: typeof v.firstAt === 'number' ? v.firstAt : null,
+        });
+      });
+      return { items: rows.slice(0, ABANDONED_SHOWN_CAP), truncated: rows.length > ABANDONED_SHOWN_CAP };
+    } catch {
+      console.error('[admin-purchases] sample opt-ins read failed');
       return null;
     }
   }
@@ -427,7 +475,8 @@ function createAdminPurchasesRoutes(deps = {}) {
       const abandoned = await abandonedOrders(nowMs, admins);
       const unclaimedGuest = await unclaimedGuestOrders(nowMs, readStatus);
       const guestAttention = await guestAttentionOrders(nowMs, readStatus);
-      return send(res, 200, { ok: true, items, totals, truncated: paid.length > SHOWN_CAP || readFull, abandoned, unclaimedGuest, guestAttention });
+      const waSampleOptIns = await sampleOptIns(nowMs);
+      return send(res, 200, { ok: true, items, totals, truncated: paid.length > SHOWN_CAP || readFull, abandoned, unclaimedGuest, guestAttention, waSampleOptIns });
     } catch (e) {
       console.error('[admin-purchases] list failed:', e && e.message);
       return send(res, 500, { ok: false, error: 'Could not read the purchases' });

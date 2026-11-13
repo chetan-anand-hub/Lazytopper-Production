@@ -2318,6 +2318,61 @@ test('CAPTURE · review F3: a 2nd AUTHORIZED payment on an order already PAID by
   // ...while the FIRST (genuine) authorized-then-captured path is unchanged elsewhere (Z4 · an AUTHORIZED payment is captured).
 });
 
+/* ── WHATSAPP-OPTIN-1: the signed-in order stores `waOptIn` ONLY for a valid number AND an explicit tick ──
+ * MUTATIONS: M1 payments.cjs spreads the opt-in without the `consent === true` check -> "unticked" red;
+ *            M2 payments.cjs stores the raw typed number -> "valid + ticked" red;
+ *            M3 payments.cjs drops the spread -> "valid + ticked" red.
+ */
+test('WA-OPTIN · a valid number + tick is stored on the order (normalised, exact label/version, consentAt = now); a pack order too', async (t) => {
+  const srv = await startRoutes({ env: { ...ENV_ON, PACKS_ENABLED: '1' } });
+  t.after(srv.close);
+  const out = await createOrder(srv, 'u1', 'till_boards', { waOptIn: { phone: '98765 43948', consent: true } });
+  const stored = srv.db.read(`payOrders/${out.orderId}`);
+  assert.deepEqual(stored.waOptIn, { phone: '+919876543948', consentText: 'Send me updates on WhatsApp', consentVersion: 'wa-optin-v1', consentAt: NOW, source: 'checkout' });
+  const pack = await createOrder(srv, 'u2', 'pack_cbq', { packTarget: 'maths', waOptIn: { phone: '+919876543210', consent: true } });
+  assert.equal(srv.db.read(`payOrders/${pack.orderId}`).waOptIn.phone, '+919876543210');
+});
+
+test('WA-OPTIN · unticked / invalid / malformed -> nothing stored and the order is still created (200, same keys as before)', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  let uid = 0;
+  for (const waOptIn of [{ phone: '9876543948' }, { phone: '9876543948', consent: false }, { phone: '12345', consent: true }, { consent: true }, 'x', null, []]) {
+    uid += 1;
+    const out = await createOrder(srv, `w${uid}`, 'month', { waOptIn });
+    const stored = srv.db.read(`payOrders/${out.orderId}`);
+    assert.equal(stored.waOptIn, undefined, JSON.stringify(waOptIn));
+    assert.deepEqual(Object.keys(stored).sort(), ['amountPaise', 'createdAt', 'offerKey', 'passType', 'status', 'uid']);
+  }
+});
+
+test('WA-OPTIN · the number is not sent to Razorpay (no notes) and never logged', async (t) => {
+  const seen = [];
+  const orig = { log: console.log, error: console.error, warn: console.warn };
+  for (const k of Object.keys(orig)) console[k] = (...a) => seen.push(a.map(String).join(' '));
+  const srv = await startRoutes();
+  t.after(srv.close);
+  try {
+    await createOrder(srv, 'u1', 'till_boards', { waOptIn: { phone: '9876543948', consent: true } });
+  } finally {
+    Object.assign(console, orig);
+  }
+  const sent = srv.rzp.calls.find((c) => c.method === 'POST' && c.url.endsWith('/v1/orders'));
+  assert.equal(JSON.stringify(sent.body).includes('9876543948'), false);
+  assert.equal(seen.some((l) => l.includes('9876543948')), false);
+});
+
+test('WA-OPTIN · signed-in order: an attacker-supplied consentText / version / source / consentAt is ignored; the stored text is the server constant', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const out = await createOrder(srv, 'u9', 'till_boards', { waOptIn: { phone: '9876543210', consent: true, consentText: 'I agree to anything', consentVersion: 'evil', source: 'admin', consentAt: 1 } });
+  const w = srv.db.read(`payOrders/${out.orderId}`).waOptIn;
+  assert.equal(w.consentText, 'Send me updates on WhatsApp');
+  assert.equal(w.consentVersion, 'wa-optin-v1');
+  assert.equal(w.source, 'checkout');
+  assert.equal(w.consentAt, NOW);
+});
+
 /* ── PAY-WEBHOOK-REJECT-LOG-1 · a rejected webhook says WHY in the server log (ids only, no PII) ── */
 test('Z5 · reject log: amount_mismatch webhook -> one warn line with reason + order id + amounts, still 400; bad_signature -> no ids; no PII shape', async (t) => {
   const warns = [];
