@@ -7,6 +7,12 @@
 .lt-waopt__input { flex: 1 1 auto; min-width: 0; box-sizing: border-box; border: 0; padding: 10px 12px; font: inherit; font-size: 16px; color: #14213d; background: transparent; outline: none; }
 .lt-waopt__tick { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px; line-height: 1.35; color: #1a2b4a; cursor: pointer; }
 .lt-waopt__tick input { flex: 0 0 auto; width: 22px; height: 22px; margin: 0; accent-color: #136b43; }
+/* The global `input` rule in styles.css sets appearance:none + padding + radius, which erased the native tick: draw it here.
+   [type] raises specificity above the global input / input:focus rules. Ticked = green box with a white tick. */
+.lt-waopt__tick input[type="checkbox"] { -webkit-appearance: none; appearance: none; box-sizing: border-box; padding: 0; border: 2px solid #136b43; border-radius: 6px; background: #fff center / 16px 16px no-repeat; box-shadow: none; cursor: pointer; }
+.lt-waopt__tick input[type="checkbox"]:checked { background-color: #136b43; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.lt-waopt__tick input[type="checkbox"]:focus-visible { outline: 2px solid #136b43; outline-offset: 2px; }
+.lt-waopt__tick input[type="checkbox"]:disabled { opacity: 0.5; cursor: default; }
 .lt-waopt__error { margin: 0; font-size: 13px; color: #b3261e; }
 .lt-waopt__open { display: block; width: 100%; min-height: 44px; margin: 6px 0 0; padding: 8px 10px; border: 0; background: transparent; color: #0e5a36; font: inherit; font-size: 14px; font-weight: 600; text-decoration: underline; text-align: center; cursor: pointer; }
 .lt-waopt__sample { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
