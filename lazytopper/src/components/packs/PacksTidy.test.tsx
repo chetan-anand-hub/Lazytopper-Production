@@ -230,7 +230,7 @@ describe("PACKS-STICKY-1 · the phone's Bundle bar from the first screen", () =>
   const stub = (testId: string, r: DOMRect) =>
     vi.spyOn(screen.getByTestId(testId), "getBoundingClientRect").mockReturnValue(r);
 
-  it("hides while the Bundle's OWN Buy box is on screen, returns when it scrolls away; other packs' Buy boxes do not hide it", async () => {
+  it("hides while the Bundle's OWN Buy button is on screen, returns when it scrolls away; other packs' Buy boxes do not hide it", async () => {
     page();
     const bar = await screen.findByTestId("packs-sticky");
     expect(bar).toBeTruthy();
@@ -239,14 +239,39 @@ describe("PACKS-STICKY-1 · the phone's Bundle bar from the first screen", () =>
     fireEvent.scroll(window);
     await new Promise((r) => setTimeout(r, 50));
     expect(screen.queryByTestId("packs-sticky")).not.toBeNull();
-    // the Bundle's own box on screen: hidden
-    const own = stub("pk-buy-bundle-box", rect(100, 200));
+    // the Bundle's own box on screen but its Buy BUTTON off screen: the bar stays (owner 13 Nov, second ruling)
+    const box = stub("pk-buy-bundle-box", rect(100, 200));
+    const own = stub("tile-buy-pack_bundle", rect(-400, -300));
+    fireEvent.scroll(window);
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.queryByTestId("packs-sticky")).not.toBeNull();
+    box.mockRestore();
+    // the Bundle's own Buy button on screen: hidden
+    own.mockReturnValue(rect(100, 200));
     fireEvent.scroll(window);
     await waitFor(() => expect(screen.queryByTestId("packs-sticky")).toBeNull());
     // scrolled away: back
     own.mockReturnValue(rect(-400, -300));
     fireEvent.scroll(window);
     await screen.findByTestId("packs-sticky");
+  });
+
+  it("the footer on screen does NOT hide it: bundle box off screen + footer on screen = the bar shows", async () => {
+    const footer = document.createElement("footer");
+    footer.className = "lt-public-legal";
+    document.body.appendChild(footer);
+    try {
+      vi.spyOn(footer, "getBoundingClientRect").mockReturnValue(rect(300, 700));
+      page();
+      await screen.findByTestId("packs-sticky");
+      stub("tile-buy-pack_bundle", rect(-600, -500));
+      stub("pk-buy-bundle-box", rect(-700, -300));
+      fireEvent.scroll(window);
+      await new Promise((r) => setTimeout(r, 50));
+      expect(screen.queryByTestId("packs-sticky")).not.toBeNull();
+    } finally {
+      footer.remove();
+    }
   });
 
   it("desktop (>= 768 px): nothing mounts, as before", async () => {
