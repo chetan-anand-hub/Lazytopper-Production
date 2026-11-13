@@ -29,7 +29,7 @@ const { isPackProduct, validateTarget } = require('./packProducts.cjs');
 const { maskIndianMobile, maskEmail, GUEST_PAYER, normaliseIndianMobile, normaliseEmail } = require('./guestPay.cjs');
 const { GST_RATE_PERCENT } = require('./passPricing.cjs');
 // GST-INVOICE-1: the tax invoice link (a signed link for a purchase made without this account's sign-in).
-const { invoiceToken, invoiceLinkSecret, invoiceOwnedBy } = require('./gstInvoice.cjs');
+const { invoiceToken, invoiceLinkSecret, invoiceOwnedBy, heldReasonFor } = require('./gstInvoice.cjs');
 // GST-INVOICE-2a: the invoice email ("Issue now") keeps the batch-email rules: the IST send window and one email a day.
 const { resolveSendWindow } = require('./emailSendWindow.cjs');
 const { emailKey } = require('./emailSuppression.cjs');
@@ -110,6 +110,8 @@ function resolveReceiptEmailConfig(env = process.env) {
     appUrl: normaliseAppUrl(e.PAYMENT_EMAIL_APP_URL || e.TRIAL_EMAIL_APP_URL),
     // GST-INVOICE-1 (review D5): the DEDICATED secret the signed invoice link uses. Missing -> no link. Never sent.
     invoiceLinkSecret: invoiceLinkSecret(e),
+    // GST-EMAIL-LINK-1: the state + PIN link is only offered while invoicing itself is on.
+    gstInvoiceOn: isOnFlag(e.GST_INVOICE_ENABLED),
   };
 }
 
@@ -210,7 +212,7 @@ function formatIstDay(ms) {
  * PURE. The email for one paid order. `guestPhoneMasked` set -> the "sign in with your phone" instructions; else the
  * direct link. Returns null when the order is not something we send a receipt for.
  */
-function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst, invoice, invoiceResend = false, signIns, moved = false, holdEndDefault }) {
+function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidAtMs, guestPhoneMasked, appUrl, payer, recipient, gst, invoice, gstDetailsUrl, invoiceResend = false, signIns, moved = false, holdEndDefault }) {
   const item = emailItemLabel(passType, packTarget);
   if (!item || !Number.isInteger(amountPaise) || amountPaise <= 0 || typeof paymentId !== 'string' || !paymentId) return null;
   // GST-INVOICE-2a: the receipt RE-SENT with an invoice issued later ("Issue now") - only with a usable invoice link.
@@ -267,8 +269,14 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
 
   // GST-INVOICE-1: { number, url } when a tax invoice was issued for this payment; nothing otherwise (byte-identical email).
   const inv = invoice && typeof invoice.number === 'string' && typeof invoice.url === 'string' && /^https:\/\//.test(invoice.url) ? invoice : null;
-  const invoiceText = inv ? `\n\nGST tax invoice ${inv.number}: ${inv.url}` : '';
-  const invoiceHtml = inv ? `\n<p>GST tax invoice ${escapeHtml(inv.number)}: <a href="${escapeHtml(inv.url)}">Download the invoice (PDF)</a></p>` : '';
+  // GST-EMAIL-LINK-1: an order still HELD for its state / PIN (no invoice yet) carries one line + the signed details link.
+  const detailsUrl = !inv && typeof gstDetailsUrl === 'string' && /^https:\/\//.test(gstDetailsUrl) ? gstDetailsUrl : '';
+  const invoiceText = inv ? `\n\nGST tax invoice ${inv.number}: ${inv.url}` : detailsUrl ? `\n\nGet your GST invoice: add your state and PIN: ${detailsUrl}` : '';
+  const invoiceHtml = inv
+    ? `\n<p>GST tax invoice ${escapeHtml(inv.number)}: <a href="${escapeHtml(inv.url)}">Download the invoice (PDF)</a></p>`
+    : detailsUrl
+      ? `\n<p>Get your GST invoice: <a href="${escapeHtml(detailsUrl)}">add your state and PIN</a></p>`
+      : '';
   // RECEIPT-EMAIL-1: when the account the purchase is ON is known (granted / attached / fallback decided), name its MASKED sign-ins.
   const ids = Array.isArray(signIns) ? signIns.filter(Boolean) : null;
   let readyText = '';
@@ -431,6 +439,20 @@ function createPaymentReceiptEmailer(deps = {}) {
     return t ? { number: inv.number, url: `${config.appUrl}/api/gst/invoice?t=${encodeURIComponent(t)}` } : null;
   }
 
+  /**
+   * GST-EMAIL-LINK-1: the signed 30-day "add your state and PIN" link, ONLY for an order with no invoice that is held for its state
+   * or PIN (never past sales, top-ups or an issued invoice). Needs the dedicated link secret; without it, no link.
+   */
+  function gstDetailsUrlFor(order, orderId) {
+    if (!order || order.gstInvoice || !config.gstInvoiceOn || !config.invoiceLinkSecret || !config.appUrl) return '';
+    const held = heldReasonFor(order, { ready: true });
+    if (held !== 'no_state' && held !== 'no_pin') return '';
+    // Lazy: gstBackdate.cjs requires this module (the placeholder check).
+    const { detailsToken, DETAILS_TOKEN_TTL_MS } = require('./gstBackdate.cjs');
+    const t = detailsToken(orderId, now() + DETAILS_TOKEN_TTL_MS, config.invoiceLinkSecret);
+    return t ? `${config.appUrl}/invoice-details?t=${encodeURIComponent(t)}` : '';
+  }
+
   /** The receipt's inputs for a stored order (shared by the receipt and, GST-INVOICE-2a, the invoice email). */
   function receiptArgsFor(order, orderId, paymentId, paidAtMs) {
     const guest = order.payer === GUEST_PAYER;
@@ -446,6 +468,7 @@ function createPaymentReceiptEmailer(deps = {}) {
       payer: typeof order.payer === 'string' ? order.payer : null,
       gst: { baseInr: order.baseInr, gstInr: order.gstInr, packCreditInr: order.packCreditInr },
       invoice: invoiceLinkFor(order, orderId, paymentId),
+      gstDetailsUrl: gstDetailsUrlFor(order, orderId),
       ...(order.movedToOtherAt ? { moved: true } : {}),
       // CHECKOUT-WHO-1: a recipient order names the masked phone and/or email to sign in with.
       ...(who ? { recipient: { phoneMasked: maskIndianMobile(order.guestPhone) || null, emailMasked: maskEmail(order.guestEmail) || null } } : {}),
