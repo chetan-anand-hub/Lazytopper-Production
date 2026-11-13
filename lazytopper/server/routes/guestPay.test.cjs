@@ -207,11 +207,11 @@ function fakeRazorpay() {
 
 
 /* ── guest routes AND the existing payment routes (webhook), behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts, invoicer, packPdf, nowMs = NOW } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts, invoicer, packPdf, nowMs = NOW, nowFn = null } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
-  const now = () => nowMs; // GST-EXCL-1: a test may move the clock past the 7 Nov GST cut-off
+  const now = nowFn || (() => nowMs); // GST-EXCL-1: a test may move the clock past the 7 Nov GST cut-off
   // `Bearer uid:<uid>` or `Bearer uid:<uid>|phone:<e164>` — the test stand-in for a token firebase-admin verified.
   const identityOf = (req) => {
     const h = String(req.headers.authorization || '');
@@ -256,7 +256,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
   const idle = async () => {
     while (pending.size) await Promise.all([...pending]);
   };
-  return { port, db, rzp, events, idle, close: () => new Promise((r) => server.close(r)) };
+  return { port, db, rzp, events, idle, guest, close: () => new Promise((r) => server.close(r)) };
 }
 
 let ipSeq = 0;
@@ -2311,6 +2311,65 @@ test("ATTACH-HOLD-1 · an attach order that is NOT the payer's own paid-with con
   assert.equal(ok.json.claimed.length, 1, ok.text);
   assert.equal(ok.json.held, undefined);
   assert.equal(db.read(key).uid, 'uEdge');
+});
+
+test('ATTACH-HOLD-2 · the payer exemption is for the CLAIM only: a delivery-path take during the hold is still refused (defence in depth)', async (t) => {
+  const db = memoryFirestore();
+  const auth = fakeAuth({ users: [{ uid: 'uPayer', phoneNumber: PHONE }] });
+  const clock = { t: NOW };
+  const { srv } = await autoRoutes({ env: SELF_ENV, db, auth, nowFn: () => clock.t });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const key = `payOrders/${paid.orderId}`;
+  assert.equal(db.read(key).status, 'paid_unclaimed');
+  assert.equal(db.read(key).selfPay, true);
+  assert.equal(db.read(key).selfContactFrom, 'payment');
+  // The delivery decides the hold has ended, then the clock is back inside the hold by the time its take runs (a clock race).
+  const origTx = db.runTransaction.bind(db);
+  let takes = 0;
+  db.runTransaction = (fn) => {
+    clock.t = NOW + 1000;
+    takes += 1;
+    return origTx(fn);
+  };
+  clock.t = NOW + ATTACH_HOLD_MS + 1000;
+  await srv.guest.afterRecipientPaid({ orderId: paid.orderId, paymentId: paid.paymentId });
+  await srv.idle();
+  assert.ok(takes >= 1, 'the delivery reached its take transaction');
+  const stored = db.read(key);
+  assert.equal(stored.status, 'paid_unclaimed', 'the delivery take is refused inside the hold');
+  assert.ok(stored.uid === null || stored.uid === undefined);
+  assert.equal(db.docs.has(`subscriptions/uPayer`), false, 'nothing granted');
+  // ...while the CLAIM, in the same moment inside the hold, takes it for the payer
+  const r = await claim(srv, signedIn('uPayer', PHONE));
+  assert.equal(r.json.claimed.length, 1, r.text);
+});
+
+test('ATTACH-HOLD-2 · `held` never lists an order that does not match the claimant (H5) nor one whose hold already ended (H6)', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const key = `payOrders/${paid.orderId}`;
+  const { selfContactFrom, ...rest } = db.read(key);
+  // a held, NON-payer order (so the payer exemption does not take it) and a claimant who is NOT its contact: no hint (H5)
+  db.docs.set(key, { data: { ...rest, guestPhone: '+919811111111' }, version: 50 });
+  const during = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + 1000 });
+  t.after(during.close);
+  const other = await claim(during, signedIn('uNope', PHONE));
+  assert.deepEqual(other.json.claimed, []);
+  assert.equal(other.json.held, undefined, 'H5: an order not matching the claimant is never in held');
+  // H5b: an order this uid already holds (status claimed, retries used up) is never reported as held, even with a future hold
+  db.docs.set(key, { data: { ...rest, guestPhone: PHONE, status: 'claimed', uid: 'uMine', claimAttempts: 99 }, version: 52 });
+  const mine = await claim(during, signedIn('uMine', PHONE));
+  assert.equal(mine.json.held, undefined, 'H5b: only an unclaimed order is ever held');
+  // H6: the contact matches but the hold is already over at the moment the claim reads it, and the take is refused for another reason
+  db.docs.set(key, { data: { ...rest, guestPhone: PHONE, attachHoldUntil: new Date(NOW - 1) , paymentId: undefined }, version: 51 });
+  const over = await startRoutes({ env: SELF_ENV, db, nowMs: NOW + 1000 });
+  t.after(over.close);
+  const r = await claim(over, signedIn('uLate', PHONE));
+  assert.deepEqual(r.json.claimed, []);
+  assert.equal(r.json.held, undefined, 'H6: an order whose hold already ended is not in held');
 });
 
 test('ATTACH-HOLD-1 · a DIFFERENT phone never takes the order during the hold', async (t) => {

@@ -59,6 +59,28 @@ describe("SELFPAY-ATTACH-HOLD-1 · a claim that finds an order still held", () =
     }
   });
 
+  it("a hold end more than 15 minutes away schedules nothing (not clamped); exactly 15 minutes does", async () => {
+    vi.useFakeTimers();
+    try {
+      vi.doMock("./checkout", async (orig) => ({ ...(await orig<typeof import("./checkout")>()), authHeaders: async () => ({ Authorization: "Bearer t" }) }));
+      const mod = await import("./guestPay");
+      mod.resetGuestClaimSessionForTests();
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response(JSON.stringify({ ok: true, claimed: [], held: [{ holdEndsMs: Date.now() + 15 * 60_000 + 1 }] }), { status: 200 }));
+      await mod.claimOncePerSession("uWild");
+      await vi.advanceTimersByTimeAsync(2 * 60 * 60_000);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      fetchSpy.mockImplementation(async () => new Response(JSON.stringify({ ok: true, claimed: [], held: [{ holdEndsMs: Date.now() + 15 * 60_000 }] }), { status: 200 }));
+      await mod.claimOncePerSession("uEdge");
+      await vi.advanceTimersByTimeAsync(15 * 60_000 + 3000);
+      expect(fetchSpy.mock.calls.length).toBeGreaterThan(2);
+      fetchSpy.mockRestore();
+      mod.resetGuestClaimSessionForTests();
+      vi.doUnmock("./checkout");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("a hold that is STILL reported is retried at most three times, one timer at a time", async () => {
     vi.useFakeTimers();
     try {
