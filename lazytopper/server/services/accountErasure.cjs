@@ -414,7 +414,15 @@ async function deleteFirestoreByField(db, pathTemplate, uid, field) {
  */
 const ANONYMISE_ALSO_CLEAR = Object.freeze(['guestPhone', 'guestEmail', 'waOptIn']);
 
+/** WHATSAPP-OPTIN-1: `waOptIn` is the PAYER's number; on a someone-else / phone order guestPhone / guestEmail are the RECIPIENT's. It is the erased account's only when the numbers match. */
+function waOptInIsAccountsOwn(data, accountE164) {
+  const w = data && data.waOptIn;
+  if (!accountE164 || !w || typeof w !== 'object') return false;
+  return normaliseIndianMobile(typeof w.phone === 'string' ? w.phone : '') === accountE164;
+}
+
 async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone, email } = {}) {
+  const accountE164 = typeof phone === 'string' && phone ? normaliseIndianMobile(phone) : null;
   const segs = templateSegments(pathTemplate);
   const snap = await db.collection(segs[0]).where(field, '==', uid).get();
   const docs = snap && Array.isArray(snap.docs) ? snap.docs : [];
@@ -441,7 +449,7 @@ async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone, 
       const data = typeof doc.data === 'function' ? doc.data() || {} : {};
       // Review fix 10: a PAID order nobody claimed can now never be claimed (its key is gone): mark it
       // `erased_unclaimed` - paymentId kept - an information label the owner sees in admin purchases.
-      const waClear = data.waOptIn ? { waOptIn: null } : {}; // WHATSAPP-OPTIN-1: the order's WhatsApp number + consent go too
+      const waClear = waOptInIsAccountsOwn(data, accountE164) ? { waOptIn: null } : {}; // WHATSAPP-OPTIN-1: the order's WhatsApp number + consent go too
       await doc.ref.update(data.status === 'paid_unclaimed' ? { guestPhone: null, status: 'erased_unclaimed', ...waClear } : { guestPhone: null, ...waClear });
       phoneCleared += 1;
     }
@@ -472,16 +480,29 @@ async function anonymiseFirestoreByField(db, pathTemplate, uid, field, { phone, 
       // Review D8: an order that already belongs to ANOTHER account keeps its phone and status; only this erased
       // address is removed from it.
       if (data.uid !== null && data.uid !== undefined) {
-        await doc.ref.update({ guestEmail: null, ...(data.waOptIn ? { waOptIn: null } : {}) });
+        await doc.ref.update({ guestEmail: null, ...(waOptInIsAccountsOwn(data, accountE164) ? { waOptIn: null } : {}) });
         emailCleared += 1;
         continue;
       }
-      const clear = { guestEmail: null, ...(data.guestPhone ? { guestPhone: null } : {}), ...(data.waOptIn ? { waOptIn: null } : {}) };
+      const clear = { guestEmail: null, ...(data.guestPhone ? { guestPhone: null } : {}), ...(waOptInIsAccountsOwn(data, accountE164) ? { waOptIn: null } : {}) };
       await doc.ref.update(data.status === 'paid_unclaimed' ? { ...clear, status: 'erased_unclaimed' } : clear);
       emailCleared += 1;
     }
   }
-  return docs.length + phoneCleared + emailCleared;
+  // WHATSAPP-OPTIN-1 - LAST (so the sweeps above still clear guestPhone / guestEmail on an order that also carries the number): an
+  // order whose PAYER opt-in number is this account's own but that no sweep above matched (an abandoned checkout with no
+  // guestPhone / guestEmail / uid) is found by `waOptIn.phone`; only that field is cleared, the accounting record stays.
+  let waCleared = 0;
+  if (accountE164) {
+    const byWa = await db.collection(segs[0]).where('waOptIn.phone', '==', accountE164).get();
+    for (const doc of (byWa && Array.isArray(byWa.docs) ? byWa.docs : [])) {
+      if (seen.has(doc.id)) continue;
+      seen.add(doc.id);
+      await doc.ref.update({ waOptIn: null });
+      waCleared += 1;
+    }
+  }
+  return docs.length + phoneCleared + emailCleared + waCleared;
 }
 
 /** GUEST-ABANDON-1 - delete `name/{emailKey(email)}`. 1 when it existed, 0 (-> notFound) when not or no address. */
