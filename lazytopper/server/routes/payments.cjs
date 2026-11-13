@@ -63,6 +63,7 @@ const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields }
 const { GUEST_PAYER, markGuestOrderPaid } = require('../services/guestPay.cjs');
 // GST-INVOICE-1 (DARK): the buyer's confirmed state on the order, and the tax invoice issued after a verified capture.
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
+const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 
 /**
  * MONEY-DUPGUARD-1 - parentPay.cjs `coveredTillBoards`, the SAME function guest and parent pay use (not a copy). Read at
@@ -664,6 +665,15 @@ function createPaymentRoutes(deps = {}) {
       const reuse = await reusableOpenPassOrder(keys, uid, orderTerms);
       if (reuse) {
         emit('payments.order.reused');
+        // WHATSAPP-OPTIN-1: the handed-back open order takes this tap's valid + ticked opt-in too (best effort; never blocks the order).
+        const reuseOptIn = orderOptInField(body, now());
+        if (reuseOptIn.waOptIn) {
+          try {
+            await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(reuse).set(reuseOptIn, { merge: true });
+          } catch {
+            emit('payments.order.wa_optin_store_failed');
+          }
+        }
         return sendJson(res, 200, { ok: true, orderId: reuse, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr) });
       }
     }
@@ -708,6 +718,7 @@ function createPaymentRoutes(deps = {}) {
         ...creditOrderFields(packCreditInr, packCreditIds),
         ...gstOrderFields(quote),
         ...gstBuyer.fields,
+        ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: only when the number is valid AND the tick was sent; else nothing
         offerKey: quote.offerKey,
         status: 'created',
         createdAt: new Date(now()),

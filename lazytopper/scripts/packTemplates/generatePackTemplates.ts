@@ -19,9 +19,9 @@ import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
 import { chromium, type Browser, type Page } from "@playwright/test";
-import type { PackUnitsDef, PlanBridge, PlanFile } from "../../src/lib/packs/packTemplateCore";
+import { paintedPapersDigest, planPaintedPapers, type PackUnitsDef, type PlanBridge, type PlanFile } from "../../src/lib/packs/packTemplateCore";
+import type { RenderedTemplate } from "./genEntry";
 import { bridgeKeyOf, fileHashOf, type Sha } from "../../src/lib/packs/packTemplateManifest";
-import type { TemplateMarks } from "../../src/components/worksheet/worksheetPdfExport";
 import type { BridgePagesData } from "../../src/lib/packs/packBridge";
 import { rendererVersion } from "./rendererVersion";
 
@@ -128,7 +128,7 @@ async function renderCommand(planPath: string, out: string): Promise<void> {
       for (let attempt = 1; attempt <= 2; attempt += 1) {
         try {
           if (it.kind === "file") {
-            const [download, marks] = await Promise.all([
+            const [download, rendered] = await Promise.all([
               page.waitForEvent("download", { timeout: 300000 }),
               page.evaluate((id) => window.__renderTemplate!(id), it.id),
             ]);
@@ -136,7 +136,11 @@ async function renderCommand(planPath: string, out: string): Promise<void> {
             await download.saveAs(tmp);
             const bytes = fs.readFileSync(tmp);
             fs.rmSync(tmp);
-            const m = marks as TemplateMarks;
+            const { marks: m, paintedSha256 } = rendered as RenderedTemplate;
+            // N3: the paper the renderer was handed must be the plan's worksheet(s); anything else is never saved.
+            const planFile = plan.files.find((f) => f.templateId === it.id);
+            if (!planFile) throw new Error(`template ${it.id} is not in the plan`);
+            if (paintedSha256 !== paintedPapersDigest(planPaintedPapers(planFile), sha)) throw new Error(`rendered paper differs from the plan: ${it.id}`);
             const meta = { templateId: it.id, bytes: bytes.length, sha256: sha256(bytes), pages: m.pages, marks: m };
             fs.writeFileSync(path.join(out, "files", `${it.hash}.pdf`), bytes);
             fs.writeFileSync(path.join(out, "files", `${it.hash}.meta.json`), JSON.stringify(meta));

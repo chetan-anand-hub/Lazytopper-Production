@@ -103,7 +103,7 @@ function makeFirestore(seed = {}, failOnDelete = null) {
           async get() {
             return snapshotOf(
               childDocPaths(collPath).filter(
-                (p) => docs.has(p) && op === '==' && docs.get(p) && docs.get(p)[field] === value
+                (p) => docs.has(p) && op === '==' && docs.get(p) && field.split('.').reduce((o, k) => (o == null ? undefined : o[k]), docs.get(p)) === value
               )
             );
           },
@@ -985,6 +985,82 @@ test('PAY-PHONE-1: erasure clears guestPhone on the account\'s claimed orders AN
   // Orders without the field are rewritten exactly as before (no guestPhone key added).
   assert.equal(Object.prototype.hasOwnProperty.call(store.docs.get('payOrders/order_A'), 'guestPhone'), false);
   assert.ok(!store.deleted.some((p) => p.startsWith('payOrders/')));
+});
+
+test('WHATSAPP-OPTIN-1: erasure clears the order\'s waOptIn (the WhatsApp number + consent) on the account\'s orders; orders without one are rewritten as before', async () => {
+  const seed = {
+    ...realSeed(),
+    'payOrders/order_WA': { uid: UID, passType: 'pack_mock', amountPaise: 9900, status: 'paid', paymentId: 'pay_WA', waOptIn: { phone: '+919876543948', consentText: 'Send me updates on WhatsApp', consentVersion: 'wa-optin-v1', consentAt: 1, source: 'checkout' } },
+  };
+  const store = makeFirestore(seed);
+  const service = createAccountErasureService({ firebaseAdmin: makeAdmin(makeBucket([]), [UID, OTHER]), adminFirestore: store.db, resolveBucketName: () => 'test-bucket' });
+  const result = await service.eraseAccount(UID);
+  assert.equal(result.ok, true);
+  assert.equal(store.docs.get('payOrders/order_WA').waOptIn, null);
+  assert.equal(store.docs.get('payOrders/order_WA').uid, 'erased');
+  assert.equal(store.docs.get('payOrders/order_WA').paymentId, 'pay_WA', 'the accounting record is kept');
+  assert.equal(Object.prototype.hasOwnProperty.call(store.docs.get('payOrders/order_A'), 'waOptIn'), false);
+});
+
+const WA = (phone) => ({ phone, consentText: 'Send me updates on WhatsApp', consentVersion: 'wa-optin-v1', consentAt: 1, source: 'checkout' });
+const waRow = (p) => `waOptIns/${require('node:crypto').createHash('sha256').update(p).digest('hex')}`;
+function waErase(seed, { phone = '+919876543948', email = null } = {}) {
+  const store = makeFirestore({ ...realSeed(), ...seed });
+  const admin = makeAdmin(makeBucket([]), [UID, OTHER]);
+  const baseAuth = admin.auth;
+  admin.auth = () => ({ ...baseAuth(), getUser: async (uid) => ({ uid, phoneNumber: uid === UID ? phone : null, email: uid === UID ? email : null, emailVerified: true }) });
+  const service = createAccountErasureService({ firebaseAdmin: admin, adminFirestore: store.db, resolveBucketName: () => 'test-bucket' });
+  return { store, run: () => service.eraseAccount(UID) };
+}
+
+test('WHATSAPP-OPTIN-1 (review): guestPhone sweep - waOptIn is cleared ONLY when it is the account\'s own number (a payer\'s different number on a recipient order stays); the account\'s waOptIns row is deleted', async () => {
+  const PHONE = '+919876543948';
+  const { store, run } = waErase({
+    'payOrders/order_P1': { uid: null, payer: 'guest', guestPhone: PHONE, passType: 'pack_mock', amountPaise: 9900, status: 'paid_unclaimed', paymentId: 'pay_P1', waOptIn: WA('+919123456780') },
+    'payOrders/order_P2': { uid: null, payer: 'guest', guestPhone: PHONE, passType: 'pack_cbq', amountPaise: 9900, status: 'created', waOptIn: WA(PHONE) },
+    [waRow(PHONE)]: { phone: PHONE, packIds: [], lastAt: 1, source: 'sample' },
+    [waRow('+917012345678')]: { phone: '+917012345678', packIds: [], lastAt: 1, source: 'sample' },
+  });
+  assert.equal((await run()).ok, true);
+  assert.equal(store.docs.get('payOrders/order_P1').guestPhone, null, 'the recipient phone is the erased account\'s');
+  assert.deepEqual(store.docs.get('payOrders/order_P1').waOptIn, WA('+919123456780'), 'the PAYER\'s different number is kept');
+  assert.equal(store.docs.get('payOrders/order_P2').waOptIn, null);
+  assert.equal(store.docs.get('payOrders/order_P1').paymentId, 'pay_P1');
+  assert.equal(store.docs.has(waRow(PHONE)), false);
+  assert.equal(store.docs.has(waRow('+917012345678')), true);
+});
+
+test('WHATSAPP-OPTIN-1 (review): guestEmail sweep (both branches) - waOptIn cleared only when it is the account\'s own phone', async () => {
+  const PHONE = '+919876543948';
+  const { store, run } = waErase({
+    'payOrders/order_E1': { uid: null, payer: 'guest', checkoutWho: true, guestEmail: 'child.k@gmail.com', passType: 'till_boards', amountPaise: 191700, status: 'paid_unclaimed', paymentId: 'pay_E1', waOptIn: WA('+919123456780') },
+    'payOrders/order_E2': { uid: null, payer: 'guest', checkoutWho: true, guestEmail: 'child.k@gmail.com', passType: 'pack_cbq', amountPaise: 9900, status: 'created', waOptIn: WA(PHONE) },
+    'payOrders/order_E3': { uid: OTHER, payer: 'guest', checkoutWho: true, guestEmail: 'child.k@gmail.com', passType: 'pack_cbq', amountPaise: 19900, status: 'paid', paymentId: 'pay_E3', waOptIn: WA('+919123456780') },
+    'payOrders/order_E4': { uid: OTHER, payer: 'guest', checkoutWho: true, guestEmail: 'child.k@gmail.com', passType: 'pack_cbq', amountPaise: 19900, status: 'paid', paymentId: 'pay_E4', waOptIn: WA(PHONE) },
+  }, { phone: PHONE, email: 'Child.K@Gmail.com' });
+  assert.equal((await run()).ok, true);
+  const d = (id) => store.docs.get(`payOrders/${id}`);
+  assert.equal(d('order_E1').guestEmail, null);
+  assert.deepEqual(d('order_E1').waOptIn, WA('+919123456780'), 'unclaimed branch: a different payer number stays');
+  assert.equal(d('order_E2').waOptIn, null, 'unclaimed branch: the account\'s own number goes');
+  assert.equal(d('order_E3').guestEmail, null);
+  assert.deepEqual(d('order_E3').waOptIn, WA('+919123456780'), 'other-account branch: a different number stays');
+  assert.equal(d('order_E4').waOptIn, null, 'other-account branch: the account\'s own number goes');
+  assert.equal(d('order_E4').status, 'paid');
+});
+
+test('WHATSAPP-OPTIN-1 (review): an abandoned order with the account\'s opt-in number but no guestPhone / guestEmail / uid match is found by waOptIn.phone and only waOptIn is cleared', async () => {
+  const PHONE = '+919876543948';
+  const { store, run } = waErase({
+    'payOrders/order_A1': { uid: null, payer: 'guest', selfPay: true, passType: 'pack_mock', amountPaise: 9900, status: 'created', waOptIn: WA(PHONE) },
+    'payOrders/order_A2': { uid: null, payer: 'guest', selfPay: true, passType: 'pack_mock', amountPaise: 9900, status: 'created', waOptIn: WA('+919123456780') },
+  });
+  assert.equal((await run()).ok, true);
+  assert.equal(store.docs.get('payOrders/order_A1').waOptIn, null);
+  assert.equal(store.docs.get('payOrders/order_A1').status, 'created');
+  assert.equal(store.docs.get('payOrders/order_A1').uid, null, 'never becomes this account\'s');
+  assert.deepEqual(store.docs.get('payOrders/order_A2').waOptIn, WA('+919123456780'));
+  assert.ok(store.queriedByField.some((q) => q.field === 'waOptIn.phone' && q.value === PHONE));
 });
 
 test('GUEST-ABANDON-1 review D3 + D2: erasure clears guestEmail on the account\'s guest orders, deletes its guest email ledger, KEEPS its stop record', async () => {

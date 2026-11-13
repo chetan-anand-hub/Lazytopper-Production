@@ -2520,3 +2520,75 @@ test('RECEIPT · a THROWING or REJECTING emailer can never change the grant: cla
     assert.ok(db.read(`payOrders/${paid.orderId}`).uid);
   }
 });
+
+/* ── WHATSAPP-OPTIN-1: the signed-out SELF order stores `waOptIn` only for a valid number + explicit tick ──
+ * MUTATIONS: M1 guestPay.cjs handleSelfOrder drops the orderOptInField spread -> "valid + ticked" red;
+ *            M2 it stores without checking `consent === true` -> "unticked" red.
+ */
+test('WA-OPTIN · self order: valid + ticked -> stored on the order; the claim contact (guestPhone) is NOT set from it', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  const o = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths', waOptIn: { phone: '98765 43948', consent: true } });
+  assert.equal(o.status, 200, o.text);
+  const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.deepEqual(stored.waOptIn, { phone: '+919876543948', consentText: 'Send me updates on WhatsApp', consentVersion: 'wa-optin-v1', consentAt: NOW, source: 'checkout' });
+  assert.equal(stored.guestPhone, undefined, 'the WhatsApp number is never the account claim key');
+  assert.equal(JSON.stringify(srv.rzp.orders.get(o.json.orderId).notes).includes('9876543948'), false);
+});
+
+test('WA-OPTIN · self order: unticked / invalid -> nothing stored, order still created', async (t) => {
+  const { srv } = await autoRoutes({ env: SELF_ENV });
+  t.after(srv.close);
+  for (const waOptIn of [{ phone: '9876543948' }, { phone: '9876543948', consent: false }, { phone: '1234', consent: true }]) {
+    const o = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths', waOptIn });
+    assert.equal(o.status, 200, o.text);
+    assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).waOptIn, undefined, JSON.stringify(waOptIn));
+  }
+});
+
+/* ── WHATSAPP-OPTIN-1 review: the opt-in also rides the pay-by-phone and "someone else" guest orders ──
+ * MUTATIONS: M1 drop the spread in the phone order / the recipient order -> the matching test below goes red;
+ *            M2 read consentText from the body (services/waOptIn.cjs buildOrderOptIn) -> "attacker consentText" red.
+ */
+test('WA-OPTIN · pay-by-phone guest order: valid + ticked stored (the claim phone stays the typed order phone); unticked -> nothing', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE, waOptIn: { phone: '9123456780', consent: true } });
+  assert.equal(o.status, 200, o.text);
+  const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(stored.waOptIn.phone, '+919123456780');
+  assert.equal(stored.waOptIn.source, 'checkout');
+  assert.ok(stored.guestPhone && stored.guestPhone !== stored.waOptIn.phone, 'the order phone is the typed claim phone, not the WhatsApp number');
+  const n = await guestOrder(srv, { sku: 'till_boards', phone: PHONE, waOptIn: { phone: '9123456780' } });
+  assert.equal(srv.db.read(`payOrders/${n.json.orderId}`).waOptIn, undefined);
+});
+
+test('WA-OPTIN · "someone else" recipient order: the PAYER\'s ticked number is stored beside (never as) the recipient; unticked -> nothing', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV });
+  t.after(srv.close);
+  const o = await whoOrder(srv, { sku: 'till_boards', recipient: { email: EMAIL }, waOptIn: { phone: '+91 91234 56780', consent: true } });
+  assert.equal(o.status, 200, o.text);
+  const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(stored.waOptIn.phone, '+919123456780');
+  assert.equal(stored.guestEmail, EMAIL.toLowerCase());
+  assert.equal(stored.guestPhone, undefined, 'the WhatsApp number is not the recipient\'s claim key');
+  const n = await whoOrder(srv, { sku: 'till_boards', recipient: { email: EMAIL }, waOptIn: { phone: '9123456780', consent: false } });
+  assert.equal(srv.db.read(`payOrders/${n.json.orderId}`).waOptIn, undefined);
+});
+
+test('WA-OPTIN · an attacker-supplied consentText / consentVersion / source in the body is ignored on every order path: the stored text is the server constant', async (t) => {
+  const srv = await startRoutes({ env: { ...WHO_ENV, GUEST_PAY_ENABLED: '1' } });
+  t.after(srv.close);
+  const evil = { phone: '9123456780', consent: true, consentText: 'I agree to anything', consentVersion: 'evil', source: 'admin', consentAt: 1 };
+  const self = await request(srv.port, GUEST_ORDER_PATH, { body: { self: true, sku: 'till_boards', waOptIn: evil } });
+  const who = await whoOrder(srv, { sku: 'till_boards', recipient: { email: EMAIL }, waOptIn: evil });
+  const phone = await guestOrder(srv, { sku: 'till_boards', phone: PHONE, waOptIn: evil });
+  for (const r of [self, who, phone]) {
+    assert.equal(r.status, 200, r.text);
+    const w = srv.db.read(`payOrders/${r.json.orderId}`).waOptIn;
+    assert.equal(w.consentText, 'Send me updates on WhatsApp');
+    assert.equal(w.consentVersion, 'wa-optin-v1');
+    assert.equal(w.source, 'checkout');
+    assert.notEqual(w.consentAt, 1);
+  }
+});
