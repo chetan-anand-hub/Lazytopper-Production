@@ -23,8 +23,10 @@ import {
   rememberPurchaseSent,
   sendAdsConversion,
   sendAnalyticsHit,
+  newCheckoutAttemptId,
   sendGa4Hit,
 } from "../../analytics/analytics";
+import { priceWithGst } from "../../config/pricing";
 import { reportPackSampleSeen, signedInHint } from "./packSampleSeen";
 
 export type PackSkuName = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle" | "pack_cbq";
@@ -145,7 +147,20 @@ export type PackCheckoutFrom = "sample" | "for_parents" | PassOwnerOfferSurface;
  * `pack_checkout` at the Buy TAP. BUY-PATH-1: `signedIn` (when given) adds `signed_in` to the first-party / Vercel / GA4
  * data, so a signed-out tap (sent before the branch to sign-in or pay-by-phone) is told apart from a signed-in one.
  */
-export function trackPackCheckout(details: PackCheckoutDetails, ctx: { signedIn?: boolean; resumed?: boolean; from?: PackCheckoutFrom } = {}): void {
+/**
+ * META-PACK-CHECKOUT-1: attempt ids that already sent Meta's InitiateCheckout in this page load, so a re-render or a second call
+ * with the same id sends it once. (Meta also discards a repeat name + eventID within 48 h; this keeps the second call off the wire.)
+ */
+const metaCheckoutSent = new Set<string>();
+/** Test seam: forget the attempt ids already sent to Meta. */
+export function __resetPackMetaCheckoutForTests(): void {
+  metaCheckoutSent.clear();
+}
+
+export function trackPackCheckout(
+  details: PackCheckoutDetails,
+  ctx: { signedIn?: boolean; resumed?: boolean; from?: PackCheckoutFrom; attemptId?: string } = {},
+): void {
   try {
     const money = packMoney(details);
     // BUY-PATH-1 review: `resumed: true` marks a checkout started AUTOMATICALLY after sign-in (the ?buy= resume), so a funnel can
@@ -158,7 +173,19 @@ export function trackPackCheckout(details: PackCheckoutDetails, ctx: { signedIn?
       ...salesSurface(),
     };
     checkoutStartedOn.set(details.sku, currentSalesPageSurface());
-    sendAnalyticsHit("event", { name: "pack_checkout", data: { ...money, sku: details.sku, ...who } }, { ga4: { ...money, sku: details.sku, ...who } });
+    // META-PACK-CHECKOUT-1: ONE standard InitiateCheckout per checkout attempt, through the same Meta gate and queue as every
+    // other event (META_EVENTS["pack_checkout"]). `eventID` is the attempt id the call site already mints (else one is made here);
+    // value is the TOTAL charged (base + GST, rupees); nothing about the person. The Premium pass tap is unchanged.
+    const attemptId = ctx.attemptId || newCheckoutAttemptId();
+    const sendMeta = !metaCheckoutSent.has(attemptId);
+    if (sendMeta) metaCheckoutSent.add(attemptId);
+    const total = typeof details.valueInr === "number" && Number.isFinite(details.valueInr) && details.valueInr > 0 ? priceWithGst(details.valueInr) : null;
+    const meta = { currency: CHECKOUT_CURRENCY, ...(total === null ? {} : { value: total }), content_ids: [details.sku], content_type: "product" };
+    sendAnalyticsHit(
+      "event",
+      { name: "pack_checkout", data: { ...money, sku: details.sku, ...who } },
+      { ga4: { ...money, sku: details.sku, ...who }, ...(sendMeta ? { meta, metaEventId: attemptId } : {}) },
+    );
     sendGa4Only("begin_checkout", { ...money, items: [packItem(details)], ...who });
   } catch {
     /* analytics must never break the page */

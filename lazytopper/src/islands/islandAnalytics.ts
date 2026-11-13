@@ -97,8 +97,11 @@ export function ga4PageReferrer(referrer: string): string {
 
 const META_QUERY_KEEP = /^(?:utm_.*|fbclid|gclid|cbq|ct)$/;
 
-function metaQueryAndHashAreClean(search: string, hash: string): boolean {
-  if (hash && hash !== "#") return false;
+const META_ANCHOR = /^#[a-z0-9-]{1,40}$/i;
+const META_OWN_HOST = /(?:^|\.)(?:facebook|instagram)\.com$/;
+
+function metaQueryAndHashAreClean(search: string, hash: string, allowAnchor = false): boolean {
+  if (hash && hash !== "#" && !(allowAnchor && META_ANCHOR.test(hash))) return false;
   for (const part of String(search || "").replace(/^\?/, "").split("&")) {
     if (part && !META_QUERY_KEEP.test(part.split("=")[0])) return false;
   }
@@ -117,7 +120,7 @@ export function metaAddressIsClean(
   loc: { pathname: string; search: string; hash: string; hostname: string },
   referrer: string,
 ): boolean {
-  if (!metaPathIsClean(loc.pathname) || !metaQueryAndHashAreClean(loc.search, loc.hash)) return false;
+  if (!metaPathIsClean(loc.pathname) || !metaQueryAndHashAreClean(loc.search, loc.hash, true)) return false;
   const ref = String(referrer || "");
   if (!ref) return true;
   let url: URL;
@@ -126,6 +129,7 @@ export function metaAddressIsClean(
   } catch {
     return false;
   }
+  if (siteOf(url.hostname) !== siteOf(loc.hostname) && META_OWN_HOST.test(url.hostname.toLowerCase())) return true;
   if (!metaQueryAndHashAreClean(url.search, url.hash)) return false;
   return siteOf(url.hostname) !== siteOf(loc.hostname) || metaPathIsClean(url.pathname);
 }

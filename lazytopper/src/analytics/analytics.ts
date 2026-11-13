@@ -1,6 +1,7 @@
 import { getAdditionalUserInfo, type UserCredential } from "firebase/auth";
 import { recordActivity } from "../services/activityClient";
 import { rememberVisitSourceOnce } from "./visitSource";
+import { writeFbcCookieOnce } from "./metaClickId";
 import { startEngagedVisitWatch, type EngagedVisitTrigger } from "./engagedVisit";
 
 /**
@@ -501,6 +502,9 @@ export const META_EVENTS: Readonly<
   // PACKS-CLIENT-1 — a verified pack purchase is its OWN custom Meta event (never the standard Purchase,
   // which stays the Premium pass), so a Rs 49 pack cannot skew the ad optimiser's Purchase signal.
   pack_purchase: ["trackCustom", "PackPurchase"],
+  // META-PACK-CHECKOUT-1 — a pack Buy tap is the STANDARD InitiateCheckout (the Board Pass tap already is), carrying
+  // { value (total incl. GST), currency, content_ids, content_type } + the attempt id as `eventID`. Set only by trackPackCheckout.
+  pack_checkout: ["track", "InitiateCheckout"],
 };
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
@@ -509,8 +513,15 @@ const META_PAGEVIEW: MetaCall = ["track", "PageView"];
 const META_QUERY_KEEP = /^(?:utm_.*|fbclid|gclid|cbq|ct)$/;
 const HANDOFF_PATH = /^(?:\/app)?\/u(?:\/|$)/;
 
-function metaQueryAndHashAreClean(search: string, hash: string): boolean {
-  if (hash && hash !== "#") return false;
+/**
+ * META-ATTRIB-1 (a): a NAMED SECTION ANCHOR on the page address (`/packs#cbq`, `#my-packs`) carries no personal data, so it
+ * no longer blocks Meta. Letters, digits and hyphens only, 1-40 long: anything with a slash, `?`, `=` or `.` (a route, a
+ * token, an email) is still a blocked hash. Applies to the PAGE address only; a referrer's hash is never allowed.
+ */
+const META_ANCHOR = /^#[a-z0-9-]{1,40}$/i;
+
+function metaQueryAndHashAreClean(search: string, hash: string, allowAnchor = false): boolean {
+  if (hash && hash !== "#" && !(allowAnchor && META_ANCHOR.test(hash))) return false;
   for (const part of String(search || "").replace(/^\?/, "").split("&")) {
     if (part && !META_QUERY_KEEP.test(part.split("=")[0])) return false;
   }
@@ -527,18 +538,28 @@ function metaPathIsClean(pathname: string, basename: string): boolean {
 const siteOf = (host: string): string => String(host || "").toLowerCase().replace(/^www\./, "");
 
 /**
+ * META-ATTRIB-1 (b): Facebook and Instagram's own link-out hosts (`l.facebook.com/l.php?u=...`, `lm.facebook.com`,
+ * `l.instagram.com`) are the referrer of the very visitors the ads pay for. Their query (`u=` the destination, `h=` a tracking
+ * hash) is Meta's own and is sent to Meta anyway, so a referrer on facebook.com / instagram.com or a subdomain of either is
+ * clean whatever its query. ONLY these two sites: every other cross-site referrer keeps today's rule.
+ */
+const META_OWN_HOST = /(?:^|\.)(?:facebook|instagram)\.com$/;
+
+/**
  * The address is CLEAN when redaction would not change it: not a hand-off path,
  * `normalisePath(path) === path` (no email or opaque-id segment, no trailing slash), no
- * hash, and only `utm_*` / `fbclid` / `gclid` / `cbq` / `ct` in the query. A same-site referrer
- * (`www.` ignored) must pass the same test; a cross-site one may carry no other query
- * parameter and no hash. An unparseable referrer is not clean.
+ * hash (except a named section anchor, META-ATTRIB-1 (a)), and only `utm_*` / `fbclid` / `gclid` / `cbq` / `ct`
+ * in the query. A same-site referrer (`www.` ignored) must pass the same test; a cross-site one may carry no other
+ * query parameter and no hash, EXCEPT a facebook.com / instagram.com referrer (any subdomain), which may carry any
+ * query (META-ATTRIB-1 (b)). Query KEYS are never loosened for the page address (`t=`, `buy=` stay blocked). An
+ * unparseable referrer is not clean.
  */
 export function metaAddressIsClean(
   loc: { pathname: string; search: string; hash: string; hostname: string },
   referrer: string,
   basename: string = appBasename(),
 ): boolean {
-  if (!metaPathIsClean(loc.pathname, basename) || !metaQueryAndHashAreClean(loc.search, loc.hash)) {
+  if (!metaPathIsClean(loc.pathname, basename) || !metaQueryAndHashAreClean(loc.search, loc.hash, true)) {
     return false;
   }
   const ref = String(referrer || "");
@@ -549,6 +570,7 @@ export function metaAddressIsClean(
   } catch {
     return false;
   }
+  if (siteOf(url.hostname) !== siteOf(loc.hostname) && META_OWN_HOST.test(url.hostname.toLowerCase())) return true;
   if (!metaQueryAndHashAreClean(url.search, url.hash)) return false;
   return siteOf(url.hostname) !== siteOf(loc.hostname) || metaPathIsClean(url.pathname, basename);
 }
@@ -619,6 +641,8 @@ function sendToMeta(
         ? META_EVENTS[name as keyof typeof META_EVENTS]
         : undefined;
   if (!mapped) return;
+  // META-PACK-CHECKOUT-1: a pack checkout is sent only WITH its attempt id (the caller leaves it off a repeat), never bare.
+  if (kind === "event" && name === "pack_checkout" && !eventId) return;
   // META-PURCHASE-DEDUP-1: a sale event carries its id as Meta's `eventID` (4th argument; the 3rd must then be an object).
   const call: MetaCall =
     kind === "event" && eventId
@@ -663,6 +687,12 @@ export function trackPageview(path: string): void {
     }
   } catch {
     /* analytics must never break the page */
+  }
+  // META-ATTRIB-1: keep the Meta click id in the first-party `_fbc` cookie while the landing URL still has its query.
+  try {
+    if (analyticsEnabled()) writeFbcCookieOnce();
+  } catch {
+    /* a click id is never worth a broken page view */
   }
   const clean = normalisePath(path);
   send("pageview", { route: clean, path: clean });
