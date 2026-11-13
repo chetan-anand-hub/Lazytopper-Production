@@ -132,7 +132,7 @@ function createUnclaimedSweeper(deps = {}) {
       const due = [];
       eachDoc(snap, (d) => {
         const o = d.data() || {};
-        if (o.attachFlow !== true || o.selfPay !== true || o.checkoutWho !== true || o.attachedAt || !noUid(o)) return;
+        if (o.payer !== 'guest' || o.attachFlow !== true || o.selfPay !== true || o.checkoutWho !== true || o.attachedAt || !noUid(o)) return;
         if (typeof o.paymentId !== 'string' || !o.paymentId) return;
         if ((Number.isInteger(o.holdSweepAttempts) ? o.holdSweepAttempts : 0) >= MAX_SWEEP_ATTEMPTS) return;
         const ends = holdEndsMs(o);

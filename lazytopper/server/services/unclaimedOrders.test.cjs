@@ -156,6 +156,7 @@ test('SWEEP · only self-pay attach orders past their hold are handed to the del
     'payOrders/notAttach': held({ attachFlow: false }),
     'payOrders/claimed': held({ status: 'claimed', uid: 'u1' }),
     'payOrders/capped': held({ holdSweepAttempts: MAX_SWEEP_ATTEMPTS }),
+    'payOrders/notGuest': held({ payer: 'parent' }),
   });
   const { sweeper, deliveries } = mk(db);
   assert.equal(await sweeper.sweepHeldOrders(), 2);
@@ -223,4 +224,28 @@ test('SWEEP · the in-transaction attempt claim is the guard when the earlier re
   const { sweeper, deliveries } = mk(staleReads(db, [['capped', held()], ['gone', held()]]));
   assert.equal(await sweeper.sweepHeldOrders(), 0);
   assert.equal(deliveries.length, 0);
+});
+
+test('S8 · the sweep hands at most 25 orders to the delivery step per run; the rest wait for the next run, oldest first', async () => {
+  const seed = {};
+  for (let i = 0; i < 30; i += 1) seed[`payOrders/h${String(i).padStart(2, '0')}`] = order({ attachFlow: true, selfPay: true, checkoutWho: true, paymentId: `pay_${i}`, guestPaidAt: new Date(NOW - (100 + i) * MIN) });
+  const db = memDb(seed);
+  const { sweeper, deliveries } = mk(db);
+  assert.equal(await sweeper.sweepHeldOrders(), 25);
+  assert.equal(deliveries.length, 25);
+  assert.ok(!deliveries.some((d) => ['h00', 'h01', 'h02', 'h03', 'h04'].includes(d.orderId)), 'the 5 newest wait');
+  assert.equal(db.read('payOrders/h00').holdSweepAttempts, undefined, 'a waiting order is not charged an attempt');
+});
+
+test('A5 · the owner gets at most 10 alert emails per run (the only bound on owner mail); the rest go on the next run, never lost, never doubled', async () => {
+  const seed = {};
+  for (let i = 0; i < 14; i += 1) seed[`payOrders/a${String(i).padStart(2, '0')}`] = order({ paymentId: `pay_${i}`, guestPaidAt: new Date(NOW - (20 + i) * MIN) });
+  const db = memDb(seed);
+  const { sweeper, sent } = mk(db);
+  assert.equal(await sweeper.alertOverdueOrders(), 10);
+  assert.equal(sent.length, 10);
+  assert.equal(await sweeper.alertOverdueOrders(), 4);
+  assert.equal(sent.length, 14);
+  assert.equal(new Set(sent.map((m) => m.idempotencyKey)).size, 14);
+  assert.equal(await sweeper.alertOverdueOrders(), 0);
 });
