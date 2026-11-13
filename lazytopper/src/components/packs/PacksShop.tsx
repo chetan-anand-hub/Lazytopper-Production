@@ -1,6 +1,4 @@
 import { Suspense, lazy, type MutableRefObject, type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import GstStateLine from "../gstInvoice/GstStateLine";
-import { gstStateFieldOn } from "../../services/gstBuyerOrder";
 import { resetOwnedPacksCache } from "./useOwnedPacks";
 import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -141,40 +139,6 @@ function packCheckoutDetails(sku: PackSku, target: string | undefined): PackChec
 
 /** Student input that ends the #my-packs scroll re-assert: we never fight a deliberate scroll. */
 const MY_PACKS_USER_EVENTS = ["wheel", "touchstart", "keydown"] as const;
-
-/**
- * GST-FU-1 F2 (owner-approved follow-up, 7 Nov 2026) - true when the SIGNED-IN buyer's state + PIN is already on record (or was
- * picked with "Change" on this page), i.e. the order step will ask nothing and Razorpay would open straight away, covering the
- * "State: X · Change" line. A `?buy=` auto-start then stops at the Pay step instead (the line and the total visible, focus on
- * Pay: one tap to Razorpay). Call it ONLY with VITE_GST_STATE_FIELD on: it loads the state module and reads the same cached
- * checkout context the line above Pay reads. False on any doubt (the auto-start then runs as today and the order step asks).
- * Never throws. Also used by PassCheckout (Board Pass ?buy=board_pass).
- */
-export async function hasRememberedGstBuyer(): Promise<boolean> {
-  try {
-    const g = await import("../../services/gstBuyer");
-    const owner = g.ownerTag(await g.currentAuthUid());
-    if (!owner) return false;
-    if (g.isCompleteGstBuyer(g.getSessionGstBuyer(owner))) return true;
-    const { authHeaders } = await import("../../services/checkout");
-    const ctx = await g.loadGstContext(await authHeaders(), undefined, owner);
-    return g.isCompleteGstBuyer(ctx.remembered);
-  } catch {
-    return false;
-  }
-}
-
-/** GST-FU-1 F2 - focus a Pay button once it is on the page (a lazy pop-up may still be mounting). Gives up after ~1.5 s. */
-export function focusPayWhenShown(find: () => HTMLElement | null | undefined, tries = 30): void {
-  if (typeof window === "undefined") return;
-  const el = find();
-  if (el && el.isConnected) {
-    el.scrollIntoView?.({ block: "center" });
-    el.focus();
-    return;
-  }
-  if (tries > 0) window.setTimeout(() => focusPayWhenShown(find, tries - 1), 50);
-}
 
 const loadPackDialog = () => import("../../pages/PackDialog");
 const PackDialog = lazy(() => import("../../pages/PackDialog"));
@@ -799,22 +763,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     requestCounts(want.sku === "pack_chapter" ? want.target : undefined);
     if (mine === null) return;
     const start = () => void handleBuyRef.current(want.sku, want.target, { resumed: true, ...(from ? { from } : {}) });
-    // GST-FU-1 F2: flag off -> exactly as before (no await, no import).
-    if (!gstStateFieldOn()) {
-      start();
-      return;
-    }
-    // Flag on: a remembered state + PIN -> stop at the pop-up's Pay ("State: X · Change" and the total above it, focus on
-    // Pay; one tap to Razorpay). Nothing remembered -> start as today (the order step asks state + PIN).
-    void hasRememberedGstBuyer().then((remembered) => {
-      if (!mounted.current) return;
-      if (!remembered) {
-        start();
-        return;
-      }
-      heldResume.current = { key: packIdOf(want.sku, want.target), ...(from ? { from } : {}) };
-      focusPayWhenShown(() => document.querySelector<HTMLElement>(`[role="dialog"] [data-testid="packs-buy-${want.sku}"]`));
-    });
+    // GST-AFTER-PAY-1: no state + PIN step before Razorpay on any checkout, so the one-tap start never waits for one.
+    start();
   }, [authLoading, user, enabled, mine, mineError, mineSlow, location.search, location.pathname, location.hash, navigate, requestCounts]);
 
   // PAY-PHONE-1 - a SIGNED-OUT visitor on a one-tap `?buy=` link (with paying-by-phone on): strip the params first, open the
@@ -901,8 +851,6 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const off = !enabled || !ready || (isOwned && !ownerCard) || busy || confirming || blocked;
     return (
       <>
-        {/* GST-INVOICE-1 (D4): a signed-in buyer's remembered state above Pay (nothing while the flag is off). */}
-        {signedIn && enabled && ready && !isOwned && <GstStateLine />}
         {/* WHATSAPP-OPTIN-1: number + tick ABOVE Buy; no extra tap; Buy works with it empty. */}
         {enabled && ready && !isOwned && <WhatsAppOptInCheckout testIdPrefix="packs-wa" />}
         <button

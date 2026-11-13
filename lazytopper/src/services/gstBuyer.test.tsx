@@ -21,8 +21,7 @@ import {
   ownerTag,
   GUEST_OWNER,
 } from "./gstBuyer";
-import { render, screen, cleanup, waitFor } from "@testing-library/react";
-import GstStateLine from "../components/gstInvoice/GstStateLine";
+import { cleanup, waitFor } from "@testing-library/react";
 import { gstBuyerOrderFields, isGstBuyerCancelled, armPressCapture, resetPressForTests } from "./gstBuyerOrder";
 import { buyPass, type BuyDeps } from "./checkout";
 
@@ -123,10 +122,17 @@ describe("gstBuyerForOrder", () => {
     expect(isGstBuyerCancelled(err)).toBe(true);
     expect(isGstBuyerCancelled(new Error("x"))).toBe(false);
   });
-  it("the order door with the flag off: {} and a lazy auth getter is never called", async () => {
+  it("GST-AFTER-PAY-1: the order door is {} EVEN WITH the flag on - no dialog, no network, a lazy auth getter is never called", async () => {
+    vi.stubEnv("VITE_GST_STATE_FIELD", "1");
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
     const getter = vi.fn(async () => ({ Authorization: "Bearer x" }));
     expect(await gstBuyerOrderFields(getter)).toEqual({});
+    expect(await gstBuyerOrderFields(null)).toEqual({});
     expect(getter).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(document.querySelector('[data-testid="gst-state-select"]')).toBeNull();
+    vi.unstubAllGlobals();
   });
 });
 
@@ -213,27 +219,6 @@ describe("review round (HOLD of #1619)", () => {
     expect(gstStateLineText({ stateCode: "29" })).toBe("State: Karnataka");
     expect(gstStateLineText({ stateCode: "29", pin: "560001" })).toBe("State: Karnataka · PIN 560001");
     expect(gstStateLineText(null)).toBeNull();
-  });
-
-  it("D4/D6: the line renders nothing and calls nothing with the flag off; with it on it shows the remembered state + Change", async () => {
-    const fetchSpy = vi.fn(async () => ({ ok: true, json: async () => ({ ok: true, ipStateCode: null, remembered: { stateCode: "29", pin: "560001" } }) }));
-    vi.stubGlobal("fetch", fetchSpy);
-    const { container } = render(<GstStateLine />);
-    expect(container.innerHTML).toBe("");
-    await new Promise((r) => setTimeout(r, 10));
-    expect(fetchSpy).not.toHaveBeenCalled();
-    cleanup();
-    vi.stubEnv("VITE_GST_STATE_FIELD", "1");
-    vi.doMock("./firebaseClient", () => ({
-      authClient: { currentUser: { uid: "uA", getIdToken: async () => "tok" }, onAuthStateChanged: () => () => {} },
-      firestoreDb: null,
-      app: null,
-    }));
-    render(<GstStateLine />);
-    await waitFor(() => expect(screen.getByTestId("gst-state-line").textContent).toMatch(/State: Karnataka · PIN 560001 · Change/));
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-    vi.unstubAllGlobals();
-    vi.doUnmock("./firebaseClient");
   });
 });
 

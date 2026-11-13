@@ -29,9 +29,6 @@ vi.mock("../../services/gstBuyerOrder", async (orig) => ({
   ...(await orig<typeof import("../../services/gstBuyerOrder")>()),
   gstStateFieldOn: () => flag.on,
 }));
-vi.mock("../gstInvoice/GstStateLine", () => ({
-  default: () => (flag.on ? <p data-testid="gst-state-line">State: Kerala · PIN 682001 · Change</p> : null),
-}));
 const gst = vi.hoisted(() => ({ remembered: null as null | { stateCode: string; pin?: string }, contextReads: 0 }));
 vi.mock("../../services/gstBuyer", async (orig) => ({
   ...(await orig<typeof import("../../services/gstBuyer")>()),
@@ -185,61 +182,27 @@ describe("PREEXIST-FIX-1 · /packs?buy= deep link", () => {
 });
 
 /**
- * GST-FU-1 F2 (owner-approved follow-up, 7 Nov 2026) - a signed-in `?buy=pack_*` link (on /packs and /pricing, and the pack
- * return-after-sign-in, which all land on this resume) started checkout at once; with a REMEMBERED state + PIN Razorpay then
- * opened straight away and covered "State: X · Change". With VITE_GST_STATE_FIELD on and a remembered state the resume stops at
- * the pop-up's Pay (line + total above it, focus on Pay): one tap to Razorpay. Nothing remembered -> it starts as today (the
- * order step asks state + PIN). Flag off -> exactly as before, and the state context is never read.
+ * GST-AFTER-PAY-1 (owner 13 Nov 2026) - there is NO state + PIN step before Razorpay on any checkout, so a signed-in `?buy=pack_*` link
+ * never stops at Pay to show a remembered state (the old GST-FU-1 F2 hold) and never reads the state context. It starts at once.
  */
-describe("GST-FU-1 F2 · signed-in ?buy=pack_* with a remembered state", () => {
+describe("GST-AFTER-PAY-1 · signed-in ?buy=pack_* never waits for a state", () => {
   beforeEach(() => {
     auth.user = { uid: "u1", email: "a@b.in" };
-    flag.on = true;
   });
 
-  it.each(["/packs?buy=pack_bundle", "/pricing?buy=pack_bundle"])("★ %s: stops at the pop-up's Pay (state line + total visible, Pay focused); ONE tap opens Razorpay", async (url) => {
-    gst.remembered = { stateCode: "32", pin: "682001" };
+  it.each([
+    ["/packs?buy=pack_bundle", true, { stateCode: "32", pin: "682001" }],
+    ["/pricing?buy=pack_bundle", true, { stateCode: "32", pin: "682001" }],
+    ["/packs?buy=pack_bundle", true, null],
+    ["/packs?buy=pack_bundle", false, { stateCode: "32", pin: "682001" }],
+  ] as const)("%s (flag %s, remembered %j): checkout starts at once; no state line; the state context is never read", async (url, on, remembered) => {
+    flag.on = on;
+    gst.remembered = remembered;
     render(tree(url));
-    const pay = await screen.findByTestId("packs-buy-pack_bundle");
-    await waitFor(() => expect(document.activeElement).toBe(pay));
-    expect(buyMock).not.toHaveBeenCalled();
-    const dialog = screen.getByTestId("pack-dialog");
-    expect(dialog.querySelector('[data-testid="gst-state-line"]')).not.toBeNull();
-    expect(dialog.querySelector('[data-testid="packs-gst-pack_bundle"]')).not.toBeNull();
-    fireEvent.click(pay);
-    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
-    expect(buyMock.mock.calls[0][0]).toBe("pack_bundle");
-  });
-
-  it("★ review F4: the tap on a held Pay keeps the link's `resumed` mark and its sample source (same event, same values)", async () => {
-    gst.remembered = { stateCode: "32", pin: "682001" };
-    render(tree("/packs?buy=pack_bundle&from=sample"));
-    const pay = await screen.findByTestId("packs-buy-pack_bundle");
-    await waitFor(() => expect(document.activeElement).toBe(pay));
-    expect(packTrack.checkout).not.toHaveBeenCalled();
-    fireEvent.click(pay);
-    await waitFor(() => expect(packTrack.checkout).toHaveBeenCalledTimes(1));
-    expect(packTrack.checkout.mock.calls[0][1]).toEqual({ signedIn: true, resumed: true, from: "sample", attemptId: expect.any(String) });
-  });
-
-  it("CONTROL: no remembered state -> checkout starts at once, as today (the order step asks state + PIN)", async () => {
-    render(tree("/packs?buy=pack_bundle"));
-    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
-    expect(gst.contextReads).toBe(1);
-  });
-
-  it("CONTROL: a remembered state with no valid PIN is not 'remembered' (the dialog will ask) -> starts as today", async () => {
-    gst.remembered = { stateCode: "32" };
-    render(tree("/packs?buy=pack_bundle"));
-    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
-  });
-
-  it("flag off: starts at once exactly as before; the state context is never read", async () => {
-    flag.on = false;
-    gst.remembered = { stateCode: "32", pin: "682001" };
-    render(tree("/packs?buy=pack_bundle"));
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
     await act(async () => undefined);
     expect(gst.contextReads).toBe(0);
+    expect(screen.queryByTestId("gst-state-line")).toBeNull();
+    expect(buyMock.mock.calls[0][0]).toBe("pack_bundle");
   });
 });

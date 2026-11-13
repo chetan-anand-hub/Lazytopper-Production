@@ -215,7 +215,7 @@ const {
 // PAY-PHONE-1 - "Pay now with your phone number": order/verify dark unless PAYMENTS_ENABLED + GUEST_PAY_ENABLED; the claim
 // (auth required) reads the phone ONLY from the verified ID token.
 const { createMoveToOtherRoutes, MOVE_TO_OTHER_PATH } = require('./routes/moveToOther.cjs');
-const { createGuestPayRoutes, GUEST_ORDER_PATH, GUEST_VERIFY_PATH, GUEST_CLAIM_PATH, GUEST_ATTACH_PATH, GUEST_RECEIPT_PATH } = require('./routes/guestPay.cjs');
+const { createGuestPayRoutes, GUEST_ORDER_PATH, GUEST_VERIFY_PATH, GUEST_CLAIM_PATH, GUEST_ATTACH_PATH, GUEST_RECEIPT_PATH, GUEST_GST_DETAILS_PATH } = require('./routes/guestPay.cjs');
 // EMAIL-CODE-1 - sign in with a 6-digit code from email, on the spot. Dark unless EMAIL_CODE_SIGNIN_ENABLED; see the module.
 const { createEmailCodeRoutes, EMAIL_CODE_SEND_PATH, EMAIL_CODE_VERIFY_PATH } = require('./routes/emailCode.cjs');
 // PARENT-REPORT-1: a parent's read-only page for ONE result the student chose to share. The
@@ -637,6 +637,7 @@ const {
   GST_ADMIN_EXPORT_PATH,
   GST_ADMIN_ISSUE_PATH,
   GST_INVOICE_DETAILS_PATH,
+  GST_ORDER_DETAILS_PATH,
   GST_ADMIN_PAST_SALES_PATH,
   GST_ADMIN_PAST_SALES_SEND_PATH,
 } = require('./routes/gstInvoice.cjs');
@@ -709,6 +710,8 @@ async function handleRequest(req, res) {
       reqPath === GST_CHECKOUT_CONTEXT_PATH ||
       reqPath === GST_INVOICES_PATH ||
       reqPath === GST_INVOICE_PDF_PATH ||
+      // GST-AFTER-PAY-1: a credentialed POST (the signed-in buyer's state + PIN), preflighted for the same reason.
+      reqPath === GST_ORDER_DETAILS_PATH ||
       // FAIR-USE-1 (U5): a credentialed GET, preflighted for the same reason.
       reqPath === USAGE_ME_PATH ||
       // FAIR-USE-2 (F1): the paper-pass mint — a credentialed POST.
@@ -961,6 +964,7 @@ async function handleRequest(req, res) {
   // GST-INVOICE-BACKDATE-1: the signed-out state form (signed, expiring link) and the admin past-sales list / send.
   if (req.method === 'GET' && reqPath === GST_INVOICE_DETAILS_PATH) return gstInvoiceRoutes().handleInvoiceDetailsGet(req, res, reqUrlRaw);
   if (req.method === 'POST' && reqPath === GST_INVOICE_DETAILS_PATH) return gstInvoiceRoutes().handleInvoiceDetailsPost(req, res);
+  if (req.method === 'POST' && reqPath === GST_ORDER_DETAILS_PATH) return gstInvoiceRoutes().handleOrderDetailsPost(req, res); // GST-AFTER-PAY-1
   if (req.method === 'GET' && reqPath === GST_ADMIN_PAST_SALES_PATH) return gstInvoiceRoutes().handleAdminPastSales(req, res);
   if (req.method === 'POST' && reqPath === GST_ADMIN_PAST_SALES_SEND_PATH) return gstInvoiceRoutes().handleAdminSendForms(req, res);
   // ASK-PARENTS-PAY-1 — self-gating exactly like the three above (404 while dark).
@@ -975,6 +979,7 @@ async function handleRequest(req, res) {
   // SELFPAY-ATTACH-1 - self-gating (404 while CHECKOUT_SELF_ATTACH_DISABLED or checkout-who is dark); signed out, Razorpay's signature is the proof.
   if (req.method === 'POST' && reqPath === GUEST_ATTACH_PATH) return guestPayRoutes.handleAttach(req, res);
   if (req.method === 'POST' && reqPath === GUEST_RECEIPT_PATH) return guestPayRoutes.handleReceipt(req, res);
+  if (req.method === 'POST' && reqPath === GUEST_GST_DETAILS_PATH) return guestPayRoutes.handleGstDetails(req, res); // GST-AFTER-PAY-1
   if (req.method === 'POST' && reqPath === MOVE_TO_OTHER_PATH) return moveToOtherRoutes.handleMoveToOther(req, res);
   // EMAIL-CODE-1 - self-gating (404 while dark); no auth (the code is the proof), per-IP and per-email limits inside.
   if (req.method === 'POST' && reqPath === EMAIL_CODE_SEND_PATH) return emailCodeRoutes.handleSend(req, res);

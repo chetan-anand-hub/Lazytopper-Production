@@ -40,9 +40,6 @@ vi.mock("../../services/gstBuyerOrder", async (orig) => ({
   ...(await orig<typeof import("../../services/gstBuyerOrder")>()),
   gstStateFieldOn: () => flag.on,
 }));
-vi.mock("../gstInvoice/GstStateLine", () => ({
-  default: () => (flag.on ? <p data-testid="gst-state-line">State: Kerala · PIN 682001 · Change</p> : null),
-}));
 const gst = vi.hoisted(() => ({ remembered: null as null | { stateCode: string; pin?: string }, contextReads: 0, gate: null as null | Promise<void> }));
 vi.mock("../../services/gstBuyer", async (orig) => ({
   ...(await orig<typeof import("../../services/gstBuyer")>()),
@@ -255,100 +252,22 @@ describe("GST-FU-1 F1 · a running month pass + ?buy=board_pass", () => {
 });
 
 /**
- * GST-FU-1 F2 (owner-approved follow-up, 7 Nov 2026) - a signed-in ?buy=board_pass with a REMEMBERED state + PIN went straight into
- * Razorpay, covering "State: X · Change". Flag on + remembered: stop at Pay (line + total visible, Pay focused), one tap to Razorpay.
+ * GST-AFTER-PAY-1 (owner 13 Nov 2026) - there is NO state + PIN step before Razorpay on any checkout, so a signed-in ?buy=board_pass never
+ * stops at Pay to show a remembered state (the old GST-FU-1 F2 hold), and never reads the state context. It starts at once, once.
  */
-describe("GST-FU-1 F2 · ?buy=board_pass with a remembered state", () => {
-  it("★ flag on + remembered: no order yet; the state line and the GST total are shown, Pay is focused; ONE tap opens Razorpay", async () => {
-    vi.setSystemTime(new Date("2026-11-08T06:30:00.000Z")); // after the GST cut-off: the "+ GST = total" line shows
-    flag.on = true;
-    gst.remembered = { stateCode: "32", pin: "682001" };
-    const c = mount("/pricing?buy=board_pass");
-    const pay = c.container.querySelector(".lt-pricing-pay--boards") as HTMLElement;
-    await waitFor(() => expect(document.activeElement).toBe(pay));
-    expect(checkout.buyPass).not.toHaveBeenCalled();
-    expect(screen.getByTestId("gst-state-line")).toBeTruthy();
-    expect(screen.getByTestId("pass-checkout-gst").textContent).toMatch(/GST/);
-    fireEvent.click(pay);
-    await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
-    expect(checkout.buyPass).toHaveBeenCalledWith("till_boards");
-  });
-
-  it("★ a month-pass holder with a remembered state: the line shows above the upgrade Pay, which is focused (F1 + F2)", async () => {
-    flag.on = true;
-    gst.remembered = { stateCode: "32", pin: "682001" };
-    mockSub.status = { tier: "premium", plan: "pass_month", trialStartDate: null, trialEndDate: null, premiumSince: null, passEnd: "2026-11-20T00:00:00.000Z" };
-    const c = mount("/pricing?buy=board_pass");
-    const pay = c.container.querySelector(".lt-pricing-pay--boards") as HTMLElement;
-    await waitFor(() => expect(document.activeElement).toBe(pay));
-    expect(checkout.buyPass).not.toHaveBeenCalled();
-    expect(screen.getByTestId("gst-state-line")).toBeTruthy();
-  });
-
-  it("CONTROL: flag on, nothing remembered -> starts at once as today (the order step asks state + PIN)", async () => {
-    flag.on = true;
-    mount("/pricing?buy=board_pass");
-    await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
-    expect(gst.contextReads).toBe(1);
-  });
-
-  it("CONTROL: flag off -> starts at once exactly as before; the state context is never read", async () => {
-    gst.remembered = { stateCode: "32", pin: "682001" };
+describe("GST-AFTER-PAY-1 · ?buy=board_pass never waits for a state", () => {
+  it.each([
+    ["flag on + a remembered state + PIN", true, { stateCode: "32", pin: "682001" }],
+    ["flag on, nothing remembered", true, null],
+    ["flag off", false, { stateCode: "32", pin: "682001" }],
+  ] as const)("%s: starts at once, once, marked resumed; no state line; the state context is never read", async (_n, on, remembered) => {
+    flag.on = on;
+    gst.remembered = remembered;
     mount("/pricing?buy=board_pass");
     await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
     await act(async () => undefined);
+    expect(checkout.buyPass).toHaveBeenCalledTimes(1);
     expect(gst.contextReads).toBe(0);
-  });
-});
-
-/** GST-FU-1 review: B1 (a tap during the pending remembered-state read never starts a second order) and F4 (analytics kept). */
-describe("GST-FU-1 review · ?buy=board_pass held at Pay", () => {
-  it("★ B1: Pay tapped WHILE the remembered-state read is pending, then 'nothing remembered' -> buyPass ONCE (the tap), never a second", async () => {
-    flag.on = true;
-    gst.remembered = null;
-    let open: () => void = () => undefined;
-    gst.gate = new Promise<void>((r) => {
-      open = r;
-    });
-    const c = mount("/pricing?buy=board_pass");
-    await waitFor(() => expect(gst.contextReads).toBe(1));
-    expect(checkout.buyPass).not.toHaveBeenCalled();
-    fireEvent.click(c.container.querySelector(".lt-pricing-pay--boards") as HTMLElement);
-    await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
-    await act(async () => {
-      open();
-      await new Promise((r) => setTimeout(r, 20));
-    });
-    expect(checkout.buyPass).toHaveBeenCalledTimes(1);
-  });
-
-  it("★ B1: the same race after the tap's checkout was CLOSED (busy cleared) -> still no second start", async () => {
-    flag.on = true;
-    checkout.buyPass.mockImplementation(async () => ({ status: "dismissed" }));
-    let open: () => void = () => undefined;
-    gst.gate = new Promise<void>((r) => {
-      open = r;
-    });
-    const c = mount("/pricing?buy=board_pass");
-    await waitFor(() => expect(gst.contextReads).toBe(1));
-    fireEvent.click(c.container.querySelector(".lt-pricing-pay--boards") as HTMLElement);
-    await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
-    await act(async () => {
-      open();
-      await new Promise((r) => setTimeout(r, 20));
-    });
-    expect(checkout.buyPass).toHaveBeenCalledTimes(1);
-  });
-
-  it("★ F4: the tap on a held Pay keeps the auto-start's `resumed` mark (same event, same values as the auto-start sent)", async () => {
-    flag.on = true;
-    gst.remembered = { stateCode: "32", pin: "682001" };
-    const c = mount("/pricing?buy=board_pass");
-    const pay = c.container.querySelector(".lt-pricing-pay--boards") as HTMLElement;
-    await waitFor(() => expect(document.activeElement).toBe(pay));
-    expect(track.trackBeginCheckoutTap).not.toHaveBeenCalled();
-    fireEvent.click(pay);
-    await waitFor(() => expect(track.trackBeginCheckoutTap).toHaveBeenCalledTimes(1));
-    expect(track.trackBeginCheckoutTap.mock.calls[0].slice(1)).toEqual([true, true]);
+    expect(screen.queryByTestId("gst-state-line")).toBeNull();
   });
 });

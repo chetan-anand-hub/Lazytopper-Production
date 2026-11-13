@@ -42,6 +42,7 @@ const {
   invoiceLinkSecret,
 } = require('../services/gstInvoice.cjs');
 const { SECTIONS, heldCsv } = require('../services/gstInvoiceExport.cjs');
+const { createGstOrderDetails } = require('../services/gstOrderDetails.cjs'); // GST-AFTER-PAY-1
 const { IST_OFFSET_MS } = require('../services/passPricing.cjs');
 
 const GST_CHECKOUT_CONTEXT_PATH = '/api/gst/checkout-context';
@@ -51,6 +52,8 @@ const GST_ADMIN_STATUS_PATH = '/api/admin/gst/status';
 const GST_ADMIN_EXPORT_PATH = '/api/admin/gst/export';
 const GST_ADMIN_ISSUE_PATH = '/api/admin/gst/issue';
 const GST_INVOICE_DETAILS_PATH = '/api/gst/invoice-details';
+/** GST-AFTER-PAY-1: a signed-in buyer's state + PIN for an order they paid, given after paying. */
+const GST_ORDER_DETAILS_PATH = '/api/gst/order-details';
 const GST_ADMIN_PAST_SALES_PATH = '/api/admin/gst/past-sales';
 const GST_ADMIN_PAST_SALES_SEND_PATH = '/api/admin/gst/past-sales/send-forms';
 const DETAILS_PER_MINUTE = 10;
@@ -105,6 +108,7 @@ function rememberedFrom(orders, uid) {
 
 function createGstInvoiceRoutes(deps = {}) {
   const { sendJson, sendJsonWithHeaders, verifiedCaller, adminFirestore, requireAdmin, invoicer, invoiceMailer, backdate, readJson, env = process.env, now = () => Date.now() } = deps;
+  const orderDetails = deps.orderDetails || (adminFirestore ? createGstOrderDetails({ adminFirestore, invoicer, mailer: invoiceMailer }) : null);
   const renderPdf = deps.renderPdf || ((inv) => require('../services/gstInvoicePdf.cjs').renderInvoicePdf(inv));
   const pdfHits = new Map();
 
@@ -387,6 +391,29 @@ function createGstInvoiceRoutes(deps = {}) {
     return sendJsonWithHeaders(res, 404, { ok: false, error: 'invalid' }, { 'Cache-Control': 'no-store' });
   }
 
+  /* POST /api/gst/order-details (GST-AFTER-PAY-1, signed in): { orderId, stateCode, pin, business? } */
+  async function handleOrderDetailsPost(req, res) {
+    if (!invoicingOn()) return sendJson(res, 404, NOT_FOUND_BODY);
+    const uid = await uidOf(req);
+    if (!uid) return sendJson(res, 401, { ok: false, error: 'unauthenticated' });
+    if (!orderDetails) return sendJson(res, 503, { ok: false, error: 'unavailable' });
+    let body;
+    try {
+      body = typeof readJson === 'function' ? await readJson(req) : null;
+    } catch {
+      return sendJson(res, 400, { ok: false, error: 'Invalid JSON' });
+    }
+    const orderId = body && typeof body.orderId === 'string' ? body.orderId.trim() : '';
+    if (!/^[A-Za-z0-9_]{1,64}$/.test(orderId)) return sendJson(res, 400, { ok: false, error: 'bad_input', field: 'order' });
+    // Only the account that PAID (invoiceOwnedBy: the D1 rule), checked on the order that is then written.
+    const out = await orderDetails.submit({ orderId, raw: { stateCode: body.stateCode, pin: body.pin, business: body.business }, authorize: (o) => invoiceOwnedBy(o, uid) });
+    if (out.error === 'bad_input') return sendJsonWithHeaders(res, 400, { ok: false, error: 'bad_input', field: out.field }, { 'Cache-Control': 'no-store' });
+    if (out.error === 'forbidden' || out.error === 'unknown_order') return sendJsonWithHeaders(res, 404, NOT_FOUND_BODY, { 'Cache-Control': 'no-store' });
+    if (out.error === 'unpaid') return sendJsonWithHeaders(res, 409, { ok: false, error: 'not_paid' }, { 'Cache-Control': 'no-store' });
+    if (out.error) return sendJson(res, 500, { ok: false, error: 'Could not save your details.' });
+    return sendJsonWithHeaders(res, 200, { ok: true, status: out.status }, { 'Cache-Control': 'no-store' });
+  }
+
   /* GET /api/gst/invoice-details?t= (signed out) */
   async function handleInvoiceDetailsGet(req, res, reqUrlRaw) {
     if (!invoicingOn() || !backdate) return sendJson(res, 404, NOT_FOUND_BODY);
@@ -457,6 +484,7 @@ function createGstInvoiceRoutes(deps = {}) {
     handleAdminIssue,
     handleInvoiceDetailsGet,
     handleInvoiceDetailsPost,
+    handleOrderDetailsPost,
     handleAdminPastSales,
     handleAdminSendForms,
   };
@@ -473,6 +501,7 @@ module.exports = {
   GST_ADMIN_EXPORT_PATH,
   GST_ADMIN_ISSUE_PATH,
   GST_INVOICE_DETAILS_PATH,
+  GST_ORDER_DETAILS_PATH,
   GST_ADMIN_PAST_SALES_PATH,
   GST_ADMIN_PAST_SALES_SEND_PATH,
 };

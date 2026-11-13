@@ -28,6 +28,7 @@ const {
   GUEST_ORDER_PATH,
   GUEST_ATTACH_PATH,
   GUEST_RECEIPT_PATH,
+  GUEST_GST_DETAILS_PATH,
   RECEIPT_WINDOW_MS,
   ATTACH_HOLD_MS,
   GUEST_VERIFY_PATH,
@@ -185,7 +186,7 @@ function fakeRazorpay() {
 
 
 /* ── guest routes AND the existing payment routes (webhook), behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts, nowMs = NOW } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts, invoicer, nowMs = NOW } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -203,7 +204,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     async resolveVerifiedUid(req) { return identityOf(req).uid; },
     async resolveVerifiedIdentity(req) { return identityOf(req); },
   };
-  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts });
+  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, invoicer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts });
   // CHECKOUT-WHO-2: the webhook runs the guest routes' recipient delivery, wired exactly as index.cjs does.
   const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, afterGuestPaid: (x) => guest.afterRecipientPaid(x) });
   const table = {
@@ -212,6 +213,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     [GUEST_CLAIM_PATH]: guest.handleClaim,
     [GUEST_ATTACH_PATH]: guest.handleAttach,
     [GUEST_RECEIPT_PATH]: guest.handleReceipt,
+    [GUEST_GST_DETAILS_PATH]: guest.handleGstDetails,
     [PAY_ORDER_PATH]: pay.handleOrder,
     [PAY_VERIFY_PATH]: pay.handleVerify,
     [PAY_WEBHOOK_PATH]: pay.handleWebhook,
@@ -2591,4 +2593,127 @@ test('WA-OPTIN · an attacker-supplied consentText / consentVersion / source in 
     assert.equal(w.source, 'checkout');
     assert.notEqual(w.consentAt, 1);
   }
+});
+
+
+/* ══ GST-AFTER-PAY-1 (13 Nov 2026): the payer's state + PIN AFTER paying - POST /api/pay/guest/gst-details ═══════════ */
+/** A stand-in for the invoicer's `issueNow`: it issues ONLY when the stored order has a complete gstBuyer (as the real one holds `no_state`/`no_pin`), once per order. */
+function fakeInvoicer(db) {
+  const calls = [];
+  return {
+    calls,
+    async issueNow({ orderId }) {
+      calls.push(orderId);
+      const o = db.read(`payOrders/${orderId}`);
+      if (o.gstInvoice) return { issued: false, existing: o.gstInvoice.number };
+      if (!o.gstBuyer || !o.gstBuyer.stateCode) return { held: 'no_state' };
+      if (!o.gstBuyer.pin) return { held: 'no_pin' };
+      await db.collection('payOrders').doc(orderId).set({ gstInvoice: { number: `LT/26-27/00000${calls.length}` } }, { merge: true });
+      return { issued: true, number: `LT/26-27/00000${calls.length}` };
+    },
+  };
+}
+const gstDetails = (srv, paid, extra = {}, headers = {}) =>
+  request(srv.port, GUEST_GST_DETAILS_PATH, { body: { orderId: paid.orderId, paymentId: paid.paymentId, signature: checkoutSig(paid.orderId, paid.paymentId), stateCode: '29', pin: '560001', ...extra }, headers });
+async function gstRoutes(t, over = {}) {
+  const db = memoryFirestore();
+  const invoicer = fakeInvoicer(db);
+  const queued = [];
+  const receiptEmailer = { queueInvoiceEmail: async (x) => { queued.push(x.orderId); return { sent: true }; } };
+  const { srv } = await autoRoutes({ env: SELF_ENV, db, invoicer, receiptEmailer, ...over });
+  t.after(srv.close);
+  return { srv, db, invoicer, queued };
+}
+
+test('GST-AFTER-PAY · a valid state + PIN after paying is stored on the order, the invoice is issued once and its email queued; grant / attach untouched', async (t) => {
+  const { srv, invoicer, queued } = await gstRoutes(t);
+  const paid = await paidAttach(srv);
+  const before = srv.db.read(`payOrders/${paid.orderId}`);
+  const r = await gstDetails(srv, paid);
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(r.json, { ok: true, status: 'invoiced' });
+  const after = srv.db.read(`payOrders/${paid.orderId}`);
+  assert.deepEqual(after.gstBuyer, { stateCode: '29', pin: '560001' });
+  assert.ok(after.gstInvoice);
+  for (const k of ['status', 'attachFlow', 'attachHoldUntil', 'uid', 'paymentId', 'guestPhone']) assert.deepEqual(after[k], before[k], `${k} unchanged`);
+  assert.deepEqual(queued, [paid.orderId]);
+  // idempotent: asking again changes nothing and issues nothing new
+  const again = await gstDetails(srv, paid, { stateCode: '27', pin: '400001' });
+  assert.equal(again.status, 200);
+  assert.deepEqual(again.json, { ok: true, status: 'invoiced' });
+  assert.deepEqual(srv.db.read(`payOrders/${paid.orderId}`).gstBuyer, { stateCode: '29', pin: '560001' }, 'an issued invoice is never changed');
+  assert.equal(invoicer.calls.length, 1);
+  assert.deepEqual(queued, [paid.orderId], 'the email is queued once');
+});
+
+test('GST-AFTER-PAY · bad signature, another payment id, or an unpaid order: refused, nothing written', async (t) => {
+  const { srv, invoicer } = await gstRoutes(t);
+  const paid = await paidAttach(srv);
+  const badSig = await request(srv.port, GUEST_GST_DETAILS_PATH, { body: { orderId: paid.orderId, paymentId: paid.paymentId, signature: 'ab'.repeat(32), stateCode: '29', pin: '560001' } });
+  assert.equal(badSig.status, 400);
+  const wrongPay = await request(srv.port, GUEST_GST_DETAILS_PATH, { body: { orderId: paid.orderId, paymentId: 'pay_other', signature: checkoutSig(paid.orderId, 'pay_other'), stateCode: '29', pin: '560001' } });
+  assert.equal(wrongPay.status, 400);
+  const unpaidOrder = await attachSelf(srv, {});
+  const fake = { orderId: unpaidOrder.json.orderId, paymentId: 'pay_x' };
+  const unpaid = await gstDetails(srv, fake);
+  assert.equal(unpaid.status, 400);
+  assert.equal(srv.db.read(`payOrders/${paid.orderId}`).gstBuyer, undefined);
+  assert.equal(srv.db.read(`payOrders/${unpaidOrder.json.orderId}`).gstBuyer, undefined);
+  assert.equal(invoicer.calls.length, 0);
+  // a signed-in caller is refused (the guest proof is signed-out only)
+  const si = await gstDetails(srv, paid, {}, signedIn('u1'));
+  assert.equal(si.status, 409);
+  assert.equal(srv.db.read(`payOrders/${paid.orderId}`).gstBuyer, undefined);
+});
+
+test('GST-AFTER-PAY · the 24 h window: open at +23:59:59.999, refused (ok:false, expired) at +24:00:00; nothing written', async (t) => {
+  const db = memoryFirestore();
+  const { srv } = await autoRoutes({ env: SELF_ENV, db });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const inv = fakeInvoicer(db);
+  const inside = await startRoutes({ env: SELF_ENV, db, invoicer: inv, nowMs: NOW + RECEIPT_WINDOW_MS - 1 });
+  t.after(inside.close);
+  assert.equal((await gstDetails(inside, paid)).json.ok, true);
+  const db2 = memoryFirestore();
+  const { srv: s2 } = await autoRoutes({ env: SELF_ENV, db: db2 });
+  t.after(s2.close);
+  const paid2 = await paidAttach(s2);
+  const edge = await startRoutes({ env: SELF_ENV, db: db2, invoicer: fakeInvoicer(db2), nowMs: NOW + RECEIPT_WINDOW_MS });
+  t.after(edge.close);
+  const r = await gstDetails(edge, paid2);
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.json, { ok: false, reason: 'expired' });
+  assert.equal(db2.read(`payOrders/${paid2.orderId}`).gstBuyer, undefined);
+});
+
+test('GST-AFTER-PAY · a bad state or PIN is a 400 naming the field and writes nothing; no state given at all leaves the order HELD (no invoice)', async (t) => {
+  const { srv, invoicer } = await gstRoutes(t);
+  const paid = await paidAttach(srv);
+  const badPin = await gstDetails(srv, paid, { pin: '12345' });
+  assert.equal(badPin.status, 400);
+  assert.deepEqual(badPin.json, { ok: false, error: 'bad_input', field: 'pin' });
+  const noPin = await gstDetails(srv, paid, { pin: '' });
+  assert.equal(noPin.json.field, 'pin');
+  const badState = await gstDetails(srv, paid, { stateCode: '99' });
+  assert.deepEqual(badState.json, { ok: false, error: 'bad_input', field: 'state' });
+  const badBiz = await gstDetails(srv, paid, { business: { gstin: 'NOTAGSTIN', legalName: 'X', address: 'Y' } });
+  assert.equal(badBiz.json.field, 'business');
+  const o = srv.db.read(`payOrders/${paid.orderId}`);
+  assert.equal(o.gstBuyer, undefined);
+  assert.equal(o.gstInvoice, undefined, 'skipped / refused = no invoice: the order stays held, as before');
+  assert.equal(invoicer.calls.length, 0);
+});
+
+test('GST-AFTER-PAY · invoicing held (e.g. seller config missing): the details are saved, status details_saved, no invoice, no email', async (t) => {
+  const db = memoryFirestore();
+  const queued = [];
+  const heldInvoicer = { async issueNow() { return { held: 'seller_config_missing' }; } };
+  const { srv } = await autoRoutes({ env: SELF_ENV, db, invoicer: heldInvoicer, receiptEmailer: { queueInvoiceEmail: async (x) => queued.push(x) } });
+  t.after(srv.close);
+  const paid = await paidAttach(srv);
+  const r = await gstDetails(srv, paid);
+  assert.deepEqual(r.json, { ok: true, status: 'details_saved' });
+  assert.deepEqual(srv.db.read(`payOrders/${paid.orderId}`).gstBuyer, { stateCode: '29', pin: '560001' });
+  assert.deepEqual(queued, []);
 });

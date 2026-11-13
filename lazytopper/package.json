@@ -125,7 +125,7 @@
     "test:server:pack-pdf": "node --test server/services/packPdf.test.cjs",
     "test:server:packs-nudge": "node --test server/services/nudgeEmail.packs.test.cjs",
     "test:server:parent-pay": "node --test server/routes/parentPay.test.cjs",
-    "test:server:guest-pay": "node --test server/routes/guestPay.test.cjs",
+    "test:server:guest-pay": "node --test server/routes/guestPay.test.cjs server/routes/gstOrderDetails.test.cjs",
     "test:server:gst-invoice": "node --test server/services/gstInvoice.test.cjs",
     "test:server:email-code": "node --test server/routes/emailCode.test.cjs",
     "test:server:parent-report": "node --test server/routes/parentReport.test.cjs",

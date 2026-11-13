@@ -16,7 +16,6 @@
  *
  * Nothing here grants anything. What the payer typed never goes into a URL, storage or an analytics event.
  */
-import GstStateLine from "../gstInvoice/GstStateLine";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { newCheckoutAttemptId, trackNamedEvent } from "../../analytics/analytics";
@@ -73,6 +72,8 @@ import "./checkoutSheet.css";
 
 // PAID-SHOWS-1: the purchase card is its own lazy chunk inside the sheet's.
 const PurchaseCard = lazy(() => import("./PurchaseCard"));
+// GST-AFTER-PAY-1: "For your GST invoice" on the paid screens (guest proof only; nothing renders with the flag off).
+const PostPayGst = lazy(() => import("../gstInvoice/PostPayGst"));
 
 /**
  * `priceDisplay` is the amount CHARGED (it is what the Pay button names). GST-EXCL-1: `priceBreakdown` is the GST breakup shown
@@ -357,7 +358,6 @@ export default function CheckoutSheet({
     body = (
       <>
         <p className="lt-gps__line" data-testid="who-self">{selfLine(selfMasked)}</p>
-        <GstStateLine />
         <button
           type="button"
           className="lt-gps__primary"
@@ -439,7 +439,6 @@ export default function CheckoutSheet({
         {secondError && <p className="lt-gps__error" role="alert" data-testid="who-second-error">{secondError}</p>}
         {error && <p className="lt-gps__error" role="alert">{error}</p>}
         {step.name === "form" && step.closed && <p className="lt-gps__fine" role="status">{WHO_CLOSED}</p>}
-        {signedIn && <GstStateLine />}
         <button type="submit" className="lt-gps__primary lt-who__pay" disabled={busy || !recipient} data-testid="who-pay">
           {busy ? "Opening payment…" : payReadBack(item.priceDisplay, first)}
         </button>
@@ -574,6 +573,11 @@ export default function CheckoutSheet({
           {showReceipt && receipt && step.name === "attach" && (
             <Suspense fallback={null}>
               <PurchaseCard proof={receipt} onHide={() => setReceiptHidden(true)} hidePaymentLine filesFolded={!attachSettled} />
+            </Suspense>
+          )}
+          {(step.name === "attach" || step.name === "paid" || step.name === "paidSelf") && receipt && (
+            <Suspense fallback={null}>
+              <PostPayGst target={{ kind: "guest", proof: receipt }} />
             </Suspense>
           )}
         </div>

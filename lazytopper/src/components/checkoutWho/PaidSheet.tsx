@@ -10,6 +10,7 @@ import { createPortal } from "react-dom";
 import { sendAnalyticsHit } from "../../analytics/analytics";
 import type { MoveTarget } from "../signinLink/signinLinkModel";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
+import PostPayGstLazy from "../gstInvoice/PostPayGstLazy";
 import "./paidSheet.css";
 
 export const PAID_SHEET_TITLE = "Payment received";
@@ -123,6 +124,8 @@ export default function PaidSheet({ surface, itemKind, itemName, primaryLabel, r
         <div className="lt-paid__who" data-testid="paid-sheet-who">
           <SigninLinkCardLazy signedIn {...(move ? { move } : {})} {...(onMoved ? { onMoved } : {})} {...(onAnswered ? { onAnswered } : {})} />
         </div>
+        {/* GST-AFTER-PAY-1: the signed-in buyer's state + PIN, after paying; only for an order the host knows (move.orderId). */}
+        {move?.orderId && <PostPayGstLazy orderId={move.orderId} />}
         {!moved && below}
       </div>
     </div>,

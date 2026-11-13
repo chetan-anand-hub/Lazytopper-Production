@@ -50,14 +50,16 @@ export function resetPressForTests(): void {
 }
 if (gstStateFieldOn()) armPressCapture();
 
-/** `{ gstBuyer }` for an order body ({} when off; a lazy `authHeaders` is then never called). Throws the dialog's cancel error when the buyer cancels. */
+/**
+ * GST-AFTER-PAY-1 (owner 13 Nov 2026): NO state + PIN step before Razorpay on any checkout. The order body carries no `gstBuyer`
+ * (the server still accepts one from an old tab). The buyer gives state + PIN on the paid screen instead (components/gstInvoice/
+ * PostPayGst). Kept as the one door every order function calls, so a future pre-pay field has one place to go.
+ */
 export async function gstBuyerOrderFields(
-  authHeaders: Record<string, string> | (() => Promise<Record<string, string>>) | null = null,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _authHeaders: Record<string, string> | (() => Promise<Record<string, string>>) | null = null,
 ): Promise<{ gstBuyer?: GstBuyer }> {
-  if (!gstStateFieldOn()) return {};
-  const headers = typeof authHeaders === "function" ? await authHeaders().catch(() => null) : authHeaders;
-  const m = await import("./gstBuyer");
-  return m.gstBuyerBody(await m.gstBuyerForOrder(headers));
+  return {};
 }
 
 /** True for the buyer closing the "Your state" dialog: every buy function treats it as "dismissed", never "failed". */

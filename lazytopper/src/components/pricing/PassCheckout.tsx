@@ -13,9 +13,6 @@
  * no caller-supplied destination ever reaches the redirect.
  */
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import GstStateLine from "../gstInvoice/GstStateLine";
-import { gstStateFieldOn } from "../../services/gstBuyerOrder";
-import { focusPayWhenShown, hasRememberedGstBuyer } from "../packs/PacksShop";
 import { useInRouterContext, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -525,22 +522,8 @@ export function PassCheckoutView({
     if (!autoStart || autoStarted.current) return;
     autoStarted.current = true;
     const start = () => void handleBuyRef.current("till_boards", { resumed: true }); // the ?buy=board_pass auto-start, not a tap on this page
-    // GST-FU-1 F2: flag off (or signed out: the sheet asks) -> exactly as before.
-    if (!signedIn || !gstStateFieldOn()) {
-      start();
-      return;
-    }
-    // A remembered state + PIN would send the buyer straight into Razorpay, covering "State: X · Change". Stop at Pay instead
-    // (the line and the total above it, focus on Pay): one tap to Razorpay. Nothing remembered -> start as today (the order
-    // step asks state + PIN).
-    void hasRememberedGstBuyer().then((remembered) => {
-      // B1: the buyer tapped Pay (or any Pay) while this was read - that checkout IS the start; never a second one.
-      if (!mounted.current || buyStartedRef.current) return;
-      if (remembered) {
-        heldResumeRef.current = true;
-        focusPayWhenShown(() => boardsPayRef.current);
-      } else start();
-    });
+    // GST-AFTER-PAY-1: no state + PIN step before Razorpay on any checkout, so the one-tap start never waits for one.
+    start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoStart]);
 
@@ -679,9 +662,6 @@ export function PassCheckoutView({
           </button>
         </div>
       )}
-      {/* GST-INVOICE-1 (D4): a signed-in buyer's remembered state, shown above Pay (renders nothing while the flag is off).
-          GST-FU-1 F1/F2: also above a running month pass's upgrade Pay (the Board Pass owner's view returned above). */}
-      {signedIn && <GstStateLine />}
       {monthButton && !activeLabel && (
         <button
           type="button"
