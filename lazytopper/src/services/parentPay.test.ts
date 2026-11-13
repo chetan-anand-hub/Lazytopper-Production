@@ -187,7 +187,7 @@ describe("the parent's purchase", () => {
     const rz = fakeRazorpay(success);
     const d = deps({}, rz);
     const out = await buyPassAsParent(TOKEN, "month", d);
-    expect(out).toEqual({ status: "paid", passEnd: "2026-11-18T06:30:00.000Z", firstName: "Aarav", orderId: "order_1", paymentId: "pay_1", amountInr: 599 });
+    expect(out).toEqual({ status: "paid", passEnd: "2026-11-18T06:30:00.000Z", firstName: "Aarav", orderId: "order_1", paymentId: "pay_1", amountInr: 599, gstProof: { orderId: "order_1", paymentId: "pay_1", signature: "ab" } });
     expect(d.createOrder).toHaveBeenCalledWith(TOKEN, "month");
     expect(d.verify).toHaveBeenCalledWith(TOKEN, success);
     expect(rz.opened[0]).toMatchObject({ order_id: "order_1", amount: 59900, key: "rzp_test", currency: "INR" });
@@ -202,7 +202,7 @@ describe("the parent's purchase", () => {
   it("a link that became used / expired is reported with its reason; anything else is a plain failure", async () => {
     expect(await buyPassAsParent(TOKEN, "month", deps({ createOrder: async () => { throw new ParentLinkError("used"); } }))).toEqual({ status: "failed", reason: "used" });
     // PAY-RECOVER-1 — a verify error AFTER Razorpay's signed success is pending, never failed.
-    expect(await buyPassAsParent(TOKEN, "month", deps({ verify: async () => { throw new Error("x"); } }))).toEqual({ status: "pending" });
+    expect(await buyPassAsParent(TOKEN, "month", deps({ verify: async () => { throw new Error("x"); } }))).toEqual({ status: "pending", gstProof: { orderId: "order_1", paymentId: "pay_1", signature: "ab" } });
   });
 });
 
@@ -368,11 +368,11 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
       verify,
     });
     expect(await buyPackAsParent(TOKEN, "Maths CBQ Pack", deps(async () => ({ firstName: "Aarav", duplicate: false })))).toEqual({
-      status: "paid", passEnd: "", firstName: "Aarav", orderId: "order_P", paymentId: "pay_P", amountInr: 199,
+      status: "paid", passEnd: "", firstName: "Aarav", orderId: "order_P", paymentId: "pay_P", amountInr: 199, gstProof: { orderId: "order_P", paymentId: "pay_P", signature: "ab" },
     });
     expect(opened[0].description).toBe("Maths CBQ Pack (for your child)");
     expect(await buyPackAsParent(TOKEN, "X", deps(async () => ({ firstName: "Aarav", duplicate: true })))).toMatchObject({ status: "paid", duplicate: true });
-    expect(await buyPackAsParent(TOKEN, "X", deps(async () => { throw new Error("x"); }))).toEqual({ status: "pending" });
+    expect(await buyPackAsParent(TOKEN, "X", deps(async () => { throw new Error("x"); }))).toEqual({ status: "pending", gstProof: { orderId: "order_P", paymentId: "pay_P", signature: "ab" } });
   });
 });
 

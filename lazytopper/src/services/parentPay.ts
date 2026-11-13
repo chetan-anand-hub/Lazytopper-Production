@@ -194,12 +194,22 @@ export async function viewParentLink(token: string): Promise<ParentLinkView> {
   };
 }
 
+/**
+ * GST-PARENT-POSTPAY-1: Razorpay's signed proof of THIS payment (order id, payment id, checkout signature), kept in memory for the paid
+ * screen's "For your GST invoice" block. The server re-checks the signature itself and decides by the stored order's payer type.
+ */
+export type ParentGstProof = { orderId: string; paymentId: string; signature: string };
+export function parentGstProofOf(success: RazorpaySuccess): { gstProof?: ParentGstProof } {
+  const { razorpay_order_id: orderId, razorpay_payment_id: paymentId, razorpay_signature: signature } = success;
+  return typeof orderId === "string" && orderId && typeof paymentId === "string" && paymentId && typeof signature === "string" && signature ? { gstProof: { orderId, paymentId, signature } } : {};
+}
+
 export type ParentBuyOutcome =
   /** `duplicate` (PARENT-PACKS-1, pack links only - parentPayPack): the child already had the pack; nothing new was added. */
-  | { status: "paid"; passEnd: string; firstName: string; orderId?: string; paymentId?: string; amountInr?: number; duplicate?: boolean }
+  | { status: "paid"; passEnd: string; firstName: string; orderId?: string; paymentId?: string; amountInr?: number; duplicate?: boolean; gstProof?: ParentGstProof }
   | { status: "dismissed" }
   /** PAY-RECOVER-1 — a verify error AFTER Razorpay's signed success. Never shown as a failure. */
-  | { status: "pending" }
+  | { status: "pending"; gstProof?: ParentGstProof }
   | { status: "failed"; reason?: Exclude<ParentLinkReason, "failed"> };
 
 export interface ParentBuyDeps {
@@ -208,9 +218,9 @@ export interface ParentBuyDeps {
   verify: (token: string, success: RazorpaySuccess) => Promise<{ passEnd: string; firstName: string }>;
 }
 
-async function createParentOrder(token: string, passType: PassType) {
+export async function createParentOrder(token: string, passType: PassType) {
   // GST-INVOICE-1: the PARENT (the payer) confirms their state.
-  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null) : {};
+  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null, { postPay: true }) : {}; // host: ParentPayPanel's paid / pending screen mounts PostPayGst
   const json = await postJson(PARENT_ORDER_ENDPOINT, { token, passType, ...gst });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
@@ -272,7 +282,7 @@ export async function buyPassAsParent(
     } catch {
       // PAY-RECOVER-1 — Razorpay has SIGNED a success: never "didn't go through" from here.
       // The webhook still grants the child's pass; the parent route has no auth, so no poll.
-      return { status: "pending" };
+      return { status: "pending", ...parentGstProofOf(success) };
     }
     const { passEnd, firstName } = verified;
     const paymentId = typeof success.razorpay_payment_id === "string" && success.razorpay_payment_id ? success.razorpay_payment_id : undefined;
@@ -284,6 +294,7 @@ export async function buyPassAsParent(
       orderId: order.orderId, // META-PURCHASE-DEDUP-1: the one id of the sale (analytics only)
       ...(paymentId !== undefined ? { paymentId } : {}),
       ...(amountInr !== undefined ? { amountInr } : {}),
+      ...parentGstProofOf(success),
     };
   } catch (e) {
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };

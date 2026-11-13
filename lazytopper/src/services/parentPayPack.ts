@@ -22,6 +22,7 @@ import {
   postJson,
   readPrices,
   readBoardPassGst,
+  parentGstProofOf,
   type MintedParentLink,
   type ParentBuyOutcome,
   type ParentLinkReason,
@@ -113,7 +114,7 @@ export interface ParentPackBuyDeps {
 /** The pack order names NO pack: the server takes sku, target, child and amount from the link. */
 export async function createParentPackOrder(token: string) {
   // GST-INVOICE-1: the PARENT (the payer) confirms their state.
-  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null) : {};
+  const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null, { postPay: true }) : {}; // host: ParentPayPanel's paid / pending screen mounts PostPayGst
   const json = await postJson(PARENT_ORDER_ENDPOINT, { token, product: "pack", ...gst });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new ParentLinkError("failed");
@@ -160,7 +161,7 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
       verified = await deps.verify(token, success);
     } catch {
       // Razorpay SIGNED a success: never "didn't go through" from here (the webhook still grants the child's pack).
-      return { status: "pending" };
+      return { status: "pending", ...parentGstProofOf(success) };
     }
     const paymentId = typeof success.razorpay_payment_id === "string" && success.razorpay_payment_id ? success.razorpay_payment_id : undefined;
     const amountInr = Number.isFinite(order.amountPaise) && order.amountPaise > 0 ? order.amountPaise / 100 : undefined;
@@ -172,6 +173,7 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
       ...(paymentId !== undefined ? { paymentId } : {}),
       ...(amountInr !== undefined ? { amountInr } : {}),
       ...(verified.duplicate ? { duplicate: true } : {}),
+      ...parentGstProofOf(success),
     };
   } catch (e) {
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };

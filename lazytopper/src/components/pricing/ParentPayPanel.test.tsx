@@ -380,3 +380,45 @@ describe("PACK-DIALOG-1 · the heading of a used / expired link", () => {
     expect(h1()).toBe("Aarav के Triangles Chapter Pack का भुगतान करें");
   });
 });
+
+describe("GST-PARENT-POSTPAY-1 - the paid / pending screen asks for the parent's state + PIN", () => {
+  const PROOF = { orderId: "order_9", paymentId: "pay_9", signature: "ab".repeat(32) };
+  beforeEach(() => {
+    vi.stubEnv("VITE_GST_STATE_FIELD", "1");
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ ok: true, ipStateCode: null, remembered: null }) })));
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it("paid: the block shows (with the signed proof), the paid line is unchanged", async () => {
+    const buy = vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "paid", passEnd: "2026-11-18T06:30:00.000Z", firstName: "Aarav", orderId: "order_9", paymentId: "pay_9", amountInr: 599, gstProof: PROOF }));
+    await renderPanel({ buy });
+    expect(screen.queryByTestId("postpay-gst")).toBeNull();
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹599 for a month" }));
+    });
+    expect(screen.getByTestId("parent-pay-paid")).toHaveTextContent("Aarav's monthly pass is active until 18 November 2026");
+    expect(await screen.findByTestId("postpay-gst")).toBeTruthy();
+  });
+
+  it("pending (verify failed after Razorpay's signed success): the block still shows, and the page still says confirming", async () => {
+    const buy = vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "pending", gstProof: PROOF }));
+    await renderPanel({ buy });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹599 for a month" }));
+    });
+    expect(screen.getByTestId("parent-pay-confirming")).toBeTruthy();
+    expect(await screen.findByTestId("postpay-gst")).toBeTruthy();
+  });
+
+  it("dismissed or failed: no block", async () => {
+    const buy = vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "dismissed" }));
+    await renderPanel({ buy });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹599 for a month" }));
+    });
+    expect(screen.queryByTestId("postpay-gst")).toBeNull();
+  });
+});
