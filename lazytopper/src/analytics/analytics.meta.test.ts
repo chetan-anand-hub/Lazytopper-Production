@@ -224,13 +224,18 @@ describe("Meta — before the library loads", () => {
 });
 
 describe("Meta — named events", () => {
-  it("maps exactly the PR-1 events plus TRACK-2's two checkout events plus MEASURE-1's first_graded plus ENGAGE10-1's engaged_10min plus ENGAGE5-1's engaged_5min plus PACKS-CLIENT-1's pack_purchase", () => {
-    expect(Object.keys(META_EVENTS).sort()).toEqual(["begin_checkout", "engaged_10min", "engaged_5min", "first_graded", "pack_purchase", "purchase", "sign_up", "trial_start"]);
+  it("maps exactly the PR-1 events plus TRACK-2's two checkout events plus MEASURE-1's first_graded plus ENGAGE10-1's engaged_10min plus ENGAGE5-1's engaged_5min plus PACKS-CLIENT-1's pack_purchase plus META-PACK-CHECKOUT-1's pack_checkout", () => {
+    expect(Object.keys(META_EVENTS).sort()).toEqual(["begin_checkout", "engaged_10min", "engaged_5min", "first_graded", "pack_checkout", "pack_purchase", "purchase", "sign_up", "trial_start"]);
     expect(META_EVENTS.pack_purchase).toEqual(["trackCustom", "PackPurchase"]);
     expect(META_EVENTS.first_graded).toEqual(["trackCustom", "FirstGraded"]);
   });
 
-  it.each(Object.entries(META_EVENTS))("fires %s as one two-argument entry", (name, [method, metaName]) => {
+  it("META-PACK-CHECKOUT-1: pack_checkout is never sent bare (no attempt id -> nothing); it travels from trackPackCheckout with its eventID", () => {
+    trackNamedEvent("pack_checkout" as NamedAnalyticsEvent);
+    expect(added()).toEqual([]);
+  });
+
+  it.each(Object.entries(META_EVENTS).filter(([n]) => n !== "pack_checkout"))("fires %s as one two-argument entry", (name, [method, metaName]) => {
     if (name === "sign_up") trackSignUp();
     else if (name === "first_graded") trackFirstGraded("worksheet");
     else trackNamedEvent(name as NamedAnalyticsEvent);
@@ -280,10 +285,23 @@ describe("metaAddressIsClean", () => {
   it.each([
     [loc("/pricing"), "", true],
     [loc("/pricing/"), "", false],
-    [loc("/pricing", "", "#x"), "", false],
+    [loc("/pricing", "", "#a/b?x"), "", false],
+    [loc("/pricing", "", "#a.b"), "", false],
+    [loc("/pricing", "", `#${"a".repeat(41)}`), "", false],
+    [loc("/packs", "", "#cbq"), "", true],
+    [loc("/packs", "", "#my-packs"), "", true],
+    [loc("/packs", "?t=abc", "#cbq"), "", false],
+    [loc("/packs", "?buy=pack_cbq"), "", false],
     [loc("/pricing", "?utm_source=a&cbq=1"), "", true],
     [loc("/pricing", "?next=%2Fhome"), "", false],
     [loc("/pricing"), "https://www.google.com/search?q=a#h", false],
+    [loc("/pricing"), "https://www.google.com/search?q=a", false],
+    [loc("/packs", "?fbclid=x"), "https://l.facebook.com/l.php?u=https%3A%2F%2Fwww.lazytopper.com%2Fpacks&h=AT0", true],
+    [loc("/packs"), "https://lm.facebook.com/l.php?u=x", true],
+    [loc("/packs"), "https://l.instagram.com/?u=x&e=y", true],
+    [loc("/packs"), "https://www.facebook.com/", true],
+    [loc("/packs"), "https://facebook.com.evil.example/l.php?u=x", false],
+    [loc("/packs"), "https://notfacebook.com/?u=x", false],
   ])("%j with referrer %j -> %s", (location, referrer, expected) => {
     expect(metaAddressIsClean(location, referrer)).toBe(expected);
   });

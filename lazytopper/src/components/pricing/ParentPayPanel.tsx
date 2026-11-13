@@ -294,7 +294,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
     setConfirming(false);
     const details: PackCheckoutDetails = { sku: pack.sku, itemName: packName, valueInr: pack.priceInr };
     const attemptId = newCheckoutAttemptId();
-    trackPackCheckout(details, { signedIn: false });
+    trackPackCheckout(details, { signedIn: false, attemptId });
     const outcome = await buy(token, "pack", packName);
     setBusy(null);
     if (outcome.status === "paid") {

@@ -2372,3 +2372,38 @@ test('WA-OPTIN · signed-in order: an attacker-supplied consentText / version / 
   assert.equal(w.source, 'checkout');
   assert.equal(w.consentAt, NOW);
 });
+
+/* ── PAY-WEBHOOK-REJECT-LOG-1 · a rejected webhook says WHY in the server log (ids only, no PII) ── */
+test('Z5 · reject log: amount_mismatch webhook -> one warn line with reason + order id + amounts, still 400; bad_signature -> no ids; no PII shape', async (t) => {
+  const warns = [];
+  t.mock.method(console, 'warn', (...args) => warns.push(args.join(' ')));
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv);
+  const p = srv.rzp.pay(orderId, { amount: 100 });
+  const raw = webhookBody(p);
+  const r = await request(srv.port, PAY_WEBHOOK_PATH, { raw, headers: { 'X-Razorpay-Signature': hmac(WEBHOOK_SECRET, raw) } });
+  assert.equal(r.status, 400);
+  assert.deepEqual(r.json, { ok: false, error: 'payment_rejected', reason: 'amount_mismatch' });
+  const mism = warns.filter((l) => l.includes('reason=amount_mismatch'));
+  assert.equal(mism.length, 1, warns.join('\n'));
+  assert.ok(mism[0].startsWith('[pay/webhook] rejected '));
+  assert.ok(mism[0].includes(`order=${orderId}`));
+  assert.ok(mism[0].includes(`pay=${p.id}`));
+  assert.ok(mism[0].includes('event=payment.captured'));
+  assert.ok(mism[0].includes('status=created'));
+  assert.ok(/expected=\d+ got=100\b/.test(mism[0]), mism[0]);
+
+  warns.length = 0;
+  const bad = await request(srv.port, PAY_WEBHOOK_PATH, { raw, headers: { 'X-Razorpay-Signature': hmac('wrong', raw) } });
+  assert.equal(bad.status, 400);
+  assert.equal(bad.json.reason, 'bad_signature');
+  assert.equal(warns.length, 1, warns.join('\n'));
+  assert.equal(warns[0], '[pay/webhook] rejected reason=bad_signature event=- order=- pay=- status=-');
+
+  const all = [...warns, ...mism];
+  for (const line of all) {
+    assert.ok(!line.includes('@'), `email-like text in: ${line}`);
+    assert.ok(!/\d{10}/.test(line.replace(/\b(order|pay)_[A-Za-z0-9]+/g, '')), `10-digit number in: ${line}`);
+  }
+});

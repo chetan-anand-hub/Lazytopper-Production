@@ -690,7 +690,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     setBuy({ key, phase: "busy" });
     const details = packCheckoutDetails(sku, target);
     const attemptId = newCheckoutAttemptId();
-    trackPackCheckout(details, { signedIn: true, resumed, ...(from ? { from } : {}) });
+    trackPackCheckout(details, { signedIn: true, resumed, attemptId, ...(from ? { from } : {}) });
     if (sheetOnRef.current) preloadPaidSheet(); // warm the post-payment pop-up chunk at the Pay tap
     const outcome = await buyPack(sku, target, { chapterName: target ? chapterLabel(target) : undefined });
     // PURCHASE-EVENT-1: a server-verified payment is counted even if the shop unmounted while Razorpay was open

@@ -263,7 +263,7 @@ describe("PARENT-PACKS-1 · a pack link", () => {
     });
     expect(buy).toHaveBeenCalledWith(TOKEN, "pack", "Maths CBQ Pack");
     expect(screen.getByTestId("parent-pay-paid")).toHaveTextContent("Done — the Maths CBQ Pack is in Aarav's LazyTopper account.");
-    expect(packBegin).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_cbq", valueInr: 199 }), { signedIn: false });
+    expect(packBegin).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_cbq", valueInr: 199 }), { signedIn: false, attemptId: expect.any(String) });
     expect(packPurchase).toHaveBeenCalledTimes(1);
     expect(packPurchase).toHaveBeenCalledWith(expect.objectContaining({ sku: "pack_cbq", transactionId: "order_P1", valueInr: 199 }));
     expect(begin).not.toHaveBeenCalled();

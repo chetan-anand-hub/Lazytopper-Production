@@ -10,3 +10,9 @@
 .lt-pt__pb-short { display: inline; }
 .lt-pt__pb-long { display: none; }
 @media (min-width: 640px) { .lt-pt__pb-short { display: none; } .lt-pt__pb-long { display: inline; } }
+
+/* Owner ruling 13 Nov 2026: the phone's Bundle bar (fixed, 10 + 44 + 10 px plus the home-indicator inset) is up from the first screen;
+   reserve its height so the last content and the footer are never covered. Phones only; PacksPage sets the class while the bar mounts. */
+@media (max-width: 767.98px) {
+  body.lt-has-pk-sticky { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+}

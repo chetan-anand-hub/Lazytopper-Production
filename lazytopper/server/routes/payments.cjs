@@ -390,9 +390,27 @@ function createPaymentRoutes(deps = {}) {
     }
   }
 
+  /**
+   * Operator-only reject log (Razorpay ids + order status only; never email, phone, uid or name).
+   * Logging must never alter the response, so it is fully guarded.
+   */
+  function logReject(scope, reason, ctx) {
+    try {
+      const c = ctx || {};
+      const f = (v) => (typeof v === 'string' && v ? v : v === undefined || v === null || v === '' ? '-' : String(v));
+      let line = `[pay/${scope}] rejected reason=${reason} event=${f(c.event)} order=${f(c.orderId)} pay=${f(c.paymentId)} status=${f(c.status)}`;
+      if (reason === 'amount_mismatch') line += ` expected=${f(c.expected)} got=${f(c.got)}`;
+      if (c.error) line += ` error=${String(c.error).slice(0, 160)}`;
+      console.warn(line);
+    } catch {
+      /* a log line must never fail a payment */
+    }
+  }
+
   /** Z4/Z5: every rejection is a 400 with a reason, and counted. */
-  function reject(res, scope, reason) {
+  function reject(res, scope, reason, ctx) {
     emit(`payments.${scope}.rejected.${reason}`);
+    logReject(scope, reason, ctx);
     return sendJson(res, 400, { ok: false, error: 'payment_rejected', reason });
   }
 
@@ -784,12 +802,12 @@ function createPaymentRoutes(deps = {}) {
     const paymentId = typeof body.paymentId === 'string' ? body.paymentId.trim() : '';
     const signature = typeof body.signature === 'string' ? body.signature.trim() : '';
     if (!ID_PATTERN.test(orderId) || !ID_PATTERN.test(paymentId) || !HEX_PATTERN.test(signature)) {
-      return reject(res, 'verify', 'malformed');
+      return reject(res, 'verify', 'malformed', { orderId, paymentId });
     }
 
     // 1. The checkout signature — timing-safe.
     if (!isCheckoutSignatureValid({ orderId, paymentId, signature, keySecret: keys.keySecret })) {
-      return reject(res, 'verify', 'bad_signature');
+      return reject(res, 'verify', 'bad_signature', { orderId, paymentId });
     }
 
     // 2. The stored order, and whose it is.
@@ -802,9 +820,9 @@ function createPaymentRoutes(deps = {}) {
       console.error('[pay/verify] order read failed:', e && e.message);
       return sendJson(res, 500, { ok: false, error: 'Could not read the order.' });
     }
-    if (!order) return reject(res, 'verify', 'unknown_order');
-    if (order.uid !== uid) return reject(res, 'verify', 'uid_mismatch');
-    if (!Number.isInteger(order.amountPaise) || order.amountPaise <= 0) return reject(res, 'verify', 'bad_order');
+    if (!order) return reject(res, 'verify', 'unknown_order', { orderId, paymentId });
+    if (order.uid !== uid) return reject(res, 'verify', 'uid_mismatch', { orderId, paymentId, status: order.status });
+    if (!Number.isInteger(order.amountPaise) || order.amountPaise <= 0) return reject(res, 'verify', 'bad_order', { orderId, paymentId, status: order.status });
 
     // 3. What Razorpay says was actually paid.
     let result;
@@ -815,19 +833,19 @@ function createPaymentRoutes(deps = {}) {
       console.error('[pay/verify] razorpay unreachable:', e && e.message);
       return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
     }
-    if (result.error === 'order_expired') return reject(res, 'verify', 'order_expired');
+    if (result.error === 'order_expired') return reject(res, 'verify', 'order_expired', { orderId, paymentId, status: order.status });
     if (result.error === 'order_already_paid') {
       emit('payments.verify.late_auth_not_captured');
-      return reject(res, 'verify', 'order_already_paid');
+      return reject(res, 'verify', 'order_already_paid', { orderId, paymentId, status: order.status });
     }
     if (result.error) {
       emit(`payments.verify.${result.error}`);
       return sendJson(res, 502, { ok: false, error: 'Payment provider did not confirm the payment.' });
     }
     const payment = result.payment;
-    if (payment.id !== undefined && payment.id !== paymentId) return reject(res, 'verify', 'payment_mismatch');
+    if (payment.id !== undefined && payment.id !== paymentId) return reject(res, 'verify', 'payment_mismatch', { orderId, paymentId, status: order.status });
     const mismatch = paymentMismatch(payment, { orderId, amountPaise: order.amountPaise });
-    if (mismatch) return reject(res, 'verify', mismatch);
+    if (mismatch) return reject(res, 'verify', mismatch, { ...{ orderId, paymentId, status: order.status }, expected: order.amountPaise, got: payment.amount });
 
     // 4. Grant — idempotent, with the order's created -> paid in the same transaction.
     const answered = await grantAndRespond(res, 'verify', { uid: order.uid, passType: order.passType, paymentId, orderId });
@@ -844,7 +862,8 @@ function createPaymentRoutes(deps = {}) {
    * order never reaches grantTopup: the branch is on the STORED order's passType, which only
    * handleOrder wrote. Verify, webhook and status all arrive here after the SAME Z4 checks.
    */
-  async function grantAndRespond(res, scope, { uid, passType, paymentId, orderId }, extra) {
+  async function grantAndRespond(res, scope, { uid, passType, paymentId, orderId, orderStatus }, extra) {
+    const refusedCtx = (e) => ({ event: scope === 'webhook' ? 'payment.captured' : undefined, orderId, paymentId, status: orderStatus, error: e && e.message });
     if (isPackProduct(passType)) {
       // PACKS-SERVER-1: a paid pack is always granted, even if PACKS_ENABLED was switched off after the order
       // was made. It NEVER reaches grantPass / grantTopup (no passEnd, no Premium, no credit). The sku, target
@@ -857,7 +876,7 @@ function createPaymentRoutes(deps = {}) {
         const body = { ok: true, kind: 'pack', packId: granted.pack.packId, sku: granted.pack.sku, target: granted.pack.target, replayed: granted.replayed };
         return sendJson(res, 200, extra && extra.body ? { ...body, ...extra.body } : body);
       } catch (e) {
-        if (e instanceof PackGrantInputError) return reject(res, scope, 'grant_refused');
+        if (e instanceof PackGrantInputError) return reject(res, scope, 'grant_refused', refusedCtx(e));
         emit(`payments.${scope}.grant_failed`);
         console.error(`[pay/${scope}] pack grant failed:`, e && e.message);
         return sendJson(res, 500, { ok: false, error: 'Pack grant failed' });
@@ -875,7 +894,7 @@ function createPaymentRoutes(deps = {}) {
         const body = { ok: true, replayed: granted.replayed, topup: true };
         return sendJson(res, 200, extra && extra.body ? { ...body, ...extra.body } : body);
       } catch (e) {
-        if (e instanceof TopupInputError) return reject(res, scope, 'grant_refused');
+        if (e instanceof TopupInputError) return reject(res, scope, 'grant_refused', refusedCtx(e));
         emit(`payments.${scope}.grant_failed`);
         console.error(`[pay/${scope}] top-up grant failed:`, e && e.message);
         return sendJson(res, 500, { ok: false, error: 'Top-up grant failed' });
@@ -900,7 +919,7 @@ function createPaymentRoutes(deps = {}) {
       };
       return sendJson(res, 200, extra && extra.body ? { ...body, ...extra.body } : body);
     } catch (e) {
-      if (e instanceof PassGrantInputError) return reject(res, scope, 'grant_refused');
+      if (e instanceof PassGrantInputError) return reject(res, scope, 'grant_refused', refusedCtx(e));
       emit(`payments.${scope}.grant_failed`);
       console.error(`[pay/${scope}] grant failed:`, e && e.message);
       return sendJson(res, 500, { ok: false, error: 'Pass grant failed' });
@@ -976,6 +995,7 @@ function createPaymentRoutes(deps = {}) {
     } catch {
       return reject(res, 'webhook', 'malformed');
     }
+    const evName = event && typeof event.event === 'string' ? event.event : undefined;
     // PAY-RESCUE-1 - a FAILED attempt only leaves a note on our own order (never a grant, never a status change).
     if (event.event === 'payment.failed') return handlePaymentFailed(event, res);
     if (event.event !== 'payment.captured') {
@@ -986,7 +1006,7 @@ function createPaymentRoutes(deps = {}) {
     const entity = event.payload && event.payload.payment && event.payload.payment.entity;
     const paymentId = entity && typeof entity.id === 'string' ? entity.id : '';
     const orderId = entity && typeof entity.order_id === 'string' ? entity.order_id : '';
-    if (!ID_PATTERN.test(paymentId) || !ID_PATTERN.test(orderId)) return reject(res, 'webhook', 'malformed');
+    if (!ID_PATTERN.test(paymentId) || !ID_PATTERN.test(orderId)) return reject(res, 'webhook', 'malformed', { event: evName, orderId, paymentId });
 
     let order;
     try {
@@ -1015,9 +1035,9 @@ function createPaymentRoutes(deps = {}) {
     // orderId was read from this entity, so order_mismatch cannot fire here; the shared
     // checks then run currency -> amount -> captured, as the webhook always has.
     const mismatch = paymentMismatch(entity, { orderId, amountPaise: order.amountPaise });
-    if (mismatch) return reject(res, 'webhook', mismatch);
+    if (mismatch) return reject(res, 'webhook', mismatch, { event: 'payment.captured', orderId, paymentId, status: order.status, expected: order.amountPaise, got: entity && entity.amount });
 
-    const answered = await grantAndRespond(res, 'webhook', { uid: order.uid, passType: order.passType, paymentId, orderId });
+    const answered = await grantAndRespond(res, 'webhook', { uid: order.uid, passType: order.passType, paymentId, orderId, orderStatus: order.status });
     sendReceipt(orderId, paymentId, entity, order.passType);
     return answered;
   }
@@ -1025,7 +1045,7 @@ function createPaymentRoutes(deps = {}) {
   /** PAY-PHONE-1 - the webhook's guest branch: every Z4 check, then the order is recorded paid_unclaimed (no grant). */
   async function handleGuestCaptured(res, { entity, order, orderId, paymentId }) {
     const mismatch = paymentMismatch(entity, { orderId, amountPaise: order.amountPaise });
-    if (mismatch) return reject(res, 'webhook', mismatch);
+    if (mismatch) return reject(res, 'webhook', mismatch, { event: 'payment.captured', orderId, paymentId, status: order.status, expected: order.amountPaise, got: entity && entity.amount });
     try {
       const marked = await markGuestOrderPaid(adminFirestore, { orderId, paymentId, nowMs: now() });
       emit(marked.changed ? 'payments.webhook.guest_paid_unclaimed' : 'payments.webhook.guest_replayed');
@@ -1108,7 +1128,7 @@ function createPaymentRoutes(deps = {}) {
     }
     // Only the order id is read from the request — never an amount, a payment or a status.
     const orderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
-    if (!ID_PATTERN.test(orderId)) return reject(res, 'status', 'malformed');
+    if (!ID_PATTERN.test(orderId)) return reject(res, 'status', 'malformed', { orderId });
 
     let order;
     try {
@@ -1123,8 +1143,8 @@ function createPaymentRoutes(deps = {}) {
       emit('payments.status.rejected.unknown_order');
       return sendJson(res, 404, { ok: false, error: 'payment_rejected', reason: 'unknown_order' });
     }
-    if (order.uid !== uid) return reject(res, 'status', 'uid_mismatch');
-    if (!Number.isInteger(order.amountPaise) || order.amountPaise <= 0) return reject(res, 'status', 'bad_order');
+    if (order.uid !== uid) return reject(res, 'status', 'uid_mismatch', { orderId, status: order && order.status });
+    if (!Number.isInteger(order.amountPaise) || order.amountPaise <= 0) return reject(res, 'status', 'bad_order', { orderId, status: order && order.status });
     const amountInr = order.amountPaise / 100;
 
     // 1. Already paid (verify, webhook or an earlier status call): report it, write nothing.
@@ -1172,7 +1192,7 @@ function createPaymentRoutes(deps = {}) {
         amountInr,
       });
     }
-    if (order.status !== 'created') return reject(res, 'status', 'bad_order');
+    if (order.status !== 'created') return reject(res, 'status', 'bad_order', { orderId, status: order && order.status });
 
     // 2. Created: ask Razorpay what was actually paid against this order.
     let found;
@@ -1184,7 +1204,7 @@ function createPaymentRoutes(deps = {}) {
       console.error('[pay/status] razorpay unreachable:', e && e.message);
       return sendJson(res, 200, { ok: true, state: 'unknown' });
     }
-    if (found.expired) return reject(res, 'status', 'order_expired');
+    if (found.expired) return reject(res, 'status', 'order_expired', { orderId, status: order && order.status });
     if (found.upstream) {
       emit(`payments.status.${found.upstream}`);
       emit('payments.status.unknown');
