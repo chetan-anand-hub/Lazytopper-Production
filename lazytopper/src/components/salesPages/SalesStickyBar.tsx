@@ -12,6 +12,7 @@ import "../pricing/stickyPassBar.css";
 export default function SalesStickyBar({
   watch,
   footerSelector = "footer.lt-public-legal",
+  ignoreFooter = false,
   copy,
   onGo,
   ariaLabel,
@@ -20,6 +21,8 @@ export default function SalesStickyBar({
 }: {
   watch: readonly string[];
   footerSelector?: string;
+  /** /packs only: the footer on screen does NOT hide the bar (the page is short, so the footer is often in view; the page reserves room for the bar). Default off. */
+  ignoreFooter?: boolean;
   /** Read after mount and on every visibility check (the price follows the clock and the hero Pay). null hides the bar. */
   copy: () => { label: string; button: string } | null;
   onGo: () => void;
@@ -46,7 +49,7 @@ export default function SalesStickyBar({
       const next = copy();
       setText((was) => (was && next && was.label === next.label && was.button === next.button ? was : next));
       const anyPay = watch.some((id) => onScreen(document.querySelector(`[data-testid="${id}"]`)));
-      setHidden(anyPay || onScreen(document.querySelector(footerSelector)));
+      setHidden(anyPay || (!ignoreFooter && onScreen(document.querySelector(footerSelector))));
     };
     const schedule = () => {
       if (!frame) frame = window.requestAnimationFrame(check);

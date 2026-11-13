@@ -63,4 +63,24 @@ describe("SalesStickyBar", () => {
     fireEvent.click(screen.getByTestId("bar-go"));
     expect(onGo).toHaveBeenCalledTimes(1);
   });
+  it("the footer on screen hides the bar by default, and does not when ignoreFooter is set", async () => {
+    const footer = document.createElement("footer");
+    footer.className = "lt-public-legal";
+    document.body.appendChild(footer);
+    vi.spyOn(footer, "getBoundingClientRect").mockReturnValue({ top: 100, bottom: 400, left: 0, right: 100, width: 100, height: 300, x: 0, y: 100, toJSON: () => ({}) } as DOMRect);
+    try {
+      const props = { watch: ["hero-pay"], copy: () => ({ label: "L", button: "B" }), onGo: vi.fn(), ariaLabel: "x", testId: "bar" };
+      await act(async () => {
+        render(<SalesStickyBar {...props} />);
+      });
+      expect(screen.queryByTestId("bar")).toBeNull();
+      cleanup();
+      await act(async () => {
+        render(<SalesStickyBar {...props} ignoreFooter />);
+      });
+      expect(screen.queryByTestId("bar")).not.toBeNull();
+    } finally {
+      footer.remove();
+    }
+  });
 });
