@@ -4,9 +4,10 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("../signinLink/SigninLinkCard", () => ({
-  default: (p: { onMoved?: () => void }) => (
+  default: (p: { onMoved?: () => void; onAnswered?: () => void }) => (
     <div data-testid="signin-link-card-stub">
       <button type="button" data-testid="stub-moved" onClick={() => p.onMoved?.()}>moved</button>
+      <button type="button" data-testid="stub-answered" onClick={() => p.onAnswered?.()}>answered</button>
     </div>
   ),
 }));
@@ -114,6 +115,16 @@ describe("PassCheckout paid -> PaidSheet", () => {
     fireEvent.click(screen.getByTestId("stub-moved"));
     fireEvent.click(screen.getByTestId("paid-sheet-close"));
     expect(screen.queryByTestId("paid-sheet-reopen")).toBeNull(); // moved: nothing left to ask
+  });
+
+  it("FU-PAIDSHEET-NITS D-NIT-1: once the buyer answers me / child in the pop-up, the reopen button is gone", async () => {
+    view(paid(), true, "friend@gmail.com");
+    fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
+    fireEvent.click(await screen.findByTestId("stub-answered"));
+    fireEvent.click(screen.getByTestId("paid-sheet-close"));
+    expect(screen.queryByTestId("paid-sheet")).toBeNull();
+    expect(screen.getByTestId("pass-checkout-paid")).toBeTruthy();
+    expect(screen.queryByTestId("paid-sheet-reopen")).toBeNull();
   });
 
   it("a phone-only account (no email) gets no receipt line", async () => {
