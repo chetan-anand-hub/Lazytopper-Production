@@ -64,6 +64,12 @@ export type Circular = ParsedCircular & {
 /** C9 — the fixed rule table. Case-insensitive; the FIRST matching rule wins. */
 export const HEADLINE_RULES: readonly { readonly pattern: RegExp; readonly headline: string }[] =
   Object.freeze([
+    // CBSE-LIVE-1: the SECOND (May) exam's date sheet must beat the main date-sheet rule below,
+    // or it would be announced as "the 2027 board exam date sheet".
+    Object.freeze({
+      pattern: /(second|supplementary|improvement|\bmay\b).{0,80}date ?sheet|date ?sheet.{0,80}(second|supplementary|improvement|\bmay\b)/i,
+      headline: "The second board exam date sheet is out",
+    }),
     Object.freeze({ pattern: /date ?sheet/i, headline: "The 2027 board exam date sheet is out" }),
     Object.freeze({
       pattern: /sample (question )?papers?|\bSQP\b/i,
@@ -74,6 +80,14 @@ export const HEADLINE_RULES: readonly { readonly pattern: RegExp; readonly headl
       headline: "CBSE has updated the two-exam rules",
     }),
     Object.freeze({ pattern: /syllabus|curriculum/i, headline: "CBSE has updated the syllabus" }),
+    // CBSE-LIVE-1: appended AFTER the owner's four so first-match order is unchanged for them.
+    Object.freeze({ pattern: /admit cards?|admission cards?/i, headline: "Board exam admit cards are out" }),
+    // "Results of Skill Expo" must NOT match (pinned by a test): a result counts only when the
+    // title also names Class X, the secondary school exam or the board exam.
+    Object.freeze({
+      pattern: /(?=.*\bresults?\b)(?=.*(class[ -]?(x|10)\b|secondary school|board exam))/i,
+      headline: "Board exam results are out",
+    }),
   ]);
 
 /** The headline a title earns from the table, or null. Never anything else. */

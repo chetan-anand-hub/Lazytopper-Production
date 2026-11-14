@@ -5,19 +5,20 @@ import TestimonialVideo from "../components/marketing/TestimonialVideo";
 import {
   cbseCircularFeed,
   cbsePaperLink,
-  cbseSamplePapersOut,
+  cbseStatusPills,
   useCbseManifest,
 } from "../services/cbseManifest";
 
 import {
   CBSE_CIRCULARS,
   CBSE_CIRCULARS_CHECKED_ON,
+  CBSE_2027_DATE_SHEET,
+  CBSE_2027_MAIN_EXAM_WINDOW,
   CBSE_OLDER_SETS_NOTE,
   CBSE_SUBJECTS,
   CBSE_THEORY_MARKS,
   CBSE_TIMELINE,
   CBSE_TRAPS,
-  CBSE_2027_MAIN_EXAM_WINDOW,
   type CbsePaper,
   type CbseSubjectKey,
 } from "./cbse2027Sources";
@@ -158,6 +159,17 @@ const CBSE_CSS = `
 .lt-cbse__pill--ok i{background:var(--g)}
 .lt-cbse__pill--wait i{background:var(--am)}
 .lt-cbse__pill b{color:var(--ink);font-weight:600}
+
+/* DATE SHEET (CBSE-LIVE-1) */
+.lt-cbse__ds{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--sh);padding:14px var(--pad) 12px;margin:0 0 26px}
+.lt-cbse__ds-meta{margin:6px 0 10px;color:var(--ink2);font-size:14px}
+.lt-cbse__ds-list{list-style:none;margin:0;padding:0}
+.lt-cbse__ds-list li{display:flex;justify-content:space-between;gap:12px;
+  padding:9px 0;border-top:1px solid var(--line2);font-size:14.5px}
+.lt-cbse__ds-list li b{font-weight:600;color:var(--ink);white-space:nowrap}
+.lt-cbse__ds-note{margin:10px 0 0;color:var(--ink3);font-size:13px}
+.lt-cbse__ds-link{display:inline-block;margin-top:8px;font-weight:600;font-size:14px}
 
 /* SECTION FURNITURE */
 .lt-cbse section{margin-bottom:42px;scroll-margin-top:var(--anchor-offset)}
@@ -350,13 +362,15 @@ export default function Cbse2027Page() {
   const anyDownload = CBSE_SUBJECTS.some((subject) =>
     subject.papers.some((paper) => cbsePaperLink(paper, manifest).label === "Download"),
   );
-  // CA-3 — the sample-paper pill follows the mirror. SEO-PAGES-1: it also reads the
-  // committed hrefs' session, so the prerendered (no-manifest) page is honest too.
-  const samplePapersOut = cbseSamplePapersOut(
+  // CBSE-LIVE-1 — every status pill is a pure function of (manifest, committed data): the
+  // manifest can only turn a pill on, and null falls back to the committed data, which is
+  // also what the prerender capture sees. CA-3 / SEO-PAGES-1: the sample-paper pill also
+  // reads the committed hrefs' session.
+  const pills = cbseStatusPills(
     manifest,
     CBSE_SUBJECTS.flatMap((subject) => subject.papers),
+    CBSE_2027_DATE_SHEET,
   );
-
 
   const onTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
@@ -384,25 +398,53 @@ export default function Cbse2027Page() {
             means. Checked against cbse.gov.in on {feed.checkedOn}.
           </p>
           <div className="lt-cbse__count">
-            <b>{CBSE_2027_MAIN_EXAM_WINDOW}</b>
-            <span>
-              is when the main exam is expected,
-              <br />
-              if it starts mid-February like last year
-            </span>
+            {CBSE_2027_DATE_SHEET ? (
+              <>
+                <b>{CBSE_2027_DATE_SHEET.firstPaper.label}</b>
+                <span>
+                  is the first paper of the main exam
+                  <br />
+                  Maths {CBSE_2027_DATE_SHEET.papers[0].short} &middot; Science{" "}
+                  {CBSE_2027_DATE_SHEET.papers[1].short}
+                </span>
+              </>
+            ) : (
+              <>
+                <b>{CBSE_2027_MAIN_EXAM_WINDOW}</b>
+                <span>
+                  is when the main exam is expected,
+                  <br />
+                  if it starts mid-February like last year
+                </span>
+              </>
+            )}
           </div>
         </div>
 
         <div className="lt-cbse__pills">
-          <a className="lt-cbse__pill lt-cbse__pill--wait" href="#papers">
-            <i aria-hidden="true" />
-            Date sheet <b>not out</b>
-          </a>
-          <a className="lt-cbse__pill lt-cbse__pill--ok" href="#papers">
-            <i aria-hidden="true" />
-            Syllabus <b>released</b>
-          </a>
-          {samplePapersOut ? (
+          {pills.dateSheet ? (
+            <a className="lt-cbse__pill lt-cbse__pill--ok" href="#datesheet">
+              <i aria-hidden="true" />
+              Date sheet <b>released</b>
+            </a>
+          ) : (
+            <a className="lt-cbse__pill lt-cbse__pill--wait" href="#papers">
+              <i aria-hidden="true" />
+              Date sheet <b>not out</b>
+            </a>
+          )}
+          {pills.syllabus ? (
+            <a className="lt-cbse__pill lt-cbse__pill--ok" href="#papers">
+              <i aria-hidden="true" />
+              Syllabus <b>released</b>
+            </a>
+          ) : (
+            <a className="lt-cbse__pill lt-cbse__pill--wait" href="#papers">
+              <i aria-hidden="true" />
+              Syllabus <b>awaited</b>
+            </a>
+          )}
+          {pills.samplePapers ? (
             <a className="lt-cbse__pill lt-cbse__pill--ok" href="#papers">
               <i aria-hidden="true" />
               Sample papers <b>out</b>
@@ -418,6 +460,39 @@ export default function Cbse2027Page() {
             Two exams <b>confirmed</b>
           </a>
         </div>
+
+        {CBSE_2027_DATE_SHEET && (
+          <section id="datesheet" className="lt-cbse__ds" aria-labelledby="cbse-datesheet-h">
+            <div className="lt-cbse__sh">
+              <h2 id="cbse-datesheet-h">Your date sheet</h2>
+              <em>main exam</em>
+            </div>
+            <p className="lt-cbse__ds-meta">
+              Released by CBSE on {CBSE_2027_DATE_SHEET.releasedOn}. Papers run{" "}
+              {CBSE_2027_DATE_SHEET.firstPaper.short} to {CBSE_2027_DATE_SHEET.lastPaper.label}, and
+              every paper starts at {CBSE_2027_DATE_SHEET.startTime}.
+            </p>
+            <ul className="lt-cbse__ds-list">
+              {CBSE_2027_DATE_SHEET.papers.map((paper) => (
+                <li key={paper.subject}>
+                  <span>{paper.subject}</span>
+                  <b>{paper.when}</b>
+                </li>
+              ))}
+            </ul>
+            <p className="lt-cbse__ds-note">
+              Other subjects, and the timings for each, are on CBSE&rsquo;s own sheet.
+            </p>
+            <a
+              className="lt-cbse__ds-link"
+              href={CBSE_2027_DATE_SHEET.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open the official date sheet (PDF)
+            </a>
+          </section>
+        )}
 
         <section id="papers">
           <div className="lt-cbse__sh">
