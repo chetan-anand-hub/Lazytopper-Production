@@ -94,6 +94,18 @@
       "destination": "/__shell.html"
     },
     {
+      "source": "/:path(mock-test-class-10/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(question-bank-class-10/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(cbse-marking-scheme-class-10/?)",
+      "destination": "/__shell.html"
+    },
+    {
       "source": "/:path(for-parents/?)",
       "destination": "/__shell.html"
     },

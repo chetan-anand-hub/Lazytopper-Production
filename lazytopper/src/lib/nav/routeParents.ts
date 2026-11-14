@@ -60,6 +60,10 @@ export const ROUTE_PARENTS: ReadonlyArray<readonly [string, RouteNavEntry]> = [
   ["/check-your-answer", { parent: "/" }],
   ["/cbse/class-10", { parent: "/" }],
   ["/cbq-class-10", { parent: "/" }],
+  // SEO-PAGES-1: the three search-landing pages hang off Home, like the other public guides.
+  ["/mock-test-class-10", { parent: "/" }],
+  ["/question-bank-class-10", { parent: "/" }],
+  ["/cbse-marking-scheme-class-10", { parent: "/" }],
   ["/cbq-class-10/:chapterSlug", { parent: "/cbq-class-10" }],
   ["/ncert-class-10", { parent: "/" }],
   // NCERT-HUB-1 — a solutions page returns to ITS chapter in the hub (`?subject=…&ch=…`), not the bare hub.

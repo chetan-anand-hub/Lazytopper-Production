@@ -39,7 +39,7 @@ export const SPEED_SAMPLE_RATE = 0.5;
  */
 export const KNOWN_TOP_LEVEL = new Set([
   "/", "/welcome", "/browse", "/login", "/sign-up", "/pricing", "/packs", "/board-pass", "/cbq-packs", "/exam-trends", "/practice-hub",
-  "/check-improve", "/check-your-answer", "/for-parents", "/contact", "/cbq-class-10", "/highly-probable",
+  "/check-improve", "/check-your-answer", "/mock-test-class-10", "/question-bank-class-10", "/cbse-marking-scheme-class-10", "/for-parents", "/contact", "/cbq-class-10", "/highly-probable",
   "/ncert-class-10", "/topic-hub", "/me", "/tutor", "/intent", "/practice", "/notes", "/funnel", "/admin",
 ]);
 

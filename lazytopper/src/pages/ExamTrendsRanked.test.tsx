@@ -481,6 +481,21 @@ describe("ExamTrendsRanked — SEO-5 PR-4 guide link", () => {
     expect(link.className).toBe("lt-et-cbse");
     expect(link.closest(".lt-et-hero")).not.toBeNull();
   });
+
+  // SEO-PAGES-1 — the one cross-link place for the three search-landing pages, in the same link style and the same hero.
+  it("the hero links the three SEO-PAGES-1 landing pages, plain paths in the existing link style", async () => {
+    await renderPage();
+    for (const [name, href] of [
+      ["Class 10 mock tests →", "/mock-test-class-10"],
+      ["Chapter-wise question bank →", "/question-bank-class-10"],
+      ["CBSE marking scheme →", "/cbse-marking-scheme-class-10"],
+    ] as const) {
+      const link = screen.getByRole("link", { name });
+      expect(link).toHaveAttribute("href", href);
+      expect(link.className).toBe("lt-et-cbse");
+      expect(link.closest(".lt-et-hero")).not.toBeNull();
+    }
+  });
 });
 
 describe("ExamTrendsRanked — NCERT-ENTRY-1: every chapter opens its NCERT book in the reader", () => {

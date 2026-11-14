@@ -119,6 +119,10 @@
     "sha256": "d9d09b75baaed0e9598c5dd048c3785c35ed752823c325729d9c420a0d620b52",
     "lastmod": "2026-11-11"
   },
+  "/cbse-marking-scheme-class-10": {
+    "sha256": "572627bf8d0a1bf509e29e512b22133d00e8160ac84ad153b7c32472210fbf7c",
+    "lastmod": "2026-11-14"
+  },
   "/cbse/class-10": {
     "sha256": "fc486ad4e3a14b376864cb40ff572982b9b85d25e7830b7d76ab1cd94397ab5d",
     "lastmod": "2026-11-14"
@@ -132,8 +136,8 @@
     "lastmod": "2026-11-05"
   },
   "/exam-trends": {
-    "sha256": "8c5620e076244dfba8aacb367d00d5d017ba7aca6a7fa9cdabbe888626815a57",
-    "lastmod": "2026-11-05"
+    "sha256": "9ffa2851ff587b567c10554355bbbf0163c29377fed5014283f853200471b8d9",
+    "lastmod": "2026-11-14"
   },
   "/for-parents": {
     "sha256": "a5513e0c0fce45e7e7c11363f2f70dcf38693a6fb0fc29e8163c4793efbe6b38",
@@ -158,6 +162,10 @@
   "/legal/terms": {
     "sha256": "6e4c92b2496561a5da18312e4eb4e9a0bf89b3704a8932d2619cb197db2f2b97",
     "lastmod": "2026-11-05"
+  },
+  "/mock-test-class-10": {
+    "sha256": "9721d7edb3e7e8b76d077a06b0ddace476617790c7afdfc5d2190281c4d35752",
+    "lastmod": "2026-11-14"
   },
   "/ncert-class-10": {
     "sha256": "75190f82aba421ba33c12491b9b3e85cac81dc44433208b36a8871dc564a73ef",
@@ -482,6 +490,10 @@
   "/pricing": {
     "sha256": "8a08db9696ee6be9991efded8989e69ebae8dc8447e3574c204f0d622bd9ea01",
     "lastmod": "2026-11-13"
+  },
+  "/question-bank-class-10": {
+    "sha256": "462940548e07665adafe2508543936a877293962123076bfda3c6da24ef709b4",
+    "lastmod": "2026-11-14"
   },
   "/topic-hub/acids-bases-and-salts": {
     "sha256": "b7d8e7562fedec2a5474e2571765b0ea62c943406efef0390f63a0b8ffc0f466",

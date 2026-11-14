@@ -110,6 +110,11 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   // CBQ-SEO-1 (owner authorization, 30 Oct 2026) — the CBQ hub: public, signed-out readable, indexable.
   // Its 26 chapter pages are the `/cbq-class-10` one-segment family below.
   "/cbq-class-10",
+  // SEO-PAGES-1 (13 Nov 2026, FU-SEO-PAGES-13NOV) - three search-landing pages that match buying searches: public, signed-out
+  // readable, indexable. Their paths are src/components/seoPages/seoPages.ts SEO_PAGES_PATHS.
+  "/mock-test-class-10",
+  "/question-bank-class-10",
+  "/cbse-marking-scheme-class-10",
 ];
 
 /**

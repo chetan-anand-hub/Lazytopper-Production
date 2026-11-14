@@ -49,6 +49,10 @@ const P8_PAGES = [
   "packs.html", // PACKS-LEGAL-1 — /packs renders the public footer, now prerendered
   "board-pass.html", // PRICING-PAGES-1 — the two dedicated sales pages render the public footer
   "cbq-packs.html",
+  // SEO-PAGES-1 — the three search-landing pages render the public footer
+  "mock-test-class-10.html",
+  "question-bank-class-10.html",
+  "cbse-marking-scheme-class-10.html",
   // SOLUTIONS-1/2: every published solutions page carries the public footer (derived, not hand-listed).
   ...solutionsPaths().map((p) => `${p.slice(1)}.html`),
   // CBQ-SEO-1: the CBQ hub and its chapter pages render the public footer (derived from the chapter registry, not hand-listed).

@@ -180,6 +180,10 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
       // PREEXIST-FIX-1: + PricingPage (own + TestimonialVideo; /pricing#packs CLS 0.28 at 1280 px without it).
       expect(INLINE_ROUTE_CSS_MODULES).toEqual([
         "CheckYourAnswerPage",
+        // SEO-PAGES-1: the three search-landing pages (one shared sheet, SeoLandingShell).
+        "MockTestClass10Page",
+        "QuestionBankClass10Page",
+        "MarkingSchemeClass10Page",
         "ForParentsPage",
         "NcertBooksPage",
         "SolutionsPage",

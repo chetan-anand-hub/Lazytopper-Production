@@ -67,6 +67,7 @@ import { sitemapPaths } from "../../src/config/sitemapUrls";
 import { allDesktopTopics } from "../../src/lib/desktop/topics";
 import { ncertFileCodeFromSpec } from "../../src/lib/ncertFileCode";
 import { cbqHeadForPath, cbqJsonLd } from "../../src/components/cbq/cbqSeo";
+import { seoPageHeadForPath, seoPageJsonLd } from "../../src/components/seoPages/seoPages";
 import { faqJsonLdForPath } from "../../src/components/seo/faqContent";
 import { testimonialVideoJsonLdFor } from "./testimonialVideoJsonLd";
 
@@ -314,6 +315,10 @@ export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   // CBQ-SEO-1 — the hub is an exact path, the 26 chapter pages one prefix (both lazy routes in App.tsx).
   { prefix: "/cbq-class-10", exact: true, modules: ["CbqHubPage"] },
   { prefix: "/cbq-class-10/", exact: false, modules: ["CbqChapterPage"] },
+  // SEO-PAGES-1 — the three search-landing pages (lazy routes in App.tsx).
+  { prefix: "/mock-test-class-10", exact: true, modules: ["MockTestClass10Page"] },
+  { prefix: "/question-bank-class-10", exact: true, modules: ["QuestionBankClass10Page"] },
+  { prefix: "/cbse-marking-scheme-class-10", exact: true, modules: ["MarkingSchemeClass10Page"] },
 ];
 
 /** The route-chunk module names for one advertised path. THROWS for a path with no entry. */
@@ -356,6 +361,10 @@ export function headForPath(path: string): PageHead | null {
   // CBQ-SEO-1 — the CBQ hub and its chapter pages: strings built (and length-checked) by cbqSeo.ts.
   const cbqHead = cbqHeadForPath(path);
   if (cbqHead) return cbqHead;
+
+  // SEO-PAGES-1 — the three search-landing pages: strings authored (and length-checked) in seoPages.ts.
+  const seoPageHead = seoPageHeadForPath(path);
+  if (seoPageHead) return seoPageHead;
 
   const topicPrefix = "/topic-hub/";
   if (path.startsWith(topicPrefix)) {
@@ -600,7 +609,7 @@ export function ncertHubJsonLd(path: string, basename: string): Record<string, u
 export function pageJsonLd(path: string, basename: string, hasHead: boolean): Record<string, unknown> | null {
   return (
     (hasHead
-      ? notesJsonLd(path, basename) ?? solutionsJsonLd(path, basename) ?? ncertHubJsonLd(path, basename) ?? cbqJsonLd(path, basename)
+      ? notesJsonLd(path, basename) ?? solutionsJsonLd(path, basename) ?? ncertHubJsonLd(path, basename) ?? cbqJsonLd(path, basename) ?? seoPageJsonLd(path, basename)
       : null) ??
     testimonialVideoJsonLdFor(path, canonicalFor("/", basename))
   );
