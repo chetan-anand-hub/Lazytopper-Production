@@ -1,0 +1,32 @@
+/* FREE-RES-1 - "Free chapter practice" on /cbse/class-10. Reads the page's own tokens (--ink, --line, --g ...) from .lt-cbse, with
+   fallbacks so it also stands alone. Mobile first: one column at 390 px; the rows get more air at 760 px and up. */
+.lt-free { margin-bottom: 42px; }
+.lt-free__kit { display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; margin: 0 0 22px; padding: 16px; border-radius: 14px; background: var(--navy, #132c4d); color: #eaf2fb; border: 1px solid var(--g, #087a43); }
+.lt-free__kit-title { font-family: var(--serif, Fraunces, Georgia, serif); font-size: 19px; font-weight: 700; color: #fff; overflow-wrap: anywhere; }
+.lt-free__kit .lt-free__meta { color: #b9d0e8; }
+.lt-free__btn--kit { min-width: 0; width: 100%; background: #7ee2ab; color: #0f2038; }
+.lt-free__btn--kit:hover:not(:disabled) { background: #a3edc6; }
+@media (min-width: 760px) { .lt-free__btn--kit { width: auto; min-width: 240px; } }
+.lt-free__group { margin: 0 0 20px; }
+.lt-free__ghead { display: flex; align-items: center; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap; margin: 0 0 8px; }
+.lt-free__ghead h3 { font-family: var(--serif, Fraunces, Georgia, serif); font-size: 18px; font-weight: 600; color: var(--ink, #0f2038); margin: 0; }
+.lt-free__list { list-style: none; margin: 0; padding: 0; background: var(--card, #fff); border: 1px solid var(--line, #dde5ef); border-radius: 14px; box-shadow: var(--sh, 0 1px 2px rgba(15, 32, 56, 0.05)); overflow: hidden; }
+.lt-free__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--line2, #eef3f8); min-height: 64px; }
+.lt-free__row:first-child { border-top: 0; }
+.lt-free__what { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.lt-free__chapter { font-weight: 600; font-size: 15px; color: var(--ink, #0f2038); overflow-wrap: anywhere; }
+.lt-free__meta { font-size: 13px; color: var(--ink2, #4d647e); }
+.lt-free__btn { flex: 0 0 auto; min-width: 118px; min-height: 44px; padding: 10px 14px; border: 0; border-radius: 10px; background: var(--g, #087a43); color: #fff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; }
+.lt-free__btn:hover:not(:disabled) { background: var(--gt, #06663a); }
+.lt-free__btn:disabled { opacity: 0.65; cursor: default; }
+.lt-free__btn--ghost { background: var(--card, #fff); color: var(--gt, #06663a); border: 1px solid var(--gl, #bfe3ce); }
+.lt-free__btn--ghost:hover:not(:disabled) { background: var(--gw, #e6f4ec); }
+.lt-free__btn--wide { min-width: 0; width: 100%; background: var(--navy, #132c4d); }
+.lt-free__btn--wide:hover:not(:disabled) { background: var(--ink, #0f2038); }
+.lt-free__all { display: flex; flex-direction: column; align-items: stretch; gap: 6px; margin: 4px 0 0; }
+.lt-free__problem { margin: 10px 0 0; min-height: 1.4em; font-size: 13.5px; color: var(--am, #9a5800); }
+@media (min-width: 760px) {
+  .lt-free__row { padding: 14px 18px; }
+  .lt-free__all { flex-direction: row; align-items: center; gap: 14px; }
+  .lt-free__btn--wide { width: auto; min-width: 260px; }
+}

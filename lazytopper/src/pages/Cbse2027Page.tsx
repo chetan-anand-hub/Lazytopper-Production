@@ -23,6 +23,7 @@ import {
   type CbseSubjectKey,
 } from "./cbse2027Sources";
 import ParentReturnLink from "../components/parents/ParentReturnLink";
+import FreeResourcesBlock from "../components/freeResources/FreeResourcesBlock";
 
 /**
  * Cbse2027Page — the public CBSE boards page at `/cbse/class-10` (CBSE-PAGE-1, Lane A).
@@ -712,6 +713,9 @@ export default function Cbse2027Page() {
             Checked against CBSE&rsquo;s circulars pages on {feed.checkedOn}.
           </p>
         </section>
+
+        {/* FREE-RES-1: renders nothing until the list arrives (and nothing if it is empty), and sits below the first screen, so it moves nothing. */}
+        <FreeResourcesBlock />
 
         <section>
           <div className="lt-cbse__help">

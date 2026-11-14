@@ -652,7 +652,12 @@ describe("★ C11 — the mirror's manifest overlays the page, and its failure c
     ];
     for (const [name, impl] of failures) {
       const { container, fetchMock } = await renderWithFetch(impl);
-      expect(fetchMock, name).toHaveBeenCalledTimes(1);
+      // FREE-RES-1: the page now also mounts the free-resources block, which makes ONE public GET of its own. This line is about
+      // the CBSE MIRROR's manifest, so it counts the mirror's fetches only (and proves the block's own GET is the other one, so the
+      // filter is not hiding a second manifest request).
+      const urls = fetchMock.mock.calls.map((call) => String((call as unknown[])[0]));
+      expect(urls.filter((u) => !u.startsWith("/api/free-resources")), name).toHaveLength(1);
+      expect(urls.filter((u) => u.startsWith("/api/free-resources")), name).toHaveLength(1);
       expect(links(container), name).toEqual(committedLinks);
       expect(container.innerHTML, name).toBe(committedHtml);
       cleanup();
