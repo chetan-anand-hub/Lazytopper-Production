@@ -157,14 +157,18 @@ describe("C8 — filtering and ordering", () => {
 });
 
 describe("C9 — the fixed rule table, and no generated headline", () => {
-  it("is exactly the four owner rules, in order", () => {
+  it("is exactly the owner's four rules in their order, plus CBSE-LIVE-1's three", () => {
     assert.deepEqual(
       HEADLINE_RULES.map((r) => r.headline),
       [
+        // CBSE-LIVE-1: must precede the main date-sheet rule or it would never fire.
+        "The second board exam date sheet is out",
         "The 2027 board exam date sheet is out",
         "New CBSE sample papers are out",
         "CBSE has updated the two-exam rules",
         "CBSE has updated the syllabus",
+        "Board exam admit cards are out",
+        "Board exam results are out",
       ],
     );
     assert.ok(Object.isFrozen(HEADLINE_RULES));
@@ -181,6 +185,19 @@ describe("C9 — the fixed rule table, and no generated headline", () => {
     // first match wins: a date sheet that mentions the syllabus is a date sheet
     assert.equal(ruleHeadline("Date sheet and syllabus"), "The 2027 board exam date sheet is out");
     assert.equal(ruleHeadline("Observance of Swachhata Hi Seva"), null);
+    // CBSE-LIVE-1
+    assert.equal(
+      ruleHeadline("Date Sheet for Class X and Class XII Board Examinations, 2027"),
+      "The 2027 board exam date sheet is out",
+    );
+    assert.equal(
+      ruleHeadline("Date sheet for the second board examination (May 2027), Class X"),
+      "The second board exam date sheet is out",
+    );
+    assert.equal(ruleHeadline("Issue of Admit Card for Class X Board Examination 2027"), "Board exam admit cards are out");
+    assert.equal(ruleHeadline("Declaration of Result of Class X Examination 2027"), "Board exam results are out");
+    // a result that is not the board exam's earns nothing
+    assert.equal(ruleHeadline("Results of Skill Expo 2026–27"), null);
   });
 
   it("important ONLY within 30 days; otherwise important:false AND headline:''", () => {

@@ -259,6 +259,68 @@ export const CBSE_OLDER_SETS_NOTE =
 /** The marks every subject's units must add up to, before the 20 internal marks. */
 export const CBSE_THEORY_MARKS = 80;
 
+/**
+ * CBSE-LIVE-1 — the released Class X main-exam date sheet.
+ *
+ * ★ READ FROM THE OFFICIAL PDF, NOT FROM NEWS. CBSE circular "Date Sheet for Class X and
+ * Class XII Board Examinations, 2027", dated 6 Nov 2026. Every date below was read off the
+ * PDF's pages (Secondary School Examination-2027 table, pp. 4-7, plus the circular's own
+ * first page: "commence from 16 February 2027 (Tuesday)", "All examinations will commence
+ * at 10:30 a.m. (IST)") on 14 Nov 2026. The PDF is a scan with no text layer, so the dates
+ * were read by OCR and confirmed by eye on the page images for 3, 8 and 9 March.
+ *
+ * ★ LITERAL STRINGS, NO `Date`, NO `Intl`. The page is prerendered, so a formatted date
+ * would depend on the capturing machine's ICU data and clock; a literal cannot drift.
+ *
+ * ⚠ SCOPE. Only the subjects most students sit are listed; every other subject is in the
+ * PDF the page links. `null` would mean "CBSE has not published one" and puts every
+ * consumer back on the "expected" copy.
+ */
+export type CbseDateSheetPaper = {
+  readonly subject: string;
+  /** "Wed 17 Feb" — weekday and day, no year (the sheet's year is on the block). */
+  readonly when: string;
+  /** "17 Feb" */
+  readonly short: string;
+};
+
+export type CbseDateSheet = {
+  readonly releasedOn: string;
+  readonly title: string;
+  readonly href: string;
+  readonly startTime: string;
+  readonly firstPaper: { readonly label: string; readonly short: string };
+  readonly lastPaper: { readonly label: string; readonly short: string };
+  readonly papers: readonly CbseDateSheetPaper[];
+};
+
+export const CBSE_2027_DATE_SHEET: CbseDateSheet | null = {
+  releasedOn: "6 Nov 2026",
+  title: "Date Sheet for Class X and Class XII Board Examinations, 2027",
+  href: "https://www.cbse.gov.in/cbsenew/documents/Datesheet_ClassX%20_XII_2027_Main_06112026.pdf",
+  startTime: "10:30 AM",
+  firstPaper: { label: "16 Feb 2027", short: "16 Feb" },
+  lastPaper: { label: "9 Mar 2027", short: "9 Mar" },
+  papers: [
+    { subject: "Mathematics (Standard and Basic)", when: "Wed 17 Feb", short: "17 Feb" },
+    { subject: "Science", when: "Mon 22 Feb", short: "22 Feb" },
+    { subject: "English (Communicative, and Language & Literature)", when: "Fri 26 Feb", short: "26 Feb" },
+    { subject: "Hindi (Course A and Course B)", when: "Wed 3 Mar", short: "3 Mar" },
+    { subject: "Social Science", when: "Mon 8 Mar", short: "8 Mar" },
+  ],
+};
+
+/**
+ * CBSE-LIVE-1 — circulars a person has already reviewed against this page. The daily
+ * mirror opens a "review /cbse/class-10" issue for an important circular (date sheet,
+ * second-exam date sheet, admit card, result) whose href is NOT here. Closing the issue is
+ * not enough on its own: add the circular's href to this list in the PR that updates the
+ * page, or the issue reopens the next morning while the circular is still recent.
+ */
+export const CBSE_2027_REVIEWED_CIRCULAR_HREFS: readonly string[] = [
+  "https://www.cbse.gov.in/cbsenew/documents/Datesheet_ClassX%20_XII_2027_Main_06112026.pdf",
+];
+
 export type CbseTimelineStop = {
   readonly when: string;
   readonly title: string;
@@ -270,7 +332,10 @@ export type CbseTimelineStop = {
 
 export const CBSE_TIMELINE: readonly CbseTimelineStop[] = [
   {
-    when: "February 2027",
+    // CBSE-LIVE-1: the real window once CBSE has published the date sheet.
+    when: CBSE_2027_DATE_SHEET
+      ? `${CBSE_2027_DATE_SHEET.firstPaper.short} \u2013 ${CBSE_2027_DATE_SHEET.lastPaper.label}`
+      : "February 2027",
     title: "Main exam",
     chip: { label: "Everyone", tone: "must" },
     body: "Full syllabus. Your 20 internal marks are already locked in by now.",
@@ -347,9 +412,20 @@ export type CbseCircular = {
  * manifest's `circularsCheckedAt` date instead; otherwise these rows and this date
  * render unchanged. This array is now the honest FALLBACK, and stays hand-checked.
  */
-export const CBSE_CIRCULARS_CHECKED_ON = "12 October 2026";
+export const CBSE_CIRCULARS_CHECKED_ON = "13 November 2026";
 
 export const CBSE_CIRCULARS: readonly CbseCircular[] = [
+  // CBSE-LIVE-1: the date sheet, 6 Nov 2026. Left out of this fallback list since the 12 Oct
+  // check: the other Nov circulars (marks bifurcation, practical-exam instructions, LOC
+  // corrections) are to schools; the live feed shows them.
+  {
+    date: "6 Nov",
+    title: "Date sheet for the 2027 board exams",
+    href: "https://www.cbse.gov.in/cbsenew/documents/Datesheet_ClassX%20_XII_2027_Main_06112026.pdf",
+    source: "document",
+    important: false,
+    headline: "Your 2027 board exam dates are out",
+  },
   // SEO-PAGES-1 (P22): the three Class X circulars on cbse.gov.in's examination page
   // after the 18 September check, read live on 12 October 2026. Left out: the 9 Oct LOC
   // reminder (to schools, repeating 21 Sep) and the Class XII / West Asia items.
@@ -497,4 +573,8 @@ export const CBSE_TRAPS: readonly CbseTrap[] = [
  * assumption for any later consumer; the two must be edited together.
  */
 export const CBSE_2027_ASSUMED_MAIN_EXAM = new Date(2027, 1, 17);
+/**
+ * CBSE-LIVE-1: `/cbse/class-10` no longer renders this - it shows the released date sheet.
+ * Still read by SolutionsPage ("Boards begin ..."), which is outside that lane's scope.
+ */
 export const CBSE_2027_MAIN_EXAM_WINDOW = "February 2027";

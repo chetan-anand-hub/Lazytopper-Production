@@ -4,9 +4,13 @@ import {
   CBSE_MANIFEST_PATH,
   cbseCircularFeed,
   cbsePaperLink,
+  cbseDateSheetOut,
   cbseSamplePapersOut,
   cbseSessionYearOf,
+  cbseStatusPills,
   cbseStorageUrl,
+  cbseSyllabusOut,
+  isMainDateSheetCircular,
   fetchCbseManifest,
   formatCheckedOn,
   formatCircularDate,
@@ -14,7 +18,7 @@ import {
   parseCbseManifest,
   type CbseManifest,
 } from "./cbseManifest";
-import { CBSE_CIRCULARS, CBSE_CIRCULARS_CHECKED_ON, CBSE_SUBJECTS, type CbsePaper } from "../pages/cbse2027Sources";
+import { CBSE_2027_DATE_SHEET, CBSE_CIRCULARS, CBSE_CIRCULARS_CHECKED_ON, CBSE_SUBJECTS, type CbsePaper } from "../pages/cbse2027Sources";
 // The mirror's own parser (repo-root `scripts/`), for the shared session-year vector.
 import { parseSessionYear } from "../../../scripts/cbse-mirror/guards";
 
@@ -342,5 +346,63 @@ describe("newestImportantCircular — C12's input", () => {
     expect(newestImportantCircular(null)).toBeNull();
     const m = manifestFixture();
     expect(newestImportantCircular({ ...m, circulars: m.circulars.map((c) => ({ ...c, important: false, headline: "" })) })).toBeNull();
+  });
+});
+
+describe("★ CBSE-LIVE-1 — status pills are a pure function of (manifest, committed data)", () => {
+  const dateSheetRow = {
+    id: "ds",
+    date: "2026-11-06",
+    title: "Date Sheet for Class X and Class XII Board Examinations, 2027",
+    href: "https://www.cbse.gov.in/cbsenew/documents/Datesheet_ClassX%20_XII_2027_Main_06112026.pdf",
+    source: "document" as const,
+    important: true,
+    headline: "The 2027 board exam date sheet is out",
+  };
+  const allPapers = CBSE_SUBJECTS.flatMap((s) => s.papers);
+
+  it("the committed date sheet is set, so the pill is OUT with no manifest at all", () => {
+    // PRECONDITION: the committed data exists, otherwise this proves nothing.
+    expect(CBSE_2027_DATE_SHEET).not.toBeNull();
+    expect(cbseDateSheetOut(null, CBSE_2027_DATE_SHEET)).toBe(true);
+  });
+
+  it("manifest says the date sheet is out (committed data empty) → OUT", () => {
+    const manifest = manifestFixture({ circulars: [dateSheetRow] });
+    expect(cbseDateSheetOut(manifest, null)).toBe(true);
+  });
+
+  it("manifest unreachable and nothing committed → NOT out (committed data decides)", () => {
+    expect(cbseDateSheetOut(null, null)).toBe(false);
+  });
+
+  it("a manifest without the circular does not turn it on; a second-exam date sheet does not either", () => {
+    expect(cbseDateSheetOut(manifestFixture(), null)).toBe(false);
+    const second = { ...dateSheetRow, title: "Date sheet for the second board examination (May) 2027, Class X" };
+    expect(isMainDateSheetCircular(second)).toBe(false);
+    expect(isMainDateSheetCircular(dateSheetRow)).toBe(true);
+    // importance has expired after 30 days, the title still counts
+    expect(isMainDateSheetCircular({ ...dateSheetRow, important: false, headline: "" })).toBe(true);
+    expect(cbseDateSheetOut(manifestFixture({ circulars: [second] }), null)).toBe(false);
+  });
+
+  it("syllabus: committed 2026-27 hrefs → OUT; a 2025-26 set alone → not", () => {
+    expect(cbseSyllabusOut(null, allPapers)).toBe(true);
+    const old: CbsePaper[] = [{ ...SCIENCE_SYLLABUS, href: "https://cbseacademic.nic.in/web_material/CurriculumMain26/Science_2025-26.pdf" }];
+    expect(cbseSyllabusOut(null, old)).toBe(false);
+    // CONTROL: the manifest's 2026-27 syllabus circular turns it on for the same old rows.
+    const withCircular = manifestFixture({
+      circulars: [{ ...dateSheetRow, id: "sy", title: "Curriculum for 2026-27 released", headline: "CBSE has updated the syllabus" }],
+    });
+    expect(cbseSyllabusOut(withCircular, old)).toBe(true);
+  });
+
+  it("cbseStatusPills combines all three, and sample papers still follow CA-3", () => {
+    expect(cbseStatusPills(null, allPapers, CBSE_2027_DATE_SHEET)).toEqual({
+      dateSheet: true,
+      syllabus: true,
+      samplePapers: true,
+    });
+    expect(cbseStatusPills(null, [], null)).toEqual({ dateSheet: false, syllabus: false, samplePapers: false });
   });
 });

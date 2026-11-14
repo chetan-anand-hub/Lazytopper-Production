@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import type { CbseCircular, CbsePaper } from "../pages/cbse2027Sources";
+import type { CbseCircular, CbseDateSheet, CbsePaper } from "../pages/cbse2027Sources";
 
 /**
  * cbseManifest — the client side of the CBSE mirror (CBSE-AUTO-1 C11/C12).
@@ -402,4 +402,93 @@ export function newestImportantCircular(
     if (!best || dateKey(circular.date) > dateKey(best.date)) best = circular;
   }
   return best;
+}
+
+
+// ─── CBSE-LIVE-1: the hero's status pills, derived from data ─────────────────
+
+/**
+ * The same date-sheet / syllabus patterns as the mirror's rule table
+ * (`scripts/cbse-mirror/circulars.ts` HEADLINE_RULES), restated because that module is
+ * node-only. `cbseManifest.test.ts` pins the restatement against the manifest shape; the
+ * mirror's own test pins the table.
+ */
+const DATE_SHEET_TITLE = /date ?sheet/i;
+/** A second / May / supplementary exam's date sheet is NOT the main exam's. */
+const SECOND_EXAM_TITLE = /second|supplementary|improvement|\bmay\b/i;
+const SYLLABUS_TITLE = /syllabus|curriculum/i;
+
+/** True when a feed row is the main 2027 board-exam date sheet. Title only: `important` expires. */
+export function isMainDateSheetCircular(circular: CbseManifestCircular): boolean {
+  return (
+    DATE_SHEET_TITLE.test(circular.title) &&
+    /2027/.test(circular.title) &&
+    !SECOND_EXAM_TITLE.test(circular.title)
+  );
+}
+
+/**
+ * "Date sheet" pill. OUT when the committed date sheet exists, OR the manifest carries the
+ * main 2027 date-sheet circular. The manifest can only ever turn it on: an unreachable or
+ * empty manifest leaves the committed data to decide, so the prerendered page and a
+ * manifest-less visit agree. NO CLOCK.
+ */
+export function cbseDateSheetOut(
+  manifest: CbseManifest | null,
+  committed: CbseDateSheet | null,
+): boolean {
+  if (committed) return true;
+  return manifest ? manifest.circulars.some(isMainDateSheetCircular) : false;
+}
+
+/**
+ * "Syllabus" pill. OUT when a committed syllabus paper's href names a 2026-27 session, OR
+ * the mirrored syllabus row is served for 2026-27, OR the feed carries a syllabus/curriculum
+ * circular naming 2026-27.
+ */
+export function cbseSyllabusOut(
+  manifest: CbseManifest | null,
+  papers: readonly CbsePaper[],
+): boolean {
+  const syllabusPapers = papers.filter((p) => /-syllabus$/.test(p.id));
+  const sessionStart = (value: string | null | undefined) => {
+    const start = value?.match(/^(\d{4})-\d{2}$/)?.[1];
+    return start !== undefined && Number(start) >= CBSE_SQP_READY_FROM_SESSION;
+  };
+  if (syllabusPapers.some((p) => sessionStart(cbseSessionYearOf(p.href)))) return true;
+  if (!manifest) return false;
+  const ids = new Set(syllabusPapers.map((p) => p.id));
+  if (
+    manifest.papers.some(
+      (entry) =>
+        ids.has(entry.id) &&
+        SERVED_FROM_MIRROR.includes(entry.status) &&
+        Boolean(entry.storagePath) &&
+        sessionStart(entry.sessionYear),
+    )
+  ) {
+    return true;
+  }
+  return manifest.circulars.some(
+    (c) => SYLLABUS_TITLE.test(c.title) && /2026-27/.test(c.title),
+  );
+}
+
+export type CbseStatusPills = {
+  readonly dateSheet: boolean;
+  readonly syllabus: boolean;
+  readonly samplePapers: boolean;
+};
+
+/** The three pills that can change, as one pure function of (manifest, committed data). */
+export function cbseStatusPills(
+  manifest: CbseManifest | null,
+  papers: readonly CbsePaper[],
+  committedDateSheet: CbseDateSheet | null,
+): CbseStatusPills {
+  return {
+    dateSheet: cbseDateSheetOut(manifest, committedDateSheet),
+    syllabus: cbseSyllabusOut(manifest, papers),
+    samplePapers: cbseSamplePapersOut(manifest, papers),
+  };
 }

@@ -390,6 +390,8 @@ describe("C8 — circulars guard in a run", () => {
     const { tracker, created } = fakeIssues();
     await runMirror({
       now: NOW, papers: PAPERS, storage, issues: tracker, dryRun: false, log: quiet,
+      // CBSE-LIVE-1: the seeded feed's date-sheet row is a fixture, not news for these tests.
+      reviewedHrefs: new Set(["https://www.cbse.gov.in/cbsenew/documents/prev0.pdf"]),
       fetch: fakeFetch({
         [URL_2526]: { status: 304 },
         [TOPPERS]: { status: 304 },
@@ -410,6 +412,8 @@ describe("C8 — circulars guard in a run", () => {
     const { tracker, created } = fakeIssues();
     await runMirror({
       now: NOW, papers: PAPERS, storage, issues: tracker, dryRun: false, log: quiet,
+      // CBSE-LIVE-1: the seeded feed's date-sheet row is a fixture, not news for these tests.
+      reviewedHrefs: new Set(["https://www.cbse.gov.in/cbsenew/documents/prev0.pdf"]),
       fetch: fakeFetch({
         [URL_2526]: { status: 304 },
         [TOPPERS]: { status: 304 },
