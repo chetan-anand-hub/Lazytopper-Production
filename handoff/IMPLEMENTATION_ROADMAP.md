@@ -1,3 +1,12 @@
+## 2026-11-14 (daily; written 14 Nov) - #1726 - #1728 - MERGED
+
+- DONE. `#1727` (`8c782aa8`) CBSE-LIVE-1: the released 2027 date sheet on /cbse/class-10, pills follow the CBSE feed, mirror flags new important circulars.
+- DONE. `#1726` (`1f3b0d8f`) SEO-PAGES-1: /mock-test-class-10, /question-bank-class-10, /cbse-marking-scheme-class-10.
+- DONE. `#1728` (`043d3f70`) FREE-RES-1: free chapter MCQ banks on /cbse/class-10, sign-in to download, ZIPs, Firebase `free/`, manual `free-resources` workflow. Release `free-resources-v1` published live. NEXT (owner): phone live test.
+- NEXT: publish the Boards 2027 Excellence Kit through a new release (kind `kit`); the site already supports it.
+- NOT BUILT, dropped for now [owner]: notes freebies.
+- The earlier lists stand (webhook URL to Railway, 13 Nov live tests, Meta CAPI, WhatsApp thank-you when sending is live).
+
 ## 2026-11-13 (daily, fifth; written 13 Nov night) - #1708 - #1724 - MERGED
 
 - DONE. `#1708` (`593f1fd`) tick turns green. DONE. `#1709` (`c0eeffb`) who-first pop-up, files folded. NEXT: Rs58 pack live test.

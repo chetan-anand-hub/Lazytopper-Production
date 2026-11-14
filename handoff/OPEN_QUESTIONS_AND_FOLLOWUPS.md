@@ -23,6 +23,25 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-14 (daily; written 14 Nov) - #1726 - #1728 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**New:** `[FU-FREE-ACTIONLINT-NOT-RUN]`, `[FU-FREE-ANALYTICS-ALLOWLIST]`, `[FU-FREE-RATE-LIMIT-PER-PROCESS]`, `[FU-EXCELLENCE-KIT-RELEASE]`, `[FU-LIVE-TESTS-14NOV-FREE-RES]`.
+
+### [FU-FREE-ACTIONLINT-NOT-RUN]
+OPEN, low. `actionlint` was not run on `.github/workflows/free-resources.yml` (it is not installed in the builder's environment and was not installed). The file parses as YAML and was exercised live by the publish run, so the risk is lint-only. Run it when a machine has it. [builder]
+
+### [FU-FREE-ANALYTICS-ALLOWLIST]
+OPEN, owner choice. The `free_resource_download` event (data: id, kind) is sent through the exported `sendAnalyticsHit`, because `analytics.ts` was outside the lane's allowed files. The name is therefore not in `NamedAnalyticsEvent` or the first-party activity allow-lists (`activityClient.ts`, `studentActivity.cjs`): it reaches GA4 and Vercel but is not recorded in the student activity log. Add it to both allow-lists if the log should count free downloads. [builder]
+
+### [FU-FREE-RATE-LIMIT-PER-PROCESS]
+OPEN, accepted limit. The free-link rate limits (60 files and 6 zips an hour per uid) are held in memory per server process, as the pack link limits are, so a restart or a second instance resets or splits them. They are abuse protection only (no daily cap by owner ruling); revisit only if abuse appears. [builder]
+
+### [FU-EXCELLENCE-KIT-RELEASE]
+OPEN, owner/cofounder. Publish the "Boards 2027 Excellence Kit" through a new GitHub release (manifest `kind` "kit", PDF plus `manifest.json`), then run the `free-resources` workflow dry, then live from the trunk. The validator, server and UI already support a kit (a highlighted row above the groups; nothing renders for it while no kit is published). Website-only and sign-up required, by owner ruling of 14 Nov. [coordinator]
+
+### [FU-LIVE-TESTS-14NOV-FREE-RES]
+OPEN, owner live test owed. On a phone, signed out: /cbse/class-10#free lists the chapters; Download goes to sign-in and returns to `#free`. Signed in: one chapter PDF downloads and opens; "Science (ZIP)" downloads and unzips (13 files expected). Desktop 1440 px: same, with no layout jump on load. The live API checks (list, 401, signed URLs answering 206 with `%PDF` and `PK`) already passed; no browser round-trip has been run live. [coordinator]
+
 ## 2026-11-13 (daily, fifth; written 13 Nov night) - #1708 - #1724 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **New:** `[FU-WEBHOOK-BAD-SIGNATURE-VERCEL-REWRITE]`, `[FU-PARENTPAY-PROOF-IN-MEMORY]`, `[FU-UNCLAIMED-READ-CAP-200]`, `[FU-GST-SIGNEDIN-HELD-ORDERS]`, `[FU-UNCLAIMED-SWEEP-INTERVAL]`, `[FU-LIVE-TESTS-13NOV-PM]`.

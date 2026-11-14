@@ -1,3 +1,19 @@
+## 2026-11-14 (daily; written 14 Nov) - #1726 - #1728: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Owner rulings of 14 Nov 2026 as relayed by the coordinator **[coordinator]**, and builder decisions from the FREE-RES-1 report **[builder]**. Where the source does not state a reason, the reason cell says so.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **Free MCQ banks are offered on the website and on Telegram** [owner, 14 Nov] | The free chapter MCQ banks sit on /cbse/class-10 (`#1728`) and are also given out on Telegram. | Reason not given beyond reaching students in both places. |
+| **Sign-in is required to download; a signed-out visitor gets no download** [owner, 14 Nov] | The list is public; the signed link needs a verified uid (401 otherwise). Signed-out buttons read "Sign in to download". | It follows the standing rule that signed-out visitors get no downloads. |
+| **The free banks are NOT bundled into the paid packs** [owner, 14 Nov] | No pack includes them and they are not sold. | They are free elsewhere and lower quality than the packs. |
+| **No daily download cap** [owner, 14 Nov] | Only per-uid hourly rate limits (60 files, 6 zips) as abuse protection. | A cap would push students to Telegram and frustrate new accounts. |
+| **The "Boards 2027 Excellence Kit" is website-only, sign-up required** [owner, 14 Nov] | Published later by a new release with kind `kit`; shown as a highlighted row above the groups; button "Download the Excellence Kit" or "Sign up free to download". Already supported by `#1728`. | Reason not given in the message beyond keeping it on the website behind sign-up. |
+| **The free CBQ page lazytopper.com/cbq-class-10 is never promoted; CBQ links go to /cbq-packs** [owner, 14 Nov] | A standing rule for ads, posts and in-product links. | Reason not given in the message. |
+| **Notes freebies are dropped for now** [owner, 14 Nov] | The manifest still accepts kind `notes`, but no notes are published or planned in this lane. | Reason not given in the message. |
+| **Download filenames are the release asset's own ASCII file name** [coordinator; builder] | Chapter titles may contain ":" or a middle dot; those appear only in display text. | Header-safe Content-Disposition. |
+| **Builder choices [builder]** | The manifest is validated, not authored (unknown kind or subject, duplicate id or file, missing or unlisted asset, wrong size or sha256, non-PDF all refuse); the uploader re-verifies before writing and writes `current.json` last; a live request from any ref but the trunk fails loudly; a subject with nothing published gets no ZIP; a kit is in no ZIP; `free_resource_download` is sent through the exported analytics helper (the name is not in the first-party allow-lists, see the follow-up). | Safety of a key that is Storage Object Admin on the whole bucket, and keeping to the lane's allowed files. |
+
 ## 2026-11-13 (daily, fifth; written 13 Nov night) - #1708 - #1724: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Owner rulings of 13 Nov 2026 as relayed by the coordinator **[coordinator]**, and builder decisions from PR bodies **[builder]**. Where the source does not state a reason, the reason cell says so.
