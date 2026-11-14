@@ -206,6 +206,7 @@ const { runWithRequestContext, bindRequestUid } = require('./services/usageLedge
 const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH, PAY_STATUS_PATH } = require('./routes/payments.cjs');
 const { createPackRoutes, PACKS_MINE_PATH, PACKS_FILE_LINK_PATH, PACKS_ZIP_LINK_PATH } = require('./routes/packs.cjs'); // PACKS-SERVER-1
 const { createPackPdfService } = require('./services/packPdfService.cjs'); // SERVER-PDF-1 PR-B
+const { createFreeResourceRoutes, FREE_LIST_PATH, FREE_LINK_PATH } = require('./routes/freeResources.cjs'); // FREE-RES-1
 const { __internals: { resolveBucketName } } = require('./services/qrUploadChannel.cjs');
 // ASK-PARENTS-PAY-1: a parent pays for their child from a link the child sends. DARK unless
 // BOTH PAYMENTS_ENABLED and PARENT_PAY_ENABLED are on; the uid comes only from the link.
@@ -488,6 +489,13 @@ const packPdfService = createPackPdfService({
   firestore: adminFirestore,
   firestoreApi: firebaseAdmin && firebaseAdmin.firestore,
 });
+// FREE-RES-1: the free chapter downloads under free/ (same private bucket; the list is public, a link needs a verified uid).
+const freeResourceRoutes = createFreeResourceRoutes({
+  sendJson,
+  verifiedCaller,
+  telemetry,
+  bucket: () => (firebaseAdmin && resolveBucketName() ? firebaseAdmin.storage().bucket(resolveBucketName()) : null),
+});
 const packRoutes = createPackRoutes({
   packPdf: packPdfService,
   sendJson,
@@ -707,6 +715,8 @@ async function handleRequest(req, res) {
       // SERVER-PDF-1 PR-B: credentialed POSTs - without these entries the preflight fails and the link never leaves the browser.
       reqPath === PACKS_FILE_LINK_PATH ||
       reqPath === PACKS_ZIP_LINK_PATH ||
+      // FREE-RES-1: the credentialed POST for a free download link, preflighted for the same reason.
+      reqPath === FREE_LINK_PATH ||
       // GST-INVOICE-1: credentialed GETs, preflighted for the same reason.
       reqPath === GST_CHECKOUT_CONTEXT_PATH ||
       reqPath === GST_INVOICES_PATH ||
@@ -954,6 +964,8 @@ async function handleRequest(req, res) {
   if (req.method === 'GET' && reqPath === PACKS_MINE_PATH) return packRoutes.handleMine(req, res); // PACKS-SERVER-1
   if (req.method === 'POST' && reqPath === PACKS_FILE_LINK_PATH) return packRoutes.handleFileLink(req, res); // SERVER-PDF-1 PR-B: one stamped file, 15-minute link (404 while PACK_SERVER_PDF_DISABLED)
   if (req.method === 'POST' && reqPath === PACKS_ZIP_LINK_PATH) return packRoutes.handleZipLink(req, res); // SERVER-PDF-1 PR-B: one group as a ZIP
+  if (req.method === 'GET' && reqPath === FREE_LIST_PATH) return freeResourceRoutes.handleList(req, res); // FREE-RES-1: public list, no storage paths
+  if (req.method === 'POST' && reqPath === FREE_LINK_PATH) return freeResourceRoutes.handleLink(req, res); // FREE-RES-1: signed-in only, 15-minute signed link
   // GST-INVOICE-1 - read-only. checkout-context is behind PAYMENTS_ENABLED, the invoice list behind GST_INVOICE_ENABLED;
   // a PDF is served only for an invoice already issued (buyer's uid, or the signed guest link). Admin: ADMIN_FIREBASE_UIDS.
   if (req.method === 'GET' && reqPath === GST_CHECKOUT_CONTEXT_PATH) return gstInvoiceRoutes().handleCheckoutContext(req, res);

@@ -1,0 +1,79 @@
+# Free resources - FREE-RES-1. Publishes the free chapter downloads (MCQ banks, later notes) from a GitHub RELEASE's assets to the private
+# bucket under free/, where the server signs 15-minute links for signed-in students (GET /api/free-resources, POST /api/free-resources/link).
+#
+# ★ MANUAL ONLY. There is deliberately no push and no pull_request trigger: a PR's code must never run with the Storage key (same rule as
+#   pack-templates.yml and cbse-mirror.yml), and nothing here should run because a file changed. Someone starts it, with a release tag.
+# ★ LIVE vs DRY. LIVE only when the run is on the TRUNK (base/approved-thru-437) AND "dry_run" is unticked. A dry run downloads the
+#   release, verifies every file's sha256 and byte size against manifest.json, builds the three zips, and uploads NOTHING: the key is
+#   not even handed to it. Untick dry_run to publish. A live request from any other branch FAILS (it would run unreviewed code with the key).
+# ★ THE KEY. FIREBASE_SERVICE_ACCOUNT (cbse-mirror@lazzyy-topper, Storage Object Admin on this one bucket) reaches ONE step as an
+#   environment variable and is parsed in memory; it is never echoed or written to a file. The uploader re-verifies the release, refuses
+#   any path outside free/, never overwrites an object, and writes free/current.json LAST.
+# ★ THE RELEASE. Assets = the PDFs + manifest.json (schema in scripts/freeResources/freeManifest.ts). The tag is passed through an
+#   environment variable and checked against a strict pattern before it reaches a shell.
+name: free-resources
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "The GitHub release tag whose assets (the PDFs + manifest.json) are published"
+        type: string
+        required: true
+      dry_run:
+        description: "Dry run: verify the release and build the zips, upload NOTHING (untick to publish for real)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: free-resources
+  cancel-in-progress: false
+
+env:
+  # ★ ONLY FROM THE TRUNK: a manual run picked on any other branch runs that branch's code, so it is never live there.
+  LIVE: ${{ github.ref == 'refs/heads/base/approved-thru-437' && inputs.dry_run == false }}
+  FIREBASE_STORAGE_BUCKET: lazzyy-topper.firebasestorage.app
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Refuse a live run from anywhere but the trunk
+        if: ${{ inputs.dry_run == false && github.ref != 'refs/heads/base/approved-thru-437' }}
+        run: |
+          echo "A live publish only runs from base/approved-thru-437 (this run is on $GITHUB_REF). Re-run it on the trunk, or tick dry_run."
+          exit 1
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+      - name: Download the release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          if ! printf '%s' "$RELEASE_TAG" | grep -Eq '^[A-Za-z0-9._-]{1,80}$'; then
+            echo "release_tag must be 1-80 characters of letters, digits, dot, dash or underscore"
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/free"
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir "$RUNNER_TEMP/free"
+          ls -l "$RUNNER_TEMP/free"
+      - name: Verify every file against manifest.json and build the zips (no key)
+        run: pnpm --filter lazytopper exec tsx scripts/freeResources/buildFreeResources.ts --assets "$RUNNER_TEMP/free" --out "$RUNNER_TEMP/free-build"
+      - name: Publish (verifies again; writes free/current.json LAST) - live runs only
+        if: env.LIVE == 'true'
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: pnpm --filter lazytopper run upload:free-resources -- --assets "$RUNNER_TEMP/free"
+      - name: Dry run summary
+        if: env.LIVE != 'true'
+        run: echo "DRY RUN - nothing was uploaded. Untick dry_run on a manual run from the trunk to publish."
