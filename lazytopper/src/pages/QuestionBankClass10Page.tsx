@@ -3,6 +3,7 @@ import SeoLandingShell from "../components/seoPages/SeoLandingShell";
 import SeoPriceLine from "../components/seoPages/SeoPriceLine";
 import { QUESTION_BANK_PATH, chapterLinks } from "../components/seoPages/seoPages";
 import { QUESTION_BANK_FAQ } from "../components/seo/faqContent";
+import { EVIDENCE_BASE_YEARS_WORD } from "../config/evidenceBase";
 import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, BUNDLE_CHAPTERS, BUNDLE_NAME } from "../lib/packs/packLabels";
 
 /**
@@ -92,8 +93,8 @@ export default function QuestionBankClass10Page() {
         <h2 id="qbank-free">Practise free</h2>
         <p>
           Choose a subject and a chapter in the Practice hub and start. You can also work through the important
-          questions for each subject, chosen from ten years of CBSE paper trends, as a guide to what to practise first
-          (a guide, not the actual paper).
+          questions for each subject. {EVIDENCE_BASE_YEARS_WORD} years of CBSE paper trends shape the choice, so treat
+          them as a guide to what to practise first, not as the actual paper.
         </p>
         <div className="lt-seol__actions">
           <Link className="lt-seol__btn" to="/practice-hub" data-testid="qbank-free-hub">
