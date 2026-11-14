@@ -498,6 +498,11 @@ export function dynamicImportCssOf(entryCode: string, chunkFile: string): string
 const OWN_ONLY: readonly string[] = [];
 export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
   CheckYourAnswerPage: OWN_ONLY,
+  // SEO-PAGES-1: the three search-landing pages share one stylesheet (seoLanding.css, imported by SeoLandingShell), which Rollup
+  // emits as the shell chunk's CSS; inlined with the FAQ sheet so the first paint has both (as CbqHubPage does).
+  MockTestClass10Page: ["SeoLandingShell", "faqContent"],
+  QuestionBankClass10Page: ["SeoLandingShell", "faqContent"],
+  MarkingSchemeClass10Page: ["SeoLandingShell", "faqContent"],
   ForParentsPage: OWN_ONLY,
   NcertBooksPage: OWN_ONLY,
   SolutionsPage: OWN_ONLY,

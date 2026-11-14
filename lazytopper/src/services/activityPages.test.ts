@@ -117,6 +117,10 @@ const ROUTES: Record<string, Array<[string, string | null]>> = {
   // SEO-5 PR-3 — the public answer-writing guide. Records no page name (null): naming it
   // would need the server's drift-tested page list (server/** is out of that lane's scope).
   "/check-your-answer": [["/check-your-answer", null]],
+  // SEO-PAGES-1 - the three public search-landing pages: no page name (null), like /for-parents.
+  "/mock-test-class-10": [["/mock-test-class-10", null]],
+  "/question-bank-class-10": [["/question-bank-class-10", null]],
+  "/cbse-marking-scheme-class-10": [["/cbse-marking-scheme-class-10", null]],
   "/for-parents": [["/for-parents", null]], // PARENTS-1 — public, like the guide: not an activity page
   "/contact": [["/contact", null]], // WA-CONTACT-1 — public contact page: not an activity page
   "/invoice-details": [["/invoice-details?t=abc.def", null]], // GST-INVOICE-BACKDATE-1 — signed-out state form: not an activity page

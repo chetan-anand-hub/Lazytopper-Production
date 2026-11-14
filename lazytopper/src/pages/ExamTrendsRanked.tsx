@@ -1039,6 +1039,19 @@ function PageHero({ children, subject }: { children: React.ReactNode; subject: D
       <Link className="lt-et-cbse" to="/check-your-answer">
         How are these marks awarded? → Marking guide
       </Link>
+      {/* SEO-PAGES-1 — the three search-landing pages, in the same link style (the one cross-link place for them). */}
+      <br />
+      <Link className="lt-et-cbse" to="/mock-test-class-10">
+        Class 10 mock tests →
+      </Link>
+      <br />
+      <Link className="lt-et-cbse" to="/question-bank-class-10">
+        Chapter-wise question bank →
+      </Link>
+      <br />
+      <Link className="lt-et-cbse" to="/cbse-marking-scheme-class-10">
+        CBSE marking scheme →
+      </Link>
       {children}
     </header>
   );
