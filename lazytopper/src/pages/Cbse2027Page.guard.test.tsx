@@ -13,7 +13,9 @@ import {
   CBSE_SUBJECTS,
   CBSE_THEORY_MARKS,
   CBSE_TRAPS,
-  CBSE_2027_MAIN_EXAM_WINDOW,
+  CBSE_2027_DATE_SHEET,
+  CBSE_2027_REVIEWED_CIRCULAR_HREFS,
+  CBSE_TIMELINE,
 } from "./cbse2027Sources";
 import { SELF_CANONICAL_EXACT } from "../config/canonicalUrl";
 import { sitemapPaths } from "../config/sitemapUrls";
@@ -436,16 +438,16 @@ describe("★ nothing clock-dependent reaches the prerendered body", () => {
     expect(/performance\.now\(/.test(page)).toBe(false);
   });
 
-  it("the hero shows a stable exam window instead, and keeps the hedge", () => {
+  it("the hero shows the released first-paper date as a literal, with no hedge (CBSE-LIVE-1)", () => {
     const { container } = renderPage();
-    // ⚠ SCOPED TO THE HERO. "February 2027" is also the first timeline stop, so an
-    // unscoped query matches two nodes and would pass even if the hero lost its value.
+    // ⚠ SCOPED TO THE HERO — the date is also in the date-sheet block and the timeline.
     const hero = container.querySelector(".lt-cbse__count") as HTMLElement;
     expect(hero, "the hero value block is missing entirely").not.toBeNull();
-    expect(within(hero).getByText(CBSE_2027_MAIN_EXAM_WINDOW)).toBeTruthy();
-    expect(screen.getByText(/if it starts mid-February like last year/)).toBeTruthy();
-    // The date sheet is still unpublished, and the page still says so.
-    expect(screen.getByText(/Date sheet/)).toBeTruthy();
+    expect(CBSE_2027_DATE_SHEET, "precondition: the date sheet is committed").not.toBeNull();
+    expect(within(hero).getByText(CBSE_2027_DATE_SHEET!.firstPaper.label)).toBeTruthy();
+    expect(hero.textContent).toMatch(/Maths 17 Feb/);
+    expect(hero.textContent).toMatch(/Science 22 Feb/);
+    expect(visibleText(container)).not.toMatch(/mid-February like last year/);
   });
 
   it("renders the same bytes twice — the property the capture depends on", () => {
@@ -738,5 +740,85 @@ describe("★ C11 — the mirror's manifest overlays the page, and its failure c
     // PRECONDITION: the manifest DID load — the SQP row downloads.
     expect(links(container).some((l) => l.endsWith("| Download"))).toBe(true);
     expect(samplePill(container)?.textContent).toBe("Sample papers out");
+  });
+});
+
+describe("★ CBSE-LIVE-1 — the released date sheet", () => {
+  it("is committed with the dates read from the official 6 Nov 2026 circular", () => {
+    const ds = CBSE_2027_DATE_SHEET!;
+    expect(ds).not.toBeNull();
+    expect(ds.releasedOn).toBe("6 Nov 2026");
+    expect(ds.href).toBe(
+      "https://www.cbse.gov.in/cbsenew/documents/Datesheet_ClassX%20_XII_2027_Main_06112026.pdf",
+    );
+    expect(ds.firstPaper.label).toBe("16 Feb 2027");
+    expect(ds.lastPaper.label).toBe("9 Mar 2027");
+    expect(ds.startTime).toBe("10:30 AM");
+    expect(Object.fromEntries(ds.papers.map((p) => [p.subject.split(" (")[0], p.short]))).toEqual({
+      Mathematics: "17 Feb",
+      Science: "22 Feb",
+      English: "26 Feb",
+      Hindi: "3 Mar",
+      "Social Science": "8 Mar",
+    });
+    // The date sheet's own link is a reviewed circular, so the mirror does not nag about it.
+    expect(CBSE_2027_REVIEWED_CIRCULAR_HREFS).toContain(ds.href);
+  });
+
+  it("★ NO COPY SAYS THE DATE SHEET IS PENDING WHILE CBSE_2027_DATE_SHEET IS SET — with a control", () => {
+    const { container } = renderPage();
+    const text = visibleText(container);
+    // PRECONDITION: the date sheet is set and its block really rendered.
+    expect(CBSE_2027_DATE_SHEET).not.toBeNull();
+    expect(text).toContain("Your date sheet");
+    expect(text).toContain("Open the official date sheet (PDF)");
+    expect(text).not.toMatch(/date sheet\s*not out/i);
+    expect(text).not.toMatch(/date sheet (is )?(not|yet to be) (out|released|published)/i);
+    expect(text).not.toMatch(/mid-February like last year/i);
+    expect(text).not.toMatch(/is when the main exam is expected/i);
+    // CONTROL: the detector fires on the stale phrasing it is looking for.
+    expect(/date sheet\s*not out/i.test("Date sheet not out")).toBe(true);
+    // The pill reads released and is the ok colour.
+    const pill = Array.from(container.querySelectorAll(".lt-cbse__pill")).find((n) =>
+      /Date sheet/.test(n.textContent ?? ""),
+    );
+    expect(pill?.textContent).toBe("Date sheet released");
+    expect(pill?.className).toContain("lt-cbse__pill--ok");
+  });
+
+  it("the date-sheet block lists the key Class 10 subjects and links the official PDF", () => {
+    const { container } = renderPage();
+    const block = container.querySelector("#datesheet") as HTMLElement;
+    expect(block).not.toBeNull();
+    for (const [subject, when] of [
+      ["Mathematics", "Wed 17 Feb"],
+      ["Science", "Mon 22 Feb"],
+      ["English", "Fri 26 Feb"],
+      ["Hindi", "Wed 3 Mar"],
+      ["Social Science", "Mon 8 Mar"],
+    ]) {
+      const row = Array.from(block.querySelectorAll("li")).find((li) => li.textContent?.startsWith(subject));
+      expect(row, `${subject} row missing`).toBeTruthy();
+      expect(row?.textContent).toContain(when);
+    }
+    const link = block.querySelector("a") as HTMLAnchorElement;
+    expect(link.getAttribute("href")).toBe(CBSE_2027_DATE_SHEET!.href);
+    expect(link.getAttribute("target")).toBe("_blank");
+  });
+
+  it("the timeline's first stop is the real window, not 'February 2027'", () => {
+    expect(CBSE_TIMELINE[0].when).toBe("16 Feb \u2013 9 Mar 2027");
+    const { container } = renderPage();
+    const first = container.querySelector(".lt-cbse__ti .lt-cbse__td");
+    expect(first?.textContent).toBe("16 Feb \u2013 9 Mar 2027");
+  });
+
+  it("new copy keeps the doctrine words out", () => {
+    const { container } = renderPage();
+    const block = (container.querySelector("#datesheet") as HTMLElement).textContent ?? "";
+    expect(block).not.toMatch(/\bAI\b/);
+    expect(block).not.toMatch(/answer key/i);
+    expect(block).not.toMatch(/refund/i);
+    expect(block).not.toMatch(/optional/i);
   });
 });

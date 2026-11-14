@@ -32,6 +32,8 @@ import {
   type Circular,
 } from "./circulars";
 import { evaluateCandidate, parseSessionYear, type LiveCopy } from "./guards";
+import { reviewIssues } from "./reviewFlags";
+import { CBSE_2027_REVIEWED_CIRCULAR_HREFS } from "../../lazytopper/src/pages/cbse2027Sources";
 import { ISSUE_TITLES, dedupeIssues, type IssueRequest, type IssueTracker } from "./issues";
 import { validateManifest, readPreviousManifest, type Manifest, type ManifestPaper } from "./manifest";
 import {
@@ -61,6 +63,8 @@ export type MirrorDeps = {
   readonly log: (line: string) => void;
   readonly papers?: readonly MirrorPaper[];
   readonly runUrl?: string;
+  /** CBSE-LIVE-1 — circular hrefs the page has been reviewed against; defaults to the committed list. */
+  readonly reviewedHrefs?: ReadonlySet<string>;
   readonly requestTimeoutMs?: number;
 };
 
@@ -373,6 +377,13 @@ export async function runMirror(deps: MirrorDeps): Promise<MirrorResult> {
         `- ${GOV_INDEX_URL}: ${status(gov)}\n- ${ACADEMIC_INDEX_URL}: ${status(academic)}${footer}`,
     });
   }
+
+  // CBSE-LIVE-1 — tell the owner about an important circular the page has not been reviewed
+  // against (date sheet, second-exam date sheet, admit cards, results). Same issue path, same
+  // de-dupe, nothing extra written in a dry run.
+  issues.push(
+    ...reviewIssues(circulars, deps.reviewedHrefs ?? new Set(CBSE_2027_REVIEWED_CIRCULAR_HREFS), deps.runUrl),
+  );
 
   // ── 5. C10 — the manifest, last and atomically ──────────────────────────
   const manifest: Manifest = {
