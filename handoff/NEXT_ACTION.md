@@ -1,3 +1,14 @@
+## 2026-11-14 (daily; written 14 Nov) - #1726 - #1728
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`043d3f70`** [git].
+
+- **Done [git]:** `#1727`, `#1726`, `#1728` merged (table in CURRENT_STATE). No grading change. The free MCQ banks are live (`free-resources-v1`, 27 PDFs, 3 ZIPs) and the live API checks passed [coordinator].
+- **Owner live test owed [coordinator]:** on a phone, signed out, open /cbse/class-10#free and see the list; tap Download, sign in, land back on `#free`; signed in, download one chapter PDF and one ZIP and unzip it (Science should hold 13 files). Desktop 1440 px: no layout jump on load.
+- **Owner/cofounder item:** publish the "Boards 2027 Excellence Kit" through a new release (manifest `kind` "kit"); the site, workflow and server already support it. Website-only, sign-up required.
+- **Doctrine for CBQ links [owner]:** the free CBQ page lazytopper.com/cbq-class-10 is never promoted; every CBQ link points to /cbq-packs.
+- **Engineering next:** the earlier lists stand (the Razorpay webhook URL move to Railway, the 13 Nov live tests, Meta CAPI, the WhatsApp thank-you once sending is live). Notes freebies are dropped for now (DECISION_LOG).
+- **Follow-ups opened today:** `[FU-FREE-ACTIONLINT-NOT-RUN]`, `[FU-FREE-ANALYTICS-ALLOWLIST]`, `[FU-FREE-RATE-LIMIT-PER-PROCESS]`, `[FU-EXCELLENCE-KIT-RELEASE]`, `[FU-LIVE-TESTS-14NOV-FREE-RES]` (bodies in OPEN_QUESTIONS_AND_FOLLOWUPS).
+
 ## 2026-11-13 (daily, fifth; written 13 Nov night) - #1708 - #1724
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`6448258`** [git].

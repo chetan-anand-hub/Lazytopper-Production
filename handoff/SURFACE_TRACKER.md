@@ -1,3 +1,15 @@
+> **2026-11-14 (daily; written 14 Nov) - #1726 - #1728 (CLAUDE.md section 10).** Scope: /cbse/class-10 (date sheet, pills, free-resources block), three new public landing pages, and the free `free/` download path. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface Scope cell changes.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none (grading) | unchanged | the earlier second-surface checks stay owed |
+| /cbse/class-10 date sheet and status pills | released 2027 date sheet, real first-paper date, feed-driven pills (`#1727`) | **merged, live** | none stated |
+| CBSE mirror (CI job) | headline rules and a review issue for a new important circular (`#1727`) | **merged** | the first issue the job opens will show it live |
+| /mock-test-class-10, /question-bank-class-10, /cbse-marking-scheme-class-10 | new public landing pages (`#1726`) | **merged, live** | indexing watched as for other SEO pages |
+| /cbse/class-10 "Free chapter practice" (`#free`) | list, per-chapter and ZIP downloads, sign-in to download (`#1728`) | **merged, live**, 27 PDFs and 3 ZIPs published | owner phone check (signed-out list, sign in, back to `#free`; a ZIP unzips) |
+| Free-resources server and `free/` storage | public list, signed-in 15-minute links, per-uid rate limits (`#1728`) | **merged, live** (live API checks passed) | none stated |
+| Excellence Kit row | built, nothing published (`#1728`) | **merged, dormant** | publish the kit release |
+
 > **2026-11-13 (daily, fifth; written 13 Nov night) - #1708 - #1724 (CLAUDE.md section 10).** Scope: the post-payment pop-up and GST step on every checkout, the parent-pay link pages, signed-out ZIP, the unclaimed-order paths (claim, put-on-account, second-login prompt, sweep, alert), and admin accounts/purchases. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface's Scope moved to Settling.
 
 | surface | what moved (PR) | state | owed |

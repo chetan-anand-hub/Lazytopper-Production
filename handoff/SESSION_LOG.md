@@ -1,3 +1,17 @@
+## 2026-11-14 (daily; written 14 Nov) - #1726 - #1728: the 2027 date sheet, three SEO landing pages, free chapter MCQ banks (trunk `043d3f70`)
+
+**PROVENANCE.** *(Daily handoff of 14 Nov, CLAUDE.md section 10. Covers `#1727`, `#1726` and `#1728`, merged 09:04 - 13:13 IST. **No grading behaviour changed (CLAUDE.md section 4a).** Merge SHAs and times **[git]**; what each PR changed **[git, from each merge's diff]**; the owner rulings, the live publish and the live API checks **[coordinator]**. This docs PR records no independent review result for these PRs (none was supplied).)*
+
+**How the window went (IST) [git for times].**
+- **09:04 - 09:15.** `#1727` (CBSE-LIVE-1: the released date sheet, feed-driven pills, mirror review flags) then `#1726` (SEO-PAGES-1: three landing pages), eleven minutes apart. Both committed their CI-captured prerender.
+- **13:13.** `#1728` (FREE-RES-1). The lane could not run the prerender capture locally (no browser was available to it); the coordinator added the refreshed `prerendered/manifest.json` from the CI artifact before merging, as `#1727` had committed its CI-captured prerender. The live publish then ran from the trunk: `free-resources-v1`, "31 written, free/current.json last".
+
+**Two owner additions to `#1728` during the build [coordinator].** The manifest kind `kit` (a "Boards 2027 Excellence Kit") was added to the validator, server, and UI while the lane was open: highlighted row above the Maths and Science groups, button "Download the Excellence Kit" (signed-in) or "Sign up free to download" (signed-out), same sign-in gate, no daily cap. Download filenames use the release asset's own ASCII file name, because chapter titles carry ":" and a middle dot.
+
+**What the free block deliberately does not do.** It renders nothing until the list arrives and nothing for an empty list, so the prerendered /cbse/class-10 stays what a crawler saw before. No storage path ever reaches the browser; the server signs a link only for an id in `free/current.json`, and drops a manifest entry whose path is not exactly a `free/` object.
+
+**Rulings of the day** are in DECISION_LOG (free MCQ banks on the website and Telegram, sign-in to download, not bundled into paid packs, no daily cap, the website-only Excellence Kit, CBQ links go to /cbq-packs, notes freebies dropped).
+
 ## 2026-11-13 (daily, fifth; written 13 Nov night) - #1708 - #1724: the hold bug, the no-lost-purchase set, GST after payment (trunk `6448258`)
 
 **PROVENANCE.** *(Daily handoff of 13 Nov, second session, CLAUDE.md section 10. Covers `#1708` - `#1724`, merged 16:14 - 20:06 IST. **No grading behaviour changed (CLAUDE.md section 4a).** Merge SHAs and times **[gh]**; `#1708` - `#1714` known here by title only; `#1715` - `#1724` from the builder's reports and the coordinator's review outcomes.)*
