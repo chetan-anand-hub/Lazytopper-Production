@@ -23,6 +23,19 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-16 (daily; written 16 Nov) - #1733 - #1734 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**New:** `[FU-WEBHOOK-ASCII-DESCRIPTION]`, `[FU-EXCELLENCE-KIT-NOT-BUILT]`, `[FU-OWNER-ANSWERS-16NOV]`. `[FU-WEBHOOK-BAD-SIGNATURE-VERCEL-REWRITE]` (13 Nov) is narrowed: the URL is on Railway (`via=direct`) and the failures continue, so the Vercel rewrite was not the whole cause.
+
+### [FU-WEBHOOK-ASCII-DESCRIPTION]
+OPEN, **critical**. After `#1733`, real webhooks still fail `bad_signature` (payment.captured 14:03 and payment.failed 16:41 IST, 16 Nov). The diag shows `naPaths=payload.payment.entity.description cps=U+00B7,U+20B9`: the only non-ASCII text is the checkout description we send to Razorpay. None of variants a, b, c2 matched, so Razorpay signs a different encoding of it. Proposed fix, needing the owner's OK because it changes checkout copy: make every Razorpay Checkout `description` (and `name`/`notes` if any) ASCII-only on every client path (packs, Board Pass, guest, parent-pay), e.g. "-" for the middle dot and "Rs" or "INR" for the rupee sign. Then Sonnet builder, Opus review, merge, and watch Railway (`@req.url:/api/pay/webhook`, filter `rejected`) for the next capture returning 200. Purchases stay safe meanwhile (verify grants; the `#1724` sweep catches the rest); Razorpay may disable a webhook that keeps failing. [coordinator]
+
+### [FU-EXCELLENCE-KIT-NOT-BUILT]
+OPEN. The Boards 2027 Excellence Kit does not exist: no `kind:"kit"` in the live `/api/free-resources`, no `free-resources-v2` release, no kit files. Supersedes the assumption in `[FU-EXCELLENCE-KIT-RELEASE]` that it was ready to publish. Build it (verify every date on cbseacademic first, brand it like the packs), release, run the workflow dry then live, live-check signed in and out. [coordinator]
+
+### [FU-OWNER-ANSWERS-16NOV]
+OPEN. Owner answers pending: (a) WhatsApp follow-ups for non-buyers (one after an unfinished checkout, one after a sample download; Marketing, max 1 a day, 8 AM to 9 PM); (b) one sender number for purchase and marketing messages; (c) daily IQ on the WhatsApp Channel: Claude posts, or the owner forwards; (d) the AI-content label on WhatsApp. Also waiting on the owner: the Meta CAPI token and answers, and Pallabi's WhatsApp/SMS IDs. [coordinator]
+
 ## 2026-11-14 (daily; written 14 Nov) - #1726 - #1728 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **New:** `[FU-FREE-ACTIONLINT-NOT-RUN]`, `[FU-FREE-ANALYTICS-ALLOWLIST]`, `[FU-FREE-RATE-LIMIT-PER-PROCESS]`, `[FU-EXCELLENCE-KIT-RELEASE]`, `[FU-LIVE-TESTS-14NOV-FREE-RES]`.

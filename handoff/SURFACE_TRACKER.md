@@ -1,3 +1,13 @@
+> **2026-11-16 (daily; written 16 Nov) - #1733 - #1734 (CLAUDE.md section 10).** Scope: the Razorpay webhook signature check and the public footer. **No grading surface moved (CLAUDE.md section 4a).** The footer moved on every public page (two social links). No other surface moved; no scope was discovered.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none (grading) | unchanged | the earlier second-surface checks stay owed |
+| Footer (every public page) | "WhatsApp channel" and "Telegram channel" links (`#1734`) | **merged, live** | none stated |
+| /whatsapp, /telegram | 307 redirects to the WhatsApp Channel and https://telegram.me/lazytopper_cbse (`#1734`) | **merged, live** | none stated |
+| Organization `sameAs` (`index.html`) | both channels added (`#1734`) | **merged, live** | none stated |
+| Payment webhook | signature variants a, b, c2, `naPaths`/`cps` diag; switch `WEBHOOK_SIG_VARIANTS_DISABLED` (`#1733`) | **merged, live, but real webhooks still fail `bad_signature`** | the ASCII-only checkout description fix (`[FU-WEBHOOK-ASCII-DESCRIPTION]`, owner OK first), then a real capture returning 200 |
+
 > **2026-11-14 (daily; written 14 Nov) - #1726 - #1728 (CLAUDE.md section 10).** Scope: /cbse/class-10 (date sheet, pills, free-resources block), three new public landing pages, and the free `free/` download path. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface Scope cell changes.
 
 | surface | what moved (PR) | state | owed |

@@ -1,3 +1,16 @@
+## 2026-11-16 (daily; written 16 Nov) - #1733 - #1734: the webhook variants did not fix it; the cause is the non-ASCII checkout description (trunk `ef65acf3`)
+
+**PROVENANCE.** *(Daily handoff of 16 Nov, CLAUDE.md section 10. Covers `#1733` and `#1734`, merged 13:49 and 13:56 IST. **No grading behaviour changed (CLAUDE.md section 4a):** neither PR touches marks, mistake types, departure handling, the objective clamp or a prompt rule. Merge SHAs and times **[gh]**; what each changed **[git; the 16 Nov session handoff]**; the owner rulings and the live results **[coordinator]**.)*
+
+**How the window went (IST) [gh for times].**
+- **13:49.** `#1733` (WEBHOOK-SIG-1). The builder first included a lossy latin1 variant (c1); the Opus review proved a tampered body could pass it (U+0122 and similar map onto structural bytes), so c1 was dropped and a tamper test added. CI build-ops a15 then flagged the new test file as unwired, so the 9 tests moved into `payments.test.cjs`.
+- **13:56.** `#1734` (SOCIAL-1): the two short links, footer labels, `sameAs`, refreshed prerenders and the redirect-pin tests.
+- **After the merge (live).** Real webhooks still failed `bad_signature`. The new `naPaths`/`cps` diag located the only non-ASCII text: `payload.payment.entity.description`, code points U+00B7 and U+20B9, text the product itself sends to Razorpay at checkout.
+
+**Other work of the day, off-repo [coordinator].** The WhatsApp Channel "LazyTopper | CBSE Class 10 2027" was created on the owner's personal number and posted to; Telegram posts and IQ #2-#8 (17-23 Nov, 7 PM) were scheduled; a read-only Google Ads and Speed Insights check was done (about Rs4,800 per real order over 9-15 Nov, target under Rs2,500; /login the weakest route); messages for Pallabi (WhatsApp/SMS sender, Meta CAPI) were drafted. The Excellence Kit was found NOT built. Detail is in `claude/HANDOFF_COFOUNDER_SESSION_2026-11-16.md`.
+
+**Rulings of the day** are in DECISION_LOG.
+
 ## 2026-11-14 (daily; written 14 Nov) - #1726 - #1728: the 2027 date sheet, three SEO landing pages, free chapter MCQ banks (trunk `043d3f70`)
 
 **PROVENANCE.** *(Daily handoff of 14 Nov, CLAUDE.md section 10. Covers `#1727`, `#1726` and `#1728`, merged 09:04 - 13:13 IST. **No grading behaviour changed (CLAUDE.md section 4a).** Merge SHAs and times **[git]**; what each PR changed **[git, from each merge's diff]**; the owner rulings, the live publish and the live API checks **[coordinator]**. This docs PR records no independent review result for these PRs (none was supplied).)*
