@@ -1,3 +1,17 @@
+## 2026-11-16 (daily; written 16 Nov) - #1733 - #1734: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Owner rulings of 16 Nov 2026 as relayed by the coordinator **[coordinator]**, and decisions from the `#1733` build and review **[builder; coordinator]**. Where the source does not state a reason, the reason cell says so.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **Variant c1 (latin1 truncation) is dropped from WEBHOOK-SIG-1** [coordinator, Opus review] | Only variants a, b and c2 are tried; a test builds a body altered with U+0122 in place of structural quotes and asserts it is rejected. | c1 kept only the low byte of each code unit, so U+0122, U+015C, U+017B became `"`, `\` and `{`: a body altered from a validly signed one could pass while parsing to a different object. On a money path that is a tamper risk. |
+| **The WEBHOOK-SIG-1 tests live in `payments.test.cjs`, not a new file** [builder; coordinator] | The 9 tests sit in a labelled block at the end of the existing file. | Build-ops check a15 requires every server test file to be wired into the matrix chain, and `package.json` was outside the lane's allowed files. |
+| **WEBHOOK-SIG-1 was built and merged on the owner's "yes, merge"** [owner] | Merge authority for green PRs for 16 Nov only; the auto-mode classifier refuses REST merges until the owner says so in the current session. | Reason not given beyond the owner's approval of the design. |
+| **Copy rule: LazyTopper is "7-day free trial", never "free"** [owner] | Only downloads and freebies are "free"; the channel description and every post say "7-day free trial". | Reason not given in the message beyond the wording ruling. |
+| **The WhatsApp Channel runs on the owner's personal number** [owner] | The channel "LazyTopper \| CBSE Class 10 2027" is on his personal number. The separate sender number is only for the Cloud API and never used on a WhatsApp app. | WhatsApp Web had no "Create channel" option and a Cloud API number cannot also be a normal WhatsApp account; reason otherwise not stated. |
+| **Short links and footer links approved** [owner] | lazytopper.com/whatsapp and /telegram, plus the footer labels (`#1734`). | Reason not given beyond "do that also". |
+| **Proposed, NOT decided: ASCII-only checkout description** [coordinator] | Replace the middle dot with "-" and the rupee sign with "Rs" or "INR" on every client checkout path; the variant code and its kill switch stay. | The webhook signature fails only on bodies carrying non-ASCII bytes; the only such text is the description we send. It touches checkout copy, so it waits for the owner's OK. |
+
 ## 2026-11-14 (daily; written 14 Nov) - #1726 - #1728: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Owner rulings of 14 Nov 2026 as relayed by the coordinator **[coordinator]**, and builder decisions from the FREE-RES-1 report **[builder]**. Where the source does not state a reason, the reason cell says so.

@@ -1,3 +1,14 @@
+## 2026-11-16 (daily; written 16 Nov) - #1733 - #1734
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`ef65acf3`** [git].
+
+- **Done [gh]:** `#1733` (webhook signature variants) and `#1734` (/whatsapp and /telegram links, footer, sameAs) merged (table in CURRENT_STATE). No grading change.
+- **CRITICAL next:** the Razorpay webhook still fails `bad_signature`; the cause is the non-ASCII checkout `description` (U+00B7, U+20B9). Propose the ASCII-only description fix to the owner (it touches checkout copy; his OK first), then Sonnet builder, Opus review, merge, and watch the next capture return 200 (`[FU-WEBHOOK-ASCII-DESCRIPTION]`).
+- **Owner answers pending [coordinator]:** (a) WhatsApp follow-ups for students who did not buy (one after an unfinished checkout, one after a sample download; Marketing category, max 1 a day, 8 AM to 9 PM): yes or no; (b) one sender number for purchase and marketing messages; (c) daily IQ on the WhatsApp Channel: Claude posts, or the owner forwards the Telegram post; (d) the AI-content label on WhatsApp (recommended: none).
+- **Not built:** the Boards 2027 Excellence Kit (no `kit` row live, no `free-resources-v2` release). The earlier lists stand (Meta CAPI, WhatsApp/SMS sender, speed lane /login then /practice-hub, the 13 Nov live tests).
+- **Copy rule [owner]:** LazyTopper is "7-day free trial", never "free"; only downloads and freebies are "free".
+- **Follow-ups opened today:** `[FU-WEBHOOK-ASCII-DESCRIPTION]`, `[FU-EXCELLENCE-KIT-NOT-BUILT]`, `[FU-OWNER-ANSWERS-16NOV]` (bodies in OPEN_QUESTIONS_AND_FOLLOWUPS).
+
 ## 2026-11-14 (daily; written 14 Nov) - #1726 - #1728
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`043d3f70`** [git].

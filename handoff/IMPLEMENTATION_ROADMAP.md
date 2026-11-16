@@ -1,3 +1,9 @@
+## 2026-11-16 (daily; written 16 Nov) - #1733 - #1734 - MERGED
+
+- DONE. `#1733` (`ce1f2e25`) WEBHOOK-SIG-1: variants a, b, c2, kill switch `WEBHOOK_SIG_VARIANTS_DISABLED`, `naPaths`/`cps` diag. It did NOT stop the live `bad_signature`.
+- DONE. `#1734` (`ef65acf3`) SOCIAL-1: /whatsapp and /telegram 307 redirects, footer links, Organization `sameAs`, prerender refresh, redirect-pin guard tests.
+- NEXT: ASCII-only Razorpay checkout description (owner OK first), then watch a real capture return 200. NOT BUILT: the Excellence Kit. The earlier lists stand.
+
 ## 2026-11-14 (daily; written 14 Nov) - #1726 - #1728 - MERGED
 
 - DONE. `#1727` (`8c782aa8`) CBSE-LIVE-1: the released 2027 date sheet on /cbse/class-10, pills follow the CBSE feed, mirror flags new important circulars.
