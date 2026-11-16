@@ -100,12 +100,28 @@ test('SIG-1 · body signed over the UPPERCASE-hex escaped form is accepted via v
   assert.ok(!srv.events.includes('payments.webhook.sig_variant.a'));
 });
 
-test('SIG-1 · latin1 re-encodings are accepted via c1 / c2', () => {
+test('SIG-1 · double-encoded (latin1-read) text is accepted via c2', () => {
   const raw = Buffer.from(NA_BODY, 'utf8');
-  const c1 = hmac(SECRET, Buffer.from(raw.toString('utf8'), 'latin1'));
   const c2 = hmac(SECRET, Buffer.from(raw.toString('latin1'), 'utf8'));
-  assert.equal(matchWebhookSignature({ rawBody: raw, signature: c1, webhookSecret: SECRET }), 'c1');
   assert.equal(matchWebhookSignature({ rawBody: raw, signature: c2, webhookSecret: SECRET }), 'c2');
+});
+
+test('SIG-1 · a body altered with U+0122 in place of structural quotes is REJECTED (no lossy latin1 variant)', async (t) => {
+  const srv = await start();
+  t.after(srv.close);
+  const X = Buffer.from(NA_BODY, 'utf8');
+  const sigX = hmac(SECRET, X); // Razorpay's genuine signature over X
+  // Y: X read as latin1, with some structural quotes swapped for U+0122 (low byte 0x22 = '"'), sent as UTF-8.
+  const Y = X.toString('latin1').replace(/"(event|payload)"/g, '\u0122$1\u0122');
+  assert.notEqual(Y, X.toString('latin1'));
+  const yBuf = Buffer.from(Y, 'utf8');
+  assert.equal(matchWebhookSignature({ rawBody: yBuf, signature: sigX, webhookSecret: SECRET }), null);
+  await withWarn(async () => {
+    const r = await post(srv.port, Y, sigX);
+    assert.equal(r.status, 400);
+    assert.equal(r.json.reason, 'bad_signature');
+  });
+  assert.ok(!srv.events.some((e) => e.includes('sig_variant')));
 });
 
 test('SIG-1 · raw-signed non-ASCII body is accepted with NO variant event or log (old path untouched)', async (t) => {
@@ -123,7 +139,7 @@ test('SIG-1 · raw-signed non-ASCII body is accepted with NO variant event or lo
 test('SIG-1 · a wrong secret is rejected for every variant', async (t) => {
   const srv = await start();
   t.after(srv.close);
-  const forms = [Buffer.from(NA_BODY), Buffer.from(esc(NA_BODY, false)), Buffer.from(esc(NA_BODY, true)), Buffer.from(NA_BODY, 'utf8').toString('latin1')];
+  const forms = [Buffer.from(NA_BODY), Buffer.from(esc(NA_BODY, false)), Buffer.from(esc(NA_BODY, true)), Buffer.from(NA_BODY, 'utf8').toString('latin1')]; // (last = c2 form)
   await withWarn(async () => {
     for (const f of forms) {
       const r = await post(srv.port, NA_BODY, hmac('wrong_secret', f));
@@ -134,9 +150,18 @@ test('SIG-1 · a wrong secret is rejected for every variant', async (t) => {
   assert.ok(!srv.events.some((e) => e.includes('sig_variant')));
 });
 
-test('SIG-1 · an ASCII-only body with a bad signature never tries variants', () => {
+test('SIG-1 · an ASCII-only body with a bad signature is rejected over HTTP and never tries variants', async (t) => {
+  const srv = await start();
+  t.after(srv.close);
+  await withWarn(async () => {
+    const bad = await post(srv.port, ASCII_BODY, hmac(SECRET, 'x'));
+    assert.equal(bad.status, 400);
+    assert.equal(bad.json.reason, 'bad_signature');
+    const good = await post(srv.port, ASCII_BODY, hmac(SECRET, ASCII_BODY));
+    assert.equal(good.status, 200);
+  });
+  assert.ok(!srv.events.some((e) => e.includes('sig_variant')));
   const raw = Buffer.from(ASCII_BODY);
-  // The "escaped" form of an ASCII body is itself; a signature over a different text must stay rejected.
   assert.equal(matchWebhookSignature({ rawBody: raw, signature: hmac(SECRET, 'x'), webhookSecret: SECRET }), null);
   assert.equal(isWebhookSignatureValid({ rawBody: raw, signature: hmac(SECRET, raw), webhookSecret: SECRET }), true);
 });

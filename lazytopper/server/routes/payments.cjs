@@ -200,7 +200,7 @@ function escapeNonAscii(text, upper) {
 
 /**
  * Razorpay webhook: HMAC-SHA256(raw body bytes, webhook_secret), hex. Returns which form matched: 'raw' (the byte-exact path, as
- * always), or - ONLY when raw fails, the body has a byte > 127 and `variantsDisabled` is false - 'a' | 'b' | 'c1' | 'c2'
+ * always), or - ONLY when raw fails, the body has a byte > 127 and `variantsDisabled` is false - 'a' | 'b' | 'c2'
  * (WEBHOOK-SIG-1: the same secret over an escaped / re-encoded copy of the text). null = no match.
  */
 function matchWebhookVariant({ rawBody, signature, webhookSecret, variantsDisabled }) {
@@ -217,7 +217,6 @@ function matchWebhookVariant({ rawBody, signature, webhookSecret, variantsDisabl
   const candidates = [
     ['a', () => Buffer.from(escapeNonAscii(utf8, false), 'utf8')],
     ['b', () => Buffer.from(escapeNonAscii(utf8, true), 'utf8')],
-    ['c1', () => Buffer.from(utf8, 'latin1')],
     ['c2', () => Buffer.from(rawBody.toString('latin1'), 'utf8')],
   ];
   for (const [name, build] of candidates) {
