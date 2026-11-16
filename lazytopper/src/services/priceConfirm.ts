@@ -80,6 +80,42 @@ export function razorpayDescription(description: string, order: ServerPricedOrde
   return `${description} \u00b7 ${tail}`;
 }
 
+/**
+ * RZP-ASCII-DESC-1. PURE. Razorpay signs its webhook body with the description we pass to Checkout; a non-ASCII description
+ * (the middle dot, the rupee sign) made every webhook fail the raw-body HMAC (`bad_signature`). The sheet text is therefore
+ * ASCII-only: the middle dot becomes "-", the rupee sign "Rs ", dashes/quotes/multiplication sign their plain forms, a
+ * non-breaking space a space, and anything else above 0x7E is dropped. Always matches /^[\x20-\x7E]*$/.
+ */
+export function toRazorpayAscii(s: string): string {
+  return s
+    .replace(/\u00b7/g, "-")
+    .replace(/\u20b9/g, "Rs ")
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/\u00d7/g, "x")
+    .replace(/\u00a0/g, " ")
+    .replace(/[^\x20-\x7E]/g, "")
+    .replace(/ {2,}/g, " ")
+    .trim();
+}
+
+/** Kill switch: VITE_RZP_ASCII_DESC_DISABLED=1 restores the previous (non-ASCII) sheet description. */
+function isRazorpayAsciiDescDisabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_RZP_ASCII_DESC_DISABLED;
+    return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
+
+/** The description every `new Razorpay({...})` site passes: `razorpayDescription` made ASCII-only (unless the kill switch is on). */
+export function razorpaySheetDescription(description: string, order: ServerPricedOrder): string {
+  const full = razorpayDescription(description, order);
+  return isRazorpayAsciiDescDisabled() ? full : toRazorpayAscii(full);
+}
+
 /** PURE. The confirm button: "Pay ₹2,262" - exactly what Razorpay will ask for. */
 export function priceConfirmPayLabel(order: ServerPricedOrder): string {
   return `Pay ${formatInr(order.amountPaise / 100)}`;

@@ -16,7 +16,7 @@
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { ALSO_SIGNIN_EVENT, type AlsoSignIn } from "./checkoutWhoFlag";
 import { maskIndianMobile, normaliseIndianMobile } from "../lib/maskContact";
-import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
+import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
 import { waOptInOrderFields } from "./waOptIn";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
@@ -197,7 +197,7 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: razorpayDescription(item.description, order),
+        description: razorpaySheetDescription(item.description, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         // The number the visitor typed (normalised here); the server never echoes it back (review fix 6).

@@ -26,7 +26,7 @@
 import { loadCheckoutScript, watchPaymentFailed, type PassType, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 // PARENT-PACKS-1: the pack half lives in ./parentPayPack (a lazy chunk); only types are shared here (erased at build).
 import type { ParentPackRef } from "./parentPayPack";
-import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
+import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
 export const PARENT_LINK_ENDPOINT = "/api/pay/parent-link";
@@ -266,7 +266,7 @@ export async function buyPassAsParent(
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: razorpayDescription(`${passType === "month" ? "Monthly pass" : "Board Pass"} (for your child)`, order),
+        description: razorpaySheetDescription(`${passType === "month" ? "Monthly pass" : "Board Pass"} (for your child)`, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
       });

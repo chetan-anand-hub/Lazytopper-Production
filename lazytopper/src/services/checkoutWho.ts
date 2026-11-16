@@ -16,7 +16,7 @@
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
-import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
+import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 import { isCheckoutSelfClientEnabled } from "./checkoutWhoFlag";
 import { waOptInOrderFields } from "./waOptIn";
@@ -521,7 +521,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: razorpayDescription(item.description, order),
+        description: razorpaySheetDescription(item.description, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         ...whoPrefill(recipient, signedIn),
@@ -604,7 +604,7 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: razorpayDescription(item.description, order),
+        description: razorpaySheetDescription(item.description, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
       });

@@ -14,7 +14,7 @@
  * ★ checkout.js IS LOADED ONLY ON THE BUY CLICK (Z3), from Razorpay's own origin, once.
  */
 
-import { confirmServerPrice, serverPriceFields, type ServerGst, razorpayDescription } from "./priceConfirm";
+import { confirmServerPrice, serverPriceFields, type ServerGst, razorpaySheetDescription } from "./priceConfirm";
 // GST-INVOICE-1: "Your state" before the order (off by default: the body is byte-identical).
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 import { waOptInOrderFields } from "./waOptIn";
@@ -439,7 +439,7 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, 
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: razorpayDescription(passType === "month" ? "Premium pass for a month" : BOARD_PASS_CHECKOUT_DESCRIPTION, order),
+        description: razorpaySheetDescription(passType === "month" ? "Premium pass for a month" : BOARD_PASS_CHECKOUT_DESCRIPTION, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         ...prefillOption(prefill),
