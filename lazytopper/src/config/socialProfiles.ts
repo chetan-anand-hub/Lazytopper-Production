@@ -34,6 +34,6 @@ export const FOOTER_SOCIAL: ReadonlyArray<{ label: string; href: string }> = [
   { label: "Instagram", href: INSTAGRAM_URL },
   { label: "Facebook", href: FACEBOOK_URL },
   { label: "WhatsApp: ask a doubt", href: WHATSAPP_URL },
-  { label: "WhatsApp", href: WHATSAPP_CHANNEL_URL },
-  { label: "Telegram", href: TELEGRAM_URL },
+  { label: "WhatsApp channel", href: WHATSAPP_CHANNEL_URL },
+  { label: "Telegram channel", href: TELEGRAM_URL },
 ];

@@ -202,7 +202,7 @@ describe("ORG-SAMEAS-1 (c) — the footer renders 6 social links: rel me+noopene
   it("exactly YouTube, Instagram, Facebook, WhatsApp, the WhatsApp channel and Telegram, with the URLs from socialProfiles.ts", () => {
     const { anchors, labels } = renderedSocialAnchors();
     expect(anchors.length).toBe(6);
-    expect(labels).toEqual(["YouTube", "Instagram", "Facebook", "WhatsApp: ask a doubt", "WhatsApp", "Telegram"]);
+    expect(labels).toEqual(["YouTube", "Instagram", "Facebook", "WhatsApp: ask a doubt", "WhatsApp channel", "Telegram channel"]);
     expect(socialLinkProblems(anchors, FOOTER_SOCIAL.map((s) => s.href))).toEqual([]);
     // X and LinkedIn are sameAs only, never in the footer
     expect(anchors.map((a) => a.href).some((h) => /x\.com|linkedin\.com/.test(h))).toBe(false);
