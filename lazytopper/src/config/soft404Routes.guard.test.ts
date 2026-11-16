@@ -271,6 +271,9 @@ describe("SOFT404-1 — everything except the shell rules is exactly as it was",
     // The retired base is assembled, never written as a literal: noAppPrefix.guard forbids it.
     const RETIRED = ["", "app"].join("/");
     expect(vercel.redirects).toEqual([
+      // SOCIAL-1 — owner's short share links (temporary, so the targets can change)
+      { source: "/whatsapp", destination: "https://whatsapp.com/channel/0029Vb8hcIcKmCPVMpgEwi1P", permanent: false },
+      { source: "/telegram", destination: "https://telegram.me/lazytopper_cbse", permanent: false },
       { source: RETIRED, destination: "/", permanent: true },
       { source: `${RETIRED}/:path((?!assets/).*)`, destination: "/:path", permanent: true },
     ]);

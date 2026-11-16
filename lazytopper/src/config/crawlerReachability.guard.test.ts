@@ -862,9 +862,12 @@ describe("ROOT-URL-1 — the retired base redirects, once, permanently", () => {
     redirects: Array<Rule & { permanent?: boolean; statusCode?: number }>;
   };
 
-  it("exactly two redirects, both permanent, both from the retired base", () => {
+  it("the retired-base redirects are exactly two, both permanent (plus the SOCIAL-1 share links, temporary)", () => {
     expect(RETIRED_BASE, "the retired base is a single path segment").toMatch(/^\/[a-z]+$/);
     expect(raw.redirects.map((r) => [r.source, r.destination, r.permanent])).toEqual([
+      // SOCIAL-1 — owner's short share links, temporary so the targets can change
+      ["/whatsapp", "https://whatsapp.com/channel/0029Vb8hcIcKmCPVMpgEwi1P", false],
+      ["/telegram", "https://telegram.me/lazytopper_cbse", false],
       [RETIRED_BASE, "/", true],
       [`${RETIRED_BASE}/:path((?!assets/).*)`, "/:path", true],
     ]);

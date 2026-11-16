@@ -300,6 +300,9 @@ describe("ROOT-URL-1 M6 — no literal points at the retired /app base", () => {
       rewrites: Array<{ source: string; destination: string }>;
     };
     expect(parsed.redirects).toEqual([
+      // SOCIAL-1 — owner's short share links (temporary, so the targets can change)
+      { source: "/whatsapp", destination: "https://whatsapp.com/channel/0029Vb8hcIcKmCPVMpgEwi1P", permanent: false },
+      { source: "/telegram", destination: "https://telegram.me/lazytopper_cbse", permanent: false },
       { source: "/app", destination: "/", permanent: true },
       { source: "/app/:path((?!assets/).*)", destination: "/:path", permanent: true },
     ]);
