@@ -30,6 +30,7 @@ const {
   isPaymentsEnabled,
   isCheckoutSignatureValid,
   isWebhookSignatureValid,
+  matchWebhookSignature,
   timingSafeHexEqual,
   quotePass,
   PAY_ORDER_PATH,
@@ -2409,4 +2410,145 @@ test('Z5 · reject log: amount_mismatch webhook -> one warn line with reason + o
     assert.ok(!line.includes('@'), `email-like text in: ${line}`);
     assert.ok(!/\d{10}/.test(line.replace(/\b(order|pay)_[A-Za-z0-9]+/g, '')), `10-digit number in: ${line}`);
   }
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   WEBHOOK-SIG-1 — webhooks whose JSON has non-ASCII text, signed over an escaped copy
+   (variants a / b / c2; the lossy latin1 truncation is deliberately NOT accepted)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const esc = (text, upper) =>
+  text.replace(/[^\x00-\x7f]/g, (ch) => {
+    const h = ch.charCodeAt(0).toString(16).padStart(4, '0');
+    return `\\u${upper ? h.toUpperCase() : h}`;
+  });
+const sigPost = (port, raw, sig) => request(port, PAY_WEBHOOK_PATH, { raw, headers: { 'X-Razorpay-Signature': sig } });
+
+const NA_BODY = '{"entity":"event","event":"payment.authorized","payload":{"payment":{"entity":{"id":"pay_X1","order_id":"order_X1","error_description":"Amount ₹599 — declined 😀"}}},"created_at":1}';
+const ASCII_BODY = '{"entity":"event","event":"payment.other","payload":{}}';
+
+async function withWarn(fn) {
+  const lines = [];
+  const orig = console.warn;
+  console.warn = (...a) => lines.push(a.join(' '));
+  try { await fn(lines); } finally { console.warn = orig; }
+  return lines;
+}
+
+test('SIG-1 · body signed over its lowercase \\uXXXX-escaped form is accepted via variant a', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const lines = await withWarn(async () => {
+    const r = await sigPost(srv.port, NA_BODY, hmac(WEBHOOK_SECRET, esc(NA_BODY, false)));
+    assert.equal(r.status, 200, r.text);
+  });
+  assert.ok(srv.events.includes('payments.webhook.sig_variant.a'));
+  const w = lines.filter((l) => l.includes('sig variant='));
+  assert.equal(w.length, 1);
+  assert.match(w[0], /sig variant=a event=payment\.authorized order=order_X1 pay=pay_X1/);
+  assert.ok(!w[0].includes('declined') && !w[0].includes(WEBHOOK_SECRET));
+});
+
+test('SIG-1 · body signed over the UPPERCASE-hex escaped form is accepted via variant b', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  await withWarn(async () => {
+    const r = await sigPost(srv.port, NA_BODY, hmac(WEBHOOK_SECRET, esc(NA_BODY, true)));
+    assert.equal(r.status, 200, r.text);
+  });
+  assert.ok(srv.events.includes('payments.webhook.sig_variant.b'));
+  assert.ok(!srv.events.includes('payments.webhook.sig_variant.a'));
+});
+
+test('SIG-1 · double-encoded (latin1-read) text is accepted via c2', () => {
+  const raw = Buffer.from(NA_BODY, 'utf8');
+  const c2 = hmac(WEBHOOK_SECRET, Buffer.from(raw.toString('latin1'), 'utf8'));
+  assert.equal(matchWebhookSignature({ rawBody: raw, signature: c2, webhookSecret: WEBHOOK_SECRET }), 'c2');
+});
+
+test('SIG-1 · a body altered with U+0122 in place of structural quotes is REJECTED (no lossy latin1 variant)', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const X = Buffer.from(NA_BODY, 'utf8');
+  const sigX = hmac(WEBHOOK_SECRET, X); // Razorpay's genuine signature over X
+  // Y: X read as latin1, with some structural quotes swapped for U+0122 (low byte 0x22 = '"'), sent as UTF-8.
+  const Y = X.toString('latin1').replace(/"(event|payload)"/g, '\u0122$1\u0122');
+  assert.notEqual(Y, X.toString('latin1'));
+  const yBuf = Buffer.from(Y, 'utf8');
+  assert.equal(matchWebhookSignature({ rawBody: yBuf, signature: sigX, webhookSecret: WEBHOOK_SECRET }), null);
+  await withWarn(async () => {
+    const r = await sigPost(srv.port, Y, sigX);
+    assert.equal(r.status, 400);
+    assert.equal(r.json.reason, 'bad_signature');
+  });
+  assert.ok(!srv.events.some((e) => e.includes('sig_variant')));
+});
+
+test('SIG-1 · raw-signed non-ASCII body is accepted with NO variant event or log (old path untouched)', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const lines = await withWarn(async () => {
+    const r = await sigPost(srv.port, NA_BODY, hmac(WEBHOOK_SECRET, Buffer.from(NA_BODY, 'utf8')));
+    assert.equal(r.status, 200, r.text);
+  });
+  assert.ok(!srv.events.some((e) => e.includes('sig_variant')));
+  assert.equal(lines.filter((l) => l.includes('sig variant=')).length, 0);
+  assert.equal(matchWebhookSignature({ rawBody: Buffer.from(NA_BODY), signature: hmac(WEBHOOK_SECRET, Buffer.from(NA_BODY)), webhookSecret: WEBHOOK_SECRET }), 'raw');
+});
+
+test('SIG-1 · a wrong secret is rejected for every variant', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const forms = [Buffer.from(NA_BODY), Buffer.from(esc(NA_BODY, false)), Buffer.from(esc(NA_BODY, true)), Buffer.from(NA_BODY, 'utf8').toString('latin1')]; // (last = c2 form)
+  await withWarn(async () => {
+    for (const f of forms) {
+      const r = await sigPost(srv.port, NA_BODY, hmac('wrong_secret', f));
+      assert.equal(r.status, 400);
+      assert.equal(r.json.reason, 'bad_signature');
+    }
+  });
+  assert.ok(!srv.events.some((e) => e.includes('sig_variant')));
+});
+
+test('SIG-1 · an ASCII-only body with a bad signature is rejected over HTTP and never tries variants', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  await withWarn(async () => {
+    const bad = await sigPost(srv.port, ASCII_BODY, hmac(WEBHOOK_SECRET, 'x'));
+    assert.equal(bad.status, 400);
+    assert.equal(bad.json.reason, 'bad_signature');
+    const good = await sigPost(srv.port, ASCII_BODY, hmac(WEBHOOK_SECRET, ASCII_BODY));
+    assert.equal(good.status, 200);
+  });
+  assert.ok(!srv.events.some((e) => e.includes('sig_variant')));
+  const raw = Buffer.from(ASCII_BODY);
+  assert.equal(matchWebhookSignature({ rawBody: raw, signature: hmac(WEBHOOK_SECRET, 'x'), webhookSecret: WEBHOOK_SECRET }), null);
+  assert.equal(isWebhookSignatureValid({ rawBody: raw, signature: hmac(WEBHOOK_SECRET, raw), webhookSecret: WEBHOOK_SECRET }), true);
+});
+
+test('SIG-1 · WEBHOOK_SIG_VARIANTS_DISABLED=1 -> escaped-signed body is rejected', async (t) => {
+  const srv = await startRoutes({ env: { ...ENV_ON, WEBHOOK_SIG_VARIANTS_DISABLED: '1' } });
+  t.after(srv.close);
+  await withWarn(async () => {
+    const r = await sigPost(srv.port, NA_BODY, hmac(WEBHOOK_SECRET, esc(NA_BODY, false)));
+    assert.equal(r.status, 400);
+    assert.equal(r.json.reason, 'bad_signature');
+    // raw-signed still fine with the switch on
+    const ok = await sigPost(srv.port, NA_BODY, hmac(WEBHOOK_SECRET, Buffer.from(NA_BODY)));
+    assert.equal(ok.status, 200);
+  });
+});
+
+test('SIG-1 · failure diag carries naPaths + cps and no string values', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const lines = await withWarn(async () => {
+    const r = await sigPost(srv.port, NA_BODY, hmac('wrong_secret', NA_BODY));
+    assert.equal(r.status, 400);
+  });
+  const l = lines.find((x) => x.includes('rejected reason=bad_signature'));
+  assert.ok(l, lines.join('\n'));
+  assert.match(l, /naPaths=payload\.payment\.entity\.error_description/);
+  assert.match(l, /cps=U\+20B9,U\+2014,U\+1F600/);
+  assert.ok(!l.includes('declined') && !l.includes('Amount'));
 });

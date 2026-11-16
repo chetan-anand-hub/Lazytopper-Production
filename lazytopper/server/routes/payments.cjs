@@ -183,10 +183,95 @@ function isCheckoutSignatureValid({ orderId, paymentId, signature, keySecret }) 
   return timingSafeHexEqual(hmacSha256Hex(keySecret, `${orderId}|${paymentId}`), signature);
 }
 
-/** Razorpay webhook: HMAC-SHA256(raw body bytes, webhook_secret), hex. */
-function isWebhookSignatureValid({ rawBody, signature, webhookSecret }) {
+/** WEBHOOK-SIG-1 - the UTF-8 text with every non-ASCII code point written as a JSON \uXXXX escape (astral = surrogate pair). */
+function escapeNonAscii(text, upper) {
+  let out = '';
+  for (let i = 0; i < text.length; i += 1) {
+    const code = text.charCodeAt(i);
+    if (code <= 127) {
+      out += text[i];
+    } else {
+      const hex = code.toString(16).padStart(4, '0');
+      out += `\\u${upper ? hex.toUpperCase() : hex}`;
+    }
+  }
+  return out;
+}
+
+/**
+ * Razorpay webhook: HMAC-SHA256(raw body bytes, webhook_secret), hex. Returns which form matched: 'raw' (the byte-exact path, as
+ * always), or - ONLY when raw fails, the body has a byte > 127 and `variantsDisabled` is false - 'a' | 'b' | 'c2'
+ * (WEBHOOK-SIG-1: the same secret over an escaped / re-encoded copy of the text). null = no match.
+ */
+function matchWebhookVariant({ rawBody, signature, webhookSecret, variantsDisabled }) {
+  if (variantsDisabled || !webhookSecret || !Buffer.isBuffer(rawBody)) return null;
+  let nonAscii = false;
+  for (const b of rawBody) {
+    if (b > 127) {
+      nonAscii = true;
+      break;
+    }
+  }
+  if (!nonAscii) return null;
+  const utf8 = rawBody.toString('utf8');
+  const candidates = [
+    ['a', () => Buffer.from(escapeNonAscii(utf8, false), 'utf8')],
+    ['b', () => Buffer.from(escapeNonAscii(utf8, true), 'utf8')],
+    ['c2', () => Buffer.from(rawBody.toString('latin1'), 'utf8')],
+  ];
+  for (const [name, build] of candidates) {
+    if (timingSafeHexEqual(hmacSha256Hex(webhookSecret, build()), signature)) return name;
+  }
+  return null;
+}
+
+function matchWebhookSignature(args) {
+  if (!args.webhookSecret || !Buffer.isBuffer(args.rawBody)) return null;
+  if (timingSafeHexEqual(hmacSha256Hex(args.webhookSecret, args.rawBody), args.signature)) return 'raw';
+  return matchWebhookVariant(args);
+}
+
+function isWebhookSignatureValid({ rawBody, signature, webhookSecret, variantsDisabled }) {
   if (!webhookSecret || !Buffer.isBuffer(rawBody)) return false;
-  return timingSafeHexEqual(hmacSha256Hex(webhookSecret, rawBody), signature);
+  if (timingSafeHexEqual(hmacSha256Hex(webhookSecret, rawBody), signature)) return true;
+  return matchWebhookVariant({ rawBody, signature, webhookSecret, variantsDisabled }) !== null;
+}
+
+/** WEBHOOK-SIG-1 kill switch: WEBHOOK_SIG_VARIANTS_DISABLED=1 restores the raw-bytes-only check. */
+function areWebhookVariantsDisabled(env = process.env) {
+  return String((env && env.WEBHOOK_SIG_VARIANTS_DISABLED) || '').trim() === '1';
+}
+
+/** WEBHOOK-SIG-1 diag - WHERE non-ASCII text sits (key paths) and WHICH code points; never a value, never a contact. */
+function nonAsciiFacts(rawBody) {
+  try {
+    const paths = [];
+    const cps = [];
+    const hasNa = (str) => /[^\x00-\x7f]/.test(str);
+    const walk = (node, p, depth) => {
+      if (depth > 12 || (paths.length >= 5 && cps.length >= 8)) return;
+      if (typeof node === 'string') {
+        if (!hasNa(node)) return;
+        if (paths.length < 5) paths.push(p || '$');
+        for (const ch of node) {
+          const cp = ch.codePointAt(0);
+          if (cp > 127) {
+            const tag = `U+${cp.toString(16).toUpperCase().padStart(4, '0')}`;
+            if (!cps.includes(tag) && cps.length < 8) cps.push(tag);
+          }
+        }
+      } else if (Array.isArray(node)) {
+        node.forEach((v, i) => walk(v, `${p}[${i}]`, depth + 1));
+      } else if (node && typeof node === 'object') {
+        for (const k of Object.keys(node)) walk(node[k], p ? `${p}.${k}` : k, depth + 1);
+      }
+    };
+    walk(JSON.parse(rawBody.toString('utf8')), '', 0);
+    const clean = (k) => String(k).replace(/[^A-Za-z0-9_.[\]-]/g, '?').slice(0, 60);
+    return ` naPaths=${paths.length ? paths.map(clean).join(',') : '-'} cps=${cps.length ? cps.join(',') : '-'}`;
+  } catch {
+    return '';
+  }
 }
 
 /**
@@ -212,7 +297,8 @@ function webhookBadSigContext(req, rawBody, signature) {
       diag:
         `bytes=${Buffer.isBuffer(rawBody) ? rawBody.length : -1} cl=${one(h['content-length'])} nonascii=${nonAscii}` +
         ` enc=${one(h['content-encoding'])} te=${one(h['transfer-encoding'])} sigLen=${String(signature || '').length}` +
-        ` evid=${one(h['x-razorpay-event-id'])} via=${h['x-vercel-id'] ? 'vercel' : 'direct'}`,
+        ` evid=${one(h['x-razorpay-event-id'])} via=${h['x-vercel-id'] ? 'vercel' : 'direct'}` +
+        (nonAscii > 0 ? nonAsciiFacts(rawBody) : ''),
     };
   } catch {
     return undefined;
@@ -431,7 +517,7 @@ function createPaymentRoutes(deps = {}) {
       let line = `[pay/${scope}] rejected reason=${reason} event=${f(c.event)} order=${f(c.orderId)} pay=${f(c.paymentId)} status=${f(c.status)}`;
       if (reason === 'amount_mismatch') line += ` expected=${f(c.expected)} got=${f(c.got)}`;
       if (c.error) line += ` error=${String(c.error).slice(0, 160)}`;
-      if (c.diag) line += ` ${String(c.diag).slice(0, 240)}`;
+      if (c.diag) line += ` ${String(c.diag).slice(0, 480)}`;
       console.warn(line);
     } catch {
       /* a log line must never fail a payment */
@@ -1016,8 +1102,19 @@ function createPaymentRoutes(deps = {}) {
     }
 
     const signature = String(req.headers['x-razorpay-signature'] || '').trim();
-    if (!isWebhookSignatureValid({ rawBody, signature, webhookSecret })) {
+    const sigMatch = matchWebhookSignature({ rawBody, signature, webhookSecret, variantsDisabled: areWebhookVariantsDisabled(env) });
+    if (!sigMatch) {
       return reject(res, 'webhook', 'bad_signature', webhookBadSigContext(req, rawBody, signature));
+    }
+    if (sigMatch !== 'raw') {
+      // WEBHOOK-SIG-1: valid over an escaped / re-encoded copy. Ids only - never the body, the secret or a contact.
+      emit(`payments.webhook.sig_variant.${sigMatch}`);
+      try {
+        const c = webhookBadSigContext(req, rawBody, signature) || {};
+        console.warn(`[pay/webhook] sig variant=${sigMatch} event=${c.event || '-'} order=${c.orderId || '-'} pay=${c.paymentId || '-'}`);
+      } catch {
+        /* a log line must never fail a payment */
+      }
     }
 
     let event;
@@ -1267,6 +1364,8 @@ module.exports = {
   isTopupEnabled,
   isCheckoutSignatureValid,
   isWebhookSignatureValid,
+  matchWebhookSignature,
+  areWebhookVariantsDisabled,
   timingSafeHexEqual,
   hmacSha256Hex,
   quotePass,
