@@ -2,6 +2,16 @@
   "ignoreCommand": "node lazytopper/scripts/ops/vercel_ignore_build.mjs",
   "redirects": [
     {
+      "source": "/whatsapp",
+      "destination": "https://whatsapp.com/channel/0029Vb8hcIcKmCPVMpgEwi1P",
+      "permanent": false
+    },
+    {
+      "source": "/telegram",
+      "destination": "https://telegram.me/lazytopper_cbse",
+      "permanent": false
+    },
+    {
       "source": "/app",
       "destination": "/",
       "permanent": true
