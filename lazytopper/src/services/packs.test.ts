@@ -148,7 +148,8 @@ describe("buyPack", () => {
       amount: 4900,
       order_id: "order_1",
       // PAY-PHONE-1 (B): the payment window says what is inside, from the existing pack copy.
-      description: "Chapter Pack · Triangles · important questions with CBSE step-marking guide",
+      // RZP-ASCII-DESC-1: the sheet text is ASCII-only (the middle dot becomes "-").
+      description: "Chapter Pack - Triangles - important questions with CBSE step-marking guide",
     });
     expect(out).toEqual({
       status: "paid",

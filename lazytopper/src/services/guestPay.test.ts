@@ -219,7 +219,7 @@ describe("PAY-PHONE-1 · buyAsGuest", () => {
     expect(seen[0]).toMatchObject({
       amount: 9900,
       order_id: "order_1",
-      description: ITEM.description,
+      description: "Maths Mock Pack - 8 board-pattern mock papers", // RZP-ASCII-DESC-1: the sheet text is ASCII-only
       prefill: { contact: "+919876543948" },
       readonly: { contact: true },
     });

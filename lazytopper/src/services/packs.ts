@@ -36,7 +36,7 @@ import {
   type RazorpayConstructor,
   type RazorpaySuccess,
 } from "./checkout";
-import { confirmServerPrice, razorpayDescription } from "./priceConfirm";
+import { confirmServerPrice, razorpaySheetDescription } from "./priceConfirm";
 import { isGstBuyerCancelled } from "./gstBuyerOrder";
 
 /* ── catalogue ──────────────────────────────────────────────────────────────── */
@@ -409,7 +409,7 @@ export async function buyPack(
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: razorpayDescription(packCheckoutDescription(sku, target, options.chapterName), order),
+        description: razorpaySheetDescription(packCheckoutDescription(sku, target, options.chapterName), order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
         ...prefillOption(prefill),

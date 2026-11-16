@@ -30,7 +30,7 @@ import {
   type ParentPayLang,
 } from "./parentPay";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
-import { confirmServerPrice, serverPriceFields, razorpayDescription } from "./priceConfirm";
+import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
 /** The pack a link carries, as the SERVER reports it (its price is the server table's). */
@@ -148,7 +148,7 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
         currency: "INR",
         order_id: order.orderId,
         name: "LazyTopper",
-        description: razorpayDescription(`${packName || "PDF pack"} (for your child)`, order),
+        description: razorpaySheetDescription(`${packName || "PDF pack"} (for your child)`, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
       });
