@@ -2400,6 +2400,9 @@ test('ORDER-SOURCE · sanitiser: drops unknown keys, caps length, rejects click-
   const bad = sanitiseOrderSource({ utm_source: 'a@b.com', utm_medium: 'https://x.com/?a=1', utm_campaign: '9876543948', landing: '/p?gclid=1', ref: 'x.com/path' });
   assert.deepEqual(bad, {});
   for (const junk of [null, undefined, 'x', 5, [], [{ utm_source: 'g' }], {}]) assert.deepEqual(sanitiseOrderSource(junk), {});
+  // a protocol-relative landing is never kept; utm_term is not on the allow-list (the client never sends it)
+  assert.deepEqual(sanitiseOrderSource({ landing: '//evil.example/x', utm_term: 'shoes' }), {});
+  assert.deepEqual(sanitiseOrderSource({ landing: '/' }), { landing: '/' });
 });
 
 test('ORDER-SOURCE · a valid source is stored on the order (pass and pack); absent / invalid -> no field, doc keys identical to before', async (t) => {

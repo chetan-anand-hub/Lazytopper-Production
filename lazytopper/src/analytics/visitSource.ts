@@ -36,6 +36,17 @@ import { START_HERE_SUBJECT_HINT_KEY, subjectHintFromLanding } from "../componen
  *      (`LONG_KEEP_KEY`) for 7 days, first tagged touch wins, same allow-listed fields only,
  *      and read at sign-up when the tab has nothing tagged. Deleted when sign-up sends it.
  * The POST also retries once on a network failure or 5xx (never on a 4xx).
+ *
+ * ★★ ORDER-SOURCE-1 (owner-approved 17 Nov 2026, cofounder session, design item 4: "save the visit source on every order;
+ * no click IDs stored"). A SECOND, narrow use of the same coarse touch, so paid ads can be matched to real orders. Limits:
+ *   - KEPT: the same allow-listed coarse fields only (referrer host, the utm_* values, the landing PATH), click ids as
+ *     booleans only - never a click-id VALUE, a query string, a full URL, an email, a phone, a uid or a device id;
+ *   - WHERE: tab-scoped sessionStorage `lazytopper.orderSource` (ORDER_SOURCE_KEY; not cleared at sign-up, ends with the
+ *     tab), falling back to the sign-up copy and the existing 7-day copy above;
+ *   - SENT: inside each order-create request body (`source`) to OUR server only, nothing to any vendor;
+ *   - STORED: sanitised again by the server (server/services/orderSource.cjs: whitelist, 100-char cap) on the payOrders
+ *     document, and shown only in the admin Purchases card;
+ *   - KILL SWITCHES: client VITE_ORDER_SOURCE_DISABLED=1 (never send), server ORDER_SOURCE_DISABLED=1 (never store).
  */
 
 /** The one sessionStorage key. Listed under the device-local entry in studentDataMap.ts. */
@@ -391,7 +402,7 @@ function rememberOrderSource(captured: VisitSource): void {
   }
 }
 
-/** What an order-create request carries as `source`: allow-listed keys only, strings <= 64 chars, click ids as `true` only. */
+/** What an order-create request carries as `source`: allow-listed keys only, strings <= 64 chars (the server caps at 100), click ids as `true` only. */
 export interface OrderSource {
   ref?: string;
   utm_source?: string;

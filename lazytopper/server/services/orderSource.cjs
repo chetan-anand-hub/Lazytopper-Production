@@ -15,12 +15,12 @@
  */
 
 const MAX_LEN = 100;
-const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']; // the client never sends utm_term
 const CLICK_KEYS = ['gclid', 'fbclid', 'gbraid', 'wbraid'];
 
 const TAG_CHARSET = /^[A-Za-z0-9_.\-{}]+$/;
 const HOST_CHARSET = /^[a-z0-9.-]+$/;
-const PATH_CHARSET = /^\/[A-Za-z0-9_\-./:]*$/;
+const PATH_CHARSET = /^\/(?!\/)[A-Za-z0-9_\-./:]*$/; // a single leading slash: never protocol-relative (//host)
 const MOBILE_SHAPE = /(?<!\d)(?:\+?91[\s-]?)?[6-9]\d{9}(?!\d)/;
 
 function isOrderSourceDisabled(env = process.env) {
