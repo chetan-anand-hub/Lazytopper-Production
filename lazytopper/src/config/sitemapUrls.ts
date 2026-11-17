@@ -55,6 +55,7 @@ import {
 import { allDesktopTopics } from "../lib/desktop/topics";
 import { LEGAL_SLUGS } from "../pages/legalSlugs";
 import { cbqChapterSlugs } from "../components/cbq/cbqSeo";
+import { dailyQuestionSlugs } from "../components/dailyQuestion/dailyQuestions";
 
 /**
  * The concrete members of each PARAMETERISED self-canonical family.
@@ -99,6 +100,9 @@ function membersOfParameterisedFamily(prefix: string): readonly string[] {
     case "/cbq-class-10":
       // CBQ-SEO-1 — the same chapter registry; every member renders sample CBQs from the question bank.
       return cbqChapterSlugs();
+    case "/important-question-of-the-day":
+      // SEO-DAILY-1 - the registry of posted questions (each a pointer to a real bank row).
+      return dailyQuestionSlugs();
     case "/legal":
       // The list `LegalPage`'s content table is compiler-keyed on.
       return LEGAL_SLUGS;

@@ -25,6 +25,7 @@ import {
 import ParentReturnLink from "../components/parents/ParentReturnLink";
 import FreeResourcesBlock from "../components/freeResources/FreeResourcesBlock";
 import CommunityRow from "../components/freeResources/CommunityRow";
+import DailyQuestionLink from "../components/dailyQuestion/DailyQuestionLink";
 
 /**
  * Cbse2027Page — the public CBSE boards page at `/cbse/class-10` (CBSE-PAGE-1, Lane A).
@@ -719,6 +720,8 @@ export default function Cbse2027Page() {
         <FreeResourcesBlock />
         {/* SOCIAL-2: static one-liner to the free daily-question channels (VITE_COMMUNITY_ROW_DISABLED=1 hides it). */}
         <CommunityRow />
+        {/* SEO-DAILY-1: the one link to the daily-question hub (VITE_DAILY_QUESTION_DISABLED=1 hides it). */}
+        <DailyQuestionLink />
 
         <section>
           <div className="lt-cbse__help">

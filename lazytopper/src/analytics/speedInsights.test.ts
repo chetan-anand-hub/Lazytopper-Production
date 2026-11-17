@@ -63,6 +63,9 @@ describe("SPEED-1 speed insights", () => {
     expect(speedRouteFor("/notes/real-numbers")).toBe("/notes/[chapter]");
     expect(speedRouteFor("/cbq-class-10/heredity")).toBe("/cbq-class-10/[chapter]");
     expect(speedRouteFor("/cbq-class-10")).toBe("/cbq-class-10");
+    // SEO-DAILY-1
+    expect(speedRouteFor("/important-question-of-the-day")).toBe("/important-question-of-the-day");
+    expect(speedRouteFor("/important-question-of-the-day/probability-prime-on-a-die-1-mark")).toBe("/important-question-of-the-day/[question]");
     expect(speedRouteFor("/topic-hub/real-numbers")).toBe("/topic-hub/[chapter]");
     expect(speedRouteFor("/topic-hub/10/Maths")).toBe("/topic-hub/[grade]/[subject]");
     expect(speedRouteFor("/topic-hub/10/Maths/triangles")).toBe("/topic-hub/[grade]/[subject]/[topic]");

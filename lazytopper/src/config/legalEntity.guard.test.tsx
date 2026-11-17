@@ -8,6 +8,7 @@
  * Copy is the owner's, word for word.
  */
 import { cbqChapterSlugs } from "../components/cbq/cbqSeo";
+import { dailyQuestionSlugs } from "../components/dailyQuestion/dailyQuestions";
 import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
@@ -58,6 +59,9 @@ const P8_PAGES = [
   // CBQ-SEO-1: the CBQ hub and its chapter pages render the public footer (derived from the chapter registry, not hand-listed).
   "cbq-class-10.html",
   ...cbqChapterSlugs().map((slug) => `cbq-class-10/${slug}.html`),
+  // SEO-DAILY-1: the daily-question hub and its question pages render the public footer (derived from the registry).
+  "important-question-of-the-day.html",
+  ...dailyQuestionSlugs().map((slug) => `important-question-of-the-day/${slug}.html`),
 ];
 const P8_FILES = P8_PAGES.flatMap((p) => [p, `__desktop/${p}`]);
 

@@ -191,6 +191,9 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
         "PacksPage",
         "CbqHubPage",
         "CbqChapterPage",
+        // SEO-DAILY-1: the daily-question hub and question pages (one shared sheet).
+        "DailyQuestionHubPage",
+        "DailyQuestionPage",
         "PricingPage",
         // PRICING-PAGES-1: the two dedicated sales pages (islands; their first screen needs their own CSS).
         "BoardPassPage",

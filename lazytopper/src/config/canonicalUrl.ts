@@ -110,6 +110,9 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   // CBQ-SEO-1 (owner authorization, 30 Oct 2026) — the CBQ hub: public, signed-out readable, indexable.
   // Its 26 chapter pages are the `/cbq-class-10` one-segment family below.
   "/cbq-class-10",
+  // SEO-DAILY-1 (owner 17 Nov 2026) - the Important Question of the Day hub: public, signed-out readable, indexable. Its question pages are the
+  // `/important-question-of-the-day` one-segment family below.
+  "/important-question-of-the-day",
   // SEO-PAGES-1 (13 Nov 2026, FU-SEO-PAGES-13NOV) - three search-landing pages that match buying searches: public, signed-out
   // readable, indexable. Their paths are src/components/seoPages/seoPages.ts SEO_PAGES_PATHS.
   "/mock-test-class-10",
@@ -156,6 +159,8 @@ export const SELF_CANONICAL_ONE_SEGMENT: readonly string[] = [
   "/notes",
   // CBQ-SEO-1 — `/cbq-class-10/:chapterSlug`, one page of real sample CBQs per chapter. Members: cbqChapterSlugs().
   "/cbq-class-10",
+  // SEO-DAILY-1 - `/important-question-of-the-day/:slug`, one page per posted question. Members: dailyQuestionSlugs().
+  "/important-question-of-the-day",
 ];
 
 /** Drop any query string or hash, and any trailing slash except the root's. */

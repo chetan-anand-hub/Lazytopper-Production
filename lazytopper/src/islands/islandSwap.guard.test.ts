@@ -37,7 +37,7 @@ describe("which paths are islands", () => {
 
   it("exactly the notes, NCERT-solutions and Exemplar chapter pages (phase 1), Important Questions, CBQ chapters and the NCERT Hub (phase 2), and the PDF Packs landing (SPEED-PACKS-3) and the two sales pages (PRICING-PAGES-1)", () => {
     const expected = advertised.filter(
-      (p) => /^\/(notes|ncert-solutions|ncert-exemplar|highly-probable|cbq-class-10)\/.+$/.test(p) || p === "/ncert-class-10" || p === "/packs" || p === "/board-pass" || p === "/cbq-packs" || p === "/for-parents",
+      (p) => /^\/(notes|ncert-solutions|ncert-exemplar|highly-probable|cbq-class-10|important-question-of-the-day)\/.+$/.test(p) || p === "/important-question-of-the-day" || p === "/ncert-class-10" || p === "/packs" || p === "/board-pass" || p === "/cbq-packs" || p === "/for-parents",
     );
     expect([...islands].sort()).toEqual(expected.sort());
     // CONTROL — the families are really advertised, so the equality above is not vacuous.
@@ -46,6 +46,9 @@ describe("which paths are islands", () => {
     expect(expected.filter((p) => p.startsWith("/ncert-exemplar/")).length).toBeGreaterThanOrEqual(20);
     expect(expected.filter((p) => p.startsWith("/cbq-class-10/")).length).toBeGreaterThanOrEqual(20);
     expect(expected.filter((p) => p.startsWith("/highly-probable/")).sort()).toEqual(["/highly-probable/10/Maths", "/highly-probable/10/Science"]);
+    // SEO-DAILY-1 - control: the hub and the question pages are really advertised, so the equality above covers them.
+    expect(islands.has("/important-question-of-the-day")).toBe(true);
+    expect(expected.filter((p) => p.startsWith("/important-question-of-the-day/")).length).toBeGreaterThanOrEqual(1);
     expect(islands.has("/ncert-class-10")).toBe(true);
     expect(islands.has("/packs")).toBe(true);
     expect(islands.has("/board-pass")).toBe(true);
@@ -79,7 +82,7 @@ describe("which paths are islands", () => {
     // The family allowlist is the per-family switch.
     expect([...islandPathsFor(advertised, { islandPrefixes: ["/notes/"] }, {})].every((p) => p.startsWith("/notes/"))).toBe(true);
     // Each phase-2 family turns off on its own.
-    for (const off of ["/highly-probable/", "/cbq-class-10/", "/ncert-class-10", "/packs", "/board-pass", "/cbq-packs", "/for-parents"]) {
+    for (const off of ["/highly-probable/", "/cbq-class-10/", "/important-question-of-the-day", "/important-question-of-the-day/", "/ncert-class-10", "/packs", "/board-pass", "/cbq-packs", "/for-parents"]) {
       const rest = islandPathsFor(advertised, { islandPrefixes: ISLAND_PATH_PREFIXES.filter((p) => p !== off) }, {});
       expect([...rest].some((p) => (off.endsWith("/") ? p.startsWith(off) : p === off))).toBe(false);
       expect(rest.size).toBeGreaterThan(0);
