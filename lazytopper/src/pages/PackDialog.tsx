@@ -4,6 +4,7 @@ import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, packChapterLabel } from "../lib/packs/pa
 import { packManifest, packSummaryRows } from "../lib/packs/packManifest";
 import { PREVIEW_FALLBACK_CAPTION, PREVIEW_H, PREVIEW_W, packPreviewFor, previewCaption, previewImage, previewShows, type PreviewPage } from "../lib/packs/packPreviews";
 import PackSampleButton from "../components/packs/PackSampleButton";
+import type { SampleBuy } from "../components/packs/PackSampleLink";
 import "./packsDialog.css";
 
 /**
@@ -39,6 +40,8 @@ export interface PackDialogProps {
   focusPicker?: boolean;
   /** PRICING-B-1 - list only this subject's chapters in the picker (null / absent: all 26, as before). Presentation only. */
   pickerSubject?: PackSubject | null;
+  /** SAMPLE-DIALOG-BUY-1 - the "Liked the sample?" buy shown after a sample tap: the SAME action as `buy`. Absent / null = none (as before). */
+  sampleBuy?: SampleBuy | null;
 }
 
 const TITLES: Record<PackSku, { name: string; line: string }> = {
@@ -61,7 +64,7 @@ export const CHAPTER_PLACEHOLDER = "Choose a chapter";
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 
 export default function PackDialog(props: PackDialogProps) {
-  const { sku, chapter, subject, onChapter, onSubject, questions, questionsCounting = false, buy, onClose, initialSlide, sampleInBuy = false, focusPicker = false, pickerSubject = null } = props;
+  const { sku, chapter, subject, onChapter, onSubject, questions, questionsCounting = false, buy, onClose, initialSlide, sampleInBuy = false, focusPicker = false, pickerSubject = null, sampleBuy = null } = props;
   const pickerSlugs = pickerSubject ? PACK_CHAPTER_SLUGS.filter((slug) => subjectOfChapter(slug) === pickerSubject) : PACK_CHAPTER_SLUGS;
   const pickerRef = useRef<HTMLSelectElement | null>(null);
   useEffect(() => {
@@ -370,7 +373,7 @@ export default function PackDialog(props: PackDialogProps) {
             {/* PACK-SAMPLE-1 / SAMPLE-FOLLOWUP-1: a clear second button, secondary to Buy; follows the chosen chapter / subject (the bundle has one sample). */}
             {!sampleInBuy && (
               <div className="lt-pkd__sample">
-                <PackSampleButton sku={sku} target={sku === "pack_chapter" ? chapter : subject} surface="packs_dialog" />
+                <PackSampleButton sku={sku} target={sku === "pack_chapter" ? chapter : subject} surface="packs_dialog" buy={sampleBuy} />
               </div>
             )}
           </div>
