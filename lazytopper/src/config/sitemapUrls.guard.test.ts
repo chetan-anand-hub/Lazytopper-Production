@@ -290,9 +290,9 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     // SOLUTIONS-SCI-3: + 11 Science Exemplar pages (all but Magnetic Effects, Our Environment).
     expect(solutionsPaths().length, "published solutions pages").toBe(51);
     expect(paths.length, "the owner-ruled advertised count").toBe(99 + solutionsPaths().length + 1 + dailyQuestionSlugs().length + 1 + freeMcqSlugs().length); // SEO-MCQ-1: + the free-MCQ hub + one page per bank; SEO-DAILY-1: + the hub + one page per registry question; 67 + the 27 CBQ-SEO-1 pages (hub + 26 chapters) + 2 PRICING-PAGES-1 + 3 SEO-PAGES-1
-    expect(dailyQuestionSlugs().length, "SEO-DAILY-1 registry").toBe(4);
+    expect(dailyQuestionSlugs().length, "SEO-DAILY-1 + SEO-DAILY-2 registry").toBe(11);
     expect(freeMcqSlugs().length, "SEO-MCQ-1 registry").toBe(27);
-    expect(paths.length).toBe(183); // 155 + the SEO-MCQ-1 hub + 27 chapter pages
+    expect(paths.length).toBe(190); // 155 + the SEO-MCQ-1 hub + 27 chapter pages + the 7 SEO-DAILY-2 question pages (#9-#15)
     expect(paths).toContain("/packs");
     // PRICING-PAGES-1 (owner, 11 Nov 2026): the dedicated Board Pass and CBQ Packs sales pages.
     expect(paths).toContain("/board-pass");

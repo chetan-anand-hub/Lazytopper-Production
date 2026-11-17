@@ -264,15 +264,39 @@
     "lastmod": "2026-11-07"
   },
   "/important-question-of-the-day": {
-    "sha256": "b2419bfd10723f107bc71f4eb54ef777a35e2dc218f2e74ca298f851731e3e83",
+    "sha256": "1b84bcc95710be80bb7006a7e90aae6439e1a168f293bc8b0bd4ddf3b1b9c93a",
+    "lastmod": "2026-11-17"
+  },
+  "/important-question-of-the-day/arithmetic-progression-sum-double-answer-5-marks": {
+    "sha256": "e973d23a0807338a6b39e42573f9a49bb9beb2fc0bd752c7a930a5a8d792e777",
+    "lastmod": "2026-11-17"
+  },
+  "/important-question-of-the-day/chemical-reactions-lead-nitrate-potassium-iodide-3-marks": {
+    "sha256": "3dff5f3623024d5f317b951af23e9f92fd26dd4f9b0c38582b17cbd2dddf3bc8",
+    "lastmod": "2026-11-17"
+  },
+  "/important-question-of-the-day/coordinate-geometry-distance-between-points-1-mark": {
+    "sha256": "d891d4b1c732999ed2819e27a921380bd0044f8410c6f816a768899c4a7de3fd",
+    "lastmod": "2026-11-17"
+  },
+  "/important-question-of-the-day/electricity-wire-cut-in-five-parts-1-mark": {
+    "sha256": "378c60ce4f2e38703cc153b9eb7a21efbe53f8189ed65886870723cb08dd7fb9",
+    "lastmod": "2026-11-17"
+  },
+  "/important-question-of-the-day/heredity-pure-tall-pure-short-cross-3-marks": {
+    "sha256": "41627385a62d4fd5f3cd34db2dec7adbe07ff7920cf00cd6dceb02a336ccf53c",
     "lastmod": "2026-11-17"
   },
   "/important-question-of-the-day/life-processes-left-ventricle-wall-1-mark": {
-    "sha256": "481c2c692a207f4ad6929d670a585db3fb150096090de295d21a4f87c595d5ed",
+    "sha256": "ec6f174a6c3df73317c447f13a95a940d9124e1a5406da0791c3c4624b45e9f1",
     "lastmod": "2026-11-17"
   },
   "/important-question-of-the-day/light-concave-mirror-image-3-marks": {
     "sha256": "bdc95d246856d39fac3b7ad5ae94e1e50eb78c3d8be2091aa2068752dccbbdf2",
+    "lastmod": "2026-11-17"
+  },
+  "/important-question-of-the-day/pair-of-linear-equations-two-digit-number-3-marks": {
+    "sha256": "2ba9a695229a50e18b22a995eedb0519d034c5de0a6a168d8241a048e8a16bf1",
     "lastmod": "2026-11-17"
   },
   "/important-question-of-the-day/probability-prime-on-a-die-1-mark": {
@@ -281,6 +305,10 @@
   },
   "/important-question-of-the-day/quadratic-equations-find-roots-1-mark": {
     "sha256": "52ca62f0d0edaa5d9f1c6e5e763129fa49c5f544cac6fcaaa36b617d256c72a4",
+    "lastmod": "2026-11-17"
+  },
+  "/important-question-of-the-day/trigonometry-simplify-sec-a-tan-a-1-mark": {
+    "sha256": "7bfe3422d63b0c7a4e100518436bec661eda7788ea935c9b7a9a2b5cd88b90f6",
     "lastmod": "2026-11-17"
   },
   "/legal/privacy": {
