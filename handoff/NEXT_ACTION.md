@@ -1,3 +1,16 @@
+## 2026-11-17 (daily; written 17 Nov) - #1737 - #1746
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`97c023bf`** [git].
+
+- **Done [git]:** `#1737` to `#1746` merged (table in CURRENT_STATE). No grading change. Standing owner rule: merge green, reviewed PRs without asking and report afterwards.
+- **FIRST item next session: ADS (on hold).** Judge the 10 to 16 Nov data (spend Rs 1,03,168; real orders 21 worth Rs 9,048; PDF Packs 14 purchases; YouTube 243 sign-ups, 0 purchases) and decide what restarts. Research first (see the ads handover).
+- **Speed items, in the owner's order [coordinator]:** CLS on practice-hub, home and browse; then for-parents INP; then islands phase 2. /login LCP is DONE by `#1630`/`#1631` (judge it by the throttled run or Vercel real-user data, never one PSI run). Decide `[FU-PAINT-SHELL-TWO-WINDOW]` before 1 Dec.
+- **Still open:** the Excellence Kit (not built); Meta CAPI; server-side GA4 (needs an API secret); the owner live tests (Rs 58 pack test; the "Source:" line on the next order); Discord email verification (owner); the 16 Nov `[FU-WEBHOOK-ASCII-DESCRIPTION]` and `[FU-OWNER-ANSWERS-16NOV]` stand except as narrowed in OPEN_QUESTIONS.
+- **Owner answers now given [coordinator]:** WhatsApp follow-ups for non-buyers: yes. One sender number: yes. Both wait on Pallabi's IDs. Quora is deferred (Google sign-in left a greyed page).
+- **No further freebie correction passes** (owner ruling); the free PDFs are traffic bait.
+- **Dated checks:** 18 Nov YouTube review (scheduled task); 20 Nov behaviour re-run; 27 Nov end of the 14-day test; 30 Nov founding offer ends; 1 Dec 00:00 IST scheduled recaptures and the login/check-improve paint shells switch OFF until the recapture merges.
+- **Follow-ups opened today:** `[FU-PAINT-SHELL-TWO-WINDOW]`, `[FU-FREE-PDF-NO-MORE-CORRECTION]`, `[FU-MCQ-PREVIEW-PSI-93]`, `[FU-LIVE-TESTS-17NOV]` (bodies in OPEN_QUESTIONS_AND_FOLLOWUPS).
+
 ## 2026-11-16 (daily; written 16 Nov) - #1733 - #1734
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`ef65acf3`** [git].

@@ -1,3 +1,10 @@
+## 2026-11-17 (daily; written 17 Nov) - #1737 - #1746 - MERGED
+
+- DONE. `#1737` (`f276015c`) SAMPLE-DIALOG-BUY-1. `#1738` (`7d153f14`) RZP-UPI-FIRST-1. `#1739` (`456ae034`) link-preview copy. `#1740` (`2ec14b9b`) ORDER-SOURCE-1. `#1741` (`c38f3e37`) SOCIAL-2 Discord. `#1742` (`17f7721a`) SEO-DAILY-1. `#1743` (`a9e2f7e4`) daily pages skip the footer observer. `#1744` (`0ddf85f6`) SEO-MCQ-1. `#1745` (`9e7f5789`) SEO-MCQ-RENUMBER-1. `#1746` (`97c023bf`) SEO-DAILY-2.
+- DONE off-repo: free MCQ PDFs v2 then v3 live (27 PDFs, 1,944 questions).
+- INVESTIGATED, NOT BUILT: LOGIN-LCP-1 (the /login shell already works; see CURRENT_STATE).
+- NEXT: ads review first; then speed (CLS on practice-hub, home, browse; for-parents INP; islands phase 2); `[FU-PAINT-SHELL-TWO-WINDOW]` before 1 Dec; the daily IQ pages after 30 Nov need a new batch. NOT BUILT: the Excellence Kit, Meta CAPI, server-side GA4. The earlier lists stand.
+
 ## 2026-11-16 (daily; written 16 Nov) - #1733 - #1734 - MERGED
 
 - DONE. `#1733` (`ce1f2e25`) WEBHOOK-SIG-1: variants a, b, c2, kill switch `WEBHOOK_SIG_VARIANTS_DISABLED`, `naPaths`/`cps` diag. It did NOT stop the live `bad_signature`.
