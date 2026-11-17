@@ -37,6 +37,7 @@ import {
   type RazorpaySuccess,
 } from "./checkout";
 import { confirmServerPrice, razorpaySheetDescription } from "./priceConfirm";
+import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { isGstBuyerCancelled } from "./gstBuyerOrder";
 
 /* ── catalogue ──────────────────────────────────────────────────────────────── */
@@ -412,6 +413,7 @@ export async function buyPack(
         description: razorpaySheetDescription(packCheckoutDescription(sku, target, options.chapterName), order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
+        ...razorpayUpiFirstOption(),
         ...prefillOption(prefill),
       });
       watchPaymentFailed(checkout, () => {

@@ -31,6 +31,7 @@ import {
 } from "./parentPay";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
+import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
 /** The pack a link carries, as the SERVER reports it (its price is the server table's). */
@@ -151,6 +152,7 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
         description: razorpaySheetDescription(`${packName || "PDF pack"} (for your child)`, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
+        ...razorpayUpiFirstOption(),
       });
       watchPaymentFailed(checkout, () => undefined);
       checkout.open();
