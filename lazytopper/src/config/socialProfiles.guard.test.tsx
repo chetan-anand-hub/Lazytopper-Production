@@ -10,10 +10,10 @@ import { SAME_AS, FOOTER_SOCIAL, WHATSAPP_URL } from "./socialProfiles";
  * ORG-SAMEAS-1 — the site declares its own social profiles, once, and says so in two places.
  *
  *   (a) the shell `index.html` has exactly ONE ld+json block (head.guard pins that too), and its
- *       Organization node's `sameAs` deep-equals `socialProfiles.ts`'s `SAME_AS` — the 7 URLs, in
+ *       Organization node's `sameAs` deep-equals `socialProfiles.ts`'s `SAME_AS` — the 8 URLs, in
  *       order. `index.html` cannot import the module, so THIS is what stops the two drifting.
  *   (b) the retired Facebook handle appears in no source file.
- *   (c) the public footer renders the 6 social links with `rel` ⊇ {me, noopener}, no `nofollow`,
+ *   (c) the public footer renders the 7 social links with `rel` ⊇ {me, noopener}, no `nofollow`,
  *       and no `utm_` anywhere in an href.
  *
  * Every detector takes its input as an argument and is run against SYNTHETIC violating input in
@@ -78,7 +78,7 @@ describe("ORG-SAMEAS-1 (a) — the shell's Organization sameAs equals config/soc
     expect(ldJsonBlocks(html).length).toBe(1);
   });
 
-  it("sameAs is the 7 profile URLs, in order, and equals SAME_AS", () => {
+  it("sameAs is the 8 profile URLs, in order, and equals SAME_AS", () => {
     const org = organizationNode(html);
     expect(org, "no Organization node in the shell's ld+json").not.toBeNull();
     expect(org!.sameAs).toEqual([...SAME_AS]);
@@ -90,6 +90,7 @@ describe("ORG-SAMEAS-1 (a) — the shell's Organization sameAs equals config/soc
       "https://www.linkedin.com/company/146258133",
       "https://whatsapp.com/channel/0029Vb8hcIcKmCPVMpgEwi1P",
       "https://telegram.me/lazytopper_cbse",
+      "https://discord.gg/rqv5vGxwYX",
     ]);
   });
 
@@ -179,7 +180,7 @@ describe("ORG-SAMEAS-1 (b) — the retired Facebook handle appears nowhere", () 
   });
 });
 
-describe("ORG-SAMEAS-1 (c) — the footer renders 6 social links: rel me+noopener, no nofollow, no utm_", () => {
+describe("ORG-SAMEAS-1 (c) — the footer renders 7 social links: rel me+noopener, no nofollow, no utm_", () => {
   function renderedSocialAnchors() {
     render(
       <MemoryRouter>
@@ -199,10 +200,10 @@ describe("ORG-SAMEAS-1 (c) — the footer renders 6 social links: rel me+noopene
     return { anchors, labels };
   }
 
-  it("exactly YouTube, Instagram, Facebook, WhatsApp, the WhatsApp channel and Telegram, with the URLs from socialProfiles.ts", () => {
+  it("exactly YouTube, Instagram, Facebook, WhatsApp, the WhatsApp channel, Telegram and Discord, with the URLs from socialProfiles.ts", () => {
     const { anchors, labels } = renderedSocialAnchors();
-    expect(anchors.length).toBe(6);
-    expect(labels).toEqual(["YouTube", "Instagram", "Facebook", "WhatsApp: ask a doubt", "WhatsApp channel", "Telegram channel"]);
+    expect(anchors.length).toBe(7);
+    expect(labels).toEqual(["YouTube", "Instagram", "Facebook", "WhatsApp: ask a doubt", "WhatsApp channel", "Telegram channel", "Discord server"]);
     expect(socialLinkProblems(anchors, FOOTER_SOCIAL.map((s) => s.href))).toEqual([]);
     // X and LinkedIn are sameAs only, never in the footer
     expect(anchors.map((a) => a.href).some((h) => /x\.com|linkedin\.com/.test(h))).toBe(false);

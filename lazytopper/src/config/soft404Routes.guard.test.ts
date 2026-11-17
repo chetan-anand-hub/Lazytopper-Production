@@ -274,6 +274,7 @@ describe("SOFT404-1 — everything except the shell rules is exactly as it was",
       // SOCIAL-1 — owner's short share links (temporary, so the targets can change)
       { source: "/whatsapp", destination: "https://whatsapp.com/channel/0029Vb8hcIcKmCPVMpgEwi1P", permanent: false },
       { source: "/telegram", destination: "https://telegram.me/lazytopper_cbse", permanent: false },
+      { source: "/discord", destination: "https://discord.gg/rqv5vGxwYX", permanent: false },
       { source: RETIRED, destination: "/", permanent: true },
       { source: `${RETIRED}/:path((?!assets/).*)`, destination: "/:path", permanent: true },
     ]);

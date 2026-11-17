@@ -21,12 +21,14 @@ export const LINKEDIN_URL = "https://www.linkedin.com/company/146258133";
 export const WHATSAPP_CHANNEL_URL = "https://whatsapp.com/channel/0029Vb8hcIcKmCPVMpgEwi1P";
 /** telegram.me, not t.me: t.me is unreliable in India. */
 export const TELEGRAM_URL = "https://telegram.me/lazytopper_cbse";
+/** A never-expiring invite. */
+export const DISCORD_URL = "https://discord.gg/rqv5vGxwYX";
 export const WHATSAPP_URL = "https://wa.me/919714568948";
 /** WA-CONTACT-1 — the same number as people read it (the /contact page, the legal pages). */
 export const WHATSAPP_DISPLAY_NUMBER = "+91 97145 68948";
 
 /** The Organization's `sameAs`, in this order. */
-export const SAME_AS: readonly string[] = [YOUTUBE_URL, INSTAGRAM_URL, FACEBOOK_URL, X_URL, LINKEDIN_URL, WHATSAPP_CHANNEL_URL, TELEGRAM_URL];
+export const SAME_AS: readonly string[] = [YOUTUBE_URL, INSTAGRAM_URL, FACEBOOK_URL, X_URL, LINKEDIN_URL, WHATSAPP_CHANNEL_URL, TELEGRAM_URL, DISCORD_URL];
 
 /** The footer's social row, in this order. X and LinkedIn are `sameAs` only. */
 export const FOOTER_SOCIAL: ReadonlyArray<{ label: string; href: string }> = [
@@ -36,4 +38,5 @@ export const FOOTER_SOCIAL: ReadonlyArray<{ label: string; href: string }> = [
   { label: "WhatsApp: ask a doubt", href: WHATSAPP_URL },
   { label: "WhatsApp channel", href: WHATSAPP_CHANNEL_URL },
   { label: "Telegram channel", href: TELEGRAM_URL },
+  { label: "Discord server", href: DISCORD_URL },
 ];
