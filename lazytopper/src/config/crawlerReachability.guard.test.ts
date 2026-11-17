@@ -868,6 +868,7 @@ describe("ROOT-URL-1 — the retired base redirects, once, permanently", () => {
       // SOCIAL-1 — owner's short share links, temporary so the targets can change
       ["/whatsapp", "https://whatsapp.com/channel/0029Vb8hcIcKmCPVMpgEwi1P", false],
       ["/telegram", "https://telegram.me/lazytopper_cbse", false],
+      ["/discord", "https://discord.gg/rqv5vGxwYX", false],
       [RETIRED_BASE, "/", true],
       [`${RETIRED_BASE}/:path((?!assets/).*)`, "/:path", true],
     ]);
