@@ -17,6 +17,7 @@ import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type 
 import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
+import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 import { isCheckoutSelfClientEnabled } from "./checkoutWhoFlag";
 import { waOptInOrderFields } from "./waOptIn";
@@ -526,6 +527,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
         description: razorpaySheetDescription(item.description, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
+        ...razorpayUpiFirstOption(),
         ...whoPrefill(recipient, signedIn),
       });
       watchPaymentFailed(checkout, () => undefined);
@@ -609,6 +611,7 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
         description: razorpaySheetDescription(item.description, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
+        ...razorpayUpiFirstOption(),
       });
       watchPaymentFailed(checkout, () => undefined);
       checkout.open();

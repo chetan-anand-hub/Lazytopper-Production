@@ -15,6 +15,7 @@
  */
 
 import { confirmServerPrice, serverPriceFields, type ServerGst, razorpaySheetDescription } from "./priceConfirm";
+import { razorpayUpiFirstOption, type RazorpayDisplayConfig } from "./razorpayDisplay";
 // GST-INVOICE-1: "Your state" before the order (off by default: the body is byte-identical).
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 import { waOptInOrderFields } from "./waOptIn";
@@ -151,6 +152,8 @@ interface RazorpayOptions {
   description: string;
   handler: (response: RazorpaySuccess) => void;
   modal: { ondismiss: () => void };
+  /** RZP-UPI-FIRST-1 - UPI block first, every method still shown; absent under the kill switch. */
+  config?: RazorpayDisplayConfig;
   /** PAY-RESCUE-1 - only values we already hold for the signed-in user; absent when we hold none. */
   prefill?: CheckoutPrefill;
   /** PAY-PHONE-1 - Razorpay's own read-only lock: the guest's number is shown but cannot be changed in the sheet. */
@@ -444,6 +447,7 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, 
         description: razorpaySheetDescription(passType === "month" ? "Premium pass for a month" : BOARD_PASS_CHECKOUT_DESCRIPTION, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
+        ...razorpayUpiFirstOption(),
         ...prefillOption(prefill),
       });
       watchPaymentFailed(checkout, () => {

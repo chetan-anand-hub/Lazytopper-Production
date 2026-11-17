@@ -42,7 +42,7 @@ import {
 import { BUNDLE_NAME, packChapterLabel } from "../../lib/packs/packLabels";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import PayRescueCard from "../payRescue/PayRescueCard";
-import PackSampleLink from "./PackSampleLink";
+import PackSampleLink, { type SampleBuy } from "./PackSampleLink";
 import PackNamePrompt from "./PackNamePrompt";
 import { packNameSkipped } from "../../services/studentName";
 import GuestPaySheet from "../guestPay/GuestPaySheet";
@@ -1211,6 +1211,13 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     },
   };
 
+  // SAMPLE-DIALOG-BUY-1: the pop-up's "Liked the sample?" buy = the pop-up Buy's own action (buyNow, `from: "sample"`). None when the
+  // pack is already owned, packs are dark, or a chapter pack has no chapter yet (it has no sample either).
+  const dialogSampleBuy: SampleBuy | null =
+    openSku && api.buyEnabled && !api.ownsPack(openSku, dialogTarget) && (openSku !== "pack_chapter" || Boolean(dialogTarget))
+      ? { onBuy: () => api.buyNow(openSku, dialogTarget, { from: "sample" }), blocked: api.blockedBy(openSku, dialogTarget) }
+      : null;
+
   return (
     <>
       {embedded ? <div className="lt-packs lt-packs--embedded">{mineAndStatus}</div> : mineAndStatus}
@@ -1230,6 +1237,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               questionsCounting={dialogCounting}
               buy={buyArea(openSku, dialogTarget, openSku !== "pack_chapter" || Boolean(chapter))}
               sampleInBuy={buy.phase === "dismissed" && buy.key === packIdOf(openSku, dialogTarget)}
+              sampleBuy={dialogSampleBuy}
               focusPicker={focusPicker}
               pickerSubject={openSku === "pack_chapter" ? pickerSubject : null}
               onClose={closePack}

@@ -17,6 +17,7 @@ import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type 
 import { ALSO_SIGNIN_EVENT, type AlsoSignIn } from "./checkoutWhoFlag";
 import { maskIndianMobile, normaliseIndianMobile } from "../lib/maskContact";
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
+import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
@@ -202,6 +203,7 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
         description: razorpaySheetDescription(item.description, order),
         handler: (response) => resolve(response),
         modal: { ondismiss: () => resolve(null) },
+        ...razorpayUpiFirstOption(),
         // The number the visitor typed (normalised here); the server never echoes it back (review fix 6).
         prefill: { contact: phone },
         readonly: { contact: true },
