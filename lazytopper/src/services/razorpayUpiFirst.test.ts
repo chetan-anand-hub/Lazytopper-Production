@@ -17,7 +17,6 @@ import { buyForRecipient, buyForSelf } from "./checkoutWho";
 import { buyPassAsParent } from "./parentPay";
 import { buyPackAsParent } from "./parentPayPack";
 
-const ASCII = /^[\x20-\x7E]*$/;
 const GST = { baseInr: 1917, gstInr: 345, totalInr: 2262 };
 const ORDER = { orderId: "order_1", keyId: "k", amountPaise: 226200, gst: GST };
 const SUCCESS = { razorpay_order_id: "order_1", razorpay_payment_id: "pay_1", razorpay_signature: "s" };

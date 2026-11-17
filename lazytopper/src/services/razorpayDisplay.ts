@@ -1,5 +1,5 @@
 /**
- * RZP-UPI-FIRST-1 - show UPI (QR + UPI ID / intent) first in the Razorpay sheet, every other method still shown.
+ * RZP-UPI-FIRST-1 - show UPI (QR / intent) first in the Razorpay sheet, every other method still shown.
  *
  * Shape verified against Razorpay's "Configure Payment Methods" docs:
  *   https://razorpay.com/docs/payments/payment-gateway/web-integration/standard/configure-payment-methods/sample-code/
