@@ -421,6 +421,8 @@ describe("rule c on the phase-2 pages — which regions load the app before the 
     expect(footerUnwatched("/important-question-of-the-day")).toBe(true);
     expect(footerUnwatched("/important-question-of-the-day/x")).toBe(true);
     expect(footerUnwatched("/important-question-of-the-day-x")).toBe(false);
+    expect(footerUnwatched("/free-mcq-class-10")).toBe(true); // SEO-MCQ-1: the free-MCQ hub and its chapter pages
+    expect(footerUnwatched("/free-mcq-class-10/real-numbers")).toBe(true);
     expect(footerUnwatched("/cbq-class-10/real-numbers")).toBe(false); // the CBQ chapter page keeps watching its footer
   });
 

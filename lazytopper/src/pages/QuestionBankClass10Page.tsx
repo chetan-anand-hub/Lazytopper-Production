@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import DailyQuestionLink from "../components/dailyQuestion/DailyQuestionLink";
+import { isFreeMcqPagesKilled } from "../components/freeMcq/FreeMcqLink";
 import SeoLandingShell from "../components/seoPages/SeoLandingShell";
 import SeoPriceLine from "../components/seoPages/SeoPriceLine";
 import { QUESTION_BANK_PATH, chapterLinks } from "../components/seoPages/seoPages";
@@ -18,6 +19,7 @@ import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, BUNDLE_CHAPTERS, BUNDLE_NAME } f
  */
 export default function QuestionBankClass10Page() {
   const chapters = chapterLinks();
+  const freeMcqKilled = isFreeMcqPagesKilled();
   const groups = ["Maths", "Science"] as const;
   return (
     <SeoLandingShell
@@ -79,6 +81,13 @@ export default function QuestionBankClass10Page() {
                       <li>
                         <Link to={row.cbq}>{row.topic.name} CBQs</Link>
                       </li>
+                      {/* SEO-MCQ-1: the chapter's free MCQ page(s) (VITE_FREE_MCQ_PAGES_DISABLED=1 hides them). */}
+                      {!freeMcqKilled &&
+                        row.mcq.map((link) => (
+                          <li key={link.href}>
+                            <Link to={link.href}>{link.label}</Link>
+                          </li>
+                        ))}
                       {row.solutions.map((link) => (
                         <li key={link.href}>
                           <Link to={link.href}>{link.label}</Link>

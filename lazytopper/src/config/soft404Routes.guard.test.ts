@@ -213,8 +213,10 @@ describe("SOFT404-1 — a request reaches the shell if and only if the router ro
     const unknownCbqSlug = (p: string) => /^\/cbq-class-10\/[^/]+\/?$/.test(p) && !reachesShell(p) && routerRoutes(p);
     // SEO-DAILY-1: the same intended divergence for /important-question-of-the-day/<x> (dailyQuestionRewrites.guard pins the set).
     const unknownDailySlug = (p: string) => /^\/important-question-of-the-day\/[^/]+\/?$/.test(p) && !reachesShell(p) && routerRoutes(p);
+    // SEO-MCQ-1: and for /free-mcq-class-10/<x> (freeMcqPages.guard pins the set).
+    const unknownFreeMcqSlug = (p: string) => /^\/free-mcq-class-10\/[^/]+\/?$/.test(p) && !reachesShell(p) && routerRoutes(p);
     const disagreements = [...corpus]
-      .filter((p) => !unknownCbqSlug(p) && !unknownDailySlug(p))
+      .filter((p) => !unknownCbqSlug(p) && !unknownDailySlug(p) && !unknownFreeMcqSlug(p))
       .filter((p) => reachesShell(p) !== routerRoutes(p))
       .map((p) => `${p}  vercel=${reachesShell(p)} router=${routerRoutes(p)}`);
     expect(disagreements).toEqual([]);
