@@ -1,3 +1,16 @@
+## 2026-11-17 (daily; written 17 Nov) - #1737 - #1746: ten PRs, the free MCQ pages and PDFs, daily-question pages, ads on hold (trunk `97c023bf`)
+
+**PROVENANCE.** *(Daily handoff of 17 Nov, CLAUDE.md section 10. Covers `#1737` to `#1746`, merged 09:29 to 14:31 IST (committer times). **No grading behaviour changed (CLAUDE.md section 4a).** Merge SHAs and times **[git]**; what each PR changed **[git file lists]**; reviews, owner rulings, live results and off-repo work **[coordinator]**.)*
+
+**How the window went (IST).**
+- **09:29 to 10:12.** Four small product PRs back to back: `#1737` sample-dialog buy, `#1739` link-preview copy, `#1738` UPI first in the Razorpay sheet (Opus-reviewed), `#1740` order source on every order (Opus-approved after fixes F1 to F4), then `#1741` the Discord link, footer and community row.
+- **11:53 to 12:45.** `#1742` Important Question of the Day pages; `#1743` stopped them watching the footer (PageSpeed 80 with TBT 800 ms, then 99); `#1744` the free MCQ hub and 27 chapter pages (173 preview MCQs). Bing took all 28 submissions; Google indexing was requested for the hub.
+- **13:35 and 14:31.** `#1745` renumbered the preview questions to match the v2/v3 PDFs; `#1746` added IQ #9 to #15 (24 to 30 Nov).
+
+**Off-repo work [coordinator].** The free MCQ PDF cleanup (2,526 audited, 582 dropped, 52 keys fixed), release v2, then a cross-check that found 8 answer-line defects and release v3 (27 PDFs, 1,944 questions live; signed-in matches the sha, signed-out 401), posted to Telegram, Discord and WhatsApp. LOGIN-LCP-1 was investigated and NOT built (the shell already works; PSI is noisy). Channels were cross-linked and the IQ copy task rescheduled (18 to 30 Nov, 07:41 IST). A read of the ads data for 10 to 16 Nov led to the owner putting ads on hold.
+
+**Rulings of the day** are in DECISION_LOG.
+
 ## 2026-11-16 (daily; written 16 Nov) - #1733 - #1734: the webhook variants did not fix it; the cause is the non-ASCII checkout description (trunk `ef65acf3`)
 
 **PROVENANCE.** *(Daily handoff of 16 Nov, CLAUDE.md section 10. Covers `#1733` and `#1734`, merged 13:49 and 13:56 IST. **No grading behaviour changed (CLAUDE.md section 4a):** neither PR touches marks, mistake types, departure handling, the objective clamp or a prompt rule. Merge SHAs and times **[gh]**; what each changed **[git; the 16 Nov session handoff]**; the owner rulings and the live results **[coordinator]**.)*

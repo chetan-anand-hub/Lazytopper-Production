@@ -1,3 +1,17 @@
+> **2026-11-17 (daily; written 17 Nov) - #1737 - #1746 (CLAUDE.md section 10).** Scope: the pack sample dialog, the Razorpay sheet, order records and admin Purchases, the footer and /cbse/class-10, and two new public page families. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface Scope cell changes.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (grading), Worksheet, Chapter Test, Full Mock, Quick Practice | none (grading) | unchanged | the earlier second-surface checks stay owed |
+| Pack window (sample tap) | "Liked the sample?" buy option (`#1737`) | **merged, live** | one live sample tap |
+| Razorpay checkout sheet | UPI block first; switch `VITE_RZP_UPI_FIRST_DISABLED` (`#1738`) | **merged, live** | the Rs 58 pack test |
+| Orders and admin Purchases | `source` on payOrders and in admin; switches `ORDER_SOURCE_DISABLED`, `VITE_ORDER_SOURCE_DISABLED` (`#1740`) | **merged, live** | the "Source:" line on the next real order |
+| Link-preview copy (og/twitter) | "Start your 7-day free trial." (`#1739`) | **merged, live** | none stated |
+| Footer, /discord, Organization `sameAs`, /cbse/class-10 | Discord link and redirect; CommunityRow, switch `VITE_COMMUNITY_ROW_DISABLED` (`#1741`) | **merged, live** | Discord email verification (owner) |
+| /important-question-of-the-day and one page per question | new hub and pages, IQ #1, #6, #7, #8 in the bank at `#1742`, then #9 to #15 for 24 to 30 Nov (`#1746`) | **merged, live** | a new batch after 30 Nov |
+| Island footer observer | daily pages skip it; PageSpeed 80 to 99 (`#1743`) | **merged, live** | none stated |
+| /free-mcq-class-10 hub and 27 chapter pages | 173 preview MCQs; numbers match the v2/v3 PDFs (`#1744`, `#1745`) | **merged, live** | Google indexing of the hub was requested; low-priority PSI 93 |
+
 > **2026-11-16 (daily; written 16 Nov) - #1733 - #1734 (CLAUDE.md section 10).** Scope: the Razorpay webhook signature check and the public footer. **No grading surface moved (CLAUDE.md section 4a).** The footer moved on every public page (two social links). No other surface moved; no scope was discovered.
 
 | surface | what moved (PR) | state | owed |

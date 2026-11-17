@@ -23,6 +23,22 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-17 (daily; written 17 Nov) - #1737 - #1746 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**New:** `[FU-PAINT-SHELL-TWO-WINDOW]`, `[FU-FREE-PDF-NO-MORE-CORRECTION]`, `[FU-MCQ-PREVIEW-PSI-93]`, `[FU-LIVE-TESTS-17NOV]`. **Closed:** `[FU-SPEED-NEXT-BY-TRAFFIC]` for login LCP (done by `#1630`/`#1631`; the remaining items are in NEXT_ACTION). **Narrowed:** `[FU-OWNER-ANSWERS-16NOV]` (b) is answered yes (one sender number), and WhatsApp follow-ups for non-buyers are answered yes; both still wait on Pallabi's IDs. `[FU-WEBHOOK-ASCII-DESCRIPTION]` is not reported on today and stands as written.
+
+### [FU-PAINT-SHELL-TWO-WINDOW]
+OPEN. The /login and check-improve static paint shells switch OFF at 1 Dec 00:00 IST (a clock gate) until the scheduled recapture merges. Proposal: capture the door under both pricing windows and let the decision script pick by `Date.now()` against `pricingInstants`, so no manual recapture is needed. NOT built; the next session decides, before 1 Dec. [coordinator]
+
+### [FU-FREE-PDF-NO-MORE-CORRECTION]
+STANDING RULING, not work. Owner: no further freebie correction passes. Live: 27 PDFs, 1,944 questions (release `free-resources-v3`); the old v1 posts stay up. Do not reopen the freebies unless the owner asks. [coordinator]
+
+### [FU-MCQ-PREVIEW-PSI-93]
+OPEN, low priority. PSI mobile for /free-mcq-class-10/electricity: 93 (TBT 310 ms). [coordinator]
+
+### [FU-LIVE-TESTS-17NOV]
+OPEN, owner. Live tests owed: the Rs 58 pack test (touches `#1738`'s UPI-first sheet and the pack flow); the "Source:" line on the next real order (`#1740`); one sample tap in the pack window (`#1737`). Also owner-side: Discord email verification. Still open from before: Excellence Kit (not built), Meta CAPI, server-side GA4 (needs an API secret). Dated: 18 Nov YouTube review (scheduled task); 20 Nov behaviour re-run; 27 Nov end of the 14-day test; 30 Nov founding offer ends; 1 Dec scheduled recaptures. [coordinator]
+
 ## 2026-11-16 (daily; written 16 Nov) - #1733 - #1734 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **New:** `[FU-WEBHOOK-ASCII-DESCRIPTION]`, `[FU-EXCELLENCE-KIT-NOT-BUILT]`, `[FU-OWNER-ANSWERS-16NOV]`. `[FU-WEBHOOK-BAD-SIGNATURE-VERCEL-REWRITE]` (13 Nov) is narrowed: the URL is on Railway (`via=direct`) and the failures continue, so the Vercel rewrite was not the whole cause.

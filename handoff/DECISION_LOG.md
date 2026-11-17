@@ -1,3 +1,22 @@
+## 2026-11-17 (daily; written 17 Nov) - #1737 - #1746: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Owner rulings of 17 Nov 2026 as relayed by the coordinator **[coordinator]**, and decisions from the builds and reviews **[builder; coordinator]**. Where the source does not state a reason, the reason cell says so.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **No more freebie correction passes** [owner] | Quoted: "don't waste any more time correcting freebies; they are free resources whose purpose is to attract traffic". The old v1 posts stay up. | The PDFs exist to attract traffic, so more correction time is not worth it. |
+| **Free MCQ PDFs leave out figure-dependent questions** [owner] | The PDFs are freebies, so questions that need a figure stay out (582 of 2,526 were dropped). | A freebie cannot carry the figures; the audit dropped what was figure-dependent or unverifiable. |
+| **ORDER-SOURCE-1 approved to build and merge** [owner; Opus review] | Opus approved after fixes F1 to F4; the owner approved the lane. Kill switches `ORDER_SOURCE_DISABLED` and `VITE_ORDER_SOURCE_DISABLED`. | Reason for F1 to F4 not given in the message. |
+| **RZP-UPI-FIRST-1 merged with a kill switch** [coordinator; Opus review] | UPI first in the Razorpay sheet; `VITE_RZP_UPI_FIRST_DISABLED` turns it off. | Reason not stated beyond the change itself. |
+| **Merge green, reviewed PRs without asking, then report** [owner, standing] | Applies to product PRs that are green and reviewed. | Fewer round-trips; reason beyond that not stated. |
+| **The daily IQ posts at 07:30 IST, not in the evening** [owner] | The Telegram post goes at 07:30; a scheduled task copies it to WhatsApp and Discord #daily-question at 07:41 IST, 18 to 30 Nov. The post links the question page with `utm_campaign=iq_dayN` plus the Answer Checker (7-day free trial) line. | Reason not stated beyond "morning, not evening". |
+| **Ads are on hold; they are the FIRST item of the next session** [owner] | No campaign restarts until the next session reviews the 10 to 16 Nov data (spend Rs 1,03,168; 21 real orders worth Rs 9,048). | The cost per real order is far above target (about Rs 4,900 on these figures, an inference by the docs builder from the two numbers). |
+| **Quora is deferred** [owner] | Not pursued now. | Google sign-in left a greyed page. |
+| **WhatsApp follow-ups for non-buyers: yes; one sender number: yes** [owner] | Both wait on Pallabi's IDs. | Reason not stated. |
+| **Speed order after /login** [owner] | CLS on practice-hub, home and browse; then for-parents INP; then islands phase 2. | Reason not stated. |
+| **LOGIN-LCP-1 not built** [coordinator] | /login is judged by the throttled Lighthouse run (FCP = LCP = 1.2 s, score 0.92 to 0.93) or Vercel real-user data from 9 Nov, never a single PSI run. | PSI's simulated FCP swings 1.3 to 3.7 s run to run (the JS graph finishes before the observed FCP); the shell from `#1630`/`#1631` already works. |
+| **Proposed, NOT decided: two-window paint shells** [coordinator] | Capture the login and check-improve shells under both pricing windows and let the decision script pick by `Date.now()` against `pricingInstants`, so no manual recapture is needed at 1 Dec. | Today the shells switch OFF at 1 Dec 00:00 IST (clock gate) until the scheduled recapture merges. Not built; the next session decides. |
+
 ## 2026-11-16 (daily; written 16 Nov) - #1733 - #1734: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Owner rulings of 16 Nov 2026 as relayed by the coordinator **[coordinator]**, and decisions from the `#1733` build and review **[builder; coordinator]**. Where the source does not state a reason, the reason cell says so.
