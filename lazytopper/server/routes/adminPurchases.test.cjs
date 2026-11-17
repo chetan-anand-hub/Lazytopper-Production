@@ -844,3 +844,26 @@ test('WHATSAPP-OPTIN-1 paid: a paid order with a stored opt-in returns it (maske
   assert.equal('waOptIn' in by.pbad, false);
   assert.equal(JSON.stringify(res.body).includes('Send me updates'), false);
 });
+
+// ── ORDER-SOURCE-1: the stored visit source is returned on purchase + abandoned rows (re-sanitised; none -> no key) ──
+test('ORDER-SOURCE-1: source is on paid and abandoned rows; a click-id value never leaves; an order without one has no key', async () => {
+  const src = { utm_source: 'google', utm_medium: 'cpc', utm_campaign: 'PDF_Packs', landing: '/packs', gclid: true };
+  const orders = [
+    paid('p1', 'u1', 'month', 599, 1000, { source: { ...src, gclid: 'LEAKED-VALUE', extra: 'x' } }),
+    paid('p2', 'u2', 'month', 599, 2000),
+    created('c1', 'u3', 'month', 599, 31 * MIN, { source: { ref: 'youtube.com' } }),
+    created('c2', null, 'pack_cbq', 99, 40 * MIN, { payer: 'guest', guestPhone: '+919876543948', source: src }),
+    created('c3', 'u5', 'month', 599, 50 * MIN),
+  ];
+  const { route } = harness({ orders });
+  const res = {}; await route.list({}, res);
+  const byId = (rows) => Object.fromEntries(rows.map((r) => [r.orderId, r]));
+  const items = byId(res.body.items);
+  assert.deepEqual(items.p1.source, { utm_source: 'google', utm_medium: 'cpc', utm_campaign: 'PDF_Packs', landing: '/packs' });
+  assert.equal('source' in items.p2, false);
+  const ab = byId(res.body.abandoned.items);
+  assert.deepEqual(ab.c1.source, { ref: 'youtube.com' });
+  assert.deepEqual(ab.c2.source, src);
+  assert.equal('source' in ab.c3, false);
+  assert.equal(JSON.stringify(res.body).includes('LEAKED-VALUE'), false);
+});

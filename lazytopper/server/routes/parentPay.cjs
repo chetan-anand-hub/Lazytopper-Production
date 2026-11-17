@@ -93,6 +93,7 @@ const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, isAlreadyOwn
 const { grantPack, listPacks, PackGrantInputError } = require('../services/packGrant.cjs');
 // GST-INVOICE-1 (DARK): the parent's confirmed state on the order, and the tax invoice after a verified capture.
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
+const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
 
 const PARENT_LINK_PATH = '/api/pay/parent-link';
 const PARENT_VIEW_PATH = '/api/pay/parent/view';
@@ -812,6 +813,7 @@ function createParentPayRoutes(deps = {}) {
         ...creditOrderFields(packCreditInr, packCreditIds),
         ...gstOrderFields(quote),
         ...gstBuyerFields(body),
+        ...orderSourceField(body, env), // ORDER-SOURCE-1
         offerKey: quote.offerKey,
         status: 'created',
         createdAt: new Date(now()),
@@ -891,6 +893,7 @@ function createParentPayRoutes(deps = {}) {
         amountPaise,
         ...gstOrderFields(packQuote),
         ...gstBuyerFields(body),
+        ...orderSourceField(body, env), // ORDER-SOURCE-1
         packTarget: pack.target,
         offerKey: null,
         status: 'created',

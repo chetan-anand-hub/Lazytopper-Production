@@ -229,6 +229,7 @@ const VISIT_SOURCE_KEY = "lazytopper.visitSource";
 const LONG_KEEP_KEY = "lazytopper.visitSourceKeep";
 const LONG_KEEP_MS = 7 * 24 * 60 * 60 * 1000;
 const GUIDE_INTENT_KEY = "lazytopper.guideIntent";
+const ORDER_SOURCE_KEY = "lazytopper.orderSource"; // ORDER-SOURCE-1
 const START_HERE_SUBJECT_HINT_KEY = "lazytopper.startHereSubject";
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content"] as const;
 const UTM_CHARSET = /^[A-Za-z0-9_.\-{}]+$/;
@@ -418,6 +419,18 @@ export function rememberVisitSource(
         );
       } catch {
         /* blocked storage */
+      }
+    }
+    if (captured) {
+      // ORDER-SOURCE-1 (mirrors visitSource.ts rememberOrderSource): the same touch, kept for checkout after sign-up.
+      try {
+        const rawOrder = window.sessionStorage.getItem(ORDER_SOURCE_KEY);
+        const keepOrder = rawOrder !== null && isTaggedSource(parseStored(rawOrder));
+        if (!keepOrder && (rawOrder === null || isTaggedSource(captured))) {
+          window.sessionStorage.setItem(ORDER_SOURCE_KEY, JSON.stringify(captured));
+        }
+      } catch {
+        /* blocked storage: the order simply carries no source */
       }
     }
     if (captured && isTaggedSource(captured) && !readLongKeep()) {

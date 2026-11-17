@@ -64,6 +64,7 @@ const { GUEST_PAYER, markGuestOrderPaid } = require('../services/guestPay.cjs');
 // GST-INVOICE-1 (DARK): the buyer's confirmed state on the order, and the tax invoice issued after a verified capture.
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
+const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
 
 /**
  * MONEY-DUPGUARD-1 - parentPay.cjs `coveredTillBoards`, the SAME function guest and parent pay use (not a copy). Read at
@@ -836,6 +837,7 @@ function createPaymentRoutes(deps = {}) {
         ...gstOrderFields(quote),
         ...gstBuyer.fields,
         ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: only when the number is valid AND the tick was sent; else nothing
+        ...orderSourceField(body, env), // ORDER-SOURCE-1: whitelisted + sanitised; nothing when absent / invalid / switched off
         offerKey: quote.offerKey,
         status: 'created',
         createdAt: new Date(now()),

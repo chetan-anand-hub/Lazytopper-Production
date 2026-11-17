@@ -433,6 +433,17 @@ test('O · till-boards is priced from the CHILD\'s subscription (a founding chil
 const seedChildPack = (db, uid, packId, extra = {}) =>
   db.docs.set(`packEntitlements/${uid}/packs/${packId}`, { data: { packId, sku: 'pack_chapter', target: 'triangles', pricePaidInr: 49, paidAt: NOW - 1000, orderId: 'o_seed', paymentRef: 'p_seed', creditedToPass: false, ...extra }, version: 1 });
 
+test('ORDER-SOURCE-1 · O · a parent-link order stores the whitelisted source; none -> no field', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { token } = await mint(srv);
+  const r = await parentOrder(srv, token, 'month', { source: { utm_source: 'google', utm_medium: 'cpc', gclid: 'SECRET', junk: 1 } }, asUid('parentOwnAccount'));
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(srv.db.read(`payOrders/${r.json.orderId}`).source, { utm_source: 'google', utm_medium: 'cpc' });
+  const none = await parentOrder(srv, token, 'month', {}, asUid('parentOwnAccount'));
+  assert.equal(srv.db.read(`payOrders/${none.json.orderId}`).source, undefined);
+});
+
 test('PACK-CREDIT-1 · O · a Board Pass order made through a parent link is credited with the CHILD\'s recent pack, in Razorpay, the notes and the stored order', async (t) => {
   const plain = await startRoutes();
   t.after(plain.close);
@@ -1049,6 +1060,25 @@ test('PARENT-PACKS-1 · view: first name + the pack at the server price, nothing
   assert.equal(r.json.firstName, 'Aarav');
   assert.deepEqual(r.json.pack, { sku: 'pack_chapter', target: 'polynomials', priceInr: 49 });
   assert.ok(!r.text.includes('child1'));
+});
+
+test('ORDER-SOURCE-1 · parent-link PACK order stores the whitelisted source; absent -> no field; kill switch -> none', async (t) => {
+  const srv = await startRoutes({ env: ENV_PACKS });
+  t.after(srv.close);
+  const { json: m } = await mintPack(srv, { sku: 'pack_cbq', target: 'maths' });
+  const o = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.token, product: 'pack', source: { utm_source: 'google', utm_medium: 'cpc', gclid: 'SECRET', junk: 1 } } });
+  assert.equal(o.status, 200, o.text);
+  assert.deepEqual(srv.db.read(`payOrders/${o.json.orderId}`).source, { utm_source: 'google', utm_medium: 'cpc' });
+  const { json: m2 } = await mintPack(srv, { sku: 'pack_cbq', target: 'maths' });
+  const none = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m2.token, product: 'pack' } });
+  assert.equal(none.status, 200, none.text);
+  assert.equal(srv.db.read(`payOrders/${none.json.orderId}`).source, undefined);
+  const off = await startRoutes({ env: { ...ENV_PACKS, ORDER_SOURCE_DISABLED: '1' } });
+  t.after(off.close);
+  const { json: m3 } = await mintPack(off, { sku: 'pack_cbq', target: 'maths' });
+  const o3 = await request(off.port, PARENT_ORDER_PATH, { body: { token: m3.token, product: 'pack', source: { utm_source: 'google' } } });
+  assert.equal(o3.status, 200, o3.text);
+  assert.equal(off.db.read(`payOrders/${o3.json.orderId}`).source, undefined);
 });
 
 test('PARENT-PACKS-1 · order -> verify: the parent body cannot change sku / target / uid / amount; the pack lands on the CHILD; link spent', async (t) => {

@@ -19,6 +19,7 @@ import { maskIndianMobile, normaliseIndianMobile } from "../lib/maskContact";
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { waOptInOrderFields } from "./waOptIn";
+import { orderSourceFields } from "../analytics/visitSource";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
 export const GUEST_ORDER_ENDPOINT = "/api/pay/guest/order";
@@ -152,6 +153,7 @@ export async function createGuestOrder(item: GuestItem, phone: string): Promise<
     phone,
     ...gst,
     ...waOptInOrderFields(), // WHATSAPP-OPTIN-1: only a valid number + the tick
+    ...orderSourceFields(), // ORDER-SOURCE-1
   });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
