@@ -162,6 +162,26 @@ function WhoRow({ w, id }: { w: WhoFields; id: string }) {
   return line ? <span className="pu-reason sa-muted" data-testid={`pu-who-${id}`}>{line}</span> : null;
 }
 
+/** ORDER-SOURCE-1 - the visit source stored on an order (server-sanitised; absent on an older order). */
+export interface OrderSourceInfo {
+  ref?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  landing?: string;
+}
+
+/** "google / cpc · PDF Packs" from utm_source / utm_medium · utm_campaign, else the referrer host, else "direct". */
+export function sourceLine(s: OrderSourceInfo): string {
+  const tag = [s.utm_source, s.utm_medium].filter(Boolean).join(" / ");
+  const head = tag || s.ref || "direct";
+  return s.utm_campaign && tag ? `${head} · ${s.utm_campaign}` : head;
+}
+
+function SourceRow({ source, id }: { source?: OrderSourceInfo; id: string }) {
+  return source ? <span className="pu-reason sa-muted" data-testid={`pu-source-${id}`}>Source: {sourceLine(source)}</span> : null;
+}
+
 export interface PurchaseItem extends WhoFields {
   orderId: string;
   paidAtMs: number;
@@ -181,6 +201,8 @@ export interface PurchaseItem extends WhoFields {
   receiptEmailedAtMs?: number;
   /** WHATSAPP-OPTIN-1: the buyer's WhatsApp opt-in on this paid order (masked + full for Reveal); absent when none. */
   waOptIn?: { phoneMasked: string; phone: string; consentAtMs: number | null; source: string };
+  /** ORDER-SOURCE-1: where the buyer came from; absent for an order made before this existed. */
+  source?: OrderSourceInfo;
 }
 /** CHECKOUT-1 - an order that was opened ("created") and never paid, older than 30 minutes. */
 export interface AbandonedItem {
@@ -205,6 +227,8 @@ export interface AbandonedItem {
   payerType?: string | null;
   /** WHATSAPP-OPTIN-1: the buyer typed a WhatsApp number AND ticked the consent. `phoneMasked` is shown; `phone` only after a per-row Reveal. */
   waOptIn?: { phoneMasked: string; phone: string; consentAtMs: number | null; source: string };
+  /** ORDER-SOURCE-1: where the buyer came from; absent for an order made before this existed. */
+  source?: OrderSourceInfo;
   /** PAY-RESCUE-1: absent on an older server. True only when Razorpay's `payment.failed` left a note on the order. */
   attempted?: boolean;
   lastFailure?: { code: string; reason: string; source: string; step: string; atMs: number | null } | null;
@@ -486,6 +510,7 @@ export function AbandonedList({ abandoned }: { abandoned: PurchasesResponse["aba
                 {abandonedReason(a)}
               </span>
               {a.waOptIn && <WaNumber masked={a.waOptIn.phoneMasked} full={a.waOptIn.phone} testId={`pu-ab-wa-${a.orderId}`} />}
+              <SourceRow source={a.source} id={`ab-${a.orderId}`} />
             </li>
           ))}
         </ul>
@@ -566,6 +591,7 @@ export default function PurchasesCard({ getToken }: { getToken: () => Promise<st
                     )}
                   </span>
                   <WhoRow w={p} id={p.orderId} />
+                  <SourceRow source={p.source} id={p.orderId} />
                   {p.waOptIn && <WaNumber masked={p.waOptIn.phoneMasked} full={p.waOptIn.phone} testId={`pu-wa-${p.orderId}`} />}
                   {typeof p.receiptEmailedAtMs === "number" && (
                     <span className="pu-reason sa-muted" data-testid={`pu-receipt-${p.orderId}`}>

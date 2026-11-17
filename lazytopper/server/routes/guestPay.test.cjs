@@ -3405,3 +3405,30 @@ test('PUT-ON · the order must sit on the pay- account made for EXACTLY this ord
   assert.equal(t2.json.reason, 'not_available');
   assert.ok(db2.read(key).uid === null || db2.read(key).uid === undefined);
 });
+
+// ── ORDER-SOURCE-1: guest, who and self order writers store the sanitised source ──
+test('ORDER-SOURCE-1 · guest order stores the whitelisted source (no click-id value); invalid -> no field; kill switch -> none', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const g = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE, source: { utm_source: 'meta', utm_medium: 'paid', landing: '/packs', fbclid: 'REAL-ID', gclid: true, junk: 1 } });
+  assert.equal(g.status, 200, g.text);
+  assert.deepEqual(srv.db.read(`payOrders/${g.json.orderId}`).source, { utm_source: 'meta', utm_medium: 'paid', landing: '/packs', gclid: true });
+  const none = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: '+919876543210', source: { utm_source: 'a@b.com' } });
+  assert.equal(srv.db.read(`payOrders/${none.json.orderId}`).source, undefined);
+  const off = await startRoutes({ env: { ...ENV_ON, ORDER_SOURCE_DISABLED: '1' } });
+  t.after(off.close);
+  const o = await guestOrder(off, { sku: 'pack_mock', target: 'maths', phone: PHONE, source: { utm_source: 'meta' } });
+  assert.equal(o.status, 200, o.text);
+  assert.equal(off.db.read(`payOrders/${o.json.orderId}`).source, undefined);
+});
+
+test('ORDER-SOURCE-1 · who-order and self-order store the source too', async (t) => {
+  const srv = await startRoutes({ env: WHO_ENV });
+  t.after(srv.close);
+  const w = await whoOrder(srv, { sku: 'pack_mock', target: 'maths', recipient: { phone: PHONE, first: 'Aarav' }, source: { utm_source: 'google', utm_medium: 'cpc' } });
+  assert.equal(w.status, 200, w.text);
+  assert.deepEqual(srv.db.read(`payOrders/${w.json.orderId}`).source, { utm_source: 'google', utm_medium: 'cpc' });
+  const s = await whoOrder(srv, { sku: 'pack_mock', target: 'maths', self: true, source: { ref: 'youtube.com' } });
+  assert.equal(s.status, 200, s.text);
+  assert.deepEqual(srv.db.read(`payOrders/${s.json.orderId}`).source, { ref: 'youtube.com' });
+});

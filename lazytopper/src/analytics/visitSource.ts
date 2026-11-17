@@ -373,6 +373,84 @@ function rememberGuideIntent(captured: VisitSource): void {
 }
 
 /**
+ * ORDER-SOURCE-1 (owner-approved): the SAME coarse touch, kept for the rest of THIS TAB so an order made after sign-up
+ * can say where the buyer came from (VISIT_SOURCE_KEY is deleted at sign-up). Tab-scoped sessionStorage, the same
+ * allow-listed fields, tagged-beats-untagged, ends with the tab; sent only inside an order-create body to OUR server.
+ */
+export const ORDER_SOURCE_KEY = "lazytopper.orderSource";
+
+function rememberOrderSource(captured: VisitSource): void {
+  try {
+    const raw = window.sessionStorage.getItem(ORDER_SOURCE_KEY);
+    const keepStored = raw !== null && isTaggedSource(parseStored(raw));
+    if (!keepStored && (raw === null || isTaggedSource(captured))) {
+      window.sessionStorage.setItem(ORDER_SOURCE_KEY, JSON.stringify(captured));
+    }
+  } catch {
+    /* blocked storage: the order simply carries no source */
+  }
+}
+
+/** What an order-create request carries as `source`: allow-listed keys only, strings <= 64 chars, click ids as `true` only. */
+export interface OrderSource {
+  ref?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_content?: string;
+  landing?: string;
+  gclid?: true;
+  fbclid?: true;
+  gbraid?: true;
+  wbraid?: true;
+}
+
+/** Client kill switch: VITE_ORDER_SOURCE_DISABLED=1 -> no `source` is ever sent. */
+function isOrderSourceClientDisabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_ORDER_SOURCE_DISABLED;
+    return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * ORDER-SOURCE-1: this visit's source for an order-create body, or undefined (kill switch, nothing stored, blocked storage).
+ * Reads the tab's order copy, else the sign-up copy, else the 7-day tagged copy; every one re-cleaned through the
+ * same allow-list. Never a click-id value, a query string, a full URL or anything typed. Never throws.
+ */
+export function orderSourceForCheckout(): OrderSource | undefined {
+  if (isOrderSourceClientDisabled()) return undefined;
+  try {
+    let v: VisitSource | null = null;
+    for (const key of [ORDER_SOURCE_KEY, VISIT_SOURCE_KEY]) {
+      v = sanitiseStored(parseStored(window.sessionStorage.getItem(key)));
+      if (v) break;
+    }
+    if (!v) v = readLongKeep();
+    if (!v) return undefined;
+    const out: OrderSource = {};
+    if (v.ref) out.ref = v.ref;
+    for (const k of UTM_KEYS) if (v[k]) out[k] = v[k] as string;
+    out.landing = v.landing;
+    if (v.gclid) out.gclid = true;
+    if (v.fbclid) out.fbclid = true;
+    if (v.gbraid) out.gbraid = true;
+    if (v.wbraid) out.wbraid = true;
+    return out;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Spread into an order-create body: `{ source }` or `{}`. */
+export function orderSourceFields(): { source?: OrderSource } {
+  const source = orderSourceForCheckout();
+  return source ? { source } : {};
+}
+
+/**
  * Write `sessionStorage[VISIT_SOURCE_KEY]` only if the tab has not captured already.
  * Never throws; storage can be blocked. Defaults read the live page.
  */
@@ -393,6 +471,7 @@ export function rememberVisitSourceOnce(
       window.sessionStorage.setItem(VISIT_SOURCE_KEY, JSON.stringify(captured));
       rememberGuideIntent(captured);
     }
+    if (captured) rememberOrderSource(captured);
     if (captured) rememberLongKeep(captured);
   } catch {
     /* blocked storage: the source simply is not recorded */

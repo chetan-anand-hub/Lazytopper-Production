@@ -85,6 +85,7 @@ const { MoveError } = require('../services/adminMovePurchase.cjs');
 const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, packIdFor } = require('../services/packProducts.cjs');
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
+const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
 // Review fix 5: "already covered till the boards" is the parent-pay rule, reused.
 const { coveredTillBoards } = require('./parentPay.cjs');
 const {
@@ -598,6 +599,7 @@ function createGuestPayRoutes(deps = {}) {
         ...gstOrderFields(quote),
         ...gstBuyerFields(body),
         ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: valid number + explicit tick only
+        ...orderSourceField(body, env), // ORDER-SOURCE-1
         offerKey: quote.offerKey,
         status: GUEST_STATUS.created,
         createdAt: new Date(now()),
@@ -780,6 +782,7 @@ function createGuestPayRoutes(deps = {}) {
       ...gstOrderFields(quote),
       ...gstBuyerFields(body),
       ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: the visitor's own WhatsApp number (not the recipient's); valid + ticked only
+      ...orderSourceField(body, env), // ORDER-SOURCE-1
       offerKey: quote.offerKey,
       status: GUEST_STATUS.created,
       createdAt: new Date(now()),
@@ -853,6 +856,7 @@ function createGuestPayRoutes(deps = {}) {
         ...gstOrderFields(quote),
         ...gstBuyerFields(body),
         ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: valid number + explicit tick only
+        ...orderSourceField(body, env), // ORDER-SOURCE-1
         offerKey: quote.offerKey,
         status: GUEST_STATUS.created,
         createdAt: new Date(now()),

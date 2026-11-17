@@ -2374,6 +2374,61 @@ test('WA-OPTIN · signed-in order: an attacker-supplied consentText / version / 
   assert.equal(w.consentAt, NOW);
 });
 
+/* ── ORDER-SOURCE-1: the order stores a WHITELISTED, sanitised `source` (never a click-id value / email / phone / URL) ──
+ * MUTATIONS: M1 orderSource.cjs keeps unknown keys -> "drops unknown keys" red; M2 keeps a click-id string -> "click ids" red;
+ *            M3 payments.cjs drops the spread -> "stores it" red; M4 ignores ORDER_SOURCE_DISABLED -> "kill switch" red.
+ */
+const { sanitiseOrderSource, orderSourceField, MAX_LEN: SOURCE_MAX } = require('../services/orderSource.cjs');
+
+test('ORDER-SOURCE · sanitiser: drops unknown keys, caps length, rejects click-id values / URLs / emails / phones', () => {
+  const out = sanitiseOrderSource({
+    ref: 'WWW.Google.com',
+    utm_source: ' google ',
+    utm_medium: 'cpc',
+    utm_campaign: 'PDF_Packs',
+    utm_content: 'x'.repeat(500),
+    landing: '/packs',
+    gclid: 'EAIaIQobChMI-REAL-CLICK-ID',
+    fbclid: true,
+    gbraid: 'abc',
+    uid: 'u1',
+    email: 'a@b.com',
+    nested: { a: 1 },
+  });
+  assert.deepEqual(out, { ref: 'www.google.com', utm_source: 'google', utm_medium: 'cpc', utm_campaign: 'PDF_Packs', utm_content: 'x'.repeat(SOURCE_MAX), landing: '/packs', fbclid: true });
+  assert.equal(JSON.stringify(out).includes('REAL-CLICK-ID'), false);
+  const bad = sanitiseOrderSource({ utm_source: 'a@b.com', utm_medium: 'https://x.com/?a=1', utm_campaign: '9876543948', landing: '/p?gclid=1', ref: 'x.com/path' });
+  assert.deepEqual(bad, {});
+  for (const junk of [null, undefined, 'x', 5, [], [{ utm_source: 'g' }], {}]) assert.deepEqual(sanitiseOrderSource(junk), {});
+});
+
+test('ORDER-SOURCE · a valid source is stored on the order (pass and pack); absent / invalid -> no field, doc keys identical to before', async (t) => {
+  const srv = await startRoutes({ env: { ...ENV_ON, PACKS_ENABLED: '1' } });
+  t.after(srv.close);
+  const out = await createOrder(srv, 'u1', 'till_boards', { source: { utm_source: 'google', utm_medium: 'cpc', utm_campaign: 'PDF_Packs', landing: '/packs', gclid: 'SECRET', fbclid: true, junk: 1 } });
+  assert.deepEqual(srv.db.read(`payOrders/${out.orderId}`).source, { utm_source: 'google', utm_medium: 'cpc', utm_campaign: 'PDF_Packs', landing: '/packs', fbclid: true });
+  const pack = await createOrder(srv, 'u2', 'pack_cbq', { packTarget: 'maths', source: { ref: 'youtube.com' } });
+  assert.deepEqual(srv.db.read(`payOrders/${pack.orderId}`).source, { ref: 'youtube.com' });
+  let uid = 0;
+  for (const source of [undefined, null, 'x', [], {}, { gclid: 'only-a-value' }, { utm_source: 'a@b.com' }]) {
+    uid += 1;
+    const o = await createOrder(srv, `s${uid}`, 'month', source === undefined ? {} : { source });
+    const stored = srv.db.read(`payOrders/${o.orderId}`);
+    assert.equal(stored.source, undefined);
+    assert.deepEqual(Object.keys(stored).sort(), ['amountPaise', 'createdAt', 'offerKey', 'passType', 'status', 'uid']);
+  }
+});
+
+test('ORDER-SOURCE · kill switch ORDER_SOURCE_DISABLED=1: never stored, the order is still created', async (t) => {
+  assert.deepEqual(orderSourceField({ source: { utm_source: 'google' } }, { ORDER_SOURCE_DISABLED: '1' }), {});
+  assert.deepEqual(orderSourceField({ source: { utm_source: 'google' } }, {}), { source: { utm_source: 'google' } });
+  const srv = await startRoutes({ env: { ...ENV_ON, ORDER_SOURCE_DISABLED: '1' } });
+  t.after(srv.close);
+  const out = await createOrder(srv, 'u1', 'till_boards', { source: { utm_source: 'google' } });
+  assert.ok(out.orderId);
+  assert.equal(srv.db.read(`payOrders/${out.orderId}`).source, undefined);
+});
+
 /* ── PAY-WEBHOOK-REJECT-LOG-1 · a rejected webhook says WHY in the server log (ids only, no PII) ── */
 test('Z5 · reject log: amount_mismatch webhook -> one warn line with reason + order id + amounts, still 400; bad_signature -> no ids; no PII shape', async (t) => {
   const warns = [];

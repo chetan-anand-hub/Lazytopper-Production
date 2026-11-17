@@ -1005,6 +1005,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "click id or the uid; NOT cleared at sign-up, it ends with the tab), and localStorage `lazytopper.ziggyShown.<tag>` " +
       "(the single character 1 once Ziggy reacted to this account's first scorecard on this device; " +
       "<tag> is an 8-hex hash of the uid, never the uid). " +
+      "ORDER-SOURCE-1: plus, in THIS TAB's sessionStorage, `lazytopper.orderSource` (the same coarse visit source as " +
+      "`lazytopper.visitSource`, kept after sign-up so an order can say where the buyer came from; never a click-id value, a " +
+      "query string, a full URL or the uid; ends with the tab; sent only inside an order-create request to our own server). " +
       "PAY-PHONE-1: plus localStorage `lazytopper.packNameSkipped.<tag>` (the single character 1 once a phone-only " +
       "account skipped the \"Student's name for your PDFs\" question in My packs, so it is not asked again on this device; " +
       "<tag> is an 8-hex hash of the uid, never the uid; never a name, never pack state). " +

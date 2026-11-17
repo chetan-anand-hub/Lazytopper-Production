@@ -36,6 +36,7 @@ const { istDayStartMs, addIstDays } = require('./adminStudents.cjs');
 // PAY-PHONE-1: guest (phone-number) payments nobody has claimed yet. Read-only; the phone is shown MASKED.
 const { maskIndianMobile, maskEmail, GUEST_STATUS, normaliseEmail, normaliseIndianMobile } = require('../services/guestPay.cjs');
 const { WA_OPTIN_COLLECTION } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
+const { sanitiseOrderSource } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
 // ADMIN-MOVE-1: move one paid pack order to another account.
 const { movePackOrder, MoveError } = require('../services/adminMovePurchase.cjs');
 const { mergeAccount, retireAccount } = require('../services/adminMergeAccount.cjs');
@@ -119,6 +120,12 @@ function waOptInOf(v) {
   const phone = normaliseIndianMobile(typeof w.phone === 'string' ? w.phone : '');
   if (!phone) return {};
   return { waOptIn: { phoneMasked: maskIndianMobile(phone), phone, consentAtMs: msOf(w.consentAt), source: typeof w.source === 'string' ? w.source : 'checkout' } };
+}
+
+/** ORDER-SOURCE-1 - the order's stored visit source, re-sanitised on the way out; nothing for an order that has none. */
+function sourceOf(v) {
+  const src = sanitiseOrderSource(v && v.source);
+  return Object.keys(src).length ? { source: src } : {};
 }
 
 function guestRecipient(v) {
@@ -231,6 +238,7 @@ function createAdminPurchasesRoutes(deps = {}) {
             payerType: typeof v.payerType === 'string' ? v.payerType : null,
             ...failureFields(v.lastFailure),
             ...waOptInOf(v),
+            ...sourceOf(v), // ORDER-SOURCE-1
           });
           return;
         }
@@ -247,6 +255,7 @@ function createAdminPurchasesRoutes(deps = {}) {
           isAdminAccount: admins.has(v.uid),
           ...failureFields(v.lastFailure),
           ...waOptInOf(v),
+          ...sourceOf(v), // ORDER-SOURCE-1
         });
       });
       rows.sort((a, b) => b.createdAtMs - a.createdAtMs);
@@ -445,6 +454,7 @@ function createAdminPurchasesRoutes(deps = {}) {
           ...whoFields(v),
           // WHATSAPP-OPTIN-1 (owner 13 Nov 2026): a paid order carries the buyer's opt-in too (masked + full for the card's Reveal), for the later thank-you.
           ...waOptInOf(v),
+          ...sourceOf(v), // ORDER-SOURCE-1
           // RECEIPT-EMAIL-1: when the receipt email went out; nothing when it did not (no address, off, failed).
           ...(v.receiptEmail && v.receiptEmail.status === 'sent' && msOf(v.receiptEmail.at) !== null ? { receiptEmailedAtMs: msOf(v.receiptEmail.at) } : {}),
           // PARENT-PACKS-1 review M2: a paid pack order whose pack the student already had (packGrant `duplicate`). Facts only.

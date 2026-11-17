@@ -433,6 +433,17 @@ test('O · till-boards is priced from the CHILD\'s subscription (a founding chil
 const seedChildPack = (db, uid, packId, extra = {}) =>
   db.docs.set(`packEntitlements/${uid}/packs/${packId}`, { data: { packId, sku: 'pack_chapter', target: 'triangles', pricePaidInr: 49, paidAt: NOW - 1000, orderId: 'o_seed', paymentRef: 'p_seed', creditedToPass: false, ...extra }, version: 1 });
 
+test('ORDER-SOURCE-1 · O · a parent-link order stores the whitelisted source; none -> no field', async (t) => {
+  const srv = await startRoutes();
+  t.after(srv.close);
+  const { token } = await mint(srv);
+  const r = await parentOrder(srv, token, 'month', { source: { utm_source: 'google', utm_medium: 'cpc', gclid: 'SECRET', junk: 1 } }, asUid('parentOwnAccount'));
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(srv.db.read(`payOrders/${r.json.orderId}`).source, { utm_source: 'google', utm_medium: 'cpc' });
+  const none = await parentOrder(srv, token, 'month', {}, asUid('parentOwnAccount'));
+  assert.equal(srv.db.read(`payOrders/${none.json.orderId}`).source, undefined);
+});
+
 test('PACK-CREDIT-1 · O · a Board Pass order made through a parent link is credited with the CHILD\'s recent pack, in Razorpay, the notes and the stored order', async (t) => {
   const plain = await startRoutes();
   t.after(plain.close);
