@@ -196,7 +196,7 @@
      "uncertain": false
     },
     {
-     "n": 5,
+     "n": 4,
      "question": "If $\\alpha, \\beta$ are the zeros of the polynomial $p(x) = 4x^2 + 3x + 7$, then $\\frac{1}{\\alpha}+\\frac{1}{\\beta}$ is equal to:",
      "options": {
       "a": "$\\frac{7}{3}$",
@@ -212,7 +212,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 5,
      "question": "A quadratic polynomial, the sum of whose zeroes is 0 and one zero is 3, is:",
      "options": {
       "a": "$x^2 - 9$",
@@ -333,7 +333,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 7,
      "question": "Choose the correct answer from the given four options:\nFor what value of k, do the equations $3x - y + 8 = 0$ and $6x - ky = -16$ represent coincident lines?",
      "options": {
       "a": "$\\frac{1}{2}$",
@@ -422,7 +422,7 @@
      "uncertain": false
     },
     {
-     "n": 6,
+     "n": 5,
      "question": "If the equation $x^2 - bx + 1 = 0$ does not possess real roots, then:",
      "options": {
       "a": "-3 < b < 3",
@@ -438,7 +438,7 @@
      "uncertain": false
     },
     {
-     "n": 7,
+     "n": 6,
      "question": "If $x = 1$ is a common root of $ax^2 + ax + 2 = 0$ and $x^2 + x + b = 0$, then $ab =$",
      "options": {
       "a": "1",
@@ -454,7 +454,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 7,
      "question": "Choose the correct answer from the given four options in the following questions\nWhich of the following equations has no real roots?",
      "options": {
       "a": "$x^2 - 4x + 3\\sqrt{2} = 0$",
@@ -616,7 +616,7 @@
    "keptCount": 4,
    "questions": [
     {
-     "n": 2,
+     "n": 1,
      "question": "In $\\triangle ABC$, a line XY parallel to BC cuts AB at X and AC at Y. If BY bisects $\\angle XYC$, then:",
      "options": {
       "a": "$BC = CY$",
@@ -632,7 +632,7 @@
      "uncertain": false
     },
     {
-     "n": 3,
+     "n": 2,
      "question": "In $\\triangle ABC$ and $\\triangle DEF$, it is given that $\\angle B = \\angle E, \\angle F = \\angle C$ and $AB = 3DE$, then the two triangles are:",
      "options": {
       "a": "Congruent but not similar",
@@ -648,7 +648,7 @@
      "uncertain": false
     },
     {
-     "n": 6,
+     "n": 3,
      "question": "If ABC is a right triangle right-angled at B and M, N are the mid-points of AB and BC respectively, then $4(AN^2 + CM^2) =$",
      "options": {
       "a": "$4AC^2$",
@@ -664,7 +664,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 4,
      "question": "The line segments joining the midpoint of the sides of a triangle form four triangles, each of which is:",
      "options": {
       "a": "Congruent to the original triangle.",
@@ -842,7 +842,7 @@
      "uncertain": false
     },
     {
-     "n": 3,
+     "n": 2,
      "question": "If $\\cos A + \\cos^2 A = 1$ then $\\sin^2 A + \\sin^4 A = ?$",
      "options": {
       "a": "1",
@@ -858,7 +858,7 @@
      "uncertain": false
     },
     {
-     "n": 4,
+     "n": 3,
      "question": "Choose the correct option and justify your choice:\n$\\frac{1-\\tan^2 45^\\circ}{1+\\tan^2 45^\\circ} =$",
      "options": {
       "a": "$\\tan 90^\\circ$",
@@ -874,7 +874,7 @@
      "uncertain": false
     },
     {
-     "n": 5,
+     "n": 4,
      "question": "If $\\tan\\theta = \\frac{1}{\\sqrt{7}}$ then $\\frac{(\\text{cosec}^2\\theta - \\sec^2\\theta)}{(\\text{cosec}^2\\theta + \\sec^2\\theta)} = ?$",
      "options": {
       "a": "$\\frac{-2}{3}$",
@@ -890,7 +890,7 @@
      "uncertain": false
     },
     {
-     "n": 6,
+     "n": 5,
      "question": "$\\sin 2A = 2\\sin A$ is true when A =",
      "options": {
       "a": "$0^\\circ$",
@@ -906,7 +906,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 6,
      "question": "$(1 + \\tan\\theta + \\sec\\theta)(1 + \\cot\\theta - \\text{cosec}\\,\\theta) =$",
      "options": {
       "a": "0",
@@ -1100,7 +1100,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 3,
      "question": "In a right triangle ABC, right-angled at B, BC = 12cm and AB = 5cm. The radius of the circle inscribed in the triangle (in cm) is:",
      "options": {
       "a": "4",
@@ -1141,7 +1141,7 @@
      "uncertain": false
     },
     {
-     "n": 3,
+     "n": 2,
      "question": "If the area of a sector of a circle bounded by an arc of length $5\\pi$cm is equal to $20\\pi$cm$^2$, then its radius is:",
      "options": {
       "a": "12cm",
@@ -1157,7 +1157,7 @@
      "uncertain": false
     },
     {
-     "n": 4,
+     "n": 3,
      "question": "A chord of a circle of radius 10cm subtends a right angle at the centre. The area of the minor segments (given, $\\pi = 3.14$) is:",
      "options": {
       "a": "32.5cm$^2$",
@@ -1173,7 +1173,7 @@
      "uncertain": false
     },
     {
-     "n": 5,
+     "n": 4,
      "question": "If a chord of a circle of radius 28cm makes an angle of 90° at the centre, then the area of the major segment is:",
      "options": {
       "a": "392cm$^2$",
@@ -1189,7 +1189,7 @@
      "uncertain": false
     },
     {
-     "n": 6,
+     "n": 5,
      "question": "If the area of a sector of a circle is $\\frac{5}{18}$ of the area of the circle, then the sector angle is equal to:",
      "options": {
       "a": "60º",
@@ -1205,7 +1205,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 6,
      "question": "If the perimeter of a sector of a circle of radius 6.5cm is 29cm, then its area is:",
      "options": {
       "a": "58cm$^2$",
@@ -1416,7 +1416,7 @@
      "uncertain": false
     },
     {
-     "n": 5,
+     "n": 4,
      "question": "Consider the following table:\n\n| Class interval | 10-14 | 14-18 | 18-22 | 22-26 | 26-30 |\n|---|---|---|---|---|---|\n| Frequency | 5 | 11 | 16 | 25 | 19 |\n\nThe mode of the above data is:",
      "options": {
       "a": "23.5",
@@ -1432,7 +1432,7 @@
      "uncertain": false
     },
     {
-     "n": 6,
+     "n": 5,
      "question": "If the mean of the following distribution is 2.6, then the value of y is:\n\n| Variable (x) | 1 | 2 | 3 | 4 | 5 |\n|---|---|---|---|---|---|\n| Frequency | 4 | 5 | y | 1 | 2 |",
      "options": {
       "a": "3",
@@ -1448,7 +1448,7 @@
      "uncertain": false
     },
     {
-     "n": 7,
+     "n": 6,
      "question": "Choose the correct answer from the given four options:\nFor the following distribution:\n\n| Marks | Number of students |\n|---|---|\n| Below 10 | 3 |\n| Below 20 | 12 |\n| Below 30 | 27 |\n| Below 40 | 57 |\n| Below 50 | 75 |\n| Below 60 | 80 |\n\nthe modal class is:",
      "options": {
       "a": "10-20",
@@ -1464,7 +1464,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 7,
      "question": "The median of first 10 prime numbers is:",
      "options": {
       "a": "11",
@@ -1643,7 +1643,7 @@
      "note": "Statements are printed numbered 1-4 but the options refer to them as (A)-(D) (A=1 ... D=4). Transcribed as printed."
     },
     {
-     "n": 4,
+     "n": 3,
      "question": "One of the following is an exothermic reaction. This is:",
      "options": {
       "a": "Electrolysis of water.",
@@ -1659,7 +1659,7 @@
      "uncertain": false
     },
     {
-     "n": 5,
+     "n": 4,
      "question": "Which among the following is (are) double displacement reaction(s)?\n1. $Pb + CuCl_2 \\rightarrow PbCl_2 + Cu$\n2. $Na_2SO_4 + BaCl_2 \\rightarrow BaSO_4 + 2NaCl$\n3. $C + O_2 \\rightarrow CO_2$\n4. $CH_4 + 2O_2 \\rightarrow CO_2 + 2H_2O$",
      "options": {
       "a": "1 and 4",
@@ -1675,7 +1675,7 @@
      "uncertain": false
     },
     {
-     "n": 6,
+     "n": 5,
      "question": "The following reaction is an example of a:\n$4NH_3(g) + 5O_2(g) \\rightarrow 4NO(g) + 6H_2O(g)$\n1. Displacement reaction.\n2. Combination reaction.\n3. Redox reaction.\n4. Neutralisation reaction.",
      "options": {
       "a": "1 and 4",
@@ -1692,7 +1692,7 @@
      "note": "Source key says '1 and 3' (displacement + redox); arguably debatable but transcribed as printed."
     },
     {
-     "n": 7,
+     "n": 6,
      "question": "Which of the following statements about the given reaction are correct?\n$3Fe(s) + 4H_2O(g) \\rightarrow Fe_3O_4(s) + 4H_2(g)$\n1. Iron metal is getting oxidised.\n2. Water is getting reduced.\n3. Water is acting as reducing agent.\n4. Water is acting as oxidising agent.",
      "options": {
       "a": "1, 2 and 3",
@@ -1708,7 +1708,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 7,
      "question": "Which one of the following involves a chemical reaction?",
      "options": {
       "a": "Evaporation of water.",
@@ -1782,7 +1782,7 @@
      "uncertain": false
     },
     {
-     "n": 6,
+     "n": 4,
      "question": "You are having five solutions A, B, C, D and E with pH values as follows:\nA = 1.8, B = 7, C = 8.5, D = 8 and E = 5\nWhich solution would be most likely to liberate hydrogen with magnesium powder?",
      "options": {
       "a": "Solution A and B.",
@@ -1799,7 +1799,7 @@
      "note": "Source gives no explanation for this question."
     },
     {
-     "n": 7,
+     "n": 5,
      "question": "A solution turns phenolphthalein indicator pink. The most likely pH of this solution will be:",
      "options": {
       "a": "6",
@@ -1872,7 +1872,7 @@
      "uncertain": false
     },
     {
-     "n": 5,
+     "n": 4,
      "question": "An element A is soft and can be cut with a knife. This is very reactive to air and cannot be kept open in air. It reacts vigorously with water. Identify the element from the following.",
      "options": {
       "a": "Mg",
@@ -1888,7 +1888,7 @@
      "uncertain": false
     },
     {
-     "n": 7,
+     "n": 5,
      "question": "The molecules having triple bond in them are:",
      "options": {
       "a": "Oxygen and ethyne.",
@@ -1904,7 +1904,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 6,
      "question": "The elements whose oxides can turn phenolphthalein solution pink are:",
      "options": {
       "a": "Na and K.",
@@ -2070,7 +2070,7 @@
    "keptCount": 7,
    "questions": [
     {
-     "n": 2,
+     "n": 1,
      "question": "The internal energy (cellular energy) reserve in autotrophs is:",
      "options": {
       "a": "Proteins.",
@@ -2086,7 +2086,7 @@
      "uncertain": false
     },
     {
-     "n": 3,
+     "n": 2,
      "question": "Which of the following statements about the autotrophs is incorrect?",
      "options": {
       "a": "They synthesise carbohydrates from carbon dioxide and water in the presence of sunlight and chlorophyll.",
@@ -2102,7 +2102,7 @@
      "uncertain": false
     },
     {
-     "n": 4,
+     "n": 3,
      "question": "What are the functions of the Xylem?\n\n| | Carrying Sugars | Carrying water | Carrying mineral ions | Giving Support |\n|---|---|---|---|---|\n| (a) | ✓ | × | × | ✓ |\n| (b) | ✓ | ✓ | × | × |\n| (c) | × | ✓ | ✓ | × |\n| (d) | × | ✓ | ✓ | ✓ |\n\nKey ✓ = a function of xylem, × = not a function of xylem.",
      "options": {
       "a": "(a)",
@@ -2119,7 +2119,7 @@
      "note": "PDF key line prints a corrupted character ('â') for the tick mark; written here as ✓."
     },
     {
-     "n": 5,
+     "n": 4,
      "question": "The value of normal systolic and diastolic blood pressure in human is:",
      "options": {
       "a": "120mm Hg and 80mm Hg, respectively.",
@@ -2135,7 +2135,7 @@
      "uncertain": false
     },
     {
-     "n": 6,
+     "n": 5,
      "question": "Which of the following component of our food is digested by an enzyme which is present in saliva as well as in pancreatic juice?",
      "options": {
       "a": "Proteins.",
@@ -2151,7 +2151,7 @@
      "uncertain": false
     },
     {
-     "n": 7,
+     "n": 6,
      "question": "Which of the following is the only conducting tissue in non - flowering plants?",
      "options": {
       "a": "Xylem vessels.",
@@ -2167,7 +2167,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 7,
      "question": "The instrument for measuring blood pressure is called:",
      "options": {
       "a": "Manometer.",
@@ -2256,7 +2256,7 @@
      "uncertain": false
     },
     {
-     "n": 6,
+     "n": 5,
      "question": "The gustatory receptors of our body are in one of the following organs. This organ is:",
      "options": {
       "a": "Ear.",
@@ -2272,7 +2272,7 @@
      "uncertain": false
     },
     {
-     "n": 7,
+     "n": 6,
      "question": "The plant part which exhibits negative geotropism is:",
      "options": {
       "a": "Root.",
@@ -2288,7 +2288,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 7,
      "question": "Which of the following is not caused by a growth movement?",
      "options": {
       "a": "Bending of the shoot of a plant in response to light.",
@@ -2395,7 +2395,7 @@
      "uncertain": false
     },
     {
-     "n": 7,
+     "n": 6,
      "question": "Vegetative propagation refers to formation of new plants from:",
      "options": {
       "a": "Stem, roots and flowers.",
@@ -2411,7 +2411,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 7,
      "question": "An organism which may be considered to be a kind of plant and reproduces by budding is:",
      "options": {
       "a": "Paramecium.",
@@ -2436,7 +2436,7 @@
    "keptCount": 4,
    "questions": [
     {
-     "n": 3,
+     "n": 1,
      "question": "Which statement is true for a dominant allele?",
      "options": {
       "a": "It cannot undergo mutation.",
@@ -2452,7 +2452,7 @@
      "uncertain": false
     },
     {
-     "n": 5,
+     "n": 2,
      "question": "A recessive homozygote is crossed with a heterozygote of the same gene. What will be the phenotype of the $F_1$ - generation?",
      "options": {
       "a": "All dominant.",
@@ -2468,7 +2468,7 @@
      "uncertain": false
     },
     {
-     "n": 7,
+     "n": 3,
      "question": "A zygote which has inherited an X chromosome from the father will develop into:",
      "options": {
       "a": "Baby boy.",
@@ -2484,7 +2484,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 4,
      "question": "A cross between two individuals results in a ratio of 9 : 3 : 3 : 1 for four possible phenotypes of progeny. This is an example of a:",
      "options": {
       "a": "Dihybrid cross.",
@@ -2525,7 +2525,7 @@
      "uncertain": false
     },
     {
-     "n": 3,
+     "n": 2,
      "question": "If a spherical lens has a power of, -0.25D, the focal length of this lens will be:",
      "options": {
       "a": "-4cm",
@@ -2541,7 +2541,7 @@
      "uncertain": false
     },
     {
-     "n": 5,
+     "n": 3,
      "question": "Where should an object be placed in front of a convex lens to get a real image of the size of the object?",
      "options": {
       "a": "At the principal focus of the lens.",
@@ -2558,7 +2558,7 @@
      "note": "Source gives no explanation for this question."
     },
     {
-     "n": 6,
+     "n": 4,
      "question": "If the focal length of a spherical mirror is 12.5cm, its radius of curvature will be:",
      "options": {
       "a": "25cm",
@@ -2574,7 +2574,7 @@
      "uncertain": false
     },
     {
-     "n": 7,
+     "n": 5,
      "question": "Magnification produced by a plane mirror is:",
      "options": {
       "a": "Less than one.",
@@ -2590,7 +2590,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 6,
      "question": "The image formed by a concave mirror is real, inverted and highly diminished (much smaller than the object). The object must be:",
      "options": {
       "a": "Between pole and focus.",
@@ -2615,7 +2615,7 @@
    "keptCount": 6,
    "questions": [
     {
-     "n": 2,
+     "n": 1,
      "question": "How does the eye change in order to focus on near or distant objects?",
      "options": {
       "a": "The lens moves in or out.",
@@ -2631,7 +2631,7 @@
      "uncertain": false
     },
     {
-     "n": 3,
+     "n": 2,
      "question": "The stars twinkle but the planets do not twinkle at night because:",
      "options": {
       "a": "The stars are small but the planets are large.",
@@ -2647,7 +2647,7 @@
      "uncertain": false
     },
     {
-     "n": 4,
+     "n": 3,
      "question": "Which of the following phenomena contributes significantly to the reddish appearance of the sun at sunrise or sunset?",
      "options": {
       "a": "Dispersion of light.",
@@ -2663,7 +2663,7 @@
      "uncertain": false
     },
     {
-     "n": 6,
+     "n": 4,
      "question": "The sky appears blue because some of the blue component of sunlight is scattered by:",
      "options": {
       "a": "Gas molecules present in air.",
@@ -2679,7 +2679,7 @@
      "uncertain": false
     },
     {
-     "n": 7,
+     "n": 5,
      "question": "A student is observing the diagram showing the path of a ray of light passing through a glass prism. He would find that for all angles of incidence the ray of light bends:",
      "options": {
       "a": "Towards the normal while entering into the prism and away from the normal while emerging out of the prism.",
@@ -2695,7 +2695,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 6,
      "question": "The colour of scattered light depends on.",
      "options": {
       "a": "Size of scattering particles.",
@@ -2785,7 +2785,7 @@
      "uncertain": false
     },
     {
-     "n": 6,
+     "n": 5,
      "question": "The resistance of a wire of length 300m and cross-section area $1.0\\text{mm}^2$ made of material of resistivity $1.0 \\times 10^{-7}\\,\\Omega$ m is:",
      "options": {
       "a": "$2\\Omega$",
@@ -2802,7 +2802,7 @@
      "note": "PDF crop prints the resistivity exponent as '1.0 × 10 − 7 Ω m' (rendering of 10^-7); written here as 10^-7, which the source explanation confirms."
     },
     {
-     "n": 7,
+     "n": 6,
      "question": "Which unit could be used to measure current?",
      "options": {
       "a": "Watt.",
@@ -2818,7 +2818,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 7,
      "question": "An electric heater is rated 100W and 220V. If it is operated on 110V. The power consumption will be:",
      "options": {
       "a": "10W",
@@ -2875,7 +2875,7 @@
      "uncertain": false
     },
     {
-     "n": 5,
+     "n": 3,
      "question": "If the direction of electric current in a solenoid when viewed from a particular end is anticlockwise, then this end of solenoid will be:",
      "options": {
       "a": "West pole.",
@@ -2891,7 +2891,7 @@
      "uncertain": false
     },
     {
-     "n": 6,
+     "n": 4,
      "question": "Circuit Breaker Device which can be used in place of fuse in domestic electric wiring is called:",
      "options": {
       "a": "CBD.",
@@ -2907,7 +2907,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 5,
      "question": "A car headlamp of 48W works on the car battery of 12V. The correct fuse for the circuit of this car headlamp will be:",
      "options": {
       "a": "5A",
@@ -2932,7 +2932,7 @@
    "keptCount": 6,
    "questions": [
     {
-     "n": 2,
+     "n": 1,
      "question": "Accumulation of non-biodegradable pesticides in the food chain in increasing amount at each higher trophic level is known as:",
      "options": {
       "a": "Eutrophication.",
@@ -2949,7 +2949,7 @@
      "note": "Q3 in this bank is the same question reworded in spacing/spelling only (source duplicate)."
     },
     {
-     "n": 4,
+     "n": 2,
      "question": "Bad ozone is formed in.",
      "options": {
       "a": "Atmosphere.",
@@ -2965,7 +2965,7 @@
      "uncertain": false
     },
     {
-     "n": 5,
+     "n": 3,
      "question": "In an ecosystem:\n1. The flow of energy is unidirectional.\n2. The flow of materials is unidirectional.\n3. The flow of materials is cyclic.\n4. The flow of energy is cyclic.",
      "options": {
       "a": "(i) and (ii)",
@@ -2982,7 +2982,7 @@
      "note": "Statements are printed numbered 1-4 but the options use (i)-(iv). Transcribed as printed."
     },
     {
-     "n": 6,
+     "n": 4,
      "question": "In a food chain, the third trophic level is always occupied by:",
      "options": {
       "a": "Carnivores.",
@@ -2998,7 +2998,7 @@
      "uncertain": false
     },
     {
-     "n": 7,
+     "n": 5,
      "question": "In the food chain comprising of a snake, grass, insect, and frog, the secondary consumer is:",
      "options": {
       "a": "Insect.",
@@ -3014,7 +3014,7 @@
      "uncertain": false
     },
     {
-     "n": 8,
+     "n": 6,
      "question": "Which of the following are decomposers of dead organisms?\n\n| | Bacteria | Fungi | Viruses |\n|---|---|---|---|\n| (a) | no | yes | yes |\n| (b) | yes | no | yes |\n| (c) | yes | yes | no |\n| (d) | yes | yes | yes |",
      "options": {
       "a": "(a) Bacteria: no, Fungi: yes, Viruses: yes",
