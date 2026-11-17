@@ -5,6 +5,7 @@ import { setMatchMediaMatches } from "../test/setup";
 import {
   APP_ONLY_REGIONS,
   FOOTER_UNWATCHED_PATHS,
+  footerUnwatched,
   FOOTER_PACKS_HREF,
   LOGIN_BUTTON_STYLE,
   loginHrefFor,
@@ -405,6 +406,22 @@ describe("rule c on the phase-2 pages — which regions load the app before the 
     expect(observed).toEqual([]);
     expect(FOOTER_UNWATCHED_PATHS).toEqual(["/ncert-class-10"]);
     expect(state()).toBe("island");
+  });
+
+  it("SEO-DAILY-SPEED-1: a daily-question page (short, footer within a screen of the fold) does not watch its footer, so it stays an island", async () => {
+    for (const path of ["/important-question-of-the-day", "/important-question-of-the-day/light-concave-mirror-image-3-marks"]) {
+      window.history.replaceState(null, "", path);
+      __resetIslandForTests();
+      document.head.innerHTML = ISLAND_TAG;
+      document.body.innerHTML = `<div id="root"><main></main>${FOOTER}</div>`;
+      await boot();
+      expect(observed, path).toEqual([]);
+      expect(state(), path).toBe("island");
+    }
+    expect(footerUnwatched("/important-question-of-the-day")).toBe(true);
+    expect(footerUnwatched("/important-question-of-the-day/x")).toBe(true);
+    expect(footerUnwatched("/important-question-of-the-day-x")).toBe(false);
+    expect(footerUnwatched("/cbq-class-10/real-numbers")).toBe(false); // the CBQ chapter page keeps watching its footer
   });
 
   it("the Important Questions list end is watched (the app alone adds the buying block after it)", async () => {

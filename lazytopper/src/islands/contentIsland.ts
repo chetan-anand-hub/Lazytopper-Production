@@ -83,6 +83,18 @@ export const APP_ONLY_REGIONS = ["p.lt-note__footnote", "footer.lt-public-legal"
  * first paint for a signed-out visitor (`showSignedOutChrome`, ruling of 8 Nov).
  */
 export const FOOTER_UNWATCHED_PATHS: readonly string[] = ["/ncert-class-10"];
+/**
+ * SEO-DAILY-SPEED-1 (coordinator, 17 Nov: live PageSpeed mobile of a daily-question page, TBT 800 ms against 120 ms on a CBQ chapter page).
+ * The same cause as the NCERT Hub above, on pages whose family is not one exact path: a daily-question page is so short that its footer is
+ * within one screen below the fold, so the footer watch (APP_ONLY_REGIONS, rootMargin 100% of a screen) loaded the full app AND the question
+ * bank at once. These families (the hub exactly, every page under it) do not watch the footer; their footer adds only the quiet lazy
+ * "PDF packs" link, which the island shows from first paint like the Hub's.
+ */
+export const FOOTER_UNWATCHED_FAMILIES: readonly string[] = ["/important-question-of-the-day"];
+/** True when the footer is not an app-only region on this path (an exact FOOTER_UNWATCHED_PATHS entry, or a family: itself or under it). */
+export function footerUnwatched(pathname: string): boolean {
+  return FOOTER_UNWATCHED_PATHS.includes(pathname) || FOOTER_UNWATCHED_FAMILIES.some((f) => pathname === f || pathname.startsWith(`${f}/`));
+}
 /** The desktop header row where the app shows "Log in" (signed out): its presence means "desktop variant". */
 export const AUTH_REGION = '[data-testid="pending-bell"]';
 /**
@@ -125,7 +137,7 @@ export function showSignedOutChrome(): void {
   // Only where the footer is NOT watched (the NCERT Hub, whose footer passes no packsHref, so the app's link is exactly
   // FOOTER_PACKS_HREF). Elsewhere the footer is an app-only region: the app loads one screen before it and renders the
   // link with the page's own href (`/pricing?chapter=<bank>#packs`, pricingPacksHref), which the island cannot know.
-  if (!packsEntryEnabled() || !FOOTER_UNWATCHED_PATHS.includes(window.location.pathname)) return;
+  if (!packsEntryEnabled() || !footerUnwatched(window.location.pathname)) return;
   for (const footer of document.querySelectorAll("#root footer.lt-public-legal")) {
     // #1640 review FU: never reflow a footer row the visitor can see (desktop hub: CLS 0.008). Below the fold it is free;
     // in view, the app adds the link when it takes over (desktop hands over on idle), as today.
@@ -1174,7 +1186,7 @@ export function watchAppRegions(): void {
   } catch {
     /* no media query support: nothing to watch */
   }
-  const unwatched = FOOTER_UNWATCHED_PATHS.includes(window.location.pathname) ? ["footer.lt-public-legal"] : [];
+  const unwatched = footerUnwatched(window.location.pathname) ? ["footer.lt-public-legal"] : [];
   const regions = APP_ONLY_REGIONS.filter((sel) => !unwatched.includes(sel)).flatMap((sel) => [...document.querySelectorAll(sel)]);
   if (regions.length === 0) return;
   if (typeof IntersectionObserver !== "function") {
