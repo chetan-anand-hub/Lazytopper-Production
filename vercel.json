@@ -141,6 +141,14 @@
       "destination": "/__shell.html"
     },
     {
+      "source": "/:path(free-mcq-class-10/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(free-mcq-class-10/(?:real-numbers|polynomials|pair-of-linear-equations|quadratic-equations|arithmetic-progression|triangles|coordinate-geometry|trigonometry|heights-and-distances|circles|areas-related-to-circles|surface-areas-and-volumes|statistics|probability|chemical-reactions-and-equations|acids-bases-and-salts|metals-and-non-metals|carbon-and-its-compounds|life-processes|control-and-coordination|how-do-organisms-reproduce|heredity|light-reflection-and-refraction|human-eye-and-colourful-world|electricity|magnetic-effects-of-electric-current|our-environment)/?)",
+      "destination": "/__shell.html"
+    },
+    {
       "source": "/:path(contact/?)",
       "destination": "/__shell.html"
     },

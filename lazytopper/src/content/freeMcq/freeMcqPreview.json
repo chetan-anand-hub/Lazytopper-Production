@@ -1,0 +1,3036 @@
+{
+ "version": 1,
+ "generated": "2026-11-17",
+ "checked": "2026-11-17",
+ "chapters": [
+  {
+   "manifestId": "mcq-maths-real-numbers",
+   "subject": "Maths",
+   "chapter": "Real Numbers",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Real-Numbers.pdf",
+   "keptCount": 8,
+   "questions": [
+    {
+     "n": 1,
+     "question": "The total number of factors of a prime number is:",
+     "options": {
+      "a": "1",
+      "b": "0",
+      "c": "2",
+      "d": "3"
+     },
+     "answer": "c",
+     "explanation": "A prime number has exactly two factors: 1 and itself.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "The smallest number by which $\\sqrt{27}$ should be multiplied so as to get a rational number is",
+     "options": {
+      "a": "$\\sqrt{27}$",
+      "b": "$3\\sqrt{3}$",
+      "c": "$\\sqrt{3}$",
+      "d": "3"
+     },
+     "answer": "c",
+     "explanation": "$\\sqrt{27} = 3\\sqrt{3}$. Of the given choices, $\\sqrt{3}$ is the smallest number that makes the product rational: $3\\sqrt{3}\\times\\sqrt{3} = 9$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "$n^2 - 1$ is divisible by 8, if $n$ is:",
+     "options": {
+      "a": "An integer.",
+      "b": "A natural number.",
+      "c": "An odd integer.",
+      "d": "An even integer."
+     },
+     "answer": "c",
+     "explanation": "For even $n$ (e.g. $n=0$ or $n=2k$ with $k=-1$), $n^2-1$ is not divisible by 8. For odd $n = 2k+1$: $n^2-1 = 4k(k+1)$, and $k(k+1)$ is always even, so it is divisible by 8.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "If $p_1$ and $p_2$ are two odd prime numbers such that $p_1 > p_2$, then $p_1^2 - p_2^2$ is:",
+     "options": {
+      "a": "An even number.",
+      "b": "An odd number.",
+      "c": "An odd prime number.",
+      "d": "A prime number."
+     },
+     "answer": "a",
+     "explanation": "The square of an odd prime is odd, and the difference of two odd numbers is even. Example: $5^2-3^2=16$ and $11^2-7^2=72$, both even.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "If the sum of LCM and HCF of two numbers is 1260 and their LCM is 900 more than their HCF, then the product of two numbers is:",
+     "options": {
+      "a": "203400",
+      "b": "194400",
+      "c": "198400",
+      "d": "205400"
+     },
+     "answer": "b",
+     "explanation": "Let HCF = $x$, so LCM = $x+900$. Then $2x+900=1260$, giving $x=180$. Product = LCM $\\times$ HCF = $1080\\times180 = 194400$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "The LCM and HCF of two natural numbers are equal, then the numbers must be:",
+     "options": {
+      "a": "Prime.",
+      "b": "Co-prime.",
+      "c": "Composite.",
+      "d": "Equal."
+     },
+     "answer": "d",
+     "explanation": "If the LCM and HCF of two numbers are equal, the numbers must be equal.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "If $a = (2^2 \\times 3^3 \\times 5^4)$ and $b = (2^3 \\times 3^2 \\times 5)$, then HCF $(a, b) = $ ?",
+     "options": {
+      "a": "90",
+      "b": "180",
+      "c": "360",
+      "d": "540"
+     },
+     "answer": "b",
+     "explanation": "HCF takes the smallest power of each prime: $2^2\\times3^2\\times5 = 180$.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "LCM of $(2^3 \\times 3 \\times 5)$ and $(2^4 \\times 5 \\times 7)$ is:",
+     "options": {
+      "a": "40",
+      "b": "560",
+      "c": "1120",
+      "d": "1680"
+     },
+     "answer": "d",
+     "explanation": "LCM takes the greatest power of each prime: $2^4\\times3\\times5\\times7 = 1680$.",
+     "needsFigure": false,
+     "sourcePage": 4,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-polynomials",
+   "subject": "Maths",
+   "chapter": "Polynomials",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Polynomials.pdf",
+   "keptCount": 5,
+   "questions": [
+    {
+     "n": 1,
+     "question": "The sum and product of the zeros of a quadratic polynomial are 3 and -10 respectively. The quadratic polynomial is:",
+     "options": {
+      "a": "$x^2 - 3x + 10$",
+      "b": "$x^2 + 3x - 10$",
+      "c": "$x^2 - 3x - 10$",
+      "d": "$x^2 + 3x + 10$"
+     },
+     "answer": "c",
+     "explanation": "A quadratic with zeros $\\alpha,\\beta$ is $x^2-(\\alpha+\\beta)x+\\alpha\\beta = x^2-3x-10$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "If $\\alpha, \\beta$ are the zeros of the polynomial $x^2 + 6x + 2$, then $\\left(\\frac{1}{\\alpha}+\\frac{1}{\\beta}\\right) = ?$",
+     "options": {
+      "a": "3",
+      "b": "-3",
+      "c": "12",
+      "d": "-12"
+     },
+     "answer": "b",
+     "explanation": "$\\alpha+\\beta=-6$ and $\\alpha\\beta=2$. So $\\frac1\\alpha+\\frac1\\beta=\\frac{\\alpha+\\beta}{\\alpha\\beta}=\\frac{-6}{2}=-3$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "If one zero of $3x^2 + 8x + k$ be the reciprocal of the other, then $k = ?$",
+     "options": {
+      "a": "$3$",
+      "b": "$-3$",
+      "c": "$\\frac{1}{3}$",
+      "d": "$\\frac{-1}{3}$"
+     },
+     "answer": "a",
+     "explanation": "Zeros $\\alpha$ and $\\frac1\\alpha$ have product $\\frac{k}{3}$. Since the product is 1, $k=3$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "If $\\alpha, \\beta$ are the zeros of the polynomial $p(x) = 4x^2 + 3x + 7$, then $\\frac{1}{\\alpha}+\\frac{1}{\\beta}$ is equal to:",
+     "options": {
+      "a": "$\\frac{7}{3}$",
+      "b": "$\\frac{-7}{3}$",
+      "c": "$\\frac{3}{7}$",
+      "d": "$\\frac{-3}{7}$"
+     },
+     "answer": "d",
+     "explanation": "$\\alpha+\\beta=-\\frac34$ and $\\alpha\\beta=\\frac74$. So $\\frac1\\alpha+\\frac1\\beta=\\frac{\\alpha+\\beta}{\\alpha\\beta}=-\\frac37$.",
+     "needsFigure": false,
+     "sourcePage": 4,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "A quadratic polynomial, the sum of whose zeroes is 0 and one zero is 3, is:",
+     "options": {
+      "a": "$x^2 - 9$",
+      "b": "$x^2 + 9$",
+      "c": "$x^2 + 3$",
+      "d": "$x^2 - 3$"
+     },
+     "answer": "a",
+     "explanation": "The other zero is $-3$, so sum $=0$ and product $=-9$. The polynomial is $x^2-0\\cdot x-9=x^2-9$.",
+     "needsFigure": false,
+     "sourcePage": 7,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-linear-equations",
+   "subject": "Maths",
+   "chapter": "Linear Equations in Two Variables",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Linear-Equations-in-Two-Variables.pdf",
+   "keptCount": 7,
+   "questions": [
+    {
+     "n": 1,
+     "question": "The pair of equations $x + 2y + 5 = 0$ and $-3x - 6y + 1 = 0$ has:",
+     "options": {
+      "a": "A unique solutions.",
+      "b": "Exactly two solutions.",
+      "c": "Infinitely many solutions.",
+      "d": "No solution."
+     },
+     "answer": "d",
+     "explanation": "Here $\\frac{a_1}{a_2}=\\frac{1}{-3}$, $\\frac{b_1}{b_2}=\\frac{2}{-6}=\\frac{1}{-3}$ and $\\frac{c_1}{c_2}=5$. Since $\\frac{a_1}{a_2}=\\frac{b_1}{b_2}\\neq\\frac{c_1}{c_2}$, the lines are parallel and there is no solution.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "If the system of equations\n$2x + 3y = 7$\n$2ax + (a + b)y = 28$\nhas infinitely many solutions, then:",
+     "options": {
+      "a": "a = 2b",
+      "b": "b = 2a",
+      "c": "a + 2b = 0",
+      "d": "2a + b = 0"
+     },
+     "answer": "b",
+     "explanation": "For infinitely many solutions $\\frac{2}{2a}=\\frac{3}{a+b}=\\frac{7}{28}$. This gives $a=4$ and $a+b=12$, so $b=8$, i.e. $b=2a$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "If $4x + 6y = 3xy$ and $8x + 9y = 5xy$ then:",
+     "options": {
+      "a": "x = 2, y = 3",
+      "b": "x = 1, y = 2",
+      "c": "x = 3, y = 4",
+      "d": "x = 1, y = -1"
+     },
+     "answer": "c",
+     "explanation": "Divide by $xy$ and put $u=\\frac1x$, $v=\\frac1y$: $6u+4v=3$ and $9u+8v=5$. Solving gives $u=\\frac13$, $v=\\frac14$, so $x=3$, $y=4$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "Choose the correct answer from the given four options:\nIf the lines given by $3x + 2ky = 2$ and $2x + 5y + 1 = 0$ are parallel, then the value of k is:",
+     "options": {
+      "a": "$\\frac{-5}{4}$",
+      "b": "$\\frac{2}{5}$",
+      "c": "$\\frac{15}{4}$",
+      "d": "$\\frac{3}{2}$"
+     },
+     "answer": "c",
+     "explanation": "For parallel lines $\\frac{3}{2}=\\frac{2k}{5}$, so $k=\\frac{15}{4}$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "If $\\frac{2}{x}+\\frac{3}{y}=6$ and $\\frac{1}{x}+\\frac{1}{2y}=2$ then:",
+     "options": {
+      "a": "$x = 1,\\ y = \\frac{2}{3}$",
+      "b": "$x = \\frac{2}{3},\\ y = 1$",
+      "c": "$x = 1,\\ y = \\frac{3}{2}$",
+      "d": "$x = \\frac{3}{2},\\ y = 1$"
+     },
+     "answer": "b",
+     "explanation": "Doubling the second equation gives $\\frac2x+\\frac1y=4$. Subtracting from the first gives $\\frac2y=2$, so $y=1$ and then $x=\\frac23$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "If $x = a, y = b$ is the solution of the systems of equations $x - y = 2$ and $x + y = 4$, then the values of a and b are, respectively.",
+     "options": {
+      "a": "3 and 1",
+      "b": "3 and 5",
+      "c": "5 and 3",
+      "d": "-1 and -3"
+     },
+     "answer": "a",
+     "explanation": "Then $a-b=2$ and $a+b=4$. Adding gives $2a=6$, so $a=3$ and $b=1$.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "Choose the correct answer from the given four options:\nFor what value of k, do the equations $3x - y + 8 = 0$ and $6x - ky = -16$ represent coincident lines?",
+     "options": {
+      "a": "$\\frac{1}{2}$",
+      "b": "$-\\frac{1}{2}$",
+      "c": "$2$",
+      "d": "$-2$"
+     },
+     "answer": "c",
+     "explanation": "Coincident lines need $\\frac{3}{6}=\\frac{-1}{-k}=\\frac{8}{16}$, so $\\frac1k=\\frac12$ and $k=2$.",
+     "needsFigure": false,
+     "sourcePage": 4,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-quadratic-equations",
+   "subject": "Maths",
+   "chapter": "Quadratic Equations",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Quadratic-Equations.pdf",
+   "keptCount": 7,
+   "questions": [
+    {
+     "n": 1,
+     "question": "If 2 is a root of the equation $x^2 + ax + 12 = 0$ and the quadratic equation $x^2 + ax + q = 0$ has equal roots, then $q =$",
+     "options": {
+      "a": "12",
+      "b": "8",
+      "c": "20",
+      "d": "16"
+     },
+     "answer": "d",
+     "explanation": "Putting $x=2$: $4+2a+12=0$, so $a=-8$. Equal roots need $a^2-4q=0$, so $64=4q$ and $q=16$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "If $y = 1$ is a common root of the equations $ay^2 + ay + 3 = 0$ and $y^2 + y + b = 0$, then $ab$ equals:",
+     "options": {
+      "a": "3",
+      "b": "$-\\frac{1}{2}$",
+      "c": "6",
+      "d": "-3"
+     },
+     "answer": "a",
+     "explanation": "From the first, $2a+3=0$, so $a=-\\frac32$. From the second, $2+b=0$, so $b=-2$. Hence $ab=3$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "Which of the following is a quadratic equation?",
+     "options": {
+      "a": "$x^2 - 3\\sqrt{x} + 2 = 0$",
+      "b": "$x + \\frac{1}{x} = x^2$",
+      "c": "$x^2 + \\frac{1}{x^2} = 5$",
+      "d": "$2x^2 - 5x = (x - 1)^2$"
+     },
+     "answer": "d",
+     "explanation": "Option 4 simplifies to $x^2-3x-1=0$, a quadratic. The others contain $\\sqrt x$, or simplify to a degree 3 or 4 equation.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "The root of a quadratic equation are 5 and -2. Then, the equation is:",
+     "options": {
+      "a": "$x^2 - 3x + 10 = 0$",
+      "b": "$x^2 - 3x - 10 = 0$",
+      "c": "$x^2 + 3x - 10 = 0$",
+      "d": "$x^2 + 3x + 10 = 0$"
+     },
+     "answer": "b",
+     "explanation": "Sum of roots $=3$, product $=-10$. The equation is $x^2-3x-10=0$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "If the equation $x^2 - bx + 1 = 0$ does not possess real roots, then:",
+     "options": {
+      "a": "-3 < b < 3",
+      "b": "-2 < b < 2",
+      "c": "b > 2",
+      "d": "b < -2"
+     },
+     "answer": "b",
+     "explanation": "No real roots means $D<0$: $b^2-4<0$, so $-2<b<2$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "If $x = 1$ is a common root of $ax^2 + ax + 2 = 0$ and $x^2 + x + b = 0$, then $ab =$",
+     "options": {
+      "a": "1",
+      "b": "2",
+      "c": "4",
+      "d": "3"
+     },
+     "answer": "b",
+     "explanation": "From $x^2+x+b=0$: $b=-2$. From $ax^2+ax+2=0$: $2a+2=0$, so $a=-1$. Hence $ab=2$.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "Choose the correct answer from the given four options in the following questions\nWhich of the following equations has no real roots?",
+     "options": {
+      "a": "$x^2 - 4x + 3\\sqrt{2} = 0$",
+      "b": "$x^2 + 4x - 3\\sqrt{2} = 0$",
+      "c": "$x^2 - 4x - 3\\sqrt{2} = 0$",
+      "d": "$3x^2 + 4\\sqrt{3}x + 4 = 0$"
+     },
+     "answer": "a",
+     "explanation": "For option 1, $D=16-12\\sqrt2<0$ since $12\\sqrt2\\approx16.97$. So it has no real roots.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-arithmetic-progressions",
+   "subject": "Maths",
+   "chapter": "Arithmetic Progressions",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Arithmetic-Progressions.pdf",
+   "keptCount": 8,
+   "questions": [
+    {
+     "n": 1,
+     "question": "The 8$^{th}$ term of an AP is 17 and its 14$^{th}$ term is 29. The common difference of the AP is:",
+     "options": {
+      "a": "3",
+      "b": "2",
+      "c": "5",
+      "d": "-2"
+     },
+     "answer": "b",
+     "explanation": "$a+7d=17$ and $a+13d=29$. Subtracting, $6d=12$, so $d=2$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "Choose the correct answer from the given four options:\nIf the 2$^{nd}$ term of an AP is 13 and the 5$^{th}$ term is 25, what is its 7$^{th}$ term?",
+     "options": {
+      "a": "30",
+      "b": "33",
+      "c": "37",
+      "d": "38"
+     },
+     "answer": "b",
+     "explanation": "$a+d=13$ and $a+4d=25$ give $d=4$, $a=9$. Then $a_7=9+6\\times4=33$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "Mark the correct alternative in the following:\nIf the sum of first n even natural numbers is equal to k times the sum of first n odd natural numbers, then k =",
+     "options": {
+      "a": "$\\frac{1}{n}$",
+      "b": "$\\frac{n-1}{n}$",
+      "c": "$\\frac{n+1}{2n}$",
+      "d": "$\\frac{n+1}{n}$"
+     },
+     "answer": "d",
+     "explanation": "Sum of first $n$ even numbers $=n(n+1)$; sum of first $n$ odd numbers $=n^2$. So $k=\\frac{n(n+1)}{n^2}=\\frac{n+1}{n}$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "Mark the correct alternative in the following:\nIf $S_r$ denotes the sum of the first r terms of an A.P. Then, $S_{3n} : (S_{2n} - S_n)$ is:",
+     "options": {
+      "a": "n",
+      "b": "3n",
+      "c": "3",
+      "d": "None of these."
+     },
+     "answer": "c",
+     "explanation": "Using $S_n=\\frac n2[2a+(n-1)d]$, we get $S_{2n}-S_n=\\frac n2[2a+(3n-1)d]$ and $S_{3n}=\\frac{3n}{2}[2a+(3n-1)d]$. The ratio is 3.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "Mark the correct alternative in the following:\nTwo A.P.'s have the same common difference. The first term of one of these is 8 and that of the other is 3. The difference between their 30$^{th}$ term is:",
+     "options": {
+      "a": "11",
+      "b": "3",
+      "c": "8",
+      "d": "5"
+     },
+     "answer": "d",
+     "explanation": "With the same $d$, $A_{30}-a_{30}=(8+29d)-(3+29d)=5$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "Choose the correct answer from the given four options:\nThe 21$^{st}$ term of the AP whose first two terms are –3 and 4 is:",
+     "options": {
+      "a": "17",
+      "b": "137",
+      "c": "143",
+      "d": "-143"
+     },
+     "answer": "b",
+     "explanation": "$d=4-(-3)=7$. So $a_{21}=-3+20\\times7=137$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "The 7th term of an AP is -1 its 16th term is 17. The nth term of the AP is:",
+     "options": {
+      "a": "(3n + 8)",
+      "b": "(4n - 7)",
+      "c": "(15 - 2n)",
+      "d": "(2n - 15)"
+     },
+     "answer": "d",
+     "explanation": "$a+6d=-1$ and $a+15d=17$ give $d=2$, $a=-13$. So $a_n=-13+(n-1)2=2n-15$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "If the common difference of an A.P. is 3, then $a_{20} - a_{15}$ is:",
+     "options": {
+      "a": "5",
+      "b": "3",
+      "c": "15",
+      "d": "20"
+     },
+     "answer": "c",
+     "explanation": "$a_{20}-a_{15}=5d=5\\times3=15$.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-triangles",
+   "subject": "Maths",
+   "chapter": "Triangles",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Triangles.pdf",
+   "keptCount": 4,
+   "questions": [
+    {
+     "n": 2,
+     "question": "In $\\triangle ABC$, a line XY parallel to BC cuts AB at X and AC at Y. If BY bisects $\\angle XYC$, then:",
+     "options": {
+      "a": "$BC = CY$",
+      "b": "$BC = BY$",
+      "c": "$BC \\neq CY$",
+      "d": "$BC \\neq BY$"
+     },
+     "answer": "a",
+     "explanation": "Since $XY\\parallel BC$, $\\angle XYB=\\angle YBC$ (alternate angles). BY bisects $\\angle XYC$, so $\\angle XYB=\\angle BYC$. Hence $\\angle YBC=\\angle BYC$ and $BC=CY$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "In $\\triangle ABC$ and $\\triangle DEF$, it is given that $\\angle B = \\angle E, \\angle F = \\angle C$ and $AB = 3DE$, then the two triangles are:",
+     "options": {
+      "a": "Congruent but not similar",
+      "b": "Similar but not congruent",
+      "c": "Neither congruent not similar",
+      "d": "Similar as well as congruent"
+     },
+     "answer": "b",
+     "explanation": "Two pairs of equal angles make the triangles similar (AA). Since $AB=3DE$, the sides are not equal, so they are not congruent.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "If ABC is a right triangle right-angled at B and M, N are the mid-points of AB and BC respectively, then $4(AN^2 + CM^2) =$",
+     "options": {
+      "a": "$4AC^2$",
+      "b": "$5AC^2$",
+      "c": "$\\frac{5}{4}AC^2$",
+      "d": "$6AC^2$"
+     },
+     "answer": "b",
+     "explanation": "$AN^2=AB^2+\\frac{BC^2}{4}$ and $CM^2=BC^2+\\frac{AB^2}{4}$. So $4(AN^2+CM^2)=5(AB^2+BC^2)=5AC^2$.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "The line segments joining the midpoint of the sides of a triangle form four triangles, each of which is:",
+     "options": {
+      "a": "Congruent to the original triangle.",
+      "b": "Similar to the original triangle.",
+      "c": "An isosceles triangle.",
+      "d": "An equilateral triangle."
+     },
+     "answer": "b",
+     "explanation": "By the midpoint theorem each small triangle has sides parallel to and half of the original's, so each is similar to the original triangle.",
+     "needsFigure": false,
+     "sourcePage": 4,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-coordinate-geometry",
+   "subject": "Maths",
+   "chapter": "Coordinate Geometry",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Coordinate-Geometry.pdf",
+   "keptCount": 8,
+   "questions": [
+    {
+     "n": 1,
+     "question": "If the point $(x, 4)$ lies on a circle whose centre is at the origin and radius is 5, then $x =$",
+     "options": {
+      "a": "$\\pm 5$",
+      "b": "$\\pm 3$",
+      "c": "$0$",
+      "d": "$\\pm 4$"
+     },
+     "answer": "b",
+     "explanation": "Distance from the origin is 5: $x^2+16=25$, so $x^2=9$ and $x=\\pm3$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "If A(4, 9), B(2, 3) and C(6, 5) are the vertices of $\\Delta ABC$, then the length of median through C is:",
+     "options": {
+      "a": "5 units",
+      "b": "$\\sqrt{10}$ units",
+      "c": "25 units",
+      "d": "10 units"
+     },
+     "answer": "b",
+     "explanation": "The midpoint of AB is $D(3,6)$. Then $CD=\\sqrt{(6-3)^2+(5-6)^2}=\\sqrt{10}$ units.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "If P(-1, 1) is the mid-point of the line segment joining A(-3, b) and B(1, b + 4) then $b = $ ?",
+     "options": {
+      "a": "1",
+      "b": "-1",
+      "c": "2",
+      "d": "0"
+     },
+     "answer": "b",
+     "explanation": "The y-coordinate of the midpoint gives $\\frac{b+b+4}{2}=1$, so $2b+4=2$ and $b=-1$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "The distance of P(3, 4) from the x-axis is:",
+     "options": {
+      "a": "3 units",
+      "b": "4 units",
+      "c": "5 units",
+      "d": "1 units"
+     },
+     "answer": "b",
+     "explanation": "The distance of a point from the x-axis is its y-coordinate, which is 4 units.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "The perimeter of the triangle with vertices (0, 4), (0, 0) and (3, 0) is:",
+     "options": {
+      "a": "$(7 + \\sqrt{5})$",
+      "b": "5",
+      "c": "10",
+      "d": "12"
+     },
+     "answer": "d",
+     "explanation": "The sides are 4, 3 and $\\sqrt{3^2+4^2}=5$. Perimeter $=12$ units.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "In what ratio does the y-axis divide the join of P(-4, 2) and Q(8, 3)?",
+     "options": {
+      "a": "3 : 1",
+      "b": "1 : 3",
+      "c": "2 : 1",
+      "d": "1 : 2"
+     },
+     "answer": "d",
+     "explanation": "Let the ratio be $k:1$. The x-coordinate on the y-axis is 0: $\\frac{8k-4}{k+1}=0$, so $k=\\frac12$, i.e. the ratio is $1:2$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "The point on the x-axis which is equidistant from points (-1, 0) and (5, 0) is:",
+     "options": {
+      "a": "(0, 2)",
+      "b": "(2, 0)",
+      "c": "(3, 0)",
+      "d": "(0, 3)"
+     },
+     "answer": "b",
+     "explanation": "The point on the x-axis equidistant from them is their midpoint: $\\left(\\frac{-1+5}{2},0\\right)=(2,0)$.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "The mid-point of segment AB is P(0, 4). If the coordinates of B are (-2, 3), then the coordinates of A are:",
+     "options": {
+      "a": "(2, 5)",
+      "b": "(-2, -5)",
+      "c": "(2, 9)",
+      "d": "(-2, 11)"
+     },
+     "answer": "a",
+     "explanation": "Let $A=(x,y)$. Then $\\frac{x-2}{2}=0$ and $\\frac{y+3}{2}=4$, so $x=2$, $y=5$.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-trigonometry",
+   "subject": "Maths",
+   "chapter": "Introduction to Trigonometry",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Introduction-to-Trigonometry.pdf",
+   "keptCount": 6,
+   "questions": [
+    {
+     "n": 1,
+     "question": "If $2x = \\sec A$ and $\\frac{2}{x} = \\tan A$ then $2\\left(x^2 - \\frac{1}{x^2}\\right) = ?$",
+     "options": {
+      "a": "$\\frac{1}{2}$",
+      "b": "$\\frac{1}{4}$",
+      "c": "$\\frac{1}{8}$",
+      "d": "$\\frac{1}{16}$"
+     },
+     "answer": "a",
+     "explanation": "Using $\\sec^2A-\\tan^2A=1$: $4x^2-\\frac{4}{x^2}=1$, so $x^2-\\frac1{x^2}=\\frac14$ and $2\\left(x^2-\\frac1{x^2}\\right)=\\frac12$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "If $\\cos A + \\cos^2 A = 1$ then $\\sin^2 A + \\sin^4 A = ?$",
+     "options": {
+      "a": "1",
+      "b": "2",
+      "c": "4",
+      "d": "3."
+     },
+     "answer": "a",
+     "explanation": "$\\cos A=1-\\cos^2A=\\sin^2A$. So $\\sin^2A+\\sin^4A=\\cos A+\\cos^2A=1$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "Choose the correct option and justify your choice:\n$\\frac{1-\\tan^2 45^\\circ}{1+\\tan^2 45^\\circ} =$",
+     "options": {
+      "a": "$\\tan 90^\\circ$",
+      "b": "1",
+      "c": "$\\sin 45^\\circ$",
+      "d": "0"
+     },
+     "answer": "d",
+     "explanation": "$\\tan45^\\circ=1$, so the value is $\\frac{1-1}{1+1}=0$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "If $\\tan\\theta = \\frac{1}{\\sqrt{7}}$ then $\\frac{(\\text{cosec}^2\\theta - \\sec^2\\theta)}{(\\text{cosec}^2\\theta + \\sec^2\\theta)} = ?$",
+     "options": {
+      "a": "$\\frac{-2}{3}$",
+      "b": "$\\frac{-3}{4}$",
+      "c": "$\\frac{2}{3}$",
+      "d": "$\\frac{3}{4}$"
+     },
+     "answer": "d",
+     "explanation": "$\\sec^2\\theta=1+\\frac17=\\frac87$ and $\\text{cosec}^2\\theta=1+7=8$. The ratio is $\\frac{8-\\frac87}{8+\\frac87}=\\frac{48}{64}=\\frac34$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "$\\sin 2A = 2\\sin A$ is true when A =",
+     "options": {
+      "a": "$0^\\circ$",
+      "b": "$30^\\circ$",
+      "c": "$45^\\circ$",
+      "d": "$60^\\circ$"
+     },
+     "answer": "a",
+     "explanation": "$\\sin2A=2\\sin A\\cos A$, so equality needs $\\cos A=1$ (or $\\sin A=0$), i.e. $A=0^\\circ$.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "$(1 + \\tan\\theta + \\sec\\theta)(1 + \\cot\\theta - \\text{cosec}\\,\\theta) =$",
+     "options": {
+      "a": "0",
+      "b": "1",
+      "c": "2",
+      "d": "-1"
+     },
+     "answer": "c",
+     "explanation": "Writing in sine and cosine: $\\frac{(\\cos\\theta+\\sin\\theta+1)(\\sin\\theta+\\cos\\theta-1)}{\\sin\\theta\\cos\\theta}=\\frac{(\\sin\\theta+\\cos\\theta)^2-1}{\\sin\\theta\\cos\\theta}=2$.",
+     "needsFigure": false,
+     "sourcePage": 4,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-heights-distances",
+   "subject": "Maths",
+   "chapter": "Heights and Distances",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Heights-and-Distances.pdf",
+   "keptCount": 8,
+   "questions": [
+    {
+     "n": 1,
+     "question": "The length of shadow of a tower on the plane ground is $\\sqrt{3}$ times the height of the tower. The angle of elevation of sun is:",
+     "options": {
+      "a": "45°",
+      "b": "30°",
+      "c": "60°",
+      "d": "90°"
+     },
+     "answer": "b",
+     "explanation": "$\\tan\\theta=\\frac{\\text{height}}{\\text{shadow}}=\\frac{1}{\\sqrt3}$, so $\\theta=30^\\circ$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "If the height of a vertical pole is $\\sqrt{3}$ times the length of its shadow on ground then the angle of elevation of the sun at that time is:",
+     "options": {
+      "a": "30°",
+      "b": "45°",
+      "c": "60°",
+      "d": "75°"
+     },
+     "answer": "c",
+     "explanation": "$\\tan\\theta=\\frac{\\sqrt3\\,x}{x}=\\sqrt3$, so $\\theta=60^\\circ$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "The shadow of a 5-m-long stick is 2m long. At the same time the length of the shadow of a 12.5-m-high tree is:",
+     "options": {
+      "a": "3m",
+      "b": "3.5m",
+      "c": "4.5m",
+      "d": "5m"
+     },
+     "answer": "d",
+     "explanation": "At the same time the ratios are equal: $\\frac{5}{2}=\\frac{12.5}{x}$, so $x=5$ m.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "The angle of depression of a car parked on the road from the top of a 150m high tower is 30°. The distance of the car from the tower (in metres) is:",
+     "options": {
+      "a": "$50\\sqrt{3}$",
+      "b": "$150\\sqrt{3}$",
+      "c": "$150\\sqrt{2}$",
+      "d": "75"
+     },
+     "answer": "b",
+     "explanation": "$\\tan30^\\circ=\\frac{150}{d}$, so $d=150\\sqrt3$ m.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "If a 1.5m tall girl stands at a distance of 3m from a lamp-post and casts a shadow of length 4.5m on the ground, then the height of the lamp-post is:",
+     "options": {
+      "a": "1.5m",
+      "b": "2m",
+      "c": "2.5m",
+      "d": "2.8m"
+     },
+     "answer": "c",
+     "explanation": "By similar triangles, $\\frac{H}{3+4.5}=\\frac{1.5}{4.5}$, so $H=2.5$ m.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "If the angles of elevation of a tower from two points distant a and b (a > b) from its foot and in the same straight line from it are 30° and 60°, then the height of the tower is:",
+     "options": {
+      "a": "$\\sqrt{a+b}$",
+      "b": "$\\sqrt{ab}$",
+      "c": "$\\sqrt{a-b}$",
+      "d": "$\\sqrt{\\frac{a}{b}}$"
+     },
+     "answer": "b",
+     "explanation": "$h=a\\tan30^\\circ$ and $h=b\\tan60^\\circ$. Multiplying, $h^2=ab\\tan30^\\circ\\tan60^\\circ=ab$, so $h=\\sqrt{ab}$.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "If the angles of elevation of the top of a tower from two points at distances a and b from the base and in the same straight line with it are complementary, then the height of the tower is:",
+     "options": {
+      "a": "$\\sqrt{\\frac{a}{b}}$",
+      "b": "$\\sqrt{ab}$",
+      "c": "$\\sqrt{a+b}$",
+      "d": "$\\sqrt{a-b}$"
+     },
+     "answer": "b",
+     "explanation": "With complementary angles $\\theta$ and $90^\\circ-\\theta$: $\\tan\\theta=\\frac ha$ and $\\cot\\theta=\\frac hb$. Multiplying, $h^2=ab$, so $h=\\sqrt{ab}$.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "If the height of a vertical pole is equal to the length of its shadow on the ground, the angle of elevation of the sun is:",
+     "options": {
+      "a": "0°",
+      "b": "30°",
+      "c": "45°",
+      "d": "60°"
+     },
+     "answer": "c",
+     "explanation": "$\\tan\\theta=\\frac{\\text{height}}{\\text{shadow}}=1$, so $\\theta=45^\\circ$.",
+     "needsFigure": false,
+     "sourcePage": 4,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-circles",
+   "subject": "Maths",
+   "chapter": "Circles",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Circles.pdf",
+   "keptCount": 3,
+   "questions": [
+    {
+     "n": 1,
+     "question": "The length of the tangent from an external point P to a circle of radius 5cm is 10cm. The distance of the point from the centre of the circle is:",
+     "options": {
+      "a": "8cm",
+      "b": "$\\sqrt{104}$cm",
+      "c": "12cm",
+      "d": "$\\sqrt{125}$cm"
+     },
+     "answer": "d",
+     "explanation": "The tangent is perpendicular to the radius, so $OP^2=PT^2+OT^2=100+25=125$ and $OP=\\sqrt{125}$ cm.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "From a point P which is at a distance of 13cm from the centre O of a circle of radius 5cm, the pair of tangents PQ and PR to the circle are drawn. Then the area of the quadrilateral PQOR is:",
+     "options": {
+      "a": "60cm$^2$",
+      "b": "65cm$^2$",
+      "c": "30cm$^2$",
+      "d": "32.5cm$^2$"
+     },
+     "answer": "a",
+     "explanation": "$PQ=\\sqrt{13^2-5^2}=12$ cm. The quadrilateral is two right triangles: $2\\times\\frac12\\times12\\times5=60$ cm$^2$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "In a right triangle ABC, right-angled at B, BC = 12cm and AB = 5cm. The radius of the circle inscribed in the triangle (in cm) is:",
+     "options": {
+      "a": "4",
+      "b": "3",
+      "c": "2",
+      "d": "1"
+     },
+     "answer": "c",
+     "explanation": "$AC=13$ cm. For a right triangle, $r=\\frac{AB+BC-AC}{2}=\\frac{5+12-13}{2}=2$ cm.",
+     "needsFigure": false,
+     "sourcePage": 4,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-areas-circles",
+   "subject": "Maths",
+   "chapter": "Areas Related to Circles",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Areas-Related-to-Circles.pdf",
+   "keptCount": 6,
+   "questions": [
+    {
+     "n": 1,
+     "question": "The area of a sector whose perimeter is four times its radius r units, is:",
+     "options": {
+      "a": "$\\frac{r^2}{4}$ sq. units",
+      "b": "$2r^2$ sq. units",
+      "c": "$r^2$ sq. units",
+      "d": "$\\frac{r^2}{2}$ sq. units"
+     },
+     "answer": "c",
+     "explanation": "Perimeter $=2r+l=4r$, so arc length $l=2r$. Area $=\\frac12 lr=\\frac12(2r)(r)=r^2$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "If the area of a sector of a circle bounded by an arc of length $5\\pi$cm is equal to $20\\pi$cm$^2$, then its radius is:",
+     "options": {
+      "a": "12cm",
+      "b": "16cm",
+      "c": "8cm",
+      "d": "10cm"
+     },
+     "answer": "c",
+     "explanation": "Area of sector $=\\frac12 lr$: $20\\pi=\\frac12(5\\pi)r$, so $r=8$ cm.",
+     "needsFigure": false,
+     "sourcePage": 5,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "A chord of a circle of radius 10cm subtends a right angle at the centre. The area of the minor segments (given, $\\pi = 3.14$) is:",
+     "options": {
+      "a": "32.5cm$^2$",
+      "b": "34.5cm$^2$",
+      "c": "28.5cm$^2$",
+      "d": "30.5cm$^2$"
+     },
+     "answer": "c",
+     "explanation": "Minor segment = sector $-$ triangle $=\\frac14(3.14)(100)-\\frac12(10)(10)=78.5-50=28.5$ cm$^2$.",
+     "needsFigure": false,
+     "sourcePage": 7,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "If a chord of a circle of radius 28cm makes an angle of 90° at the centre, then the area of the major segment is:",
+     "options": {
+      "a": "392cm$^2$",
+      "b": "1456cm$^2$",
+      "c": "1848cm$^2$",
+      "d": "2240cm$^2$"
+     },
+     "answer": "d",
+     "explanation": "Major segment = circle $-$ minor segment $=2464-(616-392)=2240$ cm$^2$ (using $\\pi=\\frac{22}{7}$).",
+     "needsFigure": false,
+     "sourcePage": 8,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "If the area of a sector of a circle is $\\frac{5}{18}$ of the area of the circle, then the sector angle is equal to:",
+     "options": {
+      "a": "60º",
+      "b": "90º",
+      "c": "100º",
+      "d": "120º"
+     },
+     "answer": "c",
+     "explanation": "$\\frac{\\theta}{360^\\circ}=\\frac5{18}$, so $\\theta=100^\\circ$.",
+     "needsFigure": false,
+     "sourcePage": 9,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "If the perimeter of a sector of a circle of radius 6.5cm is 29cm, then its area is:",
+     "options": {
+      "a": "58cm$^2$",
+      "b": "52cm$^2$",
+      "c": "25cm$^2$",
+      "d": "56cm$^2$"
+     },
+     "answer": "b",
+     "explanation": "Arc length $=29-2(6.5)=16$ cm. Area $=\\frac12 lr=\\frac12(16)(6.5)=52$ cm$^2$.",
+     "needsFigure": false,
+     "sourcePage": 11,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-surface-areas-volumes",
+   "subject": "Maths",
+   "chapter": "Surface Areas and Volumes",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Surface-Areas-and-Volumes.pdf",
+   "keptCount": 8,
+   "questions": [
+    {
+     "n": 1,
+     "question": "The curved surface area of a right circular cone of height 15cm and base diameter 16cm is:",
+     "options": {
+      "a": "$60\\pi$cm$^2$",
+      "b": "$68\\pi$cm$^2$",
+      "c": "$120\\pi$cm$^2$",
+      "d": "$136\\pi$cm$^2$"
+     },
+     "answer": "d",
+     "explanation": "$r=8$ cm, $l=\\sqrt{8^2+15^2}=17$ cm. CSA $=\\pi rl=\\pi(8)(17)=136\\pi$ cm$^2$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "The length of the diagonal of a cube is $6\\sqrt{3}$cm. Its total surface area is:",
+     "options": {
+      "a": "144 cm$^2$",
+      "b": "216 cm$^2$",
+      "c": "180 cm$^2$",
+      "d": "108 cm$^2$"
+     },
+     "answer": "b",
+     "explanation": "Diagonal $=\\sqrt3\\,x=6\\sqrt3$, so edge $x=6$ cm. TSA $=6x^2=216$ cm$^2$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "How many bags of grain can be stored in a cuboidal granary (8m × 6m × 3m), if each bag occupies a space of 0.64m$^3$?",
+     "options": {
+      "a": "8256",
+      "b": "90",
+      "c": "212",
+      "d": "225"
+     },
+     "answer": "d",
+     "explanation": "Volume $=8\\times6\\times3=144$ m$^3$. Number of bags $=\\frac{144}{0.64}=225$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "A right triangle with sides 3cm, 4cm and 5cm is rotated about the side of 3cm to form a cone. The volume of the cone so formed is:",
+     "options": {
+      "a": "$12\\pi$cm$^3$",
+      "b": "$15\\pi$cm$^3$",
+      "c": "$16\\pi$cm$^3$",
+      "d": "$20\\pi$cm$^3$"
+     },
+     "answer": "c",
+     "explanation": "Rotating about the 3 cm side gives height 3 cm and radius 4 cm. $V=\\frac13\\pi r^2h=\\frac13\\pi(16)(3)=16\\pi$ cm$^3$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "A sphere of diameter 18cm is dropped into a cylindrical vessel of diameter 36cm, partly filled with water. If the sphere is completely submerged, then the water level rises by:",
+     "options": {
+      "a": "3cm",
+      "b": "4cm",
+      "c": "5cm",
+      "d": "6cm"
+     },
+     "answer": "a",
+     "explanation": "Volume of sphere $=\\frac43\\pi(9)^3=972\\pi$. This equals $\\pi(18)^2h$, so $h=\\frac{972}{324}=3$ cm.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "A solid is hemispherical at the bottom and conical (of same radius) above it. If the surface areas of the two parts are equal, then the ratio of its radius and the slant height of the conical part is:",
+     "options": {
+      "a": "1 : 2",
+      "b": "2 : 1",
+      "c": "1 : 4",
+      "d": "4 : 1"
+     },
+     "answer": "a",
+     "explanation": "Hemisphere curved area $2\\pi r^2$ equals cone curved area $\\pi rl$, so $l=2r$ and $r:l=1:2$.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "The surface area of a sphere is 154 cm$^2$. The volume of the sphere is:",
+     "options": {
+      "a": "$179\\frac{2}{3}$cm$^3$",
+      "b": "$359\\frac{1}{3}$cm$^3$",
+      "c": "$1437\\frac{1}{3}$cm$^3$",
+      "d": "None of these"
+     },
+     "answer": "a",
+     "explanation": "$4\\pi r^2=154$ gives $r=3.5$ cm. $V=\\frac43\\cdot\\frac{22}{7}\\cdot(3.5)^3=179\\frac23$ cm$^3$.",
+     "needsFigure": false,
+     "sourcePage": 4,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "Choose the correct answer from the given four options:\nA right circular cylinder of radius r cm and height h cm (h > 2r) just encloses a sphere of diameter:",
+     "options": {
+      "a": "r cm",
+      "b": "2r cm",
+      "c": "h cm",
+      "d": "2h cm"
+     },
+     "answer": "b",
+     "explanation": "A sphere just enclosed by the cylinder touches its curved surface, so its diameter equals the cylinder's diameter, $2r$ cm (since $h>2r$).",
+     "needsFigure": false,
+     "sourcePage": 4,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-statistics",
+   "subject": "Maths",
+   "chapter": "Statistics",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Statistics.pdf",
+   "keptCount": 7,
+   "questions": [
+    {
+     "n": 1,
+     "question": "Look at the frequency distribution table given below:\n\n| Class interval | 35-45 | 45-55 | 55-65 | 65-75 |\n|---|---|---|---|---|\n| Frequency | 8 | 12 | 20 | 10 |\n\nThe median of the above distribution is:",
+     "options": {
+      "a": "56.5",
+      "b": "57.5",
+      "c": "58.5",
+      "d": "59"
+     },
+     "answer": "b",
+     "explanation": "$N=50$, so $\\frac N2=25$ and the median class is 55-65 (cumulative frequency before it is 20). Median $=55+\\frac{25-20}{20}\\times10=57.5$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false,
+     "note": "Source answer line reads '3. 57.5' but 57.5 is option 2 (option 3 is 58.5). Answer set to b because 57.5 is correct and is option 2."
+    },
+    {
+     "n": 2,
+     "question": "If 35 is removed from the data : 30, 34, 35, 36, 37, 38, 39, 40, then the median increases by:",
+     "options": {
+      "a": "2",
+      "b": "1.5",
+      "c": "1",
+      "d": "0.5"
+     },
+     "answer": "d",
+     "explanation": "Original median $=\\frac{36+37}{2}=36.5$. After removing 35 there are 7 values and the median is 37. It increases by 0.5.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "If the mean of observations $x_1, x_2, \\ldots, x_n$ is $\\bar{x}$, then the mean of $x_1 + a, x_2 + a, \\ldots, x_n + a$ is",
+     "options": {
+      "a": "$a\\bar{x}$",
+      "b": "$\\bar{x} - a$",
+      "c": "$\\bar{x} + a$",
+      "d": "$\\frac{\\bar{x}}{a}$"
+     },
+     "answer": "c",
+     "explanation": "Adding $a$ to each of $n$ observations adds $na$ to the sum, so the new mean is $\\bar x+a$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "Consider the following table:\n\n| Class interval | 10-14 | 14-18 | 18-22 | 22-26 | 26-30 |\n|---|---|---|---|---|---|\n| Frequency | 5 | 11 | 16 | 25 | 19 |\n\nThe mode of the above data is:",
+     "options": {
+      "a": "23.5",
+      "b": "24",
+      "c": "24.4",
+      "d": "25"
+     },
+     "answer": "c",
+     "explanation": "Modal class is 22-26 (highest frequency 25). Mode $=22+\\frac{25-16}{2(25)-16-19}\\times4=22+2.4=24.4$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "If the mean of the following distribution is 2.6, then the value of y is:\n\n| Variable (x) | 1 | 2 | 3 | 4 | 5 |\n|---|---|---|---|---|---|\n| Frequency | 4 | 5 | y | 1 | 2 |",
+     "options": {
+      "a": "3",
+      "b": "8",
+      "c": "13",
+      "d": "24"
+     },
+     "answer": "b",
+     "explanation": "$\\sum f=12+y$ and $\\sum fx=28+3y$. Setting $\\frac{28+3y}{12+y}=2.6$ gives $0.4y=3.2$, so $y=8$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "Choose the correct answer from the given four options:\nFor the following distribution:\n\n| Marks | Number of students |\n|---|---|\n| Below 10 | 3 |\n| Below 20 | 12 |\n| Below 30 | 27 |\n| Below 40 | 57 |\n| Below 50 | 75 |\n| Below 60 | 80 |\n\nthe modal class is:",
+     "options": {
+      "a": "10-20",
+      "b": "20-30",
+      "c": "30-40",
+      "d": "50-60"
+     },
+     "answer": "c",
+     "explanation": "Class frequencies are 3, 9, 15, 30, 18, 5. The highest is 30, so the modal class is 30-40.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "The median of first 10 prime numbers is:",
+     "options": {
+      "a": "11",
+      "b": "12",
+      "c": "13",
+      "d": "14"
+     },
+     "answer": "b",
+     "explanation": "The first 10 primes are 2, 3, 5, 7, 11, 13, 17, 19, 23, 29. Median $=\\frac{11+13}{2}=12$.",
+     "needsFigure": false,
+     "sourcePage": 3,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-maths-probability",
+   "subject": "Maths",
+   "chapter": "Probability",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Maths-Probability.pdf",
+   "keptCount": 7,
+   "questions": [
+    {
+     "n": 1,
+     "question": "A box contains cards numbered 6 to 50. A card is drawn at random from the box. The probability that the drawn card has a number which is a perfect square is:",
+     "options": {
+      "a": "$\\frac{1}{45}$",
+      "b": "$\\frac{2}{15}$",
+      "c": "$\\frac{4}{45}$",
+      "d": "$\\frac{1}{9}$"
+     },
+     "answer": "d",
+     "explanation": "Cards 6 to 50 number 45. Perfect squares are 9, 16, 25, 36, 49: five of them. Probability $=\\frac5{45}=\\frac19$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "A card is drawn at random from a pack of 52 cards. The probability that the drawn card is not an ace is:",
+     "options": {
+      "a": "$\\frac{1}{13}$",
+      "b": "$\\frac{9}{13}$",
+      "c": "$\\frac{4}{13}$",
+      "d": "$\\frac{12}{13}$"
+     },
+     "answer": "d",
+     "explanation": "There are 4 aces, so $P(\\text{not ace})=\\frac{48}{52}=\\frac{12}{13}$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "A box contains 3 blue, 2 white and 4 red marbles. If a marble is drawn at random from the box, what is the probability that it will not be a white marble?",
+     "options": {
+      "a": "$\\frac{1}{3}$",
+      "b": "$\\frac{4}{9}$",
+      "c": "$\\frac{7}{9}$",
+      "d": "$\\frac{2}{9}$"
+     },
+     "answer": "c",
+     "explanation": "There are 9 marbles, 2 white. $P(\\text{not white})=\\frac{7}{9}$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "In a lottery, there are 8 prizes and 16 blanks. What is the probability of getting a prize?",
+     "options": {
+      "a": "$\\frac{1}{2}$",
+      "b": "$\\frac{1}{3}$",
+      "c": "$\\frac{2}{3}$",
+      "d": "None of these"
+     },
+     "answer": "b",
+     "explanation": "Total tickets $=24$. $P(\\text{prize})=\\frac{8}{24}=\\frac13$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "The probability of a certain event is:",
+     "options": {
+      "a": "0",
+      "b": "1",
+      "c": "$\\frac{1}{2}$",
+      "d": "No existent."
+     },
+     "answer": "b",
+     "explanation": "A sure (certain) event always happens, so its probability is 1.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "Cards bearing numbers 2, 3, 4, ...., 11 are kept in a bag. A card is drawn at random from the bag. The probability of getting a card with a prime number is:",
+     "options": {
+      "a": "$\\frac{1}{2}$",
+      "b": "$\\frac{2}{5}$",
+      "c": "$\\frac{3}{10}$",
+      "d": "$\\frac{5}{9}$"
+     },
+     "answer": "a",
+     "explanation": "There are 10 cards. Primes: 2, 3, 5, 7, 11, so 5 of them. Probability $=\\frac5{10}=\\frac12$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "A bag contains 8 red, 2 black and 5 white balls. One ball is drawn at random. What is the probability that the ball drawn is not black?",
+     "options": {
+      "a": "$\\frac{8}{15}$",
+      "b": "$\\frac{2}{15}$",
+      "c": "$\\frac{13}{15}$",
+      "d": "$\\frac{1}{3}$"
+     },
+     "answer": "c",
+     "explanation": "There are 15 balls, 2 black. $P(\\text{not black})=\\frac{13}{15}$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-chemical-reactions",
+   "subject": "Science",
+   "chapter": "Chemical Reactions and Equations",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-Chemical-Reactions-and-Equations.pdf",
+   "keptCount": 7,
+   "questions": [
+    {
+     "n": 1,
+     "question": "Which of the following gases can be used for storage of fresh sample of an oil for a long time?",
+     "options": {
+      "a": "Carbon dioxide or oxygen.",
+      "b": "Nitrogen or oxygen.",
+      "c": "Carbon dioxide or helium.",
+      "d": "Helium or nitrogen."
+     },
+     "answer": "d",
+     "explanation": "Inert gases like helium and nitrogen prevent oxidation (rancidity), so they can be used to store food items such as oil.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "In a double displacement reaction such as the reaction between sodium sulphate solution and barium chloride solution:\n1. Exchange of atoms takes place.\n2. Exchange of ions takes place.\n3. A precipitate is produced.\n4. An insoluble salt is produced.\nThe correct option is:",
+     "options": {
+      "a": "(B) and (D).",
+      "b": "(A) and (C).",
+      "c": "Only (B).",
+      "d": "(B), (C) and (D)."
+     },
+     "answer": "d",
+     "explanation": "Sodium sulphate and barium chloride exchange ions to form insoluble barium sulphate (a precipitate) and sodium chloride: $Na_2SO_4(aq)+BaCl_2(aq)\\rightarrow BaSO_4(s)\\downarrow+2NaCl(aq)$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false,
+     "note": "Statements are printed numbered 1-4 but the options refer to them as (A)-(D) (A=1 ... D=4). Transcribed as printed."
+    },
+    {
+     "n": 4,
+     "question": "One of the following is an exothermic reaction. This is:",
+     "options": {
+      "a": "Electrolysis of water.",
+      "b": "Conversion of limestone into quicklime.",
+      "c": "Process of respiration.",
+      "d": "Process of photosynthesis."
+     },
+     "answer": "c",
+     "explanation": "Respiration releases heat energy that maintains body temperature, so it is exothermic.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "Which among the following is (are) double displacement reaction(s)?\n1. $Pb + CuCl_2 \\rightarrow PbCl_2 + Cu$\n2. $Na_2SO_4 + BaCl_2 \\rightarrow BaSO_4 + 2NaCl$\n3. $C + O_2 \\rightarrow CO_2$\n4. $CH_4 + 2O_2 \\rightarrow CO_2 + 2H_2O$",
+     "options": {
+      "a": "1 and 4",
+      "b": "2 only",
+      "c": "1 and 2",
+      "d": "3 and 4"
+     },
+     "answer": "b",
+     "explanation": "In reaction 2, sodium and barium displace each other from their salts (exchange of ions), so it is a double displacement reaction.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "The following reaction is an example of a:\n$4NH_3(g) + 5O_2(g) \\rightarrow 4NO(g) + 6H_2O(g)$\n1. Displacement reaction.\n2. Combination reaction.\n3. Redox reaction.\n4. Neutralisation reaction.",
+     "options": {
+      "a": "1 and 4",
+      "b": "2 and 3",
+      "c": "1 and 3",
+      "d": "3 and 4"
+     },
+     "answer": "c",
+     "explanation": "A redox reaction involves oxidation and reduction together. The source also treats it as a displacement reaction, as H atoms of $NH_3$ are displaced by oxygen.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false,
+     "note": "Source key says '1 and 3' (displacement + redox); arguably debatable but transcribed as printed."
+    },
+    {
+     "n": 7,
+     "question": "Which of the following statements about the given reaction are correct?\n$3Fe(s) + 4H_2O(g) \\rightarrow Fe_3O_4(s) + 4H_2(g)$\n1. Iron metal is getting oxidised.\n2. Water is getting reduced.\n3. Water is acting as reducing agent.\n4. Water is acting as oxidising agent.",
+     "options": {
+      "a": "1, 2 and 3",
+      "b": "3 and 4",
+      "c": "1, 2 and 4",
+      "d": "2 and 4"
+     },
+     "answer": "c",
+     "explanation": "Oxygen is added to iron, so iron is oxidised. Oxygen is removed from water, so water is reduced and acts as the oxidising agent.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "Which one of the following involves a chemical reaction?",
+     "options": {
+      "a": "Evaporation of water.",
+      "b": "Storing of nitrogen gas under pressure.",
+      "c": "Keeping petrol in a China dish in open.",
+      "d": "Heating magnesium wire in the presence of air at high temperature."
+     },
+     "answer": "d",
+     "explanation": "",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false,
+     "note": "Source gives no explanation for this question."
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-acids-bases-salts",
+   "subject": "Science",
+   "chapter": "Acids, Bases and Salts",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-Acids-Bases-and-Salts.pdf",
+   "keptCount": 5,
+   "questions": [
+    {
+     "n": 1,
+     "question": "If you take some distilled water in a test-tube, add an equal amount of acetic acid to it, shake the test-tube well and leave it undisturbed on the test-tube stand, then after about 5 minutes, what would you observe?",
+     "options": {
+      "a": "There is a layer of water over the layer of acetic acid.",
+      "b": "A precipitate is settling at the bottom of the test-tube.",
+      "c": "Bubbles of colourless gas are coming out of the test-tube.",
+      "d": "There is a clear, colourless transparent solution in the test-tube."
+     },
+     "answer": "d",
+     "explanation": "Acetic acid is miscible with water, so it dissolves readily and forms a homogeneous, clear, colourless solution.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "Match the chemical substances given in Column (A) with their appropriate application given in Column (B):\n\n| Column (A) | Column (B) |\n|---|---|\n| A. Bleaching powder | 1. Preparation of glass |\n| B. Baking soda | 2. Production of $H_2$ and $Cl_2$ |\n| C. Washing soda | 3. Decolourisation |\n| D. Sodium chloride | 4. Antacid |",
+     "options": {
+      "a": "A—2, B—1, C—4, D—3",
+      "b": "A—3, B—2, C—4, D—1",
+      "c": "A—3, B—4, C—1, D—2",
+      "d": "A—2, B—4, C—1, D—3"
+     },
+     "answer": "c",
+     "explanation": "Bleaching powder is used for decolourisation; baking soda as an antacid; washing soda in preparing glass; sodium chloride for producing $H_2$ and $Cl_2$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "Calcium phosphate is present in tooth enamel. Its nature is:",
+     "options": {
+      "a": "Basic.",
+      "b": "Acidic.",
+      "c": "Neutral.",
+      "d": "Amphoteric."
+     },
+     "answer": "a",
+     "explanation": "Calcium phosphate $Ca_3(PO_4)_2$ is formed from calcium hydroxide (strong base) and phosphoric acid (weak acid), so it is basic.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "You are having five solutions A, B, C, D and E with pH values as follows:\nA = 1.8, B = 7, C = 8.5, D = 8 and E = 5\nWhich solution would be most likely to liberate hydrogen with magnesium powder?",
+     "options": {
+      "a": "Solution A and B.",
+      "b": "Solution A.",
+      "c": "Solution C.",
+      "d": "All of the above."
+     },
+     "answer": "b",
+     "explanation": "",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false,
+     "note": "Source gives no explanation for this question."
+    },
+    {
+     "n": 7,
+     "question": "A solution turns phenolphthalein indicator pink. The most likely pH of this solution will be:",
+     "options": {
+      "a": "6",
+      "b": "4",
+      "c": "9",
+      "d": "7"
+     },
+     "answer": "c",
+     "explanation": "A solution with pH greater than 7 is basic, and basic solutions turn phenolphthalein pink. So the pH is most likely 9.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-metals-non-metals",
+   "subject": "Science",
+   "chapter": "Metals and Non-metals",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-Metals-and-Non-metals.pdf",
+   "keptCount": 6,
+   "questions": [
+    {
+     "n": 1,
+     "question": "Alloys are homogeneous mixtures of a metal with a metal or non-metal. Which among the following alloys contain non-metal as one of its constituents?",
+     "options": {
+      "a": "Brass.",
+      "b": "Bronze.",
+      "c": "Amalgam.",
+      "d": "Steel."
+     },
+     "answer": "d",
+     "explanation": "Steel contains iron (a metal) and carbon (a non-metal). Brass is copper and zinc, bronze is copper and tin, and amalgam is mercury with another metal.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "The least reactive metal among the following is:",
+     "options": {
+      "a": "Sodium.",
+      "b": "Silver.",
+      "c": "Copper.",
+      "d": "Lead."
+     },
+     "answer": "b",
+     "explanation": "Silver lies below the other metals in the reactivity series, so it is the least reactive.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "A student puts one big iron nail each in four test tubes containing solutions of zinc sulphate, aluminium sulphate, copper sulphate and iron sulphate. A reddish brown coating was observed only on the surface of iron nail which was put in the solution of:",
+     "options": {
+      "a": "Zinc sulphate.",
+      "b": "Iron sulphate.",
+      "c": "Copper sulphate.",
+      "d": "Aluminium sulphate."
+     },
+     "answer": "c",
+     "explanation": "Iron is more reactive than copper, so it displaces copper from copper sulphate solution. The reddish brown copper deposits on the nail.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "An element A is soft and can be cut with a knife. This is very reactive to air and cannot be kept open in air. It reacts vigorously with water. Identify the element from the following.",
+     "options": {
+      "a": "Mg",
+      "b": "Na",
+      "c": "P",
+      "d": "Ca"
+     },
+     "answer": "b",
+     "explanation": "Sodium is a soft metal that can be cut with a knife and is highly reactive with air and water.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "The molecules having triple bond in them are:",
+     "options": {
+      "a": "Oxygen and ethyne.",
+      "b": "Carbon dioxide and ammonia.",
+      "c": "Methane and ethene.",
+      "d": "Nitrogen and ethyne."
+     },
+     "answer": "d",
+     "explanation": "In a nitrogen molecule the two nitrogen atoms share 3 electrons each to form a triple bond. In ethyne the two carbon atoms are also joined by a triple bond.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "The elements whose oxides can turn phenolphthalein solution pink are:",
+     "options": {
+      "a": "Na and K.",
+      "b": "K and C.",
+      "c": "Na and S.",
+      "d": "K and P."
+     },
+     "answer": "a",
+     "explanation": "Na and K are metals whose oxides are basic, and basic oxides turn phenolphthalein pink.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-carbon-compounds",
+   "subject": "Science",
+   "chapter": "Carbon and its Compounds",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-Carbon-and-its-Compounds.pdf",
+   "keptCount": 8,
+   "questions": [
+    {
+     "n": 1,
+     "question": "A student prepared 20% sodium hydroxide solution in a beaker to study saponification reaction. Some observations related to this are given below:\n1. Sodium hydroxide solution turns red litmus blue.\n2. Sodium hydroxide readily dissolves in water.\n3. The beaker containing solution appears cold when touched from outside.\n4. The blue litmus paper turns red when dipped into the solution.\nThe correct observations are:",
+     "options": {
+      "a": "I, II and IV.",
+      "b": "I, II and III.",
+      "c": "only III and IV.",
+      "d": "only I and II."
+     },
+     "answer": "d",
+     "explanation": "NaOH is a base, so it turns red litmus blue, and it dissolves readily in water. These are observations I and II.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false,
+     "note": "Observations are printed numbered 1-4 but the options use Roman numerals I-IV (I=1 ... IV=4). Source explanation is garbled; explanation is a shortened version."
+    },
+    {
+     "n": 2,
+     "question": "We need 20% aqueous solution of sodium hydroxide for the study of saponification reaction. When we open the lid of the bottle containing solid sodium hydroxide we observe it in which form?",
+     "options": {
+      "a": "Colourless transparent beads.",
+      "b": "Small white beads.",
+      "c": "White pellets/ flakes.",
+      "d": "Fine white powder."
+     },
+     "answer": "c",
+     "explanation": "",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false,
+     "note": "Source gives no explanation for this question."
+    },
+    {
+     "n": 3,
+     "question": "For demonstrating the preparation of soap in the laboratory which of the following combinations of an oil and a base would be most suitable?",
+     "options": {
+      "a": "Mustard oil and calcium hydroxide.",
+      "b": "Castor oil and calcium hydroxide.",
+      "c": "Turpentine oil and sodium hydroxide.",
+      "d": "Mustard oil and sodium hydroxide."
+     },
+     "answer": "d",
+     "explanation": "",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false,
+     "note": "Source gives no explanation for this question."
+    },
+    {
+     "n": 4,
+     "question": "Which compound has an addition reaction with - chlorine?",
+     "options": {
+      "a": "$C_2H_4$",
+      "b": "$C_2H_5OH$",
+      "c": "$C_2H_6$",
+      "d": "$CH_3CO_2H$"
+     },
+     "answer": "a",
+     "explanation": "",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false,
+     "note": "Source key prints 'Ans: 3. C2H4' but C2H4 is option 1 (option 3 is C2H6). Answer set to a because C2H4 (unsaturated) is the compound that undergoes addition. Source gives no explanation."
+    },
+    {
+     "n": 5,
+     "question": "The number of carbon atoms present in the molecule of fifth member of the homologous series of alkynes is:",
+     "options": {
+      "a": "Four.",
+      "b": "Five.",
+      "c": "Six.",
+      "d": "Seven."
+     },
+     "answer": "c",
+     "explanation": "The first alkyne (ethyne) has 2 carbon atoms, so the fifth member has 6.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "The molecular formula of a homologue of butane is:",
+     "options": {
+      "a": "$C_4H_8$",
+      "b": "$C_3H_6$",
+      "c": "$C_4H_6$",
+      "d": "$C_3H_8$"
+     },
+     "answer": "d",
+     "explanation": "Butane is an alkane with general formula $C_nH_{2n+2}$. $C_3H_8$ fits this formula, so it is a homologue of butane.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "While studying saponification reaction for the preparation of soap, the teacher suggested to a student to add a small quantity of common salt to the reaction mixture. The function of common salt in this reaction is to:",
+     "options": {
+      "a": "Reduce the alkalinity of the soap.",
+      "b": "Reduce the acidity of the soap.",
+      "c": "Enhance the cleansing capacity of the soap.",
+      "d": "Favour precipitation of soap."
+     },
+     "answer": "d",
+     "explanation": "Common salt decreases the solubility of soap in the mixture, so the soap precipitates out.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "In the neighbourhood of your school, hard water required for an experiment is not available. Select from the following groups of salts available in your school, a group each member of which, if dissolved in distilled water, will make it hard:",
+     "options": {
+      "a": "Sodium chloride, calcium chloride.",
+      "b": "Potassium chloride, sodium chloride.",
+      "c": "Sodium chloride, magnesium chloride.",
+      "d": "Calcium chloride, magnesium chloride."
+     },
+     "answer": "d",
+     "explanation": "Hardness of water is due to calcium and magnesium ions, so dissolving calcium chloride and magnesium chloride makes distilled water hard.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-life-processes",
+   "subject": "Science",
+   "chapter": "Life Processes",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-Life-Processes.pdf",
+   "keptCount": 7,
+   "questions": [
+    {
+     "n": 2,
+     "question": "The internal energy (cellular energy) reserve in autotrophs is:",
+     "options": {
+      "a": "Proteins.",
+      "b": "Fatty acids.",
+      "c": "Glycogen.",
+      "d": "Starch."
+     },
+     "answer": "d",
+     "explanation": "Autotrophs such as plants store energy in the form of starch.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "Which of the following statements about the autotrophs is incorrect?",
+     "options": {
+      "a": "They synthesise carbohydrates from carbon dioxide and water in the presence of sunlight and chlorophyll.",
+      "b": "They store carbohydrates in the form of starch.",
+      "c": "They convert carbon dioxide and water into carbohydrates in the absence of sunlight.",
+      "d": "They constitute the first trophic level in food chains."
+     },
+     "answer": "c",
+     "explanation": "Autotrophs combine carbon dioxide and water to form carbohydrates using sunlight, trapped by chlorophyll. They cannot do this in the absence of sunlight, so statement 3 is incorrect.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "What are the functions of the Xylem?\n\n| | Carrying Sugars | Carrying water | Carrying mineral ions | Giving Support |\n|---|---|---|---|---|\n| (a) | ✓ | × | × | ✓ |\n| (b) | ✓ | ✓ | × | × |\n| (c) | × | ✓ | ✓ | × |\n| (d) | × | ✓ | ✓ | ✓ |\n\nKey ✓ = a function of xylem, × = not a function of xylem.",
+     "options": {
+      "a": "(a)",
+      "b": "(b)",
+      "c": "(c)",
+      "d": "(d)"
+     },
+     "answer": "d",
+     "explanation": "Xylem carries water and water-soluble minerals from roots to all parts of the plant, and it also provides mechanical support.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false,
+     "note": "PDF key line prints a corrupted character ('â') for the tick mark; written here as ✓."
+    },
+    {
+     "n": 5,
+     "question": "The value of normal systolic and diastolic blood pressure in human is:",
+     "options": {
+      "a": "120mm Hg and 80mm Hg, respectively.",
+      "b": "80mm Hg and 120mm Hg, respectively.",
+      "c": "100mm Hg and 90mm Hg, respectively.",
+      "d": "130mm Hg and 85mm Hg, respectively."
+     },
+     "answer": "a",
+     "explanation": "Normal blood pressure is about 120 mm Hg (systolic, the top number) over 80 mm Hg (diastolic, the bottom number).",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "Which of the following component of our food is digested by an enzyme which is present in saliva as well as in pancreatic juice?",
+     "options": {
+      "a": "Proteins.",
+      "b": "Fat.",
+      "c": "Minerals.",
+      "d": "Carbohydrate."
+     },
+     "answer": "d",
+     "explanation": "Carbohydrates are digested by amylase, which is present in both saliva and pancreatic juice.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "Which of the following is the only conducting tissue in non - flowering plants?",
+     "options": {
+      "a": "Xylem vessels.",
+      "b": "Sieve tubes.",
+      "c": "Companion cells.",
+      "d": "Tracheids."
+     },
+     "answer": "d",
+     "explanation": "Tracheids are the only conducting tissue in non-flowering plants.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "The instrument for measuring blood pressure is called:",
+     "options": {
+      "a": "Manometer.",
+      "b": "Sphygmomanometer.",
+      "c": "Barometer.",
+      "d": "Potentiometer."
+     },
+     "answer": "b",
+     "explanation": "The device used for measuring blood pressure is called a sphygmomanometer.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-control-coordination",
+   "subject": "Science",
+   "chapter": "Control and Coordination",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-Control-and-Coordination.pdf",
+   "keptCount": 7,
+   "questions": [
+    {
+     "n": 1,
+     "question": "The part of brain which controls the involuntary action such as heart beat, breathing, blood pressure, etc. is:",
+     "options": {
+      "a": "Pons.",
+      "b": "Medulla.",
+      "c": "Cerebrum.",
+      "d": "Cerebellum."
+     },
+     "answer": "b",
+     "explanation": "The medulla controls involuntary actions such as heartbeat, breathing, blood pressure and peristaltic movement.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "Which of the following are often called glands of emergency?",
+     "options": {
+      "a": "Thyroid.",
+      "b": "Pituitary.",
+      "c": "Adrenal.",
+      "d": "Pancreas."
+     },
+     "answer": "c",
+     "explanation": "The adrenal glands are called glands of emergency. They secrete adrenaline, which prepares the body for action.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "The bending of the root of a plant away from a source of light is caused by a plant hormone called:",
+     "options": {
+      "a": "Cytokinin.",
+      "b": "Gibberellin.",
+      "c": "Abscisic acid.",
+      "d": "Auxin."
+     },
+     "answer": "d",
+     "explanation": "The plant hormone auxin is responsible for negative phototropism in roots.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "A doctor advised a person to take an injection of insulin because:",
+     "options": {
+      "a": "His blood pressure was low.",
+      "b": "His heart was beating slowly.",
+      "c": "He was suffering from goiter.",
+      "d": "His sugar level in blood was high."
+     },
+     "answer": "d",
+     "explanation": "In diabetes the blood sugar level becomes high, and in some patients the disease is managed with insulin injections.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "The gustatory receptors of our body are in one of the following organs. This organ is:",
+     "options": {
+      "a": "Ear.",
+      "b": "Nose.",
+      "c": "Tongue.",
+      "d": "Skin."
+     },
+     "answer": "c",
+     "explanation": "The gustatory receptors, which detect taste, are present in the tongue.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "The plant part which exhibits negative geotropism is:",
+     "options": {
+      "a": "Root.",
+      "b": "Stem.",
+      "c": "Branch.",
+      "d": "Leaves."
+     },
+     "answer": "b",
+     "explanation": "The stem grows upward, opposite to the force of gravity, so it shows negative geotropism.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "Which of the following is not caused by a growth movement?",
+     "options": {
+      "a": "Bending of the shoot of a plant in response to light.",
+      "b": "Closing up of leaves of a sensitive plant on touching with an object.",
+      "c": "Climbing up of a plant on an object by using tendrils.",
+      "d": "Movement of the root of a plant towards a source of water."
+     },
+     "answer": "b",
+     "explanation": "Closing of sensitive-plant leaves on touch is a non-directional movement in response to touch, not a growth movement.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-reproduction",
+   "subject": "Science",
+   "chapter": "How do Organisms Reproduce",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-How-do-Organisms-Reproduce.pdf",
+   "keptCount": 7,
+   "questions": [
+    {
+     "n": 1,
+     "question": "A student identified the various parts of an embryo of a gram seed and listed them as given below:\n1. Testa.\n2. Plumule.\n3. Radicle.\n4. Cotyledon.\n5. Tegman.\nOut of these the actual parts of the embryo are:",
+     "options": {
+      "a": "I, II, III.",
+      "b": "II, III, IV.",
+      "c": "III, IV, V.",
+      "d": "II, IV, V."
+     },
+     "answer": "b",
+     "explanation": "The embryo of a gram seed consists of plumule, radicle and cotyledon. Testa and tegmen are parts of the seed coat.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false,
+     "note": "Items are printed numbered 1-5 but the options refer to them with Roman numerals I-V. Transcribed as printed."
+    },
+    {
+     "n": 2,
+     "question": "A student was asked to observe and identify the various parts of an embryo of a red kidney bean seed. He identified the parts and listed them as under:\n1. Tegmen.\n2. Testa.\n3. Cotyledon.\n4. Radicle.\n5. Plumule.\nThe correctly identified parts among these are:",
+     "options": {
+      "a": "I, II and III.",
+      "b": "II, III and IV.",
+      "c": "III, IV and V.",
+      "d": "I, III, IV and V."
+     },
+     "answer": "c",
+     "explanation": "The cotyledon, radicle and plumule are the parts of the embryo. Tegmen and testa are parts of the seed coat.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false,
+     "note": "Items are printed numbered 1-5 but the options refer to them with Roman numerals I-V. Transcribed as printed."
+    },
+    {
+     "n": 3,
+     "question": "During adolescence, several changes occur in the human body. Mark one change from the following associated with sexual maturation in boys:",
+     "options": {
+      "a": "Loss of milk teeth.",
+      "b": "Increase in height.",
+      "c": "Cracking of voice.",
+      "d": "Weight gain."
+     },
+     "answer": "c",
+     "explanation": "Cracking of voice in males is brought about by the male hormone testosterone, produced after sexual maturation.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "The number of chromosomes in parents and offsprings of a particular species remains constant due to:",
+     "options": {
+      "a": "Doubling of chromosomes after zygote formation.",
+      "b": "Halving of chromosomes during gamete formation.",
+      "c": "Doubling of chromosomes after gamete formation.",
+      "d": "Halving of chromosomes after gamete formation."
+     },
+     "answer": "b",
+     "explanation": "During gamete formation the chromosome number is halved, so the zygote has the same number as the parent's body cells. This keeps the number constant in a species.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "The disease kala-azar is caused by a micro-organism known as:",
+     "options": {
+      "a": "Planaria.",
+      "b": "Leech.",
+      "c": "Leishmania.",
+      "d": "Plasmodium."
+     },
+     "answer": "c",
+     "explanation": "Leishmania is a protozoan that causes kala-azar.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "Vegetative propagation refers to formation of new plants from:",
+     "options": {
+      "a": "Stem, roots and flowers.",
+      "b": "Stem, roots and leaves.",
+      "c": "Stem, flowers and fruits.",
+      "d": "Stem, leaves and flowers."
+     },
+     "answer": "b",
+     "explanation": "Vegetative propagation is the formation of new plants from stems, roots and leaves.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "An organism which may be considered to be a kind of plant and reproduces by budding is:",
+     "options": {
+      "a": "Paramecium.",
+      "b": "Bread mould.",
+      "c": "Hydra.",
+      "d": "Yeast."
+     },
+     "answer": "d",
+     "explanation": "Yeast is a fungus, considered a non-green plant, and it reproduces by budding.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-heredity",
+   "subject": "Science",
+   "chapter": "Heredity",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-Heredity.pdf",
+   "keptCount": 4,
+   "questions": [
+    {
+     "n": 3,
+     "question": "Which statement is true for a dominant allele?",
+     "options": {
+      "a": "It cannot undergo mutation.",
+      "b": "It gives a greater chance of survival than a recessive allele.",
+      "c": "It gives the same phenotype in heterozygotes and homozygotes.",
+      "d": "It is only responsible for male characteristics."
+     },
+     "answer": "c",
+     "explanation": "A dominant allele expresses itself in the heterozygous condition too. For example TT and Tt both show the tall phenotype.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "A recessive homozygote is crossed with a heterozygote of the same gene. What will be the phenotype of the $F_1$ - generation?",
+     "options": {
+      "a": "All dominant.",
+      "b": "75% dominant, 25% recessive.",
+      "c": "50% dominant, 50% recessive.",
+      "d": "25% dominant, 50% heterozygous, 25% recessive."
+     },
+     "answer": "c",
+     "explanation": "The cross is $Tt\\times tt$, giving $Tt$ and $tt$ in the ratio 1 : 1, so 50% dominant and 50% recessive.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "A zygote which has inherited an X chromosome from the father will develop into:",
+     "options": {
+      "a": "Baby boy.",
+      "b": "Baby girl.",
+      "c": "Adult.",
+      "d": "Either boy or girl."
+     },
+     "answer": "b",
+     "explanation": "The mother always gives an X chromosome. A zygote receiving an X from the father is XX and develops into a baby girl.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "A cross between two individuals results in a ratio of 9 : 3 : 3 : 1 for four possible phenotypes of progeny. This is an example of a:",
+     "options": {
+      "a": "Dihybrid cross.",
+      "b": "Monohybrid cross.",
+      "c": "Test cross.",
+      "d": "None of these."
+     },
+     "answer": "a",
+     "explanation": "A dihybrid cross gives progeny in the ratio 9 : 3 : 3 : 1.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-light",
+   "subject": "Science",
+   "chapter": "Light: Reflection and Refraction",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-Light-Reflection-and-Refraction.pdf",
+   "keptCount": 6,
+   "questions": [
+    {
+     "n": 1,
+     "question": "One of the following does not apply to a concave mirror. This is:",
+     "options": {
+      "a": "Focal length is negative.",
+      "b": "Image distance can be positive or negative.",
+      "c": "Image distance is always positive.",
+      "d": "Height of image can be positive or negative."
+     },
+     "answer": "c",
+     "explanation": "Image distance is positive only in one case: when the object is between the pole and the focus. In other cases the image forms in front of the mirror, so it is not always positive.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "If a spherical lens has a power of, -0.25D, the focal length of this lens will be:",
+     "options": {
+      "a": "-4cm",
+      "b": "-400mm",
+      "c": "-4m",
+      "d": "-40cm"
+     },
+     "answer": "c",
+     "explanation": "Focal length $=\\frac{1}{\\text{Power}}=\\frac{1}{-0.25}=-4$ m.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "Where should an object be placed in front of a convex lens to get a real image of the size of the object?",
+     "options": {
+      "a": "At the principal focus of the lens.",
+      "b": "At twice the focal length.",
+      "c": "At infinity.",
+      "d": "Between the optical centre of the lens and its principal focus."
+     },
+     "answer": "b",
+     "explanation": "",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false,
+     "note": "Source gives no explanation for this question."
+    },
+    {
+     "n": 6,
+     "question": "If the focal length of a spherical mirror is 12.5cm, its radius of curvature will be:",
+     "options": {
+      "a": "25cm",
+      "b": "15cm",
+      "c": "20cm",
+      "d": "35cm"
+     },
+     "answer": "a",
+     "explanation": "Radius of curvature $R=2f=2\\times12.5=25$ cm.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "Magnification produced by a plane mirror is:",
+     "options": {
+      "a": "Less than one.",
+      "b": "Greater than one.",
+      "c": "Zero.",
+      "d": "Equal to one."
+     },
+     "answer": "d",
+     "explanation": "The image formed by a plane mirror is the same size as the object, so the magnification is equal to one.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "The image formed by a concave mirror is real, inverted and highly diminished (much smaller than the object). The object must be:",
+     "options": {
+      "a": "Between pole and focus.",
+      "b": "At focus.",
+      "c": "At the centre of curvature.",
+      "d": "At infinity."
+     },
+     "answer": "d",
+     "explanation": "A real, inverted and highly diminished image is formed by a concave mirror only when the object is at infinity.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-human-eye",
+   "subject": "Science",
+   "chapter": "Human Eye and the Colourful World",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-Human-Eye-and-the-Colourful-World.pdf",
+   "keptCount": 6,
+   "questions": [
+    {
+     "n": 2,
+     "question": "How does the eye change in order to focus on near or distant objects?",
+     "options": {
+      "a": "The lens moves in or out.",
+      "b": "The retina moves in or out.",
+      "c": "The lens becomes thicker or thinner.",
+      "d": "The pupil gets larger or smaller."
+     },
+     "answer": "c",
+     "explanation": "The eye lens becomes thicker to focus on nearby objects and thinner to focus on distant objects.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 3,
+     "question": "The stars twinkle but the planets do not twinkle at night because:",
+     "options": {
+      "a": "The stars are small but the planets are large.",
+      "b": "The stars are very large but planets are small.",
+      "c": "The stars are much nearer but planets are far off.",
+      "d": "The stars are far off but planets are nearer to earth."
+     },
+     "answer": "d",
+     "explanation": "Stars twinkle because they are far away. Planets do not twinkle because they are nearer to the earth.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "Which of the following phenomena contributes significantly to the reddish appearance of the sun at sunrise or sunset?",
+     "options": {
+      "a": "Dispersion of light.",
+      "b": "Scattering of light.",
+      "c": "Total internal reflection of light.",
+      "d": "Reflection of light from the earth."
+     },
+     "answer": "b",
+     "explanation": "Red light scatters the least and travels farthest. At sunrise and sunset light travels a longer path, so mainly red light reaches us.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "The sky appears blue because some of the blue component of sunlight is scattered by:",
+     "options": {
+      "a": "Gas molecules present in air.",
+      "b": "Dust particles present in air.",
+      "c": "Water droplets suspended in air.",
+      "d": "Soot particles present in air."
+     },
+     "answer": "a",
+     "explanation": "Some of the blue component of sunlight is scattered by gas molecules (nitrogen and oxygen) present in air.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "A student is observing the diagram showing the path of a ray of light passing through a glass prism. He would find that for all angles of incidence the ray of light bends:",
+     "options": {
+      "a": "Towards the normal while entering into the prism and away from the normal while emerging out of the prism.",
+      "b": "Away from the normal while entering into the prism and towards the normal while emerging out of the prism.",
+      "c": "Away from the normal while entering as well as while emerging out of the prism.",
+      "d": "Towards the normal while entering as well as while emerging out of the prism."
+     },
+     "answer": "a",
+     "explanation": "Entering glass (rarer to denser) the ray bends towards the normal. Emerging (denser to rarer) it bends away from the normal.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "The colour of scattered light depends on.",
+     "options": {
+      "a": "Size of scattering particles.",
+      "b": "Wavelength of light.",
+      "c": "(Both (a) and (b).",
+      "d": "None of these."
+     },
+     "answer": "c",
+     "explanation": "The colour of scattered light depends on the size of the scattering particles: very fine particles scatter mainly blue light, larger particles scatter longer wavelengths such as red.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-electricity",
+   "subject": "Science",
+   "chapter": "Electricity",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-Electricity.pdf",
+   "keptCount": 7,
+   "questions": [
+    {
+     "n": 1,
+     "question": "The heat produced in a wire of resistance 'x' when a current 'y' flows through it in time 'z' is given by:",
+     "options": {
+      "a": "$x^2 \\times y \\times z$.",
+      "b": "$x \\times z \\times y^2$.",
+      "c": "$y \\times z^2 \\times x$.",
+      "d": "$y \\times z \\times x$."
+     },
+     "answer": "b",
+     "explanation": "Heat produced is $H=I^2Rt$, i.e. $y^2\\times x\\times z$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "If the amount of electric charge passing through a conductor in 10 minutes is 300C, the current flowing is:",
+     "options": {
+      "a": "30A.",
+      "b": "0.3A.",
+      "c": "0.5A.",
+      "d": "5A."
+     },
+     "answer": "c",
+     "explanation": "$t=10\\times60=600$ s, so $I=\\frac{Q}{t}=\\frac{300}{600}=0.5$ A.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false,
+     "note": "Question stem is printed as 'If the amount...' (missing 'I') in the source."
+    },
+    {
+     "n": 3,
+     "question": "If the resistance of a certain copper wire is $1\\Omega$, then the resistance of a similar nichrome wire will be about:",
+     "options": {
+      "a": "$25\\Omega$",
+      "b": "$30\\Omega$",
+      "c": "$60\\Omega$",
+      "d": "$45\\Omega$"
+     },
+     "answer": "c",
+     "explanation": "The resistivity of nichrome is about 60 times that of copper, so a similar nichrome wire has about $60\\,\\Omega$.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 4,
+     "question": "The resistivity does not change if:",
+     "options": {
+      "a": "The material is changed.",
+      "b": "The temperature is changed.",
+      "c": "The shape of the resistor is changed.",
+      "d": "Both material and temperature are changed."
+     },
+     "answer": "c",
+     "explanation": "Resistivity does not depend on the dimensions or shape of the conductor. It depends on the material and temperature.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "The resistance of a wire of length 300m and cross-section area $1.0\\text{mm}^2$ made of material of resistivity $1.0 \\times 10^{-7}\\,\\Omega$ m is:",
+     "options": {
+      "a": "$2\\Omega$",
+      "b": "$3\\Omega$",
+      "c": "$20\\Omega$",
+      "d": "$30\\Omega$"
+     },
+     "answer": "d",
+     "explanation": "$R=\\frac{\\rho l}{A}=\\frac{10^{-7}\\times300}{10^{-6}}=30\\,\\Omega$.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false,
+     "note": "PDF crop prints the resistivity exponent as '1.0 × 10 − 7 Ω m' (rendering of 10^-7); written here as 10^-7, which the source explanation confirms."
+    },
+    {
+     "n": 7,
+     "question": "Which unit could be used to measure current?",
+     "options": {
+      "a": "Watt.",
+      "b": "Coulomb.",
+      "c": "Volt.",
+      "d": "Ampere."
+     },
+     "answer": "d",
+     "explanation": "The ampere is the SI unit of electric current.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "An electric heater is rated 100W and 220V. If it is operated on 110V. The power consumption will be:",
+     "options": {
+      "a": "10W",
+      "b": "25W",
+      "c": "15W",
+      "d": "100W"
+     },
+     "answer": "b",
+     "explanation": "$R=\\frac{V^2}{P}=\\frac{220^2}{100}=484\\,\\Omega$. At 110 V, $P=\\frac{110^2}{484}=25$ W.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-magnetic-effects",
+   "subject": "Science",
+   "chapter": "Magnetic Effects of Electric Current",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-Magnetic-Effects-of-Electric-Current.pdf",
+   "keptCount": 5,
+   "questions": [
+    {
+     "n": 1,
+     "question": "The force experienced by a current-carrying conductor placed in a magnetic field is the largest when the angle between the conductor and the magnetic field is:",
+     "options": {
+      "a": "45°",
+      "b": "60°",
+      "c": "90°",
+      "d": "180°"
+     },
+     "answer": "c",
+     "explanation": "The force on a current-carrying conductor is largest when the conductor is at 90° to the magnetic field.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 2,
+     "question": "An AC source has a frequency of 50Hz. The number of times, its direction changes in one second is:",
+     "options": {
+      "a": "25",
+      "b": "50",
+      "c": "75",
+      "d": "100"
+     },
+     "answer": "d",
+     "explanation": "A frequency of 50 Hz means 50 cycles per second. The current reverses direction twice in each cycle, so 100 times per second.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "If the direction of electric current in a solenoid when viewed from a particular end is anticlockwise, then this end of solenoid will be:",
+     "options": {
+      "a": "West pole.",
+      "b": "South pole.",
+      "c": "North pole.",
+      "d": "East pole."
+     },
+     "answer": "c",
+     "explanation": "A solenoid end where the current appears anticlockwise behaves as a North pole.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 6,
+     "question": "Circuit Breaker Device which can be used in place of fuse in domestic electric wiring is called:",
+     "options": {
+      "a": "CBD.",
+      "b": "DCB.",
+      "c": "MCD.",
+      "d": "MCB."
+     },
+     "answer": "d",
+     "explanation": "Miniature circuit breakers (MCB) are used in domestic wiring in place of fuses.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "A car headlamp of 48W works on the car battery of 12V. The correct fuse for the circuit of this car headlamp will be:",
+     "options": {
+      "a": "5A",
+      "b": "10A",
+      "c": "3A",
+      "d": "13A"
+     },
+     "answer": "a",
+     "explanation": "$I=\\frac{P}{V}=\\frac{48}{12}=4$ A. A fuse of slightly higher rating, 5 A, is correct.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  },
+  {
+   "manifestId": "mcq-science-our-environment",
+   "subject": "Science",
+   "chapter": "Our Environment",
+   "pdfFile": "LazyTopper-Free-MCQ-Bank-Science-Our-Environment.pdf",
+   "keptCount": 6,
+   "questions": [
+    {
+     "n": 2,
+     "question": "Accumulation of non-biodegradable pesticides in the food chain in increasing amount at each higher trophic level is known as:",
+     "options": {
+      "a": "Eutrophication.",
+      "b": "Pollution.",
+      "c": "Bio-magnification.",
+      "d": "Accumulation."
+     },
+     "answer": "c",
+     "explanation": "The accumulation of non-biodegradable pesticides in increasing amounts at each higher trophic level is called bio-magnification.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false,
+     "note": "Q3 in this bank is the same question reworded in spacing/spelling only (source duplicate)."
+    },
+    {
+     "n": 4,
+     "question": "Bad ozone is formed in.",
+     "options": {
+      "a": "Atmosphere.",
+      "b": "Ionosphere.",
+      "c": "Stratosphere.",
+      "d": "Troposphere."
+     },
+     "answer": "d",
+     "explanation": "Ground-level (bad) ozone forms in the troposphere when pollutants from vehicles and industry react chemically in sunlight.",
+     "needsFigure": false,
+     "sourcePage": 1,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 5,
+     "question": "In an ecosystem:\n1. The flow of energy is unidirectional.\n2. The flow of materials is unidirectional.\n3. The flow of materials is cyclic.\n4. The flow of energy is cyclic.",
+     "options": {
+      "a": "(i) and (ii)",
+      "b": "(ii) and (iii)",
+      "c": "(i) and (iv)",
+      "d": "(i) and (iii)"
+     },
+     "answer": "d",
+     "explanation": "In an ecosystem the flow of energy is unidirectional and the flow of materials is cyclic.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false,
+     "note": "Statements are printed numbered 1-4 but the options use (i)-(iv). Transcribed as printed."
+    },
+    {
+     "n": 6,
+     "question": "In a food chain, the third trophic level is always occupied by:",
+     "options": {
+      "a": "Carnivores.",
+      "b": "Herbivores.",
+      "c": "Decomposers.",
+      "d": "Producers."
+     },
+     "answer": "a",
+     "explanation": "The first trophic level is producers, the second herbivores and the third carnivores.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 7,
+     "question": "In the food chain comprising of a snake, grass, insect, and frog, the secondary consumer is:",
+     "options": {
+      "a": "Insect.",
+      "b": "Snake.",
+      "c": "Frog.",
+      "d": "Grass."
+     },
+     "answer": "c",
+     "explanation": "Grass (producer) is eaten by the insect (primary consumer), which is eaten by the frog (secondary consumer), which is eaten by the snake (tertiary consumer).",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    },
+    {
+     "n": 8,
+     "question": "Which of the following are decomposers of dead organisms?\n\n| | Bacteria | Fungi | Viruses |\n|---|---|---|---|\n| (a) | no | yes | yes |\n| (b) | yes | no | yes |\n| (c) | yes | yes | no |\n| (d) | yes | yes | yes |",
+     "options": {
+      "a": "(a) Bacteria: no, Fungi: yes, Viruses: yes",
+      "b": "(b) Bacteria: yes, Fungi: no, Viruses: yes",
+      "c": "(c) Bacteria: yes, Fungi: yes, Viruses: no",
+      "d": "(d) Bacteria: yes, Fungi: yes, Viruses: yes"
+     },
+     "answer": "c",
+     "explanation": "Bacteria and fungi are decomposers of dead organisms.",
+     "needsFigure": false,
+     "sourcePage": 2,
+     "verified": true,
+     "uncertain": false
+    }
+   ]
+  }
+ ],
+ "totalKept": 173
+}

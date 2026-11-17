@@ -21,6 +21,7 @@ import {
 } from "./canonicalUrl";
 import { allDesktopTopics } from "../lib/desktop/topics";
 import { dailyQuestionSlugs } from "../components/dailyQuestion/dailyQuestions";
+import { freeMcqSlugs } from "../components/freeMcq/freeMcqPages";
 import { LEGAL_SLUGS } from "../pages/legalSlugs";
 import { solutionsPaths } from "./solutionsPages";
 import { ensureAllNoteSpecs, getNoteSpecForTopic } from "../components/notes/noteSpecRegistry";
@@ -184,7 +185,7 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     // it has no member registry for, so a new family added to the ruling turns
     // this red instead of vanishing from the sitemap. Pin the set it was written
     // against so "a new family appeared" is a failure someone must look at.
-    expect([...SELF_CANONICAL_ONE_SEGMENT].sort()).toEqual(["/cbq-class-10", "/important-question-of-the-day", "/legal", "/notes", "/topic-hub"]);
+    expect([...SELF_CANONICAL_ONE_SEGMENT].sort()).toEqual(["/cbq-class-10", "/free-mcq-class-10", "/important-question-of-the-day", "/legal", "/notes", "/topic-hub"]);
 
     // ★★ THE GAP IS CLOSED — OWNER RULING, 2026-09-09 (FOLLOWON-1), which retires
     // [FU-SITEMAP-LEGAL-PAGES-UNADVERTISED]. This assertion previously read
@@ -276,7 +277,7 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
 
     expect(notes).toEqual(registry.map((t) => `/notes/${t.slug}`));
     expect(paths.length).toBe(
-      SELF_CANONICAL_EXACT.length + LEGAL_SLUGS.length + 3 * registry.length + dailyQuestionSlugs().length, // topic-hub + notes + CBQ-SEO-1 chapter pages + SEO-DAILY-1 question pages
+      SELF_CANONICAL_EXACT.length + LEGAL_SLUGS.length + 3 * registry.length + dailyQuestionSlugs().length + freeMcqSlugs().length, // topic-hub + notes + CBQ-SEO-1 chapter pages + SEO-DAILY-1 question pages + SEO-MCQ-1 chapter pages (the free-MCQ hub is in SELF_CANONICAL_EXACT)
     );
     // SOLUTIONS-2 (owner 18 Oct 2026): the solutions pages are DERIVED from solutionsPaths(); the
     // count stays pinned so a silent change of the published set still fails here.
@@ -288,9 +289,10 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     // SOLUTIONS-SCI-2: + 9 more Science NCERT pages (all chapters but Heredity, below the 5-row floor).
     // SOLUTIONS-SCI-3: + 11 Science Exemplar pages (all but Magnetic Effects, Our Environment).
     expect(solutionsPaths().length, "published solutions pages").toBe(51);
-    expect(paths.length, "the owner-ruled advertised count").toBe(99 + solutionsPaths().length + 1 + dailyQuestionSlugs().length); // SEO-DAILY-1: + the hub + one page per registry question; 67 + the 27 CBQ-SEO-1 pages (hub + 26 chapters) + 2 PRICING-PAGES-1 + 3 SEO-PAGES-1
+    expect(paths.length, "the owner-ruled advertised count").toBe(99 + solutionsPaths().length + 1 + dailyQuestionSlugs().length + 1 + freeMcqSlugs().length); // SEO-MCQ-1: + the free-MCQ hub + one page per bank; SEO-DAILY-1: + the hub + one page per registry question; 67 + the 27 CBQ-SEO-1 pages (hub + 26 chapters) + 2 PRICING-PAGES-1 + 3 SEO-PAGES-1
     expect(dailyQuestionSlugs().length, "SEO-DAILY-1 registry").toBe(4);
-    expect(paths.length).toBe(155); // 150 + the SEO-DAILY-1 hub + 4 question pages
+    expect(freeMcqSlugs().length, "SEO-MCQ-1 registry").toBe(27);
+    expect(paths.length).toBe(183); // 155 + the SEO-MCQ-1 hub + 27 chapter pages
     expect(paths).toContain("/packs");
     // PRICING-PAGES-1 (owner, 11 Nov 2026): the dedicated Board Pass and CBQ Packs sales pages.
     expect(paths).toContain("/board-pass");

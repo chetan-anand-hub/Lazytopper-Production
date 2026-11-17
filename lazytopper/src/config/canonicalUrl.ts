@@ -113,6 +113,9 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   // SEO-DAILY-1 (owner 17 Nov 2026) - the Important Question of the Day hub: public, signed-out readable, indexable. Its question pages are the
   // `/important-question-of-the-day` one-segment family below.
   "/important-question-of-the-day",
+  // SEO-MCQ-1 (owner 17 Nov 2026) - the free-MCQ hub: public, signed-out readable, indexable. Its chapter pages are the `/free-mcq-class-10`
+  // one-segment family below.
+  "/free-mcq-class-10",
   // SEO-PAGES-1 (13 Nov 2026, FU-SEO-PAGES-13NOV) - three search-landing pages that match buying searches: public, signed-out
   // readable, indexable. Their paths are src/components/seoPages/seoPages.ts SEO_PAGES_PATHS.
   "/mock-test-class-10",
@@ -161,6 +164,8 @@ export const SELF_CANONICAL_ONE_SEGMENT: readonly string[] = [
   "/cbq-class-10",
   // SEO-DAILY-1 - `/important-question-of-the-day/:slug`, one page per posted question. Members: dailyQuestionSlugs().
   "/important-question-of-the-day",
+  // SEO-MCQ-1 - `/free-mcq-class-10/:slug`, one page per free chapter MCQ bank. Members: freeMcqSlugs().
+  "/free-mcq-class-10",
 ];
 
 /** Drop any query string or hash, and any trailing slash except the root's. */

@@ -90,7 +90,7 @@ export const FOOTER_UNWATCHED_PATHS: readonly string[] = ["/ncert-class-10"];
  * bank at once. These families (the hub exactly, every page under it) do not watch the footer; their footer adds only the quiet lazy
  * "PDF packs" link, which the island shows from first paint like the Hub's.
  */
-export const FOOTER_UNWATCHED_FAMILIES: readonly string[] = ["/important-question-of-the-day"];
+export const FOOTER_UNWATCHED_FAMILIES: readonly string[] = ["/important-question-of-the-day", "/free-mcq-class-10"];
 /** True when the footer is not an app-only region on this path (an exact FOOTER_UNWATCHED_PATHS entry, or a family: itself or under it). */
 export function footerUnwatched(pathname: string): boolean {
   return FOOTER_UNWATCHED_PATHS.includes(pathname) || FOOTER_UNWATCHED_FAMILIES.some((f) => pathname === f || pathname.startsWith(`${f}/`));

@@ -1,0 +1,94 @@
+/*
+ * SEO-MCQ-1 - the public free-MCQ pages (hub + one page per chapter MCQ bank). Same house grammar as the CBQ pages
+ * (deep navy hero, soft white page, green accent), under its own `.lt-mcq` names so nothing leaks. Mobile-first, CSS-only
+ * responsiveness (320 / 360 / 390 / 768 / 1280). EVERY selector is scoped under `.lt-mcq`.
+ */
+.lt-mcq {
+  --mcq-bg: #f4f7fb;
+  --mcq-card: #fff;
+  --mcq-ink: #0f2038;
+  --mcq-ink2: #4d647e;
+  --mcq-line: #dde5ef;
+  --mcq-g: #0b8f50;
+  --mcq-gt: #06663a;
+  --mcq-gw: #e6f4ec;
+  --mcq-navy: #132c4d;
+  --mcq-serif: Fraunces, "Fraunces Fallback", Georgia, serif;
+  --mcq-sans: Inter, system-ui, -apple-system, sans-serif;
+  --mcq-sh: 0 1px 2px rgba(15, 32, 56, 0.05), 0 6px 18px rgba(15, 32, 56, 0.045);
+  display: block;
+  background: var(--mcq-bg);
+  color: var(--mcq-ink);
+  font-family: var(--mcq-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-width: 0;
+}
+.lt-mcq * { box-sizing: border-box; }
+.lt-mcq h1, .lt-mcq h2 { font-family: var(--mcq-serif); letter-spacing: -0.015em; margin: 0; }
+.lt-mcq a { color: var(--mcq-gt); }
+.lt-mcq :focus-visible { outline: 2px solid var(--mcq-g); outline-offset: 2px; border-radius: 4px; }
+.lt-mcq__w { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+.lt-mcq__hero { background: var(--mcq-navy); color: #eaf2fb; padding: 22px 0 26px; }
+.lt-mcq__crumbs { font-size: 13px; color: #b9d0e8; margin: 0 0 14px; overflow-wrap: anywhere; }
+.lt-mcq__hero .lt-mcq__crumbs a { color: #cfe3f6; display: inline-block; padding: 10px 2px; }
+.lt-mcq__eyebrow { font-size: 13px; color: #8fb3d9; margin: 0 0 10px; }
+.lt-mcq__hero h1 { font-size: clamp(24px, 6.4vw, 36px); line-height: 1.15; font-weight: 700; color: #fff; margin-bottom: 12px; overflow-wrap: anywhere; }
+.lt-mcq__sub { color: #c4d8ec; margin: 0 0 14px; max-width: 60ch; }
+.lt-mcq .lt-mcq__cta {
+  display: flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; padding: 10px 16px; border-radius: 12px;
+  background: #3fbf82; color: #07210f; font-weight: 800; font-size: 16px; line-height: 1.3; text-align: center; text-decoration: none;
+}
+.lt-mcq__body { padding-top: 22px; padding-bottom: 28px; display: grid; gap: 24px; }
+.lt-mcq__body h2 { font-size: 22px; line-height: 1.25; margin-bottom: 8px; }
+.lt-mcq__body p { margin: 0 0 10px; }
+.lt-mcq__fine { font-size: 13px; color: var(--mcq-ink2); }
+.lt-mcq__note { background: var(--mcq-card); border: 1px solid var(--mcq-line); border-radius: 12px; padding: 14px; }
+.lt-mcq__card { background: var(--mcq-card); border: 1px solid var(--mcq-line); border-radius: 14px; box-shadow: var(--mcq-sh); padding: 14px; min-width: 0; }
+.lt-mcq__card .lt-mcq__note { border: 0; padding: 0; }
+.lt-mcq__qhead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
+.lt-mcq__chip { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--mcq-gw); color: var(--mcq-gt); }
+.lt-mcq__chip--marks { background: #eaf0f8; color: var(--mcq-navy); }
+.lt-mcq__stem { display: block; overflow-wrap: anywhere; white-space: pre-line; margin: 0 0 8px; }
+.lt-mcq__opts { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 4px; overflow-wrap: anywhere; }
+.lt-mcq__sol { margin-top: 12px; border-top: 1px dashed var(--mcq-line); padding-top: 10px; }
+.lt-mcq__sol summary { cursor: pointer; font-weight: 700; color: var(--mcq-gt); min-height: 44px; display: flex; align-items: center; }
+.lt-mcq__steps { margin: 6px 0 0; padding-left: 22px; display: grid; gap: 6px; overflow-wrap: anywhere; }
+.lt-mcq__final { margin: 10px 0 0; overflow-wrap: anywhere; }
+.lt-mcq .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+.lt-mcq__links, .lt-mcq__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.lt-mcq__links a, .lt-mcq__list a {
+  display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; overflow-wrap: anywhere;
+}
+.lt-mcq__links a { display: flex; padding: 8px 14px; background: var(--mcq-card); border: 1px solid var(--mcq-line); border-radius: 12px; text-decoration: none; }
+.lt-mcq__list li { background: var(--mcq-card); border: 1px solid var(--mcq-line); border-radius: 12px; padding: 4px 14px; overflow-wrap: anywhere; }
+.lt-mcq__num { font-weight: 800; margin-right: 4px; }
+.lt-mcq__meta { color: var(--mcq-ink2); font-size: 14px; }
+.lt-mcq__pn { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.lt-mcq__pn a { display: flex; align-items: center; min-height: 44px; padding: 8px 14px; background: var(--mcq-card); border: 1px solid var(--mcq-line); border-radius: 12px; text-decoration: none; font-weight: 600; overflow-wrap: anywhere; }
+@media (max-width: 767px) {
+  .lt-mcq[data-testid="free-mcq-page"] .lt-mcq__hero h1 { min-height: calc(4 * 1.15em); }
+}
+@media (min-width: 768px) {
+  .lt-mcq__w { padding: 0 24px; }
+  .lt-mcq__hero { padding: 30px 0 32px; }
+  .lt-mcq .lt-mcq__cta { width: auto; display: inline-flex; padding: 10px 24px; }
+  .lt-mcq__pn { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+/* The question list: one card per question, the answer in a native <details> (in the served HTML, no script to open). */
+.lt-mcq__qs { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.lt-mcq__q { background: var(--mcq-card); border: 1px solid var(--mcq-line); border-radius: 14px; box-shadow: var(--mcq-sh); padding: 14px; min-width: 0; }
+.lt-mcq__q h3 { font-family: var(--mcq-serif); font-size: 18px; line-height: 1.25; margin: 0 0 8px; }
+.lt-mcq__opts { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; overflow-wrap: anywhere; }
+.lt-mcq__opts li { display: flex; gap: 8px; align-items: baseline; }
+.lt-mcq__lab { font-weight: 700; color: var(--mcq-navy); flex: 0 0 auto; }
+.lt-mcq__tw { overflow-x: auto; margin: 6px 0 10px; max-width: 100%; }
+.lt-mcq__tw table { border-collapse: collapse; font-size: 14px; min-width: 100%; }
+.lt-mcq__tw th, .lt-mcq__tw td { border: 1px solid var(--mcq-line); padding: 6px 10px; text-align: left; vertical-align: top; }
+.lt-mcq__tw th { background: #eaf0f8; color: var(--mcq-navy); }
+.lt-mcq__ans { margin: 0 0 6px; overflow-wrap: anywhere; }
+.lt-mcq__why { margin: 0; overflow-wrap: anywhere; }
+/* While the questions load (the prerendered page already holds them) keep the list's box, so nothing below jumps. */
+.lt-mcq__note[data-testid="free-mcq-loading"] { min-height: 420px; }
+.lt-mcq__cta2 { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; }

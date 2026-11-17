@@ -515,6 +515,9 @@ export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
   // SEO-DAILY-1: the two daily-question pages share one sheet (dailyQuestion.css), which Rollup emits as the question page's CSS.
   DailyQuestionHubPage: ["DailyQuestionPage"],
   DailyQuestionPage: ["DailyQuestionPage"],
+  // SEO-MCQ-1: the two free-MCQ pages share one sheet (freeMcq.css), which Rollup emits as the chapter page's CSS.
+  FreeMcqHubPage: ["FreeMcqChapterPage"],
+  FreeMcqChapterPage: ["FreeMcqChapterPage"],
   PricingPage: ["TestimonialVideo"],
   // PRICING-PAGES-1 (11 Nov 2026): the two sales pages paint from their prerendered bodies (islands); the shared sales-page sheet,
   // the student video's frame and (CBQ) the shop's CBQ band / tile / sample CSS are needed by that first screen.

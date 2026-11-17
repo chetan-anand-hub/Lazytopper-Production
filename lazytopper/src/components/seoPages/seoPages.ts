@@ -10,6 +10,7 @@
 // ★ NO PRICE HERE. A price is read at render time from the pack helpers (`packPriceLabel`), never typed
 //   and never in a head string or in structured data (static markup stays number-free; see faqContent.ts).
 
+import { freeMcqForParent, freeMcqPath } from "../freeMcq/freeMcqPages";
 import { allDesktopTopics, type DesktopTopicSummary } from "../../lib/desktop/topics";
 import { canonicalFor } from "../../config/canonicalUrl";
 import { SOLUTIONS_PAGES, solutionsPath } from "../../config/solutionsPages";
@@ -98,6 +99,8 @@ export interface ChapterLinks {
   readonly topic: DesktopTopicSummary;
   readonly notes: string;
   readonly cbq: string;
+  /** SEO-MCQ-1: the free MCQ page(s) of this chapter (Trigonometry has two banks, every other chapter one). */
+  readonly mcq: ReadonlyArray<{ readonly label: string; readonly href: string }>;
   readonly solutions: ReadonlyArray<{ readonly label: string; readonly href: string }>;
 }
 
@@ -120,7 +123,11 @@ export function chapterLinks(): ChapterLinks[] {
       if (page.books.includes("ncert")) solutions.push({ label: `NCERT solutions${part}`, href: solutionsPath("ncert", slug) });
       if (page.books.includes("exemplar")) solutions.push({ label: `Exemplar solutions${part}`, href: solutionsPath("exemplar", slug) });
     }
-    return { topic, notes: `/notes/${topic.slug}`, cbq: `/cbq-class-10/${topic.slug}`, solutions };
+    const mcq = freeMcqForParent(topic.slug).map((bank) => ({
+      label: freeMcqForParent(topic.slug).length > 1 ? `${bank.chapter} MCQs` : `${topic.name} MCQs`,
+      href: freeMcqPath(bank.slug),
+    }));
+    return { topic, notes: `/notes/${topic.slug}`, cbq: `/cbq-class-10/${topic.slug}`, mcq, solutions };
   });
 }
 

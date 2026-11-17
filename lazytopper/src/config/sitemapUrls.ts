@@ -56,6 +56,7 @@ import { allDesktopTopics } from "../lib/desktop/topics";
 import { LEGAL_SLUGS } from "../pages/legalSlugs";
 import { cbqChapterSlugs } from "../components/cbq/cbqSeo";
 import { dailyQuestionSlugs } from "../components/dailyQuestion/dailyQuestions";
+import { freeMcqSlugs } from "../components/freeMcq/freeMcqPages";
 
 /**
  * The concrete members of each PARAMETERISED self-canonical family.
@@ -103,6 +104,9 @@ function membersOfParameterisedFamily(prefix: string): readonly string[] {
     case "/important-question-of-the-day":
       // SEO-DAILY-1 - the registry of posted questions (each a pointer to a real bank row).
       return dailyQuestionSlugs();
+    case "/free-mcq-class-10":
+      // SEO-MCQ-1 - the 27 free chapter MCQ banks (a closed set, pinned to the content file by freeMcqPages.guard).
+      return freeMcqSlugs();
     case "/legal":
       // The list `LegalPage`'s content table is compiler-keyed on.
       return LEGAL_SLUGS;

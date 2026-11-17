@@ -68,6 +68,7 @@ import { allDesktopTopics } from "../../src/lib/desktop/topics";
 import { ncertFileCodeFromSpec } from "../../src/lib/ncertFileCode";
 import { cbqHeadForPath, cbqJsonLd } from "../../src/components/cbq/cbqSeo";
 import { dailyHeadForPath, dailyJsonLd } from "../../src/components/dailyQuestion/dailyQuestions";
+import { freeMcqHeadForPath, freeMcqJsonLd } from "../../src/components/freeMcq/freeMcqPages";
 import { seoPageHeadForPath, seoPageJsonLd } from "../../src/components/seoPages/seoPages";
 import { faqJsonLdForPath } from "../../src/components/seo/faqContent";
 import { testimonialVideoJsonLdFor } from "./testimonialVideoJsonLd";
@@ -319,6 +320,9 @@ export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   // SEO-DAILY-1 - the Important Question of the Day hub (exact) and its question pages (one prefix); both lazy routes in App.tsx.
   { prefix: "/important-question-of-the-day", exact: true, modules: ["DailyQuestionHubPage"] },
   { prefix: "/important-question-of-the-day/", exact: false, modules: ["DailyQuestionPage"] },
+  // SEO-MCQ-1 - the free-MCQ hub (exact) and its chapter pages (one prefix); both lazy routes in App.tsx.
+  { prefix: "/free-mcq-class-10", exact: true, modules: ["FreeMcqHubPage"] },
+  { prefix: "/free-mcq-class-10/", exact: false, modules: ["FreeMcqChapterPage"] },
   // SEO-PAGES-1 — the three search-landing pages (lazy routes in App.tsx).
   { prefix: "/mock-test-class-10", exact: true, modules: ["MockTestClass10Page"] },
   { prefix: "/question-bank-class-10", exact: true, modules: ["QuestionBankClass10Page"] },
@@ -369,6 +373,10 @@ export function headForPath(path: string): PageHead | null {
   // SEO-DAILY-1 - the Important Question of the Day hub and its question pages: strings built (and length-checked) by dailyQuestions.ts.
   const dailyHead = dailyHeadForPath(path);
   if (dailyHead) return dailyHead;
+
+  // SEO-MCQ-1 - the free-MCQ hub and its chapter pages: strings built (and length-checked) by freeMcqPages.ts.
+  const freeMcqHead = freeMcqHeadForPath(path);
+  if (freeMcqHead) return freeMcqHead;
 
   // SEO-PAGES-1 — the three search-landing pages: strings authored (and length-checked) in seoPages.ts.
   const seoPageHead = seoPageHeadForPath(path);
@@ -617,7 +625,7 @@ export function ncertHubJsonLd(path: string, basename: string): Record<string, u
 export function pageJsonLd(path: string, basename: string, hasHead: boolean): Record<string, unknown> | null {
   return (
     (hasHead
-      ? notesJsonLd(path, basename) ?? solutionsJsonLd(path, basename) ?? ncertHubJsonLd(path, basename) ?? cbqJsonLd(path, basename) ?? dailyJsonLd(path, basename) ?? seoPageJsonLd(path, basename)
+      ? notesJsonLd(path, basename) ?? solutionsJsonLd(path, basename) ?? ncertHubJsonLd(path, basename) ?? cbqJsonLd(path, basename) ?? dailyJsonLd(path, basename) ?? freeMcqJsonLd(path, basename) ?? seoPageJsonLd(path, basename)
       : null) ??
     testimonialVideoJsonLdFor(path, canonicalFor("/", basename))
   );

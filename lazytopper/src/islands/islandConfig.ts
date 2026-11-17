@@ -32,6 +32,9 @@ export const ISLAND_PATH_PREFIXES: readonly string[] = [
   // SEO-DAILY-1: the Important Question of the Day hub (exact) and its question pages (family): links, a native <details>, one hero link.
   "/important-question-of-the-day",
   "/important-question-of-the-day/",
+  // SEO-MCQ-1: the free-MCQ hub (exact) and its chapter pages (family): links, native <details>, tables; no app needed to read.
+  "/free-mcq-class-10",
+  "/free-mcq-class-10/",
   "/ncert-class-10",
   // SPEED-PACKS-3 (owner 11 Nov): the PDF Packs ad landing. Unlike the content families, the app is loaded soon after the
   // first paint (IDLE_UPGRADE_PATHS) because pack_view / pack_checkout and the countdown strip are the app's.

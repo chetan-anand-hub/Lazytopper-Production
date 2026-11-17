@@ -6,3 +6,7 @@
 /* SEO-DAILY-1 - the daily-question link directly under the community row (the row keeps its 42px bottom margin; pulled up to sit close). */
 .lt-community ~ .lt-dq-inbound { margin: -30px 0 42px; font-size: 15px; line-height: 1.5; }
 .lt-community ~ .lt-dq-inbound a { display: inline-block; min-height: 44px; line-height: 44px; font-weight: 600; color: var(--gt, #06663a); text-decoration: underline; text-underline-offset: 2px; }
+/* SEO-MCQ-1 - the free-MCQ link after the daily-question link (or straight under the row when that link is off). */
+.lt-community ~ .lt-mcq-inbound { margin: -30px 0 42px; font-size: 15px; line-height: 1.5; }
+.lt-community ~ .lt-dq-inbound ~ .lt-mcq-inbound { margin: -42px 0 42px; }
+.lt-community ~ .lt-mcq-inbound a { display: inline-block; min-height: 44px; line-height: 44px; font-weight: 600; color: var(--gt, #06663a); text-decoration: underline; text-underline-offset: 2px; }

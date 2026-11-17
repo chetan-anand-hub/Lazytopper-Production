@@ -84,6 +84,8 @@ const CbqHubPage = lazy(() => import("./pages/cbq/CbqHubPage"));
 const CbqChapterPage = lazy(() => import("./pages/cbq/CbqChapterPage"));
 const DailyQuestionHubPage = lazy(() => import("./pages/dailyQuestion/DailyQuestionHubPage"));
 const DailyQuestionPage = lazy(() => import("./pages/dailyQuestion/DailyQuestionPage"));
+const FreeMcqHubPage = lazy(() => import("./pages/freeMcq/FreeMcqHubPage"));
+const FreeMcqChapterPage = lazy(() => import("./pages/freeMcq/FreeMcqChapterPage"));
 // WA-CONTACT-1 — the /contact page and the floating WhatsApp button (decides its own routes).
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const InvoiceDetailsPage = lazy(() => import("./pages/InvoiceDetailsPage")); // GST-INVOICE-BACKDATE-1: the signed-out state form
@@ -1162,6 +1164,8 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route path="/cbq-class-10/:chapterSlug" element={withRouteSuspense(<CbqChapterPage />)} />
           <Route path="/important-question-of-the-day" element={withRouteSuspense(<DailyQuestionHubPage />)} />
           <Route path="/important-question-of-the-day/:slug" element={withRouteSuspense(<DailyQuestionPage />)} />
+          <Route path="/free-mcq-class-10" element={withRouteSuspense(<FreeMcqHubPage />)} />
+          <Route path="/free-mcq-class-10/:slug" element={withRouteSuspense(<FreeMcqChapterPage />)} />
           <Route path="/contact" element={withRouteSuspense(<ContactPage />)} />
           <Route path="/invoice-details" element={withRouteSuspense(<InvoiceDetailsPage />)} />
           <Route path="/ncert-class-10" element={withRouteSuspense(<NcertBooksPage />)} />

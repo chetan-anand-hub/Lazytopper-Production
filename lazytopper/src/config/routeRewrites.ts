@@ -32,6 +32,7 @@
  */
 import { cbqChapterSlugs } from "../components/cbq/cbqSeo";
 import { dailyQuestionSlugs } from "../components/dailyQuestion/dailyQuestions";
+import { freeMcqSlugs } from "../components/freeMcq/freeMcqPages";
 
 
 /** Where every routed path is sent. Built by `applyPrerendered` as a clean copy of the shell. */
@@ -116,6 +117,8 @@ export const PARAM_CONSTRAINTS: Record<string, readonly string[]> = {
   "/cbq-class-10/:chapterSlug": cbqChapterSlugs(),
   // SEO-DAILY-1 - an unknown question slug is a real 404, not the shell with 200 (dailyQuestionRewrites.guard pins vercel.json to the registry).
   "/important-question-of-the-day/:slug": dailyQuestionSlugs(),
+  // SEO-MCQ-1 - an unknown free-MCQ slug is a real 404 (freeMcqPages.guard pins vercel.json to the registry).
+  "/free-mcq-class-10/:slug": freeMcqSlugs(),
 };
 
 /**
