@@ -124,7 +124,7 @@
     "lastmod": "2026-11-17"
   },
   "/cbse/class-10": {
-    "sha256": "17b6679a98a68dc9168334078503a6a833a64361bdfc4abc7d5eb771f43736d0",
+    "sha256": "433ed21459a8c6c7649b027a31ddab6bdc6aa4ca4057c72fd97396ad5e822b63",
     "lastmod": "2026-11-17"
   },
   "/check-your-answer": {
@@ -141,6 +141,118 @@
   },
   "/for-parents": {
     "sha256": "1a79c16d2b5fac7bf593fa823b8c0a059cbfad0c3fbe09372e5c93c3a783dcae",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10": {
+    "sha256": "8b003a09fa4825e25afe5e26f34d396e1f9a0e7277307f598ed336156f2e773b",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/acids-bases-and-salts": {
+    "sha256": "fd8a16ae0a96a20f11200fdb41699c67724ef8531f4b00bb7f77dd7d50e658cd",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/areas-related-to-circles": {
+    "sha256": "799d26b5de0d926d96c0eaba8d84572cc1d188e1072ee69aa06a1e0e85ab3c93",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/arithmetic-progression": {
+    "sha256": "197b1e0c972870c422660301b7cf15b3642f5cb90b0ab1a920baf9ab4ad40bdc",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/carbon-and-its-compounds": {
+    "sha256": "8000d8ea3730103825f058ab32fa475cfb5a509cb1110e78b16d4e71bd06dd75",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/chemical-reactions-and-equations": {
+    "sha256": "08c5bfb5b0573078e1a14a564761d08bb9433deb1d3898a04226d87236e4c01e",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/circles": {
+    "sha256": "dce23675b82a4ca63eb0ab878dcc4b86af473875de99911ab5595dac047f6dd5",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/control-and-coordination": {
+    "sha256": "7b7fe8d6ed27ce1b2b90e5ee4cc77b56f58c7b8a2825c74e3fd9f684df9738e1",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/coordinate-geometry": {
+    "sha256": "dbaba2cf67d4ebea2aa9ee7ad84c02cc997fee9594d2e3eae4df635e3e008181",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/electricity": {
+    "sha256": "23b08d86e6adec0524f1ef39dc90fc21ac8795b741fe05cc7176a78de9ded1a2",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/heights-and-distances": {
+    "sha256": "c9b462c81d5addf2c1e9ebd7cad034c0d2fbe1881c8782b1acfb0335c4dc42ad",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/heredity": {
+    "sha256": "8c96cc1ee7ed2e96e73c5919cbf124480dee0f2fca5a4fafd8a68073bbef2a1b",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/how-do-organisms-reproduce": {
+    "sha256": "d28375dd0b901637e5137fd4004e1a2aec856bcbaf10489b50bb8dec0a7c41c7",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/human-eye-and-colourful-world": {
+    "sha256": "36c4752d9a88f66c7ecbb20fecd59e29d91b784b0a4698e8bb11a8787cc0f0ba",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/life-processes": {
+    "sha256": "d40cae277d3f869f7ebf6c8e244982c65f937e5a9fd5b7c650b48fd73175231c",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/light-reflection-and-refraction": {
+    "sha256": "9372fd3dd4c88b819c7027cc8cdaa618b71c64f62334ba7615ec4a94eb016385",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/magnetic-effects-of-electric-current": {
+    "sha256": "269453874e0224114af09613348104d9c45410743183ef9833db6a9d0e7bf898",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/metals-and-non-metals": {
+    "sha256": "73789f5fbe08df7a6f66ac8de68f6ff60c55277dcd22bdc9ec90dc6032ed725c",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/our-environment": {
+    "sha256": "e41b4721892f75970c204bad72f3246b7b981d120f04c5c693a419ec3bf89d53",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/pair-of-linear-equations": {
+    "sha256": "e10dd6f56f3059a7c7e32a6e87b6a5f1bf5df7ee017f2e4f5a263cec50b01da1",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/polynomials": {
+    "sha256": "0ea1158a0acbb5eef55587f08548d55ff497c722d6315e33f8dbb5b123c34415",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/probability": {
+    "sha256": "12f6024dde6eb931b4349b09c6e420d3d78070a8831095ddc41ece738e10b6cd",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/quadratic-equations": {
+    "sha256": "67109a081a5e01e453a50d2688791784b803a9de78f82db92106613240474c0b",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/real-numbers": {
+    "sha256": "cfc05e30956a3b651e2b577f6e54299c15cde2109f03df8ef79b9db3ba292c16",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/statistics": {
+    "sha256": "f5fb69e92afbd6164f9fbd0d959c1dff4771c2cddb86c7a13fecffb64d6ab7ec",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/surface-areas-and-volumes": {
+    "sha256": "6b090a15d32a3c6a83dfae7c2dee2e466ce253a75f9e47f2559fdaae883263fc",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/triangles": {
+    "sha256": "8b9a551ecc6dfb2039f125d136098610ded88aefa72441a360f8b0a0703f57a7",
+    "lastmod": "2026-11-17"
+  },
+  "/free-mcq-class-10/trigonometry": {
+    "sha256": "0ad1bd567a82c133e1bfddfb201006eaa6e2d2f085885a38a2827ee25e05ee19",
     "lastmod": "2026-11-17"
   },
   "/highly-probable/10/Maths": {
@@ -512,7 +624,7 @@
     "lastmod": "2026-11-17"
   },
   "/question-bank-class-10": {
-    "sha256": "8224a336934cf9c479a195e03986f6c0a28a703fa85f3831db746e2f028473ad",
+    "sha256": "6760045443be94821f6be6d08df7a0845e8b2053999a1b59109e0855ba41c370",
     "lastmod": "2026-11-17"
   },
   "/topic-hub/acids-bases-and-salts": {
