@@ -211,8 +211,10 @@ describe("SOFT404-1 — a request reaches the shell if and only if the router ro
     // redirects an unknown slug to the hub client-side); Vercel serves the shell only for the 26
     // registry slugs, so an unknown slug is a real HTTP 404. cbqRewrites.guard.test.ts pins the set.
     const unknownCbqSlug = (p: string) => /^\/cbq-class-10\/[^/]+\/?$/.test(p) && !reachesShell(p) && routerRoutes(p);
+    // SEO-DAILY-1: the same intended divergence for /important-question-of-the-day/<x> (dailyQuestionRewrites.guard pins the set).
+    const unknownDailySlug = (p: string) => /^\/important-question-of-the-day\/[^/]+\/?$/.test(p) && !reachesShell(p) && routerRoutes(p);
     const disagreements = [...corpus]
-      .filter((p) => !unknownCbqSlug(p))
+      .filter((p) => !unknownCbqSlug(p) && !unknownDailySlug(p))
       .filter((p) => reachesShell(p) !== routerRoutes(p))
       .map((p) => `${p}  vercel=${reachesShell(p)} router=${routerRoutes(p)}`);
     expect(disagreements).toEqual([]);

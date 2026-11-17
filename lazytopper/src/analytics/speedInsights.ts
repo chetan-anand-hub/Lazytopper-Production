@@ -39,7 +39,7 @@ export const SPEED_SAMPLE_RATE = 0.5;
  */
 export const KNOWN_TOP_LEVEL = new Set([
   "/", "/welcome", "/browse", "/login", "/sign-up", "/pricing", "/packs", "/board-pass", "/cbq-packs", "/exam-trends", "/practice-hub",
-  "/check-improve", "/check-your-answer", "/mock-test-class-10", "/question-bank-class-10", "/cbse-marking-scheme-class-10", "/for-parents", "/contact", "/cbq-class-10", "/highly-probable",
+  "/check-improve", "/check-your-answer", "/mock-test-class-10", "/question-bank-class-10", "/cbse-marking-scheme-class-10", "/for-parents", "/contact", "/cbq-class-10", "/important-question-of-the-day", "/highly-probable",
   "/ncert-class-10", "/topic-hub", "/me", "/tutor", "/intent", "/practice", "/notes", "/funnel", "/admin",
 ]);
 
@@ -50,6 +50,7 @@ const STATIC_MULTI_SEGMENT = new Set(["/cbse/class-10", "/practice/worksheets", 
 const FAMILY: ReadonlyArray<[RegExp, string]> = [
   [/^\/notes\/[^/]+$/, "/notes/[chapter]"],
   [/^\/cbq-class-10\/[^/]+$/, "/cbq-class-10/[chapter]"],
+  [/^\/important-question-of-the-day\/[^/]+$/, "/important-question-of-the-day/[question]"],
   [/^\/topic-hub\/[^/]+$/, "/topic-hub/[chapter]"],
   [/^\/topic-hub\/[^/]+\/[^/]+$/, "/topic-hub/[grade]/[subject]"],
   [/^\/topic-hub\/[^/]+\/[^/]+\/[^/]+$/, "/topic-hub/[grade]/[subject]/[topic]"],

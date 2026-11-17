@@ -1,0 +1,81 @@
+/*
+ * SEO-DAILY-1 - the public "Important Question of the Day" pages (hub + one page per question). Same house grammar as the CBQ pages
+ * (deep navy hero, soft white page, green accent), under its own `.lt-dq` names so nothing leaks. Mobile-first, CSS-only
+ * responsiveness (320 / 360 / 390 / 768 / 1280). EVERY selector is scoped under `.lt-dq`.
+ */
+.lt-dq {
+  --dq-bg: #f4f7fb;
+  --dq-card: #fff;
+  --dq-ink: #0f2038;
+  --dq-ink2: #4d647e;
+  --dq-line: #dde5ef;
+  --dq-g: #0b8f50;
+  --dq-gt: #06663a;
+  --dq-gw: #e6f4ec;
+  --dq-navy: #132c4d;
+  --dq-serif: Fraunces, "Fraunces Fallback", Georgia, serif;
+  --dq-sans: Inter, system-ui, -apple-system, sans-serif;
+  --dq-sh: 0 1px 2px rgba(15, 32, 56, 0.05), 0 6px 18px rgba(15, 32, 56, 0.045);
+  display: block;
+  background: var(--dq-bg);
+  color: var(--dq-ink);
+  font-family: var(--dq-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-width: 0;
+}
+.lt-dq * { box-sizing: border-box; }
+.lt-dq h1, .lt-dq h2 { font-family: var(--dq-serif); letter-spacing: -0.015em; margin: 0; }
+.lt-dq a { color: var(--dq-gt); }
+.lt-dq :focus-visible { outline: 2px solid var(--dq-g); outline-offset: 2px; border-radius: 4px; }
+.lt-dq__w { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+.lt-dq__hero { background: var(--dq-navy); color: #eaf2fb; padding: 22px 0 26px; }
+.lt-dq__crumbs { font-size: 13px; color: #b9d0e8; margin: 0 0 14px; overflow-wrap: anywhere; }
+.lt-dq__hero .lt-dq__crumbs a { color: #cfe3f6; display: inline-block; padding: 10px 2px; }
+.lt-dq__eyebrow { font-size: 13px; color: #8fb3d9; margin: 0 0 10px; }
+.lt-dq__hero h1 { font-size: clamp(24px, 6.4vw, 36px); line-height: 1.15; font-weight: 700; color: #fff; margin-bottom: 12px; overflow-wrap: anywhere; }
+.lt-dq__sub { color: #c4d8ec; margin: 0 0 14px; max-width: 60ch; }
+.lt-dq .lt-dq__cta {
+  display: flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; padding: 10px 16px; border-radius: 12px;
+  background: #3fbf82; color: #07210f; font-weight: 800; font-size: 16px; line-height: 1.3; text-align: center; text-decoration: none;
+}
+.lt-dq__body { padding-top: 22px; padding-bottom: 28px; display: grid; gap: 24px; }
+.lt-dq__body h2 { font-size: 22px; line-height: 1.25; margin-bottom: 8px; }
+.lt-dq__body p { margin: 0 0 10px; }
+.lt-dq__fine { font-size: 13px; color: var(--dq-ink2); }
+.lt-dq__note { background: var(--dq-card); border: 1px solid var(--dq-line); border-radius: 12px; padding: 14px; }
+/* While the question loads (the prerendered page already holds it) keep the card's box, so the links below do not jump. */
+.lt-dq__note[data-testid="daily-loading"] { min-height: 260px; }
+.lt-dq__card { background: var(--dq-card); border: 1px solid var(--dq-line); border-radius: 14px; box-shadow: var(--dq-sh); padding: 14px; min-width: 0; }
+.lt-dq__card .lt-dq__note { border: 0; padding: 0; }
+.lt-dq__qhead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
+.lt-dq__chip { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--dq-gw); color: var(--dq-gt); }
+.lt-dq__chip--marks { background: #eaf0f8; color: var(--dq-navy); }
+.lt-dq__stem { display: block; overflow-wrap: anywhere; white-space: pre-line; }
+.lt-dq__opts { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 4px; overflow-wrap: anywhere; }
+.lt-dq__sol { margin-top: 12px; border-top: 1px dashed var(--dq-line); padding-top: 10px; }
+.lt-dq__sol summary { cursor: pointer; font-weight: 700; color: var(--dq-gt); min-height: 44px; display: flex; align-items: center; }
+.lt-dq__steps { margin: 6px 0 0; padding-left: 22px; display: grid; gap: 6px; overflow-wrap: anywhere; }
+.lt-dq__final { margin: 10px 0 0; overflow-wrap: anywhere; }
+.lt-dq .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+.lt-dq__links, .lt-dq__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.lt-dq__links a, .lt-dq__list a {
+  display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; overflow-wrap: anywhere;
+}
+.lt-dq__links a { display: flex; padding: 8px 14px; background: var(--dq-card); border: 1px solid var(--dq-line); border-radius: 12px; text-decoration: none; }
+.lt-dq__list li { background: var(--dq-card); border: 1px solid var(--dq-line); border-radius: 12px; padding: 4px 14px; overflow-wrap: anywhere; }
+.lt-dq__num { font-weight: 800; margin-right: 4px; }
+.lt-dq__meta { color: var(--dq-ink2); font-size: 14px; }
+.lt-dq__pn { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.lt-dq__pn a { display: flex; align-items: center; min-height: 44px; padding: 8px 14px; background: var(--dq-card); border: 1px solid var(--dq-line); border-radius: 12px; text-decoration: none; font-weight: 600; overflow-wrap: anywhere; }
+/* The question H1 wraps to 4 lines at 360 px in the fallback serif: reserve them so the Fraunces swap shifts nothing (as the CBQ chapter page). */
+@media (max-width: 767px) {
+  .lt-dq[data-testid="daily-question-page"] .lt-dq__hero h1 { min-height: calc(4 * 1.15em); }
+}
+@media (min-width: 768px) {
+  .lt-dq__w { padding: 0 24px; }
+  .lt-dq__hero { padding: 30px 0 32px; }
+  .lt-dq .lt-dq__cta { width: auto; display: inline-flex; padding: 10px 24px; }
+  .lt-dq__pn { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

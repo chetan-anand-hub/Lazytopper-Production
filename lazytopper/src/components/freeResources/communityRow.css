@@ -3,3 +3,6 @@
 .lt-community__lead { font-weight: 600; color: var(--ink, #0f2038); }
 .lt-community__link { display: inline-block; min-height: 44px; line-height: 44px; font-weight: 600; color: var(--gt, #06663a); text-decoration: underline; text-underline-offset: 2px; }
 .lt-community__link:focus-visible { outline: 2px solid var(--gt, #06663a); outline-offset: 2px; border-radius: 4px; }
+/* SEO-DAILY-1 - the daily-question link directly under the community row (the row keeps its 42px bottom margin; pulled up to sit close). */
+.lt-community ~ .lt-dq-inbound { margin: -30px 0 42px; font-size: 15px; line-height: 1.5; }
+.lt-community ~ .lt-dq-inbound a { display: inline-block; min-height: 44px; line-height: 44px; font-weight: 600; color: var(--gt, #06663a); text-decoration: underline; text-underline-offset: 2px; }

@@ -124,7 +124,7 @@
     "lastmod": "2026-11-17"
   },
   "/cbse/class-10": {
-    "sha256": "15463f0aea2418ed7ce910f57dc9c79efe38a0b33ef0f1c45830801f8d440114",
+    "sha256": "17b6679a98a68dc9168334078503a6a833a64361bdfc4abc7d5eb771f43736d0",
     "lastmod": "2026-11-17"
   },
   "/check-your-answer": {
@@ -150,6 +150,26 @@
   "/highly-probable/10/Science": {
     "sha256": "6cf23e0c8482b81aceb3dfae98b774df1e0650a9ac4713dc4ac5e2eb1f950a71",
     "lastmod": "2026-11-07"
+  },
+  "/important-question-of-the-day": {
+    "sha256": "b2419bfd10723f107bc71f4eb54ef777a35e2dc218f2e74ca298f851731e3e83",
+    "lastmod": "2026-11-17"
+  },
+  "/important-question-of-the-day/life-processes-left-ventricle-wall-1-mark": {
+    "sha256": "481c2c692a207f4ad6929d670a585db3fb150096090de295d21a4f87c595d5ed",
+    "lastmod": "2026-11-17"
+  },
+  "/important-question-of-the-day/light-concave-mirror-image-3-marks": {
+    "sha256": "bdc95d246856d39fac3b7ad5ae94e1e50eb78c3d8be2091aa2068752dccbbdf2",
+    "lastmod": "2026-11-17"
+  },
+  "/important-question-of-the-day/probability-prime-on-a-die-1-mark": {
+    "sha256": "38934b3910508447526233138442a07f41ee8600c572b4dc04c381d6342017af",
+    "lastmod": "2026-11-17"
+  },
+  "/important-question-of-the-day/quadratic-equations-find-roots-1-mark": {
+    "sha256": "52ca62f0d0edaa5d9f1c6e5e763129fa49c5f544cac6fcaaa36b617d256c72a4",
+    "lastmod": "2026-11-17"
   },
   "/legal/privacy": {
     "sha256": "acca9ffd0a56ab90d2c88a8cf17e739c58311f7d020d325159384b4d5052d63b",
@@ -492,7 +512,7 @@
     "lastmod": "2026-11-17"
   },
   "/question-bank-class-10": {
-    "sha256": "256023b1381c0cb70e2ad048fc1e5a57d796826b2d471bce153bd938d4759e31",
+    "sha256": "8224a336934cf9c479a195e03986f6c0a28a703fa85f3831db746e2f028473ad",
     "lastmod": "2026-11-17"
   },
   "/topic-hub/acids-bases-and-salts": {

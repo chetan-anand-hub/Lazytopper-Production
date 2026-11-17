@@ -29,6 +29,9 @@ export const ISLAND_PATH_PREFIXES: readonly string[] = [
   "/ncert-exemplar/",
   "/highly-probable/",
   "/cbq-class-10/",
+  // SEO-DAILY-1: the Important Question of the Day hub (exact) and its question pages (family): links, a native <details>, one hero link.
+  "/important-question-of-the-day",
+  "/important-question-of-the-day/",
   "/ncert-class-10",
   // SPEED-PACKS-3 (owner 11 Nov): the PDF Packs ad landing. Unlike the content families, the app is loaded soon after the
   // first paint (IDLE_UPGRADE_PATHS) because pack_view / pack_checkout and the countdown strip are the app's.

@@ -512,6 +512,9 @@ export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
   PacksPage: ["FounderBadge", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy", "TestimonialVideo", "SubjectSwitch", "packReady", "myInvoices"],
   CbqHubPage: ["PackSampleLink", "CbqBand", "CbqChapterPage", "faqContent"],
   CbqChapterPage: ["CbqChapterPage"],
+  // SEO-DAILY-1: the two daily-question pages share one sheet (dailyQuestion.css), which Rollup emits as the question page's CSS.
+  DailyQuestionHubPage: ["DailyQuestionPage"],
+  DailyQuestionPage: ["DailyQuestionPage"],
   PricingPage: ["TestimonialVideo"],
   // PRICING-PAGES-1 (11 Nov 2026): the two sales pages paint from their prerendered bodies (islands); the shared sales-page sheet,
   // the student video's frame and (CBQ) the shop's CBQ band / tile / sample CSS are needed by that first screen.

@@ -133,6 +133,14 @@
       "destination": "/__shell.html"
     },
     {
+      "source": "/:path(important-question-of-the-day/?)",
+      "destination": "/__shell.html"
+    },
+    {
+      "source": "/:path(important-question-of-the-day/(?:quadratic-equations-find-roots-1-mark|light-concave-mirror-image-3-marks|probability-prime-on-a-die-1-mark|life-processes-left-ventricle-wall-1-mark)/?)",
+      "destination": "/__shell.html"
+    },
+    {
       "source": "/:path(contact/?)",
       "destination": "/__shell.html"
     },

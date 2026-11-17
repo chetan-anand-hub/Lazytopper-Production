@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import DailyQuestionLink from "../components/dailyQuestion/DailyQuestionLink";
 import SeoLandingShell from "../components/seoPages/SeoLandingShell";
 import SeoPriceLine from "../components/seoPages/SeoPriceLine";
 import { QUESTION_BANK_PATH, chapterLinks } from "../components/seoPages/seoPages";
@@ -50,6 +51,8 @@ export default function QuestionBankClass10Page() {
           <li>Compare your steps with the worked solution and mark where you lost marks.</li>
           <li>Return to the chapter&rsquo;s CBQs once the basics are steady, since about half the paper is competency-based.</li>
         </ol>
+        {/* SEO-DAILY-1: related link (VITE_DAILY_QUESTION_DISABLED=1 hides it). */}
+        <DailyQuestionLink />
       </section>
 
       <section aria-labelledby="qbank-chapters">

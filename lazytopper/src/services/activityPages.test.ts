@@ -130,6 +130,8 @@ const ROUTES: Record<string, Array<[string, string | null]>> = {
   "/ncert-exemplar/:chapter": [["/ncert-exemplar/triangles", null]],
   "/cbq-class-10": [["/cbq-class-10", null]], // CBQ-SEO-1 — public CBQ hub: not an activity page
   "/cbq-class-10/:chapterSlug": [["/cbq-class-10/circles", null]],
+  "/important-question-of-the-day": [["/important-question-of-the-day", null]], // SEO-DAILY-1 - public Google page: not an activity page
+  "/important-question-of-the-day/:slug": [["/important-question-of-the-day/probability-prime-on-a-die-1-mark", null]],
   "/admin/funnel": [["/admin/funnel", null]],
   // 2026-10-11 HARDEN-1 PR-2 (D81a): /admin/diagram-compare and /admin/diagram-quality removed
   // from App.tsx together with their pages.

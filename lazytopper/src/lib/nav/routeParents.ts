@@ -65,6 +65,9 @@ export const ROUTE_PARENTS: ReadonlyArray<readonly [string, RouteNavEntry]> = [
   ["/question-bank-class-10", { parent: "/" }],
   ["/cbse-marking-scheme-class-10", { parent: "/" }],
   ["/cbq-class-10/:chapterSlug", { parent: "/cbq-class-10" }],
+  // SEO-DAILY-1: public Google pages, not in the product nav; a question returns to its hub, the hub to Home.
+  ["/important-question-of-the-day", { parent: "/" }],
+  ["/important-question-of-the-day/:slug", { parent: "/important-question-of-the-day" }],
   ["/ncert-class-10", { parent: "/" }],
   // NCERT-HUB-1 — a solutions page returns to ITS chapter in the hub (`?subject=…&ch=…`), not the bare hub.
   ["/ncert-solutions/:chapter", { parent: (p) => ncertHubPathForSolutionsSlug(p.chapter) }],
