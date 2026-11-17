@@ -93,7 +93,7 @@ describe("SEO-DAILY-1 hub page", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Important Question of the Day: CBSE Class 10 (2027)");
     const items = Array.from(screen.getByTestId("daily-list").querySelectorAll("li"));
     expect(items.map((li) => li.querySelector("a")?.getAttribute("href"))).toEqual(dailyQuestionsNewestFirst().map((q) => dailyQuestionPath(q.slug)));
-    expect(items[0].textContent).toMatch(/^#8 Life Processes\s+Science · 1 mark$/);
+    expect(items[0].textContent).toMatch(/^#15 Coordinate Geometry\s+Maths · 1 mark$/);
     expect(screen.getAllByTestId("daily-cta")).toHaveLength(1);
     expect(document.body.textContent).not.toMatch(/A die is thrown|₹|\bAI\b/);
   });

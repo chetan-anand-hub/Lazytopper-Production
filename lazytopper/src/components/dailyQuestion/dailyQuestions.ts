@@ -39,6 +39,13 @@ export const DAILY_QUESTIONS: readonly DailyQuestionEntry[] = [
   { n: 6, date: "2026-11-21", slug: "light-concave-mirror-image-3-marks", bankId: "LT-M01", subject: "Science", chapterSlug: "light-reflection-and-refraction", marks: 3 },
   { n: 7, date: "2026-11-22", slug: "probability-prime-on-a-die-1-mark", bankId: "PB-M-1-PROB-A-001", subject: "Maths", chapterSlug: "probability", marks: 1 },
   { n: 8, date: "2026-11-23", slug: "life-processes-left-ventricle-wall-1-mark", bankId: "AR-LP-006", subject: "Science", chapterSlug: "life-processes", marks: 1 },
+  { n: 9, date: "2026-11-24", slug: "trigonometry-simplify-sec-a-tan-a-1-mark", bankId: "SQP-M-TRIG-002", subject: "Maths", chapterSlug: "trigonometry", marks: 1 },
+  { n: 10, date: "2026-11-25", slug: "chemical-reactions-lead-nitrate-potassium-iodide-3-marks", bankId: "BX-CHEM-EX-C-002", subject: "Science", chapterSlug: "chemical-reactions-and-equations", marks: 3 },
+  { n: 11, date: "2026-11-26", slug: "pair-of-linear-equations-two-digit-number-3-marks", bankId: "BX-PLE-EX-C-008", subject: "Maths", chapterSlug: "pair-of-linear-equations", marks: 3 },
+  { n: 12, date: "2026-11-27", slug: "electricity-wire-cut-in-five-parts-1-mark", bankId: "ELEC-NCERT-11-MCQ-001", subject: "Science", chapterSlug: "electricity", marks: 1 },
+  { n: 13, date: "2026-11-28", slug: "arithmetic-progression-sum-double-answer-5-marks", bankId: "PYQ-M-AP-007", subject: "Maths", chapterSlug: "arithmetic-progression", marks: 5 },
+  { n: 14, date: "2026-11-29", slug: "heredity-pure-tall-pure-short-cross-3-marks", bankId: "PYQ-S-2026-HERED-006", subject: "Science", chapterSlug: "heredity", marks: 3 },
+  { n: 15, date: "2026-11-30", slug: "coordinate-geometry-distance-between-points-1-mark", bankId: "CG-N-EXMPLR-7-EX-011", subject: "Maths", chapterSlug: "coordinate-geometry", marks: 1 },
 ];
 
 /** Newest first (the hub's order, and the order of `prev`/`next` neighbours). */
