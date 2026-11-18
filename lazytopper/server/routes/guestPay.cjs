@@ -82,7 +82,7 @@ const { grantPass, isStaleFoundingOrder, PassGrantInputError, PAYMENT_SEGMENTS }
 const { grantPack, PackGrantInputError } = require('../services/packGrant.cjs');
 const { mergeAccount, hasOwnActivity } = require('../services/adminMergeAccount.cjs'); // PUT-ON-THIS-ACCOUNT-1
 const { MoveError } = require('../services/adminMovePurchase.cjs');
-const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, packIdFor } = require('../services/packProducts.cjs');
+const { PACK_PRODUCTS, isPackProduct, isPackOnSale, validateTarget, packIdFor } = require('../services/packProducts.cjs');
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
@@ -504,7 +504,7 @@ function createGuestPayRoutes(deps = {}) {
     if (!phone) return reject(res, 'order', 'invalid_phone');
 
     const sku = body.sku;
-    const isPack = isPackProduct(sku) && packsEnabled(env);
+    const isPack = isPackOnSale(sku, env); // TS-PACK-1: PACKS_ENABLED + the Test Series kill switch
     if (!isPack && sku !== GUEST_PASS_SKU) return reject(res, 'order', 'invalid_sku');
     let packTarget = null;
     if (isPack) {
@@ -676,7 +676,7 @@ function createGuestPayRoutes(deps = {}) {
     if (!recipient) return reject(res, 'order', 'invalid_recipient');
 
     const sku = body.sku;
-    const isPack = isPackProduct(sku) && packsEnabled(env);
+    const isPack = isPackOnSale(sku, env); // TS-PACK-1: PACKS_ENABLED + the Test Series kill switch
     if (!isPack && sku !== GUEST_PASS_SKU) return reject(res, 'order', 'invalid_sku');
     let packTarget = null;
     if (isPack) {
@@ -813,7 +813,7 @@ function createGuestPayRoutes(deps = {}) {
   async function handleSelfOrder(req, res, keys, body) {
     if (await payerUidOf(req)) return reject(res, 'order', 'self_requires_signed_out', 409);
     const sku = body.sku;
-    const isPack = isPackProduct(sku) && packsEnabled(env);
+    const isPack = isPackOnSale(sku, env); // TS-PACK-1: PACKS_ENABLED + the Test Series kill switch
     if (!isPack && sku !== GUEST_PASS_SKU) return reject(res, 'order', 'invalid_sku');
     let packTarget = null;
     if (isPack) {

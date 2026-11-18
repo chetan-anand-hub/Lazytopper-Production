@@ -37,9 +37,11 @@ import {
   type OwnedPack,
   type PackSku,
   PACK_SKUS,
+  packHasNoTarget,
+  TEST_SERIES_CHECKS_PER_PAPER,
   type PackSubject,
 } from "../../services/packs";
-import { BUNDLE_NAME, packChapterLabel } from "../../lib/packs/packLabels";
+import { BUNDLE_NAME, TEST_SERIES_NAME, TEST_SERIES_PAPER_COUNT, packChapterLabel } from "../../lib/packs/packLabels";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import { isPacksWarmupPath, schedulePacksWarmup } from "../../lib/packs/packsMobilePreload";
 import { loadCheckoutScript } from "../../services/checkout";
@@ -127,7 +129,7 @@ export function readBuyResume(search: string): { sku: PackSku; target: string | 
     const sku = onlyOne(q, "buy");
     if (!sku || !(PACK_SKUS as readonly string[]).includes(sku)) return null;
     const t = onlyOne(q, "t");
-    if (sku === "pack_bundle") return { sku: "pack_bundle", target: undefined };
+    if (packHasNoTarget(sku)) return { sku: sku as PackSku, target: undefined };
     if (!t || !isValidPackTarget(sku as PackSku, t)) return null;
     return { sku: sku as PackSku, target: t };
   } catch {
@@ -194,6 +196,8 @@ export function ownedPackTitle(p: Pick<OwnedPack, "sku" | "target">): string {
       return `${p.target === "science" ? "Science" : "Maths"} CBQ Pack`;
     case "pack_bundle":
       return BUNDLE_NAME;
+    case "test_series":
+      return TEST_SERIES_NAME;
     default:
       return "PDF pack";
   }
@@ -825,7 +829,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
    * PaywallActions renders nothing at all.
    */
   function parentAskFor(sku: PackSku, target: string | undefined, opts: { noQr?: boolean } = {}): ReactNode {
-    const t = sku === "pack_bundle" ? undefined : target;
+    const t = packHasNoTarget(sku) ? undefined : target;
     if (!enabled || !signedIn || !isValidPackTarget(sku, t)) return null;
     const key = packIdOf(sku, t);
     if (isAlreadyOwned(owned, sku, t) || settling(key)) return null;
@@ -1201,7 +1205,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       if (sku === "pack_chapter" && target) setChapter(target);
       else if (target === "maths" || target === "science") setSubject(target);
       openPack(sku);
-      void handleBuy(sku, sku === "pack_bundle" ? undefined : target, opts?.from ? { from: opts.from } : {});
+      void handleBuy(sku, packHasNoTarget(sku) ? undefined : target, opts?.from ? { from: opts.from } : {});
     },
     chooseChapter: (opts) => {
       openPack("pack_chapter");
@@ -1335,6 +1339,41 @@ interface TidyRow {
   /** This pack's marking rows (the bridge's PackPapers, real statuses), when the bridge is ready. */
   papers?: ReactNode;
   counts?: { papers: number; marked: number } | null;
+}
+
+/** TS-PACK-1 - the owned Test Series Pack in My packs: what it gives and the way to the papers (no files to build). */
+function OwnedTestSeriesRow({ pack, mine, when, tidy }: { pack: OwnedPack; mine: MyPacks; when: string; tidy: boolean }) {
+  const per = mine.testSeries?.checksPerPaper ?? TEST_SERIES_CHECKS_PER_PAPER;
+  const body = (
+    <>
+      <p className="lt-packs__muted" data-testid="packs-owned-test-series-line">
+        {`${TEST_SERIES_PAPER_COUNT} numbered chapter tests and full mocks. Your written answers are checked step by step, ${per === 2 ? "twice" : `${per} times`} per paper, till 31 May 2027.`}
+      </p>
+      <Link className="lt-packs__link" to="/test-series" data-testid="packs-owned-test-series-open">Open the Test Series &rarr;</Link>
+    </>
+  );
+  if (tidy) {
+    return (
+      <details className="lt-pm" data-testid="packs-owned" data-pack-id={pack.packId}>
+        <summary className="lt-pm__sum">
+          <span className="lt-pm__name">{ownedPackTitle(pack)}</span>
+          {when && <span className="lt-pm__meta">{`Bought ${when}`}</span>}
+        </summary>
+        <div className="lt-pm__body">{body}</div>
+      </details>
+    );
+  }
+  return (
+    <div className="lt-packs__own" data-testid="packs-owned" data-pack-id={pack.packId}>
+      <div className="lt-packs__own-head">
+        <div>
+          <h3>{ownedPackTitle(pack)}</h3>
+          {when && <p className="lt-packs__muted">Bought {when}</p>}
+        </div>
+      </div>
+      {body}
+    </div>
+  );
 }
 
 function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack; mine: MyPacks; openRequest?: number; tidy?: TidyRow }) {
@@ -1562,6 +1601,8 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
         ))}
     </>
   );
+  // TS-PACK-1: the Test Series Pack has no files - it unlocks the Test Series papers, so its row says so and links there.
+  if (pack.sku === "test_series") return <OwnedTestSeriesRow pack={pack} mine={mine} when={when} tidy={Boolean(tidy)} />;
   if (tidy) {
     const c = tidy.counts;
     const meta = c ? `${c.papers} ${c.papers === 1 ? "paper" : "papers"} · ${c.marked} marked` : when ? `Bought ${when}` : "";

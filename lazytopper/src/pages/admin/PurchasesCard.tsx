@@ -382,6 +382,8 @@ export function productLabel(p: Pick<PurchaseItem, "passType" | "packTarget">): 
       return `CBQ Pack · ${t ? titleCase(t) : "subject"}`;
     case "pack_bundle":
       return BUNDLE_NAME;
+    case "test_series":
+      return "Test Series Pack";
     case "topup_49":
     case "topup_149":
       return `Top-up ₹${p.passType.slice(6)}`;

@@ -378,8 +378,16 @@ const verifiedCaller = createVerifiedCaller({ firebaseAdmin, telemetry });
 // AUTHGATE-2: firebaseAdmin is passed for appCheck() only (requireVerifiedCallerOrAppCheck).
 // CBQ-TUTOR-TASTE-1: 3 lifetime tutor questions for a student who has PAID for a CBQ Pack (not Premium).
 const { createCbqTutorTaste } = require('./services/cbqTutorTaste.cjs');
+const { createTestSeriesChecks } = require('./services/testSeriesChecks.cjs');
 const cbqTutorTaste = createCbqTutorTaste({ adminFirestore, telemetry });
-const entitlementGate = createEntitlementGate({ adminFirestore, firebaseAdmin, telemetry, sendJson, cbqTutorTaste });
+// TS-PACK-1: written-answer checking on the Test Series papers for Test Series Pack owners (manifest-verified, 2 per paper).
+// The body it must read is read ONCE (fairUse.preReadGradingBody) and handed to the handler as the same parse.
+const testSeriesChecks = createTestSeriesChecks({
+  adminFirestore,
+  telemetry,
+  readBody: (r) => fairUseModule.preReadGradingBody(r, readJson),
+});
+const entitlementGate = createEntitlementGate({ adminFirestore, firebaseAdmin, telemetry, sendJson, cbqTutorTaste, testSeriesChecks });
 const fairUse = createFairUse({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
 // LIMITS-1: download limits (dark until LIMITS_ENFORCE=1). See services/limits.cjs.
 const limits = createLimits({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
@@ -507,6 +515,8 @@ const packRoutes = createPackRoutes({
   adminFirestore,
   telemetry,
   cbqTutorTaste,
+  // TS-PACK-1: the per-paper Test Series check counts on GET /api/packs/mine (read only).
+  testSeriesChecks,
   // The licensee printed on every page: the server's own auth record for the VERIFIED uid - never a request value.
   getLicensee: async (uid) => {
     if (!firebaseAdmin) return { name: '', email: '' };
@@ -872,7 +882,9 @@ async function handleRequest(req, res) {
           },
         });
     if (limitsVerdict.refused) return;
-    if (!freeCheckAdmitted && !limitsVerdict.bypassEntitlement && await entitlementGate.applyToRequest(req, res, reqPath, verifiedUid, verification)) return;
+    // TS-PACK-1: a LIMITS-1 bypass still passes through the gate, which then looks ONLY at a grade-worksheet request, ONLY
+    // to keep a Test Series paper off the "first paper of each kind" allowance; everything else it serves as before.
+    if (!freeCheckAdmitted && await entitlementGate.applyToRequest(req, res, reqPath, verifiedUid, verification, { limitsBypass: !!limitsVerdict.bypassEntitlement })) return;
 
     // METER-1 (M1): charge this request's model calls to the VERIFIED uid — the one the
     // limiter was handed above — and to nobody for a free check. Records only.

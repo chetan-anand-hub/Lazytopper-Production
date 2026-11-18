@@ -42,10 +42,19 @@ import { isGstBuyerCancelled } from "./gstBuyerOrder";
 
 /* ── catalogue ──────────────────────────────────────────────────────────────── */
 
-export type PackSku = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle" | "pack_cbq";
+/**
+ * TS-PACK-1: `test_series` is the Test Series Pack - ONE per student (Maths + Science), Rs 999 + GST, till 31 May 2027. It is not
+ * a PDF pack: it unlocks the Test Series papers and checks written answers on them, 2 per paper (the server decides both).
+ */
+export type PackSku = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle" | "pack_cbq" | "test_series";
 export type PackSubject = "maths" | "science";
 
-export const PACK_SKUS: readonly PackSku[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq"];
+export const PACK_SKUS: readonly PackSku[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq", "test_series"];
+/** TS-PACK-1: the PDF packs only (everything a pack PDF, sample, cover or download list is built for). */
+export const PDF_PACK_SKUS: readonly PackSku[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq"];
+export const TEST_SERIES_SKU = "test_series" as const;
+/** Owner ruling 18 Nov 2026 (19:38 IST): each Test Series paper can be checked at most 2 times on the pack (server: testSeriesChecks.cjs). */
+export const TEST_SERIES_CHECKS_PER_PAPER = 2;
 export const PACK_SUBJECTS: readonly PackSubject[] = ["maths", "science"];
 
 /** The 26 chapter slugs: the first 13 are Maths, the next 13 Science (topics.ts order; a test pins it). */
@@ -72,6 +81,7 @@ export const PACK_PRICE_INR: Readonly<Record<PackSku, number>> = {
   pack_subject: 199,
   pack_bundle: 299,
   pack_cbq: 199,
+  test_series: 999,
 };
 
 /**
@@ -94,9 +104,14 @@ export function packGstBreakdown(sku: PackSku, now: Date | number = Date.now()):
   return gstBreakdownFor(PACK_PRICE_INR[sku], now);
 }
 
+/** TS-PACK-1: the packs bought with no target (one per student): the Bundle and the Test Series Pack (both `:all`). */
+export function packHasNoTarget(sku: string): boolean {
+  return sku === "pack_bundle" || sku === "test_series";
+}
+
 /** `"<sku>:<target>"` (the bundle is `"pack_bundle:all"`). */
 export function packIdOf(sku: PackSku, target?: string): string {
-  return `${sku}:${sku === "pack_bundle" ? "all" : target ?? ""}`;
+  return `${sku}:${sku === "pack_bundle" || sku === "test_series" ? "all" : target ?? ""}`;
 }
 
 export function subjectLabel(subject: PackSubject): string {
@@ -113,6 +128,7 @@ export function isValidPackTarget(sku: PackSku, target: string | undefined): boo
     case "pack_cbq":
       return target === "maths" || target === "science";
     case "pack_bundle":
+    case "test_series":
       return true;
   }
 }
@@ -127,6 +143,18 @@ function readPacksFlag(): string {
   } catch {
     return "";
   }
+}
+
+/** TS-PACK-1 client kill switch: VITE_TS_PACK_DISABLED=1 hides every Test Series Pack offer (the server has TS_PACK_DISABLED). */
+export function isTestSeriesPackOffered(): boolean {
+  let raw = "";
+  try {
+    const v: unknown = import.meta.env.VITE_TS_PACK_DISABLED;
+    raw = v === undefined || v === null ? "" : String(v).trim();
+  } catch {
+    raw = "";
+  }
+  return !/^(1|true|on|yes)$/i.test(raw);
 }
 
 /** The CLIENT switch for BUYING. Only the string "1" turns it on (contract §7). */
@@ -185,6 +213,42 @@ export interface MyPacks {
   boardPassCredit: BoardPassCredit | null;
   /** CBQ-TUTOR-TASTE-1 - the server's count of the 3 CBQ-Pack tutor questions; absent unless a CBQ Pack is owned. */
   tutorTaste?: { used: number; left: number; limit: number };
+  /** TS-PACK-1 - true only while the server says the Test Series Pack is valid (it unlocks the series papers). */
+  ownsTestSeries?: boolean;
+  /** TS-PACK-1 - the server's per-paper check counts (paperKey -> checks used), present for a Test Series Pack owner. */
+  testSeries?: TestSeriesStatus;
+}
+
+export interface TestSeriesStatus {
+  validUntilMs: number;
+  checksPerPaper: number;
+  used: Readonly<Record<string, number>>;
+}
+
+/** The server's `testSeries` object -> a sane status, or null. PURE. */
+export function readTestSeriesStatus(raw: unknown): TestSeriesStatus | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as { validUntilMs?: unknown; checksPerPaper?: unknown; used?: unknown };
+  if (typeof r.validUntilMs !== "number" || !Number.isFinite(r.validUntilMs)) return null;
+  const per = typeof r.checksPerPaper === "number" && Number.isInteger(r.checksPerPaper) && r.checksPerPaper > 0 ? r.checksPerPaper : TEST_SERIES_CHECKS_PER_PAPER;
+  const used: Record<string, number> = {};
+  if (r.used && typeof r.used === "object") {
+    for (const [k, v] of Object.entries(r.used as Record<string, unknown>)) {
+      if (typeof v === "number" && Number.isFinite(v) && v > 0) used[k] = Math.min(per, Math.floor(v));
+    }
+  }
+  return { validUntilMs: r.validUntilMs, checksPerPaper: per, used };
+}
+
+/**
+ * "Test Series checks left on this paper: 1 of 2" - from the SERVER's count; null when unknown (nothing is shown). PURE.
+ * The server enforces the count on every grade; this line only reports it.
+ */
+export function testSeriesChecksLeftLine(status: TestSeriesStatus | null | undefined, paperKey: string): string | null {
+  if (!status || !paperKey) return null;
+  const used = status.used[paperKey] ?? 0;
+  const left = Math.max(0, status.checksPerPaper - used);
+  return `Test Series checks left on this paper: ${left} of ${status.checksPerPaper}`;
 }
 
 /** A credit only when every field is a sane server number; anything else is no credit. */
@@ -242,7 +306,14 @@ export function isAlreadyOwned(packs: readonly PackRef[], sku: PackSku, target?:
       return (
         PACK_SUBJECTS.every((s) => ownsMocks(packs, s)) && PACK_CHAPTER_SLUGS.every((slug) => ownsChapter(packs, slug))
       );
+    case "test_series":
+      return ownsTestSeries(packs);
   }
+}
+
+/** TS-PACK-1: only `test_series:all` itself; no PDF pack includes it and it includes no PDF pack. */
+export function ownsTestSeries(packs: readonly PackRef[]): boolean {
+  return idSet(packs).has("test_series:all");
 }
 
 /* ── GET /api/packs/mine ────────────────────────────────────────────────────── */
@@ -302,7 +373,7 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     }
     throw new Error(`request failed: ${res.status}`);
   }
-  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown };
+  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown; ownsTestSeries?: unknown; testSeries?: unknown };
   const packs = Array.isArray(json.packs) ? json.packs.map(readOwned).filter((p): p is OwnedPack => p !== null) : [];
   const licensee: PackLicensee = {
     name: typeof json.licensee?.name === "string" ? json.licensee.name : "",
@@ -315,7 +386,16 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     taste && num(taste.left) !== null && num(taste.limit) !== null
       ? { used: num(taste.used) ?? 0, left: num(taste.left) as number, limit: num(taste.limit) as number }
       : undefined;
-  return { packs, licensee, boardPassCredit: readBoardPassCredit(json.boardPassCredit), ...(tutorTaste ? { tutorTaste } : {}) };
+  // TS-PACK-1: only the server's literal `true` unlocks the series; the status is display only.
+  const testSeries = readTestSeriesStatus(json.testSeries);
+  return {
+    packs,
+    licensee,
+    boardPassCredit: readBoardPassCredit(json.boardPassCredit),
+    ...(tutorTaste ? { tutorTaste } : {}),
+    ...(json.ownsTestSeries === true ? { ownsTestSeries: true } : {}),
+    ...(testSeries ? { testSeries } : {}),
+  };
 }
 
 /* ── buying ─────────────────────────────────────────────────────────────────── */
@@ -333,6 +413,8 @@ export function packDescription(sku: PackSku, target: string | undefined, chapte
       return target ? `${subjectLabel(target as PackSubject)} CBQ Pack` : "CBQ Pack";
     case "pack_bundle":
       return "Maths + Science Bundle";
+    case "test_series":
+      return "Test Series Pack";
   }
 }
 
@@ -353,6 +435,8 @@ export function packCheckoutDescription(sku: PackSku, target: string | undefined
       return `${subject ? `${subject} ` : ""}CBQ Pack · chapter-wise competency questions, every type`;
     case "pack_bundle":
       return `Maths + Science Bundle · all ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks`;
+    case "test_series":
+      return `Test Series Pack · Maths + Science · written answers checked step by step, ${TEST_SERIES_CHECKS_PER_PAPER} per paper`;
   }
 }
 
@@ -394,7 +478,7 @@ export async function buyPack(
   const deps = options.deps ?? DEFAULT_BUY_DEPS;
   if (!isValidPackTarget(sku, target)) return { status: "failed" };
   try {
-    const sendTarget = sku === "pack_bundle" ? undefined : target;
+    const sendTarget = sku === "pack_bundle" || sku === "test_series" ? undefined : target;
     const [order, Razorpay, prefill] = await Promise.all([
       options.postPay ? deps.createOrder(sku, sendTarget, { postPay: true }) : deps.createOrder(sku, sendTarget),
       deps.loadScript(),

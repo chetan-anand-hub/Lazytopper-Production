@@ -586,7 +586,9 @@ test('source pins: PR-2 routes are registered, preflighted and the gate runs bef
   assert.match(idx, /reqPath === USAGE_LIMITS_DETAIL_PATH/);
   assert.match(idx, /limits\.handleQpMint\(req, res\)/);
   assert.match(idx, /limits\.handleDetailClaim\(req, res\)/);
-  assert.ok(idx.indexOf('limits.gradingGate(') < idx.indexOf('entitlementGate.applyToRequest(req, res, reqPath, verifiedUid, verification)) return;'));
+  // TS-PACK-1: the gate call now carries `{ limitsBypass }` (the bypass is re-checked for Test Series papers only).
+  assert.ok(idx.indexOf('limits.gradingGate(') < idx.indexOf('entitlementGate.applyToRequest(req, res, reqPath, verifiedUid, verification, { limitsBypass: !!limitsVerdict.bypassEntitlement })) return;'));
+  assert.ok(idx.indexOf('entitlementGate.applyToRequest(req, res, reqPath, verifiedUid, verification, { limitsBypass') > 0);
   const lim = fs.readFileSync(path.join(__dirname, 'limits.cjs'), 'utf8');
   assert.ok(!/Math\.random/.test(lim));
 });

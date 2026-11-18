@@ -1727,3 +1727,12 @@ test('EMAIL-LINK post-cutoff: when the write path itself answers unpaid / forbid
     assert.deepEqual(await svc.submitDetails(tokenFor('order_H', clock), { stateCode: '29', pin: '560001' }), { error: 'invalid' }, code);
   }
 });
+
+/* ── TS-PACK-1 · the Test Series Pack is an online service: it takes the Board Pass SAC, not the PDF packs' one ───── */
+test('TS-PACK-1: productLineFor(test_series) names the Test Series Pack under the Board Pass SAC kind', () => {
+  const { productLineFor } = require('./gstInvoice.cjs');
+  assert.deepEqual(productLineFor({ passType: 'test_series', packTarget: 'all' }), {
+    description: 'LazyTopper Test Series Pack (Maths + Science, till CBSE Class 10 boards)',
+    sacKind: 'boardPass',
+  });
+});

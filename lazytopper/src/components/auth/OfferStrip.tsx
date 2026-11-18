@@ -117,8 +117,8 @@ function usePackOffer(intent: BuyIntent | null): PackOffer {
           setOffer("invalid");
           return;
         }
-        const t = known === "pack_bundle" ? undefined : target;
-        if (known !== "pack_bundle" && !packs.isValidPackTarget(known, t)) {
+        const t = packs.packHasNoTarget(known) ? undefined : target;
+        if (!packs.packHasNoTarget(known) && !packs.isValidPackTarget(known, t)) {
           setOffer("invalid");
           return;
         }

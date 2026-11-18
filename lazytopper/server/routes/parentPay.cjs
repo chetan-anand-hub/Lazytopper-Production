@@ -89,7 +89,7 @@ const pricing = require('../services/passPricing.cjs');
 // PACK-CREDIT-1: the child's recent pack purchases credit a Board Pass order made through a parent link too.
 const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields } = require('../services/packCredit.cjs');
 // PARENT-PACKS-1: a link may carry one PDF pack. The catalogue, price table and ownership rule are the server's own.
-const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, isAlreadyOwned } = require('../services/packProducts.cjs');
+const { PACK_PRODUCTS, isPackProduct, packsEnabled, isPackOnSale, validateTarget, isAlreadyOwned } = require('../services/packProducts.cjs');
 const { grantPack, listPacks, PackGrantInputError } = require('../services/packGrant.cjs');
 // GST-INVOICE-1 (DARK): the parent's confirmed state on the order, and the tax invoice after a verified capture.
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
@@ -605,7 +605,7 @@ function createParentPayRoutes(deps = {}) {
 
   /** PARENT-PACKS-1: the pack link. The sku + target are validated here and stored; the parent can never change them. */
   async function mintPackLink(res, uid, wanted) {
-    if (!packsEnabled(env)) {
+    if (!packsEnabled(env) || (isPackProduct(wanted.sku) && !isPackOnSale(wanted.sku, env))) {
       emit('payments.parent.link.packs_unavailable');
       return sendJson(res, 409, { ok: false, error: 'packs_unavailable' });
     }
@@ -681,7 +681,7 @@ function createParentPayRoutes(deps = {}) {
       const pack = linkPack(resolved.link);
       if (pack) {
         if (pack.invalid) return linkRefused(res, 'view', 'invalid');
-        if (!packsEnabled(env)) return unavailable(res);
+        if (!isPackOnSale(pack.sku, env)) return unavailable(res); // TS-PACK-1: PACKS_ENABLED + the Test Series kill switch
         if (await childOwnsPack(resolved.link.uid, pack)) return linkRefused(res, 'view', OWNED_REASON);
         emit('payments.parent.view.ok');
         return sendJson(res, 200, {
@@ -853,7 +853,7 @@ function createParentPayRoutes(deps = {}) {
       pack = linkPack(resolved.link);
       if (!pack) return reject(res, 'order', 'not_pack_link');
       if (pack.invalid) return linkRefused(res, 'order', 'invalid');
-      if (!packsEnabled(env)) return unavailable(res);
+      if (!isPackOnSale(pack.sku, env)) return unavailable(res); // TS-PACK-1: PACKS_ENABLED + the Test Series kill switch
       if (await childOwnsPack(resolved.link.uid, pack)) return linkRefused(res, 'order', OWNED_REASON);
       await reserveOrderSlot(resolved.ref);
     } catch (e) {

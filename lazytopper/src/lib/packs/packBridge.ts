@@ -9,7 +9,7 @@
  * product; it is labelled as such on the page (doctrine: no fake data). Only the header (the pack) and the example code change per pack.
  */
 import type { PackSku, PackSubject } from "../../services/packs";
-import { BUNDLE_NAME } from "./packLabels";
+import { BUNDLE_NAME, TEST_SERIES_NAME } from "./packLabels";
 
 /** The full marked sample, hosted once (never embedded in a pack file). "See a marked sample" in the PDF and My packs open it. */
 export const BRIDGE_SAMPLE_PDF_PATH = "/media/lazytopper-marked-sample-PK-M-RN-CT1.pdf";
@@ -99,6 +99,8 @@ export function bridgePackName(sku: PackSku, target: string): string {
       return BUNDLE_NAME;
     case "pack_cbq":
       return `${subjectName(target)} CBQ Pack`;
+    case "test_series":
+      return TEST_SERIES_NAME;
   }
 }
 

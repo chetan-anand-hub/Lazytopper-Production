@@ -27,6 +27,9 @@ import {
   SCIENCE_NCERT_CHAPTERS,
   packChapterLabel,
   CBQ_SUBJECT_CLAIM,
+  TEST_SERIES_CHECKS_PER_PAPER_COPY,
+  TEST_SERIES_NAME,
+  TEST_SERIES_PAPER_COUNT,
 } from "./packLabels";
 
 export interface PackManifestItem {
@@ -144,6 +147,9 @@ export function packManifest(sku: PackSku, target?: string): PackManifest {
         papers: PACK_CHAPTER_SLUGS.length * CHAPTER_PAPERS + MOCKS_PER_SUBJECT * PACK_SUBJECTS.length,
       };
     }
+    case "test_series":
+      // TS-PACK-1: not a PDF pack - no files; its papers are the Test Series pages.
+      return { title: TEST_SERIES_NAME, groups: [], chapterPacks: 0, mockPapers: 0, papers: TEST_SERIES_PAPER_COUNT };
   }
 }
 
@@ -220,6 +226,13 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
         ...questionsRow,
         { label: "Mock papers with marking guide", value: String(MOCKS_PER_SUBJECT * PACK_SUBJECTS.length) },
         { label: `Instead of 2 \u00d7 ${rupees(PACK_PRICE_INR.pack_subject)}`, value: rupees(bundleSavingBase()) },
+      ];
+    case "test_series":
+      return [
+        { label: "Numbered chapter tests and full mocks", value: String(TEST_SERIES_PAPER_COUNT) },
+        { label: "Written answers checked, Sections B to E", value: TEST_SERIES_CHECKS_PER_PAPER_COPY },
+        { label: "Subjects", value: "Maths + Science" },
+        { label: "Valid till", value: "31 May 2027" },
       ];
   }
 }

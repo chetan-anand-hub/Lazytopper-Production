@@ -740,6 +740,9 @@ export async function buildPackFiles(pack: PackRef, ctx: BuildContext): Promise<
       for (const s of PACK_SUBJECTS) out.push(...(await mockFiles(s, pack.packId, pack.sku, ctx, owned)));
       return out;
     }
+    case "test_series":
+      // TS-PACK-1: not a PDF pack - its papers are the Test Series pages, so it has no pack files.
+      return [];
   }
 }
 

@@ -79,7 +79,7 @@ export default function AccountReadyPanel({ item, recipient, payerSignedIn, onCl
   const viaPhone = !!recipient.phone && (recipient.first === "phone" || !recipient.email);
   const navigate = go || ((path: string) => window.location.assign(path));
   const desktop = useIsDesktop();
-  const landing = attachMe ? welcomeLandingPath(item.kind, desktop, item.kind === "pack" ? `${item.sku}:${item.sku === "pack_bundle" ? "all" : item.target ?? ""}` : undefined) : landingPath(item.kind);
+  const landing = attachMe ? welcomeLandingPath(item.kind, desktop, item.kind === "pack" ? `${item.sku}:${item.sku === "pack_bundle" || item.sku === "test_series" ? "all" : item.target ?? ""}` : undefined) : landingPath(item.kind);
   const autoStarted = useRef(false);
   useEffect(() => {
     if (!attachMe || autoStarted.current) return;

@@ -55,7 +55,7 @@ const { TOPUP_PRODUCTS, isTopupProduct, boardPassChargeFor, chargeFor } = requir
 const { grantTopup, TopupInputError, isTopupFlagOn } = require('../services/usageCredit.cjs');
 const { deriveEffectiveTier } = require('../services/entitlement.cjs');
 // PACKS-SERVER-1 (DARK): one-time PDF packs. Behind PAYMENTS_ENABLED AND PACKS_ENABLED=1.
-const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, packIdFor, isAlreadyOwned } = require('../services/packProducts.cjs');
+const { PACK_PRODUCTS, isPackProduct, isPackOnSale, validateTarget, packIdFor, isAlreadyOwned } = require('../services/packProducts.cjs');
 const { grantPack, listPacks, PackGrantInputError } = require('../services/packGrant.cjs');
 // PACK-CREDIT-1: a Board Pass order is credited with the student's recent pack purchases.
 const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields } = require('../services/packCredit.cjs');
@@ -674,7 +674,9 @@ function createPaymentRoutes(deps = {}) {
     const isTopup = isTopupProduct(passType);
     // PACKS-SERVER-1 dark proof: with PACKS_ENABLED off a pack key is NOT a pack - it falls through to the
     // unknown-passType 400 below, byte for byte what any unknown key gets.
-    const isPack = isPackProduct(passType) && packsEnabled(env);
+    // TS-PACK-1: `isPackOnSale` is PACKS_ENABLED plus the Test Series Pack's own kill switch (TS_PACK_DISABLED) - a pack that
+    // is not on sale falls through to the same unknown-passType 400 as before.
+    const isPack = isPackOnSale(passType, env);
     // TOPUP-1 dark proof: with TOPUP_ENABLED unset a top-up key is answered exactly like an unknown route.
     if (isTopup && !topupEnabled()) return sendJson(res, 404, NOT_FOUND_BODY);
     if (!isTopup && !isPack && !Object.prototype.hasOwnProperty.call(PASS_TYPES, passType)) {

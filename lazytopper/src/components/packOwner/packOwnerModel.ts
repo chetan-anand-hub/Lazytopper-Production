@@ -31,6 +31,8 @@ export function packOwnerName(p: Pick<OwnedPack, "sku" | "target">): string {
       return `${subject} CBQ Pack`;
     case "pack_bundle":
       return BUNDLE_NAME;
+    case "test_series":
+      return "Test Series Pack";
     default:
       return "PDF pack";
   }

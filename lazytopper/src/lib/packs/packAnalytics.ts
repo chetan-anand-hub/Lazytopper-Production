@@ -31,7 +31,7 @@ import { priceWithGst } from "../../config/pricing";
 import { currentInAppPay } from "../../utils/inAppPay";
 import { reportPackSampleSeen, signedInHint } from "./packSampleSeen";
 
-export type PackSkuName = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle" | "pack_cbq";
+export type PackSkuName = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle" | "pack_cbq" | "test_series";
 
 export interface PackCheckoutDetails {
   sku: PackSkuName;

@@ -436,6 +436,9 @@ const PREMIUM_FEATURE_LABELS: Record<string, string> = {
   "step-solution-generation": "Step-by-step solutions",
   step_solution_generation: "Step-by-step solutions",
   "step-solution": "Step-by-step solutions",
+  // TS-PACK-1: a Test Series paper the caller may not have checked (trial, non-owner, or both checks used on the paper).
+  "test-series-check": "Checking written answers on Test Series papers",
+  test_series_check: "Checking written answers on Test Series papers",
 };
 
 export function labelForFeature(code: string | undefined | null): string {

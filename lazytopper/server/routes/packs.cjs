@@ -18,6 +18,7 @@ const { quotePass } = require('./payments.cjs');
 const { maskIndianMobile } = require('../services/guestPay.cjs');
 
 const PACKS_MINE_PATH = '/api/packs/mine';
+const { TEST_SERIES_SKU } = require('../services/packProducts.cjs');
 // SERVER-PDF-1 PR-B: a stamped copy of one pack file / of one group of them, as a 15-minute signed link. POST, credentialed.
 const PACKS_FILE_LINK_PATH = '/api/packs/file-link';
 const PACKS_ZIP_LINK_PATH = '/api/packs/zip-link';
@@ -33,7 +34,7 @@ function isServerPdfDisabled(env = process.env) {
 const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 
 function createPackRoutes(deps = {}) {
-  const { sendJson, verifiedCaller, adminFirestore, getLicensee, telemetry, cbqTutorTaste, now = () => Date.now(), foundingOfferOpen, packPdf, env = process.env } = deps;
+  const { sendJson, verifiedCaller, adminFirestore, getLicensee, telemetry, cbqTutorTaste, testSeriesChecks, now = () => Date.now(), foundingOfferOpen, packPdf, env = process.env } = deps;
 
   function emit(event) {
     try {
@@ -132,7 +133,28 @@ function createPackRoutes(deps = {}) {
     } catch {
       tutorTaste = undefined;
     }
-    return sendJson(res, 200, { packs, licensee, boardPassCredit, ...(tutorTaste ? { tutorTaste } : {}), ...(ended.length > 0 ? { endedPacks: ended } : {}) });
+    // TS-PACK-1: `ownsTestSeries` (true while the Test Series Pack is valid - it is in `packs` only until 31 May 2027, server
+    // clock) unlocks the series papers in the browser; `testSeries` carries the per-paper check counts (READ ONLY). Both are
+    // present only for a student who bought the pack, so every other response is byte-identical to before.
+    let testSeries;
+    const ownsTestSeries = packs.some((p) => p && p.sku === TEST_SERIES_SKU);
+    if (owned.some((p) => p && p.sku === TEST_SERIES_SKU)) {
+      try {
+        const t = testSeriesChecks && typeof testSeriesChecks.status === 'function' ? await testSeriesChecks.status(uid) : null;
+        if (t) testSeries = { validUntilMs: t.validUntilMs, checksPerPaper: t.checksPerPaper, used: t.used };
+      } catch {
+        testSeries = undefined;
+      }
+    }
+    return sendJson(res, 200, {
+      packs,
+      licensee,
+      boardPassCredit,
+      ...(tutorTaste ? { tutorTaste } : {}),
+      ...(ended.length > 0 ? { endedPacks: ended } : {}),
+      ...(ownsTestSeries ? { ownsTestSeries: true } : {}),
+      ...(testSeries ? { testSeries } : {}),
+    });
   }
 
   // ---- SERVER-PDF-1 PR-B: stamped copies as signed links ----

@@ -14,6 +14,15 @@ export const ALL_NCERT_CHAPTERS = MATHS_NCERT_CHAPTERS + SCIENCE_NCERT_CHAPTERS;
 
 /** Full board-pattern papers per subject in a Mock Pack. */
 export const MOCKS_PER_SUBJECT = 8;
+
+/**
+ * TS-PACK-1 - the Test Series Pack's copy, in ONE place. TEST_SERIES_PAPER_COUNT is the number of fixed numbered papers lane
+ * TEST-SERIES-1 ships (owner, 18 Nov 2026: 42 chapter tests + full mocks); once that lane merges, this reads its constant.
+ */
+export const TEST_SERIES_NAME = "Test Series Pack";
+export const TEST_SERIES_PAPER_COUNT = 42;
+export const TEST_SERIES_CHECKS_PER_PAPER_COPY = "twice per paper";
+export const TEST_SERIES_LINE = `${TEST_SERIES_PAPER_COUNT} numbered chapter tests and full mocks, Maths + Science. Your written answers (Sections B to E) checked step by step, ${TEST_SERIES_CHECKS_PER_PAPER_COPY}, till your boards.`;
 export const BUNDLE_MOCKS = MOCKS_PER_SUBJECT * 2;
 
 /** Mock paper pattern shown for Maths (Standard, subject code 041). */

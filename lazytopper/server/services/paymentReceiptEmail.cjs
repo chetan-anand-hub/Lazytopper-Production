@@ -143,6 +143,8 @@ function itemLabel(passType, packTarget) {
       return `${subjectTitle(t)} CBQ Pack`;
     case 'pack_bundle':
       return 'Maths + Science Bundle';
+    case 'test_series':
+      return 'Test Series Pack (Maths + Science)';
     default:
       return null;
   }

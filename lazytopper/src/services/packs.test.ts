@@ -37,7 +37,7 @@ describe("catalogue", () => {
   });
 
   it("display prices are the contract table", () => {
-    expect(PACK_PRICE_INR).toEqual({ pack_chapter: 49, pack_mock: 99, pack_subject: 199, pack_bundle: 299, pack_cbq: 199 });
+    expect(PACK_PRICE_INR).toEqual({ pack_chapter: 49, pack_mock: 99, pack_subject: 199, pack_bundle: 299, pack_cbq: 199, test_series: 999 });
   });
 
   it("packId is <sku>:<target>, the bundle is pack_bundle:all", () => {
@@ -318,5 +318,63 @@ describe("CBQ-PACK-1: the Board CBQ Pack (pack_cbq)", () => {
     expect(ownsMocks(both, "maths")).toBe(false);
     expect(isAlreadyOwned(both, "pack_subject", "maths")).toBe(false);
     expect(isAlreadyOwned(both, "pack_bundle")).toBe(false);
+  });
+});
+
+/* ── TS-PACK-1 · the Test Series Pack ─────────────────────────────────────────── */
+describe("TS-PACK-1 · test_series in the catalogue", () => {
+  it("one packId, no target, Rs 999 base; owned only by itself; it owns no PDF pack", async () => {
+    const mod = await import("./packs");
+    expect(mod.PACK_SKUS).toContain("test_series");
+    expect(mod.PDF_PACK_SKUS).not.toContain("test_series");
+    expect(mod.PACK_PRICE_INR.test_series).toBe(999);
+    expect(mod.packIdOf("test_series")).toBe("test_series:all");
+    expect(mod.packIdOf("test_series", "maths")).toBe("test_series:all");
+    expect(mod.isValidPackTarget("test_series", undefined)).toBe(true);
+    expect(mod.packHasNoTarget("test_series")).toBe(true);
+    const bundle = [{ packId: "pack_bundle:all" }, { packId: "pack_cbq:maths" }, { packId: "pack_cbq:science" }];
+    expect(mod.isAlreadyOwned(bundle, "test_series")).toBe(false);
+    expect(mod.isAlreadyOwned([{ packId: "test_series:all" }], "test_series")).toBe(true);
+    expect(mod.isAlreadyOwned([{ packId: "test_series:all" }], "pack_bundle")).toBe(false);
+    expect(mod.packDescription("test_series", undefined)).toBe("Test Series Pack");
+    const line = mod.packCheckoutDescription("test_series", undefined);
+    expect(line).toMatch(/Test Series Pack/);
+    expect(line).not.toMatch(/\bAI\b|free|answer key|solutions|hack|trick|crack|leak|optional/i);
+  });
+
+  it("price label is Rs 999 + GST after the GST cut-off; the Buy names the charged amount (shared GST helper)", async () => {
+    const mod = await import("./packs");
+    const after = Date.parse("2026-11-20T06:30:00.000Z");
+    expect(mod.packPriceLabel("test_series", after)).toMatch(/^₹999 \+ GST$/);
+    expect(mod.packChargeInr("test_series", after)).toBe(1179);
+  });
+
+  it("readTestSeriesStatus / testSeriesChecksLeftLine: server counts only, capped; unknown -> nothing shown", async () => {
+    const mod = await import("./packs");
+    expect(mod.readTestSeriesStatus(null)).toBeNull();
+    expect(mod.readTestSeriesStatus({ checksPerPaper: 2 })).toBeNull();
+    const s = mod.readTestSeriesStatus({ validUntilMs: 1, checksPerPaper: 2, used: { a: 1, b: 9, c: -1, d: "x" } });
+    expect(s).toEqual({ validUntilMs: 1, checksPerPaper: 2, used: { a: 1, b: 2 } });
+    expect(mod.testSeriesChecksLeftLine(s, "a")).toBe("Test Series checks left on this paper: 1 of 2");
+    expect(mod.testSeriesChecksLeftLine(s, "b")).toBe("Test Series checks left on this paper: 0 of 2");
+    expect(mod.testSeriesChecksLeftLine(s, "new")).toBe("Test Series checks left on this paper: 2 of 2");
+    expect(mod.testSeriesChecksLeftLine(null, "a")).toBeNull();
+  });
+
+  it("fetchMyPacks: ownsTestSeries only for the server's literal true; testSeries read when sane", async () => {
+    vi.resetModules();
+    vi.doMock("./firebaseClient", () => ({ authClient: { currentUser: { getIdToken: async () => "tok" } } }));
+    const mod = await import("./packs");
+    const reply = (extra: Record<string, unknown>) => async () =>
+      ({ ok: true, status: 200, json: async () => ({ packs: [], licensee: { name: "A", email: "a@b.in" }, ...extra }) }) as Response;
+    vi.stubGlobal("fetch", reply({ ownsTestSeries: true, testSeries: { validUntilMs: 5, checksPerPaper: 2, used: { "ts:maths:ct-01": 1 } } }));
+    const mine = await mod.fetchMyPacks();
+    expect(mine.ownsTestSeries).toBe(true);
+    expect(mine.testSeries).toEqual({ validUntilMs: 5, checksPerPaper: 2, used: { "ts:maths:ct-01": 1 } });
+    for (const v of ["true", 1, {}, null]) {
+      vi.stubGlobal("fetch", reply({ ownsTestSeries: v }));
+      expect((await mod.fetchMyPacks()).ownsTestSeries).toBeUndefined();
+    }
+    vi.doUnmock("./firebaseClient");
   });
 });
