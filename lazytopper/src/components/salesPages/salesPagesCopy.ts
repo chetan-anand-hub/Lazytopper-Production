@@ -21,6 +21,9 @@ export const PRACTICE_PATH = "/practice-hub";
 
 /* ── /board-pass ─────────────────────────────────────────────────────────── */
 
+/** BP-PREBOARDS-1: the first line of the hero, so the page matches the Pre-Boards Package ad. Every named part is a feature the page already lists. */
+export const BP_PREBOARDS_LINE =
+  "Your pre-boards package \u2014 full board mocks, CBSE step marking, important questions and a personal tutor, till your boards.";
 export const BP_EYEBROW = "BOARD PASS · CBSE CLASS 10 · BOARDS 2027";
 export const BP_H1 = `${BOARD_PASS_NAME}: your answers marked like a CBSE examiner`;
 export const BP_MINUTE_TILE = "1 MINUTE";
