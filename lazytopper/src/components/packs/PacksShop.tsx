@@ -41,6 +41,8 @@ import {
 } from "../../services/packs";
 import { BUNDLE_NAME, packChapterLabel } from "../../lib/packs/packLabels";
 import { readPacksQuery } from "../../lib/packs/packEntry";
+import { isPacksWarmupPath, schedulePacksWarmup } from "../../lib/packs/packsMobilePreload";
+import { loadCheckoutScript } from "../../services/checkout";
 import PayRescueCard from "../payRescue/PayRescueCard";
 import PackSampleLink, { type SampleBuy } from "./PackSampleLink";
 import PackNamePrompt from "./PackNamePrompt";
@@ -158,6 +160,19 @@ export function preloadBuyChunks(): void {
 // PREEXIST-FIX-1: start as early as possible - when this module is first evaluated on a `?buy=` URL (a direct landing or the first
 // in-app hop to it), before the shop has even mounted. The mount effect below covers later in-app hops (module already loaded).
 if (typeof window !== "undefined" && isPacksClientEnabled() && readBuyResume(window.location.search)) preloadBuyChunks();
+
+/**
+ * PACKS-MOBILE-1 - every /packs and /cbq-packs load (not only `?buy=`): after `load` + idle, or at the first touch, warm the pop-up and
+ * sheet chunks, Razorpay's connections and checkout.js, so a Buy tap does not start the pay chain cold. Chunk / script fetches only:
+ * no order, no server call. Once per page load; VITE_PACKS_MOBILE_PRELOAD_DISABLED=1 turns it off.
+ */
+export function warmPacksCheckout(): void {
+  if (!isPacksClientEnabled()) return;
+  schedulePacksWarmup({ preloadChunks: preloadBuyChunks, loadScript: () => loadCheckoutScript() });
+}
+
+// Module top level: the page chunk is evaluated BEFORE the app hydrates, so a cold phone starts warming while it is still booting.
+if (typeof window !== "undefined" && isPacksWarmupPath(window.location.pathname)) warmPacksCheckout();
 
 /** PREEXIST-FIX-1 - signed in, a `?buy=` resume waits for My packs; past this it opens the pop-up only (never a payment). */
 export const BUY_RESUME_MINE_TIMEOUT_MS = 8_000;

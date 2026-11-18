@@ -16,3 +16,9 @@
 @media (max-width: 767.98px) {
   body.lt-has-pk-sticky { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* PACKS-MOBILE-1: the floating WhatsApp bubble is hidden (not removed) while it would sit over a link or button of this page (set by
+   lib/packs/packsWaBubble.ts, phones only; the class leaves with the page). */
+@media (max-width: 767.98px) {
+  body.lt-pk-wa-clear .lt-wa-fab { visibility: hidden; opacity: 0; pointer-events: none; transition: opacity 0.12s ease, visibility 0s linear 0.12s; }
+}

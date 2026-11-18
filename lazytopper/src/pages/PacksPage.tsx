@@ -8,7 +8,7 @@ import SeoFaq from "../components/seo/SeoFaq";
 import { PACKS_ANSWER_FAQ } from "../components/seo/faqContent";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import FounderBadge from "../components/brand/FounderBadge";
-import PacksShop, { OTHER_PAYMENT_BUSY_COPY, PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
+import PacksShop, { warmPacksCheckout, OTHER_PAYMENT_BUSY_COPY, PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
 import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT } from "../lib/packs/packLabels";
 import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
 import { chaptersOfSubject, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
@@ -18,6 +18,8 @@ import PackTileBuy, { sampleBuyFor } from "../components/packs/PackTileBuy";
 import type { PacksShopApi } from "../components/packs/PacksShop";
 import { packsUrlSubject } from "../lib/packs/packsUrlSubject";
 import { BOARD_PASS_NAME } from "../config/pricing";
+import { isPacksMobilePreloadDisabled } from "../lib/packs/packsMobilePreload";
+import { watchWhatsAppBubble } from "../lib/packs/packsWaBubble";
 import "./packs.css";
 import "./packsTrust.css";
 import "./packsTidy.css";
@@ -135,6 +137,11 @@ function PacksPageBody() {
   const { search } = useLocation();
   // `?subject=` (and `?t=`, `?mock=`, `?chapter=`) picks the ONE Maths / Science switch in the first render; default Maths.
   const [subject, setSubject] = useState<PackSubject>(() => packsUrlSubject(search) ?? "maths");
+  // PACKS-MOBILE-1: warm the Buy path (a no-op if PacksShop's module already scheduled it) and keep the WhatsApp bubble off the links.
+  useEffect(() => {
+    warmPacksCheckout();
+    return watchWhatsAppBubble();
+  }, []);
   return (
     <main className="lt-packs lt-pk" aria-label="LazyTopper PDF packs">
       <WelcomeBannerGate />
@@ -552,6 +559,7 @@ function BundleStickyBar({ api }: { api: PacksShopApi }) {
     <SalesStickyBar
       watch={STICKY_WATCH}
       ignoreFooter
+      requireFullyVisible={!isPacksMobilePreloadDisabled()}
       copy={() => ({ label: `${BUNDLE_NAME} · ${packPriceLabel("pack_bundle")}`, button: `Buy · ${packPayLabel("pack_bundle")}` })}
       onGo={() => api.buyNow("pack_bundle")}
       ariaLabel="Buy the Maths + Science Bundle"
