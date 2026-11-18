@@ -10,6 +10,7 @@
  * grants anything: the purchase attaches when the account with this verified number signs in (services/guestPay.ts).
  * The number never goes into a URL, storage or an analytics event.
  */
+import InAppPayRescue, { buyTargetFromItem } from "../payRescue/InAppPayRescue";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { newCheckoutAttemptId, trackNamedEvent, trackPurchase } from "../../analytics/analytics";
@@ -208,6 +209,7 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
         </p>
         {error && <p className="lt-gps__error" role="alert">{error}</p>}
         {step.name === "phone" && step.closed && <p className="lt-gps__fine" role="status">Payment window closed. Tap Continue to try again.</p>}
+        {step.name === "phone" && step.closed && <InAppPayRescue buy={buyTargetFromItem(item)} />}
         <button type="submit" className="lt-gps__primary" disabled={busy || !valid} data-testid="guest-pay-continue">
           {busy ? "Opening payment…" : "Continue"}
         </button>

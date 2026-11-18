@@ -113,3 +113,12 @@
     padding: 16px 20px;
   }
 }
+
+/* INAPP-PAY-1 - the "Open in Chrome to pay" link wears the primary button look. */
+.lt-pay-rescue__chrome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+}

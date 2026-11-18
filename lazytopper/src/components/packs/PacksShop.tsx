@@ -885,6 +885,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         {mine_ && buy.phase === "dismissed" && (
           <PayRescueCard
             kind="pack"
+            buy={{ kind: "pack", sku, ...(target ? { target } : {}) }}
             packLabel={packDescription(sku, target, target ? chapterLabel(target) : undefined)}
             onRetry={() => void handleBuy(sku, target)}
             onClose={() => setBuy({ key: "", phase: "idle" })}
