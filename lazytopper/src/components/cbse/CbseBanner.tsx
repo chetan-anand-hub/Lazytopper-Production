@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { newestImportantCircular, useCbseManifest } from "../../services/cbseManifest";
+import {
+  cbseStorageBucket,
+  newestImportantCircular,
+  useCbseManifestStatus,
+} from "../../services/cbseManifest";
 
 /**
  * CbseBanner — the one-line CBSE news strip at the top of Home (CBSE-AUTO-1 C12).
@@ -53,7 +57,50 @@ export function dismissCircular(id: string): void {
   }
 }
 
+/**
+ * SPEED-CLS-2 — the strip arrives after the manifest fetch (~1.5 s on a phone), i.e. AFTER the
+ * first paint, so it used to push everything under it down by 56-72 px (CLS 0.07 mobile / 0.03
+ * desktop on /browse). Two fixes, both layout-only:
+ *  1. the last result is remembered (display cache only — never premium/trial state), so a
+ *     returning visitor paints the strip in the first frame, from the same mirror headline;
+ *  2. a first-ever visit reserves the strip's measured height while the fetch is in flight.
+ * Build/CI without a bucket reserves nothing (no fetch happens), so prerendered output is unchanged.
+ */
+export const CBSE_BANNER_LAST_KEY = "ltCbseBanner.last.v1";
+/** Measured strip heights (px): 72 when the headline wraps (<400 px wide), else 56. */
+export const CBSE_BANNER_RESERVE_PX = { narrow: 72, wide: 56 } as const;
+
+type LastSeen = { none: true } | { id: string; headline: string };
+
+function readLastSeen(): LastSeen | null {
+  try {
+    const raw = window.localStorage.getItem(CBSE_BANNER_LAST_KEY);
+    if (!raw) return null;
+    const v: unknown = JSON.parse(raw);
+    if (!v || typeof v !== "object") return null;
+    const o = v as Record<string, unknown>;
+    if (o.none === true) return { none: true };
+    if (typeof o.id === "string" && o.id && typeof o.headline === "string" && o.headline) {
+      return { id: o.id, headline: o.headline };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function writeLastSeen(v: LastSeen): void {
+  try {
+    window.localStorage.setItem(CBSE_BANNER_LAST_KEY, JSON.stringify(v));
+  } catch {
+    // Storage unavailable — next visit simply reserves space instead.
+  }
+}
+
 const BANNER_CSS = `
+.lt-cbse-banner-reserve { min-height: ${CBSE_BANNER_RESERVE_PX.wide}px; min-width: 0; }
+.lt-cbse-banner-reserve--spaced { margin-bottom: 13px; }
+@media (max-width: 399.98px) { .lt-cbse-banner-reserve { min-height: ${CBSE_BANNER_RESERVE_PX.narrow}px; } }
 .lt-cbse-banner {
   display: flex;
   align-items: center;
@@ -121,11 +168,37 @@ const BANNER_CSS = `
 `;
 
 export default function CbseBanner({ spaced = false }: { spaced?: boolean }) {
-  const manifest = useCbseManifest();
+  const { manifest, settled } = useCbseManifestStatus();
   const [dismissed, setDismissed] = useState<string[]>(() => readDismissedIds());
+  const [last] = useState<LastSeen | null>(() => readLastSeen());
 
-  const circular = newestImportantCircular(manifest);
-  if (!circular || dismissed.includes(circular.id)) return null;
+  const fresh = newestImportantCircular(manifest);
+  useEffect(() => {
+    // Remember only a SUCCESSFUL read; a failed fetch (null manifest) must not erase a good one.
+    if (!settled || !manifest) return;
+    writeLastSeen(fresh ? { id: fresh.id, headline: fresh.headline } : { none: true });
+  }, [settled, manifest, fresh]);
+
+  const circular: { id: string; headline: string } | null =
+    fresh ?? (!settled && last && "id" in last ? last : null);
+
+  if (!circular) {
+    // First-ever visit (nothing remembered), fetch in flight, a mirror configured: hold the room.
+    if (!settled && last === null && cbseStorageBucket()) {
+      return (
+        <>
+          <style>{BANNER_CSS}</style>
+          <div
+            className={`lt-cbse-banner-reserve${spaced ? " lt-cbse-banner-reserve--spaced" : ""}`}
+            aria-hidden="true"
+            data-testid="cbse-banner-reserve"
+          />
+        </>
+      );
+    }
+    return null;
+  }
+  if (dismissed.includes(circular.id)) return null;
 
   const onDismiss = () => {
     dismissCircular(circular.id);

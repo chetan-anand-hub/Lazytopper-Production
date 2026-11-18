@@ -183,19 +183,31 @@ export async function fetchCbseManifest(
  * which is also the first paint, so the page never flashes an empty state.
  */
 export function useCbseManifest(): CbseManifest | null {
-  const [manifest, setManifest] = useState<CbseManifest | null>(null);
+  return useCbseManifestStatus().manifest;
+}
+
+/**
+ * Same fetch as `useCbseManifest`, plus whether it has finished (success OR failure).
+ * SPEED-CLS-2: the Home CBSE strip needs "still loading" to reserve its height, because a
+ * strip that appears after the first paint pushes the whole page down (CLS 0.07 on /browse).
+ */
+export function useCbseManifestStatus(): { manifest: CbseManifest | null; settled: boolean } {
+  const [state, setState] = useState<{ manifest: CbseManifest | null; settled: boolean }>({
+    manifest: null,
+    settled: false,
+  });
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
     void fetchCbseManifest({ signal: controller.signal }).then((result) => {
-      if (active) setManifest(result);
+      if (active) setState({ manifest: result, settled: true });
     });
     return () => {
       active = false;
       controller.abort();
     };
   }, []);
-  return manifest;
+  return state;
 }
 
 // ─── What the page renders from it ──────────────────────────────────────────
