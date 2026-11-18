@@ -15,7 +15,9 @@ import { Link } from "react-router-dom";
 import { useSubscription } from "../../hooks/useSubscription";
 import { isPaidPremium } from "../../services/subscriptionService";
 import { boardPassPriceDisplay } from "../../config/pricing";
-import { canCheckSeriesPapers } from "../../lib/testSeries/seriesAccess";
+import { canCheckSeriesPapers, canDownloadPaper } from "../../lib/testSeries/seriesAccess";
+import { useOwnedPacks } from "../packs/useOwnedPacks";
+import { ownsChapter, ownsMocks, type PackSubject } from "../../services/packs";
 import { TEST_SERIES_BUY_PATH, seriesPaperKeyOfWorksheetId, seriesTotals } from "../../lib/testSeries/testSeries";
 import { packPriceLabel, testSeriesChecksLeftLine } from "../../services/packs";
 import { useTestSeriesOwnership } from "./testSeriesOwnership";
@@ -47,6 +49,28 @@ export function useSeriesPaperAccess(uid?: string | null): boolean {
   const own = useTestSeriesOwnership(!off && !paid ? uid : null);
   if (off) return true;
   return canCheckSeriesPapers({ paidPremium: paid, ownsTestSeries: own.owns });
+}
+
+/** The paper a download is for (its pack cover). */
+export type DownloadPaper = { kind: "chapter-test"; chapterSlug: string | null } | { kind: "full-mock"; subject: PackSubject };
+
+/**
+ * PACK-DOWNLOAD-RESTORE: may this account download / print this paper? A Board Pass holder or Test Series owner (`checkAccess`, as
+ * before), or an owner of a PDF pack that covers it (server list `/api/packs/mine`, asked only for a signed-in student who would
+ * otherwise be refused). A read still loading or failed is "no" (the ordinary link), never an error.
+ */
+export function useSeriesDownloadAccess(uid: string | null | undefined, checkAccess: boolean, paper: DownloadPaper | null): boolean {
+  const off = writtenCheckGateDisabled();
+  const ask = !off && !checkAccess && uid ? uid : null;
+  const packs = useOwnedPacks(ask ?? "", Boolean(ask));
+  if (checkAccess || off) return true;
+  const covers =
+    packs.phase === "ready" && paper
+      ? paper.kind === "chapter-test"
+        ? Boolean(paper.chapterSlug) && ownsChapter(packs.packs, paper.chapterSlug as string)
+        : ownsMocks(packs.packs, paper.subject)
+      : false;
+  return canDownloadPaper({ paidPremium: false, ownsTestSeries: false, ownsCoveringPack: covers });
 }
 
 /**
