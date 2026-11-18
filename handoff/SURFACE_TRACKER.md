@@ -1,3 +1,20 @@
+> **2026-11-18 (daily; UTC day 18 Nov, written 19 Nov) - #1748 - #1768 (CLAUDE.md section 10).** Scope: a new product (the Test Series Pack) across /test-series, /pricing, /packs, the Chapter Test and Full Mock pages, the paid pop-up and /board-pass, plus payment, tracking and ads-landing work. **Grading surfaces (CLAUDE.md section 4a): no prompt, marks, mistake-type or clamp rule changed.** What changed on grading is who is admitted and how a series check runs (job mode), and what the tutor is given. No scope was discovered; no surface Scope cell changes (the Test Series surfaces are new and still moving, see owed).
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Answer Checker (single and multi-question upload), Worksheet, Quick Practice | none (the tutor now says "Answer Checker" and receives paper MCQ picks, `#1759`) | unchanged | the earlier second-surface checks stay owed |
+| Chapter Test | fixed series papers `?series=1`; written-answer, download and graded-sheet gates; ONE free test; after-test analysis; series checks admitted server-side and graded in job mode; owners not metered by LIMITS-1; PDF-pack owners keep downloads; owners skip the 3/day cap (`#1757` `#1758` `#1760` `#1763` `#1764` `#1765` `#1768`) | **merged, live** | LIVE-VERIFIED as a Test Series owner: graded 25.5/31 in about 75 s, job mode, checks 2 to 1 to 0, 3rd refused 402. Owed: `#1763` Bundle owner; a free account's one-test wall |
+| Full Mock | fixed papers `?paper=n` (20 per subject); same gates, analysis, job-mode checks, owner cap exemption (`#1757` `#1758` `#1760` `#1763` `#1764` `#1768`) | **merged, live** | LIVE-VERIFIED as owner: job 202 completes; cap uncapped (count stayed 3). Owed: Mock Pack owner download; the overlap line at `FullMockPage.tsx:1735`; "awaiting sheet" banner |
+| /test-series | new page, then redesigned: tabs, accordions, offer cards, owner view, flash fix, island (`#1757` `#1762`); online-product copy (`#1765`) | **merged, live; sales on since about 02:00 IST 19 Nov** | first real purchase to be confirmed; Test Series ads not made |
+| /pricing | four cards, Test Series second; compare table with a Test Series column (`#1761`) | **merged, live** | none stated; legacy three-column page behind `VITE_PRICING_HUB_DISABLED` |
+| /packs and /cbq-packs | Test Series row and My packs row (`#1760` `#1765`); wording and SEO-page Buys (`#1753`); touch targets (`#1748`); mobile warm-up, sticky bar, bubble (`#1754`); FAQ/JSON-LD (`#1752`) | **merged, live** | owner state checked live; none else stated |
+| Paid pop-up ("Payment received") | cross-sell, up to 3 suggestions (`#1766`); online-product copy (`#1765`) | **merged, live** | a real pack purchase and a real Test Series purchase |
+| /board-pass | pre-boards line and founding countdown (`#1755`); Test Series to Board Pass credit shown on checkout (`#1767`) | **merged, live** | LIVE-VERIFIED: ₹918 + ₹165 = ₹1,083 on the page and in the Razorpay sheet (closed, not paid). Owed: the ₹1,083 payment, then invoice and `creditedToPass` |
+| Razorpay order / verify / webhook / grant | Test Series upgrade credit (server, fails closed) (`#1767`); in-app rescue card (`#1749`); server-side Meta/GA4 events (`#1750`) | **merged, live** | the ₹1,083 payment; Meta/GA4 test events |
+| Admin Students and Purchases | campaign / ad group / keyword / landing (`#1756`) | **merged, live** | fill `AD_GROUP_NAMES`; needs the Railway and Vercel deploys confirmed |
+| /browse | CBSE strip layout shift removed (`#1751`) | **merged, live** | none stated |
+| Tutor | "Answer Checker" name; paper MCQ pick reaches the tutor (`#1759`); tutor wall Board Pass only (`#1757` `#1765`) | **merged, live** | one owner run (see NEXT_ACTION) |
+
 > **2026-11-17 (daily; written 17 Nov) - #1737 - #1746 (CLAUDE.md section 10).** Scope: the pack sample dialog, the Razorpay sheet, order records and admin Purchases, the footer and /cbse/class-10, and two new public page families. **No grading surface moved (CLAUDE.md section 4a).** No scope was discovered; no surface Scope cell changes.
 
 | surface | what moved (PR) | state | owed |

@@ -1,3 +1,21 @@
+## 2026-11-18 (daily; UTC day 18 Nov, written 19 Nov) - #1748 - #1768: the Test Series Pack built, broken, fixed and launched in one day; four-card pricing; cross-sell and upgrade credit (trunk `2e2706a9`)
+
+**PROVENANCE.** *(Daily handoff, CLAUDE.md section 10. Covers `#1748` to `#1768`, merged 18 Nov 02:22 UTC to 18 Nov 20:25 UTC (07:52 IST to 01:55 IST on 19 Nov). **No grading prompt, marks, mistake-type or clamp change (CLAUDE.md section 4a);** grading admission and run mode for series papers changed. Merge SHAs and times **[gh]**; what each PR changed **[PR bodies]**; rulings, live results, env changes and ads **[coordinator]**.)*
+
+**How the window went (IST).**
+- **07:52 to 09:53.** Morning SEO/speed/ads-landing batch: `#1748` /packs touch targets, `#1751` /browse CLS, `#1749` in-app-browser payment rescue, `#1750` server-side Meta/GA4 events, `#1753` /packs wording and Buy on SEO pages, `#1752` llms.txt/FAQ/JSON-LD.
+- **14:43 to 18:34.** `#1754` faster Razorpay on phones, `#1755` /board-pass pre-boards line and countdown, `#1756` utm_term and ad source in admin.
+- **20:46 to 22:11.** `#1759` tutor fixes, then the Test Series: `#1757` the page, fixed papers and gates, `#1758` after-test analysis, `#1760` the paid Test Series Pack (₹999 + GST) with manifest-verified checks.
+- **22:26 to 22:30: the incident.** Live written-answer checks for pack owners returned 500 on CT-M01 (9 written questions), three times: `#1760` forced synchronous grading and hit the ~78 s deadline. `TS_PACK_DISABLED=1` was set. `#1763` (PDF-pack downloads restored) and `#1764` (job mode, P0) merged 23:00 and 23:18.
+- **23:43 to 01:55.** `#1761` four-card /pricing, `#1762` /test-series redesign, `#1766` post-payment cross-sell, `#1767` Test Series to Board Pass credit, `#1765` online-product surfaces, `#1768` daily cap exemption (found live at 00:20 IST on the owner account).
+- **About 02:00 IST on 19 Nov.** `TS_PACK_DISABLED` removed: Test Series sales live.
+
+**Lesson [owner; coordinator].** Nothing on the payment or grading path goes live without a real successful live run: `#1760` merged green and was broken on its first real grade; `#1764` was the P0 fix. Recorded in DECISION_LOG.
+
+**Live verification** (Test Series owner account): see CURRENT_STATE. **Off-repo:** the Google Ads changes (PDF Packs Rs 9,500/day; Sign-ups v2 to /packs and /board-pass; suffixes; Excellent ratings) and the Railway env change `FAIR_USE_PREMIUM_30DAY_INR` 350 to 500 [coordinator].
+
+**Rulings of the day** are in DECISION_LOG; open items in OPEN_QUESTIONS_AND_FOLLOWUPS.
+
 ## 2026-11-17 (daily; written 17 Nov) - #1737 - #1746: ten PRs, the free MCQ pages and PDFs, daily-question pages, ads on hold (trunk `97c023bf`)
 
 **PROVENANCE.** *(Daily handoff of 17 Nov, CLAUDE.md section 10. Covers `#1737` to `#1746`, merged 09:29 to 14:31 IST (committer times). **No grading behaviour changed (CLAUDE.md section 4a).** Merge SHAs and times **[git]**; what each PR changed **[git file lists]**; reviews, owner rulings, live results and off-repo work **[coordinator]**.)*

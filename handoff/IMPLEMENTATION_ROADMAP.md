@@ -1,3 +1,9 @@
+## 2026-11-18 (daily; UTC day 18 Nov, written 19 Nov) - #1748 - #1768 - MERGED
+
+- DONE. `#1748` (`412308e4`) PACKS-LPX-1. `#1751` (`0a5a5103`) SPEED-CLS-2. `#1749` (`874f2ece`) INAPP-PAY-1. `#1750` (`30ff39d2`) SERVER-EVENTS-1. `#1753` (`2104c1ed`) PACKS-LPX-2. `#1752` (`26598022`) SEO-LLM-2. `#1754` (`8ebe4593`) PACKS-MOBILE-1. `#1755` (`2cb91faf`) BP-PREBOARDS-1. `#1756` (`95a90d9b`) SOURCE-3. `#1759` (`b6057688`) TUTOR-FIX-1. `#1757` (`882b2c17`) TEST-SERIES-1. `#1758` (`c4e5dfb6`) TS-ANALYSIS-1. `#1760` (`620d9d64`) TS-PACK-1. `#1763` (`f6b47a44`) PACK-DOWNLOAD-RESTORE. `#1764` (`3e3ce94a`) TS-PACK-JOBFIX. `#1761` (`6f5700eb`) PRICING-4CARD-1. `#1762` (`88aff1ea`) TS-PAGE-2. `#1766` (`28a9cf60`) PAID-XSELL-1. `#1767` (`39c7525f`) TS-UPGRADE-CREDIT-1. `#1765` (`5b6baae7`) MYPACKS-TS-1. `#1768` (`2e2706a9`) TS-DAILY-CAP-1.
+- DONE off-repo: Google Ads restructure (PDF Packs Rs 9,500/day; Sign-ups v2 to /packs and /board-pass; tracking suffixes); Railway `FAIR_USE_PREMIUM_30DAY_INR` 350 to 500; `TS_PACK_DISABLED` removed (Test Series live).
+- NEXT: grading speed with the quality rule; generate saved `solutionSteps` for about 1,875 B to E bank questions; the owner live checks listed in NEXT_ACTION; Test Series ads; `[FU-PAINT-SHELL-TWO-WINDOW]` before 1 Dec. The earlier lists stand.
+
 ## 2026-11-17 (daily; written 17 Nov) - #1737 - #1746 - MERGED
 
 - DONE. `#1737` (`f276015c`) SAMPLE-DIALOG-BUY-1. `#1738` (`7d153f14`) RZP-UPI-FIRST-1. `#1739` (`456ae034`) link-preview copy. `#1740` (`2ec14b9b`) ORDER-SOURCE-1. `#1741` (`c38f3e37`) SOCIAL-2 Discord. `#1742` (`17f7721a`) SEO-DAILY-1. `#1743` (`a9e2f7e4`) daily pages skip the footer observer. `#1744` (`0ddf85f6`) SEO-MCQ-1. `#1745` (`9e7f5789`) SEO-MCQ-RENUMBER-1. `#1746` (`97c023bf`) SEO-DAILY-2.
