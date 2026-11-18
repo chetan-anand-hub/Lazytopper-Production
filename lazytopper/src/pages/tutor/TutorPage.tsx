@@ -19,6 +19,7 @@ import { Link, useLocation, useNavigate, useParams, useSearchParams } from "reac
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
 import type { DesktopSubject } from "../../lib/desktop/navigation";
 import { offerForTutorTurn } from "./tutorIntent";
+import { renameLegacyToolName } from "./tutorLegacyName";
 import TutorErrorView from "./TutorErrorView";
 import CbqTutorBonusBanner from "./CbqTutorBonusBanner";
 import { useAuth } from "../../context/AuthContext";
@@ -484,7 +485,7 @@ function TutorSession() {
           key={i}
           className={m.kind === "return-result" ? "lt-tutor__t lt-tutor__t--return" : "lt-tutor__t"}
         >
-          <TutorText text={m.content} />
+          <TutorText text={renameLegacyToolName(m.content)} />
           {/* TUTOR-FIX-2 T3 — the LATEST cut-off reply carries a "Continue" button (a
               normal message); an older one keeps only the honest note. */}
           {m.truncated && (

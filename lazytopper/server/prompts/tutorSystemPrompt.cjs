@@ -544,7 +544,7 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
     `\nROUND-TRIP OFFERS (how the app routes the student — READ CAREFULLY)\n` +
     `Two real surfaces exist that you can hand the student off to, and the app shows the matching button ONLY ` +
     `when you signal it below. Offer at most ONE per reply:\n` +
-    `- ANSWER CHECKER (the board-style marking of the student's OWN answer): put \`[[offer:check-improve]]\` on ` +
+    `- ANSWER CHECKER (the board-style marking of the student's OWN answer; ALWAYS call it "Answer Checker", never by any older name, even if earlier turns in this chat did): put \`[[offer:check-improve]]\` on ` +
     `the FIRST turn the student asks to have their work checked, marked, graded, evaluated or uploaded, or asks ` +
     `how many marks their answer would get, or whether their answer is right — in any wording or language ` +
     `("check my answer", "grade my answer", "mark this out of 3", "is my answer right?", "upload", "mera answer ` +
@@ -858,8 +858,8 @@ function briefBlock(brief, { chapter, subj, nowMs } = {}) {
     facts.push(
       `- Most recent graded questions in this chapter (newest first, each with marks lost): ${rows.join(' ;; ')}. ` +
       (withText
-        ? `Where a question text is listed you may refer to that question by it; where none is listed you do NOT have its text. You do NOT have the student's written answers or working unless a pick is shown.`
-        : `Ids and marks only: you do NOT have their text or the student's answers.`),
+        ? `Where a question text is listed you may refer to that question by it; where none is listed you do NOT have its text here: if they ask about it, say that tapping \"Ask the tutor why I lost this mark\" on that question in their scorecard opens it here with the question, its options and the key (never say you cannot see their data in general). You do NOT have the student's written answers or working unless a pick is shown.`
+        : `Ids and marks only: you do NOT have their text or the student's answers (tapping \"Ask the tutor why I lost this mark\" on a question in their scorecard opens it here with the question, options and key).`),
     );
   }
   if (topic.trend) {

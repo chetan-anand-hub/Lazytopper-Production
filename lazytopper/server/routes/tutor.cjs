@@ -199,6 +199,20 @@ function normalizeReturnedWork(input) {
 }
 
 /**
+ * TUTOR-FIX-1 - the student-facing name of the /check-improve page is "Answer Checker" (owner ruling 30 Oct 2026).
+ * "Check & Improve" / "Check and Improve" / "C&I" is the OLD name. Older persisted tutor replies (and an
+ * occasional model slip) still carry it, so every tutor text that goes to or comes from the model is
+ * rewritten here. Pure; identifiers such as the `[[offer:check-improve]]` tag and the /check-improve URL
+ * are untouched (no spaces/ampersand in them).
+ */
+function renameLegacyToolName(text) {
+  if (typeof text !== 'string' || !text) return text;
+  return text
+    .replace(/\bcheck\s*(?:&amp;|&|and)\s*improve\b/gi, 'Answer Checker')
+    .replace(/\bC\s?&\s?I\b/g, 'Answer Checker');
+}
+
+/**
  * TUTOR-ANCHOR-KEY-1 - normalize the optional client-supplied `anchorQuestion` (the exact bank question the
  * tutor was opened about, with its official key). REBUILT at the trust boundary like `normalizeReturnedWork`:
  * whitelisted fields only, every one type-checked and length-capped, so nothing unvalidated reaches the
@@ -855,7 +869,7 @@ function createTutorRoute(deps) {
       .map((m) => ({
         role:
           m.role === 'tutor' || m.role === 'assistant' || m.role === 'model' ? 'model' : 'user',
-        parts: [{ text: String(m.content).slice(0, MAX_TURN_CHARS) }],
+        parts: [{ text: renameLegacyToolName(String(m.content).slice(0, MAX_TURN_CHARS)) }],
       }));
 
     if (convo.length === 0) {
@@ -985,7 +999,7 @@ function createTutorRoute(deps) {
       // Stage 3: strip the figure sentinel too (same OUTPUT pass, order-independent — the
       // two tags are on their own lines). Validate against the curated set for this topic.
       const figureOut = extractFigureTag(offerOut.text, figureKeys);
-      let text = figureOut.text;
+      let text = renameLegacyToolName(figureOut.text);
       let offer = offerOut.offer;
       let offerSource = offer ? 'model' : null;
       // TUTOR-FIX-4 attribution safety net (all-unrecorded brief only): a reply with an ASSERTING
@@ -1037,6 +1051,7 @@ function createTutorRoute(deps) {
 }
 
 module.exports = {
+  renameLegacyToolName,
   detectStudentLanguage,
   createTutorRoute,
   TUTOR_CALL_CONFIG,
