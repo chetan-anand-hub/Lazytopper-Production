@@ -35,8 +35,8 @@ export default function QuestionBankClass10Page() {
           testId="qbank-buy-hero"
           primary={{ sku: "pack_bundle", target: "", label: BUNDLE_NAME, testId: "qbank-buy-bundle" }}
           others={[
-            { sku: "pack_subject", target: "maths", label: "Maths Subject Pack", testId: "qbank-buy-subject-maths" },
-            { sku: "pack_subject", target: "science", label: "Science Subject Pack", testId: "qbank-buy-subject-science" },
+            { sku: "pack_subject", target: "maths", prefix: "Maths ", label: "Subject Pack", testId: "qbank-buy-subject-maths" },
+            { sku: "pack_subject", target: "science", prefix: "Science ", label: "Subject Pack", testId: "qbank-buy-subject-science" },
             { sku: "pack_chapter", target: "", to: "/packs", label: "Chapter Pack", testId: "qbank-buy-chapter" },
           ]}
         />

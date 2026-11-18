@@ -29,7 +29,7 @@ export default function MockTestClass10Page() {
           testId="mock-buy-hero"
           primary={{ sku: "pack_mock", target: "maths", label: "Mock Pack", testId: "mock-buy-mock" }}
           others={[
-            { sku: "pack_mock", target: "science", label: "Science Mock Pack", testId: "mock-buy-mock-science" },
+            { sku: "pack_mock", target: "science", prefix: "Science ", label: "Mock Pack", testId: "mock-buy-mock-science" },
             { sku: "pack_bundle", target: "", label: BUNDLE_NAME, testId: "mock-buy-bundle" },
           ]}
         />

@@ -27,7 +27,10 @@ function withAttribution(href: string, search: string): string {
 export interface SeoBuyOption {
   sku: PackSku;
   target: string;
+  /** The pack name exactly as the price tag carries it ("Mock Pack"): the prerender price guard reads that markup. */
   label: string;
+  /** Words before the tag, outside it ("Science "). */
+  prefix?: string;
   testId: string;
   /** A pack that needs a choice first (the Chapter Pack): the page to choose on, instead of the one-tap checkout link. */
   to?: string;
@@ -44,7 +47,7 @@ export default function SeoBuyCta({ primary, others, testId }: { primary: SeoBuy
       <p className="lt-seol__buymore">
         {others.map((o) => (
           <Link key={o.testId} to={href(o)} data-testid={o.testId}>
-            <SeoPriceLine sku={o.sku} name={o.label} testId={`${o.testId}-price`} />
+            {o.prefix}<SeoPriceLine sku={o.sku} name={o.label} testId={`${o.testId}-price`} />
           </Link>
         ))}
       </p>
