@@ -23,6 +23,7 @@ import {
   SEE_INSIDE_LABEL,
   SUBJECT_SWITCH_LABEL,
   WHAT_YOU_GET_COLUMNS,
+  WHAT_YOU_GET_COLUMNS_4,
   WHAT_YOU_GET_TITLE,
   bundleBadge,
   cbqBuyLabel,
@@ -31,6 +32,7 @@ import {
   oneSubjectFor,
   subjectPackRow,
   whatYouGetRows,
+  whatYouGetRows4,
   type WhatCell,
 } from "./pricingPlansCopy";
 
@@ -359,33 +361,48 @@ function WhatCellView({ cell, column }: { cell: WhatCell; column: string }) {
   return <td>{cell.text}</td>;
 }
 
-/** "What you get with each": Board Pass | CBQ Pack | Bundle, rows exactly as the prototype. `children` is the folded Basic table. */
-export function WhatYouGet({ boardPassPrice, children }: { boardPassPrice: string; children?: ReactNode }) {
+/**
+ * "What you get with each": Board Pass | CBQ Pack | Bundle, rows exactly as the prototype. `children` is the folded Basic table.
+ * PRICING-4CARD-1: with `testSeries` (the hub only) it is Board Pass | Test Series | CBQ Pack | Bundle (whatYouGetRows4).
+ */
+export function WhatYouGet({
+  boardPassPrice,
+  testSeries,
+  children,
+}: {
+  boardPassPrice: string;
+  testSeries?: { price: string; inside: string };
+  children?: ReactNode;
+}) {
+  const columns: readonly string[] = testSeries ? WHAT_YOU_GET_COLUMNS_4 : WHAT_YOU_GET_COLUMNS;
+  const rows: ReadonlyArray<{ label: string; cells: readonly WhatCell[] }> = testSeries
+    ? whatYouGetRows4(boardPassPrice, testSeries)
+    : whatYouGetRows(boardPassPrice);
   return (
     <section className="lt-pp-section" aria-labelledby="pricing-what-h" data-testid="pricing-what-you-get">
       <h2 className="lt-pp-h2" id="pricing-what-h">{WHAT_YOU_GET_TITLE}</h2>
       <div className="lt-pp-table-wrap">
-        <table className="lt-pp-table" data-testid="pricing-what-table">
+        <table className={testSeries ? "lt-pp-table lt-pp-table--4" : "lt-pp-table"} data-testid="pricing-what-table">
           <colgroup>
             <col className="lt-pp-col-label" />
-            <col />
-            <col />
-            <col />
+            {columns.map((c) => (
+              <col key={c} />
+            ))}
           </colgroup>
           <thead>
             <tr>
               <th scope="col"><span className="lt-pricing-sr">Feature</span></th>
-              {WHAT_YOU_GET_COLUMNS.map((c) => (
+              {columns.map((c) => (
                 <th key={c} scope="col">{c}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {whatYouGetRows(boardPassPrice).map((row) => (
+            {rows.map((row) => (
               <tr key={row.label}>
                 <th scope="row">{row.label}</th>
                 {row.cells.map((cell, i) => (
-                  <WhatCellView key={WHAT_YOU_GET_COLUMNS[i]} cell={cell} column={WHAT_YOU_GET_COLUMNS[i]} />
+                  <WhatCellView key={columns[i]} cell={cell} column={columns[i]} />
                 ))}
               </tr>
             ))}
