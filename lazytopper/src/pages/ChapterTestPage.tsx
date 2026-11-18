@@ -1716,7 +1716,9 @@ export default function ChapterTestPage() {
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
                   </button>
-                  {seriesPaperAccess && gradedSheetOpen && (
+                  {seriesPaperAccess && (
+                  <>
+                  {gradedSheetOpen && (
                   <button
                     type="button"
                     className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -1725,6 +1727,8 @@ export default function ChapterTestPage() {
                   >
                     {downloading ? "Preparing…" : "↓ Graded sheet"}
                   </button>
+                  )}
+                  </>
                   )}
                   {seriesPaperAccess && (
                   <button
