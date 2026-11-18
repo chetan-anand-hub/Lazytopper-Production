@@ -136,6 +136,12 @@ function objectiveGradeRows(objective: ObjectiveScore): WorksheetQuestionGrade[]
     annotatedSteps: [],
     mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
     teacherNote: "",
+    // TUTOR-FIX-1 - the wrong tap, stored like Quick Practice does (`pickedOption`), so the scorecard
+    // hop can tell the tutor WHICH option the student chose on a paper MCQ. Context only: it never
+    // changes a mark (the row's marks above are final), and only a lost, answered question carries it.
+    ...(r.selected != null && String(r.selected).trim() !== "" && r.awarded < r.total
+      ? { pickedOption: String(r.selected).trim().slice(0, 400) }
+      : {}),
   }));
 }
 

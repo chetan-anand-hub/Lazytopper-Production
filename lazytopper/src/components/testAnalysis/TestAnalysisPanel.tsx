@@ -14,19 +14,18 @@ import {
   analyseTest,
   buildRetryPlan,
   formatDuration,
-  missLabel,
-  notebookChapters,
-  notebookEntries,
   questionTimeRows,
-  retryPracticePath,
   tsAnalysisDisabled,
   weakestChapters,
+  takenSeriesMocks,
   weekPlan,
   type AnalysedQuestion,
   type AnalysisSurface,
   type DisplaySubject,
 } from "./testAnalysisModel";
 import { loadQuestionTimes } from "./questionTimes";
+import MistakeNotebook, { formatMarks } from "./MistakeNotebook";
+import { currentIstDate, seriesCalendarRows } from "./seriesCalendar";
 import "./testAnalysis.css";
 
 export interface TestAnalysisCurrent {
@@ -47,10 +46,9 @@ export interface TestAnalysisPanelProps {
   returnTo: string;
 }
 
-const NOTEBOOK_PAGE = 20;
 const RETRY_ANCHOR = "lt-tsa-retry";
 
-type HistoryState = { status: "idle" | "loading" | "ready" | "error"; rows: AnalysedQuestion[] };
+type HistoryState = { status: "idle" | "loading" | "ready" | "error"; rows: AnalysedQuestion[]; worksheetIds: string[] };
 
 const EMPTY_RESPONSE: WorksheetGradeResponse = {
   ok: true,
@@ -102,17 +100,22 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
   const measured = timeRows.some((r) => r.ms !== null);
   const overCount = timeRows.filter((r) => r.over).length;
 
-  const [history, setHistory] = useState<HistoryState>({ status: "idle", rows: [] });
+  const [history, setHistory] = useState<HistoryState>({ status: "idle", rows: [], worksheetIds: [] });
   useEffect(() => {
     if (disabled || !uid) return;
     let live = true;
-    setHistory({ status: "loading", rows: [] });
+    setHistory({ status: "loading", rows: [], worksheetIds: [] });
     Promise.all([getSessionRecordsFromCloud(uid), getAllSessionPerQuestionFromCloud(uid)])
       .then(([records, payloads]) => {
-        if (live) setHistory({ status: "ready", rows: analyseHistory(records, payloads, current.worksheetId) });
+        if (live)
+          setHistory({
+            status: "ready",
+            rows: analyseHistory(records, payloads, current.worksheetId),
+            worksheetIds: records.map((r) => String(r.worksheetId ?? "")),
+          });
       })
       .catch(() => {
-        if (live) setHistory({ status: "error", rows: [] });
+        if (live) setHistory({ status: "error", rows: [], worksheetIds: [] });
       });
     return () => {
       live = false;
@@ -128,19 +131,15 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
             retry: retry.groups.length ? { count: retry.groups.reduce((n, g) => n + g.ids.length, 0), testTitle: current.title } : null,
             weakest,
             subject,
-            now: Date.now(),
+            calendar: {
+              rows: seriesCalendarRows(),
+              todayIso: currentIstDate(),
+              takenMocks: takenSeriesMocks([...history.worksheetIds, current.worksheetId]),
+            },
           })
         : [],
-    [history.status, retry, weakest, subject, current.title],
+    [history.status, history.worksheetIds, retry, weakest, subject, current.title, current.worksheetId],
   );
-
-  const [nbOpen, setNbOpen] = useState(false);
-  const [nbSubject, setNbSubject] = useState<DisplaySubject | "all">("all");
-  const [nbChapter, setNbChapter] = useState<string>("all");
-  const [nbShown, setNbShown] = useState(NOTEBOOK_PAGE);
-  const nbChapters = useMemo(() => notebookChapters(allRows, nbSubject), [allRows, nbSubject]);
-  const nbRows = useMemo(() => notebookEntries(allRows, { subject: nbSubject, chapter: nbChapter }), [allRows, nbSubject, nbChapter]);
-  const nbTotal = useMemo(() => notebookEntries(allRows, { subject: "all", chapter: "all" }).length, [allRows]);
 
   if (disabled) return null;
 
@@ -278,93 +277,9 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
       {/* 4 — mistake notebook */}
       {uid && history.status === "ready" && (
         <div className="lt-tsa__card">
-          <h2 className="lt-tsa__h">Mistake notebook</h2>
-          {nbTotal === 0 ? (
-            <p className="lt-tsa__p">No lost-marks questions in your chapter tests and full mocks yet.</p>
-          ) : !nbOpen ? (
-            <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={() => setNbOpen(true)}>
-              Open my mistake notebook ({nbTotal})
-            </button>
-          ) : (
-            <>
-              <div className="lt-tsa__filters">
-                <label className="lt-tsa__lbl">
-                  Subject
-                  <select
-                    className="lt-tsa__sel"
-                    value={nbSubject}
-                    onChange={(e) => {
-                      setNbSubject(e.target.value as DisplaySubject | "all");
-                      setNbChapter("all");
-                      setNbShown(NOTEBOOK_PAGE);
-                    }}
-                  >
-                    <option value="all">All</option>
-                    <option value="Maths">Maths</option>
-                    <option value="Science">Science</option>
-                  </select>
-                </label>
-                <label className="lt-tsa__lbl">
-                  Chapter
-                  <select
-                    className="lt-tsa__sel"
-                    value={nbChapter}
-                    onChange={(e) => {
-                      setNbChapter(e.target.value);
-                      setNbShown(NOTEBOOK_PAGE);
-                    }}
-                  >
-                    <option value="all">All chapters</option>
-                    {nbChapters.map((c) => (
-                      <option key={c.chapter} value={c.chapter}>
-                        {c.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              {nbRows.length === 0 ? (
-                <p className="lt-tsa__p">Nothing here for this filter.</p>
-              ) : (
-                <ul className="lt-tsa__list">
-                  {nbRows.slice(0, nbShown).map((r) => (
-                    <li key={`${r.worksheetId}-${r.qNumber}`} className="lt-tsa__row">
-                      <span className="lt-tsa__rowt">
-                        <b>
-                          Q{r.qNumber} · {r.testTitle}
-                        </b>
-                        <span className="lt-tsa__muted">
-                          {" "}
-                          · {r.chapterLabel ?? "Chapter not known"}
-                          {r.subtopic ? ` · ${r.subtopic}` : ""} · {formatMarks(r.awarded)}/{formatMarks(r.total)} ·{" "}
-                          {r.miss ? missLabel(r.miss) : ""}
-                        </span>
-                      </span>
-                      {r.id && r.chapter ? (
-                        <Link
-                          className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
-                          to={retryPracticePath({ subject: r.subject, chapter: r.chapter, ids: [r.id], returnTo })}
-                        >
-                          Practise again
-                        </Link>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {nbRows.length > nbShown && (
-                <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={() => setNbShown((n) => n + NOTEBOOK_PAGE)}>
-                  Show more ({nbRows.length - nbShown})
-                </button>
-              )}
-            </>
-          )}
+          <MistakeNotebook rows={allRows} returnTo={returnTo} />
         </div>
       )}
     </section>
   );
-}
-
-function formatMarks(n: number): string {
-  return Number.isInteger(n) ? String(n) : n.toFixed(1);
 }

@@ -54,6 +54,15 @@ vi.mock("../components/worksheet/worksheetPdfExport", async (importOriginal) => 
   exportGradedWorksheetPdf: sheet.exportGraded,
 }));
 vi.mock("../components/results/useDetailLock", () => ({ useDetailLock: () => sheet.lock }));
+// TEST-SERIES-1: these flows pin the path of an account entitled to every test, written-answer checks, the PDFs and the
+// scorecard's tutor (a Board Pass holder); the free / trial gates are pinned in *.seriesGate.test.tsx.
+const tsGate = vi.hoisted(() => ({ boardPass: true }));
+vi.mock("../components/testSeries/WrittenCheckGate", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../components/testSeries/WrittenCheckGate")>()),
+  useSeriesPaperAccess: () => true,
+  useBoardPassHolder: () => tsGate.boardPass,
+}));
+
 import ChapterTestPage from "./ChapterTestPage";
 
 const CODE = "CT-M-REALNUMBERS-07";
@@ -135,7 +144,10 @@ beforeEach(() => {
   Object.values(writes).forEach((w) => w.mockReset());
   setDoc.mockClear();
 });
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  tsGate.boardPass = true;
+});
 
 describe("FOLLOWUPS-1 B · Chapter Test scorecard -> tutor -> the SAME scorecard", () => {
   it("★★ A+B: the saved scorecard shows ONE button (the lost-marks question) whose hop carries from, q and returnTo=…review=<id>", async () => {
@@ -152,6 +164,21 @@ describe("FOLLOWUPS-1 B · Chapter Test scorecard -> tutor -> the SAME scorecard
     expect(q.get("source")).toBe("scorecard");
     expect(q.get("returnTo")).toBe(`${PAGE}?review=${CODE}`);
     expect(track.mock.calls).toEqual([["tutor_from_scorecard", { surface: "chapter_test" }]]);
+  });
+
+  it("★★ TEST-SERIES-1: without the Board Pass the button stays, and a tap opens the Board Pass card instead of the tutor", async () => {
+    tsGate.boardPass = false;
+    mount();
+    fireEvent.click(await screen.findByText(/Real Numbers · Test #7/));
+    await screen.findByRole("button", { name: "Done" });
+    await waitFor(() => expect(askButtons()).toHaveLength(1));
+    fireEvent.click(askButtons()[0]);
+    const wall = await screen.findByTestId("tutor-board-pass-wall");
+    expect(wall.textContent).toContain("Tutor support comes with the Board Pass — it explains exactly why you lost this mark");
+    expect(screen.getByTestId("tutor-wall-bp").getAttribute("href")).toBe("/board-pass");
+    expect(screen.getByTestId("tutor-wall-ts").getAttribute("href")).toBe("/packs?buy=test_series");
+    expect(lastLocation).not.toMatch(/^\/tutor\//);
+    expect(track).not.toHaveBeenCalled();
   });
 
   it("★★ C: landing on ?review=<id> reopens THAT scorecard once, strips the param with replace, zero recording calls", async () => {

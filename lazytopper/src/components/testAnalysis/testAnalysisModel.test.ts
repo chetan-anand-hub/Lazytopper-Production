@@ -14,7 +14,8 @@ import {
   questionTimeRows,
   retryCountFloor,
   retryPracticePath,
-  sundayLabel,
+  seriesPlanTask,
+  takenSeriesMocks,
   TS_RETRY_SRC,
   tsAnalysisDisabled,
   weakestChapters,
@@ -22,6 +23,7 @@ import {
   type AnalysedQuestion,
 } from "./testAnalysisModel";
 import { mergeQuestionTime, MAX_PAPERS } from "./questionTimes";
+import { seriesSchedule } from "../../lib/testSeries/testSeries";
 
 function idsFor(topicKey: string, n: number): string[] {
   const out: string[] = [];
@@ -255,37 +257,55 @@ describe("TS-ANALYSIS-1 · feature 4 — mistake notebook from real history", ()
   });
 });
 
-describe("TS-ANALYSIS-1 · feature 5 — this week's plan", () => {
-  const now = new Date(2026, 10, 18, 20, 0).getTime(); // Wed 18 Nov 2026
+describe("TS-ANALYSIS-1 · feature 5 — this week's plan (series calendar)", () => {
+  const rows = seriesSchedule("2027-02-17")!;
+  const cal = (todayIso: string, maths: number[] = []) => ({ rows, todayIso, takenMocks: { Maths: maths, Science: [] } });
   const weak = weakestChapters([
     row({ chapter: "triangles", chapterLabel: "Triangles", awarded: 2, total: 10 }),
     row({ chapter: "polynomials", chapterLabel: "Polynomials", awarded: 6, total: 10 }),
   ]);
 
-  it("is deterministic: retry, weakest chapter test, full mock by Sunday", () => {
-    const a = weekPlan({ retry: { count: 6, testTitle: "Full Mock 2" }, weakest: weak, subject: "Maths", now });
-    const b = weekPlan({ retry: { count: 6, testTitle: "Full Mock 2" }, weakest: weak, subject: "Maths", now });
+  it("is deterministic: retry, weakest chapter test, the series task for today's calendar row", () => {
+    const a = weekPlan({ retry: { count: 6, testTitle: "Full Mock 2" }, weakest: weak, subject: "Maths", calendar: cal("2026-11-18") });
+    const b = weekPlan({ retry: { count: 6, testTitle: "Full Mock 2" }, weakest: weak, subject: "Maths", calendar: cal("2026-11-18") });
     expect(a).toEqual(b);
     expect(a.map((t) => t.text)).toEqual([
       "Re-attempt 6 lost-marks questions from Full Mock 2",
       "Chapter Test: Triangles (your weakest, 20%)",
-      "Maths Full Mock by Sun 22 Nov",
+      "Test Series: Chapter Tests, finish by 30 Nov",
     ]);
     expect(a[1].to).toBe("/chapter-test/10/Maths/triangles");
-    expect(a[2].to).toBe("/full-mock/10/Maths");
+    expect(a[2].to).toBe("/test-series");
   });
 
-  it("without a retry, the second-weakest chapter fills the third slot", () => {
-    const p = weekPlan({ retry: null, weakest: weak, subject: "Maths", now });
-    expect(p.map((t) => t.key)).toEqual(["chapter-test", "full-mock", "practise"]);
+  it("pre-board round 1: the next Full-Length Test the student has not sat", () => {
+    const t = seriesPlanTask("Maths", cal("2026-12-05", [1, 2, 4]));
+    expect(t).toEqual({ key: "series", text: "Maths Full-Length Test 3 of 20 (pre-board round 1, by 20 Dec)", to: "/full-mock/10/Maths?paper=3" });
+  });
+
+  it("round 2 in January; between rows the next row to start is used; final revision; no board date → none", () => {
+    expect(seriesPlanTask("Science", cal("2027-01-10"))?.to).toBe("/full-mock/10/Science?paper=11");
+    expect(seriesPlanTask("Maths", cal("2026-12-25"))?.text).toBe("Maths Full-Length Test 11 of 20 (pre-board round 2, by 31 Jan)");
+    expect(seriesPlanTask("Maths", cal("2027-02-03"))?.text).toBe("Test Series final revision: re-attempt your lowest Full-Length Test by 14 Feb");
+    expect(seriesPlanTask("Maths", cal("2027-03-01"))).toBeNull();
+    expect(seriesPlanTask("Maths", { rows: null, todayIso: "2026-11-18", takenMocks: { Maths: [], Science: [] } })).toBeNull();
+  });
+
+  it("a round fully sat points back to the series page", () => {
+    expect(seriesPlanTask("Maths", cal("2026-12-05", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]))?.to).toBe("/test-series");
+  });
+
+  it("taken mocks come from series worksheet ids only", () => {
+    expect(takenSeriesMocks(["fm-ts1-m3--a-b", "fm-ts1-s12--x-y", "fm-plain-1", "ct-ts1-triangles--a-b", "fm-ts1-m3--c-d"])).toEqual({ Maths: [3], Science: [12] });
+  });
+
+  it("without a retry, the second-weakest chapter fills the third slot when there's no series task", () => {
+    const p = weekPlan({ retry: null, weakest: weak, subject: "Maths", calendar: cal("2027-03-01") });
+    expect(p.map((t) => t.key)).toEqual(["chapter-test", "practise"]);
   });
 
   it("no data → no plan (honest empty)", () => {
-    expect(weekPlan({ retry: null, weakest: [], subject: "Maths", now })).toEqual([]);
-  });
-
-  it("Sunday label is today on a Sunday", () => {
-    expect(sundayLabel(new Date(2026, 10, 22, 9).getTime())).toBe("Sun 22 Nov");
+    expect(weekPlan({ retry: null, weakest: [], subject: "Maths", calendar: cal("2026-11-18") })).toEqual([]);
   });
 });
 

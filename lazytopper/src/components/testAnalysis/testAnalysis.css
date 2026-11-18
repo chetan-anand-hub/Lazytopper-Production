@@ -28,3 +28,8 @@ thead .lt-tsa__c { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; te
   .lt-tsa__card { padding: 14px; }
   .lt-tsa__row { flex-direction: column; align-items: flex-start; }
 }
+.lt-tsa__plainbtn { cursor: pointer; }
+.lt-tsa--section { padding: 0; margin: 0 auto; }
+/* Outside the test pages (/test-series) CT_CSS is absent: give the shared button classes a local look. */
+.lt-tsa--section .lt-ct__btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 8px 14px; border-radius: 10px; font: inherit; font-size: 13.5px; font-weight: 700; text-decoration: none; background: #fff; color: #0f1f3d; border: 1px solid #d5dce6; cursor: pointer; }
+.lt-tsa--section .lt-ct__btn:hover { border-color: #6b7a90; }

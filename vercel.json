@@ -97,6 +97,10 @@
       "destination": "/__shell.html"
     },
     {
+      "source": "/:path(test-series/?)",
+      "destination": "/__shell.html"
+    },
+    {
       "source": "/:path(cbq-packs/?)",
       "destination": "/__shell.html"
     },

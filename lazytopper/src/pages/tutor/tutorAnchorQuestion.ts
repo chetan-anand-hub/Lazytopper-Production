@@ -78,7 +78,8 @@ export function buildAnchorQuestion(
   if (format) out.format = format;
   if (typeof row.marks === "number" && row.marks > 0) out.marks = row.marks;
   if (rawOptions.length > 0) {
-    out.options = rawOptions.slice(0, LETTERS.length).map((o, i) => `${LETTERS[i]}. ${o}`);
+    // TUTOR-FIX-1 - many bank rows already store "A. 6": strip that so the tutor never reads "A. A. 6".
+    out.options = rawOptions.slice(0, LETTERS.length).map((o, i) => `${LETTERS[i]}. ${o.replace(/^\(?[A-Ha-h][.)]\s+/, "")}`);
     const at = resolveCorrectOptionIndex(str(row.correctOption) || undefined, str(row.answer) || undefined, rawOptions);
     if (at >= 0 && at < LETTERS.length) out.answerLetter = LETTERS[at];
   }

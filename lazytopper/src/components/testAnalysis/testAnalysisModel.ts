@@ -19,6 +19,14 @@ import { bankRowMeta } from "../../data/bankChapters/bankIdIndex";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
 import type { SessionPerQuestionPayload, SessionRecord, SessionSubject } from "../../services/sessionRecords";
+import {
+  currentScheduleRow,
+  fullMockSeriesHref,
+  seriesKeyOfWorksheetId,
+  SERIES_MOCKS_PER_SUBJECT,
+  TEST_SERIES_PATH,
+  type SeriesScheduleRow,
+} from "../../lib/testSeries/testSeries";
 
 export type AnalysisSurface = "chapter-test" | "full-mock";
 export type DisplaySubject = "Maths" | "Science";
@@ -317,18 +325,69 @@ export function missLabel(kind: MissKind): string {
 /* ── 5. this week's plan ────────────────────────────────────────────────────────────────── */
 
 export interface PlanTask {
-  key: "retry" | "chapter-test" | "full-mock" | "practise";
+  key: "retry" | "chapter-test" | "series" | "practise";
   text: string;
   /** A route, or null when the task points at the re-attempt block on this page. */
   to: string | null;
 }
 
-/** The coming Sunday (today if it is Sunday), as "Sun 23 Nov" in IST-agnostic local date. */
-export function sundayLabel(now: number): string {
-  const d = new Date(now);
-  const add = (7 - d.getDay()) % 7;
-  const sun = new Date(d.getFullYear(), d.getMonth(), d.getDate() + add);
-  return `Sun ${sun.getDate()} ${sun.toLocaleString("en-GB", { month: "short" })}`;
+/** The Pre-Boards Test Series calendar as the plan reads it (TEST-SERIES-1, lib/testSeries). */
+export interface SeriesCalendarInput {
+  /** `seriesSchedule(predictCbseExamDate("10"))`; null when the board date can't be read. */
+  rows: readonly SeriesScheduleRow[] | null;
+  /** IST "YYYY-MM-DD". */
+  todayIso: string;
+  /** Series Full-Length Test numbers the student has already sat, per subject (from their records). */
+  takenMocks: Readonly<Record<DisplaySubject, readonly number[]>>;
+}
+
+function shortDate(iso: string): string {
+  const [, m, d] = iso.split("-").map(Number);
+  return `${d} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][m - 1]}`;
+}
+
+/** Series Full-Length Test numbers the records show as sat (any status), per subject. */
+export function takenSeriesMocks(worksheetIds: Iterable<string>): Record<DisplaySubject, number[]> {
+  const out: Record<DisplaySubject, number[]> = { Maths: [], Science: [] };
+  for (const id of worksheetIds) {
+    const k = seriesKeyOfWorksheetId(id);
+    if (k?.kind === "mock" && !out[k.subject].includes(k.n)) out[k.subject].push(k.n);
+  }
+  out.Maths.sort((a, b) => a - b);
+  out.Science.sort((a, b) => a - b);
+  return out;
+}
+
+/** The series-calendar task for this week: the row covering today, else the next row to start. */
+export function seriesPlanTask(subject: DisplaySubject, cal: SeriesCalendarInput): PlanTask | null {
+  if (!cal.rows || cal.rows.length === 0) return null;
+  const id = currentScheduleRow(cal.rows, cal.todayIso);
+  const row = id ? cal.rows.find((r) => r.id === id) : cal.rows.find((r) => r.from !== null && r.from > cal.todayIso);
+  if (!row) return null;
+  const by = shortDate(row.to);
+  if (row.id === "chapters") {
+    return { key: "series", text: `Test Series: Chapter Tests, finish by ${by}`, to: TEST_SERIES_PATH };
+  }
+  if (row.id === "final") {
+    return { key: "series", text: `Test Series final revision: re-attempt your lowest Full-Length Test by ${by}`, to: TEST_SERIES_PATH };
+  }
+  const half = Math.ceil(SERIES_MOCKS_PER_SUBJECT / 2);
+  const [lo, hi] = row.id === "round1" ? [1, half] : [half + 1, SERIES_MOCKS_PER_SUBJECT];
+  const taken = new Set(cal.takenMocks[subject] ?? []);
+  let n: number | null = null;
+  for (let i = lo; i <= hi; i++) {
+    if (!taken.has(i)) {
+      n = i;
+      break;
+    }
+  }
+  const round = row.id === "round1" ? "pre-board round 1" : "pre-board round 2";
+  if (n === null) return { key: "series", text: `${subject} ${round} done: review it on Test Series`, to: TEST_SERIES_PATH };
+  return {
+    key: "series",
+    text: `${subject} Full-Length Test ${n} of ${SERIES_MOCKS_PER_SUBJECT} (${round}, by ${by})`,
+    to: fullMockSeriesHref(subject, n),
+  };
 }
 
 export function weekPlan(args: {
@@ -336,7 +395,7 @@ export function weekPlan(args: {
   retry: { count: number; testTitle: string } | null;
   weakest: readonly WeakChapter[];
   subject: DisplaySubject;
-  now: number;
+  calendar: SeriesCalendarInput;
 }): PlanTask[] {
   const tasks: PlanTask[] = [];
   if (args.retry && args.retry.count > 0) {
@@ -352,7 +411,8 @@ export function weekPlan(args: {
     });
   }
   if (tasks.length === 0) return [];
-  tasks.push({ key: "full-mock", text: `${args.subject} Full Mock by ${sundayLabel(args.now)}`, to: `/full-mock/10/${args.subject}` });
+  const series = seriesPlanTask(args.subject, args.calendar);
+  if (series) tasks.push(series);
   if (tasks.length < 3 && args.weakest[1]) {
     const w2 = args.weakest[1];
     tasks.push({ key: "practise", text: `Practise ${w2.label} (${w2.pct}%)`, to: w2.practiseTo });

@@ -51,6 +51,7 @@ const P8_PAGES = [
   "packs.html", // PACKS-LEGAL-1 — /packs renders the public footer, now prerendered
   "board-pass.html", // PRICING-PAGES-1 — the two dedicated sales pages render the public footer
   "cbq-packs.html",
+  "test-series.html", // TEST-SERIES-1 — the Pre-Boards Test Series page renders the public footer
   // SEO-PAGES-1 — the three search-landing pages render the public footer
   "mock-test-class-10.html",
   "question-bank-class-10.html",
