@@ -506,7 +506,9 @@ export default function CheckoutSheet({
         <p className="lt-gps__line" data-testid="who-holder-title"><strong>{isPack ? `You already own the ${item.label}` : "You already have the Board Pass"}</strong></p>
         <p className="lt-gps__line" data-testid="who-holder-line">
           {isPack
-            ? "Your files are in My packs, ready to download."
+            ? item.sku === "test_series"
+              ? "Your Test Series is ready. Start it from My packs."
+              : "Your files are in My packs, ready to download."
             : `It's active till your boards${holder?.until ? ` (until ${holder.until})` : ""}. There's nothing more to pay.`}
         </p>
         <button type="button" className="lt-gps__primary" onClick={() => setStep({ name: "form" })} data-testid="who-holder-other">Buy for someone else</button>

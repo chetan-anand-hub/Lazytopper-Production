@@ -96,8 +96,8 @@ describe("SettingsModal · Your limits", () => {
     modal();
     await screen.findByTestId("usage-card");
     expect(screen.getByTestId("usage-row-checks").textContent).toContain("3 left");
-    expect(screen.getByTestId("usage-row-chapter-test").textContent).toContain("1 left");
-    expect(screen.getByTestId("usage-row-mock").textContent).toContain("1 left");
+    expect(screen.queryByTestId("usage-row-chapter-test")).toBeNull(); // MYPACKS-TS-1
+    expect(screen.queryByTestId("usage-row-mock")).toBeNull();
     expect(screen.getByTestId("usage-row-worksheet").textContent).toContain("2 left");
     expect(screen.queryByTestId("usage-empty")).toBeNull();
   });

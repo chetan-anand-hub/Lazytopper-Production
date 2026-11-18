@@ -46,6 +46,9 @@ export const ISLAND_PATH_PREFIXES: readonly string[] = [
   // PARENTS-V2-1 (owner 12 Nov: "ensure that the page speed is at par with google ad rank"): the rebuilt parents' sales page, served
   // exactly like /board-pass (idle upgrade below: its Pay, events and the phone bar are the app's).
   "/for-parents",
+  // TS-PAGE-2 (owner 18 Nov: "as fast as our best pages, for Google Ads landing-page rank"): the Test Series sales page, served
+  // exactly like /board-pass (idle upgrade below: its Buy, prices, tabs/accordions and signed-in progress are the app's).
+  "/test-series",
 ];
 
 /**
@@ -53,7 +56,7 @@ export const ISLAND_PATH_PREFIXES: readonly string[] = [
  * waiting for a tap or a scroll: the app owns the pack events (pack_view, pack_checkout, guest_pay_*) and the offer
  * strip, and a visitor who read the page and left without touching it must still be counted.
  */
-export const IDLE_UPGRADE_PATHS: readonly string[] = ["/packs", "/board-pass", "/cbq-packs", "/for-parents"];
+export const IDLE_UPGRADE_PATHS: readonly string[] = ["/packs", "/board-pass", "/cbq-packs", "/for-parents", "/test-series"];
 /** The idle wait (requestIdleCallback timeout, ms) after `load` (SPEED-PACKS-3 round 3: 200, so the app-rendered Buy buttons appear soon) before an idle-upgrade page loads the app. */
 export const IDLE_UPGRADE_TIMEOUT_MS = 200;
 

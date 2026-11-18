@@ -2,7 +2,7 @@
  * PaidSheet - PAID-SHEET-1 (owner 12 Nov 2026): the signed-in buyer's "payment received" moment is a pop-up, not a block that waits
  * at the bottom of the page. Top to bottom: tick + "Payment received" + what was bought, "Receipt sent to your email.", ONE primary
  * button (packs: Download files; Board Pass: Start practising), then the existing "Who will use this?" card, then (Board Pass only)
- * the CBQ Packs offer. Phone: bottom sheet (88vh, scrolls inside). Desktop: centred card, 520px. Esc / backdrop / X close it.
+ * the CBQ Packs offer. PAID-XSELL-1: "Goes well with what you just bought" (PaidCrossSellLazy) sits just above that offer. Phone: bottom sheet (88vh, scrolls inside). Desktop: centred card, 520px. Esc / backdrop / X close it.
  * Mounted lazily by PaidSheetLazy, only after a confirmed paid outcome - never on first paint. Nothing here grants anything.
  */
 import { useCallback, useEffect, useRef, type ReactNode } from "react";
@@ -11,6 +11,8 @@ import { sendAnalyticsHit } from "../../analytics/analytics";
 import type { MoveTarget } from "../signinLink/signinLinkModel";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 import PostPayGstLazy from "../gstInvoice/PostPayGstLazy";
+import PaidCrossSellLazy from "./PaidCrossSellLazy";
+import { classifyBought, type BoughtKind } from "./paidCrossSellModel";
 import "./paidSheet.css";
 
 export const PAID_SHEET_TITLE = "Payment received";
@@ -37,6 +39,11 @@ export interface PaidSheetProps {
   moved?: boolean;
   /** Shown below the who-card (the Board Pass sheet passes the CBQ Packs offer). */
   below?: ReactNode;
+  /**
+   * PAID-XSELL-1: what was bought, for "Goes well with what you just bought". Optional: when absent it is read from itemKind +
+   * itemName (the hosts' fixed names); an unrecognised name suggests nothing.
+   */
+  bought?: BoughtKind | null;
 }
 
 function sendShown(surface: string, itemKind: string): void {
@@ -49,7 +56,7 @@ function sendShown(surface: string, itemKind: string): void {
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export default function PaidSheet({ surface, itemKind, itemName, primaryLabel, receiptLine, onPrimary, onClose, move, onMoved, onAnswered, moved, below }: PaidSheetProps) {
+export default function PaidSheet({ surface, itemKind, itemName, primaryLabel, receiptLine, onPrimary, onClose, move, onMoved, onAnswered, moved, below, bought }: PaidSheetProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const shown = useRef(false);
 
@@ -126,6 +133,14 @@ export default function PaidSheet({ surface, itemKind, itemName, primaryLabel, r
         </div>
         {/* GST-AFTER-PAY-1: the signed-in buyer's state + PIN, after paying; only for an order the host knows (move.orderId). */}
         {move?.orderId && <PostPayGstLazy orderId={move.orderId} />}
+        {!moved && (
+          <PaidCrossSellLazy
+            bought={bought === undefined ? classifyBought(itemKind, itemName) : bought}
+            surface={surface}
+            hostOffersCbq={itemKind === "pass" && Boolean(below)}
+            onLeave={onClose}
+          />
+        )}
         {!moved && below}
       </div>
     </div>,

@@ -76,16 +76,7 @@ export function UsageCardView({
               <span className="lt-usage__row-value">{leftWord(t.checksLeftToday)}</span>
               <ResetNote at={t.resets.checks} now={nowMs} />
             </li>
-            <li className="lt-usage__row" data-testid="usage-row-chapter-test">
-              <span className="lt-usage__row-name">Chapter test today</span>
-              <span className="lt-usage__row-value">{leftWord(t.chapterTestsLeftToday)}</span>
-              <ResetNote at={t.resets.chapterTests} now={nowMs} />
-            </li>
-            <li className="lt-usage__row" data-testid="usage-row-mock">
-              <span className="lt-usage__row-name">Full mock this week</span>
-              <span className="lt-usage__row-value">{leftWord(t.mocksLeft)}</span>
-              <ResetNote at={t.resets.mocks} now={nowMs} />
-            </li>
+            {/* MYPACKS-TS-1: no "chapter test / full mock left" rows - on those two surfaces a trial account takes one test and gets MCQs marked; written answers are the Test Series / Board Pass (TEST-SERIES-1). */}
             <li className="lt-usage__row" data-testid="usage-row-worksheet">
               <span className="lt-usage__row-name">Worksheet this week</span>
               <span className="lt-usage__row-value">{leftWord(t.worksheetsLeft)}</span>

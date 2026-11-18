@@ -297,6 +297,17 @@ async function finishPayingQuote(db, uid, product, nowMs) {
       const base = quotePass(stored, 'till_boards', nowMs);
       const credit = await boardPassCreditFor(db, uid, 'till_boards', base.pricePaidInr, nowMs);
       const applied = applyCreditToQuote(base, credit);
+      // TS-UPGRADE-CREDIT-1: exactly as the order route - with no pack credit, a Test Series owner's "Finish paying" is the
+      // upgrade (918 + 165 = 1083 founding). The quote's `gst` is then the upgrade's own breakup, so the text adds up to it.
+      // Nothing changes for anyone else (no Test Series / not provable / kill switch -> the quote is untouched).
+      if (applied.packCreditInr === 0) {
+        const { testSeriesUpgradeCreditFor, applyTsCreditToQuote } = require('./tsUpgradeCredit.cjs');
+        const ts = await testSeriesUpgradeCreditFor(db, uid, 'till_boards');
+        if (ts.creditBaseInr > 0) {
+          const up = applyTsCreditToQuote(applied.quote, ts, nowMs);
+          if (up.fields.tsUpgradeCreditInr > 0) return { amountPaise: up.quote.amountPaise, gst: up.quote.gst, packCreditInr: 0 };
+        }
+      }
       return { amountPaise: applied.quote.amountPaise, gst: applied.quote.gst, packCreditInr: applied.packCreditInr };
     }
     const { PACK_PRODUCTS } = require('./packProducts.cjs');

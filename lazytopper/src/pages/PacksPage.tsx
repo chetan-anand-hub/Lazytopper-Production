@@ -12,6 +12,7 @@ import PacksShop, { warmPacksCheckout, OTHER_PAYMENT_BUSY_COPY, PACKS_RETURN_PAT
 import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT, TEST_SERIES_NAME } from "../lib/packs/packLabels";
 import { seriesContentsLine, testSeriesPackLine } from "../lib/testSeries/testSeries";
 import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
+import { usePaidPremium } from "../lib/packs/usePaidPremium";
 import { chaptersOfSubject, isTestSeriesPackOffered, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
 import PackSampleLink, { PackSampleChoice, SampleBuyNext } from "../components/packs/PackSampleLink";
 import SubjectSwitch from "../components/packs/SubjectSwitch";
@@ -369,8 +370,12 @@ export const TEST_SERIES_HEADING = "Test Series";
 export const TEST_SERIES_CONTENTS = `Includes: ${seriesContentsLine()} · written answers checked step by step, twice per paper · till 31 May 2027.`;
 export const TEST_SERIES_EXCLUDES = "Does not include: the Board Pass, the tutor, the Answer Checker or the PDF packs.";
 
+/** MYPACKS-TS-1: shown instead of Buy to a Board Pass holder - the Test Series would give them nothing new. */
+export const TEST_SERIES_INCLUDED_LINE = "Included in your Board Pass";
+
 function TestSeriesCard({ api }: { api: PacksShopApi }) {
   const gst = packGstBreakdown("test_series");
+  const paidPass = usePaidPremium();
   return (
     <section className="lt-pk-part lt-pk-ts" aria-labelledby="packs-ts-h" data-testid="packs-test-series">
       <div className="lt-packs__w">
@@ -389,9 +394,15 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
                 {gst && <p className="lt-pk-row__gst" data-testid="tile-gst-test_series">{gst}</p>}
               </div>
             </details>
+            {paidPass ? (
+              <Link className="lt-pk-row__incl" to="/test-series" data-testid="packs-test-series-included">
+                {TEST_SERIES_INCLUDED_LINE} &rarr;
+              </Link>
+            ) : (
             <BuyBox twin="pk-buy-test-series" api={api} neutral={`Test Series · ${packPayLabel("test_series")}`} gstSku="test_series" onNeutral={() => api.openPack("test_series")}>
               <PackTileBuy sku="test_series" api={api} />
             </BuyBox>
+            )}
           </div>
         </div>
       </div>

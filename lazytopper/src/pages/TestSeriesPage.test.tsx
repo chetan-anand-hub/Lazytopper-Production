@@ -17,6 +17,15 @@ const records = vi.hoisted(() => ({ list: [] as unknown[], calls: 0 }));
 
 vi.mock("../context/AuthContext", () => ({ useAuth: () => mockAuth }));
 vi.mock("../hooks/useSubscription", () => ({ useSubscription: () => mockSub }));
+// TS-PAGE-2: server truth for a Test Series Pack owner (GET /api/packs/mine) — mocked with MYPACKS-TS-1's `phase`.
+const mockOwn = vi.hoisted(() => ({ owns: false, known: true, noPhase: false }));
+vi.mock("../components/testSeries/testSeriesOwnership", () => ({
+  useTestSeriesOwnership: (uid: string | null | undefined) => ({
+    owns: Boolean(uid) && mockOwn.owns,
+    status: null,
+    ...(mockOwn.noPhase ? {} : { phase: !uid ? "idle" : mockOwn.known ? "ready" : "loading" }),
+  }),
+}));
 vi.mock("../services/sessionRecords", () => ({
   getSessionRecordsFromCloud: vi.fn(async () => {
     records.calls += 1;
@@ -47,6 +56,9 @@ beforeEach(() => {
   mockSub.status = { tier: "free" };
   records.list = [];
   records.calls = 0;
+  mockOwn.owns = false;
+  mockOwn.known = true;
+  mockOwn.noPhase = false;
   vi.setSystemTime(new Date("2026-11-18T19:00:00+05:30"));
 });
 afterEach(() => cleanup());
@@ -56,15 +68,17 @@ describe("/test-series — signed out", () => {
     await mount();
     const t = seriesTotals();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("CBSE Class 10 Test Series");
-    expect(screen.getByTestId("ts-contents").textContent).toContain(`${t.chapterTests} chapter tests + ${t.fullMocks} full-length tests`);
+    expect(screen.getByTestId("ts-contents").textContent).toBe(
+      `${t.chapterTests} chapter tests + ${t.fullMocks} full-length board papers · written answers checked step by step`,
+    );
     expect(screen.getByTestId("ts-rule").textContent).toBe("MCQs marked free · written answers checked with the Test Series or the Board Pass");
     for (const test of [...seriesChapterTests(), ...seriesFullMocks()]) {
       expect(screen.getByTestId(`ts-test-${test.code}`).getAttribute("href")).toBe(test.href);
     }
-    expect(screen.getByRole("heading", { level: 2, name: `Full-Length Tests (${t.fullMocks})` })).toBeTruthy();
     expect(within(screen.getByTestId("ts-sec-full")).getAllByTestId("ts-chip")).toHaveLength(t.fullMocks);
     expect(within(screen.getByTestId("ts-sec-chapter")).getAllByTestId("ts-chip")).toHaveLength(t.chapterTests);
-    expect(screen.getByRole("heading", { level: 2, name: `Chapter Tests (${t.chapterTests})` })).toBeTruthy();
+    expect(screen.getByTestId("ts-tab-chapter").textContent).toBe(`Chapter Tests ${t.chapterTests}`);
+    expect(screen.getByTestId("ts-tab-full").textContent).toBe(`Full-Length Tests ${t.fullMocks}`);
   });
   it("shows a sign-in prompt and no progress — nothing is read, nothing invented", async () => {
     await mount();
@@ -76,10 +90,14 @@ describe("/test-series — signed out", () => {
   });
   it("the calendar is marked at today's row; Test Series and Board Pass offers side by side, plus printed papers", async () => {
     await mount();
-    expect(screen.getByTestId("ts-cal-chapters").className).toContain("is-now");
+    expect(within(screen.getByTestId("ts-cal-chapters")).getByTestId("ts-cal-now").hasAttribute("data-lt-clock")).toBe(true);
+    expect(screen.getAllByTestId("ts-cal-now")).toHaveLength(1);
+    expect(screen.getByTestId("ts-urgency").textContent).toBe("Founding season: the Board Pass is ₹1,917 + GST till 30 November");
+    expect(screen.getByTestId("ts-cta-hero").getAttribute("href")).toBe("/packs?buy=test_series");
     const ts = screen.getByTestId("ts-offer-ts");
     expect(within(ts).getByTestId("till-boards-figures").textContent).toBe(`${packPriceLabel("test_series")} till your boards`);
     expect(ts.textContent).toContain("₹999 + GST till your boards");
+    expect(ts.textContent).toContain("2 checks per paper");
     expect(screen.getByTestId("ts-cta-buy").getAttribute("href")).toBe("/packs?buy=test_series");
     const bp = screen.getByTestId("ts-offer-bp");
     expect(within(bp).getByTestId("till-boards-figures").textContent).toBe("₹1,917 + GST till your boards");
@@ -87,8 +105,11 @@ describe("/test-series — signed out", () => {
     expect(bp.textContent).toContain("Your personal tutor");
     expect(bp.textContent).toContain("Mistake Intelligence");
     expect(screen.getByTestId("ts-bp-link").getAttribute("href")).toBe("/board-pass");
-    expect(screen.getByTestId("ts-packs").getAttribute("href")).toBe("/packs");
-    expect(screen.getByTestId("ts-packs").textContent).toContain("PDF Packs / Bundle");
+    // Owner rulings 19 Nov: no PDF-pack upsell on this page (it competes with the Test Series), and no overlap language.
+    expect(screen.queryByTestId("ts-packs")).toBeNull();
+    expect(document.querySelector('a[href="/packs"]')).toBeNull();
+    expect(document.body.textContent).not.toMatch(/PDF Pack|same papers|Mock Pack|printed/i);
+    expect(within(screen.getByTestId("ts-offers")).getAllByText(/^(Test Series|Board Pass)$/)).toHaveLength(2);
     expect(screen.getByTestId("ts-how").textContent).toContain("The Test Series checks every written answer step by step");
   });
   it("from 1 Dec the Board Pass card shows its list price; the Test Series price is its own constant", async () => {
@@ -96,6 +117,8 @@ describe("/test-series — signed out", () => {
     await mount();
     expect(screen.getByTestId("ts-offer-bp").textContent).toContain("₹2,499 + GST till your boards");
     expect(screen.getByTestId("ts-offer-ts").textContent).toContain("₹999 + GST till your boards");
+    // The founding line is shown only while that offer is really open.
+    expect(screen.getByTestId("ts-urgency").textContent).toBe("");
   });
   it("carries none of the banned words", async () => {
     await mount();
@@ -120,9 +143,11 @@ describe("/test-series — signed in", () => {
     expect(records.calls).toBe(1);
     expect(screen.getByTestId("ts-done").textContent).toBe(`3 of ${seriesTotals().total} tests done.`);
     expect(screen.getByTestId("ts-test-CT-M01").textContent).toContain("24/30");
-    expect(within(screen.getByTestId("ts-test-CT-M02")).getByTestId("ts-chip").textContent).toBe("Attempted");
+    expect(screen.getByTestId("ts-test-CT-M01").getAttribute("aria-label")).toBe("Chapter Test 1, Real Numbers, graded 24 of 30");
+    expect(within(screen.getByTestId("ts-test-CT-M02")).getByTestId("ts-chip").getAttribute("data-status")).toBe("attempted");
+    expect(screen.getByTestId("ts-test-CT-M02").getAttribute("aria-label")).toBe("Chapter Test 2, Polynomials, attempted");
     expect(within(screen.getByTestId("ts-test-FM-M2")).getByTestId("ts-chip").textContent).toBe("60/80");
-    expect(within(screen.getByTestId("ts-test-FM-M1")).getByTestId("ts-chip").textContent).toBe("Start");
+    expect(screen.getByTestId("ts-test-FM-M1").getAttribute("aria-label")).toBe("Full-Length Test 1, Maths, not started");
     expect(screen.getByTestId("ts-trend-Maths").textContent).toContain("M2 · 75%");
     expect(screen.getByTestId("ts-trend-Science").textContent).toContain("No graded test yet");
   });
@@ -137,7 +162,67 @@ describe("/test-series — signed in", () => {
     mockSub.status = { tier: "premium" };
     await mount();
     expect(screen.queryByTestId("ts-cta-buy")).toBeNull();
+    expect(screen.queryByTestId("ts-cta-hero")).toBeNull();
     expect(screen.getByTestId("ts-cta-owner")).toBeTruthy();
+  });
+});
+
+describe("/test-series — TS-PAGE-2 owners, tabs and accordions", () => {
+  it("a Test Series owner sees Continue (their first untaken test), progress, and the plans collapsed — never a buy prompt", async () => {
+    mockAuth.user = { uid: "u1" };
+    mockOwn.owns = true;
+    records.list = [{ worksheetId: "ct-ts1-real-numbers--a", surface: "chapter-test", status: "graded", marksAwarded: 24, marksTotal: 30, gradedAt: 2 }];
+    await mount();
+    expect(screen.queryByTestId("ts-cta-buy")).toBeNull();
+    expect(screen.queryByTestId("ts-cta-hero")).toBeNull();
+    const cont = screen.getByTestId("ts-continue");
+    expect(cont.textContent).toBe("Continue: CT-M02 →");
+    expect(cont.getAttribute("href")).toBe(seriesChapterTests()[1].href);
+    expect(screen.getByTestId("ts-done").textContent).toBe(`1 of ${seriesTotals().total} tests done.`);
+    expect(screen.getByTestId("ts-prog-ct-Maths").textContent).toBe(`1/${seriesChapterTests().filter((c) => c.subject === "Maths").length} done`);
+    const toggle = screen.getByTestId("ts-plans-toggle");
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(document.getElementById("ts-plans-panel")?.hidden).toBe(true);
+    await act(async () => toggle.click());
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByTestId("ts-cta-owner").textContent).toBe("You own the Test Series.");
+  });
+  it("signed in while ownership is unknown: a neutral CTA, neither buy nor continue", async () => {
+    mockAuth.user = { uid: "u1" };
+    mockOwn.known = false;
+    await mount();
+    expect(screen.queryByTestId("ts-cta-hero")).toBeNull();
+    expect(screen.queryByTestId("ts-continue")).toBeNull();
+    expect(screen.getByTestId("ts-cta-tests").getAttribute("href")).toBe("#ts-tests");
+  });
+  it("today's hook (no `phase`): an owner gets Continue once the records read has answered", async () => {
+    mockAuth.user = { uid: "u1" };
+    mockOwn.owns = true;
+    mockOwn.noPhase = true;
+    await mount();
+    expect(screen.getByTestId("ts-continue").textContent).toBe("Continue: CT-M01 →");
+    expect(screen.queryByTestId("ts-cta-buy")).toBeNull();
+  });
+  it("tabs switch the visible panel; every test is one compact tile link with an accessible name; rounds from code", async () => {
+    await mount();
+    const chapterTab = screen.getByTestId("ts-tab-chapter");
+    const fullTab = screen.getByTestId("ts-tab-full");
+    expect(chapterTab.getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByTestId("ts-sec-full").hidden).toBe(true);
+    // Both subjects sit visible together in a tab (no accordion), every tile a link with no separate Start pill.
+    expect(screen.getByTestId("ts-subj-ct-Maths")).toBeTruthy();
+    expect(screen.getByTestId("ts-subj-ct-Science")).toBeTruthy();
+    expect(screen.queryByText("Start")).toBeNull();
+    expect(screen.getByTestId("ts-test-CT-S01").getAttribute("aria-label")).toMatch(/^Chapter Test 1, .+, not started$/);
+    await act(async () => fullTab.click());
+    expect(fullTab.getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByTestId("ts-sec-chapter").hidden).toBe(true);
+    expect(screen.getByTestId("ts-sec-full").hidden).toBe(false);
+    // Full-length tests grouped by the calendar's two rounds (counts from code).
+    const rounds = within(screen.getByTestId("ts-mocks-Maths")).getAllByRole("list");
+    expect(rounds).toHaveLength(2);
+    expect(rounds[0].querySelectorAll("a")).toHaveLength(Math.ceil(seriesTotals().mocksPerSubject / 2));
+    expect(screen.getByTestId("ts-mocks-Maths").textContent).toContain("Round 1 (Dec): 1–10");
   });
 });
 

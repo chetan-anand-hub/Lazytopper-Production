@@ -141,6 +141,8 @@ test('REFUSALS leave NO stray account: not yours, unpaid, >24 h, moved before, u
     [harness({ seed: seedPack({ paidAt: new Date(NOW - 25 * HOUR) }) }), 'o1', 'too_late', 409],
     [harness({ seed: seedPack({ movedToOtherAt: new Date(NOW - HOUR) }) }), 'o1', 'moved_before', 409],
     [harness({ seed: seedPack({ payer: 'guest' }) }), 'o1', 'unsupported', 409],
+    // TS-UPGRADE-CREDIT-1: a Test Series upgrade pass - the same response / event as a pack-credited pass.
+    [harness({ seed: seedPass({ 'payOrders/o2': { uid: 'buyer', passType: 'till_boards', status: 'paid', paymentId: 'pay_2', paidAt: new Date(NOW - 2 * HOUR), tsUpgradeCreditInr: 999 } }) }), 'o2', 'unsupported', 409],
     [harness({ seed: seedPass({ [`usageLedger/buyer/days/2026-11-12`]: { hourCostMicroInr: { 14: 5 } } }) }), 'o2', 'used', 409],
   ];
   for (const [h, orderId, reason, status] of cases) {

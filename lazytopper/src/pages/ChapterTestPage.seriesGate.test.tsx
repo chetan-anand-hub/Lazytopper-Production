@@ -23,6 +23,8 @@ vi.mock("../context/AuthContext", () => ({
   useAuth: () => ({ user: { uid: "student-1", isLocalSession: false, email: "s@x.com" }, loading: false }),
 }));
 vi.mock("../services/firebaseClient", () => ({ firestoreDb: null }));
+// MYPACKS-TS-1: ownership is a three-state read now; a student who owns nothing resolves to "not owned" (the upgrade card), a failed read is a retry.
+vi.mock("../services/packs", async (orig) => ({ ...(await orig<typeof import("../services/packs")>()), fetchMyPacks: async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: null }) }));
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: () => {} }));
 vi.mock("../components/usage/useFairUse", () => ({
   useFairUse: () => ({ limit: null, clearLimit: () => {}, noteGraded: () => {}, handleRefusal: async () => false, blockPaperStart: () => false }),
@@ -68,6 +70,7 @@ describe.each(["free", "trial", "premium"] as const)("Chapter Test · %s account
     await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 });
     if (entitled) {
       expect(screen.getByRole("button", { name: /Download this test/ })).toBeTruthy();
+      expect(document.body.textContent).not.toMatch(/Download & print with|first download is free/);
       expect(screen.queryByTestId("download-with-plan")).toBeNull();
     } else {
       expect(screen.queryByRole("button", { name: /Download this test/ })).toBeNull();
@@ -99,7 +102,7 @@ describe.each(["free", "trial", "premium"] as const)("Chapter Test · %s account
 
   it(`with one test already taken: ${entitled ? "starts another" : "the upgrade wall, no new paper"}`, async () => {
     sub.tier = tier;
-    prior.list = [{ id: "FM-M-01", worksheetId: "fm-old", surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: 1 }];
+    prior.list = [{ id: "FM-M-01", worksheetId: "fm-old", surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: Date.parse("2026-11-19T00:00:00Z") }];
     mount();
     fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 }));
     if (entitled) {

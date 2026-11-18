@@ -36,6 +36,8 @@ const pricing = require('./passPricing.cjs');
 // grant transaction. Only the collection / segment names are taken from packGrant.
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('./packGrant.cjs');
 const { parseCreditIds, BOARD_PASS_TYPE } = require('./packCredit.cjs');
+// TS-UPGRADE-CREDIT-1: a Board Pass order credited with the student's Test Series Pack marks that entitlement, once.
+const { isConsistentTsUpgradeOrder } = require('./tsUpgradeCredit.cjs');
 
 const FIRESTORE_COLLECTION = 'subscriptions';
 /**
@@ -247,6 +249,17 @@ async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {
     );
     const packSnaps = [];
     for (const r of packRefs) packSnaps.push(await tx.get(r));
+    // TS-UPGRADE-CREDIT-1: the Test Series entitlement this order was credited with (from the STORED order only). Read here,
+    // before any write. An order whose credit fields do not agree with each other still grants (the money was paid) and is
+    // flagged as a conflict below.
+    const orderData = orderSnap && orderSnap.exists ? orderSnap.data() || {} : null;
+    const tsCredited =
+      !!orderData && request.passType === BOARD_PASS_TYPE && Number.isInteger(orderData.tsUpgradeCreditInr) && orderData.tsUpgradeCreditInr > 0;
+    const tsPackRef =
+      tsCredited && isConsistentTsUpgradeOrder(orderData)
+        ? firestore.collection(ENTITLEMENTS_COLLECTION).doc(request.uid).collection(PACK_SEGMENTS.packs).doc(orderData.tsUpgradeCreditPackId)
+        : null;
+    const tsPackSnap = tsPackRef ? await tx.get(tsPackRef) : null;
 
     let order = null;
     if (orderRef) {
@@ -286,7 +299,9 @@ async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {
       // GST-EXCL-1: an order created at/after the GST cut-off was charged the table price PLUS the GST it stored. (Log only:
       // what is recorded is still exactly the amount the order charged, as before.)
       const gstInr = Number.isInteger(order.gstInr) && order.gstInr > 0 ? order.gstInr : 0;
-      const expectedInr = decision.fields.pricePaidInr + gstInr - (Number.isInteger(order.packCreditInr) && order.packCreditInr > 0 ? order.packCreditInr : 0);
+      // TS-UPGRADE-CREDIT-1: a Test Series upgrade was charged (table base - Test Series base) + the GST it stored.
+      const expectedInr = decision.fields.pricePaidInr + gstInr - (Number.isInteger(order.packCreditInr) && order.packCreditInr > 0 ? order.packCreditInr : 0)
+        - (Number.isInteger(order.tsUpgradeCreditInr) && order.tsUpgradeCreditInr > 0 ? order.tsUpgradeCreditInr : 0);
       if (chargedInr !== expectedInr) {
         console.error('[passGrant] order amount differs from the price table:', orderId, chargedInr, decision.fields.pricePaidInr);
       }
@@ -336,12 +351,35 @@ async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {
       packCredit = { conflict, markedIds: marked, creditInr: order.packCreditInr };
       if (conflict) orderExtra = { packCreditConflict: true };
     }
+    // TS-UPGRADE-CREDIT-1 — mark the Test Series entitlement credited, in THIS transaction (so verify / webhook / status
+    // replays never mark it twice: a replay returns above, before any write). The pass is granted whatever we find: an
+    // entitlement that is missing, already credited by another order, or not the one the order names is a CONFLICT -
+    // flagged on the order and counted, never thrown (the money was really paid).
+    let tsUpgradeCredit = null;
+    if (tsCredited) {
+      const tp = tsPackSnap && tsPackSnap.exists ? tsPackSnap.data() || {} : null;
+      let conflict = !tsPackRef || !tp;
+      if (tp) {
+        if (tp.orderId !== orderData.tsUpgradeCreditOrderId) conflict = true;
+        if (tp.creditedToPass === true && tp.creditedOrderId !== orderId) conflict = true;
+        else if (tp.orderId === orderData.tsUpgradeCreditOrderId) {
+          tx.set(
+            tsPackRef,
+            { creditedToPass: true, creditedOrderId: orderId, creditedAt: new Date(request.nowMs), creditedKind: 'ts_upgrade' },
+            { merge: true },
+          );
+        }
+      }
+      tsUpgradeCredit = { conflict, creditInr: orderData.tsUpgradeCreditInr };
+      if (conflict) orderExtra = { ...(orderExtra || {}), tsUpgradeCreditConflict: true };
+    }
     markOrderPaid(orderExtra);
     if (orderExtra && order.status === 'paid') tx.set(orderRef, orderExtra, { merge: true });
     return {
       replayed: false,
       pass: describePass(request.uid, { ...stored, ...decision.fields }),
       ...(packCredit ? { packCredit } : {}),
+      ...(tsUpgradeCredit ? { tsUpgradeCredit } : {}),
     };
   });
 }

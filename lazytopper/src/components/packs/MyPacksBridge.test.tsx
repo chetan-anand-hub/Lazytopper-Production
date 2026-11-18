@@ -114,7 +114,9 @@ describe("BRIDGE-PANEL-1 · papers and the first-marked card", () => {
     show({ packs: [chapter] });
     expect(screen.queryByTestId("packs-bridge-first")).toBeNull();
     expect(screen.getByText("Get your papers marked")).toBeTruthy();
-    expect(screen.getByText(/Every account gets its first paper of each kind marked free\./)).toBeTruthy();
+    // MYPACKS-TS-1: the free line is true - the first WORKSHEET is free; chapter tests / full mocks give free accounts the MCQs only.
+    expect(screen.getByText(/Every account gets its first worksheet marked free\./)).toBeTruthy();
+    expect(screen.queryByText(/first paper of each kind/)).toBeNull();
     expect(screen.queryByText(/Your first paper of each kind is free/)).toBeNull();
     expect(screen.getByTestId("packs-bridge-sample").getAttribute("href")).toBe("/media/lazytopper-marked-sample-PK-M-RN-CT1.pdf");
   });
@@ -297,5 +299,23 @@ describe("BRIDGE-PANEL-1 · a confirmed Board Pass holder's ONE quiet packs card
   it("a holder with only CBQ packs (no paper rows yet) still gets the card when something is left to offer", () => {
     show({ packs: [cbq], paidPass: true });
     expect(screen.getByTestId("packs-bridge-holder-buy-pack_cbq-science")).toBeTruthy();
+  });
+});
+
+describe("MYPACKS-TS-1 \u00b7 the Board Pass side card says what is TRUE for a Test Series owner", () => {
+  const series = { packId: "test_series:all", sku: "test_series", target: "all", pricePaidInr: 999, paidAt: 11 };
+  it("a Test Series owner: the approved line + the Board Pass link; no 'Your pack has the questions' / 'every paper in every pack'", () => {
+    show({ packs: [series] });
+    const card = screen.getByTestId("packs-bridge-pass");
+    expect(card.textContent).toContain("Your Test Series checks your test answers. The Board Pass adds the rest: Answer Checker for any question, worksheets, your personal tutor and Mistake Intelligence");
+    expect(card.textContent).not.toMatch(/Your pack has the questions|every paper in every pack/);
+    expect(within(card).getByTestId("packs-bridge-pass-cta").getAttribute("href")).toBe("/pricing");
+  });
+  it("a PDF-pack-only owner keeps the current copy", () => {
+    show({ packs: [chapter] });
+    const card = screen.getByTestId("packs-bridge-pass");
+    expect(card.textContent).toContain("Your pack has the questions. Board Pass marks every answer.");
+    expect(card.textContent).toContain("of every paper in every pack");
+    expect(card.textContent).not.toContain("Your Test Series checks");
   });
 });

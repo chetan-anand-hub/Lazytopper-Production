@@ -122,6 +122,13 @@ test('GUARD unsupported: guest/parent orders (payer), month pass, top-up, credit
   await refuses(passSeed({ order: { passType: 'topup' } }), 'unsupported', { orderId: 'o2' });
   await refuses(passSeed({ order: { packCreditInr: 100 } }), 'unsupported', { orderId: 'o2' });
 });
+test('GUARD unsupported (TS-UPGRADE-CREDIT-1): a Board Pass bought as the Test Series upgrade (paid only the difference) is not movable', async () => {
+  // Test Series 1179 + upgrade 1083 = 2262: moving the pass would give the buyer the Test Series and the child a full Board Pass.
+  await refuses(passSeed({ order: { tsUpgradeCreditInr: 999, tsUpgradeFullBaseInr: 1917, baseInr: 918, gstInr: 165, amountPaise: 108300 } }), 'unsupported', { orderId: 'o2' });
+  // CONTROL: the same pass without the credit still moves.
+  const db = fakeDb(passSeed({ order: { baseInr: 1917, gstInr: 345, amountPaise: 226200 } }));
+  assert.equal((await move(db, { orderId: 'o2' })).moved, true);
+});
 test('GUARD target_has_pack: the target already owns that pack', async () => {
   await refuses({ ...packSeed(), 'packEntitlements/child/packs/pack_cbq:maths': { orderId: 'other' } }, 'target_has_pack');
 });

@@ -109,3 +109,4 @@ body:not(:has([data-lt-bottomnav])) .lt-packs { padding-bottom: 28px; }
 
 /* PRICING-ONE-1: My packs / status line when the shop sits inside /pricing (no full-page chrome). */
 .lt-packs.lt-packs--embedded { min-height: 0; padding-bottom: 0; background: transparent; max-width: 1040px; margin: 0 auto; width: 100%; }
+.lt-pk-row__incl { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; font-weight: 700; color: hsl(152, 60%, 26%); text-decoration: none; }

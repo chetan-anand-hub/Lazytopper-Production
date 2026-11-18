@@ -129,6 +129,26 @@ describe("Me / Progress - My packs card", () => {
     expect(track).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "me-card" } });
   });
 
+  it("MYPACKS-TS-1: a Test Series Pack is listed as 'Online test series' (not a PDF pack) and links to /test-series; a PDF-only owner sees no such row", async () => {
+    fetchMyPacksMock.mockResolvedValue(mine([pack("pack_chapter", "surface-areas-and-volumes", 1), { packId: "test_series:all", sku: "test_series", target: "all", pricePaidInr: 999, paidAt: 2 }]));
+    renderCard();
+    const card = await screen.findByTestId("me-my-packs");
+    expect(card.textContent).toContain("Chapter Pack");
+    const row = screen.getByTestId("me-my-packs-series");
+    expect(row.textContent).toContain("Test Series Pack");
+    expect(row.textContent).toContain("Online test series");
+    expect(row.textContent).not.toContain("PDF pack");
+    expect(row.querySelector("a")?.getAttribute("href")).toBe("/test-series");
+    expect(meCardPackTitle({ sku: "test_series", target: "all" })).toBe(ownedPackTitle({ sku: "test_series", target: "all" }));
+    cleanup();
+    resetMyPacksCacheForTests();
+    resetOwnedPacksCache();
+    fetchMyPacksMock.mockResolvedValue(mine([pack("pack_chapter", "real-numbers", 1)]));
+    renderCard();
+    await screen.findByTestId("me-my-packs");
+    expect(screen.queryByTestId("me-my-packs-series")).toBeNull();
+  });
+
   it("shows at most 3 names then +N more", async () => {
     fetchMyPacksMock.mockResolvedValue(
       mine([pack("pack_mock", "maths", 1), pack("pack_mock", "science", 2), pack("pack_cbq", "science", 3), pack("pack_bundle", "", 4), pack("pack_subject", "maths", 5)]),

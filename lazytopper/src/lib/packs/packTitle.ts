@@ -3,7 +3,7 @@
  * Its own tiny module so the lazy chunks that only need a name (My packs card, the purchase card) share no heavier chunk.
  */
 import type { OwnedPack } from "../../services/packs";
-import { BUNDLE_NAME, packChapterLabel } from "./packLabels";
+import { BUNDLE_NAME, TEST_SERIES_NAME, packChapterLabel } from "./packLabels";
 
 export function meCardPackTitle(p: Pick<OwnedPack, "sku" | "target">): string {
   switch (p.sku) {
@@ -17,6 +17,8 @@ export function meCardPackTitle(p: Pick<OwnedPack, "sku" | "target">): string {
       return `${p.target === "science" ? "Science" : "Maths"} CBQ Pack`;
     case "pack_bundle":
       return BUNDLE_NAME;
+    case "test_series":
+      return TEST_SERIES_NAME;
     default:
       return "PDF pack";
   }

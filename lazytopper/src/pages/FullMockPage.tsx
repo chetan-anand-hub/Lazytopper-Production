@@ -171,8 +171,8 @@ import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { DownloadWithPlanLink, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesDownloadAccess, useSeriesPaperAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
-import { countTestsTaken, seriesStartDecision } from "../lib/testSeries/seriesAccess";
+import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
+import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import { FM_PAPER_PARAM, PACK_MATCHED_MOCKS, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
@@ -251,9 +251,10 @@ export default function FullMockPage() {
   const { isPremium } = useSubscription();
   // TEST-SERIES-1 (owner ruling 18 Nov 19:31 IST) — written-answer checking and the paper download need the Test Series or the Board Pass here.
   // TS-PACK-1: a signed-in Test Series Pack owner gets through too (ownsTestSeries from /api/packs/mine).
-  const seriesPaperAccess = useSeriesPaperAccess(user?.uid ?? null);
-  // PACK-DOWNLOAD-RESTORE: a Mock Pack / Subject Pack / Bundle that covers this subject keeps its download (checking is unchanged).
-  const seriesDownloadAccess = useSeriesDownloadAccess(user?.uid ?? null, seriesPaperAccess, { kind: "full-mock", subject: subject === "Science" ? "science" : "maths" });
+  // MYPACKS-TS-1: three-state (checking / failed / decided); downloads also open for a PDF pack that covers this subject's mocks.
+  const seriesAccess = useSeriesAccess(user?.uid ?? null, { kind: "full-mock", subject: subject === "Science" ? "science" : "maths" });
+  const seriesPaperAccess = seriesAccess.canCheck;
+  const seriesDownloadAccess = seriesAccess.canDownload;
   // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
   const boardPassHolder = useBoardPassHolder();
   const [startWall, setStartWall] = useState(false);
@@ -746,6 +747,10 @@ export default function FullMockPage() {
     if (fairUse.blockPaperStart()) return;
     // TEST-SERIES-1 (owner 19:44 IST): a free / trial account takes ONE test in total; signed out signs in first.
     const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records) });
+    if (startDecision === "upgrade" && seriesAccess.checking) {
+      setPaperNotice(ACCESS_CHECKING_LINE);
+      return;
+    }
     if (startDecision === "sign-in") {
       navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`);
       return;
@@ -756,7 +761,7 @@ export default function FullMockPage() {
     }
     // CT-RESUME-2: a visit let through as a RESUME of a saved mock was not counted. Starting a NEW
     // mock instead is counted now — or refused when today's papers are used up.
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && seriesN !== null))) {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -785,7 +790,7 @@ export default function FullMockPage() {
     });
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
-  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, isSignedIn, records, navigate]);
+  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, seriesN, isSignedIn, records, navigate]);
 
   const resumeMock = useCallback(() => {
     const s = inProgress ?? findInProgressSession(sessionUid);
@@ -1179,7 +1184,7 @@ export default function FullMockPage() {
   const downloadPaper = useCallback(async () => {
     if (!paperForExport || downloading || !seriesDownloadAccess) return;
     // CT-RESUME-2: downloading the NEW draw (not the mock being sat) is a new paper.
-    if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+    if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && seriesN !== null))) {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -1244,7 +1249,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress, guardDownload, seriesDownloadAccess]);
+  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress, guardDownload, seriesDownloadAccess, seriesAccess.ownsSeries, seriesN]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded mock's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1689,12 +1694,15 @@ export default function FullMockPage() {
                         >
                           {downloading ? "Preparing…" : "⤓ Download this paper (PDF) — recommended for a 3-hour sitting"}
                         </button>
+                      ) : seriesAccess.checking ? (
+                        <AccessChecking />
                       ) : (
                         <DownloadWithPlanLink />
                       )}
-                      <LimitChip />
+                      {seriesDownloadAccess && <LimitChip />}
                     </div>
-                    {startWall && <SeriesStartWall />}
+                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote />}
+                    {startWall && !seriesPaperAccess && (seriesAccess.failed ? <AccessFailed onRetry={seriesAccess.retry} /> : seriesAccess.checking ? <AccessChecking /> : <SeriesStartWall />)}
 
                     {downloadedNote && (
                       <PaperDownloadedNote
@@ -2015,9 +2023,11 @@ export default function FullMockPage() {
           </div>
 
           {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
-          {paperWall && (
+          {paperWall && (seriesAccess.ownsSeries ? (
+            <SeriesOwnerNotice onClose={() => setPaperWall(false)} worksheetId={activeMock.paper.worksheetId} status={seriesAccess.status} />
+          ) : (
             <UpgradeSheet featureLabel="Grading your full mock" offers={paperOffers} onClose={() => setPaperWall(false)} />
-          )}
+          ))}
 
           {resultsPhase === "partial" && (
             <GradingJobRows
@@ -2031,32 +2041,40 @@ export default function FullMockPage() {
               busy={grading}
             />
           )}
-          {resultsPhase === "partial" && !seriesPaperAccess ? (
-            <WrittenCheckUpgradeCard
-              eyebrow="Full Mock · Result"
-              name={activeMock.name}
-              code={activeMock.code}
-              objective={{ awarded: objective.awarded, total: objective.total }}
-              sectionsLabel="Sections B–E"
-              onDone={() => setPhase("setup")}
+          {resultsPhase === "partial" ? (
+            <ResultAccessSlot
+              access={seriesAccess}
+              uploadAllowed={seriesPaperAccess || isBeforeSeriesRules(Date.parse(activeMock.paper.createdAt))}
+              worksheetId={activeMock.paper.worksheetId}
+              upgrade={
+                <WrittenCheckUpgradeCard
+                  eyebrow="Full Mock · Result"
+                  name={activeMock.name}
+                  code={activeMock.code}
+                  objective={{ awarded: objective.awarded, total: objective.total }}
+                  sectionsLabel="Sections B–E"
+                  onDone={() => setPhase("setup")}
+                />
+              }
+              upload={
+                <>
+                  {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
+                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
+                  <ChapterTestUploadPanel
+                    eyebrow="Full Mock · Result"
+                    sectionsLabel="Sections B–E"
+                    name={activeMock.name}
+                    code={activeMock.code}
+                    objective={{ awarded: objective.awarded, total: objective.total }}
+                    grading={grading}
+                    error={gradeError}
+                    isSignedIn={isSignedIn}
+                    onGrade={(upload) => void handleGrade(upload)}
+                    onSkip={() => setPhase("setup")}
+                  />
+                </>
+              }
             />
-          ) : resultsPhase === "partial" ? (
-            <>
-            {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
-            <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={resultsPhase} />
-            <ChapterTestUploadPanel
-              eyebrow="Full Mock · Result"
-              sectionsLabel="Sections B–E"
-              name={activeMock.name}
-              code={activeMock.code}
-              objective={{ awarded: objective.awarded, total: objective.total }}
-              grading={grading}
-              error={gradeError}
-              isSignedIn={isSignedIn}
-              onGrade={(upload) => void handleGrade(upload)}
-              onSkip={() => setPhase("setup")}
-            />
-            </>
           ) : (
             <div className="lt-ct__upload">
               <div className="lt-ct__uploadcard">
@@ -2071,7 +2089,7 @@ export default function FullMockPage() {
                     ? ` · ${fullResponse.pendingCount} page(s) pending`
                     : ""}
                 </div>
-                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={resultsPhase} />
+                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard

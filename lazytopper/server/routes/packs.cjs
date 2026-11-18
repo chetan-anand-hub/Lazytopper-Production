@@ -11,6 +11,8 @@ const { deriveEffectiveTier } = require('../services/entitlement.cjs');
 const { readRawBody } = require('./payments.cjs');
 const { templateIdForPackFile } = require('../services/packCovering.cjs');
 const { boardPassCreditFor } = require('../services/packCredit.cjs');
+// TS-UPGRADE-CREDIT-1: the Test Series Pack's base comes off the Board Pass (GST on the difference) - reported for the UI.
+const { testSeriesUpgradeCreditFor, applyTsCreditToQuote } = require('../services/tsUpgradeCredit.cjs');
 // REDOWNLOAD-ENFORCE-1: the pack re-download date (31 Mar 2027 from 5 Nov 2026; 31 May 2027 before), on the SERVER clock.
 const { splitByRedownload } = require('../services/packTerms.cjs');
 const { quotePass } = require('./payments.cjs');
@@ -118,6 +120,25 @@ function createPackRoutes(deps = {}) {
       if (credit.readFailed) emit('packs.mine.credit_read_failed');
       if (credit.creditInr > 0) {
         boardPassCredit = { creditInr: credit.creditInr, expiresAtMs: credit.expiresAtMs, payInr: quote.pricePaidInr - credit.creditInr };
+      } else if (!credit.readFailed && owned.some((p) => p && p.sku === TEST_SERIES_SKU)) {
+        // TS-UPGRADE-CREDIT-1: a Test Series owner (only - nobody else's response changes) whose purchase the server can prove
+        // sees the upgrade: creditInr = the Test Series BASE credited, payInr = what the order route will charge, and the
+        // upgrade's own base / GST so the UI can say "₹918 + GST". `kind` marks it; `expiresAtMs` is null (no window), so a
+        // client that only knows PACK-CREDIT-1 ignores it. The SAME functions decide the order's amount.
+        const ts = await testSeriesUpgradeCreditFor(adminFirestore, uid, 'till_boards', env);
+        if (ts.readFailed) emit('packs.mine.ts_credit_read_failed');
+        const applied = ts.creditBaseInr > 0 ? applyTsCreditToQuote(quote, ts, nowMs) : null;
+        if (applied && applied.fields.tsUpgradeCreditInr > 0) {
+          boardPassCredit = {
+            creditInr: applied.fields.tsUpgradeCreditInr,
+            expiresAtMs: null,
+            payInr: applied.quote.pricePaidInr,
+            kind: 'test_series_upgrade',
+            baseInr: applied.quote.gst.baseInr,
+            gstInr: applied.quote.gst.gstInr,
+            fullBaseInr: applied.fields.tsUpgradeFullBaseInr,
+          };
+        }
       }
     } catch {
       emit('packs.mine.credit_read_failed');

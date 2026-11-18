@@ -41,8 +41,8 @@ import {
   TEST_SERIES_CHECKS_PER_PAPER,
   type PackSubject,
 } from "../../services/packs";
-import { BUNDLE_NAME, TEST_SERIES_NAME, packChapterLabel } from "../../lib/packs/packLabels";
-import { TEST_SERIES_PATH, seriesContentsLine } from "../../lib/testSeries/testSeries";
+import { BUNDLE_NAME, TEST_SERIES_NAME, TEST_SERIES_VALID_TILL, packChapterLabel } from "../../lib/packs/packLabels";
+import { TEST_SERIES_PATH, seriesContentsLine, seriesProgress, seriesTotals, type SeriesProgress } from "../../lib/testSeries/testSeries";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import { isPacksWarmupPath, schedulePacksWarmup } from "../../lib/packs/packsMobilePreload";
 import { loadCheckoutScript } from "../../services/checkout";
@@ -952,8 +952,14 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const openFilesOf = (packId: string) => setOpenReq((r) => ({ packId, n: (r?.n ?? 0) + 1 }));
   // PAID-SHEET-1: closing the pop-up (X / Esc / backdrop / Download files) lands the buyer on My packs; "Download files" also opens that pack's files.
   const sheetUp = sheetOn && sheetOpen && buy.phase === "paid";
+  // MYPACKS-TS-1: the Test Series Pack has no files - its paid pop-up starts the series instead of "Download files".
+  const paidIsSeries = buy.key.startsWith("test_series");
   const closePaidSheet = (openFiles: boolean) => {
     setSheetOpen(false);
+    if (openFiles && paidIsSeries) {
+      navigate(TEST_SERIES_PATH);
+      return;
+    }
     if (hideMyPacks) {
       if (openFiles) navigate(`${PACKS_RETURN_PATH}#my-packs`);
       return;
@@ -1146,7 +1152,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           surface={paidSurface}
           itemKind="pack"
           itemName={buy.name || "PDF pack"}
-          primaryLabel="Download files"
+          {...(paidIsSeries ? { bought: "test_series" as const } : {})}
+          primaryLabel={paidIsSeries ? "Start your Test Series \u2192" : "Download files"}
           {...(maskReceiptEmail(user?.email || mine?.licensee.email) ? { receiptLine: paidSheetReceiptLine(maskReceiptEmail(user?.email || mine?.licensee.email)) } : {})}
           onFail={() => { setSheetFailed(true); setSheetOpen(false); }}
           onPrimary={() => closePaidSheet(true)}
@@ -1342,15 +1349,52 @@ interface TidyRow {
   counts?: { papers: number; marked: number } | null;
 }
 
+/**
+ * MYPACKS-TS-1 - the progress line of the Test Series row: "Chapter Tests: N of 26 done · Full-Length: N of 40 done", from the student's
+ * REAL session records (the same seriesProgress /test-series uses). Unknown (no records read yet, or a failed read) -> null (omitted).
+ */
+export function seriesProgressLine(p: SeriesProgress | null): string | null {
+  if (!p) return null;
+  const t = seriesTotals();
+  let ct = 0;
+  let fm = 0;
+  for (const [code, v] of Object.entries(p.byCode)) {
+    if (v.status === "not-started") continue;
+    if (code.startsWith("FM-")) fm += 1;
+    else ct += 1;
+  }
+  return `Chapter Tests: ${ct} of ${t.chapterTests} done \u00b7 Full-Length: ${fm} of ${t.fullMocks} done`;
+}
+
 /** TS-PACK-1 - the owned Test Series Pack in My packs: what it gives and the way to the papers (no files to build). */
 function OwnedTestSeriesRow({ pack, mine, when, tidy }: { pack: OwnedPack; mine: MyPacks; when: string; tidy: boolean }) {
+  const { user } = useAuth();
   const per = mine.testSeries?.checksPerPaper ?? TEST_SERIES_CHECKS_PER_PAPER;
+  const [progress, setProgress] = useState<SeriesProgress | null>(null);
+  const uid = user?.uid ?? "";
+  useEffect(() => {
+    if (!uid) return undefined;
+    let live = true;
+    // Dynamic: the session-records service (Firestore) stays out of the /packs entry chunk; only a Test Series owner's row reads it.
+    import("../../services/sessionRecords").then((m) => m.getSessionRecordsFromCloud(uid)).then(
+      (records) => {
+        if (live) setProgress(seriesProgress(records));
+      },
+      () => undefined,
+    );
+    return () => {
+      live = false;
+    };
+  }, [uid]);
+  const progressLine = seriesProgressLine(progress);
   const body = (
     <>
       <p className="lt-packs__muted" data-testid="packs-owned-test-series-line">
-        {`${seriesContentsLine()}. Your written answers are checked step by step, ${per === 2 ? "twice" : `${per} times`} per paper, till 31 May 2027.`}
+        {`${seriesContentsLine()}. Your written answers are checked step by step, ${per === 2 ? "twice" : `${per} times`} per paper.`}
       </p>
-      <Link className="lt-packs__link" to={TEST_SERIES_PATH} data-testid="packs-owned-test-series-open">Open the Test Series &rarr;</Link>
+      {progressLine && <p className="lt-packs__muted" data-testid="packs-owned-test-series-progress">{progressLine}</p>}
+      <p className="lt-packs__muted" data-testid="packs-owned-test-series-valid">{`Valid till ${TEST_SERIES_VALID_TILL}`}</p>
+      <Link className="lt-packs__link" to={TEST_SERIES_PATH} data-testid="packs-owned-test-series-open">Go to Test Series &rarr;</Link>
     </>
   );
   if (tidy) {

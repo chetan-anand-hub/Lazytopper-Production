@@ -125,7 +125,7 @@
     "test:server:fair-use-30day": "node --test server/services/fairUse.thirtyDay.test.cjs",
     "test:server:fair-use-monthly": "node --test server/services/fairUse.monthly.test.cjs",
     "test:server:payments": "node --test server/routes/payments.test.cjs",
-    "test:server:packs": "node --test server/routes/packs.payments.test.cjs server/services/packProducts.test.cjs server/services/packCredit.test.cjs server/services/packTerms.test.cjs",
+    "test:server:packs": "node --test server/routes/packs.payments.test.cjs server/services/packProducts.test.cjs server/services/packCredit.test.cjs server/services/packTerms.test.cjs server/services/tsUpgradeCredit.test.cjs server/routes/tsUpgradeCredit.payments.test.cjs",
     "test:server:pack-pdf": "node --test server/services/packPdf.test.cjs",
     "test:server:packs-nudge": "node --test server/services/nudgeEmail.packs.test.cjs",
     "test:server:parent-pay": "node --test server/routes/parentPay.test.cjs",

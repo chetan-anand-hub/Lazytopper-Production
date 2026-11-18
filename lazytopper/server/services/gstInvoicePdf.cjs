@@ -65,7 +65,10 @@ function invoiceTextBlocks(inv) {
     note:
       inv.issuedLater && inv.supplyDateIst
         ? `This invoice is issued for a supply made on ${inv.supplyDateIst}. The price paid included GST; the tax shown is worked back from the amount paid.`
-        : null,
+        : inv.priorCredit
+          ? // TS-UPGRADE-CREDIT-1: the credited prior purchase, named under the totals.
+            `Upgrade price: Board Pass ${rupees(inv.priorCredit.listTaxablePaise)} less ${rupees(inv.priorCredit.creditedTaxablePaise)} already paid (taxable value) for the ${inv.priorCredit.description} (order ${inv.priorCredit.orderId}, invoiced separately). GST is charged on the difference only.`
+          : null,
   };
 }
 

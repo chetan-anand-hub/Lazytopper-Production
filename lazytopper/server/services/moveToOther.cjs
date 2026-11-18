@@ -98,6 +98,9 @@ function assertMovable(order, callerUid, nowMs) {
   // Only the Board Pass (till the boards). A month pass stacks on a running pass and a top-up is credit: not movable.
   if (o.passType === 'till_boards') {
     if (Number(o.packCreditInr) > 0) throw new MoveRefusal('unsupported'); // it spent pack credit: those packs would have to move too
+    // TS-UPGRADE-CREDIT-1: it spent the Test Series credit (paid only the difference). Moving it would leave the buyer with the
+    // Test Series AND hand someone else a full Board Pass for the price of one Board Pass: refused exactly like a pack credit.
+    if (Number(o.tsUpgradeCreditInr) > 0) throw new MoveRefusal('unsupported');
     return { kind: 'pass', paidMs };
   }
   throw new MoveRefusal('unsupported');

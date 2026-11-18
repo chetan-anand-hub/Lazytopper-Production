@@ -220,12 +220,14 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
   // GST-INVOICE-2a: the receipt RE-SENT with an invoice issued later ("Issue now") - only with a usable invoice link.
   if (invoiceResend && !(invoice && typeof invoice.number === 'string' && typeof invoice.url === 'string' && /^https:\/\//.test(invoice.url))) return null;
   const isPack = isPackProduct(passType);
+  // MYPACKS-TS-1: the Test Series Pack is ONLINE (no files): its emails say "start", never "download", and link to /test-series.
+  const isSeries = passType === 'test_series';
   const amount = formatInr(amountPaise / 100);
   const date = formatIstDay(paidAtMs);
   // GST-EXCL-1: an order created at/after 7 Nov 2026 stored its breakup; the receipt shows it ("₹1,917 + ₹345 GST (18%) =
   // ₹2,262 paid"; a credited Board Pass adds "less pack credit"). An older order (all-in) gets no GST line: byte-identical.
   const gstLine = receiptGstLine(gst, amountPaise);
-  const where = isPack ? '/packs#my-packs' : '/';
+  const where = isSeries ? '/test-series' : isPack ? '/packs#my-packs' : '/';
   const subject = invoiceResend ? `GST tax invoice ${invoice.number}: ${item} (${amount})` : `Payment received: ${item} (${amount})`;
   const opening = invoiceResend ? 'Your GST tax invoice for this purchase is ready. Your payment details are below.' : 'Thank you. We have received your payment.';
 
@@ -234,7 +236,7 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
   if (recipient && (recipient.phoneMasked || recipient.emailMasked)) {
     // CHECKOUT-WHO-1: bought for a recipient (maybe someone else). Name ONLY the masked identifiers the payer typed.
     const ids = [recipient.phoneMasked, recipient.emailMasked].filter(Boolean);
-    const lands = isPack ? 'the pack is in My packs' : 'the Board Pass is already there';
+    const lands = isSeries ? 'your Test Series is ready to start' : isPack ? 'the pack is in My packs' : 'the Board Pass is already there';
     howText = `Sign in at lazytopper.com/login with ${ids.join(' or ')}, and ${lands}.\nUse exactly what was entered at checkout. Anything else will not find this purchase.`;
     howHtml = `<p>Sign in at lazytopper.com/login with <strong>${ids.map(escapeHtml).join('</strong> or <strong>')}</strong>, and ${lands}.</p>
 <p>Use exactly what was entered at checkout. Anything else will not find this purchase.</p>`;
@@ -247,7 +249,7 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
     howHtml = `<p>${escapeHtml(line)}</p>`;
   } else if (guestPhoneMasked) {
     const loginUrl = `${appUrl}/login?method=phone&redirect=${encodeURIComponent(isPack ? PAID_PACKS_LANDING : where)}`;
-    const lands = isPack ? 'your pack is in My packs' : `your ${passNameOf(passType)} is switched on`;
+    const lands = isSeries ? 'your Test Series is ready to start' : isPack ? 'your pack is in My packs' : `your ${passNameOf(passType)} is switched on`;
     howText = `Sign in at lazytopper.com/login with your phone number ${guestPhoneMasked}, and ${lands}.\nSign in: ${loginUrl}\nUse the same number you paid with. A different number will not find this purchase.`;
     howHtml = `<p>Sign in at lazytopper.com/login with your phone number <strong>${escapeHtml(guestPhoneMasked)}</strong>, and ${lands}.</p>
 <p><a href="${escapeHtml(loginUrl)}">Sign in with your phone number</a></p>
@@ -260,13 +262,15 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
       ? isPack
         ? 'It was moved to the account you chose, and is in My packs there'
         : `${passNameOf(passType)} was moved to the account you chose`
+      : isSeries
+      ? 'Your Test Series is ready to start on your account'
       : isPack
       ? 'It is in My packs on your account'
       : payer === 'parent'
         ? `${passNameOf(passType)} is now active on the student's account`
         : `${passNameOf(passType)} is switched on for your account`;
     howText = `${lands}.\nOpen it: ${url}`;
-    howHtml = `<p>${lands}.</p>\n<p><a href="${escapeHtml(url)}">${isPack ? 'Open My packs' : 'Open LazyTopper'}</a></p>`;
+    howHtml = `<p>${lands}.</p>\n<p><a href="${escapeHtml(url)}">${isSeries ? 'Start your Test Series' : isPack ? 'Open My packs' : 'Open LazyTopper'}</a></p>`;
   }
 
   // GST-INVOICE-1: { number, url } when a tax invoice was issued for this payment; nothing otherwise (byte-identical email).
@@ -285,7 +289,7 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
   let readyHtml = '';
   if (ids) {
     const signInLine = ids.length ? `Sign in at lazytopper.com with ${ids.join(' / ')} to use it.` : 'Sign in at lazytopper.com to use it.';
-    const usage = isPack ? 'Open the menu \u2192 My packs to download.' : passType === 'till_boards' ? 'Everything is unlocked till the Feb 2027 boards.' : `${passNameOf(passType)} is unlocked on your account.`;
+    const usage = isSeries ? 'Open the menu \u2192 My packs \u2192 Start your Test Series.' : isPack ? 'Open the menu \u2192 My packs to download.' : passType === 'till_boards' ? 'Everything is unlocked till the Feb 2027 boards.' : `${passNameOf(passType)} is unlocked on your account.`;
     readyText = `\n\n${signInLine}\n${usage}`;
     readyHtml = `\n<p>${escapeHtml(signInLine)}</p>\n<p>${escapeHtml(usage)}</p>`;
   }
@@ -319,7 +323,7 @@ function buildRecipientReadyEmail({ passType, packTarget, phoneMasked, emailMask
   const where = isPack ? '/packs#my-packs' : '/';
   const loginUrl = `${appUrl}/login?redirect=${encodeURIComponent(isPack ? PAID_PACKS_LANDING : where)}`;
   const ids = [emailMasked ? 'this email address' : '', phoneMasked || ''].filter(Boolean).join(' or ');
-  const lands = isPack ? 'and open My packs to download it' : 'and the Board Pass is already there';
+  const lands = passType === 'test_series' ? 'and start your Test Series' : isPack ? 'and open My packs to download it' : 'and the Board Pass is already there';
   const text = [
     `Your ${name} on LazyTopper is paid for.`,
     `Sign in at lazytopper.com/login with ${ids}, ${lands}.\nSign in: ${loginUrl}`,
@@ -348,7 +352,7 @@ function buildAccountReadyEmail({ passType, packTarget, signInLink, newAccount, 
   const isPack = isPackProduct(passType);
   const name = isPack ? item : 'Board Pass';
   const subject = newAccount ? 'Your LazyTopper account is ready' : `Your ${name} is ready`;
-  const lands = isPack ? 'It is in My packs, ready to download.' : 'The Board Pass is already on it.';
+  const lands = passType === 'test_series' ? 'Your Test Series is ready to start.' : isPack ? 'It is in My packs, ready to download.' : 'The Board Pass is already on it.';
   const loginUrl = `${appUrl}/login`;
   const text = [
     newAccount ? `Your LazyTopper account is ready, with ${name}.` : `Your ${name} on LazyTopper is ready.`,
