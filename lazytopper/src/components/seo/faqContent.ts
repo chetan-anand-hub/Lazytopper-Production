@@ -228,7 +228,7 @@ export function importantQuestionsFaq(subject: "Maths" | "Science"): readonly Fa
   return [
     {
       question: `What are Class 10 ${subject} important questions?`,
-      answer: `Chapter-wise board-pattern ${subject} questions for the 2027 boards, written by LazyTopper and chosen by its prediction model from ten years of CBSE paper trends and the 2026-27 syllabus. They are a guide to what to practise first, not the actual paper.`,
+      answer: `Chapter-wise board-pattern ${subject} questions for the 2027 boards, written by LazyTopper and chosen by its prediction model from past CBSE paper trends and the 2026-27 syllabus. They are a guide to what to practise first, not the actual paper.`,
     },
     {
       question: `Are the ${subject} important questions chapter-wise?`,
