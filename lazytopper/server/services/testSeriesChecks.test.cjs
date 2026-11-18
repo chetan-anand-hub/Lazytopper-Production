@@ -285,7 +285,11 @@ test('free owner, series paper, checks left -> admitted (no 402); the check is r
   const req = reqWith(seriesBody());
   assert.equal(await s.gate.applyToRequest(req, res, GRADE, s.uid), false);
   assert.equal(s.sent.length, 0);
-  assert.equal(req.lazytopperSyncOnly, true, 'graded synchronously so the reservation settles on this response');
+  assert.equal(req.lazytopperSyncOnly, undefined, 'TS-PACK-JOBFIX: graded like every other paper (job mode allowed)');
+  const ref = require('./testSeriesChecks.cjs').testSeriesDeferredOf(res);
+  assert.equal(ref.uid, s.uid);
+  assert.equal(ref.paper, CT);
+  assert.match(ref.holdId, /^[0-9a-f]{32}$/, 'the hold rides the response, for the job deferred');
   assert.deepEqual(req.lazytopperTestSeriesCheck, { paperKey: CT, used: 1, left: 1, checksPerPaper: 2 });
   assert.equal(holdsOf(s.db, s.uid), 1, 'held before grading');
   assert.equal(usedOnPaper(s.db, s.uid, CT), 0, 'not yet spent');
@@ -446,6 +450,26 @@ test('PREMIUM: unaffected - served on any paper, series or not, body never read,
   assert.equal(s.sent.length, 0);
   assert.equal(usedOnPaper(s.db, s.uid, CT), 0);
   assert.equal(req.lazytopperSyncOnly, undefined);
+});
+
+test('TS-PACK-JOBFIX: a 202 (a background job took the grade) settles NOTHING here - the hold waits for the job; a later close is a no-op', async () => {
+  const s = setup();
+  const res = fakeRes();
+  assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid), false);
+  res.serve(202, 0);
+  res.emit('close');
+  await settle();
+  assert.equal(holdsOf(s.db, s.uid), 1, 'still held');
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 0);
+  const ref = require('./testSeriesChecks.cjs').testSeriesDeferredOf(res);
+  s.checks.settleDeferred({ uid: s.uid, testSeries: ref }, 3);
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 1, 'the job end committed it');
+  assert.equal(holdsOf(s.db, s.uid), 0);
+  s.checks.settleDeferred({ uid: s.uid }, 3); // a deferred without a series hold does nothing
+  s.checks.settleDeferred(null, 3);
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 1);
 });
 
 test('TRIAL: no series paper on the trial (non-owner -> 402); an owner on trial spends a pack check; other papers unchanged', async () => {
@@ -619,4 +643,29 @@ test('a commit whose hold already expired still counts the delivered grade (neve
   res.serve(200, 2);
   await settle();
   assert.equal(usedOnPaper(s.db, s.uid, CT), 1);
+});
+
+/* ── TS-PACK-JOBFIX (review P0 #1) · the owner + series-paper predicates LIMITS-1 uses ─────────────────────────────── */
+test('ownerSeriesPaper: owner + manifest paper + matching kind only; expired, non-owner, wrong kind, non-series -> false', async () => {
+  const s = setup();
+  assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'chapter-test', 'ct-ts1-real-numbers--abc'), true);
+  assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'full-mock', 'fm-ts1-m1--abc'), true);
+  assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'full-mock', 'ct-ts1-real-numbers--abc'), false, 'wrong kind');
+  assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'chapter-test', 'ct-abc'), false, 'not a series paper');
+  assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'chapter-test', ''), false);
+  const non = setup({ owns: false });
+  assert.equal(await non.checks.ownerSeriesPaper(non.uid, 'chapter-test', 'ct-ts1-real-numbers--abc'), false);
+  const old = setup({ nowMs: TEST_SERIES_ENDS_MS + 1 });
+  assert.equal(await old.checks.ownerSeriesPaper(old.uid, 'chapter-test', 'ct-ts1-real-numbers--abc'), false, 'expired');
+});
+
+test('ownerSeriesGrade: the SAME checks as admission (paper + written ids + canonical text) and ownership; writes nothing', async () => {
+  const s = setup();
+  assert.equal(await s.checks.ownerSeriesGrade(reqWith(seriesBody()), s.uid), true);
+  assert.equal(await s.checks.ownerSeriesGrade(reqWith(seriesBody({ questions: [q('m-ct-01-b1', 1, { questionText: 'swapped' })] })), s.uid), false);
+  assert.equal(await s.checks.ownerSeriesGrade(reqWith({ worksheetId: 'ws-1', questions: [] }), s.uid), false);
+  const non = setup({ owns: false });
+  assert.equal(await non.checks.ownerSeriesGrade(reqWith(seriesBody()), non.uid), false);
+  assert.equal(holdsOf(s.db, s.uid), 0);
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 0);
 });

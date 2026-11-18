@@ -250,6 +250,8 @@ const gradingJobs = createGradingJobs({
   telemetry,
   commitDeferred: (deferred, graded) => {
     limits.settleDeferred(deferred, graded); // LIMITS-1: confirm or release the per-kind reservation
+    // TS-PACK-JOBFIX: keep or release a Test Series Pack check's hold (testSeriesChecks is created below; this runs only when a job ends).
+    if (deferred && deferred.testSeries) testSeriesChecks.settleDeferred(deferred, graded);
     return fairUse.commitDeferred(deferred, graded);
   },
 });
@@ -390,7 +392,9 @@ const testSeriesChecks = createTestSeriesChecks({
 const entitlementGate = createEntitlementGate({ adminFirestore, firebaseAdmin, telemetry, sendJson, cbqTutorTaste, testSeriesChecks });
 const fairUse = createFairUse({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
 // LIMITS-1: download limits (dark until LIMITS_ENFORCE=1). See services/limits.cjs.
-const limits = createLimits({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
+// TS-PACK-JOBFIX (review P0 #1): a Test Series Pack owner's series paper is not metered by LIMITS-1 (testSeriesChecks is created below;
+// this is called per request, long after both exist).
+const limits = createLimits({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson, seriesOwnerPaper: (uid, kind, worksheetId) => testSeriesChecks.ownerSeriesPaper(uid, kind, worksheetId) });
 // LOW-END-1 R4: a retried grade (same verified uid + Idempotency-Key, 24 h) is answered
 // from its stored result — never graded or charged twice. See fairUse.cjs.
 const gradingIdempotency = createGradingIdempotency({ telemetry, corsOrigin: config.CORS_ORIGIN });
@@ -874,6 +878,8 @@ async function handleRequest(req, res) {
     const limitsVerdict = freeCheckAdmitted || !verifiedUid
       ? {}
       : await limits.gradingGate(req, res, reqPath, verifiedUid, {
+          // TS-PACK-JOBFIX (review P0 #1): an owner's series-paper grade skips LIMITS-1 (the pack's 2-per-paper rule caps it).
+          seriesOwnerGrade: (r) => testSeriesChecks.ownerSeriesGrade(r, verifiedUid),
           paperKeyOf: (r, surface) => {
             const pass = fairUseModule.verifyPaperPass(r.headers[fairUseModule.PAPER_HEADER], {
               uid: verifiedUid, surface, nowMs: Date.now(), secret: process.env[fairUseModule.PAPER_SECRET_ENV],

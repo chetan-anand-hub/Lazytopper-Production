@@ -24,6 +24,11 @@ export interface DetailLimitKey {
   kind: DetailKind;
   /** Stable per result: the surface code (or the practice set's key). Never a student's content. */
   resultKey: string;
+  /**
+   * TS-PACK-JOBFIX (review P0 #1) — the paper's worksheet id (Chapter Test / Full Mock). The SERVER keeps a Test Series Pack owner's
+   * series-paper breakdown open (it checks the pack and the paper itself); anything else is decided exactly as before.
+   */
+  worksheetId?: string;
 }
 
 export type DetailLock = "open" | "pending" | "locked";
@@ -37,13 +42,13 @@ function useDetailLockLive(limitKey: DetailLimitKey | undefined, hasDetail: bool
   const { isPremium } = useSubscription();
   const uid = user?.uid ?? "";
   const skip = !limitKey || !hasDetail || isPremium || !uid || !LIMITS_CONFIG.basic.scorecardBreakdownLocked;
-  const id = limitKey ? `${limitKey.kind}|${limitKey.resultKey}` : "";
+  const id = limitKey ? `${limitKey.kind}|${limitKey.resultKey}|${limitKey.worksheetId ?? ""}` : "";
   const [answer, setAnswer] = useState<{ id: string; open: boolean } | null>(null);
 
   useEffect(() => {
     if (skip || !limitKey) return;
     let cancelled = false;
-    void claimDetail(limitKey.kind, limitKey.resultKey, true).then((open) => {
+    void claimDetail(limitKey.kind, limitKey.resultKey, true, limitKey.worksheetId).then((open) => {
       if (!cancelled) setAnswer({ id, open });
     });
     return () => {

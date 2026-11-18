@@ -553,7 +553,7 @@ export default function FullMockPage() {
   const [reopenDownloading, setReopenDownloading] = useState(false);
   const reopenSheetOpen =
     useDetailLock(
-      reopen ? { kind: "full-mock", resultKey: reopen.record.id } : undefined,
+      reopen ? { kind: "full-mock", resultKey: reopen.record.id, worksheetId: reopen.record.worksheetId } : undefined,
       Boolean(reopen && hasStoredPaperSheet(reopen.response)),
     ) === "open";
   const downloadReopenSheet = useCallback(async () => {
@@ -1359,7 +1359,7 @@ export default function FullMockPage() {
   // (same kind + key) decides whether this page may print it. "open" when the flag is off.
   const gradedSheetOpen =
     useDetailLock(
-      fullResponse && activeMock ? { kind: "full-mock", resultKey: activeMock.code } : undefined,
+      fullResponse && activeMock ? { kind: "full-mock", resultKey: activeMock.code, worksheetId: activeMock.paper.worksheetId } : undefined,
       Boolean(fullResponse && fullResponse.gradedCount > 0),
     ) === "open";
   const downloadGraded = useCallback(async () => {
@@ -1458,7 +1458,7 @@ export default function FullMockPage() {
       {/* Read-only re-open scorecard (history card / cross-device pending). */}
       {reopen && (
         <ResultsScorecard
-          limitKey={{ kind: "full-mock", resultKey: reopen.record.id }} // LIMITS-1 PR-2 — stored re-open
+          limitKey={{ kind: "full-mock", resultKey: reopen.record.id, worksheetId: reopen.record.worksheetId }} // LIMITS-1 PR-2 — stored re-open
           variant={withPaperTutorAsks(storedFullMockScorecardVariant(reopen.record, {
             gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
               day: "numeric",
@@ -2168,7 +2168,7 @@ export default function FullMockPage() {
           {scorecardOpen && resultsPhase === "full" && fullResponse && (
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-              limitKey={{ kind: "full-mock", resultKey: activeMock.code }} // LIMITS-1 PR-2 — Full Mock surface
+              limitKey={{ kind: "full-mock", resultKey: activeMock.code, worksheetId: activeMock.paper.worksheetId }} // LIMITS-1 PR-2 — Full Mock surface
               variant={withSaleMock(withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
                 name: activeMock.name,
                 code: activeMock.code,

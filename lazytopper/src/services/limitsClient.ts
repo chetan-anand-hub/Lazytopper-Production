@@ -204,8 +204,9 @@ export type DetailKind = "check-improve" | "worksheet" | "chapter-test" | "full-
  * Is this result's per-answer breakdown open? true on EVERY uncertainty (off, signed out,
  * offline, a slow or failed server): the lock needs a positive "locked" from the server.
  */
-export async function claimDetail(kind: DetailKind, resultKey: string, signedIn: boolean): Promise<boolean> {
-  const r = await postLimits(LIMITS_DETAIL_ENDPOINT, { kind, resultKey }, signedIn);
+export async function claimDetail(kind: DetailKind, resultKey: string, signedIn: boolean, worksheetId?: string): Promise<boolean> {
+  // TS-PACK-JOBFIX: the paper's worksheet id rides along so the server can keep a Test Series Pack owner's series paper open.
+  const r = await postLimits(LIMITS_DETAIL_ENDPOINT, worksheetId ? { kind, resultKey, worksheetId } : { kind, resultKey }, signedIn);
   if (r.kind !== "reply" || r.status < 200 || r.status >= 300) return true;
   return r.body.unlocked !== false;
 }

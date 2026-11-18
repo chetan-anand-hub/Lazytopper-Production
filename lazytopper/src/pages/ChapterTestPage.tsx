@@ -445,7 +445,7 @@ export default function ChapterTestPage() {
   const [reopenDownloading, setReopenDownloading] = useState(false);
   const reopenSheetOpen =
     useDetailLock(
-      reopen ? { kind: "chapter-test", resultKey: reopen.record.id } : undefined,
+      reopen ? { kind: "chapter-test", resultKey: reopen.record.id, worksheetId: reopen.record.worksheetId } : undefined,
       Boolean(reopen && hasStoredPaperSheet(reopen.response)),
     ) === "open";
   const downloadReopenSheet = useCallback(async () => {
@@ -1012,7 +1012,7 @@ export default function ChapterTestPage() {
   // (same kind + key) decides whether this page may print it. "open" when the flag is off.
   const gradedSheetOpen =
     useDetailLock(
-      fullResponse && nomen ? { kind: "chapter-test", resultKey: nomen.code } : undefined,
+      fullResponse && nomen ? { kind: "chapter-test", resultKey: nomen.code, ...(paper ? { worksheetId: paper.worksheetId } : {}) } : undefined,
       Boolean(fullResponse && fullResponse.gradedCount > 0),
     ) === "open";
   const downloadGraded = useCallback(async () => {
@@ -1236,7 +1236,7 @@ export default function ChapterTestPage() {
       {/* Read-only re-open scorecard (from a history card), any phase. */}
       {reopen && (
         <ResultsScorecard
-          limitKey={{ kind: "chapter-test", resultKey: reopen.record.id }} // LIMITS-1 PR-2 — stored re-open
+          limitKey={{ kind: "chapter-test", resultKey: reopen.record.id, worksheetId: reopen.record.worksheetId }} // LIMITS-1 PR-2 — stored re-open
           variant={withPaperTutorAsks(withGuideTarget(storedChapterTestScorecardVariant(reopen.record, {
             gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
               day: "numeric",
@@ -1835,7 +1835,7 @@ export default function ChapterTestPage() {
           {scorecardOpen && resultsPhase === "full" && fullResponse && (
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-              limitKey={{ kind: "chapter-test", resultKey: nomen.code }} // LIMITS-1 PR-2 — Chapter Test surface
+              limitKey={{ kind: "chapter-test", resultKey: nomen.code, worksheetId: paper.worksheetId }} // LIMITS-1 PR-2 — Chapter Test surface
               variant={withPaperTutorAsks(withGuideTarget(chapterTestScorecardVariant({
                 name: nomen.name,
                 code: nomen.code,
