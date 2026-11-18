@@ -213,11 +213,11 @@ describe("StudentsAdminPage — list", () => {
       ref: null, utm_source: null, utm_medium: null, utm_campaign: null, utm_content: null, landing: "/", gclid: false, fbclid: false, ...extra,
     });
     const cases: Array<[string, unknown, string]> = [
-      ["yt", src({ utm_source: "youtube", utm_medium: "paid", utm_campaign: "test", ref: "www.youtube.com" }), "YouTube ad (test)"],
-      ["gg", src({ utm_source: "google", utm_medium: "paid", utm_campaign: "brand" }), "Google ad (brand)"],
+      ["yt", src({ utm_source: "youtube", utm_medium: "paid", utm_campaign: "test", ref: "www.youtube.com" }), "YouTube ad · test"],
+      ["gg", src({ utm_source: "google", utm_medium: "paid", utm_campaign: "brand" }), "Google ad · brand"],
       ["gorg", src({ utm_source: "google", utm_medium: "organic", ref: "www.google.com" }), "From www.google.com"],
       // SOURCE-2: the medium separates a paid ad from an organic post from an untagged link
-      ["yt-org", src({ utm_source: "youtube", utm_medium: "organic", utm_campaign: "cbq_short", ref: "www.youtube.com" }), "YouTube post (cbq_short)"],
+      ["yt-org", src({ utm_source: "youtube", utm_medium: "organic", utm_campaign: "cbq_short", ref: "www.youtube.com" }), "YouTube post · cbq_short"],
       ["yt-none", src({ utm_source: "youtube" }), "YouTube (untagged)"],
       ["yt-case", src({ utm_source: "YouTube", utm_medium: "Organic" }), "YouTube post"],
       ["ig-org", src({ utm_source: "instagram", utm_medium: "organic", fbclid: true }), "Instagram post"],
@@ -228,14 +228,14 @@ describe("StudentsAdminPage — list", () => {
       ["g-none", src({ utm_source: "google" }), "Google (untagged)"],
       // ADMIN-SRC-GADS-1: Google Search ads carry no utm tags; the stored gclid flag names them
       ["gclid", src({ gclid: true, ref: "www.google.com" }), "Google ad"],
-      ["gclid-c", src({ gclid: true, utm_campaign: "brand" }), "Google ad (brand)"],
+      ["gclid-c", src({ gclid: true, utm_campaign: "brand" }), "Google ad · brand"],
       ["gsp", src({ ref: "syndicatedsearch.goog" }), "Google ad (search partner)"],
       ["gsp-gclid", src({ ref: "syndicatedsearch.goog", gclid: true }), "Google ad (search partner)"],
       ["g-plain", src({ ref: "www.google.com" }), "From www.google.com"],
-      ["parent", src({ utm_source: "parent_share", utm_medium: "whatsapp", landing: "/check-improve" }), "Parent share"],
+      ["parent", src({ utm_source: "parent_share", utm_medium: "whatsapp" }), "Parent share"],
       // unchanged-in-kind rows whose text changed because their medium is absent (listed in the PR body)
       ["mt", src({ utm_source: "meta" }), "Facebook (untagged)"],
-      ["fb", src({ utm_source: "facebook", utm_campaign: "c1" }), "Facebook (untagged) (c1)"],
+      ["fb", src({ utm_source: "facebook", utm_campaign: "c1" }), "Facebook (untagged) · c1"],
       ["ig", src({ utm_source: "instagram" }), "Instagram (untagged)"],
       ["fbc", src({ fbclid: true }), "Facebook/Instagram (untagged)"],
       ["other-fbc", src({ utm_source: "newsletter", fbclid: true, ref: "l.facebook.com" }), "From l.facebook.com"],
@@ -243,20 +243,20 @@ describe("StudentsAdminPage — list", () => {
       ["proto2", src({ utm_source: "__proto__" }), "Direct"],
       // MEASURE-1 C — Meta's {{site_source_name}} codes (case-insensitive); campaign suffix unchanged.
       ["m-an", src({ utm_source: "an", utm_medium: "paid", ref: "l.facebook.com" }), "Meta ad (Audience Network)"],
-      ["m-fb", src({ utm_source: "fb", utm_medium: "paid", utm_campaign: "cbq", ref: "l.facebook.com" }), "Meta ad (Facebook) (cbq)"],
+      ["m-fb", src({ utm_source: "fb", utm_medium: "paid", utm_campaign: "cbq", ref: "l.facebook.com" }), "Meta ad (Facebook) · cbq"],
       ["m-ig", src({ utm_source: "IG", utm_medium: "CPC", fbclid: true }), "Meta ad (Instagram)"],
       ["m-msg", src({ utm_source: "msg", utm_medium: "paid" }), "Meta ad (Messenger)"],
       ["m-th", src({ utm_source: "Th", utm_medium: "paid" }), "Meta ad (Threads)"],
       ["m-ig-org", src({ utm_source: "ig", utm_medium: "organic" }), "Meta (Instagram)"],
       ["m-fb-none", src({ utm_source: "fb", ref: "l.facebook.com" }), "Meta (Facebook)"],
-      ["m-msg-c", src({ utm_source: "msg", utm_campaign: "c2" }), "Meta (Messenger) (c2)"],
+      ["m-msg-c", src({ utm_source: "msg", utm_campaign: "c2" }), "Meta (Messenger) · c2"],
       // CONTROL: a code that only LOOKS like one is unchanged ("facebook" stays the old rule).
       ["m-ctl", src({ utm_source: "fbx", ref: "l.facebook.com" }), "From l.facebook.com"],
       ["ref", src({ ref: "news.example.org" }), "From news.example.org"],
       ["dir", src({}), "Direct"],
       // ATTRIB-1: iOS / app-campaign click ids name a Google Ads click honestly; gclid keeps its older label
       ["gbraid", src({ gbraid: true }), "Google Ads (YouTube/Demand Gen)"],
-      ["wbraid-c", src({ wbraid: true, utm_campaign: "yt1" }), "Google Ads (YouTube/Demand Gen) (yt1)"],
+      ["wbraid-c", src({ wbraid: true, utm_campaign: "yt1" }), "Google Ads (YouTube/Demand Gen) · yt1"],
       ["gclid-first", src({ gclid: true, gbraid: true }), "Google ad"],
       ["gbraid-utm", src({ gbraid: true, utm_source: "youtube", utm_medium: "paid" }), "YouTube ad"],
       // ATTRIB-1: no document is "No source recorded", distinct from a document with no tags ("Direct")
@@ -273,6 +273,25 @@ describe("StudentsAdminPage — list", () => {
     cases.forEach(([id, , label], i) => {
       expect(rows[i].querySelectorAll("td")[3].textContent, id).toBe(label);
     });
+    // SOURCE-3: campaign + ad group on line 1, keyword + landing page on line 2, and the hover text names the keyword
+    const richId = "sa-rich";
+    routeFn = (url) => ({
+      status: 200,
+      body: url.includes("/summary")
+        ? SUMMARY
+        : listBody([
+            row(richId, {
+              source: src({ utm_source: "google", utm_medium: "cpc", utm_campaign: "search_pdf_packs", utm_content: "ag1234", utm_term: "class 10 question bank", landing: "/packs", gclid: true }),
+            }),
+          ]),
+    });
+    cleanup(); // the case rows above are asserted already; their detached nodes still answer the hover checks below
+    render(<StudentsAdminPage />);
+    const richRow = (await screen.findAllByTestId("sa-row"))[0];
+    const richCell = richRow.querySelectorAll("td")[3];
+    expect(richCell.querySelector(".sa-source-main")?.textContent).toBe("Google ad · Search · PDF Packs › ad group ag1234");
+    expect(richCell.querySelector(".sa-source-detail")?.textContent).toBe("\u201Cclass 10 question bank\u201D · landed /packs");
+    expect(richCell.getAttribute("title")).toContain("keyword: class 10 question bank");
     // hover text names the campaign exactly
     expect(rows[0].querySelectorAll("td")[3].getAttribute("title")).toContain("campaign: test");
     const at = (id: string) => rows[cases.findIndex(([c]) => c === id)].querySelectorAll("td")[3].getAttribute("title");

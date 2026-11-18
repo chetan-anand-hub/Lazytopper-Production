@@ -44,6 +44,7 @@ import {
   type StudentRow,
   type SummaryResponse,
 } from "./studentsAdminModel";
+import { adSourceLines } from "./adSourceNames";
 import "./studentsAdmin.css";
 import { readGuidePreview, setGuidePreview, type GuidePreview } from "../../components/guide/guideVariant";
 
@@ -152,61 +153,14 @@ interface RowSource {
   utm_medium: string | null;
   utm_campaign: string | null;
   utm_content: string | null;
+  /** SOURCE-3: the Google Ads keyword; present only when stored. */
+  utm_term?: string | null;
   landing: string | null;
   gclid: boolean;
   /** ATTRIB-1: iOS app-campaign click ids; present only when the server sends them. */
   gbraid?: boolean;
   wbraid?: boolean;
   fbclid: boolean;
-}
-
-/** SOURCE-2 — the platforms the Source column names, by `utm_source`. */
-const SOURCE_PLATFORM: Record<string, string> = {
-  youtube: "YouTube",
-  google: "Google",
-  meta: "Facebook",
-  facebook: "Facebook",
-  instagram: "Instagram",
-};
-
-/**
- * MEASURE-1 C — Meta's dynamic `{{site_source_name}}` codes, as a Meta ad's `utm_source`. Without
- * these a Meta ad sign-up read "From l.facebook.com".
- */
-const META_PLACEMENT: Record<string, string> = {
-  an: "Audience Network",
-  fb: "Facebook",
-  ig: "Instagram",
-  msg: "Messenger",
-  th: "Threads",
-};
-
-/**
- * The Source column's text. A missing doc is "—": never a guess, never "Direct".
- * SOURCE-2: `utm_medium` tells a paid ad from an organic post from an untagged link.
- * Facebook and Instagram add `fbclid` to every outbound link, so `fbclid` alone is not an ad.
- */
-function sourceLabel(source: RowSource | null | undefined): string {
-  // ATTRIB-1: no signupSources doc (or a failed read) is "No source recorded" — NOT "Direct", which means a doc with no tags.
-  if (!source) return "No source recorded";
-  const src = (source.utm_source ?? "").toLowerCase();
-  const medium = (source.utm_medium ?? "").toLowerCase();
-  // own keys only: a crafted utm_source such as "constructor" must not read as a platform
-  const platform = Object.prototype.hasOwnProperty.call(SOURCE_PLATFORM, src) ? SOURCE_PLATFORM[src] : undefined;
-  const metaPlacement = Object.prototype.hasOwnProperty.call(META_PLACEMENT, src) ? META_PLACEMENT[src] : undefined;
-  let label: string;
-  if (src === "parent_share") label = "Parent share";
-  else if (metaPlacement) label = medium === "paid" || medium === "cpc" ? `Meta ad (${metaPlacement})` : `Meta (${metaPlacement})`;
-  else if (platform && (medium === "paid" || medium === "cpc")) label = src === "meta" ? "Meta ad" : `${platform} ad`;
-  else if (platform && medium === "organic" && src !== "google") label = `${platform} post`;
-  else if (platform && medium !== "organic") label = `${platform} (untagged)`;
-  else if ((source.ref ?? "").toLowerCase() === "syndicatedsearch.goog") label = "Google ad (search partner)";
-  else if (source.gclid) label = "Google ad"; // gclid is set only by Google Ads auto-tagging
-  else if (source.gbraid || source.wbraid) label = "Google Ads (YouTube/Demand Gen)"; // ATTRIB-1: app-campaign / iOS click ids
-  else if (!src && source.fbclid) label = "Facebook/Instagram (untagged)";
-  else if (source.ref) label = `From ${source.ref}`;
-  else label = "Direct";
-  return source.utm_campaign ? `${label} (${source.utm_campaign})` : label;
 }
 
 /** Hover text: every coarse field, so a campaign can be read exactly. */
@@ -217,6 +171,7 @@ function sourceTitle(source: RowSource | null | undefined): string | undefined {
     source.utm_medium && `medium: ${source.utm_medium}`,
     source.utm_campaign && `campaign: ${source.utm_campaign}`,
     source.utm_content && `content: ${source.utm_content}`,
+    source.utm_term && `keyword: ${source.utm_term}`,
     source.ref && `referrer: ${source.ref}`,
     source.landing && `landed on: ${source.landing}`,
     source.gclid && "Google Ads click (gclid)",
@@ -224,6 +179,17 @@ function sourceTitle(source: RowSource | null | undefined): string | undefined {
     source.fbclid && "Meta click (fbclid)",
   ].filter(Boolean);
   return parts.length > 0 ? parts.join(" · ") : undefined;
+}
+
+/** SOURCE-3: campaign + ad group on line 1, keyword + landing page (small) on line 2. */
+function SourceCell({ source }: { source: RowSource | null | undefined }) {
+  const { main, detail } = adSourceLines(source);
+  return (
+    <>
+      <span className="sa-source-main">{main}</span>
+      {detail ? <span className="sa-source-detail">{detail}</span> : null}
+    </>
+  );
 }
 
 function Covered({ count, coverage, since }: { count: number | null; coverage: "full" | "partial"; since?: string }) {
@@ -507,7 +473,7 @@ export default function StudentsAdminPage() {
                           </td>
                           <td data-label="Method">{methodLabel(row.signInMethods)}</td>
                           <td data-label="Source" title={sourceTitle((row as { source?: RowSource | null }).source)}>
-                            {sourceLabel((row as { source?: RowSource | null }).source)}
+                            <SourceCell source={(row as { source?: RowSource | null }).source} />
                           </td>
                           <td data-label="Plan">
                             <span className={`sa-plan sa-plan-${row.plan.kind}`}>{planLabel(row.plan)}</span>

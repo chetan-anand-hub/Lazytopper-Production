@@ -507,6 +507,8 @@ function createAdminStudentsRoutes(deps = {}) {
       utm_medium: str(d.utm_medium),
       utm_campaign: str(d.utm_campaign),
       utm_content: str(d.utm_content),
+      // SOURCE-3: present only when stored (older rows keep their shape).
+      ...(str(d.utm_term) ? { utm_term: str(d.utm_term) } : {}),
       landing: str(d.landing),
       gclid: d.gclid === true,
       fbclid: d.fbclid === true,

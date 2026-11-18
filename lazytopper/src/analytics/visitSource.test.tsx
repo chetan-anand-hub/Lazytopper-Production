@@ -20,6 +20,7 @@ import {
   LONG_KEEP_KEY,
   LONG_KEEP_MS,
   isTaggedSource,
+  orderSourceForCheckout,
   VISIT_SOURCE_KEY,
   SIGNUP_SOURCE_ENDPOINT,
   captureVisitSource,
@@ -145,6 +146,45 @@ describe("captureVisitSource", () => {
   it("junk or non-http referrers are ignored", () => {
     expect(captureVisitSource({ pathname: "/", search: "" }, "android-app://com.google.android.gm", OWN)?.ref).toBeNull();
     expect(captureVisitSource({ pathname: "/", search: "" }, "not a url", OWN)?.ref).toBeNull();
+  });
+});
+
+describe("★ SOURCE-3 — utm_term (the Google Ads keyword)", () => {
+  const at = (search: string) => captureVisitSource({ pathname: "/packs", search }, "", OWN);
+
+  it("keeps utm_term, with spaces; the other utm keys keep their no-space rule", () => {
+    const got = at("?utm_source=google&utm_medium=cpc&utm_content=ag123&utm_term=class%2010%20question%20bank");
+    expect(got?.utm_term).toBe("class 10 question bank");
+    expect(got?.utm_content).toBe("ag123");
+    expect(at("?utm_campaign=a%20b")?.utm_campaign).toBeNull();
+    expect(at("?utm_term=class+10+cbse")?.utm_term).toBe("class 10 cbse"); // "+" is how ValueTrack encodes a space
+  });
+
+  it("collapses runs of whitespace and trims", () => {
+    expect(at("?utm_term=%20%20class%20%20%2010%09maths%20")?.utm_term).toBe("class 10 maths");
+  });
+
+  it("caps at 64 characters", () => {
+    const long = at(`?utm_term=${"word%20".repeat(30)}`)?.utm_term as string;
+    expect(long.length).toBeLessThanOrEqual(64);
+    expect(long.startsWith("word word")).toBe(true);
+    expect(at(`?utm_term=${"a".repeat(200)}`)?.utm_term).toBe("a".repeat(64));
+  });
+
+  it("drops a term with characters outside the charset or a phone-shaped run; absent when untagged", () => {
+    expect(at("?utm_term=a%3Cb%3E")?.utm_term).toBeUndefined();
+    expect(at("?utm_term=https%3A%2F%2Fx.com")?.utm_term).toBeUndefined();
+    expect(at("?utm_term=call%209876543210")?.utm_term).toBeUndefined();
+    expect(at("?utm_source=google")).not.toHaveProperty("utm_term");
+  });
+
+  it("a utm_term alone counts as tagged, is kept by the stored-touch round trip, and rides the order source (never a click-id value)", () => {
+    expect(isTaggedSource({ utm_term: "class 10" })).toBe(true);
+    rememberVisitSourceOnce({ pathname: "/packs", search: "?gclid=SECRETVALUE&utm_term=class%2010%20maths" }, "", OWN);
+    const out = orderSourceForCheckout();
+    expect(out?.utm_term).toBe("class 10 maths");
+    expect(out?.gclid).toBe(true);
+    expect(JSON.stringify(out)).not.toContain("SECRETVALUE");
   });
 });
 

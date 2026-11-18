@@ -721,8 +721,8 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
     path: "signupSources/{uid}",
     holds:
       "Where the student's visit that created this account came from, kept ONCE at " +
-      "sign-up: the referring site's hostname (only if it was another site), up to four " +
-      "ad-campaign tags (source, medium, campaign, content), the page they landed on " +
+      "sign-up: the referring site's hostname (only if it was another site), up to five " +
+      "ad-campaign tags (source, medium, campaign, content, and the Google Ads keyword, utm_term), the page they landed on " +
       "(no query), and whether an ad click id was present (yes or no only — never the id), " +
       "plus when it was recorded.",
     mechanism: "admin-sdk-required",

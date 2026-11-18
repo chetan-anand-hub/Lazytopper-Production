@@ -15,10 +15,12 @@
  */
 
 const MAX_LEN = 100;
-const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']; // the client never sends utm_term
+const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'];
+const TERM_KEY = 'utm_term'; // SOURCE-3 (owner, 18 Nov 2026): the Google Ads keyword; spaces allowed, whitespace collapsed
 const CLICK_KEYS = ['gclid', 'fbclid', 'gbraid', 'wbraid'];
 
 const TAG_CHARSET = /^[A-Za-z0-9_.\-{}]+$/;
+const TERM_CHARSET = /^[A-Za-z0-9_.\-{}]+(?: [A-Za-z0-9_.\-{}]+)*$/;
 const HOST_CHARSET = /^[a-z0-9.-]+$/;
 const PATH_CHARSET = /^\/(?!\/)[A-Za-z0-9_\-./:]*$/; // a single leading slash: never protocol-relative (//host)
 const MOBILE_SHAPE = /(?<!\d)(?:\+?91[\s-]?)?[6-9]\d{9}(?!\d)/;
@@ -29,7 +31,7 @@ function isOrderSourceDisabled(env = process.env) {
 
 function clean(raw, charset) {
   if (typeof raw !== 'string') return null;
-  const v = raw.trim().slice(0, MAX_LEN);
+  const v = raw.trim().slice(0, MAX_LEN).trim();
   if (!v || !charset.test(v) || MOBILE_SHAPE.test(v)) return null;
   return v;
 }
@@ -47,6 +49,8 @@ function sanitiseOrderSource(raw) {
     const v = clean(raw[k], TAG_CHARSET);
     if (v) out[k] = v;
   }
+  const term = clean(typeof raw[TERM_KEY] === 'string' ? raw[TERM_KEY].replace(/\s+/g, ' ') : raw[TERM_KEY], TERM_CHARSET);
+  if (term) out[TERM_KEY] = term;
   const landing = clean(raw.landing, PATH_CHARSET);
   if (landing) out.landing = landing;
   for (const k of CLICK_KEYS) if (raw[k] === true) out[k] = true;

@@ -231,8 +231,9 @@ const LONG_KEEP_MS = 7 * 24 * 60 * 60 * 1000;
 const GUIDE_INTENT_KEY = "lazytopper.guideIntent";
 const ORDER_SOURCE_KEY = "lazytopper.orderSource"; // ORDER-SOURCE-1
 const START_HERE_SUBJECT_HINT_KEY = "lazytopper.startHereSubject";
-const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content"] as const;
+const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
 const UTM_CHARSET = /^[A-Za-z0-9_.\-{}]+$/;
+const UTM_TERM_CHARSET = /^[A-Za-z0-9_.\-{}]+(?: [A-Za-z0-9_.\-{}]+)*$/; // SOURCE-3
 const HOST_CHARSET = /^[a-z0-9.-]{1,253}$/;
 const LANDING_CHARSET = /^\/[A-Za-z0-9_\-./:]*$/;
 const MOBILE_SHAPE = /(?<!\d)(?:\+?91[\s-]?)?[6-9]\d{9}(?!\d)/;
@@ -243,6 +244,7 @@ interface VisitSource {
   utm_medium: string | null;
   utm_campaign: string | null;
   utm_content: string | null;
+  utm_term?: string;
   landing: string;
   gclid: boolean;
   fbclid: boolean;
@@ -250,10 +252,11 @@ interface VisitSource {
   wbraid?: boolean;
 }
 
-function cleanUtm(raw: string | null): string | null {
+function cleanUtm(raw: string | null, key: string = ""): string | null {
   if (raw === null) return null;
-  const value = raw.trim().slice(0, 64);
-  if (value.length === 0 || !UTM_CHARSET.test(value) || MOBILE_SHAPE.test(value)) return null;
+  const isTerm = key === "utm_term";
+  const value = (isTerm ? raw.replace(/\s+/g, " ") : raw).trim().slice(0, 64).trim();
+  if (value.length === 0 || !(isTerm ? UTM_TERM_CHARSET : UTM_CHARSET).test(value) || MOBILE_SHAPE.test(value)) return null;
   return value;
 }
 
@@ -311,17 +314,19 @@ export function captureVisitSource(location: { pathname: string; search: string 
     utm_campaign: cleanUtm(params.get(UTM_KEYS[2])),
     utm_content: cleanUtm(params.get(UTM_KEYS[3])),
   };
+  const utmTerm = cleanUtm(params.get(UTM_KEYS[4]), "utm_term");
   const carried = new Set((params.get("lt_clk") ?? "").split(",").map((x) => x.trim()));
   const flag = (k: string) => (params.get(k) ?? "") !== "" || carried.has(k);
   const gclid = flag("gclid");
   const fbclid = flag("fbclid");
   const gbraid = flag("gbraid");
   const wbraid = flag("wbraid");
-  const tagged = ref !== null || gclid || fbclid || gbraid || wbraid || Object.values(utm).some((v) => v !== null);
+  const tagged = ref !== null || gclid || fbclid || gbraid || wbraid || utmTerm !== null || Object.values(utm).some((v) => v !== null);
   if (kind === "same" && !tagged) return null;
   return {
     ref,
     ...utm,
+    ...(utmTerm ? { utm_term: utmTerm } : {}),
     landing: cleanLanding(location.pathname),
     gclid,
     fbclid,
@@ -333,7 +338,7 @@ export function captureVisitSource(location: { pathname: string; search: string 
 function isTaggedSource(source: Partial<VisitSource> | null | undefined): boolean {
   if (!source || typeof source !== "object") return false;
   return (
-    [source.utm_source, source.utm_medium, source.utm_campaign, source.utm_content].some((v) => typeof v === "string" && v !== "") ||
+    [source.utm_source, source.utm_medium, source.utm_campaign, source.utm_content, source.utm_term].some((v) => typeof v === "string" && v !== "") ||
     source.gclid === true ||
     source.fbclid === true ||
     source.gbraid === true ||
@@ -363,6 +368,7 @@ function sanitiseStored(v: unknown): VisitSource | null {
     utm_medium: cleanUtm(str(o.utm_medium)),
     utm_campaign: cleanUtm(str(o.utm_campaign)),
     utm_content: cleanUtm(str(o.utm_content)),
+    ...(cleanUtm(str(o.utm_term), "utm_term") ? { utm_term: cleanUtm(str(o.utm_term), "utm_term") as string } : {}),
     landing: landing !== null && landing.length <= 200 && LANDING_CHARSET.test(landing) ? redactPhoneSegments(landing) : "/",
     gclid: o.gclid === true,
     fbclid: o.fbclid === true,
