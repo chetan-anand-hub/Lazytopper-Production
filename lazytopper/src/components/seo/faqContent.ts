@@ -11,6 +11,8 @@
 // ★ NO REACT, NO SERVICES: imported by the node script scripts/seo/writeStaticHeads.ts.
 // ★ Every sentence restates something the page itself (or CLAUDE.md §13 / CBSE's published pattern) says.
 
+import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, BUNDLE_NAME, CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT, REDOWNLOAD_UNTIL } from "../../lib/packs/packLabels";
+
 export interface FaqItem {
   question: string;
   answer: string;
@@ -94,6 +96,11 @@ export const MOCK_TEST_FAQ: readonly FaqItem[] = [
       "Board answers are marked in steps, so the formula, the working, the final answer and the unit can each earn marks. The Answer Checker marks a photographed or uploaded handwritten answer step by step and shows where marks were lost.",
   },
   {
+    question: "Can I practise CBSE Class 10 sample papers 2026-27 and get my answers checked?",
+    answer:
+      "Yes. Take a full board-pattern mock in Maths or Science, write your answers on paper, then upload a photo of a handwritten answer to the Answer Checker to see the marks for every step and where marks were lost. The first answer check is free without an account. CBSE publishes its own official sample papers on its website; LazyTopper's mocks are separate practice papers in the same pattern.",
+  },
+  {
     question: "Is this the real 2027 board paper?",
     answer:
       "No. A mock is practice in the board pattern, not the actual paper. LazyTopper is an independent platform and is not affiliated with CBSE.",
@@ -115,6 +122,11 @@ export const QUESTION_BANK_FAQ: readonly FaqItem[] = [
     question: "Are the questions chapter-wise?",
     answer:
       "Yes. Pick a chapter from the list on the page to open its notes, its CBQs and its NCERT solutions, or start practice for that chapter from the Practice hub.",
+  },
+  {
+    question: "Is there a chapter-wise CBSE Class 10 question bank PDF?",
+    answer:
+      "Yes. The printable question bank packs put the chapter-wise Maths and Science question bank in PDF form with worked solutions: a Chapter Pack for one chapter, a Subject Pack for one whole subject, and a Maths + Science Bundle for both. They are one-time purchases and never renew; the price is shown on the PDF packs page.",
   },
   {
     question: "Does it cover the 2026-27 syllabus only?",
@@ -156,6 +168,89 @@ export const MARKING_SCHEME_FAQ: readonly FaqItem[] = [
   },
 ];
 
+// SEO-LLM-2 (18 Nov 2026) — answer-first FAQs for the pages AI assistants and Google should name for "question bank PDF",
+// "CBQ practice" and "important questions". Rendered with SeoFaq (always visible), serialised by faqPageJsonLd. Number-free
+// except the pinned bank / CBQ claims: prices are shown on the pages from the pack helpers.
+export const PACKS_ANSWER_FAQ: readonly FaqItem[] = [
+  {
+    question: "Is there a chapter-wise CBSE Class 10 question bank PDF?",
+    answer: `Yes. LazyTopper covers CBSE Class 10 only (Maths and Science, 2027 boards), and its PDF packs are printable Class 10 question banks, chapter-wise, with a worked solution for every question. The bank has ${BANK_QUESTIONS_CLAIM} questions, including ${BANK_CBQS_CLAIM} competency-based questions. A Chapter Pack covers one chapter, a Subject Pack covers every chapter of one subject, and the ${BUNDLE_NAME} covers both subjects with the mock papers.`,
+  },
+  {
+    question: "What does a PDF pack cost?",
+    answer:
+      "Each pack is a one-time payment, shown as the price plus GST on this page, and it never renews. A Chapter Pack is the smallest and cheapest; the Maths + Science Bundle covers everything. The CBQ Packs are sold separately, one per subject.",
+  },
+  {
+    question: "What is free?",
+    answer:
+      "Each pack has a free one-page sample PDF with no sign-up. Chapter notes, NCERT solutions, free practice and a first answer check are also free, and every new account gets a 7-day free trial.",
+  },
+  {
+    question: "Are there full mock papers in the PDF packs?",
+    answer: `Yes. The Mock Pack has ${MOCKS_PER_SUBJECT} full board-pattern mock papers for one subject with marking guides, and the ${BUNDLE_NAME} has the mocks for both subjects.`,
+  },
+  {
+    question: "Can I download the PDFs again?",
+    answer: `Yes. Owned packs can be downloaded again from My packs until ${REDOWNLOAD_UNTIL}. Each file carries the buyer's name or contact on every page, so it is for your own use.`,
+  },
+];
+
+export const CBQ_PACKS_ANSWER_FAQ: readonly FaqItem[] = [
+  {
+    question: "What are CBQ Packs?",
+    answer: `CBQ Packs are printable PDFs of competency-based questions (CBQs) for CBSE Class 10 only (Maths and Science, 2027 boards), one pack for Maths and one for Science, with ${CBQ_SUBJECT_CLAIM} per subject. They cover every chapter, ${CBQ_CHAPTER_CLAIM}, with step-wise worked solutions.`,
+  },
+  {
+    question: "Which question types are in a CBQ Pack?",
+    answer:
+      "MCQs, assertion-reason questions, short answer, case-study and long-answer questions, from 1 mark to 5 marks, so every section A to E of the board paper is covered.",
+  },
+  {
+    question: "Why practise CBQs for the Class 10 boards?",
+    answer:
+      "CBSE sets about half of the 2026-27 Class 10 paper as competency-based questions, so regular CBQ practice matters for both Maths and Science.",
+  },
+  {
+    question: "Is there a free CBQ sample?",
+    answer:
+      "Yes. Each CBQ Pack has a free sample, and every chapter's notes include free competency-based questions. The price of a pack is shown on this page as the price plus GST, a one-time payment.",
+  },
+  {
+    question: "Are the Maths and Science CBQ Packs sold together?",
+    answer:
+      "No. Each subject has its own CBQ Pack, sold separately, and the CBQ Packs are not included in the Subject Pack or the Maths + Science Bundle.",
+  },
+];
+
+/** The important-questions pages, one FAQ per subject (the page text and the JSON-LD both read this). */
+export function importantQuestionsFaq(subject: "Maths" | "Science"): readonly FaqItem[] {
+  return [
+    {
+      question: `What are Class 10 ${subject} important questions?`,
+      answer: `Chapter-wise board-pattern ${subject} questions for the 2027 boards, written by LazyTopper and chosen by its prediction model from ten years of CBSE paper trends and the 2026-27 syllabus. They are a guide to what to practise first, not the actual paper.`,
+    },
+    {
+      question: `Are the ${subject} important questions chapter-wise?`,
+      answer: `Yes. Pick a chapter on the page to practise that chapter's important questions, in the CBSE sections from 1-mark MCQs to 5-mark answers.`,
+    },
+    {
+      question: "Will these questions come in the board exam?",
+      answer:
+        "Nobody can promise that. LazyTopper does not claim to know the questions of any upcoming exam; the questions are chosen from exam trends to help you spend your time on what matters most.",
+    },
+    {
+      question: "Can I check my answers?",
+      answer:
+        "Yes. Try a question first, then see its step-wise solution. To have a handwritten answer marked step by step, use the Answer Checker; the first check is free without an account.",
+    },
+    {
+      question: `Where can I get a Class 10 ${subject} question bank PDF?`,
+      answer: `The printable question bank packs have every ${subject} chapter with worked solutions, as a one-time purchase. See the PDF packs page for the price plus GST.`,
+    },
+  ];
+}
+
 /** A schema.org FAQPage for exactly these items. */
 export function faqPageJsonLd(items: readonly FaqItem[]): Record<string, unknown> {
   return {
@@ -177,6 +272,11 @@ export function faqItemsForPath(path: string): readonly FaqItem[] | null {
   if (path === "/mock-test-class-10") return MOCK_TEST_FAQ;
   if (path === "/question-bank-class-10") return QUESTION_BANK_FAQ;
   if (path === "/cbse-marking-scheme-class-10") return MARKING_SCHEME_FAQ;
+  // SEO-LLM-2 — the pack pages and the two important-questions pages.
+  if (path === "/packs") return PACKS_ANSWER_FAQ;
+  if (path === "/cbq-packs") return CBQ_PACKS_ANSWER_FAQ;
+  if (path === "/highly-probable/10/Maths") return importantQuestionsFaq("Maths");
+  if (path === "/highly-probable/10/Science") return importantQuestionsFaq("Science");
   return null;
 }
 

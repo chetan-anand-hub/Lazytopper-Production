@@ -216,6 +216,21 @@ export default function DesktopNotesPage() {
         <>
           <Note spec={spec} initialTab={noteTabFromParam(params.get("tab"))} />
           <NotesNav slug={topic.slug} />
+          {/* SEO-LLM-2: links to the question bank and the important questions (anchor = the search words). Navigation only. */}
+          <nav className="lt-notes-page__related" aria-label="Practise this subject" data-testid="notes-practice-links">
+            <h2 className="lt-notes-page__related-title">Practise {topic.subject}</h2>
+            <ul className="lt-notes-page__related-list">
+              <li>
+                <Link to="/question-bank-class-10">CBSE Class 10 question bank</Link>
+              </li>
+              <li>
+                <Link to={`/highly-probable/10/${topic.subject}`}>Class 10 {topic.subject} important questions</Link>
+              </li>
+              <li>
+                <Link to="/packs">Class 10 question bank PDF packs</Link>
+              </li>
+            </ul>
+          </nav>
           <PublicPeek page="notes" chapterSlug={topic.slug} />
           {/* SEO-5 PR-4 — the end of every notes page links to the answer-marking guide. */}
           <Link to="/check-your-answer" className="lt-notes-page__cbse">

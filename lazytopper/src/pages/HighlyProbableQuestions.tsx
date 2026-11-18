@@ -25,6 +25,8 @@ import {
   getHighlyProbableQuestions,
 } from "../data/highlyProbableQuestions";
 
+import SeoFaq from "../components/seo/SeoFaq";
+import { importantQuestionsFaq } from "../components/seo/faqContent";
 import { useCurrentURL } from "../utils/useCurrentURL";
 import { buildTopicHubUrl } from "../utils/buildUrl";
 
@@ -967,7 +969,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                   past-paper questions; they are LazyTopper-written, chosen by our model. The
                   one evidence-base figure is the honesty line below, which reads the
                   authoritative constant ([FU-EVIDENCE-BASE-CLAIM-INCONSISTENT]). */}
-              Chapter-wise board-pattern questions to practise for the 2027 boards. Try each one first, then check your answer.
+              Chapter-wise board-pattern questions to practise for the 2027 boards. Pick a chapter, try each question first, then check your answer against its step-wise solution.
             </p>
             <div
               style={{
@@ -2089,6 +2091,8 @@ const HighlyProbableQuestionsPage: React.FC = () => {
           </section>
         )}
         <ImportantQsOffers subject={subjectKey} topic={topicFilter} />
+        {/* SEO-LLM-2: always-visible quick answers (the FAQPage JSON-LD in the head is these same items). */}
+        <SeoFaq headingId="hpq-faq-h" heading={`Class 10 ${subjectKey} important questions: quick answers`} items={importantQuestionsFaq(subjectKey === "Science" ? "Science" : "Maths")} />
       </div>
     </div>
   );
