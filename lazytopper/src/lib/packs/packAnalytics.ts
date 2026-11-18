@@ -26,7 +26,6 @@ import {
   newCheckoutAttemptId,
   sendGa4Hit,
 } from "../../analytics/analytics";
-import { rememberCheckoutAttempt } from "../../analytics/adSignals";
 import { priceWithGst } from "../../config/pricing";
 import { reportPackSampleSeen, signedInHint } from "./packSampleSeen";
 
@@ -178,7 +177,6 @@ export function trackPackCheckout(
     // other event (META_EVENTS["pack_checkout"]). `eventID` is the attempt id the call site already mints (else one is made here);
     // value is the TOTAL charged (base + GST, rupees); nothing about the person. The Premium pass tap is unchanged.
     const attemptId = ctx.attemptId || newCheckoutAttemptId();
-    rememberCheckoutAttempt(attemptId); // SERVER-EVENTS-1: the order-create body carries it so the server InitiateCheckout reuses this eventID
     const sendMeta = !metaCheckoutSent.has(attemptId);
     if (sendMeta) metaCheckoutSent.add(attemptId);
     const total = typeof details.valueInr === "number" && Number.isFinite(details.valueInr) && details.valueInr > 0 ? priceWithGst(details.valueInr) : null;
