@@ -146,7 +146,7 @@ function setup({ sub = 'free', owns = true, used, holds, packs = [], uid = 'u1',
   const db = memoryDb(seed);
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
-  const checks = createTestSeriesChecks({ adminFirestore: db, telemetry, now: () => clock.now, manifest, readBody: async (r) => r.body });
+  const checks = createTestSeriesChecks({ adminFirestore: db, telemetry, now: () => clock.now, manifest, readBody: async (r) => r.body, env });
   const sent = [];
   const gate = createEntitlementGate({
     adminFirestore: db, telemetry, logger: { warn() {}, info() {}, error() {} }, now: () => clock.now, cacheTtlMs: 0, env,
@@ -668,4 +668,20 @@ test('ownerSeriesGrade: the SAME checks as admission (paper + written ids + cano
   assert.equal(await non.checks.ownerSeriesGrade(reqWith(seriesBody()), non.uid), false);
   assert.equal(holdsOf(s.db, s.uid), 0);
   assert.equal(usedOnPaper(s.db, s.uid, CT), 0);
+});
+
+
+test('TS_CHECKS_DISABLED=1: no LIMITS-1 exemption either - ownerSeriesPaper / ownerSeriesGrade are false for a real owner on a real series paper', async () => {
+  for (const v of ['1', 'true', 'on', 'yes']) {
+    const s = setup({ env: { TS_CHECKS_DISABLED: v } });
+    assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'chapter-test', 'ct-ts1-real-numbers--abc'), false, v);
+    assert.equal(await s.checks.ownerSeriesGrade(reqWith(seriesBody()), s.uid), false, v);
+    // and no series admission (the gate's own switch is the SAME function)
+    assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), fakeRes(), GRADE, s.uid), true);
+    assert.equal(s.sent.at(-1).body.feature, 'grade-worksheet');
+  }
+  const on = setup({ env: { TS_CHECKS_DISABLED: '0' } });
+  assert.equal(await on.checks.ownerSeriesPaper(on.uid, 'chapter-test', 'ct-ts1-real-numbers--abc'), true, 'off-values leave it on');
+  const { testSeriesChecksDisabled } = require('./testSeriesChecks.cjs');
+  assert.equal(require('./entitlement.cjs').testSeriesChecksDisabled, testSeriesChecksDisabled, 'ONE switch function for both');
 });

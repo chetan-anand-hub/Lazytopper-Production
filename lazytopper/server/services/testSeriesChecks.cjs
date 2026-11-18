@@ -204,6 +204,14 @@ function verifySubmission(body, paper) {
   return { ok: true };
 }
 
+/**
+ * THE emergency switch (TS_CHECKS_DISABLED=1 / true / on / yes): the whole Test Series rule is off - no series admission
+ * (entitlement.cjs) and no LIMITS-1 exemption (ownerSeriesPaper / ownerSeriesGrade). ONE function, used by both. PURE.
+ */
+function testSeriesChecksDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.TS_CHECKS_DISABLED) || '').trim());
+}
+
 const docId = (v) => (typeof v === 'string' && v.trim() && !v.includes('/') ? v.trim() : '');
 const mapOf = (data, field) => (data && data[field] && typeof data[field] === 'object' && !Array.isArray(data[field]) ? data[field] : {});
 
@@ -238,7 +246,7 @@ function isLivePack(pack, nowMs) {
  *           readBody?: (req) => Promise<object>, newHoldId?: () => string, logger?: object }} deps
  */
 function createTestSeriesChecks(deps = {}) {
-  const { adminFirestore = null, telemetry = null, now = () => Date.now(), readBody = null } = deps;
+  const { adminFirestore = null, telemetry = null, now = () => Date.now(), readBody = null, env = process.env } = deps;
   const newHoldId = typeof deps.newHoldId === 'function' ? deps.newHoldId : () => crypto.randomUUID().replace(/-/g, '');
   const manifest = deps.manifest || loadManifest(MANIFEST_PATH, deps.logger || console);
   const emit = (e) => {
@@ -438,7 +446,8 @@ function createTestSeriesChecks(deps = {}) {
    */
   async function ownerSeriesPaper(uid, kind, worksheetId) {
     try {
-      if (manifest.count === 0) return false;
+      // The kill switch turns the exemption off too: with TS_CHECKS_DISABLED every paper is metered exactly as before.
+      if (testSeriesChecksDisabled(env) || manifest.count === 0) return false;
       const paper = seriesPaperOf({ worksheetId }, manifest);
       if (!paper) return false;
       const paperKind = paper.prefix.startsWith('ct-') ? 'chapter-test' : paper.prefix.startsWith('fm-') ? 'full-mock' : '';
@@ -456,7 +465,7 @@ function createTestSeriesChecks(deps = {}) {
    */
   async function ownerSeriesGrade(req, uid) {
     try {
-      if (manifest.count === 0) return false;
+      if (testSeriesChecksDisabled(env) || manifest.count === 0) return false;
       const body = await bodyOf(req);
       const paper = seriesPaperOf(body, manifest);
       if (!paper || !verifySubmission(body, paper).ok) return false;
@@ -486,6 +495,7 @@ function createTestSeriesChecks(deps = {}) {
 
 module.exports = {
   createTestSeriesChecks,
+  testSeriesChecksDisabled,
   setTestSeriesDeferred,
   testSeriesDeferredOf,
   TS_DEFERRED,
