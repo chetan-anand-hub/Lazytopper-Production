@@ -624,7 +624,8 @@ describe("TS-PAGE-2 — H1 witness and clock nodes", () => {
   it("the committed /test-series captures (both widths) carry the H1 and no clock node", () => {
     for (const file of ["test-series.html", "__desktop/test-series.html"]) {
       const html = readFileSync(resolve(process.cwd(), "prerendered", file), "utf8");
-      expect(html, file).toMatch(/<h1[^>]*>CBSE Class 10 Test Series: Maths &amp; Science<\/h1>/);
+      const h1 = /<h1[^>]*>([\s\S]*?)<\/h1>/.exec(html)?.[1] ?? "";
+      expect(h1.replace(/<[^>]+>/g, ""), file).toBe("CBSE Class 10 Test Series: Maths &amp; Science");
       expect(html, file).not.toContain("data-lt-clock");
       expect(html, file).not.toContain('href="/login');
     }

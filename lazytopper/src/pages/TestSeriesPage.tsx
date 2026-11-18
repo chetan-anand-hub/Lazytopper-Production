@@ -386,7 +386,9 @@ export default function TestSeriesPage() {
           <div className="lt-sp__w lt-ts-hero__in">
             <p className="lt-sp-eyebrow lt-ts-hero__eyebrow">{TEST_SERIES_NAME.toUpperCase()} · 2026-27</p>
             <h1 id="ts-h1" className="lt-ts-hero__h1">
-              CBSE Class 10 Test Series: Maths &amp; Science
+              {/* Two fixed lines from 768 px: Fraunces swapping in for its fallback re-wrapped one line into two (a desktop shift). */}
+              <span className="lt-ts-hero__h1-l">CBSE Class 10 Test Series:</span>{" "}
+              <span className="lt-ts-hero__h1-l">Maths &amp; Science</span>
             </h1>
             <p className="lt-ts-hero__lede" data-testid="ts-contents">
               <strong>

@@ -669,6 +669,9 @@
   .lt-ts-hero__h1 {
     font-size: 2.1rem;
   }
+  .lt-ts-hero__h1-l {
+    display: block;
+  }
   .lt-ts-stats {
     max-width: 520px;
   }
