@@ -18,11 +18,13 @@ export interface SeoLandingShellProps {
   eyebrow: string;
   sub: string;
   cta: { to: string; label: string; testId: string };
+  /** PACKS-LPX-2: a primary Buy in the hero; the free `cta` then renders as the secondary button. */
+  heroBuy?: ReactNode;
   faq: readonly FaqItem[];
   children: ReactNode;
 }
 
-export default function SeoLandingShell({ path, testId, eyebrow, sub, cta, faq, children }: SeoLandingShellProps) {
+export default function SeoLandingShell({ path, testId, eyebrow, sub, cta, heroBuy, faq, children }: SeoLandingShellProps) {
   const spec = SEO_PAGE_SPECS[path];
   const others = SEO_PAGES_PATHS.filter((p) => p !== path);
   return (
@@ -35,7 +37,8 @@ export default function SeoLandingShell({ path, testId, eyebrow, sub, cta, faq, 
           <p className="lt-seol__eyebrow">{eyebrow}</p>
           <h1>{spec.h1}</h1>
           <p className="lt-seol__sub">{sub}</p>
-          <Link to={cta.to} className="lt-seol__cta" data-testid={cta.testId}>
+          {heroBuy}
+          <Link to={cta.to} className={heroBuy ? "lt-seol__cta lt-seol__cta--secondary" : "lt-seol__cta"} data-testid={cta.testId}>
             {cta.label}
           </Link>
         </div>

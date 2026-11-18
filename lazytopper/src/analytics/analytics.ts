@@ -3,6 +3,7 @@ import { recordActivity } from "../services/activityClient";
 import { rememberVisitSourceOnce } from "./visitSource";
 import { writeFbcCookieOnce } from "./metaClickId";
 import { startEngagedVisitWatch, type EngagedVisitTrigger } from "./engagedVisit";
+import { currentInAppPay } from "../utils/inAppPay";
 
 /**
  * THE ONE ANALYTICS ENTRY POINT. Nothing else initialises a vendor, and nothing else
@@ -1178,8 +1179,11 @@ function checkoutParams(d: CheckoutDetails): { vercel: Record<string, unknown>; 
   const money: Record<string, unknown> = value === null ? { currency: CHECKOUT_CURRENCY } : { currency: CHECKOUT_CURRENCY, value };
   // PRICING-PAGES-2 F4: on a sales page (and only there) `surface` names it, on Vercel, GA4 and (custom param) Meta.
   const sales = d.surface === undefined ? salesPageSurface : null;
+  const inApp = currentInAppPay();
   const payer: Record<string, unknown> = {
     ...(d.payer === "parent" ? { payer: "parent" } : {}),
+    // INAPP-PAY-1: which in-app browser the checkout started in (a coarse slug; absent in a normal browser and when killed).
+    ...(inApp ? { in_app: inApp.app } : {}),
     ...(d.surface === "for_parents" ? { surface: "for_parents" } : {}),
     ...(sales ? { surface: sales } : {}),
   };
@@ -2178,6 +2182,16 @@ export function trackSignUpIfNew(credential: UserCredential): void {
 
 export interface OnboardingEventParams {
   inapp_signin_banner_shown: { app: "instagram" | "facebook" | "youtube" | "other-webview" };
+}
+
+/**
+ * INAPP-PAY-1 - the in-app-browser payment rescue (shown after a closed / failed Razorpay sheet inside Instagram / Facebook /
+ * YouTube / another webview). `app` is a coarse slug (instagram | facebook | youtube | other). Vendors only; nothing else rides along.
+ */
+export interface OnboardingEventParams {
+  inapp_pay_rescue_shown: { app: "instagram" | "facebook" | "youtube" | "other" };
+  inapp_pay_rescue_open_browser: { app: "instagram" | "facebook" | "youtube" | "other" };
+  inapp_pay_rescue_copy_link: { app: "instagram" | "facebook" | "youtube" | "other" };
 }
 
 /* ------------------------------------------------------------------------- *

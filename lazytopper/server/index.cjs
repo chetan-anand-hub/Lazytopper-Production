@@ -471,8 +471,12 @@ const gstInvoicer = require('./services/gstInvoice.cjs').createGstInvoicer({
     return (record && record.displayName) || '';
   },
 });
+// SERVER-EVENTS-1: Meta Conversions API + GA4 Measurement Protocol, fired (never awaited) from the verified-paid points. All-optional env; absent -> no-op.
+const serverEvents = require('./services/serverEvents.cjs').createServerEvents({ firestore: adminFirestore, telemetry });
+serverEvents.bootLine();
 const paymentRoutes = createPaymentRoutes({
   sendJson,
+  serverEvents,
   verifiedCaller,
   adminFirestore,
   telemetry,
@@ -513,6 +517,7 @@ const packRoutes = createPackRoutes({
 });
 const parentPayRoutes = createParentPayRoutes({
   sendJson,
+  serverEvents,
   verifiedCaller,
   adminFirestore,
   telemetry,
@@ -527,6 +532,7 @@ const parentPayRoutes = createParentPayRoutes({
 });
 const guestPayRoutes = createGuestPayRoutes({
   sendJson,
+  serverEvents,
   verifiedCaller,
   adminFirestore,
   telemetry,
@@ -947,7 +953,7 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && reqPath === '/api/activity') return require('./routes/studentActivity.cjs').handleStudentActivity(req, res, { sendJson, firebaseAdmin, adminFirestore }); // STUDENT-ACTIVITY-1: signed-in students' section/event counts (first-party, admin-only; see the module)
   if (req.method === 'POST' && reqPath === '/api/trial/ensure-signup') return require('./routes/trialEnsure.cjs').handleEnsureSignupTrialRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // TRIAL-SAVE-1: restores a NEW (<24h) account's sign-up trial whose browser write was lost; create-only transaction, verified uid, never for an older account (see the module)
-  if (req.method === 'POST' && reqPath === '/api/signup-source') return require('./routes/signupSource.cjs').handleSignupSourceRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // SOURCE-1: a NEW account's one-visit source, once, create-only, server-only (see the module)
+  if (req.method === 'POST' && reqPath === '/api/signup-source') return require('./routes/signupSource.cjs').handleSignupSourceRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore, serverEvents }); // SOURCE-1: a NEW account's one-visit source, once, create-only, server-only (see the module)
   if (req.method === 'POST' && reqPath === '/api/whatsapp/optin') return require('./routes/whatsappOptIn.cjs').handleWhatsappOptInRequest(req, res, { sendJson, adminFirestore, telemetry }); // WHATSAPP-OPTIN-1: a visitor's WhatsApp number + consent tick on a free sample - waOptIns/{sha256(phone)}, Admin SDK only, per-IP limited, number never logged
   if (req.method === 'POST' && reqPath === '/api/pack-sample-seen') return require('./routes/packSampleSeen.cjs').handlePackSampleSeenRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // SAMPLE-FOLLOWUP-1: a SIGNED-IN student saved a pack's free sample - first save per pack, in their own nudgeEmails row (see the module)
   if ((req.method === 'GET' || req.method === 'POST') && reqPath === GUEST_EMAIL_UNSUBSCRIBE_PATH) return nudgeEmailer.handleGuestUnsubscribe(req, res, reqUrlRaw); // GUEST-ABANDON-1: the guest checkout email's stop link (HMAC over the email key; GET confirms, POST records emailSuppression/{key})

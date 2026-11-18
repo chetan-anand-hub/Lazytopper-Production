@@ -95,20 +95,20 @@ export const CBQ_MARKED_LINE = `Solve on paper, then get your answers marked lik
 
 /** PACKS-TIDY-2 (owner, 11 Nov 2026): the page's product name, eyebrow and H1 (the ads' words: PDF packs, Class 10, worked solutions). */
 export const PACKS_EYEBROW = `${QUESTION_BANK_NAME.toUpperCase()} · CBSE CLASS 10 · BOARDS 2027`;
-export const PACKS_H1 = `${QUESTION_BANK_NAME}: Class 10 Maths and Science PDF packs`;
+export const PACKS_H1 = "Class 10 Mock Tests, Chapter-wise Question Bank & PYQs";
 /**
  * A2 (speed): the H1 is drawn as three fixed lines, each short enough for ONE line at 320 px in Fraunces and in any fallback. Its line
  * count (so its height and the page below it) is then the same in every font, and with the first screen's font-display: block
  * (packsHub.css) the H1 is painted once, in Fraunces, and never grows into a new, later largest-contentful-paint when the app takes
  * over. Joined, the lines are PACKS_H1 exactly (the heading's text for crawlers and screen readers is unchanged).
  */
-export const PACKS_H1_LINES: readonly string[] = [`${QUESTION_BANK_NAME}: `, "Class 10 Maths and ", "Science PDF packs"];
+export const PACKS_H1_LINES: readonly string[] = ["Class 10 Mock Tests, ", "Chapter-wise Question ", "Bank & PYQs"];
 /**
  * The hero sentence. Owner 11 Nov 19:21 asked for "… Worked solutions as per the CBSE marking scheme." ONLY if every question sold here is
  * step-marked; measured 11 Nov on the real selections it is not (Bundle sheets 9,420 of 10,686 step-marked; mocks and CBQ packs 100%), so
  * the standing wording stays (owner ruling 25 Oct: no "every question step-marked" claim until the rest have step-wise solutions).
  */
-export const PACKS_HERO_LINE = "Every question. Worked solutions.";
+export const PACKS_HERO_LINE = "Board-pattern practice papers, worksheets and important questions for CBSE 2027, each with step-by-step explanations and CBSE step marking.";
 export const PACKS_LEDE = "Printable Class 10 Maths and Science question banks. Solve with a pen, then check your work against the worked solutions.";
 export const PACKS_PART_HEADING = "Need only part of it?";
 export const PACKS_CBQ_SEPARATE = "CBQ Packs are separate.";
@@ -298,6 +298,11 @@ function Hero({ api }: { api: PacksShopApi }) {
             </button>
             <PackSampleChoice sku="pack_bundle" surface="packs_tile" buy={sampleBuyFor(api, "pack_bundle")} />
           </div>
+          {/* PACKS-LPX-2: refund (cancellation) policy and contact, small, right under the Buy (transparency for first-time visitors). */}
+          <p className="lt-pk-bundle__policy" data-testid="packs-policy-links">
+            <Link to="/legal/refund">Cancellation Policy</Link>
+            <Link to="/contact">Contact</Link>
+          </p>
           {/* v1.2 L1: the three paragraphs under the links, folded into ONE closed row (in the DOM and the prerender). */}
           <details className="lt-pk-fold lt-pk-fold--about" data-testid="packs-about-bundle">
             <summary className="lt-pk-fold__sum">{PACKS_ABOUT_BUNDLE}</summary>

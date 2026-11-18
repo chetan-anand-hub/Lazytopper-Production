@@ -28,7 +28,7 @@
 .lt-pk-hero__eyebrow { margin: 0; font-size: 11px; font-weight: 800; letter-spacing: 0.06em; line-height: 1.4; color: #6fe0a8; }
 .lt-pk .lt-pk-hero__h1 { font-size: 22px; line-height: 1.18; font-weight: 700; color: #fff; }
 .lt-pk-hero__l { display: block; white-space: nowrap; }
-.lt-pk-hero__line { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.35; color: #f1f4f8; }
+.lt-pk-hero__line { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.35; color: #f1f4f8; }
 .lt-pk-hero__copy .lt-founder-badge { align-self: flex-start; margin: 0; font-size: 13px; padding: 4px 10px; }
 .lt-pk-hero__terms { margin: 0; font-size: 12.5px; line-height: 1.4; color: #c9d4e3; }
 
@@ -145,6 +145,8 @@
 .lt-pk-row__gst { font-weight: 600; }
 .lt-pk-row__body .lt-ptb__see, .lt-pk-row__body .lt-psl { color: var(--pk-gt); }
 .lt-pk-row__body .lt-pt__preboard { margin: 0; }
+.lt-pk-bundle__policy { margin: 0; display: flex; justify-content: center; gap: 4px 18px; font-size: 12px; line-height: 1.3; }
+.lt-pk-bundle__policy a { display: inline-flex; align-items: center; min-height: 32px; color: var(--pk-ink2); text-decoration: underline; }
 /* PACKS-LPX-1: footer legal/contact links meet the 44px touch-target guideline on this page (below the fold, so no CLS). Scoped to .lt-pk. */
 .lt-pk .lt-public-legal a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; }
 @media (prefers-reduced-motion: reduce) { .lt-pk-row__price::after { transition: none; } }

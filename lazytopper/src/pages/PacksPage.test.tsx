@@ -81,8 +81,8 @@ describe("PacksPage", () => {
     page();
     // PACKS-TIDY-2: ONE h1 names the product (the ads' words); the old h1 is the hero sentence right under it.
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Question Bank + Mocks: Class 10 Maths and Science PDF packs");
-    expect(document.querySelector(".lt-pk-hero__line")?.textContent).toBe("Every question. Worked solutions.");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Class 10 Mock Tests, Chapter-wise Question Bank & PYQs");
+    expect(document.querySelector(".lt-pk-hero__line")?.textContent).toBe("Board-pattern practice papers, worksheets and important questions for CBSE 2027, each with step-by-step explanations and CBSE step marking.");
     // A2: the H1 is three fixed lines (one height in every font); joined they are the heading's text, word for word.
     expect(PACKS_H1_LINES.join("")).toBe(PACKS_H1);
     expect(document.querySelectorAll("h1 .lt-pk-hero__l")).toHaveLength(3);
