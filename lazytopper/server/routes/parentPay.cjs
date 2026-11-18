@@ -94,6 +94,7 @@ const { grantPack, listPacks, PackGrantInputError } = require('../services/packG
 // GST-INVOICE-1 (DARK): the parent's confirmed state on the order, and the tax invoice after a verified capture.
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
+const { fire: fireServerEvent, signalsFor } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
 
 const PARENT_LINK_PATH = '/api/pay/parent-link';
 const PARENT_VIEW_PATH = '/api/pay/parent/view';
@@ -271,6 +272,7 @@ function createParentPayRoutes(deps = {}) {
     tokenFactory = mintToken,
     invoicer, // GST-INVOICE-1: optional { issueForPayment, config }; absent or off -> nothing changes
     receiptEmailer, // RECEIPT-EMAIL-1: optional; the ONE receipt email (payer + the child's account), after the invoice
+    serverEvents, // SERVER-EVENTS-1: optional; only ever called through `fire`
   } = deps;
 
   /** GST-INVOICE-1 - the parent's confirmed state (+ PIN / business) for the stored order; {} when none. Never refuses. */
@@ -281,6 +283,7 @@ function createParentPayRoutes(deps = {}) {
   }
   /** GST-INVOICE-1 - after a verified capture AND the grant: the invoice, then (RECEIPT-EMAIL-1) the receipt; fired and forgotten. */
   function issueInvoice(orderId, paymentId, payment) {
+    if (serverEvents) fireServerEvent(() => serverEvents.orderPaid({ orderId, payment })); // SERVER-EVENTS-1: once per order, never awaited
     const wantsReceipt = !!receiptEmailer && typeof receiptEmailer.sendForPayment === 'function';
     afterCapture({
       invoicer,
@@ -723,7 +726,7 @@ function createParentPayRoutes(deps = {}) {
     const body = await readJsonBody(req, res);
     if (!body) return undefined;
     // PARENT-PACKS-1: a pack link's order. The pack comes from the LINK; every other body field is ignored.
-    if (body.product === PACK_PRODUCT) return handlePackOrder(res, keys, body.token, body);
+    if (body.product === PACK_PRODUCT) return handlePackOrder(res, keys, body.token, body, req);
     const passType = body.passType;
     if (!Object.prototype.hasOwnProperty.call(PASS_TYPES, passType)) {
       return sendJson(res, 400, { ok: false, error: 'passType must be "month" or "till_boards"' });
@@ -814,6 +817,7 @@ function createParentPayRoutes(deps = {}) {
         ...gstOrderFields(quote),
         ...gstBuyerFields(body),
         ...orderSourceField(body, env), // ORDER-SOURCE-1
+        ...signalsFor(serverEvents, body, req), // SERVER-EVENTS-1: only when server events are ON
         offerKey: quote.offerKey,
         status: 'created',
         createdAt: new Date(now()),
@@ -835,7 +839,7 @@ function createParentPayRoutes(deps = {}) {
    * PARENT-PACKS-1 — POST /api/pay/parent/order { token, product: "pack" }. The sku, target and child come from the
    * LINK document; the amount from PACK_PRODUCTS. Same single-use / expiry / slot-cap transaction as a pass order.
    */
-  async function handlePackOrder(res, keys, token, body) {
+  async function handlePackOrder(res, keys, token, body, req) {
     let resolved;
     let pack;
     try {
@@ -894,6 +898,7 @@ function createParentPayRoutes(deps = {}) {
         ...gstOrderFields(packQuote),
         ...gstBuyerFields(body),
         ...orderSourceField(body, env), // ORDER-SOURCE-1
+        ...signalsFor(serverEvents, body, req), // SERVER-EVENTS-1: only when server events are ON
         packTarget: pack.target,
         offerKey: null,
         status: 'created',

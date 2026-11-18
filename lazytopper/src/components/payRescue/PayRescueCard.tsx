@@ -14,7 +14,9 @@
  * Nothing here decides money or access. It renders only after the caller saw a `dismissed` outcome.
  */
 import { useEffect, useRef, useState } from "react";
-import { trackNamedEvent, trackPaywallAction } from "../../analytics/analytics";
+import { trackNamedEvent, trackOnboardingEvent, trackPaywallAction } from "../../analytics/analytics";
+import { currentInAppPay, type InAppBuyTarget } from "../../utils/inAppPay";
+import { InAppPayActions, INAPP_RESCUE_HEADING, inAppRescueLine, type InAppPayDetected } from "./InAppPayRescue";
 import { isParentPayClientEnabled } from "../../services/parentPay";
 import PaywallActions from "../pricing/PaywallActions";
 import { openWhatsAppLink, type ShareNavigator } from "../results/share/shareScore";
@@ -49,7 +51,12 @@ export interface PayRescueCardProps {
   onClose: () => void;
   /** Pack only: the pack's name for the message ("Chapter Pack"). */
   packLabel?: string;
-  /** Test seams (pack hand-off). */
+  /** INAPP-PAY-1: what to reopen in the real browser (`?buy=`). Absent: the page as it is. */
+  buy?: InAppBuyTarget;
+  /** Test seams (in-app): the detected app/platform and this page's URL. Default: read from the browser. */
+  inApp?: InAppPayDetected | null;
+  href?: string;
+  /** Test seam (pack hand-off). */
   nav?: ShareNavigator;
   origin?: string;
   openWindow?: (url: string, target: string) => { opener: unknown } | null | undefined;
@@ -59,7 +66,7 @@ function errorName(e: unknown): string {
   return e && typeof e === "object" && "name" in e ? String((e as { name: unknown }).name) : "";
 }
 
-function PayRescueBody({ kind, onRetry, onClose, packLabel, nav, origin, openWindow }: PayRescueCardProps) {
+function PayRescueBody({ kind, onRetry, onClose, packLabel, nav, origin, openWindow, buy, inApp, href }: PayRescueCardProps) {
   const ref = useRef<HTMLElement | null>(null);
   const shown = useRef(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -68,6 +75,7 @@ function PayRescueBody({ kind, onRetry, onClose, packLabel, nav, origin, openWin
     if (shown.current) return;
     shown.current = true;
     trackNamedEvent("pay_rescue_shown");
+    if (inApp) trackOnboardingEvent("inapp_pay_rescue_shown", { app: inApp.app });
     // Bring it into view above the bottom nav (`scroll-margin-bottom` in payRescue.css).
     try {
       ref.current?.scrollIntoView?.({ block: "nearest" });
@@ -99,11 +107,14 @@ function PayRescueBody({ kind, onRetry, onClose, packLabel, nav, origin, openWin
   return (
     <section ref={ref} className="lt-pay-rescue" aria-labelledby="lt-pay-rescue-h" data-testid="pay-rescue" data-kind={kind}>
       <h3 id="lt-pay-rescue-h" className="lt-pay-rescue__h">
-        {PAY_RESCUE_HEADING}
+        {inApp ? INAPP_RESCUE_HEADING : PAY_RESCUE_HEADING}
       </h3>
-      <p className="lt-pay-rescue__line">{PAY_RESCUE_LINE}</p>
+      <p className="lt-pay-rescue__line">
+        {inApp ? inAppRescueLine(inApp.platform) : PAY_RESCUE_LINE}
+      </p>
       <div className="lt-pay-rescue__actions">
-        {kind === "pass" ? (
+        {inApp && <InAppPayActions inApp={inApp} buy={buy} href={href} setNotice={setNotice} />}
+        {kind === "pass" && !isParentPayClientEnabled() ? null : kind === "pass" ? (
           <PaywallActions surface="pay_rescue" askOnly onAsk={() => trackNamedEvent("pay_rescue_parent")} />
         ) : (
           <button
@@ -144,6 +155,9 @@ function PayRescueBody({ kind, onRetry, onClose, packLabel, nav, origin, openWin
  * nothing honest to offer, so no "Can't pay yourself?" is shown. A pack hand-off needs only a share.
  */
 export default function PayRescueCard(props: PayRescueCardProps) {
-  if (props.kind === "pass" && !isParentPayClientEnabled()) return null;
-  return <PayRescueBody {...props} />;
+  // INAPP-PAY-1: detected once per card (null in a normal browser and when VITE_INAPP_PAY_DISABLED=1: exactly today's card).
+  const [detected] = useState(() => (props.inApp !== undefined ? props.inApp : currentInAppPay()));
+  // An in-app rescue is worth showing even when the parent hand-off is off; the parent action only joins when it exists.
+  if (props.kind === "pass" && !isParentPayClientEnabled() && !detected) return null;
+  return <PayRescueBody {...props} inApp={detected} />;
 }

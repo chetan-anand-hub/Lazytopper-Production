@@ -20,6 +20,8 @@
  * The token is verified through the shared verifiedCaller (never parsed by hand here).
  */
 
+const { signalsFromCookieHeader, fire: fireServerEvent } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
+
 const SIGNUP_SOURCE_PATH = '/api/signup-source';
 const SIGNUP_SOURCES_COLLECTION = 'signupSources';
 
@@ -132,7 +134,7 @@ function isAlreadyExists(e) {
 }
 
 function createSignupSourceRoutes(deps = {}) {
-  const { sendJson, verifiedCaller, firebaseAdmin, adminFirestore } = deps;
+  const { sendJson, verifiedCaller, firebaseAdmin, adminFirestore, serverEvents } = deps;
   const now = typeof deps.now === 'function' ? deps.now : () => Date.now();
   const callsByUid = new Map();
 
@@ -187,9 +189,11 @@ function createSignupSourceRoutes(deps = {}) {
 
       // ★ THE AGE CHECK — what stops an old account's source being written later.
       let createdMs = NaN;
+      let authUser = null;
       try {
         const user = await firebaseAdmin.auth().getUser(uid);
         createdMs = Date.parse(user && user.metadata && user.metadata.creationTime);
+        authUser = user;
       } catch {
         return sendJson(res, 401, { ok: false, error: 'Unauthorized: account not found' });
       }
@@ -201,9 +205,11 @@ function createSignupSourceRoutes(deps = {}) {
       const FieldValue = firebaseAdmin.firestore && firebaseAdmin.firestore.FieldValue;
       if (!FieldValue) throw new Error('firestore FieldValue unavailable');
       const ref = adminFirestore.collection(SIGNUP_SOURCES_COLLECTION).doc(uid);
+      let createdNow = false;
       try {
         // ★ CREATE-ONLY: an existing doc is never overwritten.
         await ref.create({ ...checked.data, capturedAt: FieldValue.serverTimestamp() });
+        createdNow = true;
       } catch (e) {
         if (!isAlreadyExists(e)) throw e;
       }
@@ -213,6 +219,21 @@ function createSignupSourceRoutes(deps = {}) {
       // what was just written — the same shape as studentActivity.cjs `undoIfAccountErased`.
       // The student asked to be forgotten, so the answer is still 204: nothing to retry.
       await undoIfAccountErased(uid, ref);
+      // SERVER-EVENTS-1: Meta CompleteRegistration, ONCE per new account (the create-only doc is the once-marker). Fire and
+      // forget AFTER the answer's work is done; it can neither fail nor delay this response. Signals: the Cookie header only.
+      if (createdNow && serverEvents) {
+        const signals = signalsFromCookieHeader(req && req.headers && req.headers.cookie);
+        const ua = String((req && req.headers && req.headers['user-agent']) || '').slice(0, 300);
+        const ip = String((req && req.headers && req.headers['x-forwarded-for']) || '').split(',')[0].trim();
+        fireServerEvent(() =>
+          serverEvents.registration({
+            uid,
+            email: authUser && authUser.email,
+            phone: authUser && authUser.phoneNumber,
+            signals: { ...signals, ...(ua ? { ua } : {}), ...(/^[0-9a-fA-F:.]{3,45}$/.test(ip) ? { ip } : {}) },
+          }),
+        );
+      }
       res.statusCode = 204;
       return res.end();
     } catch {

@@ -65,6 +65,7 @@ const { GUEST_PAYER, markGuestOrderPaid } = require('../services/guestPay.cjs');
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
+const { fire: fireServerEvent, signalsFor } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
 
 /**
  * MONEY-DUPGUARD-1 - parentPay.cjs `coveredTillBoards`, the SAME function guest and parent pay use (not a copy). Read at
@@ -466,6 +467,8 @@ function createPaymentRoutes(deps = {}) {
      * nothing happens and the receipt is sent exactly as before. Fired AFTER the grant has answered; never awaited.
      */
     invoicer,
+    /** SERVER-EVENTS-1 - optional serverEvents service (Meta CAPI + GA4 MP). Absent -> nothing. Only ever called through `fire`. */
+    serverEvents,
   } = deps;
 
   /**
@@ -478,6 +481,8 @@ function createPaymentRoutes(deps = {}) {
     // receipt but still reaches the invoicer (which HOLDS it: no SAC is configured for a top-up).
     const wantsReceipt = !!receiptEmailer && typeof receiptEmailer.sendForPayment === 'function' && !isTopupProduct(passType);
     const email = payment && typeof payment.email === 'string' ? payment.email : '';
+    // SERVER-EVENTS-1: fire and forget, once per order (the service claims a marker on the paid order doc). Cannot throw here.
+    if (serverEvents) fireServerEvent(() => serverEvents.orderPaid({ orderId, payment }));
     afterCapture({
       invoicer,
       input: { orderId, paymentId, payment },
@@ -838,6 +843,7 @@ function createPaymentRoutes(deps = {}) {
         ...gstBuyer.fields,
         ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: only when the number is valid AND the tick was sent; else nothing
         ...orderSourceField(body, env), // ORDER-SOURCE-1: whitelisted + sanitised; nothing when absent / invalid / switched off
+        ...signalsFor(serverEvents, body, req), // SERVER-EVENTS-1: only when server events are ON; cookie ids + server-read IP / UA
         offerKey: quote.offerKey,
         status: 'created',
         createdAt: new Date(now()),
@@ -849,6 +855,7 @@ function createPaymentRoutes(deps = {}) {
     }
 
     emit('payments.order.created');
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType, amountPaise: quote.amountPaise, uid, signals: signalsFor(serverEvents, body, req).adSignals }));
     return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr) });
   }
 

@@ -16,6 +16,7 @@
  *
  * Nothing here grants anything. What the payer typed never goes into a URL, storage or an analytics event.
  */
+import InAppPayRescue, { buyTargetFromItem } from "../payRescue/InAppPayRescue";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { newCheckoutAttemptId, trackNamedEvent } from "../../analytics/analytics";
@@ -329,6 +330,7 @@ export default function CheckoutSheet({
         {!showAttach && <p className="lt-gps__fine" data-testid="who-self-help">{SELF_HELP}</p>}
         {selfError && <p className="lt-gps__error" role="alert">{selfError}</p>}
         {step.name === "selfOut" && step.closed && <p className="lt-gps__fine" role="status">{WHO_CLOSED}</p>}
+        {step.name === "selfOut" && step.closed && <InAppPayRescue buy={buyTargetFromItem(item)} />}
         <button type="button" className="lt-gps__primary" disabled={busy} data-testid="who-pay-self-out" onClick={() => void paySelf()}>
           {busy ? "Opening payment…" : payReadBack(item.priceDisplay, "")}
         </button>
@@ -445,6 +447,7 @@ export default function CheckoutSheet({
         {secondError && <p className="lt-gps__error" role="alert" data-testid="who-second-error">{secondError}</p>}
         {error && <p className="lt-gps__error" role="alert">{error}</p>}
         {step.name === "form" && step.closed && <p className="lt-gps__fine" role="status">{WHO_CLOSED}</p>}
+        {step.name === "form" && step.closed && <InAppPayRescue buy={buyTargetFromItem(item)} />}
         <button type="submit" className="lt-gps__primary lt-who__pay" disabled={busy || !recipient} data-testid="who-pay">
           {busy ? "Opening payment…" : payReadBack(item.priceDisplay, first)}
         </button>

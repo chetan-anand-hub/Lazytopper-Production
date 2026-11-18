@@ -65,7 +65,7 @@ function sendJson(res, status, body) {
 
 /** accounts: uid -> creationTime ms. tokens: uid per Bearer token.
  *  eraseDuringWrite: uids whose Auth account "an erasure" deletes while the write is in flight. */
-function makeWorld({ accounts = { u1: NOW - 60 * 1000 }, verified = { 'tok-u1': 'u1', 'tok-old': 'old' }, eraseDuringWrite = [] } = {}) {
+function makeWorld({ accounts = { u1: NOW - 60 * 1000 }, verified = { 'tok-u1': 'u1', 'tok-old': 'old' }, eraseDuringWrite = [], serverEvents } = {}) {
   const store = new Map();
   const writes = [];
   const accountMap = { old: NOW - 60 * 60 * 1000, ...accounts };
@@ -86,7 +86,7 @@ function makeWorld({ accounts = { u1: NOW - 60 * 1000 }, verified = { 'tok-u1': 
           e.code = 'auth/user-not-found';
           throw e;
         }
-        return { uid, metadata: { creationTime: iso(accountMap[uid]) } };
+        return { uid, email: 'Kid@Example.com', phoneNumber: '+919876543210', metadata: { creationTime: iso(accountMap[uid]) } };
       },
     }),
     firestore: { FieldValue: { serverTimestamp: () => ({ __serverTimestamp: true }) } },
@@ -117,7 +117,7 @@ function makeWorld({ accounts = { u1: NOW - 60 * 1000 }, verified = { 'tok-u1': 
       };
     },
   };
-  const routes = createSignupSourceRoutes({ sendJson, verifiedCaller, firebaseAdmin, adminFirestore, now: () => NOW });
+  const routes = createSignupSourceRoutes({ sendJson, verifiedCaller, firebaseAdmin, adminFirestore, now: () => NOW, ...(serverEvents ? { serverEvents } : {}) });
   return { routes, store, writes };
 }
 
@@ -336,4 +336,35 @@ test('★ ATTRIB-1 a gbraid / wbraid VALUE (string) or non-boolean is 400; false
 test('ATTRIB-1 validateSource: unknown keys are still refused next to the new ones', () => {
   assert.equal(validateSource({ ...GOOD, gbraid: true, email: 'a@b.c' }).ok, false);
   assert.equal(validateSource({ ...GOOD, gbraid: true }).ok, true);
+});
+
+
+/* ── SERVER-EVENTS-1: Meta CompleteRegistration, once per NEW account, never able to fail the sign-up source ── */
+
+test('SERVER-EVENTS-1 · a new account fires CompleteRegistration ONCE (not on a replay), with the verified uid + auth email / phone', async () => {
+  const sent = [];
+  const w = makeWorld({ serverEvents: { registration: async (a) => { sent.push(a); } } });
+  const mk = (b) => makeReq(b, { authorization: 'Bearer tok-u1', cookie: '_fbp=fb.1.1700000000000.12345678', 'user-agent': 'UA/1', 'x-forwarded-for': '203.0.113.9' });
+  const r1 = makeRes();
+  await w.routes.handleSignupSource(mk(GOOD), r1);
+  const r2 = makeRes();
+  await w.routes.handleSignupSource(mk(GOOD), r2);
+  assert.equal(r1.statusCode, 204);
+  assert.equal(r2.statusCode, 204);
+  assert.equal(sent.length, 1, 'a second call for the same account must not fire again');
+  assert.equal(sent[0].uid, 'u1');
+  assert.equal(sent[0].email, 'Kid@Example.com');
+  assert.equal(sent[0].phone, '+919876543210');
+  assert.deepEqual(sent[0].signals, { fbp: 'fb.1.1700000000000.12345678', ua: 'UA/1', ip: '203.0.113.9' });
+});
+
+test('SERVER-EVENTS-1 · a throwing / rejecting registration never changes the 204, and an older account (409) fires nothing', async () => {
+  const w = makeWorld({ serverEvents: { registration: () => { throw new Error('boom'); } } });
+  assert.equal((await call(w, GOOD)).statusCode, 204);
+  const w2 = makeWorld({ serverEvents: { registration: () => Promise.reject(new Error('rej')) } });
+  assert.equal((await call(w2, GOOD)).statusCode, 204);
+  let n = 0;
+  const w3 = makeWorld({ serverEvents: { registration: async () => { n += 1; } } });
+  assert.equal((await call(w3, GOOD, 'tok-old')).statusCode, 409);
+  assert.equal(n, 0);
 });
