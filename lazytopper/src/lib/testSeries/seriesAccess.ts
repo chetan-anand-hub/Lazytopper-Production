@@ -19,6 +19,15 @@ export function canCheckSeriesPapers(entitlements: SeriesEntitlements): boolean 
 }
 
 /**
+ * PACK-DOWNLOAD-RESTORE: downloading / printing a paper is ALSO open to a student who owns a pack that COVERS it (a Chapter Pack of the
+ * chapter, a Subject Pack, a Mock Pack for a mock, or the Bundle - `ownsChapter` / `ownsMocks`), exactly as before 18 Nov 2026.
+ * Written-answer CHECKING is not widened by a PDF pack (`canCheckSeriesPapers`).
+ */
+export function canDownloadPaper(entitlements: SeriesEntitlements & { ownsCoveringPack?: boolean }): boolean {
+  return canCheckSeriesPapers(entitlements) || entitlements.ownsCoveringPack === true;
+}
+
+/**
  * Owner ruling 18 Nov 2026, 19:44 IST — free and trial accounts may TAKE ONE test in total (a chapter test OR a full mock; its
  * MCQs are marked). Counted from the account's own session records (chapter-test + full-mock, any status: a submitted sitting
  * and a downloaded paper both count). CLIENT-SIDE: the records are the student's own Firestore/local history, so a determined
@@ -42,15 +51,6 @@ export function countTestsTaken(records: ReadonlyArray<{ surface: string; graded
   return records.filter(
     (r) => (r.surface === "chapter-test" || r.surface === "full-mock") && !isBeforeSeriesRules(typeof r.gradedAt === "number" ? r.gradedAt : null),
   ).length;
-}
-
-/**
- * Downloading / printing a paper: a Board Pass holder, a Test Series owner, OR (restored, owner ruling "paid PDF packs keep their
- * downloads") a student who owns a pack that COVERS this paper (a Chapter Pack of the chapter, a Subject Pack, a Mock Pack for a mock,
- * or the Bundle - `ownsChapter` / `ownsMocks`). Written-answer CHECKING is not widened by a PDF pack (`canCheckSeriesPapers`).
- */
-export function canDownloadPaper(entitlements: SeriesEntitlements & { ownsCoveringPack?: boolean }): boolean {
-  return canCheckSeriesPapers(entitlements) || entitlements.ownsCoveringPack === true;
 }
 
 /** "This is your 1 free test": a signed-in free / trial account that has not used its one test yet. */

@@ -97,6 +97,27 @@ export function useSeriesAccess(uid: string | null | undefined, paper: SeriesAcc
   };
 }
 
+/** The paper a download is for (its pack cover). Same shape as SeriesAccessPaper (kept for PACK-DOWNLOAD-RESTORE, #1763). */
+export type DownloadPaper = SeriesAccessPaper;
+
+/**
+ * PACK-DOWNLOAD-RESTORE (#1763): the boolean download decision for a page that does not need the three-state `useSeriesAccess`:
+ * a Board Pass holder / Test Series owner (`checkAccess`), or an owner of a PDF pack covering the paper. Loading or failed = "no".
+ */
+export function useSeriesDownloadAccess(uid: string | null | undefined, checkAccess: boolean, paper: DownloadPaper | null): boolean {
+  const off = writtenCheckGateDisabled();
+  const ask = !off && !checkAccess && uid ? uid : null;
+  const packs = useOwnedPacks(ask ?? "", Boolean(ask));
+  if (checkAccess || off) return true;
+  const covers =
+    packs.phase === "ready" && paper
+      ? paper.kind === "chapter-test"
+        ? Boolean(paper.chapterSlug) && ownsChapter(packs.packs, paper.chapterSlug as string)
+        : ownsMocks(packs.packs, paper.subject)
+      : false;
+  return canDownloadPaper({ paidPremium: false, ownsTestSeries: false, ownsCoveringPack: covers });
+}
+
 export const ACCESS_CHECKING_LINE = "Checking your access…";
 export const ACCESS_FAILED_LINE = "Couldn't confirm your purchase";
 export const NO_CHECKS_LEFT_LINE = "No checks left on this paper";
