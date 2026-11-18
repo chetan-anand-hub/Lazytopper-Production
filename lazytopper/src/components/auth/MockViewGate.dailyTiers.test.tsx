@@ -44,6 +44,12 @@ vi.mock("../../hooks/useSubscription", () => ({
   }),
 }));
 
+// TS-DAILY-CAP-1: at the limit a signed-in student's Test Series ownership is read first; these students own nothing.
+vi.mock("./paperCapOwner", () => ({
+  readTestSeriesOwner: () => Promise.resolve(false),
+  isKnownTestSeriesOwner: () => false,
+}));
+
 import { MockViewGate } from "./MockViewGate";
 
 const PAPER = "the mock paper body";
@@ -65,6 +71,24 @@ function visit(): boolean {
       <MockViewGate><div>{PAPER}</div></MockViewGate>
     </MemoryRouter>,
   );
+  const rendered = screen.queryByText(PAPER) !== null;
+  lastScreen = document.body.textContent || "";
+  view.unmount();
+  return rendered;
+}
+
+/**
+ * TS-DAILY-CAP-1 — a signed-in student at the limit is walled only AFTER the ownership read answers (a neutral loading card
+ * first, never the paper). Waits for `wall`, captures the screen, unmounts; returns whether the paper rendered.
+ */
+async function visitUntilWall(wall: string): Promise<boolean> {
+  const view = render(
+    <MemoryRouter>
+      <MockViewGate><div>{PAPER}</div></MockViewGate>
+    </MemoryRouter>,
+  );
+  expect(screen.queryByText(PAPER)).toBeNull();
+  await screen.findByText(wall);
   const rendered = screen.queryByText(PAPER) !== null;
   lastScreen = document.body.textContent || "";
   view.unmount();
@@ -110,16 +134,16 @@ describe("MockViewGate — the tiers the owner published", () => {
     expect(visit()).toBe(false);
   });
 
-  it("SIGNED-IN FREE: 3 a day — papers 1-3 open, the 4th is walled", () => {
+  it("SIGNED-IN FREE: 3 a day — papers 1-3 open, the 4th is walled", async () => {
     currentUser = { uid: "u-signed-in", isLocalSession: false };
     expect(visit()).toBe(true);   // 1
     expect(visit()).toBe(true);   // 2
     expect(visit()).toBe(true);   // 3
-    expect(visit()).toBe(false);  // 4
+    expect(await visitUntilWall("Mock Paper Limit Reached")).toBe(false);  // 4
     expect(lastScreen).toContain("Mock Paper Limit Reached");
   });
 
-  it("★ A TRIAL-EXPIRED STUDENT IS SIGNED-IN FREE — 3 a day, not zero", () => {
+  it("★ A TRIAL-EXPIRED STUDENT IS SIGNED-IN FREE — 3 a day, not zero", async () => {
     // This branch used to return early with NO allowance at all. Because a new account's
     // 7-day trial makes it premium until it lapses, trial-expired is HOW a student
     // becomes signed-in free — so the early return left the entire signed-in free tier
@@ -129,7 +153,7 @@ describe("MockViewGate — the tiers the owner published", () => {
     expect(visit()).toBe(true);   // 1
     expect(visit()).toBe(true);   // 2
     expect(visit()).toBe(true);   // 3
-    expect(visit()).toBe(false);  // 4
+    expect(await visitUntilWall("Your Free Trial Has Ended")).toBe(false);  // 4
     // The trial-ended surface is not gone — it now appears at the honest moment.
     expect(lastScreen).toContain("Your Free Trial Has Ended");
   });

@@ -58,6 +58,7 @@ import {
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import { CT_PROGRESS_PREFIX, paperRouteKey } from "../lib/papers/resumablePaper";
 import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
+import { useTestSeriesOwnership } from "../components/testSeries/testSeriesOwnership";
 import { useSubscription } from "../hooks/useSubscription";
 import { useLimitedDownload } from "../hooks/useLimitedDownload";
 import LimitChip from "../components/limits/LimitChip";
@@ -242,6 +243,10 @@ export default function ChapterTestPage() {
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live, so a student who pays
   // mid-session (or whose cloud status lands after the gate ran) is never refused a new paper.
   const { isPremium } = useSubscription();
+  // TS-DAILY-CAP-1: a Test Series Pack owner is never capped by the daily paper-open limit either (server truth, the
+  // shared /api/packs/mine read; asked only for a signed-in student without Premium). Never refused NEW_PAPER_LIMIT_LINE.
+  const testSeriesOwner = useTestSeriesOwnership(!isPremium ? user?.uid ?? null : null);
+  const paperCapExempt = isPremium || testSeriesOwner.owns;
 
   const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const backTo = navState?.back || `/topic-hub/${grade}/${subject.toLowerCase()}/${topicKey}`;
@@ -709,7 +714,7 @@ export default function ChapterTestPage() {
     }
     // CT-RESUME-2: starting a paper is a NEW paper. A visit the daily gate let through uncounted
     // (it looked like a resume) is counted now — or refused at today's limit.
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, paperCapExempt)) {
       setLimitNotice(NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -727,7 +732,7 @@ export default function ChapterTestPage() {
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
-  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper, location.pathname, location.search, user?.uid, isPremium, seriesPaperAccess, isSignedIn, records, navigate]);
+  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper, location.pathname, location.search, user?.uid, paperCapExempt, seriesPaperAccess, isSignedIn, records, navigate]);
 
   // CT-RELOAD-1 — continue the restored paper where it was left. A resume, not a new start:
   // never re-counted against the fair-use allowance.
@@ -746,7 +751,7 @@ export default function ChapterTestPage() {
   const discardRestored = useCallback(() => {
     // CT-RESUME-2: this visit was let through as a RESUME (not counted). A new paper instead is
     // counted now — or refused when today's papers are used up (the saved test stays).
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, paperCapExempt)) {
       setLimitNotice(NEW_PAPER_LIMIT_SAVED_LINE);
       return;
     }
@@ -762,7 +767,7 @@ export default function ChapterTestPage() {
     setFlags(new Set());
     setElapsed(0);
     setCurrentQNumber(1);
-  }, [progressKey, location.pathname, user?.uid, isPremium]);
+  }, [progressKey, location.pathname, user?.uid, paperCapExempt]);
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {
     setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
@@ -883,7 +888,7 @@ export default function ChapterTestPage() {
   const downloadTest = useCallback(async () => {
     if (!paper || !nomen || downloading || !seriesDownloadAccess) return;
     // CT-RESUME-2: downloading THIS visit's draw is a new paper (the saved paper on offer is not).
-    if (!restoredPaper && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+    if (!restoredPaper && !claimNewPaperView(location.pathname, user?.uid ?? null, paperCapExempt)) {
       setLimitNotice(NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -931,7 +936,7 @@ export default function ChapterTestPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed, restoredPaper, location.pathname, isPremium, guardDownload, seriesDownloadAccess]);
+  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed, restoredPaper, location.pathname, paperCapExempt, guardDownload, seriesDownloadAccess]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded paper's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
