@@ -264,7 +264,11 @@ export default function TestSeriesPage() {
   const isOwner = holdsPremium || ownsSeries;
   // Not yet known (signed in, waiting for the subscription or the packs read): neither buy nor owner prompts, so an owner is
   // never told to buy what they own. A failed read stays unknown (the neutral CTA), never "owned".
-  const ownerUnknown = signedIn && (!subscription.hydrated || (!holdsPremium && !ownership.known));
+  // MYPACKS-TS-1 (#1765) adds `phase` to the ownership hook; until it lands, the packs read is taken as answered once this page's
+  // own records read has (same request moment). Only "ready" is known: "error" stays neutral, never a buy prompt.
+  const phase = (ownership as { phase?: string }).phase;
+  const ownershipKnown = phase !== undefined ? phase === "ready" : load.state === "ready";
+  const ownerUnknown = signedIn && (!subscription.hydrated || (!holdsPremium && !ownershipKnown));
 
   const allTests = useMemo(() => [...chapters, ...mocks], [chapters, mocks]);
   const nextTest = progress ? allTests.find((t) => (progress.byCode[t.code]?.status ?? "not-started") === "not-started") ?? null : null;

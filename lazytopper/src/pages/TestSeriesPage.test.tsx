@@ -17,10 +17,14 @@ const records = vi.hoisted(() => ({ list: [] as unknown[], calls: 0 }));
 
 vi.mock("../context/AuthContext", () => ({ useAuth: () => mockAuth }));
 vi.mock("../hooks/useSubscription", () => ({ useSubscription: () => mockSub }));
-// TS-PAGE-2: server truth for a Test Series Pack owner (GET /api/packs/mine) — mocked: `known` false = not answered yet.
-const mockOwn = vi.hoisted(() => ({ owns: false, known: true }));
+// TS-PAGE-2: server truth for a Test Series Pack owner (GET /api/packs/mine) — mocked with MYPACKS-TS-1's `phase`.
+const mockOwn = vi.hoisted(() => ({ owns: false, known: true, noPhase: false }));
 vi.mock("../components/testSeries/testSeriesOwnership", () => ({
-  useTestSeriesOwnership: (uid: string | null | undefined) => ({ owns: Boolean(uid) && mockOwn.owns, status: null, known: Boolean(uid) && mockOwn.known }),
+  useTestSeriesOwnership: (uid: string | null | undefined) => ({
+    owns: Boolean(uid) && mockOwn.owns,
+    status: null,
+    ...(mockOwn.noPhase ? {} : { phase: !uid ? "idle" : mockOwn.known ? "ready" : "loading" }),
+  }),
 }));
 vi.mock("../services/sessionRecords", () => ({
   getSessionRecordsFromCloud: vi.fn(async () => {
@@ -54,6 +58,7 @@ beforeEach(() => {
   records.calls = 0;
   mockOwn.owns = false;
   mockOwn.known = true;
+  mockOwn.noPhase = false;
   vi.setSystemTime(new Date("2026-11-18T19:00:00+05:30"));
 });
 afterEach(() => cleanup());
@@ -184,6 +189,14 @@ describe("/test-series — TS-PAGE-2 owners, tabs and accordions", () => {
     expect(screen.queryByTestId("ts-cta-hero")).toBeNull();
     expect(screen.queryByTestId("ts-continue")).toBeNull();
     expect(screen.getByTestId("ts-cta-tests").getAttribute("href")).toBe("#ts-tests");
+  });
+  it("today's hook (no `phase`): an owner gets Continue once the records read has answered", async () => {
+    mockAuth.user = { uid: "u1" };
+    mockOwn.owns = true;
+    mockOwn.noPhase = true;
+    await mount();
+    expect(screen.getByTestId("ts-continue").textContent).toBe("Continue: CT-M01 →");
+    expect(screen.queryByTestId("ts-cta-buy")).toBeNull();
   });
   it("tabs switch the visible panel; every test link stays in the DOM; subjects are keyboard-operable disclosures", async () => {
     await mount();

@@ -34,11 +34,7 @@ async function load(uid: string, force: boolean): Promise<void> {
 }
 
 /** `uid` null = do not ask (signed out, a Board Pass holder, the gate switched off). `refreshKey` changing re-reads the counts. */
-/** `known` (TS-PAGE-2, additive): true once the server has answered for this uid; false while loading or after a failed read. */
-export function useTestSeriesOwnership(
-  uid: string | null | undefined,
-  refreshKey?: unknown,
-): { owns: boolean; status: TestSeriesStatus | null; known: boolean } {
+export function useTestSeriesOwnership(uid: string | null | undefined, refreshKey?: unknown): { owns: boolean; status: TestSeriesStatus | null } {
   const [, bump] = useState(0);
   useEffect(() => {
     const fn = () => bump((n) => n + 1);
@@ -59,7 +55,7 @@ export function useTestSeriesOwnership(
     if (uid) void load(uid, true);
   }, [uid, refreshKey]);
   const e = uid && entry && entry.uid === uid ? entry : null;
-  return { owns: e?.owns ?? false, status: e?.status ?? null, known: e !== null };
+  return { owns: e?.owns ?? false, status: e?.status ?? null };
 }
 
 export function resetTestSeriesOwnershipForTests(): void {
