@@ -34,7 +34,8 @@ describe("walls", () => {
     const wall = screen.getByTestId("tutor-board-pass-wall");
     expect(wall.textContent).toContain("Tutor support comes with the Board Pass — it explains exactly why you lost this mark");
     expect(screen.getByTestId("tutor-wall-bp").getAttribute("href")).toBe("/board-pass");
-    expect(screen.getByTestId("tutor-wall-ts").getAttribute("href")).toBe("/packs?buy=test_series");
+    // MYPACKS-TS-1: the Test Series has no tutor - the tutor wall offers the Board Pass ONLY.
+    expect(screen.queryByTestId("tutor-wall-ts")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Not now" }));
     expect(onClose).toHaveBeenCalled();
   });

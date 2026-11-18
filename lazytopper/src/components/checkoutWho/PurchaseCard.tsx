@@ -107,7 +107,7 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
     }
   }, [pack, licensee]);
   useEffect(() => {
-    if (pack && licensee && files.phase === "idle") void buildFiles();
+    if (pack && pack.sku !== "test_series" && licensee && files.phase === "idle") void buildFiles();
   }, [pack, licensee, files.phase, buildFiles]);
 
   async function download(file: PackFile) {
@@ -187,6 +187,19 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
       <section className="lt-rcpt" data-testid="purchase-card">
         {payLine}
         <p className="lt-rcpt__title" data-testid="receipt-title">{RECEIPT_PASS_TITLE}</p>
+        {hide}
+      </section>
+    );
+  }
+  // MYPACKS-TS-1: the Test Series Pack is online - no files to prepare or download; the receipt starts the series instead.
+  if (ok && pack && pack.sku === "test_series") {
+    return (
+      <section className="lt-rcpt" data-testid="purchase-card">
+        {payLine}
+        <p className="lt-rcpt__title" data-testid="receipt-title">{receiptPackTitle(meCardPackTitle(pack))}</p>
+        <p className="lt-rcpt__line" data-testid="receipt-series-line">Your Test Series is ready. Sign in with the number or email you paid with to start.</p>
+        <p className="lt-rcpt__line"><a href="/test-series" data-testid="receipt-series-start">Start your Test Series &rarr;</a></p>
+        {saved && licensee ? <p className="lt-rcpt__fine" data-testid="receipt-saved">{saved}</p> : null}
         {hide}
       </section>
     );

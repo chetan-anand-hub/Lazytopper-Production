@@ -10,14 +10,15 @@
  * the server tutor gate and every entitlement are untouched; the PDF packs (/packs) too.
  * Kill switch: VITE_WRITTEN_CHECK_GATE_DISABLED=1 restores the previous behaviour on both surfaces.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useSubscription } from "../../hooks/useSubscription";
 import { isPaidPremium } from "../../services/subscriptionService";
 import { boardPassPriceDisplay } from "../../config/pricing";
-import { canCheckSeriesPapers, canDownloadPaper } from "../../lib/testSeries/seriesAccess";
+import { FREE_TEST_NOTE, canCheckSeriesPapers, canDownloadPaper } from "../../lib/testSeries/seriesAccess";
 import { useOwnedPacks } from "../packs/useOwnedPacks";
 import { ownsChapter, ownsMocks, type PackSubject } from "../../services/packs";
+import type { TestSeriesStatus } from "../../services/packs";
 import { TEST_SERIES_BUY_PATH, seriesPaperKeyOfWorksheetId, seriesTotals } from "../../lib/testSeries/testSeries";
 import { packPriceLabel, testSeriesChecksLeftLine } from "../../services/packs";
 import { useTestSeriesOwnership } from "./testSeriesOwnership";
@@ -51,13 +52,58 @@ export function useSeriesPaperAccess(uid?: string | null): boolean {
   return canCheckSeriesPapers({ paidPremium: paid, ownsTestSeries: own.owns });
 }
 
-/** The paper a download is for (its pack cover). */
-export type DownloadPaper = { kind: "chapter-test"; chapterSlug: string | null } | { kind: "full-mock"; subject: PackSubject };
+/** MYPACKS-TS-1: the paper an access decision is about (the pack cover for downloads). */
+export type SeriesAccessPaper = { kind: "chapter-test"; chapterSlug: string | null } | { kind: "full-mock"; subject: PackSubject };
+
+export interface SeriesAccess {
+  /** May check written answers (Board Pass or a Test Series owner). */
+  canCheck: boolean;
+  /** May download / print (canCheck, or a PDF pack covering this paper - restored). */
+  canDownload: boolean;
+  /** Ownership is still being read: show "Checking your access…", never an upgrade wall. */
+  checking: boolean;
+  /** The ownership read failed twice: show "Couldn't confirm your purchase - retry", never a paywall. */
+  failed: boolean;
+  /** A Test Series owner (not a Board Pass holder). */
+  ownsSeries: boolean;
+  status: ReturnType<typeof useTestSeriesOwnership>["status"];
+  retry: () => void;
+}
+
+/** MYPACKS-TS-1: the three-state access for a paper page (checking / failed / decided). `useSeriesPaperAccess` stays the boolean form. */
+export function useSeriesAccess(uid: string | null | undefined, paper: SeriesAccessPaper | null): SeriesAccess {
+  const { status } = useSubscription();
+  const paid = isPaidPremium(status);
+  const off = writtenCheckGateDisabled();
+  const ask = !off && !paid ? uid : null;
+  const own = useTestSeriesOwnership(ask);
+  const packs = useOwnedPacks(ask ?? "", Boolean(ask));
+  if (off || paid) return { canCheck: true, canDownload: true, checking: false, failed: false, ownsSeries: false, status: null, retry: own.retry };
+  const covers =
+    packs.phase === "ready" && paper
+      ? paper.kind === "chapter-test"
+        ? Boolean(paper.chapterSlug) && ownsChapter(packs.packs, paper.chapterSlug as string)
+        : ownsMocks(packs.packs, paper.subject)
+      : false;
+  const canCheck = canCheckSeriesPapers({ paidPremium: false, ownsTestSeries: own.owns });
+  const checking = Boolean(ask) && (own.phase === "loading" || (!canCheck && packs.phase === "loading"));
+  return {
+    canCheck,
+    canDownload: canDownloadPaper({ paidPremium: false, ownsTestSeries: own.owns, ownsCoveringPack: covers }),
+    checking,
+    failed: Boolean(ask) && own.phase === "error" && !canCheck,
+    ownsSeries: own.owns,
+    status: own.status,
+    retry: own.retry,
+  };
+}
+
+/** The paper a download is for (its pack cover). Same shape as SeriesAccessPaper (kept for PACK-DOWNLOAD-RESTORE, #1763). */
+export type DownloadPaper = SeriesAccessPaper;
 
 /**
- * PACK-DOWNLOAD-RESTORE: may this account download / print this paper? A Board Pass holder or Test Series owner (`checkAccess`, as
- * before), or an owner of a PDF pack that covers it (server list `/api/packs/mine`, asked only for a signed-in student who would
- * otherwise be refused). A read still loading or failed is "no" (the ordinary link), never an error.
+ * PACK-DOWNLOAD-RESTORE (#1763): the boolean download decision for a page that does not need the three-state `useSeriesAccess`:
+ * a Board Pass holder / Test Series owner (`checkAccess`), or an owner of a PDF pack covering the paper. Loading or failed = "no".
  */
 export function useSeriesDownloadAccess(uid: string | null | undefined, checkAccess: boolean, paper: DownloadPaper | null): boolean {
   const off = writtenCheckGateDisabled();
@@ -71,6 +117,111 @@ export function useSeriesDownloadAccess(uid: string | null | undefined, checkAcc
         : ownsMocks(packs.packs, paper.subject)
       : false;
   return canDownloadPaper({ paidPremium: false, ownsTestSeries: false, ownsCoveringPack: covers });
+}
+
+export const ACCESS_CHECKING_LINE = "Checking your access…";
+export const ACCESS_FAILED_LINE = "Couldn't confirm your purchase";
+export const NO_CHECKS_LEFT_LINE = "No checks left on this paper";
+export const SERIES_ONLY_NOTE = "Your Test Series checks the numbered series papers. The Board Pass checks written answers on any paper.";
+
+/** Neutral state while ownership is read - never an upgrade wall. */
+export function AccessChecking() {
+  return (
+    <p className="lt-wcg__line" role="status" data-testid="series-access-checking">
+      {ACCESS_CHECKING_LINE}
+    </p>
+  );
+}
+
+/** The ownership read failed: an honest retry, never a paywall. */
+export function AccessFailed({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="lt-wcg" role="alert" data-testid="series-access-failed">
+      <p className="lt-wcg__line">{ACCESS_FAILED_LINE}.</p>
+      <button type="button" className="lt-wcg__btn" onClick={onRetry}>
+        Retry
+      </button>
+    </div>
+  );
+}
+
+/** "CT-M01" from the manifest key "TS-CT-M01". */
+function paperCodeOfKey(key: string | null): string | null {
+  return key ? key.replace(/^TS-/, "") : null;
+}
+
+/** The plain sentence for a series paper whose checks are all used (live-test finding: say it before any upgrade offer). */
+export function checksUsedLine(code: string | null, per: number): string {
+  return `You've used ${per === 2 ? "both checks" : `all ${per} checks`} on this paper${code ? ` (${code})` : ""}. Every other paper still has ${per} checks.`;
+}
+
+/** Beside the upload when a series paper has 0 checks left: say so (no point uploading) and offer the Board Pass (only). */
+export function NoChecksLeftCard({ code, per = 2 }: { code?: string | null; per?: number } = {}) {
+  return (
+    <div className="lt-wcg" role="status" data-testid="series-no-checks-left">
+      <p className="lt-wcg__checks" data-testid="series-zero-checks-line">
+        0 of {per} checks left on this paper
+      </p>
+      <p className="lt-wcg__line">{checksUsedLine(code ?? null, per)} The Board Pass checks every answer, with no per-paper limit.</p>
+      <SeriesOfferButtons testIdPrefix="no-checks" only="board-pass" />
+    </div>
+  );
+}
+
+/**
+ * A Test Series owner whose upload was refused. On a SERIES paper that is "both checks used" (with the Board Pass, no per-paper limit);
+ * on a non-series paper it is the series-only note. Board Pass only - never a Chapter Pack or PDF-pack sheet.
+ */
+export function SeriesOwnerNotice({ onClose, worksheetId, status }: { onClose: () => void; worksheetId?: string | null; status?: TestSeriesStatus | null }) {
+  const key = seriesPaperKeyOfWorksheetId(worksheetId);
+  return (
+    <div className="lt-wcg" role="alert" data-testid="series-owner-notice">
+      <p className="lt-wcg__line">
+        {key ? `${checksUsedLine(paperCodeOfKey(key), status?.checksPerPaper ?? 2)} The Board Pass checks every answer, with no per-paper limit.` : SERIES_ONLY_NOTE}
+      </p>
+      <SeriesOfferButtons testIdPrefix="series-owner" only="board-pass" />
+      <button type="button" className="lt-wcg-tutor__close" onClick={onClose}>
+        Not now
+      </button>
+    </div>
+  );
+}
+
+/**
+ * MYPACKS-TS-1: what the result screen shows in place of / as the upload panel. `uploadAllowed` = a Board Pass holder, a Test Series
+ * owner, or a paper started before the new rules (grandfathered). Ownership still loading -> "Checking your access…"; a failed read ->
+ * a retry - never the upgrade card. A series paper with 0 checks left -> "No checks left on this paper" + the Board Pass.
+ */
+export function ResultAccessSlot({
+  access,
+  uploadAllowed,
+  worksheetId,
+  upgrade,
+  upload,
+}: {
+  access: SeriesAccess;
+  uploadAllowed: boolean;
+  worksheetId: string | null | undefined;
+  upgrade: ReactNode;
+  upload: ReactNode;
+}) {
+  if (uploadAllowed) {
+    const key = seriesPaperKeyOfWorksheetId(worksheetId);
+    const left = access.ownsSeries && key && access.status ? access.status.checksPerPaper - (access.status.used[key] ?? 0) : null;
+    return left !== null && left <= 0 ? <NoChecksLeftCard code={paperCodeOfKey(key)} per={access.status?.checksPerPaper ?? 2} /> : <>{upload}</>;
+  }
+  if (access.checking) return <AccessChecking />;
+  if (access.failed) return <AccessFailed onRetry={access.retry} />;
+  return <>{upgrade}</>;
+}
+
+/** Before Start: a free / trial account that has not used its one test says so. */
+export function FreeTestNote() {
+  return (
+    <p className="lt-wcg__line" data-testid="series-free-test-note">
+      {FREE_TEST_NOTE}
+    </p>
+  );
 }
 
 /**
@@ -98,15 +249,17 @@ export function useBoardPassHolder(): boolean {
 }
 
 /** The two offers, equal weight: the Test Series and the Board Pass (its price is date-driven, so read after mount). */
-export function SeriesOfferButtons({ testIdPrefix }: { testIdPrefix: string }) {
+export function SeriesOfferButtons({ testIdPrefix, only }: { testIdPrefix: string; /** "board-pass": the tutor / no-checks walls offer the Board Pass ONLY (the Test Series has no tutor). */ only?: "board-pass" }) {
   const [bpPrice, setBpPrice] = useState<string | null>(null);
   useEffect(() => setBpPrice(boardPassPriceDisplay(Date.now())), []);
   return (
     <div className="lt-wcg__offers">
+      {only !== "board-pass" && (
       <Link className="lt-wcg__btn" to={TEST_SERIES_BUY_PATH} data-testid={`${testIdPrefix}-ts`}>
         <span className="lt-wcg__main">Test Series</span>
         <span className="lt-wcg__price">{packPriceLabel("test_series")} · all {seriesTotals().total} tests</span>
       </Link>
+      )}
       <Link className="lt-wcg__btn" to={BOARD_PASS_PATH} data-testid={`${testIdPrefix}-bp`}>
         <span className="lt-wcg__main">Board Pass</span>
         <span className="lt-wcg__price">{bpPrice ? `${bpPrice} · everything + tutor` : "everything + tutor"}</span>
@@ -183,7 +336,7 @@ export function TutorBoardPassWall({ onClose }: { onClose: () => void }) {
         <p id="lt-wcg-tutor-h" className="lt-wcg__line">
           {TUTOR_BOARD_PASS_LINE}.
         </p>
-        <SeriesOfferButtons testIdPrefix="tutor-wall" />
+        <SeriesOfferButtons testIdPrefix="tutor-wall" only="board-pass" />
         <button type="button" className="lt-wcg-tutor__close" onClick={onClose}>
           Not now
         </button>

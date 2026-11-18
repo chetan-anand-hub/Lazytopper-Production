@@ -63,6 +63,7 @@ const tsGate = vi.hoisted(() => ({ boardPass: true }));
 vi.mock("../components/testSeries/WrittenCheckGate", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../components/testSeries/WrittenCheckGate")>()),
   useSeriesPaperAccess: () => true,
+  useSeriesAccess: () => ({ canCheck: true, canDownload: true, checking: false, failed: false, ownsSeries: false, status: null, retry: () => undefined }), // MYPACKS-TS-1: the pages read the three-state hook
   useBoardPassHolder: () => tsGate.boardPass,
 }));
 
@@ -167,7 +168,7 @@ describe("FOLLOWUPS-1 B · Full Mock scorecard -> tutor -> the SAME scorecard", 
     await waitFor(() => expect(askButtons()).toHaveLength(1));
     fireEvent.click(askButtons()[0]);
     expect((await screen.findByTestId("tutor-board-pass-wall")).textContent).toContain("Tutor support comes with the Board Pass");
-    expect(screen.getByTestId("tutor-wall-ts")).toBeTruthy();
+    expect(screen.queryByTestId("tutor-wall-ts")).toBeNull(); // tutor wall offers only the Board Pass
     expect(lastLocation).not.toMatch(/^\/tutor\//);
   }, 90000);
 

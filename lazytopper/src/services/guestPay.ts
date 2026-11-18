@@ -60,6 +60,8 @@ export function claimedItemName(kind: "pack" | "pass", sku: string, target: stri
       return `${subject} CBQ Pack`;
     case "pack_bundle":
       return "Maths + Science Bundle";
+    case "test_series":
+      return "Test Series Pack";
     default:
       return "PDF pack";
   }

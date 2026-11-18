@@ -5,6 +5,9 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 const auth = vi.hoisted(() => ({ user: null as null | { uid: string } }));
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
 
+const paidPass = vi.hoisted(() => ({ on: false }));
+vi.mock("../lib/packs/usePaidPremium", async (orig) => ({ ...(await orig<typeof import("../lib/packs/usePaidPremium")>()), usePaidPremium: () => paidPass.on }));
+
 const events = vi.hoisted(() => ({ names: [] as string[] }));
 vi.mock("../analytics/analytics", () => ({
   newCheckoutAttemptId: () => "lt_attempt",
@@ -611,6 +614,21 @@ describe("TS-PACK-1 · /packs Test Series card", () => {
     expect(buyMock.mock.calls[0][0]).toBe("test_series");
   });
 
+  it("MYPACKS-TS-1: a Board Pass holder sees 'Included in your Board Pass' instead of Buy; anyone else still sees Buy", async () => {
+    flag.on = true;
+    auth.user = { uid: "u1" };
+    flag.mine = { packs: [], licensee: { name: "Asha", email: "a@b.in" } };
+    paidPass.on = true;
+    page();
+    expect((await screen.findByTestId("packs-test-series-included")).textContent).toContain("Included in your Board Pass");
+    expect(screen.queryByTestId("tile-buy-test_series")).toBeNull();
+    cleanup();
+    paidPass.on = false;
+    page();
+    expect(await screen.findByTestId("tile-buy-test_series")).toBeTruthy();
+    expect(screen.queryByTestId("packs-test-series-included")).toBeNull();
+  });
+
   it("an owner sees 'You own this' and a My packs row that opens the Test Series (no files to build)", async () => {
     flag.on = true;
     auth.user = { uid: "u1" };
@@ -622,6 +640,10 @@ describe("TS-PACK-1 · /packs Test Series card", () => {
     expect(await screen.findByTestId("tile-owned-test_series")).toBeTruthy();
     expect(await screen.findByTestId("packs-owned-test-series-open")).toBeTruthy();
     expect(screen.getByTestId("packs-owned-test-series-open").getAttribute("href")).toBe("/test-series");
+    // MYPACKS-TS-1: "Go to Test Series" + the validity date, no file list; a PDF-pack-only owner has no such row.
+    expect(screen.getByTestId("packs-owned-test-series-open").textContent).toContain("Go to Test Series");
+    expect(screen.getByTestId("packs-owned-test-series-valid").textContent).toBe("Valid till 31 May 2027");
+    expect(screen.queryByText(/Show files|Download files/)).toBeNull();
   });
 
   it("kill switch VITE_TS_PACK_DISABLED=1 hides the card", () => {

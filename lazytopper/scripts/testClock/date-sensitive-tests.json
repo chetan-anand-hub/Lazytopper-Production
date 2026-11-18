@@ -661,6 +661,7 @@
     "src/components/testAnalysis/testAnalysisModel.test.ts",
     "src/components/testSeries/WrittenCheckGate.test.tsx",
     "src/components/testSeries/packDownloadRestore.test.tsx",
+    "src/components/testSeries/seriesAccess.mypacks.test.tsx",
     "src/components/trial/SelfPayLand.test.tsx",
     "src/components/trial/TrialEarlyStrip.test.tsx",
     "src/components/trial/TrialEndBanner.test.tsx",

@@ -68,10 +68,14 @@ export const BRIDGE_COPY = {
   firstMarked: "Your first paper is marked",
   heading: "Get your papers marked",
   intro: "Write on paper, upload a photo, get CBSE examiner style marks in about a minute.",
-  free: "Every account gets its first paper of each kind marked free.",
+  // MYPACKS-TS-1 truth fix: the one free grade per kind is still true for a worksheet (server first-free); on Chapter Tests and Full Mocks a free
+  // or trial account gets the MCQs marked, and written answers need the Board Pass or the Test Series (TEST-SERIES-1, client gate).
+  free: "Every account gets its first worksheet marked free. On chapter tests and full mocks, free accounts get the MCQs marked; written answers are checked with the Board Pass or the Test Series.",
   sample: "See a marked sample",
   passKicker: "Board Pass",
   passTitle: "Your pack has the questions. Board Pass marks every answer.",
+  /** MYPACKS-TS-1: for a Test Series owner (their tests' written answers are already checked) - true copy, with the Board Pass link. */
+  passTitleSeries: "Your Test Series checks your test answers. The Board Pass adds the rest: Answer Checker for any question, worksheets, your personal tutor and Mistake Intelligence.",
   passCta: "See Board Pass",
   passKeep: "Keep using your pack either way — it is yours for good.",
   freeLeft: "free mark left",

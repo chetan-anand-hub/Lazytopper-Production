@@ -172,7 +172,7 @@ function FirstMarkedCard({ first, compact = false }: { first: NonNullable<Return
   );
 }
 
-function BoardPassCard() {
+function BoardPassCard({ series = false }: { series?: boolean }) {
   const sent = useRef(false);
   useEffect(() => {
     if (sent.current) return;
@@ -182,7 +182,8 @@ function BoardPassCard() {
   return (
     <aside className="lt-pb__pass" aria-labelledby="packs-bridge-pass-h" data-testid="packs-bridge-pass">
       <span className="lt-pb__kicker">{BRIDGE_COPY.passKicker}</span>
-      <h3 id="packs-bridge-pass-h" className="lt-pb__passh">{BRIDGE_COPY.passTitle}</h3>
+      <h3 id="packs-bridge-pass-h" className="lt-pb__passh">{series ? BRIDGE_COPY.passTitleSeries : BRIDGE_COPY.passTitle}</h3>
+      {!series && (
       <ul className="lt-pb__points">
         {BRIDGE_PASS_POINTS.map((p) => (
           <li key={p.lead}>
@@ -196,6 +197,7 @@ function BoardPassCard() {
           </li>
         ))}
       </ul>
+      )}
       <Link
         className="lt-pb__passcta"
         to={BRIDGE_BOARD_PASS_HREF}
@@ -204,7 +206,7 @@ function BoardPassCard() {
       >
         {BRIDGE_COPY.passCta}
       </Link>
-      <span className="lt-pb__keep">{BRIDGE_COPY.passKeep}</span>
+      {!series && <span className="lt-pb__keep">{BRIDGE_COPY.passKeep}</span>}
     </aside>
   );
 }
@@ -252,6 +254,7 @@ export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuy
   const { groups, first } = useMemo(() => bridgeView(packs, records, { paidPass, allowance }), [packs, records, paidPass, allowance]);
   // The Board Pass card only to an owner KNOWN not to hold a paid Board Pass (never on a guess, never its view event either).
   const showPass = !paidPass && data.entitlementKnown;
+  const ownsSeries = packs.some((p) => p.sku === "test_series");
   // Owner ruling 8 Nov 22:11: a CONFIRMED Board Pass holder gets ONE quiet packs card in the same place instead (PASS-OWNER-PACKS-1's
   // "pass_me" rule: the CBQ Packs they do not own, else the Bundle, else nothing), from the SERVER's owned list (`packs` = /api/packs/mine).
   const [snoozed, setSnoozed] = useState<boolean>(() => passOffersSnoozed(Date.now()));
@@ -295,7 +298,7 @@ export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuy
         </div>
         {side && (
           <div className="lt-pbt__side">
-            {showPass && <BoardPassCard />}
+            {showPass && <BoardPassCard series={ownsSeries} />}
             {holder}
           </div>
         )}
@@ -326,7 +329,7 @@ export default function MyPacksBridge({ packs, data, titleOf, onOpenFiles, onBuy
         )}
       </div>
       )}
-      {showPass && <BoardPassCard />}
+      {showPass && <BoardPassCard series={ownsSeries} />}
       {holderOffer && (
         <HolderPacksCard
           offer={holderOffer}
