@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
@@ -26,6 +26,9 @@ import {
 } from "../lib/testSeries/testSeries";
 import "../components/salesPages/salesPages.css";
 import "./testSeriesPage.css";
+
+// TS-ANALYSIS-1 — the Mistake notebook (signed-in only, its own chunk, opened from the progress line).
+const MistakeNotebookSection = lazy(() => import("../components/testAnalysis/MistakeNotebookSection"));
 
 /**
  * TEST-SERIES-1 (owner, 18 Nov 2026; corrected 19:38 IST: the Test Series is its OWN product) — /test-series: the chapter tests
@@ -147,6 +150,11 @@ export default function TestSeriesPage() {
   }, [schedule]);
 
   const [load, setLoad] = useState<Load>({ state: "signed-out" });
+  const [notebookOpen, setNotebookOpen] = useState(false);
+  // The section mounts on the tap, so the anchor jump happens once it exists.
+  useEffect(() => {
+    if (notebookOpen) document.getElementById("mistake-notebook")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  }, [notebookOpen]);
   useEffect(() => {
     if (authLoading) return undefined;
     if (!signedIn || !user?.uid) {
@@ -209,12 +217,19 @@ export default function TestSeriesPage() {
                   to take a test and track your progress through all {totals.total}.
                 </p>
               ) : progress ? (
-                <p data-testid="ts-done">
-                  <strong>
-                    {progress.done} of {progress.total}
-                  </strong>{" "}
-                  tests done.
-                </p>
+                <>
+                  <p data-testid="ts-done">
+                    <strong>
+                      {progress.done} of {progress.total}
+                    </strong>{" "}
+                    tests done.
+                  </p>
+                  <p>
+                    <a href="#mistake-notebook" data-testid="ts-notebook-link" onClick={() => setNotebookOpen(true)}>
+                      Open my mistake notebook
+                    </a>
+                  </p>
+                </>
               ) : (
                 <p>Loading your progress…</p>
               )}
@@ -337,6 +352,14 @@ export default function TestSeriesPage() {
             </ul>
           </div>
         </section>
+        {/* TS-ANALYSIS-1 — last in the page, so opening it moves nothing above it. */}
+        {notebookOpen && progress && user?.uid && (
+          <section className="lt-sp__w" id="mistake-notebook" aria-label="Mistake notebook" data-testid="ts-notebook">
+            <Suspense fallback={null}>
+              <MistakeNotebookSection uid={user.uid} returnTo={TEST_SERIES_PATH} />
+            </Suspense>
+          </section>
+        )}
       </main>
       <PublicLegalFooter />
     </>

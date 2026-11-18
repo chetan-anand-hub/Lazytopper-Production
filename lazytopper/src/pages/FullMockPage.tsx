@@ -17,7 +17,7 @@
 // page renders inside `.lt-ct.lt-fm`; FM_CSS carries only the deltas).
 // ONE responsive component — pure-CSS reflow, 360px verified.
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
@@ -153,6 +153,10 @@ import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator
 import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadPanel";
 import PreSubmitConfirm from "../components/chaptertest/PreSubmitConfirm";
 import FullMockHistoryPanel from "../components/fullmock/FullMockHistoryPanel";
+import { useQuestionTimes } from "../components/testAnalysis/questionTimes";
+import { FULL_MOCK_SECONDS_PER_MARK } from "../components/testAnalysis/testAnalysisModel";
+// TS-ANALYSIS-1 — after-test analysis, its own chunk, mounted at the END of the results body.
+const TestAnalysisPanel = lazy(() => import("../components/testAnalysis/TestAnalysisPanel"));
 import FullMockPendingBanner from "../components/fullmock/FullMockPendingBanner";
 // FAIR-USE-UI-1 — the fair-use panel (UI1 at grading, UI3 before the mock starts).
 // Dark unless /api/usage/me says `enforced: true`: with it off this page is unchanged.
@@ -514,6 +518,8 @@ export default function FullMockPage() {
   const [resultsPhase, setResultsPhase] = useState<"partial" | "full">("partial");
   const [scorecardOpen, setScorecardOpen] = useState(false);
   const [fullResponse, setFullResponse] = useState<WorksheetGradeResponse | null>(null);
+  // TS-ANALYSIS-1 (feature 2) — time on screen per question while the mock is being taken (device-local).
+  useQuestionTimes(activeMock?.paper.worksheetId ?? null, phase === "taking", currentQNumber);
   // SHEET-HEADER-1 — when THIS fullResponse was marked (set beside it; it is only ever set from a fresh grade).
   const fullGradedAtRef = useRef<number | null>(null);
   const [grading, setGrading] = useState(false);
@@ -2106,6 +2112,34 @@ export default function FullMockPage() {
               <PassOwnerOfferLazy placement="pass_mock" hint={{ subject: sessionSubject }} />
             </div>
           )}
+
+          {/* TS-ANALYSIS-1 — re-attempt / time per question / weakest chapters / plan / notebook. */}
+          <Suspense fallback={null}>
+            <TestAnalysisPanel
+              surface="full-mock"
+              subject={subject === "Science" ? "Science" : "Maths"}
+              uid={user?.uid ?? null}
+              current={{
+                worksheetId: activeMock.paper.worksheetId,
+                title: activeMock.name,
+                // A resumed/stored objective may carry no per-question results: then only a full grade feeds the panel.
+                response:
+                  resultsPhase === "full" && fullResponse
+                    ? fullResponse
+                    : !Array.isArray(objective.results)
+                      ? null
+                      : buildFullMockResponse({
+                        paper: activeMock.paper,
+                        objective,
+                        subjectiveQuestions: fullMockSubjectiveQuestions(activeMock.paper),
+                        subjectiveResponse: null,
+                      }),
+                questionIds: [...activeMock.paper.questions].sort((x, y) => x.qNumber - y.qNumber).map((q) => String(q.id ?? "")),
+              }}
+              secondsPerMark={FULL_MOCK_SECONDS_PER_MARK}
+              returnTo={location.pathname}
+            />
+          </Suspense>
 
           {scorecardOpen && resultsPhase === "partial" && (
             <ResultsScorecard
