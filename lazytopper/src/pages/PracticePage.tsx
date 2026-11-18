@@ -603,6 +603,7 @@ import {
   startHerePracticePath,
   type StartHereQType,
 } from "../components/startHere/startHereModel";
+import { retryCountFloor } from "../components/testAnalysis/retrySrc";
 import { typeFirstAnswerMode, useZeroGraded } from "../components/startHere/zeroGraded";
 // MOMENTS-1 — Byte & Ziggy moments (display only; the drawing is a lazy chunk).
 import { GuideMomentSlot, M11Nudge, firstSessionAudience, inGuideArm } from "../components/guide/moments/moments";
@@ -996,7 +997,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
     const recommendedCount = queryRecommendedCount ?? navRecommendedCount ?? 10;
     const clampedCount = Math.max(
       // START-HERE-WRITTEN: a Start-here written link is ONE question (exact set); every other link keeps the floor.
-      startHereCountFloor(qp.get("src"), qp.get("qt"), MIN_QUESTION_COUNT),
+      // TS-ANALYSIS-1: a test re-attempt link (src=ts-retry) is an exact id set of 1+ lost-marks questions.
+      retryCountFloor(qp.get("src"), startHereCountFloor(qp.get("src"), qp.get("qt"), MIN_QUESTION_COUNT)),
       Math.min(COUNT_SOFT_MAX, Math.min(MAX_QUESTION_COUNT, recommendedCount))
     );
 

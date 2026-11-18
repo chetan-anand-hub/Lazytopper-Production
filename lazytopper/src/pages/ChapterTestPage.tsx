@@ -14,7 +14,7 @@
 // the by-section A–D lens). Records: sessionRecords surface "chapter-test" + durable
 // CT-{S}-{TOPIC}-{NN}. ONE responsive component (pure-CSS reflow, no useIsDesktop twin).
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { resolveTopicDisplayName, normalizeTopicKey } from "../utils/topicResolver";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
@@ -126,6 +126,10 @@ import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintD
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
 import ChapterTestHistoryRail from "../components/chaptertest/ChapterTestHistoryRail";
+import { useQuestionTimes } from "../components/testAnalysis/questionTimes";
+import { chapterTestSecondsPerMark } from "../components/testAnalysis/testAnalysisModel";
+// TS-ANALYSIS-1 — after-test analysis, its own chunk, mounted at the END of the results body.
+const TestAnalysisPanel = lazy(() => import("../components/testAnalysis/TestAnalysisPanel"));
 import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadPanel";
 import PreSubmitConfirm from "../components/chaptertest/PreSubmitConfirm";
 import { useBankChapters } from "../data/bankChapters/useBankChapters";
@@ -557,6 +561,8 @@ export default function ChapterTestPage() {
 
   const objectiveQs = useMemo(() => (paper ? objectiveQuestions(paper) : []), [paper]);
   const subjectiveQs = useMemo(() => (paper ? subjectiveQuestions(paper) : []), [paper]);
+  // TS-ANALYSIS-1 (feature 2) — time on screen per question while the test is being taken (device-local).
+  useQuestionTimes(paper?.worksheetId ?? null, phase === "taking", currentQNumber);
 
   const unansweredObjective = objectiveQs.filter((q) => !(answers[q.qNumber] && answers[q.qNumber] !== "")).length;
 
@@ -1772,6 +1778,30 @@ export default function ChapterTestPage() {
               busy={grading}
             />
           )}
+
+          {/* TS-ANALYSIS-1 — re-attempt / time per question / weakest chapters / plan / notebook. */}
+          <Suspense fallback={null}>
+            <TestAnalysisPanel
+              surface="chapter-test"
+              subject={subject === "Science" ? "Science" : "Maths"}
+              uid={user?.uid ?? null}
+              current={{
+                worksheetId: paper.worksheetId,
+                title: nomen.name,
+                // A resumed/stored objective may carry no per-question results: then only a full grade feeds the panel.
+                response:
+                  resultsPhase === "full" && fullResponse
+                    ? fullResponse
+                    : Array.isArray(objective.results)
+                      ? buildChapterTestResponse({ paper, objective, subjectiveQuestions: subjectiveQs, subjectiveResponse: null })
+                      : null,
+                questionIds: [...paper.questions].sort((x, y) => x.qNumber - y.qNumber).map((q) => String(q.id ?? "")),
+                chapterTopicKey: topicKey,
+              }}
+              secondsPerMark={chapterTestSecondsPerMark(paper.totalMarks ?? 0)}
+              returnTo={location.pathname}
+            />
+          </Suspense>
 
           {scorecardOpen && resultsPhase === "partial" && (
             <ResultsScorecard

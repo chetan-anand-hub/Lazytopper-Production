@@ -22,6 +22,8 @@ vi.mock("../services/sessionRecords", () => ({
     records.calls += 1;
     return records.list;
   }),
+  // TS-ANALYSIS-1: the Mistake notebook section reads the per-question payloads too.
+  getAllSessionPerQuestionFromCloud: vi.fn(async () => []),
 }));
 
 import TestSeriesPage from "./TestSeriesPage";
@@ -135,5 +137,23 @@ describe("/test-series — signed in", () => {
     await mount();
     expect(screen.queryByTestId("ts-cta-buy")).toBeNull();
     expect(screen.getByTestId("ts-cta-owner")).toBeTruthy();
+  });
+});
+
+describe("/test-series — TS-ANALYSIS-1 Mistake notebook link", () => {
+  it("signed out: no notebook link", async () => {
+    await mount();
+    expect(screen.queryByTestId("ts-notebook-link")).toBeNull();
+  });
+  it("signed in: the link opens the notebook section (honest empty state with no graded tests)", async () => {
+    mockAuth.user = { uid: "u1" };
+    await mount();
+    const link = await screen.findByTestId("ts-notebook-link");
+    expect(link.getAttribute("href")).toBe("#mistake-notebook");
+    await act(async () => {
+      link.click();
+    });
+    expect(screen.getByTestId("ts-notebook")).toBeTruthy();
+    expect(await screen.findByText(/No lost-marks questions/)).toBeTruthy();
   });
 });
