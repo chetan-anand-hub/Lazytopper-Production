@@ -27,6 +27,7 @@ import {
   sendGa4Hit,
 } from "../../analytics/analytics";
 import { priceWithGst } from "../../config/pricing";
+import { currentInAppPay } from "../../utils/inAppPay";
 import { reportPackSampleSeen, signedInHint } from "./packSampleSeen";
 
 export type PackSkuName = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle" | "pack_cbq";
@@ -165,7 +166,10 @@ export function trackPackCheckout(
     const money = packMoney(details);
     // BUY-PATH-1 review: `resumed: true` marks a checkout started AUTOMATICALLY after sign-in (the ?buy= resume), so a funnel can
     // drop it and not count the sign-in-first visitor twice. The event is never suppressed.
+    const inApp = currentInAppPay();
     const who = {
+      // INAPP-PAY-1: the in-app browser the checkout started in (coarse slug; absent in a normal browser / when killed).
+      ...(inApp ? { in_app: inApp.app } : {}),
       ...(typeof ctx.signedIn === "boolean" ? { signed_in: ctx.signedIn } : {}),
       ...(ctx.resumed ? { resumed: true } : {}),
       // PACKS-CONVERT-1: `from: "sample"` marks a Buy tapped on the "Liked the sample?" button that follows a free-sample download.

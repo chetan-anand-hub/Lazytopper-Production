@@ -97,13 +97,15 @@
 }
 
 .lt-pay-rescue__note {
+  overflow-wrap: anywhere;
   margin: 0;
   font-size: 0.85rem;
   line-height: 1.45;
   color: var(--lt-ink-2, #4a5a73);
 }
 
-.lt-pay-rescue button:focus-visible {
+.lt-pay-rescue button:focus-visible,
+.lt-pay-rescue a:focus-visible {
   outline: 3px solid var(--lt-focus, #1b6fe0);
   outline-offset: 2px;
 }
@@ -112,4 +114,13 @@
   .lt-pay-rescue {
     padding: 16px 20px;
   }
+}
+
+/* INAPP-PAY-1 - the "Open in Chrome to pay" link wears the primary button look. */
+.lt-pay-rescue__chrome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
 }
