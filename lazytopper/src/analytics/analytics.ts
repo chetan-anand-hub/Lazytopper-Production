@@ -1040,6 +1040,9 @@ export type NamedAnalyticsEvent =
   | "signin_move_refused"
   // PAID-SHEET-1 - the post-payment pop-up opened (data: surface, item_kind). No contact data.
   | "paid_sheet_shown"
+  // PAID-XSELL-1 - "Goes well with what you just bought" in that pop-up: shown (data: surface, items) / a card tapped (data: surface, item).
+  | "paid_xsell_view"
+  | "paid_xsell_tap"
   // PACK-SAMPLE-1 — the free sample page of a pack downloaded without signing up (data: pack, surface).
   | "pack_sample_download"
   // PACKS-ENTRY-1 — a tap on a small "PDF packs" link beside an ask (download wall, notes, footer, account).

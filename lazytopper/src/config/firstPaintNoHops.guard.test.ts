@@ -201,6 +201,8 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
         // PRICING-PAGES-1: the two dedicated sales pages (islands; their first screen needs their own CSS).
         "BoardPassPage",
         "CbqPacksPage",
+        // TS-PAGE-2: the Test Series sales page paints styled from its prerendered body.
+        "TestSeriesPage",
       ]);
       expect(inlinedStylesIn(read(out, "index.html"))).toEqual([]);
       expect(inlinedStylesIn(read(out, "__shell.html"))).toEqual([]);
