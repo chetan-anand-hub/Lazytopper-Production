@@ -116,7 +116,8 @@ describe("SEO-PAGES-1 — the pages", () => {
         expect(container.querySelector(`[data-testid="${testId}"]`)).not.toBeNull();
         const crumbs = container.querySelector('nav[aria-label="Breadcrumb"]') as HTMLElement;
         expect(crumbs.textContent).toContain(SEO_PAGE_SPECS[path].crumb);
-        expect(container.querySelectorAll(".lt-seol__cta")).toHaveLength(1);
+        // PACKS-LPX-2: the free CTA is the one non-Buy hero call to action (the Buy is the primary beside it).
+        expect(container.querySelectorAll(".lt-seol__cta:not(.lt-seol__cta--buy)")).toHaveLength(1);
       });
 
       it("is 800-1,500 words (FAQ included, the footer not)", () => {
@@ -157,11 +158,28 @@ describe("SEO-PAGES-1 — the pages", () => {
         expect(seoPageJsonLd("/pricing", "")).toBeNull();
       });
 
+      it.skipIf(path === MARKING_SCHEME_PATH)("PACKS-LPX-2: the hero Buy reads its price from the pack helpers and hops to the one-tap /packs?buy= link", () => {
+        const { container } = render(
+          <MemoryRouter initialEntries={[`${path}?utm_source=google&gclid=abc&junk=1`]}>
+            <Page />
+          </MemoryRouter>,
+        );
+        const buy = container.querySelector(".lt-seol__cta--buy") as HTMLAnchorElement;
+        expect(buy).not.toBeNull();
+        const sku = path === MOCK_TEST_PATH ? "pack_mock" : "pack_bundle";
+        expect(buy.textContent).toContain(packPriceLabel(sku));
+        const href = buy.getAttribute("href") as string;
+        expect(href.startsWith(`/packs?buy=${sku}`)).toBe(true);
+        expect(href).toContain("utm_source=google");
+        expect(href).toContain("gclid=abc");
+        expect(href).not.toContain("junk");
+      });
+
       it("every internal link is a plain path to a page that exists, with no query or hash", () => {
         const { container } = renderPage(Page, path);
         // The public footer's own link row is shared by every page and is not this page's content.
         const hrefs = [...container.querySelectorAll("a[href]")]
-          .filter((a) => !a.closest(".lt-public-legal"))
+          .filter((a) => !a.closest(".lt-public-legal") && !a.closest(".lt-seol__buy")) // PACKS-LPX-2: the hero Buy links are checked below
           .map((a) => a.getAttribute("href") as string);
         expect(hrefs.length).toBeGreaterThan(8);
         const advertised = new Set(sitemapPaths());

@@ -76,7 +76,7 @@ describe("PACKS-TIDY-1 · signed out", () => {
     }
     expect(document.body.textContent?.split("One-time payment · never renews").length).toBe(2);
     expect(document.body.textContent).toContain("Free samples: one-page PDFs, no sign-up.");
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Question Bank + Mocks: Class 10 Maths and Science PDF packs");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Class 10 Mock Tests, Chapter-wise Question Bank & PYQs");
     // PACKS-TIDY-2: each folded row already carries its Buy (outside the <details>, so it never folds the row); one row open at a time.
     for (const id of ["subject", "mock", "chapter"]) {
       expect(row(id).contains(screen.getByTestId(`pk-buy-${id}-box`)), id).toBe(false);
