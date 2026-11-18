@@ -1,7 +1,7 @@
 /** PAID-XSELL-1 - the selection matrix: each bought product x owned state x Test Series paused -> the exact items, best first. */
 import { describe, expect, it } from "vitest";
-import { GST_EXCLUSIVE_FROM_MS, boardPassPriceDisplay, formatInr } from "../../config/pricing";
-import { packPriceLabel } from "../../services/packs";
+import { GST_EXCLUSIVE_FROM_MS, boardPassPayDisplay, boardPassPriceDisplay, formatInr } from "../../config/pricing";
+import { packPayLabel, packPriceLabel } from "../../services/packs";
 import { seriesTotals } from "../../lib/testSeries/testSeries";
 import {
   BOARD_PASS_XSELL_BENEFIT,
@@ -94,6 +94,8 @@ describe("PAID-XSELL-1 - never something already owned", () => {
     const both = pickPaidCrossSell(base({ bought: "pdf" })).find((x) => x.id === "cbq_packs");
     expect(both?.href).toBe(CBQ_PAGE_HREF);
     expect(both?.price).toBe(`${packPriceLabel("pack_cbq", NOW)} per subject`);
+    expect(both?.cta).toBe(`Get the CBQ Packs — ${packPayLabel("pack_cbq", NOW)} each`);
+    expect(one?.cta).toBe(`Get the Science CBQ Pack — ${packPayLabel("pack_cbq", NOW)}`);
   });
   it("everything owned -> nothing", () => {
     expect(ids(base({ bought: "pass", paidPremium: true, packs: P(BUNDLE, ...CBQ_BOTH) }))).toEqual([]);
@@ -125,7 +127,9 @@ describe("PAID-XSELL-1 - prices, copy and links", () => {
   it("a Test Series buyer sees the SERVER's payInr as the upgrade price", () => {
     const bp = pickPaidCrossSell(base({ bought: "test_series", credit }))[0];
     expect(bp.id).toBe("board_pass");
-    expect(bp.price).toBe(`Upgrade for ${formatInr(1083)} incl. GST`);
+    // the server sends only the all-in payInr: no base line is derived; the button names the server's figure
+    expect(bp.price).toBe("");
+    expect(bp.cta).toBe(`Upgrade — pay ${formatInr(1083)}`);
     expect(bp.benefit).toBe(BOARD_PASS_XSELL_BENEFIT);
     expect(bp.href).toBe("/pricing?buy=board_pass");
   });
@@ -133,21 +137,28 @@ describe("PAID-XSELL-1 - prices, copy and links", () => {
     for (const bought of ["pdf", "cbq"] as const) {
       const bp = pickPaidCrossSell(base({ bought, credit })).find((x) => x.id === "board_pass");
       expect(bp?.price).toBe(`${boardPassPriceDisplay(NOW)} till your boards`);
+      expect(bp?.price).toMatch(/\+ GST till your boards$/);
+      expect(bp?.cta).toBe(`Get the Board Pass — ${boardPassPayDisplay(NOW)}`);
     }
   });
   it("no credit / a lapsed credit -> the normal price", () => {
-    expect(boardPassXsellPrice(null, NOW)).toBe(`${boardPassPriceDisplay(NOW)} till your boards`);
-    expect(boardPassXsellPrice({ ...credit, expiresAtMs: NOW - 1 }, NOW)).toBe(`${boardPassPriceDisplay(NOW)} till your boards`);
+    const normal = { price: `${boardPassPriceDisplay(NOW)} till your boards`, cta: `Get the Board Pass — ${boardPassPayDisplay(NOW)}` };
+    expect(boardPassXsellPrice(null, NOW)).toEqual(normal);
+    expect(boardPassXsellPrice({ ...credit, expiresAtMs: NOW - 1 }, NOW)).toEqual(normal);
   });
   it("Test Series and PDF cards use the pack price tags, the code's own counts, and the existing buy paths", () => {
     const [ts, , cbq] = pickPaidCrossSell(base({ bought: "pdf" }));
     expect(ts.price).toBe(packPriceLabel("test_series", NOW));
     expect(ts.href).toBe("/packs?buy=test_series");
+    expect(ts.cta).toBe(`Add the Test Series — ${packPayLabel("test_series", NOW)}`);
     expect(testSeriesXsellBenefit()).toBe(`Get your written answers checked step by step, 2 checks per paper, ${seriesTotals().total} board-pattern tests`);
     expect(cbq.id).toBe("cbq_packs");
     const pdf = pickPaidCrossSell(base({ bought: "cbq" })).find((x) => x.id === "pdf_packs");
     expect(pdf?.price).toBe(packPriceLabel("pack_bundle", NOW));
     expect(pdf?.href).toBe(PDF_XSELL_HREF);
+    expect(pdf?.price).toMatch(/^₹299 \+ GST$/);
+    expect(pdf?.cta).toBe(`Get the Bundle — ${packPayLabel("pack_bundle", NOW)}`);
+    expect(pdf?.cta).toBe("Get the Bundle — ₹353");
   });
   it("copy is additive: no overlap / 'already included' / 'don't need' / urgency words, and only internal links", () => {
     const all = (["test_series", "pdf", "cbq", "pass"] as const).flatMap((b) => pickPaidCrossSell(base({ bought: b, paidPremium: b === "pass", credit })));

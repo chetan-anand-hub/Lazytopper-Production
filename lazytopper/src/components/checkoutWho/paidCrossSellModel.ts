@@ -14,7 +14,7 @@
  * pass counts as owning the Test Series. A paused Test Series (VITE_TS_PACK_DISABLED) is never offered. Every price is an existing
  * helper's: the pack price tags, the Board Pass tag, or - for a Test Series buyer - the SERVER's own `payInr` (nothing subtracted here).
  */
-import { BOARD_PASS_NAME, boardPassGstExclusive, boardPassPriceDisplay, formatInr } from "../../config/pricing";
+import { BOARD_PASS_NAME, boardPassPayDisplay, boardPassPriceDisplay, formatInr } from "../../config/pricing";
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
 import { BUNDLE_NAME } from "../../lib/packs/packLabels";
 import { TEST_SERIES_BUY_PATH, seriesTotals } from "../../lib/testSeries/testSeries";
@@ -24,6 +24,7 @@ import {
   isAlreadyOwned,
   ownsCbq,
   ownsTestSeries,
+  packPayLabel,
   packPriceLabel,
   subjectLabel,
   type BoardPassCredit,
@@ -41,7 +42,9 @@ export interface CrossSellItem {
   title: string;
   /** What the product ADDS - never overlap wording. */
   benefit: string;
+  /** The house price TAG ("₹299 + GST"); "" when only an all-in server figure is known (it is then on the button only). */
   price: string;
+  /** The button: names the TOTAL charged ("Get the Bundle — ₹353"), as every Pay/Buy button does (GST-EXCL-1). */
   cta: string;
   /** An existing internal buy entry (a fixed path, never taken from the URL). */
   href: string;
@@ -100,30 +103,34 @@ export interface CrossSellInput {
   now: number;
 }
 
-/** "Upgrade for ₹X" from the SERVER's payInr (already incl. GST after the GST cut-off, as PassCheckout's credit line says). */
-export function boardPassXsellPrice(credit: BoardPassCredit | null, now: number): string {
+/**
+ * The Board Pass price line + button. A credited Test Series buyer: the server sends only the all-in `payInr` (no base / GST
+ * breakup), so nothing is derived here - no price line, and the button names the server's figure ("Upgrade — pay ₹1,083").
+ * Everyone else: the house tag ("₹1,917 + GST till your boards") and the helper's total on the button.
+ */
+export function boardPassXsellPrice(credit: BoardPassCredit | null, now: number): { price: string; cta: string } {
   if (credit && credit.payInr > 0 && credit.expiresAtMs > now) {
-    return `Upgrade for ${formatInr(credit.payInr)}${boardPassGstExclusive(now) ? " incl. GST" : ""}`;
+    return { price: "", cta: `Upgrade — pay ${formatInr(credit.payInr)}` };
   }
-  return `${boardPassPriceDisplay(now)} till your boards`;
+  return { price: `${boardPassPriceDisplay(now)} till your boards`, cta: `Get the Board Pass — ${boardPassPayDisplay(now)}` };
 }
 
 function boardPassItem(i: CrossSellInput): CrossSellItem | null {
   if (!i.paymentsOn || i.paidPremium !== false) return null;
   // Only a Test Series buyer is shown the server's credited figure; a pack buyer sees the normal price (pack credit wound down).
   const credit = i.bought === "test_series" ? i.credit : null;
-  return { id: "board_pass", title: BOARD_PASS_NAME, benefit: BOARD_PASS_XSELL_BENEFIT, price: boardPassXsellPrice(credit, i.now), cta: "Upgrade to the Board Pass", href: BOARD_PASS_BUY_PATH };
+  return { id: "board_pass", title: BOARD_PASS_NAME, benefit: BOARD_PASS_XSELL_BENEFIT, ...boardPassXsellPrice(credit, i.now), href: BOARD_PASS_BUY_PATH };
 }
 
 function testSeriesItem(i: CrossSellInput): CrossSellItem | null {
   if (!i.packsOn || !i.tsOffered || i.packs === null || i.paidPremium !== false) return null;
   if (i.ownsTestSeriesFlag === true || ownsTestSeries(i.packs)) return null;
-  return { id: "test_series", title: "Test Series", benefit: testSeriesXsellBenefit(), price: packPriceLabel("test_series", i.now), cta: "Add the Test Series", href: TEST_SERIES_BUY_PATH };
+  return { id: "test_series", title: "Test Series", benefit: testSeriesXsellBenefit(), price: packPriceLabel("test_series", i.now), cta: `Add the Test Series — ${packPayLabel("test_series", i.now)}`, href: TEST_SERIES_BUY_PATH };
 }
 
 function pdfItem(i: CrossSellInput): CrossSellItem | null {
   if (!i.packsOn || i.packs === null || isAlreadyOwned(i.packs, "pack_bundle")) return null;
-  return { id: "pdf_packs", title: `PDF Packs · ${BUNDLE_NAME}`, benefit: PDF_XSELL_BENEFIT, price: packPriceLabel("pack_bundle", i.now), cta: "Get the PDF Packs", href: PDF_XSELL_HREF };
+  return { id: "pdf_packs", title: `PDF Packs · ${BUNDLE_NAME}`, benefit: PDF_XSELL_BENEFIT, price: packPriceLabel("pack_bundle", i.now), cta: `Get the Bundle — ${packPayLabel("pack_bundle", i.now)}`, href: PDF_XSELL_HREF };
 }
 
 function cbqItem(i: CrossSellInput): CrossSellItem | null {
@@ -132,9 +139,10 @@ function cbqItem(i: CrossSellInput): CrossSellItem | null {
   const open = PACK_SUBJECTS.filter((s) => !ownsCbq(packs, s));
   if (open.length === 0) return null;
   const price = packPriceLabel("pack_cbq", i.now);
-  if (open.length === 2) return { id: "cbq_packs", title: "CBQ Packs", benefit: CBQ_XSELL_BENEFIT, price: `${price} per subject`, cta: "Get the CBQ Packs", href: CBQ_PAGE_HREF };
+  const pay = packPayLabel("pack_cbq", i.now);
+  if (open.length === 2) return { id: "cbq_packs", title: "CBQ Packs", benefit: CBQ_XSELL_BENEFIT, price: `${price} per subject`, cta: `Get the CBQ Packs — ${pay} each`, href: CBQ_PAGE_HREF };
   const s: PackSubject = open[0];
-  return { id: "cbq_packs", title: `${subjectLabel(s)} CBQ Pack`, benefit: CBQ_XSELL_BENEFIT, price, cta: `Get the ${subjectLabel(s)} CBQ Pack`, href: `/packs?buy=pack_cbq&t=${s}` };
+  return { id: "cbq_packs", title: `${subjectLabel(s)} CBQ Pack`, benefit: CBQ_XSELL_BENEFIT, price, cta: `Get the ${subjectLabel(s)} CBQ Pack — ${pay}`, href: `/packs?buy=pack_cbq&t=${s}` };
 }
 
 /** The suggestions for this purchase, best first, at most PAID_XSELL_MAX; [] when nothing honest is left to suggest. */

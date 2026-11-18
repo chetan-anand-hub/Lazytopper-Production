@@ -17,8 +17,17 @@ class Quiet extends Component<{ children: ReactNode }, { failed: boolean }> {
   }
 }
 
+/** Kill switch: VITE_PAID_XSELL_DISABLED=1 -> no suggestions, and the chunk is never imported (read like VITE_PAID_SHEET_DISABLED). */
+export function paidCrossSellEnabled(): boolean {
+  try {
+    return !/^(1|true|on|yes)$/i.test(String(import.meta.env.VITE_PAID_XSELL_DISABLED ?? "").trim());
+  } catch {
+    return true;
+  }
+}
+
 export default function PaidCrossSellLazy(props: PaidCrossSellProps) {
-  if (!props.bought) return null;
+  if (!paidCrossSellEnabled() || !props.bought) return null;
   return (
     <Quiet>
       <Suspense fallback={null}>

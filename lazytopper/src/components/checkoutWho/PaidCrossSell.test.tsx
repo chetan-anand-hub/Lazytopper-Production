@@ -78,7 +78,8 @@ describe("PaidCrossSell in the paid pop-up", () => {
     expect(await screen.findByTestId("paid-xsell")).toBeTruthy();
     expect(screen.getByText(PAID_XSELL_HEADING)).toBeTruthy();
     expect(cards()).toEqual(["board_pass", "pdf_packs", "cbq_packs"]);
-    expect(screen.getByTestId("paid-xsell-price-board_pass").textContent).toMatch(/^Upgrade for ₹1,083/);
+    expect(screen.queryByTestId("paid-xsell-price-board_pass")).toBeNull(); // all-in server figure: no derived base line
+    expect(screen.getByTestId("paid-xsell-tap-board_pass").textContent).toBe("Upgrade — pay ₹1,083");
   });
 
   it("a PDF pack bought by a Board Pass holder: no Board Pass, no Test Series - only the CBQ Packs", async () => {
@@ -156,6 +157,21 @@ describe("PaidSheet wiring (the cross-sell chunk stubbed: what PaidSheet passes 
     expect(screen.queryByTestId("xsell-stub")).toBeNull(); // moved to the child's account: nothing to sell here
     expect(seen).toContainEqual(["test_series", false, "packs"]);
     expect(seen).toContainEqual(["pass", true, "board_pass"]);
+    vi.doUnmock("./PaidCrossSell");
+  });
+
+  it("kill switch VITE_PAID_XSELL_DISABLED=1: the chunk is never imported and nothing shows", async () => {
+    vi.stubEnv("VITE_PAID_XSELL_DISABLED", "1");
+    const imported = vi.fn();
+    vi.doMock("./PaidCrossSell", () => { imported(); return { default: () => <div data-testid="xsell-stub" /> }; });
+    vi.resetModules();
+    const { default: Lazy } = await import("./PaidSheetLazy");
+    render(<MemoryRouter><Lazy primaryLabel="x" onPrimary={vi.fn()} onClose={vi.fn()} onFail={vi.fn()} surface="packs" itemKind="pack" itemName="Test Series Pack" /></MemoryRouter>);
+    await screen.findByTestId("paid-sheet");
+    await settle();
+    expect(screen.queryByTestId("xsell-stub")).toBeNull();
+    expect(imported).not.toHaveBeenCalled();
+    expect(mine.fn).not.toHaveBeenCalled();
     vi.doUnmock("./PaidCrossSell");
   });
 });

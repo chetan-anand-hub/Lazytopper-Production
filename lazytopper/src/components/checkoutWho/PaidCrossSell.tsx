@@ -149,7 +149,7 @@ export default function PaidCrossSell({ bought, surface, hostOffersCbq = false, 
             <div className="lt-pxs__text">
               <p className="lt-pxs__title">{item.title}</p>
               <p className="lt-pxs__benefit">{item.benefit}</p>
-              <p className="lt-pxs__price" data-testid={`paid-xsell-price-${item.id}`}>{item.price}</p>
+              {item.price && <p className="lt-pxs__price" data-testid={`paid-xsell-price-${item.id}`}>{item.price}</p>}
             </div>
             <button
               type="button"
