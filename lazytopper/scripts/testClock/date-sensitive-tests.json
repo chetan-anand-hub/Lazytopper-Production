@@ -604,7 +604,6 @@
     "src/components/pricing/PassCheckout.signinLink.test.tsx",
     "src/components/pricing/PassCheckout.test.tsx",
     "src/components/pricing/PassCheckout.track2.test.tsx",
-    "src/components/pricing/PassCheckout.tsUpgrade.test.tsx",
     "src/components/pricing/PassCheckout.waOptIn.test.tsx",
     "src/components/pricing/PaywallActions.surfaces.test.tsx",
     "src/components/pricing/PaywallActions.test.tsx",
