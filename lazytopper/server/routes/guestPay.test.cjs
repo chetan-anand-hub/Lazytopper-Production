@@ -207,7 +207,7 @@ function fakeRazorpay() {
 
 
 /* ── guest routes AND the existing payment routes (webhook), behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts, invoicer, packPdf, nowMs = NOW, nowFn = null } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), receiptEmailer, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts, invoicer, packPdf, nowMs = NOW, nowFn = null, serverEvents } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -225,9 +225,9 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     async resolveVerifiedUid(req) { return identityOf(req).uid; },
     async resolveVerifiedIdentity(req) { return identityOf(req); },
   };
-  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, invoicer, packPdf, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts });
+  const guest = createGuestPayRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, invoicer, packPdf, accountExistsForPhone, uidForPhone, uidForEmail, authAccounts, ...(serverEvents ? { serverEvents } : {}) });
   // CHECKOUT-WHO-2: the webhook runs the guest routes' recipient delivery, wired exactly as index.cjs does.
-  const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, afterGuestPaid: (x) => guest.afterRecipientPaid(x) });
+  const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now, foundingOfferOpen: true, receiptEmailer, ...(serverEvents ? { serverEvents } : {}), afterGuestPaid: (x) => guest.afterRecipientPaid(x) });
   const table = {
     [GUEST_ORDER_PATH]: guest.handleOrder,
     [GUEST_VERIFY_PATH]: guest.handleVerify,
@@ -3431,4 +3431,29 @@ test('ORDER-SOURCE-1 · who-order and self-order store the source too', async (t
   const s = await whoOrder(srv, { sku: 'pack_mock', target: 'maths', self: true, source: { ref: 'youtube.com' } });
   assert.equal(s.status, 200, s.text);
   assert.deepEqual(srv.db.read(`payOrders/${s.json.orderId}`).source, { ref: 'youtube.com' });
+});
+
+
+test('SERVER-EVENTS-1 · a guest pack: ONE PackPurchase for verify + webhook + replay, hashed Razorpay email + phone, event_id = order id', async (t) => {
+  const { createServerEvents } = require('../services/serverEvents.cjs');
+  const calls = [];
+  const fetchImpl = async (url, init) => { calls.push({ url: String(url), body: JSON.parse(init.body) }); return { ok: true, status: 200 }; };
+  const db = memoryFirestore();
+  const serverEvents = createServerEvents({ firestore: db, env: { META_CAPI_ACCESS_TOKEN: 't' }, fetchImpl, now: () => NOW });
+  const srv = await startRoutes({ db, serverEvents });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE, adSignals: { fbp: 'fb.1.1700000000000.12345678' } });
+  const p = srv.rzp.pay(o.json.orderId);
+  srv.rzp.payments.get(p.id).email = 'Parent@Example.com';
+  assert.equal((await guestVerify(srv, o.json.orderId, p.id)).status, 200);
+  assert.equal((await sendWebhook(srv, { ...srv.rzp.payments.get(p.id) })).status, 200);
+  assert.equal((await guestVerify(srv, o.json.orderId, p.id)).status, 200);
+  await new Promise((r) => setTimeout(r, 60));
+  assert.equal(calls.length, 1);
+  const ev = calls[0].body.data[0];
+  assert.equal(ev.event_name, 'PackPurchase');
+  assert.equal(ev.event_id, o.json.orderId);
+  assert.equal(ev.user_data.em[0], crypto.createHash('sha256').update('parent@example.com').digest('hex'));
+  assert.equal(ev.user_data.fbp, 'fb.1.1700000000000.12345678');
+  assert.equal(ev.user_data.external_id, undefined, 'a guest has no account id');
 });

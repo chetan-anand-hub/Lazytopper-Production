@@ -86,6 +86,7 @@ const { PACK_PRODUCTS, isPackProduct, packsEnabled, validateTarget, packIdFor } 
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
+const { fire: fireServerEvent, signalsFor } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
 // Review fix 5: "already covered till the boards" is the parent-pay rule, reused.
 const { coveredTillBoards } = require('./parentPay.cjs');
 const {
@@ -350,6 +351,8 @@ function createGuestPayRoutes(deps = {}) {
      * account (verified email or not); createUser throws firebase-admin's error (with `.code`). Absent -> nothing is created.
      */
     authAccounts,
+    /** SERVER-EVENTS-1 - optional serverEvents service; only ever called through `fire`. Absent -> nothing. */
+    serverEvents,
   } = deps;
   const limiters = deps.limiters || createGuestPayLimiters({ telemetry, now });
   // GST-AFTER-PAY-1: the post-payment state + PIN (issues through the SAME invoicer; the invoice email goes through the receipt emailer).
@@ -600,6 +603,7 @@ function createGuestPayRoutes(deps = {}) {
         ...gstBuyerFields(body),
         ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: valid number + explicit tick only
         ...orderSourceField(body, env), // ORDER-SOURCE-1
+        ...signalsFor(serverEvents, body, req), // SERVER-EVENTS-1: only when server events are ON
         offerKey: quote.offerKey,
         status: GUEST_STATUS.created,
         createdAt: new Date(now()),
@@ -783,6 +787,7 @@ function createGuestPayRoutes(deps = {}) {
       ...gstBuyerFields(body),
       ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: the visitor's own WhatsApp number (not the recipient's); valid + ticked only
       ...orderSourceField(body, env), // ORDER-SOURCE-1
+        ...signalsFor(serverEvents, body, req), // SERVER-EVENTS-1: only when server events are ON
       offerKey: quote.offerKey,
       status: GUEST_STATUS.created,
       createdAt: new Date(now()),
@@ -857,6 +862,7 @@ function createGuestPayRoutes(deps = {}) {
         ...gstBuyerFields(body),
         ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: valid number + explicit tick only
         ...orderSourceField(body, env), // ORDER-SOURCE-1
+        ...signalsFor(serverEvents, body, req), // SERVER-EVENTS-1: only when server events are ON
         offerKey: quote.offerKey,
         status: GUEST_STATUS.created,
         createdAt: new Date(now()),
@@ -1034,6 +1040,7 @@ function createGuestPayRoutes(deps = {}) {
       emit(marked.changed ? 'payments.guest.verify.paid_unclaimed' : 'payments.guest.verify.replayed');
       if (marked.reason === 'other_payment') emit('payments.guest.verify.duplicate_payment');
       else {
+        if (serverEvents) fireServerEvent(() => serverEvents.orderPaid({ orderId, payment })); // SERVER-EVENTS-1: once per order, never awaited
         // GST-INVOICE-1: the invoice first (when on), then the receipt that links it. Never awaited here.
         const wantsReceipt = !!receiptEmailer && typeof receiptEmailer.sendForPayment === 'function';
         afterCapture({

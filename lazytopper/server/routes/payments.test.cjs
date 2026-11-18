@@ -40,6 +40,7 @@ const {
 } = require('./payments.cjs');
 const { createHttpUtils } = require('../services/httpUtils.cjs');
 const pricing = require('../services/passPricing.cjs');
+const { createServerEvents } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
 
 const PAYMENTS_CJS = path.join(__dirname, 'payments.cjs');
 const INDEX_CJS = path.resolve(__dirname, '..', 'index.cjs');
@@ -195,7 +196,7 @@ function fakeRazorpay() {
 }
 
 /* ── the routes behind a real HTTP server, so bodies arrive as real bytes ────────── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), now = () => NOW, telemetry, topupBonus, calendarOffer = false } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), now = () => NOW, telemetry, topupBonus, calendarOffer = false, serverEvents } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const tele = telemetry || { increment: (e) => events.push(e) };
@@ -210,6 +211,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     // PRICING-1: `calendarOffer` leaves the offer to the injected clock (the production path).
     ...(calendarOffer ? {} : { foundingOfferOpen: true }),
     ...(topupBonus ? { topupBonus } : {}),
+    ...(serverEvents ? { serverEvents } : {}), // SERVER-EVENTS-1
   });
   const server = http.createServer((req, res) => {
     const p = String(req.url).split('?')[0];
@@ -2610,3 +2612,307 @@ test('SIG-1 · failure diag carries naPaths + cps and no string values', async (
   assert.match(l, /cps=U\+20B9,U\+2014,U\+1F600/);
   assert.ok(!l.includes('declined') && !l.includes('Amount'));
 });
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SERVER-EVENTS-1 - Meta CAPI + GA4 MP from the verified-paid points (never into the payment path)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const SE_ENV = { META_CAPI_ACCESS_TOKEN: 'tok_test', GA4_API_SECRET: 'ga_secret_test', META_TEST_EVENT_CODE: 'TEST123' };
+function seFetch({ throws = false } = {}) {
+  const calls = [];
+  const fetchImpl = async (url, init) => {
+    calls.push({ url: String(url), body: JSON.parse(init.body) });
+    if (throws) throw new Error('network down');
+    return { ok: true, status: 200 };
+  };
+  return { calls, fetchImpl };
+}
+const settle = () => new Promise((r) => setTimeout(r, 60));
+
+test('SERVER-EVENTS-1 · verify then webhook for ONE order -> exactly ONE Purchase (event_id = order id) and ONE GA4 purchase', async (t) => {
+  const f = seFetch();
+  const db = memoryFirestore();
+  const serverEvents = createServerEvents({ firestore: db, env: SE_ENV, fetchImpl: f.fetchImpl, now: () => NOW });
+  const srv = await startRoutes({ db, serverEvents });
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv, 'u1', 'till_boards', { adSignals: { fbp: 'fb.1.1700000000000.123456789', ga: 'GA1.1.111.222', url: 'https://www.lazytopper.com/pricing?utm=x' } });
+  const p = srv.rzp.pay(orderId);
+  p.email = 'Buyer@Example.com ';
+  p.contact = '+91 98765 43210';
+  const v = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId, paymentId: p.id, signature: checkoutSig(orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(v.status, 200);
+  await sendWebhook(srv, webhookBody(p));
+  await request(srv.port, PAY_STATUS_PATH, { body: { orderId }, headers: asUid('u1') });
+  await settle();
+  const meta = f.calls.filter((c) => c.url.includes('graph.facebook.com'));
+  const ga = f.calls.filter((c) => c.url.includes('google-analytics.com'));
+  assert.equal(meta.length, 1, 'Meta must fire once per order');
+  assert.equal(ga.length, 1, 'GA4 must fire once per order');
+  const ev = meta[0].body.data[0];
+  assert.equal(ev.event_name, 'Purchase');
+  assert.equal(ev.event_id, orderId);
+  assert.equal(ev.action_source, 'website');
+  assert.equal(ev.event_source_url, 'https://www.lazytopper.com/pricing');
+  assert.equal(ev.custom_data.currency, 'INR');
+  assert.equal(ev.custom_data.value, srv.db.read(`payOrders/${orderId}`).amountPaise / 100);
+  assert.equal(ev.user_data.em[0], crypto.createHash('sha256').update('buyer@example.com').digest('hex'));
+  assert.equal(ev.user_data.ph[0], crypto.createHash('sha256').update('919876543210').digest('hex'));
+  assert.equal(ev.user_data.fbp, 'fb.1.1700000000000.123456789');
+  assert.ok(ev.user_data.client_ip_address && ev.user_data.external_id[0]);
+  assert.equal(meta[0].body.test_event_code, 'TEST123');
+  assert.ok(!JSON.stringify(meta[0].body).includes('buyer@example.com'), 'raw email leaked');
+  const g = ga[0].body;
+  assert.equal(g.client_id, '111.222');
+  assert.equal(g.events[0].name, 'purchase');
+  assert.equal(g.events[0].params.transaction_id, orderId);
+  assert.equal(g.events[0].params.currency, 'INR');
+  const marker = srv.db.read(`payOrders/${orderId}`).serverEvents;
+  assert.equal(marker.meta.state, 'sent');
+  assert.equal(marker.ga4.state, 'sent');
+});
+
+test('SERVER-EVENTS-1 · the network THROWING never reaches the payment: verify still 200, Premium granted, order paid', async (t) => {
+  const f = seFetch({ throws: true });
+  const db = memoryFirestore();
+  const serverEvents = createServerEvents({ firestore: db, env: SE_ENV, fetchImpl: f.fetchImpl, now: () => NOW });
+  const srv = await startRoutes({ db, serverEvents });
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv, 'u1', 'month');
+  const p = srv.rzp.pay(orderId);
+  const v = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId, paymentId: p.id, signature: checkoutSig(orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(v.status, 200, JSON.stringify(v.json));
+  assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'paid');
+  await settle();
+  assert.ok(f.calls.length >= 2, 'a retry was attempted');
+  assert.equal(srv.db.read(`payOrders/${orderId}`).serverEvents.meta.state, 'failed', 'a failed send is marked so a later call can retry');
+});
+
+test('SERVER-EVENTS-1 · a service whose methods THROW SYNCHRONOUSLY or reject cannot break verify, webhook or order creation', async (t) => {
+  const boom = () => { throw new Error('sync boom'); };
+  const serverEvents = { signalsField: boom, orderPaid: boom, orderCreated: () => Promise.reject(new Error('rejected')) };
+  const srv = await startRoutes({ serverEvents });
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv, 'u1', 'month');
+  const p = srv.rzp.pay(orderId);
+  const v = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId, paymentId: p.id, signature: checkoutSig(orderId, p.id) }, headers: asUid('u1') });
+  assert.equal(v.status, 200);
+  assert.equal((await sendWebhook(srv, webhookBody(p))).status, 200);
+  assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
+});
+
+test('SERVER-EVENTS-1 · no env -> silent no-op: no fetch, no adSignals, no marker, the order doc is byte-identical', async (t) => {
+  const f = seFetch();
+  const db = memoryFirestore();
+  const serverEvents = createServerEvents({ firestore: db, env: {}, fetchImpl: f.fetchImpl, now: () => NOW });
+  assert.equal(serverEvents.metaOn, false);
+  assert.equal(serverEvents.ga4On, false);
+  const srv = await startRoutes({ db, serverEvents });
+  t.after(srv.close);
+  const { orderId } = await createOrder(srv, 'u1', 'month', { adSignals: { fbp: 'fb.1.1700000000000.1234567' } });
+  const p = srv.rzp.pay(orderId);
+  await request(srv.port, PAY_VERIFY_PATH, { body: { orderId, paymentId: p.id, signature: checkoutSig(orderId, p.id) }, headers: asUid('u1') });
+  await settle();
+  assert.equal(f.calls.length, 0);
+  const o = srv.db.read(`payOrders/${orderId}`);
+  assert.equal(o.adSignals, undefined);
+  assert.equal(o.serverEvents, undefined);
+  assert.equal(o.status, 'paid');
+});
+
+test('SERVER-EVENTS-1 · SERVER_EVENTS_DISABLED=1 is a kill switch even with every secret set', async (t) => {
+  const f = seFetch();
+  const serverEvents = createServerEvents({ firestore: memoryFirestore(), env: { ...SE_ENV, SERVER_EVENTS_DISABLED: '1' }, fetchImpl: f.fetchImpl });
+  assert.equal(serverEvents.metaOn, false);
+  assert.equal(serverEvents.ga4On, false);
+  await serverEvents.orderPaid({ orderId: 'order_X', payment: {} });
+  assert.equal(f.calls.length, 0);
+});
+
+
+/* ── SERVER-EVENTS-1 · the service contract (pure helpers, payload shape, once-per-order, no-op, never throws) ── */
+{
+  const se = require('../services/serverEvents.cjs');
+
+  const sha = (s) => crypto.createHash('sha256').update(s).digest('hex');
+  const NOW = Date.parse('2026-11-18T10:00:00Z');
+
+  function fakeDb(seed = {}) {
+    const docs = new Map(Object.entries(seed).map(([k, v]) => [k, { ...v }]));
+    const ref = (key) => ({ key });
+    return {
+      docs,
+      collection: (c) => ({ doc: (id) => ref(`${c}/${id}`) }),
+      async runTransaction(fn) {
+        const pending = [];
+        const out = await fn({
+          async get(r) { const d = docs.get(r.key); return { exists: !!d, data: () => (d ? { ...d } : undefined) }; },
+          set(r, data, opts) { pending.push([r.key, data, opts]); },
+        });
+        for (const [k, d, o] of pending) docs.set(k, { ...(o && o.merge ? docs.get(k) || {} : {}), ...d });
+        return out;
+      },
+    };
+  }
+  function fakeFetch({ status = 200, throws = false } = {}) {
+    const calls = [];
+    return { calls, fetchImpl: async (url, init) => { calls.push({ url: String(url), body: JSON.parse(init.body) }); if (throws) throw new Error('down'); return { ok: status < 400, status }; } };
+  }
+  const ENV = { META_CAPI_ACCESS_TOKEN: 'tok', GA4_API_SECRET: 'sec' };
+  const order = (extra = {}) => ({ uid: 'u1', passType: 'till_boards', amountPaise: 117882, status: 'paid', ...extra });
+
+  test('hashing: email trimmed + lowercased then SHA-256; junk -> null', () => {
+    assert.equal(se.hashEmail('  Foo.Bar@Example.COM '), sha('foo.bar@example.com'));
+    assert.equal(se.hashEmail('not-an-email'), null);
+    assert.equal(se.hashEmail(''), null);
+    assert.equal(se.hashEmail(undefined), null);
+  });
+
+  test('hashing: phone -> digits with country code 91, then SHA-256', () => {
+    const want = sha('919876543210');
+    for (const v of ['9876543210', '+91 98765 43210', '09876543210', '91-9876543210', '(+91) 9876543210']) assert.equal(se.hashPhone(v), want, v);
+    assert.equal(se.normalisePhone('+1 415 555 2671'), '14155552671');
+    assert.equal(se.hashPhone('12345'), null);
+    assert.equal(se.hashPhone(''), null);
+  });
+
+  test('hashing: the external id is a hash, never the raw uid', () => {
+    assert.equal(se.hashExternalId('abc'), sha('abc'));
+    assert.equal(se.hashExternalId(''), null);
+  });
+
+  test('cookie header -> only well-formed _fbp / _fbc / _ga', () => {
+    const s = se.signalsFromCookieHeader('a=1; _fbp=fb.1.1700000000000.12345678; _fbc=fb.1.1700000000000.AbC-_9; _ga=GA1.1.555.666; other=x');
+    assert.deepEqual(s, { fbp: 'fb.1.1700000000000.12345678', fbc: 'fb.1.1700000000000.AbC-_9', gaClientId: '555.666' });
+    assert.deepEqual(se.signalsFromCookieHeader('_fbp=evil<script>; _ga=nope'), {});
+    assert.deepEqual(se.signalsFromCookieHeader(undefined), {});
+  });
+
+  test('adSignalsField: validates, strips the query string, takes IP / UA from the REQUEST, body wins over cookie', () => {
+    const req = { headers: { 'x-forwarded-for': '203.0.113.7, 10.0.0.1', 'user-agent': 'UA/1', cookie: '_fbp=fb.1.1700000000000.99999999; _ga=GA1.1.1.2' }, socket: { remoteAddress: '10.0.0.1' } };
+    const out = se.adSignalsField({ adSignals: { fbp: 'fb.1.1700000000000.11111111', ga: 'GA1.1.7.8', url: 'https://www.lazytopper.com/packs?gclid=SECRET#x', attemptId: 'lt_abcdef123456', evil: 'x' } }, req, {});
+    assert.deepEqual(out, { adSignals: { fbp: 'fb.1.1700000000000.11111111', gaClientId: '7.8', url: 'https://www.lazytopper.com/packs', attemptId: 'lt_abcdef123456', ua: 'UA/1', ip: '203.0.113.7' } });
+    const bad = se.adSignalsField({ adSignals: { fbp: '<x>', ga: 'zz', url: 'https://evil.example/x', attemptId: 'a b' } }, { headers: {}, socket: {} }, {});
+    assert.deepEqual(bad, {});
+    assert.deepEqual(se.adSignalsField({}, req, { SERVER_EVENTS_DISABLED: '1' }), {});
+  });
+
+  test('payload shape: Purchase (pass)', async () => {
+    const f = fakeFetch();
+    const db = fakeDb({ 'payOrders/o1': order({ adSignals: { fbp: 'fb.1.1700000000000.12345678', ip: '203.0.113.7', ua: 'UA/1', url: 'https://www.lazytopper.com/pricing' } }) });
+    const s = se.createServerEvents({ firestore: db, env: { ...ENV, META_PIXEL_ID: '999' }, fetchImpl: f.fetchImpl, now: () => NOW });
+    await s.orderPaid({ orderId: 'o1', payment: { email: 'A@b.co', contact: '9876543210' } });
+    const m = f.calls.find((c) => c.url.includes('graph.facebook.com'));
+    assert.match(m.url, /\/v21\.0\/999\/events$/);
+    assert.ok(!m.url.includes('tok'), 'the token must not be in the URL');
+    assert.equal(m.body.access_token, 'tok');
+    const ev = m.body.data[0];
+    assert.deepEqual(Object.keys(ev).sort(), ['action_source', 'custom_data', 'event_id', 'event_name', 'event_source_url', 'event_time', 'user_data']);
+    assert.equal(ev.event_name, 'Purchase');
+    assert.equal(ev.event_id, 'o1');
+    assert.equal(ev.event_time, Math.floor(NOW / 1000));
+    assert.equal(ev.action_source, 'website');
+    assert.deepEqual(Object.keys(ev.user_data).sort(), ['client_ip_address', 'client_user_agent', 'em', 'external_id', 'fbp', 'ph']);
+    assert.deepEqual(ev.custom_data, { currency: 'INR', value: 1178.82 });
+    const g = f.calls.find((c) => c.url.includes('google-analytics.com'));
+    assert.match(g.url, /measurement_id=G-1T8Q12H4RQ&api_secret=sec$/);
+    assert.equal(g.body.events[0].params.value, 1178.82);
+    assert.equal(g.body.events[0].params.items[0].item_id, 'till_boards');
+    assert.match(g.body.client_id, /^\d+\.\d+$/, 'no GA cookie -> a stable synthetic id');
+  });
+
+  test('payload shape: a pack is the CUSTOM Meta event PackPurchase, never Purchase', async () => {
+    const f = fakeFetch();
+    const db = fakeDb({ 'payOrders/o2': order({ passType: 'pack_chapter', amountPaise: 5782 }) });
+    const s = se.createServerEvents({ firestore: db, env: ENV, fetchImpl: f.fetchImpl, now: () => NOW });
+    await s.orderPaid({ orderId: 'o2', payment: {} });
+    const ev = f.calls.find((c) => c.url.includes('graph.facebook.com')).body.data[0];
+    assert.equal(ev.event_name, 'PackPurchase');
+    assert.equal(ev.event_id, 'o2');
+    assert.equal(ev.custom_data.value, 57.82);
+  });
+
+  test('once per order: a second / concurrent orderPaid sends nothing more; a created or unknown order sends nothing', async () => {
+    const f = fakeFetch();
+    const db = fakeDb({ 'payOrders/o3': order(), 'payOrders/o4': order({ status: 'created' }) });
+    const s = se.createServerEvents({ firestore: db, env: ENV, fetchImpl: f.fetchImpl, now: () => NOW });
+    await s.orderPaid({ orderId: 'o3', payment: {} });
+    await s.orderPaid({ orderId: 'o3', payment: {} });
+    await s.orderPaid({ orderId: 'o4', payment: {} });
+    await s.orderPaid({ orderId: 'missing', payment: {} });
+    assert.equal(f.calls.length, 2, 'one Meta + one GA4 for o3 only');
+    assert.equal(db.docs.get('payOrders/o3').serverEvents.meta.state, 'sent');
+  });
+
+  test('a top-up order sends nothing; a failed send is marked failed and CAN be retried once the network is back', async () => {
+    const f = fakeFetch();
+    const db = fakeDb({ 'payOrders/t1': order({ passType: 'topup_49' }) });
+    const s = se.createServerEvents({ firestore: db, env: ENV, fetchImpl: f.fetchImpl, now: () => NOW });
+    await s.orderPaid({ orderId: 't1', payment: {} });
+    assert.equal(f.calls.length, 0);
+
+    const bad = fakeFetch({ status: 500 });
+    const db2 = fakeDb({ 'payOrders/o5': order() });
+    const s2 = se.createServerEvents({ firestore: db2, env: ENV, fetchImpl: bad.fetchImpl, now: () => NOW });
+    await s2.orderPaid({ orderId: 'o5', payment: {} });
+    assert.equal(db2.docs.get('payOrders/o5').serverEvents.meta.state, 'failed');
+    assert.equal(bad.calls.filter((c) => c.url.includes('graph.facebook.com')).length, 2, 'one retry, no more');
+    const good = fakeFetch();
+    const s3 = se.createServerEvents({ firestore: db2, env: ENV, fetchImpl: good.fetchImpl, now: () => NOW });
+    await s3.orderPaid({ orderId: 'o5', payment: {} });
+    assert.equal(db2.docs.get('payOrders/o5').serverEvents.meta.state, 'sent');
+  });
+
+  test('InitiateCheckout: packs only, event_id = the browser attempt id; none without an attempt id; a pass sends none', async () => {
+    const f = fakeFetch();
+    const s = se.createServerEvents({ firestore: fakeDb(), env: ENV, fetchImpl: f.fetchImpl, now: () => NOW });
+    await s.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'u1', signals: { attemptId: 'lt_attempt_12345', ip: '203.0.113.7' } });
+    await s.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'u1', signals: { ip: '203.0.113.7' } });
+    await s.orderCreated({ orderId: 'o', passType: 'till_boards', amountPaise: 1, uid: 'u1', signals: { attemptId: 'lt_attempt_12345' } });
+    assert.equal(f.calls.length, 1);
+    const ev = f.calls[0].body.data[0];
+    assert.equal(ev.event_name, 'InitiateCheckout');
+    assert.equal(ev.event_id, 'lt_attempt_12345');
+    assert.deepEqual(ev.custom_data, { currency: 'INR', value: 116.82, content_ids: ['pack_mock'], content_type: 'product' });
+  });
+
+  test('CompleteRegistration: stable id from the uid hash, hashed email + phone, once per call', async () => {
+    const f = fakeFetch();
+    const s = se.createServerEvents({ firestore: fakeDb(), env: ENV, fetchImpl: f.fetchImpl, now: () => NOW });
+    await s.registration({ uid: 'uid-1', email: 'N@x.io', phone: '+919876543210', signals: { ip: '203.0.113.7' } });
+    const ev = f.calls[0].body.data[0];
+    assert.equal(ev.event_name, 'CompleteRegistration');
+    assert.equal(ev.event_id, `reg_${sha('uid-1').slice(0, 24)}`);
+    assert.equal(ev.user_data.em[0], sha('n@x.io'));
+    assert.equal(ev.user_data.ph[0], sha('919876543210'));
+    assert.ok(!JSON.stringify(ev).includes('uid-1'), 'raw uid leaked');
+  });
+
+  test('no env -> no-op with the boot line OFF/OFF; with env -> ON/ON', async () => {
+    const lines = [];
+    const logger = { log: (l) => lines.push(l) };
+    const f = fakeFetch();
+    const off = se.createServerEvents({ firestore: fakeDb({ 'payOrders/o': order() }), env: {}, fetchImpl: f.fetchImpl, logger });
+    off.bootLine();
+    await off.orderPaid({ orderId: 'o', payment: {} });
+    await off.registration({ uid: 'u' });
+    assert.equal(f.calls.length, 0);
+    assert.deepEqual(off.signalsField({}, { headers: {} }), {});
+    const on = se.createServerEvents({ firestore: fakeDb(), env: ENV, fetchImpl: f.fetchImpl, logger });
+    on.bootLine();
+    assert.deepEqual(lines, ['[server-events] meta=OFF ga4=OFF', '[server-events] meta=ON ga4=ON']);
+  });
+
+  test('never throws: broken firestore, throwing fetch, and `fire` swallow sync + async errors', async () => {
+    const s = se.createServerEvents({ firestore: { collection() { throw new Error('db'); }, runTransaction() { throw new Error('db'); } }, env: ENV, fetchImpl: async () => { throw new Error('x'); } });
+    await assert.doesNotReject(s.orderPaid({ orderId: 'o', payment: {} }));
+    await assert.doesNotReject(s.orderCreated({ orderId: 'o', passType: 'pack_mock', signals: { attemptId: 'lt_attempt_12345' } }));
+    await assert.doesNotReject(s.registration({ uid: 'u' }));
+    assert.doesNotThrow(() => se.fire(() => { throw new Error('sync'); }));
+    assert.doesNotThrow(() => se.fire(() => Promise.reject(new Error('async'))));
+    assert.deepEqual(se.signalsFor({ signalsField() { throw new Error('x'); } }, {}, {}), {});
+    assert.deepEqual(se.signalsFor(undefined, {}, {}), {});
+  });
+
+}
