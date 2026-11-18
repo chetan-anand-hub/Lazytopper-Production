@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import { stickyPassCopy } from "../pricing/pricingPlansCopy";
 import "../pricing/stickyPassBar.css";
 
+/** PACKS-MOBILE-1: a watched area counts as "in view" only when ALL of it is inside the viewport (a clipped button is not in view). */
+export function isFullyInView(r: { top: number; bottom: number; height: number }, viewportHeight: number): boolean {
+  return r.height > 0 && r.top >= 0 && r.bottom <= viewportHeight;
+}
+/** The default: any part of the area inside the viewport counts as on screen. */
+export function isPartlyInView(r: { top: number; bottom: number; height: number }, viewportHeight: number): boolean {
+  return r.height > 0 && r.bottom > 0 && r.top < viewportHeight;
+}
+
 /**
  * PRICING-PAGES-1 - the phone shortcut bar of a sales page, on StickyPassBar's rules (pricing/StickyPassBar.tsx): phones only (its
  * CSS hides it from 768 px); HIDDEN while ANY of the page's Pay areas (`watch`, test ids) is on screen and over the footer; mounted
@@ -13,6 +22,7 @@ export default function SalesStickyBar({
   watch,
   footerSelector = "footer.lt-public-legal",
   ignoreFooter = false,
+  requireFullyVisible = false,
   copy,
   onGo,
   ariaLabel,
@@ -23,6 +33,8 @@ export default function SalesStickyBar({
   footerSelector?: string;
   /** /packs only: the footer on screen does NOT hide the bar (the page is short, so the footer is often in view; the page reserves room for the bar). Default off. */
   ignoreFooter?: boolean;
+  /** /packs only (PACKS-MOBILE-1): the bar hides only while the watched Buy is FULLY on screen; a clipped button counts as not visible. Default off. */
+  requireFullyVisible?: boolean;
   /** Read after mount and on every visibility check (the price follows the clock and the hero Pay). null hides the bar. */
   copy: () => { label: string; button: string } | null;
   onGo: () => void;
@@ -39,8 +51,12 @@ export default function SalesStickyBar({
     // re-rendered by React, is never stale). An area counts as on screen while any of it is inside the viewport.
     const onScreen = (el: Element | null): boolean => {
       if (!el) return false;
-      const r = el.getBoundingClientRect();
-      return r.height > 0 && r.bottom > 0 && r.top < window.innerHeight;
+      return isPartlyInView(el.getBoundingClientRect(), window.innerHeight);
+    };
+    const watchedInView = (el: Element | null): boolean => {
+      if (!requireFullyVisible) return onScreen(el);
+      if (!el) return false;
+      return isFullyInView(el.getBoundingClientRect(), window.innerHeight);
     };
     let frame = 0;
     const check = () => {
@@ -48,7 +64,7 @@ export default function SalesStickyBar({
       // The copy is re-read too (R1: the Pay amount follows the hero Pay, which names a pack credit once it has loaded).
       const next = copy();
       setText((was) => (was && next && was.label === next.label && was.button === next.button ? was : next));
-      const anyPay = watch.some((id) => onScreen(document.querySelector(`[data-testid="${id}"]`)));
+      const anyPay = watch.some((id) => watchedInView(document.querySelector(`[data-testid="${id}"]`)));
       setHidden(anyPay || (!ignoreFooter && onScreen(document.querySelector(footerSelector))));
     };
     const schedule = () => {

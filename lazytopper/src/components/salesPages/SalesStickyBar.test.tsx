@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
-import SalesStickyBar from "./SalesStickyBar";
+import SalesStickyBar, { isFullyInView, isPartlyInView } from "./SalesStickyBar";
 
 /** PRICING-PAGES-1 - the phone bar hides while ANY watched Pay area (or the footer) is on screen, and its button is the page's own Pay. */
 function rect(top: number, height: number) {
@@ -82,5 +82,39 @@ describe("SalesStickyBar", () => {
     } finally {
       footer.remove();
     }
+  });
+});
+
+/** PACKS-MOBILE-1 - at 360x640 the Bundle Buy (y 611-659) is clipped: the bar must show. */
+describe("SalesStickyBar requireFullyVisible (/packs)", () => {
+  const VH = 640;
+  it("visibility rules: clipped is partly but not fully in view", () => {
+    const clipped = { top: 611, bottom: 659, height: 48 };
+    expect(isPartlyInView(clipped, VH)).toBe(true);
+    expect(isFullyInView(clipped, VH)).toBe(false);
+    expect(isFullyInView({ top: 100, bottom: 148, height: 48 }, VH)).toBe(true);
+    expect(isFullyInView({ top: -10, bottom: 38, height: 48 }, VH)).toBe(false);
+    expect(isFullyInView({ top: 0, bottom: 0, height: 0 }, VH)).toBe(false);
+  });
+  function Bar({ top, full }: { top: number; full: boolean }) {
+    return (
+      <>
+        <div data-testid="hero-pay" ref={(el) => { if (el) el.getBoundingClientRect = () => rect(top, 48); }} />
+        <SalesStickyBar watch={["hero-pay"]} requireFullyVisible={full} copy={() => ({ label: "Bundle", button: "Buy" })} onGo={vi.fn()} ariaLabel="x" testId="bar" />
+      </>
+    );
+  }
+  it("a clipped Buy shows the bar when required fully visible; the default (any part) keeps it hidden", async () => {
+    Object.defineProperty(window, "innerHeight", { value: 640, configurable: true });
+    await act(async () => { render(<Bar top={611} full />); });
+    expect(screen.getByTestId("bar")).not.toBeNull();
+    cleanup();
+    await act(async () => { render(<Bar top={611} full={false} />); });
+    expect(screen.queryByTestId("bar")).toBeNull();
+  });
+  it("a fully visible Buy hides the bar", async () => {
+    Object.defineProperty(window, "innerHeight", { value: 640, configurable: true });
+    await act(async () => { render(<Bar top={400} full />); });
+    expect(screen.queryByTestId("bar")).toBeNull();
   });
 });

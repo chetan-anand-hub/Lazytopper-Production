@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import RestoredPurchaseCard from "../components/checkoutWho/RestoredPurchaseCard";
 import { currentSalesPageSurface, setSalesPageSurface } from "../analytics/analytics";
-import { preloadBuyChunks } from "../components/packs/PacksShop";
+import { preloadBuyChunks, warmPacksCheckout } from "../components/packs/PacksShop";
 import { Link, useLocation } from "react-router-dom";
 import PacksShop, { type PacksShopApi } from "../components/packs/PacksShop";
 import { PackCbqBuy, sampleBuyFor } from "../components/packs/PackTileBuy";
@@ -53,6 +53,8 @@ export default function CbqPacksPage() {
     setSalesPageSurface("cbq-packs");
     // F1: the Buy opens the pack pop-up and the checkout sheet, both lazy chunks: fetch them now (same specifiers, same chunks).
     if (isPacksClientEnabled()) preloadBuyChunks();
+    // PACKS-MOBILE-1: after load + idle (or the first touch): connections, checkout.js. Once per page load (a no-op if the module did it).
+    warmPacksCheckout();
     // N1: clear only our own value - on /cbq-packs -> /board-pass the arriving page has already set its own in its first render.
     return () => {
       if (currentSalesPageSurface() === "cbq-packs") setSalesPageSurface(null);

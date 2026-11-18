@@ -31,7 +31,7 @@ vi.mock("../components/packs/PacksShop", async () => {
     }, []);
     return <>{children({ buyEnabled: true, ownsPack: () => false, blockedBy: () => false, openSku: null, subject: "maths" })}</>;
   }
-  return { default: Shop, preloadBuyChunks: () => undefined };
+  return { default: Shop, preloadBuyChunks: () => undefined, warmPacksCheckout: () => undefined };
 });
 
 import BoardPassPage from "./BoardPassPage";
