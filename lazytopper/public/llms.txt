@@ -112,6 +112,7 @@ Key facts:
 - [Pricing](https://www.lazytopper.com/pricing): what the free plan includes, what the Board Pass adds, and secure online payment through Razorpay (UPI, card or netbanking)
 - [PDF packs](https://www.lazytopper.com/packs): one-time chapter, mock, subject and bundle PDF packs, with a worked solution for every question
 - [Board Pass](https://www.lazytopper.com/board-pass): one payment till the boards: handwritten answers marked step by step like a CBSE examiner, every question and solution, Mistake Intelligence and a personal tutor
+- [CBSE Class 10 Test Series](https://www.lazytopper.com/test-series): the Pre-Boards Test Series: 26 numbered chapter tests and 40 full-length board-pattern tests in Maths and Science, the same paper for every student, with a calendar till the boards; MCQs marked free, written answers checked with the Test Series
 - [CBQ Packs](https://www.lazytopper.com/cbq-packs): printable competency-based question packs for Class 10 Maths and Science, one per subject, with step-wise worked solutions
 
 ## Class 10 Maths chapters

@@ -57,6 +57,15 @@ vi.mock("../components/worksheet/worksheetPdfExport", async (importOriginal) => 
   exportGradedWorksheetPdf: sheet.exportGraded,
 }));
 vi.mock("../components/results/useDetailLock", () => ({ useDetailLock: () => sheet.lock }));
+// TEST-SERIES-1: these flows pin the path of an account entitled to every test, written-answer checks, the PDFs and the
+// scorecard's tutor (a Board Pass holder); the free / trial gates are pinned in *.seriesGate.test.tsx.
+const tsGate = vi.hoisted(() => ({ boardPass: true }));
+vi.mock("../components/testSeries/WrittenCheckGate", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../components/testSeries/WrittenCheckGate")>()),
+  useSeriesPaperAccess: () => true,
+  useBoardPassHolder: () => tsGate.boardPass,
+}));
+
 import FullMockPage from "./FullMockPage";
 import { __resetUsageClientForTests } from "../services/usageClient";
 
@@ -139,6 +148,7 @@ beforeEach(() => {
   vi.spyOn(console, "warn").mockImplementation(() => {});
 });
 afterEach(() => {
+  tsGate.boardPass = true;
   cleanup();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
@@ -149,6 +159,17 @@ describe("FOLLOWUPS-1 B · Full Mock scorecard -> tutor -> the SAME scorecard", 
     expect(served).toHaveLength(2);
     expect(META_LOST.topicKey).toBeTruthy();
   });
+
+  it("★★ TEST-SERIES-1: without the Board Pass the button stays, and a tap opens the Board Pass card instead of the tutor", async () => {
+    tsGate.boardPass = false;
+    mount(`${PAGE}?review=${CODE}`);
+    await screen.findByRole("button", { name: "Done" }, { timeout: 60000 });
+    await waitFor(() => expect(askButtons()).toHaveLength(1));
+    fireEvent.click(askButtons()[0]);
+    expect((await screen.findByTestId("tutor-board-pass-wall")).textContent).toContain("Tutor support comes with the Board Pass");
+    expect(screen.getByTestId("tutor-wall-ts")).toBeTruthy();
+    expect(lastLocation).not.toMatch(/^\/tutor\//);
+  }, 90000);
 
   it("★★ C+A+B: ?review=<id> reopens THAT mock once (param stripped, zero recording calls); ONE button, on the lost-marks bank question", async () => {
     mount(`${PAGE}?review=${CODE}`);

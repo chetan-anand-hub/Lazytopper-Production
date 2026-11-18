@@ -1,0 +1,395 @@
+/* TEST-SERIES-1 - /test-series. Phone first (320 px up); desktop from 1024 px. Navy hero, soft white body, green accent.
+   Every box whose text arrives after mount (price, progress, chips, trend) has a reserved size, so nothing moves (CLS 0). */
+
+.lt-ts .lt-ts-hero {
+  margin-top: 0;
+  background: var(--lt-sp-navy);
+  color: #ffffff;
+  padding: 20px 0 22px;
+}
+.lt-ts-hero__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lt-ts-hero__eyebrow {
+  color: #6ee7a8;
+}
+.lt-ts-hero__h1 {
+  margin: 0;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 1.6rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #ffffff;
+}
+.lt-ts-hero__lede {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: #dbe4f3;
+}
+.lt-ts-hero__lede strong {
+  color: #ffffff;
+}
+.lt-ts-hero__rule {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #6ee7a8;
+}
+/* Signed out, loading and signed in all fit this one box (two lines at 320 px). */
+.lt-ts-progress {
+  min-height: 3.2em;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #dbe4f3;
+}
+.lt-ts-progress p {
+  margin: 0;
+}
+.lt-ts .lt-ts-progress a {
+  display: inline-block;
+  min-height: 24px;
+  color: #6ee7a8;
+  font-weight: 700;
+}
+.lt-ts-progress strong {
+  color: #ffffff;
+}
+
+/* Calendar */
+.lt-ts-cal {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.lt-ts-cal__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "when now" "what what";
+  gap: 4px 10px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1px solid var(--lt-sp-line);
+  border-left: 4px solid var(--lt-sp-line);
+  border-radius: 12px;
+}
+.lt-ts-cal__row.is-now {
+  border-left-color: var(--lt-sp-green);
+}
+.lt-ts-cal__when {
+  grid-area: when;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--lt-sp-green-deep);
+}
+.lt-ts-cal__now {
+  grid-area: now;
+  min-width: 3em;
+  text-align: right;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--lt-sp-green-deep);
+}
+.lt-ts-cal__what {
+  grid-area: what;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.88rem;
+  color: var(--lt-sp-ink-2);
+}
+.lt-ts-cal__what strong {
+  color: var(--lt-sp-ink);
+  font-size: 0.95rem;
+}
+
+/* Test lists */
+.lt-ts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+.lt-ts-col__h {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--lt-sp-ink);
+}
+.lt-ts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+.lt-ts-list--mocks {
+  grid-template-columns: 1fr 1fr;
+}
+.lt-ts .lt-ts-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px 10px;
+  background: #ffffff;
+  border: 1px solid var(--lt-sp-line);
+  border-radius: 10px;
+  color: var(--lt-sp-ink);
+  text-decoration: none;
+}
+.lt-ts .lt-ts-item:hover,
+.lt-ts .lt-ts-item:focus-visible {
+  border-color: var(--lt-sp-green-deep);
+}
+.lt-ts-list--mocks .lt-ts-item {
+  grid-template-columns: 1fr auto;
+}
+.lt-ts-list--mocks .lt-ts-item__name {
+  display: none;
+}
+.lt-ts-item__code {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--lt-sp-navy-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.lt-ts-list--mocks .lt-ts-chip {
+  width: 4.4rem;
+}
+.lt-ts-item__name {
+  min-width: 0;
+  font-size: 0.88rem;
+  line-height: 1.3;
+}
+/* A fixed-width chip: "Start", "Attempted" and "34/40" occupy the same box. */
+.lt-ts-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 5.6rem;
+  height: 26px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: #eef2f8;
+  color: var(--lt-sp-ink-2);
+}
+.lt-ts-chip--attempted {
+  background: var(--lt-sp-cream);
+  color: #8a5a00;
+}
+.lt-ts-chip--graded {
+  background: #e3f7ec;
+  color: var(--lt-sp-green-dark);
+}
+
+/* Trend: one reserved box, whatever arrives in it. */
+.lt-ts-trend {
+  margin-top: 12px;
+  min-height: 112px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1px solid var(--lt-sp-line);
+  border-radius: 12px;
+}
+.lt-ts-trend__title {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.lt-ts-trend__empty,
+.lt-ts-trend__none {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--lt-sp-ink-2);
+}
+.lt-ts-trend__rows {
+  display: grid;
+  gap: 8px;
+}
+.lt-ts-trend__row {
+  display: grid;
+  grid-template-columns: 4.2rem 1fr;
+  gap: 8px;
+  align-items: start;
+}
+.lt-ts-trend__subj {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.lt-ts-trend__bars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+.lt-ts-trend__bar {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 4.6rem;
+}
+.lt-ts-trend__bar progress {
+  width: 100%;
+  height: 8px;
+  accent-color: var(--lt-sp-green);
+}
+.lt-ts-trend__lbl {
+  font-size: 0.7rem;
+  color: var(--lt-sp-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* How it is marked + CTA */
+.lt-ts-how {
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid var(--lt-sp-line);
+  border-radius: 14px;
+}
+.lt-ts-how__list {
+  margin: 0 0 14px;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--lt-sp-ink-2);
+}
+.lt-ts-how__list strong {
+  color: var(--lt-sp-ink);
+}
+/* The price line keeps its height before the clock-derived figure arrives. */
+
+@media (min-width: 640px) {
+  .lt-ts-list--mocks {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+  .lt-ts-cal {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 1024px) {
+  .lt-ts .lt-ts-hero {
+    padding: 32px 0 30px;
+  }
+  .lt-ts-hero__h1 {
+    font-size: 2.2rem;
+  }
+  .lt-ts-hero__copy {
+    max-width: 1120px;
+  }
+  .lt-ts-progress {
+    min-height: 1.5em;
+  }
+  .lt-ts-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .lt-ts-list--mocks {
+    grid-template-columns: 1fr 1fr;
+  }
+  .lt-ts-cal {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Offers: Test Series and Board Pass side by side (stacked on phones), the printed-papers card under them. */
+.lt-ts-offers {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.lt-ts .lt-ts-offer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 2px solid var(--lt-sp-line);
+  color: var(--lt-sp-ink);
+  text-decoration: none;
+}
+.lt-ts-offer--ts {
+  border-color: var(--lt-sp-green);
+}
+.lt-ts-offer--bp {
+  border-color: var(--lt-sp-navy-2);
+}
+.lt-ts .lt-ts-offer--packs {
+  background: var(--lt-sp-cream);
+  border-color: var(--lt-sp-amber-deep);
+}
+.lt-ts-offer__name {
+  margin: 0;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+/* The price arrives after mount; its line is reserved. */
+.lt-ts-offer__price {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--lt-sp-green-deep);
+}
+.lt-ts-offer--bp .lt-ts-offer__price {
+  color: var(--lt-sp-navy-2);
+}
+.lt-ts-offer__list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 4px;
+  font-size: 0.88rem;
+  color: var(--lt-sp-ink-2);
+  flex: 1;
+}
+.lt-ts .lt-ts-offer__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--lt-sp-green-deep);
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
+.lt-ts .lt-ts-offer__btn--bp {
+  background: var(--lt-sp-navy);
+}
+.lt-ts .lt-ts-offer__btn:hover,
+.lt-ts .lt-ts-offer__btn:focus-visible {
+  filter: brightness(1.15);
+}
+.lt-ts-offer__owner {
+  margin: 0;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--lt-sp-green-dark);
+}
+.lt-ts-offer__packs {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--lt-sp-ink-2);
+}
+@media (min-width: 768px) {
+  .lt-ts-offers {
+    grid-template-columns: 1fr 1fr;
+  }
+  .lt-ts-offer--packs {
+    grid-column: 1 / -1;
+  }
+}

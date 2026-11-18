@@ -141,6 +141,9 @@ import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
+import { DownloadWithPlanLink, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesPaperAccess } from "../components/testSeries/WrittenCheckGate";
+import { countTestsTaken, seriesStartDecision } from "../lib/testSeries/seriesAccess";
+import { CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterTestOf, seriesChapterWorksheetId } from "../lib/testSeries/testSeries";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
 type Phase = "setup" | "taking" | "results" | "pick";
@@ -223,6 +226,13 @@ export default function ChapterTestPage() {
   const rawTopicKey = params.topicKey || sp.get("topic") || "";
   const topicKey = normalizeTopicKey(rawTopicKey) || rawTopicKey;
   const topicName = resolveTopicDisplayName(subject, topicKey);
+  // TEST-SERIES-1 — `?series=1` opens this chapter's FIXED Test Series paper (same questions for every student; served history
+  // ignored). Kill switch: VITE_TEST_SERIES_DISABLED=1 (the param is then ignored and the fresh draw opens, as before).
+  const seriesTopicKey = resolveCanonicalSlug(topicKey) || topicKey;
+  const seriesTest =
+    import.meta.env?.VITE_TEST_SERIES_DISABLED !== "1" && isChapterTestSeriesRequest(sp.get(CT_SERIES_PARAM), seriesTopicKey)
+      ? seriesChapterTestOf(seriesTopicKey)
+      : null;
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const fairUse = useFairUse("chapter-test", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live, so a student who pays
@@ -329,15 +339,17 @@ export default function ChapterTestPage() {
       topicKey,
       topicLabel: topicName,
       grade,
-      worksheetId: mintChapterTestId(),
+      worksheetId: seriesTest ? seriesChapterWorksheetId(mintChapterTestId(), seriesTest.topicKey) : mintChapterTestId(),
       code: mintedNomen.code,
       name: mintedNomen.name,
       // FRESH-SET-TESTS — unseen questions first; seeded, never Math.random.
       seed: freshInputs?.seed,
       servedAt: freshInputs?.servedAt,
+      // TEST-SERIES-1 — the fixed series paper (overrides seed + served history).
+      ...(seriesTest ? { fixedSeed: chapterTestSeriesSeed(seriesTest.topicKey) } : {}),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mintedNomen, bank.ready, subject, topicKey, grade, drawNonce]);
+  }, [mintedNomen, bank.ready, subject, topicKey, grade, drawNonce, seriesTest?.code]);
 
   /** FRESH-SET-TESTS — log this paper as served on this device (start / download). */
   const markServed = useCallback((p: PersistedWorksheet | null) => {
@@ -399,6 +411,12 @@ export default function ChapterTestPage() {
   const [downloading, setDownloading] = useState(false);
   // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED). A paper + its solutions share one key.
   const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
+  // TEST-SERIES-1 (owner ruling 18 Nov 19:31 IST) — written-answer checking and the paper download need the Test Series or the Board Pass here.
+  const seriesPaperAccess = useSeriesPaperAccess();
+  // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
+  const boardPassHolder = useBoardPassHolder();
+  const [startWall, setStartWall] = useState(false);
+  const [tutorWall, setTutorWall] = useState(false);
   // AWAIT-1-PAPERS — the paper just downloaded (the confirmation card) and a downloaded paper
   // re-opened for its Section A picks.
   const [downloadedNote, setDownloadedNote] = useState<{ code: string; name: string } | null>(null);
@@ -670,6 +688,16 @@ export default function ChapterTestPage() {
   const startTest = useCallback(async () => {
     // FAIR-USE-UI-1 (UI3): today's chapter test already used -> the panel, not the paper.
     if (fairUse.blockPaperStart()) return;
+    // TEST-SERIES-1 (owner 19:44 IST): a free / trial account takes ONE test in total; signed out signs in first.
+    const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records) });
+    if (startDecision === "sign-in") {
+      navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`);
+      return;
+    }
+    if (startDecision === "upgrade") {
+      setStartWall(true);
+      return;
+    }
     // CT-RESUME-2: starting a paper is a NEW paper. A visit the daily gate let through uncounted
     // (it looked like a resume) is counted now — or refused at today's limit.
     if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
@@ -690,7 +718,7 @@ export default function ChapterTestPage() {
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
-  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper, location.pathname, user?.uid, isPremium]);
+  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper, location.pathname, location.search, user?.uid, isPremium, seriesPaperAccess, isSignedIn, records, navigate]);
 
   // CT-RELOAD-1 — continue the restored paper where it was left. A resume, not a new start:
   // never re-counted against the fair-use allowance.
@@ -844,7 +872,7 @@ export default function ChapterTestPage() {
 
   // ── Downloads ────────────────────────────────────────────────────────────────
   const downloadTest = useCallback(async () => {
-    if (!paper || !nomen || downloading) return;
+    if (!paper || !nomen || downloading || !seriesPaperAccess) return;
     // CT-RESUME-2: downloading THIS visit's draw is a new paper (the saved paper on offer is not).
     if (!restoredPaper && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
       setLimitNotice(NEW_PAPER_LIMIT_LINE);
@@ -894,7 +922,7 @@ export default function ChapterTestPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed, restoredPaper, location.pathname, isPremium, guardDownload]);
+  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed, restoredPaper, location.pathname, isPremium, guardDownload, seriesPaperAccess]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded paper's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1107,6 +1135,11 @@ export default function ChapterTestPage() {
         if (!hop) return null;
         return {
           onAsk: () => {
+            // TEST-SERIES-1 (owner 19:44 IST): the tutor is the Board Pass's; anyone else sees the wall (client only).
+            if (!boardPassHolder) {
+              setTutorWall(true);
+              return;
+            }
             trackOnboardingEvent("tutor_from_scorecard", { surface: "chapter_test" });
             // CI-TUTOR-RETURN-1 - name THIS saved paper on the entry we leave, so browser Back (not just the tutor's arrow) reopens it.
             navigate(withScorecardReviewParam(location.pathname + searchWithoutReview(location.search), record.id), { replace: true });
@@ -1124,7 +1157,7 @@ export default function ChapterTestPage() {
           },
         };
       },
-    [reviewUid, navigate, subject, grade, location.pathname, location.search],
+    [reviewUid, navigate, subject, grade, location.pathname, location.search, boardPassHolder],
   );
   // The live (just graded) test's saved record — present only once it is in the student's store.
   // It must already hold THIS grade (same graded marks), so a failed write or the submit-time
@@ -1186,6 +1219,7 @@ export default function ChapterTestPage() {
       <style>{CT_CSS}</style>
       <UsageWarning scope="chapter-test" snapshot={fairUse.snapshot} />
       {downloadWall}
+      {tutorWall && <TutorBoardPassWall onClose={() => setTutorWall(false)} />}
       {paperNotice && (
         <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="paper-notice">
           {paperNotice}
@@ -1204,7 +1238,7 @@ export default function ChapterTestPage() {
             }),
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
-            ...(reopenSheetOpen && hasStoredPaperSheet(reopen.response)
+            ...(seriesPaperAccess && reopenSheetOpen && hasStoredPaperSheet(reopen.response)
               ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
               : {}),
             // Awaiting-sheet records offer "Upload answer sheet" — never after the lookup just failed
@@ -1249,7 +1283,9 @@ export default function ChapterTestPage() {
 
             <div className="lt-ct__setup-main">
               <div className="lt-ct__card">
-                <div className="lt-ct__eyebrow">Chapter Test · {topicName}</div>
+                <div className="lt-ct__eyebrow" data-testid={seriesTest ? "ct-series-label" : undefined}>
+                  {seriesTest ? `${chapterTestSeriesLabel(seriesTest)} · ${topicName}` : `Chapter Test · ${topicName}`}
+                </div>
                 <div className="lt-ct__title lt-ct__fr">Ready for a board-pattern test?</div>
                 <div className="lt-ct__sub">
                   Objective questions are scored the moment you submit. Write the rest on paper, upload, and
@@ -1363,16 +1399,21 @@ export default function ChapterTestPage() {
                           Start the test →
                         </button>
                       )}
-                      <button
-                        type="button"
-                        className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
-                        onClick={downloadTest}
-                        disabled={downloading}
-                      >
-                        {downloading ? "Preparing…" : "↓ Download this test (PDF)"}
-                      </button>
+                      {seriesPaperAccess ? (
+                        <button
+                          type="button"
+                          className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
+                          onClick={downloadTest}
+                          disabled={downloading}
+                        >
+                          {downloading ? "Preparing…" : "↓ Download this test (PDF)"}
+                        </button>
+                      ) : (
+                        <DownloadWithPlanLink />
+                      )}
                       <LimitChip />
                     </div>
+                    {startWall && <SeriesStartWall />}
                     {limitNotice && (
                       <div className="lt-ct__honest" role="alert" data-testid="ct-limit-notice">
                         <span>·</span>
@@ -1416,7 +1457,12 @@ export default function ChapterTestPage() {
                       <span>
                         Prefer paper? Download this test, solve it, and upload the whole thing. Opens
                         full-screen so you can focus.{" "}
-                        {restoredPaper ? null /* CT-RESUME-2: the freshness line describes the NEW draw — not shown while a saved paper is offered */ : draw && draw.repeatCount > 0 ? (
+                        {restoredPaper ? null /* CT-RESUME-2: the freshness line describes the NEW draw — not shown while a saved paper is offered */ : seriesTest ? (
+                          // TEST-SERIES-1 — a fixed paper: not a fresh draw, so no freshness claim.
+                          <span data-testid="ct-series-line">
+                            <b>A Test Series paper</b> — every student gets the same {topicName} test ({seriesTest.code}).
+                          </span>
+                        ) : draw && draw.repeatCount > 0 ? (
                           // FRESH-SET-TESTS — the honest line when this chapter's unseen pool ran out.
                           <b data-testid="ct-fresh-line" data-tone="repeats">{freshLine?.text}</b>
                         ) : draw?.hasServedHistory ? (
@@ -1632,7 +1678,16 @@ export default function ChapterTestPage() {
             <UpgradeSheet featureLabel="Grading your chapter test" offers={paperOffers} onClose={() => setPaperWall(false)} />
           )}
 
-          {resultsPhase === "partial" ? (
+          {resultsPhase === "partial" && !seriesPaperAccess ? (
+            <WrittenCheckUpgradeCard
+              eyebrow="Chapter Test · Result"
+              name={nomen.name}
+              code={nomen.code}
+              objective={{ awarded: objective.awarded, total: objective.total }}
+              sectionsLabel="Sections B–D"
+              onDone={() => navigate(backTo)}
+            />
+          ) : resultsPhase === "partial" ? (
             <ChapterTestUploadPanel
               name={nomen.name}
               code={nomen.code}
@@ -1661,6 +1716,8 @@ export default function ChapterTestPage() {
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
                   </button>
+                  {seriesPaperAccess && (
+                  <>
                   {gradedSheetOpen && (
                   <button
                     type="button"
@@ -1671,6 +1728,9 @@ export default function ChapterTestPage() {
                     {downloading ? "Preparing…" : "↓ Graded sheet"}
                   </button>
                   )}
+                  </>
+                  )}
+                  {seriesPaperAccess && (
                   <button
                     type="button"
                     className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -1679,6 +1739,7 @@ export default function ChapterTestPage() {
                   >
                     ↓ Solution key
                   </button>
+                  )}
                 </div>
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={practiseTopic}>
@@ -1758,14 +1819,19 @@ export default function ChapterTestPage() {
                 // primary action reopened the panel they had just left - a loop with no way on.
                 onReadSheet: revealGradedSheet,
                 onPractise: practiseTopic,
-                onDownloadGraded: () => {
-                  setScorecardOpen(false);
-                  void downloadGraded();
-                },
-                onDownloadSolution: () => {
-                  setScorecardOpen(false);
-                  void downloadSolution();
-                },
+                // TEST-SERIES-1: the PDFs are for a Test Series / Board Pass holder.
+                ...(seriesPaperAccess
+                  ? {
+                      onDownloadGraded: () => {
+                        setScorecardOpen(false);
+                        void downloadGraded();
+                      },
+                      onDownloadSolution: () => {
+                        setScorecardOpen(false);
+                        void downloadSolution();
+                      },
+                    }
+                  : {}),
                 onRevisit: () => navigate(backTo),
               }), ctGuideTarget), fullResponse, liveTutorAskFor)}
               onClose={() => setScorecardOpen(false)}
