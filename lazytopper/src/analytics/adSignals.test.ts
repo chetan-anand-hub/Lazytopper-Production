@@ -37,3 +37,12 @@ describe("adSignalFields (SERVER-EVENTS-1)", () => {
     expect(adSignalFields().adSignals?.attemptId).toBeUndefined();
   });
 });
+
+describe("pack checkout hands its Meta eventID to the order body (SERVER-EVENTS-1)", () => {
+  it("trackPackCheckout remembers the attempt id it gives Meta; the next adSignalFields carries it once", async () => {
+    const { trackPackCheckout } = await import("../lib/packs/packAnalytics");
+    trackPackCheckout({ sku: "pack_chapter", itemName: "Chapter Pack", valueInr: 49 }, { signedIn: true, attemptId: "lt_attempt_hook_1" });
+    expect(adSignalFields().adSignals?.attemptId).toBe("lt_attempt_hook_1");
+    expect(adSignalFields().adSignals?.attemptId).toBeUndefined();
+  });
+});
