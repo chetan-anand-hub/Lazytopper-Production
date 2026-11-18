@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 import { isResumingSavedPaper, paperRouteKey } from "../../lib/papers/resumablePaper";
+import { isKnownTestSeriesOwner, readTestSeriesOwner } from "./paperCapOwner";
 
 /**
  * Per-DAY paper views (AUTH-GATE-MOVE-1). This gate used to allow 1 per WEEK while the
@@ -119,14 +120,19 @@ function writeUncounted(list: string[]): void {
  * resume (Chapter Test "Start a fresh test instead", a new Full Mock instead of the saved one).
  * Visit not marked → it was already counted → true. Marked → counts it now (true), or, with
  * today's allowance spent, refuses (false: the page keeps the saved paper and says why).
+ *
+ * TS-DAILY-CAP-1: `uncapped` (the page's Premium flag, or Premium OR a Test Series owner) is never counted and never
+ * refused. Nor is a Test Series Pack owner the gate has already confirmed: the gate reads ownership when it walls-or-passes
+ * at the limit, and warms that read when it lets a resume through at the limit, so the refusal below never meets an owner.
  */
-export function claimNewPaperView(pathname: string, uid: string | null, isPremium: boolean): boolean {
+export function claimNewPaperView(pathname: string, uid: string | null, uncapped: boolean): boolean {
   const route = paperRouteKey(pathname);
   const marked = readUncounted();
   if (!marked.includes(route)) return true;
   // Premium is unlimited — including a student who paid mid-session (isPremium flipped with no
-  // reload) or whose cloud status arrived after the gate ran on the local cache.
-  if (isPremium) {
+  // reload) or whose cloud status arrived after the gate ran on the local cache. TS-DAILY-CAP-1:
+  // so is a Test Series Pack owner.
+  if (uncapped || isKnownTestSeriesOwner(uid)) {
     writeUncounted(marked.filter((r) => r !== route));
     return true;
   }
@@ -165,6 +171,8 @@ export function MockViewGate({ children }: { children: ReactNode }) {
   const [limitReached, setLimitReached] = useState(false);
   const [ready, setReady] = useState(false);
   const incrementedRef = useRef(false);
+  // TS-DAILY-CAP-1: this mount was let through at the limit as a Test Series Pack owner (not counted).
+  const ownerPassRef = useRef(false);
 
   const uid = user?.uid || null;
 
@@ -185,7 +193,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
      * and its allowance untestable. The trial-ended panel is not gone: it now renders
      * when such a student has SPENT the 3, which is the honest moment to show it.
      */
-    if (incrementedRef.current) {
+    if (incrementedRef.current || ownerPassRef.current) {
       setReady(true);
       return;
     }
@@ -202,6 +210,9 @@ export function MockViewGate({ children }: { children: ReactNode }) {
       const route = paperRouteKey(location.pathname);
       const marked = readUncounted();
       if (!marked.includes(route)) writeUncounted([...marked, route]);
+      // TS-DAILY-CAP-1: a resume at the limit never waits (resumes are never blocked), but if the student sets the saved
+      // paper aside for a new one, `claimNewPaperView` must already know whether they own the Test Series — warm it now.
+      if (user && uid && getDailyMockViews(uid) >= dailyLimitFor(true)) void readTestSeriesOwner(uid);
       setReady(true);
       return;
     }
@@ -214,6 +225,24 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     }
     const views = getDailyMockViews(uid);
     if (views >= dailyLimitFor(!!user)) {
+      /**
+       * TS-DAILY-CAP-1 — A TEST SERIES PACK OWNER IS NEVER CAPPED. Only here, with the allowance already spent and a
+       * signed-in student, is ownership asked (GET /api/packs/mine, lazily). Until it answers the gate stays on its own
+       * neutral loading card (`ready` false) — no wall flash. Owner → the paper opens and is NOT counted. Not an owner,
+       * or the read failed → the existing wall, exactly as before. Anonymous and under-the-limit paths are untouched.
+       */
+      if (user && uid) {
+        let cancelled = false;
+        void readTestSeriesOwner(uid).then((owns) => {
+          if (cancelled) return;
+          if (owns) ownerPassRef.current = true;
+          else setLimitReached(true);
+          setReady(true);
+        });
+        return () => {
+          cancelled = true;
+        };
+      }
       setLimitReached(true);
       setReady(true);
     } else {
