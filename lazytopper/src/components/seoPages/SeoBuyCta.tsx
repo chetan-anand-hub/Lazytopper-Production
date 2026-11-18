@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { buyHrefFor } from "../packs/offersModel";
-import { packPriceLabel, type PackSku } from "../../services/packs";
+import { type PackSku } from "../../services/packs";
+import SeoPriceLine from "./SeoPriceLine";
 
 /**
  * PACKS-LPX-2 - the hero Buy on the two search-landing pages that Search ads send visitors to. Reuses the existing one-tap checkout
@@ -38,12 +39,12 @@ export default function SeoBuyCta({ primary, others, testId }: { primary: SeoBuy
   return (
     <div className="lt-seol__buy" data-testid={testId}>
       <Link to={href(primary)} className="lt-seol__cta lt-seol__cta--buy" data-testid={primary.testId}>
-        {`Buy ${primary.label} · ${packPriceLabel(primary.sku)}`}
+        Buy <SeoPriceLine sku={primary.sku} name={primary.label} testId={`${primary.testId}-price`} />
       </Link>
       <p className="lt-seol__buymore">
         {others.map((o) => (
           <Link key={o.testId} to={href(o)} data-testid={o.testId}>
-            {`${o.label} · ${packPriceLabel(o.sku)}`}
+            <SeoPriceLine sku={o.sku} name={o.label} testId={`${o.testId}-price`} />
           </Link>
         ))}
       </p>

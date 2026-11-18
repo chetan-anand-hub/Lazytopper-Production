@@ -33,7 +33,7 @@ export default function QuestionBankClass10Page() {
       heroBuy={
         <SeoBuyCta
           testId="qbank-buy-hero"
-          primary={{ sku: "pack_bundle", target: "", label: "the Bundle", testId: "qbank-buy-bundle" }}
+          primary={{ sku: "pack_bundle", target: "", label: BUNDLE_NAME, testId: "qbank-buy-bundle" }}
           others={[
             { sku: "pack_subject", target: "maths", label: "Maths Subject Pack", testId: "qbank-buy-subject-maths" },
             { sku: "pack_subject", target: "science", label: "Science Subject Pack", testId: "qbank-buy-subject-science" },

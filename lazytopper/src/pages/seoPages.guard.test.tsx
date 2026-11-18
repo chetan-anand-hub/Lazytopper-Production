@@ -168,6 +168,7 @@ describe("SEO-PAGES-1 — the pages", () => {
         expect(buy).not.toBeNull();
         const sku = path === MOCK_TEST_PATH ? "pack_mock" : "pack_bundle";
         expect(buy.textContent).toContain(packPriceLabel(sku));
+        expect(buy.textContent).toMatch(/^Buy /);
         const href = buy.getAttribute("href") as string;
         expect(href.startsWith(`/packs?buy=${sku}`)).toBe(true);
         expect(href).toContain("utm_source=google");
