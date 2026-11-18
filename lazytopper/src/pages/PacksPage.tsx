@@ -4,6 +4,8 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { loadSubscription, onSubscriptionHydrated, type SubscriptionStatus } from "../services/subscriptionService";
 import { formatPassDate } from "../services/checkout";
+import SeoFaq from "../components/seo/SeoFaq";
+import { PACKS_ANSWER_FAQ } from "../components/seo/faqContent";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import FounderBadge from "../components/brand/FounderBadge";
 import PacksShop, { OTHER_PAYMENT_BUSY_COPY, PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
@@ -244,6 +246,10 @@ function PacksPageBody() {
           </details>
         </div>
       </section>
+      {/* SEO-LLM-2: always-visible quick answers (the FAQPage JSON-LD in the head is these same items). Below the hero. */}
+      <div className="lt-packs__w">
+        <SeoFaq headingId="packs-answers-h" heading="Class 10 question bank PDF: quick answers" items={PACKS_ANSWER_FAQ} />
+      </div>
       <PublicLegalFooter />
     </main>
   );

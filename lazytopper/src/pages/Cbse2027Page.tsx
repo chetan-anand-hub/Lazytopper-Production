@@ -752,6 +752,27 @@ export default function Cbse2027Page() {
               <Link to="/topic-hub">Open a chapter and start</Link>
               <span>Notes, board questions, step-marked solutions</span>
             </li>
+            {/* SEO-LLM-2: contextual links to the pages that answer the common Class 10 searches (anchor = the search words). */}
+            <li>
+              <Link to="/question-bank-class-10">CBSE Class 10 question bank, chapter-wise</Link>
+              <span>Maths and Science, with notes, CBQs and NCERT solutions</span>
+            </li>
+            <li>
+              <Link to="/highly-probable/10/Maths">Class 10 Maths important questions</Link>
+              <span>Chapter-wise, for the 2027 boards</span>
+            </li>
+            <li>
+              <Link to="/highly-probable/10/Science">Class 10 Science important questions</Link>
+              <span>Chapter-wise, for the 2027 boards</span>
+            </li>
+            <li>
+              <Link to="/mock-test-class-10">Class 10 mock test 2027</Link>
+              <span>Full board-pattern papers, free online</span>
+            </li>
+            <li>
+              <Link to="/packs">Class 10 question bank PDF packs</Link>
+              <span>Printable, with worked solutions</span>
+            </li>
           </ul>
         </div>
 

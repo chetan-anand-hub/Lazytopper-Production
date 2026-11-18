@@ -12,6 +12,8 @@ import { subjectFromSearch } from "../components/pricing/pricingPlansCopy";
 import BoardsCountdownStrip from "../components/urgency/BoardsCountdownStrip";
 import ParentReturnLink from "../components/parents/ParentReturnLink";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
+import SeoFaq from "../components/seo/SeoFaq";
+import { CBQ_PACKS_ANSWER_FAQ } from "../components/seo/faqContent";
 import SalesFaq from "../components/salesPages/SalesFaq";
 import {
   BOARD_PASS_PAGE_PATH,
@@ -68,6 +70,8 @@ export default function CbqPacksPage() {
           {(api) => <CbqCatalogue api={api} subject={subject} onSubject={setSubject} />}
         </PacksShop>
         <div className="lt-sp__w">
+          {/* SEO-LLM-2: always-visible quick answers (the FAQPage JSON-LD in the head is these same items). */}
+          <SeoFaq headingId="cq-answers-h" heading="CBQ practice for Class 10: quick answers" items={CBQ_PACKS_ANSWER_FAQ} />
           <SalesFaq items={CBQ_FAQ} headingId="cq-faq-h" testId="cq-faq" />
         </div>
       </main>

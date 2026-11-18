@@ -51,6 +51,11 @@ export default function QuestionBankClass10Page() {
           for about half the paper.
         </p>
         <p>
+          In short: the chapter notes, competency-based question pages, NCERT solutions and a free practice allowance are
+          free to open. If you want the question bank on paper, the printable PDF packs start with{" "}
+          <SeoPriceLine sku="pack_chapter" name="Chapter Pack" testId="qbank-intro-price" /> (one chapter), a one-time payment.
+        </p>
+        <p>
           Questions run from 1-mark MCQs and assertion-reason items to 2, 3 and 5-mark answers and 4-mark case studies,
           so you can practise each section of the paper. Many questions come with a step-by-step solution, which is how
           board answers are marked.

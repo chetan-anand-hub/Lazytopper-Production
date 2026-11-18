@@ -71,6 +71,7 @@ import { dailyHeadForPath, dailyJsonLd } from "../../src/components/dailyQuestio
 import { freeMcqHeadForPath, freeMcqJsonLd } from "../../src/components/freeMcq/freeMcqPages";
 import { seoPageHeadForPath, seoPageJsonLd } from "../../src/components/seoPages/seoPages";
 import { faqJsonLdForPath } from "../../src/components/seo/faqContent";
+import { packsAnswerJsonLd } from "../../src/components/seo/packsProductLd";
 import { testimonialVideoJsonLdFor } from "./testimonialVideoJsonLd";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -867,6 +868,9 @@ async function main(): Promise<void> {
     // SEO-QUICK-1 — the FAQPage block, a SEPARATE script so the existing Breadcrumb / VideoObject block is untouched.
     const faqLd = head !== null ? faqJsonLdForPath(path) : null;
     if (faqLd) html = applyJsonLd(html, faqLd, path);
+    // SEO-LLM-2 — Product + BreadcrumbList on /packs and /cbq-packs, Breadcrumb on the important-questions pages (own script block).
+    const answerLd = head !== null ? packsAnswerJsonLd(path, basename) : null;
+    if (answerLd) html = applyJsonLd(html, answerLd, path);
 
     const relative = path.replace(/^\//, "");
     for (const target of [`${relative}.html`, join(relative, "index.html")]) {

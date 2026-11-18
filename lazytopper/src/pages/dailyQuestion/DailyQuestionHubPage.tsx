@@ -54,6 +54,10 @@ export default function DailyQuestionHubPage() {
           <ul className="lt-dq__links">
             <li><Link to="/cbq-class-10">Class 10 CBQs by chapter</Link></li>
             <li><Link to="/question-bank-class-10">Class 10 question bank</Link></li>
+            {/* SEO-LLM-2: contextual links (anchor = the search words). */}
+            <li><Link to="/highly-probable/10/Maths">Class 10 Maths important questions, chapter-wise</Link></li>
+            <li><Link to="/highly-probable/10/Science">Class 10 Science important questions, chapter-wise</Link></li>
+            <li><Link to="/packs">Class 10 question bank PDF packs</Link></li>
           </ul>
         </section>
         <p className="lt-dq__fine">LazyTopper is an independent platform and is not affiliated with CBSE.</p>
