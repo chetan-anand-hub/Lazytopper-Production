@@ -5,7 +5,6 @@ import SeoLandingShell from "../components/seoPages/SeoLandingShell";
 import SeoPriceLine from "../components/seoPages/SeoPriceLine";
 import { QUESTION_BANK_PATH, chapterLinks } from "../components/seoPages/seoPages";
 import { QUESTION_BANK_FAQ } from "../components/seo/faqContent";
-import { packPriceLabel } from "../services/packs";
 import { EVIDENCE_BASE_YEARS_WORD } from "../config/evidenceBase";
 import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, BUNDLE_CHAPTERS, BUNDLE_NAME } from "../lib/packs/packLabels";
 
@@ -41,8 +40,8 @@ export default function QuestionBankClass10Page() {
         </p>
         <p>
           In short: the chapter notes, competency-based question pages, NCERT solutions and a free practice allowance are
-          free to open. If you want the question bank on paper, the printable PDF packs start at{" "}
-          <span data-testid="qbank-intro-price">{packPriceLabel("pack_chapter")}</span> for one chapter, a one-time payment.
+          free to open. If you want the question bank on paper, the printable PDF packs start with{" "}
+          <SeoPriceLine sku="pack_chapter" name="Chapter Pack" testId="qbank-intro-price" /> (one chapter), a one-time payment.
         </p>
         <p>
           Questions run from 1-mark MCQs and assertion-reason items to 2, 3 and 5-mark answers and 4-mark case studies,
