@@ -38,6 +38,9 @@ const gradeTimingLib = require('../grading/gradeTiming.cjs');
 const { gradingAttemptOf, deferredCommitOf } = require('../services/fairUse.cjs');
 const { limitsDeferredOf } = require('../services/limits.cjs');
 const withLimitsDeferred = (fair, lim) => (lim ? { ...(fair || {}), uid: (fair && fair.uid) || lim.uid, limits: lim } : fair);
+// TS-PACK-JOBFIX: a Test Series Pack check's hold rides the job too, settled by testSeriesChecks.settleDeferred when the job ends.
+const { testSeriesDeferredOf } = require('../services/testSeriesChecks.cjs');
+const withTestSeriesDeferred = (base, ts) => (ts ? { ...(base || {}), uid: (base && base.uid) || ts.uid, testSeries: ts } : base);
 const { redactErrorDetails } = require('../services/httpUtils.cjs');
 // The most text-layer characters handed to the detect prompt (a typed paper is ~2–4k).
 const MAX_TEXT_LAYER_CHARS = 20000;
@@ -1114,11 +1117,8 @@ function createCheckSolutionRoute(deps) {
     // for the v2 shape (a job's rows carry v2 fields, e.g. notGraded "interrupted"); a grader exists
     // (stub mode answers its 503 synchronously). Anything else — including a job store that refuses
     // the job — falls through to the synchronous grade below, unchanged byte for byte.
-    // TS-PACK-1: a Test Series check spent on the pack (entitlement.cjs + testSeriesChecks.cjs) settles when THIS response
-    // finishes, so it is graded synchronously (the browser already handles the synchronous 200).
     if (
       deps.GRADING_JOBS === true && gradingJobs && acceptsV2 && !isStubMode()
-      && !(req && req.lazytopperSyncOnly === true)
       && jobsLib.wantsAsync(req, payload)
     ) {
       const attempt = gradingAttemptOf(req);
@@ -1129,7 +1129,7 @@ function createCheckSolutionRoute(deps) {
           meta: questions.map((q) => ({ qNumber: q.qNumber, totalMarks: q.marks })),
           // D12: what the fair-use `finish` hooks would have committed — settled once, at the end.
           // LIMITS-1: the per-kind grading reservation rides along, so the job's end confirms or releases it.
-          deferred: withLimitsDeferred(deferredCommitOf(res), limitsDeferredOf(res)),
+          deferred: withTestSeriesDeferred(withLimitsDeferred(deferredCommitOf(res), limitsDeferredOf(res)), testSeriesDeferredOf(res)),
           // The job's wall deadline runs from when it STARTS running (queue time excluded), read on
           // THIS route's clock — the clock the grading core measures every deadline on.
           run: (onPartSettled) => runTimedJob(req, (timingSink, jobStartedAt) => gradeStructuredSet({

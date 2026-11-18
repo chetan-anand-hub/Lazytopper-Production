@@ -378,6 +378,20 @@ function createLimits(deps = {}) {
     now = () => Date.now(),
     env = process.env,
   } = deps;
+  /**
+   * TS-PACK-JOBFIX (review P0 #1): (uid, kind, worksheetId) -> Promise<boolean>, true for a VERIFIED Test Series Pack owner on a
+   * series paper of that kind (testSeriesChecks.ownerSeriesPaper). Such a paper's download and scorecard detail are not metered.
+   * Absent -> exactly today's limits.
+   */
+  const seriesOwnerPaper = typeof deps.seriesOwnerPaper === 'function' ? deps.seriesOwnerPaper : null;
+  async function isSeriesOwnerPaper(uid, kind, worksheetId) {
+    if (!seriesOwnerPaper || (kind !== 'chapter-test' && kind !== 'full-mock') || typeof worksheetId !== 'string' || !worksheetId) return false;
+    try {
+      return (await seriesOwnerPaper(uid, kind, worksheetId)) === true;
+    } catch {
+      return false;
+    }
+  }
   const resolveFirestore = typeof deps.resolveFirestore === 'function' ? deps.resolveFirestore : defaultResolveFirestore;
   const getCreationMs = typeof deps.getCreationMs === 'function' ? deps.getCreationMs : defaultGetCreationMs;
 
@@ -560,6 +574,13 @@ function createLimits(deps = {}) {
     // PACKS-LIMIT-1: a paper wholly covered by packs the student owns is not a counted download.
     // Runs BEFORE the ledger transaction and writes nothing. A bad cover or a failed / slow packs
     // read changes nothing: the request falls through to today's counting (never a refusal, never a 500).
+    // TS-PACK-JOBFIX (review P0 #1): a Test Series Pack owner's series paper (paperKey = the sitting's worksheetId) is not counted.
+    if (await isSeriesOwnerPaper(uid, kind, paperKey)) {
+      emit('limits.download.test_series');
+      return sendJson(res, 200, {
+        ok: true, counted: false, free: false, reused: false, testSeries: true, enforced, limit: plan.limit, used: null, remaining: null, resetAt: null,
+      });
+    }
     const cover = kind !== 'practice-set' ? parseCover(body.cover) : null;
     if (cover && (await ownsCover(uid, kind, cover))) {
       emit('limits.download.pack_owned');
@@ -725,6 +746,12 @@ function createLimits(deps = {}) {
     if (!enforced || !LIMITS_CONFIG.basic.scorecardBreakdownLocked) return open({});
     const info = await tierInfo(uid, req);
     if (!info || info.tier !== 'free') return open({});
+    // TS-PACK-JOBFIX (review P0 #1): a Test Series Pack owner's series paper (optional `worksheetId`) keeps its full breakdown.
+    const worksheetId = body && typeof body === 'object' && typeof body.worksheetId === 'string' ? body.worksheetId.trim() : '';
+    if (worksheetId && worksheetId.length <= PAPER_KEY_MAX && (await isSeriesOwnerPaper(uid, kind, worksheetId))) {
+      emit('limits.detail.test_series');
+      return open({ testSeries: true });
+    }
     const db = ledgerDb();
     if (!db || typeof db.runTransaction !== 'function') {
       emit('limits.fail_open');
@@ -775,6 +802,21 @@ function createLimits(deps = {}) {
       const kind = reqPath === CHECK_SOLUTION_PATH ? 'check-improve' : (GRADE_KINDS.has(raw) ? raw : 'check-improve');
       const info = await tierInfo(uid, req);
       if (!info || !info.metered) return none;
+      // TS-PACK-JOBFIX (review P0 #1): a VERIFIED Test Series Pack owner grading a series paper (manifest paper + its exact written
+      // questions) is not metered here at all - no trial cap, no reservation, no "first free" bypass. The entitlement gate then
+      // admits it on the pack, whose 2-per-paper rule is the only cap. Any other grade is decided exactly as before.
+      if (reqPath === GRADE_WORKSHEET_PATH && typeof opts.seriesOwnerGrade === 'function') {
+        let owner = false;
+        try {
+          owner = (await opts.seriesOwnerGrade(req)) === true;
+        } catch {
+          owner = false;
+        }
+        if (owner) {
+          emit('limits.grade.test_series');
+          return none;
+        }
+      }
       const db = ledgerDb();
       if (!db || typeof db.runTransaction !== 'function') {
         emit('limits.fail_open');
