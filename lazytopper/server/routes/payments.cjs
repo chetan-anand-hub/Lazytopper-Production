@@ -59,6 +59,8 @@ const { PACK_PRODUCTS, isPackProduct, isPackOnSale, validateTarget, packIdFor, i
 const { grantPack, listPacks, PackGrantInputError } = require('../services/packGrant.cjs');
 // PACK-CREDIT-1: a Board Pass order is credited with the student's recent pack purchases.
 const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields } = require('../services/packCredit.cjs');
+// TS-UPGRADE-CREDIT-1: a Test Series Pack owner upgrading to the Board Pass pays the difference (taxable base), plus GST on it.
+const { testSeriesUpgradeCreditFor, applyTsCreditToQuote, tsCreditNotes } = require('../services/tsUpgradeCredit.cjs');
 // PAY-PHONE-1: a guest (signed-out, phone-number) order is only marked paid_unclaimed by the webhook, never granted here.
 const { GUEST_PAYER, markGuestOrderPaid } = require('../services/guestPay.cjs');
 // GST-INVOICE-1 (DARK): the buyer's confirmed state on the order, and the tax invoice issued after a verified capture.
@@ -92,6 +94,9 @@ const REUSE_SCAN_LIMIT = 10;
  */
 const REUSE_MATCH_FIELDS = Object.freeze([
   'passType', 'amountPaise', 'offerKey', 'packCreditInr', 'packCreditIds', 'baseInr', 'gstInr', 'totalInr', 'gstRate', 'gstBuyer',
+  // TS-UPGRADE-CREDIT-1: an open order made before (or without) the Test Series credit is never handed back for a credited
+  // request, and vice versa. Absent on both sides for every other order (compared as "undefined"), so nothing else changes.
+  'tsUpgradeCreditInr', 'tsUpgradeFullBaseInr', 'tsUpgradeCreditPackId', 'tsUpgradeCreditOrderId',
 ]);
 /** Fields that mark an order as made by someone other than the signed-in student (parent link, guest / pay-for-someone). */
 const NON_STUDENT_ORDER_MARKERS = Object.freeze(['payer', 'parentLinkId', 'recipient', 'guestPhone']);
@@ -438,10 +443,15 @@ function gstOrderFields(quote) {
  * breakup, so a tab rendered before the cut-off (or a phone with a wrong clock) can show the corrected total and ask
  * before Razorpay opens. Nothing for a pre-cut-off order: the response is byte-identical to before.
  */
-function gstResponseFields(quote, packCreditInr) {
+function gstResponseFields(quote, packCreditInr, tsFields) {
   const g = gstOrderFields(quote);
   if (!('baseInr' in g)) return {};
-  return { gst: { baseInr: g.baseInr, gstInr: g.gstInr, totalInr: g.totalInr }, ...(packCreditInr > 0 ? { packCreditInr } : {}) };
+  return {
+    gst: { baseInr: g.baseInr, gstInr: g.gstInr, totalInr: g.totalInr },
+    ...(packCreditInr > 0 ? { packCreditInr } : {}),
+    // TS-UPGRADE-CREDIT-1: the Test Series base credited (the `gst` above is already the upgrade's own breakup). Absent otherwise.
+    ...(tsFields && tsFields.tsUpgradeCreditInr > 0 ? { tsUpgradeCreditInr: tsFields.tsUpgradeCreditInr } : {}),
+  };
 }
 
 function createPaymentRoutes(deps = {}) {
@@ -769,6 +779,28 @@ function createPaymentRoutes(deps = {}) {
       if (packCreditInr > 0) emit('payments.order.pack_credit_applied');
     }
 
+    // TS-UPGRADE-CREDIT-1 - a student who paid for the Test Series Pack pays only the DIFFERENCE for the Board Pass: the Test
+    // Series TAXABLE base (999, proved from the server's own paid order) comes off the Board Pass base, and GST is charged on
+    // the difference (918 + 165 = 1083 founding; 1500 + 270 = 1770 from 1 Dec). Never stacked with a PACK-CREDIT-1 credit.
+    // Any doubt / failed read is credit 0 and the order is made at the full price, byte-identical to before (fail CLOSED,
+    // never blocks). The credited amount is what Razorpay is asked for and what the order stores, so verify / webhook /
+    // status compare against it; the order's baseInr / gstInr are the upgrade's own, so the GST invoice reproduces it.
+    let tsFields = {};
+    if (!isPack && !isTopup && passType === 'till_boards' && packCreditInr === 0) {
+      const tsCredit = await testSeriesUpgradeCreditFor(adminFirestore, uid, passType, env);
+      if (tsCredit.disabled) emit('payments.order.ts_upgrade_credit_disabled');
+      else if (tsCredit.readFailed) emit('payments.order.ts_upgrade_credit_read_failed');
+      if (tsCredit.creditBaseInr > 0) {
+        const applied = applyTsCreditToQuote(quote, tsCredit, now());
+        quote = applied.quote;
+        tsFields = applied.fields;
+        emit(tsFields.tsUpgradeCreditInr > 0 ? 'payments.order.ts_upgrade_credit_applied' : 'payments.order.ts_upgrade_credit_not_applied');
+      } else if (tsCredit.reason && !['no_test_series', 'not_board_pass', 'disabled', 'read_failed'].includes(tsCredit.reason)) {
+        // A Test Series owner whose record could not prove a creditable purchase (already credited, refunded, other uid ...).
+        emit(`payments.order.ts_upgrade_credit_refused.${tsCredit.reason}`);
+      }
+    }
+
     // GST-INVOICE-1: the state the buyer confirmed (+ optional PIN / business GSTIN). Never refuses an order.
     const gstBuyer = gstBuyerFromBody(body.gstBuyer);
     for (const d of gstBuyer.dropped) emit(`payments.order.gst_buyer_dropped.${d}`);
@@ -778,6 +810,7 @@ function createPaymentRoutes(deps = {}) {
       passType,
       amountPaise: quote.amountPaise,
       ...creditOrderFields(packCreditInr, packCreditIds),
+      ...tsFields,
       ...gstOrderFields(quote),
       ...gstBuyer.fields,
       offerKey: quote.offerKey,
@@ -799,7 +832,7 @@ function createPaymentRoutes(deps = {}) {
             emit('payments.order.wa_optin_store_failed');
           }
         }
-        return sendJson(res, 200, { ok: true, orderId: reuse, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr) });
+        return sendJson(res, 200, { ok: true, orderId: reuse, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr, tsFields) });
       }
     }
 
@@ -814,6 +847,7 @@ function createPaymentRoutes(deps = {}) {
           ...(isPack ? { packTarget } : {}),
           ...(quote.offerKey ? { offerKey: quote.offerKey } : {}),
           ...creditNotes(packCreditInr, packCreditIds),
+          ...tsCreditNotes(tsFields),
         },
       });
     } catch (e) {
@@ -841,6 +875,7 @@ function createPaymentRoutes(deps = {}) {
         amountPaise: quote.amountPaise,
         ...(isPack ? { packTarget } : {}),
         ...creditOrderFields(packCreditInr, packCreditIds),
+        ...tsFields,
         ...gstOrderFields(quote),
         ...gstBuyer.fields,
         ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: only when the number is valid AND the tick was sent; else nothing
@@ -858,7 +893,7 @@ function createPaymentRoutes(deps = {}) {
 
     emit('payments.order.created');
     if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType, amountPaise: quote.amountPaise, uid, signals: signalsFor(serverEvents, body, req).adSignals }));
-    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr) });
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr, tsFields) });
   }
 
   /**
@@ -1037,6 +1072,11 @@ function createPaymentRoutes(deps = {}) {
       if (granted.packCredit) {
         emit(`payments.${scope}.pack_credit_marked`);
         if (granted.packCredit.conflict) emit(`payments.${scope}.pack_credit_conflict`);
+      }
+      // TS-UPGRADE-CREDIT-1: the Test Series entitlement this Board Pass was credited with was marked in the grant transaction.
+      if (granted.tsUpgradeCredit) {
+        emit(`payments.${scope}.ts_upgrade_credit_marked`);
+        if (granted.tsUpgradeCredit.conflict) emit(`payments.${scope}.ts_upgrade_credit_conflict`);
       }
       if (extra && extra.counter) emit(extra.counter);
       const body = {

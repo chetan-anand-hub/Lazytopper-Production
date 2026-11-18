@@ -32,7 +32,7 @@ import {
 } from "../../config/pricing";
 import { BOARD_PASS_BUY_PARAM, BOARD_PASS_BUY_PATH, BOARD_PASS_BUY_VALUE, readBoardPassBuy } from "./boardPassBuy";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
-import { fetchMyPacks, type BoardPassCredit } from "../../services/packs";
+import { fetchMyPacks, type BoardPassCredit, type TestSeriesUpgrade } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
 import PayRescueCard from "../payRescue/PayRescueCard";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
@@ -198,6 +198,24 @@ export function packCreditBreakdown(credit: BoardPassCredit): string | null {
   return b ? `${b}, less your pack credit ${formatInr(credit.creditInr)}: you pay ${formatInr(credit.payInr)}` : null;
 }
 
+/**
+ * TS-UPGRADE-CREDIT-1 (owner ruling 19 Nov 2026) - what a Test Series Pack owner reads by the Board Pass Pay: every number is
+ * the SERVER's (`/api/packs/mine`): "Upgrade for ₹918 + GST — you've already paid for the Test Series".
+ */
+export function tsUpgradeLine(up: TestSeriesUpgrade): string {
+  return `Upgrade for ${formatInr(up.baseInr)} + GST — you've already paid for the Test Series`;
+}
+
+/** TS-UPGRADE-CREDIT-1 - the breakup beside Pay, adding up to what Razorpay asks for: "₹918 + ₹165 GST (18%) = ₹1,083". */
+export function tsUpgradeBreakdown(up: TestSeriesUpgrade): string {
+  return `${formatInr(up.baseInr)} + ${formatInr(up.gstInr)} GST (18%) = ${formatInr(up.payInr)}`;
+}
+
+/** TS-UPGRADE-CREDIT-1 - the Pay button for a Test Series owner: "Pay ₹1,083 once till your boards" (the server's total). */
+export function tsUpgradePayLabel(up: TestSeriesUpgrade): string {
+  return `Pay ${formatInr(up.payInr)} once till your boards`;
+}
+
 /** "1 Nov, 9:20 pm IST" — the exact instant the credit lapses, in IST. */
 function formatCreditDeadline(ms: number): string | null {
   if (!Number.isFinite(ms)) return null;
@@ -267,6 +285,11 @@ export interface PassCheckoutViewProps {
   pendingHoldMs?: number;
   /** PACK-CREDIT-1 - the server's Board Pass credit for this student, or null. Hidden when signed out or Premium is active. */
   packCredit?: BoardPassCredit | null;
+  /**
+   * TS-UPGRADE-CREDIT-1 - the server's Board Pass upgrade price for a Test Series owner, or null. Shown only when signed in and
+   * there is no PACK-CREDIT-1 credit (the server never stacks the two). Null renders exactly today's buy area.
+   */
+  tsUpgrade?: TestSeriesUpgrade | null;
   /** SIGNED-IN-MOVE-1: the Board Pass was moved to the child's own account - re-read this account's entitlement. */
   onPassMoved?: () => void;
   /** PAID-SHEET-1: the signed-in account's email, for the pop-up's "Receipt sent to ..." line (absent for phone-only accounts). */
@@ -306,6 +329,7 @@ export function PassCheckoutView({
   pollDelaysMs = PAY_STATUS_POLL_DELAYS_MS,
   pendingHoldMs = PAY_PENDING_TTL_MS,
   packCredit = null,
+  tsUpgrade = null,
   onPassMoved,
   receiptEmail,
   autoStart = false,
@@ -631,11 +655,22 @@ export function PassCheckoutView({
   // GST-EXCL-1: the breakup beside the Pay button, before Razorpay opens ("₹1,917 + ₹345 GST (18%) = ₹2,262"). Null before 7 Nov.
   // A credited buyer (the credit line is on screen, and the server takes the credit off the order) reads the credited breakup
   // ("…= ₹2,262, less your pack credit ₹49: you pay ₹2,213"), so the figures beside Pay add up to what Razorpay asks for.
-  const gstBreakdown = creditLine && packCredit ? packCreditBreakdown(packCredit) : boardPassGstBreakdown(Date.now());
+  // TS-UPGRADE-CREDIT-1: a signed-in Test Series owner (no pack credit) is charged the server's upgrade total - the line, the
+  // breakup and the Pay button all name it. Everyone else: `ts` is null and every value below is exactly as before.
+  const ts = signedIn && !packCredit && tsUpgrade ? tsUpgrade : null;
+  const tsLine = ts && !activeLabel && !failed && !expired && !recovery ? tsUpgradeLine(ts) : null;
+  const gstBreakdown = ts
+    ? tsUpgradeBreakdown(ts)
+    : creditLine && packCredit
+      ? packCreditBreakdown(packCredit)
+      : boardPassGstBreakdown(Date.now());
 
   // CHECKOUT-SELF-1: a signed-in student with a pack credit pays the server's credited total - the one Pay button names exactly that.
-  const boardsLabel =
-    who && signedIn && packCredit ? `Pay \u20B9${packCredit.payInr.toLocaleString("en-IN")} once till your boards` : tillBoardsButtonLabel();
+  const boardsLabel = ts
+    ? tsUpgradePayLabel(ts)
+    : who && signedIn && packCredit
+      ? `Pay \u20B9${packCredit.payInr.toLocaleString("en-IN")} once till your boards`
+      : tillBoardsButtonLabel();
 
   return (
     <div className="lt-pricing-checkout" data-testid="pass-checkout">
@@ -710,6 +745,11 @@ export function PassCheckoutView({
           {creditLine}
         </p>
       )}
+      {tsLine && (
+        <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom lt-pack-credit-note" data-testid="pass-checkout-ts-upgrade">
+          {tsLine}
+        </p>
+      )}
       {rescue && !recovery && (
         <div className="lt-pricing-checkout-note lt-pricing-checkout-note--bottom" data-testid="pass-checkout-rescue">
           <PayRescueCard
@@ -754,6 +794,7 @@ export function PassCheckoutView({
             signedIn={signedIn}
             selfMasked={who.selfMasked}
             {...(signedIn && packCredit ? { selfPriceDisplay: `₹${packCredit.payInr.toLocaleString("en-IN")}`, selfPriceNote: packCreditBreakdown(packCredit) } : {})}
+            {...(ts ? { selfPriceDisplay: formatInr(ts.payInr), selfPriceNote: `${tsUpgradeLine(ts)}: ${tsUpgradeBreakdown(ts)}` } : {})}
             onPaySelf={() => void handleBuy("till_boards", { fromWho: true })}
             onSignIn={who.onSignIn}
             onSignInWithNumber={who.onSignInWithNumber}
@@ -845,13 +886,18 @@ function PassCheckoutConnected() {
 
   // PACK-CREDIT-1: the server's credit for this student. A failed read is simply no credit line.
   const [packCredit, setPackCredit] = useState<BoardPassCredit | null>(null);
+  // TS-UPGRADE-CREDIT-1: the server's upgrade price for a Test Series owner (null for everyone else / a failed read).
+  const [tsUpgrade, setTsUpgrade] = useState<TestSeriesUpgrade | null>(null);
   useEffect(() => {
     let cancelled = false;
     setPackCredit(null);
+    setTsUpgrade(null);
     if (!uid) return undefined;
     fetchMyPacks()
       .then((mine) => {
-        if (!cancelled) setPackCredit(mine.boardPassCredit);
+        if (cancelled) return;
+        setPackCredit(mine.boardPassCredit);
+        setTsUpgrade(mine.testSeriesUpgrade ?? null);
       })
       .catch(() => undefined);
     return () => {
@@ -874,6 +920,7 @@ function PassCheckoutConnected() {
       activePassEnd={activePassEnd}
       activePlan={activePassEnd ? status.plan : null}
       packCredit={packCredit}
+      tsUpgrade={tsUpgrade}
       autoStart={autoStart}
       holderAutoOpen={holderAuto}
       {...(whoEnabled
