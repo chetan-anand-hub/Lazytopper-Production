@@ -5,8 +5,12 @@
  * styles everything it reuses unchanged (the navy header, PassCheckout, the compare table, the FAQ, the Basic line, the waitlist);
  * every rule here is scoped under `.lt-ph`.
  *
- * Phones (< 1024 px): three tabs, then a horizontal CSS scroll-snap carousel (one card ~300 px at 360 px with the next one peeking),
- * dots and "1 of 3". From 1024 px: three equal-height columns, no tabs. Every tap target >= 44 px. Fonts are the app's own.
+ * PRICING-4CARD-1 (owner, 18 Nov 2026) - four cards: the ONLINE pair (Board Pass, Test Series), then the ON PAPER pair.
+ * Phones (< 768 px): four tabs under two group labels, then a horizontal CSS scroll-snap carousel (one card ~290 px at 360 px with
+ * ~24 px of the next one peeking), dots (grouped 2 + 2) and "1 of 4". Tablet and small desktop (768-1279 px): a 2x2 grid, the online
+ * pair on top, the paper pair below, each row under its group label, cards in a row equal height. From 1280 px: four across (Board Pass
+ * a little wider), the two groups labelled above and split by a thin divider - four across needs >= ~280 px per card for the Board
+ * Pass Pay area and the two-up CBQ Buys, which only 1280 px gives. Every tap target >= 44 px. Fonts are the app's own.
  */
 export const HUB_CSS = `
   .lt-ph {
@@ -54,23 +58,48 @@ export const HUB_CSS = `
   /* ── Tabs (phones) ─────────────────────────────────────────────────────── */
   .lt-ph-tabs {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 2px minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 6px;
+    row-gap: 4px;
     margin: 14px 0 0;
   }
+  /* The group labels over each pair of tabs: a small caps word and a rule under the pair. */
+  .lt-ph-tabgroup {
+    grid-row: 1;
+    padding: 0 2px 3px;
+    border-bottom: 2px solid currentColor;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .lt-ph-tabgroup--online {
+    grid-column: 1 / 3;
+    color: var(--ph-green);
+  }
+  .lt-ph-tabgroup--paper {
+    grid-column: 4 / 6;
+    color: var(--ph-amber-ink);
+  }
+  .lt-ph-tab--pass { grid-row: 2; grid-column: 1; }
+  .lt-ph-tab--ts { grid-row: 2; grid-column: 2; }
+  .lt-ph-tab--cbq { grid-row: 2; grid-column: 4; }
+  .lt-ph-tab--bank { grid-row: 2; grid-column: 5; }
   .lt-ph-tab {
     appearance: none;
     cursor: pointer;
-    min-height: 52px;
-    padding: 6px 4px;
+    min-height: 56px;
+    padding: 5px 3px;
     border-radius: 12px;
     border: 1.5px solid var(--ph-blue-line);
     background: #ffffff;
     color: var(--ph-navy);
     font: inherit;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1.15;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -82,22 +111,26 @@ export const HUB_CSS = `
     border-color: var(--ph-amber-line);
     background: var(--ph-cream);
   }
+  .lt-ph-tab--ts {
+    border-color: var(--ph-green);
+  }
   .lt-ph-tab[aria-pressed="true"] {
     background: var(--ph-navy);
     border-color: var(--ph-navy);
     color: #ffffff;
   }
+  /* Two-word names: one line where they fit, two lines (at the space, never inside a word) on the narrowest phones. */
   .lt-ph-tab__name {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     max-width: 100%;
+    text-align: center;
+    overflow-wrap: normal;
+    word-break: normal;
   }
   .lt-ph-tab__price {
     display: block;
     min-height: 1.2em;
     font-weight: 600;
-    font-size: 0.74rem;
+    font-size: 0.7rem;
   }
   .lt-ph-caption {
     margin: 6px 0 0;
@@ -127,7 +160,7 @@ export const HUB_CSS = `
     display: none;
   }
   .lt-ph-card {
-    flex: 0 0 min(340px, calc(100% - 28px));
+    flex: 0 0 min(340px, calc(100% - 36px));
     min-width: 0;
     scroll-snap-align: start;
     display: flex;
@@ -143,7 +176,12 @@ export const HUB_CSS = `
   /* Trailing room so the LAST card can snap to the left edge like the others (it sits where the WhatsApp button cannot reach it,
      and the selected tab always matches the card at the edge). Equals the track's width minus one card. */
   .lt-ph-card:last-child {
-    margin-right: calc(100% - min(340px, calc(100% - 28px)));
+    margin-right: calc(100% - min(340px, calc(100% - 36px)));
+  }
+  /* Group labels and the divider live in the track for the tablet / desktop grid; on phones the tabs carry the groups. */
+  .lt-ph-group,
+  .lt-ph-divider {
+    display: none;
   }
   .lt-ph-card--pass {
     background: var(--ph-navy);
@@ -153,6 +191,70 @@ export const HUB_CSS = `
   .lt-ph-card--cbq {
     background: var(--ph-cream);
     border-color: var(--ph-amber-line);
+  }
+  .lt-ph-card--ts {
+    border-color: var(--ph-green);
+    background: #f6fbf8;
+  }
+  .lt-ph-card--ts .lt-ph-tag {
+    color: var(--ph-green);
+  }
+  .lt-ph-chip--new {
+    background: #ffffff;
+    border: 1.5px solid var(--ph-green);
+    color: var(--ph-green-dark);
+  }
+  .lt-ph-ts-head strong {
+    color: var(--ph-navy);
+  }
+  /* "Want the tutor and Answer Checker too? -> Board Pass": a clearly visible line, one tap to the Board Pass card. */
+  .lt-ph-upsell {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 6px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    background: var(--ph-navy);
+    color: #ffffff;
+    font-size: 0.84rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .lt-ph-upsell__go {
+    appearance: none;
+    cursor: pointer;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ph-green-bright);
+    font: inherit;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .lt-ph-upsell__go:hover {
+    color: var(--ph-mint);
+  }
+  .lt-ph-tsrow {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid #cfe8da;
+  }
+  .lt-ph-tsrow__name {
+    font-size: 0.86rem;
+    font-weight: 700;
+  }
+  .lt-ph-tsrow__line {
+    font-size: 0.78rem;
+    color: #4a5a73;
   }
   .lt-ph-card:focus-visible {
     outline: 3px solid var(--ph-green);
@@ -382,6 +484,15 @@ export const HUB_CSS = `
   .lt-ph-card--pass .lt-pricing-tillboards-slot {
     min-height: 4.4rem;
   }
+  /* The WhatsApp opt-in above Pay (WhatsAppOptInFields, unchanged) is styled for a white sheet; on the navy card its label and tick
+     read light, and "+91" never splits across lines in a narrow (four-across) card. */
+  .lt-ph-card--pass .lt-waopt__label,
+  .lt-ph-card--pass .lt-waopt__tick {
+    color: #dbe5f3;
+  }
+  .lt-ph .lt-waopt__prefix {
+    white-space: nowrap;
+  }
   .lt-ph-card--pass .lt-pricing-month {
     background: var(--ph-navy-2);
     border-color: var(--ph-navy-line);
@@ -479,6 +590,15 @@ export const HUB_CSS = `
     font-size: 0.95rem;
     font-weight: 700;
     line-height: 1.2;
+  }
+  .lt-ph-buy--link,
+  .lt-pricing-page a.lt-ph-buy--link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-decoration: none;
+    color: #ffffff;
   }
   .lt-ph-buy:not(:disabled):hover {
     background: var(--ph-green-dark);
@@ -592,6 +712,9 @@ export const HUB_CSS = `
   .lt-ph-card--cbq .lt-ph-details {
     border-color: #f3c66b;
   }
+  .lt-ph-card--ts .lt-ph-details {
+    border-color: #9fd3b6;
+  }
   .lt-ph-mypacks {
     align-self: center;
     display: inline-flex;
@@ -618,6 +741,10 @@ export const HUB_CSS = `
     height: 8px;
     border-radius: 999px;
     background: #c3cfdf;
+  }
+  /* The dots read 2 + 2, like the tabs: a little extra room before the first paper card. */
+  .lt-ph-dot--cbq {
+    margin-left: 6px;
   }
   .lt-ph-dot.is-on {
     width: 22px;
@@ -694,6 +821,23 @@ export const HUB_CSS = `
   .lt-ph-fold .lt-pricing-compare-scroll {
     max-width: 100%;
     overflow-x: auto;
+  }
+  /* "Compare all four": five columns. On a phone the table keeps a readable width and scrolls inside its own box (never the page),
+     with the row labels held at the left edge. */
+  .lt-ph-fold .lt-pp-table--4 {
+    min-width: 540px;
+  }
+  .lt-ph-fold .lt-pp-table--4 col.lt-pp-col-label {
+    width: 28%;
+  }
+  .lt-ph-fold .lt-pp-table--4 thead th:first-child,
+  .lt-ph-fold .lt-pp-table--4 tbody th {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+  }
+  .lt-ph-fold .lt-pp-table--4 tbody th {
+    background: #ffffff;
   }
 
   .lt-ph .lt-pp-basicline {
@@ -813,31 +957,111 @@ export const HUB_CSS = `
     }
   }
 
-  /* ── Desktop: three equal-height columns ───────────────────────────────── */
-  @media (min-width: 1024px) {
-    .lt-ph-body {
-      padding: 0 32px 56px;
-    }
+  /* ── Tablet and up: a grid, cards in a row equal height (stretch + the foot's margin-top:auto) ───────── */
+  @media (min-width: 768px) {
     .lt-ph-tabs,
     .lt-ph-caption,
     .lt-ph-pager {
       display: none;
     }
+    /* 768-1279 px: 2x2 - the online pair, then the paper pair, each under its label. */
     .lt-ph-cards {
       display: grid;
-      grid-template-columns: 1.08fr 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-areas:
+        "go go"
+        "c1 c2"
+        "gp gp"
+        "c3 c4";
       align-items: stretch;
-      gap: 22px;
-      margin: 22px 0 0;
+      column-gap: 18px;
+      row-gap: 12px;
+      margin: 18px 0 0;
       padding: 0;
       overflow: visible;
       scroll-snap-type: none;
     }
     .lt-ph-card {
-      padding: 22px 22px 20px;
+      padding: 20px 20px 18px;
     }
     .lt-ph-card:last-child {
       margin-right: 0;
+    }
+    .lt-ph-card--pass { grid-area: c1; }
+    .lt-ph-card--ts { grid-area: c2; }
+    .lt-ph-card--cbq { grid-area: c3; }
+    .lt-ph-card--bank { grid-area: c4; }
+    .lt-ph-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .lt-ph-group::after {
+      content: "";
+      flex: 1 1 auto;
+      height: 2px;
+      border-radius: 2px;
+      background: currentColor;
+      opacity: 0.35;
+    }
+    .lt-ph-group--online {
+      grid-area: go;
+      color: var(--ph-green);
+    }
+    .lt-ph-group--paper {
+      grid-area: gp;
+      margin-top: 10px;
+      color: var(--ph-amber-ink);
+    }
+    .lt-ph-extra {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .lt-ph-phone-only,
+    .lt-ph-ticks li.lt-ph-phone-only {
+      display: none;
+    }
+  }
+
+  /* ── 1280 px and up: four across, the two groups split by a thin divider ──────────────────────────── */
+  @media (min-width: 1280px) {
+    .lt-ph-body {
+      max-width: 1320px;
+    }
+    .lt-ph-cards {
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr) 1px minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-areas:
+        "go go . gp gp"
+        "c1 c2 dv c3 c4";
+      column-gap: 16px;
+    }
+    .lt-ph-group--paper {
+      margin-top: 0;
+    }
+    .lt-ph-divider {
+      display: block;
+      grid-area: dv;
+      width: 1px;
+      background: #cfd8e6;
+    }
+    .lt-ph-card--pass {
+      box-shadow: 0 10px 28px rgba(11, 27, 58, 0.22);
+    }
+  }
+
+  /* ── Desktop type sizes ────────────────────────────────────────────────── */
+  @media (min-width: 1024px) {
+    .lt-ph-body {
+      padding: 0 32px 56px;
+    }
+    .lt-ph-card {
+      padding: 22px 22px 20px;
     }
     .lt-ph-name {
       font-size: 2rem;
@@ -854,13 +1078,18 @@ export const HUB_CSS = `
     .lt-ph-folds {
       margin-top: 28px;
     }
-    .lt-ph-extra {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+  }
+  @media (min-width: 1280px) {
+    .lt-ph-card {
+      padding: 20px 18px 18px;
     }
-    .lt-ph-phone-only {
-      display: none;
+    .lt-ph-name {
+      font-size: 1.8rem;
+    }
+    /* Four across: the two CBQ Buys ("Science · ₹235") stay on one line each. */
+    .lt-ph-pair .lt-ph-buy {
+      padding: 8px 4px;
+      font-size: 0.86rem;
     }
   }
 `;

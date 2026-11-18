@@ -864,6 +864,8 @@ export type NamedAnalyticsEvent =
   // ACT-FREECHECK-1 — the saved free result was shown again after sign-up, and a tap on its purchase line. Names only.
   | "free_check_result_restored"
   | "free_check_result_restored_buy_click"
+  // PRICING-4CARD-1 — a tap on the /pricing Test Series card's Buy (or the phone bar's, on that card). Name only.
+  | "pricing_ts_buy_tap"
   | "trial_start"
   | "check_question_read"
   | "check_answer_added"

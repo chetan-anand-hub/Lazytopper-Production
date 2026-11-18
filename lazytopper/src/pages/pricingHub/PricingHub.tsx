@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from "react-router-do
 import BoardsCountdownStrip from "../../components/urgency/BoardsCountdownStrip";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
+import { isPaidPremium } from "../../services/subscriptionService";
 import { trackNamedEvent } from "../../analytics/analytics";
 import ReturnContextBar from "../../components/ux/ReturnContextBar";
 import PublicLegalFooter from "../../components/ux/PublicLegalFooter";
@@ -98,7 +99,28 @@ import {
   HUB_TAB_NAME,
   HUB_TABS_CAPTION,
   HUB_TABS_LABEL,
+  HUB_GROUPS,
+  HUB_TS_DETAILS_PATH,
+  HUB_TS_BUY,
+  HUB_TS_INSIDE_TITLE,
+  HUB_TS_NEW,
+  HUB_TS_OWNED,
+  HUB_TS_PASS_GO,
+  HUB_TS_PASS_INCLUDED,
+  HUB_TS_PRICE_META,
+  HUB_TS_TAG,
+  HUB_TS_TICKS,
+  HUB_TS_TRY_LINE,
+  HUB_TS_UPSELL_GO,
+  HUB_TS_UPSELL_Q,
   QUESTION_BANK_NAME,
+  TEST_SERIES_CARD_NAME,
+  hubTsBuyPath,
+  hubTsDetails,
+  hubTsHeadline,
+  hubTsInsideRows,
+  hubTsPrice,
+  hubTsStickyCopy,
   hubBankDetails,
   hubBankPrice,
   hubBankRows,
@@ -114,6 +136,7 @@ import {
   type HubCardKey,
 } from "./hubCopy";
 import { HUB_CSS } from "./pricingHubCss";
+import { seriesTotals } from "../../lib/testSeries/testSeries";
 
 /**
  * The legacy page's own private pieces the hub reuses UNCHANGED. PricingPage.tsx hands them over (it owns them; the hub never imports
@@ -137,20 +160,19 @@ const SUBJECTS: readonly PackSubject[] = ["maths", "science"];
 /** The hero Pay area (legacy test id: the sticky bar, the pay-tap event and the tests find it by this). */
 const PASS_PAY_TESTID = "pricing-passes";
 const CBQ_BUY_TESTID = "hub-buy-cbq";
+const TS_BUY_TESTID = "hub-buy-ts";
 const BANK_BUY_TESTID = "hub-buy-bank";
 
-/** The card a hash names: `#cbq` -> CBQ Packs, `#packs` -> Question Bank, anything else -> the Board Pass. */
+/** The card a hash names: `#test-series` -> Test Series, `#cbq` -> CBQ Packs, `#packs` -> Question Bank, anything else -> the Board Pass. */
 export function cardForHash(hash: string): number {
   return hashCard(hash) ?? 0;
 }
 
-/** The card a hash NAMES (`#lt-premium-card` / `#cbq` / `#packs`), or null for no hash or any other hash. Pure. */
+/** The card a hash NAMES (`#lt-premium-card` / `#test-series` / `#cbq` / `#packs`), or null for no hash or any other hash. Pure. */
 export function hashCard(hash: string): number | null {
   const h = hash.toLowerCase();
-  if (h === `#${HUB_CARD_ID.pass}`) return 0;
-  if (h === `#${HUB_CARD_ID.cbq}`) return 1;
-  if (h === `#${HUB_CARD_ID.bank}`) return 2;
-  return null;
+  const i = HUB_CARD_ORDER.findIndex((k) => h === `#${HUB_CARD_ID[k]}`);
+  return i >= 0 ? i : null;
 }
 
 /**
@@ -208,7 +230,8 @@ function useCarousel(initial: number) {
   const starts = useCallback((): number[] => {
     const track = trackRef.current;
     if (!track) return [];
-    const cards = Array.from(track.children) as HTMLElement[];
+    // PRICING-4CARD-1: the track also holds the group labels (and the desktop divider); only the cards count.
+    const cards = Array.from(track.children).filter((c) => (c as HTMLElement).dataset?.card) as HTMLElement[];
     const base = cards[0]?.offsetLeft ?? 0;
     return cards.map((c) => c.offsetLeft - base);
   }, []);
@@ -572,12 +595,14 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
     const api = apiRef.current;
     const card = selectedRef.current;
     const packOpen = (sku: PackSku, target?: PackSubject) => api !== null && !(api.buyEnabled && (api.ownsPack(sku, target) || api.blockedBy(sku, target)));
+    if (card === "ts" && !premiumRef.current && !(api?.buyEnabled && api.ownsPack("test_series"))) return "ts";
     if (card === "cbq" && packOpen("pack_cbq", subjectRef.current)) return "cbq";
     if (card === "bank" && packOpen("pack_bundle")) return "bank";
     return premiumRef.current ? null : "pass";
   };
   const barCopy = (): { label: string; button: string } | null => {
     const mode = barMode();
+    if (mode === "ts") return hubTsStickyCopy();
     if (mode === "cbq") return stickyCbqCopy(subjectRef.current);
     if (mode === "bank") return hubBundleStickyCopy(BUNDLE_NAME);
     if (mode === "pass") {
@@ -590,7 +615,10 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
   const barGo = () => {
     const mode = barMode();
     const api = apiRef.current;
-    if (mode === "cbq" && api) {
+    if (mode === "ts") {
+      trackNamedEvent("pricing_ts_buy_tap");
+      navigate(withFrom(hubTsBuyPath()));
+    } else if (mode === "cbq" && api) {
       if (api.buyEnabled) api.buyNow("pack_cbq", subjectRef.current);
       else api.openCbq(subjectRef.current);
     } else if (mode === "bank" && api) {
@@ -660,6 +688,91 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
       </div>
     </div>
   );
+
+  /** The Board Pass card brought into view (the Test Series card's "Want the tutor and Answer Checker too?" line). */
+  const showPassCard = () => {
+    goTo(0);
+    document.getElementById(HUB_CARD_ID.pass)?.scrollIntoView?.({ behavior: prefersCalm() ? "auto" : "smooth", block: "start" });
+  };
+  const series = seriesTotals();
+  const tsHead = hubTsHeadline(series);
+  const tsCard = (api: PacksShopApi) => {
+    // TS-PACK-1: a Test Series Pack owner (the shop's own /api/packs/mine read) is not sold it again.
+    const ownsSeries = api.buyEnabled && api.ownsPack("test_series");
+    // Review (18 Nov): a paid pass already includes every test (seriesAccess: paid premium checks series papers; a trial does not).
+    const seriesIncluded = Boolean(user) && subscription.hydrated && isPaidPremium(subscription.status);
+    return (
+    <div className="lt-ph-card lt-ph-card--ts" id={HUB_CARD_ID.ts} data-testid="hub-card-ts" data-card="ts">
+      <div className="lt-ph-card__top">
+        <p className="lt-ph-tag">{HUB_TS_TAG}</p>
+        <span className="lt-ph-chip lt-ph-chip--new">{HUB_TS_NEW}</span>
+      </div>
+      <h2 className="lt-ph-name">{TEST_SERIES_CARD_NAME}</h2>
+      <p className="lt-ph-hero lt-ph-ts-head" data-testid="hub-ts-headline">
+        <strong>{tsHead.chapter}</strong> + <strong>{tsHead.full}</strong>
+        {tsHead.rest}
+      </p>
+      <Ticks items={HUB_TS_TICKS} label={`What the ${TEST_SERIES_CARD_NAME} gives`} />
+      <p className="lt-ph-upsell" data-testid="hub-ts-upsell">
+        <span>{HUB_TS_UPSELL_Q}</span>{" "}
+        <button type="button" className="lt-ph-upsell__go" onClick={showPassCard} data-testid="hub-ts-upsell-go">
+          {HUB_TS_UPSELL_GO}
+        </button>
+      </p>
+      {/* Tablet / desktop only (CSS): fills the band beside the taller Board Pass card. Counts from the series config. */}
+      <div className="lt-ph-extra" data-testid="hub-ts-inside">
+        <h3 className="lt-ph-extra__title">{HUB_TS_INSIDE_TITLE}</h3>
+        {hubTsInsideRows(series).map((r) => (
+          <p key={r.id} className="lt-ph-tsrow" data-testid={`hub-ts-inside-${r.id}`}>
+            <span className="lt-ph-tsrow__name">{r.name}</span>
+            <span className="lt-ph-tsrow__line">{r.line}</span>
+          </p>
+        ))}
+        <p className="lt-ph-extra__line">{HUB_TS_TRY_LINE}</p>
+      </div>
+      <div className="lt-ph-foot">
+        {ownsSeries ? (
+          <>
+            <span className="lt-ph-owned-pill" data-testid="hub-ts-owned">
+              <span aria-hidden="true">&#10003;</span>
+              {HUB_TS_OWNED}
+            </span>
+            <Link className="lt-ph-buy lt-ph-buy--link" to={HUB_TS_DETAILS_PATH} data-testid="hub-ts-open">
+              {HUB_TS_PASS_GO}
+            </Link>
+          </>
+        ) : seriesIncluded ? (
+          <>
+            <p className="lt-ph-sep" data-testid="hub-ts-included">{HUB_TS_PASS_INCLUDED}</p>
+            <Link className="lt-ph-buy lt-ph-buy--link" to={HUB_TS_DETAILS_PATH} data-testid="hub-ts-open">
+              {HUB_TS_PASS_GO}
+            </Link>
+          </>
+        ) : (
+          <>
+            <p className="lt-ph-price">
+              <span className="lt-ph-price__amt" data-testid="hub-ts-price">{hubTsPrice()}</span>
+              <span className="lt-ph-price__meta">{HUB_TS_PRICE_META}</span>
+            </p>
+            <div data-testid={TS_BUY_TESTID}>
+              <Link
+                className="lt-ph-buy lt-ph-buy--link"
+                to={withFrom(hubTsBuyPath())}
+                onClick={() => trackNamedEvent("pricing_ts_buy_tap")}
+                data-testid="hub-buy-test_series"
+              >
+                {HUB_TS_BUY}
+              </Link>
+            </div>
+          </>
+        )}
+        <Link className="lt-ph-details" to={withFrom(HUB_TS_DETAILS_PATH)} data-testid="hub-ts-details">
+          {hubTsDetails(series)}
+        </Link>
+      </div>
+    </div>
+    );
+  };
 
   const cbqCard = (api: PacksShopApi) => {
     const ownsAny = api.buyEnabled && SUBJECTS.some((s) => api.ownsPack("pack_cbq", s));
@@ -818,6 +931,12 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
               return (
                 <>
                   <div className="lt-ph-tabs" role="group" aria-label={HUB_TABS_LABEL} data-testid="hub-tabs">
+                    {/* PRICING-4CARD-1: the online pair, then the paper pair - each pair under its own small label. */}
+                    {HUB_GROUPS.map((g) => (
+                      <span key={g.key} className={`lt-ph-tabgroup lt-ph-tabgroup--${g.key}`} aria-hidden="true" data-testid={`hub-tabgroup-${g.key}`}>
+                        {g.label}
+                      </span>
+                    ))}
                     {HUB_CARD_ORDER.map((key, i) => (
                       <button
                         key={key}
@@ -836,14 +955,22 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
                   <p className="lt-ph-caption">{HUB_TABS_CAPTION}</p>
 
                   <div className="lt-ph-cards" ref={trackRef} data-testid="hub-cards">
+                    {/* Group labels + the desktop divider: grid items placed by CSS (hidden on phones, where the tabs carry the groups). */}
+                    {HUB_GROUPS.map((g) => (
+                      <p key={g.key} className={`lt-ph-group lt-ph-group--${g.key}`} data-testid={`hub-group-${g.key}`}>
+                        {g.label}
+                      </p>
+                    ))}
+                    <span className="lt-ph-divider" aria-hidden="true" />
                     {passCard}
+                    {tsCard(api)}
                     {cbqCard(api)}
                     {bankCard(api)}
                   </div>
                   <div className="lt-ph-pager" aria-hidden="true" data-testid="hub-pager">
                     <span className="lt-ph-dots">
                       {HUB_CARD_ORDER.map((key, i) => (
-                        <span key={key} className={`lt-ph-dot${index === i ? " is-on" : ""}`} />
+                        <span key={key} className={`lt-ph-dot lt-ph-dot--${key}${index === i ? " is-on" : ""}`} />
                       ))}
                     </span>
                     <p className="lt-ph-pos" data-testid="hub-position">
@@ -857,7 +984,10 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
                         <h2 className="lt-ph-fold__title">{HUB_FOLD_COMPARE}</h2>
                       </summary>
                       <div className="lt-ph-fold__body">
-                        <WhatYouGet boardPassPrice={boardPassOwner ? BOARD_PASS_OWNED_CELL : boardPassPrice}>
+                        <WhatYouGet
+                          boardPassPrice={boardPassOwner ? BOARD_PASS_OWNED_CELL : boardPassPrice}
+                          testSeries={{ price: hubTsPrice(), inside: `${series.chapterTests} chapter tests + ${series.fullMocks} full-length papers` }}
+                        >
                           <details className="lt-pp-basic" data-testid="pricing-basic-details">
                             <summary>
                               {BASIC_COMPARE_SUMMARY}&nbsp;<span className="lt-pp-basic__arrow" aria-hidden="true">↓</span>
@@ -1006,7 +1136,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
                     // capture strips the bar (captureStaticBodies strip rule 4): it shows the date-driven Board Pass price anyway.
                     <div className="lt-ph-barwrap" data-testid="till-boards-figures">
                     <SalesStickyBar
-                      watch={[PASS_PAY_TESTID, CBQ_BUY_TESTID, BANK_BUY_TESTID]}
+                      watch={[PASS_PAY_TESTID, TS_BUY_TESTID, CBQ_BUY_TESTID, BANK_BUY_TESTID]}
                       copy={barCopy}
                       onGo={barGo}
                       copyKey={`${selected}|${subject}|${premium ? 1 : 0}`}

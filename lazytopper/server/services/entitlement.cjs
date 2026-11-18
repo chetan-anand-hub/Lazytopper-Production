@@ -278,9 +278,8 @@ const TEST_SERIES_UNAVAILABLE_MESSAGE = "We couldn't check your Test Series Pack
  * TS-PACK-1 emergency switch: TS_CHECKS_DISABLED=1 turns the whole Test Series rule off - /api/grade-worksheet is then
  * decided exactly as before this lane (no body read, no count; a non-Premium owner meets the ordinary 402).
  */
-function testSeriesChecksDisabled(env = process.env) {
-  return /^(1|true|on|yes)$/i.test(String((env && env.TS_CHECKS_DISABLED) || '').trim());
-}
+// ONE switch function, shared with the LIMITS-1 exemption (testSeriesChecks.cjs).
+const { testSeriesChecksDisabled } = require('./testSeriesChecks.cjs');
 
 /** The 402 body. `error` is for the client to branch on; `message` is for the student. PURE. */
 function premiumRequiredBody(featureSpec, decision) {

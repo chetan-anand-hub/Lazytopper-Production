@@ -89,6 +89,7 @@ export const ACTIVITY_EVENTS = [
   "free_check_trial_start",
   "free_check_result_restored",
   "free_check_result_restored_buy_click",
+  "pricing_ts_buy_tap",
   "trial_start",
   "check_question_read",
   "check_answer_added",

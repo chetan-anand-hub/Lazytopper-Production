@@ -798,4 +798,198 @@ for (const [label, switchValue, portOffset] of [['switch unset = ON', undefined,
   }
 });
 
+/* ═══════════════ TS-PACK-JOBFIX (P0) · a Test Series Pack check grades in JOB mode; its hold rides the job ═══════════════
+ * The REAL pipeline in index.cjs's order: idempotency → the entitlement gate (+ testSeriesChecks) → fair use → the handler →
+ * the job runner, with index.cjs's commitDeferred (limits + Test Series + fair use). Only the model is stubbed. */
+const { createEntitlementGate } = require('../services/entitlement.cjs');
+const tsLib = require('../services/testSeriesChecks.cjs');
+
+const TS_UID = 'ts-owner-1';
+const TS_PREFIX = 'ct-ts1-real-numbers--';
+function seriesPaper(n) {
+  const p = typedPaper(n);
+  return { ...p, worksheetId: TS_PREFIX + 'mz1abc-7f3', questions: p.questions.map((q) => ({ ...q, questionId: 'TSQ-' + q.qNumber })) };
+}
+function seriesManifest(n) {
+  const qs = seriesPaper(n).questions;
+  return tsLib.indexManifest([{
+    key: 'TS-CT-M01', paperCode: 'CT-M01', kind: 'chapter', number: 1, topicKey: 'real-numbers', worksheetIdPrefix: TS_PREFIX,
+    questionIds: ['TSQ-A1', ...qs.map((q) => q.questionId)], sectionBEQuestionIds: qs.map((q) => q.questionId),
+    textHashes: Object.fromEntries(qs.map((q) => [q.questionId, tsLib.canonicalQuestionTextHash(q.questionText)])),
+  }]);
+}
+
+function seriesHarness({ n = 4, model = stubModel(), used, jobTimingFor } = {}) {
+  const fs = jobsFirestore();
+  const clock = { now: T0 };
+  fs.docs.set('packEntitlements/' + TS_UID + '/packs/test_series:all', { packId: 'test_series:all', sku: 'test_series', target: 'all', pricePaidInr: 1179, paidAt: T0 - 60000, orderId: 'o1' });
+  fs.docs.set('packEntitlements/' + TS_UID, used ? { [tsLib.CHECKS_FIELD]: used } : {});
+  const { sendJson } = createHttpUtils('*');
+  const rawRead = async (req) => req.__payload;
+  const idem = createGradingIdempotency({ resolveFirestore: () => ({ db: fs.db }), now: () => clock.now, corsOrigin: '*' });
+  const fairUse = createFairUse({
+    tierOf: async () => 'free', ledger: { async readDays(u, keys) { return new Map(keys.map((k) => [k, {}])); }, recordTrialUse() { return null; } },
+    env: {}, now: () => clock.now, readJson: rawRead, resolveFirestore: () => ({ db: fs.db }), sendJson,
+  });
+  const checks = tsLib.createTestSeriesChecks({ adminFirestore: fs.db, now: () => clock.now, manifest: seriesManifest(n), readBody: (r) => fairUseModuleForTs.preReadGradingBody(r, rawRead) });
+  const gate = createEntitlementGate({ adminFirestore: fs.db, logger: { warn() {}, info() {}, error() {} }, now: () => clock.now, cacheTtlMs: 0, sendJson, testSeriesChecks: checks });
+  const commits = [];
+  const jobs = jobsLib.createGradingJobs({
+    resolveFirestore: () => ({ db: fs.db }), now: () => clock.now,
+    // index.cjs's commitDeferred, minus limits (dark here): the Test Series hold, then fair use.
+    commitDeferred: (d, g) => { commits.push({ deferred: d, graded: g }); if (d && d.testSeries) checks.settleDeferred(d, g); return fairUse.commitDeferred(d, g); },
+  });
+  const route = createCheckSolutionRoute({
+    sendJson, readJson: cachedReadJson(rawRead), callGemini: model.callGemini,
+    GEMINI_MODEL: 'test-model', ACTIVE_PROVIDER: 'test', isStubMode: () => false,
+    extractJsonObjectFromText: (t) => { try { return JSON.parse(t); } catch { return null; } },
+    buildGeminiImagePart: (a) => ({ inlineData: { mimeType: a && a.mimeType, data: a && a.base64 } }),
+    validateMentorImagePayload: () => ({ ok: true }),
+    makeFenceNonce: () => 'testnonce', telemetry: { increment() {} },
+    GRADING_JOBS: true, gradingJobs: jobs, ...(jobTimingFor ? { jobTimingFor } : {}),
+  });
+  const pollRoutes = createGradingJobsRoutes({
+    sendJson, gradingJobs: jobs, now: () => clock.now,
+    verifiedCaller: { resolveVerifiedUid: async (req) => String((req.headers && req.headers.authorization) || '').replace(/^Bearer /, '') },
+  });
+  let handlerRuns = 0;
+  async function submit({ key, payload = seriesPaper(n), prefer = true } = {}) {
+    const headers = { [SURFACE_HEADER]: 'chapter-test' };
+    if (key) headers[IDEMPOTENCY_HEADER] = key;
+    if (prefer) headers.prefer = 'respond-async';
+    const req = { headers, __payload: JSON.parse(JSON.stringify(payload)) };
+    const res = pipeRes();
+    await ledgerLib.runWithRequestContext(async () => {
+      ledgerLib.bindRequestUid(TS_UID, GRADE_WORKSHEET_PATH);
+      const step = await idem.begin(req, res, GRADE_WORKSHEET_PATH, TS_UID);
+      if (step && step.replay) return idem.replay(res, step.replay);
+      if (await gate.applyToRequest(req, res, GRADE_WORKSHEET_PATH, TS_UID)) return undefined;
+      if (await fairUse.applyToRequest(req, res, GRADE_WORKSHEET_PATH, TS_UID)) return undefined;
+      handlerRuns += 1;
+      return route.handleGradeWorksheet(req, res);
+    });
+    await settle();
+    return res;
+  }
+  const poll = (jobId) => {
+    const res = pipeRes();
+    return pollRoutes.handlePoll({ headers: { authorization: 'Bearer ' + TS_UID } }, res, jobId).then(() => res);
+  };
+  const userDoc = () => fs.docs.get('packEntitlements/' + TS_UID) || {};
+  const committed = () => (userDoc()[tsLib.CHECKS_FIELD] || {})['TS-CT-M01'] || 0;
+  const holds = () => Object.keys(userDoc()[tsLib.HOLDS_FIELD] || {}).length;
+  const recordOf = (jobId) => fs.docs.get('gradingResults/' + TS_UID + '/attempts/' + jobId) || null;
+  return { fs, clock, model, submit, poll, commits, committed, holds, recordOf, handlerRuns: () => handlerRuns };
+}
+const fairUseModuleForTs = require('../services/fairUse.cjs');
+
+test('TS-PACK-JOBFIX · a series-owner grade runs in JOB mode (202, chunked), the hold rides the job and is KEPT when it ends graded', async () => {
+  const h = seriesHarness({ n: 9 });
+  h.model.holdWhen(() => true);
+  const res = await h.submit({ key: KEY(901) });
+  assert.equal(res.statusCode, 202, res.body);
+  const { jobId } = JSON.parse(res.body);
+  // the 202 settled nothing: one hold, nothing committed, and the job's persisted deferred carries the hold
+  assert.equal(h.holds(), 1);
+  assert.equal(h.committed(), 0);
+  const ts = h.recordOf(jobId).job.deferred.testSeries;
+  assert.equal(ts.uid, TS_UID);
+  assert.equal(ts.paper, 'TS-CT-M01');
+  assert.match(ts.holdId, /^[0-9a-f]{32}$/);
+  h.model.releaseAll();
+  await until(() => h.recordOf(jobId).job.state === 'done', 'job done');
+  await until(() => h.committed() === 1, 'the check is committed when the job ends');
+  assert.equal(h.holds(), 0, 'the hold is gone');
+  assert.equal(h.commits.length, 1);
+  assert.equal(h.commits[0].graded, 9);
+});
+
+test('TS-PACK-JOBFIX · a job that grades NOTHING (every answer unreadable) releases the hold; the check is not spent', async () => {
+  const h = seriesHarness({ n: 4, model: stubModel({ verdictOf: () => 'unread' }) });
+  const res = await h.submit({ key: KEY(902) });
+  assert.equal(res.statusCode, 202, res.body);
+  const { jobId } = JSON.parse(res.body);
+  await until(() => h.recordOf(jobId).job.state === 'done', 'job done');
+  await until(() => h.holds() === 0, 'released');
+  assert.equal(h.committed(), 0);
+});
+
+test('TS-PACK-JOBFIX · a job whose model calls FAIL releases the hold', async () => {
+  const fail = () => Object.assign(new Error('504 per-call abort'), { status: 504 });
+  const h = seriesHarness({ n: 4, model: stubModel({ failWith: fail }) });
+  const res = await h.submit({ key: KEY(903) });
+  assert.equal(res.statusCode, 202, res.body);
+  const { jobId } = JSON.parse(res.body);
+  await until(() => h.recordOf(jobId).job.state === 'done', 'job done');
+  await until(() => h.holds() === 0, 'released');
+  assert.equal(h.committed(), 0);
+});
+
+test('TS-PACK-JOBFIX · replays and polls never double-commit: same key -> the stored 202, one job, one settle', async () => {
+  const h = seriesHarness({ n: 3 });
+  const res = await h.submit({ key: KEY(904) });
+  const { jobId } = JSON.parse(res.body);
+  await until(() => h.recordOf(jobId).job.state === 'done', 'job done');
+  await until(() => h.committed() === 1, 'committed');
+  const again = await h.submit({ key: KEY(904) });
+  assert.equal(again.statusCode, 202);
+  assert.equal(again.headers['Idempotent-Replayed'], 'true');
+  for (let i = 0; i < 3; i += 1) assert.equal((await h.poll(jobId)).statusCode, 200);
+  await settle();
+  assert.equal(h.handlerRuns(), 1);
+  assert.equal(h.commits.length, 1);
+  assert.equal(h.committed(), 1, 'still exactly one check spent');
+  assert.equal(h.holds(), 0);
+});
+
+test('TS-PACK-JOBFIX · an INTERRUPTED job (its process died) settles once: final graded rows -> kept', async () => {
+  const h = seriesHarness({ n: 10, jobTimingFor: TWO_PARTS_OF_5 });
+  h.model.holdWhen((ids) => ids.includes(9));
+  const res = await h.submit({ key: KEY(905) });
+  const { jobId } = JSON.parse(res.body);
+  await until(() => Object.keys(h.recordOf(jobId).job.rows || {}).length === 5, 'first chunk rows');
+  h.clock.now += timingLib.JOB_STALE_MS + 1;
+  await h.poll(jobId); // the reader that notices ends it as interrupted
+  await until(() => h.committed() === 1, 'the delivered part keeps the check');
+  h.model.releaseAll();
+  await settle(60);
+  assert.equal(h.commits.length, 1, 'the late worker finish settles nothing');
+  assert.equal(h.committed(), 1);
+  assert.equal(h.holds(), 0);
+});
+
+test('TS-PACK-JOBFIX · a job that OUTLIVES the hold TTL still commits its check when it ends graded (never a free grade)', async () => {
+  const h = seriesHarness({ n: 3 });
+  h.model.holdWhen(() => true);
+  const res = await h.submit({ key: KEY(906) });
+  const { jobId } = JSON.parse(res.body);
+  // past the TTL the hold no longer counts against the paper...
+  h.clock.now += tsLib.HOLD_TTL_MS + 1;
+  // ...keep the job alive (no stale interrupt): its heartbeat is "now" for this check
+  const rec = h.recordOf(jobId);
+  h.fs.docs.set('gradingResults/' + TS_UID + '/attempts/' + jobId, { ...rec, job: { ...rec.job, heartbeatAtMs: h.clock.now } });
+  h.model.releaseAll();
+  await until(() => h.recordOf(jobId).job.state === 'done', 'job done');
+  await until(() => h.committed() === 1, 'committed even though the hold expired');
+  assert.equal(h.holds(), 0);
+});
+
+test('TS-PACK-JOBFIX · concurrency unchanged: 1 check left, two parallel job submits -> one 202, one 402', async () => {
+  const h = seriesHarness({ n: 3, used: { 'TS-CT-M01': 1 } });
+  h.model.holdWhen(() => true);
+  const [a, b] = await Promise.all([h.submit({ key: KEY(907) }), h.submit({ key: KEY(908) })]);
+  assert.deepEqual([a.statusCode, b.statusCode].sort(), [202, 402]);
+  assert.equal(h.holds(), 1);
+  h.model.releaseAll();
+  await until(() => h.committed() === 2, 'the admitted one is committed');
+});
+
+test('TS-PACK-JOBFIX · without a job (no Prefer: respond-async) the synchronous grade settles from res.end as before', async () => {
+  const h = seriesHarness({ n: 3 });
+  const res = await h.submit({ key: KEY(909), prefer: false });
+  assert.equal(res.statusCode, 200, res.body);
+  await until(() => h.committed() === 1, 'kept');
+  assert.equal(h.holds(), 0);
+});
+
 module.exports = { jobsFirestore, pipeRes, stubModel, typedPaper, harness };

@@ -171,7 +171,7 @@ import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { DownloadWithPlanLink, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesPaperAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
+import { DownloadWithPlanLink, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesDownloadAccess, useSeriesPaperAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
 import { countTestsTaken, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import { FM_PAPER_PARAM, PACK_MATCHED_MOCKS, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
 
@@ -252,6 +252,8 @@ export default function FullMockPage() {
   // TEST-SERIES-1 (owner ruling 18 Nov 19:31 IST) — written-answer checking and the paper download need the Test Series or the Board Pass here.
   // TS-PACK-1: a signed-in Test Series Pack owner gets through too (ownsTestSeries from /api/packs/mine).
   const seriesPaperAccess = useSeriesPaperAccess(user?.uid ?? null);
+  // PACK-DOWNLOAD-RESTORE: a Mock Pack / Subject Pack / Bundle that covers this subject keeps its download (checking is unchanged).
+  const seriesDownloadAccess = useSeriesDownloadAccess(user?.uid ?? null, seriesPaperAccess, { kind: "full-mock", subject: subject === "Science" ? "science" : "maths" });
   // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
   const boardPassHolder = useBoardPassHolder();
   const [startWall, setStartWall] = useState(false);
@@ -553,7 +555,7 @@ export default function FullMockPage() {
   const [reopenDownloading, setReopenDownloading] = useState(false);
   const reopenSheetOpen =
     useDetailLock(
-      reopen ? { kind: "full-mock", resultKey: reopen.record.id } : undefined,
+      reopen ? { kind: "full-mock", resultKey: reopen.record.id, worksheetId: reopen.record.worksheetId } : undefined,
       Boolean(reopen && hasStoredPaperSheet(reopen.response)),
     ) === "open";
   const downloadReopenSheet = useCallback(async () => {
@@ -1175,7 +1177,7 @@ export default function FullMockPage() {
   // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED). A paper + its solutions share one key.
   const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
   const downloadPaper = useCallback(async () => {
-    if (!paperForExport || downloading || !seriesPaperAccess) return;
+    if (!paperForExport || downloading || !seriesDownloadAccess) return;
     // CT-RESUME-2: downloading the NEW draw (not the mock being sat) is a new paper.
     if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
@@ -1242,7 +1244,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress, guardDownload, seriesPaperAccess]);
+  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress, guardDownload, seriesDownloadAccess]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded mock's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1359,7 +1361,7 @@ export default function FullMockPage() {
   // (same kind + key) decides whether this page may print it. "open" when the flag is off.
   const gradedSheetOpen =
     useDetailLock(
-      fullResponse && activeMock ? { kind: "full-mock", resultKey: activeMock.code } : undefined,
+      fullResponse && activeMock ? { kind: "full-mock", resultKey: activeMock.code, worksheetId: activeMock.paper.worksheetId } : undefined,
       Boolean(fullResponse && fullResponse.gradedCount > 0),
     ) === "open";
   const downloadGraded = useCallback(async () => {
@@ -1458,7 +1460,7 @@ export default function FullMockPage() {
       {/* Read-only re-open scorecard (history card / cross-device pending). */}
       {reopen && (
         <ResultsScorecard
-          limitKey={{ kind: "full-mock", resultKey: reopen.record.id }} // LIMITS-1 PR-2 — stored re-open
+          limitKey={{ kind: "full-mock", resultKey: reopen.record.id, worksheetId: reopen.record.worksheetId }} // LIMITS-1 PR-2 — stored re-open
           variant={withPaperTutorAsks(storedFullMockScorecardVariant(reopen.record, {
             gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
               day: "numeric",
@@ -1467,7 +1469,7 @@ export default function FullMockPage() {
             }),
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
-            ...(seriesPaperAccess && reopenSheetOpen && hasStoredPaperSheet(reopen.response)
+            ...(seriesDownloadAccess && reopenSheetOpen && hasStoredPaperSheet(reopen.response)
               ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
               : {}),
             onDone: () => setReopen(null),
@@ -1678,7 +1680,7 @@ export default function FullMockPage() {
                       <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={startTest}>
                         Start the mock →
                       </button>
-                      {seriesPaperAccess ? (
+                      {seriesDownloadAccess ? (
                         <button
                           type="button"
                           className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -2074,7 +2076,7 @@ export default function FullMockPage() {
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
                   </button>
-                  {seriesPaperAccess && (
+                  {seriesDownloadAccess && (
                   <>
                   {gradedSheetOpen && (
                   <button
@@ -2088,7 +2090,7 @@ export default function FullMockPage() {
                   )}
                   </>
                   )}
-                  {seriesPaperAccess && (
+                  {seriesDownloadAccess && (
                   <button
                     type="button"
                     className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -2168,7 +2170,7 @@ export default function FullMockPage() {
           {scorecardOpen && resultsPhase === "full" && fullResponse && (
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-              limitKey={{ kind: "full-mock", resultKey: activeMock.code }} // LIMITS-1 PR-2 — Full Mock surface
+              limitKey={{ kind: "full-mock", resultKey: activeMock.code, worksheetId: activeMock.paper.worksheetId }} // LIMITS-1 PR-2 — Full Mock surface
               variant={withSaleMock(withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
                 name: activeMock.name,
                 code: activeMock.code,
@@ -2190,7 +2192,7 @@ export default function FullMockPage() {
                   practiseWorstChapter();
                 },
                 // TEST-SERIES-1: the PDFs are for a Test Series / Board Pass holder.
-                ...(seriesPaperAccess
+                ...(seriesDownloadAccess
                   ? {
                       onDownloadGraded: () => {
                         setScorecardOpen(false);

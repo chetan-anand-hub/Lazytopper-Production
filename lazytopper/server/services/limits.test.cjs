@@ -57,7 +57,7 @@ function fakeFirestore({ failTx = false } = {}) {
   return { db, docs };
 }
 
-function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, created = NOW - 30 * DAY, failTx = false, unauth = false, listPacks } = {}) {
+function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, created = NOW - 30 * DAY, failTx = false, unauth = false, listPacks, seriesOwnerPaper } = {}) {
   const clock = { now: NOW };
   const f = fakeFirestore({ failTx });
   const counters = {};
@@ -74,6 +74,7 @@ function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, created = NOW - 30 
     sendJson: (res, status, body) => { sent.push({ status, body }); res.sent = { status, body }; },
     verifiedCaller: { resolveVerifiedUid: async () => (unauth ? '' : 'stu-1') },
     ...(listPacks ? { listPacks } : {}),
+    ...(seriesOwnerPaper ? { seriesOwnerPaper } : {}),
   });
   return { l, f, clock, counters, creationReads: () => creationReads };
 }
@@ -775,4 +776,88 @@ test('PACKS-LIMIT-1: dark (not enforced) pack-owned also writes nothing', async 
   const r = rig({ env: {}, listPacks: P('pack_chapter:triangles') });
   const a = await mint(r, { kind: 'chapter-test', paperKey: 'a', cover: { chapters: ['triangles'] } });
   assert.equal(a.body.packOwned, true); assert.equal(a.body.enforced, false); assert.equal(ledgerWrites(r), 0);
+});
+
+
+/* ── TS-PACK-JOBFIX (review P0 #1) · a Test Series Pack owner's SERIES papers are not metered by LIMITS-1 ─────────────── */
+// The predicates are the server's own (testSeriesChecks.ownerSeriesPaper / ownerSeriesGrade); here they stand in for "this uid owns
+// an unexpired pack" + "this worksheetId is a manifest paper of that kind" (both pinned in testSeriesChecks.test.cjs).
+const seriesPred = (owner) => async (uid, kind, wid) =>
+  owner && uid === 'stu-1' && ((kind === 'chapter-test' && wid.startsWith('ct-ts1-')) || (kind === 'full-mock' && wid.startsWith('fm-ts1-')));
+async function seriesGate(r, { surface = 'chapter-test', idem, owner }) {
+  const res = new EventEmitter();
+  res.statusCode = 200;
+  const verdict = await r.l.gradingGate({ headers: { 'x-lazytopper-surface': surface, 'idempotency-key': idem } }, res, '/api/grade-worksheet', 'stu-1', {
+    seriesOwnerGrade: async () => owner,
+  });
+  setChargeableCount(res, 3);
+  res.emit('finish');
+  await new Promise((resolve) => setImmediate(resolve));
+  await new Promise((resolve) => setImmediate(resolve));
+  return { verdict, sent: res.sent };
+}
+
+test('TS-PACK-JOBFIX · TRIAL OWNER: 3 series chapter tests + 3 series mocks in a week -> never 409; nothing reserved or counted', async () => {
+  const r = rig({ tier: 'trial', created: NEW_ACCT });
+  for (let i = 0; i < 3; i += 1) {
+    for (const surface of ['chapter-test', 'full-mock']) {
+      const g = await seriesGate(r, { surface, idem: `own-${surface}-${i}`, owner: true });
+      assert.deepEqual(g.verdict, {}, `${surface} #${i + 1}`);
+      assert.equal(g.sent, undefined, 'no 409');
+    }
+  }
+  assert.equal(r.counters['limits.grade.test_series'], 6);
+  assert.equal(r.counters['limits.grade.recorded'], undefined, 'no slot was ever reserved / recorded');
+});
+
+test('TS-PACK-JOBFIX · TRIAL NON-OWNER: unchanged - first free + 1 a week, the 3rd chapter test is 409 trial_limit', async () => {
+  const r = rig({ tier: 'trial', created: NEW_ACCT });
+  assert.deepEqual((await seriesGate(r, { idem: 'n1', owner: false })).verdict, {});
+  assert.deepEqual((await seriesGate(r, { idem: 'n2', owner: false })).verdict, {});
+  const second = await seriesGate(r, { idem: 'n3', owner: false });
+  assert.equal(second.verdict.refused, true);
+  assert.equal(second.sent.status, 409);
+  assert.equal(second.sent.body.error, 'trial_limit');
+});
+
+test('TS-PACK-JOBFIX · FREE OWNER: a series grade is not "first free" (no bypass, no slot spent) - the pack admits it; a NON-owner keeps the first-free bypass', async () => {
+  const owner = rig({ tier: 'free', created: NEW_ACCT });
+  for (let i = 0; i < 3; i += 1) assert.deepEqual((await seriesGate(owner, { surface: 'full-mock', idem: `fo-${i}`, owner: true })).verdict, {});
+  const non = rig({ tier: 'free', created: NEW_ACCT });
+  assert.deepEqual((await seriesGate(non, { surface: 'full-mock', idem: 'fn-1', owner: false })).verdict, { bypassEntitlement: true });
+});
+
+test('TS-PACK-JOBFIX · DOWNLOADS: an owner downloads 5 series papers uncounted; a non-series paper and a non-owner are counted as before', async () => {
+  const r = rig({ tier: 'free', seriesOwnerPaper: seriesPred(true) });
+  for (let i = 0; i < 5; i += 1) {
+    const out = await mint(r, { kind: i % 2 ? 'full-mock' : 'chapter-test', paperKey: `${i % 2 ? 'fm-ts1-m1' : 'ct-ts1-real-numbers'}--p${i}` });
+    assert.equal(out.status, 200);
+    assert.equal(out.body.ok, true);
+    assert.equal(out.body.counted, false);
+    assert.equal(out.body.testSeries, true);
+  }
+  // the owner's ordinary (non-series) paper: first free, then counted, then refused - exactly as before
+  assert.equal((await mint(r, { kind: 'chapter-test', paperKey: 'ct-plain-1' })).body.free, true);
+  // a kind that does not match the paper's prefix is not a series download
+  const wrongKind = await mint(r, { kind: 'full-mock', paperKey: 'ct-ts1-real-numbers--x' });
+  assert.notEqual(wrongKind.body.testSeries, true);
+  const non = rig({ tier: 'free', seriesOwnerPaper: seriesPred(false) });
+  assert.equal((await mint(non, { kind: 'chapter-test', paperKey: 'ct-ts1-real-numbers--a' })).body.free, true);
+  const second = await mint(non, { kind: 'chapter-test', paperKey: 'ct-ts1-real-numbers--b' });
+  assert.notEqual(second.body.testSeries, true);
+});
+
+test('TS-PACK-JOBFIX · DETAIL: a free owner keeps the breakdown on the 2nd series mock; a non-owner (and a claim without the worksheetId) is locked as before', async () => {
+  const claim = (r, resultKey, worksheetId) => post(r, 'handleDetailClaim', { kind: 'full-mock', resultKey, ...(worksheetId ? { worksheetId } : {}) });
+  const owner = rig({ tier: 'free', seriesOwnerPaper: seriesPred(true) });
+  assert.equal((await claim(owner, 'FM-1', 'fm-ts1-m1--a')).body.unlocked, true);
+  const second = await claim(owner, 'FM-2', 'fm-ts1-m2--b');
+  assert.equal(second.body.unlocked, true);
+  assert.equal(second.body.testSeries, true);
+  const non = rig({ tier: 'free', seriesOwnerPaper: seriesPred(false) });
+  assert.equal((await claim(non, 'FM-1', 'fm-ts1-m1--a')).body.unlocked, true, 'the first of the kind is open (unchanged)');
+  assert.equal((await claim(non, 'FM-2', 'fm-ts1-m2--b')).body.unlocked, false, 'a non-owner is locked (unchanged)');
+  const noId = rig({ tier: 'free', seriesOwnerPaper: seriesPred(true) });
+  await claim(noId, 'FM-1');
+  assert.equal((await claim(noId, 'FM-2')).body.unlocked, false, 'without the worksheetId nothing changes');
 });
