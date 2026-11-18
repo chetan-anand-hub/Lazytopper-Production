@@ -71,6 +71,8 @@ const PricingPage = lazy(() => import("./pages/PricingPage"));
 const PacksPage = lazy(() => import("./pages/PacksPage"));
 // PRICING-PAGES-1 (owner, 11 Nov 2026) - the dedicated Board Pass and CBQ Packs pages.
 const BoardPassPage = lazy(() => import("./pages/BoardPassPage"));
+// TEST-SERIES-1 — the public /test-series page (owner-approved App.tsx scope: this route only).
+const TestSeriesPage = lazy(() => import("./pages/TestSeriesPage"));
 const CbqPacksPage = lazy(() => import("./pages/CbqPacksPage"));
 const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
 const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
@@ -1146,6 +1148,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route path="/pricing" element={withRouteSuspense(<PricingPage />)} />
           <Route path="/packs" element={withRouteSuspense(<PacksPage />)} />
           <Route path="/board-pass" element={withRouteSuspense(<BoardPassPage />)} />
+          <Route path="/test-series" element={withRouteSuspense(<TestSeriesPage />)} />
           <Route path="/cbq-packs" element={withRouteSuspense(<CbqPacksPage />)} />
           {/* CBSE 2027 — a PUBLIC, signed-out page: official CBSE papers, unit marks,
               the two-exam timeline and the trap cards. ONE component at every width,

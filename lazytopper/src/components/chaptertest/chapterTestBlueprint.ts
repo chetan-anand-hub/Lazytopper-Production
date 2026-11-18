@@ -146,6 +146,11 @@ export function drawCTSection<T>(
   return drawBalancedSet({ pool, count, seed });
 }
 
+/** TEST-SERIES-1 — the PRNG seed of a fixed paper: a stable hash of its seed string (same string, same seed, every device). */
+export function fixedChapterTestSeed(fixedSeed: string): number {
+  return hashCell(`fixed:${fixedSeed}`) >>> 0;
+}
+
 export interface CTBlueprintRow extends CTSectionSpec {
   /** Questions actually drawn for this section (honest — may be < target when the
    *  bank is thin for this topic; never padded with fabricated items). */
@@ -236,10 +241,15 @@ export function drawChapterTest(args: {
    *  Each section draws from never-served rows first; only an exhausted section takes its
    *  least-recently-served rows, so the blueprint is never bent. Absent → no history. */
   servedAt?: ServedAt;
+  /** TEST-SERIES-1 — a FIXED paper: the seed is derived from this string alone (e.g. "ts1:<topicKey>") and the student's
+   *  served history is IGNORED, so every student who opens it gets the same questions. Takes precedence over `seed` and
+   *  `servedAt`. Absent → the default fresh-draw behaviour above, unchanged. */
+  fixedSeed?: string;
 }): DrawnChapterTest {
   const { subject, topicKey, topicLabel } = args;
-  const seed = args.seed ?? fallbackDrawSeed(`ct|${args.worksheetId}`);
-  const servedAt = args.servedAt ?? EMPTY_SERVED;
+  const fixed = typeof args.fixedSeed === "string" && args.fixedSeed.length > 0;
+  const seed = fixed ? fixedChapterTestSeed(args.fixedSeed as string) : args.seed ?? fallbackDrawSeed(`ct|${args.worksheetId}`);
+  const servedAt = fixed ? EMPTY_SERVED : args.servedAt ?? EMPTY_SERVED;
   const idOf = (q: CanonicalQuestion) => String(q.id ?? "");
   const all = selectBankQuestions({ subject, topicKeys: [topicKey] });
   // Every pool comes from the ONE exported predicate above (Section A must be

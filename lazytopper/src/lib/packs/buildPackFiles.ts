@@ -512,13 +512,19 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
  * by its number (`pack-paper:mock:<subject>:<n>`). Step-marked questions are preferred, and each paper steers clear of the
  * questions the earlier papers used, so the overlap between papers is as small as the bank allows.
  */
-export function drawPackMocks(subject: PackSubject): Array<{ n: number; drawn: ReturnType<typeof drawFullMock>; name: string }> {
+export function drawPackMocks(
+  subject: PackSubject,
+  /** TEST-SERIES-1 — stop after paper `upTo` (the online Test Series needs Mock #n only; papers 1..n-1 are still drawn,
+   *  because paper n steers clear of them). Default: every paper, exactly as before. */
+  upTo: number = MOCKS_PER_SUBJECT,
+): Array<{ n: number; drawn: ReturnType<typeof drawFullMock>; name: string }> {
   const bankSubject = bankSubjectName(subject);
   const slugSet = new Set(fullMockChapterWeights(bankSubject).map((c) => c.slug));
   const unionPool = buildUnionPool(bankSubject, slugSet);
   const used: Array<Set<string>> = [];
   const out: Array<{ n: number; drawn: ReturnType<typeof drawFullMock>; name: string }> = [];
-  for (let n = 1; n <= MOCKS_PER_SUBJECT; n += 1) {
+  const last = Math.min(MOCKS_PER_SUBJECT, Math.max(0, Math.floor(upTo)));
+  for (let n = 1; n <= last; n += 1) {
     const name = `${bankSubject} Full Mock ${n}`;
     const drawn = drawAvoidingExcluded(
       (servedAt) =>

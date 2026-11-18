@@ -167,6 +167,7 @@ import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
+import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
 type Phase = "setup" | "taking" | "results" | "pick";
@@ -235,6 +236,9 @@ export default function FullMockPage() {
   const grade = params.grade || "10";
   const subject = subjectFromParam(params.subject || sp.get("subject") || "Maths");
   const sessionSubject: SessionSubject = subject === "Science" ? "science" : "maths";
+  // TEST-SERIES-1 — `?paper=<n>` opens series Full Mock #n: the SAME paper as PDF Mock #n, for every student.
+  // Kill switch: VITE_TEST_SERIES_DISABLED=1 (the param is then ignored and the fresh mock opens, as before).
+  const seriesN = import.meta.env?.VITE_TEST_SERIES_DISABLED === "1" ? null : seriesMockNumber(sp.get(FM_PAPER_PARAM));
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const fairUse = useFairUse("full-mock", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live (see ChapterTestPage).
@@ -320,8 +324,38 @@ export default function FullMockPage() {
   // BANK-SPLIT-1 PR-2 (L4): the draw reads every chapter of this subject from the
   // per-chapter cache, so it waits until they have loaded ("Building your mock…").
   const bank = useBankSubject(subject);
-  const draw: DrawnFullMock | null = useMemo(() => {
-    if (!nomen || !bank.ready) return null;
+  // TEST-SERIES-1 — the series paper is drawn by the pack's own code (lazy chunk, after a paint so "Building your mock…" shows).
+  // A paper that cannot be drawn falls back to the ordinary fresh mock rather than a blank page.
+  const [series, setSeries] = useState<{ key: string; drawn: DrawnFullMock | null; failed: boolean } | null>(null);
+  const seriesKey = nomen && seriesN ? `${nomen.code}|${subject}|${seriesN}` : null;
+  useEffect(() => {
+    if (!seriesKey || !nomen || !seriesN || !bank.ready) return undefined;
+    let live = true;
+    const timer = setTimeout(() => {
+      import("../lib/testSeries/seriesFullMock")
+        .then((m) => {
+          if (!live) return;
+          const drawn = m.drawSeriesFullMock(subject, seriesN, {
+            worksheetId: seriesMockWorksheetId(mintFullMockId(), subject, seriesN),
+            code: nomen.code,
+            name: nomen.name,
+          });
+          setSeries({ key: seriesKey, drawn, failed: !drawn });
+        })
+        .catch(() => {
+          if (live) setSeries({ key: seriesKey, drawn: null, failed: true });
+        });
+    }, 0);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seriesKey, bank.ready]);
+  const seriesState = series && series.key === seriesKey ? series : null;
+  const seriesActive = !!seriesN && !seriesState?.failed;
+  const freshDraw: DrawnFullMock | null = useMemo(() => {
+    if (!nomen || !bank.ready || seriesActive) return null;
     return drawFullMock({
       subject,
       grade,
@@ -334,7 +368,8 @@ export default function FullMockPage() {
       servedAt: freshInputs?.servedAt,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nomen, bank.ready, subject, grade, drawNonce]);
+  }, [nomen, bank.ready, subject, grade, drawNonce, seriesActive]);
+  const draw: DrawnFullMock | null = seriesActive ? seriesState?.drawn ?? null : freshDraw;
 
   // ── Test-taking state ────────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>("setup");
@@ -1460,7 +1495,9 @@ export default function FullMockPage() {
             <div className="lt-ct__setup-main">
               <div className="lt-fm__headrow">
                 <div>
-                  <div className="lt-ct__eyebrow">Full mock · {subject}</div>
+                  <div className="lt-ct__eyebrow" data-testid={seriesActive ? "fm-series-label" : undefined}>
+                    {seriesActive && seriesN ? `${fullMockSeriesLabel(seriesN)} · ${subject}` : `Full mock · ${subject}`}
+                  </div>
                   <h1 className="lt-ct__fr">{nomen?.name ?? `${subject} · Mock`}</h1>
                 </div>
                 <button type="button" className="lt-fm__hctl" onClick={() => setPanelOpen(true)}>
@@ -1653,7 +1690,12 @@ export default function FullMockPage() {
                         This is a 3-hour paper. Your answers and timer are saved — if you’re
                         interrupted you can resume exactly where you left off. Your on-screen time is
                         recorded, like the real exam hall; leaving doesn’t pause the clock.{" "}
-                        {draw && draw.repeatCount > 0 ? (
+                        {seriesActive ? (
+                          // TEST-SERIES-1 — a fixed paper: not a fresh draw, so no freshness claim.
+                          <span data-testid="fm-series-line">
+                            <b>A Test Series paper</b> — every student gets the same {subject} Full Mock {seriesN}, also the printed Mock {seriesN}.
+                          </span>
+                        ) : draw && draw.repeatCount > 0 ? (
                           // FRESH-SET-TESTS — the honest line when a section's unseen pool ran out.
                           <b data-testid="fm-fresh-line" data-tone="repeats">
                             {freshnessLine({

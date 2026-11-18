@@ -141,6 +141,7 @@ import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
+import { CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterTestOf, seriesChapterWorksheetId } from "../lib/testSeries/testSeries";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
 type Phase = "setup" | "taking" | "results" | "pick";
@@ -223,6 +224,13 @@ export default function ChapterTestPage() {
   const rawTopicKey = params.topicKey || sp.get("topic") || "";
   const topicKey = normalizeTopicKey(rawTopicKey) || rawTopicKey;
   const topicName = resolveTopicDisplayName(subject, topicKey);
+  // TEST-SERIES-1 — `?series=1` opens this chapter's FIXED Test Series paper (same questions for every student; served history
+  // ignored). Kill switch: VITE_TEST_SERIES_DISABLED=1 (the param is then ignored and the fresh draw opens, as before).
+  const seriesTopicKey = resolveCanonicalSlug(topicKey) || topicKey;
+  const seriesTest =
+    import.meta.env?.VITE_TEST_SERIES_DISABLED !== "1" && isChapterTestSeriesRequest(sp.get(CT_SERIES_PARAM), seriesTopicKey)
+      ? seriesChapterTestOf(seriesTopicKey)
+      : null;
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const fairUse = useFairUse("chapter-test", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live, so a student who pays
@@ -329,15 +337,17 @@ export default function ChapterTestPage() {
       topicKey,
       topicLabel: topicName,
       grade,
-      worksheetId: mintChapterTestId(),
+      worksheetId: seriesTest ? seriesChapterWorksheetId(mintChapterTestId(), seriesTest.topicKey) : mintChapterTestId(),
       code: mintedNomen.code,
       name: mintedNomen.name,
       // FRESH-SET-TESTS — unseen questions first; seeded, never Math.random.
       seed: freshInputs?.seed,
       servedAt: freshInputs?.servedAt,
+      // TEST-SERIES-1 — the fixed series paper (overrides seed + served history).
+      ...(seriesTest ? { fixedSeed: chapterTestSeriesSeed(seriesTest.topicKey) } : {}),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mintedNomen, bank.ready, subject, topicKey, grade, drawNonce]);
+  }, [mintedNomen, bank.ready, subject, topicKey, grade, drawNonce, seriesTest?.code]);
 
   /** FRESH-SET-TESTS — log this paper as served on this device (start / download). */
   const markServed = useCallback((p: PersistedWorksheet | null) => {
@@ -1249,7 +1259,9 @@ export default function ChapterTestPage() {
 
             <div className="lt-ct__setup-main">
               <div className="lt-ct__card">
-                <div className="lt-ct__eyebrow">Chapter Test · {topicName}</div>
+                <div className="lt-ct__eyebrow" data-testid={seriesTest ? "ct-series-label" : undefined}>
+                  {seriesTest ? `${chapterTestSeriesLabel(seriesTest)} · ${topicName}` : `Chapter Test · ${topicName}`}
+                </div>
                 <div className="lt-ct__title lt-ct__fr">Ready for a board-pattern test?</div>
                 <div className="lt-ct__sub">
                   Objective questions are scored the moment you submit. Write the rest on paper, upload, and
@@ -1416,7 +1428,12 @@ export default function ChapterTestPage() {
                       <span>
                         Prefer paper? Download this test, solve it, and upload the whole thing. Opens
                         full-screen so you can focus.{" "}
-                        {restoredPaper ? null /* CT-RESUME-2: the freshness line describes the NEW draw — not shown while a saved paper is offered */ : draw && draw.repeatCount > 0 ? (
+                        {restoredPaper ? null /* CT-RESUME-2: the freshness line describes the NEW draw — not shown while a saved paper is offered */ : seriesTest ? (
+                          // TEST-SERIES-1 — a fixed paper: not a fresh draw, so no freshness claim.
+                          <span data-testid="ct-series-line">
+                            <b>A Test Series paper</b> — every student gets the same {topicName} test ({seriesTest.code}).
+                          </span>
+                        ) : draw && draw.repeatCount > 0 ? (
                           // FRESH-SET-TESTS — the honest line when this chapter's unseen pool ran out.
                           <b data-testid="ct-fresh-line" data-tone="repeats">{freshLine?.text}</b>
                         ) : draw?.hasServedHistory ? (

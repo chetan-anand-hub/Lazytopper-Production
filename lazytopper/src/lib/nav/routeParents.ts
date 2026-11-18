@@ -55,6 +55,7 @@ export const ROUTE_PARENTS: ReadonlyArray<readonly [string, RouteNavEntry]> = [
   // Public pages.
   ["/legal/:slug", { parent: "/" }],
   ["/contact", { parent: "/" }],
+  ["/test-series", { parent: "/board-pass" }],
   ["/invoice-details", { parent: "/" }], // GST-INVOICE-BACKDATE-1: the signed-out state form from the invoice email
   ["/for-parents", { parent: "/" }],
   ["/check-your-answer", { parent: "/" }],

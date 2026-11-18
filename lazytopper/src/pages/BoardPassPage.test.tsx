@@ -282,3 +282,14 @@ describe("PRICING-PAGES-1 /board-pass - account states", () => {
     expect(track.named).toHaveBeenCalledWith("trial_start");
   });
 });
+
+describe("TEST-SERIES-1 — the Pre-Boards Test Series section", () => {
+  it("links /test-series with the counts from code", async () => {
+    const { seriesContentsLine } = await import("../lib/testSeries/testSeries");
+    await mount();
+    const card = screen.getByTestId("bp-test-series");
+    expect(card.getAttribute("href")).toBe("/test-series");
+    expect(card.textContent).toContain(`Your Pre-Boards Test Series: ${seriesContentsLine()}, every answer step-marked`);
+    cleanup();
+  });
+});
