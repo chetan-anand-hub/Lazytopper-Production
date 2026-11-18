@@ -864,6 +864,8 @@ export type NamedAnalyticsEvent =
   // ACT-FREECHECK-1 — the saved free result was shown again after sign-up, and a tap on its purchase line. Names only.
   | "free_check_result_restored"
   | "free_check_result_restored_buy_click"
+  // PRICING-4CARD-1 — a tap on the /pricing Test Series card's Buy (or the phone bar's, on that card). Name only.
+  | "pricing_ts_buy_tap"
   | "trial_start"
   | "check_question_read"
   | "check_answer_added"
@@ -1038,6 +1040,9 @@ export type NamedAnalyticsEvent =
   | "signin_move_refused"
   // PAID-SHEET-1 - the post-payment pop-up opened (data: surface, item_kind). No contact data.
   | "paid_sheet_shown"
+  // PAID-XSELL-1 - "Goes well with what you just bought" in that pop-up: shown (data: surface, items) / a card tapped (data: surface, item).
+  | "paid_xsell_view"
+  | "paid_xsell_tap"
   // PACK-SAMPLE-1 — the free sample page of a pack downloaded without signing up (data: pack, surface).
   | "pack_sample_download"
   // PACKS-ENTRY-1 — a tap on a small "PDF packs" link beside an ask (download wall, notes, footer, account).

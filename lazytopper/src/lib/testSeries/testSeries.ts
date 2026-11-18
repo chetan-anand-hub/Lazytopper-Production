@@ -374,3 +374,20 @@ export function currentScheduleRow(rows: readonly SeriesScheduleRow[], todayIso:
   }
   return null;
 }
+
+/**
+ * TS-PAGE-2 — the Full-Length Tests grouped by the calendar's two pre-board rounds (the SAME split `seriesSchedule` uses:
+ * round 1 = tests 1..ceil(N/2), round 2 = the rest), so the page's grouping and the calendar can never disagree. Counts from code.
+ */
+export interface SeriesMockRound {
+  id: "round1" | "round2";
+  from: number;
+  to: number;
+}
+export function seriesMockRounds(): SeriesMockRound[] {
+  const half = Math.ceil(SERIES_MOCKS_PER_SUBJECT / 2);
+  return [
+    { id: "round1", from: 1, to: half },
+    { id: "round2", from: half + 1, to: SERIES_MOCKS_PER_SUBJECT },
+  ];
+}

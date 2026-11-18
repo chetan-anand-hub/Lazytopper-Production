@@ -1,5 +1,5 @@
 /**
- * PRICING-HUB-1 (owner, 11 Nov 2026) - every string the three-card /pricing hub adds. The cards reuse the sales pages' and the
+ * PRICING-HUB-1 (owner, 11 Nov 2026) - every string the /pricing hub adds (four cards since PRICING-4CARD-1, 18 Nov 2026). The cards reuse the sales pages' and the
  * legacy page's own constants wherever the words already exist (one source each); only what is NEW to the hub lives here.
  *
  * ★ NO PRICE, COUNT OR DATE IS TYPED HERE. Prices come from src/config/pricing (the Board Pass) and services/packs (PACK_PRICE_INR,
@@ -9,7 +9,7 @@
  * ★ PURE: no React, no services that pull checkout code.
  */
 import { BOARD_PASS_NAME, formatInr, tillBoardsPriceInr } from "../../config/pricing";
-import { PACK_PRICE_INR, packPayLabel, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
+import { PACK_PRICE_INR, isTestSeriesPackOffered, packPayLabel, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
 import { subjectPackRow } from "../../components/pricing/pricingPlansCopy";
 import {
   BANK_CBQS_CLAIM,
@@ -25,28 +25,57 @@ import {
 } from "../../lib/packs/packLabels";
 import { CBQ_QUESTION_TYPES } from "../../lib/packs/cbqPackTypes";
 import { BP_MINUTE_LINE, BP_MINUTE_STRONG, BP_TUTOR_BODY, BP_TUTOR_TITLE, CBQ_PACKS_NAME, QUESTION_BANK_NAME } from "../../components/salesPages/salesPagesCopy";
+import {
+  SERIES_MOCKS_PER_SUBJECT,
+  TEST_SERIES_BUY_PATH,
+  TEST_SERIES_PATH,
+  seriesTotals,
+  type SeriesTotals,
+} from "../../lib/testSeries/testSeries";
+import { FREE_TESTS_ALLOWED } from "../../lib/testSeries/seriesAccess";
 
 export { BOARD_PASS_NAME, CBQ_PACKS_NAME, QUESTION_BANK_NAME };
 
 /** Header eyebrow (the H1 stays PRICING_H1, unchanged: SEO and ads). */
 export const HUB_EYEBROW = "CBSE CLASS 10 · BOARDS 2027";
 
-/** The three cards, in the owner's order. `id` is the card's element id (kept from the legacy page: inbound links use them). */
-export type HubCardKey = "pass" | "cbq" | "bank";
-export const HUB_CARD_ORDER: readonly HubCardKey[] = ["pass", "cbq", "bank"];
-export const HUB_CARD_ID: Readonly<Record<HubCardKey, string>> = { pass: "lt-premium-card", cbq: "cbq", bank: "packs" };
-export const HUB_CARD_NAME: Readonly<Record<HubCardKey, string>> = { pass: BOARD_PASS_NAME, cbq: CBQ_PACKS_NAME, bank: QUESTION_BANK_NAME };
-/** The phone tabs' short names ("Question Bank" fits a 104 px tab at 320 px). */
-export const HUB_TAB_NAME: Readonly<Record<HubCardKey, string>> = { pass: BOARD_PASS_NAME, cbq: CBQ_PACKS_NAME, bank: "Question Bank" };
+/** The Test Series card's name (the product is the "Pre-Boards Test Series"; the card, its tab and its buttons say "Test Series"). */
+export const TEST_SERIES_CARD_NAME = "Test Series";
+
+/**
+ * The four cards, in the owner's order (PRICING-4CARD-1, owner 18 Nov 2026 22:02 IST: "4 cards, Test Series second"): the ONLINE pair
+ * (Board Pass, Test Series), then the ON PAPER pair (CBQ Packs, Question Bank + Mocks). `id` is the card's element id - the three
+ * legacy ids are kept (inbound links use them); the Test Series card is `#test-series`.
+ */
+export type HubCardKey = "pass" | "ts" | "cbq" | "bank";
+export const HUB_CARD_ORDER: readonly HubCardKey[] = ["pass", "ts", "cbq", "bank"];
+export const HUB_CARD_ID: Readonly<Record<HubCardKey, string>> = { pass: "lt-premium-card", ts: "test-series", cbq: "cbq", bank: "packs" };
+export const HUB_CARD_NAME: Readonly<Record<HubCardKey, string>> = {
+  pass: BOARD_PASS_NAME,
+  ts: TEST_SERIES_CARD_NAME,
+  cbq: CBQ_PACKS_NAME,
+  bank: QUESTION_BANK_NAME,
+};
+/** The phone tabs' short names (two words each, so a tab may wrap to two lines at 320 px and never cuts a word). */
+export const HUB_TAB_NAME: Readonly<Record<HubCardKey, string>> = { pass: BOARD_PASS_NAME, ts: TEST_SERIES_CARD_NAME, cbq: CBQ_PACKS_NAME, bank: "Question Bank" };
+
+/** The two groups the cards fall into, shown as labels (tabs on phones, above each pair on tablet and desktop). */
+export type HubGroupKey = "online" | "paper";
+export const HUB_GROUPS: ReadonlyArray<{ key: HubGroupKey; label: string; cards: readonly HubCardKey[] }> = [
+  { key: "online", label: "Online", cards: ["pass", "ts"] },
+  { key: "paper", label: "On paper", cards: ["cbq", "bank"] },
+];
 
 /** The tab's price: the bare base figure (the caption says "+ GST"). The Board Pass figure follows the date: read after mount. */
 export function hubTabPrice(key: HubCardKey, now: Date | number = Date.now()): string {
   if (key === "pass") return formatInr(tillBoardsPriceInr(now));
+  if (key === "ts") return formatInr(PACK_PRICE_INR.test_series);
   return formatInr(key === "cbq" ? PACK_PRICE_INR.pack_cbq : PACK_PRICE_INR.pack_bundle);
 }
-export const HUB_TABS_CAPTION = "3 options · tap or swipe · all prices + GST";
+/** "4 options · tap or swipe · all prices + GST" - the count is the card list's own length. */
+export const HUB_TABS_CAPTION = `${HUB_CARD_ORDER.length} options · tap or swipe · all prices + GST`;
 export const HUB_TABS_LABEL = "Plans and packs";
-/** "1 of 3 · next: CBQ Packs →" (the last card names the first again, so the line never dead-ends). */
+/** "1 of 4 · next: Test Series →" (the last card names the first again, so the line never dead-ends). */
 export function hubPositionLine(index: number): string {
   const total = HUB_CARD_ORDER.length;
   const next = HUB_CARD_ORDER[(index + 1) % total];
@@ -55,7 +84,7 @@ export function hubPositionLine(index: number): string {
 
 /* ── Card 1: Board Pass ─────────────────────────────────────────────────── */
 
-export const HUB_PASS_TAG = "ONLINE · ANSWERS MARKED";
+export const HUB_PASS_TAG = "ONLINE · EVERYTHING CHECKED";
 export const HUB_PASS_MINUTE_FIGURE = "1";
 export const HUB_PASS_MINUTE_UNIT = "MINUTE";
 export { BP_MINUTE_STRONG as HUB_PASS_MINUTE_STRONG, BP_MINUTE_LINE as HUB_PASS_MINUTE_LINE };
@@ -75,7 +104,74 @@ export const HUB_PASS_DETAILS = `See everything in the ${BOARD_PASS_NAME} →`;
 export const HUB_PASS_OWNED = `You have the ${BOARD_PASS_NAME}`;
 export const HUB_PASS_OWNED_GO = "Go to practice →";
 
-/* ── Card 2: CBQ Packs ──────────────────────────────────────────────────── */
+/* ── Card 2: Test Series (PRICING-4CARD-1) ──────────────────────────────── */
+
+/**
+ * ★ Every count is the series config's own (lib/testSeries/testSeries.ts: the syllabus chapter keys and SERIES_MOCKS_PER_SUBJECT);
+ *   the price is the `test_series` SKU's (TS-PACK-1: services/packs.ts PACK_PRICE_INR / packPriceLabel), shown exactly as the other
+ *   pack cards show theirs ("₹999 + GST"). Nothing is typed here.
+ * ★ Truth (owner rulings 18 Nov 19:38-19:44): the series is chapter tests + full mocks with written answers checked, the scorecard and
+ *   after-test analysis, and the graded sheet to download; NO tutor and NO Answer Checker (both are the Board Pass's).
+ */
+export const HUB_TS_TAG = "ONLINE · TESTS CHECKED";
+export const HUB_TS_NEW = "NEW";
+export function hubTsHeadline(t: SeriesTotals = seriesTotals()): { chapter: string; full: string; rest: string } {
+  return {
+    chapter: `${t.chapterTests} chapter tests`,
+    full: `${t.fullMocks} full-length board papers`,
+    rest: " — your written answers checked step by step",
+  };
+}
+/** The headline as one line ("26 chapter tests + 40 full-length board papers — your written answers checked step by step"). */
+export function hubTsHeadlineText(t: SeriesTotals = seriesTotals()): string {
+  const h = hubTsHeadline(t);
+  return `${h.chapter} + ${h.full}${h.rest}`;
+}
+export const HUB_TS_TICKS: ReadonlyArray<{ id: string; text: string }> = [
+  { id: "analysis", text: "Full scorecard and after-test analysis: weakest chapters, time per question, mistake notebook" },
+  { id: "sheet", text: "Your graded answer sheet to download" },
+  { id: "calendar", text: "Your pre-boards calendar" },
+];
+export const HUB_TS_UPSELL_Q = "Want the tutor and Answer Checker too?";
+export const HUB_TS_UPSELL_GO = `${BOARD_PASS_NAME} →`;
+export function hubTsPrice(): string {
+  return packPriceLabel("test_series");
+}
+export const HUB_TS_PRICE_META = "till your boards · pay once";
+export const HUB_TS_BUY = `Get the ${TEST_SERIES_CARD_NAME}`;
+/** "See all 66 tests →" - the total is the config's. */
+export function hubTsDetails(t: SeriesTotals = seriesTotals()): string {
+  return `See all ${t.total} tests →`;
+}
+export const HUB_TS_DETAILS_PATH = TEST_SERIES_PATH;
+/** A Board Pass holder already has every test: no Buy, a way in instead (the /test-series page says the same). */
+export const HUB_TS_PASS_INCLUDED = "Included in your Board Pass";
+export const HUB_TS_PASS_GO = `Open the ${TEST_SERIES_CARD_NAME} →`;
+/** Desktop / tablet "What's inside" (the band beside the taller Board Pass card): per subject, from the config. */
+export const HUB_TS_INSIDE_TITLE = "Inside the series";
+export function hubTsInsideRows(t: SeriesTotals = seriesTotals()): ReadonlyArray<{ id: string; name: string; line: string }> {
+  return (["Maths", "Science"] as const).map((s) => ({
+    id: s.toLowerCase(),
+    name: s,
+    line: `${t.chapterTestsPerSubject[s]} chapter tests + ${SERIES_MOCKS_PER_SUBJECT} full-length papers`,
+  }));
+}
+export const HUB_TS_TRY_LINE = `Try ${FREE_TESTS_ALLOWED === 1 ? "one test" : `${FREE_TESTS_ALLOWED} tests`} first: its MCQs are marked free.`;
+
+/**
+ * Where "Get the Test Series" goes: the same link /test-series uses, or - while TS-PACK-1's client kill switch is on
+ * (VITE_TS_PACK_DISABLED=1, services/packs.ts isTestSeriesPackOffered) - the series page. The card itself always shows.
+ */
+export function hubTsBuyPath(): string {
+  return isTestSeriesPackOffered() ? TEST_SERIES_BUY_PATH : TEST_SERIES_PATH;
+}
+export const HUB_TS_OWNED = `${TEST_SERIES_CARD_NAME} · You own this`;
+/** The phone bar's words for the Test Series card. */
+export function hubTsStickyCopy(): { label: string; button: string } {
+  return { label: `${TEST_SERIES_CARD_NAME} ${hubTsPrice()}`, button: HUB_TS_BUY };
+}
+
+/* ── Card 3: CBQ Packs ──────────────────────────────────────────────────── */
 
 export const HUB_CBQ_TAG = "ON PAPER · MOST ASKED-FOR";
 export const HUB_CBQ_HERO = "Half your board paper is competency-based. Practise every type.";
@@ -113,7 +209,7 @@ export const HUB_CBQ_INSIDE_LINES: readonly string[] = [
 ];
 export const HUB_CBQ_DETAILS = "See inside + free sample page →";
 
-/* ── Card 3: Question Bank + Mocks ──────────────────────────────────────── */
+/* ── Card 4: Question Bank + Mocks ──────────────────────────────────────── */
 
 /** "ON PAPER · PRE-BOARDS PICK" while the pre-boards season constant is on, then "ON PAPER". */
 export function hubBankTag(now: Date | number = Date.now()): string {
@@ -161,7 +257,7 @@ export const HUB_OPEN_MY_PACKS = "Open My packs →";
 
 /* ── Folded rows ────────────────────────────────────────────────────────── */
 
-export const HUB_FOLD_COMPARE = "Compare all three";
+export const HUB_FOLD_COMPARE = `Compare all ${["one", "two", "three", "four", "five"][HUB_CARD_ORDER.length - 1] ?? HUB_CARD_ORDER.length}`;
 export const HUB_FOLD_VIDEO = "See the Answer Checker at work";
 
 /* ── Phone bar ──────────────────────────────────────────────────────────── */

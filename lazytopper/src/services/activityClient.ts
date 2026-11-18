@@ -89,6 +89,7 @@ export const ACTIVITY_EVENTS = [
   "free_check_trial_start",
   "free_check_result_restored",
   "free_check_result_restored_buy_click",
+  "pricing_ts_buy_tap",
   "trial_start",
   "check_question_read",
   "check_answer_added",
@@ -240,6 +241,9 @@ export const ACTIVITY_EVENTS = [
   "signin_move_refused",
   // PAID-SHEET-1 - the post-payment pop-up opened. Name (+ surface, item kind) only.
   "paid_sheet_shown",
+  // PAID-XSELL-1 - the pop-up's "Goes well with what you just bought" cards shown / one tapped. Name only.
+  "paid_xsell_view",
+  "paid_xsell_tap",
   // PACK-SAMPLE-1 — the free sample page of a pack downloaded (no sign-up needed). Name only.
   "pack_sample_download",
   // PACKS-ENTRY-1 — a tap on a small PDF-packs link beside an ask. Name only.

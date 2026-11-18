@@ -172,6 +172,49 @@ export function whatYouGetRows(boardPassPrice: string): ReadonlyArray<{ label: s
   ];
 }
 
+/**
+ * PRICING-4CARD-1 (owner, 18 Nov 2026) - the hub's "Compare all four": a Test Series column between the Board Pass and the packs. The
+ * three-column rows above stay exactly as they are for the legacy page (VITE_PRICING_HUB_DISABLED=1). Every cell is TRUE today:
+ *   - tests checked: the Board Pass and the Test Series (seriesAccess.canCheckSeriesPapers: paid premium OR the test_series pack);
+ *   - the Answer Checker and the tutor: the Board Pass only (owner 18 Nov 19:44: no tutor and no Answer Checker in the series);
+ *   - "download the paper and the graded sheet": the Board Pass and the Test Series (the same seriesAccess rule);
+ *   - printable PDF packs to practise on paper: the CBQ Pack and the Bundle only (the legacy row's own N / Y / Y, unchanged).
+ * The Test Series figures (price, contents) come in from the series config; nothing is typed here.
+ */
+export const WHAT_YOU_GET_COLUMNS_4 = [BOARD_PASS_NAME, "Test Series", "CBQ Pack", "Bundle"] as const;
+export function whatYouGetRows4(
+  boardPassPrice: string,
+  testSeries: { price: string; inside: string },
+): ReadonlyArray<{ label: string; cells: readonly [WhatCell, WhatCell, WhatCell, WhatCell] }> {
+  const Y: WhatCell = { kind: "yes" };
+  const N: WhatCell = { kind: "no" };
+  return [
+    { label: "Chapter tests and full mocks, written answers checked", cells: [Y, Y, N, N] },
+    { label: "Download the paper and your graded sheet", cells: [Y, Y, N, N] },
+    { label: "Answer Checker: any answer, checked like a CBSE examiner", cells: [Y, N, N, N] },
+    { label: "Personal tutor", cells: [Y, N, N, N] },
+    { label: "Printable PDF packs, to practise on paper", cells: [N, N, Y, Y] },
+    {
+      label: "What's inside",
+      cells: [
+        { kind: "text", text: "Everything, online" },
+        { kind: "text", text: testSeries.inside },
+        { kind: "text", text: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+ CBQs, one subject` },
+        { kind: "text", text: `${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks` },
+      ],
+    },
+    {
+      label: "Price",
+      cells: [
+        { kind: "price", text: boardPassPrice },
+        { kind: "price", text: testSeries.price },
+        { kind: "price", text: packPriceLabel("pack_cbq") },
+        { kind: "price", text: packPriceLabel("pack_bundle") },
+      ],
+    },
+  ];
+}
+
 /** PARENT-PACKS-1 (owner, 4 Nov 2026) - the Board Pass price cell of "What you get with each" for a Board Pass owner. */
 export const BOARD_PASS_OWNED_CELL = "You have it";
 

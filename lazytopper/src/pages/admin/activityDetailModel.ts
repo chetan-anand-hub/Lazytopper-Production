@@ -121,6 +121,7 @@ const EVENT_LABELS: Record<string, string> = {
   free_check_trial_start: "Started the free trial from a free check",
   free_check_result_restored: "Saw their saved free-check result after signing up",
   free_check_result_restored_buy_click: "Tapped the buy line under their saved free-check result",
+  pricing_ts_buy_tap: "Tapped Get the Test Series on the pricing page",
   trial_start: "Started the free trial",
   check_question_read: "Read a question to check",
   check_answer_added: "Added an answer",
@@ -214,6 +215,8 @@ const EVENT_LABELS: Record<string, string> = {
   signin_move_done: "Moved a purchase to their child's own sign-in",
   signin_move_refused: "Could not move a purchase to their child's own sign-in",
   paid_sheet_shown: "Saw the payment-received pop-up",
+  paid_xsell_view: "Saw \"Goes well with what you just bought\" after paying",
+  paid_xsell_tap: "Tapped a \"Goes well with what you just bought\" suggestion",
   pack_sample_download: "Downloaded a free pack sample page",
   // PACKS-ENTRY-1
   pack_entry_click: "Tapped a PDF packs link",
