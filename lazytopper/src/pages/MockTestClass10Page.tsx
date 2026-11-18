@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SeoLandingShell from "../components/seoPages/SeoLandingShell";
+import SeoBuyCta from "../components/seoPages/SeoBuyCta";
 import SeoPriceLine from "../components/seoPages/SeoPriceLine";
 import { MOCK_TEST_PATH, PAPER_SECTIONS } from "../components/seoPages/seoPages";
 import { MOCK_TEST_FAQ } from "../components/seo/faqContent";
@@ -23,6 +24,16 @@ export default function MockTestClass10Page() {
       sub="Practise a full board-pattern paper in one sitting, then learn exactly where the marks went. Take a full mock free online, or print eight mock papers per subject."
       cta={{ to: "/full-mock/10/Maths", label: "Start a free Maths full mock", testId: "mock-cta-hero" }}
       faq={MOCK_TEST_FAQ}
+      heroBuy={
+        <SeoBuyCta
+          testId="mock-buy-hero"
+          primary={{ sku: "pack_mock", target: "maths", label: "Mock Pack", testId: "mock-buy-mock" }}
+          others={[
+            { sku: "pack_mock", target: "science", prefix: "Science ", label: "Mock Pack", testId: "mock-buy-mock-science" },
+            { sku: "pack_bundle", target: "", label: BUNDLE_NAME, testId: "mock-buy-bundle" },
+          ]}
+        />
+      }
     >
       <section aria-labelledby="mock-what">
         <h2 id="mock-what">What a board-pattern mock test is</h2>

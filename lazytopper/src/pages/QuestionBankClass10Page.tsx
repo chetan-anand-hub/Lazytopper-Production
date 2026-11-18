@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import DailyQuestionLink from "../components/dailyQuestion/DailyQuestionLink";
 import { isFreeMcqPagesKilled } from "../components/freeMcq/FreeMcqLink";
 import SeoLandingShell from "../components/seoPages/SeoLandingShell";
+import SeoBuyCta from "../components/seoPages/SeoBuyCta";
 import SeoPriceLine from "../components/seoPages/SeoPriceLine";
 import { QUESTION_BANK_PATH, chapterLinks } from "../components/seoPages/seoPages";
 import { QUESTION_BANK_FAQ } from "../components/seo/faqContent";
@@ -29,6 +30,17 @@ export default function QuestionBankClass10Page() {
       sub="Every chapter of the 2026-27 Class 10 syllabus in one place: notes, competency-based questions, NCERT solutions, free practice and printable packs."
       cta={{ to: "/practice-hub", label: "Practise questions free", testId: "qbank-cta-hero" }}
       faq={QUESTION_BANK_FAQ}
+      heroBuy={
+        <SeoBuyCta
+          testId="qbank-buy-hero"
+          primary={{ sku: "pack_bundle", target: "", label: BUNDLE_NAME, testId: "qbank-buy-bundle" }}
+          others={[
+            { sku: "pack_subject", target: "maths", prefix: "Maths ", label: "Subject Pack", testId: "qbank-buy-subject-maths" },
+            { sku: "pack_subject", target: "science", prefix: "Science ", label: "Subject Pack", testId: "qbank-buy-subject-science" },
+            { sku: "pack_chapter", target: "", to: "/packs", label: "Chapter Pack", testId: "qbank-buy-chapter" },
+          ]}
+        />
+      }
     >
       <section aria-labelledby="qbank-what">
         <h2 id="qbank-what">What is in the Class 10 question bank</h2>

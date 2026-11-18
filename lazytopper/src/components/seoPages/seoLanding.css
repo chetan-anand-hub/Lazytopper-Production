@@ -101,6 +101,14 @@
   background: var(--seol-gt);
 }
 
+/* PACKS-LPX-2: hero Buy (primary) with the free CTA as the secondary button */
+.lt-seol__buy { margin: 0 0 10px; }
+.lt-seol .lt-seol__cta--buy { min-height: 52px; font-size: 16px; font-weight: 700; }
+.lt-seol__buymore { margin: 8px 0 0; display: flex; flex-wrap: wrap; gap: 0 16px; font-size: 14px; }
+.lt-seol__buymore a { display: inline-flex; align-items: center; min-height: 44px; color: #b9d0e8; text-decoration: underline; }
+.lt-seol .lt-seol__cta--secondary { background: transparent; border: 1px solid #b9d0e8; color: #fff; }
+.lt-seol .lt-seol__cta--secondary:hover { background: rgba(255, 255, 255, 0.08); }
+
 /* BODY */
 .lt-seol__body {
   padding-top: 30px;
