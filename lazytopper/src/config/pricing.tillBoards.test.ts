@@ -3,6 +3,8 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 
 import {
   boardPassDeadlineLine,
+  boardPassFoundingCountdownLine,
+  foundingDaysLeft,
   boardPassFoundingLabel,
   boardPassPriceDisplay,
   boardPassPriceLine,
@@ -138,5 +140,17 @@ describe("tillBoardsQuote - wired to the same board date as the landing countdow
     const q = tillBoardsQuote(new Date(), boardIso)!;
     expect(q.priceDisplay).toBe("₹1,917");
     expect(q.untilLabel).toBe("till your boards (Feb 2027)");
+  });
+});
+
+describe("BP-PREBOARDS-1 - the founding countdown line", () => {
+  const at = (iso: string) => new Date(iso);
+  it("counts IST calendar days to the last day, says today on it, and is null from the closing instant", () => {
+    expect(foundingDaysLeft(at("2026-11-18T23:59:00+05:30"))).toBe(12);
+    expect(boardPassFoundingCountdownLine(at("2026-11-18T10:00:00+05:30"))).toBe("Founding price ends in 12 days (30 Nov) \u00b7 then \u20b92,499 + GST");
+    expect(boardPassFoundingCountdownLine(at("2026-11-29T10:00:00+05:30"))).toContain("ends in 1 day (30 Nov)");
+    expect(boardPassFoundingCountdownLine(at("2026-11-30T23:59:59+05:30"))).toContain("ends today (30 Nov)");
+    expect(boardPassFoundingCountdownLine(new Date(FOUNDING_OFFER_CLOSES_AT_MS))).toBeNull();
+    expect(foundingDaysLeft(new Date(FOUNDING_OFFER_CLOSES_AT_MS))).toBeNull();
   });
 });

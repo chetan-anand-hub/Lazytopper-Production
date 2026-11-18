@@ -12,7 +12,9 @@ import { predictCbseExamDate } from "../services/cbseExamDate";
 import {
   BOARD_PASS_NAME,
   FOUNDING_PRICE_LEAD,
+  boardPassFoundingCountdownLine,
   boardPassFoundingPriceLine,
+  foundingOfferOpen,
   boardPassGstBreakdown,
   boardPassPayDisplay,
   boardPassPriceDisplay,
@@ -46,6 +48,7 @@ import {
   BP_MINUTE_STRONG,
   BP_MINUTE_TILE,
   BP_OWNER_TITLE,
+  BP_PREBOARDS_LINE,
   BP_TILES,
   BP_TUTOR_BODY,
   BP_TUTOR_TITLE,
@@ -82,6 +85,30 @@ function DeadlineLine({ line }: { line: string }) {
       <strong>{FOUNDING_PRICE_LEAD}</strong>
       {line.slice(FOUNDING_PRICE_LEAD.length)}
     </>
+  );
+}
+
+/**
+ * BP-PREBOARDS-1 - the founding-price countdown at the top of the hero. ★ CLIENT-ONLY: the day count is computed after mount, inside the
+ * node `data-testid="boards-countdown"` that the prerender capture removes (strip rule 4), so no build-day number is frozen into the static
+ * file. The slot is rendered only while the offer is open and keeps the line's height (CSS), so its arrival moves nothing. After the deadline
+ * nothing renders. Kill switch: VITE_BP_COUNTDOWN_DISABLED=1.
+ */
+export function FoundingCountdown() {
+  const [open] = useState(() => import.meta.env?.VITE_BP_COUNTDOWN_DISABLED !== "1" && foundingOfferOpen(Date.now()));
+  const [line, setLine] = useState<string | null>(null);
+  useEffect(() => {
+    setLine(boardPassFoundingCountdownLine(Date.now()));
+  }, []);
+  if (!open) return null;
+  return (
+    <div className="lt-bp-countdown" data-testid="bp-countdown-slot">
+      {line && (
+        <p className="lt-bp-countdown__line" data-testid="boards-countdown">
+          <DeadlineLine line={line} />
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -288,6 +315,8 @@ export default function BoardPassPage() {
         <section className="lt-bp-hero" aria-labelledby="bp-h1">
           <div className="lt-sp__w lt-bp-hero__grid">
             <div className="lt-bp-hero__copy">
+              <p className="lt-bp-hero__preboards" data-testid="bp-preboards">{BP_PREBOARDS_LINE}</p>
+              <FoundingCountdown />
               <p className="lt-sp-eyebrow lt-bp-hero__eyebrow">{BP_EYEBROW}</p>
               <h1 id="bp-h1" className="lt-bp-hero__h1">{BP_H1}</h1>
               <div className="lt-bp-minute">

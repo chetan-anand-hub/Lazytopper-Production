@@ -54,7 +54,7 @@ import { currentSalesPageSurface } from "../analytics/analytics";
 import { tillBoardsButtonLabel } from "../components/pricing/PassCheckout";
 import { PRICING_MANUAL_PAYMENTS_OFF } from "./PricingPage";
 import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM } from "../lib/packs/packLabels";
-import { BP_H1, BP_MANUAL_PAYMENTS_OFF, BP_OWNER_TITLE } from "../components/salesPages/salesPagesCopy";
+import { BP_H1, BP_MANUAL_PAYMENTS_OFF, BP_OWNER_TITLE, BP_PREBOARDS_LINE } from "../components/salesPages/salesPagesCopy";
 import { packPriceLabel } from "../services/packs";
 
 let where = "";
@@ -108,6 +108,25 @@ describe("PRICING-PAGES-1 /board-pass - signed out (what the prerender captures)
     expect(screen.getByTestId("bp-tile-questions").textContent).toContain(BANK_QUESTIONS_CLAIM);
     expect(screen.getByTestId("bp-tile-cbqs").textContent).toContain(BANK_CBQS_CLAIM);
     expect(screen.getByTestId("bp-tutor").textContent).toContain("Your personal tutor");
+  });
+
+  it("BP-PREBOARDS-1: the pre-boards line leads the hero; the founding countdown shows before the deadline and renders nothing after it", async () => {
+    await mount();
+    expect(screen.getByTestId("bp-preboards").textContent).toBe(BP_PREBOARDS_LINE);
+    expect(BP_PREBOARDS_LINE).toBe("Your pre-boards package \u2014 full board mocks, CBSE step marking, important questions and a personal tutor, till your boards.");
+    // 11 Nov 2026 10:00 IST -> 19 days to the last day (30 Nov)
+    expect(screen.getByTestId("boards-countdown").textContent).toBe("Founding price ends in 19 days (30 Nov) \u00b7 then \u20b92,499 + GST");
+    cleanup();
+    vi.setSystemTime(new Date("2026-11-30T10:00:00+05:30"));
+    await mount();
+    expect(screen.getByTestId("boards-countdown").textContent).toContain("ends today (30 Nov)");
+    cleanup();
+    vi.setSystemTime(new Date("2026-12-01T00:00:00+05:30"));
+    await mount();
+    expect(screen.getByTestId("bp-preboards")).toBeTruthy(); // the line is not date-driven
+    expect(screen.queryByTestId("boards-countdown")).toBeNull();
+    expect(screen.queryByTestId("bp-countdown-slot")).toBeNull();
+    vi.setSystemTime(new Date("2026-11-11T10:00:00+05:30"));
   });
 
   it("the price is the config's (+ GST, once, till your boards, founding line); the Pay is PassCheckout's own button and label", async () => {

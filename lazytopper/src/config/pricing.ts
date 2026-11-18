@@ -371,6 +371,28 @@ export function boardPassFoundingPriceLine(now: Date | number = Date.now()): str
   return `${FOUNDING_PRICE_LEAD} ends ${day} ${month.slice(0, 3)} \u00b7 ${boardPassTagFor(TILL_BOARDS_FOUNDING_INR, now)}, then ${boardPassTagFor(TILL_BOARDS_AFTER_FOUNDING_INR, now)}`;
 }
 /**
+ * BP-PREBOARDS-1 - whole IST calendar days from `now` to the founding offer's LAST day (0 on 30 Nov itself), or null once the offer is closed.
+ * Derived from FOUNDING_OFFER_CLOSES_AT_MS (the same constant foundingOfferOpen reads); no date is typed here.
+ */
+export function foundingDaysLeft(now: Date | number = Date.now()): number | null {
+  if (!foundingOfferOpen(now)) return null;
+  const ms = now instanceof Date ? now.getTime() : now;
+  const IST = 5.5 * 3_600_000;
+  const lastDay = Math.floor((FOUNDING_OFFER_CLOSES_AT_MS - 1 + IST) / 86_400_000);
+  return Math.max(0, lastDay - Math.floor((ms + IST) / 86_400_000));
+}
+/**
+ * BP-PREBOARDS-1 - "Founding price ends in 12 days (30 Nov) · then ₹2,499 + GST"; on the last day "Founding price ends today (30 Nov) · then ...".
+ * Null from 00:00 IST on the closing day. No crossed-out price, no saving claim.
+ */
+export function boardPassFoundingCountdownLine(now: Date | number = Date.now()): string | null {
+  const n = foundingDaysLeft(now);
+  if (n === null) return null;
+  const [day = "", month = ""] = FOUNDING_OFFER_LAST_DAY_LABEL.split(" ");
+  const when = n === 0 ? "today" : `in ${n} ${n === 1 ? "day" : "days"}`;
+  return `${FOUNDING_PRICE_LEAD} ends ${when} (${day} ${month.slice(0, 3)}) \u00b7 then ${boardPassTagFor(TILL_BOARDS_AFTER_FOUNDING_INR, now)}`;
+}
+/**
  * OFFERS-V2 - the short line under a Pay button: "One payment · ₹2,499 from 1 Dec" while the founding offer is open. DERIVED from the same
  * constants as boardPassDeadlineLine (so the date and the figure cannot drift from it); from the deadline on it is the plain "One payment,
  * no renewals". No crossed-out price, no saving claim.

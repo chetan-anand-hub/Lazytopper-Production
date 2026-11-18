@@ -13,6 +13,28 @@
   gap: 10px;
   min-width: 0;
 }
+.lt-bp-hero__preboards {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  font-weight: 600;
+  color: #ffffff;
+}
+/* The countdown slot keeps its line height, so the day count arriving after mount moves nothing (two lines below ~430 px, one above). */
+.lt-bp-countdown {
+  min-height: 2.7em;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+.lt-bp-countdown__line {
+  margin: 0;
+  color: var(--lt-sp-amber);
+}
+@media (min-width: 430px) {
+  .lt-bp-countdown {
+    min-height: 1.35em;
+  }
+}
 .lt-bp-hero__eyebrow {
   color: #6ee7a8;
 }
