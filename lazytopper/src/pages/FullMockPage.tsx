@@ -2024,7 +2024,7 @@ export default function FullMockPage() {
 
           {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
           {paperWall && (seriesAccess.ownsSeries ? (
-            <SeriesOwnerNotice onClose={() => setPaperWall(false)} />
+            <SeriesOwnerNotice onClose={() => setPaperWall(false)} worksheetId={activeMock.paper.worksheetId} status={seriesAccess.status} />
           ) : (
             <UpgradeSheet featureLabel="Grading your full mock" offers={paperOffers} onClose={() => setPaperWall(false)} />
           ))}
@@ -2059,7 +2059,7 @@ export default function FullMockPage() {
               upload={
                 <>
                   {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
-                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={resultsPhase} />
+                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
                   <ChapterTestUploadPanel
                     eyebrow="Full Mock · Result"
                     sectionsLabel="Sections B–E"
@@ -2089,7 +2089,7 @@ export default function FullMockPage() {
                     ? ` · ${fullResponse.pendingCount} page(s) pending`
                     : ""}
                 </div>
-                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={resultsPhase} />
+                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard

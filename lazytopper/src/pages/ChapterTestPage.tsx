@@ -1693,7 +1693,7 @@ export default function ChapterTestPage() {
 
           {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
           {paperWall && (seriesAccess.ownsSeries ? (
-            <SeriesOwnerNotice onClose={() => setPaperWall(false)} />
+            <SeriesOwnerNotice onClose={() => setPaperWall(false)} worksheetId={paper.worksheetId} status={seriesAccess.status} />
           ) : (
             <UpgradeSheet featureLabel="Grading your chapter test" offers={paperOffers} onClose={() => setPaperWall(false)} />
           ))}
@@ -1716,7 +1716,7 @@ export default function ChapterTestPage() {
               upload={
                 <>
                   {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
-                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={resultsPhase} />
+                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
                   <ChapterTestUploadPanel
                     name={nomen.name}
                     code={nomen.code}
@@ -1744,7 +1744,7 @@ export default function ChapterTestPage() {
                     ? ` · ${fullResponse.pendingCount} page(s) pending`
                     : ""}
                 </div>
-                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={resultsPhase} />
+                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard

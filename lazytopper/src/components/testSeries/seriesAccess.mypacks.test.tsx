@@ -149,7 +149,9 @@ describe("P0-2 · a Test Series owner's upload states", () => {
   it("0 checks left on a series paper: 'No checks left on this paper' + the Board Pass ONLY, no upload; 1 left keeps the upload", () => {
     expect(key).toMatch(/^TS-CT-/);
     render(<MemoryRouter><ResultAccessSlot access={owner(2)} uploadAllowed worksheetId={wid} upgrade={null} upload={<div data-testid="upload" />} /></MemoryRouter>);
-    expect(screen.getByTestId("series-no-checks-left").textContent).toContain("No checks left on this paper");
+    expect(screen.getByTestId("series-zero-checks-line").textContent).toBe("0 of 2 checks left on this paper");
+    expect(screen.getByTestId("series-no-checks-left").textContent).toContain("You've used both checks on this paper");
+    expect(screen.getByTestId("series-no-checks-left").textContent).toContain("Every other paper still has 2 checks.");
     expect(screen.getByTestId("no-checks-bp")).toBeTruthy();
     expect(screen.queryByTestId("no-checks-ts")).toBeNull();
     expect(screen.queryByTestId("upload")).toBeNull();
@@ -157,6 +159,15 @@ describe("P0-2 · a Test Series owner's upload states", () => {
     render(<MemoryRouter><ResultAccessSlot access={owner(1)} uploadAllowed worksheetId={wid} upgrade={null} upload={<div data-testid="upload" />} /></MemoryRouter>);
     expect(screen.getByTestId("upload")).toBeTruthy();
     expect(screen.queryByTestId("series-no-checks-left")).toBeNull();
+  });
+  it("a refused 3rd upload on a SERIES paper says both checks are used (with the paper code), then the Board Pass - no PDF 'Prefer practising on paper?' upsell", () => {
+    render(<MemoryRouter><SeriesOwnerNotice onClose={() => undefined} worksheetId={wid} status={{ checksPerPaper: 2, used: { [key]: 2 } } as never} /></MemoryRouter>);
+    const t = screen.getByTestId("series-owner-notice").textContent ?? "";
+    expect(t).toContain(`(${key.replace(/^TS-/, "")})`);
+    expect(t).toContain("Every other paper still has 2 checks.");
+    expect(t).toContain("no per-paper limit");
+    expect(screen.getByTestId("series-owner-bp")).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/Prefer practising on paper|Get it marked like the board would|Chapter Pack/);
   });
   it("a refused upload on a non-series paper shows the Test Series note with the Board Pass only - no Chapter Pack sheet", () => {
     render(<MemoryRouter><SeriesOwnerNotice onClose={() => undefined} /></MemoryRouter>);
@@ -196,5 +207,19 @@ describe("P1-7/8 · the one free test counts only from the release; older papers
     render(<MemoryRouter><ResultAccessSlot access={none} uploadAllowed={isBeforeSeriesRules(before)} worksheetId="w" upgrade={<div data-testid="upgrade" />} upload={<div data-testid="upload" />} /></MemoryRouter>);
     expect(screen.getByTestId("upload")).toBeTruthy();
     expect(screen.queryByTestId("upgrade")).toBeNull();
+  });
+});
+
+describe("live finding 3 · the checks-left line refreshes when the grade finishes", () => {
+  it("a changed refreshKey re-reads the server count: 2 of 2 -> 1 of 2 without a reload", async () => {
+    const { SeriesChecksLeftLine } = await import("./WrittenCheckGate");
+    const wid = seriesChapterWorksheetId("ct-1-1", "real-numbers");
+    const key = seriesPaperKeyOfWorksheetId(wid) as string;
+    mine.fn.mockResolvedValueOnce(mineOf([ts], { ownsTestSeries: true, testSeries: { checksPerPaper: 2, used: {}, validUntilMs: 1 } }));
+    mine.fn.mockResolvedValue(mineOf([ts], { ownsTestSeries: true, testSeries: { checksPerPaper: 2, used: { [key]: 1 }, validUntilMs: 1 } }));
+    const view = render(<MemoryRouter><SeriesChecksLeftLine uid="u1" worksheetId={wid} refreshKey="partial:true" /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByTestId("series-checks-left").textContent).toBe("Checks left on this paper: 2 of 2"));
+    view.rerender(<MemoryRouter><SeriesChecksLeftLine uid="u1" worksheetId={wid} refreshKey="full:false" /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByTestId("series-checks-left").textContent).toBe("Checks left on this paper: 1 of 2"));
   });
 });

@@ -70,6 +70,7 @@ describe.each(["free", "trial", "premium"] as const)("Chapter Test · %s account
     await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 });
     if (entitled) {
       expect(screen.getByRole("button", { name: /Download this test/ })).toBeTruthy();
+      expect(document.body.textContent).not.toMatch(/Download & print with|first download is free/);
       expect(screen.queryByTestId("download-with-plan")).toBeNull();
     } else {
       expect(screen.queryByRole("button", { name: /Download this test/ })).toBeNull();

@@ -18,6 +18,7 @@ import { boardPassPriceDisplay } from "../../config/pricing";
 import { FREE_TEST_NOTE, canCheckSeriesPapers, canDownloadPaper } from "../../lib/testSeries/seriesAccess";
 import { useOwnedPacks } from "../packs/useOwnedPacks";
 import { ownsChapter, ownsMocks, type PackSubject } from "../../services/packs";
+import type { TestSeriesStatus } from "../../services/packs";
 import { TEST_SERIES_BUY_PATH, seriesPaperKeyOfWorksheetId, seriesTotals } from "../../lib/testSeries/testSeries";
 import { packPriceLabel, testSeriesChecksLeftLine } from "../../services/packs";
 import { useTestSeriesOwnership } from "./testSeriesOwnership";
@@ -144,21 +145,40 @@ export function AccessFailed({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-/** In place of the upload when a series paper has 0 checks left: say so and offer the Board Pass (only). */
-export function NoChecksLeftCard() {
+/** "CT-M01" from the manifest key "TS-CT-M01". */
+function paperCodeOfKey(key: string | null): string | null {
+  return key ? key.replace(/^TS-/, "") : null;
+}
+
+/** The plain sentence for a series paper whose checks are all used (live-test finding: say it before any upgrade offer). */
+export function checksUsedLine(code: string | null, per: number): string {
+  return `You've used ${per === 2 ? "both checks" : `all ${per} checks`} on this paper${code ? ` (${code})` : ""}. Every other paper still has ${per} checks.`;
+}
+
+/** Beside the upload when a series paper has 0 checks left: say so (no point uploading) and offer the Board Pass (only). */
+export function NoChecksLeftCard({ code, per = 2 }: { code?: string | null; per?: number } = {}) {
   return (
     <div className="lt-wcg" role="status" data-testid="series-no-checks-left">
-      <p className="lt-wcg__line">{NO_CHECKS_LEFT_LINE}. Both checks are used. The Board Pass checks any paper, as often as you like.</p>
+      <p className="lt-wcg__checks" data-testid="series-zero-checks-line">
+        0 of {per} checks left on this paper
+      </p>
+      <p className="lt-wcg__line">{checksUsedLine(code ?? null, per)} The Board Pass checks every answer, with no per-paper limit.</p>
       <SeriesOfferButtons testIdPrefix="no-checks" only="board-pass" />
     </div>
   );
 }
 
-/** A Test Series owner whose upload was refused (a non-series paper): the truth, with the Board Pass only - never a Chapter Pack sheet. */
-export function SeriesOwnerNotice({ onClose }: { onClose: () => void }) {
+/**
+ * A Test Series owner whose upload was refused. On a SERIES paper that is "both checks used" (with the Board Pass, no per-paper limit);
+ * on a non-series paper it is the series-only note. Board Pass only - never a Chapter Pack or PDF-pack sheet.
+ */
+export function SeriesOwnerNotice({ onClose, worksheetId, status }: { onClose: () => void; worksheetId?: string | null; status?: TestSeriesStatus | null }) {
+  const key = seriesPaperKeyOfWorksheetId(worksheetId);
   return (
     <div className="lt-wcg" role="alert" data-testid="series-owner-notice">
-      <p className="lt-wcg__line">{SERIES_ONLY_NOTE}</p>
+      <p className="lt-wcg__line">
+        {key ? `${checksUsedLine(paperCodeOfKey(key), status?.checksPerPaper ?? 2)} The Board Pass checks every answer, with no per-paper limit.` : SERIES_ONLY_NOTE}
+      </p>
       <SeriesOfferButtons testIdPrefix="series-owner" only="board-pass" />
       <button type="button" className="lt-wcg-tutor__close" onClick={onClose}>
         Not now
@@ -188,7 +208,7 @@ export function ResultAccessSlot({
   if (uploadAllowed) {
     const key = seriesPaperKeyOfWorksheetId(worksheetId);
     const left = access.ownsSeries && key && access.status ? access.status.checksPerPaper - (access.status.used[key] ?? 0) : null;
-    return left !== null && left <= 0 ? <NoChecksLeftCard /> : <>{upload}</>;
+    return left !== null && left <= 0 ? <NoChecksLeftCard code={paperCodeOfKey(key)} per={access.status?.checksPerPaper ?? 2} /> : <>{upload}</>;
   }
   if (access.checking) return <AccessChecking />;
   if (access.failed) return <AccessFailed onRetry={access.retry} />;
