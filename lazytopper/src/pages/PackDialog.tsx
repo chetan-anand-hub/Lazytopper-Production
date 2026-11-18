@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { PACK_CHAPTER_SLUGS, packPriceLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../services/packs";
-import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, packChapterLabel, TEST_SERIES_LINE, TEST_SERIES_NAME } from "../lib/packs/packLabels";
+import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, packChapterLabel, TEST_SERIES_NAME } from "../lib/packs/packLabels";
+import { testSeriesPackLine } from "../lib/testSeries/testSeries";
 import { packManifest, packSummaryRows } from "../lib/packs/packManifest";
 import { PREVIEW_FALLBACK_CAPTION, PREVIEW_H, PREVIEW_W, packPreviewFor, previewCaption, previewImage, previewShows, type PreviewPage } from "../lib/packs/packPreviews";
 import PackSampleButton from "../components/packs/PackSampleButton";
@@ -50,7 +51,7 @@ const TITLES: Record<PackSku, { name: string; line: string }> = {
   pack_subject: { name: "Subject Pack", line: "Every chapter of Maths or Science — chapter-wise question bank 2026-27" },
   pack_bundle: { name: "Maths + Science Bundle", line: `Maths + Science: all ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks — the whole year at one price` },
   pack_cbq: { name: "CBQ Pack", line: "About half your 2027 paper is competency-based. Curated CBQs, chapter-wise and topic-wise — MCQ, assertion-reason, short, case study and long answer, Sections A to E." },
-  test_series: { name: TEST_SERIES_NAME, line: TEST_SERIES_LINE },
+  test_series: { name: TEST_SERIES_NAME, line: testSeriesPackLine() },
 };
 
 const SLIDES: ReadonlyArray<{ page: PreviewPage; alt: string; num: string; bold: string; rest: string }> = [

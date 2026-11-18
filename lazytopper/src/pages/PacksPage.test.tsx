@@ -581,7 +581,7 @@ describe("TS-PACK-1 · /packs Test Series card", () => {
     const text = card.textContent ?? "";
     expect(text).toContain("Test Series Pack");
     expect(text).toContain(packs.packPriceLabel("test_series"));
-    expect(text).toContain("42 numbered chapter tests and full mocks");
+    expect(text).toContain("26 chapter tests + 40 full-length tests"); // counts from the series config (66 papers)
     expect(text).toContain("twice per paper");
     expect(text).toContain("Does not include: the Board Pass, the tutor, the Answer Checker or the PDF packs.");
     expect(text).not.toMatch(/\bAI\b|free|answer key|hack|trick|crack|leak|optional|refund|\bapp\b/i);

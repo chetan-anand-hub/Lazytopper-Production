@@ -241,14 +241,14 @@ export function readTestSeriesStatus(raw: unknown): TestSeriesStatus | null {
 }
 
 /**
- * "Test Series checks left on this paper: 1 of 2" - from the SERVER's count; null when unknown (nothing is shown). PURE.
+ * "Checks left on this paper: 1 of 2" - from the SERVER's count; null when unknown (nothing is shown). PURE.
  * The server enforces the count on every grade; this line only reports it.
  */
 export function testSeriesChecksLeftLine(status: TestSeriesStatus | null | undefined, paperKey: string): string | null {
   if (!status || !paperKey) return null;
   const used = status.used[paperKey] ?? 0;
   const left = Math.max(0, status.checksPerPaper - used);
-  return `Test Series checks left on this paper: ${left} of ${status.checksPerPaper}`;
+  return `Checks left on this paper: ${left} of ${status.checksPerPaper}`;
 }
 
 /** A credit only when every field is a sane server number; anything else is no credit. */

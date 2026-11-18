@@ -17,8 +17,8 @@ const PACK_PRODUCTS = Object.freeze({
   // CBQ-PACK-1: a SEPARATE product (not covered by, and not covering, subject/bundle).
   pack_cbq: Object.freeze({ priceInr: 199, needsTarget: 'subject' }),
   // TS-PACK-1 (owner ruling 18 Nov 2026): the Test Series Pack - ONE per student, Maths + Science together, Rs 999 + GST.
-  // NOT a PDF pack: it grants written-answer checking on the Test Series papers (testSeriesChecks.cjs) and a tutor
-  // allowance (cbqTutorTaste.cjs), till 31 May 2027. It covers, and is covered by, nothing else. Its packId is
+  // NOT a PDF pack: it grants written-answer checking on the Test Series papers only (testSeriesChecks.cjs, 2 per paper),
+  // till 31 May 2027 - no tutor, no Premium (owner 19:44 IST). It covers, and is covered by, nothing else. Its packId is
   // `test_series:all` (needsTarget null, like the bundle; every function below branches on the sku BEFORE the bundle rule).
   test_series: Object.freeze({ priceInr: 999, needsTarget: null }),
 });

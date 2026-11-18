@@ -355,9 +355,9 @@ describe("TS-PACK-1 · test_series in the catalogue", () => {
     expect(mod.readTestSeriesStatus({ checksPerPaper: 2 })).toBeNull();
     const s = mod.readTestSeriesStatus({ validUntilMs: 1, checksPerPaper: 2, used: { a: 1, b: 9, c: -1, d: "x" } });
     expect(s).toEqual({ validUntilMs: 1, checksPerPaper: 2, used: { a: 1, b: 2 } });
-    expect(mod.testSeriesChecksLeftLine(s, "a")).toBe("Test Series checks left on this paper: 1 of 2");
-    expect(mod.testSeriesChecksLeftLine(s, "b")).toBe("Test Series checks left on this paper: 0 of 2");
-    expect(mod.testSeriesChecksLeftLine(s, "new")).toBe("Test Series checks left on this paper: 2 of 2");
+    expect(mod.testSeriesChecksLeftLine(s, "a")).toBe("Checks left on this paper: 1 of 2");
+    expect(mod.testSeriesChecksLeftLine(s, "b")).toBe("Checks left on this paper: 0 of 2");
+    expect(mod.testSeriesChecksLeftLine(s, "new")).toBe("Checks left on this paper: 2 of 2");
     expect(mod.testSeriesChecksLeftLine(null, "a")).toBeNull();
   });
 

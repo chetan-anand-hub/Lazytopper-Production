@@ -41,6 +41,29 @@ export interface SeriesPaperManifestEntry {
   questionIds: string[];
   /** The written questions (Sections B–E), the ones a check grades, in paper order. */
   sectionBEQuestionIds: string[];
+  /**
+   * TS-PACK-1 — per written question id, sha256 (hex) of its CANONICAL text (`canonicalQuestionText` below). The server
+   * (server/services/testSeriesChecks.cjs) checks every submitted question's text against it, so a valid id cannot carry a
+   * swapped question. The text hashed is `questionText` — exactly what the Chapter Test / Full Mock grading request sends.
+   */
+  textHashes: Record<string, string>;
+}
+
+/**
+ * TS-PACK-1 — THE canonical text: Unicode NFC, every whitespace run as one space, trimmed. The server's
+ * `canonicalQuestionText` (testSeriesChecks.cjs) is the same function; paperManifest.guard.test.ts pins the two together.
+ */
+export function canonicalQuestionText(text: unknown): string {
+  return String(text == null ? "" : text).normalize("NFC").replace(/\s+/g, " ").trim();
+}
+
+/** How the build hashes a canonical text (sha256 hex). Injected so this module stays free of node-only imports. */
+export type CanonicalTextHasher = (canonicalText: string) => string;
+
+function textHashesOf(questions: ReadonlyArray<{ id?: unknown; questionText?: unknown }>, hash: CanonicalTextHasher): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const q of questions) out[String(q.id)] = hash(canonicalQuestionText(q.questionText));
+  return out;
 }
 
 const STAMP = "2026-01-01T00:00:00.000Z";
@@ -54,7 +77,7 @@ function prefixOf(rewritten: string): string {
  *  papers' ids are all `drawPackMockAfter` needs). Committed as seriesMockIds.generated.json; the same guard keeps it fresh. */
 export type SeriesMockIds = Record<"maths" | "science", Array<string[] | null>>;
 
-export async function buildSeriesPaperManifest(): Promise<{ entries: SeriesPaperManifestEntry[]; mockIds: SeriesMockIds }> {
+export async function buildSeriesPaperManifest(hashText: CanonicalTextHasher): Promise<{ entries: SeriesPaperManifestEntry[]; mockIds: SeriesMockIds }> {
   const out: SeriesPaperManifestEntry[] = [];
   const mockIds: SeriesMockIds = { maths: [], science: [] };
   for (const t of seriesChapterTests()) {
@@ -77,6 +100,7 @@ export async function buildSeriesPaperManifest(): Promise<{ entries: SeriesPaper
       worksheetIdPrefix: prefixOf(seriesChapterWorksheetId("ct-x", t.topicKey)),
       questionIds: drawn.paper.questions.map((q) => String(q.id)),
       sectionBEQuestionIds: subjectiveQuestions(drawn.paper).map((q) => String(q.id)),
+      textHashes: textHashesOf(subjectiveQuestions(drawn.paper), hashText),
     });
   }
   for (const subject of ["Maths", "Science"] as const) {
@@ -100,6 +124,7 @@ export async function buildSeriesPaperManifest(): Promise<{ entries: SeriesPaper
         worksheetIdPrefix: prefixOf(seriesMockWorksheetId("fm-x", subject, m.n)),
         questionIds: drawn.paper.questions.map((q) => String(q.id)),
         sectionBEQuestionIds: fullMockSubjectiveQuestions(drawn.paper).map((q) => String(q.id)),
+        textHashes: textHashesOf(fullMockSubjectiveQuestions(drawn.paper), hashText),
       });
     }
   }

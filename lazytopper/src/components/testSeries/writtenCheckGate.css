@@ -93,3 +93,12 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+/* TS-PACK-1 - a Test Series Pack owner's checks left on this paper (upload + result screens). */
+.lt-wcg__checks {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #0e7c47;
+}

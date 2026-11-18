@@ -263,7 +263,7 @@ function productLineFor(order) {
       return { description: `LazyTopper PDF ${subjectTitle(t)} CBQ Pack`, sacKind: 'packs' };
     case 'pack_bundle':
       return { description: 'LazyTopper PDF Maths + Science Bundle', sacKind: 'packs' };
-    // TS-PACK-1: an ONLINE service (answer checking + tutor), like the Board Pass - not a PDF - so it takes the Board Pass SAC.
+    // TS-PACK-1: an ONLINE service (written-answer checking on the series papers; no tutor), like the Board Pass - not a PDF - so it takes the Board Pass SAC.
     case 'test_series':
       return { description: 'LazyTopper Test Series Pack (Maths + Science, till CBSE Class 10 boards)', sacKind: 'boardPass' };
     default:

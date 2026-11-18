@@ -29,8 +29,8 @@ import {
   CBQ_SUBJECT_CLAIM,
   TEST_SERIES_CHECKS_PER_PAPER_COPY,
   TEST_SERIES_NAME,
-  TEST_SERIES_PAPER_COUNT,
 } from "./packLabels";
+import { seriesTotals } from "../testSeries/testSeries";
 
 export interface PackManifestItem {
   /** Display name, e.g. "Chapter Test 1". */
@@ -149,7 +149,7 @@ export function packManifest(sku: PackSku, target?: string): PackManifest {
     }
     case "test_series":
       // TS-PACK-1: not a PDF pack - no files; its papers are the Test Series pages.
-      return { title: TEST_SERIES_NAME, groups: [], chapterPacks: 0, mockPapers: 0, papers: TEST_SERIES_PAPER_COUNT };
+      return { title: TEST_SERIES_NAME, groups: [], chapterPacks: 0, mockPapers: 0, papers: seriesTotals().total };
   }
 }
 
@@ -229,7 +229,8 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
       ];
     case "test_series":
       return [
-        { label: "Numbered chapter tests and full mocks", value: String(TEST_SERIES_PAPER_COUNT) },
+        { label: "Numbered chapter tests", value: String(seriesTotals().chapterTests) },
+        { label: "Full-length tests", value: String(seriesTotals().fullMocks) },
         { label: "Written answers checked, Sections B to E", value: TEST_SERIES_CHECKS_PER_PAPER_COPY },
         { label: "Subjects", value: "Maths + Science" },
         { label: "Valid till", value: "31 May 2027" },

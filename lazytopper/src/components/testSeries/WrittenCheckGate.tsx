@@ -16,7 +16,9 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { isPaidPremium } from "../../services/subscriptionService";
 import { boardPassPriceDisplay } from "../../config/pricing";
 import { canCheckSeriesPapers } from "../../lib/testSeries/seriesAccess";
-import { TEST_SERIES_BUY_PATH, seriesTotals, testSeriesPriceDisplay } from "../../lib/testSeries/testSeries";
+import { TEST_SERIES_BUY_PATH, seriesPaperKeyOfWorksheetId, seriesTotals } from "../../lib/testSeries/testSeries";
+import { packPriceLabel, testSeriesChecksLeftLine } from "../../services/packs";
+import { useTestSeriesOwnership } from "./testSeriesOwnership";
 import "./writtenCheckGate.css";
 
 export const BOARD_PASS_PATH = "/board-pass";
@@ -28,20 +30,41 @@ export function writtenCheckGateDisabled(): boolean {
   return import.meta.env?.VITE_WRITTEN_CHECK_GATE_DISABLED === "1";
 }
 
-/** "Upgrade to the Test Series (₹999 + GST) or the Board Pass to take all 42 tests" — the count from code. */
+/** "Upgrade to the Test Series (₹999 + GST) or the Board Pass to take all 66 tests" — the count from code. */
 export function seriesStartWallLine(): string {
-  return `Upgrade to the Test Series (${testSeriesPriceDisplay()}) or the Board Pass to take all ${seriesTotals().total} tests`;
+  return `Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all ${seriesTotals().total} tests`;
 }
 
-/** True when this account may take every test, upload written answers and download on Chapter Tests / Full Mocks. */
-export function useSeriesPaperAccess(): boolean {
+/**
+ * True when this account may take every test, upload written answers and download on Chapter Tests / Full Mocks.
+ * TS-PACK-1: `uid` (the signed-in student) lets a Test Series Pack owner through — `ownsTestSeries` from GET /api/packs/mine, asked
+ * only for a signed-in student who is not a Board Pass holder. Without a uid only the Board Pass counts (as before).
+ */
+export function useSeriesPaperAccess(uid?: string | null): boolean {
   const { status } = useSubscription();
-  if (writtenCheckGateDisabled()) return true;
-  return canCheckSeriesPapers({
-    paidPremium: isPaidPremium(status),
-    // ★ TS-PACK-1 HOOK: wire `ownsTestSeries` from /api/packs/mine (a `test_series` pack) here.
-    ownsTestSeries: false,
-  });
+  const paid = isPaidPremium(status);
+  const off = writtenCheckGateDisabled();
+  const own = useTestSeriesOwnership(!off && !paid ? uid : null);
+  if (off) return true;
+  return canCheckSeriesPapers({ paidPremium: paid, ownsTestSeries: own.owns });
+}
+
+/**
+ * TS-PACK-1 — "Checks left on this paper: 1 of 2" for a Test Series Pack owner (not a Board Pass holder) on a series paper's upload
+ * and result screens. The SERVER's count (refreshed when `refreshKey` changes, e.g. after a grade); nothing when unknown.
+ */
+export function SeriesChecksLeftLine({ uid, worksheetId, refreshKey }: { uid?: string | null; worksheetId: string | null | undefined; refreshKey?: unknown }) {
+  const { status } = useSubscription();
+  const paid = isPaidPremium(status);
+  const paperKey = seriesPaperKeyOfWorksheetId(worksheetId);
+  const own = useTestSeriesOwnership(!paid && paperKey ? uid : null, refreshKey);
+  if (paid || !paperKey || !own.owns) return null;
+  const line = testSeriesChecksLeftLine(own.status, paperKey);
+  return line ? (
+    <p className="lt-wcg__checks" role="status" data-testid="series-checks-left">
+      {line}
+    </p>
+  ) : null;
 }
 
 /** True for a Board Pass holder (PAID premium) — the only account the scorecard's tutor entry opens the tutor for. */
@@ -58,7 +81,7 @@ export function SeriesOfferButtons({ testIdPrefix }: { testIdPrefix: string }) {
     <div className="lt-wcg__offers">
       <Link className="lt-wcg__btn" to={TEST_SERIES_BUY_PATH} data-testid={`${testIdPrefix}-ts`}>
         <span className="lt-wcg__main">Test Series</span>
-        <span className="lt-wcg__price">{testSeriesPriceDisplay()} · all {seriesTotals().total} tests</span>
+        <span className="lt-wcg__price">{packPriceLabel("test_series")} · all {seriesTotals().total} tests</span>
       </Link>
       <Link className="lt-wcg__btn" to={BOARD_PASS_PATH} data-testid={`${testIdPrefix}-bp`}>
         <span className="lt-wcg__main">Board Pass</span>

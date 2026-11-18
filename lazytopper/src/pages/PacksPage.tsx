@@ -9,7 +9,8 @@ import { PACKS_ANSWER_FAQ } from "../components/seo/faqContent";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import FounderBadge from "../components/brand/FounderBadge";
 import PacksShop, { warmPacksCheckout, OTHER_PAYMENT_BUSY_COPY, PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
-import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT, TEST_SERIES_LINE, TEST_SERIES_NAME, TEST_SERIES_PAPER_COUNT } from "../lib/packs/packLabels";
+import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT, TEST_SERIES_NAME } from "../lib/packs/packLabels";
+import { seriesContentsLine, testSeriesPackLine } from "../lib/testSeries/testSeries";
 import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
 import { chaptersOfSubject, isTestSeriesPackOffered, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
 import PackSampleLink, { PackSampleChoice, SampleBuyNext } from "../components/packs/PackSampleLink";
@@ -365,7 +366,7 @@ function PreboardTileLine({ testId = "packs-preboard-line-bundle" }: { testId?: 
  * is the shop's own (PackTileBuy -> buyNow -> handleBuy -> the existing pack checkout sheet); the server decides the price and the access.
  */
 export const TEST_SERIES_HEADING = "Test Series";
-export const TEST_SERIES_CONTENTS = `Includes: ${TEST_SERIES_PAPER_COUNT} numbered chapter tests and full mocks · written answers checked step by step, twice per paper · till 31 May 2027.`;
+export const TEST_SERIES_CONTENTS = `Includes: ${seriesContentsLine()} · written answers checked step by step, twice per paper · till 31 May 2027.`;
 export const TEST_SERIES_EXCLUDES = "Does not include: the Board Pass, the tutor, the Answer Checker or the PDF packs.";
 
 function TestSeriesCard({ api }: { api: PacksShopApi }) {
@@ -382,7 +383,7 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
                 <span className="lt-pk-row__price">{`${packPriceLabel("test_series")} · till your boards`}</span>
               </summary>
               <div className="lt-pk-row__body">
-                <p className="lt-pk-row__line">{TEST_SERIES_LINE}</p>
+                <p className="lt-pk-row__line">{testSeriesPackLine()}</p>
                 <p className="lt-pt__contents" data-testid="packs-contents-test-series">{TEST_SERIES_CONTENTS}</p>
                 <p className="lt-pk-row__excl">{TEST_SERIES_EXCLUDES}</p>
                 {gst && <p className="lt-pk-row__gst" data-testid="tile-gst-test_series">{gst}</p>}

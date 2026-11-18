@@ -25,7 +25,8 @@ vi.mock("../services/sessionRecords", () => ({
 }));
 
 import TestSeriesPage from "./TestSeriesPage";
-import { seriesChapterTests, seriesFullMocks, seriesTotals, testSeriesPriceDisplay } from "../lib/testSeries/testSeries";
+import { seriesChapterTests, seriesFullMocks, seriesTotals } from "../lib/testSeries/testSeries";
+import { packPriceLabel } from "../services/packs";
 
 async function mount() {
   await act(async () => {
@@ -75,7 +76,7 @@ describe("/test-series — signed out", () => {
     await mount();
     expect(screen.getByTestId("ts-cal-chapters").className).toContain("is-now");
     const ts = screen.getByTestId("ts-offer-ts");
-    expect(within(ts).getByTestId("till-boards-figures").textContent).toBe(`${testSeriesPriceDisplay()} till your boards`);
+    expect(within(ts).getByTestId("till-boards-figures").textContent).toBe(`${packPriceLabel("test_series")} till your boards`);
     expect(ts.textContent).toContain("₹999 + GST till your boards");
     expect(screen.getByTestId("ts-cta-buy").getAttribute("href")).toBe("/packs?buy=test_series");
     const bp = screen.getByTestId("ts-offer-bp");

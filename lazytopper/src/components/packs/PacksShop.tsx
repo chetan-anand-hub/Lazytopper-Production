@@ -41,7 +41,8 @@ import {
   TEST_SERIES_CHECKS_PER_PAPER,
   type PackSubject,
 } from "../../services/packs";
-import { BUNDLE_NAME, TEST_SERIES_NAME, TEST_SERIES_PAPER_COUNT, packChapterLabel } from "../../lib/packs/packLabels";
+import { BUNDLE_NAME, TEST_SERIES_NAME, packChapterLabel } from "../../lib/packs/packLabels";
+import { TEST_SERIES_PATH, seriesContentsLine } from "../../lib/testSeries/testSeries";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import { isPacksWarmupPath, schedulePacksWarmup } from "../../lib/packs/packsMobilePreload";
 import { loadCheckoutScript } from "../../services/checkout";
@@ -1347,9 +1348,9 @@ function OwnedTestSeriesRow({ pack, mine, when, tidy }: { pack: OwnedPack; mine:
   const body = (
     <>
       <p className="lt-packs__muted" data-testid="packs-owned-test-series-line">
-        {`${TEST_SERIES_PAPER_COUNT} numbered chapter tests and full mocks. Your written answers are checked step by step, ${per === 2 ? "twice" : `${per} times`} per paper, till 31 May 2027.`}
+        {`${seriesContentsLine()}. Your written answers are checked step by step, ${per === 2 ? "twice" : `${per} times`} per paper, till 31 May 2027.`}
       </p>
-      <Link className="lt-packs__link" to="/test-series" data-testid="packs-owned-test-series-open">Open the Test Series &rarr;</Link>
+      <Link className="lt-packs__link" to={TEST_SERIES_PATH} data-testid="packs-owned-test-series-open">Open the Test Series &rarr;</Link>
     </>
   );
   if (tidy) {
