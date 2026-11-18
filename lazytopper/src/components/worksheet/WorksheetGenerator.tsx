@@ -1725,7 +1725,7 @@ function WorksheetGeneratorInner() {
                   <p className="lt-ws__note">
                     Your worksheet and both PDF downloads are yours already — no account
                     needed. CBSE examiner style marking needs an account — and a new one
-                    can start a free 7-day trial with everything unlocked.
+                    can start a free 7-day trial.
                   </p>
                   <Link
                     className="lt-ws__signinbtn"

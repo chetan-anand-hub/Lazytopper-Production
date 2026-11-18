@@ -75,6 +75,8 @@ export const PREBOARDS_PICK_LINE = `All ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_M
  */
 export const REDOWNLOAD_UNTIL = "31 March 2027";
 export const REDOWNLOAD_UNTIL_LEGACY = "31 May 2027";
+/** MYPACKS-TS-1: the Test Series Pack is valid till this date (the existing 31 May 2027 pack term; it has no files, so nothing "re-downloads"). */
+export const TEST_SERIES_VALID_TILL = REDOWNLOAD_UNTIL_LEGACY;
 /** 5 Nov 2026 00:00 IST - the same instant as server/services/packCredit.cjs PACK_CREDIT_CUTOFF_MS (the two terms change together). */
 export const PACK_TERMS_CUTOFF = "2026-11-05T00:00:00+05:30";
 export const PACK_TERMS_CUTOFF_MS = Date.parse(PACK_TERMS_CUTOFF);

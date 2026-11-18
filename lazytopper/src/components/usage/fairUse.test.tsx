@@ -344,9 +344,9 @@ describe("6c · UI4 usage card", () => {
   it("★★ trial: checks today, chapter test today, mock + worksheet this week, with resets", () => {
     render(<UsageCardView snapshot={snap(trialBody())} nowMs={NOW} />);
     expect(screen.getByTestId("usage-row-checks").textContent).toBe("Answer checks today2 leftResets at 12:00 am on Tue 29 Sep");
-    expect(screen.getByTestId("usage-row-chapter-test").textContent).toContain("0 left");
-    // null reset from the server -> no reset line, never an invented one.
-    expect(screen.getByTestId("usage-row-mock").textContent).toBe("Full mock this week1 left");
+    // MYPACKS-TS-1: no chapter-test / full-mock "left" rows (a trial account takes one test and gets MCQs marked there).
+    expect(screen.queryByTestId("usage-row-chapter-test")).toBeNull();
+    expect(screen.queryByTestId("usage-row-mock")).toBeNull();
     expect(screen.getByTestId("usage-row-worksheet").textContent).toContain("2:00 pm on Thu 1 Oct");
   });
   it("★★ premium: three percentage bars, no rupees", () => {

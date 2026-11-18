@@ -26,6 +26,8 @@ vi.mock("../hooks/useSubscription", () => ({
   }),
 }));
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: USER, loading: false }) }));
+// MYPACKS-TS-1: ownership is a three-state read now; a student who owns nothing resolves to "not owned" (the upgrade card), a failed read is a retry.
+vi.mock("../services/packs", async (orig) => ({ ...(await orig<typeof import("../services/packs")>()), fetchMyPacks: async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: null }) }));
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: () => {} }));
 vi.mock("../ai/paidCallHeaders", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../ai/paidCallHeaders")>();
@@ -90,7 +92,7 @@ import { __resetUsageClientForTests } from "../services/usageClient";
 const CODE = "FM-M-02";
 const paper: PersistedWorksheet = {
   worksheetId: "fm-downloaded-1",
-  createdAt: "2026-10-17",
+  createdAt: "2026-11-19", // MYPACKS-TS-1: after the release (a paper created before it keeps the old upload rule)
   title: "Maths · Mock #2",
   subject: "Maths",
   grade: "10",

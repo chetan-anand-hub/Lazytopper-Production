@@ -16,6 +16,9 @@ import "./packReady.css";
  * A Board Pass is announced only once the SERVER-backed subscription says paid (no client trust in the claim list).
  */
 export const MY_PACKS_PATH = "/packs#my-packs";
+/** MYPACKS-TS-1: a Test Series Pack has no files - when it is the (only) thing claimed, the button starts the series instead of opening My packs. */
+export const TEST_SERIES_TOAST_PATH = "/test-series";
+export const TEST_SERIES_TOAST_LABEL = "Start your Test Series \u2192";
 
 /** The toast sentence for what was claimed (packs first). PURE. */
 export function readyText(items: ClaimedItem[]): string {
@@ -87,6 +90,7 @@ function Toast({ items, uid, claimId, onClose }: { items: ClaimedItem[]; uid: st
   // A pass is announced only when the entitlement is confirmed; packs are confirmed by the claim response itself.
   const shown = items.filter((i) => i.kind === "pack" || paid);
   const hasPack = shown.some((i) => i.kind === "pack");
+  const seriesOnly = hasPack && shown.filter((i) => i.kind === "pack").every((i) => i.sku === "test_series");
   const onPacks = /^\/packs(\/|$)/i.test(path.replace(/\/+$/, "") || "/");
   const visible = shown.length > 0 && toastVisibleOn(path) && !bannerUp;
 
@@ -113,20 +117,20 @@ function Toast({ items, uid, claimId, onClose }: { items: ClaimedItem[]; uid: st
       {hasPack && (
         <a
           className="lt-ready__btn"
-          href={MY_PACKS_PATH}
+          href={seriesOnly ? TEST_SERIES_TOAST_PATH : MY_PACKS_PATH}
           onClick={(e) => {
             // In-app navigation without a reload: BrowserRouter listens for popstate.
             try {
               e.preventDefault();
-              window.history.pushState({}, "", MY_PACKS_PATH);
+              window.history.pushState({}, "", seriesOnly ? TEST_SERIES_TOAST_PATH : MY_PACKS_PATH);
               window.dispatchEvent(new PopStateEvent("popstate"));
               window.setTimeout(onClose, 0);
             } catch {
-              window.location.assign(MY_PACKS_PATH);
+              window.location.assign(seriesOnly ? TEST_SERIES_TOAST_PATH : MY_PACKS_PATH);
             }
           }}
         >
-          Open My packs
+          {seriesOnly ? TEST_SERIES_TOAST_LABEL : "Open My packs"}
         </a>
       )}
       <button type="button" className="lt-ready__close" aria-label="Dismiss" onClick={onClose}>

@@ -27,9 +27,34 @@ export function canCheckSeriesPapers(entitlements: SeriesEntitlements): boolean 
  */
 export const FREE_TESTS_ALLOWED = 1;
 
-export function countTestsTaken(records: ReadonlyArray<{ surface: string }>): number {
-  return records.filter((r) => r.surface === "chapter-test" || r.surface === "full-mock").length;
+/**
+ * MYPACKS-TS-1 (P1-5 / P1-7): the new rules start here (18 Nov 2026, 22:00 IST). A test sat BEFORE it never counts against the one free
+ * test (so existing students still get theirs), and a paper started before it keeps the old rules (grandfathered, see below).
+ */
+export const SERIES_RULES_START_MS = Date.parse("2026-11-18T22:00:00+05:30");
+
+/** Was this paper / sitting created before the new rules started? Unknown time -> NOT grandfathered (the new rules apply). */
+export function isBeforeSeriesRules(createdMs: number | null | undefined): boolean {
+  return typeof createdMs === "number" && Number.isFinite(createdMs) && createdMs > 0 && createdMs < SERIES_RULES_START_MS;
 }
+
+export function countTestsTaken(records: ReadonlyArray<{ surface: string; gradedAt?: number }>): number {
+  return records.filter(
+    (r) => (r.surface === "chapter-test" || r.surface === "full-mock") && !isBeforeSeriesRules(typeof r.gradedAt === "number" ? r.gradedAt : null),
+  ).length;
+}
+
+/**
+ * Downloading / printing a paper: a Board Pass holder, a Test Series owner, OR (restored, owner ruling "paid PDF packs keep their
+ * downloads") a student who owns a pack that COVERS this paper (a Chapter Pack of the chapter, a Subject Pack, a Mock Pack for a mock,
+ * or the Bundle - `ownsChapter` / `ownsMocks`). Written-answer CHECKING is not widened by a PDF pack (`canCheckSeriesPapers`).
+ */
+export function canDownloadPaper(entitlements: SeriesEntitlements & { ownsCoveringPack?: boolean }): boolean {
+  return canCheckSeriesPapers(entitlements) || entitlements.ownsCoveringPack === true;
+}
+
+/** "This is your 1 free test": a signed-in free / trial account that has not used its one test yet. */
+export const FREE_TEST_NOTE = "This is your 1 free test. Its MCQs (Section A) are marked free.";
 
 export type SeriesStartDecision = "start" | "sign-in" | "upgrade";
 

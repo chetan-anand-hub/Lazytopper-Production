@@ -81,8 +81,10 @@ export function packForPaper(packs: readonly OwnedPack[], paper: PackOwnerPaper 
  * about one the student owns (fix 3), else the most recently bought pack.
  */
 export function packOwnerLine(packs: readonly OwnedPack[], paper?: PackOwnerPaper | null): PackOwnerLine | null {
-  if (packs.length === 0) return null;
-  const named = packForPaper(packs, paper) ?? mostRecentPack(packs);
+  // MYPACKS-TS-1: the Test Series Pack is online, not paper - it never says "you practise on paper"; a Test Series-only owner gets today's copy.
+  const pdfPacks = packs.filter((p) => p.sku !== "test_series");
+  if (pdfPacks.length === 0) return null;
+  const named = packForPaper(pdfPacks, paper) ?? mostRecentPack(pdfPacks);
   if (!named) return null;
   return { headline: `You already practise on paper with your ${packOwnerName(named)}.`, body: PACK_OWNER_BODY };
 }

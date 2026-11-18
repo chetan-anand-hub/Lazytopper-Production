@@ -423,3 +423,27 @@ test('TS-PACK-1: the receipt names the Test Series Pack', () => {
   const { itemLabel } = require('./paymentReceiptEmail.cjs');
   assert.equal(itemLabel('test_series', 'all'), 'Test Series Pack (Maths + Science)');
 });
+
+// MYPACKS-TS-1 - the Test Series Pack is ONLINE: its emails say "start", link /test-series, never "download"; a PDF pack is unchanged.
+test('MYPACKS-TS-1 · Test Series receipt / recipient / account-ready emails: start, not download; PDF pack unchanged', () => {
+  const { buildReceiptEmail, buildRecipientReadyEmail, buildAccountReadyEmail } = require('./paymentReceiptEmail.cjs');
+  const base = { amountPaise: 117900, paymentId: 'pay_1', paidAtMs: NOW, appUrl: 'https://www.lazytopper.com', signIns: ['a***@x.in'] };
+  const ts = buildReceiptEmail({ ...base, passType: 'test_series' });
+  assert.match(ts.text, /Start your Test Series/);
+  assert.match(ts.text, /Open the menu → My packs → Start your Test Series/);
+  assert.doesNotMatch(ts.text + ts.html, /to download|ready to download/);
+  const tsPlain = buildReceiptEmail({ ...base, passType: 'test_series', signIns: undefined });
+  assert.match(tsPlain.text, /https:\/\/www\.lazytopper\.com\/test-series/);
+  assert.match(tsPlain.html, />Start your Test Series</);
+  const pdf = buildReceiptEmail({ ...base, passType: 'pack_bundle' });
+  assert.match(pdf.text, /My packs to download/);
+  assert.doesNotMatch(pdf.text, /Test Series/);
+  const rec = buildRecipientReadyEmail({ passType: 'test_series', phoneMasked: '+91 ******1234', appUrl: 'https://www.lazytopper.com' });
+  assert.match(rec.text, /start your Test Series/);
+  assert.doesNotMatch(rec.text, /download/);
+  assert.match(buildRecipientReadyEmail({ passType: 'pack_bundle', phoneMasked: '+91 ******1234', appUrl: 'https://www.lazytopper.com' }).text, /download it/);
+  const acc = buildAccountReadyEmail({ passType: 'test_series', signInLink: 'https://x.test/l', newAccount: false, appUrl: 'https://www.lazytopper.com' });
+  assert.match(acc.text, /Your Test Series is ready to start/);
+  assert.doesNotMatch(acc.text, /download/);
+  assert.match(buildAccountReadyEmail({ passType: 'pack_bundle', signInLink: 'https://x.test/l', newAccount: false, appUrl: 'https://www.lazytopper.com' }).text, /ready to download/);
+});

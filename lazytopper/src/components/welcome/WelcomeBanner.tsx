@@ -16,6 +16,9 @@ export const WELCOME_PASS_TITLE = "Your Board Pass is active ✓";
 export const WELCOME_PASS_LINE = "Till your boards. Every feature is open.";
 export const WELCOME_PACK_TITLE = "Your pack is ready ✓";
 export const WELCOME_PACK_LINE = "Download it below.";
+/** MYPACKS-TS-1: the Test Series Pack is online - nothing to download. */
+export const WELCOME_SERIES_TITLE = "Your Test Series is ready ✓";
+export const WELCOME_SERIES_LINE = "Start it from My packs.";
 const GIVE_UP_MS = 20_000;
 
 export default function WelcomeBanner({ kind, packId = "", giveUpMs = GIVE_UP_MS }: { kind: WelcomeKind; /** The pack just bought (`sku:target`); a pack banner needs it. */ packId?: string; /** Test seam. */ giveUpMs?: number }) {
@@ -69,11 +72,12 @@ export default function WelcomeBanner({ kind, packId = "", giveUpMs = GIVE_UP_MS
   }, [real]);
 
   if (!real || dismissed) return null;
+  const series = kind === "pack" && packId.startsWith("test_series");
   return (
     <div className="lt-welcome" role="status" data-testid="welcome-banner">
       <p className="lt-welcome__text">
-        <strong>{kind === "pack" ? WELCOME_PACK_TITLE : WELCOME_PASS_TITLE}</strong>
-        <span>{kind === "pack" ? WELCOME_PACK_LINE : WELCOME_PASS_LINE}</span>
+        <strong>{kind === "pack" ? (series ? WELCOME_SERIES_TITLE : WELCOME_PACK_TITLE) : WELCOME_PASS_TITLE}</strong>
+        <span>{kind === "pack" ? (series ? WELCOME_SERIES_LINE : WELCOME_PACK_LINE) : WELCOME_PASS_LINE}</span>
       </p>
       <button type="button" className="lt-welcome__close" aria-label="Dismiss" onClick={() => setDismissed(true)}>
         {"×"}

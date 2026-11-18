@@ -145,8 +145,8 @@ import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { DownloadWithPlanLink, SeriesChecksLeftLine, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesPaperAccess } from "../components/testSeries/WrittenCheckGate";
-import { countTestsTaken, seriesStartDecision } from "../lib/testSeries/seriesAccess";
+import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesChecksLeftLine, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesAccess } from "../components/testSeries/WrittenCheckGate";
+import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import { CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterTestOf, seriesChapterWorksheetId } from "../lib/testSeries/testSeries";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
@@ -417,7 +417,10 @@ export default function ChapterTestPage() {
   const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
   // TEST-SERIES-1 (owner ruling 18 Nov 19:31 IST) — written-answer checking and the paper download need the Test Series or the Board Pass here.
   // TS-PACK-1: a signed-in Test Series Pack owner gets through too (ownsTestSeries from /api/packs/mine).
-  const seriesPaperAccess = useSeriesPaperAccess(user?.uid ?? null);
+  // MYPACKS-TS-1: three-state (checking / failed / decided); downloads also open for a PDF pack that covers this chapter.
+  const seriesAccess = useSeriesAccess(user?.uid ?? null, { kind: "chapter-test", chapterSlug: resolveCanonicalSlug(topicKey) || null });
+  const seriesPaperAccess = seriesAccess.canCheck;
+  const seriesDownloadAccess = seriesAccess.canDownload;
   // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
   const boardPassHolder = useBoardPassHolder();
   const [startWall, setStartWall] = useState(false);
@@ -697,6 +700,10 @@ export default function ChapterTestPage() {
     if (fairUse.blockPaperStart()) return;
     // TEST-SERIES-1 (owner 19:44 IST): a free / trial account takes ONE test in total; signed out signs in first.
     const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records) });
+    if (startDecision === "upgrade" && seriesAccess.checking) {
+      setLimitNotice(ACCESS_CHECKING_LINE);
+      return;
+    }
     if (startDecision === "sign-in") {
       navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`);
       return;
@@ -707,7 +714,7 @@ export default function ChapterTestPage() {
     }
     // CT-RESUME-2: starting a paper is a NEW paper. A visit the daily gate let through uncounted
     // (it looked like a resume) is counted now — or refused at today's limit.
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest))) {
       setLimitNotice(NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -725,7 +732,7 @@ export default function ChapterTestPage() {
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
-  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper, location.pathname, location.search, user?.uid, isPremium, seriesPaperAccess, isSignedIn, records, navigate]);
+  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper, location.pathname, location.search, user?.uid, isPremium, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, seriesTest, isSignedIn, records, navigate]);
 
   // CT-RELOAD-1 — continue the restored paper where it was left. A resume, not a new start:
   // never re-counted against the fair-use allowance.
@@ -879,9 +886,9 @@ export default function ChapterTestPage() {
 
   // ── Downloads ────────────────────────────────────────────────────────────────
   const downloadTest = useCallback(async () => {
-    if (!paper || !nomen || downloading || !seriesPaperAccess) return;
+    if (!paper || !nomen || downloading || !seriesDownloadAccess) return;
     // CT-RESUME-2: downloading THIS visit's draw is a new paper (the saved paper on offer is not).
-    if (!restoredPaper && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+    if (!restoredPaper && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest))) {
       setLimitNotice(NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -929,7 +936,7 @@ export default function ChapterTestPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed, restoredPaper, location.pathname, isPremium, guardDownload, seriesPaperAccess]);
+  }, [paper, nomen, downloading, isSignedIn, user, sessionSubject, subject, topicKey, loadRecords, markServed, restoredPaper, location.pathname, isPremium, guardDownload, seriesDownloadAccess, seriesAccess.ownsSeries, seriesTest]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded paper's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1245,7 +1252,7 @@ export default function ChapterTestPage() {
             }),
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
-            ...(seriesPaperAccess && reopenSheetOpen && hasStoredPaperSheet(reopen.response)
+            ...(seriesDownloadAccess && reopenSheetOpen && hasStoredPaperSheet(reopen.response)
               ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
               : {}),
             // Awaiting-sheet records offer "Upload answer sheet" — never after the lookup just failed
@@ -1295,8 +1302,9 @@ export default function ChapterTestPage() {
                 </div>
                 <div className="lt-ct__title lt-ct__fr">Ready for a board-pattern test?</div>
                 <div className="lt-ct__sub">
-                  Objective questions are scored the moment you submit. Write the rest on paper, upload, and
-                  get your full graded result with a mistake breakdown.
+                  {seriesPaperAccess
+                    ? "Objective questions are scored the moment you submit. Write the rest on paper, upload, and get your full graded result with a mistake breakdown."
+                    : "Objective questions (MCQs) are scored the moment you submit. Written answers are checked step by step with the Test Series or the Board Pass."}
                 </div>
 
                 {!shownFacts && bank.error ? (
@@ -1406,7 +1414,7 @@ export default function ChapterTestPage() {
                           Start the test →
                         </button>
                       )}
-                      {seriesPaperAccess ? (
+                      {seriesDownloadAccess ? (
                         <button
                           type="button"
                           className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -1415,12 +1423,15 @@ export default function ChapterTestPage() {
                         >
                           {downloading ? "Preparing…" : "↓ Download this test (PDF)"}
                         </button>
+                      ) : seriesAccess.checking ? (
+                        <AccessChecking />
                       ) : (
                         <DownloadWithPlanLink />
                       )}
-                      <LimitChip />
+                      {seriesDownloadAccess && <LimitChip />}
                     </div>
-                    {startWall && <SeriesStartWall />}
+                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote />}
+                    {startWall && !seriesPaperAccess && (seriesAccess.failed ? <AccessFailed onRetry={seriesAccess.retry} /> : seriesAccess.checking ? <AccessChecking /> : <SeriesStartWall />)}
                     {limitNotice && (
                       <div className="lt-ct__honest" role="alert" data-testid="ct-limit-notice">
                         <span>·</span>
@@ -1462,7 +1473,7 @@ export default function ChapterTestPage() {
                     <div className="lt-ct__honest">
                       <span>·</span>
                       <span>
-                        Prefer paper? Download this test, solve it, and upload the whole thing. Opens
+                        {seriesDownloadAccess ? "Prefer paper? Download this test, solve it, and upload the whole thing. " : ""}Opens
                         full-screen so you can focus.{" "}
                         {restoredPaper ? null /* CT-RESUME-2: the freshness line describes the NEW draw — not shown while a saved paper is offered */ : seriesTest ? (
                           // TEST-SERIES-1 — a fixed paper: not a fresh draw, so no freshness claim.
@@ -1681,34 +1692,44 @@ export default function ChapterTestPage() {
           </div>
 
           {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
-          {paperWall && (
+          {paperWall && (seriesAccess.ownsSeries ? (
+            <SeriesOwnerNotice onClose={() => setPaperWall(false)} />
+          ) : (
             <UpgradeSheet featureLabel="Grading your chapter test" offers={paperOffers} onClose={() => setPaperWall(false)} />
-          )}
+          ))}
 
-          {resultsPhase === "partial" && !seriesPaperAccess ? (
-            <WrittenCheckUpgradeCard
-              eyebrow="Chapter Test · Result"
-              name={nomen.name}
-              code={nomen.code}
-              objective={{ awarded: objective.awarded, total: objective.total }}
-              sectionsLabel="Sections B–D"
-              onDone={() => navigate(backTo)}
+          {resultsPhase === "partial" ? (
+            <ResultAccessSlot
+              access={seriesAccess}
+              uploadAllowed={seriesPaperAccess || isBeforeSeriesRules(Date.parse(paper.createdAt))}
+              worksheetId={paper.worksheetId}
+              upgrade={
+                <WrittenCheckUpgradeCard
+                  eyebrow="Chapter Test · Result"
+                  name={nomen.name}
+                  code={nomen.code}
+                  objective={{ awarded: objective.awarded, total: objective.total }}
+                  sectionsLabel="Sections B–D"
+                  onDone={() => navigate(backTo)}
+                />
+              }
+              upload={
+                <>
+                  {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
+                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={resultsPhase} />
+                  <ChapterTestUploadPanel
+                    name={nomen.name}
+                    code={nomen.code}
+                    objective={{ awarded: objective.awarded, total: objective.total }}
+                    grading={grading}
+                    error={gradeError}
+                    isSignedIn={isSignedIn}
+                    onGrade={(upload) => void handleGrade(upload)}
+                    onSkip={() => navigate(backTo)}
+                  />
+                </>
+              }
             />
-          ) : resultsPhase === "partial" ? (
-            <>
-            {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
-            <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={resultsPhase} />
-            <ChapterTestUploadPanel
-              name={nomen.name}
-              code={nomen.code}
-              objective={{ awarded: objective.awarded, total: objective.total }}
-              grading={grading}
-              error={gradeError}
-              isSignedIn={isSignedIn}
-              onGrade={(upload) => void handleGrade(upload)}
-              onSkip={() => navigate(backTo)}
-            />
-            </>
           ) : (
             <div className="lt-ct__upload">
               <div className="lt-ct__uploadcard">
@@ -1728,7 +1749,7 @@ export default function ChapterTestPage() {
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
                   </button>
-                  {seriesPaperAccess && (
+                  {seriesDownloadAccess && (
                   <>
                   {gradedSheetOpen && (
                   <button
@@ -1742,7 +1763,7 @@ export default function ChapterTestPage() {
                   )}
                   </>
                   )}
-                  {seriesPaperAccess && (
+                  {seriesDownloadAccess && (
                   <button
                     type="button"
                     className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -1856,7 +1877,7 @@ export default function ChapterTestPage() {
                 onReadSheet: revealGradedSheet,
                 onPractise: practiseTopic,
                 // TEST-SERIES-1: the PDFs are for a Test Series / Board Pass holder.
-                ...(seriesPaperAccess
+                ...(seriesDownloadAccess
                   ? {
                       onDownloadGraded: () => {
                         setScorecardOpen(false);
