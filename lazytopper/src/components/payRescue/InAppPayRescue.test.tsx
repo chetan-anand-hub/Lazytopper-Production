@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
@@ -52,6 +54,14 @@ describe("INAPP-PAY-1 InAppPayRescue", () => {
     await waitFor(() => expect(screen.getByText(INAPP_RESCUE_COPIED)).toBeTruthy());
     expect(writeText.mock.calls[0][0]).toContain("buy=board_pass");
     expect(onboarding).toHaveBeenCalledWith("inapp_pay_rescue_copy_link", { app: "facebook" });
+  });
+});
+
+describe("INAPP-PAY-1 css", () => {
+  it("the note wraps a long link and the Chrome link has a focus ring", () => {
+    const css = readFileSync(resolve(process.cwd(), "src/components/payRescue/payRescue.css"), "utf8");
+    expect(/\.lt-pay-rescue__note\s*\{[^}]*overflow-wrap:\s*anywhere/.test(css)).toBe(true);
+    expect(css).toContain(".lt-pay-rescue a:focus-visible");
   });
 });
 

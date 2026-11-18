@@ -63,6 +63,9 @@ export function inAppRescueUrl(href: string, buy?: InAppBuyTarget | null): strin
   }
   if (url.protocol !== "https:" && url.protocol !== "http:") return null;
   if (buy) {
+    // Only /pricing and /board-pass host the Board Pass ?buy= arrival (PassCheckout). Any other page (e.g. /for-parents, which
+    // mounts the sheet directly) hands over to /board-pass with every query param kept (utm, fbclid, gclid).
+    if (buy.kind === "pass" && !/^\/(pricing|board-pass)\/?$/.test(url.pathname)) url.pathname = "/board-pass";
     url.searchParams.delete("buy");
     url.searchParams.delete("t");
     url.searchParams.set("buy", buy.kind === "pass" ? "board_pass" : buy.sku);

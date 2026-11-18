@@ -19,8 +19,8 @@ import {
 import "./payRescue.css";
 
 export const INAPP_RESCUE_HEADING = "Payment not going through?";
-export const INAPP_RESCUE_LINE_ANDROID = "Instagram and Facebook can block UPI apps. Open this page in Chrome and pay there.";
-export const INAPP_RESCUE_LINE_IOS = "Instagram and Facebook can block UPI apps. Tap the ••• menu, then Open in browser, and pay there.";
+export const INAPP_RESCUE_LINE_ANDROID = "Payments can fail inside this app's browser. Open this page in Chrome and pay there.";
+export const INAPP_RESCUE_LINE_IOS = "Payments can fail inside this app's browser. Tap the ••• menu, then Open in browser, and pay there.";
 export const INAPP_RESCUE_CHROME_LABEL = "Open in Chrome to pay";
 export const INAPP_RESCUE_COPY_LABEL = "Copy link";
 export const INAPP_RESCUE_COPIED = "Link copied. Paste it in your browser.";

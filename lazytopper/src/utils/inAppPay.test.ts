@@ -66,6 +66,14 @@ describe("INAPP-PAY-1 rescue URL", () => {
     expect(u.searchParams.has("t")).toBe(false);
     expect(u.searchParams.get("gclid")).toBe("1");
   });
+  it("Board Pass from /for-parents lands on /board-pass with utm/fbclid/gclid kept; /pricing and /board-pass stay", () => {
+    const u = new URL(inAppRescueUrl("https://www.lazytopper.com/for-parents?utm_source=ig&fbclid=F&gclid=G", { kind: "pass" })!);
+    expect(u.pathname).toBe("/board-pass");
+    expect([u.searchParams.get("utm_source"), u.searchParams.get("fbclid"), u.searchParams.get("gclid"), u.searchParams.get("buy")]).toEqual(["ig", "F", "G", "board_pass"]);
+    expect(new URL(inAppRescueUrl("https://www.lazytopper.com/pricing?x=1", { kind: "pass" })!).pathname).toBe("/pricing");
+    expect(new URL(inAppRescueUrl("https://www.lazytopper.com/board-pass", { kind: "pass" })!).pathname).toBe("/board-pass");
+    expect(new URL(inAppRescueUrl("https://www.lazytopper.com/for-parents", { kind: "pack", sku: "pack_bundle" })!).pathname).toBe("/for-parents");
+  });
   it("intent keeps host+path+query and encodes the https fallback", () => {
     const intent = inAppChromeIntent(page, { kind: "pack", sku: "pack_bundle" })!;
     expect(intent.startsWith("intent://www.lazytopper.com/packs?")).toBe(true);
