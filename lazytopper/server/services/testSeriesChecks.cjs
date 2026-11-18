@@ -22,6 +22,14 @@
 // ★ THE PAPER PASS IS NOT USED. The fair-use paper pass is minted on the client's word; it decides nothing here
 //   ([FU-TS-PAPER-PASS-SELF-DECLARED]).
 //
+// TS-PACK-JOBFIX (P0, 18 Nov 2026): a series check grades in the SAME background-job mode as every other paper grade (a
+// multi-question paper does not fit the synchronous deadline). The hold rides the job: it is attached to the response
+// (TS_DEFERRED) and the grade route copies it into the job's persisted `deferred`; when the handler answers 202 the hold is
+// HANDED OFF (the 202 settles nothing), and the job's end - `done` or `interrupted`, claimed exactly once by grading/jobs.cjs -
+// calls settleDeferred(deferred, graded): kept when at least one question was graded, released otherwise. A replayed submit
+// gets the stored 202 and starts nothing; a poll never settles. A job that never ends (a lost claim write) is covered by the
+// hold's TTL. Without a job (the synchronous 200 fallback) the hold settles from res.end exactly as before.
+//
 // THE COUNT - a HOLD, then settle. ONE Firestore transaction reads ownership, this paper's committed count and its live holds,
 // and writes a new HOLD (id + time) when a check is left - before grading starts. Two parallel requests for the last check
 // serialise on the parent document: exactly one holds, the other is refused. The hold settles EXACTLY ONCE, at the same moment
@@ -51,6 +59,22 @@ const HOLDS_FIELD = 'testSeriesHolds';
 /** A hold not settled within this long stops counting (a sync grade's own deadline is far shorter). */
 const HOLD_TTL_MS = 30 * 60 * 1000;
 const GRADE_WORKSHEET_PATH = '/api/grade-worksheet';
+
+/** TS-PACK-JOBFIX: the hold a grade-worksheet response carries, for the grade route to put into its job's `deferred`. */
+const TS_DEFERRED = Symbol.for('lazytopper.testSeries.deferred');
+function setTestSeriesDeferred(res, ref) {
+  if (!res || (typeof res !== 'object' && typeof res !== 'function')) return;
+  try {
+    Object.defineProperty(res, TS_DEFERRED, { value: ref, enumerable: false, configurable: true, writable: true });
+  } catch {
+    /* a frozen test double: the hold then settles by TTL */
+  }
+}
+/** The plain-data hold ref `{ uid, paper, holdId }` on this response, or null. PURE. */
+function testSeriesDeferredOf(res) {
+  const d = res && (typeof res === 'object' || typeof res === 'function') ? res[TS_DEFERRED] : undefined;
+  return d && typeof d.uid === 'string' && typeof d.paper === 'string' && typeof d.holdId === 'string' ? { uid: d.uid, paper: d.paper, holdId: d.holdId } : null;
+}
 
 /** Where TEST-SERIES-1 commits the manifest. */
 const MANIFEST_PATH = path.join(__dirname, '..', 'data', 'testSeriesPapers.json');
@@ -180,6 +204,14 @@ function verifySubmission(body, paper) {
   return { ok: true };
 }
 
+/**
+ * THE emergency switch (TS_CHECKS_DISABLED=1 / true / on / yes): the whole Test Series rule is off - no series admission
+ * (entitlement.cjs) and no LIMITS-1 exemption (ownerSeriesPaper / ownerSeriesGrade). ONE function, used by both. PURE.
+ */
+function testSeriesChecksDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.TS_CHECKS_DISABLED) || '').trim());
+}
+
 const docId = (v) => (typeof v === 'string' && v.trim() && !v.includes('/') ? v.trim() : '');
 const mapOf = (data, field) => (data && data[field] && typeof data[field] === 'object' && !Array.isArray(data[field]) ? data[field] : {});
 
@@ -214,7 +246,7 @@ function isLivePack(pack, nowMs) {
  *           readBody?: (req) => Promise<object>, newHoldId?: () => string, logger?: object }} deps
  */
 function createTestSeriesChecks(deps = {}) {
-  const { adminFirestore = null, telemetry = null, now = () => Date.now(), readBody = null } = deps;
+  const { adminFirestore = null, telemetry = null, now = () => Date.now(), readBody = null, env = process.env } = deps;
   const newHoldId = typeof deps.newHoldId === 'function' ? deps.newHoldId : () => crypto.randomUUID().replace(/-/g, '');
   const manifest = deps.manifest || loadManifest(MANIFEST_PATH, deps.logger || console);
   const emit = (e) => {
@@ -348,8 +380,14 @@ function createTestSeriesChecks(deps = {}) {
       res.end = function testSeriesEnd() {
         if (!settled) {
           const status = Number(res.statusCode) || 0;
-          const charged = chargeableCountOf(res);
-          settle(status >= 200 && status < 300 && charged !== undefined && charged > 0);
+          if (status === 202) {
+            // TS-PACK-JOBFIX: a background job took the grade - the hold rides its `deferred` and settles when the job ends.
+            settled = true;
+            emit('test_series.check_job');
+          } else {
+            const charged = chargeableCountOf(res);
+            settle(status >= 200 && status < 300 && charged !== undefined && charged > 0);
+          }
         }
         return end.apply(this, arguments);
       };
@@ -392,19 +430,75 @@ function createTestSeriesChecks(deps = {}) {
       emit(`test_series.refused.${r.kind}`);
       return { kind: 'refused', reason: r.kind, paperKey: paper.key, ...(r.kind === 'exhausted' ? { used: r.used, left: 0 } : {}) };
     }
-    // A background job would settle long after this response: the series check is graded synchronously instead
-    // (the browser already handles the synchronous 200), so this response's end is the grade's real end.
-    if (req) req.lazytopperSyncOnly = true;
+    // TS-PACK-JOBFIX: graded like every other paper (a background job when the browser asks for one). The hold goes with the
+    // response so the grade route can put it into the job's `deferred`; a synchronous answer settles it from res.end.
+    setTestSeriesDeferred(res, { uid: docId(uid), paper: paper.key, holdId: r.holdId });
     settleOnEnd(res, uid, paper, r.holdId);
     emit('test_series.check_held');
     return { kind: 'admitted', paperKey: paper.key, used: r.used, left: r.left };
   }
 
-  return { decide, ownsActive, status, hold, settleHold, manifest };
+  /**
+   * TS-PACK-JOBFIX (review P0 #1) - is this a VERIFIED, unexpired Test Series Pack owner on one of the manifest's series papers of
+   * this kind? `worksheetId` must start with a paper's prefix and the kind must match the paper (ct- = chapter-test, fm- =
+   * full-mock). LIMITS-1 then neither meters nor locks it: the pack's own 2-per-paper rule is the only cap. Never throws; any
+   * doubt (no manifest, unreadable pack) is false - the ordinary limits apply.
+   */
+  async function ownerSeriesPaper(uid, kind, worksheetId) {
+    try {
+      // The kill switch turns the exemption off too: with TS_CHECKS_DISABLED every paper is metered exactly as before.
+      if (testSeriesChecksDisabled(env) || manifest.count === 0) return false;
+      const paper = seriesPaperOf({ worksheetId }, manifest);
+      if (!paper) return false;
+      const paperKind = paper.prefix.startsWith('ct-') ? 'chapter-test' : paper.prefix.startsWith('fm-') ? 'full-mock' : '';
+      if (kind !== paperKind) return false;
+      return (await ownsActive(uid)) === true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * TS-PACK-JOBFIX (review P0 #1) - the grading gate's question: is this grade-worksheet request a Test Series Pack owner's grade of
+   * a series paper with exactly that paper's written questions (the SAME checks admission makes)? Reads the body once (the
+   * handler gets the same parse). Never throws; false on any doubt.
+   */
+  async function ownerSeriesGrade(req, uid) {
+    try {
+      if (testSeriesChecksDisabled(env) || manifest.count === 0) return false;
+      const body = await bodyOf(req);
+      const paper = seriesPaperOf(body, manifest);
+      if (!paper || !verifySubmission(body, paper).ok) return false;
+      return (await ownsActive(uid)) === true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * TS-PACK-JOBFIX - a background grading job ended (grading/jobs.cjs commitDeferred, called ONCE by the claim winner): keep the
+   * hold when at least one question was graded, release it otherwise. A deferred without a series hold does nothing. Never throws.
+   */
+  function settleDeferred(deferred, graded) {
+    try {
+      const ref = deferred && typeof deferred === 'object' ? deferred.testSeries : null;
+      if (!ref || typeof ref.uid !== 'string' || typeof ref.paper !== 'string' || typeof ref.holdId !== 'string') return;
+      const keep = Math.floor(Number(graded) || 0) > 0;
+      void Promise.resolve(settleHold(ref.uid, ref.paper, ref.holdId, keep)).catch(() => {});
+    } catch {
+      emit('test_series.settle_failed');
+    }
+  }
+
+  return { decide, ownsActive, ownerSeriesPaper, ownerSeriesGrade, status, hold, settleHold, settleDeferred, manifest };
 }
 
 module.exports = {
   createTestSeriesChecks,
+  testSeriesChecksDisabled,
+  setTestSeriesDeferred,
+  testSeriesDeferredOf,
+  TS_DEFERRED,
   canonicalQuestionText,
   canonicalQuestionTextHash,
   indexManifest,
