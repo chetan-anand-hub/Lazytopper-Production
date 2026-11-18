@@ -198,3 +198,71 @@ describe("newer reappears", () => {
     expect(await screen.findByText("The 2027 board exam date sheet is out")).toBeTruthy();
   });
 });
+
+describe("SPEED-CLS-2 — no layout shift when the strip arrives", () => {
+  it("first-ever visit: reserves the strip's room while the manifest is in flight, then swaps in the strip", async () => {
+    serve(manifest([DATESHEET]));
+    const { container } = renderBanner();
+    const reserve = container.querySelector('[data-testid="cbse-banner-reserve"]');
+    expect(reserve).toBeTruthy();
+    expect(reserve?.getAttribute("aria-hidden")).toBe("true");
+    // The reserved floor is the MEASURED strip height (72 px wrapped / 56 px single line).
+    expect(container.querySelector("style")?.textContent).toContain("min-height: 56px");
+    expect(container.querySelector("style")?.textContent).toContain("min-height: 72px");
+    await settle();
+    expect(container.querySelector('[data-testid="cbse-banner-reserve"]')).toBeNull();
+    expect(screen.getByText("The 2027 board exam date sheet is out")).toBeTruthy();
+  });
+
+  it("returning visit: the remembered headline paints in the FIRST render, no reserve, no wait", async () => {
+    window.localStorage.setItem(
+      "ltCbseBanner.last.v1",
+      JSON.stringify({ id: DATESHEET.id, headline: DATESHEET.headline }),
+    );
+    serve(manifest([DATESHEET]));
+    const { container } = renderBanner();
+    expect(screen.getByText("The 2027 board exam date sheet is out")).toBeTruthy();
+    expect(container.querySelector('[data-testid="cbse-banner-reserve"]')).toBeNull();
+    await settle();
+    expect(screen.getAllByText("The 2027 board exam date sheet is out").length).toBe(1);
+  });
+
+  it("remembered 'nothing to say' and remembered-but-dismissed reserve nothing", async () => {
+    window.localStorage.setItem("ltCbseBanner.last.v1", JSON.stringify({ none: true }));
+    serve(manifest([QUIET]));
+    const a = renderBanner();
+    expect(a.container.innerHTML).toBe("");
+    a.unmount();
+    window.localStorage.setItem(
+      "ltCbseBanner.last.v1",
+      JSON.stringify({ id: SQP.id, headline: SQP.headline }),
+    );
+    window.localStorage.setItem(CBSE_BANNER_DISMISSED_KEY, JSON.stringify([SQP.id]));
+    const b = renderBanner();
+    expect(b.container.innerHTML).toBe("");
+  });
+
+  it("a settled read is remembered; a failed fetch does not erase a good memory", async () => {
+    serve(manifest([DATESHEET]));
+    renderBanner();
+    await settle();
+    expect(JSON.parse(window.localStorage.getItem("ltCbseBanner.last.v1") ?? "null")).toEqual({
+      id: DATESHEET.id,
+      headline: DATESHEET.headline,
+    });
+    cleanup();
+    serve({}, 404);
+    renderBanner();
+    await settle();
+    expect(JSON.parse(window.localStorage.getItem("ltCbseBanner.last.v1") ?? "null")).toEqual({
+      id: DATESHEET.id,
+      headline: DATESHEET.headline,
+    });
+  });
+
+  it("no mirror configured (CI / prerender): reserves nothing", () => {
+    vi.stubEnv("VITE_FIREBASE_STORAGE_BUCKET", "");
+    serve(manifest([DATESHEET]));
+    expect(renderBanner().container.innerHTML).toBe("");
+  });
+});

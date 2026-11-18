@@ -145,6 +145,8 @@
 .lt-pk-row__gst { font-weight: 600; }
 .lt-pk-row__body .lt-ptb__see, .lt-pk-row__body .lt-psl { color: var(--pk-gt); }
 .lt-pk-row__body .lt-pt__preboard { margin: 0; }
+/* PACKS-LPX-1: footer legal/contact links meet the 44px touch-target guideline on this page (below the fold, so no CLS). Scoped to .lt-pk. */
+.lt-pk .lt-public-legal a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; }
 @media (prefers-reduced-motion: reduce) { .lt-pk-row__price::after { transition: none; } }
 
 /* v1.2 L3: the CBQ link (amber) and the Board Pass link, each ONE line. */

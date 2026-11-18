@@ -732,13 +732,15 @@ describe("SPEED-CI-3 — in-app browsers get the door; a web view without storag
       }
     };
     walk(SRC);
-    // Login (sign-in in-app note / Chrome handoff / phone-first door), the guest pay sheet and sign-in telemetry.
+    // Login (sign-in in-app note / Chrome handoff / phone-first door), the guest pay sheet, sign-in telemetry and the in-app pay rescue (post-checkout only).
     // None renders on the Answer Checker's first frame. A new reader must be checked against /check-improve's parity.
     expect(readers.sort()).toEqual([
       "components/auth/inAppSigninCopy.ts",
       "components/guestPay/GuestPaySheet.tsx",
       "utils/authSignal.ts",
       "utils/inAppBrowserLinks.ts",
+      // INAPP-PAY-1: read only when a checkout starts (event flag) or after a closed pay sheet (rescue card) - never on a first frame.
+      "utils/inAppPay.ts",
     ]);
   });
 

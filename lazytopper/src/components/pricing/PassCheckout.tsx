@@ -714,6 +714,7 @@ export function PassCheckoutView({
         <div className="lt-pricing-checkout-note lt-pricing-checkout-note--bottom" data-testid="pass-checkout-rescue">
           <PayRescueCard
             kind="pass"
+            buy={rescue === "till_boards" ? { kind: "pass" } : undefined}
             onRetry={() => {
               const again = rescue;
               setRescue(null);
