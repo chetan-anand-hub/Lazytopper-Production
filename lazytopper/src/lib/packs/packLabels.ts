@@ -14,6 +14,13 @@ export const ALL_NCERT_CHAPTERS = MATHS_NCERT_CHAPTERS + SCIENCE_NCERT_CHAPTERS;
 
 /** Full board-pattern papers per subject in a Mock Pack. */
 export const MOCKS_PER_SUBJECT = 8;
+
+/**
+ * TS-PACK-1 - the Test Series Pack's name and its checks-per-paper words. Its paper COUNTS come from the series config
+ * (lib/testSeries/testSeries.ts seriesTotals / seriesContentsLine / testSeriesPackLine), never typed here.
+ */
+export const TEST_SERIES_NAME = "Test Series Pack";
+export const TEST_SERIES_CHECKS_PER_PAPER_COPY = "twice per paper";
 export const BUNDLE_MOCKS = MOCKS_PER_SUBJECT * 2;
 
 /** Mock paper pattern shown for Maths (Standard, subject code 041). */

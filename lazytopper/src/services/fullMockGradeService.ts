@@ -223,6 +223,8 @@ export async function gradeFullMockUpload(args: {
     subject: paper.subject,
     questions: subjectiveQuestions.map((q) => ({
       qNumber: q.qNumber,
+      // TS-PACK-1: the bank id + the exact persisted text below let the server verify a Test Series paper's questions.
+      ...(q.id !== undefined && q.id !== null && String(q.id) ? { questionId: String(q.id) } : {}),
       marks: q.marks,
       topic: q.topicLabel,
       topicLabel: q.topicLabel,

@@ -34,7 +34,7 @@ function packRefOf(unit: TemplateUnit): PackRef {
 /** The packs of the shop, as {packId, units}: a pack's files are its units' files in this order. */
 export function packUnits(): PackUnitsDef[] {
   const out: PackUnitsDef[] = [];
-  const add = (sku: PackSku, target: string, units: TemplateUnit[]) => out.push({ packId: packIdOf(sku, target), sku, target, units });
+  const add = (sku: Exclude<PackSku, "test_series">, target: string, units: TemplateUnit[]) => out.push({ packId: packIdOf(sku, target), sku, target, units });
   for (const slug of PACK_CHAPTER_SLUGS) add("pack_chapter", slug, [{ kind: "chapter", key: slug }]);
   for (const s of PACK_SUBJECTS) add("pack_mock", s, [{ kind: "mocks", key: s }]);
   for (const s of PACK_SUBJECTS) {

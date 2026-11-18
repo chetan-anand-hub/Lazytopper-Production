@@ -30,6 +30,8 @@ const PACK_BY_LABEL: Record<string, PackSku> = {
   "Mock Pack": "pack_mock",
   "Subject Pack": "pack_subject",
   "Maths + Science Bundle": "pack_bundle",
+  // TS-PACK-1: the Test Series Pack row on /packs.
+  "Test Series Pack": "test_series",
 };
 const LABELS = Object.keys(PACK_BY_LABEL).map((l) => l.replace(/[+]/g, "\\+")).join("|");
 // GST-EXCL-1: a price TAG may carry " + GST" (from 7 Nov 2026); the captured group is the WHOLE shown figure, so a snapshot
@@ -106,19 +108,20 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
     take(new RegExp(`class="lt-pk-bundle__amt">${AMT}`), () => "Maths + Science Bundle", () => packExp("Maths + Science Bundle"));
     take(new RegExp(`class="lt-pk-row__name">(${LABELS})</span><span class="lt-pk-row__price">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
     // Review N1: the static neutral buttons name the TOTAL charged, as the app's Buy does ("Bundle · ₹353", a row's "₹235").
-    const neutralSku: Record<string, string> = { bundle: "Maths + Science Bundle", subject: "Subject Pack", mock: "Mock Pack" };
-    take(new RegExp(`data-testid="pk-buy-(bundle|subject|mock)-neutral">(?:Bundle · )?${AMT}<`), (m) => `${neutralSku[m[1]]} (neutral button)`, (m) => packPay(neutralSku[m[1]]));
+    const neutralSku: Record<string, string> = { bundle: "Maths + Science Bundle", subject: "Subject Pack", mock: "Mock Pack", "test-series": "Test Series Pack" };
+    take(new RegExp(`data-testid="pk-buy-(bundle|subject|mock|test-series)-neutral">(?:Bundle · |Test Series · )?${AMT}<`), (m) => `${neutralSku[m[1]]} (neutral button)`, (m) => packPay(neutralSku[m[1]]));
     // v1.2: the accessible names that carry a price (a compact button's "<Pack> · <price>", the CBQ link's full line).
     take(new RegExp(`aria-label="(${LABELS}) · ${AMT}"`), (m) => `${m[1]} (accessible name)`, (m) => packExp(m[1]));
     take(new RegExp(`aria-label="CBQ Packs · [^"·]*· ${AMT}\\.`), () => "CBQ Pack (packs link name)", () => packExp("Maths CBQ Pack"));
     // v1.2 L3 / review N2: the one-line CBQ link ("CBQ PACKS" tag, then the price).
     take(new RegExp(`class="lt-pk-lrow__t">${AMT} per subject<`), () => "CBQ Pack (packs link card)", () => packExp("Maths CBQ Pack"));
     take(new RegExp(`their own page, ${AMT} per subject`), () => "CBQ Pack (packs FAQ)", () => packExp("Maths CBQ Pack"));
-    const twinSku: Record<string, PackSku> = { bundle: "pack_bundle", subject: "pack_subject", mock: "pack_mock", chapter: "pack_chapter" };
+    const twinSku: Record<string, PackSku> = { bundle: "pack_bundle", subject: "pack_subject", mock: "pack_mock", chapter: "pack_chapter", "test-series": "test_series", test_series: "test_series" };
     // The Bundle's breakup sits under its Buy (twin box); a row's (v1.2 L2) inside the opened row, marked with its sku.
-    for (const m of html.matchAll(/(?:data-lt-twin="pk-buy-(bundle)"[^>]*>(?:(?!data-lt-twin)[\s\S])*?<span class="lt-ptb__gst">|data-testid="tile-gst-pack_(\w+)">)(₹[\d,]+ \+ ₹[\d,]+ GST \(18%\) = ₹[\d,]+)</g)) {
-      const key = m[1] ?? m[2];
-      const line = m[3];
+    // TS-PACK-1: the Test Series twin box ("pk-buy-test-series") and its row breakup ("tile-gst-test_series") too.
+    for (const m of html.matchAll(/(?:data-lt-twin="pk-buy-(bundle|test-series)"[^>]*>(?:(?!data-lt-twin)[\s\S])*?<span class="lt-ptb__gst">|data-testid="tile-gst-(?:pack_(\w+)|(test_series))">)(₹[\d,]+ \+ ₹[\d,]+ GST \(18%\) = ₹[\d,]+)</g)) {
+      const key = m[1] ?? m[2] ?? m[3];
+      const line = m[4];
       const sku = twinSku[key];
       const start = m.index! + m[0].lastIndexOf(line);
       for (const t of line.matchAll(/₹/g)) claimed.add(start + t.index!);
@@ -194,6 +197,8 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
       const pk = of("packs.html").map((x) => x.product);
       // PACKS-TIDY-2: the CBQ card left /packs (a link card + an FAQ line name its price); each Buy's place is a neutral button + GST line.
       for (const l of ["Chapter Pack", "Mock Pack", "Subject Pack", "Maths + Science Bundle", "CBQ Pack (packs link card)", "pack_bundle (GST breakup)", "pack_chapter (GST breakup)"]) expect(pk).toContain(l);
+      // TS-PACK-1: the Test Series row's tag, its neutral button and its GST breakups are guarded too.
+      for (const l of ["Test Series Pack", "Test Series Pack (neutral button)", "test_series (GST breakup)"]) expect(pk).toContain(l);
       expect(of("packs.html").length).toBeGreaterThanOrEqual(7);
     }
     // PRICING-PAGES-1: both sales pages are scanned in both variants (the Pay / Buy, the card price, the links, the GST breakups).

@@ -57,12 +57,12 @@ export interface OfferRow {
 export const BEST_VALUE_BADGE = "BEST VALUE";
 
 /** Same price, Subject before CBQ; otherwise the price decides (descending). */
-const TIE_ORDER: Readonly<Record<PackSku, number>> = { pack_bundle: 0, pack_subject: 1, pack_cbq: 2, pack_mock: 3, pack_chapter: 4 };
+const TIE_ORDER: Readonly<Record<PackSku, number>> = { test_series: -1, pack_bundle: 0, pack_subject: 1, pack_cbq: 2, pack_mock: 3, pack_chapter: 4 };
 
 /** "/packs?buy=<sku>&t=<target>" (the Bundle has no t). */
 export function buyHrefFor(sku: PackSku, target: string): string {
   const q = new URLSearchParams({ buy: sku });
-  if (sku !== "pack_bundle") q.set("t", target);
+  if (sku !== "pack_bundle" && sku !== "test_series") q.set("t", target);
   return `/packs?${q.toString()}`;
 }
 
@@ -79,6 +79,8 @@ export function insideHrefFor(sku: PackSku, target: string): string {
       return `/packs?pack=cbq&subject=${target}`;
     case "pack_bundle":
       return "/packs?pack=bundle";
+    case "test_series":
+      return "/packs?pack=test-series";
   }
 }
 

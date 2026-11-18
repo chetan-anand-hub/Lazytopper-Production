@@ -17,7 +17,7 @@ vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: { uid: "u1
 vi.mock("../../components/packs/PackSampleLink", () => ({ default: () => <a href="/sample">See a free sample</a> }));
 
 import PackDialog from "../../pages/PackDialog";
-import { PACK_SKUS, PACK_SUBJECTS, chaptersOfSubject, packIdOf, type PackSku, type PackSubject } from "../../services/packs";
+import { PDF_PACK_SKUS as PACK_SKUS, PACK_SUBJECTS, chaptersOfSubject, packIdOf, type PackSku, type PackSubject } from "../../services/packs";
 import {
   PACK_PREVIEWS,
   PREVIEW_FALLBACK_CAPTION,

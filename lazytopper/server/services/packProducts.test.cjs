@@ -13,9 +13,43 @@ const own = (...ids) => ids.map((packId) => ({ packId }));
 test('prices and target kinds are the owner-confirmed table', () => {
   assert.deepEqual(
     Object.fromEntries(Object.entries(P.PACK_PRODUCTS).map(([k, v]) => [k, [v.priceInr, v.needsTarget]])),
-    { pack_chapter: [49, 'chapter'], pack_mock: [99, 'subject'], pack_subject: [199, 'subject'], pack_bundle: [299, null], pack_cbq: [199, 'subject'] },
+    { pack_chapter: [49, 'chapter'], pack_mock: [99, 'subject'], pack_subject: [199, 'subject'], pack_bundle: [299, null], pack_cbq: [199, 'subject'], test_series: [999, null] },
   );
   assert.ok(Object.isFrozen(P.PACK_PRODUCTS) && Object.isFrozen(P.PACK_CHAPTERS));
+});
+
+/* ── TS-PACK-1 · the Test Series Pack ───────────────────────────────────────── */
+
+test('TS-PACK-1: test_series is Rs 999, one packId `test_series:all`, covered by nothing but itself, covering nothing', () => {
+  assert.equal(P.isPackProduct('test_series'), true);
+  assert.equal(P.PACK_PRODUCTS.test_series.priceInr, 999);
+  assert.equal(P.validateTarget('test_series', 'maths'), 'all');
+  assert.equal(P.packIdFor('test_series'), 'test_series:all');
+  assert.deepEqual(P.parsePackId('test_series:all'), { sku: 'test_series', target: 'all' });
+  assert.equal(P.parsePackId('test_series:maths'), null);
+  // it is NOT the bundle: owning every PDF pack does not own it, and owning it owns no PDF pack
+  const everyPdf = own('pack_bundle:all', 'pack_cbq:maths', 'pack_cbq:science', 'pack_subject:maths', 'pack_subject:science');
+  assert.equal(P.isAlreadyOwned(everyPdf, 'test_series', 'all'), false);
+  assert.equal(P.isAlreadyOwned(own('test_series:all'), 'test_series', 'all'), true);
+  for (const [sku, t] of [['pack_bundle', 'all'], ['pack_chapter', 'triangles'], ['pack_mock', 'maths'], ['pack_cbq', 'science'], ['pack_subject', 'maths']]) {
+    assert.equal(P.isAlreadyOwned(own('test_series:all'), sku, t), false, sku);
+  }
+  assert.equal(P.ownsTestSeries(own('test_series:all')), true);
+  assert.equal(P.ownsTestSeries(own('pack_bundle:all')), false);
+  const { coveringPackIds } = require('./packGrant.cjs');
+  if (typeof coveringPackIds === 'function') assert.deepEqual(coveringPackIds('test_series', 'all'), ['test_series:all']);
+});
+
+test('TS-PACK-1 kill switch: TS_PACK_DISABLED takes the Test Series Pack off sale and touches no other pack', () => {
+  const on = { PACKS_ENABLED: '1' };
+  assert.equal(P.isPackOnSale('test_series', on), true);
+  for (const v of ['1', 'true', 'on', 'yes', ' 1 ']) {
+    assert.equal(P.isPackOnSale('test_series', { ...on, TS_PACK_DISABLED: v }), false, v);
+    for (const sku of ['pack_chapter', 'pack_mock', 'pack_subject', 'pack_bundle', 'pack_cbq']) assert.equal(P.isPackOnSale(sku, { ...on, TS_PACK_DISABLED: v }), true, sku);
+  }
+  for (const v of ['0', '', 'off']) assert.equal(P.isPackOnSale('test_series', { ...on, TS_PACK_DISABLED: v }), true, v);
+  assert.equal(P.isPackOnSale('test_series', {}), false, 'PACKS_ENABLED off -> no pack is on sale');
+  assert.equal(P.isPackOnSale('month', on), false);
 });
 
 test('isPackProduct: closed table, no prototype keys, no passes, no top-ups', () => {
@@ -138,4 +172,17 @@ test('CBQ-PACK-1: pack_cbq is a separate product - not covered by the subject pa
   assert.equal(P.ownsMocks(cbqBoth, 'maths'), false);
   assert.equal(P.isAlreadyOwned(cbqBoth, 'pack_subject', 'maths'), false);
   assert.equal(P.isAlreadyOwned(cbqBoth, 'pack_bundle'), false);
+});
+
+test('TS-PACK-1 source pin: EVERY order-creating route asks isPackOnSale (so TS_PACK_DISABLED reaches signed-in, guest, self and parent checkout)', () => {
+  const fs = require('node:fs');
+  const read = (f) => fs.readFileSync(path.join(__dirname, '..', 'routes', f), 'utf8');
+  const pay = read('payments.cjs');
+  assert.match(pay, /const isPack = isPackOnSale\(passType, env\);/);
+  const guest = read('guestPay.cjs');
+  assert.equal((guest.match(/const isPack = isPackOnSale\(sku, env\);/g) || []).length, 3, 'guest order, self order, guest pass/pack order');
+  assert.doesNotMatch(guest, /isPackProduct\(sku\) && packsEnabled\(env\)/);
+  const parent = read('parentPay.cjs');
+  assert.equal((parent.match(/if \(!isPackOnSale\(pack\.sku, env\)\) return unavailable\(res\);/g) || []).length, 2, 'parent link view + order');
+  assert.match(parent, /isPackProduct\(wanted\.sku\) && !isPackOnSale\(wanted\.sku, env\)/);
 });

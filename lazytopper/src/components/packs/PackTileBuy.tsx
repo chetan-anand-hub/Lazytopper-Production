@@ -74,14 +74,14 @@ export default function PackTileBuy({ sku, api, tone = "light", subject }: { sku
       </div>
     );
   }
-  if (sku === "pack_bundle") {
+  if (sku === "pack_bundle" || sku === "test_series") {
     const blocked = api.blockedBy(sku);
     return (
       <div className={cls}>
         {api.ownsPack(sku) ? (
-          <Owned testId="tile-owned-pack_bundle" />
+          <Owned testId={`tile-owned-${sku}`} />
         ) : (
-          <BuyButton blocked={blocked} onClick={() => api.buyNow(sku)} testId="tile-buy-pack_bundle">{`Buy · ${price}`}</BuyButton>
+          <BuyButton blocked={blocked} onClick={() => api.buyNow(sku)} testId={`tile-buy-${sku}`}>{`Buy · ${price}`}</BuyButton>
         )}
         <GstNote sku={sku} show={!api.ownsPack(sku)} />
         <BusyNote show={blocked && !api.ownsPack(sku)} />

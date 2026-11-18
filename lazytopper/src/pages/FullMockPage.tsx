@@ -171,7 +171,7 @@ import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { DownloadWithPlanLink, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesPaperAccess } from "../components/testSeries/WrittenCheckGate";
+import { DownloadWithPlanLink, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesPaperAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
 import { countTestsTaken, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import { FM_PAPER_PARAM, PACK_MATCHED_MOCKS, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
 
@@ -250,7 +250,8 @@ export default function FullMockPage() {
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live (see ChapterTestPage).
   const { isPremium } = useSubscription();
   // TEST-SERIES-1 (owner ruling 18 Nov 19:31 IST) — written-answer checking and the paper download need the Test Series or the Board Pass here.
-  const seriesPaperAccess = useSeriesPaperAccess();
+  // TS-PACK-1: a signed-in Test Series Pack owner gets through too (ownsTestSeries from /api/packs/mine).
+  const seriesPaperAccess = useSeriesPaperAccess(user?.uid ?? null);
   // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
   const boardPassHolder = useBoardPassHolder();
   const [startWall, setStartWall] = useState(false);
@@ -2038,6 +2039,9 @@ export default function FullMockPage() {
               onDone={() => setPhase("setup")}
             />
           ) : resultsPhase === "partial" ? (
+            <>
+            {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
+            <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={resultsPhase} />
             <ChapterTestUploadPanel
               eyebrow="Full Mock · Result"
               sectionsLabel="Sections B–E"
@@ -2050,6 +2054,7 @@ export default function FullMockPage() {
               onGrade={(upload) => void handleGrade(upload)}
               onSkip={() => setPhase("setup")}
             />
+            </>
           ) : (
             <div className="lt-ct__upload">
               <div className="lt-ct__uploadcard">
@@ -2064,6 +2069,7 @@ export default function FullMockPage() {
                     ? ` · ${fullResponse.pendingCount} page(s) pending`
                     : ""}
                 </div>
+                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={resultsPhase} />
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard

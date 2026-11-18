@@ -145,7 +145,7 @@ import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { DownloadWithPlanLink, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesPaperAccess } from "../components/testSeries/WrittenCheckGate";
+import { DownloadWithPlanLink, SeriesChecksLeftLine, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesPaperAccess } from "../components/testSeries/WrittenCheckGate";
 import { countTestsTaken, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import { CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterTestOf, seriesChapterWorksheetId } from "../lib/testSeries/testSeries";
 
@@ -416,7 +416,8 @@ export default function ChapterTestPage() {
   // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED). A paper + its solutions share one key.
   const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
   // TEST-SERIES-1 (owner ruling 18 Nov 19:31 IST) — written-answer checking and the paper download need the Test Series or the Board Pass here.
-  const seriesPaperAccess = useSeriesPaperAccess();
+  // TS-PACK-1: a signed-in Test Series Pack owner gets through too (ownsTestSeries from /api/packs/mine).
+  const seriesPaperAccess = useSeriesPaperAccess(user?.uid ?? null);
   // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
   const boardPassHolder = useBoardPassHolder();
   const [startWall, setStartWall] = useState(false);
@@ -1694,6 +1695,9 @@ export default function ChapterTestPage() {
               onDone={() => navigate(backTo)}
             />
           ) : resultsPhase === "partial" ? (
+            <>
+            {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
+            <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={resultsPhase} />
             <ChapterTestUploadPanel
               name={nomen.name}
               code={nomen.code}
@@ -1704,6 +1708,7 @@ export default function ChapterTestPage() {
               onGrade={(upload) => void handleGrade(upload)}
               onSkip={() => navigate(backTo)}
             />
+            </>
           ) : (
             <div className="lt-ct__upload">
               <div className="lt-ct__uploadcard">
@@ -1718,6 +1723,7 @@ export default function ChapterTestPage() {
                     ? ` · ${fullResponse.pendingCount} page(s) pending`
                     : ""}
                 </div>
+                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={resultsPhase} />
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard

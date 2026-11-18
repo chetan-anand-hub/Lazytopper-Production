@@ -82,6 +82,7 @@ function packDisplayName(packId) {
   if (p.sku === 'pack_mock') return `${subject} Mock Pack`;
   if (p.sku === 'pack_subject') return `${subject} Subject Pack`;
   if (p.sku === 'pack_cbq') return `${subject} CBQ Pack`;
+  // TS-PACK-1: the Test Series Pack has no files to download, so it never gets a "download your pack" nudge (null = no email).
   return null;
 }
 

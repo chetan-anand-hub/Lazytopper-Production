@@ -10,7 +10,8 @@
  *
  * Every count here is derived from code (the syllabus keys, SERIES_MOCKS_PER_SUBJECT); nothing is typed. A sitting of a series paper is
  * recognised by its worksheet id (`ct-ts1-<topicKey>--…` / `fm-ts1-<m|s><n>--…`), which the session record keeps.
- * No gate and no entitlement lives here; the one price constant is TEST_SERIES_PRICE_INR (below).
+ * No gate, no entitlement and no price live here: the price is the `test_series` SKU's (services/packs.ts PACK_PRICE_INR /
+ * packPriceLabel("test_series"), the client copy of the server table in server/services/packProducts.cjs) - TS-PACK-1.
  */
 import { BOARD_CHAPTER_KEYS, chapterUnit } from "../../config/syllabusUnits2026-27";
 import { desktopTopicBySlug } from "../desktop/topics";
@@ -30,14 +31,9 @@ export const TEST_SERIES_PATH = "/test-series";
 export const TEST_SERIES_NAME = "Pre-Boards Test Series";
 /**
  * OWNER CORRECTION 18 Nov 2026, 19:38 IST — the Test Series is its OWN product (not the Board Pass), ₹999 + GST till the boards.
- * ★ THE ONE PRICE CONSTANT. TS-PACK-1 (the parallel lane that adds the `test_series` SKU) swaps this for the real pricing helper;
- * every surface here reads it through `testSeriesPriceDisplay()`.
+ * TS-PACK-1: its price is the `test_series` SKU's — read it with packPriceLabel("test_series") (services/packs.ts); no copy here.
  */
-export const TEST_SERIES_PRICE_INR = 999;
-export function testSeriesPriceDisplay(): string {
-  return `₹${TEST_SERIES_PRICE_INR.toLocaleString("en-IN")} + GST`;
-}
-/** Where "Get the Test Series" goes. TS-PACK-1 adds the `test_series` SKU; until then /packs simply opens. */
+/** Where "Get the Test Series" goes: the existing pack checkout (PacksShop readBuyResume -> the pack checkout sheet). */
 export const TEST_SERIES_BUY_PATH = "/packs?buy=test_series";
 /** The series tag in seeds and worksheet ids. A new series (a re-numbered set of papers) would take a new tag. */
 export const SERIES_TAG = "ts1";
@@ -149,6 +145,14 @@ export function seriesContentsLine(t: SeriesTotals = seriesTotals()): string {
   return `${t.chapterTests} chapter tests + ${t.fullMocks} full-length tests`;
 }
 
+/**
+ * TS-PACK-1 — the Test Series Pack's one line (the /packs row, its pop-up): "26 chapter tests + 40 full-length tests, Maths + Science.
+ * Your written answers (Sections B to E) checked step by step, twice per paper, till your boards." Counts from code.
+ */
+export function testSeriesPackLine(t: SeriesTotals = seriesTotals()): string {
+  return `${seriesContentsLine(t)}, Maths + Science. Your written answers (Sections B to E) checked step by step, twice per paper, till your boards.`;
+}
+
 /* ── URL params ──────────────────────────────────────────────────────────────── */
 
 /** The fixed seed string of a chapter's series paper. */
@@ -212,6 +216,21 @@ export function seriesKeyOfWorksheetId(id: string | null | undefined): SeriesKey
   const fm = FM_ID.exec(s);
   if (fm) return { kind: "mock", subject: fm[1] === "m" ? "Maths" : "Science", n: Number(fm[2]) };
   return null;
+}
+
+/**
+ * TS-PACK-1 — the manifest `key` ("TS-CT-M01" / "TS-FM-S8", server/data/testSeriesPapers.json) of the series paper a worksheet id
+ * belongs to, or null. The server counts a Test Series Pack's checks per paper under this key (GET /api/packs/mine `testSeries.used`).
+ */
+export function seriesPaperKeyOfWorksheetId(id: string | null | undefined): string | null {
+  const k = seriesKeyOfWorksheetId(id);
+  if (!k) return null;
+  if (k.kind === "chapter") {
+    const t = seriesChapterTestOf(k.topicKey);
+    return t ? `TS-${t.code}` : null;
+  }
+  const m = seriesFullMocks().find((x) => x.subject === k.subject && x.n === k.n);
+  return m ? `TS-${m.code}` : null;
 }
 
 /* ── Progress (real session records only) ───────────────────────────────────── */

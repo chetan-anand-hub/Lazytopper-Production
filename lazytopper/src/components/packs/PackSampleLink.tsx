@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { packSampleFor, packSampleHref, PACK_SAMPLE_LINK_TEXT, type PackSampleSurface } from "../../lib/packs/packSamples";
 import { trackPackSampleDownload } from "../../lib/packs/packAnalytics";
-import { BUNDLE_NAME } from "../../lib/packs/packLabels";
+import { BUNDLE_NAME, TEST_SERIES_NAME } from "../../lib/packs/packLabels";
 import { packPayLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import "./packSampleLink.css";
 
@@ -74,6 +74,8 @@ export function sampleBuyName(sku: PackSku, subject?: PackSubject | null): strin
       return `${s}Subject Pack`;
     case "pack_cbq":
       return `${s}CBQ Pack`;
+    case "test_series":
+      return TEST_SERIES_NAME;
   }
 }
 

@@ -642,7 +642,8 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "The one-time PDF packs this student has bought (a chapter, a mock set, a subject or the " +
       "bundle): which pack, what they paid, when, and the order and payment it came from. " +
       "Lives in the packs and grants subcollections; this parent document holds a last-updated time and, for a " +
-      "student with a CBQ Pack, how many of their 3 bonus tutor questions have been used (cbqTutorTasteUsed).",
+      "student with a CBQ Pack, how many of their 3 bonus tutor questions have been used (cbqTutorTasteUsed); for a student " +
+      "with the Test Series Pack, how many times each Test Series paper has been checked (testSeriesChecks, keyed by a hash of the paper).",
     mechanism: "admin-sdk-required",
     exportable: true,
     notes:

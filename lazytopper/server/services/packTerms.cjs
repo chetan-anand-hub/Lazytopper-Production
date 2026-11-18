@@ -51,10 +51,30 @@ function redownloadUntilFor(paidAt) {
   return isNewTerms(paidAt) ? REDOWNLOAD_UNTIL : REDOWNLOAD_UNTIL_LEGACY;
 }
 
+/**
+ * TS-PACK-1 - the Test Series Pack is valid "till your boards": 31 May 2027, end of day IST, whenever it was paid - the SAME
+ * constant the pre-cut-off packs already use (owner ruling 18 Nov 2026; not a new date). It is not a PDF pack, so the
+ * 31 March re-download rule does not apply to it.
+ */
+const TEST_SERIES_SKU = 'test_series';
+const TEST_SERIES_ENDS_MS = REDOWNLOAD_ENDS_LEGACY_MS;
+const TEST_SERIES_UNTIL = REDOWNLOAD_UNTIL_LEGACY;
+
+/** The last ms THIS owned pack is served (its sku decides for the Test Series Pack, its paidAt for a PDF pack). PURE. */
+function endsMsForPack(pack) {
+  if (pack && pack.sku === TEST_SERIES_SKU) return TEST_SERIES_ENDS_MS;
+  return redownloadEndsMsFor(pack && pack.paidAt);
+}
+
+function untilForPack(pack) {
+  if (pack && pack.sku === TEST_SERIES_SKU) return TEST_SERIES_UNTIL;
+  return redownloadUntilFor(pack && pack.paidAt);
+}
+
 /** Is the pack's re-download window still open at the server's `nowMs`? Boundary: the whole last day (IST) is open. */
 function isRedownloadOpen(pack, nowMs) {
   if (typeof nowMs !== 'number' || !Number.isFinite(nowMs)) return true; // no usable clock: never cut a student off on a bug
-  return nowMs <= redownloadEndsMsFor(pack && pack.paidAt);
+  return nowMs <= endsMsForPack(pack);
 }
 
 /**
@@ -75,8 +95,8 @@ function splitByRedownload(packs, nowMs) {
       sku: p.sku,
       target: p.target,
       paidAt: p.paidAt,
-      redownloadUntil: redownloadUntilFor(p.paidAt),
-      endedAtMs: redownloadEndsMsFor(p.paidAt),
+      redownloadUntil: untilForPack(p),
+      endedAtMs: endsMsForPack(p),
     });
   }
   return { open, ended };
@@ -93,4 +113,7 @@ module.exports = {
   redownloadUntilFor,
   isRedownloadOpen,
   splitByRedownload,
+  TEST_SERIES_ENDS_MS,
+  TEST_SERIES_UNTIL,
+  endsMsForPack,
 };

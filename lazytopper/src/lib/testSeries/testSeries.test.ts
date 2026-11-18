@@ -7,6 +7,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { BOARD_CHAPTER_KEYS, chapterUnit } from "../../config/syllabusUnits2026-27";
 import {
+  TEST_SERIES_BUY_PATH,
   chapterTestSeriesSeed,
   currentScheduleRow,
   isChapterTestSeriesRequest,
@@ -20,9 +21,7 @@ import {
   seriesProgress,
   seriesSchedule,
   seriesTotals,
-  testSeriesPriceDisplay,
   SERIES_MOCKS_PER_SUBJECT,
-  TEST_SERIES_PRICE_INR,
   type SeriesRecordLike,
 } from "./testSeries";
 import { canCheckSeriesPapers, countTestsTaken, seriesStartDecision, FREE_TESTS_ALLOWED } from "./seriesAccess";
@@ -150,10 +149,12 @@ describe("schedule — from the predicted board date", () => {
   });
 });
 
-describe("price — ONE constant (TS-PACK-1 swaps in the pricing helper)", () => {
-  it("₹999 + GST", () => {
-    expect(TEST_SERIES_PRICE_INR).toBe(999);
-    expect(testSeriesPriceDisplay()).toBe("₹999 + GST");
+describe("price — the test_series SKU's, through the shared pricing helper (TS-PACK-1)", () => {
+  it("₹999 + GST (after the GST cut-off), from PACK_PRICE_INR — no second constant", async () => {
+    const { PACK_PRICE_INR, packPriceLabel } = await import("../../services/packs");
+    expect(PACK_PRICE_INR.test_series).toBe(999);
+    expect(packPriceLabel("test_series", Date.parse("2026-11-20T06:30:00Z"))).toBe("₹999 + GST");
+    expect(TEST_SERIES_BUY_PATH).toBe("/packs?buy=test_series");
   });
 });
 

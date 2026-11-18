@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { PACK_CHAPTER_SLUGS, packPriceLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../services/packs";
-import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, packChapterLabel } from "../lib/packs/packLabels";
+import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, packChapterLabel, TEST_SERIES_NAME } from "../lib/packs/packLabels";
+import { testSeriesPackLine } from "../lib/testSeries/testSeries";
 import { packManifest, packSummaryRows } from "../lib/packs/packManifest";
 import { PREVIEW_FALLBACK_CAPTION, PREVIEW_H, PREVIEW_W, packPreviewFor, previewCaption, previewImage, previewShows, type PreviewPage } from "../lib/packs/packPreviews";
 import PackSampleButton from "../components/packs/PackSampleButton";
@@ -50,6 +51,7 @@ const TITLES: Record<PackSku, { name: string; line: string }> = {
   pack_subject: { name: "Subject Pack", line: "Every chapter of Maths or Science — chapter-wise question bank 2026-27" },
   pack_bundle: { name: "Maths + Science Bundle", line: `Maths + Science: all ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks — the whole year at one price` },
   pack_cbq: { name: "CBQ Pack", line: "About half your 2027 paper is competency-based. Curated CBQs, chapter-wise and topic-wise — MCQ, assertion-reason, short, case study and long answer, Sections A to E." },
+  test_series: { name: TEST_SERIES_NAME, line: testSeriesPackLine() },
 };
 
 const SLIDES: ReadonlyArray<{ page: PreviewPage; alt: string; num: string; bold: string; rest: string }> = [
@@ -324,7 +326,8 @@ export default function PackDialog(props: PackDialogProps) {
             <span key={i} className={i === slide ? "is-on" : undefined} />
           ))}
         </div>
-        <p className="lt-pkd__samplecap" data-testid="pack-preview-caption">{preview ? previewCaption(preview) : PREVIEW_FALLBACK_CAPTION}</p>
+        {/* TS-PACK-1: the Test Series Pack is not a PDF pack, so it has no preview pages and no "not available yet" line. */}
+        {sku !== "test_series" && <p className="lt-pkd__samplecap" data-testid="pack-preview-caption">{preview ? previewCaption(preview) : PREVIEW_FALLBACK_CAPTION}</p>}
         <p className="lt-pkd__sr" role="status">{`Slide ${slide + 1} of ${SLIDE_COUNT}`}</p>
 
         {/* PACK-DIALOG-1: from 900px the foot is the right-hand BUY CARD (price, picker, Buy, parent actions, sample) beside the
@@ -333,7 +336,7 @@ export default function PackDialog(props: PackDialogProps) {
           <p className="lt-pkd__cardprice" aria-hidden="true">
             <b>{packPriceLabel(sku)}</b> one-time
           </p>
-          <div className={sku === "pack_bundle" || sku === "pack_cbq" ? "lt-pkd__pick lt-pkd__pick--note" : "lt-pkd__pick"}>
+          <div className={sku === "pack_bundle" || sku === "pack_cbq" || sku === "test_series" ? "lt-pkd__pick lt-pkd__pick--note" : "lt-pkd__pick"}>
             {sku === "pack_chapter" && (
               <label className="lt-pkd__label">
                 Pick your chapter
@@ -366,6 +369,7 @@ export default function PackDialog(props: PackDialogProps) {
               </div>
             )}
             {sku === "pack_bundle" && <p className="lt-pkd__plain">Both subjects, everything included.</p>}
+            {sku === "test_series" && <p className="lt-pkd__plain" data-testid="pack-test-series-line">Maths + Science, one payment, till 31 May 2027.</p>}
             {sku === "pack_cbq" && <p className="lt-pkd__plain" data-testid="pack-cbq-tutor-line">Includes 3 tutor questions</p>}
           </div>
           <div className="lt-pkd__buy">

@@ -714,3 +714,18 @@ describe("(ix) N7 — both graded sheets name a mismatched answer in the owner's
     expect(mismatchSummaryLine(2)).toBe(`2 answers not marked: ${ANSWER_MISMATCH_COPY}.`);
   });
 });
+
+/* ── TS-PACK-1 · Chapter Test and Full Mock grading requests carry each question's BANK id + its exact text ─────── */
+describe("TS-PACK-1 · questionId on the Chapter Test / Full Mock grade request", () => {
+  it.each([
+    ["Chapter Test", (paper: PersistedWorksheet) => gradeChapterTestUpload({ user: USER, paper, code: "CT-ts", subject: "maths", topicKey: "real-numbers", objective: scoreObjectiveSection([], {}), subjectiveQuestions: paper.questions, upload: UPLOAD })],
+    ["Full Mock", (paper: PersistedWorksheet) => gradeFullMockUpload({ user: USER, paper, code: "FM-ts", subject: "maths", objective: scoreObjectiveSection([], {}), subjectiveQuestions: paper.questions, upload: UPLOAD })],
+  ])("%s sends questions[].questionId = q.id and questionText = the persisted text", async (_name, run) => {
+    H.gradeWorksheet.mockResolvedValue({ ok: false, error: "x", worksheetId: "w", results: [], totalQuestions: 0, gradedCount: 0, pendingCount: 0, gradedMarksAwarded: 0, gradedMarksTotal: 0, worksheetTotalMarks: 0 });
+    const paper = paperOf("ts-qid");
+    await run(paper).catch(() => undefined);
+    const req = H.gradeWorksheet.mock.calls.at(-1)![0] as { questions: Array<{ questionId?: string; questionText: string }> };
+    expect(req.questions.map((q) => q.questionId)).toEqual(paper.questions.map((q) => q.id));
+    expect(req.questions.map((q) => q.questionText)).toEqual(paper.questions.map((q) => q.questionText));
+  });
+});

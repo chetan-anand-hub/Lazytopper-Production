@@ -525,6 +525,19 @@ function cachedReadJson(readJsonImpl) {
   };
 }
 
+/**
+ * TS-PACK-1 - read a grade-worksheet body ONCE, before the handler, and leave it where `cachedReadJson` (the handler) and
+ * fair use's own pre-read below find it. Returns the SAME promise to every caller; a rejected read stays rejected (the
+ * handler then answers its own 400, word for word).
+ */
+function preReadGradingBody(req, readJsonImpl) {
+  if (req && req[BODY_KEY]) return req[BODY_KEY];
+  const pending = Promise.resolve().then(() => readJsonImpl(req, GRADE_WORKSHEET_MAX_BYTES));
+  pending.catch(() => {});
+  if (req) req[BODY_KEY] = pending;
+  return pending;
+}
+
 function defaultReadJson() {
   return require('./httpUtils.cjs').readJson;
 }
@@ -1166,7 +1179,8 @@ function createFairUse(deps = {}) {
 
     let body = null;
     if (tier === 'trial' && reqPath === GRADE_WORKSHEET_PATH) {
-      const pending = readJson(req, GRADE_WORKSHEET_MAX_BYTES);
+      // TS-PACK-1: the entitlement gate may already have read it (preReadGradingBody) - never read the stream twice.
+      const pending = req[BODY_KEY] || readJson(req, GRADE_WORKSHEET_MAX_BYTES);
       pending.catch(() => {});
       req[BODY_KEY] = pending;
       try {
@@ -1888,6 +1902,7 @@ function createGradingIdempotency(deps = {}) {
 module.exports = {
   createFairUse,
   cachedReadJson,
+  preReadGradingBody,
   decide,
   resolveSurface,
   verifyPaperPass,

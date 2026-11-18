@@ -1100,3 +1100,100 @@ test('GST-EXCL-1 · grantPack: a pre-cut-off order (all-in) granted after the cu
   await assert.rejects(grantPack({ db, uid: 'u1', order: { orderId: 'o_nofields' }, paymentRef: 'p3', nowMs: later }), PackGrantInputError);
   await assert.rejects(grantPack({ db, uid: 'u1', order: { orderId: 'o_badgst' }, paymentRef: 'p4', nowMs: later }), PackGrantInputError);
 });
+
+/* ── TS-PACK-1 · the Test Series Pack through the SAME packs order flow ─────────────────────────────────────────────── */
+const TS_AFTER_GST = Date.parse('2026-11-20T06:30:00.000Z');
+
+test('TS-PACK-1 · order -> verify -> grant: Rs 999 + 18% GST from the shared helper; one test_series:all entitlement; no Premium, no pass', async (t) => {
+  const srv = await start({ nowMs: TS_AFTER_GST, licensees: { ts1: { name: 'Asha', email: 'asha@example.com' } } });
+  t.after(srv.close);
+  const r = await order(srv, 'ts1', 'test_series', { packTarget: 'maths', amount: 1, amountPaise: 100, priceInr: 1 });
+  assert.equal(r.status, 200, r.text);
+  const { chargeFor } = require('../services/passPricing.cjs');
+  const c = chargeFor(999, TS_AFTER_GST);
+  assert.equal(c.totalInr, 1179, 'Rs 999 + Rs 180 GST (18%)');
+  assert.equal(r.json.amountPaise, c.totalInr * 100);
+  assert.deepEqual(r.json.gst, { baseInr: 999, gstInr: c.gstInr, totalInr: c.totalInr });
+  const created = srv.rzp.calls.find((x) => x.url.endsWith('/orders') && x.method === 'POST');
+  assert.equal(created.body.amount, 117900, 'Razorpay is asked for the server amount, never the body');
+  const stored = srv.db.read(`payOrders/${r.json.orderId}`);
+  assert.equal(stored.passType, 'test_series');
+  assert.equal(stored.packTarget, 'all', 'the one target, whatever the body sent');
+  assert.equal(stored.baseInr, 999);
+  const p = srv.rzp.pay(r.json.orderId);
+  const v = await verify(srv, 'ts1', r.json.orderId, p.id);
+  assert.equal(v.status, 200, v.text);
+  assert.equal(v.json.kind, 'pack');
+  assert.equal(v.json.packId, 'test_series:all');
+  assert.equal(v.json.sku, 'test_series');
+  assert.equal('passEnd' in v.json, false, 'never a pass');
+  assert.deepEqual(srv.db.read('packEntitlements/ts1/packs/test_series:all'), {
+    packId: 'test_series:all', sku: 'test_series', target: 'all', pricePaidInr: 1179, paidAt: TS_AFTER_GST, orderId: r.json.orderId, paymentRef: p.id, creditedToPass: false,
+  });
+  assert.equal(srv.db.read('subscriptions/ts1'), undefined, 'no subscription / Premium written');
+  // a replayed verify grants nothing new
+  const again = await verify(srv, 'ts1', r.json.orderId, p.id);
+  assert.equal(again.json.replayed, true);
+  // /api/packs/mine says so
+  const mine = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('ts1') });
+  assert.equal(mine.status, 200, mine.text);
+  assert.equal(mine.json.ownsTestSeries, true);
+  assert.deepEqual(mine.json.packs.map((x) => x.packId), ['test_series:all']);
+  // a second order is refused before any Razorpay order (no paying twice)
+  const second = await order(srv, 'ts1', 'test_series');
+  assert.equal(second.status, 409);
+  assert.equal(second.json.error, 'already_owned');
+});
+
+test('TS-PACK-1 · the webhook grants it too (verify never ran); the Bundle does not cover it and it covers no PDF pack', async (t) => {
+  const db = memoryFirestore();
+  seedPack(db, 'w1', 'pack_bundle', 'all');
+  const srv = await start({ db, nowMs: TS_AFTER_GST });
+  t.after(srv.close);
+  const o = await orderOk(srv, 'w1', 'test_series');
+  const p = srv.rzp.pay(o.orderId);
+  const w = await webhook(srv, { id: p.id, entity: 'payment', order_id: o.orderId, amount: o.amountPaise, currency: 'INR', status: 'captured' });
+  assert.equal(w.status, 200, w.text);
+  assert.equal(db.read('packEntitlements/w1/packs/test_series:all').sku, 'test_series');
+  const s = await status(srv, 'w1', o.orderId);
+  assert.equal(s.status, 200, s.text);
+  // owning the test series does not make a PDF pack "already owned"
+  const pdf = await order(srv, 'w1', 'pack_cbq', { packTarget: 'maths' });
+  assert.equal(pdf.status, 200, pdf.text);
+});
+
+test('TS-PACK-1 · kill switch TS_PACK_DISABLED=1: not purchasable (the unknown-passType 400, no Razorpay call); an owner keeps it on /mine; other packs still sell', async (t) => {
+  const db = memoryFirestore();
+  db.docs.set('packEntitlements/k1/packs/test_series:all', { data: { packId: 'test_series:all', sku: 'test_series', target: 'all', pricePaidInr: 1179, paidAt: TS_AFTER_GST - 1000, orderId: 'o', paymentRef: 'p', creditedToPass: false }, version: 1 });
+  const srv = await start({ db, nowMs: TS_AFTER_GST, env: { ...ENV_ON, TS_PACK_DISABLED: '1' }, licensees: { k1: { name: 'K', email: 'k@example.com' } } });
+  t.after(srv.close);
+  const r = await order(srv, 'k2', 'test_series');
+  assert.equal(r.status, 400);
+  assert.equal(srv.rzp.calls.length, 0);
+  assert.equal(srv.db.keys('payOrders/').length, 0);
+  const mine = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('k1') });
+  assert.equal(mine.json.ownsTestSeries, true, 'an owner keeps access');
+  const other = await order(srv, 'k2', 'pack_chapter', { packTarget: 'triangles' });
+  assert.equal(other.status, 200, other.text);
+});
+
+test('TS-PACK-1 · /api/packs/mine: ownsTestSeries only for a live owner (absent for everyone else - their response is unchanged); ended after 31 May 2027', async (t) => {
+  const db = memoryFirestore();
+  db.docs.set('packEntitlements/m1/packs/test_series:all', { data: { packId: 'test_series:all', sku: 'test_series', target: 'all', pricePaidInr: 1179, paidAt: TS_AFTER_GST, orderId: 'o', paymentRef: 'p', creditedToPass: false }, version: 1 });
+  seedPack(db, 'm2', 'pack_cbq', 'maths');
+  const licensees = { m1: { name: 'M', email: 'm1@example.com' }, m2: { name: 'N', email: 'm2@example.com' } };
+  const srv = await start({ db, nowMs: TS_AFTER_GST, licensees });
+  t.after(srv.close);
+  const live = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('m1') });
+  assert.equal(live.json.ownsTestSeries, true);
+  const other = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('m2') });
+  assert.equal(other.status, 200, other.text);
+  assert.equal('ownsTestSeries' in other.json, false);
+  assert.equal('testSeries' in other.json, false);
+  const late = await start({ db, nowMs: require('../services/packTerms.cjs').TEST_SERIES_ENDS_MS + 1, licensees });
+  t.after(late.close);
+  const ended = await call(late.port, 'GET', PACKS_MINE_PATH, { headers: asUid('m1') });
+  assert.equal('ownsTestSeries' in ended.json, false);
+  assert.equal(ended.json.endedPacks[0].packId, 'test_series:all');
+  assert.equal(ended.json.endedPacks[0].redownloadUntil, '31 May 2027');
+});

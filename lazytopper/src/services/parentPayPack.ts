@@ -56,7 +56,7 @@ export interface ParentPayPackProduct {
   name: string;
 }
 
-const PARENT_PACK_SKUS: readonly string[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq"];
+const PARENT_PACK_SKUS: readonly string[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq", "test_series"];
 
 /** A server pack reference, or undefined for anything malformed. */
 export function readPack(v: unknown): ParentPackRef | undefined {
@@ -83,7 +83,7 @@ export async function mintParentPackLink(pack: { sku: PackSku; target?: string }
     throw new ParentLinkError("failed");
   }
   const ref = readPack(json.pack);
-  const wantTarget = pack.sku === "pack_bundle" ? "all" : pack.target;
+  const wantTarget = pack.sku === "pack_bundle" || pack.sku === "test_series" ? "all" : pack.target;
   if (!ref || ref.sku !== pack.sku || ref.target !== wantTarget) throw new ParentLinkError("failed");
   return { token: json.token, expiresAt: json.expiresAt, prices: readPrices(json.prices), pack: ref };
 }
@@ -203,6 +203,8 @@ export function parentPackName(sku: PackSku, target: string | undefined, chapter
       return `${subjectName(target)} CBQ Pack`;
     case "pack_bundle":
       return "Maths + Science Bundle";
+    case "test_series":
+      return "Test Series Pack";
     default:
       return "PDF pack";
   }
