@@ -3,8 +3,8 @@
  * group a visit's utm tags point at, and the one text the admin Students Source column and the Purchases card both show.
  *
  * Google Ads appends `utm_term={keyword}` (OUR bidded keyword, not the visitor's search) and `utm_content=ag{adgroupid}`.
- * The ad group id is not guessable, so AD_GROUP_NAMES is filled from Google Ads data; until a name is mapped the raw
- * "ad group ag1234" is shown. A click id is never shown (the stored touch only has it as a yes/no flag).
+ * AD_GROUP_NAMES is read from Google Ads; an id not mapped yet shows as the raw "ad group ag1234". A utm_content that is
+ * not an `ag<digits>` id (YouTube ads: tutor_topichub, cbq_pack) is shown as "content <value>" on the detail line. A click id is never shown (the stored touch only has it as a yes/no flag).
  */
 
 /** The fields of a stored visit source the admin reads (a signupSources doc or an order's `source`). All optional / nullable. */
@@ -32,9 +32,31 @@ export const CAMPAIGN_NAMES: Record<string, string> = {
   ct_electricity_short: "YouTube · Students",
 };
 
-/** "ag<adgroupid>" (the utm_content Google Ads appends) -> ad group name. */
+/** "ag<adgroupid>" (the utm_content Google Ads appends) -> ad group name, read from Google Ads on 18 Nov 2026. */
 export const AD_GROUP_NAMES: Record<string, string> = {
-  // TODO(SOURCE-3): the coordinator fills this from Google Ads data, e.g. ag123456789: "Question bank – Class 10". Never invent ids.
+  // Search · PDF Packs
+  ag200339635854: "Test series and mock papers",
+  ag203232893498: "Question bank \u2013 Class 10",
+  ag200343657983: "Parents - Question Banks",
+  ag201002984386: "Chapter-wise, PYQ and worksheets",
+  ag207370513651: "CBQs - case study & competency",
+  ag200887295239: "CBQ packs - competency and case study",
+  ag202346187755: "C - Chapter tests (exam fear)",
+  ag205282957587: "Board Pass \u2013 founding price",
+  ag207300514248: "B - Pre-boards full mock (exam fear)",
+  ag200207066134: "Ad group 1 (sample papers)",
+  // Search · Sign-ups v2
+  ag204518416551: "Tutor - Knows Your Mistakes",
+  ag202444092856: "Study online",
+  ag202030218418: "Ad group 1",
+  ag200369421103: "A - Answer Checker step marks",
+  ag204814003881: "6 Maths chapter-wise important Qs",
+  ag204102676514: "5 Sample paper 2026-27",
+  ag207788769984: "4 Mock tests and pre-boards",
+  ag199737971463: "3b Science important questions",
+  ag200280254399: "3a Maths important questions",
+  ag200279966559: "2 Competency and CBQs",
+  ag207788120144: "1b How answers are marked",
 };
 
 const AD_GROUP_CONTENT = /^ag\d+$/i;
@@ -106,6 +128,8 @@ export function adSourceLines(source: AdSourceFields | null | undefined): { main
   const group = adGroupName(source.utm_content);
   if (group) main += ` › ${group}`;
   const detail: string[] = [];
+  const content = (source.utm_content ?? "").trim();
+  if (content && !group) detail.push(`content ${content}`);
   if (source.utm_term) detail.push(`“${source.utm_term}”`);
   if (source.landing && source.landing !== "/") detail.push(`landed ${source.landing}`);
   return { main, detail: detail.join(" · ") };

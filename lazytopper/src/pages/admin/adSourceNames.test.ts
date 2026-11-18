@@ -22,6 +22,14 @@ describe("SOURCE-3 adSourceText", () => {
     }
   });
 
+  it("the Google Ads ad group names are mapped verbatim", () => {
+    expect(Object.keys(AD_GROUP_NAMES)).toHaveLength(21);
+    expect(adSourceText({ utm_source: "google", utm_medium: "cpc", utm_campaign: "search_pdf_packs", utm_content: "ag203232893498" })).toBe(
+      "Google ad \u00B7 Search \u00B7 PDF Packs \u203A Question bank \u2013 Class 10",
+    );
+    expect(adGroupName("ag207788120144")).toBe("1b How answers are marked");
+  });
+
   it("an unmapped campaign or ad group falls back to the raw values", () => {
     expect(adSourceText({ ...base, utm_campaign: "brand_new", utm_content: "ag5678" })).toBe("Google ad · brand_new › ad group ag5678");
     expect(adGroupName("AG42")).toBe("ad group ag42");
@@ -30,7 +38,7 @@ describe("SOURCE-3 adSourceText", () => {
   it("a utm_content that is not an ad group id is not shown as one", () => {
     expect(adGroupName("cbq_short")).toBeNull();
     expect(adGroupName("ag")).toBeNull();
-    expect(adSourceText({ utm_source: "youtube", utm_medium: "paid", utm_content: "cbq_short" })).toBe("YouTube ad");
+    expect(adSourceText({ utm_source: "youtube", utm_medium: "paid", utm_content: "cbq_short" })).toBe("YouTube ad \u00B7 content cbq_short");
   });
 
   it("the homepage landing adds nothing; a path does; an inherited key like 'constructor' is not a name", () => {
