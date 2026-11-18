@@ -484,6 +484,15 @@ export const HUB_CSS = `
   .lt-ph-card--pass .lt-pricing-tillboards-slot {
     min-height: 4.4rem;
   }
+  /* The WhatsApp opt-in above Pay (WhatsAppOptInFields, unchanged) is styled for a white sheet; on the navy card its label and tick
+     read light, and "+91" never splits across lines in a narrow (four-across) card. */
+  .lt-ph-card--pass .lt-waopt__label,
+  .lt-ph-card--pass .lt-waopt__tick {
+    color: #dbe5f3;
+  }
+  .lt-ph .lt-waopt__prefix {
+    white-space: nowrap;
+  }
   .lt-ph-card--pass .lt-pricing-month {
     background: var(--ph-navy-2);
     border-color: var(--ph-navy-line);
