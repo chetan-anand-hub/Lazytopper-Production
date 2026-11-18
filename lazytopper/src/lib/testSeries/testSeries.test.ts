@@ -17,6 +17,7 @@ import {
   seriesFullMocks,
   seriesKeyOfWorksheetId,
   seriesMockNumber,
+  seriesMockRounds,
   seriesMockWorksheetId,
   seriesProgress,
   seriesSchedule,
@@ -173,5 +174,18 @@ describe("access — Board Pass or Test Series; one test for everyone else", () 
     expect(seriesStartDecision({ entitled: false, signedIn: true, testsTaken: 1 })).toBe("upgrade");
     expect(seriesStartDecision({ entitled: false, signedIn: false, testsTaken: 0 })).toBe("sign-in");
     expect(seriesStartDecision({ entitled: true, signedIn: true, testsTaken: 30 })).toBe("start");
+  });
+});
+
+describe("TS-PAGE-2 — seriesMockRounds", () => {
+  it("splits the full-length tests exactly as the calendar does, covering every paper once", () => {
+    const rounds = seriesMockRounds();
+    expect(rounds.map((r) => r.id)).toEqual(["round1", "round2"]);
+    expect(rounds[0].from).toBe(1);
+    expect(rounds[1].from).toBe(rounds[0].to + 1);
+    expect(rounds[1].to).toBe(seriesTotals().mocksPerSubject);
+    const sched = seriesSchedule("2027-02-16") ?? [];
+    expect(sched.find((r) => r.id === "round1")?.body).toContain(`1–${rounds[0].to}`);
+    expect(sched.find((r) => r.id === "round2")?.body).toContain(`${rounds[1].from}–${rounds[1].to}`);
   });
 });
