@@ -217,6 +217,33 @@ export interface MyPacks {
   ownsTestSeries?: boolean;
   /** TS-PACK-1 - the server's per-paper check counts (paperKey -> checks used), present for a Test Series Pack owner. */
   testSeries?: TestSeriesStatus;
+  /** TS-UPGRADE-CREDIT-1 - the server's Board Pass upgrade price for a Test Series owner; absent for everyone else. */
+  testSeriesUpgrade?: TestSeriesUpgrade;
+}
+
+/**
+ * TS-UPGRADE-CREDIT-1 - a Test Series Pack owner's Board Pass upgrade, as the SERVER computed it (`/api/packs/mine`
+ * `boardPassCredit` with `kind: "test_series_upgrade"`): the Test Series BASE credited (`creditInr`), the upgrade's own base
+ * (`baseInr` = `fullBaseInr` - `creditInr`), its GST, and `payInr` (= base + GST) - what the order route charges. Display only.
+ */
+export interface TestSeriesUpgrade {
+  creditInr: number;
+  fullBaseInr: number;
+  baseInr: number;
+  gstInr: number;
+  payInr: number;
+}
+
+/** The upgrade only when every server number is sane and they add up; anything else is no upgrade line. PURE. */
+export function readTestSeriesUpgrade(raw: unknown): TestSeriesUpgrade | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  if (r.kind !== "test_series_upgrade") return null;
+  const int = (v: unknown): v is number => typeof v === "number" && Number.isInteger(v) && v > 0;
+  const { creditInr, fullBaseInr, baseInr, gstInr, payInr } = r;
+  if (!int(creditInr) || !int(fullBaseInr) || !int(baseInr) || !int(gstInr) || !int(payInr)) return null;
+  if (fullBaseInr - creditInr !== baseInr || baseInr + gstInr !== payInr) return null;
+  return { creditInr, fullBaseInr, baseInr, gstInr, payInr };
 }
 
 export interface TestSeriesStatus {
@@ -388,6 +415,7 @@ export async function fetchMyPacks(): Promise<MyPacks> {
       : undefined;
   // TS-PACK-1: only the server's literal `true` unlocks the series; the status is display only.
   const testSeries = readTestSeriesStatus(json.testSeries);
+  const testSeriesUpgrade = readTestSeriesUpgrade(json.boardPassCredit);
   return {
     packs,
     licensee,
@@ -395,6 +423,7 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     ...(tutorTaste ? { tutorTaste } : {}),
     ...(json.ownsTestSeries === true ? { ownsTestSeries: true } : {}),
     ...(testSeries ? { testSeries } : {}),
+    ...(testSeriesUpgrade ? { testSeriesUpgrade } : {}),
   };
 }
 

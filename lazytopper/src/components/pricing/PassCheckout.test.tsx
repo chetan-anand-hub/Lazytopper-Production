@@ -37,11 +37,19 @@ vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => mockSub }
 vi.mock("../../services/subscriptionService", () => ({ hydrateSubscriptionFromCloud: vi.fn(async () => ({})) }));
 // PACK-CREDIT-1: the connected buy area reads the server's pack credit; these suites supply it directly so the
 // only network call under test is the order.
-const mockMine = vi.hoisted(() => ({ credit: null as null | { creditInr: number; expiresAtMs: number; payInr: number } }));
-vi.mock("../../services/packs", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../../services/packs")>()),
-  fetchMyPacks: vi.fn(async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: mockMine.credit })),
-}));
+const mockMine = vi.hoisted(() => ({ credit: null as null | { creditInr: number; expiresAtMs: number; payInr: number }, tsRaw: null as unknown }));
+vi.mock("../../services/packs", async (importOriginal) => {
+  const real = await importOriginal<typeof import("../../services/packs")>();
+  return {
+    ...real,
+    fetchMyPacks: vi.fn(async () => {
+      // TS-UPGRADE-CREDIT-1: a raw server `boardPassCredit` goes through the REAL readers (as fetchMyPacks does).
+      const ts = mockMine.tsRaw ? real.readTestSeriesUpgrade(mockMine.tsRaw) : null;
+      const credit = mockMine.tsRaw ? real.readBoardPassCredit(mockMine.tsRaw) : mockMine.credit;
+      return { packs: [], licensee: { name: "", email: "" }, boardPassCredit: credit, ...(ts ? { testSeriesUpgrade: ts } : {}) };
+    }),
+  };
+});
 vi.mock("../../services/firebaseClient", () => ({
   authClient: { currentUser: { getIdToken: async () => "id-token" } },
   firestoreDb: null,
@@ -53,7 +61,11 @@ import PassCheckout, {
   PASS_CHECKOUT_RETURN_PATH,
   tillBoardsButtonLabel,
   monthButtonLabel,
+  tsUpgradeLine,
+  tsUpgradeBreakdown,
+  tsUpgradePayLabel,
 } from "./PassCheckout";
+import { readTestSeriesUpgrade, readBoardPassCredit } from "../../services/packs";
 import PricingPage from "../../pages/PricingPage";
 import {
   buyPass,
@@ -613,5 +625,84 @@ describe("PACK-CREDIT-1 · readBoardPassCredit trusts only sane server numbers",
     for (const bad of [null, undefined, 7, "x", {}, { creditInr: 0, expiresAtMs: 1, payInr: 550 }, { creditInr: 49, expiresAtMs: 1, payInr: null }, { creditInr: 49, expiresAtMs: "1", payInr: 550 }, { creditInr: 49.5, expiresAtMs: 1, payInr: 550 }, { creditInr: 49, expiresAtMs: 1, payInr: 0 }]) {
       expect(readBoardPassCredit(bad), JSON.stringify(bad)).toBeNull();
     }
+  });
+});
+
+/* ── TS-UPGRADE-CREDIT-1 · a Test Series owner sees the Board Pass as an upgrade (server numbers only) ───────────────── */
+describe("TS-UPGRADE-CREDIT-1 · the Test Series -> Board Pass upgrade (/pricing card, /board-pass hero: both render PassCheckout)", () => {
+  const FOUNDING = { creditInr: 999, expiresAtMs: null, payInr: 1083, kind: "test_series_upgrade", baseInr: 918, gstInr: 165, fullBaseInr: 1917 };
+  const AFTER = { creditInr: 999, expiresAtMs: null, payInr: 1770, kind: "test_series_upgrade", baseInr: 1500, gstInr: 270, fullBaseInr: 2499 };
+  const UP = { creditInr: 999, fullBaseInr: 1917, baseInr: 918, gstInr: 165, payInr: 1083 };
+  afterEach(() => {
+    mockMine.tsRaw = null;
+    mockAuth.user = null;
+  });
+
+  it("parses only a complete, self-consistent upgrade; the PACK-CREDIT-1 reader ignores it (no 7-day deadline)", () => {
+    expect(readTestSeriesUpgrade(FOUNDING)).toEqual(UP);
+    expect(readTestSeriesUpgrade(AFTER)).toEqual({ creditInr: 999, fullBaseInr: 2499, baseInr: 1500, gstInr: 270, payInr: 1770 });
+    expect(readBoardPassCredit(FOUNDING)).toBeNull();
+    for (const bad of [
+      null,
+      { creditInr: 0, expiresAtMs: null, payInr: null },
+      { ...FOUNDING, kind: undefined },
+      { ...FOUNDING, payInr: 1084 },
+      { ...FOUNDING, baseInr: 919 },
+      { ...FOUNDING, gstInr: "165" },
+      { creditInr: 49, expiresAtMs: 1, payInr: 2213 },
+    ]) {
+      expect(readTestSeriesUpgrade(bad)).toBeNull();
+    }
+  });
+
+  it("the copy: the owner's sentence, the breakup and the Pay label name the server's figures", () => {
+    expect(tsUpgradeLine(UP)).toBe("Upgrade for ₹918 + GST — you've already paid for the Test Series");
+    expect(tsUpgradeBreakdown(UP)).toBe("₹918 + ₹165 GST (18%) = ₹1,083");
+    expect(tsUpgradePayLabel(UP)).toBe("Pay ₹1,083 once till your boards");
+  });
+
+  it("a signed-in Test Series owner: the upgrade line, the breakup beside Pay, and Pay ₹1,083", () => {
+    view({ signedIn: true, showMonth: false, tsUpgrade: UP });
+    expect(screen.getByTestId("pass-checkout-ts-upgrade").textContent).toBe("Upgrade for ₹918 + GST — you've already paid for the Test Series");
+    expect(screen.getByTestId("pass-checkout-gst").textContent).toBe("₹918 + ₹165 GST (18%) = ₹1,083");
+    expect(screen.getByRole("button", { name: "Pay ₹1,083 once till your boards" })).toBeTruthy();
+    expect(screen.getByTestId("pass-checkout-ts-upgrade").getAttribute("style")).toBeNull();
+  });
+
+  it("everyone else is BYTE-IDENTICAL: no upgrade (null / absent), signed out, or a PACK-CREDIT-1 credit present", () => {
+    const p = (o: Partial<Parameters<typeof PassCheckoutView>[0]> = {}) => ({
+      signedIn: true, showMonth: false, offerOpen: true, activePassEnd: null, onSignIn: () => undefined,
+      onBuy: async () => ({ status: "dismissed" as const }), ...o,
+    });
+    const base = renderToStaticMarkup(<PassCheckoutView {...p()} />);
+    expect(renderToStaticMarkup(<PassCheckoutView {...p({ tsUpgrade: null })} />)).toBe(base);
+    expect(base).toContain(tillBoardsButtonLabel());
+    expect(base).not.toContain("Test Series");
+    const out = renderToStaticMarkup(<PassCheckoutView {...p({ signedIn: false })} />);
+    expect(renderToStaticMarkup(<PassCheckoutView {...p({ signedIn: false, tsUpgrade: UP })} />)).toBe(out);
+    const credit = { creditInr: 49, expiresAtMs: 1_800_000_000_000, payInr: 2213 };
+    const credited = renderToStaticMarkup(<PassCheckoutView {...p({ packCredit: credit })} />);
+    expect(renderToStaticMarkup(<PassCheckoutView {...p({ packCredit: credit, tsUpgrade: UP })} />)).toBe(credited);
+  });
+
+  it("a running month pass: no upgrade line (the notice slot is the pass's), but Pay still names the server's upgrade total", () => {
+    view({ signedIn: true, showMonth: false, tsUpgrade: UP, activePassEnd: "2026-12-10T00:00:00.000Z", activePlan: "pass_month" });
+    expect(screen.queryByTestId("pass-checkout-ts-upgrade")).toBeNull();
+    expect(screen.getByRole("button", { name: "Pay ₹1,083 once till your boards" })).toBeTruthy();
+  });
+
+  it("connected: the line comes from /api/packs/mine for a signed-in owner; a non-owner's /mine (no credit) shows today's Pay", async () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+    mockAuth.user = { uid: "ts1" };
+    mockMine.tsRaw = FOUNDING;
+    render(<MemoryRouter initialEntries={["/pricing"]}><PassCheckout /></MemoryRouter>);
+    expect((await screen.findByTestId("pass-checkout-ts-upgrade")).textContent).toBe("Upgrade for ₹918 + GST — you've already paid for the Test Series");
+    expect(screen.getByRole("button", { name: "Pay ₹1,083 once till your boards" })).toBeTruthy();
+    cleanup();
+    mockAuth.user = { uid: "plain" };
+    mockMine.tsRaw = { creditInr: 0, expiresAtMs: null, payInr: null };
+    render(<MemoryRouter initialEntries={["/pricing"]}><PassCheckout /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByRole("button", { name: tillBoardsButtonLabel() })).toBeTruthy());
+    expect(screen.queryByTestId("pass-checkout-ts-upgrade")).toBeNull();
   });
 });

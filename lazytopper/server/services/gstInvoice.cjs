@@ -29,6 +29,8 @@
 const crypto = require('node:crypto');
 const { GST_EXCLUSIVE_FROM_MS, GST_RATE_PERCENT, IST_OFFSET_MS } = require('./passPricing.cjs');
 const { isPackProduct } = require('./packProducts.cjs');
+// TS-UPGRADE-CREDIT-1: a Board Pass bought as an upgrade from the Test Series Pack (the Test Series base credited).
+const { isConsistentTsUpgradeOrder } = require('./tsUpgradeCredit.cjs');
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
 /** One doc per financial year ("26-27"): `{ last }`. Not student data (a counter). */
@@ -250,6 +252,10 @@ function productLineFor(order) {
   const t = typeof order.packTarget === 'string' ? order.packTarget : '';
   switch (order.passType) {
     case 'till_boards':
+      // TS-UPGRADE-CREDIT-1: the upgrade names itself on the line (the credit itself is shown under the totals).
+      if (order.tsUpgradeCreditInr !== undefined) {
+        return { description: 'LazyTopper Board Pass (Premium access till CBSE Class 10 boards) - upgrade from the Test Series Pack', sacKind: 'boardPass' };
+      }
       return { description: 'LazyTopper Board Pass (Premium access till CBSE Class 10 boards)', sacKind: 'boardPass' };
     case 'month':
       return { description: 'LazyTopper Premium month pass', sacKind: 'boardPass' };
@@ -281,6 +287,9 @@ function invoiceAmountsFor(order) {
   if (!Number.isInteger(order.amountPaise) || order.amountPaise <= 0) return { held: 'amount_mismatch' };
   if (!Number.isInteger(order.baseInr) || !Number.isInteger(order.gstInr) || !(order.gstInr > 0)) return { held: 'pre_cutoff' };
   if (Number.isInteger(order.packCreditInr) && order.packCreditInr > 0) return { held: 'pack_credit' };
+  // TS-UPGRADE-CREDIT-1: an upgrade's stored base IS the taxable value (Board Pass base - Test Series base); its credit fields
+  // must agree with each other, or the order is held for the CA rather than invoiced on numbers that do not add up.
+  if (order.tsUpgradeCreditInr !== undefined && !isConsistentTsUpgradeOrder(order)) return { held: 'amount_mismatch' };
   const taxablePaise = order.baseInr * 100;
   const gstPaise = order.amountPaise - taxablePaise;
   // The stored breakup must reproduce the charge exactly (2262 = 1917 + 345).
@@ -420,6 +429,17 @@ function buildInvoiceRecord({ order, orderId, paymentId, config, fy, seq, issued
     b2b: !!business,
     placeOfSupply: { code: buyerState.code, name: buyerState.name },
     line: { description: line.description, sac, quantity: 1, taxablePaise: amounts.taxablePaise },
+    // TS-UPGRADE-CREDIT-1: the credited prior purchase (its own invoice is separate). Absent on every other invoice.
+    ...(isConsistentTsUpgradeOrder(order)
+      ? {
+          priorCredit: {
+            description: 'Test Series Pack',
+            orderId: order.tsUpgradeCreditOrderId,
+            listTaxablePaise: order.tsUpgradeFullBaseInr * 100,
+            creditedTaxablePaise: order.tsUpgradeCreditInr * 100,
+          },
+        }
+      : {}),
     supplyType: amounts.supplyType,
     rates: amounts.rates,
     taxablePaise: amounts.taxablePaise,
