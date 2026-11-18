@@ -121,8 +121,9 @@ function writeUncounted(list: string[]): void {
  * Visit not marked → it was already counted → true. Marked → counts it now (true), or, with
  * today's allowance spent, refuses (false: the page keeps the saved paper and says why).
  *
- * TS-DAILY-CAP-1: `uncapped` is Premium OR a Test Series Pack owner (the page passes both); either is
- * never counted and never refused. A Test Series owner the gate already confirmed counts too.
+ * TS-DAILY-CAP-1: `uncapped` (the page's Premium flag, or Premium OR a Test Series owner) is never counted and never
+ * refused. Nor is a Test Series Pack owner the gate has already confirmed: the gate reads ownership when it walls-or-passes
+ * at the limit, and warms that read when it lets a resume through at the limit, so the refusal below never meets an owner.
  */
 export function claimNewPaperView(pathname: string, uid: string | null, uncapped: boolean): boolean {
   const route = paperRouteKey(pathname);
@@ -209,6 +210,9 @@ export function MockViewGate({ children }: { children: ReactNode }) {
       const route = paperRouteKey(location.pathname);
       const marked = readUncounted();
       if (!marked.includes(route)) writeUncounted([...marked, route]);
+      // TS-DAILY-CAP-1: a resume at the limit never waits (resumes are never blocked), but if the student sets the saved
+      // paper aside for a new one, `claimNewPaperView` must already know whether they own the Test Series — warm it now.
+      if (user && uid && getDailyMockViews(uid) >= dailyLimitFor(true)) void readTestSeriesOwner(uid);
       setReady(true);
       return;
     }

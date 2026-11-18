@@ -84,7 +84,6 @@ import {
 } from "../components/fullmock/fullMockBlueprint";
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
-import { useTestSeriesOwnership } from "../components/testSeries/testSeriesOwnership";
 import { useSubscription } from "../hooks/useSubscription";
 import { useLimitedDownload } from "../hooks/useLimitedDownload";
 import LimitChip from "../components/limits/LimitChip";
@@ -250,10 +249,6 @@ export default function FullMockPage() {
   const fairUse = useFairUse("full-mock", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live (see ChapterTestPage).
   const { isPremium } = useSubscription();
-  // TS-DAILY-CAP-1: a Test Series Pack owner is never capped by the daily paper-open limit either (server truth, the
-  // shared /api/packs/mine read; asked only for a signed-in student without Premium). Never refused NEW_PAPER_LIMIT_LINE.
-  const testSeriesOwner = useTestSeriesOwnership(!isPremium ? user?.uid ?? null : null);
-  const paperCapExempt = isPremium || testSeriesOwner.owns;
   // TEST-SERIES-1 (owner ruling 18 Nov 19:31 IST) — written-answer checking and the paper download need the Test Series or the Board Pass here.
   // TS-PACK-1: a signed-in Test Series Pack owner gets through too (ownsTestSeries from /api/packs/mine).
   const seriesPaperAccess = useSeriesPaperAccess(user?.uid ?? null);
@@ -761,7 +756,7 @@ export default function FullMockPage() {
     }
     // CT-RESUME-2: a visit let through as a RESUME of a saved mock was not counted. Starting a NEW
     // mock instead is counted now — or refused when today's papers are used up.
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null, paperCapExempt)) {
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -790,7 +785,7 @@ export default function FullMockPage() {
     });
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
-  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, paperCapExempt, inProgress, seriesPaperAccess, isSignedIn, records, navigate]);
+  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, isSignedIn, records, navigate]);
 
   const resumeMock = useCallback(() => {
     const s = inProgress ?? findInProgressSession(sessionUid);
@@ -1184,7 +1179,7 @@ export default function FullMockPage() {
   const downloadPaper = useCallback(async () => {
     if (!paperForExport || downloading || !seriesDownloadAccess) return;
     // CT-RESUME-2: downloading the NEW draw (not the mock being sat) is a new paper.
-    if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, paperCapExempt)) {
+    if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -1249,7 +1244,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, paperCapExempt, inProgress, guardDownload, seriesDownloadAccess]);
+  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress, guardDownload, seriesDownloadAccess]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded mock's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and

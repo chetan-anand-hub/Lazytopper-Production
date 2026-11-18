@@ -184,6 +184,24 @@ describe("TS-DAILY-CAP-1 — the daily paper-open limit never walls a Test Serie
     expect(viewsToday()).toBe(SIGNED_IN_DAILY_MOCK_LIMIT);
   });
 
+  it("★ a RESUME at the limit is never held, and warms ownership so 'start a fresh test instead' is not refused for an owner", async () => {
+    fetchMyPacks.mockImplementation(owned);
+    spendAllowance();
+    const route = "/chapter-test/10/science/carbon-and-its-compounds";
+    // What ChapterTestPage's autosave writes while a test is being taken (as in MockViewGate.resume.test.tsx).
+    sessionStorage.setItem(
+      "lazytopper.ct.progress.CT-S-CAIC-02",
+      JSON.stringify({ answers: { 1: "x" }, flags: [], elapsed: 60, currentQNumber: 2, timerEnabled: true, paper: { worksheetId: "ct-1", questions: [{ qNumber: 1, id: "q1", section: "A", marks: 1 }] }, route }),
+    );
+    render(gate(route));
+    expect(screen.queryByText(PAPER)).not.toBeNull(); // synchronously: a resume never waits
+    await act(async () => { await new Promise((r) => setTimeout(r, 0)); });
+    expect(fetchMyPacks).toHaveBeenCalledTimes(1);
+    // The page passes only isPremium (false): the gate's warmed verdict is what lets the owner through.
+    expect(claimNewPaperView(route, UID, false)).toBe(true);
+    expect(viewsToday()).toBe(SIGNED_IN_DAILY_MOCK_LIMIT);
+  });
+
   it("claimNewPaperView: `uncapped` (Premium or a Test Series owner, from the page) is never refused; a non-owner still is", () => {
     spendAllowance();
     const route = "/full-mock/10/science";
