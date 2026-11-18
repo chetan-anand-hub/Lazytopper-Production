@@ -561,6 +561,42 @@ test('GST-EXCL-1 G3 · a credited Board Pass emailed after the cut-off states th
   assert.equal(A.priceLine(bp, { amountPaise: 191700 }, NOW - 86400000, null), 'Board Pass: ₹1,917, one payment till your boards.');
 });
 
+test('TS-UPGRADE-CREDIT-1 · a Test Series owner\'s "Finish paying" email states the UPGRADE price (918 + 165 = 1083; 1500 + 270 = 1770 from 1 Dec), the same quote the order route charges', async () => {
+  const FOUNDING = Date.parse('2026-11-20T12:00:00+05:30');
+  const AFTER = Date.parse('2026-12-01T00:00:00+05:30');
+  const tsDocs = (uid, over = {}) => ({
+    [`subscriptions/${uid}`]: {},
+    [`packEntitlements/${uid}/packs/test_series:all`]: { packId: 'test_series:all', sku: 'test_series', target: 'all', pricePaidInr: 1179, paidAt: FOUNDING - 86400000, orderId: `order_TS_${uid}`, paymentRef: `pay_TS_${uid}`, creditedToPass: false, ...(over.pack || {}) },
+    [`payOrders/order_TS_${uid}`]: { uid, passType: 'test_series', amountPaise: 117900, baseInr: 999, gstInr: 180, totalInr: 1179, status: 'paid', paymentId: `pay_TS_${uid}`, ...(over.order || {}) },
+  });
+  const db = tinyDb({ ...tsDocs('ts1'), ...tsDocs('spent', { pack: { creditedToPass: true } }), 'subscriptions/plain': {} });
+  const bp = A.productOf({ passType: 'till_boards' });
+  const q = await A.finishPayingQuote(db, 'ts1', bp, FOUNDING);
+  assert.deepEqual({ amountPaise: q.amountPaise, packCreditInr: q.packCreditInr }, { amountPaise: 108300, packCreditInr: 0 });
+  // The abandoned order itself was a credited upgrade order (its stored breakup is the upgrade's own).
+  const abandonedOrder = { amountPaise: 108300, baseInr: 918, gstInr: 165, totalInr: 1083, tsUpgradeCreditInr: 999 };
+  assert.equal(A.priceLine(bp, abandonedOrder, FOUNDING, q), 'Board Pass: ₹918 + ₹165 GST (18%) = ₹1,083, one payment till your boards.');
+  // Its stored breakup on its own (the pre-quote path) also adds up to the charge.
+  assert.equal(A.priceLine(bp, abandonedOrder, Date.parse('2026-11-06T12:00:00+05:30')), 'Board Pass: ₹918 + ₹165 GST (18%) = ₹1,083, one payment till your boards.');
+  const qa = await A.finishPayingQuote(db, 'ts1', bp, AFTER);
+  assert.equal(A.priceLine(bp, abandonedOrder, AFTER, qa), 'Board Pass: ₹1,500 + ₹270 GST (18%) = ₹1,770, one payment till your boards.');
+  // Everyone else is byte-identical: no Test Series, or one already credited -> the full price, exactly as before.
+  for (const uid of ['plain', 'spent']) {
+    const qp = await A.finishPayingQuote(db, uid, bp, FOUNDING);
+    assert.equal(qp.amountPaise, 226200, uid);
+    assert.equal(A.priceLine(bp, { amountPaise: 226200, baseInr: 1917, gstInr: 345, totalInr: 2262 }, FOUNDING, qp), 'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, one payment till your boards.', uid);
+  }
+  // Kill switch: the email follows the order route (full price).
+  const prev = process.env.TS_UPGRADE_CREDIT_DISABLED;
+  process.env.TS_UPGRADE_CREDIT_DISABLED = '1';
+  try {
+    assert.equal((await A.finishPayingQuote(db, 'ts1', bp, FOUNDING)).amountPaise, 226200);
+  } finally {
+    if (prev === undefined) delete process.env.TS_UPGRADE_CREDIT_DISABLED;
+    else process.env.TS_UPGRADE_CREDIT_DISABLED = prev;
+  }
+});
+
 // ── GUEST-ABANDON-1: signed-out (guest) checkouts ───────────────────────────────────────────────────
 
 const G = require('./guestAbandonEmail.cjs');

@@ -110,6 +110,11 @@ test('tsCreditRefusal: FAIL CLOSED on every doubtful record', () => {
     ['amount does not add up', 'u1', PACK, 'order_TS1', { ...ORDER, amountPaise: 117800 }, 'base_unproven'],
     ['entitlement price differs', 'u1', { ...PACK, pricePaidInr: 1178 }, 'order_TS1', ORDER, 'amount_mismatch'],
     ['order carries a credit', 'u1', PACK, 'order_TS1', { ...ORDER, packCreditInr: 49 }, 'bad_order'],
+    // Self-consistent records whose BASE is not the Test Series price: only the base check refuses them (mutation-tested).
+    ['consistent but base 1099', 'u1', { ...PACK, pricePaidInr: 1279 }, 'order_TS1', { ...ORDER, baseInr: 1099, gstInr: 180, totalInr: 1279, amountPaise: 127900 }, 'base_unproven'],
+    // Self-consistent records whose GST is not 18% of 999: only the stored-GST check refuses them (mutation-tested).
+    ['consistent but no GST', 'u1', { ...PACK, pricePaidInr: 999 }, 'order_TS1', { ...ORDER, gstInr: 0, totalInr: 999, amountPaise: 99900 }, 'base_unproven'],
+    ['consistent but GST 181', 'u1', { ...PACK, pricePaidInr: 1180 }, 'order_TS1', { ...ORDER, gstInr: 181, totalInr: 1180, amountPaise: 118000 }, 'base_unproven'],
   ];
   for (const [name, uid, pack, orderId, order, want] of cases) {
     assert.equal(tsCreditRefusal(uid, pack ? { ...pack } : pack, orderId, order ? { ...order } : order), want, name);

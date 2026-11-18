@@ -381,6 +381,39 @@ test('GRANT · CONFLICT: two credited orders (different GST state -> not reused)
   assert.ok(srv.events.includes('payments.verify.ts_upgrade_credit_conflict'));
 });
 
+test('GRANT · CONFLICT: the entitlement no longer names the order the credit was proved from (replaced between order and payment) -> pass granted for what was paid, entitlement NOT marked, order flagged', async (t) => {
+  const db = memoryFirestore();
+  seedTs(db, 'ts1');
+  const srv = await start({ db });
+  t.after(srv.close);
+  const r = await orderOk(srv, 'ts1', 'till_boards');
+  assert.equal(r.amountPaise, 108300);
+  // Between order and payment the entitlement is replaced by one from a DIFFERENT Test Series order.
+  db.docs.set('packEntitlements/ts1/packs/test_series:all', { data: { ...db.read('packEntitlements/ts1/packs/test_series:all'), orderId: 'order_TS_OTHER' }, version: 9 });
+  const p = srv.rzp.pay(r.orderId);
+  const v = await verify(srv, 'ts1', r.orderId, p.id);
+  assert.equal(v.status, 200, v.text);
+  assert.equal(db.read('subscriptions/ts1').passType, 'till_boards', 'the money was paid: the pass is granted');
+  const ent = db.read('packEntitlements/ts1/packs/test_series:all');
+  assert.equal(ent.creditedToPass, false, 'a different purchase is never marked by this order');
+  assert.equal(ent.creditedOrderId, undefined);
+  assert.equal(db.read(`payOrders/${r.orderId}`).tsUpgradeCreditConflict, true);
+  assert.ok(srv.events.includes('payments.verify.ts_upgrade_credit_conflict'));
+});
+
+test('FAIL CLOSED · self-consistent Test Series orders whose base is not 999 or whose GST is not 18% are not credited (full price)', async (t) => {
+  const db = memoryFirestore();
+  seedTs(db, 'base1099', { order: { baseInr: 1099, gstInr: 180, totalInr: 1279, amountPaise: 127900 }, pack: { pricePaidInr: 1279 } });
+  seedTs(db, 'gst0', { order: { gstInr: 0, totalInr: 999, amountPaise: 99900 }, pack: { pricePaidInr: 999 } });
+  const srv = await start({ db });
+  t.after(srv.close);
+  for (const uid of ['base1099', 'gst0']) {
+    const r = await orderOk(srv, uid, 'till_boards');
+    assert.equal(r.amountPaise, 226200, uid);
+    assert.equal('tsUpgradeCreditInr' in r, false, uid);
+  }
+});
+
 /* ── FAIL CLOSED: full price, purchase still made, nothing credited ──────────────────────────────────────────────── */
 
 test('FAIL CLOSED · refunded, revoked, duplicate, already credited, other uid, gift/no order, unpaid, unclaimed guest, pre-GST all-in, payment mismatch -> full price 2262, no credit fields', async (t) => {
