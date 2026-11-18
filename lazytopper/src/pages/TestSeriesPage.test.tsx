@@ -105,11 +105,11 @@ describe("/test-series — signed out", () => {
     expect(bp.textContent).toContain("Your personal tutor");
     expect(bp.textContent).toContain("Mistake Intelligence");
     expect(screen.getByTestId("ts-bp-link").getAttribute("href")).toBe("/board-pass");
-    expect(screen.getByTestId("ts-packs").getAttribute("href")).toBe("/packs");
-    expect(screen.getByTestId("ts-packs").textContent).toContain("PDF Packs / Bundle");
-    // Owner ruling 18 Nov: every card says what IT gives and what pairing adds — never that one product overlaps another.
-    expect(document.body.textContent).not.toMatch(/same papers|Mock Pack's papers|printed Mock Pack/i);
-    expect(screen.getByTestId("ts-offers").textContent).toContain("Pair them with the Test Series to get them checked");
+    // Owner rulings 19 Nov: no PDF-pack upsell on this page (it competes with the Test Series), and no overlap language.
+    expect(screen.queryByTestId("ts-packs")).toBeNull();
+    expect(document.querySelector('a[href="/packs"]')).toBeNull();
+    expect(document.body.textContent).not.toMatch(/PDF Pack|same papers|Mock Pack|printed/i);
+    expect(within(screen.getByTestId("ts-offers")).getAllByText(/^(Test Series|Board Pass)$/)).toHaveLength(2);
     expect(screen.getByTestId("ts-how").textContent).toContain("The Test Series checks every written answer step by step");
   });
   it("from 1 Dec the Board Pass card shows its list price; the Test Series price is its own constant", async () => {
@@ -143,9 +143,11 @@ describe("/test-series — signed in", () => {
     expect(records.calls).toBe(1);
     expect(screen.getByTestId("ts-done").textContent).toBe(`3 of ${seriesTotals().total} tests done.`);
     expect(screen.getByTestId("ts-test-CT-M01").textContent).toContain("24/30");
-    expect(within(screen.getByTestId("ts-test-CT-M02")).getByTestId("ts-chip").textContent).toBe("Attempted");
+    expect(screen.getByTestId("ts-test-CT-M01").getAttribute("aria-label")).toBe("Chapter Test 1, Real Numbers, graded 24 of 30");
+    expect(within(screen.getByTestId("ts-test-CT-M02")).getByTestId("ts-chip").getAttribute("data-status")).toBe("attempted");
+    expect(screen.getByTestId("ts-test-CT-M02").getAttribute("aria-label")).toBe("Chapter Test 2, Polynomials, attempted");
     expect(within(screen.getByTestId("ts-test-FM-M2")).getByTestId("ts-chip").textContent).toBe("60/80");
-    expect(within(screen.getByTestId("ts-test-FM-M1")).getByTestId("ts-chip").textContent).toBe("Start");
+    expect(screen.getByTestId("ts-test-FM-M1").getAttribute("aria-label")).toBe("Full-Length Test 1, Maths, not started");
     expect(screen.getByTestId("ts-trend-Maths").textContent).toContain("M2 · 75%");
     expect(screen.getByTestId("ts-trend-Science").textContent).toContain("No graded test yet");
   });
@@ -201,28 +203,26 @@ describe("/test-series — TS-PAGE-2 owners, tabs and accordions", () => {
     expect(screen.getByTestId("ts-continue").textContent).toBe("Continue: CT-M01 →");
     expect(screen.queryByTestId("ts-cta-buy")).toBeNull();
   });
-  it("tabs switch the visible panel; every test link stays in the DOM; subjects are keyboard-operable disclosures", async () => {
+  it("tabs switch the visible panel; every test is one compact tile link with an accessible name; rounds from code", async () => {
     await mount();
     const chapterTab = screen.getByTestId("ts-tab-chapter");
     const fullTab = screen.getByTestId("ts-tab-full");
     expect(chapterTab.getAttribute("aria-selected")).toBe("true");
     expect(screen.getByTestId("ts-sec-full").hidden).toBe(true);
+    // Both subjects sit visible together in a tab (no accordion), every tile a link with no separate Start pill.
+    expect(screen.getByTestId("ts-subj-ct-Maths")).toBeTruthy();
+    expect(screen.getByTestId("ts-subj-ct-Science")).toBeTruthy();
+    expect(screen.queryByText("Start")).toBeNull();
+    expect(screen.getByTestId("ts-test-CT-S01").getAttribute("aria-label")).toMatch(/^Chapter Test 1, .+, not started$/);
     await act(async () => fullTab.click());
     expect(fullTab.getAttribute("aria-selected")).toBe("true");
     expect(screen.getByTestId("ts-sec-chapter").hidden).toBe(true);
     expect(screen.getByTestId("ts-sec-full").hidden).toBe(false);
-    // Science starts collapsed, Maths open; the button carries aria-expanded and controls its panel.
-    const sci = screen.getByTestId("ts-acc-fm-Science-toggle");
-    expect(sci.tagName).toBe("BUTTON");
-    expect(sci.getAttribute("aria-expanded")).toBe("false");
-    expect(screen.getByTestId("ts-acc-fm-Maths-toggle").getAttribute("aria-expanded")).toBe("true");
-    const panel = document.getElementById(sci.getAttribute("aria-controls") ?? "");
-    expect(panel?.hidden).toBe(true);
-    await act(async () => sci.click());
-    expect(sci.getAttribute("aria-expanded")).toBe("true");
-    expect(panel?.hidden).toBe(false);
-    // Full-length tests are grouped by the calendar's two rounds (counts from code).
-    expect(within(screen.getByTestId("ts-mocks-Maths")).getAllByRole("list")).toHaveLength(2);
+    // Full-length tests grouped by the calendar's two rounds (counts from code).
+    const rounds = within(screen.getByTestId("ts-mocks-Maths")).getAllByRole("list");
+    expect(rounds).toHaveLength(2);
+    expect(rounds[0].querySelectorAll("a")).toHaveLength(Math.ceil(seriesTotals().mocksPerSubject / 2));
+    expect(screen.getByTestId("ts-mocks-Maths").textContent).toContain("Round 1 (Dec): 1–10");
   });
 });
 

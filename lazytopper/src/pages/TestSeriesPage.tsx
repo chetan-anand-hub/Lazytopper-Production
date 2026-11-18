@@ -61,17 +61,20 @@ function istToday(now: Date): string {
 type Load = { state: "signed-out" } | { state: "loading" } | { state: "ready"; progress: SeriesProgress };
 type Tab = "chapter" | "full";
 
-function chipText(p: SeriesTestProgress | undefined, signedIn: boolean): string {
-  if (!signedIn || !p || p.status === "not-started") return "Start";
-  if (p.status === "graded" && p.score) return `${p.score.awarded}/${p.score.total}`;
-  return "Attempted";
+function statusWords(p: SeriesTestProgress | undefined, signedIn: boolean): string {
+  if (!signedIn || !p || p.status === "not-started") return "not started";
+  if (p.status === "graded" && p.score) return `graded ${p.score.awarded} of ${p.score.total}`;
+  return "attempted";
 }
 
-function StatusChip({ p, signedIn }: { p: SeriesTestProgress | undefined; signedIn: boolean }) {
+/** TS-PAGE-2 (owner, compact lists): a tiny status dot; a graded test also shows its score. Fixed size, so nothing moves. */
+function StatusDot({ p, signedIn }: { p: SeriesTestProgress | undefined; signedIn: boolean }) {
   const status = signedIn && p ? p.status : "not-started";
+  const score = status === "graded" && p?.score ? `${p.score.awarded}/${p.score.total}` : null;
   return (
-    <span className={`lt-ts-chip lt-ts-chip--${status}`} data-testid="ts-chip" data-status={status}>
-      {chipText(p, signedIn)}
+    <span className={`lt-ts-st lt-ts-st--${status}`} data-testid="ts-chip" data-status={status} aria-hidden="true">
+      <span className="lt-ts-st__dot" />
+      {score && <span className="lt-ts-st__score">{score}</span>}
     </span>
   );
 }
@@ -159,46 +162,6 @@ function MockTrend({ load }: { load: Load }) {
   );
 }
 
-/** One keyboard-operable disclosure: a real <button aria-expanded> that controls a region (hidden when closed, still in the DOM). */
-function Accordion({
-  id,
-  open,
-  onToggle,
-  title,
-  meta,
-  children,
-}: {
-  id: string;
-  open: boolean;
-  onToggle: () => void;
-  title: string;
-  meta: ReactNode;
-  children: ReactNode;
-}) {
-  const panelId = `${id}-panel`;
-  return (
-    <div className={`lt-ts-acc${open ? " is-open" : ""}`} data-testid={id}>
-      <h3 className="lt-ts-acc__h">
-        <button
-          type="button"
-          className="lt-ts-acc__btn"
-          aria-expanded={open}
-          aria-controls={panelId}
-          onClick={onToggle}
-          data-testid={`${id}-toggle`}
-        >
-          <span className="lt-ts-acc__title">{title}</span>
-          {meta}
-          <span className="lt-ts-acc__chev" aria-hidden="true" />
-        </button>
-      </h3>
-      <div id={panelId} className="lt-ts-acc__panel" hidden={!open}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
 export default function TestSeriesPage() {
   const { user, loading: authLoading } = useAuth();
   const subscription = useSubscription();
@@ -227,9 +190,7 @@ export default function TestSeriesPage() {
   const [load, setLoad] = useState<Load>({ state: "signed-out" });
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("chapter");
-  const [open, setOpen] = useState<Record<string, boolean>>({ "ct-Maths": true, "ct-Science": false, "fm-Maths": true, "fm-Science": false });
   const [plansOpen, setPlansOpen] = useState(false);
-  const toggle = (key: string) => setOpen((o) => ({ ...o, [key]: !o[key] }));
 
   // The section mounts on the tap, so the anchor jump happens once it exists.
   useEffect(() => {
@@ -273,27 +234,33 @@ export default function TestSeriesPage() {
   const nextTest = progress ? allTests.find((t) => (progress.byCode[t.code]?.status ?? "not-started") === "not-started") ?? null : null;
   const doneIn = (codes: string[]) => (progress ? codes.filter((c) => (progress.byCode[c]?.status ?? "not-started") !== "not-started").length : 0);
 
-  const row = (t: { code: string; href: string; name: string; num: string }) => (
-    <li key={t.code}>
-      <Link className="lt-ts-item" to={t.href} data-testid={`ts-test-${t.code}`}>
-        <span className="lt-ts-item__num" aria-hidden="true">
-          {t.num}
-        </span>
-        <span className="lt-ts-item__name">
-          {t.name}
-          <span className="lt-ts-item__code">{t.code}</span>
-        </span>
-        <StatusChip p={progress?.byCode[t.code]} signedIn={Boolean(progress)} />
+  // TS-PAGE-2 (owner, compact lists): every test is ONE small tile — the whole tile is the link, with an accessible name that
+  // says what it is and its status ("Chapter Test 1, Real Numbers, not started").
+  const signedInProgress = Boolean(progress);
+  const chapterTile = (c: { code: string; href: string; label: string; index: number }) => (
+    <li key={c.code}>
+      <Link
+        className="lt-ts-tile"
+        to={c.href}
+        data-testid={`ts-test-${c.code}`}
+        aria-label={`Chapter Test ${c.index}, ${c.label}, ${statusWords(progress?.byCode[c.code], signedInProgress)}`}
+      >
+        <span className="lt-ts-tile__num">{String(c.index).padStart(2, "0")}</span>
+        <span className="lt-ts-tile__name">{c.label}</span>
+        <StatusDot p={progress?.byCode[c.code]} signedIn={signedInProgress} />
       </Link>
     </li>
   );
-
-  const mockCard = (m: { code: string; href: string; n: number }) => (
+  const mockTile = (m: { code: string; href: string; n: number; subject: SeriesSubject }) => (
     <li key={m.code}>
-      <Link className="lt-ts-card" to={m.href} data-testid={`ts-test-${m.code}`} aria-label={`Full-Length Test ${m.n} (${m.code})`}>
-        <span className="lt-ts-card__n">Test {m.n}</span>
-        <span className="lt-ts-card__code">{m.code}</span>
-        <StatusChip p={progress?.byCode[m.code]} signedIn={Boolean(progress)} />
+      <Link
+        className="lt-ts-tile lt-ts-tile--mock"
+        to={m.href}
+        data-testid={`ts-test-${m.code}`}
+        aria-label={`Full-Length Test ${m.n}, ${m.subject}, ${statusWords(progress?.byCode[m.code], signedInProgress)}`}
+      >
+        <span className="lt-ts-tile__num">{m.n}</span>
+        <StatusDot p={progress?.byCode[m.code]} signedIn={signedInProgress} />
       </Link>
     </li>
   );
@@ -364,19 +331,6 @@ export default function TestSeriesPage() {
         </ul>
         <Link className="lt-ts-btn lt-ts-btn--ghost lt-ts-offer__btn" to="/board-pass" data-testid="ts-bp-link">
           {holdsPremium ? "Your Board Pass →" : "See the Board Pass →"}
-        </Link>
-      </div>
-      <div className="lt-ts-offer lt-ts-offer--packs">
-        <p className="lt-ts-offer__tag lt-ts-offer__tag--packs">Print at home</p>
-        <p className="lt-ts-offer__name">PDF Packs</p>
-        <p className="lt-ts-offer__price lt-ts-offer__price--note">Chapter, mock and subject papers</p>
-        <ul className="lt-ts-offer__list">
-          <li>Printable papers with answer explanations</li>
-          <li>Keep a printed set for offline revision</li>
-          <li>Pair them with the Test Series to get them checked</li>
-        </ul>
-        <Link className="lt-ts-btn lt-ts-btn--ghost lt-ts-offer__btn" to="/packs" data-testid="ts-packs">
-          PDF Packs / Bundle →
         </Link>
       </div>
     </div>
@@ -490,57 +444,65 @@ export default function TestSeriesPage() {
             </button>
           </div>
 
+          <ul className="lt-ts-legend" aria-label="Status key">
+            <li>
+              <span className="lt-ts-st lt-ts-st--not-started" aria-hidden="true">
+                <span className="lt-ts-st__dot" />
+              </span>
+              Not started
+            </li>
+            <li>
+              <span className="lt-ts-st lt-ts-st--attempted" aria-hidden="true">
+                <span className="lt-ts-st__dot" />
+              </span>
+              Attempted
+            </li>
+            <li>
+              <span className="lt-ts-st lt-ts-st--graded" aria-hidden="true">
+                <span className="lt-ts-st__dot" />
+              </span>
+              Checked, with score
+            </li>
+          </ul>
           <div id="ts-sec-chapter" role="tabpanel" aria-labelledby="ts-tab-chapter" className="lt-ts-panel" hidden={tab !== "chapter"} data-testid="ts-sec-chapter">
-            <p className="lt-sp-lede">One board-pattern test per chapter of the 2026-27 syllabus, Sections A to D.</p>
+            <p className="lt-ts-panel__lede">One board-pattern test per chapter, Sections A to D.</p>
             {SUBJECTS.map((s) => {
               const list = chapters.filter((c) => c.subject === s);
               return (
-                <Accordion
-                  key={s}
-                  id={`ts-acc-ct-${s}`}
-                  open={Boolean(open[`ct-${s}`])}
-                  onToggle={() => toggle(`ct-${s}`)}
-                  title={s}
-                  meta={<MiniProgress done={doneIn(list.map((c) => c.code))} total={list.length} show={Boolean(progress)} testId={`ts-prog-ct-${s}`} />}
-                >
-                  <ul className="lt-ts-list" data-testid={`ts-chapters-${s}`}>
-                    {list.map((c) => row({ code: c.code, href: c.href, name: c.label, num: String(c.index).padStart(2, "0") }))}
+                <div key={s} className="lt-ts-subj" data-testid={`ts-subj-ct-${s}`}>
+                  <h3 className="lt-ts-subj__h">
+                    <span>{s}</span>
+                    <MiniProgress done={doneIn(list.map((c) => c.code))} total={list.length} show={Boolean(progress)} testId={`ts-prog-ct-${s}`} />
+                  </h3>
+                  <ul className="lt-ts-tiles" data-testid={`ts-chapters-${s}`}>
+                    {list.map(chapterTile)}
                   </ul>
-                </Accordion>
+                </div>
               );
             })}
           </div>
 
           <div id="ts-sec-full" role="tabpanel" aria-labelledby="ts-tab-full" className="lt-ts-panel" hidden={tab !== "full"} data-testid="ts-sec-full">
-            <p className="lt-sp-lede">
-              Full board-pattern papers (80 marks, 3 hours), {totals.mocksPerSubject} per subject.
-            </p>
+            <p className="lt-ts-panel__lede">Full board-pattern papers, 80 marks, 3 hours · {totals.mocksPerSubject} per subject.</p>
             {SUBJECTS.map((s) => {
               const list = mocks.filter((m) => m.subject === s);
               return (
-                <Accordion
-                  key={s}
-                  id={`ts-acc-fm-${s}`}
-                  open={Boolean(open[`fm-${s}`])}
-                  onToggle={() => toggle(`fm-${s}`)}
-                  title={s}
-                  meta={<MiniProgress done={doneIn(list.map((m) => m.code))} total={list.length} show={Boolean(progress)} testId={`ts-prog-fm-${s}`} />}
-                >
+                <div key={s} className="lt-ts-subj" data-testid={`ts-subj-fm-${s}`}>
+                  <h3 className="lt-ts-subj__h">
+                    <span>{s}</span>
+                    <MiniProgress done={doneIn(list.map((m) => m.code))} total={list.length} show={Boolean(progress)} testId={`ts-prog-fm-${s}`} />
+                  </h3>
                   <div data-testid={`ts-mocks-${s}`}>
-                    {rounds.map((r) => {
-                      const cal = schedule?.find((row) => row.id === r.id);
-                      return (
-                        <div key={r.id} className="lt-ts-round">
-                          <p className="lt-ts-round__h">
-                            <strong>{cal?.title ?? (r.id === "round1" ? "Pre-board round 1" : "Pre-board round 2")}</strong>
-                            {cal && <span> · {cal.when}</span>}
-                          </p>
-                          <ul className="lt-ts-cards">{list.filter((m) => m.n >= r.from && m.n <= r.to).map(mockCard)}</ul>
-                        </div>
-                      );
-                    })}
+                    {rounds.map((r) => (
+                      <div key={r.id} className="lt-ts-round">
+                        <p className="lt-ts-round__h">
+                          {r.id === "round1" ? "Round 1 (Dec)" : "Round 2 (Jan)"}: {r.from}–{r.to}
+                        </p>
+                        <ul className="lt-ts-tiles lt-ts-tiles--mocks">{list.filter((m) => m.n >= r.from && m.n <= r.to).map(mockTile)}</ul>
+                      </div>
+                    ))}
                   </div>
-                </Accordion>
+                </div>
               );
             })}
             <MockTrend load={load} />
