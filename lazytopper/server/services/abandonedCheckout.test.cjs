@@ -776,3 +776,24 @@ test('review D5: a timed-out guest send is retried next run only while inside 22
   await emailer.runOnce();
   assert.equal(s.db.docs.get(`guestNudgeEmails/${key}`).abandoned_board_pass.status, 'failed', 'never re-sent');
 });
+
+/* ── TS-PACK-1 ───────────────────────────────────────────────────────────────── */
+test('TS-PACK-1: an abandoned Test Series order is followed up with its own line and a /packs?buy=test_series link (no target); never while switched off', () => {
+  const order = { passType: 'test_series', packTarget: 'all' };
+  const before = process.env.TS_PACK_DISABLED;
+  try {
+    delete process.env.TS_PACK_DISABLED;
+    const p = A.productOf(order);
+    assert.equal(p.kind, 'pack');
+    assert.equal(p.packId, 'test_series:all');
+    assert.match(A.benefitLine(p), /written answers checked step by step/);
+    assert.doesNotMatch(A.benefitLine(p), /answer key|free|AI/i);
+    const url = A.finishPayingUrl('https://www.lazytopper.com', p);
+    assert.match(url, /^https:\/\/www\.lazytopper\.com\/packs\?buy=test_series&utm_source=email/);
+    process.env.TS_PACK_DISABLED = '1';
+    assert.deepEqual(A.productOf(order), { reason: 'not-on-sale' });
+  } finally {
+    if (before === undefined) delete process.env.TS_PACK_DISABLED;
+    else process.env.TS_PACK_DISABLED = before;
+  }
+});

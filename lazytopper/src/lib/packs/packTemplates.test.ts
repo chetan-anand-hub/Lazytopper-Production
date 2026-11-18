@@ -11,7 +11,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { PACK_CHAPTER_SLUGS, PACK_SKUS, PACK_SUBJECTS, isValidPackTarget, packIdOf } from "../../services/packs";
+import { PACK_CHAPTER_SLUGS, PDF_PACK_SKUS as PACK_SKUS, PACK_SUBJECTS, isValidPackTarget, packIdOf } from "../../services/packs";
 import { PINNED_FONTS } from "./packTemplateFonts";
 import type { TemplateMarks } from "../../components/worksheet/pdfTemplateMarks";
 import { buildPackFiles } from "./buildPackFiles";

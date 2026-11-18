@@ -1114,8 +1114,11 @@ function createCheckSolutionRoute(deps) {
     // for the v2 shape (a job's rows carry v2 fields, e.g. notGraded "interrupted"); a grader exists
     // (stub mode answers its 503 synchronously). Anything else — including a job store that refuses
     // the job — falls through to the synchronous grade below, unchanged byte for byte.
+    // TS-PACK-1: a Test Series check spent on the pack (entitlement.cjs + testSeriesChecks.cjs) settles when THIS response
+    // finishes, so it is graded synchronously (the browser already handles the synchronous 200).
     if (
       deps.GRADING_JOBS === true && gradingJobs && acceptsV2 && !isStubMode()
+      && !(req && req.lazytopperSyncOnly === true)
       && jobsLib.wantsAsync(req, payload)
     ) {
       const attempt = gradingAttemptOf(req);

@@ -57,6 +57,8 @@ function coveringPackIds(sku, target) {
   if (sku === 'pack_chapter') return [`pack_chapter:${target}`, `pack_subject:${PACK_CHAPTERS[target]}`, bundle];
   if (sku === 'pack_mock') return [`pack_mock:${target}`, `pack_subject:${target}`, bundle];
   if (sku === 'pack_cbq') return [`pack_cbq:${target}`];
+  // TS-PACK-1: the Test Series Pack is covered by nothing but itself (it is NOT the bundle's fallback below).
+  if (sku === 'test_series') return ['test_series:all'];
   if (sku === 'pack_subject') return [...subjectIds(target), bundle];
   return [bundle, ...PACK_SUBJECTS.flatMap(subjectIds)];
 }

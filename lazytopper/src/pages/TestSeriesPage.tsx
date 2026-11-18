@@ -5,6 +5,7 @@ import { useSubscription } from "../hooks/useSubscription";
 import { getSessionRecordsFromCloud } from "../services/sessionRecords";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import { boardPassPriceDisplay } from "../config/pricing";
+import { packPriceLabel } from "../services/packs";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import {
   PACK_MATCHED_MOCKS,
@@ -18,7 +19,6 @@ import {
   seriesProgress,
   seriesSchedule,
   seriesTotals,
-  testSeriesPriceDisplay,
   type SeriesProgress,
   type SeriesScheduleRow,
   type SeriesSubject,
@@ -144,9 +144,9 @@ export default function TestSeriesPage() {
   useEffect(() => {
     const now = new Date();
     if (schedule) setCurrent(currentScheduleRow(schedule, istToday(now)));
-    // The Test Series price is ONE constant in lib/testSeries (TS-PACK-1 swaps in the pricing helper); the Board Pass price is
+    // TS-PACK-1: the Test Series price is the `test_series` SKU's (the shared pricing helper, "₹999 + GST"); the Board Pass price is
     // date-driven (founding price till 30 Nov, list price from 1 Dec).
-    setPrices({ ts: `${testSeriesPriceDisplay()} till your boards`, bp: `${boardPassPriceDisplay(now)} till your boards` });
+    setPrices({ ts: `${packPriceLabel("test_series", now)} till your boards`, bp: `${boardPassPriceDisplay(now)} till your boards` });
   }, [schedule]);
 
   const [load, setLoad] = useState<Load>({ state: "signed-out" });

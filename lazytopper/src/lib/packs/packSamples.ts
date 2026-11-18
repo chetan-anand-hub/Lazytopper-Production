@@ -9,8 +9,8 @@
  * One sample per pack kind and subject: `pack_chapter`, `pack_mock`, `pack_subject` and `pack_cbq` each have a Maths and a
  * Science sample; `pack_bundle` has one. Adding a pack sku without adding it to `PACK_SAMPLES` turns packSamples.test.ts red.
  */
-import { PACK_SKUS, packPriceLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../../services/packs";
-import { BUNDLE_NAME } from "./packLabels";
+import { PDF_PACK_SKUS, packPriceLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../../services/packs";
+import { BUNDLE_NAME, TEST_SERIES_NAME } from "./packLabels";
 
 export interface PackSampleSpec {
   /** File stem: `public/samples/<id>.pdf`. */
@@ -72,7 +72,8 @@ export const PACK_SAMPLE_LINK_TEXT = "Free sample page";
 
 /** Every sku the catalogue lists must have a sample (used by the test that guards new skus). */
 export function skusWithoutSample(): PackSku[] {
-  return PACK_SKUS.filter((sku) => !PACK_SAMPLES.some((s) => s.sku === sku));
+  // TS-PACK-1: only the PDF packs have samples (the Test Series Pack is not a PDF pack).
+  return PDF_PACK_SKUS.filter((sku) => !PACK_SAMPLES.some((s) => s.sku === sku));
 }
 
 /** The pack's name as the sample's last line prints it. */
@@ -88,6 +89,8 @@ export function samplePackName(sku: PackSku, target: PackSubject | "all"): strin
       return BUNDLE_NAME;
     case "pack_cbq":
       return `${subjectLabel(target === "science" ? "science" : "maths")} CBQ Pack`;
+    case "test_series":
+      return TEST_SERIES_NAME;
   }
 }
 

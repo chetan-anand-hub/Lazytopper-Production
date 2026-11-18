@@ -418,3 +418,8 @@ test('GST-EMAIL-LINK-1 · NO link: state + PIN already given, invoice already is
     for (const s of fetchImpl.sent) assert.doesNotMatch(s.text + s.html, /invoice-details|Get your GST invoice/, name);
   }
 });
+
+test('TS-PACK-1: the receipt names the Test Series Pack', () => {
+  const { itemLabel } = require('./paymentReceiptEmail.cjs');
+  assert.equal(itemLabel('test_series', 'all'), 'Test Series Pack (Maths + Science)');
+});

@@ -10,7 +10,7 @@
  * Mock 2 is shown (not Mock 1) because Science Full Mock 1 holds a question the syllabus guard flags; the generator and the test both scan every preview.
  * The same spec drives the pop-up, the caption and the generator, so the caption can only name what the images show.
  */
-import { packChapterLabel } from "./packLabels";
+import { packChapterLabel, TEST_SERIES_NAME } from "./packLabels";
 import { chaptersOfSubject, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../../services/packs";
 
 export interface PackPreviewSpec {
@@ -89,6 +89,7 @@ export function previewCaption(spec: PackPreviewSpec): string {
     pack_subject: "Subject Pack",
     pack_bundle: "Maths + Science Bundle",
     pack_cbq: "CBQ Pack",
+    test_series: TEST_SERIES_NAME,
   };
   const subj = spec.sku === "pack_bundle" ? "" : `${subjectLabel(spec.subject)} `;
   const of = spec.sku === "pack_bundle" ? "the " : "a ";

@@ -257,6 +257,31 @@ const AI_TIER_GATED_ROUTES = Object.freeze({
   }),
 });
 
+/* ── TS-PACK-1 · the Test Series Pack on /api/grade-worksheet ─────────────────────────────────────────────── */
+const TEST_SERIES_GRADE_PATH = '/api/grade-worksheet';
+const TEST_SERIES_CHECKS_PER_PAPER = require('./testSeriesChecks.cjs').CHECKS_PER_PAPER;
+const TEST_SERIES_ADMIT_EVENT = 'entitlement.test_series.admitted';
+const TEST_SERIES_REFUSE_EVENT_PREFIX = 'entitlement.test_series.refused.';
+const TEST_SERIES_FEATURE = Object.freeze({
+  feature: 'test-series-check',
+  message: 'Checking your written answers on Test Series papers comes with the Test Series Pack or the Board Pass.',
+});
+const TEST_SERIES_EXHAUSTED_FEATURE = Object.freeze({
+  feature: 'test-series-check',
+  message: `You've had this paper checked ${TEST_SERIES_CHECKS_PER_PAPER === 2 ? 'twice' : `${TEST_SERIES_CHECKS_PER_PAPER} times`} with your Test Series Pack. The Board Pass checks every paper, every time.`,
+});
+const TEST_SERIES_MISMATCH_MESSAGE =
+  "This paper doesn't match the Test Series paper it names. Reload the test and try again.";
+const TEST_SERIES_UNAVAILABLE_MESSAGE = "We couldn't check your Test Series Pack just now. Please try again in a minute.";
+
+/**
+ * TS-PACK-1 emergency switch: TS_CHECKS_DISABLED=1 turns the whole Test Series rule off - /api/grade-worksheet is then
+ * decided exactly as before this lane (no body read, no count; a non-Premium owner meets the ordinary 402).
+ */
+function testSeriesChecksDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.TS_CHECKS_DISABLED) || '').trim());
+}
+
 /** The 402 body. `error` is for the client to branch on; `message` is for the student. PURE. */
 function premiumRequiredBody(featureSpec, decision) {
   const body = {
@@ -455,6 +480,9 @@ function createEntitlementGate(deps = {}) {
     cacheTtlMs = DEFAULT_CACHE_TTL_MS,
     // CBQ-TUTOR-TASTE-1: optional (services/cbqTutorTaste.cjs). Absent -> /api/tutor is decided exactly as before.
     cbqTutorTaste = null,
+    // TS-PACK-1: optional (services/testSeriesChecks.cjs). Absent -> /api/grade-worksheet is decided exactly as before.
+    testSeriesChecks = null,
+    env = process.env,
   } = deps;
 
   /**
@@ -774,7 +802,66 @@ function createEntitlementGate(deps = {}) {
    *
    * @returns true when it has already responded (402) and the caller must return.
    */
-  async function applyToRequest(req, res, reqPath, verifiedUid, verification) {
+  /**
+   * TS-PACK-1 - the Test Series rule on /api/grade-worksheet (testSeriesChecks.decide does the work and the counting):
+   *   Premium (and every fail-open)        -> never consulted: unchanged.
+   *   Trial                                -> a Test Series paper is NOT checked on the trial (owner ruling 18 Nov 2026):
+   *                                           only on the pack (an owner spends a check) - else the 402.
+   *   Not entitled (free / expired trial)  -> a pack OWNER's series paper is checked on the pack; everything else is the
+   *                                           402 exactly as before (a non-owner's body is never read for this).
+   *   LIMITS-1 "first paper of each kind"  -> never a Test Series paper; any other paper exactly as before.
+   * Returns 'admit' | 'not_series' | 'responded'.
+   */
+  function seriesRuleOn(reqPath, verifiedUid, decision) {
+    return reqPath === TEST_SERIES_GRADE_PATH
+      && !!testSeriesChecks && typeof testSeriesChecks.decide === 'function'
+      && !testSeriesChecksDisabled(env)
+      && typeof verifiedUid === 'string' && !!verifiedUid.trim()
+      && !!decision && (decision.outcome === 'absent' || decision.outcome === 'read' || decision.outcome === 'cache');
+  }
+
+  async function applySeriesRule(req, res, verifiedUid, decision) {
+    let verdict;
+    try {
+      verdict = await testSeriesChecks.decide(req, res, verifiedUid);
+    } catch {
+      verdict = { kind: 'refused', reason: 'unavailable' };
+    }
+    if (verdict.kind === 'admitted') {
+      emit(TEST_SERIES_ADMIT_EVENT);
+      req.lazytopperTestSeriesCheck = { paperKey: verdict.paperKey, used: verdict.used, left: verdict.left, checksPerPaper: TEST_SERIES_CHECKS_PER_PAPER };
+      return 'admit';
+    }
+    if (verdict.kind === 'not_series') return 'not_series';
+    emit(`${TEST_SERIES_REFUSE_EVENT_PREFIX}${verdict.reason}`);
+    if (typeof sendJson === 'function') {
+      if (verdict.reason === 'series_paper_mismatch') {
+        sendJson(res, 409, { error: 'series_paper_mismatch', message: TEST_SERIES_MISMATCH_MESSAGE });
+      } else if (verdict.reason === 'unavailable') {
+        sendJson(res, 503, { error: 'test_series_unavailable', message: TEST_SERIES_UNAVAILABLE_MESSAGE });
+      } else {
+        const exhausted = verdict.reason === 'exhausted';
+        const body = premiumRequiredBody(exhausted ? TEST_SERIES_EXHAUSTED_FEATURE : TEST_SERIES_FEATURE, decision);
+        sendJson(res, 402, {
+          ...body,
+          testSeries: {
+            reason: verdict.reason,
+            paperKey: verdict.paperKey,
+            checksPerPaper: TEST_SERIES_CHECKS_PER_PAPER,
+            left: exhausted ? 0 : null,
+          },
+        });
+      }
+    }
+    return 'responded';
+  }
+
+  async function applyToRequest(req, res, reqPath, verifiedUid, verification, opts = {}) {
+    // TS-PACK-1: LIMITS-1 already let this request past the 402 ("first paper of each kind"). Only a grade-worksheet
+    // request is looked at again, and only to keep a Test Series paper off that allowance; anything else is served.
+    const limitsBypass = !!(opts && opts.limitsBypass === true);
+    if (limitsBypass && reqPath !== TEST_SERIES_GRADE_PATH) return false;
+
     // /api/step-solution: attach a LAZY resolver and gate nothing here. Lazy is
     // load-bearing — the bank-backed and cache-backed paths must not pay for a
     // Firestore read they will never consult.
@@ -792,7 +879,17 @@ function createEntitlementGate(deps = {}) {
     if (!featureSpec) return false;
 
     const decision = await resolve(verifiedUid, req, verification);
-    if (decision.entitled) return false;
+    const series = seriesRuleOn(reqPath, verifiedUid, decision);
+    if (decision.entitled) {
+      if (series && decision.tier === 'trial') {
+        return (await applySeriesRule(req, res, verifiedUid, decision)) === 'responded';
+      }
+      return false;
+    }
+    if (limitsBypass) {
+      if (!series) return false;
+      return (await applySeriesRule(req, res, verifiedUid, decision)) === 'responded';
+    }
 
     if (decision.outcome === 'reauth-required') {
       // A credential that did not verify is not "you have not paid": 401, so the client
@@ -833,6 +930,14 @@ function createEntitlementGate(deps = {}) {
       if (taste && taste.owned) bonusBody = { used: taste.used, left: 0, limit: taste.limit };
     }
 
+    // TS-PACK-1: a NON-Premium Test Series Pack OWNER's series paper is checked on the pack. A non-owner never has the
+    // body read for this: one document read, then the 402 below exactly as before.
+    if (series && (await testSeriesChecks.ownsActive(verifiedUid)) === true) {
+      const r = await applySeriesRule(req, res, verifiedUid, decision);
+      if (r === 'admit') return false;
+      if (r === 'responded') return true;
+    }
+
     if (typeof sendJson === 'function') {
       // 402 Payment Required, NEVER 403. The client must be able to tell "you
       // cannot" from "you have not paid" — only 402 may surface an upgrade path.
@@ -863,6 +968,9 @@ module.exports = {
   GATED_ROUTES,
   AI_TIER_GATED_ROUTES,
   premiumRequiredBody,
+  testSeriesChecksDisabled,
+  TEST_SERIES_FEATURE,
+  TEST_SERIES_EXHAUSTED_FEATURE,
   STEP_SOLUTION_PATH,
   STEP_SOLUTION_FEATURE,
   TRIAL_DAYS,

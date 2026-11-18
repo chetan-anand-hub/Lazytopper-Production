@@ -29,7 +29,7 @@
 
 const { escapeHtml } = require('./trialEndingEmail.cjs');
 const pricing = require('./passPricing.cjs');
-const { PACK_CHAPTERS, isPackProduct, packIdFor, parsePackId, isAlreadyOwned } = require('./packProducts.cjs');
+const { PACK_CHAPTERS, isPackProduct, packIdFor, parsePackId, isAlreadyOwned, testSeriesSaleDisabled } = require('./packProducts.cjs');
 const { packDisplayName } = require('./packNudge.cjs');
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -69,6 +69,8 @@ function productOf(order) {
   if (passType === 'till_boards') return { key: BOARD_PASS, kind: BOARD_PASS };
   if (passType === 'month') return { reason: 'month-order' };
   if (pricing.isTopupProduct(passType)) return { reason: 'topup-order' };
+  // TS-PACK-1: while the Test Series Pack is switched off (TS_PACK_DISABLED) no email asks anyone to finish paying for it.
+  if (passType === 'test_series' && testSeriesSaleDisabled()) return { reason: 'not-on-sale' };
   if (isPackProduct(passType)) {
     const packId = packIdFor(passType, order.packTarget);
     const parsed = packId ? parsePackId(packId) : null;
@@ -227,7 +229,7 @@ const utm = (content) => `utm_source=email&utm_medium=email&utm_campaign=abandon
 function finishPayingUrl(appUrl, product) {
   if (product.kind === BOARD_PASS) return `${appUrl}/pricing?buy=board_pass&${utm('finish')}`;
   const q = new URLSearchParams({ buy: product.sku });
-  if (product.sku !== 'pack_bundle') q.set('t', product.target);
+  if (product.sku !== 'pack_bundle' && product.sku !== 'test_series') q.set('t', product.target);
   return `${appUrl}/packs?${q.toString()}&${utm('finish')}`;
 }
 
@@ -262,6 +264,8 @@ function benefitLine(product) {
       return 'Competency questions of every type, chapter-wise.';
     case 'pack_mock':
       return '8 board-pattern mock papers with step-marking keys.';
+    case 'test_series':
+      return 'Numbered chapter tests and full mocks, with your written answers checked step by step, till your boards.';
     default:
       return 'Important questions with answer keys.';
   }

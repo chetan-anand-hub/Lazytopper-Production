@@ -94,3 +94,21 @@ test('split: before every date the open list IS the input (same objects, same or
   assert.deepEqual(late.ended.map((e) => e.redownloadUntil), ['31 May 2027', '31 March 2027']);
   assert.deepEqual(splitByRedownload(undefined, POST), { open: [], ended: [] });
 });
+
+/* ── TS-PACK-1 · the Test Series Pack is valid till 31 May 2027 (IST end of day), whenever it was paid ───────────── */
+test('TS-PACK-1: a Test Series Pack ends 31 May 2027 (the existing constant), never on the 31 March pack date', () => {
+  const T = require('./packTerms.cjs');
+  assert.equal(T.TEST_SERIES_ENDS_MS, REDOWNLOAD_ENDS_LEGACY_MS);
+  assert.equal(T.TEST_SERIES_UNTIL, '31 May 2027');
+  const ts = { packId: 'test_series:all', sku: 'test_series', target: 'all', paidAt: Date.parse('2026-11-20T00:00:00+05:30') };
+  const pdf = { packId: 'pack_bundle:all', sku: 'pack_bundle', target: 'all', paidAt: ts.paidAt };
+  const april = Date.parse('2027-04-15T12:00:00+05:30');
+  assert.equal(isRedownloadOpen(ts, april), true, 'still valid after 31 March');
+  assert.equal(isRedownloadOpen(pdf, april), false, 'a PDF pack bought the same day is not');
+  assert.equal(isRedownloadOpen(ts, REDOWNLOAD_ENDS_LEGACY_MS), true, 'the whole last day');
+  assert.equal(isRedownloadOpen(ts, REDOWNLOAD_ENDS_LEGACY_MS + 1), false);
+  const { open, ended } = T.splitByRedownload([ts], REDOWNLOAD_ENDS_LEGACY_MS + 1);
+  assert.equal(open.length, 0);
+  assert.equal(ended[0].redownloadUntil, '31 May 2027');
+  assert.equal(ended[0].endedAtMs, REDOWNLOAD_ENDS_LEGACY_MS);
+});

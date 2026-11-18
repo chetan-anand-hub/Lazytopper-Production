@@ -16,7 +16,16 @@ const PACK_PRODUCTS = Object.freeze({
   pack_bundle: Object.freeze({ priceInr: 299, needsTarget: null }),
   // CBQ-PACK-1: a SEPARATE product (not covered by, and not covering, subject/bundle).
   pack_cbq: Object.freeze({ priceInr: 199, needsTarget: 'subject' }),
+  // TS-PACK-1 (owner ruling 18 Nov 2026): the Test Series Pack - ONE per student, Maths + Science together, Rs 999 + GST.
+  // NOT a PDF pack: it grants written-answer checking on the Test Series papers only (testSeriesChecks.cjs, 2 per paper),
+  // till 31 May 2027 - no tutor, no Premium (owner 19:44 IST). It covers, and is covered by, nothing else. Its packId is
+  // `test_series:all` (needsTarget null, like the bundle; every function below branches on the sku BEFORE the bundle rule).
+  test_series: Object.freeze({ priceInr: 999, needsTarget: null }),
 });
+
+/** TS-PACK-1: the Test Series Pack sku and its one packId. */
+const TEST_SERIES_SKU = 'test_series';
+const TEST_SERIES_PACK_ID = 'test_series:all';
 
 const PACK_SUBJECTS = Object.freeze(['maths', 'science']);
 
@@ -55,6 +64,24 @@ const has = (obj, key) => typeof key === 'string' && Object.prototype.hasOwnProp
 /** The PACKS_ENABLED switch (contract §7): exactly "1" turns it on; anything else is off. */
 function packsEnabled(env = process.env) {
   return String((env && env.PACKS_ENABLED) || '').trim() === '1';
+}
+
+/**
+ * TS-PACK-1 kill switch: TS_PACK_DISABLED=1 (or true/on/yes) -> the Test Series Pack is not SOLD. A paid order is still
+ * granted and an owner keeps every allowance (this only stops new orders).
+ */
+function testSeriesSaleDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.TS_PACK_DISABLED) || '').trim());
+}
+
+/**
+ * May a NEW order be made for `sku` right now? A pack product with PACKS_ENABLED on - and, for the Test Series Pack, its
+ * kill switch off. Every order-creating route asks this (never `packsEnabled` alone), so the switch reaches all of them.
+ */
+function isPackOnSale(sku, env = process.env) {
+  if (!isPackProduct(sku) || !packsEnabled(env)) return false;
+  if (sku === TEST_SERIES_SKU && testSeriesSaleDisabled(env)) return false;
+  return true;
 }
 
 /** True for a key of the closed pack table. */
@@ -128,6 +155,11 @@ function ownsCbq(packs, subject) {
   return idSet(packs).has(`pack_cbq:${subject}`);
 }
 
+/** TS-PACK-1. Only `test_series:all` itself owns it: no PDF pack includes it and it includes no PDF pack. */
+function ownsTestSeries(packs) {
+  return idSet(packs).has(TEST_SERIES_PACK_ID);
+}
+
 /**
  * Contract §3: a request is already owned when EVERYTHING it would grant is already owned.
  *   chapter -> that chapter; mock -> that subject's mocks; subject -> its 13 chapters AND its mocks;
@@ -139,6 +171,7 @@ function isAlreadyOwned(packs, sku, target) {
   if (sku === 'pack_chapter') return ownsChapter(packs, t);
   if (sku === 'pack_mock') return ownsMocks(packs, t);
   if (sku === 'pack_cbq') return ownsCbq(packs, t);
+  if (sku === TEST_SERIES_SKU) return ownsTestSeries(packs);
   if (sku === 'pack_subject') return chaptersOf(t).every((slug) => ownsChapter(packs, slug)) && ownsMocks(packs, t);
   return Object.keys(PACK_CHAPTERS).every((slug) => ownsChapter(packs, slug)) && PACK_SUBJECTS.every((s) => ownsMocks(packs, s));
 }
@@ -157,5 +190,10 @@ module.exports = {
   ownsChapter,
   ownsMocks,
   ownsCbq,
+  ownsTestSeries,
   isAlreadyOwned,
+  TEST_SERIES_SKU,
+  TEST_SERIES_PACK_ID,
+  testSeriesSaleDisabled,
+  isPackOnSale,
 };

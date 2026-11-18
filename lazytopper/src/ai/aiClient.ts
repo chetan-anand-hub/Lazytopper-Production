@@ -877,6 +877,10 @@ export async function detectQuestion(req: {
  *  passes it in — the grader is surface-agnostic and grades against this set. */
 export interface WorksheetGradeQuestionInput {
   qNumber: number;
+  /** TS-PACK-1 — the BANK question id (Chapter Test / Full Mock). A Test Series paper is checked on the Test Series Pack only
+   *  when every question's id (and its exact text) is one of that paper's written questions in the server manifest
+   *  (server/services/testSeriesChecks.cjs). Ignored by the grader itself. */
+  questionId?: string;
   marks: number;
   topic?: string;
   topicLabel?: string;

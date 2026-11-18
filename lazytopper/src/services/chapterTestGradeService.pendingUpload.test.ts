@@ -60,5 +60,10 @@ describe("PENDING-UPLOAD-1 · later grade attaches to the existing record", () =
     expect(writes.records[0].worksheetId).toBe("ct-abc");
     expect(writes.records[0].status).toBe("graded");
     expect((writes.gradeCalls[0] as { opts: { paperKey: string } }).opts.paperKey).toBe("ct-abc");
+
+    // TS-PACK-1: every written question carries its BANK id and its exact persisted text (the server verifies a Test Series
+    // paper's questions against its manifest by these two).
+    const sent = (writes.gradeCalls[0] as { req: { questions: Array<{ qNumber: number; questionId?: string; questionText: string }> } }).req.questions;
+    expect(sent).toEqual([expect.objectContaining({ qNumber: 2, questionId: "b", questionText: "q2" })]);
   });
 });

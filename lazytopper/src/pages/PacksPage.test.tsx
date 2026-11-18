@@ -572,3 +572,65 @@ describe("PARENT-PACKS-1 (owner 4 Nov) · the chapter picker reads as a dropdown
     await waitFor(() => expect(screen.getByTestId("pack-chapter-selwrap").className).not.toContain("is-empty"));
   });
 });
+
+/* ── TS-PACK-1 · the Test Series Pack on /packs ─────────────────────────────── */
+describe("TS-PACK-1 · /packs Test Series card", () => {
+  it("one row: name, Rs 999 price tag, what it includes and leaves out; copy rules hold", () => {
+    page();
+    const card = screen.getByTestId("packs-test-series");
+    const text = card.textContent ?? "";
+    expect(text).toContain("Test Series Pack");
+    expect(text).toContain(packs.packPriceLabel("test_series"));
+    expect(text).toContain("26 chapter tests + 40 full-length tests"); // counts from the series config (66 papers)
+    expect(text).toContain("twice per paper");
+    expect(text).toContain("Does not include: the Board Pass, the tutor, the Answer Checker or the PDF packs.");
+    expect(text).not.toMatch(/\bAI\b|free|answer key|hack|trick|crack|leak|optional|refund|\bapp\b/i);
+    // packs dark: the neutral twin button opens the pop-up (no Buy)
+    fireEvent.click(screen.getByTestId("pk-buy-test-series-neutral"));
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByTestId("pack-test-series-line").textContent).toBe("Maths + Science, one payment, till 31 May 2027.");
+    expect(within(dialog).queryByTestId("pack-preview-caption")).toBeNull();
+  });
+
+  it("packs on, signed in: Buy uses the existing pack checkout (buyPack('test_series', no target)); ?buy=test_series resumes it", async () => {
+    flag.on = true;
+    auth.user = { uid: "u1" };
+    const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
+    buyMock.mockClear();
+    page();
+    const buy = await screen.findByTestId("tile-buy-test_series");
+    expect(buy.textContent).toBe(`Buy · ${packPayLabel("test_series")}`);
+    fireEvent.click(buy);
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(buyMock.mock.calls[0][0]).toBe("test_series");
+    expect(buyMock.mock.calls[0][1]).toBeUndefined();
+    cleanup();
+    buyMock.mockClear();
+    page("/packs?buy=test_series");
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(buyMock.mock.calls[0][0]).toBe("test_series");
+  });
+
+  it("an owner sees 'You own this' and a My packs row that opens the Test Series (no files to build)", async () => {
+    flag.on = true;
+    auth.user = { uid: "u1" };
+    flag.mine = {
+      packs: [{ packId: "test_series:all", sku: "test_series", target: "all", pricePaidInr: 1179, paidAt: Date.parse("2026-11-20T06:30:00Z") }],
+      licensee: { name: "Asha", email: "a@b.in" },
+    };
+    page();
+    expect(await screen.findByTestId("tile-owned-test_series")).toBeTruthy();
+    expect(await screen.findByTestId("packs-owned-test-series-open")).toBeTruthy();
+    expect(screen.getByTestId("packs-owned-test-series-open").getAttribute("href")).toBe("/test-series");
+  });
+
+  it("kill switch VITE_TS_PACK_DISABLED=1 hides the card", () => {
+    vi.stubEnv("VITE_TS_PACK_DISABLED", "1");
+    try {
+      page();
+      expect(screen.queryByTestId("packs-test-series")).toBeNull();
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+});

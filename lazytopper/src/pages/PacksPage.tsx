@@ -9,9 +9,10 @@ import { PACKS_ANSWER_FAQ } from "../components/seo/faqContent";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import FounderBadge from "../components/brand/FounderBadge";
 import PacksShop, { warmPacksCheckout, OTHER_PAYMENT_BUSY_COPY, PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
-import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT } from "../lib/packs/packLabels";
+import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT, TEST_SERIES_NAME } from "../lib/packs/packLabels";
+import { seriesContentsLine, testSeriesPackLine } from "../lib/testSeries/testSeries";
 import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
-import { chaptersOfSubject, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
+import { chaptersOfSubject, isTestSeriesPackOffered, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
 import PackSampleLink, { PackSampleChoice, SampleBuyNext } from "../components/packs/PackSampleLink";
 import SubjectSwitch from "../components/packs/SubjectSwitch";
 import PackTileBuy, { sampleBuyFor } from "../components/packs/PackTileBuy";
@@ -151,6 +152,7 @@ function PacksPageBody() {
             <Hero api={api} />
             <div className="lt-packs__w lt-pk__strip"><BoardsCountdownStrip /></div>
             <PartPacks api={api} subject={subject} onSubject={setSubject} />
+            {isTestSeriesPackOffered() && <TestSeriesCard api={api} />}
             {/* v1.2 L3: two compact one-line link rows. The longer sentences ride in the links' accessible names and titles, and the
                 CBQ one is also the FAQ "What are CBQ Packs?" answer. */}
             <section className="lt-packs__w lt-pk__links" aria-label="More from LazyTopper">
@@ -356,6 +358,44 @@ function PreboardTileLine({ testId = "packs-preboard-line-bundle" }: { testId?: 
       <span className="lt-pt__pb-long">{PACK_PREBOARD_LINE}</span>
       <span className="lt-pt__pb-short">{PACK_PREBOARD_LINE_SHORT}</span>
     </p>
+  );
+}
+
+/**
+ * TS-PACK-1 - the Test Series Pack: ONE row (both subjects, no switch), in the same compact row style as "Need only part of it?". Its Buy
+ * is the shop's own (PackTileBuy -> buyNow -> handleBuy -> the existing pack checkout sheet); the server decides the price and the access.
+ */
+export const TEST_SERIES_HEADING = "Test Series";
+export const TEST_SERIES_CONTENTS = `Includes: ${seriesContentsLine()} · written answers checked step by step, twice per paper · till 31 May 2027.`;
+export const TEST_SERIES_EXCLUDES = "Does not include: the Board Pass, the tutor, the Answer Checker or the PDF packs.";
+
+function TestSeriesCard({ api }: { api: PacksShopApi }) {
+  const gst = packGstBreakdown("test_series");
+  return (
+    <section className="lt-pk-part lt-pk-ts" aria-labelledby="packs-ts-h" data-testid="packs-test-series">
+      <div className="lt-packs__w">
+        <h2 id="packs-ts-h" className="lt-pk-part__h">{TEST_SERIES_HEADING}</h2>
+        <div className="lt-pk-rows">
+          <div className="lt-pk-row" data-testid="packs-row-test-series">
+            <details className="lt-pk-row__d">
+              <summary className="lt-pk-row__sum">
+                <span className="lt-pk-row__name">{TEST_SERIES_NAME}</span>
+                <span className="lt-pk-row__price">{`${packPriceLabel("test_series")} · till your boards`}</span>
+              </summary>
+              <div className="lt-pk-row__body">
+                <p className="lt-pk-row__line">{testSeriesPackLine()}</p>
+                <p className="lt-pt__contents" data-testid="packs-contents-test-series">{TEST_SERIES_CONTENTS}</p>
+                <p className="lt-pk-row__excl">{TEST_SERIES_EXCLUDES}</p>
+                {gst && <p className="lt-pk-row__gst" data-testid="tile-gst-test_series">{gst}</p>}
+              </div>
+            </details>
+            <BuyBox twin="pk-buy-test-series" api={api} neutral={`Test Series · ${packPayLabel("test_series")}`} gstSku="test_series" onNeutral={() => api.openPack("test_series")}>
+              <PackTileBuy sku="test_series" api={api} />
+            </BuyBox>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
