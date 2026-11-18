@@ -107,6 +107,9 @@ describe("/test-series — signed out", () => {
     expect(screen.getByTestId("ts-bp-link").getAttribute("href")).toBe("/board-pass");
     expect(screen.getByTestId("ts-packs").getAttribute("href")).toBe("/packs");
     expect(screen.getByTestId("ts-packs").textContent).toContain("PDF Packs / Bundle");
+    // Owner ruling 18 Nov: every card says what IT gives and what pairing adds — never that one product overlaps another.
+    expect(document.body.textContent).not.toMatch(/same papers|Mock Pack's papers|printed Mock Pack/i);
+    expect(screen.getByTestId("ts-offers").textContent).toContain("Pair them with the Test Series to get them checked");
     expect(screen.getByTestId("ts-how").textContent).toContain("The Test Series checks every written answer step by step");
   });
   it("from 1 Dec the Board Pass card shows its list price; the Test Series price is its own constant", async () => {

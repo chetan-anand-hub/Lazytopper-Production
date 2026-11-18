@@ -10,7 +10,6 @@ import { isPaidPremium } from "../services/subscriptionService";
 import { useTestSeriesOwnership } from "../components/testSeries/testSeriesOwnership";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import {
-  PACK_MATCHED_MOCKS,
   TEST_SERIES_BUY_PATH,
   TEST_SERIES_NAME,
   TEST_SERIES_PATH,
@@ -373,7 +372,7 @@ export default function TestSeriesPage() {
         <p className="lt-ts-offer__price lt-ts-offer__price--note">Chapter, mock and subject papers</p>
         <ul className="lt-ts-offer__list">
           <li>Printable papers with answer explanations</li>
-          <li>Full-Length Tests 1–{PACK_MATCHED_MOCKS} are the Mock Pack&apos;s papers</li>
+          <li>Keep a printed set for offline revision</li>
           <li>Pair them with the Test Series to get them checked</li>
         </ul>
         <Link className="lt-ts-btn lt-ts-btn--ghost lt-ts-offer__btn" to="/packs" data-testid="ts-packs">
@@ -514,8 +513,7 @@ export default function TestSeriesPage() {
 
           <div id="ts-sec-full" role="tabpanel" aria-labelledby="ts-tab-full" className="lt-ts-panel" hidden={tab !== "full"} data-testid="ts-sec-full">
             <p className="lt-sp-lede">
-              Full board-pattern papers (80 marks, 3 hours), {totals.mocksPerSubject} per subject. Tests 1–{PACK_MATCHED_MOCKS} are the
-              same papers as Mocks 1–{PACK_MATCHED_MOCKS} in the printed Mock Pack.
+              Full board-pattern papers (80 marks, 3 hours), {totals.mocksPerSubject} per subject.
             </p>
             {SUBJECTS.map((s) => {
               const list = mocks.filter((m) => m.subject === s);
