@@ -26,6 +26,8 @@ export interface PaidCrossSellProps {
   hostOffersCbq?: boolean;
   /** Close the pop-up before leaving for a buy entry. */
   onLeave: () => void;
+  /** The clock for the price tags (test seam; default the wall clock). */
+  nowMs?: () => number;
 }
 
 function useOptionalUid(): string {
@@ -104,7 +106,7 @@ function RoutedGo(): (href: string) => void {
   return (href: string) => navigate(href);
 }
 
-export default function PaidCrossSell({ bought, surface, hostOffersCbq = false, onLeave }: PaidCrossSellProps) {
+export default function PaidCrossSell({ bought, surface, hostOffersCbq = false, onLeave, nowMs = Date.now }: PaidCrossSellProps) {
   const uid = useOptionalUid();
   const packsOn = isPacksClientEnabled();
   const mine = useMine(uid, Boolean(bought) && packsOn);
@@ -123,10 +125,10 @@ export default function PaidCrossSell({ bought, surface, hostOffersCbq = false, 
       packsOn,
       tsOffered: isTestSeriesPackOffered(),
       paymentsOn: isPaymentsClientEnabled(),
-      now: Date.now(),
+      now: nowMs(),
     });
     return hostOffersCbq ? all.filter((x) => x.id !== "cbq_packs") : all;
-  }, [bought, mine, paidPremium, packsOn, hostOffersCbq]);
+  }, [bought, mine, paidPremium, packsOn, hostOffersCbq, nowMs]);
 
   const viewed = useRef(false);
   const ids = items.map((x) => x.id).join(",");

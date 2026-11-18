@@ -23,7 +23,9 @@ vi.mock("../../analytics/analytics", async (orig) => {
 });
 
 import PaidSheetLazy from "./PaidSheetLazy";
-import { PAID_XSELL_HEADING } from "./paidCrossSellModel";
+import PaidCrossSell from "./PaidCrossSell";
+import { PAID_XSELL_HEADING, type BoughtKind } from "./paidCrossSellModel";
+import { GST_EXCLUSIVE_FROM_MS } from "../../config/pricing";
 import { ACTIVITY_EVENTS } from "../../services/activityClient";
 import { activityEventLabel } from "../../pages/admin/activityDetailModel";
 import { readFileSync } from "node:fs";
@@ -34,13 +36,17 @@ function Where() {
   const l = useLocation();
   return <div data-testid="where">{l.pathname + l.search}</div>;
 }
-function sheet(itemKind: "pack" | "pass", itemName: string, extra: { below?: React.ReactNode; onClose?: () => void } = {}) {
+/** A fixed clock (no wall-clock read in this file: the CI clock manifest stays untouched). */
+const NOW = GST_EXCLUSIVE_FROM_MS + 86_400_000;
+const fixed = () => NOW;
+/** The cross-sell itself, as PaidSheet mounts it (bought = what PaidSheet classifies). */
+function sheet(bought: BoughtKind | null, extra: { hostOffersCbq?: boolean; onClose?: () => void } = {}) {
   return render(
     <MemoryRouter initialEntries={["/packs"]}>
       <Routes>
         <Route path="*" element={<Where />} />
       </Routes>
-      <PaidSheetLazy surface="packs" itemKind={itemKind} itemName={itemName} primaryLabel="Download files" onPrimary={vi.fn()} onClose={extra.onClose ?? vi.fn()} onFail={vi.fn()} below={extra.below} />
+      <PaidCrossSell bought={bought} surface="packs" hostOffersCbq={extra.hostOffersCbq ?? false} onLeave={extra.onClose ?? vi.fn()} nowMs={fixed} />
     </MemoryRouter>,
   );
 }
@@ -65,10 +71,10 @@ describe("PaidCrossSell in the paid pop-up", () => {
     mine.fn.mockImplementation(async () => ({
       packs: [{ packId: "test_series:all", sku: "test_series", target: "", pricePaidInr: 999, paidAt: 1 }],
       licensee: { name: "A", email: "a@b.in" },
-      boardPassCredit: { creditInr: 999, payInr: 1083, expiresAtMs: Date.parse("2099-01-01T00:00:00Z") },
+      boardPassCredit: { creditInr: 999, payInr: 1083, expiresAtMs: NOW + 86_400_000 },
       ownsTestSeries: true,
     }));
-    sheet("pack", "Test Series Pack");
+    sheet("test_series");
     expect(await screen.findByTestId("paid-xsell")).toBeTruthy();
     expect(screen.getByText(PAID_XSELL_HEADING)).toBeTruthy();
     expect(cards()).toEqual(["board_pass", "pdf_packs", "cbq_packs"]);
@@ -77,36 +83,38 @@ describe("PaidCrossSell in the paid pop-up", () => {
 
   it("a PDF pack bought by a Board Pass holder: no Board Pass, no Test Series - only the CBQ Packs", async () => {
     sub.status = { tier: "premium", plan: "pass_till_boards", trialStartDate: null };
-    sheet("pack", "Circles Chapter Pack");
+    sheet("pdf");
     await screen.findByTestId("paid-xsell");
     expect(cards()).toEqual(["cbq_packs"]);
   });
 
   it("Test Series paused: a CBQ buyer is offered the Board Pass and the PDF Packs only", async () => {
     vi.stubEnv("VITE_TS_PACK_DISABLED", "1");
-    sheet("pack", "Maths CBQ Pack");
+    sheet("cbq");
     await screen.findByTestId("paid-xsell");
     expect(cards()).toEqual(["board_pass", "pdf_packs"]);
   });
 
-  it("Board Pass bought: the PDF Packs card; the host's own CBQ offer below is not repeated", async () => {
-    sheet("pass", "the Board Pass", { below: <div data-testid="pass-owner-offer-stub" /> });
+  it("Board Pass bought: PDF Packs + CBQ Packs; with the host's own CBQ offer below, the CBQ card is not repeated", async () => {
+    sheet("pass");
+    await screen.findByTestId("paid-xsell");
+    expect(cards()).toEqual(["pdf_packs", "cbq_packs"]);
+    cleanup();
+    sheet("pass", { hostOffersCbq: true });
     await screen.findByTestId("paid-xsell");
     expect(cards()).toEqual(["pdf_packs"]);
-    expect(screen.getByTestId("pass-owner-offer-stub")).toBeTruthy();
-    expect(screen.queryByTestId("paid-xsell-test_series")).toBeNull();
   });
 
   it("the owned-pack read fails -> nothing at all (no flash, no wrong offer), and no view event", async () => {
     mine.fn.mockImplementation(async () => { throw new Error("503"); });
-    sheet("pack", "Test Series Pack");
+    sheet("test_series");
     await settle();
     expect(screen.queryByTestId("paid-xsell")).toBeNull();
     expect(events.hits.filter(([n]) => n === "paid_xsell_view")).toEqual([]);
   });
 
-  it("an unrecognised purchase name suggests nothing and reads nothing", async () => {
-    sheet("pack", "PDF pack");
+  it("an unrecognised purchase suggests nothing and reads nothing", async () => {
+    sheet(null);
     await settle();
     expect(screen.queryByTestId("paid-xsell")).toBeNull();
     expect(mine.fn).not.toHaveBeenCalled();
@@ -114,7 +122,7 @@ describe("PaidCrossSell in the paid pop-up", () => {
 
   it("analytics: ONE paid_xsell_view with the items; a tap sends paid_xsell_tap, closes the sheet and goes to the existing buy entry", async () => {
     const onClose = vi.fn();
-    sheet("pack", "Science Mock Pack", { onClose });
+    sheet("pdf", { onClose });
     await screen.findByTestId("paid-xsell");
     await settle();
     expect(events.hits.filter(([n]) => n === "paid_xsell_view")).toEqual([["paid_xsell_view", { surface: "packs", items: "test_series,board_pass,cbq_packs" }]]);
@@ -122,6 +130,33 @@ describe("PaidCrossSell in the paid pop-up", () => {
     expect(events.hits.filter(([n]) => n === "paid_xsell_tap")).toEqual([["paid_xsell_tap", { surface: "packs", item: "test_series" }]]);
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("where").textContent).toBe("/packs?buy=test_series");
+  });
+});
+
+describe("PaidSheet wiring (the cross-sell chunk stubbed: what PaidSheet passes it)", () => {
+  it("classifies the purchase from the host's props, passes hostOffersCbq for a pass with an offer below, and nothing once moved", async () => {
+    const seen: unknown[] = [];
+    vi.doMock("./PaidCrossSell", () => ({ default: (p: { bought: unknown; hostOffersCbq: boolean; surface: string }) => { seen.push([p.bought, p.hostOffersCbq, p.surface]); return <div data-testid="xsell-stub" />; } }));
+    vi.resetModules();
+    const { default: Lazy } = await import("./PaidSheetLazy");
+    const base = { primaryLabel: "x", onPrimary: vi.fn(), onClose: vi.fn(), onFail: vi.fn() };
+    const r1 = render(<MemoryRouter><Lazy {...base} surface="packs" itemKind="pack" itemName="Test Series Pack" /></MemoryRouter>);
+    await screen.findByTestId("xsell-stub");
+    r1.unmount();
+    const r2 = render(<MemoryRouter><Lazy {...base} surface="board_pass" itemKind="pass" itemName="the Board Pass" below={<div data-testid="below" />} /></MemoryRouter>);
+    await screen.findByTestId("xsell-stub");
+    expect(screen.getByTestId("below")).toBeTruthy();
+    r2.unmount();
+    const r3 = render(<MemoryRouter><Lazy {...base} surface="packs" itemKind="pack" itemName="PDF pack" /></MemoryRouter>);
+    await settle();
+    expect(screen.queryByTestId("xsell-stub")).toBeNull(); // unrecognised: the chunk is not even mounted
+    r3.unmount();
+    render(<MemoryRouter><Lazy {...base} surface="packs" itemKind="pack" itemName="Maths CBQ Pack" moved /></MemoryRouter>);
+    await settle();
+    expect(screen.queryByTestId("xsell-stub")).toBeNull(); // moved to the child's account: nothing to sell here
+    expect(seen).toContainEqual(["test_series", false, "packs"]);
+    expect(seen).toContainEqual(["pass", true, "board_pass"]);
+    vi.doUnmock("./PaidCrossSell");
   });
 });
 

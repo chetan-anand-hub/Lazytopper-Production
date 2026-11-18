@@ -1,6 +1,6 @@
 /** PAID-XSELL-1 - the selection matrix: each bought product x owned state x Test Series paused -> the exact items, best first. */
 import { describe, expect, it } from "vitest";
-import { boardPassPriceDisplay, formatInr } from "../../config/pricing";
+import { GST_EXCLUSIVE_FROM_MS, boardPassPriceDisplay, formatInr } from "../../config/pricing";
 import { packPriceLabel } from "../../services/packs";
 import { seriesTotals } from "../../lib/testSeries/testSeries";
 import {
@@ -16,7 +16,8 @@ import {
   type CrossSellInput,
 } from "./paidCrossSellModel";
 
-const NOW = Date.parse("2026-11-19T06:00:00Z");
+/** A fixed instant one day after the GST cut-off (no wall clock is read anywhere in this file). */
+const NOW = GST_EXCLUSIVE_FROM_MS + 86_400_000;
 const base = (over: Partial<CrossSellInput> = {}): CrossSellInput => ({
   bought: "pdf",
   packs: [],
