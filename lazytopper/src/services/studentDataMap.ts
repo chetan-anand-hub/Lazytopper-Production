@@ -1059,6 +1059,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "CI-SOFT-1: plus, in THIS TAB's sessionStorage, `lazytopper.ciDemoClosed` (the single character " +
       "1 once the sample-marking card on Answer Checker was closed, so it does not return this " +
       "session; never the uid, never a mark). " +
+      "TS-ANALYSIS-1: plus localStorage `lazytopper.questionTimes.v1` (time on screen per question, in ms, " +
+      "of the newest 40 chapter tests and full mocks taken on this device, keyed by the paper's " +
+      "worksheet id; never the uid, never a mark). " +
       "None is ever sent anywhere.",
     mechanism: "client-local",
     exportable: true,
