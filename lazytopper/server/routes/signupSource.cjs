@@ -36,9 +36,11 @@ const MAX_TRACKED_UIDS = 10000;
 const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'];
 // ATTRIB-1: gbraid / wbraid (iOS app-campaign click ids) join gclid / fbclid. Old clients never send them; new
 // clients send them only when true. Stored as booleans only, and only when true.
-const ALLOWED_KEYS = new Set(['ref', ...UTM_KEYS, 'landing', 'gclid', 'fbclid', 'gbraid', 'wbraid']);
+const ALLOWED_KEYS = new Set(['ref', ...UTM_KEYS, 'utm_term', 'landing', 'gclid', 'fbclid', 'gbraid', 'wbraid']);
 const UTM_MAX = 64;
 const UTM_CHARSET = /^[A-Za-z0-9_.\-{}]+$/;
+// SOURCE-3 (owner, 18 Nov 2026): utm_term = the Google Ads keyword; same charset with single spaces between words, optional.
+const UTM_TERM_CHARSET = /^[A-Za-z0-9_.\-{}]+(?: [A-Za-z0-9_.\-{}]+)*$/;
 const HOST_CHARSET = /^[a-z0-9.-]{1,253}$/;
 const LANDING_CHARSET = /^\/[A-Za-z0-9_\-./:]*$/;
 const LANDING_MAX = 200;
@@ -68,6 +70,15 @@ function validateSource(body) {
       return { ok: false, error: `${key} must be up to ${UTM_MAX} characters of [A-Za-z0-9_.-{}] or null` };
     }
     data[key] = v;
+  }
+
+  // SOURCE-3: optional; absent = not stored at all, so a doc from an older client keeps its exact old shape.
+  if (body.utm_term !== undefined && body.utm_term !== null) {
+    const t = body.utm_term;
+    if (typeof t !== 'string' || t.length === 0 || t.length > UTM_MAX || !UTM_TERM_CHARSET.test(t)) {
+      return { ok: false, error: `utm_term must be up to ${UTM_MAX} characters of [A-Za-z0-9_.-{}] with single spaces, or null` };
+    }
+    data.utm_term = t;
   }
 
   const landing = body.landing === undefined ? '/' : body.landing;

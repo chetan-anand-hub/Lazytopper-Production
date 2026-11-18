@@ -22,7 +22,7 @@ const PATHS = [
   "/topic-hub/10/maths/real-numbers", "/legal/terms", "/cbse/class-10", "/practice/10/maths", "/admin/funnel", "/weird", "/chapter-test/a/b/c",
   "/notes", "/pricing?x=1#y", "", `/notes/${"a-".repeat(130)}x`, `/${"a".repeat(200)}`,
 ];
-const SEARCHES = ["", "?gclid=abc&utm_source=g&x=1", "?utm_content=cbq_short", "?utm_content=sci_light&utm_medium=cpc", "?cbq=1", "?fbclid=f", "?lt_clk=gbraid,wbraid", "?utm_source=9876543210"];
+const SEARCHES = ["", "?gclid=abc&utm_source=g&x=1", "?utm_content=cbq_short", "?utm_content=sci_light&utm_medium=cpc", "?cbq=1", "?fbclid=f", "?lt_clk=gbraid,wbraid", "?utm_source=9876543210", "?utm_term=class%2010%20%20maths&utm_content=ag12", "?utm_term=a%3Cb"];
 const REFERRERS = ["", "https://www.google.com/search?q=x", "https://www.lazytopper.com/notes/x", "https://lazytopper.com/u/secret", "android-app://com.google", "https://user:pw@evil.example/x#h", "https://lazzyy-topper.firebaseapp.com/__/auth/links", "https://lazzyy-topper.web.app/"];
 
 const ORIGIN = "https://www.lazytopper.com";

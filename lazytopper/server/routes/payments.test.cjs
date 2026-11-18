@@ -2402,8 +2402,15 @@ test('ORDER-SOURCE · sanitiser: drops unknown keys, caps length, rejects click-
   const bad = sanitiseOrderSource({ utm_source: 'a@b.com', utm_medium: 'https://x.com/?a=1', utm_campaign: '9876543948', landing: '/p?gclid=1', ref: 'x.com/path' });
   assert.deepEqual(bad, {});
   for (const junk of [null, undefined, 'x', 5, [], [{ utm_source: 'g' }], {}]) assert.deepEqual(sanitiseOrderSource(junk), {});
-  // a protocol-relative landing is never kept; utm_term is not on the allow-list (the client never sends it)
-  assert.deepEqual(sanitiseOrderSource({ landing: '//evil.example/x', utm_term: 'shoes' }), {});
+  // a protocol-relative landing is never kept
+  assert.deepEqual(sanitiseOrderSource({ landing: '//evil.example/x' }), {});
+  // SOURCE-3: utm_term (the Google Ads keyword) is kept: spaces allowed and collapsed, capped at 100, same charset otherwise
+  assert.deepEqual(sanitiseOrderSource({ utm_term: '  class 10   question bank ' }), { utm_term: 'class 10 question bank' });
+  assert.equal(sanitiseOrderSource({ utm_term: 'a '.repeat(80) }).utm_term.length <= SOURCE_MAX, true);
+  assert.equal(sanitiseOrderSource({ utm_term: 'a'.repeat(300) }).utm_term, 'a'.repeat(SOURCE_MAX));
+  for (const junk of ['shoes?x=1', 'a@b.com', 'https://x.com', 'call 9876543210', 'x<y', '', '   ', 5, { a: 1 }]) assert.deepEqual(sanitiseOrderSource({ utm_term: junk }), {}, String(junk));
+  // a space is allowed in utm_term ONLY
+  assert.deepEqual(sanitiseOrderSource({ utm_campaign: 'a b' }), {});
   assert.deepEqual(sanitiseOrderSource({ landing: '/' }), { landing: '/' });
 });
 

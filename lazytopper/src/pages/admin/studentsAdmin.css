@@ -52,6 +52,17 @@
   color: var(--sa-white-3);
   font-size: 0.85rem;
 }
+/* SOURCE-3: the Source column's two lines (campaign / ad group, then keyword / landing page) */
+.sa-source-main {
+  display: block;
+}
+.sa-source-detail {
+  display: block;
+  margin-top: 2px;
+  color: var(--sa-white-3);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
 .sa-header {
   margin-bottom: 20px;
 }
@@ -744,4 +755,14 @@
   font-size: 12px;
   font-weight: 700;
   vertical-align: middle;
+}
+
+/* SOURCE-3: an order's source, two lines */
+.pu-source-main,
+.pu-source-detail {
+  display: block;
+}
+.pu-source-detail {
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
 }

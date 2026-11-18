@@ -15,6 +15,7 @@
 import { useState } from "react";
 import { packChapterLabel, BUNDLE_NAME } from "../../lib/packs/packLabels";
 import { fetchAdmin, formatIstDateTime } from "./studentsAdminModel";
+import { adSourceLines, type AdSourceFields } from "./adSourceNames";
 
 export const PURCHASES_URL = "/api/admin/purchases";
 export const MOVE_URL = "/api/admin/purchases/move";
@@ -162,24 +163,18 @@ function WhoRow({ w, id }: { w: WhoFields; id: string }) {
   return line ? <span className="pu-reason sa-muted" data-testid={`pu-who-${id}`}>{line}</span> : null;
 }
 
-/** ORDER-SOURCE-1 - the visit source stored on an order (server-sanitised; absent on an older order). */
-export interface OrderSourceInfo {
-  ref?: string;
-  utm_source?: string;
-  utm_medium?: string;
-  utm_campaign?: string;
-  landing?: string;
-}
-
-/** "google / cpc · PDF Packs" from utm_source / utm_medium · utm_campaign, else the referrer host, else "direct". */
-export function sourceLine(s: OrderSourceInfo): string {
-  const tag = [s.utm_source, s.utm_medium].filter(Boolean).join(" / ");
-  const head = tag || s.ref || "direct";
-  return s.utm_campaign && tag ? `${head} · ${s.utm_campaign}` : head;
-}
+/** ORDER-SOURCE-1 - the visit source stored on an order (server-sanitised; absent on an older order). SOURCE-3 adds utm_content / utm_term and the click-id flags. */
+export type OrderSourceInfo = AdSourceFields;
 
 function SourceRow({ source, id }: { source?: OrderSourceInfo; id: string }) {
-  return source ? <span className="pu-reason sa-muted" data-testid={`pu-source-${id}`}>Source: {sourceLine(source)}</span> : null;
+  if (!source) return null;
+  const { main, detail } = adSourceLines(source);
+  return (
+    <span className="pu-reason sa-muted pu-source" data-testid={`pu-source-${id}`}>
+      <span className="pu-source-main">Source: {main}</span>
+      {detail ? <span className="pu-source-detail">{detail}</span> : null}
+    </span>
+  );
 }
 
 export interface PurchaseItem extends WhoFields {

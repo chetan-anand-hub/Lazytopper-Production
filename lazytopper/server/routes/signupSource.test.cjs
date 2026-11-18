@@ -211,6 +211,14 @@ test('every string field is held to its charset and length; a full URL or query 
     assert.equal(res.statusCode, 400, JSON.stringify(patch));
     assert.equal(w.writes.length, 0);
   }
+  // SOURCE-3: utm_term (the Google Ads keyword) is optional, allows single spaces, and keeps the 64-char cap
+  const t = validateSource({ ...GOOD, utm_term: 'class 10 question bank' });
+  assert.equal(t.ok, true);
+  assert.equal(t.data.utm_term, 'class 10 question bank');
+  assert.equal('utm_term' in validateSource(GOOD).data, false); // absent stays absent: an old client's doc keeps its shape
+  assert.equal('utm_term' in validateSource({ ...GOOD, utm_term: null }).data, false);
+  for (const term of ['', 'x'.repeat(65), 'a  b', ' a', 'a ', 'a?b=1', '<b>', 5]) assert.equal(validateSource({ ...GOOD, utm_term: term }).ok, false, JSON.stringify(term));
+  assert.equal(validateSource({ ...GOOD, utm_content: 'a b' }).ok, false); // spaces only in utm_term
   // the charset includes `{}` for ad-platform macros such as {campaignid}
   assert.equal(validateSource({ ...GOOD, utm_campaign: '{campaignid}' }).ok, true);
   assert.equal(validateSource({ ...GOOD, utm_campaign: 'x'.repeat(64) }).ok, true);

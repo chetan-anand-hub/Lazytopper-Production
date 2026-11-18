@@ -21,7 +21,7 @@ import { START_HERE_SUBJECT_HINT_KEY, subjectHintFromLanding } from "../componen
  *   - NOTHING goes to any vendor.
  *
  * WHAT IS KEPT: the referrer HOSTNAME (cross-site only), four utm_* values (64 chars,
- * `[A-Za-z0-9_.\-{}]`), the landing PATH (via `normalisePath`: no query, no hash), and
+ * `[A-Za-z0-9_.\-{}]`), plus `utm_term` (SOURCE-3, below: same rule, spaces allowed and collapsed), the landing PATH (via `normalisePath`: no query, no hash), and
  * booleans — was a `gclid` / `fbclid` / `gbraid` / `wbraid` present. NEVER a click-id VALUE,
  * a full URL, a query string, an email, a phone number, a uid or a device id.
  *
@@ -36,6 +36,12 @@ import { START_HERE_SUBJECT_HINT_KEY, subjectHintFromLanding } from "../componen
  *      (`LONG_KEEP_KEY`) for 7 days, first tagged touch wins, same allow-listed fields only,
  *      and read at sign-up when the tab has nothing tagged. Deleted when sign-up sends it.
  * The POST also retries once on a network failure or 5xx (never on a 4xx).
+ *
+ * ★★ SOURCE-3 (owner, 18 Nov 2026 18:05 IST): utm_term = the Google Ads keyword (ValueTrack {keyword}), so admin shows which
+ * keyword brought a student/order. It is OUR bidded keyword, not the visitor's search text. Same limits as the other utm_*
+ * values (64 chars, no mobile-number-shaped run, dropped whole if any character is outside the charset) except that a keyword
+ * has spaces: single spaces are allowed in utm_term ONLY, and runs of whitespace collapse to one. Absent (not null) when the
+ * landing had none, so a stored touch from before SOURCE-3 keeps its exact shape. Nothing about it goes to any vendor from here.
  *
  * ★★ ORDER-SOURCE-1 (owner-approved 17 Nov 2026, cofounder session, design item 4: "save the visit source on every order;
  * no click IDs stored"). A SECOND, narrow use of the same coarse touch, so paid ads can be matched to real orders. Limits:
@@ -70,6 +76,8 @@ export interface VisitSource {
   utm_medium: string | null;
   utm_campaign: string | null;
   utm_content: string | null;
+  /** SOURCE-3: the Google Ads keyword; present only when the landing carried one. */
+  utm_term?: string;
   landing: string;
   gclid: boolean;
   fbclid: boolean;
@@ -78,9 +86,11 @@ export interface VisitSource {
   wbraid?: boolean;
 }
 
-const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content"] as const;
+const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
 const UTM_MAX = 64;
 const UTM_CHARSET = /^[A-Za-z0-9_.\-{}]+$/;
+/** SOURCE-3: utm_term only: the same characters, with single spaces between words (collapsed before the test). */
+const UTM_TERM_CHARSET = /^[A-Za-z0-9_.\-{}]+(?: [A-Za-z0-9_.\-{}]+)*$/;
 const HOST_CHARSET = /^[a-z0-9.-]{1,253}$/;
 // Must match the server's landing charset (server/routes/signupSource.cjs): a path outside
 // it would be refused 400 and the account's whole source silently lost, so it falls back to "/".
@@ -98,10 +108,11 @@ export function looksLikeMobile(text: string): boolean {
   return MOBILE_SHAPE.test(text);
 }
 
-function cleanUtm(raw: string | null): string | null {
+function cleanUtm(raw: string | null, key: string = ""): string | null {
   if (raw === null) return null;
-  const value = raw.trim().slice(0, UTM_MAX);
-  if (value.length === 0 || !UTM_CHARSET.test(value) || looksLikeMobile(value)) return null;
+  const isTerm = key === "utm_term";
+  const value = (isTerm ? raw.replace(/\s+/g, " ") : raw).trim().slice(0, UTM_MAX).trim();
+  if (value.length === 0 || !(isTerm ? UTM_TERM_CHARSET : UTM_CHARSET).test(value) || looksLikeMobile(value)) return null;
   return value;
 }
 
@@ -185,6 +196,7 @@ export function captureVisitSource(
     utm_campaign: cleanUtm(params.get(UTM_KEYS[2])),
     utm_content: cleanUtm(params.get(UTM_KEYS[3])),
   };
+  const utmTerm = cleanUtm(params.get(UTM_KEYS[4]), "utm_term");
   // LOGIN-FIX-1 — `lt_clk` is OUR flag list ("gclid,gbraid"), written only by the in-app ->
   // Chrome sign-in hand-off (handoffSourceParams below): the stored touch keeps click ids as
   // BOOLEANS, never values, so the hop carries the booleans, not a forged id.
@@ -194,11 +206,12 @@ export function captureVisitSource(
   const gbraid = (params.get("gbraid") ?? "") !== "" || carried.has("gbraid");
   const wbraid = (params.get("wbraid") ?? "") !== "" || carried.has("wbraid");
   const tagged =
-    ref !== null || gclid || fbclid || gbraid || wbraid || Object.values(utm).some((v) => v !== null);
+    ref !== null || gclid || fbclid || gbraid || wbraid || utmTerm !== null || Object.values(utm).some((v) => v !== null);
   if (referrerKind.kind === "same" && !tagged) return null;
   return {
     ref,
     ...utm,
+    ...(utmTerm ? { utm_term: utmTerm } : {}),
     landing: cleanLanding(location.pathname),
     gclid,
     fbclid,
@@ -223,7 +236,7 @@ export const HANDOFF_CLICK_PARAM = "lt_clk";
  * values and the click-id booleans as one `lt_clk` list. On arrival Chrome's own
  * `rememberVisitSourceOnce` captures them like any tagged landing. Nothing else: no referrer
  * host, no landing path, never a click-id value, never anything typed. Empty when nothing is
- * tagged. (`utm_term` is not kept by this module, so it cannot be carried.)
+ * tagged. (`utm_term`, the SOURCE-3 keyword, rides along like the other utm_* values.)
  */
 export function handoffSourceParams(): Array<[string, string]> {
   let source: VisitSource | null = null;
@@ -237,7 +250,7 @@ export function handoffSourceParams(): Array<[string, string]> {
   if (!source) return [];
   const out: Array<[string, string]> = [];
   for (const key of UTM_KEYS) {
-    const value = cleanUtm(source[key]);
+    const value = cleanUtm(source[key] ?? null, key);
     if (value) out.push([key, value]);
   }
   const clicks = (["gclid", "gbraid", "wbraid", "fbclid"] as const).filter((k) => source![k] === true);
@@ -253,7 +266,7 @@ export function handoffSourceParams(): Array<[string, string]> {
 export function isTaggedSource(source: Partial<VisitSource> | null | undefined): boolean {
   if (!source || typeof source !== "object") return false;
   return (
-    [source.utm_source, source.utm_medium, source.utm_campaign, source.utm_content].some(
+    [source.utm_source, source.utm_medium, source.utm_campaign, source.utm_content, source.utm_term].some(
       (v) => typeof v === "string" && v !== "",
     ) ||
     source.gclid === true ||
@@ -286,6 +299,7 @@ function sanitiseStored(v: unknown): VisitSource | null {
     utm_medium: cleanUtm(str(o.utm_medium)),
     utm_campaign: cleanUtm(str(o.utm_campaign)),
     utm_content: cleanUtm(str(o.utm_content)),
+    ...(cleanUtm(str(o.utm_term), "utm_term") ? { utm_term: cleanUtm(str(o.utm_term), "utm_term") as string } : {}),
     landing: landing !== null && landing.length <= 200 && LANDING_CHARSET.test(landing)
         ? redactPhoneSegments(landing)
         : "/",
@@ -409,6 +423,8 @@ export interface OrderSource {
   utm_medium?: string;
   utm_campaign?: string;
   utm_content?: string;
+  /** SOURCE-3: the Google Ads keyword. */
+  utm_term?: string;
   landing?: string;
   gclid?: true;
   fbclid?: true;
@@ -443,7 +459,7 @@ export function orderSourceForCheckout(): OrderSource | undefined {
     if (!v) return undefined;
     const out: OrderSource = {};
     if (v.ref) out.ref = v.ref;
-    for (const k of UTM_KEYS) if (v[k]) out[k] = v[k] as string;
+    for (const k of UTM_KEYS) if (v[k]) out[k] = v[k] as string; // includes SOURCE-3 utm_term
     out.landing = v.landing;
     if (v.gclid) out.gclid = true;
     if (v.fbclid) out.fbclid = true;
