@@ -37,7 +37,7 @@ describe("which paths are islands", () => {
 
   it("exactly the notes, NCERT-solutions and Exemplar chapter pages (phase 1), Important Questions, CBQ chapters and the NCERT Hub (phase 2), and the PDF Packs landing (SPEED-PACKS-3) and the two sales pages (PRICING-PAGES-1)", () => {
     const expected = advertised.filter(
-      (p) => /^\/(notes|ncert-solutions|ncert-exemplar|highly-probable|cbq-class-10|important-question-of-the-day|free-mcq-class-10)\/.+$/.test(p) || p === "/important-question-of-the-day" || p === "/free-mcq-class-10" || p === "/ncert-class-10" || p === "/packs" || p === "/board-pass" || p === "/cbq-packs" || p === "/for-parents",
+      (p) => /^\/(notes|ncert-solutions|ncert-exemplar|highly-probable|cbq-class-10|important-question-of-the-day|free-mcq-class-10)\/.+$/.test(p) || p === "/important-question-of-the-day" || p === "/free-mcq-class-10" || p === "/ncert-class-10" || p === "/packs" || p === "/board-pass" || p === "/cbq-packs" || p === "/for-parents" || p === "/test-series",
     );
     expect([...islands].sort()).toEqual(expected.sort());
     // CONTROL — the families are really advertised, so the equality above is not vacuous.
@@ -57,6 +57,7 @@ describe("which paths are islands", () => {
     expect(islands.has("/board-pass")).toBe(true);
     expect(islands.has("/cbq-packs")).toBe(true);
     expect(islands.has("/for-parents")).toBe(true); // PARENTS-V2-1
+    expect(islands.has("/test-series")).toBe(true); // TS-PAGE-2
   });
 
   it("never the root, pricing, the CBQ landing (its chooser stays on the app), the hubs or topic hubs", () => {

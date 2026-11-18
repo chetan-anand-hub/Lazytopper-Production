@@ -526,6 +526,9 @@ export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
   // render-blocking stylesheet.
   BoardPassPage: ["salesPages", "TestimonialVideo", "PricingProof", "stickyPassBar"],
   CbqPacksPage: ["salesPages", "PacksShop", "PackSampleLink", "CbqBand", "PackTileBuy", "SubjectSwitch"],
+  // TS-PAGE-2 (STUDENT_REVIEW root cause 2): /test-series painted unstyled until its lazy chunk landed; its own sheet and the shared
+  // sales-page sheet are inlined so the static page paints styled from the first frame.
+  TestSeriesPage: ["salesPages"],
 };
 export const INLINE_ROUTE_CSS_MODULES: readonly string[] = Object.keys(INLINE_ROUTE_CSS);
 

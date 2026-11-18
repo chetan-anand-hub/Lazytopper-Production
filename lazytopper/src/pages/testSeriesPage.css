@@ -1,13 +1,16 @@
-/* TEST-SERIES-1 - /test-series. Phone first (320 px up); desktop from 1024 px. Navy hero, soft white body, green accent.
-   Every box whose text arrives after mount (price, progress, chips, trend) has a reserved size, so nothing moves (CLS 0). */
+/* TEST-SERIES-1 / TS-PAGE-2 - /test-series. Phone first (320 px up); tablet from 768 px; desktop from 1024 px.
+   Navy hero, soft white body, green accent. Every box whose text arrives after mount (founding line, CTA, progress, prices,
+   chips, "Now") has a reserved size, so nothing moves (CLS 0). Every tap target >= 44 px. CSS only, no animation library. */
 
+/* ── Hero ─────────────────────────────────────────────────────────────── */
 .lt-ts .lt-ts-hero {
+  display: block;
   margin-top: 0;
-  background: var(--lt-sp-navy);
+  background: radial-gradient(120% 90% at 100% 0%, #1d3a6b 0%, var(--lt-sp-navy) 55%);
   color: #ffffff;
-  padding: 20px 0 22px;
+  padding: 22px 0 24px;
 }
-.lt-ts-hero__copy {
+.lt-ts-hero__in {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -18,8 +21,8 @@
 .lt-ts-hero__h1 {
   margin: 0;
   font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
-  font-size: 1.6rem;
-  line-height: 1.2;
+  font-size: 1.65rem;
+  line-height: 1.18;
   font-weight: 700;
   color: #ffffff;
 }
@@ -34,176 +37,445 @@
 }
 .lt-ts-hero__rule {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #6ee7a8;
 }
-/* Signed out, loading and signed in all fit this one box (two lines at 320 px). */
-.lt-ts-progress {
-  min-height: 3.2em;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  color: #dbe4f3;
+.lt-ts-stats {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
-.lt-ts-progress p {
-  margin: 0;
+.lt-ts-stats li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  text-align: center;
 }
-.lt-ts .lt-ts-progress a {
-  display: inline-block;
-  min-height: 24px;
-  color: #6ee7a8;
-  font-weight: 700;
-}
-.lt-ts-progress strong {
+.lt-ts-stats strong {
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 1.45rem;
+  line-height: 1.1;
   color: #ffffff;
 }
+.lt-ts-stats span {
+  font-size: 0.72rem;
+  line-height: 1.25;
+  color: #c4d0e4;
+}
+/* One line reserved (two at 320 px): the founding line arrives after mount and is stripped from the static file. */
+.lt-ts-hero__urgency {
+  margin: 0;
+  min-height: 2.6em;
+  font-size: 0.82rem;
+  line-height: 1.3;
+  color: #f5c668;
+  font-weight: 600;
+}
+.lt-ts-hero__cta {
+  min-height: 48px;
+}
+.lt-ts .lt-ts-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.98rem;
+  text-decoration: none;
+  border: 2px solid transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.lt-ts .lt-ts-btn--primary {
+  background: var(--lt-sp-green);
+  color: #06281a;
+}
+.lt-ts .lt-ts-btn--primary:hover,
+.lt-ts .lt-ts-btn--primary:focus-visible {
+  background: #2fcf86;
+}
+.lt-ts .lt-ts-btn--ghost {
+  background: #ffffff;
+  border-color: var(--lt-sp-navy);
+  color: var(--lt-sp-navy);
+}
+.lt-ts .lt-ts-btn--ghost:hover,
+.lt-ts .lt-ts-btn--ghost:focus-visible {
+  background: #eef2f8;
+}
+.lt-ts .lt-ts-hero__cta .lt-ts-btn {
+  width: 100%;
+}
+/* Signed out, loading and signed in all fit this one box. */
+.lt-ts-me {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-height: 48px;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: #dbe4f3;
+}
+.lt-ts-me__txt {
+  margin: 0;
+}
+.lt-ts-me__txt strong {
+  color: #ffffff;
+}
+.lt-ts .lt-ts-me a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #6ee7a8;
+  font-weight: 700;
+}
+.lt-ts-me__bar {
+  flex: 1 1 120px;
+  height: 8px;
+  accent-color: var(--lt-sp-green);
+}
 
-/* Calendar */
+/* ── Sections ─────────────────────────────────────────────────────────── */
+.lt-ts .lt-ts-sec {
+  margin-top: 26px;
+}
+
+/* Calendar ribbon: a stepper; phone = 2x2 grid, tablet up = one row. */
 .lt-ts-cal {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+  counter-reset: none;
 }
 .lt-ts-cal__row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas: "when now" "what what";
-  gap: 4px 10px;
-  padding: 12px 14px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px;
   background: #ffffff;
   border: 1px solid var(--lt-sp-line);
-  border-left: 4px solid var(--lt-sp-line);
+  border-top: 4px solid var(--lt-sp-line);
   border-radius: 12px;
 }
-.lt-ts-cal__row.is-now {
-  border-left-color: var(--lt-sp-green);
+.lt-ts-cal__row:has([data-lt-clock]) {
+  border-top-color: var(--lt-sp-green);
+  background: #f1fbf5;
+}
+.lt-ts-cal__dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--lt-sp-navy);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.lt-ts-cal__row:has([data-lt-clock]) .lt-ts-cal__dot {
+  background: var(--lt-sp-green);
 }
 .lt-ts-cal__when {
-  grid-area: when;
-  font-size: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--lt-sp-green-deep);
 }
 .lt-ts-cal__now {
-  grid-area: now;
-  min-width: 3em;
+  min-width: 2.6em;
   text-align: right;
   font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--lt-sp-green-deep);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
-.lt-ts-cal__what {
-  grid-area: what;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 0.88rem;
+.lt-ts-cal__title {
+  font-size: 0.92rem;
+  color: var(--lt-sp-ink);
+}
+.lt-ts-cal__body {
+  font-size: 0.8rem;
+  line-height: 1.35;
   color: var(--lt-sp-ink-2);
 }
-.lt-ts-cal__what strong {
-  color: var(--lt-sp-ink);
-  font-size: 0.95rem;
+
+/* Tabs (segmented control). */
+.lt-ts-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 12px;
+  background: #e8edf5;
+  border-radius: 14px;
+}
+.lt-ts .lt-ts-tab {
+  min-height: 48px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--lt-sp-ink-2);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.lt-ts .lt-ts-tab[aria-selected="true"] {
+  background: var(--lt-sp-navy);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(11, 27, 58, 0.18);
+}
+.lt-ts .lt-ts-tab:focus-visible,
+.lt-ts .lt-ts-acc__btn:focus-visible {
+  outline: 3px solid var(--lt-sp-green);
+  outline-offset: 2px;
+}
+.lt-ts-tab__n {
+  display: inline-block;
+  min-width: 1.8em;
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(34, 181, 115, 0.18);
+  font-size: 0.78rem;
+}
+.lt-ts-panel[hidden] {
+  display: none;
 }
 
-/* Test lists */
-.lt-ts-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
+/* Accordion per subject. */
+.lt-ts-acc {
+  margin-top: 10px;
+  background: #ffffff;
+  border: 1px solid var(--lt-sp-line);
+  border-radius: 14px;
+  overflow: hidden;
 }
-.lt-ts-col__h {
-  margin: 0 0 8px;
+.lt-ts-acc__h,
+.lt-ts-plans__h {
+  margin: 0;
   font-size: 1rem;
-  font-weight: 700;
-  color: var(--lt-sp-ink);
 }
+.lt-ts .lt-ts-acc__btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 14px;
+  border: 0;
+  background: #ffffff;
+  color: var(--lt-sp-ink);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.lt-ts-acc__title {
+  flex: 0 0 auto;
+  font-size: 1.02rem;
+}
+.lt-ts-acc__chev {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  margin-left: 4px;
+  border-right: 2px solid var(--lt-sp-ink-2);
+  border-bottom: 2px solid var(--lt-sp-ink-2);
+  transform: rotate(45deg) translateY(-3px);
+  transition: transform 0.15s ease;
+}
+.lt-ts-acc__btn[aria-expanded="true"] .lt-ts-acc__chev {
+  transform: rotate(-135deg) translateY(-3px);
+}
+.lt-ts-acc__panel {
+  padding: 0 10px 10px;
+}
+.lt-ts-acc__panel[hidden] {
+  display: none;
+}
+.lt-ts-mini {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--lt-sp-ink-2);
+}
+.lt-ts-mini__bar {
+  width: 72px;
+  height: 6px;
+  accent-color: var(--lt-sp-green);
+}
+
+/* Chapter rows. */
 .lt-ts-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: 1fr;
   gap: 6px;
 }
-.lt-ts-list--mocks {
-  grid-template-columns: 1fr 1fr;
-}
 .lt-ts .lt-ts-item {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 48px;
+  gap: 10px;
+  min-height: 52px;
   padding: 8px 10px;
-  background: #ffffff;
-  border: 1px solid var(--lt-sp-line);
   border-radius: 10px;
+  background: var(--lt-sp-bg);
+  border: 1px solid transparent;
   color: var(--lt-sp-ink);
   text-decoration: none;
 }
 .lt-ts .lt-ts-item:hover,
 .lt-ts .lt-ts-item:focus-visible {
-  border-color: var(--lt-sp-green-deep);
+  border-color: var(--lt-sp-green);
+  background: #ffffff;
 }
-.lt-ts-list--mocks .lt-ts-item {
-  grid-template-columns: 1fr auto;
-}
-.lt-ts-list--mocks .lt-ts-item__name {
-  display: none;
-}
-.lt-ts-item__code {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--lt-sp-navy-2);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.lt-ts-list--mocks .lt-ts-chip {
-  width: 4.4rem;
-}
-.lt-ts-item__name {
-  min-width: 0;
-  font-size: 0.88rem;
-  line-height: 1.3;
-}
-/* A fixed-width chip: "Start", "Attempted" and "34/40" occupy the same box. */
-.lt-ts-chip {
+.lt-ts-item__num {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 5.6rem;
-  height: 26px;
-  border-radius: 999px;
-  font-size: 0.74rem;
+  border-radius: 8px;
+  background: var(--lt-sp-navy);
+  color: #ffffff;
+  font-size: 0.8rem;
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  background: #eef2f8;
+}
+.lt-ts-item__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.lt-ts-item__code {
+  font-size: 0.7rem;
+  font-weight: 600;
   color: var(--lt-sp-ink-2);
+  letter-spacing: 0.03em;
+}
+
+/* Status chips: one width for every state, so a chip changing text moves nothing. */
+.lt-ts-chip {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.4em;
+  min-height: 30px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--lt-sp-green);
+  color: #06281a;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 .lt-ts-chip--attempted {
   background: var(--lt-sp-cream);
-  color: #8a5a00;
+  color: #7a5200;
+  border: 1px solid var(--lt-sp-amber-deep);
 }
 .lt-ts-chip--graded {
-  background: #e3f7ec;
+  background: #e3f6ec;
   color: var(--lt-sp-green-dark);
+  border: 1px solid var(--lt-sp-green);
 }
 
-/* Trend: one reserved box, whatever arrives in it. */
-.lt-ts-trend {
+/* Full-length tests: rounds of compact cards. */
+.lt-ts-round + .lt-ts-round {
   margin-top: 12px;
-  min-height: 112px;
-  padding: 12px 14px;
+}
+.lt-ts-round__h {
+  margin: 4px 2px 8px;
+  font-size: 0.85rem;
+  color: var(--lt-sp-ink-2);
+}
+.lt-ts-round__h strong {
+  color: var(--lt-sp-ink);
+}
+.lt-ts-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.lt-ts .lt-ts-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 92px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--lt-sp-bg);
+  border: 1px solid var(--lt-sp-line);
+  border-top: 3px solid var(--lt-sp-navy);
+  color: var(--lt-sp-ink);
+  text-decoration: none;
+}
+.lt-ts .lt-ts-card:hover,
+.lt-ts .lt-ts-card:focus-visible {
+  border-color: var(--lt-sp-green);
+  background: #ffffff;
+}
+.lt-ts-card__n {
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.lt-ts-card__code {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--lt-sp-ink-2);
+}
+.lt-ts-card .lt-ts-chip {
+  margin-top: auto;
+}
+
+/* Score trend. */
+.lt-ts-trend {
+  margin-top: 14px;
+  padding: 14px;
+  min-height: 92px;
   background: #ffffff;
   border: 1px solid var(--lt-sp-line);
-  border-radius: 12px;
+  border-radius: 14px;
 }
 .lt-ts-trend__title {
   margin: 0 0 6px;
-  font-size: 0.9rem;
   font-weight: 700;
+  font-size: 0.95rem;
 }
 .lt-ts-trend__empty,
 .lt-ts-trend__none {
@@ -217,13 +489,13 @@
 }
 .lt-ts-trend__row {
   display: grid;
-  grid-template-columns: 4.2rem 1fr;
+  grid-template-columns: 4.5em 1fr;
   gap: 8px;
   align-items: start;
 }
 .lt-ts-trend__subj {
-  font-size: 0.82rem;
   font-weight: 700;
+  font-size: 0.85rem;
 }
 .lt-ts-trend__bars {
   display: flex;
@@ -234,73 +506,18 @@
   display: inline-flex;
   flex-direction: column;
   gap: 2px;
-  width: 4.6rem;
 }
 .lt-ts-trend__bar progress {
-  width: 100%;
-  height: 8px;
+  width: 64px;
+  height: 6px;
   accent-color: var(--lt-sp-green);
 }
 .lt-ts-trend__lbl {
-  font-size: 0.7rem;
-  color: var(--lt-sp-ink-2);
-  font-variant-numeric: tabular-nums;
-}
-
-/* How it is marked + CTA */
-.lt-ts-how {
-  padding: 16px;
-  background: #ffffff;
-  border: 1px solid var(--lt-sp-line);
-  border-radius: 14px;
-}
-.lt-ts-how__list {
-  margin: 0 0 14px;
-  padding-left: 1.1rem;
-  display: grid;
-  gap: 6px;
-  font-size: 0.9rem;
+  font-size: 0.72rem;
   color: var(--lt-sp-ink-2);
 }
-.lt-ts-how__list strong {
-  color: var(--lt-sp-ink);
-}
-/* The price line keeps its height before the clock-derived figure arrives. */
 
-@media (min-width: 640px) {
-  .lt-ts-list--mocks {
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-  }
-  .lt-ts-cal {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-@media (min-width: 1024px) {
-  .lt-ts .lt-ts-hero {
-    padding: 32px 0 30px;
-  }
-  .lt-ts-hero__h1 {
-    font-size: 2.2rem;
-  }
-  .lt-ts-hero__copy {
-    max-width: 1120px;
-  }
-  .lt-ts-progress {
-    min-height: 1.5em;
-  }
-  .lt-ts-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
-  .lt-ts-list--mocks {
-    grid-template-columns: 1fr 1fr;
-  }
-  .lt-ts-cal {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-/* Offers: Test Series and Board Pass side by side (stacked on phones), the printed-papers card under them. */
+/* ── Offers: three cards of equal weight ─────────────────────────────── */
 .lt-ts-offers {
   display: grid;
   grid-template-columns: 1fr;
@@ -309,87 +526,200 @@
 .lt-ts .lt-ts-offer {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  border-radius: 14px;
+  gap: 6px;
+  padding: 18px 16px 16px;
   background: #ffffff;
-  border: 2px solid var(--lt-sp-line);
-  color: var(--lt-sp-ink);
-  text-decoration: none;
+  border: 1px solid var(--lt-sp-line);
+  border-top: 5px solid var(--lt-sp-navy);
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(11, 27, 58, 0.06);
 }
-.lt-ts-offer--ts {
-  border-color: var(--lt-sp-green);
+.lt-ts .lt-ts-offer--ts {
+  border-top-color: var(--lt-sp-green);
 }
-.lt-ts-offer--bp {
-  border-color: var(--lt-sp-navy-2);
+.lt-ts .lt-ts-offer--bp {
+  border-top-color: var(--lt-sp-amber-deep);
 }
-.lt-ts .lt-ts-offer--packs {
+.lt-ts-offer__tag {
+  align-self: flex-start;
+  margin: 0;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #e3f6ec;
+  color: var(--lt-sp-green-dark);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.lt-ts-offer__tag--bp {
   background: var(--lt-sp-cream);
-  border-color: var(--lt-sp-amber-deep);
+  color: #7a5200;
+}
+.lt-ts-offer__tag--packs {
+  background: #e8edf5;
+  color: var(--lt-sp-navy);
 }
 .lt-ts-offer__name {
   margin: 0;
   font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 700;
+  color: var(--lt-sp-ink);
 }
-/* The price arrives after mount; its line is reserved. */
+/* Reserved: the price is written after mount. */
 .lt-ts-offer__price {
   margin: 0;
-  min-height: 1.4em;
+  min-height: 1.5em;
   font-size: 1rem;
   font-weight: 700;
   color: var(--lt-sp-green-deep);
 }
 .lt-ts-offer--bp .lt-ts-offer__price {
-  color: var(--lt-sp-navy-2);
+  color: #8a5a00;
+}
+.lt-ts-offer__price--note {
+  color: var(--lt-sp-ink-2);
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 .lt-ts-offer__list {
-  margin: 0;
-  padding-left: 1.1rem;
+  margin: 4px 0 8px;
+  padding: 0;
+  list-style: none;
   display: grid;
-  gap: 4px;
+  gap: 6px;
   font-size: 0.88rem;
+  line-height: 1.4;
   color: var(--lt-sp-ink-2);
-  flex: 1;
+}
+.lt-ts-offer__list li {
+  position: relative;
+  padding-left: 22px;
+}
+.lt-ts-offer__list li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.35em;
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid var(--lt-sp-green);
+  border-bottom: 2px solid var(--lt-sp-green);
+  transform: rotate(-45deg);
 }
 .lt-ts .lt-ts-offer__btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  background: var(--lt-sp-green-deep);
-  color: #ffffff;
-  font-weight: 700;
-  text-decoration: none;
-}
-.lt-ts .lt-ts-offer__btn--bp {
-  background: var(--lt-sp-navy);
-}
-.lt-ts .lt-ts-offer__btn:hover,
-.lt-ts .lt-ts-offer__btn:focus-visible {
-  filter: brightness(1.15);
+  margin-top: auto;
+  width: 100%;
 }
 .lt-ts-offer__owner {
-  margin: 0;
+  margin: auto 0 0;
   min-height: 48px;
   display: flex;
   align-items: center;
-  font-weight: 600;
-  color: var(--lt-sp-green-dark);
+  font-weight: 700;
+  color: var(--lt-sp-green-deep);
 }
-.lt-ts-offer__packs {
+
+/* Owners: the plans sit behind one disclosure. */
+.lt-ts-plans {
+  background: #ffffff;
+  border: 1px solid var(--lt-sp-line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.lt-ts-plans #ts-plans-panel {
+  padding: 0 12px 12px;
+}
+.lt-ts-plans #ts-plans-panel[hidden] {
+  display: none;
+}
+
+/* How tests are marked. */
+.lt-ts-how {
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid var(--lt-sp-line);
+  border-left: 4px solid var(--lt-sp-green);
+  border-radius: 14px;
+}
+.lt-ts-how__list {
   margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
   font-size: 0.9rem;
+  line-height: 1.45;
   color: var(--lt-sp-ink-2);
 }
+.lt-ts-how__list strong {
+  color: var(--lt-sp-ink);
+}
+
+/* ── Tablet ───────────────────────────────────────────────────────────── */
+@media (min-width: 400px) {
+  .lt-ts-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
 @media (min-width: 768px) {
-  .lt-ts-offers {
+  .lt-ts .lt-ts-hero {
+    padding: 32px 0 30px;
+  }
+  .lt-ts-hero__h1 {
+    font-size: 2.1rem;
+  }
+  .lt-ts-stats {
+    max-width: 520px;
+  }
+  .lt-ts-hero__urgency {
+    min-height: 1.4em;
+  }
+  .lt-ts .lt-ts-hero__cta .lt-ts-btn {
+    width: auto;
+  }
+  .lt-ts-cal {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .lt-ts-cards {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .lt-ts-list {
     grid-template-columns: 1fr 1fr;
   }
-  .lt-ts-offer--packs {
-    grid-column: 1 / -1;
+  .lt-ts-offers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .lt-ts-tabs {
+    max-width: 520px;
+  }
+}
+
+/* ── Desktop ──────────────────────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  .lt-ts .lt-ts-hero {
+    padding: 40px 0 36px;
+  }
+  .lt-ts-hero__h1 {
+    font-size: 2.5rem;
+    max-width: 780px;
+  }
+  .lt-ts-hero__lede {
+    font-size: 1.05rem;
+    max-width: 720px;
+  }
+  .lt-ts-cards {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+  }
+  .lt-ts .lt-ts-sec {
+    margin-top: 34px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lt-ts .lt-ts-btn,
+  .lt-ts-acc__chev {
+    transition: none;
   }
 }

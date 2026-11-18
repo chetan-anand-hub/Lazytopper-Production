@@ -234,6 +234,24 @@ export const SUBSTRING_TRAP_WITNESSES: ReadonlyArray<{ path: string; sentence: s
   },
 ];
 
+/**
+ * TS-PAGE-2 (STUDENT_REVIEW §2, root cause 1) — pages whose static body MUST keep its <h1>. /test-series lost its whole hero
+ * (H1 included) to strip rule 2 because its sign-in link sat inside the hero <section>; nothing failed. Now it would.
+ */
+export const H1_WITNESSES: ReadonlyArray<{ path: string; h1: string }> = [
+  { path: "/test-series", h1: "CBSE Class 10 Test Series: Maths & Science" },
+];
+
+/** The <h1> witness failures for one capture (pure; the guard test drives it). */
+export function h1WitnessFailures(capture: { path: string; html: string; text: string }): string[] {
+  const witness = H1_WITNESSES.find((w) => w.path === capture.path);
+  if (!witness) return [];
+  if (!/<h1[\s>]/i.test(capture.html) || !capture.text.includes(witness.h1)) {
+    return [`${capture.path}: the static body has no <h1> "${witness.h1}" — the strip removed the page's hero`];
+  }
+  return [];
+}
+
 const MIME: Readonly<Record<string, string>> = {
   ".html": "text/html",
   ".js": "text/javascript",
@@ -483,10 +501,12 @@ export function stripAuthChrome(root: Element): number {
   //        since SEO-FRESH-1 captures the root.
   //      · boards-countdown-strip — URGENCY-1's "Boards in N days" line (BoardsCountdownStrip); its
   //        slot (boards-countdown-slot) stays so the reserved height is in the static file.
+  //      · [data-lt-clock] — TS-PAGE-2: any other node a page writes from the clock after mount (/test-series: the
+  //        founding-season line and the calendar's "Now"); its parent slot keeps the reserved size.
   //    ⚠ The selector is inlined, not a module constant: this body ships to the
   //    browser via `toString()` and cannot see module scope.
   for (const figure of Array.from(
-    root.querySelectorAll('[data-testid="till-boards-figures"], [data-testid="boards-countdown"], [data-testid="boards-countdown-strip"]'),
+    root.querySelectorAll('[data-testid="till-boards-figures"], [data-testid="boards-countdown"], [data-testid="boards-countdown-strip"], [data-lt-clock]'),
   )) {
     doomed.push(figure);
   }
@@ -516,7 +536,7 @@ export function countResidualAuthNodes(root: Element): number {
   residual += root.querySelectorAll('[data-testid="shell-greeting"]').length;
   // Clock-derived figures (strip rule 4, PRICING-TB-1 OR-P1) — none may survive.
   residual += root.querySelectorAll(
-    '[data-testid="till-boards-figures"], [data-testid="boards-countdown"], [data-testid="boards-countdown-strip"]',
+    '[data-testid="till-boards-figures"], [data-testid="boards-countdown"], [data-testid="boards-countdown-strip"], [data-lt-clock]',
   ).length;
   for (const button of Array.from(root.querySelectorAll("button"))) {
     const label = (button.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
@@ -773,6 +793,8 @@ export function validateCaptures(captures: readonly Capture[]): string[] {
       seen.set(capture.html, capture.path);
     }
   }
+
+  for (const capture of captures) failures.push(...h1WitnessFailures(capture));
 
   // The strip removed chrome, not prose. Absence of a witness path is a COVERAGE
   // question, answered by `validateCoverage` — not a defect in a capture that is

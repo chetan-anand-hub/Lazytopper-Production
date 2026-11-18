@@ -8,6 +8,8 @@ import {
   SUBSTRING_TRAP_WITNESSES,
   capturablePaths,
   countResidualAuthNodes,
+  h1WitnessFailures,
+  H1_WITNESSES,
   servableKey,
   stripAuthChrome,
   validateBothWidths,
@@ -552,8 +554,10 @@ describe("SEO-5 PR-2 — capture widths, and every validator on BOTH sets", () =
   const full = (suffix: string) =>
     capturablePaths().map((path) => {
       const witness = SUBSTRING_TRAP_WITNESSES.find((w) => w.path === path)?.sentence ?? "";
-      const text = `${path} ${suffix} ${witness}`;
-      return capture(path, text, `<main><p>${text}</p><i>${"x".repeat(MIN_BODY_BYTES)}</i></main>`);
+      // TS-PAGE-2: a healthy page with an H1 witness carries its <h1>.
+      const h1 = H1_WITNESSES.find((w) => w.path === path)?.h1 ?? "";
+      const text = `${path} ${suffix} ${witness}${h1 ? ` ${h1}` : ""}`;
+      return capture(path, text, `<main>${h1 ? `<h1>${h1}</h1>` : ""}<p>${text}</p><i>${"x".repeat(MIN_BODY_BYTES)}</i></main>`);
     });
 
   it("passes two complete, healthy sets — a page may render the same DOM at both widths", () => {
@@ -583,5 +587,46 @@ describe("SEO-5 PR-2 — capture widths, and every validator on BOTH sets", () =
     );
     const failures = validateBothWidths(mobile, full("d"));
     expect(failures).toEqual(["[mobile] /pricing: 1 auth-chrome node(s) survived the strip (a login link, the greeting, or a bare login button)"]);
+  });
+});
+
+/**
+ * TS-PAGE-2 (STUDENT_REVIEW §2) — the /test-series flash: strip rule 2 deleted the hero <section> (H1 included) because the
+ * signed-out "Sign in" link sat inside it. The H1 witness now fails such a capture; clock nodes (`data-lt-clock`) are stripped.
+ */
+describe("TS-PAGE-2 — H1 witness and clock nodes", () => {
+  it("a /test-series capture without its <h1> fails; with it, passes", () => {
+    const h1 = H1_WITNESSES.find((w) => w.path === "/test-series")?.h1 ?? "";
+    expect(h1).toBe("CBSE Class 10 Test Series: Maths & Science");
+    expect(h1WitnessFailures({ path: "/test-series", html: "<main><h2>Take all 66 tests</h2></main>", text: "Take all 66 tests" })).toHaveLength(1);
+    expect(h1WitnessFailures({ path: "/test-series", html: `<main><h1 id="ts-h1">${h1}</h1></main>`, text: h1 })).toEqual([]);
+    expect(h1WitnessFailures({ path: "/pricing", html: "<main></main>", text: "" })).toEqual([]);
+  });
+  it("rule 2 keeps a hero that is not a <section>: only the sign-in pair goes, the reserved box stays", () => {
+    const root = document.createElement("div");
+    root.innerHTML =
+      '<main><header><h1>CBSE Class 10 Test Series: Maths &amp; Science</h1><div class="lt-ts-me"><p>Track your progress.</p>' +
+      '<a href="/login?redirect=%2Ftest-series">Sign in</a></div></header></main>';
+    expect(stripAuthChrome(root)).toBe(2);
+    expect(root.querySelector("h1")).not.toBeNull();
+    expect(root.querySelector(".lt-ts-me")).not.toBeNull();
+    expect(countResidualAuthNodes(root)).toBe(0);
+  });
+  it("strips every data-lt-clock node and counts a survivor as residual", () => {
+    const root = document.createElement("div");
+    root.innerHTML = '<ol><li><span class="n"><span data-lt-clock="">Now</span></span></li></ol><p><span data-lt-clock="">Founding</span></p>';
+    const copy = root.cloneNode(true) as Element;
+    expect(countResidualAuthNodes(copy)).toBe(2);
+    expect(stripAuthChrome(root)).toBe(2);
+    expect(root.querySelector("[data-lt-clock]")).toBeNull();
+    expect(root.querySelector("span.n")).not.toBeNull();
+  });
+  it("the committed /test-series captures (both widths) carry the H1 and no clock node", () => {
+    for (const file of ["test-series.html", "__desktop/test-series.html"]) {
+      const html = readFileSync(resolve(process.cwd(), "prerendered", file), "utf8");
+      expect(html, file).toMatch(/<h1[^>]*>CBSE Class 10 Test Series: Maths &amp; Science<\/h1>/);
+      expect(html, file).not.toContain("data-lt-clock");
+      expect(html, file).not.toContain('href="/login');
+    }
   });
 });
