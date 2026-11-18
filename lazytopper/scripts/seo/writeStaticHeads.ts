@@ -162,7 +162,7 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
   "/packs": {
     title: "CBSE Class 10 Mock Tests, Practice Papers & Question Bank PDFs 2027 | LazyTopper",
     description:
-      "Printable CBSE Class 10 Maths & Science mock tests, chapter-wise question bank and PYQs, each with step-by-step explanations. Chapter packs from ₹49, one-time payment.",
+      "CBSE Class 10 Maths & Science mock tests, chapter-wise question bank and PYQs as printable PDFs. Packs from ₹49, one-time payment.",
   },
   // PRICING-PAGES-1 / PRICING-PAGES-2 F5 + R2: built from the pinned constants at BUILD time (salesPageHeads below).
   ...salesPageHeads(HEAD_NOW),
