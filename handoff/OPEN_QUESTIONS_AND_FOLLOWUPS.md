@@ -23,6 +23,85 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-18 (daily; UTC day 18 Nov, written 19 Nov) - #1748 - #1768 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**New (each has its own heading below):** `[FU-TS-UPGRADE-LIVE-PAYMENT]`, `[FU-TS-FIRST-PURCHASE]`, `[FU-TS-UPGRADE-GRANT-RECHECK]`, `[FU-TS-UPGRADE-MINE-STALE]`, `[FU-TS-UPGRADE-PARENT-GUEST]`, `[FU-GRADING-CONSISTENCY]`, `[FU-BANK-SOLUTIONSTEPS-1875]`, `[FU-GRADING-SPEED-PLAN]`, `[FU-FULLMOCK-OVERLAP-LINE]`, `[FU-FULLMOCK-AWAITING-SHEET-BANNER]`, `[FU-Q14-STEP-LABEL]`, `[FU-PAIDXSELL-BOUGHT-PROP]`, `[FU-TS-ADS]`, `[FU-CBQ-SITELINKS-RISK]`, `[FU-TS-PAPER-PASS-SELF-DECLARED]`, `[FU-ANON-FREE-CHECK-BYPASS]`, `[FU-WORKSHEETID-NOT-TIED]`, `[FU-PRE-202-CLOSE-OVERSHOOT]`, `[FU-MANIFEST-PREVIOUS-HASH]`, `[FU-PDF-TEMPLATE-FIRST-PAPER-FREE]`, `[FU-TS-SAC-INVOICE]`, `[FU-SIGNUPSOURCE-UNKNOWN-KEYS]`, `[FU-OLD-NAME-IN-OLD-CHAT]`, `[FU-NO-TUTOR-ON-MCQ-ONLY]`, `[FU-SERVER-EVENTS-STATE]`. **Closed by today's PRs:** none claimed.
+
+### [FU-TS-UPGRADE-LIVE-PAYMENT]
+OPEN, owner. Pay the ₹1,083 Test Series to Board Pass upgrade live (the page and Razorpay sheet were verified at ₹1,083 and closed, not paid), then check the invoice and that the entitlement has `creditedToPass: true`. [coordinator]
+
+### [FU-TS-FIRST-PURCHASE]
+OPEN. Confirm the first real Test Series purchase end to end (order, grant, receipt email, `/api/packs/mine` `ownsTestSeries`, the paid pop-up cross-sell). Sales went live about 02:00 IST on 19 Nov. [coordinator]
+
+### [FU-TS-UPGRADE-GRANT-RECHECK]
+OPEN. Named in the brief with no further detail: re-check the Board Pass grant after a credited upgrade (the grant sanity log expects `table + GST - tsCredit`; a second credited order is flagged `tsUpgradeCreditConflict`). The docs builder has no body beyond `#1767`; the owner or coordinator should state the exact check. [coordinator; PR body of `#1767`]
+
+### [FU-TS-UPGRADE-MINE-STALE]
+OPEN. Named in the brief with no further detail: `/api/packs/mine` may report a stale upgrade credit (for example after the credit is spent). The docs builder has no body beyond `#1767` (which says `/mine` reports no credit when the switch is on); the exact case needs stating. [coordinator]
+
+### [FU-TS-UPGRADE-PARENT-GUEST]
+OPEN. The parent pay-link and signed-out (guest) Board Pass checkouts get no Test Series credit and charge full price; `#1767` scoped the credit to the student's own signed-in checkout. Decide whether to extend it. [PR body of `#1767`]
+
+### [FU-GRADING-CONSISTENCY]
+OPEN. The same sheet scored 24.5 on one run and 23.5 on another (written answers). Investigate with the speed plan, under the rule that quality must never decrease. [coordinator]
+
+### [FU-BANK-SOLUTIONSTEPS-1875]
+OPEN, next session. About 1,875 B to E bank questions lack saved `solutionSteps`; generate them (CLAUDE.md section 13 minimums; re-read `syllabusGuard.ts` first). `src/data/` is globally forbidden unless scoped. [coordinator]
+
+### [FU-GRADING-SPEED-PLAN]
+OPEN, FIRST item next session. Targets: Chapter Test about 1 minute or less, Full Mock under 2 minutes, no quality loss. Plan: parallel chunks; progressive rows already exist via J1 `onPartSettled`. A grading-behaviour lane: CLAUDE.md section 4a applies (all six surfaces, two live). [coordinator]
+
+### [FU-FULLMOCK-OVERLAP-LINE]
+OPEN. `FullMockPage.tsx:1735` still says "(also Mock N in the printed Mock Pack)", which breaks the ruling that no copy says products overlap. [coordinator]
+
+### [FU-FULLMOCK-AWAITING-SHEET-BANNER]
+OPEN. A full mock that has been graded still shows the "awaiting sheet" banner. [coordinator]
+
+### [FU-Q14-STEP-LABEL]
+OPEN. A Q14 step label reads "✓ Incorrect multiplier" (a tick on an error). [coordinator]
+
+### [FU-PAIDXSELL-BOUGHT-PROP]
+OPEN. `PaidCrossSell` works out what was bought from `itemKind` and fixed names because `PacksShop.tsx` and `PassCheckout.tsx` were in other lanes; hosts should pass the optional `bought` prop explicitly. [PR body of `#1766`]
+
+### [FU-TS-ADS]
+OPEN. Test Series ads are not made yet. [coordinator]
+
+### [FU-CBQ-SITELINKS-RISK]
+OPEN. CBQ sitelinks with "solutions/solved" wording risk disapproval, and two CBQ ads are missing. [coordinator]
+
+### [FU-TS-PAPER-PASS-SELF-DECLARED]
+OPEN. The fair-use paper pass is not trusted for series checks (it is self-declared by the client); the series check relies on the manifest and holds instead. [PR body of `#1760`]
+
+### [FU-ANON-FREE-CHECK-BYPASS]
+OPEN. An anonymous free-check bypass exists. The docs builder has only the name from the coordinator; the owner should restate the path. [coordinator]
+
+### [FU-WORKSHEETID-NOT-TIED]
+OPEN. `worksheetId` is not tied server-side on detail and download (the client sends it; `#1764` made the detail claim send it too). [coordinator; PR body of `#1764`]
+
+### [FU-PRE-202-CLOSE-OVERSHOOT]
+OPEN. A connection closing before the 202 can overshoot the check count. Named by the coordinator without detail. [coordinator]
+
+### [FU-MANIFEST-PREVIOUS-HASH]
+OPEN. Previous-hash acceptance on bank text edits: when a bank question's text is edited, the manifest hash changes and `paperManifest.guard.test.ts` goes stale; accepting the previous hash for a transition is not built. [coordinator; PR bodies of `#1757` and `#1760`]
+
+### [FU-PDF-TEMPLATE-FIRST-PAPER-FREE]
+OPEN. The printed PDF template still carries a "first paper free" line, now false for series papers. [PR body of `#1765`]
+
+### [FU-TS-SAC-INVOICE]
+OPEN, owner/CA. The CA should confirm the SAC code on Test Series invoices. [coordinator]
+
+### [FU-SIGNUPSOURCE-UNKNOWN-KEYS]
+OPEN. `/api/signup-source` rejects unknown keys. Named by the coordinator without detail. [coordinator]
+
+### [FU-OLD-NAME-IN-OLD-CHAT]
+OPEN. "Check & Improve" can still appear in old persisted chat turns; `#1759` rewrites them on display and in history sent to the model, but stored text is unchanged. [PR body of `#1759`]
+
+### [FU-NO-TUTOR-ON-MCQ-ONLY]
+OPEN. There is no tutor button on MCQ-only results. [coordinator]
+
+### [FU-SERVER-EVENTS-STATE]
+OPEN, owner. Confirm in Railway whether `META_CAPI_ACCESS_TOKEN` and `GA4_API_SECRET` are set (without them `#1750` sends nothing), then run the Test events / DebugView plan in the `#1750` body; add the one-line `rememberCheckoutAttempt` client hook (after `#1749`, now merged) to switch `InitiateCheckout` on. Also confirm the Railway and Vercel deploys for `#1756`. [PR bodies of `#1750` and `#1756`]
+
 ## 2026-11-17 (daily; written 17 Nov) - #1737 - #1746 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **New:** `[FU-PAINT-SHELL-TWO-WINDOW]`, `[FU-FREE-PDF-NO-MORE-CORRECTION]`, `[FU-MCQ-PREVIEW-PSI-93]`, `[FU-LIVE-TESTS-17NOV]`. **Closed:** `[FU-SPEED-NEXT-BY-TRAFFIC]` for login LCP (done by `#1630`/`#1631`; the remaining items are in NEXT_ACTION). **Narrowed:** `[FU-OWNER-ANSWERS-16NOV]` (b) is answered yes (one sender number), and WhatsApp follow-ups for non-buyers are answered yes; both still wait on Pallabi's IDs. `[FU-WEBHOOK-ASCII-DESCRIPTION]` is not reported on today and stands as written.

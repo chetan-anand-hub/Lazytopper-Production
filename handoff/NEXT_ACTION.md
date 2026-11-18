@@ -1,3 +1,16 @@
+## 2026-11-18 (daily; UTC day 18 Nov, written 19 Nov) - #1748 - #1768
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`2e2706a9`** [git].
+
+- **Done [git]:** `#1748` to `#1768` merged (table in CURRENT_STATE). The Test Series Pack is LIVE for sale (`TS_PACK_DISABLED` removed 19 Nov about 02:00 IST). Standing rule: merge green, reviewed PRs and report; plus the new rule: nothing on the payment or grading path goes live without a real successful live run.
+- **Owner live checks owed:** (1) pay the ₹1,083 Test Series to Board Pass upgrade as the owner account, then check the invoice and that `creditedToPass` is set on the entitlement; (2) confirm the first real Test Series purchase end to end (order, grant, receipt email, `/api/packs/mine`, pop-up cross-sell); (3) `#1763` a Bundle owner on a chapter test and a Mock Pack owner on a full mock; (4) `#1759` a Chapter Test MCQ loss then "Ask the tutor why I lost this mark", and a Quick Practice MCQ; (5) `#1749` an Android phone inside the Instagram browser; (6) `#1750` Meta Test events / GA4 DebugView once the env secrets are set.
+- **FIRST item next session: grading speed WITH the quality rule.** Targets: Chapter Test about 1 minute or less, Full Mock under 2 minutes. Grading quality must never decrease. Plan: parallel chunks; progressive rows already exist via J1 `onPartSettled`. Also grading consistency (the same sheet scored 24.5 once and 23.5 another time on written answers).
+- **Content:** about 1,875 B to E bank questions lack saved `solutionSteps`: generate them next session (the Test Series papers draw from the bank).
+- **Ads:** Test Series ads are not made yet; CBQ sitelinks "solutions/solved" carry a disapproval risk and two CBQ ads are missing.
+- **Product follow-ups queued:** the "(also Mock N in the printed Mock Pack)" overlap line at `FullMockPage.tsx:1735` (breaks the no-overlap rule); the full mock "awaiting sheet" banner after a graded mock; Q14 step label "✓ Incorrect multiplier"; PaidCrossSell host `bought` prop; no tutor button on MCQ-only results.
+- **Dated checks:** 30 Nov founding offer ends; 1 Dec 00:00 IST prices switch (Board Pass ₹2,499, upgrade ₹1,770) and scheduled recaptures. Earlier dated checks stand.
+- **Follow-ups opened today:** see OPEN_QUESTIONS_AND_FOLLOWUPS (bodies there).
+
 ## 2026-11-17 (daily; written 17 Nov) - #1737 - #1746
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`97c023bf`** [git].
