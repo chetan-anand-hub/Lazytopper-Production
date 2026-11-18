@@ -9,7 +9,7 @@
  * ★ PURE: no React, no services that pull checkout code.
  */
 import { BOARD_PASS_NAME, formatInr, tillBoardsPriceInr } from "../../config/pricing";
-import { PACK_PRICE_INR, packPayLabel, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
+import { PACK_PRICE_INR, isTestSeriesPackOffered, packPayLabel, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
 import { subjectPackRow } from "../../components/pricing/pricingPlansCopy";
 import {
   BANK_CBQS_CLAIM,
@@ -29,7 +29,6 @@ import {
   SERIES_MOCKS_PER_SUBJECT,
   TEST_SERIES_BUY_PATH,
   TEST_SERIES_PATH,
-  TEST_SERIES_PRICE_INR,
   seriesTotals,
   type SeriesTotals,
 } from "../../lib/testSeries/testSeries";
@@ -70,7 +69,7 @@ export const HUB_GROUPS: ReadonlyArray<{ key: HubGroupKey; label: string; cards:
 /** The tab's price: the bare base figure (the caption says "+ GST"). The Board Pass figure follows the date: read after mount. */
 export function hubTabPrice(key: HubCardKey, now: Date | number = Date.now()): string {
   if (key === "pass") return formatInr(tillBoardsPriceInr(now));
-  if (key === "ts") return formatInr(TEST_SERIES_PRICE_INR);
+  if (key === "ts") return formatInr(PACK_PRICE_INR.test_series);
   return formatInr(key === "cbq" ? PACK_PRICE_INR.pack_cbq : PACK_PRICE_INR.pack_bundle);
 }
 /** "4 options · tap or swipe · all prices + GST" - the count is the card list's own length. */
@@ -109,7 +108,8 @@ export const HUB_PASS_OWNED_GO = "Go to practice →";
 
 /**
  * ★ Every count is the series config's own (lib/testSeries/testSeries.ts: the syllabus chapter keys and SERIES_MOCKS_PER_SUBJECT);
- *   the price is TEST_SERIES_PRICE_INR shown the way every other card shows a price ("₹999 + GST"). Nothing is typed here.
+ *   the price is the `test_series` SKU's (TS-PACK-1: services/packs.ts PACK_PRICE_INR / packPriceLabel), shown exactly as the other
+ *   pack cards show theirs ("₹999 + GST"). Nothing is typed here.
  * ★ Truth (owner rulings 18 Nov 19:38-19:44): the series is chapter tests + full mocks with written answers checked, the scorecard and
  *   after-test analysis, and the graded sheet to download; NO tutor and NO Answer Checker (both are the Board Pass's).
  */
@@ -135,7 +135,7 @@ export const HUB_TS_TICKS: ReadonlyArray<{ id: string; text: string }> = [
 export const HUB_TS_UPSELL_Q = "Want the tutor and Answer Checker too?";
 export const HUB_TS_UPSELL_GO = `${BOARD_PASS_NAME} →`;
 export function hubTsPrice(): string {
-  return `${formatInr(TEST_SERIES_PRICE_INR)} + GST`;
+  return packPriceLabel("test_series");
 }
 export const HUB_TS_PRICE_META = "till your boards · pay once";
 export const HUB_TS_BUY = `Get the ${TEST_SERIES_CARD_NAME}`;
@@ -145,7 +145,7 @@ export function hubTsDetails(t: SeriesTotals = seriesTotals()): string {
 }
 export const HUB_TS_DETAILS_PATH = TEST_SERIES_PATH;
 /** A Board Pass holder already has every test: no Buy, a way in instead (the /test-series page says the same). */
-export const HUB_TS_PASS_INCLUDED = "Your Board Pass already includes every test.";
+export const HUB_TS_PASS_INCLUDED = "Included in your Board Pass";
 export const HUB_TS_PASS_GO = `Open the ${TEST_SERIES_CARD_NAME} →`;
 /** Desktop / tablet "What's inside" (the band beside the taller Board Pass card): per subject, from the config. */
 export const HUB_TS_INSIDE_TITLE = "Inside the series";
@@ -159,21 +159,13 @@ export function hubTsInsideRows(t: SeriesTotals = seriesTotals()): ReadonlyArray
 export const HUB_TS_TRY_LINE = `Try ${FREE_TESTS_ALLOWED === 1 ? "one test" : `${FREE_TESTS_ALLOWED} tests`} first: its MCQs are marked free.`;
 
 /**
- * TS-PACK client kill switch: VITE_TS_PACK_DISABLED=1 (or true/on/yes) keeps the card but sends its Buy to /test-series (the series
- * page) instead of the /packs buy path. The server has its own TS_PACK_DISABLED (TS-PACK-1).
+ * Where "Get the Test Series" goes: the same link /test-series uses, or - while TS-PACK-1's client kill switch is on
+ * (VITE_TS_PACK_DISABLED=1, services/packs.ts isTestSeriesPackOffered) - the series page. The card itself always shows.
  */
-export function isTsPackClientEnabled(): boolean {
-  try {
-    const raw: unknown = import.meta.env.VITE_TS_PACK_DISABLED;
-    return !/^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
-  } catch {
-    return true;
-  }
-}
-/** Where "Get the Test Series" goes: the same link /test-series uses, or the series page while the kill switch is on. */
 export function hubTsBuyPath(): string {
-  return isTsPackClientEnabled() ? TEST_SERIES_BUY_PATH : TEST_SERIES_PATH;
+  return isTestSeriesPackOffered() ? TEST_SERIES_BUY_PATH : TEST_SERIES_PATH;
 }
+export const HUB_TS_OWNED = `${TEST_SERIES_CARD_NAME} · You own this`;
 /** The phone bar's words for the Test Series card. */
 export function hubTsStickyCopy(): { label: string; button: string } {
   return { label: `${TEST_SERIES_CARD_NAME} ${hubTsPrice()}`, button: HUB_TS_BUY };

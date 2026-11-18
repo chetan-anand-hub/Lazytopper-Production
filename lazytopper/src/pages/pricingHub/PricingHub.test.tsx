@@ -100,10 +100,10 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
 import { boardPassPayDisplay, boardPassPriceDisplay } from "../../config/pricing";
-import { packPayLabel, packPriceLabel } from "../../services/packs";
+import { PACK_PRICE_INR, isTestSeriesPackOffered, packPayLabel, packPriceLabel } from "../../services/packs";
 import { FOUNDER_BADGE_TEXT } from "../../components/brand/FounderBadge";
 import { PRICING_H1 } from "../../components/pricing/pricingPlansCopy";
-import { SERIES_MOCKS_PER_SUBJECT, TEST_SERIES_BUY_PATH, TEST_SERIES_PRICE_INR, seriesChapterTests, seriesTotals } from "../../lib/testSeries/testSeries";
+import { SERIES_MOCKS_PER_SUBJECT, TEST_SERIES_BUY_PATH, seriesChapterTests, seriesTotals } from "../../lib/testSeries/testSeries";
 import {
   HUB_CARD_ORDER,
   HUB_GROUPS,
@@ -111,10 +111,11 @@ import {
   hubTsDetails,
   hubTsHeadlineText,
   hubTsInsideRows,
-  isTsPackClientEnabled,
 } from "./hubCopy";
 import { WHAT_YOU_GET_COLUMNS, whatYouGetRows, whatYouGetRows4 } from "../../components/pricing/pricingPlansCopy";
 
+/** TS-PACK-1: the Test Series price is the `test_series` SKU's. */
+const TEST_SERIES_PRICE_INR = PACK_PRICE_INR.test_series;
 const DAY = 86_400_000;
 const FREE = { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null, passEnd: null };
 function setSub(status: Record<string, unknown>, extra: Partial<Sub> = {}) {
@@ -695,7 +696,9 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
     expect(c).toHaveTextContent("Your graded answer sheet to download");
     expect(c).toHaveTextContent("Your pre-boards calendar");
     expect(within(c).getByTestId("hub-ts-upsell")).toHaveTextContent("Want the tutor and Answer Checker too? Board Pass →");
-    expect(within(c).getByTestId("hub-ts-price")).toHaveTextContent(`₹${TEST_SERIES_PRICE_INR} + GST`);
+    expect(within(c).getByTestId("hub-ts-price")).toHaveTextContent(packPriceLabel("test_series"));
+    expect(packPriceLabel("test_series")).toBe(`₹${TEST_SERIES_PRICE_INR} + GST`);
+    expect(TEST_SERIES_PRICE_INR).toBe(999);
     expect(within(c).getByTestId("hub-buy-test_series")).toHaveTextContent("Get the Test Series");
     expect(within(c).getByTestId("hub-buy-test_series")).toHaveAttribute("href", TEST_SERIES_BUY_PATH);
     expect(TEST_SERIES_BUY_PATH).toBe("/packs?buy=test_series");
@@ -738,11 +741,11 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
   });
 
   it("kill switch VITE_TS_PACK_DISABLED: unset -> the /packs buy path; 1 / true -> the card still shows, its Buy goes to /test-series", async () => {
-    expect(isTsPackClientEnabled()).toBe(true);
+    expect(isTestSeriesPackOffered()).toBe(true);
     expect(hubTsBuyPath()).toBe("/packs?buy=test_series");
     for (const v of ["1", "true"]) {
       vi.stubEnv("VITE_TS_PACK_DISABLED", v);
-      expect(isTsPackClientEnabled()).toBe(false);
+      expect(isTestSeriesPackOffered()).toBe(false);
       await renderAt("/pricing");
       expect(card("ts")).toBeInTheDocument();
       expect(screen.getByTestId("hub-buy-test_series")).toHaveAttribute("href", "/test-series");
@@ -750,7 +753,7 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
       cleanup();
     }
     vi.stubEnv("VITE_TS_PACK_DISABLED", "0");
-    expect(isTsPackClientEnabled()).toBe(true);
+    expect(isTestSeriesPackOffered()).toBe(true);
   });
 
   it("a parent's visit keeps ?from=for_parents on the Test Series links", async () => {
@@ -759,14 +762,35 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
     expect(screen.getByTestId("hub-ts-details")).toHaveAttribute("href", "/test-series?from=for_parents");
   });
 
-  it("a Board Pass holder is not sold the series: 'already includes every test' and a way in", async () => {
+  it("a Board Pass holder is not sold the series: 'Included in your Board Pass' and a way in", async () => {
     auth.user = { uid: "u1" };
     setSub({ tier: "premium", plan: "pass_till_boards", premiumSince: new Date(Date.now() - DAY).toISOString(), passEnd: new Date(Date.now() + 90 * DAY).toISOString() });
     await renderAt("/pricing");
     const c = card("ts");
     expect(within(c).queryByTestId("hub-buy-test_series")).toBeNull();
-    expect(within(c).getByTestId("hub-ts-included")).toHaveTextContent("Your Board Pass already includes every test.");
+    expect(within(c).getByTestId("hub-ts-included")).toHaveTextContent("Included in your Board Pass");
     expect(within(c).getByTestId("hub-ts-open")).toHaveAttribute("href", "/test-series");
+    cleanup();
+    // A month-pass holder is paid premium too (seriesAccess checks their papers): same state.
+    setSub({ tier: "premium", plan: "pass_month", premiumSince: new Date(Date.now() - DAY).toISOString(), passEnd: new Date(Date.now() + 20 * DAY).toISOString() });
+    await renderAt("/pricing");
+    expect(within(card("ts")).getByTestId("hub-ts-included")).toHaveTextContent("Included in your Board Pass");
+    cleanup();
+    // A trial is not paid: it is still offered the series.
+    setSub({ tier: "trial", trialStartDate: new Date(Date.now() - DAY).toISOString() }, { isTrialActive: true, daysLeftInTrial: 6 });
+    await renderAt("/pricing");
+    expect(within(card("ts")).queryByTestId("hub-ts-included")).toBeNull();
+    expect(within(card("ts")).getByTestId("hub-buy-test_series")).toHaveAttribute("href", "/packs?buy=test_series");
+  });
+
+  it("a Test Series Pack owner is not sold it again: the owned pill and a way in", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    owned.packs = [{ sku: "test_series", target: "all" }];
+    await renderAt("/pricing");
+    expect(await screen.findByTestId("hub-ts-owned")).toHaveTextContent("Test Series · You own this");
+    expect(within(card("ts")).queryByTestId("hub-buy-test_series")).toBeNull();
+    expect(within(card("ts")).getByTestId("hub-ts-open")).toHaveAttribute("href", "/test-series");
   });
 
   it("the phone bar on the Test Series card names it and goes to its buy path", async () => {

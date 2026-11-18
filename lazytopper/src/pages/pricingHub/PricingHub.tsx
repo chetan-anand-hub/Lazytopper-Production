@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from "react-router-do
 import BoardsCountdownStrip from "../../components/urgency/BoardsCountdownStrip";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
+import { isPaidPremium } from "../../services/subscriptionService";
 import { trackNamedEvent } from "../../analytics/analytics";
 import ReturnContextBar from "../../components/ux/ReturnContextBar";
 import PublicLegalFooter from "../../components/ux/PublicLegalFooter";
@@ -103,6 +104,7 @@ import {
   HUB_TS_BUY,
   HUB_TS_INSIDE_TITLE,
   HUB_TS_NEW,
+  HUB_TS_OWNED,
   HUB_TS_PASS_GO,
   HUB_TS_PASS_INCLUDED,
   HUB_TS_PRICE_META,
@@ -593,7 +595,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
     const api = apiRef.current;
     const card = selectedRef.current;
     const packOpen = (sku: PackSku, target?: PackSubject) => api !== null && !(api.buyEnabled && (api.ownsPack(sku, target) || api.blockedBy(sku, target)));
-    if (card === "ts" && !premiumRef.current) return "ts";
+    if (card === "ts" && !premiumRef.current && !(api?.buyEnabled && api.ownsPack("test_series"))) return "ts";
     if (card === "cbq" && packOpen("pack_cbq", subjectRef.current)) return "cbq";
     if (card === "bank" && packOpen("pack_bundle")) return "bank";
     return premiumRef.current ? null : "pass";
@@ -693,7 +695,12 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
   };
   const series = seriesTotals();
   const tsHead = hubTsHeadline(series);
-  const tsCard = (
+  const tsCard = (api: PacksShopApi) => {
+    // TS-PACK-1: a Test Series Pack owner (the shop's own /api/packs/mine read) is not sold it again.
+    const ownsSeries = api.buyEnabled && api.ownsPack("test_series");
+    // Review (18 Nov): a paid pass already includes every test (seriesAccess: paid premium checks series papers; a trial does not).
+    const seriesIncluded = Boolean(user) && subscription.hydrated && isPaidPremium(subscription.status);
+    return (
     <div className="lt-ph-card lt-ph-card--ts" id={HUB_CARD_ID.ts} data-testid="hub-card-ts" data-card="ts">
       <div className="lt-ph-card__top">
         <p className="lt-ph-tag">{HUB_TS_TAG}</p>
@@ -723,7 +730,17 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
         <p className="lt-ph-extra__line">{HUB_TS_TRY_LINE}</p>
       </div>
       <div className="lt-ph-foot">
-        {boardPassOwner ? (
+        {ownsSeries ? (
+          <>
+            <span className="lt-ph-owned-pill" data-testid="hub-ts-owned">
+              <span aria-hidden="true">&#10003;</span>
+              {HUB_TS_OWNED}
+            </span>
+            <Link className="lt-ph-buy lt-ph-buy--link" to={HUB_TS_DETAILS_PATH} data-testid="hub-ts-open">
+              {HUB_TS_PASS_GO}
+            </Link>
+          </>
+        ) : seriesIncluded ? (
           <>
             <p className="lt-ph-sep" data-testid="hub-ts-included">{HUB_TS_PASS_INCLUDED}</p>
             <Link className="lt-ph-buy lt-ph-buy--link" to={HUB_TS_DETAILS_PATH} data-testid="hub-ts-open">
@@ -752,7 +769,8 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
         </Link>
       </div>
     </div>
-  );
+    );
+  };
 
   const cbqCard = (api: PacksShopApi) => {
     const ownsAny = api.buyEnabled && SUBJECTS.some((s) => api.ownsPack("pack_cbq", s));
@@ -943,7 +961,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
                     ))}
                     <span className="lt-ph-divider" aria-hidden="true" />
                     {passCard}
-                    {tsCard}
+                    {tsCard(api)}
                     {cbqCard(api)}
                     {bankCard(api)}
                   </div>
