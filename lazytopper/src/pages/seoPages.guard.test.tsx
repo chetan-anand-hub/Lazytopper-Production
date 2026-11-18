@@ -158,13 +158,17 @@ describe("SEO-PAGES-1 — the pages", () => {
         expect(seoPageJsonLd("/pricing", "")).toBeNull();
       });
 
-      it.skipIf(path === MARKING_SCHEME_PATH)("PACKS-LPX-2: the hero Buy reads its price from the pack helpers and hops to the one-tap /packs?buy= link", () => {
+      it("PACKS-LPX-2: the hero Buy reads its price from the pack helpers and hops to the one-tap /packs?buy= link (none on the marking-scheme page)", () => {
         const { container } = render(
           <MemoryRouter initialEntries={[`${path}?utm_source=google&gclid=abc&junk=1`]}>
             <Page />
           </MemoryRouter>,
         );
         const buy = container.querySelector(".lt-seol__cta--buy") as HTMLAnchorElement;
+        if (path === MARKING_SCHEME_PATH) {
+          expect(buy).toBeNull();
+          return;
+        }
         expect(buy).not.toBeNull();
         const sku = path === MOCK_TEST_PATH ? "pack_mock" : "pack_bundle";
         expect(buy.textContent).toContain(packPriceLabel(sku));
