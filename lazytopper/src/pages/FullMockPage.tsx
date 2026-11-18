@@ -2029,10 +2029,13 @@ export default function FullMockPage() {
               current={{
                 worksheetId: activeMock.paper.worksheetId,
                 title: activeMock.name,
+                // A resumed/stored objective may carry no per-question results: then only a full grade feeds the panel.
                 response:
                   resultsPhase === "full" && fullResponse
                     ? fullResponse
-                    : buildFullMockResponse({
+                    : !Array.isArray(objective.results)
+                      ? null
+                      : buildFullMockResponse({
                         paper: activeMock.paper,
                         objective,
                         subjectiveQuestions: fullMockSubjectiveQuestions(activeMock.paper),

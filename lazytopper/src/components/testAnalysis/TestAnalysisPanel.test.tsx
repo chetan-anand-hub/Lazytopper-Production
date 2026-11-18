@@ -103,6 +103,22 @@ describe("TestAnalysisPanel", () => {
     expect(screen.queryByText("This week’s plan")).toBeNull();
   });
 
+  it("nothing graded to analyse (null response) → renders nothing", () => {
+    const { container } = render(
+      <MemoryRouter>
+        <TestAnalysisPanel
+          surface="full-mock"
+          subject="Maths"
+          uid="u"
+          current={{ worksheetId: "w", title: "t", response: null, questionIds: [] }}
+          secondsPerMark={135}
+          returnTo="/full-mock/10/Maths"
+        />
+      </MemoryRouter>,
+    );
+    expect(container.innerHTML).toBe("");
+  });
+
   it("signed out: no history read, honest sign-in line", () => {
     renderPanel(null, resp([g(1, 0, 1)]), [TRI[0]]);
     expect(screen.getByText(/Sign in to see your weakest chapters/)).toBeTruthy();

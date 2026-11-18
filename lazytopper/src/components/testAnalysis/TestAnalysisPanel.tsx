@@ -32,7 +32,8 @@ import "./testAnalysis.css";
 export interface TestAnalysisCurrent {
   worksheetId: string;
   title: string;
-  response: WorksheetGradeResponse;
+  /** null = nothing graded to analyse yet (the panel renders nothing). */
+  response: WorksheetGradeResponse | null;
   questionIds: readonly string[];
   chapterTopicKey?: string | null;
 }
@@ -51,8 +52,25 @@ const RETRY_ANCHOR = "lt-tsa-retry";
 
 type HistoryState = { status: "idle" | "loading" | "ready" | "error"; rows: AnalysedQuestion[] };
 
+const EMPTY_RESPONSE: WorksheetGradeResponse = {
+  ok: true,
+  results: [],
+  totalQuestions: 0,
+  gradedCount: 0,
+  pendingCount: 0,
+  gradedMarksAwarded: 0,
+  gradedMarksTotal: 0,
+  worksheetTotalMarks: 0,
+};
+
 export default function TestAnalysisPanel(props: TestAnalysisPanelProps) {
-  const { surface, subject, uid, current, secondsPerMark, returnTo } = props;
+  if (!props.current.response || !Array.isArray(props.current.response.results)) return null;
+  return <TestAnalysisPanelBody {...props} />;
+}
+
+function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
+  const { surface, subject, uid, secondsPerMark, returnTo } = props;
+  const current = { ...props.current, response: props.current.response ?? EMPTY_RESPONSE };
   const disabled = tsAnalysisDisabled(import.meta.env.VITE_TS_ANALYSIS_DISABLED);
 
   const currentRows = useMemo(

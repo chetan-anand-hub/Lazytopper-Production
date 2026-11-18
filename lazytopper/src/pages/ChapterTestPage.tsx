@@ -1727,10 +1727,13 @@ export default function ChapterTestPage() {
               current={{
                 worksheetId: paper.worksheetId,
                 title: nomen.name,
+                // A resumed/stored objective may carry no per-question results: then only a full grade feeds the panel.
                 response:
                   resultsPhase === "full" && fullResponse
                     ? fullResponse
-                    : buildChapterTestResponse({ paper, objective, subjectiveQuestions: subjectiveQs, subjectiveResponse: null }),
+                    : Array.isArray(objective.results)
+                      ? buildChapterTestResponse({ paper, objective, subjectiveQuestions: subjectiveQs, subjectiveResponse: null })
+                      : null,
                 questionIds: [...paper.questions].sort((x, y) => x.qNumber - y.qNumber).map((q) => String(q.id ?? "")),
                 chapterTopicKey: topicKey,
               }}
