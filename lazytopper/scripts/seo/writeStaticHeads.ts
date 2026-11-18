@@ -65,6 +65,7 @@ import {
 } from "../../src/config/solutionsPublishSafe";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
 import { allDesktopTopics } from "../../src/lib/desktop/topics";
+import { seriesContentsLine } from "../../src/lib/testSeries/testSeries";
 import { ncertFileCodeFromSpec } from "../../src/lib/ncertFileCode";
 import { cbqHeadForPath, cbqJsonLd } from "../../src/components/cbq/cbqSeo";
 import { dailyHeadForPath, dailyJsonLd } from "../../src/components/dailyQuestion/dailyQuestions";
@@ -227,6 +228,14 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "Your Class 10 child photographs a written answer; LazyTopper marks every step like a CBSE " +
       "examiner and shows what to fix. First check free.",
   },
+  // TEST-SERIES-1 (owner, 18 Nov 2026) — the Pre-Boards Test Series page. Title as the owner's spec words it; the counts in the
+  // description are the page's own (lib/testSeries: 26 chapter tests from the syllabus keys, 16 mocks from MOCKS_PER_SUBJECT).
+  "/test-series": {
+    title: "CBSE Class 10 Test Series 2026-27 (Maths & Science) — Pre-Boards | LazyTopper",
+    description:
+      `Class 10 Maths & Science pre-boards: ${seriesContentsLine()}, one numbered paper for all, a calendar ` +
+      "till the boards, answers step-marked.",
+  },
   // CONTACT-INDEX-1 (owner ruling, 18 Oct 2026) — the contact page. Both strings are the page's
   // own CONTACT_TITLE / CONTACT_DESCRIPTION (src/pages/ContactPage.tsx), word for word; the
   // contact guard test pins the two equal. Nothing is added.
@@ -308,6 +317,7 @@ export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   { prefix: "/check-your-answer", exact: true, modules: ["CheckYourAnswerPage"] },
   { prefix: "/for-parents", exact: true, modules: ["ForParentsPage"] },
   { prefix: "/contact", exact: true, modules: ["ContactPage"] },
+  { prefix: "/test-series", exact: true, modules: ["TestSeriesPage"] },
   { prefix: "/ncert-class-10", exact: true, modules: ["NcertBooksPage"] },
   { prefix: "/ncert-solutions/", exact: false, modules: ["SolutionsPage"] },
   { prefix: "/ncert-exemplar/", exact: false, modules: ["SolutionsPage"] },

@@ -512,32 +512,58 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
  * by its number (`pack-paper:mock:<subject>:<n>`). Step-marked questions are preferred, and each paper steers clear of the
  * questions the earlier papers used, so the overlap between papers is as small as the bank allows.
  */
-export function drawPackMocks(subject: PackSubject): Array<{ n: number; drawn: ReturnType<typeof drawFullMock>; name: string }> {
-  const bankSubject = bankSubjectName(subject);
-  const slugSet = new Set(fullMockChapterWeights(bankSubject).map((c) => c.slug));
-  const unionPool = buildUnionPool(bankSubject, slugSet);
+export function drawPackMocks(
+  subject: PackSubject,
+  /** TEST-SERIES-1 — stop after paper `upTo` (papers 1..n-1 are still drawn, because paper n steers clear of them). It may go
+   *  PAST MOCKS_PER_SUBJECT: the Test Series' papers 9+ continue the same seed scheme, and papers 1..MOCKS_PER_SUBJECT are
+   *  unchanged by that. Default: the pack's papers, exactly as before. */
+  upTo: number = MOCKS_PER_SUBJECT,
+): Array<{ n: number; drawn: ReturnType<typeof drawFullMock>; name: string }> {
+  const unionPool = packMockUnionPool(subject);
   const used: Array<Set<string>> = [];
   const out: Array<{ n: number; drawn: ReturnType<typeof drawFullMock>; name: string }> = [];
-  for (let n = 1; n <= MOCKS_PER_SUBJECT; n += 1) {
-    const name = `${bankSubject} Full Mock ${n}`;
-    const drawn = drawAvoidingExcluded(
-      (servedAt) =>
-        drawFullMock({
-          subject: bankSubject,
-          worksheetId: `pack-mock-${subject}-${n}`,
-          code: packPaperCode({ kind: "mock", subject, n }),
-          name,
-          createdAt: DRAW_STAMP,
-          seed: hashSeed(`pack-paper:mock:${subject}:${n}`),
-          servedAt,
-        }),
-      packServedAt(unionPool, used),
-    );
+  const last = Math.max(0, Math.floor(upTo));
+  for (let n = 1; n <= last; n += 1) {
+    const { drawn, name } = drawPackMockAfter(subject, n, used, unionPool);
     if (!drawn.enoughQuestions) continue;
     used.push(new Set(drawn.paper.questions.map((q) => q.id)));
     out.push({ n, drawn, name });
   }
   return out;
+}
+
+function packMockUnionPool(subject: PackSubject) {
+  const bankSubject = bankSubjectName(subject);
+  return buildUnionPool(bankSubject, new Set(fullMockChapterWeights(bankSubject).map((c) => c.slug)));
+}
+
+/**
+ * Mock paper `n` of a subject, given the question ids of the papers drawn before it (`usedBefore`, in paper order — exactly the
+ * list `drawPackMocks` builds). THE one draw `drawPackMocks` runs per paper, so a caller that already knows the earlier papers'
+ * ids (TEST-SERIES-1: the committed manifest) draws paper n alone and gets the same paper.
+ */
+export function drawPackMockAfter(
+  subject: PackSubject,
+  n: number,
+  usedBefore: ReadonlyArray<ReadonlySet<string>>,
+  unionPool: ReturnType<typeof buildUnionPool> = packMockUnionPool(subject),
+): { drawn: ReturnType<typeof drawFullMock>; name: string } {
+  const bankSubject = bankSubjectName(subject);
+  const name = `${bankSubject} Full Mock ${n}`;
+  const drawn = drawAvoidingExcluded(
+    (servedAt) =>
+      drawFullMock({
+        subject: bankSubject,
+        worksheetId: `pack-mock-${subject}-${n}`,
+        code: packPaperCode({ kind: "mock", subject, n }),
+        name,
+        createdAt: DRAW_STAMP,
+        seed: hashSeed(`pack-paper:mock:${subject}:${n}`),
+        servedAt,
+      }),
+    packServedAt(unionPool, usedBefore),
+  );
+  return { drawn, name };
 }
 
 /** The full board-pattern papers (paper + key each) of a subject. Loads the subject's bank first. */

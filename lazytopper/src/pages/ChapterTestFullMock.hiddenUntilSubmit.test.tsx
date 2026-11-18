@@ -75,6 +75,14 @@ vi.mock("../services/fullMockGradeService", async (importOriginal) => {
   };
 });
 
+// TEST-SERIES-1: the solution key is offered to an account entitled to the PDFs (a Board Pass or Test Series holder); the free /
+// trial gates are pinned in *.seriesGate.test.tsx.
+vi.mock("../components/testSeries/WrittenCheckGate", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../components/testSeries/WrittenCheckGate")>()),
+  useSeriesPaperAccess: () => true,
+  useBoardPassHolder: () => true,
+}));
+
 import ChapterTestPage from "./ChapterTestPage";
 import FullMockPage from "./FullMockPage";
 import { __setGradingJobTimersForTests, type StoredGradingJob } from "../ai/gradingJobs";
