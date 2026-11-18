@@ -71,6 +71,8 @@ function hashExternalId(uid) {
 const FBP_RE = /^fb\.\d\.\d{10,13}\.[A-Za-z0-9_-]{1,64}$/;
 const FBC_RE = /^fb\.\d\.\d{10,13}\.[A-Za-z0-9_-]{1,300}$/;
 const GA_COOKIE_RE = /^GA\d\.\d\.(\d{1,12}\.\d{1,12})$/;
+const GA_SESSION_COOKIE = '_ga_1T8Q12H4RQ';
+const GA_SESSION_RES = [/^GS1\.\d\.(\d{9,12})\./, /^GS2\.\d\.s(\d{9,12})(?:\$|$)/];
 const GA_CLIENT_RE = /^\d{1,12}\.\d{1,12}$/;
 const ATTEMPT_RE = /^[A-Za-z0-9_-]{8,80}$/;
 
@@ -94,6 +96,17 @@ function gaClientIdFrom(raw) {
   return m ? m[1] : '';
 }
 
+/** The GA4 session id out of a `_ga_<stream>` cookie (GS1.1.<id>.n... or GS2.1.s<id>$o...), or the bare digits; '' when malformed. */
+function gaSessionIdFrom(raw) {
+  const v = clean(raw);
+  if (/^\d{9,12}$/.test(v)) return v;
+  for (const re of GA_SESSION_RES) {
+    const m = re.exec(v);
+    if (m) return m[1];
+  }
+  return '';
+}
+
 /** The matching cookies out of a Cookie request header (same-origin API calls carry them). Never throws. */
 function signalsFromCookieHeader(header) {
   const out = {};
@@ -105,7 +118,10 @@ function signalsFromCookieHeader(header) {
       const v = part.slice(i + 1).trim();
       if (k === '_fbp' && FBP_RE.test(v)) out.fbp = v;
       else if (k === '_fbc' && FBC_RE.test(v)) out.fbc = v;
-      else if (k === '_ga') {
+      else if (k === GA_SESSION_COOKIE) {
+        const g = gaSessionIdFrom(v);
+        if (g) out.gaSessionId = g;
+      } else if (k === '_ga') {
         const g = gaClientIdFrom(v);
         if (g) out.gaClientId = g;
       }
@@ -148,6 +164,9 @@ function adSignalsField(body, req, env = process.env) {
     else if (fromCookie.fbc) s.fbc = fromCookie.fbc;
     if (ga) s.gaClientId = ga;
     else if (fromCookie.gaClientId) s.gaClientId = fromCookie.gaClientId;
+    const gas = gaSessionIdFrom(raw.gas);
+    if (gas) s.gaSessionId = gas;
+    else if (fromCookie.gaSessionId) s.gaSessionId = fromCookie.gaSessionId;
     if (url) s.url = url;
     if (ATTEMPT_RE.test(attempt)) s.attemptId = attempt;
     const ua = clean(req && req.headers && req.headers['user-agent']).slice(0, 300);
@@ -209,6 +228,8 @@ function buildGa4Purchase({ orderId, order, signals }) {
         name: 'purchase',
         params: {
           transaction_id: orderId,
+          // Join the visitor's GA4 session (else the sale shows as "(not set)"); omitted when the cookie was missing / malformed.
+          ...(signals && signals.gaSessionId ? { session_id: signals.gaSessionId, engagement_time_msec: 1 } : {}),
           currency: 'INR',
           ...(value === null ? {} : { value }),
           items: [{ item_id: passType, item_name: ITEM_NAMES[passType] || String(passType), ...(value === null ? {} : { price: value }), quantity: 1 }],
@@ -490,6 +511,7 @@ module.exports = {
   buildGa4Purchase,
   userDataFrom,
   gaClientIdFrom,
+  gaSessionIdFrom,
   cleanUrl,
   DEFAULT_PIXEL_ID,
   DEFAULT_GA4_ID,

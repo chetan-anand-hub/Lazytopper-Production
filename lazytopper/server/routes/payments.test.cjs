@@ -2782,6 +2782,22 @@ test('SERVER-EVENTS-1 · SERVER_EVENTS_DISABLED=1 is a kill switch even with eve
     assert.equal(se.hashExternalId(''), null);
   });
 
+  test('GA4 session id: parsed from GS1 / GS2 cookies, sent as session_id + engagement_time_msec; malformed or missing -> omitted', () => {
+    assert.equal(se.gaSessionIdFrom('GS1.1.1700000001.5.1.1700000002.0.0.0'), '1700000001');
+    assert.equal(se.gaSessionIdFrom('GS2.1.s1700000001$o2$g1$t1700000002$j0$l0$h0'), '1700000001');
+    assert.equal(se.gaSessionIdFrom('garbage'), '');
+    assert.equal(se.signalsFromCookieHeader('_ga_1T8Q12H4RQ=GS1.1.1700000001.5.1').gaSessionId, '1700000001');
+    assert.equal(se.adSignalsField({ adSignals: { gas: 'GS2.1.s1700000001$o1' } }, { headers: {}, socket: {} }, {}).adSignals.gaSessionId, '1700000001');
+    assert.equal(se.adSignalsField({ adSignals: { gas: 'bad' } }, { headers: {}, socket: {} }, {}).adSignals, undefined);
+    const o = { passType: 'till_boards', amountPaise: 100 };
+    const withS = se.buildGa4Purchase({ orderId: 'o', order: o, signals: { gaClientId: '1.2', gaSessionId: '1700000001' } });
+    assert.equal(withS.events[0].params.session_id, '1700000001');
+    assert.equal(withS.events[0].params.engagement_time_msec, 1);
+    const without = se.buildGa4Purchase({ orderId: 'o', order: o, signals: { gaClientId: '1.2' } });
+    assert.equal('session_id' in without.events[0].params, false);
+    assert.equal('engagement_time_msec' in without.events[0].params, false);
+  });
+
   test('cookie header -> only well-formed _fbp / _fbc / _ga', () => {
     const s = se.signalsFromCookieHeader('a=1; _fbp=fb.1.1700000000000.12345678; _fbc=fb.1.1700000000000.AbC-_9; _ga=GA1.1.555.666; other=x');
     assert.deepEqual(s, { fbp: 'fb.1.1700000000000.12345678', fbc: 'fb.1.1700000000000.AbC-_9', gaClientId: '555.666' });

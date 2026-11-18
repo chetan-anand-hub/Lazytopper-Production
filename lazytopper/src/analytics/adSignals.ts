@@ -30,6 +30,7 @@ export interface AdSignals {
   fbp?: string;
   fbc?: string;
   ga?: string;
+  gas?: string;
   url?: string;
   attemptId?: string;
 }
@@ -41,9 +42,11 @@ export function adSignalFields(): { adSignals?: AdSignals } {
     const fbp = cookieValue("_fbp");
     const fbc = cookieValue("_fbc");
     const ga = cookieValue("_ga");
+    const gas = cookieValue("_ga_1T8Q12H4RQ"); // GA4 session cookie: the server reads the session id out of it
     if (fbp) s.fbp = fbp;
     if (fbc) s.fbc = fbc;
     if (ga) s.ga = ga;
+    if (gas) s.gas = gas;
     s.url = `${window.location.origin}${window.location.pathname}`;
     if (lastAttempt && Date.now() - lastAttempt.at < ATTEMPT_TTL_MS) s.attemptId = lastAttempt.id;
     lastAttempt = null;
