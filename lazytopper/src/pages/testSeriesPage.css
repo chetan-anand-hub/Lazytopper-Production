@@ -32,6 +32,12 @@
 .lt-ts-hero__lede strong {
   color: #ffffff;
 }
+.lt-ts-hero__rule {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #6ee7a8;
+}
 /* Signed out, loading and signed in all fit this one box (two lines at 320 px). */
 .lt-ts-progress {
   min-height: 3.2em;
@@ -259,51 +265,7 @@
 .lt-ts-how__list strong {
   color: var(--lt-sp-ink);
 }
-.lt-ts-cta {
-  min-height: 64px;
-}
-.lt-ts .lt-ts-cta__btn {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 64px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  background: var(--lt-sp-green-deep);
-  color: #ffffff;
-  text-decoration: none;
-  text-align: center;
-}
-.lt-ts .lt-ts-cta__btn:hover,
-.lt-ts .lt-ts-cta__btn:focus-visible {
-  background: var(--lt-sp-green-dark);
-}
-.lt-ts-cta__main {
-  font-size: 1rem;
-  font-weight: 700;
-}
 /* The price line keeps its height before the clock-derived figure arrives. */
-.lt-ts-cta__price {
-  display: block;
-  min-height: 1.35em;
-  font-size: 0.85rem;
-  line-height: 1.35;
-}
-.lt-ts-cta__owner {
-  margin: 0;
-  min-height: 64px;
-  display: flex;
-  align-items: center;
-  font-weight: 600;
-  color: var(--lt-sp-green-dark);
-}
-.lt-ts .lt-ts-packs {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  margin-top: 6px;
-  font-weight: 600;
-}
 
 @media (min-width: 640px) {
   .lt-ts-list--mocks {
@@ -336,7 +298,98 @@
   .lt-ts-cal {
     grid-template-columns: repeat(4, 1fr);
   }
-  .lt-ts-cta {
-    max-width: 420px;
+}
+
+/* Offers: Test Series and Board Pass side by side (stacked on phones), the printed-papers card under them. */
+.lt-ts-offers {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.lt-ts .lt-ts-offer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 2px solid var(--lt-sp-line);
+  color: var(--lt-sp-ink);
+  text-decoration: none;
+}
+.lt-ts-offer--ts {
+  border-color: var(--lt-sp-green);
+}
+.lt-ts-offer--bp {
+  border-color: var(--lt-sp-navy-2);
+}
+.lt-ts .lt-ts-offer--packs {
+  background: var(--lt-sp-cream);
+  border-color: var(--lt-sp-amber-deep);
+}
+.lt-ts-offer__name {
+  margin: 0;
+  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+/* The price arrives after mount; its line is reserved. */
+.lt-ts-offer__price {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--lt-sp-green-deep);
+}
+.lt-ts-offer--bp .lt-ts-offer__price {
+  color: var(--lt-sp-navy-2);
+}
+.lt-ts-offer__list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 4px;
+  font-size: 0.88rem;
+  color: var(--lt-sp-ink-2);
+  flex: 1;
+}
+.lt-ts .lt-ts-offer__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--lt-sp-green-deep);
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
+.lt-ts .lt-ts-offer__btn--bp {
+  background: var(--lt-sp-navy);
+}
+.lt-ts .lt-ts-offer__btn:hover,
+.lt-ts .lt-ts-offer__btn:focus-visible {
+  filter: brightness(1.15);
+}
+.lt-ts-offer__owner {
+  margin: 0;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--lt-sp-green-dark);
+}
+.lt-ts-offer__packs {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--lt-sp-ink-2);
+}
+@media (min-width: 768px) {
+  .lt-ts-offers {
+    grid-template-columns: 1fr 1fr;
+  }
+  .lt-ts-offer--packs {
+    grid-column: 1 / -1;
   }
 }

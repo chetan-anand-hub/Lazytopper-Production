@@ -1,27 +1,49 @@
 /**
- * TEST-SERIES-1 (owner, 18 Nov 2026: "make the Board Pass be the test series") — the Pre-Boards Test Series: what the Board Pass
- * already contains, presented as numbered, fixed papers. PURE and light (no bank, no services), so the public /test-series page,
+ * TEST-SERIES-1 (owner, 18 Nov 2026; corrected 19:38 IST: the Test Series is its OWN product, not the Board Pass) — the Pre-Boards
+ * Test Series: the chapter tests and full mocks, presented as numbered, fixed papers. PURE and light (no bank, no services), so the public /test-series page,
  * the Chapter Test / Full Mock pages and the tests all read the same numbering.
  *
  *   Chapter Tests  one per board chapter, in syllabus order (BOARD_CHAPTER_KEYS): CT-M01..CT-M13, CT-S01..CT-S13.
  *                  A FIXED paper per chapter: drawChapterTest({ fixedSeed: "ts1:<topicKey>" }), served history ignored.
- *   Full Mocks     MOCKS_PER_SUBJECT per subject: FM-M1..FM-M8, FM-S1..FM-S8. Full Mock #n IS PDF Mock #n (drawPackMocks).
+ *   Full-Length    SERIES_MOCKS_PER_SUBJECT per subject: FM-M1..FM-M20, FM-S1..FM-S20, drawn by the pack's own mock draw; #1–8 ARE
+ *                  PDF Mocks #1–8 (drawPackMocks), #9+ continue the same seed scheme.
  *
- * Every count here is derived from code (the syllabus keys, MOCKS_PER_SUBJECT); nothing is typed. A sitting of a series paper is
+ * Every count here is derived from code (the syllabus keys, SERIES_MOCKS_PER_SUBJECT); nothing is typed. A sitting of a series paper is
  * recognised by its worksheet id (`ct-ts1-<topicKey>--…` / `fm-ts1-<m|s><n>--…`), which the session record keeps.
- * No price, no gate and no entitlement lives here.
+ * No gate and no entitlement lives here; the one price constant is TEST_SERIES_PRICE_INR (below).
  */
 import { BOARD_CHAPTER_KEYS, chapterUnit } from "../../config/syllabusUnits2026-27";
 import { desktopTopicBySlug } from "../desktop/topics";
 import { MOCKS_PER_SUBJECT } from "../packs/packLabels";
 
+/**
+ * Owner, 18 Nov 2026 19:47 IST ("we can easily create 40 full-length tests"): the series' Full-Length Tests per subject. ONE constant.
+ * Papers 1..MOCKS_PER_SUBJECT are the PDF Mock Pack's papers 1..8 (same seeds); 9+ continue the same seed scheme.
+ * Measured on the real bank (seriesMocks.guard.test.ts pins it): all 20 per subject meet the full blueprint (A 20x1, B 5x2, C 6x3,
+ * D 4x5, E 3x4 = 80, CBSE unit marks exact) with NO question repeated across the 20 papers in any section.
+ */
+export const SERIES_MOCKS_PER_SUBJECT = 20;
+/** Full-Length Tests 1..PACK_MATCHED_MOCKS are the same papers as the printed Mock Pack's mocks. */
+export const PACK_MATCHED_MOCKS = MOCKS_PER_SUBJECT;
+
 export const TEST_SERIES_PATH = "/test-series";
 export const TEST_SERIES_NAME = "Pre-Boards Test Series";
+/**
+ * OWNER CORRECTION 18 Nov 2026, 19:38 IST — the Test Series is its OWN product (not the Board Pass), ₹999 + GST till the boards.
+ * ★ THE ONE PRICE CONSTANT. TS-PACK-1 (the parallel lane that adds the `test_series` SKU) swaps this for the real pricing helper;
+ * every surface here reads it through `testSeriesPriceDisplay()`.
+ */
+export const TEST_SERIES_PRICE_INR = 999;
+export function testSeriesPriceDisplay(): string {
+  return `₹${TEST_SERIES_PRICE_INR.toLocaleString("en-IN")} + GST`;
+}
+/** Where "Get the Test Series" goes. TS-PACK-1 adds the `test_series` SKU; until then /packs simply opens. */
+export const TEST_SERIES_BUY_PATH = "/packs?buy=test_series";
 /** The series tag in seeds and worksheet ids. A new series (a re-numbered set of papers) would take a new tag. */
 export const SERIES_TAG = "ts1";
 /** `?series=1` on a Chapter Test URL opens the chapter's fixed series paper. */
 export const CT_SERIES_PARAM = "series";
-/** `?paper=<n>` on a Full Mock URL opens series Full Mock #n (= PDF Mock #n). */
+/** `?paper=<n>` on a Full Mock URL opens series Full-Length Test #n (#1–8 = PDF Mock #n). */
 export const FM_PAPER_PARAM = "paper";
 
 export type SeriesSubject = "Maths" | "Science";
@@ -88,11 +110,11 @@ export function seriesChapterTests(): SeriesChapterTest[] {
   return out;
 }
 
-/** The numbered Full Mocks: MOCKS_PER_SUBJECT per subject. */
+/** The numbered Full-Length Tests: SERIES_MOCKS_PER_SUBJECT per subject. */
 export function seriesFullMocks(): SeriesFullMock[] {
   const out: SeriesFullMock[] = [];
   for (const subject of SUBJECTS) {
-    for (let n = 1; n <= MOCKS_PER_SUBJECT; n += 1) {
+    for (let n = 1; n <= SERIES_MOCKS_PER_SUBJECT; n += 1) {
       out.push({ kind: "mock", code: `FM-${letter(subject)}${n}`, subject, n, href: fullMockSeriesHref(subject, n) });
     }
   }
@@ -117,14 +139,14 @@ export function seriesTotals(): SeriesTotals {
       Science: cts.filter((t) => t.subject === "Science").length,
     },
     fullMocks: mocks.length,
-    mocksPerSubject: MOCKS_PER_SUBJECT,
+    mocksPerSubject: SERIES_MOCKS_PER_SUBJECT,
     total: cts.length + mocks.length,
   };
 }
 
-/** "26 chapter tests + 16 full mocks" — counts from code. */
+/** "26 chapter tests + 40 full-length tests" — counts from code. */
 export function seriesContentsLine(t: SeriesTotals = seriesTotals()): string {
-  return `${t.chapterTests} chapter tests + ${t.fullMocks} full mocks`;
+  return `${t.chapterTests} chapter tests + ${t.fullMocks} full-length tests`;
 }
 
 /* ── URL params ──────────────────────────────────────────────────────────────── */
@@ -134,20 +156,25 @@ export function chapterTestSeriesSeed(topicKey: string): string {
   return `${SERIES_TAG}:${topicKey}`;
 }
 
-/** True when a Chapter Test URL asks for the series paper (`?series=1`) of a board chapter. */
-export function isChapterTestSeriesRequest(param: string | null, topicKey: string): boolean {
-  return param === "1" && seriesChapterTests().some((t) => t.topicKey === topicKey);
+/** Board chapter key (already canonical: the callers pass `resolveCanonicalSlug(...)`) -> its series test. */
+function chapterTestsByKey(): Map<string, SeriesChapterTest> {
+  return new Map(seriesChapterTests().map((t) => [t.topicKey, t] as const));
 }
 
-/** `?paper=<n>` → n when it names a series Full Mock (1..MOCKS_PER_SUBJECT), else null (the normal fresh mock). */
+/** True when a Chapter Test URL asks for the series paper (`?series=1`) of a board chapter. */
+export function isChapterTestSeriesRequest(param: string | null, topicKey: string): boolean {
+  return param === "1" && chapterTestsByKey().has(topicKey);
+}
+
+/** `?paper=<n>` → n when it names a series Full-Length Test (1..SERIES_MOCKS_PER_SUBJECT), else null (the normal fresh mock). */
 export function seriesMockNumber(param: string | null): number | null {
   if (!param || !/^\d{1,2}$/.test(param)) return null;
   const n = Number(param);
-  return n >= 1 && n <= MOCKS_PER_SUBJECT ? n : null;
+  return n >= 1 && n <= SERIES_MOCKS_PER_SUBJECT ? n : null;
 }
 
 export function seriesChapterTestOf(topicKey: string): SeriesChapterTest | null {
-  return seriesChapterTests().find((t) => t.topicKey === topicKey) ?? null;
+  return chapterTestsByKey().get(topicKey) ?? null;
 }
 
 /** "Test Series · Chapter Test 3 of 13 (CT-M03)". */
@@ -155,9 +182,9 @@ export function chapterTestSeriesLabel(t: SeriesChapterTest, totals: SeriesTotal
   return `Test Series · Chapter Test ${t.index} of ${totals.chapterTestsPerSubject[t.subject]} (${t.code})`;
 }
 
-/** "Test Series · Full Mock 3 of 8". */
+/** "Test Series · Full-Length Test 3 of 20". */
 export function fullMockSeriesLabel(n: number): string {
-  return `Test Series · Full Mock ${n} of ${MOCKS_PER_SUBJECT}`;
+  return `Test Series · Full-Length Test ${n} of ${SERIES_MOCKS_PER_SUBJECT}`;
 }
 
 /* ── Worksheet ids: how a sitting is recognised ─────────────────────────────── */
@@ -212,12 +239,12 @@ export interface SeriesProgress {
   /** Tests with at least one sitting (attempted or graded). */
   done: number;
   total: number;
-  /** Graded Full Mocks per subject, in paper order: the score trend. */
+  /** Graded Full-Length Tests per subject, in paper order: the score trend. */
   mockTrend: Record<SeriesSubject, Array<{ n: number; code: string; percent: number }>>;
 }
 
 function codeOfKey(key: SeriesKey): string | null {
-  if (key.kind === "mock") return key.n >= 1 && key.n <= MOCKS_PER_SUBJECT ? `FM-${letter(key.subject)}${key.n}` : null;
+  if (key.kind === "mock") return key.n >= 1 && key.n <= SERIES_MOCKS_PER_SUBJECT ? `FM-${letter(key.subject)}${key.n}` : null;
   return seriesChapterTestOf(key.topicKey)?.code ?? null;
 }
 
@@ -283,7 +310,7 @@ export function seriesSchedule(boardIso: string): SeriesScheduleRow[] | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(boardIso)) return null;
   const boardYear = Number(boardIso.slice(0, 4));
   const prev = boardYear - 1;
-  const half = Math.ceil(MOCKS_PER_SUBJECT / 2);
+  const half = Math.ceil(SERIES_MOCKS_PER_SUBJECT / 2);
   const totals = seriesTotals();
   return [
     {
@@ -298,7 +325,7 @@ export function seriesSchedule(boardIso: string): SeriesScheduleRow[] | null {
       id: "round1",
       when: `1 – 20 Dec ${prev}`,
       title: "Pre-board round 1",
-      body: `Full Mocks 1–${half} in Maths and Science.`,
+      body: `Full-Length Tests 1–${half} in Maths and Science.`,
       from: `${prev}-12-01`,
       to: `${prev}-12-20`,
     },
@@ -306,7 +333,7 @@ export function seriesSchedule(boardIso: string): SeriesScheduleRow[] | null {
       id: "round2",
       when: `January ${boardYear}`,
       title: "Pre-board round 2",
-      body: `Full Mocks ${half + 1}–${MOCKS_PER_SUBJECT} in Maths and Science.`,
+      body: `Full-Length Tests ${half + 1}–${SERIES_MOCKS_PER_SUBJECT} in Maths and Science.`,
       from: `${boardYear}-01-01`,
       to: `${boardYear}-01-31`,
     },
@@ -314,7 +341,7 @@ export function seriesSchedule(boardIso: string): SeriesScheduleRow[] | null {
       id: "final",
       when: `1 – 14 Feb ${boardYear}`,
       title: "Final revision",
-      body: `Re-attempt your two lowest mocks. Boards expected from ${longDate(boardIso)}.`,
+      body: `Re-attempt your two lowest full-length tests. Boards expected from ${longDate(boardIso)}.`,
       from: `${boardYear}-02-01`,
       to: `${boardYear}-02-14`,
     },

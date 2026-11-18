@@ -4,8 +4,11 @@ import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
 import { getSessionRecordsFromCloud } from "../services/sessionRecords";
 import { predictCbseExamDate } from "../services/cbseExamDate";
+import { boardPassPriceDisplay } from "../config/pricing";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import {
+  PACK_MATCHED_MOCKS,
+  TEST_SERIES_BUY_PATH,
   TEST_SERIES_NAME,
   TEST_SERIES_PATH,
   currentScheduleRow,
@@ -15,26 +18,29 @@ import {
   seriesProgress,
   seriesSchedule,
   seriesTotals,
+  testSeriesPriceDisplay,
   type SeriesProgress,
   type SeriesScheduleRow,
   type SeriesSubject,
   type SeriesTestProgress,
 } from "../lib/testSeries/testSeries";
-import { testSeriesPriceLine } from "../lib/testSeries/testSeriesPrice";
 import "../components/salesPages/salesPages.css";
 import "./testSeriesPage.css";
 
 /**
- * TEST-SERIES-1 (owner, 18 Nov 2026) — /test-series: the Board Pass's chapter tests and full mocks as a numbered Pre-Boards Test
- * Series. Public sales page; every count comes from lib/testSeries (the syllabus keys and MOCKS_PER_SUBJECT). Progress is read from
+ * TEST-SERIES-1 (owner, 18 Nov 2026; corrected 19:38 IST: the Test Series is its OWN product) — /test-series: the chapter tests
+ * and full mocks as a numbered Pre-Boards Test Series. Public sales page; every count comes from lib/testSeries (the syllabus keys and MOCKS_PER_SUBJECT). Progress is read from
  * the student's REAL session records (signed in only); signed out sees the series and a sign-in prompt, never invented progress.
- * Nothing here gates, prices or grants anything: taking a test follows the Chapter Test / Full Mock pages' own rules.
+ * Nothing here gates or grants anything: taking a test follows the Chapter Test / Full Mock pages' own rules. The price is the ONE
+ * constant in lib/testSeries (TS-PACK-1 replaces it with the real pricing helper and the `test_series` SKU).
  *
  * Layout stability (CLS 0): the price, the progress line, the status chips and the trend box all have reserved slots, so what arrives
  * after mount (the clock-derived price, auth, records) changes text inside fixed boxes and moves nothing.
  */
 
 const SUBJECTS: readonly SeriesSubject[] = ["Maths", "Science"];
+/** Owner ruling 18 Nov 2026, 19:31 IST — said plainly on the page. */
+export const TEST_SERIES_ACCESS_LINE = "MCQs marked free · written answers checked with the Test Series or the Board Pass";
 const LOGIN_HREF = `/login?redirect=${encodeURIComponent(TEST_SERIES_PATH)}`;
 
 function istToday(now: Date): string {
@@ -82,11 +88,11 @@ function MockTrend({ load }: { load: Load }) {
   if (load.state !== "ready") {
     body = (
       <p className="lt-ts-trend__empty">
-        {load.state === "signed-out" ? "Sign in and take a full mock to see your score trend here." : "Loading your scores…"}
+        {load.state === "signed-out" ? "Sign in and take a full-length test to see your score trend here." : "Loading your scores…"}
       </p>
     );
   } else if (SUBJECTS.every((s) => load.progress.mockTrend[s].length === 0)) {
-    body = <p className="lt-ts-trend__empty">Your score trend appears here once a full mock is graded.</p>;
+    body = <p className="lt-ts-trend__empty">Your score trend appears here once a full-length test is graded.</p>;
   } else {
     body = (
       <div className="lt-ts-trend__rows">
@@ -95,7 +101,7 @@ function MockTrend({ load }: { load: Load }) {
             <span className="lt-ts-trend__subj">{s}</span>
             <span className="lt-ts-trend__bars">
               {load.progress.mockTrend[s].length === 0 ? (
-                <span className="lt-ts-trend__none">No graded mock yet</span>
+                <span className="lt-ts-trend__none">No graded test yet</span>
               ) : (
                 load.progress.mockTrend[s].map((t) => (
                   <span key={t.code} className="lt-ts-trend__bar" title={`${t.code}: ${t.percent}%`}>
@@ -114,7 +120,7 @@ function MockTrend({ load }: { load: Load }) {
   }
   return (
     <div className="lt-ts-trend" data-testid="ts-trend">
-      <p className="lt-ts-trend__title">Your full mock score trend</p>
+      <p className="lt-ts-trend__title">Your full-length test score trend</p>
       {body}
     </div>
   );
@@ -129,13 +135,15 @@ export default function TestSeriesPage() {
   const mocks = useMemo(() => seriesFullMocks(), []);
   const schedule = useMemo(() => seriesSchedule(predictCbseExamDate("10")), []);
 
-  // After mount only: today's schedule row and the date-driven price (the prerender carries neither).
+  // After mount only: today's schedule row and the prices (the prerender carries none: every price node is stripped at capture).
   const [current, setCurrent] = useState<SeriesScheduleRow["id"] | null>(null);
-  const [price, setPrice] = useState<string | null>(null);
+  const [prices, setPrices] = useState<{ ts: string; bp: string } | null>(null);
   useEffect(() => {
     const now = new Date();
     if (schedule) setCurrent(currentScheduleRow(schedule, istToday(now)));
-    setPrice(testSeriesPriceLine(now));
+    // The Test Series price is ONE constant in lib/testSeries (TS-PACK-1 swaps in the pricing helper); the Board Pass price is
+    // date-driven (founding price till 30 Nov, list price from 1 Dec).
+    setPrices({ ts: `${testSeriesPriceDisplay()} till your boards`, bp: `${boardPassPriceDisplay(now)} till your boards` });
   }, [schedule]);
 
   const [load, setLoad] = useState<Load>({ state: "signed-out" });
@@ -162,6 +170,20 @@ export default function TestSeriesPage() {
   const progress = load.state === "ready" ? load.progress : null;
   const holdsPremium = signedIn && subscription.hydrated && subscription.status.tier === "premium";
 
+  const testList = (list: Array<{ code: string; href: string; name: string }>, testId: string, compact = false) => (
+    <ul className={`lt-ts-list${compact ? " lt-ts-list--mocks" : ""}`} data-testid={testId}>
+      {list.map((t) => (
+        <li key={t.code}>
+          <Link className="lt-ts-item" to={t.href} data-testid={`ts-test-${t.code}`}>
+            <span className="lt-ts-item__code">{t.code}</span>
+            <span className="lt-ts-item__name">{t.name}</span>
+            <StatusChip p={progress?.byCode[t.code]} signedIn={Boolean(progress)} />
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+
   return (
     <>
       <main className="lt-sp lt-ts" aria-label={`LazyTopper ${TEST_SERIES_NAME}`}>
@@ -173,7 +195,10 @@ export default function TestSeriesPage() {
             </h1>
             <p className="lt-ts-hero__lede" data-testid="ts-contents">
               <strong>{seriesContentsLine(totals)}</strong>, numbered and fixed: every student sits the same paper, so your score
-              means something. Every test is open today.
+              means something.
+            </p>
+            <p className="lt-ts-hero__rule" data-testid="ts-rule">
+              {TEST_SERIES_ACCESS_LINE}
             </p>
             <div className="lt-ts-progress" data-testid="ts-progress">
               {load.state === "signed-out" ? (
@@ -181,7 +206,7 @@ export default function TestSeriesPage() {
                   <Link to={LOGIN_HREF} data-testid="ts-signin">
                     Sign in
                   </Link>{" "}
-                  to track your progress through all {totals.total} tests.
+                  to take a test and track your progress through all {totals.total}.
                 </p>
               ) : progress ? (
                 <p data-testid="ts-done">
@@ -197,6 +222,51 @@ export default function TestSeriesPage() {
           </div>
         </section>
 
+        <section className="lt-sp__w" aria-labelledby="ts-offers-h">
+          <h2 id="ts-offers-h" className="lt-sp-h2">
+            Take all {totals.total} tests
+          </h2>
+          <p className="lt-sp-lede">Free and trial accounts can take one test, with its MCQs marked. Pick the plan that fits you.</p>
+          <div className="lt-ts-offers" data-testid="ts-offers">
+            <div className="lt-ts-offer lt-ts-offer--ts" data-testid="ts-offer-ts">
+              <p className="lt-ts-offer__name">Test Series</p>
+              <p className="lt-ts-offer__price">{prices && <span data-testid="till-boards-figures">{prices.ts}</span>}</p>
+              <ul className="lt-ts-offer__list">
+                <li>All {totals.total} tests: {seriesContentsLine(totals)}</li>
+                <li>Every written answer checked step by step, like a CBSE examiner</li>
+                <li>Full scorecard and your graded answer sheet, step by step, on screen</li>
+                <li>Download and print every paper</li>
+              </ul>
+              {holdsPremium ? (
+                <p className="lt-ts-offer__owner" data-testid="ts-cta-owner">
+                  Your Board Pass already includes every test.
+                </p>
+              ) : (
+                <Link className="lt-ts-offer__btn" to={TEST_SERIES_BUY_PATH} data-testid="ts-cta-buy">
+                  Get the Test Series →
+                </Link>
+              )}
+            </div>
+            <div className="lt-ts-offer lt-ts-offer--bp" data-testid="ts-offer-bp">
+              <p className="lt-ts-offer__name">Board Pass</p>
+              <p className="lt-ts-offer__price">{prices && <span data-testid="till-boards-figures">{prices.bp}</span>}</p>
+              <ul className="lt-ts-offer__list">
+                <li>Everything in the Test Series</li>
+                <li>Every answer checked everywhere (Answer Checker, worksheets)</li>
+                <li>Your personal tutor</li>
+                <li>Mistake Intelligence</li>
+              </ul>
+              <Link className="lt-ts-offer__btn lt-ts-offer__btn--bp" to="/board-pass" data-testid="ts-bp-link">
+                {holdsPremium ? "Your Board Pass →" : "See the Board Pass →"}
+              </Link>
+            </div>
+            <Link className="lt-ts-offer lt-ts-offer--packs" to="/packs" data-testid="ts-packs">
+              <p className="lt-ts-offer__name">Prefer printed papers?</p>
+              <p className="lt-ts-offer__packs">PDF Packs / Bundle: chapter, mock and subject papers to print, with answer explanations →</p>
+            </Link>
+          </div>
+        </section>
+
         {schedule && (
           <section className="lt-sp__w" aria-labelledby="ts-cal-h">
             <h2 id="ts-cal-h" className="lt-sp-h2">
@@ -207,38 +277,7 @@ export default function TestSeriesPage() {
           </section>
         )}
 
-        <section className="lt-sp__w" aria-labelledby="ts-fm-h">
-          <h2 id="ts-fm-h" className="lt-sp-h2">
-            Full Mocks ({totals.fullMocks})
-          </h2>
-          <p className="lt-sp-lede">
-            Full board-pattern papers, {totals.mocksPerSubject} per subject, 3 hours each. Each one is the same paper as the matching
-            mock in the printed Mock Pack.
-          </p>
-          <div className="lt-ts-grid">
-            {SUBJECTS.map((s) => (
-              <div key={s} className="lt-ts-col">
-                <h3 className="lt-ts-col__h">{s}</h3>
-                <ul className="lt-ts-list lt-ts-list--mocks" data-testid={`ts-mocks-${s}`}>
-                  {mocks
-                    .filter((m) => m.subject === s)
-                    .map((m) => (
-                      <li key={m.code}>
-                        <Link className="lt-ts-item" to={m.href} data-testid={`ts-test-${m.code}`}>
-                          <span className="lt-ts-item__code">{m.code}</span>
-                          <span className="lt-ts-item__name">Full Mock {m.n}</span>
-                          <StatusChip p={progress?.byCode[m.code]} signedIn={Boolean(progress)} />
-                        </Link>
-                      </li>
-                    ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <MockTrend load={load} />
-        </section>
-
-        <section className="lt-sp__w" aria-labelledby="ts-ct-h">
+        <section className="lt-sp__w lt-ts-sec" aria-labelledby="ts-ct-h" data-testid="ts-sec-chapter">
           <h2 id="ts-ct-h" className="lt-sp-h2">
             Chapter Tests ({totals.chapterTests})
           </h2>
@@ -249,22 +288,38 @@ export default function TestSeriesPage() {
                 <h3 className="lt-ts-col__h">
                   {s} ({totals.chapterTestsPerSubject[s]})
                 </h3>
-                <ul className="lt-ts-list" data-testid={`ts-chapters-${s}`}>
-                  {chapters
-                    .filter((c) => c.subject === s)
-                    .map((c) => (
-                      <li key={c.code}>
-                        <Link className="lt-ts-item" to={c.href} data-testid={`ts-test-${c.code}`}>
-                          <span className="lt-ts-item__code">{c.code}</span>
-                          <span className="lt-ts-item__name">{c.label}</span>
-                          <StatusChip p={progress?.byCode[c.code]} signedIn={Boolean(progress)} />
-                        </Link>
-                      </li>
-                    ))}
-                </ul>
+                {testList(
+                  chapters.filter((c) => c.subject === s).map((c) => ({ code: c.code, href: c.href, name: c.label })),
+                  `ts-chapters-${s}`,
+                )}
               </div>
             ))}
           </div>
+        </section>
+
+        <section className="lt-sp__w lt-ts-sec" aria-labelledby="ts-fm-h" data-testid="ts-sec-full">
+          <h2 id="ts-fm-h" className="lt-sp-h2">
+            Full-Length Tests ({totals.fullMocks})
+          </h2>
+          <p className="lt-sp-lede">
+            Full board-pattern papers (80 marks, 3 hours), {totals.mocksPerSubject} per subject. Tests 1–{PACK_MATCHED_MOCKS} are the
+            same papers as Mocks 1–{PACK_MATCHED_MOCKS} in the printed Mock Pack.
+          </p>
+          <div className="lt-ts-grid">
+            {SUBJECTS.map((s) => (
+              <div key={s} className="lt-ts-col">
+                <h3 className="lt-ts-col__h">
+                  {s} ({totals.mocksPerSubject})
+                </h3>
+                {testList(
+                  mocks.filter((m) => m.subject === s).map((m) => ({ code: m.code, href: m.href, name: `Full-Length Test ${m.n}` })),
+                  `ts-mocks-${s}`,
+                  true,
+                )}
+              </div>
+            ))}
+          </div>
+          <MockTrend load={load} />
         </section>
 
         <section className="lt-sp__w" aria-labelledby="ts-how-h">
@@ -273,28 +328,13 @@ export default function TestSeriesPage() {
               How your tests are marked
             </h2>
             <ul className="lt-ts-how__list">
-              <li>Section A (objective) is marked the moment you submit, on every account.</li>
+              <li>Section A (the MCQs) is marked the moment you submit, free on every account.</li>
               <li>
-                Sections B to D (and E in full mocks): write on paper and upload a photo. <strong>Board Pass checks every written answer
-                step by step</strong>, like a CBSE examiner, and shows where each mark was lost.
+                Sections B to D (and E in full-length tests): write on paper and upload a photo. <strong>The Test Series checks every
+                written answer step by step</strong>, like a CBSE examiner, and shows where each mark was lost.
               </li>
-              <li>Every new account starts with a 7-day free trial.</li>
+              <li>Downloading and printing these papers comes with the Test Series and the Board Pass.</li>
             </ul>
-            <div className="lt-ts-cta" data-testid="ts-cta">
-              {holdsPremium ? (
-                <p className="lt-ts-cta__owner" data-testid="ts-cta-owner">
-                  Your plan checks every written answer. Pick a test above and start.
-                </p>
-              ) : (
-                <Link className="lt-ts-cta__btn" to="/board-pass" data-testid="ts-cta-bp">
-                  <span className="lt-ts-cta__main">Get the Board Pass →</span>
-                  <span className="lt-ts-cta__price">{price && <span data-testid="till-boards-figures">{price}</span>}</span>
-                </Link>
-              )}
-            </div>
-            <Link className="lt-ts-packs" to="/packs" data-testid="ts-packs">
-              Prefer printed papers? Mock Pack / Bundle →
-            </Link>
           </div>
         </section>
       </main>

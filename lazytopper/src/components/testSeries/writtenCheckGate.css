@@ -1,0 +1,95 @@
+/* TEST-SERIES-1 - the Board Pass ask in place of the written-answer upload (Chapter Test, Full Mock). Navy text, green action. */
+.lt-wcg {
+  margin: 12px 0;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f1f8f4;
+  border: 1px solid #bfe5cf;
+}
+.lt-wcg__line {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  font-weight: 600;
+  color: #15233a;
+}
+.lt-wcg__btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 60px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: #0e7c47;
+  color: #ffffff;
+  text-align: center;
+  text-decoration: none;
+}
+.lt-wcg__btn:hover,
+.lt-wcg__btn:focus-visible {
+  background: #0a5c35;
+  color: #ffffff;
+}
+.lt-wcg__main {
+  font-weight: 700;
+}
+/* Keeps its line before the clock-derived price arrives, so nothing moves. */
+.lt-wcg__price {
+  display: block;
+  min-height: 1.35em;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+.lt-wcg__dl {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0e7c47;
+}
+.lt-wcg__offers {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+@media (min-width: 560px) {
+  .lt-wcg__offers {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* The tutor wall: a dialog over the scorecard (which is itself an overlay). */
+.lt-wcg-tutor {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(11, 27, 58, 0.55);
+}
+.lt-wcg-tutor__card {
+  width: 100%;
+  max-width: 380px;
+  padding: 18px;
+  border-radius: 14px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lt-wcg-tutor__sub {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #3d4a5f;
+}
+.lt-wcg-tutor__close {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: #3d4a5f;
+  font-weight: 600;
+  cursor: pointer;
+}

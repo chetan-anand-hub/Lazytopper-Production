@@ -2,7 +2,7 @@
  * TEST-SERIES-1 — the series papers are FIXED (real bank):
  *   - Chapter Test: the fixedSeed draw is the same paper twice, ignores served history, and differs from the default fresh draw;
  *     the default (no fixedSeed) behaviour is unchanged (seeded draws, served history still preferred away from).
- *   - Full Mock #n is PDF Mock #n: the same question ids, in the same order.
+ *   - Full-Length Test #n is the pack draw's paper n (#1–8 = PDF Mock #n): the same question ids, in the same order.
  */
 import { describe, expect, it } from "vitest";
 import { drawChapterTest } from "../../components/chaptertest/chapterTestBlueprint";
@@ -10,7 +10,7 @@ import { loadChapter, loadSubjectBank } from "../packs/packContent";
 import { drawPackMocks } from "../packs/buildPackFiles";
 import { MOCKS_PER_SUBJECT } from "../packs/packLabels";
 import { drawSeriesFullMock } from "./seriesFullMock";
-import { chapterTestSeriesSeed, seriesKeyOfWorksheetId, seriesMockWorksheetId } from "./testSeries";
+import { SERIES_MOCKS_PER_SUBJECT, chapterTestSeriesSeed, seriesKeyOfWorksheetId, seriesMockWorksheetId } from "./testSeries";
 
 const ids = (p: { paper: { questions: ReadonlyArray<{ id: string }> } }) => p.paper.questions.map((q) => q.id);
 
@@ -48,16 +48,17 @@ describe("Chapter Test fixed paper", () => {
   }, 60_000);
 });
 
-describe("Full Mock #n === PDF Mock #n", () => {
+describe("Full-Length Test #n === the pack draw's paper n (#1–8 = PDF Mock #n)", () => {
   it.each([
     ["Maths", 1],
     ["Maths", 3],
     ["Science", 2],
     ["Science", MOCKS_PER_SUBJECT],
-  ] as const)("%s Full Mock %i has the PDF's question ids", async (subject, n) => {
+    ["Maths", SERIES_MOCKS_PER_SUBJECT],
+  ] as const)("%s Full-Length Test %i has the pack draw's question ids", async (subject, n) => {
     const pack = subject === "Maths" ? "maths" : "science";
     await loadSubjectBank(pack);
-    const pdf = drawPackMocks(pack).find((p) => p.n === n);
+    const pdf = drawPackMocks(pack, n).find((p) => p.n === n);
     expect(pdf, "the PDF paper exists").toBeTruthy();
     const worksheetId = seriesMockWorksheetId("fm-abc-def", subject, n);
     const online = drawSeriesFullMock(subject, n, { worksheetId, code: "FM-M-#01", name: "Maths Full Mock #01", createdAt: "2026-01-01T00:00:00.000Z" });
@@ -77,5 +78,8 @@ describe("Full Mock #n === PDF Mock #n", () => {
     const first2 = drawPackMocks("maths", 2);
     expect(first2.map((p) => p.n)).toEqual([1, 2]);
     expect(first2.map((p) => ids(p.drawn))).toEqual(all.slice(0, 2).map((p) => ids(p.drawn)));
+    // Going past the pack's 8 leaves papers 1..8 untouched.
+    const ten = drawPackMocks("maths", 10);
+    expect(ten.slice(0, MOCKS_PER_SUBJECT).map((p) => ids(p.drawn))).toEqual(all.map((p) => ids(p.drawn)));
   }, 120_000);
 });

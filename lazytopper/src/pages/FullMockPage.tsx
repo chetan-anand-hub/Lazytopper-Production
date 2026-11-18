@@ -167,7 +167,9 @@ import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
+import { DownloadWithPlanLink, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesPaperAccess } from "../components/testSeries/WrittenCheckGate";
+import { countTestsTaken, seriesStartDecision } from "../lib/testSeries/seriesAccess";
+import { FM_PAPER_PARAM, PACK_MATCHED_MOCKS, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
 type Phase = "setup" | "taking" | "results" | "pick";
@@ -243,6 +245,12 @@ export default function FullMockPage() {
   const fairUse = useFairUse("full-mock", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live (see ChapterTestPage).
   const { isPremium } = useSubscription();
+  // TEST-SERIES-1 (owner ruling 18 Nov 19:31 IST) — written-answer checking and the paper download need the Test Series or the Board Pass here.
+  const seriesPaperAccess = useSeriesPaperAccess();
+  // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
+  const boardPassHolder = useBoardPassHolder();
+  const [startWall, setStartWall] = useState(false);
+  const [tutorWall, setTutorWall] = useState(false);
   const sessionUid = user?.uid ?? null;
   const backTo = "/practice-hub";
 
@@ -727,6 +735,16 @@ export default function FullMockPage() {
     // FAIR-USE-UI-1 (UI3): this week's mock already used -> the panel, not the paper.
     // A RESUME is not a start and is never blocked.
     if (fairUse.blockPaperStart()) return;
+    // TEST-SERIES-1 (owner 19:44 IST): a free / trial account takes ONE test in total; signed out signs in first.
+    const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records) });
+    if (startDecision === "sign-in") {
+      navigate(`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`);
+      return;
+    }
+    if (startDecision === "upgrade") {
+      setStartWall(true);
+      return;
+    }
     // CT-RESUME-2: a visit let through as a RESUME of a saved mock was not counted. Starting a NEW
     // mock instead is counted now — or refused when today's papers are used up.
     if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
@@ -758,7 +776,7 @@ export default function FullMockPage() {
     });
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
-  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, user?.uid, isPremium, inProgress]);
+  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, isSignedIn, records, navigate]);
 
   const resumeMock = useCallback(() => {
     const s = inProgress ?? findInProgressSession(sessionUid);
@@ -1036,6 +1054,11 @@ export default function FullMockPage() {
         if (!hop) return null;
         return {
           onAsk: () => {
+            // TEST-SERIES-1 (owner 19:44 IST): the tutor is the Board Pass's; anyone else sees the wall (client only).
+            if (!boardPassHolder) {
+              setTutorWall(true);
+              return;
+            }
             trackOnboardingEvent("tutor_from_scorecard", { surface: "full_mock" });
             // CI-TUTOR-RETURN-1 - name THIS saved paper on the entry we leave, so browser Back (not just the tutor's arrow) reopens it.
             navigate(withScorecardReviewParam(location.pathname + searchWithoutReview(location.search), record.id), { replace: true });
@@ -1053,7 +1076,7 @@ export default function FullMockPage() {
           },
         };
       },
-    [reviewUid, navigate, subject, grade, location.pathname, location.search],
+    [reviewUid, navigate, subject, grade, location.pathname, location.search, boardPassHolder],
   );
 
   // The tutor's back arrow: `review=<record id>` reopens that saved mock ONCE (read-only, through
@@ -1145,7 +1168,7 @@ export default function FullMockPage() {
   // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED). A paper + its solutions share one key.
   const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
   const downloadPaper = useCallback(async () => {
-    if (!paperForExport || downloading) return;
+    if (!paperForExport || downloading || !seriesPaperAccess) return;
     // CT-RESUME-2: downloading the NEW draw (not the mock being sat) is a new paper.
     if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
@@ -1212,7 +1235,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress, guardDownload]);
+  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress, guardDownload, seriesPaperAccess]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded mock's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1418,6 +1441,7 @@ export default function FullMockPage() {
       <style>{FM_CSS}</style>
       <UsageWarning scope="full-mock" snapshot={fairUse.snapshot} />
       {downloadWall}
+      {tutorWall && <TutorBoardPassWall onClose={() => setTutorWall(false)} />}
       {paperNotice && (
         <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="paper-notice">
           {paperNotice}
@@ -1436,7 +1460,7 @@ export default function FullMockPage() {
             }),
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
-            ...(reopenSheetOpen && hasStoredPaperSheet(reopen.response)
+            ...(seriesPaperAccess && reopenSheetOpen && hasStoredPaperSheet(reopen.response)
               ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
               : {}),
             onDone: () => setReopen(null),
@@ -1647,16 +1671,21 @@ export default function FullMockPage() {
                       <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={startTest}>
                         Start the mock →
                       </button>
-                      <button
-                        type="button"
-                        className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
-                        onClick={downloadPaper}
-                        disabled={downloading}
-                      >
-                        {downloading ? "Preparing…" : "⤓ Download this paper (PDF) — recommended for a 3-hour sitting"}
-                      </button>
+                      {seriesPaperAccess ? (
+                        <button
+                          type="button"
+                          className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
+                          onClick={downloadPaper}
+                          disabled={downloading}
+                        >
+                          {downloading ? "Preparing…" : "⤓ Download this paper (PDF) — recommended for a 3-hour sitting"}
+                        </button>
+                      ) : (
+                        <DownloadWithPlanLink />
+                      )}
                       <LimitChip />
                     </div>
+                    {startWall && <SeriesStartWall />}
 
                     {downloadedNote && (
                       <PaperDownloadedNote
@@ -1693,7 +1722,8 @@ export default function FullMockPage() {
                         {seriesActive ? (
                           // TEST-SERIES-1 — a fixed paper: not a fresh draw, so no freshness claim.
                           <span data-testid="fm-series-line">
-                            <b>A Test Series paper</b> — every student gets the same {subject} Full Mock {seriesN}, also the printed Mock {seriesN}.
+                            <b>A Test Series paper</b> — every student gets the same {subject} Full-Length Test {seriesN}
+                            {seriesN && seriesN <= PACK_MATCHED_MOCKS ? ` (also Mock ${seriesN} in the printed Mock Pack)` : ""}.
                           </span>
                         ) : draw && draw.repeatCount > 0 ? (
                           // FRESH-SET-TESTS — the honest line when a section's unseen pool ran out.
@@ -1992,7 +2022,16 @@ export default function FullMockPage() {
               busy={grading}
             />
           )}
-          {resultsPhase === "partial" ? (
+          {resultsPhase === "partial" && !seriesPaperAccess ? (
+            <WrittenCheckUpgradeCard
+              eyebrow="Full Mock · Result"
+              name={activeMock.name}
+              code={activeMock.code}
+              objective={{ awarded: objective.awarded, total: objective.total }}
+              sectionsLabel="Sections B–E"
+              onDone={() => setPhase("setup")}
+            />
+          ) : resultsPhase === "partial" ? (
             <ChapterTestUploadPanel
               eyebrow="Full Mock · Result"
               sectionsLabel="Sections B–E"
@@ -2023,7 +2062,7 @@ export default function FullMockPage() {
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
                   </button>
-                  {gradedSheetOpen && (
+                  {seriesPaperAccess && gradedSheetOpen && (
                   <button
                     type="button"
                     className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -2033,6 +2072,7 @@ export default function FullMockPage() {
                     {downloading ? "Preparing…" : "⤓ Graded sheet"}
                   </button>
                   )}
+                  {seriesPaperAccess && (
                   <button
                     type="button"
                     className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -2041,6 +2081,7 @@ export default function FullMockPage() {
                   >
                     ⤓ Solution key
                   </button>
+                  )}
                 </div>
                 <div className="lt-ct__honest">
                   <span>·</span>
@@ -2104,14 +2145,19 @@ export default function FullMockPage() {
                   setScorecardOpen(false);
                   practiseWorstChapter();
                 },
-                onDownloadGraded: () => {
-                  setScorecardOpen(false);
-                  void downloadGraded();
-                },
-                onDownloadSolution: () => {
-                  setScorecardOpen(false);
-                  void downloadSolution();
-                },
+                // TEST-SERIES-1: the PDFs are for a Test Series / Board Pass holder.
+                ...(seriesPaperAccess
+                  ? {
+                      onDownloadGraded: () => {
+                        setScorecardOpen(false);
+                        void downloadGraded();
+                      },
+                      onDownloadSolution: () => {
+                        setScorecardOpen(false);
+                        void downloadSolution();
+                      },
+                    }
+                  : {}),
               }), worstChapterPractice().target), fullResponse, liveTutorAskFor), sessionSubject)}
               onClose={() => setScorecardOpen(false)}
             />

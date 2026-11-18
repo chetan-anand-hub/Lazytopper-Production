@@ -1,12 +1,11 @@
 /**
  * TEST-SERIES-1 — the series numbering, ids, progress and schedule. Every count is checked against its SOURCE (the syllabus keys,
- * MOCKS_PER_SUBJECT), never against a typed figure alone.
+ * SERIES_MOCKS_PER_SUBJECT), never against a typed figure alone.
  */
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { BOARD_CHAPTER_KEYS, chapterUnit } from "../../config/syllabusUnits2026-27";
-import { MOCKS_PER_SUBJECT } from "../packs/packLabels";
 import {
   chapterTestSeriesSeed,
   currentScheduleRow,
@@ -21,12 +20,14 @@ import {
   seriesProgress,
   seriesSchedule,
   seriesTotals,
+  testSeriesPriceDisplay,
+  SERIES_MOCKS_PER_SUBJECT,
+  TEST_SERIES_PRICE_INR,
   type SeriesRecordLike,
 } from "./testSeries";
-import { testSeriesPriceLine } from "./testSeriesPrice";
-import { boardPassPriceDisplay } from "../../config/pricing";
+import { canCheckSeriesPapers, countTestsTaken, seriesStartDecision, FREE_TESTS_ALLOWED } from "./seriesAccess";
 
-describe("numbering — derived from the syllabus and MOCKS_PER_SUBJECT", () => {
+describe("numbering — derived from the syllabus and SERIES_MOCKS_PER_SUBJECT", () => {
   it("one chapter test per board chapter, Maths then Science, in syllabus order", () => {
     const cts = seriesChapterTests();
     expect(cts.map((c) => c.topicKey)).toEqual(
@@ -41,28 +42,28 @@ describe("numbering — derived from the syllabus and MOCKS_PER_SUBJECT", () => 
     expect(new Set(cts.map((c) => c.code)).size).toBe(cts.length);
     expect(cts.every((c) => c.label && c.label !== c.topicKey)).toBe(true);
   });
-  it("MOCKS_PER_SUBJECT full mocks per subject; totals add up", () => {
+  it("SERIES_MOCKS_PER_SUBJECT full mocks per subject; totals add up", () => {
     const mocks = seriesFullMocks();
-    expect(mocks.length).toBe(2 * MOCKS_PER_SUBJECT);
+    expect(mocks.length).toBe(2 * SERIES_MOCKS_PER_SUBJECT);
     expect(mocks[0]).toMatchObject({ code: "FM-M1", n: 1, href: "/full-mock/10/Maths?paper=1" });
-    expect(mocks[mocks.length - 1].code).toBe(`FM-S${MOCKS_PER_SUBJECT}`);
+    expect(mocks[mocks.length - 1].code).toBe(`FM-S${SERIES_MOCKS_PER_SUBJECT}`);
     const t = seriesTotals();
-    expect(t.total).toBe(BOARD_CHAPTER_KEYS.length + 2 * MOCKS_PER_SUBJECT);
-    expect(seriesContentsLine(t)).toBe(`${BOARD_CHAPTER_KEYS.length} chapter tests + ${2 * MOCKS_PER_SUBJECT} full mocks`);
+    expect(t.total).toBe(BOARD_CHAPTER_KEYS.length + 2 * SERIES_MOCKS_PER_SUBJECT);
+    expect(seriesContentsLine(t)).toBe(`${BOARD_CHAPTER_KEYS.length} chapter tests + ${2 * SERIES_MOCKS_PER_SUBJECT} full-length tests`);
   });
   it("llms.txt's line states the same counts", () => {
     const llms = readFileSync(resolve(__dirname, "../../../public/llms.txt"), "utf8");
     const line = llms.split("\n").find((l) => l.includes("/test-series"));
     const t = seriesTotals();
-    expect(line).toContain(`${t.chapterTests} numbered chapter tests and ${t.fullMocks} full board-pattern mocks`);
+    expect(line).toContain(`${t.chapterTests} numbered chapter tests and ${t.fullMocks} full-length board-pattern tests`);
   });
 });
 
 describe("URL params and ids", () => {
-  it("?paper=n is 1..MOCKS_PER_SUBJECT only", () => {
+  it("?paper=n is 1..SERIES_MOCKS_PER_SUBJECT only", () => {
     expect(seriesMockNumber("3")).toBe(3);
-    expect(seriesMockNumber(String(MOCKS_PER_SUBJECT))).toBe(MOCKS_PER_SUBJECT);
-    for (const bad of [null, "", "0", String(MOCKS_PER_SUBJECT + 1), "-1", "2.5", "abc", "1e1"]) expect(seriesMockNumber(bad)).toBeNull();
+    expect(seriesMockNumber(String(SERIES_MOCKS_PER_SUBJECT))).toBe(SERIES_MOCKS_PER_SUBJECT);
+    for (const bad of [null, "", "0", String(SERIES_MOCKS_PER_SUBJECT + 1), "-1", "2.5", "abc", "1e1"]) expect(seriesMockNumber(bad)).toBeNull();
   });
   it("?series=1 only for a board chapter", () => {
     expect(isChapterTestSeriesRequest("1", "polynomials")).toBe(true);
@@ -135,7 +136,7 @@ describe("schedule — from the predicted board date", () => {
   it("years follow the board year; the board date is the prediction, never invented", () => {
     const rows = seriesSchedule("2027-02-17");
     expect(rows?.map((r) => r.when)).toEqual(["Now – 30 Nov", "1 – 20 Dec 2026", "January 2027", "1 – 14 Feb 2027"]);
-    expect(rows?.[1].body).toBe(`Full Mocks 1–${Math.ceil(MOCKS_PER_SUBJECT / 2)} in Maths and Science.`);
+    expect(rows?.[1].body).toBe(`Full-Length Tests 1–${Math.ceil(SERIES_MOCKS_PER_SUBJECT / 2)} in Maths and Science.`);
     expect(rows?.[3].body).toContain("Boards expected from 17 Feb 2027");
     expect(seriesSchedule("not a date")).toBeNull();
   });
@@ -149,12 +150,27 @@ describe("schedule — from the predicted board date", () => {
   });
 });
 
-describe("CTA price — the Board Pass's own date-driven helper", () => {
-  it("founding price before 1 Dec, list price from 00:00 IST 1 Dec", () => {
-    const before = new Date("2026-11-30T23:59:00+05:30");
-    const after = new Date("2026-12-01T00:00:00+05:30");
-    expect(testSeriesPriceLine(before)).toBe(`${boardPassPriceDisplay(before)} till your boards`);
-    expect(testSeriesPriceLine(before)).toBe("₹1,917 + GST till your boards");
-    expect(testSeriesPriceLine(after)).toBe("₹2,499 + GST till your boards");
+describe("price — ONE constant (TS-PACK-1 swaps in the pricing helper)", () => {
+  it("₹999 + GST", () => {
+    expect(TEST_SERIES_PRICE_INR).toBe(999);
+    expect(testSeriesPriceDisplay()).toBe("₹999 + GST");
+  });
+});
+
+describe("access — Board Pass or Test Series; one test for everyone else", () => {
+  it("canCheckSeriesPapers: paid premium or a Test Series owner", () => {
+    expect(canCheckSeriesPapers({ paidPremium: true })).toBe(true);
+    expect(canCheckSeriesPapers({ paidPremium: false, ownsTestSeries: true })).toBe(true);
+    expect(canCheckSeriesPapers({ paidPremium: false })).toBe(false);
+    expect(canCheckSeriesPapers({ paidPremium: false, ownsTestSeries: false })).toBe(false);
+  });
+  it("one test in total for free / trial; sign in first when signed out; unlimited when entitled", () => {
+    expect(FREE_TESTS_ALLOWED).toBe(1);
+    const recs = [{ surface: "worksheet" }, { surface: "chapter-test" }, { surface: "full-mock" }, { surface: "check-improve" }];
+    expect(countTestsTaken(recs)).toBe(2);
+    expect(seriesStartDecision({ entitled: false, signedIn: true, testsTaken: 0 })).toBe("start");
+    expect(seriesStartDecision({ entitled: false, signedIn: true, testsTaken: 1 })).toBe("upgrade");
+    expect(seriesStartDecision({ entitled: false, signedIn: false, testsTaken: 0 })).toBe("sign-in");
+    expect(seriesStartDecision({ entitled: true, signedIn: true, testsTaken: 30 })).toBe("start");
   });
 });

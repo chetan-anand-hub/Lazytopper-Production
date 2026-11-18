@@ -25,8 +25,7 @@ vi.mock("../services/sessionRecords", () => ({
 }));
 
 import TestSeriesPage from "./TestSeriesPage";
-import { seriesChapterTests, seriesFullMocks, seriesTotals } from "../lib/testSeries/testSeries";
-import { boardPassPriceDisplay } from "../config/pricing";
+import { seriesChapterTests, seriesFullMocks, seriesTotals, testSeriesPriceDisplay } from "../lib/testSeries/testSeries";
 
 async function mount() {
   await act(async () => {
@@ -54,11 +53,14 @@ describe("/test-series — signed out", () => {
     await mount();
     const t = seriesTotals();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("CBSE Class 10 Test Series");
-    expect(screen.getByTestId("ts-contents").textContent).toContain(`${t.chapterTests} chapter tests + ${t.fullMocks} full mocks`);
+    expect(screen.getByTestId("ts-contents").textContent).toContain(`${t.chapterTests} chapter tests + ${t.fullMocks} full-length tests`);
+    expect(screen.getByTestId("ts-rule").textContent).toBe("MCQs marked free · written answers checked with the Test Series or the Board Pass");
     for (const test of [...seriesChapterTests(), ...seriesFullMocks()]) {
       expect(screen.getByTestId(`ts-test-${test.code}`).getAttribute("href")).toBe(test.href);
     }
-    expect(screen.getByRole("heading", { level: 2, name: `Full Mocks (${t.fullMocks})` })).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 2, name: `Full-Length Tests (${t.fullMocks})` })).toBeTruthy();
+    expect(within(screen.getByTestId("ts-sec-full")).getAllByTestId("ts-chip")).toHaveLength(t.fullMocks);
+    expect(within(screen.getByTestId("ts-sec-chapter")).getAllByTestId("ts-chip")).toHaveLength(t.chapterTests);
     expect(screen.getByRole("heading", { level: 2, name: `Chapter Tests (${t.chapterTests})` })).toBeTruthy();
   });
   it("shows a sign-in prompt and no progress — nothing is read, nothing invented", async () => {
@@ -69,20 +71,28 @@ describe("/test-series — signed out", () => {
     expect(screen.getAllByTestId("ts-chip").every((c) => c.getAttribute("data-status") === "not-started")).toBe(true);
     expect(screen.getByTestId("ts-trend").textContent).toContain("Sign in");
   });
-  it("the calendar is marked at today's row; the CTA links /board-pass with the founding price, plus a /packs link", async () => {
+  it("the calendar is marked at today's row; Test Series and Board Pass offers side by side, plus printed papers", async () => {
     await mount();
     expect(screen.getByTestId("ts-cal-chapters").className).toContain("is-now");
-    const cta = screen.getByTestId("ts-cta-bp");
-    expect(cta.getAttribute("href")).toBe("/board-pass");
-    expect(within(cta).getByTestId("till-boards-figures").textContent).toBe(`${boardPassPriceDisplay(new Date())} till your boards`);
-    expect(cta.textContent).toContain("₹1,917 + GST till your boards");
+    const ts = screen.getByTestId("ts-offer-ts");
+    expect(within(ts).getByTestId("till-boards-figures").textContent).toBe(`${testSeriesPriceDisplay()} till your boards`);
+    expect(ts.textContent).toContain("₹999 + GST till your boards");
+    expect(screen.getByTestId("ts-cta-buy").getAttribute("href")).toBe("/packs?buy=test_series");
+    const bp = screen.getByTestId("ts-offer-bp");
+    expect(within(bp).getByTestId("till-boards-figures").textContent).toBe("₹1,917 + GST till your boards");
+    expect(bp.textContent).toContain("Every answer checked everywhere (Answer Checker, worksheets)");
+    expect(bp.textContent).toContain("Your personal tutor");
+    expect(bp.textContent).toContain("Mistake Intelligence");
+    expect(screen.getByTestId("ts-bp-link").getAttribute("href")).toBe("/board-pass");
     expect(screen.getByTestId("ts-packs").getAttribute("href")).toBe("/packs");
-    expect(screen.getByTestId("ts-how").textContent).toContain("Board Pass checks every written answer step by step");
+    expect(screen.getByTestId("ts-packs").textContent).toContain("PDF Packs / Bundle");
+    expect(screen.getByTestId("ts-how").textContent).toContain("The Test Series checks every written answer step by step");
   });
-  it("from 1 Dec the same CTA shows the list price", async () => {
+  it("from 1 Dec the Board Pass card shows its list price; the Test Series price is its own constant", async () => {
     vi.setSystemTime(new Date("2026-12-01T00:05:00+05:30"));
     await mount();
-    expect(screen.getByTestId("ts-cta-bp").textContent).toContain("₹2,499 + GST till your boards");
+    expect(screen.getByTestId("ts-offer-bp").textContent).toContain("₹2,499 + GST till your boards");
+    expect(screen.getByTestId("ts-offer-ts").textContent).toContain("₹999 + GST till your boards");
   });
   it("carries none of the banned words", async () => {
     await mount();
@@ -111,19 +121,19 @@ describe("/test-series — signed in", () => {
     expect(within(screen.getByTestId("ts-test-FM-M2")).getByTestId("ts-chip").textContent).toBe("60/80");
     expect(within(screen.getByTestId("ts-test-FM-M1")).getByTestId("ts-chip").textContent).toBe("Start");
     expect(screen.getByTestId("ts-trend-Maths").textContent).toContain("M2 · 75%");
-    expect(screen.getByTestId("ts-trend-Science").textContent).toContain("No graded mock yet");
+    expect(screen.getByTestId("ts-trend-Science").textContent).toContain("No graded test yet");
   });
   it("no sittings: 0 done and an honest empty trend", async () => {
     mockAuth.user = { uid: "u1" };
     await mount();
     expect(screen.getByTestId("ts-done").textContent).toBe(`0 of ${seriesTotals().total} tests done.`);
-    expect(screen.getByTestId("ts-trend").textContent).toContain("once a full mock is graded");
+    expect(screen.getByTestId("ts-trend").textContent).toContain("once a full-length test is graded");
   });
-  it("a Board Pass holder sees no buy button", async () => {
+  it("a Board Pass holder sees no Test Series buy button", async () => {
     mockAuth.user = { uid: "u1" };
     mockSub.status = { tier: "premium" };
     await mount();
-    expect(screen.queryByTestId("ts-cta-bp")).toBeNull();
+    expect(screen.queryByTestId("ts-cta-buy")).toBeNull();
     expect(screen.getByTestId("ts-cta-owner")).toBeTruthy();
   });
 });

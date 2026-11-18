@@ -68,7 +68,6 @@ import {
   questionBankLinkPrice,
   type SalesFaqItem,
 } from "../components/salesPages/salesPagesCopy";
-import { TEST_SERIES_NAME, TEST_SERIES_PATH, seriesContentsLine } from "../lib/testSeries/testSeries";
 import "../components/salesPages/salesPages.css";
 import "./boardPassPage.css";
 
@@ -392,16 +391,6 @@ export default function BoardPassPage() {
               </div>
             ))}
           </div>
-        </section>
-
-        {/* TEST-SERIES-1 — the Board Pass's chapter tests and full mocks, as the numbered Pre-Boards Test Series (counts from code). */}
-        <section className="lt-sp__w" aria-labelledby="bp-series-h">
-          <Link className="lt-bp-series" to={TEST_SERIES_PATH} data-testid="bp-test-series">
-            <span id="bp-series-h" className="lt-bp-series__title">
-              Your {TEST_SERIES_NAME}: {seriesContentsLine()}, every answer step-marked
-            </span>
-            <span className="lt-bp-series__go">See the series and calendar &rarr;</span>
-          </Link>
         </section>
 
         {!owner && (

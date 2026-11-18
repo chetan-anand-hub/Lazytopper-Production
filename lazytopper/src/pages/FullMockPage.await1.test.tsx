@@ -69,6 +69,14 @@ vi.mock("../services/fullMockGradeService", async (importOriginal) => {
   };
 });
 
+// TEST-SERIES-1: these flows pin the path of an account entitled to every test, written-answer checks, the PDFs and the
+// scorecard's tutor (a Board Pass holder); the free / trial gates are pinned in *.seriesGate.test.tsx.
+vi.mock("../components/testSeries/WrittenCheckGate", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../components/testSeries/WrittenCheckGate")>()),
+  useSeriesPaperAccess: () => true,
+  useBoardPassHolder: () => true,
+}));
+
 import FullMockPage from "./FullMockPage";
 import { exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
 import { awaitingPaperResponse } from "../components/papers/paperDownloadRecord";
