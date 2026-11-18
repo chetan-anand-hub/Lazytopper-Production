@@ -906,3 +906,64 @@ test('TUTOR-MEM-1 normalizeBrief keeps a valid concept lastSeen and drops junk',
   assert.equal(row(mk('27 Oct')).lastSeen, undefined);
   assert.equal(row(mk(12345)).lastSeen, undefined);
 });
+
+// ---- TUTOR-FIX-1: the tutor says "Answer Checker", never the old name; MCQ anchors reach the prompt whole ----
+test('TUTOR-FIX-1: renameLegacyToolName rewrites the old name in every spelling, leaves identifiers alone', () => {
+  const { renameLegacyToolName } = require('./tutor.cjs');
+  const OLD = ['Check & Improve', 'Check and Improve', 'check &amp; improve', 'CHECK & IMPROVE', 'Check&Improve', 'C&I', 'C & I'];
+  for (const o of OLD) assert.equal(renameLegacyToolName(`Try ${o} next.`), 'Try Answer Checker next.', o);
+  assert.equal(renameLegacyToolName('[[offer:check-improve]] /check-improve'), '[[offer:check-improve]] /check-improve');
+  assert.equal(renameLegacyToolName('Use Answer Checker.'), 'Use Answer Checker.');
+});
+
+test('TUTOR-FIX-1 guard: no student-visible tutor copy or prompt carries the old name', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const { buildTutorSystemPrompt: build } = require('../prompts/tutorSystemPrompt.cjs');
+  const OLD_RE = /check\s*(?:&amp;|&|and)\s*improve|\bC\s?&\s?I\b/i;
+  // 1) the assembled prompt, in the shapes that carry the tool name
+  for (const args of [
+    { topicLabel: 'Real Numbers', subject: 'maths' },
+    { topicLabel: 'Real Numbers', subject: 'maths', brief: { hasData: true, topic: {}, mistakes: {}, chapter: { recent: [{ id: 'Q1', marksLost: 1, surface: 'chapter-test' }] } } },
+  ]) assert.doesNotMatch(build(args), OLD_RE);
+  // 2) the source of the tutor server + client, comments stripped (a comment is not student-visible)
+  const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`\\])\/\/.*$/gm, '$1');
+  const root = path.join(__dirname, '..', '..');
+  const files = [
+    'server/routes/tutor.cjs', 'server/prompts/tutorSystemPrompt.cjs',
+    'src/ai/tutorClient.ts', 'src/pages/tutor/tutorRoundTrip.ts', 'src/pages/tutor/tutorIntent.ts',
+    'src/pages/tutor/TutorPage.tsx', 'src/pages/tutor/signedOutScorecardAsk.ts', 'src/pages/tutor/tutorContextBrief.ts',
+  ];
+  for (const f of files) {
+    const hit = strip(fs.readFileSync(path.join(root, f), 'utf8')).split('\n').filter((l) => OLD_RE.test(l));
+    // the two legacy-matching regexes are deliberate (they MATCH the old name in old text); nothing else may carry it
+    const real = hit.filter((l) => !/\.replace\(|_RE\s*=|RE\.test|check\\s\*|\\bC\\s\?/.test(l));
+    assert.deepEqual(real, [], `${f} carries the old tool name`);
+  }
+});
+
+test('TUTOR-FIX-1: an MCQ anchor reaches the prompt with stem, options, key letter and the student\'s pick', () => {
+  const { buildTutorSystemPrompt: build } = require('../prompts/tutorSystemPrompt.cjs');
+  const p = build({
+    topicLabel: 'Real Numbers', subject: 'maths',
+    anchorQuestion: {
+      id: 'CBE-M-RN-A-004', format: 'MCQ', marks: 1,
+      questionText: 'She has 336 guavas and 54 oranges. How many maximum guests can she invite?',
+      options: ['A. 6', 'B. 9', 'C. 56', 'D. 3024'], answer: 'A. 6', answerLetter: 'A',
+      studentPick: 'D. 3024', verdict: 'wrong',
+    },
+  });
+  assert.match(p, /336 guavas and 54 oranges/);
+  assert.match(p, /D\. 3024/);
+  assert.match(p, /option A/);
+  assert.match(p, /The option the student picked: 'D\. 3024' \(not the right option\)/);
+  assert.match(p, /never say you cannot see them/);
+});
+
+test('TUTOR-FIX-1: a model reply that slips into the old name is rewritten before it reaches the student', async () => {
+  const res = await harness({ text: 'Upload it to Check & Improve and get it marked.\n[[offer:check-improve]]', finishReason: 'STOP' }).ask();
+  assert.equal(res.status, 200);
+  assert.match(res.body.reply, /Answer Checker/);
+  assert.doesNotMatch(res.body.reply, /Check & Improve/i);
+  assert.equal(res.body.offer, 'check-improve');
+});
