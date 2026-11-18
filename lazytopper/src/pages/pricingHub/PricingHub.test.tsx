@@ -806,6 +806,14 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
       await new Promise((r) => setTimeout(r, 0));
     });
     expect(where()).toBe("/packs?buy=test_series");
+    expect(analytics.named).toHaveBeenCalledWith("pricing_ts_buy_tap");
+  });
+
+  it("a tap on the card's 'Get the Test Series' records pricing_ts_buy_tap (name only)", async () => {
+    await renderAt("/pricing");
+    fireEvent.click(screen.getByTestId("hub-buy-test_series"));
+    expect(analytics.named).toHaveBeenCalledWith("pricing_ts_buy_tap");
+    expect(where()).toBe("/packs?buy=test_series");
   });
 
   it("inbound links: #test-series selects its card; #cbq / #packs keep theirs; ?plan= and utm leave the page on the Board Pass", async () => {

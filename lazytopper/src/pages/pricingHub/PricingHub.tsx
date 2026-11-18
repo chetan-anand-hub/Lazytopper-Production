@@ -616,6 +616,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
     const mode = barMode();
     const api = apiRef.current;
     if (mode === "ts") {
+      trackNamedEvent("pricing_ts_buy_tap");
       navigate(withFrom(hubTsBuyPath()));
     } else if (mode === "cbq" && api) {
       if (api.buyEnabled) api.buyNow("pack_cbq", subjectRef.current);
@@ -757,6 +758,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
               <Link
                 className="lt-ph-buy lt-ph-buy--link"
                 to={withFrom(hubTsBuyPath())}
+                onClick={() => trackNamedEvent("pricing_ts_buy_tap")}
                 data-testid="hub-buy-test_series"
               >
                 {HUB_TS_BUY}
