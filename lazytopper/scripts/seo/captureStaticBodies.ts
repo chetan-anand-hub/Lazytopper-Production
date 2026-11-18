@@ -246,7 +246,8 @@ export const H1_WITNESSES: ReadonlyArray<{ path: string; h1: string }> = [
 export function h1WitnessFailures(capture: { path: string; html: string; text: string }): string[] {
   const witness = H1_WITNESSES.find((w) => w.path === capture.path);
   if (!witness) return [];
-  if (!/<h1[\s>]/i.test(capture.html) || !capture.text.includes(witness.h1)) {
+  // `text` is innerText: an H1 set in two block lines reads "…Series:\nMaths…", so whitespace is normalised first.
+  if (!/<h1[\s>]/i.test(capture.html) || !capture.text.replace(/\s+/g, " ").includes(witness.h1)) {
     return [`${capture.path}: the static body has no <h1> "${witness.h1}" — the strip removed the page's hero`];
   }
   return [];

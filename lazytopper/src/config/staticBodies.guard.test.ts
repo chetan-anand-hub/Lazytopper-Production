@@ -601,6 +601,8 @@ describe("TS-PAGE-2 — H1 witness and clock nodes", () => {
     expect(h1WitnessFailures({ path: "/test-series", html: "<main><h2>Take all 66 tests</h2></main>", text: "Take all 66 tests" })).toHaveLength(1);
     expect(h1WitnessFailures({ path: "/test-series", html: `<main><h1 id="ts-h1">${h1}</h1></main>`, text: h1 })).toEqual([]);
     expect(h1WitnessFailures({ path: "/pricing", html: "<main></main>", text: "" })).toEqual([]);
+    // innerText of an H1 in two block lines carries a newline: still the same heading.
+    expect(h1WitnessFailures({ path: "/test-series", html: "<h1>x</h1>", text: "CBSE Class 10 Test Series:\nMaths & Science" })).toEqual([]);
   });
   it("rule 2 keeps a hero that is not a <section>: only the sign-in pair goes, the reserved box stays", () => {
     const root = document.createElement("div");
