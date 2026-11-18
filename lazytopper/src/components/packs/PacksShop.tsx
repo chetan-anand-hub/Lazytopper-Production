@@ -1152,6 +1152,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           surface={paidSurface}
           itemKind="pack"
           itemName={buy.name || "PDF pack"}
+          {...(paidIsSeries ? { bought: "test_series" as const } : {})}
           primaryLabel={paidIsSeries ? "Start your Test Series \u2192" : "Download files"}
           {...(maskReceiptEmail(user?.email || mine?.licensee.email) ? { receiptLine: paidSheetReceiptLine(maskReceiptEmail(user?.email || mine?.licensee.email)) } : {})}
           onFail={() => { setSheetFailed(true); setSheetOpen(false); }}
