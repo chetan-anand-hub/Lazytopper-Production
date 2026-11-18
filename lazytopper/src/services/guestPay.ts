@@ -20,6 +20,7 @@ import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from 
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
+import { adSignalFields } from "../analytics/adSignals";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
 export const GUEST_ORDER_ENDPOINT = "/api/pay/guest/order";
@@ -154,6 +155,7 @@ export async function createGuestOrder(item: GuestItem, phone: string): Promise<
     ...gst,
     ...waOptInOrderFields(), // WHATSAPP-OPTIN-1: only a valid number + the tick
     ...orderSourceFields(), // ORDER-SOURCE-1
+    ...adSignalFields(), // SERVER-EVENTS-1
   });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
