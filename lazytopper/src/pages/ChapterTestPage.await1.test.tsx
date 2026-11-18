@@ -101,6 +101,7 @@ vi.mock("../services/chapterTestGradeService", async (importOriginal) => {
 vi.mock("../components/testSeries/WrittenCheckGate", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../components/testSeries/WrittenCheckGate")>()),
   useSeriesPaperAccess: () => true,
+  useSeriesAccess: () => ({ canCheck: true, canDownload: true, checking: false, failed: false, ownsSeries: false, status: null, retry: () => undefined }), // MYPACKS-TS-1: the pages read the three-state hook
   useBoardPassHolder: () => true,
 }));
 
