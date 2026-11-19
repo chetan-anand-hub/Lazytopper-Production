@@ -23,6 +23,7 @@ import {
   isQuestionNotAttempted,
   stepDisplay,
   effectiveStepStatus,
+  stepAnnotationText,
   stepForDisplay,
   gradeStateOf,
   paperMarksLost,
@@ -166,7 +167,7 @@ function StepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; object
           </span>
         )}
       </div>
-      {step.teacherAnnotation && <div className="lt-wg__stepnote"><MathText text={step.teacherAnnotation} /></div>}
+      {step.teacherAnnotation && <div className="lt-wg__stepnote"><MathText text={stepAnnotationText(step)} /></div>}
       {step.correctedWorking && (
         <div className="lt-wg__stepfix">Should be: <MathText text={step.correctedWorking} /></div>
       )}

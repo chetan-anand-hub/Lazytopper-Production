@@ -23,6 +23,7 @@ import {
   splitWithdrawnSteps,
   stepDisplay,
   effectiveStepStatus,
+  stepAnnotationText,
   stepShowsType,
   type MarksLostByType,
   type MistakeTypeCounts,
@@ -364,7 +365,7 @@ export function CheckImproveGradedPrintDoc({
                           <div className="lt-cigp__stwork"><MathText text={s.studentWork} /></div>
                         )}
                         {s.teacherAnnotation && (
-                          <StepAnnotation tone={sd.tone} consequentialOf={s.consequentialOf} className="lt-cigp__stann"><MathText text={s.teacherAnnotation} /></StepAnnotation>
+                          <StepAnnotation tone={sd.tone} consequentialOf={s.consequentialOf} className="lt-cigp__stann"><MathText text={stepAnnotationText(s)} /></StepAnnotation>
                         )}
                         {s.correctedWorking && (
                           <div className="lt-cigp__stfix">✓ <MathText text={s.correctedWorking} /></div>

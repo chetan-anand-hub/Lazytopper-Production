@@ -377,3 +377,16 @@ describe("TS-FIX-2 - a step's tone follows its marks, not its label (shared by a
     expect(renderStep(step({})).querySelector(".lt-sc__gst--ok")).not.toBeNull();
   });
 });
+
+describe("TS-FIX-2 - leading tick in the annotation of a step that lost marks", () => {
+  const note = (s: CheckSolutionAnnotatedStep) =>
+    render(<ResultsScorecard variant={variant({ gradedAnswers: [answer({ steps: [s] })] })} onClose={() => {}} />).baseElement.querySelector(".lt-sc__gst-note")?.textContent;
+  it("a partial step renders 'Incorrect multiplier' with no tick, in the partial tone", () => {
+    const el = render(<ResultsScorecard variant={variant({ gradedAnswers: [answer({ steps: [step({ status: "partial", marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: "✓ Incorrect multiplier" })] })] })} onClose={() => {}} />).baseElement;
+    expect(el.querySelector(".lt-sc__gst-note")?.textContent).toBe("Incorrect multiplier");
+    expect(el.querySelector(".lt-sc__gst--part")).not.toBeNull();
+  });
+  it("control: a full-mark step keeps its tick", () => {
+    expect(note(step({ teacherAnnotation: "✓ Correct" }))).toBe("✓ Correct");
+  });
+});

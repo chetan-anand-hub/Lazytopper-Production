@@ -33,6 +33,7 @@ import {
   mistakeTypeLabel,
   stepDisplay,
   effectiveStepStatus,
+  stepAnnotationText,
   stepForDisplay,
   totalCount,
   isGradedQuestion,
@@ -427,7 +428,7 @@ function AnnotatedStepCard({ step, objective }: { step: CheckSolutionResponse["a
             fontSize: "0.76rem", color: ss.badge,
             fontWeight: 600, marginBottom: step.correctedWorking ? 6 : 0,
           }}>
-            <EquationRender text={step.teacherAnnotation} />
+            <EquationRender text={stepAnnotationText(step)} />
           </div>
         )}
 

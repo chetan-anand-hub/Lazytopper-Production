@@ -14,6 +14,7 @@ import {
   splitWithdrawnSteps,
   stepDisplay,
   effectiveStepStatus,
+  stepAnnotationText,
   stepForDisplay,
 } from "../../lib/mistakeDisplay";
 import { EquationRender } from "../equation";
@@ -137,7 +138,7 @@ function StepRows({ grade }: { grade: CheckSolutionResponse | WorksheetQuestionG
             )}
             {step.teacherAnnotation && (
               <StepAnnotation tone={display.tone} consequentialOf={step.consequentialOf} className="lt-stann--screen">
-                <EquationRender text={step.teacherAnnotation} />
+                <EquationRender text={stepAnnotationText(step)} />
               </StepAnnotation>
             )}
             {step.correctedWorking && (

@@ -18,6 +18,7 @@ import {
   mistakeGroupOf,
   stepDisplay,
   effectiveStepStatus,
+  stepAnnotationText,
   type PaperMarksLost,
 } from "../../lib/mistakeDisplay";
 import { MarksLostLines, RubricBlock, WithdrawnWorkBlock } from "./GradeStateParts";
@@ -350,7 +351,7 @@ function GradedStepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; 
       </div>
       {/* GA-40 — maths renders through the shared renderer, never as raw x^2 / a_20. */}
       {step.studentWork && <div className="lt-sc__gst-work"><MathText text={step.studentWork} /></div>}
-      {step.teacherAnnotation && <div className="lt-sc__gst-note"><MathText text={step.teacherAnnotation} /></div>}
+      {step.teacherAnnotation && <div className="lt-sc__gst-note"><MathText text={stepAnnotationText(step)} /></div>}
       {step.correctedWorking && (
         <div className="lt-sc__gst-fix">Should be: <MathText text={step.correctedWorking} /></div>
       )}

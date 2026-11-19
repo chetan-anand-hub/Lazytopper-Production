@@ -869,6 +869,21 @@ export function effectiveStepStatus(step: { status?: unknown; marksAwarded?: unk
 }
 
 /**
+ * TS-FIX-2 - the annotation text a step is DRAWN with. The grader (and its post-processing) may prefix an
+ * annotation with a tick glyph; on a step that is not full marks that reads as a green tick on a lost step
+ * ("✓ Incorrect multiplier"). For any step whose effective status is not "correct" a leading tick glyph
+ * (✓ ✔ ☑ and the whitespace after it) is dropped. Full-mark steps keep their annotation untouched.
+ * DISPLAY ONLY - the stored annotation is never changed.
+ */
+export function stepAnnotationText(
+  step: { status?: unknown; marksAwarded?: unknown; marksDeducted?: unknown; teacherAnnotation?: string | null } | null | undefined,
+): string {
+  const text = String(step?.teacherAnnotation ?? "");
+  if (effectiveStepStatus(step) === "correct") return text;
+  return text.replace(/^\s*[\u2713\u2714\u2611]\uFE0F?\s*/u, "");
+}
+
+/**
  * One step's display state. Tolerates ANY status (D4): a value this module does not know
  * renders as a neutral "Not marked", never as "Incorrect".
  *

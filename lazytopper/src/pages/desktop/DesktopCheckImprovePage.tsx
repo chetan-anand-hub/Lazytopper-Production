@@ -62,6 +62,7 @@ import {
   mistakeGroupOf,
   stepDisplay,
   effectiveStepStatus,
+  stepAnnotationText,
   stepForDisplay,
   withEffectiveCounts,
   WITHDRAWN_LABEL,
@@ -843,7 +844,7 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep; objective?:
 
       {step.teacherAnnotation && (
         <StepAnnotation tone={display.tone} consequentialOf={step.consequentialOf} className="lt-stann--screen">
-          <EquationRender text={step.teacherAnnotation} />
+          <EquationRender text={stepAnnotationText(step)} />
         </StepAnnotation>
       )}
 
@@ -4980,7 +4981,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                     <strong>Step {s.stepNumber}:</strong>{" "}
                     {stepDisplay(effectiveStepStatus(s), s.mistakeType).kind === "not-attempted"
                       ? NOT_ATTEMPTED.label
-                      : <EquationRender text={s.teacherAnnotation || s.description || "Marks deducted"} />}
+                      : <EquationRender text={stepAnnotationText(s) || s.description || "Marks deducted"} />}
                     {s.marksDeducted > 0 && stepDisplay(effectiveStepStatus(s), s.mistakeType).showDeduction && (
                       <span style={{ color: DANGER_FG }}> · −{s.marksDeducted}</span>
                     )}
