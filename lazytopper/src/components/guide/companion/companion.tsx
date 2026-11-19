@@ -450,11 +450,11 @@ export function CompanionBreathe({ uid, onDone }: CompanionBreatheProps) {
  */
 export function PreTestBreathe({ surface }: PreTestMomentProps) {
   const { user } = useAuth();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const uid = user?.uid || null;
   // Decided ONCE, at mount: a later re-render (a marker written, the session resolving) must never insert
   // the card above Start. It can only stay eligible or stay out; it never flips to true afterwards.
-  const [eligible] = useState(() => !!uid && guideAbActive() && !isResumingSavedPaper(pathname, uid) && !firstVisitHelperPending(surface));
+  const [eligible] = useState(() => !!uid && guideAbActive() && !isResumingSavedPaper(pathname, uid, search) && !firstVisitHelperPending(surface));
   if (!eligible || !uid) return null;
   return <CompanionBreathe uid={uid} />;
 }

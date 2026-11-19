@@ -149,7 +149,7 @@ import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLin
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
-import { CT_PAPER_PARAM, CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterPaperNumber, seriesChapterTestOf, seriesChapterWorksheetId } from "../lib/testSeries/testSeries";
+import { CT_PAPER_PARAM, CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterPaperNumber, seriesChapterTestOf, seriesChapterWorksheetId, seriesKeyOfWorksheetId } from "../lib/testSeries/testSeries";
 import { tsPinDisabledFor } from "../lib/testSeries/tsPinFlag";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
@@ -422,6 +422,12 @@ export default function ChapterTestPage() {
       })
     : null;
 
+  // TS-MORE-1: which Test Series paper a sitting was (CT-M01-3), read from its worksheet id; null for a non-series sitting.
+  const seriesPaperTag = useCallback((r: { worksheetId?: string }): string | null => {
+    const k = seriesKeyOfWorksheetId(r.worksheetId);
+    return k && k.kind === "chapter" ? (seriesChapterTestOf(k.topicKey, k.paper)?.code ?? null) : null;
+  }, []);
+
   const topicRecords = useMemo(() => {
     const slug = resolveCanonicalSlug(topicKey);
     return records
@@ -538,7 +544,9 @@ export default function ChapterTestPage() {
     };
   }, [restoredPaper, bank.ready, draw]);
   const timeLimitSeconds = useMemo(() => Math.max(15, Math.round((paper?.totalMarks ?? 40) * 1.2)) * 60, [paper]);
-  const progressKey = nomen ? `lazytopper.ct.progress.${nomen.code}` : null;
+  // TS-MORE-1: chapter papers 2..5 share a chapter's attempt code with paper 1 (the code counts the chapter's sittings), so a series paper k > 1
+  // saves under its own key: paper 1's in-progress sitting (key unchanged) is never offered on, or overwritten by, paper 3.
+  const progressKey = nomen ? `lazytopper.ct.progress.${nomen.code}${seriesTest && seriesTest.paper > 1 ? `.p${seriesTest.paper}` : ""}` : null;
 
   // Autosave restore (honest "✓ saved") — CT-RELOAD-1. A reload mid-test used to land on the
   // setup screen with a NEW draw and then restore the saved answers (keyed by question NUMBER)
@@ -554,7 +562,7 @@ export default function ChapterTestPage() {
       // CT-RESUME-2: an older in-progress entry for THIS route under another test code (its
       // number moved on since) can never be resumed here; drop it, so the daily paper gate
       // never treats this visit as a resume of a paper this page will not offer.
-      const route = paperRouteKey(location.pathname);
+      const route = paperRouteKey(location.pathname, location.search);
       for (let i = window.sessionStorage.length - 1; i >= 0; i -= 1) {
         const key = window.sessionStorage.key(i);
         if (!key || key === progressKey || !key.startsWith(CT_PROGRESS_PREFIX)) continue;
@@ -592,7 +600,7 @@ export default function ChapterTestPage() {
     } catch {
       /* best-effort */
     }
-  }, [progressKey, location.pathname]);
+  }, [progressKey, location.pathname, location.search]);
 
   // Autosave write while taking — the paper rides along so a reload restores THIS paper.
   useEffect(() => {
@@ -602,12 +610,12 @@ export default function ChapterTestPage() {
         progressKey,
         // CT-RESUME-2: `route` lets the daily paper gate (MockViewGate) recognise a reload of THIS
         // chapter's saved paper as a resume — not a new paper (lib/papers/resumablePaper).
-        JSON.stringify({ answers, flags: [...flags], elapsed, currentQNumber, timerEnabled, paper, route: paperRouteKey(location.pathname) }),
+        JSON.stringify({ answers, flags: [...flags], elapsed, currentQNumber, timerEnabled, paper, route: paperRouteKey(location.pathname, location.search) }),
       );
     } catch {
       /* quota — best-effort */
     }
-  }, [answers, flags, elapsed, currentQNumber, timerEnabled, phase, progressKey, paper, location.pathname]);
+  }, [answers, flags, elapsed, currentQNumber, timerEnabled, phase, progressKey, paper, location.pathname, location.search]);
 
   const objectiveQs = useMemo(() => (paper ? objectiveQuestions(paper) : []), [paper]);
   const subjectiveQs = useMemo(() => (paper ? subjectiveQuestions(paper) : []), [paper]);
@@ -760,7 +768,7 @@ export default function ChapterTestPage() {
     }
     // CT-RESUME-2: starting a paper is a NEW paper. A visit the daily gate let through uncounted
     // (it looked like a resume) is counted now — or refused at today's limit.
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest))) {
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest), location.search)) {
       setLimitNotice(NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -797,7 +805,7 @@ export default function ChapterTestPage() {
   const discardRestored = useCallback(() => {
     // CT-RESUME-2: this visit was let through as a RESUME (not counted). A new paper instead is
     // counted now — or refused when today's papers are used up (the saved test stays).
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium, location.search)) {
       setLimitNotice(NEW_PAPER_LIMIT_SAVED_LINE);
       return;
     }
@@ -934,7 +942,7 @@ export default function ChapterTestPage() {
   const downloadTest = useCallback(async () => {
     if (!paper || !nomen || downloading || !seriesDownloadAccess) return;
     // CT-RESUME-2: downloading THIS visit's draw is a new paper (the saved paper on offer is not).
-    if (!restoredPaper && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest))) {
+    if (!restoredPaper && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest), location.search)) {
       setLimitNotice(NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -1340,6 +1348,7 @@ export default function ChapterTestPage() {
             <ChapterTestHistoryRail
               topicLabel={topicName}
               records={topicRecords}
+              paperTag={seriesPaperTag}
               loading={recordsLoading}
               onOpen={openStored}
             />
