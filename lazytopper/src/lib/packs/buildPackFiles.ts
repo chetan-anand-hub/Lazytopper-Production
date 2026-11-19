@@ -35,8 +35,6 @@ import {
   type PackSku,
   type PackSubject,
 } from "../../services/packs";
-import { drawChapterTest } from "../../components/chaptertest/chapterTestBlueprint";
-import { buildUnionPool, drawFullMock, fullMockChapterWeights } from "../../components/fullmock/fullMockBlueprint";
 import {
   bankSubjectName,
   bankSubjectOf,
@@ -44,19 +42,17 @@ import {
   chapterName,
   chapterPackDrawRows,
   chapterPackRows,
-  drawAvoidingExcluded,
-  drawPackWorksheetRowsSafe,
   groupBySection,
-  hashSeed,
   loadChapter,
   loadSubjectBank,
-  packServedAt,
   splitIntoParts,
   subjectBankRows,
   toWorksheetQuestion,
   withProvenance,
 } from "./packContent";
-import { CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, MATHS_MOCK_PATTERN, MOCKS_PER_SUBJECT } from "./packLabels";
+import { DRAW_STAMP } from "./packDraws";
+import { packChapterTestPapers, packMockPapers, packWorksheetRows } from "./packPins";
+import { CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, MATHS_MOCK_PATTERN } from "./packLabels";
 import { CBQ_QUESTION_TYPES } from "./cbqPackTypes";
 import { cbqSets } from "./cbqSets";
 import type { PrintCoverProps } from "../../components/worksheet/PrintCover";
@@ -169,8 +165,6 @@ async function downloadFromServer(ctx: BuildContext, fileId: string, expectCodes
   }
 }
 
-/** Papers are drawn with this placeholder stamp; the real "Generated <date>" is set when a file is built. */
-const DRAW_STAMP = "2026-01-01T00:00:00.000Z";
 
 const fileSlug = (s: string): string => s.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
@@ -431,28 +425,10 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
     });
   }
 
-  // 2. Chapter Test 1 and 2, drawn by the app's own blueprint with a pack seed.
-  // Step-marked questions first; Chapter Test 2 also steers clear of the questions Chapter Test 1 used.
-  const ctUsed: Array<Set<string>> = [];
-  for (const n of [1, 2]) {
-    const seed = hashSeed(`pack-paper:${slug}:ct${n}`);
-    const drawn = drawAvoidingExcluded(
-      (servedAt) =>
-        drawChapterTest({
-          subject,
-          topicKey: slug,
-          topicLabel: name,
-          worksheetId: `pack-${slug}-ct${n}`,
-          name: `${name} · Chapter Test ${n}`,
-          createdAt: DRAW_STAMP,
-          seed,
-          servedAt,
-        }),
-      packServedAt(drawRows, ctUsed),
-    );
-    if (!drawn.enoughQuestions) continue;
-    ctUsed.push(new Set(drawn.paper.questions.map((q) => q.id)));
-    const paper = { ...drawn.paper, questions: withProvenance(drawn.paper.questions, rows) };
+  // 2. Chapter Test 1 and 2. PACK-PIN-1: built from the pinned ids (packPins.ts), never re-drawn - the seeded draw (packDraws.ts) only
+  // creates pins and is the kill-switch fallback. Step-marked questions first; Chapter Test 2 steers clear of Chapter Test 1's.
+  for (const { n, paper: drawnPaper } of await packChapterTestPapers(slug, drawRows)) {
+    const paper = { ...drawnPaper, questions: withProvenance(drawnPaper.questions, rows) };
     const ctCode = packPaperCode({ kind: n === 1 ? "ct1" : "ct2", chapter: slug });
     for (const [mode, modeLabel, modeFile] of MODES) {
       files.push(
@@ -477,7 +453,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
   }
 
   // 3. Worksheet (paper + key).
-  const wsRows = drawPackWorksheetRowsSafe(drawRows, hashSeed(`pack-paper:${slug}:ws1`));
+  const wsRows = await packWorksheetRows(slug, drawRows);
   if (wsRows.length > 0) {
     const questions = wsRows.map((q, i) => toWorksheetQuestion(q, i + 1, name));
     const marks = questions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
@@ -507,64 +483,7 @@ export async function chapterFiles(slug: string, packId: string, sku: PackSku, c
   return files;
 }
 
-/**
- * The pack's mock papers for a subject, drawn with the app's own Full Mock blueprint: `MOCKS_PER_SUBJECT` papers, each seeded
- * by its number (`pack-paper:mock:<subject>:<n>`). Step-marked questions are preferred, and each paper steers clear of the
- * questions the earlier papers used, so the overlap between papers is as small as the bank allows.
- */
-export function drawPackMocks(
-  subject: PackSubject,
-  /** TEST-SERIES-1 — stop after paper `upTo` (papers 1..n-1 are still drawn, because paper n steers clear of them). It may go
-   *  PAST MOCKS_PER_SUBJECT: the Test Series' papers 9+ continue the same seed scheme, and papers 1..MOCKS_PER_SUBJECT are
-   *  unchanged by that. Default: the pack's papers, exactly as before. */
-  upTo: number = MOCKS_PER_SUBJECT,
-): Array<{ n: number; drawn: ReturnType<typeof drawFullMock>; name: string }> {
-  const unionPool = packMockUnionPool(subject);
-  const used: Array<Set<string>> = [];
-  const out: Array<{ n: number; drawn: ReturnType<typeof drawFullMock>; name: string }> = [];
-  const last = Math.max(0, Math.floor(upTo));
-  for (let n = 1; n <= last; n += 1) {
-    const { drawn, name } = drawPackMockAfter(subject, n, used, unionPool);
-    if (!drawn.enoughQuestions) continue;
-    used.push(new Set(drawn.paper.questions.map((q) => q.id)));
-    out.push({ n, drawn, name });
-  }
-  return out;
-}
-
-function packMockUnionPool(subject: PackSubject) {
-  const bankSubject = bankSubjectName(subject);
-  return buildUnionPool(bankSubject, new Set(fullMockChapterWeights(bankSubject).map((c) => c.slug)));
-}
-
-/**
- * Mock paper `n` of a subject, given the question ids of the papers drawn before it (`usedBefore`, in paper order — exactly the
- * list `drawPackMocks` builds). THE one draw `drawPackMocks` runs per paper, so a caller that already knows the earlier papers'
- * ids (TEST-SERIES-1: the committed manifest) draws paper n alone and gets the same paper.
- */
-export function drawPackMockAfter(
-  subject: PackSubject,
-  n: number,
-  usedBefore: ReadonlyArray<ReadonlySet<string>>,
-  unionPool: ReturnType<typeof buildUnionPool> = packMockUnionPool(subject),
-): { drawn: ReturnType<typeof drawFullMock>; name: string } {
-  const bankSubject = bankSubjectName(subject);
-  const name = `${bankSubject} Full Mock ${n}`;
-  const drawn = drawAvoidingExcluded(
-    (servedAt) =>
-      drawFullMock({
-        subject: bankSubject,
-        worksheetId: `pack-mock-${subject}-${n}`,
-        code: packPaperCode({ kind: "mock", subject, n }),
-        name,
-        createdAt: DRAW_STAMP,
-        seed: hashSeed(`pack-paper:mock:${subject}:${n}`),
-        servedAt,
-      }),
-    packServedAt(unionPool, usedBefore),
-  );
-  return { drawn, name };
-}
+export { drawPackMocks, drawPackMockAfter } from "./packDraws";
 
 /** The full board-pattern papers (paper + key each) of a subject. Loads the subject's bank first. */
 export async function mockFiles(subject: PackSubject, packId: string, sku: PackSku, ctx: BuildContext, fallback?: OwnedPack): Promise<PackFile[]> {
@@ -574,8 +493,8 @@ export async function mockFiles(subject: PackSubject, packId: string, sku: PackS
   const files: PackFile[] = [];
   const mockRows = subjectBankRows(subject);
   const pattern = subject === "maths" ? ` · ${MATHS_MOCK_PATTERN}` : "";
-  for (const { n, drawn, name } of drawPackMocks(subject)) {
-    const paper = { ...drawn.paper, questions: withProvenance(drawn.paper.questions, mockRows) };
+  for (const { n, paper: drawnPaper, name } of await packMockPapers(subject)) {
+    const paper = { ...drawnPaper, questions: withProvenance(drawnPaper.questions, mockRows) };
     const mockCode = packPaperCode({ kind: "mock", subject, n });
     for (const [mode, modeLabel, modeFile] of MODES) {
       files.push(
