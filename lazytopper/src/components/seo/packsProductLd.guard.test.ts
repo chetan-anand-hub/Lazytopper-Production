@@ -20,6 +20,10 @@ describe("SEO-LLM-2 — Product / FAQ JSON-LD for packs, CBQ packs and important
       expect(n.offers.priceCurrency).toBe("INR");
       expect(n.offers.availability).toBe("https://schema.org/InStock");
       expect(n.offers.priceSpecification.valueAddedTaxIncluded).toBe(false);
+      // /legal/refund: all payments are final. The schema must say no returns, never a return window.
+      expect(n.offers.hasMerchantReturnPolicy.returnPolicyCategory).toBe("https://schema.org/MerchantReturnNotPermitted");
+      expect(n.offers.hasMerchantReturnPolicy.merchantReturnLink).toBe("https://www.lazytopper.com/legal/refund");
+      expect(n.offers.shippingDetails.shippingRate.value).toBe(0);
     }
   });
 

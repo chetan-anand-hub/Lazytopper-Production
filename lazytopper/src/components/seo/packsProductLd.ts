@@ -78,6 +78,24 @@ function productLd(p: LdProduct, url: string, home: string): Record<string, unkn
       priceSpecification: { "@type": "PriceSpecification", price, priceCurrency: "INR", valueAddedTaxIncluded: false },
       availability: "https://schema.org/InStock",
       seller: { "@type": "Organization", name: "LazyTopper", url: home },
+      // All payments are final (/legal/refund, "LazyTopper does not give refunds"): no returns. Never claim a return window here.
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "IN",
+        returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+        merchantReturnLink: `${SITE_ORIGIN}/legal/refund`,
+      },
+      // A digital download, available straight away: free, instant, India.
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: { "@type": "MonetaryAmount", value: 0, currency: "INR" },
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "IN" },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 0, unitCode: "DAY" },
+          transitTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 0, unitCode: "DAY" },
+        },
+      },
     },
   };
 }
