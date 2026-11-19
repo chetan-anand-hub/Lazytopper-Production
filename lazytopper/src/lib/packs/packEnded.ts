@@ -33,7 +33,11 @@ export function readEndedPacks(raw: unknown): EndedPack[] {
   return out;
 }
 
-/** "Your re-download window for <pack> ended on <date>." */
-export function endedPackMessage(title: string, e: Pick<EndedPack, "redownloadUntil">): string {
+/**
+ * "Your re-download window for <pack> ended on <date>."; the Test Series Pack has no files to re-download (VALIDITY-FEB27), so its
+ * line is "Your Test Series was valid till <date>, and has ended."
+ */
+export function endedPackMessage(title: string, e: Pick<EndedPack, "redownloadUntil"> & Partial<Pick<EndedPack, "sku">>): string {
+  if (e.sku === "test_series") return `Your ${title} was valid till ${e.redownloadUntil} and has ended.`;
   return `Your re-download window for ${title} ended on ${e.redownloadUntil}.`;
 }

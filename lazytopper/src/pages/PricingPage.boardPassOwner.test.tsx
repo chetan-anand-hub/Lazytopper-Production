@@ -163,7 +163,7 @@ describe("PARENT-PACKS-1 (owner live check, month-pass account) · one truthful 
   const TRIAL_ENDED = status({ tier: "free", plan: "none", trialStartDate: new Date(Date.now() - 20 * DAY).toISOString() });
   const MONTH_LATE = status({ tier: "premium", plan: "pass_month", premiumSince: new Date(Date.now() - 25 * DAY).toISOString(), passEnd: new Date(Date.now() + 5 * DAY).toISOString() });
   const ADMIN = status({ tier: "premium", plan: "premium_yearly", premiumSince: new Date(Date.now() - DAY).toISOString(), passEnd: new Date(Date.now() + 60 * DAY).toISOString() });
-  const BP_PAY = /^Pay ₹[\d,]+ once till your boards$/;
+  const BP_PAY = /^Pay ₹[\d,]+ once · valid till 28 Feb 2027$/;
   const card = () => screen.getByTestId("pricing-board-pass");
   const buttons = () => within(card()).queryAllByRole("button").map((b) => b.textContent);
 
@@ -197,7 +197,7 @@ describe("PARENT-PACKS-1 (owner live check, month-pass account) · one truthful 
   it("month pass, more than 7 days left: ONE line, the upsell, ONE Pay (Board Pass); no renew, no month price, no trial line", async () => {
     await at(MONTH, true);
     expect(screen.getByTestId("pass-checkout-already-active").textContent).toMatch(/^Your month pass is active until \d{1,2} [A-Z][a-z]+ \d{4}\.$/);
-    expect(screen.getByTestId("pass-checkout-upsell").textContent).toMatch(/^Stay covered till your boards: Board Pass ₹[\d,]+ once$/);
+    expect(screen.getByTestId("pass-checkout-upsell").textContent).toMatch(/^Stay covered, valid till 28 Feb 2027: Board Pass ₹[\d,]+ once$/);
     expect(buttons().filter((t) => /^Pay |^Renew/.test(t || ""))).toHaveLength(1);
     expect(buttons().some((t) => BP_PAY.test(t || ""))).toBe(true);
     expect(screen.queryByTestId("pass-checkout-renew-month")).toBeNull();

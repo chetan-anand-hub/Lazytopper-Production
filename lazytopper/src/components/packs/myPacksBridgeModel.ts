@@ -12,6 +12,7 @@
  *     nothing known -> no status words at all (never a promise the server did not make).
  * Display only (CLAUDE.md §4a): nothing here grades, scores, types a mistake or records.
  */
+import { VALIDITY_SHORT } from "../../config/validity";
 import type { SessionRecord, SessionSubject } from "../../services/sessionRecords";
 import { packPaperCode } from "../../lib/packs/packPaperCode";
 import { MOCKS_PER_SUBJECT, packChapterLabel } from "../../lib/packs/packLabels";
@@ -84,7 +85,7 @@ export const BRIDGE_COPY = {
 
 /** The approved Board Pass benefits. The second line's example ("like HCF vs LCM above") is the mock-up's sample, so it is dropped. */
 export const BRIDGE_PASS_POINTS: ReadonlyArray<{ lead: string; rest: string }> = [
-  { lead: "CBSE examiner style marking", rest: " of every paper in every pack, till your boards" },
+  { lead: "CBSE examiner style marking", rest: ` of every paper in every pack, ${VALIDITY_SHORT}` },
   { lead: "Practice aimed at where you lose marks", rest: "" },
   { lead: "Your personal tutor", rest: " for any doubt, any chapter" },
 ];

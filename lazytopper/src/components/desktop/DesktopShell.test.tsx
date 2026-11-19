@@ -266,7 +266,7 @@ describe("DesktopShell rail — the Tutor entry (PR-B2)", () => {
     expect(note).not.toHaveTextContent(/Sign up free — 7 days of the tutor and step marking/i);
     expect(note).toHaveTextContent(/7-day trial/i);
     // TRIAL-ON-SIGNUP-1b — the picker names the monthly price (CHECKOUT-1).
-    expect(note.textContent).toContain(`then free Basic, or the Board Pass ${boardPassPriceDisplay()} till boards.`);
+    expect(note.textContent).toContain(`then free Basic, or the Board Pass ${boardPassPriceDisplay()}, valid till 28 Feb 2027.`);
   });
 });
 

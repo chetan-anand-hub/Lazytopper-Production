@@ -223,7 +223,7 @@ test('R6 · foundingMember is STICKY: offer closed, a founding member still pays
   assert.equal(stored.foundingMember, true);
 });
 
-test('R6 · grant TILL-BOARDS at FOUNDING: tillBoardsQuote price, ends at the END of the board day IST', async () => {
+test('R6 · grant TILL-BOARDS at FOUNDING: tillBoardsQuote price, ends at the END of 28 Feb 2027 IST (VALIDITY-FEB27)', async () => {
   const db = memoryFirestore();
   const now = istNoon('2026-09-27');
   await grantPass({ uid: 'u1', passType: 'till_boards', paymentRef: 'pay_1', now }, { firestore: db, foundingOfferOpen: true });
@@ -233,7 +233,7 @@ test('R6 · grant TILL-BOARDS at FOUNDING: tillBoardsQuote price, ends at the EN
   assert.equal(stored.plan, 'pass_till_boards');
   assert.equal(stored.offerKey, 'founding');
   assert.equal(ms(stored.passStart), now);
-  assert.equal(ms(stored.passEnd), istDayEnd('2027-02-17'));
+  assert.equal(ms(stored.passEnd), istDayEnd('2027-02-28'));
 });
 
 test('R6 · grant TILL-BOARDS with the offer flag closed on a pre-deadline date: the price follows the DATE (1,917), the offer key follows the flag', async () => {
@@ -288,11 +288,11 @@ test('R6 · STACKING: till-boards over a LATER month keeps the later passEnd', a
   assert.equal(stored.plan, 'pass_till_boards');
 });
 
-test('R6 · STACKING: till-boards over an EARLIER month runs to the board day', async () => {
+test('R6 · STACKING: till-boards over an EARLIER month runs to 28 Feb 2027 (VALIDITY-FEB27)', async () => {
   const db = memoryFirestore();
   await grantPass({ uid: 'u1', passType: 'month', paymentRef: 'pay_1', now: istNoon('2026-09-27') }, { firestore: db });
   await grantPass({ uid: 'u1', passType: 'till_boards', paymentRef: 'pay_2', now: istNoon('2026-10-01') }, { firestore: db });
-  assert.equal(ms(db.read(KEY('u1')).passEnd), istDayEnd('2027-02-17'));
+  assert.equal(ms(db.read(KEY('u1')).passEnd), istDayEnd('2027-02-28'));
 });
 
 /* ══════════════════════════════════════════════════════════════════════════

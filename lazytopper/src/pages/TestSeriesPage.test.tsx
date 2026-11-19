@@ -71,7 +71,7 @@ vi.mock("./PackDialog", () => ({ default: () => <div role="dialog" data-testid="
 import TestSeriesPage from "./TestSeriesPage";
 import { seriesChapterTests, seriesFullMocks, seriesTotals } from "../lib/testSeries/testSeries";
 import { packPayLabel, testSeriesPriceLine } from "../services/packs";
-import { TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_VALIDITY } from "../lib/packs/packLabels";
+import { TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_VALIDITY, TEST_SERIES_VALIDITY_LONG } from "../lib/packs/packLabels";
 
 function Where() {
   const l = useLocation();
@@ -173,8 +173,8 @@ describe("/test-series — signed out", () => {
     const hero = screen.getByTestId("ts-hero-offer");
     expect(hero.closest("header")).not.toBeNull();
     expect(within(hero).getByTestId("ts-hero-price").textContent).toBe(testSeriesPriceLine());
-    expect(within(hero).getByTestId("ts-hero-valid").textContent).toBe(`One payment, ${TEST_SERIES_VALIDITY}`);
-    expect(TEST_SERIES_VALIDITY).toBe("till 31 May 2027 (after your boards)");
+    expect(within(hero).getByTestId("ts-hero-valid").textContent).toBe(TEST_SERIES_VALIDITY_LONG);
+    expect(TEST_SERIES_VALIDITY).toBe("valid till 28 Feb 2027");
     expect(within(hero).getByTestId("ts-hero-per-test").textContent).toContain("₹6 per test");
     expect(screen.getByTestId("ts-hero-buy").textContent).toBe(`Get the Test Series · ${packPayLabel("test_series")}`);
     expect(screen.getByTestId("ts-hero-buy").textContent).toBe("Get the Test Series · ₹1,179");
@@ -199,7 +199,9 @@ describe("/test-series — signed out", () => {
     expect(within(ts).getByTestId("ts-cta-buy").textContent).toBe("Get the Test Series · ₹1,179");
     expect(within(ts).getByTestId("ts-offer-checks").textContent).toBe(TEST_SERIES_CHECKS_EXPLAINER);
     const bp = screen.getByTestId("ts-offer-bp");
-    expect(within(bp).getByTestId("till-boards-figures").textContent).toBe("₹1,917 + GST till your boards");
+    expect(within(bp).getByTestId("till-boards-figures").textContent).toBe("₹1,917 + GST");
+    // VALIDITY-FEB27: the validity sentence is fixed text OUTSIDE the clock slot (the prerender keeps it).
+    expect(within(bp).getByTestId("ts-offer-bp-valid").textContent).toBe(TEST_SERIES_VALIDITY_LONG);
     expect(bp.textContent).toContain("Every answer checked everywhere (Answer Checker, worksheets)");
     expect(screen.getByTestId("ts-bp-link").getAttribute("href")).toBe("/board-pass");
     expect(screen.queryByTestId("ts-packs")).toBeNull();
@@ -212,7 +214,7 @@ describe("/test-series — signed out", () => {
   it("from 1 Dec the Test Series is ₹1,499 + GST and the button follows the total (no hardcoded price); the founding line is gone", async () => {
     vi.setSystemTime(new Date("2026-12-01T00:05:00+05:30"));
     await mount();
-    expect(screen.getByTestId("ts-offer-bp").textContent).toContain("₹2,499 + GST till your boards");
+    expect(screen.getByTestId("ts-offer-bp").textContent).toContain("₹2,499 + GST");
     expect(screen.getByTestId("ts-offer-ts").textContent).toContain("₹1,499 + GST");
     expect(screen.getByTestId("ts-offer-ts").textContent).not.toContain("founding");
     expect(screen.getByTestId("ts-offer-ts").textContent).toContain(TEST_SERIES_VALIDITY);

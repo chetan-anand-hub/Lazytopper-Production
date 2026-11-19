@@ -1,3 +1,4 @@
+import { VALIDITY_LONG } from "../config/validity";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import RestoredPurchaseCard from "../components/checkoutWho/RestoredPurchaseCard";
 import BoardsCountdownStrip from "../components/urgency/BoardsCountdownStrip";
@@ -263,8 +264,6 @@ export function TillBoardsOffer() {
               <span className="lt-pricing-tillboards-amount">{quote.priceDisplay}</span>
               <span className="lt-pricing-tillboards-meta">
                 <span className="lt-pricing-tillboards-once">{BOARD_PASS_ONCE}</span>
-                {" · "}
-                <span className="lt-pricing-tillboards-until">{quote.untilLabel}</span>
               </span>
             </p>
             {deadline && (
@@ -275,6 +274,8 @@ export function TillBoardsOffer() {
           </div>
         )}
       </div>
+      {/* VALIDITY-FEB27: the validity line carries only the FIXED date, so it sits OUTSIDE the clock slot and is in the prerender. */}
+      <p className="lt-pricing-tillboards-validity" data-testid="till-boards-validity">{VALIDITY_LONG}</p>
     </div>
   );
 }

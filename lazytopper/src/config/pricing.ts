@@ -44,6 +44,8 @@
  *     a surface quoting a price the student will not actually be charged.
  */
 
+import { VALIDITY_SHORT } from "./validity";
+
 // ---------------------------------------------------------------------------
 // Owner-final prices. These are the ONLY numbers a price change should touch.
 // ---------------------------------------------------------------------------
@@ -334,12 +336,13 @@ export function boardPassGstBreakdown(now: Date | number = Date.now()): string |
   return gstBreakdownFor(tillBoardsPriceInr(now), now);
 }
 /**
- * "₹1,917 \u2014 one payment till your boards" - the ONE price line every surface shows (PRICE-FIXED-1). From the GST
- * cut-off: "₹1,917 + GST \u2014 one payment till your boards" (owner, 4 Nov 18:20 IST: the TOTAL appears only at the
+ * "₹1,917 \u2014 one payment, valid till 28 Feb 2027" - the ONE price line every surface shows (PRICE-FIXED-1; VALIDITY-FEB27 replaced
+ * "till your boards"). From the GST
+ * cut-off: "₹1,917 + GST \u2014 one payment, valid till 28 Feb 2027" (owner, 4 Nov 18:20 IST: the TOTAL appears only at the
  * checkout step and on Pay buttons - boardPassGstBreakdown / boardPassPayDisplay).
  */
 export function boardPassPriceLine(now: Date | number = Date.now()): string {
-  return `${boardPassPriceDisplay(now)} \u2014 one payment till your boards`;
+  return `${boardPassPriceDisplay(now)} \u2014 one payment, ${VALIDITY_SHORT}`;
 }
 /**
  * The founding label (owner, 21:20 IST 31 Oct 2026): before the deadline the Board Pass price is called, exactly,
@@ -403,8 +406,9 @@ export function boardPassFromLine(now: Date | number = Date.now()): string {
   return `One payment \u00b7 ${boardPassTagFor(TILL_BOARDS_AFTER_FOUNDING_INR, now)} from ${day} ${month.slice(0, 3)}`;
 }
 /** The Board Pass LEADS (PRICING-1). Number-free so it may sit in static markup; no "saving" claim against a monthly price (PRICE-FIXED-1). */
-export const TILL_BOARDS_LINE = "One payment, till your board exam.";
-export const TILL_BOARDS_INLINE = `or pay once till boards`;
+// VALIDITY-FEB27: both carry the fixed date (no figure that moves with the clock), so they may sit in static markup.
+export const TILL_BOARDS_LINE = `One payment, ${VALIDITY_SHORT}.`;
+export const TILL_BOARDS_INLINE = `or pay once, ${VALIDITY_SHORT}`;
 
 /**
  * Value anchor for the MONTHLY price. Owner-ruled: it still holds at
@@ -483,11 +487,6 @@ export const BILLING_INCREMENT_MONTHLY = 1;
 /** IST is a fixed UTC+05:30 — India observes no daylight saving. */
 const IST_OFFSET_MINUTES = 5 * 60 + 30;
 
-const MONTH_SHORT = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-] as const;
-
 /** A calendar date with a 0-based month, compared field by field. */
 interface CalendarDate {
   y: number;
@@ -549,7 +548,7 @@ export interface TillBoardsQuote {
   totalInr: number;
   /** "₹2,262" - what a Pay button names. */
   totalDisplay: string;
-  /** "till your boards (Feb 2027)" — the month and year of the board date. */
+  /** VALIDITY-FEB27: "valid till 28 Feb 2027" - the fixed validity end (config/validity.ts), no longer derived from the board date. */
   untilLabel: string;
 }
 
@@ -593,6 +592,6 @@ export function tillBoardsQuote(
     priceDisplay: boardPassPriceDisplay(now),
     totalInr: boardPassTotalInr(now),
     totalDisplay: boardPassPayDisplay(now),
-    untilLabel: `till your boards (${MONTH_SHORT[board.m]} ${board.y})`,
+    untilLabel: VALIDITY_SHORT,
   };
 }

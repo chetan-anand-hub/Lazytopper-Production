@@ -136,13 +136,13 @@ describe("PAID-XSELL-1 - prices, copy and links", () => {
   it("a pack buyer sees the normal Board Pass price even if the server still sends a credit", () => {
     for (const bought of ["pdf", "cbq"] as const) {
       const bp = pickPaidCrossSell(base({ bought, credit })).find((x) => x.id === "board_pass");
-      expect(bp?.price).toBe(`${boardPassPriceDisplay(NOW)} till your boards`);
-      expect(bp?.price).toMatch(/\+ GST till your boards$/);
+      expect(bp?.price).toBe(`${boardPassPriceDisplay(NOW)} · valid till 28 Feb 2027`);
+      expect(bp?.price).toMatch(/\+ GST · valid till 28 Feb 2027$/);
       expect(bp?.cta).toBe(`Get the Board Pass — ${boardPassPayDisplay(NOW)}`);
     }
   });
   it("no credit / a lapsed credit -> the normal price", () => {
-    const normal = { price: `${boardPassPriceDisplay(NOW)} till your boards`, cta: `Get the Board Pass — ${boardPassPayDisplay(NOW)}` };
+    const normal = { price: `${boardPassPriceDisplay(NOW)} · valid till 28 Feb 2027`, cta: `Get the Board Pass — ${boardPassPayDisplay(NOW)}` };
     expect(boardPassXsellPrice(null, NOW)).toEqual(normal);
     expect(boardPassXsellPrice({ ...credit, expiresAtMs: NOW - 1 }, NOW)).toEqual(normal);
   });

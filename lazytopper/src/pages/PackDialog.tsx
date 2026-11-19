@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { PACK_CHAPTER_SLUGS, packPriceLabel, subjectLabel, subjectOfChapter, type PackSku, type PackSubject } from "../services/packs";
-import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, packChapterLabel, TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_NAME, TEST_SERIES_VALIDITY } from "../lib/packs/packLabels";
+import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, packChapterLabel, TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_NAME, TEST_SERIES_VALIDITY_LONG } from "../lib/packs/packLabels";
 import { testSeriesPackLine } from "../lib/testSeries/testSeries";
 import { packManifest, packSummaryRows } from "../lib/packs/packManifest";
 import { PREVIEW_FALLBACK_CAPTION, PREVIEW_H, PREVIEW_W, packPreviewFor, previewCaption, previewImage, previewShows, type PreviewPage } from "../lib/packs/packPreviews";
@@ -370,7 +370,7 @@ export default function PackDialog(props: PackDialogProps) {
             )}
             {sku === "pack_bundle" && <p className="lt-pkd__plain">Both subjects, everything included.</p>}
             {sku === "test_series" && <>
-              <p className="lt-pkd__plain" data-testid="pack-test-series-line">{`Maths + Science, one payment, ${TEST_SERIES_VALIDITY}.`}</p>
+              <p className="lt-pkd__plain" data-testid="pack-test-series-line">{`Maths + Science. ${TEST_SERIES_VALIDITY_LONG}`}</p>
               <p className="lt-pkd__plain" data-testid="pack-test-series-checks">{TEST_SERIES_CHECKS_EXPLAINER}</p>
             </>}
             {sku === "pack_cbq" && <p className="lt-pkd__plain" data-testid="pack-cbq-tutor-line">Includes 3 tutor questions</p>}

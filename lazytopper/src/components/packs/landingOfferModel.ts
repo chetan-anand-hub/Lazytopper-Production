@@ -6,6 +6,7 @@
  * constants or the Board Pass quote; the CBQ count from packLabels CBQ_SUBJECT_CLAIM (the floor a CI test checks against the bank).
  * Google Ads policy (these are ad landing pages): no "answer", "solution", "hack", "trick", "crack" or "leak" in this copy.
  */
+import { VALIDITY_SHORT } from "../../config/validity";
 import { CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
 import { PACK_PRICE_INR, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
 import { boardPassGstExclusive, displayPlusGst } from "../../config/pricing";
@@ -43,14 +44,14 @@ export const LANDING_BOARD_PASS_HREF = BOARD_PASS_BUY_PATH;
 /** LINKS-1: every generic "PDF packs" link leads to the one pricing page (owner ruling 29 Oct 2026). */
 export const LANDING_PACKS_HREF = "/pricing#packs";
 
-/** "or the Board Pass ₹1,917 - step marking till boards" (no figure when none can be quoted). */
+/** "or the Board Pass ₹1,917 - step marking, valid till 28 Feb 2027" (no figure when none can be quoted). */
 export function cbqBoardPassLine(price: string | null): string {
-  return `or the Board Pass${price ? ` ${price}` : ""} — step marking till boards`;
+  return `or the Board Pass${price ? ` ${price}` : ""} — step marking, ${VALIDITY_SHORT}`;
 }
 
-/** "Get every question step-marked till your boards · Board Pass ₹1,917 →" */
+/** "Get every question step-marked, valid till 28 Feb 2027 · Board Pass ₹1,917 →" */
 export function checkBoardPassLine(price: string | null): string {
-  return `Get every question step-marked till your boards · Board Pass${price ? ` ${price}` : ""} →`;
+  return `Get every question step-marked, ${VALIDITY_SHORT} · Board Pass${price ? ` ${price}` : ""} →`;
 }
 
 /** "Prefer practising on paper? PDF packs from ₹49 →" */

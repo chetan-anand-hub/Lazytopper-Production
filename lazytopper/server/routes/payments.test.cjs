@@ -1624,7 +1624,8 @@ test('PRICE-FIXED-1 · a month order CREATED before the instant and PAID after i
    ══════════════════════════════════════════════════════════════════════════ */
 
 const { grantPass, computeGrant } = require('../services/passGrant.cjs');
-const BOARD_END = Date.parse('2027-02-17T23:59:59.999+05:30');
+const BOARD_END = Date.parse('2027-02-17T23:59:59.999+05:30'); // the OLD Board Pass end (stored on every existing holder)
+const VALIDITY_END = Date.parse('2027-02-28T23:59:59.999+05:30'); // VALIDITY-FEB27: the new end (grants, and the read-time end of a stored 17 Feb pass)
 const snapshotDocs = (db) => JSON.stringify([...db.docs.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([k, e]) => [k, e.data, e.version]));
 
 /** An EXISTING till_boards buyer: a paid Board Pass at the old shrinking price (2,396), founding member. */
@@ -1688,7 +1689,7 @@ test('EXISTING-BUYERS (1) · a till_boards buyer keeps the SAME end date and sta
   assert.equal(JSON.stringify(db.read('payOrders/order_tb_old')), orderBefore);
   // The pure rule is unchanged: a till_boards grant on an unexpired pass ends at max(stored end, board end).
   const d = computeGrant(tillBoardsBuyerSeed()['subscriptions/tb1'], { passType: 'till_boards', paymentRef: 'p2', nowMs: istNoon('2026-12-20') });
-  assert.equal(ms(d.fields.passEnd), BOARD_END);
+  assert.equal(ms(d.fields.passEnd), VALIDITY_END, 'VALIDITY-FEB27: a till_boards grant ends 28 Feb 2027');
   assert.equal(d.fields.foundingMember, true, 'the founding flag is sticky and was not cleared');
 });
 
@@ -1969,10 +1970,11 @@ test('DUPGUARD · covered past the boards (an admin extension to April) is refus
   assert.equal(srv.rzp.calls.length, 0);
 });
 
-test('DUPGUARD · boundary: passEnd AT the end of the predicted board day is covered (409); 1 ms earlier is not (order made)', async (t) => {
+test('DUPGUARD · boundary: a pass whose end is AT the validity end (28 Feb 2027 end of day IST) is covered (409); 1 ms earlier is not (order made)', async (t) => {
   const { coveredTillBoards } = require('./parentPay.cjs');
-  for (const [endMs, covered] of [[BOARD_END, true], [BOARD_END - 1, false]]) {
-    const stored = { tier: 'premium', plan: 'pass_till_boards', passType: 'till_boards', passEnd: new Date(endMs) };
+  // A MONTH pass has no read-time raise, so its stored end is the boundary itself (a till_boards pass of the 2026-27 session reads to VALIDITY_END).
+  for (const [endMs, covered] of [[VALIDITY_END, true], [VALIDITY_END - 1, false]]) {
+    const stored = { tier: 'premium', plan: 'pass_month', passType: 'month', passEnd: new Date(endMs) };
     assert.equal(coveredTillBoards(stored, DG_NOW), covered, 'the shared helper disagrees with this test');
     const srv = await startRoutes({ db: memoryFirestore({ 'subscriptions/b1': stored }), now: () => DG_NOW, calendarOffer: true });
     t.after(srv.close);
@@ -1980,6 +1982,16 @@ test('DUPGUARD · boundary: passEnd AT the end of the predicted board day is cov
     assert.equal(r.status, covered ? 409 : 200, `${new Date(endMs).toISOString()}: ${JSON.stringify(r.json)}`);
     assert.equal(dgPayOrders(srv.db).length, covered ? 0 : 1);
   }
+});
+
+test('VALIDITY-FEB27 · an EXISTING Board Pass stored to 17 Feb 2027 is covered to 28 Feb (read-time); a LATER stored end is never shortened; a pass of a past session is not resurrected', () => {
+  const { coveredTillBoards } = require('./parentPay.cjs');
+  const till = (endMs) => ({ tier: 'premium', plan: 'pass_till_boards', passType: 'till_boards', passEnd: new Date(endMs) });
+  assert.equal(coveredTillBoards(till(BOARD_END), DG_NOW), true, 'stored 17 Feb reads as 28 Feb: covered, nothing more to buy');
+  assert.equal(coveredTillBoards(till(Date.parse('2027-04-30T23:59:59+05:30')), DG_NOW), true, 'a later admin extension is covered and untouched');
+  assert.equal(coveredTillBoards(till(Date.parse('2026-02-17T23:59:59+05:30')), DG_NOW), false, 'last session pass already ended: not covered (not resurrected)');
+  // After the validity end the pass has expired: not covered, offered again.
+  assert.equal(coveredTillBoards(till(BOARD_END), VALIDITY_END + 1), false);
 });
 
 test('DUPGUARD · a MONTH-pass holder still gets the Board Pass UPGRADE order, at the server upgrade price (owner 7 Nov)', async (t) => {
@@ -1996,7 +2008,7 @@ test('DUPGUARD · a MONTH-pass holder still gets the Board Pass UPGRADE order, a
   const p = srv.rzp.pay(out.orderId);
   const v = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: out.orderId, paymentId: p.id, signature: checkoutSig(out.orderId, p.id) }, headers: asUid('mb1') });
   assert.equal(v.status, 200, JSON.stringify(v.json));
-  assert.equal(ms(db.read('subscriptions/mb1').passEnd), BOARD_END);
+  assert.equal(ms(db.read('subscriptions/mb1').passEnd), VALIDITY_END);
   // Now covered: a further Board Pass order is refused.
   const again = await request(srv.port, PAY_ORDER_PATH, { body: { passType: 'till_boards' }, headers: asUid('mb1') });
   assert.equal(again.status, 409);

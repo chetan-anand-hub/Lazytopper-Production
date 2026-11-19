@@ -7,13 +7,13 @@ import type { OfferKind } from "./offersModel";
 
 /** One benefit line under "Board Pass", per surface (owner-approved canvas, 2 Nov 2026). */
 export const BOARD_PASS_BENEFIT: Readonly<Record<OfferKind, string>> = {
-  "full-mock": "Every answer you write, marked step by step like a CBSE examiner — mocks, chapter tests and your own handwritten work. Till your boards.",
-  "check-improve": "Check every answer like this till your boards — and catch these slips before the exam does.",
+  "full-mock": "Every answer you write, marked step by step like a CBSE examiner — mocks, chapter tests and your own handwritten work. Valid till 28 Feb 2027.",
+  "check-improve": "Check every answer like this, valid till 28 Feb 2027 — and catch these slips before the exam does.",
   "chapter-test": "Every chapter test, mock and handwritten answer marked step by step — and a tutor that knows where you slip.",
   worksheet: "Every worksheet, chapter test and handwritten answer marked step by step — and a tutor that knows where you slip.",
-  "quick-practice": "Upload your rough work and find out exactly why — then get every written answer marked step by step till your boards.",
-  "important-qs": "Write your own answer to any important question and get it marked step by step, like a CBSE examiner, till your boards.",
-  ladder: "Get your written answers marked step by step, like a CBSE examiner, till your boards.",
+  "quick-practice": "Upload your rough work and find out exactly why — then get every written answer marked step by step, valid till 28 Feb 2027.",
+  "important-qs": "Write your own answer to any important question and get it marked step by step, like a CBSE examiner, valid till 28 Feb 2027.",
+  ladder: "Get your written answers marked step by step, like a CBSE examiner, valid till 28 Feb 2027.",
 };
 
 /** The paper's name in a sentence ("your mock", "your chapter test", "your worksheet"). */
@@ -53,7 +53,7 @@ export function paperWallCopy(kind: OfferKind, onTrial: boolean, trialEndedLine:
     return {
       title: `${saved} Want it marked now?`,
       body: `You've used this week's graded ${kind === "full-mock" || kind === "chapter-test" || kind === "worksheet" ? word : "paper"} from your free week.`,
-      benefit: `Get this ${kind === "full-mock" || kind === "chapter-test" || kind === "worksheet" ? word : "paper"} marked today, and every mock, chapter test and handwritten answer till your boards.`,
+      benefit: `Get this ${kind === "full-mock" || kind === "chapter-test" || kind === "worksheet" ? word : "paper"} marked today, and every mock, chapter test and handwritten answer, valid till 28 Feb 2027.`,
       dismiss: WALL_DISMISS_TRIAL,
     };
   }
@@ -61,7 +61,7 @@ export function paperWallCopy(kind: OfferKind, onTrial: boolean, trialEndedLine:
   return {
     title: `${saved} Get it marked like the board would.`,
     body: [trialEndedLine, written].filter(Boolean).join(" "),
-    benefit: "Every answer marked step by step, your personal tutor, and Mistake Intelligence — till your boards.",
+    benefit: "Every answer marked step by step, your personal tutor, and Mistake Intelligence — valid till 28 Feb 2027.",
     dismiss: WALL_DISMISS_BASIC,
   };
 }

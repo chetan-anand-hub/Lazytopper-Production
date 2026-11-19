@@ -1,3 +1,4 @@
+import { VALIDITY_SHORT } from "../../config/validity";
 import { useContext, useEffect, useState } from "react";
 import { Link, UNSAFE_LocationContext } from "react-router-dom";
 import { useTestSeriesOwnership } from "../testSeries/testSeriesOwnership";
@@ -21,9 +22,9 @@ import type { ScorecardVariant } from "./scorecardVariants";
  * ScorecardUpgradeLine — ASK-FIX-1. One calm line under a graded result, for a student who is not
  * on a paid Premium pass (trial and Basic), tied to the REAL result:
  *
- *   marks lost > 0      "You lost {N} marks here. Get every answer marked like this till your boards — Board Pass ₹{price} →"
- *   nothing lost        "Full marks! Keep every answer marked like this till your boards — Board Pass ₹{price} →"
- *   marks not known     "Get every answer marked like this till your boards — Board Pass ₹{price} →"
+ *   marks lost > 0      "You lost {N} marks here. Get every answer marked like this, valid till 28 Feb 2027 — Board Pass ₹{price} →"
+ *   nothing lost        "Full marks! Keep every answer marked like this, valid till 28 Feb 2027 — Board Pass ₹{price} →"
+ *   marks not known     "Get every answer marked like this, valid till 28 Feb 2027 — Board Pass ₹{price} →"
  * and, for any non-paid student (PACK-BASIC-ONLY-1; never paid Premium), SALE-MOMENT-1's pack line under it: the pack that fits
  * this result (that chapter's Chapter Pack, else the subject's Subject Pack, else the plain "PDF packs from ₹49" line), deep-linked
  * to its pop-up on /packs, hidden when the student owns it and on a re-opened or locked card (components/packs/SaleMomentLine).
@@ -42,7 +43,7 @@ import type { ScorecardVariant } from "./scorecardVariants";
  * Worksheet, Chapter Test, Full Mock and Quick Practice.
  */
 
-const TILL_BOARDS = "marked like this till your boards";
+const TILL_BOARDS = `marked like this, ${VALIDITY_SHORT}`;
 
 export type ScorecardUpgradeCopy = { text: string };
 

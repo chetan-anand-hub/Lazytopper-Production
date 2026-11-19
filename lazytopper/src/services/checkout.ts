@@ -14,6 +14,7 @@
  * ★ checkout.js IS LOADED ONLY ON THE BUY CLICK (Z3), from Razorpay's own origin, once.
  */
 
+import { VALIDITY_LABEL, VALIDITY_SHORT } from "../config/validity";
 import { confirmServerPrice, serverPriceFields, type ServerGst, razorpaySheetDescription } from "./priceConfirm";
 import { razorpayUpiFirstOption, type RazorpayDisplayConfig } from "./razorpayDisplay";
 // GST-INVOICE-1: "Your state" before the order (off by default: the body is byte-identical).
@@ -69,7 +70,7 @@ export class PayAlreadyCoveredError extends Error {
 
 /** MONEY-DUPGUARD-1 — the calm line shown instead of a checkout when the server says the student is already covered. */
 // Review F2: neutral "pass" - a month pass that runs past the board day covers the student too.
-export const PASS_ALREADY_COVERED_COPY = "Your pass already covers you till your boards. There's nothing more to pay.";
+export const PASS_ALREADY_COVERED_COPY = `Your pass is already valid till ${VALIDITY_LABEL}. There's nothing more to pay.`;
 
 /** Z6 — the owner's failure sentence, word for word. */
 export const PAYMENT_FAILED_COPY = "Payment didn't go through. You haven't been charged twice — try again.";
@@ -215,7 +216,7 @@ export type RazorpayConstructor = new (options: RazorpayOptions) => RazorpayInst
  * PAY-PHONE-1 (B) - what the Board Pass is, as Razorpay shows it inside the payment window. Taken from the existing
  * /pricing copy ("Checked answers, your personal tutor and Mistake Intelligence come with Premium"); no new claim.
  */
-export const BOARD_PASS_CHECKOUT_DESCRIPTION = "Board Pass · checked answers, your personal tutor and Mistake Intelligence till your boards";
+export const BOARD_PASS_CHECKOUT_DESCRIPTION = `Board Pass \u00b7 checked answers, your personal tutor and Mistake Intelligence, ${VALIDITY_SHORT}`;
 
 type WindowWithRazorpay = Window & { Razorpay?: RazorpayConstructor };
 

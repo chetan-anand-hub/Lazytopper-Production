@@ -598,7 +598,7 @@ describe("TS-PACK-1 · /packs Test Series card", () => {
     // packs dark: the neutral twin button opens the pop-up (no Buy)
     fireEvent.click(screen.getByTestId("pk-buy-test-series-neutral"));
     const dialog = screen.getByRole("dialog");
-    expect(within(dialog).getByTestId("pack-test-series-line").textContent).toBe("Maths + Science, one payment, till 31 May 2027 (after your boards).");
+    expect(within(dialog).getByTestId("pack-test-series-line").textContent).toBe("Maths + Science. One payment, valid till 28 Feb 2027 \u2014 covers your Maths (17 Feb) and Science (22 Feb) boards.");
     expect(within(dialog).queryByTestId("pack-preview-caption")).toBeNull();
     // TS-UX-PAGE-1: what "2 checks per paper" means, in the pop-up and on the card, before any Buy.
     expect(within(dialog).getByTestId("pack-test-series-checks").textContent).toBe(
@@ -611,10 +611,10 @@ describe("TS-PACK-1 · /packs Test Series card", () => {
     const card = screen.getByTestId("packs-test-series");
     expect(card.textContent).toContain("2 checks per paper");
     expect(card.textContent).not.toMatch(/twice per paper|till your boards/);
-    expect(card.textContent).toContain("till 31 May 2027 (after your boards)");
+    expect(card.textContent).toContain("valid till 28 Feb 2027");
     expect(card.textContent).toContain("Sections B–D (B–E in full-length tests)");
     expect(screen.getByTestId("packs-ts-checks").textContent).toContain("Each paper can be checked twice: upload your answers");
-    expect(screen.getByTestId("packs-ts-valid").textContent).toContain("till 31 May 2027 (after your boards)");
+    expect(screen.getByTestId("packs-ts-valid").textContent).toContain("valid till 28 Feb 2027");
   });
 
   it("TS-UX-PAGE-1: /packs?buy=test_series keeps working; from=test-series sends closing the pop-up back to /test-series, a plain link stays on /packs", async () => {
@@ -710,7 +710,7 @@ describe("TS-PACK-1 · /packs Test Series card", () => {
     expect(screen.getByTestId("packs-owned-test-series-open").getAttribute("href")).toBe("/test-series");
     // MYPACKS-TS-1: "Go to Test Series" + the validity date, no file list; a PDF-pack-only owner has no such row.
     expect(screen.getByTestId("packs-owned-test-series-open").textContent).toContain("Go to Test Series");
-    expect(screen.getByTestId("packs-owned-test-series-valid").textContent).toBe("Valid till 31 May 2027 (after your boards)");
+    expect(screen.getByTestId("packs-owned-test-series-valid").textContent).toBe("Valid till 28 Feb 2027");
     expect(screen.queryByText(/Show files|Download files/)).toBeNull();
   });
 

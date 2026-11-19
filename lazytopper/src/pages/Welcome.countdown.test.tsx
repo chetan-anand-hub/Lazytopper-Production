@@ -52,8 +52,7 @@ afterEach(() => cleanup());
  * real `predictCbseExamDate("10")`, which rolls forward exactly as in production,
  * and the assertion reads the DOM node. A helper-level test could pass while the
  * page showed "12 months" during the boards — the defect this section exists for.
- * Exam date in this window: 2027-02-17 (the predictor's roll-forward; 2026-27 has
- * no `officialDates` entry yet).
+ * Exam date in this window: 2027-02-16 (VALIDITY-FEB27: the 2026-27 `officialDates` entry, CBSE's Phase 1 start).
  */
 function renderedOn(isoDate: string): { heading: string; figure: string } {
   vi.useFakeTimers({ toFake: ["Date"] });
@@ -79,17 +78,18 @@ const renderedFigureOn = (isoDate: string) => renderedOn(isoDate).figure;
 describe("the countdown — every stage of the year, as rendered", () => {
   it.each([
     ["2026-09-21", "5 months"], //   149 days = 4.89 — ROUNDED; floor would say 4
-    ["2026-12-19", "2 months"], //    60 days — bottom of the months band
-    ["2026-12-20", "8 weeks"], //     59 days — top of the weeks band
+    ["2026-12-18", "2 months"], //    60 days — bottom of the months band
+    ["2026-12-19", "8 weeks"], //     59 days — top of the weeks band
     ["2027-01-02", "6 weeks"], //     46 days — NOT "2 months" (false comfort)
-    ["2027-02-02", "2 weeks"], //     15 days — bottom of the weeks band
-    ["2027-02-03", "14 days"], //     14 days — top of the days band
-    ["2027-02-15", "2 days"], //       2 days — bottom of the days band
-    ["2027-02-16", "Tomorrow"], //     1 day
-    ["2027-02-17", "Today"], //        0 — exam day
-    ["2027-02-18", BOARDS_ON_FIGURE], // exam day +1 — the predictor has rolled to 2028
-    ["2027-03-19", BOARDS_ON_FIGURE], // exam day +30 — last day of the window
-    ["2027-03-20", "11 months"], //   exam day +31 — counting to 2028-02-17 as normal
+    ["2027-02-01", "2 weeks"], //     15 days — bottom of the weeks band
+    ["2027-02-02", "14 days"], //     14 days — top of the days band
+    ["2027-02-14", "2 days"], //       2 days — bottom of the days band
+    ["2027-02-15", "Tomorrow"], //     1 day
+    ["2027-02-16", "Today"], //        0 — exam day
+    ["2027-02-17", "Today"], //        the day after the official date: the predictor's own rule (17 Feb) takes over, still exam week
+    ["2027-02-18", BOARDS_ON_FIGURE], // the window opens — the predictor has rolled to 2028
+    ["2027-03-19", BOARDS_ON_FIGURE], // last day of the window — last day of the window
+    ["2027-03-20", "11 months"], //   window over — counting to 2028-02-17 as normal as normal
   ])("on %s the page reads %s", (today, expected) => {
     expect(renderedFigureOn(today)).toBe(expected);
   });
@@ -111,8 +111,9 @@ describe("the countdown — every stage of the year, as rendered", () => {
   });
 
   it.each([
-    ["2027-02-16", BOARDS_HEADING], //    1 day before — durable heading
-    ["2027-02-17", BOARDS_HEADING], //    exam day ("Today") — durable heading
+    ["2027-02-15", BOARDS_HEADING], //    1 day before — durable heading
+    ["2027-02-16", BOARDS_HEADING], //    exam day ("Today") — durable heading
+    ["2027-02-17", BOARDS_HEADING], //    17 Feb: still the durable heading
     ["2027-02-18", BOARDS_ON_HEADING], // exam day +1 — SWAPPED
     ["2027-03-19", BOARDS_ON_HEADING], // exam day +30 — still swapped
     ["2027-03-20", BOARDS_HEADING], //    exam day +31 — RESTORED

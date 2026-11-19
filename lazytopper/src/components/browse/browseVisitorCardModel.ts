@@ -28,7 +28,7 @@ export interface BrowseVisitorCardCopy {
   benefit: string;
   /** "Board Pass ₹1,917" - the name and the price at `now`. */
   priceHead: string;
-  /** "one payment till your boards". */
+  /** "Pay once, valid till 28 Feb 2027". */
   priceDetail: string;
   /** "Founding member offer ends 30 November. From 1 December: ₹2,499." before the deadline, else null. */
   deadline: string | null;

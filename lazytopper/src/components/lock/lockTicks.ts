@@ -12,6 +12,6 @@ export const LOCK_TICKS: ReadonlyArray<{ id: string; strong?: string; text: stri
   { id: "papers", text: "Unlimited chapter tests and mocks to open or download" },
 ];
 
-/** The word in front of "till your boards (Feb 2027)" beside the price (the same word /pricing uses). */
+/** The word in front of "valid till 28 Feb 2027" beside the price (the same word /pricing uses). */
 export const LOCK_ONCE = "once";
 

@@ -154,7 +154,7 @@ function createPackRoutes(deps = {}) {
     } catch {
       tutorTaste = undefined;
     }
-    // TS-PACK-1: `ownsTestSeries` (true while the Test Series Pack is valid - it is in `packs` only until 31 May 2027, server
+    // TS-PACK-1: `ownsTestSeries` (true while the Test Series Pack is valid - it is in `packs` only until 28 Feb 2027, end of day IST, server
     // clock) unlocks the series papers in the browser; `testSeries` carries the per-paper check counts (READ ONLY). Both are
     // present only for a student who bought the pack, so every other response is byte-identical to before.
     let testSeries;

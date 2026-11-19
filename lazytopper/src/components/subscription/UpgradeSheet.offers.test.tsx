@@ -135,7 +135,7 @@ describe("a trial student at this week's limit", () => {
   it("sees 'saved, want it marked now' with the packs too, and the way out reads 'Not now'", async () => {
     wall(MOCK);
     expect(screen.getByRole("heading")).toHaveTextContent("Your mock is saved. Want it marked now?");
-    expect(screen.getByTestId("offers-board-pass")).toHaveTextContent("Get this mock marked today, and every mock, chapter test and handwritten answer till your boards.");
+    expect(screen.getByTestId("offers-board-pass")).toHaveTextContent("Get this mock marked today, and every mock, chapter test and handwritten answer, valid till 28 Feb 2027.");
     await screen.findByTestId("offers-packs");
     expect(rows()).toEqual(["pack_bundle", "pack_cbq", "pack_mock"]);
     expect(screen.getByTestId("upgrade-sheet-dismiss")).toHaveTextContent("Not now");

@@ -21,6 +21,7 @@
  * ★ The token leaves the address bar as soon as the page mounts (Razorpay's checkout.js, a
  * vendor tag or a forwarded tab never sees it); it is kept in this component's memory only.
  */
+import { VALIDITY_SHORT } from "../../config/validity";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   newCheckoutAttemptId,
@@ -100,7 +101,7 @@ const COPY: Record<ParentPayLang, Copy> = {
     intro: (name) =>
       `${name || "Your child"} sent you this link. LazyTopper checks CBSE Class 10 answers step by step, the way a board examiner marks them, and shows where marks are lost.`,
     month: (price) => `Pay ${price} for a month`,
-    boards: (price) => `Pay ${price} once, till the boards`,
+    boards: (price) => `Pay ${price} once, ${VALIDITY_SHORT}`,
     fine: (name) =>
       `The Board Pass goes to ${name ? `${name}'s` : "your child's"} account, not yours — you don't need an account or any password. You pay on Razorpay's secure checkout; LazyTopper never sees your card, UPI or bank details. This link can be used for one payment.`,
     paid: (name, date, passType) =>
@@ -114,7 +115,7 @@ const COPY: Record<ParentPayLang, Copy> = {
       expired: (name) => `This link has expired. Ask ${name || "your child"} to send a new one from LazyTopper.`,
       used: () => "This link has already been used for a payment, so it can't be used again.",
       covered: (name) =>
-        `Nothing to pay — ${name ? `${name}'s` : "your child's"} LazyTopper Board Pass already runs until the board exams.`,
+        `Nothing to pay — ${name ? `${name}'s` : "your child's"} LazyTopper Board Pass is already ${VALIDITY_SHORT}.`,
       owned: (name) => `Nothing to pay — ${name ? `${name}'s` : "your child's"} LazyTopper account already has this pack.`,
       failed: () => "We couldn't open this link right now. Please try again in a little while.",
     },

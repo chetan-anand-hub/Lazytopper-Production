@@ -208,7 +208,7 @@ test('a Board Pass checkout opened 3 h ago gets ONE email with the approved shap
   const b = s.calls[0].body;
   assert.deepEqual(b.to, ['one@gmail.com']);
   assert.equal(b.subject, 'Your Board Pass is waiting');
-  assert.match(b.text, /Board Pass: ₹1,917, one payment till your boards\./);
+  assert.match(b.text, /Board Pass: ₹1,917, one payment, valid till 28 Feb 2027\./);
   assert.doesNotMatch(b.text + b.html, /2,499|2499/);
   assert.doesNotMatch(b.text, /try again/); // no failed attempt on this order
   assert.match(b.text, /Finish paying: https:\/\/www\.lazytopper\.com\/pricing\?buy=board_pass&utm_source=email/);
@@ -248,7 +248,7 @@ test('a pack checkout: pack name, catalogue price, the OFFERS-V2 one-tap /packs?
   assert.match(byTo['two@gmail.com'].text, /₹299, one-time payment/);
   // The credited order shows ITS OWN amount, never the config price; the failed attempt gets the one retry line.
   const t3 = byTo['three@gmail.com'].text;
-  assert.match(t3, /Board Pass: ₹1,718, one payment till your boards\./);
+  assert.match(t3, /Board Pass: ₹1,718, one payment, valid till 28 Feb 2027\./);
   assert.doesNotMatch(t3, /1,917|2,499/);
   assert.ok(t3.includes(A.RETRY_LINE));
   assert.equal(A.RETRY_LINE, "If your payment didn't go through, you can simply try again — nothing extra is needed.");
@@ -269,17 +269,17 @@ test('price (pure): from the order amount only; no usable amount -> no price lin
   const bp = A.productOf({ passType: 'till_boards' });
   const PRE = Date.parse('2026-11-06T23:59:59+05:30');
   const POST = Date.parse('2026-11-07T00:00:00+05:30');
-  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, PRE), 'Board Pass: ₹1,917, one payment till your boards.');
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, PRE), 'Board Pass: ₹1,917, one payment, valid till 28 Feb 2027.');
   // GST-EXCL-1: an order that stored its breakup states it; an all-in order emailed after the cut-off never understates
   // what "Finish paying" now charges (base + GST); a credited order names its credit.
   assert.equal(
     A.priceLine(bp, { amountPaise: 226200, baseInr: 1917, gstInr: 345, totalInr: 2262 }, POST),
-    'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, one payment till your boards.',
+    'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, one payment, valid till 28 Feb 2027.',
   );
-  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, POST), 'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, one payment till your boards.');
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, POST), 'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, one payment, valid till 28 Feb 2027.');
   assert.equal(
     A.priceLine(bp, { amountPaise: 221300, baseInr: 1917, gstInr: 345, totalInr: 2262, packCreditInr: 49 }, POST),
-    'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, less pack credit ₹49: ₹2,213, one payment till your boards.',
+    'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, less pack credit ₹49: ₹2,213, one payment, valid till 28 Feb 2027.',
   );
   const pk = A.productOf({ passType: 'pack_chapter', packTarget: 'triangles' });
   assert.equal(A.priceLine(pk, { amountPaise: 5800, baseInr: 49, gstInr: 9, totalInr: 58 }, POST), '₹49 + ₹9 GST (18%) = ₹58, one-time payment. It never renews.');
@@ -549,7 +549,7 @@ test('GST-EXCL-1 G3 · a credited Board Pass emailed after the cut-off states th
   assert.equal(q.amountPaise, 221300);
   // The abandoned order itself was a pre-cut-off credited order of 1868: the email must NOT say 1868 + GST = 2204.
   const line = A.priceLine(bp, { amountPaise: 186800, packCreditInr: 49 }, NOW, q);
-  assert.equal(line, 'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, less pack credit ₹49: ₹2,213, one payment till your boards.');
+  assert.equal(line, 'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, less pack credit ₹49: ₹2,213, one payment, valid till 28 Feb 2027.');
   assert.equal(require('../routes/payments.cjs').quotePass({}, 'till_boards', NOW).amountPaise - 4900, q.amountPaise, 'the same quote the order route uses');
   // A pack: the table quote.
   const pk = A.productOf({ passType: 'pack_mock', packTarget: 'maths' });
@@ -558,7 +558,7 @@ test('GST-EXCL-1 G3 · a credited Board Pass emailed after the cut-off states th
   // An unreadable quote after the cut-off: no price line at all (never a guess).
   assert.equal(A.priceLine(bp, { amountPaise: 191700 }, NOW, null), null);
   // Before the cut-off nothing changes (the quote is not even consulted).
-  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, NOW - 86400000, null), 'Board Pass: ₹1,917, one payment till your boards.');
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, NOW - 86400000, null), 'Board Pass: ₹1,917, one payment, valid till 28 Feb 2027.');
 });
 
 test('TS-UPGRADE-CREDIT-1 · a Test Series owner\'s "Finish paying" email states the UPGRADE price (918 + 165 = 1083; 1500 + 270 = 1770 from 1 Dec), the same quote the order route charges', async () => {
@@ -575,16 +575,16 @@ test('TS-UPGRADE-CREDIT-1 · a Test Series owner\'s "Finish paying" email states
   assert.deepEqual({ amountPaise: q.amountPaise, packCreditInr: q.packCreditInr }, { amountPaise: 108300, packCreditInr: 0 });
   // The abandoned order itself was a credited upgrade order (its stored breakup is the upgrade's own).
   const abandonedOrder = { amountPaise: 108300, baseInr: 918, gstInr: 165, totalInr: 1083, tsUpgradeCreditInr: 999 };
-  assert.equal(A.priceLine(bp, abandonedOrder, FOUNDING, q), 'Board Pass: ₹918 + ₹165 GST (18%) = ₹1,083, one payment till your boards.');
+  assert.equal(A.priceLine(bp, abandonedOrder, FOUNDING, q), 'Board Pass: ₹918 + ₹165 GST (18%) = ₹1,083, one payment, valid till 28 Feb 2027.');
   // Its stored breakup on its own (the pre-quote path) also adds up to the charge.
-  assert.equal(A.priceLine(bp, abandonedOrder, Date.parse('2026-11-06T12:00:00+05:30')), 'Board Pass: ₹918 + ₹165 GST (18%) = ₹1,083, one payment till your boards.');
+  assert.equal(A.priceLine(bp, abandonedOrder, Date.parse('2026-11-06T12:00:00+05:30')), 'Board Pass: ₹918 + ₹165 GST (18%) = ₹1,083, one payment, valid till 28 Feb 2027.');
   const qa = await A.finishPayingQuote(db, 'ts1', bp, AFTER);
-  assert.equal(A.priceLine(bp, abandonedOrder, AFTER, qa), 'Board Pass: ₹1,500 + ₹270 GST (18%) = ₹1,770, one payment till your boards.');
+  assert.equal(A.priceLine(bp, abandonedOrder, AFTER, qa), 'Board Pass: ₹1,500 + ₹270 GST (18%) = ₹1,770, one payment, valid till 28 Feb 2027.');
   // Everyone else is byte-identical: no Test Series, or one already credited -> the full price, exactly as before.
   for (const uid of ['plain', 'spent']) {
     const qp = await A.finishPayingQuote(db, uid, bp, FOUNDING);
     assert.equal(qp.amountPaise, 226200, uid);
-    assert.equal(A.priceLine(bp, { amountPaise: 226200, baseInr: 1917, gstInr: 345, totalInr: 2262 }, FOUNDING, qp), 'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, one payment till your boards.', uid);
+    assert.equal(A.priceLine(bp, { amountPaise: 226200, baseInr: 1917, gstInr: 345, totalInr: 2262 }, FOUNDING, qp), 'Board Pass: ₹1,917 + ₹345 GST (18%) = ₹2,262, one payment, valid till 28 Feb 2027.', uid);
   }
   // Kill switch: the email follows the order route (full price).
   const prev = process.env.TS_UPGRADE_CREDIT_DISABLED;

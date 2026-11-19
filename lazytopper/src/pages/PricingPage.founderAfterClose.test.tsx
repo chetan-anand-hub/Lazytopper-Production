@@ -116,7 +116,7 @@ describe("PricingPage after 1 Dec 2026", () => {
     expect(premium.querySelector('[data-testid="till-boards-founding-label"]')).toBeNull();
     expect(premium.querySelector('[data-testid="till-boards-deadline"]')).toBeNull();
     // GST-EXCL-1: the Pay button names the amount charged, 2499 + 18% GST.
-    expect(await screen.findByRole("button", { name: "Pay ₹2,949 once till your boards" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Pay ₹2,949 once · valid till 28 Feb 2027" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /for a month/i })).toBeNull();
   });
 });

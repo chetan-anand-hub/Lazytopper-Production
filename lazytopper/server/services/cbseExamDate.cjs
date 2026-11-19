@@ -31,6 +31,7 @@ function normalizeDateToIso(raw) {
 // `src/config/boardDate.parity.test.ts` proves all three return the same ISO date.
 const TENTATIVE_BOARD_DAY = 17;
 const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
+const OFFICIAL_BOARD_DATES = { '2025-26': '2026-02-17', '2026-27': '2027-02-16' };
 
 /**
  * The predicted board start date at `now`, on the Asia/Kolkata calendar date (fixed
@@ -46,6 +47,10 @@ function predictCbseExamDate(_studentClass, now = new Date()) {
   const todayM = ist.getUTCMonth();
   const todayD = ist.getUTCDate();
   const currentMonth = todayM + 1;
+  // VALIDITY-FEB27: the published 2026-27 Phase 1 start (mirror of cbseExamDate.ts `officialDates`). Never a past date.
+  const academicYear = currentMonth >= 4 ? todayY : todayY - 1;
+  const official = OFFICIAL_BOARD_DATES[`${academicYear}-${String(academicYear + 1).slice(2)}`];
+  if (official && Date.parse(`${official}T00:00:00Z`) >= Date.UTC(todayY, todayM, todayD)) return official;
   let year = currentMonth >= 8 ? todayY + 1 : todayY;
   const todayUtc = Date.UTC(todayY, todayM, todayD);
   let examUtc = Date.UTC(year, 1, TENTATIVE_BOARD_DAY);

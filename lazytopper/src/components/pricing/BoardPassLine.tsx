@@ -1,8 +1,8 @@
 /**
  * BoardPassLine - FIRST-OFFER-1. One quiet line that names the Board Pass with its real price on a
- * wall or lock that lacked it: "Board Pass ₹… · Pay once till your boards (Mar 2027)".
+ * wall or lock that lacked it: "Board Pass ₹… · Pay once, valid till 28 Feb 2027".
  * Everything comes from boardPassOffer (config/pricing.ts); no price or date is typed here. With no
- * quote it says "Board Pass · Pay once, till your boards". Class-based CSS only.
+ * quote it says "Board Pass · Pay once, valid till 28 Feb 2027". Class-based CSS only.
  */
 import { boardPassOffer } from "./boardPassOffer";
 import { predictCbseExamDate } from "../../services/cbseExamDate";

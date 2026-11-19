@@ -87,6 +87,8 @@ const { extractBearerToken, REASON_INVALID, REASON_UNAVAILABLE, REASON_VERIFIED,
 // decided by the rate limiter's trust order (verified uid -> X-Lazytopper-Uid ->
 // anonymous IP bucket). Reading the header here would be a second definition.
 const { resolveCaller } = require('./rateLimiter.cjs');
+// VALIDITY-FEB27: the read-time rule that reads a 2026-27 `till_boards` pass as valid to 28 Feb 2027 (never lowers an end).
+const { effectiveBoardPassEndMs } = require('./validityWindow.cjs');
 
 /** Mirror of subscriptionService.TRIAL_DAYS. A constant in code, never a stored field. */
 const TRIAL_DAYS = 7;
@@ -400,7 +402,7 @@ function deriveEffectiveTier(raw, nowMs) {
     Number.isInteger(doc.pricePaidInr) &&
     doc.pricePaidInr > 0
   ) {
-    const endMs = toMillis(doc.passEnd);
+    const endMs = effectivePassEndMsOf(doc);
     if (endMs !== null && endMs > nowMs) tier = 'premium';
   }
 
@@ -432,12 +434,22 @@ function deriveEffectiveTier(raw, nowMs) {
   // `passEnd` is only ever consulted on a stored PREMIUM record, and firestore.rules
   // refuse any client write of it, so a client-written far-future `passEnd` on a free
   // document buys nothing here.
-  const passEndsAtMs = hasPassEnd(doc) ? toMillis(doc.passEnd) : null;
+  const passEndsAtMs = hasPassEnd(doc) ? effectivePassEndMsOf(doc) : null;
   if (tier === 'premium' && hasPassEnd(doc)) {
     if (passEndsAtMs === null || passEndsAtMs <= nowMs) tier = 'free';
   }
 
   return { tier, trialEndsAtMs, passEndsAtMs };
+}
+
+/**
+ * VALIDITY-FEB27: the pass end a stored document is READ as - a `till_boards` pass of the 2026-27 session whose stored end is
+ * before 28 Feb 2027 end-of-day IST reads as that instant; every other end is the stored one (validityWindow.cjs; never lowers).
+ */
+function effectivePassEndMsOf(doc) {
+  const stored = toMillis(doc && doc.passEnd);
+  if (stored === null) return null;
+  return effectiveBoardPassEndMs(doc.passType, stored);
 }
 
 /** True when the document carries a pass end at all (absent or null = legacy premium). */

@@ -13,7 +13,7 @@ import type { WelcomeKind } from "./WelcomeBannerGate";
 import "./welcomeBanner.css";
 
 export const WELCOME_PASS_TITLE = "Your Board Pass is active ✓";
-export const WELCOME_PASS_LINE = "Till your boards. Every feature is open.";
+export const WELCOME_PASS_LINE = "Valid till 28 Feb 2027. Every feature is open.";
 export const WELCOME_PACK_TITLE = "Your pack is ready ✓";
 export const WELCOME_PACK_LINE = "Download it below.";
 /** MYPACKS-TS-1: the Test Series Pack is online - nothing to download. */

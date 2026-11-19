@@ -54,8 +54,8 @@ describe("2 · the My packs row facts", () => {
     expect(seriesTotals().chapterTests).toBe(130);
     expect(seriesTotals().fullMocks).toBe(50);
   });
-  it("validity is the existing 31 May 2027 pack term", () => {
-    expect(TEST_SERIES_VALID_TILL).toBe("31 May 2027");
+  it("validity is the shared 28 Feb 2027 end (VALIDITY-FEB27)", () => {
+    expect(TEST_SERIES_VALID_TILL).toBe("28 Feb 2027");
   });
 });
 

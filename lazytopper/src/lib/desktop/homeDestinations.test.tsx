@@ -187,7 +187,7 @@ describe("TutorPickerModal — the rendered pop-card", () => {
     expect(note).toHaveTextContent(/7-day trial — then free Basic/i);
     // TRIAL-ON-SIGNUP-1b (owner addendum): the short fragment, CHECKOUT-1: the monthly price.
     expect(note.textContent).toBe(
-      `Premium · part of the 7-day trial — then free Basic, or the Board Pass ${boardPassPriceDisplay()} till boards.`,
+      `Premium · part of the 7-day trial — then free Basic, or the Board Pass ${boardPassPriceDisplay()}, valid till 28 Feb 2027.`,
     );
     expect(note.textContent).not.toMatch(/upgrade anytime/i);
     // Trial framing is frozen — never "then paid".

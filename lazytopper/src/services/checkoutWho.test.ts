@@ -355,7 +355,7 @@ describe("SELFPAY-ATTACH-1 - pay first, then say who (the browser half)", () => 
 
   it("copy and landing: the mock-up's words; Board Pass lands on Home (mobile Home is /browse), a pack on My packs, both with the welcome flag", () => {
     expect(ATTACH_BEFORE_PAY).toBe("After paying, you'll choose who uses it: you or someone else.");
-    expect(alreadyHasLine("pass", false)).toBe("This number already has the Board Pass till the boards.");
+    expect(alreadyHasLine("pass", false)).toBe("This number already has the Board Pass, valid till 28 Feb 2027.");
     expect(alreadyHasLine("pack", false)).toBe("This number already owns this pack.");
     expect(attachCloseConfirm("98•••••210")).toBe("Your payment is safe. Sign in with 98•••••210 to use it.");
     expect(ATTACH_HOLD_MS).toBe(600000);

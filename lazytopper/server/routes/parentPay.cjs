@@ -86,6 +86,7 @@ const {
 const { grantPass, isStaleFoundingOrder, monthPassAvailableFor, hasPaidMonthOrder, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
 const pricing = require('../services/passPricing.cjs');
+const { effectiveBoardPassEndMs } = require('../services/validityWindow.cjs'); // VALIDITY-FEB27
 // PACK-CREDIT-1: the child's recent pack purchases credit a Board Pass order made through a parent link too.
 const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields } = require('../services/packCredit.cjs');
 // PARENT-PACKS-1: a link may carry one PDF pack. The catalogue, price table and ownership rule are the server's own.
@@ -220,14 +221,17 @@ function createParentPayLimiter({ telemetry, now } = {}) {
 }
 
 /**
- * Does the child's pass already run to (or past) the end of the predicted board day? Then
+ * Does the child's pass already run to (or past) the validity end (28 Feb 2027 end-of-day IST)? Then
  * neither pass buys anything new for the boards and the link must not take money.
  */
 function coveredTillBoards(storedSubscription, nowMs) {
   const stored = storedSubscription && typeof storedSubscription === 'object' ? storedSubscription : {};
-  const endMs = toMillis(stored.passEnd);
+  const rawEndMs = toMillis(stored.passEnd);
+  // VALIDITY-FEB27: a 2026-27 Board Pass reads as valid to 28 Feb 2027 (the read-time rule), and "covered" means it runs to that end -
+  // the validity end, not the board day.
+  const endMs = rawEndMs === null ? null : effectiveBoardPassEndMs(stored.passType, rawEndMs);
   if (endMs === null || endMs <= nowMs) return false;
-  const boardEndMs = pricing.endOfIstDayMs(pricing.predictBoardDateIso(nowMs));
+  const boardEndMs = pricing.validityEndMsFor(nowMs);
   return boardEndMs !== null && endMs >= boardEndMs;
 }
 

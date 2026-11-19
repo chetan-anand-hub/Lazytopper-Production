@@ -195,7 +195,7 @@ describe("PAY-RECOVER-1 · PassCheckout pending", () => {
 });
 
 describe("PAY-RECOVER-1 review fixes · the Pay buttons and the return-to-tab settle", () => {
-  const payButtons = () => [screen.getByRole("button", { name: /for a month/i }), screen.getByRole("button", { name: /till your boards/i })];
+  const payButtons = () => [screen.getByRole("button", { name: /for a month/i }), screen.getByRole("button", { name: /valid till 28 Feb 2027/i })];
 
   it("MONEY: while 'still confirming' is shown, BOTH Pay buttons stay disabled (no second charge invited)", async () => {
     view(async () => ({ state: "pending" }));

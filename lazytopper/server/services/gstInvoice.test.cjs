@@ -1203,7 +1203,7 @@ test('BACKDATE end to end: list -> send forms (payer email, account fallback, re
   // The buyer opens the form: NO state is suggested (no IP, no Karnataka default).
   const ka = sent.find((s) => s.key === 'gst-state-form-pay_KA');
   const details = await svc.getDetails(ka.token);
-  assert.deepEqual(details, { item: 'Board Pass (Premium till your boards)', amountPaise: 191700, paidOn: '1 October 2026', status: 'needs_details' });
+  assert.deepEqual(details, { item: 'Board Pass (valid till 28 Feb 2027)', amountPaise: 191700, paidOn: '1 October 2026', status: 'needs_details' });
   // Bad answers are refused with the field (never guessed).
   assert.deepEqual(await svc.submitDetails(ka.token, { pin: '560001' }), { error: 'bad_input', field: 'state' });
   assert.deepEqual(await svc.submitDetails(ka.token, { stateCode: '29' }), { error: 'bad_input', field: 'pin' });
@@ -1613,7 +1613,7 @@ test('EMAIL-LINK post-cutoff held order: the page asks for details; a valid answ
   const clock = { t: AFTER_CUTOFF + 60 * 60 * 1000 };
   const { svc, sent } = backdateFor(db, clock, { payments: { pay_H: { id: 'pay_H', order_id: 'order_H', email: 'h.buyer@example.com', contact: '+919800000002', status: 'captured' } } });
   const tok = tokenFor('order_H', clock);
-  assert.deepEqual(await svc.getDetails(tok), { item: 'Board Pass (Premium till your boards)', amountPaise: db.read('payOrders/order_H').amountPaise, paidOn: '8 November 2026', status: 'needs_details' });
+  assert.deepEqual(await svc.getDetails(tok), { item: 'Board Pass (valid till 28 Feb 2027)', amountPaise: db.read('payOrders/order_H').amountPaise, paidOn: '8 November 2026', status: 'needs_details' });
   assert.deepEqual(await svc.submitDetails(tok, { stateCode: '29' }), { error: 'bad_input', field: 'pin' });
   assert.deepEqual(await svc.submitDetails(tok, { pin: '560001' }), { error: 'bad_input', field: 'state' });
   assert.equal(db.read('payOrders/order_H').gstBuyer, undefined, 'a refused answer stores nothing');
@@ -1732,7 +1732,7 @@ test('EMAIL-LINK post-cutoff: when the write path itself answers unpaid / forbid
 test('TS-PACK-1: productLineFor(test_series) names the Test Series Pack under the Board Pass SAC kind', () => {
   const { productLineFor } = require('./gstInvoice.cjs');
   assert.deepEqual(productLineFor({ passType: 'test_series', packTarget: 'all' }), {
-    description: 'LazyTopper Test Series Pack (Maths + Science, till CBSE Class 10 boards)',
+    description: 'LazyTopper Test Series Pack (Maths + Science, valid till 28 Feb 2027)',
     sacKind: 'boardPass',
   });
 });

@@ -7,7 +7,7 @@ import { MemoryRouter } from "react-router-dom";
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
 vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
 
-import ForParentsPage, { PAY_HELP_HREF, boardsMonthYear, parentCardModel, parentPriceModel } from "../pages/ForParentsPage";
+import ForParentsPage, { PAY_HELP_HREF, parentCardModel, parentPriceModel } from "../pages/ForParentsPage";
 import { tillBoardsQuote } from "./pricing";
 
 afterEach(() => {
@@ -18,7 +18,7 @@ afterEach(() => {
 const OPEN = new Date("2026-10-28T10:00:00+05:30");
 const GST = new Date("2026-11-12T10:00:00+05:30");
 const CLOSED = new Date("2026-12-05T10:00:00+05:30");
-const BOARDS = "2027-02-17";
+const BOARDS = "2027-02-16";
 
 describe("PARENTS-V2-1 - the price card's figures come from config (never typed on the page)", () => {
   it("derives the Board Pass and per-day figures from config; the model has NO month price (PRICE-FIXED-1)", () => {
@@ -26,18 +26,18 @@ describe("PARENTS-V2-1 - the price card's figures come from config (never typed 
     const q = tillBoardsQuote(OPEN, BOARDS)!;
     expect(m.boardPassDisplay).toBe(q.priceDisplay);
     expect(m.boardPassDisplay).toBe("₹1,917");
-    expect(m.perDayLine).toBe(`≈ ₹${Math.ceil(q.priceInr / 112)} a day till the boards`);
+    expect(m.perDayLine).toBe(`≈ ₹${Math.ceil(q.priceInr / 123)} a day, valid till 28 Feb 2027`);
     expect(Object.keys(m).sort()).toEqual(["boardPassDisplay", "boardPassPayDisplay", "perDayLine", "untilLabel"]);
     expect(m.boardPassPayDisplay).toBe("₹1,917");
   });
 
-  it("the card today: '₹1,917 + GST', Pay ₹2,262, the founding line, 'till the Feb 2027 boards'", () => {
+  it("the card today: '₹1,917 + GST', Pay ₹2,262, the founding line, 'valid till 28 Feb 2027'", () => {
     const c = parentCardModel(GST, BOARDS)!;
     expect(c.tag).toBe("₹1,917 + GST");
     expect(c.pay).toBe("₹2,262");
     expect(c.deadline).toBe("Founding price ends 30 Nov · ₹1,917 + GST, then ₹2,499 + GST");
-    expect(c.once).toBe("One payment, till the Feb 2027 boards. No auto-debit.");
-    expect(c.until).toBe("till the Feb 2027 boards");
+    expect(c.once).toBe("One payment, valid till 28 Feb 2027 \u2014 covers your Maths (17 Feb) and Science (22 Feb) boards. No auto-debit.");
+    expect(c.until).toBe("valid till 28 Feb 2027");
   });
 
   it("★ the card switches itself on 1 Dec: ₹2,499 + GST, Pay ₹2,949, and the founding line is gone", () => {
@@ -52,7 +52,6 @@ describe("PARENTS-V2-1 - the price card's figures come from config (never typed 
   it("hides the per-day line when the board date is unusable or past; no card for a bad date", () => {
     expect(parentPriceModel(OPEN, "nonsense")).toBeNull();
     expect(parentCardModel(OPEN, "nonsense")).toBeNull();
-    expect(boardsMonthYear("till your boards (Feb 2027)")).toBe("Feb 2027");
   });
 
   it("a raw string render has no rupee figure (the figures come from the first client commit); it has the Pay buttons and the free-check link", () => {

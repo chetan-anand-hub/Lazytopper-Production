@@ -82,7 +82,7 @@ afterEach(() => {
 describe("PAY-PHONE-1 · Board Pass signed out", () => {
   it("guest pay on: the Pay button opens the pay sheet, no redirect", async () => {
     mount("/pricing");
-    fireEvent.click(screen.getByText(/once till your boards/));
+    fireEvent.click(screen.getByText(/once · valid till 28 Feb 2027/));
     expect(await screen.findByTestId("guest-pay-sheet")).toBeTruthy();
     expect(where).toBe("/pricing");
   });
@@ -103,7 +103,7 @@ describe("PAY-PHONE-1 · Board Pass signed out", () => {
   it("GUEST-SIGNIN-RETURNING-1: 'This number already has an account' -> sign in carries the existing-account flag (number in router state only)", async () => {
     guestBuy.buyAsGuest.mockResolvedValue({ status: "account_exists", phoneMasked: "+91 98•••••948", phone: "+919876543948" });
     mount("/pricing");
-    fireEvent.click(screen.getByText(/once till your boards/));
+    fireEvent.click(screen.getByText(/once · valid till 28 Feb 2027/));
     fireEvent.click(await screen.findByText("Pay now with your phone number"));
     fireEvent.change(screen.getByTestId("guest-pay-input"), { target: { value: "9876543948" } });
     fireEvent.click(screen.getByTestId("guest-pay-continue"));
@@ -126,7 +126,7 @@ describe("PAY-PHONE-1 (C) · after a closed Board Pass checkout", () => {
     mockAuth.user = { uid: "u1" };
     checkout.buyPass.mockResolvedValue({ status: "dismissed" });
     mount("/pricing");
-    fireEvent.click(screen.getByText(/once till your boards/));
+    fireEvent.click(screen.getByText(/once · valid till 28 Feb 2027/));
     const repay = await screen.findByTestId("pass-checkout-repay");
     expect(repayBoardPassLabel()).toBe("Pay ₹1,917");
     const btn = repay.querySelector("button") as HTMLButtonElement;

@@ -13,6 +13,7 @@
  * If the quote is unavailable (an unparseable board date) the offer has no price and says so by omission:
  * `priceDisplay` is null and the caller shows no figure rather than a guess.
  */
+import { VALIDITY_SHORT } from "../../config/validity";
 import { boardPassDeadlineLine, boardPassFoundingLabel, boardPassPriceDisplay, tillBoardsQuote } from "../../config/pricing";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 
@@ -21,7 +22,7 @@ export interface BoardPassOffer {
   title: "Board Pass";
   /** The fixed one-time price, or null when the board date cannot be read. */
   priceDisplay: string | null;
-  /** "Pay once till your boards (Feb 2027)" - or the plain "Pay once, till your boards". */
+  /** "Pay once, valid till 28 Feb 2027" (VALIDITY-FEB27). */
   detail: string;
 }
 
@@ -30,13 +31,13 @@ export function boardPassOffer(now: Date, boardIso: string): BoardPassOffer {
   return {
     title: "Board Pass",
     priceDisplay: quote ? quote.priceDisplay : null,
-    detail: quote ? `Pay once ${quote.untilLabel}` : "Pay once, till your boards",
+    detail: `Pay once, ${quote ? quote.untilLabel : VALIDITY_SHORT}`,
   };
 }
 
-/** "Board Pass ₹… till boards" - the one-line form for the countdown bar. */
+/** "Board Pass ₹… · valid till 28 Feb 2027" - the one-line form for the countdown bar. */
 export function boardPassShortLine(offer: BoardPassOffer): string {
-  return offer.priceDisplay ? `Board Pass ${offer.priceDisplay} till boards` : "Board Pass, pay once till boards";
+  return offer.priceDisplay ? `Board Pass ${offer.priceDisplay} \u00b7 ${VALIDITY_SHORT}` : `Board Pass, pay once \u00b7 ${VALIDITY_SHORT}`;
 }
 
 /** The Board Pass price ("₹…"), or null when it cannot be quoted. Fixed (PRICE-FIXED-1); `now` is kept for callers. */
@@ -57,7 +58,7 @@ export interface PremiumOffer {
   title: "Board Pass";
   priceDisplay: string;
   detail: string;
-  /** "Covers you till your boards (Feb 2027)" - or the plain line when the date cannot be read. */
+  /** VALIDITY-FEB27: "Everything unlocked, valid till 28 Feb 2027. No renewals." */
   second: string;
   /** "Founding member offer" before the deadline, else null (owner, 21:20 IST 31 Oct 2026). */
   foundingLabel: string | null;
@@ -72,15 +73,15 @@ export function premiumOffer(now: Date, boardIso: string): PremiumOffer {
   return {
     title: "Board Pass",
     priceDisplay: board.priceDisplay ?? boardPassPriceDisplay(),
-    detail: "one payment till your boards",
-    second: quote ? `Everything unlocked ${quote.untilLabel}. No renewals.` : "Everything unlocked till your boards. No renewals.",
+    detail: `one payment, ${VALIDITY_SHORT}`,
+    second: `Everything unlocked, ${quote ? quote.untilLabel : VALIDITY_SHORT}. No renewals.`,
     foundingLabel: boardPassFoundingLabel(now),
     deadline: boardPassDeadlineLine(now),
     boardPass: board,
   };
 }
 
-/** "Board Pass ₹… till boards" - the one-line form for the countdown bar. */
+/** "Board Pass ₹… · valid till 28 Feb 2027" - the one-line form for the countdown bar. */
 export function premiumShortLine(offer: PremiumOffer): string {
-  return `Board Pass ${offer.priceDisplay} till boards`;
+  return `Board Pass ${offer.priceDisplay} \u00b7 ${VALIDITY_SHORT}`;
 }

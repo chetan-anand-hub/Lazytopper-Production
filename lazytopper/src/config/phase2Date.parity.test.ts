@@ -124,9 +124,9 @@ describe("PHASE2-DATE-1 — phase 2 is 15 May of the board cycle; rolls over aft
     });
   });
 
-  it("anchor — on 2026-09-28 IST phase 2 is 2027-05-15 (board 2027-02-17)", () => {
+  it("anchor — on 2026-09-28 IST phase 2 is 2027-05-15 (board 2027-02-16)", () => {
     const now = istNoon("2026-09-28");
-    expect(at(now, () => predictCbseExamDate("10"))).toBe("2027-02-17");
+    expect(at(now, () => predictCbseExamDate("10"))).toBe("2027-02-16");
     expect(at(now, () => predictCbsePhase2Date())).toBe("2027-05-15");
     expect(at(now, () => predictCbsePhase2End())).toBe("2027-06-01");
   });

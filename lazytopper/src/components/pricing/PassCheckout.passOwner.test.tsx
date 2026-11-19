@@ -62,7 +62,7 @@ describe("a Board Pass owner on /pricing", () => {
   it("a running MONTH pass: 'Your month pass is active until …', the Board Pass upsell, one Board Pass Pay", () => {
     view({ activePassEnd: "2026-11-30T00:00:00.000Z", activePlan: "pass_month" });
     expect(screen.getByTestId("pass-checkout-already-active").textContent).toBe("Your month pass is active until 30 November 2026.");
-    expect(screen.getByTestId("pass-checkout-upsell").textContent).toMatch(/^Stay covered till your boards: Board Pass ₹[\d,]+(?: \+ GST)? once$/);
+    expect(screen.getByTestId("pass-checkout-upsell").textContent).toMatch(/^Stay covered, valid till 28 Feb 2027: Board Pass ₹[\d,]+(?: \+ GST)? once$/);
     expect(screen.getByRole("button", { name: tillBoardsButtonLabel() })).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/premium/i);
   });

@@ -23,7 +23,7 @@ export const PRACTICE_PATH = "/practice-hub";
 
 /** BP-PREBOARDS-1: the first line of the hero, so the page matches the Pre-Boards Package ad. Every named part is a feature the page already lists. */
 export const BP_PREBOARDS_LINE =
-  "Your pre-boards package \u2014 full board mocks, CBSE step marking, important questions and a personal tutor, till your boards.";
+  "Your pre-boards package \u2014 full board mocks, CBSE step marking, important questions and a personal tutor, valid till 28 Feb 2027.";
 export const BP_EYEBROW = "BOARD PASS · CBSE CLASS 10 · BOARDS 2027";
 export const BP_H1 = `${BOARD_PASS_NAME}: your answers marked like a CBSE examiner`;
 export const BP_MINUTE_TILE = "1 MINUTE";
@@ -74,7 +74,7 @@ export const BP_WHAT_YOU_GET: ReadonlyArray<{ id: string; kicker?: string; title
   {
     id: "bank",
     title: "Every question and solution",
-    body: `Maths and Science, ${BANK_QUESTIONS_CLAIM} questions including ${BANK_CBQS_CLAIM} CBQs, till your boards.`,
+    body: `Maths and Science, ${BANK_QUESTIONS_CLAIM} questions including ${BANK_CBQS_CLAIM} CBQs, valid till 28 Feb 2027.`,
   },
 ];
 

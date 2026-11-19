@@ -60,8 +60,13 @@ describe("numbering — derived from the syllabus and SERIES_MOCKS_PER_SUBJECT",
   });
   it("llms.txt's line states the same counts", () => {
     const llms = readFileSync(resolve(__dirname, "../../../public/llms.txt"), "utf8");
-    const line = llms.split("\n").find((l) => l.includes("/test-series"));
+    const lines = llms.split("\n");
+    const line = lines.find((l) => l.includes("[CBSE Class 10 Test Series]"));
     const t = seriesTotals();
+    // the numbered product line under "What LazyTopper offers" states the same counts, in the owner's words.
+    const offer = lines.find((l) => l.startsWith("2. Pre-Boards Test Series"));
+    expect(offer).toContain(`${t.chapterTests} chapter tests (${t.papersPerChapter} per chapter) + ${t.fullMocks} full-length board-pattern tests (${t.mocksPerSubject} per subject)`);
+    expect(offer).toContain(`${t.total} tests`);
     expect(line).toContain(
       `${t.chapterTests} numbered chapter tests (${t.papersPerChapter} per chapter) and ${t.fullMocks} full-length board-pattern tests (${t.mocksPerSubject} per subject)`,
     );

@@ -90,7 +90,7 @@ describe("PARENTS-V2-1 - the phone bar", () => {
   it("is a region named for the Board Pass with the price and the Pay; absent while a sheet is open", async () => {
     page();
     const bar = await screen.findByTestId("fp-sticky");
-    expect(bar.textContent).toMatch(/Board Pass ₹[\d,]+( \+ GST)? · till the .* boards/);
+    expect(bar.textContent).toMatch(/Board Pass ₹[\d,]+( \+ GST)? · valid till 28 Feb 2027/);
     expect(screen.getByTestId("fp-sticky-go").textContent).toMatch(/^Pay ₹[\d,]+$/);
     fireEvent.click(screen.getByTestId("fp-sticky-go"));
     expect(await screen.findByTestId("who-sheet")).toBeTruthy();

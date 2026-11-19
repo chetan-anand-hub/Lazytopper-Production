@@ -69,7 +69,7 @@ describe("RequirePremium — trial CTA + eligibility", () => {
     renderGate();
     const cta = await screen.findByText("Start my free 7-day trial");
     // TRIAL-ON-SIGNUP-1b (owner addendum): the short fragment, CHECKOUT-1: the monthly price.
-    expect(screen.getByText(`then free Basic, or the Board Pass ${boardPassPriceDisplay()} till boards.`)).toBeInTheDocument();
+    expect(screen.getByText(`then free Basic, or the Board Pass ${boardPassPriceDisplay()}, valid till 28 Feb 2027.`)).toBeInTheDocument();
     expect(screen.queryByText(/upgrade anytime/i)).toBeNull();
     expect(activate).not.toHaveBeenCalled();
     // TRIAL-CTA-1: the handler acts only on this uid's HYDRATED record.

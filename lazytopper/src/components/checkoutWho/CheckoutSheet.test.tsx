@@ -145,7 +145,7 @@ describe("signed out", () => {
     type("who-first", "9876543210");
     fireEvent.click(screen.getByTestId("who-pay"));
     // SELFPAY-ATTACH-1 (owner 12 Nov): "already has it" is told plainly, and another number can be tried.
-    expect((await screen.findByTestId("who-covered")).textContent).toBe("This number already has the Board Pass till the boards.");
+    expect((await screen.findByTestId("who-covered")).textContent).toBe("This number already has the Board Pass, valid till 28 Feb 2027.");
     expect(screen.getByTestId("who-covered-another")).toBeTruthy();
     cleanup();
     mount({ buy: vi.fn(async (): Promise<WhoBuyOutcome> => ({ status: "dismissed" })) });

@@ -21,6 +21,8 @@
 // Asia/Kolkata calendar date (fixed UTC+05:30, no DST) — the same convention
 // `tillBoardsQuote` already uses. For a student in India the two are the same date.
 
+const { validityEndMsFor } = require('./validityWindow.cjs');
+
 /** Mirror of pricing.ts PRICE_MONTHLY_LIST_INR. */
 const PRICE_MONTHLY_LIST_INR = 999;
 /** Mirror of pricing.ts PRICE_MONTHLY_FOUNDING_INR. */
@@ -147,7 +149,9 @@ const TILL_BOARDS_PAY_FRACTION = 0.8;
 const TILL_BOARDS_MAX_MONTHS = 36;
 
 /** Mirror of cbseExamDate.ts predictCbseExamDate's `officialDates` table (class 10). */
-const OFFICIAL_BOARD_DATES_CLASS10 = { '2025-26': '2026-02-17' };
+// VALIDITY-FEB27: '2026-27' is CBSE's published Phase 1 start (16 Feb 2027; date sheet of 6 Nov 2026). It drives countdowns/predictions only -
+// a pass's VALIDITY END is validityWindow.cjs (28 Feb 2027), not the exam date.
+const OFFICIAL_BOARD_DATES_CLASS10 = { '2025-26': '2026-02-17', '2026-27': '2027-02-16' };
 /** Mirror of cbseExamDate.ts predictCbseExamDate's `tentativeDay` (17 February). */
 const TENTATIVE_BOARD_DAY = 17;
 
@@ -466,4 +470,5 @@ module.exports = {
   addOneCalendarMonthIst,
   endOfIstDayMs,
   istCalendarDate,
+  validityEndMsFor,
 };

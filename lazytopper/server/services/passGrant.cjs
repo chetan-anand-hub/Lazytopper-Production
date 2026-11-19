@@ -32,6 +32,7 @@
 // order can never disagree. Only idempotency changed here — price and dates did not.
 
 const pricing = require('./passPricing.cjs');
+const { effectiveBoardPassEndMs } = require('./validityWindow.cjs'); // VALIDITY-FEB27
 // PACK-CREDIT-1: the Board Pass order may carry a pack credit; the packs it names are marked credited in the
 // grant transaction. Only the collection / segment names are taken from packGrant.
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('./packGrant.cjs');
@@ -148,7 +149,9 @@ function computeGrant(stored, { passType, paymentRef, nowMs }, { foundingOfferOp
   const founding = offerKey === 'founding';
 
   // A pass still running is extended, never overwritten.
-  const storedEndMs = toMillis(current.passEnd);
+  // VALIDITY-FEB27: a stored 2026-27 till_boards pass is READ to 28 Feb 2027 (never lowered), so anything stacked on it starts there.
+  const storedRawEndMs = toMillis(current.passEnd);
+  const storedEndMs = storedRawEndMs === null ? null : effectiveBoardPassEndMs(current.passType, storedRawEndMs);
   const unexpiredEndMs = storedEndMs !== null && storedEndMs > nowMs ? storedEndMs : null;
 
   let pricePaidInr;
@@ -162,7 +165,8 @@ function computeGrant(stored, { passType, paymentRef, nowMs }, { foundingOfferOp
   } else {
     const boardIso = pricing.predictBoardDateIso(nowMs);
     const quote = pricing.tillBoardsQuote(nowMs, boardIso, founding);
-    const boardEndMs = pricing.endOfIstDayMs(boardIso);
+    // VALIDITY-FEB27: the Board Pass runs to 28 Feb 2027 end-of-day IST (validityWindow.cjs), NOT to the board day.
+    const boardEndMs = pricing.validityEndMsFor(nowMs);
     if (!quote || boardEndMs === null) throw new Error(`could not price a till-boards pass (board ${boardIso})`);
     pricePaidInr = quote.priceInr;
     passStartMs = nowMs;
@@ -191,6 +195,12 @@ function computeGrant(stored, { passType, paymentRef, nowMs }, { foundingOfferOp
   };
 }
 
+/** The stored `passEnd` read through the VALIDITY-FEB27 rule (ms, or null when absent / unreadable). */
+function readPassEnd(doc) {
+  const ms = toMillis(doc.passEnd);
+  return ms === null ? null : effectiveBoardPassEndMs(doc.passType, ms);
+}
+
 /** The pass as JSON — what the admin route returns. */
 function describePass(uid, data) {
   const doc = data && typeof data === 'object' ? data : {};
@@ -204,7 +214,8 @@ function describePass(uid, data) {
     plan: doc.plan ?? null,
     passType: doc.passType ?? null,
     passStart: iso(doc.passStart),
-    passEnd: iso(doc.passEnd),
+    // VALIDITY-FEB27: the end the pass is READ as (a 2026-27 till_boards pass reads to 28 Feb 2027; never lowered).
+    passEnd: iso(readPassEnd(doc)),
     pricePaidInr: doc.pricePaidInr ?? null,
     offerKey: doc.offerKey ?? null,
     foundingMember: doc.foundingMember === true,

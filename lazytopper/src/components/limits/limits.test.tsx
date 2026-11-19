@@ -96,7 +96,7 @@ describe("wall offer: the Board Pass is the only plan named (PRICE-FIXED-1)", ()
       const o = wallOfferLines(new Date(at));
       expect(Object.keys(o)).toEqual(["boardPass", "foundingLabel"]);
       expect(o.foundingLabel).toBe(label);
-      expect(o.boardPass).toMatch(new RegExp(`^Board Pass ${price} till your boards \\(.+\\)$`));
+      expect(o.boardPass).toMatch(new RegExp(`^Board Pass ${price} valid till 28 Feb 2027$`));
       expect(o.boardPass).not.toMatch(/save|%|599|999|month/i);
     }
   });
@@ -106,7 +106,7 @@ describe("wall offer: the Board Pass is the only plan named (PRICE-FIXED-1)", ()
     render(<MemoryRouter><DownloadLimitWall variant="blocked" resetAt={null} onClose={() => {}} /></MemoryRouter>);
     const lines = Array.from(screen.getByTestId("wall-offer").querySelectorAll("p")).map((p) => p.textContent || "");
     expect(lines).toHaveLength(1);
-    expect(lines[0]).toMatch(/^Founding member offer: Board Pass ₹1,917 till your boards/);
+    expect(lines[0]).toMatch(/^Founding member offer: Board Pass ₹1,917 valid till 28 Feb 2027/);
     expect(screen.queryByTestId("wall-offer-month")).toBeNull();
   });
 });

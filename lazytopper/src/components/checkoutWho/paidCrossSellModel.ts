@@ -14,6 +14,7 @@
  * pass counts as owning the Test Series. A paused Test Series (VITE_TS_PACK_DISABLED) is never offered. Every price is an existing
  * helper's: the pack price tags, the Board Pass tag, or - for a Test Series buyer - the SERVER's own `payInr` (nothing subtracted here).
  */
+import { VALIDITY_SHORT } from "../../config/validity";
 import { BOARD_PASS_NAME, boardPassPayDisplay, boardPassPriceDisplay, formatInr } from "../../config/pricing";
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
 import { BUNDLE_NAME } from "../../lib/packs/packLabels";
@@ -107,13 +108,13 @@ export interface CrossSellInput {
 /**
  * The Board Pass price line + button. A credited Test Series buyer: the server sends only the all-in `payInr` (no base / GST
  * breakup), so nothing is derived here - no price line, and the button names the server's figure ("Upgrade — pay ₹1,083").
- * Everyone else: the house tag ("₹1,917 + GST till your boards") and the helper's total on the button.
+ * Everyone else: the house tag ("₹1,917 + GST · valid till 28 Feb 2027") and the helper's total on the button.
  */
 export function boardPassXsellPrice(credit: BoardPassCredit | null, now: number): { price: string; cta: string } {
   if (credit && credit.payInr > 0 && credit.expiresAtMs > now) {
     return { price: "", cta: `Upgrade — pay ${formatInr(credit.payInr)}` };
   }
-  return { price: `${boardPassPriceDisplay(now)} till your boards`, cta: `Get the Board Pass — ${boardPassPayDisplay(now)}` };
+  return { price: `${boardPassPriceDisplay(now)} \u00b7 ${VALIDITY_SHORT}`, cta: `Get the Board Pass — ${boardPassPayDisplay(now)}` };
 }
 
 function boardPassItem(i: CrossSellInput): CrossSellItem | null {

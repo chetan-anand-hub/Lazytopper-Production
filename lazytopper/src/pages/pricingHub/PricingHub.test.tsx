@@ -221,7 +221,7 @@ describe("the page, top to bottom (§2)", () => {
     expect(within(c).getByTestId("till-boards-figures")).toHaveTextContent(boardPassPriceDisplay());
     expect(within(c).getByTestId("till-boards-deadline")).toBeInTheDocument();
     const payBtn = c.querySelector(".lt-pricing-pay--boards") as HTMLButtonElement;
-    expect(payBtn.textContent).toBe(`Pay ${boardPassPayDisplay()} once till your boards`);
+    expect(payBtn.textContent).toBe(`Pay ${boardPassPayDisplay()} once · valid till 28 Feb 2027`);
     expect(within(c).getByTestId("pricing-payline")).toHaveTextContent("One payment, not a subscription · UPI, card or netbanking");
     expect(within(c).getByTestId("pricing-trial")).toBeInTheDocument();
     expect(within(c).getByTestId("hub-pass-details")).toHaveAttribute("href", "/board-pass");
@@ -642,9 +642,9 @@ describe("PRICING-HUB-2 H5 - the hub itself (production default) for the page-le
   it("month-pass holder: the hub's Pay and /pricing?buy=board_pass do exactly what the legacy page does", async () => {
     const legacy = await monthPassRun("1");
     const hub = await monthPassRun("");
-    // Legacy: the Board Pass Pay ("Pay ₹N once till your boards") beside the month renewal; Pay starts the Board Pass checkout
+    // Legacy: the Board Pass Pay ("Pay ₹N once · valid till 28 Feb 2027") beside the month renewal; Pay starts the Board Pass checkout
     // (the upgrade) straight away; ?buy=board_pass starts the same checkout once and strips `buy` (utm kept).
-    expect(legacy.buttons.some((b) => /^Pay ₹[\d,]+ once till your boards$/.test(b))).toBe(true);
+    expect(legacy.buttons.some((b) => /^Pay ₹[\d,]+ once · valid till 28 Feb 2027$/.test(b))).toBe(true);
     expect(legacy.payCall.length).toBeGreaterThan(0);
     expect(legacy.buyCalls).toBe(1);
     expect(legacy.url).toBe("/pricing?utm_source=google");
@@ -704,7 +704,7 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
     expect(within(c).getByTestId("hub-buy-test_series").tagName).toBe("BUTTON");
     expect(within(c).getByTestId("hub-buy-test_series")).not.toHaveAttribute("href");
     expect(within(c).getByTestId("hub-ts-checks")).toHaveTextContent("Each paper can be checked twice: upload your answers, see your marks, then fix and upload once more. If we can't read your photo, that check isn't counted.");
-    expect(c).toHaveTextContent("till 31 May 2027 (after your boards)");
+    expect(c).toHaveTextContent("valid till 28 Feb 2027");
     expect(c).not.toHaveTextContent(/twice per paper/);
     // TS-UX-PAGE-1: no stray leading "·" on the price sub-line.
     const found = within(c).queryByTestId("hub-ts-founding");

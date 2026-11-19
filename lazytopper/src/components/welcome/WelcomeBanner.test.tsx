@@ -61,7 +61,7 @@ describe("WelcomeBanner", () => {
 
   it("board pass really active: the banner, the param removed (replace), dismissible", async () => {
     mount("/?welcome=board_pass&x=1");
-    expect((await screen.findByTestId("welcome-banner")).textContent).toContain("Your Board Pass is active ✓Till your boards. Every feature is open.");
+    expect((await screen.findByTestId("welcome-banner")).textContent).toContain("Your Board Pass is active ✓Valid till 28 Feb 2027. Every feature is open.");
     await waitFor(() => expect(where).toBe("/?x=1"));
     fireEvent.click(screen.getByLabelText("Dismiss"));
     expect(screen.queryByTestId("welcome-banner")).toBeNull();

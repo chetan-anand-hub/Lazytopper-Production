@@ -208,7 +208,7 @@ describe("BrowseVisitorCard analytics", () => {
     vi.setSystemTime(new Date(GST_EXCLUSIVE_FROM_MS - 1));
     mount();
     await screen.findByTestId("browse-visitor-card");
-    expect(screen.getByTestId("browse-visitor-card-price").textContent).toBe("Board Pass ₹1,917 · one payment till your boards");
+    expect(screen.getByTestId("browse-visitor-card-price").textContent).toBe("Board Pass ₹1,917 · one payment, valid till 28 Feb 2027");
     expect(screen.getByTestId("browse-visitor-card-deadline").textContent).toBe(`${FOUNDING_OFFER_BADGE} ends 30 November. From 1 December: ₹2,499.`);
     expect(screen.getByTestId("browse-visitor-card").textContent).not.toMatch(/GST/);
     cleanup();
@@ -216,7 +216,7 @@ describe("BrowseVisitorCard analytics", () => {
     vi.setSystemTime(new Date(GST_EXCLUSIVE_FROM_MS));
     mount();
     await screen.findByTestId("browse-visitor-card");
-    expect(screen.getByTestId("browse-visitor-card-price").textContent).toBe("Board Pass ₹1,917 + GST · one payment till your boards");
+    expect(screen.getByTestId("browse-visitor-card-price").textContent).toBe("Board Pass ₹1,917 + GST · one payment, valid till 28 Feb 2027");
     expect(screen.getByTestId("browse-visitor-card-deadline").textContent).toBe(`${FOUNDING_OFFER_BADGE} ends 30 November. From 1 December: ₹2,499 + GST.`);
   });
 });

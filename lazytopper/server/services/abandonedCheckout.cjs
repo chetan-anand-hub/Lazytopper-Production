@@ -28,6 +28,7 @@
  */
 
 const { escapeHtml } = require('./trialEndingEmail.cjs');
+const { VALIDITY_LABEL } = require('./validityWindow.cjs'); // VALIDITY-FEB27
 const pricing = require('./passPricing.cjs');
 const { PACK_CHAPTERS, isPackProduct, packIdFor, parsePackId, isAlreadyOwned, testSeriesSaleDisabled } = require('./packProducts.cjs');
 const { packDisplayName } = require('./packNudge.cjs');
@@ -254,7 +255,7 @@ const SUBJECT_LABEL = Object.freeze({ maths: 'Maths', science: 'Science' });
  *   prices and targets only), so a change there must be made here too.
  */
 function benefitLine(product) {
-  if (product.kind === BOARD_PASS) return 'Get your written answers marked step by step, like a CBSE examiner, till your boards.';
+  if (product.kind === BOARD_PASS) return `Get your written answers marked step by step, like a CBSE examiner, valid till ${VALIDITY_LABEL}.`;
   switch (product.sku) {
     case 'pack_bundle':
       return `All ${Object.keys(PACK_CHAPTERS).length} chapters + 16 mocks, the whole year.`;
@@ -265,7 +266,7 @@ function benefitLine(product) {
     case 'pack_mock':
       return '8 board-pattern mock papers with step-marking keys.';
     case 'test_series':
-      return 'Numbered chapter tests and full mocks, with your written answers checked step by step, till your boards.';
+      return `Numbered chapter tests and full mocks, with your written answers checked step by step, valid till ${VALIDITY_LABEL}.`;
     default:
       return 'Important questions with answer keys.';
   }
@@ -352,7 +353,7 @@ function orderPriceText(order, nowMs, finishQuote) {
 function priceLine(product, order, nowMs, finishQuote) {
   const text = orderPriceText(order, nowMs, finishQuote);
   if (text === null) return null;
-  if (product.kind === BOARD_PASS) return `Board Pass: ${text}, one payment till your boards.`;
+  if (product.kind === BOARD_PASS) return `Board Pass: ${text}, one payment, valid till ${VALIDITY_LABEL}.`;
   return `${text}, one-time payment. It never renews.`;
 }
 
@@ -380,7 +381,7 @@ function buildAbandonedCheckoutEmail({ product, order, marksLine, appUrl, unsubs
   if (!name) return null;
   const finish = finishPayingUrl(appUrl, product);
   const priceText = orderPriceText(order, nowMs, finishQuote);
-  const price = priceText === null ? '' : product.kind === BOARD_PASS ? ` (${priceText}, one payment till my boards)` : ` (${priceText}, one-time)`;
+  const price = priceText === null ? '' : product.kind === BOARD_PASS ? ` (${priceText}, one payment, valid till ${VALIDITY_LABEL})` : ` (${priceText}, one-time)`;
   const ask =
     product.kind === BOARD_PASS
       ? `Hi, I want to get the LazyTopper Board Pass for my board exam prep${price}. Can you help me pay for it? ${appUrl}/pricing`

@@ -13,6 +13,7 @@
  * MASKED. For a purchase for SOMEONE ELSE the recipient is never prefilled as the Razorpay payer contact (the payer gives
  * their own for the receipt).
  */
+import { VALIDITY_SHORT } from "../config/validity";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
@@ -132,10 +133,10 @@ export const ATTACH_ANOTHER_TITLE = "Who should this one go to?";
 export const ATTACH_ANOTHER_LABEL = "Another WhatsApp number or email";
 export const ATTACH_ACTIVATE = "Activate";
 export const attachAlreadyHasWarn = (masked: string, kind: GuestItem["kind"]): string =>
-  kind === "pack" ? `${masked} already owns this pack.` : `${masked} already has the Board Pass till the boards.`;
+  kind === "pack" ? `${masked} already owns this pack.` : `${masked} already has the Board Pass, ${VALIDITY_SHORT}.`;
 /** BEFORE payment (the "someone else" box): the same plain answer, about the number / email just typed. */
 export const alreadyHasLine = (kind: GuestItem["kind"], isEmail: boolean): string =>
-  kind === "pack" ? `This ${isEmail ? "email" : "number"} already owns this pack.` : `This ${isEmail ? "email" : "number"} already has the Board Pass till the boards.`;
+  kind === "pack" ? `This ${isEmail ? "email" : "number"} already owns this pack.` : `This ${isEmail ? "email" : "number"} already has the Board Pass, ${VALIDITY_SHORT}.`;
 export const attachDoneOk = (what: string): string => `${what} activated \u2713`;
 export const attachDoneTitle = (masked: string): string => `${masked} can sign in now`;
 export const attachDoneLine = (isPhone: boolean): string => `They open LazyTopper and sign in with this ${isPhone ? "number" : "email"}. Everything is already there.`;
@@ -263,7 +264,7 @@ export async function attachPayment(proof: AttachProof, choice: "me" | "other", 
 export const GUEST_RECEIPT_ENDPOINT = "/api/pay/guest/receipt";
 export const RECEIPT_PAYMENT_RECEIVED = "Payment received \u2713";
 export const receiptPackTitle = (title: string): string => `Your ${title}`;
-export const RECEIPT_PASS_TITLE = "Your Board Pass is active till your boards";
+export const RECEIPT_PASS_TITLE = `Your Board Pass is active, ${VALIDITY_SHORT}`;
 export const RECEIPT_LOADING = "Getting your purchase\u2026";
 export const RECEIPT_PREPARING = "Preparing your files\u2026";
 export const RECEIPT_FAILED = "We couldn't load it just now. Your payment is safe.";

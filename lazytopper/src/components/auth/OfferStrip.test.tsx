@@ -113,7 +113,7 @@ describe("the Board Pass line (the same on every date)", () => {
       const text = flat(strip);
       expect(flat(strip.querySelector(".lt-offer-strip-body"))).toBe(
         // GST-EXCL-1: the closed case is after the 7 Nov 2026 GST cut-off - the tag reads "+ GST".
-        `Board Pass: ${open ? "₹1,917" : "₹2,499 + GST"} \u2014 one payment till your boards. Upgrade whenever you like.`,
+        `Board Pass: ${open ? "₹1,917" : "₹2,499 + GST"} \u2014 one payment, valid till 28 Feb 2027. Upgrade whenever you like.`,
       );
       expect([...new Set(text.match(/₹[\d,]+/g))]).toEqual([boardPassPriceDisplay().replace(" + GST", "")]);
       expect(text).not.toMatch(/599|999|for a month|locked|20%|save/i);

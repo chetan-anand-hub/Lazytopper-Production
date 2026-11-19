@@ -83,7 +83,7 @@ export const OFFLINE_WALL: DownloadWallCopy = {
 };
 
 export interface WallOfferLines {
-  /** The Board Pass - the ONLY plan named since PRICE-FIXED-1 (31 Oct 2026): "Board Pass ₹… till your boards (Mar 2027)". Null when no quote. */
+  /** The Board Pass - the ONLY plan named since PRICE-FIXED-1 (31 Oct 2026): "Board Pass ₹… valid till 28 Feb 2027". Null when no quote. */
   boardPass: string | null;
   /** "Founding member offer" before the deadline, else null. */
   foundingLabel: string | null;

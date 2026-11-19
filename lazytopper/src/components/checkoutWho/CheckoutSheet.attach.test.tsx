@@ -154,7 +154,7 @@ describe("after a verified payment", () => {
     type("attach-other-input", "91234 56789");
     answer({ ok: false, reason: "already_has" });
     fireEvent.click(screen.getByTestId("attach-other-submit"));
-    expect((await screen.findByTestId("attach-already-has")).textContent).toBe("+91 91•••••789 already has the Board Pass till the boards.");
+    expect((await screen.findByTestId("attach-already-has")).textContent).toBe("+91 91•••••789 already has the Board Pass, valid till 28 Feb 2027.");
     expect(screen.getByText("Who should this one go to?")).toBeTruthy();
     expect(p.onClose).not.toHaveBeenCalled();
     expect(p.buySelf).toHaveBeenCalledTimes(1);
@@ -277,7 +277,7 @@ describe("a signed-in holder taps Buy", () => {
     const onGoTo = vi.fn();
     const p = mount({ signedIn: true, selfMasked: "an••••@gmail.com", startAt: "other", holder: { until: "31 Mar 2027" }, onGoTo });
     expect(screen.getByText("You already have the Board Pass")).toBeTruthy();
-    expect(screen.getByTestId("who-holder-line").textContent).toBe("It's active till your boards (until 31 Mar 2027). There's nothing more to pay.");
+    expect(screen.getByTestId("who-holder-line").textContent).toBe("It's active, valid till 31 Mar 2027. There's nothing more to pay.");
     expect(p.buySelf).not.toHaveBeenCalled();
     fireEvent.click(screen.getByTestId("who-holder-go"));
     expect(onGoTo).toHaveBeenCalledWith("/");
@@ -289,7 +289,7 @@ describe("a signed-in holder taps Buy", () => {
 
   it("no date known: none is invented", () => {
     mount({ signedIn: true, selfMasked: null, startAt: "other", holder: {} });
-    expect(screen.getByTestId("who-holder-line").textContent).toBe("It's active till your boards. There's nothing more to pay.");
+    expect(screen.getByTestId("who-holder-line").textContent).toBe("It's active, valid till 28 Feb 2027. There's nothing more to pay.");
   });
 
   it("an owned pack: 'You already own the …' + Buy for someone else + Open My packs", () => {
@@ -353,7 +353,7 @@ describe("PAID-SHOWS-1 - the purchase card is the first block of the paid screen
     const card = await screen.findByTestId("purchase-card");
     expect(fetchMock.mock.calls[0][0]).toBe("/api/pay/guest/receipt");
     expect(JSON.parse((fetchMock.mock.calls[0][1] as { body: string }).body)).toEqual(PROOF);
-    expect((await screen.findByTestId("receipt-title")).textContent).toBe("Your Board Pass is active till your boards");
+    expect((await screen.findByTestId("receipt-title")).textContent).toBe("Your Board Pass is active, valid till 28 Feb 2027");
     const who = screen.getByTestId("attach-choose-me");
     expect(who.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(JSON.parse(sessionStorage.getItem("lt.paidReceipt.v1") || "{}")).toEqual(PROOF);

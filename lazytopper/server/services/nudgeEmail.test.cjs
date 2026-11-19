@@ -801,7 +801,7 @@ test('concierge copy: no urgency words, no image, no price in founder_checkin, z
   assert.match(some.text, /You have done 2 answer checks and spent about 20 minutes on it\./);
   const none = buildConciergeEmail('founder_checkin', { unsubscribeUrl: unsub, facts: { checks: 0, tests: 0, practiceSets: 0, activeMinutes: 0 } });
   assert.doesNotMatch(none.text, /You have (done|spent)/);
-  assert.match(buildConciergeEmail('checkout_help', { unsubscribeUrl: unsub, order: { passType: 'till_boards', amountPaise: 99900 } }).text, /till-boards plan \(₹999\)/);
+  assert.match(buildConciergeEmail('checkout_help', { unsubscribeUrl: unsub, order: { passType: 'till_boards', amountPaise: 99900 } }).text, /the Board Pass \(₹999\)/);
   assert.doesNotMatch(buildConciergeEmail('checkout_help', { unsubscribeUrl: unsub }).text, /₹/);
 });
 

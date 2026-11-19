@@ -111,6 +111,12 @@
   font-size: 0.8rem;
   color: #c9d3e6;
 }
+.lt-bp-price__validity {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #c9d3e6;
+}
 .lt-bp-price__deadline {
   margin: 2px 0 0;
   font-size: 0.78rem;

@@ -51,6 +51,7 @@
 
 const { deriveEffectiveTier, toMillis } = require('../services/entitlement.cjs');
 const { istDayKey } = require('../services/rateLimiter.cjs');
+const { effectiveBoardPassEndMs } = require('../services/validityWindow.cjs'); // VALIDITY-FEB27
 const {
   ACTIVITY_COLLECTION,
   ACTIVITY_SEGMENTS,
@@ -1078,7 +1079,8 @@ function createAdminStudentsRoutes(deps = {}) {
       addPlan('pass-started', toMillis(raw.passStart), {
         passType: typeof raw.passType === 'string' ? raw.passType : null,
       });
-      const passEnd = toMillis(raw.passEnd);
+      const storedPassEnd = toMillis(raw.passEnd);
+      const passEnd = storedPassEnd === null ? null : effectiveBoardPassEndMs(raw.passType, storedPassEnd); // VALIDITY-FEB27: read-time end
       if (passEnd !== null && passEnd <= nowMs) addPlan('pass-ended', passEnd);
     }
     for (const d of payments || []) {

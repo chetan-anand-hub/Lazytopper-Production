@@ -89,7 +89,7 @@ describe("WHATSAPP-OPTIN-1 - Board Pass checkout: the WhatsApp block above Pay",
       return { status: "dismissed" };
     });
     mount("/pricing");
-    const pay = screen.getByText(/once till your boards/);
+    const pay = screen.getByText(/once · valid till 28 Feb 2027/);
     const block = screen.getByTestId("pass-wa-optin");
     expect(block.compareDocumentPosition(pay) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect((screen.getByTestId("pass-wa-consent") as HTMLInputElement).checked).toBe(false);
@@ -98,8 +98,8 @@ describe("WHATSAPP-OPTIN-1 - Board Pass checkout: the WhatsApp block above Pay",
     expect(seen).toEqual([{}]);
     fireEvent.change(screen.getByTestId("pass-wa-number"), { target: { value: "+91 98765 43210" } });
     fireEvent.click(screen.getByTestId("pass-wa-consent"));
-    await waitFor(() => expect((screen.getByText(/once till your boards/) as HTMLButtonElement).disabled).toBe(false));
-    fireEvent.click(screen.getByText(/once till your boards/));
+    await waitFor(() => expect((screen.getByText(/once · valid till 28 Feb 2027/) as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(screen.getByText(/once · valid till 28 Feb 2027/));
     await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(2));
     expect(seen[1]).toEqual({ waOptIn: { phone: "9876543210", consent: true } });
   });
@@ -107,7 +107,7 @@ describe("WHATSAPP-OPTIN-1 - Board Pass checkout: the WhatsApp block above Pay",
   it("signed out: the block is there, and Pay still opens the sheet in ONE tap", async () => {
     mount("/pricing");
     expect((screen.getByTestId("pass-wa-consent") as HTMLInputElement).checked).toBe(false);
-    fireEvent.click(screen.getByText(/once till your boards/));
+    fireEvent.click(screen.getByText(/once · valid till 28 Feb 2027/));
     expect(await screen.findByTestId("who-sheet")).toBeTruthy();
   });
 });
