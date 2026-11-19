@@ -39,6 +39,9 @@ const ACKNOWLEDGED_DRIFT: readonly string[] = [
   "TS-FM-M2", "TS-FM-M3", "TS-FM-M7", "TS-FM-M13", "TS-FM-M16", "TS-FM-M19",
 ];
 
+/** TS-MORE-1: 180 papers make these loops long; yield to the event loop each paper so the vitest worker keeps answering its heartbeat on a loaded CI runner. */
+const tick = () => new Promise<void>((r) => setTimeout(r, 0));
+
 const STAMP = "2026-01-01T00:00:00.000Z";
 const sha256 = (s: string) => createHash("sha256").update(s, "utf8").digest("hex");
 const entries = JSON.parse(readFileSync(resolve(__dirname, "../../../server/data/testSeriesPapers.json"), "utf8")) as SeriesPaperManifestEntry[];
@@ -60,6 +63,7 @@ describe("TS-PIN-1 byte-identity: pinned build == today's seeded draw, for every
     let compared = 0;
     let newPapers = 0;
     for (const t of seriesChapterTests()) {
+      await tick();
       const key = `TS-${t.code}`;
       if (t.paper > 1) {
         // TS-MORE-1 papers 2..5 are pin-only (no seeded twin to compare): each keeps every pinned id, in order, none missing.
@@ -98,6 +102,7 @@ describe("TS-PIN-1 byte-identity: pinned build == today's seeded draw, for every
     let compared = 0;
     let newMocks = 0;
     for (const m of seriesFullMocks()) {
+      await tick();
       const key = `TS-${m.code}`;
       if (m.n > SERIES_BASE_MOCKS_PER_SUBJECT) {
         // TS-MORE-1 papers 21..25 are pin-only: each keeps every pinned id, in order, none missing.
@@ -135,6 +140,7 @@ describe("TS-PIN-1 byte-identity: pinned build == today's seeded draw, for every
 describe("TS-PIN-1 admission parity: a pinned paper's written questions are exactly what the server manifest admits", () => {
   it("every written question's canonical-text hash equals the manifest's textHash (all 180 papers)", async () => {
     for (const e of entries) {
+      await tick();
       const spec = pinnedSpecOf(e.key)!;
       let written: Array<{ id: string; text: string }>;
       if (e.kind === "chapter") {
