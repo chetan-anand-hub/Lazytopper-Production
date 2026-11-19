@@ -10,6 +10,7 @@
  * (`boardPassPriceDisplay`), and the founding note follows `foundingOfferOpen` with the date from
  * `FOUNDING_OFFER_LAST_DAY_LABEL` - no price or date is typed here. No countdown, no seat count.
  */
+import { VALIDITY_SHORT } from "../../config/validity";
 import { TRIAL_DAYS } from "../../services/subscriptionService";
 import { boardPassPriceDisplay, foundingOfferOpen, FOUNDING_OFFER_LAST_DAY_LABEL } from "../../config/pricing";
 import { TRIAL_BAR_FIRST_DAY, trialBannerTiming } from "./trialEndBannerModel";
@@ -29,9 +30,9 @@ export function trialEarlyStripDayText(day: number): string {
   return `Trial: day ${day} of ${TRIAL_DAYS}`;
 }
 
-/** "Board Pass ₹1,917 till your boards (founding offer till 30 November)" - the note only while the offer is open. */
+/** "Board Pass ₹1,917 · valid till 28 Feb 2027 (founding offer till 30 November)" - the note only while the offer is open. */
 export function trialEarlyStripOfferText(nowMs: number): string {
   const price = boardPassPriceDisplay(nowMs);
   const note = foundingOfferOpen(nowMs) ? ` (founding offer till ${FOUNDING_OFFER_LAST_DAY_LABEL})` : "";
-  return `Board Pass ${price} till your boards${note}`;
+  return `Board Pass ${price} \u00b7 ${VALIDITY_SHORT}${note}`;
 }

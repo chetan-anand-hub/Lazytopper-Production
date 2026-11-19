@@ -78,7 +78,7 @@ describe("TrialTutorSummary", () => {
     await screen.findByTestId("trial-tutor-summary-line");
     expect(screen.getByTestId("trial-tutor-summary-plans").textContent).toBe("Board Pass ₹1,917 + GST →");
     expect(screen.getByText(/Founding member offer ends 30 November\. From 1 December: ₹2,499 \+ GST\./)).toBeTruthy();
-    expect(screen.getByText(/₹1,917 \+ GST once, till your boards/)).toBeTruthy();
+    expect(screen.getByText(/₹1,917 \+ GST once, valid till 28 Feb 2027/)).toBeTruthy();
   });
 
   it("shows the real counts and the Board Pass offer on the last trial days", async () => {
@@ -92,7 +92,7 @@ describe("TrialTutorSummary", () => {
     expect(plans.textContent).toMatch(/^Board Pass ₹[\d,]+ →$/);
     expect(plans.getAttribute("href")).toBe("/pricing?source=tutor-trial-summary");
     expect(screen.getByText(/Founding member offer ends 30 November\. From 1 December: ₹2,499\./)).toBeTruthy();
-    expect(screen.getByText(/₹1,917 once, till your boards/)).toBeTruthy();
+    expect(screen.getByText(/₹1,917 once, valid till 28 Feb 2027/)).toBeTruthy();
     expect(track).toHaveBeenCalledWith("trial_summary_shown", { surface: "home" }, expect.any(String));
     fireEvent.click(plans);
     expect(track).toHaveBeenCalledWith("trial_summary_tap", { surface: "home", cta: "plans" });

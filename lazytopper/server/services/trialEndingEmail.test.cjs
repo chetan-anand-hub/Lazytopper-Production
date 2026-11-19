@@ -715,12 +715,12 @@ test('SELL-1: Board Pass CTA price comes from passPricing at the send time; no f
   assert.equal(pBefore, 1917);
   assert.equal(pAfter, 2499);
   // GST-EXCL-1: both instants are after the 7 Nov 2026 GST cut-off - the CTA names the base "+ GST" (the charge is shown at checkout).
-  assert.ok(open.text.includes('₹1,917 + GST till') && closed.text.includes('₹2,499 + GST till'));
-  assert.ok(open.text.includes(`Get the Board Pass - ₹${pBefore.toLocaleString('en-IN')} + GST till your boards: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending`));
-  assert.ok(closed.text.includes(`₹${pAfter.toLocaleString('en-IN')} + GST till your boards`));
+  assert.ok(open.text.includes('₹1,917 + GST, valid till') && closed.text.includes('₹2,499 + GST, valid till'));
+  assert.ok(open.text.includes(`Get the Board Pass - ₹${pBefore.toLocaleString('en-IN')} + GST, valid till 28 Feb 2027: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending`));
+  assert.ok(closed.text.includes(`₹${pAfter.toLocaleString('en-IN')} + GST, valid till 28 Feb 2027`));
   // ...and BEFORE the cut-off the email is exactly as it was (all-in prices, no "+ GST").
   const preCut = buildTrialEmail({ ...args, nowMs: Date.parse('2026-11-04T12:00:00+05:30') });
-  assert.ok(preCut.text.includes('Get the Board Pass - ₹1,917 till your boards: '));
+  assert.ok(preCut.text.includes('Get the Board Pass - ₹1,917, valid till 28 Feb 2027: '));
   assert.ok(preCut.text.includes('Prefer printed practice? PDF packs from ₹49: '));
   assert.ok(!/GST/.test(preCut.text + preCut.html));
   assert.ok(!open.text.includes('Founding price') && !open.html.includes('Founding price'));

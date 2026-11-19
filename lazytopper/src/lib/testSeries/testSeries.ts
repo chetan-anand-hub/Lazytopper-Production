@@ -200,7 +200,7 @@ export function seriesContentsLine(t: SeriesTotals = seriesTotals()): string {
 
 /**
  * TS-PACK-1 — the Test Series Pack's one line (the /packs row, its pop-up): "130 chapter tests + 50 full-length tests, Maths + Science.
- * Your written answers, Sections B–D (B–E in full-length tests), checked step by step, 2 checks per paper, till 31 May 2027 (after your boards)." Counts from code.
+ * Your written answers, Sections B–D (B–E in full-length tests), checked step by step, 2 checks per paper, valid till 28 Feb 2027." Counts from code.
  */
 export function testSeriesPackLine(t: SeriesTotals = seriesTotals()): string {
   return `${seriesContentsLine(t)}, Maths + Science. Your written answers, ${TEST_SERIES_WRITTEN_SECTIONS}, checked step by step, ${TEST_SERIES_CHECKS_PER_PAPER_COPY}, ${TEST_SERIES_VALIDITY}.`;

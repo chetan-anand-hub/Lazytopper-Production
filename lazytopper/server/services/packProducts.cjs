@@ -20,7 +20,7 @@ const PACK_PRODUCTS = Object.freeze({
   pack_cbq: Object.freeze({ priceInr: 199, needsTarget: 'subject' }),
   // TS-PACK-1 (owner ruling 18 Nov 2026): the Test Series Pack - ONE per student, Maths + Science together, Rs 999 + GST.
   // NOT a PDF pack: it grants written-answer checking on the Test Series papers only (testSeriesChecks.cjs, 2 per paper),
-  // till 31 May 2027 - no tutor, no Premium (owner 19:44 IST). It covers, and is covered by, nothing else. Its packId is
+  // valid till 28 Feb 2027 (VALIDITY-FEB27) - no tutor, no Premium (owner 19:44 IST). It covers, and is covered by, nothing else. Its packId is
   // `test_series:all` (needsTarget null, like the bundle; every function below branches on the sku BEFORE the bundle rule).
   //
   // TS-PRICE-2 (owner ruling 19 Nov 2026 08:23 IST): the Test Series base price is TIME-DEPENDENT - Rs 999 + GST as a FOUNDING price

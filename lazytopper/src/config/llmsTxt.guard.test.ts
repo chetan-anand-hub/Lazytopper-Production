@@ -112,10 +112,12 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
   it("(f) llms.txt offers Premium first, then the CBQ Packs, then the other packs, each linked to the Pricing page", () => {
     const txt = readFileSync(LLMS_TXT, "utf8");
     const premium = txt.indexOf("1. The Board Pass"); // GST-EXCL-1 review G6: never "Premium" in copy
-    const cbq = txt.indexOf("2. CBQ Packs");
-    const packs = txt.indexOf("3. Other PDF packs");
+    const testSeries = txt.indexOf("2. Pre-Boards Test Series"); // owner, 19 Nov 2026: its own numbered product, right after the Board Pass
+    const cbq = txt.indexOf("3. CBQ Packs");
+    const packs = txt.indexOf("4. Other PDF packs");
     expect(premium, "no Premium offer line").toBeGreaterThan(-1);
-    expect(cbq, "no CBQ Packs offer line").toBeGreaterThan(premium);
+    expect(testSeries, "no Test Series offer line").toBeGreaterThan(premium);
+    expect(cbq, "no CBQ Packs offer line").toBeGreaterThan(testSeries);
     expect(packs, "no other-packs offer line").toBeGreaterThan(cbq);
     expect(txt).toContain("Details: https://www.lazytopper.com/pricing");
     expect(txt).toContain("https://www.lazytopper.com/pricing#cbq");
@@ -148,7 +150,12 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
     // Owner ruling 6 Nov 2026 18:52 IST: the rollout moment moved to 7 Nov, so llms.txt names no date at all.
     expect(txt).not.toMatch(/From [0-9]+ November 2026 every price/);
     expect(txt).not.toContain(String(PRICE_MONTHLY_FOUNDING_INR));
-    expect(txt).not.toContain(String(PRICE_MONTHLY_LIST_INR));
+    // The Test Series founding price is also 999 (owner, 19 Nov 2026): the month list price may not appear anywhere else.
+    expect(txt.replace(/₹999 \+ GST/g, "")).not.toContain(String(PRICE_MONTHLY_LIST_INR));
+    // VALIDITY-FEB27 + owner 19 Nov 2026: the Test Series line, its prices and its validity.
+    expect(txt).toContain("₹999 + GST founding price until 30 November 2026, then ₹1,499 + GST; valid till 28 Feb 2027");
+    expect(txt).toContain("Board Pass: ₹1,917 + GST");
+    expect(txt).not.toMatch(/until the (student's )?first board exam|till your boards/);
     expect(txt).not.toMatch(/less than paying monthly|for a month/i);
     expect(txt).toContain("7-day free trial");
     expect(txt).not.toMatch(/Premium|refunds/); // GST-EXCL-1 review G6

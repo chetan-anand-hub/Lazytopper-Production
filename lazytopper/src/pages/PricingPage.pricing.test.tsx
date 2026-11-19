@@ -17,6 +17,7 @@ vi.mock("../components/pricing/useMonthPassAvailable", () => ({
   resetMonthPassAvailableForTests: () => undefined,
 }));
 
+import { VALIDITY_LONG } from "../config/validity";
 import PricingPage, { PremiumPriceHead, TillBoardsOffer, PRICING_MANUAL_PAYMENTS_OFF } from "./PricingPage";
 import { PRICE_FREE_DISPLAY, PRICE_MONTHLY_LIST_DISPLAY } from "../config/pricing";
 import { stripAuthChrome, countResidualAuthNodes } from "../../scripts/seo/captureStaticBodies";
@@ -245,17 +246,19 @@ describe("PRICING-B-1 — the Board Pass card", () => {
       "✓Answer Checker: handwritten answers marked step by step, like a CBSE examiner",
       "✓Chapter tests, full mocks and worksheets graded",
       "✓Mistake Intelligence and a personal tutor that knows your mistakes",
-      "✓Every question and solution, till your boards",
+      "✓Every question and solution, valid till 28 Feb 2027",
     ]);
   });
 
-  it("after load: ₹1,917 once · till your boards (Feb 2027), no strike, no saving claim", () => {
+  it("after load: ₹1,917 once, no strike, no saving claim", () => {
     pinToday(SEPT_26_IST);
     const { pass } = renderPricing();
     const figures = pass.querySelector('[data-testid="till-boards-figures"]');
     expect(figures, "the figures render after mount").not.toBeNull();
     expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹1,917");
-    expect(flat(figures?.querySelector(".lt-pricing-tillboards-meta"))).toBe("once · till your boards (Feb 2027)");
+    expect(flat(figures?.querySelector(".lt-pricing-tillboards-meta"))).toBe("once");
+    // VALIDITY-FEB27: the validity sentence is fixed text OUTSIDE the clock slot.
+    expect(flat(pass.querySelector('[data-testid="till-boards-validity"]'))).toBe(VALIDITY_LONG);
     expect(figures?.querySelector("s")).toBeNull();
     expect(flat(figures)).not.toMatch(/save|%/i);
   });
@@ -290,9 +293,12 @@ describe("PRICING-B-1 — the Board Pass card", () => {
     );
     expect(html).not.toContain("till-boards-figures");
     expect(html).not.toContain("till your boards (");
+    // VALIDITY-FEB27: the FIXED date is in the static page (it never changes with the clock).
+    expect(html).toContain("valid till 28 Feb 2027");
+    expect(html).toContain("till-boards-validity");
     // CONTROL — the mounted page does carry them.
     const { inner } = renderPricing();
-    expect(flat(inner)).toContain("till your boards (Feb 2027)");
+    expect(flat(inner)).toContain(VALIDITY_LONG);
   });
 
   it("the paper line jumps to #packs, and the trial is the owner's small link", () => {
@@ -319,7 +325,8 @@ describe("PRICING-B-1 — the Board Pass figures never reach the static page (th
       expect(text, `figure survived the strip: ${label}`).not.toContain(label);
     }
     // CONTROL — the card's static copy survives.
-    expect(text).toContain("Every question and solution, till your boards");
+    expect(text).toContain("Every question and solution, valid till 28 Feb 2027");
+    expect(text).toContain(VALIDITY_LONG);
     // No login link anywhere (a /login <a> would make the strip drop its whole <section>).
     expect(container.querySelector('a[href*="/login"]')).toBeNull();
   });

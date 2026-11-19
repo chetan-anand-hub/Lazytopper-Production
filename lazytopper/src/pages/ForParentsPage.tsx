@@ -1,3 +1,4 @@
+import { VALIDITY_END_ISO, VALIDITY_SHORT } from "../config/validity";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, lazy, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -118,7 +119,7 @@ export interface ParentPriceModel {
   boardPassDisplay: string;
   /** GST-EXCL-1: the amount CHARGED - what the Pay buttons name ("₹2,262" from 7 Nov 2026). */
   boardPassPayDisplay: string;
-  /** "≈ ₹N a day till the boards", or null when the date or price cannot be trusted. */
+  /** "≈ ₹N a day, valid till 28 Feb 2027", or null when the date or price cannot be trusted. */
   perDayLine: string | null;
   untilLabel: string;
 }
@@ -127,33 +128,28 @@ export interface ParentPriceModel {
 export function parentPriceModel(now: Date, boardIso: string): ParentPriceModel | null {
   const quote = tillBoardsQuote(now, boardIso);
   if (!quote) return null;
-  const days = daysToBoards(now, boardIso);
+  // VALIDITY-FEB27: the per-day figure runs to the VALIDITY end (28 Feb 2027), the date the pass is valid till.
+  const days = daysToBoards(now, VALIDITY_END_ISO);
   const perDay = days ? Math.ceil(quote.priceInr / days) : NaN;
   const gst = boardPassGstExclusive(now);
   return {
     boardPassDisplay: quote.priceDisplay,
     boardPassPayDisplay: quote.totalDisplay,
-    perDayLine: !gst && Number.isFinite(perDay) && perDay > 0 ? `≈ ${formatInr(perDay)} a day till the boards` : null,
+    perDayLine: !gst && Number.isFinite(perDay) && perDay > 0 ? `≈ ${formatInr(perDay)} a day, ${VALIDITY_SHORT}` : null,
     untilLabel: quote.untilLabel,
   };
 }
 
-/** "Feb 2027" out of "till your boards (Feb 2027)". */
-export function boardsMonthYear(untilLabel: string): string {
-  return /\(([^)]+)\)/.exec(untilLabel)?.[1] ?? "";
-}
-
-/** The price card's figures at `now` (pure): the tag, the amount charged, the deadline line and the "till the Feb 2027 boards" line. */
+/** The price card's figures at `now` (pure): the tag, the amount charged, the deadline line and the "valid till 28 Feb 2027" line. */
 export function parentCardModel(now: Date, boardIso: string) {
   const model = parentPriceModel(now, boardIso);
   if (!model) return null;
-  const until = boardsMonthYear(model.untilLabel);
   return {
     tag: model.boardPassDisplay,
     pay: model.boardPassPayDisplay,
     deadline: boardPassFoundingPriceLine(now),
-    once: FP_ONE_PAYMENT.replace("{until}", until || "Feb 2027"),
-    until: until ? `till the ${until} boards` : "till the boards",
+    once: FP_ONE_PAYMENT,
+    until: VALIDITY_SHORT,
   };
 }
 
@@ -460,7 +456,7 @@ export default function ForParentsPage() {
       {mounted && !payOpen && (
         <SalesStickyBar
           watch={["fp-price", "fp-pay-area-second"]}
-          copy={() => ({ label: `${BOARD_PASS_NAME} ${boardPassPriceDisplay()} · ${parentCardModel(new Date(), predictCbseExamDate("10"))?.until ?? "till the boards"}`, button: `Pay ${boardPassPayDisplay()}` })}
+          copy={() => ({ label: `${BOARD_PASS_NAME} ${boardPassPriceDisplay()} · ${parentCardModel(new Date(), predictCbseExamDate("10"))?.until ?? VALIDITY_SHORT}`, button: `Pay ${boardPassPayDisplay()}` })}
           onGo={() => onPay()}
           ariaLabel={`${BOARD_PASS_NAME} shortcut`}
           testId="fp-sticky"

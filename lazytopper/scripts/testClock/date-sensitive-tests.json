@@ -746,6 +746,8 @@
     "src/config/searchPing.guard.test.ts",
     "src/config/sitemapUrls.guard.test.ts",
     "src/config/syllabus2026-27.test.ts",
+    "src/config/validity.parity.test.ts",
+    "src/config/validity.postWindow.test.ts",
     "src/context/AuthContext.googleRedirect.test.tsx",
     "src/context/AuthContext.trialOnSignup.test.tsx",
     "src/data/bankChapters/bankChapters.guard.test.ts",

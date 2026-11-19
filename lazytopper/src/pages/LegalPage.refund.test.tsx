@@ -22,7 +22,8 @@ afterEach(cleanup);
 
 const TITLE = "Cancellation Policy";
 // PACKS-LEGAL-1 (25 Oct 2026): the PDF Packs section was added, so the date moved.
-const UPDATED = "Last updated: 3 November 2026";
+// VALIDITY-FEB27 (19 Nov 2026): the Board Pass line now states its validity date, so the page's date moved with it.
+const UPDATED = "Last updated: 19 November 2026";
 
 /** The owner's sections, in order, word for word. */
 const SECTIONS: Array<[string, string]> = [
@@ -41,7 +42,7 @@ const SECTIONS: Array<[string, string]> = [
   ],
   [
     "Board Pass",
-    "A one-time payment covering Premium until your first board exam. No refund.",
+    "A one-time payment covering Premium, valid till 28 Feb 2027. No refund.",
   ],
   [
     // PACKS-LEGAL-1 (owner, 25 Oct 2026): a pack is a digital download, not refunded once paid.

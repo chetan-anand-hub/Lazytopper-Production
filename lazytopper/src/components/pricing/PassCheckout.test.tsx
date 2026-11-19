@@ -178,7 +178,7 @@ describe("Z3 · the buy buttons", () => {
   it("labels: the monthly price from the pricing module; the till-boards line", () => {
     expect(monthButtonLabel(true)).toBe("Pay ₹599 for a month");
     expect(monthButtonLabel(false)).toBe("Pay ₹999 for a month");
-    expect(tillBoardsButtonLabel()).toBe("Pay ₹1,917 once till your boards");
+    expect(tillBoardsButtonLabel()).toBe("Pay ₹1,917 once · valid till 28 Feb 2027");
   });
 
   it("signed OUT: a buy click goes to sign-in with a FIXED internal redirect, and buys nothing", async () => {
@@ -576,12 +576,12 @@ describe("GST-EXCL-1 · the breakup beside the Board Pass Pay button", () => {
   it("1 ms before 00:00 IST 7 Nov: no breakup, Pay names today's ₹1,917; at the cut-off: Pay ₹2,262 with its breakup", () => {
     vi.setSystemTime(CUT - 1);
     view({ signedIn: true, showMonth: false });
-    expect(screen.getByRole("button", { name: "Pay ₹1,917 once till your boards" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Pay ₹1,917 once · valid till 28 Feb 2027" })).toBeTruthy();
     expect(screen.queryByTestId("pass-checkout-gst")).toBeNull();
     cleanup();
     vi.setSystemTime(CUT);
     view({ signedIn: true, showMonth: false });
-    expect(screen.getByRole("button", { name: "Pay ₹2,262 once till your boards" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Pay ₹2,262 once · valid till 28 Feb 2027" })).toBeTruthy();
     expect(screen.getByTestId("pass-checkout-gst").textContent).toBe("₹1,917 + ₹345 GST (18%) = ₹2,262");
   });
 
@@ -658,14 +658,14 @@ describe("TS-UPGRADE-CREDIT-1 · the Test Series -> Board Pass upgrade (/pricing
   it("the copy: the owner's sentence, the breakup and the Pay label name the server's figures", () => {
     expect(tsUpgradeLine(UP)).toBe("Upgrade for ₹918 + GST — you've already paid for the Test Series");
     expect(tsUpgradeBreakdown(UP)).toBe("₹918 + ₹165 GST (18%) = ₹1,083");
-    expect(tsUpgradePayLabel(UP)).toBe("Pay ₹1,083 once till your boards");
+    expect(tsUpgradePayLabel(UP)).toBe("Pay ₹1,083 once · valid till 28 Feb 2027");
   });
 
   it("a signed-in Test Series owner: the upgrade line, the breakup beside Pay, and Pay ₹1,083", () => {
     view({ signedIn: true, showMonth: false, tsUpgrade: UP });
     expect(screen.getByTestId("pass-checkout-ts-upgrade").textContent).toBe("Upgrade for ₹918 + GST — you've already paid for the Test Series");
     expect(screen.getByTestId("pass-checkout-gst").textContent).toBe("₹918 + ₹165 GST (18%) = ₹1,083");
-    expect(screen.getByRole("button", { name: "Pay ₹1,083 once till your boards" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Pay ₹1,083 once · valid till 28 Feb 2027" })).toBeTruthy();
     expect(screen.getByTestId("pass-checkout-ts-upgrade").getAttribute("style")).toBeNull();
   });
 
@@ -688,7 +688,7 @@ describe("TS-UPGRADE-CREDIT-1 · the Test Series -> Board Pass upgrade (/pricing
   it("a running month pass: no upgrade line (the notice slot is the pass's), but Pay still names the server's upgrade total", () => {
     view({ signedIn: true, showMonth: false, tsUpgrade: UP, activePassEnd: "2026-12-10T00:00:00.000Z", activePlan: "pass_month" });
     expect(screen.queryByTestId("pass-checkout-ts-upgrade")).toBeNull();
-    expect(screen.getByRole("button", { name: "Pay ₹1,083 once till your boards" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Pay ₹1,083 once · valid till 28 Feb 2027" })).toBeTruthy();
   });
 
   it("connected: the line comes from /api/packs/mine for a signed-in owner; a non-owner's /mine (no credit) shows today's Pay", async () => {
@@ -697,7 +697,7 @@ describe("TS-UPGRADE-CREDIT-1 · the Test Series -> Board Pass upgrade (/pricing
     mockMine.tsRaw = FOUNDING;
     render(<MemoryRouter initialEntries={["/pricing"]}><PassCheckout /></MemoryRouter>);
     expect((await screen.findByTestId("pass-checkout-ts-upgrade")).textContent).toBe("Upgrade for ₹918 + GST — you've already paid for the Test Series");
-    expect(screen.getByRole("button", { name: "Pay ₹1,083 once till your boards" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Pay ₹1,083 once · valid till 28 Feb 2027" })).toBeTruthy();
     cleanup();
     mockAuth.user = { uid: "plain" };
     mockMine.tsRaw = { creditInr: 0, expiresAtMs: null, payInr: null };

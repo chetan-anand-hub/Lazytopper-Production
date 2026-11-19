@@ -298,6 +298,14 @@ export const PRICING_CSS = `
     color: var(--lt-ink-2);
   }
 
+  /* VALIDITY-FEB27: the fixed validity line, outside the clock slot (so it is in the prerender). */
+  .lt-pricing-tillboards-validity {
+    margin: 6px 0 0;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--lt-ink-2);
+  }
+
   .lt-pricing-tillboards-deadline {
     margin: 4px 0 0;
     font-size: 0.78rem;

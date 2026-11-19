@@ -1,3 +1,4 @@
+import { VALIDITY_SHORT } from "../../config/validity";
 import { useEffect, useState } from "react";
 import { boardPassPriceDisplay, boardPassPriceLine } from "../../config/pricing";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
@@ -51,7 +52,7 @@ export const TRIAL_WORDING = {
    * this names the Board Pass's fixed price.
    */
   get shortFragment() {
-    return `then free Basic, or the Board Pass ${boardPassPriceDisplay()} till boards.`;
+    return `then free Basic, or the Board Pass ${boardPassPriceDisplay()}, ${VALIDITY_SHORT}.`;
   },
   /** The link label to /pricing, wherever the UI is clickable. */
   seePlans: "See plans →",

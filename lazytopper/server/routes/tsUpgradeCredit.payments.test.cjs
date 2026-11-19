@@ -358,6 +358,8 @@ test('GRANT · verify grants the Board Pass for 1083, marks the Test Series cred
   const sub = db.read('subscriptions/ts1');
   assert.equal(sub.passType, 'till_boards');
   assert.equal(sub.pricePaidInr, 1083, 'the price recorded is the amount charged');
+  // VALIDITY-FEB27: the upgraded Board Pass runs to 28 Feb 2027 end of day IST - the same end the Test Series it replaces had.
+  assert.equal(new Date(sub.passEnd).getTime(), Date.parse('2027-02-28T23:59:59.999+05:30'));
   const ts = db.read('packEntitlements/ts1/packs/test_series:all');
   assert.equal(ts.creditedToPass, true);
   assert.equal(ts.creditedOrderId, r.orderId);
@@ -685,6 +687,6 @@ test('INVOICE · the paid upgrade is invoiced (not held): taxable 918.00 + GST 1
   Object.assign(plain, { amountPaise: 226200, baseInr: 1917, gstInr: 345, totalInr: 2262 });
   const pinv = g.buildInvoiceRecord({ order: plain, orderId: 'o2', paymentId: 'p2', config, fy: '26-27', seq: 8, issuedAtMs: NOW, contact: {} });
   assert.equal('priorCredit' in pinv, false);
-  assert.equal(pinv.line.description, 'LazyTopper Board Pass (Premium access till CBSE Class 10 boards)');
+  assert.equal(pinv.line.description, 'LazyTopper Board Pass (Premium access, valid till 28 Feb 2027)');
   assert.equal(invoiceTextBlocks(pinv).note, null);
 });

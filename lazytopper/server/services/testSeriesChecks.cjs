@@ -10,7 +10,7 @@
 //   3. EVERY submitted question's text is that question's canonical text: its hash equals the manifest's `textHashes[id]`
 //      (so a valid id cannot carry a swapped question);
 //   4. the caller owns `test_series` (packEntitlements/{uid}/packs/test_series:all, written ONLY by a verified Razorpay
-//      payment) and it is unexpired (31 May 2027, packTerms.cjs TEST_SERIES_ENDS_MS);
+//      payment) and it is unexpired (28 Feb 2027 end of day IST, packTerms.cjs TEST_SERIES_ENDS_MS);
 //   5. that paper has been checked (plus live holds) fewer than CHECKS_PER_PAPER (2) times for this student.
 //
 // ★ THE MANIFEST IS THE ONLY SOURCE OF WHAT A SERIES PAPER IS: lazytopper/server/data/testSeriesPapers.json (TEST-SERIES-1,

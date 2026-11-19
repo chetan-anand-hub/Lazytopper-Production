@@ -45,8 +45,8 @@ describe("tillBoardsQuote - the Board Pass: 1,917 until the founding deadline, 2
     expect(boardPassPriceDisplay(istNoon("2026-11-04"))).toBe("₹1,917");
     expect(boardPassPriceDisplay(istNoon("2026-11-07"))).toBe("₹1,917 + GST");
     expect(boardPassPriceDisplay(istNoon("2026-12-02"))).toBe("₹2,499 + GST");
-    expect(boardPassPriceLine(istNoon("2026-10-31"))).toBe("₹1,917 — one payment till your boards");
-    expect(boardPassPriceLine(istNoon("2026-12-02"))).toBe("₹2,499 + GST — one payment till your boards");
+    expect(boardPassPriceLine(istNoon("2026-10-31"))).toBe("₹1,917 — one payment, valid till 28 Feb 2027");
+    expect(boardPassPriceLine(istNoon("2026-12-02"))).toBe("₹2,499 + GST — one payment, valid till 28 Feb 2027");
   });
 
   it.each([
@@ -60,7 +60,7 @@ describe("tillBoardsQuote - the Board Pass: 1,917 until the founding deadline, 2
       const quote = tillBoardsQuote(istNoon(today), BOARD, founding);
       expect(quote).not.toBeNull();
       expect(quote!.priceInr).toBe(price);
-      expect(quote!.untilLabel).toBe("till your boards (Feb 2027)");
+      expect(quote!.untilLabel).toBe("valid till 28 Feb 2027");
     }
   });
 
@@ -132,14 +132,14 @@ describe("the number-free copy", () => {
 });
 
 describe("tillBoardsQuote - wired to the same board date as the landing countdown", () => {
-  it("on 2026-10-31 the predictor yields 2027-02-17 and the quote is ₹1,917", () => {
+  it("on 2026-10-31 the predictor yields 2027-02-16 and the quote is ₹1,917", () => {
     vi.useFakeTimers();
     vi.setSystemTime(istNoon("2026-10-31"));
     const boardIso = predictCbseExamDate("10");
-    expect(boardIso).toBe("2027-02-17");
+    expect(boardIso).toBe("2027-02-16");
     const q = tillBoardsQuote(new Date(), boardIso)!;
     expect(q.priceDisplay).toBe("₹1,917");
-    expect(q.untilLabel).toBe("till your boards (Feb 2027)");
+    expect(q.untilLabel).toBe("valid till 28 Feb 2027");
   });
 });
 

@@ -3,6 +3,8 @@
  * its tests and the guards read the same strings. Prices and dates are NOT here: they come from `config/pricing.ts`.
  */
 
+import { VALIDITY_LONG } from "./validity";
+
 /**
  * The Google Business Profile line. UPDATE BY HAND from the Google profile; NEVER INVENT. Read 12 Nov 2026 (owner): 5.0 stars,
  * 3 Google reviews. Shown exactly, never rounded up, never more.
@@ -19,7 +21,8 @@ export const FP_H1 = "Your child’s answers, marked the way a CBSE examiner mar
 export const FP_LEAD =
   "LazyTopper is a Class 10 exam-preparation platform. Your child writes an answer on paper, takes a photo, and sees exactly where marks were lost, and how to win them back.";
 export const FP_CHIPS = ["Built by a teacher", "IIT Kanpur graduate", "Tested with 1,500 students"] as const;
-export const FP_ONE_PAYMENT = "One payment, till the {until} boards. No auto-debit.";
+// VALIDITY-FEB27: the long form (config/validity.ts VALIDITY_LONG) + the no-auto-debit promise.
+export const FP_ONE_PAYMENT = `${VALIDITY_LONG} No auto-debit.`;
 export const FP_PAY_NOTE = "You choose who uses it after paying. No account needed.";
 export const FP_FREE_CHECK_LINK = "See it work: check one answer free →";
 

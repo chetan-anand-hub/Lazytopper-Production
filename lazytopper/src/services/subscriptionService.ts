@@ -1,3 +1,4 @@
+import { effectiveBoardPassEndMs } from "../config/validity";
 import { isFirestoreEnabled, withFirestore } from "./firestoreSdk";
 
 export type SubscriptionTier = "free" | "trial" | "premium";
@@ -242,6 +243,21 @@ function applyExpiry(status: SubscriptionStatus, opts: StartOptions = {}): Subsc
 }
 
 /**
+ * VALIDITY-FEB27 - the stored `passEnd` as the status carries it: absent -> null (legacy premium), unreadable -> the "unreadable"
+ * marker (fails closed), else the stored instant READ THROUGH the read-time rule (a 2026-27 `till_boards` pass reads to 28 Feb 2027;
+ * a later stored end is never lowered). Mirror of entitlement.cjs effectivePassEndMsOf.
+ */
+function readPassEndIso(rawEnd: unknown, passType: unknown): string | null {
+  if (rawEnd === undefined || rawEnd === null) return null;
+  const iso = toIso(rawEnd);
+  if (!iso) return "unreadable";
+  const ms = Date.parse(iso);
+  if (!Number.isFinite(ms)) return iso;
+  const eff = effectiveBoardPassEndMs(passType, ms);
+  return eff === ms ? iso : new Date(eff).toISOString();
+}
+
+/**
  * STORED-RATE-1 R5 — a paid pass is premium only until its `passEnd`. Mirror of the
  * server's pass-expiry branch in `server/services/entitlement.cjs` deriveEffectiveTier.
  *
@@ -251,9 +267,12 @@ function applyExpiry(status: SubscriptionStatus, opts: StartOptions = {}): Subsc
  */
 function applyPassExpiry(status: SubscriptionStatus): SubscriptionStatus {
   if (status.passEnd === undefined || status.passEnd === null) return status;
-  const endMs = new Date(status.passEnd).getTime();
+  const storedMs = new Date(status.passEnd).getTime();
+  // VALIDITY-FEB27: the read-time rule again, by PLAN, so a CACHED status (which never passes through readPassEndIso) is read the same
+  // way: a 2026-27 Board Pass reads to 28 Feb 2027, never lowered. Idempotent on a status the cloud read has already raised.
+  const endMs = status.plan === "pass_till_boards" ? effectiveBoardPassEndMs("till_boards", storedMs) : storedMs;
   if (!Number.isFinite(endMs) || endMs <= Date.now()) return { ...status, tier: "free" };
-  return status;
+  return endMs === storedMs ? status : { ...status, passEnd: new Date(endMs).toISOString() };
 }
 
 /**
@@ -411,8 +430,7 @@ async function loadCloud(uid: string): Promise<CloudResult> {
       // PRESENT but unreadable must not collapse to null — null means "legacy premium,
       // no end" — so it is kept as an unparseable marker and applyPassExpiry fails it
       // closed, exactly as the server does.
-      passEnd:
-        raw.passEnd === undefined || raw.passEnd === null ? null : (toIso(raw.passEnd) ?? "unreadable"),
+      passEnd: readPassEndIso(raw.passEnd, raw.passType),
       ...(raw.foundingMember === true ? { foundingMember: true } : {}),
     };
     // PAY-PHONE-1 (review fix 1) - mirror of entitlement.cjs: a stored TRIAL that also carries a complete server grant

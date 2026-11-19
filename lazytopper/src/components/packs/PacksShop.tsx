@@ -43,7 +43,7 @@ import {
   TEST_SERIES_CHECKS_PER_PAPER,
   type PackSubject,
 } from "../../services/packs";
-import { BUNDLE_NAME, TEST_SERIES_NAME, TEST_SERIES_VALIDITY, packChapterLabel } from "../../lib/packs/packLabels";
+import { BUNDLE_NAME, TEST_SERIES_NAME, TEST_SERIES_VALID_TILL, packChapterLabel } from "../../lib/packs/packLabels";
 import { TEST_SERIES_PATH, seriesContentsLine, seriesProgress, seriesTotals, type SeriesProgress } from "../../lib/testSeries/testSeries";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import { isPacksWarmupPath, schedulePacksWarmup } from "../../lib/packs/packsMobilePreload";
@@ -1497,7 +1497,7 @@ function OwnedTestSeriesRow({ pack, mine, when, tidy }: { pack: OwnedPack; mine:
         {`${seriesContentsLine()}. Your written answers are checked step by step, ${per === 2 ? "twice" : `${per} times`} per paper.`}
       </p>
       {progressLine && <p className="lt-packs__muted" data-testid="packs-owned-test-series-progress">{progressLine}</p>}
-      <p className="lt-packs__muted" data-testid="packs-owned-test-series-valid">{`Valid ${TEST_SERIES_VALIDITY}`}</p>
+      <p className="lt-packs__muted" data-testid="packs-owned-test-series-valid">{`Valid till ${TEST_SERIES_VALID_TILL}`}</p>
       <Link className="lt-packs__link" to={TEST_SERIES_PATH} data-testid="packs-owned-test-series-open">Go to Test Series &rarr;</Link>
     </>
   );

@@ -10,9 +10,9 @@ describe("boardPassOffer", () => {
     const o = boardPassOffer(new Date("2026-10-26T06:00:00Z"), "2027-02-17");
     expect(o.title).toBe("Board Pass");
     expect(o.priceDisplay).toBe("₹1,917");
-    expect(o.detail).toBe("Pay once till your boards (Feb 2027)");
+    expect(o.detail).toBe("Pay once, valid till 28 Feb 2027");
     expect(Object.keys(o).sort()).toEqual(["detail", "priceDisplay", "title"]);
-    expect(boardPassShortLine(o)).toBe(`Board Pass ${o.priceDisplay} till boards`);
+    expect(boardPassShortLine(o)).toBe(`Board Pass ${o.priceDisplay} · valid till 28 Feb 2027`);
   });
 });
 
@@ -37,7 +37,7 @@ describe("PRICE-FIXED-1 - the Board Pass is the only offer (owner, 31 Oct 2026)"
       const o = premiumOffer(now, BOARD);
       expect(o.title).toBe("Board Pass");
       expect(o.priceDisplay).toBe(price);
-      expect(o.detail).toBe("one payment till your boards");
+      expect(o.detail).toBe("one payment, valid till 28 Feb 2027");
       expect(o.boardPass).toEqual(boardPassOffer(now, BOARD));
     }
   });
@@ -51,12 +51,12 @@ describe("PRICE-FIXED-1 - the Board Pass is the only offer (owner, 31 Oct 2026)"
   });
 
   it("no till-boards quote: the lines still name the Board Pass (fixed price from config)", () => {
-    expect(premiumOffer(NOW_OPEN, "not-a-date").second).toBe("Everything unlocked till your boards. No renewals.");
+    expect(premiumOffer(NOW_OPEN, "not-a-date").second).toBe("Everything unlocked, valid till 28 Feb 2027. No renewals.");
     expect(boardPassOffer(NOW_OPEN, "not-a-date").priceDisplay).toBeNull();
   });
 
   it("the short line and the CTA lead with the Board Pass", () => {
-    expect(premiumShortLine(premiumOffer(NOW_OPEN, BOARD))).toBe("Board Pass ₹1,917 till boards");
+    expect(premiumShortLine(premiumOffer(NOW_OPEN, BOARD))).toBe("Board Pass ₹1,917 · valid till 28 Feb 2027");
     expect(boardPassCtaLabel("₹1,917")).toBe("Board Pass ₹1,917 →");
   });
 });

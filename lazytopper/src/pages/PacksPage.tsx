@@ -9,7 +9,7 @@ import { PACKS_ANSWER_FAQ } from "../components/seo/faqContent";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import FounderBadge from "../components/brand/FounderBadge";
 import PacksShop, { warmPacksCheckout, OTHER_PAYMENT_BUSY_COPY, PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
-import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT, TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_CHECKS_PER_PAPER_COPY, TEST_SERIES_NAME, TEST_SERIES_VALIDITY, TEST_SERIES_WRITTEN_SECTIONS } from "../lib/packs/packLabels";
+import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT, TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_CHECKS_PER_PAPER_COPY, TEST_SERIES_NAME, TEST_SERIES_VALIDITY, TEST_SERIES_VALIDITY_LONG, TEST_SERIES_WRITTEN_SECTIONS } from "../lib/packs/packLabels";
 import { seriesContentsLine, testSeriesPackLine } from "../lib/testSeries/testSeries";
 import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
 import { usePaidPremium } from "../lib/packs/usePaidPremium";
@@ -407,7 +407,7 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
               </div>
             </details>
             {/* TS-UX-PAGE-1: what "2 checks per paper" means, before the Buy. */}
-            <p className="lt-pk-ts__checks" data-testid="packs-ts-valid">One payment, {TEST_SERIES_VALIDITY}.</p>
+            <p className="lt-pk-ts__checks" data-testid="packs-ts-valid">{TEST_SERIES_VALIDITY_LONG}</p>
             <p className="lt-pk-ts__checks" data-testid="packs-ts-checks">{TEST_SERIES_CHECKS_EXPLAINER}</p>
             {/* TS-MORE-1: the per-test badge (clock slot) + the examiner line, visible without opening the row. */}
             <TestSeriesPerTest testId="packs-ts-per-test" />

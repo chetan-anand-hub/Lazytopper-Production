@@ -13,7 +13,7 @@ import { TestSeriesExaminerLine, TestSeriesPerTest } from "../components/packs/T
 import { TsClockSlot } from "../components/packs/TestSeriesFoundingClause";
 import PacksShop, { type PacksShopApi } from "../components/packs/PacksShop";
 import TestSeriesPaperPicker from "../components/testSeries/TestSeriesPaperPicker";
-import { TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_VALIDITY, TEST_SERIES_WRITTEN_SECTIONS } from "../lib/packs/packLabels";
+import { TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_VALIDITY_LONG, TEST_SERIES_WRITTEN_SECTIONS } from "../lib/packs/packLabels";
 import {
   TEST_SERIES_BUY_FROM_PATH,
   TEST_SERIES_NAME,
@@ -147,9 +147,9 @@ export default function TestSeriesPage() {
     // TS-PACK-1: the Test Series price is the `test_series` SKU's ("₹999 + GST"); the Board Pass price is date-driven (founding
     // price till 30 Nov, list price from 1 Dec). The founding line shows only while that offer is really open.
     setPrices({
-      // TS-PRICE-2: while the founding offer is open the card says "₹999 + GST · founding price till 30 Nov, then ₹1,499 + GST"; after it "₹1,499 + GST till your boards".
+      // TS-PRICE-2: while the founding offer is open the card says "₹999 + GST · founding price till 30 Nov, then ₹1,499 + GST"; after it "₹1,499 + GST".
       ts: testSeriesFoundingClause(now) ? testSeriesPriceLine(now) : packPriceLabel("test_series", now),
-      bp: `${boardPassPriceDisplay(now)} till your boards`,
+      bp: boardPassPriceDisplay(now),
       founding: foundingOfferOpen(now) ? `Founding season: the Board Pass is ${boardPassPriceDisplay(now)} till ${FOUNDING_OFFER_LAST_DAY_LABEL}` : null,
     });
   }, [schedule]);
@@ -234,7 +234,7 @@ export default function TestSeriesPage() {
       <p className="lt-ts-offer__name">Test Series</p>
       <p className="lt-ts-offer__price">{prices && <span data-lt-clock="" data-testid={hero ? "ts-hero-price" : "till-boards-figures"}>{prices.ts}</span>}</p>
       <p className="lt-ts-offer__valid" data-testid={hero ? "ts-hero-valid" : "ts-offer-valid"}>
-        One payment, {TEST_SERIES_VALIDITY}
+        {TEST_SERIES_VALIDITY_LONG}
       </p>
       <TestSeriesPerTest testId={hero ? "ts-hero-per-test" : "ts-offer-per-test"} />
       {!hero && <TestSeriesExaminerLine testId="ts-offer-examiner" />}
@@ -278,6 +278,7 @@ export default function TestSeriesPage() {
         <p className="lt-ts-offer__tag lt-ts-offer__tag--bp">Most complete</p>
         <p className="lt-ts-offer__name">Board Pass</p>
         <p className="lt-ts-offer__price">{prices && <span data-testid="till-boards-figures">{prices.bp}</span>}</p>
+        <p className="lt-ts-offer__valid" data-testid="ts-offer-bp-valid">{TEST_SERIES_VALIDITY_LONG}</p>
         <ul className="lt-ts-offer__list">
           <li>Everything in the Test Series, plus:</li>
           <li>Every answer checked everywhere (Answer Checker, worksheets)</li>

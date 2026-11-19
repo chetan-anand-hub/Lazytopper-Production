@@ -113,7 +113,7 @@ describe("PRICING-PAGES-1 /board-pass - signed out (what the prerender captures)
   it("BP-PREBOARDS-1: the pre-boards line leads the hero; the founding countdown shows before the deadline and renders nothing after it", async () => {
     await mount();
     expect(screen.getByTestId("bp-preboards").textContent).toBe(BP_PREBOARDS_LINE);
-    expect(BP_PREBOARDS_LINE).toBe("Your pre-boards package \u2014 full board mocks, CBSE step marking, important questions and a personal tutor, till your boards.");
+    expect(BP_PREBOARDS_LINE).toBe("Your pre-boards package \u2014 full board mocks, CBSE step marking, important questions and a personal tutor, valid till 28 Feb 2027.");
     // 11 Nov 2026 10:00 IST -> 19 days to the last day (30 Nov)
     expect(screen.getByTestId("boards-countdown").textContent).toBe("Founding price ends in 19 days (30 Nov) \u00b7 then \u20b92,499 + GST");
     cleanup();

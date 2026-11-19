@@ -88,7 +88,7 @@ test('goes to the payer AND the account email when different; names the masked s
   assert.deepEqual(fetchImpl.sent.map((s) => s.to).sort(), ['chetan@gmail.com', 'parent@example.com']);
   const m = fetchImpl.sent[0];
   assert.match(m.text, /Sign in at lazytopper\.com with phone 98•••••210 \/ Google ch•••@gmail\.com to use it\./);
-  assert.match(m.text, /Everything is unlocked till the Feb 2027 boards\./);
+  assert.match(m.text, /Everything is unlocked, valid till 28 Feb 2027\./);
   assert.match(m.text, /Item: Board Pass\n/);
   assert.match(m.text, /Razorpay payment ID: pay_ABC123/);
   for (const s of fetchImpl.sent) assert.doesNotMatch(s.subject + s.text + s.html, /Premium/);

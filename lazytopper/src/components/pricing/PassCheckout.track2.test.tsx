@@ -101,7 +101,7 @@ describe("TRACK-2 · PassCheckout events", () => {
     const c = render(
       <PassCheckoutView signedIn={false} showMonth offerOpen activePassEnd={null} onSignIn={onSignIn} onBuy={onBuy} />,
     );
-    fireEvent.click(c.getByRole("button", { name: /once till your boards/i }));
+    fireEvent.click(c.getByRole("button", { name: /once · valid till 28 Feb 2027/i }));
     expect(track.trackBeginCheckoutTap).toHaveBeenCalledTimes(1);
     expect(track.trackBeginCheckoutTap.mock.calls[0][0]).toMatchObject({ passType: "till_boards" });
     expect(track.trackBeginCheckoutTap.mock.calls[0][1]).toBe(false);

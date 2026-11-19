@@ -27,6 +27,7 @@
  */
 
 const crypto = require('node:crypto');
+const { VALIDITY_LABEL } = require('./validityWindow.cjs'); // VALIDITY-FEB27
 const { GST_EXCLUSIVE_FROM_MS, GST_RATE_PERCENT, IST_OFFSET_MS } = require('./passPricing.cjs');
 const { isPackProduct } = require('./packProducts.cjs');
 // TS-UPGRADE-CREDIT-1: a Board Pass bought as an upgrade from the Test Series Pack (the Test Series base credited).
@@ -254,9 +255,9 @@ function productLineFor(order) {
     case 'till_boards':
       // TS-UPGRADE-CREDIT-1: the upgrade names itself on the line (the credit itself is shown under the totals).
       if (order.tsUpgradeCreditInr !== undefined) {
-        return { description: 'LazyTopper Board Pass (Premium access till CBSE Class 10 boards) - upgrade from the Test Series Pack', sacKind: 'boardPass' };
+        return { description: `LazyTopper Board Pass (Premium access, valid till ${VALIDITY_LABEL}) - upgrade from the Test Series Pack`, sacKind: 'boardPass' };
       }
-      return { description: 'LazyTopper Board Pass (Premium access till CBSE Class 10 boards)', sacKind: 'boardPass' };
+      return { description: `LazyTopper Board Pass (Premium access, valid till ${VALIDITY_LABEL})`, sacKind: 'boardPass' };
     case 'month':
       return { description: 'LazyTopper Premium month pass', sacKind: 'boardPass' };
     case 'pack_chapter':
@@ -271,7 +272,7 @@ function productLineFor(order) {
       return { description: 'LazyTopper PDF Maths + Science Bundle', sacKind: 'packs' };
     // TS-PACK-1: an ONLINE service (written-answer checking on the series papers; no tutor), like the Board Pass - not a PDF - so it takes the Board Pass SAC.
     case 'test_series':
-      return { description: 'LazyTopper Test Series Pack (Maths + Science, till CBSE Class 10 boards)', sacKind: 'boardPass' };
+      return { description: `LazyTopper Test Series Pack (Maths + Science, valid till ${VALIDITY_LABEL})`, sacKind: 'boardPass' };
     default:
       return null;
   }

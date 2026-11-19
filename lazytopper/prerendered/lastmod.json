@@ -1,11 +1,11 @@
 {
   "/": {
-    "sha256": "b0d8d2bd9b616e464ca6f882594a82618754846f127f1366f169e4a9e364ba92",
-    "lastmod": "2026-11-17"
+    "sha256": "d806cd69c3497983b9b12befd3e2795340fd2fdc88095583a34b5d2ca8ad6538",
+    "lastmod": "2026-11-20"
   },
   "/board-pass": {
-    "sha256": "8e8af83d591a543d6a0b383578d609099ca8fe8000fb5774278e39f0d8ae196d",
-    "lastmod": "2026-11-18"
+    "sha256": "0cf2f5d622ac43168cd1ce98353e0a74a6d1ad9832beb67100b245526256ecef",
+    "lastmod": "2026-11-20"
   },
   "/cbq-class-10": {
     "sha256": "be66c1322b9b0eca1e6a99d3869f8d65973378e6bdf9822cdec2f3fea4a4f8a9",
@@ -128,8 +128,8 @@
     "lastmod": "2026-11-18"
   },
   "/check-your-answer": {
-    "sha256": "b3226413e8cbc87b9350fbecfc57ed741079079e62c2d26075d593887fab9b20",
-    "lastmod": "2026-11-17"
+    "sha256": "33306d7a126425ab391c40888b96ed2063651d52a97d1ed8e2ba9942528c3298",
+    "lastmod": "2026-11-20"
   },
   "/contact": {
     "sha256": "c72444e997be8681a2527e13c7f0efd66a4a5df7991ebd759c1103b15bb00383",
@@ -140,8 +140,8 @@
     "lastmod": "2026-11-14"
   },
   "/for-parents": {
-    "sha256": "1a79c16d2b5fac7bf593fa823b8c0a059cbfad0c3fbe09372e5c93c3a783dcae",
-    "lastmod": "2026-11-17"
+    "sha256": "3526ff1d47753d3906a6c0454b273282bf1d0f6c1d322873b6be70cd1c7dbe58",
+    "lastmod": "2026-11-20"
   },
   "/free-mcq-class-10": {
     "sha256": "8b003a09fa4825e25afe5e26f34d396e1f9a0e7277307f598ed336156f2e773b",
@@ -316,8 +316,8 @@
     "lastmod": "2026-11-18"
   },
   "/legal/refund": {
-    "sha256": "f6722fb58185c8f61281e81f8ddd7085d9417d85e8ad7fce647a89ad34b87113",
-    "lastmod": "2026-11-05"
+    "sha256": "9c65d04a6d42621e15eb6540f30eb6057d656ec3afa13b7e2e6f87a84a962e53",
+    "lastmod": "2026-11-20"
   },
   "/legal/terms": {
     "sha256": "6e4c92b2496561a5da18312e4eb4e9a0bf89b3704a8932d2619cb197db2f2b97",
@@ -640,24 +640,24 @@
     "lastmod": "2026-11-19"
   },
   "/packs": {
-    "sha256": "cf40c7c1722849522c936fb1e3dd376a1f3158087c0da621f5a8e823d6d9d159",
-    "lastmod": "2026-11-19"
+    "sha256": "100821c3834d27276e7dff78aa2492c906abb47078a6bb429640fdb77089463f",
+    "lastmod": "2026-11-20"
   },
   "/practice-hub": {
     "sha256": "a3c573d4709ff78b66ac22cc00a8878df3603b0d09cb4bcb3ffe6c513d111323",
     "lastmod": "2026-11-19"
   },
   "/pricing": {
-    "sha256": "f33b45f1d3c583b4724334a349f5b369837c9d56fb6b7de05b4fd1a9c690e4f6",
-    "lastmod": "2026-11-19"
+    "sha256": "7fb0775c1ec8cac7830b661ec5620e1413c0228902adf926acae81020f74f308",
+    "lastmod": "2026-11-20"
   },
   "/question-bank-class-10": {
     "sha256": "f2f274d1aab87db0d36ab864d7d3d2feed190fb3db1b28fdc1bc767df109a259",
     "lastmod": "2026-11-18"
   },
   "/test-series": {
-    "sha256": "1e307632c53ed4c64e090547653f8532703c7f9017c61d293b9b77bf9c748917",
-    "lastmod": "2026-11-19"
+    "sha256": "4d70e81f66be284051f9e8911797391b5ec23c1324973f15346f09533da80f7a",
+    "lastmod": "2026-11-20"
   },
   "/topic-hub/acids-bases-and-salts": {
     "sha256": "3bcdddbaa1f6b7030831535ef4fcdd28bf1b6bf44850bfe898e8955d1d5632fd",

@@ -43,7 +43,7 @@ import { isGstBuyerCancelled } from "./gstBuyerOrder";
 /* ── catalogue ──────────────────────────────────────────────────────────────── */
 
 /**
- * TS-PACK-1: `test_series` is the Test Series Pack - ONE per student (Maths + Science), Rs 999 + GST founding till 30 Nov 2026, then Rs 1,499 + GST (TS-PRICE-2), till 31 May 2027. It is not
+ * TS-PACK-1: `test_series` is the Test Series Pack - ONE per student (Maths + Science), Rs 999 + GST founding till 30 Nov 2026, then Rs 1,499 + GST (TS-PRICE-2), valid till 28 Feb 2027 (VALIDITY-FEB27). It is not
  * a PDF pack: it unlocks the Test Series papers and checks written answers on them, 2 per paper (the server decides both).
  */
 export type PackSku = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle" | "pack_cbq" | "test_series";

@@ -132,7 +132,7 @@ describe("LOCK-SELL-1 - the lock sells the Board Pass (feature x trial x pack ow
 
             // Price and lines from config, never typed.
             expect(screen.getByTestId("lock-amount").textContent).toBe(boardPassPriceDisplay());
-            expect(screen.getByTestId("lock-price").textContent).toMatch(/once · till your boards \([A-Z][a-z]{2} \d{4}\)/);
+            expect(screen.getByTestId("lock-price").textContent).toMatch(/once · valid till 28 Feb 2027/);
             expect(screen.getByTestId("lock-from-line").textContent).toBe(boardPassFromLine());
             const founding = boardPassFoundingLabel();
             if (founding) expect(screen.getByTestId("lock-founding-badge").textContent).toBe(founding);

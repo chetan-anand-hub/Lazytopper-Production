@@ -174,7 +174,7 @@ describe("BRIDGE-PDF-1 - the approved copy, verbatim", () => {
     expect(t).toContain("This paper (PK-M-RN-CT1) was written by our team with six deliberate mistakes");
     expect(t).toContain("Free and 7-day free trial accounts can take one test with its MCQs marked free. Written answers are checked with the Test Series or the Board Pass.");
     expect(t).not.toContain("first paper of each kind");
-    expect(t).toContain("Board Pass marks every paper you write till your boards");
+    expect(t).toContain("Board Pass marks every paper you write, valid till 28 Feb 2027");
     expect(t).not.toMatch(/\bAI\b/);
     expect(container.querySelector('[data-pdf-link="https://www.lazytopper.com/pricing"]')).not.toBeNull();
   });
@@ -183,7 +183,7 @@ describe("BRIDGE-PDF-1 - the approved copy, verbatim", () => {
     const t = render(<PrintBridgeMarkPage data={{ ...data, exampleCode: "PK-M-RN-CT1", ownCode: false }} links={links} />).container.textContent || "";
     expect(t).toContain("Write the paper code at the top — each Chapter Test and Worksheet in this pack has one, e.g. PK-M-RN-CT1.");
     expect(t).not.toContain("QR");
-    expect(t).toContain("Board Pass marks every paper you write till your boards");
+    expect(t).toContain("Board Pass marks every paper you write, valid till 28 Feb 2027");
   });
 
   it("the PDF link keeps #my-packs (a signed-out reader lands on the sign-in line, not the shop)", () => {

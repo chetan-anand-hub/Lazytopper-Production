@@ -10,6 +10,7 @@
  * ★ NO REFUND WORDING, ever (the policy's label is "Cancellation Policy").
  * ★ PURE: no React, no services that pull checkout code - the page, its tests and the sticky bar all import it.
  */
+import { VALIDITY_SHORT } from "../../config/validity";
 import { BOARD_PASS_NAME } from "../../config/pricing";
 import { chaptersOfSubject, packPayLabel, packPriceLabel, subjectLabel, subjectOfChapter, type PackSubject } from "../../services/packs";
 import {
@@ -43,10 +44,10 @@ export const BOARD_PASS_TICKS: ReadonlyArray<{ id: string; strong?: string; text
   { id: "checker", strong: "Answer Checker", text: ": handwritten answers marked step by step, like a CBSE examiner" },
   { id: "graded", text: "Chapter tests, full mocks and worksheets graded" },
   { id: "mi", text: "Mistake Intelligence and a personal tutor that knows your mistakes" },
-  { id: "all", text: "Every question and solution, till your boards" },
+  { id: "all", text: `Every question and solution, ${VALIDITY_SHORT}` },
 ];
 
-/** The word in front of "till your boards (Feb 2027)" beside the price. */
+/** The word in front of "valid till 28 Feb 2027" beside the price. */
 export const BOARD_PASS_ONCE = "once";
 
 /** The trial action's label (same action and states as before; owner wording). */

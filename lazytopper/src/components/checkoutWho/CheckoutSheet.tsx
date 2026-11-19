@@ -16,6 +16,7 @@
  *
  * Nothing here grants anything. What the payer typed never goes into a URL, storage or an analytics event.
  */
+import { VALIDITY_SHORT } from "../../config/validity";
 import InAppPayRescue, { buyTargetFromItem } from "../payRescue/InAppPayRescue";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -515,7 +516,7 @@ export default function CheckoutSheet({
             ? item.sku === "test_series"
               ? "Your Test Series is ready. Start it from My packs."
               : "Your files are in My packs, ready to download."
-            : `It's active till your boards${holder?.until ? ` (until ${holder.until})` : ""}. There's nothing more to pay.`}
+            : `It's active, ${holder?.until ? `valid till ${holder.until}` : VALIDITY_SHORT}. There's nothing more to pay.`}
         </p>
         <button type="button" className="lt-gps__primary" onClick={() => setStep({ name: "form" })} data-testid="who-holder-other">Buy for someone else</button>
         <button

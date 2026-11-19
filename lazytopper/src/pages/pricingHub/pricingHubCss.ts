@@ -474,6 +474,7 @@ export const HUB_CSS = `
     color: #ffffff;
   }
   .lt-ph-card--pass .lt-pricing-tillboards-meta,
+  .lt-ph-card--pass .lt-pricing-tillboards-validity,
   .lt-ph-card--pass .lt-pp-payline,
   .lt-ph-card--pass .lt-pricing-period {
     color: #c9d6e6;

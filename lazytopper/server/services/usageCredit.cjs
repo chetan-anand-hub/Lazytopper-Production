@@ -16,8 +16,8 @@
 //   transaction (the grantPass pattern); a replay of verify or the webhook finds `grants/{payId}` and
 //   changes nothing.
 //
-// ★ EXPIRY. Credit lasts until the student's predicted board date (the SAME predictor the till-boards pass
-//   uses: passPricing.predictBoardDateIso). After that it is ignored - never silently deleted: the
+// ★ EXPIRY. Credit lasts until the Board Pass validity end (28 Feb 2027 end-of-day IST, validityWindow.cjs - the SAME end the
+//   till-boards pass gets; VALIDITY-FEB27). After that it is ignored - never silently deleted: the
 //   remainder moves to `expiredMicroInr` the next time the document is written, and admin can read it.
 //
 // ★★ RACE-SAFE ADMISSION (FU-TOPUP-RACE). Admitting a request on credit is `reserveCredit`: ONE Firestore
@@ -33,8 +33,7 @@ const {
   TOPUP_PRODUCTS,
   topupCreditFor,
   isTopupProduct,
-  predictBoardDateIso,
-  endOfIstDayMs,
+  validityEndMsFor,
 } = require('./passPricing.cjs');
 
 const CREDIT_COLLECTION = 'usageCredits';
@@ -58,10 +57,13 @@ function isTopupLive(env = process.env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.PAYMENTS_ENABLED) || '').trim()) && isTopupFlagOn(env);
 }
 
-/** The instant credit bought at `nowMs` stops counting: the end of the predicted board day (IST). */
+/**
+ * The instant credit bought at `nowMs` stops counting: the Board Pass validity end (28 Feb 2027 end-of-day IST, VALIDITY-FEB27).
+ * It used to be the predicted board day; that would now cut credit off ~11 days BEFORE the pass it tops up, and is never shorter than before.
+ */
 function creditExpiryMs(nowMs) {
-  const iso = predictBoardDateIso(nowMs);
-  return iso ? endOfIstDayMs(iso) : null;
+  const ms = validityEndMsFor(nowMs);
+  return Number.isFinite(ms) ? ms : null;
 }
 
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : 0);

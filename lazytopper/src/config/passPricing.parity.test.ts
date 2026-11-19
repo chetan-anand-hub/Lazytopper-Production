@@ -313,7 +313,7 @@ describe("GST-EXCL-1 · 1 ms before 00:00 IST 7 Nov every amount and string equa
   it("1 ms before: trunk's strings, byte for byte (client), and trunk's quotes with no gst key (server)", () => {
     expect(P.boardPassPriceDisplay(BEFORE)).toBe("₹1,917");
     expect(P.boardPassPayDisplay(BEFORE)).toBe("₹1,917");
-    expect(P.boardPassPriceLine(BEFORE)).toBe("₹1,917 \u2014 one payment till your boards");
+    expect(P.boardPassPriceLine(BEFORE)).toBe("₹1,917 \u2014 one payment, valid till 28 Feb 2027");
     expect(P.boardPassDeadlineLine(BEFORE)).toBe("Founding member offer ends 30 November. From 1 December: ₹2,499.");
     expect(P.boardPassFromLine(BEFORE)).toBe("One payment \u00b7 ₹2,499 from 1 Dec");
     expect(P.boardPassFoundingLabel(BEFORE)).toBe("Founding member offer");
@@ -333,7 +333,7 @@ describe("GST-EXCL-1 · 1 ms before 00:00 IST 7 Nov every amount and string equa
   it("at the cut-off: tags say + GST, Pay names the total, the breakup appears, and the server charges base + GST", () => {
     expect(P.boardPassPriceDisplay(CUT)).toBe("₹1,917 + GST");
     expect(P.boardPassPayDisplay(CUT)).toBe("₹2,262");
-    expect(P.boardPassPriceLine(CUT)).toBe("₹1,917 + GST \u2014 one payment till your boards");
+    expect(P.boardPassPriceLine(CUT)).toBe("₹1,917 + GST \u2014 one payment, valid till 28 Feb 2027");
     expect(P.boardPassDeadlineLine(CUT)).toBe("Founding member offer ends 30 November. From 1 December: ₹2,499 + GST.");
     expect(boardPassGstBreakdown(CUT)).toBe("₹1,917 + ₹345 GST (18%) = ₹2,262");
     const after: Record<string, [string, string, string]> = {

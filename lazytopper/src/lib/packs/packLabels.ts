@@ -3,6 +3,7 @@
  * so the page, the /pricing strip, the PDF cover and the tests can all import it without weight.
  */
 import { desktopTopicBySlug } from "../desktop/topics";
+import { VALIDITY_LABEL, VALIDITY_LONG, VALIDITY_SHORT } from "../../config/validity";
 
 /** The pack tiers' shared name for the both-subjects pack (the sku stays `pack_bundle`). */
 export const BUNDLE_NAME = "Maths + Science Bundle";
@@ -81,10 +82,12 @@ export const PREBOARDS_PICK_LINE = `All ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_M
  */
 export const REDOWNLOAD_UNTIL = "31 March 2027";
 export const REDOWNLOAD_UNTIL_LEGACY = "31 May 2027";
-/** MYPACKS-TS-1: the Test Series Pack is valid till this date (the existing 31 May 2027 pack term; it has no files, so nothing "re-downloads"). */
-export const TEST_SERIES_VALID_TILL = REDOWNLOAD_UNTIL_LEGACY;
-/** TS-UX-PAGE-1 (owner, 19 Nov 2026): the ONE validity phrase for the Test Series, on every surface: "till 31 May 2027 (after your boards)". */
-export const TEST_SERIES_VALIDITY = `till ${TEST_SERIES_VALID_TILL} (after your boards)`;
+/** VALIDITY-FEB27: the Test Series Pack is valid till this date (28 Feb 2027, config/validity.ts - the same end as the Board Pass; it has no files, so nothing "re-downloads"). The PDF packs' dates above are unchanged. */
+export const TEST_SERIES_VALID_TILL = VALIDITY_LABEL;
+/** VALIDITY-FEB27 (owner, 19 Nov 2026): the ONE short validity phrase for the Test Series, on every surface: "valid till 28 Feb 2027". */
+export const TEST_SERIES_VALIDITY = VALIDITY_SHORT;
+/** VALIDITY-FEB27: the ONE long line (pages, sheets, cards): "One payment, valid till 28 Feb 2027 — covers your Maths (17 Feb) and Science (22 Feb) boards." */
+export const TEST_SERIES_VALIDITY_LONG = VALIDITY_LONG;
 /** 5 Nov 2026 00:00 IST - the same instant as server/services/packCredit.cjs PACK_CREDIT_CUTOFF_MS (the two terms change together). */
 export const PACK_TERMS_CUTOFF = "2026-11-05T00:00:00+05:30";
 export const PACK_TERMS_CUTOFF_MS = Date.parse(PACK_TERMS_CUTOFF);

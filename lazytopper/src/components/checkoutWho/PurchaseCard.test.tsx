@@ -109,7 +109,7 @@ describe("a pack", () => {
 describe("a Board Pass, and the other outcomes", () => {
   it("pass: 'Your Board Pass is active till your boards', no files", async () => {
     render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => ({ status: "ok", kind: "pass", attached: false, savedTo: "+91 98•••••948" })} />);
-    expect((await screen.findByTestId("receipt-title")).textContent).toBe("Your Board Pass is active till your boards");
+    expect((await screen.findByTestId("receipt-title")).textContent).toBe("Your Board Pass is active, valid till 28 Feb 2027");
     expect(screen.queryByTestId("receipt-download")).toBeNull();
     expect(build.buildPackFiles).not.toHaveBeenCalled();
   });

@@ -12,6 +12,7 @@
  * ★ SIGNED-OUT -> SIGN IN FIRST (Z3), returning to a FIXED internal path (/pricing) —
  * no caller-supplied destination ever reaches the redirect.
  */
+import { VALIDITY_SHORT } from "../../config/validity";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useInRouterContext, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -108,7 +109,7 @@ export function monthButtonLabel(offerOpen: boolean): string {
 
 /** A function: the price follows the founding deadline, so the label is read at RENDER time. */
 /** GST-EXCL-1: a Pay button names the amount CHARGED (base + GST from 7 Nov 2026) - never the "+ GST" tag. */
-export const tillBoardsButtonLabel = (): string => `Pay ${boardPassPayDisplay()} once till your boards`;
+export const tillBoardsButtonLabel = (): string => `Pay ${boardPassPayDisplay()} once \u00b7 ${VALIDITY_SHORT}`;
 /** PAY-PHONE-1 (C) - the button that stays at the top after the Board Pass checkout was closed without paying. */
 /** PASS-OWNER-PACKS-1: what a Board Pass owner reads where the Pay button would be. */
 export const boardPassActiveUntilCopy = (dateLabel: string): string => `Your Board Pass is active until ${dateLabel}.`;
@@ -122,14 +123,14 @@ export const boardPassActiveUntilCopy = (dateLabel: string): string => `Your Boa
 export const RENEW_WINDOW_DAYS = 7;
 export const monthPassActiveUntilCopy = (dateLabel: string): string => `Your month pass is active until ${dateLabel}.`;
 export const fullAccessActiveUntilCopy = (dateLabel: string): string => `Full access is active until ${dateLabel}.`;
-export const boardPassUpsellCopy = (): string => `Stay covered till your boards: Board Pass ${boardPassPriceDisplay()} once`;
+export const boardPassUpsellCopy = (): string => `Stay covered, ${VALIDITY_SHORT}: Board Pass ${boardPassPriceDisplay()} once`;
 export const renewMonthLabel = (offerOpen: boolean): string =>
   `Renew month pass · ${payDisplay(offerOpen ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR)}`; // GST-EXCL-1: the total charged
 const MONTH_PLANS: readonly string[] = ["pass_month", "premium_monthly"];
 
 /**
  * PARENT-PACKS-1 (owner, 4 Nov 2026) - the success line after a verified payment names WHAT was bought, never "Premium":
- * the Board Pass (till boards) -> "Your Board Pass is active until …"; a month pass -> "Your monthly pass is active until …".
+ * the Board Pass -> "Your Board Pass is active until …"; a month pass -> "Your monthly pass is active until …".
  */
 export const paidUntilCopy = (passType: PassType, dateLabel: string): string =>
   passType === "month" ? `Your monthly pass is active until ${dateLabel}.` : boardPassActiveUntilCopy(dateLabel);
@@ -211,9 +212,9 @@ export function tsUpgradeBreakdown(up: TestSeriesUpgrade): string {
   return `${formatInr(up.baseInr)} + ${formatInr(up.gstInr)} GST (18%) = ${formatInr(up.payInr)}`;
 }
 
-/** TS-UPGRADE-CREDIT-1 - the Pay button for a Test Series owner: "Pay ₹1,083 once till your boards" (the server's total). */
+/** TS-UPGRADE-CREDIT-1 - the Pay button for a Test Series owner: "Pay ₹1,083 once · valid till 28 Feb 2027" (the server's total). */
 export function tsUpgradePayLabel(up: TestSeriesUpgrade): string {
-  return `Pay ${formatInr(up.payInr)} once till your boards`;
+  return `Pay ${formatInr(up.payInr)} once \u00b7 ${VALIDITY_SHORT}`;
 }
 
 /** "1 Nov, 9:20 pm IST" — the exact instant the credit lapses, in IST. */
@@ -669,7 +670,7 @@ export function PassCheckoutView({
   const boardsLabel = ts
     ? tsUpgradePayLabel(ts)
     : who && signedIn && packCredit
-      ? `Pay \u20B9${packCredit.payInr.toLocaleString("en-IN")} once till your boards`
+      ? `Pay \u20B9${packCredit.payInr.toLocaleString("en-IN")} once \u00b7 ${VALIDITY_SHORT}`
       : tillBoardsButtonLabel();
 
   return (

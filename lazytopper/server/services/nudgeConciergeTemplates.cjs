@@ -39,9 +39,9 @@ function didLine(facts) {
   return `You have spent ${mins} on it.`;
 }
 
-/** "the monthly plan" | "the till-boards plan". PURE. */
+/** "the monthly plan" | "the Board Pass". PURE. */
 function planPhrase(passType) {
-  if (passType === 'till_boards') return 'the till-boards plan';
+  if (passType === 'till_boards') return 'the Board Pass';
   if (passType === 'month') return 'the monthly plan';
   return 'a plan';
 }

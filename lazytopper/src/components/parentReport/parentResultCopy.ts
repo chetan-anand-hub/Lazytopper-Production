@@ -7,6 +7,7 @@
  * the Mummy lines and PARENT_RESULT_CTA_LABEL carry no price. PARENT-CARD-2 (owner, 31 Oct 2026) adds
  * the two pay buttons below - their prices come from config/pricing and the packs catalogue, never a literal.
  */
+import { VALIDITY_SHORT } from "../../config/validity";
 import { boardPassPriceDisplay } from "../../config/pricing";
 import { chapterPackPriceTag } from "../../lib/packs/packEntry";
 import type { ParentResultKind } from "./parentResultLink";
@@ -48,9 +49,9 @@ export function resultDateLabel(ms: number): string {
 export const PARENT_PRICING_HREF = "/pricing?utm_source=parent_share&utm_medium=result_page&utm_campaign=parent_report";
 export const PARENT_PACKS_HREF = "/pricing?utm_source=parent_share&utm_medium=result_page&utm_campaign=parent_report#packs";
 
-/** "Give Aarav full board prep — ₹1,917 till boards" (PRICE-FIXED-1: the Board Pass, a fixed price; the month price is hidden). */
+/** "Give Aarav full board prep — ₹1,917 · valid till 28 Feb 2027" (PRICE-FIXED-1: the Board Pass, a fixed price; the month price is hidden). */
 export function parentPrimaryCtaLabel(firstName: string, _now: number = Date.now()): string {
-  return `Give ${firstName || "your child"} full board prep \u2014 ${boardPassPriceDisplay()} till boards`;
+  return `Give ${firstName || "your child"} full board prep \u2014 ${boardPassPriceDisplay()} \u00b7 ${VALIDITY_SHORT}`;
 }
 
 /** "Or one PDF pack, from ₹49" - the cheapest pack in the catalogue. */

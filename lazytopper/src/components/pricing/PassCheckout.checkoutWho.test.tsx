@@ -92,7 +92,7 @@ describe("CHECKOUT-WHO-1 · flag ON", () => {
   it("signed in: ONE 'Pay ₹…' button buys for the account itself - no 'Who will use it?', one begin_checkout, one purchase", async () => {
     mockAuth.user = { uid: "u1", email: "anaya.k@gmail.com" };
     mount("/pricing");
-    fireEvent.click(screen.getByText(/once till your boards/));
+    fireEvent.click(screen.getByText(/once · valid till 28 Feb 2027/));
     await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
     expect(checkout.buyPass.mock.calls[0][0]).toBe("till_boards");
     expect(screen.queryByTestId("who-sheet")).toBeNull();
@@ -105,7 +105,7 @@ describe("CHECKOUT-WHO-1 · flag ON", () => {
   it("signed in: the button amount is the same label source the page used (tillBoardsButtonLabel) when there is no credit", async () => {
     mockAuth.user = { uid: "u1", email: "anaya.k@gmail.com" };
     mount("/pricing");
-    const btn = screen.getByText(/once till your boards/);
+    const btn = screen.getByText(/once · valid till 28 Feb 2027/);
     expect(btn.textContent).toBe(tillBoardsButtonLabel());
     expect(btn.textContent).toMatch(/^Pay ₹/);
   });
@@ -129,7 +129,7 @@ describe("CHECKOUT-WHO-1 · flag ON", () => {
       packs: [], licensee: { name: "", email: "" }, boardPassCredit: { creditInr: 199, payInr: 1718, expiresAtMs: Date.parse("2026-11-20T00:00:00Z") },
     });
     mount("/pricing");
-    const btn = await screen.findByText(`Pay ₹${(1718).toLocaleString("en-IN")} once till your boards`);
+    const btn = await screen.findByText(`Pay ₹${(1718).toLocaleString("en-IN")} once · valid till 28 Feb 2027`);
     fireEvent.click(btn);
     await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
     expect(screen.queryByTestId("who-sheet")).toBeNull();
@@ -139,7 +139,7 @@ describe("CHECKOUT-WHO-1 · flag ON", () => {
     mockAuth.user = { uid: "u1", email: "anaya.k@gmail.com" };
     checkout.buyPass.mockReturnValue(new Promise(() => undefined));
     mount("/pricing");
-    fireEvent.click(screen.getByText(/once till your boards/));
+    fireEvent.click(screen.getByText(/once · valid till 28 Feb 2027/));
     await waitFor(() => expect((screen.getByTestId("checkout-someone-else") as HTMLButtonElement).disabled).toBe(true));
   });
 
@@ -155,7 +155,7 @@ describe("CHECKOUT-WHO-1 · flag ON", () => {
   it("signed out: Pay opens 'Who will use it?' (no sign-in redirect, no pay-by-phone sheet)", async () => {
     flags.guest = true;
     mount("/pricing");
-    fireEvent.click(screen.getByText(/once till your boards/));
+    fireEvent.click(screen.getByText(/once · valid till 28 Feb 2027/));
     expect(await screen.findByText("Who will use it?")).toBeTruthy();
     expect(screen.queryByTestId("guest-pay-sheet")).toBeNull();
     expect(where).toBe("/pricing");
@@ -173,7 +173,7 @@ describe("CHECKOUT-WHO-1 · flag OFF = the old flow", () => {
     flags.who = false;
     mockAuth.user = { uid: "u1", email: "anaya.k@gmail.com" };
     mount("/pricing");
-    fireEvent.click(screen.getByText(/once till your boards/));
+    fireEvent.click(screen.getByText(/once · valid till 28 Feb 2027/));
     await waitFor(() => expect(checkout.buyPass).toHaveBeenCalledTimes(1));
     expect(screen.queryByTestId("who-sheet")).toBeNull();
     expect(screen.queryByTestId("checkout-someone-else")).toBeNull(); // flag off: no new link
@@ -186,7 +186,7 @@ describe("CHECKOUT-WHO-1 · flag OFF = the old flow", () => {
     cleanup();
     flags.guest = true;
     mount("/pricing");
-    fireEvent.click(screen.getByText(/once till your boards/));
+    fireEvent.click(screen.getByText(/once · valid till 28 Feb 2027/));
     expect(await screen.findByTestId("guest-pay-sheet")).toBeTruthy();
     expect(screen.queryByTestId("who-sheet")).toBeNull();
   });
@@ -200,7 +200,7 @@ describe("CHECKOUT-ONE-TAP-1 - signed out: the Pay tap IS the Pay tap", () => {
   it("ONE Pay tap fires the self order straight away: no 'Pay' step, no choice; one begin_checkout; no signed-in buyPass", async () => {
     selfBuy.fn.mockReturnValue(new Promise(() => undefined));
     mount("/pricing");
-    fireEvent.click(screen.getByText(/once till your boards/));
+    fireEvent.click(screen.getByText(/once · valid till 28 Feb 2027/));
     await waitFor(() => expect(selfBuy.fn).toHaveBeenCalledTimes(1));
     expect(selfBuy.fn.mock.calls[0][0]).toMatchObject({ kind: "pass", sku: "till_boards" });
     expect(screen.getByTestId("who-auto-opening")).toBeTruthy();
@@ -224,7 +224,7 @@ describe("CHECKOUT-ONE-TAP-1 - signed out: the Pay tap IS the Pay tap", () => {
   it("self switch off: today's sheet (the identifier box), no order on the tap", async () => {
     flags.self = false;
     mount("/pricing");
-    fireEvent.click(screen.getByText(/once till your boards/));
+    fireEvent.click(screen.getByText(/once · valid till 28 Feb 2027/));
     expect(await screen.findByTestId("who-first")).toBeTruthy();
     expect(selfBuy.fn).not.toHaveBeenCalled();
   });

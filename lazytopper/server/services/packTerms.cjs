@@ -12,6 +12,8 @@
 // ★ Ending a re-download window removes nothing: the entitlement document stays (history, admin, receipts); callers only
 //   stop SERVING the pack (My packs list, the download-limit cover rule).
 
+const { VALIDITY_END_MS, VALIDITY_LABEL } = require('./validityWindow.cjs');
+
 /** 5 Nov 2026 00:00 IST. packCredit.cjs's PACK_CREDIT_CUTOFF_MS is this same instant (the two terms change together). */
 const PACK_TERMS_CUTOFF_MS = Date.parse('2026-11-05T00:00:00+05:30');
 
@@ -52,13 +54,14 @@ function redownloadUntilFor(paidAt) {
 }
 
 /**
- * TS-PACK-1 - the Test Series Pack is valid "till your boards": 31 May 2027, end of day IST, whenever it was paid - the SAME
- * constant the pre-cut-off packs already use (owner ruling 18 Nov 2026; not a new date). It is not a PDF pack, so the
- * 31 March re-download rule does not apply to it.
+ * TS-PACK-1 / VALIDITY-FEB27 - the Test Series Pack is valid until 28 Feb 2027, end of day IST, whenever it was paid, for everyone
+ * (owner ruling 19 Nov 2026, 22:00 IST; the same end as the Board Pass - validityWindow.cjs). It replaces the earlier 31 May 2027;
+ * no real student had bought it. It is not a PDF pack, so neither re-download date (31 March / 31 May) applies to it, and those
+ * two PDF-pack dates are unchanged.
  */
 const TEST_SERIES_SKU = 'test_series';
-const TEST_SERIES_ENDS_MS = REDOWNLOAD_ENDS_LEGACY_MS;
-const TEST_SERIES_UNTIL = REDOWNLOAD_UNTIL_LEGACY;
+const TEST_SERIES_ENDS_MS = VALIDITY_END_MS;
+const TEST_SERIES_UNTIL = VALIDITY_LABEL;
 
 /** The last ms THIS owned pack is served (its sku decides for the Test Series Pack, its paidAt for a PDF pack). PURE. */
 function endsMsForPack(pack) {
@@ -116,4 +119,5 @@ module.exports = {
   TEST_SERIES_ENDS_MS,
   TEST_SERIES_UNTIL,
   endsMsForPack,
+  untilForPack,
 };

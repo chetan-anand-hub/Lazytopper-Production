@@ -3,6 +3,7 @@
  * can be tested without mounting the whole page. Behaviour unchanged apart from the
  * PaywallActions swap (payments dark: the old link, byte for byte).
  */
+import { VALIDITY_SHORT } from "../../config/validity";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { backAtLine, limitHeadline, type TutorErrorState } from "./tutorErrorState";
@@ -50,7 +51,7 @@ function PremiumCard({ selfHref, onRetry }: { selfHref: string; onRetry: () => v
             <p className="lt-tutor__upgrade-p">
               {`The tutor walks you through this exact question, step by step. It comes with the Board Pass: ${
                 price ? `${price} once, ` : ""
-              }till your boards.`}
+              }${VALIDITY_SHORT}.`}
             </p>
           </>
         }

@@ -59,7 +59,7 @@ describe("ParentPayPanel", () => {
     expect(p.view).toHaveBeenCalledWith(TOKEN);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Pay for Aarav's LazyTopper Board Pass");
     expect(screen.getByRole("button", { name: "Pay ₹599 for a month" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "Pay ₹2,396 once, till the boards" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Pay ₹2,396 once, valid till 28 Feb 2027" })).toBeEnabled();
     const page = document.body.textContent || "";
     expect(page).toContain("goes to Aarav's account, not yours");
     expect(page).toContain("never sees your card, UPI or bank details");
@@ -135,7 +135,7 @@ describe("ParentPayPanel", () => {
   it("dismissed or failed: no purchase event, no 'active' claim", async () => {
     await renderPanel({ buy: vi.fn(async (): Promise<ParentBuyOutcome> => ({ status: "failed" })) });
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Pay ₹2,396 once, till the boards" }));
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹2,396 once, valid till 28 Feb 2027" }));
     });
     expect(screen.getByTestId("parent-pay-failed")).toHaveTextContent("You haven't been charged twice");
     expect(screen.queryByTestId("parent-pay-paid")).toBeNull();
@@ -176,8 +176,8 @@ describe("ParentPayPanel", () => {
     });
     expect(screen.getByTestId("parent-pay-confirming")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Pay ₹599 for a month" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Pay ₹2,396 once, till the boards" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "Pay ₹2,396 once, till the boards" }));
+    expect(screen.getByRole("button", { name: "Pay ₹2,396 once, valid till 28 Feb 2027" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Pay ₹2,396 once, valid till 28 Feb 2027" }));
     expect(buy).toHaveBeenCalledTimes(1);
     await act(async () => {
       await new Promise((r) => setTimeout(r, 120));
@@ -215,7 +215,7 @@ describe("ParentPayPanel", () => {
     seen.push(document.body.textContent || "");
     fireEvent.click(screen.getByRole("button", { name: "English" }));
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Pay ₹2,396 once, till the boards" }));
+      fireEvent.click(screen.getByRole("button", { name: "Pay ₹2,396 once, valid till 28 Feb 2027" }));
     });
     expect(screen.getByTestId("parent-pay-paid")).toHaveTextContent("Aarav's Board Pass is active until 17 February 2027");
     seen.push(document.body.textContent || "");

@@ -1184,7 +1184,7 @@ test('TS-PACK-1 · kill switch TS_PACK_DISABLED=1: not purchasable (the unknown-
   assert.equal(other.status, 200, other.text);
 });
 
-test('TS-PACK-1 · /api/packs/mine: ownsTestSeries only for a live owner (absent for everyone else - their response is unchanged); ended after 31 May 2027', async (t) => {
+test('TS-PACK-1 · /api/packs/mine: ownsTestSeries only for a live owner (absent for everyone else - their response is unchanged); ended after 28 Feb 2027 (VALIDITY-FEB27)', async (t) => {
   const db = memoryFirestore();
   db.docs.set('packEntitlements/m1/packs/test_series:all', { data: { packId: 'test_series:all', sku: 'test_series', target: 'all', pricePaidInr: 1179, paidAt: TS_AFTER_GST, orderId: 'o', paymentRef: 'p', creditedToPass: false }, version: 1 });
   seedPack(db, 'm2', 'pack_cbq', 'maths');
@@ -1202,7 +1202,7 @@ test('TS-PACK-1 · /api/packs/mine: ownsTestSeries only for a live owner (absent
   const ended = await call(late.port, 'GET', PACKS_MINE_PATH, { headers: asUid('m1') });
   assert.equal('ownsTestSeries' in ended.json, false);
   assert.equal(ended.json.endedPacks[0].packId, 'test_series:all');
-  assert.equal(ended.json.endedPacks[0].redownloadUntil, '31 May 2027');
+  assert.equal(ended.json.endedPacks[0].redownloadUntil, '28 Feb 2027');
 });
 
 /* ── TS-PRICE-2 · the Test Series base is 999 until 00:00 IST 1 Dec 2026 (the Board Pass founding cut-off), 1,499 from it ───── */

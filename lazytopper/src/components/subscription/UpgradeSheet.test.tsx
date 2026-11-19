@@ -480,7 +480,7 @@ describe("ASK-COPY-1: tutor 402 card", () => {
     expect(screen.getByText("Want to know why you lost this mark?")).toBeInTheDocument();
     expect(
       screen.getByText(
-        `The tutor walks you through this exact question, step by step. It comes with the Board Pass: ${price} once, till your boards.`,
+        `The tutor walks you through this exact question, step by step. It comes with the Board Pass: ${price} once, valid till 28 Feb 2027.`,
       ),
     ).toBeInTheDocument();
     expect(screen.queryByText(/part of Premium/)).toBeNull();

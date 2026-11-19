@@ -24,6 +24,7 @@ const {
   escapeHtml,
 } = require('./trialEndingEmail.cjs');
 const { randomBytes } = require('node:crypto');
+const { VALIDITY_LABEL } = require('./validityWindow.cjs'); // VALIDITY-FEB27
 const { senderOnVerifiedDomain } = require('./nudgeEmail.cjs');
 const { isPackProduct, validateTarget } = require('./packProducts.cjs');
 const { maskIndianMobile, maskEmail, GUEST_PAYER, normaliseIndianMobile, normaliseEmail } = require('./guestPay.cjs');
@@ -128,7 +129,7 @@ const subjectTitle = (t) => (t === 'science' ? 'Science' : 'Maths');
 
 /** The item as the student knows it (the pack names on /packs). Top-ups and unknown keys -> null (no receipt). */
 function itemLabel(passType, packTarget) {
-  if (passType === 'till_boards') return 'Board Pass (Premium till your boards)';
+  if (passType === 'till_boards') return `Board Pass (valid till ${VALIDITY_LABEL})`;
   if (passType === 'month') return 'Premium month pass';
   if (!isPackProduct(passType)) return null;
   const t = validateTarget(passType, packTarget);
@@ -289,7 +290,7 @@ function buildReceiptEmail({ passType, packTarget, amountPaise, paymentId, paidA
   let readyHtml = '';
   if (ids) {
     const signInLine = ids.length ? `Sign in at lazytopper.com with ${ids.join(' / ')} to use it.` : 'Sign in at lazytopper.com to use it.';
-    const usage = isSeries ? 'Open the menu \u2192 My packs \u2192 Start your Test Series.' : isPack ? 'Open the menu \u2192 My packs to download.' : passType === 'till_boards' ? 'Everything is unlocked till the Feb 2027 boards.' : `${passNameOf(passType)} is unlocked on your account.`;
+    const usage = isSeries ? `Open the menu \u2192 My packs \u2192 Start your Test Series. Valid till ${VALIDITY_LABEL}.` : isPack ? 'Open the menu \u2192 My packs to download.' : passType === 'till_boards' ? `Everything is unlocked, valid till ${VALIDITY_LABEL}.` : `${passNameOf(passType)} is unlocked on your account.`;
     readyText = `\n\n${signInLine}\n${usage}`;
     readyHtml = `\n<p>${escapeHtml(signInLine)}</p>\n<p>${escapeHtml(usage)}</p>`;
   }

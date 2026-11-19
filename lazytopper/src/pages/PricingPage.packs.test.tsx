@@ -471,7 +471,7 @@ describe("the Board Pass Pay path and its events", () => {
     renderAt("/pricing");
     const area = screen.getByTestId("pricing-passes");
     const pay = area.querySelector<HTMLButtonElement>(".lt-pricing-pay--boards")!;
-    expect(pay.textContent).toBe("Pay ₹1,917 once till your boards".replace("₹1,917", pay.textContent!.match(/₹[\d,]+/)![0]));
+    expect(pay.textContent).toBe("Pay ₹1,917 once · valid till 28 Feb 2027".replace("₹1,917", pay.textContent!.match(/₹[\d,]+/)![0]));
     fireEvent.click(pay);
     await waitFor(() => expect(where()).toMatch(/^\/login/));
     expect(resumeOf(where())).toBe("/pricing");

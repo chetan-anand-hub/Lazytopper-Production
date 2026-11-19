@@ -105,7 +105,7 @@ describe("TrialEndScreen", () => {
     const lead = screen.getByTestId("trial-end-screen-lead");
     expect(lead).toHaveTextContent("Board Pass");
     expect(lead).toHaveTextContent("₹1,917");
-    expect(lead).toHaveTextContent("one payment till your boards");
+    expect(lead).toHaveTextContent("one payment, valid till 28 Feb 2027");
     expect(screen.getByTestId("trial-end-screen").textContent).not.toMatch(/599|999|for a month/);
     expect(screen.getByTestId("trial-end-screen-second")).toHaveTextContent(/^Everything unlocked/);
     expect(lead.compareDocumentPosition(screen.getByTestId("trial-end-screen-second")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -320,7 +320,7 @@ describe("TrialCountdownBar", () => {
     readRecords.mockReturnValue(new Promise(() => {})); // never resolves: must not matter
     renderAt("/practice", <TrialCountdownBar />);
     const bar = await screen.findByTestId("trial-countdown-bar");
-    expect(bar).toHaveTextContent(/4 days left of your free week · Board Pass ₹1,917 till boards/);
+    expect(bar).toHaveTextContent(/4 days left of your free week · Board Pass ₹1,917 · valid till 28 Feb 2027/);
     expect(screen.getByRole("link")).toHaveAttribute("href", "/pricing?source=trial-bar");
     // FLAKY-1: "shown" is a passive effect of the paint findByTestId just saw; wait for it rather than race it.
     await waitFor(() => expect(trackShown).toHaveBeenCalled());

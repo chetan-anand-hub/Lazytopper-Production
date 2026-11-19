@@ -97,6 +97,7 @@ const {
   FIRST_RUN_DELAY_MS,
 } = require('./trialEndingEmail.cjs');
 const { deriveEffectiveTier, isServerPinnedStart } = require('./entitlement.cjs');
+const { VALIDITY_LABEL } = require('./validityWindow.cjs'); // VALIDITY-FEB27
 const pricing = require('./passPricing.cjs');
 const { isPackProduct } = require('./packProducts.cjs');
 const { buildConciergeEmail } = require('./nudgeConciergeTemplates.cjs');
@@ -414,14 +415,14 @@ function recheckAtMs(kind, reason, facts, startMs) {
 }
 
 /**
- * PRICE-FIXED-1: "Board Pass: ₹<today's price>, one payment till your boards." The price (founding, then after-founding) comes from the pricing mirror. The
+ * PRICE-FIXED-1: "Board Pass: ₹<today's price>, one payment, valid till 28 Feb 2027." The price (founding, then after-founding) comes from the pricing mirror. The
  * month pass is NOT quoted to anyone (owner ruling 31 Oct 2026: the monthly price is hidden throughout).
  * Kept under its old export name so callers and the test seam do not move. PURE.
  */
 function foundingPriceLine() {
   // GST-EXCL-1: "₹1,917 + GST" from 00:00 IST 7 Nov 2026 (the shared tag); before it, unchanged.
   const nowMs = Date.now();
-  return `Board Pass: ${pricing.displayPlusGst(pricing.tillBoardsPriceInr(nowMs), nowMs)}, one payment, and you are covered till your boards.`;
+  return `Board Pass: ${pricing.displayPlusGst(pricing.tillBoardsPriceInr(nowMs), nowMs)}, one payment, valid till ${VALIDITY_LABEL}.`;
 }
 
 function activityLine(counts) {

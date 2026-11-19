@@ -130,7 +130,7 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   }
   // PRICING-PAGES-1: the two dedicated sales pages (only there: /pricing carries the same Pay markup and is not a scanned page).
   if (/(^|\/)(board-pass|cbq-packs)\.html$/.test(file)) {
-    take(/>Pay ₹([\d,]+) once till your boards</, () => "Board Pass (Pay button)", () => model?.boardPassPayDisplay ?? null);
+    take(/>Pay ₹([\d,]+) once · valid till 28 Feb 2027</, () => "Board Pass (Pay button)", () => model?.boardPassPayDisplay ?? null);
     take(new RegExp(`class="lt-cbq__name"[^>]*>(${LABELS})</h2><p class="lt-cbq__price[^"]*">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
     take(new RegExp(`>${AMT} per subject →<`), () => "CBQ Pack (sales link)", () => packExp("Maths CBQ Pack"));
     take(new RegExp(`>Bundle ${AMT} →<`), () => "Maths + Science Bundle (sales link)", () => packExp("Maths + Science Bundle"));

@@ -1,3 +1,4 @@
+import { VALIDITY_LABEL } from "../../config/validity";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { trackNamedEvent } from "../../analytics/analytics";
@@ -85,7 +86,7 @@ export const FREE_CHECK_RESTORED_COPY = {
 export function freeCheckBuyCopy(now: Date | number = Date.now(), packsOn: boolean = isPacksEntryEnabled()) {
   const founding = boardPassFoundingLabel(now);
   return {
-    boardPassLine: `To keep every answer marked like this till your boards: Board Pass ${boardPassPriceDisplay(now)}, one payment.${
+    boardPassLine: `To keep every answer marked like this, valid till ${VALIDITY_LABEL}: Board Pass ${boardPassPriceDisplay(now)}, one payment.${
       founding ? ` ${founding}.` : ""
     }`,
     boardPassLink: `Board Pass ${boardPassPriceDisplay(now)} →`,

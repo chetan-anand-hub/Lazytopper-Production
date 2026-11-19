@@ -119,18 +119,18 @@ describe("BOARD-DATE-1 D3 — client, /api/cbse-exam-date fallback and pass pric
     expect(serverRoute.predictCbseExamDate("10", now)).toBe(passPricing.predictBoardDateIso(now));
   });
 
-  it("anchor — on 2026-09-28 IST every predictor says 2027-02-17 (17 February, both classes)", () => {
+  it("anchor — on 2026-09-28 IST every predictor says 2027-02-16 (16 February, the official Phase 1 start, both classes)", () => {
     const now = istNoon("2026-09-28");
-    expect(clientAt(now, "10")).toBe("2027-02-17");
-    expect(clientAt(now, "12")).toBe("2027-02-17");
-    expect(serverRoute.predictCbseExamDate("10", now)).toBe("2027-02-17");
-    expect(serverRoute.predictCbseExamDate("12", now)).toBe("2027-02-17");
-    expect(passPricing.predictBoardDateIso(now)).toBe("2027-02-17");
+    expect(clientAt(now, "10")).toBe("2027-02-16");
+    expect(clientAt(now, "12")).toBe("2027-02-16");
+    expect(serverRoute.predictCbseExamDate("10", now)).toBe("2027-02-16");
+    expect(serverRoute.predictCbseExamDate("12", now)).toBe("2027-02-16");
+    expect(passPricing.predictBoardDateIso(now)).toBe("2027-02-16");
   });
 
   it("CONTROL — the comparison can fail: the board day and the day after predict different dates", () => {
-    expect(serverRoute.predictCbseExamDate("10", istNoon("2027-02-17"))).not.toBe(
-      serverRoute.predictCbseExamDate("10", istNoon("2027-02-18")),
+    expect(serverRoute.predictCbseExamDate("10", istNoon("2027-02-16"))).not.toBe(
+      serverRoute.predictCbseExamDate("10", istNoon("2027-02-17")),
     );
   });
 });

@@ -91,6 +91,8 @@ export function clearCbseExamDateAdminOverride(studentClass: "10" | "12"): void 
 export function predictCbseExamDate(studentClass: "10" | "12"): string {
   const officialDates: Record<string, Record<string, string>> = {
     "2025-26": { "10": "2026-02-17", "12": "2026-02-17" },
+    // VALIDITY-FEB27: CBSE's published 2026-27 Phase 1 start (date sheet of 6 Nov 2026). Countdowns only - validity ends 28 Feb 2027 (config/validity.ts).
+    "2026-27": { "10": "2027-02-16", "12": "2027-02-16" },
   };
 
   const now = new Date();

@@ -8,6 +8,7 @@
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('./packGrant.cjs');
 const { maskIndianMobile, maskEmail, normaliseEmail, normaliseIndianMobile } = require('./guestPay.cjs');
 const { hasOwnActivity } = require('./adminMergeAccount.cjs');
+const { effectiveBoardPassEndMs } = require('./validityWindow.cjs'); // VALIDITY-FEB27
 
 const notFound = (e) => !!e && e.code === 'auth/user-not-found';
 
@@ -41,13 +42,15 @@ async function describeAccount({ db, user }) {
   const ordersSnap = await db.collection('payOrders').where('uid', '==', uid).get();
   const orders = (ordersSnap && ordersSnap.docs ? ordersSnap.docs : []).map((d) => (typeof d.data === 'function' ? d.data() || {} : {}));
   const passEndMs = sub.passEnd && typeof sub.passEnd.toMillis === 'function' ? sub.passEnd.toMillis() : sub.passEnd instanceof Date ? sub.passEnd.getTime() : typeof sub.passEnd === 'number' ? sub.passEnd : null;
+  // VALIDITY-FEB27: the end shown is the end the entitlement reads (a 2026-27 Board Pass reads to 28 Feb 2027; never lowered).
+  const readPassEndMs = passEndMs === null ? null : effectiveBoardPassEndMs(sub.passType, passEndMs);
   return {
     uid,
     email: typeof user.email === 'string' && user.email ? maskEmail(user.email) : '',
     phone: typeof user.phoneNumber === 'string' && user.phoneNumber ? maskIndianMobile(user.phoneNumber) : '',
     providers,
     disabled: user.disabled === true,
-    plan: { tier: typeof sub.tier === 'string' ? sub.tier : '', passType: typeof sub.passType === 'string' ? sub.passType : '', passEndMs },
+    plan: { tier: typeof sub.tier === 'string' ? sub.tier : '', passType: typeof sub.passType === 'string' ? sub.passType : '', passEndMs: readPassEndMs },
     packs,
     paidOrders: orders.filter((o) => o.status === 'paid' || o.status === 'claimed').length,
     hasStudyData: await hasOwnActivity(db, uid),

@@ -25,6 +25,7 @@ const { movePackOrder, MoveError } = require('./adminMovePurchase.cjs');
 const { isPackProduct } = require('./packProducts.cjs');
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('./packGrant.cjs');
 const { istDayKey } = require('./rateLimiter.cjs');
+const { effectiveBoardPassEndMs } = require('./validityWindow.cjs'); // VALIDITY-FEB27
 const { LEDGER_SEGMENTS, LEDGER_HOUR_FIELD, istHourKey } = require('./usageLedger.cjs');
 const { PAYMENT_SEGMENTS } = require('./passGrant.cjs');
 const { ACTIVITY_COLLECTION, ACTIVITY_SEGMENTS } = require('../routes/studentActivity.cjs');
@@ -192,7 +193,7 @@ async function movePassOrder({ db, orderId, toUid, byUid, nowMs, guard }) {
     if (from.lastPaymentRef !== ref || from.passType !== 'till_boards' || payDocs.length !== 1 || payDocs[0].id !== ref) {
       throw new MoveError(409, 'The pass on this account is not only this purchase');
     }
-    const toEnd = msOf(to.passEnd);
+    const toEnd = effectiveBoardPassEndMs(to.passType, msOf(to.passEnd)); // VALIDITY-FEB27: read-time end (NaN passes through)
     if (Number.isFinite(toEnd) && toEnd > nowMs) throw new MoveRefusal('target_has_pass');
     const toPay = await tx.get(subRef(toUid).collection(PAYMENT_SEGMENTS.payments).doc(ref));
     if (toPay && toPay.exists) throw new MoveError(409, 'That account already has this payment');

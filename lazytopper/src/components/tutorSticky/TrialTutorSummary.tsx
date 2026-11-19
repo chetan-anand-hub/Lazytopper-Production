@@ -1,3 +1,4 @@
+import { VALIDITY_SHORT } from "../../config/validity";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -101,7 +102,7 @@ export default function TrialTutorSummary({ surface }: { surface: "home" | "tuto
           {tutorHelpLine(value)}
         </p>
         <p className="lt-tsum__line">
-          Your Premium trial is ending. Keep the tutor with the Board Pass{price ? `: ${price} once, till your boards.` : ": pay once, till your boards."}
+          Your Premium trial is ending. Keep the tutor with the Board Pass{price ? `: ${price} once, ${VALIDITY_SHORT}.` : `: pay once, ${VALIDITY_SHORT}.`}
           {deadline ? ` ${deadline}` : ""}
         </p>
         <div className="lt-tsum__actions">

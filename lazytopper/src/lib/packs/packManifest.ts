@@ -235,7 +235,7 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
         { label: "Full-length tests", value: String(seriesTotals().fullMocks) },
         { label: `Written answers checked, ${TEST_SERIES_WRITTEN_SECTIONS}`, value: TEST_SERIES_CHECKS_PER_PAPER_COPY },
         { label: "Subjects", value: "Maths + Science" },
-        { label: "Valid", value: TEST_SERIES_VALIDITY },
+        { label: "Validity", value: TEST_SERIES_VALIDITY },
       ];
   }
 }

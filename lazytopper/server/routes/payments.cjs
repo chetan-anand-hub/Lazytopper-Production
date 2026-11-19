@@ -48,6 +48,7 @@
  */
 
 const crypto = require('node:crypto');
+const { VALIDITY_LABEL } = require('../services/validityWindow.cjs'); // VALIDITY-FEB27
 const { grantPass, computeGrant, describePass, isStaleFoundingOrder, monthPassAvailableFor, hasPaidMonthOrder, PassGrantInputError, PASS_TYPES } = require('../services/passGrant.cjs');
 const { createRateLimiter } = require('../services/rateLimiter.cjs');
 // TOPUP-1 (DARK): the extra-usage packs. Everything below is behind PAYMENTS_ENABLED AND TOPUP_ENABLED.
@@ -742,7 +743,7 @@ function createPaymentRoutes(deps = {}) {
           return sendJson(res, 409, {
             ok: false,
             error: 'already_covered',
-            message: 'Your pass already covers you till your boards. There is nothing more to pay.',
+            message: `Your pass is already valid till ${VALIDITY_LABEL}. There is nothing more to pay.`,
           });
         }
         // PRICE-FIXED-1 - the month pass is no longer sold to an account that has never bought one, from

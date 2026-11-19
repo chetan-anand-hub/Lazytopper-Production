@@ -70,7 +70,7 @@ describe("a Board Pass holder", () => {
     expect(screen.getByTestId("pass-checkout-board-pass-active").textContent).toMatch(/^Your Board Pass is active until /);
     fireEvent.click(screen.getByTestId("pass-checkout-holder-buy"));
     expect(await screen.findByText("You already have the Board Pass")).toBeTruthy();
-    expect(screen.getByTestId("who-holder-line").textContent).toMatch(/^It's active till your boards \(until .*2027.*\)\. There's nothing more to pay\.$/);
+    expect(screen.getByTestId("who-holder-line").textContent).toMatch(/^It's active, valid till .*2027\. There's nothing more to pay\.$/);
     expect(checkout.buyPass).not.toHaveBeenCalled();
     fireEvent.click(screen.getByTestId("who-holder-other"));
     expect(screen.getByTestId("who-first")).toBeTruthy();

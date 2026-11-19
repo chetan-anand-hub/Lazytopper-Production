@@ -315,7 +315,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
     // text is unchanged.
     title: "Cancellation Policy",
     // TRUST-1 (3 Nov 2026): Board Pass naming; the Month Pass is described for earlier buyers only.
-    updated: "Last updated: 3 November 2026",
+    updated: "Last updated: 19 November 2026",
     body: (
       <>
         <h2>All payments are final</h2>
@@ -325,7 +325,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <h2>Month Pass</h2>
         <p>A Month Pass bought before 1 Nov 2026 gives you Premium for one month from the day you paid. It does not renew automatically. No refund.</p>
         <h2>Board Pass</h2>
-        <p>A one-time payment covering Premium until your first board exam. No refund.</p>
+        <p>A one-time payment covering Premium, valid till 28 Feb 2027. No refund.</p>
         <h2>PDF Packs</h2>
         <p>A PDF pack is a digital download. The files are available to you straight away. No refund. If a file will not download or open, email us and we will fix it or send it to you.</p>
         <p>Packs bought before 5 November 2026: if you buy the Board Pass within 7 days of buying such a pack, that pack's price is taken off the Board Pass. Packs bought from 5 November 2026 are separate purchases and do not change the Board Pass price.</p>

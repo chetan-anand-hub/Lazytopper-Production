@@ -70,7 +70,7 @@ export function priceNowLine(order: ServerPricedOrder): string {
 /**
  * PURE. The Razorpay checkout `description`: unchanged for an all-in order (every order before the GST cut-off, so it stays
  * byte-identical to today); for an order that ADDED GST, the server's own breakup is appended, so the Razorpay sheet names
- * the same figures the checkout step showed: "Board Pass till your boards · ₹1,917 + ₹345 GST (18%) = ₹2,262" (a pack
+ * the same figures the checkout step showed: "Board Pass, valid till 28 Feb 2027 · ₹1,917 + ₹345 GST (18%) = ₹2,262" (a pack
  * credit is named: "…, less pack credit ₹49: ₹2,213").
  */
 export function razorpayDescription(description: string, order: ServerPricedOrder): string {

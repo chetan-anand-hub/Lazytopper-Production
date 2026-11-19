@@ -1,3 +1,4 @@
+import { VALIDITY_LONG } from "../config/validity";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import RestoredPurchaseCard from "../components/checkoutWho/RestoredPurchaseCard";
 import { Link, useNavigate } from "react-router-dom";
@@ -113,7 +114,7 @@ export function FoundingCountdown() {
 }
 
 /**
- * The Board Pass price, as /pricing's TillBoardsOffer renders it: "₹1,917 + GST · once · till your boards" and the date-driven
+ * The Board Pass price, as /pricing's TillBoardsOffer renders it: "₹1,917 + GST · once", then the fixed validity line below it, and the date-driven
  * founding line. ★ THE FIRST RENDER CARRIES NO FIGURE: every figure is computed from the clock after mount, inside the ONE node
  * `data-testid="till-boards-figures"` that the prerender capture removes (captureStaticBodies strip rule 4). The slot keeps the
  * figures' height, so their arrival moves nothing.
@@ -132,9 +133,7 @@ export function BoardPassPrice() {
         <div className="lt-bp-price__figures" data-testid="till-boards-figures">
           <p className="lt-bp-price__line">
             <span className="lt-bp-price__amount">{quote.priceDisplay}</span>
-            <span className="lt-bp-price__meta">
-              {BOARD_PASS_ONCE} · {quote.untilLabel}
-            </span>
+            <span className="lt-bp-price__meta">{BOARD_PASS_ONCE}</span>
           </p>
           {deadline && (
             <p className="lt-bp-price__deadline" data-testid="bp-price-deadline">
@@ -143,6 +142,8 @@ export function BoardPassPrice() {
           )}
         </div>
       )}
+      {/* VALIDITY-FEB27: only the FIXED date, so it sits OUTSIDE the clock slot and is in the prerender. */}
+      <p className="lt-bp-price__validity" data-testid="bp-price-validity">{VALIDITY_LONG}</p>
     </div>
   );
 }
@@ -169,7 +170,7 @@ export function useHeroPayLabel(): string | null {
   return label;
 }
 
-/** "Pay ₹2,213" from the hero label ("Pay ₹2,213 once till your boards" or a credited "Pay ₹2,213"); null when it names no amount. */
+/** "Pay ₹2,213" from the hero label ("Pay ₹2,213 once · valid till 28 Feb 2027" or a credited "Pay ₹2,213"); null when it names no amount. */
 export function payAmountOf(label: string | null): string | null {
   const m = label ? /₹[\d,]+/.exec(label) : null;
   return m ? m[0] : null;

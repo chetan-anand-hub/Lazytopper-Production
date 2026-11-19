@@ -32,7 +32,7 @@ export const CHECK_ANSWER_FAQ: readonly FaqItem[] = [
   {
     question: "Is checking an answer free?",
     answer:
-      "Your first check is free without an account. A new account also gets a 7-day Premium trial with no card needed. After that you can keep the free Basic plan, or pay once for the Board Pass, which lasts till your board exam. The current price is on the pricing page.",
+      "Your first check is free without an account. A new account also gets a 7-day Premium trial with no card needed. After that you can keep the free Basic plan, or pay once for the Board Pass, which is valid till 28 Feb 2027. The current price is on the pricing page.",
   },
   {
     question: "Which classes and subjects does LazyTopper cover?",

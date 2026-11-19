@@ -114,7 +114,7 @@ export function salesPageHeads(now: number): Record<string, PageHead> {
     "/board-pass": {
       title: "Board Pass: Class 10 Answers Marked Like CBSE | LazyTopper",
       description:
-        `CBSE-style marking of your answer in 1 minute. Board Pass ${boardPassPriceDisplay(now)} once, till your boards: ` +
+        `CBSE-style marking of your answer in 1 minute. Board Pass ${boardPassPriceDisplay(now)} once, valid till 28 Feb 2027: ` +
         `${BANK_QUESTIONS_CLAIM} questions, ${BANK_CBQS_CLAIM} CBQs, a personal tutor.`,
     },
     "/cbq-packs": {
@@ -233,8 +233,8 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
   "/test-series": {
     title: "CBSE Class 10 Test Series 2026-27 (Maths & Science) — Pre-Boards | LazyTopper",
     description:
-      `Class 10 Maths & Science pre-boards: ${seriesContentsLine()}, one numbered paper for all, a calendar ` +
-      "till the boards, answers step-marked.",
+      `Class 10 Maths & Science pre-boards: ${seriesContentsLine()}, one numbered paper for all, a calendar, ` +
+      "valid till 28 Feb 2027, step-marked.",
   },
   // CONTACT-INDEX-1 (owner ruling, 18 Oct 2026) — the contact page. Both strings are the page's
   // own CONTACT_TITLE / CONTACT_DESCRIPTION (src/pages/ContactPage.tsx), word for word; the

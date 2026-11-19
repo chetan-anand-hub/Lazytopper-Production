@@ -75,7 +75,7 @@ afterEach(() => {
 describe("scorecardUpgradeCopy", () => {
   it("names the real marks lost, singular-aware", () => {
     expect(scorecardUpgradeCopy(variantFor("worksheet", marks(7, 10)))?.text).toBe(
-      "You lost 3 marks here. Get every answer marked like this till your boards — Board Pass →",
+      "You lost 3 marks here. Get every answer marked like this, valid till 28 Feb 2027 — Board Pass →",
     );
     expect(scorecardUpgradeCopy(variantFor("worksheet", marks(9, 10)))?.text).toContain("You lost 1 mark here.");
     expect(scorecardUpgradeCopy(variantFor("worksheet", marks(8.5, 10)))?.text).toContain("You lost 1.5 marks here.");
@@ -98,18 +98,18 @@ describe("scorecardUpgradeCopy", () => {
   });
   it("full marks gets the full-marks line", () => {
     expect(scorecardUpgradeCopy(variantFor("check-improve", marks(5, 5)))?.text).toBe(
-      "Full marks! Keep every answer marked like this till your boards — Board Pass →",
+      "Full marks! Keep every answer marked like this, valid till 28 Feb 2027 — Board Pass →",
     );
   });
   it("no number when marks are unknown: attempts score, ungraded questions, awaited sheet", () => {
     const attempts = variantFor("quick-practice", { kind: "attempts", attempted: 3, ofN: 5, mcqAnswered: 3, mcqCorrect: 2 });
     const noneLost = variantFor("quick-practice", { kind: "attempts", attempted: 3, ofN: 5, mcqAnswered: 3, mcqCorrect: 3 });
-    expect(scorecardUpgradeCopy(noneLost)?.text).toBe("Get every answer marked like this till your boards — Board Pass →");
-    expect(scorecardUpgradeCopy(attempts)?.text).not.toBe("Get every answer marked like this till your boards — Board Pass →");
+    expect(scorecardUpgradeCopy(noneLost)?.text).toBe("Get every answer marked like this, valid till 28 Feb 2027 — Board Pass →");
+    expect(scorecardUpgradeCopy(attempts)?.text).not.toBe("Get every answer marked like this, valid till 28 Feb 2027 — Board Pass →");
     const pending = { ...variantFor("worksheet", marks(4, 10)), pending: { count: 1, worksheetTotalMarks: 10 } } as ScorecardVariant;
-    expect(scorecardUpgradeCopy(pending)?.text).not.toMatch(/\d/);
+    expect((scorecardUpgradeCopy(pending)?.text ?? "").replace("28 Feb 2027", "")).not.toMatch(/\d/);
     const awaiting = { ...variantFor("chapter-test", marks(4, 10)), awaitingSheet: true } as ScorecardVariant;
-    expect(scorecardUpgradeCopy(awaiting)?.text).not.toMatch(/\d/);
+    expect((scorecardUpgradeCopy(awaiting)?.text ?? "").replace("28 Feb 2027", "")).not.toMatch(/\d/);
   });
   it("says nothing on an all-pending or deferred card", () => {
     expect(scorecardUpgradeCopy({ ...variantFor("worksheet", marks(0, 10)), allPending: { title: "x", detail: "y" } } as ScorecardVariant)).toBeNull();
@@ -124,18 +124,18 @@ describe("OFFERS-V2: the headline is the result's own numbers (never invented)",
     expect(scorecardHeadline(variantFor("worksheet", marks(8.5, 10)))).toEqual(["You lost 1.5 marks.", "Let\u2019s win them back before boards."]);
     expect(scorecardHeadline(variantFor("worksheet", marks(8, 10)))?.[1]).toBe("Let\u2019s win them back before boards.");
     expect(scorecardHeadline(variantFor("worksheet", { kind: "attempts", attempted: 1, ofN: 1, mcqAnswered: 1, mcqCorrect: 0 } as ScorecardVariant["score"]))).toBeTruthy();
-    expect(scorecardHeadline(variantFor("check-improve", marks(5, 5)))).toEqual(["Full marks!", "Keep every answer marked like this till your boards."]);
+    expect(scorecardHeadline(variantFor("check-improve", marks(5, 5)))).toEqual(["Full marks!", "Keep every answer marked like this, valid till 28 Feb 2027."]);
   });
   it("Quick Practice MCQs: the wrong count and the slip-or-gap question", () => {
     const qp = (answered: number, correct: number) => variantFor("quick-practice", { kind: "attempts", attempted: answered, ofN: 10, mcqAnswered: answered, mcqCorrect: correct });
     expect(scorecardHeadline(qp(10, 7))).toEqual(["3 wrong.", "A slip, or a concept gap?"]);
-    expect(scorecardHeadline(qp(5, 5))).toEqual(["Get every answer marked like this till your boards."]);
+    expect(scorecardHeadline(qp(5, 5))).toEqual(["Get every answer marked like this, valid till 28 Feb 2027."]);
   });
   it("no number when marks are unknown (pending, awaited sheet); nothing on an all-pending or deferred card", () => {
     const pending = { ...variantFor("worksheet", marks(4, 10)), pending: { count: 1, worksheetTotalMarks: 10 } } as ScorecardVariant;
-    expect((scorecardHeadline(pending) ?? []).join(" ")).not.toMatch(/\d/);
+    expect((scorecardHeadline(pending) ?? []).join(" ").replace("28 Feb 2027", "")).not.toMatch(/\d/);
     const awaiting = { ...variantFor("chapter-test", marks(4, 10)), awaitingSheet: true } as ScorecardVariant;
-    expect((scorecardHeadline(awaiting) ?? []).join(" ")).not.toMatch(/\d/);
+    expect((scorecardHeadline(awaiting) ?? []).join(" ").replace("28 Feb 2027", "")).not.toMatch(/\d/);
     expect(scorecardHeadline({ ...variantFor("worksheet", marks(0, 10)), allPending: { title: "x", detail: "y" } } as ScorecardVariant)).toBeNull();
     expect(scorecardHeadline({ ...variantFor("full-mock", marks(0, 10)), deferred: true } as ScorecardVariant)).toBeNull();
   });
@@ -168,7 +168,7 @@ describe("the shell renders the block on every grading surface (one call site: R
   it("each surface's own benefit line (honest, no number)", () => {
     const want: Record<string, RegExp> = {
       "full-mock": /^Every answer you write, marked step by step like a CBSE examiner/,
-      "check-improve": /^Check every answer like this till your boards/,
+      "check-improve": /^Check every answer like this, valid till 28 Feb 2027/,
       "chapter-test": /^Every chapter test, mock and handwritten answer marked step by step/,
       worksheet: /^Every worksheet, chapter test and handwritten answer marked step by step/,
       "quick-practice": /^Upload your rough work and find out exactly why/,
