@@ -70,9 +70,9 @@ export const CIRCLES_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Perimeter of Δ PCD = 20 cm.",
     "solutionSteps": [
-      "Tangents from a common external point are equal: PA = PB; CA = CE; DE = DB.",
-      "Perimeter of Δ PCD = PC + CD + DP = PC + (CE + ED) + DP = PC + CA + BD + DP = (PC + CA) + (BD + DP) = PA + PB = 2·PA.",
-      "Therefore perimeter = 2 × 10 = 20 cm."
+      "[1 mark] Tangents from a common external point are equal: PA = PB; CA = CE; DE = DB.",
+      "[0.5 mark] Perimeter of Δ PCD = PC + CD + DP = PC + (CE + ED) + DP = PC + CA + BD + DP = (PC + CA) + (BD + DP) = PA + PB = 2·PA.",
+      "[0.5 mark] Therefore perimeter = 2 × 10 = 20 cm."
     ],
     "finalAnswer": "Perimeter of Δ PCD = 20 cm.",
     "isCompetencyBased": false
@@ -91,9 +91,11 @@ export const CIRCLES_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Main: PA = 6 cm; OA = 2√3 cm. OR Alt: ∠PTQ = 2 ∠OPQ proved.",
     "solutionSteps": [
-      "Main: ∠OAB = 30°. Radius ⊥ tangent gives ∠OAP = 90°, so ∠PAB = 90° − 30° = 60°. AP = BP (tangents from external point) ⇒ Δ PAB is isosceles, so ∠PAB = ∠PBA = 60°, giving ∠APB = 180° − 120° = 60°. Hence Δ PAB is equilateral with PA = PB = AB = 6 cm.",
-      "In right Δ OAP, ∠OPA = 30° (half of 60°). tan 30° = OA/PA ⇒ (1/√3) = OA/6 ⇒ OA = 6/√3 = 2√3 cm.",
-      "OR (alternative): Let ∠TPQ = θ. ∠TPO = 90° (radius ⊥ tangent) ⇒ ∠OPQ = 90° − θ. TP = TQ (tangents from T), so Δ TPQ is isosceles, ∠TQP = ∠TPQ = θ. In Δ TPQ, sum of angles: 2θ + ∠PTQ = 180° ⇒ ∠PTQ = 180° − 2θ = 2(90° − θ) = 2 ∠OPQ. Hence proved."
+      "[1 mark] Main: ∠OAB = 30°. Radius ⊥ tangent gives ∠OAP = 90°, so ∠PAB = 90° − 30° = 60°.",
+      "[0.5 mark] AP = BP (tangents from external point) ⇒ Δ PAB is isosceles, so ∠PAB = ∠PBA = 60°, giving ∠APB = 180° − 120° = 60°.",
+      "[0.5 mark] Hence Δ PAB is equilateral with PA = PB = AB = 6 cm.",
+      "[1 mark] In right Δ OAP, ∠OPA = 30° (half of 60°). tan 30° = OA/PA ⇒ (1/√3) = OA/6 ⇒ OA = 6/√3 = 2√3 cm.",
+      "[3 marks] OR (alternative): Let ∠TPQ = θ. ∠TPO = 90° (radius ⊥ tangent) ⇒ ∠OPQ = 90° − θ. TP = TQ (tangents from T), so Δ TPQ is isosceles, ∠TQP = ∠TPQ = θ. In Δ TPQ, sum of angles: 2θ + ∠PTQ = 180° ⇒ ∠PTQ = 180° − 2θ = 2(90° − θ) = 2 ∠OPQ. Hence proved."
     ],
     "finalAnswer": "Main: PA = 6 cm, OA = 2√3 cm. OR Alt: proved.",
     "isCompetencyBased": false

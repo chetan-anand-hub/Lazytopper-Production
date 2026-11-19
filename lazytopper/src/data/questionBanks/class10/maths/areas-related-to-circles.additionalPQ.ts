@@ -49,7 +49,7 @@ export const AREAS_RELATED_TO_CIRCLES_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-ARC-005", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector and Triangle Areas — Trophy Shield", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The trophy shield Akshi received is made of a glass sector DOC supported by identical wooden right triangles ΔDAO and ΔCOB. AO = 7 cm and AO : DA = 1 : √3. (Use √3 = 1.73). (i) Find ∠DOC. (ii) Find the area of the wooden triangles. (iii) Find the area of the shape formed by the glass portion. OR (iii) Find the length of tape needed for the boundary of the glass portion.",
     answer: "(i) 60°. (ii) 84.77 cm^2. (iii) 102.67 cm^2. [OR] 42.67 cm.",
-    solutionSteps: ["(i) tan ∠DOA = AD/AO = √3/1 ⟹ ∠DOA = 60°. By symmetry ∠COB = 60°, so ∠DOC = 180° − 120° = 60°.", "(ii) Each wooden triangle: ½ × 7 × 7√3 = 49√3/2 ≈ 42.385. Two triangles: ~84.77 cm^2.", "(iii) DO: cos 60° = AO/DO ⟹ DO = 14 cm. Area of sector DOC = (60/360) · π · 14^2 = 196π/6 ≈ 102.67 cm^2.", "[OR] Tape = arc DC + DO + OC = (60/360)(2π·14) + 14 + 14 = 14π/3 + 28 ≈ 14.67 + 28 = 42.67 cm."],
+    solutionSteps: ["[1 mark] (i) tan ∠DOA = AD/AO = √3/1 ⟹ ∠DOA = 60°. By symmetry ∠COB = 60°, so ∠DOC = 180° − 120° = 60°.", "[1 mark] (ii) Each wooden triangle: ½ × 7 × 7√3 = 49√3/2 ≈ 42.385. Two triangles: ~84.77 cm^2.", "[1 mark] (iii) DO: cos 60° = AO/DO ⟹ DO = 14 cm.", "[1 mark] Area of sector DOC = (60/360) · π · 14^2 = 196π/6 ≈ 102.67 cm^2.", "[2 marks] OR: Tape = arc DC + DO + OC = (60/360)(2π·14) + 14 + 14 = 14π/3 + 28 ≈ 14.67 + 28 = 42.67 cm."],
     finalAnswer: "(i) 60°; (ii) 84.77 cm^2; (iii) 102.67 cm^2 [or] 42.67 cm.",
     ncertRef: "APQ PQ2 Q36", isCompetencyBased: true,
  },
@@ -90,7 +90,7 @@ export const AREAS_RELATED_TO_CIRCLES_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-ARC-009", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Arc Length — Chord Subtending 60°", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A 3.5 cm chord subtends an angle of 60° at the centre of a circle. What is the arc length of the minor sector? (Use π = 22/7.)",
     answer: "Arc length = 11/3 cm (≈ 3.67 cm).",
-    solutionSteps: ["Triangle OMN with OM = ON (radii) and ∠MON = 60° ⟹ equilateral triangle (angles opposite equal sides equal, all 60°). So OM = ON = MN = 3.5 cm.", "Radius r = 3.5 = 7/2 cm. Arc length = (60°/360°) × 2π × r = (1/6) × 2 × (22/7) × (7/2) = 22/6 = 11/3 cm."],
+    solutionSteps: ["[1 mark] Triangle OMN with OM = ON (radii) and ∠MON = 60° ⟹ equilateral triangle (angles opposite equal sides equal, all 60°). So OM = ON = MN = 3.5 cm.", "[1 mark] Radius r = 3.5 = 7/2 cm. Arc length = (60°/360°) × 2π × r = (1/6) × 2 × (22/7) × (7/2) = 22/6 = 11/3 cm."],
     finalAnswer: "11/3 cm.",
     ncertRef: "APQ PQ_2022 Q25 (first variant)", isCompetencyBased: true },
 

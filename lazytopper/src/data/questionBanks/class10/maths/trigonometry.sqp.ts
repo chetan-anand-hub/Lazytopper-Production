@@ -96,8 +96,9 @@ export const TRIGONOMETRY_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Main: A = 45°, B = 15°. OR Alt: x = 3.",
     "solutionSteps": [
-      "Main: tan(A + B) = √3 ⇒ A + B = 60°. tan(A − B) = 1/√3 ⇒ A − B = 30°. Add: 2A = 90° ⇒ A = 45°. Subtract: 2B = 30° ⇒ B = 15°.",
-      "OR (alternative): cosec 30° = 2, sin 60° = √3/2, tan 30° = 1/√3. Substitute: 2·(2)² + x·(√3/2)² − (3/4)·(1/√3)² = 10 ⇒ 8 + x·(3/4) − (3/4)·(1/3) = 10 ⇒ 8 + (3x/4) − (1/4) = 10. Multiply by 4: 32 + 3x − 1 = 40 ⇒ 3x = 9 ⇒ x = 3."
+      "[1 mark] Main: tan(A + B) = √3 ⇒ A + B = 60°. tan(A − B) = 1/√3 ⇒ A − B = 30°.",
+      "[1 mark] Add: 2A = 90° ⇒ A = 45°. Subtract: 2B = 30° ⇒ B = 15°.",
+      "[2 marks] OR (alternative): cosec 30° = 2, sin 60° = √3/2, tan 30° = 1/√3. Substitute: 2·(2)² + x·(√3/2)² − (3/4)·(1/√3)² = 10 ⇒ 8 + x·(3/4) − (3/4)·(1/3) = 10 ⇒ 8 + (3x/4) − (1/4) = 10. Multiply by 4: 32 + 3x − 1 = 40 ⇒ 3x = 9 ⇒ x = 3."
     ],
     "finalAnswer": "Main: A = 45°, B = 15°. OR Alt: x = 3.",
     "isCompetencyBased": false
@@ -116,9 +117,9 @@ export const TRIGONOMETRY_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Proved: tan θ = 1 or tan θ = 1/2.",
     "solutionSteps": [
-      "Divide both sides by cos²θ: (1/cos²θ) + (sin²θ/cos²θ) = 3·(sin θ/cos θ) ⇒ sec²θ + tan²θ = 3 tan θ.",
-      "Use sec²θ = 1 + tan²θ: (1 + tan²θ) + tan²θ = 3 tan θ ⇒ 2 tan²θ − 3 tan θ + 1 = 0.",
-      "Let tan θ = t. Quadratic: 2t² − 3t + 1 = 0 ⇒ (t − 1)(2t − 1) = 0 ⇒ t = 1 or t = 1/2. Hence tan θ = 1 or tan θ = 1/2."
+      "[1 mark] Divide both sides by cos²θ: (1/cos²θ) + (sin²θ/cos²θ) = 3·(sin θ/cos θ) ⇒ sec²θ + tan²θ = 3 tan θ.",
+      "[1 mark] Use sec²θ = 1 + tan²θ: (1 + tan²θ) + tan²θ = 3 tan θ ⇒ 2 tan²θ − 3 tan θ + 1 = 0.",
+      "[1 mark] Let tan θ = t. Quadratic: 2t² − 3t + 1 = 0 ⇒ (t − 1)(2t − 1) = 0 ⇒ t = 1 or t = 1/2. Hence tan θ = 1 or tan θ = 1/2."
     ],
     "finalAnswer": "tan θ = 1 or tan θ = 1/2.",
     "isCompetencyBased": true
@@ -137,10 +138,10 @@ export const TRIGONOMETRY_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) 80 m. (ii) Bird flew 80(√3 − 1) m. OR Ball travelled 80(1 − 1/√3) m. (iii) Speed = 600(√3 + 1) m/min.",
     "solutionSteps": [
-      "Part (i): With elevation 45° and tree height 80 m, tan 45° = 80/CB ⇒ CB = 80 m.",
-      "Part (ii): When bird flies away, new elevation 30°. tan 30° = 80/CE ⇒ (1/√3) = 80/CE ⇒ CE = 80√3. Bird displacement AD = BE = CE − CB = 80√3 − 80 = 80(√3 − 1) m.",
-      "Part (ii) OR: For the ball with elevation 60°: tan 60° = 80/CG ⇒ √3 = 80/CG ⇒ CG = 80/√3. Ball travel after hitting tree = CB − CG = 80 − 80/√3 = 80(1 − 1/√3) m.",
-      "Part (iii): Distance flown = 20(√3 + 1) m in 2 s. Speed = (20(√3 + 1) / 2) m/s = 10(√3 + 1) m/s. Convert to m/min: × 60 ⇒ 600(√3 + 1) m/min."
+      "[1 mark] Part (i): With elevation 45° and tree height 80 m, tan 45° = 80/CB ⇒ CB = 80 m.",
+      "[1 mark] Part (ii): When bird flies away, new elevation 30°. tan 30° = 80/CE ⇒ (1/√3) = 80/CE ⇒ CE = 80√3. Bird displacement AD = BE = CE − CB = 80√3 − 80 = 80(√3 − 1) m.",
+      "[1 mark] Part (ii) OR: For the ball with elevation 60°: tan 60° = 80/CG ⇒ √3 = 80/CG ⇒ CG = 80/√3. Ball travel after hitting tree = CB − CG = 80 − 80/√3 = 80(1 − 1/√3) m.",
+      "[1 mark] Part (iii): Distance flown = 20(√3 + 1) m in 2 s. Speed = (20(√3 + 1) / 2) m/s = 10(√3 + 1) m/s. Convert to m/min: × 60 ⇒ 600(√3 + 1) m/min."
     ],
     "finalAnswer": "(i) 80 m; (ii) 80(√3 − 1) m OR 80(1 − 1/√3) m; (iii) 600(√3 + 1) m/min.",
     "isCompetencyBased": true

@@ -27,14 +27,9 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "The car is approximately 34.6 m from the foot of the building.",
     "explanation": "",
     "solutionSteps": [
-      "Let the height of the building be AB = 20 m and the car be at point C on the road, with B as the foot of the building.",
-      "The angle of depression from A to C is 30°, so angle of elevation from C to A is also 30° (alternate interior angles).",
-      "In right triangle △ABC, AB is vertical (20 m) and BC is the horizontal distance to be found.",
-      "Use tan of the angle of elevation: tan 30° = AB / BC.",
-      "Substitute values: tan 30° = 1/√3 and AB = 20, so 1/√3 = 20 / BC.",
-      "Rearrange to get BC = 20√3.",
-      "Use √3 ≈ 1.732 to get BC ≈ 20 × 1.732 = 34.64 m.",
-      "Therefore, the car is approximately 34.6 m from the foot of the building."
+      "[1 mark] Let the height of the building be AB = 20 m and the car be at point C on the road, with B as the foot of the building. The angle of depression from A to C is 30°, so angle of elevation from C to A is also 30° (alternate interior angles). In right triangle △ABC, AB is vertical (20 m) and BC is the horizontal distance to be found.",
+      "[1 mark] Use tan of the angle of elevation: tan 30° = AB / BC. Substitute values: tan 30° = 1/√3 and AB = 20, so 1/√3 = 20 / BC. Rearrange to get BC = 20√3.",
+      "[1 mark] Use √3 ≈ 1.732 to get BC ≈ 20 × 1.732 = 34.64 m. Therefore, the car is approximately 34.6 m from the foot of the building."
     ],
     "finalAnswer": "The car is approximately 34.6 m from the foot of the building.",
     "strategyHint": "",
@@ -56,13 +51,10 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "Area of the sector = 38.5 cm²",
     "explanation": "",
     "solutionSteps": [
-      "Recall the formula for the area of a sector with angle θ (in degrees): Area = (θ/360°) × πr².",
-      "Here radius r = 7 cm and θ = 90°.",
-      "Substitute: Area = (90/360) × (22/7) × 7².",
-      "Simplify: 90/360 = 1/4, and 7² = 49.",
-      "So Area = (1/4) × (22/7) × 49.",
-      "Compute (22/7) × 49 = 22 × 7 = 154.",
-      "Hence Area = (1/4) × 154 = 38.5 cm²."
+      "[0.5 mark] Recall the formula for the area of a sector with angle θ (in degrees): Area = (θ/360°) × πr².",
+      "[0.5 mark] Here radius r = 7 cm and θ = 90°. Substitute: Area = (90/360) × (22/7) × 7².",
+      "[1 mark] Simplify: 90/360 = 1/4, and 7² = 49. So Area = (1/4) × (22/7) × 49. Compute (22/7) × 49 = 22 × 7 = 154.",
+      "[1 mark] Hence Area = (1/4) × 154 = 38.5 cm²."
     ],
     "finalAnswer": "Area of the sector = 38.5 cm²",
     "strategyHint": "",
@@ -84,13 +76,10 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "The 20th term of the AP is 18.",
     "explanation": "",
     "solutionSteps": [
-      "Let the AP have first term a and common difference d.",
-      "Given a = 3, n = 20 and Sₙ = 210.",
-      "Recall the formula for sum of n terms of an AP: Sₙ = n/2 [2a + (n − 1)d].",
-      "Substitute n = 20, a = 3 and Sₙ = 210 to get 210 = 20/2 [2×3 + 19d].",
-      "Simplify: 210 = 10(6 + 19d) ⇒ 21 = 6 + 19d ⇒ 19d = 15 ⇒ d = 15/19.",
-      "Use the nth term formula aₙ = a + (n − 1)d with n = 20: a₂₀ = 3 + 19(d) = 3 + 19×(15/19) = 3 + 15 = 18.",
-      "Hence, the 20th term of the AP is 18."
+      "[0.5 mark] Let the AP have first term a and common difference d. Given a = 3, n = 20 and Sₙ = 210. Recall the formula for sum of n terms of an AP: Sₙ = n/2 [2a + (n − 1)d].",
+      "[1 mark] Substitute n = 20, a = 3 and Sₙ = 210 to get 210 = 20/2 [2×3 + 19d]. Simplify: 210 = 10(6 + 19d) ⇒ 21 = 6 + 19d ⇒ 19d = 15 ⇒ d = 15/19.",
+      "[1 mark] Use the nth term formula aₙ = a + (n − 1)d with n = 20: a₂₀ = 3 + 19(d) = 3 + 19×(15/19) = 3 + 15 = 18.",
+      "[0.5 mark] Hence, the 20th term of the AP is 18."
     ],
     "finalAnswer": "The 20th term of the AP is 18.",
     "strategyHint": "",
@@ -112,13 +101,9 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "PA = PB (corresponding sides of congruent triangles ΔOPA and ΔOPB).",
     "explanation": "",
     "solutionSteps": [
-      "Draw circle with centre O and tangents PA and PB from external point P touching at A and B.",
-      "Join OA, OB, and OP.",
-      "Recall: the radius drawn to the point of contact of a tangent is perpendicular to the tangent, so OA ⟂ PA and OB ⟂ PB.",
-      "Observe triangles ΔOPA and ΔOPB.",
-      "In ΔOPA and ΔOPB: OP is common, OA = OB (radii of the same circle), and ∠OAP = ∠OBP = 90°.",
-      "Thus, triangles ΔOPA and ΔOPB are congruent by RHS congruence criterion.",
-      "Hence, PA = PB as corresponding sides of congruent triangles."
+      "[1 mark] Draw circle with centre O and tangents PA and PB from external point P touching at A and B. Join OA, OB, and OP. Recall: the radius drawn to the point of contact of a tangent is perpendicular to the tangent, so OA ⟂ PA and OB ⟂ PB.",
+      "[1 mark] Observe triangles ΔOPA and ΔOPB. In ΔOPA and ΔOPB: OP is common, OA = OB (radii of the same circle), and ∠OAP = ∠OBP = 90°. Thus, triangles ΔOPA and ΔOPB are congruent by RHS congruence criterion.",
+      "[1 mark] Hence, PA = PB as corresponding sides of congruent triangles."
     ],
     "finalAnswer": "PA = PB (corresponding sides of congruent triangles ΔOPA and ΔOPB).",
     "strategyHint": "",
@@ -140,13 +125,11 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "AB = 5 units; midpoint M = (5, 2.5)",
     "explanation": "",
     "solutionSteps": [
-      "Write the coordinates of A and B as A(x₁, y₁) = (3, 4) and B(x₂, y₂) = (7, 1).",
-      "Recall the distance formula: AB = √[(x₂ − x₁)² + (y₂ − y₁)²].",
-      "Substitute the values: AB = √[(7 − 3)² + (1 − 4)²] = √[(4)² + (−3)²].",
-      "Compute: AB = √(16 + 9) = √25 = 5 units.",
-      "Recall the midpoint formula: M = ((x₁ + x₂)/2, (y₁ + y₂)/2).",
-      "Substitute to get M = ((3 + 7)/2, (4 + 1)/2) = (10/2, 5/2) = (5, 2.5).",
-      "Thus, the distance AB is 5 units and midpoint M is (5, 2.5)."
+      "[0.5 mark] Write the coordinates of A and B as A(x₁, y₁) = (3, 4) and B(x₂, y₂) = (7, 1). Recall the distance formula: AB = √[(x₂ − x₁)² + (y₂ − y₁)²].",
+      "[1 mark] Substitute the values: AB = √[(7 − 3)² + (1 − 4)²] = √[(4)² + (−3)²]. Compute: AB = √(16 + 9) = √25 = 5 units.",
+      "[0.5 mark] Recall the midpoint formula: M = ((x₁ + x₂)/2, (y₁ + y₂)/2).",
+      "[0.5 mark] Substitute to get M = ((3 + 7)/2, (4 + 1)/2) = (10/2, 5/2) = (5, 2.5).",
+      "[0.5 mark] Thus, the distance AB is 5 units and midpoint M is (5, 2.5)."
     ],
     "finalAnswer": "AB = 5 units; midpoint M = (5, 2.5)",
     "strategyHint": "",
@@ -168,13 +151,11 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "cos θ = 4/5 and tan θ = 3/4",
     "explanation": "",
     "solutionSteps": [
-      "Given sin θ = 3/5, interpret this as opposite side / hypotenuse = 3/5.",
-      "Consider a right-angled triangle with perpendicular = 3k and hypotenuse = 5k for some k.",
-      "Use Pythagoras theorem to find the base: base² = hyp² − perp² = (5k)² − (3k)² = 25k² − 9k² = 16k².",
-      "So base = 4k, taking the positive value as sides are lengths.",
-      "Now cos θ = base / hypotenuse = 4k / 5k = 4/5.",
-      "tan θ = perpendicular / base = 3k / 4k = 3/4.",
-      "Thus, cos θ = 4/5 and tan θ = 3/4."
+      "[0.5 mark] Given sin θ = 3/5, interpret this as opposite side / hypotenuse = 3/5. Consider a right-angled triangle with perpendicular = 3k and hypotenuse = 5k for some k.",
+      "[1 mark] Use Pythagoras theorem to find the base: base² = hyp² − perp² = (5k)² − (3k)² = 25k² − 9k² = 16k². So base = 4k, taking the positive value as sides are lengths.",
+      "[0.5 mark] Now cos θ = base / hypotenuse = 4k / 5k = 4/5.",
+      "[0.5 mark] tan θ = perpendicular / base = 3k / 4k = 3/4.",
+      "[0.5 mark] Thus, cos θ = 4/5 and tan θ = 3/4."
     ],
     "finalAnswer": "cos θ = 4/5 and tan θ = 3/4",
     "strategyHint": "",
@@ -220,11 +201,11 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "(i) P(king of red colour) = 1/26; (ii) P(not a face card) = 10/13",
     "explanation": "",
     "solutionSteps": [
-      "Recall that probability of an event = (number of favourable outcomes) / (total number of outcomes).",
-      "Total number of cards in a deck is 52.",
-      "(i) There are 2 red kings (king of hearts and king of diamonds). So P(king of red colour) = 2/52 = 1/26.",
-      "(ii) There are 12 face cards in a deck (J, Q, K of each suit). So non-face cards = 52 − 12 = 40.",
-      "Therefore P(not a face card) = 40/52 = 10/13."
+      "[0.5 mark] Recall that probability of an event = (number of favourable outcomes) / (total number of outcomes).",
+      "[0.5 mark] Total number of cards in a deck is 52.",
+      "[0.5 mark] (i) There are 2 red kings (king of hearts and king of diamonds). So P(king of red colour) = 2/52 = 1/26.",
+      "[1 mark] (ii) There are 12 face cards in a deck (J, Q, K of each suit). So non-face cards = 52 − 12 = 40.",
+      "[0.5 mark] Therefore P(not a face card) = 40/52 = 10/13."
     ],
     "finalAnswer": "(i) P(king of red colour) = 1/26; (ii) P(not a face card) = 10/13",
     "strategyHint": "",
@@ -327,13 +308,11 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "The volume of the tank is 385 m³.",
     "explanation": "",
     "solutionSteps": [
-      "Write the formula for the volume of a cylinder: V = πr²h.",
-      "Here radius r = 3.5 m and height h = 10 m and π = 22/7.",
-      "Substitute: V = (22/7) × (3.5)² × 10.",
-      "Compute (3.5)² = 12.25 and note 3.5 = 7/2, so (7/2)² = 49/4.",
-      "So V = (22/7) × (49/4) × 10.",
-      "Simplify: (22/7) × 49 = 22 × 7 = 154, so V = 154 × 10 / 4 = 1540 / 4 = 385.",
-      "Therefore, the volume of the tank is 385 m³."
+      "[0.5 mark] Write the formula for the volume of a cylinder: V = πr²h. Here radius r = 3.5 m and height h = 10 m and π = 22/7.",
+      "[0.5 mark] Substitute: V = (22/7) × (3.5)² × 10.",
+      "[1 mark] Compute (3.5)² = 12.25 and note 3.5 = 7/2, so (7/2)² = 49/4. So V = (22/7) × (49/4) × 10.",
+      "[0.5 mark] Simplify: (22/7) × 49 = 22 × 7 = 154, so V = 154 × 10 / 4 = 1540 / 4 = 385.",
+      "[0.5 mark] Therefore, the volume of the tank is 385 m³."
     ],
     "finalAnswer": "The volume of the tank is 385 m³.",
     "strategyHint": "",

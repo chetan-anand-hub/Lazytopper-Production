@@ -92,51 +92,51 @@ export const STAT_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section B — Short Answer (2 marks) =====
   { id: "STAT-N-EXEM-13-VSA-001", subject: "Maths", topicKey: "statistics", subtopic: "Median Class & Modal Class", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Will the median class and modal class of a grouped data always be different? Justify your answer briefly.",
-    solutionSteps: ["No — they can coincide.", "Example: a distribution with one class having both the maximum frequency and containing the (n/2)ᵗʰ observation will have the same class as median class and modal class."],
+    solutionSteps: ["[1 mark] No — they can coincide.", "[1 mark] Example: a distribution with one class having both the maximum frequency and containing the (n/2)ᵗʰ observation will have the same class as median class and modal class."],
     finalAnswer: "Not always different — they can coincide.",
     ncertRef: "Exemplar Ex 13.2 Q4", isCompetencyBased: true },
 
   { id: "STAT-N-EXEM-13-VSA-002", subject: "Maths", topicKey: "statistics", subtopic: "Assumed Mean Choice", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "In calculating the mean of grouped data using the assumed-mean method, must 'a' (the assumed mean) be one of the mid-points of the classes? Justify briefly.",
-    solutionSteps: ["No. The NCERT note (page 266) states that the assumed mean a (and step h) can be any non-zero numbers; the formula x̄ = a + (Σfd/Σf) still holds.", "Choosing a as a class mark is conventional because it keeps deviations small, but it is NOT a requirement."],
+    solutionSteps: ["[1 mark] No. The NCERT note (page 266) states that the assumed mean a (and step h) can be any non-zero numbers; the formula x̄ = a + (Σfd/Σf) still holds.", "[1 mark] Choosing a as a class mark is conventional because it keeps deviations small, but it is NOT a requirement."],
     finalAnswer: "False — a can be any number; class-mark choice is conventional.",
     ncertRef: "Exemplar Ex 13.2 Q2", isCompetencyBased: true },
 
   // ===== Section C — Short Answer (3 marks) =====
   { id: "STAT-N-EXEM-13-SA-001", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Calculate the mean of: Marks 10-20 → 2 students, 20-30 → 4, 30-40 → 7, 40-50 → 6, 50-60 → 1.",
-    solutionSteps: ["Class marks: 15, 25, 35, 45, 55. Σfᵢ = 20.", "Σfᵢxᵢ = 2×15 + 4×25 + 7×35 + 6×45 + 1×55 = 30 + 100 + 245 + 270 + 55 = 700.", "Mean = 700/20 = 35."],
+    solutionSteps: ["[1 mark] Class marks: 15, 25, 35, 45, 55. Σfᵢ = 20.", "[1 mark] Σfᵢxᵢ = 2×15 + 4×25 + 7×35 + 6×45 + 1×55 = 30 + 100 + 245 + 270 + 55 = 700.", "[1 mark] Mean = 700/20 = 35."],
     finalAnswer: "Mean = 35.",
     ncertRef: "Exemplar Ex 13.3 Q2", isCompetencyBased: true },
 
   { id: "STAT-N-EXEM-13-SA-002", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the mean of: Class 1-3 → 9, 3-5 → 22, 5-7 → 27, 7-10 → 17. (Class widths are unequal.)",
-    solutionSteps: ["Class marks: 2, 4, 6, 8.5. Σfᵢ = 9 + 22 + 27 + 17 = 75.", "Σfᵢxᵢ = 9×2 + 22×4 + 27×6 + 17×8.5 = 18 + 88 + 162 + 144.5 = 412.5.", "Mean = 412.5/75 = 5.5."],
+    solutionSteps: ["[1 mark] Class marks: 2, 4, 6, 8.5. Σfᵢ = 9 + 22 + 27 + 17 = 75.", "[1 mark] Σfᵢxᵢ = 9×2 + 22×4 + 27×6 + 17×8.5 = 18 + 88 + 162 + 144.5 = 412.5.", "[1 mark] Mean = 412.5/75 = 5.5."],
     finalAnswer: "Mean = 5.5.",
     ncertRef: "Exemplar Ex 13.3 Q1", isCompetencyBased: true,
     strategyHint: "Direct method works for unequal class widths too." },
 
   { id: "STAT-N-EXEM-13-SA-003", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Continuous Conversion)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Calculate the mean of: Class 4-7 → 5, 8-11 → 4, 12-15 → 9, 16-19 → 10 (data is in inclusive form; convert to continuous classes first).",
-    solutionSteps: ["Convert to continuous form by subtracting 0.5 from lower and adding 0.5 to upper limits: 3.5-7.5, 7.5-11.5, 11.5-15.5, 15.5-19.5.", "Class marks: 5.5, 9.5, 13.5, 17.5. Σfᵢ = 28.", "Σfᵢxᵢ = 5×5.5 + 4×9.5 + 9×13.5 + 10×17.5 = 27.5 + 38 + 121.5 + 175 = 362.", "Mean = 362/28 ≈ 12.93."],
+    solutionSteps: ["[1 mark] Convert to continuous form by subtracting 0.5 from lower and adding 0.5 to upper limits: 3.5-7.5, 7.5-11.5, 11.5-15.5, 15.5-19.5.", "[0.5 mark] Class marks: 5.5, 9.5, 13.5, 17.5. Σfᵢ = 28.", "[1 mark] Σfᵢxᵢ = 5×5.5 + 4×9.5 + 9×13.5 + 10×17.5 = 27.5 + 38 + 121.5 + 175 = 362.", "[0.5 mark] Mean = 362/28 ≈ 12.93."],
     finalAnswer: "Mean ≈ 12.93.",
     ncertRef: "Exemplar Ex 13.3 Q3", isCompetencyBased: true },
 
   { id: "STAT-N-EXEM-13-SA-004", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the median bowling speed (in km/h) from: 85-100 → 11 players, 100-115 → 9, 115-130 → 8, 130-145 → 5.",
-    solutionSteps: ["n = 33; n/2 = 16.5. cf: 11, 20, 28, 33. Median class is 100-115 (cf 20 first ≥ 16.5). l = 100, cf = 11, f = 9, h = 15.", "Median = 100 + ((16.5 − 11)/9) × 15 = 100 + (5.5/9) × 15 = 100 + 82.5/9 ≈ 100 + 9.17 ≈ 109.17 km/h."],
+    solutionSteps: ["[1 mark] n = 33; n/2 = 16.5. cf: 11, 20, 28, 33. Median class is 100-115 (cf 20 first ≥ 16.5).", "[0.5 mark] l = 100, cf = 11, f = 9, h = 15.", "[0.5 mark] Median = 100 + ((16.5 − 11)/9) × 15 = 100 + (5.5/9) × 15", "[1 mark] = 100 + 82.5/9 ≈ 100 + 9.17 ≈ 109.17 km/h."],
     finalAnswer: "Median speed ≈ 109.17 km/h.",
     ncertRef: "Exemplar Ex 13.3 Q16", isCompetencyBased: true },
 
   { id: "STAT-N-EXEM-13-SA-005", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Calculate the modal weight of coffee (in g) from: 200-201 → 12 packets, 201-202 → 26, 202-203 → 20, 203-204 → 9, 204-205 → 2, 205-206 → 1.",
-    solutionSteps: ["Modal class is 201-202 (max freq = 26). l = 201, h = 1, f₁ = 26, f₀ = 12, f₂ = 20.", "Mode = 201 + ((26 − 12)/(52 − 12 − 20)) × 1 = 201 + (14/20) × 1 = 201 + 0.7 = 201.7 g."],
+    solutionSteps: ["[0.5 mark] Modal class is 201-202 (max freq = 26).", "[0.5 mark] l = 201, h = 1, f₁ = 26, f₀ = 12, f₂ = 20.", "[1 mark] Mode = 201 + ((26 − 12)/(52 − 12 − 20)) × 1", "[1 mark] = 201 + (14/20) × 1 = 201 + 0.7 = 201.7 g."],
     finalAnswer: "Modal weight ≈ 201.7 g.",
     ncertRef: "Exemplar Ex 13.3 Q18", isCompetencyBased: true },
 
   { id: "STAT-N-EXEM-13-SA-006", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the median weekly income from: ₹0-1000 → 250 families, 1000-2000 → 190, 2000-3000 → 100, 3000-4000 → 40, 4000-5000 → 15, 5000-6000 → 5. (Total 600 families.)",
-    solutionSteps: ["n = 600; n/2 = 300. cf: 250, 440, 540, 580, 595, 600. Median class is 1000-2000 (cf 440 first ≥ 300). l = 1000, cf = 250, f = 190, h = 1000.", "Median = 1000 + ((300 − 250)/190) × 1000 = 1000 + (50/190) × 1000 ≈ 1000 + 263.16 ≈ ₹1263.16."],
+    solutionSteps: ["[1 mark] n = 600; n/2 = 300. cf: 250, 440, 540, 580, 595, 600. Median class is 1000-2000 (cf 440 first ≥ 300).", "[0.5 mark] l = 1000, cf = 250, f = 190, h = 1000.", "[0.5 mark] Median = 1000 + ((300 − 250)/190) × 1000", "[1 mark] = 1000 + (50/190) × 1000 ≈ 1000 + 263.16 ≈ ₹1263.16."],
     finalAnswer: "Median weekly income ≈ ₹1263.16.",
     ncertRef: "Exemplar Ex 13.3 Q15", isCompetencyBased: true },
 
@@ -157,14 +157,14 @@ export const STAT_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section E — Case-Based (4 marks) =====
   { id: "STAT-N-EXEM-13-CB-001", subject: "Maths", topicKey: "statistics", subtopic: "Mean Mode Median Comparison", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Heights (in cm) of 60 students: 150-155 → 15, 155-160 → 13, 160-165 → 10, 165-170 → 8, 170-175 → 9, 175-180 → 5.\n(i) Find the modal class.\n(ii) Find the median class.\n(iii) Compute the mode.\n(iv) Compute the median.",
-    solutionSteps: ["(i) Max freq is 15 ⇒ modal class is 150-155.", "(ii) n = 60; n/2 = 30. cf: 15, 28, 38, 46, 55, 60. Median class is 160-165 (cf 38 first ≥ 30).", "(iii) Mode in 150-155: l = 150, h = 5, f₁ = 15, f₀ = 0 (no preceding class) → take 0, f₂ = 13. Mode = 150 + ((15 − 0)/(30 − 0 − 13)) × 5 = 150 + (15/17) × 5 ≈ 150 + 4.41 = 154.41.", "(iv) Median in 160-165: l = 160, cf = 28, f = 10, h = 5. Median = 160 + ((30 − 28)/10) × 5 = 160 + 1 = 161."],
+    solutionSteps: ["[1 mark] (i) Max freq is 15 ⇒ modal class is 150-155.", "[1 mark] (ii) n = 60; n/2 = 30. cf: 15, 28, 38, 46, 55, 60. Median class is 160-165 (cf 38 first ≥ 30).", "[1 mark] (iii) Mode in 150-155: l = 150, h = 5, f₁ = 15, f₀ = 0 (no preceding class) → take 0, f₂ = 13. Mode = 150 + ((15 − 0)/(30 − 0 − 13)) × 5 = 150 + (15/17) × 5 ≈ 150 + 4.41 = 154.41.", "[1 mark] (iv) Median in 160-165: l = 160, cf = 28, f = 10, h = 5. Median = 160 + ((30 − 28)/10) × 5 = 160 + 1 = 161."],
     finalAnswer: "(i) 150-155; (ii) 160-165; (iii) Mode ≈ 154.41; (iv) Median = 161.",
     ncertRef: "Exemplar Sample Question 3 (page 156)", isCompetencyBased: true },
 
   // ===== Creating-level question =====
   { id: "STAT-N-EXEM-13-CRE-001", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Creating",
     questionText: "Design a grouped frequency distribution over four equal classes of width 10 (starting at 0) such that the mode is exactly 25. Specify the frequencies and verify using the mode formula.",
-    solutionSteps: ["Choose modal class 20-30 (so l = 20, h = 10) and target mode = 25.", "Mode = l + ((f₁ − f₀)/(2f₁ − f₀ − f₂)) × h = 20 + ((f₁ − f₀)/(2f₁ − f₀ − f₂)) × 10 = 25.", "So (f₁ − f₀)/(2f₁ − f₀ − f₂) = 1/2 ⇒ 2(f₁ − f₀) = 2f₁ − f₀ − f₂ ⇒ f₂ = f₀.", "Pick f₀ = 5 (class 10-20), f₁ = 11 (class 20-30, the largest) and f₂ = 5 (class 30-40); give class 0-10 frequency 0. Distribution: 0-10 → 0, 10-20 → 5, 20-30 → 11, 30-40 → 5.", "Check: highest frequency 11 is in 20-30, so it is the modal class. Mode = 20 + ((11 − 5)/(22 − 5 − 5)) × 10 = 20 + (6/12) × 10 = 25. ✓"],
+    solutionSteps: ["[0.5 mark] Choose modal class 20-30 (so l = 20, h = 10) and target mode = 25.", "[0.5 mark] Mode = l + ((f₁ − f₀)/(2f₁ − f₀ − f₂)) × h = 20 + ((f₁ − f₀)/(2f₁ − f₀ − f₂)) × 10 = 25.", "[0.5 mark] So (f₁ − f₀)/(2f₁ − f₀ − f₂) = 1/2 ⇒ 2(f₁ − f₀) = 2f₁ − f₀ − f₂ ⇒ f₂ = f₀.", "[0.5 mark] Pick f₀ = 5 (class 10-20), f₁ = 11 (class 20-30, the largest) and f₂ = 5 (class 30-40); give class 0-10 frequency 0. Distribution: 0-10 → 0, 10-20 → 5, 20-30 → 11, 30-40 → 5.", "[1 mark] Check: highest frequency 11 is in 20-30, so it is the modal class. Mode = 20 + ((11 − 5)/(22 − 5 − 5)) × 10 = 20 + (6/12) × 10 = 25. ✓"],
     finalAnswer: "Frequencies 0, 5, 11, 5 over classes 0-10, 10-20, 20-30, 30-40 give Mode = 25 exactly.",
     ncertRef: "Exemplar-style design task", isCompetencyBased: true,
     strategyHint: "Symmetric flanking frequencies (f₀ = f₂) place the mode at l + h/2.",

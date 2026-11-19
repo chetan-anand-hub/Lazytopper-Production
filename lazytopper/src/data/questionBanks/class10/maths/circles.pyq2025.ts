@@ -33,7 +33,7 @@ export const CIRCLES_PYQ_2025: CanonicalQuestion[] = [
   { id: "PYQ-M-2025-CIRC-004", subject: "Maths", topicKey: "circles", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Prove that the tangents drawn at the ends of a diameter of a circle are parallel.",
     answer: "∠1 = ∠2 But these are alternate interior angles. ∴𝑙 || 𝑚",
-    solutionSteps: ["Tangents 𝑙 and 𝑚 are drawn at the end points A and B of the diameter AB of the circle ∠1 = 90°, ∠2 = 90°", "∠1 = ∠2 But these are alternate interior angles. ∴𝑙 || 𝑚"],
+    solutionSteps: ["[1 mark] Tangents 𝑙 and 𝑚 are drawn at the end points A and B of the diameter AB of the circle ∠1 = 90°, ∠2 = 90°", "[1 mark] ∠1 = ∠2 But these are alternate interior angles. ∴𝑙 || 𝑚"],
     finalAnswer: "∠1 = ∠2 But these are alternate interior angles. ∴𝑙 || 𝑚",
     ncertRef: "PYQ 30/3/1 Q25", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "1" },

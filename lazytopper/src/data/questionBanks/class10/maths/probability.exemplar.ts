@@ -106,45 +106,45 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section B — Short Answer (2 marks) =====
   { id: "PROB-N-EXEM-14-VSA-001", subject: "Maths", topicKey: "probability", subtopic: "Coloured Balls", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "A bag contains 10 red, 5 blue and 7 green balls. A ball is drawn at random. Find the probability that the ball is (i) a red ball, (ii) not a blue ball.",
-    solutionSteps: ["Total balls = 10 + 5 + 7 = 22.", "(i) P(red) = 10/22 = 5/11.", "(ii) Non-blue balls = 10 + 7 = 17. P(not blue) = 17/22."],
+    solutionSteps: ["[0.5 mark] Total balls = 10 + 5 + 7 = 22.", "[0.5 mark] (i) P(red) = 10/22 = 5/11.", "[1 mark] (ii) Non-blue balls = 10 + 7 = 17. P(not blue) = 17/22."],
     finalAnswer: "(i) 5/11; (ii) 17/22.",
     ncertRef: "Exemplar Ex 13.3 Q27", isCompetencyBased: true },
 
   { id: "PROB-N-EXEM-14-VSA-002", subject: "Maths", topicKey: "probability", subtopic: "Numbered Tickets", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "An integer is chosen between 0 and 100. Find the probability that it is (i) divisible by 7, (ii) not divisible by 7.",
-    solutionSteps: ["Integers strictly between 0 and 100 are 1, 2, …, 99 → 99 outcomes.", "(i) Multiples of 7 in this range: 7, 14, …, 98 → count = 14. P = 14/99.", "(ii) P(not divisible by 7) = 1 − 14/99 = 85/99."],
+    solutionSteps: ["[0.5 mark] Integers strictly between 0 and 100 are 1, 2, …, 99 → 99 outcomes.", "[0.5 mark] (i) Multiples of 7 in this range: 7, 14, …, 98 → count = 14. P = 14/99.", "[1 mark] (ii) P(not divisible by 7) = 1 − 14/99 = 85/99."],
     finalAnswer: "(i) 14/99; (ii) 85/99.",
     ncertRef: "Exemplar Ex 13.3 Q31", isCompetencyBased: true },
 
   // ===== Section C — Short Answer (3 marks) =====
   { id: "PROB-N-EXEM-14-SA-001", subject: "Maths", topicKey: "probability", subtopic: "Two Dice", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Two dice are thrown at the same time. Find the probability of getting (i) the same number on both, (ii) different numbers on both.",
-    solutionSteps: ["Total outcomes = 36.", "(i) Same-number pairs: (1,1),(2,2),(3,3),(4,4),(5,5),(6,6) → 6. P = 6/36 = 1/6.", "(ii) P(different) = 1 − 1/6 = 5/6."],
+    solutionSteps: ["[1 mark] Total outcomes = 36.", "[1 mark] (i) Same-number pairs: (1,1),(2,2),(3,3),(4,4),(5,5),(6,6) → 6. P = 6/36 = 1/6.", "[1 mark] (ii) P(different) = 1 − 1/6 = 5/6."],
     finalAnswer: "(i) 1/6; (ii) 5/6.",
     ncertRef: "Exemplar Ex 13.3 Q19", isCompetencyBased: true },
 
   { id: "PROB-N-EXEM-14-SA-002", subject: "Maths", topicKey: "probability", subtopic: "Two Dice", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Two dice are thrown simultaneously. Find the probability that the sum of the numbers on them is (i) 7, (ii) a prime number, (iii) 1.",
-    solutionSteps: ["Total outcomes = 36.", "(i) Sum 7: (1,6),(2,5),(3,4),(4,3),(5,2),(6,1) → 6 ways. P = 6/36 = 1/6.", "(ii) Prime sums possible: 2, 3, 5, 7, 11. Count: sum 2 →1, 3 →2, 5 →4, 7 →6, 11 →2. Total = 15. P = 15/36 = 5/12.", "(iii) Sum = 1 is impossible (minimum sum is 2). P = 0."],
+    solutionSteps: ["[0.5 mark] Total outcomes = 36.", "[1 mark] (i) Sum 7: (1,6),(2,5),(3,4),(4,3),(5,2),(6,1) → 6 ways. P = 6/36 = 1/6.", "[1 mark] (ii) Prime sums possible: 2, 3, 5, 7, 11. Count: sum 2 →1, 3 →2, 5 →4, 7 →6, 11 →2. Total = 15. P = 15/36 = 5/12.", "[0.5 mark] (iii) Sum = 1 is impossible (minimum sum is 2). P = 0."],
     finalAnswer: "(i) 1/6; (ii) 5/12; (iii) 0.",
     ncertRef: "Exemplar Ex 13.3 Q20", isCompetencyBased: true,
     strategyHint: "List ordered pairs for each desired sum systematically." },
 
   { id: "PROB-N-EXEM-14-SA-003", subject: "Maths", topicKey: "probability", subtopic: "Two Dice", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Two dice are thrown together. Find the probability that the product of the numbers on the top is (i) 6, (ii) 12, (iii) 7.",
-    solutionSteps: ["Total outcomes = 36.", "(i) Product 6: (1,6),(2,3),(3,2),(6,1) → 4. P = 4/36 = 1/9.", "(ii) Product 12: (2,6),(3,4),(4,3),(6,2) → 4. P = 4/36 = 1/9.", "(iii) Product 7: 7 = 1 × 7 — but a die shows at most 6, so no pair gives 7. P = 0."],
+    solutionSteps: ["[0.5 mark] Total outcomes = 36.", "[1 mark] (i) Product 6: (1,6),(2,3),(3,2),(6,1) → 4. P = 4/36 = 1/9.", "[1 mark] (ii) Product 12: (2,6),(3,4),(4,3),(6,2) → 4. P = 4/36 = 1/9.", "[0.5 mark] (iii) Product 7: 7 = 1 × 7 — but a die shows at most 6, so no pair gives 7. P = 0."],
     finalAnswer: "(i) 1/9; (ii) 1/9; (iii) 0.",
     ncertRef: "Exemplar Ex 13.3 Q21", isCompetencyBased: true },
 
   { id: "PROB-N-EXEM-14-SA-004", subject: "Maths", topicKey: "probability", subtopic: "Modified Deck", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The king, queen and jack of clubs are removed from a deck of 52 playing cards and then it is well-shuffled. One card is drawn at random. Find the probability that the card is (i) a heart, (ii) a king.",
-    solutionSteps: ["After removing K, Q, J of clubs, the deck has 52 − 3 = 49 cards.", "(i) Hearts: still 13 cards. P(heart) = 13/49.", "(ii) Kings remaining: 3 (the king of clubs was removed). P(king) = 3/49."],
+    solutionSteps: ["[1 mark] After removing K, Q, J of clubs, the deck has 52 − 3 = 49 cards.", "[1 mark] (i) Hearts: still 13 cards. P(heart) = 13/49.", "[1 mark] (ii) Kings remaining: 3 (the king of clubs was removed). P(king) = 3/49."],
     finalAnswer: "(i) 13/49; (ii) 3/49.",
     ncertRef: "Exemplar Ex 13.3 Q28", isCompetencyBased: true },
 
   { id: "PROB-N-EXEM-14-SA-005", subject: "Maths", topicKey: "probability", subtopic: "Numbered Cards", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Cards numbered 2 to 101 are placed in a box. A card is selected at random. Find the probability that the card has (i) an even number, (ii) a square number.",
-    solutionSteps: ["Total cards = 101 − 2 + 1 = 100.", "(i) Even numbers in 2–101: 2, 4, 6, …, 100 → count = 50. P = 50/100 = 1/2.", "(ii) Square numbers in 2–101: 4, 9, 16, 25, 36, 49, 64, 81, 100 → 9 numbers. P = 9/100."],
+    solutionSteps: ["[1 mark] Total cards = 101 − 2 + 1 = 100.", "[1 mark] (i) Even numbers in 2–101: 2, 4, 6, …, 100 → count = 50. P = 50/100 = 1/2.", "[1 mark] (ii) Square numbers in 2–101: 4, 9, 16, 25, 36, 49, 64, 81, 100 → 9 numbers. P = 9/100."],
     finalAnswer: "(i) 1/2; (ii) 9/100.",
     ncertRef: "Exemplar Ex 13.3 Q32", isCompetencyBased: true },
 
@@ -165,7 +165,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section E — Case-Based (4 marks) =====
   { id: "PROB-N-EXEM-14-CB-001", subject: "Maths", topicKey: "probability", subtopic: "Simple Events — Drawing Items", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A carton has 24 bulbs, of which 6 are defective. One bulb is drawn at random.\n(i) What is the probability that the bulb drawn is NOT defective? (1 mark)\n(ii) Suppose the bulb drawn is defective and it is not put back. How many bulbs are now left in the carton, and how many of them are defective? (1 mark)\n(iii) A second bulb is now drawn at random from the bulbs left in the carton (as in part (ii)). What is the probability that this second bulb is defective? (2 marks)",
-    solutionSteps: ["(i) Non-defective bulbs = 24 − 6 = 18. P(not defective) = 18/24 = 3/4.", "(ii) One defective bulb is removed: bulbs left = 24 − 1 = 23; defective bulbs left = 6 − 1 = 5.", "(iii) Total possible outcomes for the second draw = 23 (all equally likely); favourable outcomes (defective) = 5.", "(iii) P(second bulb defective) = 5/23."],
+    solutionSteps: ["[1 mark] (i) Non-defective bulbs = 24 − 6 = 18. P(not defective) = 18/24 = 3/4.", "[1 mark] (ii) One defective bulb is removed: bulbs left = 24 − 1 = 23; defective bulbs left = 6 − 1 = 5.", "[1 mark] (iii) Total possible outcomes for the second draw = 23 (all equally likely); favourable outcomes (defective) = 5.", "[1 mark] (iii) P(second bulb defective) = 5/23."],
     finalAnswer: "(i) 3/4; (ii) 23 bulbs left, of which 5 are defective; (iii) 5/23",
     ncertRef: "Exemplar Ex 13.3 Q36", isCompetencyBased: true,
     sourceOverride: "others", },
@@ -173,7 +173,7 @@ export const PROB_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Creating-level question =====
   { id: "PROB-N-EXEM-14-CRE-001", subject: "Maths", topicKey: "probability", subtopic: "Word Problem", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Creating",
     questionText: "Design a probability experiment using two unbiased coins in which the event 'exactly one head' has probability exactly 1/2. Describe the sample space, the event, and verify your design.",
-    solutionSteps: ["Sample space of tossing two coins: S = {HH, HT, TH, TT} — 4 equally likely outcomes.", "Define event E = 'exactly one head' = {HT, TH} — 2 favourable outcomes.", "P(E) = 2/4 = 1/2 ✓ — design satisfies the constraint.", "So the experiment 'toss two unbiased coins and record number of heads' works; the event is 'exactly one head'."],
+    solutionSteps: ["[1 mark] Sample space of tossing two coins: S = {HH, HT, TH, TT} — 4 equally likely outcomes.", "[1 mark] Define event E = 'exactly one head' = {HT, TH} — 2 favourable outcomes.", "[0.5 mark] P(E) = 2/4 = 1/2 ✓ — design satisfies the constraint.", "[0.5 mark] So the experiment 'toss two unbiased coins and record number of heads' works; the event is 'exactly one head'."],
     finalAnswer: "Toss two unbiased coins; event 'exactly one head' has P = 1/2.",
     ncertRef: "Exemplar-style design task", isCompetencyBased: true,
     strategyHint: "Pick a sample space size that lets favourable count be exactly half." },

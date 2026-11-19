@@ -80,13 +80,13 @@ export const CIRC_NCERT: CanonicalQuestion[] = [
   // ===== Section B — Short Answer (2 marks) =====
   { id: "CIRC-N-NCERT-10-VSA-001", subject: "Maths", topicKey: "circles", subtopic: "Tangent Definitions", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Fill in: (i) A tangent to a circle intersects it in ___ point(s). (ii) A line intersecting a circle in two points is called a ___. (iii) A circle can have ___ parallel tangents at the most. (iv) The common point of a tangent and the circle is called the ___.",
-    solutionSteps: ["(i) Exactly one point — by definition of a tangent.", "(ii) A secant.", "(iii) Two parallel tangents at the most — one on each side of the centre.", "(iv) The point of contact."],
+    solutionSteps: ["[0.5 mark] (i) Exactly one point — by definition of a tangent.", "[0.5 mark] (ii) A secant.", "[0.5 mark] (iii) Two parallel tangents at the most — one on each side of the centre.", "[0.5 mark] (iv) The point of contact."],
     finalAnswer: "(i) one; (ii) secant; (iii) two; (iv) point of contact.",
     ncertRef: "NCERT Ex 10.1 Q2", isCompetencyBased: false },
 
   { id: "CIRC-N-NCERT-10-VSA-002", subject: "Maths", topicKey: "circles", subtopic: "Tangent Length", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "The length of a tangent from a point A at distance 5 cm from the centre of the circle is 4 cm. Find the radius of the circle.",
-    solutionSteps: ["Let r be the radius and P the point of contact. Then OP ⊥ AP and OA = 5, AP = 4.", "In right ∆OPA: r² = OA² − AP² = 25 − 16 = 9.", "r = 3 cm."],
+    solutionSteps: ["[1 mark] Let r be the radius and P the point of contact. Then OP ⊥ AP and OA = 5, AP = 4.", "[0.5 mark] In right ∆OPA: r² = OA² − AP² = 25 − 16 = 9.", "[0.5 mark] r = 3 cm."],
     finalAnswer: "Radius = 3 cm.",
     ncertRef: "NCERT Ex 10.2 Q6", isCompetencyBased: true },
 
@@ -106,41 +106,41 @@ export const CIRC_NCERT: CanonicalQuestion[] = [
 
   { id: "CIRC-N-NCERT-10-SA-003", subject: "Maths", topicKey: "circles", subtopic: "Tangents at Chord Ends", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "PQ is a chord of length 8 cm of a circle of radius 5 cm. The tangents at P and Q intersect at a point T. Find the length TP.",
-    solutionSteps: ["Join OT meeting PQ at R. ∆TPQ is isosceles (TP = TQ), so OT bisects PQ at R ⇒ PR = 4.", "In ∆OPR: OR² = OP² − PR² = 25 − 16 = 9 ⇒ OR = 3.", "In ∆OPT, OP ⊥ PT. Using similar triangles or Pythagoras: TP × OR = OP × PR? More directly: TP/OP = PR/OR (from ∆TRP ∼ ∆PRO).", "TP = (PR × OP)/OR = (4 × 5)/3 = 20/3 cm."],
+    solutionSteps: ["[1 mark] Join OT meeting PQ at R. ∆TPQ is isosceles (TP = TQ), so OT bisects PQ at R ⇒ PR = 4.", "[1 mark] In ∆OPR: OR² = OP² − PR² = 25 − 16 = 9 ⇒ OR = 3.", "[0.5 mark] In ∆OPT, OP ⊥ PT. Using similar triangles or Pythagoras: TP × OR = OP × PR? More directly: TP/OP = PR/OR (from ∆TRP ∼ ∆PRO).", "[0.5 mark] TP = (PR × OP)/OR = (4 × 5)/3 = 20/3 cm."],
     finalAnswer: "TP = 20/3 cm.",
     ncertRef: "NCERT Example 3", isCompetencyBased: true },
 
   { id: "CIRC-N-NCERT-10-SA-004", subject: "Maths", topicKey: "circles", subtopic: "Circumscribed Quadrilateral", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
     questionText: "A quadrilateral ABCD is drawn to circumscribe a circle. Prove that AB + CD = AD + BC.",
-    solutionSteps: ["Let the circle touch AB, BC, CD, DA at P, Q, R, S respectively.", "From equal tangents: AP = AS, BP = BQ, CR = CQ, DR = DS.", "AB + CD = (AP + PB) + (CR + RD) and AD + BC = (AS + SD) + (BQ + QC).", "Substituting equal tangent pairs gives AB + CD = AD + BC."],
+    solutionSteps: ["[0.5 mark] Let the circle touch AB, BC, CD, DA at P, Q, R, S respectively.", "[1 mark] From equal tangents: AP = AS, BP = BQ, CR = CQ, DR = DS.", "[0.5 mark] AB + CD = (AP + PB) + (CR + RD) and AD + BC = (AS + SD) + (BQ + QC).", "[1 mark] Substituting equal tangent pairs gives AB + CD = AD + BC."],
     finalAnswer: "Proved: opposite sides of the circumscribed quadrilateral are equal in pairs of sums.",
     ncertRef: "NCERT Ex 10.2 Q8", isCompetencyBased: true,
     strategyHint: "Use the equal-tangents theorem at each vertex." },
 
   { id: "CIRC-N-NCERT-10-SA-005", subject: "Maths", topicKey: "circles", subtopic: "Tangents from External Point", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating",
     questionText: "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2∠OPQ.",
-    solutionSteps: ["Let ∠PTQ = θ. TP = TQ (equal tangents), so ∆TPQ is isosceles.", "∠TPQ = ∠TQP = (180° − θ)/2 = 90° − θ/2.", "OP ⊥ TP ⇒ ∠OPT = 90°.", "∠OPQ = ∠OPT − ∠TPQ = 90° − (90° − θ/2) = θ/2 = (1/2)∠PTQ.", "Hence ∠PTQ = 2∠OPQ."],
+    solutionSteps: ["[0.5 mark] Let ∠PTQ = θ. TP = TQ (equal tangents), so ∆TPQ is isosceles.", "[0.5 mark] ∠TPQ = ∠TQP = (180° − θ)/2 = 90° − θ/2.", "[0.5 mark] OP ⊥ TP ⇒ ∠OPT = 90°.", "[1 mark] ∠OPQ = ∠OPT − ∠TPQ = 90° − (90° − θ/2) = θ/2 = (1/2)∠PTQ.", "[0.5 mark] Hence ∠PTQ = 2∠OPQ."],
     finalAnswer: "Proved: ∠PTQ = 2∠OPQ.",
     ncertRef: "NCERT Example 2", isCompetencyBased: true },
 
   // ===== Section D — Long Answer (5 marks) =====
   { id: "CIRC-N-NCERT-10-LA-001", subject: "Maths", topicKey: "circles", subtopic: "Triangle Circumscribing Circle", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "A triangle ABC is drawn to circumscribe a circle of radius 4 cm such that the segments BD and DC into which BC is divided by the point of contact D are of lengths 8 cm and 6 cm respectively. Find the sides AB and AC.",
-    solutionSteps: ["Let the circle touch AB at F and AC at E. Then BD = BF = 8, DC = CE = 6, and let AF = AE = x.", "Area of ∆ABC by Heron-like decomposition using incircle: Area = r × s where s = semi-perimeter.", "Sides: AB = 8 + x, AC = 6 + x, BC = 14. s = (8 + x + 6 + x + 14)/2 = 14 + x.", "Compute area another way using ∆OBC, ∆OCA, ∆OAB each with height = r = 4: Area = (1/2)×4×(BC + CA + AB) = 2 × 2s = 4s? Actually Area = r·s.", "Also Area² = s(s − a)(s − b)(s − c) where a = BC = 14, b = CA = 6 + x, c = AB = 8 + x. s = 14 + x.", "s − a = x, s − b = 8, s − c = 6.", "(rs)² = s(s − a)(s − b)(s − c) ⇒ r²s = (s − a)(s − b)(s − c).", "16(14 + x) = x × 8 × 6 = 48x ⇒ 16x + 224 = 48x ⇒ 32x = 224 ⇒ x = 7.", "AB = 8 + 7 = 15 cm and AC = 6 + 7 = 13 cm."],
+    solutionSteps: ["[0.5 mark] Let the circle touch AB at F and AC at E. Then BD = BF = 8, DC = CE = 6, and let AF = AE = x.", "[0.5 mark] Area of ∆ABC by Heron-like decomposition using incircle: Area = r × s where s = semi-perimeter.", "[0.5 mark] Sides: AB = 8 + x, AC = 6 + x, BC = 14. s = (8 + x + 6 + x + 14)/2 = 14 + x.", "[0.5 mark] Compute area another way using ∆OBC, ∆OCA, ∆OAB each with height = r = 4: Area = (1/2)×4×(BC + CA + AB) = 2 × 2s = 4s? Actually Area = r·s.", "[0.5 mark] Also Area² = s(s − a)(s − b)(s − c) where a = BC = 14, b = CA = 6 + x, c = AB = 8 + x. s = 14 + x.", "[0.5 mark] s − a = x, s − b = 8, s − c = 6.", "[0.5 mark] (rs)² = s(s − a)(s − b)(s − c) ⇒ r²s = (s − a)(s − b)(s − c).", "[1 mark] 16(14 + x) = x × 8 × 6 = 48x ⇒ 16x + 224 = 48x ⇒ 32x = 224 ⇒ x = 7.", "[0.5 mark] AB = 8 + 7 = 15 cm and AC = 6 + 7 = 13 cm."],
     finalAnswer: "AB = 15 cm and AC = 13 cm.",
     ncertRef: "NCERT Ex 10.2 Q12", isCompetencyBased: true,
     strategyHint: "Combine 'equal tangents' with Area = r·s and Heron's formula." },
 
   { id: "CIRC-N-NCERT-10-LA-002", subject: "Maths", topicKey: "circles", subtopic: "Parallelogram Circumscribing Circle", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
     questionText: "Prove that the parallelogram circumscribing a circle is a rhombus.",
-    solutionSteps: ["Let ABCD be a parallelogram circumscribing a circle, touching AB, BC, CD, DA at P, Q, R, S.", "By equal tangents: AP = AS, BP = BQ, CQ = CR, DR = DS.", "AB + CD = (AP + PB) + (CR + RD) = (AS + SD) + (BQ + QC) = AD + BC.", "Since ABCD is a parallelogram, AB = CD and AD = BC. So 2AB = 2AD ⇒ AB = AD.", "Hence all sides AB = BC = CD = DA, i.e., ABCD is a rhombus."],
+    solutionSteps: ["[1 mark] Let ABCD be a parallelogram circumscribing a circle, touching AB, BC, CD, DA at P, Q, R, S.", "[1 mark] By equal tangents: AP = AS, BP = BQ, CQ = CR, DR = DS.", "[1 mark] AB + CD = (AP + PB) + (CR + RD) = (AS + SD) + (BQ + QC) = AD + BC.", "[1 mark] Since ABCD is a parallelogram, AB = CD and AD = BC. So 2AB = 2AD ⇒ AB = AD.", "[1 mark] Hence all sides AB = BC = CD = DA, i.e., ABCD is a rhombus."],
     finalAnswer: "Proved: a parallelogram that circumscribes a circle is a rhombus.",
     ncertRef: "NCERT Ex 10.2 Q11", isCompetencyBased: true },
 
   // ===== Section E — Case-Based (4 marks) =====
   { id: "CIRC-N-NCERT-10-CB-001", subject: "Maths", topicKey: "circles", subtopic: "Tangent Length Application", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A circular pulley of radius 5 cm is fitted in a frame. A rope is wound on the pulley and a person holds the rope at a point T such that the distance OT from the centre of the pulley equals 13 cm. The rope is taut and acts as a tangent from T to the circle, touching at point P.\n(i) What angle does OP make with TP?\n(ii) Find the length TP of the rope from T to the point of contact.\n(iii) If a second rope from T touches the pulley at Q, what is TQ?\n(iv) On a different pulley with centre O′, two taut ropes from an external point S touch it at A and B. If ∠AO′B = 110°, find ∠ASB using the angle-sum property of quadrilateral O′ASB.",
-    solutionSteps: ["(i) OP ⊥ TP by Theorem 10.1 ⇒ ∠OPT = 90°.", "(ii) In right ∆OPT: TP² = OT² − OP² = 169 − 25 = 144 ⇒ TP = 12 cm.", "(iii) TQ = TP = 12 cm (equal tangents from external point — Theorem 10.2).", "(iv) In quadrilateral O′ASB, ∠O′AS = ∠O′BS = 90° (radius ⊥ tangent). Sum 360°: ∠ASB = 360° − 90° − 90° − 110° = 70°."],
+    solutionSteps: ["[1 mark] (i) OP ⊥ TP by Theorem 10.1 ⇒ ∠OPT = 90°.", "[1 mark] (ii) In right ∆OPT: TP² = OT² − OP² = 169 − 25 = 144 ⇒ TP = 12 cm.", "[1 mark] (iii) TQ = TP = 12 cm (equal tangents from external point — Theorem 10.2).", "[1 mark] (iv) In quadrilateral O′ASB, ∠O′AS = ∠O′BS = 90° (radius ⊥ tangent). Sum 360°: ∠ASB = 360° − 90° − 90° − 110° = 70°."],
     finalAnswer: "(i) 90°; (ii) 12 cm; (iii) 12 cm; (iv) 70°.",
     ncertRef: "NCERT Theorems 10.1, 10.2 applied", isCompetencyBased: true,
     sourceOverride: "others" },
@@ -148,7 +148,7 @@ export const CIRC_NCERT: CanonicalQuestion[] = [
   // ===== Creating-level question =====
   { id: "CIRC-N-NCERT-10-CRE-001", subject: "Maths", topicKey: "circles", subtopic: "Tangent Length Application", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Creating",
     questionText: "Design a circle of radius r and place an external point T such that the angle between the two tangents from T is exactly 60°. Specify r, OT, the tangent length, and verify your design.",
-    solutionSteps: ["Let r be any positive radius — pick r = 3 cm. Let ∠PTQ = 60°. Since OT bisects ∠PTQ, ∠OTP = 30°.", "In right ∆OPT: sin 30° = OP/OT ⇒ OT = r/sin 30° = 3/0.5 = 6 cm.", "Tangent length TP = OT × cos 30° = 6 × (√3/2) = 3√3 cm. (Equivalently, TP² = OT² − OP² = 36 − 9 = 27.)", "Verification: ∠PTQ = 2 × 30° = 60° ✓; equal tangents TP = TQ = 3√3 cm; r = 3 cm; OT = 6 cm."],
+    solutionSteps: ["[1 mark] Let r be any positive radius — pick r = 3 cm. Let ∠PTQ = 60°. Since OT bisects ∠PTQ, ∠OTP = 30°.", "[1 mark] In right ∆OPT: sin 30° = OP/OT ⇒ OT = r/sin 30° = 3/0.5 = 6 cm.", "[0.5 mark] Tangent length TP = OT × cos 30° = 6 × (√3/2) = 3√3 cm. (Equivalently, TP² = OT² − OP² = 36 − 9 = 27.)", "[0.5 mark] Verification: ∠PTQ = 2 × 30° = 60° ✓; equal tangents TP = TQ = 3√3 cm; r = 3 cm; OT = 6 cm."],
     finalAnswer: "Design: r = 3 cm, OT = 6 cm, TP = TQ = 3√3 cm.",
     ncertRef: "NCERT-style design task", isCompetencyBased: true,
     strategyHint: "Choose r freely, then use OT = r/sin(half-angle)." },
