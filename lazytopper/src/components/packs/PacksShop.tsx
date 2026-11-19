@@ -18,7 +18,9 @@ import {
   PACK_EXPIRED_COPY,
   PACK_FAILED_COPY,
   PACK_PAID_COPY,
-  PACK_PRICE_INR,
+  packBaseInr,
+  testSeriesFoundingClause,
+  testSeriesPriceLine,
   PACK_STILL_CONFIRMING_COPY,
   buyPack,
   chaptersOfSubject,
@@ -140,7 +142,7 @@ export function readBuyResume(search: string): { sku: PackSku; target: string | 
 
 /** What the pack checkout / purchase events say was bought: the sku, its name and the display price (the server charges). */
 function packCheckoutDetails(sku: PackSku, target: string | undefined): PackCheckoutDetails {
-  return { sku, itemName: packDescription(sku, target, target ? packChapterLabel(target) : undefined), valueInr: PACK_PRICE_INR[sku] };
+  return { sku, itemName: packDescription(sku, target, target ? packChapterLabel(target) : undefined), valueInr: packBaseInr(sku) };
 }
 
 /** Student input that ends the #my-packs scroll re-assert: we never fight a deliberate scroll. */
@@ -1286,6 +1288,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               description: packCheckoutDescription(who.sku, who.target, who.target ? chapterLabel(who.target) : undefined),
               priceDisplay: packPayLabel(who.sku),
               priceBreakdown: packGstBreakdown(who.sku),
+              ...(who.sku === "test_series" && testSeriesFoundingClause() ? { priceNote: testSeriesPriceLine() } : {}),
             }}
             {...(checkoutAudience ? { audience: checkoutAudience } : {})}
             {...(signedIn && !checkoutAudience ? { startAt: "other" as const } : {})}

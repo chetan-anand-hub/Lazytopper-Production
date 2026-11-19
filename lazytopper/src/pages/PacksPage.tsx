@@ -13,6 +13,7 @@ import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, BUNDLE_QUESTIONS_CLAIM, CBQ
 import { seriesContentsLine, testSeriesPackLine } from "../lib/testSeries/testSeries";
 import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
 import { usePaidPremium } from "../lib/packs/usePaidPremium";
+import { TestSeriesFoundingClause } from "../components/packs/TestSeriesFoundingClause";
 import { chaptersOfSubject, isTestSeriesPackOffered, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
 import PackSampleLink, { PackSampleChoice, SampleBuyNext } from "../components/packs/PackSampleLink";
 import SubjectSwitch from "../components/packs/SubjectSwitch";
@@ -385,7 +386,11 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
             <details className="lt-pk-row__d">
               <summary className="lt-pk-row__sum">
                 <span className="lt-pk-row__name">{TEST_SERIES_NAME}</span>
-                <span className="lt-pk-row__price">{`${packPriceLabel("test_series")} · till your boards`}</span>
+                <span className="lt-pk-row__price">
+                  {packPriceLabel("test_series")}
+                  <TestSeriesFoundingClause prefix=" · " />
+                  {" · till your boards"}
+                </span>
               </summary>
               <div className="lt-pk-row__body">
                 <p className="lt-pk-row__line">{testSeriesPackLine()}</p>

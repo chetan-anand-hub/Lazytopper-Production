@@ -55,7 +55,7 @@ const { TOPUP_PRODUCTS, isTopupProduct, boardPassChargeFor, chargeFor } = requir
 const { grantTopup, TopupInputError, isTopupFlagOn } = require('../services/usageCredit.cjs');
 const { deriveEffectiveTier } = require('../services/entitlement.cjs');
 // PACKS-SERVER-1 (DARK): one-time PDF packs. Behind PAYMENTS_ENABLED AND PACKS_ENABLED=1.
-const { PACK_PRODUCTS, isPackProduct, isPackOnSale, validateTarget, packIdFor, isAlreadyOwned } = require('../services/packProducts.cjs');
+const { packBaseInrAt, isPackProduct, isPackOnSale, validateTarget, packIdFor, isAlreadyOwned } = require('../services/packProducts.cjs');
 const { grantPack, listPacks, PackGrantInputError } = require('../services/packGrant.cjs');
 // PACK-CREDIT-1: a Board Pass order is credited with the student's recent pack purchases.
 const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields } = require('../services/packCredit.cjs');
@@ -715,7 +715,7 @@ function createPaymentRoutes(deps = {}) {
         console.error('[pay/order] pack ownership read failed:', e && e.message);
         return sendJson(res, 500, { ok: false, error: 'Could not price this pack.' });
       }
-      quote = tableQuote(PACK_PRODUCTS[passType].priceInr, now());
+      quote = tableQuote(packBaseInrAt(passType, now()), now());
     }
     try {
       // A pack needs no subscription read: its price does not depend on the student's plan.

@@ -310,8 +310,8 @@ async function finishPayingQuote(db, uid, product, nowMs) {
       }
       return { amountPaise: applied.quote.amountPaise, gst: applied.quote.gst, packCreditInr: applied.packCreditInr };
     }
-    const { PACK_PRODUCTS } = require('./packProducts.cjs');
-    const q = tableQuote(PACK_PRODUCTS[product.sku].priceInr, nowMs);
+    const { packBaseInrAt } = require('./packProducts.cjs');
+    const q = tableQuote(packBaseInrAt(product.sku, nowMs), nowMs);
     return { amountPaise: q.amountPaise, gst: q.gst, packCreditInr: 0 };
   } catch {
     return null;

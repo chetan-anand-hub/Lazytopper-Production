@@ -137,6 +137,7 @@ import {
 } from "./hubCopy";
 import { HUB_CSS } from "./pricingHubCss";
 import { seriesTotals } from "../../lib/testSeries/testSeries";
+import { TestSeriesFoundingClause } from "../../components/packs/TestSeriesFoundingClause";
 
 /**
  * The legacy page's own private pieces the hub reuses UNCHANGED. PricingPage.tsx hands them over (it owns them; the hub never imports
@@ -752,6 +753,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
           <>
             <p className="lt-ph-price">
               <span className="lt-ph-price__amt" data-testid="hub-ts-price">{hubTsPrice()}</span>
+              <TestSeriesFoundingClause className="lt-ph-price__meta" prefix="· " testId="hub-ts-founding" />
               <span className="lt-ph-price__meta">{HUB_TS_PRICE_META}</span>
             </p>
             <div data-testid={TS_BUY_TESTID}>

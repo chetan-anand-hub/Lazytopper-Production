@@ -37,7 +37,7 @@ vi.mock("../services/sessionRecords", () => ({
 
 import TestSeriesPage from "./TestSeriesPage";
 import { seriesChapterTests, seriesFullMocks, seriesTotals } from "../lib/testSeries/testSeries";
-import { packPriceLabel } from "../services/packs";
+import { testSeriesPriceLine } from "../services/packs";
 
 async function mount() {
   await act(async () => {
@@ -95,8 +95,10 @@ describe("/test-series — signed out", () => {
     expect(screen.getByTestId("ts-urgency").textContent).toBe("Founding season: the Board Pass is ₹1,917 + GST till 30 November");
     expect(screen.getByTestId("ts-cta-hero").getAttribute("href")).toBe("/packs?buy=test_series");
     const ts = screen.getByTestId("ts-offer-ts");
-    expect(within(ts).getByTestId("till-boards-figures").textContent).toBe(`${packPriceLabel("test_series")} till your boards`);
-    expect(ts.textContent).toContain("₹999 + GST till your boards");
+    // TS-PRICE-2 (edited expectation): while the founding offer is open the card carries the founding line.
+    expect(within(ts).getByTestId("till-boards-figures").textContent).toBe(testSeriesPriceLine());
+    expect(ts.textContent).toContain("₹999 + GST · founding price till 30 Nov, then ₹1,499 + GST");
+    expect(screen.getByTestId("ts-urgency-ts").textContent).toBe("Test Series: ₹999 + GST · founding price till 30 Nov, then ₹1,499 + GST");
     expect(ts.textContent).toContain("2 checks per paper");
     expect(screen.getByTestId("ts-cta-buy").getAttribute("href")).toBe("/packs?buy=test_series");
     const bp = screen.getByTestId("ts-offer-bp");
@@ -112,13 +114,16 @@ describe("/test-series — signed out", () => {
     expect(within(screen.getByTestId("ts-offers")).getAllByText(/^(Test Series|Board Pass)$/)).toHaveLength(2);
     expect(screen.getByTestId("ts-how").textContent).toContain("The Test Series checks every written answer step by step");
   });
-  it("from 1 Dec the Board Pass card shows its list price; the Test Series price is its own constant", async () => {
+  it("from 1 Dec the Board Pass card shows its list price; the Test Series is ₹1,499 + GST (TS-PRICE-2)", async () => {
     vi.setSystemTime(new Date("2026-12-01T00:05:00+05:30"));
     await mount();
     expect(screen.getByTestId("ts-offer-bp").textContent).toContain("₹2,499 + GST till your boards");
-    expect(screen.getByTestId("ts-offer-ts").textContent).toContain("₹999 + GST till your boards");
+    // TS-PRICE-2 (edited expectation): from 1 Dec the Test Series is ₹1,499 + GST, with no founding line.
+    expect(screen.getByTestId("ts-offer-ts").textContent).toContain("₹1,499 + GST till your boards");
+    expect(screen.getByTestId("ts-offer-ts").textContent).not.toContain("founding");
     // The founding line is shown only while that offer is really open.
     expect(screen.getByTestId("ts-urgency").textContent).toBe("");
+    expect(screen.queryByTestId("ts-urgency-ts")).toBeNull();
   });
   it("carries none of the banned words", async () => {
     await mount();

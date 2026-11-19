@@ -1464,3 +1464,22 @@ test('RECEIPT · a parent-paid PACK: ONE receipt to the parent and the child acc
   assert.deepEqual(sent.map((x) => x.to[0]).sort(), ['kid@example.com', 'parent@example.com']);
   assert.match(sent[0].text, /My packs to download/);
 });
+
+test('TS-PRICE-2 · a parent link for the Test Series carries the price AT THE SERVER CLOCK: 999 before 00:00 IST 1 Dec 2026, 1,499 from it, and the order is charged that amount', async (t) => {
+  const CUT = Date.parse('2026-12-01T00:00:00+05:30');
+  const srv = await startRoutes({ env: ENV_PACKS, clock: { t: CUT - 1 } });
+  t.after(srv.close);
+  const early = await mintPack(srv, { sku: 'test_series' });
+  assert.equal(early.status, 200, early.text);
+  assert.deepEqual(early.json.pack, { sku: 'test_series', target: 'all', priceInr: 999, totalInr: 1179, gstInr: 180 });
+  const o1 = await request(srv.port, PARENT_ORDER_PATH, { body: { token: early.json.token, product: 'pack' } });
+  assert.equal(o1.status, 200, o1.text);
+  assert.equal(o1.json.amountPaise, 117900);
+  // the SAME link opened after the cut-off is re-priced by the server clock (the price a parent sees = what is charged)
+  srv.clock.t = CUT;
+  const o2 = await request(srv.port, PARENT_ORDER_PATH, { body: { token: early.json.token, product: 'pack' } });
+  assert.equal(o2.status, 200, o2.text);
+  assert.equal(o2.json.amountPaise, 176900);
+  const late = await mintPack(srv, { sku: 'test_series' });
+  assert.deepEqual(late.json.pack, { sku: 'test_series', target: 'all', priceInr: 1499, totalInr: 1769, gstInr: 270 });
+});

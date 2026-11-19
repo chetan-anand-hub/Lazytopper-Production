@@ -3457,3 +3457,18 @@ test('SERVER-EVENTS-1 · a guest pack: ONE PackPurchase for verify + webhook + r
   assert.equal(ev.user_data.fbp, 'fb.1.1700000000000.12345678');
   assert.equal(ev.user_data.external_id, undefined, 'a guest has no account id');
 });
+
+test('TS-PRICE-2 · a guest Test Series order is charged 999 + GST before 00:00 IST 1 Dec 2026 and 1,499 + GST from it (the server clock decides)', async (t) => {
+  const CUT = Date.parse('2026-12-01T00:00:00+05:30');
+  const early = await startRoutes({ nowMs: CUT - 1 });
+  t.after(early.close);
+  const a = await guestOrder(early, { sku: 'test_series', phone: PHONE, amountPaise: 100, price: 1 });
+  assert.equal(a.status, 200, a.text);
+  assert.equal(a.json.amountPaise, 117900);
+  const late = await startRoutes({ nowMs: CUT });
+  t.after(late.close);
+  const b = await guestOrder(late, { sku: 'test_series', phone: PHONE, amountPaise: 100, price: 1 });
+  assert.equal(b.status, 200, b.text);
+  assert.equal(b.json.amountPaise, 176900);
+  assert.equal(late.rzp.calls.filter((c) => c.url.endsWith('/orders') && c.method === 'POST').pop().body.amount, 176900);
+});

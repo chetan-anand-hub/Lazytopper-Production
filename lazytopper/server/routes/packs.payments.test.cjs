@@ -1197,3 +1197,70 @@ test('TS-PACK-1 · /api/packs/mine: ownsTestSeries only for a live owner (absent
   assert.equal(ended.json.endedPacks[0].packId, 'test_series:all');
   assert.equal(ended.json.endedPacks[0].redownloadUntil, '31 May 2027');
 });
+
+/* ── TS-PRICE-2 · the Test Series base is 999 until 00:00 IST 1 Dec 2026 (the Board Pass founding cut-off), 1,499 from it ───── */
+const TS_CUTOFF = Date.parse('2026-12-01T00:00:00+05:30');
+
+test('TS-PRICE-2 · the SERVER charges 999 + GST one millisecond before the cut-off and 1,499 + GST exactly at it (Razorpay amount, stored order, response)', async (t) => {
+  const before = await start({ nowMs: TS_CUTOFF - 1 });
+  t.after(before.close);
+  const b = await order(before, 'tsb', 'test_series', { amount: 1, amountPaise: 100, priceInr: 1 });
+  assert.equal(b.status, 200, b.text);
+  assert.equal(b.json.amountPaise, 117900);
+  assert.deepEqual(b.json.gst, { baseInr: 999, gstInr: 180, totalInr: 1179 });
+  assert.equal(before.rzp.calls.find((x) => x.url.endsWith('/orders') && x.method === 'POST').body.amount, 117900);
+  assert.equal(before.db.read(`payOrders/${b.json.orderId}`).baseInr, 999);
+
+  const at = await start({ nowMs: TS_CUTOFF });
+  t.after(at.close);
+  const a = await order(at, 'tsa', 'test_series', { amount: 1, amountPaise: 100, priceInr: 1 });
+  assert.equal(a.status, 200, a.text);
+  assert.equal(a.json.amountPaise, 176900, '1499 + 270 GST');
+  assert.deepEqual(a.json.gst, { baseInr: 1499, gstInr: 270, totalInr: 1769 });
+  assert.equal(at.rzp.calls.find((x) => x.url.endsWith('/orders') && x.method === 'POST').body.amount, 176900, 'Razorpay is asked for 1,769');
+  const stored = at.db.read(`payOrders/${a.json.orderId}`);
+  assert.equal(stored.baseInr, 1499);
+  assert.equal(stored.amountPaise, 176900);
+  // a far-later instant is still 1,499
+  const later = await start({ nowMs: TS_CUTOFF + 90 * 86400000 });
+  t.after(later.close);
+  assert.equal((await order(later, 'tsl', 'test_series')).json.amountPaise, 176900);
+});
+
+test('TS-PRICE-2 · the other packs keep their one price across the cut-off', async (t) => {
+  for (const nowMs of [TS_CUTOFF - 1, TS_CUTOFF]) {
+    const srv = await start({ nowMs });
+    t.after(srv.close);
+    const r = await order(srv, 'o1', 'pack_bundle');
+    assert.equal(r.json.amountPaise, 35300, '299 + 54 GST = 353');
+  }
+});
+
+test('TS-PRICE-2 · an order made at 999 and PAID after the cut-off still grants (verify), and one made at 1,499 grants too; a wrong amount is still refused', async (t) => {
+  const db = memoryFirestore();
+  const rzp = fakeRazorpay();
+  const early = await start({ db, rzp, nowMs: TS_CUTOFF - 5000, licensees: { late1: { name: 'A', email: 'a@example.com' } } });
+  t.after(early.close);
+  const o = await order(early, 'late1', 'test_series');
+  assert.equal(o.json.amountPaise, 117900);
+  const p = rzp.pay(o.json.orderId);
+  const lateSrv = await start({ db, rzp, nowMs: TS_CUTOFF + 5000, licensees: { late1: { name: 'A', email: 'a@example.com' } } });
+  t.after(lateSrv.close);
+  const v = await verify(lateSrv, 'late1', o.json.orderId, p.id);
+  assert.equal(v.status, 200, v.text);
+  assert.equal(v.json.packId, 'test_series:all');
+  assert.equal(db.read('packEntitlements/late1/packs/test_series:all').pricePaidInr, 1179, 'records what was actually paid');
+
+  const full = await start({ db, rzp, nowMs: TS_CUTOFF + 9000, licensees: { n2: { name: 'B', email: 'b@example.com' } } });
+  t.after(full.close);
+  const o2 = await order(full, 'n2', 'test_series');
+  assert.equal(o2.json.amountPaise, 176900);
+  const p2 = rzp.pay(o2.json.orderId);
+  const v2 = await verify(full, 'n2', o2.json.orderId, p2.id);
+  assert.equal(v2.status, 200, v2.text);
+  assert.equal(db.read('packEntitlements/n2/packs/test_series:all').pricePaidInr, 1769);
+
+  // a stored order whose base is neither Test Series price is refused by the grant
+  db.docs.set('payOrders/order_BAD', { data: { uid: 'n3', passType: 'test_series', packTarget: 'all', amountPaise: 123400, baseInr: 1045, gstInr: 189, totalInr: 1234, gstRate: 0.18, status: 'created' }, version: 1 });
+  await assert.rejects(grantPack({ db, uid: 'n3', order: { orderId: 'order_BAD' }, paymentRef: 'pay_BAD', nowMs: TS_CUTOFF + 10000 }), PackGrantInputError);
+});

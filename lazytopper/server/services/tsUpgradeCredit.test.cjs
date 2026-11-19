@@ -167,3 +167,50 @@ test('tsCreditNotes / isConsistentTsUpgradeOrder', () => {
   assert.equal(isConsistentTsUpgradeOrder({ ...good, tsUpgradeCreditOrderId: 'a/b' }), false);
   assert.equal(isConsistentTsUpgradeOrder({ passType: 'till_boards', baseInr: 1917 }), false);
 });
+
+/* ── TS-PRICE-2 · the credit is what the student ACTUALLY PAID (the base of their own paid order), never today's list price ── */
+const ORDER_1499 = Object.freeze({
+  uid: 'u1', passType: 'test_series', packTarget: 'all', amountPaise: 176900, baseInr: 1499, gstInr: 270, totalInr: 1769, gstRate: 0.18,
+  status: 'paid', paymentId: 'pay_TS1', offerKey: null,
+});
+const PACK_1499 = Object.freeze({ ...PACK, pricePaidInr: 1769 });
+
+test('TS-PRICE-2 · a 1,499 buyer\'s record is creditable (base 1499 proved from the stored GST breakup); a base that is neither Test Series price is not', () => {
+  assert.equal(tsCreditRefusal('u1', { ...PACK_1499 }, 'order_TS1', { ...ORDER_1499 }), null);
+  assert.equal(tsCreditRefusal('u1', { ...PACK_1499 }, 'order_TS1', { ...ORDER_1499, baseInr: 1000, gstInr: 180, amountPaise: 118000 }), 'base_unproven');
+  assert.equal(tsCreditRefusal('u1', { ...PACK_1499 }, 'order_TS1', { ...ORDER_1499, gstInr: 180 }), 'base_unproven', 'a base with the wrong GST is not proved');
+  assert.equal(tsCreditRefusal('u1', { ...PACK }, 'order_TS1', { ...ORDER_1499 }), 'amount_mismatch', 'the entitlement must record what the order charged');
+});
+
+test('MONEY TABLE · founding buyer (paid 999) upgrading after 1 Dec: 2499 - 999 = 1500 -> 1500 + 270 = 1770 (NOT reduced by today\'s 1,499 list price)', () => {
+  const base = boardQuote(AFTER);
+  const { quote, fields } = applyTsCreditToQuote(base, { creditBaseInr: 999, packId: 'test_series:all', orderId: 'order_TS1' }, AFTER);
+  assert.deepEqual(quote.gst, { baseInr: 1500, gstInr: 270, totalInr: 1770, gstRate: 0.18 });
+  assert.equal(fields.tsUpgradeCreditInr, 999);
+});
+
+test('MONEY TABLE · 1,499 buyer (paid 1499) upgrading after 1 Dec: 2499 - 1499 = 1000 -> 1000 + 180 = 1180; 1769 + 1180 = 2949 = the Board Pass all-in', () => {
+  const base = boardQuote(AFTER + 86400000);
+  assert.equal(base.amountPaise, 294900);
+  const { quote, fields } = applyTsCreditToQuote(base, { creditBaseInr: 1499, packId: 'test_series:all', orderId: 'order_TS1' }, AFTER + 86400000);
+  assert.deepEqual(quote.gst, { baseInr: 1000, gstInr: 180, totalInr: 1180, gstRate: 0.18 });
+  assert.equal(quote.amountPaise, 118000);
+  assert.equal(1769 + quote.pricePaidInr, 2949);
+  assert.deepEqual(fields, { tsUpgradeCreditInr: 1499, tsUpgradeFullBaseInr: 2499, tsUpgradeCreditPackId: 'test_series:all', tsUpgradeCreditOrderId: 'order_TS1' });
+});
+
+test('TS-PRICE-2 · testSeriesUpgradeCreditFor reads the PAID ORDER\'s base: 999 for a founding buyer, 1,499 for a later one', async () => {
+  const mk = (pack, ord) => ({
+    collection: (c) => ({
+      doc: () => ({
+        collection: () => ({ doc: () => ({ get: async () => ({ exists: true, data: () => pack }) }) }),
+        get: async () => ({ exists: true, data: () => ord }),
+      }),
+    }),
+  });
+  const f = await testSeriesUpgradeCreditFor(mk({ ...PACK }, { ...ORDER }), 'u1', 'till_boards', {});
+  assert.equal(f.creditBaseInr, 999);
+  const l = await testSeriesUpgradeCreditFor(mk({ ...PACK_1499 }, { ...ORDER_1499 }), 'u1', 'till_boards', {});
+  assert.equal(l.creditBaseInr, 1499);
+  assert.equal(l.reason, null);
+});

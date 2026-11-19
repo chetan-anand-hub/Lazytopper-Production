@@ -89,7 +89,7 @@ const pricing = require('../services/passPricing.cjs');
 // PACK-CREDIT-1: the child's recent pack purchases credit a Board Pass order made through a parent link too.
 const { boardPassCreditFor, applyCreditToQuote, creditNotes, creditOrderFields } = require('../services/packCredit.cjs');
 // PARENT-PACKS-1: a link may carry one PDF pack. The catalogue, price table and ownership rule are the server's own.
-const { PACK_PRODUCTS, isPackProduct, packsEnabled, isPackOnSale, validateTarget, isAlreadyOwned } = require('../services/packProducts.cjs');
+const { packBaseInrAt, isPackProduct, packsEnabled, isPackOnSale, validateTarget, isAlreadyOwned } = require('../services/packProducts.cjs');
 const { grantPack, listPacks, PackGrantInputError } = require('../services/packGrant.cjs');
 // GST-INVOICE-1 (DARK): the parent's confirmed state on the order, and the tax invoice after a verified capture.
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
@@ -232,13 +232,13 @@ function coveredTillBoards(storedSubscription, nowMs) {
 }
 
 /** PARENT-PACKS-1: the pack a link carries, or null for a Board Pass link. Re-validated on every read. */
-function linkPack(link) {
+function linkPack(link, nowMs = Date.now()) {
   if (!link || link.product !== PACK_PRODUCT) return null;
   const sku = link.packSku;
   if (!isPackProduct(sku)) return { invalid: true };
   const target = validateTarget(sku, link.packTarget);
   if (target === null) return { invalid: true };
-  return { sku, target, priceInr: PACK_PRODUCTS[sku].priceInr };
+  return { sku, target, priceInr: packBaseInrAt(sku, nowMs) };
 }
 
 /** PARENT-PACKS-1: what a response says about a pack (never more). */
@@ -615,7 +615,7 @@ function createParentPayRoutes(deps = {}) {
       emit('payments.parent.link.pack_bad_target');
       return sendJson(res, 400, { ok: false, error: 'invalid_pack_target' });
     }
-    const pack = { sku, target, priceInr: PACK_PRODUCTS[sku].priceInr };
+    const pack = { sku, target, priceInr: packBaseInrAt(sku, now()) };
     try {
       if (await childOwnsPack(uid, pack)) {
         emit('payments.parent.link.pack_already_owned');
@@ -678,7 +678,7 @@ function createParentPayRoutes(deps = {}) {
         return linkRefused(res, 'view', 'used');
       }
       // PARENT-PACKS-1: a pack link shows its pack and price (server table), or refuses when the child already owns it.
-      const pack = linkPack(resolved.link);
+      const pack = linkPack(resolved.link, now());
       if (pack) {
         if (pack.invalid) return linkRefused(res, 'view', 'invalid');
         if (!isPackOnSale(pack.sku, env)) return unavailable(res); // TS-PACK-1: PACKS_ENABLED + the Test Series kill switch
@@ -850,7 +850,7 @@ function createParentPayRoutes(deps = {}) {
         await resolved.ref.set({ status: 'paid', paidOrderId: paidOrder }, { merge: true });
         return linkRefused(res, 'order', 'used');
       }
-      pack = linkPack(resolved.link);
+      pack = linkPack(resolved.link, now());
       if (!pack) return reject(res, 'order', 'not_pack_link');
       if (pack.invalid) return linkRefused(res, 'order', 'invalid');
       if (!isPackOnSale(pack.sku, env)) return unavailable(res); // TS-PACK-1: PACKS_ENABLED + the Test Series kill switch
@@ -979,7 +979,7 @@ function createParentPayRoutes(deps = {}) {
     // PARENT-PACKS-1: a pack order is granted through the EXISTING pack grant (never grantPass), to the ORDER's
     // uid (the link's child); it must be the pack the link carries.
     if (isPackProduct(order.passType)) {
-      const pack = linkPack(resolved.link);
+      const pack = linkPack(resolved.link, now());
       if (!pack || pack.invalid || pack.sku !== order.passType || pack.target !== validateTarget(order.passType, order.packTarget)) {
         return reject(res, 'verify', 'link_mismatch');
       }
