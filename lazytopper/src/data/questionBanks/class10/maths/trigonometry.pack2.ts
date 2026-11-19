@@ -55,8 +55,8 @@ export const trigonometryPack2Questions: CanonicalQuestion[] = [
       "[1 mark] The factor (tan θ − sec θ + 1) cancels with the denominator, so LHS = sec θ + tan θ = (sec θ + tan θ)(sec θ − tan θ)/(sec θ − tan θ) = (sec²θ − tan²θ)/(sec θ − tan θ) = 1/(sec θ − tan θ) = RHS. Hence proved.",
     ], finalAnswer: "Proved", visualExplainerId: "maths-trigonometry-trigonometric-identities" , isCompetencyBased: false},
   { id: "TRIG2-M04", subject: "Maths", topicKey: "trigonometry", subtopic: "Identities and simplification", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Simplify: (1 − sin²θ) sec²θ.", solutionSteps: [
-      "1 − sin²θ = cos²θ [1]",
-      "cos²θ × sec²θ = cos²θ × (1/cos²θ) = 1 [1]",
+      "[1 mark] 1 − sin²θ = cos²θ",
+      "[1 mark] cos²θ × sec²θ = cos²θ × (1/cos²θ) = 1"
     ], finalAnswer: "1" , isCompetencyBased: false},
   { id: "TRIG2-M05", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and distances", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The angle of elevation of the top of a tower from a point on the ground which is 30 m from the foot of the tower is 30°. Find the height of the tower.", solutionSteps: [
       "Diagram: Draw a vertical tower or building of height h. Mark the observation point P on the ground, the angle of elevation θ at P, and label all given distances. [1]",
@@ -191,10 +191,10 @@ export const trigonometryPack2Questions: CanonicalQuestion[] = [
     ], isCompetencyBased: true,
   },
   { id: "TRIG2-CB01", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and distances", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "A statue stands on a pedestal. From a point on the ground 60 m from the base, the angles of elevation to the top of the pedestal and the top of the statue are 30° and 60° respectively.\n(i) Find the height of the pedestal.\n(ii) Find the total height (pedestal + statue).\n(iii) Find the height of the statue.\n(iv) Find the distance from the point to the top of the statue.", solutionSteps: [
-      "Diagram: Draw a vertical tower or building of height h. Mark the observation point P on the ground, the angle of elevation θ at P, and label all given distances.; (i) tan 30° = h₁/60 → h₁ = 60/√3 = 20√3 m [1]",
-      "(ii) tan 60° = H/60 → H = 60√3 m [1]",
-      "(iii) Statue height = 60√3 − 20√3 = 40√3 m [1]",
-      "(iv) Distance = 60/cos 60° = 60/(1/2) = 120 m [1]",
+      "[1 mark] Diagram: Draw a vertical tower or building of height h. Mark the observation point P on the ground, the angle of elevation θ at P, and label all given distances.; (i) tan 30° = h₁/60 → h₁ = 60/√3 = 20√3 m",
+      "[1 mark] (ii) tan 60° = H/60 → H = 60√3 m",
+      "[1 mark] (iii) Statue height = 60√3 − 20√3 = 40√3 m",
+      "[1 mark] (iv) Distance = 60/cos 60° = 60/(1/2) = 120 m"
     ], finalAnswer: "(i) 20√3 m (ii) 60√3 m (iii) 40√3 m (iv) 120 m", visualExplainerId: "maths-trigonometry-height-and-distance-problems" , isCompetencyBased: true},
   { id: "TRIG2-CB02", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and distances", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A pilot in an aeroplane observes that two cities A and B on opposite banks of a river are at angles of depression 60° and 45° respectively from the plane flying at 3000√3 m.\n(i) Find the distance of city A from the point directly below the plane.\n(ii) Find the distance of city B from the point directly below the plane.\n(iii) Find the width of the river.\n(iv) If the plane flies at 300 km/h, how long to cross the river?", solutionSteps: [
       "Diagram: Draw a vertical building or cliff. Mark the observer at the top, the object at ground level, and the angle of depression θ. Draw the horizontal reference line from the observer.; (i) tan 60° = 3000√3/d₁ → d₁ = 3000√3/√3 = 3000 m [1]",
@@ -259,8 +259,8 @@ export const trigonometryPack2Questions: CanonicalQuestion[] = [
     ],
   },
   { id: "TRIG2-B06", subject: "Maths", topicKey: "trigonometry", subtopic: "Heights and distances", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "From a point on the ground, the angle of elevation of the top of a vertical tower is 30°. If the tower is 30 m tall, find the distance from the point to the base of the tower.", solutionSteps: [
-      "Diagram: Draw a vertical tower or building of height h. Mark the observation point P on the ground, the angle of elevation θ at P, and label all given distances. [½]",
-      "Let the distance = d. tan 30° = height/distance = 30/d. [½]",
-      "1/√3 = 30/d → d = 30√3 m. [1]",
+      "[0.5 mark] Diagram: Draw a vertical tower or building of height h. Mark the observation point P on the ground, the angle of elevation θ at P, and label all given distances.",
+      "[0.5 mark] Let the distance = d. tan 30° = height/distance = 30/d.",
+      "[1 mark] 1/√3 = 30/d → d = 30√3 m."
     ], answer: "The distance from the point to the base of the tower is 30√3 m.", explanation: "See solution steps.", finalAnswer: "The distance from the point to the base of the tower is 30√3 m.", visualExplainerId: "maths-trigonometry-height-and-distance-problems", isCompetencyBased: false }
 ];

@@ -144,9 +144,9 @@ export const trianglesPack2Questions: CanonicalQuestion[] = [
       "[1 mark] Therefore AD = sqrt(3a^2) = a√3. Hence proved.",
     ], finalAnswer: "AD = a√3 (proved)", visualExplainerId: "maths-triangles-similar-triangles-and-criteria" , isCompetencyBased: false},
   { id: "TRI2-M08", subject: "Maths", topicKey: "triangles", subtopic: "Right-Triangle Lengths (a² + b² = c² as a tool)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Two poles of heights 6 m and 11 m stand on a plane ground. If the distance between the feet is 12 m, find the distance between their tops.", solutionSteps: [
-      "Draw a diagram. Form a right-angled triangle with sides: difference in heights (11-6)m and distance between feet 12m. [1]",
-      "Difference in heights = 11 - 6 = 5 m. Let 'd' be the distance between tops. By Pythagoras theorem, d^2 = 5^2 + 12^2. [1]",
-      "d^2 = 25 + 144 = 169. So, d = sqrt(169) = 13 m. [1]",
+      "[1 mark] Draw a diagram. Form a right-angled triangle with sides: difference in heights (11-6)m and distance between feet 12m.",
+      "[1 mark] Difference in heights = 11 - 6 = 5 m. Let 'd' be the distance between tops. By Pythagoras theorem, d^2 = 5^2 + 12^2.",
+      "[1 mark] d^2 = 25 + 144 = 169. So, d = sqrt(169) = 13 m."
     ], finalAnswer: "13 m" , isCompetencyBased: false},
   { id: "TRI2-M09", subject: "Maths", topicKey: "triangles", subtopic: "BPT and parallel-line relations", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "In △ABC, D and E are points on sides AB and AC respectively. If AB = 12 cm, AD = 8 cm, AE = 12 cm and AC = 18 cm, check whether DE ∥ BC.", solutionSteps: [
       "AD/DB = 8/4 = 2 [1]",

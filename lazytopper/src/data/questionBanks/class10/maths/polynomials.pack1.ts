@@ -206,8 +206,8 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find the zeroes of p(x) = 4x² − 12x + 9.",
     solutionSteps: [
-      "4x² − 12x + 9 = (2x − 3)² [1]",
-      "Zero: x = 3/2 (repeated) [1]",
+      "[1 mark] 4x² − 12x + 9 = (2x − 3)²",
+      "[1 mark] Zero: x = 3/2 (repeated)"
     ],
     finalAnswer: "x = 3/2 (repeated zero)",
     visualExplainerId: "maths-polynomials-zeroes-of-a-polynomial", isCompetencyBased: true,
@@ -638,9 +638,9 @@ export const POLYNOMIALS_PACK1: CanonicalQuestion[] = [
     section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating",
     questionText: "If α, β are zeroes of 2x² − 5x + 4, find the value of α² + β².",
     solutionSteps: [
-      "For 2x² − 5x + 4, α+β = -(-5)/2 = 5/2 and αβ = 4/2 = 2. [1]",
-      "α² + β² = (α+β)² - 2αβ. [1]",
-      "α² + β² = (5/2)² - 2(2) = 25/4 - 4 = (25 - 16)/4 = 9/4. [1]",
+      "[1 mark] For 2x² − 5x + 4, α+β = -(-5)/2 = 5/2 and αβ = 4/2 = 2.",
+      "[1 mark] α² + β² = (α+β)² - 2αβ.",
+      "[1 mark] α² + β² = (5/2)² - 2(2) = 25/4 - 4 = (25 - 16)/4 = 9/4."
     ],
     answer: "9/4",
     finalAnswer: "α² + β² = 9/4",

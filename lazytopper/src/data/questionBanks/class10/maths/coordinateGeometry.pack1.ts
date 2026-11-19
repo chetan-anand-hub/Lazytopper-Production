@@ -220,11 +220,11 @@ export const COORDINATE_GEOMETRY_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "CG-ND01", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Section Formula", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A(2, −2) and B(−7, 4) are two points. P divides AB in ratio 1:2. Q divides AB in ratio 2:1. Find the coordinates of P and Q, and verify that the midpoint of PQ equals the midpoint of AB.", solutionSteps: [
-      "P (1:2 from A): P = ((1×(−7)+2×2)/(1+2), (1×4+2×(−2))/(1+2)) = ((−7+4)/3, (4−4)/3) = (−1, 0) [1]",
-      "Q (2:1 from A): Q = ((2×(−7)+1×2)/3, (2×4+1×(−2))/3) = ((−14+2)/3, (8−2)/3) = (−4, 2) [1]",
-      "Midpoint of PQ = ((−1+(−4))/2, (0+2)/2) = (−5/2, 1) [1]",
-      "Midpoint of AB = ((2+(−7))/2, (−2+4)/2) = (−5/2, 1) ✓ [1]",
-      "Both midpoints are (−5/2, 1), verifying the result. [1]",
+      "[1 mark] P (1:2 from A): P = ((1×(−7)+2×2)/(1+2), (1×4+2×(−2))/(1+2)) = ((−7+4)/3, (4−4)/3) = (−1, 0)",
+      "[1 mark] Q (2:1 from A): Q = ((2×(−7)+1×2)/3, (2×4+1×(−2))/3) = ((−14+2)/3, (8−2)/3) = (−4, 2)",
+      "[1 mark] Midpoint of PQ = ((−1+(−4))/2, (0+2)/2) = (−5/2, 1)",
+      "[1 mark] Midpoint of AB = ((2+(−7))/2, (−2+4)/2) = (−5/2, 1) ✓",
+      "[1 mark] Both midpoints are (−5/2, 1), verifying the result."
     ], answer: "P = (−1, 0), Q = (−4, 2); midpoint of PQ = midpoint of AB = (−5/2, 1).", explanation: "See solution steps for full working.", finalAnswer: "P = (−1, 0), Q = (−4, 2); midpoint of PQ = midpoint of AB = (−5/2, 1).", isCompetencyBased: true },
   { id: "CG-ND02", subject: "Maths", topicKey: "coordinate-geometry", subtopic: "Area of Triangle", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Using coordinate geometry, show that the points A(1, 2), B(3, 6), and C(5, 10) are collinear. Then find the ratio in which B divides AC.", solutionSteps: [
       "Area of △ABC = ½ |x_A(y_B − y_C) + x_B(y_C − y_A) + x_C(y_A − y_B)|; = ½ |1(6−10) + 3(10−2) + 5(2−6)| [1]",

@@ -181,10 +181,10 @@ export const CIRCLES_PACK1: CanonicalQuestion[] = [
       "16(x+14)² = 48x(x+14); 16(x+14) = 48x → x+14 = 3x → x = 7; AB = 15, AC = 13 [1]",
     ], finalAnswer: "AB = 15 cm, AC = 13 cm" , isCompetencyBased: true },
   { id: "CIR-M20", subject: "Maths", topicKey: "circles", subtopic: "Tangent Theorems & Proofs", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Two circles with centres O and O' of radii 3 cm and 4 cm respectively intersect at two points P and Q such that OP and O'P are tangents to the two circles.\n(i) Find the length PQ.\n(ii) Find OO'.\n(iii) Find the area of △OPO'.\n(iv) What is the angle ∠OPO'?", solutionSteps: [
-      "Since OP is tangent to circle with centre O', ∠OPO' = 90°; And O'P is tangent to circle with centre O, ∠OPO' = 90° [1]",
-      "(iv) ∠OPO' = 90°; (ii) OO' = √(3²+4²) = 5 cm [1]",
-      "(iii) Area = 1/2 × 3 × 4 = 6 cm²; (i) PQ: In right △OPO', PM ⊥ OO' where M is on OO' [1]",
-      "PM = (OP × O'P)/OO' = 12/5; PQ = 2PM = 24/5 = 4.8 cm [1]",
+      "[1 mark] Since OP is tangent to circle with centre O', ∠OPO' = 90°; And O'P is tangent to circle with centre O, ∠OPO' = 90°",
+      "[1 mark] (iv) ∠OPO' = 90°; (ii) OO' = √(3²+4²) = 5 cm",
+      "[1 mark] (iii) Area = 1/2 × 3 × 4 = 6 cm²; (i) PQ: In right △OPO', PM ⊥ OO' where M is on OO'",
+      "[1 mark] PM = (OP × O'P)/OO' = 12/5; PQ = 2PM = 24/5 = 4.8 cm"
     ], finalAnswer: "(i) 4.8 cm (ii) 5 cm (iii) 6 cm² (iv) 90°" , isCompetencyBased: true },
   { id: "CIR-H01", subject: "Maths", topicKey: "circles", subtopic: "Tangent Theorems & Proofs", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that the tangent at any point of a circle is perpendicular to the radius through the point of contact.", solutionSteps: [
       "Construction: Draw a circle with centre O and point P on the circle. Draw the tangent l at P and radius OP. Assume l is not perpendicular to OP and derive a contradiction.; Let O be centre, P be point on circle, line l be tangent at P [1]",
