@@ -34,7 +34,7 @@ export function writtenCheckGateDisabled(): boolean {
   return import.meta.env?.VITE_WRITTEN_CHECK_GATE_DISABLED === "1";
 }
 
-/** "Upgrade to the Test Series (₹999 + GST) or the Board Pass to take all 66 tests" — the count from code. */
+/** "Upgrade to the Test Series (price from code) or the Board Pass to take all <total> tests" — the price and the count come from code. */
 export function seriesStartWallLine(): string {
   return `Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all ${seriesTotals().total} tests`;
 }

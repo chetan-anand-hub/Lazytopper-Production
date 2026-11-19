@@ -4,7 +4,8 @@
 // WHAT IT ADMITS (owner rulings 18 Nov 2026, 19:38 / 19:44 IST). A /api/grade-worksheet request from a caller who is NOT Premium is
 // graded on the Test Series Pack ONLY IF ALL of these hold, every one decided here, on the server:
 //   1. the request names a Test Series paper: its `worksheetId` STARTS WITH a manifest paper's `worksheetIdPrefix`
-//      (`ct-ts1-<topicKey>--…` / `fm-ts1-<m|s><n>--…`; the same value the paper pass carries as its paperKey);
+//      (`ct-ts1-<topicKey>--…` paper 1 / `ct-ts1p<k>-<topicKey>--…` papers 2..5 / `fm-ts1-<m|s><n>--…`; the same value the paper
+//      pass carries as its paperKey). TS-MORE-1: 180 papers; every prefix ends in "--" and none is a prefix of another;
 //   2. EVERY submitted question carries a `questionId` that is in THAT paper's `sectionBEQuestionIds`, once;
 //   3. EVERY submitted question's text is that question's canonical text: its hash equals the manifest's `textHashes[id]`
 //      (so a valid id cannot carry a swapped question);
@@ -102,7 +103,7 @@ const REQUEST_ID_FIELD = 'questionId';
 
 const HEX64 = /^[0-9a-f]{64}$/;
 const ID_MAX = 200;
-/** A prefix is `ct-ts1-<topicKey>--` or `fm-ts1-<m|s><n>--`: always ends with the "--" separator. */
+/** A prefix is `ct-ts1-<topicKey>--`, `ct-ts1p<k>-<topicKey>--` or `fm-ts1-<m|s><n>--`: always ends with the "--" separator. */
 const PREFIX_SHAPE = /^(ct|fm)-[a-z0-9]+-[a-z0-9-]+--$/;
 
 /**
@@ -183,12 +184,20 @@ function loadManifest(file = MANIFEST_PATH, logger = console) {
   return out;
 }
 
-/** The manifest paper this request names (its worksheetId starts with the paper's prefix), or null. PURE. */
-function seriesPaperOf(body, manifest) {
+/**
+ * The manifest paper this request names (its worksheetId starts with the paper's prefix), or null. PURE.
+ * `opts.moreDisabled` (TS_MORE_DISABLED): the papers TS-MORE-1 added are skipped, as if the manifest did not list them.
+ * Every prefix ends in "--" and no prefix is a prefix of another (a guard test pins it), so at most one paper can match.
+ */
+function seriesPaperOf(body, manifest, opts) {
   if (!manifest || !body || typeof body !== 'object') return null;
   const id = typeof body.worksheetId === 'string' ? body.worksheetId.trim() : '';
   if (!id || id.length > ID_MAX) return null;
-  for (const p of manifest.papers) if (id.startsWith(p.prefix) && id.length > p.prefix.length) return p;
+  const skipMore = !!(opts && opts.moreDisabled);
+  for (const p of manifest.papers) {
+    if (skipMore && isMorePaper(p)) continue;
+    if (id.startsWith(p.prefix) && id.length > p.prefix.length) return p;
+  }
   return null;
 }
 
@@ -231,6 +240,23 @@ function mostlyUnreadable(summary) {
   const u = summary && Number(summary.unreadable);
   const t = summary && Number(summary.total);
   return Number.isFinite(u) && Number.isFinite(t) && t > 0 && u > 0 && u / t >= UNREADABLE_SHARE;
+}
+
+/**
+ * TS-MORE-1 (owner, 19 Nov 2026): the papers added on top of the original 66 - chapter papers 2..5 ("TS-CT-M01-2") and full-length
+ * papers 21..25 ("TS-FM-M21"). TS_MORE_DISABLED (1 / true / on / yes) is the server twin of the client's VITE_TS_MORE_DISABLED: those
+ * papers stop being series papers HERE (no admission, no LIMITS-1 exemption - the request falls to the ordinary rules, exactly as
+ * before this lane); the original 66 are untouched. A committed count for a new paper stays in the owner's document, unread.
+ */
+function testSeriesMoreDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.TS_MORE_DISABLED) || '').trim());
+}
+/** Is this manifest paper one TS-MORE-1 added (by its key)? PURE. */
+function isMorePaper(paper) {
+  const key = paper && typeof paper.key === 'string' ? paper.key : '';
+  if (/^TS-CT-[MS]\d{2}-[2-9]$/.test(key)) return true;
+  const fm = /^TS-FM-[MS](\d{1,2})$/.exec(key);
+  return !!fm && Number(fm[1]) > 20;
 }
 
 const docId = (v) => (typeof v === 'string' && v.trim() && !v.includes('/') ? v.trim() : '');
@@ -458,7 +484,7 @@ function createTestSeriesChecks(deps = {}) {
   async function decide(req, res, uid) {
     if (manifest.count === 0) return { kind: 'not_series' };
     const body = await bodyOf(req);
-    const paper = seriesPaperOf(body, manifest);
+    const paper = seriesPaperOf(body, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
     if (!paper) return { kind: 'not_series' };
     emit('test_series.series_request');
     const verdict = verifySubmission(body, paper);
@@ -489,7 +515,7 @@ function createTestSeriesChecks(deps = {}) {
     try {
       // The kill switch turns the exemption off too: with TS_CHECKS_DISABLED every paper is metered exactly as before.
       if (testSeriesChecksDisabled(env) || manifest.count === 0) return false;
-      const paper = seriesPaperOf({ worksheetId }, manifest);
+      const paper = seriesPaperOf({ worksheetId }, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
       if (!paper) return false;
       const paperKind = paper.prefix.startsWith('ct-') ? 'chapter-test' : paper.prefix.startsWith('fm-') ? 'full-mock' : '';
       if (kind !== paperKind) return false;
@@ -508,7 +534,7 @@ function createTestSeriesChecks(deps = {}) {
     try {
       if (testSeriesChecksDisabled(env) || manifest.count === 0) return false;
       const body = await bodyOf(req);
-      const paper = seriesPaperOf(body, manifest);
+      const paper = seriesPaperOf(body, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
       if (!paper || !verifySubmission(body, paper).ok) return false;
       return (await ownsActive(uid)) === true;
     } catch {
@@ -544,6 +570,8 @@ module.exports = {
   testSeriesRecheckDisabled,
   mostlyUnreadable,
   freeRecheckSpent,
+  testSeriesMoreDisabled,
+  isMorePaper,
   setTestSeriesDeferred,
   testSeriesDeferredOf,
   TS_DEFERRED,

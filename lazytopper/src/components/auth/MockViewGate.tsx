@@ -125,8 +125,8 @@ function writeUncounted(list: string[]): void {
  * refused. Nor is a Test Series Pack owner the gate has already confirmed: the gate reads ownership when it walls-or-passes
  * at the limit, and warms that read when it lets a resume through at the limit, so the refusal below never meets an owner.
  */
-export function claimNewPaperView(pathname: string, uid: string | null, uncapped: boolean): boolean {
-  const route = paperRouteKey(pathname);
+export function claimNewPaperView(pathname: string, uid: string | null, uncapped: boolean, search = ""): boolean {
+  const route = paperRouteKey(pathname, search);
   const marked = readUncounted();
   if (!marked.includes(route)) return true;
   // Premium is unlimited — including a student who paid mid-session (isPremium flipped with no
@@ -206,8 +206,8 @@ export function MockViewGate({ children }: { children: ReactNode }) {
      * counted below exactly as before; server metering (the paper pass minted at grading) is
      * untouched.
      */
-    if (isResumingSavedPaper(location.pathname, uid)) {
-      const route = paperRouteKey(location.pathname);
+    if (isResumingSavedPaper(location.pathname, uid, location.search)) {
+      const route = paperRouteKey(location.pathname, location.search);
       const marked = readUncounted();
       if (!marked.includes(route)) writeUncounted([...marked, route]);
       // TS-DAILY-CAP-1: a resume at the limit never waits (resumes are never blocked), but if the student sets the saved
@@ -219,7 +219,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     // Not a resume: any earlier "uncounted" mark for this route (a resume visit earlier in this
     // tab) is stale — this visit is judged and counted here, so the page must never count it again.
     {
-      const route = paperRouteKey(location.pathname);
+      const route = paperRouteKey(location.pathname, location.search);
       const marked = readUncounted();
       if (marked.includes(route)) writeUncounted(marked.filter((r) => r !== route));
     }

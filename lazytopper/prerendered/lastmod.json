@@ -640,15 +640,15 @@
     "lastmod": "2026-11-18"
   },
   "/packs": {
-    "sha256": "d1736f9ffad20f3d4fa70c9d1c7f323f7802f769147a9b39f5d640eecd564350",
+    "sha256": "101ce3e4d82683dc180c907ccc57ea6013f99926ede73b655943faa7a307a52a",
     "lastmod": "2026-11-19"
   },
   "/practice-hub": {
-    "sha256": "5b1ef16b2a851c70086ae83d696373fd840104262bf7758e09162a14bb686aa6",
+    "sha256": "a3c573d4709ff78b66ac22cc00a8878df3603b0d09cb4bcb3ffe6c513d111323",
     "lastmod": "2026-11-19"
   },
   "/pricing": {
-    "sha256": "6a7d39379000b1f3e09d78ef8578e90db5fc031f6d35a2956b3ee94717db7a8d",
+    "sha256": "bfc2505e92711f48c4b5173cf7770009955931e1928040ed0cbb92250ce8ace4",
     "lastmod": "2026-11-19"
   },
   "/question-bank-class-10": {
@@ -656,7 +656,7 @@
     "lastmod": "2026-11-18"
   },
   "/test-series": {
-    "sha256": "a1700951f746997ebc229b2a95c3cbf4a011d479a1fdc2a7044d5cca352a7337",
+    "sha256": "5fa56d98ce7399a475d264950d4b7812f50168bcdec5d591628d479871cdb879",
     "lastmod": "2026-11-19"
   },
   "/topic-hub/acids-bases-and-salts": {

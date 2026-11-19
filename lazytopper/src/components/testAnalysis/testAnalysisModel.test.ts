@@ -272,7 +272,7 @@ describe("TS-ANALYSIS-1 · feature 5 — this week's plan (series calendar)", ()
     expect(a.map((t) => t.text)).toEqual([
       "Re-attempt 6 lost-marks questions from Full Mock 2",
       "Chapter Test: Triangles (your weakest, 20%)",
-      "Test Series: Chapter Tests, finish by 30 Nov",
+      "Test Series: Chapter Tests, your weakest chapters first",
     ]);
     expect(a[1].to).toBe("/chapter-test/10/Maths/triangles");
     expect(a[2].to).toBe("/test-series");
@@ -280,19 +280,19 @@ describe("TS-ANALYSIS-1 · feature 5 — this week's plan (series calendar)", ()
 
   it("pre-board round 1: the next Full-Length Test the student has not sat", () => {
     const t = seriesPlanTask("Maths", cal("2026-12-05", [1, 2, 4]));
-    expect(t).toEqual({ key: "series", text: "Maths Full-Length Test 3 of 20 (pre-board round 1, by 20 Dec)", to: "/full-mock/10/Maths?paper=3" });
+    expect(t).toEqual({ key: "series", text: "Maths Full-Length Test 3 of 25 (pre-board round 1, by 20 Dec)", to: "/full-mock/10/Maths?paper=3" });
   });
 
   it("round 2 in January; between rows the next row to start is used; final revision; no board date → none", () => {
-    expect(seriesPlanTask("Science", cal("2027-01-10"))?.to).toBe("/full-mock/10/Science?paper=11");
-    expect(seriesPlanTask("Maths", cal("2026-12-25"))?.text).toBe("Maths Full-Length Test 11 of 20 (pre-board round 2, by 31 Jan)");
+    expect(seriesPlanTask("Science", cal("2027-01-10"))?.to).toBe("/full-mock/10/Science?paper=14");
+    expect(seriesPlanTask("Maths", cal("2026-12-25"))?.text).toBe("Maths Full-Length Test 14 of 25 (pre-board round 2, by 31 Jan)");
     expect(seriesPlanTask("Maths", cal("2027-02-03"))?.text).toBe("Test Series final revision: re-attempt your lowest Full-Length Test by 14 Feb");
     expect(seriesPlanTask("Maths", cal("2027-03-01"))).toBeNull();
     expect(seriesPlanTask("Maths", { rows: null, todayIso: "2026-11-18", takenMocks: { Maths: [], Science: [] } })).toBeNull();
   });
 
   it("a round fully sat points back to the series page", () => {
-    expect(seriesPlanTask("Maths", cal("2026-12-05", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]))?.to).toBe("/test-series");
+    expect(seriesPlanTask("Maths", cal("2026-12-05", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]))?.to).toBe("/test-series");
   });
 
   it("taken mocks come from series worksheet ids only", () => {

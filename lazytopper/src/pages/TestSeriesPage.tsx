@@ -9,6 +9,7 @@ import { packPriceLabel, testSeriesFoundingClause, testSeriesPriceLine, TEST_SER
 import { isPaidPremium } from "../services/subscriptionService";
 import { useTestSeriesOwnership } from "../components/testSeries/testSeriesOwnership";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
+import { TestSeriesExaminerLine, TestSeriesPerTest } from "../components/packs/TestSeriesPerTest";
 import {
   TEST_SERIES_BUY_PATH,
   TEST_SERIES_NAME,
@@ -20,6 +21,7 @@ import {
   seriesProgress,
   seriesSchedule,
   seriesTotals,
+  type SeriesChapterTest,
   type SeriesProgress,
   type SeriesScheduleRow,
   type SeriesSubject,
@@ -232,6 +234,12 @@ export default function TestSeriesPage() {
   const ownershipKnown = phase !== undefined ? phase === "ready" : load.state === "ready";
   const ownerUnknown = signedIn && (!subscription.hydrated || (!holdsPremium && !ownershipKnown));
 
+  // One group per chapter (its papers 1..P), in syllabus order.
+  const chapterGroups = useMemo(() => {
+    const groups = new Map<string, SeriesChapterTest[]>();
+    for (const c of chapters) groups.set(c.topicKey, [...(groups.get(c.topicKey) ?? []), c]);
+    return [...groups.values()];
+  }, [chapters]);
   const allTests = useMemo(() => [...chapters, ...mocks], [chapters, mocks]);
   const nextTest = progress ? allTests.find((t) => (progress.byCode[t.code]?.status ?? "not-started") === "not-started") ?? null : null;
   const doneIn = (codes: string[]) => (progress ? codes.filter((c) => (progress.byCode[c]?.status ?? "not-started") !== "not-started").length : 0);
@@ -239,20 +247,41 @@ export default function TestSeriesPage() {
   // TS-PAGE-2 (owner, compact lists): every test is ONE small tile — the whole tile is the link, with an accessible name that
   // says what it is and its status ("Chapter Test 1, Real Numbers, not started").
   const signedInProgress = Boolean(progress);
-  const chapterTile = (c: { code: string; href: string; label: string; index: number }) => (
-    <li key={c.code}>
-      <Link
-        className="lt-ts-tile"
-        to={c.href}
-        data-testid={`ts-test-${c.code}`}
-        aria-label={`Chapter Test ${c.index}, ${c.label}, ${statusWords(progress?.byCode[c.code], signedInProgress)}`}
-      >
-        <span className="lt-ts-tile__num">{String(c.index).padStart(2, "0")}</span>
-        <span className="lt-ts-tile__name">{c.label}</span>
-        <StatusDot p={progress?.byCode[c.code]} signedIn={signedInProgress} />
-      </Link>
-    </li>
-  );
+  // TS-MORE-1: a chapter is ONE small card (its number, name and "k of 5 done") holding its papers as five small numbered chips. Paper
+  // 1 keeps its original test id (ts-test-CT-M01); papers 2..5 are ts-test-CT-M01-2 …. Fixed height, so progress never moves it.
+  const chapterCard = (papers: SeriesChapterTest[]) => {
+    const c = papers[0];
+    const done = progress ? papers.filter((p) => (progress.byCode[p.code]?.status ?? "not-started") !== "not-started").length : 0;
+    return (
+      <li key={c.baseCode} className="lt-ts-chap" data-testid={`ts-chap-${c.baseCode}`}>
+        <span className="lt-ts-chap__top">
+          <span className="lt-ts-tile__num">{String(c.index).padStart(2, "0")}</span>
+          <span className="lt-ts-chap__prog" data-testid={`ts-chap-prog-${c.baseCode}`}>
+            {signedInProgress && progress ? `${done} of ${papers.length} done` : `${papers.length} ${papers.length === 1 ? "test" : "tests"}`}
+          </span>
+        </span>
+        <span className="lt-ts-chap__name">{c.label}</span>
+        <span className="lt-ts-pp" role="group" aria-label={`${c.label}: ${papers.length} ${papers.length === 1 ? "test" : "tests"}`}>
+          {papers.map((p) => {
+            const pr = progress?.byCode[p.code];
+            const status = signedInProgress && pr ? pr.status : "not-started";
+            return (
+              <Link
+                key={p.code}
+                className="lt-ts-pp__a"
+                to={p.href}
+                data-testid={`ts-test-${p.code}`}
+                data-status={status}
+                aria-label={`Chapter Test ${p.index}, ${p.label}${papers.length > 1 ? `, paper ${p.paper}` : ""}, ${statusWords(pr, signedInProgress)}`}
+              >
+                {p.paper}
+              </Link>
+            );
+          })}
+        </span>
+      </li>
+    );
+  };
   const mockTile = (m: { code: string; href: string; n: number; subject: SeriesSubject }) => (
     <li key={m.code}>
       <Link
@@ -299,6 +328,8 @@ export default function TestSeriesPage() {
         <p className="lt-ts-offer__tag">Pre-boards</p>
         <p className="lt-ts-offer__name">Test Series</p>
         <p className="lt-ts-offer__price">{prices && <span data-testid="till-boards-figures">{prices.ts}</span>}</p>
+        <TestSeriesPerTest testId="ts-offer-per-test" />
+        <TestSeriesExaminerLine testId="ts-offer-examiner" />
         <ul className="lt-ts-offer__list">
           <li>All {totals.total} tests: {totals.chapterTests} chapter tests + {totals.fullMocks} full-length board papers</li>
           <li>
@@ -355,6 +386,8 @@ export default function TestSeriesPage() {
               </strong>{" "}
               · written answers checked step by step
             </p>
+            <TestSeriesPerTest testId="ts-hero-per-test" />
+            <TestSeriesExaminerLine testId="ts-hero-examiner" />
             <p className="lt-ts-hero__rule" data-testid="ts-rule">
               {TEST_SERIES_ACCESS_LINE}
             </p>
@@ -471,17 +504,20 @@ export default function TestSeriesPage() {
             </li>
           </ul>
           <div id="ts-sec-chapter" role="tabpanel" aria-labelledby="ts-tab-chapter" className="lt-ts-panel" hidden={tab !== "chapter"} data-testid="ts-sec-chapter">
-            <p className="lt-ts-panel__lede">One board-pattern test per chapter, Sections A to D.</p>
+            <p className="lt-ts-panel__lede">
+              {totals.papersPerChapter > 1 ? `${totals.papersPerChapter} board-pattern tests per chapter` : "One board-pattern test per chapter"}, Sections A to D.
+            </p>
             {SUBJECTS.map((s) => {
               const list = chapters.filter((c) => c.subject === s);
+              const byChapter = chapterGroups.filter((g) => g[0].subject === s);
               return (
                 <div key={s} className="lt-ts-subj" data-testid={`ts-subj-ct-${s}`}>
                   <h3 className="lt-ts-subj__h">
                     <span>{s}</span>
                     <MiniProgress done={doneIn(list.map((c) => c.code))} total={list.length} show={Boolean(progress)} testId={`ts-prog-ct-${s}`} />
                   </h3>
-                  <ul className="lt-ts-tiles" data-testid={`ts-chapters-${s}`}>
-                    {list.map(chapterTile)}
+                  <ul className="lt-ts-chaps" data-testid={`ts-chapters-${s}`}>
+                    {byChapter.map(chapterCard)}
                   </ul>
                 </div>
               );

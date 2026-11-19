@@ -1,0 +1,126 @@
+{
+  "2026-TRIG-P1-B-008": {
+    "id": "2026-TRIG-P1-B-008",
+    "questionId": "2026-TRIG-P1-B-008",
+    "subject": "Maths",
+    "topicKey": "trigonometry",
+    "subtopic": "Standard values and quick recall",
+    "section": "B",
+    "cbseFormat": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Remembering",
+    "questionText": "Evaluate tan 30 deg x tan 60 deg.",
+    "answer": "1.",
+    "explanation": "tan 30 deg = 1/sqrt(3) and tan 60 deg = sqrt(3). Their product is 1. Final answer: 1.",
+    "solutionSteps": [
+      "tan 30 deg = 1/sqrt(3) and tan 60 deg = sqrt(3).",
+      "Their product is 1.",
+      "Final answer: 1."
+    ],
+    "finalAnswer": "1.",
+    "isCompetencyBased": false,
+    "strategyHint": "Recall the standard angle table before substituting.",
+    "predictionScore": 4,
+    "skillFamily": "Standard_Values",
+    "loIds": [
+      "LO_TRIG_02_STANDARD_VALUES"
+    ],
+    "visualExplainerId": "maths-trigonometry-trigonometric-ratios-of-standard-angles"
+  },
+  "SAV2-026": {
+    "id": "SAV2-026",
+    "subject": "Maths",
+    "topicKey": "surface-areas-and-volumes",
+    "subtopic": "Combined Solids",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Easy",
+    "bloomSkill": "Understanding",
+    "questionText": "A cylinder of radius 3 cm and height 10 cm has a hemisphere of radius 3 cm placed on top. Find the total surface area (excluding the base of cylinder).",
+    "options": [],
+    "answer": "78π cm² ≈ 245.14 cm²",
+    "solutionSteps": [
+      "Curved surface area of cylinder = 2πrh = 2π(3)(10) = 60π cm²",
+      "Curved surface area of hemisphere = 2πr² = 2π(3)² = 18π cm²",
+      "The top of the cylinder is covered by the hemisphere and the base is excluded, so no flat faces are added",
+      "Total = 60π + 18π = 78π cm² ≈ 78 × 22/7 ≈ 245.14 cm²"
+    ],
+    "finalAnswer": "78π cm² ≈ 245.14 cm²",
+    "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.1",
+    "sourceOverride": "others"
+  },
+  "SAV2-027": {
+    "id": "SAV2-027",
+    "subject": "Maths",
+    "topicKey": "surface-areas-and-volumes",
+    "subtopic": "Combined Solids",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "A cone is mounted on a hemisphere of radius 7 cm. If the slant height of cone is 10 cm, find the curved surface area of the combined solid.",
+    "options": [],
+    "answer": "168π ≈ 527.52 cm²",
+    "solutionSteps": [
+      "Curved surface area of hemisphere = 2πr² = 2π(7)² = 98π cm²",
+      "Curved surface area of cone = πrl = π(7)(10) = 70π cm²",
+      "Total curved surface area = 98π + 70π = 168π ≈ 527.52 cm²"
+    ],
+    "finalAnswer": "168π ≈ 527.52 cm²",
+    "visualExplainerId": "maths-surface-areas-volumes-combination-of-solids",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 13.1"
+  },
+  "STAT2-R02": {
+    "id": "STAT2-R02",
+    "subject": "Maths",
+    "topicKey": "statistics",
+    "subtopic": "Median of Grouped Data",
+    "section": "B",
+    "marks": 2,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "Find the median class and median for: Class: 0–20, 20–40, 40–60, 60–80, 80–100; Frequency: 6, 8, 10, 9, 7.",
+    "options": [],
+    "answer": "Median = 52",
+    "solutionSteps": [
+      "n = 40, n/2 = 20",
+      "CF: 6, 14, 24, 33, 40. Median class: 40–60",
+      "Median = 40 + (20-14)/10 × 20 = 40 + 12 = 52"
+    ],
+    "finalAnswer": "Median = 52",
+    "visualExplainerId": "maths-statistics-median-of-grouped-data",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 14.2"
+  },
+  "TR3-057": {
+    "id": "TR3-057",
+    "subject": "Maths",
+    "topicKey": "triangles",
+    "subtopic": "Basic Proportionality Theorem",
+    "section": "C",
+    "marks": 3,
+    "format": "Short",
+    "difficulty": "Medium",
+    "bloomSkill": "Applying",
+    "questionText": "In ΔABC, D and E are points on AB and AC respectively. If AD = 3 cm, DB = 6 cm, AE = 2 cm, EC = 4 cm, is DE || BC? Justify.",
+    "options": [],
+    "answer": "Yes, DE || BC because AD/DB = AE/EC = 1/2",
+    "solutionSteps": [
+      "Check if AD/DB = AE/EC",
+      "AD/DB = 3/6 = 1/2",
+      "AE/EC = 2/4 = 1/2",
+      "Since AD/DB = AE/EC, by converse of Basic Proportionality Theorem, DE || BC"
+    ],
+    "finalAnswer": "Yes, DE || BC because AD/DB = AE/EC = 1/2",
+    "isCompetencyBased": true,
+    "ncertRef": "Ex 6.2"
+  }
+}

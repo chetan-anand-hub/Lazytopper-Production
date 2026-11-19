@@ -499,7 +499,18 @@ function emitHydrated(uid: string, status: SubscriptionStatus): void {
  *   error   we learned nothing; KEEP the cache, or an offline student loses access
  *           they really have.
  */
+/**
+ * GATE-QP-1: was the status this uid last got from `hydrateSubscriptionFromCloud` read from the cloud (record found OR
+ * confirmed absent)? false after an error / transient restore failure, when the tier comes only from the cache or the default.
+ * Read-only flag: no consumer's behaviour depends on it except the Quick Practice Board Pass wall, which fails open on false.
+ */
+const cloudConfirmed = new Map<string, boolean>();
+export function isCloudConfirmed(uid: string): boolean {
+  return cloudConfirmed.get(uid) === true;
+}
+
 export async function hydrateSubscriptionFromCloud(uid: string): Promise<SubscriptionStatus> {
+  cloudConfirmed.set(uid, false);
   let cloud = await loadCloud(uid);
 
   if (cloud.kind === "absent") {
@@ -514,11 +525,11 @@ export async function hydrateSubscriptionFromCloud(uid: string): Promise<Subscri
     const local = loadLocal(uid);
     if (local && local.tier !== "premium" && !local.passEnd && local.trialStartDate && (await isSignedInNewAccount(uid))) {
       const ensured = await ensureSignupTrial(uid);
-      if (ensured === "transient") return applyExpiry(local);
+      if (ensured === "transient") { cloudConfirmed.set(uid, false); return applyExpiry(local); }
       if (ensured === "ok") {
         const again = await loadCloud(uid);
         if (again.kind === "found") cloud = again;
-        else if (again.kind === "error") return applyExpiry(local);
+        else if (again.kind === "error") { cloudConfirmed.set(uid, false); return applyExpiry(local); }
         // still absent after a 200: fall through to the free default, exactly as trunk did
       }
       // "refused" (401/403/409 ...): fall through - a local-only trial is wiped as on trunk
@@ -526,6 +537,7 @@ export async function hydrateSubscriptionFromCloud(uid: string): Promise<Subscri
   }
 
   if (cloud.kind === "found") {
+    cloudConfirmed.set(uid, true);
     const pinned = cloud.startIsServerPinned;
     const resolved = clampPinnedStartToDevice(
       applyExpiry(repairInterruptedTrial(cloud.data, pinned), { serverPinned: pinned }),
@@ -547,6 +559,7 @@ export async function hydrateSubscriptionFromCloud(uid: string): Promise<Subscri
   }
 
   if (cloud.kind === "absent") {
+    cloudConfirmed.set(uid, true);
     const free = defaultStatus();
     saveLocal(uid, free);
     // Deliberately no cloud write: a cache with no cloud record is not evidence of

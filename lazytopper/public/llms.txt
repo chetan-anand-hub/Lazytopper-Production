@@ -36,7 +36,7 @@ Key facts:
 - Signing up starts a 7-day free trial with no card needed; after it the student keeps the free Basic plan or gets the Board Pass.
 - Basic plan limits (the free plan):
   - Download 1 paper a week — your first is free
-  - 1 graded Quick Practice set a day — your first is free
+  - Quick Practice questions are scored as you tap; marking your written practice answers comes with the Board Pass
   - Every result shows your score and your Mistake Intelligence summary; the answer-by-answer breakdown comes with the Board Pass
 - The 7-day trial includes 5 answer checks a week, 3 graded Quick Practice sets a day, 2 paper downloads a week, and 1 graded worksheet, 1 graded chapter test and 1 graded full mock a week — the first of each is free.
 - Paying for the Board Pass: online payment is live. The Board Pass is bought on the Pricing page and paid in Razorpay's secure checkout (UPI, card or netbanking), and it turns on straight away. The Board Pass is one payment that covers everything until the student's first board exam: ₹1,917 + GST as the Founding member offer until 30 November 2026, and ₹2,499 + GST from 1 December 2026. The pass is a one-time payment, never renews automatically. Prices are shown + GST (18%); the total is shown before payment (for example, the Board Pass is ₹1,917 + ₹345 GST = ₹2,262; a Chapter pack is ₹49 + ₹9 GST = ₹58). All payments are final.
@@ -112,7 +112,7 @@ Key facts:
 - [Pricing](https://www.lazytopper.com/pricing): what the free plan includes, what the Board Pass adds, and secure online payment through Razorpay (UPI, card or netbanking)
 - [PDF packs](https://www.lazytopper.com/packs): one-time chapter, mock, subject and bundle PDF packs, with a worked solution for every question
 - [Board Pass](https://www.lazytopper.com/board-pass): one payment till the boards: handwritten answers marked step by step like a CBSE examiner, every question and solution, Mistake Intelligence and a personal tutor
-- [CBSE Class 10 Test Series](https://www.lazytopper.com/test-series): the Pre-Boards Test Series: 26 numbered chapter tests and 40 full-length board-pattern tests in Maths and Science, the same paper for every student, with a calendar till the boards; MCQs marked free, written answers checked with the Test Series
+- [CBSE Class 10 Test Series](https://www.lazytopper.com/test-series): the Pre-Boards Test Series: 130 numbered chapter tests (5 per chapter) and 50 full-length board-pattern tests (25 per subject) in Maths and Science, 180 tests in all, the same paper for every student, with a calendar till the boards; MCQs marked free, written answers checked with the Test Series
 - [CBQ Packs](https://www.lazytopper.com/cbq-packs): printable competency-based question packs for Class 10 Maths and Science, one per subject, with step-wise worked solutions
 
 ## Class 10 Maths chapters

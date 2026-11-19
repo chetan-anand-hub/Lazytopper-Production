@@ -7,9 +7,9 @@
  */
 import type { SeriesPaperIds, SeriesPinnedSpec } from "./paperManifest";
 import pinnedIds from "./seriesPaperIds.json";
-import { tsPinDisabled } from "./tsPinFlag";
+import { isTsMorePaperKey, tsPinDisabled, tsPinDisabledFor } from "./tsPinFlag";
 
-export { tsPinDisabled };
+export { isTsMorePaperKey, tsPinDisabled, tsPinDisabledFor };
 
 const ALL = pinnedIds as unknown as SeriesPaperIds;
 

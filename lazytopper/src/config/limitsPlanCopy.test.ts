@@ -28,9 +28,11 @@ afterEach(() => vi.unstubAllEnvs());
 describe("the lines are built from limitsConfig", () => {
   it("Basic and trial numbers", () => {
     expect(basicDownloadLine()).toBe(`Download ${C.basic.downloadsPerWeek} paper a week — your first is free`);
-    expect(basicQuickPracticeLine()).toBe(`${C.basic.quickPracticeGradedPerDay} graded Quick Practice set a day — your first is free`);
+    // GATE-QP-1 (19 Nov 2026): Basic's graded (written) Quick Practice allowance is 0 -> no number, a plain Board Pass line.
+    expect(C.basic.quickPracticeWrittenGradedPerDay).toBe(0);
+    expect(basicQuickPracticeLine()).toBe("Quick Practice questions are scored as you tap; marking your written practice answers comes with the Board Pass");
     expect(basicDownloadCell()).toBe(`${C.basic.downloadsPerWeek} a week (first free)`);
-    expect(basicQuickPracticeCell()).toBe(`${C.basic.quickPracticeGradedPerDay} a day (first free)`);
+    expect(basicQuickPracticeCell()).toBe("Board Pass only");
     const t = trialLimitsSentence();
     for (const v of [C.trial.checkImprovePerWeek, C.trial.quickPracticeGradedPerDay, C.trial.downloadsPerWeek, C.trial.worksheetGradedPerWeek, C.trial.chapterTestGradedPerWeek, C.trial.fullMockGradedPerWeek]) {
       expect(t).toContain(String(v));
@@ -61,7 +63,7 @@ describe("flag ON: /pricing says the real limits and drops the claim that is no 
     const rows = compareSections({ freeCheck: false, limitsOn: true }).flatMap((s) => s.rows);
     const dl = rows.find((r) => r.label === "Download papers");
     expect(dl?.basic).toEqual({ kind: "text", text: basicDownloadCell() });
-    expect(rows.find((r) => r.label === "Graded Quick Practice sets")?.basic).toEqual({ kind: "text", text: basicQuickPracticeCell() });
+    expect(rows.find((r) => r.label === "Written practice answers marked (Quick Practice)")?.basic).toEqual({ kind: "text", text: basicQuickPracticeCell() });
     expect(rows.find((r) => r.label === "Open or download chapter tests and full mocks")).toBeUndefined();
     expect(rows.find((r) => r.label === "Chapter tests, mocks and worksheets graded")?.basic).toEqual({ kind: "no" });
   });

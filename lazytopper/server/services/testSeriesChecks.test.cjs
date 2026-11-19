@@ -241,10 +241,10 @@ test('manifest: a malformed paper is DROPPED (fail closed); a missing, unreadabl
   assert.match(MANIFEST_PATH, /server[\\/]data[\\/]testSeriesPapers\.json$/);
 });
 
-test('the REAL committed manifest (server/data/testSeriesPapers.json) loads 66 papers, none dropped, nothing logged', () => {
+test('the REAL committed manifest (server/data/testSeriesPapers.json) loads 180 papers (TS-MORE-1), none dropped, nothing logged', () => {
   const logs = [];
   const m = loadManifest(MANIFEST_PATH, { error: (x) => logs.push(x) });
-  assert.equal(m.count, 66);
+  assert.equal(m.count, 180);
   assert.equal(m.dropped, 0);
   assert.deepEqual(logs, []);
   assert.equal(m.byKey.get('TS-CT-M01').prefix, 'ct-ts1-real-numbers--');
@@ -860,4 +860,134 @@ test('TS-RECHECK-1 PREMIUM (Board Pass): never held, never counted, no free-rech
   serveWith(res, 2, 2, 1);
   await settle();
   assert.deepEqual(s.db.read(`packEntitlements/${s.uid}`), {}, 'untouched');
+});
+
+/* ── TS-MORE-1: 180 papers - chapter papers 2..5 and full-length 21..25 are admitted exactly like the original 66 ── */
+
+const Q3 = { 'm-ct-01-p3-b1': { text: 'Find the LCM of 12 and 18 by prime factorisation.', marks: 2 }, 'm-ct-01-p3-c1': { text: 'Show that 5 - sqrt(3) is irrational.', marks: 3 } };
+const Q24 = { 'm-fm-24-b1': { text: 'Find the zeroes of x² − 5x + 6.', marks: 2 } };
+Object.assign(Q, Q3, Q24);
+const entryOf = (key, prefix, ids, extra = {}) => ({
+  key, subject: 'Maths', kind: key.startsWith('TS-FM') ? 'mock' : 'chapter', number: 1, paperCode: key.slice(3), topicKey: key.startsWith('TS-FM') ? null : 'real-numbers',
+  worksheetIdPrefix: prefix, questionIds: ['x-a1', ...ids], sectionBEQuestionIds: ids,
+  textHashes: Object.fromEntries(ids.map((id) => [id, canonicalQuestionTextHash(Q[id].text)])), ...extra,
+});
+const MORE_RAW = [
+  ...MANIFEST_RAW,
+  entryOf('TS-CT-M01-3', 'ct-ts1p3-real-numbers--', ['m-ct-01-p3-b1', 'm-ct-01-p3-c1']),
+  entryOf('TS-FM-M24', 'fm-ts1-m24--', ['m-fm-24-b1']),
+];
+const MORE = indexManifest(MORE_RAW);
+const P3 = 'TS-CT-M01-3';
+const FM24 = 'TS-FM-M24';
+const p3Body = (over = {}) => ({ worksheetId: 'ct-ts1p3-real-numbers--mz1abc-7f3', questions: [q('m-ct-01-p3-b1', 7), q('m-ct-01-p3-c1', 8)], imageBase64: 'AAAA', ...over });
+
+test('TS-MORE-1: a check on chapter paper 3 (CT-M01-3) is admitted, counted under its OWN key, and paper 1\'s counter is untouched', async () => {
+  const s = setup({ manifest: MORE, used: { [CT]: 1 } });
+  const res = fakeRes();
+  assert.equal(await s.gate.applyToRequest(reqWith(p3Body()), res, GRADE, s.uid), false);
+  assert.equal(s.sent.length, 0);
+  res.serve(200, 2);
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, P3), 1);
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 1, 'the existing buyer\'s paper-1 count is exactly what it was');
+});
+
+test('TS-MORE-1: paper 3 has its own 2 checks - the third is the exhausted 402; paper 1 and paper 3 never share a counter', async () => {
+  const s = setup({ manifest: MORE, used: { [P3]: 2, [CT]: 0 } });
+  assert.equal(await s.gate.applyToRequest(reqWith(p3Body()), fakeRes(), GRADE, s.uid), true);
+  assert.equal(s.sent[0].status, 402);
+  assert.equal(s.sent[0].body.testSeries.reason, 'exhausted');
+  assert.equal(s.sent[0].body.testSeries.paperKey, P3);
+  const res = fakeRes();
+  assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid), false, 'paper 1 still has both its checks');
+  res.serve(200, 2);
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 1);
+  assert.equal(usedOnPaper(s.db, s.uid, P3), 2);
+});
+
+test('TS-MORE-1: full-length paper 24 (FM-M24) is admitted and counted under its own key', async () => {
+  const s = setup({ manifest: MORE });
+  const res = fakeRes();
+  assert.equal(await s.gate.applyToRequest(reqWith({ worksheetId: 'fm-ts1-m24--abc', questions: [q('m-fm-24-b1', 22)] }), res, GRADE, s.uid), false);
+  res.serve(200, 1);
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, FM24), 1);
+  assert.equal(usedOnPaper(s.db, s.uid, FM), 0);
+});
+
+test('TS-MORE-1: prefixes cannot be spoofed across papers - a paper-1 id never admits paper 3\'s questions, nor the reverse; "fm-ts1-m2--" never admits Mock 24', async () => {
+  const s = setup({ manifest: MORE });
+  // paper 1's worksheetId carrying paper 3's questions (valid ids and valid text for paper 3) -> mismatch, nothing spent
+  assert.equal(await s.gate.applyToRequest(reqWith(p3Body({ worksheetId: 'ct-ts1-real-numbers--abc' })), fakeRes(), GRADE, s.uid), true);
+  assert.equal(s.sent.at(-1).status, 409);
+  assert.equal(s.sent.at(-1).body.error, 'series_paper_mismatch');
+  // paper 3's worksheetId carrying paper 1's questions
+  assert.equal(await s.gate.applyToRequest(reqWith(seriesBody({ worksheetId: 'ct-ts1p3-real-numbers--abc' })), fakeRes(), GRADE, s.uid), true);
+  assert.equal(s.sent.at(-1).status, 409);
+  // Mock 2's id style does not reach Mock 24, and the mock cannot carry a chapter paper's questions
+  assert.equal(await s.gate.applyToRequest(reqWith({ worksheetId: 'fm-ts1-m2--abc', questions: [q('m-fm-24-b1', 22)] }), fakeRes(), GRADE, s.uid), true);
+  assert.notEqual(s.sent.at(-1).status, 200);
+  assert.equal(holdsOf(s.db, s.uid), 0);
+  assert.equal(usedOnPaper(s.db, s.uid, P3) + usedOnPaper(s.db, s.uid, CT) + usedOnPaper(s.db, s.uid, FM24), 0);
+  // the prefix lookup itself: each id resolves to exactly its own paper
+  assert.equal(seriesPaperOf({ worksheetId: 'ct-ts1p3-real-numbers--x' }, MORE).key, P3);
+  assert.equal(seriesPaperOf({ worksheetId: 'ct-ts1-real-numbers--x' }, MORE).key, CT);
+  assert.equal(seriesPaperOf({ worksheetId: 'ct-ts1p4-real-numbers--x' }, MORE), null, 'a paper the manifest does not have is no series paper');
+  assert.equal(seriesPaperOf({ worksheetId: 'ct-ts1p3-real-numbers-x--x' }, MORE), null);
+});
+
+test('TS-MORE-1: an UNKNOWN paper (ct-ts1p9-…, fm-ts1-m26--…) is refused - not a series paper, so the ordinary 402', async () => {
+  const s = setup({ manifest: MORE });
+  for (const w of ['ct-ts1p9-real-numbers--abc', 'fm-ts1-m26--abc', 'fm-ts1-m99--abc', 'ct-ts1p2-nope--abc']) {
+    assert.equal(await s.gate.applyToRequest(reqWith(p3Body({ worksheetId: w })), fakeRes(), GRADE, s.uid), true, w);
+    assert.equal(s.sent.at(-1).status, 402, w);
+    assert.equal(s.sent.at(-1).body.feature, 'grade-worksheet', `${w}: the ordinary 402, nothing spent`);
+  }
+  assert.equal(holdsOf(s.db, s.uid), 0);
+});
+
+test('TS-MORE-1 kill switch TS_MORE_DISABLED: papers 2..5 and 21..25 are no longer admitted (ordinary 402); the original papers are untouched', async () => {
+  for (const v of ['1', 'true', 'on', 'yes']) {
+    const s = setup({ manifest: MORE, env: { TS_MORE_DISABLED: v } });
+    assert.equal(await s.gate.applyToRequest(reqWith(p3Body()), fakeRes(), GRADE, s.uid), true, v);
+    assert.equal(s.sent.at(-1).body.feature, 'grade-worksheet', v);
+    assert.equal(await s.gate.applyToRequest(reqWith({ worksheetId: 'fm-ts1-m24--abc', questions: [q('m-fm-24-b1', 22)] }), fakeRes(), GRADE, s.uid), true, v);
+    assert.equal(s.sent.at(-1).body.feature, 'grade-worksheet', v);
+    // no LIMITS-1 exemption for the new papers either
+    assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'chapter-test', 'ct-ts1p3-real-numbers--abc'), false, v);
+    assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'full-mock', 'fm-ts1-m24--abc'), false, v);
+    assert.equal(await s.checks.ownerSeriesGrade(reqWith(p3Body()), s.uid), false, v);
+    // the originals: still series papers
+    assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'chapter-test', 'ct-ts1-real-numbers--abc'), true, v);
+    const res = fakeRes();
+    assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid), false, v);
+    res.serve(200, 2);
+    await settle();
+    assert.equal(usedOnPaper(s.db, s.uid, CT), 1, v);
+  }
+  const off = setup({ manifest: MORE, env: { TS_MORE_DISABLED: '0' } });
+  assert.equal(await off.checks.ownerSeriesPaper(off.uid, 'chapter-test', 'ct-ts1p3-real-numbers--abc'), true, 'off-values leave the new papers on');
+});
+
+test('TS-MORE-1: the REAL manifest - 180 papers, a prefix that is a prefix of another does not exist, and every new paper is recognised as new', () => {
+  const m = loadManifest(MANIFEST_PATH, { error: () => {} });
+  const { isMorePaper } = require('./testSeriesChecks.cjs');
+  assert.equal(m.count, 180);
+  const prefixes = m.papers.map((p) => p.prefix);
+  for (const a of prefixes) for (const b of prefixes) if (a !== b) assert.equal(b.startsWith(a), false, `${a} is a prefix of ${b}`);
+  assert.equal(m.papers.filter(isMorePaper).length, 180 - 66);
+  assert.equal(m.papers.slice(0, 66).some(isMorePaper), false, 'the original 66 are never "new"');
+  assert.equal(m.byKey.get('TS-CT-M01-3').prefix, 'ct-ts1p3-real-numbers--');
+  assert.ok(m.byKey.get('TS-FM-M24') && m.byKey.get('TS-FM-S25'));
+  // every paper is found by its own prefix and by nothing else
+  for (const p of m.papers) assert.equal(seriesPaperOf({ worksheetId: `${p.prefix}mz1abc-7f3` }, m).key, p.key);
+});
+
+test('TS-MORE-1: existing buyers\' counters are unchanged - status() lists committed checks per key exactly as before; new keys appear only once used', async () => {
+  const s = setup({ manifest: MORE, used: { [CT]: 1, [FM]: 2 } });
+  const st = await s.checks.status(s.uid);
+  assert.deepEqual(st.used, { [CT]: 1, [FM]: 2 });
+  assert.equal(st.checksPerPaper, CHECKS_PER_PAPER);
 });

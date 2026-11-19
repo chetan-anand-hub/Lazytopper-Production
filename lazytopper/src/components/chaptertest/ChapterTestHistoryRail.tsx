@@ -93,7 +93,10 @@ export default function ChapterTestHistoryRail({
   records,
   loading,
   onOpen,
+  paperTag,
 }: {
+  /** TS-MORE-1: the Test Series paper a sitting was ("CT-M01-3"), or null for a non-series sitting (nothing shown). */
+  paperTag?: (r: SessionRecord) => string | null;
   topicLabel: string;
   records: SessionRecord[];
   loading: boolean;
@@ -133,7 +136,8 @@ export default function ChapterTestHistoryRail({
                   <div>
                     <div className="lt-ct__hcard-name">{r.title}</div>
                     <div className="lt-ct__hcard-code">
-                      {r.id} · {relativeDate(r.gradedAt)}
+                      {r.id} · {paperTag?.(r) ? <span data-testid="ct-hist-paper">{paperTag(r)} · </span> : null}
+                      {relativeDate(r.gradedAt)}
                     </div>
                   </div>
                   {graded ? (

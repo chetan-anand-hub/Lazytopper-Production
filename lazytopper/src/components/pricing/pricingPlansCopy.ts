@@ -254,9 +254,8 @@ export const BASIC_LINE_STRONG = "Basic: free forever";
  * literal in a file the guard scans (this one). With the limits OFF nothing is capped, so the line keeps its old, unlimited wording.
  */
 export const BASIC_LINE_REST = ", with notes, NCERT solutions and practice sets";
-const BASIC_GRADED_SETS_PER_DAY = LIMITS_CONFIG.basic.quickPracticeGradedPerDay;
 const BASIC_DOWNLOADS_PER_WEEK = LIMITS_CONFIG.basic.downloadsPerWeek;
-export const BASIC_LINE_REST_LIMITED = `, with notes, NCERT solutions and limited practice (${BASIC_GRADED_SETS_PER_DAY} graded set a day, ${BASIC_DOWNLOADS_PER_WEEK} download a week)`;
+export const BASIC_LINE_REST_LIMITED = `, with notes, NCERT solutions and limited practice (${BASIC_DOWNLOADS_PER_WEEK} download a week; marking your written practice answers comes with the Board Pass)`;
 export function basicLineRest(limitsOn: boolean = limitsCopyOn()): string {
   return limitsOn ? BASIC_LINE_REST_LIMITED : BASIC_LINE_REST;
 }

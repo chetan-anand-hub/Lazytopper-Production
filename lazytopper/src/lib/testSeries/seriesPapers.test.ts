@@ -11,7 +11,7 @@ import { drawPackMocks } from "../packs/buildPackFiles";
 import { MOCKS_PER_SUBJECT } from "../packs/packLabels";
 import { drawSeriesFullMock } from "./seriesFullMock";
 import { pinnedSpecOf } from "./pinnedSpec";
-import { SERIES_MOCKS_PER_SUBJECT, chapterTestSeriesSeed, seriesKeyOfWorksheetId, seriesMockWorksheetId } from "./testSeries";
+import { SERIES_BASE_MOCKS_PER_SUBJECT, SERIES_MAX_MOCKS_PER_SUBJECT, chapterTestSeriesSeed, seriesKeyOfWorksheetId, seriesMockWorksheetId } from "./testSeries";
 
 const ids = (p: { paper: { questions: ReadonlyArray<{ id: string }> } }) => p.paper.questions.map((q) => q.id);
 
@@ -53,7 +53,7 @@ describe("Chapter Test fixed paper", () => {
  *  Full-Length Test 20 no longer equals the seeded pack draw n = 20 (the pool is smaller where the no-repeat fallback starts). The served paper is
  *  the PINNED one (TS-FM-M20, seriesPaperIds.json, acknowledged in pinnedPapers.test.ts), so no student sees a different paper; the seeded draws
  *  are only the kill-switch path. The identity and the pin are still asserted. Drop the entry when the draws agree again. */
-const ACKNOWLEDGED_SEEDED_PARITY_DRIFT: readonly string[] = ["Maths:20", "Maths:3"]; // Maths:3 - STEPMARK-2 batch 1 (step-mark prefixes moved the seeded Maths draw)
+const ACKNOWLEDGED_SEEDED_PARITY_DRIFT: readonly string[] = ["Maths:20", "Maths:3", "Maths:25", "Science:25"]; // Maths:25 - TS-MORE-1: the pin-only paper 25 chains from the pins (drawPackMockAfter), the online seeded draw does not; Maths:3 - STEPMARK-2 batch 1 (step-mark prefixes moved the seeded Maths draw)
 
 describe("Full-Length Test #n === the pack draw's paper n (#1–8 = PDF Mock #n)", () => {
   it.each([
@@ -61,7 +61,9 @@ describe("Full-Length Test #n === the pack draw's paper n (#1–8 = PDF Mock #n)
     ["Maths", 3],
     ["Science", 2],
     ["Science", MOCKS_PER_SUBJECT],
-    ["Maths", SERIES_MOCKS_PER_SUBJECT],
+    ["Maths", SERIES_BASE_MOCKS_PER_SUBJECT],
+    ["Science", SERIES_MAX_MOCKS_PER_SUBJECT],
+    ["Maths", SERIES_MAX_MOCKS_PER_SUBJECT],
   ] as const)("%s Full-Length Test %i has the pack draw's question ids", async (subject, n) => {
     const pack = subject === "Maths" ? "maths" : "science";
     await loadSubjectBank(pack);
@@ -72,6 +74,10 @@ describe("Full-Length Test #n === the pack draw's paper n (#1–8 = PDF Mock #n)
     expect(online).not.toBeNull();
     if (ACKNOWLEDGED_SEEDED_PARITY_DRIFT.includes(`${subject}:${n}`)) {
       expect(pinnedSpecOf(`TS-FM-${subject === "Maths" ? "M" : "S"}${n}`), "the served paper is pinned").not.toBeNull();
+      if (n > SERIES_BASE_MOCKS_PER_SUBJECT) {
+        // TS-MORE-1: the SERVED paper is the pin; the seeded draw is only the kill-switch path (which never reaches papers 21-25).
+        expect(pinnedSpecOf(`TS-FM-${subject === "Maths" ? "M" : "S"}${n}`)!.ids.length).toBe(ids(online!).length);
+      }
     } else {
       expect(ids(online!)).toEqual(ids(pdf!.drawn));
       expect(online!.paper.questions.map((q) => [q.section, q.marks])).toEqual(pdf!.drawn.paper.questions.map((q) => [q.section, q.marks]));
