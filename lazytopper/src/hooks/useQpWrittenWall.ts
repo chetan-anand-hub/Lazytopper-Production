@@ -13,8 +13,9 @@ function useQpWrittenWallOff(): boolean {
 
 function useQpWrittenWallLive(): boolean {
   const { user } = useAuth();
-  const { tier, hydrated } = useSubscription();
-  return qpWrittenWallApplies({ uid: user?.uid, hydrated, tier });
+  const { tier, cloudConfirmed } = useSubscription();
+  // A Board Pass holder is never walled off a cache/default guess: only a successful cloud read counts.
+  return qpWrittenWallApplies({ uid: user?.uid, hydrated: cloudConfirmed, tier });
 }
 
 export const useQpWrittenWall: () => boolean = gateQpDisabled() ? useQpWrittenWallOff : useQpWrittenWallLive;

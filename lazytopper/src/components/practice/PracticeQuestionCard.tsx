@@ -586,7 +586,7 @@ export function PracticeQuestionCard({
         )}
         {/* Discoverability nudge after a wrong MCQ: point at the EXISTING inline
             Check-my-answer box. No new data path — just reveals the checker. */}
-        {result === "wrong" && hasStructuredOptions && !showChecker && nudgeEnabled && countsAsAttempt ? (
+        {result === "wrong" && hasStructuredOptions && !showChecker && !answerBoxOff && nudgeEnabled && countsAsAttempt ? (
           !wrongNudgeGone ? (
             <WrongTapNudge
               id={`wrong:${String(q.id)}`}
