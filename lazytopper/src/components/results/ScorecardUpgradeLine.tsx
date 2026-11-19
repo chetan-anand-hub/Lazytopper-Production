@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Link, UNSAFE_LocationContext } from "react-router-dom";
 import { useTestSeriesOwnership } from "../testSeries/testSeriesOwnership";
 import { seriesPaperKeyOfWorksheetId } from "../../lib/testSeries/testSeries";
 import { isSeriesPaperLocation, seriesPaperPath, withSeriesReturn } from "../../lib/testSeries/seriesNav";
@@ -122,10 +122,12 @@ export const SERIES_OWNER_UPSELL_LINE = "Want the tutor and the Answer Checker t
  * `statusPaid` true (Premium) -> the ownership read is not even asked.
  */
 function useSeriesOwnerUpsell(uid: string, worksheetId: string | null | undefined, statusPaid: boolean): { to: string } | null {
-  const { pathname, search } = useLocation();
+  // A bare scorecard render has no Router: the location context is then null and the owner line never shows.
+  const routerLoc = useContext(UNSAFE_LocationContext)?.location ?? null;
   const onPaper = Boolean(seriesPaperKeyOfWorksheetId(worksheetId));
   const own = useTestSeriesOwnership(onPaper && !statusPaid ? uid : null);
-  if (!onPaper || statusPaid || !own.owns || own.phase !== "ready") return null;
+  if (!routerLoc || !onPaper || statusPaid || !own.owns || own.phase !== "ready") return null;
+  const { pathname, search } = routerLoc;
   const paper = isSeriesPaperLocation(pathname, search) ? seriesPaperPath(pathname, search) : `${pathname}${search}`;
   return { to: withSeriesReturn("/board-pass", paper) };
 }
