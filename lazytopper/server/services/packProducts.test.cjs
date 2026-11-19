@@ -186,3 +186,47 @@ test('TS-PACK-1 source pin: EVERY order-creating route asks isPackOnSale (so TS_
   assert.equal((parent.match(/if \(!isPackOnSale\(pack\.sku, env\)\) return unavailable\(res\);/g) || []).length, 2, 'parent link view + order');
   assert.match(parent, /isPackProduct\(wanted\.sku\) && !isPackOnSale\(wanted\.sku, env\)/);
 });
+
+/* ── TS-PRICE-2 · the Test Series base is time-dependent: 999 founding, 1,499 from the Board Pass founding cut-off ─────────── */
+test('TS-PRICE-2 · packBaseInrAt: 999 up to the last millisecond before 00:00 IST 1 Dec 2026, 1,499 from that instant; other packs unchanged', () => {
+  const { packBaseInrAt, packAcceptedBasesInr, TEST_SERIES_FOUNDING_INR, TEST_SERIES_LIST_INR, PACK_PRODUCTS } = require('./packProducts.cjs');
+  const { FOUNDING_OFFER_CLOSES_AT_MS } = require('./passPricing.cjs');
+  assert.equal(FOUNDING_OFFER_CLOSES_AT_MS, Date.parse('2026-12-01T00:00:00+05:30'), 'the SAME constant the Board Pass founding offer uses');
+  assert.equal(packBaseInrAt('test_series', FOUNDING_OFFER_CLOSES_AT_MS - 1), 999);
+  assert.equal(packBaseInrAt('test_series', FOUNDING_OFFER_CLOSES_AT_MS), 1499);
+  assert.equal(packBaseInrAt('test_series', FOUNDING_OFFER_CLOSES_AT_MS + 365 * 86400000), 1499);
+  assert.equal(packBaseInrAt('test_series', Date.parse('2026-11-19T08:23:00+05:30')), 999);
+  assert.equal(TEST_SERIES_FOUNDING_INR, 999);
+  assert.equal(TEST_SERIES_LIST_INR, 1499);
+  for (const sku of ['pack_chapter', 'pack_mock', 'pack_subject', 'pack_bundle', 'pack_cbq']) {
+    assert.equal(packBaseInrAt(sku, FOUNDING_OFFER_CLOSES_AT_MS - 1), PACK_PRODUCTS[sku].priceInr);
+    assert.equal(packBaseInrAt(sku, FOUNDING_OFFER_CLOSES_AT_MS), PACK_PRODUCTS[sku].priceInr);
+    assert.deepEqual(packAcceptedBasesInr(sku), [PACK_PRODUCTS[sku].priceInr]);
+  }
+  assert.deepEqual(packAcceptedBasesInr('test_series'), [999, 1499]);
+  assert.equal(packBaseInrAt('nope', 0), null);
+  assert.deepEqual(packAcceptedBasesInr('nope'), []);
+});
+
+test('TS-PRICE-2 · GUARD: no server file reads PACK_PRODUCTS[..].priceInr for an amount (a read would charge the founding 999 forever)', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const root = path.join(__dirname, '..');
+  const offenders = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) { if (e.name !== 'node_modules') walk(full); continue; }
+      if (!/\.cjs$/.test(e.name) || /\.test\.cjs$|\.suite\.cjs$/.test(e.name)) continue;
+      const lines = fs.readFileSync(full, 'utf8').split('\n');
+      lines.forEach((line, i) => {
+        if (/^\s*\/\//.test(line) || /^\s*\*/.test(line)) return;
+        if (/PACK_PRODUCTS\s*\[[^\]]*\]\s*\.priceInr/.test(line) || /PACK_PRODUCTS\.(?!pack_chapter\b)[a-z_]+\.priceInr/.test(line)) offenders.push(`${path.relative(root, full)}:${i + 1}`);
+      });
+    }
+  };
+  walk(root);
+  // Only packProducts.cjs itself (packBaseInrAt / packAcceptedBasesInr) may read it; the fixed-price Chapter Pack copy reads are exempted by the pattern.
+  const allowed = offenders.filter((o) => !o.startsWith(`services${path.sep}packProducts.cjs`));
+  assert.deepEqual(allowed, []);
+});

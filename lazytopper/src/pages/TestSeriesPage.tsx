@@ -5,7 +5,7 @@ import { useSubscription } from "../hooks/useSubscription";
 import { getSessionRecordsFromCloud } from "../services/sessionRecords";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import { boardPassPriceDisplay, FOUNDING_OFFER_LAST_DAY_LABEL, foundingOfferOpen } from "../config/pricing";
-import { packPriceLabel, TEST_SERIES_CHECKS_PER_PAPER } from "../services/packs";
+import { packPriceLabel, testSeriesFoundingClause, testSeriesPriceLine, TEST_SERIES_CHECKS_PER_PAPER } from "../services/packs";
 import { isPaidPremium } from "../services/subscriptionService";
 import { useTestSeriesOwnership } from "../components/testSeries/testSeriesOwnership";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
@@ -174,14 +174,16 @@ export default function TestSeriesPage() {
 
   // After mount only: today's schedule row, the founding line and the prices (the capture strips every price and clock node).
   const [current, setCurrent] = useState<SeriesScheduleRow["id"] | null>(null);
-  const [prices, setPrices] = useState<{ ts: string; bp: string; founding: string | null } | null>(null);
+  const [prices, setPrices] = useState<{ ts: string; bp: string; founding: string | null; tsFounding: string | null } | null>(null);
   useEffect(() => {
     const now = new Date();
     if (schedule) setCurrent(currentScheduleRow(schedule, istToday(now)));
     // TS-PACK-1: the Test Series price is the `test_series` SKU's ("₹999 + GST"); the Board Pass price is date-driven (founding
     // price till 30 Nov, list price from 1 Dec). The founding line shows only while that offer is really open.
     setPrices({
-      ts: `${packPriceLabel("test_series", now)} till your boards`,
+      // TS-PRICE-2: while the founding offer is open the card says "₹999 + GST · founding price till 30 Nov, then ₹1,499 + GST"; after it "₹1,499 + GST till your boards".
+      ts: testSeriesFoundingClause(now) ? testSeriesPriceLine(now) : `${packPriceLabel("test_series", now)} till your boards`,
+      tsFounding: testSeriesFoundingClause(now) ? `Test Series: ${testSeriesPriceLine(now)}` : null,
       bp: `${boardPassPriceDisplay(now)} till your boards`,
       founding: foundingOfferOpen(now) ? `Founding season: the Board Pass is ${boardPassPriceDisplay(now)} till ${FOUNDING_OFFER_LAST_DAY_LABEL}` : null,
     });
@@ -372,6 +374,10 @@ export default function TestSeriesPage() {
             </ul>
             <p className="lt-ts-hero__urgency" data-testid="ts-urgency">
               {prices?.founding ? <span data-lt-clock="">{prices.founding}</span> : null}
+            </p>
+            {/* TS-PRICE-2: the Test Series founding line (clock-derived, so stripped from the capture like the Board Pass line above). */}
+            <p className="lt-ts-hero__urgency" data-testid="ts-urgency-ts">
+              {prices?.tsFounding ? <span data-lt-clock="">{prices.tsFounding}</span> : null}
             </p>
             <div className="lt-ts-hero__cta">{heroCta}</div>
             {/* Signed-in-only box with a reserved height. Not a <section>: the capture strip removes the sign-in pair only. */}

@@ -143,7 +143,7 @@ export const SUBJECT_SWITCH_LABEL = "Subject";
 export const WHAT_YOU_GET_TITLE = "What you get with each";
 export const WHAT_YOU_GET_COLUMNS = [BOARD_PASS_NAME, "CBQ Pack", "Bundle"] as const;
 
-export type WhatCell = { kind: "yes" } | { kind: "no" } | { kind: "text"; text: string } | { kind: "price"; text: string };
+export type WhatCell = { kind: "yes" } | { kind: "no" } | { kind: "text"; text: string } | { kind: "price"; text: string; clock?: boolean };
 
 /** The rows, exactly as the prototype. `boardPassPrice` is the config's display price, read at render. */
 export function whatYouGetRows(boardPassPrice: string): ReadonlyArray<{ label: string; cells: readonly [WhatCell, WhatCell, WhatCell] }> {
@@ -207,7 +207,7 @@ export function whatYouGetRows4(
       label: "Price",
       cells: [
         { kind: "price", text: boardPassPrice },
-        { kind: "price", text: testSeries.price },
+        { kind: "price", text: testSeries.price, clock: true },
         { kind: "price", text: packPriceLabel("pack_cbq") },
         { kind: "price", text: packPriceLabel("pack_bundle") },
       ],

@@ -108,7 +108,7 @@ const sampleFu = require('./sampleFollowup.cjs'); // SAMPLE-FOLLOWUP-1
 const { listPacks } = require('./packGrant.cjs');
 const guestEmail = require('./guestAbandonEmail.cjs'); // GUEST-ABANDON-1
 const { isSuppressedTx } = require('./emailSuppression.cjs');
-const { PACK_PRODUCTS, isAlreadyOwned } = require('./packProducts.cjs');
+const { PACK_PRODUCTS, packBaseInrAt, isAlreadyOwned } = require('./packProducts.cjs');
 const { computeGrant } = require('./passGrant.cjs');
 
 const NUDGE_EMAILS_COLLECTION = 'nudgeEmails';
@@ -1781,7 +1781,7 @@ function createNudgeEmailer(deps = {}) {
   /** The item's CURRENT price for someone with no account (the guest checkout's own quote rule). null if unknown. */
   function currentPriceInr(product, nowMs) {
     try {
-      if (product.kind === 'pack') return PACK_PRODUCTS[product.sku] ? PACK_PRODUCTS[product.sku].priceInr : null;
+      if (product.kind === 'pack') return PACK_PRODUCTS[product.sku] ? packBaseInrAt(product.sku, nowMs) : null;
       const p = computeGrant({}, { passType: 'till_boards', paymentRef: 'quote', nowMs }).fields.pricePaidInr;
       return Number.isFinite(p) && p > 0 ? p : null;
     } catch {
@@ -1802,7 +1802,7 @@ function createNudgeEmailer(deps = {}) {
       const q =
         product.kind === 'pack'
           ? PACK_PRODUCTS[product.sku]
-            ? tableQuote(PACK_PRODUCTS[product.sku].priceInr, nowMs)
+            ? tableQuote(packBaseInrAt(product.sku, nowMs), nowMs)
             : null
           : quotePass({}, 'till_boards', nowMs);
       return { currentPriceText: q ? abandoned.quotePriceText({ amountPaise: q.amountPaise, gst: q.gst, packCreditInr: 0 }) : null };
