@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "acids-bases-and-salts" (Science): 556 served rows from 26 source arrays, 22 withheld.
+// Chapter "acids-bases-and-salts" (Science): 540 served rows from 26 source arrays, 38 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -62,6 +62,22 @@ export default defineChapter("acids-bases-and-salts", [
   [456, ACIDS_BASES_AND_SALTS_C3_CBQ_LT_GENERATED, false],
 ], [
   "ABS-E04",
+  "ABS2-010",
+  "ABS2-011",
+  "ABS2-018",
+  "ABS2-019",
+  "ABS2-020",
+  "ABS2-022",
+  "ABS2-023",
+  "ABS2-024",
+  "ABS2-035",
+  "ABS2-036",
+  "ABS2-038",
+  "ABS2-040",
+  "ABS2-042",
+  "ABS2-044",
+  "ABS2-047",
+  "ABS2-048",
   "ACID-EXMPLR-2-MCQ-015",
   "SCO-S-ACID-005",
   "SCO-S-ACID-014",

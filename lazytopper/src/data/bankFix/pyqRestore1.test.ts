@@ -165,7 +165,8 @@ describe("PYQ-RESTORE-1 · both subjects", () => {
     // 18 Oct WITHHOLD-METAL-007: PYQ-S-2026-METAL-007 withheld (misfiled Biology row), measured by import 10580 -> 10579.
     // 19 Oct REFILE-PYQ2026-1: METAL-007 re-filed to control-and-coordination and served again, measured by import 10579 -> 10580.
     // 19 Oct HIDE8-FIG8-1 Part A (owner ruling 07:08 IST): PYQ-S-2026-CHEMRXN-001 / -004 and PYQ-S-2026-ELEC-010 withheld as WRONG-CHAPTER, measured by import 10580 -> 10577.
-    expect(canonicalQuestionBank.length).toBeGreaterThanOrEqual(10577);
+    // 19 Nov BANK-RETIRE-1 (owner ruling: retire, not repair): 515 generated AI-pack rows withheld, measured by import 10694 -> 10179; floor 10577 -> 10062.
+    expect(canonicalQuestionBank.length).toBeGreaterThanOrEqual(10062);
   });
 });
 

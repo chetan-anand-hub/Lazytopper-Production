@@ -22,7 +22,9 @@ const normaliseQuestionText = (t: unknown): string =>
     .replace(/[‐-―−]/g, "-")
     .replace(/[\s.,;:?!'"‘’“”()[\]{}-]/g, "");
 
-/** Measured 2026-10-23 on the PYQ-RESTORE-B PR-2 tree: 55 groups, 119 served rows. */
+/** Measured 2026-10-23 on the PYQ-RESTORE-B PR-2 tree: 55 groups, 119 served rows.
+ *  19 Nov 2026 BANK-RETIRE-1 (owner ruling: retire, not repair): four groups left the list because their generated AI-pack twins
+ *  were retired from serving (RN-N-NCERT-1-LA-001/-002/-003 with RN2-010/-011/-034/-050, AP-N-NCERT-5-MCQ-005 with AP2-004): 51 groups. */
 const KNOWN_SERVED_TEXT_DUPLICATES: readonly (readonly string[])[] = [
   ["2026-TRIG-P1-A-013", "TRIG2-E04"],
   ["2026-TRIG-P1-A-015", "TG3-025"],
@@ -36,14 +38,10 @@ const KNOWN_SERVED_TEXT_DUPLICATES: readonly (readonly string[])[] = [
   ["RN-E05", "RN2-008"],
   ["RN-E19", "RN-N-NCERT-1-MCQ-002"],
   ["RN-N02", "RN2-012"],
-  ["RN-N-NCERT-1-LA-002", "RN2-010"],
-  ["RN-N-NCERT-1-LA-003", "RN2-011"],
-  ["RN-N-NCERT-1-LA-001", "RN2-034", "RN2-050"],
   ["QE-E01", "QE-N-EXMPLR-4-MCQ-001", "QE-N-NCERT-4-MCQ-001", "QE2-001", "QE2-051"],
   ["QE-E02", "QE2-046"],
   ["QE-E04", "QE-N02"],
   ["QE2-045", "QE2-047"],
-  ["AP-N-NCERT-5-MCQ-005", "AP2-004"],
   ["ARC-E08", "ARC2-051"],
   ["PR2-028", "PROB-E01"],
   ["PB-M-1-PROB-A-001", "PR2-046"],

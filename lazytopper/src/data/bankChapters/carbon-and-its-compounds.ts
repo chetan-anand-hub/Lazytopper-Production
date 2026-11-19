@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "carbon-and-its-compounds" (Science): 366 served rows from 22 source arrays, 19 withheld.
+// Chapter "carbon-and-its-compounds" (Science): 358 served rows from 22 source arrays, 27 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -54,8 +54,16 @@ export default defineChapter("carbon-and-its-compounds", [
   [435, CARBON_CBQ_B1_LT_GENERATED, false],
 ], [
   "CARB-M10",
+  "CC2-009",
+  "CC2-020",
+  "CC2-022",
   "CC2-023",
+  "CC2-024",
+  "CC2-025",
   "CC2-034",
+  "CC2-047",
+  "CC2-048",
+  "CC2-051",
   "CARB-EXMPLR-4-MCQ-011",
   "CARB-EXMPLR-4-MCQ-018",
   "CARB-EXMPLR-4-SA-002",

@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "pair-of-linear-equations" (Maths): 439 served rows from 21 source arrays, 50 withheld.
+// Chapter "pair-of-linear-equations" (Maths): 416 served rows from 21 source arrays, 73 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -59,11 +59,33 @@ export default defineChapter("pair-of-linear-equations", [
   "PLE-H05",
   "PLE-H07",
   "PLE-H10",
+  "PLE2-004",
+  "PLE2-006",
+  "PLE2-009",
+  "PLE2-010",
+  "PLE2-011",
   "PLE2-012",
+  "PLE2-013",
+  "PLE2-017",
+  "PLE2-019",
+  "PLE2-020",
+  "PLE2-021",
+  "PLE2-022",
+  "PLE2-026",
+  "PLE2-028",
+  "PLE2-033",
   "PLE2-037",
+  "PLE2-038",
   "PLE2-039",
+  "PLE2-040",
   "PLE2-041",
+  "PLE2-043",
   "PLE2-R01",
+  "PLE2-R02",
+  "PLE2-R03",
+  "PLE2-R05",
+  "PLE2-R06",
+  "PLE2-R07",
   "PLE-N-NCERT-3-LA-004",
   "PLE-N-EXMPLR-3-MCQ-001",
   "PLE-N-EXMPLR-3-MCQ-005",
@@ -101,4 +123,5 @@ export default defineChapter("pair-of-linear-equations", [
   "BX-PLE-RED-E-012",
   "BX-PLE-RED-E-013",
   "APQ-M-PLE-002",
+  "APQ-M-PLE-009",
 ]);

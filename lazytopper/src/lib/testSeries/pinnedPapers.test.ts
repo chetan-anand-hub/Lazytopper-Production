@@ -17,7 +17,8 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { drawChapterTest, subjectiveQuestions } from "../../components/chaptertest/chapterTestBlueprint";
 import { fullMockSubjectiveQuestions } from "../../components/fullmock/fullMockBlueprint";
 import { ensureAllBankChapters } from "../../data/bankChapters/loader";
-import { WITHHELD_QUESTION_IDS } from "../../data/canonicalQuestionBank";
+import { RAW_CANONICAL_QUESTION_BANK, WITHHELD_QUESTION_IDS, canonicalQuestionBank } from "../../data/canonicalQuestionBank";
+import { BANK_RETIRE_1_WITHHELD_SET } from "../../data/bankFix/bankRetire1Withholds";
 import { canonicalQuestionText, type SeriesPaperManifestEntry } from "./paperManifest";
 import { buildPinnedChapterTest, buildSeriesChapterTest, unservedChapterIds } from "./pinnedChapterTest";
 import { buildPinnedFullMock, unservedMockIds } from "./pinnedFullMock";
@@ -26,8 +27,14 @@ import { loadRawBankRowsById } from "./rawBankRows";
 import { buildSeriesFullMock, drawSeriesFullMock } from "./seriesFullMock";
 import { chapterTestSeriesSeed, seriesChapterTests, seriesFullMocks, seriesTotals } from "./testSeries";
 
-/** Keys whose SEEDED draw is allowed to differ from the pinned paper (the bank changed on purpose). Empty at TS-PIN-1. */
-const ACKNOWLEDGED_DRIFT: readonly string[] = [];
+/** Keys whose SEEDED draw is allowed to differ from the pinned paper (the bank changed on purpose). Empty at TS-PIN-1.
+ *  BANK-RETIRE-1 (19 Nov 2026, owner ruling: retire, not repair): 515 generated AI-pack rows left the served bank, so every chapter's candidate
+ *  pool is smaller and the seeded draw of all 26 chapter tests and 15 of the 40 full-length tests moved (13 at the 515, +2 with the four owner-approved withholds). The pinned papers did NOT move (their
+ *  ids are in seriesPaperIds.json; the four papers that hold a retired id - TS-CT-M07, M09, M11, M12 - resolve it from the raw bank, proved below). */
+const ACKNOWLEDGED_DRIFT: readonly string[] = [
+  "TS-CT-M01", "TS-CT-M02", "TS-CT-M03", "TS-CT-M04", "TS-CT-M05", "TS-CT-M06", "TS-CT-M07", "TS-CT-M08", "TS-CT-M09", "TS-CT-M10", "TS-CT-M11", "TS-CT-M12", "TS-CT-M13", "TS-CT-S01", "TS-CT-S02", "TS-CT-S03", "TS-CT-S04", "TS-CT-S05", "TS-CT-S06", "TS-CT-S07", "TS-CT-S08", "TS-CT-S09", "TS-CT-S10", "TS-CT-S11", "TS-CT-S12", "TS-CT-S13",
+  "TS-FM-M1", "TS-FM-M4", "TS-FM-M5", "TS-FM-M6", "TS-FM-M8", "TS-FM-M9", "TS-FM-M10", "TS-FM-M11", "TS-FM-M12", "TS-FM-M14", "TS-FM-M18", "TS-FM-M15", "TS-FM-M17", "TS-FM-M20", "TS-FM-S3",
+];
 
 const STAMP = "2026-01-01T00:00:00.000Z";
 const sha256 = (s: string) => createHash("sha256").update(s, "utf8").digest("hex");
@@ -45,15 +52,19 @@ describe("TS-PIN-1 byte-identity: pinned build == today's seeded draw, for every
     for (const e of entries) expect(pinnedSpecOf(e.key), e.key).not.toBeNull();
   });
 
-  it("chapter tests: the pinned paper deep-equals drawChapterTest({ fixedSeed }) (ids, order, sections, qNumbers, marks, CBQ, blueprint)", () => {
+  it("chapter tests: the pinned paper deep-equals drawChapterTest({ fixedSeed }) (ids, order, sections, qNumbers, marks, CBQ, blueprint)", async () => {
     const drifted: string[] = [];
     let compared = 0;
     for (const t of seriesChapterTests()) {
       const key = `TS-${t.code}`;
       const args = { subject: t.subject, topicKey: t.topicKey, topicLabel: t.label, worksheetId: `ct-ts1-${t.topicKey}--x`, code: "CT-#01", name: `${t.label} · Chapter Test`, createdAt: STAMP };
       const draw = drawChapterTest({ ...args, fixedSeed: chapterTestSeriesSeed(t.topicKey) });
-      const pinned = buildPinnedChapterTest(args, pinnedSpecOf(key)!);
+      // BANK-RETIRE-1: a pinned id the served bank no longer serves is resolved from the RAW bank, exactly as the page entry does.
+      const spec = pinnedSpecOf(key)!;
+      const unserved = unservedChapterIds(spec, t.subject, t.topicKey);
+      const pinned = buildPinnedChapterTest(args, spec, unserved.length ? await loadRawBankRowsById(unserved) : new Map());
       expect(pinned.missingIds, key).toEqual([]);
+      expect(pinned.drawn.paper.questions.map((q) => q.id), `${key} keeps every pinned id, in order`).toEqual(spec.ids);
       if (JSON.stringify(draw.paper.questions.map((q) => q.id)) !== JSON.stringify(pinned.drawn.paper.questions.map((q) => q.id))) {
         drifted.push(key);
         continue;
@@ -66,7 +77,7 @@ describe("TS-PIN-1 byte-identity: pinned build == today's seeded draw, for every
     expect(compared + drifted.length).toBe(26);
   }, 120_000);
 
-  it("full-length tests: the pinned paper deep-equals drawSeriesFullMock (the seeded draw) for all 40", () => {
+  it("full-length tests: the pinned paper deep-equals drawSeriesFullMock (the seeded draw) for all 40", async () => {
     const drifted: string[] = [];
     let compared = 0;
     for (const m of seriesFullMocks()) {
@@ -74,8 +85,11 @@ describe("TS-PIN-1 byte-identity: pinned build == today's seeded draw, for every
       const identity = { worksheetId: `fm-ts1-${m.code}--x`, code: "FM-#01", name: `${m.subject} Full Mock`, createdAt: STAMP };
       const draw = drawSeriesFullMock(m.subject, m.n, identity);
       expect(draw, `${key} seeded draw`).not.toBeNull();
-      const pinned = buildPinnedFullMock(m.subject, pinnedSpecOf(key)!, identity);
+      const spec = pinnedSpecOf(key)!;
+      const unserved = unservedMockIds(spec, m.subject);
+      const pinned = buildPinnedFullMock(m.subject, spec, identity, unserved.length ? await loadRawBankRowsById(unserved) : new Map());
       expect(pinned.missingIds, key).toEqual([]);
+      expect(pinned.drawn.paper.questions.map((q) => q.id), `${key} keeps every pinned id, in order`).toEqual(spec.ids);
       if (JSON.stringify(draw!.paper.questions.map((q) => q.id)) !== JSON.stringify(pinned.drawn.paper.questions.map((q) => q.id))) {
         drifted.push(key);
         continue;
@@ -90,16 +104,20 @@ describe("TS-PIN-1 byte-identity: pinned build == today's seeded draw, for every
 });
 
 describe("TS-PIN-1 admission parity: a pinned paper's written questions are exactly what the server manifest admits", () => {
-  it("every written question's canonical-text hash equals the manifest's textHash (all 66 papers)", () => {
+  it("every written question's canonical-text hash equals the manifest's textHash (all 66 papers)", async () => {
     for (const e of entries) {
       const spec = pinnedSpecOf(e.key)!;
       let written: Array<{ id: string; text: string }>;
       if (e.kind === "chapter") {
         const t = seriesChapterTests().find((x) => `TS-${x.code}` === e.key)!;
-        const p = buildPinnedChapterTest({ subject: t.subject, topicKey: t.topicKey, topicLabel: t.label, worksheetId: "w", createdAt: STAMP }, spec).drawn.paper;
+        const unserved = unservedChapterIds(spec, t.subject, t.topicKey);
+        const raw = unserved.length ? await loadRawBankRowsById(unserved) : new Map();
+        const p = buildPinnedChapterTest({ subject: t.subject, topicKey: t.topicKey, topicLabel: t.label, worksheetId: "w", createdAt: STAMP }, spec, raw).drawn.paper;
         written = subjectiveQuestions(p).map((q) => ({ id: String(q.id), text: q.questionText }));
       } else {
-        const p = buildPinnedFullMock(e.subject, spec, { worksheetId: "w", code: "c", name: "n", createdAt: STAMP }).drawn.paper;
+        const unserved = unservedMockIds(spec, e.subject);
+        const raw = unserved.length ? await loadRawBankRowsById(unserved) : new Map();
+        const p = buildPinnedFullMock(e.subject, spec, { worksheetId: "w", code: "c", name: "n", createdAt: STAMP }, raw).drawn.paper;
         written = fullMockSubjectiveQuestions(p).map((q) => ({ id: String(q.id), text: q.questionText }));
       }
       expect(written.map((w) => w.id), e.key).toEqual(e.sectionBEQuestionIds);
@@ -152,6 +170,51 @@ describe("TS-PIN-1 missing pinned ids: keep from the RAW bank; only if truly abs
     expect(gone.missingIds).toEqual(["ZZ-NOT-A-QUESTION"]);
     expect(gone.drawn.paper.questions.map((q) => q.id)).toEqual(spec.ids);
   }, 120_000);
+});
+
+describe("BANK-RETIRE-1: a retired row on a pinned series paper is still served FROM THE RAW BANK, with its stored steps", () => {
+  const rawById = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [q.id, q] as const));
+  const servedIds = new Set(canonicalQuestionBank.map((q) => q.id));
+  const holders = Object.entries(allPinnedSpecs()).flatMap(([key, spec]) => {
+    const ids = spec.ids.filter((id) => BANK_RETIRE_1_WITHHELD_SET.has(id));
+    return ids.length ? [{ key, spec, ids }] : [];
+  });
+
+  it("non-vacuous: pinned series papers do hold retired ids, and none of those ids is served", () => {
+    expect(holders.length).toBeGreaterThan(0);
+    for (const h of holders) for (const id of h.ids) {
+      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(true);
+      expect(servedIds.has(id), id).toBe(false);
+      expect(rawById.has(id), id).toBe(true);
+    }
+  });
+
+  it("the page entries return the pinned paper whole: every id present, none missing, steps and answer identical to the stored row", async () => {
+    for (const { key, spec, ids } of holders) {
+      let questions;
+      let missing: string[];
+      if (key.startsWith("TS-CT-")) {
+        const t = seriesChapterTests().find((x) => `TS-${x.code}` === key)!;
+        const r = await buildSeriesChapterTest(key, { subject: t.subject, topicKey: t.topicKey, topicLabel: t.label, worksheetId: "w", createdAt: STAMP });
+        questions = r!.drawn.paper.questions;
+        missing = r!.missingIds;
+      } else {
+        const m = seriesFullMocks().find((x) => `TS-${x.code}` === key)!;
+        const r = await buildSeriesFullMock(m.subject, m.n, { worksheetId: "w", code: "FM-#01", name: "n", createdAt: STAMP });
+        questions = r!.drawn.paper.questions;
+        missing = r!.missingIds;
+      }
+      expect(missing, key).toEqual([]);
+      expect(questions.map((q) => q.id), key).toEqual(spec.ids);
+      for (const id of ids) {
+        const got = questions.find((q) => q.id === id)!;
+        const raw = rawById.get(id)!;
+        expect(got.solutionSteps, `${key} ${id} steps`).toEqual(raw.solutionSteps);
+        expect(got.finalAnswer, `${key} ${id} finalAnswer`).toEqual(raw.finalAnswer);
+        expect(got.questionText, `${key} ${id} text`).toBe(raw.questionText);
+      }
+    }
+  }, 300_000);
 });
 
 describe("TS-PIN-1 page entries and the kill switch", () => {

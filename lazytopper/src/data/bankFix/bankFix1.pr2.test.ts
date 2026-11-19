@@ -68,6 +68,7 @@ import { PYQ_RESTORE_1_RESTORED_IDS } from "./pyqRestore1Ledger";
 import { PYQ_RESTORE_B_IDS } from "./pyqRestoreBLedger";
 import { PYQ_RESTORE_B_SCIENCE_IDS } from "./pyqRestoreBScienceLedger";
 import { BANK_RESIDUE_1_WITHHELD_IDS } from "./bankResidue1Ledger";
+import { BANK_RETIRE_1_OWNER_WITHHOLD_IDS, BANK_RETIRE_1_WITHHELD_IDS, BANK_RETIRE_1_WITHHELD_SET } from "./bankRetire1Withholds";
 import { BANK_FIX_3_OFFICIAL_RESOURCED_IDS, BANK_FIX_3_RESTORED_IDS, BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS, BANK_FIX_3_WITHHELD_BY_CHAPTER } from "./bankFix3Ledger";
 
 type Row = Record<string, unknown> & { id: string };
@@ -160,8 +161,11 @@ describe("BANK-FIX-1 PR-2 · withheld rows are withheld", () => {
       const e = BANK_FIX_1_PR2.find((x) => x.id === id && x.surface === "bank");
       expect(e?.verdict, id).toBe("withheld");
       expect(e?.category, id).toBe("figure");
-      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(false);
-      expect(servedIds.has(id), id).toBe(true);
+      // BANK-RETIRE-1 addendum (19 Nov 2026, owner-approved): APQ-M-STAT-008 was served again by BANK-UNWITHHOLD-1 and is withheld again
+      // (bankFix/bankRetire1Withholds.ts BANK_RETIRE_1_OWNER_WITHHOLD_REASONS).
+      const withheldAgain = BANK_RETIRE_1_OWNER_WITHHOLD_IDS.includes(id);
+      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(withheldAgain);
+      expect(servedIds.has(id), id).toBe(!withheldAgain);
     }
     expect(WITHHELD_QUESTION_IDS.has("PYQ-S-MAG-003")).toBe(true);
     expect(servedIds.has("PYQ-S-MAG-003")).toBe(false);
@@ -234,7 +238,9 @@ describe("BANK-FIX-1 PR-2 · ruling 2: Others rows are never PYQ / NCERT / year-
   const others = BANK_FIX_1_PR2.filter((e) => e.others && e.surface === "bank" && servedIds.has(e.id) && !BANK_FIX_3_OFFICIAL_RESOURCED_IDS.has(e.id) && !PYQ_RESTORE_1_RESTORED_IDS.has(e.id) && !PYQ_RESTORE_B_IDS.has(e.id) && !PYQ_RESTORE_B_SCIENCE_IDS.has(e.id));
   // Floor lowered 800 -> 700 by PYQ-RESTORE-1 PR-2 (2026-10-18): 81 Science rows confirmed against the
   // official papers left this set (753 served Others rows measured after the lane).
-  it("has served Others rows (non-vacuous)", () => expect(others.length).toBeGreaterThan(700));
+  // Floor lowered 700 -> 500 by BANK-RETIRE-1 (19 Nov 2026, owner ruling: retire, not repair): 515 generated AI-pack rows left the served
+  // bank (571 served Others rows measured after the lane).
+  it("has served Others rows (non-vacuous)", () => expect(others.length).toBeGreaterThan(500));
   it("no Others row is PYQ (either matcher), carries a year, or is offered as PYQ / NCERT", () => {
     const bad: string[] = [];
     for (const e of others) {
@@ -297,7 +303,7 @@ describe("BANK-FIX-1 PR-2 · the audit checks, re-run over the whole served set"
     const both = BANK_FIX_1_PR2_DUPLICATE_PAIRS.filter(([a, b]) => servedIds.has(a) && servedIds.has(b));
     expect(both).toEqual([]);
     // 13 Oct BANK-STEPS-1 PR-1: a kept twin whose steps answer another question is paused until its repair PR, so it is not served meanwhile.
-    expect(BANK_FIX_1_PR2_DUPLICATE_PAIRS.filter(([, keep]) => !servedIds.has(keep) && !STEPS1_PAUSED_IDS.has(keep)).map(([, k]) => k)).toEqual([]);
+    expect(BANK_FIX_1_PR2_DUPLICATE_PAIRS.filter(([, keep]) => !servedIds.has(keep) && !STEPS1_PAUSED_IDS.has(keep) && !BANK_RETIRE_1_WITHHELD_SET.has(keep)).map(([, k]) => k)).toEqual([]);
   });
   it("every promptD fallback row is served with a non-empty stem and an answer", () => {
     expect(promptDRows.length).toBeGreaterThan(200);
@@ -375,8 +381,11 @@ describe("BANK-FIX-1 PR-2 · served counts per chapter", () => {
   // chapter (never retyped); a row that a later lane re-reads and serves again leaves the ledger's withheld set.
   const RESIDUE1_BY_CHAPTER: Record<string, string[]> = {};
   for (const id of BANK_RESIDUE_1_WITHHELD_IDS) (RESIDUE1_BY_CHAPTER[String(bankById.get(id)?.topicKey)] ??= []).push(id);
+  // BANK-RETIRE-1 (19 Nov 2026): 515 generated AI-pack rows retired from serving (bankRetire1Withholds.ts), read by chapter, never retyped.
+  const RETIRE1_BY_CHAPTER: Record<string, string[]> = {};
+  for (const id of BANK_RETIRE_1_WITHHELD_IDS) (RETIRE1_BY_CHAPTER[String(bankById.get(id)?.topicKey)] ??= []).push(id);
   const LATER_WITHHOLDS: Record<string, readonly string[]> = Object.fromEntries(
-    [...new Set([...Object.keys(LATER_WITHHOLDS_BASE), ...Object.keys(STEPS1_PAUSED_BY_CHAPTER), ...Object.keys(GARBLE1_PR3), ...Object.keys(RESIDUE1_BY_CHAPTER)])].map((c) => [c, [...(LATER_WITHHOLDS_BASE[c] ?? []), ...(STEPS1_PAUSED_BY_CHAPTER[c] ?? []), ...(GARBLE1_PR3[c] ?? []), ...(RESIDUE1_BY_CHAPTER[c] ?? [])]]),
+    [...new Set([...Object.keys(RETIRE1_BY_CHAPTER), ...Object.keys(LATER_WITHHOLDS_BASE), ...Object.keys(STEPS1_PAUSED_BY_CHAPTER), ...Object.keys(GARBLE1_PR3), ...Object.keys(RESIDUE1_BY_CHAPTER)])].map((c) => [c, [...(LATER_WITHHOLDS_BASE[c] ?? []), ...(STEPS1_PAUSED_BY_CHAPTER[c] ?? []), ...(GARBLE1_PR3[c] ?? []), ...(RESIDUE1_BY_CHAPTER[c] ?? []), ...(RETIRE1_BY_CHAPTER[c] ?? [])]]),
   );
   it("every later-lane withhold is withheld, not served, and in its chapter", () => {
     const bad = Object.entries(LATER_WITHHOLDS).flatMap(([chapter, ids]) =>

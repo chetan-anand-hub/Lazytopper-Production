@@ -284,7 +284,8 @@ describe("(c) every published Science row is served, verified, and passes every 
       ["life-processes", 7, 9, { "off-book-term": 80, held: 4, "ref-mismatch": 14, "source-others": 1 }],
       ["control-and-coordination", 5, 21, { "off-book-term": 43, "source-others": 3, held: 2 }],
       ["how-do-organisms-reproduce", 5, 15, { "off-book-term": 50, held: 8, "source-others": 3 }],
-      ["heredity", 0, 8, { "off-book-term": 25, "ref-not-a-book-question": 2, held: 1 }],
+      // BANK-RETIRE-1 addendum (19 Nov 2026): HERED-EXMPLR-8-LA-003 (not self-contained) withheld, so heredity off-book-term 25 -> 24.
+      ["heredity", 0, 8, { "off-book-term": 24, "ref-not-a-book-question": 2, held: 1 }],
       ["light-reflection-and-refraction", 28, 15, { held: 10, "source-others": 4, "needs-figure": 2, "off-book-term": 11, "step-marking": 1 }],
       ["human-eye-and-colourful-world", 14, 13, { held: 4, "off-book-term": 10, "source-others": 1 }],
       ["electricity", 38, 11, { held: 14, "needs-figure": 3, "off-book-term": 16, "source-others": 6, syllabus: 1 }],
