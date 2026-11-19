@@ -1,7 +1,8 @@
 import { type MouseEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import { readHistoryIdx, resolveBackTarget } from "../../lib/nav/routeParents";
+import { readHistoryIdx, resolveBackTarget, type BackTarget } from "../../lib/nav/routeParents";
+import { seriesBackFromSearch } from "../../lib/testSeries/seriesNav";
 import { withParentFlag } from "../../lib/parentReturn";
 
 /**
@@ -21,8 +22,14 @@ import { withParentFlag } from "../../lib/parentReturn";
 export default function RouteNavBar({ placement = "page" }: { placement?: "page" | "shell" } = {}) {
   const location = useLocation();
   const navigate = useNavigate();
-  const target = resolveBackTarget(location.pathname, readHistoryIdx());
-  if (!target) return null;
+  const baseTarget = resolveBackTarget(location.pathname, readHistoryIdx());
+  if (!baseTarget) return null;
+  // TS-NAV-1 - a page reached FROM a Test Series paper (`from=test-series&returnTo=<paper>`) goes back UP that chain: the paper (its
+  // scorecard reopens), else /test-series. A real link, plus Home. Inert without the pair or with VITE_TS_NAV_DISABLED.
+  const seriesBack = seriesBackFromSearch(location.search);
+  const target: BackTarget = seriesBack
+    ? { kind: "parent", to: seriesBack.to, label: seriesBack.label, showHome: true }
+    : baseTarget;
 
   const onBack = (e: MouseEvent<HTMLAnchorElement>) => {
     if (target.kind !== "history" || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;

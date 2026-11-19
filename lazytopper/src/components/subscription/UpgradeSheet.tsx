@@ -43,6 +43,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { isSeriesPaperLocation, tagWhenSeriesPaper } from "../../lib/testSeries/seriesNav";
 import { notifyPaywallDismissed } from "../feedback/feedbackPromptHost";
 import { PREMIUM_PLUS } from "../../config/pricingCompare";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -248,7 +249,9 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
 
   const handleSeePlans = () => {
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
-    navigate(`/pricing?source=upgrade-sheet&returnTo=${encodeURIComponent(returnTo)}`);
+    // TS-NAV-1: from a Test Series paper the plans page also carries `from=test-series`, so its Back row returns to the paper.
+    const seriesTag = isSeriesPaperLocation(location.pathname, location.search) ? "&from=test-series" : "";
+    navigate(`/pricing?source=upgrade-sheet&returnTo=${encodeURIComponent(returnTo)}${seriesTag}`);
   };
 
   const trialLine = formatTrialEnded(trialEndedAt);
@@ -376,13 +379,13 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
         {pack && uid && showPackLine(subscription, hydrated) && (
           <p className="lt-upsheet__pack" data-testid="upgrade-sheet-pack">
             {packParts ? (
-              <Link to={pack.href}>
+              <Link to={tagWhenSeriesPaper(pack.href, location.pathname, location.search)}>
                 {packParts.before}
                 <strong>{packParts.price}</strong>
                 {packParts.after}
               </Link>
             ) : (
-              <Link to={PACK_LINE_HREF}>{PACK_LINE_TEXT}</Link>
+              <Link to={tagWhenSeriesPaper(PACK_LINE_HREF, location.pathname, location.search)}>{PACK_LINE_TEXT}</Link>
             )}
           </p>
         )}

@@ -173,6 +173,8 @@ import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
 import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, seriesStartDecision } from "../lib/testSeries/seriesAccess";
+import SeriesCrumb from "../components/testSeries/SeriesCrumb";
+import { TEST_SERIES_NAV_PATH, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
 import { FM_PAPER_PARAM, PACK_MATCHED_MOCKS, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
@@ -260,7 +262,12 @@ export default function FullMockPage() {
   const [startWall, setStartWall] = useState(false);
   const [tutorWall, setTutorWall] = useState(false);
   const sessionUid = user?.uid ?? null;
-  const backTo = "/practice-hub";
+  // TS-NAV-1 — a Test Series paper's parent is /test-series, not Practice (kill switch VITE_TS_NAV_DISABLED -> Practice, as before).
+  const seriesNavOn = seriesN !== null && !tsNavDisabled();
+  const backTo = seriesNavOn ? TEST_SERIES_NAV_PATH : "/practice-hub";
+  const backWord = seriesNavOn ? "Test Series" : "Practice";
+  // This paper's own URL (`?paper=<n>` kept, one-shot review/upload dropped): where a link that leaves the paper returns to.
+  const seriesPaperUrl = seriesNavOn ? seriesPaperPath(location.pathname, location.search) : null;
 
   // ── Records (history panel · pending banner · durable #NN) ──────────────────
   const [records, setRecords] = useState<SessionRecord[]>([]);
@@ -1422,18 +1429,20 @@ export default function FullMockPage() {
       a && fullResponse ? deriveFullMockChapterLens(fullResponse, a.paper.questions) : null;
     const worst = lens?.[0];
     const single = !!worst && worst.lost > 0;
-    const to = buildDesktopWorksheetPath({
+    const built = buildDesktopWorksheetPath({
       ...(single ? { scope: "topic" as const, topic: worst!.key } : { scope: "full-subject" as const }),
       subject,
       source: "full-mock",
-      returnTo: `/full-mock/${grade}/${subject}`,
+      returnTo: seriesPaperUrl ?? `/full-mock/${grade}/${subject}`,
     });
+    // TS-NAV-1: the worksheet page's Back row also reads `from=test-series` (returnTo is the paper itself, set above).
+    const to = seriesPaperUrl ? withSeriesReturn(built, seriesPaperUrl) : built;
     return { to, target: single ? { to, chapter: worst!.label } : null };
   };
   const practiseWorstChapter = useCallback(() => {
     navigate(worstChapterPractice().to);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate, subject, grade, fullResponse]);
+  }, [navigate, subject, grade, fullResponse, seriesPaperUrl]);
 
   const currentQuestion = activeMock?.paper.questions.find((q) => q.qNumber === currentQNumber) ?? null;
   const currentIsObjective = currentQuestion ? String(currentQuestion.section).toUpperCase() === "A" : false;
@@ -1522,9 +1531,10 @@ export default function FullMockPage() {
         <>
           <div className="lt-ct__pagebar">
             <button type="button" className="lt-ct__back" onClick={() => navigate(backTo)}>
-              ← Practice
+              ← {backWord}
             </button>
             <span className="lt-ct__pagetitle">Full Mock</span>
+            {seriesNavOn && <SeriesCrumb />}
             {/* GUIDE-PAGES-1 — Byte's "?" helper (first visit opens once; a fixed card, no shift). */}
             <PageGuide id="fm_entry" step="page" uid={user && !user.isLocalSession ? user.uid : null} placement="end" bare />
           </div>
@@ -1722,7 +1732,7 @@ export default function FullMockPage() {
                         .lt-ct__startrow (that rule gives buttons inside it flex:1,
                         so an extra child would have resized the existing two). */}
                     <Link
-                      to={`/cbse/class-10?returnTo=${encodeURIComponent(`/full-mock/${grade}/${subject}`)}`
+                      to={`/cbse/class-10?returnTo=${encodeURIComponent(seriesPaperUrl ?? `/full-mock/${grade}/${subject}`)}${seriesPaperUrl ? "&from=test-series" : ""}`
                         + `&backLabel=${encodeURIComponent(`Back to the ${subject} full mock`)}`
                         + `&subject=${subject.toLowerCase()}#papers`}
                       className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -1780,9 +1790,10 @@ export default function FullMockPage() {
         <>
           <div className="lt-ct__pagebar">
             <button type="button" className="lt-ct__back" onClick={() => navigate(backTo)}>
-              ← Practice
+              ← {backWord}
             </button>
             <span className="lt-ct__pagetitle">Mock · Upload</span>
+            {seriesNavOn && <SeriesCrumb />}
           </div>
           <SectionAPicker
             eyebrow={`Full mock · ${subject}`}
@@ -2017,9 +2028,10 @@ export default function FullMockPage() {
         <>
           <div className="lt-ct__pagebar">
             <button type="button" className="lt-ct__back" onClick={() => navigate(backTo)}>
-              ← Practice
+              ← {backWord}
             </button>
             <span className="lt-ct__pagetitle">Mock · Result</span>
+            {seriesNavOn && <SeriesCrumb />}
           </div>
 
           {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
@@ -2157,7 +2169,7 @@ export default function FullMockPage() {
                 questionIds: [...activeMock.paper.questions].sort((x, y) => x.qNumber - y.qNumber).map((q) => String(q.id ?? "")),
               }}
               secondsPerMark={FULL_MOCK_SECONDS_PER_MARK}
-              returnTo={location.pathname}
+              returnTo={seriesPaperUrl ? withScorecardReviewParam(seriesPaperUrl, activeMock.code) : location.pathname}
             />
           </Suspense>
 

@@ -38,9 +38,9 @@ const resp = (results: WorksheetQuestionGrade[]): WorksheetGradeResponse => ({
   worksheetTotalMarks: 0,
 });
 
-function renderPanel(uid: string | null, response: WorksheetGradeResponse, ids: string[]) {
+function renderPanel(uid: string | null, response: WorksheetGradeResponse, ids: string[], entry = "/") {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[entry]}>
       <TestAnalysisPanel
         surface="chapter-test"
         subject="Maths"
@@ -123,5 +123,22 @@ describe("TestAnalysisPanel", () => {
     renderPanel(null, resp([g(1, 0, 1)]), [TRI[0]]);
     expect(screen.getByText(/Sign in to see your weakest chapters/)).toBeTruthy();
     expect(screen.queryByText("Mistake notebook")).toBeNull();
+  });
+});
+
+describe("TS-NAV-1 practice links leaving the panel on a series paper", () => {
+  const response = resp([g(1, 1, 1), g(2, 0, 2), g(3, 1, 3)]);
+  const ids = [TRI[0], TRI[1], TRI[2]];
+  it("series paper: from=test-series is added, and the panel's own returnTo is kept", () => {
+    renderPanel("uid-1", response, ids, "/chapter-test/10/Maths/triangles?series=1");
+    const href = screen.getByRole("link", { name: /Re-attempt my wrong questions/ }).getAttribute("href")!;
+    const sp = new URLSearchParams(href.split("?")[1]);
+    expect(sp.get("from")).toBe("test-series");
+    expect(sp.get("returnTo")).toBe("/chapter-test/10/Maths/triangles");
+  });
+  it("not a series paper: the link is exactly what it was (no from param)", () => {
+    renderPanel("uid-1", response, ids, "/chapter-test/10/Maths/triangles");
+    const href = screen.getByRole("link", { name: /Re-attempt my wrong questions/ }).getAttribute("href")!;
+    expect(new URLSearchParams(href.split("?")[1]).has("from")).toBe(false);
   });
 });

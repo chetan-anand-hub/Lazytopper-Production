@@ -147,6 +147,8 @@ import { useGradingJob } from "../components/grading/useGradingJob";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
 import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesChecksLeftLine, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesAccess } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, seriesStartDecision } from "../lib/testSeries/seriesAccess";
+import SeriesCrumb from "../components/testSeries/SeriesCrumb";
+import { TEST_SERIES_NAV_PATH, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
 import { CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterTestOf, seriesChapterWorksheetId } from "../lib/testSeries/testSeries";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
@@ -244,8 +246,14 @@ export default function ChapterTestPage() {
   const { isPremium } = useSubscription();
 
   const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
-  const backTo = navState?.back || `/topic-hub/${grade}/${subject.toLowerCase()}/${topicKey}`;
-  const backLabel = navState?.backLabel || `Back to ${topicName} · Topic Hub`;
+  const topicBackTo = navState?.back || `/topic-hub/${grade}/${subject.toLowerCase()}/${topicKey}`;
+  // TS-NAV-1 — a Test Series paper's parent is /test-series (child -> parent), not the chapter's Topic Hub. Kill switch
+  // VITE_TS_NAV_DISABLED restores the Topic Hub target. "Revisit in Topic Hub" keeps going to the Topic Hub (its label says so).
+  const seriesNavOn = !!seriesTest && !tsNavDisabled();
+  const backTo = seriesNavOn ? TEST_SERIES_NAV_PATH : topicBackTo;
+  const backLabel = seriesNavOn ? "Back to Test Series" : navState?.backLabel || `Back to ${topicName} · Topic Hub`;
+  // TS-NAV-1 — this paper's own URL (series param kept, one-shot review/upload dropped): what a link that leaves the paper returns to.
+  const seriesPaperUrl = seriesNavOn ? seriesPaperPath(location.pathname, location.search) : null;
 
   // ── Durable identity + the fresh draw ────────────────────────────────────────
   const [mintedNomen, setMintedNomen] = useState<{ code: string; name: string } | null>(null);
@@ -1044,7 +1052,9 @@ export default function ChapterTestPage() {
 
   // GUIDE-SCORE-1 — ONE practice route for this chapter: the menu's "Practise the marks you
   // lost" and Byte's link on the scorecard both go here.
-  const practiseTopicPath = `/practice/${grade}/${subject.toLowerCase()}?topic=${encodeURIComponent(topicKey)}`;
+  const practiseTopicPath = seriesPaperUrl
+    ? withSeriesReturn(`/practice/${grade}/${subject.toLowerCase()}?topic=${encodeURIComponent(topicKey)}`, seriesPaperUrl)
+    : `/practice/${grade}/${subject.toLowerCase()}?topic=${encodeURIComponent(topicKey)}`;
   const practiseTopic = useCallback(() => {
     navigate(practiseTopicPath);
   }, [navigate, practiseTopicPath]);
@@ -1283,6 +1293,7 @@ export default function ChapterTestPage() {
               ← {backLabel}
             </button>
             <span className="lt-ct__pagetitle">Chapter Test</span>
+            {seriesNavOn && <SeriesCrumb />}
             {/* GUIDE-PAGES-1 — Byte's "?" helper (first visit opens once; a fixed card, no shift). */}
             <PageGuide id="ct_entry" step="page" uid={user && !user.isLocalSession ? user.uid : null} placement="end" bare />
           </div>
@@ -1462,7 +1473,8 @@ export default function ChapterTestPage() {
                         existing buttons. Out here it keeps its natural width and the
                         start row renders exactly as it does on production. */}
                     <Link
-                      to={`/cbse/class-10?returnTo=${encodeURIComponent(location.pathname)}`
+                      to={`/cbse/class-10?returnTo=${encodeURIComponent(seriesPaperUrl ?? location.pathname)}`
+                        + (seriesPaperUrl ? "&from=test-series" : "")
                         + `&backLabel=${encodeURIComponent(`Back to the ${topicName} chapter test`)}`
                         + `&subject=${subject.toLowerCase()}#papers`}
                       className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
@@ -1511,6 +1523,7 @@ export default function ChapterTestPage() {
               ← {backLabel}
             </button>
             <span className="lt-ct__pagetitle">Chapter Test · Upload</span>
+            {seriesNavOn && <SeriesCrumb />}
           </div>
           <SectionAPicker
             eyebrow={`Chapter Test · ${topicName}`}
@@ -1689,6 +1702,7 @@ export default function ChapterTestPage() {
               ← {backLabel}
             </button>
             <span className="lt-ct__pagetitle">Chapter Test · Result</span>
+            {seriesNavOn && <SeriesCrumb />}
           </div>
 
           {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
@@ -1778,7 +1792,7 @@ export default function ChapterTestPage() {
                   <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={practiseTopic}>
                     Practise this chapter
                   </button>
-                  <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={() => navigate(backTo)}>
+                  <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={() => navigate(topicBackTo)}>
                     Revisit in Topic Hub
                   </button>
                 </div>
@@ -1826,7 +1840,7 @@ export default function ChapterTestPage() {
                 chapterTopicKey: topicKey,
               }}
               secondsPerMark={chapterTestSecondsPerMark(paper.totalMarks ?? 0)}
-              returnTo={location.pathname}
+              returnTo={seriesPaperUrl ? withScorecardReviewParam(seriesPaperUrl, nomen.code) : location.pathname}
             />
           </Suspense>
 
@@ -1889,7 +1903,7 @@ export default function ChapterTestPage() {
                       },
                     }
                   : {}),
-                onRevisit: () => navigate(backTo),
+                onRevisit: () => navigate(topicBackTo),
               }), ctGuideTarget), fullResponse, liveTutorAskFor)}
               onClose={() => setScorecardOpen(false)}
             />

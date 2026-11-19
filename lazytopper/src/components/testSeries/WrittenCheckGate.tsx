@@ -11,7 +11,8 @@
  * Kill switch: VITE_WRITTEN_CHECK_GATE_DISABLED=1 restores the previous behaviour on both surfaces.
  */
 import { useEffect, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { tagWhenSeriesPaper } from "../../lib/testSeries/seriesNav";
 import { useSubscription } from "../../hooks/useSubscription";
 import { isPaidPremium } from "../../services/subscriptionService";
 import { boardPassPriceDisplay } from "../../config/pricing";
@@ -251,16 +252,18 @@ export function useBoardPassHolder(): boolean {
 /** The two offers, equal weight: the Test Series and the Board Pass (its price is date-driven, so read after mount). */
 export function SeriesOfferButtons({ testIdPrefix, only }: { testIdPrefix: string; /** "board-pass": the tutor / no-checks walls offer the Board Pass ONLY (the Test Series has no tutor). */ only?: "board-pass" }) {
   const [bpPrice, setBpPrice] = useState<string | null>(null);
+  // TS-NAV-1: on a series paper the buy pages get `from=test-series&returnTo=<paper>` so their Back row leads back to the paper.
+  const { pathname, search } = useLocation();
   useEffect(() => setBpPrice(boardPassPriceDisplay(Date.now())), []);
   return (
     <div className="lt-wcg__offers">
       {only !== "board-pass" && (
-      <Link className="lt-wcg__btn" to={TEST_SERIES_BUY_PATH} data-testid={`${testIdPrefix}-ts`}>
+      <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(TEST_SERIES_BUY_PATH, pathname, search)} data-testid={`${testIdPrefix}-ts`}>
         <span className="lt-wcg__main">Test Series</span>
         <span className="lt-wcg__price">{packPriceLabel("test_series")} · all {seriesTotals().total} tests</span>
       </Link>
       )}
-      <Link className="lt-wcg__btn" to={BOARD_PASS_PATH} data-testid={`${testIdPrefix}-bp`}>
+      <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(BOARD_PASS_PATH, pathname, search)} data-testid={`${testIdPrefix}-bp`}>
         <span className="lt-wcg__main">Board Pass</span>
         <span className="lt-wcg__price">{bpPrice ? `${bpPrice} · everything + tutor` : "everything + tutor"}</span>
       </Link>
@@ -320,8 +323,9 @@ export function SeriesStartWall() {
 
 /** In place of the paper's Download button. */
 export function DownloadWithPlanLink() {
+  const { pathname, search } = useLocation();
   return (
-    <Link className="lt-wcg__dl" to={TEST_SERIES_BUY_PATH} data-testid="download-with-plan">
+    <Link className="lt-wcg__dl" to={tagWhenSeriesPaper(TEST_SERIES_BUY_PATH, pathname, search)} data-testid="download-with-plan">
       {DOWNLOAD_WITH_PLAN} →
     </Link>
   );

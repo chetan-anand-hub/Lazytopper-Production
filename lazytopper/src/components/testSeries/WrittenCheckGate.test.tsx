@@ -106,3 +106,28 @@ describe("TS-PACK-1 · ownsTestSeries unlocks the series papers; the checks-left
     expect(screen.queryByTestId("series-checks-left")).toBeNull(); // the Board Pass checks every paper, every time
   });
 });
+
+describe("TS-NAV-1 offer links carry the way back to the series paper", () => {
+  const withRoute = (entry: string) =>
+    render(
+      <MemoryRouter initialEntries={[entry]}>
+        <SeriesStartWall />
+      </MemoryRouter>,
+    );
+  it("on a series paper the two buy links carry from=test-series and returnTo=<paper>", () => {
+    withRoute("/chapter-test/10/Maths/real-numbers?series=1&review=R1");
+    const ts = new URL(screen.getByTestId("series-start-wall-ts").getAttribute("href")!, "https://x.test");
+    expect(ts.pathname).toBe("/packs");
+    expect(ts.searchParams.get("buy")).toBe("test_series");
+    expect(ts.searchParams.get("from")).toBe("test-series");
+    expect(ts.searchParams.get("returnTo")).toBe("/chapter-test/10/Maths/real-numbers?series=1");
+    const bp = new URL(screen.getByTestId("series-start-wall-bp").getAttribute("href")!, "https://x.test");
+    expect(bp.pathname).toBe("/board-pass");
+    expect(bp.searchParams.get("from")).toBe("test-series");
+  });
+  it("off a series paper the links are exactly as before", () => {
+    withRoute("/chapter-test/10/Maths/real-numbers");
+    expect(screen.getByTestId("series-start-wall-ts").getAttribute("href")).toBe("/packs?buy=test_series");
+    expect(screen.getByTestId("series-start-wall-bp").getAttribute("href")).toBe("/board-pass");
+  });
+});
