@@ -80,6 +80,7 @@ import { BridgeBoundary, prepareMyPacksBridge, type BridgeReady } from "./myPack
 import { MINE_HINT_SCRIPT, clearMineHint, hintNow, readMineHint, staticMineHandover, writeMineHint, writeMineOwner } from "./mineHint";
 import { recoverFromChunkError } from "../../lib/chunkReload";
 import { isServerPdfDisabled } from "../../lib/packs/serverPdfLinks";
+import { seriesBackFromSearch } from "../../lib/testSeries/seriesNav";
 import "../../pages/packs.css";
 import WhatsAppOptInCheckout from "../whatsapp/WhatsAppOptInCheckout";
 
@@ -126,16 +127,13 @@ export function readResumeFrom(search: string): PackCheckoutFrom | undefined {
 }
 
 /**
- * TS-UX-PAGE-1: `?from=test-series` on a `/packs?buy=test_series` link (the Test Series page's buttons when in-place checkout is off, and
- * any link that wants the student back there): closing the checkout / pop-up returns to /test-series. Whitelist of ONE; never a free path.
+ * TS-UX-PAGE-1: where closing the checkout / pop-up goes back to for a `/packs?buy=test_series&from=test-series[&returnTo=<paper>]`
+ * arrival: the safe `returnTo` (a /chapter-test, /full-mock or /test-series path - the TS-NAV-1 rule, `seriesBackFromSearch`), else
+ * /test-series. Null for any other link (a plain Google Ads `?buy=test_series` stays exactly as it was) and under VITE_TS_NAV_DISABLED.
+ * `from` and `returnTo` are NOT stripped from the URL (RouteNavBar's Back reads them), as before.
  */
-export const TEST_SERIES_RETURN_FROM = "test-series";
 export function readReturnTo(search: string): string | null {
-  try {
-    return onlyOne(new URLSearchParams(search), "from") === TEST_SERIES_RETURN_FROM ? "/test-series" : null;
-  } catch {
-    return null;
-  }
+  return seriesBackFromSearch(search)?.to ?? null;
 }
 
 /** Reads `?buy=&t=` and returns a whitelisted { sku, target }, or null (anything unknown, repeated or mistargeted). */
@@ -619,7 +617,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   // utm_* and unknown values are ignored; closing never re-opens it.
   const entryDone = useRef(false);
   useEffect(() => {
-    if (entryDone.current) return;
+    // TS-UX-PAGE-1: an in-place page (/test-series) is not a pack catalogue - its URL never opens a pop-up from these entry params.
+    if (entryDone.current || inPlace) return;
     const q = readPacksQuery(location.search);
     let sku: PackSku | null = null;
     let chosenChapter = "";
@@ -824,7 +823,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const rest = new URLSearchParams(location.search);
     rest.delete("buy");
     rest.delete("t");
-    if (from || readReturnTo(location.search)) rest.delete("from");
+    if (from) rest.delete("from");
     const search = rest.toString();
     navigate({ pathname: location.pathname, search: search ? `?${search}` : "", hash: location.hash }, { replace: true });
     entryDone.current = true;
@@ -832,7 +831,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     else if (want.target) setSubject(want.target as PackSubject);
     setEntrySlide(0);
     closeReturn.current = readReturnTo(location.search) ?? closeReturn.current;
-    if (!inPlace) setOpenSku(want.sku);
+    // In place: no pop-up behind the checkout - except when the purchase-history read failed, where (as on /packs) the pop-up opens
+    // alone, with its own Buy, and no payment starts. Never a silent nothing.
+    if (!inPlace || mine === null) setOpenSku(want.sku);
     requestCounts(want.sku === "pack_chapter" ? want.target : undefined);
     if (mine === null) return;
     const start = () => void handleBuyRef.current(want.sku, want.target, { resumed: true, ...(from ? { from } : {}) });
@@ -852,7 +853,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const rest = new URLSearchParams(location.search);
     rest.delete("buy");
     rest.delete("t");
-    if (from || readReturnTo(location.search)) rest.delete("from");
+    if (from) rest.delete("from");
     const search = rest.toString();
     navigate({ pathname: location.pathname, search: search ? `?${search}` : "", hash: location.hash }, { replace: true });
     entryDone.current = true;
@@ -1023,7 +1024,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       if (openFiles && buy.key) openFilesOf(buy.key);
     });
   };
-  const paidSurface = surface === "for_parents" ? "for_parents" : embedded ? "pricing" : location.pathname.startsWith("/cbq-packs") ? "cbq_packs" : "packs";
+  const paidSurface = surface === "for_parents" ? "for_parents" : inPlace ? "test_series" : embedded ? "pricing" : location.pathname.startsWith("/cbq-packs") ? "cbq_packs" : "packs";
   const tidyList = (withRows: boolean): ReactNode =>
     mine && hasLicenseeContact(mine.licensee)
       ? mine.packs.map((p) => {

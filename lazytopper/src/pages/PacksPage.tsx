@@ -392,7 +392,7 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
               <summary className="lt-pk-row__sum">
                 <span className="lt-pk-row__name">{TEST_SERIES_NAME}</span>
                 <span className="lt-pk-row__price">
-                  <TsClockSlot variant="tag">{`${packPriceLabel("test_series")} · ${TEST_SERIES_VALIDITY}`}</TsClockSlot>
+                  <TsClockSlot variant="tag">{packPriceLabel("test_series")}</TsClockSlot>
                 </span>
               </summary>
               <div className="lt-pk-row__body">
@@ -407,6 +407,7 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
               </div>
             </details>
             {/* TS-UX-PAGE-1: what "2 checks per paper" means, before the Buy. */}
+            <p className="lt-pk-ts__checks" data-testid="packs-ts-valid">One payment, {TEST_SERIES_VALIDITY}.</p>
             <p className="lt-pk-ts__checks" data-testid="packs-ts-checks">{TEST_SERIES_CHECKS_EXPLAINER}</p>
             {/* TS-MORE-1: the per-test badge (clock slot) + the examiner line, visible without opening the row. */}
             <TestSeriesPerTest testId="packs-ts-per-test" />

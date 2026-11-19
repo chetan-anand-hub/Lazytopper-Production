@@ -703,9 +703,9 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
   const tsHead = hubTsHeadline(series);
   /** TS-UX-PAGE-1: "Get the Test Series · ₹1,179" - the total CHARGED (packPayLabel), written after mount like every clock figure. */
   const tsBuyLabel = (
-    <>
+    <span>
       {HUB_TS_BUY} · <TsClockSlot variant="amt">{packPayLabel("test_series")}</TsClockSlot>
-    </>
+    </span>
   );
   const tsCard = (api: PacksShopApi) => {
     // TS-PACK-1: a Test Series Pack owner (the shop's own /api/packs/mine read) is not sold it again.

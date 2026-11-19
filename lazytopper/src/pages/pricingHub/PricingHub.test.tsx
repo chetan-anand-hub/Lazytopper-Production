@@ -819,6 +819,22 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
     expect(analytics.named).toHaveBeenCalledWith("pricing_ts_buy_tap");
   });
 
+  it("from 1 Dec the card's Buy and the phone bar both carry the 1,499 total (₹1,769), never the founding total", async () => {
+    vi.setSystemTime(new Date("2026-12-02T12:00:00+05:30"));
+    try {
+      auth.user = { uid: "u1" };
+      setSub({});
+      await renderAt("/pricing");
+      expect(packPayLabel("test_series")).toContain("1,769");
+      expect(screen.getByTestId("hub-buy-test_series")).toHaveTextContent("Get the Test Series · ₹1,769");
+      fireEvent.click(screen.getByTestId("hub-tab-ts"));
+      expect(screen.getByTestId("pricing-sticky-bar")).toHaveTextContent("Get the Test Series · ₹1,769");
+      expect(document.body.textContent).not.toContain("1,179");
+    } finally {
+      vi.setSystemTime(new Date("2026-11-11T12:00:00+05:30"));
+    }
+  });
+
   it("a tap on the card's 'Get the Test Series' records pricing_ts_buy_tap (name only)", async () => {
     await renderAt("/pricing");
     fireEvent.click(screen.getByTestId("hub-buy-test_series"));

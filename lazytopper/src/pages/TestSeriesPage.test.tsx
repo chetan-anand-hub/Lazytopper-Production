@@ -36,13 +36,20 @@ vi.mock("../services/sessionRecords", () => ({
 }));
 
 // TS-UX-PAGE-1: the page embeds the pack shop (in-place buy). Packs are ON here; the pack service reads are stubbed, the pop-up is a probe.
-const shop = vi.hoisted(() => ({ on: true, buyPack: vi.fn(async (..._a: unknown[]): Promise<{ status: "dismissed" | "paid" | "pending" }> => ({ status: "dismissed" })) }));
+const shop = vi.hoisted(() => ({ on: true, mine: "ok" as "ok" | "fail", owned: false, buyPack: vi.fn(async (..._a: unknown[]): Promise<{ status: "dismissed" | "paid" | "pending" }> => ({ status: "dismissed" })) }));
 vi.mock("../services/packs", async (orig) => {
   const actual = await orig<typeof import("../services/packs")>();
   return {
     ...actual,
     isPacksClientEnabled: () => shop.on,
-    fetchMyPacks: vi.fn(async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: null })),
+    fetchMyPacks: vi.fn(async () => {
+      if (shop.mine === "fail") throw new Error("down");
+      return {
+        packs: shop.owned ? [{ packId: "test_series:all", sku: "test_series", target: "all", pricePaidInr: 1179, paidAt: 1 }] : [],
+        licensee: { name: "", email: "" },
+        boardPassCredit: null,
+      };
+    }),
     buyPack: shop.buyPack,
   };
 });
@@ -51,6 +58,14 @@ vi.mock("../lib/packs/packAnalytics", async (orig) => {
   const actual = await orig<typeof import("../lib/packs/packAnalytics")>();
   return { ...actual, trackPackCheckout: tracked.checkout, trackPackEvent: tracked.event, trackPackPurchase: vi.fn() };
 });
+const paidProbe = vi.hoisted(() => ({ surface: "" }));
+vi.mock("../components/checkoutWho/PaidSheetLazy", async (orig) => ({
+  ...(await orig<typeof import("../components/checkoutWho/PaidSheetLazy")>()),
+  default: (p: { surface: string }) => {
+    paidProbe.surface = p.surface;
+    return <div data-testid="paid-probe">{p.surface}</div>;
+  },
+}));
 vi.mock("./PackDialog", () => ({ default: () => <div role="dialog" data-testid="pack-dialog" /> }));
 
 import TestSeriesPage from "./TestSeriesPage";
@@ -64,10 +79,10 @@ function Where() {
 }
 const where = () => screen.getByTestId("where").textContent ?? "";
 
-async function mount() {
+async function mount(url = "/test-series") {
   await act(async () => {
     render(
-      <MemoryRouter initialEntries={["/test-series"]}>
+      <MemoryRouter initialEntries={[url]}>
         <Routes>
           <Route path="/test-series" element={<><TestSeriesPage /><Where /></>} />
           <Route path="/packs" element={<Where />} />
@@ -87,6 +102,8 @@ beforeEach(() => {
   mockOwn.known = true;
   mockOwn.noPhase = false;
   shop.on = true;
+  shop.mine = "ok";
+  shop.owned = false;
   shop.buyPack.mockClear();
   tracked.checkout.mockClear();
   tracked.event.mockClear();
@@ -257,6 +274,46 @@ describe("/test-series — TS-UX-PAGE-1 buy in place", () => {
     // closed without paying: the student is told how to carry on, on this page (no pop-up to hold the rescue card)
     expect(await screen.findByTestId("pay-rescue")).toBeTruthy();
     expect(screen.getByTestId("pay-rescue-retry")).toBeTruthy();
+  });
+  it("a failed purchase-history read after a ?buy= resume is never a silent nothing: no payment starts, the pop-up opens with its own Buy", async () => {
+    mockAuth.user = { uid: "u1" };
+    shop.mine = "fail";
+    await mount("/test-series?buy=test_series");
+    expect(shop.buyPack).not.toHaveBeenCalled();
+    expect(await screen.findByTestId("pack-dialog")).toBeTruthy();
+    expect(where()).toBe("/test-series");
+  });
+  it("a signed-in ?buy= resume on /test-series starts the checkout in place (no pop-up behind it)", async () => {
+    mockAuth.user = { uid: "u1" };
+    await mount("/test-series?buy=test_series");
+    await act(async () => void (await Promise.resolve()));
+    expect(shop.buyPack).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("pack-dialog")).toBeNull();
+    expect(where()).toBe("/test-series");
+  });
+  it("the shop's other entry links (?pack= / ?chapter= / ?mock= / ?view=sample) do not open anything on /test-series", async () => {
+    mockAuth.user = { uid: "u1" };
+    await mount("/test-series?pack=cbq&chapter=real-numbers&mock=1&view=sample");
+    await act(async () => void (await Promise.resolve()));
+    expect(screen.queryByTestId("pack-dialog")).toBeNull();
+    expect(shop.buyPack).not.toHaveBeenCalled();
+  });
+  it("shop-level ownership: an account that already owns the Test Series is told so and no payment starts (never a second order)", async () => {
+    mockAuth.user = { uid: "u1" };
+    shop.owned = true; // the shop's own My packs read says owned (the page's ownership hook is mocked as not-owned)
+    await mount();
+    await act(async () => void (await Promise.resolve()));
+    expect(screen.getByTestId("ts-hero-buy").textContent).toContain("You own this");
+    await press("ts-hero-buy");
+    expect(shop.buyPack).not.toHaveBeenCalled();
+  });
+  it("after a payment the paid sheet is labelled with this page's own surface (test_series), not pricing", async () => {
+    mockAuth.user = { uid: "u1" };
+    shop.buyPack.mockResolvedValueOnce({ status: "paid" });
+    await mount();
+    await press("ts-hero-buy");
+    await act(async () => void (await Promise.resolve()));
+    expect((await screen.findByTestId("paid-probe")).textContent).toBe("test_series");
   });
   it("packs dark: the Buy is a link to /packs?buy=test_series&from=test-series that still shows the total", async () => {
     shop.on = false;

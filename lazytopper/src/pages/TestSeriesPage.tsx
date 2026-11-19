@@ -203,9 +203,10 @@ export default function TestSeriesPage() {
   // The Buy label: the TOTAL charged (packPayLabel, never typed here, so the 1 Dec switch flows through), written after mount like every
   // clock-derived figure (the prerender capture strips it; the reserved slot keeps the button's size).
   const buyLabel = (
-    <>
+    // One <span>: the button is an inline-flex box, which would otherwise swallow the space before the figure ("·₹1,179").
+    <span>
       Get the Test Series · <TsClockSlot variant="amt">{packPayLabel("test_series")}</TsClockSlot>
-    </>
+    </span>
   );
   // ONE Buy per card, each its own button: in place (the shop's own checkout sheet opens HERE and closing it leaves the student on this
   // page) while packs are on and the series is offered; otherwise the old link to /packs, with `from` so closing it comes back here.
@@ -231,7 +232,7 @@ export default function TestSeriesPage() {
     <div className={`lt-ts-offer lt-ts-offer--ts${hero ? " lt-ts-offer--hero" : ""}`} data-testid={hero ? "ts-hero-offer" : "ts-offer-ts"}>
       <p className="lt-ts-offer__tag">Pre-boards</p>
       <p className="lt-ts-offer__name">Test Series</p>
-      <p className="lt-ts-offer__price">{prices && <span data-testid={hero ? "ts-hero-price" : "till-boards-figures"}>{prices.ts}</span>}</p>
+      <p className="lt-ts-offer__price">{prices && <span data-lt-clock="" data-testid={hero ? "ts-hero-price" : "till-boards-figures"}>{prices.ts}</span>}</p>
       <p className="lt-ts-offer__valid" data-testid={hero ? "ts-hero-valid" : "ts-offer-valid"}>
         One payment, {TEST_SERIES_VALIDITY}
       </p>

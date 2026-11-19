@@ -66,6 +66,8 @@ function page(url = "/packs") {
         <Route path="/packs" element={<PacksPage />} />
         <Route path="/login" element={<div>LOGIN</div>} />
         <Route path="/test-series" element={<div data-testid="ts-landed">TS</div>} />
+        <Route path="/chapter-test/*" element={<div data-testid="paper-landed">PAPER</div>} />
+        <Route path="/evil/*" element={<div data-testid="evil-landed">EVIL</div>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -612,6 +614,7 @@ describe("TS-PACK-1 · /packs Test Series card", () => {
     expect(card.textContent).toContain("till 31 May 2027 (after your boards)");
     expect(card.textContent).toContain("Sections B–D (B–E in full-length tests)");
     expect(screen.getByTestId("packs-ts-checks").textContent).toContain("Each paper can be checked twice: upload your answers");
+    expect(screen.getByTestId("packs-ts-valid").textContent).toContain("till 31 May 2027 (after your boards)");
   });
 
   it("TS-UX-PAGE-1: /packs?buy=test_series keeps working; from=test-series sends closing the pop-up back to /test-series, a plain link stays on /packs", async () => {
@@ -632,6 +635,32 @@ describe("TS-PACK-1 · /packs Test Series card", () => {
     fireEvent.click(await screen.findByTestId("pack-dialog-close"));
     await waitFor(() => expect(screen.queryByTestId("pack-dialog-close")).toBeNull());
     expect(screen.getByTestId("where").textContent).toBe("/packs");
+  });
+
+  it("TS-UX-PAGE-1 (returnTo): from=test-series&returnTo=<paper> closes back to that paper; an unsafe returnTo falls back to /test-series; plain stays on /packs", async () => {
+    flag.on = true;
+    auth.user = { uid: "u1" };
+    const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
+    const paper = encodeURIComponent("/chapter-test/real-numbers?x=1");
+    buyMock.mockClear();
+    page(`/packs?buy=test_series&from=test-series&returnTo=${paper}`);
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    // the series Back (RouteNavBar) still has its pair on /packs while the pop-up is open
+    expect(screen.getByTestId("where").textContent).toContain("from=test-series");
+    expect(screen.getByTestId("where").textContent).toContain("returnTo=");
+    fireEvent.click(await screen.findByTestId("pack-dialog-close"));
+    await waitFor(() => expect(screen.getByTestId("paper-landed")).toBeTruthy());
+    expect(screen.getByTestId("where").textContent).toBe("/chapter-test/real-numbers?x=1");
+    cleanup();
+    for (const bad of ["https://evil.example/x", "//evil.example/x", "/evil/page", "javascript:alert(1)"]) {
+      buyMock.mockClear();
+      page(`/packs?buy=test_series&from=test-series&returnTo=${encodeURIComponent(bad)}`);
+      await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+      fireEvent.click(await screen.findByTestId("pack-dialog-close"));
+      await waitFor(() => expect(screen.getByTestId("ts-landed")).toBeTruthy());
+      expect(screen.getByTestId("where").textContent).toBe("/test-series");
+      cleanup();
+    }
   });
 
   it("packs on, signed in: Buy uses the existing pack checkout (buyPack('test_series', no target)); ?buy=test_series resumes it", async () => {
