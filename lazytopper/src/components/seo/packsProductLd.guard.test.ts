@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PACK_PRICE_INR } from "../../services/packs";
 import { PACKS_LD_PRICE_INR, packsAnswerJsonLd } from "./packsProductLd";
 import { CBQ_PACKS_ANSWER_FAQ, PACKS_ANSWER_FAQ, faqJsonLdForPath, importantQuestionsFaq } from "./faqContent";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 describe("SEO-LLM-2 — Product / FAQ JSON-LD for packs, CBQ packs and important questions", () => {
   it("mirrored prices equal PACK_PRICE_INR", () => {
@@ -27,6 +27,20 @@ describe("SEO-LLM-2 — Product / FAQ JSON-LD for packs, CBQ packs and important
     const ld = packsAnswerJsonLd("/cbq-packs", "") as { "@graph": Array<Record<string, any>> };
     const products = ld["@graph"].filter((x) => x["@type"] === "Product");
     expect(products.map((p) => p.offers.price)).toEqual([PACK_PRICE_INR.pack_cbq, PACK_PRICE_INR.pack_cbq]);
+  });
+
+  it("every Product carries an absolute https .webp image that exists in public/ (Merchant listings: missing 'image')", () => {
+    const names: string[] = [];
+    for (const path of ["/packs", "/cbq-packs"]) {
+      const ld = packsAnswerJsonLd(path, "") as { "@graph": Array<Record<string, any>> };
+      for (const n of ld["@graph"].filter((x) => x["@type"] === "Product")) {
+        expect(n.image, n.name).toMatch(/^https:\/\/www\.lazytopper\.com\/packs\/previews\/[a-z-]+-cover-827\.webp$/);
+        expect(existsSync(`public${new URL(n.image).pathname}`), n.image).toBe(true);
+        names.push(n.image);
+      }
+    }
+    expect(names).toHaveLength(6);
+    expect(new Set(names).size).toBe(6);
   });
 
   it("CONTROL — other paths get nothing", () => {
