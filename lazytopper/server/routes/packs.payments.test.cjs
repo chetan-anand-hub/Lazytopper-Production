@@ -1296,3 +1296,18 @@ test('TS-PRICE-2 · a Test Series order made at the 999 founding price and only 
   assert.equal(v2.status, 200, v2.text);
   assert.ok(db.read('packEntitlements/st2/packs/test_series:all'));
 });
+
+test('TS-PRICE-2 · a Board Pass FOUNDING MEMBER gets no exemption: their stale 999 Test Series order (made -5 s, authorized +25 h) is still refused and not captured', async (t) => {
+  const db = memoryFirestore({ 'subscriptions/fm1': { foundingMember: true, tier: 'premium' } });
+  const rzp = fakeRazorpay();
+  const early = await start({ db, rzp, nowMs: TS_CUTOFF - 5000 });
+  t.after(early.close);
+  const o = await order(early, 'fm1', 'test_series');
+  const p = rzp.pay(o.json.orderId, { id: 'pay_fm', status: 'authorized' });
+  const stale = await start({ db, rzp, nowMs: TS_CUTOFF + 25 * 3600 * 1000 });
+  t.after(stale.close);
+  const r = await verify(stale, 'fm1', o.json.orderId, p.id);
+  assert.equal(r.status, 400, r.text);
+  assert.equal(r.json.reason, 'order_expired');
+  assert.equal(rzp.calls.filter((c) => c.url.includes('/capture')).length, 0);
+});

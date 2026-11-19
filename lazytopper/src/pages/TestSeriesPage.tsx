@@ -376,11 +376,9 @@ export default function TestSeriesPage() {
               {prices?.founding ? <span data-lt-clock="">{prices.founding}</span> : null}
             </p>
             {/* TS-PRICE-2: the Test Series founding line (clock-derived, so stripped from the capture like the Board Pass line above). */}
-            {prices?.tsFounding ? (
-              <p className="lt-ts-hero__urgency" data-testid="ts-urgency-ts">
-                <span data-lt-clock="">{prices.tsFounding}</span>
-              </p>
-            ) : null}
+            <p className="lt-ts-hero__urgency" data-testid="ts-urgency-ts">
+              {prices?.tsFounding ? <span data-lt-clock="">{prices.tsFounding}</span> : null}
+            </p>
             <div className="lt-ts-hero__cta">{heroCta}</div>
             {/* Signed-in-only box with a reserved height. Not a <section>: the capture strip removes the sign-in pair only. */}
             <div className="lt-ts-me" data-testid="ts-progress">

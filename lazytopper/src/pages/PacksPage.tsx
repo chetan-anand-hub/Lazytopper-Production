@@ -14,7 +14,7 @@ import { seriesContentsLine, testSeriesPackLine } from "../lib/testSeries/testSe
 import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
 import { usePaidPremium } from "../lib/packs/usePaidPremium";
 import { TsClockSlot } from "../components/packs/TestSeriesFoundingClause";
-import { chaptersOfSubject, isTestSeriesPackOffered, testSeriesPriceLine, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
+import { chaptersOfSubject, isTestSeriesPackOffered, testSeriesFoundingClause, testSeriesPriceLine, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
 import PackSampleLink, { PackSampleChoice, SampleBuyNext } from "../components/packs/PackSampleLink";
 import SubjectSwitch from "../components/packs/SubjectSwitch";
 import PackTileBuy, { sampleBuyFor } from "../components/packs/PackTileBuy";
@@ -391,7 +391,7 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
               <summary className="lt-pk-row__sum">
                 <span className="lt-pk-row__name">{TEST_SERIES_NAME}</span>
                 <span className="lt-pk-row__price">
-                  <TsClockSlot variant="tag">{`${testSeriesPriceLine()} · till your boards`}</TsClockSlot>
+                  <TsClockSlot variant="tag">{`${packPriceLabel("test_series")} · till your boards`}</TsClockSlot>
                 </span>
               </summary>
               <div className="lt-pk-row__body">
@@ -405,6 +405,12 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
                 )}
               </div>
             </details>
+            {/* TS-PRICE-2: the founding line on its own wrapping line (reserved block slot, written after mount, stripped from the capture). */}
+            {!paidPass && (
+              <p className="lt-pk-ts__found" data-testid="packs-ts-founding">
+                <TsClockSlot variant="line">{testSeriesFoundingClause() ? testSeriesPriceLine() : null}</TsClockSlot>
+              </p>
+            )}
             {paidPass ? (
               <Link className="lt-pk-row__incl" to="/test-series" data-testid="packs-test-series-included">
                 {TEST_SERIES_INCLUDED_LINE} &rarr;

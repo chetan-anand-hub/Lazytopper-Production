@@ -123,7 +123,7 @@ describe("/test-series — signed out", () => {
     expect(screen.getByTestId("ts-offer-ts").textContent).not.toContain("founding");
     // The founding line is shown only while that offer is really open.
     expect(screen.getByTestId("ts-urgency").textContent).toBe("");
-    expect(screen.queryByTestId("ts-urgency-ts")).toBeNull();
+    expect(screen.getByTestId("ts-urgency-ts").textContent).toBe(""); // the slot stays (no layout jump), empty
   });
   it("carries none of the banned words", async () => {
     await mount();

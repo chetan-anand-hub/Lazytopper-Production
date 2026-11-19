@@ -1501,3 +1501,17 @@ test('TS-PRICE-2 · parent link: a 999 founding Test Series order only AUTHORIZE
   const ok = await parentVerify(srv, m.json.token, o.json.orderId, p.id);
   assert.equal(ok.status, 200, ok.text);
 });
+
+test('TS-PRICE-2 · parent link: a founding-member child gets no exemption for a stale 999 Test Series order (order_expired, not captured)', async (t) => {
+  const CUT = Date.parse('2026-12-01T00:00:00+05:30');
+  const srv = await startRoutes({ env: ENV_PACKS, db: memoryFirestore({ 'subscriptions/child1': { foundingMember: true } }), clock: { t: CUT - 5000 } });
+  t.after(srv.close);
+  const m = await mintPack(srv, { sku: 'test_series' });
+  const o = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.json.token, product: 'pack' } });
+  const p = srv.rzp.pay(o.json.orderId, { id: 'pay_fm_ts', status: 'authorized' });
+  srv.clock.t = CUT + 25 * 3600 * 1000;
+  const r = await parentVerify(srv, m.json.token, o.json.orderId, p.id);
+  assert.equal(r.status, 400, r.text);
+  assert.equal(r.json.reason, 'order_expired');
+  assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0);
+});
