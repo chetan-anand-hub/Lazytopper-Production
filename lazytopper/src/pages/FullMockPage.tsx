@@ -158,6 +158,7 @@ import { FULL_MOCK_SECONDS_PER_MARK } from "../components/testAnalysis/testAnaly
 // TS-ANALYSIS-1 — after-test analysis, its own chunk, mounted at the END of the results body.
 const TestAnalysisPanel = lazy(() => import("../components/testAnalysis/TestAnalysisPanel"));
 import FullMockPendingBanner from "../components/fullmock/FullMockPendingBanner";
+import { pendingMockRecords } from "../components/fullmock/pendingMocks";
 // FAIR-USE-UI-1 — the fair-use panel (UI1 at grading, UI3 before the mock starts).
 // Dark unless /api/usage/me says `enforced: true`: with it off this page is unchanged.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
@@ -175,7 +176,7 @@ import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLin
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
-import { FM_PAPER_PARAM, PACK_MATCHED_MOCKS, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
+import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
 type Phase = "setup" | "taking" | "results" | "pick";
@@ -337,10 +338,6 @@ export default function FullMockPage() {
   const mockRecords = useMemo(
     () => records.filter((r) => r.surface === "full-mock").sort((a, b) => b.gradedAt - a.gradedAt),
     [records],
-  );
-  const pendingRecords = useMemo(
-    () => mockRecords.filter((r) => r.status !== "graded"),
-    [mockRecords],
   );
 
   // ── The fresh draw (only for a NEW mock; resume restores its own paper) ─────
@@ -1452,6 +1449,8 @@ export default function FullMockPage() {
       ).length
     : 0;
 
+  // TS-FIX-2: a graded sitting never keeps the "awaiting your answer sheet" banner alive.
+  const pendingRecords = pendingMockRecords(mockRecords, fullResponse && activeMock ? activeMock.code : null);
   const awaitingCount = pendingRecords.length;
 
   // ══════════════════════════════════════════════════════════════════════════════
@@ -1749,8 +1748,7 @@ export default function FullMockPage() {
                         {seriesActive ? (
                           // TEST-SERIES-1 — a fixed paper: not a fresh draw, so no freshness claim.
                           <span data-testid="fm-series-line">
-                            <b>A Test Series paper</b> — every student gets the same {subject} Full-Length Test {seriesN}
-                            {seriesN && seriesN <= PACK_MATCHED_MOCKS ? ` (also Mock ${seriesN} in the printed Mock Pack)` : ""}.
+                            <b>A Test Series paper</b> — every student gets the same {subject} Full-Length Test {seriesN}.
                           </span>
                         ) : draw && draw.repeatCount > 0 ? (
                           // FRESH-SET-TESTS — the honest line when a section's unseen pool ran out.

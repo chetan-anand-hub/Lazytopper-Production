@@ -17,6 +17,8 @@ import {
   marksWithUnit,
   mistakeGroupOf,
   stepDisplay,
+  effectiveStepStatus,
+  stepAnnotationText,
   type PaperMarksLost,
 } from "../../lib/mistakeDisplay";
 import { MarksLostLines, RubricBlock, WithdrawnWorkBlock } from "./GradeStateParts";
@@ -313,7 +315,7 @@ function GradedStepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; 
   // SCORECARD-MI-1 (D3/D4) — the step's state from the ONE module: "missing" reads
   // "Not attempted" with no "−N" against it, and an unknown status never crashes and never
   // reads "Incorrect".
-  const display = stepDisplay(step.status, step.mistakeType);
+  const display = stepDisplay(effectiveStepStatus(step), step.mistakeType);
   const tone =
     display.kind === "correct"
       ? "ok"
@@ -349,7 +351,7 @@ function GradedStepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; 
       </div>
       {/* GA-40 — maths renders through the shared renderer, never as raw x^2 / a_20. */}
       {step.studentWork && <div className="lt-sc__gst-work"><MathText text={step.studentWork} /></div>}
-      {step.teacherAnnotation && <div className="lt-sc__gst-note"><MathText text={step.teacherAnnotation} /></div>}
+      {step.teacherAnnotation && <div className="lt-sc__gst-note"><MathText text={stepAnnotationText(step)} /></div>}
       {step.correctedWorking && (
         <div className="lt-sc__gst-fix">Should be: <MathText text={step.correctedWorking} /></div>
       )}

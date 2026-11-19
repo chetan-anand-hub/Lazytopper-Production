@@ -22,6 +22,8 @@ import {
   effectivePaperCounts,
   isQuestionNotAttempted,
   stepDisplay,
+  effectiveStepStatus,
+  stepAnnotationText,
   stepForDisplay,
   gradeStateOf,
   paperMarksLost,
@@ -137,7 +139,7 @@ function miBannerFrom(outcome: WorksheetGradeOutcome | null): MiBanner {
 function StepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; objective?: boolean }) {
   // SCORECARD-MI-1 — step state from the ONE module ("missing" = Not attempted, no "−N";
   // an unknown status is neutral, never "Incorrect").
-  const display = stepDisplay(step.status, step.mistakeType);
+  const display = stepDisplay(effectiveStepStatus(step), step.mistakeType);
   const cls =
     display.kind === "correct"
       ? "ok"
@@ -165,7 +167,7 @@ function StepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; object
           </span>
         )}
       </div>
-      {step.teacherAnnotation && <div className="lt-wg__stepnote"><MathText text={step.teacherAnnotation} /></div>}
+      {step.teacherAnnotation && <div className="lt-wg__stepnote"><MathText text={stepAnnotationText(step)} /></div>}
       {step.correctedWorking && (
         <div className="lt-wg__stepfix">Should be: <MathText text={step.correctedWorking} /></div>
       )}

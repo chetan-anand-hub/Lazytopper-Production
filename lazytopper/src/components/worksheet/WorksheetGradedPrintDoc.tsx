@@ -23,6 +23,8 @@ import {
   questionChipType,
   splitWithdrawnSteps,
   stepDisplay,
+  effectiveStepStatus,
+  stepAnnotationText,
   stepShowsType,
 } from "../../lib/mistakeDisplay";
 import { RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
@@ -373,7 +375,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
                                     <div className="lt-gp__stwork"><MathText text={s.studentWork} /></div>
                                   )}
                                   {s.teacherAnnotation && (
-                                    <StepAnnotation tone={stepDisplay(s.status, s.mistakeType).tone} consequentialOf={s.consequentialOf} className="lt-gp__stann"><MathText text={s.teacherAnnotation} /></StepAnnotation>
+                                    <StepAnnotation tone={stepDisplay(effectiveStepStatus(s), s.mistakeType).tone} consequentialOf={s.consequentialOf} className="lt-gp__stann"><MathText text={stepAnnotationText(s)} /></StepAnnotation>
                                   )}
                                   {s.correctedWorking && (
                                     <div className="lt-gp__stfix">✓ <MathText text={s.correctedWorking} /></div>
@@ -392,7 +394,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
                            the student's own writing, per step, with the marks awarded. */
                         <div className="lt-gp__steps">
                           {annSteps.map((s, i) => {
-                            const sd = stepDisplay(s.status, s.mistakeType);
+                            const sd = stepDisplay(effectiveStepStatus(s), s.mistakeType);
                             const typeLabel = stepShowsType(s, r) ? mistakeTypeLabel(s.mistakeType) : null;
                             return (
                               <div key={i} className="lt-gp__stp">
@@ -418,7 +420,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
                                   <div className="lt-gp__stwork"><MathText text={s.studentWork} /></div>
                                 )}
                                 {s.teacherAnnotation && (
-                                  <StepAnnotation tone={sd.tone} consequentialOf={s.consequentialOf} className="lt-gp__stann"><MathText text={s.teacherAnnotation} /></StepAnnotation>
+                                  <StepAnnotation tone={sd.tone} consequentialOf={s.consequentialOf} className="lt-gp__stann"><MathText text={stepAnnotationText(s)} /></StepAnnotation>
                                 )}
                                 {s.correctedWorking && (
                                   <div className="lt-gp__stfix">✓ <MathText text={s.correctedWorking} /></div>

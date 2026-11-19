@@ -364,3 +364,29 @@ describe("★★ 'Where the mark went' never duplicates the verdict, and never a
     expect(screen.getAllByText("Fully correct.")).toHaveLength(1);
   });
 });
+
+describe("TS-FIX-2 - a step's tone follows its marks, not its label (shared by all six grading surfaces)", () => {
+  const renderStep = (s: CheckSolutionAnnotatedStep) =>
+    render(<ResultsScorecard variant={variant({ gradedAnswers: [answer({ steps: [s] })] })} onClose={() => {}} />).baseElement;
+  it("a step labelled correct that lost its mark renders the lost tone, never the ok (green) one", () => {
+    const el = renderStep(step({ description: "Incorrect multiplier", marksAwarded: 0, marksDeducted: 1, mistakeType: "calculation" }));
+    expect(el.querySelector(".lt-sc__gst--bad")).not.toBeNull();
+    expect(el.querySelector(".lt-sc__gst--ok")).toBeNull();
+  });
+  it("control: an honest correct step keeps the ok tone", () => {
+    expect(renderStep(step({})).querySelector(".lt-sc__gst--ok")).not.toBeNull();
+  });
+});
+
+describe("TS-FIX-2 - leading tick in the annotation of a step that lost marks", () => {
+  const note = (s: CheckSolutionAnnotatedStep) =>
+    render(<ResultsScorecard variant={variant({ gradedAnswers: [answer({ steps: [s] })] })} onClose={() => {}} />).baseElement.querySelector(".lt-sc__gst-note")?.textContent;
+  it("a partial step renders 'Incorrect multiplier' with no tick, in the partial tone", () => {
+    const el = render(<ResultsScorecard variant={variant({ gradedAnswers: [answer({ steps: [step({ status: "partial", marksAwarded: 0.5, marksDeducted: 0.5, teacherAnnotation: "✓ Incorrect multiplier" })] })] })} onClose={() => {}} />).baseElement;
+    expect(el.querySelector(".lt-sc__gst-note")?.textContent).toBe("Incorrect multiplier");
+    expect(el.querySelector(".lt-sc__gst--part")).not.toBeNull();
+  });
+  it("control: a full-mark step keeps its tick", () => {
+    expect(note(step({ teacherAnnotation: "✓ Correct" }))).toBe("✓ Correct");
+  });
+});
