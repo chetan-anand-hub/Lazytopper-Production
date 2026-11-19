@@ -396,24 +396,24 @@
     "lastmod": "2026-11-17"
   },
   "/ncert-exemplar/pair-of-linear-equations": {
-    "sha256": "8da7cb61d783abc92689621fed94d253f0ebbe83423c41552f3cb4159f8afb62",
-    "lastmod": "2026-11-17"
+    "sha256": "516e5718aa879abab127c4ef9fc1677e945b96291e6986357056b822b57d33cb",
+    "lastmod": "2026-11-19"
   },
   "/ncert-exemplar/polynomials": {
-    "sha256": "11c44458164d4b076f9b0c68d0261d2ac8a01469989ac355da4b224241ea7c16",
-    "lastmod": "2026-11-17"
+    "sha256": "374f0a30751332b52dbcf1531f8ffe7988b7e875c188a36e20b62e564a766d7d",
+    "lastmod": "2026-11-19"
   },
   "/ncert-exemplar/probability": {
     "sha256": "493a196314d44b03a88ccd560f055aa14673c748672718739abd04474fab50ef",
     "lastmod": "2026-11-17"
   },
   "/ncert-exemplar/quadratic-equations": {
-    "sha256": "1ecccb6e1c987ac85f7c816a2b813dfcdad79958e1eb2bf2d146bd7d5901411c",
-    "lastmod": "2026-11-17"
+    "sha256": "a24866f912fd849b261c9faa215294afc32e57dcb2dbcfe675a5d8744ec1ab85",
+    "lastmod": "2026-11-19"
   },
   "/ncert-exemplar/real-numbers": {
-    "sha256": "38aacae277c7c672868904ec4d0671ef00f9978aefca2eaf999f854e4990d8ad",
-    "lastmod": "2026-11-17"
+    "sha256": "bca9f78c3dec620e5e984da2d4e0f91ac66c2da59e55f71415788dbe77fba2f3",
+    "lastmod": "2026-11-19"
   },
   "/ncert-exemplar/some-applications-of-trigonometry": {
     "sha256": "1a35da116e56084c8ea197b90f02049bda9d5947911f7d28c156fd59ab123795",
@@ -500,24 +500,24 @@
     "lastmod": "2026-11-17"
   },
   "/ncert-solutions/pair-of-linear-equations": {
-    "sha256": "33f81e574028bc82156c2c076a11bb51744674f4a87c9a506e9d6fa942686a88",
-    "lastmod": "2026-11-17"
+    "sha256": "ec12300cd357425a4965d4257506b8e7bb422a76e891af1c16f5cd17b95de02f",
+    "lastmod": "2026-11-19"
   },
   "/ncert-solutions/polynomials": {
-    "sha256": "f7b14f4c0d2dfec15ff5f060c23fefda24e9b2dd4714e4d19d3295d90a894521",
-    "lastmod": "2026-11-17"
+    "sha256": "549882e67820645826ac6111e5ae750e0c3b8b026956e9169e7486c57641579d",
+    "lastmod": "2026-11-19"
   },
   "/ncert-solutions/probability": {
     "sha256": "54ec4ccc725b44b2dfd6d843e5e67af2faf08436cb6ae020602d73cc87807e09",
     "lastmod": "2026-11-17"
   },
   "/ncert-solutions/quadratic-equations": {
-    "sha256": "2de239e99f98784e35ca023856bc81aa462fe6f6f9f16b8726874ec8559c4c41",
-    "lastmod": "2026-11-17"
+    "sha256": "aa58864496c3adc2f01ce2527bc4d059cfa94f90057bd3c113c2a976e1663298",
+    "lastmod": "2026-11-19"
   },
   "/ncert-solutions/real-numbers": {
-    "sha256": "1a2996188a688eb98d0e40e212d7da7a3384e81cf117b10153fdb13bb2ccee9a",
-    "lastmod": "2026-11-17"
+    "sha256": "aa4886d6c538e664f8ac66d3590135a67555e8cbec548267562354eee4f6dbc2",
+    "lastmod": "2026-11-19"
   },
   "/ncert-solutions/some-applications-of-trigonometry": {
     "sha256": "42a0bd35856f60af93d50fbc9d0f80d30861d350ae2b3c8dab583987843f3b8e",
@@ -604,24 +604,24 @@
     "lastmod": "2026-11-18"
   },
   "/notes/pair-of-linear-equations": {
-    "sha256": "2e0781564a7310b41e49932e07cad692d925113622c633a0d36efd17fa1aeb3f",
-    "lastmod": "2026-11-18"
+    "sha256": "0c808e47be1ef3195a080dbe9106fd251fdc7d6b370e6be9d9e5970765dc23da",
+    "lastmod": "2026-11-19"
   },
   "/notes/polynomials": {
-    "sha256": "80eca2c48d033905c7c9a6458b3797f791f56e98b913a0fe87a0edfad81a8f2d",
-    "lastmod": "2026-11-18"
+    "sha256": "4ca58a198334d835c31e353786af5f020ee68a933382cc9ab910e2bf9e8a8955",
+    "lastmod": "2026-11-19"
   },
   "/notes/probability": {
     "sha256": "5cba754e5a98bad71d9b4439554f06f514a13ff052aca9fd0bde56a4576cffdd",
     "lastmod": "2026-11-18"
   },
   "/notes/quadratic-equations": {
-    "sha256": "4a7929b9086e0a9583232b06ae3306068337136b770fa58726845f21340e574b",
-    "lastmod": "2026-11-18"
+    "sha256": "7f640aecd57b38b3a7036bbdc427ad34259a3bf69f08b420d676f0851bba9fdf",
+    "lastmod": "2026-11-19"
   },
   "/notes/real-numbers": {
-    "sha256": "979119ba9b8f3430cf90b7fe6b3520ff42edeb45e3dd901bcdd0d8025d2f9b71",
-    "lastmod": "2026-11-18"
+    "sha256": "30a0b34f94ecee79373841772173dfcc7cc4512a5ffad236fc2621ed82a50112",
+    "lastmod": "2026-11-19"
   },
   "/notes/statistics": {
     "sha256": "c4485db4ac15d32795d4c0320c2e9932cc833c08fbd1e74be8261b18849d053e",
