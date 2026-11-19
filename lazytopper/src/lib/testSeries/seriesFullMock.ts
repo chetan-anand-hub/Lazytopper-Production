@@ -11,7 +11,7 @@
  * clear of the ones before it). Those ids are the pinned papers' ids (seriesPaperIds.json), so paper n is drawn ALONE with
  * `drawPackMockAfter` - the very draw `drawPackMocks` runs. Only the sitting's identity is replaced. The subject bank must already be loaded.
  */
-import { drawPackMockAfter } from "../packs/buildPackFiles";
+import { drawPackMockAfter } from "../packs/packDraws";
 import type { DrawnFullMock } from "../../components/fullmock/fullMockBlueprint";
 import type { SeriesSubject } from "./testSeries";
 import { allPinnedSpecs } from "./pinnedSpec";

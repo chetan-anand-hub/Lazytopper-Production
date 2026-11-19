@@ -15,7 +15,7 @@
  */
 import { drawChapterTest, subjectiveQuestions } from "../../components/chaptertest/chapterTestBlueprint";
 import { fullMockSubjectiveQuestions } from "../../components/fullmock/fullMockBlueprint";
-import { drawPackMocks } from "../packs/buildPackFiles";
+import { drawPackMocks } from "../packs/packDraws";
 import { loadChapter, loadSubjectBank } from "../packs/packContent";
 import {
   SERIES_MOCKS_PER_SUBJECT,
