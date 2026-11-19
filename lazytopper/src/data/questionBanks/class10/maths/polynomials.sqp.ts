@@ -46,9 +46,9 @@ export const POLYNOMIALS_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) α² + β² = 3/5; (ii) α⁻¹ + β⁻¹ = −5",
     "solutionSteps": [
-      "For P(x) = 5x² + 5x + 1, sum of zeroes α + β = −b/a = −5/5 = −1; product αβ = c/a = 1/5.",
-      "(i) α² + β² = (α + β)² − 2αβ = (−1)² − 2(1/5) = 1 − 2/5 = 3/5.",
-      "(ii) α⁻¹ + β⁻¹ = 1/α + 1/β = (α + β)/(αβ) = (−1)/(1/5) = −5."
+      "[1 mark] For P(x) = 5x² + 5x + 1, sum of zeroes α + β = −b/a = −5/5 = −1; product αβ = c/a = 1/5.",
+      "[1 mark] (i) α² + β² = (α + β)² − 2αβ = (−1)² − 2(1/5) = 1 − 2/5 = 3/5.",
+      "[1 mark] (ii) α⁻¹ + β⁻¹ = 1/α + 1/β = (α + β)/(αβ) = (−1)/(1/5) = −5."
     ],
     "finalAnswer": "(i) 3/5; (ii) −5",
     "isCompetencyBased": true

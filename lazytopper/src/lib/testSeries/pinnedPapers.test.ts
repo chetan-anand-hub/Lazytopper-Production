@@ -26,8 +26,13 @@ import { loadRawBankRowsById } from "./rawBankRows";
 import { buildSeriesFullMock, drawSeriesFullMock } from "./seriesFullMock";
 import { chapterTestSeriesSeed, seriesChapterTests, seriesFullMocks, seriesTotals } from "./testSeries";
 
-/** Keys whose SEEDED draw is allowed to differ from the pinned paper (the bank changed on purpose). Empty at TS-PIN-1. */
-const ACKNOWLEDGED_DRIFT: readonly string[] = [];
+/**
+ * Keys whose SEEDED draw is allowed to differ from the pinned paper (the bank changed on purpose). Empty at TS-PIN-1.
+ * STEPMARK-2 batch 1 (19 Nov 2026): the hand-sourced Maths rows of chapters 1-4 gained [N mark] step prefixes and the seeded draw
+ * only takes step-marked rows, so every seeded Maths Full-Length draw (TS-FM-M1..M20) now picks different rows. The pinned papers
+ * (seriesPaperIds.json, and testSeriesPapers.json which is NOT regenerated) are unchanged.
+ */
+const ACKNOWLEDGED_DRIFT: readonly string[] = Array.from({ length: 20 }, (_, i) => `TS-FM-M${i + 1}`);
 
 const STAMP = "2026-01-01T00:00:00.000Z";
 const sha256 = (s: string) => createHash("sha256").update(s, "utf8").digest("hex");

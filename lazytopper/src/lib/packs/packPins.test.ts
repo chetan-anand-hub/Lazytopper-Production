@@ -20,7 +20,15 @@ import { chapterPackDrawRows, drawPackWorksheetRowsSafe, hashSeed, withProvenanc
 import { allPackPins, packChapterTestPapers, packMockPapers, packPinSpec, packWorksheetRows, type PackPaperIds } from "./packPins";
 import { allPinnedSpecs } from "../testSeries/pinnedSpec";
 
-const ACKNOWLEDGED_DRAW_DRIFT: readonly string[] = [];
+/**
+ * STEPMARK-2 batch 1 (19 Nov 2026): hand-sourced Maths rows of chapters 1-4 gained [N mark] step prefixes; the seeded draws only take
+ * step-marked rows, so every seeded draw touching those chapters or the Maths mocks moves. The pins (packPaperIds.json) do not.
+ */
+const ACKNOWLEDGED_DRAW_DRIFT: readonly string[] = [
+  ...["real-numbers", "polynomials", "pair-of-linear-equations", "quadratic-equations"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`, `ws:${s}`]),
+  ...[1, 2, 3, 4, 5, 6, 7, 8].map((n) => `mock:maths:${n}`),
+];
+const acked = (k: string) => ACKNOWLEDGED_DRAW_DRIFT.includes(k);
 const FILE = resolve(__dirname, "packPaperIds.json");
 
 beforeAll(async () => {
@@ -85,13 +93,17 @@ describe("PACK-PIN-1 pinned builds equal the seeded draws", () => {
   it("Chapter Tests 1/2, Worksheets and Mocks: same papers (JSON-identical) as the draw", async () => {
     for (const slug of PACK_CHAPTER_SLUGS) {
       const drawRows = chapterPackDrawRows(slug);
-      const pinned = await packChapterTestPapers(slug, drawRows);
-      const drawn = drawPackChapterTests(slug, drawRows).map(({ n, drawn }) => ({ n, paper: drawn.paper }));
-      expect(JSON.stringify(pinned), `${slug} CT`).toBe(JSON.stringify(drawn));
+      if (!acked(`ct1:${slug}`) && !acked(`ct2:${slug}`)) {
+        const pinned = await packChapterTestPapers(slug, drawRows);
+        const drawn = drawPackChapterTests(slug, drawRows).map(({ n, drawn }) => ({ n, paper: drawn.paper }));
+        expect(JSON.stringify(pinned), `${slug} CT`).toBe(JSON.stringify(drawn));
+      }
+      if (acked(`ws:${slug}`)) continue;
       const ws = await packWorksheetRows(slug, drawRows);
       expect(JSON.stringify(ws), `${slug} WS`).toBe(JSON.stringify(drawPackWorksheetRowsSafe(drawRows, hashSeed(`pack-paper:${slug}:ws1`))));
     }
     for (const subject of PACK_SUBJECTS) {
+      if (acked(`mock:${subject}:1`)) continue;
       const pinned = await packMockPapers(subject);
       const drawn = drawPackMocks(subject).map(({ n, drawn, name }) => ({ n, paper: drawn.paper, name }));
       expect(JSON.stringify(pinned), `${subject} mocks`).toBe(JSON.stringify(drawn));
@@ -101,7 +113,7 @@ describe("PACK-PIN-1 pinned builds equal the seeded draws", () => {
   it("whole Subject Packs: every file's worksheet, code and name is identical with the pins on and with VITE_PACK_PIN_DISABLED", async () => {
     const run = async () => {
       const sink: Array<{ id: string; code?: string; ws: unknown }> = [];
-      for (const s of PACK_SUBJECTS) {
+      for (const s of PACK_SUBJECTS.filter((x) => !acked(`mock:${x}:1`))) {
         const ctx: BuildContext = {
           licensee: { name: "T", email: "t@example.in" },
           owned: [],
@@ -126,7 +138,7 @@ describe("PACK-PIN-1 pinned builds equal the seeded draws", () => {
 
 describe("PACK-PIN-1 provenance and the kill switch", () => {
   it("pinned Chapter Test carries the same provenance as the draw (withProvenance over the chapter rows)", async () => {
-    const slug = "polynomials";
+    const slug = PACK_CHAPTER_SLUGS.find((x) => !acked(`ct1:${x}`))!;
     const rows = chapterPackRows(slug);
     const drawRows = chapterPackDrawRows(slug);
     const [pinned] = await packChapterTestPapers(slug, drawRows);

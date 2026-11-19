@@ -97,13 +97,13 @@ export const POLY_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section B — Short Answer (2 marks) =====
   { id: "POLY-N-EXEM-2-VSA-001", subject: "Maths", topicKey: "polynomials", subtopic: "Number of Zeroes from Graph", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Is it true that 'If the graph of a polynomial intersects the x-axis at only one point, it cannot be a quadratic polynomial'? Justify briefly.",
-    solutionSteps: ["A quadratic polynomial CAN touch the x-axis at exactly one point — this is the equal-root (repeated zero) case (NCERT Case ii).", "Example: y = (x − 3)² has only one x-intercept x = 3 yet is quadratic.", "Hence the statement is FALSE."],
+    solutionSteps: ["[1 mark] A quadratic polynomial CAN touch the x-axis at exactly one point — this is the equal-root (repeated zero) case (NCERT Case ii).", "[0.5 mark] Example: y = (x − 3)² has only one x-intercept x = 3 yet is quadratic.", "[0.5 mark] Hence the statement is FALSE."],
     finalAnswer: "False; counter-example y = (x − 3)².",
     ncertRef: "Exemplar Ex 2.2 Q2(ii)", isCompetencyBased: true },
 
   { id: "POLY-N-EXEM-2-VSA-002", subject: "Maths", topicKey: "polynomials", subtopic: "Equal Zeroes", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Can the quadratic polynomial x² + kx + k have equal zeroes for some odd integer k > 1? Justify.",
-    solutionSteps: ["Equal zeroes ⇒ discriminant = k² − 4k = k(k − 4) = 0 ⇒ k = 0 or k = 4.", "Neither value is an odd integer > 1.", "Hence NO odd integer k > 1 makes the zeroes equal."],
+    solutionSteps: ["[1 mark] Equal zeroes ⇒ discriminant = k² − 4k = k(k − 4) = 0 ⇒ k = 0 or k = 4.", "[0.5 mark] Neither value is an odd integer > 1.", "[0.5 mark] Hence NO odd integer k > 1 makes the zeroes equal."],
     finalAnswer: "No; only k = 0 or 4 give equal zeroes, neither is odd > 1.",
     ncertRef: "Exemplar Ex 2.2 Q1(v)", isCompetencyBased: true },
 
@@ -116,25 +116,25 @@ export const POLY_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section C — Short Answer (3 marks) =====
   { id: "POLY-N-EXEM-2-SA-001", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes by Factorisation", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the zeroes of 4x² – 3x – 1 by factorisation and verify the relationship between zeroes and coefficients.",
-    solutionSteps: ["Split the middle term: 4x² − 4x + x − 1 = 4x(x − 1) + 1(x − 1) = (4x + 1)(x − 1).", "Zeroes: x = −1/4 and x = 1.", "Sum: −1/4 + 1 = 3/4 = −(−3)/4 = −b/a. ✓", "Product: (−1/4)(1) = −1/4 = c/a. ✓"],
+    solutionSteps: ["[1 mark] Split the middle term: 4x² − 4x + x − 1 = 4x(x − 1) + 1(x − 1) = (4x + 1)(x − 1).", "[0.5 mark] Zeroes: x = −1/4 and x = 1.", "[0.5 mark] Sum: −1/4 + 1 = 3/4 = −(−3)/4 = −b/a. ✓", "[1 mark] Product: (−1/4)(1) = −1/4 = c/a. ✓"],
     finalAnswer: "Zeroes: −1/4 and 1; relationships verified.",
     ncertRef: "Exemplar Ex 2.3 Q1", isCompetencyBased: true },
 
   { id: "POLY-N-EXEM-2-SA-002", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes by Factorisation", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the zeroes of 3x² + 4x – 4 by factorisation and verify the relationship between zeroes and coefficients.",
-    solutionSteps: ["Split the middle term: 3x² + 6x − 2x − 4 = 3x(x + 2) − 2(x + 2) = (3x − 2)(x + 2).", "Zeroes: x = 2/3 and x = −2.", "Sum: 2/3 − 2 = −4/3 = −(4)/3 = −b/a. ✓", "Product: (2/3)(−2) = −4/3 = c/a. ✓"],
+    solutionSteps: ["[1 mark] Split the middle term: 3x² + 6x − 2x − 4 = 3x(x + 2) − 2(x + 2) = (3x − 2)(x + 2).", "[0.5 mark] Zeroes: x = 2/3 and x = −2.", "[0.5 mark] Sum: 2/3 − 2 = −4/3 = −(4)/3 = −b/a. ✓", "[1 mark] Product: (2/3)(−2) = −4/3 = c/a. ✓"],
     finalAnswer: "Zeroes: 2/3 and −2; relationships verified.",
     ncertRef: "Exemplar Ex 2.3 Q2", isCompetencyBased: true },
 
   { id: "POLY-N-EXEM-2-SA-003", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes by Factorisation", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the zeroes of v² + 4√3·v – 15 and verify the relationship between zeroes and coefficients.",
-    solutionSteps: ["Split the middle term: v² + 5√3·v − √3·v − 15 = v(v + 5√3) − √3(v + 5√3) = (v − √3)(v + 5√3).", "Zeroes: v = √3 and v = −5√3.", "Sum: √3 + (−5√3) = −4√3 = −(4√3)/1 = −b/a. ✓", "Product: (√3)(−5√3) = −15 = c/a. ✓"],
+    solutionSteps: ["[1 mark] Split the middle term: v² + 5√3·v − √3·v − 15 = v(v + 5√3) − √3(v + 5√3) = (v − √3)(v + 5√3).", "[0.5 mark] Zeroes: v = √3 and v = −5√3.", "[0.5 mark] Sum: √3 + (−5√3) = −4√3 = −(4√3)/1 = −b/a. ✓", "[1 mark] Product: (√3)(−5√3) = −15 = c/a. ✓"],
     finalAnswer: "Zeroes: √3 and −5√3; relationships verified.",
     ncertRef: "Exemplar Ex 2.3 Q8", isCompetencyBased: true },
 
   { id: "POLY-N-EXEM-2-SA-004", subject: "Maths", topicKey: "polynomials", subtopic: "Constructing a Polynomial", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find a quadratic polynomial with sum −8/3 and product 4/3 as its zeroes, and find the zeroes.",
-    solutionSteps: ["Polynomial: x² − (−8/3)x + 4/3 = x² + (8/3)x + 4/3. Multiply by 3: 3x² + 8x + 4.", "Factorise: 3x² + 8x + 4 = 3x² + 6x + 2x + 4 = 3x(x + 2) + 2(x + 2) = (3x + 2)(x + 2).", "Zeroes: x = −2/3 and x = −2."],
+    solutionSteps: ["[1 mark] Polynomial: x² − (−8/3)x + 4/3 = x² + (8/3)x + 4/3. Multiply by 3: 3x² + 8x + 4.", "[1 mark] Factorise: 3x² + 8x + 4 = 3x² + 6x + 2x + 4 = 3x(x + 2) + 2(x + 2) = (3x + 2)(x + 2).", "[1 mark] Zeroes: x = −2/3 and x = −2."],
     finalAnswer: "Polynomial: 3x² + 8x + 4. Zeroes: −2/3 and −2.",
     ncertRef: "Exemplar Ex 2.4 Q1(i)", isCompetencyBased: true },
 
@@ -161,7 +161,7 @@ export const POLY_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section E — Case-Based (4 marks) =====
   { id: "POLY-N-EXEM-2-CB-001", subject: "Maths", topicKey: "polynomials", subtopic: "Zeroes by Factorisation", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A bridge’s arch is modelled by p(x) = x² + (k + 1)x + b. Surveyors find that the arch lands on the x-axis at x = 2 and x = −3.\n(i) Find b using the product of zeroes.\n(ii) Find k using the sum of zeroes.\n(iii) Write the polynomial explicitly.\n(iv) Verify that x = 2 is indeed a zero of your polynomial.",
-    solutionSteps: ["(i) Product of zeroes 2 × (−3) = −6 = b ⇒ b = −6.", "(ii) Sum of zeroes 2 + (−3) = −1 = −(k + 1) ⇒ k + 1 = 1 ⇒ k = 0.", "(iii) p(x) = x² + (0 + 1)x − 6 = x² + x − 6.", "(iv) p(2) = 4 + 2 − 6 = 0 ✓."],
+    solutionSteps: ["[1 mark] (i) Product of zeroes 2 × (−3) = −6 = b ⇒ b = −6.", "[1 mark] (ii) Sum of zeroes 2 + (−3) = −1 = −(k + 1) ⇒ k + 1 = 1 ⇒ k = 0.", "[1 mark] (iii) p(x) = x² + (0 + 1)x − 6 = x² + x − 6.", "[1 mark] (iv) p(2) = 4 + 2 − 6 = 0 ✓."],
     finalAnswer: "(i) b = −6; (ii) k = 0; (iii) p(x) = x² + x − 6; (iv) verified.",
     ncertRef: "Exemplar Ex 2.1 Q3 (applied)", isCompetencyBased: true },
 

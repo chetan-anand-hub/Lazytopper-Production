@@ -246,12 +246,12 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "x = 3/2 and x = 1",
     "explanation": "",
     "solutionSteps": [
-      "Write the given equation 2x² − 5x + 3 = 0 in standard form ax² + bx + c = 0, so a = 2, b = −5, c = 3.",
-      "Recall the quadratic formula: x = [−b ± √(b² − 4ac)] / (2a).",
-      "Compute the discriminant D = b² − 4ac = (−5)² − 4×2×3 = 25 − 24 = 1.",
-      "Substitute a, b and D into the formula: x = [−(−5) ± √1] / (2×2) = [5 ± 1] / 4.",
-      "Find the two roots: x₁ = (5 + 1)/4 = 6/4 = 3/2 and x₂ = (5 − 1)/4 = 4/4 = 1.",
-      "Conclude that the roots of the equation are x = 3/2 and x = 1."
+      "[0.5 mark] Write the given equation 2x² − 5x + 3 = 0 in standard form ax² + bx + c = 0, so a = 2, b = −5, c = 3.",
+      "[0.5 mark] Recall the quadratic formula: x = [−b ± √(b² − 4ac)] / (2a).",
+      "[0.5 mark] Compute the discriminant D = b² − 4ac = (−5)² − 4×2×3 = 25 − 24 = 1.",
+      "[0.5 mark] Substitute a, b and D into the formula: x = [−(−5) ± √1] / (2×2) = [5 ± 1] / 4.",
+      "[0.5 mark] Find the two roots: x₁ = (5 + 1)/4 = 6/4 = 3/2 and x₂ = (5 − 1)/4 = 4/4 = 1.",
+      "[0.5 mark] Conclude that the roots of the equation are x = 3/2 and x = 1."
     ],
     "finalAnswer": "x = 3/2 and x = 1",
     "strategyHint": "",
