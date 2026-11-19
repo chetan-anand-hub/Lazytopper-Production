@@ -266,12 +266,28 @@ describe("board question options and figure alt — display polish", () => {
   });
 
   it("a row stored with lettered options renders one label, not two ('(A) 6', never '(A) A. 6')", () => {
-    const hit = Object.entries(BOARD_QUESTIONS).flatMap(([topic, t]) => t.questions.filter((q) => q.options?.[0] && /^A\.\s/.test(q.options[0])).map((q) => ({ topic, q })))[0];
-    expect(hit, "premise: a published row stores lettered options (real-numbers CBE-M-RN-A-xxx)").toBeDefined();
-    const { container } = mountNote(hit.topic);
-    const li = container.querySelector(".lt-note__bq-opts li")!;
-    expect((li.textContent || "").trim()).toMatch(/^\(A\) \S/);
-    expect(container.textContent).not.toMatch(/\(A\) A\. /);
+    // The artifact may hold no lettered row at a given time (STEPMARK-2: the CBE-M-RN-A rows that did left it). Then a stored row's
+    // options are lettered in place for the render and restored after - the display rule is what is under test, not the data.
+    const lettered = () => Object.entries(BOARD_QUESTIONS).flatMap(([topic, t]) => t.questions.filter((q) => q.options?.[0] && /^A\.\s/.test(q.options[0])).map((q) => ({ topic, q })))[0];
+    let hit = lettered();
+    let restore: (() => void) | null = null;
+    if (!hit) {
+      const [topic, t] = Object.entries(BOARD_QUESTIONS).find(([, tt]) => tt.questions.some((q) => (q.options?.length ?? 0) >= 2))!;
+      const q = t.questions.find((x) => (x.options?.length ?? 0) >= 2)!;
+      const saved = q.options;
+      (q as { options?: string[] }).options = saved!.map((o, i) => `${"ABCD"[i] ?? "E"}. ${o}`);
+      restore = () => { (q as { options?: string[] }).options = saved as string[]; };
+      hit = { topic, q };
+    }
+    try {
+      expect(hit, "premise: a row stores lettered options").toBeDefined();
+      const { container } = mountNote(hit.topic);
+      const li = container.querySelector(".lt-note__bq-opts li")!;
+      expect((li.textContent || "").trim()).toMatch(/^\(A\) \S/);
+      expect(container.textContent).not.toMatch(/\(A\) A\. /);
+    } finally {
+      restore?.();
+    }
   });
 
   it("the generic registry title is replaced by a description of the question; a descriptive alt is kept", () => {

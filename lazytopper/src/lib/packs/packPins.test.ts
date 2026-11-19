@@ -35,6 +35,9 @@ const ACKNOWLEDGED_DRAW_DRIFT: readonly string[] = [
   "mock:maths:4", "mock:maths:5", "mock:maths:6", "mock:maths:7",
   "mock:maths:8", "mock:science:3", "mock:science:5", "mock:science:6",
   "mock:science:7",
+  // STEPMARK-2 batch 1 (19 Nov 2026): the step-mark prefixes on hand-sourced Maths ch 1-4 rows also moved these seeded draws; the pins did not.
+  ...["real-numbers", "polynomials", "pair-of-linear-equations", "quadratic-equations"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
+  "mock:maths:2", "mock:maths:3",
 ];
 const ack = (k: string) => ACKNOWLEDGED_DRAW_DRIFT.includes(k);
 const FILE = resolve(__dirname, "packPaperIds.json");
@@ -166,7 +169,7 @@ describe("PACK-PIN-1 pinned builds equal the seeded draws", () => {
 
 describe("PACK-PIN-1 provenance and the kill switch", () => {
   it("pinned Chapter Test carries the same provenance as the draw (withProvenance over the chapter rows)", async () => {
-    const slug = "polynomials";
+    const slug = PACK_CHAPTER_SLUGS.find((x) => !ack(`ct1:${x}`) && !ack(`ct2:${x}`))!; // STEPMARK-2: first chapter whose seeded draw did not move
     const rows = chapterPackRows(slug);
     const drawRows = chapterPackDrawRows(slug);
     const [pinned] = await packChapterTestPapers(slug, drawRows);

@@ -40,6 +40,22 @@ import { createHash } from "node:crypto";
  * The content a verifier saw: question, options, keys and steps. The ledger stores this hash per
  * id; a row whose content changed since verification is `unverified` until verified again.
  */
+/**
+ * A leading `[N mark]` / `[N marks]` prefix (decimal or the ½ glyph) is the mark SCHEME, not the solution a verifier
+ * judged. STEPMARK lanes add or re-cut these prefixes; the verification hash ignores them so an annotated row stays
+ * verified, while any change to the step TEXT still changes the hash. Splitting or joining steps at the same words is
+ * likewise not a content change (STEPMARK lanes re-cut steps to reach the section 13 minimums).
+ */
+const LEADING_MARK_PREFIX = /^\s*\[\s*(?:\d+(?:\.\d+)?|\d*½)\s*marks?\s*\]\s*/i;
+export function stripLeadingMarkPrefix(step: string): string {
+  return step.replace(LEADING_MARK_PREFIX, "");
+}
+/** The steps as one whitespace-normalised text: prefixes stripped, and re-cutting a step into several (or joining
+ *  several into one) at the same words leaves it unchanged. Only a change to the WORDS changes the hash. */
+function stepsText(steps: readonly string[] | undefined): string[] {
+  return [(steps ?? []).map(stripLeadingMarkPrefix).join(" ").replace(/\s+/g, " ").trim()];
+}
+
 export function rowHash(
   q: Pick<Row, "questionText" | "options" | "answer" | "finalAnswer" | "solutionSteps" | "ncertRef">,
 ): string {
@@ -49,7 +65,7 @@ export function rowHash(
     q.options ?? null,
     q.answer ?? null,
     q.finalAnswer ?? null,
-    q.solutionSteps ?? [],
+    stepsText(q.solutionSteps),
     q.ncertRef ?? null,
   ]);
   return createHash("sha256").update(payload, "utf8").digest("hex").slice(0, 16);

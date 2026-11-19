@@ -354,7 +354,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(gaps.map((q) => q.id)).toEqual([]);
   });
 
-  it("the addressable step-marking backlog only shrinks (at most 2,336 rows)", () => {
+  it("the addressable step-marking backlog only shrinks (at most 1,230 rows)", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
      * rows that Rule 1 rejects permanently and that policy says to RETIRE, not
@@ -407,11 +407,23 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // ★ NO row flagged by RECOVER-1 (#735) was annotated: the 8 bracket rows and the 15
     // U+F09F rows are knowingly incomplete text, and a mark scheme on a broken stem is the
     // defect the quarantine exists to stop. ZERO of the 23 sit in this topic (measured).
+    // 2,336 -> 1,370: measured at trunk 90ec8460 before this batch (other lanes shrank the
+    // backlog without re-pinning this ceiling, which is permitted by the file header).
+    // 1,370 -> 1,230: -140. STEPMARK-2 batch 1 (hand-sourced Maths: real-numbers, polynomials,
+    // pair-of-linear-equations, quadratic-equations) rewrote solutionSteps on 140 non-AI rows, every
+    // one of which left "unmarked-step". Every step now carries a leading [N mark(s)] and each route
+    // sums to q.marks (OR questions: the alternative is ONE OR-prefixed step, or two OR-prefixed parts,
+    // because servedSchemeResidue's mark-sum counts every step not starting with OR as the main route).
+    // Rule 3 is now OR-AWARE (the main route must sum to q.marks; the OR alternative is not added on
+    // top), so the 5 OR rows this batch marked and the 4 already marked OR rows all publish instead of
+    // landing in "marks-do-not-sum" (11 -> 0). Left alone on purpose: CBE-M-RN-B-004 (the HALF-1
+    // [½ mark] positive control) and PYQ-M-2026-PLE-004/005 (pinned to the ledger's 2+1 marks by
+    // pyqRestore1).
     // CEILING (PR-3) — the backlog is worked DOWN by STEPMARK batches and must never be
     // worked up: a wiring PR that lands rows unannotated grows it and goes red here,
     // which is the right red — annotate before wiring. 2,336 at PR-3 (2026-09-11); the
     // 21 bound-but-unmarked rows PR-3 exposed are inside this number, not added to it.
-    expect(addressable.length).toBeLessThanOrEqual(2336);
+    expect(addressable.length).toBeLessThanOrEqual(1230);
   });
 });
 

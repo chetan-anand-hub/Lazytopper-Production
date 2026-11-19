@@ -34,6 +34,8 @@ import { chapterTestSeriesSeed, seriesChapterTests, seriesFullMocks, seriesTotal
 const ACKNOWLEDGED_DRIFT: readonly string[] = [
   "TS-CT-M01", "TS-CT-M02", "TS-CT-M03", "TS-CT-M04", "TS-CT-M05", "TS-CT-M06", "TS-CT-M07", "TS-CT-M08", "TS-CT-M09", "TS-CT-M10", "TS-CT-M11", "TS-CT-M12", "TS-CT-M13", "TS-CT-S01", "TS-CT-S02", "TS-CT-S03", "TS-CT-S04", "TS-CT-S05", "TS-CT-S06", "TS-CT-S07", "TS-CT-S08", "TS-CT-S09", "TS-CT-S10", "TS-CT-S11", "TS-CT-S12", "TS-CT-S13",
   "TS-FM-M1", "TS-FM-M4", "TS-FM-M5", "TS-FM-M6", "TS-FM-M8", "TS-FM-M9", "TS-FM-M10", "TS-FM-M11", "TS-FM-M12", "TS-FM-M14", "TS-FM-M18", "TS-FM-M15", "TS-FM-M17", "TS-FM-M20", "TS-FM-S3",
+  // STEPMARK-2 batch 1 (19 Nov 2026): hand-sourced Maths ch 1-4 rows gained [N mark] step prefixes; the seeded draw only takes step-marked rows, so these seeded Maths draws moved too. The pins did not.
+  "TS-FM-M2", "TS-FM-M3", "TS-FM-M7", "TS-FM-M13", "TS-FM-M16", "TS-FM-M19",
 ];
 
 const STAMP = "2026-01-01T00:00:00.000Z";

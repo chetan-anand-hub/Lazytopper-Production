@@ -46,9 +46,9 @@ export const PAIR_OF_LINEAR_EQUATIONS_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "The numbers are 42 and 24 (two such numbers).",
     "solutionSteps": [
-      "Let tens digit = x, units digit = y. Original number = 10x + y; reversed number = 10y + x. Sum: (10x + y) + (10y + x) = 66 ⇒ 11(x + y) = 66 ⇒ x + y = 6.",
-      "Digits differ by 2: either x − y = 2 or y − x = 2.",
-      "Case 1: x + y = 6 and x − y = 2 ⇒ x = 4, y = 2 → number = 42. Case 2: x + y = 6 and y − x = 2 ⇒ x = 2, y = 4 → number = 24. Two such numbers: 42 and 24."
+      "[1 mark] Let tens digit = x, units digit = y. Original number = 10x + y; reversed number = 10y + x. Sum: (10x + y) + (10y + x) = 66 ⇒ 11(x + y) = 66 ⇒ x + y = 6.",
+      "[0.5 mark] Digits differ by 2: either x − y = 2 or y − x = 2.",
+      "[1.5 marks] Case 1: x + y = 6 and x − y = 2 ⇒ x = 4, y = 2 → number = 42. Case 2: x + y = 6 and y − x = 2 ⇒ x = 2, y = 4 → number = 24. Two such numbers: 42 and 24."
     ],
     "finalAnswer": "42 and 24 (two such numbers)",
     "isCompetencyBased": true,

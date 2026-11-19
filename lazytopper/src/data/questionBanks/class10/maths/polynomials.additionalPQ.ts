@@ -30,7 +30,7 @@ export const POLYNOMIALS_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-POLY-003", subject: "Maths", topicKey: "polynomials", subtopic: "Quadratic from Transformed Zeroes", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If α and β are the zeroes of x^2 − x − 2, form a quadratic polynomial whose zeroes are 2α + 1 and 2β + 1. OR If α and β are the zeroes of f(x) = 2x^2 + 5x + k such that α^2 + β^2 + αβ = 21/4, find the value of k.",
     answer: "Required polynomial: k(x^2 − 4x − 5). Alternative: k = 2.",
-    solutionSteps: ["For x^2 − x − 2: α + β = 1, αβ = −2.", "Sum of new zeroes: (2α+1) + (2β+1) = 2(α+β) + 2 = 2(1) + 2 = 4. Product: (2α+1)(2β+1) = 4αβ + 2(α+β) + 1 = 4(−2) + 2(1) + 1 = −5.", "Required polynomial = k(x^2 − 4x − 5).", "[OR] For 2x^2+5x+k: α+β = −5/2, αβ = k/2. α^2+β^2+αβ = (α+β)^2 − αβ = 25/4 − k/2 = 21/4 ⟹ k/2 = 1 ⟹ k = 2."],
+    solutionSteps: ["[0.5 mark] For x^2 − x − 2: α + β = 1, αβ = −2.", "[1 mark] Sum of new zeroes: (2α+1) + (2β+1) = 2(α+β) + 2 = 2(1) + 2 = 4. Product: (2α+1)(2β+1) = 4αβ + 2(α+β) + 1 = 4(−2) + 2(1) + 1 = −5.", "[0.5 mark] Required polynomial = k(x^2 − 4x − 5).", "[2 marks] OR: For 2x^2+5x+k: α+β = −5/2, αβ = k/2. α^2+β^2+αβ = (α+β)^2 − αβ = 25/4 − k/2 = 21/4 ⟹ k/2 = 1 ⟹ k = 2."],
     finalAnswer: "k(x^2 − 4x − 5) [or] k = 2.",
     ncertRef: "APQ PQ2 Q22", isCompetencyBased: true },
 
@@ -38,7 +38,7 @@ export const POLYNOMIALS_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-POLY-004", subject: "Maths", topicKey: "polynomials", subtopic: "Real-world Quadratic — Parabolic Path", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Riddhi throws a stone in the air such that it follows a parabolic path before it lands at P on the ground as depicted by the graph below. (i) The above graph is represented by a polynomial where the sum of its zeroes is 1 and the sum of the squares of its zeroes is 25. Find the coordinates of P and Q. (ii) If one unit on the graph represents 25 metres, how far from Riddhi does the stone land?",
     answer: "(i) P = (4, 0), Q = (−3, 0). (ii) 150 metres.",
-    solutionSteps: ["Let polynomial be ax^2 + bx + c with zeroes α, β. Given α + β = 1, α^2 + β^2 = 25. Use (α+β)^2 = α^2 + β^2 + 2αβ ⟹ 1 = 25 + 2αβ ⟹ αβ = −12.", "By relations: b/a = −(α+β) = −1, c/a = αβ = −12. Take a = 1: polynomial = x^2 − x − 12 = (x − 4)(x + 3). Zeroes: x = 4 and x = −3.", "So P = (4, 0) and Q = (−3, 0). From the graph, Riddhi stands at x = −2, and the stone lands at P, x = 4. Horizontal distance = 4 − (−2) = 6 units = 6 × 25 m = 150 m."],
+    solutionSteps: ["[1 mark] Let polynomial be ax^2 + bx + c with zeroes α, β. Given α + β = 1, α^2 + β^2 = 25. Use (α+β)^2 = α^2 + β^2 + 2αβ ⟹ 1 = 25 + 2αβ ⟹ αβ = −12.", "[1 mark] By relations: b/a = −(α+β) = −1, c/a = αβ = −12. Take a = 1: polynomial = x^2 − x − 12 = (x − 4)(x + 3). Zeroes: x = 4 and x = −3.", "[1 mark] So P = (4, 0) and Q = (−3, 0). From the graph, Riddhi stands at x = −2, and the stone lands at P, x = 4. Horizontal distance = 4 − (−2) = 6 units = 6 × 25 m = 150 m."],
     finalAnswer: "P = (4, 0), Q = (−3, 0); distance = 150 m.",
     ncertRef: "APQ PQ1 Q27", isCompetencyBased: true,
     sourceOverride: "others", },
@@ -58,7 +58,7 @@ export const POLYNOMIALS_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-POLY-006", subject: "Maths", topicKey: "polynomials", subtopic: "Sum/Product of Zeroes Identities", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If m and n are zeroes of the polynomial (3x^2 - x - 2), find the values of the following without factorising the polynomial. (i) 1/m + 1/n (ii) m^2 + n^2",
     answer: "(i) −1/2. (ii) 13/9.",
-    solutionSteps: ["From 3x^2 − x − 2: m + n = −(−1)/3 = 1/3; mn = −2/3.", "(i) 1/m + 1/n = (m + n)/mn = (1/3) / (−2/3) = −1/2.", "(ii) m^2 + n^2 = (m + n)^2 − 2mn = (1/3)^2 − 2(−2/3) = 1/9 + 4/3 = 1/9 + 12/9 = 13/9."],
+    solutionSteps: ["[1 mark] From 3x^2 − x − 2: m + n = −(−1)/3 = 1/3; mn = −2/3.", "[1 mark] (i) 1/m + 1/n = (m + n)/mn = (1/3) / (−2/3) = −1/2.", "[1 mark] (ii) m^2 + n^2 = (m + n)^2 − 2mn = (1/3)^2 − 2(−2/3) = 1/9 + 4/3 = 1/9 + 12/9 = 13/9."],
     finalAnswer: "(i) −1/2; (ii) 13/9.",
     ncertRef: "APQ PQ_2022 Q27", isCompetencyBased: true },
 ];

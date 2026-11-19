@@ -46,9 +46,9 @@ export const REAL_NUMBERS_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Proof by contradiction (shown).",
     "solutionSteps": [
-      "Assume, to the contrary, that √2 is rational. Then √2 = a/b for some coprime integers a, b (b ≠ 0). So b√2 = a; squaring: 2b² = a².",
-      "Thus 2 divides a², so 2 divides a. Write a = 2c for some integer c. Substitute: 2b² = 4c² ⇒ b² = 2c². So 2 divides b², hence 2 divides b.",
-      "So both a and b are divisible by 2 — contradicting that a and b are coprime. The assumption is wrong, therefore √2 is irrational."
+      "[0.5 mark] Assume, to the contrary, that √2 is rational. Then √2 = a/b for some coprime integers a, b (b ≠ 0). So b√2 = a; squaring: 2b² = a².",
+      "[1 mark] Thus 2 divides a², so 2 divides a. Write a = 2c for some integer c. Substitute: 2b² = 4c² ⇒ b² = 2c². So 2 divides b², hence 2 divides b.",
+      "[0.5 mark] So both a and b are divisible by 2 — contradicting that a and b are coprime. The assumption is wrong, therefore √2 is irrational."
     ],
     "finalAnswer": "√2 is irrational (proved by contradiction).",
     "isCompetencyBased": true
@@ -67,9 +67,9 @@ export const REAL_NUMBERS_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "12 students per group; 5 + 7 + 9 = 21 groups; 21 rooms required.",
     "solutionSteps": [
-      "Students per group = HCF(60, 84, 108). Prime factorise: 60 = 2² · 3 · 5; 84 = 2² · 3 · 7; 108 = 2² · 3³. HCF = 2² · 3 = 12.",
-      "Number of groups: Music = 60/12 = 5; Dance = 84/12 = 7; Handicrafts = 108/12 = 9.",
-      "Total rooms required = 5 + 7 + 9 = 21."
+      "[1 mark] Students per group = HCF(60, 84, 108). Prime factorise: 60 = 2² · 3 · 5; 84 = 2² · 3 · 7; 108 = 2² · 3³. HCF = 2² · 3 = 12.",
+      "[1 mark] Number of groups: Music = 60/12 = 5; Dance = 84/12 = 7; Handicrafts = 108/12 = 9.",
+      "[1 mark] Total rooms required = 5 + 7 + 9 = 21."
     ],
     "finalAnswer": "12 per group; 5/7/9 groups; 21 rooms.",
     "isCompetencyBased": true
