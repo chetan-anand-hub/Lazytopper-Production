@@ -4,11 +4,15 @@
  */
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { BOARD_CHAPTER_KEYS, chapterUnit } from "../../config/syllabusUnits2026-27";
 import {
   TEST_SERIES_BUY_PATH,
+  chapterPaperCode,
+  chapterTestSeriesHref,
   chapterTestSeriesSeed,
+  seriesChapterPaperNumber,
+  seriesChapters,
   currentScheduleRow,
   isChapterTestSeriesRequest,
   seriesChapterTests,
@@ -23,19 +27,20 @@ import {
   seriesSchedule,
   seriesTotals,
   SERIES_MOCKS_PER_SUBJECT,
+  SERIES_PAPERS_PER_CHAPTER,
   type SeriesRecordLike,
 } from "./testSeries";
 import { canCheckSeriesPapers, countTestsTaken, seriesStartDecision, FREE_TESTS_ALLOWED } from "./seriesAccess";
 
 describe("numbering — derived from the syllabus and SERIES_MOCKS_PER_SUBJECT", () => {
   it("one chapter test per board chapter, Maths then Science, in syllabus order", () => {
-    const cts = seriesChapterTests();
+    const cts = seriesChapters();
     expect(cts.map((c) => c.topicKey)).toEqual(
       [...BOARD_CHAPTER_KEYS.filter((k) => chapterUnit(k)?.subject === "maths"), ...BOARD_CHAPTER_KEYS.filter((k) => chapterUnit(k)?.subject === "science")],
     );
     expect(cts.length).toBe(BOARD_CHAPTER_KEYS.length);
     const t = seriesTotals();
-    expect(t.chapterTestsPerSubject).toEqual({ Maths: 13, Science: 13 });
+    expect(t.chaptersPerSubject).toEqual({ Maths: 13, Science: 13 });
     expect(cts[0]).toMatchObject({ code: "CT-M01", subject: "Maths", topicKey: "real-numbers", href: "/chapter-test/10/Maths/real-numbers?series=1" });
     expect(cts[12].code).toBe("CT-M13");
     expect(cts[13]).toMatchObject({ code: "CT-S01", subject: "Science", topicKey: "chemical-reactions-and-equations" });
@@ -48,14 +53,19 @@ describe("numbering — derived from the syllabus and SERIES_MOCKS_PER_SUBJECT",
     expect(mocks[0]).toMatchObject({ code: "FM-M1", n: 1, href: "/full-mock/10/Maths?paper=1" });
     expect(mocks[mocks.length - 1].code).toBe(`FM-S${SERIES_MOCKS_PER_SUBJECT}`);
     const t = seriesTotals();
-    expect(t.total).toBe(BOARD_CHAPTER_KEYS.length + 2 * SERIES_MOCKS_PER_SUBJECT);
-    expect(seriesContentsLine(t)).toBe(`${BOARD_CHAPTER_KEYS.length} chapter tests + ${2 * SERIES_MOCKS_PER_SUBJECT} full-length tests`);
+    expect(t.total).toBe(BOARD_CHAPTER_KEYS.length * SERIES_PAPERS_PER_CHAPTER + 2 * SERIES_MOCKS_PER_SUBJECT);
+    expect(seriesContentsLine(t)).toBe(`${BOARD_CHAPTER_KEYS.length * SERIES_PAPERS_PER_CHAPTER} chapter tests + ${2 * SERIES_MOCKS_PER_SUBJECT} full-length tests`);
+    // TS-MORE-1 (owner, 19 Nov 2026): 180 = 130 chapter tests (5 x 26) + 50 full-length tests (25 x 2).
+    expect([t.total, t.chapterTests, t.fullMocks, t.chapters, t.papersPerChapter, t.mocksPerSubject]).toEqual([180, 130, 50, 26, 5, 25]);
   });
   it("llms.txt's line states the same counts", () => {
     const llms = readFileSync(resolve(__dirname, "../../../public/llms.txt"), "utf8");
     const line = llms.split("\n").find((l) => l.includes("/test-series"));
     const t = seriesTotals();
-    expect(line).toContain(`${t.chapterTests} numbered chapter tests and ${t.fullMocks} full-length board-pattern tests`);
+    expect(line).toContain(
+      `${t.chapterTests} numbered chapter tests (${t.papersPerChapter} per chapter) and ${t.fullMocks} full-length board-pattern tests (${t.mocksPerSubject} per subject)`,
+    );
+    expect(line).toContain(`${t.total} tests in all`);
   });
 });
 
@@ -75,13 +85,65 @@ describe("URL params and ids", () => {
   it("worksheet ids round-trip; an ordinary id is not a series sitting", () => {
     const ct = seriesChapterWorksheetId("ct-abc-def123", "pair-of-linear-equations");
     expect(ct).toBe("ct-ts1-pair-of-linear-equations--abc-def123");
-    expect(seriesKeyOfWorksheetId(ct)).toEqual({ kind: "chapter", topicKey: "pair-of-linear-equations" });
+    expect(seriesKeyOfWorksheetId(ct)).toEqual({ kind: "chapter", topicKey: "pair-of-linear-equations", paper: 1 });
     const fm = seriesMockWorksheetId("fm-abc-def123", "Science", 7);
     expect(fm).toBe("fm-ts1-s7--abc-def123");
     expect(seriesKeyOfWorksheetId(fm)).toEqual({ kind: "mock", subject: "Science", n: 7 });
+    // TS-MORE-1: papers 2..5 carry their number in the id's own prefix (ct-ts1p3-...), never a prefix of paper 1's or of another paper's.
+    const p3 = seriesChapterWorksheetId("ct-abc-def123", "pair-of-linear-equations", 3);
+    expect(p3).toBe("ct-ts1p3-pair-of-linear-equations--abc-def123");
+    expect(seriesKeyOfWorksheetId(p3)).toEqual({ kind: "chapter", topicKey: "pair-of-linear-equations", paper: 3 });
+    expect(p3.startsWith("ct-ts1-")).toBe(false);
+    expect(ct.startsWith("ct-ts1p")).toBe(false);
+    expect(seriesKeyOfWorksheetId("ct-ts1p1-polynomials--a")).toBeNull();
     expect(seriesKeyOfWorksheetId("ct-abc-def123")).toBeNull();
     expect(seriesKeyOfWorksheetId("fm-abc-def123")).toBeNull();
     expect(seriesKeyOfWorksheetId(undefined)).toBeNull();
+  });
+});
+
+describe("TS-MORE-1 — chapter papers 2..5 and the kill switch", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+  it("paper codes, URLs, seeds and ?paper=k", () => {
+    expect(chapterPaperCode("CT-M01", 1)).toBe("CT-M01");
+    expect(chapterPaperCode("CT-M01", 3)).toBe("CT-M01-3");
+    expect(chapterTestSeriesHref("Maths", "real-numbers")).toBe("/chapter-test/10/Maths/real-numbers?series=1");
+    expect(chapterTestSeriesHref("Maths", "real-numbers", 3)).toBe("/chapter-test/10/Maths/real-numbers?series=1&paper=3");
+    expect(chapterTestSeriesSeed("real-numbers")).toBe("ts1:real-numbers");
+    expect(chapterTestSeriesSeed("real-numbers", 3)).toBe("ts1p3:real-numbers");
+    expect(seriesChapterPaperNumber(null)).toBe(1);
+    expect(seriesChapterPaperNumber("5")).toBe(5);
+    for (const bad of ["0", "6", "-1", "2.5", "abc", "1e1", "03"]) expect(seriesChapterPaperNumber(bad)).toBeNull();
+    const all = seriesChapterTests();
+    expect(all).toHaveLength(BOARD_CHAPTER_KEYS.length * 5);
+    expect(new Set(all.map((c) => c.code)).size).toBe(all.length);
+    expect(all.find((c) => c.code === "CT-M01-3")).toMatchObject({ paper: 3, baseCode: "CT-M01", href: "/chapter-test/10/Maths/real-numbers?series=1&paper=3" });
+  });
+  it("the kill switch VITE_TS_MORE_DISABLED takes the client back to 66 tests and hides the new copy", async () => {
+    vi.stubEnv("VITE_TS_MORE_DISABLED", "1");
+    vi.resetModules();
+    const ts = await import("./testSeries");
+    const t = ts.seriesTotals();
+    expect([t.total, t.chapterTests, t.fullMocks, t.papersPerChapter, t.mocksPerSubject]).toEqual([66, 26, 40, 1, 20]);
+    expect(ts.seriesChapterTests().some((c) => c.paper > 1)).toBe(false);
+    expect(ts.seriesFullMocks().some((m) => m.n > 20)).toBe(false);
+    expect(ts.seriesChapterPaperNumber("3")).toBeNull();
+    expect(ts.seriesMockNumber("21")).toBeNull();
+    const copy = await import("./seriesPerTest");
+    expect(copy.testSeriesPerTestLine()).toBeNull();
+    expect(copy.testSeriesExaminerLine()).toBeNull();
+  });
+  it("the per-test line is round(base price / total): 6 now, 8 from 1 Dec; the examiner line is verbatim", async () => {
+    const { testSeriesPerTestInr, testSeriesPerTestLine, testSeriesExaminerLine } = await import("./seriesPerTest");
+    expect(testSeriesPerTestInr(Date.parse("2026-11-19T06:30:00Z"))).toBe(6);
+    expect(testSeriesPerTestInr(Date.parse("2026-12-01T06:30:00Z"))).toBe(8);
+    expect(testSeriesPerTestLine(Date.parse("2026-11-19T06:30:00Z"))).toBe("\u20b96 per test");
+    expect(testSeriesPerTestLine(Date.parse("2026-12-01T06:30:00Z"))).toBe("\u20b98 per test");
+    expect(testSeriesPerTestLine(Date.parse("2026-11-19T06:30:00Z"))).not.toMatch(/GST/);
+    expect(testSeriesExaminerLine()).toBe("Your written answers marked step by step like a CBSE examiner, by CBSE's step-marking rules.");
   });
 });
 
@@ -135,7 +197,7 @@ describe("progress — real records only", () => {
 describe("schedule — from the predicted board date", () => {
   it("years follow the board year; the board date is the prediction, never invented", () => {
     const rows = seriesSchedule("2027-02-17");
-    expect(rows?.map((r) => r.when)).toEqual(["Now – 30 Nov", "1 – 20 Dec 2026", "January 2027", "1 – 14 Feb 2027"]);
+    expect(rows?.map((r) => r.when)).toEqual(["Any time till the boards", "1 – 20 Dec 2026", "January 2027", "1 – 14 Feb 2027"]);
     expect(rows?.[1].body).toBe(`Full-Length Tests 1–${Math.ceil(SERIES_MOCKS_PER_SUBJECT / 2)} in Maths and Science.`);
     expect(rows?.[3].body).toContain("Boards expected from 17 Feb 2027");
     expect(seriesSchedule("not a date")).toBeNull();
@@ -187,5 +249,23 @@ describe("TS-PAGE-2 — seriesMockRounds", () => {
     const sched = seriesSchedule("2027-02-16") ?? [];
     expect(sched.find((r) => r.id === "round1")?.body).toContain(`1–${rounds[0].to}`);
     expect(sched.find((r) => r.id === "round2")?.body).toContain(`${rounds[1].from}–${rounds[1].to}`);
+  });
+});
+
+describe("TS-MORE-1 — seriesChapterTestOf is bounded by the offered papers per chapter", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+  it("offers papers 1..5, and under the kill switch only paper 1 (papers 2..5 are null)", async () => {
+    const all = await import("./testSeries");
+    expect(all.seriesChapterTestOf("real-numbers", 5)?.code).toBe("CT-M01-5");
+    expect(all.seriesChapterTestOf("real-numbers", 6)).toBeNull();
+    expect(all.seriesChapterTestOf("real-numbers", 0)).toBeNull();
+    vi.stubEnv("VITE_TS_MORE_DISABLED", "1");
+    vi.resetModules();
+    const off = await import("./testSeries");
+    expect(off.seriesChapterTestOf("real-numbers", 1)?.code).toBe("CT-M01");
+    for (const k of [2, 3, 5]) expect(off.seriesChapterTestOf("real-numbers", k), `paper ${k}`).toBeNull();
   });
 });

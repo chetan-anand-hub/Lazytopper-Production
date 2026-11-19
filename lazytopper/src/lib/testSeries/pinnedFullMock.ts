@@ -34,7 +34,7 @@ import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import { cbqShareOf } from "../cbq/cbqPaperBalance";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 import { loadRawBankRowsById } from "./rawBankRows";
-import { loadPinnedSpec, tsPinDisabled, type PinnedResult } from "./pinnedSpec";
+import { loadPinnedSpec, tsPinDisabledFor, type PinnedResult } from "./pinnedSpec";
 import type { SeriesPinnedSpec } from "./paperManifest";
 
 export interface PinnedMockIdentity {
@@ -175,7 +175,7 @@ export async function buildSeriesFullMockPinned(
   paperKey: string,
   identity: PinnedMockIdentity,
 ): Promise<PinnedResult<DrawnFullMock> | null> {
-  if (tsPinDisabled()) return null;
+  if (tsPinDisabledFor(paperKey)) return null;
   const spec = await loadPinnedSpec(paperKey);
   if (!spec) return null;
   const unserved = unservedMockIds(spec, subject);

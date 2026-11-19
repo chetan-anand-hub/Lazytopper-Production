@@ -48,11 +48,11 @@ describe("1 · the 'Your latest pack' banner", () => {
 });
 
 describe("2 · the My packs row facts", () => {
-  it("progress line: 'Chapter Tests: N of 26 done · Full-Length: N of 40 done' from the real records; unknown -> omitted", () => {
+  it("progress line: 'Chapter Tests: N of 130 done · Full-Length: N of 50 done' from the real records; unknown -> omitted", () => {
     expect(seriesProgressLine(null)).toBeNull();
     expect(seriesProgressLine(seriesProgress([]))).toBe(`Chapter Tests: 0 of ${seriesTotals().chapterTests} done · Full-Length: 0 of ${seriesTotals().fullMocks} done`);
-    expect(seriesTotals().chapterTests).toBe(26);
-    expect(seriesTotals().fullMocks).toBe(40);
+    expect(seriesTotals().chapterTests).toBe(130);
+    expect(seriesTotals().fullMocks).toBe(50);
   });
   it("validity is the existing 31 May 2027 pack term", () => {
     expect(TEST_SERIES_VALID_TILL).toBe("31 May 2027");

@@ -769,7 +769,7 @@ export default function FullMockPage() {
     }
     // CT-RESUME-2: a visit let through as a RESUME of a saved mock was not counted. Starting a NEW
     // mock instead is counted now — or refused when today's papers are used up.
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && seriesN !== null))) {
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && seriesN !== null), location.search)) {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -1192,7 +1192,7 @@ export default function FullMockPage() {
   const downloadPaper = useCallback(async () => {
     if (!paperForExport || downloading || !seriesDownloadAccess) return;
     // CT-RESUME-2: downloading the NEW draw (not the mock being sat) is a new paper.
-    if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && seriesN !== null))) {
+    if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && seriesN !== null), location.search)) {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }

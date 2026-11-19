@@ -76,7 +76,9 @@ describe("/test-series — signed out", () => {
       expect(screen.getByTestId(`ts-test-${test.code}`).getAttribute("href")).toBe(test.href);
     }
     expect(within(screen.getByTestId("ts-sec-full")).getAllByTestId("ts-chip")).toHaveLength(t.fullMocks);
-    expect(within(screen.getByTestId("ts-sec-chapter")).getAllByTestId("ts-chip")).toHaveLength(t.chapterTests);
+    // TS-MORE-1: a chapter is one compact card; its papers are small numbered chips (5 per chapter, from code).
+    expect(within(screen.getByTestId("ts-sec-chapter")).getAllByTestId(/^ts-chap-(?!prog)/)).toHaveLength(t.chapters);
+    expect(within(screen.getByTestId("ts-sec-chapter")).getAllByTestId(/^ts-test-/)).toHaveLength(t.chapterTests);
     expect(screen.getByTestId("ts-tab-chapter").textContent).toBe(`Chapter Tests ${t.chapterTests}`);
     expect(screen.getByTestId("ts-tab-full").textContent).toBe(`Full-Length Tests ${t.fullMocks}`);
   });
@@ -86,6 +88,7 @@ describe("/test-series — signed out", () => {
     expect(screen.queryByTestId("ts-done")).toBeNull();
     expect(records.calls).toBe(0);
     expect(screen.getAllByTestId("ts-chip").every((c) => c.getAttribute("data-status") === "not-started")).toBe(true);
+    expect(screen.getAllByTestId(/^ts-test-CT-/).every((c) => c.getAttribute("data-status") === "not-started")).toBe(true);
     expect(screen.getByTestId("ts-trend").textContent).toContain("Sign in");
   });
   it("the calendar is marked at today's row; Test Series and Board Pass offers side by side, plus printed papers", async () => {
@@ -147,10 +150,13 @@ describe("/test-series — signed in", () => {
     await mount();
     expect(records.calls).toBe(1);
     expect(screen.getByTestId("ts-done").textContent).toBe(`3 of ${seriesTotals().total} tests done.`);
-    expect(screen.getByTestId("ts-test-CT-M01").textContent).toContain("24/30");
-    expect(screen.getByTestId("ts-test-CT-M01").getAttribute("aria-label")).toBe("Chapter Test 1, Real Numbers, graded 24 of 30");
-    expect(within(screen.getByTestId("ts-test-CT-M02")).getByTestId("ts-chip").getAttribute("data-status")).toBe("attempted");
-    expect(screen.getByTestId("ts-test-CT-M02").getAttribute("aria-label")).toBe("Chapter Test 2, Polynomials, attempted");
+    expect(screen.getByTestId("ts-test-CT-M01").getAttribute("data-status")).toBe("graded");
+    expect(screen.getByTestId("ts-test-CT-M01").getAttribute("aria-label")).toBe("Chapter Test 1, Real Numbers, paper 1, graded 24 of 30");
+    expect(screen.getByTestId("ts-test-CT-M02").getAttribute("data-status")).toBe("attempted");
+    expect(screen.getByTestId("ts-test-CT-M02").getAttribute("aria-label")).toBe("Chapter Test 2, Polynomials, paper 1, attempted");
+    expect(screen.getByTestId("ts-test-CT-M01-2").getAttribute("data-status")).toBe("not-started");
+    // "k of 5 done" comes from the student's own records only.
+    expect(screen.getByTestId("ts-chap-prog-CT-M01").textContent).toBe(`1 of ${seriesTotals().papersPerChapter} done`);
     expect(within(screen.getByTestId("ts-test-FM-M2")).getByTestId("ts-chip").textContent).toBe("60/80");
     expect(screen.getByTestId("ts-test-FM-M1").getAttribute("aria-label")).toBe("Full-Length Test 1, Maths, not started");
     expect(screen.getByTestId("ts-trend-Maths").textContent).toContain("M2 · 75%");
@@ -181,7 +187,7 @@ describe("/test-series — TS-PAGE-2 owners, tabs and accordions", () => {
     expect(screen.queryByTestId("ts-cta-buy")).toBeNull();
     expect(screen.queryByTestId("ts-cta-hero")).toBeNull();
     const cont = screen.getByTestId("ts-continue");
-    expect(cont.textContent).toBe("Continue: CT-M02 →");
+    expect(cont.textContent).toBe("Continue: CT-M01-2 →");
     expect(cont.getAttribute("href")).toBe(seriesChapterTests()[1].href);
     expect(screen.getByTestId("ts-done").textContent).toBe(`1 of ${seriesTotals().total} tests done.`);
     expect(screen.getByTestId("ts-prog-ct-Maths").textContent).toBe(`1/${seriesChapterTests().filter((c) => c.subject === "Maths").length} done`);
@@ -227,7 +233,7 @@ describe("/test-series — TS-PAGE-2 owners, tabs and accordions", () => {
     const rounds = within(screen.getByTestId("ts-mocks-Maths")).getAllByRole("list");
     expect(rounds).toHaveLength(2);
     expect(rounds[0].querySelectorAll("a")).toHaveLength(Math.ceil(seriesTotals().mocksPerSubject / 2));
-    expect(screen.getByTestId("ts-mocks-Maths").textContent).toContain("Round 1 (Dec): 1–10");
+    expect(screen.getByTestId("ts-mocks-Maths").textContent).toContain("Round 1 (Dec): 1–13");
   });
 });
 
