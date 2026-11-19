@@ -72,10 +72,10 @@ export const COORDINATE_GEOMETRY_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) D(3, 5). (ii) G, H, K are collinear (GK + HK = GH). OR J and I are equidistant from C (CJ = CI = √41), but C is NOT the midpoint of IJ. (iii) E(3, −10).",
     "solutionSteps": [
-      "Part (i): For parallelogram ABCD, diagonals bisect each other. Midpoint of AC = Midpoint of BD. Let D = (a, b). ((1 + 6)/2, (2 + 6)/2) = ((4 + a)/2, (3 + b)/2) ⇒ 4 + a = 7 ⇒ a = 3; 3 + b = 8 ⇒ b = 5. So D = (3, 5).",
-      "Part (ii): GH = √((−3 − 3)² + (5 − 1)²) = √(36 + 16) = √52 = 2√13. GK = √((0 + 3)² + (3 − 5)²) = √13. HK = √((3 − 0)² + (1 − 3)²) = √13. GK + HK = √13 + √13 = 2√13 = GH ⇒ G, H, K are collinear.",
-      "Part (ii) OR: CJ = √((0 − 5)² + (1 + 3)²) = √(25 + 16) = √41. CI = √((0 + 4)² + (1 − 6)²) = √(16 + 25) = √41. Hence equidistant. Midpoint of IJ = ((5 − 4)/2, (−3 + 6)/2) = (1/2, 3/2) ≠ C(0, 1). So C is NOT the midpoint.",
-      "Part (iii): A, B, E collinear and B equidistant from A and E ⇒ B is the midpoint of AE. So ((1 + a)/2, (4 + b)/2) = (2, −3) ⇒ 1 + a = 4 ⇒ a = 3; 4 + b = −6 ⇒ b = −10. E = (3, −10)."
+      "[1 mark] Part (i): For parallelogram ABCD, diagonals bisect each other. Midpoint of AC = Midpoint of BD. Let D = (a, b). ((1 + 6)/2, (2 + 6)/2) = ((4 + a)/2, (3 + b)/2) ⇒ 4 + a = 7 ⇒ a = 3; 3 + b = 8 ⇒ b = 5. So D = (3, 5).",
+      "[1 mark] Part (ii): GH = √((−3 − 3)² + (5 − 1)²) = √(36 + 16) = √52 = 2√13. GK = √((0 + 3)² + (3 − 5)²) = √13. HK = √((3 − 0)² + (1 − 3)²) = √13. GK + HK = √13 + √13 = 2√13 = GH ⇒ G, H, K are collinear.",
+      "[1 mark] Part (ii) OR: CJ = √((0 − 5)² + (1 + 3)²) = √(25 + 16) = √41. CI = √((0 + 4)² + (1 − 6)²) = √(16 + 25) = √41. Hence equidistant. Midpoint of IJ = ((5 − 4)/2, (−3 + 6)/2) = (1/2, 3/2) ≠ C(0, 1). So C is NOT the midpoint.",
+      "[1 mark] Part (iii): A, B, E collinear and B equidistant from A and E ⇒ B is the midpoint of AE. So ((1 + a)/2, (4 + b)/2) = (2, −3) ⇒ 1 + a = 4 ⇒ a = 3; 4 + b = −6 ⇒ b = −10. E = (3, −10)."
     ],
     "finalAnswer": "(i) D(3, 5); (ii) collinear; OR equidistant but C not midpoint; (iii) E(3, −10).",
     "isCompetencyBased": true

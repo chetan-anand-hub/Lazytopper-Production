@@ -105,7 +105,7 @@ export const CIRCLES_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-M-CIRC-012", subject: "Maths", topicKey: "circles", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Prove that the tangents drawn at the ends of a diameter of a circle are parallel.",
     answer: "Let PQ and RS be tangents at the end of diameter AB. ∠ PAO = ∠ RBO = 90° ⇒ PQ ‖ RS",
-    solutionSteps: ["Let PQ and RS be tangents at the end of diameter AB. ∠ PAO = ∠ RBO = 90° ⇒ PQ ‖ RS"],
+    solutionSteps: ["[0.5 mark] Let PQ and RS be tangents at the end of diameter AB.", "[0.5 mark] ∠ PAO = ∠ RBO = 90°", "[1 mark] ⇒ PQ ‖ RS"],
     finalAnswer: "Let PQ and RS be tangents at the end of diameter AB. ∠ PAO = ∠ RBO = 90° ⇒ PQ ‖ RS",
     ncertRef: "PYQ 30/5/3 Q24", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "3" },

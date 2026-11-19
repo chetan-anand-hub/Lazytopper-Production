@@ -70,10 +70,10 @@ export const ARITHMETIC_PROGRESSION_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) 160 throws on Day 11. (ii) 8.01 m in the 6th week; OR she will throw 11.16 m in the 41st week. (iii) 1860 throws over 15 days.",
     "solutionSteps": [
-      "Part (i): Throws per day form an AP with a = 40 and d = 12. tₙ = a + (n − 1)d. t₁₁ = 40 + 10·12 = 40 + 120 = 160. Sanjitha practised 160 throws on the 11th day.",
-      "Part (ii): Throw distance grows in AP with a = 7.56 m (week 1) and d = 0.09 m (9 cm). Week 6 distance t₆ = a + (6 − 1)d = 7.56 + 5(0.09) = 7.56 + 0.45 = 8.01 m. OR: solve 11.16 = 7.56 + (n − 1)(0.09) ⇒ 3.6 = (n − 1)(0.09) ⇒ n − 1 = 40 ⇒ n = 41. She achieves 11.16 m in the 41st week.",
-      "Part (iii): Total throws over n = 15 days using Sₙ = (n/2)·(2a + (n − 1)d). S₁₅ = (15/2)·(2·40 + 14·12) = (15/2)·(80 + 168) = (15/2)·248 = 1860.",
-      "Final answers: Day 11 throws = 160; week-6 distance = 8.01 m (or 41st week for 11.16 m); total camp throws = 1860."
+      "[1 mark] Part (i): Throws per day form an AP with a = 40 and d = 12. tₙ = a + (n − 1)d. t₁₁ = 40 + 10·12 = 40 + 120 = 160. Sanjitha practised 160 throws on the 11th day.",
+      "[1 mark] Part (ii): Throw distance grows in AP with a = 7.56 m (week 1) and d = 0.09 m (9 cm). Week 6 distance t₆ = a + (6 − 1)d = 7.56 + 5(0.09) = 7.56 + 0.45 = 8.01 m. OR: solve 11.16 = 7.56 + (n − 1)(0.09) ⇒ 3.6 = (n − 1)(0.09) ⇒ n − 1 = 40 ⇒ n = 41. She achieves 11.16 m in the 41st week.",
+      "[1 mark] Part (iii): Total throws over n = 15 days using Sₙ = (n/2)·(2a + (n − 1)d). S₁₅ = (15/2)·(2·40 + 14·12) = (15/2)·(80 + 168) = (15/2)·248 = 1860.",
+      "[1 mark] Final answers: Day 11 throws = 160; week-6 distance = 8.01 m (or 41st week for 11.16 m); total camp throws = 1860."
     ],
     "finalAnswer": "(i) 160 throws; (ii) 8.01 m OR 41st week; (iii) 1860 throws.",
     "isCompetencyBased": true,

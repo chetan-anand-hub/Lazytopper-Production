@@ -128,42 +128,40 @@
       "subject": "maths",
       "questions": [
         {
-          "id": "AP-N-EXEM-5-LA-002",
-          "questionText": "Jaspal Singh repays a total loan of ₹1,18,000 by paying every month, starting with the first instalment of ₹1000, increasing by ₹100 every month. What amount will he pay in the 30th instalment? After paying the 30th instalment, how much loan does he still have to pay?",
-          "marks": 5,
-          "section": "D",
+          "id": "AP-N-EXEM-5-CB-001",
+          "questionText": "Yasmeen saves ₹32 in the first month, ₹36 in the second month, ₹40 in the third month, and so on, each month saving ₹4 more than the previous month.\n(i) Write the first term and common difference of this AP.\n(ii) Write Yasmeen's savings in the 12th month.\n(iii) In how many months will her total savings be ₹2000?\n(iv) What will be her saving in the 20th month?",
+          "marks": 4,
+          "section": "E",
           "solutionSteps": [
-            "[1 mark] The monthly instalments form an AP with first term a = 1000 and common difference d = 100.",
-            "[1 mark] 30th instalment a₃₀ = a + 29d = 1000 + 29 × 100 = 1000 + 2900 = ₹3900.",
-            "[1 mark] Total repaid in 30 instalments S₃₀ = (30/2)[2a + 29d] = 15[2 × 1000 + 29 × 100].",
-            "[1 mark] S₃₀ = 15 × (2000 + 2900) = 15 × 4900 = ₹73,500.",
-            "[1 mark] Loan still to be paid = 1,18,000 − 73,500 = ₹44,500."
+            "[1 mark] (i) a = 32, d = 4.",
+            "[1 mark] (ii) a₁₂ = 32 + 11 × 4 = 32 + 44 = ₹76.",
+            "[1 mark] (iii) Sₙ = n/2 [2 × 32 + (n − 1) × 4] = n/2 × (60 + 4n) = n(30 + 2n) = 2000. So 2n² + 30n − 2000 = 0 ⇒ n² + 15n − 1000 = 0. Using the quadratic formula n = [−15 ± √(225 + 4000)] / 2 = [−15 ± 65]/2. Taking n > 0: n = 25 months.",
+            "[1 mark] (iv) a₂₀ = 32 + 19 × 4 = 32 + 76 = ₹108."
           ]
         },
         {
-          "id": "AP-N-EXEM2-5-LA-001",
-          "questionText": "The sum of the first five terms of an AP and the sum of the first seven terms of the same AP is 167. If the sum of the first ten terms of this AP is 235, find the sum of its first twenty terms.",
-          "marks": 5,
-          "section": "D",
+          "id": "AP-N-EXEM-5-CRE-001",
+          "questionText": "Design an AP modelling savings: the first term must be at least ₹50, the common difference must be a positive multiple of 5, and the sum of the first 10 terms must be exactly ₹1500. Write any one such AP and verify your design.",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] S₅ = (5/2)(2a + 4d) = 5(a + 2d) and S₇ = (7/2)(2a + 6d) = 7(a + 3d).",
-            "[1 mark] S₅ + S₇ = (5a + 10d) + (7a + 21d) = 12a + 31d = 167.",
-            "[1 mark] S₁₀ = (10/2)(2a + 9d) = 10a + 45d = 235, i.e. 2a + 9d = 47.",
-            "[1 mark] Solve 12a + 31d = 167 with 2a + 9d = 47 (×6 ⇒ 12a + 54d = 282): subtract to get 23d = 115 ⇒ d = 5, then a = 1.",
-            "[1 mark] S₂₀ = (20/2)(2a + 19d) = 10(2 + 95) = 970."
+            "[0.5 mark] Constraint: a ≥ 50, d is a positive multiple of 5, S₁₀ = 1500.",
+            "[1 mark] S₁₀ = 10/2 [2a + 9d] = 5(2a + 9d) = 1500 ⇒ 2a + 9d = 300.",
+            "[1 mark] Try d = 10: 2a + 90 = 300 ⇒ a = 105. So a = 105, d = 10 satisfies all constraints.",
+            "[0.5 mark] Verify: S₁₀ = 5(210 + 90) = 5 × 300 = 1500. ✓ AP: 105, 115, 125, 135, 145, 155, 165, 175, 185, 195."
           ]
         },
         {
-          "id": "AP-N-EXEM2-5-LA-002",
-          "questionText": "An AP consists of 37 terms. The sum of the three middle most terms is 225 and the sum of the last three is 429. Find the AP.",
+          "id": "AP-N-EXEM-5-LA-001",
+          "questionText": "The sum of four consecutive numbers in an AP is 32 and the ratio of the product of the first and last to the product of the two middle terms is 7 : 15. Find the numbers.",
           "marks": 5,
           "section": "D",
           "solutionSteps": [
-            "[1 mark] With 37 terms the middle term is the 19th; the three middle terms are a₁₈, a₁₉, a₂₀ with sum 3a₁₉ = 225, so a₁₉ = 75, i.e. a + 18d = 75.",
-            "[1 mark] The last three terms a₃₅, a₃₆, a₃₇ have sum 3a₃₆ = 429, so a₃₆ = 143, i.e. a + 35d = 143.",
-            "[1 mark] Subtract the two equations: 17d = 68.",
-            "[1 mark] d = 4, and a = 75 − 18 × 4 = 3.",
-            "[1 mark] The AP is 3, 7, 11, 15, ..."
+            "[1 mark] Let the four numbers be a − 3d, a − d, a + d, a + 3d.",
+            "[1 mark] Sum: 4a = 32 ⇒ a = 8.",
+            "[1 mark] Ratio: (a² − 9d²) / (a² − d²) = 7/15 ⇒ 15(64 − 9d²) = 7(64 − d²).",
+            "[1 mark] 960 − 135d² = 448 − 7d² ⇒ 512 = 128d² ⇒ d² = 4 ⇒ d = ±2.",
+            "[1 mark] Taking d = 2: numbers are 2, 6, 10, 14."
           ]
         }
       ]
@@ -264,52 +262,53 @@
       "subject": "maths",
       "questions": [
         {
-          "id": "CBE-M-CIRC-D-001",
-          "questionText": "In an amusement park, a triangular path ABC circumscribing a circular pond centred at O with radius 8 m is to be constructed, as shown in the figure. The tangent lengths from B are 12 m and from C are 16 m. Find the cost of fencing the triangular path at the rate of Rs 55 per metre.",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-CIRC-005",
+          "questionText": "Shown below is a circle with centre O and three tangents drawn at points A, E and C. AE is a diameter of the circle. The tangents intersect at points B and D. Based on the above information, evaluate whether the following statement is true or false. Justify your answer. \"At least one pair of opposite sides of AEDB is parallel.\"",
+          "marks": 2,
+          "section": "B",
           "solutionSteps": [
-            "[1 mark] Apply the circle theorems: tangent lengths from an external point are equal, so PB = QB = 12 m, RC = QC = 16 m and AP = AR = x (say); also the radius (8 m) is perpendicular to each tangent at the point of contact.",
-            "[1 mark] Find ar(△ABC) as the sum of areas of △AOB, △BOC and △AOC: ar(△ABC) = ½ × 8 × (perimeter) = ½ × 8 × 2(28 + x) = 8(28 + x) sq m. … (1)",
-            "[1 mark] Using Heron's formula with semi-perimeter s = (28 + x): ar(△ABC) = √[s(s−a)(s−b)(s−c)] = √[(28 + x) · x · 12 · 16] = 4√[(28 + x) · x · 12] sq m. … (2)",
-            "[1 mark] Equate (1) and (2): 8(28 + x) = 4√[(28 + x) · x · 12]; squaring gives 4(28 + x)² = 12x(28 + x) → (28 + x)(28 + x − 3x) = 0 → x = 14 (reject x = −28). So perimeter = 2(28 + x) = 84 m.",
-            "[1 mark] Cost of fencing = Rs 55 × 84 = Rs 4620."
+            "[1 mark] Tangent at A is perpendicular to radius OA. Tangent at E is perpendicular to radius OE.",
+            "[1 mark] Since AE is a diameter, OA and OE are collinear ⟹ the two tangents (AB and ED) are both perpendicular to the same line AE ⟹ AB ∥ ED. So opposite sides AB and ED of quadrilateral AEDB are parallel — statement TRUE."
           ],
           "figures": [
             {
-              "src": "/figures/itembank-maths/circles/CBE-M-CIRC-D-001.webp",
-              "alt": "Source figure"
+              "src": "/figures/apq-maths/circles/APQ-M-CIRC-005.webp",
+              "alt": "Circle with centre O and diameter AE; tangents at A, E and C; the tangent at C meets the other two at B and D"
             }
           ]
         },
         {
-          "id": "CIRC-N-EXEM-10-LA-001",
-          "questionText": "From an external point P, two tangents PA and PB are drawn to a circle with centre O. At a point E on the circle, the tangent intersects PA at C and PB at D. If PA = 10 cm, find the perimeter of triangle PCD.",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-CIRC-006",
+          "questionText": "Two tangents TP and TQ are drawn to a circle with centre O from an external point T. Prove that ∠PTQ = 2 ∠OPQ.",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] Tangents drawn from an external point are equal, so PA = PB = 10 cm.",
-            "[1 mark] From C the two tangents give CA = CE; from D they give DB = DE (equal tangents from an external point).",
-            "[1 mark] Perimeter(△PCD) = PC + CD + DP = PC + (CE + ED) + DP.",
-            "[1 mark] Substitute CE = CA and ED = DB: = (PC + CA) + (DP + DB) = PA + PB.",
-            "[1 mark] Perimeter = 10 + 10 = 20 cm. Hence the perimeter of △PCD is 20 cm."
+            "[1 mark] Let ∠PTQ = θ. Tangents from external point: TP = TQ ⟹ ΔTPQ is isosceles. So ∠TPQ = ∠TQP = (180° − θ)/2 = 90° − θ/2.",
+            "[1 mark] OP ⊥ PT (tangent ⊥ radius) ⟹ ∠OPT = 90°.",
+            "[1 mark] ∠OPQ = ∠OPT − ∠TPQ = 90° − (90° − θ/2) = θ/2 = ½ × ∠PTQ. Hence ∠PTQ = 2 ∠OPQ."
           ]
         },
         {
-          "id": "PYQ-M-2024-CIRC-001",
-          "questionText": "If two tangents inclined at an angle of 60º are drawn to a circle of radius 5 cm, then the length of each tangent is :",
-          "marks": 1,
-          "section": "A",
+          "id": "APQ-M-CIRC-007",
+          "questionText": "PQ is a diameter of a circle with centre O. R is a point on the circle at which a tangent is drawn. A line through O parallel to PR meets this tangent at S. Show that SQ is a tangent to the circle.\nOR\nA circle has centre O. Tangents drawn at points A and C of the circle intersect at B. If OA ⊥ OC, show that quadrilateral OABC is a square.",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] OP bisects the 60° angle, so ∠APO = 30° with OA ⊥ AP; tan 30° = OA/AP ⟹ 1/√3 = 5/AP ⟹ AP = 5√3 cm → option (d). Answer: (D)"
+            "[1 mark] [Variant 1] OR ⊥ RS (tangent ⊥ radius). OP = OR ⇒ ∠OPR = ∠ORP. Since OS ∥ PR: ∠ROS = ∠ORP (alternate angles) and ∠QOS = ∠OPR (corresponding angles) ⇒ ∠ROS = ∠QOS.",
+            "[1 mark] In △ORS and △OQS: OR = OQ (radii), ∠ROS = ∠QOS, OS common ⇒ △ORS ≅ △OQS (SAS) ⇒ ∠OQS = ∠ORS = 90°.",
+            "[1 mark] OQ ⊥ SQ at Q, which lies on the circle ⇒ SQ is a tangent at Q.",
+            "[3 marks] OR: [Variant 2] ∠OAB = ∠OCB = 90° (tangent ⊥ radius) and ∠AOC = 90° (given) ⇒ ∠ABC = 360° − 270° = 90°, so OABC is a rectangle. OA = OC (radii) — adjacent sides of the rectangle are equal (also BA = BC, tangents from B) ⇒ OABC is a square."
           ],
-          "options": [
-            "5√3/2 cm",
-            "10 cm",
-            "5/√3 cm",
-            "5√3 cm"
-          ],
-          "pyqYear": "2024"
+          "figures": [
+            {
+              "src": "/figures/apq-maths/circles/APQ-M-CIRC-007.webp",
+              "alt": "Circle with centre O and diameter PQ; R on the circle; the tangent at R meets the line through O parallel to PR at S; SQ drawn"
+            },
+            {
+              "src": "/figures/apq-maths/circles/APQ-M-CIRC-007-2.webp",
+              "alt": "Circle with centre O; tangents at A and C meet at B; angle AOC marked as a right angle"
+            }
+          ]
         }
       ]
     },
@@ -1178,6 +1177,22 @@
           ]
         },
         {
+          "id": "APQ-M-TRI-006",
+          "questionText": "In given figure, DB ⊥ BC, DE ⊥ AB and AC ⊥ BC. Prove that BE/DE = AC/BC. OR If AD and PM are the medians of triangles ABC and PQR respectively where ΔABC ~ ΔPQR, prove that AB/PQ = AD/PM.",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] [Variant 1] ∠DEB = ∠ACB = 90°. ∠ABC = 90° − ∠DBE; ∠BDE = 90° − ∠DBE ⟹ ∠ABC = ∠BDE. So ΔBDE ~ ΔABC (AA) ⟹ BE/AC = DE/BC ⟹ BE/DE = AC/BC.",
+            "[1 mark] [Variant 2] ΔABC ~ ΔPQR ⟹ AB/PQ = BC/QR and ∠B = ∠Q. AD and PM are medians, so D and M are the mid-points of BC and QR: BD = ½BC and QM = ½QR ⟹ BD/QM = BC/QR = AB/PQ. In ΔABD and ΔPQM, AB/PQ = BD/QM and ∠B = ∠Q, so ΔABD ~ ΔPQM (SAS similarity), hence AB/PQ = AD/PM."
+          ],
+          "figures": [
+            {
+              "src": "/figures/apq-maths/triangles/APQ-M-TRI-006.webp",
+              "alt": "Points D, B, C, A and E: DB perpendicular to BC, DE perpendicular to AB at E, AC perpendicular to BC (right angles marked)"
+            }
+          ]
+        },
+        {
           "id": "APQ-M-TRI-007",
           "questionText": "State and prove Basic proportionality theorem. In ΔABC, if DE ∥ BC, AD = x, DB = x − 2, AE = x + 2 and EC = x − 1, then using the above result, find the value of x.",
           "marks": 5,
@@ -1188,19 +1203,6 @@
             "[1 mark] Proof (areas): ar(ΔADE)/ar(ΔBDE) = AD/DB (triangles on bases AD and DB with the same height EM); similarly ar(ΔADE)/ar(ΔCDE) = AE/EC.",
             "[1 mark] Since ΔBDE and ΔCDE are on the same base DE and between the same parallels DE and BC, ar(ΔBDE) = ar(ΔCDE). Therefore AD/DB = AE/EC.",
             "[1 mark] Application: x/(x − 2) = (x + 2)/(x − 1) ⟹ x(x − 1) = (x + 2)(x − 2) ⟹ x² − x = x² − 4 ⟹ x = 4."
-          ]
-        },
-        {
-          "id": "BX-TRI-D-001",
-          "questionText": "In △ABC, D and E lie on sides AB and AC respectively such that DE ∥ BC. It is given that AD = (x + 1) cm, DB = (x − 1) cm, AE = (x + 3) cm and EC = x cm. Find the value of x, and hence write the lengths of AD and AE.",
-          "marks": 5,
-          "section": "D",
-          "solutionSteps": [
-            "[1 mark] Since DE ∥ BC, by the Basic Proportionality Theorem AD/DB = AE/EC.",
-            "[1 mark] Substitute: (x + 1)/(x − 1) = (x + 3)/x.",
-            "[1 mark] Cross-multiply: x(x + 1) = (x − 1)(x + 3) ⇒ x² + x = x² + 2x − 3.",
-            "[1 mark] The x² terms cancel: x = 2x − 3 ⇒ x = 3.",
-            "[1 mark] Hence AD = x + 1 = 4 cm and AE = x + 3 = 6 cm (with DB = 2 cm, EC = 3 cm; ratios 4/2 = 6/3 ✓)."
           ]
         }
       ]
