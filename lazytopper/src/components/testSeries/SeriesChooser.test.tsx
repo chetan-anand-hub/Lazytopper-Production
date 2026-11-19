@@ -53,12 +53,12 @@ afterEach(() => {
 });
 
 describe("SeriesChooser — progress (honest)", () => {
-  it("signed in with no record: 'Not started'; a graded series paper: '1 of 1 done'; other chapters unchanged", async () => {
+  it("signed in with no record: 'Not started'; a graded series paper: '1 of 5 done'; other chapters unchanged", async () => {
     auth.user = { uid: "s1", isLocalSession: false };
     recs.list = [gradedCt("real-numbers")];
     await mount();
     expect(await screen.findAllByText("Not started")).not.toHaveLength(0);
-    expect(screen.getByTestId("ts-chapter-real-numbers").textContent).toContain("1 of 1 done");
+    expect(screen.getByTestId("ts-chapter-real-numbers").textContent).toContain("1 of 5 done");
     expect(screen.getByTestId("ts-chapter-polynomials").textContent).toContain("Not started");
   });
 
@@ -70,7 +70,7 @@ describe("SeriesChooser — progress (honest)", () => {
 
 describe("SeriesChooser — papers per chapter (P) from the prop, no other change", () => {
   it("P = 1: no paper tiles; the CTA names the chapter only and opens the series URL", async () => {
-    await mount();
+    await mount({ papersPerChapter: 1 });
     expect(screen.queryByTestId("ts-papers")).toBeNull();
     fireEvent.click(screen.getByTestId("ts-chapter-polynomials"));
     expect(screen.getByTestId("ts-go").textContent).toMatch(/^Start .+ →$/);
@@ -93,6 +93,43 @@ describe("SeriesChooser — papers per chapter (P) from the prop, no other chang
     expect(screen.getByTestId("ts-go").textContent).toMatch(/· Paper 4 →$/);
     fireEvent.click(screen.getByTestId("ts-go"));
     expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe("/chapter-test/10/Maths/real-numbers?series=1&paper=4");
+  });
+});
+
+describe("SeriesChooser — TS-MORE-1: P = 5 is live from code (no prop)", () => {
+  it("CHAPTER_PAPERS_PER_CHAPTER is SERIES_PAPERS_PER_CHAPTER (5); five tiles; the URL is `?series=1&paper=k` (paper 1 is the original URL)", async () => {
+    const m = await import("./seriesChooserModel");
+    const c = await import("../../lib/testSeries/testSeries");
+    expect(m.CHAPTER_PAPERS_PER_CHAPTER).toBe(c.SERIES_PAPERS_PER_CHAPTER);
+    expect(m.CHAPTER_PAPERS_PER_CHAPTER).toBe(5);
+    await mount();
+    fireEvent.click(screen.getByTestId("ts-chapter-polynomials"));
+    expect(screen.getAllByTestId(/^ts-paper-\d$/)).toHaveLength(5);
+    fireEvent.click(screen.getByTestId("ts-paper-1"));
+    fireEvent.click(screen.getByTestId("ts-go"));
+    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe(chapterTestSeriesHref("Maths", "polynomials"));
+    expect(chapterTestSeriesHref("Maths", "polynomials", 1)).toBe("/chapter-test/10/Maths/polynomials?series=1");
+    expect(chapterTestSeriesHref("Maths", "polynomials", 3)).toBe("/chapter-test/10/Maths/polynomials?series=1&paper=3");
+  });
+  it("paper 3 opens its own URL; its record (ct-ts1p3-…) counts toward 'k of 5 done' and marks tile 3 only", async () => {
+    auth.user = { uid: "s1", isLocalSession: false };
+    recs.list = [{ ...gradedCt("polynomials"), worksheetId: "ct-ts1p3-polynomials--1-1" }];
+    await mount();
+    expect(screen.getByTestId("ts-chapter-polynomials").textContent).toContain("1 of 5 done");
+    fireEvent.click(screen.getByTestId("ts-chapter-polynomials"));
+    expect(screen.getByTestId("ts-paper-3").getAttribute("aria-label")).toMatch(/graded 20 of 40/);
+    expect(screen.getByTestId("ts-paper-1").getAttribute("aria-label")).toMatch(/not started/);
+    fireEvent.click(screen.getByTestId("ts-paper-3"));
+    fireEvent.click(screen.getByTestId("ts-go"));
+    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe("/chapter-test/10/Maths/polynomials?series=1&paper=3");
+  });
+  it("kill switch VITE_TS_MORE_DISABLED: one paper per chapter, no tiles", async () => {
+    vi.stubEnv("VITE_TS_MORE_DISABLED", "1");
+    vi.resetModules();
+    const m = await import("./seriesChooserModel");
+    expect(m.CHAPTER_PAPERS_PER_CHAPTER).toBe(1);
+    vi.unstubAllEnvs();
+    vi.resetModules();
   });
 });
 

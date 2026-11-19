@@ -22,7 +22,7 @@ import type { CanonicalQuestion } from "../../data/predictionTypes";
 import { cbqShareOf } from "../cbq/cbqPaperBalance";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 import { loadRawBankRowsById } from "./rawBankRows";
-import { loadPinnedSpec, tsPinDisabled, type PinnedResult } from "./pinnedSpec";
+import { loadPinnedSpec, tsPinDisabledFor, type PinnedResult } from "./pinnedSpec";
 import type { SeriesPinnedSpec } from "./paperManifest";
 
 export interface PinnedChapterArgs {
@@ -134,7 +134,7 @@ export function buildPinnedChapterTest(
  * not loaded) - the caller then falls back to today's seeded draw. The chapter must already be loaded (ensureBankChapters).
  */
 export async function buildSeriesChapterTest(paperKey: string, args: PinnedChapterArgs): Promise<PinnedResult<DrawnChapterTest> | null> {
-  if (tsPinDisabled()) return null;
+  if (tsPinDisabledFor(paperKey)) return null;
   const spec = await loadPinnedSpec(paperKey);
   if (!spec) return null;
   const unserved = unservedChapterIds(spec, args.subject, args.topicKey);

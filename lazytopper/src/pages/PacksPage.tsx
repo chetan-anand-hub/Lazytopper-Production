@@ -14,6 +14,7 @@ import { seriesContentsLine, testSeriesPackLine } from "../lib/testSeries/testSe
 import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
 import { usePaidPremium } from "../lib/packs/usePaidPremium";
 import { TsClockSlot } from "../components/packs/TestSeriesFoundingClause";
+import { TestSeriesExaminerLine, TestSeriesPerTest } from "../components/packs/TestSeriesPerTest";
 import { chaptersOfSubject, isTestSeriesPackOffered, testSeriesFoundingClause, testSeriesPriceLine, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
 import PackSampleLink, { PackSampleChoice, SampleBuyNext } from "../components/packs/PackSampleLink";
 import SubjectSwitch from "../components/packs/SubjectSwitch";
@@ -405,6 +406,9 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
                 )}
               </div>
             </details>
+            {/* TS-MORE-1: the per-test badge (clock slot) + the examiner line, visible without opening the row. */}
+            <TestSeriesPerTest testId="packs-ts-per-test" />
+            <TestSeriesExaminerLine testId="packs-ts-examiner" />
             {/* TS-PRICE-2: the founding line on its own wrapping line (reserved block slot, written after mount, stripped from the capture). */}
             {!paidPass && (
               <p className="lt-pk-ts__found" data-testid="packs-ts-founding">

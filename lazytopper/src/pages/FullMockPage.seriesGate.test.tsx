@@ -188,7 +188,7 @@ describe.each(["free", "trial", "premium"] as const)("Full Mock · %s account", 
       expect(screen.queryByTestId("series-start-wall")).toBeNull();
     } else {
       const wall = await screen.findByTestId("series-start-wall");
-      expect(wall.textContent).toContain("Upgrade to the Test Series (₹999 + GST) or the Board Pass to take all 66 tests");
+      expect(wall.textContent).toContain("Upgrade to the Test Series (₹999 + GST) or the Board Pass to take all 180 tests");
       expect(screen.getByRole("button", { name: /Start the mock/ })).toBeTruthy();
     }
   }, 90000);

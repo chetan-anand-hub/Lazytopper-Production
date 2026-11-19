@@ -66,4 +66,27 @@ describe("HUB-TS-1 — the timer toggle survives the chooser", () => {
     fireEvent.click(screen.getByTestId("ts-fresh"));
     expect(await screen.findByText(/Timed \(board practice\)/, {}, { timeout: 60000 })).toBeInTheDocument();
   }, 90000);
+
+  // TS-MORE-1: the timer on/off stays exactly as today on the new chapter papers.
+  it("TS-MORE-1: chooser -> chapter PAPER 3 (CT-M01-3): the page opens that paper, shows 'Timed (board practice)' and the toggle flips", async () => {
+    render(
+      <MemoryRouter initialEntries={["/practice-hub"]}>
+        <Routes>
+          <Route path="/practice-hub" element={<SeriesChooser open onClose={() => {}} />} />
+          <Route path="/chapter-test/:grade/:subject/:topicKey" element={<ChapterTestPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    fireEvent.click(await screen.findByTestId("ts-chapter-real-numbers"));
+    fireEvent.click(screen.getByTestId("ts-paper-3"));
+    expect(screen.getByTestId("ts-go")).toHaveTextContent("Paper 3");
+    fireEvent.click(screen.getByTestId("ts-go"));
+    expect(await screen.findByText(/Timed \(board practice\)/, {}, { timeout: 60000 })).toBeInTheDocument();
+    expect(screen.getByTestId("ct-series-label")).toHaveTextContent("CT-M01-3");
+    expect(screen.getByTestId("ct-series-label")).toHaveTextContent("Paper 3 of 5");
+    const toggle = screen.getByRole("button", { name: "Toggle timer" });
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+  }, 90000);
 });

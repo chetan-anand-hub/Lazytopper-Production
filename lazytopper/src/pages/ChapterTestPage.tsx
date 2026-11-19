@@ -149,8 +149,8 @@ import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLin
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
-import { CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterTestOf, seriesChapterWorksheetId } from "../lib/testSeries/testSeries";
-import { tsPinDisabled } from "../lib/testSeries/tsPinFlag";
+import { CT_PAPER_PARAM, CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterPaperNumber, seriesChapterTestOf, seriesChapterWorksheetId } from "../lib/testSeries/testSeries";
+import { tsPinDisabledFor } from "../lib/testSeries/tsPinFlag";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
 type Phase = "setup" | "taking" | "results" | "pick";
@@ -236,9 +236,12 @@ export default function ChapterTestPage() {
   // TEST-SERIES-1 — `?series=1` opens this chapter's FIXED Test Series paper (same questions for every student; served history
   // ignored). Kill switch: VITE_TEST_SERIES_DISABLED=1 (the param is then ignored and the fresh draw opens, as before).
   const seriesTopicKey = resolveCanonicalSlug(topicKey) || topicKey;
+  // TS-MORE-1: `&paper=<k>` (2..5) opens the chapter's k-th fixed paper; absent / 1 = the original. An unknown k opens the fresh test.
+  // VITE_TS_MORE_DISABLED: only paper 1 exists (seriesChapterPaperNumber returns null for k > 1).
+  const seriesPaperK = seriesChapterPaperNumber(sp.get(CT_PAPER_PARAM));
   const seriesTest =
-    import.meta.env?.VITE_TEST_SERIES_DISABLED !== "1" && isChapterTestSeriesRequest(sp.get(CT_SERIES_PARAM), seriesTopicKey)
-      ? seriesChapterTestOf(seriesTopicKey)
+    import.meta.env?.VITE_TEST_SERIES_DISABLED !== "1" && seriesPaperK !== null && isChapterTestSeriesRequest(sp.get(CT_SERIES_PARAM), seriesTopicKey)
+      ? seriesChapterTestOf(seriesTopicKey, seriesPaperK)
       : null;
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const fairUse = useFairUse("chapter-test", isSignedIn);
@@ -348,7 +351,7 @@ export default function ChapterTestPage() {
   // TS-PIN-1 - a series paper is BUILT FROM ITS PINNED QUESTION IDS (lazy chunk), not re-drawn from the pool, so a bank edit never
   // moves it. A paper that cannot be built (no pinned entry, a failed chunk) falls back to the seeded draw below rather than a blank
   // page; VITE_TS_PIN_DISABLED restores the seeded draw outright.
-  const pinKey = seriesTest && !tsPinDisabled() && mintedNomen && bank.ready ? `${mintedNomen.code}|${seriesTest.code}` : null;
+  const pinKey = seriesTest && !tsPinDisabledFor(`TS-${seriesTest.code}`) && mintedNomen && bank.ready ? `${mintedNomen.code}|${seriesTest.code}` : null;
   const [pinned, setPinned] = useState<{ key: string; drawn: DrawnChapterTest | null; missingIds: string[]; failed: boolean } | null>(null);
   useEffect(() => {
     if (!pinKey || !seriesTest || !mintedNomen) return undefined;
@@ -363,7 +366,7 @@ export default function ChapterTestPage() {
           topicKey,
           topicLabel: topicName,
           grade,
-          worksheetId: seriesChapterWorksheetId(mintChapterTestId(), seriesTest.topicKey),
+          worksheetId: seriesChapterWorksheetId(mintChapterTestId(), seriesTest.topicKey, seriesTest.paper),
           code: mintedNomen.code,
           name: mintedNomen.name,
         }),
@@ -376,7 +379,7 @@ export default function ChapterTestPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pinKey]);
   const pinState = pinned && pinned.key === pinKey ? pinned : null;
-  const pinActive = !!seriesTest && !tsPinDisabled() && !pinState?.failed;
+  const pinActive = !!seriesTest && !tsPinDisabledFor(`TS-${seriesTest.code}`) && !pinState?.failed;
 
   const draw: DrawnChapterTest | null = useMemo(() => {
     if (!mintedNomen || !bank.ready) return null;
@@ -386,14 +389,14 @@ export default function ChapterTestPage() {
       topicKey,
       topicLabel: topicName,
       grade,
-      worksheetId: seriesTest ? seriesChapterWorksheetId(mintChapterTestId(), seriesTest.topicKey) : mintChapterTestId(),
+      worksheetId: seriesTest ? seriesChapterWorksheetId(mintChapterTestId(), seriesTest.topicKey, seriesTest.paper) : mintChapterTestId(),
       code: mintedNomen.code,
       name: mintedNomen.name,
       // FRESH-SET-TESTS — unseen questions first; seeded, never Math.random.
       seed: freshInputs?.seed,
       servedAt: freshInputs?.servedAt,
       // TEST-SERIES-1 — the fixed series paper (overrides seed + served history).
-      ...(seriesTest ? { fixedSeed: chapterTestSeriesSeed(seriesTest.topicKey) } : {}),
+      ...(seriesTest ? { fixedSeed: chapterTestSeriesSeed(seriesTest.topicKey, seriesTest.paper) } : {}),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mintedNomen, bank.ready, subject, topicKey, grade, drawNonce, seriesTest?.code, pinActive, pinState]);

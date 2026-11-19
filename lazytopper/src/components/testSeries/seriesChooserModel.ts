@@ -4,9 +4,12 @@
  * progress is `seriesProgress` over the student's own session records (the SAME source /test-series reads). Nothing is typed here.
  */
 import {
+  CT_PAPER_PARAM,
+  SERIES_PAPERS_PER_CHAPTER,
+  chapterPaperCode,
   chapterTestSeriesHref,
   fullMockSeriesHref,
-  seriesChapterTests,
+  seriesChapters,
   seriesFullMocks,
   seriesMockRounds,
   type SeriesChapterTest,
@@ -18,28 +21,27 @@ import {
 } from "../../lib/testSeries/testSeries";
 
 /**
- * Papers per chapter. Today every chapter has ONE series paper. The lane that makes it five replaces this constant (or the chooser's
- * `papersPerChapter` prop) - the UI renders 1..P with no other change (P = 1 skips the paper-tile step).
+ * Papers per chapter: SERIES_PAPERS_PER_CHAPTER from code (TS-MORE-1: 5; 1 under VITE_TS_MORE_DISABLED). The UI renders 1..P with
+ * no other change (P = 1 skips the paper-tile step).
  */
-export const CHAPTER_PAPERS_PER_CHAPTER = 1;
-/** Query param carrying paper k (k > 1) on a chapter's series URL. PLACEHOLDER until the multi-paper lane defines it; k = 1 never uses it. */
-export const CT_PAPER_PARAM = "paper";
+export const CHAPTER_PAPERS_PER_CHAPTER = SERIES_PAPERS_PER_CHAPTER;
+/** Query param carrying paper k (k > 1) on a chapter's series URL (`?series=1&paper=k`); k = 1 never uses it. */
+export { CT_PAPER_PARAM };
 
 export { HUB_CARD_SHORT, hubCardLine } from "./hubTsFlag";
 
-/** The URL of chapter paper k (k = 1 is exactly `chapterTestSeriesHref`, what /test-series opens). */
+/** The URL of chapter paper k (k = 1 is exactly the original `?series=1` URL, what /test-series opens). */
 export function chapterPaperHref(subject: SeriesSubject, topicKey: string, k: number): string {
-  const base = chapterTestSeriesHref(subject, topicKey);
-  return k <= 1 ? base : `${base}&${CT_PAPER_PARAM}=${k}`;
+  return chapterTestSeriesHref(subject, topicKey, k);
 }
 
 export type PaperProgressFn = (test: SeriesChapterTest, k: number) => SeriesTestProgress | undefined;
 
-/** Default per-paper progress: the single series record is paper 1; papers 2..P have no record source yet -> not started. */
+/** Default per-paper progress: paper k's own series record (code CT-M01, CT-M01-2 …) from the student's session records. */
 export const defaultPaperProgress =
   (progress: SeriesProgress | null): PaperProgressFn =>
   (test, k) =>
-    k === 1 ? progress?.byCode[test.code] : undefined;
+    progress?.byCode[chapterPaperCode(test.baseCode, k)];
 
 const started = (p: SeriesTestProgress | undefined): boolean => Boolean(p) && p!.status !== "not-started";
 
@@ -55,7 +57,7 @@ export interface ChapterRow {
 export function chapterRows(subject: SeriesSubject, progress: SeriesProgress | null, papersPerChapter: number, paperProgress?: PaperProgressFn): ChapterRow[] {
   const pp = paperProgress ?? defaultPaperProgress(progress);
   const P = Math.max(1, Math.floor(papersPerChapter));
-  return seriesChapterTests()
+  return seriesChapters()
     .filter((t) => t.subject === subject)
     .map((test) => {
       let done = 0;

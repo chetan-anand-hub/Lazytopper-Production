@@ -322,6 +322,85 @@
 .lt-ts-tiles--mocks {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
+/* TS-MORE-1: a chapter card = number + "k of 5 done", the chapter name, and its papers as five small numbered chips. Fixed height. */
+.lt-ts-chaps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.lt-ts .lt-ts-chap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  height: 92px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid var(--lt-sp-line);
+  overflow: hidden;
+}
+.lt-ts-chap__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+.lt-ts-chap__prog {
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: var(--lt-sp-ink-2);
+  white-space: nowrap;
+}
+.lt-ts-chap__name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.22;
+  color: var(--lt-sp-ink);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.lt-ts-pp {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+.lt-ts .lt-ts-pp__a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  border-radius: 7px;
+  border: 1.5px solid #9aa7bb;
+  background: #ffffff;
+  color: var(--lt-sp-ink);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+.lt-ts .lt-ts-pp__a[data-status="attempted"] {
+  border-color: var(--lt-sp-amber-deep);
+  background: var(--lt-sp-amber);
+}
+.lt-ts .lt-ts-pp__a[data-status="graded"] {
+  border-color: var(--lt-sp-green-deep);
+  background: var(--lt-sp-green);
+  color: #ffffff;
+}
+.lt-ts .lt-ts-pp__a:hover,
+.lt-ts .lt-ts-pp__a:focus-visible {
+  border-color: var(--lt-sp-green);
+}
+.lt-ts .lt-ts-pp__a:focus-visible {
+  outline: 3px solid var(--lt-sp-green);
+  outline-offset: 1px;
+}
 .lt-ts .lt-ts-tile {
   position: relative;
   display: flex;
@@ -646,6 +725,9 @@
   .lt-ts-tiles {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+  .lt-ts-chaps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
   .lt-ts-tiles--mocks {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
@@ -674,6 +756,9 @@
   }
   .lt-ts-tiles {
     grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .lt-ts-chaps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .lt-ts-tiles--mocks {
     grid-template-columns: repeat(10, minmax(0, 1fr));
