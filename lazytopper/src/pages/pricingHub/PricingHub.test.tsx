@@ -713,7 +713,7 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
     expect(series.chapterTests).toBe(seriesChapterTests().length);
     expect(series.fullMocks).toBe(2 * SERIES_MOCKS_PER_SUBJECT);
     expect(series.total).toBe(series.chapterTests + series.fullMocks);
-    const fake = { chapterTests: 7, chapterTestsPerSubject: { Maths: 3, Science: 4 }, fullMocks: 9, mocksPerSubject: 9, total: 16 };
+    const fake = { chapterTests: 7, chapterTestsPerSubject: { Maths: 3, Science: 4 }, fullMocks: 9, mocksPerSubject: 9, total: 16, chapters: 7, chaptersPerSubject: { Maths: 3, Science: 4 }, papersPerChapter: 1 };
     expect(hubTsHeadlineText(fake)).toBe("7 chapter tests + 9 full-length board papers — your written answers checked step by step");
     expect(hubTsDetails(fake)).toBe("See all 16 tests →");
     expect(hubTsInsideRows(fake).map((r) => r.line)).toEqual([
