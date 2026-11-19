@@ -106,7 +106,7 @@ export const FM_DURATION_MS = 3 * 60 * 60 * 1000;
 
 /** Below this many drawable questions the setup shows an honest empty state —
  *  a 5-question "board mock" would be a fake paper, not a thin one. */
-const MIN_MOCK_QUESTIONS = 15;
+export const MIN_MOCK_QUESTIONS = 15;
 
 export interface FMBlueprintRow extends FMSectionSpec {
   /** Honest — may be < target when the union pool is thin; never padded. */
@@ -205,7 +205,7 @@ export interface FMPoolQuestion extends FMCbqFlag {
 
 const norm = (s: string): string => String(s || "").trim().toLowerCase();
 
-function fromCanonical(q: CanonicalQuestion): FMPoolQuestion {
+export function fromCanonical(q: CanonicalQuestion): FMPoolQuestion {
   return {
     id: q.id,
     topicSlug: resolveCanonicalSlug(q.topicKey),
@@ -225,7 +225,7 @@ function fromCanonical(q: CanonicalQuestion): FMPoolQuestion {
   };
 }
 
-function fromPredicted(q: PredictedQuestion | SciencePredictedQuestion): FMPoolQuestion {
+export function fromPredicted(q: PredictedQuestion | SciencePredictedQuestion): FMPoolQuestion {
   return {
     id: q.id,
     topicSlug: resolveCanonicalSlug(String(q.topicKey)),

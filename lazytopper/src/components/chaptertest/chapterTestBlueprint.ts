@@ -69,7 +69,7 @@ export const CT_BLUEPRINT: readonly CTSectionSpec[] = [
 
 /** Minimum drawable questions for an honest test (below this → honest empty state,
  *  ties to [FU-CT-BANK-DEPTH] — true cross-test uniqueness is a bank-depth lever). */
-const MIN_TEST_QUESTIONS = 6;
+export const MIN_TEST_QUESTIONS = 6;
 
 /**
  * THE per-row eligibility predicate — which board section a bank row can be drawn

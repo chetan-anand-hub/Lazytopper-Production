@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// TEST-SERIES-1 — regenerate lazytopper/server/data/testSeriesPapers.json (the Test Series paper manifest).
+// TEST-SERIES-1 / TS-PIN-1 — CREATE NEW Test Series papers: appends entries for paper keys that testSeriesPapers.json (server) and
+// src/lib/testSeries/seriesPaperIds.json (client) do not have yet. APPEND-ONLY: an existing paper is never changed (it is pinned).
 // The papers are drawn from the question bank through the app's own blueprints, which load under vitest, so this runs the guard
 // test in write mode. Cross-platform (no shell env syntax): `pnpm --filter lazytopper run gen:test-series-manifest`.
 import { spawnSync } from "node:child_process";

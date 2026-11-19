@@ -150,6 +150,7 @@ import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, seriesStartDe
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
 import { CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterTestOf, seriesChapterWorksheetId } from "../lib/testSeries/testSeries";
+import { tsPinDisabled } from "../lib/testSeries/tsPinFlag";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
 type Phase = "setup" | "taking" | "results" | "pick";
@@ -344,8 +345,42 @@ export default function ChapterTestPage() {
   // waits until the chapter chunk has loaded (the "Building your test…" state covers it).
   const bank = useBankChapters([topicKey]);
 
+  // TS-PIN-1 - a series paper is BUILT FROM ITS PINNED QUESTION IDS (lazy chunk), not re-drawn from the pool, so a bank edit never
+  // moves it. A paper that cannot be built (no pinned entry, a failed chunk) falls back to the seeded draw below rather than a blank
+  // page; VITE_TS_PIN_DISABLED restores the seeded draw outright.
+  const pinKey = seriesTest && !tsPinDisabled() && mintedNomen && bank.ready ? `${mintedNomen.code}|${seriesTest.code}` : null;
+  const [pinned, setPinned] = useState<{ key: string; drawn: DrawnChapterTest | null; missingIds: string[]; failed: boolean } | null>(null);
+  useEffect(() => {
+    if (!pinKey || !seriesTest || !mintedNomen) return undefined;
+    let live = true;
+    const done = (drawn: DrawnChapterTest | null, missingIds: string[]) => {
+      if (live) setPinned({ key: pinKey, drawn, missingIds, failed: !drawn });
+    };
+    import("../lib/testSeries/pinnedChapterTest")
+      .then((m) =>
+        m.buildSeriesChapterTest(`TS-${seriesTest.code}`, {
+          subject,
+          topicKey,
+          topicLabel: topicName,
+          grade,
+          worksheetId: seriesChapterWorksheetId(mintChapterTestId(), seriesTest.topicKey),
+          code: mintedNomen.code,
+          name: mintedNomen.name,
+        }),
+      )
+      .then((r) => done(r ? r.drawn : null, r ? r.missingIds : []))
+      .catch(() => done(null, []));
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pinKey]);
+  const pinState = pinned && pinned.key === pinKey ? pinned : null;
+  const pinActive = !!seriesTest && !tsPinDisabled() && !pinState?.failed;
+
   const draw: DrawnChapterTest | null = useMemo(() => {
     if (!mintedNomen || !bank.ready) return null;
+    if (pinActive) return pinState?.drawn ?? null;
     return drawChapterTest({
       subject,
       topicKey,
@@ -361,7 +396,7 @@ export default function ChapterTestPage() {
       ...(seriesTest ? { fixedSeed: chapterTestSeriesSeed(seriesTest.topicKey) } : {}),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mintedNomen, bank.ready, subject, topicKey, grade, drawNonce, seriesTest?.code]);
+  }, [mintedNomen, bank.ready, subject, topicKey, grade, drawNonce, seriesTest?.code, pinActive, pinState]);
 
   /** FRESH-SET-TESTS — log this paper as served on this device (start / download). */
   const markServed = useCallback((p: PersistedWorksheet | null) => {
@@ -1491,6 +1526,13 @@ export default function ChapterTestPage() {
                           // TEST-SERIES-1 — a fixed paper: not a fresh draw, so no freshness claim.
                           <span data-testid="ct-series-line">
                             <b>A Test Series paper</b> — every student gets the same {topicName} test ({seriesTest.code}).
+                            {pinState && pinState.missingIds.length > 0 ? (
+                              // TS-PIN-1 - a pinned question that no longer exists anywhere is left out, never swapped for another.
+                              <span data-testid="ct-series-missing">
+                                {" "}
+                                {pinState.missingIds.length === 1 ? "One question" : `${pinState.missingIds.length} questions`} on this paper {pinState.missingIds.length === 1 ? "is" : "are"} no longer available and {pinState.missingIds.length === 1 ? "has" : "have"} been left out (not replaced).
+                              </span>
+                            ) : null}
                           </span>
                         ) : draw && draw.repeatCount > 0 ? (
                           // FRESH-SET-TESTS — the honest line when this chapter's unseen pool ran out.

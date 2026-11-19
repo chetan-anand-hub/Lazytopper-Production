@@ -37,10 +37,6 @@ const TEST_DIR = resolve(SRC, "test");
 // that lane closed, by owner ruling. Every src file must now be reachable from a live root.
 // The reason-required rule below still applies to any entry a future lane adds.
 export const ALLOWED_ORPHANS: Record<string, string> = {
-  // TEST-SERIES-1: the paper-manifest generator runs only under vitest (the bank loads there): paperManifest.guard.test.ts
-  // regenerates server/data/testSeriesPapers.json and fails when it is stale; scripts/testSeries/writePaperManifest.mjs runs that
-  // test in write mode. Nothing in the app imports it, by design.
-  "src/lib/testSeries/paperManifest.ts": "the Test Series paper-manifest generator, run by its guard test (write mode via gen:test-series-manifest); no app importer by design",
   // 2026-10-11 ME-CONCEPT-1 PR-B: Weak Area Practice and the Learning Path now read the study model, so nothing live imports
   // getWeakAreas any more. The module is still read by the weakAreaAggregator.* tests and by the ops acceptance scripts
   // (check_improve_convergence_acceptance, topickey_guard_acceptance), so it is registered rather than deleted here.
