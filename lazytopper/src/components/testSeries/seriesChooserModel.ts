@@ -65,14 +65,14 @@ export function chapterRows(subject: SeriesSubject, progress: SeriesProgress | n
     });
 }
 
-/** The chapter to preselect: the first with an unstarted paper (signed in), else the first. */
-export function defaultChapterKey(rows: readonly ChapterRow[], signedInProgress: boolean): string | null {
+/** The chapter (by its series code, e.g. CT-M01) to preselect: the first with an unstarted paper (signed in), else the first. */
+export function defaultChapterCode(rows: readonly ChapterRow[], signedInProgress: boolean): string | null {
   if (rows.length === 0) return null;
   if (signedInProgress) {
     const next = rows.find((r) => r.done < r.total);
-    if (next) return next.test.topicKey;
+    if (next) return next.test.code;
   }
-  return rows[0].test.topicKey;
+  return rows[0].test.code;
 }
 
 export interface PaperTile {

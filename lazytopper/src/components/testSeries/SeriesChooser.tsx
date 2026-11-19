@@ -31,7 +31,7 @@ import {
   chapterPaperHref,
   chapterPaperTiles,
   chapterRows,
-  defaultChapterKey,
+  defaultChapterCode,
   defaultMockN,
   defaultPaperK,
   defaultPaperProgress,
@@ -131,8 +131,8 @@ export default function SeriesChooser({
 
   // ── Derived selections ──
   const rows = useMemo(() => chapterRows(subject, progress, papersPerChapter, paperProg), [subject, progress, papersPerChapter, paperProg]);
-  const chapterKey = rows.some((r) => r.test.topicKey === pickedChapter) ? (pickedChapter as string) : defaultChapterKey(rows, progress !== null);
-  const chapter = rows.find((r) => r.test.topicKey === chapterKey)?.test ?? null;
+  const chapterKey = rows.some((r) => r.test.code === pickedChapter) ? (pickedChapter as string) : defaultChapterCode(rows, progress !== null);
+  const chapter = rows.find((r) => r.test.code === chapterKey)?.test ?? null;
   const tiles = useMemo(() => (chapter ? chapterPaperTiles(chapter, papersPerChapter, paperProg, paperHref) : []), [chapter, papersPerChapter, paperProg, paperHref]);
   const paperK = pickedPaper !== null && tiles.some((t) => t.k === pickedPaper) ? pickedPaper : defaultPaperK(tiles, progress !== null);
   const chapterTile = tiles.find((t) => t.k === paperK) ?? null;
@@ -251,10 +251,10 @@ export default function SeriesChooser({
                     <button
                       type="button"
                       className="lt-tsc-row"
-                      aria-pressed={r.test.topicKey === chapterKey}
+                      aria-pressed={r.test.code === chapterKey}
                       data-testid={`ts-chapter-${r.test.topicKey}`}
                       onClick={() => {
-                        setPickedChapter(r.test.topicKey);
+                        setPickedChapter(r.test.code);
                         setPickedPaper(null);
                       }}
                     >
