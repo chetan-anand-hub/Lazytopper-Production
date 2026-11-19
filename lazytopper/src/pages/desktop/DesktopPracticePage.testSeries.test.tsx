@@ -1,6 +1,7 @@
 // HUB-TS-1 — the Practice hub's Test Series card + chooser. Card text/counts from code, the chooser opens (tap, ?ct=1, ?ts=full), the
 // step-2 "Full Test" card is gone (3 cards / 3 dots), the guide's `button.lt-ct-card` target is the new card, the FRESH options keep
 // today's URLs, and VITE_HUB_TS_DISABLED restores today's hub.
+import { withReturnTo } from "../../lib/testSeries/seriesNav";
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
@@ -120,7 +121,7 @@ describe("HUB-TS-1 — the Test Series card", () => {
     await chooser();
     fireEvent.click(screen.getByTestId("ts-chapter-real-numbers"));
     fireEvent.click(screen.getByTestId("ts-go"));
-    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe(chapterTestSeriesHref("Maths", "real-numbers"));
+    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe(withReturnTo(chapterTestSeriesHref("Maths", "real-numbers"), "/practice-hub"));
   });
 
   it("Full-length: the CTA opens fullMockSeriesHref(subject, n)", async () => {
@@ -130,7 +131,7 @@ describe("HUB-TS-1 — the Test Series card", () => {
     fireEvent.click(screen.getByTestId("ts-mock-3"));
     expect(screen.getByTestId("ts-go").textContent).toBe("Start Science · Full-Length Test 3 →");
     fireEvent.click(screen.getByTestId("ts-go"));
-    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe(fullMockSeriesHref("Science", 3));
+    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe(withReturnTo(fullMockSeriesHref("Science", 3), "/practice-hub"));
   });
 
   it("FRESH options keep today's URLs: the old card's Chapter Test landing, and the old Full Test card's /full-mock URL", async () => {

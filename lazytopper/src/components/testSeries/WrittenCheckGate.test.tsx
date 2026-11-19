@@ -149,3 +149,12 @@ describe("TS-NAV-1 offer links carry the way back to the series paper", () => {
     expect(screen.getByTestId("series-start-wall-bp").getAttribute("href")).toBe("/board-pass");
   });
 });
+
+describe("TS-UX-SCORE-1 - checks-used line", () => {
+  it("says each paper has its own checks (not 'every other paper still has')", async () => {
+    const { checksUsedLine } = await import("./WrittenCheckGate");
+    expect(checksUsedLine("CT-M01", 2)).toBe("You've used both checks on this paper (CT-M01). Your other papers have their own 2 checks each.");
+    expect(checksUsedLine(null, 3)).toBe("You've used all 3 checks on this paper. Your other papers have their own 3 checks each.");
+    expect(checksUsedLine("CT-M01", 2)).not.toMatch(/Every other paper/);
+  });
+});

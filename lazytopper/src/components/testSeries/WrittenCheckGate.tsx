@@ -153,7 +153,7 @@ function paperCodeOfKey(key: string | null): string | null {
 
 /** The plain sentence for a series paper whose checks are all used (live-test finding: say it before any upgrade offer). */
 export function checksUsedLine(code: string | null, per: number): string {
-  return `You've used ${per === 2 ? "both checks" : `all ${per} checks`} on this paper${code ? ` (${code})` : ""}. Every other paper still has ${per} checks.`;
+  return `You've used ${per === 2 ? "both checks" : `all ${per} checks`} on this paper${code ? ` (${code})` : ""}. Your other papers have their own ${per} checks each.`;
 }
 
 /** Beside the upload when a series paper has 0 checks left: say so (no point uploading) and offer the Board Pass (only). */

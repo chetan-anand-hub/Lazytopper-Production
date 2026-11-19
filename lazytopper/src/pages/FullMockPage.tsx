@@ -120,6 +120,7 @@ import {
   withGuideTarget,
   type ScorecardTutorAsk,
   withSaleMock,
+  withSeriesWorksheet,
 } from "../components/results/scorecardVariants";
 // FOLLOWUPS-1 B — the scorecard's tutor hop + the tutor's return to THIS saved scorecard.
 import { trackOnboardingEvent } from "../analytics/analytics";
@@ -173,9 +174,9 @@ import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
 import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
-import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, seriesStartDecision } from "../lib/testSeries/seriesAccess";
+import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUploadNotAllowed, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
-import { TEST_SERIES_NAV_PATH, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
+import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
 import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
@@ -265,8 +266,10 @@ export default function FullMockPage() {
   const sessionUid = user?.uid ?? null;
   // TS-NAV-1 — a Test Series paper's parent is /test-series, not Practice (kill switch VITE_TS_NAV_DISABLED -> Practice, as before).
   const seriesNavOn = seriesN !== null && !tsNavDisabled();
-  const backTo = seriesNavOn ? TEST_SERIES_NAV_PATH : "/practice-hub";
-  const backWord = seriesNavOn ? "Test Series" : "Practice";
+  // TS-UX-SCORE-1: a paper opened from the Practice-hub chooser carries a safe `returnTo` and Back leads there; else /test-series.
+  const seriesBack = seriesPaperBackTarget(location.search);
+  const backTo = seriesNavOn ? seriesBack.to : "/practice-hub";
+  const backWord = seriesNavOn ? seriesBack.word : "Practice";
   // This paper's own URL (`?paper=<n>` kept, one-shot review/upload dropped): where a link that leaves the paper returns to.
   const seriesPaperUrl = seriesNavOn ? seriesPaperPath(location.pathname, location.search) : null;
 
@@ -1537,7 +1540,7 @@ export default function FullMockPage() {
               ← {backWord}
             </button>
             <span className="lt-ct__pagetitle">Full Mock</span>
-            {seriesNavOn && <SeriesCrumb />}
+            {seriesNavOn && seriesBack.to !== TEST_SERIES_NAV_PATH && <SeriesCrumb />}
             {/* GUIDE-PAGES-1 — Byte's "?" helper (first visit opens once; a fixed card, no shift). */}
             <PageGuide id="fm_entry" step="page" uid={user && !user.isLocalSession ? user.uid : null} placement="end" bare />
           </div>
@@ -1802,7 +1805,7 @@ export default function FullMockPage() {
               ← {backWord}
             </button>
             <span className="lt-ct__pagetitle">Mock · Upload</span>
-            {seriesNavOn && <SeriesCrumb />}
+            {seriesNavOn && seriesBack.to !== TEST_SERIES_NAV_PATH && <SeriesCrumb />}
           </div>
           <SectionAPicker
             eyebrow={`Full mock · ${subject}`}
@@ -2040,7 +2043,7 @@ export default function FullMockPage() {
               ← {backWord}
             </button>
             <span className="lt-ct__pagetitle">Mock · Result</span>
-            {seriesNavOn && <SeriesCrumb />}
+            {seriesNavOn && seriesBack.to !== TEST_SERIES_NAV_PATH && <SeriesCrumb />}
           </div>
 
           {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
@@ -2185,7 +2188,10 @@ export default function FullMockPage() {
           {scorecardOpen && resultsPhase === "partial" && (
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-              variant={fullMockScorecardVariant({
+              variant={withSeriesWorksheet(fullMockScorecardVariant({
+                // TS-UX-SCORE-1: the SAME allow-logic the paywall below uses (ResultAccessSlot `uploadAllowed`); while the read is
+                // pending or failed the page shows neither paywall nor card, so the scorecard keeps today's upload prompt.
+                uploadNotAllowed: scorecardUploadNotAllowed({ canCheck: seriesPaperAccess, createdMs: Date.parse(activeMock.paper.createdAt), checking: seriesAccess.checking, failed: seriesAccess.failed }),
                 name: activeMock.name,
                 code: activeMock.code,
                 phase: "partial",
@@ -2201,7 +2207,7 @@ export default function FullMockPage() {
                   setScorecardOpen(false);
                   setPhase("setup");
                 },
-              })}
+              }), activeMock.paper.worksheetId)}
               onClose={() => setScorecardOpen(false)}
             />
           )}
@@ -2210,7 +2216,7 @@ export default function FullMockPage() {
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               limitKey={{ kind: "full-mock", resultKey: activeMock.code, worksheetId: activeMock.paper.worksheetId }} // LIMITS-1 PR-2 — Full Mock surface
-              variant={withSaleMock(withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
+              variant={withSeriesWorksheet(withSaleMock(withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
                 name: activeMock.name,
                 code: activeMock.code,
                 phase: "full",
@@ -2243,7 +2249,7 @@ export default function FullMockPage() {
                       },
                     }
                   : {}),
-              }), worstChapterPractice().target), fullResponse, liveTutorAskFor), sessionSubject)}
+              }), worstChapterPractice().target), fullResponse, liveTutorAskFor), sessionSubject), activeMock.paper.worksheetId)}
               onClose={() => setScorecardOpen(false)}
             />
           )}

@@ -52,7 +52,23 @@ describe("TS-NAV-1 · Full Mock Back", () => {
   it("a series mock: '← Test Series' goes to /test-series, and the page bar has the Test Series crumb", async () => {
     mount("/full-mock/10/Maths?paper=3");
     const back = await screen.findByRole("button", { name: /^← Test Series/ }, { timeout: 60000 });
+    // TS-UX-SCORE-1: Back already says "Test Series", so the crumb is not repeated beside it.
+    expect(screen.queryByTestId("ts-crumb")).toBeNull();
+    fireEvent.click(back);
+    expect((await screen.findByTestId("where")).textContent).toBe("/test-series");
+  }, 90000);
+
+  it("TS-UX-SCORE-1: a paper opened from the Practice hub (returnTo=/practice-hub) goes Back to Practice, and keeps the Test Series crumb", async () => {
+    mount("/full-mock/10/Maths?paper=3&returnTo=%2Fpractice-hub");
+    const back = await screen.findByRole("button", { name: /^← Practice/ }, { timeout: 60000 });
     expect(screen.getByTestId("ts-crumb").getAttribute("href")).toBe("/test-series");
+    fireEvent.click(back);
+    expect((await screen.findByTestId("where")).textContent).toBe("/practice-hub");
+  }, 90000);
+
+  it("TS-UX-SCORE-1: an unsafe returnTo is ignored - Back is /test-series", async () => {
+    mount("/full-mock/10/Maths?paper=3&returnTo=https%3A%2F%2Fevil.example");
+    const back = await screen.findByRole("button", { name: /Test Series/ }, { timeout: 60000 });
     fireEvent.click(back);
     expect((await screen.findByTestId("where")).textContent).toBe("/test-series");
   }, 90000);

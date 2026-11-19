@@ -39,6 +39,7 @@ import {
   type PaperProgressFn,
 } from "./seriesChooserModel";
 import type { SeriesChooserTab } from "./hubTsFlag";
+import { withReturnTo } from "../../lib/testSeries/seriesNav";
 import "./seriesChooser.css";
 
 export interface SeriesChooserProps {
@@ -150,11 +151,13 @@ export default function SeriesChooser({
   };
 
   const go = useCallback(
-    (href: string) => {
+    (href: string, opts?: { paper?: boolean }) => {
       onClose();
-      navigateAfterPaint(href);
+      // TS-UX-SCORE-1: a numbered series paper opened from here remembers the hub, so its Back row leads back (a safe internal path only).
+      // The path only: the hub URL may carry ?ts=full / ?ct=1, which would re-open this chooser on return.
+      navigateAfterPaint(opts?.paper ? withReturnTo(href, typeof returnTo === "string" ? returnTo.split(/[?#]/)[0] : returnTo) : href);
     },
-    [onClose, navigateAfterPaint],
+    [onClose, navigateAfterPaint, returnTo],
   );
 
   // Focus into the dialog on open, back to the opener on close; Tab cycles inside; Escape closes.
@@ -245,6 +248,25 @@ export default function SeriesChooser({
         <div className="lt-tsc-body">
           {tab === "chapter" ? (
             <>
+              {/* TS-UX-SCORE-1: the paper 1-5 picker sits ABOVE the chapter list, so a phone user sees papers 2-5 without scrolling past 13 chapters. */}
+              {manyPapers ? (
+                <div className="lt-tsc-papers lt-tsc-papers--top" role="group" aria-label="Paper" data-testid="ts-papers">
+                  {tiles.map((t) => (
+                    <button
+                      key={t.k}
+                      type="button"
+                      className="lt-tsc-tile"
+                      aria-pressed={t.k === paperK}
+                      aria-label={`Paper ${t.k}, ${statusWords(t.status, t.score)}`}
+                      data-testid={`ts-paper-${t.k}`}
+                      onClick={() => setPickedPaper(t.k)}
+                    >
+                      <span className="lt-tsc-tile__n">{t.k}</span>
+                      <span className="lt-tsc-tile__s">{t.status === "graded" && t.score ? `${t.score.awarded}/${t.score.total}` : t.status === "attempted" ? "Done" : progress ? "New" : ""}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
               <ul className="lt-tsc-list" aria-label={`${subject} chapters`} data-testid="ts-chapters">
                 {rows.map((r) => (
                   <li key={r.test.code}>
@@ -267,24 +289,6 @@ export default function SeriesChooser({
                   </li>
                 ))}
               </ul>
-              {manyPapers ? (
-                <div className="lt-tsc-papers" role="group" aria-label="Paper" data-testid="ts-papers">
-                  {tiles.map((t) => (
-                    <button
-                      key={t.k}
-                      type="button"
-                      className="lt-tsc-tile"
-                      aria-pressed={t.k === paperK}
-                      aria-label={`Paper ${t.k}, ${statusWords(t.status, t.score)}`}
-                      data-testid={`ts-paper-${t.k}`}
-                      onClick={() => setPickedPaper(t.k)}
-                    >
-                      <span className="lt-tsc-tile__n">{t.k}</span>
-                      <span className="lt-tsc-tile__s">{t.status === "graded" && t.score ? `${t.score.awarded}/${t.score.total}` : t.status === "attempted" ? "Done" : progress ? "New" : ""}</span>
-                    </button>
-                  ))}
-                </div>
-              ) : null}
             </>
           ) : (
             <div data-testid="ts-fulls">
@@ -322,7 +326,7 @@ export default function SeriesChooser({
         <div className="lt-tsc-foot">
           {tab === "chapter" ? (
             <>
-              <button type="button" className="lt-tsc-go" data-testid="ts-go" disabled={!chapterTile} onClick={() => chapterTile && go(chapterTile.href)}>
+              <button type="button" className="lt-tsc-go" data-testid="ts-go" disabled={!chapterTile} onClick={() => chapterTile && go(chapterTile.href, { paper: true })}>
                 {chapterCta}
               </button>
               <button type="button" className="lt-tsc-fresh" data-testid="ts-fresh" disabled={!freshChapterHref} onClick={() => freshChapterHref && go(freshChapterHref)}>
@@ -331,7 +335,7 @@ export default function SeriesChooser({
             </>
           ) : (
             <>
-              <button type="button" className="lt-tsc-go" data-testid="ts-go" disabled={!mockTile} onClick={() => mockTile && go(mockTile.href)}>
+              <button type="button" className="lt-tsc-go" data-testid="ts-go" disabled={!mockTile} onClick={() => mockTile && go(mockTile.href, { paper: true })}>
                 {fullCta}
               </button>
               <button type="button" className="lt-tsc-fresh" data-testid="ts-fresh" onClick={() => go(freshFullHref)}>

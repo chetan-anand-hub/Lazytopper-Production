@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { Link, UNSAFE_LocationContext } from "react-router-dom";
+import { useTestSeriesOwnership } from "../testSeries/testSeriesOwnership";
+import { seriesPaperKeyOfWorksheetId } from "../../lib/testSeries/testSeries";
+import { isSeriesPaperLocation, seriesPaperPath, withSeriesReturn } from "../../lib/testSeries/seriesNav";
 
 import { useAuth } from "../../context/AuthContext";
 import { loadSubscription, onSubscriptionHydrated, type SubscriptionStatus } from "../../services/subscriptionService";
@@ -109,6 +113,25 @@ export function scorecardHeadline(
   return ["Full marks!", `Keep every answer ${TILL_BOARDS}.`];
 }
 
+/** TS-UX-SCORE-1 - the ONE line a Test Series owner sees on a series paper's scorecard, in place of every other upsell. */
+export const SERIES_OWNER_UPSELL_LINE = "Want the tutor and the Answer Checker too? Board Pass \u2192";
+
+/**
+ * TS-UX-SCORE-1 - a Test Series owner on a series paper: the whole upsell (trial lead, Board Pass block, PDF-pack rows) is replaced by one
+ * link to the Board Pass, returning to the paper. Ownership unknown (loading, failed, signed out) -> null, so today's upsell shows.
+ * `statusPaid` true (Premium) -> the ownership read is not even asked.
+ */
+function useSeriesOwnerUpsell(uid: string, worksheetId: string | null | undefined, statusPaid: boolean): { to: string } | null {
+  // A bare scorecard render has no Router: the location context is then null and the owner line never shows.
+  const routerLoc = useContext(UNSAFE_LocationContext)?.location ?? null;
+  const onPaper = Boolean(seriesPaperKeyOfWorksheetId(worksheetId));
+  const own = useTestSeriesOwnership(onPaper && !statusPaid ? uid : null);
+  if (!routerLoc || !onPaper || statusPaid || !own.owns || own.phase !== "ready") return null;
+  const { pathname, search } = routerLoc;
+  const paper = isSeriesPaperLocation(pathname, search) ? seriesPaperPath(pathname, search) : `${pathname}${search}`;
+  return { to: withSeriesReturn("/board-pass", paper) };
+}
+
 const LINE_CSS = `
 .lt-sc__up {
   display: block; width: 100%; box-sizing: border-box; min-height: 44px;
@@ -164,6 +187,8 @@ function Line({ variant, countShown, uid, block }: { variant: ScorecardVariant; 
   // The pack rows name the pack that fits THIS result (its chapter / subject, read from the host's own practice route).
   const saleHint = saleHintFromTarget(variant.guideTarget?.to);
   const [status, refresh, statusKnown] = useCachedStatus(uid);
+  // F1: the owner line needs a KNOWN, non-paid record (a cold cache may belong to a Board Pass holder); until then the ownership read is not even asked.
+  const ownerUpsell = useSeriesOwnerUpsell(uid, variant.seriesWorksheetId, status.tier === "premium" || !statusKnown);
   const [open, setOpen] = useState(false);
   // Premium (a paid pass or an admin grant) never sees the ask. A running trial still does.
   const show = status.tier !== "premium";
@@ -175,9 +200,27 @@ function Line({ variant, countShown, uid, block }: { variant: ScorecardVariant; 
   useEffect(() => {
     // A history re-open of an old result shows the line but is not counted as a fresh "shown".
     // OFFERS-V2: the block counts as shown only once the record is known (a cold cache must not flash a Pay card).
-    if (show && countShown && (!block || statusKnown)) trackScorecardUpgrade("shown");
-  }, [show, countShown, block, statusKnown]);
+    if (!(show && countShown && (!block || statusKnown))) return;
+    // F2: the owner's one line is its own event, never counted as the Board Pass ask being shown.
+    if (ownerUpsell) trackSaleMoment("sale_moment_shown", { surface: variant.surface, offer: "ts_owner_bp" });
+    else trackScorecardUpgrade("shown");
+  }, [show, countShown, block, statusKnown, Boolean(ownerUpsell)]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!show) return null;
+  if (ownerUpsell) {
+    return (
+      <>
+        <style>{LINE_CSS}</style>
+        <Link
+          className="lt-sc__up"
+          to={ownerUpsell.to}
+          data-testid="scorecard-series-owner-line"
+          onClick={() => trackSaleMoment("sale_moment_tap", { surface: variant.surface, offer: "ts_owner_bp" })}
+        >
+          {SERIES_OWNER_UPSELL_LINE}
+        </Link>
+      </>
+    );
+  }
   // OFFERS-V2: the whole block (headline, lead, card, rows) waits for a KNOWN record - an unhydrated cache may belong to a paid student.
   if (block && !statusKnown) return null;
   const leadButton = trialLead ? (

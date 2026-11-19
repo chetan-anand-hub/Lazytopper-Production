@@ -390,6 +390,12 @@ export interface ScorecardVariant {
   /** SALE-MOMENT-2 - a Full Mock result: the buying line offers that subject's Mock Pack. Set only by the Full Mock host, which
    *  knows its subject; absent otherwise. Display only. */
   saleMockSubject?: "maths" | "science";
+  /** TS-UX-SCORE-1 - a live partial paper whose account may NOT upload written answers (the page underneath is the paywall): the
+   *  shell shows the Test Series / Board Pass offer buttons instead of upload actions. Display only; never a mark. */
+  writtenCheckOffers?: boolean;
+  /** TS-UX-SCORE-1 - the series paper this scorecard is for (its worksheet id): lets the upsell line see a Test Series owner on a
+   *  series paper. Display only. */
+  seriesWorksheetId?: string | null;
 }
 
 /** SALE-MOMENT-2 - marks a Full Mock variant with its subject so the buying line offers that subject's Mock Pack. */
@@ -1244,6 +1250,8 @@ export interface ChapterTestVariantInput {
   // Partial-phase handlers:
   onUpload?: () => void;
   onUploadLater?: () => void;
+  /** TS-UX-SCORE-1 - partial phase: this account may not upload written answers; the scorecard offers the Test Series / Board Pass instead. */
+  uploadNotAllowed?: boolean;
   // Full-phase handlers:
   onReadSheet?: () => void;
   onPractise?: () => void;
@@ -1413,12 +1421,34 @@ export interface FullMockVariantInput {
   // Partial-phase handlers:
   onUpload?: () => void;
   onUploadLater?: () => void;
+  /** TS-UX-SCORE-1 - partial phase: this account may not upload written answers; the scorecard offers the Test Series / Board Pass instead. */
+  uploadNotAllowed?: boolean;
   // Full-phase handlers:
   onReadSheet?: () => void;
   /** Opens the worksheet builder targeted at the biggest-loss chapter. */
   onPractiseChapter?: () => void;
   onDownloadGraded?: () => void;
   onDownloadSolution?: () => void;
+}
+
+
+/** TS-UX-SCORE-1 - tag a live scorecard with the paper's worksheet id so the upsell line can recognise a Test Series owner on a series paper. */
+export function withSeriesWorksheet(variant: ScorecardVariant, worksheetId: string | null | undefined): ScorecardVariant {
+  return worksheetId ? { ...variant, seriesWorksheetId: worksheetId } : variant;
+}
+
+/**
+ * TS-UX-SCORE-1 - the partial scorecard's words and actions for an account that may NOT upload written answers (free / trial without a
+ * Test Series or Board Pass). Names Section A's real marks and the paper's real written-section range; no upload buttons (they would
+ * lead to the paywall underneath). Pure.
+ */
+export function noUploadPartial(objectiveMarks: string, sectionsLabel: string): Pick<ScorecardVariant, "message" | "footnote" | "actions" | "writtenCheckOffers"> {
+  return {
+    message: `Section A marked: ${objectiveMarks}. Your written answers (${sectionsLabel}) are checked with the Test Series or the Board Pass.`,
+    footnote: "No mistake breakdown yet \u2014 MCQs only tell us right or wrong, not why. That view appears once your written work is graded.",
+    actions: [],
+    writtenCheckOffers: true,
+  };
 }
 
 /**
@@ -1437,6 +1467,7 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
       0,
       (Number(response.worksheetTotalMarks) || 0) - (Number(response.gradedMarksTotal) || 0),
     );
+    const noUpload = input.uploadNotAllowed ? noUploadPartial(objectiveMarks, "Sections B–E") : null;
     return {
       surface: "full-mock",
       title: name,
@@ -1474,6 +1505,7 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
           disabled: !input.onUploadLater,
         },
       ],
+      ...(noUpload ?? {}),
     };
   }
 
@@ -1513,7 +1545,7 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
       busyLabel: "Preparing PDF…",
     },
     {
-      label: "Download solution key — CBSE step-marked",
+      label: "Download worked solutions (PDF)",
       tag: "Key",
       tone: "secondary",
       onClick: input.onDownloadSolution ?? (() => {}),

@@ -89,7 +89,15 @@ describe.each(["free", "trial", "premium"] as const)("Chapter Test · %s account
       expect(rec[0].status).toBe("partial");
       expect(rec[0].marksTotal).toBeGreaterThan(0);
     });
-    fireEvent.click(await screen.findByRole("button", { name: /Upload written answers for full result/ }));
+    if (!entitled) {
+      // TS-UX-SCORE-1: the auto-opened partial scorecard offers no upload it cannot use - Section A's real marks and the two offers.
+      expect(await screen.findByTestId("scorecard-wc-bp")).toBeTruthy();
+      expect(screen.getByTestId("scorecard-wc-ts")).toBeTruthy();
+      expect(document.body.textContent).toMatch(/Section A marked: \d+\/\d+\. Your written answers \(Sections B–D\) are checked with the Test Series or the Board Pass\./);
+      expect(screen.queryByRole("button", { name: /Upload written answers for full result/ })).toBeNull();
+    } else {
+      fireEvent.click(await screen.findByRole("button", { name: /Upload written answers for full result/ }));
+    }
     if (entitled) {
       expect((await screen.findAllByText(/Upload your written answers/)).length).toBeGreaterThan(0);
       expect(screen.queryByTestId("written-check-upgrade")).toBeNull();

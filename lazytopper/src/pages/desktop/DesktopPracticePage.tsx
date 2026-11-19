@@ -1328,7 +1328,7 @@ function MistakeIntelligencePanelImpl({
             gap: 6,
           }}
         >
-          <IconSparkles size={14} /> Start free trial
+          <IconSparkles size={14} /> Start your 7-day free trial
         </Link>
         <div style={{ fontSize: 11, color: TEXT_MUTED }}>Recommended, not required.</div>
       </section>

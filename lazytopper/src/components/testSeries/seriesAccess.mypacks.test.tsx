@@ -151,7 +151,7 @@ describe("P0-2 · a Test Series owner's upload states", () => {
     render(<MemoryRouter><ResultAccessSlot access={owner(2)} uploadAllowed worksheetId={wid} upgrade={null} upload={<div data-testid="upload" />} /></MemoryRouter>);
     expect(screen.getByTestId("series-zero-checks-line").textContent).toBe("0 of 2 checks left on this paper");
     expect(screen.getByTestId("series-no-checks-left").textContent).toContain("You've used both checks on this paper");
-    expect(screen.getByTestId("series-no-checks-left").textContent).toContain("Every other paper still has 2 checks.");
+    expect(screen.getByTestId("series-no-checks-left").textContent).toContain("Your other papers have their own 2 checks each.");
     expect(screen.getByTestId("no-checks-bp")).toBeTruthy();
     expect(screen.queryByTestId("no-checks-ts")).toBeNull();
     expect(screen.queryByTestId("upload")).toBeNull();
@@ -164,7 +164,7 @@ describe("P0-2 · a Test Series owner's upload states", () => {
     render(<MemoryRouter><SeriesOwnerNotice onClose={() => undefined} worksheetId={wid} status={{ checksPerPaper: 2, used: { [key]: 2 } } as never} /></MemoryRouter>);
     const t = screen.getByTestId("series-owner-notice").textContent ?? "";
     expect(t).toContain(`(${key.replace(/^TS-/, "")})`);
-    expect(t).toContain("Every other paper still has 2 checks.");
+    expect(t).toContain("Your other papers have their own 2 checks each.");
     expect(t).toContain("no per-paper limit");
     expect(screen.getByTestId("series-owner-bp")).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/Prefer practising on paper|Get it marked like the board would|Chapter Pack/);
