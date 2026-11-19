@@ -89,57 +89,57 @@ export const ARC_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section B — Short Answer (2 marks) =====
   { id: "ARC-N-EXEM-11-VSA-001", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Inscribed Circle in Square", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Is the area of the circle inscribed in a square of side a cm equal to πa² cm²? Justify briefly.",
-    solutionSteps: ["The inscribed circle has diameter = a, so radius = a/2.", "Area = π(a/2)² = πa²/4, not πa².", "Hence the statement is FALSE."],
+    solutionSteps: ["[1 mark] The inscribed circle has diameter = a, so radius = a/2.", "[0.5 mark] Area = π(a/2)² = πa²/4, not πa².", "[0.5 mark] Hence the statement is FALSE."],
     finalAnswer: "False; correct area is πa²/4.",
     ncertRef: "Exemplar Ex 11.2 Q1", isCompetencyBased: true },
 
   { id: "ARC-N-EXEM-11-VSA-002", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Wheel Distance per Revolution", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "A student says that the distance travelled by a circular wheel of diameter d cm in one revolution is 2πd cm. Is this correct? Justify briefly.",
-    solutionSteps: ["Distance in one revolution = circumference = πd (since circumference = π × diameter).", "2πd is twice the circumference — incorrect.", "Hence the statement is FALSE."],
+    solutionSteps: ["[1 mark] Distance in one revolution = circumference = πd (since circumference = π × diameter).", "[0.5 mark] 2πd is twice the circumference — incorrect.", "[0.5 mark] Hence the statement is FALSE."],
     finalAnswer: "False; correct distance per revolution is πd cm.",
     ncertRef: "Exemplar Ex 11.2 Q5", isCompetencyBased: true },
 
   { id: "ARC-N-EXEM-11-VSA-003", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Equal Arcs vs Equal Areas", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
     questionText: "If two sectors of different circles have equal arc lengths, must they have equal areas? Justify briefly.",
-    solutionSteps: ["Area of sector = (1/2) × r × arc length (using A = (1/2)rl).", "If arc lengths are equal but radii differ, the areas will differ (larger radius ⇒ larger area).", "Hence the statement is FALSE."],
+    solutionSteps: ["[1 mark] Area of sector = (1/2) × r × arc length (using A = (1/2)rl).", "[0.5 mark] If arc lengths are equal but radii differ, the areas will differ (larger radius ⇒ larger area).", "[0.5 mark] Hence the statement is FALSE."],
     finalAnswer: "False; equal arc lengths do not force equal sector areas.",
     ncertRef: "Exemplar Ex 11.2 Q9", isCompetencyBased: true },
 
   // ===== Section C — Short Answer (3 marks) =====
   { id: "ARC-N-EXEM-11-SA-001", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Equal Circle from Circumferences", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the radius of a circle whose circumference equals the sum of the circumferences of two circles of radii 15 cm and 18 cm.",
-    solutionSteps: ["Sum of circumferences: 2π(15) + 2π(18) = 2π(33).", "If r is the new radius: 2πr = 2π × 33 ⇒ r = 33 cm."],
+    solutionSteps: ["[1 mark] Sum of circumferences: 2π(15) + 2π(18)", "[1 mark] = 2π(33).", "[1 mark] If r is the new radius: 2πr = 2π × 33 ⇒ r = 33 cm."],
     finalAnswer: "r = 33 cm.",
     ncertRef: "Exemplar Ex 11.3 Q1", isCompetencyBased: true },
 
   { id: "ARC-N-EXEM-11-SA-002", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of Sector", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the area of a sector of a circle of radius 28 cm and central angle 45°.",
-    solutionSteps: ["Area = (θ/360) × πr² = (45/360) × (22/7) × 28² = (1/8) × (22/7) × 784.", "= (1/8) × (22 × 112) = (1/8) × 2464 = 308 cm²."],
+    solutionSteps: ["[0.5 mark] Area = (θ/360) × πr²", "[0.5 mark] = (45/360) × (22/7) × 28²", "[0.5 mark] = (1/8) × (22/7) × 784.", "[1.5 marks] = (1/8) × (22 × 112) = (1/8) × 2464 = 308 cm²."],
     finalAnswer: "Area = 308 cm².",
     ncertRef: "Exemplar Ex 11.3 Q3", isCompetencyBased: true },
 
   { id: "ARC-N-EXEM-11-SA-003", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Wheel Revolutions per Minute", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The wheel of a motor cycle has radius 35 cm. How many revolutions per minute must the wheel make to maintain a speed of 66 km/h?",
-    solutionSteps: ["Circumference = 2π × 35 = 70 × (22/7) = 220 cm.", "Speed: 66 km/h = 66 × 1000 × 100 / 60 cm/min = 110000 cm/min.", "Revolutions per minute = 110000/220 = 500."],
+    solutionSteps: ["[1 mark] Circumference = 2π × 35 = 70 × (22/7) = 220 cm.", "[1 mark] Speed: 66 km/h = 66 × 1000 × 100 / 60 cm/min = 110000 cm/min.", "[1 mark] Revolutions per minute = 110000/220 = 500."],
     finalAnswer: "500 revolutions per minute.",
     ncertRef: "Exemplar Ex 11.3 Q4", isCompetencyBased: true,
     strategyHint: "Convert speed to cm/min, then divide by circumference." },
 
   { id: "ARC-N-EXEM-11-SA-004", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Grazing Area", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A cow is tied with a 14 m rope at the corner of a rectangular field of dimensions 20 m × 16 m. Find the area of the field in which the cow can graze.",
-    solutionSteps: ["At a rectangle corner the cow grazes a quadrant of a circle of radius 14 m.", "Quadrant area = (1/4) × π × 14² = (1/4) × (22/7) × 196 = (1/4) × 616 = 154 m²."],
+    solutionSteps: ["[1 mark] At a rectangle corner the cow grazes a quadrant of a circle of radius 14 m.", "[0.5 mark] Quadrant area = (1/4) × π × 14²", "[1.5 marks] = (1/4) × (22/7) × 196 = (1/4) × 616 = 154 m²."],
     finalAnswer: "Grazing area = 154 m².",
     ncertRef: "Exemplar Ex 11.3 Q5", isCompetencyBased: true },
 
   { id: "ARC-N-EXEM-11-SA-005", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Minor Segment", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Find the area of the minor segment of a circle of radius 14 cm, when the angle of the corresponding sector is 60°.",
-    solutionSteps: ["Sector area = (60/360) × π × 14² = (1/6) × (22/7) × 196 = (22 × 28)/6 = 616/6 ≈ 102.67 cm².", "Triangle area (equilateral with side 14 since chord at 60° creates an equilateral triangle): (√3/4) × 14² = (√3/4) × 196 = 49√3 ≈ 84.87 cm².", "Minor segment = 102.67 − 84.87 ≈ 17.80 cm²."],
+    solutionSteps: ["[1 mark] Sector area = (60/360) × π × 14² = (1/6) × (22/7) × 196 = (22 × 28)/6 = 616/6 ≈ 102.67 cm².", "[1 mark] Triangle area (equilateral with side 14 since chord at 60° creates an equilateral triangle): (√3/4) × 14² = (√3/4) × 196 = 49√3 ≈ 84.87 cm².", "[1 mark] Minor segment = 102.67 − 84.87 ≈ 17.80 cm²."],
     finalAnswer: "Minor segment ≈ 17.80 cm².",
     ncertRef: "Exemplar Ex 11.3 Q10", isCompetencyBased: true },
 
   { id: "ARC-N-EXEM-11-SA-006", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Arc Length from Bent Wire", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A piece of wire 20 cm long is bent into the form of an arc of a circle subtending an angle of 60° at its centre. Find the radius of the circle.",
-    solutionSteps: ["Arc length = (θ/360) × 2πr = (60/360) × 2πr = πr/3.", "Set πr/3 = 20 ⇒ r = 60/π.", "Using π = 22/7: r = 60 × 7/22 = 420/22 = 210/11 ≈ 19.09 cm."],
+    solutionSteps: ["[1 mark] Arc length = (θ/360) × 2πr = (60/360) × 2πr = πr/3.", "[1 mark] Set πr/3 = 20 ⇒ r = 60/π.", "[1 mark] Using π = 22/7: r = 60 × 7/22 = 420/22 = 210/11 ≈ 19.09 cm."],
     finalAnswer: "r = 210/11 cm ≈ 19.09 cm.",
     ncertRef: "Exemplar Ex 11.3 Q16", isCompetencyBased: true },
 
@@ -160,14 +160,14 @@ export const ARC_EXEMPLAR: CanonicalQuestion[] = [
   // ===== Section E — Case-Based (4 marks) =====
   { id: "ARC-N-EXEM-11-CB-001", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Grazing Increase", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A calf is tied with a rope at the corner of a square grassy lawn of side 20 m. The rope was originally 6 m. The owner extends the rope to 11.5 m (an increase of 5.5 m).\n(i) What sector angle does the calf graze at each rope length (since it's a corner)?\n(ii) Find the area grazed with the old 6 m rope.\n(iii) Find the area grazed with the new 11.5 m rope.\n(iv) Find the increase in grazing area.",
-    solutionSteps: ["(i) At the corner of a square the calf grazes a quadrant ⇒ angle 90°.", "(ii) Old area = (90/360) × π × 6² = (1/4) × (22/7) × 36 = 198/7 ≈ 28.29 m².", "(iii) New area = (1/4) × (22/7) × 11.5² = (1/4) × (22/7) × 132.25 = 2909.5/28 ≈ 103.91 m².", "(iv) Increase = (π/4)(11.5² − 6²) = (π/4)(17.5)(5.5) = (22/7) × (96.25)/4 = (22 × 96.25)/28 = 2117.5/28 ≈ 75.625 m²."],
+    solutionSteps: ["[1 mark] (i) At the corner of a square the calf grazes a quadrant ⇒ angle 90°.", "[1 mark] (ii) Old area = (90/360) × π × 6² = (1/4) × (22/7) × 36 = 198/7 ≈ 28.29 m².", "[1 mark] (iii) New area = (1/4) × (22/7) × 11.5² = (1/4) × (22/7) × 132.25 = 2909.5/28 ≈ 103.91 m².", "[1 mark] (iv) Increase = (π/4)(11.5² − 6²) = (π/4)(17.5)(5.5) = (22/7) × (96.25)/4 = (22 × 96.25)/28 = 2117.5/28 ≈ 75.625 m²."],
     finalAnswer: "(i) 90°; (ii) ≈ 28.29 m²; (iii) ≈ 103.91 m²; (iv) ≈ 75.625 m².",
     ncertRef: "Exemplar Sample Question 3 (Ex 11.4)", isCompetencyBased: true },
 
   // ===== Creating-level question =====
   { id: "ARC-N-EXEM-11-CRE-001", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of Sector", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Creating",
     questionText: "Design a sector of a circle whose area is exactly 11 cm² and whose central angle equals 45°. Specify the radius and the arc length, and verify your design.",
-    solutionSteps: ["Area = (θ/360) × πr² ⇒ 11 = (45/360) × (22/7) × r² ⇒ 11 = (1/8)(22/7)r² ⇒ r² = 11 × 8 × 7/22 = 28.", "r = √28 = 2√7 cm ≈ 5.29 cm.", "Arc length = (45/360) × 2π × 2√7 = (1/8) × 2 × (22/7) × 2√7 = (88√7)/(56) = (11√7)/7 cm ≈ 4.16 cm.", "Verify: Area = (1/8) × (22/7) × 28 = (22 × 28)/(8 × 7) = (22 × 4)/8 = 11 cm² ✓."],
+    solutionSteps: ["[1 mark] Area = (θ/360) × πr² ⇒ 11 = (45/360) × (22/7) × r² ⇒ 11 = (1/8)(22/7)r² ⇒ r² = 11 × 8 × 7/22 = 28.", "[0.5 mark] r = √28 = 2√7 cm ≈ 5.29 cm.", "[1 mark] Arc length = (45/360) × 2π × 2√7 = (1/8) × 2 × (22/7) × 2√7 = (88√7)/(56) = (11√7)/7 cm ≈ 4.16 cm.", "[0.5 mark] Verify: Area = (1/8) × (22/7) × 28 = (22 × 28)/(8 × 7) = (22 × 4)/8 = 11 cm² ✓."],
     finalAnswer: "Design: radius r = 2√7 cm, angle 45°, arc length (11√7)/7 cm, area exactly 11 cm².",
     ncertRef: "Exemplar-style design task", isCompetencyBased: true,
     strategyHint: "Solve A = (θ/360)πr² for r once A and θ are fixed." },

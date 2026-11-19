@@ -77,46 +77,46 @@ export const STAT_NCERT: CanonicalQuestion[] = [
 
   { id: "STAT-N-NCERT-13-VSA-002", subject: "Maths", topicKey: "statistics", subtopic: "Cumulative Frequency", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Frequencies of five classes are 5, 3, 4, 3 and 3. Form the cumulative frequency (less-than type) values for these five classes.",
-    solutionSteps: ["Add running totals: 5, 5 + 3 = 8, 8 + 4 = 12, 12 + 3 = 15, 15 + 3 = 18.", "Cumulative frequencies: 5, 8, 12, 15, 18."],
+    solutionSteps: ["[1 mark] Add running totals: 5, 5 + 3 = 8, 8 + 4 = 12, 12 + 3 = 15, 15 + 3 = 18.", "[1 mark] Cumulative frequencies: 5, 8, 12, 15, 18."],
     finalAnswer: "Cumulative frequencies: 5, 8, 12, 15, 18.",
     ncertRef: "NCERT Section 14.4 (Table 14.13)", isCompetencyBased: false },
 
   // ===== Section C — Short Answer (3 marks) =====
   { id: "STAT-N-NCERT-13-SA-001", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the mean of the following frequency distribution: Class 0-2 has 1, 2-4 has 2, 4-6 has 1, 6-8 has 5, 8-10 has 6, 10-12 has 2, 12-14 has 3.",
-    solutionSteps: ["Class marks: 1, 3, 5, 7, 9, 11, 13. Frequencies: 1, 2, 1, 5, 6, 2, 3. Σf = 20.", "Σfᵢxᵢ = 1×1 + 2×3 + 1×5 + 5×7 + 6×9 + 2×11 + 3×13 = 1 + 6 + 5 + 35 + 54 + 22 + 39 = 162.", "Mean = 162/20 = 8.1."],
+    solutionSteps: ["[1 mark] Class marks: 1, 3, 5, 7, 9, 11, 13. Frequencies: 1, 2, 1, 5, 6, 2, 3. Σf = 20.", "[1 mark] Σfᵢxᵢ = 1×1 + 2×3 + 1×5 + 5×7 + 6×9 + 2×11 + 3×13 = 1 + 6 + 5 + 35 + 54 + 22 + 39 = 162.", "[1 mark] Mean = 162/20 = 8.1."],
     finalAnswer: "Mean = 8.1 plants per house.",
     ncertRef: "NCERT Ex 13.1 Q1", isCompetencyBased: true,
     strategyHint: "Direct method since class marks are small." },
 
   { id: "STAT-N-NCERT-13-SA-002", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the mean daily wage from: Daily wages (₹) 500-520 has 12 workers, 520-540 has 14, 540-560 has 8, 560-580 has 6, 580-600 has 10. (Use step-deviation, a = 550, h = 20.)",
-    solutionSteps: ["Class marks: 510, 530, 550, 570, 590. uᵢ = (xᵢ − 550)/20 = −2, −1, 0, 1, 2.", "Σfᵢ = 50. Σfᵢuᵢ = 12×(−2) + 14×(−1) + 8×0 + 6×1 + 10×2 = −24 − 14 + 0 + 6 + 20 = −12.", "Mean = a + h × (Σfu/Σf) = 550 + 20 × (−12/50) = 550 − 4.8 = ₹545.20."],
+    solutionSteps: ["[1 mark] Class marks: 510, 530, 550, 570, 590. uᵢ = (xᵢ − 550)/20 = −2, −1, 0, 1, 2.", "[1 mark] Σfᵢ = 50. Σfᵢuᵢ = 12×(−2) + 14×(−1) + 8×0 + 6×1 + 10×2 = −24 − 14 + 0 + 6 + 20 = −12.", "[1 mark] Mean = a + h × (Σfu/Σf) = 550 + 20 × (−12/50) = 550 − 4.8 = ₹545.20."],
     finalAnswer: "Mean daily wage = ₹545.20.",
     ncertRef: "NCERT Ex 13.1 Q2", isCompetencyBased: true },
 
   { id: "STAT-N-NCERT-13-SA-003", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the mode of: Family size 1-3 has 7 families, 3-5 has 8, 5-7 has 2, 7-9 has 2, 9-11 has 1.",
-    solutionSteps: ["Max frequency is 8 ⇒ modal class is 3-5. l = 3, h = 2, f₁ = 8, f₀ = 7, f₂ = 2.", "Mode = l + [(f₁ − f₀)/(2f₁ − f₀ − f₂)] × h = 3 + [(8 − 7)/(16 − 7 − 2)] × 2 = 3 + (1/7) × 2 = 3 + 2/7.", "Mode ≈ 3 + 0.286 = 3.286."],
+    solutionSteps: ["[1 mark] Max frequency is 8 ⇒ modal class is 3-5. l = 3, h = 2, f₁ = 8, f₀ = 7, f₂ = 2.", "[1 mark] Mode = l + [(f₁ − f₀)/(2f₁ − f₀ − f₂)] × h = 3 + [(8 − 7)/(16 − 7 − 2)] × 2 = 3 + (1/7) × 2 = 3 + 2/7.", "[1 mark] Mode ≈ 3 + 0.286 = 3.286."],
     finalAnswer: "Mode ≈ 3.286.",
     ncertRef: "NCERT Example 5", isCompetencyBased: true },
 
   { id: "STAT-N-NCERT-13-SA-004", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the mode of: Lifetime (hours) 0-20 has 10, 20-40 has 35, 40-60 has 52, 60-80 has 61, 80-100 has 38, 100-120 has 29.",
-    solutionSteps: ["Modal class is 60-80 (max freq = 61). l = 60, h = 20, f₁ = 61, f₀ = 52, f₂ = 38.", "Mode = 60 + [(61 − 52)/(122 − 52 − 38)] × 20 = 60 + (9/32) × 20 = 60 + 180/32.", "= 60 + 5.625 ≈ 65.625 hours."],
+    solutionSteps: ["[1 mark] Modal class is 60-80 (max freq = 61). l = 60, h = 20, f₁ = 61, f₀ = 52, f₂ = 38.", "[1 mark] Mode = 60 + [(61 − 52)/(122 − 52 − 38)] × 20 = 60 + (9/32) × 20 = 60 + 180/32.", "[1 mark] = 60 + 5.625 ≈ 65.625 hours."],
     finalAnswer: "Modal lifetime ≈ 65.625 hours.",
     ncertRef: "NCERT Ex 13.2 Q2", isCompetencyBased: true },
 
   { id: "STAT-N-NCERT-13-SA-005", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the median height of 51 girls from: <140 → 4, <145 → 11, <150 → 29, <155 → 40, <160 → 46, <165 → 51.",
-    solutionSteps: ["Convert to frequencies: classes below 140 → 4, 140-145 → 7, 145-150 → 18, 150-155 → 11, 155-160 → 6, 160-165 → 5. n = 51, n/2 = 25.5.", "Median class is 145-150 (cf 29 first crosses 25.5). l = 145, cf = 11, f = 18, h = 5.", "Median = 145 + [(25.5 − 11)/18] × 5 = 145 + (14.5 × 5)/18 = 145 + 72.5/18 ≈ 145 + 4.03 = 149.03 cm."],
+    solutionSteps: ["[1 mark] Convert to frequencies: classes below 140 → 4, 140-145 → 7, 145-150 → 18, 150-155 → 11, 155-160 → 6, 160-165 → 5. n = 51, n/2 = 25.5.", "[1 mark] Median class is 145-150 (cf 29 first crosses 25.5). l = 145, cf = 11, f = 18, h = 5.", "[1 mark] Median = 145 + [(25.5 − 11)/18] × 5 = 145 + (14.5 × 5)/18 = 145 + 72.5/18 ≈ 145 + 4.03 = 149.03 cm."],
     finalAnswer: "Median height = 149.03 cm.",
     ncertRef: "NCERT Example 7", isCompetencyBased: true,
     strategyHint: "Convert 'less-than' table to class frequencies before applying the median formula." },
 
   { id: "STAT-N-NCERT-13-SA-006", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "The mean of the following distribution is ₹18. Find the missing frequency f. Daily pocket allowance (₹) 11-13 → 7, 13-15 → 6, 15-17 → 9, 17-19 → 13, 19-21 → f, 21-23 → 5, 23-25 → 4.",
-    solutionSteps: ["Class marks: 12, 14, 16, 18, 20, 22, 24. Σfᵢxᵢ = 7×12 + 6×14 + 9×16 + 13×18 + 20f + 5×22 + 4×24 = 84 + 84 + 144 + 234 + 20f + 110 + 96 = 752 + 20f.", "Σfᵢ = 7 + 6 + 9 + 13 + f + 5 + 4 = 44 + f.", "Mean = (752 + 20f)/(44 + f) = 18 ⇒ 752 + 20f = 18(44 + f) = 792 + 18f.", "2f = 40 ⇒ f = 20."],
+    solutionSteps: ["[1 mark] Class marks: 12, 14, 16, 18, 20, 22, 24. Σfᵢxᵢ = 7×12 + 6×14 + 9×16 + 13×18 + 20f + 5×22 + 4×24 = 84 + 84 + 144 + 234 + 20f + 110 + 96 = 752 + 20f.", "[0.5 mark] Σfᵢ = 7 + 6 + 9 + 13 + f + 5 + 4 = 44 + f.", "[1 mark] Mean = (752 + 20f)/(44 + f) = 18 ⇒ 752 + 20f = 18(44 + f) = 792 + 18f.", "[0.5 mark] 2f = 40 ⇒ f = 20."],
     finalAnswer: "Missing frequency f = 20.",
     ncertRef: "NCERT Ex 13.1 Q3", isCompetencyBased: true },
 
@@ -137,14 +137,14 @@ export const STAT_NCERT: CanonicalQuestion[] = [
   // ===== Section E — Case-Based (4 marks) =====
   { id: "STAT-N-NCERT-13-CB-001", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A school's environment club surveys SO₂ concentration (in ppm) for 30 localities. Concentration of SO₂: 0.00-0.04 → 4, 0.04-0.08 → 9, 0.08-0.12 → 9, 0.12-0.16 → 2, 0.16-0.20 → 4, 0.20-0.24 → 2.\n(i) Find the class mark of the class 0.04-0.08.\n(ii) Find Σfᵢ and Σfᵢxᵢ.\n(iii) Find the mean SO₂ concentration.\n(iv) Which method did you use and why?",
-    solutionSteps: ["(i) Class mark = (0.04 + 0.08)/2 = 0.06.", "(ii) Class marks: 0.02, 0.06, 0.10, 0.14, 0.18, 0.22. Σfᵢ = 30. Σfᵢxᵢ = 4×0.02 + 9×0.06 + 9×0.10 + 2×0.14 + 4×0.18 + 2×0.22 = 0.08 + 0.54 + 0.90 + 0.28 + 0.72 + 0.44 = 2.96.", "(iii) Mean = 2.96/30 ≈ 0.099 ppm.", "(iv) Direct method — class marks are small, multiplication is easy and exact."],
+    solutionSteps: ["[1 mark] (i) Class mark = (0.04 + 0.08)/2 = 0.06.", "[1 mark] (ii) Class marks: 0.02, 0.06, 0.10, 0.14, 0.18, 0.22. Σfᵢ = 30. Σfᵢxᵢ = 4×0.02 + 9×0.06 + 9×0.10 + 2×0.14 + 4×0.18 + 2×0.22 = 0.08 + 0.54 + 0.90 + 0.28 + 0.72 + 0.44 = 2.96.", "[1 mark] (iii) Mean = 2.96/30 ≈ 0.099 ppm.", "[1 mark] (iv) Direct method — class marks are small, multiplication is easy and exact."],
     finalAnswer: "(i) 0.06; (ii) Σf = 30, Σfx = 2.96; (iii) Mean ≈ 0.099 ppm; (iv) Direct method.",
     ncertRef: "NCERT Ex 13.1 Q7", isCompetencyBased: true },
 
   // ===== Creating-level question =====
   { id: "STAT-N-NCERT-13-CRE-001", subject: "Maths", topicKey: "statistics", subtopic: "Mean of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Creating",
     questionText: "Design a grouped frequency distribution of 30 observations in five equal classes of width 10 starting at 0, such that the mean is exactly 25. Specify the frequencies and verify.",
-    solutionSteps: ["Classes 0-10, 10-20, 20-30, 30-40, 40-50; class marks 5, 15, 25, 35, 45.", "Let frequencies be f₁, f₂, f₃, f₄, f₅ with Σf = 30 and Σfx = 25 × 30 = 750.", "Try f₁ = 3, f₂ = 6, f₃ = 12, f₄ = 6, f₅ = 3 (symmetric around mark 25). Σf = 30. ✓", "Σfx = 3×5 + 6×15 + 12×25 + 6×35 + 3×45 = 15 + 90 + 300 + 210 + 135 = 750. Mean = 750/30 = 25. ✓"],
+    solutionSteps: ["[0.5 mark] Classes 0-10, 10-20, 20-30, 30-40, 40-50; class marks 5, 15, 25, 35, 45.", "[1 mark] Let frequencies be f₁, f₂, f₃, f₄, f₅ with Σf = 30 and Σfx = 25 × 30 = 750.", "[1 mark] Try f₁ = 3, f₂ = 6, f₃ = 12, f₄ = 6, f₅ = 3 (symmetric around mark 25). Σf = 30. ✓", "[0.5 mark] Σfx = 3×5 + 6×15 + 12×25 + 6×35 + 3×45 = 15 + 90 + 300 + 210 + 135 = 750. Mean = 750/30 = 25. ✓"],
     finalAnswer: "Frequencies 3, 6, 12, 6, 3 give mean 25 exactly.",
     ncertRef: "NCERT-style design task", isCompetencyBased: true,
     strategyHint: "A symmetric design around the target class mark naturally gives the target mean." },

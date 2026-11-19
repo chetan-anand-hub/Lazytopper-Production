@@ -27,14 +27,9 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "The car is approximately 34.6 m from the foot of the building.",
     "explanation": "",
     "solutionSteps": [
-      "Let the height of the building be AB = 20 m and the car be at point C on the road, with B as the foot of the building.",
-      "The angle of depression from A to C is 30°, so angle of elevation from C to A is also 30° (alternate interior angles).",
-      "In right triangle △ABC, AB is vertical (20 m) and BC is the horizontal distance to be found.",
-      "Use tan of the angle of elevation: tan 30° = AB / BC.",
-      "Substitute values: tan 30° = 1/√3 and AB = 20, so 1/√3 = 20 / BC.",
-      "Rearrange to get BC = 20√3.",
-      "Use √3 ≈ 1.732 to get BC ≈ 20 × 1.732 = 34.64 m.",
-      "Therefore, the car is approximately 34.6 m from the foot of the building."
+      "[1 mark] Let the height of the building be AB = 20 m and the car be at point C on the road, with B as the foot of the building. The angle of depression from A to C is 30°, so angle of elevation from C to A is also 30° (alternate interior angles). In right triangle △ABC, AB is vertical (20 m) and BC is the horizontal distance to be found.",
+      "[1 mark] Use tan of the angle of elevation: tan 30° = AB / BC. Substitute values: tan 30° = 1/√3 and AB = 20, so 1/√3 = 20 / BC. Rearrange to get BC = 20√3.",
+      "[1 mark] Use √3 ≈ 1.732 to get BC ≈ 20 × 1.732 = 34.64 m. Therefore, the car is approximately 34.6 m from the foot of the building."
     ],
     "finalAnswer": "The car is approximately 34.6 m from the foot of the building.",
     "strategyHint": "",
@@ -56,13 +51,10 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "Area of the sector = 38.5 cm²",
     "explanation": "",
     "solutionSteps": [
-      "Recall the formula for the area of a sector with angle θ (in degrees): Area = (θ/360°) × πr².",
-      "Here radius r = 7 cm and θ = 90°.",
-      "Substitute: Area = (90/360) × (22/7) × 7².",
-      "Simplify: 90/360 = 1/4, and 7² = 49.",
-      "So Area = (1/4) × (22/7) × 49.",
-      "Compute (22/7) × 49 = 22 × 7 = 154.",
-      "Hence Area = (1/4) × 154 = 38.5 cm²."
+      "[0.5 mark] Recall the formula for the area of a sector with angle θ (in degrees): Area = (θ/360°) × πr².",
+      "[0.5 mark] Here radius r = 7 cm and θ = 90°. Substitute: Area = (90/360) × (22/7) × 7².",
+      "[1 mark] Simplify: 90/360 = 1/4, and 7² = 49. So Area = (1/4) × (22/7) × 49. Compute (22/7) × 49 = 22 × 7 = 154.",
+      "[1 mark] Hence Area = (1/4) × 154 = 38.5 cm²."
     ],
     "finalAnswer": "Area of the sector = 38.5 cm²",
     "strategyHint": "",
@@ -159,13 +151,11 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "cos θ = 4/5 and tan θ = 3/4",
     "explanation": "",
     "solutionSteps": [
-      "Given sin θ = 3/5, interpret this as opposite side / hypotenuse = 3/5.",
-      "Consider a right-angled triangle with perpendicular = 3k and hypotenuse = 5k for some k.",
-      "Use Pythagoras theorem to find the base: base² = hyp² − perp² = (5k)² − (3k)² = 25k² − 9k² = 16k².",
-      "So base = 4k, taking the positive value as sides are lengths.",
-      "Now cos θ = base / hypotenuse = 4k / 5k = 4/5.",
-      "tan θ = perpendicular / base = 3k / 4k = 3/4.",
-      "Thus, cos θ = 4/5 and tan θ = 3/4."
+      "[0.5 mark] Given sin θ = 3/5, interpret this as opposite side / hypotenuse = 3/5. Consider a right-angled triangle with perpendicular = 3k and hypotenuse = 5k for some k.",
+      "[1 mark] Use Pythagoras theorem to find the base: base² = hyp² − perp² = (5k)² − (3k)² = 25k² − 9k² = 16k². So base = 4k, taking the positive value as sides are lengths.",
+      "[0.5 mark] Now cos θ = base / hypotenuse = 4k / 5k = 4/5.",
+      "[0.5 mark] tan θ = perpendicular / base = 3k / 4k = 3/4.",
+      "[0.5 mark] Thus, cos θ = 4/5 and tan θ = 3/4."
     ],
     "finalAnswer": "cos θ = 4/5 and tan θ = 3/4",
     "strategyHint": "",
@@ -211,11 +201,11 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "(i) P(king of red colour) = 1/26; (ii) P(not a face card) = 10/13",
     "explanation": "",
     "solutionSteps": [
-      "Recall that probability of an event = (number of favourable outcomes) / (total number of outcomes).",
-      "Total number of cards in a deck is 52.",
-      "(i) There are 2 red kings (king of hearts and king of diamonds). So P(king of red colour) = 2/52 = 1/26.",
-      "(ii) There are 12 face cards in a deck (J, Q, K of each suit). So non-face cards = 52 − 12 = 40.",
-      "Therefore P(not a face card) = 40/52 = 10/13."
+      "[0.5 mark] Recall that probability of an event = (number of favourable outcomes) / (total number of outcomes).",
+      "[0.5 mark] Total number of cards in a deck is 52.",
+      "[0.5 mark] (i) There are 2 red kings (king of hearts and king of diamonds). So P(king of red colour) = 2/52 = 1/26.",
+      "[1 mark] (ii) There are 12 face cards in a deck (J, Q, K of each suit). So non-face cards = 52 − 12 = 40.",
+      "[0.5 mark] Therefore P(not a face card) = 40/52 = 10/13."
     ],
     "finalAnswer": "(i) P(king of red colour) = 1/26; (ii) P(not a face card) = 10/13",
     "strategyHint": "",
@@ -318,13 +308,11 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "The volume of the tank is 385 m³.",
     "explanation": "",
     "solutionSteps": [
-      "Write the formula for the volume of a cylinder: V = πr²h.",
-      "Here radius r = 3.5 m and height h = 10 m and π = 22/7.",
-      "Substitute: V = (22/7) × (3.5)² × 10.",
-      "Compute (3.5)² = 12.25 and note 3.5 = 7/2, so (7/2)² = 49/4.",
-      "So V = (22/7) × (49/4) × 10.",
-      "Simplify: (22/7) × 49 = 22 × 7 = 154, so V = 154 × 10 / 4 = 1540 / 4 = 385.",
-      "Therefore, the volume of the tank is 385 m³."
+      "[0.5 mark] Write the formula for the volume of a cylinder: V = πr²h. Here radius r = 3.5 m and height h = 10 m and π = 22/7.",
+      "[0.5 mark] Substitute: V = (22/7) × (3.5)² × 10.",
+      "[1 mark] Compute (3.5)² = 12.25 and note 3.5 = 7/2, so (7/2)² = 49/4. So V = (22/7) × (49/4) × 10.",
+      "[0.5 mark] Simplify: (22/7) × 49 = 22 × 7 = 154, so V = 154 × 10 / 4 = 1540 / 4 = 385.",
+      "[0.5 mark] Therefore, the volume of the tank is 385 m³."
     ],
     "finalAnswer": "The volume of the tank is 385 m³.",
     "strategyHint": "",

@@ -48,7 +48,7 @@ export const SURFACE_AREAS_AND_VOLUMES_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-SAV-005", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "CSA Ratio — Cylinder and Cone", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "A right circular cylinder and a cone have equal bases and equal heights. If their curved surface areas are in the ratio 8 : 5, then find the ratio between the radius of their bases to their heights.",
     answer: "r : h = 3 : 4.",
-    solutionSteps: ["CSA(cylinder)/CSA(cone) = 2πrh / πrl = 2h/l = 8/5 ⟹ h/l = 4/5.", "l = √(h^2 + r^2). h/√(h^2 + r^2) = 4/5 ⟹ h^2 / (h^2 + r^2) = 16/25 ⟹ r^2/h^2 = 9/16 ⟹ r/h = 3/4."],
+    solutionSteps: ["[1 mark] CSA(cylinder)/CSA(cone) = 2πrh / πrl = 2h/l = 8/5", "[0.5 mark] ⟹ h/l = 4/5.", "[0.5 mark] l = √(h^2 + r^2). h/√(h^2 + r^2) = 4/5", "[1 mark] ⟹ h^2 / (h^2 + r^2) = 16/25 ⟹ r^2/h^2 = 9/16 ⟹ r/h = 3/4."],
     finalAnswer: "r : h = 3 : 4.",
     ncertRef: "APQ PQ2 Q30", isCompetencyBased: true },
 
@@ -78,7 +78,7 @@ export const SURFACE_AREAS_AND_VOLUMES_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-SAV-008", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Volume Estimation — Ice-cream Servings", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "A restaurant stores ice-cream in a cuboidal box with a dispenser for filling cones. Dimensions: box 30 × 40 × 115 cm; cone r = 3.5 cm, h = 12 cm; hemispherical scoop on top has same r = 3.5 cm. How many desserts can be served? (Use π = 22/7.)",
     answer: "≈ 565 desserts.",
-    solutionSteps: ["Volume of box = 30 × 40 × 115 = 1,38,000 cm^3.", "Volume of cone = (1/3)·π·r^2·h = (1/3)·(22/7)·12.25·12 = 154 cm^3.", "Volume of hemisphere = (2/3)·π·r^3 = (2/3)·(22/7)·42.875 ≈ 89.83 cm^3.", "Per serving = 154 + 89.83 ≈ 243.83 cm^3 ≈ 244 cm^3.", "Servings = 1,38,000 / 244 ≈ 565.57 ⟹ 565 desserts."],
+    solutionSteps: ["[1 mark] Volume of box = 30 × 40 × 115 = 1,38,000 cm^3.", "[1 mark] Volume of cone = (1/3)·π·r^2·h = (1/3)·(22/7)·12.25·12 = 154 cm^3.", "[1 mark] Volume of hemisphere = (2/3)·π·r^3 = (2/3)·(22/7)·42.875 ≈ 89.83 cm^3.", "[1 mark] Per serving = 154 + 89.83 ≈ 243.83 cm^3 ≈ 244 cm^3.", "[1 mark] Servings = 1,38,000 / 244 ≈ 565.57 ⟹ 565 desserts."],
     finalAnswer: "≈ 565 desserts.",
     ncertRef: "APQ PQ_2022 Q33 (first variant)", isCompetencyBased: true,
  },
