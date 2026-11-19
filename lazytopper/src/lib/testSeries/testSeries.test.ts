@@ -251,3 +251,21 @@ describe("TS-PAGE-2 — seriesMockRounds", () => {
     expect(sched.find((r) => r.id === "round2")?.body).toContain(`${rounds[1].from}–${rounds[1].to}`);
   });
 });
+
+describe("TS-MORE-1 — seriesChapterTestOf is bounded by the offered papers per chapter", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+  it("offers papers 1..5, and under the kill switch only paper 1 (papers 2..5 are null)", async () => {
+    const all = await import("./testSeries");
+    expect(all.seriesChapterTestOf("real-numbers", 5)?.code).toBe("CT-M01-5");
+    expect(all.seriesChapterTestOf("real-numbers", 6)).toBeNull();
+    expect(all.seriesChapterTestOf("real-numbers", 0)).toBeNull();
+    vi.stubEnv("VITE_TS_MORE_DISABLED", "1");
+    vi.resetModules();
+    const off = await import("./testSeries");
+    expect(off.seriesChapterTestOf("real-numbers", 1)?.code).toBe("CT-M01");
+    for (const k of [2, 3, 5]) expect(off.seriesChapterTestOf("real-numbers", k), `paper ${k}`).toBeNull();
+  });
+});

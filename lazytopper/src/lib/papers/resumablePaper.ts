@@ -124,6 +124,11 @@ export function hasResumableFullMock(uid: string | null | undefined, subjectPara
 export function isResumingSavedPaper(pathname: string, uid: string | null | undefined, search = ""): boolean {
   const parts = paperRouteKey(pathname).split("/").filter(Boolean);
   if (parts[0] === "chapter-test" && parts.length >= 4) return hasResumableChapterTest(pathname, search);
-  if (parts[0] === "full-mock" && parts.length >= 3) return hasResumableFullMock(uid, parts[2], search);
+  if (parts[0] === "full-mock" && parts.length >= 3) {
+    // TS-MORE-1: the daily-cap check keeps TODAY's rule for full mocks: any saved sitting of this subject is a resume (a free student at
+    // the cap is let through to their saved paper, whichever paper number the URL names). `search` is deliberately not passed;
+    // hasResumableFullMock(uid, subject, search) is the per-paper match, for deciding WHICH sitting belongs to a paper.
+    return hasResumableFullMock(uid, parts[2]);
+  }
   return false;
 }

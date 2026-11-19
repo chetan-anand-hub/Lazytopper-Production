@@ -191,13 +191,13 @@ export function seriesTotals(): SeriesTotals {
   };
 }
 
-/** "26 chapter tests + 40 full-length tests" — counts from code. */
+/** "130 chapter tests + 50 full-length tests" — counts from code (66 = 26 + 40 under the VITE_TS_MORE_DISABLED kill switch). */
 export function seriesContentsLine(t: SeriesTotals = seriesTotals()): string {
   return `${t.chapterTests} chapter tests + ${t.fullMocks} full-length tests`;
 }
 
 /**
- * TS-PACK-1 — the Test Series Pack's one line (the /packs row, its pop-up): "26 chapter tests + 40 full-length tests, Maths + Science.
+ * TS-PACK-1 — the Test Series Pack's one line (the /packs row, its pop-up): "130 chapter tests + 50 full-length tests, Maths + Science.
  * Your written answers (Sections B to E) checked step by step, twice per paper, till your boards." Counts from code.
  */
 export function testSeriesPackLine(t: SeriesTotals = seriesTotals()): string {

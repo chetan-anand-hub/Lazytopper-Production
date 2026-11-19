@@ -544,9 +544,14 @@ export default function ChapterTestPage() {
     };
   }, [restoredPaper, bank.ready, draw]);
   const timeLimitSeconds = useMemo(() => Math.max(15, Math.round((paper?.totalMarks ?? 40) * 1.2)) * 60, [paper]);
-  // TS-MORE-1: chapter papers 2..5 share a chapter's attempt code with paper 1 (the code counts the chapter's sittings), so a series paper k > 1
-  // saves under its own key: paper 1's in-progress sitting (key unchanged) is never offered on, or overwritten by, paper 3.
-  const progressKey = nomen ? `lazytopper.ct.progress.${nomen.code}${seriesTest && seriesTest.paper > 1 ? `.p${seriesTest.paper}` : ""}` : null;
+  // TS-MORE-1: a series paper 2..5 saves under its STABLE paper code (ts.CT-M01-3), never the chapter's attempt counter: that counter
+  // moves on whenever any other sitting is saved, which would strand (and the cleanup below would delete) a paper in progress. Paper 1
+  // and non-series sittings keep exactly today's key (the attempt code), so sittings already in progress still resume.
+  const progressKey = nomen
+    ? seriesTest && seriesTest.paper > 1
+      ? `lazytopper.ct.progress.ts.${seriesTest.code}`
+      : `lazytopper.ct.progress.${nomen.code}`
+    : null;
 
   // Autosave restore (honest "✓ saved") — CT-RELOAD-1. A reload mid-test used to land on the
   // setup screen with a NEW draw and then restore the saved answers (keyed by question NUMBER)
@@ -563,7 +568,9 @@ export default function ChapterTestPage() {
       // number moved on since) can never be resumed here; drop it, so the daily paper gate
       // never treats this visit as a resume of a paper this page will not offer.
       const route = paperRouteKey(location.pathname, location.search);
-      for (let i = window.sessionStorage.length - 1; i >= 0; i -= 1) {
+      // A series paper 2..5 has a stable key of its own: there is no moved-on code to clean up, and nothing here may delete a sitting.
+      const stableKey = !!seriesTest && seriesTest.paper > 1;
+      for (let i = stableKey ? -1 : window.sessionStorage.length - 1; i >= 0; i -= 1) {
         const key = window.sessionStorage.key(i);
         if (!key || key === progressKey || !key.startsWith(CT_PROGRESS_PREFIX)) continue;
         try {
@@ -600,7 +607,7 @@ export default function ChapterTestPage() {
     } catch {
       /* best-effort */
     }
-  }, [progressKey, location.pathname, location.search]);
+  }, [progressKey, location.pathname, location.search, seriesTest?.code]);
 
   // Autosave write while taking — the paper rides along so a reload restores THIS paper.
   useEffect(() => {
