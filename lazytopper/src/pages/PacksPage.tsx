@@ -13,7 +13,8 @@ import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, BUNDLE_QUESTIONS_CLAIM, CBQ
 import { seriesContentsLine, testSeriesPackLine } from "../lib/testSeries/testSeries";
 import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
 import { usePaidPremium } from "../lib/packs/usePaidPremium";
-import { chaptersOfSubject, isTestSeriesPackOffered, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
+import { TsClockSlot } from "../components/packs/TestSeriesFoundingClause";
+import { chaptersOfSubject, isTestSeriesPackOffered, testSeriesFoundingClause, testSeriesPriceLine, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
 import PackSampleLink, { PackSampleChoice, SampleBuyNext } from "../components/packs/PackSampleLink";
 import SubjectSwitch from "../components/packs/SubjectSwitch";
 import PackTileBuy, { sampleBuyFor } from "../components/packs/PackTileBuy";
@@ -335,7 +336,7 @@ function Hero({ api }: { api: PacksShopApi }) {
  * once) and replayed on the app's first button in the same box: the Buy of the pack and subject the visitor sees. Packs on: the
  * shop's own Buy (children). Same height both ways (button + GST line), so nothing moves when the app takes over.
  */
-function BuyBox({ twin, api, neutral, gstSku, onNeutral, children }: { twin: string; api: PacksShopApi; neutral: string; gstSku: PackSku; onNeutral: () => void; children: ReactNode }) {
+function BuyBox({ twin, api, neutral, gstSku, onNeutral, children }: { twin: string; api: PacksShopApi; neutral: ReactNode; gstSku: PackSku; onNeutral: () => void; children: ReactNode }) {
   return (
     <div className="lt-pk-buy" data-lt-twin={twin} data-testid={`${twin}-box`}>
       {api.buyEnabled ? (
@@ -345,7 +346,11 @@ function BuyBox({ twin, api, neutral, gstSku, onNeutral, children }: { twin: str
           <button type="button" className="lt-ptb__btn" onClick={onNeutral} aria-haspopup="dialog" data-testid={`${twin}-neutral`}>
             {neutral}
           </button>
-          {packGstBreakdown(gstSku) && <span className="lt-ptb__gst">{packGstBreakdown(gstSku)}</span>}
+          {packGstBreakdown(gstSku) && (
+            <span className="lt-ptb__gst">
+              {gstSku === "test_series" ? <TsClockSlot variant="line">{packGstBreakdown(gstSku)}</TsClockSlot> : packGstBreakdown(gstSku)}
+            </span>
+          )}
         </div>
       )}
     </div>
@@ -385,21 +390,33 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
             <details className="lt-pk-row__d">
               <summary className="lt-pk-row__sum">
                 <span className="lt-pk-row__name">{TEST_SERIES_NAME}</span>
-                <span className="lt-pk-row__price">{`${packPriceLabel("test_series")} · till your boards`}</span>
+                <span className="lt-pk-row__price">
+                  <TsClockSlot variant="tag">{`${packPriceLabel("test_series")} · till your boards`}</TsClockSlot>
+                </span>
               </summary>
               <div className="lt-pk-row__body">
                 <p className="lt-pk-row__line">{testSeriesPackLine()}</p>
                 <p className="lt-pt__contents" data-testid="packs-contents-test-series">{TEST_SERIES_CONTENTS}</p>
                 <p className="lt-pk-row__excl">{TEST_SERIES_EXCLUDES}</p>
-                {gst && <p className="lt-pk-row__gst" data-testid="tile-gst-test_series">{gst}</p>}
+                {gst && (
+                  <p className="lt-pk-row__gst" data-testid="tile-gst-test_series">
+                    <TsClockSlot variant="line">{gst}</TsClockSlot>
+                  </p>
+                )}
               </div>
             </details>
+            {/* TS-PRICE-2: the founding line on its own wrapping line (reserved block slot, written after mount, stripped from the capture). */}
+            {!paidPass && (
+              <p className="lt-pk-ts__found" data-testid="packs-ts-founding">
+                <TsClockSlot variant="line">{testSeriesFoundingClause() ? testSeriesPriceLine() : null}</TsClockSlot>
+              </p>
+            )}
             {paidPass ? (
               <Link className="lt-pk-row__incl" to="/test-series" data-testid="packs-test-series-included">
                 {TEST_SERIES_INCLUDED_LINE} &rarr;
               </Link>
             ) : (
-            <BuyBox twin="pk-buy-test-series" api={api} neutral={`Test Series · ${packPayLabel("test_series")}`} gstSku="test_series" onNeutral={() => api.openPack("test_series")}>
+            <BuyBox twin="pk-buy-test-series" api={api} neutral={<>Test Series · <TsClockSlot variant="amt">{packPayLabel("test_series")}</TsClockSlot></>} gstSku="test_series" onNeutral={() => api.openPack("test_series")}>
               <PackTileBuy sku="test_series" api={api} />
             </BuyBox>
             )}

@@ -1464,3 +1464,54 @@ test('RECEIPT · a parent-paid PACK: ONE receipt to the parent and the child acc
   assert.deepEqual(sent.map((x) => x.to[0]).sort(), ['kid@example.com', 'parent@example.com']);
   assert.match(sent[0].text, /My packs to download/);
 });
+
+test('TS-PRICE-2 · a parent link for the Test Series carries the price AT THE SERVER CLOCK: 999 before 00:00 IST 1 Dec 2026, 1,499 from it, and the order is charged that amount', async (t) => {
+  const CUT = Date.parse('2026-12-01T00:00:00+05:30');
+  const srv = await startRoutes({ env: ENV_PACKS, clock: { t: CUT - 1 } });
+  t.after(srv.close);
+  const early = await mintPack(srv, { sku: 'test_series' });
+  assert.equal(early.status, 200, early.text);
+  assert.deepEqual(early.json.pack, { sku: 'test_series', target: 'all', priceInr: 999, totalInr: 1179, gstInr: 180 });
+  const o1 = await request(srv.port, PARENT_ORDER_PATH, { body: { token: early.json.token, product: 'pack' } });
+  assert.equal(o1.status, 200, o1.text);
+  assert.equal(o1.json.amountPaise, 117900);
+  // the SAME link opened after the cut-off is re-priced by the server clock (the price a parent sees = what is charged)
+  srv.clock.t = CUT;
+  const o2 = await request(srv.port, PARENT_ORDER_PATH, { body: { token: early.json.token, product: 'pack' } });
+  assert.equal(o2.status, 200, o2.text);
+  assert.equal(o2.json.amountPaise, 176900);
+  const late = await mintPack(srv, { sku: 'test_series' });
+  assert.deepEqual(late.json.pack, { sku: 'test_series', target: 'all', priceInr: 1499, totalInr: 1769, gstInr: 270 });
+});
+
+test('TS-PRICE-2 · parent link: a 999 founding Test Series order only AUTHORIZED 24 h+ after the cut-off is not captured (order_expired); +10 s is granted', async (t) => {
+  const CUT = Date.parse('2026-12-01T00:00:00+05:30');
+  const srv = await startRoutes({ env: ENV_PACKS, clock: { t: CUT - 5000 } });
+  t.after(srv.close);
+  const m = await mintPack(srv, { sku: 'test_series' });
+  const o = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.json.token, product: 'pack' } });
+  assert.equal(o.json.amountPaise, 117900);
+  const p = srv.rzp.pay(o.json.orderId, { id: 'pay_ts_auth', status: 'authorized' });
+  srv.clock.t = CUT + 25 * 3600 * 1000;
+  const r = await parentVerify(srv, m.json.token, o.json.orderId, p.id);
+  assert.equal(r.status, 400, r.text);
+  assert.equal(r.json.reason, 'order_expired');
+  assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0);
+  srv.clock.t = CUT + 10000;
+  const ok = await parentVerify(srv, m.json.token, o.json.orderId, p.id);
+  assert.equal(ok.status, 200, ok.text);
+});
+
+test('TS-PRICE-2 · parent link: a founding-member child gets no exemption for a stale 999 Test Series order (order_expired, not captured)', async (t) => {
+  const CUT = Date.parse('2026-12-01T00:00:00+05:30');
+  const srv = await startRoutes({ env: ENV_PACKS, db: memoryFirestore({ 'subscriptions/child1': { foundingMember: true } }), clock: { t: CUT - 5000 } });
+  t.after(srv.close);
+  const m = await mintPack(srv, { sku: 'test_series' });
+  const o = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.json.token, product: 'pack' } });
+  const p = srv.rzp.pay(o.json.orderId, { id: 'pay_fm_ts', status: 'authorized' });
+  srv.clock.t = CUT + 25 * 3600 * 1000;
+  const r = await parentVerify(srv, m.json.token, o.json.orderId, p.id);
+  assert.equal(r.status, 400, r.text);
+  assert.equal(r.json.reason, 'order_expired');
+  assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0);
+});

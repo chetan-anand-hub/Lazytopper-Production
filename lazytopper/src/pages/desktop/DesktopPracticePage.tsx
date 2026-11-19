@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MISTAKE_TYPE_LABEL, STORED_MISTAKE_TYPES, isHabitOnlyEntry } from "../../lib/mistakeDisplay";
 import type { TypeMarks } from "../../services/meHomeSummary";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
@@ -32,6 +32,7 @@ import {
 } from "../../services/mistakeLogService";
 import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqChapterPicker";
 import { ChapterTestPicker, CT_HUB_PARAM } from "../../components/practice/ChapterTestPicker";
+import { HUB_CARD_SHORT, chooserRequested, chooserTabFromParams, hubCardLine, hubTsDisabled } from "../../components/testSeries/hubTsFlag";
 import StartHereCardBase from "../../components/startHere/StartHereCard";
 import PracticeHubSegRowBase from "../../components/practice/PracticeHubSegRow";
 import PackPromoBase from "../../components/packs/PackPromoLazy";
@@ -1633,6 +1634,11 @@ const MODE_CHIPS_WORKSHEET = ["Printable", "Sectioned"];
 const MODE_CHIPS_HPQ = ["Chapter-wise", "Board-pattern"];
 const MODE_CHIPS_FULL = ["3 hours", "80 marks"];
 
+// HUB-TS-1 — the Test Series chooser is its own lazy chunk: nothing of it loads until a tap / hover / `?ct=1` arrival.
+const loadSeriesChooser = () => import("../../components/testSeries/SeriesChooser");
+const SeriesChooser = lazy(loadSeriesChooser);
+const HUB_TS_LINE = hubCardLine();
+
 // SPEED-HUB-3 — the page's static heading (one module-level element, so React skips it on every
 // re-render) and the CBQ / Chapter Test entry pair (memoised): opening a picker, or any other tap,
 // no longer re-renders them. Markup unchanged.
@@ -1668,7 +1674,7 @@ const HUB_INTRO = (
   </div>
 );
 
-function HubEntryPairImpl({ onOpenCbq, onOpenCt }: { onOpenCbq: () => void; onOpenCt: () => void }) {
+function HubEntryPairImpl({ onOpenCbq, onOpenCt, tsOn }: { onOpenCbq: () => void; onOpenCt: () => void; tsOn: boolean }) {
   return (
     <div className="lt-entry-pair">
       <button
@@ -1696,6 +1702,30 @@ function HubEntryPairImpl({ onOpenCbq, onOpenCt }: { onOpenCbq: () => void; onOp
           <IconArrowRight size={16} />
         </span>
       </button>
+      {tsOn ? (
+        <button
+          type="button"
+          className="lt-cbq-card lt-ct-card lt-ts-card"
+          aria-haspopup="dialog"
+          onClick={onOpenCt}
+          onPointerEnter={prefetchSeriesChooser}
+          onFocus={prefetchSeriesChooser}
+          onTouchStart={prefetchSeriesChooser}
+        >
+          <span className="lt-cbq-spine" aria-hidden />
+          <span className="lt-cbq-icon" aria-hidden>
+            <IconTimer size={20} />
+          </span>
+          <span className="lt-cbq-text">
+            <span className="lt-cbq-title">Test Series</span>
+            <span className="lt-cbq-line">{HUB_TS_LINE}</span>
+            <span className="lt-entry-short">{HUB_CARD_SHORT}</span>
+          </span>
+          <span className="lt-cbq-go" aria-hidden>
+            <IconArrowRight size={16} />
+          </span>
+        </button>
+      ) : (
       <button
         type="button"
         className="lt-cbq-card lt-ct-card"
@@ -1715,9 +1745,13 @@ function HubEntryPairImpl({ onOpenCbq, onOpenCt }: { onOpenCbq: () => void; onOp
           <IconArrowRight size={16} />
         </span>
       </button>
+      )}
     </div>
   );
 }
+const prefetchSeriesChooser = () => {
+  void loadSeriesChooser();
+};
 const HubEntryPair = memo(HubEntryPairImpl);
 
 const RETURN_TO = "/practice-hub";
@@ -1782,9 +1816,14 @@ export default function DesktopPracticePage() {
   // CBQ-FREE-FIRST-1: the ad landing for a signed-out visitor (while auth loads they look signed out, so the order is already right).
   const cbqFreeFirst = cbqArrival && !signedInStudent;
   // `?cbq=1` (the ad landing) wins over `?ct=1`: never two dialogs stacked.
-  const [ctPickerOpen, setCtPickerOpen] = useState(
-    () => params.get(CT_HUB_PARAM) === "1" && params.get(CBQ_HUB_PARAM) !== "1",
+  // HUB-TS-1: with the Test Series card on, `?ct=1` (and `?ts=1|chapter|full`) open the Test Series chooser instead of the old picker.
+  const tsOn = !hubTsDisabled();
+  const [ctPickerOpen, setCtPickerOpen] = useState(() =>
+    tsOn
+      ? chooserRequested(params) && params.get(CBQ_HUB_PARAM) !== "1"
+      : params.get(CT_HUB_PARAM) === "1" && params.get(CBQ_HUB_PARAM) !== "1",
   );
+  const [tsArrivalTab] = useState(() => chooserTabFromParams(params));
 
   // Map the legacy subject string from useSubjectContext onto the
   // L2 DesktopSubject union. Default to "Maths" when uncertain — this only
@@ -1890,8 +1929,9 @@ export default function DesktopPracticePage() {
   const handleModeScroll = () => {
     const el = modeScrollRef.current;
     if (!el || el.scrollWidth <= el.clientWidth) return;
-    const perCard = el.scrollWidth / 4;
-    setModeIndex(Math.max(0, Math.min(3, Math.round(el.scrollLeft / perCard))));
+    const cards = tsOn ? 3 : 4;
+    const perCard = el.scrollWidth / cards;
+    setModeIndex(Math.max(0, Math.min(cards - 1, Math.round(el.scrollLeft / perCard))));
   };
 
   // PR-C2.1 legacy in-page Quick Practice panel state. K2G routes the primary
@@ -2435,12 +2475,28 @@ export default function DesktopPracticePage() {
             the scope card so it is in view without scrolling at 390px and on desktop.
             CT-ENTRY-1 — the Chapter Test entry sits beside it: two columns from 1024px,
             two compact tiles in one row below that (icon, title, "Pick a chapter"). */}
-        <HubEntryPair onOpenCbq={openCbqPicker} onOpenCt={openCtPicker} />
+        <HubEntryPair onOpenCbq={openCbqPicker} onOpenCt={openCtPicker} tsOn={tsOn} />
         {/* AD-LANDING-OFFER-1 - signed-out arrivals that are NOT on the ?cbq=1 ad landing keep the offer right under the entry pair
             (the ad landing renders it above, directly below the free button: CBQ-FREE-FIRST-1). */}
         {!isSignedIn && !cbqFreeFirst ? <LandingOffer variant="practice-cbq" /> : null}
         <CbqChapterPicker open={cbqPickerOpen} onClose={closeCbqPicker} />
-        <ChapterTestPicker open={ctPickerOpen} onClose={closeCtPicker} />
+        {tsOn ? (
+          ctPickerOpen ? (
+            <Suspense fallback={null}>
+              <SeriesChooser
+                open
+                onClose={closeCtPicker}
+                initialTab={tsArrivalTab}
+                initialSubject={scope.subject}
+                returnTo={returnTo}
+                grade={grade}
+                navigate={navigateTo}
+              />
+            </Suspense>
+          ) : null
+        ) : (
+          <ChapterTestPicker open={ctPickerOpen} onClose={closeCtPicker} />
+        )}
 
         {topicHubFocusContext ? (
           <section
@@ -2503,7 +2559,7 @@ export default function DesktopPracticePage() {
             <section>
               <StepHeader n={2} title="How to practise" />
               <div
-                className="lt-mode-grid"
+                className={tsOn ? "lt-mode-grid lt-mode-grid--3" : "lt-mode-grid"}
                 ref={modeScrollRef}
                 onScroll={handleModeScroll}
               >
@@ -2541,20 +2597,22 @@ export default function DesktopPracticePage() {
                   to={buildPredictedPath()}
                   onActivate={navigateTo}
                 />
-                <ModeCard
-                  accent="full"
-                  icon={MODE_ICON_FULL}
-                  title="Full Test"
-                  desc="3-hour board paper · 80 marks."
-                  chips={MODE_CHIPS_FULL}
-                  cta="Open full test"
-                  to={buildFullTestPath()}
-                  onActivate={navigateTo}
-                />
+                {tsOn ? null : (
+                  <ModeCard
+                    accent="full"
+                    icon={MODE_ICON_FULL}
+                    title="Full Test"
+                    desc="3-hour board paper · 80 marks."
+                    chips={MODE_CHIPS_FULL}
+                    cta="Open full test"
+                    to={buildFullTestPath()}
+                    onActivate={navigateTo}
+                  />
+                )}
               </div>
               {/* Mobile carousel page dots — desktop renders a 2×2 grid. */}
               <div className="lt-mode-dots" aria-hidden>
-                {[0, 1, 2, 3].map((i) => (
+                {(tsOn ? [0, 1, 2] : [0, 1, 2, 3]).map((i) => (
                   <span
                     key={i}
                     style={{
@@ -3422,7 +3480,7 @@ export default function DesktopPracticePage() {
             }
             .lt-mode-grid > .lt-mode-card { flex: initial; }
             /* Dots belong to the carousel only. */
-            .lt-mode-dots { display: none; }
+            .lt-mode-dots { display: none; }${tsOn ? "\n            .lt-mode-grid--3 > .lt-mode-card:last-child { grid-column: 1 / -1; }" : ""}
           }
           @media (max-width: 767px) {
             /* The step-header aside is redundant beside the scope card. */

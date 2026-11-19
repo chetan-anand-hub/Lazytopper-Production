@@ -124,7 +124,7 @@ function usePackOffer(intent: BuyIntent | null): PackOffer {
         }
         setOffer({
           product: packs.packDescription(known, t, known === "pack_chapter" && t ? labels.packChapterLabel(t) : undefined),
-          price: packs.packPriceLabel(known),
+          price: known === "test_series" ? packs.testSeriesPriceLine() : packs.packPriceLabel(known),
         });
       })
       .catch(() => {

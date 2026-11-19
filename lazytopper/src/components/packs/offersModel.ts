@@ -3,7 +3,7 @@
  * which PDF-pack rows each surface shows, in what order, with what words, and where each button goes. No React, no I/O, no clock.
  *
  * Order (owner, 2 Nov 2026): Board Pass first (the block draws it), then the packs from the HIGHEST price down to the cheapest; a tie puts
- * the Subject Pack before the CBQ Pack. Prices are never typed here: they come from services/packs (PACK_PRICE_INR); the counts in the words
+ * the Subject Pack before the CBQ Pack. Prices are never typed here: they come from services/packs (packBaseInr / packPriceLabel); the counts in the words
  * come from the pack catalogue (PACK_CHAPTER_SLUGS, MOCKS_PER_SUBJECT, BUNDLE_MOCKS), the same figures the pack pop-up states.
  *
  * Nothing is guessed: a row whose subject or chapter is not known is dropped. Ownership follows services/packs isAlreadyOwned (the Subject
@@ -12,7 +12,8 @@
 import { BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, isPreboardsSeason, packChapterLabel } from "../../lib/packs/packLabels";
 import {
   PACK_CHAPTER_SLUGS,
-  PACK_PRICE_INR,
+  packBaseInr,
+  testSeriesPriceLine,
   isAlreadyOwned,
   isValidPackTarget,
   packPayLabel,
@@ -100,9 +101,10 @@ function row(sku: PackSku, target: string, name: string, line: string, badge: st
     target,
     name,
     line,
-    price: packPriceLabel(sku),
+    // TS-PRICE-2: the Test Series row carries the founding line while the offer is open; every other pack is its tag.
+    price: sku === "test_series" ? testSeriesPriceLine() : packPriceLabel(sku),
     payPrice: packPayLabel(sku),
-    priceInr: PACK_PRICE_INR[sku],
+    priceInr: packBaseInr(sku),
     badge,
     buyHref: buyHrefFor(sku, target),
     insideHref: insideHrefFor(sku, target),

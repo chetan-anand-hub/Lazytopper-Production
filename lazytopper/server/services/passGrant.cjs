@@ -425,7 +425,10 @@ const FOUNDING_ORDER_GRACE_MS = 24 * 60 * 60 * 1000;
  * their locked rate) is never stale.
  */
 function isStaleFoundingOrder(order, nowMs) {
-  if (!order || order.offerKey !== 'founding') return false;
+  // TS-PRICE-2: a Test Series order priced at the 999 FOUNDING base carries offerKey null, so it is recognised by its base: the same
+  // 24 h grace applies. (Board Pass behaviour is unchanged: only `passType === 'test_series'` is added.)
+  const foundingTs = !!order && order.passType === 'test_series' && order.baseInr === 999;
+  if (!order || (order.offerKey !== 'founding' && !foundingTs)) return false;
   const createdMs = toMillis(order.createdAt);
   if (createdMs === null) return false;
   return createdMs < pricing.FOUNDING_OFFER_CLOSES_AT_MS && nowMs >= pricing.FOUNDING_OFFER_CLOSES_AT_MS + FOUNDING_ORDER_GRACE_MS;

@@ -2,12 +2,14 @@
 // PACKS-SERVER-1 - the PDF pack catalogue. Server-only, pure (no I/O, no clock).
 //
 // ★★ THE PRICE IS DECIDED HERE AND NOWHERE ELSE (contract §0/§1). routes/payments.cjs reads
-//   `PACK_PRODUCTS[sku].priceInr` and nothing from the request body contributes an amount.
+//   `packBaseInrAt(sku, nowMs)` (below; TS-PRICE-2 made the Test Series price time-dependent) and nothing from the request body contributes an amount.
 // ★ `PACK_CHAPTERS` is a HARDCODED copy of the 26 authored topic slugs of
 //   src/lib/desktop/topics.ts (the server cannot import TypeScript). packProducts.test.cjs reads that
 //   file and fails if the two ever differ.
 // ★ The coverage functions (ownsChapter / ownsMocks / isAlreadyOwned) are the SERVER copy of contract §3;
 //   the client carries the same function and the same tests.
+
+const { foundingOfferOpen } = require('./passPricing.cjs');
 
 const PACK_PRODUCTS = Object.freeze({
   pack_chapter: Object.freeze({ priceInr: 49, needsTarget: 'chapter' }),
@@ -20,8 +22,38 @@ const PACK_PRODUCTS = Object.freeze({
   // NOT a PDF pack: it grants written-answer checking on the Test Series papers only (testSeriesChecks.cjs, 2 per paper),
   // till 31 May 2027 - no tutor, no Premium (owner 19:44 IST). It covers, and is covered by, nothing else. Its packId is
   // `test_series:all` (needsTarget null, like the bundle; every function below branches on the sku BEFORE the bundle rule).
+  //
+  // TS-PRICE-2 (owner ruling 19 Nov 2026 08:23 IST): the Test Series base price is TIME-DEPENDENT - Rs 999 + GST as a FOUNDING price
+  // until the Board Pass founding offer closes (pricing FOUNDING_OFFER_CLOSES_AT_ISO, 00:00 IST 1 Dec 2026), Rs 1,499 + GST from it.
+  // ★ `priceInr` below is ONLY the founding figure. NEVER read `PACK_PRODUCTS[sku].priceInr` for an amount: use `packBaseInrAt(sku, nowMs)`
+  //   (a test fails if a server file reads it directly).
   test_series: Object.freeze({ priceInr: 999, needsTarget: null }),
 });
+
+/** TS-PRICE-2: the Test Series founding base (until the cut-off) and list base (from it), rupees, GST excluded. */
+const TEST_SERIES_FOUNDING_INR = 999;
+const TEST_SERIES_LIST_INR = 1499;
+
+/**
+ * TS-PRICE-2: the BASE price (rupees, before GST) a NEW order for `sku` is charged at the instant `nowMs`. ONE rule for every
+ * order-creating route, email quote and parent link. The Test Series is 999 while the founding offer is open and 1,499 from the
+ * same instant the Board Pass founding offer closes; every other pack has one price. An unknown sku is null.
+ */
+function packBaseInrAt(sku, nowMs) {
+  if (!has(PACK_PRODUCTS, sku)) return null;
+  if (sku === 'test_series') return foundingOfferOpen(nowMs) ? TEST_SERIES_FOUNDING_INR : TEST_SERIES_LIST_INR;
+  return PACK_PRODUCTS[sku].priceInr;
+}
+
+/**
+ * TS-PRICE-2: every base a PAID order of `sku` may legitimately carry. A Test Series order is created at one price and may be paid
+ * (verify / webhook / status replay) after the cut-off, so the GRANT and the upgrade CREDIT accept either figure; an order
+ * can never be CREATED at the wrong one (packBaseInrAt).
+ */
+function packAcceptedBasesInr(sku) {
+  if (!has(PACK_PRODUCTS, sku)) return [];
+  return sku === 'test_series' ? [TEST_SERIES_FOUNDING_INR, TEST_SERIES_LIST_INR] : [PACK_PRODUCTS[sku].priceInr];
+}
 
 /** TS-PACK-1: the Test Series Pack sku and its one packId. */
 const TEST_SERIES_SKU = 'test_series';
@@ -177,6 +209,10 @@ function isAlreadyOwned(packs, sku, target) {
 }
 
 module.exports = {
+  TEST_SERIES_FOUNDING_INR,
+  TEST_SERIES_LIST_INR,
+  packBaseInrAt,
+  packAcceptedBasesInr,
   PACK_PRODUCTS,
   PACK_CHAPTERS,
   PACK_SUBJECTS,

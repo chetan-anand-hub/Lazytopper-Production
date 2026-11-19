@@ -9,7 +9,7 @@
  * ★ PURE: no React, no services that pull checkout code.
  */
 import { BOARD_PASS_NAME, formatInr, tillBoardsPriceInr } from "../../config/pricing";
-import { PACK_PRICE_INR, isTestSeriesPackOffered, packPayLabel, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
+import { PACK_PRICE_INR, isTestSeriesPackOffered, packBaseInr, packPayLabel, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
 import { subjectPackRow } from "../../components/pricing/pricingPlansCopy";
 import {
   BANK_CBQS_CLAIM,
@@ -69,7 +69,7 @@ export const HUB_GROUPS: ReadonlyArray<{ key: HubGroupKey; label: string; cards:
 /** The tab's price: the bare base figure (the caption says "+ GST"). The Board Pass figure follows the date: read after mount. */
 export function hubTabPrice(key: HubCardKey, now: Date | number = Date.now()): string {
   if (key === "pass") return formatInr(tillBoardsPriceInr(now));
-  if (key === "ts") return formatInr(PACK_PRICE_INR.test_series);
+  if (key === "ts") return formatInr(packBaseInr("test_series", now));
   return formatInr(key === "cbq" ? PACK_PRICE_INR.pack_cbq : PACK_PRICE_INR.pack_bundle);
 }
 /** "4 options · tap or swipe · all prices + GST" - the count is the card list's own length. */

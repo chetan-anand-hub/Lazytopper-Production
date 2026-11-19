@@ -15,7 +15,7 @@
 // stays the owner's eye. It proves the specific, recurring, machine-checkable
 // property: nothing dims the cards, and each still renders its accent at rest.
 
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
@@ -28,7 +28,13 @@ vi.mock("../../services/firebaseClient", () => ({ firestoreDb: null }));
 
 import DesktopPracticePage from "./DesktopPracticePage";
 
-afterEach(cleanup);
+// HUB-TS-1: this file pins TODAY's hub (the "Chapter Tests" card + picker and the step-2 "Full Test" card). That hub is exactly what
+// the kill switch restores, so the pins run under it; DesktopPracticePage.testSeries.test.tsx covers the Test Series hub.
+beforeEach(() => vi.stubEnv("VITE_HUB_TS_DISABLED", "1"));
+afterEach(() => {
+  cleanup();
+  vi.unstubAllEnvs();
+});
 
 /** The arrival state: no topic picked, so the Quick Practice and Worksheet
  *  CTAs are still gated. This is exactly the state #492 shipped dimmed. */
