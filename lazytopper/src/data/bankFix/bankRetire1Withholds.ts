@@ -530,3 +530,23 @@ export const BANK_RETIRE_1_WITHHELD_IDS: readonly string[] = [
 
 /** The same ids as a Set, for the guards that must tell a BANK-RETIRE-1 withhold from every other kind. */
 export const BANK_RETIRE_1_WITHHELD_SET: ReadonlySet<string> = new Set(BANK_RETIRE_1_WITHHELD_IDS);
+
+/**
+ * BANK-RETIRE-1 addendum (19 Nov 2026) - four OWNER-APPROVED withholds, a SEPARATE block from the 515 retired AI-pack rows above
+ * (these four are not AI-pack rows with broken step marks; each has its own reason). Coordinator decision 19 Nov 2026.
+ */
+export const BANK_RETIRE_1_OWNER_WITHHOLD_REASONS: Readonly<Record<string, string>> = {
+  "APQ-M-POLY-004": "figure: the question needs a figure that is absent from the served row",
+  "APQ-M-PLE-009": "figure: the question needs a figure that is absent from the served row",
+  "APQ-M-STAT-008": 'figure: the question needs the absent "pyramid graph"',
+  "HERED-EXMPLR-8-LA-003": 'not self-contained: the stem refers to "In question above"',
+};
+export const BANK_RETIRE_1_OWNER_WITHHOLD_IDS: readonly string[] = Object.keys(BANK_RETIRE_1_OWNER_WITHHOLD_REASONS);
+
+/** The reason CATEGORY of the three figure withholds, in the vocabulary the GEN-THIN-1 template guard reads: a generated row shaped from one of
+ *  these (its question TYPE, not its missing figure) is judged by the same rule as the other `figure` withholds (LTG-M-POLY-252 <- APQ-M-POLY-004). */
+export const BANK_RETIRE_1_OWNER_WITHHOLD_CATEGORY: ReadonlyMap<string, "figure"> = new Map<string, "figure">([
+  ["APQ-M-POLY-004", "figure"],
+  ["APQ-M-PLE-009", "figure"],
+  ["APQ-M-STAT-008", "figure"],
+]);

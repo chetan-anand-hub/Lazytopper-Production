@@ -68,7 +68,7 @@ import { PYQ_RESTORE_1_RESTORED_IDS } from "./pyqRestore1Ledger";
 import { PYQ_RESTORE_B_IDS } from "./pyqRestoreBLedger";
 import { PYQ_RESTORE_B_SCIENCE_IDS } from "./pyqRestoreBScienceLedger";
 import { BANK_RESIDUE_1_WITHHELD_IDS } from "./bankResidue1Ledger";
-import { BANK_RETIRE_1_WITHHELD_IDS, BANK_RETIRE_1_WITHHELD_SET } from "./bankRetire1Withholds";
+import { BANK_RETIRE_1_OWNER_WITHHOLD_IDS, BANK_RETIRE_1_WITHHELD_IDS, BANK_RETIRE_1_WITHHELD_SET } from "./bankRetire1Withholds";
 import { BANK_FIX_3_OFFICIAL_RESOURCED_IDS, BANK_FIX_3_RESTORED_IDS, BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS, BANK_FIX_3_WITHHELD_BY_CHAPTER } from "./bankFix3Ledger";
 
 type Row = Record<string, unknown> & { id: string };
@@ -161,8 +161,11 @@ describe("BANK-FIX-1 PR-2 · withheld rows are withheld", () => {
       const e = BANK_FIX_1_PR2.find((x) => x.id === id && x.surface === "bank");
       expect(e?.verdict, id).toBe("withheld");
       expect(e?.category, id).toBe("figure");
-      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(false);
-      expect(servedIds.has(id), id).toBe(true);
+      // BANK-RETIRE-1 addendum (19 Nov 2026, owner-approved): APQ-M-STAT-008 was served again by BANK-UNWITHHOLD-1 and is withheld again
+      // (bankFix/bankRetire1Withholds.ts BANK_RETIRE_1_OWNER_WITHHOLD_REASONS).
+      const withheldAgain = BANK_RETIRE_1_OWNER_WITHHOLD_IDS.includes(id);
+      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(withheldAgain);
+      expect(servedIds.has(id), id).toBe(!withheldAgain);
     }
     expect(WITHHELD_QUESTION_IDS.has("PYQ-S-MAG-003")).toBe(true);
     expect(servedIds.has("PYQ-S-MAG-003")).toBe(false);

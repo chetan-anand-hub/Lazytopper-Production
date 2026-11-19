@@ -375,6 +375,11 @@ export const BOUND_BUT_WITHHELD: Readonly<Record<string, string>> = {
   // DIAGRAMS-1 C3 PR-D1 (B-21 census step) — maths rows BANK-FIX withheld for their missing figure, now bound.
   "APQ-M-ARC-001": "stays withheld: the stem reads '(some fraction)' - the official APQ PDF itself prints no fraction there, so the row is unanswerable; 'REQUIRES-FIGURE' placeholder in strategyHint",
 
+  // BANK-RETIRE-1 addendum (19 Nov 2026, owner-approved): withheld because the question needs a figure the served row lacks. The bound figure is kept (not deleted).
+  "APQ-M-POLY-004": "withheld by BANK-RETIRE-1 (19 Nov 2026, owner-approved): the row needs a figure it does not carry; the binding is kept for a repair PR",
+  "APQ-M-PLE-009": "withheld by BANK-RETIRE-1 (19 Nov 2026, owner-approved): the row needs a figure it does not carry; the binding is kept for a repair PR",
+  "APQ-M-STAT-008": "withheld by BANK-RETIRE-1 (19 Nov 2026, owner-approved): the row needs the pyramid graph it does not carry; the binding is kept for a repair PR",
+
   // GARBLE-1 (D171, 14 Oct 2026) - statistics rows withheld for a damaged stem; the bound figure is kept so the REPAIR PR only un-withholds.
   // PYQ-RESTORE-A part 1 (22 Oct 2026): PYQ-M-2025-STAT-006 is served again - its table was rewritten in the stem and checked cell by cell
   // against this bound figure (the official table), so its entry leaves this list.

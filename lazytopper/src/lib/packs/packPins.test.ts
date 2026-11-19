@@ -20,14 +20,14 @@ import { chapterPackDrawRows, drawPackWorksheetRowsSafe, hashSeed, withProvenanc
 import { allPackPins, packChapterTestPapers, packMockPapers, packPinSpec, packWorksheetRows, type PackPaperIds } from "./packPins";
 import { allPinnedSpecs } from "../testSeries/pinnedSpec";
 
-/** BANK-RETIRE-1 (19 Nov 2026, owner ruling: retire, not repair): 515 generated AI-pack rows left the served bank, so the SEEDED draw of these 41 of the
+/** BANK-RETIRE-1 (19 Nov 2026, owner ruling: retire, not repair): 515 generated AI-pack rows left the served bank, so the SEEDED draw of these 43 of the
  *  94 pack papers moved (a smaller candidate pool). The PINNED papers did not move: all 94 are rebuilt from packPaperIds.json and are byte-identical to
  *  trunk (measured before and after by build-and-hash). Drop an entry only by re-pinning, never silently. */
 const ACKNOWLEDGED_DRAW_DRIFT: readonly string[] = [
   "ws:real-numbers", "ws:polynomials", "ws:pair-of-linear-equations", "ws:quadratic-equations",
   "ws:arithmetic-progression", "ws:triangles", "ws:coordinate-geometry", "ct1:trigonometry",
   "ct2:trigonometry", "ws:trigonometry", "ws:circles", "ws:areas-related-to-circles",
-  "ws:surface-areas-and-volumes", "ws:statistics", "ws:probability", "ct1:chemical-reactions-and-equations",
+  "ws:surface-areas-and-volumes", "ws:statistics", "ct1:statistics", "ct2:statistics", "ws:probability", "ct1:chemical-reactions-and-equations",
   "ct2:chemical-reactions-and-equations", "ws:chemical-reactions-and-equations", "ws:acids-bases-and-salts", "ct2:metals-and-non-metals",
   "ws:metals-and-non-metals", "ws:carbon-and-its-compounds", "ws:light-reflection-and-refraction", "ws:human-eye-and-colourful-world",
   "ws:electricity", "ws:magnetic-effects-of-electric-current", "ws:life-processes", "ws:control-and-coordination",

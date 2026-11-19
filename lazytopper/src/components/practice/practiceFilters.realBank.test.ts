@@ -101,7 +101,7 @@ describe("FILTER-FIX-1 · Others", () => {
     // (PYQ-M-2026-CIRC-002, PYQ-M-2024-SAV-006, PYQ-M-2026-STAT-002) re-read from the official paper and restored as PYQ.
     expect(n("areas-related-to-circles", "all", "all", "others", "all")).toBe(216);
     expect(n("surface-areas-and-volumes", "all", "all", "others", "all")).toBe(208);
-    expect(n("statistics", "all", "all", "others", "all")).toBe(230);
+    expect(n("statistics", "all", "all", "others", "all")).toBe(229); // 230 -> 229 with the BANK-RETIRE-1 addendum (APQ-M-STAT-008 withheld)
     for (const slug of ["arithmetic-progression", "coordinate-geometry", "areas-related-to-circles", "surface-areas-and-volumes", "statistics"]) {
       // An exemplar id stays in Others ONLY when BANK-FIX-1 overrode its source (unconfirmed row).
       for (const q of pools.get(slug)!) {
@@ -246,7 +246,7 @@ describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 2
     const by = (subject: string, d: string) =>
       BANK_CHAPTER_SLUGS.filter((slug) => BANK_CHAPTER_SUBJECT[slug] === subject).reduce((t, slug) => t + n(slug, "all", "hots", "all", d), 0);
     // BANK-RETIRE-1 (19 Nov 2026): generated rows retired - Maths Hard 678 -> 611, Maths Medium 822 -> 792, Science Hard 768 -> 700, Science Medium 1,101 -> 1,095, total 3,369 -> 3,198.
-    expect(by("Maths", "Hard")).toBe(611);
+    expect(by("Maths", "Hard")).toBe(609); // 611 -> 609 with the BANK-RETIRE-1 addendum (APQ-M-POLY-004, APQ-M-STAT-008 withheld); total 3,198 -> 3,196
     // BANK-RESIDUE-1 (2026-10-23): 25 residue rows withheld - Maths Medium 824 -> 822, Science Hard 769 -> 768, total 3,372 -> 3,369.
     expect(by("Maths", "Medium")).toBe(792);
     expect(by("Science", "Hard")).toBe(700);
@@ -257,7 +257,7 @@ describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 2
       // With HOTS chosen the Easy chip is a REAL zero in every chapter (it greys out via chipCounts).
       expect(n(slug, "all", "hots", "all", "Easy"), `${slug} HOTS + Easy`).toBe(0);
     }
-    expect(any).toBe(3198);
+    expect(any).toBe(3196);
     // Every HOTS row really is higher-order bloom at Medium / Hard (no Hard-only Applying row).
     for (const slug of BANK_CHAPTER_SLUGS) {
       for (const q of pools.get(slug)!) {

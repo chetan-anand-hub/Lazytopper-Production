@@ -86,6 +86,8 @@ const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
   { chapter: "carbon-and-its-compounds", label: "Homologous Series and Nomenclature" },
   { chapter: "carbon-and-its-compounds", label: "Homologous Series, Nomenclature, Chemical Properties" },
   { chapter: "heredity", label: "Hereditary Material" },
+  // 19 Nov 2026 BANK-RETIRE-1 addendum (owner-approved withhold of APQ-M-PLE-009): the label's only row.
+  { chapter: "pair-of-linear-equations", label: "Line from Graph + Point of Intersection" },
   // 14 Oct MATHS-UNKNOWN-OWNER-1 PR B (D3): PL2-R14 and SAV2-R16 serve again, so "Degree of Polynomial" and "Total Surface Area" have carriers and leave this list.
   // 17 Oct WITHHOLD-TRI-GDR-1 (#1222): the label's only row, LIGHT-EXMPLR-9-LA-002, is paused (object at F: NCERT 2026-27 Table 9.4
   // "Image would not be formed"). Its repair PR serves the row again and drops this entry.

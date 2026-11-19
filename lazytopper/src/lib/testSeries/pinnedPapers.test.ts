@@ -29,11 +29,11 @@ import { chapterTestSeriesSeed, seriesChapterTests, seriesFullMocks, seriesTotal
 
 /** Keys whose SEEDED draw is allowed to differ from the pinned paper (the bank changed on purpose). Empty at TS-PIN-1.
  *  BANK-RETIRE-1 (19 Nov 2026, owner ruling: retire, not repair): 515 generated AI-pack rows left the served bank, so every chapter's candidate
- *  pool is smaller and the seeded draw of all 26 chapter tests and 13 of the 40 full-length tests moved. The pinned papers did NOT move (their
+ *  pool is smaller and the seeded draw of all 26 chapter tests and 15 of the 40 full-length tests moved (13 at the 515, +2 with the four owner-approved withholds). The pinned papers did NOT move (their
  *  ids are in seriesPaperIds.json; the four papers that hold a retired id - TS-CT-M07, M09, M11, M12 - resolve it from the raw bank, proved below). */
 const ACKNOWLEDGED_DRIFT: readonly string[] = [
   "TS-CT-M01", "TS-CT-M02", "TS-CT-M03", "TS-CT-M04", "TS-CT-M05", "TS-CT-M06", "TS-CT-M07", "TS-CT-M08", "TS-CT-M09", "TS-CT-M10", "TS-CT-M11", "TS-CT-M12", "TS-CT-M13", "TS-CT-S01", "TS-CT-S02", "TS-CT-S03", "TS-CT-S04", "TS-CT-S05", "TS-CT-S06", "TS-CT-S07", "TS-CT-S08", "TS-CT-S09", "TS-CT-S10", "TS-CT-S11", "TS-CT-S12", "TS-CT-S13",
-  "TS-FM-M1", "TS-FM-M4", "TS-FM-M5", "TS-FM-M6", "TS-FM-M8", "TS-FM-M9", "TS-FM-M10", "TS-FM-M11", "TS-FM-M12", "TS-FM-M15", "TS-FM-M17", "TS-FM-M20", "TS-FM-S3",
+  "TS-FM-M1", "TS-FM-M4", "TS-FM-M5", "TS-FM-M6", "TS-FM-M8", "TS-FM-M9", "TS-FM-M10", "TS-FM-M11", "TS-FM-M12", "TS-FM-M14", "TS-FM-M18", "TS-FM-M15", "TS-FM-M17", "TS-FM-M20", "TS-FM-S3",
 ];
 
 const STAMP = "2026-01-01T00:00:00.000Z";
