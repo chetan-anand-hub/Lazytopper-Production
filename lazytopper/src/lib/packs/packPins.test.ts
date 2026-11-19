@@ -37,6 +37,8 @@ const ACKNOWLEDGED_DRAW_DRIFT: readonly string[] = [
   "mock:science:7",
   // STEPMARK-2 batch 1 (19 Nov 2026): the step-mark prefixes on hand-sourced Maths ch 1-4 rows also moved these seeded draws; the pins did not.
   ...["real-numbers", "polynomials", "pair-of-linear-equations", "quadratic-equations"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
+  // STEPMARK-2 batch 3A (19 Nov 2026): the same for arithmetic-progression, coordinate-geometry, triangles, circles.
+  ...["arithmetic-progression", "coordinate-geometry", "triangles", "circles"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
   "mock:maths:2", "mock:maths:3",
 ];
 const ack = (k: string) => ACKNOWLEDGED_DRAW_DRIFT.includes(k);
