@@ -21,7 +21,7 @@ import { useOwnedPacks } from "../packs/useOwnedPacks";
 import { ownsChapter, ownsMocks, type PackSubject } from "../../services/packs";
 import type { TestSeriesStatus } from "../../services/packs";
 import { TEST_SERIES_BUY_PATH, seriesPaperKeyOfWorksheetId, seriesTotals } from "../../lib/testSeries/testSeries";
-import { packPriceLabel, testSeriesChecksLeftLine, testSeriesPriceLine } from "../../services/packs";
+import { SHEET_UNREADABLE_NOT_COUNTED_LINE, packPriceLabel, testSeriesChecksLeftLine, testSeriesPriceLine, testSeriesRecheckNote } from "../../services/packs";
 import { useTestSeriesOwnership } from "./testSeriesOwnership";
 import "./writtenCheckGate.css";
 
@@ -236,11 +236,19 @@ export function SeriesChecksLeftLine({ uid, worksheetId, refreshKey }: { uid?: s
   const own = useTestSeriesOwnership(!paid && paperKey ? uid : null, refreshKey);
   if (paid || !paperKey || !own.owns) return null;
   const line = testSeriesChecksLeftLine(own.status, paperKey);
-  return line ? (
-    <p className="lt-wcg__checks" role="status" data-testid="series-checks-left">
-      {line}
-    </p>
-  ) : null;
+  if (!line) return null;
+  return (
+    <>
+      {testSeriesRecheckNote(own.status, paperKey) && (
+        <p className="lt-wcg__line" role="status" data-testid="series-recheck-note">
+          {SHEET_UNREADABLE_NOT_COUNTED_LINE}
+        </p>
+      )}
+      <p className="lt-wcg__checks" role="status" data-testid="series-checks-left">
+        {line}
+      </p>
+    </>
+  );
 }
 
 /** True for a Board Pass holder (PAID premium) — the only account the scorecard's tutor entry opens the tutor for. */

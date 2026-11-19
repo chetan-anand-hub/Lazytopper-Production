@@ -162,7 +162,7 @@ function createPackRoutes(deps = {}) {
     if (owned.some((p) => p && p.sku === TEST_SERIES_SKU)) {
       try {
         const t = testSeriesChecks && typeof testSeriesChecks.status === 'function' ? await testSeriesChecks.status(uid) : null;
-        if (t) testSeries = { validUntilMs: t.validUntilMs, checksPerPaper: t.checksPerPaper, used: t.used };
+        if (t) testSeries = { validUntilMs: t.validUntilMs, checksPerPaper: t.checksPerPaper, used: t.used, ...(t.freeRecheck ? { freeRecheck: t.freeRecheck } : {}) };
       } catch {
         testSeries = undefined;
       }

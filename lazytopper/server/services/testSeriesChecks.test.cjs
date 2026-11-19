@@ -21,8 +21,10 @@ const {
   HOLDS_FIELD,
   HOLD_TTL_MS,
   MANIFEST_PATH,
+  FREE_FIELD,
+  mostlyUnreadable,
 } = require('./testSeriesChecks.cjs');
-const { setChargeableCount } = require('../grading/charge.cjs');
+const { setChargeableCount, setUnreadableSummary, unreadableSummary, isUnreadable } = require('../grading/charge.cjs');
 const { preReadGradingBody, cachedReadJson } = require('./fairUse.cjs');
 const { readJson, createHttpUtils } = require('./httpUtils.cjs');
 const { TEST_SERIES_ENDS_MS } = require('./packTerms.cjs');
@@ -684,6 +686,180 @@ test('TS_CHECKS_DISABLED=1: no LIMITS-1 exemption either - ownerSeriesPaper / ow
   assert.equal(await on.checks.ownerSeriesPaper(on.uid, 'chapter-test', 'ct-ts1-real-numbers--abc'), true, 'off-values leave it on');
   const { testSeriesChecksDisabled } = require('./testSeriesChecks.cjs');
   assert.equal(require('./entitlement.cjs').testSeriesChecksDisabled, testSeriesChecksDisabled, 'ONE switch function for both');
+});
+
+
+/* ── TS-RECHECK-1 (owner ruling 19 Nov 2026, 15:42 IST) · a sheet the grader mostly could not read is NOT counted - once per paper ── */
+const freeOf = (db, uid, key) => ((db.read(`packEntitlements/${uid}`) || {})[FREE_FIELD] || {})[key];
+const reasoned = (reason) => { const o = {}; Object.defineProperty(o, '_reason', { value: reason }); return o; };
+/** A synchronous grade whose sheet had `unreadable` of `total` unreadable questions (graded count = the rest). */
+const serveWith = (res, unreadable, total, graded = total - unreadable) => { setUnreadableSummary(res, { unreadable, total }); res.serve(200, graded); };
+async function takeCheck(s, finish) {
+  const res = fakeRes();
+  assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid), false);
+  finish(res);
+  await settle();
+  return res;
+}
+
+test('TS-RECHECK-1 which verdicts count as unreadable: couldNotRead / notInInventory / firstLineNotInWork / answerMismatch - NEVER a blank left blank, a timeout, a failure or a graded answer', () => {
+  for (const r of ['couldNotRead', 'notInInventory', 'firstLineNotInWork', 'answerMismatch']) assert.equal(isUnreadable(reasoned(r)), true, r);
+  for (const r of ['unattempted', 'blankInInventory', 'timeout', 'failed', 'injectionCited', 'objectiveUnresolved', 'graded']) assert.equal(isUnreadable(reasoned(r)), false, r);
+  assert.equal(isUnreadable(null), false);
+  assert.deepEqual(unreadableSummary([reasoned('notInInventory'), reasoned('unattempted'), reasoned('graded'), reasoned('blankInInventory')]), { unreadable: 1, total: 4 });
+  assert.deepEqual(unreadableSummary(undefined), { unreadable: 0, total: 0 });
+});
+
+test('TS-RECHECK-1 threshold: at least half of the check\'s questions, and at least one', () => {
+  assert.equal(mostlyUnreadable({ unreadable: 1, total: 2 }), true);
+  assert.equal(mostlyUnreadable({ unreadable: 2, total: 3 }), true);
+  assert.equal(mostlyUnreadable({ unreadable: 1, total: 3 }), false);
+  assert.equal(mostlyUnreadable({ unreadable: 0, total: 3 }), false);
+  assert.equal(mostlyUnreadable({ unreadable: 0, total: 0 }), false);
+  assert.equal(mostlyUnreadable(undefined), false);
+});
+
+test('TS-RECHECK-1 an unreadable sheet (>= 50%, some graded) is NOT counted and flags the free re-check; status() says so; checks left stays 2', async () => {
+  const s = setup();
+  await takeCheck(s, (r) => serveWith(r, 1, 2));
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 0, 'not counted');
+  assert.equal(holdsOf(s.db, s.uid), 0);
+  assert.equal(freeOf(s.db, s.uid, CT), 0, 'the free re-check is spent (value = committed count at that moment)');
+  assert.ok(s.events.includes('test_series.check_free_recheck'));
+  const st = await s.checks.status(s.uid);
+  assert.deepEqual(st.used, {});
+  assert.deepEqual(st.freeRecheck, { [CT]: true });
+});
+
+test('TS-RECHECK-1 a SECOND unreadable sheet on the same paper is counted (one free re-check per paper); worst case 3 gradings', async () => {
+  const s = setup();
+  await takeCheck(s, (r) => serveWith(r, 2, 2, 0 + 1));
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 0);
+  await takeCheck(s, (r) => serveWith(r, 2, 3));
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 1, 'second unreadable: counted');
+  assert.equal(((await s.checks.status(s.uid)).freeRecheck || {})[CT], undefined, 'the note goes once a counted check has landed');
+  await takeCheck(s, (r) => r.serve(200, 2));
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 2);
+  const res = fakeRes();
+  await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid);
+  assert.equal(s.sent.at(-1).status, 402, 'a 4th is refused');
+});
+
+test('TS-RECHECK-1 the free re-check is per paper: another paper still has its own', async () => {
+  const s = setup();
+  await takeCheck(s, (r) => serveWith(r, 1, 1, 1));
+  const res = fakeRes();
+  assert.equal(await s.gate.applyToRequest(reqWith({ worksheetId: 'fm-ts1-m1--abc', questions: [q('m-fm-01-b1', 21)] }), res, GRADE, s.uid), false);
+  serveWith(res, 1, 1, 1);
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, FM), 0);
+  assert.equal(freeOf(s.db, s.uid, FM), 0);
+  assert.equal(freeOf(s.db, s.uid, CT), 0);
+});
+
+test('TS-RECHECK-1 partly readable (< 50% unreadable) is counted; a normal check is counted; blanks never make it free', async () => {
+  const s = setup();
+  await takeCheck(s, (r) => serveWith(r, 1, 3));
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 1);
+  assert.equal(freeOf(s.db, s.uid, CT), undefined);
+  const s2 = setup();
+  await takeCheck(s2, (r) => r.serve(200, 2)); // no summary recorded at all
+  assert.equal(usedOnPaper(s2.db, s2.uid, CT), 1);
+  const s3 = setup();
+  await takeCheck(s3, (r) => serveWith(r, 0, 4, 1)); // 3 genuinely blank answers: summary counts none unreadable
+  assert.equal(usedOnPaper(s3.db, s3.uid, CT), 1);
+});
+
+test('TS-RECHECK-1 nothing graded at all is released exactly as before (and does NOT use up the free re-check)', async () => {
+  const s = setup();
+  await takeCheck(s, (r) => serveWith(r, 2, 2, 0));
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 0);
+  assert.equal(freeOf(s.db, s.uid, CT), undefined);
+});
+
+test('TS-RECHECK-1 kill switch TS_RECHECK_DISABLED=1: an unreadable sheet is counted exactly as today', async () => {
+  const s = setup({ env: { TS_RECHECK_DISABLED: '1' } });
+  await takeCheck(s, (r) => serveWith(r, 2, 2, 1));
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 1);
+  assert.equal(freeOf(s.db, s.uid, CT), undefined);
+  assert.equal((await s.checks.status(s.uid)).freeRecheck, undefined);
+  // the job path too
+  const j = setup({ env: { TS_RECHECK_DISABLED: 'true' } });
+  const res = fakeRes();
+  await j.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, j.uid);
+  res.serve(202, 0);
+  j.checks.settleDeferred({ uid: j.uid, testSeries: require('./testSeriesChecks.cjs').testSeriesDeferredOf(res) }, 1, { unreadable: 2, total: 2 });
+  await settle();
+  assert.equal(usedOnPaper(j.db, j.uid, CT), 1);
+});
+
+test('TS-RECHECK-1 background job path: settleDeferred(deferred, graded, { unreadable, total }) refunds once; a second settle of the same hold changes nothing', async () => {
+  const s = setup();
+  const res = fakeRes();
+  assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid), false);
+  res.serve(202, 0);
+  const deferred = { uid: s.uid, testSeries: require('./testSeriesChecks.cjs').testSeriesDeferredOf(res) };
+  s.checks.settleDeferred(deferred, 1, { unreadable: 1, total: 2 });
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 0);
+  assert.equal(freeOf(s.db, s.uid, CT), 0);
+  assert.equal(holdsOf(s.db, s.uid), 0);
+  s.checks.settleDeferred(deferred, 1, { unreadable: 1, total: 2 }); // replayed claim: hold already gone
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 0, 'no double refund, no stray count');
+  assert.equal(takenOn(s.db, s.uid, CT), 0);
+  // and with no detail (an interrupted job / older caller) it is counted as today
+  const s2 = setup();
+  const r2 = fakeRes();
+  await s2.gate.applyToRequest(reqWith(seriesBody()), r2, GRADE, s2.uid);
+  r2.serve(202, 0);
+  s2.checks.settleDeferred({ uid: s2.uid, testSeries: require('./testSeriesChecks.cjs').testSeriesDeferredOf(r2) }, 1);
+  await settle();
+  assert.equal(usedOnPaper(s2.db, s2.uid, CT), 1);
+});
+
+test('TS-RECHECK-1 CONCURRENCY: two holds on one paper settling unreadable at once - exactly ONE free re-check, the other is counted', async () => {
+  const s = setup();
+  const a = fakeRes();
+  const b = fakeRes();
+  assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), a, GRADE, s.uid), false);
+  assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), b, GRADE, s.uid), false);
+  assert.equal(takenOn(s.db, s.uid, CT), 2);
+  serveWith(a, 2, 2, 1);
+  serveWith(b, 2, 2, 1);
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 1, 'one counted');
+  assert.equal(freeOf(s.db, s.uid, CT), 0, 'one free');
+  assert.equal(holdsOf(s.db, s.uid), 0);
+});
+
+test('TS-RECHECK-1 two parallel uploads for the last check still admit exactly one (the free re-check never widens admission)', async () => {
+  const s = setup({ used: usedMap(CT, 1) });
+  const a = fakeRes();
+  const b = fakeRes();
+  const [ra, rb] = await Promise.all([s.gate.applyToRequest(reqWith(seriesBody()), a, GRADE, s.uid), s.gate.applyToRequest(reqWith(seriesBody()), b, GRADE, s.uid)]);
+  assert.deepEqual([ra, rb].sort(), [false, true]);
+});
+
+test('TS-RECHECK-1 an expired hold (> 30 min) that ends unreadable is still counted (as before this lane) and does not spend the free re-check', async () => {
+  const s = setup();
+  const res = fakeRes();
+  await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid);
+  s.clock.now = NOW + HOLD_TTL_MS + 10;
+  serveWith(res, 2, 2, 1);
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 1);
+  assert.equal(freeOf(s.db, s.uid, CT), undefined);
+});
+
+test('TS-RECHECK-1 PREMIUM (Board Pass): never held, never counted, no free-recheck state written', async () => {
+  const s = setup({ sub: 'premium' });
+  const res = fakeRes();
+  assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid), false);
+  assert.equal(require('./testSeriesChecks.cjs').testSeriesDeferredOf(res), null);
+  serveWith(res, 2, 2, 1);
+  await settle();
+  assert.deepEqual(s.db.read(`packEntitlements/${s.uid}`), {}, 'untouched');
 });
 
 /* ── TS-MORE-1: 180 papers - chapter papers 2..5 and full-length 21..25 are admitted exactly like the original 66 ── */

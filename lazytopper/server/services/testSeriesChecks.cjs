@@ -51,12 +51,21 @@ const path = require('node:path');
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('./packGrant.cjs');
 const { TEST_SERIES_ENDS_MS } = require('./packTerms.cjs');
 const { TEST_SERIES_SKU, TEST_SERIES_PACK_ID } = require('./packProducts.cjs');
-const { chargeableCountOf } = require('../grading/charge.cjs');
+const { chargeableCountOf, unreadableSummaryOf } = require('../grading/charge.cjs');
 
 /** Owner ruling 18 Nov 2026 (19:38 IST): each Test Series paper can be checked at most 2 times on the pack. */
 const CHECKS_PER_PAPER = 2;
 const CHECKS_FIELD = 'testSeriesChecks';
 const HOLDS_FIELD = 'testSeriesHolds';
+// TS-RECHECK-1 (owner ruling 19 Nov 2026, 15:42 IST): a check whose sheet the grader mostly could not read (or that is of another
+// paper) is NOT counted - ONE such free re-check per paper per student. `testSeriesFreeRechecks: { <paper key>: n }` holds, for a
+// paper whose free re-check was given, the committed count AT THAT MOMENT (presence = the free re-check is spent; the value lets
+// the status say "the last check was not counted" until the next check lands). Kill switch: TS_RECHECK_DISABLED=1.
+const FREE_FIELD = 'testSeriesFreeRechecks';
+const SETTLED_REFS = new WeakSet(); // TS-RECHECK-1: deferred refs already settled (replay guard)
+const FREE_RECHECKS_PER_PAPER = 1;
+/** At least this share of the check's written questions must be unreadable / not on the sheet. */
+const UNREADABLE_SHARE = 0.5;
 /** A hold not settled within this long stops counting (a sync grade's own deadline is far shorter). */
 const HOLD_TTL_MS = 30 * 60 * 1000;
 const GRADE_WORKSHEET_PATH = '/api/grade-worksheet';
@@ -221,6 +230,18 @@ function testSeriesChecksDisabled(env = process.env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.TS_CHECKS_DISABLED) || '').trim());
 }
 
+/** TS_RECHECK_DISABLED=1 / true / on / yes: no free re-check - every kept check is counted, byte-for-byte as before. PURE. */
+function testSeriesRecheckDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.TS_RECHECK_DISABLED) || '').trim());
+}
+
+/** Is this check's sheet "mostly unreadable"? `summary` = { unreadable, total } (grading/charge.cjs unreadableSummary). PURE. */
+function mostlyUnreadable(summary) {
+  const u = summary && Number(summary.unreadable);
+  const t = summary && Number(summary.total);
+  return Number.isFinite(u) && Number.isFinite(t) && t > 0 && u > 0 && u / t >= UNREADABLE_SHARE;
+}
+
 /**
  * TS-MORE-1 (owner, 19 Nov 2026): the papers added on top of the original 66 - chapter papers 2..5 ("TS-CT-M01-2") and full-length
  * papers 21..25 ("TS-FM-M21"). TS_MORE_DISABLED (1 / true / on / yes) is the server twin of the client's VITE_TS_MORE_DISABLED: those
@@ -245,6 +266,11 @@ const mapOf = (data, field) => (data && data[field] && typeof data[field] === 'o
 function usedOn(data, paperKey) {
   const n = mapOf(data, CHECKS_FIELD)[paperKey];
   return typeof n === 'number' && Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+}
+
+/** Has this paper's one free re-check been given? PURE. */
+function freeRecheckSpent(data, paperKey) {
+  return Object.prototype.hasOwnProperty.call(mapOf(data, FREE_FIELD), paperKey);
 }
 
 /** The holds still counting at `nowMs` (younger than HOLD_TTL_MS). PURE. */
@@ -315,11 +341,17 @@ function createTestSeriesChecks(deps = {}) {
       const nowMs = now();
       const holds = liveHolds(data, nowMs);
       const used = {};
+      const freeRecheck = {};
       for (const p of manifest.papers) {
         const n = usedOn(data, p.key) + heldOn(holds, p.key);
         if (n > 0) used[p.key] = Math.min(n, CHECKS_PER_PAPER);
+        // TS-RECHECK-1: the paper's latest check was NOT counted (its free re-check) and no check has been made since.
+        if (freeRecheckSpent(data, p.key) && mapOf(data, FREE_FIELD)[p.key] === usedOn(data, p.key) && heldOn(holds, p.key) === 0) freeRecheck[p.key] = true;
       }
-      return { owned: true, active: isLivePack(pack, nowMs), validUntilMs: TEST_SERIES_ENDS_MS, checksPerPaper: CHECKS_PER_PAPER, used };
+      return {
+        owned: true, active: isLivePack(pack, nowMs), validUntilMs: TEST_SERIES_ENDS_MS, checksPerPaper: CHECKS_PER_PAPER, used,
+        ...(Object.keys(freeRecheck).length > 0 ? { freeRecheck } : {}),
+      };
     } catch {
       emit('test_series.read_failed');
       return null;
@@ -363,7 +395,7 @@ function createTestSeriesChecks(deps = {}) {
    * Settle ONE hold: `keep` -> the check is spent (committed count + 1); otherwise it is given back. The hold is removed either
    * way. A commit whose hold already expired still counts the delivered grade. Never throws; never below 0.
    */
-  async function settleHold(uid, paperKey, holdId, keep) {
+  async function settleHold(uid, paperKey, holdId, keep, free = false) {
     const id = docId(uid);
     if (!id || !transacts()) return false;
     try {
@@ -376,6 +408,14 @@ function createTestSeriesChecks(deps = {}) {
         const had = Object.prototype.hasOwnProperty.call(holds, holdId);
         delete holds[holdId];
         const write = { [HOLDS_FIELD]: holds, updatedAt: new Date(nowMs) };
+        // TS-RECHECK-1: a kept check whose sheet was mostly unreadable is given back ONCE per paper. Decided here, in the same
+        // transaction that reads the counter, so two parallel settles cannot both take the free re-check. Only for a hold that is
+        // still live: a hold that expired before settle is counted exactly as before this lane (no refund for an expired hold).
+        if (keep && free && had && !freeRecheckSpent(data, paperKey)) {
+          write[FREE_FIELD] = { ...mapOf(data, FREE_FIELD), [paperKey]: usedOn(data, paperKey) };
+          tx.set(userRef, write, { merge: true });
+          return 'free_recheck';
+        }
         if (keep) write[CHECKS_FIELD] = { ...mapOf(data, CHECKS_FIELD), [paperKey]: usedOn(data, paperKey) + 1 };
         tx.set(userRef, write, { merge: true });
         return keep ? 'committed' : had ? 'released' : 'release_noop';
@@ -393,13 +433,13 @@ function createTestSeriesChecks(deps = {}) {
    * a 2xx that graded at least one question, released otherwise - or released when the connection closes before the handler
    * ever answered. Never on a close that follows an end (that was the abort-then-replay refund hole).
    */
-  function settleOnEnd(res, uid, paper, holdId) {
+  function settleOnEnd(res, uid, paper, holdId, env = process.env) {
     if (!res) return;
     let settled = false;
-    const settle = (keep) => {
+    const settle = (keep, free = false) => {
       if (settled) return;
       settled = true;
-      void Promise.resolve(settleHold(uid, paper.key, holdId, keep)).catch(() => {});
+      void Promise.resolve(settleHold(uid, paper.key, holdId, keep, free)).catch(() => {});
     };
     if (typeof res.end === 'function') {
       const end = res.end;
@@ -412,7 +452,8 @@ function createTestSeriesChecks(deps = {}) {
             emit('test_series.check_job');
           } else {
             const charged = chargeableCountOf(res);
-            settle(status >= 200 && status < 300 && charged !== undefined && charged > 0);
+            const keep = status >= 200 && status < 300 && charged !== undefined && charged > 0;
+            settle(keep, keep && !testSeriesRecheckDisabled(env) && mostlyUnreadable(unreadableSummaryOf(res)));
           }
         }
         return end.apply(this, arguments);
@@ -459,7 +500,7 @@ function createTestSeriesChecks(deps = {}) {
     // TS-PACK-JOBFIX: graded like every other paper (a background job when the browser asks for one). The hold goes with the
     // response so the grade route can put it into the job's `deferred`; a synchronous answer settles it from res.end.
     setTestSeriesDeferred(res, { uid: docId(uid), paper: paper.key, holdId: r.holdId });
-    settleOnEnd(res, uid, paper, r.holdId);
+    settleOnEnd(res, uid, paper, r.holdId, env);
     emit('test_series.check_held');
     return { kind: 'admitted', paperKey: paper.key, used: r.used, left: r.left };
   }
@@ -505,12 +546,16 @@ function createTestSeriesChecks(deps = {}) {
    * TS-PACK-JOBFIX - a background grading job ended (grading/jobs.cjs commitDeferred, called ONCE by the claim winner): keep the
    * hold when at least one question was graded, release it otherwise. A deferred without a series hold does nothing. Never throws.
    */
-  function settleDeferred(deferred, graded) {
+  function settleDeferred(deferred, graded, detail) {
     try {
       const ref = deferred && typeof deferred === 'object' ? deferred.testSeries : null;
       if (!ref || typeof ref.uid !== 'string' || typeof ref.paper !== 'string' || typeof ref.holdId !== 'string') return;
+      // A replayed settle of the SAME deferred is a no-op (the job claim winner settles once; this guards a replay in-process).
+      if (SETTLED_REFS.has(ref)) return;
+      SETTLED_REFS.add(ref);
       const keep = Math.floor(Number(graded) || 0) > 0;
-      void Promise.resolve(settleHold(ref.uid, ref.paper, ref.holdId, keep)).catch(() => {});
+      const free = keep && !testSeriesRecheckDisabled(env) && mostlyUnreadable(detail);
+      void Promise.resolve(settleHold(ref.uid, ref.paper, ref.holdId, keep, free)).catch(() => {});
     } catch {
       emit('test_series.settle_failed');
     }
@@ -522,6 +567,9 @@ function createTestSeriesChecks(deps = {}) {
 module.exports = {
   createTestSeriesChecks,
   testSeriesChecksDisabled,
+  testSeriesRecheckDisabled,
+  mostlyUnreadable,
+  freeRecheckSpent,
   testSeriesMoreDisabled,
   isMorePaper,
   setTestSeriesDeferred,
@@ -539,6 +587,9 @@ module.exports = {
   CHECKS_PER_PAPER,
   CHECKS_FIELD,
   HOLDS_FIELD,
+  FREE_FIELD,
+  FREE_RECHECKS_PER_PAPER,
+  UNREADABLE_SHARE,
   HOLD_TTL_MS,
   MANIFEST_PATH,
   MANIFEST_FIELDS: F,

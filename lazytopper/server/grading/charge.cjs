@@ -53,4 +53,41 @@ function chargeableCountOf(res) {
   return Number.isFinite(v) && v >= 0 ? v : undefined;
 }
 
-module.exports = { GRADED_COUNT, isChargeable, chargeableCount, setChargeableCount, chargeableCountOf };
+// TS-RECHECK-1 — the "could not read your sheet" summary of a graded set, for the Test Series free re-check
+// (services/testSeriesChecks.cjs). Keyed on the SAME `_reason` as isChargeable. Counted: the grader could not read / locate the
+// answer ('couldNotRead' — incl. a reply with nothing for the question; 'notInInventory' — not on any uploaded page), the quoted
+// first line is not in the question's own work ('firstLineNotInWork'), or the answer is to another question ('answerMismatch' —
+// the sheet is of a different paper). NEVER counted: a blank the student really left ('unattempted', 'blankInInventory'), a
+// timeout / failure / withheld grade (the grader's fault or a policy, not the sheet), or an MCQ option that could not be read.
+const UNREADABLE_REASONS = new Set(['couldNotRead', 'notInInventory', 'firstLineNotInWork', 'answerMismatch']);
+const UNREADABLE_SUMMARY = Symbol.for('lazytopper.grading.unreadableSummary');
+
+/** True when this normalised per-question result is one the sheet could not support (see UNREADABLE_REASONS). */
+function isUnreadable(result) {
+  return !!result && typeof result === 'object' && UNREADABLE_REASONS.has(result._reason);
+}
+
+/** { unreadable, total } of a list of normalised results. */
+function unreadableSummary(results) {
+  const list = Array.isArray(results) ? results : [];
+  return { unreadable: list.filter(isUnreadable).length, total: list.length };
+}
+
+/** Record the summary on the response (non-enumerable; never throws). */
+function setUnreadableSummary(res, summary) {
+  if (!res || (typeof res !== 'object' && typeof res !== 'function')) return;
+  try {
+    Object.defineProperty(res, UNREADABLE_SUMMARY, { value: summary, enumerable: false, configurable: true, writable: true });
+  } catch { /* a frozen test double: no free re-check */ }
+}
+
+/** The recorded summary, or undefined. */
+function unreadableSummaryOf(res) {
+  const v = res && (typeof res === 'object' || typeof res === 'function') ? res[UNREADABLE_SUMMARY] : undefined;
+  return v && Number.isFinite(v.unreadable) && Number.isFinite(v.total) ? { unreadable: v.unreadable, total: v.total } : undefined;
+}
+
+module.exports = {
+  GRADED_COUNT, isChargeable, chargeableCount, setChargeableCount, chargeableCountOf,
+  UNREADABLE_REASONS, isUnreadable, unreadableSummary, setUnreadableSummary, unreadableSummaryOf,
+};
