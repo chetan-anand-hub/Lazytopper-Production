@@ -172,7 +172,8 @@ describe("BRIDGE-PDF-1 - the approved copy, verbatim", () => {
     expect(t).toContain("it is printed on every paper, e.g. PK-S-LIGHT-CT1. Or photograph the QR at the bottom of the paper.");
     expect(t).toContain("with the email or phone number you bought with, and tap the paper.");
     expect(t).toContain("This paper (PK-M-RN-CT1) was written by our team with six deliberate mistakes");
-    expect(t).toContain("Every account gets its first paper of each kind marked free.");
+    expect(t).toContain("Free and 7-day free trial accounts can take one test with its MCQs marked free. Written answers are checked with the Test Series or the Board Pass.");
+    expect(t).not.toContain("first paper of each kind");
     expect(t).toContain("Board Pass marks every paper you write till your boards");
     expect(t).not.toMatch(/\bAI\b/);
     expect(container.querySelector('[data-pdf-link="https://www.lazytopper.com/pricing"]')).not.toBeNull();

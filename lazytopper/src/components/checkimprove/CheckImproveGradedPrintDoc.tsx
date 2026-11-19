@@ -22,6 +22,7 @@ import {
   questionChipText,
   splitWithdrawnSteps,
   stepDisplay,
+  effectiveStepStatus,
   stepShowsType,
   type MarksLostByType,
   type MistakeTypeCounts,
@@ -336,7 +337,7 @@ export function CheckImproveGradedPrintDoc({
               ) : (
                 <div className="lt-cigp__steps">
                   {steps.map((s, si) => {
-                    const sd = stepDisplay(s.status, s.mistakeType);
+                    const sd = stepDisplay(effectiveStepStatus(s), s.mistakeType);
                     const typeLabel = stepShowsType(s, q) ? mistakeTypeLabel(s.mistakeType) : null;
                     return (
                       <div key={si} className="lt-cigp__step">

@@ -13,6 +13,7 @@ import {
   isGradedQuestion,
   splitWithdrawnSteps,
   stepDisplay,
+  effectiveStepStatus,
   stepForDisplay,
 } from "../../lib/mistakeDisplay";
 import { EquationRender } from "../equation";
@@ -108,7 +109,7 @@ function StepRows({ grade }: { grade: CheckSolutionResponse | WorksheetQuestionG
     <ul className="lt-fr__steps">
       {steps.map((raw) => {
         const step = stepForDisplay(raw, grade);
-        const display = stepDisplay(step.status, step.mistakeType);
+        const display = stepDisplay(effectiveStepStatus(step), step.mistakeType);
         return (
           <li key={step.stepNumber} className="lt-fr__step" data-testid="free-check-restored-step">
             <div className="lt-fr__steprow">

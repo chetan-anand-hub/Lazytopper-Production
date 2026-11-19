@@ -61,6 +61,7 @@ import {
   isQuestionNotAttempted,
   mistakeGroupOf,
   stepDisplay,
+  effectiveStepStatus,
   stepForDisplay,
   withEffectiveCounts,
   WITHDRAWN_LABEL,
@@ -730,8 +731,8 @@ const STATUS_META: Record<
 const UNKNOWN_STATUS_META = { label: stepDisplay("unknown").label, fg: TEXT_MUTED, bg: MUTED_BG, Icon: AlertGlyph };
 
 const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep; objective?: boolean }> = ({ step, objective }) => {
-  const display = stepDisplay(step.status, step.mistakeType);
-  const meta = STATUS_META[step.status] ?? UNKNOWN_STATUS_META;
+  const display = stepDisplay(effectiveStepStatus(step), step.mistakeType);
+  const meta = STATUS_META[effectiveStepStatus(step) as CheckSolutionAnnotatedStep["status"]] ?? UNKNOWN_STATUS_META;
   const Icon = meta.Icon;
   return (
     <div
@@ -4977,10 +4978,10 @@ const DesktopCheckImprovePageInner: React.FC<{
                 {lostSteps.map((s) => (
                   <li key={s.stepNumber}>
                     <strong>Step {s.stepNumber}:</strong>{" "}
-                    {stepDisplay(s.status, s.mistakeType).kind === "not-attempted"
+                    {stepDisplay(effectiveStepStatus(s), s.mistakeType).kind === "not-attempted"
                       ? NOT_ATTEMPTED.label
                       : <EquationRender text={s.teacherAnnotation || s.description || "Marks deducted"} />}
-                    {s.marksDeducted > 0 && stepDisplay(s.status, s.mistakeType).showDeduction && (
+                    {s.marksDeducted > 0 && stepDisplay(effectiveStepStatus(s), s.mistakeType).showDeduction && (
                       <span style={{ color: DANGER_FG }}> · −{s.marksDeducted}</span>
                     )}
                   </li>

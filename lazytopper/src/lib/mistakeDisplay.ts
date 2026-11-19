@@ -854,6 +854,21 @@ export function isWithdrawnStatus(status: unknown): boolean {
 }
 
 /**
+ * TS-FIX-2 - the status a step is DRAWN with. A step the grader called "correct" that nevertheless
+ * lost marks (marksDeducted > 0) must not wear the green tick: it is "partial" when it still earned
+ * something, "incorrect" when it earned nothing. The tick follows the awarded / deducted marks, never
+ * the presence of a label. DISPLAY ONLY - the stored status, marks and mistake type are untouched.
+ * Every other status (and every step without a numeric deduction) is returned as it came.
+ */
+export function effectiveStepStatus(step: { status?: unknown; marksAwarded?: unknown; marksDeducted?: unknown } | null | undefined): unknown {
+  const status = step?.status;
+  if (status !== "correct") return status;
+  const deducted = Number(step?.marksDeducted);
+  if (!(deducted > 0)) return status;
+  return Number(step?.marksAwarded) > 0 ? "partial" : "incorrect";
+}
+
+/**
  * One step's display state. Tolerates ANY status (D4): a value this module does not know
  * renders as a neutral "Not marked", never as "Incorrect".
  *

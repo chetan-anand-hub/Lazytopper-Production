@@ -32,6 +32,7 @@ import {
   mistakeGroupOf,
   mistakeTypeLabel,
   stepDisplay,
+  effectiveStepStatus,
   stepForDisplay,
   totalCount,
   isGradedQuestion,
@@ -343,9 +344,9 @@ function MistakeBadge({ type }: { type: MistakeType | null }) {
 
 function AnnotatedStepCard({ step, objective }: { step: CheckSolutionResponse["annotatedSteps"][0]; objective?: boolean }) {
   const [showCorrected, setShowCorrected] = useState(false);
-  const display = stepDisplay(step.status, step.mistakeType);
-  const ss = STATUS_STYLE[step.status] || STATUS_STYLE.missing;
-  const isNegative = step.marksAwarded === 0 && step.status !== "correct" && display.showDeduction;
+  const display = stepDisplay(effectiveStepStatus(step), step.mistakeType);
+  const ss = STATUS_STYLE[String(effectiveStepStatus(step))] || STATUS_STYLE.missing;
+  const isNegative = step.marksAwarded === 0 && effectiveStepStatus(step) !== "correct" && display.showDeduction;
   const marksColor = step.marksAwarded > 0 ? "#22c55e" : "#ef4444";
   const marksBg = step.marksAwarded > 0 ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)";
   const marksLabel = step.marksAwarded > 0
