@@ -833,3 +833,17 @@ test('TS-PACK-1: an abandoned Test Series order is followed up with its own line
     else process.env.TS_PACK_DISABLED = before;
   }
 });
+
+test('TS-PRICE-2 · "Finish paying" for a Test Series order quotes 999 + GST before the cut-off and 1,499 + GST from it (an order created at 999 is not re-quoted at 999 after 1 Dec)', async () => {
+  const CUT = Date.parse('2026-12-01T00:00:00+05:30');
+  const ts = A.productOf({ passType: 'test_series', packTarget: 'all' });
+  const db = tinyDb({});
+  const before = await A.finishPayingQuote(db, 'u1', ts, CUT - 1);
+  assert.equal(before.amountPaise, 117900);
+  assert.equal(A.priceLine(ts, { amountPaise: 117900, baseInr: 999, gstInr: 180 }, CUT - 1, before), '₹999 + ₹180 GST (18%) = ₹1,179, one-time payment. It never renews.');
+  const at = await A.finishPayingQuote(db, 'u1', ts, CUT);
+  assert.equal(at.amountPaise, 176900);
+  // the abandoned order itself was made at 999 (Nov), the email goes out in Dec: it states what checkout will charge NOW
+  const line = A.priceLine(ts, { amountPaise: 117900, baseInr: 999, gstInr: 180 }, CUT + 3600000, at);
+  assert.equal(line, '₹1,499 + ₹270 GST (18%) = ₹1,769, one-time payment. It never renews.');
+});

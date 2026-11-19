@@ -17,7 +17,7 @@
  *    order in the store it claims nothing.
  *
  * ★★ NOTHING THAT DECIDES MONEY COMES FROM THE REQUEST. The request names a SKU (and its target) from the existing
- *    whitelist; the amount is the server's: a pack is `PACK_PRODUCTS[sku].priceInr`, the Board Pass is `quotePass` over
+ *    whitelist; the amount is the server's: a pack is `packBaseInrAt(sku, now)` (packProducts.cjs), the Board Pass is `quotePass` over
  *    an EMPTY subscription — exactly what a brand-new account is charged (founding price while the offer is open). The
  *    month pass (retired for new accounts) and top-ups (Premium only) are not sold to a guest.
  *
@@ -82,7 +82,7 @@ const { grantPass, isStaleFoundingOrder, PassGrantInputError, PAYMENT_SEGMENTS }
 const { grantPack, PackGrantInputError } = require('../services/packGrant.cjs');
 const { mergeAccount, hasOwnActivity } = require('../services/adminMergeAccount.cjs'); // PUT-ON-THIS-ACCOUNT-1
 const { MoveError } = require('../services/adminMovePurchase.cjs');
-const { PACK_PRODUCTS, isPackProduct, isPackOnSale, validateTarget, packIdFor } = require('../services/packProducts.cjs');
+const { packBaseInrAt, isPackProduct, isPackOnSale, validateTarget, packIdFor } = require('../services/packProducts.cjs');
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
@@ -541,7 +541,7 @@ function createGuestPayRoutes(deps = {}) {
     let quote;
     try {
       if (isPack) {
-        quote = tableQuote(PACK_PRODUCTS[sku].priceInr, now());
+        quote = tableQuote(packBaseInrAt(sku, now()), now());
       } else {
         quote = quotePass({}, GUEST_PASS_SKU, now(), { foundingOfferOpen });
       }
@@ -719,7 +719,7 @@ function createGuestPayRoutes(deps = {}) {
     let quote;
     try {
       if (isPack) {
-        quote = tableQuote(PACK_PRODUCTS[sku].priceInr, now());
+        quote = tableQuote(packBaseInrAt(sku, now()), now());
       } else {
         quote = quotePass({}, GUEST_PASS_SKU, now(), { foundingOfferOpen });
       }
@@ -822,7 +822,7 @@ function createGuestPayRoutes(deps = {}) {
     }
     let quote;
     try {
-      quote = isPack ? tableQuote(PACK_PRODUCTS[sku].priceInr, now()) : quotePass({}, GUEST_PASS_SKU, now(), { foundingOfferOpen });
+      quote = isPack ? tableQuote(packBaseInrAt(sku, now()), now()) : quotePass({}, GUEST_PASS_SKU, now(), { foundingOfferOpen });
     } catch (e) {
       emit('payments.guest.order.quote_failed');
       console.error('[pay/guest/order] quote failed:', e && e.message);

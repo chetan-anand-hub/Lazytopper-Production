@@ -8,6 +8,7 @@ const sub = vi.hoisted(() => ({ tier: "free" }));
 vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => ({ status: { tier: sub.tier } }) }));
 
 import { SeriesChecksLeftLine, SeriesStartWall, TutorBoardPassWall, useBoardPassHolder, useSeriesPaperAccess } from "./WrittenCheckGate";
+import { packPriceLabel } from "../../services/packs";
 
 afterEach(() => cleanup());
 
@@ -45,7 +46,7 @@ describe("walls", () => {
         <SeriesStartWall />
       </MemoryRouter>,
     );
-    expect(screen.getByTestId("series-start-wall").textContent).toContain("Upgrade to the Test Series (₹999 + GST) or the Board Pass to take all 66 tests");
+    expect(screen.getByTestId("series-start-wall").textContent).toContain(`Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all 66 tests`); // TS-PRICE-2 (edited expectation): the TS price is date-driven (999 founding, 1,499 from 1 Dec), never a literal
     expect(screen.getByTestId("series-start-wall-ts")).toBeTruthy();
     expect(screen.getByTestId("series-start-wall-bp")).toBeTruthy();
   });

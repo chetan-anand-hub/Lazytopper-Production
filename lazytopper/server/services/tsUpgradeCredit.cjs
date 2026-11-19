@@ -1,19 +1,21 @@
 'use strict';
 // TS-UPGRADE-CREDIT-1 (owner ruling 19 Nov 2026 00:03 IST) - a student who bought the Test Series Pack (sku `test_series`,
-// Rs 999 + GST) and later buys the Board Pass (`till_boards`) pays ONLY THE DIFFERENCE, "but take care of the GST".
+// Rs 999 founding / Rs 1,499 from 1 Dec 2026, + GST) and later buys the Board Pass (`till_boards`) pays ONLY THE DIFFERENCE, "but take care of the GST".
 // Server-only, MONEY code, fails CLOSED.
 //
-// ★★ THE GST RULE: the credit is the TAXABLE BASE the student paid for the Test Series (999), never the all-in amount.
-//     upgrade base = Board Pass base at ORDER time - 999;   charge = withGstInr(upgrade base)
+// ★★ THE GST RULE: the credit is the TAXABLE BASE the student ACTUALLY PAID for the Test Series (the base of their own paid
+//   order: 999 for a founding buyer, 1,499 for one who bought from 1 Dec - TS-PRICE-2), never the all-in amount and never today's list price.
+//     upgrade base = Board Pass base at ORDER time - the base paid;   charge = withGstInr(upgrade base)
 //     founding (till 30 Nov 23:59:59 IST):  1917 - 999 =  918 ->  918 + 165 = 1083   (1179 + 1083 = 2262, the Board Pass all-in)
 //     from 1 Dec 00:00 IST:                 2499 - 999 = 1500 -> 1500 + 270 = 1770   (1179 + 1770 = 2949)
+//     from 1 Dec, a 1,499 buyer:            2499 - 1499 = 1000 -> 1000 + 180 = 1180  (1769 + 1180 = 2949)
 //   The order then stores baseInr = the upgrade base and gstInr = the GST on it, so the GST invoice (taxable = baseInr,
 //   GST = amount - taxable) reproduces the charge exactly, with the Test Series named as the credited prior purchase.
 // ★★ THE CREDIT IS PROVED FROM THE SERVER'S OWN RECORDS, never from the caller: the entitlement
 //   packEntitlements/{uid}/packs/test_series:all AND the paid order it names (payOrders/{orderId}). Everything must hold:
 //   the entitlement is uncredited (creditedToPass === false), carries no refunded / duplicate / revoked mark, names its
 //   order and payment; the order is THIS uid's, a test_series order, paid (status paid / claimed), by THAT payment, not a
-//   duplicate / refunded / revoked one, with a stored GST breakup whose base is exactly the Test Series price (999) and
+//   duplicate / refunded / revoked one, with a stored GST breakup whose base is one of the two Test Series prices (999 / 1,499) and
 //   whose amount equals what the entitlement records. Anything else - including a read that fails - is credit 0, and the
 //   Board Pass is still sold at its full price (a purchase is NEVER blocked by this rule).
 // ★ ADMIN-MOVED / MERGED purchases (adminMovePurchase.cjs, adminMergeAccount.cjs): the move copies the entitlement UNCHANGED
@@ -28,13 +30,18 @@
 // ★ Kill switch: TS_UPGRADE_CREDIT_DISABLED=1 (or true/on/yes) -> no credit, no reads; the caller emits an event.
 
 const { ENTITLEMENTS_COLLECTION, PACK_SEGMENTS } = require('./packGrant.cjs');
-const { PACK_PRODUCTS, TEST_SERIES_SKU, TEST_SERIES_PACK_ID } = require('./packProducts.cjs');
+const { packAcceptedBasesInr, TEST_SERIES_FOUNDING_INR, TEST_SERIES_SKU, TEST_SERIES_PACK_ID } = require('./packProducts.cjs');
 const { chargeFor, withGstInr } = require('./passPricing.cjs');
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
 const BOARD_PASS_TYPE = 'till_boards';
-/** The base (taxable) price of the Test Series Pack - the only base this rule credits. */
-const TEST_SERIES_BASE_INR = PACK_PRODUCTS[TEST_SERIES_SKU].priceInr;
+/**
+ * The base (taxable) prices a Test Series Pack order may carry (TS-PRICE-2: 999 founding, 1,499 from 1 Dec 2026). The credit is
+ * ALWAYS the base the student's own paid order carries (`order.baseInr`), never today's list price.
+ */
+const TEST_SERIES_ACCEPTED_BASES_INR = Object.freeze(packAcceptedBasesInr(TEST_SERIES_SKU));
+/** The founding base (kept as the exported name older callers / tests read). */
+const TEST_SERIES_BASE_INR = TEST_SERIES_FOUNDING_INR;
 /** Order states that are a completed payment on an account (guest `paid_unclaimed` is not on an account yet). */
 const CREDITABLE_ORDER_STATES = Object.freeze(['paid', 'claimed']);
 const EXCLUDING_FLAGS = Object.freeze(['refunded', 'duplicate', 'revoked']);
@@ -77,8 +84,8 @@ function tsCreditRefusal(uid, pack, orderId, order) {
   if (order.packCreditInr !== undefined || order.tsUpgradeCreditInr !== undefined) return 'bad_order';
   // The BASE price actually paid, proved from the stored GST breakup (an order with no breakup - all-in, created before
   // the 7 Nov cut-off - cannot prove its taxable base: not credited).
-  if (order.baseInr !== TEST_SERIES_BASE_INR) return 'base_unproven';
-  if (!Number.isInteger(order.gstInr) || order.gstInr !== withGstInr(TEST_SERIES_BASE_INR) - TEST_SERIES_BASE_INR) return 'base_unproven';
+  if (!TEST_SERIES_ACCEPTED_BASES_INR.includes(order.baseInr)) return 'base_unproven';
+  if (!Number.isInteger(order.gstInr) || order.gstInr !== withGstInr(order.baseInr) - order.baseInr) return 'base_unproven';
   if (!Number.isInteger(order.amountPaise) || order.amountPaise !== (order.baseInr + order.gstInr) * 100) return 'base_unproven';
   if (order.amountPaise !== pack.pricePaidInr * 100) return 'amount_mismatch';
   return null;
@@ -173,6 +180,7 @@ module.exports = {
   isConsistentTsUpgradeOrder,
   tsUpgradeCreditDisabled,
   TEST_SERIES_BASE_INR,
+  TEST_SERIES_ACCEPTED_BASES_INR,
   BOARD_PASS_TYPE,
   CREDITABLE_ORDER_STATES,
 };

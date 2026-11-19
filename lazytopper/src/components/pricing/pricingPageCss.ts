@@ -1590,4 +1590,10 @@ export const PRICING_CSS = `
       padding: 12px 0;
     }
   }
+
+/* TS-PRICE-2: reserved slot for a clock-derived Test Series price (the figure inside is written after mount and stripped from the capture). */
+.lt-tsclk { display: inline-block; min-height: 1.2em; vertical-align: top; }
+.lt-tsclk--tag { min-width: 9ch; }
+.lt-tsclk--amt { min-width: 5.5ch; }
+.lt-tsclk--line { display: block; min-height: 1.3em; }
 `;

@@ -21,7 +21,7 @@ import { useOwnedPacks } from "../packs/useOwnedPacks";
 import { ownsChapter, ownsMocks, type PackSubject } from "../../services/packs";
 import type { TestSeriesStatus } from "../../services/packs";
 import { TEST_SERIES_BUY_PATH, seriesPaperKeyOfWorksheetId, seriesTotals } from "../../lib/testSeries/testSeries";
-import { packPriceLabel, testSeriesChecksLeftLine } from "../../services/packs";
+import { packPriceLabel, testSeriesChecksLeftLine, testSeriesPriceLine } from "../../services/packs";
 import { useTestSeriesOwnership } from "./testSeriesOwnership";
 import "./writtenCheckGate.css";
 
@@ -260,7 +260,7 @@ export function SeriesOfferButtons({ testIdPrefix, only }: { testIdPrefix: strin
       {only !== "board-pass" && (
       <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(TEST_SERIES_BUY_PATH, pathname, search)} data-testid={`${testIdPrefix}-ts`}>
         <span className="lt-wcg__main">Test Series</span>
-        <span className="lt-wcg__price">{packPriceLabel("test_series")} · all {seriesTotals().total} tests</span>
+        <span className="lt-wcg__price">{testSeriesPriceLine()} · all {seriesTotals().total} tests</span>
       </Link>
       )}
       <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(BOARD_PASS_PATH, pathname, search)} data-testid={`${testIdPrefix}-bp`}>
