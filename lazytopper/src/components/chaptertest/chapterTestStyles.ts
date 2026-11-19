@@ -128,6 +128,8 @@ export const CT_CSS = `
 .lt-ct__minitg .d.off { background: #cbd3dd; }
 .lt-ct__minitg .d::after { content: ""; position: absolute; top: 2px; left: 17px; width: 15px; height: 15px; border-radius: 50%; background: #fff; transition: .15s; }
 .lt-ct__minitg .d.off::after { left: 2px; }
+/* TS-UX-SCORE-1: >= 40 px tap targets on a phone (the visible switch keeps its size; the hit area grows around it). */
+@media (max-width: 820px) { .lt-ct__tg::before { content: ""; position: absolute; inset: -8px -6px; } .lt-ct__minitg { min-height: 40px; padding: 0 8px; } }
 .lt-ct__save { font-size: 11px; color: var(--ct-green-d); display: flex; align-items: center; gap: 5px; }
 .lt-ct__exit { background: var(--ct-green); border: 0; border-radius: 9px; padding: 8px 14px; font-size: 12.5px; font-weight: 700; color: #fff; cursor: pointer; font-family: var(--ct-fb); }
 .lt-ct__track { display: flex; gap: 2px; height: 4px; }

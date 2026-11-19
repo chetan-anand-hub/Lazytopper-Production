@@ -84,6 +84,7 @@ describe("TestAnalysisPanel", () => {
     expect(sp.get("focusBankIds")).toBe(`${TRI[1]},${TRI[2]}`);
 
     expect(screen.getByText("Over time")).toBeTruthy(); // Q2: 200 s > 2 marks x 72 s
+    fireEvent.click(screen.getByRole("button", { name: "Show all 3 questions" })); // TS-UX-SCORE-1: the rest sit behind a toggle
     expect(screen.getAllByText("—").length).toBeGreaterThan(0); // Q3 not measured
 
     expect(await screen.findByText("Triangles")).toBeTruthy(); // 3/14 marks → weakest

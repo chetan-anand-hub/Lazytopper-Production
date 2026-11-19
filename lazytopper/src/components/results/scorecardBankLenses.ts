@@ -44,6 +44,7 @@ import {
   type ScorecardVariant,
   type StoredChapterTestVariantInput,
   type StoredFullMockVariantInput,
+  noUploadPartial,
 } from "./scorecardVariants";
 
 /** Lazily-built canonical questionId → subtopic index (built once on first use; the
@@ -150,6 +151,7 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
 
   if (phase === "partial") {
     const objectiveMarks = `${response.gradedMarksAwarded}/${response.gradedMarksTotal}`;
+    const noUpload = input.uploadNotAllowed ? noUploadPartial(objectiveMarks, "Sections B–D") : null;
     return {
       surface: "chapter-test",
       title: name,
@@ -185,6 +187,7 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
           disabled: !input.onUploadLater,
         },
       ],
+      ...(noUpload ?? {}),
     };
   }
 
@@ -214,7 +217,7 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
       busyLabel: "Preparing PDF…",
     },
     {
-      label: "Download solution key — CBSE step-marked",
+      label: "Download worked solutions (PDF)",
       tag: "Key",
       tone: "secondary",
       onClick: input.onDownloadSolution ?? (() => {}),
@@ -320,7 +323,7 @@ export function storedChapterTestScorecardVariant(
     });
   }
   if (onDownloadSolution) {
-    actions.push({ label: "Download solution key", tone: "secondary", onClick: onDownloadSolution });
+    actions.push({ label: "Download worked solutions (PDF)", tone: "secondary", onClick: onDownloadSolution });
   }
   actions.push(doneAction);
 

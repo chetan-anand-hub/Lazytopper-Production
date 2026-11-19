@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useTestSeriesOwnership } from "../testSeries/testSeriesOwnership";
+import { seriesPaperKeyOfWorksheetId } from "../../lib/testSeries/testSeries";
+import { isSeriesPaperLocation, seriesPaperPath, withSeriesReturn } from "../../lib/testSeries/seriesNav";
 
 import { useAuth } from "../../context/AuthContext";
 import { loadSubscription, onSubscriptionHydrated, type SubscriptionStatus } from "../../services/subscriptionService";
@@ -109,6 +113,23 @@ export function scorecardHeadline(
   return ["Full marks!", `Keep every answer ${TILL_BOARDS}.`];
 }
 
+/** TS-UX-SCORE-1 - the ONE line a Test Series owner sees on a series paper's scorecard, in place of every other upsell. */
+export const SERIES_OWNER_UPSELL_LINE = "Want the tutor and the Answer Checker too? Board Pass \u2192";
+
+/**
+ * TS-UX-SCORE-1 - a Test Series owner on a series paper: the whole upsell (trial lead, Board Pass block, PDF-pack rows) is replaced by one
+ * link to the Board Pass, returning to the paper. Ownership unknown (loading, failed, signed out) -> null, so today's upsell shows.
+ * `statusPaid` true (Premium) -> the ownership read is not even asked.
+ */
+function useSeriesOwnerUpsell(uid: string, worksheetId: string | null | undefined, statusPaid: boolean): { to: string } | null {
+  const { pathname, search } = useLocation();
+  const onPaper = Boolean(seriesPaperKeyOfWorksheetId(worksheetId));
+  const own = useTestSeriesOwnership(onPaper && !statusPaid ? uid : null);
+  if (!onPaper || statusPaid || !own.owns || own.phase !== "ready") return null;
+  const paper = isSeriesPaperLocation(pathname, search) ? seriesPaperPath(pathname, search) : `${pathname}${search}`;
+  return { to: withSeriesReturn("/board-pass", paper) };
+}
+
 const LINE_CSS = `
 .lt-sc__up {
   display: block; width: 100%; box-sizing: border-box; min-height: 44px;
@@ -164,6 +185,7 @@ function Line({ variant, countShown, uid, block }: { variant: ScorecardVariant; 
   // The pack rows name the pack that fits THIS result (its chapter / subject, read from the host's own practice route).
   const saleHint = saleHintFromTarget(variant.guideTarget?.to);
   const [status, refresh, statusKnown] = useCachedStatus(uid);
+  const ownerUpsell = useSeriesOwnerUpsell(uid, variant.seriesWorksheetId, status.tier === "premium");
   const [open, setOpen] = useState(false);
   // Premium (a paid pass or an admin grant) never sees the ask. A running trial still does.
   const show = status.tier !== "premium";
@@ -178,6 +200,16 @@ function Line({ variant, countShown, uid, block }: { variant: ScorecardVariant; 
     if (show && countShown && (!block || statusKnown)) trackScorecardUpgrade("shown");
   }, [show, countShown, block, statusKnown]);
   if (!show) return null;
+  if (ownerUpsell) {
+    return (
+      <>
+        <style>{LINE_CSS}</style>
+        <Link className="lt-sc__up" to={ownerUpsell.to} data-testid="scorecard-series-owner-line">
+          {SERIES_OWNER_UPSELL_LINE}
+        </Link>
+      </>
+    );
+  }
   // OFFERS-V2: the whole block (headline, lead, card, rows) waits for a KNOWN record - an unhydrated cache may belong to a paid student.
   if (block && !statusKnown) return null;
   const leadButton = trialLead ? (

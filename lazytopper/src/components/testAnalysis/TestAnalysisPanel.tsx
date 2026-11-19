@@ -62,6 +62,10 @@ const EMPTY_RESPONSE: WorksheetGradeResponse = {
   worksheetTotalMarks: 0,
 };
 
+/** Rows the time table shows before the toggle when no question went over time. */
+const TIME_ROWS_WHEN_NONE_OVER = 3;
+const shownTimeRowsMin = (overCount: number): number => (overCount > 0 ? overCount : TIME_ROWS_WHEN_NONE_OVER);
+
 export default function TestAnalysisPanel(props: TestAnalysisPanelProps) {
   if (!props.current.response || !Array.isArray(props.current.response.results)) return null;
   return <TestAnalysisPanelBody {...props} />;
@@ -104,6 +108,10 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
   );
   const measured = timeRows.some((r) => r.ms !== null);
   const overCount = timeRows.filter((r) => r.over).length;
+  // TS-UX-SCORE-1: the table opens on the over-time rows (the first few rows when nothing went over); the rest sit behind a toggle.
+  const [allTimes, setAllTimes] = useState(false);
+  const shownTimeRows = allTimes ? timeRows : timeRows.filter((r, i) => (overCount > 0 ? r.over : i < TIME_ROWS_WHEN_NONE_OVER));
+  const hiddenTimeRows = timeRows.length - shownTimeRows.length;
 
   const [history, setHistory] = useState<HistoryState>({ status: "idle", rows: [], worksheetIds: [] });
   useEffect(() => {
@@ -174,7 +182,7 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
             </div>
             {retry.unroutable > 0 && (
               <p className="lt-tsa__note">
-                {retry.unroutable} question{retry.unroutable === 1 ? "" : "s"} could not be reopened as practice (not in the question bank).
+                {retry.unroutable} question{retry.unroutable === 1 ? "" : "s"} can&rsquo;t be retried here yet.
               </p>
             )}
           </>
@@ -189,13 +197,13 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
         ) : (
           <>
             <p className="lt-tsa__p">
-              Budget: {formatDuration(secondsPerMark * 1000)} min per mark.{" "}
+              Target time: {formatDuration(secondsPerMark * 1000)} min per mark.{" "}
               {overCount > 0 ? (
                 <>
                   <b>{overCount}</b> question{overCount === 1 ? "" : "s"} went over.
                 </>
               ) : (
-                "Every measured question was within budget."
+                "Every measured question was within the target time."
               )}
             </p>
             <table className="lt-tsa__tbl">
@@ -204,11 +212,11 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
                   <th className="lt-tsa__c lt-tsa__c--l">Q</th>
                   <th className="lt-tsa__c">Marks</th>
                   <th className="lt-tsa__c">Time</th>
-                  <th className="lt-tsa__c">Budget</th>
+                  <th className="lt-tsa__c">Target</th>
                 </tr>
               </thead>
               <tbody>
-                {timeRows.map((r) => (
+                {shownTimeRows.map((r) => (
                   <tr key={r.qNumber} className={r.over ? "lt-tsa__r--over" : undefined}>
                     <td className="lt-tsa__c lt-tsa__c--l">Q{r.qNumber}</td>
                     <td className="lt-tsa__c">{r.marks}</td>
@@ -221,6 +229,11 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
                 ))}
               </tbody>
             </table>
+            {(hiddenTimeRows > 0 || allTimes) && timeRows.length > shownTimeRowsMin(overCount) && (
+              <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm lt-tsa__more" aria-expanded={allTimes} data-testid="tsa-time-toggle" onClick={() => setAllTimes((v) => !v)}>
+                {allTimes ? "Show fewer" : `Show all ${timeRows.length} questions`}
+              </button>
+            )}
             <p className="lt-tsa__note">Time on screen on this device. “—” means it was not measured.</p>
           </>
         )}

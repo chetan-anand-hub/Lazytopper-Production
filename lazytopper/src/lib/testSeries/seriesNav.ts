@@ -94,3 +94,36 @@ export function seriesBackFromSearch(search: string): SeriesBackTarget | null {
   }
   return { to: TEST_SERIES_NAV_PATH, label: "Test Series" };
 }
+
+/** Where a Practice-hub chooser sends the student back to from a paper it opened (the only non-series return a paper honours). */
+export const PRACTICE_HUB_PATH = "/practice-hub";
+
+/**
+ * TS-UX-SCORE-1 - `href` with `returnTo=<returnTo>` merged into its query, only when `returnTo` is a safe internal path (an unsafe one
+ * returns `href` untouched). An existing `returnTo` on `href` is kept. Used by the Practice-hub chooser so a paper it opens can offer
+ * Back to the hub. Navigation only.
+ */
+export function withReturnTo(href: string, returnTo: unknown): string {
+  if (!isSafeInternalPath(returnTo) || !isSafeInternalPath(href)) return href;
+  const hashAt = href.indexOf("#");
+  const hash = hashAt >= 0 ? href.slice(hashAt) : "";
+  const beforeHash = hashAt >= 0 ? href.slice(0, hashAt) : href;
+  const queryAt = beforeHash.indexOf("?");
+  const path = queryAt >= 0 ? beforeHash.slice(0, queryAt) : beforeHash;
+  const params = new URLSearchParams(queryAt >= 0 ? beforeHash.slice(queryAt + 1) : "");
+  if (!params.has("returnTo")) params.set("returnTo", returnTo);
+  return `${path}?${params.toString()}${hash}`;
+}
+
+/**
+ * TS-UX-SCORE-1 - the Back row ON a series paper: a safe internal `returnTo` (a paper opened from the Practice hub) wins, else
+ * /test-series as today. The label is the word the pages show after the arrow ("Practice" / "Test Series"). Unsafe or absent -> /test-series.
+ */
+export function seriesPaperBackTarget(search: string): { to: string; word: string } {
+  const raw = new URLSearchParams(search).get("returnTo");
+  if (raw && isSafeInternalPath(raw)) {
+    if (raw === PRACTICE_HUB_PATH || raw.startsWith(`${PRACTICE_HUB_PATH}?`) || raw.startsWith(`${PRACTICE_HUB_PATH}#`)) return { to: raw, word: "Practice" };
+    if (raw === TEST_SERIES_NAV_PATH || raw.startsWith(`${TEST_SERIES_NAV_PATH}?`)) return { to: raw, word: "Test Series" };
+  }
+  return { to: TEST_SERIES_NAV_PATH, word: "Test Series" };
+}

@@ -27,6 +27,8 @@ import { canShareScore } from "./share/shareCardModel";
 import ShareWithParentsButton, { CHECK_IMPROVE_PARENTS_LABEL } from "../parentReport/ShareWithParentsButton";
 import FirstGradedAsk from "../feedback/FirstGradedAsk";
 import ScorecardUpgradeLine from "./ScorecardUpgradeLine";
+// TS-UX-SCORE-1 - the two offer buttons for a partial paper whose account may not upload; lazy so the shell keeps its light graph.
+const WrittenCheckOffers = lazy(() => import("../testSeries/WrittenCheckGate").then((m) => ({ default: m.SeriesOfferButtons })));
 import PackPromo from "../packs/PackPromoLazy";
 import { ScorecardGuide } from "../guide/lazyGuide";
 import { formatScoreNumber } from "./scoreNumber";
@@ -841,6 +843,11 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                 </button>
               ))}
             </div>
+            {variant.writtenCheckOffers && (
+              <Suspense fallback={null}>
+                <WrittenCheckOffers testIdPrefix="scorecard-wc" />
+              </Suspense>
+            )}
             {variant.footnote && <p className="lt-sc__foot">{variant.footnote}</p>}
           </div>
         ) : (

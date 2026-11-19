@@ -110,6 +110,7 @@ import {
   chapterTestDeltaLine,
   withGuideTarget,
   withPaperTutorAsks,
+  withSeriesWorksheet,
   type ScorecardTutorAsk,
 } from "../components/results/scorecardVariants";
 import { trackOnboardingEvent } from "../analytics/analytics";
@@ -148,7 +149,7 @@ import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
 import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesChecksLeftLine, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesAccess } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
-import { TEST_SERIES_NAV_PATH, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
+import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
 import { CT_PAPER_PARAM, CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterPaperNumber, seriesChapterTestOf, seriesChapterWorksheetId, seriesKeyOfWorksheetId } from "../lib/testSeries/testSeries";
 import { tsPinDisabledFor } from "../lib/testSeries/tsPinFlag";
 
@@ -254,8 +255,10 @@ export default function ChapterTestPage() {
   // TS-NAV-1 — a Test Series paper's parent is /test-series (child -> parent), not the chapter's Topic Hub. Kill switch
   // VITE_TS_NAV_DISABLED restores the Topic Hub target. "Revisit in Topic Hub" keeps going to the Topic Hub (its label says so).
   const seriesNavOn = !!seriesTest && !tsNavDisabled();
-  const backTo = seriesNavOn ? TEST_SERIES_NAV_PATH : topicBackTo;
-  const backLabel = seriesNavOn ? "Back to Test Series" : navState?.backLabel || `Back to ${topicName} · Topic Hub`;
+  // TS-UX-SCORE-1: a paper opened from the Practice-hub chooser carries a safe `returnTo` and Back leads there; else /test-series.
+  const seriesBack = seriesPaperBackTarget(location.search);
+  const backTo = seriesNavOn ? seriesBack.to : topicBackTo;
+  const backLabel = seriesNavOn ? `Back to ${seriesBack.word}` : navState?.backLabel || `Back to ${topicName} · Topic Hub`;
   // TS-NAV-1 — this paper's own URL (series param kept, one-shot review/upload dropped): what a link that leaves the paper returns to.
   const seriesPaperUrl = seriesNavOn ? seriesPaperPath(location.pathname, location.search) : null;
 
@@ -1346,7 +1349,7 @@ export default function ChapterTestPage() {
               ← {backLabel}
             </button>
             <span className="lt-ct__pagetitle">Chapter Test</span>
-            {seriesNavOn && <SeriesCrumb />}
+            {seriesNavOn && seriesBack.to !== TEST_SERIES_NAV_PATH && <SeriesCrumb />}
             {/* GUIDE-PAGES-1 — Byte's "?" helper (first visit opens once; a fixed card, no shift). */}
             <PageGuide id="ct_entry" step="page" uid={user && !user.isLocalSession ? user.uid : null} placement="end" bare />
           </div>
@@ -1584,7 +1587,7 @@ export default function ChapterTestPage() {
               ← {backLabel}
             </button>
             <span className="lt-ct__pagetitle">Chapter Test · Upload</span>
-            {seriesNavOn && <SeriesCrumb />}
+            {seriesNavOn && seriesBack.to !== TEST_SERIES_NAV_PATH && <SeriesCrumb />}
           </div>
           <SectionAPicker
             eyebrow={`Chapter Test · ${topicName}`}
@@ -1763,7 +1766,7 @@ export default function ChapterTestPage() {
               ← {backLabel}
             </button>
             <span className="lt-ct__pagetitle">Chapter Test · Result</span>
-            {seriesNavOn && <SeriesCrumb />}
+            {seriesNavOn && seriesBack.to !== TEST_SERIES_NAV_PATH && <SeriesCrumb />}
           </div>
 
           {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
@@ -1908,7 +1911,10 @@ export default function ChapterTestPage() {
           {scorecardOpen && resultsPhase === "partial" && (
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
-              variant={chapterTestScorecardVariant({
+              variant={withSeriesWorksheet(chapterTestScorecardVariant({
+                // TS-UX-SCORE-1: the SAME allow-logic the paywall below uses (ResultAccessSlot `uploadAllowed`); while the read is
+                // pending or failed the page shows neither paywall nor card, so the scorecard keeps today's upload prompt.
+                uploadNotAllowed: !(seriesPaperAccess || isBeforeSeriesRules(Date.parse(paper.createdAt))) && !seriesAccess.checking && !seriesAccess.failed,
                 name: nomen.name,
                 code: nomen.code,
                 phase: "partial",
@@ -1923,7 +1929,7 @@ export default function ChapterTestPage() {
                   setScorecardOpen(false);
                   navigate(backTo);
                 },
-              })}
+              }), paper.worksheetId)}
               onClose={() => setScorecardOpen(false)}
             />
           )}
@@ -1932,7 +1938,7 @@ export default function ChapterTestPage() {
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               limitKey={{ kind: "chapter-test", resultKey: nomen.code, worksheetId: paper.worksheetId }} // LIMITS-1 PR-2 — Chapter Test surface
-              variant={withPaperTutorAsks(withGuideTarget(chapterTestScorecardVariant({
+              variant={withSeriesWorksheet(withPaperTutorAsks(withGuideTarget(chapterTestScorecardVariant({
                 name: nomen.name,
                 code: nomen.code,
                 phase: "full",
@@ -1965,7 +1971,7 @@ export default function ChapterTestPage() {
                     }
                   : {}),
                 onRevisit: () => navigate(topicBackTo),
-              }), ctGuideTarget), fullResponse, liveTutorAskFor)}
+              }), ctGuideTarget), fullResponse, liveTutorAskFor), paper.worksheetId)}
               onClose={() => setScorecardOpen(false)}
             />
           )}

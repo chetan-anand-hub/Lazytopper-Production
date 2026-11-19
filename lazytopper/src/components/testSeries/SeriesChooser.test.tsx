@@ -19,6 +19,7 @@ vi.mock("../../services/sessionRecords", () => ({ getSessionRecordsFromCloud: as
 vi.mock("./testSeriesOwnership", () => ({ useTestSeriesOwnership: () => ({ owns: false, status: null, phase: "ready", retry: () => {} }) }));
 
 import SeriesChooser from "./SeriesChooser";
+import { withReturnTo } from "../../lib/testSeries/seriesNav";
 import { testSeriesPriceLine } from "../../services/packs";
 import { SERIES_MOCKS_PER_SUBJECT, seriesMockRounds, chapterTestSeriesHref } from "../../lib/testSeries/testSeries";
 
@@ -76,7 +77,7 @@ describe("SeriesChooser — papers per chapter (P) from the prop, no other chang
     expect(screen.getByTestId("ts-go").textContent).toMatch(/^Start .+ →$/);
     expect(screen.getByTestId("ts-go").textContent).not.toMatch(/Paper/);
     fireEvent.click(screen.getByTestId("ts-go"));
-    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe(chapterTestSeriesHref("Maths", "polynomials"));
+    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe(withReturnTo(chapterTestSeriesHref("Maths", "polynomials"), "/practice-hub"));
   });
 
   it("P = 5: five tiles, the CTA names the paper, the URL carries it; 'k of 5 done' counts papers with a record", async () => {
@@ -92,7 +93,7 @@ describe("SeriesChooser — papers per chapter (P) from the prop, no other chang
     fireEvent.click(screen.getByTestId("ts-paper-4"));
     expect(screen.getByTestId("ts-go").textContent).toMatch(/· Paper 4 →$/);
     fireEvent.click(screen.getByTestId("ts-go"));
-    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe("/chapter-test/10/Maths/real-numbers?series=1&paper=4");
+    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe("/chapter-test/10/Maths/real-numbers?series=1&paper=4&returnTo=%2Fpractice-hub");
   });
 });
 
@@ -107,7 +108,7 @@ describe("SeriesChooser — TS-MORE-1: P = 5 is live from code (no prop)", () =>
     expect(screen.getAllByTestId(/^ts-paper-\d$/)).toHaveLength(5);
     fireEvent.click(screen.getByTestId("ts-paper-1"));
     fireEvent.click(screen.getByTestId("ts-go"));
-    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe(chapterTestSeriesHref("Maths", "polynomials"));
+    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe(withReturnTo(chapterTestSeriesHref("Maths", "polynomials"), "/practice-hub"));
     expect(chapterTestSeriesHref("Maths", "polynomials", 1)).toBe("/chapter-test/10/Maths/polynomials?series=1");
     expect(chapterTestSeriesHref("Maths", "polynomials", 3)).toBe("/chapter-test/10/Maths/polynomials?series=1&paper=3");
   });
@@ -121,7 +122,7 @@ describe("SeriesChooser — TS-MORE-1: P = 5 is live from code (no prop)", () =>
     expect(screen.getByTestId("ts-paper-1").getAttribute("aria-label")).toMatch(/not started/);
     fireEvent.click(screen.getByTestId("ts-paper-3"));
     fireEvent.click(screen.getByTestId("ts-go"));
-    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe("/chapter-test/10/Maths/polynomials?series=1&paper=3");
+    expect((await screen.findByTestId("probe")).getAttribute("data-url")).toBe("/chapter-test/10/Maths/polynomials?series=1&paper=3&returnTo=%2Fpractice-hub");
   });
   it("kill switch VITE_TS_MORE_DISABLED: one paper per chapter, no tiles", async () => {
     vi.stubEnv("VITE_TS_MORE_DISABLED", "1");
