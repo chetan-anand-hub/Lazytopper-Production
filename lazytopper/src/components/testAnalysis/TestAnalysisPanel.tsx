@@ -6,7 +6,8 @@
 // results body, so nothing above it moves when the history arrives (CLS 0).
 
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { tagWhenSeriesPaper } from "../../lib/testSeries/seriesNav";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import { getAllSessionPerQuestionFromCloud, getSessionRecordsFromCloud } from "../../services/sessionRecords";
 import {
@@ -70,6 +71,10 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
   const { surface, subject, uid, secondsPerMark, returnTo } = props;
   const current = { ...props.current, response: props.current.response ?? EMPTY_RESPONSE };
   const disabled = tsAnalysisDisabled(import.meta.env.VITE_TS_ANALYSIS_DISABLED);
+  // TS-NAV-1: on a series paper every practice link leaving this panel carries `from=test-series&returnTo=<paper>` (an existing
+  // returnTo is kept), so the page it opens has a Back that returns to the paper. Off a series paper: the link, unchanged.
+  const loc = useLocation();
+  const tag = (to: string) => (to.startsWith("/practice") ? tagWhenSeriesPaper(to, loc.pathname, loc.search) : to);
 
   const currentRows = useMemo(
     () =>
@@ -160,7 +165,7 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
             </p>
             <div className="lt-tsa__btns">
               {retry.groups.map((g) => (
-                <Link key={`${g.subject}-${g.chapter}`} className="lt-ct__btn lt-ct__btn--primary lt-ct__btn--sm lt-tsa__btn" to={g.to}>
+                <Link key={`${g.subject}-${g.chapter}`} className="lt-ct__btn lt-ct__btn--primary lt-ct__btn--sm lt-tsa__btn" to={tag(g.to)}>
                   {retry.groups.length === 1
                     ? `Re-attempt my wrong questions (${g.ids.length})`
                     : `${g.label}: re-attempt ${g.ids.length}`}
@@ -243,7 +248,7 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
                     · {w.subject} · {w.pct}% ({formatMarks(w.awarded)}/{formatMarks(w.total)})
                   </span>
                 </span>
-                <Link className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" to={w.practiseTo}>
+                <Link className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" to={tag(w.practiseTo)}>
                   Practise this chapter
                 </Link>
               </li>
@@ -259,7 +264,7 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
                 <li key={t.key} className="lt-tsa__row">
                   <span className="lt-tsa__rowt">{t.text}</span>
                   {t.to ? (
-                    <Link className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" to={t.to}>
+                    <Link className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" to={tag(t.to)}>
                       Start
                     </Link>
                   ) : (
