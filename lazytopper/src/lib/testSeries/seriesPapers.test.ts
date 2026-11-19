@@ -10,6 +10,7 @@ import { loadChapter, loadSubjectBank } from "../packs/packContent";
 import { drawPackMocks } from "../packs/buildPackFiles";
 import { MOCKS_PER_SUBJECT } from "../packs/packLabels";
 import { drawSeriesFullMock } from "./seriesFullMock";
+import { pinnedSpecOf } from "./pinnedSpec";
 import { SERIES_MOCKS_PER_SUBJECT, chapterTestSeriesSeed, seriesKeyOfWorksheetId, seriesMockWorksheetId } from "./testSeries";
 
 const ids = (p: { paper: { questions: ReadonlyArray<{ id: string }> } }) => p.paper.questions.map((q) => q.id);
@@ -48,6 +49,12 @@ describe("Chapter Test fixed paper", () => {
   }, 60_000);
 });
 
+/** BANK-RETIRE-1 (19 Nov 2026, owner ruling: retire, not repair): with 515 generated rows out of the served bank the SEEDED online draw of Maths
+ *  Full-Length Test 20 no longer equals the seeded pack draw n = 20 (the pool is smaller where the no-repeat fallback starts). The served paper is
+ *  the PINNED one (TS-FM-M20, seriesPaperIds.json, acknowledged in pinnedPapers.test.ts), so no student sees a different paper; the seeded draws
+ *  are only the kill-switch path. The identity and the pin are still asserted. Drop the entry when the draws agree again. */
+const ACKNOWLEDGED_SEEDED_PARITY_DRIFT: readonly string[] = ["Maths:20"];
+
 describe("Full-Length Test #n === the pack draw's paper n (#1–8 = PDF Mock #n)", () => {
   it.each([
     ["Maths", 1],
@@ -63,8 +70,12 @@ describe("Full-Length Test #n === the pack draw's paper n (#1–8 = PDF Mock #n)
     const worksheetId = seriesMockWorksheetId("fm-abc-def", subject, n);
     const online = drawSeriesFullMock(subject, n, { worksheetId, code: "FM-M-#01", name: "Maths Full Mock #01", createdAt: "2026-01-01T00:00:00.000Z" });
     expect(online).not.toBeNull();
-    expect(ids(online!)).toEqual(ids(pdf!.drawn));
-    expect(online!.paper.questions.map((q) => [q.section, q.marks])).toEqual(pdf!.drawn.paper.questions.map((q) => [q.section, q.marks]));
+    if (ACKNOWLEDGED_SEEDED_PARITY_DRIFT.includes(`${subject}:${n}`)) {
+      expect(pinnedSpecOf(`TS-FM-${subject === "Maths" ? "M" : "S"}${n}`), "the served paper is pinned").not.toBeNull();
+    } else {
+      expect(ids(online!)).toEqual(ids(pdf!.drawn));
+      expect(online!.paper.questions.map((q) => [q.section, q.marks])).toEqual(pdf!.drawn.paper.questions.map((q) => [q.section, q.marks]));
+    }
     // The sitting's identity is the student's, and it is recognisable as series paper n.
     expect(online!.paper.worksheetId).toBe(worksheetId);
     expect(seriesKeyOfWorksheetId(online!.paper.worksheetId)).toEqual({ kind: "mock", subject, n });

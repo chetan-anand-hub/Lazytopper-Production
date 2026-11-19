@@ -75,9 +75,17 @@ import { TRACKING_CONCEPTS, TRACKING_CONCEPT_SOURCES } from "./trackingConcepts"
 // (pair-of-linear-equations / acids-bases-and-salts) leave the reviewed list; the MAPPED label "Roots by Formula" STAYS in the map (mistakeConcept.ts resolves a
 // stored mistake through it at read time) and is allowed to be un-served ONLY through PAUSED_LABELS below. Coverage pin 0.9191 -> 0.9189 (measured 0.91899).
 // [FU-CONCEPTLABEL-RATCHET-RESTORE-BANKSTEPS]: each REPAIR PR that serves one of these rows again restores its reviewed label here, drops the PAUSED_LABELS entry and raises the pin back.
+// 19 Nov 2026 BANK-RETIRE-1 (owner ruling: retire, not repair): 515 generated AI-pack rows leave the served bank (10694 -> 10179). Seven labels (three mapped,
+// four generic reviewed) are carried by no served row any more; conceptLabelMap.ts is untouched (mistakeConcept.ts resolves a stored mistake through the map at
+// read time) and the seven are allowed to be un-served ONLY through PAUSED_LABELS below. Mapped stays 1850, reviewed stays 138. Rows with a concept go
+// 9745 of 10580 -> 9359 of 10179 (0.91944 by runtime import): the pin moves 0.9210 -> 0.9194 by exactly the retired rows, which carried a concept slightly more often.
 const MIN_MAPPED_LABELS = 1850;
 /** Labels whose every row is paused by BANK-STEPS-1: allowed to be mapped while served by nothing. Pinned both ways in the tests below. */
 const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
+  // 19 Nov 2026 BANK-RETIRE-1: the only rows under these labels were generated AI-pack rows, now retired (bankFix/bankRetire1Withholds.ts). The PR that serves a row again drops its entry.
+  { chapter: "carbon-and-its-compounds", label: "Homologous Series and Nomenclature" },
+  { chapter: "carbon-and-its-compounds", label: "Homologous Series, Nomenclature, Chemical Properties" },
+  { chapter: "heredity", label: "Hereditary Material" },
   // 14 Oct MATHS-UNKNOWN-OWNER-1 PR B (D3): PL2-R14 and SAV2-R16 serve again, so "Degree of Polynomial" and "Total Surface Area" have carriers and leave this list.
   // 17 Oct WITHHOLD-TRI-GDR-1 (#1222): the label's only row, LIGHT-EXMPLR-9-LA-002, is paused (object at F: NCERT 2026-27 Table 9.4
   // "Image would not be formed"). Its repair PR serves the row again and drops this entry.
@@ -86,6 +94,14 @@ const PAUSED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
   // ledger bankFix/bankResidue1Ledger.ts). The PR that serves the row again drops the entry.
   { chapter: "electricity", label: "Case-Based — Parallel Circuit with Headlights and Sidelights" },
   { chapter: "life-processes", label: "Excretion — Urine and Urinary System (or Circulation — Arteries vs Veins)" },
+];
+/** 19 Nov 2026 BANK-RETIRE-1: generic REVIEWED (unmapped) labels whose every row was a generated AI-pack row, now retired. They stay in conceptLabelMap.ts untouched
+ *  and are allowed to be un-served ONLY here; the PR that serves a row again drops its entry. */
+const PAUSED_REVIEWED_LABELS: ReadonlyArray<{ chapter: string; label: string }> = [
+  { chapter: "statistics", label: "Mean, Median, Mode" },
+  { chapter: "life-processes", label: "Nutrition, Respiration, Transportation" },
+  { chapter: "life-processes", label: "Respiration, Transportation, Excretion" },
+  { chapter: "control-and-coordination", label: "Nervous System & Hormones" },
 ];
 const MAX_REVIEWED_LABELS = 138; // 14 Oct SCI-BACKLOG-1 batch 4 (F): +2 reviewed generic labels "Statistics" and "Pair of Linear Equations in Two Variables" (2026-STAT-SA-02, 2026-PLE-SA-02 serve again)
 /** served rows whose label resolves to a concept / all served rows (see the dated comments above). */
@@ -104,7 +120,7 @@ const MAX_REVIEWED_LABELS = 138; // 14 Oct SCI-BACKLOG-1 batch 4 (F): +2 reviewe
 // re-measured by runtime import on the merged tree: 9730 of 10565 = 0.92097 -> pin 0.9210 -> 0.9209.
 // 17 Oct OUR-ENV-NCERT-1 (#1233), merged on trunk 9172cc80: 15 NCERT Ch 13 Our Environment rows, all under mapped labels (9730 -> 9745):
 // re-measured by runtime import on the merged tree: 9745 of 10580 = 0.92108 -> pin 0.9209 -> 0.9210.
-const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9210;
+const MIN_ROWS_WITH_CONCEPT_FRACTION = 0.9194;
 
 const isChapterEchoSubtopic = echoFromShape;
 
@@ -130,6 +146,7 @@ function auditMap(
   mapped: Readonly<Record<string, Readonly<Record<string, string>>>>,
   reviewed: Readonly<Record<string, Readonly<Record<string, UnmappedLabelReview>>>>,
   paused: ReadonlyArray<{ chapter: string; label: string }> = PAUSED_LABELS,
+  pausedReviewed: ReadonlyArray<{ chapter: string; label: string }> = PAUSED_REVIEWED_LABELS,
 ): Problem[] {
   const problems: Problem[] = [];
   const has = (o: object | undefined, k: string) =>
@@ -151,7 +168,7 @@ function auditMap(
     for (const [chapter, byLabel] of Object.entries(table)) {
       for (const label of Object.keys(byLabel)) {
         const isServed = !!served.get(chapter)?.has(label);
-        const isPaused = paused.some((p) => p.chapter === chapter && p.label === label);
+        const isPaused = (kind === "stale-mapped" ? paused : pausedReviewed).some((p) => p.chapter === chapter && p.label === label);
         if (!isServed && !isPaused) problems.push({ kind, chapter, label });
         if (isServed && isPaused) problems.push({ kind: "paused-but-served", chapter, label });
         if (isChapterEchoSubtopic(label)) problems.push({ kind: "echo-entry", chapter, label });
@@ -227,7 +244,7 @@ describe("conceptLabelMap — ratchet over the served bank", () => {
 
 describe("conceptLabelMap — PAUSED_LABELS (BANK-STEPS-1)", () => {
   it("each paused label is carried ONLY by withheld ids, and by at least one", () => {
-    for (const { chapter, label } of PAUSED_LABELS) {
+    for (const { chapter, label } of [...PAUSED_LABELS, ...PAUSED_REVIEWED_LABELS]) {
       const carriers = (RAW_CANONICAL_QUESTION_BANK as unknown as Array<{ id: string; topicKey: string; subtopic: string }>).filter(
         (q) => resolveCanonicalSlug(q.topicKey) === chapter && String(q.subtopic).trim() === label,
       );

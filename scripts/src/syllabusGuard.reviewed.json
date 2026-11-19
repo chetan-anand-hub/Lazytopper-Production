@@ -244,15 +244,6 @@
       "verdict": "review",
       "reason": "Prove √3 + √5 irrational (NCERT Exemplar): built from named-prime surds; provable with √3 alone by isolating √5 and squaring; not the general √p + √q.",
       "evidence": "lazytopper/src/config/syllabus2026-27.ts:264-266 (owner ruling R1, IN: same-method proofs for a named prime and expressions built from such surds)"
-    },
-    {
-      "rule": "G4-R1-IRRATIONAL",
-      "surface": "bank",
-      "rowId": "RN2-043",
-      "matched": "two prime surds √2, √3",
-      "verdict": "review",
-      "reason": "Prove √2 + √3 irrational: built from named-prime surds; provable with √2 alone by isolating √3 and squaring (√2 = (r² − 1)/(2r)); not the general √p + √q that R1 puts OUT.",
-      "evidence": "lazytopper/src/config/syllabus2026-27.ts:264-266 (owner ruling R1, IN: same-method proofs for a named prime and expressions built from such surds)"
     }
   ]
 }

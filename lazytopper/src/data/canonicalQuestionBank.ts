@@ -574,6 +574,7 @@ import { OUR_ENVIRONMENT_C3_CBQ_LT_GENERATED } from './questionBanks/class10/sci
 // OUR-ENV-NCERT-1 (2026-10-17) — NCERT Ch 13 Our Environment textbook questions (jesc113.pdf, Reprint 2026-27).
 // Authentic questions; authored solutions (registered in AI_GENERATED_SOLUTION_SOURCES below).
 import { OE_TEXTBOOK } from './questionBanks/class10/science/ourEnvironment.ncert';
+import { BANK_RETIRE_1_WITHHELD_IDS } from "./bankFix/bankRetire1Withholds";
 
 // ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
 // The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
@@ -2090,6 +2091,8 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // FIND-3 (D179, D189): SCQ-S booklet rows judged WRONG (scientific error, empty or mismatched key, garbled stem); rewrite owner A, from NCERT
   // PYQ-RESTORE-B PR-1 (23 Oct): 41 Maths PYQ rows (blank / garbled / mojibake / answer-mismatch / garbled-options / figure) re-read from the official CBSE papers and marking schemes and served again (ledger bankFix/pyqRestoreBLedger.ts; ids leave this block)
   // PYQ-RESTORE-B PR-2 (23 Oct): 10 Science PYQ rows (figure / garbled / bilingual-residue stems) re-read from the official CBSE papers and marking schemes and served again (ledger bankFix/pyqRestoreBScienceLedger.ts; ids leave this block)
+  // BANK-RETIRE-1 (19 Nov, owner ruling): 515 generated AI-pack rows with unmarked/unsplittable steps are retired, not repaired (list + reason: bankFix/bankRetire1Withholds.ts)
+  ...BANK_RETIRE_1_WITHHELD_IDS,
 ]);
 
 /**

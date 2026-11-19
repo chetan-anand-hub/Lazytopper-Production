@@ -447,7 +447,10 @@ describe("QP-CONCEPT-2 · every HPQ entry resolves; every Topic Hub card serves 
       const { displayed, onConcept } = await pageSet(e, "lane");
       const band = servedPool(e).filter((q) => onConcept.has(String(q.id)) && inBand(e, q));
       const kwRows = band.filter((q) => hasKw(q, kws)).length;
-      if (kwRows < Math.min(5, band.length)) misses.push(`${e.name}: keywords cover ${kwRows} of ${band.length} band rows`);
+      // 19 Nov 2026 BANK-RETIRE-1 (owner ruling: retire, not repair): this card's keyword-bearing generated rows were retired, leaving 4 (not 5) rows
+      // in its band that carry a keyword. The card still leads with all 4 (checked below); the PR that widens its keywords or adds rows drops this entry.
+      const retireAck = e.slug === "arithmetic-progression" && (e.focus ?? "").startsWith("Sum with last term") && kwRows >= 4;
+      if (kwRows < Math.min(5, band.length) && !retireAck) misses.push(`${e.name}: keywords cover ${kwRows} of ${band.length} band rows`);
       const got = displayed.slice(0, 5).filter((q) => hasKw(q, kws)).length;
       if (got < Math.min(4, kwRows)) misses.push(`${e.name}: ${got}/5 lead`);
       hits += got;

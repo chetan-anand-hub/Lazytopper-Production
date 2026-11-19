@@ -93,13 +93,15 @@ describe("FILTER-FIX-1 · real-bank sweep — 26 chapters x every filter value",
 
 describe("FILTER-FIX-1 · Others", () => {
   it("drops exactly the -EXEM2- exemplar rows (AP 386, CG 288, ARC 226, SAV 220, Stats 251)", () => {
-    expect(n("arithmetic-progression", "all", "all", "others", "all")).toBe(386);
-    expect(n("coordinate-geometry", "all", "all", "others", "all")).toBe(288);
+    // BANK-RETIRE-1 (19 Nov 2026, owner ruling: retire, not repair): 515 generated AI-pack rows left the served pools. Others now
+    // AP 386 -> 365, CG 288 -> 276, ARC 225 -> 216, SAV 219 -> 208, Stats 250 -> 230. PYQ and NCERT counts below are unchanged.
+    expect(n("arithmetic-progression", "all", "all", "others", "all")).toBe(365);
+    expect(n("coordinate-geometry", "all", "all", "others", "all")).toBe(276);
     // PYQ-RESTORE-B PR-1 (2026-10-23): ARC 226 -> 225, SAV 220 -> 219, Stats 251 -> 250 - one Others-filed board row each
     // (PYQ-M-2026-CIRC-002, PYQ-M-2024-SAV-006, PYQ-M-2026-STAT-002) re-read from the official paper and restored as PYQ.
-    expect(n("areas-related-to-circles", "all", "all", "others", "all")).toBe(225);
-    expect(n("surface-areas-and-volumes", "all", "all", "others", "all")).toBe(219);
-    expect(n("statistics", "all", "all", "others", "all")).toBe(250);
+    expect(n("areas-related-to-circles", "all", "all", "others", "all")).toBe(216);
+    expect(n("surface-areas-and-volumes", "all", "all", "others", "all")).toBe(208);
+    expect(n("statistics", "all", "all", "others", "all")).toBe(230);
     for (const slug of ["arithmetic-progression", "coordinate-geometry", "areas-related-to-circles", "surface-areas-and-volumes", "statistics"]) {
       // An exemplar id stays in Others ONLY when BANK-FIX-1 overrode its source (unconfirmed row).
       for (const q of pools.get(slug)!) {
@@ -134,15 +136,17 @@ describe("FILTER-FIX-1 · Proof / Derivation", () => {
     // PYQs and the new 2025 Triangles rows).
     const want: Record<string, number> = {
       // BANK-RESIDUE-1 (2026-10-23): real-numbers 49 -> 48 and coordinate-geometry 29 -> 28 (PYQ-M-RN-005, PYQ-M-CG-007 withheld).
-      "real-numbers": 48,
+      // BANK-RETIRE-1 (19 Nov 2026): generated proof rows retired - real-numbers 48 -> 41, arithmetic-progression 24 -> 23, coordinate-geometry 28 -> 23,
+      // triangles 80 -> 68, trigonometry 92 -> 56, circles 98 -> 89 (the other Maths chapters are unchanged).
+      "real-numbers": 41,
       polynomials: 8,
       "pair-of-linear-equations": 2,
       "quadratic-equations": 17,
-      "arithmetic-progression": 24,
-      triangles: 80,
-      "coordinate-geometry": 28,
-      trigonometry: 92,
-      circles: 98,
+      "arithmetic-progression": 23,
+      triangles: 68, // BANK-RETIRE-1 (19 Nov 2026): 80 -> 68
+      "coordinate-geometry": 23,
+      trigonometry: 56,
+      circles: 89,
       "areas-related-to-circles": 0,
       "surface-areas-and-volumes": 0,
       statistics: 0,
@@ -158,7 +162,7 @@ describe("FILTER-FIX-1 · Proof / Derivation", () => {
   it("Science derivations: Electricity >= 2 with both 2026 PYQs; Light; Magnetic Effects 0 (chip hidden)", () => {
     const elec = ids("electricity", "all", "proof", "all", "all");
     expect(elec.size).toBeGreaterThanOrEqual(2);
-    expect(elec.size).toBe(9); // PYQ-RESTORE-A part 2: SCQ-S-ELEC-037 (derive W = VIt) served again
+    expect(elec.size).toBe(8); // PYQ-RESTORE-A part 2: 8 -> 9 (SCQ-S-ELEC-037 served again); BANK-RETIRE-1 (19 Nov 2026): 9 -> 8, one generated derivation retired
     expect(elec.has("PYQ-S-2026-ELEC-011")).toBe(true); // "Prove that the graph follows Ohm's law"
     expect(elec.has("PYQ-S-2026-ELEC-012")).toBe(true); // "Derive an expression for the equivalent resistance"
     const light = ids("light-reflection-and-refraction", "all", "proof", "all", "all");
@@ -177,7 +181,7 @@ describe("FILTER-FIX-1 · Proof / Derivation", () => {
       "carbon-and-its-compounds": 0,
       "light-reflection-and-refraction": 4,
       "human-eye-and-colourful-world": 1,
-      electricity: 9,
+      electricity: 8, // BANK-RETIRE-1 (19 Nov 2026): 9 -> 8
       "magnetic-effects-of-electric-current": 0,
       "life-processes": 0,
       "control-and-coordination": 0,
@@ -223,7 +227,7 @@ describe("FILTER-FIX-1 · Marks bucket 4", () => {
     const four = ids("arithmetic-progression", "4", "all", "all", "all");
     expect(four.has("CBE-M-AP-B-003")).toBe(false);
     expect(four.has("CBE-M-AP-C-001")).toBe(false);
-    expect(four.size).toBe(102);
+    expect(four.size).toBe(100); // BANK-RETIRE-1 (19 Nov 2026): 102 -> 100
     for (const slug of BANK_CHAPTER_SLUGS) {
       for (const q of pools.get(slug)!) {
         if (!questionMatchesFilters(q, "4", "all", "all", "all", null)) continue;
@@ -241,18 +245,19 @@ describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 2
   it("served pools, 26 chapters: 3,369 (Maths 678 Hard + 822 Medium; Science 768 Hard + 1,101 Medium); Easy 0", () => {
     const by = (subject: string, d: string) =>
       BANK_CHAPTER_SLUGS.filter((slug) => BANK_CHAPTER_SUBJECT[slug] === subject).reduce((t, slug) => t + n(slug, "all", "hots", "all", d), 0);
-    expect(by("Maths", "Hard")).toBe(678);
+    // BANK-RETIRE-1 (19 Nov 2026): generated rows retired - Maths Hard 678 -> 611, Maths Medium 822 -> 792, Science Hard 768 -> 700, Science Medium 1,101 -> 1,095, total 3,369 -> 3,198.
+    expect(by("Maths", "Hard")).toBe(611);
     // BANK-RESIDUE-1 (2026-10-23): 25 residue rows withheld - Maths Medium 824 -> 822, Science Hard 769 -> 768, total 3,372 -> 3,369.
-    expect(by("Maths", "Medium")).toBe(822);
-    expect(by("Science", "Hard")).toBe(768);
-    expect(by("Science", "Medium")).toBe(1101);
+    expect(by("Maths", "Medium")).toBe(792);
+    expect(by("Science", "Hard")).toBe(700);
+    expect(by("Science", "Medium")).toBe(1095);
     let any = 0;
     for (const slug of BANK_CHAPTER_SLUGS) {
       any += n(slug, "all", "hots", "all", "all");
       // With HOTS chosen the Easy chip is a REAL zero in every chapter (it greys out via chipCounts).
       expect(n(slug, "all", "hots", "all", "Easy"), `${slug} HOTS + Easy`).toBe(0);
     }
-    expect(any).toBe(3369);
+    expect(any).toBe(3198);
     // Every HOTS row really is higher-order bloom at Medium / Hard (no Hard-only Applying row).
     for (const slug of BANK_CHAPTER_SLUGS) {
       for (const q of pools.get(slug)!) {
@@ -265,7 +270,7 @@ describe("GUIDE-FILTER-1 · HOTS = higher-order at Medium / Hard (owner ruling 2
     // and the combinations the old chip tables blocked are really in the bank
     const sum = (m: string, s: string, d: string) => BANK_CHAPTER_SLUGS.reduce((t, slug) => t + n(slug, m, s, "all", d), 0);
     expect(sum("1", "hots", "all")).toBe(971);
-    expect(sum("4", "hots", "all")).toBe(825);
+    expect(sum("4", "hots", "all")).toBe(786); // BANK-RETIRE-1 (19 Nov 2026): 825 -> 786 (1-mark HOTS 971, Hard 1-mark 270, Easy 4-mark 81 unchanged)
     expect(sum("1", "all", "Hard")).toBe(270);
     expect(sum("4", "all", "Easy")).toBe(81);
     expect(sum("4", "proof", "all")).toBeGreaterThan(0);
