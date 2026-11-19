@@ -6,6 +6,8 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { packPriceLabel } from "../services/packs";
+import { seriesTotals } from "../lib/testSeries/testSeries";
 import { buildFullMockSessionRecord, type SessionRecord } from "../services/sessionRecords";
 import type { PersistedWorksheet } from "../services/worksheetSessionStore";
 import type { ObjectiveScore } from "../services/chapterTestGradeService";
@@ -188,7 +190,7 @@ describe.each(["free", "trial", "premium"] as const)("Full Mock · %s account", 
       expect(screen.queryByTestId("series-start-wall")).toBeNull();
     } else {
       const wall = await screen.findByTestId("series-start-wall");
-      expect(wall.textContent).toContain("Upgrade to the Test Series (₹999 + GST) or the Board Pass to take all 180 tests");
+      expect(wall.textContent).toContain(`Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all ${seriesTotals().total} tests`);
       expect(screen.getByRole("button", { name: /Start the mock/ })).toBeTruthy();
     }
   }, 90000);

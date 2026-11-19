@@ -4,6 +4,8 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { packPriceLabel } from "../services/packs";
+import { seriesTotals } from "../lib/testSeries/testSeries";
 
 const sub = vi.hoisted(() => ({ tier: "free" as "free" | "trial" | "premium" }));
 vi.mock("../hooks/useSubscription", () => ({
@@ -109,7 +111,7 @@ describe.each(["free", "trial", "premium"] as const)("Chapter Test · %s account
       await waitFor(() => expect(document.querySelector(".lt-ct__exit")).not.toBeNull());
     } else {
       const wall = await screen.findByTestId("series-start-wall");
-      expect(wall.textContent).toContain("Upgrade to the Test Series (₹999 + GST) or the Board Pass to take all 180 tests");
+      expect(wall.textContent).toContain(`Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all ${seriesTotals().total} tests`);
       expect(document.querySelector(".lt-ct__exit")).toBeNull();
     }
   }, 90000);
