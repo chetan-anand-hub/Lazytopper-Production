@@ -138,6 +138,7 @@ import {
 import { HUB_CSS } from "./pricingHubCss";
 import { seriesTotals } from "../../lib/testSeries/testSeries";
 import { TestSeriesFoundingClause, TsClockSlot } from "../../components/packs/TestSeriesFoundingClause";
+import { TestSeriesExaminerLine, TestSeriesPerTest } from "../../components/packs/TestSeriesPerTest";
 
 /**
  * The legacy page's own private pieces the hub reuses UNCHANGED. PricingPage.tsx hands them over (it owns them; the hub never imports
@@ -713,6 +714,8 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
         <strong>{tsHead.chapter}</strong> + <strong>{tsHead.full}</strong>
         {tsHead.rest}
       </p>
+      <TestSeriesPerTest testId="hub-ts-per-test" />
+      <TestSeriesExaminerLine testId="hub-ts-examiner" />
       <Ticks items={HUB_TS_TICKS} label={`What the ${TEST_SERIES_CARD_NAME} gives`} />
       <p className="lt-ph-upsell" data-testid="hub-ts-upsell">
         <span>{HUB_TS_UPSELL_Q}</span>{" "}

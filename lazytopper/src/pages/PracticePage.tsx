@@ -732,6 +732,8 @@ import {
 } from "../services/quickPracticeGradedSheet";
 import type { SolutionCheckerSavedWorking } from "../components/question/SolutionChecker";
 import { UpgradeSheet, labelForFeature } from "../components/subscription/UpgradeSheet";
+import QpBoardPassWall from "../components/practice/QpBoardPassWall";
+import { useQpWrittenWall } from "../hooks/useQpWrittenWall";
 import { FinishGate, type FinishGateItem } from "../components/practice/FinishGate";
 
 /**
@@ -3146,6 +3148,8 @@ const packTopicKey = useMemo(() => {
   // set within the IST day is the same spend. Off (flag unset) -> always "open", nothing changes.
   const qpSetKey = practiceSetPaperKey(committedPoolSelection.displayed.map((q) => q.id));
   const qpGate = useQpGate(showScorecard, qpSetKey);
+  // GATE-QP-1 (owner ruling 19 Nov 2026) — written practice answers marked is Board Pass only for Basic / Test Series-only accounts (the trial keeps it).
+  const qpWall = useQpWrittenWall();
 
   // Optional runner countdown tick (§2.3). Runs 1/s only while the runner is open, the
   // timer is on, and the session isn't finished. Functional guard stops the tick at the
@@ -3300,7 +3304,8 @@ const packTopicKey = useMemo(() => {
    * the set is graded, Finish shows the scorecard as it always did.
    */
   const requestFinish = useCallback(() => {
-    if (!reviewMode && !batchResult) {
+    // GATE-QP-1: no written answers are collected on a walled account, so there is nothing for the Finish gate to ask for.
+    if (!reviewMode && !batchResult && !qpWall) {
       const items: FinishGateItem[] = [];
       filteredQuestions.forEach((q, index) => {
         const id = String(q.id);
@@ -3314,7 +3319,7 @@ const packTopicKey = useMemo(() => {
       }
     }
     finishNow();
-  }, [reviewMode, batchResult, filteredQuestions, savedAnswers, finishNow]);
+  }, [reviewMode, batchResult, qpWall, filteredQuestions, savedAnswers, finishNow]);
 
   const backToSetForReview = useCallback(() => {
     setReviewMode(true);
@@ -4000,7 +4005,9 @@ const packTopicKey = useMemo(() => {
       {/* J2 — a background grade of the last practice set, still running after a reload. */}
       <QuickPracticeJobResume user={authUserForJourney} />
       {/* QP-UPLOAD-LATER — sets saved with "Upload later", and the later upload itself. */}
-      {!overlay && (laterPanel ? (
+      {!overlay && (laterPanel && qpWall ? (
+        <QpBoardPassWall testId="qp-board-pass-wall-later" />
+      ) : laterPanel ? (
         <QuickPracticeLaterUploadPanel
           user={authUserForJourney}
           snapshot={laterPanel}
@@ -4421,6 +4428,11 @@ const packTopicKey = useMemo(() => {
         {isBuilt ? (
           <GuideMomentSlot show={qpLoadMoment && !!error && !isLoading && loadConnectionDropped} moment="m8" step="plain" />
         ) : null}
+        {/* GATE-QP-1 — before any writing: a Basic / Test Series-only student is told, once and calmly, that marking written
+            practice answers comes with the Board Pass. Only on a set that has a written question; MCQ taps stay instant. */}
+        {isBuilt && qpWall && !reviewMode && filteredQuestions.some((q) => !isObjectiveQuestion(q.format, q.section, Array.isArray(q.options) ? q.options.map(String) : null)) ? (
+          <QpBoardPassWall />
+        ) : null}
         {isBuilt && (
         <PracticeAttemptCountingProvider value={!reviewMode}>
         <PracticeQuestionList
@@ -4501,7 +4513,8 @@ const packTopicKey = useMemo(() => {
           saveNudgeUid={!reviewMode && !overlay && !finishGate ? qpMomentUid : undefined}
           // QP-WORKING-AFTER-1 / owner ruling 23 Oct 22:48 ("after the final scorecard, working isn't
           // graded") — in review there is no answer box at all: nothing is collected or sent.
-          answerBoxOff={reviewMode}
+          answerBoxOff={reviewMode || qpWall}
+          writtenLocked={qpWall}
           isStepsLocked={isStepsLocked}
         />
         </PracticeAttemptCountingProvider>
@@ -5070,7 +5083,8 @@ const packTopicKey = useMemo(() => {
               Not now
             </button>
           </div>
-        ) : !isGuest && !overlay && qpMomentUid && !objectiveLineShows ? (
+        ) : !isGuest && !overlay && qpMomentUid && !objectiveLineShows && !qpWall ? (
+          // GATE-QP-1: no Byte line inviting a written answer "marked step by step" on an account that cannot have one marked.
           // MOMENTS-1 M11 — the MCQ-only (tap-only) scorecard ONLY: never a written / C&I result.
           // GUIDE-SCORE-2 — its button opens THIS set's working box (first question), never another page.
           <M11Nudge uid={qpMomentUid} mcqAnswered={sessionStats.localMcqAnswered} onOpenWorking={null} />
@@ -5184,6 +5198,7 @@ const packTopicKey = useMemo(() => {
             <p style={{ margin: "0 0 6px", fontSize: "0.82rem", lineHeight: 1.5 }}>
               {`${reopenSnapshot.pending.length} written question${reopenSnapshot.pending.length === 1 ? " is" : "s are"} waiting for your answer${reopenSnapshot.pending.length === 1 ? "" : "s"}.`}
             </p>
+            {qpWall ? <QpBoardPassWall testId="qp-board-pass-wall-reopen" /> : (
             <button
               type="button"
               className="qp-cf__cta"
@@ -5197,6 +5212,7 @@ const packTopicKey = useMemo(() => {
             >
               Upload written answers
             </button>
+            )}
           </div>
         ) : undefined
       }

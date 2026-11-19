@@ -122,7 +122,7 @@ export function hubTsHeadline(t: SeriesTotals = seriesTotals()): { chapter: stri
     rest: " — your written answers checked step by step",
   };
 }
-/** The headline as one line ("26 chapter tests + 40 full-length board papers — your written answers checked step by step"). */
+/** The headline as one line ("130 chapter tests + 50 full-length board papers — your written answers checked step by step"). */
 export function hubTsHeadlineText(t: SeriesTotals = seriesTotals()): string {
   const h = hubTsHeadline(t);
   return `${h.chapter} + ${h.full}${h.rest}`;
@@ -139,7 +139,7 @@ export function hubTsPrice(): string {
 }
 export const HUB_TS_PRICE_META = "till your boards · pay once";
 export const HUB_TS_BUY = `Get the ${TEST_SERIES_CARD_NAME}`;
-/** "See all 66 tests →" - the total is the config's. */
+/** "See all 180 tests →" - the total is the config's. */
 export function hubTsDetails(t: SeriesTotals = seriesTotals()): string {
   return `See all ${t.total} tests →`;
 }

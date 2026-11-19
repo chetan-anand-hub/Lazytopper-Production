@@ -245,13 +245,19 @@ export function drawChapterTest(args: {
    *  served history is IGNORED, so every student who opens it gets the same questions. Takes precedence over `seed` and
    *  `servedAt`. Absent → the default fresh-draw behaviour above, unchanged. */
   fixedSeed?: string;
+  /** TS-MORE-1 — question ids of the chapter's EARLIER series papers: a row with one of these ids (or the same proof, `questionKey`)
+   *  is not drawn at all, so the new paper repeats nothing. Absent / empty → no change to any existing draw. */
+  avoidIds?: ReadonlySet<string>;
 }): DrawnChapterTest {
   const { subject, topicKey, topicLabel } = args;
   const fixed = typeof args.fixedSeed === "string" && args.fixedSeed.length > 0;
   const seed = fixed ? fixedChapterTestSeed(args.fixedSeed as string) : args.seed ?? fallbackDrawSeed(`ct|${args.worksheetId}`);
   const servedAt = fixed ? EMPTY_SERVED : args.servedAt ?? EMPTY_SERVED;
   const idOf = (q: CanonicalQuestion) => String(q.id ?? "");
-  const all = selectBankQuestions({ subject, topicKeys: [topicKey] });
+  const everyRow = selectBankQuestions({ subject, topicKeys: [topicKey] });
+  const avoidIds = args.avoidIds && args.avoidIds.size > 0 ? args.avoidIds : null;
+  const avoidKeys = avoidIds ? new Set(everyRow.filter((q) => avoidIds.has(idOf(q))).map((q) => questionKey(q))) : null;
+  const all = avoidIds && avoidKeys ? everyRow.filter((q) => !avoidIds.has(idOf(q)) && !avoidKeys.has(questionKey(q))) : everyRow;
   // Every pool comes from the ONE exported predicate above (Section A must be
   // auto-gradeable 0-or-full — key resolves to an option; B/C/D are exact numeric
   // bands, never the coarse fused buckets).

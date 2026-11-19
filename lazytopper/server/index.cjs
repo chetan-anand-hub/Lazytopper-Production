@@ -248,10 +248,10 @@ const { createGradingJobs, JOB_POLL_PATH_RE } = require('./grading/jobs.cjs');
 const { createGradingJobsRoutes } = require('./routes/gradingJobs.cjs');
 const gradingJobs = createGradingJobs({
   telemetry,
-  commitDeferred: (deferred, graded) => {
+  commitDeferred: (deferred, graded, detail) => {
     limits.settleDeferred(deferred, graded); // LIMITS-1: confirm or release the per-kind reservation
     // TS-PACK-JOBFIX: keep or release a Test Series Pack check's hold (testSeriesChecks is created below; this runs only when a job ends).
-    if (deferred && deferred.testSeries) testSeriesChecks.settleDeferred(deferred, graded);
+    if (deferred && deferred.testSeries) testSeriesChecks.settleDeferred(deferred, graded, detail);
     return fairUse.commitDeferred(deferred, graded);
   },
 });

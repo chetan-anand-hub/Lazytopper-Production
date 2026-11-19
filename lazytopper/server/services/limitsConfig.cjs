@@ -22,6 +22,8 @@ const LIMITS_CONFIG = Object.freeze({
   basic: Object.freeze({
     downloadsPerWeek: 1,
     quickPracticeGradedPerDay: 1,
+    /** GATE-QP-1 (owner ruling 19 Nov 2026): written-answer graded Quick Practice is Board Pass only on Basic (and Test Series-only). Trial keeps it. */
+    quickPracticeWrittenGradedPerDay: 0,
     /** Basic: first of each LLM-graded kind free, then the existing 402. */
     scorecardBreakdownLocked: true,
   }),

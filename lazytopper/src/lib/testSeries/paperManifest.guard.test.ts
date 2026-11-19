@@ -20,8 +20,14 @@ import {
   type SeriesPaperIds,
   type SeriesPaperManifestEntry,
 } from "./paperManifest";
-import { seriesTotals } from "./testSeries";
-import { RAW_CANONICAL_QUESTION_BANK } from "../../data/canonicalQuestionBank";
+import { SERIES_MAX_MOCKS_PER_SUBJECT, SERIES_MAX_PAPERS_PER_CHAPTER, seriesChapterTests, seriesFullMocks, seriesTotals } from "./testSeries";
+import { unservedChapterIds } from "./pinnedChapterTest";
+import { unservedMockIds } from "./pinnedFullMock";
+import { ensureAllBankChapters } from "../../data/bankChapters/loader";
+import { RAW_CANONICAL_QUESTION_BANK, canonicalQuestionBank } from "../../data/canonicalQuestionBank";
+import { PACK_SYLLABUS_EXCLUDED } from "../packs/packContent";
+import { questionKey } from "../../utils/questionKey";
+import { embeddedRetiredRows } from "./rawBankRows";
 import { predictedQuestions } from "../../data/predictedQuestions";
 import { sciencePredictedQuestions } from "../../data/predictedQuestionsScience";
 import { CT_BLUEPRINT } from "../../components/chaptertest/chapterTestBlueprint";
@@ -29,6 +35,26 @@ import { FM_BLUEPRINT } from "../../components/fullmock/fullMockBlueprint";
 
 const FILE = resolve(__dirname, "../../../server/data/testSeriesPapers.json");
 const CLIENT_FILE = resolve(__dirname, "seriesPaperIds.json");
+/** TS-MORE-1: the retired / withheld rows some pinned papers still hold, embedded so those papers never fetch the raw bank. */
+const RETIRED_FILE = resolve(__dirname, "seriesRetiredRows.json");
+
+/** The pinned ids the paper builders find UNSERVED (they then look in the raw bank / the embedded rows). Needs every chapter loaded. */
+function unservedPinnedIds(ids: SeriesPaperIds): string[] {
+  const out = new Set<string>();
+  for (const t of seriesChapterTests()) {
+    const spec = ids[`TS-${t.code}`];
+    if (spec) for (const id of unservedChapterIds(spec, t.subject, t.topicKey)) out.add(id);
+  }
+  for (const m of seriesFullMocks()) {
+    const spec = ids[`TS-${m.code}`];
+    if (spec) for (const id of unservedMockIds(spec, m.subject)) out.add(id);
+  }
+  return [...out].sort();
+}
+const rawRowJson = (id: string) => {
+  const row = RAW_CANONICAL_QUESTION_BANK.find((q) => String(q.id) === id);
+  return row ? (JSON.parse(JSON.stringify(row)) as unknown) : undefined;
+};
 /** TS-PACK-1: the canonical-text hash, sha256 hex (the server's canonicalQuestionTextHash hashes the same canonical text). */
 const sha256 = (s: string) => createHash("sha256").update(s, "utf8").digest("hex");
 const serverChecks = createRequire(import.meta.url)("../../../server/services/testSeriesChecks.cjs") as {
@@ -42,10 +68,19 @@ const readIds = () => JSON.parse(readFileSync(CLIENT_FILE, "utf8")) as SeriesPap
 describe("Test Series paper manifest", () => {
   it("CREATE NEW PAPERS (LT_WRITE_TEST_SERIES_MANIFEST=1 only): appends entries for keys the files do not have; never changes an existing one", async () => {
     if (process.env.LT_WRITE_TEST_SERIES_MANIFEST !== "1") return;
-    const fresh = await buildSeriesPaperManifest(sha256);
-    const merged = appendNewSeriesPapers(readEntries(), existsSync(CLIENT_FILE) ? readIds() : {}, fresh);
+    const committedIds = existsSync(CLIENT_FILE) ? readIds() : {};
+    const fresh = await buildSeriesPaperManifest(sha256, committedIds);
+    const merged = appendNewSeriesPapers(readEntries(), committedIds, fresh);
     writeFileSync(FILE, serializeSeriesPaperManifest(merged.entries));
     writeFileSync(CLIENT_FILE, serializeSeriesPaperIds(merged.paperIds));
+    // TS-MORE-1: the embedded retired rows (a cache of raw rows, regenerated whole; the pins above are what is append-only).
+    await ensureAllBankChapters();
+    const rows: Record<string, unknown> = {};
+    for (const id of unservedPinnedIds(merged.paperIds)) {
+      const row = rawRowJson(id);
+      if (row) rows[id] = row;
+    }
+    writeFileSync(RETIRED_FILE, `${JSON.stringify(rows, null, 2)}\n`);
     // eslint-disable-next-line no-console
     console.log(`TS-PIN-1 generator: added ${merged.added.length} [${merged.added.join(", ")}]; existing papers whose seeded draw has drifted (kept as committed): ${merged.drifted.length}`);
   }, 600_000);
@@ -109,6 +144,7 @@ describe("Test Series paper manifest", () => {
   });
 
   it("one entry per numbered paper; every paper has questions and its written ids are a subset", () => {
+    // (the file holds every paper TS-MORE-1 can offer: 130 chapter papers + 50 full-length papers = seriesTotals().total unflagged)
     const entries = JSON.parse(readFileSync(FILE, "utf8")) as Array<{
       key: string;
       kind: string;
@@ -127,7 +163,7 @@ describe("Test Series paper manifest", () => {
     }
   });
 
-  it("TS-PACK-1: every written id carries a canonical-text hash, and the SERVER loads all of them (66 papers, none dropped)", () => {
+  it("TS-PACK-1: every written id carries a canonical-text hash, and the SERVER loads all of them (180 papers, none dropped)", () => {
     const entries = JSON.parse(readFileSync(FILE, "utf8")) as Array<{ key: string; sectionBEQuestionIds: string[]; textHashes?: Record<string, string> }>;
     for (const e of entries) {
       expect(Object.keys(e.textHashes ?? {}).sort(), e.key).toEqual([...e.sectionBEQuestionIds].sort());
@@ -136,7 +172,7 @@ describe("Test Series paper manifest", () => {
     const errors: string[] = [];
     const loaded = serverChecks.loadManifest(FILE, { error: (m) => errors.push(m) });
     expect(loaded.count).toBe(seriesTotals().total);
-    expect(loaded.count).toBe(66);
+    expect(loaded.count).toBe(180);
     expect(loaded.dropped).toBe(0);
     expect(errors).toEqual([]);
   });
@@ -147,4 +183,100 @@ describe("Test Series paper manifest", () => {
       expect(sha256(canonicalQuestionText(t))).toBe(serverChecks.canonicalQuestionTextHash(t));
     }
   });
+});
+
+/* ── TS-MORE-1: 180 papers ─────────────────────────────────────────────────────── */
+
+/** sha256 of the ORIGINAL 66 papers exactly as TS-PIN-1 committed them (JSON.stringify of the first 66 entries / the 66 client specs). */
+const ORIGINAL_SERVER_ENTRIES_SHA256 = "85a03f7ffe72e71cdc91e48c924f002c54ee15c22826f20bbe26b81554676d81";
+const ORIGINAL_CLIENT_SPECS_SHA256 = "442ea582b09df6a8f4c43c770b53fff7f5e1593934aa061e1e57f7550e54c73d";
+
+describe("TS-MORE-1: the pins are APPEND-ONLY - the original 66 papers are byte-for-byte what TS-PIN-1 committed", () => {
+  it("the first 66 server entries and the 66 original client specs hash to the committed digests; the new papers come after them", () => {
+    const entries = readEntries();
+    expect(sha256(JSON.stringify(entries.slice(0, 66)))).toBe(ORIGINAL_SERVER_ENTRIES_SHA256);
+    const ids = readIds();
+    const original = Object.fromEntries(entries.slice(0, 66).map((e) => [e.key, ids[e.key]]));
+    expect(sha256(JSON.stringify(original))).toBe(ORIGINAL_CLIENT_SPECS_SHA256);
+    expect(entries.length).toBe(180);
+  });
+  it("paper 1 keeps its code, key and worksheet prefix; papers 2..5 use `CT-M01-2` and `ct-ts1p2-<topic>--`", () => {
+    const byKey = new Map(readEntries().map((e) => [e.key, e] as const));
+    expect(byKey.get("TS-CT-M01")?.worksheetIdPrefix).toBe("ct-ts1-real-numbers--");
+    expect(byKey.get("TS-CT-M01-3")?.worksheetIdPrefix).toBe("ct-ts1p3-real-numbers--");
+    expect(byKey.get("TS-FM-M24")?.worksheetIdPrefix).toBe("fm-ts1-m24--");
+  });
+  it("no worksheet-id prefix is a prefix of another (the server admits by startsWith)", () => {
+    const prefixes = readEntries().map((e) => e.worksheetIdPrefix);
+    for (const a of prefixes) for (const b of prefixes) if (a !== b) expect(b.startsWith(a), `${a} / ${b}`).toBe(false);
+  });
+});
+
+describe("TS-MORE-1: no question repeats across a chapter's 5 papers, nor across a subject's 25 full-length papers (any section)", () => {
+  const ids = readIds();
+  const rawById = new Map(RAW_CANONICAL_QUESTION_BANK.map((q) => [String(q.id), q] as const));
+  const servedIds = new Set(canonicalQuestionBank.map((q) => String(q.id)));
+
+  it("chapter tests: 5 papers per chapter, every new paper a FULL blueprint (A6 B4 C3 D2), no id and no question text repeated in any section", () => {
+    const chapters = seriesChapterTests().filter((t) => t.paper === 1);
+    expect(chapters.length).toBe(26);
+    for (const c of chapters) {
+      const seenId = new Map<string, number>();
+      const seenKey = new Map<string, number>();
+      for (let k = 1; k <= SERIES_MAX_PAPERS_PER_CHAPTER; k += 1) {
+        const key = k === 1 ? `TS-${c.code}` : `TS-${c.code}-${k}`;
+        const spec = ids[key];
+        expect(spec, key).toBeTruthy();
+        const count = (l: string) => [...spec.sections].filter((x) => x === l).length;
+        for (const row of CT_BLUEPRINT) expect(count(row.section), `${key} section ${row.section}`).toBe(row.targetCount);
+        spec.ids.forEach((id) => {
+          expect(seenId.has(id), `${key} repeats ${id} from paper ${seenId.get(id)}`).toBe(false);
+          seenId.set(id, k);
+          const raw = rawById.get(id);
+          if (raw) {
+            const qk = questionKey(raw);
+            expect(seenKey.has(qk), `${key} ${id} is the same question as one on paper ${seenKey.get(qk)}`).toBe(false);
+            seenKey.set(qk, k);
+          }
+        });
+      }
+    }
+  });
+
+  it("full-length tests: 25 papers per subject, each the full blueprint (A20 B5 C6 D4 E3), no id repeated in ANY section (A included)", () => {
+    for (const subject of ["M", "S"]) {
+      const seen = new Map<string, number>();
+      for (let n = 1; n <= SERIES_MAX_MOCKS_PER_SUBJECT; n += 1) {
+        const spec = ids[`TS-FM-${subject}${n}`];
+        expect(spec, `FM-${subject}${n}`).toBeTruthy();
+        const count = (l: string) => [...spec.sections].filter((x) => x === l).length;
+        for (const row of FM_BLUEPRINT) expect(count(row.section), `FM-${subject}${n} section ${row.section}`).toBe(row.targetCount);
+        for (const id of spec.ids) {
+          expect(seen.has(id), `FM-${subject}${n} repeats ${id} from FM-${subject}${seen.get(id)}`).toBe(false);
+          seen.set(id, n);
+        }
+      }
+    }
+  });
+
+  it("every question on a NEW paper comes from the CURRENT served bank and is not a syllabus-excluded row", () => {
+    for (const e of readEntries().slice(66)) {
+      for (const id of e.questionIds) {
+        expect(PACK_SYLLABUS_EXCLUDED.has(id), `${e.key} ${id} is syllabus-excluded`).toBe(false);
+        // Full-length papers also draw predicted rows (not in the canonical bank); chapter papers are canonical only.
+        if (e.kind === "chapter") expect(servedIds.has(id), `${e.key} ${id} is not served`).toBe(true);
+      }
+    }
+  });
+});
+
+describe("TS-MORE-1: the retired rows some original papers still hold are EMBEDDED (no raw-bank chunk on those papers)", () => {
+  it("every pinned id the served bank does not serve has an embedded row, and each embedded row EQUALS its raw bank row", async () => {
+    await ensureAllBankChapters();
+    const embedded = embeddedRetiredRows();
+    const unserved = unservedPinnedIds(readIds());
+    expect(unserved.length, "non-vacuous: today's pins hold retired rows").toBeGreaterThan(0);
+    expect(Object.keys(embedded).sort()).toEqual(unserved);
+    for (const id of unserved) expect(embedded[id], `${id} embedded row differs from the raw bank row (regenerate: gen:test-series-manifest)`).toEqual(rawRowJson(id));
+  }, 120_000);
 });

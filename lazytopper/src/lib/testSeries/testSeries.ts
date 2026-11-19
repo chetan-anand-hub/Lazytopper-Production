@@ -3,13 +3,15 @@
  * Test Series: the chapter tests and full mocks, presented as numbered, fixed papers. PURE and light (no bank, no services), so the public /test-series page,
  * the Chapter Test / Full Mock pages and the tests all read the same numbering.
  *
- *   Chapter Tests  one per board chapter, in syllabus order (BOARD_CHAPTER_KEYS): CT-M01..CT-M13, CT-S01..CT-S13.
- *                  A FIXED paper per chapter: drawChapterTest({ fixedSeed: "ts1:<topicKey>" }), served history ignored.
- *   Full-Length    SERIES_MOCKS_PER_SUBJECT per subject: FM-M1..FM-M20, FM-S1..FM-S20, drawn by the pack's own mock draw; #1–8 ARE
+ *   Chapter Tests  SERIES_PAPERS_PER_CHAPTER (5) per board chapter, in syllabus order (BOARD_CHAPTER_KEYS): CT-M01..CT-M13,
+ *                  CT-S01..CT-S13 are each chapter's paper 1 (seed "ts1:<topicKey>", unchanged); TS-MORE-1 adds papers 2..5
+ *                  (CT-M01-2 … CT-S13-5, seed "ts1p<k>:<topicKey>", drawn so no question repeats across a chapter's papers).
+ *                  FIXED papers, pinned (seriesPaperIds.json), served history ignored.
+ *   Full-Length    SERIES_MOCKS_PER_SUBJECT per subject: FM-M1..FM-M25, FM-S1..FM-S25, drawn by the pack's own mock draw; #1–8 ARE
  *                  PDF Mocks #1–8 (drawPackMocks), #9+ continue the same seed scheme.
  *
  * Every count here is derived from code (the syllabus keys, SERIES_MOCKS_PER_SUBJECT); nothing is typed. A sitting of a series paper is
- * recognised by its worksheet id (`ct-ts1-<topicKey>--…` / `fm-ts1-<m|s><n>--…`), which the session record keeps.
+ * recognised by its worksheet id (`ct-ts1-<topicKey>--…` / `ct-ts1p<k>-<topicKey>--…` / `fm-ts1-<m|s><n>--…`), which the session record keeps.
  * No gate, no entitlement and no price live here: the price is the `test_series` SKU's (services/packs.ts PACK_PRICE_INR /
  * packPriceLabel("test_series"), the client copy of the server table in server/services/packProducts.cjs) - TS-PACK-1.
  */
@@ -18,8 +20,22 @@ import { desktopTopicBySlug } from "../desktop/topics";
 import { MOCKS_PER_SUBJECT } from "../packs/packLabels";
 
 // HUB-TS-1: the constant lives in ./seriesCounts (import-free, for the Practice hub's first paint); re-exported here unchanged.
-import { SERIES_MOCKS_PER_SUBJECT } from "./seriesCounts";
-export { SERIES_MOCKS_PER_SUBJECT };
+import {
+  SERIES_BASE_MOCKS_PER_SUBJECT,
+  SERIES_MAX_MOCKS_PER_SUBJECT,
+  SERIES_MAX_PAPERS_PER_CHAPTER,
+  SERIES_MOCKS_PER_SUBJECT,
+  SERIES_PAPERS_PER_CHAPTER,
+  tsMoreDisabled,
+} from "./seriesCounts";
+export {
+  SERIES_BASE_MOCKS_PER_SUBJECT,
+  SERIES_MAX_MOCKS_PER_SUBJECT,
+  SERIES_MAX_PAPERS_PER_CHAPTER,
+  SERIES_MOCKS_PER_SUBJECT,
+  SERIES_PAPERS_PER_CHAPTER,
+  tsMoreDisabled,
+};
 /** Full-Length Tests 1..PACK_MATCHED_MOCKS are the same papers as the printed Mock Pack's mocks. */
 export const PACK_MATCHED_MOCKS = MOCKS_PER_SUBJECT;
 
@@ -35,6 +51,8 @@ export const TEST_SERIES_BUY_PATH = "/packs?buy=test_series";
 export const SERIES_TAG = "ts1";
 /** `?series=1` on a Chapter Test URL opens the chapter's fixed series paper. */
 export const CT_SERIES_PARAM = "series";
+/** TS-MORE-1: `&paper=<k>` (k = 2..5) picks the chapter's k-th series paper; absent or 1 = the original paper (unchanged URL). */
+export const CT_PAPER_PARAM = "paper";
 /** `?paper=<n>` on a Full Mock URL opens series Full-Length Test #n (#1–8 = PDF Mock #n). */
 export const FM_PAPER_PARAM = "paper";
 
@@ -42,11 +60,15 @@ export type SeriesSubject = "Maths" | "Science";
 
 export interface SeriesChapterTest {
   kind: "chapter";
-  /** "CT-M01" … "CT-S13". */
+  /** "CT-M01" … "CT-S13" for the chapter's paper 1; "CT-M01-2" … "CT-S13-5" for papers 2..5 (TS-MORE-1). */
   code: string;
+  /** The chapter's own code ("CT-M01"), the same on all of its papers. */
+  baseCode: string;
   subject: SeriesSubject;
   /** 1-based within the subject, in syllabus order. */
   index: number;
+  /** 1..SERIES_PAPERS_PER_CHAPTER: which of the chapter's series papers this is. */
+  paper: number;
   topicKey: string;
   label: string;
   href: string;
@@ -72,15 +94,25 @@ function subjectOfKey(key: string): SeriesSubject | null {
   return unit.subject === "maths" ? "Maths" : "Science";
 }
 
-export function chapterTestSeriesHref(subject: SeriesSubject, topicKey: string): string {
-  return `/chapter-test/10/${subject}/${topicKey}?${CT_SERIES_PARAM}=1`;
+/** The code of chapter paper k: paper 1 keeps the chapter's code ("CT-M01"); k > 1 appends "-k" ("CT-M01-3"). */
+export function chapterPaperCode(baseCode: string, k: number): string {
+  return k <= 1 ? baseCode : `${baseCode}-${k}`;
+}
+
+/** Chapter paper k's URL: k = 1 is EXACTLY the original `?series=1`; k > 1 adds `&paper=k` (TS-MORE-1). */
+export function chapterTestSeriesHref(subject: SeriesSubject, topicKey: string, k = 1): string {
+  const base = `/chapter-test/10/${subject}/${topicKey}?${CT_SERIES_PARAM}=1`;
+  return k <= 1 ? base : `${base}&${CT_PAPER_PARAM}=${k}`;
 }
 
 export function fullMockSeriesHref(subject: SeriesSubject, n: number): string {
   return `/full-mock/10/${subject}?${FM_PAPER_PARAM}=${n}`;
 }
 
-/** The numbered Chapter Tests, Maths then Science, each in syllabus order. */
+/**
+ * The numbered Chapter Tests: every chapter's papers 1..SERIES_PAPERS_PER_CHAPTER, Maths then Science, each chapter in syllabus
+ * order (its papers together). `seriesChapters()` is the one-per-chapter list (paper 1).
+ */
 export function seriesChapterTests(): SeriesChapterTest[] {
   const out: SeriesChapterTest[] = [];
   for (const subject of SUBJECTS) {
@@ -88,18 +120,28 @@ export function seriesChapterTests(): SeriesChapterTest[] {
     for (const topicKey of BOARD_CHAPTER_KEYS) {
       if (subjectOfKey(topicKey) !== subject) continue;
       index += 1;
-      out.push({
-        kind: "chapter",
-        code: `CT-${letter(subject)}${String(index).padStart(2, "0")}`,
-        subject,
-        index,
-        topicKey,
-        label: desktopTopicBySlug(topicKey)?.name ?? topicKey,
-        href: chapterTestSeriesHref(subject, topicKey),
-      });
+      const baseCode = `CT-${letter(subject)}${String(index).padStart(2, "0")}`;
+      for (let paper = 1; paper <= SERIES_PAPERS_PER_CHAPTER; paper += 1) {
+        out.push({
+          kind: "chapter",
+          code: chapterPaperCode(baseCode, paper),
+          baseCode,
+          subject,
+          index,
+          paper,
+          topicKey,
+          label: desktopTopicBySlug(topicKey)?.name ?? topicKey,
+          href: chapterTestSeriesHref(subject, topicKey, paper),
+        });
+      }
     }
   }
   return out;
+}
+
+/** One entry per chapter (its paper 1): the chapter list. */
+export function seriesChapters(): SeriesChapterTest[] {
+  return seriesChapterTests().filter((t) => t.paper === 1);
 }
 
 /** The numbered Full-Length Tests: SERIES_MOCKS_PER_SUBJECT per subject. */
@@ -114,8 +156,14 @@ export function seriesFullMocks(): SeriesFullMock[] {
 }
 
 export interface SeriesTotals {
+  /** Chapter TESTS (papers): chapters x papersPerChapter. */
   chapterTests: number;
+  /** Chapter tests (papers) per subject. */
   chapterTestsPerSubject: Record<SeriesSubject, number>;
+  /** Board chapters (26) and per subject (13). */
+  chapters: number;
+  chaptersPerSubject: Record<SeriesSubject, number>;
+  papersPerChapter: number;
   fullMocks: number;
   mocksPerSubject: number;
   total: number;
@@ -123,6 +171,7 @@ export interface SeriesTotals {
 
 export function seriesTotals(): SeriesTotals {
   const cts = seriesChapterTests();
+  const chapters = seriesChapters();
   const mocks = seriesFullMocks();
   return {
     chapterTests: cts.length,
@@ -130,19 +179,25 @@ export function seriesTotals(): SeriesTotals {
       Maths: cts.filter((t) => t.subject === "Maths").length,
       Science: cts.filter((t) => t.subject === "Science").length,
     },
+    chapters: chapters.length,
+    chaptersPerSubject: {
+      Maths: chapters.filter((t) => t.subject === "Maths").length,
+      Science: chapters.filter((t) => t.subject === "Science").length,
+    },
+    papersPerChapter: SERIES_PAPERS_PER_CHAPTER,
     fullMocks: mocks.length,
     mocksPerSubject: SERIES_MOCKS_PER_SUBJECT,
     total: cts.length + mocks.length,
   };
 }
 
-/** "26 chapter tests + 40 full-length tests" — counts from code. */
+/** "130 chapter tests + 50 full-length tests" — counts from code (66 = 26 + 40 under the VITE_TS_MORE_DISABLED kill switch). */
 export function seriesContentsLine(t: SeriesTotals = seriesTotals()): string {
   return `${t.chapterTests} chapter tests + ${t.fullMocks} full-length tests`;
 }
 
 /**
- * TS-PACK-1 — the Test Series Pack's one line (the /packs row, its pop-up): "26 chapter tests + 40 full-length tests, Maths + Science.
+ * TS-PACK-1 — the Test Series Pack's one line (the /packs row, its pop-up): "130 chapter tests + 50 full-length tests, Maths + Science.
  * Your written answers (Sections B to E) checked step by step, twice per paper, till your boards." Counts from code.
  */
 export function testSeriesPackLine(t: SeriesTotals = seriesTotals()): string {
@@ -151,14 +206,19 @@ export function testSeriesPackLine(t: SeriesTotals = seriesTotals()): string {
 
 /* ── URL params ──────────────────────────────────────────────────────────────── */
 
-/** The fixed seed string of a chapter's series paper. */
-export function chapterTestSeriesSeed(topicKey: string): string {
-  return `${SERIES_TAG}:${topicKey}`;
+/** The series tag of chapter paper k in seeds and worksheet ids: paper 1 is "ts1" (unchanged); paper k > 1 is "ts1p<k>". */
+export function chapterPaperTag(k: number): string {
+  return k <= 1 ? SERIES_TAG : `${SERIES_TAG}p${k}`;
 }
 
-/** Board chapter key (already canonical: the callers pass `resolveCanonicalSlug(...)`) -> its series test. */
+/** The fixed seed string of a chapter's series paper (paper 1: "ts1:<topicKey>", unchanged). */
+export function chapterTestSeriesSeed(topicKey: string, k = 1): string {
+  return `${chapterPaperTag(k)}:${topicKey}`;
+}
+
+/** Board chapter key (already canonical: the callers pass `resolveCanonicalSlug(...)`) -> its paper-1 series test (the chapter). */
 function chapterTestsByKey(): Map<string, SeriesChapterTest> {
-  return new Map(seriesChapterTests().map((t) => [t.topicKey, t] as const));
+  return new Map(seriesChapters().map((t) => [t.topicKey, t] as const));
 }
 
 /** True when a Chapter Test URL asks for the series paper (`?series=1`) of a board chapter. */
@@ -173,25 +233,45 @@ export function seriesMockNumber(param: string | null): number | null {
   return n >= 1 && n <= SERIES_MOCKS_PER_SUBJECT ? n : null;
 }
 
-export function seriesChapterTestOf(topicKey: string): SeriesChapterTest | null {
-  return chapterTestsByKey().get(topicKey) ?? null;
+/**
+ * `&paper=<k>` on a chapter series URL -> k (1 when absent), or null when it names no offered paper (not 1..SERIES_PAPERS_PER_CHAPTER,
+ * or a non-digit): the page then opens the ordinary fresh test, as for any other unknown series param. With the TS-MORE-1 kill
+ * switch set only paper 1 exists.
+ */
+export function seriesChapterPaperNumber(param: string | null): number | null {
+  if (param === null || param === "") return 1;
+  if (!/^[1-9]$/.test(param)) return null;
+  const k = Number(param);
+  return k >= 1 && k <= SERIES_PAPERS_PER_CHAPTER ? k : null;
 }
 
-/** "Test Series · Chapter Test 3 of 13 (CT-M03)". */
+/** The chapter's series paper k (default 1), or null for a non-chapter key / a paper that is not offered. */
+export function seriesChapterTestOf(topicKey: string, k = 1): SeriesChapterTest | null {
+  const base = chapterTestsByKey().get(topicKey);
+  if (!base || k < 1 || k > SERIES_PAPERS_PER_CHAPTER) return null;
+  return k === 1 ? base : { ...base, code: chapterPaperCode(base.baseCode, k), paper: k, href: chapterTestSeriesHref(base.subject, base.topicKey, k) };
+}
+
+/** "Test Series · Chapter Test 3 of 13 (CT-M03)"; with several papers per chapter: "… Chapter Test 3 of 13 · Paper 2 of 5 (CT-M03-2)". */
 export function chapterTestSeriesLabel(t: SeriesChapterTest, totals: SeriesTotals = seriesTotals()): string {
-  return `Test Series · Chapter Test ${t.index} of ${totals.chapterTestsPerSubject[t.subject]} (${t.code})`;
+  const paper = totals.papersPerChapter > 1 ? ` · Paper ${t.paper} of ${totals.papersPerChapter}` : "";
+  return `Test Series · Chapter Test ${t.index} of ${totals.chaptersPerSubject[t.subject]}${paper} (${t.code})`;
 }
 
-/** "Test Series · Full-Length Test 3 of 20". */
+/** "Test Series · Full-Length Test 3 of 25". */
 export function fullMockSeriesLabel(n: number): string {
   return `Test Series · Full-Length Test ${n} of ${SERIES_MOCKS_PER_SUBJECT}`;
 }
 
 /* ── Worksheet ids: how a sitting is recognised ─────────────────────────────── */
 
-/** `ct-<t>-<r>` → `ct-ts1-<topicKey>--<t>-<r>`: the minted id stays unique; the prefix names the series paper. */
-export function seriesChapterWorksheetId(baseId: string, topicKey: string): string {
-  return baseId.replace(/^ct-/, `ct-${SERIES_TAG}-${topicKey}--`);
+/**
+ * `ct-<t>-<r>` → `ct-ts1-<topicKey>--<t>-<r>` (paper 1) or `ct-ts1p<k>-<topicKey>--<t>-<r>` (papers 2..5): the minted id stays
+ * unique; the prefix names the series paper. The server admits by `startsWith(prefix)` and every prefix ends in "--", so no paper's
+ * prefix is a prefix of another's: "ct-ts1p3-" can never start with "ct-ts1-", and "…-x--" never starts "…-x-y--".
+ */
+export function seriesChapterWorksheetId(baseId: string, topicKey: string, k = 1): string {
+  return baseId.replace(/^ct-/, `ct-${chapterPaperTag(k)}-${topicKey}--`);
 }
 
 /** `fm-<t>-<r>` → `fm-ts1-m3--<t>-<r>`. */
@@ -199,16 +279,16 @@ export function seriesMockWorksheetId(baseId: string, subject: SeriesSubject, n:
   return baseId.replace(/^fm-/, `fm-${SERIES_TAG}-${letter(subject).toLowerCase()}${n}--`);
 }
 
-export type SeriesKey = { kind: "chapter"; topicKey: string } | { kind: "mock"; subject: SeriesSubject; n: number };
+export type SeriesKey = { kind: "chapter"; topicKey: string; paper: number } | { kind: "mock"; subject: SeriesSubject; n: number };
 
-const CT_ID = new RegExp(`^ct-${SERIES_TAG}-([a-z0-9-]+?)--`);
+const CT_ID = new RegExp(`^ct-${SERIES_TAG}(?:p([2-9]))?-([a-z0-9-]+?)--`);
 const FM_ID = new RegExp(`^fm-${SERIES_TAG}-([ms])(\\d{1,2})--`);
 
 /** The series paper a worksheet id belongs to, or null (an ordinary, freshly drawn test). */
 export function seriesKeyOfWorksheetId(id: string | null | undefined): SeriesKey | null {
   const s = String(id ?? "");
   const ct = CT_ID.exec(s);
-  if (ct) return { kind: "chapter", topicKey: ct[1] };
+  if (ct) return { kind: "chapter", topicKey: ct[2], paper: ct[1] ? Number(ct[1]) : 1 };
   const fm = FM_ID.exec(s);
   if (fm) return { kind: "mock", subject: fm[1] === "m" ? "Maths" : "Science", n: Number(fm[2]) };
   return null;
@@ -222,7 +302,7 @@ export function seriesPaperKeyOfWorksheetId(id: string | null | undefined): stri
   const k = seriesKeyOfWorksheetId(id);
   if (!k) return null;
   if (k.kind === "chapter") {
-    const t = seriesChapterTestOf(k.topicKey);
+    const t = seriesChapterTestOf(k.topicKey, k.paper);
     return t ? `TS-${t.code}` : null;
   }
   const m = seriesFullMocks().find((x) => x.subject === k.subject && x.n === k.n);
@@ -260,7 +340,7 @@ export interface SeriesProgress {
 
 function codeOfKey(key: SeriesKey): string | null {
   if (key.kind === "mock") return key.n >= 1 && key.n <= SERIES_MOCKS_PER_SUBJECT ? `FM-${letter(key.subject)}${key.n}` : null;
-  return seriesChapterTestOf(key.topicKey)?.code ?? null;
+  return seriesChapterTestOf(key.topicKey, key.paper)?.code ?? null;
 }
 
 /** Progress from the student's REAL session records. A record that is not a series sitting is ignored; nothing is invented. */
@@ -330,9 +410,15 @@ export function seriesSchedule(boardIso: string): SeriesScheduleRow[] | null {
   return [
     {
       id: "chapters",
-      when: `Now – 30 Nov`,
+      // TS-MORE-1 (owner, 19 Nov 2026): the chapter tests are not limited to November - they run till the boards.
+      when: "Any time till the boards",
       title: `Chapter Tests (${totals.chapterTests})`,
-      body: "One test per chapter. Take your weakest chapters first.",
+      body:
+        totals.papersPerChapter > 1
+          ? `${totals.papersPerChapter} tests per chapter. Take your weakest chapters first.`
+          : "One test per chapter. Take your weakest chapters first.",
+      // `from`/`to` are only the FOCUS window (which row is marked "Now" and what the weekly plan points at: the chapter tests until the
+      // first full-length round starts). The tests themselves stay open all the way to the boards, as `when` says.
       from: null,
       to: `${prev}-11-30`,
     },

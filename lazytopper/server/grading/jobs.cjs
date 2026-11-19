@@ -316,6 +316,8 @@ function createGradingJobs(deps = {}) {
           job: { ...job, rows, state: JOB_STATES.DONE, doneAtMs: now(), final: outcome.body, model: outcome.model || null, charged: true, chargedCount: won ? outcome.graded : job.chargedCount },
         });
         claim = { won, graded: outcome.graded, deferred: job.deferred || null };
+        // TS-RECHECK-1: the unreadable summary rides to commitDeferred as a THIRD argument, only when the outcome carries one.
+        if (Number.isFinite(outcome.unreadable) && Number.isFinite(outcome.total)) claim.detail = { unreadable: outcome.unreadable, total: outcome.total };
       });
     } catch (e) {
       emit('grading_jobs.done_failed');
@@ -323,7 +325,10 @@ function createGradingJobs(deps = {}) {
     }
     if (!claim) return;
     emit('grading_jobs.done');
-    if (claim.won) commitDeferred(claim.deferred, claim.graded);
+    if (claim.won) {
+      if (claim.detail) commitDeferred(claim.deferred, claim.graded, claim.detail);
+      else commitDeferred(claim.deferred, claim.graded);
+    }
   }
 
   /**

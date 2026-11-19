@@ -29,9 +29,14 @@ const n = (v: number, one: string, many: string): string => `${v} ${v === 1 ? on
 export const basicDownloadLine = (): string =>
   `Download ${n(C.basic.downloadsPerWeek, "paper", "papers")} a week — your first is free`;
 
-/** "1 graded Quick Practice set a day" */
+/**
+ * GATE-QP-1 (owner ruling 19 Nov 2026): Basic no longer gets a graded (written-answer) Quick Practice set. Said plainly, with no number:
+ * the Basic allowance is `C.basic.quickPracticeWrittenGradedPerDay` (0), so the line is built only while that stays 0.
+ */
 export const basicQuickPracticeLine = (): string =>
-  `${n(C.basic.quickPracticeGradedPerDay, "graded Quick Practice set", "graded Quick Practice sets")} a day — your first is free`;
+  C.basic.quickPracticeWrittenGradedPerDay === 0
+    ? "Quick Practice questions are scored as you tap; marking your written practice answers comes with the Board Pass"
+    : `${n(C.basic.quickPracticeWrittenGradedPerDay, "graded Quick Practice set", "graded Quick Practice sets")} a day — your first is free`;
 
 export const BASIC_RESULT_LINE =
   "Every result shows your score and your Mistake Intelligence summary; the answer-by-answer breakdown is Premium";
@@ -49,7 +54,8 @@ export function trialLimitsSentence(): string {
 
 /** Compare-table cells. */
 export const basicDownloadCell = (): string => `${C.basic.downloadsPerWeek} a week (first free)`;
-export const basicQuickPracticeCell = (): string => `${C.basic.quickPracticeGradedPerDay} a day (first free)`;
+export const basicQuickPracticeCell = (): string =>
+  C.basic.quickPracticeWrittenGradedPerDay === 0 ? "Board Pass only" : `${C.basic.quickPracticeWrittenGradedPerDay} a day (first free)`;
 
 /** The Basic list's "papers" row with the limits on. BasicFreeList loads this module lazily (PERF-3). */
 export const basicPapersRow = (): string =>

@@ -25,6 +25,7 @@ import { buildPinnedFullMock, unservedMockIds } from "./pinnedFullMock";
 import { allPinnedSpecs, pinnedSpecOf } from "./pinnedSpec";
 import { loadRawBankRowsById } from "./rawBankRows";
 import { buildSeriesFullMock, drawSeriesFullMock } from "./seriesFullMock";
+import { SERIES_BASE_MOCKS_PER_SUBJECT } from "./seriesCounts";
 import { chapterTestSeriesSeed, seriesChapterTests, seriesFullMocks, seriesTotals } from "./testSeries";
 
 /** Keys whose SEEDED draw is allowed to differ from the pinned paper (the bank changed on purpose). Empty at TS-PIN-1.
@@ -38,6 +39,9 @@ const ACKNOWLEDGED_DRIFT: readonly string[] = [
   "TS-FM-M2", "TS-FM-M3", "TS-FM-M7", "TS-FM-M13", "TS-FM-M16", "TS-FM-M19",
 ];
 
+/** TS-MORE-1: 180 papers make these loops long; yield to the event loop each paper so the vitest worker keeps answering its heartbeat on a loaded CI runner. */
+const tick = () => new Promise<void>((r) => setTimeout(r, 0));
+
 const STAMP = "2026-01-01T00:00:00.000Z";
 const sha256 = (s: string) => createHash("sha256").update(s, "utf8").digest("hex");
 const entries = JSON.parse(readFileSync(resolve(__dirname, "../../../server/data/testSeriesPapers.json"), "utf8")) as SeriesPaperManifestEntry[];
@@ -48,17 +52,30 @@ beforeAll(async () => {
 afterEach(() => vi.unstubAllEnvs());
 
 describe("TS-PIN-1 byte-identity: pinned build == today's seeded draw, for every series paper", () => {
-  it("covers all 66 papers (26 chapter tests + 40 full-length tests)", () => {
-    expect(seriesTotals().total).toBe(66);
-    expect(entries.length).toBe(66);
+  it("covers every paper: the original 66 plus the TS-MORE-1 papers (130 chapter tests + 50 full-length tests)", () => {
+    expect(seriesTotals().total).toBe(180);
+    expect(entries.length).toBe(180);
     for (const e of entries) expect(pinnedSpecOf(e.key), e.key).not.toBeNull();
   });
 
   it("chapter tests: the pinned paper deep-equals drawChapterTest({ fixedSeed }) (ids, order, sections, qNumbers, marks, CBQ, blueprint)", async () => {
     const drifted: string[] = [];
     let compared = 0;
+    let newPapers = 0;
     for (const t of seriesChapterTests()) {
+      await tick();
       const key = `TS-${t.code}`;
+      if (t.paper > 1) {
+        // TS-MORE-1 papers 2..5 are pin-only (no seeded twin to compare): each keeps every pinned id, in order, none missing.
+        const nspec = pinnedSpecOf(key)!;
+        const nargs = { subject: t.subject, topicKey: t.topicKey, topicLabel: t.label, worksheetId: `ct-ts1p${t.paper}-${t.topicKey}--x`, createdAt: STAMP };
+        const nun = unservedChapterIds(nspec, t.subject, t.topicKey);
+        const np = buildPinnedChapterTest(nargs, nspec, nun.length ? await loadRawBankRowsById(nun) : new Map());
+        expect(np.missingIds, key).toEqual([]);
+        expect(np.drawn.paper.questions.map((q) => q.id), key).toEqual(nspec.ids);
+        newPapers += 1;
+        continue;
+      }
       const args = { subject: t.subject, topicKey: t.topicKey, topicLabel: t.label, worksheetId: `ct-ts1-${t.topicKey}--x`, code: "CT-#01", name: `${t.label} · Chapter Test`, createdAt: STAMP };
       const draw = drawChapterTest({ ...args, fixedSeed: chapterTestSeriesSeed(t.topicKey) });
       // BANK-RETIRE-1: a pinned id the served bank no longer serves is resolved from the RAW bank, exactly as the page entry does.
@@ -77,13 +94,27 @@ describe("TS-PIN-1 byte-identity: pinned build == today's seeded draw, for every
     }
     expect(drifted.filter((k) => !ACKNOWLEDGED_DRIFT.includes(k)), "a seeded draw moved without being acknowledged").toEqual([]);
     expect(compared + drifted.length).toBe(26);
+    expect(newPapers).toBe(seriesChapterTests().length - 26);
   }, 120_000);
 
-  it("full-length tests: the pinned paper deep-equals drawSeriesFullMock (the seeded draw) for all 40", async () => {
+  it("full-length tests: the pinned paper deep-equals drawSeriesFullMock (the seeded draw) for the original 40 (papers 21-25 are pin-only)", async () => {
     const drifted: string[] = [];
     let compared = 0;
+    let newMocks = 0;
     for (const m of seriesFullMocks()) {
+      await tick();
       const key = `TS-${m.code}`;
+      if (m.n > SERIES_BASE_MOCKS_PER_SUBJECT) {
+        // TS-MORE-1 papers 21..25 are pin-only: each keeps every pinned id, in order, none missing.
+        const nspec = pinnedSpecOf(key)!;
+        const nid = { worksheetId: `fm-ts1-${m.code}--x`, code: "FM-#01", name: `${m.subject} Full Mock`, createdAt: STAMP };
+        const nun = unservedMockIds(nspec, m.subject);
+        const np = buildPinnedFullMock(m.subject, nspec, nid, nun.length ? await loadRawBankRowsById(nun) : new Map());
+        expect(np.missingIds, key).toEqual([]);
+        expect(np.drawn.paper.questions.map((q) => q.id), key).toEqual(nspec.ids);
+        newMocks += 1;
+        continue;
+      }
       const identity = { worksheetId: `fm-ts1-${m.code}--x`, code: "FM-#01", name: `${m.subject} Full Mock`, createdAt: STAMP };
       const draw = drawSeriesFullMock(m.subject, m.n, identity);
       expect(draw, `${key} seeded draw`).not.toBeNull();
@@ -102,12 +133,14 @@ describe("TS-PIN-1 byte-identity: pinned build == today's seeded draw, for every
     }
     expect(drifted.filter((k) => !ACKNOWLEDGED_DRIFT.includes(k)), "a seeded draw moved without being acknowledged").toEqual([]);
     expect(compared + drifted.length).toBe(40);
+    expect(newMocks).toBe(seriesFullMocks().length - 40);
   }, 300_000);
 });
 
 describe("TS-PIN-1 admission parity: a pinned paper's written questions are exactly what the server manifest admits", () => {
-  it("every written question's canonical-text hash equals the manifest's textHash (all 66 papers)", async () => {
+  it("every written question's canonical-text hash equals the manifest's textHash (all 180 papers)", async () => {
     for (const e of entries) {
+      await tick();
       const spec = pinnedSpecOf(e.key)!;
       let written: Array<{ id: string; text: string }>;
       if (e.kind === "chapter") {

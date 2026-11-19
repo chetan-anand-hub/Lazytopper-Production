@@ -366,7 +366,8 @@ export function seriesPlanTask(subject: DisplaySubject, cal: SeriesCalendarInput
   if (!row) return null;
   const by = shortDate(row.to);
   if (row.id === "chapters") {
-    return { key: "series", text: `Test Series: Chapter Tests, finish by ${by}`, to: TEST_SERIES_PATH };
+    // TS-MORE-1: the chapter tests are open till the boards (no 30 Nov deadline); the weekly plan just says where to start.
+    return { key: "series", text: "Test Series: Chapter Tests, your weakest chapters first", to: TEST_SERIES_PATH };
   }
   if (row.id === "final") {
     return { key: "series", text: `Test Series final revision: re-attempt your lowest Full-Length Test by ${by}`, to: TEST_SERIES_PATH };

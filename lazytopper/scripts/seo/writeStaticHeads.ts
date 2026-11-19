@@ -229,7 +229,7 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "examiner and shows what to fix. First check free.",
   },
   // TEST-SERIES-1 (owner, 18 Nov 2026) — the Pre-Boards Test Series page. Title as the owner's spec words it; the counts in the
-  // description are the page's own (lib/testSeries: 26 chapter tests from the syllabus keys, 16 mocks from MOCKS_PER_SUBJECT).
+  // description are the page's own (lib/testSeries: seriesContentsLine(): 130 chapter tests = 26 syllabus chapters x 5 papers, 50 full-length tests = 25 per subject).
   "/test-series": {
     title: "CBSE Class 10 Test Series 2026-27 (Maths & Science) — Pre-Boards | LazyTopper",
     description:
