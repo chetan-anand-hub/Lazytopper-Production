@@ -149,7 +149,7 @@ describe("PAYCOPY-1 · K4 — payments ON: the owner's wording, word for word", 
       expect(baked, rel).toContain(K3);
       expect(baked, rel).toContain(PAY_LINE);
       expect(baked, rel).toContain(K2);
-      expect(baked, rel).toContain("once till your boards");
+      expect(baked, rel).toContain("once \u00b7 valid till 28 Feb 2027");
       expect(baked, rel).not.toContain("till-boards-figures");
       for (const off of [MANUAL_OFF, P2_OFF, P3_OFF, "Payment checkout is not automated yet"]) expect(baked, rel).not.toContain(off);
     }
