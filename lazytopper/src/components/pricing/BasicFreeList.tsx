@@ -59,7 +59,7 @@ export const TRIAL_WORDING = {
 
 export const FREE_FEATURES = [
   { label: "Browse Home, Exam Trends, and topic surfaces", included: true },
-  { label: "Practice picker and limited practice", included: true },
+  { label: "Practice picker and multiple-choice practice, scored as you tap", included: true },
   { label: "Limited worksheet generation", included: true },
   { label: "Basic topic insights", included: true },
   { label: "Solution Checker / Answer Checker", included: false },

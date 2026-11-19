@@ -7,6 +7,7 @@ import {
   activateTrial,
   activatePremium,
   hydrateSubscriptionFromCloud,
+  isCloudConfirmed,
   onSubscriptionHydrated,
   type SubscriptionStatus,
   type SubscriptionTier,
@@ -100,6 +101,8 @@ export interface UseSubscriptionResult {
    * a trial off a stale cache could show a trial the rules then refuse (N15).
    */
   hydrated: boolean;
+  /** GATE-QP-1: the status came from a SUCCESSFUL cloud read (found or confirmed absent), never from cache/default after an error. */
+  cloudConfirmed: boolean;
   startTrial: () => void;
   /** Payment/admin-only. Client upgrade UI should navigate to pricing. */
   upgradeToPremium: () => void;
@@ -112,6 +115,7 @@ export function useSubscription(): UseSubscriptionResult {
   const localStatus = useMemo(() => loadSubscription(uid), [uid]);
   const [status, setStatus] = useState<SubscriptionStatus>(localStatus);
   const [hydratedUid, setHydratedUid] = useState<string>("");
+  const [confirmedUid, setConfirmedUid] = useState<string>("");
 
   useEffect(() => {
     setStatus(loadSubscription(uid));
@@ -129,6 +133,7 @@ export function useSubscription(): UseSubscriptionResult {
       if (!cancelled) {
         setStatus(cloud);
         setHydratedUid(uid);
+        setConfirmedUid(isCloudConfirmed(uid) ? uid : "");
       }
     }).catch(() => {});
     return () => { cancelled = true; };
@@ -141,6 +146,7 @@ export function useSubscription(): UseSubscriptionResult {
       if (hydratedFor !== uid) return;
       setStatus(cloud);
       setHydratedUid(uid);
+      setConfirmedUid(uid); // the emitter only fires after a found / confirmed-absent cloud read
     });
   }, [uid]);
 
@@ -171,6 +177,7 @@ export function useSubscription(): UseSubscriptionResult {
     daysLeftInTrial: daysLeft,
     status,
     hydrated: Boolean(uid) && hydratedUid === uid,
+    cloudConfirmed: Boolean(uid) && confirmedUid === uid,
     startTrial: () => {
       if (uid) {
         const updated = activateTrial(uid);

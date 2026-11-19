@@ -219,17 +219,17 @@ describe("Owner ruling — 'Limited' on Basic only when backed by a constant", (
     expect(m, "BASIC_LINE_REST_LIMITED template not found").not.toBeNull();
     expect(m![1]).toMatch(/\$\{[A-Z][A-Z0-9_]*\}/);
     expect(basicLineRest(true).replace(/^,\s*/, "")).toBe(
-      "with notes, NCERT solutions and limited practice (1 graded set a day, 1 download a week)",
+      "with notes, NCERT solutions and limited practice (1 download a week; marking your written practice answers comes with the Board Pass)",
     );
-    // The figures are the very ones the compare table's Basic cells show.
-    expect(basicQuickPracticeCell()).toMatch(/^1 a day/);
+    // GATE-QP-1 (19 Nov 2026): the Basic cell no longer carries a number for graded Quick Practice - Board Pass only; the download figure is the compare table's.
+    expect(basicQuickPracticeCell()).toBe("Board Pass only");
     expect(basicDownloadCell()).toMatch(/^1 a week/);
-    expect(LIMITS_CONFIG.basic.quickPracticeGradedPerDay).toBe(1); // "1 graded set a day" is singular: a change here needs a copy review
+    expect(LIMITS_CONFIG.basic.quickPracticeWrittenGradedPerDay).toBe(0); // a change here needs a copy review (the line and the cell say "Board Pass only")
     expect(LIMITS_CONFIG.basic.downloadsPerWeek).toBe(1);
     expect(unbackedLimited([basicLineRest(true)], COPY_SOURCE)).toEqual([]); // the template as rendered, leading comma included
     // CONTROL — the same words with the digits typed (not interpolated) are caught.
-    const typed = "const R = `, with notes, NCERT solutions and limited practice (1 graded set a day, 1 download a week)`;";
-    expect(unbackedLimited(["with notes, NCERT solutions and limited practice (1 graded set a day, 1 download a week)"], typed)).toHaveLength(1);
+    const typed = "const R = `, with notes, NCERT solutions and limited practice (1 download a week; marking your written practice answers comes with the Board Pass)`;";
+    expect(unbackedLimited(["with notes, NCERT solutions and limited practice (1 download a week; marking your written practice answers comes with the Board Pass)"], typed)).toHaveLength(1);
     // Limits off: nothing is capped, so no "limited".
     expect(basicLineRest(false)).not.toMatch(/limited/i);
   });
