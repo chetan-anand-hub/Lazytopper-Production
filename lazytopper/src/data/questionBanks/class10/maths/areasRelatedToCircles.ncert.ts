@@ -80,45 +80,45 @@ export const ARC_NCERT: CanonicalQuestion[] = [
   // ===== Section B — Short Answer (2 marks) =====
   { id: "ARC-N-NCERT-11-VSA-001", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of Quadrant", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Find the area of a quadrant of a circle whose circumference is 22 cm.",
-    solutionSteps: ["Circumference = 2πr = 22 ⇒ r = 22/(2π) = 22 × 7/(2 × 22) = 7/2 cm.", "Quadrant = (1/4) × πr² = (1/4) × (22/7) × (49/4) = (22 × 49)/(4 × 7 × 4) = (22 × 7)/16 = 154/16 = 77/8 cm² = 9.625 cm²."],
+    solutionSteps: ["[1 mark] Circumference = 2πr = 22 ⇒ r = 22/(2π) = 22 × 7/(2 × 22) = 7/2 cm.", "[1 mark] Quadrant = (1/4) × πr² = (1/4) × (22/7) × (49/4) = (22 × 49)/(4 × 7 × 4) = (22 × 7)/16 = 154/16 = 77/8 cm² = 9.625 cm²."],
     finalAnswer: "Area of quadrant = 77/8 cm² (= 9.625 cm²).",
     ncertRef: "NCERT Ex 11.1 Q2", isCompetencyBased: true },
 
   { id: "ARC-N-NCERT-11-VSA-002", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector Swept by Minute Hand", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "The minute hand of a clock is 14 cm long. Find the area swept by the minute hand in 5 minutes.",
-    solutionSteps: ["The minute hand sweeps 360° in 60 minutes, so in 5 minutes it sweeps 360 × 5/60 = 30°.", "Area = (30/360) × πr² = (1/12) × (22/7) × 196 = (22 × 196)/(12 × 7) = (22 × 28)/12 = 616/12 = 154/3 cm² ≈ 51.33 cm²."],
+    solutionSteps: ["[1 mark] The minute hand sweeps 360° in 60 minutes, so in 5 minutes it sweeps 360 × 5/60 = 30°.", "[1 mark] Area = (30/360) × πr² = (1/12) × (22/7) × 196 = (22 × 196)/(12 × 7) = (22 × 28)/12 = 616/12 = 154/3 cm² ≈ 51.33 cm²."],
     finalAnswer: "Area swept = 154/3 cm² ≈ 51.33 cm².",
     ncertRef: "NCERT Ex 11.1 Q3", isCompetencyBased: true },
 
   // ===== Section C — Short Answer (3 marks) =====
   { id: "ARC-N-NCERT-11-SA-001", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Sector and Arc Length", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "In a circle of radius 21 cm, an arc subtends an angle of 60° at the centre. Find (i) the length of the arc and (ii) the area of the sector formed by the arc.",
-    solutionSteps: ["(i) Length = (θ/360) × 2πr = (60/360) × 2 × (22/7) × 21 = (1/6) × (44 × 21/7) = (1/6) × 132 = 22 cm.", "(ii) Area of sector = (θ/360) × πr² = (60/360) × (22/7) × 441 = (1/6) × (22 × 441/7) = (1/6) × (22 × 63) = (22 × 63)/6 = 1386/6 = 231 cm²."],
+    solutionSteps: ["[0.5 mark] (i) Length = (θ/360) × 2πr", "[1 mark] = (60/360) × 2 × (22/7) × 21 = (1/6) × (44 × 21/7) = (1/6) × 132 = 22 cm.", "[0.5 mark] (ii) Area of sector = (θ/360) × πr²", "[1 mark] = (60/360) × (22/7) × 441 = (1/6) × (22 × 441/7) = (1/6) × (22 × 63) = (22 × 63)/6 = 1386/6 = 231 cm²."],
     finalAnswer: "(i) 22 cm; (ii) 231 cm².",
     ncertRef: "NCERT Ex 11.1 Q5(i,ii)", isCompetencyBased: true,
     strategyHint: "Convert the angle ratio to 1/6 since 60° = 360°/6." },
 
   { id: "ARC-N-NCERT-11-SA-002", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of Minor Segment", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A chord of a circle of radius 10 cm subtends a right angle at the centre. Find the area of the corresponding minor segment. (Use π = 3.14.)",
-    solutionSteps: ["Sector area = (90/360) × πr² = (1/4) × 3.14 × 100 = 78.5 cm².", "Triangle area = (1/2) × r × r × sin 90° = (1/2) × 10 × 10 × 1 = 50 cm² (right-angled at centre).", "Minor segment = sector − triangle = 78.5 − 50 = 28.5 cm²."],
+    solutionSteps: ["[1 mark] Sector area = (90/360) × πr² = (1/4) × 3.14 × 100 = 78.5 cm².", "[1 mark] Triangle area = (1/2) × r × r × sin 90° = (1/2) × 10 × 10 × 1 = 50 cm² (right-angled at centre).", "[1 mark] Minor segment = sector − triangle = 78.5 − 50 = 28.5 cm²."],
     finalAnswer: "Minor segment = 28.5 cm².",
     ncertRef: "NCERT Ex 11.1 Q4(i)", isCompetencyBased: true },
 
   { id: "ARC-N-NCERT-11-SA-003", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Area of Segment", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "A chord of a circle of radius 15 cm subtends an angle of 60° at the centre. Find the area of the corresponding minor segment. (Use π = 3.14 and √3 = 1.73.)",
-    solutionSteps: ["Sector area = (60/360) × 3.14 × 225 = (1/6) × 706.5 = 117.75 cm².", "Triangle area (equilateral with side r since the chord-angle is 60° and OA = OB = 15): area = (√3/4) × 15² = (1.73/4) × 225 = 1.73 × 56.25 = 97.3125 ≈ 97.31 cm².", "Minor segment = 117.75 − 97.31 ≈ 20.44 cm²."],
+    solutionSteps: ["[1 mark] Sector area = (60/360) × 3.14 × 225 = (1/6) × 706.5 = 117.75 cm².", "[1 mark] Triangle area (equilateral with side r since the chord-angle is 60° and OA = OB = 15): area = (√3/4) × 15² = (1.73/4) × 225 = 1.73 × 56.25 = 97.3125 ≈ 97.31 cm².", "[1 mark] Minor segment = 117.75 − 97.31 ≈ 20.44 cm²."],
     finalAnswer: "Minor segment ≈ 20.44 cm².",
     ncertRef: "NCERT Ex 11.1 Q6", isCompetencyBased: true },
 
   { id: "ARC-N-NCERT-11-SA-004", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Grazing Area", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A horse is tied to a peg at one corner of a square grass field of side 15 m by a 5 m long rope. Find the area of the field in which the horse can graze.",
-    solutionSteps: ["At the corner of a square the horse can graze along a quadrant of radius 5 m.", "Area = (1/4) × πr² = (1/4) × (22/7) × 25 = 550/28 = 275/14 cm² in our units, but using π = 22/7 here gives (1/4) × π × 25.", "Numerically with π = 22/7: area = (1/4) × (22/7) × 25 = 550/28 ≈ 19.64 m²."],
+    solutionSteps: ["[1 mark] At the corner of a square the horse can graze along a quadrant of radius 5 m.", "[1 mark] Area = (1/4) × πr² = (1/4) × (22/7) × 25 = 550/28 = 275/14 cm² in our units, but using π = 22/7 here gives (1/4) × π × 25.", "[1 mark] Numerically with π = 22/7: area = (1/4) × (22/7) × 25 = 550/28 ≈ 19.64 m²."],
     finalAnswer: "Grazing area ≈ 19.64 m².",
     ncertRef: "NCERT Ex 11.1 Q8(i)", isCompetencyBased: true },
 
   { id: "ARC-N-NCERT-11-SA-005", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Real-World Sector", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A car has two wipers (non-overlapping). Each wiper has a blade of length 25 cm sweeping through an angle of 115°. Find the total area cleaned in one sweep.",
-    solutionSteps: ["Each wiper sweeps a sector of radius 25 cm and angle 115°.", "Area of one sector = (115/360) × (22/7) × 625.", "= (115 × 22 × 625)/(360 × 7) = 1581250/2520 ≈ 627.48 cm².", "Total area for two wipers = 2 × 627.48 ≈ 1254.96 cm² (equivalently 2 × (23 × 625 × 22)/(72 × 7) = 632500/504 ≈ 1254.96 cm²)."],
+    solutionSteps: ["[1 mark] Each wiper sweeps a sector of radius 25 cm and angle 115°.", "[1 mark] Area of one sector = (115/360) × (22/7) × 625.", "[0.5 mark] = (115 × 22 × 625)/(360 × 7) = 1581250/2520 ≈ 627.48 cm².", "[0.5 mark] Total area for two wipers = 2 × 627.48 ≈ 1254.96 cm² (equivalently 2 × (23 × 625 × 22)/(72 × 7) = 632500/504 ≈ 1254.96 cm²)."],
     finalAnswer: "Total area cleaned ≈ 1254.96 cm².",
     ncertRef: "NCERT Ex 11.1 Q11", isCompetencyBased: true,
     sourceOverride: "others" },
@@ -140,7 +140,7 @@ export const ARC_NCERT: CanonicalQuestion[] = [
   // ===== Section E — Case-Based (4 marks) =====
   { id: "ARC-N-NCERT-11-CB-001", subject: "Maths", topicKey: "areas-related-to-circles", subtopic: "Wheels and Revolutions", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The wheels of a car each have diameter 80 cm. The car travels at 66 km/h.\n(i) Find the radius and circumference of each wheel (in cm).\n(ii) Convert the speed to cm per minute.\n(iii) Find the total distance covered in 10 minutes.\n(iv) Find the number of complete revolutions made by each wheel in 10 minutes.",
-    solutionSteps: ["(i) r = 40 cm; circumference = 2πr = 2 × (22/7) × 40 = 1760/7 cm.", "(ii) 66 km/h = 66 × 1000 × 100 cm/60 min = 6600000/60 = 110000 cm/min.", "(iii) Distance in 10 min = 110000 × 10 = 1,100,000 cm.", "(iv) Revolutions = distance/circumference = 1,100,000 / (1760/7) = 1,100,000 × 7/1760 = 7,700,000/1760 = 4375."],
+    solutionSteps: ["[1 mark] (i) r = 40 cm; circumference = 2πr = 2 × (22/7) × 40 = 1760/7 cm.", "[1 mark] (ii) 66 km/h = 66 × 1000 × 100 cm/60 min = 6600000/60 = 110000 cm/min.", "[1 mark] (iii) Distance in 10 min = 110000 × 10 = 1,100,000 cm.", "[1 mark] (iv) Revolutions = distance/circumference = 1,100,000 / (1760/7) = 1,100,000 × 7/1760 = 7,700,000/1760 = 4375."],
     finalAnswer: "(i) r = 40 cm, circumference = 1760/7 cm; (ii) 110000 cm/min; (iii) 1,100,000 cm; (iv) 4375 revolutions.",
     ncertRef: "NCERT Ex 12.1 Q4", isCompetencyBased: true },
 

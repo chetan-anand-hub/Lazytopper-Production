@@ -354,7 +354,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(gaps.map((q) => q.id)).toEqual([]);
   });
 
-  it("the addressable step-marking backlog only shrinks (at most 1,230 rows)", () => {
+  it("the addressable step-marking backlog only shrinks (at most 1,077 rows)", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
      * rows that Rule 1 rejects permanently and that policy says to RETIRE, not
@@ -419,11 +419,16 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // landing in "marks-do-not-sum" (11 -> 0). Left alone on purpose: CBE-M-RN-B-004 (the HALF-1
     // [½ mark] positive control) and PYQ-M-2026-PLE-004/005 (pinned to the ledger's 2+1 marks by
     // pyqRestore1).
+    // 1,230 -> 1,077: measured at trunk 96ba6c15 after STEPMARK-2 batch 3B (hand-sourced Maths:
+    // trigonometry, areas-related-to-circles, surface-areas-and-volumes, statistics, probability) rewrote
+    // solutionSteps on 152 non-AI rows; every one left "unmarked-step" (trunk itself measured 1,229).
+    // Batch 3A (arithmetic-progression, coordinate-geometry, triangles, circles) lowers it independently
+    // by 149; whichever of 3A/3B merges second re-pins this ceiling to the measured number.
     // CEILING (PR-3) — the backlog is worked DOWN by STEPMARK batches and must never be
     // worked up: a wiring PR that lands rows unannotated grows it and goes red here,
     // which is the right red — annotate before wiring. 2,336 at PR-3 (2026-09-11); the
     // 21 bound-but-unmarked rows PR-3 exposed are inside this number, not added to it.
-    expect(addressable.length).toBeLessThanOrEqual(1230);
+    expect(addressable.length).toBeLessThanOrEqual(1077);
   });
 });
 

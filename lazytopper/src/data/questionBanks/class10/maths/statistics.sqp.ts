@@ -46,9 +46,9 @@ export const STATISTICS_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Mean length ≈ 146.975 mm.",
     "solutionSteps": [
-      "Convert to continuous classes (subtract 0.5 from lower limit, add 0.5 to upper): 117.5–126.5, 126.5–135.5, …, 171.5–180.5. Class midpoints: 122, 131, 140, 149, 158, 167, 176. Frequencies: 3, 5, 9, 12, 5, 4, 2.",
-      "Use assumed mean method with a = 149, h = 9. Deviations d = x − a: −27, −18, −9, 0, 9, 18, 27. Compute fd: −81, −90, −81, 0, 45, 72, 54. Σf = 40; Σfd = −81.",
-      "Mean = a + (Σfd / Σf) = 149 + (−81/40) = 149 − 2.025 = 146.975 mm. Average length of the leaves = 146.975 mm."
+      "[1 mark] Convert to continuous classes (subtract 0.5 from lower limit, add 0.5 to upper): 117.5–126.5, 126.5–135.5, …, 171.5–180.5. Class midpoints: 122, 131, 140, 149, 158, 167, 176. Frequencies: 3, 5, 9, 12, 5, 4, 2.",
+      "[1 mark] Use assumed mean method with a = 149, h = 9. Deviations d = x − a: −27, −18, −9, 0, 9, 18, 27. Compute fd: −81, −90, −81, 0, 45, 72, 54. Σf = 40; Σfd = −81.",
+      "[1 mark] Mean = a + (Σfd / Σf) = 149 + (−81/40) = 149 − 2.025 = 146.975 mm. Average length of the leaves = 146.975 mm."
     ],
     "finalAnswer": "Mean ≈ 146.975 mm.",
     "isCompetencyBased": false
@@ -67,11 +67,11 @@ export const STATISTICS_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "p = 5, q = 7; Mode ≈ 46.67.",
     "solutionSteps": [
-      "Sum of frequencies: p + 15 + 25 + 20 + q + 8 + 10 = 90 ⇒ p + q + 78 = 90 ⇒ p + q = 12.",
-      "Cumulative frequencies: p, p+15, p+40, p+60, p+q+60, p+q+68, p+q+78. Median = 50 lies in class 50–60 (modal-median class), so l = 50, h = 10, f = 20, cf (before median class) = p + 40, n/2 = 45.",
-      "Median formula: Median = l + ((n/2 − cf)/f)·h ⇒ 50 = 50 + ((45 − (p + 40))/20)·10 ⇒ ((45 − p − 40)/20)·10 = 0 ⇒ 5 − p = 0 ⇒ p = 5. Hence q = 12 − 5 = 7.",
-      "Mode: highest frequency is f₁ = 25 in class 40–50, so l = 40, h = 10, f₀ = 15 (previous), f₂ = 20 (next). Mode = l + ((f₁ − f₀)/(2f₁ − f₀ − f₂))·h.",
-      "Mode = 40 + ((25 − 15)/(50 − 15 − 20))·10 = 40 + (10/15)·10 = 40 + 100/15 = 40 + 6.67 ≈ 46.67."
+      "[1 mark] Sum of frequencies: p + 15 + 25 + 20 + q + 8 + 10 = 90 ⇒ p + q + 78 = 90 ⇒ p + q = 12.",
+      "[1 mark] Cumulative frequencies: p, p+15, p+40, p+60, p+q+60, p+q+68, p+q+78. Median = 50 lies in class 50–60 (modal-median class), so l = 50, h = 10, f = 20, cf (before median class) = p + 40, n/2 = 45.",
+      "[1 mark] Median formula: Median = l + ((n/2 − cf)/f)·h ⇒ 50 = 50 + ((45 − (p + 40))/20)·10 ⇒ ((45 − p − 40)/20)·10 = 0 ⇒ 5 − p = 0 ⇒ p = 5. Hence q = 12 − 5 = 7.",
+      "[1 mark] Mode: highest frequency is f₁ = 25 in class 40–50, so l = 40, h = 10, f₀ = 15 (previous), f₂ = 20 (next). Mode = l + ((f₁ − f₀)/(2f₁ − f₀ − f₂))·h.",
+      "[1 mark] Mode = 40 + ((25 − 15)/(50 − 15 − 20))·10 = 40 + (10/15)·10 = 40 + 100/15 = 40 + 6.67 ≈ 46.67."
     ],
     "finalAnswer": "p = 5, q = 7; Mode ≈ 46.67.",
     "isCompetencyBased": true

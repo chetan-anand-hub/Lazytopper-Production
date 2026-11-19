@@ -925,42 +925,37 @@
       "subject": "maths",
       "questions": [
         {
-          "id": "CBE-M-PROB-B-002",
-          "questionText": "Diwali Fest is an annual South Asian arts & culture festival produced by the Diwali Celebration Society. In the Diwali fest, a game is played with a fair spinner (shown). The numbers on the spinner are 2, 5, 7, 9, 12, 16. Sometimes the owner will invite a player who does not win with the spinner to throw the dice as a free bonus. What is the probability that a player will get a special prize because the spinner stops on a perfect square? Show your working.",
-          "marks": 2,
-          "section": "B",
+          "id": "APQ-M-PROB-004",
+          "questionText": "Naima is playing a game and has two identical 6-sided dice. The faces of the dice have 3 even numbers and 3 odd numbers. She has to roll the two dice simultaneously and has two options to choose from before rolling the dice. She wins a prize if: Option 1: the sum of the two numbers appearing on the top of the two dice is odd. Option 2: the product of the two numbers appearing on top of the two dice is odd. Which option should Naima choose so that her chances of winning a prize is higher?",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] Identify perfect squares among 2, 5, 7, 9, 12, 16: these are 9 and 16 → 2 favourable out of 6.",
-            "[1 mark] P(perfect square) = 2/6 = 1/3 (or 0.33)."
-          ],
-          "figures": [
-            {
-              "src": "/figures/itembank-maths/probability/CBE-M-PROB-B-002.webp",
-              "alt": "Source figure"
-            }
+            "[1 mark] Sum cases: odd+odd=even, odd+even=odd, even+odd=odd, even+even=even. P(sum odd) = 2/4 = 1/2.",
+            "[1 mark] Product cases: odd×odd=odd, odd×even=even, even×odd=even, even×even=even. P(product odd) = 1/4.",
+            "[1 mark] Compare: 1/2 > 1/4, so Naima should choose Option 1."
           ]
         },
         {
-          "id": "CBE-M-PROB-B-003",
-          "questionText": "In the Diwali fest game, if the player gets a chance to throw a dice (as a free bonus after not winning with the fair spinner), what is the probability of getting a multiple of 2 on the dice? Show your working.",
-          "marks": 2,
-          "section": "B",
+          "id": "APQ-M-PROB-005",
+          "questionText": "One card is drawn from a well shuffled deck of 52 cards. Find the probability of getting (i) a face card or a black card (ii) neither an ace nor a king (iii) a jack and a black card",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] Identify outcomes that are multiples of 2 on a die: 2, 4 and 6 → 3 favourable out of 6.",
-            "[1 mark] P(multiple of 2) = 3/6 = 1/2 (or 0.5)."
+            "[1 mark] (i) P(face card or black card) = 12/52 + 26/52 − 6/52 = 32/52 = 8/13.",
+            "[1 mark] (ii) P(neither ace nor king) = 1 − (4/52 + 4/52) = 1 − 8/52 = 44/52 = 11/13.",
+            "[1 mark] (iii) P(a jack and a black card) = 2/52 = 1/26."
           ]
         },
         {
-          "id": "PROB-N-EXEM-14-LA-001",
-          "questionText": "In a game the entry fee is ₹5. The game consists of tossing a coin 3 times. If one or two heads show, Sweta gets her entry fee back; if she throws 3 heads she gets double the entry fee; otherwise she loses. For tossing a coin three times, find the probability that she (i) loses the entry fee, (ii) gets double the entry fee, (iii) just gets her entry fee back.",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-PROB-007",
+          "questionText": "A square dartboard has sections numbered 1 to 12. Smaller sections (1 to 8) have area 1/16 each; larger sections (9 to 12) have area 1/8 each. Arya: \"My dart will land on a composite number.\" Bashir: \"My dart will land on an even number.\" Cathy: \"My dart will land on a factor of 12.\" Calculate the probability of each and determine the winner.",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] The coin is tossed 3 times, so the sample space has 2³ = 8 equally likely outcomes: HHH, HHT, HTH, THH, HTT, THT, TTH, TTT.",
-            "[1 mark] (i) She loses only when no head shows (0 heads) — outcome TTT, i.e. 1 favourable outcome.",
-            "[1 mark] (i) P(loses the entry fee) = 1/8.",
-            "[1 mark] (ii) She gets double the fee only on 3 heads (HHH) — 1 outcome, so P(gets double) = 1/8.",
-            "[1 mark] (iii) She gets her fee back on exactly 1 or 2 heads = 8 − 1(HHH) − 1(TTT) = 6 outcomes, so P = 6/8 = 3/4."
+            "[1 mark] Composite numbers in 1-12: {4, 6, 8, 9, 10, 12}. Among small (1-8): 4, 6, 8 → 3 × (1/16). Among large (9-12): 9, 10, 12 → 3 × (1/8). P(Arya) = 3/16 + 3/8 = 3/16 + 6/16 = 9/16.",
+            "[1 mark] Even numbers: {2, 4, 6, 8, 10, 12}. Small: 4 × (1/16); Large: 2 × (1/8). P(Bashir) = 4/16 + 2/8 = 4/16 + 4/16 = 8/16 = 1/2.",
+            "[0.5 mark] Factors of 12: {1, 2, 3, 4, 6, 12}. Small: 5 × (1/16); Large: 1 × (1/8). P(Cathy) = 5/16 + 1/8 = 5/16 + 2/16 = 7/16.",
+            "[0.5 mark] Compare: 9/16 > 8/16 > 7/16 ⟹ Arya wins."
           ]
         }
       ]
@@ -1084,24 +1079,17 @@
           ]
         },
         {
-          "id": "APQ-M-STAT-007",
-          "questionText": "The heights of plants in Dipti's garden are recorded in the table given below. Classes: 0-20 (2x), 20-40 (4), 40-60 (4x), 60-80 (8), 80-100 (4). Median = 55 cm. Which of the following is the value of x?",
-          "marks": 1,
-          "section": "A",
+          "id": "APQ-M-STAT-005",
+          "questionText": "The marks obtained by 80 students of Class X in a mock test of Mathematics are given below:\nMarks 0 and above: 80; 10 and above: 77; 20 and above: 72; 30 and above: 65; 40 and above: 55; 50 and above: 43; 60 and above: 28; 70 and above: 16; 80 and above: 10; 90 and above: 8 (maximum marks 100).\nFind the median and the mode of the data.\nOR\nIf the mean of the following frequency distribution is 91, find the missing frequencies x and y. (Classes 0-30: 12, 30-60: 21, 60-90: x, 90-120: 52, 120-150: y, 150-180: 11; Total = 150.)",
+          "marks": 5,
+          "section": "D",
           "solutionSteps": [
-            "[1 mark] N = 2x + 4 + 4x + 8 + 4 = 6x + 16, so N/2 = 3x + 8. Median 55 lies in class 40–60: l = 40, cf = 2x + 4, f = 4x, h = 20. Median = l + ((N/2 − cf)/f) × h gives 55 = 40 + ((3x + 8 − 2x − 4)/4x) × 20, so 15 = 5(x + 4)/x, 15x = 5x + 20, x = 2. Hence option (b). Answer: (B)"
-          ],
-          "options": [
-            "1",
-            "2",
-            "8",
-            "(the value of x cannot be found without knowing the total number of plants)"
-          ],
-          "figures": [
-            {
-              "src": "/figures/apq-maths/statistics/APQ-M-STAT-007.webp",
-              "alt": "Source figure"
-            }
+            "[1 mark] Convert 'and above' to class-frequencies: 0-10:3, 10-20:5, 20-30:7, 30-40:10, 40-50:12, 50-60:15, 60-70:12, 70-80:6, 80-90:2, 90-100:8.",
+            "[1 mark] n = 80 ⟹ n/2 = 40. Cumulative frequencies build up to 37 (at 40-50), then 52 (at 50-60). Median class = 50-60.",
+            "[1 mark] Median = 50 + [(40 − 37)/15] × 10 = 50 + 2 = 52.",
+            "[0.5 mark] Modal class = 50-60 (highest frequency 15).",
+            "[1.5 marks] Mode = 50 + [(15 − 12)/(2·15 − 12 − 12)] × 10 = 50 + 30/6 = 55.",
+            "[5 marks] OR: Class marks: 15, 45, 75, 105, 135, 165. Σfi·xi = 12·15 + 21·45 + 75x + 52·105 + 135y + 11·165 = 180 + 945 + 75x + 5460 + 135y + 1815 = 8400 + 75x + 135y. Σfi = 96 + x + y = 150 ⟹ x + y = 54. Mean = 91: (8400 + 75x + 135y)/150 = 91 ⟹ 75x + 135y = 5250 ⟹ 5x + 9y = 350. Solving with x + y = 54: x = 34, y = 20."
           ]
         }
       ]
@@ -1126,6 +1114,18 @@
           ]
         },
         {
+          "id": "APQ-M-SAV-005",
+          "questionText": "A right circular cylinder and a cone have equal bases and equal heights. If their curved surface areas are in the ratio 8 : 5, then find the ratio between the radius of their bases to their heights.",
+          "marks": 3,
+          "section": "C",
+          "solutionSteps": [
+            "[1 mark] CSA(cylinder)/CSA(cone) = 2πrh / πrl = 2h/l = 8/5",
+            "[0.5 mark] ⟹ h/l = 4/5.",
+            "[0.5 mark] l = √(h^2 + r^2). h/√(h^2 + r^2) = 4/5",
+            "[1 mark] ⟹ h^2 / (h^2 + r^2) = 16/25 ⟹ r^2/h^2 = 9/16 ⟹ r/h = 3/4."
+          ]
+        },
+        {
           "id": "APQ-M-SAV-006",
           "questionText": "Two rectangular sheets, each of dimensions 45 cm × 155 cm, are folded to make hollow right circular cylindrical pipes, with exactly 1 cm overlap when sticking the ends. Sheet 1 is folded along its length (so its height is 155 cm) and Sheet 2 along its width (so its height is 45 cm). Both pipes are closed at both ends.\n(i) Find the difference in the curved surface areas of the two cylinders.\n(ii) Find the ratio of the volumes of the two cylinders formed. (Use π = 22/7.)",
           "marks": 5,
@@ -1136,19 +1136,6 @@
             "[1 mark] (ii) 2πr₁ = 44 ⟹ r₁ = 7 cm; 2πr₂ = 154 ⟹ r₂ = 49/2 cm.",
             "[1 mark] (ii) V₁ = πr₁²h₁ = (22/7)(49)(155) = 23870 cm³; V₂ = πr₂²h₂ = (22/7)(2401/4)(45) = 84892.5 cm³.",
             "[1 mark] (ii) V₁ : V₂ = 23870 : 84892.5 = 124 : 441."
-          ]
-        },
-        {
-          "id": "APQ-M-SAV-009",
-          "questionText": "A right-circular cylindrical water tanker (r = 1 m, h = 70 m) supplies water. Each colony has a cuboidal tank (7 × 2 × 3 m). Villages: 400 people fill spherical matkas (r = 21 cm). (i) How many colonies can one full tanker supply? (ii) If a tanker supplies 3 colonies then 400 matkas at a village, how much water (in m^3) does it supply? (Use π = 22/7.)",
-          "marks": 5,
-          "section": "D",
-          "solutionSteps": [
-            "[1 mark] Tanker volume = π·r²·h = (22/7)·1²·70 = 220 m³; cuboidal tank volume = 7·2·3 = 42 m³.",
-            "[1 mark] (i) Number of colonies = 220 ÷ 42 = 5.23, so 5 colonies can be supplied completely.",
-            "[1 mark] Matka (sphere) volume = (4/3)·π·r³ = (4/3)·(22/7)·(21)³ = 38,808 cm³ ≈ 0.0388 m³.",
-            "[1 mark] (ii) Water for 3 colonies = 3 × 42 = 126 m³; water for 400 matkas = 400 × 0.0388 ≈ 16 m³.",
-            "[1 mark] (ii) Total water supplied = 126 + 16 = 142 m³ (approx)."
           ]
         }
       ]
@@ -1209,6 +1196,17 @@
       "subject": "maths",
       "questions": [
         {
+          "id": "2026-TRIG-APP-01",
+          "questionText": "From the top of a 20 m high building, the angle of depression of a car on the road is 30°. Find the distance of the car from the foot of the building. (Use √3 ≈ 1.732.)",
+          "marks": 3,
+          "section": "C",
+          "solutionSteps": [
+            "[1 mark] Let the height of the building be AB = 20 m and the car be at point C on the road, with B as the foot of the building. The angle of depression from A to C is 30°, so angle of elevation from C to A is also 30° (alternate interior angles). In right triangle △ABC, AB is vertical (20 m) and BC is the horizontal distance to be found.",
+            "[1 mark] Use tan of the angle of elevation: tan 30° = AB / BC. Substitute values: tan 30° = 1/√3 and AB = 20, so 1/√3 = 20 / BC. Rearrange to get BC = 20√3.",
+            "[1 mark] Use √3 ≈ 1.732 to get BC ≈ 20 × 1.732 = 34.64 m. Therefore, the car is approximately 34.6 m from the foot of the building."
+          ]
+        },
+        {
           "id": "APQ-M-TRIG-002",
           "questionText": "In the figure, PQRS is a square. What is the value of sin ∠SPT?",
           "marks": 1,
@@ -1230,32 +1228,15 @@
           ]
         },
         {
-          "id": "APQ-M-TRIG-009",
-          "questionText": "A man on the top of a vertical tower observes a car moving at a uniform speed coming directly towards it. If it takes 12 minutes for the angle of depression to change from 30° to 45°, how soon after this will the car reach the tower? Give your answer to nearest minutes. (Use √3 = 1.73). OR If the angle of elevation of a cloud from a point 10 metres above a lake is 30° and the angle of depression of its reflection in the lake is 60°, find the height of the cloud from the surface of the lake.",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-TRIG-007",
+          "questionText": "Prove that: (sin^4 θ − cos^4 θ + 1) cosec^2 θ = 2. OR If sin x + cosec x = 2, then find the value of sin^19 x + cosec^20 x.",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] Let AB be the tower of height h and let the car move from D (angle of depression 30°) to C (angle of depression 45°) in 12 minutes; let the uniform speed give distance DC covered in 12 minutes.",
-            "[1 mark] In ΔABC (depression 45°): tan 45° = AB/BC ⟹ BC = AB.",
-            "[1 mark] In ΔABD (depression 30°): tan 30° = AB/BD ⟹ BD = √3·AB.",
-            "[1 mark] DC = BD − BC = (√3 − 1)·AB, and this is covered in 12 minutes; time to cover BC = AB at the same speed = 12 × BC/DC = 12/(√3 − 1).",
-            "[1 mark] Time = 12/(√3 − 1) = 6(√3 + 1) = 6(2.73) ≈ 16 minutes. [OR variant — cloud over a lake: observer 10 m above lake, horizontal distance x. tan 30° = (h − 10)/x and tan 60° = (h + 10)/x; dividing, 3 = (h + 10)/(h − 10) ⟹ 3h − 30 = h + 10 ⟹ h = 20 m.]"
-          ]
-        },
-        {
-          "id": "CBE-M-TRIG-B-005",
-          "questionText": "A flagpole casts its shadow that is 25 m long on the ground. The angle made by the tip of the flagpole and the tip of its shadow on the ground is 45°. Find the height of the flagpole.",
-          "marks": 2,
-          "section": "B",
-          "solutionSteps": [
-            "[1 mark] tan 45° = opposite/adjacent = (height of flagpole)/25.",
-            "[1 mark] 1 = (height of flagpole)/25 → height of flagpole = 25 m."
-          ],
-          "figures": [
-            {
-              "src": "/figures/itembank-maths/trigonometry/CBE-M-TRIG-B-005.webp",
-              "alt": "Source figure"
-            }
+            "[1 mark] LHS = (sin^4 θ − cos^4 θ + 1) cosec^2 θ = [(sin^2 θ − cos^2 θ)(sin^2 θ + cos^2 θ) + 1] cosec^2 θ",
+            "[1 mark] = (sin^2 θ − cos^2 θ + 1) cosec^2 θ.",
+            "[1 mark] = (2 sin^2 θ) cosec^2 θ (using 1 − cos^2 θ = sin^2 θ) = 2.",
+            "[3 marks] OR: sin x + 1/sin x = 2 ⟹ sin^2 x − 2 sin x + 1 = 0 ⟹ (sin x − 1)^2 = 0 ⟹ sin x = 1. Then cosec x = 1, so sin^19 x + cosec^20 x = 1 + 1 = 2."
           ]
         }
       ]

@@ -151,9 +151,9 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "State whether true or false and justify: 'Two identical solid hemispheres of equal base radius r cm are stuck together along their bases. The total surface area of the combination is 6πr².'",
     solutionSteps: [
-      "Joining two hemispheres along their flat bases gives a sphere of radius r.",
-      "Surface area of a sphere = 4πr² (NOT 6πr²).",
-      "So the statement is FALSE."
+      "[1 mark] Joining two hemispheres along their flat bases gives a sphere of radius r.",
+      "[0.5 mark] Surface area of a sphere = 4πr² (NOT 6πr²).",
+      "[0.5 mark] So the statement is FALSE."
     ],
     finalAnswer: "False — the combined solid is a sphere, whose surface area is 4πr², not 6πr².",
     ncertRef: "Exemplar Ex 12.2 Q1", isCompetencyBased: false },
@@ -163,10 +163,10 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "State whether true or false and justify: 'A solid cylinder of radius r and height h is placed over another cylinder of the same height and radius. The total surface area of the shape so formed is 4πrh + 4πr².'",
     solutionSteps: [
-      "Stacking the two cylinders gives a single cylinder of radius r and total height 2h.",
-      "TSA = 2πr(2h) + 2πr² = 4πrh + 2πr² (top + bottom circles only).",
-      "The given expression has 4πr² (two extra circles) — that's wrong.",
-      "Hence FALSE."
+      "[0.5 mark] Stacking the two cylinders gives a single cylinder of radius r and total height 2h.",
+      "[0.5 mark] TSA = 2πr(2h) + 2πr² = 4πrh + 2πr² (top + bottom circles only).",
+      "[0.5 mark] The given expression has 4πr² (two extra circles) — that's wrong.",
+      "[0.5 mark] Hence FALSE."
     ],
     finalAnswer: "False — TSA is 4πrh + 2πr², not 4πrh + 4πr².",
     ncertRef: "Exemplar Ex 12.2 Q2", isCompetencyBased: true },
@@ -177,9 +177,9 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Two identical cubes each of volume 64 cm³ are joined together end to end. What is the surface area of the resulting cuboid?",
     solutionSteps: [
-      "Edge of each cube = ∛64 = 4 cm.",
-      "Resulting cuboid: l × b × h = 8 × 4 × 4 cm.",
-      "TSA = 2(lb + bh + hl) = 2(32 + 16 + 32) = 2 × 80 = 160 cm²."
+      "[1 mark] Edge of each cube = ∛64 = 4 cm.",
+      "[1 mark] Resulting cuboid: l × b × h = 8 × 4 × 4 cm.",
+      "[1 mark] TSA = 2(lb + bh + hl) = 2(32 + 16 + 32) = 2 × 80 = 160 cm²."
     ],
     finalAnswer: "160 cm²",
     ncertRef: "Exemplar Ex 12.3 Q5", isCompetencyBased: true },
@@ -189,9 +189,9 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     difficulty: "Medium", bloomSkill: "Applying",
     questionText: "From a solid cube of side 7 cm, a conical cavity of height 7 cm and radius 3 cm is hollowed out. Find the volume of the remaining solid. (Use π = 22/7)",
     solutionSteps: [
-      "V(cube) = 7³ = 343 cm³.",
-      "V(cone) = (1/3)πr²h = (1/3)(22/7)(9)(7) = (22 × 9)/3 = 66 cm³.",
-      "V(remaining) = 343 − 66 = 277 cm³."
+      "[1 mark] V(cube) = 7³ = 343 cm³.",
+      "[1 mark] V(cone) = (1/3)πr²h = (1/3)(22/7)(9)(7) = (22 × 9)/3 = 66 cm³.",
+      "[1 mark] V(remaining) = 343 − 66 = 277 cm³."
     ],
     finalAnswer: "277 cm³",
     ncertRef: "Exemplar Ex 12.3 Q6", isCompetencyBased: true },
@@ -201,9 +201,9 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Two cones with the same base radius 8 cm and height 15 cm are joined together along their bases. Find the surface area of the shape so formed. (Use π = 22/7)",
     solutionSteps: [
-      "Joining two cones along their bases hides both circular faces; only the two slant surfaces remain.",
-      "Slant height l = √(r² + h²) = √(8² + 15²) = √(64 + 225) = √289 = 17 cm.",
-      "SA = 2 × CSA(cone) = 2 × πrl = 2 × (22/7)(8)(17) = 2 × 2992/7 = 5984/7 ≈ 854.86 cm²."
+      "[1 mark] Joining two cones along their bases hides both circular faces; only the two slant surfaces remain.",
+      "[1 mark] Slant height l = √(r² + h²) = √(8² + 15²) = √(64 + 225) = √289 = 17 cm.",
+      "[1 mark] SA = 2 × CSA(cone) = 2 × πrl = 2 × (22/7)(8)(17) = 2 × 2992/7 = 5984/7 ≈ 854.86 cm²."
     ],
     finalAnswer: "≈ 854.86 cm² (i.e., 5984/7 cm²).",
     ncertRef: "Exemplar Ex 12.3 Q7", isCompetencyBased: true,
@@ -214,10 +214,10 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     difficulty: "Medium", bloomSkill: "Applying",
     questionText: "An ice cream cone full of ice cream has radius 5 cm and height 10 cm, with the ice cream forming a hemisphere of the same radius on top of the cone. Calculate the volume of ice cream, given that its (1/6)th part is left unfilled with ice cream. (Use π = 22/7)",
     solutionSteps: [
-      "The ice-cream fills a cone and forms a hemispherical scoop on top, both of radius 5 cm. Cone height = 10 cm.",
-      "V(cone) = (1/3)π(5)²(10) = (250/3)π cm³.  V(hemisphere) = (2/3)π(5)³ = (250/3)π cm³.",
-      "Total volume = (250/3)π + (250/3)π = (500/3)π cm³.",
-      "Ice cream actually present = (5/6) × (500/3)π = (2500/18)π = (1250/9)π = (1250/9)(22/7) ≈ 436.51 cm³."
+      "[0.5 mark] The ice-cream fills a cone and forms a hemispherical scoop on top, both of radius 5 cm. Cone height = 10 cm.",
+      "[1 mark] V(cone) = (1/3)π(5)²(10) = (250/3)π cm³.  V(hemisphere) = (2/3)π(5)³ = (250/3)π cm³.",
+      "[0.5 mark] Total volume = (250/3)π + (250/3)π = (500/3)π cm³.",
+      "[1 mark] Ice cream actually present = (5/6) × (500/3)π = (2500/18)π = (1250/9)π = (1250/9)(22/7) ≈ 436.51 cm³."
     ],
     finalAnswer: "≈ 436.51 cm³ of ice cream.",
     ncertRef: "Exemplar Ex 12.3 Q9", isCompetencyBased: true,
@@ -259,11 +259,11 @@ export const SAV_EXEMPLAR: CanonicalQuestion[] = [
     difficulty: "Hard", bloomSkill: "Applying",
     questionText: "A rocket is in the form of a right circular cylinder closed at the lower end and surmounted by a cone with the same radius as that of the cylinder. The diameter and height of the cylinder are 6 cm and 12 cm, respectively. If the slant height of the conical portion is 5 cm, find the total surface area and volume of the rocket. (Use π = 3.14)",
     solutionSteps: [
-      "Radius r = 3 cm; cylinder height h₁ = 12 cm; cone slant l = 5 cm → cone height h₂ = √(l² − r²) = √(25 − 9) = 4 cm.",
-      "TSA = CSA(cylinder) + area(bottom circle of cylinder) + CSA(cone) = 2πrh₁ + πr² + πrl.",
-      "= 2(3.14)(3)(12) + (3.14)(9) + (3.14)(3)(5) = 226.08 + 28.26 + 47.10 = 301.44 cm².",
-      "V = V(cylinder) + V(cone) = πr²h₁ + (1/3)πr²h₂ = (3.14)(9)(12) + (1/3)(3.14)(9)(4).",
-      "= 339.12 + 37.68 = 376.80 cm³."
+      "[1 mark] Radius r = 3 cm; cylinder height h₁ = 12 cm; cone slant l = 5 cm → cone height h₂ = √(l² − r²) = √(25 − 9) = 4 cm.",
+      "[1 mark] TSA = CSA(cylinder) + area(bottom circle of cylinder) + CSA(cone) = 2πrh₁ + πr² + πrl.",
+      "[1 mark] = 2(3.14)(3)(12) + (3.14)(9) + (3.14)(3)(5) = 226.08 + 28.26 + 47.10 = 301.44 cm².",
+      "[1 mark] V = V(cylinder) + V(cone) = πr²h₁ + (1/3)πr²h₂ = (3.14)(9)(12) + (1/3)(3.14)(9)(4).",
+      "[1 mark] = 339.12 + 37.68 = 376.80 cm³."
     ],
     finalAnswer: "TSA = 301.44 cm²;  V = 376.80 cm³.",
     ncertRef: "Exemplar Ex 12.4 Q14", isCompetencyBased: true,

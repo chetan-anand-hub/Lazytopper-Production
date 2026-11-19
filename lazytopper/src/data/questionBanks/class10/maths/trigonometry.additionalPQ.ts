@@ -62,7 +62,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-TRIG-006", subject: "Maths", topicKey: "trigonometry", subtopic: "Evaluating Trig Expression", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "If sin A − cos A = 0 for some acute angle A, then find the value of 2 tan^2 A + 1/cosec^2 A + 1.",
     answer: "7/2.",
-    solutionSteps: ["sin A = cos A ⟹ tan A = 1 ⟹ A = 45°.", "2 tan^2 45° + 1/cosec^2 45° + 1 = 2(1)^2 + sin^2 45° + 1 = 2 + (1/√2)^2 + 1 = 2 + 1/2 + 1 = 7/2."],
+    solutionSteps: ["[1 mark] sin A = cos A ⟹ tan A = 1 ⟹ A = 45°.", "[1 mark] 2 tan^2 45° + 1/cosec^2 45° + 1 = 2(1)^2 + sin^2 45° + 1 = 2 + (1/√2)^2 + 1 = 2 + 1/2 + 1 = 7/2."],
     finalAnswer: "7/2.",
     ncertRef: "APQ PQ2 Q25", isCompetencyBased: false },
 
@@ -70,7 +70,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-TRIG-007", subject: "Maths", topicKey: "trigonometry", subtopic: "Trig Identity Proof", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Prove that: (sin^4 θ − cos^4 θ + 1) cosec^2 θ = 2. OR If sin x + cosec x = 2, then find the value of sin^19 x + cosec^20 x.",
     answer: "Identity proved [or] sin^19 x + cosec^20 x = 2.",
-    solutionSteps: ["LHS = (sin^4 θ − cos^4 θ + 1) cosec^2 θ = [(sin^2 θ − cos^2 θ)(sin^2 θ + cos^2 θ) + 1] cosec^2 θ = (sin^2 θ − cos^2 θ + 1) cosec^2 θ.", "= (2 sin^2 θ) cosec^2 θ (using 1 − cos^2 θ = sin^2 θ) = 2.", "[OR] sin x + 1/sin x = 2 ⟹ sin^2 x − 2 sin x + 1 = 0 ⟹ (sin x − 1)^2 = 0 ⟹ sin x = 1. Then cosec x = 1, so sin^19 x + cosec^20 x = 1 + 1 = 2."],
+    solutionSteps: ["[1 mark] LHS = (sin^4 θ − cos^4 θ + 1) cosec^2 θ = [(sin^2 θ − cos^2 θ)(sin^2 θ + cos^2 θ) + 1] cosec^2 θ", "[1 mark] = (sin^2 θ − cos^2 θ + 1) cosec^2 θ.", "[1 mark] = (2 sin^2 θ) cosec^2 θ (using 1 − cos^2 θ = sin^2 θ) = 2.", "[3 marks] OR: sin x + 1/sin x = 2 ⟹ sin^2 x − 2 sin x + 1 = 0 ⟹ (sin x − 1)^2 = 0 ⟹ sin x = 1. Then cosec x = 1, so sin^19 x + cosec^20 x = 1 + 1 = 2."],
     finalAnswer: "Proved [or] 2.",
     ncertRef: "APQ PQ2 Q29", isCompetencyBased: true },
 
@@ -78,7 +78,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-TRIG-008", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Identities", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing",
     questionText: "Shown is a semicircle of radius 1 unit. Make necessary constructions and show the trig relation in the figure.",
     answer: "Geometric construction proof.",
-    solutionSteps: ["Draw radius OR with R on the diameter PQ. In ΔRPO: sin θ = RP/OR ⟹ RP = sin θ (since OR = 1).", "Also cos θ = PO/OR ⟹ PO = cos θ.", "Using these in ΔRPQ, the required relation follows by elementary trigonometry."],
+    solutionSteps: ["[1 mark] Draw radius OR with R on the diameter PQ. In ΔRPO: sin θ = RP/OR ⟹ RP = sin θ (since OR = 1).", "[1 mark] Also cos θ = PO/OR ⟹ PO = cos θ.", "[1 mark] Using these in ΔRPQ, the required relation follows by elementary trigonometry."],
     finalAnswer: "Relations sin θ = RP and cos θ = PO established in unit-radius semicircle.",
     ncertRef: "APQ PQ1 Q30", isCompetencyBased: true,
  },
@@ -136,7 +136,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-TRIG-014", subject: "Maths", topicKey: "trigonometry", subtopic: "Trig Equations — Standard Angles", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "If cos(A + 2B) = 0, 0° ≤ (A + 2B) ≤ 90° and cos(B − A) = √3/2, 0° ≤ (B − A) ≤ 90°, then find cosec(2A + B). Show your work.",
     answer: "cosec(2A + B) = 2/√3.",
-    solutionSteps: ["cos(A + 2B) = 0 ⟹ A + 2B = 90°.", "cos(B − A) = √3/2 ⟹ B − A = 30°.", "Subtract: (A + 2B) − (B − A) = 90° − 30° ⟹ 2A + B = 60°. So cosec 60° = 2/√3."],
+    solutionSteps: ["[0.5 mark] cos(A + 2B) = 0 ⟹ A + 2B = 90°.", "[0.5 mark] cos(B − A) = √3/2 ⟹ B − A = 30°.", "[1 mark] Subtract: (A + 2B) − (B − A) = 90° − 30° ⟹ 2A + B = 60°. So cosec 60° = 2/√3."],
     finalAnswer: "2/√3.",
     ncertRef: "APQ PQ_2022 Q24 (first variant)", isCompetencyBased: true },
 
@@ -144,7 +144,7 @@ export const TRIGONOMETRY_APQ: CanonicalQuestion[] = [
   { id: "APQ-M-TRIG-015", subject: "Maths", topicKey: "trigonometry", subtopic: "True/False Trig Statements with Justification", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "State whether the following statements are true or false. Give reasons. (i) As the value of sin θ increases, the value of tan θ decreases. (ii) When the value of sin θ is maximum, the value of cosec θ is also maximum. (Note: 0° < θ < 90°.)",
     answer: "Both FALSE.",
-    solutionSteps: ["(i) FALSE: tan θ = sin θ / cos θ. As sin θ increases in (0°, 90°), cos θ decreases, so tan θ INCREASES (numerator up, denominator down).", "(ii) FALSE: cosec θ = 1/sin θ. When sin θ is maximum (= 1), cosec θ is MINIMUM (= 1) — they are inversely related."],
+    solutionSteps: ["[1 mark] (i) FALSE: tan θ = sin θ / cos θ. As sin θ increases in (0°, 90°), cos θ decreases, so tan θ INCREASES (numerator up, denominator down).", "[1 mark] (ii) FALSE: cosec θ = 1/sin θ. When sin θ is maximum (= 1), cosec θ is MINIMUM (= 1) — they are inversely related."],
     finalAnswer: "(i) False; (ii) False.",
     ncertRef: "APQ PQ_2022 Q24 (OR variant)", isCompetencyBased: true },
 

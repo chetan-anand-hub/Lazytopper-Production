@@ -40,7 +40,7 @@ export const TRIGONOMETRY_PYQ: CanonicalQuestion[] = [
   { id: "PYQ-M-TRIG-004", subject: "Maths", topicKey: "trigonometry", subtopic: "Trigonometric Ratios of Specific Angles", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Evaluating",
     questionText: "(A) Evaluate 2 sec²θ + 3 cosec²θ − 2 sin θ cos θ if θ = 45°.\nOR\n(B) If sin θ − cos θ = 0, then find the value of sin⁴θ + cos⁴θ.",
     answer: "(A) 9. OR (B) 1/2.",
-    solutionSteps: ["(A) Substitute sec 45° = √2, cosec 45° = √2, sin 45° = cos 45° = 1/√2: 2(√2)² + 3(√2)² − 2·(1/√2)·(1/√2).", "= 4 + 6 − 1 = 9. OR (B) sin θ = cos θ ⇒ tan θ = 1 ⇒ θ = 45°; sin⁴45° + cos⁴45° = (1/√2)⁴ + (1/√2)⁴ = 1/4 + 1/4 = 1/2."],
+    solutionSteps: ["[1 mark] (A) Substitute sec 45° = √2, cosec 45° = √2, sin 45° = cos 45° = 1/√2: 2(√2)² + 3(√2)² − 2·(1/√2)·(1/√2).", "[1 mark] = 4 + 6 − 1 = 9. OR (B) sin θ = cos θ ⇒ tan θ = 1 ⇒ θ = 45°; sin⁴45° + cos⁴45° = (1/√2)⁴ + (1/√2)⁴ = 1/4 + 1/4 = 1/2."],
     finalAnswer: "(A) 9; OR (B) 1/2",
     ncertRef: "PYQ 30/4/3 Q22", isCompetencyBased: true,
     pyqYear: "2023", pyqSet: "3",
