@@ -832,42 +832,38 @@
       "subject": "maths",
       "questions": [
         {
-          "id": "BX-PLE-D-001",
-          "questionText": "The present age of a father is three times the present age of his son. Twelve years from now, the father's age will be twice the son's age. Find their present ages.",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-PLE-004",
+          "questionText": "Kimaya and Heena started walking from the point P at the same moment in opposite directions on a 800 m long circular path. Kimaya walked to the club house at an average speed of 100 m/min and Heena walked to the badminton court at an average speed of 80 m/min. The length of the circular track between the clubhouse and the badminton court is 180 m. If Heena took 1 minute more than Kimaya to reach her destination, find the time taken by Heena to reach the badminton court.",
+          "marks": 2,
+          "section": "B",
           "solutionSteps": [
-            "[1 mark] Let the father's present age be x years and the son's present age be y years. 'Father is three times the son': x = 3y …(1).",
-            "[1 mark] Twelve years hence, father = x + 12 and son = y + 12, with father twice the son: x + 12 = 2(y + 12) → x − 2y = 12 …(2).",
-            "[1 mark] Substitute (1) into (2): 3y − 2y = 12 → y = 12.",
-            "[1 mark] From (1): x = 3(12) = 36.",
-            "[1 mark] Hence father is 36 years and son is 12 years. (Check: in 12 years, 48 = 2 × 24 ✓.)"
+            "[1 mark] Let Kimaya's time = t1, Heena's time = t2. Given t2 − t1 = 1. Distances: x = 100·t1 (Kimaya), y = 80·t2 (Heena). Combined non-overlap path = 800 − 180 = 620 m, so x + y = 620.",
+            "[1 mark] Substitute: 100·t1 + 80·t2 = 620. Use t1 = t2 − 1: 100(t2 − 1) + 80·t2 = 620 ⟹ 180·t2 = 720 ⟹ t2 = 4 minutes."
           ]
         },
         {
-          "id": "BX-PLE-D-002",
-          "questionText": "The sum of the present ages of a mother and her daughter is 60 years. Six years ago, the mother's age was five times the age of the daughter at that time. Find their present ages.",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-PLE-005",
+          "questionText": "Given below is a pair of linear equations: 2x − my = 9 and 4x − ny = 9. Find at least one pair of the possible values of m and n, if exists, for which the above pair of linear equations has: (i) a unique solution (ii) infinitely many solutions (iii) no solution. OR (6, 0) and (0, 2) are two of the points of intersections of two lines represented by a pair of linear equations. (i) How many points of intersections does the pair of linear equations have in total? (ii) Find the equation that represents one of the lines.",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] Let mother's present age be x years and daughter's be y years. Sum condition: x + y = 60 …(1).",
-            "[1 mark] Six years ago: mother = x − 6, daughter = y − 6, with x − 6 = 5(y − 6) → x − 5y = −24 …(2).",
-            "[1 mark] Subtract (2) from (1): (x + y) − (x − 5y) = 60 − (−24) → 6y = 84 → y = 14.",
-            "[1 mark] From (1): x = 60 − 14 = 46.",
-            "[1 mark] Hence mother is 46 years and daughter is 14 years. (Check: 6 years ago, 40 = 5 × 8 ✓.)"
+            "[1 mark] (i) Unique solution: a1/a2 ≠ b1/b2 ⟹ 2/4 ≠ m/n ⟹ m/n ≠ 1/2. E.g., m=2, n=6 gives equations 2x − 2y = 9, 4x − 6y = 9.",
+            "[1 mark] (ii) Infinitely many solutions: a1/a2 = b1/b2 = c1/c2 ⟹ 2/4 = m/n = 9/9 = 1. But 1/2 ≠ 1 — required condition can never be satisfied. Not feasible.",
+            "[1 mark] (iii) No solution: a1/a2 = b1/b2 ≠ c1/c2 ⟹ 2/4 = m/n ≠ 9/9 ⟹ m/n = 1/2 with m/n ≠ 1. E.g. m=3, n=6 gives 2x − 3y = 9, 4x − 6y = 9.",
+            "[1 mark] OR Part i: Two distinct points lie on both lines ⟹ lines are coincident — infinitely many points of intersection.",
+            "[2 marks] OR Part ii: Line through (6, 0) and (0, 2): 6a + 0 = c ⟹ a = c/6; 0 + 2b = c ⟹ b = c/2. So (c/6)x + (c/2)y = c, take c=6: x + 3y = 6."
           ]
         },
         {
-          "id": "BX-PLE-D-003",
-          "questionText": "Ten years ago, a man was thrice as old as his son. Ten years from now, the sum of their ages will be 76 years. Find their present ages.",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-PLE-006",
+          "questionText": "The area of a rectangle reduces by 160 m^2 if its length is increased by 5 m and breadth is reduced by 4 m. However, if the length is decreased by 10 m and breadth is increased by 2 m, then its area is decreased by 100 m^2. Find the dimensions of the rectangle. OR If 16 is subtracted from twice the greater of two positive numbers, the result is half the other number. If 1 is subtracted from half the greater number, the result is still half the other number. Find the two numbers.",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] Let man's present age be x years and son's be y years. Ten years ago: x − 10 = 3(y − 10) → x − 3y = −20 …(1).",
-            "[1 mark] Ten years hence: (x + 10) + (y + 10) = 76 → x + y = 56 …(2).",
-            "[1 mark] Subtract (1) from (2): (x + y) − (x − 3y) = 56 − (−20) → 4y = 76 → y = 19.",
-            "[1 mark] From (2): x = 56 − 19 = 37.",
-            "[1 mark] Hence the man is 37 years and the son is 19 years. (Check: 10 years ago, 27 = 3 × 9 ✓.)"
+            "[1 mark] Let length = x m and breadth = y m. From conditions: (x + 5)(y − 4) = xy − 160 and (x − 10)(y + 2) = xy − 100.",
+            "[1 mark] Simplify: 4x − 5y = 140 and 2x − 10y = −80.",
+            "[1 mark] Solve simultaneously: x = 60, y = 20. So length = 60 m, breadth = 20 m.",
+            "[3 marks] OR: Let numbers be x and y with x > y. From conditions: 2x − 16 = y/2 ⟹ 4x − y = 32. Also x/2 − 1 = y/2 ⟹ x − y = 2. Solving: x = 10, y = 8."
           ]
         }
       ]
@@ -901,29 +897,32 @@
           ]
         },
         {
-          "id": "BX-POLY-D-001",
-          "questionText": "One condition on the zeroes α and β of p(x) = x² − 6x + k is that the sum of their squares (α² + β²) equals 20. Determine the value of k, then obtain the two zeroes.",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-POLY-003",
+          "questionText": "If α and β are the zeroes of x^2 − x − 2, form a quadratic polynomial whose zeroes are 2α + 1 and 2β + 1. OR If α and β are the zeroes of f(x) = 2x^2 + 5x + k such that α^2 + β^2 + αβ = 21/4, find the value of k.",
+          "marks": 2,
+          "section": "B",
           "solutionSteps": [
-            "[1 mark] For x² − 6x + k: sum of zeroes α + β = −(−6)/1 = 6 and product αβ = k/1 = k.",
-            "[1 mark] Use the identity α² + β² = (α + β)² − 2αβ = 36 − 2k.",
-            "[1 mark] Apply the given condition: 36 − 2k = 20.",
-            "[1 mark] Solve: 2k = 16 ⇒ k = 8.",
-            "[1 mark] Then p(x) = x² − 6x + 8 = (x − 2)(x − 4), zeroes 2 and 4; check 2² + 4² = 4 + 16 = 20. ✓"
+            "[0.5 mark] For x^2 − x − 2: α + β = 1, αβ = −2.",
+            "[1 mark] Sum of new zeroes: (2α+1) + (2β+1) = 2(α+β) + 2 = 2(1) + 2 = 4. Product: (2α+1)(2β+1) = 4αβ + 2(α+β) + 1 = 4(−2) + 2(1) + 1 = −5.",
+            "[0.5 mark] Required polynomial = k(x^2 − 4x − 5).",
+            "[2 marks] OR: For 2x^2+5x+k: α+β = −5/2, αβ = k/2. α^2+β^2+αβ = (α+β)^2 − αβ = 25/4 − k/2 = 21/4 ⟹ k/2 = 1 ⟹ k = 2."
           ]
         },
         {
-          "id": "BX-POLY-D-002",
-          "questionText": "For p(x) = x² − 8x + k with zeroes α and β, the sum of the reciprocals of the zeroes, 1/α + 1/β, comes to 2/3. Work out k and list both zeroes.",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-M-POLY-004",
+          "questionText": "Riddhi throws a stone in the air such that it follows a parabolic path before it lands at P on the ground as depicted by the graph below. (i) The above graph is represented by a polynomial where the sum of its zeroes is 1 and the sum of the squares of its zeroes is 25. Find the coordinates of P and Q. (ii) If one unit on the graph represents 25 metres, how far from Riddhi does the stone land?",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] For x² − 8x + k: α + β = 8 and αβ = k.",
-            "[1 mark] Express the condition: 1/α + 1/β = (α + β)/(αβ) = 8/k.",
-            "[1 mark] So 8/k = 2/3.",
-            "[1 mark] Cross-multiply: 2k = 24 ⇒ k = 12.",
-            "[1 mark] Then p(x) = x² − 8x + 12 = (x − 2)(x − 6), zeroes 2 and 6; check 1/2 + 1/6 = 2/3. ✓"
+            "[1 mark] Let polynomial be ax^2 + bx + c with zeroes α, β. Given α + β = 1, α^2 + β^2 = 25. Use (α+β)^2 = α^2 + β^2 + 2αβ ⟹ 1 = 25 + 2αβ ⟹ αβ = −12.",
+            "[1 mark] By relations: b/a = −(α+β) = −1, c/a = αβ = −12. Take a = 1: polynomial = x^2 − x − 12 = (x − 4)(x + 3). Zeroes: x = 4 and x = −3.",
+            "[1 mark] So P = (4, 0) and Q = (−3, 0). From the graph, Riddhi stands at x = −2, and the stone lands at P, x = 4. Horizontal distance = 4 − (−2) = 6 units = 6 × 25 m = 150 m."
+          ],
+          "figures": [
+            {
+              "src": "/figures/apq-maths/polynomials/APQ-M-POLY-004.webp",
+              "alt": "Source figure"
+            }
           ]
         }
       ]
@@ -976,40 +975,42 @@
       "subject": "maths",
       "questions": [
         {
-          "id": "BX-QUAD-D-001",
-          "questionText": "The product of two consecutive positive odd integers is 483. Find the two integers.",
-          "marks": 3,
-          "section": "C",
-          "solutionSteps": [
-            "[1 mark] Let the smaller odd integer be x; the next is x + 2. x(x + 2) = 483 ⇒ x² + 2x − 483 = 0.",
-            "[1 mark] Split the middle term: x² + 23x − 21x − 483 = 0 ⇒ (x + 23)(x − 21) = 0 ⇒ x = 21 or x = −23.",
-            "[1 mark] Reject x = −23 (integers are positive). The integers are 21 and 23 (21 × 23 = 483 ✓)."
-          ]
-        },
-        {
-          "id": "BX-QUAD-D-002",
-          "questionText": "One positive number is 3 more than twice another positive number. If their product is 90, find the two numbers.",
+          "id": "APQ-M-QE-003",
+          "questionText": "Manu and Aiza are competing in a 60 km cycling race. Aiza's average speed is 10 km/hr greater than Manu's average speed and she finished the race in 1/2 hour less than Manu. Find the time taken by Manu to finish the race.",
           "marks": 5,
           "section": "D",
           "solutionSteps": [
-            "[1 mark] Let the smaller number be x; the larger number is (2x + 3). Given product: x(2x + 3) = 90.",
-            "[1 mark] Standard form: 2x² + 3x − 90 = 0.",
-            "[1 mark] Apply the quadratic formula: x = (−3 ± √(9 + 720)) / 4 = (−3 ± 27) / 4.",
-            "[1 mark] Roots x = 6 or x = −7.5. Reject x = −7.5 because the numbers are stated to be positive.",
-            "[1 mark] So x = 6 and the larger number is 2(6) + 3 = 15."
+            "[0.5 mark] Let Manu's time = t hours, so Manu's speed = 60/t km/hr. Aiza's speed = 60/t + 10 and Aiza's time = t − 1/2.",
+            "[1.5 marks] Equation: (60/t + 10)(t − 1/2) = 60. Expand: 60 − 30/t + 10t − 5 = 60 ⟹ 10t − 30/t − 5 = 0.",
+            "[1 mark] Multiply by t: 10t^2 − 5t − 30 = 0 ⟹ 2t^2 − t − 6 = 0.",
+            "[1 mark] Factorise: (t − 2)(2t + 3) = 0 ⟹ t = 2 (reject t = −3/2).",
+            "[1 mark] Manu took 2 hours."
           ]
         },
         {
-          "id": "BX-QUAD-D-003",
-          "questionText": "The difference of two natural numbers is 3 and the difference of their reciprocals is 3/28. Find the two numbers.",
+          "id": "APQ-M-QE-004",
+          "questionText": "A flight left 30 minutes later than the scheduled time and in order to reach its destination 1500 km away in time it has to increase its speed by 250 km/hr from its usual speed. Find its usual speed.",
           "marks": 5,
           "section": "D",
           "solutionSteps": [
-            "[1 mark] Let the larger number be x; the smaller is (x − 3). Given 1/(x − 3) − 1/x = 3/28.",
-            "[1 mark] Combine the left side: [x − (x − 3)] / [x(x − 3)] = 3/28 ⇒ 3/(x² − 3x) = 3/28, so x² − 3x = 28. Standard form: x² − 3x − 28 = 0.",
-            "[1 mark] Factorise: (x − 7)(x + 4) = 0.",
-            "[1 mark] Roots x = 7 or x = −4. Reject x = −4 because the numbers are natural (positive).",
-            "[1 mark] So x = 7 and the smaller number is 7 − 3 = 4."
+            "[0.5 mark] Let usual speed = x km/hr. Time saved by faster speed = 30 min = 1/2 hr.",
+            "[1 mark] Equation: 1500/x − 1500/(x + 250) = 1/2.",
+            "[1.5 marks] Multiply through and simplify: 1500·(250) / [x(x + 250)] = 1/2 ⟹ x(x + 250) = 750000.",
+            "[1 mark] x^2 + 250x − 750000 = 0 ⟹ (x − 750)(x + 1000) = 0.",
+            "[1 mark] Reject negative root: x = 750 km/hr."
+          ]
+        },
+        {
+          "id": "APQ-M-QE-006",
+          "questionText": "Sejal started a business where she sells earrings online. She made Rs 12000 in sales in her first month. In the second month, when she decreased the price of her product by Rs 20, she sold 40 more items and increased her total sales by Rs 2000. At what price did she sell the earrings in the second month? Show your work.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[0.5 mark] Let first-month price = p; first-month quantity n = 12000/p.",
+            "[1 mark] Second month: price = (p − 20), quantity = (12000/p + 40), sales = 12000 + 2000 = 14000. Equation: (p − 20)(12000/p + 40) = 14000.",
+            "[1.5 marks] Expand: 12000 + 40p − 240000/p − 800 = 14000 ⟹ 40p − 240000/p − 2800 = 0. Multiply by p: 40p^2 − 2800p − 240000 = 0 ⟹ p^2 − 70p − 6000 = 0.",
+            "[1 mark] Solve: p = (70 ± √(4900 + 24000))/2 = (70 ± 170)/2 ⟹ p = 120 (rejecting p = −50).",
+            "[1 mark] Second-month price = 120 − 20 = Rs 100."
           ]
         }
       ]
@@ -1018,48 +1019,35 @@
       "subject": "maths",
       "questions": [
         {
-          "id": "CBE-M-RN-A-003",
-          "questionText": "Shilpi wants to organize a party. She has 36 kiwis and 60 oranges at home and decided to distribute them equally among all. She decides to add 42 apples also. In this case, how many maximum guests can she invite?",
-          "marks": 1,
-          "section": "A",
+          "id": "APQ-M-RN-004",
+          "questionText": "A forester wants to plant 66 apple trees, 88 banana trees and 110 mango trees in equal rows (in terms of number of trees). Also, he wants to make distinct rows of the trees (only one type of tree in one row). Find the minimum number of rows required.",
+          "marks": 2,
+          "section": "B",
           "solutionSteps": [
-            "[1 mark] Maximum guests = HCF(36, 60, 42) = 6. Answer: A."
-          ],
-          "options": [
-            "A. 6",
-            "B. 12",
-            "C. 120",
-            "D. 180"
+            "[1 mark] Prime factorisations: 66 = 2 × 3 × 11; 88 = 2^3 × 11; 110 = 2 × 5 × 11. HCF = 2 × 11 = 22 (trees per row).",
+            "[1 mark] Total trees = 66 + 88 + 110 = 264. Minimum rows = 264 / 22 = 12."
           ]
         },
         {
-          "id": "CBE-M-RN-A-004",
-          "questionText": "Shweta wants to organize a party. She has 336 guavas and 54 oranges at home and decided to distribute them equally among all. How many maximum guests can she invite?",
-          "marks": 1,
-          "section": "A",
+          "id": "APQ-M-RN-005",
+          "questionText": "Prime factorisation of three numbers A, B and C is given below: A = (2^r × 3^p × 5^q), B = (2^p × 3^r × 5^p), C = (2^q × 3^q × 5^p) such that p < q < r and p, q, r are natural numbers. The largest number that divides A, B and C without leaving a remainder is 30. The smallest number that leaves a remainder of 2 when divided by each of A, B and C is 5402. Find A, B and C.",
+          "marks": 3,
+          "section": "C",
           "solutionSteps": [
-            "[1 mark] 336 = 56 × 6 and 54 = 9 × 6, so HCF(336, 54) = 6 = maximum guests. Answer: A."
-          ],
-          "options": [
-            "A. 6",
-            "B. 9",
-            "C. 56",
-            "D. 3024"
+            "[1 mark] HCF takes the minimum power of each prime: HCF = 2^p × 3^p × 5^p = (2×3×5)^p = 30^p. HCF = 30 ⟹ p = 1.",
+            "[1 mark] LCM takes the maximum power: LCM = 2^r × 3^r × 5^q. Smallest number that leaves remainder 2 is LCM + 2 = 5402 ⟹ LCM = 5400 = 2^3 × 3^3 × 5^2. So r = 3 and q = 2.",
+            "[1 mark] Substitute p=1, q=2, r=3: A = 2^3 × 3^1 × 5^2 = 600; B = 2^1 × 3^3 × 5^1 = 270; C = 2^2 × 3^2 × 5^1 = 180."
           ]
         },
         {
-          "id": "CBE-M-RN-A-005",
-          "questionText": "There are five bells placed at different swings in a park, which toll at intervals of 2, 3, 5, 6, and 10 minutes, respectively. They all toll together when the park is open for visitors at 10:00 AM. How many more times do they all toll together till the park is closed at 8:00 PM?",
-          "marks": 1,
-          "section": "A",
+          "id": "APQ-M-RN-008",
+          "questionText": "Find the smallest pair of 4-digit numbers such that the difference between them is 303 and their HCF is 101. Show your steps.",
+          "marks": 2,
+          "section": "B",
           "solutionSteps": [
-            "[1 mark] LCM(2, 3, 5, 6, 10) = 30, so the bells toll together every 30 minutes. From 10:00 AM to 8:00 PM is 10 hours = 600 minutes; 600 ÷ 30 = 20 more times. Answer: B."
-          ],
-          "options": [
-            "A. 10",
-            "B. 20",
-            "C. 30",
-            "D. 60"
+            "[0.5 mark] Let the two numbers be 101p and 101q where p > q and gcd(p, q) = 1 (since HCF = 101).",
+            "[0.5 mark] Difference: 101p − 101q = 303 ⟹ 101(p − q) = 303 ⟹ p − q = 3, so p = q + 3.",
+            "[1 mark] Smallest 4-digit number = 1000 ⟹ 101q ≥ 1000 ⟹ q ≥ 10. Take q = 10 ⟹ p = 13. Numbers: 101·10 = 1010 and 101·13 = 1313 (gcd(10, 13) = 1 ✓)."
           ]
         }
       ]
