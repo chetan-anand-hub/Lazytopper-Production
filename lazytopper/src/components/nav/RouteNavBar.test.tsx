@@ -2,7 +2,7 @@
  * NAV-1 - the header's "← <parent>" + Home row: direct arrival -> parent link; in-app history -> one step back;
  * hidden on Home and in an in-progress test.
  */
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
@@ -25,6 +25,7 @@ function mount(entries: string[], index = entries.length - 1) {
 }
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   cleanup();
   window.history.replaceState(null, "");
 });
@@ -86,5 +87,58 @@ describe("NAV-1 RouteNavBar", () => {
   it("uses CSS classes only (no inline style objects)", () => {
     const { container } = mount(["/packs"]);
     expect(container.querySelector("nav [style]")).toBeNull();
+  });
+});
+
+describe("TS-NAV-1 RouteNavBar: pages reached from a Test Series paper", () => {
+  const paper = "/chapter-test/10/Maths/real-numbers?series=1";
+  const q = (p: string) => `?from=test-series&returnTo=${encodeURIComponent(p)}`;
+
+  it("/packs reached from a series paper: Back is a link to THAT paper, Home stays; even with in-app history", () => {
+    window.history.replaceState({ idx: 3 }, "");
+    mount([`/packs${q(paper)}`]);
+    const back = screen.getByTestId("route-nav-back");
+    expect(back.getAttribute("href")).toBe(paper);
+    expect(back.getAttribute("data-back-kind")).toBe("parent");
+    expect(back.textContent).toContain("Test paper");
+    expect(screen.getByTestId("route-nav-home").getAttribute("href")).toBe("/");
+  });
+
+  it("without a returnTo the Back goes to /test-series", () => {
+    mount(["/board-pass?from=test-series"]);
+    const back = screen.getByTestId("route-nav-back");
+    expect(back.getAttribute("href")).toBe("/test-series");
+    expect(back.textContent).toContain("Test Series");
+  });
+
+  it("an external returnTo is never followed", () => {
+    mount([`/pricing${q("https://evil.test/")}`]);
+    expect(screen.getByTestId("route-nav-back").getAttribute("href")).toBe("/test-series");
+  });
+
+  it("non-series journeys are unchanged: same Back with and without an unrelated returnTo", () => {
+    window.history.replaceState({ idx: 0 }, "");
+    mount(["/packs"]);
+    expect(screen.getByTestId("route-nav-back").getAttribute("href")).toBe("/pricing");
+    cleanup();
+    mount(["/packs?returnTo=%2Fchapter-test%2F10%2FMaths%2Freal-numbers%3Fseries%3D1"]);
+    expect(screen.getByTestId("route-nav-back").getAttribute("href")).toBe("/pricing");
+    cleanup();
+    window.history.replaceState({ idx: 1 }, "");
+    mount(["/notes/triangles", "/packs?from=for_parents"], 1);
+    expect(screen.getByTestId("route-nav-back").getAttribute("data-back-kind")).toBe("history");
+  });
+
+  it("VITE_TS_NAV_DISABLED: today's Back, byte for byte", () => {
+    vi.stubEnv("VITE_TS_NAV_DISABLED", "1");
+    window.history.replaceState({ idx: 0 }, "");
+    mount([`/packs${q(paper)}`]);
+    expect(screen.getByTestId("route-nav-back").getAttribute("href")).toBe("/pricing");
+  });
+
+  it("a hidden page (a series paper itself) still shows no row", () => {
+    mount([`/chapter-test/10/Maths/real-numbers?series=1&from=test-series`]);
+    // RouteNavBar alone (the eager RouteNav hides these); the route map marks them noBack.
+    expect(screen.queryByTestId("route-nav-back")).toBeNull();
   });
 });

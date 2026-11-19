@@ -5,7 +5,8 @@
 // Quick Practice set). Rendered by the results panel and by the /test-series notebook section.
 
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { tagWhenSeriesPaper } from "../../lib/testSeries/seriesNav";
 import {
   missLabel,
   notebookChapters,
@@ -31,6 +32,7 @@ export default function MistakeNotebook({
   returnTo: string;
   startOpen?: boolean;
 }) {
+  const loc = useLocation(); // TS-NAV-1: on a series paper the retry link also carries `from=test-series`
   const [open, setOpen] = useState(startOpen);
   const [subject, setSubject] = useState<DisplaySubject | "all">("all");
   const [chapter, setChapter] = useState<string>("all");
@@ -106,7 +108,7 @@ export default function MistakeNotebook({
                   {r.id && r.chapter ? (
                     <Link
                       className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
-                      to={retryPracticePath({ subject: r.subject, chapter: r.chapter, ids: [r.id], returnTo })}
+                      to={tagWhenSeriesPaper(retryPracticePath({ subject: r.subject, chapter: r.chapter, ids: [r.id], returnTo }), loc.pathname, loc.search)}
                     >
                       Practise again
                     </Link>

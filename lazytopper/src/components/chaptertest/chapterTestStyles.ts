@@ -41,6 +41,8 @@ export const CT_CSS = `
 .lt-ct__back { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; color: var(--ct-ink-2); cursor: pointer; background: none; border: 0; font-family: var(--ct-fb); }
 .lt-ct__back:hover { color: var(--ct-ink); }
 .lt-ct__pagetitle { font-family: var(--ct-fd); font-weight: 600; font-size: 15px; }
+.lt-ct__crumb { font-size: 12.5px; font-weight: 600; color: var(--ct-ink-2); text-decoration: underline; text-underline-offset: 2px; margin-left: 10px; white-space: nowrap; }
+.lt-ct__crumb:hover { color: var(--ct-ink); }
 
 /* ── Setup: history rail (left) + setup (right) ── */
 .lt-ct__setup { display: flex; gap: 16px; padding: 18px; align-items: flex-start; max-width: 1080px; margin: 0 auto; }
