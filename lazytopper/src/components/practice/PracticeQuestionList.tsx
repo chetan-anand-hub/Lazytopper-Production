@@ -57,6 +57,8 @@ export interface PracticeQuestionListProps {
   saveNudgeUid?: string | null;
   /** QP-WORKING-AFTER-1 — no answer box at all (Quick Practice review, after the final scorecard). */
   answerBoxOff?: boolean;
+  /** GATE-QP-1 — written answers are not marked on this account (Board Pass only): the card must not promise grading. */
+  writtenLocked?: boolean;
   /**
    * PRACTICE-HONESTY-1 — the host's per-question steps lock, passed straight through to
    * `PracticeQuestionCard.stepsLocked`. The host owns the rule (it alone holds every attempt
@@ -172,7 +174,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
     collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer, isStepsLocked, defaultAnswerMode,
     onRetry, retrying, bankEnd, filtersEmpty, conceptEnd, openCheckerFor, repeatsNote,
-    openStepsFor, onDraftAnswer, saveNudgeUid, answerBoxOff,
+    openStepsFor, onDraftAnswer, saveNudgeUid, answerBoxOff, writtenLocked,
   } = props;
 
   return (
@@ -310,6 +312,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               onDraftAnswer={onDraftAnswer}
               saveNudgeUid={saveNudgeUid}
               answerBoxOff={answerBoxOff}
+              writtenLocked={writtenLocked}
               stepsLocked={isStepsLocked ? isStepsLocked(String(q.id)) : false}
               defaultAnswerMode={defaultAnswerMode}
             />

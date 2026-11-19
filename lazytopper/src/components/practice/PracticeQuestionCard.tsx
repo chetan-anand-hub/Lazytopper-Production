@@ -98,6 +98,8 @@ export interface PracticeQuestionCardProps {
    *  graded"): in Quick Practice review there is NO answer box — no "Answer this question", no
    *  "Want to know why?", nothing collected. Default false (every other host, unchanged). */
   answerBoxOff?: boolean;
+  /** GATE-QP-1 — written answers are not marked on this account (Board Pass only): say so instead of promising grading. */
+  writtenLocked?: boolean;
   /**
    * PRACTICE-HONESTY-1 — the solution steps are locked until the student has tried the
    * question. The HOST decides (it alone knows every attempt signal and whether the
@@ -199,7 +201,7 @@ export function PracticeQuestionCard({
   onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded,
   onAskTutor,
   collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
-  onDraftAnswer, saveNudgeUid, answerBoxOff = false,
+  onDraftAnswer, saveNudgeUid, answerBoxOff = false, writtenLocked = false,
   stepsLocked = false,
   hideSteps = false,
   countsAsAttempt: countsAsAttemptProp,
@@ -712,7 +714,9 @@ export function PracticeQuestionCard({
 
       {!hasStructuredOptions && !showOptionlessObjectiveNote && (
         <div style={{ margin: "0 0 12px", color: TEXT_MUTED, fontSize: "0.8rem", lineHeight: 1.45 }}>
-          {collectMode
+          {writtenLocked
+            ? "Work it out on paper first, then compare with the step solution."
+            : collectMode
             ? "Work it out on paper first. Save your working — everything is graded together when you finish."
             : "Work it out on paper first. Use Check my answer for real feedback, or compare with the step solution."}
         </div>
