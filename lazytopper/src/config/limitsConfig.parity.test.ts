@@ -17,6 +17,15 @@ describe("LIMITS-1 config parity", () => {
     });
     expect(client.basic.downloadsPerWeek).toBe(1);
     expect(client.basic.quickPracticeGradedPerDay).toBe(1);
+    // GATE-QP-1 (19 Nov 2026): written graded Quick Practice is Board Pass only on Basic; the trial's number is untouched above.
+    expect(client.basic.quickPracticeWrittenGradedPerDay).toBe(0);
+    // GATE-QP-1 changes NO other limit: every Answer Checker / Worksheet / Chapter Test / Full Mock number is as before.
+    expect(client.basic).toEqual({ downloadsPerWeek: 1, quickPracticeGradedPerDay: 1, quickPracticeWrittenGradedPerDay: 0, scorecardBreakdownLocked: true });
+    expect(client.trial.checkImprovePerWeek).toBe(5);
+    expect(client.trial.worksheetGradedPerWeek).toBe(1);
+    expect(client.trial.chapterTestGradedPerWeek).toBe(1);
+    expect(client.trial.fullMockGradedPerWeek).toBe(1);
+    expect(client.trial.quickPracticeGradedPerDay).toBe(3); // the trial keeps graded Quick Practice
   });
   it("the server module reads its numbers from the config, not literals", () => {
     expect(limits.TRIAL_COHORT_START_MS).toBe(client.trialCohortStartMs);

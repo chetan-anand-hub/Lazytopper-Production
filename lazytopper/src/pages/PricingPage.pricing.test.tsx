@@ -421,7 +421,7 @@ describe("PRICING-B-1 — one product name, honest copy", () => {
     const { inner } = renderPricing();
     const line = inner.querySelector('[data-testid="pricing-basic-line"]');
     expect(flat(line)).toBe(
-      "Basic: free forever, with notes, NCERT solutions and limited practice (1 graded set a day, 1 download a week)Start free",
+      "Basic: free forever, with notes, NCERT solutions and limited practice (1 download a week; marking your written practice answers comes with the Board Pass)Start free",
     );
   });
 });

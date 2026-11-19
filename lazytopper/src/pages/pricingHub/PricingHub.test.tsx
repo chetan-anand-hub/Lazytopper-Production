@@ -595,7 +595,7 @@ describe("round 2", () => {
   it("R4: the Basic line is the legacy one - 'limited practice' with the limits on", async () => {
     vi.stubEnv("VITE_LIMITS_ENABLED", "1");
     await renderAt("/pricing");
-    expect(screen.getByTestId("pricing-basic-line")).toHaveTextContent("Basic: free forever, with notes, NCERT solutions and limited practice (1 graded set a day, 1 download a week)");
+    expect(screen.getByTestId("pricing-basic-line")).toHaveTextContent("Basic: free forever, with notes, NCERT solutions and limited practice (1 download a week; marking your written practice answers comes with the Board Pass)");
   });
 });
 

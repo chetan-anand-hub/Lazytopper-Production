@@ -414,14 +414,63 @@ test('GRADE · an unknown surface on grade-worksheet is metered as Check & Impro
   assert.deepEqual((await gate(r, { surface: 'zzz' })).verdict, {});
 });
 
-test('GRADE · quick-practice on grade-worksheet spends the QUICK PRACTICE bucket (Basic first free, then the 402)', async () => {
+test('GATE-QP-1 · Basic (and a Test Series-only buyer, also tier free): graded Quick Practice gets NO bypass and NO reservation - the ordinary 402 follows', async () => {
   const r = rig();
+  for (let i = 0; i < 3; i += 1) {
+    const g = await gate(r, { surface: 'quick-practice', idem: `b${i}` });
+    assert.deepEqual(g.verdict, {}, 'no first free, no bypass: the entitlement gate then answers 402');
+    assert.equal(g.sent, undefined, 'the limits gate itself refuses nothing (the 402 is the entitlement gate\'s)');
+  }
+  assert.equal(r.f.docs.size, 0, 'nothing was reserved or written');
+  assert.equal(r.counters['limits.grade.qp_board_pass_only'], 3);
+});
+
+test('GATE-QP-1 · kill switch GATE_QP_DISABLED=1 restores Basic\'s first free graded Quick Practice set, then the 402', async () => {
+  const r = rig({ env: { LIMITS_ENFORCE: '1', GATE_QP_DISABLED: '1' } });
   assert.equal((await gate(r, { surface: 'quick-practice' })).verdict.bypassEntitlement, true);
   assert.deepEqual((await gate(r, { surface: 'quick-practice' })).verdict, {});
   const doc = [...r.f.docs.values()][0];
   assert.equal(doc.firstFree.qp, true);
   assert.equal(doc.qp.length, 1);
   assert.ok(!doc.firstFree.grade['check-improve'] && !doc.gr['check-improve'], 'Check & Improve is untouched');
+});
+
+test('GATE-QP-1 · every OTHER Basic allowance is exactly as before (check-improve, worksheet, chapter-test, full-mock first-free)', async () => {
+  const r = rig();
+  assert.equal((await gate(r, { path: '/api/check-solution' })).verdict.bypassEntitlement, true);
+  for (const surface of ['worksheet', 'chapter-test', 'full-mock']) {
+    assert.equal((await gate(r, { surface })).verdict.bypassEntitlement, true, surface);
+    assert.deepEqual((await gate(r, { surface })).verdict, {}, `${surface} then the 402`);
+  }
+  // Quick Practice per-question checks arrive on /api/check-solution and stay metered as Check & Improve.
+  assert.deepEqual((await gate(r, { path: '/api/check-solution', surface: 'quick-practice' })).verdict, {});
+});
+
+test('GATE-QP-1 · the Basic MCQ scorecard mint (tap-scored sets) is unchanged: first free then 1 counted a day', async () => {
+  const r = rig();
+  assert.equal((await qp(r, 1)).body.free, true);
+  r.clock.now += 1000;
+  assert.equal((await qp(r, 2)).status, 200);
+  r.clock.now += 1000;
+  assert.equal((await qp(r, 3)).status, 409);
+});
+
+test('GATE-QP-1 · a Test Series owner grading a real series paper is still exempt before the QP rule', async () => {
+  const r = rig();
+  const res = new EventEmitter(); res.statusCode = 200;
+  const verdict = await r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'quick-practice' } }, res, '/api/grade-worksheet', 'stu-1', { seriesOwnerGrade: async () => true });
+  assert.deepEqual(verdict, {});
+  assert.equal(r.counters['limits.grade.test_series'], 1);
+  assert.equal(r.counters['limits.grade.qp_board_pass_only'], undefined);
+});
+
+test('GATE-QP-1 · not enforced (LIMITS_ENFORCE off): the gate does nothing at all, premium is never metered', async () => {
+  const dark = rig({ env: {} });
+  assert.deepEqual((await gate(dark, { surface: 'quick-practice' })).verdict, {});
+  assert.equal(dark.counters['limits.grade.qp_board_pass_only'], undefined);
+  const prem = rig({ tier: 'premium' });
+  assert.deepEqual((await gate(prem, { surface: 'quick-practice' })).verdict, {});
+  assert.equal(prem.counters['limits.grade.qp_board_pass_only'], undefined);
 });
 
 test('GRADE · trial quick-practice: first free + 3 per IST day on the qp bucket, then 409 with a 1d window', async () => {
