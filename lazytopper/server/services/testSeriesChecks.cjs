@@ -61,6 +61,7 @@ const HOLDS_FIELD = 'testSeriesHolds';
 // paper whose free re-check was given, the committed count AT THAT MOMENT (presence = the free re-check is spent; the value lets
 // the status say "the last check was not counted" until the next check lands). Kill switch: TS_RECHECK_DISABLED=1.
 const FREE_FIELD = 'testSeriesFreeRechecks';
+const SETTLED_REFS = new WeakSet(); // TS-RECHECK-1: deferred refs already settled (replay guard)
 const FREE_RECHECKS_PER_PAPER = 1;
 /** At least this share of the check's written questions must be unreadable / not on the sheet. */
 const UNREADABLE_SHARE = 0.5;
@@ -382,14 +383,9 @@ function createTestSeriesChecks(deps = {}) {
         delete holds[holdId];
         const write = { [HOLDS_FIELD]: holds, updatedAt: new Date(nowMs) };
         // TS-RECHECK-1: a kept check whose sheet was mostly unreadable is given back ONCE per paper. Decided here, in the same
-        // transaction that reads the counter, so two parallel settles cannot both take the free re-check; and only for a hold that
-        // is still live, so a second settle of the same hold changes nothing (no double refund).
-        if (keep && free && !had) {
-          // The hold is already gone (settled before, or expired): nothing to give back and nothing to count - never a second refund.
-          tx.set(userRef, write, { merge: true });
-          return 'release_noop';
-        }
-        if (keep && free && !freeRecheckSpent(data, paperKey)) {
+        // transaction that reads the counter, so two parallel settles cannot both take the free re-check. Only for a hold that is
+        // still live: a hold that expired before settle is counted exactly as before this lane (no refund for an expired hold).
+        if (keep && free && had && !freeRecheckSpent(data, paperKey)) {
           write[FREE_FIELD] = { ...mapOf(data, FREE_FIELD), [paperKey]: usedOn(data, paperKey) };
           tx.set(userRef, write, { merge: true });
           return 'free_recheck';
@@ -528,6 +524,9 @@ function createTestSeriesChecks(deps = {}) {
     try {
       const ref = deferred && typeof deferred === 'object' ? deferred.testSeries : null;
       if (!ref || typeof ref.uid !== 'string' || typeof ref.paper !== 'string' || typeof ref.holdId !== 'string') return;
+      // A replayed settle of the SAME deferred is a no-op (the job claim winner settles once; this guards a replay in-process).
+      if (SETTLED_REFS.has(ref)) return;
+      SETTLED_REFS.add(ref);
       const keep = Math.floor(Number(graded) || 0) > 0;
       const free = keep && !testSeriesRecheckDisabled(env) && mostlyUnreadable(detail);
       void Promise.resolve(settleHold(ref.uid, ref.paper, ref.holdId, keep, free)).catch(() => {});

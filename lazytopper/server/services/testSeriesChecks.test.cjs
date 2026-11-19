@@ -841,14 +841,14 @@ test('TS-RECHECK-1 two parallel uploads for the last check still admit exactly o
   assert.deepEqual([ra, rb].sort(), [false, true]);
 });
 
-test('TS-RECHECK-1 an expired hold (> 30 min) that ends unreadable changes nothing and does not spend the free re-check', async () => {
+test('TS-RECHECK-1 an expired hold (> 30 min) that ends unreadable is still counted (as before this lane) and does not spend the free re-check', async () => {
   const s = setup();
   const res = fakeRes();
   await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid);
   s.clock.now = NOW + HOLD_TTL_MS + 10;
   serveWith(res, 2, 2, 1);
   await settle();
-  assert.equal(usedOnPaper(s.db, s.uid, CT), 0);
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 1);
   assert.equal(freeOf(s.db, s.uid, CT), undefined);
 });
 

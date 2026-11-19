@@ -114,7 +114,7 @@ describe("TS-PACK-1 · ownsTestSeries unlocks the series papers; the checks-left
     mine.value = { packs: [], licensee: { name: "A", email: "a@b.in" }, ownsTestSeries: true, testSeries: { validUntilMs: 1, checksPerPaper: 2, used: {}, freeRecheck: { "TS-CT-M01": true } } };
     render(<SeriesChecksLeftLine uid="u4" worksheetId="ct-ts1-real-numbers--abc" />);
     expect((await screen.findByTestId("series-recheck-note")).textContent).toBe(
-      "We couldn't read most of your sheet, so this check wasn't counted. Retake the photo in good light and upload again.",
+      "We couldn't read most of your sheet, so this check wasn't counted. Retake the photo in good light and upload again. This free re-check is given once per paper.",
     );
     expect(screen.getByTestId("series-checks-left").textContent).toBe("Checks left on this paper: 2 of 2");
     expect(screen.getByTestId("series-recheck-note").textContent).not.toMatch(/\bAI\b/);

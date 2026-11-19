@@ -313,7 +313,7 @@ export function readTestSeriesStatus(raw: unknown): TestSeriesStatus | null {
 
 /** TS-RECHECK-1 - the plain note shown when the server did not count a check because the sheet could not be read. */
 export const SHEET_UNREADABLE_NOT_COUNTED_LINE =
-  "We couldn't read most of your sheet, so this check wasn't counted. Retake the photo in good light and upload again.";
+  "We couldn't read most of your sheet, so this check wasn't counted. Retake the photo in good light and upload again. This free re-check is given once per paper.";
 
 /** True when the server says this paper's latest check was not counted (free re-check). PURE. */
 export function testSeriesRecheckNote(status: TestSeriesStatus | null | undefined, paperKey: string): boolean {
