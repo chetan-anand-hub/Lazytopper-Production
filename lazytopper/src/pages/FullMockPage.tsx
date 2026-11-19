@@ -346,24 +346,28 @@ export default function FullMockPage() {
   const bank = useBankSubject(subject);
   // TEST-SERIES-1 — the series paper is drawn by the pack's own code (lazy chunk, after a paint so "Building your mock…" shows).
   // A paper that cannot be drawn falls back to the ordinary fresh mock rather than a blank page.
-  const [series, setSeries] = useState<{ key: string; drawn: DrawnFullMock | null; failed: boolean } | null>(null);
+  // TS-PIN-1 - the paper is built from its PINNED question ids (seriesFullMock.buildSeriesFullMock); `missingIds` are pinned ids that no
+  // longer exist anywhere (left out, never swapped). VITE_TS_PIN_DISABLED / no pinned entry -> today's seeded draw.
+  const [series, setSeries] = useState<{ key: string; drawn: DrawnFullMock | null; failed: boolean; missingIds: string[] } | null>(null);
   const seriesKey = nomen && seriesN ? `${nomen.code}|${subject}|${seriesN}` : null;
   useEffect(() => {
     if (!seriesKey || !nomen || !seriesN || !bank.ready) return undefined;
     let live = true;
     const timer = setTimeout(() => {
       import("../lib/testSeries/seriesFullMock")
-        .then((m) => {
-          if (!live) return;
-          const drawn = m.drawSeriesFullMock(subject, seriesN, {
+        .then((m) =>
+          m.buildSeriesFullMock(subject, seriesN, {
             worksheetId: seriesMockWorksheetId(mintFullMockId(), subject, seriesN),
             code: nomen.code,
             name: nomen.name,
-          });
-          setSeries({ key: seriesKey, drawn, failed: !drawn });
+          }),
+        )
+        .then((r) => {
+          if (!live) return;
+          setSeries({ key: seriesKey, drawn: r ? r.drawn : null, failed: !r, missingIds: r ? r.missingIds : [] });
         })
         .catch(() => {
-          if (live) setSeries({ key: seriesKey, drawn: null, failed: true });
+          if (live) setSeries({ key: seriesKey, drawn: null, failed: true, missingIds: [] });
         });
     }, 0);
     return () => {
@@ -1749,6 +1753,13 @@ export default function FullMockPage() {
                           // TEST-SERIES-1 — a fixed paper: not a fresh draw, so no freshness claim.
                           <span data-testid="fm-series-line">
                             <b>A Test Series paper</b> — every student gets the same {subject} Full-Length Test {seriesN}.
+                            {seriesState && seriesState.missingIds.length > 0 ? (
+                              // TS-PIN-1 - a pinned question that no longer exists anywhere is left out, never swapped for another.
+                              <span data-testid="fm-series-missing">
+                                {" "}
+                                {seriesState.missingIds.length === 1 ? "One question" : `${seriesState.missingIds.length} questions`} on this paper {seriesState.missingIds.length === 1 ? "is" : "are"} no longer available and {seriesState.missingIds.length === 1 ? "has" : "have"} been left out (not replaced).
+                              </span>
+                            ) : null}
                           </span>
                         ) : draw && draw.repeatCount > 0 ? (
                           // FRESH-SET-TESTS — the honest line when a section's unseen pool ran out.

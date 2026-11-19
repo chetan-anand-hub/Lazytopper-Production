@@ -5,8 +5,10 @@
  * Committed at lazytopper/server/data/testSeriesPapers.json. Generated from the SAME draws the pages use:
  *   chapter  drawChapterTest({ fixedSeed: chapterTestSeriesSeed(topicKey) })   (ChapterTestPage with ?series=1)
  *   mock     drawPackMocks(subject, SERIES_MOCKS_PER_SUBJECT)[n]               (FullMockPage with ?paper=n via drawSeriesFullMock)
- * paperManifest.guard.test.ts regenerates it and fails when the committed file is stale (a bank edit that moves a paper).
- * Regenerate: `pnpm --filter lazytopper run gen:test-series-manifest`.
+ * TS-PIN-1 (19 Nov 2026): the committed JSON is now the SOURCE OF TRUTH - the pages build each paper FROM it (pinnedSeriesPaper.ts),
+ * so a bank edit can no longer move a paper. It is append-only: `pnpm --filter lazytopper run gen:test-series-manifest` creates
+ * entries for NEW papers only and never alters an existing one (appendNewSeriesPapers). paperManifest.guard.test.ts checks every
+ * pinned id exists in the raw bank, blueprint counts hold, and keys/prefixes are unique.
  *
  * How a grading request names its paper: the request's `worksheetId` (and the paper pass's `paperKey`, which is the same value)
  * STARTS WITH the entry's `worksheetIdPrefix` (`ct-ts1-<topicKey>--…` / `fm-ts1-<m|s><n>--…`).
@@ -73,13 +75,28 @@ function prefixOf(rewritten: string): string {
   return rewritten.slice(0, rewritten.indexOf("--") + 2);
 }
 
-/** The client's copy: per subject, the question ids of mock papers 1..N (index n-1), so the page draws paper n ALONE (the earlier
- *  papers' ids are all `drawPackMockAfter` needs). Committed as seriesMockIds.generated.json; the same guard keeps it fresh. */
-export type SeriesMockIds = Record<"maths" | "science", Array<string[] | null>>;
+/**
+ * TS-PIN-1 - the client's copy: per paper key ("TS-CT-M01", "TS-FM-S8"), the paper's question ids in paper order and, parallel to
+ * them, each question's SECTION letters ("AAAAAABBBBCCCDD"), so a pinned paper keeps its blueprint slots even if a row's own
+ * eligibility later changes. Committed as seriesPaperIds.json (APPEND-ONLY, like the server manifest). The server manifest stays
+ * the admission source; paperManifest.guard.test.ts pins the two to the same ids.
+ */
+export interface SeriesPinnedSpec {
+  ids: string[];
+  sections: string;
+}
+export type SeriesPaperIds = Record<string, SeriesPinnedSpec>;
 
-export async function buildSeriesPaperManifest(hashText: CanonicalTextHasher): Promise<{ entries: SeriesPaperManifestEntry[]; mockIds: SeriesMockIds }> {
+/**
+ * Generate every paper's entry from the SEEDED draws (the same draws the pages used before TS-PIN-1). Since TS-PIN-1 the committed
+ * files are the SOURCE; this runs only to CREATE new papers (`appendNewSeriesPapers`) and in the byte-identity proof test.
+ */
+export async function buildSeriesPaperManifest(hashText: CanonicalTextHasher): Promise<{ entries: SeriesPaperManifestEntry[]; paperIds: SeriesPaperIds }> {
   const out: SeriesPaperManifestEntry[] = [];
-  const mockIds: SeriesMockIds = { maths: [], science: [] };
+  const paperIds: SeriesPaperIds = {};
+  const pin = (key: string, paper: { questions: ReadonlyArray<{ id?: unknown; section?: unknown }> }) => {
+    paperIds[key] = { ids: paper.questions.map((q) => String(q.id)), sections: paper.questions.map((q) => String(q.section)).join("") };
+  };
   for (const t of seriesChapterTests()) {
     await loadChapter(t.topicKey);
     const drawn = drawChapterTest({
@@ -102,15 +119,12 @@ export async function buildSeriesPaperManifest(hashText: CanonicalTextHasher): P
       sectionBEQuestionIds: subjectiveQuestions(drawn.paper).map((q) => String(q.id)),
       textHashes: textHashesOf(subjectiveQuestions(drawn.paper), hashText),
     });
+    pin(`TS-${t.code}`, drawn.paper);
   }
   for (const subject of ["Maths", "Science"] as const) {
     const pack = subject === "Maths" ? "maths" : "science";
     await loadSubjectBank(pack);
     const papers = new Map(drawPackMocks(pack, SERIES_MOCKS_PER_SUBJECT).map((p) => [p.n, p.drawn] as const));
-    for (let n = 1; n <= SERIES_MOCKS_PER_SUBJECT; n += 1) {
-      const d = papers.get(n);
-      mockIds[pack].push(d ? d.paper.questions.map((q) => String(q.id)) : null);
-    }
     for (const m of seriesFullMocks().filter((x) => x.subject === subject)) {
       const drawn = papers.get(m.n);
       if (!drawn) throw new Error(`paperManifest: ${subject} Mock ${m.n} could not be drawn`);
@@ -126,16 +140,44 @@ export async function buildSeriesPaperManifest(hashText: CanonicalTextHasher): P
         sectionBEQuestionIds: fullMockSubjectiveQuestions(drawn.paper).map((q) => String(q.id)),
         textHashes: textHashesOf(fullMockSubjectiveQuestions(drawn.paper), hashText),
       });
+      pin(`TS-${m.code}`, drawn.paper);
     }
   }
-  return { entries: out, mockIds };
+  return { entries: out, paperIds };
 }
 
-export function serializeSeriesMockIds(ids: SeriesMockIds): string {
+/**
+ * TS-PIN-1 - APPEND-ONLY merge. The committed entries are kept exactly as they are (same objects, same order); a fresh entry is
+ * added ONLY for a key the committed file does not have. An existing key whose fresh draw differs is NOT changed - it is reported
+ * in `drifted` (a bank edit moved the seeded draw; the pinned paper did not). Never throws on drift: that is the point of pinning.
+ */
+export function appendNewSeriesPapers(
+  committed: readonly SeriesPaperManifestEntry[],
+  committedIds: SeriesPaperIds,
+  fresh: { entries: readonly SeriesPaperManifestEntry[]; paperIds: SeriesPaperIds },
+): { entries: SeriesPaperManifestEntry[]; paperIds: SeriesPaperIds; added: string[]; drifted: string[] } {
+  const have = new Set(committed.map((e) => e.key));
+  const entries = [...committed];
+  const paperIds: SeriesPaperIds = { ...committedIds };
+  const added: string[] = [];
+  const drifted: string[] = [];
+  for (const e of fresh.entries) {
+    if (have.has(e.key)) {
+      const old = committed.find((c) => c.key === e.key);
+      if (old && JSON.stringify(old.questionIds) !== JSON.stringify(e.questionIds)) drifted.push(e.key);
+      continue;
+    }
+    entries.push(e);
+    paperIds[e.key] = fresh.paperIds[e.key];
+    added.push(e.key);
+  }
+  return { entries, paperIds, added, drifted };
+}
+
+export function serializeSeriesPaperIds(ids: SeriesPaperIds): string {
   return `${JSON.stringify(ids)}\n`;
 }
 
-/** The committed file's text: a top-level JSON array (the format the server work asked for), one entry per paper, trailing newline. */
 export function serializeSeriesPaperManifest(entries: readonly SeriesPaperManifestEntry[]): string {
   return `${JSON.stringify(entries, null, 2)}\n`;
 }
