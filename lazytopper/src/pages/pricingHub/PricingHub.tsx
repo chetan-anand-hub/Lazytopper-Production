@@ -16,7 +16,7 @@ import { isParentPayClientEnabled } from "../../services/parentPay";
 import { COMPARE_BASIC_HEADER, COMPARE_FEATURE_HEADER, FAIR_USE_TITLE, compareSections, fairUseCopy, type CompareCell } from "../../config/pricingCompare";
 import { isPaymentsClientEnabled } from "../../services/checkout";
 import { isGuestPayClientEnabled } from "../../services/guestPay";
-import { PACK_PAID_COPY, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
+import { PACK_PAID_COPY, isTestSeriesPackOffered, packPayLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import ParentReturnLink from "../../components/parents/ParentReturnLink";
 import { FOUNDER_BADGE_TEXT } from "../../components/brand/FounderBadge";
 import { useMonthPassAvailable } from "../../components/pricing/useMonthPassAvailable";
@@ -102,6 +102,7 @@ import {
   HUB_GROUPS,
   HUB_TS_DETAILS_PATH,
   HUB_TS_BUY,
+  HUB_TS_CHECKS_LINE,
   HUB_TS_INSIDE_TITLE,
   HUB_TS_NEW,
   HUB_TS_OWNED,
@@ -619,7 +620,9 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
     const api = apiRef.current;
     if (mode === "ts") {
       trackNamedEvent("pricing_ts_buy_tap");
-      navigate(withFrom(hubTsBuyPath()));
+      // TS-UX-PAGE-1: in place (the checkout opens here, no pack pop-up), as the card's own Buy; the link only while packs are dark.
+      if (api && api.buyEnabled && isTestSeriesPackOffered() && !fromParents) api.buyNow("test_series", undefined, { inPlace: true });
+      else navigate(withFrom(hubTsBuyPath()));
     } else if (mode === "cbq" && api) {
       if (api.buyEnabled) api.buyNow("pack_cbq", subjectRef.current);
       else api.openCbq(subjectRef.current);
@@ -698,6 +701,12 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
   };
   const series = seriesTotals();
   const tsHead = hubTsHeadline(series);
+  /** TS-UX-PAGE-1: "Get the Test Series · ₹1,179" - the total CHARGED (packPayLabel), written after mount like every clock figure. */
+  const tsBuyLabel = (
+    <>
+      {HUB_TS_BUY} · <TsClockSlot variant="amt">{packPayLabel("test_series")}</TsClockSlot>
+    </>
+  );
   const tsCard = (api: PacksShopApi) => {
     // TS-PACK-1: a Test Series Pack owner (the shop's own /api/packs/mine read) is not sold it again.
     const ownsSeries = api.buyEnabled && api.ownsPack("test_series");
@@ -758,18 +767,31 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
               <span className="lt-ph-price__amt" data-testid="hub-ts-price">
                 <TsClockSlot variant="tag">{hubTsPrice()}</TsClockSlot>
               </span>
-              <TestSeriesFoundingClause className="lt-ph-price__meta" prefix="· " testId="hub-ts-founding" />
+              <TestSeriesFoundingClause className="lt-ph-price__meta" testId="hub-ts-founding" />
               <span className="lt-ph-price__meta">{HUB_TS_PRICE_META}</span>
             </p>
+            {/* TS-UX-PAGE-1: the card's own Buy, with the total on it. In place (the shop's checkout opens HERE, no pack pop-up behind it)
+                while packs are on and the series is offered (a parent's ?from=for_parents visit keeps the /packs link, as before); otherwise the same link, still showing the total. */}
+            <p className="lt-ph-note" data-testid="hub-ts-checks">{HUB_TS_CHECKS_LINE}</p>
             <div data-testid={TS_BUY_TESTID}>
-              <Link
-                className="lt-ph-buy lt-ph-buy--link"
-                to={withFrom(hubTsBuyPath())}
-                onClick={() => trackNamedEvent("pricing_ts_buy_tap")}
-                data-testid="hub-buy-test_series"
-              >
-                {HUB_TS_BUY}
-              </Link>
+              {api.buyEnabled && api.buyButton && isTestSeriesPackOffered() && !fromParents ? (
+                api.buyButton("test_series", {
+                  label: tsBuyLabel,
+                  className: "lt-ph-buy",
+                  noteClass: "lt-ph-note",
+                  testId: "hub-buy-test_series",
+                  onTap: () => trackNamedEvent("pricing_ts_buy_tap"),
+                })
+              ) : (
+                <Link
+                  className="lt-ph-buy lt-ph-buy--link"
+                  to={withFrom(hubTsBuyPath())}
+                  onClick={() => trackNamedEvent("pricing_ts_buy_tap")}
+                  data-testid="hub-buy-test_series"
+                >
+                  {tsBuyLabel}
+                </Link>
+              )}
             </div>
           </>
         )}

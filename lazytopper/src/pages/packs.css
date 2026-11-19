@@ -116,4 +116,5 @@ body:not(:has([data-lt-bottomnav])) .lt-packs { padding-bottom: 28px; }
 .lt-tsclk--tag { min-width: 9ch; }
 .lt-tsclk--amt { min-width: 5.5ch; }
 .lt-tsclk--line { display: block; min-height: 1.3em; }
+.lt-pk-ts__checks { margin: 0; padding: 2px 14px 8px; font-size: 13px; line-height: 1.4; color: var(--pk-ink2); white-space: normal; overflow-wrap: anywhere; }
 .lt-pk-ts__found { margin: 0; padding: 2px 14px 8px; font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--pk-ink2); white-space: normal; overflow-wrap: anywhere; min-height: 2.7em; }

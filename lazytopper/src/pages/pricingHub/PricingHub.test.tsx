@@ -699,8 +699,16 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
     expect(within(c).getByTestId("hub-ts-price")).toHaveTextContent(packPriceLabel("test_series"));
     expect(packPriceLabel("test_series")).toBe(`₹${TEST_SERIES_PRICE_INR} + GST`);
     expect(TEST_SERIES_PRICE_INR).toBe(999);
-    expect(within(c).getByTestId("hub-buy-test_series")).toHaveTextContent("Get the Test Series");
-    expect(within(c).getByTestId("hub-buy-test_series")).toHaveAttribute("href", TEST_SERIES_BUY_PATH);
+    // TS-UX-PAGE-1: its own Buy button (in place, not a link to /packs) carrying the TOTAL charged, and the "2 checks per paper" explainer.
+    expect(within(c).getByTestId("hub-buy-test_series")).toHaveTextContent(`Get the Test Series · ${packPayLabel("test_series")}`);
+    expect(within(c).getByTestId("hub-buy-test_series").tagName).toBe("BUTTON");
+    expect(within(c).getByTestId("hub-buy-test_series")).not.toHaveAttribute("href");
+    expect(within(c).getByTestId("hub-ts-checks")).toHaveTextContent("Each paper can be checked twice: upload your answers, see your marks, then fix and upload once more. If we can't read your photo, that check isn't counted.");
+    expect(c).toHaveTextContent("till 31 May 2027 (after your boards)");
+    expect(c).not.toHaveTextContent(/twice per paper/);
+    // TS-UX-PAGE-1: no stray leading "·" on the price sub-line.
+    const found = within(c).queryByTestId("hub-ts-founding");
+    if (found) expect((found.textContent ?? "").trim().startsWith("\u00b7")).toBe(false);
     expect(TEST_SERIES_BUY_PATH).toBe("/packs?buy=test_series");
     expect(within(c).getByTestId("hub-ts-details")).toHaveTextContent(`See all ${series.total} tests →`);
     expect(within(c).getByTestId("hub-ts-details")).toHaveAttribute("href", "/test-series");
@@ -780,7 +788,7 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
     setSub({ tier: "trial", trialStartDate: new Date(Date.now() - DAY).toISOString() }, { isTrialActive: true, daysLeftInTrial: 6 });
     await renderAt("/pricing");
     expect(within(card("ts")).queryByTestId("hub-ts-included")).toBeNull();
-    expect(within(card("ts")).getByTestId("hub-buy-test_series")).toHaveAttribute("href", "/packs?buy=test_series");
+    expect(within(card("ts")).getByTestId("hub-buy-test_series")).toHaveTextContent("Get the Test Series");
   });
 
   it("a Test Series Pack owner is not sold it again: the owned pill and a way in", async () => {
@@ -800,12 +808,14 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
     fireEvent.click(screen.getByTestId("hub-tab-ts"));
     const bar = screen.getByTestId("pricing-sticky-bar");
     expect(bar).toHaveTextContent(`Test Series ₹${TEST_SERIES_PRICE_INR} + GST`);
-    expect(bar).toHaveTextContent("Get the Test Series");
+    expect(bar).toHaveTextContent(`Get the Test Series · ${packPayLabel("test_series")}`);
     await act(async () => {
       fireEvent.click(screen.getByTestId("pricing-sticky-bar-go"));
       await new Promise((r) => setTimeout(r, 0));
     });
-    expect(where()).toBe("/packs?buy=test_series");
+    // TS-UX-PAGE-1: in place - the bar buys here (signed in: the pack checkout), it does not navigate to /packs.
+    expect(where()).toBe("/pricing");
+    expect(buyPack).toHaveBeenCalledWith("test_series", undefined, expect.anything());
     expect(analytics.named).toHaveBeenCalledWith("pricing_ts_buy_tap");
   });
 
@@ -813,7 +823,9 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
     await renderAt("/pricing");
     fireEvent.click(screen.getByTestId("hub-buy-test_series"));
     expect(analytics.named).toHaveBeenCalledWith("pricing_ts_buy_tap");
-    expect(where()).toBe("/packs?buy=test_series");
+    // In place: signed out (checkout sheet flag off here) the shop's own sign-in-then-pay resume comes back to /pricing, never to /packs.
+    expect(where()).toBe("/login?redirect=%2Fpricing%3Fbuy%3Dtest_series");
+    expect(where()).not.toContain("/packs");
   });
 
   it("inbound links: #test-series selects its card; #cbq / #packs keep theirs; ?plan= and utm leave the page on the Board Pass", async () => {

@@ -36,6 +36,7 @@ import {
   SELF_PAID_NO_CONTACT,
   SELF_PAID_UNCONFIRMED,
   SELF_TITLE,
+  SELF_TITLE_TEST_SERIES,
   buyForSelf,
   isCheckoutSelfClientEnabled,
   type SelfBuyOutcome,
@@ -542,7 +543,7 @@ export default function CheckoutSheet({
   }
 
   const showReceipt = !receiptHidden && (step.name === "attach" || step.name === "paid" || step.name === "paidSelf");
-  const title = step.name === "attach" ? attachTitle || "Thank you" : step.name === "holder" ? item.label : step.name === "paid" || step.name === "paidSelf" ? "Thank you" : step.name === "self" ? item.label : step.name === "selfOut" || step.name === "selfBusy" ? SELF_TITLE : WHO_TITLE;
+  const title = step.name === "attach" ? attachTitle || "Thank you" : step.name === "holder" ? item.label : step.name === "paid" || step.name === "paidSelf" ? "Thank you" : step.name === "self" ? item.label : step.name === "selfOut" || step.name === "selfBusy" ? (item.kind === "pack" && item.sku === "test_series" ? SELF_TITLE_TEST_SERIES : SELF_TITLE) : WHO_TITLE;
 
   return createPortal(
     <div className="lt-gps" data-testid="who-sheet" onClick={(e) => e.target === e.currentTarget && !busy && requestClose()}>

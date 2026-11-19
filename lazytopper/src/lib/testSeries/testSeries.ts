@@ -17,7 +17,7 @@
  */
 import { BOARD_CHAPTER_KEYS, chapterUnit } from "../../config/syllabusUnits2026-27";
 import { desktopTopicBySlug } from "../desktop/topics";
-import { MOCKS_PER_SUBJECT } from "../packs/packLabels";
+import { MOCKS_PER_SUBJECT, TEST_SERIES_CHECKS_PER_PAPER_COPY, TEST_SERIES_VALIDITY, TEST_SERIES_WRITTEN_SECTIONS } from "../packs/packLabels";
 
 // HUB-TS-1: the constant lives in ./seriesCounts (import-free, for the Practice hub's first paint); re-exported here unchanged.
 import {
@@ -47,6 +47,8 @@ export const TEST_SERIES_NAME = "Pre-Boards Test Series";
  */
 /** Where "Get the Test Series" goes: the existing pack checkout (PacksShop readBuyResume -> the pack checkout sheet). */
 export const TEST_SERIES_BUY_PATH = "/packs?buy=test_series";
+/** TS-UX-PAGE-1: the same link with `from=test-series` - closing the checkout there returns to /test-series (PacksShop readReturnTo). */
+export const TEST_SERIES_BUY_FROM_PATH = `${TEST_SERIES_BUY_PATH}&from=test-series`;
 /** The series tag in seeds and worksheet ids. A new series (a re-numbered set of papers) would take a new tag. */
 export const SERIES_TAG = "ts1";
 /** `?series=1` on a Chapter Test URL opens the chapter's fixed series paper. */
@@ -198,10 +200,10 @@ export function seriesContentsLine(t: SeriesTotals = seriesTotals()): string {
 
 /**
  * TS-PACK-1 — the Test Series Pack's one line (the /packs row, its pop-up): "130 chapter tests + 50 full-length tests, Maths + Science.
- * Your written answers (Sections B to E) checked step by step, twice per paper, till your boards." Counts from code.
+ * Your written answers, Sections B–D (B–E in full-length tests), checked step by step, 2 checks per paper, till 31 May 2027 (after your boards)." Counts from code.
  */
 export function testSeriesPackLine(t: SeriesTotals = seriesTotals()): string {
-  return `${seriesContentsLine(t)}, Maths + Science. Your written answers (Sections B to E) checked step by step, twice per paper, till your boards.`;
+  return `${seriesContentsLine(t)}, Maths + Science. Your written answers, ${TEST_SERIES_WRITTEN_SECTIONS}, checked step by step, ${TEST_SERIES_CHECKS_PER_PAPER_COPY}, ${TEST_SERIES_VALIDITY}.`;
 }
 
 /* ── URL params ──────────────────────────────────────────────────────────────── */
