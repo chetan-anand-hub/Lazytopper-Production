@@ -101,9 +101,9 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "k² = 24 → k = ±2√6 [1]",
     ], finalAnswer: "k = ±2√6" , isCompetencyBased: true },
   { id: "QE-M03", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Word/Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The sum of the areas of two squares is 468 m². If the difference of their perimeters is 24 m, find the sides of the two squares.", solutionSteps: [
-      "Let sides be a and b, a > b; a² + b² = 468 …(1); 4a − 4b = 24 → a − b = 6 → a = b + 6 …(2) [1]",
-      "(b+6)² + b² = 468; 2b² + 12b + 36 = 468 → b² + 6b − 216 = 0 [1]",
-      "(b+18)(b−12) = 0 → b = 12 (positive); a = 18 [1]",
+      "[1 mark] Let sides be a and b, a > b; a² + b² = 468 …(1); 4a − 4b = 24 → a − b = 6 → a = b + 6 …(2)",
+      "[1 mark] (b+6)² + b² = 468; 2b² + 12b + 36 = 468 → b² + 6b − 216 = 0",
+      "[1 mark] (b+18)(b−12) = 0 → b = 12 (positive); a = 18"
     ], finalAnswer: "18 m and 12 m" , isCompetencyBased: true },
   { id: "QE-M04", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Solve: x/(x+1) + (x+1)/x = 34/15, x ≠ 0, −1.", solutionSteps: [
       "Let t = x/(x+1), then t + 1/t = 34/15; (t² + 1)/t = 34/15 → 15t² − 34t + 15 = 0 [1]",
@@ -157,8 +157,8 @@ export const QUADRATIC_EQUATIONS_PACK1: CanonicalQuestion[] = [
       "x = 8 (natural number) [1]",
     ], finalAnswer: "8" , isCompetencyBased: true },
   { id: "QE-M14", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Nature of Roots (Discriminant)", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the nature of roots of x² − 4x + 1 = 0.", solutionSteps: [
-      "D = 16 − 4 = 12 > 0 [1]",
-      "Roots are real and distinct (unequal) [1]",
+      "[1 mark] D = 16 − 4 = 12 > 0",
+      "[1 mark] Roots are real and distinct (unequal)"
     ], finalAnswer: "Real and distinct" , isCompetencyBased: true },
   { id: "QE-M15", subject: "Maths", topicKey: "quadratic-equations", subtopic: "Algebraic Solution", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Rohan's mother is 26 years older than him. The product of their ages (in years) 3 years from now will be 360.\n(i) If Rohan's present age is x, write his mother's present age.\n(ii) Form the quadratic equation.\n(iii) Find Rohan's present age.\n(iv) Find his mother's present age.", solutionSteps: [
       "(i) Mother = x + 26 [1]",

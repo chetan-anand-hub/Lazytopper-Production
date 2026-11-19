@@ -90,9 +90,9 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
       "Aerobic: occurs in mitochondria; Anaerobic: cytoplasm [1]",
     ], finalAnswer: "Three differences comparing O₂ use, products, and ATP yield" , isCompetencyBased: true },
   { id: "LP-M03", subject: "Science", topicKey: "life-processes", subtopic: "Transportation", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Explain the mechanism of blood circulation through the human heart (double circulation).", solutionSteps: [
-      "Deoxygenated blood enters right atrium via vena cava; Flows to right ventricle, pumped to lungs via pulmonary artery [1]",
-      "Oxygenated blood returns to left atrium via pulmonary veins; Flows to left ventricle, pumped to body via aorta [1]",
-      "Called double circulation: pulmonary + systemic [1]",
+      "[1 mark] Deoxygenated blood enters right atrium via vena cava; Flows to right ventricle, pumped to lungs via pulmonary artery",
+      "[1 mark] Oxygenated blood returns to left atrium via pulmonary veins; Flows to left ventricle, pumped to body via aorta",
+      "[1 mark] Called double circulation: pulmonary + systemic"
     ], finalAnswer: "Double circulation: pulmonary (heart→lungs→heart) and systemic (heart→body→heart)" , isCompetencyBased: false },
   { id: "LP-M04", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): Pancreatic juice contains trypsin that digests proteins.\nReason (R): Trypsin works in an alkaline medium provided by bile.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, but R is not the correct explanation of A.", explanation: "Both statements are true: pancreatic juice contains trypsin, which digests proteins, and bile makes the food in the small intestine alkaline so that pancreatic enzymes can act. But the alkaline medium is only the condition in which trypsin works; it does not explain why trypsin digests proteins. So R is not the correct explanation of A.", finalAnswer: "Both A and R are true, but R is not the correct explanation of A.", isCompetencyBased: true,
     solutionSteps: [
@@ -115,9 +115,9 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
       "(iv) Lipase; acts in the small intestine [1]",
     ], finalAnswer: "(i) Salivary amylase (ii) Acidic medium, kills bacteria (iii) Small intestine (iv) Lipase" , isCompetencyBased: true },
   { id: "LP-M08", subject: "Science", topicKey: "life-processes", subtopic: "Transportation", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Why is the separation of right and left sides of the heart useful in mammals?", solutionSteps: [
-      "Prevents mixing of oxygenated and deoxygenated blood [½]",
-      "Ensures efficient supply of oxygen to the body [½]",
-      "Essential for warm-blooded animals that need more energy [1]",
+      "[0.5 mark] Prevents mixing of oxygenated and deoxygenated blood",
+      "[0.5 mark] Ensures efficient supply of oxygen to the body",
+      "[1 mark] Essential for warm-blooded animals that need more energy"
     ], finalAnswer: "Prevents mixing of blood; efficient O₂ supply for warm-blooded metabolism" , isCompetencyBased: false },
   { id: "LP-M09", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Which of the following is NOT a function of the large intestine?", options: ["Absorption of water", "Absorption of vitamins", "Digestion of proteins", "Formation of faeces"], answer: "Digestion of proteins", explanation: "The correct answer is Digestion of proteins. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Digestion of proteins" , isCompetencyBased: false,
     solutionSteps: [
@@ -190,9 +190,9 @@ export const LIFE_PROCESSES_PACK1: CanonicalQuestion[] = [
       "Some wastes stored as resins, gums, latex in old xylem; Leaves shed during autumn carry away accumulated wastes [1]",
     ], finalAnswer: "Vacuole storage, transpiration, stomatal gas release, resin/latex, leaf shedding" , isCompetencyBased: true },
   { id: "LP-H07", subject: "Science", topicKey: "life-processes", subtopic: "Nutrition", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain the role of the following in digestion: (i) Bile juice (ii) Villi (iii) Peristalsis", solutionSteps: [
-      "(i) Bile: produced by liver, emulsifies fats into smaller droplets for lipase action; makes medium alkaline [1]",
-      "(ii) Villi: finger-like projections in small intestine; increase surface area for absorption of digested food [1]",
-      "(iii) Peristalsis: rhythmic contraction of muscles in alimentary canal; pushes food forward [1]",
+      "[1 mark] (i) Bile: produced by liver, emulsifies fats into smaller droplets for lipase action; makes medium alkaline",
+      "[1 mark] (ii) Villi: finger-like projections in small intestine; increase surface area for absorption of digested food",
+      "[1 mark] (iii) Peristalsis: rhythmic contraction of muscles in alimentary canal; pushes food forward"
     ], finalAnswer: "(i) Fat emulsification (ii) Absorption surface area (iii) Food movement" , isCompetencyBased: true },
   { id: "LP-H08", subject: "Science", topicKey: "life-processes", subtopic: "Respiration", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "A student observed that when lime water is passed through exhaled air, it turns milky.\n(i) Which gas in exhaled air causes this?\n(ii) Write the chemical equation for the reaction.\n(iii) What happens if excess CO₂ is passed through lime water?\n(iv) How does this relate to cellular respiration?", solutionSteps: [
       "(i) Carbon dioxide (CO₂) [1]",

@@ -13,9 +13,9 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "STAT-E05", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the mean of the following distribution: Class: 10–20, 20–30, 30–40; Frequency: 5, 8, 7.", solutionSteps: [
-      "Mid-values: 15, 25, 35; Σfx = 75+200+245 = 520 [½]",
-      "Σf = 20 [½]",
-      "Mean = 520/20 = 26 [1]",
+      "[0.5 mark] Mid-values: 15, 25, 35; Σfx = 75+200+245 = 520",
+      "[0.5 mark] Σf = 20",
+      "[1 mark] Mean = 520/20 = 26"
     ], finalAnswer: "26" , visualExplainerId: "maths-statistics-mean-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-E06", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The formula for mode of grouped data is:", options: ["l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h", "l + [(n/2−cf)/f] × h", "a + Σfᵢdᵢ/Σfᵢ", "l + f₁/(f₀+f₂) × h"], answer: "l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h", explanation: "The correct answer is l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h" , isCompetencyBased: false,
     solutionSteps: [
@@ -61,10 +61,10 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "STAT-E16", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the median of: 3, 5, 7, 9, 11, 13, 15.", solutionSteps: [
-      "Data given: 3, 5, 7, 9, 11, 13, 15. Already arranged in ascending order. [½]",
-      "Number of observations n = 7, which is odd. [½]",
-      "For odd n, Median = ((n+1)/2)th observation. Position = (7+1)/2 = 4. [½]",
-      "The 4th observation in the ordered list is 9. Median = 9. [½]",
+      "[0.5 mark] Data given: 3, 5, 7, 9, 11, 13, 15. Already arranged in ascending order.",
+      "[0.5 mark] Number of observations n = 7, which is odd.",
+      "[0.5 mark] For odd n, Median = ((n+1)/2)th observation. Position = (7+1)/2 = 4.",
+      "[0.5 mark] The 4th observation in the ordered list is 9. Median = 9."
     ], finalAnswer: "9" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-E17", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "If Σfᵢ = 20 and Σfᵢxᵢ = 300, then the mean is:", options: ["15", "20", "10", "30"], answer: "15", explanation: "The correct answer is 15. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "15" , isCompetencyBased: true,
     solutionSteps: [
@@ -110,9 +110,9 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "Mode = 5 + (15−8)/(30−8−5) × 2 = 5 + 14/17 = 5.82 [1]",
     ], finalAnswer: "5.82" , visualExplainerId: "maths-statistics-mode-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-M09", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the median of the following distribution is 46, find the missing frequencies:\nClass: 10–20, 20–30, 30–40, 40–50, 50–60, 60–70, 70–80\nFreq: 12, 30, f₁, 65, f₂, 25, 18\nTotal = 230", solutionSteps: [
-      "12+30+f₁+65+f₂+25+18 = 230 → f₁+f₂ = 80; n/2 = 115. Median 46 lies in 40–50, so median class: 40–50 [1]",
-      "cf before median class = 42+f₁; 46 = 40 + (115−42−f₁)/65 × 10 [1]",
-      "6 = (73−f₁)/6.5 → 39 = 73−f₁ → f₁ = 34; f₂ = 80−34 = 46 [1]"
+      "[1 mark] 12+30+f₁+65+f₂+25+18 = 230 → f₁+f₂ = 80; n/2 = 115. Median 46 lies in 40–50, so median class: 40–50",
+      "[1 mark] cf before median class = 42+f₁; 46 = 40 + (115−42−f₁)/65 × 10",
+      "[1 mark] 6 = (73−f₁)/6.5 → 39 = 73−f₁ → f₁ = 34; f₂ = 80−34 = 46"
     ], finalAnswer: "f₁ = 34, f₂ = 46", visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true,
       sourceOverride: "others" },
   { id: "STAT-M10", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Medium", bloomSkill: "Analysing", questionText: "Assertion (A): The mean of a grouped data can never be less than the smallest class mark or greater than the largest class mark.\nReason (R): Mean is a weighted average of class marks.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Mean = Σfᵢxᵢ / Σfᵢ is a weighted average of the class marks xᵢ with non-negative weights fᵢ, and a weighted average always lies between the smallest and largest values averaged. A is true, R is true, and R explains A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
@@ -121,9 +121,9 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "STAT-M12", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The mean of the following frequency distribution is 50. Find the missing frequency f:\nClass: 0–20, 20–40, 40–60, 60–80, 80–100\nFreq: 5, f, 10, 7, 8", solutionSteps: [
-      "Σfx = 5(10)+f(30)+10(50)+7(70)+8(90) = 50+30f+500+490+720 = 1760+30f; Σf = 30+f [1]",
-      "(1760+30f)/(30+f) = 50 [1]",
-      "1760+30f = 1500+50f → 260 = 20f → f = 13 [1]",
+      "[1 mark] Σfx = 5(10)+f(30)+10(50)+7(70)+8(90) = 50+30f+500+490+720 = 1760+30f; Σf = 30+f",
+      "[1 mark] (1760+30f)/(30+f) = 50",
+      "[1 mark] 1760+30f = 1500+50f → 260 = 20f → f = 13"
     ], finalAnswer: "f = 13" , visualExplainerId: "maths-statistics-mean-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-M13", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "E", marks: 4, format: "Case-Based", difficulty: "Medium", bloomSkill: "Analysing", questionText: "The following data shows the ages of patients admitted in a hospital during a year:\nAge: 5–15, 15–25, 25–35, 35–45, 45–55, 55–65\nPatients: 6, 11, 21, 23, 14, 5\n(i) Find the modal class.\n(ii) Find the mode.\n(iii) Find the mean age.\n(iv) Find the median age.", solutionSteps: [
       "(i) Modal class: 35–45 (f₁=23); (ii) f₀=21, f₂=14, l=35, h=10. Mode = 35 + (23−21)/(46−21−14)×10 = 35+20/11 = 36.82 [1]",
@@ -166,9 +166,9 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "(iv) Days with > 150: 8+4 = 12 days [1]",
     ], finalAnswer: "(i) ≈₹130.56 (ii) 100–150 (iii) 125 (iv) 12 days" , visualExplainerId: "maths-statistics-mode-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-H01", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "The mean of the following distribution is 57.6 and the sum of frequencies is 50. Find f₁ and f₂:\nClass: 0–20, 20–40, 40–60, 60–80, 80–100, 100–120\nFreq: 7, f₁, 12, f₂, 8, 5", solutionSteps: [
-      "7+f₁+12+f₂+8+5 = 50 → f₁+f₂ = 18; class marks 10, 30, 50, 70, 90, 110; Σfx = 70+30f₁+600+70f₂+720+550 = 1940+30f₁+70f₂ [1]",
-      "Mean = Σfx/Σf: (1940+30f₁+70f₂)/50 = 57.6 → 1940+30f₁+70f₂ = 2880 → 30f₁+70f₂ = 940 → 3f₁+7f₂ = 94 [1]",
-      "From f₁ = 18−f₂: 3(18−f₂)+7f₂ = 94 → 54+4f₂ = 94 → f₂ = 10, f₁ = 8 [1]"
+      "[1 mark] 7+f₁+12+f₂+8+5 = 50 → f₁+f₂ = 18; class marks 10, 30, 50, 70, 90, 110; Σfx = 70+30f₁+600+70f₂+720+550 = 1940+30f₁+70f₂",
+      "[1 mark] Mean = Σfx/Σf: (1940+30f₁+70f₂)/50 = 57.6 → 1940+30f₁+70f₂ = 2880 → 30f₁+70f₂ = 940 → 3f₁+7f₂ = 94",
+      "[1 mark] From f₁ = 18−f₂: 3(18−f₂)+7f₂ = 94 → 54+4f₂ = 94 → f₂ = 10, f₁ = 8"
     ], finalAnswer: "f₁ = 8, f₂ = 10", visualExplainerId: "maths-statistics-mean-of-grouped-data", isCompetencyBased: true,
       sourceOverride: "others" },
   { id: "STAT-H02", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "100 surnames were randomly picked and the frequency distribution of the number of letters in English alphabets in the surnames was obtained as follows:\nLetters: 1–4, 4–7, 7–10, 10–13, 13–16, 16–19\nFreq: 6, 30, 40, 16, 4, 4\nFind the median and mean of the data.", solutionSteps: [
@@ -179,9 +179,9 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "Mean = 832/100 = 8.32 [1]",
     ], finalAnswer: "Median = 8.05, Mean = 8.32" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-H03", subject: "Maths", topicKey: "statistics", subtopic: "Mode of Grouped Data", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The wickets taken by a bowler in 10 cricket matches are: 2, 6, 4, 5, 0, 2, 1, 3, 2, 3. Find the mode, mean and median.", solutionSteps: [
-      "Sorted: 0, 1, 2, 2, 2, 3, 3, 4, 5, 6; Mode = 2 (appears 3 times) [1]",
-      "Mean = (0+1+2+2+2+3+3+4+5+6)/10 = 28/10 = 2.8 [1]",
-      "Median = (2+3)/2 = 2.5 [1]",
+      "[1 mark] Sorted: 0, 1, 2, 2, 2, 3, 3, 4, 5, 6; Mode = 2 (appears 3 times)",
+      "[1 mark] Mean = (0+1+2+2+2+3+3+4+5+6)/10 = 28/10 = 2.8",
+      "[1 mark] Median = (2+3)/2 = 2.5"
     ], finalAnswer: "Mode = 2, Mean = 2.8, Median = 2.5" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-H05", subject: "Maths", topicKey: "statistics", subtopic: "Mean (Step Deviation)", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying", questionText: "The distribution of heights of students in a class is:\nHeight (cm): 150–155, 155–160, 160–165, 165–170, 170–175, 175–180\nFreq: 15, 13, 10, 8, 4, 2\nFind the mean, mode and median.", solutionSteps: [
       "Mean: a=162.5, h=5, Σfᵢ=52; dᵢ: −2,−1,0,1,2,3 [1]",
@@ -233,11 +233,11 @@ export const STATISTICS_PACK1: CanonicalQuestion[] = [
       "(iv) Step deviation is easier for large frequencies [1]",
     ], finalAnswer: "(i) 54.375 (ii) 54.375 (iii) Verified (iv) Step deviation" , visualExplainerId: "maths-statistics-mean-of-grouped-data", isCompetencyBased: true },
   { id: "STAT-H14", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "A life insurance agent found the following data regarding ages of 100 policy holders. Find the median age.\nAge: Below 20, Below 25, Below 30, Below 35, Below 40, Below 45, Below 50, Below 55, Below 60\nNumber: 2, 6, 24, 45, 78, 89, 92, 98, 100", solutionSteps: [
-      "Convert to class intervals: [1]",
-      "15–20: 2, 20–25: 4, 25–30: 18, 30–35: 21, 35–40: 33, 40–45: 11, 45–50: 3, 50–55: 6, 55–60: 2 [1]",
-      "n=100, n/2=50 [1]",
-      "CF: 2,6,24,45,78. Median class: 35–40 [1]",
-      "Median = 35 + (50−45)/33 × 5 = 35 + 0.76 = 35.76 [1]",
+      "[1 mark] Convert to class intervals:",
+      "[1 mark] 15–20: 2, 20–25: 4, 25–30: 18, 30–35: 21, 35–40: 33, 40–45: 11, 45–50: 3, 50–55: 6, 55–60: 2",
+      "[1 mark] n=100, n/2=50",
+      "[1 mark] CF: 2,6,24,45,78. Median class: 35–40",
+      "[1 mark] Median = 35 + (50−45)/33 × 5 = 35 + 0.76 = 35.76"
     ], finalAnswer: "35.76 years" , visualExplainerId: "maths-statistics-median-of-grouped-data", isCompetencyBased: true },
   { id: "STAT2P1-R02", subject: "Maths", topicKey: "statistics", subtopic: "Median of Grouped Data", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Find the median for data: Class: 0–10, 10–20, 20–30, 30–40, 40–50; Frequency: 5, 9, 19, 9, 8.", solutionSteps: [
       "Total frequency n = 5+9+19+9+8 = 50, so n/2 = 25. [½]",

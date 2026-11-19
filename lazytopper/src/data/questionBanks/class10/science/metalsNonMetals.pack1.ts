@@ -195,9 +195,9 @@ export const METALS_NON_METALS_PACK1: CanonicalQuestion[] = [
       "(iii) Strong electrostatic forces of attraction between oppositely charged ions → lots of energy needed to overcome → high MP [1]",
     ], finalAnswer: "(i) Fixed ions (ii) Free ions in solution (iii) Strong ionic bonds" , isCompetencyBased: true },
   { id: "MNM-H07", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chemical Properties", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "What are amphoteric oxides? Give two examples with equations showing their reaction with an acid and a base.", solutionSteps: [
-      "Amphoteric oxides react with both acids and bases to form salt and water; Examples: Al₂O₃, ZnO [1]",
-      "Al₂O₃ + 6HCl → 2AlCl₃ + 3H₂O (with acid) [1]",
-      "Al₂O₃ + 2NaOH → 2NaAlO₂ + H₂O (with base) [1]",
+      "[1 mark] Amphoteric oxides react with both acids and bases to form salt and water; Examples: Al₂O₃, ZnO",
+      "[1 mark] Al₂O₃ + 6HCl → 2AlCl₃ + 3H₂O (with acid)",
+      "[1 mark] Al₂O₃ + 2NaOH → 2NaAlO₂ + H₂O (with base)"
     ], finalAnswer: "React with both acids and bases; Al₂O₃ and ZnO" , isCompetencyBased: true },
   { id: "MNM-H08", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Extraction/Metallurgy", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Explain: (i) Roasting (ii) Calcination (iii) Electrolytic reduction — with one equation each. Which type of ores are treated by each method?", solutionSteps: [
       "Roasting: Heating sulphide ore strongly in excess air below its melting point. [1]",

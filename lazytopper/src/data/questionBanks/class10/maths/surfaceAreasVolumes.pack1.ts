@@ -6,10 +6,10 @@ export const SURFACE_AREAS_VOLUMES_PACK1: CanonicalQuestion[] = [
   { id: "SAV-E03", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The volume of a cone with radius 3 cm and height 7 cm is:", options: ["21π cm³", "63π cm³", "7π cm³", "9π cm³"], answer: "21π cm³", explanation: "V = (1/3)πr²h = (1/3)π(9)(7) = 21π. Therefore, the correct answer is 21π cm³.", solutionSteps: ["V = (1/3)πr²h = (1/3)π(9)(7) = 21π Answer: (A)"], finalAnswer: "21π cm³" , isCompetencyBased: false },
   { id: "SAV-E04", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The total surface area of a hemisphere of radius r is:", options: ["2πr²", "3πr²", "4πr²", "πr²"], answer: "3πr²", explanation: "TSA = 2πr² (curved) + πr² (flat) = 3πr². Therefore, the correct answer is 3πr².", solutionSteps: ["TSA = 2πr² (curved) + πr² (flat) = 3πr² Answer: (B)"], finalAnswer: "3πr²" , isCompetencyBased: false },
   { id: "SAV-E05", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the volume of a cylinder whose radius is 7 cm and height is 15 cm.", solutionSteps: [
-      "Volume of cylinder formula: V = π × r² × h, with π = 22/7. [½]",
-      "Substitute r = 7 cm and h = 15 cm: V = (22/7) × (7)² × 15. [½]",
-      "Simplify: V = (22/7) × 49 × 15 = 22 × 7 × 15. [½]",
-      "V = 2310 cm³. [½]",
+      "[0.5 mark] Volume of cylinder formula: V = π × r² × h, with π = 22/7.",
+      "[0.5 mark] Substitute r = 7 cm and h = 15 cm: V = (22/7) × (7)² × 15.",
+      "[0.5 mark] Simplify: V = (22/7) × 49 × 15 = 22 × 7 × 15.",
+      "[0.5 mark] V = 2310 cm³."
     ], finalAnswer: "2310 cm³" , visualExplainerId: "maths-surface-areas-volumes-surface-area-formulas", isCompetencyBased: true },
   { id: "SAV-E06", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The slant height of a cone with radius r and height h is:", options: ["√(r²+h²)", "r+h", "√(r²−h²)", "rh"], answer: "√(r²+h²)", explanation: "The correct answer is √(r²+h²). This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "√(r²+h²)" , isCompetencyBased: false,
     solutionSteps: [
@@ -30,10 +30,10 @@ export const SURFACE_AREAS_VOLUMES_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "SAV-E11", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the volume and surface area of a sphere of diameter 14 cm.", solutionSteps: [
-      "Diameter = 14 cm so radius r = 7 cm. Use π = 22/7. [½]",
-      "Volume of sphere formula: V = (4/3) × π × r³ = (4/3) × (22/7) × (7)³ = (4/3) × (22/7) × 343 = 4312/3. [½]",
-      "V ≈ 1437.33 cm³. [½]",
-      "Surface area of sphere: SA = 4 × π × r² = 4 × (22/7) × 49 = 616 cm². [½]",
+      "[0.5 mark] Diameter = 14 cm so radius r = 7 cm. Use π = 22/7.",
+      "[0.5 mark] Volume of sphere formula: V = (4/3) × π × r³ = (4/3) × (22/7) × (7)³ = (4/3) × (22/7) × 343 = 4312/3.",
+      "[0.5 mark] V ≈ 1437.33 cm³.",
+      "[0.5 mark] Surface area of sphere: SA = 4 × π × r² = 4 × (22/7) × 49 = 616 cm²."
     ], finalAnswer: "V = 1437.33 cm³, SA = 616 cm²" , visualExplainerId: "maths-surface-areas-volumes-surface-area-formulas", isCompetencyBased: true },
   { id: "SAV-E12", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Volume of a Sphere", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The volume of a solid sphere of radius 8 cm is how many times the volume of a solid sphere of radius 2 cm?", options: ["64", "32", "16", "128"], answer: "64", explanation: "Ratio of volumes = [(4/3)π(8)³] / [(4/3)π(2)³] = 512/8 = 64. Therefore, the correct answer is 64.", solutionSteps: ["Volume ratio = (4/3)π(8)³ / (4/3)π(2)³ = (8/2)³ = 512/8 = 64. Answer: (A)"], finalAnswer: "64" , isCompetencyBased: true, sourceOverride: "others" },
   { id: "SAV-E13", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): If a cone and a cylinder have the same radius and height, the volume of the cone is 1/3 of the cylinder.\nReason (R): Volume of cone = (1/3)πr²h.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Volume of the cylinder = πr²h and, by R, volume of the cone = (1/3)πr²h, so with the same r and h the cone holds exactly 1/3 of the cylinder. A is true, R is true, and R explains A.", finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true,
@@ -111,9 +111,9 @@ export const SURFACE_AREAS_VOLUMES_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "SAV-M10", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Combination/Transformation", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A solid consisting of a right circular cone of height 120 cm and radius 60 cm standing on a hemisphere of radius 60 cm is placed upright in a right circular cylinder full of water such that it touches the bottom. Find the volume of water left in the cylinder if the radius of the cylinder is 60 cm and height is 180 cm.", solutionSteps: [
-      "V_cyl = π(3600)(180) = 648000π; V_cone = (1/3)π(3600)(120) = 144000π [1]",
-      "V_hemi = (2/3)π(216000) = 144000π; V_solid = 144000π + 144000π = 288000π [1]",
-      "Water left = 648000π − 288000π = 360000π ≈ 1131428.57 cm³ [1]",
+      "[1 mark] V_cyl = π(3600)(180) = 648000π; V_cone = (1/3)π(3600)(120) = 144000π",
+      "[1 mark] V_hemi = (2/3)π(216000) = 144000π; V_solid = 144000π + 144000π = 288000π",
+      "[1 mark] Water left = 648000π − 288000π = 360000π ≈ 1131428.57 cm³"
     ], finalAnswer: "360000π cm³" , visualExplainerId: "maths-surface-areas-volumes-surface-area-formulas", isCompetencyBased: true },
   { id: "SAV-M11", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "How many silver coins, 1.75 cm in diameter and 2 mm thick, must be melted to form a cuboid of dimensions 5.5 cm × 10 cm × 3.5 cm?", solutionSteps: [
       "Volume of cuboid = 5.5 × 10 × 3.5 = 192.5 cm³ [1]",
@@ -209,9 +209,9 @@ export const SURFACE_AREAS_VOLUMES_PACK1: CanonicalQuestion[] = [
       "[1 mark] Total surface area = 220 + 154 = 374 cm².",
     ], finalAnswer: "374 cm²" , visualExplainerId: "maths-surface-areas-volumes-surface-area-formulas", isCompetencyBased: true },
   { id: "SAV-H12", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Cylinder/Cone/Sphere", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "A canal is 300 cm wide and 120 cm deep. Water in it flows at the rate of 20 km/h. How much area will it irrigate in 20 minutes if 8 cm of standing water is desired?", solutionSteps: [
-      "Cross-section = 3 × 1.2 = 3.6 m²; In 20 min: distance = 20 × 20/60 = 20/3 km = 20000/3 m [1]",
-      "Volume = 3.6 × 20000/3 = 24000 m³ [1]",
-      "Area = 24000/0.08 = 300000 m² = 30 hectares [1]",
+      "[1 mark] Cross-section = 3 × 1.2 = 3.6 m²; In 20 min: distance = 20 × 20/60 = 20/3 km = 20000/3 m",
+      "[1 mark] Volume = 3.6 × 20000/3 = 24000 m³",
+      "[1 mark] Area = 24000/0.08 = 300000 m² = 30 hectares"
     ], finalAnswer: "300,000 m² (30 hectares)" , visualExplainerId: "maths-surface-areas-volumes-surface-area-formulas", isCompetencyBased: true },
   { id: "SAV-H13", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Combination/Transformation", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "A solid iron cuboidal block of dimensions 4.4 m × 2.6 m × 1 m is recast into a hollow cylindrical pipe of internal radius 30 cm and thickness 5 cm. Find the length of the pipe.", solutionSteps: [
       "Volume of block = 4.4 × 2.6 × 1 = 11.44 m³ = 11440000 cm³ [1]",
