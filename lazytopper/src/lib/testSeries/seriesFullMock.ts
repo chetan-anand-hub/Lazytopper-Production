@@ -1,17 +1,23 @@
 /**
- * TEST-SERIES-1 — series Full-Length Test #n. #1–8 are the SAME papers as PDF Mocks #1–8; #9+ continue the same seed scheme.
+ * TEST-SERIES-1 - series Full-Length Test #n. #1-8 are the SAME papers as PDF Mocks #1-8; #9+ continue the same seed scheme.
  * LAZY-ONLY: FullMockPage dynamic-imports this module only when the URL carries `?paper=<n>`, so the ordinary fresh mock never loads
  * the pack code.
  *
- * Paper n of the pack draw depends on the question ids of papers 1..n-1 (each paper steers clear of the ones before it). Those ids
- * are committed in seriesMockIds.generated.json (kept fresh by paperManifest.guard.test.ts), so paper n is drawn ALONE with
- * `drawPackMockAfter` — the very draw `drawPackMocks` runs — instead of drawing every paper before it on the student's phone.
- * Only the sitting's identity (worksheet id, code, name, created-at) is replaced. The subject bank must already be loaded.
+ * TS-PIN-1 (19 Nov 2026): `buildSeriesFullMock` is what the page calls. It builds the paper FROM ITS PINNED QUESTION IDS
+ * (pinnedFullMock.ts), so a bank edit cannot move it. With VITE_TS_PIN_DISABLED set (or no pinned entry) it falls back to
+ * `drawSeriesFullMock`, today's seeded draw, byte-identical.
+ *
+ * `drawSeriesFullMock` (the seeded draw): paper n of the pack draw depends on the question ids of papers 1..n-1 (each paper steers
+ * clear of the ones before it). Those ids are the pinned papers' ids (seriesPaperIds.json), so paper n is drawn ALONE with
+ * `drawPackMockAfter` - the very draw `drawPackMocks` runs. Only the sitting's identity is replaced. The subject bank must already be loaded.
  */
-import { drawPackMockAfter } from "../packs/buildPackFiles";
+import { drawPackMockAfter } from "../packs/packDraws";
 import type { DrawnFullMock } from "../../components/fullmock/fullMockBlueprint";
 import type { SeriesSubject } from "./testSeries";
-import mockIds from "./seriesMockIds.generated.json";
+import { allPinnedSpecs } from "./pinnedSpec";
+import { buildSeriesFullMockPinned } from "./pinnedFullMock";
+
+const mockKey = (subject: SeriesSubject, n: number) => `TS-FM-${subject === "Maths" ? "M" : "S"}${n}`;
 
 export function drawSeriesFullMock(
   subject: SeriesSubject,
@@ -19,9 +25,13 @@ export function drawSeriesFullMock(
   identity: { worksheetId: string; code: string; name: string; createdAt?: string },
 ): DrawnFullMock | null {
   const packSubject = subject === "Maths" ? "maths" : "science";
-  const known = (mockIds as Record<string, Array<string[] | null>>)[packSubject] ?? [];
-  if (n < 1 || n > known.length || !known[n - 1]) return null;
-  const usedBefore = known.slice(0, n - 1).flatMap((ids) => (ids ? [new Set(ids)] : []));
+  const specs = allPinnedSpecs();
+  if (n < 1 || !specs[mockKey(subject, n)]) return null;
+  const usedBefore: Array<Set<string>> = [];
+  for (let k = 1; k < n; k += 1) {
+    const prior = specs[mockKey(subject, k)];
+    if (prior) usedBefore.push(new Set(prior.ids));
+  }
   const { drawn } = drawPackMockAfter(packSubject, n, usedBefore);
   if (!drawn.enoughQuestions) return null;
   return {
@@ -40,4 +50,16 @@ export function drawSeriesFullMock(
       createdAt: identity.createdAt ?? new Date().toISOString(),
     },
   };
+}
+
+/** The page's entry: the pinned paper (+ the ids it had to leave out), else today's seeded draw. Null when neither can be built. */
+export async function buildSeriesFullMock(
+  subject: SeriesSubject,
+  n: number,
+  identity: { worksheetId: string; code: string; name: string; createdAt?: string },
+): Promise<{ drawn: DrawnFullMock; missingIds: string[] } | null> {
+  const pinned = await buildSeriesFullMockPinned(subject, mockKey(subject, n), identity);
+  if (pinned) return pinned;
+  const seeded = drawSeriesFullMock(subject, n, identity);
+  return seeded ? { drawn: seeded, missingIds: [] } : null;
 }
