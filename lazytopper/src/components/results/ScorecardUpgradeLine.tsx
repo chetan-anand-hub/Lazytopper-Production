@@ -187,7 +187,8 @@ function Line({ variant, countShown, uid, block }: { variant: ScorecardVariant; 
   // The pack rows name the pack that fits THIS result (its chapter / subject, read from the host's own practice route).
   const saleHint = saleHintFromTarget(variant.guideTarget?.to);
   const [status, refresh, statusKnown] = useCachedStatus(uid);
-  const ownerUpsell = useSeriesOwnerUpsell(uid, variant.seriesWorksheetId, status.tier === "premium");
+  // F1: the owner line needs a KNOWN, non-paid record (a cold cache may belong to a Board Pass holder); until then the ownership read is not even asked.
+  const ownerUpsell = useSeriesOwnerUpsell(uid, variant.seriesWorksheetId, status.tier === "premium" || !statusKnown);
   const [open, setOpen] = useState(false);
   // Premium (a paid pass or an admin grant) never sees the ask. A running trial still does.
   const show = status.tier !== "premium";
@@ -199,14 +200,22 @@ function Line({ variant, countShown, uid, block }: { variant: ScorecardVariant; 
   useEffect(() => {
     // A history re-open of an old result shows the line but is not counted as a fresh "shown".
     // OFFERS-V2: the block counts as shown only once the record is known (a cold cache must not flash a Pay card).
-    if (show && countShown && (!block || statusKnown)) trackScorecardUpgrade("shown");
-  }, [show, countShown, block, statusKnown]);
+    if (!(show && countShown && (!block || statusKnown))) return;
+    // F2: the owner's one line is its own event, never counted as the Board Pass ask being shown.
+    if (ownerUpsell) trackSaleMoment("sale_moment_shown", { surface: variant.surface, offer: "ts_owner_bp" });
+    else trackScorecardUpgrade("shown");
+  }, [show, countShown, block, statusKnown, Boolean(ownerUpsell)]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!show) return null;
   if (ownerUpsell) {
     return (
       <>
         <style>{LINE_CSS}</style>
-        <Link className="lt-sc__up" to={ownerUpsell.to} data-testid="scorecard-series-owner-line">
+        <Link
+          className="lt-sc__up"
+          to={ownerUpsell.to}
+          data-testid="scorecard-series-owner-line"
+          onClick={() => trackSaleMoment("sale_moment_tap", { surface: variant.surface, offer: "ts_owner_bp" })}
+        >
           {SERIES_OWNER_UPSELL_LINE}
         </Link>
       </>

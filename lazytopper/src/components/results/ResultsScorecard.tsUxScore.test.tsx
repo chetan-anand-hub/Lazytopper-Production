@@ -6,7 +6,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 
-const st = vi.hoisted(() => ({ owns: false, phase: "ready" as "ready" | "loading" | "error" | "idle", tier: "free" as string, asked: [] as Array<string | null | undefined> }));
+const st = vi.hoisted(() => ({ known: true, owns: false, phase: "ready" as "ready" | "loading" | "error" | "idle", tier: "free" as string, asked: [] as Array<string | null | undefined> }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: { uid: "u1" }, loading: false }) }));
 vi.mock("../../hooks/useSubscription", () => ({
   useSubscription: () => ({ hydrated: true, tier: st.tier, isTrialExpired: false, isTrialActive: false, daysLeftInTrial: 0, status: { tier: st.tier } }),
@@ -15,7 +15,7 @@ vi.mock("../../services/subscriptionService", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/subscriptionService")>();
   return {
     ...actual,
-    loadSubscription: () => ({ tier: st.tier, plan: "none", trialStartDate: "2026-01-01T00:00:00.000Z", trialEndDate: null, premiumSince: null }),
+    loadSubscription: () => ({ tier: st.tier, plan: "none", trialStartDate: st.known ? "2026-01-01T00:00:00.000Z" : null, trialEndDate: null, premiumSince: null }),
     onSubscriptionHydrated: () => () => {},
   };
 });
@@ -35,6 +35,7 @@ vi.mock("../testSeries/testSeriesOwnership", () => ({
 }));
 vi.mock("../feedback/feedbackPromptHost", () => ({ notifyFirstGradedResult: vi.fn(), notifyPaywallDismissed: vi.fn(), dismissFeedbackPromptFor: vi.fn() }));
 
+import * as analytics from "../../analytics/analytics";
 import ResultsScorecard from "./ResultsScorecard";
 import { SERIES_OWNER_UPSELL_LINE } from "./ScorecardUpgradeLine";
 import { fullMockScorecardVariant, withSeriesWorksheet } from "./scorecardVariants";
@@ -80,6 +81,7 @@ function show(variant: ReturnType<typeof fmPartial>, entry = PAPER) {
 beforeEach(() => {
   vi.stubEnv("VITE_PACKS_ENABLED", "1");
   vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
+  st.known = true;
   st.owns = false;
   st.phase = "ready";
   st.tier = "free";
@@ -170,10 +172,34 @@ describe("TS-UX-SCORE-1 - Test Series owner's one upsell line", () => {
     expect(await screen.findByTestId("scorecard-series-owner-line")).toBeTruthy();
   });
 
+  it("F1: a cold (unknown) record never shows the owner line, and the ownership read is not asked", () => {
+    st.owns = true;
+    st.known = false; // tier free, no trial date, cloud not heard: could be a Board Pass holder
+    show(fmPartial({}));
+    expect(screen.queryByTestId("scorecard-series-owner-line")).toBeNull();
+    expect(st.asked.every((u) => u === null)).toBe(true);
+  });
+
+  it("F2: the owner line is tracked as its own event, never as the Board Pass ask 'shown'", async () => {
+    st.owns = true;
+    const shown = analytics.trackScorecardUpgrade as unknown as ReturnType<typeof vi.fn>;
+    const sale = analytics.trackSaleMoment as unknown as ReturnType<typeof vi.fn>;
+    shown.mockClear();
+    sale.mockClear();
+    show(fmPartial({}));
+    const link = await screen.findByTestId("scorecard-series-owner-line");
+    expect(sale).toHaveBeenCalledWith("sale_moment_shown", { surface: "full-mock", offer: "ts_owner_bp" });
+    link.addEventListener("click", (e) => e.preventDefault());
+    link.click();
+    expect(sale).toHaveBeenCalledWith("sale_moment_tap", { surface: "full-mock", offer: "ts_owner_bp" });
+    expect(shown).not.toHaveBeenCalledWith("shown");
+  });
+
   it("Premium never asks for ownership and sees no ask at all (unchanged)", () => {
     st.owns = true;
     st.tier = "premium";
     show(fmPartial({}));
+    expect(st.asked.every((u) => u === null)).toBe(true);
     expect(screen.queryByTestId("scorecard-series-owner-line")).toBeNull();
     expect(screen.queryByTestId("scorecard-upgrade-line")).toBeNull();
   });

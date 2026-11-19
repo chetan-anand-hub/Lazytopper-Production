@@ -1,6 +1,7 @@
 // TS-UX-SCORE-1 - the Back row on a series paper opened from the Practice-hub chooser, and the chooser's returnTo.
 import { describe, expect, it } from "vitest";
 import { seriesPaperBackTarget, withReturnTo } from "./seriesNav";
+import { SERIES_RULES_START_MS, scorecardUploadNotAllowed } from "./seriesAccess";
 
 describe("seriesPaperBackTarget", () => {
   it("no returnTo: /test-series as today", () => {
@@ -29,5 +30,23 @@ describe("withReturnTo (the chooser's go())", () => {
   });
   it("keeps an existing returnTo", () => {
     expect(withReturnTo("/full-mock/10/Maths?paper=2&returnTo=%2Ffoo", "/practice-hub")).toBe("/full-mock/10/Maths?paper=2&returnTo=%2Ffoo");
+  });
+});
+
+describe("scorecardUploadNotAllowed (same allow-logic as the paywall)", () => {
+  const base = { canCheck: false, createdMs: SERIES_RULES_START_MS + 1000, checking: false, failed: false };
+  it("a free paper made under the new rules drops the upload prompt", () => {
+    expect(scorecardUploadNotAllowed(base)).toBe(true);
+  });
+  it("a grandfathered (pre-rules) free paper keeps the upload prompt", () => {
+    expect(scorecardUploadNotAllowed({ ...base, createdMs: SERIES_RULES_START_MS - 1000 })).toBe(false);
+  });
+  it("an account that may check (Board Pass / trial-allowed / series owner) keeps it", () => {
+    expect(scorecardUploadNotAllowed({ ...base, canCheck: true })).toBe(false);
+  });
+  it("unknown created time is not grandfathered; pending or failed reads keep today's prompt", () => {
+    expect(scorecardUploadNotAllowed({ ...base, createdMs: NaN })).toBe(true);
+    expect(scorecardUploadNotAllowed({ ...base, checking: true })).toBe(false);
+    expect(scorecardUploadNotAllowed({ ...base, failed: true })).toBe(false);
   });
 });

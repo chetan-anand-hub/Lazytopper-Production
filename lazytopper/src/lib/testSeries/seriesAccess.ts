@@ -47,6 +47,14 @@ export function isBeforeSeriesRules(createdMs: number | null | undefined): boole
   return typeof createdMs === "number" && Number.isFinite(createdMs) && createdMs > 0 && createdMs < SERIES_RULES_START_MS;
 }
 
+/**
+ * TS-UX-SCORE-1 - should the partial scorecard drop its upload prompt? The SAME allow-logic the page's paywall uses
+ * (`canCheck || grandfathered`), and only once the access read has settled (pending / failed keep today's prompt).
+ */
+export function scorecardUploadNotAllowed(a: { canCheck: boolean; createdMs: number | null | undefined; checking: boolean; failed: boolean }): boolean {
+  return !(a.canCheck || isBeforeSeriesRules(a.createdMs)) && !a.checking && !a.failed;
+}
+
 export function countTestsTaken(records: ReadonlyArray<{ surface: string; gradedAt?: number }>): number {
   return records.filter(
     (r) => (r.surface === "chapter-test" || r.surface === "full-mock") && !isBeforeSeriesRules(typeof r.gradedAt === "number" ? r.gradedAt : null),
