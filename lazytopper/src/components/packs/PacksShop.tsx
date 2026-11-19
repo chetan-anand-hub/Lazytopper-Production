@@ -43,7 +43,7 @@ import {
   TEST_SERIES_CHECKS_PER_PAPER,
   type PackSubject,
 } from "../../services/packs";
-import { BUNDLE_NAME, TEST_SERIES_NAME, TEST_SERIES_VALID_TILL, packChapterLabel } from "../../lib/packs/packLabels";
+import { BUNDLE_NAME, TEST_SERIES_NAME, TEST_SERIES_VALIDITY, packChapterLabel } from "../../lib/packs/packLabels";
 import { TEST_SERIES_PATH, seriesContentsLine, seriesProgress, seriesTotals, type SeriesProgress } from "../../lib/testSeries/testSeries";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import { isPacksWarmupPath, schedulePacksWarmup } from "../../lib/packs/packsMobilePreload";
@@ -80,6 +80,7 @@ import { BridgeBoundary, prepareMyPacksBridge, type BridgeReady } from "./myPack
 import { MINE_HINT_SCRIPT, clearMineHint, hintNow, readMineHint, staticMineHandover, writeMineHint, writeMineOwner } from "./mineHint";
 import { recoverFromChunkError } from "../../lib/chunkReload";
 import { isServerPdfDisabled } from "../../lib/packs/serverPdfLinks";
+import { seriesBackFromSearch } from "../../lib/testSeries/seriesNav";
 import "../../pages/packs.css";
 import WhatsAppOptInCheckout from "../whatsapp/WhatsAppOptInCheckout";
 
@@ -123,6 +124,16 @@ export function readResumeFrom(search: string): PackCheckoutFrom | undefined {
   } catch {
     return undefined;
   }
+}
+
+/**
+ * TS-UX-PAGE-1: where closing the checkout / pop-up goes back to for a `/packs?buy=test_series&from=test-series[&returnTo=<paper>]`
+ * arrival: the safe `returnTo` (a /chapter-test, /full-mock or /test-series path - the TS-NAV-1 rule, `seriesBackFromSearch`), else
+ * /test-series. Null for any other link (a plain Google Ads `?buy=test_series` stays exactly as it was) and under VITE_TS_NAV_DISABLED.
+ * `from` and `returnTo` are NOT stripped from the URL (RouteNavBar's Back reads them), as before.
+ */
+export function readReturnTo(search: string): string | null {
+  return seriesBackFromSearch(search)?.to ?? null;
 }
 
 /** Reads `?buy=&t=` and returns a whitelisted { sku, target }, or null (anything unknown, repeated or mistargeted). */
@@ -303,11 +314,32 @@ export interface PacksShopApi {
   subject?: PackSubject;
   /** PACKS-TIDY-1: open a pack's pop-up on a chosen subject (the row's Maths / Science switch), exactly as openCbq does for the CBQ Pack. */
   openPackWith?: (sku: PackSku, subject: PackSubject) => void;
+  /**
+   * TS-UX-PAGE-1 - a page's OWN Buy button for a no-target pack (the Test Series): the shop's own handleBuy (signed in -> Razorpay;
+   * signed out -> the "Buy for yourself" sheet), with NO pack pop-up stacked behind the checkout and the status lines (busy, failed,
+   * expired, closed-without-paying) under the button. Closing the checkout leaves the student on the page.
+   */
+  buyButton?: (sku: PackSku, opts: InPlaceBuyOpts) => ReactNode;
+}
+
+export interface InPlaceBuyOpts {
+  /** The label while idle (the caller writes it: "Get the Test Series · " + the total, clock-safe). */
+  label: ReactNode;
+  className: string;
+  testId: string;
+  /** The class of the status lines under the button. */
+  noteClass: string;
+  /** A page's own tap event (fires before the buy; the shop's begin_checkout / InitiateCheckout fire inside handleBuy, as on /packs). */
+  onTap?: () => void;
+  /** Two buttons for one pack on a page: only the one the student tapped shows the status lines (default true). */
+  showStatus?: boolean;
 }
 
 /** PACKS-CONVERT-1: `from: "sample"` = the tap came from the "Liked the sample?" button; it rides on `pack_checkout`. */
 export interface PackBuyOpts {
   from?: PackCheckoutFrom;
+  /** TS-UX-PAGE-1: open ONLY the checkout (no pack pop-up behind it). The buy path itself is unchanged. */
+  inPlace?: boolean;
   /**
    * PRICING-B-1 (chooseChapter only): the subject the page's switch shows. The picker then lists only that subject's chapters, and a
    * preselected chapter of the OTHER subject is cleared (never bought by mistake). Presentation only: the buy path is unchanged.
@@ -332,6 +364,13 @@ export interface PacksShopProps {
   checkoutAudience?: "parent";
   /** PARENTS-PAY-1: no "My packs" block above the page (a parent's ad landing page keeps its hero first); ownership still marks the Buy buttons. */
   hideMyPacks?: boolean;
+  /**
+   * TS-UX-PAGE-1: the page sells in place - a resumed `?buy=` (back from sign-in) opens the checkout on THIS page with no pack pop-up
+   * stacked behind it. /test-series passes it; every other page keeps today's pop-up + checkout.
+   */
+  inPlace?: boolean;
+  /** TS-UX-PAGE-1: do not send `pack_view` (the page already has its own view event; the funnel's events stay as they were). */
+  skipView?: boolean;
   /** The catalogue (CBQ band, pack tiles) drawn by the page, wired to this shop's pop-up. */
   children: (api: PacksShopApi) => ReactNode;
 }
@@ -341,7 +380,7 @@ export interface PacksShopProps {
  * My packs, the paid / confirming status line, the entry-query pop-ups, the signed-out Buy -> sign-in -> resume loop (#1412),
  * handleBuy and the pack pop-up. Only the catalogue markup is the caller's (`children`).
  */
-export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = false, surface, checkoutAudience, hideMyPacks = false, children }: PacksShopProps) {
+export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = false, surface, checkoutAudience, hideMyPacks = false, inPlace = false, skipView = false, children }: PacksShopProps) {
   const { user, loading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -391,12 +430,12 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // PRICING-ONE-1: the same pack_view event on both pages, told apart by `surface`; once per mount (a ref survives StrictMode's re-run).
     if (!viewSent.current) {
       viewSent.current = true;
-      trackPackEvent("pack_view", undefined, surface ?? (embedded ? "pricing" : "packs"));
+      if (!skipView) trackPackEvent("pack_view", undefined, surface ?? (embedded ? "pricing" : "packs"));
     }
     return () => {
       mounted.current = false;
     };
-  }, [embedded, surface]);
+  }, [embedded, surface, skipView]);
 
   const loadMine = useCallback(async () => {
     try {
@@ -559,17 +598,27 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     setOpenSku(sku);
     requestCounts(sku === "pack_chapter" && chapter ? chapter : undefined);
   }
+  /** TS-UX-PAGE-1: where closing the checkout / pop-up goes back to (set by a `?buy=…&from=test-series` arrival), else null = stay. */
+  const closeReturn = useRef<string | null>(null);
+  const returnAfterClose = useCallback(() => {
+    const to = closeReturn.current;
+    if (!to) return;
+    closeReturn.current = null;
+    navigate(to);
+  }, [navigate]);
   const closePack = useCallback(() => {
     sampleChapterBuy.current = false;
     setOpenSku(null);
     setEntrySlide(0);
-  }, []);
+    returnAfterClose();
+  }, [returnAfterClose]);
 
   // Entry links (packEntry.ts contract): ?chapter= / ?mock= / ?pack= (+ ?subject=) / ?view=sample open the matching pop-up, once.
   // utm_* and unknown values are ignored; closing never re-opens it.
   const entryDone = useRef(false);
   useEffect(() => {
-    if (entryDone.current) return;
+    // TS-UX-PAGE-1: an in-place page (/test-series) is not a pack catalogue - its URL never opens a pop-up from these entry params.
+    if (entryDone.current || inPlace) return;
     const q = readPacksQuery(location.search);
     let sku: PackSku | null = null;
     let chosenChapter = "";
@@ -781,13 +830,16 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     if (want.sku === "pack_chapter" && want.target) setChapter(want.target);
     else if (want.target) setSubject(want.target as PackSubject);
     setEntrySlide(0);
-    setOpenSku(want.sku);
+    closeReturn.current = readReturnTo(location.search) ?? closeReturn.current;
+    // In place: no pop-up behind the checkout - except when the purchase-history read failed, where (as on /packs) the pop-up opens
+    // alone, with its own Buy, and no payment starts. Never a silent nothing.
+    if (!inPlace || mine === null) setOpenSku(want.sku);
     requestCounts(want.sku === "pack_chapter" ? want.target : undefined);
     if (mine === null) return;
     const start = () => void handleBuyRef.current(want.sku, want.target, { resumed: true, ...(from ? { from } : {}) });
     // GST-AFTER-PAY-1: no state + PIN step before Razorpay on any checkout, so the one-tap start never waits for one.
     start();
-  }, [authLoading, user, enabled, mine, mineError, mineSlow, location.search, location.pathname, location.hash, navigate, requestCounts]);
+  }, [authLoading, user, enabled, mine, mineError, mineSlow, location.search, location.pathname, location.hash, navigate, requestCounts, inPlace]);
 
   // PAY-PHONE-1 - a SIGNED-OUT visitor on a one-tap `?buy=` link (with paying-by-phone on): strip the params first, open the
   // pack's pop-up and the "How do you want to pay?" sheet, once. Signed in, the resume effect above handles it as before.
@@ -808,14 +860,15 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     if (want.sku === "pack_chapter" && want.target) setChapter(want.target);
     else if (want.target) setSubject(want.target as PackSubject);
     setEntrySlide(0);
-    setOpenSku(want.sku);
+    closeReturn.current = readReturnTo(location.search) ?? closeReturn.current;
+    if (!inPlace) setOpenSku(want.sku);
     requestCounts(want.sku === "pack_chapter" ? want.target : undefined);
     // CHECKOUT-WHO-1: the shared sheet while its flag is on; else pay-by-phone as before.
     if (whoEnabled) setWho({ sku: want.sku, target: want.target });
     else setGuest({ sku: want.sku, target: want.target });
     // Review fix 2: a sample's one-tap link (/cbq-class-10) sends its ONE checkout event here (the link itself sends none).
     if (from) trackPackCheckout(packCheckoutDetails(want.sku, want.target), { signedIn: false, from });
-  }, [authLoading, user, guestEnabled, whoEnabled, location.search, location.pathname, location.hash, navigate, requestCounts]);
+  }, [authLoading, user, guestEnabled, whoEnabled, location.search, location.pathname, location.hash, navigate, requestCounts, inPlace]);
 
   const mathsTotal = subjectTotal("maths");
   const scienceTotal = subjectTotal("science");
@@ -971,7 +1024,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       if (openFiles && buy.key) openFilesOf(buy.key);
     });
   };
-  const paidSurface = surface === "for_parents" ? "for_parents" : embedded ? "pricing" : location.pathname.startsWith("/cbq-packs") ? "cbq_packs" : "packs";
+  const paidSurface = surface === "for_parents" ? "for_parents" : inPlace ? "test_series" : embedded ? "pricing" : location.pathname.startsWith("/cbq-packs") ? "cbq_packs" : "packs";
   const tidyList = (withRows: boolean): ReactNode =>
     mine && hasLicenseeContact(mine.licensee)
       ? mine.packs.map((p) => {
@@ -1205,7 +1258,49 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     return (buy.phase === "busy" || buy.phase === "checking") && buy.key !== key;
   }
 
+  /** TS-UX-PAGE-1: see PacksShopApi.buyButton. */
+  function inPlaceBuy(sku: PackSku, o: InPlaceBuyOpts): ReactNode {
+    const key = packIdOf(sku, undefined);
+    const mine_ = buy.key === key;
+    const isOwned = isAlreadyOwned(owned, sku, undefined) || (mine_ && buy.phase === "paid");
+    const busy = mine_ && (buy.phase === "busy" || buy.phase === "checking");
+    const confirming = mine_ && buy.phase === "confirming";
+    const blocked = otherBusy(key);
+    const off = !enabled || isOwned || busy || confirming || blocked;
+    let label: ReactNode = o.label;
+    if (isOwned) label = "You own this";
+    else if (confirming) label = PACK_CHECKING_COPY;
+    else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : "Opening checkout…";
+    return (
+      <>
+        <button type="button" className={o.className} disabled={off} aria-disabled={off} onClick={() => {
+            o.onTap?.();
+            void handleBuy(sku, undefined);
+          }}
+          data-testid={o.testId}
+        >
+          {label}
+        </button>
+        {o.showStatus !== false && blocked && <p className={o.noteClass} role="status" data-testid="packs-other-busy">{OTHER_PAYMENT_BUSY_COPY}</p>}
+        {o.showStatus !== false && confirming && <p className={o.noteClass} role="status">{PACK_STILL_CONFIRMING_COPY}</p>}
+        {o.showStatus !== false && mine_ && buy.phase === "failed" && <p className={`${o.noteClass} ${o.noteClass}--bad`} role="alert">{PACK_FAILED_COPY}</p>}
+        {o.showStatus !== false && mine_ && buy.phase === "expired" && <p className={o.noteClass} role="alert">{PACK_EXPIRED_COPY}</p>}
+        {o.showStatus !== false && mine_ && buy.phase === "owned" && <p className={o.noteClass} role="status">{PACK_ALREADY_OWNED_COPY}</p>}
+        {o.showStatus !== false && mine_ && buy.phase === "dismissed" && (
+          <PayRescueCard
+            kind="pack"
+            buy={{ kind: "pack", sku }}
+            packLabel={packDescription(sku, undefined, undefined)}
+            onRetry={() => void handleBuy(sku, undefined)}
+            onClose={() => setBuy({ key: "", phase: "idle" })}
+          />
+        )}
+      </>
+    );
+  }
+
   const api: PacksShopApi = {
+    buyButton: inPlaceBuy,
     openPack,
     openCbq: (s) => {
       setSubject(s);
@@ -1214,7 +1309,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     buyNow: (sku, target, opts) => {
       if (sku === "pack_chapter" && target) setChapter(target);
       else if (target === "maths" || target === "science") setSubject(target);
-      openPack(sku);
+      if (!opts?.inPlace && !inPlace) openPack(sku);
       void handleBuy(sku, packHasNoTarget(sku) ? undefined : target, opts?.from ? { from: opts.from } : {});
     },
     chooseChapter: (opts) => {
@@ -1300,7 +1395,10 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
               const w = who;
               void handleBuy(w.sku, w.target, { fromWho: true, ...(w.resumed ? { resumed: true } : {}), ...(w.from ? { from: w.from } : {}) });
             }}
-            onClose={() => setWho(null)}
+            onClose={() => {
+              setWho(null);
+              returnAfterClose();
+            }}
             onSignIn={() => navigate(withSigninRedirect("/login", packsResumePath(who.sku, who.target, location.search, returnPath)))}
             onSignInWithNumber={(digits) => {
               const state: GuestSigninState = { guestPayPhone: digits };
@@ -1321,7 +1419,10 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             label: packDescription(guest.sku, guest.target, guest.target ? chapterLabel(guest.target) : undefined),
             description: packCheckoutDescription(guest.sku, guest.target, guest.target ? chapterLabel(guest.target) : undefined),
           }}
-          onClose={() => setGuest(null)}
+          onClose={() => {
+            setGuest(null);
+            returnAfterClose();
+          }}
           onSignInFirst={(method, digits, existingAccount) => {
             const state: GuestSigninState | undefined = method === "phone" ? { ...(digits ? { guestPayPhone: digits } : { phoneFirst: true }), ...(existingAccount ? { guestPayExisting: true as const } : {}) } : undefined;
             navigate(withSigninRedirect("/login", packsResumePath(guest.sku, guest.target, location.search, returnPath)), state ? { state } : undefined);
@@ -1396,7 +1497,7 @@ function OwnedTestSeriesRow({ pack, mine, when, tidy }: { pack: OwnedPack; mine:
         {`${seriesContentsLine()}. Your written answers are checked step by step, ${per === 2 ? "twice" : `${per} times`} per paper.`}
       </p>
       {progressLine && <p className="lt-packs__muted" data-testid="packs-owned-test-series-progress">{progressLine}</p>}
-      <p className="lt-packs__muted" data-testid="packs-owned-test-series-valid">{`Valid till ${TEST_SERIES_VALID_TILL}`}</p>
+      <p className="lt-packs__muted" data-testid="packs-owned-test-series-valid">{`Valid ${TEST_SERIES_VALIDITY}`}</p>
       <Link className="lt-packs__link" to={TEST_SERIES_PATH} data-testid="packs-owned-test-series-open">Go to Test Series &rarr;</Link>
     </>
   );

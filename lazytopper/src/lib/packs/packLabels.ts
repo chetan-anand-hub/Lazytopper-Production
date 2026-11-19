@@ -20,7 +20,13 @@ export const MOCKS_PER_SUBJECT = 8;
  * (lib/testSeries/testSeries.ts seriesTotals / seriesContentsLine / testSeriesPackLine), never typed here.
  */
 export const TEST_SERIES_NAME = "Test Series Pack";
-export const TEST_SERIES_CHECKS_PER_PAPER_COPY = "twice per paper";
+export const TEST_SERIES_CHECKS_PER_PAPER_COPY = "2 checks per paper";
+/** TS-UX-PAGE-1 (owner, 19 Nov 2026): the ONE validity phrase for the Test Series, on every surface. */
+/** TS-UX-PAGE-1: the ONE wording for which sections the written check covers. */
+export const TEST_SERIES_WRITTEN_SECTIONS = "Sections B\u2013D (B\u2013E in full-length tests)";
+/** TS-UX-PAGE-1: what "2 checks per paper" means, said before buying (/test-series, /pricing, /packs). */
+export const TEST_SERIES_CHECKS_EXPLAINER =
+  "Each paper can be checked twice: upload your answers, see your marks, then fix and upload once more. If we can't read your photo, that check isn't counted.";
 export const BUNDLE_MOCKS = MOCKS_PER_SUBJECT * 2;
 
 /** Mock paper pattern shown for Maths (Standard, subject code 041). */
@@ -77,6 +83,8 @@ export const REDOWNLOAD_UNTIL = "31 March 2027";
 export const REDOWNLOAD_UNTIL_LEGACY = "31 May 2027";
 /** MYPACKS-TS-1: the Test Series Pack is valid till this date (the existing 31 May 2027 pack term; it has no files, so nothing "re-downloads"). */
 export const TEST_SERIES_VALID_TILL = REDOWNLOAD_UNTIL_LEGACY;
+/** TS-UX-PAGE-1 (owner, 19 Nov 2026): the ONE validity phrase for the Test Series, on every surface: "till 31 May 2027 (after your boards)". */
+export const TEST_SERIES_VALIDITY = `till ${TEST_SERIES_VALID_TILL} (after your boards)`;
 /** 5 Nov 2026 00:00 IST - the same instant as server/services/packCredit.cjs PACK_CREDIT_CUTOFF_MS (the two terms change together). */
 export const PACK_TERMS_CUTOFF = "2026-11-05T00:00:00+05:30";
 export const PACK_TERMS_CUTOFF_MS = Date.parse(PACK_TERMS_CUTOFF);

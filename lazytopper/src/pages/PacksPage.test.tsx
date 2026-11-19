@@ -65,6 +65,9 @@ function page(url = "/packs") {
       <Routes>
         <Route path="/packs" element={<PacksPage />} />
         <Route path="/login" element={<div>LOGIN</div>} />
+        <Route path="/test-series" element={<div data-testid="ts-landed">TS</div>} />
+        <Route path="/chapter-test/*" element={<div data-testid="paper-landed">PAPER</div>} />
+        <Route path="/evil/*" element={<div data-testid="evil-landed">EVIL</div>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -589,14 +592,75 @@ describe("TS-PACK-1 · /packs Test Series card", () => {
     expect(text).toContain(`${seriesTotals().chapterTests} chapter tests + ${seriesTotals().fullMocks} full-length tests`); // counts from the series config
     expect(text).toContain(testSeriesPerTestLine() ?? "per test"); // the highlighted "per test" badge, from code
     expect(text).toContain(testSeriesExaminerLine() ?? "examiner");
-    expect(text).toContain("twice per paper");
+    expect(text).toContain("2 checks per paper");
     expect(text).toContain("Does not include: the Board Pass, the tutor, the Answer Checker or the PDF packs.");
     expect(text).not.toMatch(/\bAI\b|free|answer key|hack|trick|crack|leak|optional|refund|\bapp\b/i);
     // packs dark: the neutral twin button opens the pop-up (no Buy)
     fireEvent.click(screen.getByTestId("pk-buy-test-series-neutral"));
     const dialog = screen.getByRole("dialog");
-    expect(within(dialog).getByTestId("pack-test-series-line").textContent).toBe("Maths + Science, one payment, till 31 May 2027.");
+    expect(within(dialog).getByTestId("pack-test-series-line").textContent).toBe("Maths + Science, one payment, till 31 May 2027 (after your boards).");
     expect(within(dialog).queryByTestId("pack-preview-caption")).toBeNull();
+    // TS-UX-PAGE-1: what "2 checks per paper" means, in the pop-up and on the card, before any Buy.
+    expect(within(dialog).getByTestId("pack-test-series-checks").textContent).toBe(
+      "Each paper can be checked twice: upload your answers, see your marks, then fix and upload once more. If we can't read your photo, that check isn't counted.",
+    );
+  });
+
+  it("TS-UX-PAGE-1: the Test Series card says '2 checks per paper' (never 'twice per paper'), one validity phrase, the sections wording, and explains the checks", () => {
+    page();
+    const card = screen.getByTestId("packs-test-series");
+    expect(card.textContent).toContain("2 checks per paper");
+    expect(card.textContent).not.toMatch(/twice per paper|till your boards/);
+    expect(card.textContent).toContain("till 31 May 2027 (after your boards)");
+    expect(card.textContent).toContain("Sections B–D (B–E in full-length tests)");
+    expect(screen.getByTestId("packs-ts-checks").textContent).toContain("Each paper can be checked twice: upload your answers");
+    expect(screen.getByTestId("packs-ts-valid").textContent).toContain("till 31 May 2027 (after your boards)");
+  });
+
+  it("TS-UX-PAGE-1: /packs?buy=test_series keeps working; from=test-series sends closing the pop-up back to /test-series, a plain link stays on /packs", async () => {
+    flag.on = true;
+    auth.user = { uid: "u1" };
+    const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
+    buyMock.mockClear();
+    page("/packs?buy=test_series&from=test-series");
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    expect(buyMock.mock.calls[0][0]).toBe("test_series");
+    fireEvent.click(await screen.findByTestId("pack-dialog-close"));
+    await waitFor(() => expect(screen.getByTestId("ts-landed")).toBeTruthy());
+    expect(screen.getByTestId("where").textContent).toBe("/test-series");
+    cleanup();
+    buyMock.mockClear();
+    page("/packs?buy=test_series");
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    fireEvent.click(await screen.findByTestId("pack-dialog-close"));
+    await waitFor(() => expect(screen.queryByTestId("pack-dialog-close")).toBeNull());
+    expect(screen.getByTestId("where").textContent).toBe("/packs");
+  });
+
+  it("TS-UX-PAGE-1 (returnTo): from=test-series&returnTo=<paper> closes back to that paper; an unsafe returnTo falls back to /test-series; plain stays on /packs", async () => {
+    flag.on = true;
+    auth.user = { uid: "u1" };
+    const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
+    const paper = encodeURIComponent("/chapter-test/real-numbers?x=1");
+    buyMock.mockClear();
+    page(`/packs?buy=test_series&from=test-series&returnTo=${paper}`);
+    await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+    // the series Back (RouteNavBar) still has its pair on /packs while the pop-up is open
+    expect(screen.getByTestId("where").textContent).toContain("from=test-series");
+    expect(screen.getByTestId("where").textContent).toContain("returnTo=");
+    fireEvent.click(await screen.findByTestId("pack-dialog-close"));
+    await waitFor(() => expect(screen.getByTestId("paper-landed")).toBeTruthy());
+    expect(screen.getByTestId("where").textContent).toBe("/chapter-test/real-numbers?x=1");
+    cleanup();
+    for (const bad of ["https://evil.example/x", "//evil.example/x", "/evil/page", "javascript:alert(1)"]) {
+      buyMock.mockClear();
+      page(`/packs?buy=test_series&from=test-series&returnTo=${encodeURIComponent(bad)}`);
+      await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
+      fireEvent.click(await screen.findByTestId("pack-dialog-close"));
+      await waitFor(() => expect(screen.getByTestId("ts-landed")).toBeTruthy());
+      expect(screen.getByTestId("where").textContent).toBe("/test-series");
+      cleanup();
+    }
   });
 
   it("packs on, signed in: Buy uses the existing pack checkout (buyPack('test_series', no target)); ?buy=test_series resumes it", async () => {
@@ -646,7 +710,7 @@ describe("TS-PACK-1 · /packs Test Series card", () => {
     expect(screen.getByTestId("packs-owned-test-series-open").getAttribute("href")).toBe("/test-series");
     // MYPACKS-TS-1: "Go to Test Series" + the validity date, no file list; a PDF-pack-only owner has no such row.
     expect(screen.getByTestId("packs-owned-test-series-open").textContent).toContain("Go to Test Series");
-    expect(screen.getByTestId("packs-owned-test-series-valid").textContent).toBe("Valid till 31 May 2027");
+    expect(screen.getByTestId("packs-owned-test-series-valid").textContent).toBe("Valid till 31 May 2027 (after your boards)");
     expect(screen.queryByText(/Show files|Download files/)).toBeNull();
   });
 

@@ -28,6 +28,8 @@ import {
   packChapterLabel,
   CBQ_SUBJECT_CLAIM,
   TEST_SERIES_CHECKS_PER_PAPER_COPY,
+  TEST_SERIES_VALIDITY,
+  TEST_SERIES_WRITTEN_SECTIONS,
   TEST_SERIES_NAME,
 } from "./packLabels";
 import { seriesTotals } from "../testSeries/testSeries";
@@ -231,9 +233,9 @@ export function packSummaryRows(sku: PackSku, target?: string, questions: number
       return [
         { label: "Numbered chapter tests", value: String(seriesTotals().chapterTests) },
         { label: "Full-length tests", value: String(seriesTotals().fullMocks) },
-        { label: "Written answers checked, Sections B to E", value: TEST_SERIES_CHECKS_PER_PAPER_COPY },
+        { label: `Written answers checked, ${TEST_SERIES_WRITTEN_SECTIONS}`, value: TEST_SERIES_CHECKS_PER_PAPER_COPY },
         { label: "Subjects", value: "Maths + Science" },
-        { label: "Valid till", value: "31 May 2027" },
+        { label: "Valid", value: TEST_SERIES_VALIDITY },
       ];
   }
 }

@@ -9,7 +9,7 @@ import { PACKS_ANSWER_FAQ } from "../components/seo/faqContent";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import FounderBadge from "../components/brand/FounderBadge";
 import PacksShop, { warmPacksCheckout, OTHER_PAYMENT_BUSY_COPY, PACKS_RETURN_PATH, PACK_SIGNIN_NOTE, ownedPackTitle, packsResumePath, readBuyResume } from "../components/packs/PacksShop";
-import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT, TEST_SERIES_NAME } from "../lib/packs/packLabels";
+import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT, PREBOARDS_PICK_BADGE, PREBOARDS_PICK_LINE, REDOWNLOAD_COPY, isPreboardsSeason, REDOWNLOAD_SHORT, TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_CHECKS_PER_PAPER_COPY, TEST_SERIES_NAME, TEST_SERIES_VALIDITY, TEST_SERIES_WRITTEN_SECTIONS } from "../lib/packs/packLabels";
 import { seriesContentsLine, testSeriesPackLine } from "../lib/testSeries/testSeries";
 import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
 import { usePaidPremium } from "../lib/packs/usePaidPremium";
@@ -373,7 +373,7 @@ function PreboardTileLine({ testId = "packs-preboard-line-bundle" }: { testId?: 
  * is the shop's own (PackTileBuy -> buyNow -> handleBuy -> the existing pack checkout sheet); the server decides the price and the access.
  */
 export const TEST_SERIES_HEADING = "Test Series";
-export const TEST_SERIES_CONTENTS = `Includes: ${seriesContentsLine()} · written answers checked step by step, twice per paper · till 31 May 2027.`;
+export const TEST_SERIES_CONTENTS = `Includes: ${seriesContentsLine()} · written answers, ${TEST_SERIES_WRITTEN_SECTIONS}, checked step by step, ${TEST_SERIES_CHECKS_PER_PAPER_COPY} · ${TEST_SERIES_VALIDITY}.`;
 export const TEST_SERIES_EXCLUDES = "Does not include: the Board Pass, the tutor, the Answer Checker or the PDF packs.";
 
 /** MYPACKS-TS-1: shown instead of Buy to a Board Pass holder - the Test Series would give them nothing new. */
@@ -392,7 +392,7 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
               <summary className="lt-pk-row__sum">
                 <span className="lt-pk-row__name">{TEST_SERIES_NAME}</span>
                 <span className="lt-pk-row__price">
-                  <TsClockSlot variant="tag">{`${packPriceLabel("test_series")} · till your boards`}</TsClockSlot>
+                  <TsClockSlot variant="tag">{packPriceLabel("test_series")}</TsClockSlot>
                 </span>
               </summary>
               <div className="lt-pk-row__body">
@@ -406,6 +406,9 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
                 )}
               </div>
             </details>
+            {/* TS-UX-PAGE-1: what "2 checks per paper" means, before the Buy. */}
+            <p className="lt-pk-ts__checks" data-testid="packs-ts-valid">One payment, {TEST_SERIES_VALIDITY}.</p>
+            <p className="lt-pk-ts__checks" data-testid="packs-ts-checks">{TEST_SERIES_CHECKS_EXPLAINER}</p>
             {/* TS-MORE-1: the per-test badge (clock slot) + the examiner line, visible without opening the row. */}
             <TestSeriesPerTest testId="packs-ts-per-test" />
             <TestSeriesExaminerLine testId="packs-ts-examiner" />

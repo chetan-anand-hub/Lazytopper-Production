@@ -22,6 +22,8 @@ import {
   isPreboardsSeason,
   MOCKS_PER_SUBJECT,
   REDOWNLOAD_UNTIL,
+  TEST_SERIES_CHECKS_EXPLAINER,
+  TEST_SERIES_VALIDITY,
 } from "../../lib/packs/packLabels";
 import { CBQ_QUESTION_TYPES } from "../../lib/packs/cbqPackTypes";
 import { BP_MINUTE_LINE, BP_MINUTE_STRONG, BP_TUTOR_BODY, BP_TUTOR_TITLE, CBQ_PACKS_NAME, QUESTION_BANK_NAME } from "../../components/salesPages/salesPagesCopy";
@@ -137,7 +139,9 @@ export const HUB_TS_UPSELL_GO = `${BOARD_PASS_NAME} →`;
 export function hubTsPrice(): string {
   return packPriceLabel("test_series");
 }
-export const HUB_TS_PRICE_META = "till your boards · pay once";
+export const HUB_TS_PRICE_META = `${TEST_SERIES_VALIDITY} · pay once`;
+/** TS-UX-PAGE-1: what "2 checks per paper" means, on the card before the Buy. */
+export const HUB_TS_CHECKS_LINE = TEST_SERIES_CHECKS_EXPLAINER;
 export const HUB_TS_BUY = `Get the ${TEST_SERIES_CARD_NAME}`;
 /** "See all 180 tests →" - the total is the config's. */
 export function hubTsDetails(t: SeriesTotals = seriesTotals()): string {
@@ -168,7 +172,7 @@ export function hubTsBuyPath(): string {
 export const HUB_TS_OWNED = `${TEST_SERIES_CARD_NAME} · You own this`;
 /** The phone bar's words for the Test Series card. */
 export function hubTsStickyCopy(): { label: string; button: string } {
-  return { label: `${TEST_SERIES_CARD_NAME} ${hubTsPrice()}`, button: HUB_TS_BUY };
+  return { label: `${TEST_SERIES_CARD_NAME} ${hubTsPrice()}`, button: `${HUB_TS_BUY} · ${packPayLabel("test_series")}` };
 }
 
 /* ── Card 3: CBQ Packs ──────────────────────────────────────────────────── */

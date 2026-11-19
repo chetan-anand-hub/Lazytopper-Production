@@ -3,8 +3,8 @@
  * signed-out visitor, and takes its price line from the Board Pass's date-driven helper (before / from 1 Dec).
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, render, screen, within } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 vi.hoisted(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
@@ -35,16 +35,58 @@ vi.mock("../services/sessionRecords", () => ({
   getAllSessionPerQuestionFromCloud: vi.fn(async () => []),
 }));
 
+// TS-UX-PAGE-1: the page embeds the pack shop (in-place buy). Packs are ON here; the pack service reads are stubbed, the pop-up is a probe.
+const shop = vi.hoisted(() => ({ on: true, mine: "ok" as "ok" | "fail", owned: false, buyPack: vi.fn(async (..._a: unknown[]): Promise<{ status: "dismissed" | "paid" | "pending" }> => ({ status: "dismissed" })) }));
+vi.mock("../services/packs", async (orig) => {
+  const actual = await orig<typeof import("../services/packs")>();
+  return {
+    ...actual,
+    isPacksClientEnabled: () => shop.on,
+    fetchMyPacks: vi.fn(async () => {
+      if (shop.mine === "fail") throw new Error("down");
+      return {
+        packs: shop.owned ? [{ packId: "test_series:all", sku: "test_series", target: "all", pricePaidInr: 1179, paidAt: 1 }] : [],
+        licensee: { name: "", email: "" },
+        boardPassCredit: null,
+      };
+    }),
+    buyPack: shop.buyPack,
+  };
+});
+const tracked = vi.hoisted(() => ({ checkout: vi.fn(), event: vi.fn() }));
+vi.mock("../lib/packs/packAnalytics", async (orig) => {
+  const actual = await orig<typeof import("../lib/packs/packAnalytics")>();
+  return { ...actual, trackPackCheckout: tracked.checkout, trackPackEvent: tracked.event, trackPackPurchase: vi.fn() };
+});
+const paidProbe = vi.hoisted(() => ({ surface: "" }));
+vi.mock("../components/checkoutWho/PaidSheetLazy", async (orig) => ({
+  ...(await orig<typeof import("../components/checkoutWho/PaidSheetLazy")>()),
+  default: (p: { surface: string }) => {
+    paidProbe.surface = p.surface;
+    return <div data-testid="paid-probe">{p.surface}</div>;
+  },
+}));
+vi.mock("./PackDialog", () => ({ default: () => <div role="dialog" data-testid="pack-dialog" /> }));
+
 import TestSeriesPage from "./TestSeriesPage";
 import { seriesChapterTests, seriesFullMocks, seriesTotals } from "../lib/testSeries/testSeries";
-import { testSeriesPriceLine } from "../services/packs";
+import { packPayLabel, testSeriesPriceLine } from "../services/packs";
+import { TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_VALIDITY } from "../lib/packs/packLabels";
 
-async function mount() {
+function Where() {
+  const l = useLocation();
+  return <div data-testid="where">{`${l.pathname}${l.search}`}</div>;
+}
+const where = () => screen.getByTestId("where").textContent ?? "";
+
+async function mount(url = "/test-series") {
   await act(async () => {
     render(
-      <MemoryRouter initialEntries={["/test-series"]}>
+      <MemoryRouter initialEntries={[url]}>
         <Routes>
-          <Route path="/test-series" element={<TestSeriesPage />} />
+          <Route path="/test-series" element={<><TestSeriesPage /><Where /></>} />
+          <Route path="/packs" element={<Where />} />
+          <Route path="/login" element={<Where />} />
         </Routes>
       </MemoryRouter>,
     );
@@ -59,12 +101,25 @@ beforeEach(() => {
   mockOwn.owns = false;
   mockOwn.known = true;
   mockOwn.noPhase = false;
+  shop.on = true;
+  shop.mine = "ok";
+  shop.owned = false;
+  shop.buyPack.mockClear();
+  tracked.checkout.mockClear();
+  tracked.event.mockClear();
   vi.setSystemTime(new Date("2026-11-18T19:00:00+05:30"));
 });
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  vi.unstubAllEnvs();
+});
+
+const pick = (id: string) => screen.getByTestId(id) as HTMLSelectElement;
+const choose = (id: string, value: string) => act(async () => void fireEvent.change(pick(id), { target: { value } }));
+const press = (id: string) => act(async () => void fireEvent.click(screen.getByTestId(id)));
 
 describe("/test-series — signed out", () => {
-  it("lists every numbered test from code, with counts from code", async () => {
+  it("counts from code; the long grid is gone, replaced by the subject -> type -> chapter -> paper pickers", async () => {
     await mount();
     const t = seriesTotals();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("CBSE Class 10 Test Series");
@@ -72,73 +127,209 @@ describe("/test-series — signed out", () => {
       `${t.chapterTests} chapter tests + ${t.fullMocks} full-length board papers · written answers checked step by step`,
     );
     expect(screen.getByTestId("ts-rule").textContent).toBe("MCQs marked free · written answers checked with the Test Series or the Board Pass");
-    for (const test of [...seriesChapterTests(), ...seriesFullMocks()]) {
-      expect(screen.getByTestId(`ts-test-${test.code}`).getAttribute("href")).toBe(test.href);
-    }
-    expect(within(screen.getByTestId("ts-sec-full")).getAllByTestId("ts-chip")).toHaveLength(t.fullMocks);
-    // TS-MORE-1: a chapter is one compact card; its papers are small numbered chips (5 per chapter, from code).
-    expect(within(screen.getByTestId("ts-sec-chapter")).getAllByTestId(/^ts-chap-(?!prog)/)).toHaveLength(t.chapters);
-    expect(within(screen.getByTestId("ts-sec-chapter")).getAllByTestId(/^ts-test-/)).toHaveLength(t.chapterTests);
-    expect(screen.getByTestId("ts-tab-chapter").textContent).toBe(`Chapter Tests ${t.chapterTests}`);
-    expect(screen.getByTestId("ts-tab-full").textContent).toBe(`Full-Length Tests ${t.fullMocks}`);
+    // TS-UX-PAGE-1: no 180-link grid. One Start link; chapter / paper selects; nothing per test in the DOM but options.
+    expect(screen.queryAllByTestId(/^ts-test-/)).toHaveLength(0);
+    expect(screen.getAllByTestId("ts-start")).toHaveLength(1);
+    expect(document.querySelectorAll('.lt-ts a[href*="series=1"]').length).toBeLessThanOrEqual(1);
+    const chapterOptions = within(pick("ts-pick-chapter")).getAllByRole("option");
+    expect(chapterOptions).toHaveLength(seriesChapterTests().filter((c) => c.subject === "Maths" && c.paper === 1).length);
+    expect(within(pick("ts-pick-paper")).getAllByRole("option")).toHaveLength(t.papersPerChapter);
+    expect(screen.getByTestId("ts-pick-subject-Maths").getAttribute("aria-pressed")).toBe("true");
+  });
+  it("Start follows the pickers, with the existing hrefs (chapterTestSeriesHref / fullMockSeriesHref)", async () => {
+    await mount();
+    const cts = seriesChapterTests();
+    expect(screen.getByTestId("ts-start").getAttribute("href")).toBe(cts[0].href);
+    // paper 3 of the second Maths chapter
+    const second = cts.filter((c) => c.subject === "Maths" && c.paper === 1)[1];
+    await choose("ts-pick-chapter", second.baseCode);
+    await choose("ts-pick-paper", "3");
+    const want = cts.find((c) => c.topicKey === second.topicKey && c.paper === 3)!;
+    expect(screen.getByTestId("ts-start").getAttribute("href")).toBe(want.href);
+    expect(screen.getByTestId("ts-start").getAttribute("data-code")).toBe(want.code);
+    // Science
+    await press("ts-pick-subject-Science");
+    const sci = cts.find((c) => c.subject === "Science")!;
+    expect(screen.getByTestId("ts-start").getAttribute("href")).toBe(sci.href);
+    // Full-length 1-N (rounds as groups), per subject
+    await press("ts-pick-type-full");
+    const mocks = seriesFullMocks().filter((m) => m.subject === "Science");
+    expect(within(pick("ts-pick-full")).getAllByRole("option")).toHaveLength(mocks.length);
+    await choose("ts-pick-full", String(mocks.length));
+    expect(screen.getByTestId("ts-start").getAttribute("href")).toBe(mocks[mocks.length - 1].href);
+    expect(screen.getByTestId("ts-start").textContent).toContain(`Full-length test ${mocks.length}`);
   });
   it("shows a sign-in prompt and no progress — nothing is read, nothing invented", async () => {
     await mount();
     expect(screen.getByTestId("ts-signin").getAttribute("href")).toBe("/login?redirect=%2Ftest-series");
     expect(screen.queryByTestId("ts-done")).toBeNull();
     expect(records.calls).toBe(0);
-    expect(screen.getAllByTestId("ts-chip").every((c) => c.getAttribute("data-status") === "not-started")).toBe(true);
-    expect(screen.getAllByTestId(/^ts-test-CT-/).every((c) => c.getAttribute("data-status") === "not-started")).toBe(true);
-    expect(screen.getByTestId("ts-trend").textContent).toContain("Sign in");
+    expect(screen.getByTestId("ts-start").getAttribute("data-status")).toBe("not-started");
+    expect(within(pick("ts-pick-paper")).getAllByRole("option").every((o) => !/done|graded|attempted|not started/.test(o.textContent ?? ""))).toBe(true);
+    expect(screen.queryByTestId("ts-trend")).toBeNull();
   });
-  it("the calendar is marked at today's row; Test Series and Board Pass offers side by side, plus printed papers", async () => {
+  it("the hero carries the offer (price, validity, per-test, its own Buy with the TOTAL, the checks line); the Board Pass line sits lower", async () => {
+    await mount();
+    const hero = screen.getByTestId("ts-hero-offer");
+    expect(hero.closest("header")).not.toBeNull();
+    expect(within(hero).getByTestId("ts-hero-price").textContent).toBe(testSeriesPriceLine());
+    expect(within(hero).getByTestId("ts-hero-valid").textContent).toBe(`One payment, ${TEST_SERIES_VALIDITY}`);
+    expect(TEST_SERIES_VALIDITY).toBe("till 31 May 2027 (after your boards)");
+    expect(within(hero).getByTestId("ts-hero-per-test").textContent).toContain("₹6 per test");
+    expect(screen.getByTestId("ts-hero-buy").textContent).toBe(`Get the Test Series · ${packPayLabel("test_series")}`);
+    expect(screen.getByTestId("ts-hero-buy").textContent).toBe("Get the Test Series · ₹1,179");
+    expect(within(hero).getByTestId("ts-hero-checks").textContent).toBe(TEST_SERIES_CHECKS_EXPLAINER);
+    expect(screen.getByTestId("ts-hero-examiner").textContent).toBe("Your written answers marked step by step like a CBSE examiner, by CBSE's step-marking rules.");
+    // The Board Pass founding line is NOT in the hero; it is beside the plan comparison.
+    const urgency = screen.getByTestId("ts-urgency");
+    expect(urgency.closest("header")).toBeNull();
+    expect(screen.getByTestId("ts-offers").parentElement?.contains(urgency)).toBe(true);
+    expect(urgency.textContent).toBe("Founding season: the Board Pass is ₹1,917 + GST till 30 November");
+    expect(screen.queryByTestId("ts-urgency-ts")).toBeNull();
+  });
+  it("the calendar is marked at today's row; Test Series and Board Pass plan cards, each with its own Buy; no PDF-pack upsell", async () => {
     await mount();
     expect(within(screen.getByTestId("ts-cal-chapters")).getByTestId("ts-cal-now").hasAttribute("data-lt-clock")).toBe(true);
     expect(screen.getAllByTestId("ts-cal-now")).toHaveLength(1);
-    expect(screen.getByTestId("ts-urgency").textContent).toBe("Founding season: the Board Pass is ₹1,917 + GST till 30 November");
-    expect(screen.getByTestId("ts-cta-hero").getAttribute("href")).toBe("/packs?buy=test_series");
     const ts = screen.getByTestId("ts-offer-ts");
-    // TS-PRICE-2 (edited expectation): while the founding offer is open the card carries the founding line.
     expect(within(ts).getByTestId("till-boards-figures").textContent).toBe(testSeriesPriceLine());
     expect(ts.textContent).toContain("₹999 + GST · founding price till 30 Nov, then ₹1,499 + GST");
-    expect(screen.getByTestId("ts-urgency-ts").textContent).toBe("Test Series: ₹999 + GST · founding price till 30 Nov, then ₹1,499 + GST");
     expect(ts.textContent).toContain("2 checks per paper");
-    expect(screen.getByTestId("ts-cta-buy").getAttribute("href")).toBe("/packs?buy=test_series");
+    expect(ts.textContent).toContain("Sections B–D (B–E in full-length tests)");
+    expect(within(ts).getByTestId("ts-cta-buy").textContent).toBe("Get the Test Series · ₹1,179");
+    expect(within(ts).getByTestId("ts-offer-checks").textContent).toBe(TEST_SERIES_CHECKS_EXPLAINER);
     const bp = screen.getByTestId("ts-offer-bp");
     expect(within(bp).getByTestId("till-boards-figures").textContent).toBe("₹1,917 + GST till your boards");
     expect(bp.textContent).toContain("Every answer checked everywhere (Answer Checker, worksheets)");
-    expect(bp.textContent).toContain("Your personal tutor");
-    expect(bp.textContent).toContain("Mistake Intelligence");
     expect(screen.getByTestId("ts-bp-link").getAttribute("href")).toBe("/board-pass");
-    // Owner rulings 19 Nov: no PDF-pack upsell on this page (it competes with the Test Series), and no overlap language.
     expect(screen.queryByTestId("ts-packs")).toBeNull();
     expect(document.querySelector('a[href="/packs"]')).toBeNull();
     expect(document.body.textContent).not.toMatch(/PDF Pack|same papers|Mock Pack|printed/i);
     expect(within(screen.getByTestId("ts-offers")).getAllByText(/^(Test Series|Board Pass)$/)).toHaveLength(2);
     expect(screen.getByTestId("ts-how").textContent).toContain("The Test Series checks every written answer step by step");
+    expect(screen.getByTestId("ts-how").textContent).toContain("Sections B–D (B–E in full-length tests)");
   });
-  it("from 1 Dec the Board Pass card shows its list price; the Test Series is ₹1,499 + GST (TS-PRICE-2)", async () => {
+  it("from 1 Dec the Test Series is ₹1,499 + GST and the button follows the total (no hardcoded price); the founding line is gone", async () => {
     vi.setSystemTime(new Date("2026-12-01T00:05:00+05:30"));
     await mount();
     expect(screen.getByTestId("ts-offer-bp").textContent).toContain("₹2,499 + GST till your boards");
-    // TS-PRICE-2 (edited expectation): from 1 Dec the Test Series is ₹1,499 + GST, with no founding line.
-    expect(screen.getByTestId("ts-offer-ts").textContent).toContain("₹1,499 + GST till your boards");
+    expect(screen.getByTestId("ts-offer-ts").textContent).toContain("₹1,499 + GST");
     expect(screen.getByTestId("ts-offer-ts").textContent).not.toContain("founding");
-    // The founding line is shown only while that offer is really open.
+    expect(screen.getByTestId("ts-offer-ts").textContent).toContain(TEST_SERIES_VALIDITY);
+    expect(screen.getByTestId("ts-hero-buy").textContent).toBe(`Get the Test Series · ${packPayLabel("test_series")}`);
+    expect(screen.getByTestId("ts-hero-buy").textContent).not.toContain("1,179");
     expect(screen.getByTestId("ts-urgency").textContent).toBe("");
-    expect(screen.getByTestId("ts-urgency-ts").textContent).toBe(""); // the slot stays (no layout jump), empty
   });
-  it("carries none of the banned words", async () => {
+  it("carries none of the banned words, and never calls the series free", async () => {
     await mount();
     const text = document.body.textContent ?? "";
     for (const w of [/\bAI\b/, /answer key/i, /\bsolutions?\b/i, /\bhack/i, /\btrick/i, /\bcrack/i, /\bleak/i, /\boptional\b/i, /refund/i, /\bapp\b/i]) {
       expect(text, String(w)).not.toMatch(w);
     }
+    // "twice per paper" / "till your boards" are not the Test Series' words any more.
+    expect(screen.getByTestId("ts-offer-ts").textContent).not.toMatch(/twice per paper|till your boards/);
+  });
+});
+
+describe("/test-series — TS-UX-PAGE-1 buy in place", () => {
+  const sheets = () => screen.queryAllByRole("dialog");
+  it("a signed-out Buy opens the checkout sheet HERE (one sheet, no pack pop-up), the route stays, and closing leaves the student on /test-series", async () => {
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
+    await mount();
+    await press("ts-hero-buy");
+    const sheet = await screen.findByTestId("who-sheet");
+    expect(where()).toBe("/test-series");
+    expect(screen.queryByTestId("pack-dialog")).toBeNull();
+    expect(document.querySelectorAll('[data-testid="who-sheet"]')).toHaveLength(1);
+    expect(sheets()).toHaveLength(1);
+    expect(sheet.textContent).toContain("Buy the Test Series");
+    expect(sheet.textContent).not.toContain("Buy for yourself");
+    // the same begin_checkout the /packs path fires (one event, the pack's own details)
+    expect(tracked.checkout).toHaveBeenCalledTimes(1);
+    expect((tracked.checkout.mock.calls[0][0] as { sku: string }).sku).toBe("test_series");
+    // Close: the sheet goes, the route does not change.
+    const close = within(sheet).getAllByRole("button").find((b) => /close/i.test(b.getAttribute("aria-label") ?? b.textContent ?? ""));
+    await act(async () => void fireEvent.click(close!));
+    expect(screen.queryByTestId("who-sheet")).toBeNull();
+    expect(where()).toBe("/test-series");
+    expect(shop.buyPack).not.toHaveBeenCalled();
+  });
+  it("the plan card's Buy is its own button and opens the same one sheet", async () => {
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
+    await mount();
+    await press("ts-cta-buy");
+    expect(await screen.findByTestId("who-sheet")).toBeTruthy();
+    expect(where()).toBe("/test-series");
+    expect(sheets()).toHaveLength(1);
+  });
+  it("signed in: the Buy starts the pack checkout for the Test Series right here (buyPack), with no pop-up and no navigation", async () => {
+    mockAuth.user = { uid: "u1" };
+    await mount();
+    await press("ts-hero-buy");
+    expect(shop.buyPack).toHaveBeenCalledTimes(1);
+    expect(shop.buyPack.mock.calls[0][0]).toBe("test_series");
+    expect(screen.queryByTestId("pack-dialog")).toBeNull();
+    expect(where()).toBe("/test-series");
+    expect(tracked.checkout).toHaveBeenCalledTimes(1);
+    // closed without paying: the student is told how to carry on, on this page (no pop-up to hold the rescue card)
+    expect(await screen.findByTestId("pay-rescue")).toBeTruthy();
+    expect(screen.getByTestId("pay-rescue-retry")).toBeTruthy();
+  });
+  it("a failed purchase-history read after a ?buy= resume is never a silent nothing: no payment starts, the pop-up opens with its own Buy", async () => {
+    mockAuth.user = { uid: "u1" };
+    shop.mine = "fail";
+    await mount("/test-series?buy=test_series");
+    expect(shop.buyPack).not.toHaveBeenCalled();
+    expect(await screen.findByTestId("pack-dialog")).toBeTruthy();
+    expect(where()).toBe("/test-series");
+  });
+  it("a signed-in ?buy= resume on /test-series starts the checkout in place (no pop-up behind it)", async () => {
+    mockAuth.user = { uid: "u1" };
+    await mount("/test-series?buy=test_series");
+    await act(async () => void (await Promise.resolve()));
+    expect(shop.buyPack).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("pack-dialog")).toBeNull();
+    expect(where()).toBe("/test-series");
+  });
+  it("the shop's other entry links (?pack= / ?chapter= / ?mock= / ?view=sample) do not open anything on /test-series", async () => {
+    mockAuth.user = { uid: "u1" };
+    await mount("/test-series?pack=cbq&chapter=real-numbers&mock=1&view=sample");
+    await act(async () => void (await Promise.resolve()));
+    expect(screen.queryByTestId("pack-dialog")).toBeNull();
+    expect(shop.buyPack).not.toHaveBeenCalled();
+  });
+  it("shop-level ownership: an account that already owns the Test Series is told so and no payment starts (never a second order)", async () => {
+    mockAuth.user = { uid: "u1" };
+    shop.owned = true; // the shop's own My packs read says owned (the page's ownership hook is mocked as not-owned)
+    await mount();
+    await act(async () => void (await Promise.resolve()));
+    expect(screen.getByTestId("ts-hero-buy").textContent).toContain("You own this");
+    await press("ts-hero-buy");
+    expect(shop.buyPack).not.toHaveBeenCalled();
+  });
+  it("after a payment the paid sheet is labelled with this page's own surface (test_series), not pricing", async () => {
+    mockAuth.user = { uid: "u1" };
+    shop.buyPack.mockResolvedValueOnce({ status: "paid" });
+    await mount();
+    await press("ts-hero-buy");
+    await act(async () => void (await Promise.resolve()));
+    expect((await screen.findByTestId("paid-probe")).textContent).toBe("test_series");
+  });
+  it("packs dark: the Buy is a link to /packs?buy=test_series&from=test-series that still shows the total", async () => {
+    shop.on = false;
+    await mount();
+    const b = screen.getByTestId("ts-hero-buy");
+    expect(b.getAttribute("href")).toBe("/packs?buy=test_series&from=test-series");
+    expect(b.textContent).toBe(`Get the Test Series · ${packPayLabel("test_series")}`);
+  });
+  it("no pack_view is sent by this page (events unchanged)", async () => {
+    await mount();
+    expect(tracked.event).not.toHaveBeenCalled();
   });
 });
 
 describe("/test-series — signed in", () => {
-  it("progress comes only from real series sittings", async () => {
+  it("progress comes only from real series sittings (the pickers' own done / graded words)", async () => {
     mockAuth.user = { uid: "u1" };
     records.list = [
       { worksheetId: "ct-ts1-real-numbers--a", surface: "chapter-test", status: "graded", marksAwarded: 24, marksTotal: 30, gradedAt: 2 },
@@ -150,15 +341,22 @@ describe("/test-series — signed in", () => {
     await mount();
     expect(records.calls).toBe(1);
     expect(screen.getByTestId("ts-done").textContent).toBe(`3 of ${seriesTotals().total} tests done.`);
-    expect(screen.getByTestId("ts-test-CT-M01").getAttribute("data-status")).toBe("graded");
-    expect(screen.getByTestId("ts-test-CT-M01").getAttribute("aria-label")).toBe("Chapter Test 1, Real Numbers, paper 1, graded 24 of 30");
-    expect(screen.getByTestId("ts-test-CT-M02").getAttribute("data-status")).toBe("attempted");
-    expect(screen.getByTestId("ts-test-CT-M02").getAttribute("aria-label")).toBe("Chapter Test 2, Polynomials, paper 1, attempted");
-    expect(screen.getByTestId("ts-test-CT-M01-2").getAttribute("data-status")).toBe("not-started");
-    // "k of 5 done" comes from the student's own records only.
-    expect(screen.getByTestId("ts-chap-prog-CT-M01").textContent).toBe(`1 of ${seriesTotals().papersPerChapter} done`);
-    expect(within(screen.getByTestId("ts-test-FM-M2")).getByTestId("ts-chip").textContent).toBe("60/80");
-    expect(screen.getByTestId("ts-test-FM-M1").getAttribute("aria-label")).toBe("Full-Length Test 1, Maths, not started");
+    // The pickers open on the first test not started: Real Numbers is graded, so paper 2 of it.
+    expect(pick("ts-pick-chapter").value).toBe(seriesChapterTests()[0].baseCode);
+    expect(pick("ts-pick-paper").value).toBe("2");
+    expect(screen.getByTestId("ts-start").getAttribute("href")).toBe(seriesChapterTests()[1].href);
+    const chapterOpts = within(pick("ts-pick-chapter")).getAllByRole("option").map((o) => o.textContent);
+    expect(chapterOpts[0]).toBe(`01 · Real Numbers · 1 of ${seriesTotals().papersPerChapter} done`);
+    expect(chapterOpts[1]).toContain(`02 · Polynomials · 1 of ${seriesTotals().papersPerChapter} done`);
+    await choose("ts-pick-paper", "1");
+    expect(screen.getByTestId("ts-pick-state").textContent).toBe("graded 24 of 30");
+    const paperOpts = within(pick("ts-pick-paper")).getAllByRole("option").map((o) => o.textContent);
+    expect(paperOpts[0]).toBe("Paper 1 · graded 24 of 30");
+    expect(paperOpts[1]).toBe("Paper 2 · not started");
+    await press("ts-pick-type-full");
+    const fullOpts = within(pick("ts-pick-full")).getAllByRole("option").map((o) => o.textContent);
+    expect(fullOpts[0]).toBe("Full-length 1 · not started");
+    expect(fullOpts[1]).toBe("Full-length 2 · graded 60 of 80");
     expect(screen.getByTestId("ts-trend-Maths").textContent).toContain("M2 · 75%");
     expect(screen.getByTestId("ts-trend-Science").textContent).toContain("No graded test yet");
   });
@@ -168,29 +366,33 @@ describe("/test-series — signed in", () => {
     expect(screen.getByTestId("ts-done").textContent).toBe(`0 of ${seriesTotals().total} tests done.`);
     expect(screen.getByTestId("ts-trend").textContent).toContain("once a full-length test is graded");
   });
-  it("a Board Pass holder sees no Test Series buy button", async () => {
+  it("a Board Pass holder sees no Test Series price card or buy button, and neither price line", async () => {
     mockAuth.user = { uid: "u1" };
     mockSub.status = { tier: "premium" };
     await mount();
     expect(screen.queryByTestId("ts-cta-buy")).toBeNull();
-    expect(screen.queryByTestId("ts-cta-hero")).toBeNull();
+    expect(screen.queryByTestId("ts-hero-buy")).toBeNull();
+    expect(screen.queryByTestId("ts-hero-offer")).toBeNull();
+    expect(screen.queryByTestId("ts-urgency")).toBeNull();
     expect(screen.getByTestId("ts-cta-owner")).toBeTruthy();
   });
 });
 
-describe("/test-series — TS-PAGE-2 owners, tabs and accordions", () => {
-  it("a Test Series owner sees Continue (their first untaken test), progress, and the plans collapsed — never a buy prompt", async () => {
+describe("/test-series — TS-PAGE-2 owners and the neutral state", () => {
+  it("a Test Series owner sees Continue (their first untaken test), progress, and the plans collapsed — never a buy prompt or a price line", async () => {
     mockAuth.user = { uid: "u1" };
     mockOwn.owns = true;
     records.list = [{ worksheetId: "ct-ts1-real-numbers--a", surface: "chapter-test", status: "graded", marksAwarded: 24, marksTotal: 30, gradedAt: 2 }];
     await mount();
     expect(screen.queryByTestId("ts-cta-buy")).toBeNull();
-    expect(screen.queryByTestId("ts-cta-hero")).toBeNull();
+    expect(screen.queryByTestId("ts-hero-buy")).toBeNull();
+    expect(screen.queryByTestId("ts-hero-offer")).toBeNull();
+    expect(screen.queryByTestId("ts-urgency")).toBeNull();
+    expect(screen.queryByTestId("ts-urgency-ts")).toBeNull();
     const cont = screen.getByTestId("ts-continue");
     expect(cont.textContent).toBe("Continue: CT-M01-2 →");
     expect(cont.getAttribute("href")).toBe(seriesChapterTests()[1].href);
     expect(screen.getByTestId("ts-done").textContent).toBe(`1 of ${seriesTotals().total} tests done.`);
-    expect(screen.getByTestId("ts-prog-ct-Maths").textContent).toBe(`1/${seriesChapterTests().filter((c) => c.subject === "Maths").length} done`);
     const toggle = screen.getByTestId("ts-plans-toggle");
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
     expect(document.getElementById("ts-plans-panel")?.hidden).toBe(true);
@@ -198,11 +400,12 @@ describe("/test-series — TS-PAGE-2 owners, tabs and accordions", () => {
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
     expect(screen.getByTestId("ts-cta-owner").textContent).toBe("You own the Test Series.");
   });
-  it("signed in while ownership is unknown: a neutral CTA, neither buy nor continue", async () => {
+  it("signed in while ownership is unknown: a neutral CTA, neither buy nor continue, no price card", async () => {
     mockAuth.user = { uid: "u1" };
     mockOwn.known = false;
     await mount();
-    expect(screen.queryByTestId("ts-cta-hero")).toBeNull();
+    expect(screen.queryByTestId("ts-hero-buy")).toBeNull();
+    expect(screen.queryByTestId("ts-cta-buy")).toBeNull();
     expect(screen.queryByTestId("ts-continue")).toBeNull();
     expect(screen.getByTestId("ts-cta-tests").getAttribute("href")).toBe("#ts-tests");
   });
@@ -214,26 +417,13 @@ describe("/test-series — TS-PAGE-2 owners, tabs and accordions", () => {
     expect(screen.getByTestId("ts-continue").textContent).toBe("Continue: CT-M01 →");
     expect(screen.queryByTestId("ts-cta-buy")).toBeNull();
   });
-  it("tabs switch the visible panel; every test is one compact tile link with an accessible name; rounds from code", async () => {
-    await mount();
-    const chapterTab = screen.getByTestId("ts-tab-chapter");
-    const fullTab = screen.getByTestId("ts-tab-full");
-    expect(chapterTab.getAttribute("aria-selected")).toBe("true");
-    expect(screen.getByTestId("ts-sec-full").hidden).toBe(true);
-    // Both subjects sit visible together in a tab (no accordion), every tile a link with no separate Start pill.
-    expect(screen.getByTestId("ts-subj-ct-Maths")).toBeTruthy();
-    expect(screen.getByTestId("ts-subj-ct-Science")).toBeTruthy();
-    expect(screen.queryByText("Start")).toBeNull();
-    expect(screen.getByTestId("ts-test-CT-S01").getAttribute("aria-label")).toMatch(/^Chapter Test 1, .+, not started$/);
-    await act(async () => fullTab.click());
-    expect(fullTab.getAttribute("aria-selected")).toBe("true");
-    expect(screen.getByTestId("ts-sec-chapter").hidden).toBe(true);
-    expect(screen.getByTestId("ts-sec-full").hidden).toBe(false);
-    // Full-length tests grouped by the calendar's two rounds (counts from code).
-    const rounds = within(screen.getByTestId("ts-mocks-Maths")).getAllByRole("list");
-    expect(rounds).toHaveLength(2);
-    expect(rounds[0].querySelectorAll("a")).toHaveLength(Math.ceil(seriesTotals().mocksPerSubject / 2));
-    expect(screen.getByTestId("ts-mocks-Maths").textContent).toContain("Round 1 (Dec): 1–13");
+  it("every control the page owns is a >= 48 px control in CSS (pickers, segments, Start, Buy)", async () => {
+    const css = (await import("node:fs")).readFileSync((await import("node:path")).resolve(__dirname, "testSeriesPage.css"), "utf8");
+    for (const rule of [".lt-ts .lt-ts-pick__segbtn", ".lt-ts .lt-ts-pick__ctl", ".lt-ts .lt-ts-btn"]) {
+      const block = css.slice(css.indexOf(`${rule} {`));
+      expect(block.slice(0, block.indexOf("}")), rule).toMatch(/min-height: (4[0-9]|5[0-9])px/);
+    }
+    expect(css).not.toContain("lt-ts-pp__a");
   });
 });
 

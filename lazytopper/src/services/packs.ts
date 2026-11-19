@@ -518,7 +518,7 @@ export function packCheckoutDescription(sku: PackSku, target: string | undefined
     case "pack_bundle":
       return `Maths + Science Bundle · all ${BUNDLE_CHAPTERS} chapters + ${BUNDLE_MOCKS} mocks`;
     case "test_series":
-      return `Test Series Pack · Maths + Science · written answers checked step by step, ${TEST_SERIES_CHECKS_PER_PAPER} per paper`;
+      return `Test Series Pack · Maths + Science · written answers checked step by step, ${TEST_SERIES_CHECKS_PER_PAPER} checks per paper`;
   }
 }
 

@@ -11,9 +11,22 @@
   padding: 22px 0 24px;
 }
 .lt-ts-hero__in {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+.lt-ts-hero__copy,
+.lt-ts-hero__more {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 0;
+}
+.lt-ts-hero__side {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
 .lt-ts-hero__eyebrow {
   color: #6ee7a8;
@@ -41,43 +54,14 @@
   font-weight: 700;
   color: #6ee7a8;
 }
-.lt-ts-stats {
-  list-style: none;
-  margin: 4px 0 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-.lt-ts-stats li {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  text-align: center;
-}
-.lt-ts-stats strong {
-  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
-  font-size: 1.45rem;
-  line-height: 1.1;
-  color: #ffffff;
-}
-.lt-ts-stats span {
-  font-size: 0.72rem;
-  line-height: 1.25;
-  color: #c4d0e4;
-}
-/* One line reserved (two at 320 px): the founding line arrives after mount and is stripped from the static file. */
-.lt-ts-hero__urgency {
-  margin: 0;
+/* TS-UX-PAGE-1: the Board Pass founding line, now beside the plan comparison (reserved height: written after mount). */
+.lt-ts-plans__urgency {
+  margin: 0 0 12px;
   min-height: 2.6em;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   line-height: 1.3;
-  color: #f5c668;
-  font-weight: 600;
+  color: #8a5a00;
+  font-weight: 700;
 }
 .lt-ts-hero__cta {
   min-height: 48px;
@@ -216,17 +200,27 @@
   color: var(--lt-sp-ink-2);
 }
 
-/* Tabs (segmented control). */
-.lt-ts-tabs {
+/* ── TS-UX-PAGE-1: "Take a test" - subject, type, chapter + paper selects, ONE Start. Every control >= 48 px. ──────────────── */
+.lt-ts-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 640px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid var(--lt-sp-line);
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(11, 27, 58, 0.06);
+}
+.lt-ts-pick__seg {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4px;
   padding: 4px;
-  margin-bottom: 12px;
   background: #e8edf5;
   border-radius: 14px;
 }
-.lt-ts .lt-ts-tab {
+.lt-ts .lt-ts-pick__segbtn {
   min-height: 48px;
   padding: 6px 8px;
   border: 0;
@@ -234,271 +228,78 @@
   background: transparent;
   color: var(--lt-sp-ink-2);
   font: inherit;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 700;
   cursor: pointer;
 }
-.lt-ts .lt-ts-tab[aria-selected="true"] {
+.lt-ts .lt-ts-pick__segbtn[aria-pressed="true"] {
   background: var(--lt-sp-navy);
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(11, 27, 58, 0.18);
 }
-.lt-ts .lt-ts-tab:focus-visible,
+.lt-ts .lt-ts-pick__segbtn:focus-visible,
+.lt-ts .lt-ts-pick__ctl:focus-visible,
 .lt-ts .lt-ts-acc__btn:focus-visible {
   outline: 3px solid var(--lt-sp-green);
   outline-offset: 2px;
 }
-.lt-ts-tab__n {
-  display: inline-block;
-  min-width: 1.8em;
-  margin-left: 4px;
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: rgba(34, 181, 115, 0.18);
-  font-size: 0.78rem;
-}
-.lt-ts-panel[hidden] {
-  display: none;
-}
-
-/* TS-PAGE-2 (owner: "far fewer scrolls") — compact tiles. Each test is one small tile; the whole tile is the link. */
-.lt-ts-panel__lede {
-  margin: 0 0 8px;
-  font-size: 0.82rem;
-  color: var(--lt-sp-ink-2);
-}
-.lt-ts-legend {
-  list-style: none;
-  margin: 0 0 8px;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  font-size: 0.74rem;
-  color: var(--lt-sp-ink-2);
-}
-.lt-ts-legend li {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.lt-ts-subj + .lt-ts-subj {
-  margin-top: 12px;
-}
-.lt-ts-subj__h {
-  display: flex;
-  align-items: center;
+.lt-ts-pick__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
-  margin: 0 0 6px;
-  font-size: 0.98rem;
+}
+.lt-ts-pick__fld {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.lt-ts-pick__lbl {
+  font-size: 0.78rem;
   font-weight: 700;
+  color: var(--lt-sp-ink-2);
+}
+.lt-ts .lt-ts-pick__ctl {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid #c3cde0;
+  border-radius: 12px;
+  background: #f8fafd;
   color: var(--lt-sp-ink);
+  font: inherit;
+  font-size: 1rem;
+}
+.lt-ts-pick__go {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lt-ts .lt-ts-pick__btn {
+  width: 100%;
+  text-align: center;
+}
+.lt-ts-pick__state {
+  margin: 0;
+  min-height: 1.3em;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--lt-sp-ink-2);
 }
 .lt-ts-mini {
-  flex: 1 1 auto;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 8px;
   min-width: 0;
   min-height: 20px;
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--lt-sp-ink-2);
 }
 .lt-ts-mini__bar {
-  width: 64px;
+  width: 96px;
   height: 6px;
   accent-color: var(--lt-sp-green);
-}
-.lt-ts-tiles {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-}
-.lt-ts-tiles--mocks {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-/* TS-MORE-1: a chapter card = number + "k of 5 done", the chapter name, and its papers as five small numbered chips. Fixed height. */
-.lt-ts-chaps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-}
-.lt-ts .lt-ts-chap {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  height: 92px;
-  padding: 6px 8px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: 1px solid var(--lt-sp-line);
-  overflow: hidden;
-}
-.lt-ts-chap__top {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 6px;
-}
-.lt-ts-chap__prog {
-  font-size: 0.64rem;
-  font-weight: 700;
-  color: var(--lt-sp-ink-2);
-  white-space: nowrap;
-}
-.lt-ts-chap__name {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  font-size: 0.74rem;
-  font-weight: 600;
-  line-height: 1.22;
-  color: var(--lt-sp-ink);
-  flex: 1 1 auto;
-  min-height: 0;
-}
-.lt-ts-pp {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 4px;
-}
-.lt-ts .lt-ts-pp__a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 26px;
-  border-radius: 7px;
-  border: 1.5px solid #9aa7bb;
-  background: #ffffff;
-  color: var(--lt-sp-ink);
-  font-size: 0.78rem;
-  font-weight: 800;
-  text-decoration: none;
-}
-.lt-ts .lt-ts-pp__a[data-status="attempted"] {
-  border-color: var(--lt-sp-amber-deep);
-  background: var(--lt-sp-amber);
-}
-.lt-ts .lt-ts-pp__a[data-status="graded"] {
-  border-color: var(--lt-sp-green-deep);
-  background: var(--lt-sp-green);
-  color: #ffffff;
-}
-.lt-ts .lt-ts-pp__a:hover,
-.lt-ts .lt-ts-pp__a:focus-visible {
-  border-color: var(--lt-sp-green);
-}
-.lt-ts .lt-ts-pp__a:focus-visible {
-  outline: 3px solid var(--lt-sp-green);
-  outline-offset: 1px;
-}
-.lt-ts .lt-ts-tile {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  height: 64px;
-  padding: 6px 8px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: 1px solid var(--lt-sp-line);
-  color: var(--lt-sp-ink);
-  text-decoration: none;
-  overflow: hidden;
-}
-.lt-ts .lt-ts-tile--mock {
-  height: 48px;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-}
-.lt-ts .lt-ts-tile:hover,
-.lt-ts .lt-ts-tile:focus-visible {
-  border-color: var(--lt-sp-green);
-  background: #f1fbf5;
-}
-.lt-ts .lt-ts-tile:focus-visible {
-  outline: 3px solid var(--lt-sp-green);
-  outline-offset: 1px;
-}
-.lt-ts-tile__num {
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: var(--lt-sp-green-deep);
-  line-height: 1.1;
-}
-.lt-ts-tile--mock .lt-ts-tile__num {
-  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
-  font-size: 1rem;
-  color: var(--lt-sp-navy);
-}
-.lt-ts-tile__name {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  padding-right: 10px;
-  font-size: 0.74rem;
-  font-weight: 600;
-  line-height: 1.22;
-}
-/* Status: a dot in the tile's top-right corner; a graded test shows its score along the bottom. */
-.lt-ts-st {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.lt-ts-tile .lt-ts-st {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-}
-.lt-ts-st__dot {
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  border: 1.5px solid #9aa7bb;
-  background: #ffffff;
-}
-.lt-ts-st--attempted .lt-ts-st__dot {
-  border-color: var(--lt-sp-amber-deep);
-  background: var(--lt-sp-amber);
-}
-.lt-ts-st--graded .lt-ts-st__dot {
-  border-color: var(--lt-sp-green-deep);
-  background: var(--lt-sp-green);
-}
-.lt-ts-st__score {
-  font-size: 0.66rem;
-  font-weight: 800;
-  color: var(--lt-sp-green-dark);
-}
-.lt-ts-tile .lt-ts-st__score {
-  position: absolute;
-  right: 0;
-  top: 0;
-  transform: translate(-14px, -1px);
-  white-space: nowrap;
-}
-.lt-ts-round + .lt-ts-round {
-  margin-top: 6px;
-}
-.lt-ts-round__h {
-  margin: 0 0 4px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: var(--lt-sp-ink-2);
 }
 
 /* Score trend. */
@@ -720,18 +521,58 @@
   color: var(--lt-sp-ink);
 }
 
-/* ── Tablet ───────────────────────────────────────────────────────────── */
-@media (min-width: 480px) {
-  .lt-ts-tiles {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-  .lt-ts-chaps {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .lt-ts-tiles--mocks {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
+/* TS-UX-PAGE-1: the compact offer card in the hero (white on navy), its validity + checks lines, the in-place buy's status lines. */
+.lt-ts .lt-ts-offer--hero {
+  color: var(--lt-sp-ink-2);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
 }
+.lt-ts-offer__valid {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--lt-sp-ink-2);
+}
+.lt-ts-offer__checks {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--lt-sp-ink-2);
+}
+.lt-ts-buynote {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: var(--lt-sp-ink-2);
+}
+.lt-ts-buynote--bad {
+  color: #b42318;
+  font-weight: 700;
+}
+.lt-ts .lt-tsclk {
+  display: inline-block;
+  min-height: 1.2em;
+  vertical-align: top;
+}
+.lt-ts .lt-tsclk--amt {
+  min-width: 5.5ch;
+}
+.lt-ts button.lt-ts-btn {
+  cursor: pointer;
+  font-family: inherit;
+}
+.lt-ts button.lt-ts-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.lt-ts-foot a,
+.lt-ts-foot button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* ── Tablet ───────────────────────────────────────────────────────────── */
 @media (min-width: 768px) {
   .lt-ts .lt-ts-hero {
     padding: 32px 0 30px;
@@ -742,11 +583,24 @@
   .lt-ts-hero__h1-l {
     display: block;
   }
-  .lt-ts-stats {
-    max-width: 520px;
-  }
-  .lt-ts-hero__urgency {
+  .lt-ts-plans__urgency {
     min-height: 1.4em;
+  }
+  .lt-ts-pick__row {
+    grid-template-columns: minmax(0, 1fr) 180px;
+    align-items: end;
+  }
+  .lt-ts-pick__row .lt-ts-pick__fld--wide:only-child {
+    grid-column: 1 / -1;
+  }
+  .lt-ts-pick__go {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+  .lt-ts .lt-ts-pick__btn {
+    width: auto;
+    min-width: 260px;
   }
   .lt-ts .lt-ts-hero__cta .lt-ts-btn {
     width: auto;
@@ -754,22 +608,10 @@
   .lt-ts-cal {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-  .lt-ts-tiles {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-  .lt-ts-chaps {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-  .lt-ts-tiles--mocks {
-    grid-template-columns: repeat(10, minmax(0, 1fr));
-  }
   .lt-ts-offers {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-width: 860px;
     align-items: stretch;
-  }
-  .lt-ts-tabs {
-    max-width: 520px;
   }
 }
 
@@ -785,6 +627,25 @@
   .lt-ts-hero__lede {
     font-size: 1.05rem;
     max-width: 720px;
+  }
+  /* The empty right half of the hero holds the offer card: price, validity and Buy beside the headline. */
+  .lt-ts-hero__in {
+    grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+    grid-template-areas:
+      "copy side"
+      "more side";
+    grid-template-rows: auto 1fr;
+    column-gap: 40px;
+    align-items: start;
+  }
+  .lt-ts-hero__copy {
+    grid-area: copy;
+  }
+  .lt-ts-hero__more {
+    grid-area: more;
+  }
+  .lt-ts-hero__side {
+    grid-area: side;
   }
   .lt-ts .lt-ts-sec {
     margin-top: 34px;
