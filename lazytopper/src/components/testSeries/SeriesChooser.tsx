@@ -15,7 +15,8 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { isPaidPremium } from "../../services/subscriptionService";
-import { isTestSeriesPackOffered, packPriceLabel } from "../../services/packs";
+import { isTestSeriesPackOffered, testSeriesPriceLine } from "../../services/packs";
+import { TsClockSlot } from "../packs/TestSeriesFoundingClause";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { withQuery } from "../../lib/desktop/navigation";
 import { useNavigateAfterPaint } from "../../lib/useNavigateAfterPaint";
@@ -126,7 +127,7 @@ export default function SeriesChooser({
     if (!signedIn) freeTag = `${FREE_TESTS_ALLOWED} free test`;
     else if (testsTaken !== null) freeTag = testsTaken < FREE_TESTS_ALLOWED ? `${FREE_TESTS_ALLOWED} free test` : "Free test used";
   }
-  const priceLine = accessKnown && !entitled && isTestSeriesPackOffered() ? `${packPriceLabel("test_series")} till your boards` : null;
+  const priceLine = accessKnown && !entitled && isTestSeriesPackOffered() ? testSeriesPriceLine(Date.now()) : null;
 
   // ── Derived selections ──
   const rows = useMemo(() => chapterRows(subject, progress, papersPerChapter, paperProg), [subject, progress, papersPerChapter, paperProg]);
@@ -218,7 +219,7 @@ export default function SeriesChooser({
             {freeTag ?? ""}
           </span>
           <span className="lt-tsc-price" data-testid="ts-price">
-            {priceLine ?? ""}
+            {priceLine ? <TsClockSlot variant="line" testId="ts-price-clock">{priceLine}</TsClockSlot> : null}
           </span>
           <Link className="lt-tsc-more" to={TEST_SERIES_PATH} onClick={onClose} data-testid="ts-more">
             How it works

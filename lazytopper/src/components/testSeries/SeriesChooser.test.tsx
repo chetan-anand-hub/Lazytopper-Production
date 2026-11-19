@@ -19,6 +19,7 @@ vi.mock("../../services/sessionRecords", () => ({ getSessionRecordsFromCloud: as
 vi.mock("./testSeriesOwnership", () => ({ useTestSeriesOwnership: () => ({ owns: false, status: null, phase: "ready", retry: () => {} }) }));
 
 import SeriesChooser from "./SeriesChooser";
+import { testSeriesPriceLine } from "../../services/packs";
 import { SERIES_MOCKS_PER_SUBJECT, seriesMockRounds, chapterTestSeriesHref } from "../../lib/testSeries/testSeries";
 
 function Probe() {
@@ -109,12 +110,26 @@ describe("SeriesChooser — full-length", () => {
   });
 });
 
+describe("SeriesChooser — price line (TS-PRICE-2 helpers, in a clock slot)", () => {
+  afterEach(() => vi.useRealTimers());
+  it.each([
+    ["2026-11-19T10:00:00+05:30", /^₹999 \+ GST · founding price till 30 Nov, then ₹1,499 \+ GST$/],
+    ["2026-12-02T10:00:00+05:30", /^₹1,499 \+ GST$/],
+  ])("at %s", async (iso, re) => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(iso));
+    await mount();
+    expect(screen.getByTestId("ts-price").textContent).toMatch(re);
+  });
+});
+
 describe("SeriesChooser — access tiers (display only; routes keep their gates)", () => {
   it("signed-in free account that has not used its test: '1 free test' + price; the fresh options are offered", async () => {
     auth.user = { uid: "s1", isLocalSession: false };
     await mount();
     expect(await screen.findByText("1 free test")).toBeInTheDocument();
-    expect(screen.getByTestId("ts-price").textContent).toContain("till your boards");
+    expect(screen.getByTestId("ts-price").textContent).toBe(testSeriesPriceLine(Date.now()));
+    expect(screen.getByTestId("ts-price-clock").closest(".lt-tsclk")).not.toBeNull(); // inside the clock slot
     expect(screen.getByTestId("ts-fresh")).toBeEnabled();
   });
   it("a free account that used its test: 'Free test used'", async () => {

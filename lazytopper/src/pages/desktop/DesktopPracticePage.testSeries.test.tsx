@@ -7,6 +7,7 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 import { buildDesktopChapterTestPath } from "../../lib/desktop/navigation";
 import { chapterTestSeriesHref, fullMockSeriesHref, seriesTotals } from "../../lib/testSeries/testSeries";
+import { testSeriesPriceLine } from "../../services/packs";
 import { hubCardLine } from "../../components/testSeries/hubTsFlag";
 
 const auth = vi.hoisted(() => ({ user: null as null | { uid: string } }));
@@ -153,7 +154,7 @@ describe("HUB-TS-1 — the Test Series card", () => {
     await renderHub(`${HUB}?ct=1`);
     await chooser();
     expect(screen.getByTestId("ts-free-tag").textContent).toBe("1 free test");
-    expect(screen.getByTestId("ts-price").textContent).toMatch(/^₹999.* till your boards$/);
+    expect(screen.getByTestId("ts-price").textContent).toBe(testSeriesPriceLine(Date.now()));
     for (const el of screen.getAllByTestId("ts-chapter-progress")) expect(el.textContent).toBe("");
   });
 
