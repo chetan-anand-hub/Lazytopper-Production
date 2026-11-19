@@ -1,7 +1,7 @@
 /** PAID-XSELL-1 - the selection matrix: each bought product x owned state x Test Series paused -> the exact items, best first. */
 import { describe, expect, it } from "vitest";
 import { GST_EXCLUSIVE_FROM_MS, boardPassPayDisplay, boardPassPriceDisplay, formatInr } from "../../config/pricing";
-import { packPayLabel, packPriceLabel } from "../../services/packs";
+import { packPayLabel, packPriceLabel, testSeriesFoundingClause, testSeriesPriceLine } from "../../services/packs";
 import { seriesTotals } from "../../lib/testSeries/testSeries";
 import {
   BOARD_PASS_XSELL_BENEFIT,
@@ -148,7 +148,9 @@ describe("PAID-XSELL-1 - prices, copy and links", () => {
   });
   it("Test Series and PDF cards use the pack price tags, the code's own counts, and the existing buy paths", () => {
     const [ts, , cbq] = pickPaidCrossSell(base({ bought: "pdf" }));
-    expect(ts.price).toBe(packPriceLabel("test_series", NOW));
+    // TS-PRICE-2 (edited expectation): the Test Series suggestion carries the founding line while the offer is open.
+    expect(ts.price).toBe(testSeriesPriceLine(NOW));
+    expect(ts.price).toBe(`${packPriceLabel("test_series", NOW)} \u00b7 ${testSeriesFoundingClause(NOW)}`);
     expect(ts.href).toBe("/packs?buy=test_series");
     expect(ts.cta).toBe(`Add the Test Series — ${packPayLabel("test_series", NOW)}`);
     expect(testSeriesXsellBenefit()).toBe(`Get your written answers checked step by step, 2 checks per paper, ${seriesTotals().total} board-pattern tests`);

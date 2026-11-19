@@ -11,7 +11,7 @@
 // regardless of auth — MockViewGate on the TARGET route owns all gating (a
 // loginUrl wrapper here would be the forbidden second gate).
 
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useParams } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
@@ -35,7 +35,13 @@ vi.mock("../../services/firebaseClient", () => ({ firestoreDb: null }));
 
 import DesktopPracticePage from "./DesktopPracticePage";
 
-afterEach(cleanup);
+// HUB-TS-1: this file pins TODAY's hub (the "Chapter Tests" card + picker and the step-2 "Full Test" card). That hub is exactly what
+// the kill switch restores, so the pins run under it; DesktopPracticePage.testSeries.test.tsx covers the Test Series hub.
+beforeEach(() => vi.stubEnv("VITE_HUB_TS_DISABLED", "1"));
+afterEach(() => {
+  cleanup();
+  vi.unstubAllEnvs();
+});
 
 /** Probe standing in for App.tsx's real route — the same
  *  `/full-mock/:grade/:subject` pattern that mounts the Full Test surface. */

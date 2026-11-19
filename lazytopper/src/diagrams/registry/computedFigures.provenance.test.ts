@@ -15,7 +15,8 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
+import { RAW_CANONICAL_QUESTION_BANK, WITHHELD_QUESTION_IDS, canonicalQuestionBank } from "../../data/canonicalQuestionBank";
+import { BANK_RETIRE_1_OWNER_WITHHOLD_IDS, BANK_RETIRE_1_WITHHELD_SET } from "../../data/bankFix/bankRetire1Withholds";
 import { highlyProbableQuestions } from "../../data/highlyProbableQuestions";
 import { ALL_COMPUTED_FIGURE_BINDINGS, ALL_CROP_FIGURE_BINDINGS, ALL_SOLUTION_FIGURE_BINDINGS, buildComputedFigure } from "./index";
 import type { CropFigureBinding, ProvenanceField } from "./computedFigureTypes";
@@ -27,6 +28,12 @@ type Row = Record<string, unknown>;
 const served = new Map<string, Row>();
 for (const q of canonicalQuestionBank as unknown as Row[]) served.set(String(q.id), q);
 for (const b of highlyProbableQuestions) for (const q of b.questions as unknown as Row[]) if (!served.has(String(q.id))) served.set(String(q.id), q);
+
+// BANK-RETIRE-1 (19 Nov 2026): a row retired from serving keeps its figure binding (nothing is deleted; the repair PR serves the row again). Its provenance
+// and answer checks run against the RAW bank row, which is byte-for-byte what was served before; the SERVED check becomes "withheld, and present in the raw bank".
+const RETIRED = (id: string) => BANK_RETIRE_1_WITHHELD_SET.has(id) || BANK_RETIRE_1_OWNER_WITHHOLD_IDS.includes(id);
+const rawRows = new Map<string, Row>();
+for (const q of RAW_CANONICAL_QUESTION_BANK as unknown as Row[]) rawRows.set(String(q.id), q);
 
 function fieldText(r: Row, f: ProvenanceField): string {
   if (f === "questionText") return String(r.questionText ?? r.question ?? "");
@@ -68,9 +75,14 @@ describe("computed figures — provenance against the served rows", () => {
 
   for (const b of ALL_COMPUTED_FIGURE_BINDINGS.filter((x) => !STEPS1_PAUSED.has(x.questionId))) {
     describe(b.questionId, () => {
-      const row = served.get(b.questionId);
+      const retired = RETIRED(b.questionId);
+      const row = served.get(b.questionId) ?? (retired ? rawRows.get(b.questionId) : undefined);
 
-      it("is a SERVED row", () => {
+      it(retired ? "is a RETIRED row: withheld, and read from the raw bank" : "is a SERVED row", () => {
+        if (retired) {
+          expect(WITHHELD_QUESTION_IDS.has(b.questionId), `${b.questionId} retired but not withheld`).toBe(true);
+          expect(served.has(b.questionId), `${b.questionId} retired but served`).toBe(false);
+        }
         expect(row, `${b.questionId} is not served`).toBeDefined();
       });
 
@@ -117,7 +129,7 @@ const MAX_CROP_BYTES = 80 * 1024;
 /** Every reason a crop entry is not acceptable ([] = acceptable). */
 function cropProblems(c: CropFigureBinding): string[] {
   const out: string[] = [];
-  if (!served.has(c.questionId)) out.push("row not served");
+  if (!served.has(c.questionId) && !RETIRED(c.questionId)) out.push("row not served"); // a BANK-RETIRE-1 row keeps its crop (withheld, not deleted)
   if (!c.filePath.startsWith("/figures/solutions/")) out.push("not under /figures/solutions/");
   if (!/\.webp$/i.test(c.filePath)) out.push("not a .webp path");
   if (!c.alt.trim()) out.push("no alt text");

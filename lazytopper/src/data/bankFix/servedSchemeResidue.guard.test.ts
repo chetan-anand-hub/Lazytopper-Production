@@ -28,6 +28,7 @@
  * KNOWN_RESIDUE_ROWS is a ratchet: empty means no served row may carry residue. A new one goes red: clean it from the
  * row's own steps or withhold it (owner bank policy).
  */
+import { BANK_RETIRE_1_WITHHELD_SET } from "./bankRetire1Withholds";
 import { describe, expect, it } from "vitest";
 import { RAW_CANONICAL_QUESTION_BANK, WITHHELD_QUESTION_IDS, canonicalQuestionBank } from "../canonicalQuestionBank";
 import { BANK_RESIDUE_1_LEDGER, BANK_RESIDUE_1_WITHHELD_IDS } from "./bankResidue1Ledger";
@@ -157,6 +158,10 @@ describe("served rows carry no marking-scheme residue (BANK-RESIDUE-1)", () => {
     for (const e of BANK_RESIDUE_1_LEDGER) {
       expect(raw.has(e.id), e.id).toBe(true);
       if (e.verdict === "withheld") {
+        expect(WITHHELD_QUESTION_IDS.has(e.id), e.id).toBe(true);
+        expect(served.has(e.id), e.id).toBe(false);
+      } else if (BANK_RETIRE_1_WITHHELD_SET.has(e.id)) {
+        // BANK-RETIRE-1 (19 Nov 2026): a cleaned generated AI-pack row retired with the rest (owner ruling: retire, not repair) is withheld, not served.
         expect(WITHHELD_QUESTION_IDS.has(e.id), e.id).toBe(true);
         expect(served.has(e.id), e.id).toBe(false);
       } else {

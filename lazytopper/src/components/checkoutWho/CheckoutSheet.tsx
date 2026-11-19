@@ -81,7 +81,12 @@ const PostPayGst = lazy(() => import("../gstInvoice/PostPayGst"));
  * on the sheet before Razorpay opens ("₹1,917 + ₹345 GST (18%) = ₹2,262"); null/absent = nothing to break up (a pack, or
  * before 7 Nov 2026).
  */
-export type CheckoutSheetItem = GuestItem & { priceDisplay: string; priceBreakdown?: string | null };
+export type CheckoutSheetItem = GuestItem & {
+  priceDisplay: string;
+  priceBreakdown?: string | null;
+  /** TS-PRICE-2: the Test Series founding line ("₹999 + GST · founding price till 30 Nov, then ₹1,499 + GST"); absent/null = none. */
+  priceNote?: string | null;
+};
 
 /** PAY-ACCOUNT-1: the "account is ready" thank-you screen, lazy (it pulls the auth context's phone sign-in). */
 const AccountReadyPanel = lazy(() => import("./AccountReadyPanel"));
@@ -555,6 +560,9 @@ export default function CheckoutSheet({
               <p className="lt-gps__fine" data-testid="who-gst-breakdown">
                 {step.name === "self" && selfPriceDisplay ? selfPriceNote : item.priceBreakdown}
               </p>
+            )}
+            {item.priceNote && step.name !== "paid" && step.name !== "paidSelf" && step.name !== "attach" && step.name !== "holder" && (
+              <p className="lt-gps__fine" data-testid="who-founding-line">{item.priceNote}</p>
             )}
           </div>
           <button type="button" className="lt-gps__close" onClick={requestClose} disabled={busy} aria-label="Close">

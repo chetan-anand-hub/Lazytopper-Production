@@ -16,7 +16,7 @@
  * the PDF exporter live in src/lib/packs/** and are reached only through dynamic imports.
  */
 import { BUNDLE_CHAPTERS, BUNDLE_MOCKS } from "../lib/packs/packLabels";
-import { boardPassGstExclusive, displayPlusGst, gstBreakdownFor, payDisplay, priceWithGst } from "../config/pricing";
+import { FOUNDING_OFFER_LAST_DAY_LABEL, boardPassGstExclusive, displayPlusGst, foundingOfferOpen, gstBreakdownFor, payDisplay, priceWithGst } from "../config/pricing";
 import { ACTIVITY_TOPIC_SLUGS } from "./activityPages";
 import {
   authHeaders,
@@ -43,7 +43,7 @@ import { isGstBuyerCancelled } from "./gstBuyerOrder";
 /* ── catalogue ──────────────────────────────────────────────────────────────── */
 
 /**
- * TS-PACK-1: `test_series` is the Test Series Pack - ONE per student (Maths + Science), Rs 999 + GST, till 31 May 2027. It is not
+ * TS-PACK-1: `test_series` is the Test Series Pack - ONE per student (Maths + Science), Rs 999 + GST founding till 30 Nov 2026, then Rs 1,499 + GST (TS-PRICE-2), till 31 May 2027. It is not
  * a PDF pack: it unlocks the Test Series papers and checks written answers on them, 2 per paper (the server decides both).
  */
 export type PackSku = "pack_chapter" | "pack_mock" | "pack_subject" | "pack_bundle" | "pack_cbq" | "test_series";
@@ -74,6 +74,9 @@ export function chaptersOfSubject(subject: PackSubject): string[] {
 /**
  * Display prices, rupees. COPY ONLY: the server decides the charge (contract §1) and the checkout
  * charges the server's order amount. A test pins these against the contract table.
+ *
+ * ★ TS-PRICE-2: `test_series` here is the FOUNDING figure only. The Test Series base is TIME-DEPENDENT (999 until the Board Pass
+ *   founding offer closes, 1,499 from 00:00 IST 1 Dec 2026): read an amount with `packBaseInr(sku, now)`, never `PACK_PRICE_INR[sku]`.
  */
 export const PACK_PRICE_INR: Readonly<Record<PackSku, number>> = {
   pack_chapter: 49,
@@ -84,24 +87,59 @@ export const PACK_PRICE_INR: Readonly<Record<PackSku, number>> = {
   test_series: 999,
 };
 
+/** TS-PRICE-2 (owner ruling 19 Nov 2026): the Test Series founding base (till the cut-off) and list base (from it). Mirrors server packProducts.cjs. */
+export const TEST_SERIES_FOUNDING_INR = 999;
+export const TEST_SERIES_LIST_INR = 1499;
+
+/**
+ * TS-PRICE-2: the BASE price (before GST) of `sku` at `now`. The Test Series follows the SAME cut-off as the Board Pass founding
+ * offer (`foundingOfferOpen`); every other pack has one price. Display only - the server prices the order (packBaseInrAt).
+ */
+export function packBaseInr(sku: PackSku, now: Date | number = Date.now()): number {
+  if (sku === "test_series") return foundingOfferOpen(now) ? TEST_SERIES_FOUNDING_INR : TEST_SERIES_LIST_INR;
+  return PACK_PRICE_INR[sku];
+}
+
+/**
+ * TS-PRICE-2 - the founding clause: "founding price till 30 Nov, then ₹1,499 + GST" while the founding offer is open, else null
+ * (gone from 00:00 IST 1 Dec). The date and the cut-off are the Board Pass's own constants; the list figure is TEST_SERIES_LIST_INR.
+ * No crossed-out price, no saving claim.
+ */
+export function testSeriesFoundingClause(now: Date | number = Date.now()): string | null {
+  if (!foundingOfferOpen(now)) return null;
+  const [day = "", month = ""] = FOUNDING_OFFER_LAST_DAY_LABEL.split(" ");
+  return `founding price till ${day} ${month.slice(0, 3)}, then ${displayPlusGst(TEST_SERIES_LIST_INR, now)}`;
+}
+/**
+ * TS-PRICE-2 - the ONE Test Series price line every card shows: "₹999 + GST · founding price till 30 Nov, then ₹1,499 + GST"
+ * while the founding offer is open; "₹1,499 + GST" from the cut-off on.
+ */
+export function testSeriesPriceLine(now: Date | number = Date.now()): string {
+  const clause = testSeriesFoundingClause(now);
+  const tag = packPriceLabel("test_series", now);
+  return clause ? `${tag} \u00b7 ${clause}` : tag;
+}
+
 /**
  * The pack's price TAG at `now` ("₹49"; GST-EXCL-1: "₹49 + GST" from 00:00 IST 7 Nov 2026). Read at RENDER time.
  * ⚠ Never on a Buy/Pay button - a button names what is CHARGED: `packPayLabel`.
  */
 export function packPriceLabel(sku: PackSku, now: Date | number = Date.now()): string {
-  return boardPassGstExclusive(now) ? displayPlusGst(PACK_PRICE_INR[sku], now) : `₹${PACK_PRICE_INR[sku]}`;
+  const base = packBaseInr(sku, now);
+  return boardPassGstExclusive(now) ? displayPlusGst(base, now) : `₹${base}`;
 }
 /** GST-EXCL-1 - what a pack's Buy/Pay button names: the amount CHARGED ("₹49" before the cut-off; "₹58" from it). */
 export function packPayLabel(sku: PackSku, now: Date | number = Date.now()): string {
-  return boardPassGstExclusive(now) ? payDisplay(PACK_PRICE_INR[sku], now) : `₹${PACK_PRICE_INR[sku]}`;
+  const base = packBaseInr(sku, now);
+  return boardPassGstExclusive(now) ? payDisplay(base, now) : `₹${base}`;
 }
 /** GST-EXCL-1 - the rupees CHARGED for a pack at `now`. */
 export function packChargeInr(sku: PackSku, now: Date | number = Date.now()): number {
-  return priceWithGst(PACK_PRICE_INR[sku], now);
+  return priceWithGst(packBaseInr(sku, now), now);
 }
 /** GST-EXCL-1 - the checkout-step breakup for a pack ("₹49 + ₹9 GST (18%) = ₹58"); null before the cut-off. */
 export function packGstBreakdown(sku: PackSku, now: Date | number = Date.now()): string | null {
-  return gstBreakdownFor(PACK_PRICE_INR[sku], now);
+  return gstBreakdownFor(packBaseInr(sku, now), now);
 }
 
 /** TS-PACK-1: the packs bought with no target (one per student): the Bundle and the Test Series Pack (both `:all`). */

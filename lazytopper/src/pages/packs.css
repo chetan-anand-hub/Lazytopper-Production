@@ -110,3 +110,10 @@ body:not(:has([data-lt-bottomnav])) .lt-packs { padding-bottom: 28px; }
 /* PRICING-ONE-1: My packs / status line when the shop sits inside /pricing (no full-page chrome). */
 .lt-packs.lt-packs--embedded { min-height: 0; padding-bottom: 0; background: transparent; max-width: 1040px; margin: 0 auto; width: 100%; }
 .lt-pk-row__incl { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; font-weight: 700; color: hsl(152, 60%, 26%); text-decoration: none; }
+
+/* TS-PRICE-2: reserved slot for a clock-derived Test Series price (the figure inside is written after mount and stripped from the capture). */
+.lt-tsclk { display: inline-block; min-height: 1.2em; vertical-align: top; }
+.lt-tsclk--tag { min-width: 9ch; }
+.lt-tsclk--amt { min-width: 5.5ch; }
+.lt-tsclk--line { display: block; min-height: 1.3em; }
+.lt-pk-ts__found { margin: 0; padding: 2px 14px 8px; font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--pk-ink2); white-space: normal; overflow-wrap: anywhere; min-height: 2.7em; }

@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { PACK_PRICE_INR, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import { OTHER_PAYMENT_BUSY_COPY, type PacksShopApi } from "../packs/PacksShop";
+import { TsClockSlot } from "../packs/TestSeriesFoundingClause";
 import ParentReturnLink from "../parents/ParentReturnLink";
 import {
   BUNDLE_BODY,
@@ -354,7 +355,7 @@ function WhatCellView({ cell, column }: { cell: WhatCell; column: string }) {
   if (cell.kind === "price") {
     return (
       <td>
-        <strong>{cell.text}</strong>
+        <strong>{cell.clock ? <TsClockSlot variant="tag">{cell.text}</TsClockSlot> : cell.text}</strong>
       </td>
     );
   }

@@ -104,6 +104,10 @@ const slug = (chapter: string) => chapter.toLowerCase().replace(/[^a-z0-9]+/g, "
 const pr1Paths = new Set(PR1_BINDINGS.map(([, p]) => p));
 const pr1Entries = MATHS_FIGURE_VISUALS.filter((f) => pr1Paths.has(f.filePath));
 
+// BANK-RETIRE-1 addendum (19 Nov 2026, owner-approved): three rows withheld because the question needs a figure the served row lacks. Their bindings
+// are kept (declared in BOUND_BUT_WITHHELD), not deleted; the repair PR drops the declaration.
+const BANK_RETIRE_1_BOUND_BUT_WITHHELD: readonly string[] = ["APQ-M-POLY-004", "APQ-M-PLE-009", "APQ-M-STAT-008"];
+
 describe("DIAGRAMS-1 PR-1 bindings (Circles + Triangles) are exactly the eye-confirmed set", () => {
   it("the pinned set is the size this PR shipped: 39 figures for 38 rows (after the BANK-FIX merge)", () => {
     expect(PR1_BINDINGS).toHaveLength(39);
@@ -129,7 +133,7 @@ describe("DIAGRAMS-1 PR-1 bindings (Circles + Triangles) are exactly the eye-con
     // every declared row is bound by PR-1, by PR-6 (the PR-6 block below pins its own rows) or by C3 PR-D1 (pinned one by
     // one in mathsFigureVisuals.c3.test.ts; the table above lists its declared ids so this list stays closed)
     expect(BOUND_BUT_WITHHELD.filter((q) => !PR1_BINDINGS.some(([b]) => b === q) && !PR6_BINDINGS.some(([b]) => b === q)
-      && !C3_D1_BOUND_BUT_WITHHELD.includes(q) && !BANK_FIX_6_BOUND_BUT_WITHHELD.includes(q) && !GARBLE_1_BOUND_BUT_WITHHELD.includes(q))).toEqual([]);
+      && !C3_D1_BOUND_BUT_WITHHELD.includes(q) && !BANK_RETIRE_1_BOUND_BUT_WITHHELD.includes(q) && !BANK_FIX_6_BOUND_BUT_WITHHELD.includes(q) && !GARBLE_1_BOUND_BUT_WITHHELD.includes(q))).toEqual([]);
     expect(C3_D1_BOUND_BUT_WITHHELD.filter((q) => !BOUND_BUT_WITHHELD.includes(q) || getFiguresForQuestion(q).length === 0)).toEqual([]);
     // each GARBLE-1 declaration is withheld, keeps its figure (the repair PR only un-withholds), and re-serving it would be RED via the `stale` pin above
     expect(GARBLE_1_BOUND_BUT_WITHHELD.filter((q) => !BOUND_BUT_WITHHELD.includes(q) || !WITHHELD_QUESTION_IDS.has(q) || getFiguresForQuestion(q).length === 0)).toEqual([]);

@@ -13,6 +13,7 @@
  * "SYLLABUS-FIX-CONTENT PR-1" block) and the lane report.
  */
 
+import { BANK_RETIRE_1_WITHHELD_SET } from "../../data/bankFix/bankRetire1Withholds";
 import { describe, it, expect } from "vitest";
 
 import {
@@ -349,7 +350,8 @@ describe("bank: the in-place repairs stay repaired", () => {
 
   it("the pH rows carry no logarithmic working", () => {
     for (const id of ["ABS2-012", "ABS2-020", "ABS2-043", "ACID-NCERT-2-VSA-009"]) {
-      expect(servedIds.has(id)).toBe(true);
+      // BANK-RETIRE-1 (19 Nov 2026): a generated AI-pack row on the retire list is withheld, so it is no longer served; its stored steps are still checked.
+      expect(servedIds.has(id)).toBe(!BANK_RETIRE_1_WITHHELD_SET.has(id));
       expect((rawById.get(id)!.solutionSteps ?? []).join("\n")).not.toMatch(/-log|−log|logarithm|Kw|10⁻/);
     }
   });

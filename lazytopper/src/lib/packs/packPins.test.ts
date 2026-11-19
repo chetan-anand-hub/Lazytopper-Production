@@ -20,15 +20,26 @@ import { chapterPackDrawRows, drawPackWorksheetRowsSafe, hashSeed, withProvenanc
 import { allPackPins, packChapterTestPapers, packMockPapers, packPinSpec, packWorksheetRows, type PackPaperIds } from "./packPins";
 import { allPinnedSpecs } from "../testSeries/pinnedSpec";
 
-/**
- * STEPMARK-2 batch 1 (19 Nov 2026): hand-sourced Maths rows of chapters 1-4 gained [N mark] step prefixes; the seeded draws only take
- * step-marked rows, so every seeded draw touching those chapters or the Maths mocks moves. The pins (packPaperIds.json) do not.
- */
+/** BANK-RETIRE-1 (19 Nov 2026, owner ruling: retire, not repair): 515 generated AI-pack rows left the served bank, so the SEEDED draw of these 43 of the
+ *  94 pack papers moved (a smaller candidate pool). The PINNED papers did not move: all 94 are rebuilt from packPaperIds.json and are byte-identical to
+ *  trunk (measured before and after by build-and-hash). Drop an entry only by re-pinning, never silently. */
 const ACKNOWLEDGED_DRAW_DRIFT: readonly string[] = [
-  ...["real-numbers", "polynomials", "pair-of-linear-equations", "quadratic-equations"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`, `ws:${s}`]),
-  ...[1, 2, 3, 4, 5, 6, 7, 8].map((n) => `mock:maths:${n}`),
+  "ws:real-numbers", "ws:polynomials", "ws:pair-of-linear-equations", "ws:quadratic-equations",
+  "ws:arithmetic-progression", "ws:triangles", "ws:coordinate-geometry", "ct1:trigonometry",
+  "ct2:trigonometry", "ws:trigonometry", "ws:circles", "ws:areas-related-to-circles",
+  "ws:surface-areas-and-volumes", "ws:statistics", "ct1:statistics", "ct2:statistics", "ws:probability", "ct1:chemical-reactions-and-equations",
+  "ct2:chemical-reactions-and-equations", "ws:chemical-reactions-and-equations", "ws:acids-bases-and-salts", "ct2:metals-and-non-metals",
+  "ws:metals-and-non-metals", "ws:carbon-and-its-compounds", "ws:light-reflection-and-refraction", "ws:human-eye-and-colourful-world",
+  "ws:electricity", "ws:magnetic-effects-of-electric-current", "ws:life-processes", "ws:control-and-coordination",
+  "ws:how-do-organisms-reproduce", "ws:heredity", "ws:our-environment", "mock:maths:1",
+  "mock:maths:4", "mock:maths:5", "mock:maths:6", "mock:maths:7",
+  "mock:maths:8", "mock:science:3", "mock:science:5", "mock:science:6",
+  "mock:science:7",
+  // STEPMARK-2 batch 1 (19 Nov 2026): the step-mark prefixes on hand-sourced Maths ch 1-4 rows also moved these seeded draws; the pins did not.
+  ...["real-numbers", "polynomials", "pair-of-linear-equations", "quadratic-equations"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
+  "mock:maths:2", "mock:maths:3",
 ];
-const acked = (k: string) => ACKNOWLEDGED_DRAW_DRIFT.includes(k);
+const ack = (k: string) => ACKNOWLEDGED_DRAW_DRIFT.includes(k);
 const FILE = resolve(__dirname, "packPaperIds.json");
 
 beforeAll(async () => {
@@ -90,30 +101,38 @@ describe("PACK-PIN-1 pins file", () => {
 });
 
 describe("PACK-PIN-1 pinned builds equal the seeded draws", () => {
-  it("Chapter Tests 1/2, Worksheets and Mocks: same papers (JSON-identical) as the draw", async () => {
+  it("Chapter Tests 1/2, Worksheets and Mocks: same papers (JSON-identical) as the draw; an acknowledged drift keeps exactly its pinned ids", async () => {
     for (const slug of PACK_CHAPTER_SLUGS) {
       const drawRows = chapterPackDrawRows(slug);
-      if (!acked(`ct1:${slug}`) && !acked(`ct2:${slug}`)) {
-        const pinned = await packChapterTestPapers(slug, drawRows);
-        const drawn = drawPackChapterTests(slug, drawRows).map(({ n, drawn }) => ({ n, paper: drawn.paper }));
+      const pinned = await packChapterTestPapers(slug, drawRows);
+      const drawn = drawPackChapterTests(slug, drawRows).map(({ n, drawn }) => ({ n, paper: drawn.paper }));
+      if (ack(`ct1:${slug}`) || ack(`ct2:${slug}`)) {
+        for (const x of pinned) expect(x.paper.questions.map((q) => String(q.id)), `${slug} CT${x.n} keeps its pin`).toEqual(packPinSpec(`ct${x.n}:${slug}`)!.ids);
+      } else {
         expect(JSON.stringify(pinned), `${slug} CT`).toBe(JSON.stringify(drawn));
       }
-      if (acked(`ws:${slug}`)) continue;
       const ws = await packWorksheetRows(slug, drawRows);
-      expect(JSON.stringify(ws), `${slug} WS`).toBe(JSON.stringify(drawPackWorksheetRowsSafe(drawRows, hashSeed(`pack-paper:${slug}:ws1`))));
+      if (ack(`ws:${slug}`)) expect(ws.map((q) => String(q.id)), `${slug} WS keeps its pin`).toEqual(packPinSpec(`ws:${slug}`)!.ids);
+      else expect(JSON.stringify(ws), `${slug} WS`).toBe(JSON.stringify(drawPackWorksheetRowsSafe(drawRows, hashSeed(`pack-paper:${slug}:ws1`))));
     }
     for (const subject of PACK_SUBJECTS) {
-      if (acked(`mock:${subject}:1`)) continue;
       const pinned = await packMockPapers(subject);
       const drawn = drawPackMocks(subject).map(({ n, drawn, name }) => ({ n, paper: drawn.paper, name }));
-      expect(JSON.stringify(pinned), `${subject} mocks`).toBe(JSON.stringify(drawn));
+      if (pinned.some((x) => ack(`mock:${subject}:${x.n}`))) {
+        for (const x of pinned) {
+          if (ack(`mock:${subject}:${x.n}`)) expect(x.paper.questions.map((q) => String(q.id)), `${subject} mock ${x.n} keeps its pin`).toEqual(packPinSpec(`mock:${subject}:${x.n}`)!.ids);
+          else expect(JSON.stringify(x), `${subject} mock ${x.n}`).toBe(JSON.stringify(drawn.find((d) => d.n === x.n)));
+        }
+      } else {
+        expect(JSON.stringify(pinned), `${subject} mocks`).toBe(JSON.stringify(drawn));
+      }
     }
   }, 600_000);
 
   it("whole Subject Packs: every file's worksheet, code and name is identical with the pins on and with VITE_PACK_PIN_DISABLED", async () => {
     const run = async () => {
       const sink: Array<{ id: string; code?: string; ws: unknown }> = [];
-      for (const s of PACK_SUBJECTS.filter((x) => !acked(`mock:${x}:1`))) {
+      for (const s of PACK_SUBJECTS) {
         const ctx: BuildContext = {
           licensee: { name: "T", email: "t@example.in" },
           owned: [],
@@ -126,19 +145,31 @@ describe("PACK-PIN-1 pinned builds equal the seeded draws", () => {
         const files = await buildPackFiles({ packId: packIdOf("pack_subject", s), sku: "pack_subject", target: s }, ctx);
         for (const f of files) await f.build();
       }
-      return JSON.stringify(sink);
+      return sink;
+    };
+    // A worksheet id -> the pin key of the drawn paper it holds (null for a selection: Section banks, CBQ sets, intros).
+    const keyOfWorksheet = (id: string): string | null => {
+      let m = /^pack-mock-(maths|science)-(\d+)$/.exec(id);
+      if (m) return `mock:${m[1]}:${m[2]}`;
+      m = /^pack-(.+)-ct([12])$/.exec(id);
+      if (m) return `ct${m[2]}:${m[1]}`;
+      m = /^pack-(.+)-worksheet$/.exec(id);
+      return m ? `ws:${m[1]}` : null;
     };
     const pinned = await run();
     vi.stubEnv("VITE_PACK_PIN_DISABLED", "1");
     const drawn = await run();
-    expect(pinned.length).toBeGreaterThan(1_000_000);
-    expect(pinned === drawn).toBe(true);
+    expect(JSON.stringify(pinned).length).toBeGreaterThan(1_000_000);
+    expect(pinned.map((x) => [x.id, x.code])).toEqual(drawn.map((x) => [x.id, x.code]));
+    // Every worksheet is identical pins-on vs pins-off, except a drawn paper whose seeded draw moved (acknowledged above): there the PINNED paper is the one printed.
+    const moved = pinned.filter((x, i) => JSON.stringify(x.ws) !== JSON.stringify(drawn[i].ws)).map((x) => keyOfWorksheet(x.id));
+    expect(moved.filter((k) => k === null || !ack(k)), "only an acknowledged seeded draw may differ").toEqual([]);
   }, 900_000);
 });
 
 describe("PACK-PIN-1 provenance and the kill switch", () => {
   it("pinned Chapter Test carries the same provenance as the draw (withProvenance over the chapter rows)", async () => {
-    const slug = PACK_CHAPTER_SLUGS.find((x) => !acked(`ct1:${x}`))!;
+    const slug = PACK_CHAPTER_SLUGS.find((x) => !ack(`ct1:${x}`) && !ack(`ct2:${x}`))!; // STEPMARK-2: first chapter whose seeded draw did not move
     const rows = chapterPackRows(slug);
     const drawRows = chapterPackDrawRows(slug);
     const [pinned] = await packChapterTestPapers(slug, drawRows);

@@ -909,20 +909,14 @@
           ]
         },
         {
-          "id": "APQ-M-POLY-004",
-          "questionText": "Riddhi throws a stone in the air such that it follows a parabolic path before it lands at P on the ground as depicted by the graph below. (i) The above graph is represented by a polynomial where the sum of its zeroes is 1 and the sum of the squares of its zeroes is 25. Find the coordinates of P and Q. (ii) If one unit on the graph represents 25 metres, how far from Riddhi does the stone land?",
+          "id": "APQ-M-POLY-006",
+          "questionText": "If m and n are zeroes of the polynomial (3x^2 - x - 2), find the values of the following without factorising the polynomial. (i) 1/m + 1/n (ii) m^2 + n^2",
           "marks": 3,
           "section": "C",
           "solutionSteps": [
-            "[1 mark] Let polynomial be ax^2 + bx + c with zeroes α, β. Given α + β = 1, α^2 + β^2 = 25. Use (α+β)^2 = α^2 + β^2 + 2αβ ⟹ 1 = 25 + 2αβ ⟹ αβ = −12.",
-            "[1 mark] By relations: b/a = −(α+β) = −1, c/a = αβ = −12. Take a = 1: polynomial = x^2 − x − 12 = (x − 4)(x + 3). Zeroes: x = 4 and x = −3.",
-            "[1 mark] So P = (4, 0) and Q = (−3, 0). From the graph, Riddhi stands at x = −2, and the stone lands at P, x = 4. Horizontal distance = 4 − (−2) = 6 units = 6 × 25 m = 150 m."
-          ],
-          "figures": [
-            {
-              "src": "/figures/apq-maths/polynomials/APQ-M-POLY-004.webp",
-              "alt": "Source figure"
-            }
+            "[1 mark] From 3x^2 − x − 2: m + n = −(−1)/3 = 1/3; mn = −2/3.",
+            "[1 mark] (i) 1/m + 1/n = (m + n)/mn = (1/3) / (−2/3) = −1/2.",
+            "[1 mark] (ii) m^2 + n^2 = (m + n)^2 − 2mn = (1/3)^2 − 2(−2/3) = 1/9 + 4/3 = 1/9 + 12/9 = 13/9."
           ]
         }
       ]

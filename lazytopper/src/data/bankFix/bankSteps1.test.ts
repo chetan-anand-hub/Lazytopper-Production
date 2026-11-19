@@ -11,6 +11,7 @@
  *       place a source file is read: the block is a comment-delimited run of Set members, which no assembled structure exposes.
  * The ledger is generated from the scout CSV by script; ids are never typed by hand. This file never reads the clock.
  */
+import { BANK_RETIRE_1_WITHHELD_SET } from "./bankRetire1Withholds";
 import "../../test/preloadBankChapters";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
@@ -65,7 +66,9 @@ describe("BANK-STEPS-1 ledger", () => {
   it("a `found` id is NOT withheld: it is still served", () => {
     const found = BANK_STEPS_1.filter((e) => e.state === "found");
     expect(found.length).toBeGreaterThan(0);
-    expect(found.filter((e) => WITHHELD_QUESTION_IDS.has(e.id) || !servedIds.has(e.id)).map((e) => e.id)).toEqual([]);
+    expect(found.filter((e) => !BANK_RETIRE_1_WITHHELD_SET.has(e.id) && (WITHHELD_QUESTION_IDS.has(e.id) || !servedIds.has(e.id))).map((e) => e.id)).toEqual([]);
+    // 19 Nov 2026 BANK-RETIRE-1 (owner ruling: retire, not repair): a `found` generated AI-pack row on the retire list is withheld, not served.
+    expect(found.filter((e) => BANK_RETIRE_1_WITHHELD_SET.has(e.id) && (!WITHHELD_QUESTION_IDS.has(e.id) || servedIds.has(e.id))).map((e) => e.id)).toEqual([]);
   });
 
   it("(c) the paused count equals the size of the PAUSE block", () => {

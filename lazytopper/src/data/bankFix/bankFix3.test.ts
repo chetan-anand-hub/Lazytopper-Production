@@ -29,6 +29,7 @@ import { BANK_FIX_1_PR2_WITHHOLD_CATEGORY } from "./bankFix1Pr2Withholds";
 import { BANK_FIX_3, BANK_FIX_3_RESTORED_IDS, BANK_FIX_3_SERVED_AFTER_RESOLVE_IDS, SCRATCH_TEXT_RE } from "./bankFix3Ledger";
 import { getFiguresForQuestion } from "../visualConceptRegistry";
 import { BOUND_BUT_WITHHELD } from "../figures/mathsFigureVisuals";
+import { BANK_RETIRE_1_WITHHELD_SET } from "./bankRetire1Withholds";
 import { bankRowMeta } from "../bankChapters/bankIdIndex";
 import { ensureBankChapters, getBankRows } from "../bankChapters/loader";
 import { resolveCanonicalSlug } from "../bankQuery";
@@ -99,9 +100,12 @@ describe("BANK-FIX-3 · withheld and restored", () => {
   it("restored rows are served and in no withhold list or category map", () => {
     expect([...BANK_FIX_3_RESTORED_IDS].sort()).toEqual(["SAV-N-EXEM2-12-LA-010", "SAV2-R06"]);
     for (const id of BANK_FIX_3_RESTORED_IDS) {
-      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(false);
+      // BANK-RETIRE-1 (19 Nov 2026): SAV2-R06 is a generated AI-pack row retired with the rest (owner ruling: retire, not repair). It stays
+      // out of the BANK-FIX-1 PR-2 withhold ledger and category map; it is withheld only through the BANK-RETIRE-1 list.
+      const retired = BANK_RETIRE_1_WITHHELD_SET.has(id);
+      expect(WITHHELD_QUESTION_IDS.has(id), id).toBe(retired);
       expect(BANK_FIX_1_PR2_WITHHOLD_CATEGORY.has(id), id).toBe(false);
-      expect(servedIds.has(id), id).toBe(true);
+      expect(servedIds.has(id), id).toBe(!retired);
     }
   });
   it("APQ-M-CIRC-009 had its answer fixed; its figure is bound (#1015) but it stays withheld (D37: the official item is inconsistent)", () => {

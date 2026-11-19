@@ -26,6 +26,7 @@ import {
   ownsTestSeries,
   packPayLabel,
   packPriceLabel,
+  testSeriesPriceLine,
   subjectLabel,
   type BoardPassCredit,
   type PackSubject,
@@ -125,7 +126,7 @@ function boardPassItem(i: CrossSellInput): CrossSellItem | null {
 function testSeriesItem(i: CrossSellInput): CrossSellItem | null {
   if (!i.packsOn || !i.tsOffered || i.packs === null || i.paidPremium !== false) return null;
   if (i.ownsTestSeriesFlag === true || ownsTestSeries(i.packs)) return null;
-  return { id: "test_series", title: "Test Series", benefit: testSeriesXsellBenefit(), price: packPriceLabel("test_series", i.now), cta: `Add the Test Series — ${packPayLabel("test_series", i.now)}`, href: TEST_SERIES_BUY_PATH };
+  return { id: "test_series", title: "Test Series", benefit: testSeriesXsellBenefit(), price: testSeriesPriceLine(i.now), cta: `Add the Test Series — ${packPayLabel("test_series", i.now)}`, href: TEST_SERIES_BUY_PATH };
 }
 
 function pdfItem(i: CrossSellInput): CrossSellItem | null {

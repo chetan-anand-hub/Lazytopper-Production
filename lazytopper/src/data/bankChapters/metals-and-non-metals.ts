@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "metals-and-non-metals" (Science): 518 served rows from 25 source arrays, 16 withheld.
+// Chapter "metals-and-non-metals" (Science): 505 served rows from 25 source arrays, 29 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -59,6 +59,19 @@ export default defineChapter("metals-and-non-metals", [
   [415, CURATED_INLINE_QUESTIONS, false],
   [447, METALS_CBQ_B1_LT_GENERATED, false],
 ], [
+  "MNM2-016",
+  "MNM2-017",
+  "MNM2-018",
+  "MNM2-022",
+  "MNM2-023",
+  "MNM2-024",
+  "MNM2-031",
+  "MNM2-034",
+  "MNM2-037",
+  "MNM2-041",
+  "MNM2-046",
+  "MNM2-047",
+  "MNM2-049",
   "METAL-NCERT-3-VSA-006",
   "METAL-EXMPLR-3-SA-014",
   "METAL-EXMPLR-3-LONG-001",

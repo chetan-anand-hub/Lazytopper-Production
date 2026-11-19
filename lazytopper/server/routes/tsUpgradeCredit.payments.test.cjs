@@ -296,6 +296,52 @@ test('MONEY · 1 Dec 00:00 IST boundary: 1 ms before -> 1083; exactly at it -> 1
   assert.equal(at.db.read(`payOrders/${r.orderId}`).tsUpgradeFullBaseInr, 2499);
 });
 
+test('TS-PRICE-2 MONEY · the credit is what the student ACTUALLY PAID: a founding buyer (999) after 1 Dec pays 1500 + 270 = 1770; a 1,499 buyer pays 1000 + 180 = 1180', async (t) => {
+  // founding buyer (seedTs default: base 999 / 1179), upgrading after the cut-off
+  const db = memoryFirestore();
+  seedTs(db, 'f1');
+  const srv = await start({ db, nowMs: AFTER_FOUNDING + 86400000 });
+  t.after(srv.close);
+  const f = await orderOk(srv, 'f1', 'till_boards');
+  assert.equal(f.amountPaise, 177000);
+  assert.deepEqual(f.gst, { baseInr: 1500, gstInr: 270, totalInr: 1770 });
+  assert.equal(f.tsUpgradeCreditInr, 999, 'NOT today\'s 1,499 list price');
+  assert.equal(lastRzpOrder(srv).body.amount, 177000);
+
+  // a buyer who paid the 1,499 list price
+  const db2 = memoryFirestore();
+  seedTs(db2, 'l1', { order: { amountPaise: 176900, baseInr: 1499, gstInr: 270, totalInr: 1769 }, pack: { pricePaidInr: 1769 } });
+  const srv2 = await start({ db: db2, nowMs: AFTER_FOUNDING + 86400000, licensees: LIC(['l1']) });
+  t.after(srv2.close);
+  const plain = await orderOk(srv2, 'nobody', 'till_boards');
+  assert.equal(plain.amountPaise, 294900);
+  const l = await orderOk(srv2, 'l1', 'till_boards');
+  assert.equal(l.amountPaise, 118000);
+  assert.deepEqual(l.gst, { baseInr: 1000, gstInr: 180, totalInr: 1180 });
+  assert.equal(l.tsUpgradeCreditInr, 1499);
+  assert.equal(176900 + l.amountPaise, plain.amountPaise, '1769 + 1180 = 2949');
+  const stored = srv2.db.read(`payOrders/${l.orderId}`);
+  assert.equal(stored.tsUpgradeFullBaseInr, 2499);
+  assert.equal(stored.baseInr, 1000);
+  assert.equal(lastRzpOrder(srv2).body.notes.tsUpgradeCreditInr, '1499');
+  // /api/packs/mine tells the 1,499 buyer the same figure
+  const m = await mine(srv2, 'l1');
+  assert.equal(m.status, 200, m.text);
+  assert.deepEqual(m.json.boardPassCredit, { creditInr: 1499, expiresAtMs: null, payInr: 1180, kind: 'test_series_upgrade', baseInr: 1000, gstInr: 180, fullBaseInr: 2499 });
+  // the 1,499 buyer's upgrade GRANTS (verify) at 1180 and spends the credit once
+  const pl = srv2.rzp.pay(l.orderId);
+  const vl = await verify(srv2, 'l1', l.orderId, pl.id);
+  assert.equal(vl.status, 200, vl.text);
+  assert.equal(db2.read('subscriptions/l1').pricePaidInr, 1180);
+  assert.equal(db2.read('packEntitlements/l1/packs/test_series:all').creditedToPass, true);
+  // a record whose base is neither price is not credited and the purchase is still sold at full price
+  const db3 = memoryFirestore();
+  seedTs(db3, 'x1', { order: { amountPaise: 118000, baseInr: 1000, gstInr: 180, totalInr: 1180 }, pack: { pricePaidInr: 1180 } });
+  const srv3 = await start({ db: db3, nowMs: AFTER_FOUNDING + 86400000 });
+  t.after(srv3.close);
+  assert.equal((await orderOk(srv3, 'x1', 'till_boards')).amountPaise, 294900);
+});
+
 /* ── grant: verify, webhook, status, replays ─────────────────────────────────────────────────────────────────────── */
 
 test('GRANT · verify grants the Board Pass for 1083, marks the Test Series credited ONCE; verify / webhook / status replays change nothing', async (t) => {

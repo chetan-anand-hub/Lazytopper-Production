@@ -2,7 +2,7 @@
 // Regenerate from lazytopper/ with: pnpm run gen:bank-chapters
 // src/data/bankChapters/bankChapters.guard.test.ts fails when this file disagrees with the aggregator.
 
-// Chapter "heredity" (Science): 314 served rows from 22 source arrays, 43 withheld.
+// Chapter "heredity" (Science): 298 served rows from 22 source arrays, 59 withheld.
 // Each source is [spread position in RAW_CANONICAL_QUESTION_BANK, the array, is it an AI pack].
 
 import { defineChapter } from "./defineChapter";
@@ -54,13 +54,28 @@ export default defineChapter("heredity", [
   [448, HEREDITY_CBQ_B1_LT_GENERATED, false],
 ], [
   "HE-H04",
+  "HE2-005",
+  "HE2-006",
   "HE2-008",
+  "HE2-014",
+  "HE2-015",
   "HE2-019",
+  "HE2-023",
+  "HE2-029",
   "HE2-032",
   "HE2-040",
   "HE2-041",
   "HE2-046",
+  "HE2-048",
   "HE2-054",
+  "HE2-056",
+  "HE2-057",
+  "HE2-058",
+  "HE2-061",
+  "HE2-062",
+  "HE2-063",
+  "HE2-064",
+  "HE2-065",
   "BX-HER-EX-A-009",
   "BX-HER-EX-C-001",
   "BX-HER-D-004",
@@ -68,6 +83,7 @@ export default defineChapter("heredity", [
   "BX-HER-E1-004",
   "BX-HER-E2-003",
   "HERED-EXMPLR-8-LA-002",
+  "HERED-EXMPLR-8-LA-003",
   "SCO-S-HERED-001",
   "SCO-S-HERED-002",
   "SCO-S-HERED-003",
