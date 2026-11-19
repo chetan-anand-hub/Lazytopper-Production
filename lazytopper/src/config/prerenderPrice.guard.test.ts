@@ -16,7 +16,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve, relative } from "node:path";
 import { parentPriceModel } from "../pages/ForParentsPage";
 import { predictCbseExamDate } from "../services/cbseExamDate";
-import { PACK_PRICE_INR, packGstBreakdown, type PackSku } from "../services/packs";
+import { PACK_PRICE_INR, packBaseInr, packGstBreakdown, type PackSku } from "../services/packs";
 import { boardPassFoundingPriceLine, boardPassGstBreakdown, boardPassGstExclusive, displayPlusGst, GST_EXCLUSIVE_FROM_MS, payDisplay } from "./pricing";
 
 const ROOT = resolve(__dirname, "../../prerendered");
@@ -62,8 +62,8 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
     }
   };
   // GST-EXCL-1 (owner scope, 4 Nov 18:23 IST): a TAG is "₹49 + GST" from the cut-off; a Buy/Pay BUTTON names the amount CHARGED.
-  const packExp = (label: string) => displayPlusGst(PACK_PRICE_INR[PACK_BY_LABEL[label]], now);
-  const packPay = (label: string) => payDisplay(PACK_PRICE_INR[PACK_BY_LABEL[label]], now);
+  const packExp = (label: string) => displayPlusGst(packBaseInr(PACK_BY_LABEL[label], now), now);
+  const packPay = (label: string) => payDisplay(packBaseInr(PACK_BY_LABEL[label], now), now);
   // /for-parents Board Pass (ForParentsPage: <span class="lt-fp__price-amt">). PRICE-FIXED-1: there is no Month pass line.
   // PARENTS-V2-1: the hero price card (`fp-price-amt`), the two Pay buttons (hero + second), the founding-price line and the CBQ price.
   take(new RegExp(`data-testid="fp-price-amt">${AMT}`), () => "Board Pass", () => model?.boardPassDisplay ?? null);
@@ -183,6 +183,22 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
   const now = new Date();
   const scan = scanAll(now, predictCbseExamDate("10"));
 
+  it("TS-PRICE-2: no Test Series price is frozen in /packs or /pricing (a snapshot would claim 999 after 1 Dec)", () => {
+    for (const dir of ["", "__desktop/"]) {
+      const packs = readFileSync(join(ROOT, `${dir}packs.html`), "utf8");
+      const pricing = readFileSync(join(ROOT, `${dir}pricing.html`), "utf8");
+      const around = (html: string, marker: string, span = 400) => [...html.matchAll(new RegExp(marker, "g"))].map((m) => html.slice(m.index!, m.index! + span));
+      for (const chunk of around(packs, 'class="lt-pk-row__name">Test Series Pack</span>', 260)) expect(chunk.split("</summary>")[0]).not.toMatch(/₹/);
+      for (const chunk of around(packs, 'data-testid="tile-gst-test_series"', 200)) expect(chunk.split("</p>")[0]).not.toMatch(/₹/);
+      for (const chunk of around(packs, 'data-testid="pk-buy-test-series-neutral"', 300)) expect(chunk.split("</div>")[0]).not.toMatch(/₹/);
+      for (const chunk of around(pricing, 'data-testid="hub-tab-ts"', 300)) expect(chunk.split("</button>")[0]).not.toMatch(/₹/);
+      for (const chunk of around(pricing, 'data-testid="hub-ts-price"', 300)) expect(chunk.split("</p>")[0]).not.toMatch(/₹/);
+      for (const html of [packs, pricing]) expect(html).not.toMatch(/₹999(?![\d,])|₹1,499|₹1,179|₹1,769/);
+      expect(packs).not.toContain("founding price till");
+      expect(pricing).not.toContain("founding price till");
+    }
+  });
+
   it("the scan finds the known occurrences in both variants (cannot pass vacuously)", () => {
     for (const dir of ["", "__desktop/"]) {
       const of = (f: string) => scan.found.filter((x) => x.file === `${dir}${f}`);
@@ -197,8 +213,9 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
       const pk = of("packs.html").map((x) => x.product);
       // PACKS-TIDY-2: the CBQ card left /packs (a link card + an FAQ line name its price); each Buy's place is a neutral button + GST line.
       for (const l of ["Chapter Pack", "Mock Pack", "Subject Pack", "Maths + Science Bundle", "CBQ Pack (packs link card)", "pack_bundle (GST breakup)", "pack_chapter (GST breakup)"]) expect(pk).toContain(l);
-      // TS-PACK-1: the Test Series row's tag, its neutral button and its GST breakups are guarded too.
-      for (const l of ["Test Series Pack", "Test Series Pack (neutral button)", "test_series (GST breakup)"]) expect(pk).toContain(l);
+      // TS-PRICE-2: the Test Series figures are CLOCK-DERIVED (999 -> 1,499 at 00:00 IST 1 Dec), so they are written after mount in a
+      // `data-lt-clock` node and STRIPPED from the capture: none of them may appear in the snapshot (see the test below).
+      for (const l of ["Test Series Pack", "Test Series Pack (neutral button)", "test_series (GST breakup)"]) expect(pk).not.toContain(l);
       expect(of("packs.html").length).toBeGreaterThanOrEqual(7);
     }
     // PRICING-PAGES-1: both sales pages are scanned in both variants (the Pay / Buy, the card price, the links, the GST breakups).

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { testSeriesFoundingClause } from "../../services/packs";
 
 /**
@@ -20,6 +20,26 @@ export function TestSeriesFoundingClause({ prefix = "", suffix = "", className, 
   return (
     <span className={className} data-lt-clock="" data-testid={testId}>
       {`${prefix}${text}${suffix}`}
+    </span>
+  );
+}
+
+/**
+ * TS-PRICE-2 - a Test Series PRICE FIGURE that depends on the clock (999 until 00:00 IST 1 Dec 2026, 1,499 from it).
+ *
+ * ★ Two nested nodes, on purpose. The OUTER span (`lt-tsclk`, a reserved slot with a minimum size) stays in the static snapshot, so the
+ *   page paints the same box before and after the app takes over (no layout shift). The INNER span carries `data-lt-clock` and is written
+ *   only AFTER MOUNT: the prerender capture strips it (captureStaticBodies.ts rule 4), so the build machine's clock is never frozen into
+ *   a static file as a price that goes false at the cut-off. Same mechanism as the Board Pass founding line.
+ */
+export function TsClockSlot({ children, variant = "tag", testId }: { children: ReactNode; variant?: "tag" | "amt" | "line"; testId?: string }) {
+  const [on, setOn] = useState(false);
+  useEffect(() => setOn(true), []);
+  return (
+    <span className={`lt-tsclk lt-tsclk--${variant}`}>
+      <span data-lt-clock="" {...(testId ? { "data-testid": testId } : {})}>
+        {on ? children : null}
+      </span>
     </span>
   );
 }

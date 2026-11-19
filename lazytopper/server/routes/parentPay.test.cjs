@@ -1483,3 +1483,21 @@ test('TS-PRICE-2 · a parent link for the Test Series carries the price AT THE S
   const late = await mintPack(srv, { sku: 'test_series' });
   assert.deepEqual(late.json.pack, { sku: 'test_series', target: 'all', priceInr: 1499, totalInr: 1769, gstInr: 270 });
 });
+
+test('TS-PRICE-2 · parent link: a 999 founding Test Series order only AUTHORIZED 24 h+ after the cut-off is not captured (order_expired); +10 s is granted', async (t) => {
+  const CUT = Date.parse('2026-12-01T00:00:00+05:30');
+  const srv = await startRoutes({ env: ENV_PACKS, clock: { t: CUT - 5000 } });
+  t.after(srv.close);
+  const m = await mintPack(srv, { sku: 'test_series' });
+  const o = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.json.token, product: 'pack' } });
+  assert.equal(o.json.amountPaise, 117900);
+  const p = srv.rzp.pay(o.json.orderId, { id: 'pay_ts_auth', status: 'authorized' });
+  srv.clock.t = CUT + 25 * 3600 * 1000;
+  const r = await parentVerify(srv, m.json.token, o.json.orderId, p.id);
+  assert.equal(r.status, 400, r.text);
+  assert.equal(r.json.reason, 'order_expired');
+  assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0);
+  srv.clock.t = CUT + 10000;
+  const ok = await parentVerify(srv, m.json.token, o.json.orderId, p.id);
+  assert.equal(ok.status, 200, ok.text);
+});

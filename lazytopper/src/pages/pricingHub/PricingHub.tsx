@@ -137,7 +137,7 @@ import {
 } from "./hubCopy";
 import { HUB_CSS } from "./pricingHubCss";
 import { seriesTotals } from "../../lib/testSeries/testSeries";
-import { TestSeriesFoundingClause } from "../../components/packs/TestSeriesFoundingClause";
+import { TestSeriesFoundingClause, TsClockSlot } from "../../components/packs/TestSeriesFoundingClause";
 
 /**
  * The legacy page's own private pieces the hub reuses UNCHANGED. PricingPage.tsx hands them over (it owns them; the hub never imports
@@ -752,7 +752,9 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
         ) : (
           <>
             <p className="lt-ph-price">
-              <span className="lt-ph-price__amt" data-testid="hub-ts-price">{hubTsPrice()}</span>
+              <span className="lt-ph-price__amt" data-testid="hub-ts-price">
+                <TsClockSlot variant="tag">{hubTsPrice()}</TsClockSlot>
+              </span>
               <TestSeriesFoundingClause className="lt-ph-price__meta" prefix="· " testId="hub-ts-founding" />
               <span className="lt-ph-price__meta">{HUB_TS_PRICE_META}</span>
             </p>
@@ -950,7 +952,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
                         data-testid={`hub-tab-${key}`}
                       >
                         <span className="lt-ph-tab__name">{HUB_TAB_NAME[key]}</span>
-                        {key === "pass" ? <PassTabPrice /> : <span className="lt-ph-tab__price">{hubTabPrice(key)}</span>}
+                        {key === "pass" ? <PassTabPrice /> : <span className="lt-ph-tab__price">{key === "ts" ? <TsClockSlot variant="amt">{hubTabPrice(key)}</TsClockSlot> : hubTabPrice(key)}</span>}
                       </button>
                     ))}
                   </div>

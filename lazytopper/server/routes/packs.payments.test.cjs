@@ -139,6 +139,13 @@ function fakeRazorpay() {
       const p = payments.get(m[1]);
       return p ? reply(200, { ...p }) : reply(400, {});
     }
+    // TS-PRICE-2: capturing an authorized payment (the manual-capture path) for exactly its amount.
+    if (method === 'POST' && (m = u.pathname.match(/^\/v1\/payments\/([^/]+)\/capture$/))) {
+      const p = payments.get(m[1]);
+      if (!p || p.status !== 'authorized' || body.amount !== p.amount) return reply(400, {});
+      p.status = 'captured';
+      return reply(200, { ...p });
+    }
     return reply(404, {});
   }
   function pay(orderId, { id = `pay_${orderId}`, amount, status = 'captured' } = {}) {
@@ -1263,4 +1270,29 @@ test('TS-PRICE-2 · an order made at 999 and PAID after the cut-off still grants
   // a stored order whose base is neither Test Series price is refused by the grant
   db.docs.set('payOrders/order_BAD', { data: { uid: 'n3', passType: 'test_series', packTarget: 'all', amountPaise: 123400, baseInr: 1045, gstInr: 189, totalInr: 1234, gstRate: 0.18, status: 'created' }, version: 1 });
   await assert.rejects(grantPack({ db, uid: 'n3', order: { orderId: 'order_BAD' }, paymentRef: 'pay_BAD', nowMs: TS_CUTOFF + 10000 }), PackGrantInputError);
+});
+
+test('TS-PRICE-2 · a Test Series order made at the 999 founding price and only AUTHORIZED 24 h+ after the cut-off is refused before capture (order_expired); a payment at +10 s is granted', async (t) => {
+  const db = memoryFirestore();
+  const rzp = fakeRazorpay();
+  const early = await start({ db, rzp, nowMs: TS_CUTOFF - 5000 });
+  t.after(early.close);
+  const o = await order(early, 'st1', 'test_series');
+  assert.equal(o.json.amountPaise, 117900);
+  const auth = rzp.pay(o.json.orderId, { id: 'pay_auth_late', status: 'authorized' });
+  const stale = await start({ db, rzp, nowMs: TS_CUTOFF + 25 * 3600 * 1000 });
+  t.after(stale.close);
+  const r = await verify(stale, 'st1', o.json.orderId, auth.id);
+  assert.equal(r.status, 400, r.text);
+  assert.equal(r.json.reason, 'order_expired');
+  assert.equal(rzp.calls.filter((c) => c.url.includes('/capture')).length, 0, 'a stale founding Test Series order was captured');
+  assert.equal(db.read('packEntitlements/st1/packs/test_series:all'), undefined);
+  // inside the grace window (+10 s) the same kind of order is granted
+  const o2 = await order(early, 'st2', 'test_series');
+  const p2 = rzp.pay(o2.json.orderId, { id: 'pay_auth_ok', status: 'authorized' });
+  const soon = await start({ db, rzp, nowMs: TS_CUTOFF + 10000 });
+  t.after(soon.close);
+  const v2 = await verify(soon, 'st2', o2.json.orderId, p2.id);
+  assert.equal(v2.status, 200, v2.text);
+  assert.ok(db.read('packEntitlements/st2/packs/test_series:all'));
 });

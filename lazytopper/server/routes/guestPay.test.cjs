@@ -3472,3 +3472,24 @@ test('TS-PRICE-2 · a guest Test Series order is charged 999 + GST before 00:00 
   assert.equal(b.json.amountPaise, 176900);
   assert.equal(late.rzp.calls.filter((c) => c.url.endsWith('/orders') && c.method === 'POST').pop().body.amount, 176900);
 });
+
+test('TS-PRICE-2 · guest: a 999 founding Test Series order only AUTHORIZED 24 h+ after the cut-off is refused (order_expired, not captured); +10 s is granted', async (t) => {
+  const CUT = Date.parse('2026-12-01T00:00:00+05:30');
+  const db = memoryFirestore();
+  const rzp = fakeRazorpay();
+  const early = await startRoutes({ db, rzp, nowMs: CUT - 5000 });
+  t.after(early.close);
+  const o = await guestOrder(early, { sku: 'test_series', phone: PHONE });
+  assert.equal(o.json.amountPaise, 117900);
+  const p = rzp.pay(o.json.orderId, { status: 'authorized' });
+  const stale = await startRoutes({ db, rzp, nowMs: CUT + 25 * 3600 * 1000 });
+  t.after(stale.close);
+  const r = await guestVerify(stale, o.json.orderId, p.id);
+  assert.equal(r.status, 400, r.text);
+  assert.equal(r.json.reason, 'order_expired');
+  assert.equal(rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0);
+  const ok = await startRoutes({ db, rzp, nowMs: CUT + 10000 });
+  t.after(ok.close);
+  const v = await guestVerify(ok, o.json.orderId, p.id);
+  assert.equal(v.status, 200, v.text);
+});

@@ -907,6 +907,8 @@ function createPaymentRoutes(deps = {}) {
    */
   async function refuseStaleFoundingOrder(order) {
     if (!isStaleFoundingOrder(order, now())) return false;
+    // TS-PRICE-2: the founder exemption is a Board Pass rate lock; a Test Series order is never exempt from it.
+    if (order.passType === 'test_series') return true;
     try {
       const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(order.uid).get();
       const stored = snap && snap.exists ? snap.data() || {} : {};
