@@ -4,7 +4,8 @@
  *
  * Committed at lazytopper/server/data/testSeriesPapers.json. Generated from the SAME draws the pages use:
  *   chapter  drawChapterTest({ fixedSeed: chapterTestSeriesSeed(topicKey) })   (ChapterTestPage with ?series=1)
- *   mock     drawPackMocks(subject, SERIES_MOCKS_PER_SUBJECT)[n]               (FullMockPage with ?paper=n via drawSeriesFullMock)
+ *   mock     drawPackMockAfter(subject, n, papers 1..n-1)                       (FullMockPage with ?paper=n via drawSeriesFullMock)
+ *   TS-MORE-1: chapter papers 2..5 draw with fixedSeed "ts1p<k>:<topicKey>" and avoidIds = the chapter's earlier papers; full-length 21..25 continue the chain.
  * TS-PIN-1 (19 Nov 2026): the committed JSON is now the SOURCE OF TRUTH - the pages build each paper FROM it (pinnedSeriesPaper.ts),
  * so a bank edit can no longer move a paper. It is append-only: `pnpm --filter lazytopper run gen:test-series-manifest` creates
  * entries for NEW papers only and never alters an existing one (appendNewSeriesPapers). paperManifest.guard.test.ts checks every
@@ -15,15 +16,16 @@
  */
 import { drawChapterTest, subjectiveQuestions } from "../../components/chaptertest/chapterTestBlueprint";
 import { fullMockSubjectiveQuestions } from "../../components/fullmock/fullMockBlueprint";
-import { drawPackMocks } from "../packs/packDraws";
-import { loadChapter, loadSubjectBank } from "../packs/packContent";
+import { drawPackMockAfter } from "../packs/packDraws";
+import { loadChapter, loadSubjectBank, PACK_SYLLABUS_EXCLUDED } from "../packs/packContent";
 import {
-  SERIES_MOCKS_PER_SUBJECT,
+  chapterPaperCode,
   chapterTestSeriesSeed,
   seriesChapterTests,
   seriesChapterWorksheetId,
   seriesFullMocks,
   seriesMockWorksheetId,
+  type SeriesChapterTest,
 } from "./testSeries";
 
 export interface SeriesPaperManifestEntry {
@@ -88,48 +90,81 @@ export interface SeriesPinnedSpec {
 export type SeriesPaperIds = Record<string, SeriesPinnedSpec>;
 
 /**
- * Generate every paper's entry from the SEEDED draws (the same draws the pages used before TS-PIN-1). Since TS-PIN-1 the committed
- * files are the SOURCE; this runs only to CREATE new papers (`appendNewSeriesPapers`) and in the byte-identity proof test.
+ * Generate the papers' entries from the SEEDED draws. Since TS-PIN-1 the committed files are the SOURCE; this runs only to CREATE new
+ * papers (`appendNewSeriesPapers`) and in the byte-identity proof test.
+ *
+ * TS-MORE-1: a paper whose key `committedIds` already has is NOT drawn again (it is pinned; nothing here may move it) and its
+ * pinned ids are what the NEXT papers steer clear of. A NEW chapter paper k draws with `avoidIds` = every question of the chapter's
+ * papers 1..k-1, and a NEW full-length paper n draws with `drawPackMockAfter` over the papers 1..n-1, so no question repeats across a
+ * chapter's papers or across a subject's full-length papers (paperManifest.guard.test.ts proves it on the committed files).
  */
-export async function buildSeriesPaperManifest(hashText: CanonicalTextHasher): Promise<{ entries: SeriesPaperManifestEntry[]; paperIds: SeriesPaperIds }> {
+export async function buildSeriesPaperManifest(
+  hashText: CanonicalTextHasher,
+  committedIds: SeriesPaperIds = {},
+): Promise<{ entries: SeriesPaperManifestEntry[]; paperIds: SeriesPaperIds }> {
   const out: SeriesPaperManifestEntry[] = [];
   const paperIds: SeriesPaperIds = {};
   const pin = (key: string, paper: { questions: ReadonlyArray<{ id?: unknown; section?: unknown }> }) => {
     paperIds[key] = { ids: paper.questions.map((q) => String(q.id)), sections: paper.questions.map((q) => String(q.section)).join("") };
   };
+  /** The pinned ids of a key: the committed file's, else this run's own fresh draw. */
+  const idsOf = (key: string): readonly string[] => committedIds[key]?.ids ?? paperIds[key]?.ids ?? [];
+  const chaptersByTopic = new Map<string, SeriesChapterTest[]>();
   for (const t of seriesChapterTests()) {
-    await loadChapter(t.topicKey);
-    const drawn = drawChapterTest({
-      subject: t.subject,
-      topicKey: t.topicKey,
-      topicLabel: t.label,
-      worksheetId: `manifest-${t.code}`,
-      createdAt: STAMP,
-      fixedSeed: chapterTestSeriesSeed(t.topicKey),
-    });
-    out.push({
-      key: `TS-${t.code}`,
-      subject: t.subject,
-      kind: "chapter",
-      number: t.index,
-      paperCode: t.code,
-      topicKey: t.topicKey,
-      worksheetIdPrefix: prefixOf(seriesChapterWorksheetId("ct-x", t.topicKey)),
-      questionIds: drawn.paper.questions.map((q) => String(q.id)),
-      sectionBEQuestionIds: subjectiveQuestions(drawn.paper).map((q) => String(q.id)),
-      textHashes: textHashesOf(subjectiveQuestions(drawn.paper), hashText),
-    });
-    pin(`TS-${t.code}`, drawn.paper);
+    const list = chaptersByTopic.get(t.topicKey) ?? [];
+    list.push(t);
+    chaptersByTopic.set(t.topicKey, list);
+  }
+  for (const [topicKey, papers] of chaptersByTopic) {
+    await loadChapter(topicKey);
+    for (const t of papers) {
+      const key = `TS-${t.code}`;
+      // Paper 1 is always (re)drawn so a bank edit that moved the seeded draw stays visible as `drifted`; papers 2..5 are pinned as
+      // soon as they exist and are drawn once.
+      if (t.paper > 1 && committedIds[key]) continue;
+      // A NEW paper also steers clear of the rows the pack content policy leaves out for syllabus reasons (a printed option that names a
+      // deleted item); paper 1 keeps its original draw untouched.
+      const avoid = new Set<string>(t.paper > 1 ? PACK_SYLLABUS_EXCLUDED.keys() : []);
+      for (let j = 1; j < t.paper; j += 1) for (const id of idsOf(`TS-${chapterPaperCode(t.baseCode, j)}`)) avoid.add(id);
+      const drawn = drawChapterTest({
+        subject: t.subject,
+        topicKey: t.topicKey,
+        topicLabel: t.label,
+        worksheetId: `manifest-${t.code}`,
+        createdAt: STAMP,
+        fixedSeed: chapterTestSeriesSeed(t.topicKey, t.paper),
+        ...(avoid.size > 0 ? { avoidIds: avoid } : {}),
+      });
+      out.push({
+        key,
+        subject: t.subject,
+        kind: "chapter",
+        number: t.index,
+        paperCode: t.code,
+        topicKey: t.topicKey,
+        worksheetIdPrefix: prefixOf(seriesChapterWorksheetId("ct-x", t.topicKey, t.paper)),
+        questionIds: drawn.paper.questions.map((q) => String(q.id)),
+        sectionBEQuestionIds: subjectiveQuestions(drawn.paper).map((q) => String(q.id)),
+        textHashes: textHashesOf(subjectiveQuestions(drawn.paper), hashText),
+      });
+      pin(key, drawn.paper);
+    }
   }
   for (const subject of ["Maths", "Science"] as const) {
     const pack = subject === "Maths" ? "maths" : "science";
     await loadSubjectBank(pack);
-    const papers = new Map(drawPackMocks(pack, SERIES_MOCKS_PER_SUBJECT).map((p) => [p.n, p.drawn] as const));
+    // Paper n steers clear of papers 1..n-1: the PINNED ids where a paper is pinned (a bank edit cannot move what they avoid).
+    const usedBefore: Array<Set<string>> = [];
     for (const m of seriesFullMocks().filter((x) => x.subject === subject)) {
-      const drawn = papers.get(m.n);
-      if (!drawn) throw new Error(`paperManifest: ${subject} Mock ${m.n} could not be drawn`);
+      const key = `TS-${m.code}`;
+      if (committedIds[key]) {
+        usedBefore.push(new Set(committedIds[key].ids));
+        continue;
+      }
+      const { drawn } = drawPackMockAfter(pack, m.n, usedBefore);
+      if (!drawn.enoughQuestions) throw new Error(`paperManifest: ${subject} Mock ${m.n} could not be drawn`);
       out.push({
-        key: `TS-${m.code}`,
+        key,
         subject,
         kind: "mock",
         number: m.n,
@@ -140,7 +175,8 @@ export async function buildSeriesPaperManifest(hashText: CanonicalTextHasher): P
         sectionBEQuestionIds: fullMockSubjectiveQuestions(drawn.paper).map((q) => String(q.id)),
         textHashes: textHashesOf(fullMockSubjectiveQuestions(drawn.paper), hashText),
       });
-      pin(`TS-${m.code}`, drawn.paper);
+      pin(key, drawn.paper);
+      usedBefore.push(new Set(drawn.paper.questions.map((q) => String(q.id))));
     }
   }
   return { entries: out, paperIds };

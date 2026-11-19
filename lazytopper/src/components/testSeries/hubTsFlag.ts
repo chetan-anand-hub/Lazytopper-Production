@@ -4,7 +4,7 @@
  * step-2 "Full Test" card.
  */
 import { BOARD_CHAPTER_KEYS, chapterUnit } from "../../config/syllabusUnits2026-27";
-import { SERIES_MOCKS_PER_SUBJECT } from "../../lib/testSeries/seriesCounts";
+import { SERIES_MOCKS_PER_SUBJECT, SERIES_PAPERS_PER_CHAPTER } from "../../lib/testSeries/seriesCounts";
 
 export function hubTsDisabled(): boolean {
   const v = import.meta.env?.VITE_HUB_TS_DISABLED;
@@ -29,11 +29,11 @@ export function chooserRequested(params: URLSearchParams): boolean {
 
 /**
  * The Test Series card's two lines, with NOTHING heavy behind them (the hub's first paint must not pull testSeries.ts): the counts are
- * the syllabus's board chapters and SERIES_MOCKS_PER_SUBJECT x 2 subjects. A test pins them equal to `seriesTotals()`.
+ * the syllabus's board chapters x SERIES_PAPERS_PER_CHAPTER and SERIES_MOCKS_PER_SUBJECT x 2 subjects. A test pins them equal to `seriesTotals()`.
  */
 export const HUB_CARD_SHORT = "Chapter tests and full-length papers";
 export function hubCardLine(): string {
-  const chapterTests = BOARD_CHAPTER_KEYS.filter((k) => chapterUnit(k) !== null && chapterUnit(k) !== undefined).length;
+  const chapterTests = BOARD_CHAPTER_KEYS.filter((k) => chapterUnit(k) !== null && chapterUnit(k) !== undefined).length * SERIES_PAPERS_PER_CHAPTER;
   const fullMocks = SERIES_MOCKS_PER_SUBJECT * 2;
   return `${chapterTests} chapter tests and ${fullMocks} full-length board papers, numbered, with a pre-board calendar. Pick a subject, then a test.`;
 }

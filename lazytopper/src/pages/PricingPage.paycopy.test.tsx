@@ -238,7 +238,7 @@ describe("SEO-PAGES-1 (D) — the free check (PRICING-B-1: the Basic card is gon
   it("CONTROL — FREE_FEATURES and BASIC_FREE_LABELS are unchanged; the free check is not a lock", () => {
     expect(FREE_FEATURES).toEqual([
       { label: "Browse Home, Exam Trends, and topic surfaces", included: true },
-      { label: "Practice picker and limited practice", included: true },
+      { label: "Practice picker and multiple-choice practice, scored as you tap", included: true },
       { label: "Limited worksheet generation", included: true },
       { label: "Basic topic insights", included: true },
       { label: "Solution Checker / Answer Checker", included: false },

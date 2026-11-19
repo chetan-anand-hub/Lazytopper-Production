@@ -264,10 +264,10 @@ describe("OR-P3 — no 'unlimited' claim in student-facing copy", () => {
     expect(bareUnlimitedOffOpenRows(compareSource)).toEqual([]);
     // CONTROL — the pre-fix cells (Unlimited on Download papers / Graded Quick Practice) are caught.
     const oldDownload = '{ label: "Download papers", basic: text(x), premium: yesNote("Unlimited") },';
-    const oldGraded = '{ label: "Graded Quick Practice sets", basic: text(x), premium: yesNote("Unlimited") },';
+    const oldGraded = '{ label: "Written practice answers marked (Quick Practice)", basic: text(x), premium: yesNote("Unlimited") },';
     expect(bareUnlimitedOffOpenRows(oldDownload)).toHaveLength(1);
     expect(bareUnlimitedOffOpenRows(oldGraded)).toHaveLength(1);
-    expect(bareUnlimitedOffOpenRows(compareSource.replace('yesNote("Included") },\n              { label: "Graded', 'yesNote("Unlimited") },\n              { label: "Graded'))).toHaveLength(1);
+    expect(bareUnlimitedOffOpenRows(compareSource.replace('yesNote("Included") },\n              { label: "Written practice', 'yesNote("Unlimited") },\n              { label: "Written practice'))).toHaveLength(1);
   });
 
   it("CONTROL — the scan reaches the files OR-P3 reworded", () => {

@@ -46,9 +46,9 @@ export const TRIANGLES_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Proved: OC = (1/2) OA.",
     "solutionSteps": [
-      "In parallelogram ABCD, AB = DC = a. P divides AB as 2:3 ⇒ AP = (2/5)a, PB = (3/5)a. Q divides DC as 4:1 ⇒ DQ = (4/5)a, CQ = (1/5)a.",
-      "Since AB ‖ DC, ∠OAP = ∠OCQ and ∠APO = ∠CQO (alternate angles between transversal and parallel sides). By AA similarity, Δ APO ~ Δ CQO.",
-      "From similar triangles: AP/CQ = AO/CO = PO/QO ⇒ (2/5)a / (1/5)a = AO/CO ⇒ AO/CO = 2/1. Therefore OC = (1/2) OA, as required."
+      "[0.5 mark] In parallelogram ABCD, AB = DC = a. P divides AB as 2:3 ⇒ AP = (2/5)a, PB = (3/5)a. Q divides DC as 4:1 ⇒ DQ = (4/5)a, CQ = (1/5)a.",
+      "[0.5 mark] Since AB ‖ DC, ∠OAP = ∠OCQ and ∠APO = ∠CQO (alternate angles between transversal and parallel sides). By AA similarity, Δ APO ~ Δ CQO.",
+      "[1 mark] From similar triangles: AP/CQ = AO/CO = PO/QO ⇒ (2/5)a / (1/5)a = AO/CO ⇒ AO/CO = 2/1. Therefore OC = (1/2) OA, as required."
     ],
     "finalAnswer": "OC = (1/2) OA (proved via Δ APO ~ Δ CQO with AP:CQ = 2:1).",
     "isCompetencyBased": true
@@ -67,11 +67,11 @@ export const TRIANGLES_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) BPT proved with statement, given/to-prove, figure, and reasoned proof. (b) AB/BD = AE/FD proved using BPT in Δ ABE and midpoint theorem in Δ CDG.",
     "solutionSteps": [
-      "Part (a) — Statement of BPT: If a line is drawn parallel to one side of a triangle, intersecting the other two sides at distinct points, it divides those two sides in the same ratio.",
-      "Part (a) — Given Δ ABC with DE ‖ BC, D on AB, E on AC. To prove: AD/DB = AE/EC. Construction: join BE and CD; draw EM ⊥ AB and DN ⊥ AC. Proof: Area(ΔADE) = (1/2)·AD·EM and Area(ΔBDE) = (1/2)·DB·EM, so Area(ΔADE)/Area(ΔBDE) = AD/DB. Similarly Area(ΔADE)/Area(ΔDEC) = AE/EC. Triangles BDE and DEC have equal areas (same base DE, same parallel line BC). Therefore AD/DB = AE/EC.",
-      "Part (b) — Construction: draw DG ‖ BE meeting CA produced at G. In Δ ABE, since DG ‖ BE, by BPT: AB/BD = AE/GE  ... (i)",
-      "Part (b) — In Δ CDG, F is midpoint of DC and FE ‖ DG (because DG ‖ BE ‖ FE not needed; instead use that GE/CE = DF/CF). By midpoint theorem applied to Δ CDG with F midpoint of CD, E is midpoint of CG, so CE = GE  ... (ii)",
-      "Part (b) — Given ∠CEF = ∠CFE in Δ CFE ⇒ CF = CE (sides opposite equal angles) ... (iii). F is midpoint of DC ⇒ CF = FD ... (iv). Combining (ii), (iii), (iv): GE = CE = CF = FD. Substitute GE = FD into (i): AB/BD = AE/FD, as required."
+      "[1 mark] Part (a) — Statement of BPT: If a line is drawn parallel to one side of a triangle, intersecting the other two sides at distinct points, it divides those two sides in the same ratio.",
+      "[1 mark] Part (a) — Given Δ ABC with DE ‖ BC, D on AB, E on AC. To prove: AD/DB = AE/EC. Construction: join BE and CD; draw EM ⊥ AB and DN ⊥ AC. Proof: Area(ΔADE) = (1/2)·AD·EM and Area(ΔBDE) = (1/2)·DB·EM, so Area(ΔADE)/Area(ΔBDE) = AD/DB. Similarly Area(ΔADE)/Area(ΔDEC) = AE/EC. Triangles BDE and DEC have equal areas (same base DE, same parallel line BC). Therefore AD/DB = AE/EC.",
+      "[1 mark] Part (b) — Construction: draw DG ‖ BE meeting CA produced at G. In Δ ABE, since DG ‖ BE, by BPT: AB/BD = AE/GE  ... (i)",
+      "[1 mark] Part (b) — In Δ CDG, F is midpoint of DC and FE ‖ DG (because DG ‖ BE ‖ FE not needed; instead use that GE/CE = DF/CF). By midpoint theorem applied to Δ CDG with F midpoint of CD, E is midpoint of CG, so CE = GE  ... (ii)",
+      "[1 mark] Part (b) — Given ∠CEF = ∠CFE in Δ CFE ⇒ CF = CE (sides opposite equal angles) ... (iii). F is midpoint of DC ⇒ CF = FD ... (iv). Combining (ii), (iii), (iv): GE = CE = CF = FD. Substitute GE = FD into (i): AB/BD = AE/FD, as required."
     ],
     "finalAnswer": "(a) BPT proved. (b) AB/BD = AE/FD proved.",
     "isCompetencyBased": false

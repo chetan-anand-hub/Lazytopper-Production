@@ -6,7 +6,7 @@
 // ★ NO REACT, NO SERVICES: node script. services/packs.ts (PACK_PRICE_INR) cannot be imported here (it pulls a CSS file), so the
 //   base prices are mirrored below and packsProductLd.guard.test.ts pins each EQUAL to PACK_PRICE_INR: a price change turns CI red.
 // ★ Prices are the BASE price, GST EXCLUSIVE ("₹X + GST"), so `valueAddedTaxIncluded` is false.
-import { canonicalFor } from "../../config/canonicalUrl";
+import { SITE_ORIGIN, canonicalFor } from "../../config/canonicalUrl";
 import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, BUNDLE_NAME, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
 
 export const PACKS_LD_PRICE_INR = {
@@ -21,26 +21,32 @@ interface LdProduct {
   name: string;
   description: string;
   sku: keyof typeof PACKS_LD_PRICE_INR;
+  /** Cover preview file stem under public/packs/previews/ (`<cover>-cover-827.webp`). Google requires `image` on a merchant-listing Product. */
+  cover: string;
 }
 
 const PACKS_PRODUCTS: readonly LdProduct[] = [
   {
     sku: "pack_chapter",
+    cover: "chapter-maths",
     name: "CBSE Class 10 Chapter Pack (PDF)",
     description: "One chapter of the CBSE Class 10 Maths or Science question bank as a printable PDF, grouped by CBSE section with a worked solution for every question.",
   },
   {
     sku: "pack_mock",
+    cover: "mock-maths",
     name: "CBSE Class 10 Mock Pack (PDF)",
     description: `${MOCKS_PER_SUBJECT} full board-pattern mock papers for one subject (Maths or Science) as a printable PDF, with marking guides.`,
   },
   {
     sku: "pack_subject",
+    cover: "subject-maths",
     name: "CBSE Class 10 Subject Pack (PDF)",
     description: "Every chapter of one subject (Maths or Science) as a printable PDF question bank with worked solutions, plus that subject's mock papers.",
   },
   {
     sku: "pack_bundle",
+    cover: "bundle",
     name: `CBSE Class 10 ${BUNDLE_NAME} (PDF)`,
     description: `Every chapter of Class 10 Maths and Science and the mock papers for both subjects as printable PDFs with worked solutions, from a bank of ${BANK_QUESTIONS_CLAIM} questions including ${BANK_CBQS_CLAIM} competency-based questions.`,
   },
@@ -49,6 +55,7 @@ const PACKS_PRODUCTS: readonly LdProduct[] = [
 const CBQ_PRODUCTS: readonly (LdProduct & { subject: string })[] = (["Maths", "Science"] as const).map((subject) => ({
   sku: "pack_cbq" as const,
   subject,
+  cover: `cbq-${subject.toLowerCase()}`,
   name: `CBSE Class 10 ${subject} CBQ Pack (PDF)`,
   description: `Competency-based questions for CBSE Class 10 ${subject} as a printable PDF: ${CBQ_SUBJECT_CLAIM}, chapter-wise, with step-wise worked solutions.`,
 }));
@@ -60,6 +67,7 @@ function productLd(p: LdProduct, url: string, home: string): Record<string, unkn
     name: p.name,
     description: p.description,
     sku: `${p.sku}${"subject" in p ? `_${String((p as { subject: string }).subject).toLowerCase()}` : ""}`,
+    image: `${SITE_ORIGIN}/packs/previews/${p.cover}-cover-827.webp`,
     category: "Educational PDF",
     brand: { "@type": "Brand", name: "LazyTopper" },
     offers: {
@@ -70,6 +78,24 @@ function productLd(p: LdProduct, url: string, home: string): Record<string, unkn
       priceSpecification: { "@type": "PriceSpecification", price, priceCurrency: "INR", valueAddedTaxIncluded: false },
       availability: "https://schema.org/InStock",
       seller: { "@type": "Organization", name: "LazyTopper", url: home },
+      // All payments are final (/legal/refund, "LazyTopper does not give refunds"): no returns. Never claim a return window here.
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "IN",
+        returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+        merchantReturnLink: `${SITE_ORIGIN}/legal/refund`,
+      },
+      // A digital download, available straight away: free, instant, India.
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: { "@type": "MonetaryAmount", value: 0, currency: "INR" },
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "IN" },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 0, unitCode: "DAY" },
+          transitTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 0, unitCode: "DAY" },
+        },
+      },
     },
   };
 }

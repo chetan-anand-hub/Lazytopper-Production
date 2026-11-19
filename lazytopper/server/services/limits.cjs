@@ -143,6 +143,11 @@ const LIMIT_ENV = Object.freeze({
   trialDownloadsPerWeek: 'LIMITS_TRIAL_DOWNLOADS_PER_WEEK',
 });
 
+/** GATE-QP-1 kill switch: GATE_QP_DISABLED=1 restores Basic's first-free graded Quick Practice set. */
+function gateQpDisabled(env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.GATE_QP_DISABLED) || '').trim());
+}
+
 function isEnforced(env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.LIMITS_ENFORCE) || '').trim());
 }
@@ -817,6 +822,15 @@ function createLimits(deps = {}) {
           return none;
         }
       }
+      // GATE-QP-1 (owner ruling 19 Nov 2026): graded (written-answer) Quick Practice is Board Pass only for Basic AND for a
+      // Test Series-only buyer (both are tier `free`; a pack never changes the tier). Basic gets NO first-free QP grade and no
+      // reservation here: the request carries on to the entitlement gate, which answers the ordinary premium_required 402 the
+      // client already turns into the upgrade sheet. Trial and premium never reach this line (trial is metered above, premium is
+      // not metered). The signed-out free check never reaches this gate (no uid). GATE_QP_DISABLED=1 restores today's allowance.
+      if (kind === 'quick-practice' && info.tier === 'free' && LIMITS_CONFIG.basic.quickPracticeWrittenGradedPerDay < 1 && !gateQpDisabled(env)) {
+        emit('limits.grade.qp_board_pass_only');
+        return none;
+      }
       const db = ledgerDb();
       if (!db || typeof db.runTransaction !== 'function') {
         emit('limits.fail_open');
@@ -1025,6 +1039,7 @@ module.exports = {
   coverIsOwned,
   entryId,
   isEnforced,
+  gateQpDisabled,
   resolveLimits,
   USAGE_LIMITS_PATH,
   USAGE_LIMITS_DOWNLOAD_PATH,

@@ -48,6 +48,8 @@ import PacksPage, * as packsPage from "./PacksPage";
 import { PACKS_H1, PACKS_H1_LINES } from "./PacksPage";
 import * as salesCopy from "../components/salesPages/salesPagesCopy";
 import * as packs from "../services/packs";
+import { seriesTotals } from "../lib/testSeries/testSeries";
+import { testSeriesPerTestLine, testSeriesExaminerLine } from "../lib/testSeries/seriesPerTest";
 // GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { packPayLabel } from "../services/packs";
 
@@ -584,7 +586,9 @@ describe("TS-PACK-1 · /packs Test Series card", () => {
     const text = card.textContent ?? "";
     expect(text).toContain("Test Series Pack");
     expect(text).toContain(packs.packPriceLabel("test_series"));
-    expect(text).toContain("26 chapter tests + 40 full-length tests"); // counts from the series config (66 papers)
+    expect(text).toContain(`${seriesTotals().chapterTests} chapter tests + ${seriesTotals().fullMocks} full-length tests`); // counts from the series config
+    expect(text).toContain(testSeriesPerTestLine() ?? "per test"); // the highlighted "per test" badge, from code
+    expect(text).toContain(testSeriesExaminerLine() ?? "examiner");
     expect(text).toContain("twice per paper");
     expect(text).toContain("Does not include: the Board Pass, the tutor, the Answer Checker or the PDF packs.");
     expect(text).not.toMatch(/\bAI\b|free|answer key|hack|trick|crack|leak|optional|refund|\bapp\b/i);

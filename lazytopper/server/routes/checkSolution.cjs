@@ -24,7 +24,7 @@ const grading = require('../grading/index.cjs');
 const { createGradingCore } = require('../grading/core.cjs');
 // PR-3 (C9): what a grade CHARGES — the chargeable-question count, recorded on `res` before
 // every 2xx grading response (fair use commits exactly that; see grading/charge.cjs).
-const { chargeableCount, isChargeable, setChargeableCount } = require('../grading/charge.cjs');
+const { chargeableCount, isChargeable, setChargeableCount, unreadableSummary, setUnreadableSummary } = require('../grading/charge.cjs');
 // PR-3 (C10): detection's rules + post-processing, and the typed-PDF text layer (no new deps).
 const D = require('../grading/detect.cjs');
 // UPLOAD-READ-1 PR-B (D138): the ONE file ceiling and the largest body that reaches the app (see mentorImageSupport.cjs).
@@ -1174,6 +1174,7 @@ function createCheckSolutionRoute(deps) {
 
       // C9: a partial paper charges only the questions that were actually graded.
       setChargeableCount(res, chargeableCount(graded.results));
+      setUnreadableSummary(res, unreadableSummary(graded.results)); // TS-RECHECK-1
       return sendJson(res, 200, buildWorksheetBody(graded, { worksheetId, acceptsV2 }));
     } catch (err) {
       console.error('[grade-worksheet]', err);
@@ -1234,6 +1235,7 @@ function createCheckSolutionRoute(deps) {
     return {
       body: asBytes(buildWorksheetBody(graded, { worksheetId, acceptsV2 })),
       graded: chargeableCount(graded.results),
+      ...unreadableSummary(graded.results), // TS-RECHECK-1: { unreadable, total }
       model: graded.modelUsed || null,
     };
   }

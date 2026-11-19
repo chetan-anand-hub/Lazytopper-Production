@@ -149,8 +149,8 @@ import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLin
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
-import { CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterTestOf, seriesChapterWorksheetId } from "../lib/testSeries/testSeries";
-import { tsPinDisabled } from "../lib/testSeries/tsPinFlag";
+import { CT_PAPER_PARAM, CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterPaperNumber, seriesChapterTestOf, seriesChapterWorksheetId, seriesKeyOfWorksheetId } from "../lib/testSeries/testSeries";
+import { tsPinDisabledFor } from "../lib/testSeries/tsPinFlag";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
 type Phase = "setup" | "taking" | "results" | "pick";
@@ -236,9 +236,12 @@ export default function ChapterTestPage() {
   // TEST-SERIES-1 — `?series=1` opens this chapter's FIXED Test Series paper (same questions for every student; served history
   // ignored). Kill switch: VITE_TEST_SERIES_DISABLED=1 (the param is then ignored and the fresh draw opens, as before).
   const seriesTopicKey = resolveCanonicalSlug(topicKey) || topicKey;
+  // TS-MORE-1: `&paper=<k>` (2..5) opens the chapter's k-th fixed paper; absent / 1 = the original. An unknown k opens the fresh test.
+  // VITE_TS_MORE_DISABLED: only paper 1 exists (seriesChapterPaperNumber returns null for k > 1).
+  const seriesPaperK = seriesChapterPaperNumber(sp.get(CT_PAPER_PARAM));
   const seriesTest =
-    import.meta.env?.VITE_TEST_SERIES_DISABLED !== "1" && isChapterTestSeriesRequest(sp.get(CT_SERIES_PARAM), seriesTopicKey)
-      ? seriesChapterTestOf(seriesTopicKey)
+    import.meta.env?.VITE_TEST_SERIES_DISABLED !== "1" && seriesPaperK !== null && isChapterTestSeriesRequest(sp.get(CT_SERIES_PARAM), seriesTopicKey)
+      ? seriesChapterTestOf(seriesTopicKey, seriesPaperK)
       : null;
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const fairUse = useFairUse("chapter-test", isSignedIn);
@@ -348,7 +351,7 @@ export default function ChapterTestPage() {
   // TS-PIN-1 - a series paper is BUILT FROM ITS PINNED QUESTION IDS (lazy chunk), not re-drawn from the pool, so a bank edit never
   // moves it. A paper that cannot be built (no pinned entry, a failed chunk) falls back to the seeded draw below rather than a blank
   // page; VITE_TS_PIN_DISABLED restores the seeded draw outright.
-  const pinKey = seriesTest && !tsPinDisabled() && mintedNomen && bank.ready ? `${mintedNomen.code}|${seriesTest.code}` : null;
+  const pinKey = seriesTest && !tsPinDisabledFor(`TS-${seriesTest.code}`) && mintedNomen && bank.ready ? `${mintedNomen.code}|${seriesTest.code}` : null;
   const [pinned, setPinned] = useState<{ key: string; drawn: DrawnChapterTest | null; missingIds: string[]; failed: boolean } | null>(null);
   useEffect(() => {
     if (!pinKey || !seriesTest || !mintedNomen) return undefined;
@@ -363,7 +366,7 @@ export default function ChapterTestPage() {
           topicKey,
           topicLabel: topicName,
           grade,
-          worksheetId: seriesChapterWorksheetId(mintChapterTestId(), seriesTest.topicKey),
+          worksheetId: seriesChapterWorksheetId(mintChapterTestId(), seriesTest.topicKey, seriesTest.paper),
           code: mintedNomen.code,
           name: mintedNomen.name,
         }),
@@ -376,7 +379,7 @@ export default function ChapterTestPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pinKey]);
   const pinState = pinned && pinned.key === pinKey ? pinned : null;
-  const pinActive = !!seriesTest && !tsPinDisabled() && !pinState?.failed;
+  const pinActive = !!seriesTest && !tsPinDisabledFor(`TS-${seriesTest.code}`) && !pinState?.failed;
 
   const draw: DrawnChapterTest | null = useMemo(() => {
     if (!mintedNomen || !bank.ready) return null;
@@ -386,14 +389,14 @@ export default function ChapterTestPage() {
       topicKey,
       topicLabel: topicName,
       grade,
-      worksheetId: seriesTest ? seriesChapterWorksheetId(mintChapterTestId(), seriesTest.topicKey) : mintChapterTestId(),
+      worksheetId: seriesTest ? seriesChapterWorksheetId(mintChapterTestId(), seriesTest.topicKey, seriesTest.paper) : mintChapterTestId(),
       code: mintedNomen.code,
       name: mintedNomen.name,
       // FRESH-SET-TESTS — unseen questions first; seeded, never Math.random.
       seed: freshInputs?.seed,
       servedAt: freshInputs?.servedAt,
       // TEST-SERIES-1 — the fixed series paper (overrides seed + served history).
-      ...(seriesTest ? { fixedSeed: chapterTestSeriesSeed(seriesTest.topicKey) } : {}),
+      ...(seriesTest ? { fixedSeed: chapterTestSeriesSeed(seriesTest.topicKey, seriesTest.paper) } : {}),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mintedNomen, bank.ready, subject, topicKey, grade, drawNonce, seriesTest?.code, pinActive, pinState]);
@@ -418,6 +421,12 @@ export default function ChapterTestPage() {
         setNoun: "test",
       })
     : null;
+
+  // TS-MORE-1: which Test Series paper a sitting was (CT-M01-3), read from its worksheet id; null for a non-series sitting.
+  const seriesPaperTag = useCallback((r: { worksheetId?: string }): string | null => {
+    const k = seriesKeyOfWorksheetId(r.worksheetId);
+    return k && k.kind === "chapter" ? (seriesChapterTestOf(k.topicKey, k.paper)?.code ?? null) : null;
+  }, []);
 
   const topicRecords = useMemo(() => {
     const slug = resolveCanonicalSlug(topicKey);
@@ -535,7 +544,14 @@ export default function ChapterTestPage() {
     };
   }, [restoredPaper, bank.ready, draw]);
   const timeLimitSeconds = useMemo(() => Math.max(15, Math.round((paper?.totalMarks ?? 40) * 1.2)) * 60, [paper]);
-  const progressKey = nomen ? `lazytopper.ct.progress.${nomen.code}` : null;
+  // TS-MORE-1: a series paper 2..5 saves under its STABLE paper code (ts.CT-M01-3), never the chapter's attempt counter: that counter
+  // moves on whenever any other sitting is saved, which would strand (and the cleanup below would delete) a paper in progress. Paper 1
+  // and non-series sittings keep exactly today's key (the attempt code), so sittings already in progress still resume.
+  const progressKey = nomen
+    ? seriesTest && seriesTest.paper > 1
+      ? `lazytopper.ct.progress.ts.${seriesTest.code}`
+      : `lazytopper.ct.progress.${nomen.code}`
+    : null;
 
   // Autosave restore (honest "✓ saved") — CT-RELOAD-1. A reload mid-test used to land on the
   // setup screen with a NEW draw and then restore the saved answers (keyed by question NUMBER)
@@ -551,8 +567,10 @@ export default function ChapterTestPage() {
       // CT-RESUME-2: an older in-progress entry for THIS route under another test code (its
       // number moved on since) can never be resumed here; drop it, so the daily paper gate
       // never treats this visit as a resume of a paper this page will not offer.
-      const route = paperRouteKey(location.pathname);
-      for (let i = window.sessionStorage.length - 1; i >= 0; i -= 1) {
+      const route = paperRouteKey(location.pathname, location.search);
+      // A series paper 2..5 has a stable key of its own: there is no moved-on code to clean up, and nothing here may delete a sitting.
+      const stableKey = !!seriesTest && seriesTest.paper > 1;
+      for (let i = stableKey ? -1 : window.sessionStorage.length - 1; i >= 0; i -= 1) {
         const key = window.sessionStorage.key(i);
         if (!key || key === progressKey || !key.startsWith(CT_PROGRESS_PREFIX)) continue;
         try {
@@ -589,7 +607,7 @@ export default function ChapterTestPage() {
     } catch {
       /* best-effort */
     }
-  }, [progressKey, location.pathname]);
+  }, [progressKey, location.pathname, location.search, seriesTest?.code]);
 
   // Autosave write while taking — the paper rides along so a reload restores THIS paper.
   useEffect(() => {
@@ -599,12 +617,12 @@ export default function ChapterTestPage() {
         progressKey,
         // CT-RESUME-2: `route` lets the daily paper gate (MockViewGate) recognise a reload of THIS
         // chapter's saved paper as a resume — not a new paper (lib/papers/resumablePaper).
-        JSON.stringify({ answers, flags: [...flags], elapsed, currentQNumber, timerEnabled, paper, route: paperRouteKey(location.pathname) }),
+        JSON.stringify({ answers, flags: [...flags], elapsed, currentQNumber, timerEnabled, paper, route: paperRouteKey(location.pathname, location.search) }),
       );
     } catch {
       /* quota — best-effort */
     }
-  }, [answers, flags, elapsed, currentQNumber, timerEnabled, phase, progressKey, paper, location.pathname]);
+  }, [answers, flags, elapsed, currentQNumber, timerEnabled, phase, progressKey, paper, location.pathname, location.search]);
 
   const objectiveQs = useMemo(() => (paper ? objectiveQuestions(paper) : []), [paper]);
   const subjectiveQs = useMemo(() => (paper ? subjectiveQuestions(paper) : []), [paper]);
@@ -757,7 +775,7 @@ export default function ChapterTestPage() {
     }
     // CT-RESUME-2: starting a paper is a NEW paper. A visit the daily gate let through uncounted
     // (it looked like a resume) is counted now — or refused at today's limit.
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest))) {
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest), location.search)) {
       setLimitNotice(NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -794,7 +812,7 @@ export default function ChapterTestPage() {
   const discardRestored = useCallback(() => {
     // CT-RESUME-2: this visit was let through as a RESUME (not counted). A new paper instead is
     // counted now — or refused when today's papers are used up (the saved test stays).
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium)) {
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium, location.search)) {
       setLimitNotice(NEW_PAPER_LIMIT_SAVED_LINE);
       return;
     }
@@ -931,7 +949,7 @@ export default function ChapterTestPage() {
   const downloadTest = useCallback(async () => {
     if (!paper || !nomen || downloading || !seriesDownloadAccess) return;
     // CT-RESUME-2: downloading THIS visit's draw is a new paper (the saved paper on offer is not).
-    if (!restoredPaper && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest))) {
+    if (!restoredPaper && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest), location.search)) {
       setLimitNotice(NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -1337,6 +1355,7 @@ export default function ChapterTestPage() {
             <ChapterTestHistoryRail
               topicLabel={topicName}
               records={topicRecords}
+              paperTag={seriesPaperTag}
               loading={recordsLoading}
               onOpen={openStored}
             />

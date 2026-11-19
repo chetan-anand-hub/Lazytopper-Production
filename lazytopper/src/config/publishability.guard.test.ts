@@ -62,6 +62,7 @@ import { describe, it, expect } from "vitest";
 import {
   isPublishable,
   demandsSuppliedFigure,
+  demandsFigureForRow,
   defaultHasBoundFigure,
   stepMarks,
   DEMANDS_SUPPLIED_FIGURE,
@@ -354,7 +355,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(gaps.map((q) => q.id)).toEqual([]);
   });
 
-  it("the addressable step-marking backlog only shrinks (at most 1,077 rows)", () => {
+  it("the addressable step-marking backlog only shrinks (at most 928 rows)", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
      * rows that Rule 1 rejects permanently and that policy says to RETIRE, not
@@ -419,6 +420,11 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // landing in "marks-do-not-sum" (11 -> 0). Left alone on purpose: CBE-M-RN-B-004 (the HALF-1
     // [½ mark] positive control) and PYQ-M-2026-PLE-004/005 (pinned to the ledger's 2+1 marks by
     // pyqRestore1).
+    // 1,230 -> 1,080: measured at trunk 96ba6c15 after STEPMARK-2 batch 3A (hand-sourced Maths:
+    // arithmetic-progression, coordinate-geometry, triangles, circles) rewrote solutionSteps on 149
+    // non-AI rows; every one left "unmarked-step" (the other trunk changes since batch 1 account for the rest).
+    // PYQ-M-AP-002 was left alone: its "[½ mark]" OR steps already sum per route.
+    // 1,080 -> 928: measured after merging #1781 (3A, 149 rows) and #1783 (3B, 152 rows) onto trunk 0c9afcb8 (1,229 - 149 - 152).
     // 1,230 -> 1,077: measured at trunk 96ba6c15 after STEPMARK-2 batch 3B (hand-sourced Maths:
     // trigonometry, areas-related-to-circles, surface-areas-and-volumes, statistics, probability) rewrote
     // solutionSteps on 152 non-AI rows; every one left "unmarked-step" (trunk itself measured 1,229).
@@ -428,7 +434,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // worked up: a wiring PR that lands rows unannotated grows it and goes red here,
     // which is the right red — annotate before wiring. 2,336 at PR-3 (2026-09-11); the
     // 21 bound-but-unmarked rows PR-3 exposed are inside this number, not added to it.
-    expect(addressable.length).toBeLessThanOrEqual(1077);
+    expect(addressable.length).toBeLessThanOrEqual(928);
   });
 });
 
@@ -825,7 +831,9 @@ describe("the publishable population", () => {
     for (const q of escaped) {
       const demands =
         Boolean((q as { requiresDiagram?: boolean }).requiresDiagram) ||
-        demandsSuppliedFigure(`${q.questionText}\n${q.answer ?? ""}`);
+        // demandsFigureForRow = the rule's own test: wording OR a reviewed id (FIGURE_DEPENDENT_BY_REVIEW, e.g. APQ-M-CIRC-012, which
+        // STEPMARK-2 batch 3A annotated and which has a bound figure).
+        demandsFigureForRow(q.id, `${q.questionText}\n${q.answer ?? ""}`);
       expect(demands, `${q.id} escaped without demanding a figure`).toBe(true);
       expect(defaultHasBoundFigure(q.id), `${q.id} escaped without a bound figure`).toBe(true);
     }

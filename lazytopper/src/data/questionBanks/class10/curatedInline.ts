@@ -76,13 +76,10 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "The 20th term of the AP is 18.",
     "explanation": "",
     "solutionSteps": [
-      "Let the AP have first term a and common difference d.",
-      "Given a = 3, n = 20 and Sₙ = 210.",
-      "Recall the formula for sum of n terms of an AP: Sₙ = n/2 [2a + (n − 1)d].",
-      "Substitute n = 20, a = 3 and Sₙ = 210 to get 210 = 20/2 [2×3 + 19d].",
-      "Simplify: 210 = 10(6 + 19d) ⇒ 21 = 6 + 19d ⇒ 19d = 15 ⇒ d = 15/19.",
-      "Use the nth term formula aₙ = a + (n − 1)d with n = 20: a₂₀ = 3 + 19(d) = 3 + 19×(15/19) = 3 + 15 = 18.",
-      "Hence, the 20th term of the AP is 18."
+      "[0.5 mark] Let the AP have first term a and common difference d. Given a = 3, n = 20 and Sₙ = 210. Recall the formula for sum of n terms of an AP: Sₙ = n/2 [2a + (n − 1)d].",
+      "[1 mark] Substitute n = 20, a = 3 and Sₙ = 210 to get 210 = 20/2 [2×3 + 19d]. Simplify: 210 = 10(6 + 19d) ⇒ 21 = 6 + 19d ⇒ 19d = 15 ⇒ d = 15/19.",
+      "[1 mark] Use the nth term formula aₙ = a + (n − 1)d with n = 20: a₂₀ = 3 + 19(d) = 3 + 19×(15/19) = 3 + 15 = 18.",
+      "[0.5 mark] Hence, the 20th term of the AP is 18."
     ],
     "finalAnswer": "The 20th term of the AP is 18.",
     "strategyHint": "",
@@ -104,13 +101,9 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "PA = PB (corresponding sides of congruent triangles ΔOPA and ΔOPB).",
     "explanation": "",
     "solutionSteps": [
-      "Draw circle with centre O and tangents PA and PB from external point P touching at A and B.",
-      "Join OA, OB, and OP.",
-      "Recall: the radius drawn to the point of contact of a tangent is perpendicular to the tangent, so OA ⟂ PA and OB ⟂ PB.",
-      "Observe triangles ΔOPA and ΔOPB.",
-      "In ΔOPA and ΔOPB: OP is common, OA = OB (radii of the same circle), and ∠OAP = ∠OBP = 90°.",
-      "Thus, triangles ΔOPA and ΔOPB are congruent by RHS congruence criterion.",
-      "Hence, PA = PB as corresponding sides of congruent triangles."
+      "[1 mark] Draw circle with centre O and tangents PA and PB from external point P touching at A and B. Join OA, OB, and OP. Recall: the radius drawn to the point of contact of a tangent is perpendicular to the tangent, so OA ⟂ PA and OB ⟂ PB.",
+      "[1 mark] Observe triangles ΔOPA and ΔOPB. In ΔOPA and ΔOPB: OP is common, OA = OB (radii of the same circle), and ∠OAP = ∠OBP = 90°. Thus, triangles ΔOPA and ΔOPB are congruent by RHS congruence criterion.",
+      "[1 mark] Hence, PA = PB as corresponding sides of congruent triangles."
     ],
     "finalAnswer": "PA = PB (corresponding sides of congruent triangles ΔOPA and ΔOPB).",
     "strategyHint": "",
@@ -132,13 +125,11 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "AB = 5 units; midpoint M = (5, 2.5)",
     "explanation": "",
     "solutionSteps": [
-      "Write the coordinates of A and B as A(x₁, y₁) = (3, 4) and B(x₂, y₂) = (7, 1).",
-      "Recall the distance formula: AB = √[(x₂ − x₁)² + (y₂ − y₁)²].",
-      "Substitute the values: AB = √[(7 − 3)² + (1 − 4)²] = √[(4)² + (−3)²].",
-      "Compute: AB = √(16 + 9) = √25 = 5 units.",
-      "Recall the midpoint formula: M = ((x₁ + x₂)/2, (y₁ + y₂)/2).",
-      "Substitute to get M = ((3 + 7)/2, (4 + 1)/2) = (10/2, 5/2) = (5, 2.5).",
-      "Thus, the distance AB is 5 units and midpoint M is (5, 2.5)."
+      "[0.5 mark] Write the coordinates of A and B as A(x₁, y₁) = (3, 4) and B(x₂, y₂) = (7, 1). Recall the distance formula: AB = √[(x₂ − x₁)² + (y₂ − y₁)²].",
+      "[1 mark] Substitute the values: AB = √[(7 − 3)² + (1 − 4)²] = √[(4)² + (−3)²]. Compute: AB = √(16 + 9) = √25 = 5 units.",
+      "[0.5 mark] Recall the midpoint formula: M = ((x₁ + x₂)/2, (y₁ + y₂)/2).",
+      "[0.5 mark] Substitute to get M = ((3 + 7)/2, (4 + 1)/2) = (10/2, 5/2) = (5, 2.5).",
+      "[0.5 mark] Thus, the distance AB is 5 units and midpoint M is (5, 2.5)."
     ],
     "finalAnswer": "AB = 5 units; midpoint M = (5, 2.5)",
     "strategyHint": "",

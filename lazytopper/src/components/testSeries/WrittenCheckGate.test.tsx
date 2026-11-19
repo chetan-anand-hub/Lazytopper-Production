@@ -46,7 +46,7 @@ describe("walls", () => {
         <SeriesStartWall />
       </MemoryRouter>,
     );
-    expect(screen.getByTestId("series-start-wall").textContent).toContain(`Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all 66 tests`); // TS-PRICE-2 (edited expectation): the TS price is date-driven (999 founding, 1,499 from 1 Dec), never a literal
+    expect(screen.getByTestId("series-start-wall").textContent).toContain(`Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all 180 tests`); // TS-PRICE-2 (edited expectation): the TS price is date-driven (999 founding, 1,499 from 1 Dec), never a literal
     expect(screen.getByTestId("series-start-wall-ts")).toBeTruthy();
     expect(screen.getByTestId("series-start-wall-bp")).toBeTruthy();
   });
@@ -105,6 +105,23 @@ describe("TS-PACK-1 · ownsTestSeries unlocks the series papers; the checks-left
     sub.tier = "premium";
     render(<SeriesChecksLeftLine uid="u3" worksheetId="ct-ts1-real-numbers--abc" />);
     expect(screen.queryByTestId("series-checks-left")).toBeNull(); // the Board Pass checks every paper, every time
+  });
+
+  it("TS-RECHECK-1: a not-counted check says so plainly, with the count still truthful; nothing otherwise", async () => {
+    const { resetTestSeriesOwnershipForTests } = await import("./testSeriesOwnership");
+    resetTestSeriesOwnershipForTests();
+    sub.tier = "free";
+    mine.value = { packs: [], licensee: { name: "A", email: "a@b.in" }, ownsTestSeries: true, testSeries: { validUntilMs: 1, checksPerPaper: 2, used: {}, freeRecheck: { "TS-CT-M01": true } } };
+    render(<SeriesChecksLeftLine uid="u4" worksheetId="ct-ts1-real-numbers--abc" />);
+    expect((await screen.findByTestId("series-recheck-note")).textContent).toBe(
+      "We couldn't read most of your sheet, so this check wasn't counted. Retake the photo in good light and upload again. This free re-check is given once per paper.",
+    );
+    expect(screen.getByTestId("series-checks-left").textContent).toBe("Checks left on this paper: 2 of 2");
+    expect(screen.getByTestId("series-recheck-note").textContent).not.toMatch(/\bAI\b/);
+    cleanup();
+    render(<SeriesChecksLeftLine uid="u4" worksheetId="fm-ts1-s4--abc" />);
+    await screen.findByTestId("series-checks-left");
+    expect(screen.queryByTestId("series-recheck-note")).toBeNull(); // another paper: no note
   });
 });
 

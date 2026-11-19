@@ -201,3 +201,33 @@ describe("CT-RESUME-2 · the daily paper gate counts only NEW papers", () => {
     expect(sessionStorage.getItem("lazytopper.dailyMockViews.uncounted")).toBeNull();
   });
 });
+
+describe("TS-MORE-1 · the daily gate with series papers", () => {
+  function saveFmPaper(worksheetId: string) {
+    localStorage.setItem(
+      `lazytopper.fm.session.v1.${UID}.FM-S-07`,
+      JSON.stringify({ code: "FM-S-07", subject: "Science", phase: "taking", paper: { ...savedPaper, worksheetId }, startedAt: 1, durationMs: 1, answers: {}, flags: [], updatedAt: 1 }),
+    );
+  }
+  it("full mock: at 3/3 a saved sitting of paper 3 still lets the student through on ANY paper of that subject (today's rule), uncounted", () => {
+    spendAllThree();
+    saveFmPaper("fm-ts1-s3--abc");
+    expect(visit(`${FM_ROUTE}?paper=3`)).toBe(true);
+    expect(visit(`${FM_ROUTE}?paper=5`)).toBe(true);
+    expect(visit("/full-mock/10/maths?paper=5")).toBe(false);
+    expect(viewsToday()).toBe(3);
+  });
+  it("chapter test: at 3/3 a saved paper-1 sitting is NOT a resume on paper 3 (blocked as a new paper); a saved paper-3 sitting is", () => {
+    spendAllThree();
+    saveCtProgress(CT_ROUTE.toLowerCase()); // paper 1 / non-series route key
+    expect(visit(`${CT_ROUTE}?series=1&paper=3`)).toBe(false);
+    expect(visit(CT_ROUTE)).toBe(true);
+    sessionStorage.clear();
+    sessionStorage.setItem(
+      "lazytopper.ct.progress.ts.CT-S-CAIC-3",
+      JSON.stringify({ answers: {}, flags: [], elapsed: 1, currentQNumber: 1, timerEnabled: true, paper: savedPaper, route: `${CT_ROUTE.toLowerCase()}?paper=3` }),
+    );
+    expect(visit(`${CT_ROUTE}?series=1&paper=3`)).toBe(true);
+    expect(visit(CT_ROUTE)).toBe(false);
+  });
+});
