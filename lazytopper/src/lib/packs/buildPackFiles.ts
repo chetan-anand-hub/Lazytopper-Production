@@ -38,7 +38,6 @@ import {
 import {
   bankSubjectName,
   bankSubjectOf,
-  cbqPackRows,
   chapterName,
   chapterPackDrawRows,
   chapterPackRows,
@@ -54,7 +53,7 @@ import { DRAW_STAMP } from "./packDraws";
 import { packChapterTestPapers, packMockPapers, packWorksheetRows } from "./packPins";
 import { CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, MATHS_MOCK_PATTERN } from "./packLabels";
 import { CBQ_QUESTION_TYPES } from "./cbqPackTypes";
-import { cbqSets } from "./cbqSets";
+import { cbqSetsFor } from "./cbqPins";
 import type { PrintCoverProps } from "../../components/worksheet/PrintCover";
 import { bridgePackLabel, cbqBridgeExampleCode, type BridgeContext, type BridgePagesData } from "./packBridge";
 
@@ -579,25 +578,28 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
     // exactly one set, so the pack holds the same questions as before; each set is numbered Q1.. as the paper it is.
     // Round 3 (owner 8 Nov 21:20, "One pdf per chapter"): a file holds several sets in order; each set starts on a new page with its
     // own title row, printed code and (questions) QR, and waits on Home on its own.
-    const sets = cbqSets(cbqPackRows(slug));
-    if (sets.length === 0) continue;
-    const papers = sets.map((set, pi) => {
-      const title = `${name} \u00b7 Board CBQs \u00b7 Set ${pi + 1} of ${sets.length}`;
+    // CBQ-PIN-1: the sets are PINNED (cbqPins.ts) - a sold set never changes; rows that became eligible later are appended as new sets.
+    const pinned = await cbqSetsFor(slug);
+    if (pinned.sets.length === 0) continue;
+    const papers = pinned.sets.map(({ k, rows: set }) => {
+      const title = `${name} \u00b7 Board CBQs \u00b7 Set ${k} of ${pinned.total}`;
       const questions = set.map((q, i) => toWorksheetQuestion(q, i + 1, name));
       return {
-        ws: () => worksheetOf({ id: `pack-cbq-${slug}-set-${pi + 1}`, title, subject: bankSubject, sectionFilter: "Competency-based", questions }),
+        k,
+        ws: () => worksheetOf({ id: `pack-cbq-${slug}-set-${k}`, title, subject: bankSubject, sectionFilter: "Competency-based", questions }),
         // BRIDGE-CODES-1: each set is a paper filed as a worksheet (the Chapter Pack's `-WS` path): same upload, grader, entitlement.
-        paper: { kind: "worksheet" as const, code: packPaperCode({ kind: "cbq", chapter: slug, set: pi + 1 }), name: title, subject: bankSubject, topicKey: slug },
+        paper: { kind: "worksheet" as const, code: packPaperCode({ kind: "cbq", chapter: slug, set: k }), name: title, subject: bankSubject, topicKey: slug },
         nQ: questions.length,
         marks: questions.reduce((m, q) => m + (Number(q.marks) || 0), 0),
       };
     });
+    const parts = pinned.partKs.map((ks) => papers.filter((p) => ks.includes(p.k)));
     // Owner 8 Nov 22:45 ("make it deliver/download in parts, that way user wont think that they are stuck"): the chapter's sets are
     // delivered as PART files of about CBQ_SETS_PER_PART sets each, so every download is quick and finishes on its own.
-    for (const [pk, part] of cbqParts(papers).entries()) {
-      const nParts = cbqParts(papers).length;
-      const first = papers.indexOf(part[0]) + 1;
-      const last = first + part.length - 1;
+    for (const [pk, part] of parts.entries()) {
+      const nParts = parts.length;
+      const first = part[0].k;
+      const last = part[part.length - 1].k;
       const range = first === last ? `Set ${first}` : `Sets ${first}\u2013${last}`;
       const nQ = part.reduce((m, p) => m + p.nQ, 0);
       const marks = part.reduce((m, p) => m + p.marks, 0);
@@ -616,7 +618,7 @@ export async function cbqFiles(subject: PackSubject, packId: string, sku: PackSk
               cover: {
                 kicker: mode === "questions" ? `${kicker} CBQ PACK` : `${kicker} CBQ PACK \u00b7 ANSWER KEY`,
                 title,
-                subtitle: `${name} \u00b7 ${range} of ${papers.length} \u00b7 ${nQ} ${nQ === 1 ? "question" : "questions"}, ${marks} ${marks === 1 ? "mark" : "marks"} \u00b7 worked step-wise solutions`,
+                subtitle: `${name} \u00b7 ${range} of ${pinned.total} \u00b7 ${nQ} ${nQ === 1 ? "question" : "questions"}, ${marks} ${marks === 1 ? "mark" : "marks"} \u00b7 worked step-wise solutions`,
                 // COVER-CLEAN-1: the pack's own facts, read from the same constants the pack page and pricing band use.
                 headline: { value: `${CBQ_MIN_PER_SUBJECT.toLocaleString("en-IN")}+`, label: "CBQs", note: "competency-based questions" },
                 stats: [
