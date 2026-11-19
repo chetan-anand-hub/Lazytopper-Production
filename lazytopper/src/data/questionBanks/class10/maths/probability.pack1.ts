@@ -185,9 +185,9 @@ export const PROBABILITY_PACK1: CanonicalQuestion[] = [
       "P = 4/8 = 1/2 [1]",
     ], finalAnswer: "1/2" , visualExplainerId: "maths-probability-classical-probability", isCompetencyBased: true },
   { id: "PROB-M15", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The king, queen and jack of clubs are removed from a deck of 52 cards. Find the probability that a card drawn from the remaining deck is: (i) a spade (ii) a queen (iii) a club.", solutionSteps: [
-      "Remaining cards = 49; (i) Spades: 13. P = 13/49 [1]",
-      "(ii) Queens: 3 (clubs queen removed). P = 3/49 [1]",
-      "(iii) Clubs: 10 (3 removed). P = 10/49 [1]",
+      "[1 mark] Remaining cards = 49; (i) Spades: 13. P = 13/49",
+      "[1 mark] (ii) Queens: 3 (clubs queen removed). P = 3/49",
+      "[1 mark] (iii) Clubs: 10 (3 removed). P = 10/49"
     ], finalAnswer: "(i) 13/49, (ii) 3/49, (iii) 10/49" , visualExplainerId: "maths-probability-dice-and-cards-sample-space", isCompetencyBased: true },
   { id: "PROB-M16", subject: "Maths", topicKey: "probability", subtopic: "Combined/Word Problem Probability", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "Two dice are thrown. The probability of getting a sum of 11 is:", options: ["1/18", "1/12", "1/6", "1/36"], answer: "1/18", explanation: "Sum 11: (5,6),(6,5) → 2/36 = 1/18. Therefore, the correct answer is 1/18.", solutionSteps: ["Sum 11: (5,6),(6,5) → 2/36 = 1/18 Answer: (A)"], finalAnswer: "1/18" , isCompetencyBased: true },
   { id: "PROB-M17", subject: "Maths", topicKey: "probability", subtopic: "Single Event Probability", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A child has a die whose six faces show the letters A, B, C, D, E and F. The die is thrown once. What is the probability of getting (i) A? (ii) a vowel? (iii) D or F?", solutionSteps: [

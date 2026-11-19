@@ -44,8 +44,8 @@ export const LIGHT_PACK1: CanonicalQuestion[] = [
   },
   { id: "LT-E08", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Understanding", questionText: "The focal length of a concave mirror is 15 cm. Its radius of curvature is:", options: ["7.5 cm", "15 cm", "30 cm", "45 cm"], answer: "30 cm", explanation: "R = 2f = 2 × 15 = 30 cm. Therefore, the correct answer is 30 cm.", solutionSteps: ["R = 2f = 2 × 15 = 30 cm Answer: (C)"], finalAnswer: "30 cm" , isCompetencyBased: false },
   { id: "LT-E09", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refraction", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering", questionText: "State Snell's law of refraction.", solutionSteps: [
-      "The ratio of sine of angle of incidence to sine of angle of refraction is constant [1]",
-      "sin i / sin r = n₂/n₁ = constant (refractive index) [1]",
+      "[1 mark] The ratio of sine of angle of incidence to sine of angle of refraction is constant",
+      "[1 mark] sin i / sin r = n₂/n₁ = constant (refractive index)"
     ], finalAnswer: "sin i / sin r = constant = refractive index" , isCompetencyBased: false },
   { id: "LT-E10", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Reflection", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The mirror formula is:", options: ["1/v + 1/u = 1/f", "1/v − 1/u = 1/f", "v + u = f", "v − u = f"], answer: "1/v + 1/u = 1/f", explanation: "The correct answer is 1/v + 1/u = 1/f. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "1/v + 1/u = 1/f" , isCompetencyBased: false,
     solutionSteps: [

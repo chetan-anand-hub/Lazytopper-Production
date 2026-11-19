@@ -45,9 +45,9 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "EL-E09", subject: "Science", topicKey: "electricity", subtopic: "Resistance", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "What is the difference between a conductor and an insulator? Give one example of each.", solutionSteps: [
-      "Conductor: allows electric current to flow easily; e.g., copper [½]",
-      "Insulator: does not allow current to flow; e.g., rubber [½]",
-      "Conductors have free electrons; insulators do not [1]",
+      "[0.5 mark] Conductor: allows electric current to flow easily; e.g., copper",
+      "[0.5 mark] Insulator: does not allow current to flow; e.g., rubber",
+      "[1 mark] Conductors have free electrons; insulators do not"
     ], finalAnswer: "Conductor (copper): allows current; Insulator (rubber): blocks current" , isCompetencyBased: false },
   { id: "EL-E10", subject: "Science", topicKey: "electricity", subtopic: "Ohm's Law", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "A voltmeter is connected in:", options: ["Series", "Parallel", "Both", "Neither"], answer: "Parallel", explanation: "The correct answer is Parallel. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Parallel" , isCompetencyBased: false,
     solutionSteps: [
@@ -132,8 +132,8 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "EL-M12", subject: "Science", topicKey: "electricity", subtopic: "Resistance", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Calculate the resistance of a copper wire 1 m long and 0.5 mm² in cross-sectional area. (Resistivity of copper = 1.7 × 10⁻⁸ Ω·m)", solutionSteps: [
-      "R = ρl/A = (1.7×10⁻⁸ × 1) / (0.5×10⁻⁶) [1]",
-      "R = 1.7×10⁻⁸ / 5×10⁻⁷ = 0.034 Ω [1]",
+      "[1 mark] R = ρl/A = (1.7×10⁻⁸ × 1) / (0.5×10⁻⁶)",
+      "[1 mark] R = 1.7×10⁻⁸ / 5×10⁻⁷ = 0.034 Ω"
     ], finalAnswer: "R = 0.034 Ω" , isCompetencyBased: true },
   { id: "EL-M13", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Joule's law of heating states that heat produced is proportional to:", options: ["I²Rt", "V/I", "R/I²", "V²/R²"], answer: "I²Rt", explanation: "The correct answer is I²Rt. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "I²Rt" , isCompetencyBased: false,
     solutionSteps: [
@@ -181,9 +181,9 @@ export const ELECTRICITY_PACK1: CanonicalQuestion[] = [
       "(iv) I = P/V = 1500/220 ≈ 6.82 A [1]",
     ], finalAnswer: "(i) 1500 W (ii) 7.5 kWh (iii) ₹1350 (iv) ≈6.82 A" , visualExplainerId: "science-electricity-electric-power-and-energy", isCompetencyBased: true },
   { id: "EL-H06", subject: "Science", topicKey: "electricity", subtopic: "Heating Effect", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "Why does the cord of an electric heater not glow while the heating element does, even though the same current flows through both?", solutionSteps: [
-      "Both carry the same current (series connection); Heating element (nichrome) has high resistance → more heat per Joule's law (H=I²Rt) [1]",
-      "Cord is made of copper/aluminium with very low resistance → negligible heat [1]",
-      "Element reaches incandescence temperature; cord stays cool [1]",
+      "[1 mark] Both carry the same current (series connection); Heating element (nichrome) has high resistance → more heat per Joule's law (H=I²Rt)",
+      "[1 mark] Cord is made of copper/aluminium with very low resistance → negligible heat",
+      "[1 mark] Element reaches incandescence temperature; cord stays cool"
     ], finalAnswer: "Element: high resistance → more heat → glows; Cord: low resistance → minimal heat" , isCompetencyBased: true },
   { id: "EL-H07", subject: "Science", topicKey: "electricity", subtopic: "Resistance", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Evaluating", questionText: "A student has 12 resistors, each of 2 Ω.\n(i) What is the minimum resistance he can obtain?\n(ii) What is the maximum resistance he can obtain?\n(iii) How should he connect 4 resistors to get 2 Ω?\n(iv) Can he get a total resistance of 3 Ω using some of these? Show how.", solutionSteps: [
       "(i) All 12 in parallel: R = 2/12 = 1/6 Ω [1]",

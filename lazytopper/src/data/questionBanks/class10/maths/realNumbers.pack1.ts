@@ -487,11 +487,11 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Evaluating",
     questionText: "Prove that √3 is irrational. Hence show that 5 − 2√3 is also irrational.",
     solutionSteps: [
-      "Part 1: Prove √3 is irrational by contradiction (assume √3 = p/q co-prime → p² = 3q² → 3|p → let p = 3k → 3|q → contradiction). [1]",
-      "Part 2: Assume 5 − 2√3 = r (rational). [1]",
-      "Then 2√3 = 5 − r, so √3 = (5 − r)/2, which is rational. [1]",
-      "But √3 is irrational. Contradiction. [1]",
-      "Hence 5 − 2√3 is irrational. [1]",
+      "[1 mark] Part 1: Prove √3 is irrational by contradiction (assume √3 = p/q co-prime → p² = 3q² → 3|p → let p = 3k → 3|q → contradiction).",
+      "[1 mark] Part 2: Assume 5 − 2√3 = r (rational).",
+      "[1 mark] Then 2√3 = 5 − r, so √3 = (5 − r)/2, which is rational.",
+      "[1 mark] But √3 is irrational. Contradiction.",
+      "[1 mark] Hence 5 − 2√3 is irrational."
     ],
     finalAnswer: "Both √3 and 5 − 2√3 are irrational",
     visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: false,
@@ -526,11 +526,11 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Two alarm clocks ring their alarms at regular intervals of 50 seconds and 48 seconds respectively. If they first beep together at 12 noon, at what time will they beep again for the first time? Also find at what time they will beep together for the 5th time.",
     solutionSteps: [
-      "Find LCM(50, 48) [1]",
-      "50 = 2 × 5², 48 = 2⁴ × 3 [1]",
-      "LCM = 2⁴ × 3 × 5² = 1200 seconds = 20 minutes [1]",
-      "First time together again: 12:00 + 20 min = 12:20 PM [1]",
-      "The 12 noon beep is the 1st time, so the 5th time is after 4 intervals: 12:00 + 4 × 20 min = 12:00 + 80 min = 1:20 PM [1]"
+      "[1 mark] Find LCM(50, 48)",
+      "[1 mark] 50 = 2 × 5², 48 = 2⁴ × 3",
+      "[1 mark] LCM = 2⁴ × 3 × 5² = 1200 seconds = 20 minutes",
+      "[1 mark] First time together again: 12:00 + 20 min = 12:20 PM",
+      "[1 mark] The 12 noon beep is the 1st time, so the 5th time is after 4 intervals: 12:00 + 4 × 20 min = 12:00 + 80 min = 1:20 PM"
     ],
     finalAnswer: "12:20 PM; 5th time at 1:20 PM",
     isCompetencyBased: false,
@@ -564,10 +564,10 @@ export const REAL_NUMBERS_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "RN-ND02", subject: "Maths", topicKey: "real-numbers", subtopic: "Irrational Numbers", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Prove that √5 is irrational. Hence prove that 2 + √5 is also irrational.", solutionSteps: [
-      "Assume √5 is rational. Then √5 = p/q where p, q are integers, q ≠ 0, and HCF(p, q) = 1.; Squaring: 5 = p²/q² → p² = 5q². [1]",
-      "5 divides p², so 5 divides p (if a prime divides a², it divides a). Let p = 5m.; Then (5m)² = 5q² → 25m² = 5q² → 5m² = q². [1]",
-      "5 divides q², so 5 divides q. But then 5 is a common factor of p and q, contradicting HCF = 1.; Contradiction! So √5 is irrational. ✓ [1]",
-      "Now suppose 2 + √5 is rational = r (say). Then √5 = r − 2, which is rational. [1]",
-      "But √5 is irrational — contradiction. Therefore 2 + √5 is irrational. ✓ [1]",
+      "[1 mark] Assume √5 is rational. Then √5 = p/q where p, q are integers, q ≠ 0, and HCF(p, q) = 1.; Squaring: 5 = p²/q² → p² = 5q².",
+      "[1 mark] 5 divides p², so 5 divides p (if a prime divides a², it divides a). Let p = 5m.; Then (5m)² = 5q² → 25m² = 5q² → 5m² = q².",
+      "[1 mark] 5 divides q², so 5 divides q. But then 5 is a common factor of p and q, contradicting HCF = 1.; Contradiction! So √5 is irrational. ✓",
+      "[1 mark] Now suppose 2 + √5 is rational = r (say). Then √5 = r − 2, which is rational.",
+      "[1 mark] But √5 is irrational — contradiction. Therefore 2 + √5 is irrational. ✓"
     ], answer: "√5 is irrational (by contradiction); hence 2 + √5 is also irrational.", explanation: "See solution steps for full working.", finalAnswer: "√5 is irrational (by contradiction); hence 2 + √5 is also irrational.", visualExplainerId: "maths-real-numbers-irrational-numbers-proof", isCompetencyBased: true }
 ];

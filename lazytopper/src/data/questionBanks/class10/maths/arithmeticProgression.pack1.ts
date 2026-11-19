@@ -36,8 +36,8 @@ export const ARITHMETIC_PROGRESSION_PACK1: CanonicalQuestion[] = [
   { id: "AP-E13", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "If aₙ = 4n − 3, then S₂ =", options: ["6", "5", "4", "8"], answer: "6", explanation: "a₁ = 1, a₂ = 5, S₂ = 6. Therefore, the correct answer is 6.", solutionSteps: ["a₁ = 1, a₂ = 5, S₂ = 6 Answer: (A)"], finalAnswer: "6" , isCompetencyBased: false },
   { id: "AP-E14", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "Assertion-Reasoning", difficulty: "Easy", bloomSkill: "Understanding", questionText: "Assertion (A): The 11th term of the AP −3, −1/2, 2, ... is 22.\nReason (R): aₙ = a + (n−1)d.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, R is false.", "A is false, R is true."], answer: "Both A and R are true, and R is the correct explanation of A.", explanation: "Both the Assertion and the Reason are correct statements. The Reason directly explains the scientific/mathematical basis that makes the Assertion true, so R is the correct explanation of A.", solutionSteps: ["d = −1/2−(−3) = 5/2, a₁₁ = −3 + 10(5/2) = −3+25 = 22 ✓ Answer: (A)"], finalAnswer: "Both A and R are true, and R is the correct explanation of A." , isCompetencyBased: true },
   { id: "AP-E15", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the 6th term from the end of the AP 17, 14, 11, ..., −40.", solutionSteps: [
-      "d = −3, last term = −40 [1]",
-      "6th from end = l − (6−1)d = −40 − 5(−3) = −40 + 15 = −25 [1]",
+      "[1 mark] d = −3, last term = −40",
+      "[1 mark] 6th from end = l − (6−1)d = −40 − 5(−3) = −40 + 15 = −25"
     ], finalAnswer: "−25" , isCompetencyBased: true },
   { id: "AP-E16", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Find the sum of all odd numbers between 0 and 50.", solutionSteps: [
       "AP: 1, 3, 5, ..., 49; a=1, d=2, n=25 [1]",
@@ -54,9 +54,9 @@ export const ARITHMETIC_PROGRESSION_PACK1: CanonicalQuestion[] = [
   },
   { id: "AP-E19", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "If the first term of an AP is −5 and d = 2, the 10th term is:", options: ["13", "15", "11", "17"], answer: "13", explanation: "a₁₀ = −5 + 9(2) = 13. Therefore, the correct answer is 13.", solutionSteps: ["a₁₀ = −5 + 9(2) = 13 Answer: (A)"], finalAnswer: "13" , isCompetencyBased: true },
   { id: "AP-E20", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Application Problems", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Check whether 301 is a term of the list of numbers 5, 11, 17, 23, ...", solutionSteps: [
-      "a = 5, d = 6 [½]",
-      "aₙ = 5 + (n−1)6 = 301 → (n−1) = 296/6 = 49.33 [½]",
-      "Not a whole number → 301 is not a term [1]",
+      "[0.5 mark] a = 5, d = 6",
+      "[0.5 mark] aₙ = 5 + (n−1)6 = 301 → (n−1) = 296/6 = 49.33",
+      "[1 mark] Not a whole number → 301 is not a term"
     ], finalAnswer: "301 is not a term of this AP" , isCompetencyBased: true },
   { id: "AP-M01", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "The 17th term of an AP exceeds its 10th term by 7. Find the common difference.", solutionSteps: [
       "Write the expressions for the terms: a_17 = a + 16d and a_10 = a + 9d. [1]",
@@ -119,9 +119,9 @@ export const ARITHMETIC_PROGRESSION_PACK1: CanonicalQuestion[] = [
       "Sₙ = n/2[2+2(n−1)] = n² [1]",
     ], finalAnswer: "Sₙ = n²" , isCompetencyBased: true },
   { id: "AP-M13", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Application Problems", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "A sum of ₹700 is to be used to give seven cash prizes to students. If each prize is ₹20 less than its preceding prize, find the value of each prize.", solutionSteps: [
-      "Let first prize = a, d = −20, n = 7; S₇ = 7/2[2a − 6(20)] = 700 [1]",
-      "7(a−60) = 700 → a − 60 = 100 → a = 160 [1]",
-      "Prizes: 160, 140, 120, 100, 80, 60, 40 [1]",
+      "[1 mark] Let first prize = a, d = −20, n = 7; S₇ = 7/2[2a − 6(20)] = 700",
+      "[1 mark] 7(a−60) = 700 → a − 60 = 100 → a = 160",
+      "[1 mark] Prizes: 160, 140, 120, 100, 80, 60, 40"
     ], finalAnswer: "₹160, ₹140, ₹120, ₹100, ₹80, ₹60, ₹40" , isCompetencyBased: true },
   { id: "AP-M14", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "If the sum of first n terms of an AP is 3n² + 5n, find the AP and its 25th term.", solutionSteps: [
       "a₁ = S₁ = 3+5 = 8; a₂ = S₂ − S₁ = 12+10−8 = 14 [1]",
@@ -230,9 +230,9 @@ export const ARITHMETIC_PROGRESSION_PACK1: CanonicalQuestion[] = [
       "S₁ + S₃ = 2S₂ ✓ [1]",
     ], finalAnswer: "Proved" , visualExplainerId: "maths-arithmetic-progression-sum-of-n-terms", isCompetencyBased: true },
   { id: "AP-H13", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "nth Term", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "If Sₙ = n²p and Sₘ = m²p (m ≠ n), show that Sp = p³.", solutionSteps: [
-      "Sₙ = n/2[2a+(n−1)d] = n²p → 2a+(n−1)d = 2np; Sₘ = m/2[2a+(m−1)d] = m²p → 2a+(m−1)d = 2mp [1]",
-      "Subtract: (n−m)d = 2(n−m)p → d = 2p (since n≠m); 2a + (n−1)(2p) = 2np → 2a = 2p → a = p [1]",
-      "Sp = p/2[2p+(p−1)(2p)] = p/2[2p²] = p³ [1]",
+      "[1 mark] Sₙ = n/2[2a+(n−1)d] = n²p → 2a+(n−1)d = 2np; Sₘ = m/2[2a+(m−1)d] = m²p → 2a+(m−1)d = 2mp",
+      "[1 mark] Subtract: (n−m)d = 2(n−m)p → d = 2p (since n≠m); 2a + (n−1)(2p) = 2np → 2a = 2p → a = p",
+      "[1 mark] Sp = p/2[2p+(p−1)(2p)] = p/2[2p²] = p³"
     ], finalAnswer: "Sp = p³ (proved)" , isCompetencyBased: true },
   { id: "AP-H14", subject: "Maths", topicKey: "arithmetic-progression", subtopic: "Sum of n Terms", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying", questionText: "Find the sum of integers from 1 to 100 that are divisible by 2 or 5.", solutionSteps: [
       "Div by 2: 2,4,...,100 → S₅₀ = 50/2(2+100) = 2550; Div by 5: 5,10,...,100 → S₂₀ = 20/2(5+100) = 1050 [1]",

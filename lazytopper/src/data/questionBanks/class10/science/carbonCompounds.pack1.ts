@@ -39,9 +39,9 @@ export const CARBON_COMPOUNDS_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "CARB-E08", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Homologous Series", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "What is a homologous series? Give one example.", solutionSteps: [
-      "A series of compounds with the same functional group and similar chemical properties [½]",
-      "Successive members differ by −CH₂− (14 u mass difference) [½]",
-      "Example: Alkanes — CH₄, C₂H₆, C₃H₈, C₄H₁₀, ... [1]",
+      "[0.5 mark] A series of compounds with the same functional group and similar chemical properties",
+      "[0.5 mark] Successive members differ by −CH₂− (14 u mass difference)",
+      "[1 mark] Example: Alkanes — CH₄, C₂H₆, C₃H₈, C₄H₁₀, ..."
     ], finalAnswer: "Same functional group, differ by CH₂; e.g., alkanes" , isCompetencyBased: false },
   { id: "CARB-E09", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Naming (IUPAC)", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Applying", questionText: "The molecular formula of ethene is:", options: ["C₂H₆", "C₂H₄", "C₂H₂", "CH₄"], answer: "C₂H₄", explanation: "The correct answer is C₂H₄. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "C₂H₄" , isCompetencyBased: true,
     solutionSteps: [
@@ -49,8 +49,8 @@ export const CARBON_COMPOUNDS_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "CARB-E10", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Reactions", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Applying", questionText: "Write the equation for the combustion of ethanol.", solutionSteps: [
-      "C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O + heat [1]",
-      "Complete combustion produces CO₂ and H₂O [1]",
+      "[1 mark] C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O + heat",
+      "[1 mark] Complete combustion produces CO₂ and H₂O"
     ], finalAnswer: "C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O" , isCompetencyBased: true },
   { id: "CARB-E11", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Bonding & Structure", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "The unique property of carbon to form bonds with other carbon atoms is called:", options: ["Catenation", "Isomerism", "Polymerisation", "Allotropy"], answer: "Catenation", explanation: "The correct answer is Catenation. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Catenation" , isCompetencyBased: false,
     solutionSteps: [
@@ -73,19 +73,19 @@ export const CARBON_COMPOUNDS_PACK1: CanonicalQuestion[] = [
     ],
   },
   { id: "CARB-E15", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Properties & Uses", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding", questionText: "What happens when ethanol is heated with concentrated sulphuric acid at 170°C?", solutionSteps: [
-      "C₂H₅OH → C₂H₄ + H₂O (in presence of conc. H₂SO₄ at 170°C) [½]",
-      "Dehydration occurs — water is removed [½]",
-      "Ethene (an unsaturated hydrocarbon) is formed [1]",
+      "[0.5 mark] C₂H₅OH → C₂H₄ + H₂O (in presence of conc. H₂SO₄ at 170°C)",
+      "[0.5 mark] Dehydration occurs — water is removed",
+      "[1 mark] Ethene (an unsaturated hydrocarbon) is formed"
     ], finalAnswer: "Dehydration: ethanol → ethene + water" , isCompetencyBased: false },
   { id: "CARB-M01", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Bonding & Structure", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Understanding", questionText: "Why does carbon form compounds mainly by covalent bonding? Explain with reference to its electronic configuration.", solutionSteps: [
-      "Carbon has atomic number 6, electronic config: 2, 4; 4 valence electrons — needs 4 more for stable octet [1]",
-      "Cannot lose 4 (too much energy needed) or gain 4 (nucleus can't hold) [1]",
-      "So it shares electrons forming covalent bonds [1]",
+      "[1 mark] Carbon has atomic number 6, electronic config: 2, 4; 4 valence electrons — needs 4 more for stable octet",
+      "[1 mark] Cannot lose 4 (too much energy needed) or gain 4 (nucleus can't hold)",
+      "[1 mark] So it shares electrons forming covalent bonds"
     ], finalAnswer: "4 valence electrons — sharing is energetically favourable over transfer" , isCompetencyBased: false },
   { id: "CARB-M02", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Reactions", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Explain the addition reaction of an unsaturated hydrocarbon with hydrogen. Give an example.", solutionSteps: [
-      "Unsaturated hydrocarbons (with C=C or C≡C) can add atoms across the double/triple bond; Hydrogenation: adding H₂ in presence of Ni/Pd/Pt catalyst [1]",
-      "CH₂=CH₂ + H₂ → CH₃CH₃ (ethene → ethane) [1]",
-      "This converts unsaturated to saturated compounds (used in making vegetable ghee from oils) [1]",
+      "[1 mark] Unsaturated hydrocarbons (with C=C or C≡C) can add atoms across the double/triple bond; Hydrogenation: adding H₂ in presence of Ni/Pd/Pt catalyst",
+      "[1 mark] CH₂=CH₂ + H₂ → CH₃CH₃ (ethene → ethane)",
+      "[1 mark] This converts unsaturated to saturated compounds (used in making vegetable ghee from oils)"
     ], finalAnswer: "H₂ adds across C=C with Ni catalyst; CH₂=CH₂ + H₂ → C₂H₆" , isCompetencyBased: true },
   { id: "CARB-M03", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Properties & Uses", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Analysing", questionText: "How does ethanoic acid react with: (i) sodium carbonate (ii) sodium hydroxide? Write equations and name the type of reaction.", solutionSteps: [
       "Ethanoic acid reacts with sodium carbonate: 2CH₃COOH + Na₂CO₃ → 2CH₃COONa + H₂O + CO₂ [1]",
@@ -134,9 +134,9 @@ export const CARBON_COMPOUNDS_PACK1: CanonicalQuestion[] = [
       "(iv) Synthetic detergents — sulphonate salts don't form scum [1]",
     ], finalAnswer: "(i) Hydrophobic tail + hydrophilic head (ii) micelle formation (iii) scum with Ca²⁺ (iv) detergents" , isCompetencyBased: true },
   { id: "CARB-M12", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Naming (IUPAC)", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying", questionText: "Write the structural formulae and names of all isomers of butane (C₄H₁₀).", solutionSteps: [
-      "Draw the structural formula showing each covalent bond as a line (—) between atoms, or the electron dot structure with shared electron pairs. Show all atoms with their bonds clearly. [½]",
-      "Isomer 1: n-butane CH₃-CH₂-CH₂-CH₃ (straight chain) [½]",
-      "Isomer 2: isobutane (2-methylpropane) CH₃-CH(CH₃)-CH₃ (branched) [1]",
+      "[0.5 mark] Draw the structural formula showing each covalent bond as a line (—) between atoms, or the electron dot structure with shared electron pairs. Show all atoms with their bonds clearly.",
+      "[0.5 mark] Isomer 1: n-butane CH₃-CH₂-CH₂-CH₃ (straight chain)",
+      "[1 mark] Isomer 2: isobutane (2-methylpropane) CH₃-CH(CH₃)-CH₃ (branched)"
     ], finalAnswer: "n-Butane and 2-methylpropane (isobutane)" , visualExplainerId: "science-carbon-compounds-covalent-bonding-in-carbon", isCompetencyBased: true },
   { id: "CARB-M13", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Reactions", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Applying", questionText: "Ethanol can be converted to ethanoic acid by:", options: ["Alkaline KMnO₄ or acidified K₂Cr₂O₇", "Conc. H₂SO₄ at 170°C", "Ni catalyst with H₂", "NaOH"], answer: "Alkaline KMnO₄ or acidified K₂Cr₂O₇", explanation: "The correct answer is Alkaline KMnO₄ or acidified K₂Cr₂O₇. This is a fundamental result that should be recalled directly from the key concepts of this topic.", finalAnswer: "Alkaline KMnO₄ or acidified K₂Cr₂O₇" , isCompetencyBased: true,
     solutionSteps: [
@@ -205,9 +205,9 @@ export const CARBON_COMPOUNDS_PACK1: CanonicalQuestion[] = [
       "(c) CH₃COOH + C₂H₅OH → CH₃COOC₂H₅ + H₂O [1]",
     ], finalAnswer: "(i) Oxidation (ii) CO₂ (iii) ester/esterification (iv) equations written" , visualExplainerId: "science-carbon-compounds-covalent-bonding-in-carbon", isCompetencyBased: true },
   { id: "CARB-H10", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Properties & Uses", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Analysing", questionText: "Explain why covalent compounds generally have low melting and boiling points compared to ionic compounds.", solutionSteps: [
-      "Covalent compounds have weak intermolecular forces (van der Waals) between molecules; Less energy needed to overcome these weak forces → low MP and BP [1]",
-      "Ionic compounds have strong electrostatic forces between ions in crystal lattice [1]",
-      "Much more energy needed → high MP and BP [1]",
+      "[1 mark] Covalent compounds have weak intermolecular forces (van der Waals) between molecules; Less energy needed to overcome these weak forces → low MP and BP",
+      "[1 mark] Ionic compounds have strong electrostatic forces between ions in crystal lattice",
+      "[1 mark] Much more energy needed → high MP and BP"
     ], finalAnswer: "Weak intermolecular forces in covalent vs strong ionic bonds → lower MP/BP" , isCompetencyBased: true },
   { id: "CARB-E16", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Covalent Bonds", section: "A", marks: 1, format: "MCQ", difficulty: "Easy", bloomSkill: "Remembering", questionText: "Why does carbon form 4 bonds with other atoms?", options: ["It has 4 valence electrons and shares all of them","It has 8 valence electrons","It has 2 electrons in valence shell","It forms ionic bonds"], answer: "It has 4 valence electrons and shares all of them", explanation: "The correct answer is It has 4 valence electrons and shares all of them. Carbon shares all 4 valence electrons to complete octet.", finalAnswer: "Carbon shares all 4 valence electrons to complete octet.", isCompetencyBased: false,
     solutionSteps: [
