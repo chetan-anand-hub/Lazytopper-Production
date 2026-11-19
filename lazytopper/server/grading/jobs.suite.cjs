@@ -837,7 +837,7 @@ function seriesHarness({ n = 4, model = stubModel(), used, jobTimingFor } = {}) 
   const jobs = jobsLib.createGradingJobs({
     resolveFirestore: () => ({ db: fs.db }), now: () => clock.now,
     // index.cjs's commitDeferred, minus limits (dark here): the Test Series hold, then fair use.
-    commitDeferred: (d, g) => { commits.push({ deferred: d, graded: g }); if (d && d.testSeries) checks.settleDeferred(d, g); return fairUse.commitDeferred(d, g); },
+    commitDeferred: (d, g, detail) => { commits.push({ deferred: d, graded: g, detail }); if (d && d.testSeries) checks.settleDeferred(d, g, detail); return fairUse.commitDeferred(d, g); },
   });
   const route = createCheckSolutionRoute({
     sendJson, readJson: cachedReadJson(rawRead), callGemini: model.callGemini,
@@ -878,8 +878,9 @@ function seriesHarness({ n = 4, model = stubModel(), used, jobTimingFor } = {}) 
   const userDoc = () => fs.docs.get('packEntitlements/' + TS_UID) || {};
   const committed = () => (userDoc()[tsLib.CHECKS_FIELD] || {})['TS-CT-M01'] || 0;
   const holds = () => Object.keys(userDoc()[tsLib.HOLDS_FIELD] || {}).length;
+  const freeRecheck = () => (userDoc()[tsLib.FREE_FIELD] || {})['TS-CT-M01'];
   const recordOf = (jobId) => fs.docs.get('gradingResults/' + TS_UID + '/attempts/' + jobId) || null;
-  return { fs, clock, model, submit, poll, commits, committed, holds, recordOf, handlerRuns: () => handlerRuns };
+  return { fs, clock, model, submit, poll, commits, committed, holds, freeRecheck, recordOf, handlerRuns: () => handlerRuns };
 }
 const fairUseModuleForTs = require('../services/fairUse.cjs');
 
@@ -993,3 +994,32 @@ test('TS-PACK-JOBFIX · without a job (no Prefer: respond-async) the synchronous
 });
 
 module.exports = { jobsFirestore, pipeRes, stubModel, typedPaper, harness };
+
+/* ═══════════════ TS-RECHECK-1 · a sheet the grader mostly could not read is NOT counted (once per paper) - the REAL job pipeline ═══════════════ */
+test('TS-RECHECK-1 · a job whose sheet is mostly unreadable (some questions still graded) is NOT counted: free re-check flagged, hold gone', async () => {
+  const h = seriesHarness({ n: 4, model: stubModel({ verdictOf: (id) => (id < 2 ? 'unread' : 'correct') }) });
+  const res = await h.submit({ key: KEY(910) });
+  const { jobId } = JSON.parse(res.body);
+  await until(() => h.recordOf(jobId).job.state === 'done', 'job done');
+  await until(() => h.holds() === 0, 'settled');
+  assert.deepEqual(h.commits[0].detail, { unreadable: 2, total: 4 });
+  assert.equal(h.commits[0].graded, 2);
+  assert.equal(h.committed(), 0, 'not counted');
+  assert.equal(h.freeRecheck(), 0, 'the one free re-check is spent');
+  // the second unreadable upload on the same paper IS counted
+  const res2 = await h.submit({ key: KEY(911) });
+  const j2 = JSON.parse(res2.body).jobId;
+  await until(() => h.recordOf(j2).job.state === 'done', 'job 2 done');
+  await until(() => h.committed() === 1, 'second unreadable sheet is counted');
+  assert.equal(h.holds(), 0);
+});
+
+test('TS-RECHECK-1 · fewer than half unreadable, or blank answers the student left, are counted', async () => {
+  const h = seriesHarness({ n: 4, model: stubModel({ verdictOf: (id) => (id === 0 ? 'unread' : 'correct') }) });
+  const res = await h.submit({ key: KEY(912) });
+  const { jobId } = JSON.parse(res.body);
+  await until(() => h.recordOf(jobId).job.state === 'done', 'job done');
+  await until(() => h.committed() === 1, 'counted');
+  assert.deepEqual(h.commits[0].detail, { unreadable: 1, total: 4 });
+  assert.equal(h.freeRecheck(), undefined);
+});

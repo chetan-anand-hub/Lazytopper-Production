@@ -288,12 +288,14 @@ export interface TestSeriesStatus {
   validUntilMs: number;
   checksPerPaper: number;
   used: Readonly<Record<string, number>>;
+  /** TS-RECHECK-1 - paper keys whose latest check was NOT counted (the sheet could not be read): show the re-upload note. */
+  freeRecheck?: Readonly<Record<string, true>>;
 }
 
 /** The server's `testSeries` object -> a sane status, or null. PURE. */
 export function readTestSeriesStatus(raw: unknown): TestSeriesStatus | null {
   if (!raw || typeof raw !== "object") return null;
-  const r = raw as { validUntilMs?: unknown; checksPerPaper?: unknown; used?: unknown };
+  const r = raw as { validUntilMs?: unknown; checksPerPaper?: unknown; used?: unknown; freeRecheck?: unknown };
   if (typeof r.validUntilMs !== "number" || !Number.isFinite(r.validUntilMs)) return null;
   const per = typeof r.checksPerPaper === "number" && Number.isInteger(r.checksPerPaper) && r.checksPerPaper > 0 ? r.checksPerPaper : TEST_SERIES_CHECKS_PER_PAPER;
   const used: Record<string, number> = {};
@@ -302,7 +304,20 @@ export function readTestSeriesStatus(raw: unknown): TestSeriesStatus | null {
       if (typeof v === "number" && Number.isFinite(v) && v > 0) used[k] = Math.min(per, Math.floor(v));
     }
   }
-  return { validUntilMs: r.validUntilMs, checksPerPaper: per, used };
+  const freeRecheck: Record<string, true> = {};
+  if (r.freeRecheck && typeof r.freeRecheck === "object") {
+    for (const [k, v] of Object.entries(r.freeRecheck as Record<string, unknown>)) if (v === true) freeRecheck[k] = true;
+  }
+  return { validUntilMs: r.validUntilMs, checksPerPaper: per, used, ...(Object.keys(freeRecheck).length > 0 ? { freeRecheck } : {}) };
+}
+
+/** TS-RECHECK-1 - the plain note shown when the server did not count a check because the sheet could not be read. */
+export const SHEET_UNREADABLE_NOT_COUNTED_LINE =
+  "We couldn't read most of your sheet, so this check wasn't counted. Retake the photo in good light and upload again.";
+
+/** True when the server says this paper's latest check was not counted (free re-check). PURE. */
+export function testSeriesRecheckNote(status: TestSeriesStatus | null | undefined, paperKey: string): boolean {
+  return Boolean(status && paperKey && status.freeRecheck && status.freeRecheck[paperKey] === true);
 }
 
 /**
