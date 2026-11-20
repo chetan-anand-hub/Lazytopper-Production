@@ -1,3 +1,20 @@
+## 2026-11-19 (daily; UTC day 19 Nov, written 20 Nov) - #1777 - #1789: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Owner rulings of 19 and 20 Nov 2026 as relayed by the coordinator **[coordinator]**. Where the source does not state a reason, the reason cell says so.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **Test Series is 180 tests** [owner] | 130 chapter tests (5 per chapter) and 50 full-length tests (25 per subject). Price ₹999 + GST till 30 Nov, then ₹1,499 + GST. | Reason not stated in the source beyond giving buyers more papers. |
+| **"₹6 per test" with no GST in the line** [owner] | The per-test line is ₹6 (becomes ₹8 from 1 Dec); no GST in that line. | Reason not stated. |
+| **2 checks per paper plus one free re-check** [owner] | A re-check is free when a sheet is mostly unreadable (`#1782`). | A student should not lose a check to an unreadable photo (inferred; the owner's words are not in the source). |
+| **Validity 28 Feb 2027 for the Test Series and the Board Pass** [owner] | Existing Board Pass holders extended 17 to 28 Feb (never shortened, admin-ended not revived); new grants end 28 Feb 2027; PDF pack re-downloads stay to 31 Mar. | So the May 2027 improvement exam can be sold as a separate product. |
+| **Graded written Quick Practice is Board Pass only** [owner] | The trial keeps it; Basic keeps one free daily MCQ scorecard; Basic and Test-Series-only students see a Board Pass wall (`#1785`). | Reason not stated beyond making the Board Pass the product for graded Quick Practice. |
+| **Grader production stays (chunk 8, implicit cache)** [owner] | No change to the grader setup. | The eval showed H4/H4C lost 1 to 4 marks on 2 of 3 papers. |
+| **"Checked like a teacher" approved in ads** [owner] | Allowed ad wording. | Reason not stated. |
+| **Pack offers say no returns, instant digital delivery to India** [coordinator, `#1786`] | Offers marked `MerchantReturnNotPermitted`, mirroring /legal/refund. | Merchant listings must match the site's refund page. |
+| **Ads (Google Ads, owner's words, off-repo) [coordinator]** | 27 redundant keywords removed. New campaign "Search \| Board Pass" at ₹1,500/day, Purchases only, AI Max off, 21 keywords. The old Board Pass ad group in PDF Packs paused. Google auto-sitelinks claiming "Official" and "Free plan" removed. The only primary purchase action is "Purchase – Ads tag (server-verified)". Sign-ups v2 stays on Purchases; decide about 22 Nov. | Reasons not stated beyond the owner's instruction. |
+| **Env change** [coordinator] | Railway `META_TEST_EVENT_CODE` deleted on 19 Nov at about 16:15. | The test-event code is for testing only; reason beyond that not stated. |
+
 ## 2026-11-18 (daily; UTC day 18 Nov, written 19 Nov) - #1748 - #1768: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Owner rulings of 18 and 19 Nov 2026 as relayed by the coordinator **[coordinator]**, and decisions from the builds **[PR bodies]**. Where the source does not state a reason, the reason cell says so.
