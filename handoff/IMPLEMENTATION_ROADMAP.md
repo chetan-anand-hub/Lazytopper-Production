@@ -1,3 +1,9 @@
+## 2026-11-19 (daily; UTC day 19 Nov, written 20 Nov) - #1777 - #1789 - MERGED
+
+- DONE. `#1778` (`500a7324`) BANK-RETIRE-1. `#1777` (`b8f0d8ce`) STEPMARK-2 batch 1. `#1779` (`96ba6c15`) STEPMARK-2 batch 2. `#1784` (`872e1a2d`) packs Product JSON-LD image. `#1786` (`197da51d`) MerchantReturnNotPermitted and instant digital delivery. `#1785` (`e7739653`) GATE-QP-1. `#1780` (`c0ab0d92`) TS-MORE-1 (180 tests). `#1782` (`e1967e2a`) TS-RECHECK-1. `#1781` (`0c9afcb8`) STEPMARK-2 batch 3A. `#1783` (`4c056b68`) STEPMARK-2 batch 3B. `#1787` (`568a7f78`) TS-UX-SCORE-1. `#1788` (`95ba6001`) TS-UX-PAGE-1. `#1789` (`d113a332`) VALIDITY-FEB27.
+- DONE off-repo: Google Ads "Search | Board Pass" campaign; Railway `META_TEST_EVENT_CODE` deleted; indexing requested for /test-series, /pricing, /board-pass.
+- NEXT: owner live tests; Test Series ads; sale cutoff and Improvement Exam Pass; free MCQ pages; grader test on real phone sheets; Science step-mark batches. The earlier lists stand.
+
 ## 2026-11-18 (daily; UTC day 18 Nov, written 19 Nov) - #1748 - #1768 - MERGED
 
 - DONE. `#1748` (`412308e4`) PACKS-LPX-1. `#1751` (`0a5a5103`) SPEED-CLS-2. `#1749` (`874f2ece`) INAPP-PAY-1. `#1750` (`30ff39d2`) SERVER-EVENTS-1. `#1753` (`2104c1ed`) PACKS-LPX-2. `#1752` (`26598022`) SEO-LLM-2. `#1754` (`8ebe4593`) PACKS-MOBILE-1. `#1755` (`2cb91faf`) BP-PREBOARDS-1. `#1756` (`95a90d9b`) SOURCE-3. `#1759` (`b6057688`) TUTOR-FIX-1. `#1757` (`882b2c17`) TEST-SERIES-1. `#1758` (`c4e5dfb6`) TS-ANALYSIS-1. `#1760` (`620d9d64`) TS-PACK-1. `#1763` (`f6b47a44`) PACK-DOWNLOAD-RESTORE. `#1764` (`3e3ce94a`) TS-PACK-JOBFIX. `#1761` (`6f5700eb`) PRICING-4CARD-1. `#1762` (`88aff1ea`) TS-PAGE-2. `#1766` (`28a9cf60`) PAID-XSELL-1. `#1767` (`39c7525f`) TS-UPGRADE-CREDIT-1. `#1765` (`5b6baae7`) MYPACKS-TS-1. `#1768` (`2e2706a9`) TS-DAILY-CAP-1.

@@ -1,3 +1,15 @@
+## 2026-11-19 (daily; UTC day 19 Nov, written 20 Nov) - #1777 - #1789
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`d113a332`** [git].
+
+- **Done [git]:** `#1777` to `#1789` merged (table in CURRENT_STATE). No gaps. Standing rule: merge green, reviewed PRs and report; nothing on the payment or grading path goes live without a real successful live run.
+- **Owner live tests owed:** the ₹1,083 upgrade on a test account; a free account; a Test-Series-only account (graded Quick Practice Board Pass wall); the refund page wording; graded Trig and Circles step marks; the first real Test Series purchase at ₹1,179.
+- **Ads:** a Test Series ads proposal. Sign-ups v2 stays on Purchases; decide about 22 Nov.
+- **Product follow-ups queued:** the Test Series sale cutoff about 15 Feb 2027 and an Improvement Exam Pass (a Test Series sold after 28 Feb is expired at purchase); the free MCQ pages (28 /free-mcq-class-10/* and 12 /important-question-of-the-day/* crawled but not indexed; deepen to 15 to 25 MCQs); a grader test on real phone sheets (120 s tail, thinking tokens, implicit-cache miss on parallel chunks); server-side purchase conversion upload to Google Ads; /test-series title too long and no H1 in prerender (Bing); Science step-mark batches; /test-series parent FAQ and trim duplicated copy; a /pricing page-speed re-test; register the GA4 custom dimension `error_code` for `login_error`.
+- **`#1789` test gaps:** tests for moveToOther, adminMerge, adminStudents and passGrant in the 18 to 28 Feb window; the `usageCredit.cjs:61` comment; confirm production `usageCredits` is empty. `premiumExtension.cjs:144` reads the raw `passEnd`. A `#1788` test keeping `from` in the URL.
+- **Dated checks:** 22 Nov Sign-ups v2 decision; 24 Nov ads review; 25 Nov YouTube check; 30 Nov founding prices end (Test Series ₹999 to ₹1,499 + GST); 1 Dec 00:00 IST price switch (upgrade becomes ₹1,770; "₹6 per test" becomes ₹8). Earlier dated checks stand.
+- **Follow-ups opened today:** see OPEN_QUESTIONS_AND_FOLLOWUPS (bodies there).
+
 ## 2026-11-18 (daily; UTC day 18 Nov, written 19 Nov) - #1748 - #1768
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`2e2706a9`** [git].

@@ -1,3 +1,15 @@
+> **2026-11-19 (daily; UTC day 19 Nov, written 20 Nov) - #1777 - #1789 (CLAUDE.md section 10).** Scope: the Test Series (180 tests, free re-check, page redesign, scorecard), graded Quick Practice access, validity dates, pack-page structured data, and step-mark bank data. **Grading surfaces (CLAUDE.md section 4a):** per the coordinator no grader prompt, marks, mistake-type or clamp rule changed; who may run a graded written Quick Practice check changed (`#1785`) and a free re-check was added for the Test Series (`#1782`). No scope was discovered; no surface Scope cell changes. Beyond the rows below, no other surface cell moved.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Quick Practice (graded written) | Board Pass only; trial keeps it; Basic and Test-Series-only see a Board Pass wall (`#1785`) | **merged, live** | a Test-Series-only account and a free account live check; second grading surface check stays owed |
+| Chapter Test and Full Mock (Test Series papers) | 180 tests, per-paper resume keys (`#1780`); one free re-check on an unreadable sheet (`#1782`); bank rows with fixed step marks (`#1777` `#1778` `#1779` `#1781` `#1783`); scorecard and chooser fixes (`#1787`) | **merged, live** | graded Trig/Circles step marks live; first real purchase |
+| /test-series | subject then chapter/paper pickers, in-place Buy at ₹1,179, "2 checks per paper" explainer, one validity phrase (`#1788`) | **merged, live** | no horizontal scroll at 360 px and checkout opening in place LIVE-VERIFIED; payment not completed |
+| /pricing | in-place Test Series Buy (`#1788`); validity line (`#1789`) | **merged, live** | page-speed re-test |
+| /board-pass, /legal/refund, llms.txt | valid till 28 Feb 2027, read-time extension for existing holders (`#1789`) | **merged, live** | owner Board Pass active until 28 Feb 2027 LIVE-VERIFIED; refund wording check owed |
+| /packs and /cbq-packs | Product JSON-LD image (`#1784`); no-returns policy and instant digital delivery on offers (`#1786`) | **merged, live** | Search Console Validate fix running since 19 Nov |
+| Question bank (step marks) | 515 generated rows retired (`#1778`); mark splits on Maths rows (`#1777` `#1779` `#1781` `#1783`) | **merged, live** | Science batches |
+
 > **2026-11-18 (daily; UTC day 18 Nov, written 19 Nov) - #1748 - #1768 (CLAUDE.md section 10).** Scope: a new product (the Test Series Pack) across /test-series, /pricing, /packs, the Chapter Test and Full Mock pages, the paid pop-up and /board-pass, plus payment, tracking and ads-landing work. **Grading surfaces (CLAUDE.md section 4a): no prompt, marks, mistake-type or clamp rule changed.** What changed on grading is who is admitted and how a series check runs (job mode), and what the tutor is given. No scope was discovered; no surface Scope cell changes (the Test Series surfaces are new and still moving, see owed).
 
 | surface | what moved (PR) | state | owed |

@@ -23,6 +23,52 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-19 (daily; UTC day 19 Nov, written 20 Nov) - #1777 - #1789 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**New (each has its own heading below):** `[FU-LIVE-TESTS-19NOV]`, `[FU-TS-ADS-PROPOSAL]`, `[FU-TS-SALE-CUTOFF-IMPROVEMENT-PASS]`, `[FU-FREE-MCQ-PAGES-INDEXING]`, `[FU-GRADER-REAL-PHONE-SHEETS]`, `[FU-ADS-SERVER-CONVERSION-UPLOAD]`, `[FU-TS-PAGE-TITLE-H1]`, `[FU-1789-TEST-GAPS]`, `[FU-1788-FROM-URL-TEST]`, `[FU-PREMIUMEXTENSION-RAW-PASSEND]`, `[FU-STEPMARK-SCIENCE-BATCHES]`, `[FU-TS-PARENT-FAQ-TRIM]`, `[FU-PRICING-SPEED-RETEST]`, `[FU-GA4-ERROR-CODE-DIMENSION]`. Dated: 22 Nov Sign-ups v2 decision, 24 Nov ads review, 25 Nov YouTube check, 30 Nov founding prices end, 1 Dec price switch (upgrade ₹1,770, "₹6 per test" becomes ₹8).
+
+### [FU-LIVE-TESTS-19NOV]
+OPEN, owner. Live tests: the ₹1,083 upgrade on a test account; a free account; a Test-Series-only account (the `#1785` Board Pass wall); the refund page wording after `#1786`; graded Trig and Circles step marks after `#1781`/`#1783`. [coordinator]
+
+### [FU-TS-ADS-PROPOSAL]
+OPEN. A Test Series ads proposal is owed. [coordinator]
+
+### [FU-TS-SALE-CUTOFF-IMPROVEMENT-PASS]
+OPEN. Decide a sale cutoff of about 15 Feb 2027 for the Test Series and an Improvement Exam Pass: a Test Series sold after 28 Feb 2027 is expired at purchase. [coordinator]
+
+### [FU-FREE-MCQ-PAGES-INDEXING]
+OPEN. 28 /free-mcq-class-10/* pages and 12 /important-question-of-the-day/* pages are crawled but not indexed; deepen them to 15 to 25 MCQs. [coordinator]
+
+### [FU-GRADER-REAL-PHONE-SHEETS]
+OPEN. Test the grader on real phone sheets: the 120 s tail, thinking tokens, and the implicit-cache miss on parallel chunks. A grading-behaviour lane: CLAUDE.md section 4a applies. [coordinator]
+
+### [FU-ADS-SERVER-CONVERSION-UPLOAD]
+OPEN. Server-side purchase conversion upload to Google Ads; signed-out Board Pass orders are untracked. [coordinator]
+
+### [FU-TS-PAGE-TITLE-H1]
+OPEN. The /test-series title is too long and the prerender has no H1 (Bing). [coordinator]
+
+### [FU-1789-TEST-GAPS]
+OPEN. Tests for moveToOther, adminMerge, adminStudents and passGrant in the 18 to 28 Feb window; the comment at `usageCredit.cjs:61`; confirm production `usageCredits` is empty. [coordinator]
+
+### [FU-1788-FROM-URL-TEST]
+OPEN. A `#1788` test that keeps `from` in the URL. [coordinator]
+
+### [FU-PREMIUMEXTENSION-RAW-PASSEND]
+OPEN. `premiumExtension.cjs:144` reads the raw `passEnd` rather than `effectiveBoardPassEndMs`. [coordinator]
+
+### [FU-STEPMARK-SCIENCE-BATCHES]
+OPEN. Science step-mark batches (STEPMARK-2 so far covers Maths rows and generated rows inside Test Series papers). [coordinator]
+
+### [FU-TS-PARENT-FAQ-TRIM]
+OPEN. Add a /test-series parent FAQ and trim duplicated copy. [coordinator]
+
+### [FU-PRICING-SPEED-RETEST]
+OPEN. Re-test /pricing page speed after `#1788`. [coordinator]
+
+### [FU-GA4-ERROR-CODE-DIMENSION]
+OPEN, owner (new 20 Nov). Register the GA4 custom dimension `error_code` for the `login_error` event. [coordinator]
+
 ## 2026-11-18 (daily; UTC day 18 Nov, written 19 Nov) - #1748 - #1768 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **New (each has its own heading below):** `[FU-TS-UPGRADE-LIVE-PAYMENT]`, `[FU-TS-FIRST-PURCHASE]`, `[FU-TS-UPGRADE-GRANT-RECHECK]`, `[FU-TS-UPGRADE-MINE-STALE]`, `[FU-TS-UPGRADE-PARENT-GUEST]`, `[FU-GRADING-CONSISTENCY]`, `[FU-BANK-SOLUTIONSTEPS-1875]`, `[FU-GRADING-SPEED-PLAN]`, `[FU-FULLMOCK-OVERLAP-LINE]`, `[FU-FULLMOCK-AWAITING-SHEET-BANNER]`, `[FU-Q14-STEP-LABEL]`, `[FU-PAIDXSELL-BOUGHT-PROP]`, `[FU-TS-ADS]`, `[FU-CBQ-SITELINKS-RISK]`, `[FU-TS-PAPER-PASS-SELF-DECLARED]`, `[FU-ANON-FREE-CHECK-BYPASS]`, `[FU-WORKSHEETID-NOT-TIED]`, `[FU-PRE-202-CLOSE-OVERSHOOT]`, `[FU-MANIFEST-PREVIOUS-HASH]`, `[FU-PDF-TEMPLATE-FIRST-PAPER-FREE]`, `[FU-TS-SAC-INVOICE]`, `[FU-SIGNUPSOURCE-UNKNOWN-KEYS]`, `[FU-OLD-NAME-IN-OLD-CHAT]`, `[FU-NO-TUTOR-ON-MCQ-ONLY]`, `[FU-SERVER-EVENTS-STATE]`. **Closed by today's PRs:** none claimed.

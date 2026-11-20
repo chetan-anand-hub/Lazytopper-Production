@@ -1,3 +1,20 @@
+## 2026-11-19 (daily; UTC day 19 Nov, written 20 Nov) - #1777 - #1789: Test Series to 180 tests, free re-check, Quick Practice gate, step-mark data fixes, validity to 28 Feb 2027 (trunk `d113a332`)
+
+**PROVENANCE.** *(Daily handoff, CLAUDE.md section 10. Covers `#1777` to `#1789`, merged 19 Nov 07:56 UTC to 19 Nov 20:37 UTC (13:26 IST to 02:07 IST on 20 Nov). Merge SHAs and times **[gh]**; what each PR changed **[PR titles; coordinator]**; rulings, live results, env changes, ads and the 20 Nov dashboard reading **[coordinator]**. The docs builder did not re-read the diffs. Grader production setup unchanged.)*
+
+**How the window went (IST).**
+- **13:26 to 14:51.** Bank data: `#1778` retired 515 generated questions with broken step marking; `#1777` and `#1779` STEPMARK-2 batches 1 and 2.
+- **16:35 to 17:04.** `#1784` Product JSON-LD image on the pack pages; `#1786` no-returns policy and instant digital delivery on pack offers; `#1785` graded written Quick Practice limited to Board Pass.
+- **18:09 to 18:19.** `#1780` the Test Series becomes 180 tests; `#1782` one free re-check on an unreadable sheet.
+- **19:17 to 20:28.** `#1781` and `#1783` STEPMARK-2 batch 3 (301 Maths rows); `#1787` scorecard and chooser fixes.
+- **21:17 to 02:07.** `#1788` /test-series redesign with in-place Buy at ₹1,179; `#1789` validity to 28 Feb 2027.
+
+**Grader evaluation [coordinator].** The eval showed the H4 and H4C variants lost 1 to 4 marks on 2 of 3 papers, so grader production stays (chunk 8, implicit cache). The owner approved "checked like a teacher" in ads.
+
+**Session 20 Nov dashboard reading [coordinator].** Admin, 7 days: 282 sign-ups; 6 students with a graded answer check; 84 of 282 tried practice; day-2 return 34 of 248. Purchases, 7 days: Premium 3 (₹6,786) and packs 14 (₹3,467). Razorpay: 7 customer-side failures (timeouts, 3DS), none since 16 Nov; no webhook rejections since 17 Nov 09:45. Grader: 5 "couldn't read" in about 36 hours of stored records. Google Ads: ₹96,338 spend 13 to 19 Nov, purchases only from PDF Packs (14). Login: 291 of 350 users succeeded, 17 hit an error.
+
+**Dated checks.** 22 Nov Sign-ups v2 decision; 24 Nov ads review; 25 Nov YouTube check; 30 Nov founding prices end; 1 Dec price switch. The earlier list stands.
+
 ## 2026-11-18 (daily; UTC day 18 Nov, written 19 Nov) - #1748 - #1768: the Test Series Pack built, broken, fixed and launched in one day; four-card pricing; cross-sell and upgrade credit (trunk `2e2706a9`)
 
 **PROVENANCE.** *(Daily handoff, CLAUDE.md section 10. Covers `#1748` to `#1768`, merged 18 Nov 02:22 UTC to 18 Nov 20:25 UTC (07:52 IST to 01:55 IST on 19 Nov). **No grading prompt, marks, mistake-type or clamp change (CLAUDE.md section 4a);** grading admission and run mode for series papers changed. Merge SHAs and times **[gh]**; what each PR changed **[PR bodies]**; rulings, live results, env changes and ads **[coordinator]**.)*
