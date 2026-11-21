@@ -1,3 +1,21 @@
+## 2026-11-21b (second daily; UTC day 21 Nov, written 21 Nov evening) - #1795 - #1796 - #1797: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Rulings and findings of 21 Nov 2026 (evening) as relayed by the coordinator **[coordinator]**. Where the source does not state a reason, the reason cell says so.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **Cancellation Policy names the Test Series, the upgrade and CBQ Packs** [`#1795`; coordinator] | Lines for the Test Series Pack, the Test Series to Board Pass upgrade and CBQ Packs; WhatsApp +91 97145 68948 for file problems. | The page did not name these products (`[FU-REFUND-PAGE-TS-CBQ]`). The source does not record who approved the exact wording. |
+| **Small sales-page stylesheets are inlined, not linked** [`#1796`] | `INLINE_ROUTE_CSS_LATE` and `lateRouteCssFor` added; sheets over 6 KB stay linked (PacksShop 8.9 KB on /test-series). Kill switch `LT_ISLANDS=0`. | A case-sensitive prefix mismatch left tiny sheets render-blocking. |
+| **Hero h1 uses a font-display block face** [`#1797`] | "LT Fraunces Hero" on `.lt-cq-hero__h1`, `.lt-bp-hero__h1`, `.lt-ts-hero__h1`. | The fallback-face h1 plus a later Fraunces re-render created a second, later LCP candidate (1.2 s to 3.5-6.7 s). |
+| **The "static-first treatment" premise is withdrawn** [coordinator] | /cbq-packs, /board-pass and /test-series were already islands (`islandConfig.ts` 39-48). | The premise was stale. |
+| **Keep "Graded in 2 min" on the Short** [owner ruling, `[FU-YT-SHORT-2MIN-CLAIM]`] | The Short's end card stays as is ("dont change it, let it be 2 mins"). | Owner's call; full-paper grading time is unmeasured, which was the concern raised. |
+| **Dandiya Demand Gen ad drops "free" wording** [owner "yes"] | Headline "180 tests, under ₹10 per test"; long headlines and descriptions reworded (SESSION_LOG). | Copy rule: the product is not free. |
+| **The Short is replaced by a revised cut; the old one is private, not deleted** [owner] | New Public Short xriFjjp7acY; old 1y_t6Ci_L5w PRIVATE (reversible); the Short ad uses the new id. | Reason not stated beyond the revised cut. |
+| **Hindi caption track on the Short deleted** [owner] | Removed after being added. | It overlapped the burned-in captions. |
+| **Short published Public with playlist, related video, pinned comment and education labels** [owner, off-repo] | See SESSION_LOG. | Reason not stated beyond publishing the pre-boards Short. |
+| **New Demand Gen ad sends Short viewers to /test-series with `utm_content=ts_147am_short`** [owner, Google Ads] | Ad group "Students - Message Shorts + Dandiya (CBSE states)"; top-100 cities; English and Hindi; optimized targeting limited to age. | Reason not stated beyond selling the Test Series from the Short. |
+| **PDF Packs online-test keywords paused; 9 phrase keywords added to the Search / Test Series campaign** [owner, Google Ads] | 13 paused in PDF Packs (2 stuck, `[FU-ADS-PAUSE-2-PDFPACKS-KW]`); 9 added across TS-Test series, TS-Mock tests, TS-Online & chapter tests. | Online-test searches belong to the Test Series campaign, not PDF Packs (inferred; the owner's words are not in the source). |
+
 ## 2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Owner rulings of 21 Nov 2026 as relayed by the coordinator **[coordinator]**. Where the source does not state a reason, the reason cell says so.

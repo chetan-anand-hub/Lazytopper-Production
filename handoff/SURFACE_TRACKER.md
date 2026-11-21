@@ -1,3 +1,13 @@
+> **2026-11-21b (second daily; UTC day 21 Nov, written 21 Nov evening) - #1795 - #1796 - #1797 (CLAUDE.md section 10).** Scope: the Cancellation Policy page and the speed of the sales landing pages. **Grading surfaces (CLAUDE.md section 4a):** no grader prompt, marks, mistake-type, departure-handling or clamp rule changed, and none of the six surfaces moved [PR file lists]. No scope was discovered; no Scope cell set to Settling.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| /legal/refund | names the Test Series Pack, the upgrade to Board Pass and CBQ Packs; WhatsApp line for file problems (`#1795`) | **merged, live** (live verified earlier) | none |
+| /cbq-packs, /board-pass, /packs, /for-parents | small stylesheets inlined; blocking links to 0 (`#1796`) | **merged, live** (/cbq-packs served HTML has 0 blocking stylesheets) | CrUX effect needs about 28 days |
+| /test-series | blocking links 6 to 1 (PacksShop 8.9 KB stays linked) (`#1796`); hero h1 font-display block (`#1797`) | **merged, live** | Quality Score re-check about 5 Dec |
+| /cbq-packs, /board-pass hero | hero h1 font-display block, one LCP candidate (`#1797`) | **merged, live** (h1 computed font "LT Fraunces Hero") | PageSpeed noisy (84/84/90 after); `[FU-BOARDPASS-1280-CLS]` |
+| Answer Checker, Worksheet, Chapter Test, Full Mock, Quick Practice (grading) | none | unchanged | the earlier second-surface checks stay owed |
+
 > **2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793 (CLAUDE.md section 10).** Scope: the signed-out free Answer Checker check, and admin ad-source display. **Grading surfaces (CLAUDE.md section 4a):** no grader prompt, marks, mistake-type, departure-handling or clamp rule changed. Of the six surfaces only the signed-out free multi-question Answer Checker check changed (`#1793`: one question sent and graded, rest locked); the other five are unchanged. **`#1792` moved admin only** (display names in /admin Students and Purchases); no learner surface moved. No scope was discovered; no surface Scope cell changes.
 
 | surface | what moved (PR) | state | owed |

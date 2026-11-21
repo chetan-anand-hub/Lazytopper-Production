@@ -1,3 +1,31 @@
+## [CURRENT - 2026-11-21b (second daily; UTC day 21 Nov, written 21 Nov evening) - #1795 - #1796 - #1797: refund page names Test Series and CBQ Packs, sales pages stop linking small stylesheets, hero heading LCP fix] `#1795` `#1796` `#1797`
+
+*(Second daily handoff of 21 Nov under CLAUDE.md section 10, after `#1794` (the first 21 Nov handoff, docs PR `fec15958`, merged 21 Nov 08:53 UTC; it did not include `#1795`). Trunk at writing: **`c6faee85`** (`#1797`, the last merge) [git, re-derived with `git ls-remote origin base/approved-thru-437`]. Merge SHAs and times [gh]; each SHA checked with `git merge-base --is-ancestor <sha> origin/base/approved-thru-437` [git]; what each PR changed [gh file lists] and [coordinator]; live results, PageSpeed readings and all off-repo changes [coordinator].)*
+
+| PR | merge SHA | merged (UTC; IST) | what it changed |
+|---|---|---|---|
+| `#1795` | `714f0fff` | 21 Nov 10:27 (15:57) | REFUND-TS-CBQ-1. The Cancellation Policy (/legal/refund) names the Test Series Pack, the Test Series to Board Pass upgrade and CBQ Packs, and gives WhatsApp +91 97145 68948 for file problems. Files [gh]: `LegalPage.tsx`, its tests, the two prerendered refund pages, `lastmod.json`, `sitemap.xml`. Live verified earlier [coordinator]. Closes `[FU-REFUND-PAGE-TS-CBQ]`. |
+| `#1796` | `7c814650` | 12:07 (17:37) | SPEED-SALES-CSS-1. `applyPrerendered.ts` gains `INLINE_ROUTE_CSS_LATE` and `lateRouteCssFor`; `INLINE_MARKUP_CSS` gains /for-parents to WhatsAppFab. Root cause: case-sensitive prefix drift (`CbqBand` against the emitted `cbqBand-*.css`; `salesPages` against `salesPagesCopy-*.css`) left tiny sheets LINKED, which blocks rendering. Built blocking links before to after: /cbq-packs 7 to 0, /board-pass 5 to 0, /packs 4 to 0, /for-parents 3 to 0, /test-series 6 to 1 (PacksShop, 8.9 KB, stays linked under the 6 KB rule). Guard test `speedSalesCss1.guard.test.ts`. Kill switch: build flag `LT_ISLANDS=0`. Live verified: /cbq-packs served HTML has 0 blocking stylesheets [coordinator]. |
+| `#1797` | `c6faee85` | 12:29 (17:59) | SPEED-HERO-LCP-1. Diagnosis (SPEED-CBQ-DIAG-1): the island's prerendered hero h1 painted in the fallback face; the app's re-render about 200 ms after load painted it in real Fraunces, bigger, which made a NEW later LCP candidate (LCP 1.2 s to 3.5-6.7 s). Seen on /cbq-packs, /board-pass and /test-series; never on /packs. Fix: a dedicated `@font-face` "LT Fraunces Hero" with `font-display: block` for `.lt-cq-hero__h1`, `.lt-bp-hero__h1`, `.lt-ts-hero__h1` (`cbqPacksPage.css`, `boardPassPage.css`, `testSeriesPage.css`) plus `heroFontBlock.guard.test.ts`. Builder's throttled Puppeteer (900 ms font delay): LCP /cbq-packs 4.3 to 1.4 s, /board-pass 5.5 to 1.4-1.6 s, /test-series 5.2 to 1.4 s; CLS 0 [coordinator]. |
+
+**Merge order [gh].** `#1795`, `#1796`, `#1797` merged in number order. No gap in `#1794` to `#1797`.
+
+**Grading surface (CLAUDE.md section 4a).** No grading rule or surface changed in these three PRs [gh file lists: legal page, build script, CSS and tests only].
+
+**Live [coordinator].** All three pages serve the new face; the h1 computed font is "LT Fraunces Hero" and the fonts load. /cbq-packs Science Buy (₹235) opened the Razorpay iframe in 2.2 s (not paid).
+
+**PageSpeed mobile /cbq-packs, live [coordinator].** Before (`714f0fff`): 78 at 16:10 (LCP 3.5 s), then 91/91/91 (LCP 0.9 s, TBT 380 ms) at about 17:15. After (`c6faee85`): 84/84/90 (LCP 0.9-1.0 s, TBT 410-630 ms). Single PSI runs are noisy; TBT varied though no JS changed. The real-user (CrUX) effect needs about 28 days; Quality Score re-check about 5 Dec.
+
+**Correction to the 21 Nov queue [coordinator].** /cbq-packs, /board-pass and /test-series were ALREADY islands (`islandConfig.ts` lines 39-48); the "static-first treatment" premise was stale. The fix was therefore the hero font, not an island conversion.
+
+**CI note [coordinator].** `#1796` vitest (shard 1/4) failed once on `PacksPage.test.tsx` "signed in with owned packs..." (TestingLibraryElementError, unrelated to the PR); a re-run was green. Logged as `[FU-FLAKY-PACKSPAGE-OWNED-PACKS]`.
+
+**Off-repo, 21 Nov (owner's words) [coordinator].** YouTube Short "1:47 AM, pre-boards next week..." published Public at about 18:00, then REPLACED at about 18:30-18:50 with a revised cut (same 45 s): new Public Short https://youtube.com/shorts/xriFjjp7acY (no caption track); the old Short 1y_t6Ci_L5w is PRIVATE (not deleted, reversible). The new Demand Gen ad uses the new video id. The Dandiya Demand Gen ad copy was reworded (no "free"). Details: SESSION_LOG.
+
+**Admin check [coordinator].** Every YouTube sign-up after about 12:00 landed on /board-pass or /test-series; none on /practice-hub after 10:11.
+
+**NOT live-verified / owed [coordinator].** The owner's signed-out phone test of `#1793`; the ₹1,083 upgrade, a free account and a Test-Series-only account live tests; the sale-cutoff and Improvement Exam Pass proposal. Kill switch for `#1796`: `LT_ISLANDS=0` (build flag). `#1797` has no switch; revert the three CSS files.
+
 ## [CURRENT - 2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793: admin ad-source names; the signed-out free check marks only the first question] `#1792` `#1793`
 
 *(Daily handoff under CLAUDE.md section 10 for the 2 PRs merged on 21 Nov, after `#1789` (the 19 Nov handoff, docs PR `cdc86d5`). Trunk at writing: **`52eac50a`** (`#1793`, the last merge) [git, re-derived with `git ls-remote origin base/approved-thru-437`]. Merge SHAs and times [gh]; what each PR changed [PR bodies and file lists read with gh]; rulings, live results and off-repo changes [coordinator].)*

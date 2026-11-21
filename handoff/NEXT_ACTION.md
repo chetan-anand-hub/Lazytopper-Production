@@ -1,3 +1,16 @@
+## 2026-11-21b (second daily; UTC day 21 Nov, written 21 Nov evening) - #1795 - #1796 - #1797
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`c6faee85`** [git].
+
+- **Done [git]:** `#1795`, `#1796`, `#1797` merged (table in CURRENT_STATE). No gaps. `[FU-REFUND-PAGE-TS-CBQ]` is CLOSED by `#1795` (the wording shipped).
+- **Owner live tests still owed:** the signed-out phone test of `#1793` (`[FU-FREECHECK-ONEQ-SIGNEDOUT-LIVE]`); the ₹1,083 upgrade, a free account and a Test-Series-only account; the sale-cutoff and Improvement Exam Pass proposal.
+- **Closed same day [coordinator]:** `[FU-YT-DANDIYA-ADCOPY-FREE]` (ad reworded, back in Google review), `[FU-YT-SHORT-2MIN-CLAIM]` (owner ruling: keep "Graded in 2 min"), `[FU-LAPTOP-UPLOAD-PARTS]` (folder deleted).
+- **Ads (off-repo):** the new Demand Gen ad "Test Series Short - 1:47 AM Pre-boards (21 Nov)" now uses the revised Short `xriFjjp7acY` and was under Google review at writing; check the result. Add its and the Dandiya ad's "₹999 + GST till 30 Nov" text to the 1 Dec switch (`[FU-TS-ADS-PRICE-1DEC]`). 2 PDF Packs keywords would not pause (`[FU-ADS-PAUSE-2-PDFPACKS-KW]`).
+- **Speed:** re-check PageSpeed /cbq-packs, /board-pass, /test-series after a few days; CrUX needs about 28 days; Quality Score re-check about 5 Dec. Optional: `[FU-CBQ-TBT-CHECKOUT-WARM]`; look at `[FU-BOARDPASS-1280-CLS]`.
+- **Google review:** both Demand Gen ads (the Dandiya ad after its reword, and the new Short ad on the revised Short `xriFjjp7acY`) need their review results checked.
+- **Dated checks:** unchanged (22 Nov Sign-ups v2 decision; 24 Nov ads review; 25 Nov YouTube check; 30 Nov founding prices end; 1 Dec 00:00 IST price switch).
+- **Follow-ups opened today:** see OPEN_QUESTIONS_AND_FOLLOWUPS (bodies there).
+
 ## 2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`52eac50a`** [git].
@@ -172,7 +185,7 @@
   5. **Reminders:** Google Ads balance; **Resend Pro about 14 Nov** (the free plan ends; then raise `GST_INVOICE_EMAIL_DAILY_CAP` from 10 to 30 on Railway; `[FU-RESEND-PRO]`).
   6. The remaining low-priority review follow-ups (8 Nov NIGHT handoff section 7 item 4): do NOT start unless the owner asks; none was hit by a real student [coordinator].
 - **ON HOLD (owner):** `[FU-YT-DEMO-VIDEO]` (9 Nov 15:26 IST, "hold on to the youtube demo video"); the pricing-page redesign. `LIMITS_ENFORCE` must stay ON in Railway.
-- **Owner housekeeping:** the owner's Downloads folder holds a 4.8 MB Chrome `.tmp` file (`2ac83b4e-68ff-4d21-b422-ab006af4e5a3.tmp`, a copy of the graded PDF); the owner is to delete it (the builder cannot) [gh, `#1654` body; coordinator].
+- **Google review:** both Demand Gen ads (the Dandiya ad after its reword, and the new Short ad on the revised Short `xriFjjp7acY`) need their review results checked.
 
 ## 2026-11-09 (daily) - #1641, #1643 - #1645, #1649 - #1651
 
