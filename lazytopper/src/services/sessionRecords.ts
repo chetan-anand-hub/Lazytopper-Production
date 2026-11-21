@@ -192,6 +192,38 @@ export interface SessionRecord {
    *  Absent on every older record (before PR-2 an unreadable page was the only not-graded
    *  state) → the history card reads exactly as before. */
   notGradedAllUnread?: boolean;
+  /** RESULT-LIST-HONEST-1 - ADDITIVE OPTIONAL. Chapter Test / Full Mock only: true when the paper has
+   *  at least one GRADED question that is not an objective (Section A) item, i.e. the written sheet
+   *  WAS graded (even if some questions are still not graded). It is data, never a status: a
+   *  `partial` record with this set is a graded paper with questions left, NOT "awaiting a sheet".
+   *  false = only objective items are graded. Absent on every older record -> read as before. */
+  writtenGraded?: boolean;
+}
+
+/** RESULT-LIST-HONEST-1 - a Chapter Test / Full Mock record that reads as a GRADED paper: `graded`, or
+ *  `partial` whose written sheet WAS graded (`writtenGraded === true`). A `partial` without the flag
+ *  (objective only, or a record written before the field) stays "awaiting a sheet". Pure. */
+export function isGradedPaperRecord(r: Pick<SessionRecord, "status" | "writtenGraded">): boolean {
+  return r.status === "graded" || (r.status === "partial" && r.writtenGraded === true);
+}
+
+/** RESULT-LIST-HONEST-1 - the honest line under a graded-with-questions-left card. The record does
+ *  not store how many questions were not graded, so the line is the generic one. */
+export const PAPER_NOT_GRADED_LINE = "Some questions not graded";
+
+/** RESULT-LIST-HONEST-1 - true when the response has >=1 GRADED question that is not an objective
+ *  item. Objective = Section A (the paper's own section for that qNumber, else the stamped
+ *  `section`), the same predicate objectiveQuestions / subjectiveQuestions use. Pure. */
+export function responseHasGradedWritten(
+  paper: Pick<PersistedWorksheet, "questions">,
+  response: Pick<WorksheetGradeResponse, "results">,
+): boolean {
+  const results = Array.isArray(response?.results) ? response.results : [];
+  return results.some((r) => {
+    if (!isGradedQuestion(r)) return false;
+    const section = paper.questions[r.qNumber - 1]?.section ?? r.section;
+    return String(section ?? "").toUpperCase() !== "A";
+  });
 }
 
 /** One question's own subject and chapter on a Check & Improve paper (H5). `null` = the
@@ -1460,6 +1492,7 @@ export function buildChapterTestSessionRecord(args: {
     gradedAt: Date.now(),
     perQuestionRef: `ct:${code}`,
     dedupKey: `${uid}::${code}`,
+    writtenGraded: responseHasGradedWritten(paper, response),
   };
 }
 
@@ -1547,6 +1580,7 @@ export function buildFullMockSessionRecord(args: {
     gradedAt: Date.now(),
     perQuestionRef: `fm:${code}`,
     dedupKey: `${uid}::${code}`,
+    writtenGraded: responseHasGradedWritten(paper, response),
     ...(focus ? { focus } : {}),
   };
 }

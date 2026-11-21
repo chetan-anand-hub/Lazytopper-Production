@@ -8,7 +8,7 @@
 // stored scorecard read-only. Honest empty state before the first test. All numbers
 // come from the stored SessionRecord — nothing is invented.
 
-import type { SessionRecord } from "../../services/sessionRecords";
+import { isGradedPaperRecord, PAPER_NOT_GRADED_LINE, type SessionRecord } from "../../services/sessionRecords";
 import { STORED_MISTAKE_TYPES, isKnowledgeGapType, mistakeTypeLabel, toCounts } from "../../lib/mistakeDisplay";
 
 function pct(record: SessionRecord): number {
@@ -122,7 +122,8 @@ export default function ChapterTestHistoryRail({
       ) : (
         <>
           {records.map((r, i) => {
-            const graded = r.status === "graded";
+            const graded = isGradedPaperRecord(r);
+            const notAllGraded = r.status === "partial" && graded;
             const latest = i === 0 && graded;
             const spot = latest ? weakSpot(r) : null;
             const cls =
@@ -149,6 +150,7 @@ export default function ChapterTestHistoryRail({
                 {graded ? (
                   <>
                     <DotStrip record={r} />
+                    {notAllGraded && <div className="lt-ct__vs">{PAPER_NOT_GRADED_LINE}</div>}
                     {spot && (
                       <div className="lt-ct__vs">
                         Weak spot last time: <b>{mistakeTypeLabel(spot) ?? spot}</b>

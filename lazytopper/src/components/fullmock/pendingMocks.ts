@@ -7,14 +7,14 @@
 // for the SAME paper (worksheetId) exists that is at least as new. A newer not-graded sitting of the same
 // fixed paper is still awaiting.
 
-import type { SessionRecord } from "../../services/sessionRecords";
+import { isGradedPaperRecord, type SessionRecord } from "../../services/sessionRecords";
 
 export function pendingMockRecords(
   mockRecords: readonly SessionRecord[],
   justGradedCode: string | null = null,
 ): SessionRecord[] {
   return mockRecords.filter((r) => {
-    if (r.status === "graded") return false;
+    if (isGradedPaperRecord(r)) return false; // RESULT-LIST-HONEST-1: a partial with a graded written sheet is not awaiting one
     if (justGradedCode && r.id === justGradedCode) return false;
     if (r.worksheetId) {
       const supersededByGrade = mockRecords.some(
