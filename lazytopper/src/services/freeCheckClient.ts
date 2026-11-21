@@ -204,6 +204,9 @@ export function isFreeCheckRefusedError(err: unknown): err is FreeCheckRefusedEr
 /* ─────────────────────────── student copy (spec §2, as amended) ─────────────────────────── */
 
 export const FREE_CHECK_COPY = {
+  /** CI-UPLOAD-Q-1 — the Upload-question hint for a signed-out free check (marks question 1 only). */
+  uploadHintFree:
+    "Upload a photo or PDF of your question paper. Your free check marks question 1 \u2014 sign up for a 7-day free trial to mark every question.",
   /** After a free result. */
   afterResult: "Sign up free to save this and build your mistake pattern.",
   /**

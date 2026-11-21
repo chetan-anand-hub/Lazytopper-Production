@@ -409,3 +409,109 @@ describe("HOME-LADDER-1b · Home's ladder request survives auth arriving after f
     expect(screen.queryByTestId("one-min-opt-0")).toBeNull();
   });
 });
+
+// ── CI-UPLOAD-Q-1 ──
+const DETECTED_MATHS = {
+  ok: true,
+  detectedMarks: 3,
+  detectedSubject: "Maths",
+  detectedTopic: "real-numbers",
+  marksSource: "stated",
+  questions: [{ questionNumber: 1, questionText: "MATHS-PAPER-Q1 Prove that root 2 is irrational.", marks: 3, marksSource: "stated" }],
+};
+const HINT_FREE = "Your free check marks question 1";
+const HINT_OLD = "Upload an image or PDF of your question paper. We\u2019ll read all questions. Then upload your answer below.";
+
+async function ladderSeedDemoQuestion() {
+  H.auth = { user: null, loading: false };
+  vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
+  adArrival();
+  render(page());
+  fireEvent.click(await screen.findByTestId("one-min-opt-0"));
+  fireEvent.click(screen.getByTestId("one-min-next"));
+  await waitFor(() => expect(screen.queryByTestId("ci-demo")).toBeNull());
+  await settle();
+}
+
+async function uploadQuestionImage(container: HTMLElement) {
+  const input = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+  fireEvent.change(input, { target: { files: [new File(["png-bytes"], "paper.png", { type: "image/png" })] } });
+  const whole = screen.queryByRole("button", { name: "Use whole photo" });
+  if (whole) fireEvent.click(whole);
+  return screen.findByRole("button", { name: /Read the question/ });
+}
+
+describe("CI-UPLOAD-Q-1 - hidden typed text never rides with an uploaded question paper", () => {
+  it("ladder-typed demo question, then Upload + image: detect is called WITHOUT question; confirmed comes from the response", async () => {
+    H.detectQuestion.mockResolvedValue(DETECTED_MATHS);
+    await ladderSeedDemoQuestion();
+    expect(screen.getByText(/Detected:/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Upload question(s)" }));
+    const read = await uploadQuestionImage(document.body);
+    await waitFor(() => expect(read).not.toBeDisabled());
+    fireEvent.click(read);
+    await waitFor(() => expect(H.detectQuestion).toHaveBeenCalledTimes(1));
+    const req = H.detectQuestion.mock.calls[0][0] as Record<string, unknown>;
+    expect(req.question).toBeUndefined();
+    expect(typeof req.imageBase64).toBe("string");
+    expect(await screen.findByText(/Maths/)).toBeInTheDocument();
+  });
+
+  it("upload tab + typed text present: the single grade request carries the DETECTED text, not the typed text", async () => {
+    H.detectQuestion.mockResolvedValue(DETECTED_MATHS);
+    H.checkSolutionImage.mockResolvedValue(GRADED);
+    await ladderSeedDemoQuestion();
+    fireEvent.click(screen.getByRole("tab", { name: "Upload question(s)" }));
+    const read = await uploadQuestionImage(document.body);
+    await waitFor(() => expect(read).not.toBeDisabled());
+    fireEvent.click(read);
+    await waitFor(() => expect(H.detectQuestion).toHaveBeenCalledTimes(1));
+    await screen.findByText(/Detected:/);
+    fireEvent.change(screen.getByLabelText("Type your answer"), { target: { value: "Step 1 formula. Step 2 substitute. Step 3 answer 5 cm." } });
+    fireEvent.click(await screen.findByRole("button", { name: /Grade my answer/ }));
+    await waitFor(() => expect(H.checkSolutionImage.mock.calls.length + H.gradeWorksheet.mock.calls.length).toBeGreaterThan(0));
+    const sent = JSON.stringify([...H.checkSolutionImage.mock.calls, ...H.gradeWorksheet.mock.calls]);
+    expect(sent).toContain("MATHS-PAPER-Q1");
+  });
+
+  it("a student tab switch clears the Detected chip; the ladder's own programmatic seeding still shows it", async () => {
+    await ladderSeedDemoQuestion();
+    expect(screen.getByText(/Detected:/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Upload question(s)" }));
+    expect(screen.queryByText(/Detected:/)).toBeNull();
+    fireEvent.click(screen.getByRole("tab", { name: "Type / paste" }));
+    expect(screen.queryByText(/Detected:/)).toBeNull();
+  });
+});
+
+describe("CI-UPLOAD-Q-1 - the up-front free-check hint", () => {
+  const openUpload = () => fireEvent.click(screen.getByRole("tab", { name: "Upload question(s)" }));
+
+  it("free mode shows the new hint", async () => {
+    H.auth = { user: null, loading: false };
+    vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
+    render(page());
+    await settle();
+    openUpload();
+    expect(screen.getByText(new RegExp(HINT_FREE))).toBeInTheDocument();
+    expect(screen.queryByText(HINT_OLD)).toBeNull();
+  });
+
+  it("signed-in keeps the old hint", async () => {
+    render(page());
+    await settle();
+    openUpload();
+    expect(screen.getByText(HINT_OLD)).toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(HINT_FREE))).toBeNull();
+  });
+
+  it("kill switch off keeps the old hint in free mode", async () => {
+    H.auth = { user: null, loading: false };
+    vi.stubEnv("VITE_FREE_CHECK_ENABLED", "true");
+    vi.stubEnv("VITE_FREE_CHECK_ONE_QUESTION_DISABLED", "true");
+    render(page());
+    await settle();
+    openUpload();
+    expect(screen.getByText(HINT_OLD)).toBeInTheDocument();
+  });
+});

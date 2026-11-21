@@ -1721,6 +1721,10 @@ const DesktopCheckImprovePageInner: React.FC<{
   // ── PART A: which multi-question cards are expanded to show per-step working ──
   const [expandedQ, setExpandedQ] = useState<Record<number, boolean>>({});
 
+  // CI-UPLOAD-Q-1: on the Upload tab the typed text (e.g. a ladder-seeded demo question the Type box no longer
+  // shows) is NEVER sent or used - the uploaded paper alone is the question. The `question` state is kept so
+  // switching back to Type restores what the student typed.
+  const typedQuestion = questionTab === "type" ? question : "";
   const hasQuestion =
     questionTab === "type" ? question.trim().length > 0 : Boolean(qImageBase64);
   // Two or more questions were read from the upload → grade the whole paper.
@@ -1734,7 +1738,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   // SCORECARD-MI-1 (B1/D6) — what a single-question grade will send as the question: the typed
   // text, else the text read from the photo / PDF / QR upload. Empty → the student is asked to
   // type the question (the grader is never handed the chapter name instead of the question).
-  const singleQuestionText = resolveCiQuestionText(question, detectedQuestions);
+  const singleQuestionText = resolveCiQuestionText(typedQuestion, detectedQuestions);
   // Grade only after the question has been read + confirmed AND an answer exists.
   // Multi-question grading REQUIRES an uploaded answer sheet (image or PDF) — the
   // whole-paper grader reads the answers from that one upload.
@@ -1993,7 +1997,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Read the question ALONE (one deliberate, cheap call) → show the detected chip.
   async function handleReadQuestion() {
     if (detecting) return;
-    const q = question.trim();
+    const q = typedQuestion.trim();
     if (questionTab === "type" && !q) return;
     if (questionTab === "upload" && !qImageBase64) return;
     setDetecting(true);
@@ -3394,7 +3398,11 @@ const DesktopCheckImprovePageInner: React.FC<{
                       role="tab"
                       aria-selected={active}
                       tabIndex={active ? 0 : -1}
-                      onClick={() => { setQuestionTab(t); clearDetection(); }}
+                      onClick={() => {
+                        // CI-UPLOAD-Q-1: a STUDENT tab switch drops the other tab's "Detected:" chip + board source.
+                        if (t !== questionTab) { clearDetection(); setBoardSource(null); }
+                        setQuestionTab(t);
+                      }}
                       style={{
                         flex: 1, height: 34, borderRadius: 8,
                         border: active ? "none" : `1px solid ${BORDER}`,
@@ -3454,7 +3462,9 @@ const DesktopCheckImprovePageInner: React.FC<{
                     {qImageName ? `Question file: ${qImageName}` : "Upload question paper — PDF or image"}
                   </button>
                   <div style={{ fontSize: 12, color: TEXT_MUTED }}>
-                    Upload an image or PDF of your question paper. We&rsquo;ll read all questions. Then upload your answer below.
+                    {isFreeMode && isFreeCheckOneQuestionEnabled()
+                      ? FREE_CHECK_COPY.uploadHintFree
+                      : <>Upload an image or PDF of your question paper. We&rsquo;ll read all questions. Then upload your answer below.</>}
                   </div>
 
                   {/* MIRROR 2 — QR handoff for the QUESTION, mirroring the answer's
