@@ -60,6 +60,17 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
   return { ...actual, trackNamedEvent: (...a: unknown[]) => H.track(...a) };
 });
 
+// The signed-in test grades a whole paper, which writes MI + attempt records after the grade; stub the writers
+// (the same way the other signed-in page tests do) so nothing is still running when the test ends.
+vi.mock("../../services/mistakeIntelligence", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/mistakeIntelligence")>();
+  return { ...actual, recordMistake: () => Promise.resolve({ outcome: "logged", bridged: false }) };
+});
+vi.mock("../../services/practiceInsights", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/practiceInsights")>();
+  return { ...actual, recordAttempt: () => "recorded" };
+});
+
 import DesktopCheckImprovePage from "./DesktopCheckImprovePage";
 import { PremiumRequiredError } from "../../ai/aiClient";
 import { SIGN_IN_AGAIN_MESSAGE, SignInAgainError } from "../../ai/paidCallHeaders";
