@@ -137,13 +137,13 @@ check(
 );
 check(
   "HUNK B: overlayReturn is keyed off the page's OWN scorecardOpen (no new signal invented)",
-  /const overlayReturn = \(\) => \{[\s\S]*?if \(scorecardOpen\) \{[\s\S]*?overlay\.onClose\(\s*buildOverlayReturnRecord\(\),\s*\{ text: question, imageBase64: qImageBase64 \},/.test(page),
+  /const overlayReturn = \(\) => \{[\s\S]*?if \(scorecardOpen\) \{[\s\S]*?overlay\.onClose\(\s*buildOverlayReturnRecord\(\),\s*\{ text: typedQuestion, imageBase64: qImageBase64 \},/.test(page),
 );
 // HUNK B2 (tutor-graded-context) — the graded response is handed in-hand on close (Option 2b),
 // built in exact lock-step with the record so the two never diverge, and NOT re-persisted.
 check(
   "HUNK B2: the close passes the graded response in-hand (buildOverlayReturnResponse — Option 2b)",
-  /overlay\.onClose\(\s*buildOverlayReturnRecord\(\),\s*\{ text: question, imageBase64: qImageBase64 \},\s*buildOverlayReturnResponse\(\),\s*\)/.test(page),
+  /overlay\.onClose\(\s*buildOverlayReturnRecord\(\),\s*\{ text: typedQuestion, imageBase64: qImageBase64 \},\s*buildOverlayReturnResponse\(\),\s*\)/.test(page),
 );
 check(
   "HUNK B2: buildOverlayReturnResponse mirrors the record's whole-paper-vs-single split (no divergence)",
