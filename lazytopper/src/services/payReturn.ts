@@ -36,7 +36,9 @@ export function isPayReturnDisabled(): boolean {
 
 /** The pre-pay hint, only inside an in-app browser and only while the switch is on. */
 export const PAY_RETURN_HINT = "Paying inside an app (Instagram, Facebook, YouTube)? If GPay doesn't open, tap ⋮ → Open in Chrome.";
-export const PAY_RETURN_FAILED = "Your payment didn't complete. If money was taken from your account, it will show here or your bank will refund it — no need to pay twice.";
+export const PAY_RETURN_FAILED = "Your payment didn't complete. If money was taken, sign in with the same phone number to see your purchase, or your bank will refund it — no need to pay twice.";
+/** Shown once the pending view's slow re-checks are used up (review N2): nothing is still checking, so the page must not say it is. */
+export const PAY_RETURN_PENDING_FINAL = "We couldn't confirm your payment yet. If money was taken, sign in with the same phone number to see your purchase, or your bank will refund it.";
 export const PAY_RETURN_TRY_AGAIN = "Try again";
 export const PAY_RETURN_CHECKING = "Checking your payment…";
 export const PAY_RETURN_PENDING = "Checking your payment… if money was taken it will show here within a few minutes.";
@@ -225,6 +227,9 @@ export interface ResumeDeps {
   store?: Storage | null;
   /** Stop polling when this returns true (the page unmounted / a sheet opened). */
   cancelled?: () => boolean;
+  /** How many status calls this resume may make (default POLL_TRIES). The pending view's slow re-checks pass 1, so they stay
+   *  well inside the server's per-order hourly status budget (review N1). */
+  tries?: number;
 }
 
 export type ResumeOutcome =
@@ -243,10 +248,11 @@ const realSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
  */
 export async function resumePendingPayment(deps: ResumeDeps = {}): Promise<ResumeOutcome> {
   const { fetchImpl = fetch, sleep = realSleep, now = () => Date.now(), store = storage(), cancelled = () => false } = deps;
+  const tries = Math.max(1, Math.min(POLL_TRIES, deps.tries ?? POLL_TRIES));
   if (isPayReturnDisabled() || isCheckoutSheetOpen()) return { kind: "none" };
   const entry = readPendingOrders(now(), store)[0];
   if (!entry) return { kind: "none" };
-  for (let i = 0; i < POLL_TRIES; i += 1) {
+  for (let i = 0; i < tries; i += 1) {
     if (cancelled() || isCheckoutSheetOpen()) return { kind: "none" };
     const out = await fetchOrderStatus(entry, fetchImpl);
     if (cancelled()) return { kind: "none" };
@@ -263,7 +269,7 @@ export async function resumePendingPayment(deps: ResumeDeps = {}): Promise<Resum
       forgetPendingOrder(entry.orderId, store);
       return { kind: "none" };
     }
-    if (i < POLL_TRIES - 1) await sleep(POLL_GAP_MS);
+    if (i < tries - 1) await sleep(POLL_GAP_MS);
   }
   return { kind: "pending", entry };
 }

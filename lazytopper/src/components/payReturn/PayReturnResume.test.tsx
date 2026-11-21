@@ -23,7 +23,7 @@ vi.mock("../gstInvoice/PostPayGst", () => ({ default: (p: { target: { kind: stri
 
 import PayReturnResume, { tryAgainHref } from "./PayReturnResume";
 import PayReturnHint from "./PayReturnHint";
-import { PAY_RETURN_CHECKING, PAY_RETURN_FAILED, PAY_RETURN_HINT, PAY_RETURN_PENDING, PENDING_STORE_KEY, beginPendingCheckout, readPendingOrders, rememberPendingOrder, resetPayReturnForTests } from "../../services/payReturn";
+import { PAY_RETURN_CHECKING, PAY_RETURN_FAILED, PAY_RETURN_HINT, PAY_RETURN_PENDING, PAY_RETURN_PENDING_FINAL, PENDING_STORE_KEY, beginPendingCheckout, readPendingOrders, rememberPendingOrder, resetPayReturnForTests } from "../../services/payReturn";
 import { readReceiptProof } from "../../services/paidReceiptProof";
 
 const PROOF = "AbCdEfGhIjKlMnOpQrStUvWxYz012345";
@@ -143,7 +143,7 @@ describe("PAY-RETURN-1 PayReturnResume", () => {
     expect(await screen.findByTestId("purchase-card-stub")).toBeTruthy();
   });
 
-  it("PENDING re-checks every 30 s, and stops after 10 re-checks even though each one flips the view to checking and back", async () => {
+  it("PENDING re-checks every 30 s with ONE call each, stops after 10 re-checks even though each flips the view to checking and back, then shows the final line", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     note();
     answer(ANSWER.pending);
@@ -154,6 +154,7 @@ describe("PAY-RETURN-1 PayReturnResume", () => {
     expect(await screen.findByText(PAY_RETURN_PENDING)).toBeTruthy();
     const pendings = () => onboarding.mock.calls.filter((c: unknown[]) => c[0] === "pay_return_resume_pending").length;
     expect(pendings()).toBe(1);
+    const firstFetches = fetchSpy.mock.calls.length;
     // One second per act(), so each re-check's "checking" view really renders between "pending"s, as it does in a browser
     // (a single long act() batches checking -> pending into one render and hides the effect re-run this test is about).
     const tick = async (seconds: number) => {
@@ -168,6 +169,11 @@ describe("PAY-RETURN-1 PayReturnResume", () => {
     // 15 minutes, well past 10 re-checks (each ~30 s + its short poll) but inside the 30-minute note TTL
     await tick(900);
     expect(pendings()).toBe(11);
+    // review N1: each slow re-check is ONE status call, so a stuck page costs 3 + 10 calls, far inside the per-order budget
+    expect(fetchSpy.mock.calls.length).toBe(firstFetches + 10);
+    // review N2: once nothing is checking any more, the page says so
+    expect(screen.getByText(PAY_RETURN_PENDING_FINAL)).toBeTruthy();
+    expect(screen.queryByText(PAY_RETURN_PENDING)).toBeNull();
   });
 
   it("pageshow (a bfcache / reload return) resumes too", async () => {

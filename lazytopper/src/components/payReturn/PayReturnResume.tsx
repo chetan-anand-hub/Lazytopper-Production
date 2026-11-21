@@ -21,6 +21,7 @@ import {
   PAY_RETURN_DISMISS,
   PAY_RETURN_FAILED,
   PAY_RETURN_PENDING,
+  PAY_RETURN_PENDING_FINAL,
   PAY_RETURN_TRY_AGAIN,
   hostSlug,
   inAppSlug,
@@ -86,7 +87,7 @@ export default function PayReturnResume() {
     };
   }, []);
 
-  const run = useCallback(async () => {
+  const run = useCallback(async (tries?: number) => {
     if (isPayReturnDisabled() || running.current || isCheckoutSheetOpen()) return;
     const t = Date.now();
     if (t - lastStart.current < MIN_GAP_MS) return;
@@ -95,7 +96,7 @@ export default function PayReturnResume() {
     running.current = true;
     setView({ name: "checking" });
     try {
-      const out = await resumePendingPayment({ cancelled: () => !alive.current });
+      const out = await resumePendingPayment({ cancelled: () => !alive.current, tries });
       if (!alive.current) return;
       const params = (entry: PendingOrder) => ({ host: entry.host || hostSlug(window.location.pathname), in_app: inAppSlug() });
       if (out.kind === "paid") {
@@ -134,16 +135,22 @@ export default function PayReturnResume() {
   // Review N6: "pending" promises an update within a few minutes, so keep asking: every 30 s, at most 10 times (5 min).
   // The count lives in a ref: each re-check flips the view to "checking" and back, which re-runs this effect.
   const repolls = useRef(0);
+  const [gaveUp, setGaveUp] = useState(false);
   useEffect(() => {
-    if (view.name === "paid" || view.name === "failed" || view.name === "idle") repolls.current = 0;
+    if (view.name === "paid" || view.name === "failed" || view.name === "idle") {
+      repolls.current = 0;
+      setGaveUp(false);
+    }
     if (!active || view.name !== "pending") return undefined;
     const id = window.setInterval(() => {
+      if (isCheckoutSheetOpen()) return; // review N4: a re-check that cannot run is not spent
       if (repolls.current >= PENDING_REPOLL_MAX) {
         window.clearInterval(id);
+        setGaveUp(true);
         return;
       }
       repolls.current += 1;
-      void run();
+      void run(1); // one status call per re-check (review N1)
     }, PENDING_REPOLL_MS);
     return () => window.clearInterval(id);
   }, [active, view.name, run]);
@@ -160,7 +167,7 @@ export default function PayReturnResume() {
   if (view.name === "pending") {
     return (
       <div className="lt-prr" data-testid="pay-return-pending">
-        <p className="lt-prr__line" role="status">{PAY_RETURN_PENDING}</p>
+        <p className="lt-prr__line" role="status">{gaveUp ? PAY_RETURN_PENDING_FINAL : PAY_RETURN_PENDING}</p>
       </div>
     );
   }
