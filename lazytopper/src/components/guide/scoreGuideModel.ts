@@ -328,7 +328,9 @@ function printedUnread(v: ScorecardVariant): number {
   if (!p) return 0;
   const mismatch = (p.mismatch ?? []).length;
   const notGraded = (p.items ?? []).filter((it) => it.state === "not-graded").length;
-  return Math.max(0, p.count - mismatch - notGraded);
+  // GRADE-RESULT-COPY-1 — questions not answered on the uploaded pages are not "unreadable".
+  const notFound = p.notFound ?? 0;
+  return Math.max(0, p.count - mismatch - notGraded - notFound);
 }
 
 /** The biggest MI loss the scorecard PRINTS, and the honest lead for it: marks from "Where your

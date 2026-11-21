@@ -28,6 +28,7 @@ import { recordableInterruptedRows, recordedQNumbersOf } from "../ai/gradingJobR
 import {
   gradeWorksheet,
   type CheckSolutionResponse,
+  type PaidCallOptions,
   type WorksheetGradeResponse,
   type WorksheetQuestionGrade,
 } from "../ai/aiClient";
@@ -163,6 +164,9 @@ export async function gradeFullMockUpload(args: {
   focus?: SessionFocusAggregates;
   /** GRADING-JOBS-1 J2 — grade as a background job (rows land one by one; resume after a reload). */
   job?: GradingJobOptions;
+  /** GRADE-RESULT-COPY-1 - the page's stage listener, so a slow grade shows "Taking a little longer
+   *  than usual - still checking..." instead of a frozen button. Optional and additive: absent = as before. */
+  onStage?: PaidCallOptions["onStage"];
 }): Promise<FullMockGradeOutcome> {
   const { user, paper, subject, objective, subjectiveQuestions, upload, focus } = args;
   // RECORD-SAFE-1: resolve the paper by identity - its record may have moved to a free code while no page was open
@@ -237,7 +241,7 @@ export async function gradeFullMockUpload(args: {
     })),
     imageBase64: upload.imageBase64,
     imageMimeType: upload.imageMimeType,
-  }, { surface: "full-mock", paperKey: paper.worksheetId, ...(args.job ? { job: args.job } : {}) });
+  }, { surface: "full-mock", paperKey: paper.worksheetId, ...(args.onStage ? { onStage: args.onStage } : {}), ...(args.job ? { job: args.job } : {}) });
   } catch (err) {
     // J2b (D30-2) — an interrupted background grade: its FINAL graded rows are recorded now,
     // exactly as a normal graded row (same ids, so idempotent), then the interruption goes on

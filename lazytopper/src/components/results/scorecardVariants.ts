@@ -38,6 +38,7 @@ import {
   effectivePaperCounts,
   gradeStateCopy,
   gradeStateOf,
+  isNotFoundOnPages,
   isCarelessType,
   isGradedQuestion,
   paperMarksLost,
@@ -108,6 +109,9 @@ export interface ScorecardPending {
   /** SCORECARD-MI-1 PR-2 (controller ruling) — EVERY question that was not graded, by number,
    *  with its honest state, so the paper reads "X of Y graded" with the rest listed. */
   items?: Array<{ label: string; state: Exclude<GradeState, "graded">; copy: string }>;
+  /** GRADE-RESULT-COPY-1 — how many of `count` the grader found NO answer for on the uploaded pages
+   *  (`isNotFoundOnPages`). Told apart from the genuinely unreadable ones; both stay pending. */
+  notFound?: number;
 }
 
 /** All-pending honest message (worksheet, gradedCount === 0). */
@@ -460,13 +464,16 @@ export function pendingStrip(response: WorksheetGradeResponse): ScorecardPending
   if (!(response.pendingCount > 0)) return null;
   const mismatch = response.results.filter((r) => gradeStateOf(r) === "answer-mismatch").map((r) => `Q${r.qNumber}`);
   const items: NonNullable<ScorecardPending["items"]> = [];
+  let notFound = 0;
   for (const r of response.results) {
     const state = gradeStateOf(r);
     if (state !== "graded") items.push({ label: `Q${r.qNumber}`, state, copy: gradeStateCopy(r) ?? "" });
+    if (isNotFoundOnPages(r)) notFound += 1;
   }
   return {
     count: response.pendingCount,
     worksheetTotalMarks: response.worksheetTotalMarks,
+    ...(notFound ? { notFound } : {}),
     ...(mismatch.length ? { mismatch } : {}),
     ...(items.length ? { items } : {}),
   };

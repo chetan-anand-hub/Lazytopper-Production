@@ -161,6 +161,9 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
   return (
     <section className="lt-tsa" aria-label="Test analysis">
       {/* 1 — re-attempt the lost-marks questions */}
+      {/* GRADE-RESULT-COPY-1 - when the only misses are questions left unanswered, there is nothing
+          to re-attempt and no lost-marks claim to make: the block is hidden, not worded around. */}
+      {!(retry.missedCount === 0 && retry.notAttemptedCount > 0) && (
       <div className="lt-tsa__card" id={RETRY_ANCHOR}>
         <h2 className="lt-tsa__h">Fix what cost you marks</h2>
         {retry.missedCount === 0 ? (
@@ -188,6 +191,7 @@ function TestAnalysisPanelBody(props: TestAnalysisPanelProps) {
           </>
         )}
       </div>
+      )}
 
       {/* 2 — time per question */}
       <div className="lt-tsa__card">

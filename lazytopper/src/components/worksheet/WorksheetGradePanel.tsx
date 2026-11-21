@@ -686,9 +686,16 @@ export default function WorksheetGradePanel({
                 {/* PR-2 — an answer that does not match its question was read: it is not "unreadable". */}
                 {(() => {
                   // notGraded (owner-approved 2026-10-05) — never called an unreadable page.
-                  const { unread, mismatch, notGraded } = pendingBreakdown(response.results, response.pendingCount);
+                  const { unread, mismatch, notGraded, notFound } = pendingBreakdown(response.results, response.pendingCount);
                   return (
                     <>
+                      {/* GRADE-RESULT-COPY-1 — no answer found on the uploaded pages is not an unreadable page. */}
+                      {notFound > 0 && (
+                        <>
+                          {notFound} question{notFound === 1 ? "" : "s"} not answered on your pages — if you did answer{" "}
+                          {notFound === 1 ? "it" : "them"}, add that page to complete your score.{" "}
+                        </>
+                      )}
                       {unread > 0 && (
                         <>
                           {unread} question{unread === 1 ? "" : "s"} couldn’t be read — re-upload those pages to complete your score.{" "}

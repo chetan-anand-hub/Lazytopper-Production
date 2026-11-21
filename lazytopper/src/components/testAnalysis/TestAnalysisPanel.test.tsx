@@ -95,6 +95,22 @@ describe("TestAnalysisPanel", () => {
     expect(screen.getAllByRole("link", { name: "Practise again" })).toHaveLength(4);
   });
 
+  it("GRADE-RESULT-COPY-1: unanswered questions are not 'lost marks' - the count and the re-attempt list hold only attempted-and-lost ones", () => {
+    const left = (qNumber: number): WorksheetQuestionGrade =>
+      ({ qNumber, couldNotRead: false, ok: true, totalMarks: 1, marksAwarded: 0, annotatedSteps: [], marksLostByType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 1, untyped: 0 } }) as never;
+    renderPanel("uid-1", resp([g(1, 1, 1), g(2, 0, 2), left(3), left(4), left(5)]), [TRI[0], TRI[1], TRI[2], TRI[3], TRI[4]]);
+    expect(screen.getByText(/You lost marks on/).textContent).toContain("1 graded question.");
+    expect(screen.getByRole("link", { name: "Re-attempt my wrong questions (1)" })).toBeTruthy();
+  });
+
+  it("GRADE-RESULT-COPY-1: when ONLY unanswered questions missed, the block is hidden (no 'lost marks' claim)", () => {
+    const left = (qNumber: number): WorksheetQuestionGrade =>
+      ({ qNumber, couldNotRead: false, ok: true, totalMarks: 1, marksAwarded: 0, annotatedSteps: [], marksLostByType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 1, untyped: 0 } }) as never;
+    renderPanel("uid-1", resp([g(1, 1, 1), left(2), left(3)]), [TRI[0], TRI[1], TRI[2]]);
+    expect(screen.queryByText("Fix what cost you marks")).toBeNull();
+    expect(screen.queryByText(/You lost marks on/)).toBeNull();
+  });
+
   it("empty state: nothing lost, nothing measured, too little history", async () => {
     renderPanel("uid-1", resp([g(1, 1, 1)]), [TRI[0]]);
     expect(screen.getByText(/No marks lost/)).toBeTruthy();

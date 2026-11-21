@@ -169,6 +169,14 @@ describe("GUIDE-SCORE-1 · situations and the MI next step", () => {
     expect(p.cta).toBeNull();
   });
 
+  it("GRADE-RESULT-COPY-1: questions not answered on the pages are not counted as unreadable", () => {
+    const p = scoreGuidePlan(base({ pending: { count: 3, worksheetTotalMarks: 30, notFound: 2 }, marksLost: marks({ silly: 2 }) }))!;
+    expect(p.byteStep).toBe("pending");
+    expect(p.byte.text).toContain("1 question");
+    const none = scoreGuidePlan(base({ pending: { count: 2, worksheetTotalMarks: 30, notFound: 2 }, marksLost: marks({ silly: 2 }) }))!;
+    expect(none.byteStep).not.toBe("pending");
+  });
+
   it("★★ objective-only, ALL right (tap-only Quick Practice): MCQ numbers, Check a written answer", () => {
     const p = scoreGuidePlan(
       base({ surface: "quick-practice", subtitle: "Session scorecard", score: { kind: "attempts", attempted: 5, ofN: 5, mcqAnswered: 5, mcqCorrect: 5 } }),

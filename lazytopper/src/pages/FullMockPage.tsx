@@ -165,7 +165,7 @@ import { pendingMockRecords } from "../components/fullmock/pendingMocks";
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import UsageWarning from "../components/usage/UsageWarning";
 import { useFairUse } from "../components/usage/useFairUse";
-import { gradingErrorMessage } from "../ai/gradingTransport";
+import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../ai/gradingTransport";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
 import { isPremiumRequiredRefusal, isTrialLimitRefusal } from "../components/limits/limitsCopy";
 import { resumableJob, type GradingJobInterruptedError } from "../ai/gradingJobs";
@@ -537,6 +537,8 @@ export default function FullMockPage() {
   // SHEET-HEADER-1 — when THIS fullResponse was marked (set beside it; it is only ever set from a fresh grade).
   const fullGradedAtRef = useRef<number | null>(null);
   const [grading, setGrading] = useState(false);
+  /** GRADE-RESULT-COPY-1 - the grade call's transport stage; only a retry is shown. */
+  const [gradeStage, setGradeStage] = useState<GradingStage | null>(null);
   const [gradeError, setGradeError] = useState<string | null>(null);
   // PAPER-WALLS-1: the upgrade sheet (Board Pass first, the Mock Pack second) for a Basic 402 / spent trial allowance.
   const [paperWall, setPaperWall] = useState(false);
@@ -861,6 +863,7 @@ export default function FullMockPage() {
       const a = activeRef.current;
       if (!a || !objective || grading) return;
       setGrading(true);
+      setGradeStage(null);
       setGradeError(null);
       fairUse.clearLimit();
       if (!mode.resume) lastUploadRef.current = upload;
@@ -874,6 +877,7 @@ export default function FullMockPage() {
           objective,
           subjectiveQuestions: fullMockSubjectiveQuestions(a.paper),
           upload,
+          onStage: setGradeStage,
           // AWAIT-1: a mock sat on paper has no measured focus — none is recorded (never zeros).
           focus: downloadedRef.current ? undefined : focusRef.current,
           job: {
@@ -923,6 +927,7 @@ export default function FullMockPage() {
         setGradeError(gradingErrorMessage(err, "We couldn't grade your answers just now. Your answers are still here — please try again."));
       } finally {
         setGrading(false);
+        setGradeStage(null);
       }
     },
     [objective, grading, user, sessionSubject, sessionUid, subject, loadRecords, jobUi.reset, jobUi.onProgress, jobUi.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal, adoptFmCode],
@@ -2094,6 +2099,7 @@ export default function FullMockPage() {
                     error={gradeError}
                     isSignedIn={isSignedIn}
                     onGrade={(upload) => void handleGrade(upload)}
+                    stageLabel={grading && gradeStage?.kind === "retrying" ? gradingStageLabel(gradeStage) : null}
                     onSkip={() => setPhase("setup")}
                   />
                 </>

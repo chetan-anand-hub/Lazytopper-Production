@@ -23,6 +23,7 @@ export default function ChapterTestUploadPanel({
   onSkip,
   eyebrow = "Chapter Test · Result",
   sectionsLabel = "Sections B–D",
+  stageLabel,
 }: {
   name: string;
   code: string;
@@ -36,6 +37,9 @@ export default function ChapterTestUploadPanel({
    *  B–E"). Additive — defaults keep the Chapter Test byte-identical. */
   eyebrow?: string;
   sectionsLabel?: string;
+  /** GRADE-RESULT-COPY-1 — while grading, a slow-retry stage line REPLACES the in-progress text
+   *  (one line, never two). Absent → the panel is byte-identical to before. */
+  stageLabel?: string | null;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coarsePointer = useCoarsePointer();
@@ -160,7 +164,7 @@ export default function ChapterTestUploadPanel({
             disabled={grading}
             onClick={() => onGrade({ imageBase64, imageMimeType })}
           >
-            {grading ? "Grading your answers… ~30–60s" : "Grade my written answers →"}
+            {grading ? (stageLabel || "Grading your answers… ~30–60s") : "Grade my written answers →"}
           </button>
         )}
 
