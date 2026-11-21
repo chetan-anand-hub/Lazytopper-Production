@@ -3728,6 +3728,18 @@ test('PR · nothing captured: in-progress / just-created -> pending; a failed at
   assert.equal(packDocs(srv.db).length + subsDocs(srv.db).length, 0);
 });
 
+test('PR · review N2: a failed attempt PLUS a second attempt still in the UPI app reads pending, never failed', async (t) => {
+  const srv = await startRoutes({ env: PR_ENV });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  srv.rzp.pay(o.json.orderId, { id: 'pay_first_to', status: 'failed' });
+  srv.rzp.payments.get('pay_first_to').error_reason = 'payment_timed_out';
+  srv.rzp.pay(o.json.orderId, { id: 'pay_second_wip', status: 'created' });
+  const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+  assert.deepEqual(r.json, { ok: true, status: 'pending', reason: 'in_progress' });
+  assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'created');
+});
+
 test('PR · a failed attempt followed by a successful retry on the SAME order reads paid, not failed', async (t) => {
   const srv = await startRoutes({ env: PR_ENV });
   t.after(srv.close);

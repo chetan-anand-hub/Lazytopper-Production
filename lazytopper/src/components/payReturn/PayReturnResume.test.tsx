@@ -242,7 +242,7 @@ describe("PAY-RETURN-1 PayReturnHint", () => {
     expect(screen.queryByTestId("pay-return-hint")).toBeNull();
   });
   it("the hint copy has no 'AI' and names the way out", () => {
-    expect(PAY_RETURN_HINT).toBe("Paying inside Instagram/Facebook? If GPay doesn't open, tap ⋮ → Open in Chrome.");
+    expect(PAY_RETURN_HINT).toBe("Paying inside an app (Instagram, Facebook, YouTube)? If GPay doesn't open, tap ⋮ → Open in Chrome.");
     expect(/\bAI\b/.test(PAY_RETURN_HINT)).toBe(false);
   });
 });

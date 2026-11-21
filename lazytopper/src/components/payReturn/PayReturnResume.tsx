@@ -61,6 +61,9 @@ export function tryAgainHref(entry: PendingOrder, href: string): string | null {
   }
 }
 
+const PENDING_REPOLL_MS = 30_000;
+const PENDING_REPOLL_MAX = 10;
+
 export default function PayReturnResume() {
   const { user, loading } = useAuth();
   const [view, setView] = useState<View>({ name: "idle" });
@@ -127,6 +130,21 @@ export default function PayReturnResume() {
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, [active, run]);
+
+  // Review N6: "pending" promises an update within a few minutes, so keep asking: every 30 s, at most 10 times (5 min).
+  useEffect(() => {
+    if (!active || view.name !== "pending") return undefined;
+    let n = 0;
+    const id = window.setInterval(() => {
+      n += 1;
+      if (n > PENDING_REPOLL_MAX) {
+        window.clearInterval(id);
+        return;
+      }
+      void run();
+    }, PENDING_REPOLL_MS);
+    return () => window.clearInterval(id);
+  }, [active, view.name, run]);
 
   if (!active || view.name === "idle") return null;
 

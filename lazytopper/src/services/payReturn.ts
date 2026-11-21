@@ -35,8 +35,8 @@ export function isPayReturnDisabled(): boolean {
 }
 
 /** The pre-pay hint, only inside an in-app browser and only while the switch is on. */
-export const PAY_RETURN_HINT = "Paying inside Instagram/Facebook? If GPay doesn't open, tap ⋮ → Open in Chrome.";
-export const PAY_RETURN_FAILED = "Your payment didn't complete.";
+export const PAY_RETURN_HINT = "Paying inside an app (Instagram, Facebook, YouTube)? If GPay doesn't open, tap ⋮ → Open in Chrome.";
+export const PAY_RETURN_FAILED = "Your payment didn't complete. If money was taken from your account, it will show here or your bank will refund it — no need to pay twice.";
 export const PAY_RETURN_TRY_AGAIN = "Try again";
 export const PAY_RETURN_CHECKING = "Checking your payment…";
 export const PAY_RETURN_PENDING = "Checking your payment… if money was taken it will show here within a few minutes.";
@@ -277,4 +277,3 @@ export function inAppSlug(): "instagram" | "facebook" | "youtube" | "other" | "n
 export function showPayReturnHint(): boolean {
   return !isPayReturnDisabled() && currentInAppPay() !== null;
 }
-
