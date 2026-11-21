@@ -17,6 +17,7 @@ import { VALIDITY_SHORT } from "../config/validity";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
+import { beginPendingCheckout } from "./payReturn";
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
@@ -417,6 +418,8 @@ interface WhoOrder {
   orderId: string;
   keyId: string;
   amountPaise: number;
+  /** PAY-RETURN-1: the per-order secret the server minted (absent when its kill switch is on). Kept on this device only, 30 min. */
+  statusProof?: string;
 }
 
 class WhoError extends Error {
@@ -467,7 +470,7 @@ export async function createWhoOrder(item: GuestItem, recipient: Recipient, sign
   );
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new WhoError("failed");
-  return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
+  return { orderId, keyId, amountPaise, ...(typeof json.statusProof === "string" ? { statusProof: json.statusProof } : {}), ...serverPriceFields(json) };
 }
 
 async function verifyWhoPayment(success: RazorpaySuccess): Promise<void> {
@@ -518,10 +521,15 @@ function gstProofOf(success: RazorpaySuccess): { gstProof?: AttachProof } {
 
 /** Order (server-priced) -> Razorpay -> server verify. Never throws. */
 export async function buyForRecipient(item: GuestItem, recipient: Recipient, signedIn: boolean, deps: WhoBuyDeps = DEFAULT_DEPS): Promise<WhoBuyOutcome> {
+  let pending: { settle: () => void } | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item, recipient, signedIn), deps.loadScript()]);
     // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
     if (!(await confirmServerPrice(order))) return { status: "dismissed" };
+    // PAY-RETURN-1: a SIGNED-OUT checkout leaves a 30-minute note of this order on this device (a signed-in payer's page keeps its session
+    // and its own status route); the sheet is tracked as open either way.
+    pending = beginPendingCheckout(order, item, !signedIn);
+    const closing = pending;
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,
@@ -530,8 +538,16 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
         order_id: order.orderId,
         name: "LazyTopper",
         description: razorpaySheetDescription(item.description, order),
-        handler: (response) => resolve(response),
-        modal: { ondismiss: () => resolve(null) },
+        handler: (response) => {
+          closing.settle();
+          resolve(response);
+        },
+        modal: {
+          ondismiss: () => {
+            closing.settle();
+            resolve(null);
+          },
+        },
         ...razorpayUpiFirstOption(),
         ...whoPrefill(recipient, signedIn),
       });
@@ -549,6 +565,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
     }
     return { status: "paid", confirmed, ...(confirmed ? receiptOf(success) : {}), ...gstProofOf(success), ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}), orderId: order.orderId };
   } catch (e) {
+    pending?.settle();
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof WhoError && e.code !== "failed") return { status: e.code };
     return { status: "failed" };
@@ -578,7 +595,7 @@ export async function createSelfOrder(item: GuestItem): Promise<WhoOrder> {
   const json = await postJson(GUEST_ORDER_ENDPOINT, { sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), self: true, ...(isSelfAttachClientEnabled() ? { attach: true } : {}), ...gst, ...waOptInOrderFields(), ...orderSourceFields(), ...adSignalFields() });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new WhoError("failed");
-  return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
+  return { orderId, keyId, amountPaise, ...(typeof json.statusProof === "string" ? { statusProof: json.statusProof } : {}), ...serverPriceFields(json) };
 }
 
 async function verifySelfPayment(success: RazorpaySuccess): Promise<Record<string, unknown>> {
@@ -603,9 +620,12 @@ const SELF_DEPS: SelfBuyDeps = { createOrder: createSelfOrder, loadScript: () =>
 
 /** Order (server-priced, no identifier) -> Razorpay (no prefill: it asks the buyer) -> server verify -> the contact it read. Never throws. */
 export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS): Promise<SelfBuyOutcome> {
+  let pending: { settle: () => void } | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item), deps.loadScript()]);
     if (!(await confirmServerPrice(order))) return { status: "dismissed" };
+    pending = beginPendingCheckout(order, item); // PAY-RETURN-1: see buyForRecipient
+    const closing = pending;
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,
@@ -614,8 +634,16 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
         order_id: order.orderId,
         name: "LazyTopper",
         description: razorpaySheetDescription(item.description, order),
-        handler: (response) => resolve(response),
-        modal: { ondismiss: () => resolve(null) },
+        handler: (response) => {
+          closing.settle();
+          resolve(response);
+        },
+        modal: {
+          ondismiss: () => {
+            closing.settle();
+            resolve(null);
+          },
+        },
         ...razorpayUpiFirstOption(),
       });
       watchPaymentFailed(checkout, () => undefined);
@@ -641,6 +669,7 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
     }
     return { status: "paid", confirmed, contact, ...(attach ? { attach } : {}), ...(confirmed ? receiptOf(success) : {}), ...gstProofOf(success), ...(amountInr !== undefined ? { amountInr } : {}), ...(paymentId !== undefined ? { paymentId } : {}), orderId: order.orderId };
   } catch (e) {
+    pending?.settle();
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof WhoError && e.code !== "failed") return { status: e.code === "unavailable" || e.code === "already_covered" ? "unavailable" : "failed" };
     return { status: "failed" };
