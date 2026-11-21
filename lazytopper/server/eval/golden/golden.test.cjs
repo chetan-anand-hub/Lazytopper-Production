@@ -760,6 +760,21 @@ test('§12a4 E-b — the scheme file carries PROVENANCE: a different scheme mode
   assert.throws(() => mk({ schemeModel: 'scheme-proxy' }), /no provenance header/, 'a headerless file is refused');
 });
 
+test('§12a7 E-b — the scheme-file stepSolution hash is LF-ONLY: a CRLF checkout of the generator hashes the same as an LF one', () => {
+  const os = require('os');
+  const fs = require('fs');
+  const path = require('path');
+  const { createDriver } = require('./lib/driver.cjs');
+  const d = createDriver({ callGemini: async () => ({ text: '{}', raw: {} }), model: 'm', scheme: true });
+  const lf = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'lfhash-')), 'a.cjs');
+  const crlf = path.join(path.dirname(lf), 'b.cjs');
+  fs.writeFileSync(lf, 'a\nb\nc\n');
+  fs.writeFileSync(crlf, 'a\r\nb\r\nc\r\n');
+  assert.equal(d.lfOnlyHash(crlf), d.lfOnlyHash(lf));
+  assert.match(d.stepSolutionSha256, /^[0-9a-f]{64}$/);
+  assert.equal(d.stepSolutionSha256, d.lfOnlyHash(path.join(__dirname, '..', '..', 'routes', 'stepSolution.cjs')), 'the provenance hash IS the LF-only hash of stepSolution.cjs');
+});
+
 test('§12a5 E-b — a scheme that fails the quality gate is NOT frozen: counted in schemeCounters.unfrozen (it regenerates every run)', async () => {
   const { createDriver } = require('./lib/driver.cjs');
   const { buildPlan } = require('./lib/planner.cjs');

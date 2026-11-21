@@ -1122,10 +1122,11 @@ function reasonRidesOnAnswer(questionText) {
 }
 const graderType1Disabled = () => process.env.GRADER_TYPE_1_DISABLED === '1';
 function typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy }) {
-  if (graderType1Disabled()) return { toConceptual: 0, toExamTechnique: 0, fromSettled: 0 };
+  if (graderType1Disabled()) return { toConceptual: 0, toExamTechnique: 0, fromSettled: 0, flagOnlyPhoto: 0 };
   let toConceptual = 0;
   let toExamTechnique = 0;
   let fromSettled = 0;
+  let flagOnlyPhoto = 0;
   const live = steps.filter((s) => s.status !== 'withdrawn');
   const questionText = String((q && (q.questionText || q.question)) || '');
   const realQuestion = isRealQuestionText({ ...(q || {}), questionText });
@@ -1173,10 +1174,12 @@ function typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy }) {
     }
     if (blankStep) u.status = 'missing';
     if (u._settledUnattempted) fromSettled += 1;
+    // telemetry: typed by the model's omittedAsk flag ALONE — the question exists only in the photo, so its text could not confirm the ask
+    if (flagged && !realQuestion) flagOnlyPhoto += 1;
     u.mistakeType = 'conceptual';
     toConceptual += 1;
   });
-  return { toConceptual, toExamTechnique, fromSettled };
+  return { toConceptual, toExamTechnique, fromSettled, flagOnlyPhoto };
 }
 function countUntyped(kind, n) {
   if (!(n > 0)) return;
@@ -2089,6 +2092,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     countUntyped('kept_untyped', untypedSettled.keptUntyped);
     countUntyped('blank_reason_to_conceptual', reasonsTyped.toConceptual);
     countUntyped('folded_reason_to_exam_technique', reasonsTyped.toExamTechnique);
+    countUntyped('blank_reason_flag_only_photo', reasonsTyped.flagOnlyPhoto);
     if (marksLostByType.untyped > 0) countUntyped('subjective_questions', 1);
   }
   const lostSum = half(Object.values(marksLostByType).reduce((a, b) => a + b, 0));

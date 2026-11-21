@@ -28,6 +28,7 @@ const { chargeableCountOf } = require(path.join(SERVER_DIR, 'grading', 'charge.c
 const ledgerLib = require(path.join(SERVER_DIR, 'services', 'usageLedger.cjs'));
 const fs = require('fs');
 const crypto = require('crypto');
+const lfOnlyHash = (file) => crypto.createHash('sha256').update(fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n')).digest('hex');
 const { AsyncLocalStorage } = require('async_hooks');
 const { createInMemorySchemeCache, createReplaySchemeCache } = require('./schemeCache.cjs');
 
@@ -92,7 +93,8 @@ function createDriver(opts) {
   const jobAls = new AsyncLocalStorage();
   // E-b: the scheme file carries PROVENANCE — {header: {schemeModel, stepSolutionSha256, createdAt}, schemes}. A file made under another
   // scheme model or another generator (routes/stepSolution.cjs) is REFUSED unless `schemeFileForce`.
-  const stepSolutionSha256 = crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'routes', 'stepSolution.cjs'))).digest('hex');
+  // LF-only hash (as goldenLive's manifest hashes server files): a file written on a Windows CRLF checkout must not be refused on Linux.
+  const stepSolutionSha256 = lfOnlyHash(path.join(__dirname, '..', '..', '..', 'routes', 'stepSolution.cjs'));
   const schemeModel = opts.schemeModel || opts.gradingModel || opts.model;
   let preload = {};
   let fileHeader = { schemeModel, stepSolutionSha256, createdAt: new Date().toISOString() };
@@ -152,7 +154,7 @@ function createDriver(opts) {
       charged: charged === undefined ? null : charged, meteredShare: meter.okCalls > 0 ? Math.round((1000 * written) / (unitCost * meter.okCalls)) / 1000 : null };
   }
 
-  return { run, deps, schemeCounters: cacheHook, schemeCache, schemeModel, stepSolutionSha256 };
+  return { run, deps, schemeCounters: cacheHook, schemeCache, schemeModel, stepSolutionSha256, lfOnlyHash };
 }
 
 module.exports = { createDriver, SERVER_DIR };

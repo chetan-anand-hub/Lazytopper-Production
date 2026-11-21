@@ -188,6 +188,27 @@ for (const s of SURFACES) {
     assert.deepEqual(typesOf(now.result)[3], ['missing', 0, 'conceptual'], s.id);
   });
 
+  test('GRADER-TYPE-1 telemetry — ' + s.id + ': blank_reason_flag_only_photo counts a step typed conceptual by the omittedAsk flag ALONE on a photo-only question (and not on a real one)', async () => {
+    const tel = require('../telemetry.cjs');
+    const was = tel.increment;
+    const seen = {};
+    tel.increment = (name, n) => { seen[name] = (seen[name] || 0) + (n === undefined ? 1 : n); };
+    try {
+      const steps = [
+        { description: 'Answer', studentWork: 'Yes', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+        { description: 'The reason', studentWork: '', status: 'missing', marksAvailable: 1, marksAwarded: 0, marksDeducted: 1, teacherAnnotation: '×', mistakeType: null, omittedAsk: 'reason' },
+      ];
+      const photo = await run(s, CASES['T1-Q25i-PLACEHOLDER'], { text: 'Submitted question', marks: 2, steps });
+      assert.deepEqual(typesOf(photo.result)[1], ['missing', 0, 'conceptual'], s.id + ': typed by the flag alone');
+      assert.equal(seen['grading.untyped_loss.blank_reason_flag_only_photo'], 1, s.id + ': counted once: ' + JSON.stringify(seen));
+      assert.equal(seen['grading.untyped_loss.blank_reason_to_conceptual'], 1, s.id);
+      for (const k of Object.keys(seen)) delete seen[k];
+      await run(s, CASES['T1-Q25i-PLACEHOLDER'], { text: 'Do you agree? Give reason. [2 marks]', marks: 2, steps });
+      assert.equal(seen['grading.untyped_loss.blank_reason_to_conceptual'], 1, s.id + ': typed on a real question');
+      assert.equal(seen['grading.untyped_loss.blank_reason_flag_only_photo'], undefined, s.id + ': a real question is not the photo-only path');
+    } finally { tel.increment = was; }
+  });
+
   test('GRADER-TYPE-1 — ' + s.id + ': the evidence quote in the QUESTION is not proof — the blank reason is a concept gap, not exam technique', async () => {
     const c = CASES['T1-TANGENT-CONTROL'];
     const r = await run(s, c, { steps: clone(c.modelReply).map((st) => (st.knowledgeEvidence ? { ...st, knowledgeEvidence: 'Give a reason' } : st)) });
