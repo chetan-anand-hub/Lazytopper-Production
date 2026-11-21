@@ -16,7 +16,7 @@ describe("RESULT-LIST-HONEST-1 Chapter Test rail", () => {
     const { container } = ct([rec({ writtenGraded: true })]);
     expect(screen.queryByText(/Awaiting sheet/)).toBeNull();
     expect(container.textContent).not.toMatch(/Objective/);
-    expect(screen.getByText("Some questions not graded — tap to see which")).toBeTruthy();
+    expect(screen.getByText("Some questions not graded")).toBeTruthy();
     expect(container.textContent).toContain("4");
   });
   it("partial objective-only (writtenGraded false) keeps today's copy", () => {
@@ -42,7 +42,7 @@ describe("RESULT-LIST-HONEST-1 Full Mock panel + awaiting consumers", () => {
   it("graded-with-pending renders graded + the line; objective-only and legacy keep 'Awaiting sheet'", () => {
     panel([fm({ writtenGraded: true })]);
     expect(screen.queryByText(/Awaiting sheet/)).toBeNull();
-    expect(screen.getByText("Some questions not graded — tap to see which")).toBeTruthy();
+    expect(screen.getByText("Some questions not graded")).toBeTruthy();
     cleanup();
     const a = panel([fm({ writtenGraded: false })]);
     expect(a.container.textContent).toContain("Objective scored 4/10");

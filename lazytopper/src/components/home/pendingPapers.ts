@@ -27,6 +27,7 @@
 import type { AuthUser } from "../../context/AuthContext";
 import {
   getSessionRecordsFromCloud,
+  isGradedPaperRecord,
   loadLocalSessionRecords,
   type SessionRecord,
   type SessionSubject,
@@ -125,7 +126,7 @@ export function pendingFromSessionRecords(records: readonly SessionRecord[]): Pe
     if (!r || typeof r.id !== "string" || !PAPER_SURFACES.has(r.surface)) continue;
     if (r.status !== "pending-upload" && r.status !== "partial") continue;
     // RESULT-LIST-HONEST-1: a partial whose written sheet was graded is a graded paper, not one waiting for a sheet.
-    if (r.writtenGraded === true) continue;
+    if (isGradedPaperRecord(r)) continue;
     const surface = r.surface as PendingPaperSurface;
     const subject: SessionSubject = r.subject === "science" ? "science" : "maths";
     out.push({

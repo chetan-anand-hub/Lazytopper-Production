@@ -209,7 +209,7 @@ export function isGradedPaperRecord(r: Pick<SessionRecord, "status" | "writtenGr
 
 /** RESULT-LIST-HONEST-1 - the honest line under a graded-with-questions-left card. The record does
  *  not store how many questions were not graded, so the line is the generic one. */
-export const PAPER_NOT_GRADED_LINE = "Some questions not graded — tap to see which";
+export const PAPER_NOT_GRADED_LINE = "Some questions not graded";
 
 /** RESULT-LIST-HONEST-1 - true when the response has >=1 GRADED question that is not an objective
  *  item. Objective = Section A (the paper's own section for that qNumber, else the stamped

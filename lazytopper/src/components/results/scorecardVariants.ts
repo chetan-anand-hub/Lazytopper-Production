@@ -23,7 +23,6 @@
 
 import type { CheckSolutionAnnotatedStep, WorksheetGradeResponse } from "../../ai/aiClient";
 import { buildGradedAnswersFromWorksheetResponse } from "../../services/gradedAnswerAssembly";
-import { isUnattemptedLoss } from "../testAnalysis/testAnalysisModel";
 import type {
   SessionFourType,
   SessionRecord,
@@ -42,6 +41,7 @@ import {
   isNotFoundOnPages,
   isCarelessType,
   isGradedQuestion,
+  isQuestionNotAttempted,
   paperMarksLost,
   type GradeState,
   type MarksLostByType,
@@ -1776,7 +1776,7 @@ function ciTutorRows(
   const rows: ScorecardWrongAnswer[] = [];
   for (const r of [...response.results].sort((a, b) => a.qNumber - b.qNumber)) {
     if (!isGradedQuestion(r) || (Number(r.totalMarks) || 0) <= (Number(r.marksAwarded) || 0)) continue;
-    if (isUnattemptedLoss(r)) continue; // RESULT-LIST-HONEST-1: left blank is "not a mistake", never "slipped"
+    if (isQuestionNotAttempted(r)) continue; // RESULT-LIST-HONEST-1: left blank is "not a mistake", never "slipped" (no data imports: keeps bankIdIndex out of this chunk)
     const ask = tutorAskFor(r.qNumber);
     if (ask) rows.push({ label: `Question ${r.qNumber}`, yourAnswer: null, correctAnswer: null, steps: [], tutorAsk: ask });
   }
@@ -1801,7 +1801,7 @@ export function withPaperTutorAsks(
     const asks = new Map<string, ScorecardTutorAsk>();
     for (const r of response.results) {
       if (!isGradedQuestion(r) || (Number(r.totalMarks) || 0) <= (Number(r.marksAwarded) || 0)) continue;
-      if (isUnattemptedLoss(r)) continue; // RESULT-LIST-HONEST-1
+      if (isQuestionNotAttempted(r)) continue; // RESULT-LIST-HONEST-1
       const ask = tutorAskFor(r.qNumber);
       // `Question N` is the sheet row's stable key (buildGradedAnswersFromWorksheetResponse).
       if (ask) asks.set(`Question ${r.qNumber}`, ask);

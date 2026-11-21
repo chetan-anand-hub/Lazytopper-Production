@@ -244,9 +244,9 @@ export default function FullMockHistoryPanel({
                     <>
                       <DotStrip record={r} />
                       {notAllGraded && <div className="lt-fm__objline">{PAPER_NOT_GRADED_LINE}</div>}
-                      {(latest && latestWeakLine) || delta ? (
+                      {(latest && !notAllGraded && latestWeakLine) || delta ? (
                         <div className="lt-ct__vs">
-                          {latest && latestWeakLine ? <>{latestWeakLine} </> : null}
+                          {latest && !notAllGraded && latestWeakLine ? <>{latestWeakLine} </> : null}
                           {delta && <b>{delta}</b>}
                         </div>
                       ) : null}
