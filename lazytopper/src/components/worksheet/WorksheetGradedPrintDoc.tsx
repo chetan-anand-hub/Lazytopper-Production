@@ -228,7 +228,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
                 {notFoundCount > 0 && (
                   <div className="lt-gp__pending" data-grade-state="not-found">
                     <b>{notFoundCount} {notFoundCount === 1 ? "question" : "questions"} not answered</b> on the pages you
-                    uploaded. <b>Not</b> graded and <b>not</b> scored 0. {kindLabel} is worth {response.worksheetTotalMarks} marks in total.
+                    uploaded. <b>Not</b> graded and <b>not</b> scored 0.{unreadCount > 0 ? null : <> {kindLabel} is worth {response.worksheetTotalMarks} marks in total.</>}
                   </div>
                 )}
                 {unreadCount > 0 && (

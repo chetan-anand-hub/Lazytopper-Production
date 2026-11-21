@@ -1808,14 +1808,9 @@ export default function ChapterTestPage() {
                     error={gradeError}
                     isSignedIn={isSignedIn}
                     onGrade={(upload) => void handleGrade(upload)}
+                    stageLabel={grading && gradeStage?.kind === "retrying" ? gradingStageLabel(gradeStage) : null}
                     onSkip={() => navigate(backTo)}
                   />
-                  {/* GRADE-RESULT-COPY-1 - a slow/dropped grade says so, instead of a button that looks frozen. */}
-                  {grading && gradeStage?.kind === "retrying" ? (
-                    <p className="lt-ct__sub" role="status" data-testid="grade-stage-line">
-                      {gradingStageLabel(gradeStage)}
-                    </p>
-                  ) : null}
                 </>
               }
             />

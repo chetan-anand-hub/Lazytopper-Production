@@ -467,7 +467,7 @@ export function gradeStateOf(q: GradedQuestionLike | null | undefined): GradeSta
  * answer to this question on the uploaded pages, so it has not been marked ...". Both are matched, and
  * only on a row that is NOT graded as could-not-read, so a graded question can never be named this.
  */
-const NOT_FOUND_NOTE = /\bnot found on (?:the )?(?:uploaded |your )?pages?\b|\bcouldn['\u2019]t find your answer to this question on the uploaded pages\b/i;
+const NOT_FOUND_NOTE = /\bnot found on the uploaded pages?\b|\bcouldn['\u2019]t find your answer to this question on the uploaded pages\b/i;
 export function isNotFoundOnPages(q: GradedQuestionLike | null | undefined): boolean {
   if (!q || gradeStateOf(q) !== "could-not-read") return false;
   const note = typeof q.note === "string" ? q.note : "";

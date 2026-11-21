@@ -63,6 +63,8 @@ describe("isNotFoundOnPages — one predicate", () => {
     expect(isNotFoundOnPages(pendingRow(1, 2, "Not found on the uploaded page"))).toBe(true);
     // unreadable: a note about the photo, no note at all, the generic pending note
     expect(isNotFoundOnPages(pendingRow(1, 2, "pending"))).toBe(false);
+    // review nit: an unreadable note that merely mentions "not found on the page" stays unreadable
+    expect(isNotFoundOnPages(pendingRow(1, 2, "question number not found on the page"))).toBe(false);
     expect(isNotFoundOnPages(pendingRow(1, 2, "The photo is too blurry to read"))).toBe(false);
     expect(isNotFoundOnPages(pendingRow(1, 2))).toBe(false);
     // graded rows are never "not found", whatever a stray note says
