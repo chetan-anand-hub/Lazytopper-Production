@@ -42,6 +42,7 @@ import { addCounts, effectiveTypeCounts, groupRows, zeroCounts } from "../lib/mi
 
 type FreeCheckEnvName =
   | "VITE_FREE_CHECK_ENABLED"
+  | "VITE_FREE_CHECK_ONE_QUESTION_DISABLED"
   | "VITE_APPCHECK_DEBUG_TOKEN"
   | "VITE_APPCHECK_RECAPTCHA_SITE_KEY";
 
@@ -56,6 +57,7 @@ function readEnv(name: FreeCheckEnvName): string {
   try {
     let raw: unknown;
     if (name === "VITE_FREE_CHECK_ENABLED") raw = import.meta.env.VITE_FREE_CHECK_ENABLED;
+    else if (name === "VITE_FREE_CHECK_ONE_QUESTION_DISABLED") raw = import.meta.env.VITE_FREE_CHECK_ONE_QUESTION_DISABLED;
     else if (name === "VITE_APPCHECK_DEBUG_TOKEN") raw = import.meta.env.VITE_APPCHECK_DEBUG_TOKEN;
     else raw = import.meta.env.VITE_APPCHECK_RECAPTCHA_SITE_KEY;
     return raw === undefined || raw === null ? "" : String(raw).trim();
@@ -67,6 +69,40 @@ function readEnv(name: FreeCheckEnvName): string {
 /** R11 — the CLIENT flag. Same truthy grammar as the server's `FREE_CHECK_ENABLED`. */
 export function isFreeCheckClientEnabled(): boolean {
   return /^(1|true|on|yes)$/i.test(readEnv("VITE_FREE_CHECK_ENABLED"));
+}
+
+/**
+ * FREECHECK-ONEQ-1 - the free check grades ONLY the first question of a multi-question upload.
+ * ON unless the kill switch VITE_FREE_CHECK_ONE_QUESTION_DISABLED is truthy (then the client sends every
+ * question, exactly as before this lane). The server enforces the same rule on its own
+ * (FREE_CHECK_ONE_QUESTION_DISABLED) - this flag only decides what THIS client sends and shows.
+ */
+export function isFreeCheckOneQuestionEnabled(): boolean {
+  return !/^(1|true|on|yes)$/i.test(readEnv("VITE_FREE_CHECK_ONE_QUESTION_DISABLED"));
+}
+
+/**
+ * FREECHECK-ONEQ-1 - the rows the server would keep: a question number above 0 and some question text. Mirrors
+ * the server's `firstGradableIndex` (services/freeCheckOneQuestion.cjs) so client and server pick the SAME first question.
+ */
+export function isGradableQuestionRow(q: { questionNumber?: number; questionText?: string } | null | undefined): boolean {
+  return Boolean(q && Number(q.questionNumber) > 0 && String(q.questionText ?? "").trim());
+}
+
+/** Index of the first gradable row, falling back to 0 exactly like the server. */
+export function firstGradableQuestionIndex(questions: Array<{ questionNumber?: number; questionText?: string }>): number {
+  const i = questions.findIndex((q) => isGradableQuestionRow(q));
+  return i < 0 ? 0 : i;
+}
+
+/** "2", "2–5" (a run), or "2, 4 and 5" (a gap): the question numbers a sentence names. Pure. */
+export function freeCheckQuestionRange(numbers: number[]): string {
+  const n = [...new Set(numbers.filter((x) => Number.isFinite(x)))].sort((a, b) => a - b);
+  if (n.length === 0) return "";
+  if (n.length === 1) return String(n[0]);
+  const isRun = n.every((x, i) => i === 0 || x === n[i - 1] + 1);
+  if (isRun) return `${n[0]}\u2013${n[n.length - 1]}`;
+  return `${n.slice(0, -1).join(", ")} and ${n[n.length - 1]}`;
 }
 
 /* ─────────────────────────── wire names ─────────────────────────── */
@@ -219,6 +255,20 @@ export const FREE_CHECK_COPY = {
   confirmCta: "Check my next answer",
   /** The one sign-in link label every free-check prompt uses. */
   signUpCta: "Sign up free",
+  /** FREECHECK-ONEQ-1 - before grading, a signed-out visitor with more than one question on the page. */
+  oneQuestionPreGrade: (n: number) =>
+    `Your free check marks question ${n}. Sign up for a 7-day free trial to mark the whole page.`,
+  /** FREECHECK-ONEQ-1 - the scorecard line, from the question that was actually marked. */
+  oneQuestionMarked: (n: number) => `Your free check marked question ${n}.`,
+  /** FREECHECK-ONEQ-1 - the locked rows' heading and the line under them. `range` from freeCheckQuestionRange. */
+  lockedTitle: "Not marked yet",
+  lockedLine: (range: string, plural: boolean) =>
+    `Start your 7-day free trial to get marks for question${plural ? "s" : ""} ${range}.`,
+  lockedChip: "Locked",
+  /** FREECHECK-ONEQ-1 - the restored (signed-up) card: the rest is not marked yet and the page is not kept. */
+  restoredLockedLine: (range: string, plural: boolean) =>
+    `Question${plural ? "s" : ""} ${range} ${plural ? "are" : "is"} not marked yet. Open the Answer Checker, add this page again, and your 7-day free trial marks the rest.`,
+  markRest: "Mark the rest now",
   /** FREECHECK-2 · F2 — the save could not reach the network. Retried on `online`. */
   saveOffline: "You're offline — we'll save your answer as soon as you're back.",
   /** FREECHECK-2 · F2 — any other failed save. Never an endless "Saving…". */

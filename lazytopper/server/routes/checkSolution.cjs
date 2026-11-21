@@ -34,6 +34,7 @@ const { chooseNonce, fence } = require('../grading/fence.cjs');
 // GRADING-JOBS-1 J1 (owner ruling 7): background grading jobs on this same URL (opt-in, switch-gated).
 const jobsLib = require('../grading/jobs.cjs');
 const timingLib = require('../grading/timing.cjs');
+const freeCheckOneQuestion = require('../services/freeCheckOneQuestion.cjs'); // FREECHECK-ONEQ-1
 const gradeTimingLib = require('../grading/gradeTiming.cjs');
 const { gradingAttemptOf, deferredCommitOf } = require('../services/fairUse.cjs');
 const { limitsDeferredOf } = require('../services/limits.cjs');
@@ -1175,7 +1176,8 @@ function createCheckSolutionRoute(deps) {
       // C9: a partial paper charges only the questions that were actually graded.
       setChargeableCount(res, chargeableCount(graded.results));
       setUnreadableSummary(res, unreadableSummary(graded.results)); // TS-RECHECK-1
-      return sendJson(res, 200, buildWorksheetBody(graded, { worksheetId, acceptsV2 }));
+      // FREECHECK-ONEQ-1: an admitted free check was cut to its first question upstream (index.cjs); say so.
+      return sendJson(res, 200, { ...buildWorksheetBody(graded, { worksheetId, acceptsV2 }), ...freeCheckOneQuestion.fieldFor(payload) });
     } catch (err) {
       console.error('[grade-worksheet]', err);
       return sendJson(res, 500, { ok: false, error: 'Failed to grade the worksheet. Please try again.' });

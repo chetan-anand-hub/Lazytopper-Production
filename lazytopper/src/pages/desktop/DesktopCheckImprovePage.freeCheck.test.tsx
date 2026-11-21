@@ -351,8 +351,9 @@ describe("the free check, end to end (whole paper)", () => {
 
     await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
     expect(H.gradeWorksheet.mock.calls[0][1]).toEqual({ freeCheck: true, onStage: expect.any(Function) }); // + LOW-END-1 R2 stages
-    // 1 session detect + 2 per-question detects, EVERY one opted in (each mints its own token).
-    await waitFor(() => expect(H.detectQuestion).toHaveBeenCalledTimes(3));
+    // FREECHECK-ONEQ-1: only question 1 is graded, so 1 session detect + 1 per-question detect, EVERY one opted in (each mints its own token).
+    expect((H.gradeWorksheet.mock.calls[0][0].questions as unknown[]).length).toBe(1);
+    await waitFor(() => expect(H.detectQuestion).toHaveBeenCalledTimes(2));
     for (const c of H.detectQuestion.mock.calls) expect(c[1]).toEqual({ freeCheck: true });
 
     await waitFor(() => expect(window.localStorage.getItem(FREE_CHECK_USED_KEY)).not.toBeNull());

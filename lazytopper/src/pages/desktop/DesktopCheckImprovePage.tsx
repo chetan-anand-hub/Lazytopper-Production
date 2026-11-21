@@ -165,6 +165,10 @@ import {
   ensureFreeCheckAppCheck,
   hasUsedFreeCheck,
   isFreeCheckClientEnabled,
+  isFreeCheckOneQuestionEnabled,
+  firstGradableQuestionIndex,
+  isGradableQuestionRow,
+  freeCheckQuestionRange,
   isFreeCheckRefusedError,
   markFreeCheckSigninIntent,
   recordFreeCheckSuccess,
@@ -173,6 +177,7 @@ import {
 } from "../../services/freeCheckClient";
 import { clearAllSavedFreeCheckResults, clearSavedFreeCheckResult, getSavedFreeCheckResult } from "../../services/freeCheckReplay";
 import { FreeCheckRestoredResult } from "../../components/checkimprove/FreeCheckRestoredResult";
+import { FreeCheckLockedRows, FreeCheckOneQuestionLine } from "../../components/checkimprove/FreeCheckLockedRows";
 import PaperMarksEditor, { isLockedObjective, LockedMarksNote, sendAsObjective } from "../../components/checkimprove/PaperMarksEditor";
 import { finalMarksSummary } from "../../components/results/finalMarksSummary";
 import { showPackLine } from "../../components/limits/packLine";
@@ -1720,6 +1725,8 @@ const DesktopCheckImprovePageInner: React.FC<{
     questionTab === "type" ? question.trim().length > 0 : Boolean(qImageBase64);
   // Two or more questions were read from the upload → grade the whole paper.
   const isMultiQuestion = Boolean(detectedQuestions && detectedQuestions.length > 1);
+  // FREECHECK-ONEQ-1: a signed-out free check marks ONLY the first question of a multi-question page.
+  const freeOneQuestion = isFreeMode && isMultiQuestion && isFreeCheckOneQuestionEnabled();
   // GRADE-MARKS-1 (§13) — the single question is a detect-objective one: its marks chip is locked at 1.
   const singleObjectiveLocked = !isMultiQuestion && Boolean(detectedQuestions?.[0] && isLockedObjective(detectedQuestions[0]));
   const hasAnswer =
@@ -2420,7 +2427,13 @@ const DesktopCheckImprovePageInner: React.FC<{
     if (!mode.continueFrom) ciJob.reset();
     // FAIR-USE-UI-1 (UI2): the student agreed to "we'll mark the first R" - EXACTLY the
     // first R questions of the paper, in its own order, are sent. Null = all, as before.
-    const questionsToGrade = limitTo !== null ? detectedQuestions.slice(0, limitTo) : detectedQuestions;
+    // FREECHECK-ONEQ-1: a free check's one question is the first GRADABLE row (the server's rule), not row 0.
+    const questionsToGrade =
+      limitTo !== null
+        ? isFreeMode && limitTo === 1
+          ? [detectedQuestions[firstGradableQuestionIndex(detectedQuestions)]]
+          : detectedQuestions.slice(0, limitTo)
+        : detectedQuestions;
 
     // One code per session; reuse it if this session was already graded once. The code is the
     // submission half of each question's stable MI identity, so a re-grade REPLACES those
@@ -2492,6 +2505,16 @@ const DesktopCheckImprovePageInner: React.FC<{
             }),
       });
       ciJob.reset();
+      // FREECHECK-ONEQ-1: a server that cut an admitted free check to its first question says so; show the rest as
+      // locked even when this client (kill switch, or a cached old bundle) sent them all.
+      if (isFreeMode && limitTo === null && response?.freeCheckGradedOf && response.freeCheckGradedOf.graded >= 1) {
+        ciLastLimitRef.current = response.freeCheckGradedOf.graded;
+        setCiPaperLimit(response.freeCheckGradedOf.graded);
+      }
+      // FREECHECK-ONEQ-1: stamp the cut on a free check this client cut itself, so the saved result restores 1 graded + locked.
+      if (isFreeMode && limitTo !== null && response && response.ok !== false && !response.freeCheckGradedOf) {
+        response.freeCheckGradedOf = { graded: questionsToGrade.length, total: detectedQuestions.length };
+      }
       if (!response || response.ok === false) {
         setErrorMessage("Grading unavailable — please try a clearer scan, or try again.");
         setStatus("error");
@@ -2735,7 +2758,8 @@ const DesktopCheckImprovePageInner: React.FC<{
     }
     // Multi-question paper → grade the whole set via the structured grader.
     if (isMultiQuestion) {
-      void gradeMultiQuestion();
+      // FREECHECK-ONEQ-1: the existing "mark the first R" path with R = 1 (the server enforces the same rule).
+      void gradeMultiQuestion(freeOneQuestion ? 1 : null);
       return;
     }
     setErrorMessage(null);
@@ -3080,7 +3104,13 @@ const DesktopCheckImprovePageInner: React.FC<{
   if (freeCheck?.mode === "return") {
     // ACT-FREECHECK-1 — the result they signed up to keep comes FIRST, then the next action.
     const restored = freeCheck.restored ? (
-      <FreeCheckRestoredResult result={freeCheck.restored.result} showBuy={freeCheck.restored.showBuy} />
+      <FreeCheckRestoredResult
+        result={freeCheck.restored.result}
+        showBuy={freeCheck.restored.showBuy}
+        // FREECHECK-ONEQ-1: "Mark the rest now" opens the Answer Checker (the page is not kept on the device), where
+        // the student adds the page again. Only on the steps that carry a way on; the trial offer has its own buttons.
+        onMarkRest={freeCheck.step === "result" || freeCheck.step === "confirmed" ? freeCheck.onContinue : undefined}
+      />
     ) : null;
     const next =
       freeCheck.step === "result" ? (
@@ -4040,6 +4070,12 @@ const DesktopCheckImprovePageInner: React.FC<{
             </button>
           )}
 
+          {freeOneQuestion && status !== "loading" && (
+            <FreeCheckOneQuestionLine
+              questionNumber={detectedQuestions?.[firstGradableQuestionIndex(detectedQuestions)]?.questionNumber ?? 1}
+            />
+          )}
+
           {!canGrade && status !== "loading" && (
             <span style={{ fontSize: 12, color: TEXT_MUTED }}>
               {!confirmed
@@ -4150,6 +4186,18 @@ const DesktopCheckImprovePageInner: React.FC<{
     const paperCut = detectedQuestions ? trialPaperCut(detectedQuestions.length, ciPaperLimit) : null;
     const paperAllowance = fairUse.snapshot?.trial?.limits.checksPerDay ?? null;
     const paperNote = paperCut ? trialPaperNoteCopy(paperCut, paperAllowance) : null;
+    // FREECHECK-ONEQ-1: a signed-out free check cut to its first question lists the rest as locked rows
+    // (and says so in the scorecard's line) instead of the signed-in trial note.
+    // From what was actually graded (the response rows), never from array positions.
+    const freeGradedNumbers = new Set(ws.results.map((r) => r.qNumber));
+    const freeLocked =
+      isFreeMode && paperCut && detectedQuestions
+        ? detectedQuestions.filter((q) => isGradableQuestionRow(q) && !freeGradedNumbers.has(q.questionNumber))
+        : [];
+    const freeLockedLine =
+      freeLocked.length > 0
+        ? FREE_CHECK_COPY.lockedLine(freeCheckQuestionRange(freeLocked.map((q) => q.questionNumber)), freeLocked.length > 1)
+        : null;
     const finalSummary = finalMarksSummary(ws);
     return withChrome(
       <div
@@ -4206,7 +4254,14 @@ const DesktopCheckImprovePageInner: React.FC<{
               saved: ciSaved,
               ...(isFreeMode ? { signUpToSave: freeSignUpToSave } : {}),
               ...(paperCut && paperNote
-                ? { trialPaper: { total: paperCut.total, line: `${paperNote.lead} ${paperNote.upgrade}` } }
+                ? {
+                    trialPaper: {
+                      total: paperCut.total,
+                      line: freeLockedLine
+                        ? `${FREE_CHECK_COPY.oneQuestionMarked(ws.results[0]?.qNumber ?? 1)} ${freeLockedLine}`
+                        : `${paperNote.lead} ${paperNote.upgrade}`,
+                    },
+                  }
                 : {}),
               downloading,
               onReadSheet: () => setScorecardOpen(false),
@@ -4252,7 +4307,11 @@ const DesktopCheckImprovePageInner: React.FC<{
           {/* PR-2 — "X of Y graded", every question that was not graded listed with its
               honest state (never folded into the score). */}
           <NotGradedList results={ws.results} />
-          {paperCut && detectedQuestions ? (
+          {freeLocked.length > 0 ? (
+            <FreeCheckLockedRows
+              rows={freeLocked.map((q) => ({ questionNumber: q.questionNumber, questionText: q.questionText }))}
+            />
+          ) : paperCut && detectedQuestions ? (
             <TrialPaperNote
               cut={paperCut}
               allowance={paperAllowance}

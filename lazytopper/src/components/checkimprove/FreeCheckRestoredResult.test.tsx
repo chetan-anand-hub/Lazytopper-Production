@@ -160,3 +160,54 @@ describe("FreeCheckRestoredResult — a whole paper (kind: multi)", () => {
     expect(() => render(<MemoryRouter><FreeCheckRestoredResult result={bad} showBuy={false} /></MemoryRouter>)).not.toThrow();
   });
 });
+
+describe("FreeCheckRestoredResult — FREECHECK-ONEQ-1: 1 graded + the rest locked", () => {
+  const ONE_OF_FIVE = {
+    v: 1, kind: "multi", gradedAt: 1, subject: "Maths", topicName: "", topicSlug: "", topicTouched: false,
+    questions: [1, 2, 3, 4, 5].map((n) => ({ questionNumber: n, questionText: `Question text number ${n}` })),
+    response: {
+      ok: true,
+      results: [{ qNumber: 1, couldNotRead: false, totalMarks: 2, ok: true, marksAwarded: 1, percentage: 50, annotatedSteps: [], mistakeSummary: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 }, teacherNote: "n1" }],
+      totalQuestions: 1, gradedCount: 1, pendingCount: 0, gradedMarksAwarded: 1, gradedMarksTotal: 2, worksheetTotalMarks: 2,
+      freeCheckGradedOf: { graded: 1, total: 5 },
+    },
+  } as unknown as PendingMultiFreeCheck;
+
+  it("shows question 1's grade, then Q2-Q5 as locked rows with the trial line, and no marks for them", () => {
+    render(<MemoryRouter><FreeCheckRestoredResult result={ONE_OF_FIVE} showBuy={false} /></MemoryRouter>);
+    expect(screen.getAllByTestId("free-check-restored-question")).toHaveLength(1);
+    expect(screen.getAllByTestId("free-check-restored-locked-row").map((r) => r.textContent)).toEqual([
+      "Q2Question text number 2", "Q3Question text number 3", "Q4Question text number 4", "Q5Question text number 5",
+    ]);
+    const line = screen.getByTestId("free-check-restored-locked-line").textContent ?? "";
+    expect(line).toContain("Questions 2–5 are not marked yet");
+    expect(line).toContain("7-day free trial");
+    expect(line).not.toMatch(/\bAI\b|answer key/i);
+    expect(screen.getAllByText("1/2 marks").length).toBeGreaterThan(0);
+  });
+
+  it("'Mark the rest now' opens the Answer Checker (onMarkRest); absent when no handler is given", () => {
+    const onMarkRest = vi.fn();
+    const { unmount } = render(<MemoryRouter><FreeCheckRestoredResult result={ONE_OF_FIVE} showBuy={false} onMarkRest={onMarkRest} /></MemoryRouter>);
+    fireEvent.click(screen.getByTestId("free-check-restored-mark-rest"));
+    expect(onMarkRest).toHaveBeenCalledTimes(1);
+    unmount();
+    render(<MemoryRouter><FreeCheckRestoredResult result={ONE_OF_FIVE} showBuy={false} /></MemoryRouter>);
+    expect(screen.queryByTestId("free-check-restored-mark-rest")).toBeNull();
+  });
+
+  it("a result where every question was graded shows no locked section (older saved results unchanged)", () => {
+    const all = { ...ONE_OF_FIVE, questions: [{ questionNumber: 1, questionText: "a" }] } as unknown as PendingMultiFreeCheck;
+    render(<MemoryRouter><FreeCheckRestoredResult result={all} showBuy={false} onMarkRest={vi.fn()} /></MemoryRouter>);
+    expect(screen.queryByTestId("free-check-restored-locked")).toBeNull();
+  });
+
+  it("a saved result WITHOUT freeCheckGradedOf (pre-PR / kill switch) shows no locked block even if a question has no result", () => {
+    const resp = { ...ONE_OF_FIVE.response } as Record<string, unknown>;
+    delete resp.freeCheckGradedOf;
+    const legacy = { ...ONE_OF_FIVE, response: resp } as unknown as PendingMultiFreeCheck;
+    render(<MemoryRouter><FreeCheckRestoredResult result={legacy} showBuy={false} onMarkRest={vi.fn()} /></MemoryRouter>);
+    expect(screen.queryByTestId("free-check-restored-locked")).toBeNull();
+    expect(screen.queryByTestId("free-check-restored-mark-rest")).toBeNull();
+  });
+});

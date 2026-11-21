@@ -1014,6 +1014,9 @@ export interface WorksheetGradeResponse {
   worksheetTotalMarks: number;
   summary?: string;
   error?: string;
+  /** FREECHECK-ONEQ-1: present ONLY when an admitted signed-out free check carried more questions than it was
+   *  allowed to grade; the server marked `graded` of the `total` it received. */
+  freeCheckGradedOf?: { graded: number; total: number };
 }
 
 /** BATCH-1 (additive, absent by default) — ONE answer photo for ONE question, for a

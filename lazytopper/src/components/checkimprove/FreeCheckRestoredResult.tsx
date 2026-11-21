@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 import { trackNamedEvent } from "../../analytics/analytics";
 import { boardPassFoundingLabel, boardPassPriceDisplay } from "../../config/pricing";
 import { packPriceLabel } from "../../services/packs";
-import type { PendingFreeCheck } from "../../services/freeCheckClient";
+import { FREE_CHECK_COPY, freeCheckQuestionRange, isGradableQuestionRow, type PendingFreeCheck } from "../../services/freeCheckClient";
+import { truncateQuestionText } from "./FreeCheckLockedRows";
 import type { CheckSolutionResponse, WorksheetQuestionGrade } from "../../ai/aiClient";
 import {
   MISTAKE_TYPE_LABEL,
@@ -63,6 +64,14 @@ const CSS = `
   white-space: pre-wrap; overflow-wrap: anywhere; }
 .lt-fr__note { margin: 0; font-size: 0.9rem; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
 .lt-fr__muted { margin: 0; font-size: 0.9rem; line-height: 1.5; color: hsl(220, 15%, 42%); }
+.lt-fr__locked { margin: 16px 0 0; padding: 12px 14px; border-radius: 12px; border: 1px dashed hsl(220, 18%, 84%); background: hsl(220, 30%, 98%); }
+.lt-fr__lockedlist { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.lt-fr__lockedrow { display: flex; gap: 10px; font-size: 0.88rem; line-height: 1.45; min-width: 0; }
+.lt-fr__lockedq { flex: none; font-weight: 800; }
+.lt-fr__lockedtext { min-width: 0; overflow-wrap: anywhere; }
+.lt-fr__restbtn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 0; border-radius: 10px; cursor: pointer;
+  font: inherit; font-weight: 700; background: hsl(152, 55%, 28%); color: #ffffff; }
+.lt-fr__restbtn:focus-visible { outline: 3px solid hsl(152, 55%, 60%); outline-offset: 2px; }
 .lt-fr__buy { margin-top: 16px; padding-top: 14px; border-top: 1px solid hsl(220, 18%, 90%); display: flex; flex-direction: column; gap: 10px; }
 .lt-fr__buyline { margin: 0; font-size: 0.88rem; line-height: 1.5; }
 .lt-fr__buylink { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: hsl(152, 55%, 28%);
@@ -205,6 +214,42 @@ function OneQuestion({
   );
 }
 
+/**
+ * FREECHECK-ONEQ-1 - a multi-question free check marked only its first question; the questions the page held
+ * but the grader never saw. The photo/PDF is NOT kept on the device (text only), so "Mark the rest now" sends
+ * the student back to the Answer Checker to add the page again - the trial then marks it like any check.
+ */
+function LockedRest({
+  questions,
+  onMarkRest,
+}: {
+  questions: Array<{ questionNumber: number; questionText: string }>;
+  onMarkRest?: () => void;
+}) {
+  const range = freeCheckQuestionRange(questions.map((q) => q.questionNumber));
+  return (
+    <section className="lt-fr__locked" data-testid="free-check-restored-locked">
+      <div className="lt-fr__eyebrow">{FREE_CHECK_COPY.lockedTitle}</div>
+      <ul className="lt-fr__lockedlist">
+        {questions.map((q, i) => (
+          <li key={i} className="lt-fr__lockedrow" data-testid="free-check-restored-locked-row">
+            <span className="lt-fr__lockedq">{`Q${q.questionNumber}`}</span>
+            <span className="lt-fr__lockedtext">{truncateQuestionText(q.questionText)}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="lt-fr__muted" data-testid="free-check-restored-locked-line">
+        {FREE_CHECK_COPY.restoredLockedLine(range, questions.length > 1)}
+      </p>
+      {onMarkRest && (
+        <button type="button" className="lt-fr__restbtn" onClick={onMarkRest} data-testid="free-check-restored-mark-rest">
+          {FREE_CHECK_COPY.markRest}
+        </button>
+      )}
+    </section>
+  );
+}
+
 function BuyLine({ subject }: { subject: string | null | undefined }) {
   const copy = freeCheckBuyCopy();
   const onTap = () => trackNamedEvent("free_check_result_restored_buy_click");
@@ -232,7 +277,16 @@ function BuyLine({ subject }: { subject: string | null | undefined }) {
  * caller's next action still follows). `showBuy` is false for a student who already holds a
  * paid pass.
  */
-export function FreeCheckRestoredResult({ result, showBuy }: { result: PendingFreeCheck | null; showBuy: boolean }) {
+export function FreeCheckRestoredResult({
+  result,
+  showBuy,
+  onMarkRest,
+}: {
+  result: PendingFreeCheck | null;
+  showBuy: boolean;
+  /** Opens the Answer Checker so the student can add the page again (only offered when questions were left unmarked). */
+  onMarkRest?: () => void;
+}) {
   const shown = result !== null;
   useEffect(() => {
     if (shown) trackNamedEvent("free_check_result_restored");
@@ -266,6 +320,11 @@ export function FreeCheckRestoredResult({ result, showBuy }: { result: PendingFr
           ))}
         </>
       )}
+      {result.kind === "multi" && result.response.freeCheckGradedOf && (() => {
+        const done = new Set((result.response.results ?? []).map((g) => g.qNumber));
+        const locked = (result.questions ?? []).filter((q) => isGradableQuestionRow(q) && !done.has(q.questionNumber));
+        return locked.length > 0 ? <LockedRest questions={locked} onMarkRest={onMarkRest} /> : null;
+      })()}
       {showBuy && <BuyLine subject={result?.subject} />}
     </div>
   );
