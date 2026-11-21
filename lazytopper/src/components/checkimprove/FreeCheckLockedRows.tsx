@@ -51,8 +51,8 @@ export function FreeCheckLockedRows({ rows }: { rows: LockedQuestion[] }) {
       <style>{CSS}</style>
       <h3 className="lt-fl__title">{FREE_CHECK_COPY.lockedTitle}</h3>
       <ul className="lt-fl__list">
-        {rows.map((r) => (
-          <li key={r.questionNumber} className="lt-fl__row" data-testid="free-check-locked-row" data-grade-state="not-graded">
+        {rows.map((r, i) => (
+          <li key={i} className="lt-fl__row" data-testid="free-check-locked-row" data-grade-state="not-graded">
             <span className="lt-fl__q">{`Q${r.questionNumber}`}</span>
             <span className="lt-fl__text">{truncateQuestionText(r.questionText)}</span>
             <span className="lt-fl__chip">{FREE_CHECK_COPY.lockedChip}</span>
@@ -66,5 +66,19 @@ export function FreeCheckLockedRows({ rows }: { rows: LockedQuestion[] }) {
         {FREE_CHECK_COPY.signUpCta}
       </Link>
     </section>
+  );
+}
+
+const LINE_CSS = `.lt-fl__pre { font-size: 12px; line-height: 1.5; color: hsl(220, 15%, 42%); }`;
+
+/** FREECHECK-ONEQ-1 - the pre-grade notice, naming the question that WILL be marked. Class-based (CLAUDE.md 7). */
+export function FreeCheckOneQuestionLine({ questionNumber }: { questionNumber: number }) {
+  return (
+    <>
+      <style>{LINE_CSS}</style>
+      <span data-testid="free-check-oneq-line" className="lt-fl__pre">
+        {FREE_CHECK_COPY.oneQuestionPreGrade(questionNumber)}
+      </span>
+    </>
   );
 }

@@ -166,6 +166,8 @@ import {
   hasUsedFreeCheck,
   isFreeCheckClientEnabled,
   isFreeCheckOneQuestionEnabled,
+  firstGradableQuestionIndex,
+  isGradableQuestionRow,
   freeCheckQuestionRange,
   isFreeCheckRefusedError,
   markFreeCheckSigninIntent,
@@ -175,7 +177,7 @@ import {
 } from "../../services/freeCheckClient";
 import { clearAllSavedFreeCheckResults, clearSavedFreeCheckResult, getSavedFreeCheckResult } from "../../services/freeCheckReplay";
 import { FreeCheckRestoredResult } from "../../components/checkimprove/FreeCheckRestoredResult";
-import { FreeCheckLockedRows } from "../../components/checkimprove/FreeCheckLockedRows";
+import { FreeCheckLockedRows, FreeCheckOneQuestionLine } from "../../components/checkimprove/FreeCheckLockedRows";
 import PaperMarksEditor, { isLockedObjective, LockedMarksNote, sendAsObjective } from "../../components/checkimprove/PaperMarksEditor";
 import { finalMarksSummary } from "../../components/results/finalMarksSummary";
 import { showPackLine } from "../../components/limits/packLine";
@@ -2425,7 +2427,13 @@ const DesktopCheckImprovePageInner: React.FC<{
     if (!mode.continueFrom) ciJob.reset();
     // FAIR-USE-UI-1 (UI2): the student agreed to "we'll mark the first R" - EXACTLY the
     // first R questions of the paper, in its own order, are sent. Null = all, as before.
-    const questionsToGrade = limitTo !== null ? detectedQuestions.slice(0, limitTo) : detectedQuestions;
+    // FREECHECK-ONEQ-1: a free check's one question is the first GRADABLE row (the server's rule), not row 0.
+    const questionsToGrade =
+      limitTo !== null
+        ? isFreeMode && limitTo === 1
+          ? [detectedQuestions[firstGradableQuestionIndex(detectedQuestions)]]
+          : detectedQuestions.slice(0, limitTo)
+        : detectedQuestions;
 
     // One code per session; reuse it if this session was already graded once. The code is the
     // submission half of each question's stable MI identity, so a re-grade REPLACES those
@@ -2502,6 +2510,10 @@ const DesktopCheckImprovePageInner: React.FC<{
       if (isFreeMode && limitTo === null && response?.freeCheckGradedOf && response.freeCheckGradedOf.graded >= 1) {
         ciLastLimitRef.current = response.freeCheckGradedOf.graded;
         setCiPaperLimit(response.freeCheckGradedOf.graded);
+      }
+      // FREECHECK-ONEQ-1: stamp the cut on a free check this client cut itself, so the saved result restores 1 graded + locked.
+      if (isFreeMode && limitTo !== null && response && response.ok !== false && !response.freeCheckGradedOf) {
+        response.freeCheckGradedOf = { graded: questionsToGrade.length, total: detectedQuestions.length };
       }
       if (!response || response.ok === false) {
         setErrorMessage("Grading unavailable — please try a clearer scan, or try again.");
@@ -4059,9 +4071,9 @@ const DesktopCheckImprovePageInner: React.FC<{
           )}
 
           {freeOneQuestion && status !== "loading" && (
-            <span data-testid="free-check-oneq-line" style={{ fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
-              {FREE_CHECK_COPY.oneQuestionPreGrade}
-            </span>
+            <FreeCheckOneQuestionLine
+              questionNumber={detectedQuestions?.[firstGradableQuestionIndex(detectedQuestions)]?.questionNumber ?? 1}
+            />
           )}
 
           {!canGrade && status !== "loading" && (
@@ -4176,9 +4188,11 @@ const DesktopCheckImprovePageInner: React.FC<{
     const paperNote = paperCut ? trialPaperNoteCopy(paperCut, paperAllowance) : null;
     // FREECHECK-ONEQ-1: a signed-out free check cut to its first question lists the rest as locked rows
     // (and says so in the scorecard's line) instead of the signed-in trial note.
+    // From what was actually graded (the response rows), never from array positions.
+    const freeGradedNumbers = new Set(ws.results.map((r) => r.qNumber));
     const freeLocked =
       isFreeMode && paperCut && detectedQuestions
-        ? paperCut.notGradedIndices.flatMap((i) => (detectedQuestions[i] ? [detectedQuestions[i]] : []))
+        ? detectedQuestions.filter((q) => isGradableQuestionRow(q) && !freeGradedNumbers.has(q.questionNumber))
         : [];
     const freeLockedLine =
       freeLocked.length > 0
@@ -4244,7 +4258,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                     trialPaper: {
                       total: paperCut.total,
                       line: freeLockedLine
-                        ? `Your free check marked question 1. ${freeLockedLine}`
+                        ? `${FREE_CHECK_COPY.oneQuestionMarked(ws.results[0]?.qNumber ?? 1)} ${freeLockedLine}`
                         : `${paperNote.lead} ${paperNote.upgrade}`,
                     },
                   }

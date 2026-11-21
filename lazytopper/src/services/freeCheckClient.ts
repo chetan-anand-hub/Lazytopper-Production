@@ -81,6 +81,20 @@ export function isFreeCheckOneQuestionEnabled(): boolean {
   return !/^(1|true|on|yes)$/i.test(readEnv("VITE_FREE_CHECK_ONE_QUESTION_DISABLED"));
 }
 
+/**
+ * FREECHECK-ONEQ-1 - the rows the server would keep: a question number above 0 and some question text. Mirrors
+ * the server's `firstGradableIndex` (services/freeCheckOneQuestion.cjs) so client and server pick the SAME first question.
+ */
+export function isGradableQuestionRow(q: { questionNumber?: number; questionText?: string } | null | undefined): boolean {
+  return Boolean(q && Number(q.questionNumber) > 0 && String(q.questionText ?? "").trim());
+}
+
+/** Index of the first gradable row, falling back to 0 exactly like the server. */
+export function firstGradableQuestionIndex(questions: Array<{ questionNumber?: number; questionText?: string }>): number {
+  const i = questions.findIndex((q) => isGradableQuestionRow(q));
+  return i < 0 ? 0 : i;
+}
+
 /** "2", "2–5" (a run), or "2, 4 and 5" (a gap): the question numbers a sentence names. Pure. */
 export function freeCheckQuestionRange(numbers: number[]): string {
   const n = [...new Set(numbers.filter((x) => Number.isFinite(x)))].sort((a, b) => a - b);
@@ -242,8 +256,10 @@ export const FREE_CHECK_COPY = {
   /** The one sign-in link label every free-check prompt uses. */
   signUpCta: "Sign up free",
   /** FREECHECK-ONEQ-1 - before grading, a signed-out visitor with more than one question on the page. */
-  oneQuestionPreGrade:
-    "Your free check marks question 1. Sign up for a 7-day free trial to mark the whole page.",
+  oneQuestionPreGrade: (n: number) =>
+    `Your free check marks question ${n}. Sign up for a 7-day free trial to mark the whole page.`,
+  /** FREECHECK-ONEQ-1 - the scorecard line, from the question that was actually marked. */
+  oneQuestionMarked: (n: number) => `Your free check marked question ${n}.`,
   /** FREECHECK-ONEQ-1 - the locked rows' heading and the line under them. `range` from freeCheckQuestionRange. */
   lockedTitle: "Not marked yet",
   lockedLine: (range: string, plural: boolean) =>

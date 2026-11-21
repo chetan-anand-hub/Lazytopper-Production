@@ -262,3 +262,89 @@ describe("FREECHECK-ONEQ-1 - signed out, a page with several questions", () => {
     expect(await screen.findByTestId("free-check-locked")).toBeTruthy();
   });
 });
+
+function detectRows(rows: Array<{ questionNumber: number; questionText: string }>) {
+  H.detectQuestion.mockImplementation(async (req: { question?: string }) =>
+    req.question === "Q-A first question"
+      ? { ...DETECTED, questions: rows.map((r) => ({ ...r, marks: 2, marksSource: "stated" })) }
+      : { ok: true, detectedTopic: null, detectedSubject: null },
+  );
+}
+const oneResult = (qNumber: number) => ({ ...ONE_RESULT, results: [{ ...ONE_RESULT.results[0], qNumber }] });
+
+describe("FREECHECK-ONEQ-1 - which question is 'the first'", () => {
+  it("a page detected as Q5-Q8 says question 5, sends only Q5, and locks questions 6-8", async () => {
+    flagOn();
+    detectRows([5, 6, 7, 8].map((n) => ({ questionNumber: n, questionText: `Row ${n} text` })));
+    H.gradeWorksheet.mockResolvedValue(oneResult(5));
+    const { container } = renderPage();
+    await readQuestion();
+    const grade = await uploadAnswerSheet(container);
+    expect(screen.getByTestId("free-check-oneq-line").textContent).toContain("marks question 5.");
+    await waitFor(() => expect(grade).not.toBeDisabled());
+    fireEvent.click(grade);
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    expect((H.gradeWorksheet.mock.calls[0][0].questions as Array<{ qNumber: number }>).map((q) => q.qNumber)).toEqual([5]);
+    await screen.findByTestId("free-check-locked");
+    expect(screen.getByTestId("free-check-locked-line").textContent).toBe("Start your 7-day free trial to get marks for questions 6\u20138.");
+    expect(screen.getAllByTestId("free-check-locked-row")).toHaveLength(3);
+  });
+
+  it("a blank first row is skipped like the server does: the first GRADABLE row is sent and the blank one is never listed", async () => {
+    flagOn();
+    detectRows([
+      { questionNumber: 1, questionText: "   " },
+      { questionNumber: 2, questionText: "Second real question" },
+      { questionNumber: 3, questionText: "Third real question" },
+    ]);
+    H.gradeWorksheet.mockResolvedValue(oneResult(2));
+    const { container } = renderPage();
+    await readQuestion();
+    const grade = await uploadAnswerSheet(container);
+    expect(screen.getByTestId("free-check-oneq-line").textContent).toContain("marks question 2.");
+    await waitFor(() => expect(grade).not.toBeDisabled());
+    fireEvent.click(grade);
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    expect((H.gradeWorksheet.mock.calls[0][0].questions as Array<{ qNumber: number }>).map((q) => q.qNumber)).toEqual([2]);
+    await screen.findByTestId("free-check-locked");
+    expect(screen.getAllByTestId("free-check-locked-row").map((r) => r.textContent)).toEqual(["Q3Third real questionLocked"]);
+  });
+
+  it("old client / kill switch: a server cut to Q2 never lists the graded question as locked", async () => {
+    flagOn();
+    vi.stubEnv("VITE_FREE_CHECK_ONE_QUESTION_DISABLED", "1");
+    detectRows([1, 2, 3].map((n) => ({ questionNumber: n, questionText: `Row ${n} text` })));
+    H.gradeWorksheet.mockResolvedValue({ ...oneResult(2), freeCheckGradedOf: { graded: 1, total: 3 } });
+    const { container } = renderPage();
+    await readQuestion();
+    const grade = await uploadAnswerSheet(container);
+    await waitFor(() => expect(grade).not.toBeDisabled());
+    fireEvent.click(grade);
+    await screen.findByTestId("free-check-locked");
+    expect(screen.getAllByTestId("free-check-locked-row").map((r) => r.textContent)).toEqual(["Q1Row 1 textLocked", "Q3Row 3 textLocked"]);
+  });
+});
+
+describe("FREECHECK-ONEQ-1 - a SIGNED-IN multi-question upload is unchanged", () => {
+  it("sends all 3 questions, shows no locked rows and no pre-grade notice", async () => {
+    flagOff();
+    H.auth = { user: SIGNED_IN, loading: false };
+    H.sub.isPremium = true;
+    detectThree();
+    H.gradeWorksheet.mockResolvedValue({
+      ...ONE_RESULT,
+      results: [1, 2, 3].map((n) => ({ ...ONE_RESULT.results[0], qNumber: n })),
+      totalQuestions: 3, gradedCount: 3,
+    });
+    const { container } = renderPage();
+    await readQuestion();
+    const grade = await uploadAnswerSheet(container);
+    expect(screen.queryByTestId("free-check-oneq-line")).toBeNull();
+    await waitFor(() => expect(grade).not.toBeDisabled());
+    fireEvent.click(grade);
+    await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
+    expect((H.gradeWorksheet.mock.calls[0][0].questions as unknown[]).length).toBe(3);
+    await waitFor(() => expect(container.textContent).toMatch(/3\/3 graded/));
+    expect(screen.queryByTestId("free-check-locked")).toBeNull();
+  });
+});

@@ -201,4 +201,13 @@ describe("FreeCheckRestoredResult — FREECHECK-ONEQ-1: 1 graded + the rest lock
     render(<MemoryRouter><FreeCheckRestoredResult result={all} showBuy={false} onMarkRest={vi.fn()} /></MemoryRouter>);
     expect(screen.queryByTestId("free-check-restored-locked")).toBeNull();
   });
+
+  it("a saved result WITHOUT freeCheckGradedOf (pre-PR / kill switch) shows no locked block even if a question has no result", () => {
+    const resp = { ...ONE_OF_FIVE.response } as Record<string, unknown>;
+    delete resp.freeCheckGradedOf;
+    const legacy = { ...ONE_OF_FIVE, response: resp } as unknown as PendingMultiFreeCheck;
+    render(<MemoryRouter><FreeCheckRestoredResult result={legacy} showBuy={false} onMarkRest={vi.fn()} /></MemoryRouter>);
+    expect(screen.queryByTestId("free-check-restored-locked")).toBeNull();
+    expect(screen.queryByTestId("free-check-restored-mark-rest")).toBeNull();
+  });
 });

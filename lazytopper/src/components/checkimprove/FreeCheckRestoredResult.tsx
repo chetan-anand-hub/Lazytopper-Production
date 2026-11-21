@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { trackNamedEvent } from "../../analytics/analytics";
 import { boardPassFoundingLabel, boardPassPriceDisplay } from "../../config/pricing";
 import { packPriceLabel } from "../../services/packs";
-import { FREE_CHECK_COPY, freeCheckQuestionRange, type PendingFreeCheck } from "../../services/freeCheckClient";
+import { FREE_CHECK_COPY, freeCheckQuestionRange, isGradableQuestionRow, type PendingFreeCheck } from "../../services/freeCheckClient";
 import { truncateQuestionText } from "./FreeCheckLockedRows";
 import type { CheckSolutionResponse, WorksheetQuestionGrade } from "../../ai/aiClient";
 import {
@@ -231,8 +231,8 @@ function LockedRest({
     <section className="lt-fr__locked" data-testid="free-check-restored-locked">
       <div className="lt-fr__eyebrow">{FREE_CHECK_COPY.lockedTitle}</div>
       <ul className="lt-fr__lockedlist">
-        {questions.map((q) => (
-          <li key={q.questionNumber} className="lt-fr__lockedrow" data-testid="free-check-restored-locked-row">
+        {questions.map((q, i) => (
+          <li key={i} className="lt-fr__lockedrow" data-testid="free-check-restored-locked-row">
             <span className="lt-fr__lockedq">{`Q${q.questionNumber}`}</span>
             <span className="lt-fr__lockedtext">{truncateQuestionText(q.questionText)}</span>
           </li>
@@ -320,9 +320,9 @@ export function FreeCheckRestoredResult({
           ))}
         </>
       )}
-      {result.kind === "multi" && (() => {
+      {result.kind === "multi" && result.response.freeCheckGradedOf && (() => {
         const done = new Set((result.response.results ?? []).map((g) => g.qNumber));
-        const locked = (result.questions ?? []).filter((q) => !done.has(q.questionNumber));
+        const locked = (result.questions ?? []).filter((q) => isGradableQuestionRow(q) && !done.has(q.questionNumber));
         return locked.length > 0 ? <LockedRest questions={locked} onMarkRest={onMarkRest} /> : null;
       })()}
       {showBuy && <BuyLine subject={result?.subject} />}
