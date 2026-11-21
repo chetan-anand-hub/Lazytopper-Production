@@ -183,6 +183,7 @@ const { createEntitlementGate } = require('./services/entitlement.cjs');
 // server env FREE_CHECK_ENABLED is on. Fails CLOSED (the opposite of entitlement):
 // there is no paying student to protect on this path, only a budget.
 const { createFreeCheckGate } = require('./services/freeCheck.cjs');
+const freeCheckOneQuestion = require('./services/freeCheckOneQuestion.cjs'); // FREECHECK-ONEQ-1
 // DPDP account erasure (ERASE-1). Owner-scoped: a student erases their OWN account,
 // uid taken from the verified token and from nowhere else. Walks STUDENT_DATA_MAP —
 // the map is the spec, so a collection added there is erased without touching this
@@ -899,6 +900,10 @@ async function handleRequest(req, res) {
     // FAIR-USE-1 (U2/U3): grading endpoints only, verified trial/premium callers only.
     // Returns true only when FAIR_USE_ENFORCE=1 and it has already sent the 409/429.
     if (await fairUse.applyToRequest(req, res, reqPath, verifiedUid, { freeCheck: freeCheckAdmitted })) return;
+
+    // FREECHECK-ONEQ-1: an ADMITTED free check on grade-worksheet grades ONLY the first question (kill switch
+    // FREE_CHECK_ONE_QUESTION_DISABLED=1). Truncates the pre-read body; the handler and its grading are untouched.
+    if (freeCheckAdmitted && reqPath === '/api/grade-worksheet') await freeCheckOneQuestion.apply(req, (r) => fairUseModule.preReadGradingBody(r, readJson));
   }
 
   // GRADING-JOBS-1 J1: a background grading job's status. A GET, so none of the POST pipeline
