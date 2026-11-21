@@ -283,55 +283,14 @@ function createFreeCheckGate(deps = {}) {
     }
     if (outcome === 'full') return refusal(REASONS.CEILING, nowMs);
 
-    // GRADE-TIMEOUT-RETRY-1: remember how to give this ONE count back (refundFreeCheckServed below).
-    if (grading) refundable.set(req, () => refundServed(nowMs));
-
     emit(grading ? 'free_check.admitted.grading' : 'free_check.admitted.detect');
     return { admitted: true };
-  }
-
-  /** Give back the one `served` count taken on the day `countedAtMs`. Best-effort; never throws. */
-  async function refundServed(countedAtMs) {
-    try {
-      const ref = dayRef(countedAtMs);
-      await adminFirestore.runTransaction(async (tx) => {
-        const snap = await tx.get(ref);
-        const data = (snap && snap.exists && snap.data()) || {};
-        const served = toCount(data.served);
-        if (served > 0) tx.set(ref, { served: served - 1 }, { merge: true });
-      });
-      emit('free_check.served_refunded');
-      return true;
-    } catch (e) {
-      emit('free_check.counter_write_failed');
-      try { logger.warn(`[free-check] served refund failed: ${e && e.message}`); } catch {}
-      return false;
-    }
   }
 
   return { isFreeCheckRequest, admit };
 }
 
-/**
- * GRADE-TIMEOUT-RETRY-1 — a grading TIME-OUT is not a served free check. admit() increments the
- * durable `served` count BEFORE the model runs, so a 504 would spend one of the day's slots for
- * nothing (and a retry a second). Requests admitted as a counted free-check grade are remembered
- * here by request object (a WeakMap: nothing outlives the request); the route calls
- * refundFreeCheckServed(req) on a time-out ONLY. Gives back exactly that one count, once.
- * Resolves true when a count was given back; false when there was nothing to give back
- * (not a free check, already refunded, or the write failed). Never rejects.
- */
-const refundable = new WeakMap();
-async function refundFreeCheckServed(req) {
-  if (!req || typeof req !== 'object') return false;
-  const refund = refundable.get(req);
-  if (!refund) return false;
-  refundable.delete(req); // once
-  try { return await refund(); } catch { return false; }
-}
-
 module.exports = {
-  refundFreeCheckServed,
   createFreeCheckGate,
   isFreeCheckEnabled,
   freeCheckDailyCap,

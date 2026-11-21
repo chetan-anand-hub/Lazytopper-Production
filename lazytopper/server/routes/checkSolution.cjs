@@ -36,7 +36,6 @@ const jobsLib = require('../grading/jobs.cjs');
 const timingLib = require('../grading/timing.cjs');
 const freeCheckOneQuestion = require('../services/freeCheckOneQuestion.cjs'); // FREECHECK-ONEQ-1
 const gradeTimingLib = require('../grading/gradeTiming.cjs');
-const { refundFreeCheckServed } = require('../services/freeCheck.cjs');
 const { gradingAttemptOf, deferredCommitOf } = require('../services/fairUse.cjs');
 const { limitsDeferredOf } = require('../services/limits.cjs');
 const withLimitsDeferred = (fair, lim) => (lim ? { ...(fair || {}), uid: (fair && fair.uid) || lim.uid, limits: lim } : fair);
@@ -60,8 +59,9 @@ const MARKS_SOURCE_VALUES = ['stated', 'inferred'];
  * GRADE-TIMEOUT-RETRY-1 — a grading TIME-OUT (the core's deadline, or the Gemini client's own
  * abort) is a retryable 504, not a dead-end 500. Anything else stays a 500. The client re-sends
  * a 504 with the SAME idempotency key (gradingTransport R1); a non-2xx releases the idempotency
- * marker, charges nothing (fair use, limits and the paper pass all settle on a 2xx only) and
- * counts no free check as served (refundFreeCheckServed), so the re-send grades afresh, once.
+ * marker and charges nothing (fair use, limits and the paper pass all settle on a 2xx only), so the
+ * re-send grades afresh, once. A timed-out FREE check still counts as served (the durable daily ceiling
+ * must bound model spend); it is not refunded.
  * Kill switch: GRADING_TIMEOUT_504_DISABLED=1 (read per request) -> byte-identical to before.
  */
 function isGradingTimeout(err) {
@@ -73,7 +73,6 @@ function isGradingTimeout(err) {
 /** Answer a caught grading error: 504 + `retryable: true` for a time-out, else the given 500 body. */
 async function sendGradeFailure(sendJson, req, res, err, body500) {
   if (isGradingTimeout(err)) {
-    await refundFreeCheckServed(req); // a time-out is not a served check
     return sendJson(res, 504, { ...body500, retryable: true });
   }
   return sendJson(res, 500, body500);

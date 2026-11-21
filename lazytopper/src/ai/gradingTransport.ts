@@ -57,8 +57,8 @@ export const GRADING_BACKOFF_BASE_MS = 1_000;
 export const RETRYABLE_STATUSES: ReadonlySet<number> = new Set([502, 503, 504]);
 /**
  * GRADE-TIMEOUT-RETRY-1 — a free check (the request carries the free-check marker header) is retried
- * AT MOST ONCE, and ONLY after the server answered 504 (a grading time-out: the server says nothing
- * was served). Never after a dropped connection or a client time-out: with no uid the server cannot
+ * AT MOST ONCE, and ONLY after a 504 whose JSON body says `retryable: true` (our grading time-out;
+ * never a bare proxy 504). Never after a dropped connection or a client time-out: with no uid the server cannot
  * tell a re-send from a second check, and the first attempt may still be grading. Each re-send mints
  * a FRESH limited-use App Check token (the server consumes every token it verifies, so re-sending
  * the first one is refused as alreadyConsumed). aiClient asks for `maxRetries: 0` on a free check
@@ -66,7 +66,16 @@ export const RETRYABLE_STATUSES: ReadonlySet<number> = new Set([502, 503, 504]);
  */
 export const FREE_CHECK_MAX_RETRIES = 1;
 const FREE_CHECK_MARKER = "x-lazytopper-free-check";
-const FREE_CHECK_RETRY_STATUS = 504;
+
+/** True when a 504 body is OUR grading time-out: JSON with `retryable === true`. */
+function isRetryableTimeoutBody(text: string): boolean {
+  try {
+    const parsed = JSON.parse(text) as { retryable?: unknown } | null;
+    return !!parsed && typeof parsed === "object" && parsed.retryable === true;
+  } catch {
+    return false;
+  }
+}
 
 function isFreeCheckSend(headers: Record<string, string>): boolean {
   return Object.keys(headers).some((k) => k.toLowerCase() === FREE_CHECK_MARKER);
@@ -311,6 +320,7 @@ export async function sendGradingRequest(
   let lastFailure: GradingFailureReason = "network";
   let retryReason: GradingRetryReason = "connection";
   let lastResponse: GradingHttpResponse | null = null;
+  let timeoutRetries = 0;
 
   for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
     if (attempt > 0) {
@@ -343,14 +353,25 @@ export async function sendGradingRequest(
       retryReason = lastFailure === "timeout" ? "slow" : "connection";
       continue;
     }
-    if (freeCheck) {
-      if (res.status === FREE_CHECK_RETRY_STATUS && attempt < maxRetries) {
+    // GRADE-TIMEOUT-RETRY-1: our grading time-out is a 504 whose JSON body says `retryable: true`.
+    // It is re-sent AT MOST ONCE, for every caller. A bare 504 (a proxy's, or a non-JSON body) keeps the
+    // pre-existing policy: signed-in up to maxRetries, a free check never.
+    if (res.status === 504) {
+      const text = await res.text().catch(() => "");
+      res = { ok: res.ok, status: res.status, text: async () => text }; // a fetch body reads once: hand the caller a copy
+      const gradingTimeout = isRetryableTimeoutBody(text);
+      if (gradingTimeout && timeoutRetries < 1 && attempt < maxRetries) {
+        timeoutRetries += 1;
         lastResponse = res;
         retryReason = "slow";
         continue;
       }
-    } else if (RETRYABLE_STATUSES.has(res.status) && attempt < maxRetries) {
-      retryReason = res.status === 504 ? "slow" : "connection";
+      if (!gradingTimeout && !freeCheck && attempt < maxRetries) {
+        retryReason = "slow";
+        continue;
+      }
+    } else if (!freeCheck && RETRYABLE_STATUSES.has(res.status) && attempt < maxRetries) {
+      retryReason = "connection";
       continue;
     }
     if (res.ok) onStage?.({ kind: "done" });

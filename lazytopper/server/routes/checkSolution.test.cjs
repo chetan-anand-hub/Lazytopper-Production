@@ -3722,8 +3722,6 @@ test('§DO.9 ★ review R2-2: the model\'s own marks > 1 BLOCK the upgrade (no s
    Only the HTTP status of a time-out changes. No mark, prompt, rule or mistake type.
    ══════════════════════════════════════════════════════════════════════════════ */
 
-const { createFreeCheckGate, refundFreeCheckServed, FREE_CHECK_MARKER_HEADER, APP_CHECK_HEADER } = require('../services/freeCheck.cjs');
-
 const deadlineErr = () => Object.assign(new Error('Grading time budget reached after 78000ms'), { status: 504, gradingDeadline: true });
 const geminiTimeoutErr = () => Object.assign(new Error('Gemini request timed out after 55000ms'), { status: 504 });
 const throwing = (mk) => ({ depOverrides: { callGemini: async () => { throw mk(); } } });
@@ -3791,67 +3789,4 @@ test('§T.6 CONTROL: a good grade is still a 200 with no `retryable` (the 504 pa
   await h.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
   assert.equal(h.status(), 200);
   assert.equal('retryable' in h.body(), false);
-});
-
-/* ── a free check: a time-out is not a SERVED check ─────────────────────────────── */
-
-function freeGateRig({ served = 0 } = {}) {
-  const docs = new Map();
-  const tools = { writes: 0 };
-  const dayDoc = (id) => ({ id });
-  const adminFirestore = {
-    collection: () => ({ doc: (id) => dayDoc(id) }),
-    runTransaction: async (fn) => fn({
-      get: async (ref) => ({ exists: docs.has(ref.id), data: () => ({ ...(docs.get(ref.id) || {}) }) }),
-      set: (ref, data) => { tools.writes += 1; docs.set(ref.id, { ...(docs.get(ref.id) || {}), ...data }); },
-    }),
-  };
-  const firebaseAdmin = { appCheck: () => ({ verifyToken: async () => ({ appId: 'app-1' }) }) };
-  const gate = createFreeCheckGate({ firebaseAdmin, adminFirestore, telemetry: { increment() {} }, globalCountToday: () => 0, globalHardLimit: () => 1000 });
-  if (served) docs.set('seed', {});
-  const servedNow = () => [...docs.values()].reduce((n, d) => n + (Number(d.served) || 0), 0);
-  const req = () => ({ headers: { [FREE_CHECK_MARKER_HEADER.toLowerCase()]: '1', [APP_CHECK_HEADER.toLowerCase()]: 'tok' }, method: 'POST' });
-  return { gate, servedNow, req };
-}
-
-test('§T.7 free check: admit counts ONE served; a time-out refunds it (once); a second refund is a no-op', async () => {
-  const rig = freeGateRig();
-  const r = rig.req();
-  const adm = await rig.gate.admit(r, '/api/check-solution');
-  assert.equal(adm.admitted, true);
-  assert.equal(rig.servedNow(), 1, 'CONTROL: admit counted it');
-  assert.equal(await refundFreeCheckServed(r), true);
-  assert.equal(rig.servedNow(), 0, 'a time-out is not a served free check');
-  assert.equal(await refundFreeCheckServed(r), false, 'once only');
-  assert.equal(rig.servedNow(), 0);
-});
-
-test('§T.8 free check: the route\'s 504 path refunds; a 500 (non-time-out) does NOT', async () => {
-  // The harness readJson(req) returns the request itself, so the request object carries the payload AND the headers.
-  for (const [mk, expectServed, expectStatus] of [[deadlineErr, 0, 504], [geminiTimeoutErr, 0, 504], [() => new Error('boom'), 1, 500]]) {
-    const rig = freeGateRig();
-    const req = { ...SUBJECTIVE_REQ(), ...rig.req() };
-    await rig.gate.admit(req, '/api/check-solution');
-    assert.equal(rig.servedNow(), 1);
-    const h = buildRoute(throwing(mk));
-    await QUIET(() => h.route.handleCheckSolution(req, {}));
-    assert.equal(h.status(), expectStatus);
-    assert.equal(rig.servedNow(), expectServed, `status ${expectStatus}: served must be ${expectServed}`);
-  }
-});
-
-test('§T.9 free check: the kill switch leaves `served` counted exactly as before (a 500, no refund)', async () => {
-  await withEnv('GRADING_TIMEOUT_504_DISABLED', '1', async () => {
-    const rig = freeGateRig();
-    const req = { ...SUBJECTIVE_REQ(), ...rig.req() };
-    await rig.gate.admit(req, '/api/check-solution');
-    const h = buildRoute(throwing(deadlineErr));
-    await QUIET(() => h.route.handleCheckSolution(req, {}));
-    assert.deepEqual([h.status(), rig.servedNow()], [500, 1]);
-  });
-});
-
-test('§T.10 a paid request (never admitted as a free check) -> refund is a harmless no-op', async () => {
-  assert.equal(await refundFreeCheckServed({ headers: {} }), false);
-  assert.equal(await refundFreeCheckServed(null), false);
 });

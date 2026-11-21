@@ -236,7 +236,7 @@ describe("a 403 free_check_refused is a typed refusal the page can map (1a wire 
   });
 });
 
-describe("LOW-END-1 R1 · a free check is NEVER re-sent automatically", () => {
+describe("LOW-END-1 R1 · a free check is not re-sent after a lost reply (only a retryable 504 is — see GRADE-TIMEOUT-RETRY-1)", () => {
   // Its App Check token is limited-use (one request) and, with no uid, the server cannot
   // recognise a retry — a re-send would be refused or spend the one free check twice.
   // MUTATION: drop `maxRetries: 0` for freeCheck in aiClient postGrading -> RED (3 sends).
@@ -262,38 +262,36 @@ describe("LOW-END-1 R1 · a free check is NEVER re-sent automatically", () => {
   });
 });
 
-describe("GRADE-TIMEOUT-RETRY-1 · a free check IS re-sent after a 504 time-out — and only then, with a FRESH token", () => {
-  const scripted = (statuses: number[]) => {
+describe("GRADE-TIMEOUT-RETRY-1 · a free check is re-sent ONCE after a retryable 504 — and only then, with a FRESH token", () => {
+  const RETRYABLE_BODY = { ok: false, error: "Failed to evaluate solution. Please try again.", retryable: true };
+  const scripted = (replies: Array<{ status: number; body?: unknown }>) => {
     let i = 0;
     nextResponse = () => {
-      const status = statuses[Math.min(i, statuses.length - 1)];
+      const r = replies[Math.min(i, replies.length - 1)];
       i += 1;
-      return status === 200
-        ? { status, body: { ok: true, totalMarks: 3, marksAwarded: 2, percentage: 67, annotatedSteps: [] } }
-        : { status, body: { ok: false, error: "Failed to evaluate solution. Please try again.", retryable: true } };
+      return { status: r.status, body: r.body ?? (r.status === 200 ? { ok: true, totalMarks: 3, marksAwarded: 2, percentage: 67, annotatedSteps: [] } : { ok: false }) };
     };
   };
+  const T504 = { status: 504, body: RETRYABLE_BODY };
   const fast = async () => {
     const { __setGradingSleepForTests } = await import("./gradingTransport");
     __setGradingSleepForTests(async () => {});
     return () => __setGradingSleepForTests(null);
   };
 
-  it("504 then 200: TWO sends, each a free-check shape with its OWN limited-use token, the SAME idempotency key, and the grade comes back", async () => {
+  it("retryable 504 then 200: TWO sends, each a free-check shape with its OWN limited-use token, the SAME idempotency key; the grade comes back", async () => {
     const restore = await fast();
     try {
-      scripted([504, 200]);
+      scripted([T504, { status: 200 }]);
       const res = await checkSolutionImage({ question: "Q", textAnswer: "a" }, FREE);
       expect(res.ok).toBe(true);
       expect(calls).toHaveLength(2);
       calls.forEach((c) => assertFreeShape(c.headers));
-      const tokens = calls.map((c) => c.headers[APP_CHECK_HEADER]);
-      expect(new Set(tokens).size, "the retry must NOT re-send the consumed token").toBe(2);
+      expect(new Set(calls.map((c) => c.headers[APP_CHECK_HEADER])).size, "the retry must NOT re-send the consumed token").toBe(2);
       expect(H.getLimitedUseToken).toHaveBeenCalledTimes(2);
       expect(H.getToken).not.toHaveBeenCalled();
-      const keys = calls.map((c) => c.headers["Idempotency-Key"]);
-      expect(keys[0]).toBeTruthy();
-      expect(keys[1]).toBe(keys[0]);
+      expect(calls[0].headers["Idempotency-Key"]).toBeTruthy();
+      expect(calls[1].headers["Idempotency-Key"]).toBe(calls[0].headers["Idempotency-Key"]);
     } finally {
       restore();
     }
@@ -302,7 +300,7 @@ describe("GRADE-TIMEOUT-RETRY-1 · a free check IS re-sent after a 504 time-out 
   it("grade-worksheet (the multi-question free path) is retried the same way", async () => {
     const restore = await fast();
     try {
-      scripted([504, 200]);
+      scripted([T504, { status: 200 }]);
       await gradeWorksheet({ worksheetId: "ci:x", questions: [] }, FREE);
       expect(calls).toHaveLength(2);
       expect(new Set(calls.map((c) => c.headers[APP_CHECK_HEADER])).size).toBe(2);
@@ -311,10 +309,10 @@ describe("GRADE-TIMEOUT-RETRY-1 · a free check IS re-sent after a 504 time-out 
     }
   });
 
-  it("at most ONE retry: 504 + 504 is two sends, and the caller gets the failure", async () => {
+  it("at most ONE retry: retryable 504 twice is two sends, and the caller gets the failure", async () => {
     const restore = await fast();
     try {
-      scripted([504, 504, 504]);
+      scripted([T504, T504, T504]);
       vi.spyOn(console, "error").mockImplementation(() => {});
       await expect(checkSolutionImage({ question: "Q", textAnswer: "a" }, FREE)).rejects.toBeTruthy();
       expect(calls).toHaveLength(2);
@@ -323,11 +321,21 @@ describe("GRADE-TIMEOUT-RETRY-1 · a free check IS re-sent after a 504 time-out 
     }
   });
 
+  it("★ a BARE 504 (no JSON body / no retryable:true — a proxy's) is NOT re-sent for a free check", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    for (const bare of [{ status: 504, body: { ok: false } }, { status: 504, body: "<html>Gateway Time-out</html>" }, { status: 504, body: { retryable: false } }]) {
+      calls = [];
+      scripted([bare, { status: 200 }]);
+      await checkSolutionImage({ question: "Q", textAnswer: "a" }, FREE).catch(() => {});
+      expect(calls, JSON.stringify(bare.body)).toHaveLength(1);
+    }
+  });
+
   it("CONTROL: any other non-2xx (500, 502, 503, 403 refusal) is ONE send — never re-sent", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     for (const status of [500, 502, 503, 403]) {
       calls = [];
-      scripted([status, 200]);
+      scripted([{ status, body: RETRYABLE_BODY }, { status: 200 }]);
       await checkSolutionImage({ question: "Q", textAnswer: "a" }, FREE).catch(() => {});
       expect(calls, `status ${status} was re-sent`).toHaveLength(1);
     }
@@ -336,7 +344,7 @@ describe("GRADE-TIMEOUT-RETRY-1 · a free check IS re-sent after a 504 time-out 
   it("a retry whose fresh token cannot be minted sends nothing more and the 504 stands", async () => {
     const restore = await fast();
     try {
-      scripted([504, 200]);
+      scripted([T504, { status: 200 }]);
       H.getLimitedUseToken.mockReset()
         .mockImplementationOnce(async () => ({ token: "limited-1" }))
         .mockImplementation(async () => { throw new Error("recaptcha blocked"); });

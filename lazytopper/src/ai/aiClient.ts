@@ -178,10 +178,12 @@ async function postGrading(
   }
   const sendOpts = {
     idempotencyKey,
-    // ★ A FREE CHECK IS NEVER RE-SENT AUTOMATICALLY. Its App Check token is LIMITED-USE
+    // ★ A FREE CHECK IS NOT RE-SENT AFTER A LOST REPLY OR A BARE 504. Its App Check token is LIMITED-USE
     // (minted for one request — the server refuses a replayed one), and with no uid the
-    // server cannot recognise the retry, so a re-send after a lost reply would be refused
-    // or spend the visitor's one free check twice. It keeps the timeout, stages and offline wait.
+    // server cannot recognise the retry. The ONE exception lives in gradingTransport
+    // (GRADE-TIMEOUT-RETRY-1): a 504 whose JSON body says `retryable: true` (our grading time-out) is
+    // re-sent once, with a FRESH token and the same idempotency key, overriding `maxRetries: 0` for
+    // that case only. It keeps the timeout, stages and offline wait.
     ...(opts?.freeCheck ? { maxRetries: 0 } : {}),
     ...(opts?.onStage ? { onStage: opts.onStage } : {}),
   };

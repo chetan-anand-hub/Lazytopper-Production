@@ -332,6 +332,18 @@ describe("R2 · stages over XHR (only when a stage listener is passed)", () => {
     expect(gradingStageLabel({ kind: "retrying", attempt: 1, reason: "connection" })).toBe("Connection dropped — trying again…");
   });
 
+  it("★ signed-in: a retryable 504 is re-sent at most ONCE (2 sends, the caller gets the second 504 with its body intact); a bare 504 keeps the 2-retry policy", async () => {
+    const T = { status: 504, body: { ok: false, retryable: true } };
+    let calls = scriptedFetch([T, T, T]);
+    const res = await sendGradingRequest("/api/check-solution", {}, "{}", { idempotencyKey: "k-0000000000000000" });
+    expect(calls).toHaveLength(2);
+    expect(res.status).toBe(504);
+    expect(JSON.parse(await res.text())).toEqual({ ok: false, retryable: true });
+    calls = scriptedFetch([{ status: 504, body: { ok: false } }, { status: 504, body: { ok: false } }, { status: 504, body: { ok: false } }]);
+    await sendGradingRequest("/api/check-solution", {}, "{}", { idempotencyKey: "k-0000000000000000" });
+    expect(calls, "a bare 504 (a proxy's) keeps R1: up to 2 retries").toHaveLength(3);
+  });
+
   it("without a listener the request goes by fetch (no XHR) — existing callers are unchanged", async () => {
     const calls = scriptedFetch([OK]);
     await checkSolutionImage({ question: "Q" });
