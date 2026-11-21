@@ -24,7 +24,8 @@
 //                             under the client's 90 s per attempt, and the client re-sends only
 //                             at 90 s — after this request has answered and its 2xx is stored
 //                             for the idempotent replay. (A CONCURRENT duplicate press waits at
-//                             most 75 s for the in-flight one — FU-IDEMPOTENCY-WAIT-75-VS-80.)
+//                             most 75 s for the in-flight one — FU-IDEMPOTENCY-WAIT-75-VS-80; GRADE-SPEED-1 re-sized the
+//                             /api/check-solution wait to 105 s for its 118 s client budget.)
 //   GRADING_SINGLE_CALL_MAX   (D43, HYBRID) a paper of at most 10 questions is graded in ONE
 //                             call, as PR-2 shipped (live: controller papers p50/p95 42.8/52.2 s,
 //                             no timeouts) — chunking a small paper re-sends the whole document
@@ -49,6 +50,16 @@
 const DEFAULT_GRADING_DEADLINE_MS = 80000;
 const MIN_GRADING_DEADLINE_MS = 20000;
 const MAX_GRADING_DEADLINE_MS = 80000;
+// GRADE-SPEED-1 S3 (owner ruling 22 Nov 2026, "single-question checks may wait up to ~110 s"): a
+// request that grades exactly ONE question synchronously has its OWN, longer deadline. Everything
+// else (multi-question sync papers, jobs) keeps the numbers above, number for number.
+//   SINGLE_GRADE_DEADLINE_MS   env, code default 110 000, clamped to [the request deadline, 112 000].
+//                              Setting it to 80 000 restores today's behaviour exactly.
+//   Why 112 s at most: Vercel's CDN waits up to 120 s for the first byte of an external origin
+//   (vercel.json rewrites /api/* to Railway), the client's per-attempt budget for these calls is
+//   118 s (src/ai/gradingTransport.ts GRADING_SINGLE_TIMEOUT_MS), and the response needs a margin.
+const DEFAULT_SINGLE_QUESTION_DEADLINE_MS = 110000;
+const MAX_SINGLE_QUESTION_DEADLINE_MS = 112000;
 const DEFAULT_GRADING_CHUNK_TIMEOUT_MS = 45000;
 const MIN_GRADING_CHUNK_TIMEOUT_MS = 10000;
 const DEFAULT_GRADING_CACHE_BUDGET_MS = 10000;
@@ -64,6 +75,10 @@ const SINGLE_CALL_MAX_QUESTIONS = 10;
 // The client's per-attempt budget, for the worst-case arithmetic below (read-only mirror of
 // src/ai/gradingTransport.ts; the client is Controller B's file).
 const CLIENT_PER_ATTEMPT_BUDGET_MS = 90000;
+// GRADE-SPEED-1 S3: the client's per-attempt budget for a ONE-question grade (read-only mirror of
+// src/ai/gradingTransport.ts GRADING_SINGLE_TIMEOUT_MS). Must stay above MAX_SINGLE_QUESTION_DEADLINE_MS
+// plus pre-handler time (p50 1.8 s) and the response.
+const CLIENT_SINGLE_QUESTION_BUDGET_MS = 118000;
 
 /* ── GRADING-JOBS-1 J1 (owner ruling 7) · THE BACKGROUND-JOB BUDGET ──────────────────────────
    A grading JOB (POST /api/grade-worksheet with `Prefer: respond-async`, behind GRADING_JOBS) holds
@@ -116,6 +131,29 @@ function normaliseTiming({ deadlineMs, chunkTimeoutMs, cacheBudgetMs } = {}) {
   return { deadlineMs: deadline, chunkTimeoutMs: chunk, cacheBudgetMs: cache, singleCallMaxQuestions: SINGLE_CALL_MAX_QUESTIONS };
 }
 
+/**
+ * GRADE-SPEED-1 S3: the request deadline for a ONE-question synchronous grade. `deadlineMs` is the
+ * (already clamped) ordinary request deadline: the single-question deadline is never below it, so a
+ * deployment that lowers GRADING_DEADLINE_MS is never made SLOWER for one question than for ten.
+ * Pure: separate from normaliseTiming so that function's shape is unchanged.
+ */
+function resolveSingleQuestionDeadlineMs(raw, deadlineMs = DEFAULT_GRADING_DEADLINE_MS) {
+  const floor = Number.isFinite(deadlineMs) ? deadlineMs : DEFAULT_GRADING_DEADLINE_MS;
+  return clampInt(raw, floor, MAX_SINGLE_QUESTION_DEADLINE_MS, Math.max(floor, DEFAULT_SINGLE_QUESTION_DEADLINE_MS));
+}
+
+/**
+ * The request deadline that applies to THIS request: the single-question deadline for a
+ * synchronous request of exactly one question, otherwise the ordinary one. A background job has its
+ * own wall (jobTiming) and never asks.
+ */
+function requestDeadlineMs(timing, questionCount) {
+  const t = timing || {};
+  const base = Number.isFinite(t.deadlineMs) ? t.deadlineMs : DEFAULT_GRADING_DEADLINE_MS;
+  if (questionCount === 1 && Number.isFinite(t.singleDeadlineMs)) return Math.max(base, t.singleDeadlineMs);
+  return base;
+}
+
 /** Read the grading time budget from the environment. Never reads GEMINI_TIMEOUT_MS (D15). */
 function resolveGradingTiming(env = process.env) {
   return normaliseTiming({
@@ -156,6 +194,8 @@ module.exports = {
   DEFAULT_GRADING_DEADLINE_MS,
   MIN_GRADING_DEADLINE_MS,
   MAX_GRADING_DEADLINE_MS,
+  DEFAULT_SINGLE_QUESTION_DEADLINE_MS,
+  MAX_SINGLE_QUESTION_DEADLINE_MS,
   DEFAULT_GRADING_CHUNK_TIMEOUT_MS,
   MIN_GRADING_CHUNK_TIMEOUT_MS,
   DEFAULT_GRADING_CACHE_BUDGET_MS,
@@ -165,6 +205,7 @@ module.exports = {
   MAX_CHUNK_QUESTIONS,
   SINGLE_CALL_MAX_QUESTIONS,
   CLIENT_PER_ATTEMPT_BUDGET_MS,
+  CLIENT_SINGLE_QUESTION_BUDGET_MS,
   JOB_WALL_MS,
   JOB_PER_CALL_MS,
   JOB_CHUNK_QUESTIONS,
@@ -175,6 +216,8 @@ module.exports = {
   jobTiming,
   normaliseTiming,
   resolveGradingTiming,
+  resolveSingleQuestionDeadlineMs,
+  requestDeadlineMs,
   serverWorstCaseMs,
   isRetryableError,
   isTimeoutError,

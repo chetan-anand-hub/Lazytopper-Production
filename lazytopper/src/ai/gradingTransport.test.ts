@@ -24,9 +24,16 @@ vi.mock("./paidCallHeaders", () => ({
   paidJsonHeaders: async () => ({ "Content-Type": "application/json", "X-Lazytopper-Uid": "stu-1", Authorization: "Bearer t" }),
 }));
 
+vi.mock("../services/freeCheckClient", () => ({
+  freeCheckJsonHeaders: async () => ({ "Content-Type": "application/json", "X-Lazytopper-Free-Check": "1", "X-Firebase-AppCheck": "tok" }),
+}));
+
 import { checkSolutionImage, gradeWorksheet, FairUseLimitError, DailyLimitError } from "./aiClient";
 import {
   GRADING_TIMEOUT_MS,
+  GRADING_SINGLE_TIMEOUT_MS,
+  GRADING_SLOW_STAGE_MS,
+  GRADING_SLOW_FALLBACK_MS,
   GRADING_MAX_RETRIES,
   GradingNetworkError,
   IDEMPOTENCY_HEADER,
@@ -44,6 +51,11 @@ const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f
 
 type Reply = { status: number; body: unknown } | "network-error" | "hang";
 type Call = { url: string; headers: Record<string, string>; signal?: AbortSignal };
+
+// GRADE-SPEED-1 S3: a grade-worksheet of TWO questions keeps the 90 s budget; one question (and check-solution) gets 118 s.
+const Q = (n: number) => ({ qNumber: n, marks: 3, questionText: `Question ${n}`, textAnswer: "x" });
+const TWO_Q = { worksheetId: "w", questions: [Q(1), Q(2)] };
+const ONE_Q = { worksheetId: "w", questions: [Q(1)] };
 
 const OK: Reply = { status: 200, body: { ok: true, totalMarks: 3, marksAwarded: 2, percentage: 67, annotatedSteps: [] } };
 
@@ -182,11 +194,128 @@ describe("R1 · retry, with the SAME key", () => {
   });
 });
 
+describe("GRADE-SPEED-1 S3 · a ONE-question grade waits up to 118 s; every other call keeps 90 s", () => {
+  it("constants: 118 s is above the server's 112 s ceiling and under Vercel's 120 s wait; 90 s is unchanged", () => {
+    expect(GRADING_SINGLE_TIMEOUT_MS).toBe(118_000);
+    expect(GRADING_TIMEOUT_MS).toBe(90_000);
+    expect(GRADING_SINGLE_TIMEOUT_MS).toBeGreaterThan(112_000);
+    expect(GRADING_SINGLE_TIMEOUT_MS).toBeLessThan(120_000);
+    expect(GRADING_SLOW_STAGE_MS).toBe(30_000);
+  });
+
+  it("★ check-solution (fetch): an attempt is NOT abandoned at 90 s, only at 118 s", async () => {
+    vi.useFakeTimers();
+    const calls = scriptedFetch(["hang", OK]);
+    const pending = checkSolutionImage({ question: "Q" });
+    await vi.advanceTimersByTimeAsync(GRADING_TIMEOUT_MS + 5_000);
+    expect(calls, "still waiting at 95 s").toHaveLength(1);
+    expect(calls[0].signal?.aborted).toBe(false);
+    await vi.advanceTimersByTimeAsync(GRADING_SINGLE_TIMEOUT_MS - GRADING_TIMEOUT_MS - 5_000 + 2);
+    await pending;
+    expect(calls).toHaveLength(2);
+    expect(calls[0].signal?.aborted).toBe(true);
+    expect(calls[1].headers[IDEMPOTENCY_HEADER]).toBe(calls[0].headers[IDEMPOTENCY_HEADER]);
+  });
+
+  it("★ grade-worksheet with ONE question gets 118 s; with TWO it gets 90 s (the multi-question call is unchanged)", async () => {
+    vi.useFakeTimers();
+    const one = scriptedFetch(["hang", OK]);
+    const p1 = gradeWorksheet(ONE_Q);
+    await vi.advanceTimersByTimeAsync(GRADING_TIMEOUT_MS + 5_000);
+    expect(one).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(GRADING_SINGLE_TIMEOUT_MS);
+    await p1;
+    expect(one).toHaveLength(2);
+    const two = scriptedFetch(["hang", OK]);
+    const p2 = gradeWorksheet(TWO_Q);
+    await vi.advanceTimersByTimeAsync(GRADING_TIMEOUT_MS + 5);
+    expect(two, "a two-question grade is retried after 90 s").toHaveLength(2);
+    await vi.advanceTimersByTimeAsync(5_000);
+    await p2;
+  });
+
+  it("the signed-out FREE CHECK (the server cuts it to question 1) gets 118 s even when it sends more questions", async () => {
+    vi.useFakeTimers();
+    const calls = scriptedFetch(["hang"]);
+    const pending = gradeWorksheet(TWO_Q, { freeCheck: true }).catch((e: unknown) => e);
+    await vi.advanceTimersByTimeAsync(GRADING_TIMEOUT_MS + 5_000);
+    expect(calls[0].signal?.aborted, "not abandoned at 95 s").toBe(false);
+    await vi.advanceTimersByTimeAsync(GRADING_SINGLE_TIMEOUT_MS);
+    await pending;
+    expect(calls[0].signal?.aborted).toBe(true);
+  });
+
+  it("XHR: a one-question call sets xhr.timeout to 118 s, a two-question call to 90 s", async () => {
+    xhrs.length = 0;
+    xhrScript = [{}];
+    vi.stubGlobal("XMLHttpRequest", FakeXHR);
+    vi.useFakeTimers();
+    const a = checkSolutionImage({ question: "Q", imageBase64: "AAAA" }, { surface: "check-improve", onStage: () => {} });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(xhrs[0].timeout).toBe(GRADING_SINGLE_TIMEOUT_MS);
+    xhrs[0].respond();
+    await a;
+    const b = gradeWorksheet(TWO_Q, { surface: "check-improve", onStage: () => {} });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(xhrs[1].timeout).toBe(GRADING_TIMEOUT_MS);
+    xhrs[1].respond();
+    await b;
+  });
+
+  it("★ the 'taking a little longer than usual' stage appears at 30 s on a one-question grade, never on a paper, and is cleared when the answer lands", async () => {
+    xhrs.length = 0;
+    xhrScript = [{}];
+    vi.stubGlobal("XMLHttpRequest", FakeXHR);
+    vi.useFakeTimers();
+    const stages: GradingStage[] = [];
+    const p1 = checkSolutionImage({ question: "Q", imageBase64: "AAAA" }, { surface: "check-improve", onStage: (s) => stages.push(s) });
+    await vi.advanceTimersByTimeAsync(GRADING_SLOW_STAGE_MS - 1_000);
+    expect(stages.map(gradingStageLabel)).not.toContain("Taking a little longer than usual — still checking…");
+    await vi.advanceTimersByTimeAsync(1_001);
+    expect(stages.map(gradingStageLabel).at(-1)).toBe("Taking a little longer than usual — still checking…");
+    xhrs[0].respond();
+    await p1;
+    expect(stages.map(gradingStageLabel).at(-1)).toBe("Done");
+    // a paper: no such stage, however long it takes
+    const paperStages: GradingStage[] = [];
+    const p2 = gradeWorksheet(TWO_Q, { surface: "worksheet", onStage: (s) => paperStages.push(s) });
+    await vi.advanceTimersByTimeAsync(GRADING_SLOW_STAGE_MS + 5_000);
+    expect(paperStages.some((s) => s.kind === "retrying")).toBe(false);
+    xhrs[1].respond();
+    await p2;
+  });
+});
+
+describe("GRADE-SPEED-1 · slow-stage fallback when upload.onload never fires", () => {
+  it("the stage still appears (45 s after send) on a WebView with no upload.onload; a normal upload shows it once, at upload + 30 s", async () => {
+    xhrs.length = 0;
+    xhrScript = [{ noUploadLoad: true }];
+    vi.stubGlobal("XMLHttpRequest", FakeXHR);
+    vi.useFakeTimers();
+    const stages: GradingStage[] = [];
+    const p = checkSolutionImage({ question: "Q", imageBase64: "AAAA" }, { surface: "check-improve", onStage: (s) => stages.push(s) });
+    await vi.advanceTimersByTimeAsync(GRADING_SLOW_STAGE_MS + 5_000);
+    expect(stages.some((s) => s.kind === "retrying"), "no upload.onload: not yet at 35 s").toBe(false);
+    await vi.advanceTimersByTimeAsync(GRADING_SLOW_FALLBACK_MS - GRADING_SLOW_STAGE_MS - 5_000 + 1);
+    expect(stages.filter((s) => s.kind === "retrying")).toHaveLength(1);
+    xhrs[0].respond();
+    await p;
+    // normal upload: exactly one slow stage, even past the fallback bound
+    xhrScript = [{}];
+    const st2: GradingStage[] = [];
+    const p2 = checkSolutionImage({ question: "Q", imageBase64: "AAAA" }, { surface: "check-improve", onStage: (s) => st2.push(s) });
+    await vi.advanceTimersByTimeAsync(GRADING_SLOW_FALLBACK_MS + 5_000);
+    expect(st2.filter((s) => s.kind === "retrying")).toHaveLength(1);
+    xhrs[1].respond();
+    await p2;
+  });
+});
+
 describe("R1 · the 90 s timeout", () => {
   it("★ fetch path: an attempt that hangs is abandoned at 90 s and retried (same key)", async () => {
     vi.useFakeTimers();
     const calls = scriptedFetch(["hang", OK]);
-    const pending = checkSolutionImage({ question: "Q" });
+    const pending = gradeWorksheet(TWO_Q);
     await vi.advanceTimersByTimeAsync(GRADING_TIMEOUT_MS - 1);
     expect(calls, "nothing may give up before 90 s").toHaveLength(1);
     await vi.advanceTimersByTimeAsync(2);
@@ -201,7 +330,7 @@ describe("R1 · the 90 s timeout", () => {
   it("every attempt timing out ends in a plain 'took too long' sentence", async () => {
     vi.useFakeTimers();
     scriptedFetch(["hang"]);
-    const pending = checkSolutionImage({ question: "Q" }).catch((e: unknown) => e);
+    const pending = gradeWorksheet(TWO_Q).catch((e: unknown) => e);
     await vi.advanceTimersByTimeAsync(GRADING_TIMEOUT_MS * 3 + 10);
     const err = await pending;
     expect(err).toBeInstanceOf(GradingNetworkError);
@@ -212,7 +341,7 @@ describe("R1 · the 90 s timeout", () => {
 
 /* ── XHR (stages) ─────────────────────────────────────────────────────────── */
 
-type XhrScript = { status?: number; body?: string; fail?: "error" | "timeout" };
+type XhrScript = { status?: number; body?: string; fail?: "error" | "timeout"; noUploadLoad?: boolean };
 const xhrs: FakeXHR[] = [];
 let xhrScript: XhrScript[] = [];
 
@@ -248,7 +377,7 @@ class FakeXHR {
       if (step.fail === "timeout") return this.ontimeout?.();
       this.upload.onprogress?.({ lengthComputable: true, loaded: 50, total: 100 } as ProgressEvent);
       this.upload.onprogress?.({ lengthComputable: true, loaded: 100, total: 100 } as ProgressEvent);
-      this.upload.onload?.();
+      if (!step.noUploadLoad) this.upload.onload?.();
     });
   }
   /** The server answers (called by the test). */
@@ -270,7 +399,7 @@ describe("R2 · stages over XHR (only when a stage listener is passed)", () => {
   it("★ Uploading 0% -> 50% -> 100% -> Sent ✓ -> Grading… -> Done, with the key and a 90 s timeout", async () => {
     vi.useFakeTimers();
     const stages: GradingStage[] = [];
-    const pending = checkSolutionImage({ question: "Q", imageBase64: "AAAA" }, { surface: "check-improve", onStage: (s) => stages.push(s) });
+    const pending = gradeWorksheet({ ...TWO_Q, imageBase64: "AAAA" }, { surface: "check-improve", onStage: (s) => stages.push(s) });
     await vi.advanceTimersByTimeAsync(0);
     expect(xhrs).toHaveLength(1);
     expect(xhrs[0].timeout).toBe(GRADING_TIMEOUT_MS);
@@ -400,5 +529,72 @@ describe("R2 · a plain sentence, never a raw platform message", () => {
     const signIn = Object.assign(new Error("Please sign in again to check your answer."), { name: "SignInAgainError" });
     expect(gradingErrorMessage(signIn, FALLBACK)).toBe(signIn.message);
     expect(gradingErrorMessage(null, FALLBACK)).toBe(FALLBACK);
+  });
+});
+
+/* ── GRADE-SPEED-1 · the early scheme prepare builds the SAME inputs the Answer Checker grade will send ────────────── */
+
+describe("GRADE-SPEED-1 · prepare parity with buildSingleGradeRequest (subject, topic, marks, text)", () => {
+  it("for each detect result, the fields the server prepares the scheme with equal what the client's single grade request carries", async () => {
+    const { createRequire } = await import("node:module");
+    const req = createRequire(import.meta.url);
+    const { createCheckSolutionRoute } = req("../../server/routes/checkSolution.cjs");
+    const { buildSingleGradeRequest } = await import("../components/ciDemo/ladderGradeRequest");
+    const { buildConfirmedDetection } = await import("../utils/checkImproveDetection");
+    const { desktopTopicsBySubject } = await import("../lib/desktop/topics");
+    const vocab = [...desktopTopicsBySubject("Maths"), ...desktopTopicsBySubject("Science")].map((t) => ({ slug: t.slug, name: t.name, subject: t.subject }));
+    const cases = [
+      { slug: vocab.find((t) => t.subject === "Maths")!.slug, subject: "Maths", marks: 3, text: "Solve x^2 - 2x - 8 = 0 by factorisation." },
+      { slug: vocab.find((t) => t.subject === "Science")!.slug, subject: "Science", marks: 2, text: "State Snell's law of refraction." },
+      { slug: vocab.find((t) => t.subject === "Maths")!.slug, subject: "Maths", marks: 5, text: "Prove that the tangent at any point of a circle is perpendicular to the radius." },
+    ];
+    for (const c of [...cases.map((x) => ({ ...x, photo: false })), { ...cases[0], photo: true }, { ...cases[1], photo: true }]) {
+      const prepared: Array<Record<string, unknown>> = [];
+      const reply = JSON.stringify({
+        detectedMarks: c.marks, marksSource: "stated", detectedSubject: c.subject, detectedTopic: c.slug, detectedObjective: false,
+        questions: [{ questionNumber: 1, questionText: c.text, marks: c.marks, marksSource: "stated", objective: false }],
+      });
+      let out: { body: { ok: boolean; detectedMarks: number; detectedSubject: string; detectedTopic: string; marksSource: string; questions: Array<{ questionText: string; objective?: boolean }> } } | null = null;
+      const route = createCheckSolutionRoute({
+        sendJson: (_res: unknown, _status: number, body: never) => { out = { body }; },
+        readJson: async (r: unknown) => r,
+        callGemini: async () => ({ text: reply, raw: {} }),
+        GEMINI_MODEL: "m", ACTIVE_PROVIDER: "t", isStubMode: () => false,
+        extractJsonObjectFromText: (t: string) => JSON.parse(t),
+        buildGeminiImagePart: () => ({}), validateMentorImagePayload: () => ({ ok: true }), makeFenceNonce: () => "n",
+        telemetry: { increment: () => {} },
+        currentUid: () => "stu-1",
+        solutionCache: { getOrCreateModelSolution: async (f: Record<string, unknown>) => { prepared.push(f); return null; } },
+      });
+      // photo path: NO typed question, the read text comes from the image (the page sends questions[0].questionText)
+      await route.handleDetectQuestion(c.photo ? { imageBase64: "AAAA", imageMimeType: "image/jpeg", topicVocabulary: vocab, headers: {} } : { question: c.text, topicVocabulary: vocab, headers: {} }, { setHeader: () => {} });
+      await new Promise((r) => setImmediate(r));
+      expect(prepared, "exactly one preparation").toHaveLength(1);
+      // what the page does with the SAME detect response, then hands to checkSolutionImage
+      const detect = out!.body;
+      const confirmed = buildConfirmedDetection(detect as never, c.text);
+      const { resolveCiQuestionText } = await import("../utils/checkImproveDetection");
+      const gradeReq = buildSingleGradeRequest({ question: resolveCiQuestionText(c.photo ? null : c.text, detect.questions),  confirmed, firstDetected: detect.questions[0], freeCall: false, answerPart: { textAnswer: "x" } });
+      expect(prepared[0].subject, "subject").toBe(gradeReq.subject);
+      expect(prepared[0].topic, "topic").toBe(gradeReq.topic);
+      expect(prepared[0].marks, "marks").toBe(gradeReq.marks);
+      expect(prepared[0].question, "text").toBe(gradeReq.question);
+      expect(gradeReq.topic, "a real chapter name, never empty").not.toBe("");
+    }
+  });
+});
+
+describe("GRADE-SPEED-1 · the per-question topic re-detect is marked purpose:\"topic\" (server never prepares for it)", () => {
+  it("resolvePerQuestionGradeTopics sends purpose topic on every call; the ordinary detectQuestion call does not", async () => {
+    const { resolvePerQuestionGradeTopics } = await import("../utils/checkImproveDetection");
+    const { detectQuestion } = await import("./aiClient");
+    const bodies: Array<Record<string, unknown>> = [];
+    vi.stubGlobal("fetch", vi.fn(async (_u: string, init: { body: string }) => {
+      bodies.push(JSON.parse(init.body));
+      return { ok: true, status: 200, text: async () => JSON.stringify({ ok: true, detectedTopic: null, detectedSubject: "Maths", detectedMarks: 3 }) };
+    }));
+    await resolvePerQuestionGradeTopics([{ questionNumber: 1, questionText: "Q one" }, { questionNumber: 2, questionText: "Q two" }], []);
+    await detectQuestion({ question: "Q one", topicVocabulary: [] });
+    expect(bodies.map((b) => b.purpose)).toEqual(["topic", "topic", undefined]);
   });
 });

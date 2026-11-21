@@ -49,6 +49,19 @@ export type GradingStageListener = (stage: GradingStage) => void;
 export const IDEMPOTENCY_HEADER = "Idempotency-Key";
 /** R1: one attempt may take this long before it is abandoned and retried. */
 export const GRADING_TIMEOUT_MS = 90_000;
+/**
+ * GRADE-SPEED-1 S3 — the per-attempt budget of a call that grades exactly ONE question (check-solution; a
+ * grade-worksheet with one question, incl. the free check). The server's deadline for such a request is up to
+ * 110 s (server/grading/timing.cjs DEFAULT_SINGLE_QUESTION_DEADLINE_MS, kill switch SINGLE_GRADE_DEADLINE_MS=80000);
+ * this must stay above it (clamp 112 s) plus pre-handler time and the response, and below Vercel's 120 s wait for
+ * the first byte. Every other call keeps GRADING_TIMEOUT_MS. KILL SWITCH for the client half: set this constant
+ * back to GRADING_TIMEOUT_MS (90_000) and ship; the server half is the env above.
+ */
+export const GRADING_SINGLE_TIMEOUT_MS = 118_000;
+/** GRADE-SPEED-1: a ONE-question grade still unanswered after this long shows "Taking a little longer than usual". */
+export const GRADING_SLOW_STAGE_MS = 30_000;
+/** GRADE-SPEED-1: if upload.onload never fires (some WebViews), the slow stage shows this long after send() at the latest. */
+export const GRADING_SLOW_FALLBACK_MS = 45_000;
 /** R1: retries after the first attempt (so at most 3 sends). */
 export const GRADING_MAX_RETRIES = 2;
 /** R1: backoff before retry n (1-based) is base * 2^(n-1), plus up to the same again as jitter. */
@@ -220,17 +233,25 @@ function xhrAttempt(
   headers: Record<string, string>,
   body: string,
   onStage: GradingStageListener,
+  timeoutMs: number = GRADING_TIMEOUT_MS,
+  slowAfterMs: number | null = null,
 ): Promise<GradingHttpResponse> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     let sentTimer: ReturnType<typeof setTimeout> | null = null;
+    let slowTimer: ReturnType<typeof setTimeout> | null = null;
+    let slowFallback: ReturnType<typeof setTimeout> | null = null;
     const clear = () => {
+      if (slowFallback !== null) clearTimeout(slowFallback);
+      slowFallback = null;
       if (sentTimer !== null) clearTimeout(sentTimer);
       sentTimer = null;
+      if (slowTimer !== null) clearTimeout(slowTimer);
+      slowTimer = null;
     };
     xhr.open("POST", url, true);
     for (const [name, value] of Object.entries(headers)) xhr.setRequestHeader(name, value);
-    xhr.timeout = GRADING_TIMEOUT_MS;
+    xhr.timeout = timeoutMs;
     // Listeners go on `upload` BEFORE send(), or the browser never reports progress.
     xhr.upload.onprogress = (e: ProgressEvent) => {
       if (e.lengthComputable && e.total > 0) {
@@ -239,6 +260,8 @@ function xhrAttempt(
     };
     xhr.upload.onload = () => {
       onStage({ kind: "sent" });
+      // GRADE-SPEED-1: the 30 s "taking longer" clock starts when the UPLOAD is done (a slow upload is not a slow grade).
+      if (slowAfterMs !== null && slowTimer === null) slowTimer = setTimeout(() => onStage({ kind: "retrying", attempt: 0, reason: "slow" }), slowAfterMs);
       sentTimer = setTimeout(() => onStage({ kind: "grading" }), SENT_DWELL_MS);
     };
     xhr.onload = () => {
@@ -260,6 +283,12 @@ function xhrAttempt(
     };
     onStage({ kind: "uploading", percent: 0 });
     xhr.send(body);
+    // Fallback for a WebView whose upload.onload never fires: whichever comes first, the 30 s clock after upload.onload or
+    // this bound after send(), shows the slow stage (never both: the stage is idempotent and clear() cancels both).
+    if (slowAfterMs !== null) slowFallback = setTimeout(() => { if (slowTimer === null) onStage({ kind: "retrying", attempt: 0, reason: "slow" }); }, GRADING_SLOW_FALLBACK_MS);
+    // GRADE-SPEED-1: a one-question grade now may run to ~110 s, so say so honestly 30 s after the upload finished
+    // (see upload.onload above) — the same "Taking a little longer than usual — still checking…" the slow retry
+    // shows (attempt 0 = the FIRST send is still being answered; nothing has failed). Cleared when the attempt settles.
   });
 }
 
@@ -267,13 +296,14 @@ async function fetchAttempt(
   url: string,
   headers: Record<string, string>,
   body: string,
+  timeoutMs: number = GRADING_TIMEOUT_MS,
 ): Promise<GradingHttpResponse> {
   const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
   let timedOut = false;
   const timer = setTimeout(() => {
     timedOut = true;
     controller?.abort();
-  }, GRADING_TIMEOUT_MS);
+  }, timeoutMs);
   try {
     return await fetch(url, {
       method: "POST",
@@ -297,6 +327,9 @@ export interface GradingSendOptions {
   maxRetries?: number;
   /** R2: stage updates. Present -> sent by XHR (upload progress); absent -> by fetch. */
   onStage?: GradingStageListener;
+  /** GRADE-SPEED-1 S3: this call grades exactly ONE question -> the per-attempt budget is GRADING_SINGLE_TIMEOUT_MS
+   *  (not GRADING_TIMEOUT_MS) and, when watched, the "taking longer" stage appears at GRADING_SLOW_STAGE_MS. */
+  singleQuestion?: boolean;
 }
 
 /**
@@ -311,6 +344,8 @@ export async function sendGradingRequest(
   opts: GradingSendOptions,
 ): Promise<GradingHttpResponse> {
   const { idempotencyKey, onStage } = opts;
+  const attemptTimeoutMs = opts.singleQuestion === true ? GRADING_SINGLE_TIMEOUT_MS : GRADING_TIMEOUT_MS;
+  const slowAfterMs = opts.singleQuestion === true ? GRADING_SLOW_STAGE_MS : null;
   const freeCheck = isFreeCheckSend(headers);
   const maxRetries = freeCheck
     ? FREE_CHECK_MAX_RETRIES
@@ -344,8 +379,8 @@ export async function sendGradingRequest(
     let res: GradingHttpResponse;
     try {
       res = useXhr
-        ? await xhrAttempt(url, sendHeaders, body, attemptStage ?? onStage!)
-        : await fetchAttempt(url, sendHeaders, body);
+        ? await xhrAttempt(url, sendHeaders, body, attemptStage ?? onStage!, attemptTimeoutMs, slowAfterMs)
+        : await fetchAttempt(url, sendHeaders, body, attemptTimeoutMs);
     } catch (err) {
       lastFailure = err instanceof AttemptFailure ? err.reason : "network";
       // A free check is never re-sent after no answer at all (see FREE_CHECK_MAX_RETRIES).

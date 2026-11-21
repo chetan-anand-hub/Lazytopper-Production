@@ -76,6 +76,7 @@ const {
   IDEMPOTENCY_TTL_MS,
   IDEMPOTENCY_PENDING_STALE_MS,
   IDEMPOTENCY_WAIT_MS,
+  IDEMPOTENCY_WAIT_SINGLE_MS,
   GRADING_IN_PROGRESS_BODY,
 } = require('./fairUse.cjs');
 const { createRateLimiter, istDayKey } = require('./rateLimiter.cjs');
@@ -2182,6 +2183,30 @@ test('R4 · classifyIdempotencyRecord: expiry, staleness and malformed records',
 test('R4 · the duplicate wait stays inside the client\'s 90 s timeout', () => {
   assert.ok(IDEMPOTENCY_WAIT_MS < 90000, `wait ${IDEMPOTENCY_WAIT_MS} ms must be < the client's 90 s`);
   assert.ok(IDEMPOTENCY_PENDING_STALE_MS > 90000 * 3, 'a live grade (up to 3 client attempts) must never look dead');
+});
+
+// GRADE-SPEED-1 S3 (resolves FU-IDEMPOTENCY-WAIT-75-VS-80): the one-question path has a 118 s client budget and a server
+// deadline of up to 110 s, so its duplicate wait is 105 s; the paper path (client 90 s, server 80 s) keeps 75 s.
+test('R4 · GRADE-SPEED-1 · the duplicate wait stays inside the client budget of the call it guards: 105 s < 118 s (check-solution), 75 s < 90 s (grade-worksheet)', async () => {
+  assert.equal(IDEMPOTENCY_WAIT_SINGLE_MS, 105000);
+  assert.ok(IDEMPOTENCY_WAIT_SINGLE_MS < 118000, 'below the one-question client budget (gradingTransport.ts GRADING_SINGLE_TIMEOUT_MS)');
+  assert.ok(IDEMPOTENCY_WAIT_SINGLE_MS > IDEMPOTENCY_WAIT_MS, 'longer than the paper wait');
+  assert.ok(IDEMPOTENCY_WAIT_SINGLE_MS + 1000 < 118000);
+  // BEHAVIOUR with the REAL constants (no injected waitMs): how long a duplicate polls before it answers busy.
+  const waited = async (reqPath) => {
+    const fs = idemFirestore();
+    let t = NOW;
+    const idem = createGradingIdempotency({ resolveFirestore: () => ({ db: fs.db }), now: () => t, sleep: async (ms) => { t += ms; } });
+    const req = () => fakeReq({ headers: { [IDEMPOTENCY_HEADER]: KEY_A } });
+    assert.deepEqual(await idem.begin(req(), idemRes(), reqPath, 'stu-1'), { claimed: true });
+    const t0 = t;
+    assert.deepEqual(await idem.begin(req(), idemRes(), reqPath, 'stu-1'), { busy: true });
+    return t - t0;
+  };
+  const single = await waited(CHECK_SOLUTION_PATH);
+  assert.ok(single >= 105000 && single < 118000, `check-solution duplicate waited ${single} ms`);
+  const paper = await waited(GRADE_WORKSHEET_PATH);
+  assert.ok(paper >= 75000 && paper < 90000, `grade-worksheet duplicate waited ${paper} ms`);
 });
 
 test('WIRING · REAL index.cjs, R4: same Idempotency-Key twice -> one Gemini grade, one charge, identical body; no key -> two of each',

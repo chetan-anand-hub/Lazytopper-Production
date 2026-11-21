@@ -162,8 +162,8 @@ export async function resolvePerQuestionGradeTopics(
       if (!text) return { qNumber: q.questionNumber, topicSlug: "", topicName: "", subject: "" };
       try {
         const d = callOpts
-          ? await detectQuestion({ question: text, topicVocabulary }, callOpts)
-          : await detectQuestion({ question: text, topicVocabulary });
+          ? await detectQuestion({ question: text, topicVocabulary, purpose: "topic" }, callOpts)
+          : await detectQuestion({ question: text, topicVocabulary, purpose: "topic" });
         const guarded = guardedDetection(d.detectedTopic ?? null, d.detectedSubject ?? null, text);
         const { topicSlug, topicName, subject } = resolveDetectedGradeTopic(guarded);
         // The subject is KNOWN when the topic resolved (it comes from topics.ts). When it did

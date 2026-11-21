@@ -845,6 +845,8 @@ async function handleRequest(req, res) {
       const admission = await freeCheckGate.admit(req, reqPath);
       if (!admission.admitted) return sendJson(res, admission.status, admission.body);
       freeCheckAdmitted = true;
+      // GRADE-SPEED-1: carry the ADMITTED flag (never the raw marker header) to the handlers, which key the early scheme prepare on it.
+      Object.defineProperty(req, '__ltFreeCheckAdmitted', { value: true, enumerable: false, configurable: true });
     }
 
     // FAIR-USE-1 (U4): a PREMIUM caller is never paused by the day's budget. The tier
