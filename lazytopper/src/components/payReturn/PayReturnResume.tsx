@@ -68,6 +68,9 @@ const PENDING_REPOLL_MAX = 10;
 export default function PayReturnResume() {
   const { user, loading } = useAuth();
   const [view, setView] = useState<View>({ name: "idle" });
+  const [gaveUp, setGaveUp] = useState(false);
+  const viewName = useRef<View["name"]>("idle");
+  viewName.current = view.name;
   const [isOwner, setIsOwner] = useState(false);
   const alive = useRef(true);
   const running = useRef(false);
@@ -91,7 +94,11 @@ export default function PayReturnResume() {
     if (isPayReturnDisabled() || running.current || isCheckoutSheetOpen()) return;
     const t = Date.now();
     if (t - lastStart.current < MIN_GAP_MS) return;
-    if (readPendingOrders(t).length === 0) return;
+    if (readPendingOrders(t).length === 0) {
+      // The note expired or is gone: nothing can check any more, so a "pending" page must say so (review round 2 (c)).
+      if (viewName.current === "pending") setGaveUp(true);
+      return;
+    }
     lastStart.current = t;
     running.current = true;
     setView({ name: "checking" });
@@ -135,7 +142,6 @@ export default function PayReturnResume() {
   // Review N6: "pending" promises an update within a few minutes, so keep asking: every 30 s, at most 10 times (5 min).
   // The count lives in a ref: each re-check flips the view to "checking" and back, which re-runs this effect.
   const repolls = useRef(0);
-  const [gaveUp, setGaveUp] = useState(false);
   useEffect(() => {
     if (view.name === "paid" || view.name === "failed" || view.name === "idle") {
       repolls.current = 0;
@@ -150,7 +156,10 @@ export default function PayReturnResume() {
         return;
       }
       repolls.current += 1;
-      void run(1); // one status call per re-check (review N1)
+      const last = repolls.current >= PENDING_REPOLL_MAX;
+      void run(1).then(() => {
+        if (last) setGaveUp(true); // show the final line right after the last re-check, not one tick later
+      }); // one status call per re-check (review N1)
     }, PENDING_REPOLL_MS);
     return () => window.clearInterval(id);
   }, [active, view.name, run]);

@@ -166,7 +166,7 @@ describe("PAY-RETURN-1 PayReturnResume", () => {
     };
     await tick(45);
     expect(pendings()).toBe(2);
-    // 15 minutes, well past 10 re-checks (each ~30 s + its short poll) but inside the 30-minute note TTL
+    // 15 minutes, well past 10 re-checks (each 30 s apart, one call each) but inside the 30-minute note TTL
     await tick(900);
     expect(pendings()).toBe(11);
     // review N1: each slow re-check is ONE status call, so a stuck page costs 3 + 10 calls, far inside the per-order budget
@@ -174,6 +174,33 @@ describe("PAY-RETURN-1 PayReturnResume", () => {
     // review N2: once nothing is checking any more, the page says so
     expect(screen.getByText(PAY_RETURN_PENDING_FINAL)).toBeTruthy();
     expect(screen.queryByText(PAY_RETURN_PENDING)).toBeNull();
+  });
+
+  it("a page opened with no note, then a real pending return, shows the CHECKING line (not the final line); after the note expires it shows the final line", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    render(<PayReturnResume />);
+    await act(async () => undefined);
+    // a tab switch BEFORE paying: a check runs with no note while the page is idle
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5000);
+      Object.defineProperty(document, "visibilityState", { value: "visible", configurable: true });
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+    note();
+    answer(ANSWER.pending);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5000);
+      document.dispatchEvent(new Event("visibilitychange"));
+      await vi.advanceTimersByTimeAsync(11_000);
+    });
+    expect(await screen.findByText(PAY_RETURN_PENDING)).toBeTruthy();
+    expect(screen.queryByText(PAY_RETURN_PENDING_FINAL)).toBeNull();
+    // the note goes away (expiry / another tab); the next re-check finds nothing to check
+    window.localStorage.removeItem(PENDING_STORE_KEY);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_000);
+    });
+    expect(screen.getByText(PAY_RETURN_PENDING_FINAL)).toBeTruthy();
   });
 
   it("pageshow (a bfcache / reload return) resumes too", async () => {

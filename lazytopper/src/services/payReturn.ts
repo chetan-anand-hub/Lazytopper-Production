@@ -36,9 +36,9 @@ export function isPayReturnDisabled(): boolean {
 
 /** The pre-pay hint, only inside an in-app browser and only while the switch is on. */
 export const PAY_RETURN_HINT = "Paying inside an app (Instagram, Facebook, YouTube)? If GPay doesn't open, tap ⋮ → Open in Chrome.";
-export const PAY_RETURN_FAILED = "Your payment didn't complete. If money was taken, sign in with the same phone number to see your purchase, or your bank will refund it — no need to pay twice.";
+export const PAY_RETURN_FAILED = "Your payment didn't complete. If money was taken, sign in with the phone number or email the purchase is for to see it, or your bank will refund it — no need to pay twice.";
 /** Shown once the pending view's slow re-checks are used up (review N2): nothing is still checking, so the page must not say it is. */
-export const PAY_RETURN_PENDING_FINAL = "We couldn't confirm your payment yet. If money was taken, sign in with the same phone number to see your purchase, or your bank will refund it.";
+export const PAY_RETURN_PENDING_FINAL = "We couldn't confirm your payment yet. If money was taken, sign in with the phone number or email the purchase is for to see it, or your bank will refund it.";
 export const PAY_RETURN_TRY_AGAIN = "Try again";
 export const PAY_RETURN_CHECKING = "Checking your payment…";
 export const PAY_RETURN_PENDING = "Checking your payment… if money was taken it will show here within a few minutes.";
@@ -248,7 +248,7 @@ const realSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
  */
 export async function resumePendingPayment(deps: ResumeDeps = {}): Promise<ResumeOutcome> {
   const { fetchImpl = fetch, sleep = realSleep, now = () => Date.now(), store = storage(), cancelled = () => false } = deps;
-  const tries = Math.max(1, Math.min(POLL_TRIES, deps.tries ?? POLL_TRIES));
+  const tries = Number.isFinite(deps.tries) ? Math.max(1, Math.min(POLL_TRIES, Math.floor(deps.tries as number))) : POLL_TRIES;
   if (isPayReturnDisabled() || isCheckoutSheetOpen()) return { kind: "none" };
   const entry = readPendingOrders(now(), store)[0];
   if (!entry) return { kind: "none" };
