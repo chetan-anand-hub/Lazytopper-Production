@@ -33,8 +33,15 @@ export type GradingStage =
   | { kind: "uploading"; percent: number }
   | { kind: "sent" }
   | { kind: "grading" }
-  | { kind: "retrying"; attempt: number }
+  | { kind: "retrying"; attempt: number; reason?: GradingRetryReason }
   | { kind: "done" };
+
+/**
+ * GRADE-TIMEOUT-RETRY-1 — why a retry is under way. "slow": the grader ran out of time (a 504, or no
+ * answer inside this attempt's time-out) — nothing is wrong on the student's side, the check is just
+ * taking longer than usual. "connection": the connection dropped. Absent = "connection" (the old copy).
+ */
+export type GradingRetryReason = "slow" | "connection";
 
 export type GradingStageListener = (stage: GradingStage) => void;
 
@@ -48,6 +55,33 @@ export const GRADING_MAX_RETRIES = 2;
 export const GRADING_BACKOFF_BASE_MS = 1_000;
 /** R1: the only HTTP statuses re-sent — a gateway or a busy grader, never a business answer. */
 export const RETRYABLE_STATUSES: ReadonlySet<number> = new Set([502, 503, 504]);
+/**
+ * GRADE-TIMEOUT-RETRY-1 — a free check (the request carries the free-check marker header) is retried
+ * AT MOST ONCE, and ONLY after the server answered 504 (a grading time-out: the server says nothing
+ * was served). Never after a dropped connection or a client time-out: with no uid the server cannot
+ * tell a re-send from a second check, and the first attempt may still be grading. Each re-send mints
+ * a FRESH limited-use App Check token (the server consumes every token it verifies, so re-sending
+ * the first one is refused as alreadyConsumed). aiClient asks for `maxRetries: 0` on a free check
+ * (written before a 504 was retryable); this policy supersedes it for the 504 case only.
+ */
+export const FREE_CHECK_MAX_RETRIES = 1;
+const FREE_CHECK_MARKER = "x-lazytopper-free-check";
+const FREE_CHECK_RETRY_STATUS = 504;
+
+function isFreeCheckSend(headers: Record<string, string>): boolean {
+  return Object.keys(headers).some((k) => k.toLowerCase() === FREE_CHECK_MARKER);
+}
+
+/** The free-check headers with a token minted for THIS send; null when none can be minted. */
+async function freshFreeCheckHeaders(headers: Record<string, string>): Promise<Record<string, string> | null> {
+  try {
+    const { freeCheckJsonHeaders } = await import("../services/freeCheckClient");
+    return { ...headers, ...(await freeCheckJsonHeaders()) };
+  } catch {
+    return null;
+  }
+}
+
 /** How long "Sent ✓" shows before "Grading…" (upload finished, the grade has not). */
 const SENT_DWELL_MS = 700;
 
@@ -268,27 +302,57 @@ export async function sendGradingRequest(
   opts: GradingSendOptions,
 ): Promise<GradingHttpResponse> {
   const { idempotencyKey, onStage } = opts;
-  const maxRetries = Math.max(0, Math.min(GRADING_MAX_RETRIES, opts.maxRetries ?? GRADING_MAX_RETRIES));
-  const sendHeaders = { ...headers, [IDEMPOTENCY_HEADER]: idempotencyKey };
+  const freeCheck = isFreeCheckSend(headers);
+  const maxRetries = freeCheck
+    ? FREE_CHECK_MAX_RETRIES
+    : Math.max(0, Math.min(GRADING_MAX_RETRIES, opts.maxRetries ?? GRADING_MAX_RETRIES));
+  let sendHeaders = { ...headers, [IDEMPOTENCY_HEADER]: idempotencyKey };
   const useXhr = !!onStage && typeof XMLHttpRequest !== "undefined";
   let lastFailure: GradingFailureReason = "network";
+  let retryReason: GradingRetryReason = "connection";
+  let lastResponse: GradingHttpResponse | null = null;
 
   for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
     if (attempt > 0) {
-      onStage?.({ kind: "retrying", attempt });
+      if (freeCheck) {
+        // A free check re-sends only after a 504 response (below) and always with a fresh token.
+        const fresh = await freshFreeCheckHeaders(headers);
+        if (!fresh) return lastResponse as GradingHttpResponse; // no token to send: the 504 stands
+        sendHeaders = { ...fresh, [IDEMPOTENCY_HEADER]: idempotencyKey };
+      }
+      onStage?.({ kind: "retrying", attempt, reason: retryReason });
       await sleepImpl(backoffDelayMs(attempt));
     }
     await waitUntilOnline(onStage);
+    // GRADE-TIMEOUT-RETRY-1: after a SLOW (time-out) retry starts, the stage stays "Taking a little
+    // longer than usual — still checking…": the re-upload's "Uploading 0% -> Sent -> Grading…" would
+    // otherwise replace it a second later and look like the check had restarted from nothing.
+    const attemptStage: GradingStageListener | undefined =
+      onStage && attempt > 0 && retryReason === "slow"
+        ? (st) => { if (st.kind === "offline") onStage(st); }
+        : onStage;
     let res: GradingHttpResponse;
     try {
       res = useXhr
-        ? await xhrAttempt(url, sendHeaders, body, onStage!)
+        ? await xhrAttempt(url, sendHeaders, body, attemptStage ?? onStage!)
         : await fetchAttempt(url, sendHeaders, body);
     } catch (err) {
       lastFailure = err instanceof AttemptFailure ? err.reason : "network";
+      // A free check is never re-sent after no answer at all (see FREE_CHECK_MAX_RETRIES).
+      if (freeCheck) break;
+      retryReason = lastFailure === "timeout" ? "slow" : "connection";
       continue;
     }
-    if (RETRYABLE_STATUSES.has(res.status) && attempt < maxRetries) continue;
+    if (freeCheck) {
+      if (res.status === FREE_CHECK_RETRY_STATUS && attempt < maxRetries) {
+        lastResponse = res;
+        retryReason = "slow";
+        continue;
+      }
+    } else if (RETRYABLE_STATUSES.has(res.status) && attempt < maxRetries) {
+      retryReason = res.status === 504 ? "slow" : "connection";
+      continue;
+    }
     if (res.ok) onStage?.({ kind: "done" });
     return res;
   }
@@ -309,7 +373,9 @@ export function gradingStageLabel(stage: GradingStage): string {
     case "grading":
       return "Grading…";
     case "retrying":
-      return "Connection dropped — trying again…";
+      return stage.reason === "slow"
+        ? "Taking a little longer than usual — still checking…"
+        : "Connection dropped — trying again…";
     case "done":
       return "Done";
   }

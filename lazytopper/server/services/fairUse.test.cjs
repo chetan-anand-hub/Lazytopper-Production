@@ -2104,6 +2104,22 @@ test('C9·(ii) same key, FIRST ATTEMPT FAILED -> no charge on either: a stored "
   assert.deepEqual([b.grades(), b.ledger.trialWrites.map((w) => w.counts)], [2, [{ checks: 1 }]]);
 });
 
+test('GRADE-TIMEOUT-RETRY-1 · a 504 time-out releases the marker, charges nothing, and a same-key retry re-grades ONCE and charges ONCE', async () => {
+  const p = idemPipeline();
+  const body504 = JSON.stringify({ ok: false, error: 'Failed to evaluate solution. Please try again.', retryable: true });
+  const timedOut = await p.send({ key: KEY_A, handler: async () => ({ status: 504, body: body504 }) });
+  await p.settle();
+  assert.deepEqual([timedOut.statusCode, p.charges(), p.fs.docs.size], [504, 0, 0], 'a 504: not stored (marker released), not charged');
+  const retried = await p.send({ key: KEY_A, handler: async (n) => ({ status: 200, body: gradedBody(n), charged: 1 }) });
+  await p.settle();
+  assert.equal(retried.statusCode, 200, 'the SAME key is re-graded, never refused or held as in flight');
+  assert.deepEqual([p.grades(), p.ledger.trialWrites.map((w) => w.counts)], [2, [{ checks: 1 }]]);
+  // …and once the real grade is stored, a third send replays it for free.
+  await p.send({ key: KEY_A, handler: okHandler });
+  await p.settle();
+  assert.deepEqual([p.grades(), p.ledger.trialWrites.length], [2, 1]);
+});
+
 test('C9·(iii) a PARTIAL paper replayed -> charged ONCE, for the graded questions only', async () => {
   const p = idemPipeline();
   const body = { worksheetId: 'ci:abc', questions: [1, 2, 3, 4].map((n) => ({ qNumber: n, questionText: 'Q' + n })) };

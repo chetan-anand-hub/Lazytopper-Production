@@ -306,6 +306,32 @@ describe("R2 · stages over XHR (only when a stage listener is passed)", () => {
     expect(stages.filter((s) => s.kind === "retrying").map((s) => (s as { attempt: number }).attempt)).toEqual([1, 2]);
   });
 
+  it("★ GRADE-TIMEOUT-RETRY-1: a 504 is retried (same key) and the student reads 'still checking', not an error, and not a restarted upload", async () => {
+    xhrScript = [{ status: 504, body: JSON.stringify({ ok: false, retryable: true }) }, {}];
+    const stages: GradingStage[] = [];
+    const pending = sendGradingRequest("/api/grade-worksheet", { "Content-Type": "application/json" }, "{}", {
+      idempotencyKey: "k-0000000000000000",
+      onStage: (s) => stages.push(s),
+    });
+    for (let i = 0; i < 20 && xhrs.length < 1; i += 1) await new Promise((r) => setTimeout(r, 0));
+    xhrs[0].respond(); // the 504
+    for (let i = 0; i < 20 && xhrs.length < 2; i += 1) await new Promise((r) => setTimeout(r, 0));
+    expect(xhrs).toHaveLength(2);
+    xhrs[1].respond();
+    const res = await pending;
+    expect(res.status).toBe(200);
+    expect(new Set(xhrs.map((x) => x.headers[IDEMPOTENCY_HEADER]))).toEqual(new Set(["k-0000000000000000"]));
+    const retry = stages.filter((s) => s.kind === "retrying");
+    expect(retry).toEqual([{ kind: "retrying", attempt: 1, reason: "slow" }]);
+    expect(gradingStageLabel(retry[0])).toBe("Taking a little longer than usual — still checking…");
+    // After the 504 the label is not replaced by a fresh "Uploading 0% / Sent / Grading…" of the re-send.
+    const afterRetry = stages.slice(stages.indexOf(retry[0]) + 1).map((s) => s.kind);
+    expect(afterRetry).toEqual(["done"]);
+    // CONTROL: a dropped connection still reads as a connection problem.
+    expect(gradingStageLabel({ kind: "retrying", attempt: 1 })).toBe("Connection dropped — trying again…");
+    expect(gradingStageLabel({ kind: "retrying", attempt: 1, reason: "connection" })).toBe("Connection dropped — trying again…");
+  });
+
   it("without a listener the request goes by fetch (no XHR) — existing callers are unchanged", async () => {
     const calls = scriptedFetch([OK]);
     await checkSolutionImage({ question: "Q" });

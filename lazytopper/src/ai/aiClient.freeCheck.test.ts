@@ -261,3 +261,90 @@ describe("LOW-END-1 R1 · a free check is NEVER re-sent automatically", () => {
     expect(calls).toHaveLength(3);
   });
 });
+
+describe("GRADE-TIMEOUT-RETRY-1 · a free check IS re-sent after a 504 time-out — and only then, with a FRESH token", () => {
+  const scripted = (statuses: number[]) => {
+    let i = 0;
+    nextResponse = () => {
+      const status = statuses[Math.min(i, statuses.length - 1)];
+      i += 1;
+      return status === 200
+        ? { status, body: { ok: true, totalMarks: 3, marksAwarded: 2, percentage: 67, annotatedSteps: [] } }
+        : { status, body: { ok: false, error: "Failed to evaluate solution. Please try again.", retryable: true } };
+    };
+  };
+  const fast = async () => {
+    const { __setGradingSleepForTests } = await import("./gradingTransport");
+    __setGradingSleepForTests(async () => {});
+    return () => __setGradingSleepForTests(null);
+  };
+
+  it("504 then 200: TWO sends, each a free-check shape with its OWN limited-use token, the SAME idempotency key, and the grade comes back", async () => {
+    const restore = await fast();
+    try {
+      scripted([504, 200]);
+      const res = await checkSolutionImage({ question: "Q", textAnswer: "a" }, FREE);
+      expect(res.ok).toBe(true);
+      expect(calls).toHaveLength(2);
+      calls.forEach((c) => assertFreeShape(c.headers));
+      const tokens = calls.map((c) => c.headers[APP_CHECK_HEADER]);
+      expect(new Set(tokens).size, "the retry must NOT re-send the consumed token").toBe(2);
+      expect(H.getLimitedUseToken).toHaveBeenCalledTimes(2);
+      expect(H.getToken).not.toHaveBeenCalled();
+      const keys = calls.map((c) => c.headers["Idempotency-Key"]);
+      expect(keys[0]).toBeTruthy();
+      expect(keys[1]).toBe(keys[0]);
+    } finally {
+      restore();
+    }
+  });
+
+  it("grade-worksheet (the multi-question free path) is retried the same way", async () => {
+    const restore = await fast();
+    try {
+      scripted([504, 200]);
+      await gradeWorksheet({ worksheetId: "ci:x", questions: [] }, FREE);
+      expect(calls).toHaveLength(2);
+      expect(new Set(calls.map((c) => c.headers[APP_CHECK_HEADER])).size).toBe(2);
+    } finally {
+      restore();
+    }
+  });
+
+  it("at most ONE retry: 504 + 504 is two sends, and the caller gets the failure", async () => {
+    const restore = await fast();
+    try {
+      scripted([504, 504, 504]);
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      await expect(checkSolutionImage({ question: "Q", textAnswer: "a" }, FREE)).rejects.toBeTruthy();
+      expect(calls).toHaveLength(2);
+    } finally {
+      restore();
+    }
+  });
+
+  it("CONTROL: any other non-2xx (500, 502, 503, 403 refusal) is ONE send — never re-sent", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    for (const status of [500, 502, 503, 403]) {
+      calls = [];
+      scripted([status, 200]);
+      await checkSolutionImage({ question: "Q", textAnswer: "a" }, FREE).catch(() => {});
+      expect(calls, `status ${status} was re-sent`).toHaveLength(1);
+    }
+  });
+
+  it("a retry whose fresh token cannot be minted sends nothing more and the 504 stands", async () => {
+    const restore = await fast();
+    try {
+      scripted([504, 200]);
+      H.getLimitedUseToken.mockReset()
+        .mockImplementationOnce(async () => ({ token: "limited-1" }))
+        .mockImplementation(async () => { throw new Error("recaptcha blocked"); });
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      await checkSolutionImage({ question: "Q", textAnswer: "a" }, FREE).catch(() => {});
+      expect(calls).toHaveLength(1);
+    } finally {
+      restore();
+    }
+  });
+});

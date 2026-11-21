@@ -36,6 +36,7 @@ const jobsLib = require('../grading/jobs.cjs');
 const timingLib = require('../grading/timing.cjs');
 const freeCheckOneQuestion = require('../services/freeCheckOneQuestion.cjs'); // FREECHECK-ONEQ-1
 const gradeTimingLib = require('../grading/gradeTiming.cjs');
+const { refundFreeCheckServed } = require('../services/freeCheck.cjs');
 const { gradingAttemptOf, deferredCommitOf } = require('../services/fairUse.cjs');
 const { limitsDeferredOf } = require('../services/limits.cjs');
 const withLimitsDeferred = (fair, lim) => (lim ? { ...(fair || {}), uid: (fair && fair.uid) || lim.uid, limits: lim } : fair);
@@ -54,6 +55,29 @@ const STEP_STATUS_VALUES = grading.LEGACY_STEP_STATUSES.slice();
 // presented as complete. The real byte ceiling is still readJson's body cap.
 const MAX_BATCH_UPLOADS = 12;
 const MARKS_SOURCE_VALUES = ['stated', 'inferred'];
+
+/**
+ * GRADE-TIMEOUT-RETRY-1 — a grading TIME-OUT (the core's deadline, or the Gemini client's own
+ * abort) is a retryable 504, not a dead-end 500. Anything else stays a 500. The client re-sends
+ * a 504 with the SAME idempotency key (gradingTransport R1); a non-2xx releases the idempotency
+ * marker, charges nothing (fair use, limits and the paper pass all settle on a 2xx only) and
+ * counts no free check as served (refundFreeCheckServed), so the re-send grades afresh, once.
+ * Kill switch: GRADING_TIMEOUT_504_DISABLED=1 (read per request) -> byte-identical to before.
+ */
+function isGradingTimeout(err) {
+  if (!err) return false;
+  if (/^(1|true|on|yes)$/i.test(String(process.env.GRADING_TIMEOUT_504_DISABLED || '').trim())) return false;
+  return err.gradingDeadline === true || Number(err.status || err.statusCode) === 504;
+}
+
+/** Answer a caught grading error: 504 + `retryable: true` for a time-out, else the given 500 body. */
+async function sendGradeFailure(sendJson, req, res, err, body500) {
+  if (isGradingTimeout(err)) {
+    await refundFreeCheckServed(req); // a time-out is not a served check
+    return sendJson(res, 504, { ...body500, retryable: true });
+  }
+  return sendJson(res, 500, body500);
+}
 
 const deepFreeze = grading.deepFreeze;
 
@@ -533,7 +557,7 @@ function createCheckSolutionRoute(deps) {
       return sendJson(res, 200, body);
     } catch (err) {
       console.error('[check-solution]', err);
-      return sendJson(res, 500, {
+      return sendGradeFailure(sendJson, req, res, err, {
         ok: false,
         error: 'Failed to evaluate solution. Please try again.',
       });
@@ -1180,7 +1204,7 @@ function createCheckSolutionRoute(deps) {
       return sendJson(res, 200, { ...buildWorksheetBody(graded, { worksheetId, acceptsV2 }), ...freeCheckOneQuestion.fieldFor(payload) });
     } catch (err) {
       console.error('[grade-worksheet]', err);
-      return sendJson(res, 500, { ok: false, error: 'Failed to grade the worksheet. Please try again.' });
+      return sendGradeFailure(sendJson, req, res, err, { ok: false, error: 'Failed to grade the worksheet. Please try again.' });
     }
   }
 

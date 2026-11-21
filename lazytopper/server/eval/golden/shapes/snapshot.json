@@ -70,10 +70,11 @@
     }
    },
    "timeout": {
-    "httpStatus": 500,
+    "httpStatus": 504,
     "body": {
      "error": "string",
-     "ok": "boolean"
+     "ok": "boolean",
+     "retryable": "boolean"
     }
    }
   },
@@ -211,10 +212,11 @@
     }
    },
    "timeout": {
-    "httpStatus": 500,
+    "httpStatus": 504,
     "body": {
      "error": "string",
-     "ok": "boolean"
+     "ok": "boolean",
+     "retryable": "boolean"
     }
    }
   },
@@ -288,10 +290,11 @@
     }
    },
    "timeout": {
-    "httpStatus": 500,
+    "httpStatus": 504,
     "body": {
      "error": "string",
-     "ok": "boolean"
+     "ok": "boolean",
+     "retryable": "boolean"
     }
    }
   },
@@ -364,10 +367,11 @@
     }
    },
    "timeout": {
-    "httpStatus": 500,
+    "httpStatus": 504,
     "body": {
      "error": "string",
-     "ok": "boolean"
+     "ok": "boolean",
+     "retryable": "boolean"
     }
    }
   },
@@ -459,10 +463,11 @@
     }
    },
    "timeout": {
-    "httpStatus": 500,
+    "httpStatus": 504,
     "body": {
      "error": "string",
-     "ok": "boolean"
+     "ok": "boolean",
+     "retryable": "boolean"
     }
    }
   },
@@ -645,10 +650,11 @@
     }
    },
    "timeout": {
-    "httpStatus": 500,
+    "httpStatus": 504,
     "body": {
      "error": "string",
-     "ok": "boolean"
+     "ok": "boolean",
+     "retryable": "boolean"
     }
    }
   },
@@ -723,10 +729,11 @@
     }
    },
    "timeout": {
-    "httpStatus": 500,
+    "httpStatus": 504,
     "body": {
      "error": "string",
-     "ok": "boolean"
+     "ok": "boolean",
+     "retryable": "boolean"
     }
    }
   },
@@ -818,10 +825,11 @@
     }
    },
    "timeout": {
-    "httpStatus": 500,
+    "httpStatus": 504,
     "body": {
      "error": "string",
-     "ok": "boolean"
+     "ok": "boolean",
+     "retryable": "boolean"
     }
    }
   },
@@ -913,10 +921,11 @@
     }
    },
    "timeout": {
-    "httpStatus": 500,
+    "httpStatus": 504,
     "body": {
      "error": "string",
-     "ok": "boolean"
+     "ok": "boolean",
+     "retryable": "boolean"
     }
    }
   },
@@ -1008,10 +1017,11 @@
     }
    },
    "timeout": {
-    "httpStatus": 500,
+    "httpStatus": 504,
     "body": {
      "error": "string",
-     "ok": "boolean"
+     "ok": "boolean",
+     "retryable": "boolean"
     }
    }
   },
