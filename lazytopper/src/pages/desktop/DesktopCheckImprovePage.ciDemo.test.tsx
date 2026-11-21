@@ -472,6 +472,7 @@ describe("CI-UPLOAD-Q-1 - hidden typed text never rides with an uploaded questio
     await waitFor(() => expect(H.checkSolutionImage.mock.calls.length + H.gradeWorksheet.mock.calls.length).toBeGreaterThan(0));
     const sent = JSON.stringify([...H.checkSolutionImage.mock.calls, ...H.gradeWorksheet.mock.calls]);
     expect(sent).toContain("MATHS-PAPER-Q1");
+    expect(sent).not.toContain("A voltage source");
   });
 
   it("a student tab switch clears the Detected chip; the ladder's own programmatic seeding still shows it", async () => {

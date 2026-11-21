@@ -1498,7 +1498,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     if (scorecardOpen) {
       overlay.onClose(
         buildOverlayReturnRecord(),
-        { text: question, imageBase64: qImageBase64 },
+        { text: typedQuestion, imageBase64: qImageBase64 },
         buildOverlayReturnResponse(),
       );
     } else {
@@ -3580,7 +3580,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                 <Suspense fallback={null}>
                   <PaperCodeRouteBanner
                     uid={user.uid}
-                    texts={[question, qImageName, imageName, ...(detectedQuestions ?? []).map((q) => q.questionText)]}
+                    texts={[typedQuestion, qImageName, imageName, ...(detectedQuestions ?? []).map((q) => q.questionText)]}
                     files={[{ base64: qImageBase64, mime: qImageMime }, { base64: imageBase64, mime: imageMime }]}
                   />
                 </Suspense>
