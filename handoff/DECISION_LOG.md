@@ -1,3 +1,18 @@
+## 2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted here. Owner rulings of 21 Nov 2026 as relayed by the coordinator **[coordinator]**. Where the source does not state a reason, the reason cell says so.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **The free check grades one question only** [owner, `#1793`] | A signed-out visitor's one free Answer Checker check marks only the first gradable question of a multi-question upload; the rest are locked behind the 7-day free trial. The server is authoritative (truncates the admitted free check on `/api/grade-worksheet`). Kill switches kept (server and client). | A real visitor got 5 questions graded on one free check. |
+| **No in-place re-grade after sign-up** [`#1793` design] | "Mark the rest now" opens the Answer Checker; the photo is not stored on the device. | Re-grading in place would need storing the image, deliberately not done [PR body]. |
+| **Demand Gen clicks count as paid YouTube ads in admin** [`#1792`] | `utm_medium=demandgen` joins `paid` and `cpc` as a paid medium. | Demand Gen is a paid ad but read "YouTube (untagged)". |
+| **Test Series URL suffix is `utm_campaign=search_test_series`** [owner, Google Ads] | The Test Series campaign no longer carries the Board Pass tag. | It was copied from Board Pass, so Test Series visitors were labelled Board Pass. |
+| **"online test" negative removed from Test Series only** [owner, Google Ads] | Kept elsewhere. | It blocked 8 Test Series keywords. |
+| **Test Series, Board Pass and PDF Packs optimise for Purchases only** [owner, Google Ads] | PDF Packs "Leads from messages" removed. | Reason not stated beyond Purchases being the goal. |
+| **Budgets: PDF Packs ₹8,000, Board Pass ₹3,500, Test Series ₹5,500, YouTube ₹1,500 (₹18,500/day)** [owner, Google Ads] | Board Pass raised. | Board Pass had lost 43% of impressions to budget; reasons for the other amounts not stated. |
+| **YouTube ads and sitelinks point to selling pages** [owner, Google Ads] | Dandiya Short re-enabled to /test-series; free-page sitelinks removed or repointed (YouTube 4 removed, 7 repointed; PDF Packs 30 Google-made removed). | Send paid traffic to the pages that sell; detail reason not stated. |
+
 ## 2026-11-19 (daily; UTC day 19 Nov, written 20 Nov) - #1777 - #1789: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Owner rulings of 19 and 20 Nov 2026 as relayed by the coordinator **[coordinator]**. Where the source does not state a reason, the reason cell says so.

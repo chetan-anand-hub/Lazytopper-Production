@@ -1,3 +1,15 @@
+## 2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`52eac50a`** [git].
+
+- **Done [git]:** `#1792` and `#1793` merged (table in CURRENT_STATE). No gaps.
+- **Owner live test owed (new):** the signed-out free check on a real phone in a private window with a multi-question upload. Expect 1 graded question, locked rows "questions 2-N", the pre-grade line, and after sign-up the restored card with "Mark the rest now". `[FU-FREECHECK-ONEQ-SIGNEDOUT-LIVE]`. `#1793` is PARTIAL until then (signed-in side verified).
+- **Admin check after deploy:** /admin/students Source column shows "YouTube ad" for Demand Gen sign-ups and the Test Series and Board Pass campaign and ad-group names.
+- **Owner to approve wording:** the Cancellation Policy (/legal/refund) does not name Test Series or CBQ Packs; draft lines for both and for the Test Series to Board Pass upgrade. `[FU-REFUND-PAGE-TS-CBQ]`
+- **Ads (off-repo):** budgets ₹18,500/day across four campaigns; YouTube Dandiya Short re-enabled to /test-series and under Google review; check the review result. The 24 Nov ads review and 22 Nov Sign-ups v2 decision stand.
+- **Dated checks:** unchanged from the 19 Nov block (22 Nov Sign-ups v2 decision; 24 Nov ads review; 25 Nov YouTube check; 30 Nov founding prices end; 1 Dec 00:00 IST price switch).
+- **Follow-ups opened today:** see OPEN_QUESTIONS_AND_FOLLOWUPS (bodies there).
+
 ## 2026-11-19 (daily; UTC day 19 Nov, written 20 Nov) - #1777 - #1789
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`d113a332`** [git].

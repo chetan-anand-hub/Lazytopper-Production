@@ -23,6 +23,26 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**New (each has its own heading below):** `[FU-FREECHECK-ONEQ-SIGNEDOUT-LIVE]`, `[FU-ADMIN-PLAN-AT-ACTIVITY]`, `[FU-REFUND-PAGE-TS-CBQ]`, `[FU-AC-SIDEBAR-MI-OVERFLOW]`, `[FU-FREECHECK-DUP-QNUM]`.
+
+### [FU-FREECHECK-ONEQ-SIGNEDOUT-LIVE]
+OPEN, owner. `#1793` is live-verified only on the signed-in side (3 of 3 graded, 6/6, no locked rows). The signed-out path needs one real run on a phone in a private window (headless browsers fail App Check by design): a multi-question upload should grade 1 question, show locked rows "questions 2-N", the pre-grade line, and after sign-up the restored card with "Mark the rest now". Until then `#1793` is PARTIAL under CLAUDE.md section 4a. [coordinator]
+
+### [FU-ADMIN-PLAN-AT-ACTIVITY]
+OPEN. The admin students list shows the plan NOW, so "Basic" students with more than 1 Answer Checker check look like a gate breach when those were trial-period checks. The list should show the plan at the time of the activity. [coordinator]
+
+### [FU-REFUND-PAGE-TS-CBQ]
+OPEN, owner approval. The Cancellation Policy (/legal/refund) does not name Test Series or CBQ Packs. Needs lines for both and for the Test Series to Board Pass upgrade; owner to approve the wording before any edit. [coordinator]
+
+### [FU-AC-SIDEBAR-MI-OVERFLOW]
+OPEN, cosmetic. On the desktop Answer Checker the Mistake Intelligence stats in the sidebar overflow below the navy sidebar when the page scrolls. [coordinator]
+
+### [FU-FREECHECK-DUP-QNUM]
+OPEN, P2. With duplicate question numbers in a free multi-question upload a locked row can be dropped. [coordinator]
+
+
 ## 2026-11-19 (daily; UTC day 19 Nov, written 20 Nov) - #1777 - #1789 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **New (each has its own heading below):** `[FU-LIVE-TESTS-19NOV]`, `[FU-TS-ADS-PROPOSAL]`, `[FU-TS-SALE-CUTOFF-IMPROVEMENT-PASS]`, `[FU-FREE-MCQ-PAGES-INDEXING]`, `[FU-GRADER-REAL-PHONE-SHEETS]`, `[FU-ADS-SERVER-CONVERSION-UPLOAD]`, `[FU-TS-PAGE-TITLE-H1]`, `[FU-1789-TEST-GAPS]`, `[FU-1788-FROM-URL-TEST]`, `[FU-PREMIUMEXTENSION-RAW-PASSEND]`, `[FU-STEPMARK-SCIENCE-BATCHES]`, `[FU-TS-PARENT-FAQ-TRIM]`, `[FU-PRICING-SPEED-RETEST]`, `[FU-GA4-ERROR-CODE-DIMENSION]`. Dated: 22 Nov Sign-ups v2 decision, 24 Nov ads review, 25 Nov YouTube check, 30 Nov founding prices end, 1 Dec price switch (upgrade ₹1,770, "₹6 per test" becomes ₹8).
