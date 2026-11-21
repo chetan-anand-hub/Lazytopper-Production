@@ -23,7 +23,8 @@ afterEach(cleanup);
 const TITLE = "Cancellation Policy";
 // PACKS-LEGAL-1 (25 Oct 2026): the PDF Packs section was added, so the date moved.
 // VALIDITY-FEB27 (19 Nov 2026): the Board Pass line now states its validity date, so the page's date moved with it.
-const UPDATED = "Last updated: 19 November 2026";
+// REFUND-TS-CBQ (21 Nov 2026): Test Series, upgrade and CBQ Packs sections + WhatsApp line added.
+const UPDATED = "Last updated: 21 November 2026";
 
 /** The owner's sections, in order, word for word. */
 const SECTIONS: Array<[string, string]> = [
@@ -45,10 +46,22 @@ const SECTIONS: Array<[string, string]> = [
     "A one-time payment covering Premium, valid till 28 Feb 2027. No refund.",
   ],
   [
+    "Test Series Pack",
+    "A one-time payment for the Pre-Boards Test Series (180 tests), valid till 28 Feb 2027. No refund.",
+  ],
+  [
+    "Test Series to Board Pass upgrade",
+    "If you own the Test Series Pack and upgrade to the Board Pass, you pay only the difference shown at checkout. The upgrade is also final, and neither payment is refunded.",
+  ],
+  [
     // PACKS-LEGAL-1 (owner, 25 Oct 2026): a pack is a digital download, not refunded once paid.
     // The section's second paragraph (the Board Pass credit) is pinned in PACKS_CREDIT below.
     "PDF Packs",
-    "A PDF pack is a digital download. The files are available to you straight away. No refund. If a file will not download or open, email us and we will fix it or send it to you.",
+    "A PDF pack is a digital download. The files are available to you straight away. No refund. If a file will not download or open, email support@lazytopper.com or WhatsApp us on +91 97145 68948 and we will fix it or send it to you.",
+  ],
+  [
+    "CBQ Packs",
+    "A CBQ Pack is a digital download, like a PDF pack. The files are available to you straight away. No refund. If a file will not download or open, email support@lazytopper.com or WhatsApp us on +91 97145 68948 and we will fix it or send it to you.",
   ],
   [
     // OR-P7 (owner, 2026-09-26): no "charged after cancelling" — a pass is never cancelled.
@@ -94,7 +107,7 @@ describe("OR-P4 — the refund page, as rendered", () => {
     expect(flat(card.querySelector(".lt-legal-updated")?.textContent)).toBe(UPDATED);
   });
 
-  it("renders exactly the owner's six sections, in order, word for word", () => {
+  it("renders exactly the owner's nine sections, in order, word for word", () => {
     const card = renderRefund();
     const headings = Array.from(card.querySelectorAll("h2")).map((h) => flat(h.textContent));
     expect(headings).toEqual(SECTIONS.map(([h]) => h));
