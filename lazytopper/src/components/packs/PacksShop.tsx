@@ -68,6 +68,7 @@ import { resolvePaidBoardPass, usePaidPremium } from "../../lib/packs/usePaidPre
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 import PostPayGstLazy from "../gstInvoice/PostPayGstLazy";
 import PaidSheetLazy, { paidSheetEnabled, paidSheetReceiptLine, preloadPaidSheet } from "../checkoutWho/PaidSheetLazy";
+import PayReturnResume from "../payReturn/PayReturnResume";
 import { maskEmail as maskReceiptEmail } from "../../lib/maskContact";
 // PARENT-PACKS-1: "Forward link to parents" for a pack - the SAME light paywall gate (dark-ship parity; its view is a lazy chunk).
 import PaywallActions from "../pricing/PaywallActions";
@@ -1162,6 +1163,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   const noteSlot = slotEnabled && !reserve && location.hash.toLowerCase() === "#my-packs";
   const mineAndStatus = (
     <>
+      {/* PAY-RETURN-1: a buyer back from the UPI app on a reset /packs finds the purchase card (not on an embedded shop: the page hosts it once). */}
+      {!embedded && !hideMyPacks && <PayReturnResume />}
       {restoredProof && !user && !authLoading && slotEnabled && (
         <div className="lt-packs__w" data-testid="packs-restored-receipt">
           <Suspense fallback={null}>
