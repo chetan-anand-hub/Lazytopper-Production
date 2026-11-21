@@ -14,8 +14,14 @@
 **CI [coordinator].** `#1796` vitest (shard 1/4) failed once on `PacksPage.test.tsx` "signed in with owned packs..." (TestingLibraryElementError, unrelated); re-run green. Logged `[FU-FLAKY-PACKSPAGE-OWNED-PACKS]`.
 
 **YouTube, 21 Nov (owner's words) [coordinator].**
-- Short "1:47 AM, pre-boards next week..." published Public at about 18:00 (https://youtube.com/shorts/1y_t6Ci_L5w): playlist "CBSE Class 10 Boards 2027 - Shorts", related video set to Dandiya vs Boards, pinned comment, education labels (India / Class 10 / CBSE Exam class 10). A Hindi caption track was added and then DELETED on the owner's word because it overlapped the burned-in captions.
+- Short "1:47 AM, pre-boards next week..." published Public at about 18:00 (https://youtube.com/shorts/1y_t6Ci_L5w, later replaced, see below): playlist "CBSE Class 10 Boards 2027 - Shorts", related video set to Dandiya vs Boards, pinned comment, education labels (India / Class 10 / CBSE Exam class 10). A Hindi caption track was added and then DELETED on the owner's word because it overlapped the burned-in captions.
 - New Demand Gen ad "Test Series Short - 1:47 AM Pre-boards (21 Nov)" in YouTube | Students | Sign-ups, ad group "Students - Message Shorts + Dandiya (CBSE states)": top-100 cities, English and Hindi; audience Class 10 CBSE - Students (Unknown age) plus Parents of Teens 35-54; optimized targeting limited to age. Final URL /test-series?utm_source=youtube&utm_medium=demandgen&utm_campaign=students&utm_content=ts_147am_short. Under Google review at writing.
+
+**Later, 18:28-18:50 IST (owner's words) [coordinator].**
+- The Short was REPLACED with a revised cut (LazyTopper_Ep_YouTube_Shorts_1080x1920.mp4, same 45 s): new Public Short https://youtube.com/shorts/xriFjjp7acY with the same title, description, tags, playlist "CBSE Class 10 Boards 2027 - Shorts", Hindi language, India / Class 10 / CBSE Exam class 10 labels, related video Dandiya vs Boards and pinned comment; NO caption track. The old Short 1y_t6Ci_L5w was set to PRIVATE (not deleted; reversible). The Demand Gen ad "Test Series Short - 1:47 AM Pre-boards (21 Nov)" now uses xriFjjp7acY (verified by video id).
+- The live "Navratri Short - Dandiya vs Boards" Demand Gen ad (to /test-series) was reworded on the owner's "yes": headline "Tap 5 board CBQs free" to "180 tests, under ₹10 per test"; long headlines 2-3 to "Pre-boards test series: 130 chapter tests + 50 full papers, checked like an examiner" and "Dandiya bhi, Boards bhi: give a full paper, see your marks, then sleep easy."; descriptions 1 and 3 to "MCQs marked at once. Written answers step-marked like a CBSE examiner." and "₹999 + GST till 30 Nov, then ₹1,499 + GST. Under ₹10 per test." Verified saved; no "free" remains. The ad re-enters Google review.
+- Owner ruling: keep "Graded in 2 min" on the Short ("dont change it, let it be 2 mins").
+- The laptop folder Downloads\todays youtube ad\upload-parts was deleted on the owner's word.
 
 **Google Ads keywords, 21 Nov (owner's words) [coordinator].**
 - The handoff's "mcq test" and "chapter test" leftovers sit in the PAUSED "C - Chapter tests (exam fear)" ad group in PDF Packs (not serving).

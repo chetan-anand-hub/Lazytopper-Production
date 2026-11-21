@@ -20,7 +20,7 @@
 
 **CI note [coordinator].** `#1796` vitest (shard 1/4) failed once on `PacksPage.test.tsx` "signed in with owned packs..." (TestingLibraryElementError, unrelated to the PR); a re-run was green. Logged as `[FU-FLAKY-PACKSPAGE-OWNED-PACKS]`.
 
-**Off-repo, 21 Nov (owner's words) [coordinator].** YouTube Short "1:47 AM, pre-boards next week..." published Public at about 18:00 (https://youtube.com/shorts/1y_t6Ci_L5w). New Demand Gen ad and PDF Packs keyword changes: see SESSION_LOG.
+**Off-repo, 21 Nov (owner's words) [coordinator].** YouTube Short "1:47 AM, pre-boards next week..." published Public at about 18:00, then REPLACED at about 18:30-18:50 with a revised cut (same 45 s): new Public Short https://youtube.com/shorts/xriFjjp7acY (no caption track); the old Short 1y_t6Ci_L5w is PRIVATE (not deleted, reversible). The new Demand Gen ad uses the new video id. The Dandiya Demand Gen ad copy was reworded (no "free"). Details: SESSION_LOG.
 
 **Admin check [coordinator].** Every YouTube sign-up after about 12:00 landed on /board-pass or /test-series; none on /practice-hub after 10:11.
 

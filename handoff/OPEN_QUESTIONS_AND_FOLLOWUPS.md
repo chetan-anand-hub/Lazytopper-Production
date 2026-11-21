@@ -25,6 +25,8 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ## 2026-11-21b (second daily; UTC day 21 Nov, written 21 Nov evening) - #1795 - #1796 - #1797 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
+**Closed later the same day [coordinator]:** `[FU-YT-DANDIYA-ADCOPY-FREE]`, `[FU-YT-SHORT-2MIN-CLAIM]`, `[FU-LAPTOP-UPLOAD-PARTS]` (see their headings below).
+
 **Closed:** `[FU-REFUND-PAGE-TS-CBQ]` (opened in the earlier 21 Nov section, left as written per rule 3). CLOSED by `#1795` (`714f0fff`): the Cancellation Policy names the Test Series Pack, the upgrade and CBQ Packs. [gh; coordinator]
 
 **New (each has its own heading below):** `[FU-FLAKY-PACKSPAGE-OWNED-PACKS]`, `[FU-ADS-PAUSE-2-PDFPACKS-KW]`, `[FU-YT-DANDIYA-ADCOPY-FREE]`, `[FU-YT-SHORT-2MIN-CLAIM]`, `[FU-TS-ADS-PRICE-1DEC]`, `[FU-BOARDPASS-1280-CLS]`, `[FU-CBQ-TBT-CHECKOUT-WARM]`, `[FU-LAPTOP-UPLOAD-PARTS]`.
@@ -36,13 +38,13 @@ OPEN, test flake. `PacksPage.test.tsx` "signed in with owned packs..." failed on
 OPEN, owner (Google Ads). Two PDF Packs keywords would not pause through the UI: "class 10 chapter wise test" and "class 10 full syllabus mock test", in the ad group "Test series and mock papers" (0 impressions). They are also now phrase keywords in Search | Test Series, so the PDF Packs copies should be paused or removed. [coordinator, owner's words]
 
 ### [FU-YT-DANDIYA-ADCOPY-FREE]
-OPEN, owner approval. The live Dandiya Demand Gen ad (final URL /test-series) still has "Tap 5 board CBQs free" and "Practise their CBQs free" headlines. Copy rule: the product is not free. Owner to approve rewording. [coordinator]
+CLOSED 21 Nov on the owner's word ("yes"). The live "Navratri Short - Dandiya vs Boards" Demand Gen ad (to /test-series) was reworded: headline "Tap 5 board CBQs free" to "180 tests, under ₹10 per test"; long headlines 2-3 and descriptions 1 and 3 reworded (full text in SESSION_LOG). Verified saved; no "free" remains. The ad re-enters Google review. [coordinator]
 
 ### [FU-YT-SHORT-2MIN-CLAIM]
-OPEN, owner. The Short's end card says "Graded in 2 min". Full-paper grading time is unmeasured (the 18 Nov live Test Series run graded a chapter test in about 75 s; a full paper has not been timed for this claim). Measure it or reword. [coordinator]
+CLOSED 21 Nov as an owner ruling: keep "Graded in 2 min" on the Short as is (owner: "dont change it, let it be 2 mins"). Full-paper grading time is still unmeasured; the ruling is in DECISION_LOG. [coordinator]
 
 ### [FU-TS-ADS-PRICE-1DEC]
-OPEN, dated 30 Nov / 1 Dec. The new YouTube ad text says "₹999 + GST till 30 Nov". Add it to the 1 Dec 00:00 IST price switch list so it is paused or reworded when the price becomes ₹1,499 + GST. [coordinator]
+OPEN, dated 30 Nov / 1 Dec. The new YouTube Short ad text and the reworded Dandiya ad (description 3) both say "₹999 + GST till 30 Nov". Add it to the 1 Dec 00:00 IST price switch list so it is paused or reworded when the price becomes ₹1,499 + GST. [coordinator]
 
 ### [FU-BOARDPASS-1280-CLS]
 OPEN, low. /board-pass at 1280 px shows CLS 0.0245 on trunk (under the 0.1 good threshold, above the page's 360 px value). Investigate only if speed work continues. [coordinator]
@@ -51,7 +53,7 @@ OPEN, low. /board-pass at 1280 px shows CLS 0.0245 on trunk (under the 0.1 good 
 OPEN, optional. About 100-150 ms of TBT on /cbq-packs may come from the checkout.js warm-up (SPEED-CBQ-DIAG-1 fix 5). Not done. [coordinator]
 
 ### [FU-LAPTOP-UPLOAD-PARTS]
-OPEN, owner housekeeping. Delete the temporary folder Downloads\todays youtube ad\upload-parts on the owner's laptop. [coordinator]
+CLOSED 21 Nov: the folder Downloads\todays youtube ad\upload-parts was deleted on the owner's word. [coordinator]
 
 ## 2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
