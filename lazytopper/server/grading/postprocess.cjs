@@ -1113,8 +1113,12 @@ const OTHER_ASK = /\b(?:find|state|write|name|which|what|how|show|prove|calculat
  *  reason is a part of an attempted answer. A sub-part that is ONLY a reason ("(ii) Give a reason for your answer to (i)",
  *  "(ii) Explain why …") is a sub-part of its own: wholly blank, it is UNATTEMPTED (rules.cjs), never an omission inside an answer. */
 function reasonRidesOnAnswer(questionText) {
-  const parts = String(questionText || '').split(/\(\s*(?:i{1,3}|iv|vi?|[a-d])\s*\)|(?:^|\s)(?:[1-9])[.)](?=\s)/i);
-  return parts.some((seg) => REASON_ASKED.test(seg) && OTHER_ASK.test(seg.replace(REASON_CLAUSE, ' ')));
+  // N1: split on EXACTLY the sub-part markers SUB_PART_MARKER detects ("(i)", "a)", "i.", "1." …) — one shared pattern, not a copy.
+  const parts = String(questionText || '').split(new RegExp(SUB_PART_MARKER.source, 'gim'));
+  const asking = parts.filter((seg) => REASON_ASKED.test(seg));
+  // N2: conservative — EVERY segment that asks for a reason must ride on an answer ask. One riding segment never licenses a blank reason
+  // that may belong to another, reason-only segment ("(ii) Give a reason why 6^n cannot end with 0"): that stays trunk behaviour.
+  return asking.length > 0 && asking.every((seg) => OTHER_ASK.test(seg.replace(REASON_CLAUSE, ' ')));
 }
 const graderType1Disabled = () => process.env.GRADER_TYPE_1_DISABLED === '1';
 function typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy }) {

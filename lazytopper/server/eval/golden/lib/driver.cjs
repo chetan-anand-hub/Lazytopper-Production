@@ -27,6 +27,7 @@ const { buildGeminiImagePart, validateMentorImagePayload } = require(path.join(S
 const { chargeableCountOf } = require(path.join(SERVER_DIR, 'grading', 'charge.cjs'));
 const ledgerLib = require(path.join(SERVER_DIR, 'services', 'usageLedger.cjs'));
 const fs = require('fs');
+const crypto = require('crypto');
 const { AsyncLocalStorage } = require('async_hooks');
 const { createInMemorySchemeCache, createReplaySchemeCache } = require('./schemeCache.cjs');
 
@@ -62,7 +63,7 @@ function fakeRes() {
  */
 function createDriver(opts) {
   const { sendJson } = createHttpUtils('*');
-  const cacheHook = { calls: 0, generated: 0, hits: 0 };
+  const cacheHook = { calls: 0, generated: 0, hits: 0, unfrozen: 0 };
   const meter = { writes: [], okCalls: 0 };
   const ledger = ledgerLib.createUsageLedger({
     resolveFirestore: () => ({ db: { collection: () => ({ doc: () => ({ collection: () => ({ doc: () => ({ set: (d) => { meter.writes.push(d); return Promise.resolve(); } }) }) }) }) }, FieldValue: { increment: (n) => n } }),
@@ -89,16 +90,34 @@ function createDriver(opts) {
   };
   // Per-job collection (AsyncLocalStorage): the schemes the job used and the raw texts of its scheme-generation calls.
   const jobAls = new AsyncLocalStorage();
+  // E-b: the scheme file carries PROVENANCE — {header: {schemeModel, stepSolutionSha256, createdAt}, schemes}. A file made under another
+  // scheme model or another generator (routes/stepSolution.cjs) is REFUSED unless `schemeFileForce`.
+  const stepSolutionSha256 = crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'routes', 'stepSolution.cjs'))).digest('hex');
+  const schemeModel = opts.schemeModel || opts.gradingModel || opts.model;
   let preload = {};
-  if (opts.scheme && opts.schemeFile && fs.existsSync(opts.schemeFile)) preload = JSON.parse(fs.readFileSync(opts.schemeFile, 'utf8'));
+  let fileHeader = { schemeModel, stepSolutionSha256, createdAt: new Date().toISOString() };
+  if (opts.scheme && opts.schemeFile && fs.existsSync(opts.schemeFile)) {
+    const loaded = JSON.parse(fs.readFileSync(opts.schemeFile, 'utf8'));
+    const h = loaded && loaded.header;
+    if (!h || !loaded.schemes) {
+      if (!opts.schemeFileForce) throw new Error('scheme file ' + opts.schemeFile + ' has no provenance header (not written by this tool) — refused; pass --scheme-file-force to use it anyway');
+      preload = loaded.schemes || loaded;
+    } else {
+      if ((h.schemeModel !== schemeModel || h.stepSolutionSha256 !== stepSolutionSha256) && !opts.schemeFileForce) {
+        throw new Error('scheme file ' + opts.schemeFile + ' provenance mismatch — file: model=' + h.schemeModel + ' stepSolution=' + String(h.stepSolutionSha256).slice(0, 12) + '; this run: model=' + schemeModel + ' stepSolution=' + stepSolutionSha256.slice(0, 12) + ' — refused; pass --scheme-file-force to use it anyway');
+      }
+      preload = loaded.schemes;
+      fileHeader = h;
+    }
+  }
   const persist = opts.schemeFile
-    ? (_h, _s, store) => { const tmp = opts.schemeFile + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(Object.fromEntries(store), null, 1) + '\n'); fs.renameSync(tmp, opts.schemeFile); }
+    ? (_h, _s, store) => { const tmp = opts.schemeFile + '.tmp'; fs.writeFileSync(tmp, JSON.stringify({ header: fileHeader, schemes: Object.fromEntries(store) }, null, 1) + '\n'); fs.renameSync(tmp, opts.schemeFile); }
     : null;
   let schemeCache = null;
   if (opts.schemeReplay) deps.solutionCache = createReplaySchemeCache(opts.schemeReplay, cacheHook);
   else if (opts.scheme) {
-    // the scheme is generated on the GRADING model (production's), never the --detect-model proxy
-    schemeCache = createInMemorySchemeCache(deps, cacheHook, { als: jobAls, schemeModel: opts.gradingModel || opts.model, preload, onStore: persist });
+    // the scheme is generated on `schemeModel` (--scheme-model; default the grading model) — a PROXY for production's GEMINI_MODEL, which the eval key refuses
+    schemeCache = createInMemorySchemeCache(deps, cacheHook, { als: jobAls, schemeModel, preload, onStore: persist });
     deps.solutionCache = schemeCache;
   } else deps.solutionCache = { getOrCreateModelSolution: async () => { cacheHook.calls += 1; return null; } };
   const routes = createCheckSolutionRoute(deps);
@@ -111,7 +130,7 @@ function createDriver(opts) {
     const t0 = Date.now();
     let harnessError = null;
     meter.writes = []; meter.okCalls = 0;
-    const jobStore = { used: {}, genTexts: [] };
+    const jobStore = { used: {} };
     try {
       await ledgerLib.runWithRequestContext(async () => {
         ledgerLib.bindRequestUid(METER_UID, job.handler === 'handleGradeWorksheet' ? '/api/grade-worksheet' : '/api/check-solution');
@@ -129,11 +148,11 @@ function createDriver(opts) {
     const unitCost = ledgerLib.buildLedgerIncrement(METER_UNIT, { env: {} }).increment.costMicroInr;
     const written = meter.writes.reduce((a, w) => a + (Number(w.costMicroInr) || 0), 0);
     const charged = chargeableCountOf(res);
-    return { httpStatus: res.statusCode, body, wallMs: Date.now() - t0, harnessError, cacheHookCalls: cacheHook.calls - before, schemes: jobStore.used, schemeGenTexts: jobStore.genTexts,
+    return { httpStatus: res.statusCode, body, wallMs: Date.now() - t0, harnessError, cacheHookCalls: cacheHook.calls - before, schemes: jobStore.used,
       charged: charged === undefined ? null : charged, meteredShare: meter.okCalls > 0 ? Math.round((1000 * written) / (unitCost * meter.okCalls)) / 1000 : null };
   }
 
-  return { run, deps, schemeCounters: cacheHook, schemeCache };
+  return { run, deps, schemeCounters: cacheHook, schemeCache, schemeModel, stepSolutionSha256 };
 }
 
 module.exports = { createDriver, SERVER_DIR };

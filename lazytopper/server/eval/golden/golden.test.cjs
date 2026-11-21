@@ -661,7 +661,8 @@ test('§12a2 E1/B3 — a TWO-job scheme-ON run REPLAYS faithfully: each job brin
       ? JSON.stringify({ steps: [{ stepNumber: 1, description: 'Formula', working: 'a = 1', marks: 1 }, { stepNumber: 2, description: 'Answer', working: 'x = 2', marks: 1 }], finalAnswer: 'x = 2' })
       : JSON.stringify({ totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ stepNumber: 1, description: 'd', studentWork: 'w', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, finalAnswerCorrect: true, teacherNote: 'ok' });
     models.push({ model, scheme: isSchemePrompt(prompt) });
-    if (cur) cur.push({ text });
+    // lib/live.cjs tags the call record at call time from the job's async context (E-c); the fake client mirrors that.
+    if (cur) cur.push({ text, scheme: require('./lib/schemeCallContext.cjs').schemeCallAls.getStore() === true });
     return { text, raw: { candidates: [{ finishReason: 'STOP' }] } };
   };
   const live = createDriver({ callGemini: fake, model: 'test-model', scheme: true });
@@ -675,7 +676,7 @@ test('§12a2 E1/B3 — a TWO-job scheme-ON run REPLAYS faithfully: each job brin
     hashes.forEach((h) => seenHashes.add(h));
     jobs.push({ job, body: res.body });
     records.push({ jobKey: job.jobKey, requestDigest: job.requestDigest, model: 'test-model', schemes: res.schemes,
-      calls: cur.map((c) => ({ ok: true, text: c.text, http: [], ...((res.schemeGenTexts || []).includes(c.text) ? { scheme: true } : {}) })) });
+      calls: cur.map((c) => ({ ok: true, text: c.text, http: [], ...(c.scheme ? { scheme: true } : {}) })) });
   }
   cur = null;
   assert.equal(jobs.length, 2, 'CONTROL: two keyless jobs with DIFFERENT schemes were recorded');
@@ -691,7 +692,7 @@ test('§12a2 E1/B3 — a TWO-job scheme-ON run REPLAYS faithfully: each job brin
   assert.equal(models.length, before, 'replay made ZERO model calls through the live client');
 });
 
-test('§12a3 E1/M1 — a frozen scheme FILE: the first run writes, a later run READS it (zero generation, hits counted); generation uses the GRADING model, not the detect proxy', async () => {
+test('§12a3 E1/M1 — a frozen scheme FILE: the first run writes, a later run READS it (zero generation, hits counted); scheme generation runs on --scheme-model (default the grading model; a PROXY for production\'s GEMINI_MODEL), never the detect proxy; provenance is checked; not-frozen questions are counted', async () => {
   const os = require('os');
   const fs = require('fs');
   const path = require('path');
@@ -714,13 +715,99 @@ test('§12a3 E1/M1 — a frozen scheme FILE: the first run writes, a later run R
   assert.ok(fs.existsSync(file), 'the first run WROTE the scheme file');
   assert.equal(a.schemeCounters.generated, 1);
   const gen = calls.filter((c) => c.scheme);
-  assert.ok(gen.length >= 1 && gen.every((c) => c.model === 'grading-model'), 'scheme generation ran on the GRADING model, not the detect proxy: ' + JSON.stringify(gen));
+  assert.ok(gen.length >= 1 && gen.every((c) => c.model === 'grading-model'), 'scheme generation ran on the scheme model (default: the grading model, a proxy for production GEMINI_MODEL), not the detect proxy: ' + JSON.stringify(gen));
   calls.length = 0;
   const b = mk();
   await b.run(job);
   assert.equal(calls.filter((c) => c.scheme).length, 0, 'the second run READ the frozen file: no generation');
   assert.equal(b.schemeCounters.generated, 0);
   assert.ok(b.schemeCounters.hits >= 1, 'the hit is counted');
+});
+
+test('§12a4 E-b — the scheme file carries PROVENANCE: a different scheme model, a different generator sha or a headerless file is REFUSED unless --scheme-file-force; --scheme-model overrides the model', async () => {
+  const os = require('os');
+  const fs = require('fs');
+  const path = require('path');
+  const { createDriver } = require('./lib/driver.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const job = buildPlan({}).find((j) => j.jobKey === 'S.CI.GS-M04-a');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'schemeprov-'));
+  const file = path.join(dir, 'schemes.json');
+  const models = [];
+  const fake = async (model, contents) => {
+    const prompt = contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+    const scheme = /authors the OFFICIAL marking scheme|marking scheme for/.test(prompt) && !/GRADING RULES/.test(prompt);
+    if (scheme) models.push(model);
+    return { text: scheme
+      ? JSON.stringify({ steps: [{ stepNumber: 1, description: 'Formula', working: 'a = 1', marks: 1 }, { stepNumber: 2, description: 'Answer', working: 'x = 2', marks: 1 }], finalAnswer: 'x = 2' })
+      : JSON.stringify({ totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ stepNumber: 1, description: 'd', studentWork: 'w', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, finalAnswerCorrect: true, teacherNote: 'ok' }), raw: {} };
+  };
+  const mk = (extra) => createDriver({ callGemini: fake, model: 'detect-proxy', gradingModel: 'grading-model', gradingMode: 'single', scheme: true, schemeFile: file, ...extra });
+  const a = mk({ schemeModel: 'scheme-proxy' });
+  await a.run(job);
+  assert.ok(models.length >= 1 && models.every((m) => m === 'scheme-proxy'), '--scheme-model wins over the grading model: ' + models);
+  const written = JSON.parse(fs.readFileSync(file, 'utf8'));
+  assert.equal(written.header.schemeModel, 'scheme-proxy');
+  assert.match(written.header.stepSolutionSha256, /^[0-9a-f]{64}$/);
+  assert.ok(written.header.createdAt && Object.keys(written.schemes).length === 1);
+  assert.equal(a.schemeCounters.unfrozen, 0, 'a stored scheme is frozen');
+  assert.throws(() => mk({}), /provenance mismatch/, 'another scheme model is refused');
+  mk({ schemeModel: 'scheme-proxy' }); // same model + same generator: accepted
+  assert.doesNotThrow(() => mk({ schemeFileForce: true }), 'forced');
+  fs.writeFileSync(file, JSON.stringify({ header: { ...written.header, stepSolutionSha256: 'f'.repeat(64) }, schemes: written.schemes }));
+  assert.throws(() => mk({ schemeModel: 'scheme-proxy' }), /provenance mismatch/, 'another generator sha is refused');
+  fs.writeFileSync(file, JSON.stringify(written.schemes));
+  assert.throws(() => mk({ schemeModel: 'scheme-proxy' }), /no provenance header/, 'a headerless file is refused');
+});
+
+test('§12a5 E-b — a scheme that fails the quality gate is NOT frozen: counted in schemeCounters.unfrozen (it regenerates every run)', async () => {
+  const { createDriver } = require('./lib/driver.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const job = buildPlan({}).find((j) => j.jobKey === 'S.CI.GS-M04-a');
+  const fake = async (_m, contents) => {
+    const prompt = contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+    const scheme = /authors the OFFICIAL marking scheme|marking scheme for/.test(prompt) && !/GRADING RULES/.test(prompt);
+    return { text: scheme ? JSON.stringify({ steps: [], finalAnswer: '' }) : JSON.stringify({ totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ stepNumber: 1, description: 'd', studentWork: 'w', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, finalAnswerCorrect: true, teacherNote: 'ok' }), raw: {} };
+  };
+  const d = createDriver({ callGemini: fake, model: 'm', scheme: true });
+  await d.run(job);
+  assert.equal(d.schemeCounters.hits, 0);
+  assert.ok(d.schemeCounters.unfrozen >= 1, 'the unfrozen question is counted: ' + JSON.stringify(d.schemeCounters));
+});
+
+test('§12a6 E-c — a scheme call is tagged AT CALL TIME in the live client record, FAILED calls too; a failed scheme call never reaches the grading pool, and replay does not feed it to the grader', async () => {
+  const os = require('os');
+  const fs = require('fs');
+  const path = require('path');
+  const { schemeCallAls } = require('./lib/schemeCallContext.cjs');
+  const savedFetch = globalThis.fetch;
+  const savedKey = process.env.API_KEY;
+  const savedProv = process.env.AI_PROVIDER;
+  process.env.API_KEY = 'AIzaSyTEST_TEST_TEST_TEST_TEST_TEST_TEST_';
+  delete process.env.AI_PROVIDER;
+  globalThis.fetch = async () => new Response(JSON.stringify({ error: { code: 400, message: 'synthetic scheme failure', status: 'INVALID_ARGUMENT' } }), { status: 400, headers: { 'content-type': 'application/json' } });
+  try {
+    const { createLiveClient } = require('./lib/live.cjs');
+    const client = createLiveClient({ model: 'm', thinkingBudget: null, ledgerFile: path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'liveled-')), 'l.jsonl'), cap: 50, configId: 't', pr: 'T' });
+    const contents = [{ role: 'user', parts: [{ text: 'x' }] }];
+    const { calls } = await client.runInContext({ fn: 'f', jobKey: 'J', run: 1 }, async () => {
+      await schemeCallAls.run(true, () => client.callGemini('m', contents, {})).catch(() => null);
+      await client.callGemini('m', contents, {}).catch(() => null);
+    });
+    assert.equal(calls.length, 2);
+    assert.equal(calls[0].ok, false, 'the scheme call FAILED');
+    assert.equal(calls[0].scheme, true, 'a FAILED scheme call is tagged scheme:true (the old text-match tagged successful calls only)');
+    assert.notEqual(calls[1].scheme, true, 'a grading call is not tagged');
+    // the replay pool: only the grading call remains, so the failed scheme call can never be served as a grade reply
+    const { pickStoredCall } = require('./lib/replay.cjs');
+    const pool = calls.filter((c) => !c.scheme);
+    assert.equal(pool.length, 1);
+    assert.equal(pickStoredCall(pool, new Set(), 'm', {}), 0);
+  } finally {
+    globalThis.fetch = savedFetch;
+    if (savedKey === undefined) delete process.env.API_KEY; else process.env.API_KEY = savedKey;
+    if (savedProv !== undefined) process.env.AI_PROVIDER = savedProv;
+  }
 });
 
 test('§12b GRADER-TYPE-1 — the type probes are OPT-IN: the default plan is unchanged (no T1 job), the probe plan holds ONLY probes, both entry points, acceptsV2', () => {

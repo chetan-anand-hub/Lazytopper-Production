@@ -122,6 +122,25 @@ for (const s of SURFACES) {
       { description: 'Zeroes of the polynomial', studentWork: 'x = 2, 3', status: 'correct', marksAvailable: 2, marksAwarded: 2, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
       { description: 'Reason both zeroes are positive', studentWork: '', status: 'missing', marksAvailable: 2, marksAwarded: 0, marksDeducted: 2, teacherAnnotation: '×', mistakeType: null },
     ] },
+    // N1 (re-review): the bare "a)" / "i." marker styles SUB_PART_MARKER detects split the text too
+    'D bare "a) / b)" markers, (b) is a reason-only part': { text: 'a) Find the HCF of 12 and 18. [2 marks]\nb) Give a reason for your answer to a). [2 marks]', marks: 4, steps: [
+      { description: 'HCF of 12 and 18', studentWork: '6', status: 'correct', marksAvailable: 2, marksAwarded: 2, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Reason for the HCF', studentWork: '', status: 'missing', marksAvailable: 2, marksAwarded: 0, marksDeducted: 2, teacherAnnotation: '×', mistakeType: null, omittedAsk: 'reason' },
+    ] },
+    'E bare "i. / ii." markers, ii. is a reason-only part': { text: 'i. Find the HCF of 12 and 18. [2 marks]\nii. Give a reason for your answer to i. [2 marks]', marks: 4, steps: [
+      { description: 'HCF of 12 and 18', studentWork: '6', status: 'correct', marksAvailable: 2, marksAwarded: 2, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Reason for the HCF', studentWork: '', status: 'missing', marksAvailable: 2, marksAwarded: 0, marksDeducted: 2, teacherAnnotation: '×', mistakeType: null, omittedAsk: 'reason' },
+    ] },
+    // N2: one riding segment must not license a blank reason that may belong to another, reason-only segment
+    'F one riding segment + one reason-only segment, the blank reason is the second': { text: '(i) Is 6^n composite? Find its factors, giving a reason. [2 marks]\n(ii) Give a reason why 6^n cannot end with 0. [2 marks]', marks: 4, steps: [
+      { description: 'Factors of 6^n', studentWork: '2^n x 3^n', status: 'correct', marksAvailable: 2, marksAwarded: 2, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Reason why 6^n cannot end with 0', studentWork: '', status: 'missing', marksAvailable: 2, marksAwarded: 0, marksDeducted: 2, teacherAnnotation: '×', mistakeType: null, omittedAsk: 'reason' },
+    ] },
+    'G Section E (iii) "Explain why" whole part blank': { text: '(i) Find the first term. [1 mark]\n(ii) Find the common difference. [1 mark]\n(iii) Explain why the sequence is increasing. [2 marks]', marks: 4, steps: [
+      { description: 'First term', studentWork: 'a = 3', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Common difference', studentWork: 'd = 2', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Reason the sequence is increasing', studentWork: '', status: 'missing', marksAvailable: 2, marksAwarded: 0, marksDeducted: 2, teacherAnnotation: '×', mistakeType: null, omittedAsk: 'reason' },
+    ] },
   };
   for (const [name, probe] of Object.entries(B1_PROBES)) {
     test('GRADER-TYPE-1 B1 — ' + s.id + ': control ' + name + ' keeps TRUNK behaviour (never a concept gap)', async () => {
@@ -130,11 +149,44 @@ for (const s of SURFACES) {
       const now = await go();
       const trunk = await withEnv('GRADER_TYPE_1_DISABLED', '1', () => go());
       assert.deepEqual(typesOf(now.result), typesOf(trunk.result), s.id + ': identical to the rule switched off');
-      assert.notEqual(now.result.annotatedSteps[1].mistakeType, 'conceptual', s.id);
-      assert.equal(now.result.annotatedSteps[1].mistakeType, null, s.id + ': untyped, as on trunk');
+      const lastStep = now.result.annotatedSteps[now.result.annotatedSteps.length - 1];
+      assert.notEqual(lastStep.mistakeType, 'conceptual', s.id);
+      assert.equal(lastStep.mistakeType, null, s.id + ': untyped, as on trunk');
       assert.equal(now.result.marksAwarded, trunk.result.marksAwarded, s.id + ': marks never move');
     });
   }
+
+  // The CORRECT shapes the re-review kept: a right answer + a blank reason the question ASKED for -> conceptual (and trunk typed nothing).
+  const POSITIVES = {
+    '"Is 0.1010… rational? Justify your answer."': { text: 'Is 0.1010… rational? Justify your answer. [2 marks]', marks: 2 },
+    '"Do you agree? Give reason."': { text: 'Do you agree? Give reason. [2 marks]', marks: 2 },
+    '"State whether true or false and justify"': { text: 'State whether the statement is true or false and justify. [2 marks]', marks: 2 },
+  };
+  for (const [name, pos] of Object.entries(POSITIVES)) {
+    test('GRADER-TYPE-1 N1/N2 — ' + s.id + ': positive ' + name + ' — a blank asked-for reason beside a right answer is a concept gap', async () => {
+      const steps = [
+        { description: 'Answer', studentWork: 'Yes', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+        { description: 'Reason for the answer', studentWork: '', status: 'missing', marksAvailable: 1, marksAwarded: 0, marksDeducted: 1, teacherAnnotation: '×', mistakeType: null },
+      ];
+      const go = () => run(s, CASES['T1-Q25i-PLACEHOLDER'], { text: pos.text, marks: pos.marks, steps });
+      const now = await go();
+      const trunk = await withEnv('GRADER_TYPE_1_DISABLED', '1', go);
+      assert.deepEqual(typesOf(now.result)[1], ['missing', 0, 'conceptual'], s.id);
+      assert.equal(trunk.result.annotatedSteps[1].mistakeType, null, s.id + ': trunk typed nothing');
+      assert.equal(now.result.marksAwarded, trunk.result.marksAwarded, s.id + ': marks never move');
+    });
+  }
+  test('GRADER-TYPE-1 N1/N2 — ' + s.id + ': positive Section E "(iii) Which term is 40? Give reason." — the reason rides on an answer ask, a blank reason is a concept gap', async () => {
+    const steps = [
+      { description: 'First term', studentWork: 'a = 3', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Common difference', studentWork: 'd = 2', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Which term is 40', studentWork: 'n = 19.5, so none', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Reason that 40 is not a term', studentWork: '', status: 'missing', marksAvailable: 1, marksAwarded: 0, marksDeducted: 1, teacherAnnotation: '×', mistakeType: null },
+    ];
+    const text = '(i) Find the first term. [1 mark]\n(ii) Find the common difference. [1 mark]\n(iii) Which term is 40? Give reason. [2 marks]';
+    const now = await run(s, CASES['T1-Q25i-PLACEHOLDER'], { text, marks: 4, steps });
+    assert.deepEqual(typesOf(now.result)[3], ['missing', 0, 'conceptual'], s.id);
+  });
 
   test('GRADER-TYPE-1 — ' + s.id + ': the evidence quote in the QUESTION is not proof — the blank reason is a concept gap, not exam technique', async () => {
     const c = CASES['T1-TANGENT-CONTROL'];
