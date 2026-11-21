@@ -23,6 +23,43 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-22 (third daily of UTC day 21 Nov; written 22 Nov early morning IST) - #1799 - #1800 - #1801 - #1802 - #1803 - #1804 - #1806 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**New (each has its own heading below):** `[FU-SCHEME-GEN-EMPTY]` (P0), `[FU-FREECHECK-GRADE-ALL-COPY]`, `[FU-RESULT-LIST-BACKFILL]`, `[FU-PAYRETURN-LIVE-TEST]`, `[FU-PAYRETURN-N5-GUEST-CAPTURE-GAP]`, `[FU-SLOW-STAGE-DOUBLE-SHOW]`, `[FU-SCHEME-PREWARM-WORKLOAD-CLASS]`, `[FU-IDEMPOTENCY-STALE-VS-118S]`, `[FU-EVAL-55S-TIMEOUTS]`, `[FU-FLAKY-TRIALEND-BANNER-IST]`, `[FU-REPO-PRIVATE]`.
+
+### [FU-SCHEME-GEN-EMPTY]
+OPEN, **P0 (top priority)**. Production's model-written marking scheme often comes back EMPTY, so keyless Answer Checker questions (and any keyless paper question) may be graded with no scheme while still paying about 8 s and a model call for it. Evidence (22 Nov 03:05 IST, live, signed-out free check, never-graded photo question 96/404 [3], Maths Real Numbers): at detect, `[solution-cache] generation returned no usable scheme - nothing stored hash=7a071915` and `[scheme-prewarm] done in 8634 ms hash=none source=none`; at grade, the same line with the SAME hash, then `[grade-timing]` with `cacheMs` 7734, `cacheHit` false, `schemeHash` null, `marks` 3, `totalMs` 19923. The grade (3/3, correct) was produced WITHOUT a model scheme after waiting about 7.7 s. The 01:50 IST incident (84 and 120) fits the same shape. **Not caused by `#1804`**: the old code logged nothing when `generateModelSolution` returned null. Production sets no `GEMINI_MODEL` on Railway, so the generator runs on the `serverConfig` default (reviewer reports gemini-2.5-flash); detect runs on the same model and works. **How often is unknown**: count `nothing stored` against `[scheme-prewarm] ... source=generated` and `[grade-timing] schemeHash != null` over a day. **Leading hypothesis (unverified):** `generateModelSolution` (`server/routes/stepSolution.cjs`, about L267-471) calls the model with `maxOutputTokens: 1800`; on a thinking model, thinking tokens count against the output cap, the JSON reply is cut off, parse fails, null. Check `finishReason` MAX_TOKENS (log it), the thinking config passed, and the response length. **Proposed lane (needs the owner's OK; it changes what the grader receives):** (1) log `finishReason` and output length (no text) when the generator returns null; (2) fix the generator call (raise `maxOutputTokens` and/or set an explicit small thinking budget for this call only); (3) this is a GRADING change, so the full golden bar (scheme ON, production-like), a section 4a two-surface live verify, and a kill switch; (4) independently, the 10 s cache pre-phase budget means even a working generator often arrives too late on a cold question (eval run 22 Nov: "pre-phase reached its 10000 ms budget" on many jobs); the early prepare from `#1804` removes that wait once generation works. Source: `/home/claude/specs/SCHEME-GEN-1_v0.1_2026-11-22_FINDING.md`. [coordinator]
+
+### [FU-FREECHECK-GRADE-ALL-COPY]
+OPEN, copy. The Answer Checker detection box tells signed-out users "Upload your answer sheet ... to grade all 3" while the free check marks only question 1. Make the line agree with the one-question rule (`#1793`, `#1799`). Seen in the live signed-out run, 22 Nov. [coordinator]
+
+### [FU-RESULT-LIST-BACKFILL]
+OPEN, **awaiting the owner's yes.** Records written before `#1802` lack the optional `SessionRecord.writtenGraded`, so older graded Chapter Tests and Full Mocks may still read as "Awaiting sheet". A backfill is proposed; the dry run goes on the owner's own account first, and nothing is written until he says yes. [coordinator]
+
+### [FU-PAYRETURN-LIVE-TEST]
+OPEN, owner. `#1803` is a money path and is live-verified only to "the route answers 400 malformed for a junk body". The owner's live purchase test is OWED: in an Instagram in-app browser, pay and return; cancel; reload; and the same in a normal browser. [coordinator]
+
+### [FU-PAYRETURN-N5-GUEST-CAPTURE-GAP]
+OPEN. The coordinator's list gave only this ID (it names a guest-capture gap, "N5", on the `#1803` pay-return path) and no body. The docs builder did not find the detail in the repo and has not invented it. Whoever picks this up: read the `#1803` review thread, write the real body here, and do not treat the pay-return path as fully closed until then. [coordinator]
+
+### [FU-SLOW-STAGE-DOUBLE-SHOW]
+OPEN, cosmetic. On uploads slower than 45 s the "taking longer" line can show twice (the slow stage at upload +30 s and the fallback `send()` + 45 s, `#1804`). [coordinator]
+
+### [FU-SCHEME-PREWARM-WORKLOAD-CLASS]
+OPEN. The early scheme prepare (`#1804`) needs a workload class in `geminiClient.cjs`, which was out of that PR's scope. Do it only in a lane that scopes that file. [coordinator]
+
+### [FU-IDEMPOTENCY-STALE-VS-118S]
+OPEN, watch. `IDEMPOTENCY_PENDING_STALE_MS` is 5 minutes, which is less than 3 times the 118 s client budget. Safe while the server answers by about 112 s; if the server ever runs longer, revisit. [coordinator]
+
+### [FU-EVAL-55S-TIMEOUTS]
+OPEN. The golden eval's per-call timeout is 55 s; 14% of calls (79 of 548) timed out in the first cold baseline for `#1805`, while production per-call caps are 110 s and 120 s. This makes the eval noisy and costly (₹562 for that run). Consider a longer eval timeout. [coordinator]
+
+### [FU-FLAKY-TRIALEND-BANNER-IST]
+OPEN, test flake. `TrialEndBanner` "reports shown with the IST day key" failed once in CI (vitest shard 4/4) on `#1804`, unrelated to that PR; it passes 3 of 3 locally and a re-run was green. If it fails again, find the race instead of re-running. Same shape as `[FU-FLAKY-PACKSPAGE-OWNED-PACKS]`. [coordinator]
+
+### [FU-REPO-PRIVATE]
+OPEN, reminder to the owner. The repository `chetan-anand-hub/Lazytopper-Production` is PUBLIC at writing (`private: false` from the GitHub API, 22 Nov). The handoff files record prices, ad setup and incident notes. Decide whether it should be private. The coordinator's note was only a reminder; the docs builder added the visibility reading. [gh; coordinator]
+
 ## 2026-11-21b (second daily; UTC day 21 Nov, written 21 Nov evening) - #1795 - #1796 - #1797 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **Closed later the same day [coordinator]:** `[FU-YT-DANDIYA-ADCOPY-FREE]`, `[FU-YT-SHORT-2MIN-CLAIM]`, `[FU-LAPTOP-UPLOAD-PARTS]` (see their headings below).

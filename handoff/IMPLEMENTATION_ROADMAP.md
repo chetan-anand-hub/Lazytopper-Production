@@ -1,3 +1,9 @@
+## 2026-11-22 (third daily of UTC day 21 Nov; written 22 Nov early morning IST) - #1799 - #1800 - #1801 - #1802 - #1803 - #1804 - #1806 - MERGED
+
+- DONE. `#1799` (`ea069940`) CI-UPLOAD-Q-1 (an uploaded paper wins over hidden typed text; free check says question 1 up front). `#1800` (`54d1a353`) GRADE-TIMEOUT-RETRY-1 (time-out is a retryable 504, one quiet re-send). `#1801` (`1f63a16a`) GRADE-RESULT-COPY-1 ("Not answered on the pages you uploaded"; "still checking" on every paper surface). `#1802` (`075d7d00`) RESULT-LIST-HONEST-1 (graded test never "Awaiting sheet"; skipped never "slipped"). `#1803` (`dccf96ae`) PAY-RETURN-1 (signed-out buyer back from a UPI app still sees the purchase; money path). `#1804` (`c534ed4f`) GRADE-SPEED-1 (one early scheme prepare; one-question grades up to 110 s). `#1806` (`6dc8620b`) GRADE-SPEED-1b (scheme hash and source logging).
+- IN FLIGHT: `#1805` GRADER-TYPE-1, open draft, head `d6111132`; paid golden eval running (cap ₹4,000).
+- NEXT: `[FU-SCHEME-GEN-EMPTY]` (P0, a grading lane, owner OK needed); the `#1805` eval result and two-surface live verify; owner live test for `#1803`; owner yes on `[FU-RESULT-LIST-BACKFILL]`. The earlier lists stand.
+
 ## 2026-11-21b (second daily; UTC day 21 Nov, written 21 Nov evening) - #1795 - #1796 - #1797 - MERGED
 
 - DONE. `#1795` (`714f0fff`) REFUND-TS-CBQ-1 (Cancellation Policy names Test Series, the upgrade and CBQ Packs; WhatsApp line). `#1796` (`7c814650`) SPEED-SALES-CSS-1 (small stylesheets inlined; blocking links 7/5/4/3 to 0, /test-series 6 to 1). `#1797` (`c6faee85`) SPEED-HERO-LCP-1 (hero h1 font-display block on /cbq-packs, /board-pass, /test-series).
