@@ -75,6 +75,7 @@ function harness(plan, deps = {}) {
     calls, lines,
     single: (o = {}) => run('handleCheckSolution', { question: QT, marks: 3, subject: 'Maths', topic: 'Quadratic Equations', textAnswer: SECRET_ANSWER, headers: { 'x-lazytopper-surface': 'check-improve' }, ...o }),
     sheet: (qs, o = {}) => run('handleGradeWorksheet', { worksheetId: 'ws', subject: 'Maths', questions: qs, headers: { 'x-lazytopper-surface': 'worksheet' }, ...o }),
+    detect: (o = {}) => run('handleDetectQuestion', { question: QT, headers: {}, ...o }),
     quiet: async (fn) => { const w = console.warn; console.warn = () => {}; try { return await fn(); } finally { console.warn = w; } },
   };
 }
@@ -95,9 +96,11 @@ test('§T.1 check-solution: ONE line with route, surface, status, preMs, attempt
   assert.equal(rec.status, 200);
   assert.ok(rec.preMs >= 0 && rec.preMs < 5000, 'preMs measured from the server pipeline entry: ' + rec.preMs);
   assert.equal(rec.cacheMs, null, 'no solution cache wired: the pre-phase did not run');
-  assert.deepEqual(rec.attempts, [{ n: 1, ms: rec.attempts[0].ms, finishReason: 'STOP', thoughtsTokenCount: 9120, outputTokens: 1840, retryReason: null }]);
+  assert.deepEqual(rec.attempts, [{ n: 1, ms: rec.attempts[0].ms, finishReason: 'STOP', thoughtsTokenCount: 9120, outputTokens: 1840, promptTokens: 5000, parseMiss: false, retryReason: null }]);
   assert.ok(Number.isInteger(rec.totalMs) && rec.totalMs >= rec.attempts[0].ms);
-  assert.deepEqual(Object.keys(rec), ['route', 'surface', 'status', 'preMs', 'cacheMs', 'attempts', 'totalMs']);
+  // GRADE-SPEED-1 S6: cacheHit / transport / marks are new, in this order, beside cacheMs.
+  assert.deepEqual(Object.keys(rec), ['route', 'surface', 'status', 'preMs', 'cacheMs', 'cacheHit', 'transport', 'marks', 'attempts', 'totalMs']);
+  assert.deepEqual([rec.cacheHit, rec.transport, rec.marks], [null, 'typedOnly', 3], 'no cache wired -> cacheHit null; typed answer -> typedOnly; the question\'s marks');
   // CONTENT FIREWALL: no answer text, question text or identity.
   assert.ok(!h.lines[0].includes('SECRET-ANSWER-MARKER') && !h.lines[0].includes('factorisation'));
 });
@@ -132,6 +135,41 @@ test('§T.4 cacheMs is recorded when the scheme-first cache pre-phase runs', asy
   assert.equal(parseLine(none.lines[0]).cacheMs, null);
 });
 
+test('§T.4b S6 cacheHit: true = every needed scheme was already stored; false = one was generated/awaited or missed the budget; true = none needed; transport and marks ride along', async () => {
+  const lineOf = async (cache, o) => { const h = harness([{ text: GOOD() }], cache ? { solutionCache: cache } : {}); await h.single(o); return parseLine(h.lines[0]); };
+  const stored = await lineOf({ getOrCreateModelSolution: async () => ({ schemeSteps: ['Write the formula [1]'], fromCache: true }) });
+  assert.equal(stored.cacheHit, true);
+  const generated = await lineOf({ getOrCreateModelSolution: async () => ({ schemeSteps: ['Write the formula [1]'], fromCache: false }) });
+  assert.equal(generated.cacheHit, false, 'a generation had to be awaited');
+  const missed = await lineOf({ getOrCreateModelSolution: async () => null });
+  assert.equal(missed.cacheHit, false, 'no scheme arrived');
+  const none = await lineOf({ getOrCreateModelSolution: async () => { throw new Error('must not be asked'); } }, { solutionSteps: ['Given [1]', 'Answer [2]'] });
+  assert.equal(none.cacheHit, true, 'a stored (bank) scheme: nothing needed');
+  assert.equal((await lineOf(null)).cacheHit, null, 'no cache wired: unknown');
+  assert.deepEqual([stored.transport, stored.marks], ['typedOnly', 3]);
+  const photo = harness([{ text: GOOD() }]);
+  await photo.single({ textAnswer: '', imageBase64: 'UEhPVE8=', imageMimeType: 'image/jpeg', marks: 5 });
+  const rec = parseLine(photo.lines[0]);
+  assert.deepEqual([rec.transport, rec.marks], ['perQuestionParts', 5]);
+  // a paper carries no single marks figure
+  const paper = harness([{ text: GOOD([1, 2]) }]);
+  await paper.sheet([sq(1), sq(2)]);
+  assert.equal(parseLine(paper.lines[0]).marks, null);
+});
+
+test('§T.5b S6 a reply that did not parse is marked parseMiss with its finishReason; a parsed reply and a timeout are not; promptTokens ride on every reply', async () => {
+  const h = harness([{ text: 'not json', finishReason: 'SAFETY', usage: { promptTokenCount: 777 } }, { text: GOOD(), usage: { promptTokenCount: 778 } }]);
+  await h.quiet(() => h.single());
+  const rec = parseLine(h.lines[0]);
+  assert.deepEqual(rec.attempts.map((a) => [a.n, a.finishReason, a.parseMiss, a.promptTokens]), [[1, 'SAFETY', true, 777], [2, 'STOP', false, 778]]);
+  const e = Object.assign(new Error('timed out'), { timedOut: true });
+  const t = harness([{ error: e }, { error: e }]);
+  await t.quiet(() => t.single());
+  for (const a of parseLine(t.lines[0]).attempts) assert.deepEqual([a.parseMiss, a.promptTokens, a.finishReason], [false, null, null]);
+  // CONTENT FIREWALL: no answer / question text anywhere on the line
+  assert.ok(!h.lines[0].includes('SECRET-ANSWER-MARKER') && !h.lines[0].includes('factorisation'));
+});
+
 test('§T.5 a retry is its own row with the reason: parse miss -> "unparseable", 503 -> "http_503", timeout -> "timeout"', async () => {
   const e503 = Object.assign(new Error('overloaded'), { status: 503 });
   const cases = [
@@ -159,11 +197,200 @@ test('§T.6 a failed grade (every attempt errors) still logs, with status 500 an
 });
 
 test('§T.7 formatGradeTimingLine: closed sets, numbers only, job mode carries no status', () => {
-  const sink = { cacheMs: 12.4, attempts: [{ n: 1, ms: 5, finishReason: 'STOP', thoughtsTokenCount: 1, outputTokens: 2, retryReason: null }] };
+  const sink = { cacheMs: 12.4, cacheHit: true, transport: 'document', marks: 5, attempts: [{ n: 1, ms: 5, finishReason: 'STOP', thoughtsTokenCount: 1, outputTokens: 2, promptTokens: 3, parseMiss: false, retryReason: null }] };
   const rec = parseLine(gt.formatGradeTimingLine({ route: '/api/grade-worksheet', mode: 'job', surface: 'full-mock', status: 202, preMs: null, sink, totalMs: 99.6 }));
-  assert.deepEqual(rec, { route: '/api/grade-worksheet', mode: 'job', surface: 'full-mock', preMs: null, cacheMs: 12, attempts: sink.attempts, totalMs: 100 });
+  assert.deepEqual(rec, { route: '/api/grade-worksheet', mode: 'job', surface: 'full-mock', preMs: null, cacheMs: 12, cacheHit: true, transport: 'document', marks: 5, attempts: sink.attempts, totalMs: 100 });
   const junk = parseLine(gt.formatGradeTimingLine({ route: 'uid-123/evil', surface: 'a@b.com', status: 'x', preMs: -4, sink: null, totalMs: NaN }));
-  assert.deepEqual(junk, { route: null, surface: null, status: null, preMs: null, cacheMs: null, attempts: [], totalMs: null });
+  assert.deepEqual(junk, { route: null, surface: null, status: null, preMs: null, cacheMs: null, cacheHit: null, transport: null, marks: null, attempts: [], totalMs: null });
+  // GRADE-SPEED-1 S6 · CLOSED SETS: a free-text transport, a non-boolean cacheHit and a negative marks never reach the line.
+  const evil = parseLine(gt.formatGradeTimingLine({ route: '/api/check-solution', surface: 'check-improve', status: 200, preMs: 1, sink: { cacheHit: 'yes', transport: 'uid-123 student@example.com', marks: -3, attempts: [] }, totalMs: 1 }));
+  assert.deepEqual([evil.cacheHit, evil.transport, evil.marks], [null, null, null]);
+});
+
+/* ══ §S · GRADE-SPEED-1 (22 Nov 2026): the scheme is prepared when the question is read, and a one-question grade may run to 110 s ══ */
+
+const stepSolution = require('../routes/stepSolution.cjs');
+const timingLib = require('./timing.cjs');
+const { isSchemeCandidate, schemeFieldsOf } = require('./core.cjs');
+
+const DETECT_REPLY = (questions) => JSON.stringify({
+  detectedMarks: questions[0].marks, marksSource: 'stated', detectedSubject: 'Maths', detectedTopic: null, detectedObjective: false,
+  questions: questions.map((q, i) => ({ questionNumber: i + 1, questionText: q.text, marks: q.marks, marksSource: 'stated', objective: q.objective === true, subject: 'Maths', chapter: null })),
+});
+/** A solution cache that records every call and answers `answer` (a function) — never a model call. */
+function recordingCache(answer = async () => ({ schemeSteps: ['Write the formula [1]'], fromCache: true })) {
+  const calls = [];
+  return { calls, getOrCreateModelSolution: (fields) => { calls.push(fields); return answer(fields); } };
+}
+const flush = () => new Promise((r) => setImmediate(r));
+const withEnv = async (k, v, fn) => { const old = process.env[k]; if (v === undefined) delete process.env[k]; else process.env[k] = v; try { return await fn(); } finally { if (old === undefined) delete process.env[k]; else process.env[k] = old; } };
+const detectOne = (h, o = {}) => h.detect(o);
+
+test('§S.1 S1 detect of ONE keyless subjective question starts exactly ONE scheme preparation, with the SAME hash inputs the grade will use', async () => {
+  const cache = recordingCache();
+  const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { solutionCache: cache });
+  const out = await detectOne(h);
+  assert.equal(out.status, 200);
+  await flush();
+  assert.equal(cache.calls.length, 1, 'one preparation');
+  assert.deepEqual([cache.calls[0].question, cache.calls[0].marks, cache.calls[0].isObjective], [QT, 3, false]);
+  // The grade of the same question (what the client sends after detect) reaches the cache with the SAME question + marks.
+  const h2 = harness([{ text: GOOD() }], { solutionCache: cache });
+  await h2.single({ question: QT, marks: 3 });
+  assert.equal(cache.calls.length, 2);
+  assert.deepEqual([cache.calls[1].question, cache.calls[1].marks], [cache.calls[0].question, cache.calls[0].marks], 'prepare and grade share the hash inputs');
+  // CONTROL: the student edits the marks -> a different hash input (a miss, today's behaviour).
+  await h2.single({ question: QT, marks: 5 });
+  assert.equal(cache.calls[2].marks, 5);
+});
+
+test('§S.2 S1 the prepare never delays the detect response (a cache that never answers cannot hold it) and never throws into it', async () => {
+  const hung = recordingCache(() => new Promise(() => {}));
+  const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { solutionCache: hung });
+  const out = await Promise.race([detectOne(h), new Promise((r) => setTimeout(() => r('TIMEOUT'), 500))]);
+  assert.equal(out.status, 200, 'detect answered while the preparation was still hanging');
+  const boom = recordingCache(() => { throw new Error('db down'); });
+  const h2 = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { solutionCache: boom });
+  assert.equal((await detectOne(h2)).status, 200);
+  await flush();
+});
+
+test('§S.3 S1 KILL SWITCH SCHEME_PREWARM_DISABLED=1 -> nothing is started; CONTROL: unset -> started', async () => {
+  for (const v of ['1', 'true']) {
+    await withEnv('SCHEME_PREWARM_DISABLED', v, async () => {
+      const cache = recordingCache();
+      const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { solutionCache: cache });
+      assert.equal((await detectOne(h)).status, 200);
+      await flush();
+      assert.equal(cache.calls.length, 0, 'switch ' + v);
+    });
+  }
+  await withEnv('SCHEME_PREWARM_DISABLED', undefined, async () => {
+    const cache = recordingCache();
+    const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { solutionCache: cache });
+    await detectOne(h);
+    await flush();
+    assert.equal(cache.calls.length, 1);
+  });
+});
+
+test('§S.4 S1 a MULTI-question paper prepares NOTHING; only a free-check request prepares question 1 of it', async () => {
+  const two = [{ text: QT, marks: 3 }, { text: 'Find the 10th term of the AP 2, 7, 12, ...', marks: 2 }];
+  const cache = recordingCache();
+  await detectOne(harness([{ text: DETECT_REPLY(two) }], { solutionCache: cache }));
+  await flush();
+  assert.equal(cache.calls.length, 0, 'signed-in multi-question paper: none');
+  const free = recordingCache();
+  await detectOne(harness([{ text: DETECT_REPLY(two) }], { solutionCache: free }), { headers: { 'x-lazytopper-free-check': '1' } });
+  await flush();
+  assert.equal(free.calls.length, 1, 'free check: exactly one');
+  assert.equal(free.calls[0].question, QT, 'question 1, never question 2');
+  // CONTROL: a wrong marker value is not a free check.
+  const bogus = recordingCache();
+  await detectOne(harness([{ text: DETECT_REPLY(two) }], { solutionCache: bogus }), { headers: { 'x-lazytopper-free-check': 'yes' } });
+  await flush();
+  assert.equal(bogus.calls.length, 0);
+});
+
+test('§S.5 S1 the grader\'s own filter: an objective question, one that prints MCQ options, and one with a stored scheme are never prepared', async () => {
+  const MCQ_TEXT = 'Which is a prime number? (a) 4 (b) 6 (c) 7 (d) 9';
+  for (const [label, q] of [['detect-flagged objective', { text: QT, marks: 1, objective: true }], ['prints its options', { text: MCQ_TEXT, marks: 1 }]]) {
+    const cache = recordingCache();
+    await detectOne(harness([{ text: DETECT_REPLY([q]) }], { solutionCache: cache }));
+    await flush();
+    assert.equal(cache.calls.length, 0, label);
+  }
+  // The predicate itself is the one gradeSet uses.
+  assert.equal(isSchemeCandidate({ questionText: QT, marks: 3, solutionSteps: null }), true);
+  assert.equal(isSchemeCandidate({ questionText: QT, marks: 3, solutionSteps: ['Step [1]'] }), false);
+  assert.equal(isSchemeCandidate({ questionText: QT, marks: 3, section: 'A', format: 'mcq' }), false);
+  assert.equal(isSchemeCandidate({ questionText: QT, marks: 3, objective: true }), false);
+  assert.deepEqual(schemeFieldsOf({ questionText: QT, marks: 3 }, 'Science'), { question: QT, marks: 3, subject: 'Science', topic: '', qType: '', section: '', isObjective: false });
+});
+
+test('§S.6 S2 in-flight de-dupe: a grade arriving while the prepare is generating awaits it — ONE generation, two callers served', async () => {
+  const store = new Map();
+  stepSolution.__setPoolForTests({
+    query: async (sql, params) => {
+      if (/^SELECT/i.test(sql)) return { rows: store.has(params[0]) ? [{ solution_json: store.get(params[0]) }] : [] };
+      if (/^INSERT/i.test(sql)) { store.set(params[0], JSON.parse(params[1])); return { rows: [] }; }
+      return { rows: [] };
+    },
+  });
+  try {
+    let generations = 0;
+    let release;
+    const gate = new Promise((r) => { release = r; });
+    const deps = {
+      GEMINI_MODEL: 'm', ACTIVE_PROVIDER: 'test', extractJsonObjectFromText: lenient,
+      callGemini: async () => {
+        generations += 1;
+        await gate;
+        return { text: JSON.stringify({ totalMarks: 3, steps: [
+          { stepNumber: 1, description: 'Formula', working: 'x = ...', marks: 1 }, { stepNumber: 2, description: 'Substitute', working: 'x = 4', marks: 1 }, { stepNumber: 3, description: 'Answer', working: 'x = 4 or -2', marks: 1 }], commonMistakes: ['a'], examTip: 't' }) };
+      },
+    };
+    const fields = { question: QT, marks: 3, subject: 'Maths', isObjective: false };
+    const prepare = stepSolution.getOrCreateModelSolution(fields, deps);
+    await flush();
+    const grade = stepSolution.getOrCreateModelSolution({ ...fields, topic: 'Quadratic Equations' }, deps); // arrives mid-generation
+    await flush();
+    assert.equal(stepSolution.__inflightSolutionCount(), 1);
+    release();
+    const [a, b] = await Promise.all([prepare, grade]);
+    assert.equal(generations, 1, 'ONE generation for both callers');
+    assert.ok(a && b && a.schemeSteps.length === 3 && b.schemeSteps.length === 3);
+    assert.notEqual(a.schemeSteps, b.schemeSteps, 'each caller gets its own array');
+    assert.equal(stepSolution.__inflightSolutionCount(), 0, 'the entry is removed once settled');
+    // CONTROL: after it settled, the next call is a CACHE HIT (no second generation).
+    const again = await stepSolution.getOrCreateModelSolution(fields, deps);
+    assert.equal(again.fromCache, true);
+    assert.equal(generations, 1);
+  } finally {
+    stepSolution.__setPoolForTests(null);
+  }
+});
+
+test('§S.7 S3 timing: one question 110 s, a paper 80 s, SINGLE_GRADE_DEADLINE_MS=80000 restores today, clamps hold', () => {
+  const t = timingLib.normaliseTiming({});
+  const single = (raw, dl = t.deadlineMs) => timingLib.resolveSingleQuestionDeadlineMs(raw, dl);
+  assert.equal(single(undefined), 110000);
+  assert.equal(single(''), 110000);
+  assert.equal(single('80000'), 80000, 'the kill switch');
+  assert.equal(single('999999'), 112000, 'clamped to 112 s (under the client\'s 118 s and Vercel\'s 120 s)');
+  assert.equal(single('1000'), 80000, 'never below the ordinary deadline');
+  assert.equal(single('abc'), 110000);
+  assert.equal(single(undefined, 60000), 110000);
+  assert.equal(single('50000', 60000), 60000);
+  const timing = { ...t, singleDeadlineMs: 110000 };
+  assert.equal(timingLib.requestDeadlineMs(timing, 1), 110000);
+  assert.equal(timingLib.requestDeadlineMs(timing, 2), 80000, 'a multi-question request is unchanged');
+  assert.equal(timingLib.requestDeadlineMs(timing, 11), 80000);
+  assert.equal(timingLib.requestDeadlineMs({ ...t, singleDeadlineMs: 80000 }, 1), 80000);
+  assert.equal(timingLib.requestDeadlineMs(t, 1), 80000, 'no single deadline configured -> ordinary');
+  assert.ok(timingLib.MAX_SINGLE_QUESTION_DEADLINE_MS < timingLib.CLIENT_SINGLE_QUESTION_BUDGET_MS, 'server ceiling < client budget');
+  assert.ok(timingLib.CLIENT_SINGLE_QUESTION_BUDGET_MS < 120000, 'client budget < Vercel\'s 120 s first-byte wait');
+  // the ordinary shape is untouched
+  assert.deepEqual(Object.keys(t).sort(), ['cacheBudgetMs', 'chunkTimeoutMs', 'deadlineMs', 'singleCallMaxQuestions']);
+});
+
+test('§S.8 S3 route: a 1-question check-solution and a 1-question grade-worksheet get the long deadline; a 2-question grade does not; env 80000 restores today', async () => {
+  const budgetOf = (h) => h.calls[0].genConfig.timeoutMs;
+  const h1 = harness([{ text: GOOD() }]);
+  await h1.single();
+  assert.ok(budgetOf(h1) > 100000 && budgetOf(h1) <= 108000, 'check-solution, 1 question: ' + budgetOf(h1));
+  const h2 = harness([{ text: GOOD() }]);
+  await h2.sheet([sq(1)]);
+  assert.ok(budgetOf(h2) > 100000 && budgetOf(h2) <= 108000, 'grade-worksheet, 1 question: ' + budgetOf(h2));
+  const h3 = harness([{ text: GOOD([1, 2]) }]);
+  await h3.sheet([sq(1), sq(2)]);
+  assert.ok(budgetOf(h3) <= 78000, 'grade-worksheet, 2 questions stays at 80 s - 2 s margin: ' + budgetOf(h3));
+  const h4 = harness([{ text: GOOD() }], { SINGLE_GRADE_DEADLINE_MS: '80000' });
+  await h4.single();
+  assert.ok(budgetOf(h4) <= 78000, 'kill switch: today\'s 78 s: ' + budgetOf(h4));
+  const h5 = harness([{ text: GOOD() }], { GRADING_DEADLINE_MS: 80000, SINGLE_GRADE_DEADLINE_MS: '999999' });
+  await h5.single();
+  assert.ok(budgetOf(h5) <= 110000, 'clamped at 112 s - 2 s margin: ' + budgetOf(h5));
 });
 
 /* ══ §R · the MAX_TOKENS retry ═══════════════════════════════════════════════ */

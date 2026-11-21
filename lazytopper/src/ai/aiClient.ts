@@ -160,6 +160,9 @@ async function postGrading(
   refreshedHeaders: () => Promise<Record<string, string>>,
   /** J2: the job client picks the key (it stores it before polling). Absent → minted here. */
   keyOverride?: string,
+  /** GRADE-SPEED-1 S3: this call grades exactly ONE question (check-solution; a one-question grade-worksheet,
+   *  incl. the signed-out free check, which the server cuts to question 1) -> the longer per-attempt budget. */
+  singleQuestion?: boolean,
 ): Promise<GradingHttpResponse> {
   const { sendGradingRequest, newIdempotencyKey } = await import("./gradingTransport");
   // Loaded here, not at the top: the server suites transpile this file standalone (entitlement.test.cjs A11), where a
@@ -186,6 +189,7 @@ async function postGrading(
     // that case only. It keeps the timeout, stages and offline wait.
     ...(opts?.freeCheck ? { maxRetries: 0 } : {}),
     ...(opts?.onStage ? { onStage: opts.onStage } : {}),
+    ...(singleQuestion === true ? { singleQuestion: true } : {}),
   };
   // A free check carries no token, so sendWithTokenRefresh never re-sends it.
   return sendWithTokenRefresh(
@@ -792,6 +796,8 @@ export async function checkSolutionImage(req: {
     withAcceptsV2(req, opts),
     opts,
     refreshedPaidHeaders(surface),
+    undefined,
+    true, // GRADE-SPEED-1 S3: /api/check-solution always grades exactly one question
   );
   return handleJsonResponse<CheckSolutionResponse>(res);
 }
@@ -1084,6 +1090,10 @@ export async function gradeWorksheet(req: {
     withAcceptsV2(req, opts),
     opts,
     refreshedPaidHeaders(extra),
+    undefined,
+    // GRADE-SPEED-1 S3: exactly one question (the server's deadline for it is the longer one). A signed-out free
+    // check is always graded on ONE question (FREECHECK-ONEQ-1 cuts the body to question 1), whatever it sends.
+    req.questions.length === 1 || opts?.freeCheck === true,
   );
   return handleJsonResponse<WorksheetGradeResponse>(res);
 }

@@ -21,7 +21,9 @@ const {
   isObjective,
 } = require('./objectiveScoring.cjs');
 const grading = require('../grading/index.cjs');
-const { createGradingCore } = require('../grading/core.cjs');
+const { createGradingCore, isSchemeCandidate, schemeFieldsOf } = require('../grading/core.cjs');
+// GRADE-SPEED-1 S1: the early scheme prepare runs in a meter group that is never settled (writes nothing to a student's ledger).
+const { createMeterGroup, runInMeterGroup } = require('../services/usageLedger.cjs');
 // PR-3 (C9): what a grade CHARGES — the chargeable-question count, recorded on `res` before
 // every 2xx grading response (fair use commits exactly that; see grading/charge.cjs).
 const { chargeableCount, isChargeable, setChargeableCount, unreadableSummary, setUnreadableSummary } = require('../grading/charge.cjs');
@@ -268,6 +270,58 @@ function createCheckSolutionRoute(deps) {
   // and falls back to GEMINI_MODEL for every direct / legacy construction. The optional
   // `solutionCache` dep (C&I PR-3) reaches it through `deps` unchanged.
   const core = createGradingCore(deps);
+
+  /**
+   * GRADE-SPEED-1 S1 · PREPARE THE SCHEME WHEN THE QUESTION IS READ.
+   * After /api/detect-question succeeds, start the solution-cache lookup/generation for the ONE question a
+   * single grade will use, so the later grade finds it (cacheMs ~ a cache read, not 7-10 s of generation).
+   *   · exactly one detected question -> that question (Answer Checker single);
+   *   · several questions -> only on a free-check request (marker header), and only question 1 (the free
+   *     check grades question 1: FREECHECK-ONEQ-1). A multi-question paper otherwise prepares NOTHING;
+   *   · only a question the grader itself would give a scheme (core.isSchemeCandidate: keyless, subjective) and
+   *     whose text does not print MCQ options (the grade routes' printedOptionsUpgrade would make it objective);
+   *   · the SAME builder (core.schemeFieldsOf) and the SAME function (deps.solutionCache) the grade uses, so the
+   *     scheme is stored under the hash the grade will look up (question text + marks). A student who edits the
+   *     text or the marks gets a different hash: a miss, and grading is exactly as today.
+   *   · fire-and-forget: never awaited, never throws, cannot delay the detect response. The call runs in an
+   *     UNSETTLED meter group, so nothing is written to the student's usage ledger for a scheme they may never
+   *     grade (a platform cost, like the warm pool). Counted in telemetry as scheme_prewarm.*.
+   *   · kill switch: SCHEME_PREWARM_DISABLED=1 -> nothing is started.
+   */
+  function prepareSchemeAfterDetect(req, detectedQuestions, partialRead, detectedSubject) {
+    try {
+      const flag = String(process.env.SCHEME_PREWARM_DISABLED || '').trim().toLowerCase();
+      if (flag === '1' || flag === 'true' || flag === 'on' || flag === 'yes') return null;
+      const cache = deps.solutionCache;
+      if (!cache || typeof cache.getOrCreateModelSolution !== 'function') return null;
+      if (partialRead || !Array.isArray(detectedQuestions) || detectedQuestions.length === 0) return null;
+      const marker = req && req.headers ? String(req.headers['x-lazytopper-free-check'] || '').trim() : '';
+      if (detectedQuestions.length > 1 && marker !== '1') return null;
+      const dq = detectedQuestions[0];
+      const q = {
+        questionText: String((dq && dq.questionText) || '').trim(),
+        marks: Number(dq && dq.marks),
+        objective: Boolean(dq && dq.objective === true),
+        subject: String((dq && dq.subject) || '').trim(),
+        solutionSteps: null,
+      };
+      if (!q.questionText || !(q.marks >= 1)) return null;
+      if (!isSchemeCandidate(q) || printedOptionsUpgrade({}, q.questionText, q.marks)) return null;
+      const count = (name) => { try { if (deps.telemetry && typeof deps.telemetry.increment === 'function') deps.telemetry.increment(name, 1); } catch { /* a counter never fails a request */ } };
+      count('scheme_prewarm.started');
+      const started = Date.now();
+      const job = Promise.resolve()
+        .then(() => runInMeterGroup(createMeterGroup(), () => cache.getOrCreateModelSolution(schemeFieldsOf(q, detectedSubject))))
+        .then((r) => {
+          count(r && Array.isArray(r.schemeSteps) && r.schemeSteps.length > 0 ? (r.fromCache === true ? 'scheme_prewarm.cache_hit' : 'scheme_prewarm.generated') : 'scheme_prewarm.no_scheme');
+          console.log('[scheme-prewarm] done in ' + (Date.now() - started) + ' ms');
+        })
+        .catch(() => count('scheme_prewarm.failed'));
+      return job;
+    } catch {
+      return null;
+    }
+  }
   // J1: the job runner (server/index.cjs passes it with GRADING_JOBS). Absent → never a job.
   const gradingJobs = deps.gradingJobs || null;
   // PR-3 (C8): the clock the grading deadline is measured on (a test may inject one).
@@ -889,7 +943,7 @@ function createCheckSolutionRoute(deps) {
         });
       }
 
-      return sendJson(res, 200, {
+      const detectOut = sendJson(res, 200, {
         ok: true,
         detectedMarks,
         detectedSubject,
@@ -904,6 +958,9 @@ function createCheckSolutionRoute(deps) {
         provider: ACTIVE_PROVIDER,
         model: GEMINI_MODEL,
       });
+      // GRADE-SPEED-1 S1: AFTER the response is sent; never awaited (see prepareSchemeAfterDetect).
+      prepareSchemeAfterDetect(req, questions, partialRead, detectedSubject);
+      return detectOut;
     } catch (err) {
       console.error('[detect-question]', err);
       return sendJson(res, 500, {

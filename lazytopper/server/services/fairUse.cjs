@@ -1664,6 +1664,14 @@ const IDEMPOTENCY_TTL_MS = 24 * HOUR_MS;
 const IDEMPOTENCY_PENDING_STALE_MS = 5 * 60 * 1000;
 /** How long a duplicate waits for the first attempt — under the client's 90 s timeout. */
 const IDEMPOTENCY_WAIT_MS = 75 * 1000;
+/**
+ * GRADE-SPEED-1 S3 (resolves FU-IDEMPOTENCY-WAIT-75-VS-80): /api/check-solution grades exactly ONE question, whose
+ * server deadline is now up to 110 s (SINGLE_GRADE_DEADLINE_MS; clamp 112 s) and whose client budget is 118 s
+ * (gradingTransport.ts GRADING_SINGLE_TIMEOUT_MS). A concurrent duplicate must be able to outwait the in-flight
+ * grade yet still answer BEFORE the client gives up: 105 s < 118 s. /api/grade-worksheet keeps 75 s: it carries
+ * papers (client budget 90 s, server deadline 80 s) and the 1-question Quick Practice batch shares the number.
+ */
+const IDEMPOTENCY_WAIT_SINGLE_MS = 105 * 1000;
 const IDEMPOTENCY_POLL_MS = 1000;
 /** Firestore's document cap is 1 MiB; a larger body is served but not stored. */
 const IDEMPOTENCY_MAX_BODY_BYTES = 900 * 1024;
@@ -1719,6 +1727,8 @@ function createGradingIdempotency(deps = {}) {
     now = () => Date.now(),
     sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
     waitMs = IDEMPOTENCY_WAIT_MS,
+    // GRADE-SPEED-1 S3: the wait for /api/check-solution. An injected `waitMs` (a test) governs both paths.
+    singleWaitMs = deps.waitMs !== undefined ? deps.waitMs : IDEMPOTENCY_WAIT_SINGLE_MS,
     pollMs = IDEMPOTENCY_POLL_MS,
     staleMs = IDEMPOTENCY_PENDING_STALE_MS,
   } = deps;
@@ -1851,7 +1861,7 @@ function createGradingIdempotency(deps = {}) {
       .collection(GRADING_RESULTS_SEGMENTS.attempts)
       .doc(idempotencyAttemptId(reqPath, key));
     const claimId = crypto.randomUUID();
-    const deadline = now() + waitMs;
+    const deadline = now() + (reqPath === CHECK_SOLUTION_PATH ? singleWaitMs : waitMs);
     let waited = false;
     for (;;) {
       let step;
@@ -1947,6 +1957,7 @@ module.exports = {
   IDEMPOTENCY_TTL_MS,
   IDEMPOTENCY_PENDING_STALE_MS,
   IDEMPOTENCY_WAIT_MS,
+  IDEMPOTENCY_WAIT_SINGLE_MS,
   GRADING_RESULTS_COLLECTION,
   GRADING_RESULTS_SEGMENTS,
   GRADING_IN_PROGRESS_BODY,

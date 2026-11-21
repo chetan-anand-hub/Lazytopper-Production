@@ -146,6 +146,33 @@ function planChunks(questions, max = timingLib.MAX_CHUNK_QUESTIONS) {
   return out;
 }
 
+/**
+ * GRADE-SPEED-1 S1: does this question get a scheme from the solution cache before it is graded?
+ * ONE predicate, used by gradeSet's pre-phase below AND by the detect handler's early prepare
+ * (routes/checkSolution.cjs), so the two can never disagree: keyless (no scheme steps), not an
+ * objective (bank-objective or a detect-flagged objective).
+ */
+function isSchemeCandidate(q) {
+  return Boolean(q) && (!Array.isArray(q.solutionSteps) || q.solutionSteps.length === 0) && !isObjective(q) && q.objective !== true;
+}
+
+/**
+ * GRADE-SPEED-1 S1: the fields handed to solutionCache.getOrCreateModelSolution for `q`. ONE builder,
+ * used at grade time (gradeSet) and by the early prepare, so a prepared scheme is stored under the SAME
+ * hash (question text + marks) the grade will look up. `requestSubject` is the request's subject.
+ */
+function schemeFieldsOf(q, requestSubject) {
+  return {
+    question: q.questionText,
+    marks: q.marks,
+    subject: q.subject || requestSubject || 'Maths',
+    topic: q.topicLabel || q.topic || '',
+    qType: q.qType || '',
+    section: q.section || '',
+    isObjective: false,
+  };
+}
+
 function createGradingCore(deps) {
   const {
     callGemini,
@@ -183,6 +210,20 @@ function createGradingCore(deps) {
         cacheBudgetMs: deps.GRADING_CACHE_BUDGET_MS,
       }),
     };
+  // GRADE-SPEED-1 S3: the deadline of a request that grades exactly ONE question synchronously.
+  // Kill switch: SINGLE_GRADE_DEADLINE_MS=80000 restores the ordinary deadline exactly. A TEST override
+  // that sets only `deadlineMs` (a millisecond-scale deadline) applies to a one-question request too,
+  // so every existing short-deadline test keeps meaning what it meant.
+  if (deps.gradingTimingOverride && typeof deps.gradingTimingOverride === 'object') {
+    timing.singleDeadlineMs = Number.isFinite(deps.gradingTimingOverride.singleDeadlineMs)
+      ? deps.gradingTimingOverride.singleDeadlineMs
+      : timing.deadlineMs;
+  } else {
+    timing.singleDeadlineMs = timingLib.resolveSingleQuestionDeadlineMs(
+      deps.SINGLE_GRADE_DEADLINE_MS !== undefined ? deps.SINGLE_GRADE_DEADLINE_MS : process.env.SINGLE_GRADE_DEADLINE_MS,
+      timing.deadlineMs,
+    );
+  }
 
   // The grading model: the grading-only setting when the server passes one (production,
   // via serverConfig), else the base model (every direct/legacy construction and test).
@@ -312,6 +353,8 @@ function createGradingCore(deps) {
     const nonce = c.nonce || chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce);
     const { contents, transport } = buildGradingContents({ questions, uploadByNumber, document, subject, nonce, buildGeminiImagePart, autoDetect, otherQuestionsInDocument: others,
       paperHasAnyTyped: c.paperHasAnyTyped, paperAnyScheme: c.paperAnyScheme });
+    // GRADE-SPEED-1 S6: the transport for the [grade-timing] line (a closed set, never content).
+    if (c.timingSink && typeof c.timingSink === 'object' && typeof transport === 'string') c.timingSink.transport = transport;
     // D23: ONE document for the whole set is the only transport where the server cannot know
     // which questions were answered — there the model fills the page inventory first.
     const inventory = transport === 'document' && !autoDetect;
@@ -449,7 +492,9 @@ function createGradingCore(deps) {
     const idOf = new Map(questions.map((q, i) => [q, i]));
     const startedAt = Number.isFinite(input.startedAt) ? input.startedAt : now();
     const job = input.jobTiming && typeof input.jobTiming === 'object' ? input.jobTiming : null;
-    const deadlineAt = startedAt + (job ? job.wallMs : timing.deadlineMs);
+    // GRADE-SPEED-1 S3: a synchronous request of exactly ONE question has the longer deadline; a job's
+    // own wall and every multi-question request are unchanged.
+    const deadlineAt = startedAt + (job ? job.wallMs : timingLib.requestDeadlineMs(timing, questions.length));
     const callDeadlineAt = deadlineAt - timing.marginMs;
     const onPartSettled = typeof input.onPartSettled === 'function' ? input.onPartSettled : null;
 
@@ -465,24 +510,25 @@ function createGradingCore(deps) {
     // A17 ruling 5: every model call this request makes, with the questions it is for.
     const meters = [];
     const timingSink = input.timingSink && typeof input.timingSink === 'object' ? input.timingSink : null;
+    if (timingSink) {
+      // GRADE-SPEED-1 S6: closed-set / numeric facts about this request for the [grade-timing] line.
+      timingSink.marks = single || questions.length === 1 ? (Number(questions[0] && questions[0].marks) || null) : null;
+    }
     if (solutionCache && !autoDetect) {
-      const keyless = questions.filter((q) => (!Array.isArray(q.solutionSteps) || q.solutionSteps.length === 0) && !isObjective(q) && q.objective !== true);
+      const keyless = questions.filter(isSchemeCandidate);
+      if (keyless.length === 0 && timingSink) timingSink.cacheHit = true; // S6: no scheme was needed
       if (keyless.length > 0) {
         const arrived = new Map();
+        const generated = new Set(); // S6: a scheme that had to be generated (not read from the cache)
         const hooks = Promise.all(keyless.map(async (q) => {
           try {
             const meter = createMeterGroup();
             meters.push({ questions: [q], meter });
-            const cached = await runInMeterGroup(meter, () => solutionCache.getOrCreateModelSolution({
-              question: q.questionText,
-              marks: q.marks,
-              subject: q.subject || input.subject || 'Maths',
-              topic: q.topicLabel || q.topic || '',
-              qType: q.qType || '',
-              section: q.section || '',
-              isObjective: false,
-            }));
-            if (cached && Array.isArray(cached.schemeSteps) && cached.schemeSteps.length > 0) arrived.set(q, cached.schemeSteps);
+            const cached = await runInMeterGroup(meter, () => solutionCache.getOrCreateModelSolution(schemeFieldsOf(q, input.subject)));
+            if (cached && Array.isArray(cached.schemeSteps) && cached.schemeSteps.length > 0) {
+              arrived.set(q, cached.schemeSteps);
+              if (cached.fromCache !== true) generated.add(q);
+            }
           } catch (e) {
             console.warn(label + ' solution-cache hook failed for Q' + q.qNumber + ' (grading continues):', e.message);
           }
@@ -494,7 +540,11 @@ function createGradingCore(deps) {
         } catch {
           console.warn(label + ' solution-cache pre-phase reached its ' + timing.cacheBudgetMs + ' ms budget — grading continues; schemes still being generated are not waited for.');
         }
-        if (timingSink) timingSink.cacheMs = now() - cacheT0;
+        if (timingSink) {
+          timingSink.cacheMs = now() - cacheT0;
+          // S6: true only when EVERY keyless question's scheme was already in the cache (no generation awaited).
+          timingSink.cacheHit = keyless.every((q) => arrived.has(q) && !generated.has(q));
+        }
         // Only what arrived IN TIME is used — a late scheme can never change a prompt mid-grade.
         for (const [q, steps] of [...arrived]) {
           q.solutionSteps = steps;
@@ -731,6 +781,6 @@ function createGradingCore(deps) {
 }
 
 module.exports = {
-  createGradingCore, knownPick, pageInventoryOf, planChunks, subjectModeOf,
+  createGradingCore, isSchemeCandidate, schemeFieldsOf, knownPick, pageInventoryOf, planChunks, subjectModeOf,
   SINGLE_MAX_OUTPUT_TOKENS, SET_MAX_OUTPUT_TOKENS, FALLBACK_COUNTER, THINKING_REJECTED_COUNTER,
 };

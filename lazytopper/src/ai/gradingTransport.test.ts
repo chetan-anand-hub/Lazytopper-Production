@@ -24,9 +24,15 @@ vi.mock("./paidCallHeaders", () => ({
   paidJsonHeaders: async () => ({ "Content-Type": "application/json", "X-Lazytopper-Uid": "stu-1", Authorization: "Bearer t" }),
 }));
 
+vi.mock("../services/freeCheckClient", () => ({
+  freeCheckJsonHeaders: async () => ({ "Content-Type": "application/json", "X-Lazytopper-Free-Check": "1", "X-Firebase-AppCheck": "tok" }),
+}));
+
 import { checkSolutionImage, gradeWorksheet, FairUseLimitError, DailyLimitError } from "./aiClient";
 import {
   GRADING_TIMEOUT_MS,
+  GRADING_SINGLE_TIMEOUT_MS,
+  GRADING_SLOW_STAGE_MS,
   GRADING_MAX_RETRIES,
   GradingNetworkError,
   IDEMPOTENCY_HEADER,
@@ -44,6 +50,11 @@ const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f
 
 type Reply = { status: number; body: unknown } | "network-error" | "hang";
 type Call = { url: string; headers: Record<string, string>; signal?: AbortSignal };
+
+// GRADE-SPEED-1 S3: a grade-worksheet of TWO questions keeps the 90 s budget; one question (and check-solution) gets 118 s.
+const Q = (n: number) => ({ qNumber: n, marks: 3, questionText: `Question ${n}`, textAnswer: "x" });
+const TWO_Q = { worksheetId: "w", questions: [Q(1), Q(2)] };
+const ONE_Q = { worksheetId: "w", questions: [Q(1)] };
 
 const OK: Reply = { status: 200, body: { ok: true, totalMarks: 3, marksAwarded: 2, percentage: 67, annotatedSteps: [] } };
 
@@ -182,11 +193,103 @@ describe("R1 · retry, with the SAME key", () => {
   });
 });
 
+describe("GRADE-SPEED-1 S3 · a ONE-question grade waits up to 118 s; every other call keeps 90 s", () => {
+  it("constants: 118 s is above the server's 112 s ceiling and under Vercel's 120 s wait; 90 s is unchanged", () => {
+    expect(GRADING_SINGLE_TIMEOUT_MS).toBe(118_000);
+    expect(GRADING_TIMEOUT_MS).toBe(90_000);
+    expect(GRADING_SINGLE_TIMEOUT_MS).toBeGreaterThan(112_000);
+    expect(GRADING_SINGLE_TIMEOUT_MS).toBeLessThan(120_000);
+    expect(GRADING_SLOW_STAGE_MS).toBe(30_000);
+  });
+
+  it("★ check-solution (fetch): an attempt is NOT abandoned at 90 s, only at 118 s", async () => {
+    vi.useFakeTimers();
+    const calls = scriptedFetch(["hang", OK]);
+    const pending = checkSolutionImage({ question: "Q" });
+    await vi.advanceTimersByTimeAsync(GRADING_TIMEOUT_MS + 5_000);
+    expect(calls, "still waiting at 95 s").toHaveLength(1);
+    expect(calls[0].signal?.aborted).toBe(false);
+    await vi.advanceTimersByTimeAsync(GRADING_SINGLE_TIMEOUT_MS - GRADING_TIMEOUT_MS - 5_000 + 2);
+    await pending;
+    expect(calls).toHaveLength(2);
+    expect(calls[0].signal?.aborted).toBe(true);
+    expect(calls[1].headers[IDEMPOTENCY_HEADER]).toBe(calls[0].headers[IDEMPOTENCY_HEADER]);
+  });
+
+  it("★ grade-worksheet with ONE question gets 118 s; with TWO it gets 90 s (the multi-question call is unchanged)", async () => {
+    vi.useFakeTimers();
+    const one = scriptedFetch(["hang", OK]);
+    const p1 = gradeWorksheet(ONE_Q);
+    await vi.advanceTimersByTimeAsync(GRADING_TIMEOUT_MS + 5_000);
+    expect(one).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(GRADING_SINGLE_TIMEOUT_MS);
+    await p1;
+    expect(one).toHaveLength(2);
+    const two = scriptedFetch(["hang", OK]);
+    const p2 = gradeWorksheet(TWO_Q);
+    await vi.advanceTimersByTimeAsync(GRADING_TIMEOUT_MS + 5);
+    expect(two, "a two-question grade is retried after 90 s").toHaveLength(2);
+    await vi.advanceTimersByTimeAsync(5_000);
+    await p2;
+  });
+
+  it("the signed-out FREE CHECK (the server cuts it to question 1) gets 118 s even when it sends more questions", async () => {
+    vi.useFakeTimers();
+    const calls = scriptedFetch(["hang"]);
+    const pending = gradeWorksheet(TWO_Q, { freeCheck: true }).catch((e: unknown) => e);
+    await vi.advanceTimersByTimeAsync(GRADING_TIMEOUT_MS + 5_000);
+    expect(calls[0].signal?.aborted, "not abandoned at 95 s").toBe(false);
+    await vi.advanceTimersByTimeAsync(GRADING_SINGLE_TIMEOUT_MS);
+    await pending;
+    expect(calls[0].signal?.aborted).toBe(true);
+  });
+
+  it("XHR: a one-question call sets xhr.timeout to 118 s, a two-question call to 90 s", async () => {
+    xhrs.length = 0;
+    xhrScript = [{}];
+    vi.stubGlobal("XMLHttpRequest", FakeXHR);
+    vi.useFakeTimers();
+    const a = checkSolutionImage({ question: "Q", imageBase64: "AAAA" }, { surface: "check-improve", onStage: () => {} });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(xhrs[0].timeout).toBe(GRADING_SINGLE_TIMEOUT_MS);
+    xhrs[0].respond();
+    await a;
+    const b = gradeWorksheet(TWO_Q, { surface: "check-improve", onStage: () => {} });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(xhrs[1].timeout).toBe(GRADING_TIMEOUT_MS);
+    xhrs[1].respond();
+    await b;
+  });
+
+  it("★ the 'taking a little longer than usual' stage appears at 30 s on a one-question grade, never on a paper, and is cleared when the answer lands", async () => {
+    xhrs.length = 0;
+    xhrScript = [{}];
+    vi.stubGlobal("XMLHttpRequest", FakeXHR);
+    vi.useFakeTimers();
+    const stages: GradingStage[] = [];
+    const p1 = checkSolutionImage({ question: "Q", imageBase64: "AAAA" }, { surface: "check-improve", onStage: (s) => stages.push(s) });
+    await vi.advanceTimersByTimeAsync(GRADING_SLOW_STAGE_MS - 1_000);
+    expect(stages.map(gradingStageLabel)).not.toContain("Taking a little longer than usual — still checking…");
+    await vi.advanceTimersByTimeAsync(1_001);
+    expect(stages.map(gradingStageLabel).at(-1)).toBe("Taking a little longer than usual — still checking…");
+    xhrs[0].respond();
+    await p1;
+    expect(stages.map(gradingStageLabel).at(-1)).toBe("Done");
+    // a paper: no such stage, however long it takes
+    const paperStages: GradingStage[] = [];
+    const p2 = gradeWorksheet(TWO_Q, { surface: "worksheet", onStage: (s) => paperStages.push(s) });
+    await vi.advanceTimersByTimeAsync(GRADING_SLOW_STAGE_MS + 5_000);
+    expect(paperStages.some((s) => s.kind === "retrying")).toBe(false);
+    xhrs[1].respond();
+    await p2;
+  });
+});
+
 describe("R1 · the 90 s timeout", () => {
   it("★ fetch path: an attempt that hangs is abandoned at 90 s and retried (same key)", async () => {
     vi.useFakeTimers();
     const calls = scriptedFetch(["hang", OK]);
-    const pending = checkSolutionImage({ question: "Q" });
+    const pending = gradeWorksheet(TWO_Q);
     await vi.advanceTimersByTimeAsync(GRADING_TIMEOUT_MS - 1);
     expect(calls, "nothing may give up before 90 s").toHaveLength(1);
     await vi.advanceTimersByTimeAsync(2);
@@ -201,7 +304,7 @@ describe("R1 · the 90 s timeout", () => {
   it("every attempt timing out ends in a plain 'took too long' sentence", async () => {
     vi.useFakeTimers();
     scriptedFetch(["hang"]);
-    const pending = checkSolutionImage({ question: "Q" }).catch((e: unknown) => e);
+    const pending = gradeWorksheet(TWO_Q).catch((e: unknown) => e);
     await vi.advanceTimersByTimeAsync(GRADING_TIMEOUT_MS * 3 + 10);
     const err = await pending;
     expect(err).toBeInstanceOf(GradingNetworkError);
@@ -270,7 +373,7 @@ describe("R2 · stages over XHR (only when a stage listener is passed)", () => {
   it("★ Uploading 0% -> 50% -> 100% -> Sent ✓ -> Grading… -> Done, with the key and a 90 s timeout", async () => {
     vi.useFakeTimers();
     const stages: GradingStage[] = [];
-    const pending = checkSolutionImage({ question: "Q", imageBase64: "AAAA" }, { surface: "check-improve", onStage: (s) => stages.push(s) });
+    const pending = gradeWorksheet({ ...TWO_Q, imageBase64: "AAAA" }, { surface: "check-improve", onStage: (s) => stages.push(s) });
     await vi.advanceTimersByTimeAsync(0);
     expect(xhrs).toHaveLength(1);
     expect(xhrs[0].timeout).toBe(GRADING_TIMEOUT_MS);

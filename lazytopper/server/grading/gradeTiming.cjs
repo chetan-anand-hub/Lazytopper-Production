@@ -16,8 +16,13 @@
 //   status         the HTTP status answered (absent for a job)
 //   preMs          server entry -> handler entry (auth, idempotency, limiter, entitlement, fair use); null if unknown
 //   cacheMs        the scheme-first solution-cache pre-phase; null when it did not run
+//   cacheHit       GRADE-SPEED-1 S6: true when every scheme this request needed was already stored (or none was
+//                  needed); false when a generation was awaited or did not arrive; null when the cache hook did not run
+//   transport      GRADE-SPEED-1 S6: closed set typedOnly | perQuestionParts | document; null before a call is built
+//   marks          GRADE-SPEED-1 S6: the question's marks for a one-question request; null for a paper
 //   attempts[]     one row per model call: n = 1 first / 2 retry, ms, finishReason, thoughtsTokenCount,
-//                  outputTokens (candidatesTokenCount), retryReason (why a retry was made: timeout |
+//                  outputTokens (candidatesTokenCount), promptTokens (promptTokenCount), parseMiss (a reply
+//                  arrived but held no results; its finishReason is the row's finishReason), retryReason (why a retry was made: timeout |
 //                  http_<status> | unparseable | max_tokens; null on a first attempt)
 //   totalMs        handler entry -> response finished
 // CONTENT FIREWALL: only numbers and values from the closed sets above are ever written. No uid,
@@ -26,13 +31,15 @@
 const ROUTES = Object.freeze(['/api/check-solution', '/api/grade-worksheet']);
 const SURFACES = Object.freeze(['check-improve', 'worksheet', 'chapter-test', 'full-mock', 'quick-practice']);
 const FINISH_REASONS = Object.freeze(['STOP', 'MAX_TOKENS', 'SAFETY', 'RECITATION', 'OTHER', 'BLOCKLIST', 'PROHIBITED_CONTENT', 'SPII', 'MALFORMED_FUNCTION_CALL', 'LANGUAGE', 'FINISH_REASON_UNSPECIFIED']);
+// GRADE-SPEED-1 S6: the closed set of transports a grade is sent on (prompt.cjs transportOf).
+const TRANSPORTS = Object.freeze(['typedOnly', 'perQuestionParts', 'document']);
 const MAX_ATTEMPT_ROWS = 24;
 
 const count = (v) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.round(v) : null);
 
 /** The sink gradeSet fills (input.timingSink). */
 function createTimingSink() {
-  return { cacheMs: null, attempts: [] };
+  return { cacheMs: null, cacheHit: null, transport: null, marks: null, attempts: [] };
 }
 
 /** retryReason for a retry of `first` (an attemptChunk outcome); null when there was no failure. */
@@ -58,6 +65,10 @@ function attemptRow(n, outcome, retryReason) {
     finishReason: FINISH_REASONS.includes(fr) ? fr : null,
     thoughtsTokenCount: count(usage.thoughtsTokenCount),
     outputTokens: count(usage.candidatesTokenCount),
+    // GRADE-SPEED-1 S6: the prompt's size (separates "long thinking" from "big prompt") and, for a reply
+    // that did not parse (a reply arrived, no results), the closed-set finishReason above is the reason.
+    promptTokens: count(usage.promptTokenCount),
+    parseMiss: Boolean(outcome && outcome.reply && !outcome.error && !outcome.results),
     retryReason: retryReason || null,
   };
 }
@@ -71,6 +82,9 @@ function formatGradeTimingLine({ route, surface, status, mode, preMs, sink, tota
     ...(mode === 'job' ? {} : { status: count(status) }),
     preMs: count(preMs),
     cacheMs: count(s.cacheMs),
+    cacheHit: typeof s.cacheHit === 'boolean' ? s.cacheHit : null,
+    transport: TRANSPORTS.includes(s.transport) ? s.transport : null,
+    marks: count(s.marks),
     attempts: (Array.isArray(s.attempts) ? s.attempts : []).slice(0, MAX_ATTEMPT_ROWS),
     totalMs: count(totalMs),
   };
@@ -110,4 +124,4 @@ function armGradeTiming({ req, res, route, startedAt, now = () => Date.now(), lo
   return { sink, emit };
 }
 
-module.exports = { createTimingSink, retryReasonOf, attemptRow, formatGradeTimingLine, armGradeTiming, ROUTES, SURFACES };
+module.exports = { TRANSPORTS, createTimingSink, retryReasonOf, attemptRow, formatGradeTimingLine, armGradeTiming, ROUTES, SURFACES };
