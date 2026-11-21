@@ -1,3 +1,9 @@
+## 2026-11-21b (second daily; UTC day 21 Nov, written 21 Nov evening) - #1795 - #1796 - #1797 - MERGED
+
+- DONE. `#1795` (`714f0fff`) REFUND-TS-CBQ-1 (Cancellation Policy names Test Series, the upgrade and CBQ Packs; WhatsApp line). `#1796` (`7c814650`) SPEED-SALES-CSS-1 (small stylesheets inlined; blocking links 7/5/4/3 to 0, /test-series 6 to 1). `#1797` (`c6faee85`) SPEED-HERO-LCP-1 (hero h1 font-display block on /cbq-packs, /board-pass, /test-series).
+- DONE off-repo: YouTube Short "1:47 AM, pre-boards next week..." public; new Demand Gen ad to /test-series (in review); PDF Packs online-test keywords paused (2 stuck); 9 phrase keywords added to Search | Test Series.
+- NEXT: owner live tests (signed-out `#1793`; upgrade, free and Test-Series-only accounts); approve ad copy fixes `[FU-YT-DANDIYA-ADCOPY-FREE]`; Google review result of the new ad; PageSpeed and CrUX re-check; 1 Dec price switch now includes the new ad text. The earlier lists stand.
+
 ## 2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793 - MERGED
 
 - DONE. `#1792` (`316f361e`) ADSRC-4 (admin ad-source names; Demand Gen reads "YouTube ad"). `#1793` (`52eac50a`) FREECHECK-ONEQ-1 (signed-out free check marks only the first question; server-authoritative; kill switches).

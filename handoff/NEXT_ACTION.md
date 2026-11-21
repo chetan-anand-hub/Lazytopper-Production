@@ -1,3 +1,16 @@
+## 2026-11-21b (second daily; UTC day 21 Nov, written 21 Nov evening) - #1795 - #1796 - #1797
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`c6faee85`** [git].
+
+- **Done [git]:** `#1795`, `#1796`, `#1797` merged (table in CURRENT_STATE). No gaps. `[FU-REFUND-PAGE-TS-CBQ]` is CLOSED by `#1795` (the wording shipped).
+- **Owner live tests still owed:** the signed-out phone test of `#1793` (`[FU-FREECHECK-ONEQ-SIGNEDOUT-LIVE]`); the ₹1,083 upgrade, a free account and a Test-Series-only account; the sale-cutoff and Improvement Exam Pass proposal.
+- **Owner to approve wording (new):** the live Dandiya Demand Gen ad (to /test-series) still has "Tap 5 board CBQs free" and "Practise their CBQs free" headlines, but the product is not free. `[FU-YT-DANDIYA-ADCOPY-FREE]`. Also the Short's end card says "Graded in 2 min" while full-paper grading time is unmeasured. `[FU-YT-SHORT-2MIN-CLAIM]`
+- **Ads (off-repo):** the new Demand Gen ad "Test Series Short - 1:47 AM Pre-boards (21 Nov)" was under Google review at writing; check the result. Add its "₹999 + GST till 30 Nov" text to the 1 Dec switch (`[FU-TS-ADS-PRICE-1DEC]`). 2 PDF Packs keywords would not pause (`[FU-ADS-PAUSE-2-PDFPACKS-KW]`).
+- **Speed:** re-check PageSpeed /cbq-packs, /board-pass, /test-series after a few days; CrUX needs about 28 days; Quality Score re-check about 5 Dec. Optional: `[FU-CBQ-TBT-CHECKOUT-WARM]`; look at `[FU-BOARDPASS-1280-CLS]`.
+- **Owner housekeeping:** delete Downloads\todays youtube ad\upload-parts on the laptop (`[FU-LAPTOP-UPLOAD-PARTS]`).
+- **Dated checks:** unchanged (22 Nov Sign-ups v2 decision; 24 Nov ads review; 25 Nov YouTube check; 30 Nov founding prices end; 1 Dec 00:00 IST price switch).
+- **Follow-ups opened today:** see OPEN_QUESTIONS_AND_FOLLOWUPS (bodies there).
+
 ## 2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`52eac50a`** [git].

@@ -1,3 +1,31 @@
+## 2026-11-21b (second daily; UTC day 21 Nov, written 21 Nov evening) - #1795 - #1796 - #1797: refund page, sales-page CSS, hero LCP, YouTube Short and ad changes (trunk `c6faee85`)
+
+**PROVENANCE.** *(Second daily handoff of 21 Nov, CLAUDE.md section 10. Covers `#1795`, `#1796`, `#1797`, merged 21 Nov 10:27, 12:07 and 12:29 UTC (15:57, 17:37 and 17:59 IST). Merge SHAs and times [gh], each SHA an ancestor of trunk [git]; PR file lists [gh]; findings, measurements, rulings and all YouTube and Google Ads changes [coordinator]. Off-repo changes are the owner's words and were not re-checked by the docs builder.)*
+
+**How the window went (IST).**
+- **15:57.** `#1795` REFUND-TS-CBQ-1: the Cancellation Policy now names the Test Series Pack, the Test Series to Board Pass upgrade and CBQ Packs; WhatsApp +91 97145 68948 for file problems. It was not in the first daily handoff (`#1794`). Live verified.
+- **17:37.** `#1796` SPEED-SALES-CSS-1. **Why:** PageSpeed on /cbq-packs showed render-blocking stylesheets. **Root cause:** case-sensitive prefix drift in `applyPrerendered.ts` (`CbqBand` against `cbqBand-*.css`; `salesPages` against `salesPagesCopy-*.css`) left tiny sheets linked. Blocking links before to after: /cbq-packs 7 to 0, /board-pass 5 to 0, /packs 4 to 0, /for-parents 3 to 0, /test-series 6 to 1.
+- **17:59.** `#1797` SPEED-HERO-LCP-1. **Why:** diagnosis SPEED-CBQ-DIAG-1 found the prerendered hero h1 painted in the fallback face and the app's re-render about 200 ms later painted it in Fraunces, creating a later LCP candidate (1.2 s to 3.5-6.7 s). **Fix:** font-display block face "LT Fraunces Hero" on the three hero h1 classes. Seen on /cbq-packs, /board-pass, /test-series; never /packs.
+- **Measured.** Builder's throttled Puppeteer: LCP /cbq-packs 4.3 to 1.4 s, /board-pass 5.5 to 1.4-1.6 s, /test-series 5.2 to 1.4 s; CLS 0. PageSpeed mobile /cbq-packs live: 78 at 16:10 (LCP 3.5 s), then 91/91/91 at about 17:15 (LCP 0.9 s, TBT 380 ms) before `#1797`; 84/84/90 after (LCP 0.9-1.0 s, TBT 410-630 ms). Single runs are noisy and TBT varied with no JS change. CrUX needs about 28 days; Quality Score re-check about 5 Dec.
+- **Live check.** /cbq-packs Science Buy (₹235) opened the Razorpay iframe in 2.2 s (not paid).
+
+**Correction [coordinator].** /cbq-packs, /board-pass and /test-series were already islands (`islandConfig.ts` lines 39-48). The 21 Nov queue's "static-first treatment" premise was stale.
+
+**CI [coordinator].** `#1796` vitest (shard 1/4) failed once on `PacksPage.test.tsx` "signed in with owned packs..." (TestingLibraryElementError, unrelated); re-run green. Logged `[FU-FLAKY-PACKSPAGE-OWNED-PACKS]`.
+
+**YouTube, 21 Nov (owner's words) [coordinator].**
+- Short "1:47 AM, pre-boards next week..." published Public at about 18:00 (https://youtube.com/shorts/1y_t6Ci_L5w): playlist "CBSE Class 10 Boards 2027 - Shorts", related video set to Dandiya vs Boards, pinned comment, education labels (India / Class 10 / CBSE Exam class 10). A Hindi caption track was added and then DELETED on the owner's word because it overlapped the burned-in captions.
+- New Demand Gen ad "Test Series Short - 1:47 AM Pre-boards (21 Nov)" in YouTube | Students | Sign-ups, ad group "Students - Message Shorts + Dandiya (CBSE states)": top-100 cities, English and Hindi; audience Class 10 CBSE - Students (Unknown age) plus Parents of Teens 35-54; optimized targeting limited to age. Final URL /test-series?utm_source=youtube&utm_medium=demandgen&utm_campaign=students&utm_content=ts_147am_short. Under Google review at writing.
+
+**Google Ads keywords, 21 Nov (owner's words) [coordinator].**
+- The handoff's "mcq test" and "chapter test" leftovers sit in the PAUSED "C - Chapter tests (exam fear)" ad group in PDF Packs (not serving).
+- Paused 13 live online-test keywords in PDF Packs ("Test series and mock papers", "Chapter-wise, PYQ and worksheets", "Ad group 1"). 2 would not pause through the UI ("class 10 chapter wise test" and "class 10 full syllabus mock test" in "Test series and mock papers"; 0 impressions): `[FU-ADS-PAUSE-2-PDFPACKS-KW]`.
+- Added 9 phrase keywords to Search | Test Series. TS-Test series: "class 10 test series 2027", "class 10th cbse test series". TS-Mock tests: "class 10 mock test", "board exam mock test class 10", "cbse class 10 pre board mock test", "class 10 full syllabus mock test". TS-Online & chapter tests: "class 10 chapter wise test", "class 10 mcq test", "chapter wise mcq test class 10".
+
+**Findings [coordinator].** Every YouTube sign-up after about 12:00 landed on /board-pass or /test-series; none on /practice-hub after 10:11.
+
+**Dated checks.** Unchanged: 22 Nov Sign-ups v2 decision; 24 Nov ads review; 25 Nov YouTube check; 30 Nov founding prices end; 1 Dec price switch.
+
 ## 2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793: admin ad-source names, one-question signed-out free check, Google Ads re-budget (trunk `52eac50a`)
 
 **PROVENANCE.** *(Daily handoff, CLAUDE.md section 10. Covers `#1792` and `#1793`, merged 21 Nov 06:01 and 08:32 UTC (11:31 and 14:02 IST). Merge SHAs, times, titles, file lists and PR bodies [gh]; rulings, live results, findings and all Google Ads and Bing changes [coordinator]. Ads changes are the owner's words, off-repo, not re-checked by the docs builder.)*
