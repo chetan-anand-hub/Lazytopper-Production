@@ -158,7 +158,7 @@ export default function PayReturnResume() {
       repolls.current += 1;
       const last = repolls.current >= PENDING_REPOLL_MAX;
       void run(1).then(() => {
-        if (last) setGaveUp(true); // show the final line right after the last re-check, not one tick later
+        if (last && viewName.current === "pending") setGaveUp(true); // final line right after the last re-check — only if it came back pending
       }); // one status call per re-check (review N1)
     }, PENDING_REPOLL_MS);
     return () => window.clearInterval(id);
