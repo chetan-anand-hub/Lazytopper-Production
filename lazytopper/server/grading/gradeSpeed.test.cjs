@@ -464,6 +464,37 @@ test('§S.6b GRADE-SPEED-1b a grade pressed WHILE the prepare is still generatin
   }
 });
 
+test('§S.6c GRADE-SPEED-1b a generation that yields NO usable scheme is no longer silent: a warn with the hash prefix, source=none in [scheme-prewarm], and nothing stored (so the next grade regenerates)', async () => {
+  const store = new Map();
+  stepSolution.__setPoolForTests({ query: async (sql, params) => {
+    if (/^SELECT/i.test(sql)) return { rows: store.has(params[0]) ? [{ solution_json: store.get(params[0]) }] : [] };
+    if (/^INSERT/i.test(sql)) { store.set(params[0], JSON.parse(params[1])); return { rows: [] }; }
+    return { rows: [] };
+  } });
+  const realWarn = console.warn;
+  const realLog6c = console.log;
+  const warns = [];
+  const prewarm = [];
+  console.warn = (...a) => { warns.push(a.join(' ')); };
+  console.log = (...a) => { const l = a.join(' '); if (l.startsWith('[scheme-prewarm]')) prewarm.push(l); else realLog6c(...a); };
+  try {
+    const genDeps = { GEMINI_MODEL: 'm', ACTIVE_PROVIDER: 't', extractJsonObjectFromText: lenient, callGemini: async () => ({ text: '{"totalMarks":3,"steps":[' }) };
+    const cache = { getOrCreateModelSolution: (f) => stepSolution.getOrCreateModelSolution(f, genDeps) };
+    const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { ...SIGNED_IN, solutionCache: cache });
+    await detectOne(h);
+    await flush(); await flush();
+    assert.equal(store.size, 0, 'nothing stored');
+    assert.ok(warns.some((w) => /generation returned no usable scheme/.test(w) && /hash=[0-9a-f]{8}/.test(w)), warns.join(' | '));
+    assert.equal(prewarm.length, 1);
+    assert.match(prewarm[0], /source=none/);
+    assert.ok(!warns.concat(prewarm).some((w) => w.includes('factorisation')), 'no text');
+  } finally {
+    console.warn = realWarn;
+    console.log = realLog6c;
+    stepSolution.__setPoolForTests(null);
+  }
+});
+
 test('§S.7 S3 timing: one question 110 s, a paper 80 s, SINGLE_GRADE_DEADLINE_MS=80000 restores today, clamps hold', () => {
   const t = timingLib.normaliseTiming({});
   const single = (raw, dl = t.deadlineMs) => timingLib.resolveSingleQuestionDeadlineMs(raw, dl);

@@ -606,7 +606,7 @@ describe("GRADE-SPEED-1b · the prepare and the grade hash identically on every 
   const GRADE_REPLY = JSON.stringify({ summary: "s", results: [{ qNumber: 1, couldNotRead: false, addressesQuestion: "yes", annotatedSteps: [{ description: "d", studentWork: "w", status: "correct", marksAwarded: 3, marksDeducted: 0, teacherAnnotation: "ok", mistakeType: null, correctedWorking: null }], teacherNote: "n" }] });
   const TEXT = "Using prime factorisation, find the HCF and LCM of 84 and 120.";
 
-  async function run(path: "free-photo" | "signed-photo" | "signed-typed") {
+  async function run(path: "free-photo" | "signed-photo" | "signed-typed", replyOverride?: Record<string, unknown>) {
     const { createRequire } = await import("node:module");
     const req = createRequire(import.meta.url);
     const { createCheckSolutionRoute } = req("../../server/routes/checkSolution.cjs");
@@ -622,11 +622,11 @@ describe("GRADE-SPEED-1b · the prepare and the grade hash identically on every 
     const graded: Array<Record<string, unknown>> = [];
     let detectOut: { questions: Array<{ questionText: string }> } & Record<string, unknown> = null as never;
     let gradeOut: unknown = null;
-    const detectReply = JSON.stringify({ detectedMarks: 3, marksSource: "stated", detectedSubject: "Maths", detectedTopic: slug, detectedObjective: false,
+    const detectReply = JSON.stringify(replyOverride ? { detectedSubject: "Maths", detectedTopic: slug, detectedObjective: false, ...replyOverride } : { detectedMarks: 3, marksSource: "stated", detectedSubject: "Maths", detectedTopic: slug, detectedObjective: false,
       questions: [{ questionNumber: 1, questionText: TEXT, marks: 3, marksSource: "stated", objective: false }] });
     let mode: "detect" | "grade" = "detect";
     const route = createCheckSolutionRoute({
-      sendJson: (_r: unknown, _s: number, body: never) => { if (mode === "detect") detectOut = body; else gradeOut = body; },
+      sendJson: (_r: unknown, _s: number, body: never) => { if (mode === "detect") detectOut = JSON.parse(JSON.stringify(body)); else gradeOut = body; },
       readJson: async (r: unknown) => r,
       callGemini: async () => ({ text: mode === "detect" ? detectReply : GRADE_REPLY, raw: {} }),
       GEMINI_MODEL: "m", ACTIVE_PROVIDER: "t", isStubMode: () => false,
@@ -661,5 +661,27 @@ describe("GRADE-SPEED-1b · the prepare and the grade hash identically on every 
       expect(r.hash(r.graded[0])).toBe(r.hash(r.prepared[0]));
       expect(r.graded[0].marks).toBe(r.prepared[0].marks);
     });
+  }
+
+  // A REAL detect reply is messier than a fixture: the question text carries a "Q1." prefix, a "[3]" suffix, NBSP / CRLF and
+  // × ² √; the top-level marks can disagree with questions[0].marks, be fractional, or be missing; the model may add
+  // top-level question / questionText fields. The prepare must key on EXACTLY what the client then sends.
+  const MESSY: Array<[string, Record<string, unknown>]> = [
+    ["Q1. prefix, [3] suffix, NBSP, CRLF, unicode", { detectedMarks: 3, marksSource: "stated", question: "Q1. other", questionText: "Q1. other again",
+      questions: [{ questionNumber: 1, questionText: "  Q1.\u00a0Find the HCF and LCM of 84 and 120 using prime factorisation.\r\n x\u00b2 \u00d7 \u221a2 [3]  ", marks: 2, marksSource: "stated", objective: false }] }],
+    ["top-level marks fractional, questions[0].marks different", { detectedMarks: 2.6, marksSource: "inferred",
+      questions: [{ questionNumber: 1, questionText: TEXT, marks: 5, marksSource: "inferred", objective: false }] }],
+    ["top-level marks missing", { marksSource: "inferred", questions: [{ questionNumber: 1, questionText: TEXT, marks: 4, marksSource: "inferred", objective: false }] }],
+    ["top-level marks out of range", { detectedMarks: 9, marksSource: "inferred", questions: [{ questionNumber: 1, questionText: TEXT, marks: 3, marksSource: "inferred", objective: false }] }],
+  ];
+  for (const [label, reply] of MESSY) {
+    for (const path of ["free-photo", "signed-photo"] as const) {
+      it(`${path} · messy detect reply (${label}): prepare and grade hash identically`, async () => {
+        const r = await run(path, reply);
+        expect(r.prepared, "one prepare").toHaveLength(1);
+        expect(r.graded, "one grade-time lookup").toHaveLength(1);
+        expect(r.hash(r.graded[0])).toBe(r.hash(r.prepared[0]));
+      });
+    }
   }
 });
