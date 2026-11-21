@@ -505,3 +505,53 @@ describe("R2 · a plain sentence, never a raw platform message", () => {
     expect(gradingErrorMessage(null, FALLBACK)).toBe(FALLBACK);
   });
 });
+
+/* ── GRADE-SPEED-1 · the early scheme prepare builds the SAME inputs the Answer Checker grade will send ────────────── */
+
+describe("GRADE-SPEED-1 · prepare parity with buildSingleGradeRequest (subject, topic, marks, text)", () => {
+  it("for each detect result, the fields the server prepares the scheme with equal what the client's single grade request carries", async () => {
+    const { createRequire } = await import("node:module");
+    const req = createRequire(import.meta.url);
+    const { createCheckSolutionRoute } = req("../../server/routes/checkSolution.cjs");
+    const { buildSingleGradeRequest } = await import("../components/ciDemo/ladderGradeRequest");
+    const { buildConfirmedDetection } = await import("../utils/checkImproveDetection");
+    const { desktopTopicsBySubject } = await import("../lib/desktop/topics");
+    const vocab = [...desktopTopicsBySubject("Maths"), ...desktopTopicsBySubject("Science")].map((t) => ({ slug: t.slug, name: t.name, subject: t.subject }));
+    const cases = [
+      { slug: vocab.find((t) => t.subject === "Maths")!.slug, subject: "Maths", marks: 3, text: "Solve x^2 - 2x - 8 = 0 by factorisation." },
+      { slug: vocab.find((t) => t.subject === "Science")!.slug, subject: "Science", marks: 2, text: "State Snell's law of refraction." },
+      { slug: vocab.find((t) => t.subject === "Maths")!.slug, subject: "Maths", marks: 5, text: "Prove that the tangent at any point of a circle is perpendicular to the radius." },
+    ];
+    for (const c of cases) {
+      const prepared: Array<Record<string, unknown>> = [];
+      const reply = JSON.stringify({
+        detectedMarks: c.marks, marksSource: "stated", detectedSubject: c.subject, detectedTopic: c.slug, detectedObjective: false,
+        questions: [{ questionNumber: 1, questionText: c.text, marks: c.marks, marksSource: "stated", objective: false }],
+      });
+      let out: { body: { ok: boolean; detectedMarks: number; detectedSubject: string; detectedTopic: string; marksSource: string; questions: Array<{ questionText: string; objective?: boolean }> } } | null = null;
+      const route = createCheckSolutionRoute({
+        sendJson: (_res: unknown, _status: number, body: never) => { out = { body }; },
+        readJson: async (r: unknown) => r,
+        callGemini: async () => ({ text: reply, raw: {} }),
+        GEMINI_MODEL: "m", ACTIVE_PROVIDER: "t", isStubMode: () => false,
+        extractJsonObjectFromText: (t: string) => JSON.parse(t),
+        buildGeminiImagePart: () => ({}), validateMentorImagePayload: () => ({ ok: true }), makeFenceNonce: () => "n",
+        telemetry: { increment: () => {} },
+        currentUid: () => "stu-1",
+        solutionCache: { getOrCreateModelSolution: async (f: Record<string, unknown>) => { prepared.push(f); return null; } },
+      });
+      await route.handleDetectQuestion({ question: c.text, topicVocabulary: vocab, headers: {} }, { setHeader: () => {} });
+      await new Promise((r) => setImmediate(r));
+      expect(prepared, "exactly one preparation").toHaveLength(1);
+      // what the page does with the SAME detect response, then hands to checkSolutionImage
+      const detect = out!.body;
+      const confirmed = buildConfirmedDetection(detect as never, c.text);
+      const gradeReq = buildSingleGradeRequest({ question: c.text, confirmed, firstDetected: detect.questions[0], freeCall: false, answerPart: { textAnswer: "x" } });
+      expect(prepared[0].subject, "subject").toBe(gradeReq.subject);
+      expect(prepared[0].topic, "topic").toBe(gradeReq.topic);
+      expect(prepared[0].marks, "marks").toBe(gradeReq.marks);
+      expect(prepared[0].question, "text").toBe(gradeReq.question);
+      expect(gradeReq.topic, "a real chapter name, never empty").not.toBe("");
+    }
+  });
+});

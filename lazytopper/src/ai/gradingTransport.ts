@@ -255,6 +255,8 @@ function xhrAttempt(
     };
     xhr.upload.onload = () => {
       onStage({ kind: "sent" });
+      // GRADE-SPEED-1: the 30 s "taking longer" clock starts when the UPLOAD is done (a slow upload is not a slow grade).
+      if (slowAfterMs !== null && slowTimer === null) slowTimer = setTimeout(() => onStage({ kind: "retrying", attempt: 0, reason: "slow" }), slowAfterMs);
       sentTimer = setTimeout(() => onStage({ kind: "grading" }), SENT_DWELL_MS);
     };
     xhr.onload = () => {
@@ -276,10 +278,9 @@ function xhrAttempt(
     };
     onStage({ kind: "uploading", percent: 0 });
     xhr.send(body);
-    // GRADE-SPEED-1: a one-question grade now may run to ~110 s, so say so honestly at 30 s — the same
-    // "Taking a little longer than usual — still checking…" the slow retry shows (attempt 0 = the FIRST send
-    // is still being answered; nothing has failed). Cleared the moment the attempt settles.
-    if (slowAfterMs !== null) slowTimer = setTimeout(() => onStage({ kind: "retrying", attempt: 0, reason: "slow" }), slowAfterMs);
+    // GRADE-SPEED-1: a one-question grade now may run to ~110 s, so say so honestly 30 s after the upload finished
+    // (see upload.onload above) — the same "Taking a little longer than usual — still checking…" the slow retry
+    // shows (attempt 0 = the FIRST send is still being answered; nothing has failed). Cleared when the attempt settles.
   });
 }
 

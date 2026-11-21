@@ -213,8 +213,9 @@ const stepSolution = require('../routes/stepSolution.cjs');
 const timingLib = require('./timing.cjs');
 const { isSchemeCandidate, schemeFieldsOf } = require('./core.cjs');
 
-const DETECT_REPLY = (questions) => JSON.stringify({
-  detectedMarks: questions[0].marks, marksSource: 'stated', detectedSubject: 'Maths', detectedTopic: null, detectedObjective: false,
+const VOCAB = [{ slug: 'quadratic-equations', name: 'Quadratic Equations', subject: 'Maths' }, { slug: 'light', name: 'Light - Reflection and Refraction', subject: 'Science' }];
+const DETECT_REPLY = (questions, topic = 'quadratic-equations', subject = 'Maths') => JSON.stringify({
+  detectedMarks: questions[0].marks, marksSource: 'stated', detectedSubject: subject, detectedTopic: topic, detectedObjective: false,
   questions: questions.map((q, i) => ({ questionNumber: i + 1, questionText: q.text, marks: q.marks, marksSource: 'stated', objective: q.objective === true, subject: 'Maths', chapter: null })),
 });
 /** A solution cache that records every call and answers `answer` (a function) — never a model call. */
@@ -224,18 +225,20 @@ function recordingCache(answer = async () => ({ schemeSteps: ['Write the formula
 }
 const flush = () => new Promise((r) => setImmediate(r));
 const withEnv = async (k, v, fn) => { const old = process.env[k]; if (v === undefined) delete process.env[k]; else process.env[k] = v; try { return await fn(); } finally { if (old === undefined) delete process.env[k]; else process.env[k] = old; } };
-const detectOne = (h, o = {}) => h.detect(o);
+const detectOne = (h, o = {}) => h.detect({ topicVocabulary: VOCAB, ...o });
+const SIGNED_IN = { currentUid: () => 'stu-1' };
 
 test('§S.1 S1 detect of ONE keyless subjective question starts exactly ONE scheme preparation, with the SAME hash inputs the grade will use', async () => {
   const cache = recordingCache();
-  const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { solutionCache: cache });
+  const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { ...SIGNED_IN, solutionCache: cache });
   const out = await detectOne(h);
   assert.equal(out.status, 200);
   await flush();
   assert.equal(cache.calls.length, 1, 'one preparation');
   assert.deepEqual([cache.calls[0].question, cache.calls[0].marks, cache.calls[0].isObjective], [QT, 3, false]);
+  assert.deepEqual([cache.calls[0].subject, cache.calls[0].topic], ['Maths', 'Quadratic Equations'], 'the detected subject and chapter NAME, as the client sends them');
   // The grade of the same question (what the client sends after detect) reaches the cache with the SAME question + marks.
-  const h2 = harness([{ text: GOOD() }], { solutionCache: cache });
+  const h2 = harness([{ text: GOOD() }], { ...SIGNED_IN, solutionCache: cache });
   await h2.single({ question: QT, marks: 3 });
   assert.equal(cache.calls.length, 2);
   assert.deepEqual([cache.calls[1].question, cache.calls[1].marks], [cache.calls[0].question, cache.calls[0].marks], 'prepare and grade share the hash inputs');
@@ -246,11 +249,11 @@ test('§S.1 S1 detect of ONE keyless subjective question starts exactly ONE sche
 
 test('§S.2 S1 the prepare never delays the detect response (a cache that never answers cannot hold it) and never throws into it', async () => {
   const hung = recordingCache(() => new Promise(() => {}));
-  const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { solutionCache: hung });
+  const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { ...SIGNED_IN, solutionCache: hung });
   const out = await Promise.race([detectOne(h), new Promise((r) => setTimeout(() => r('TIMEOUT'), 500))]);
   assert.equal(out.status, 200, 'detect answered while the preparation was still hanging');
   const boom = recordingCache(() => { throw new Error('db down'); });
-  const h2 = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { solutionCache: boom });
+  const h2 = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { ...SIGNED_IN, solutionCache: boom });
   assert.equal((await detectOne(h2)).status, 200);
   await flush();
 });
@@ -259,7 +262,7 @@ test('§S.3 S1 KILL SWITCH SCHEME_PREWARM_DISABLED=1 -> nothing is started; CONT
   for (const v of ['1', 'true']) {
     await withEnv('SCHEME_PREWARM_DISABLED', v, async () => {
       const cache = recordingCache();
-      const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { solutionCache: cache });
+      const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { ...SIGNED_IN, solutionCache: cache });
       assert.equal((await detectOne(h)).status, 200);
       await flush();
       assert.equal(cache.calls.length, 0, 'switch ' + v);
@@ -267,7 +270,7 @@ test('§S.3 S1 KILL SWITCH SCHEME_PREWARM_DISABLED=1 -> nothing is started; CONT
   }
   await withEnv('SCHEME_PREWARM_DISABLED', undefined, async () => {
     const cache = recordingCache();
-    const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { solutionCache: cache });
+    const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { ...SIGNED_IN, solutionCache: cache });
     await detectOne(h);
     await flush();
     assert.equal(cache.calls.length, 1);
@@ -277,7 +280,7 @@ test('§S.3 S1 KILL SWITCH SCHEME_PREWARM_DISABLED=1 -> nothing is started; CONT
 test('§S.4 S1 a MULTI-question paper prepares NOTHING; only a free-check request prepares question 1 of it', async () => {
   const two = [{ text: QT, marks: 3 }, { text: 'Find the 10th term of the AP 2, 7, 12, ...', marks: 2 }];
   const cache = recordingCache();
-  await detectOne(harness([{ text: DETECT_REPLY(two) }], { solutionCache: cache }));
+  await detectOne(harness([{ text: DETECT_REPLY(two) }], { ...SIGNED_IN, solutionCache: cache }));
   await flush();
   assert.equal(cache.calls.length, 0, 'signed-in multi-question paper: none');
   const free = recordingCache();
@@ -296,7 +299,7 @@ test('§S.5 S1 the grader\'s own filter: an objective question, one that prints 
   const MCQ_TEXT = 'Which is a prime number? (a) 4 (b) 6 (c) 7 (d) 9';
   for (const [label, q] of [['detect-flagged objective', { text: QT, marks: 1, objective: true }], ['prints its options', { text: MCQ_TEXT, marks: 1 }]]) {
     const cache = recordingCache();
-    await detectOne(harness([{ text: DETECT_REPLY([q]) }], { solutionCache: cache }));
+    await detectOne(harness([{ text: DETECT_REPLY([q]) }], { ...SIGNED_IN, solutionCache: cache }));
     await flush();
     assert.equal(cache.calls.length, 0, label);
   }
@@ -306,6 +309,55 @@ test('§S.5 S1 the grader\'s own filter: an objective question, one that prints 
   assert.equal(isSchemeCandidate({ questionText: QT, marks: 3, section: 'A', format: 'mcq' }), false);
   assert.equal(isSchemeCandidate({ questionText: QT, marks: 3, objective: true }), false);
   assert.deepEqual(schemeFieldsOf({ questionText: QT, marks: 3 }, 'Science'), { question: QT, marks: 3, subject: 'Science', topic: '', qType: '', section: '', isObjective: false });
+});
+
+test('§S.4b S1 NO DEFAULTS: no detected chapter, a chapter the vocabulary does not hold, or no vocabulary -> NOTHING is prepared (a guessed subject/chapter would define the cached scheme)', async () => {
+  const one = [{ text: QT, marks: 3 }];
+  for (const [label, reply, o] of [
+    ['no detected topic', DETECT_REPLY(one, null), {}],
+    ['topic not in the vocabulary', DETECT_REPLY(one, 'made-up-slug'), {}],
+    ['no vocabulary sent', DETECT_REPLY(one), { topicVocabulary: [] }],
+  ]) {
+    const cache = recordingCache();
+    assert.equal((await detectOne(harness([{ text: reply }], { ...SIGNED_IN, solutionCache: cache }), o)).status, 200);
+    await flush();
+    assert.equal(cache.calls.length, 0, label);
+  }
+  // CONTROL: the same read with a held chapter prepares.
+  const cache = recordingCache();
+  await detectOne(harness([{ text: DETECT_REPLY(one) }], { ...SIGNED_IN, solutionCache: cache }));
+  await flush();
+  assert.equal(cache.calls.length, 1);
+});
+
+test('§S.4c S1 the subject and chapter come from the DETECTED chapter\'s vocabulary entry (a Science chapter prepares as Science), and marks are the detect\'s clamped top-level mark', async () => {
+  const cache = recordingCache();
+  await detectOne(harness([{ text: DETECT_REPLY([{ text: 'State Snell\'s law of refraction.', marks: 2 }], 'light', 'Science') }], { ...SIGNED_IN, solutionCache: cache }));
+  await flush();
+  assert.deepEqual([cache.calls[0].subject, cache.calls[0].topic, cache.calls[0].marks], ['Science', 'Light - Reflection and Refraction', 2]);
+});
+
+test('§S.4d S1 only a SIGNED-IN caller or a MARKED free check prepares: an unmarked signed-out detect never does (CONTROLS: signed-in does, marker does)', async () => {
+  const one = [{ text: QT, marks: 3 }];
+  const out = recordingCache();
+  await detectOne(harness([{ text: DETECT_REPLY(one) }], { solutionCache: out }));
+  await flush();
+  assert.equal(out.calls.length, 0, 'signed out, no marker');
+  const marked = recordingCache();
+  await detectOne(harness([{ text: DETECT_REPLY(one) }], { solutionCache: marked }), { headers: { 'x-lazytopper-free-check': '1' } });
+  await flush();
+  assert.equal(marked.calls.length, 1, 'marked free check');
+  const inn = recordingCache();
+  await detectOne(harness([{ text: DETECT_REPLY(one) }], { ...SIGNED_IN, solutionCache: inn }));
+  await flush();
+  assert.equal(inn.calls.length, 1, 'signed in');
+});
+
+test('§S.4e S1 a TYPED question wins over the read text (resolveCiQuestionText): the prepare hashes what the client will send', async () => {
+  const cache = recordingCache();
+  await detectOne(harness([{ text: DETECT_REPLY([{ text: 'Solve x^2 - 2x - 8 = 0 by factorisation', marks: 3 }]) }], { ...SIGNED_IN, solutionCache: cache }), { question: QT });
+  await flush();
+  assert.equal(cache.calls[0].question, QT);
 });
 
 test('§S.6 S2 in-flight de-dupe: a grade arriving while the prepare is generating awaits it — ONE generation, two callers served', async () => {
