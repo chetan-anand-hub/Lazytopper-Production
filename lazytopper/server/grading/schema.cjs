@@ -51,6 +51,9 @@ function stepSchema() {
       // equation typed conceptual, a VERBATIM quote of a failed balancing attempt elsewhere on the paper.
       equationFault: { type: 'STRING', nullable: true },
       balancingEvidence: { type: 'STRING', nullable: true },
+      // GRADER-TYPE-1 (owner ruling R2, 22 Nov 2026): optional, additive — "reason" when this step IS an asked-for reason
+      // the student did not write (rules.cjs (b)). A closed value read by postprocess typeBlankAskedReasons; never prose.
+      omittedAsk: { type: 'STRING', nullable: true },
       correctedWorking: { type: 'STRING', nullable: true },
       isDeparture: { type: 'BOOLEAN', nullable: true },
       departureKind: { type: 'STRING', nullable: true },
@@ -59,7 +62,7 @@ function stepSchema() {
     // Ordering hint only: the model QUOTES and DESCRIBES a step before it judges it.
     propertyOrdering: [
       'stepNumber', 'part', 'description', 'studentWork', 'status', 'marksAvailable',
-      'marksAwarded', 'marksDeducted', 'teacherAnnotation', 'mistakeType', 'knowledgeEvidence', 'equationFault', 'balancingEvidence', 'correctedWorking',
+      'marksAwarded', 'marksDeducted', 'teacherAnnotation', 'mistakeType', 'knowledgeEvidence', 'omittedAsk', 'equationFault', 'balancingEvidence', 'correctedWorking',
       'isDeparture', 'departureKind', 'isReturn',
     ],
     required: ['description'],

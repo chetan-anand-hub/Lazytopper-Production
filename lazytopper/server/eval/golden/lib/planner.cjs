@@ -102,6 +102,19 @@ function buildPlan(opts = {}) {
     if (!opts.filter || opts.filter(job.jobKey)) jobs.push(job);
   };
 
+  // ── GRADER-TYPE-1 live type probes — OPT-IN ONLY (opts.typeProbes returns ONLY these jobs): the default plan, the G1 gate, floor.json and every
+  // stored run are unchanged. Typed transport, acceptsV2 true (so marksLostByType is in the reply), one job per entry point.
+  if (opts.typeProbes) {
+    for (const p of G.typeProbes.probes) {
+      push({ jobKey: 'S.T1.' + p.probeId, entry: 'single', handler: 'handleCheckSolution', surface: 'TYPE-PROBE', caseIds: [p.probeId], qNumbers: { [p.probeId]: 1 },
+        request: { question: p.question, subject: p.subject, topic: p.topic, marks: p.marks, textAnswer: p.textAnswer, acceptsV2: true } });
+      push({ jobKey: 'W.T1.' + p.probeId, entry: 'set', handler: 'handleGradeWorksheet', surface: 'TYPE-PROBE', caseIds: [p.probeId], qNumbers: { [p.probeId]: 1 },
+        request: { worksheetId: 'golden-t1-' + p.probeId, subject: p.subject, acceptsV2: true,
+          questions: [{ qNumber: 1, marks: p.marks, questionText: p.question, topic: p.topic, topicLabel: p.topic, textAnswer: p.textAnswer }] } });
+    }
+    return jobs;
+  }
+
   // ── single entry: /api/check-solution (handleCheckSolution) ───────────────
   for (const c of G.cases) {
     push({

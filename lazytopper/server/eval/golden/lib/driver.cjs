@@ -14,9 +14,9 @@
 // Stubbed, and why (identical to the audit's harness, grader-audit-1/s3/harness/run.cjs):
 //   * no fair-use / idempotency / entitlement / free-check middleware: the handler is
 //     called directly, so nothing is charged and no idempotent replay can serve a grade;
-//   * the solution cache returns null — what production's real cache returns with no
-//     DATABASE_URL (stepSolution.cjs). Invocations are counted, so a cache that ever
-//     generated a scheme (an extra model call) would be visible.
+//   * the solution cache: by default (opts.scheme falsy) it returns null — what production's real cache returns with no
+//     DATABASE_URL (stepSolution.cjs). With opts.scheme (GRADER-TYPE-1 E1, owner ruling R3) it is the REAL scheme step: an
+//     in-memory cache in front of production's own generator, metered. Invocations are counted either way.
 
 const path = require('path');
 
@@ -26,6 +26,7 @@ const { createHttpUtils, extractJsonObjectFromText } = require(path.join(SERVER_
 const { buildGeminiImagePart, validateMentorImagePayload } = require(path.join(SERVER_DIR, 'mentorImageSupport.cjs'));
 const { chargeableCountOf } = require(path.join(SERVER_DIR, 'grading', 'charge.cjs'));
 const ledgerLib = require(path.join(SERVER_DIR, 'services', 'usageLedger.cjs'));
+const { createInMemorySchemeCache } = require('./schemeCache.cjs');
 
 // A17 owner rulings 2 and 5 (GRADING-JOBS-1 J0): what a job CHARGES (the count fair use commits —
 // grading/charge.cjs, the handler's side channel on `res`) and what the PREMIUM METER records. The
@@ -59,7 +60,7 @@ function fakeRes() {
  */
 function createDriver(opts) {
   const { sendJson } = createHttpUtils('*');
-  const cacheHook = { calls: 0 };
+  const cacheHook = { calls: 0, generated: 0, hits: 0 };
   const meter = { writes: [], okCalls: 0 };
   const ledger = ledgerLib.createUsageLedger({
     resolveFirestore: () => ({ db: { collection: () => ({ doc: () => ({ collection: () => ({ doc: () => ({ set: (d) => { meter.writes.push(d); return Promise.resolve(); } }) }) }) }) }, FieldValue: { increment: (n) => n } }),
@@ -79,10 +80,14 @@ function createDriver(opts) {
     ...(opts.gradingModel ? { GRADING_MODEL: opts.gradingModel, GRADING_THINKING_BUDGET: opts.gradingThinkingBudget ?? null } : {}),
     ...(opts.gradingMode ? { GRADING_MODE: opts.gradingMode, GRADING_LIGHT_MODEL: opts.gradingLightModel || 'gemini-2.5-flash' } : {}),
     ...(typeof opts.makeFenceNonce === 'function' ? { makeFenceNonce: opts.makeFenceNonce } : {}),
-    solutionCache: {
-      getOrCreateModelSolution: async () => { cacheHook.calls += 1; return null; },
-    },
+    // GRADER-TYPE-1 E1 (R3): `opts.scheme` true -> the REAL scheme step (lib/schemeCache.cjs: the production generator behind an
+    // in-memory cache, metered through meteredCallGemini). Default false -> the historical null stub (what stored baselines and
+    // the zero-call replay of them were made under; goldenLive passes the flag, `--no-scheme` turns it back off).
+    solutionCache: null,
   };
+  deps.solutionCache = opts.scheme
+    ? createInMemorySchemeCache(deps, cacheHook)
+    : { getOrCreateModelSolution: async () => { cacheHook.calls += 1; return null; } };
   const routes = createCheckSolutionRoute(deps);
 
   async function run(job) {

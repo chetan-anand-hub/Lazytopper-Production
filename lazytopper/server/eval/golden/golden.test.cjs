@@ -613,3 +613,60 @@ test('§11d ★ g-mcq-habit-1 accepts exactly the 0-mark habit type on a RIGHT o
   assert.ok(habitViolations(delta.filter((d) => d[0][0] !== 'mistakeSummary'), body).some((v) => /summary moved 0 but steps gained 1/.test(v)), 'a step type with no summary count is refused');
   assert.ok(habitViolations(delta.concat([[['annotatedSteps', 2, 'mistakeType'], null, 'silly'], [['mistakeSummary', 'silly'], 0, 1]]), body).some((v) => /2 steps gained a type/.test(v)), 'two habit types on one question are refused');
 });
+
+// ── §12 GRADER-TYPE-1 E1 (owner ruling R3): the golden driver's REAL scheme step; the type probes are opt-in ──────────
+test('§12a E1 — the driver\'s scheme step: OFF by default (null stub, zero model calls); ON = the production generator behind an in-memory cache, METERED, one generation per distinct question', async () => {
+  const { createDriver } = require('./lib/driver.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const job = buildPlan({}).find((j) => j.jobKey === 'S.CI.GS-M04-a');
+  assert.ok(job, 'CONTROL: the plan has a keyless subjective single job');
+  const mk = (withScheme) => {
+    const seen = [];
+    const callGemini = async (_model, contents) => {
+      const prompt = contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+      if (/authors the OFFICIAL marking scheme|marking scheme for/.test(prompt) && !/GRADING RULES/.test(prompt)) {
+        seen.push('scheme');
+        return { text: JSON.stringify({ steps: [{ stepNumber: 1, description: 'Formula', working: 'a = 1', marks: 1 }, { stepNumber: 2, description: 'Answer', working: 'x = 2', marks: 1 }], finalAnswer: 'x = 2' }), raw: {} };
+      }
+      seen.push('grade');
+      return { text: JSON.stringify({ totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ stepNumber: 1, description: 'd', studentWork: 'w', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, finalAnswerCorrect: true, teacherNote: 'ok' }), raw: {} };
+    };
+    return { seen, driver: createDriver({ callGemini, model: 'test-model', scheme: withScheme }) };
+  };
+  const off = mk(false);
+  const r0 = await off.driver.run(job);
+  assert.equal(off.seen.filter((x) => x === 'scheme').length, 0, 'default: no scheme generation (the historical null stub)');
+  assert.ok(r0.cacheHookCalls >= 1, 'the hook is still invoked and counted');
+  const on = mk(true);
+  const r1 = await on.driver.run(job);
+  const r2 = await on.driver.run(job);
+  assert.equal(on.seen.filter((x) => x === 'scheme').length, 1, 'scheme ON: ONE generation for the question, the second job is a cache hit');
+  assert.ok(on.seen.filter((x) => x === 'grade').length >= 2, 'the grader still runs for both jobs');
+  assert.ok(r1.cacheHookCalls >= 1 && r2.cacheHookCalls >= 1);
+  assert.equal(r1.meteredShare, 1, 'every model call (scheme + grade) is metered, exactly as production');
+});
+
+test('§12b GRADER-TYPE-1 — the type probes are OPT-IN: the default plan is unchanged (no T1 job), the probe plan holds ONLY probes, both entry points, acceptsV2', () => {
+  const { buildPlan } = require('./lib/planner.cjs');
+  const def = buildPlan({ includeDetect: true });
+  assert.ok(!def.some((j) => /\.T1\./.test(j.jobKey)), 'the default plan (G1, floor.json, stored runs) has no type probe');
+  const probes = buildPlan({ typeProbes: true });
+  assert.ok(probes.length >= 12 && probes.every((j) => /^[SW]\.T1\./.test(j.jobKey) && j.request.acceptsV2 === true));
+  assert.deepEqual([...new Set(probes.map((j) => j.entry))].sort(), ['set', 'single']);
+  for (const id of ['T1-Q25-REASON-BLANK', 'T1-LCM-DROP-NO-RULE', 'T1-LCM-DROP-RULE-SHOWN-ELSEWHERE', 'T1-LCM-LOWEST-POWERS-THROUGHOUT', 'T1-LCM-HIGHEST-POWERS-MULT-SLIP']) {
+    assert.ok(probes.some((j) => j.jobKey === 'S.T1.' + id) && probes.some((j) => j.jobKey === 'W.T1.' + id), id);
+  }
+});
+
+test('§12c GRADER-TYPE-1 — checkProbe reads ONLY the server ledger (marksLostByType) and the marks; a wrong bucket or a moved mark FAILS', () => {
+  const { checkProbe } = require('./lib/typeProbes.cjs');
+  const exp = { marksLostByType: { conceptual: 0.5, untyped: 'eq0', silly: 'eq0' }, marks: [1.5, 1.5] };
+  const ok = { ok: true, marksAwarded: 1.5, marksLostByType: { conceptual: 0.5, untyped: 0, silly: 0 } };
+  assert.equal(checkProbe(ok, 'single', exp).pass, true);
+  assert.equal(checkProbe({ ok: true, results: [ok] }, 'set', exp).pass, true);
+  assert.equal(checkProbe({ ...ok, marksLostByType: { conceptual: 0, untyped: 0.5, silly: 0 } }, 'single', exp).pass, false, 'untyped instead of conceptual');
+  assert.equal(checkProbe({ ...ok, marksLostByType: { conceptual: 0.5, untyped: 0, silly: 0.5 } }, 'single', exp).pass, false, 'silly where the ruling says conceptual');
+  assert.equal(checkProbe({ ...ok, marksAwarded: 1 }, 'single', exp).pass, false, 'a mark moved');
+  assert.equal(checkProbe({ ok: true, couldNotRead: true }, 'single', exp).pass, false);
+  assert.equal(checkProbe({ ok: false }, 'single', exp).pass, false);
+});

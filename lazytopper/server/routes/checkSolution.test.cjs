@@ -948,7 +948,11 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // GRADER-CREDIT-1 review round 1 (same pin, rebased onto GRADER-BALANCE-1): SEPARATE VALUES says which items it
 // covers (non-objective, incl. a 1-mark item or case-study part; never an objective item) and that answer-only
 // separable values share the final-answer mark; FINAL ANSWER's single-mark sentence names the same exception.
-const NO_UPLOADS_CONTENTS_SHA256 = 'c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860';
+// GRADER-TYPE-1 (owner rulings R1-R2, 22 Nov 2026; c9c7d082… → below): the blank asked-for REASON is always its own step, typed
+// conceptual with no proof (rules (b) / (b2), the omittedAsk field, no longer a "format element" to fold) and case law 13
+// (a dropped power: silly only where the page shows the rule). Rule TEXT only, in the ONE rulebook — every transport moved together.
+//   PREVIOUS c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860
+const NO_UPLOADS_CONTENTS_SHA256 = '5f83acc51123bc5aac128d05832ad7ef650121ed1ce754b8124590a727c5183d';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

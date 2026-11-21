@@ -113,8 +113,8 @@ async function replayJob(planJob, record, opts = {}) {
   const detectModel = opts.detectModel || 'gemini-2.5-flash';
   const driver = cfg && cfg.core
     ? createDriver({ callGemini, model: detectModel, gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget ?? null,
-      gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel })
-    : createDriver({ callGemini, model: record.model || opts.model });
+      gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel, scheme: Boolean(opts.schemeStep) })
+    : createDriver({ callGemini, model: record.model || opts.model, scheme: Boolean(opts.schemeStep) });
   const out = await driver.run(planJob);
   return {
     ...out,

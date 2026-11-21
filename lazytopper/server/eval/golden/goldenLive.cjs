@@ -7,6 +7,9 @@
 //     node server/eval/golden/goldenLive.cjs --config A --runs 3 --concurrency 4 [--detect]
 //
 // Options:
+//   --no-scheme           grade WITHOUT the production scheme step (GRADER-TYPE-1 E1): only to compare against a stored null-stub baseline.
+//                         The scheme step (the solution cache, metered) is ON by default.
+//   --type-probes         plan ONLY the GRADER-TYPE-1 type probes (plans only the probes; no --filter needed)
 //   --config A|B|C        A = gemini-2.5-flash dynamic thinking (production default)
 //                         B = gemini-3.1-pro-preview default thinking (gemini-2.5-pro is refused for the eval key)
 //                         C = gemini-3.1-pro-preview thinkingBudget 2048 on the grading calls
@@ -128,11 +131,15 @@ async function main() {
   } else {
     client = require('./lib/live.cjs').createLiveClient({ model: cfg.model, thinkingBudget: cfg.core ? null : cfg.thinkingBudget, ledgerFile: ledger, cap, maxCalls, configId: cfg.id, pr: arg('--pr', 'PR-1') });
   }
+  // GRADER-TYPE-1 E1 (owner ruling R3, 22 Nov 2026): the production SCHEME step (the solution cache) is ON for every run unless
+  // `--no-scheme` is given (a comparison against a stored baseline that was made with the null stub). Recorded in the manifest so
+  // the zero-call replay of this run rebuilds its driver the same way.
+  const schemeStep = !has('--no-scheme');
   const driver = cfg.core
     // --detect-model M (PR-3, C10): production detect runs gemini-2.5-flash, which the eval key is
     // refused; M is a PROXY for detection only (grading keeps cfg.model), recorded in the manifest.
-    ? createDriver({ callGemini: client.callGemini, model: arg('--detect-model', 'gemini-2.5-flash'), gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget, gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel })
-    : createDriver({ callGemini: client.callGemini, model: cfg.model });
+    ? createDriver({ callGemini: client.callGemini, model: arg('--detect-model', 'gemini-2.5-flash'), gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget, gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel, scheme: schemeStep })
+    : createDriver({ callGemini: client.callGemini, model: cfg.model, scheme: schemeStep });
 
   const serverFiles = ['grading/rules.cjs', 'grading/prompt.cjs', 'grading/postprocess.cjs', 'grading/core.cjs', 'grading/verify.cjs', 'grading/schema.cjs', 'grading/fence.cjs', 'grading/timing.cjs', 'grading/charge.cjs', 'grading/detect.cjs', 'grading/pdfTextLayer.cjs', 'routes/checkSolution.cjs', 'routes/objectiveScoring.cjs', 'services/geminiClient.cjs', 'services/serverConfig.cjs', 'services/httpUtils.cjs', 'mentorImageSupport.cjs', 'services/serverUtils.cjs'];
   const serverDir = path.join(__dirname, '..', '..');
@@ -144,11 +151,13 @@ async function main() {
       ? 'Runs under the GRADER-CORE-1 PR-2 grading core (one prompt builder, one post-processing path, the owner rulings of 2026-10-05).'
       : 'Runs under the CURRENT (pre-GRADER-CORE-1) prompts and post-processing: these outputs measure the model\'s reading and judgement under today\'s rules.',
     serverFileSha256LF: Object.fromEntries(serverFiles.map((f) => [f, lfOnlyHash(f)])),
-    timeoutMs: client.resolvedTimeoutMs, concurrency, runsPlanned: runs, ledger: path.basename(ledger), stubs: 'no fair-use/idempotency/entitlement middleware (handler called directly); solution cache returns null (production with no DATABASE_URL)',
+    timeoutMs: client.resolvedTimeoutMs, concurrency, runsPlanned: runs, ledger: path.basename(ledger), schemeStep,
+    stubs: 'no fair-use/idempotency/entitlement middleware (handler called directly); ' + (schemeStep ? 'solution cache = the production scheme generator behind an IN-MEMORY cache (GRADER-TYPE-1 E1, metered)' : 'solution cache returns null (--no-scheme; production with no DATABASE_URL)'),
   };
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 1) + '\n');
 
-  const plan = buildPlan({ includeDetect: has('--detect'), filter });
+  // GRADER-TYPE-1: `--type-probes` plans ONLY the opt-in type probes (probes/grader-type-1.json), never the default golden plan.
+  const plan = buildPlan({ includeDetect: has('--detect'), filter, typeProbes: has('--type-probes') });
   const grading = plan.filter((j) => j.entry !== 'detect');
   const detectJobs = plan.filter((j) => j.entry === 'detect');
   const queue = [];

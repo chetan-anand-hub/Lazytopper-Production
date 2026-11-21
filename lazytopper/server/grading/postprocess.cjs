@@ -612,6 +612,9 @@ const ABSENT_WORK = new Set([
   'no working', 'no work', 'no work shown', 'nothing written', 'blank', 'left blank', 'not provided', 'not given', 'omitted',
   'missing', 'not attempted', 'unattempted', 'not answered', 'no answer', 'empty', 'null', 'none', 'n a', 'na', 'not done',
 ]);
+// GRADER-TYPE-1 (U2a): a model placeholder for a blank asked-for REASON. Read ONLY on a missing/unattempted step (below),
+// and not at all under GRADER_TYPE_1_DISABLED=1.
+const REASON_PLACEHOLDERS = new Set(['reason not given', 'no reason given', 'reason not stated', 'reason not written', 'not justified', 'no justification']);
 // Review round 2: the placeholder words are read ONLY on a step the MODEL reported absent ("missing" / "unattempted").
 // On any other step they may be the student's own answer (a wrong "None" on a working step): only truly empty is blank.
 const PLACEHOLDER_STATUSES = new Set(['missing', 'unattempted']);
@@ -620,7 +623,7 @@ function isBlankWork(text, status) {
   if (!PLACEHOLDER_STATUSES.has(status)) return false;
   const t = String(text == null ? '' : text).normalize('NFKC').toLowerCase()
     .replace(/[’‘'`"“”[\](){}.!?,:;\-–—_/\\]/g, ' ').replace(/\s+/g, ' ').trim();
-  return !t || ABSENT_WORK.has(t);
+  return !t || ABSENT_WORK.has(t) || (REASON_PLACEHOLDERS.has(t) && process.env.GRADER_TYPE_1_DISABLED !== '1');
 }
 function toUnattempted(s) {
   s.status = 'unattempted';
@@ -1078,6 +1081,68 @@ function settleUntypedLosses(steps, { q, totalMarks, zeroedBy }) {
   const toExamTechnique = blank.filter((s) => s.mistakeType === 'presentation').length;
   return { toUnattempted: blank.length - toExamTechnique, toExamTechnique, keptUntyped };
 }
+/* ── GRADER-TYPE-1 · OWNER RULING 22 NOV 2026 (R2) — A BLANK ASKED-FOR REASON IS A CONCEPT GAP UNLESS THE PAGE PROVES OTHERWISE ──
+   "A question asks for a reason/justification, the answer is right, the reason is blank, and nothing on the page proves the
+   student knows it → the lost mark is typed `conceptual`." This REPLACES, for asked-for REASONS only, the 5 Nov "no proof →
+   Not attempted" outcome (MISSING-TYPE-1). WITH proof (knowledgeEvidence found in another step, knowledgeProven) it stays exam
+   technique (#1575) — decided by omissionsInAttemptedWork, which this function never overrides. Other blank deliverables
+   (a formula, a diagram, a verification) are NOT reasons and are unchanged. Types and statuses only: NEVER a mark.
+   The signal that a step is an asked-for reason is, in this order, STRUCTURED: the model's `omittedAsk: "reason"`, or — for
+   a separate blank step — the step's own DESCRIPTION naming a reason / justification (the field #1575 already reads) AND the
+   QUESTION TEXT asking for one. Never the teacherAnnotation / comment prose (#1584). Conditions, all: the question is
+   subjective; the step is untyped, earns 0 and lost marks; it is not zeroed work, ECF, a departure or a consequence of an
+   earlier typed error; the answer it justifies was RIGHT (an earlier correct step with work in the same part and no earlier step of that part wrong); no proof.
+   Two shapes: (1) a SEPARATE blank step (missing / unattempted, blank or placeholder work) → status "missing" (it is a part
+   of an attempted answer, not an unattempted part), typed conceptual; (2) a FOLDED reason (U3) — the answer step carries the
+   reason's lost mark and the model flagged `omittedAsk: "reason"` → that step's untyped loss is typed conceptual (or, with proof
+   and inside the exam-technique cap, presentation). Kill switch: GRADER_TYPE_1_DISABLED=1. */
+const REASON_STEP = /\b(?:reason\w*|justif\w*)\b/i;
+const REASON_ASKED = /\b(?:reasons?|justif\w*|explain\s+why|why)\b/i;
+const graderType1Disabled = () => process.env.GRADER_TYPE_1_DISABLED === '1';
+function typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy }) {
+  if (graderType1Disabled()) return { toConceptual: 0, toExamTechnique: 0 };
+  let toConceptual = 0;
+  let toExamTechnique = 0;
+  const live = steps.filter((s) => s.status !== 'withdrawn');
+  const questionText = String((q && (q.questionText || q.question)) || '');
+  const realQuestion = isRealQuestionText({ ...(q || {}), questionText });
+  const cap = examTechniqueCap(totalMarks);
+  const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded, Number(s.marksDeducted) || 0));
+  steps.forEach((u, i) => {
+    if (u.status === 'withdrawn' || zeroedBy.has(i) || u._ecf || u.mistakeType || u._consequentialOrigin || u.isDeparture || !(u.marksDeducted > 0)) return;
+    const blankStep = u.marksAwarded === 0 && ['missing', 'unattempted'].includes(u.status) && isBlankWork(u.studentWork, u.status) && nonAttemptText(u.studentWork) !== 'phrase';
+    const foldedStep = !blankStep && u._omittedAsk === 'reason' && ATTEMPTED_STATUSES.has(u.status);
+    if (!blankStep && !foldedStep) return;
+    const flagged = u._omittedAsk === 'reason';
+    if (!flagged && !REASON_STEP.test(String(u.description || ''))) return;
+    // the QUESTION must ask for a reason. A photo-only question (no usable text) relies on the model's structured flag alone.
+    if (realQuestion ? !REASON_ASKED.test(questionText) : !flagged) return;
+    // a reason has its own part only when it IS the part: then it is an unattempted sub-part (rules.cjs), left alone.
+    // The answer it justifies must be RIGHT: an earlier correct step, with work, of the same part.
+    const at = live.indexOf(u);
+    // "Right" = nothing before the reason is wrong: no earlier step of the part is incorrect or typed conceptual / calculation / silly
+    // (an error AFTER it, or in another part of an unlabelled paper, is not what the reason justifies), and — for a separate blank
+    // step — an earlier step of the part is correct work.
+    const earlier = live.filter((s) => s !== u && partKey(s.part) === partKey(u.part) && live.indexOf(s) < at);
+    const nothingWrongBefore = !earlier.some((s) => s.status === 'incorrect' || ['conceptual', 'calculation', 'silly'].includes(s.mistakeType));
+    const answerRight = nothingWrongBefore && earlier.some((s) => s.status === 'correct' && nonAttemptText(s.studentWork) === null && !isBlankWork(s.studentWork, s.status));
+    if (blankStep && !answerRight) return;
+    if (foldedStep && (u.status === 'incorrect' || !nothingWrongBefore)) return;
+    if (knowledgeProven(u, live, questionText)) {
+      // PROOF (#1575): exam technique, as the 5 Nov ruling says — for a folded reason only inside the A17 cap.
+      if (foldedStep) {
+        const etLost = half(live.filter((s) => s !== u && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s) && !s._workingNotShown)
+          .reduce((a, s) => a + lostOf(s), 0));
+        if (half(etLost + lostOf(u)) <= cap) { u.mistakeType = 'presentation'; toExamTechnique += 1; }
+      }
+      return;
+    }
+    if (blankStep) u.status = 'missing';
+    u.mistakeType = 'conceptual';
+    toConceptual += 1;
+  });
+  return { toConceptual, toExamTechnique };
+}
 function countUntyped(kind, n) {
   if (!(n > 0)) return;
   try { require('../telemetry.cjs').increment('grading.untyped_loss.' + kind, n); } catch { /* telemetry never changes a grade */ }
@@ -1168,6 +1233,9 @@ function normaliseSteps(rawSteps) {
       Object.defineProperty(step, '_knowledgeEvidence', { value: typeof s.knowledgeEvidence === 'string' ? s.knowledgeEvidence.trim() : '', writable: true, enumerable: false });
       // GRADER-BALANCE-1 (owner ruling 5 Nov 2026): the model's chemical-equation fault for this step and its quote of
       // a failed balancing attempt elsewhere — internal only (never emitted), read by applyBalancingRuling.
+      // GRADER-TYPE-1 (U3): the model's structured flag that the loss on this step is an ASKED-FOR REASON the student did
+      // not write. Internal only (never emitted). A closed value — never read from comment prose (the #1584 precedent).
+      Object.defineProperty(step, '_omittedAsk', { value: s.omittedAsk === 'reason' ? 'reason' : null, writable: true, enumerable: false });
       Object.defineProperty(step, '_equationFault', { value: equationFaultOf(s.equationFault), writable: true, enumerable: false });
       Object.defineProperty(step, '_balancingEvidence', { value: typeof s.balancingEvidence === 'string' ? s.balancingEvidence.trim() : '', writable: true, enumerable: false });
       // What the step could earn, by the model's own ledger when it did not say.
@@ -1863,6 +1931,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   //      assigned between the two (moved here from step 10, unchanged) so a loss that follows a typed error keeps it.
   let untypedSettled = { toUnattempted: 0, toExamTechnique: 0, keptUntyped: 0 };
   let workingFlipped = 0;
+  let reasonsTyped = { toConceptual: 0, toExamTechnique: 0 };
   if (!questionIsObjective) {
     const wns = workingNotShown(steps, q);
     // review (lower priority): a step tagged before the cap that later processing took out of the shape loses the tag.
@@ -1874,6 +1943,8 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     }
     assignConsequentialOrigins(steps, zeroedBy);
     untypedSettled = settleUntypedLosses(steps, { q, totalMarks, zeroedBy });
+    // 7f · GRADER-TYPE-1 (owner ruling R2, 22 Nov 2026): a blank asked-for REASON with no proof of knowledge is a Concept gap.
+    reasonsTyped = typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy });
   }
 
   // 8 · comments made true
@@ -1981,6 +2052,8 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     countUntyped('blank_to_unattempted', untypedSettled.toUnattempted);
     countUntyped('blank_to_exam_technique', untypedSettled.toExamTechnique);
     countUntyped('kept_untyped', untypedSettled.keptUntyped);
+    countUntyped('blank_reason_to_conceptual', reasonsTyped.toConceptual);
+    countUntyped('folded_reason_to_exam_technique', reasonsTyped.toExamTechnique);
     if (marksLostByType.untyped > 0) countUntyped('subjective_questions', 1);
   }
   const lostSum = half(Object.values(marksLostByType).reduce((a, b) => a + b, 0));
