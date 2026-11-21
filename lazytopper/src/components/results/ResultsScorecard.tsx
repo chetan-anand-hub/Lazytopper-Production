@@ -619,6 +619,14 @@ function MarksBlock({ pm }: { pm: PaperMarksLost }) {
   );
 }
 
+/** GRADE-RESULT-COPY-1 — the surface's own noun for "X is worth N marks in total" (never "Worksheet"
+ *  on a Chapter Test). A surface with no entry reads "This paper". */
+const PAPER_NOUN: Partial<Record<ScorecardVariant["surface"], string>> = {
+  worksheet: "worksheet",
+  "chapter-test": "test",
+  "full-mock": "mock paper",
+};
+
 export default function ResultsScorecard({ variant, onClose, belowScore, hideShare, askFirstFeedback, allPendingSlot, limitKey, reopened }: ResultsScorecardProps) {
   // FEEDBACK-2 - the in-flow slot BELOW the buttons where "Was this useful?" sits on a phone, so it can
   // never cover the scorecard's own buttons. Empty (and hidden) unless the card is portaled into it.
@@ -708,16 +716,33 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                 // notGraded (owner-approved 2026-10-05) — a question the server did not grade is
                 // listed below with its own sentence; it is never counted as an unreadable page.
                 const notGraded = (variant.pending.items ?? []).filter((it) => it.state === "not-graded").length;
-                const unread = Math.max(0, variant.pending.count - mismatch.length - notGraded);
+                // GRADE-RESULT-COPY-1 — a question with NO answer on the uploaded pages is told apart from
+                // one that could not be read: both stay pending (never a 0), neither says the other's thing.
+                const notFound = Math.min(variant.pending.notFound ?? 0, Math.max(0, variant.pending.count - mismatch.length - notGraded));
+                const unread = Math.max(0, variant.pending.count - mismatch.length - notGraded - notFound);
+                const total = variant.pending.worksheetTotalMarks;
+                const noun = PAPER_NOUN[variant.surface];
+                const worth = (
+                  <>
+                    {noun ? `The ${noun}` : "This paper"} is worth {total} marks in total.
+                  </>
+                );
                 return (
                   <>
+                    {notFound > 0 && (
+                      <div className="lt-sc__pend" data-grade-state="not-found">
+                        <b>
+                          {notFound} question{notFound === 1 ? "" : "s"} not answered on your pages
+                        </b>
+                        {unread > 0 ? "." : <> — if you did answer {notFound === 1 ? "it" : "them"}, add that page to complete your score. {worth}</>}
+                      </div>
+                    )}
                     {unread > 0 && (
                       <div className="lt-sc__pend">
                         <b>
                           {unread} question{unread === 1 ? "" : "s"} couldn’t be read
                         </b>{" "}
-                        — re-upload those pages to complete your score. Worksheet is worth{" "}
-                        {variant.pending.worksheetTotalMarks} marks in total.
+                        — re-upload those pages to complete your score. {worth}
                       </div>
                     )}
                     {mismatch.map((q) => (

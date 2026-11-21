@@ -145,8 +145,11 @@ export interface RetryGroup {
 }
 
 export interface RetryPlan {
-  /** Lost-marks questions in this test (graded only). */
+  /** Lost-marks questions in this test: graded, ATTEMPTED and short of full marks. A question the
+   *  student left unanswered (not attempted) is not counted - it is no mistake (GRADE-RESULT-COPY-1). */
   missedCount: number;
+  /** Graded questions left wholly unanswered - kept out of `missedCount` and the re-attempt list. */
+  notAttemptedCount: number;
   /** One exact-id practice set per chapter (Quick Practice serves one chapter per set). */
   groups: RetryGroup[];
   /** Lost questions that cannot be reopened (no bank id / chapter), stated, never hidden. */
@@ -154,7 +157,10 @@ export interface RetryPlan {
 }
 
 export function buildRetryPlan(rows: readonly AnalysedQuestion[], returnTo: string): RetryPlan {
-  const missed = missedOnly(rows);
+  // GRADE-RESULT-COPY-1 - only questions the student attempted and lost marks on; a question left
+  // unanswered is shown as "Not attempted - not a mistake" everywhere else, so it is not "lost" here.
+  const notAttemptedCount = rows.filter((r) => r.miss === "not-attempted").length;
+  const missed = missedOnly(rows).filter((r) => r.miss !== "not-attempted");
   const byChapter = new Map<string, { label: string; subject: DisplaySubject; ids: string[] }>();
   let unroutable = 0;
   for (const r of missed) {
@@ -172,7 +178,7 @@ export function buildRetryPlan(rows: readonly AnalysedQuestion[], returnTo: stri
     return { chapter, label: g.label, subject: g.subject, ids: g.ids, to: retryPracticePath({ subject: g.subject, chapter, ids: g.ids, returnTo }) };
   });
   groups.sort((a, b) => b.ids.length - a.ids.length || a.label.localeCompare(b.label));
-  return { missedCount: missed.length, groups, unroutable };
+  return { missedCount: missed.length, notAttemptedCount, groups, unroutable };
 }
 
 /* ── 2. time per question ───────────────────────────────────────────────────────────────── */

@@ -8,6 +8,7 @@ import {
   effectivePaperCounts,
   gradeStateCopy,
   gradeStateOf,
+  isNotFoundOnPages,
   groupRows,
   isGradedQuestion,
   isQuestionNotAttempted,
@@ -174,7 +175,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
   const pm = paperMarksLost(response.results);
   const markChips = pm ? marksGroupRows(pm.byType).filter((r) => r.marks > 0) : [];
   // notGraded (owner-approved 2026-10-05) — never called an unreadable page, never "all read".
-  const { unread: unreadCount, mismatch: mismatchCount, notGraded: notGradedCount } = pendingBreakdown(
+  const { unread: unreadCount, mismatch: mismatchCount, notGraded: notGradedCount, notFound: notFoundCount } = pendingBreakdown(
     response.results,
     Number(response.pendingCount) || 0,
   );
@@ -222,8 +223,14 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
             <div className="lt-gp__scorel">MARKS GRADED</div>
           </div>
           <div className="lt-gp__heroright">
-            {unreadCount > 0 || mismatchCount > 0 || notGradedCount > 0 ? (
+            {unreadCount > 0 || mismatchCount > 0 || notGradedCount > 0 || notFoundCount > 0 ? (
               <>
+                {notFoundCount > 0 && (
+                  <div className="lt-gp__pending" data-grade-state="not-found">
+                    <b>{notFoundCount} {notFoundCount === 1 ? "question" : "questions"} not answered</b> on the pages you
+                    uploaded. <b>Not</b> graded and <b>not</b> scored 0. {kindLabel} is worth {response.worksheetTotalMarks} marks in total.
+                  </div>
+                )}
                 {unreadCount > 0 && (
                   <div className="lt-gp__pending">
                     <b>{unreadCount} {unreadCount === 1 ? "question" : "questions"} pending</b> —
@@ -314,7 +321,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
                     {q ? <PrintQuestionFigures questionId={q.id} /> : null}
                     <div className="lt-gp__pendnote" data-grade-state={state}>
                       ⚠ {gradeStateCopy(r)} — <b>not graded, not scored 0</b>
-                      {state === "could-not-read" ? <>. Re-upload a clearer photo of Q{r.qNumber} to grade it.</> : "."}
+                      {state === "could-not-read" && !isNotFoundOnPages(r) ? <>. Re-upload a clearer photo of Q{r.qNumber} to grade it.</> : "."}
                     </div>
                   </div>
                 );

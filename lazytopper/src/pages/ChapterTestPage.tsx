@@ -139,7 +139,7 @@ import { useBankChapters } from "../data/bankChapters/useBankChapters";
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import UsageWarning from "../components/usage/UsageWarning";
 import { useFairUse } from "../components/usage/useFairUse";
-import { gradingErrorMessage } from "../ai/gradingTransport";
+import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../ai/gradingTransport";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
 import { isPremiumRequiredRefusal, isTrialLimitRefusal } from "../components/limits/limitsCopy";
 import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "../ai/gradingJobs";
@@ -462,6 +462,8 @@ export default function ChapterTestPage() {
   // SHEET-HEADER-1 — when THIS fullResponse was marked (set beside it; it is only ever set from a fresh grade).
   const fullGradedAtRef = useRef<number | null>(null);
   const [grading, setGrading] = useState(false);
+  /** GRADE-RESULT-COPY-1 - the grade call's transport stage; only a retry is shown. */
+  const [gradeStage, setGradeStage] = useState<GradingStage | null>(null);
   const [gradeError, setGradeError] = useState<string | null>(null);
   // PAPER-WALLS-1: the upgrade sheet (Board Pass first, the Chapter Pack second) for a Basic 402 / spent trial allowance.
   const [paperWall, setPaperWall] = useState(false);
@@ -853,6 +855,7 @@ export default function ChapterTestPage() {
     ) => {
       if (!paper || !nomen || !objective || grading) return;
       setGrading(true);
+      setGradeStage(null);
       setGradeError(null);
       fairUse.clearLimit();
       if (!mode.resume) lastUploadRef.current = upload;
@@ -868,6 +871,7 @@ export default function ChapterTestPage() {
           objective,
           subjectiveQuestions: subjectiveQs,
           upload,
+          onStage: setGradeStage,
           job: {
             store: jobStore,
             paperKey: paper.worksheetId,
@@ -917,6 +921,7 @@ export default function ChapterTestPage() {
         setGradeError(gradingErrorMessage(err, "We couldn't grade your answers just now. Your answers are still here — please try again."));
       } finally {
         setGrading(false);
+        setGradeStage(null);
       }
     },
     [paper, nomen, objective, grading, user, sessionSubject, topicKey, subjectiveQs, loadRecords, jobStore, jobUi.reset, jobUi.onProgress, jobUi.captureInterrupted, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal, adoptSavedCode],
@@ -1805,6 +1810,12 @@ export default function ChapterTestPage() {
                     onGrade={(upload) => void handleGrade(upload)}
                     onSkip={() => navigate(backTo)}
                   />
+                  {/* GRADE-RESULT-COPY-1 - a slow/dropped grade says so, instead of a button that looks frozen. */}
+                  {grading && gradeStage?.kind === "retrying" ? (
+                    <p className="lt-ct__sub" role="status" data-testid="grade-stage-line">
+                      {gradingStageLabel(gradeStage)}
+                    </p>
+                  ) : null}
                 </>
               }
             />

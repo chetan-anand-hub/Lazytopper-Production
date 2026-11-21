@@ -138,6 +138,11 @@ export const OPTION_ONLY_LABEL = "Option only \u2014 no working to diagnose";
 /** couldNotRead — the answer was not graded. */
 export const COULD_NOT_READ_COPY = "We couldn't read this answer — retake the photo";
 
+/** GRADE-RESULT-COPY-1 — a question the grader found NO answer for on the uploaded pages (the student
+ *  left it, or its page was not uploaded). It is not graded and not a 0, but "retake the photo" is wrong
+ *  for it: the photo was fine, there was nothing to read. Display copy only. */
+export const NOT_FOUND_ON_PAGES_COPY = "Not answered on the pages you uploaded";
+
 /** objectiveResolved:false — the chosen option could not be read; not a 0. */
 export const UNREAD_OPTION_COPY = "We couldn't read your option";
 
@@ -410,6 +415,9 @@ export interface GradedQuestionLike {
   /** v2 (A's PR-3) · non-null = the server did NOT grade this question (and did not charge for
    *  it); the value says why. Absent / null = graded normally. Read through `notGradedReasonOf`. */
   notGraded?: NotGradedReason | null;
+  /** The server's note on a pending row. Read ONLY by `isNotFoundOnPages` to tell "no answer was
+   *  found on the uploaded pages" from "the answer could not be read". Never shown from here. */
+  note?: string | null;
 }
 
 /**
@@ -451,6 +459,21 @@ export function gradeStateOf(q: GradedQuestionLike | null | undefined): GradeSta
   return "graded";
 }
 
+/**
+ * GRADE-RESULT-COPY-1 — the ONE predicate for "the grader found no answer for this question on the
+ * uploaded pages". The server marks a not-found question `couldNotRead` exactly as an unreadable one;
+ * the difference is its note: the model is told to return "not found on the uploaded pages"
+ * (server/grading/rules.cjs) and the normaliser's own NOT_FOUND_ON_PAGE_NOTE is "We couldn't find your
+ * answer to this question on the uploaded pages, so it has not been marked ...". Both are matched, and
+ * only on a row that is NOT graded as could-not-read, so a graded question can never be named this.
+ */
+const NOT_FOUND_NOTE = /\bnot found on (?:the )?(?:uploaded |your )?pages?\b|\bcouldn['\u2019]t find your answer to this question on the uploaded pages\b/i;
+export function isNotFoundOnPages(q: GradedQuestionLike | null | undefined): boolean {
+  if (!q || gradeStateOf(q) !== "could-not-read") return false;
+  const note = typeof q.note === "string" ? q.note : "";
+  return note !== "" && NOT_FOUND_NOTE.test(note);
+}
+
 /** True only for a GRADED question — the gate for marks, types, MI, attempts and progress. */
 export function isGradedQuestion(q: GradedQuestionLike | null | undefined): boolean {
   return gradeStateOf(q) === "graded";
@@ -464,7 +487,7 @@ export function gradeStateCopy(q: GradedQuestionLike | null | undefined): string
     case "unread-option":
       return UNREAD_OPTION_COPY;
     case "could-not-read":
-      return COULD_NOT_READ_COPY;
+      return isNotFoundOnPages(q) ? NOT_FOUND_ON_PAGES_COPY : COULD_NOT_READ_COPY;
     case "not-graded":
       {
       const reason = notGradedReasonOf(q);
@@ -482,15 +505,18 @@ export function gradeStateCopy(q: GradedQuestionLike | null | undefined): string
 export function pendingBreakdown(
   questions: ReadonlyArray<GradedQuestionLike> | null | undefined,
   pendingCount: number,
-): { unread: number; mismatch: number; notGraded: number } {
+): { unread: number; mismatch: number; notGraded: number; notFound: number } {
   let mismatch = 0;
   let notGraded = 0;
+  let notFound = 0;
   for (const q of questions ?? []) {
     const state = gradeStateOf(q);
     if (state === "answer-mismatch") mismatch += 1;
     else if (state === "not-graded") notGraded += 1;
+    else if (isNotFoundOnPages(q)) notFound += 1;
   }
-  return { unread: Math.max(0, (Number(pendingCount) || 0) - mismatch - notGraded), mismatch, notGraded };
+  // GRADE-RESULT-COPY-1 — `unread` is the genuinely unreadable rest; `notFound` is counted apart.
+  return { unread: Math.max(0, (Number(pendingCount) || 0) - mismatch - notGraded - notFound), mismatch, notGraded, notFound };
 }
 
 /** A paper's summary line for its questions whose answer does not match the question — the owner's

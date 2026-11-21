@@ -774,6 +774,8 @@ export async function gradeQuickPracticeBatch(args: {
   /** GRADING-JOBS-1 J2 — a background job, used ONLY for a batch of MORE THAN ONE question
    *  (contract §11: a one-question batch is graded exactly as today). */
   job?: GradingJobOptions;
+  /** GRADE-RESULT-COPY-1 - the page's stage listener (slow-retry copy). Optional and additive. */
+  onStage?: PaidCallOptions["onStage"];
   /** PRACTICE-REVIEW-HONEST-1 (DECISION 27a / 30b) — whether a graded answer is fed to
    *  Mistake Intelligence (`recordMistake` + `recordAttempt`). Omitted / true ⇒ unchanged.
    *  false ⇒ nothing is recorded; the grades are still returned. A predicate decides per
@@ -916,7 +918,7 @@ export async function gradeQuickPracticeBatch(args: {
   try {
     response = await grade(
       { worksheetId, subject, questions, uploads },
-      { surface: "quick-practice", ...(args.job && questions.length > 1 ? { job: args.job } : {}) },
+      { surface: "quick-practice", ...(args.onStage ? { onStage: args.onStage } : {}), ...(args.job && questions.length > 1 ? { job: args.job } : {}) },
     );
   } catch (error) {
     // ★★ §4b · THE 402 IS NOT AN ERROR AND MUST NOT BE SWALLOWED HERE. The catch used

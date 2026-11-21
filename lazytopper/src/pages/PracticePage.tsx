@@ -603,6 +603,7 @@ import {
   startHerePracticePath,
   type StartHereQType,
 } from "../components/startHere/startHereModel";
+import { gradingStageLabel, type GradingStage } from "../ai/gradingTransport";
 import { retryCountFloor } from "../components/testAnalysis/retrySrc";
 import { typeFirstAnswerMode, useZeroGraded } from "../components/startHere/zeroGraded";
 // MOMENTS-1 — Byte & Ziggy moments (display only; the drawing is a lazy chunk).
@@ -1603,6 +1604,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps; arrivalKey?: stri
   /** The result of THE one batched call. Null until the student confirms. */
   const [batchResult, setBatchResult] = useState<QuickPracticeBatchResult | null>(null);
   const [batchGrading, setBatchGrading] = useState<boolean>(false);
+  /** GRADE-RESULT-COPY-1 - the batch call's transport stage; only a retry changes the button text. */
+  const [batchStage, setBatchStage] = useState<GradingStage | null>(null);
   const [batchError, setBatchError] = useState<string | null>(null);
   /* QP-WORKING-AFTER-1 (owner design, 23 Oct 22:48 IST) — each answer box's UNSAVED draft (typed or
      attached, never saved), and the Finish gate: open while a Finish tap waits on written questions
@@ -3408,6 +3411,7 @@ const packTopicKey = useMemo(() => {
     if (batchGrading || batchResult?.outcome === "graded") return;
     if (batchSelection.batch.length === 0) return;
     setBatchGrading(true);
+    setBatchStage(null);
     setBatchError(null);
     fairUse.clearLimit();
     qpLastLimitRef.current = limitTo;
@@ -3456,6 +3460,7 @@ const packTopicKey = useMemo(() => {
       subject: subjectKey,
       answers: answersToSend,
       user: authUserForJourney,
+      onStage: setBatchStage,
       job: {
         store: qpJobStore,
         paperKey: worksheetId,
@@ -3465,6 +3470,7 @@ const packTopicKey = useMemo(() => {
       },
     });
     setBatchGrading(false);
+    setBatchStage(null);
     if (result.outcome === "graded") qpJob.reset();
     if (result.outcome === "skipped-signin-required") {
       // ★★ NO CALL WAS MADE — the service refused before the network (`calls: 0`). The
@@ -4933,7 +4939,7 @@ const packTopicKey = useMemo(() => {
             disabled={batchGrading}
             onClick={() => { void handleGradeBatch(); }}
           >
-            {batchGrading ? "Grading your answers\u2026" : "Check my written answers"}
+            {batchGrading ? (batchStage?.kind === "retrying" ? gradingStageLabel(batchStage) : "Grading your answers\u2026") : "Check my written answers"}
           </button>
           {!batchGrading && uploadLaterBlock}
           <button
