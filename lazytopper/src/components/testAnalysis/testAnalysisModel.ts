@@ -75,6 +75,12 @@ export interface TestSource {
   chapterTopicKey?: string | null;
 }
 
+/** RESULT-LIST-HONEST-1 - the ONE "left unanswered, so not a mistake" decision for a GRADED question
+ *  that lost marks. buildRetryPlan and the scorecard "Where marks slipped" rows both read it. */
+export function isUnattemptedLoss(r: WorksheetQuestionGrade): boolean {
+  return missKindOf(r) === "not-attempted";
+}
+
 function missKindOf(r: WorksheetQuestionGrade): MissKind | null {
   const awarded = Number(r.marksAwarded) || 0;
   const total = Number(r.totalMarks) || 0;
