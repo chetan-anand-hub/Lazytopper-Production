@@ -36,6 +36,11 @@ const {
   GUEST_VERIFY_PATH,
   GUEST_CLAIM_PATH,
   MAX_GUEST_ORDERS_PER_PHONE_PER_DAY,
+  GUEST_ORDER_STATUS_PATH,
+  STATUS_PROOF_TTL_MS,
+  STATUS_CALLS_PER_ORDER_PER_HOUR,
+  MAX_STATUS_CALLS_PER_CLIENT_PER_DAY,
+  NO_ATTEMPT_FAILED_AFTER_MS,
 } = require('./guestPay.cjs');
 const { normaliseIndianMobile, maskIndianMobile } = require('../services/guestPay.cjs');
 const { createPaymentRoutes, quotePass, PAY_ORDER_PATH, PAY_WEBHOOK_PATH, PAY_VERIFY_PATH } = require('./payments.cjs');
@@ -184,6 +189,12 @@ function fakeRazorpay() {
       orders.set(order.id, order);
       return reply(200, order);
     }
+    // PAY-RETURN-1: Razorpay's list of an order's payments.
+    if (method === 'GET' && (m = u.pathname.match(/^\/v1\/orders\/([^/]+)\/payments$/))) {
+      if (!orders.has(m[1])) return reply(400, {});
+      const items = [...payments.values()].filter((x) => x.order_id === m[1]).map((x) => ({ ...x }));
+      return reply(200, { entity: 'collection', count: items.length, items });
+    }
     if (method === 'GET' && (m = u.pathname.match(/^\/v1\/payments\/([^/]+)$/))) {
       const p = payments.get(m[1]);
       return p ? reply(200, { ...p }) : reply(400, {});
@@ -231,6 +242,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
   const table = {
     [GUEST_ORDER_PATH]: guest.handleOrder,
     [GUEST_VERIFY_PATH]: guest.handleVerify,
+    [GUEST_ORDER_STATUS_PATH]: guest.handleOrderStatus,
     [GUEST_CLAIM_PATH]: guest.handleClaim,
     [GUEST_ATTACH_PATH]: guest.handleAttach,
     [GUEST_RECEIPT_PATH]: guest.handleReceipt,
@@ -947,7 +959,8 @@ test('WHO · flag OFF: a `recipient` in the body is ignored and the order route 
   t.after(srv.close);
   const r = await whoOrder(srv, { sku: 'till_boards', phone: PHONE, recipient: { email: EMAIL } });
   assert.equal(r.status, 200, r.text);
-  assert.deepEqual(Object.keys(r.json).sort(), ['amountPaise', 'keyId', 'ok', 'orderId', 'phoneMasked']);
+  // PAY-RETURN-1: the one additive reply field is the per-order status proof (PAY_RETURN_DISABLED=1 drops it: see the PR* tests).
+  assert.deepEqual(Object.keys(r.json).sort(), ['amountPaise', 'keyId', 'ok', 'orderId', 'phoneMasked', 'statusProof']);
   const stored = srv.db.read(`payOrders/${r.json.orderId}`);
   assert.equal(stored.checkoutWho, undefined);
   assert.equal(stored.guestEmail, undefined);
@@ -1074,7 +1087,7 @@ test('WHO · no enumeration: order and verify answer the SAME shape whether or n
     const p = srv.rzp.pay(o.json.orderId);
     const v = await guestVerify(srv, o.json.orderId, p.id);
     await srv.idle();
-    const strip = ({ orderId, ...rest }) => rest; // eslint-disable-line no-unused-vars
+    const strip = ({ orderId, statusProof, ...rest }) => rest; // eslint-disable-line no-unused-vars -- statusProof is random per order
     shapes.push({ order: { http: o.status, ...strip(o.json) }, verify: { http: v.status, ...strip(v.json) } });
   }
   assert.deepEqual(shapes[0], shapes[1]);
@@ -3492,4 +3505,372 @@ test('TS-PRICE-2 · guest: a 999 founding Test Series order only AUTHORIZED 24 h
   t.after(ok.close);
   const v = await guestVerify(ok, o.json.orderId, p.id);
   assert.equal(v.status, 200, v.text);
+});
+
+/* ══ PR · PAY-RETURN-1 — a buyer back from the UPI app on a reset page (no verify ran) asks the server what became of the order ══
+ *
+ * ★ MUTATIONS (run against THIS file only, each shown red, each restored):
+ *   M1 handleOrderStatus skips the statusProofMatches check        -> "PR · proof is required ..." red
+ *   M2 handleOrderStatus fires orderPaid / the receipt when it did NOT move created -> paid_unclaimed -> "PR · concurrent status calls alone ..." red
+ *   M3 handleOrderStatus believes a payment for another amount     -> "PR · a payment for another amount ..." red
+ */
+const statusCall = (srv, orderId, proof, headers = {}) => request(srv.port, GUEST_ORDER_STATUS_PATH, { body: { orderId, proof }, headers });
+const PR_ENV = { ...WHO_ENV, GUEST_PAY_ENABLED: '1', PAY_AUTO_ACCOUNT_ENABLED: '1' };
+
+test('PR · every order type mints a per-order proof: the reply carries it, the order stores ONLY its SHA-256, Razorpay never sees it', async (t) => {
+  const srv = await startRoutes({ env: PR_ENV });
+  t.after(srv.close);
+  const phone = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const who = await whoOrder(srv, { sku: 'pack_mock', target: 'maths', recipient: { phone: PHONE } });
+  const self = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths' });
+  for (const o of [phone, who, self]) {
+    assert.equal(o.status, 200, o.text);
+    assert.match(o.json.statusProof, /^[A-Za-z0-9_-]{32}$/);
+    const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+    assert.equal(stored.statusProofHash, crypto.createHash('sha256').update(o.json.statusProof).digest('hex'));
+    assert.equal(JSON.stringify(stored).includes(o.json.statusProof), false, 'the raw proof is never stored');
+    assert.equal(JSON.stringify(srv.rzp.orders.get(o.json.orderId)).includes(o.json.statusProof), false, 'nor sent to Razorpay');
+  }
+  assert.notEqual(phone.json.statusProof, who.json.statusProof);
+});
+
+test('PR · proof is required: missing / malformed / wrong / another order\'s / an old order with no proof all get ONE refusal and touch nothing', async (t) => {
+  const srv = await startRoutes({ env: PR_ENV });
+  t.after(srv.close);
+  const a = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const b = await guestOrder(srv, { sku: 'pack_cbq', target: 'maths', phone: OTHER_PHONE });
+  srv.rzp.pay(a.json.orderId);
+  await srv.db.collection('payOrders').doc('order_OLD').set({ payer: 'guest', guestPhone: PHONE, passType: 'till_boards', amountPaise: 100, status: 'created', createdAt: new Date(NOW) });
+  const callsBefore = srv.rzp.calls.length;
+  const refusals = [
+    await request(srv.port, GUEST_ORDER_STATUS_PATH, { body: { orderId: a.json.orderId } }),
+    await statusCall(srv, a.json.orderId, 'short'),
+    await statusCall(srv, a.json.orderId, 'A'.repeat(32)),
+    await statusCall(srv, a.json.orderId, b.json.statusProof),
+    await statusCall(srv, 'order_unknown', a.json.statusProof),
+    await statusCall(srv, 'order_OLD', a.json.statusProof),
+    await statusCall(srv, a.json.orderId, `${a.json.statusProof}x`),
+  ];
+  assert.equal(refusals[0].json.reason, 'malformed');
+  assert.equal(refusals[1].json.reason, 'malformed');
+  for (const r of refusals.slice(2)) {
+    assert.equal(r.status, 403, r.text);
+    assert.deepEqual(r.json, { ok: false, error: 'payment_rejected', reason: 'invalid_proof' }, 'no enumeration: unknown order, wrong proof and no proof read the same');
+  }
+  assert.equal(srv.rzp.calls.length, callsBefore, 'Razorpay is never asked without a valid proof');
+  assert.equal(srv.db.read(`payOrders/${a.json.orderId}`).status, 'created');
+  // a non-guest order id never answers, even with a proof-shaped hash matching
+  await srv.db.collection('payOrders').doc('order_SIGNEDIN').set({ payer: 'self', uid: 'u1', statusProofHash: crypto.createHash('sha256').update('P'.repeat(32)).digest('hex'), createdAt: new Date(NOW), amountPaise: 100, status: 'created' });
+  assert.equal((await statusCall(srv, 'order_SIGNEDIN', 'P'.repeat(32))).status, 403);
+});
+
+test('PR · the proof expires with the order (createdAt + 2 h): 410, nothing asked of Razorpay', async (t) => {
+  let clock = NOW;
+  const srv = await startRoutes({ env: PR_ENV, nowFn: () => clock });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  srv.rzp.pay(o.json.orderId);
+  clock = NOW + STATUS_PROOF_TTL_MS - 1000;
+  assert.equal((await statusCall(srv, o.json.orderId, o.json.statusProof)).status, 200);
+  clock = NOW + STATUS_PROOF_TTL_MS + 1000;
+  const callsBefore = srv.rzp.calls.length;
+  const late = await statusCall(srv, o.json.orderId, o.json.statusProof);
+  assert.equal(late.status, 410);
+  assert.equal(late.json.reason, 'expired');
+  assert.equal(srv.rzp.calls.length, callsBefore);
+});
+
+test('PR · captured at Razorpay, no verify, no webhook: recorded paid_unclaimed ONCE, the same body verify returns, plus the receipt proof Razorpay\'s handler would have given', async (t) => {
+  const srv = await startRoutes({ env: PR_ENV });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'pack_cbq', target: 'maths', phone: PHONE });
+  const p = srv.rzp.pay(o.json.orderId);
+  const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+  assert.equal(r.status, 200, r.text);
+  const { receipt, ...body } = r.json;
+  assert.deepEqual(receipt, { orderId: o.json.orderId, paymentId: p.id, signature: checkoutSig(o.json.orderId, p.id) });
+  // the SAME success payload verify returns for this order (shape and values)
+  const v = await guestVerify(srv, o.json.orderId, p.id);
+  assert.deepEqual(body, v.json);
+  assert.equal(body.status, 'paid_unclaimed');
+  assert.equal(body.kind, 'pack');
+  assert.equal(body.phoneMasked, maskIndianMobile(PHONE));
+  const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(stored.status, 'paid_unclaimed');
+  assert.equal(stored.paymentId, p.id);
+  assert.equal(packDocs(srv.db).length, 0, 'recording is not a grant: the claim grants, exactly as after verify');
+  assert.equal(subsDocs(srv.db).length, 0);
+  // and the returned proof is accepted by the receipt route (files / "Sign in with this number" card), unchanged
+  const rc = await request(srv.port, GUEST_RECEIPT_PATH, { body: receipt });
+  assert.equal(rc.status, 200, rc.text);
+  assert.equal(rc.json.ok, true);
+  assert.equal(rc.json.pack.sku, 'pack_cbq');
+});
+
+test('PR · already recorded by the webhook / sweep: the SAME verify body at once, from the store; Razorpay is not asked and nothing is fired again', async (t) => {
+  const { createServerEvents } = require('../services/serverEvents.cjs');
+  const metaCalls = [];
+  const fetchImpl = async (url, init) => { metaCalls.push(JSON.parse(init.body)); return { ok: true, status: 200 }; };
+  const db = memoryFirestore();
+  const serverEvents = createServerEvents({ firestore: db, env: { META_CAPI_ACCESS_TOKEN: 't' }, fetchImpl, now: () => NOW });
+  const resend = resendRecorder();
+  const receiptEmailer = createPaymentReceiptEmailer({ env: EMAIL_ENV, adminFirestore: db, fetchImpl: resend.fetchImpl, now: () => NOW });
+  const srv = await startRoutes({ db, env: PR_ENV, serverEvents, receiptEmailer });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'pack_cbq', target: 'maths', phone: PHONE });
+  const p = srv.rzp.pay(o.json.orderId, { email: 'buyer@example.com' });
+  assert.equal((await sendWebhook(srv, { ...p })).status, 200); // the webhook records it (the 21 Nov 16:53 shape)
+  await receiptEmailer.whenIdle();
+  await new Promise((r) => setTimeout(r, 60));
+  assert.equal(metaCalls.length, 1, 'the webhook fired the one purchase event');
+  assert.equal(resend.sent.length, 1, 'and the one receipt');
+  const callsBefore = srv.rzp.calls.length;
+  const emailsBefore = resend.sent.length;
+  const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.status, 'paid_unclaimed');
+  assert.equal(r.json.receipt.paymentId, p.id);
+  assert.equal(srv.rzp.calls.length, callsBefore, 'nothing asked of Razorpay for an order already recorded');
+  await receiptEmailer.whenIdle();
+  assert.equal(resend.sent.length, emailsBefore, 'no second receipt');
+  await new Promise((r) => setTimeout(r, 60));
+  assert.equal(metaCalls.length, 1, 'no second purchase event');
+  const again = await statusCall(srv, o.json.orderId, o.json.statusProof);
+  assert.deepEqual(again.json, r.json, 'idempotent');
+});
+
+test('PR · concurrent: status x3 + a webhook + a verify on one captured order -> ONE payment recorded, ONE purchase event, ONE receipt email, no grant', async (t) => {
+  const { createServerEvents } = require('../services/serverEvents.cjs');
+  const metaCalls = [];
+  const fetchImpl = async (url, init) => { metaCalls.push(JSON.parse(init.body)); return { ok: true, status: 200 }; };
+  const base = memoryFirestore();
+  const serverEvents = createServerEvents({ firestore: base, env: { META_CAPI_ACCESS_TOKEN: 't' }, fetchImpl, now: () => NOW });
+  const h = emailHarness();
+  const srv = await startRoutes({ db: base, env: PR_ENV, serverEvents, receiptEmailer: createPaymentReceiptEmailer({ env: EMAIL_ENV, adminFirestore: base, fetchImpl: h.resend.fetchImpl, now: () => NOW }) });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'pack_mock', target: 'maths', phone: PHONE });
+  const p = srv.rzp.pay(o.json.orderId, { email: 'buyer@example.com' });
+  const results = await Promise.all([
+    statusCall(srv, o.json.orderId, o.json.statusProof),
+    statusCall(srv, o.json.orderId, o.json.statusProof),
+    statusCall(srv, o.json.orderId, o.json.statusProof),
+    sendWebhook(srv, { ...p }),
+    guestVerify(srv, o.json.orderId, p.id),
+  ]);
+  for (const r of results) assert.equal(r.status, 200, r.text);
+  await srv.idle();
+  await new Promise((r) => setTimeout(r, 80));
+  const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(stored.status, 'paid_unclaimed');
+  assert.equal(stored.paymentId, p.id);
+  assert.equal(metaCalls.length, 1, 'one PackPurchase for the sale, whoever recorded it');
+  assert.equal(h.resend.sent.length, 1, 'one receipt email');
+  assert.equal(packDocs(srv.db).length, 0);
+  assert.equal(subsDocs(srv.db).length, 0);
+  // the three status answers are identical
+  assert.deepEqual(results[0].json, results[1].json);
+  assert.deepEqual(results[1].json, results[2].json);
+});
+
+test('PR · an AUTHORIZED payment is captured for the STORED amount (the verify rule), then recorded', async (t) => {
+  const srv = await startRoutes({ env: PR_ENV });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const p = srv.rzp.pay(o.json.orderId, { status: 'authorized' });
+  const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+  assert.equal(r.status, 200, r.text);
+  assert.equal(r.json.status, 'paid_unclaimed');
+  const cap = srv.rzp.calls.filter((c) => c.method === 'POST' && c.url.endsWith(`/payments/${p.id}/capture`));
+  assert.equal(cap.length, 1);
+  assert.equal(cap[0].body.amount, srv.db.read(`payOrders/${o.json.orderId}`).amountPaise);
+});
+
+test('PR · a payment for another amount, another currency or another order is never believed', async (t) => {
+  const srv = await startRoutes({ env: PR_ENV });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const other = await guestOrder(srv, { sku: 'till_boards', phone: OTHER_PHONE });
+  srv.rzp.pay(o.json.orderId, { id: 'pay_cheap', amount: 100 });
+  srv.rzp.pay(o.json.orderId, { id: 'pay_usd', currency: 'USD' });
+  const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+  assert.equal(r.status, 200);
+  assert.notEqual(r.json.status, 'paid_unclaimed');
+  assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'created');
+  // another order's captured payment, listed under this order by a lying list, does not count either
+  srv.rzp.payments.set('pay_wrongorder', { id: 'pay_wrongorder', order_id: other.json.orderId, amount: srv.rzp.orders.get(o.json.orderId).amount, currency: 'INR', status: 'captured' });
+  assert.equal(srv.db.read(`payOrders/${other.json.orderId}`).status, 'created');
+});
+
+test('PR · nothing captured: in-progress / just-created -> pending; a failed attempt -> failed with its reason; an old order with no attempt -> failed; nothing is recorded', async (t) => {
+  let clock = NOW;
+  const srv = await startRoutes({ env: PR_ENV, nowFn: () => clock });
+  t.after(srv.close);
+  // no attempt yet, young order -> pending
+  const young = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  let r = await statusCall(srv, young.json.orderId, young.json.statusProof);
+  assert.deepEqual(r.json, { ok: true, status: 'pending', reason: 'no_payment_yet' });
+  // still in the UPI app -> pending
+  srv.rzp.pay(young.json.orderId, { id: 'pay_wip', status: 'created' });
+  r = await statusCall(srv, young.json.orderId, young.json.statusProof);
+  assert.deepEqual(r.json, { ok: true, status: 'pending', reason: 'in_progress' });
+  // the 21 Nov 18:28 shape: a payment that timed out
+  const timedOut = await guestOrder(srv, { sku: 'till_boards', phone: OTHER_PHONE });
+  srv.rzp.pay(timedOut.json.orderId, { id: 'pay_to', status: 'failed' });
+  srv.rzp.payments.get('pay_to').error_reason = 'payment_timed_out';
+  r = await statusCall(srv, timedOut.json.orderId, timedOut.json.statusProof);
+  assert.deepEqual(r.json, { ok: true, status: 'failed', reason: 'payment_timed_out' });
+  // the 19:06 shape: no Razorpay payment at all, and time has passed
+  const none = await guestOrder(srv, { sku: 'pack_cbq', target: 'maths', phone: '+917012345679' });
+  clock = NOW + NO_ATTEMPT_FAILED_AFTER_MS + 1000;
+  r = await statusCall(srv, none.json.orderId, none.json.statusProof);
+  assert.deepEqual(r.json, { ok: true, status: 'failed', reason: 'no_payment' });
+  for (const id of [young, timedOut, none]) assert.equal(srv.db.read(`payOrders/${id.json.orderId}`).status, 'created');
+  assert.equal(packDocs(srv.db).length + subsDocs(srv.db).length, 0);
+});
+
+test('PR · review N2: a failed attempt PLUS a second attempt still in the UPI app reads pending, never failed', async (t) => {
+  const srv = await startRoutes({ env: PR_ENV });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  srv.rzp.pay(o.json.orderId, { id: 'pay_first_to', status: 'failed' });
+  srv.rzp.payments.get('pay_first_to').error_reason = 'payment_timed_out';
+  srv.rzp.pay(o.json.orderId, { id: 'pay_second_wip', status: 'created' });
+  const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+  assert.deepEqual(r.json, { ok: true, status: 'pending', reason: 'in_progress' });
+  assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'created');
+});
+
+test('PR · a failed attempt followed by a successful retry on the SAME order reads paid, not failed', async (t) => {
+  const srv = await startRoutes({ env: PR_ENV });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  srv.rzp.pay(o.json.orderId, { id: 'pay_bad', status: 'failed' });
+  srv.rzp.pay(o.json.orderId, { id: 'pay_good' });
+  const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+  assert.equal(r.json.status, 'paid_unclaimed');
+  assert.equal(r.json.receipt.paymentId, 'pay_good');
+});
+
+test('PR · "Buy for yourself" (self + attach): status reads the buyer\'s contact off Razorpay\'s payment and reports the open attach hold, like verify', async (t) => {
+  const { srv } = await autoRoutes({ env: PR_ENV });
+  t.after(srv.close);
+  const o = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths', attach: true });
+  assert.equal(o.status, 200, o.text);
+  const p = srv.rzp.pay(o.json.orderId, { contact: PHONE, email: 'buyer@example.com' });
+  const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+  assert.equal(r.status, 200, r.text);
+  assert.deepEqual(r.json.selfContact, { phone: PHONE, email: 'buyer@example.com', first: 'phone' });
+  assert.equal(r.json.attach.attached, false);
+  assert.equal(r.json.attach.holdRemainingMs > 0 && r.json.attach.holdRemainingMs <= ATTACH_HOLD_MS, true);
+  assert.equal(r.json.receipt.signature, checkoutSig(o.json.orderId, p.id));
+  // the attach route accepts the proof the status route returned (the choice of WHO still works after a reset page)
+  const at = await request(srv.port, GUEST_ATTACH_PATH, { body: { ...r.json.receipt, choice: 'me' } });
+  assert.equal(at.status, 200, at.text);
+});
+
+test('PR · a recipient order recorded by status is delivered to an existing account exactly as after verify (once)', async (t) => {
+  const auth = fakeAuth();
+  const { srv } = await autoRoutes({ env: PR_ENV, auth });
+  t.after(srv.close);
+  const o = await whoOrder(srv, { sku: 'pack_cbq', target: 'maths', recipient: { phone: PHONE } });
+  srv.rzp.pay(o.json.orderId);
+  const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+  assert.equal(r.status, 200, r.text);
+  await srv.idle();
+  const stored = srv.db.read(`payOrders/${o.json.orderId}`);
+  assert.equal(['claimed', 'paid'].includes(stored.status), true, `delivered, got ${stored.status}`);
+  const uid = stored.uid;
+  assert.ok(uid);
+  const packsBefore = packDocs(srv.db).length;
+  await statusCall(srv, o.json.orderId, o.json.statusProof);
+  await srv.idle();
+  assert.equal(packDocs(srv.db).length, packsBefore, 'a second status call grants nothing more');
+  assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).uid, uid);
+});
+
+test('PR · kill switch PAY_RETURN_DISABLED=1: no proof is minted or stored, order replies are exactly the old shape, order-status answers 404 before anything is read', async (t) => {
+  const off = await startRoutes({ env: { ...PR_ENV, PAY_RETURN_DISABLED: '1' } });
+  t.after(off.close);
+  const o = await guestOrder(off, { sku: 'till_boards', phone: PHONE });
+  assert.equal(o.status, 200);
+  assert.deepEqual(Object.keys(o.json).sort(), ['amountPaise', 'keyId', 'ok', 'orderId', 'phoneMasked']);
+  assert.equal(off.db.read(`payOrders/${o.json.orderId}`).statusProofHash, undefined);
+  assert.equal((await selfOrder(off, { sku: 'pack_cbq', target: 'maths' })).json.statusProof, undefined);
+  assert.equal((await whoOrder(off, { sku: 'pack_cbq', target: 'maths', recipient: { phone: PHONE } })).json.statusProof, undefined);
+  const before = off.rzp.calls.length;
+  const r = await statusCall(off, o.json.orderId, 'A'.repeat(32));
+  assert.equal(r.status, 404);
+  assert.deepEqual(r.json, { error: 'Not Found' });
+  assert.equal(off.rzp.calls.length, before);
+  // and verify / webhook still work for that order, untouched
+  const p = off.rzp.pay(o.json.orderId);
+  assert.equal((await guestVerify(off, o.json.orderId, p.id)).status, 200);
+});
+
+test('PR · dark with the guest-pay switches: both off -> 404 (even with a valid proof shape)', async (t) => {
+  const srv = await startRoutes({ env: { ...ENV_ON, GUEST_PAY_ENABLED: '' } });
+  t.after(srv.close);
+  const r = await statusCall(srv, 'order_X', 'A'.repeat(32));
+  assert.equal(r.status, 404);
+  const pay = await startRoutes({ env: { ...ENV_ON, PAYMENTS_ENABLED: '0' } });
+  t.after(pay.close);
+  assert.equal((await statusCall(pay, 'order_X', 'A'.repeat(32))).status, 404);
+});
+
+test('PR · rate limits: a per-order hourly cap (only after the proof matched) and a per-client daily budget of its own', async (t) => {
+  const srv = await startRoutes({ env: PR_ENV });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  srv.rzp.pay(o.json.orderId, { id: 'pay_wip', status: 'created' });
+  let last = null;
+  for (let i = 0; i < STATUS_CALLS_PER_ORDER_PER_HOUR; i += 1) last = await statusCall(srv, o.json.orderId, o.json.statusProof, { 'X-Forwarded-For': `203.0.113.${(i % 200) + 1}` });
+  assert.equal(last.status, 200);
+  const over = await statusCall(srv, o.json.orderId, o.json.statusProof, { 'X-Forwarded-For': '203.0.113.250' });
+  assert.equal(over.status, 429);
+  // a stranger with a WRONG proof cannot burn that buyer's cap: still 429 for the buyer only; the stranger gets 403
+  const stranger = await statusCall(srv, o.json.orderId, 'B'.repeat(32), { 'X-Forwarded-For': '203.0.113.251' });
+  assert.equal(stranger.status, 403);
+  // per-client: one IP, daily budget
+  const ip = { 'X-Forwarded-For': '192.0.2.77' };
+  let n = 0;
+  let status = 0;
+  while (n <= MAX_STATUS_CALLS_PER_CLIENT_PER_DAY + 2 && status !== 429) {
+    status = (await statusCall(srv, 'order_nobody', 'A'.repeat(32), ip)).status;
+    n += 1;
+  }
+  assert.equal(status, 429);
+  assert.equal(n, MAX_STATUS_CALLS_PER_CLIENT_PER_DAY + 1);
+  // the order / verify budget is separate: this IP can still create an order
+  assert.equal((await request(srv.port, GUEST_ORDER_PATH, { body: { sku: 'till_boards', phone: OTHER_PHONE }, headers: ip })).status, 200);
+});
+
+test('PR · the receipt proof the status route returns is byte-for-byte what Razorpay\'s handler gives (isCheckoutSignatureValid agrees)', async (t) => {
+  const { isCheckoutSignatureValid } = require('./payments.cjs');
+  const srv = await startRoutes({ env: PR_ENV });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+  const p = srv.rzp.pay(o.json.orderId);
+  const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+  assert.equal(isCheckoutSignatureValid({ orderId: o.json.orderId, paymentId: p.id, signature: r.json.receipt.signature, keySecret: KEY_SECRET }), true);
+});
+
+test('PR · concurrent status calls alone: the purchase event, the invoice step and the receipt each fire exactly ONCE (only the call that moved created -> paid_unclaimed fires them)', async (t) => {
+  let paidEvents = 0;
+  let receipts = 0;
+  const serverEvents = { orderPaid: async () => { paidEvents += 1; }, orderCreated: async () => {}, signalsField: () => ({}), metaOn: true, ga4On: false };
+  const receiptEmailer = { sendForPayment: async () => { receipts += 1; }, sendRecipientReady: async () => {} };
+  const srv = await startRoutes({ env: PR_ENV, serverEvents, receiptEmailer });
+  t.after(srv.close);
+  const o = await guestOrder(srv, { sku: 'pack_cbq', target: 'maths', phone: PHONE });
+  srv.rzp.pay(o.json.orderId, { email: 'buyer@example.com' });
+  const rs = await Promise.all([1, 2, 3, 4].map(() => statusCall(srv, o.json.orderId, o.json.statusProof)));
+  for (const r of rs) assert.equal(r.json.status, 'paid_unclaimed');
+  await srv.idle();
+  await new Promise((r) => setTimeout(r, 30));
+  assert.equal(paidEvents, 1);
+  assert.equal(receipts, 1);
+  await statusCall(srv, o.json.orderId, o.json.statusProof);
+  await new Promise((r) => setTimeout(r, 30));
+  assert.equal(paidEvents, 1, 'a later status call fires nothing');
+  assert.equal(receipts, 1);
 });

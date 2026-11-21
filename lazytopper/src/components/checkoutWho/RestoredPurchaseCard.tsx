@@ -8,6 +8,7 @@ import { lazy, Suspense, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { clearReceiptProof, readReceiptProof, type ReceiptProof } from "../../services/paidReceiptProof";
 import { isPacksClientEnabled } from "../../services/packs";
+import PayReturnResume from "../payReturn/PayReturnResume";
 
 import "./restoredPurchaseCard.css";
 
@@ -16,8 +17,11 @@ const PurchaseCard = lazy(() => import("./PurchaseCard"));
 export default function RestoredPurchaseCard() {
   const { user, loading } = useAuth();
   const [proof, setProof] = useState<ReceiptProof | null>(() => (isPacksClientEnabled() ? readReceiptProof() : null));
-  if (!proof || user || loading) return null;
+  // PAY-RETURN-1: the same slot also answers a buyer who came back from the UPI app on a reset page (its own switch; renders nothing otherwise).
+  if (!proof || user || loading) return <PayReturnResume />;
   return (
+    <>
+    <PayReturnResume />
     <div className="lt-rpc" data-testid="restored-purchase-card">
       <Suspense fallback={null}>
         <PurchaseCard
@@ -29,5 +33,6 @@ export default function RestoredPurchaseCard() {
         />
       </Suspense>
     </div>
+    </>
   );
 }

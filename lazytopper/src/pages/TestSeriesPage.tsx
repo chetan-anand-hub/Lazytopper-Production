@@ -12,6 +12,7 @@ import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { TestSeriesExaminerLine, TestSeriesPerTest } from "../components/packs/TestSeriesPerTest";
 import { TsClockSlot } from "../components/packs/TestSeriesFoundingClause";
 import PacksShop, { type PacksShopApi } from "../components/packs/PacksShop";
+import PayReturnResume from "../components/payReturn/PayReturnResume";
 import TestSeriesPaperPicker from "../components/testSeries/TestSeriesPaperPicker";
 import { TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_VALIDITY_LONG, TEST_SERIES_WRITTEN_SECTIONS } from "../lib/packs/packLabels";
 import {
@@ -297,6 +298,8 @@ export default function TestSeriesPage() {
   return (
     <>
       <main className="lt-sp lt-ts" aria-label={`LazyTopper ${TEST_SERIES_NAME}`}>
+        {/* PAY-RETURN-1 (review N3): the Meta ad landing page; PacksShop is embedded here so it does not mount the resume itself. */}
+        <PayReturnResume />
         <PacksShop embedded hideMyPacks skipView inPlace returnPath={TEST_SERIES_PATH}>
           {(api) => (
             <>

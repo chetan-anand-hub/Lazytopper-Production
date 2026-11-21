@@ -22,6 +22,7 @@ import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
 import { adSignalFields } from "../analytics/adSignals";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
+import { beginPendingCheckout } from "./payReturn";
 
 export const GUEST_ORDER_ENDPOINT = "/api/pay/guest/order";
 export const GUEST_VERIFY_ENDPOINT = "/api/pay/guest/verify";
@@ -121,6 +122,8 @@ interface GuestOrder {
   orderId: string;
   keyId: string;
   amountPaise: number;
+  /** PAY-RETURN-1: the per-order secret the server minted (absent when its kill switch is on). Only ever kept on this device, 30 min. */
+  statusProof?: string;
 }
 
 class GuestPayError extends Error {
@@ -163,7 +166,7 @@ export async function createGuestOrder(item: GuestItem, phone: string): Promise<
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new GuestPayError("failed");
   }
-  return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
+  return { orderId, keyId, amountPaise, ...(typeof json.statusProof === "string" ? { statusProof: json.statusProof } : {}), ...serverPriceFields(json) };
 }
 
 async function verifyGuestPayment(success: RazorpaySuccess): Promise<void> {
@@ -193,10 +196,15 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
   const phone = normaliseIndianMobile(rawPhone);
   if (!phone) return { status: "invalid_phone" };
   const phoneMasked = maskIndianMobile(phone);
+  let pending: { settle: () => void } | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item, phone), deps.loadScript()]);
     // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
     if (!(await confirmServerPrice(order))) return { status: "dismissed" };
+    // PAY-RETURN-1: leave a 30-minute note of this order on this device while the sheet is open; a sheet that reports (handler / dismiss)
+    // clears it, a page that RESET under a UPI app returns to it.
+    pending = beginPendingCheckout(order, item);
+    const closing = pending;
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       const checkout = new Razorpay({
         key: order.keyId,
@@ -205,8 +213,16 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
         order_id: order.orderId,
         name: "LazyTopper",
         description: razorpaySheetDescription(item.description, order),
-        handler: (response) => resolve(response),
-        modal: { ondismiss: () => resolve(null) },
+        handler: (response) => {
+          closing.settle();
+          resolve(response);
+        },
+        modal: {
+          ondismiss: () => {
+            closing.settle();
+            resolve(null);
+          },
+        },
         ...razorpayUpiFirstOption(),
         // The number the visitor typed (normalised here); the server never echoes it back (review fix 6).
         prefill: { contact: phone },
@@ -235,6 +251,7 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
       orderId: order.orderId, // META-PURCHASE-DEDUP-1: the one id of the sale (analytics only)
     };
   } catch (e) {
+    pending?.settle();
     if (isGstBuyerCancelled(e)) return { status: "dismissed" };
     if (e instanceof GuestPayError && e.code === "already_paid") return { status: "already_paid", phoneMasked, phone };
     if (e instanceof GuestPayError && e.code === "account_exists") return { status: "account_exists", phoneMasked, phone };
