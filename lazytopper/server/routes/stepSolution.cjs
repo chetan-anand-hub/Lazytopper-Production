@@ -523,7 +523,8 @@ async function getOrCreateModelSolution(fields, deps) {
     if (pending) {
       const joined = await pending;
       // Each caller gets its OWN array: the grade writes it onto its question.
-      return joined && Array.isArray(joined.schemeSteps) ? { ...joined, schemeSteps: [...joined.schemeSteps] } : joined;
+      // `joined: true` tells the caller it waited for ANOTHER caller's in-flight generation (telemetry: schemeJoined).
+      return joined && Array.isArray(joined.schemeSteps) ? { ...joined, schemeSteps: [...joined.schemeSteps], joined: true } : joined;
     }
     const work = readOrGenerateModelSolution(fields, deps, hash, question, marks)
       .finally(() => { if (inflightSolutions.get(hash) === work) inflightSolutions.delete(hash); });

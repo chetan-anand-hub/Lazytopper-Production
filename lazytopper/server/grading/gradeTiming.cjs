@@ -18,6 +18,8 @@
 //   cacheMs        the scheme-first solution-cache pre-phase; null when it did not run
 //   cacheHit       GRADE-SPEED-1 S6: true when every scheme this request needed was already stored (or none was
 //                  needed); false when a generation was awaited or did not arrive; null when the cache hook did not run
+//   schemeHash     GRADE-SPEED-1b: first 8 hex of the scheme's question hash (matches [scheme-prewarm] hash=); null if none
+//   schemeJoined   GRADE-SPEED-1b: true when this grade WAITED for an in-flight scheme generation (cacheHit is then false)
 //   transport      GRADE-SPEED-1 S6: closed set typedOnly | perQuestionParts | document; null before a call is built
 //   marks          GRADE-SPEED-1 S6: the question's marks for a one-question request; null for a paper
 //   attempts[]     one row per model call: n = 1 first / 2 retry, ms, finishReason, thoughtsTokenCount,
@@ -39,7 +41,7 @@ const count = (v) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Ma
 
 /** The sink gradeSet fills (input.timingSink). */
 function createTimingSink() {
-  return { cacheMs: null, cacheHit: null, transport: null, marks: null, attempts: [] };
+  return { cacheMs: null, cacheHit: null, schemeHash: null, schemeJoined: null, transport: null, marks: null, attempts: [] };
 }
 
 /** retryReason for a retry of `first` (an attemptChunk outcome); null when there was no failure. */
@@ -83,6 +85,9 @@ function formatGradeTimingLine({ route, surface, status, mode, preMs, sink, tota
     preMs: count(preMs),
     cacheMs: count(s.cacheMs),
     cacheHit: typeof s.cacheHit === 'boolean' ? s.cacheHit : null,
+    // GRADE-SPEED-1b: the scheme's question-hash prefix (8 hex, closed shape) and whether this grade joined an in-flight generation.
+    schemeHash: typeof s.schemeHash === 'string' && /^[0-9a-f]{8}$/.test(s.schemeHash) ? s.schemeHash : null,
+    schemeJoined: typeof s.schemeJoined === 'boolean' ? s.schemeJoined : null,
     transport: TRANSPORTS.includes(s.transport) ? s.transport : null,
     marks: count(s.marks),
     attempts: (Array.isArray(s.attempts) ? s.attempts : []).slice(0, MAX_ATTEMPT_ROWS),
