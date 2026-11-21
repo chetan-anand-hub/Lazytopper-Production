@@ -39,4 +39,13 @@ describe("withPaperTutorAsks", () => {
     expect(withPaperTutorAsks(base, response, undefined)).toBe(base);
     expect(withPaperTutorAsks(base, null, () => ask)).toBe(base);
   });
+
+  it("RESULT-LIST-HONEST-1: a skipped question is not a 'slipped' row; a wrong pick and partial marks stay", () => {
+    const skipped = g(2, 1, 0, { marksLostByType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 1, untyped: 0 }, marksLostByTypeVersion: 1 });
+    const r = { results: [g(1, 1, 1), skipped, g(3, 1, 0, { objective: true }), g(4, 2, 1)] } as unknown as WorksheetGradeResponse;
+    const v = withPaperTutorAsks(base, r, () => ask);
+    expect(v.wrongAnswers?.map((x) => x.label)).toEqual(["Question 3", "Question 4"]);
+    // all rows skipped -> block omitted (the variant comes back unchanged)
+    expect(withPaperTutorAsks(base, { results: [skipped] } as unknown as WorksheetGradeResponse, () => ask)).toBe(base);
+  });
 });

@@ -16,7 +16,7 @@
 // drift with scroll).
 
 import { useEffect, useMemo, useState } from "react";
-import type { SessionRecord, SessionSubject } from "../../services/sessionRecords";
+import { isGradedPaperRecord, PAPER_NOT_GRADED_LINE, type SessionRecord, type SessionSubject } from "../../services/sessionRecords";
 import { ScoreRing, DotStrip } from "../chaptertest/ChapterTestHistoryRail";
 
 type SubjectTab = SessionSubject | "all";
@@ -114,16 +114,16 @@ export default function FullMockHistoryPanel({
 
   const visible = useMemo(() => {
     let rows = tab === "all" ? ordered : ordered.filter((r) => r.subject === tab);
-    if (showPendingOnly) rows = rows.filter((r) => r.status !== "graded");
+    if (showPendingOnly) rows = rows.filter((r) => !isGradedPaperRecord(r));
     // Pending pinned first (spec §4), then newest first within each group.
     return [
-      ...rows.filter((r) => r.status !== "graded"),
-      ...rows.filter((r) => r.status === "graded"),
+      ...rows.filter((r) => !isGradedPaperRecord(r)),
+      ...rows.filter((r) => isGradedPaperRecord(r)),
     ];
   }, [ordered, tab, showPendingOnly]);
 
   const latestCompletedId = useMemo(
-    () => visible.find((r) => r.status === "graded")?.id ?? null,
+    () => visible.find((r) => isGradedPaperRecord(r))?.id ?? null,
     [visible],
   );
 
@@ -211,7 +211,8 @@ export default function FullMockHistoryPanel({
             </div>
           ) : (
             visible.map((r) => {
-              const graded = r.status === "graded";
+              const graded = isGradedPaperRecord(r);
+              const notAllGraded = r.status === "partial" && graded;
               const latest = graded && r.id === latestCompletedId;
               const delta = graded ? deltaVsPrevious(r, ordered) : null;
               const cls =
@@ -242,6 +243,7 @@ export default function FullMockHistoryPanel({
                   {graded ? (
                     <>
                       <DotStrip record={r} />
+                      {notAllGraded && <div className="lt-fm__objline">{PAPER_NOT_GRADED_LINE}</div>}
                       {(latest && latestWeakLine) || delta ? (
                         <div className="lt-ct__vs">
                           {latest && latestWeakLine ? <>{latestWeakLine} </> : null}
