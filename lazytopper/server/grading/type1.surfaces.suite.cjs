@@ -107,6 +107,35 @@ for (const s of SURFACES) {
     assert.equal(student.result.annotatedSteps[1].mistakeType, null, s.id + ': a written "Reason not given" on an incorrect step is not a blank reason');
   });
 
+  // B1 (review BLOCK): the sub-part guards of omissionsInAttemptedWork also hold where the model gives NO part label. Each probe is a
+  // CONTROL that must keep TRUNK behaviour: the blank step is typed nothing, exactly as with the rule switched off.
+  const B1_PROBES = {
+    'A unlabelled own-part reason (guard 4, unlabelled)': { text: '(i) State the highest power of 2 among 1 to 10. [2 marks]\n(ii) Give a reason for your answer to (i). [2 marks]', marks: 4, steps: [
+      { description: 'Highest power of 2', studentWork: '2³', status: 'correct', marksAvailable: 2, marksAwarded: 2, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Reason for the highest power of 2', studentWork: '', status: 'missing', marksAvailable: 2, marksAwarded: 0, marksDeducted: 2, teacherAnnotation: '×', mistakeType: null },
+    ] },
+    'B blank VERIFICATION step in a question that also says "Why"': { text: 'Find the sum of the first 10 terms of the AP 2, 5, 8, … Why is the sum positive? [4 marks]', marks: 4, steps: [
+      { description: 'Sum of 10 terms', studentWork: 'S = 155', status: 'correct', marksAvailable: 3, marksAwarded: 3, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Verification justifying the relationship', studentWork: '', status: 'missing', marksAvailable: 1, marksAwarded: 0, marksDeducted: 1, teacherAnnotation: '×', mistakeType: null },
+    ] },
+    'C unlabelled "(ii) Explain why …" part, wholly blank': { text: '(i) Find the zeroes of x² - 5x + 6. [2 marks]\n(ii) Explain why both zeroes are positive. [2 marks]', marks: 4, steps: [
+      { description: 'Zeroes of the polynomial', studentWork: 'x = 2, 3', status: 'correct', marksAvailable: 2, marksAwarded: 2, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+      { description: 'Reason both zeroes are positive', studentWork: '', status: 'missing', marksAvailable: 2, marksAwarded: 0, marksDeducted: 2, teacherAnnotation: '×', mistakeType: null },
+    ] },
+  };
+  for (const [name, probe] of Object.entries(B1_PROBES)) {
+    test('GRADER-TYPE-1 B1 — ' + s.id + ': control ' + name + ' keeps TRUNK behaviour (never a concept gap)', async () => {
+      const base = CASES['T1-Q25i-PLACEHOLDER'];
+      const go = (extra) => run(s, base, { text: probe.text, marks: probe.marks, steps: probe.steps, ...extra });
+      const now = await go();
+      const trunk = await withEnv('GRADER_TYPE_1_DISABLED', '1', () => go());
+      assert.deepEqual(typesOf(now.result), typesOf(trunk.result), s.id + ': identical to the rule switched off');
+      assert.notEqual(now.result.annotatedSteps[1].mistakeType, 'conceptual', s.id);
+      assert.equal(now.result.annotatedSteps[1].mistakeType, null, s.id + ': untyped, as on trunk');
+      assert.equal(now.result.marksAwarded, trunk.result.marksAwarded, s.id + ': marks never move');
+    });
+  }
+
   test('GRADER-TYPE-1 — ' + s.id + ': the evidence quote in the QUESTION is not proof — the blank reason is a concept gap, not exam technique', async () => {
     const c = CASES['T1-TANGENT-CONTROL'];
     const r = await run(s, c, { steps: clone(c.modelReply).map((st) => (st.knowledgeEvidence ? { ...st, knowledgeEvidence: 'Give a reason' } : st)) });
@@ -132,6 +161,22 @@ test('GRADER-TYPE-1 — GRADER_TYPE_1_DISABLED=1 at process start selects the pr
   assert.deepEqual(JSON.parse(out.stdout), { off: true, case13: false, ownStep: false, oldB: true });
   assert.equal(R.GRADER_TYPE_1_OFF, false);
   assert.ok(R.UNATTEMPTED_AND_WITHDRAWN_PROMPT.includes('ALWAYS ITS OWN STEP') && !R.UNATTEMPTED_AND_WITHDRAWN_PROMPT.includes('leave the step EXACTLY as you would otherwise report it (status as it is, mistakeType null) and leave "knowledgeEvidence" null — never guess why it is blank. A reason'), 'new wording is the default');
+});
+
+test('GRADER-TYPE-1 B2 — GRADER_TYPE_1_DISABLED=1 restores the TRUNK PROMPT BYTE-FOR-BYTE (the pinned sha c9c7d082…, not substrings) and drops omittedAsk from the request schema', () => {
+  const TRUNK = 'c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860';
+  const env = { ...process.env, GRADER_TYPE_1_DISABLED: '1' };
+  delete env.NODE_TEST_CONTEXT; // a nested `node --test` inside a test run must report on its own stdout
+  // routes/checkSolution.test.cjs §7.1 is the pinned-prompt acceptance test; under the switch it pins the TRUNK sha.
+  const out = spawnSync(process.execPath, ['--test', '--test-name-pattern=§7.1 ★★ ACCEPTANCE', path.join(__dirname, '..', 'routes', 'checkSolution.test.cjs')], { encoding: 'utf8', env });
+  assert.equal(out.status, 0, out.stdout.slice(-1500));
+  assert.match(out.stdout, /# pass [1-9]/, 'the pinned-prompt test actually RAN (not vacuously selected)');
+  assert.match(out.stdout, /# fail 0/);
+  const src = require('fs').readFileSync(path.join(__dirname, '..', 'routes', 'checkSolution.test.cjs'), 'utf8');
+  assert.ok(src.includes(TRUNK), 'the trunk sha is pinned in the acceptance test');
+  const sch = spawnSync(process.execPath, ['-e', `process.stdout.write(JSON.stringify(require(${JSON.stringify(path.join(__dirname, 'schema.cjs'))}).GRADING_RESPONSE_SCHEMA).includes('omittedAsk') ? 'HAS' : 'NONE')`], { encoding: 'utf8', env });
+  assert.equal(sch.stdout, 'NONE', 'the request schema is the trunk schema under the switch');
+  assert.ok(JSON.stringify(require('./schema.cjs').GRADING_RESPONSE_SCHEMA).includes('omittedAsk'), 'default: omittedAsk offered');
 });
 
 test('GRADER-TYPE-1 — the Q25(i) reconstruction in the quality fixture is the SAME reply shape the folded case builds on', () => {

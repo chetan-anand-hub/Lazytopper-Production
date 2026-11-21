@@ -1074,7 +1074,11 @@ function settleUntypedLosses(steps, { q, totalMarks, zeroedBy }) {
       || s.status === 'unattempted' || s.status === 'withdrawn') return;
     // only a "missing" step: a blank "incorrect" one stays as the model judged it (a bare wrong answer it did not
     // quote is still an attempt — markGenuinelyUnattempted, checkSolution.test.cjs §4.1).
-    if (s.status === 'missing' && !(s.marksAwarded > 0) && (nonAttemptText(s.studentWork) !== null || isBlankWork(s.studentWork, s.status))) { s.status = 'unattempted'; blank.push(s); }
+    if (s.status === 'missing' && !(s.marksAwarded > 0) && (nonAttemptText(s.studentWork) !== null || isBlankWork(s.studentWork, s.status))) {
+      s.status = 'unattempted'; blank.push(s);
+      // nit: a step typed conceptual LATER by typeBlankAskedReasons was never a final 'unattempted' — it is counted ONCE, there.
+      Object.defineProperty(s, '_settledUnattempted', { value: true, enumerable: false, configurable: true, writable: true });
+    }
     else keptUntyped += 1;
   });
   if (blank.length) omissionsInAttemptedWork(steps, { q, totalMarks, only: new Set(blank) });
@@ -1096,13 +1100,28 @@ function settleUntypedLosses(steps, { q, totalMarks, zeroedBy }) {
    of an attempted answer, not an unattempted part), typed conceptual; (2) a FOLDED reason (U3) — the answer step carries the
    reason's lost mark and the model flagged `omittedAsk: "reason"` → that step's untyped loss is typed conceptual (or, with proof
    and inside the exam-technique cap, presentation). Kill switch: GRADER_TYPE_1_DISABLED=1. */
-const REASON_STEP = /\b(?:reason\w*|justif\w*)\b/i;
-const REASON_ASKED = /\b(?:reasons?|justif\w*|explain\s+why|why)\b/i;
+// B1: the DESCRIPTION fallback names a REASON step only ("Reason for …"), never a verification / relationship step that merely
+// "justifies" something; and the QUESTION must ASK for a reason in words ("giving a reason", "justify", "explain why") — a bare
+// "why" anywhere in the text is not an ask (probe B: "Why is the sum positive?" beside a blank verification step).
+const REASON_STEP = /\breasons?\b|\breasoning\b/i;
+const NOT_A_REASON_STEP = /\b(?:verif\w*|relationship|check\w*|substitut\w*)\b/i;
+const REASON_ASKED = /\b(?:reasons?|justif(?:y|ies|ication|ying)|explain\s+why)\b/i;
+// The reason CLAUSE of an instruction ("giving a reason", "Give a reason for …", "Explain why …", "Justify …").
+const REASON_CLAUSE = /(?:,?\s*(?:and\s+)?(?:giving|give|stating|state|writing|write|with|stating)\s+(?:a|an|your|the|one)?\s*(?:reasons?|justification)\b[^.?;!]*|\b(?:explain\s+why|justify)\b[^.?;!]*|\b(?:a\s+)?reasons?\b[^.?;!]*)/gi;
+const OTHER_ASK = /\b(?:find|state|write|name|which|what|how|show|prove|calculate|determine|evaluate|identify|compute|solve|simplify|factori[sz]e|verify|draw|list|define|express|obtain|name|mention)\b/i;
+/** The question's REASON ask rides on an ANSWER ask in the SAME sub-part ("(i) Write BP and CQ, giving a reason") — so a blank
+ *  reason is a part of an attempted answer. A sub-part that is ONLY a reason ("(ii) Give a reason for your answer to (i)",
+ *  "(ii) Explain why …") is a sub-part of its own: wholly blank, it is UNATTEMPTED (rules.cjs), never an omission inside an answer. */
+function reasonRidesOnAnswer(questionText) {
+  const parts = String(questionText || '').split(/\(\s*(?:i{1,3}|iv|vi?|[a-d])\s*\)|(?:^|\s)(?:[1-9])[.)](?=\s)/i);
+  return parts.some((seg) => REASON_ASKED.test(seg) && OTHER_ASK.test(seg.replace(REASON_CLAUSE, ' ')));
+}
 const graderType1Disabled = () => process.env.GRADER_TYPE_1_DISABLED === '1';
 function typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy }) {
-  if (graderType1Disabled()) return { toConceptual: 0, toExamTechnique: 0 };
+  if (graderType1Disabled()) return { toConceptual: 0, toExamTechnique: 0, fromSettled: 0 };
   let toConceptual = 0;
   let toExamTechnique = 0;
+  let fromSettled = 0;
   const live = steps.filter((s) => s.status !== 'withdrawn');
   const questionText = String((q && (q.questionText || q.question)) || '');
   const realQuestion = isRealQuestionText({ ...(q || {}), questionText });
@@ -1114,9 +1133,20 @@ function typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy }) {
     const foldedStep = !blankStep && u._omittedAsk === 'reason' && ATTEMPTED_STATUSES.has(u.status);
     if (!blankStep && !foldedStep) return;
     const flagged = u._omittedAsk === 'reason';
-    if (!flagged && !REASON_STEP.test(String(u.description || ''))) return;
+    const desc = String(u.description || '');
+    if (!flagged) {
+      // the TEXT fallback (no structured flag): a REASON-named, blank step the model reported, no bigger than an exam-technique mark
+      if (!REASON_STEP.test(desc) || NOT_A_REASON_STEP.test(desc) || !blankStep || !(Number(u.marksDeducted) <= cap)) return;
+    }
     // the QUESTION must ask for a reason. A photo-only question (no usable text) relies on the model's structured flag alone.
     if (realQuestion ? !REASON_ASKED.test(questionText) : !flagged) return;
+    // B1 — the sub-part guards of omissionsInAttemptedWork, for a step that carries NO part label: a step that names a part, or a paper
+    // where other steps ARE labelled, is left alone; and where the text shows sub-parts the reason must RIDE ON an answer ask in its sub-part.
+    if (partKey(u.part) === '') {
+      if (PART_NAMED.test(desc) || DIAGRAM_STEP.test(desc)) return;
+      if (live.some(hasPartLabel)) return;
+      if (realQuestion && SUB_PART_MARKER.test(questionText) && !reasonRidesOnAnswer(questionText)) return;
+    }
     // a reason has its own part only when it IS the part: then it is an unattempted sub-part (rules.cjs), left alone.
     // The answer it justifies must be RIGHT: an earlier correct step, with work, of the same part.
     const at = live.indexOf(u);
@@ -1138,10 +1168,11 @@ function typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy }) {
       return;
     }
     if (blankStep) u.status = 'missing';
+    if (u._settledUnattempted) fromSettled += 1;
     u.mistakeType = 'conceptual';
     toConceptual += 1;
   });
-  return { toConceptual, toExamTechnique };
+  return { toConceptual, toExamTechnique, fromSettled };
 }
 function countUntyped(kind, n) {
   if (!(n > 0)) return;
@@ -2049,7 +2080,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // MISSING-TYPE-1 · admin counters (closed set, no PII; routes/adminTelemetry.cjs `untypedLoss`). Observability only.
   if (!questionIsObjective) {
     countUntyped('working_not_shown', workingFlipped);
-    countUntyped('blank_to_unattempted', untypedSettled.toUnattempted);
+    countUntyped('blank_to_unattempted', untypedSettled.toUnattempted - (reasonsTyped.fromSettled || 0));
     countUntyped('blank_to_exam_technique', untypedSettled.toExamTechnique);
     countUntyped('kept_untyped', untypedSettled.keptUntyped);
     countUntyped('blank_reason_to_conceptual', reasonsTyped.toConceptual);

@@ -21,6 +21,9 @@
 
 const { MODEL_STEP_STATUSES, ADDRESSES_VALUES } = require('./rules.cjs');
 
+// B2: GRADER_TYPE_1_DISABLED=1 restores the trunk REQUEST byte-for-byte — the additive omittedAsk field is not asked for either.
+const T1_OFF = process.env.GRADER_TYPE_1_DISABLED === '1';
+
 function deepFreeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
     Object.freeze(value);
@@ -53,7 +56,7 @@ function stepSchema() {
       balancingEvidence: { type: 'STRING', nullable: true },
       // GRADER-TYPE-1 (owner ruling R2, 22 Nov 2026): optional, additive — "reason" when this step IS an asked-for reason
       // the student did not write (rules.cjs (b)). A closed value read by postprocess typeBlankAskedReasons; never prose.
-      omittedAsk: { type: 'STRING', nullable: true },
+      ...(T1_OFF ? {} : { omittedAsk: { type: 'STRING', nullable: true } }),
       correctedWorking: { type: 'STRING', nullable: true },
       isDeparture: { type: 'BOOLEAN', nullable: true },
       departureKind: { type: 'STRING', nullable: true },
@@ -62,7 +65,7 @@ function stepSchema() {
     // Ordering hint only: the model QUOTES and DESCRIBES a step before it judges it.
     propertyOrdering: [
       'stepNumber', 'part', 'description', 'studentWork', 'status', 'marksAvailable',
-      'marksAwarded', 'marksDeducted', 'teacherAnnotation', 'mistakeType', 'knowledgeEvidence', 'omittedAsk', 'equationFault', 'balancingEvidence', 'correctedWorking',
+      'marksAwarded', 'marksDeducted', 'teacherAnnotation', 'mistakeType', 'knowledgeEvidence', ...(T1_OFF ? [] : ['omittedAsk']), 'equationFault', 'balancingEvidence', 'correctedWorking',
       'isDeparture', 'departureKind', 'isReturn',
     ],
     required: ['description'],

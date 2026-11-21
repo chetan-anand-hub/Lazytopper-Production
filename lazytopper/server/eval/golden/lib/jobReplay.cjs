@@ -87,7 +87,7 @@ function syncPlanAsJobWithAbortRetry(n) {
 
 /** The stored replies of one record, served by identity exactly as lib/replay.cjs serves them. */
 function replayCallGemini(record) {
-  const calls = (record.calls || []).slice();
+  const calls = (record.calls || []).filter((c) => !c.scheme);
   const used = new Set();
   return async (model, _contents, cfg) => {
     const at = pickStoredCall(calls, used, model, cfg);
@@ -107,10 +107,11 @@ function replayCallGemini(record) {
   };
 }
 
-function driverFor(cfg, record, callGemini, detectModel) {
+function driverFor(cfg, record, callGemini, detectModel, schemeStep) {
+  const schemeReplay = schemeStep ? (record.schemes || {}) : null;
   return cfg && cfg.core
-    ? createDriver({ callGemini, model: detectModel || 'gemini-2.5-flash', gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget ?? null, gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel })
-    : createDriver({ callGemini, model: record.model });
+    ? createDriver({ callGemini, model: detectModel || 'gemini-2.5-flash', gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget ?? null, gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel, schemeReplay })
+    : createDriver({ callGemini, model: record.model, schemeReplay });
 }
 
 /**
@@ -183,7 +184,7 @@ async function replayAsJob(planJob, record, R, opts = {}) {
   const makeDriver = (spy) => {
     const replay = replayCallGemini(record);
     const callGemini = spy ? (m, c, cfgCall) => { spy(cfgCall); return replay(m, c, cfgCall); } : replay;
-    return driverFor(cfg, record, callGemini, detectModel);
+    return driverFor(cfg, record, callGemini, detectModel, Boolean(R.manifest && R.manifest.schemeStep));
   };
   return compareJobToSync({ label: record.jobKey, request, makeDriver, abortRetry: opts.abortRetry === true });
 }

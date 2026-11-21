@@ -646,6 +646,83 @@ test('§12a E1 — the driver\'s scheme step: OFF by default (null stub, zero mo
   assert.equal(r1.meteredShare, 1, 'every model call (scheme + grade) is metered, exactly as production');
 });
 
+test('§12a2 E1/B3 — a TWO-job scheme-ON run REPLAYS faithfully: each job brings its own stored scheme, a FRESH driver per job (empty cache) serves it with no model call, and the scheme-generation call is never consumed as the grade reply', async () => {
+  const os = require('os');
+  const fs = require('fs');
+  const { createDriver } = require('./lib/driver.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const { replayJob } = require('./lib/replay.cjs');
+  const isSchemePrompt = (prompt) => /authors the OFFICIAL marking scheme|marking scheme for/.test(prompt) && !/GRADING RULES/.test(prompt);
+  let cur = null;
+  const models = [];
+  const fake = async (model, contents) => {
+    const prompt = contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+    const text = isSchemePrompt(prompt)
+      ? JSON.stringify({ steps: [{ stepNumber: 1, description: 'Formula', working: 'a = 1', marks: 1 }, { stepNumber: 2, description: 'Answer', working: 'x = 2', marks: 1 }], finalAnswer: 'x = 2' })
+      : JSON.stringify({ totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ stepNumber: 1, description: 'd', studentWork: 'w', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, finalAnswerCorrect: true, teacherNote: 'ok' });
+    models.push({ model, scheme: isSchemePrompt(prompt) });
+    if (cur) cur.push({ text });
+    return { text, raw: { candidates: [{ finishReason: 'STOP' }] } };
+  };
+  const live = createDriver({ callGemini: fake, model: 'test-model', scheme: true });
+  const records = []; const jobs = []; const seenHashes = new Set();
+  for (const job of buildPlan({}).filter((j) => j.entry === 'single')) {
+    if (jobs.length === 2) break;
+    cur = [];
+    const res = await live.run(job);
+    const hashes = Object.keys(res.schemes || {});
+    if (!hashes.length || hashes.some((h) => seenHashes.has(h))) continue;
+    hashes.forEach((h) => seenHashes.add(h));
+    jobs.push({ job, body: res.body });
+    records.push({ jobKey: job.jobKey, requestDigest: job.requestDigest, model: 'test-model', schemes: res.schemes,
+      calls: cur.map((c) => ({ ok: true, text: c.text, http: [], ...((res.schemeGenTexts || []).includes(c.text) ? { scheme: true } : {}) })) });
+  }
+  cur = null;
+  assert.equal(jobs.length, 2, 'CONTROL: two keyless jobs with DIFFERENT schemes were recorded');
+  assert.ok(records[0].calls.some((c) => c.scheme), 'the generation call is tagged scheme:true in the record');
+  const before = models.length;
+  for (let i = 0; i < 2; i += 1) {
+    const rep = await replayJob(jobs[i].job, records[i], { schemeStep: true, model: 'test-model' });
+    assert.equal(rep.harnessError, null, 'job ' + i + ': the replay did not throw (the old replay consumed the grade reply as the scheme and ran dry)');
+    assert.deepEqual(rep.body, jobs[i].body, 'job ' + i + ': the replayed body equals the live body');
+    assert.equal(rep.servedCalls, records[i].calls.filter((c) => !c.scheme).length, 'job ' + i + ': every non-scheme stored call served');
+    assert.equal(rep.unusedCalls, 0);
+  }
+  assert.equal(models.length, before, 'replay made ZERO model calls through the live client');
+});
+
+test('§12a3 E1/M1 — a frozen scheme FILE: the first run writes, a later run READS it (zero generation, hits counted); generation uses the GRADING model, not the detect proxy', async () => {
+  const os = require('os');
+  const fs = require('fs');
+  const path = require('path');
+  const { createDriver } = require('./lib/driver.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const job = buildPlan({}).find((j) => j.jobKey === 'S.CI.GS-M04-a');
+  const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'schemefile-')), 'schemes.json');
+  const calls = [];
+  const fake = async (model, contents) => {
+    const prompt = contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+    const scheme = /authors the OFFICIAL marking scheme|marking scheme for/.test(prompt) && !/GRADING RULES/.test(prompt);
+    calls.push({ model, scheme });
+    return { text: scheme
+      ? JSON.stringify({ steps: [{ stepNumber: 1, description: 'Formula', working: 'a = 1', marks: 1 }, { stepNumber: 2, description: 'Answer', working: 'x = 2', marks: 1 }], finalAnswer: 'x = 2' })
+      : JSON.stringify({ totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ stepNumber: 1, description: 'd', studentWork: 'w', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, finalAnswerCorrect: true, teacherNote: 'ok' }), raw: {} };
+  };
+  const mk = () => createDriver({ callGemini: fake, model: 'detect-proxy', gradingModel: 'grading-model', gradingMode: 'single', scheme: true, schemeFile: file });
+  const a = mk();
+  await a.run(job);
+  assert.ok(fs.existsSync(file), 'the first run WROTE the scheme file');
+  assert.equal(a.schemeCounters.generated, 1);
+  const gen = calls.filter((c) => c.scheme);
+  assert.ok(gen.length >= 1 && gen.every((c) => c.model === 'grading-model'), 'scheme generation ran on the GRADING model, not the detect proxy: ' + JSON.stringify(gen));
+  calls.length = 0;
+  const b = mk();
+  await b.run(job);
+  assert.equal(calls.filter((c) => c.scheme).length, 0, 'the second run READ the frozen file: no generation');
+  assert.equal(b.schemeCounters.generated, 0);
+  assert.ok(b.schemeCounters.hits >= 1, 'the hit is counted');
+});
+
 test('§12b GRADER-TYPE-1 — the type probes are OPT-IN: the default plan is unchanged (no T1 job), the probe plan holds ONLY probes, both entry points, acceptsV2', () => {
   const { buildPlan } = require('./lib/planner.cjs');
   const def = buildPlan({ includeDetect: true });

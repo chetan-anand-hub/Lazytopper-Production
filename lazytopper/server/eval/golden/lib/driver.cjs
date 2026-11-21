@@ -26,7 +26,9 @@ const { createHttpUtils, extractJsonObjectFromText } = require(path.join(SERVER_
 const { buildGeminiImagePart, validateMentorImagePayload } = require(path.join(SERVER_DIR, 'mentorImageSupport.cjs'));
 const { chargeableCountOf } = require(path.join(SERVER_DIR, 'grading', 'charge.cjs'));
 const ledgerLib = require(path.join(SERVER_DIR, 'services', 'usageLedger.cjs'));
-const { createInMemorySchemeCache } = require('./schemeCache.cjs');
+const fs = require('fs');
+const { AsyncLocalStorage } = require('async_hooks');
+const { createInMemorySchemeCache, createReplaySchemeCache } = require('./schemeCache.cjs');
 
 // A17 owner rulings 2 and 5 (GRADING-JOBS-1 J0): what a job CHARGES (the count fair use commits —
 // grading/charge.cjs, the handler's side channel on `res`) and what the PREMIUM METER records. The
@@ -85,9 +87,20 @@ function createDriver(opts) {
     // the zero-call replay of them were made under; goldenLive passes the flag, `--no-scheme` turns it back off).
     solutionCache: null,
   };
-  deps.solutionCache = opts.scheme
-    ? createInMemorySchemeCache(deps, cacheHook)
-    : { getOrCreateModelSolution: async () => { cacheHook.calls += 1; return null; } };
+  // Per-job collection (AsyncLocalStorage): the schemes the job used and the raw texts of its scheme-generation calls.
+  const jobAls = new AsyncLocalStorage();
+  let preload = {};
+  if (opts.scheme && opts.schemeFile && fs.existsSync(opts.schemeFile)) preload = JSON.parse(fs.readFileSync(opts.schemeFile, 'utf8'));
+  const persist = opts.schemeFile
+    ? (_h, _s, store) => { const tmp = opts.schemeFile + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(Object.fromEntries(store), null, 1) + '\n'); fs.renameSync(tmp, opts.schemeFile); }
+    : null;
+  let schemeCache = null;
+  if (opts.schemeReplay) deps.solutionCache = createReplaySchemeCache(opts.schemeReplay, cacheHook);
+  else if (opts.scheme) {
+    // the scheme is generated on the GRADING model (production's), never the --detect-model proxy
+    schemeCache = createInMemorySchemeCache(deps, cacheHook, { als: jobAls, schemeModel: opts.gradingModel || opts.model, preload, onStore: persist });
+    deps.solutionCache = schemeCache;
+  } else deps.solutionCache = { getOrCreateModelSolution: async () => { cacheHook.calls += 1; return null; } };
   const routes = createCheckSolutionRoute(deps);
 
   async function run(job) {
@@ -98,10 +111,11 @@ function createDriver(opts) {
     const t0 = Date.now();
     let harnessError = null;
     meter.writes = []; meter.okCalls = 0;
+    const jobStore = { used: {}, genTexts: [] };
     try {
       await ledgerLib.runWithRequestContext(async () => {
         ledgerLib.bindRequestUid(METER_UID, job.handler === 'handleGradeWorksheet' ? '/api/grade-worksheet' : '/api/check-solution');
-        await handler({ __payload: JSON.parse(JSON.stringify(job.request)) }, res);
+        await jobAls.run(jobStore, () => handler({ __payload: JSON.parse(JSON.stringify(job.request)) }, res));
       });
     } catch (e) {
       harnessError = (e && e.message) || String(e);
@@ -115,11 +129,11 @@ function createDriver(opts) {
     const unitCost = ledgerLib.buildLedgerIncrement(METER_UNIT, { env: {} }).increment.costMicroInr;
     const written = meter.writes.reduce((a, w) => a + (Number(w.costMicroInr) || 0), 0);
     const charged = chargeableCountOf(res);
-    return { httpStatus: res.statusCode, body, wallMs: Date.now() - t0, harnessError, cacheHookCalls: cacheHook.calls - before,
+    return { httpStatus: res.statusCode, body, wallMs: Date.now() - t0, harnessError, cacheHookCalls: cacheHook.calls - before, schemes: jobStore.used, schemeGenTexts: jobStore.genTexts,
       charged: charged === undefined ? null : charged, meteredShare: meter.okCalls > 0 ? Math.round((1000 * written) / (unitCost * meter.okCalls)) / 1000 : null };
   }
 
-  return { run, deps };
+  return { run, deps, schemeCounters: cacheHook, schemeCache };
 }
 
 module.exports = { createDriver, SERVER_DIR };

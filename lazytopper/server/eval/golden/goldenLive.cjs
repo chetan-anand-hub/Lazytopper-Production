@@ -7,6 +7,7 @@
 //     node server/eval/golden/goldenLive.cjs --config A --runs 3 --concurrency 4 [--detect]
 //
 // Options:
+//   --scheme-file F       freeze the generated schemes in F (first run writes, later runs read): baseline and candidate share ONE scheme set
 //   --no-scheme           grade WITHOUT the production scheme step (GRADER-TYPE-1 E1): only to compare against a stored null-stub baseline.
 //                         The scheme step (the solution cache, metered) is ON by default.
 //   --type-probes         plan ONLY the GRADER-TYPE-1 type probes (plans only the probes; no --filter needed)
@@ -135,11 +136,14 @@ async function main() {
   // `--no-scheme` is given (a comparison against a stored baseline that was made with the null stub). Recorded in the manifest so
   // the zero-call replay of this run rebuilds its driver the same way.
   const schemeStep = !has('--no-scheme');
+  // M1 (fairness): --scheme-file F freezes the generated schemes. The first run writes it; later runs (baseline vs candidate) READ it, so
+  // both grade with the SAME schemes.
+  const schemeFile = arg('--scheme-file') ? path.resolve(arg('--scheme-file')) : null;
   const driver = cfg.core
     // --detect-model M (PR-3, C10): production detect runs gemini-2.5-flash, which the eval key is
     // refused; M is a PROXY for detection only (grading keeps cfg.model), recorded in the manifest.
-    ? createDriver({ callGemini: client.callGemini, model: arg('--detect-model', 'gemini-2.5-flash'), gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget, gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel, scheme: schemeStep })
-    : createDriver({ callGemini: client.callGemini, model: cfg.model, scheme: schemeStep });
+    ? createDriver({ callGemini: client.callGemini, model: arg('--detect-model', 'gemini-2.5-flash'), gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget, gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel, scheme: schemeStep, schemeFile })
+    : createDriver({ callGemini: client.callGemini, model: cfg.model, scheme: schemeStep, schemeFile });
 
   const serverFiles = ['grading/rules.cjs', 'grading/prompt.cjs', 'grading/postprocess.cjs', 'grading/core.cjs', 'grading/verify.cjs', 'grading/schema.cjs', 'grading/fence.cjs', 'grading/timing.cjs', 'grading/charge.cjs', 'grading/detect.cjs', 'grading/pdfTextLayer.cjs', 'routes/checkSolution.cjs', 'routes/objectiveScoring.cjs', 'services/geminiClient.cjs', 'services/serverConfig.cjs', 'services/httpUtils.cjs', 'mentorImageSupport.cjs', 'services/serverUtils.cjs'];
   const serverDir = path.join(__dirname, '..', '..');
@@ -151,7 +155,7 @@ async function main() {
       ? 'Runs under the GRADER-CORE-1 PR-2 grading core (one prompt builder, one post-processing path, the owner rulings of 2026-10-05).'
       : 'Runs under the CURRENT (pre-GRADER-CORE-1) prompts and post-processing: these outputs measure the model\'s reading and judgement under today\'s rules.',
     serverFileSha256LF: Object.fromEntries(serverFiles.map((f) => [f, lfOnlyHash(f)])),
-    timeoutMs: client.resolvedTimeoutMs, concurrency, runsPlanned: runs, ledger: path.basename(ledger), schemeStep,
+    timeoutMs: client.resolvedTimeoutMs, concurrency, runsPlanned: runs, ledger: path.basename(ledger), schemeStep, schemeFile: schemeFile ? path.basename(schemeFile) : null,
     stubs: 'no fair-use/idempotency/entitlement middleware (handler called directly); ' + (schemeStep ? 'solution cache = the production scheme generator behind an IN-MEMORY cache (GRADER-TYPE-1 E1, metered)' : 'solution cache returns null (--no-scheme; production with no DATABASE_URL)'),
   };
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 1) + '\n');
@@ -220,7 +224,8 @@ async function main() {
         harnessError: res.harnessError ? redact(res.harnessError).slice(0, 300) : null,
         // PR-3 (C8): each stored call carries the core's chunk identity, so the CI replay can
         // match parallel chunk calls (and their one retry) by identity, not by finish order.
-        calls: calls.map((c) => ({ ok: c.ok === true, text: c.ok ? c.text : undefined, finishReason: c.finishReason || null, error: c.ok ? undefined : c.error, http: c.http || [],
+        schemes: Object.keys(res.schemes || {}).length ? res.schemes : undefined,
+        calls: calls.map((c) => ({ ok: c.ok === true, ...(c.ok && (res.schemeGenTexts || []).includes(c.text) ? { scheme: true } : {}), text: c.ok ? c.text : undefined, finishReason: c.finishReason || null, error: c.ok ? undefined : c.error, http: c.http || [],
           ...(c.chunkKey ? { chunkKey: c.chunkKey } : {}), ...(c.attempt ? { attempt: c.attempt } : {}), ...(c.timeoutMs ? { timeoutMs: c.timeoutMs } : {}) })),
       };
       fs.appendFileSync(file, redact(JSON.stringify(rec)) + '\n');
@@ -234,6 +239,10 @@ async function main() {
   }
   await Promise.all(Array.from({ length: concurrency }, worker));
   manifest.completedAt = new Date().toISOString();
+  // M1: the scheme counters are part of the run's record, and a scheme-ON run that never served ONE scheme is a silent null — FAIL.
+  const sc = driver.schemeCounters || { calls: 0, generated: 0, hits: 0 };
+  manifest.schemeCounters = { calls: (manifest.schemeCounters ? manifest.schemeCounters.calls : 0) + sc.calls, generated: (manifest.schemeCounters ? manifest.schemeCounters.generated : 0) + sc.generated, hits: (manifest.schemeCounters ? manifest.schemeCounters.hits : 0) + sc.hits };
+  const schemeSilentNull = !dry && schemeStep && sc.calls > 0 && sc.generated + sc.hits === 0;
   manifest.httpStats = client.stats;
   // One entry per invocation (a run is resumable): what owner speed ruling 2 asks to report.
   manifest.parallel = (manifest.parallel || []).concat([{
@@ -243,6 +252,8 @@ async function main() {
   }]);
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 1) + '\n');
   out('golden live: finished ' + finished + ' jobs; ledger lines now ' + client.used() + '; stats ' + JSON.stringify(client.stats) + '; spend Rs ' + ledgerSpendInr(ledger, arg('--pr', 'PR-1')).toFixed(1) + ' (' + arg('--pr', 'PR-1') + ' ledger lines)');
+  out('SCHEME: on=' + schemeStep + ' hookCalls=' + sc.calls + ' generated=' + sc.generated + ' hits=' + sc.hits + (schemeFile ? ' file=' + schemeFile : ''));
+  if (schemeSilentNull) { out('SCHEME FAILURE: the scheme step is ON but not one scheme was generated or served — this run graded WITHOUT the production scheme (a silent null). Run is INVALID.'); process.exitCode = 1; }
   out('PARALLEL: peak ' + peakInFlight + ' jobs in flight (' + ((client.stats && client.stats.peakHttpInFlight) || 0) + ' HTTP) · 429s ' + ((client.stats && client.stats.status429) || 0) + ' · wall ' + ((Date.now() - tStart) / 1000).toFixed(1) + ' s');
 }
 

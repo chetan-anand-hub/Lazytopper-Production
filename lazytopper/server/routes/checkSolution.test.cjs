@@ -951,8 +951,13 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // GRADER-TYPE-1 (owner rulings R1-R2, 22 Nov 2026; c9c7d082… → below): the blank asked-for REASON is always its own step, typed
 // conceptual with no proof (rules (b) / (b2), the omittedAsk field, no longer a "format element" to fold) and case law 13
 // (a dropped power: silly only where the page shows the rule). Rule TEXT only, in the ONE rulebook — every transport moved together.
+// GRADER-TYPE-1 fix round: the taxonomy's "copied wrongly = silly" sentence cross-refers case law 13 (5f83acc5… → below); under
+// GRADER_TYPE_1_DISABLED=1 the prompt is BYTE-IDENTICAL to the trunk sha below (pinned in the constant by env).
 //   PREVIOUS c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860
-const NO_UPLOADS_CONTENTS_SHA256 = '5f83acc51123bc5aac128d05832ad7ef650121ed1ce754b8124590a727c5183d';
+// B2: under the kill switch (GRADER_TYPE_1_DISABLED=1) the prompt must be BYTE-IDENTICAL to trunk — pinned by the SHA, not by substrings.
+const NO_UPLOADS_CONTENTS_SHA256 = process.env.GRADER_TYPE_1_DISABLED === '1'
+  ? 'c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860'
+  : '820fa73343b574aadeb0ed56c20155603fc160c635d699fd8a09388dc8f444e5';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
