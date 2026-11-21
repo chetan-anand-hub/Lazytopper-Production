@@ -284,13 +284,13 @@ test('§S.4 S1 a MULTI-question paper prepares NOTHING; only a free-check reques
   await flush();
   assert.equal(cache.calls.length, 0, 'signed-in multi-question paper: none');
   const free = recordingCache();
-  await detectOne(harness([{ text: DETECT_REPLY(two) }], { solutionCache: free }), { headers: { 'x-lazytopper-free-check': '1' } });
+  await detectOne(harness([{ text: DETECT_REPLY(two) }], { solutionCache: free }), { __ltFreeCheckAdmitted: true });
   await flush();
   assert.equal(free.calls.length, 1, 'free check: exactly one');
   assert.equal(free.calls[0].question, QT, 'question 1, never question 2');
-  // CONTROL: a wrong marker value is not a free check.
+  // CONTROL: the raw marker header WITHOUT admission (free checks off / refused) is not a free check.
   const bogus = recordingCache();
-  await detectOne(harness([{ text: DETECT_REPLY(two) }], { solutionCache: bogus }), { headers: { 'x-lazytopper-free-check': 'yes' } });
+  await detectOne(harness([{ text: DETECT_REPLY(two) }], { solutionCache: bogus }), { headers: { 'x-lazytopper-free-check': '1' } });
   await flush();
   assert.equal(bogus.calls.length, 0);
 });
@@ -344,9 +344,13 @@ test('§S.4d S1 only a SIGNED-IN caller or a MARKED free check prepares: an unma
   await flush();
   assert.equal(out.calls.length, 0, 'signed out, no marker');
   const marked = recordingCache();
-  await detectOne(harness([{ text: DETECT_REPLY(one) }], { solutionCache: marked }), { headers: { 'x-lazytopper-free-check': '1' } });
+  await detectOne(harness([{ text: DETECT_REPLY(one) }], { solutionCache: marked }), { __ltFreeCheckAdmitted: true });
+  const rawHeader = recordingCache();
+  await detectOne(harness([{ text: DETECT_REPLY(one) }], { solutionCache: rawHeader }), { headers: { 'x-lazytopper-free-check': '1' } });
   await flush();
-  assert.equal(marked.calls.length, 1, 'marked free check');
+  assert.equal(rawHeader.calls.length, 0, 'the header alone (free check not admitted) never prepares');
+  await flush();
+  assert.equal(marked.calls.length, 1, 'admitted free check');
   const inn = recordingCache();
   await detectOne(harness([{ text: DETECT_REPLY(one) }], { ...SIGNED_IN, solutionCache: inn }));
   await flush();
@@ -358,6 +362,22 @@ test('§S.4e S1 a TYPED question wins over the read text (resolveCiQuestionText)
   await detectOne(harness([{ text: DETECT_REPLY([{ text: 'Solve x^2 - 2x - 8 = 0 by factorisation', marks: 3 }]) }], { ...SIGNED_IN, solutionCache: cache }), { question: QT });
   await flush();
   assert.equal(cache.calls[0].question, QT);
+});
+
+test('§S.4f S1 a per-question TOPIC-ONLY re-detect (body purpose:"topic", after a paper is graded) never prepares; the ordinary detect still does', async () => {
+  const one = [{ text: QT, marks: 3 }];
+  const topic = recordingCache();
+  assert.equal((await detectOne(harness([{ text: DETECT_REPLY(one) }], { ...SIGNED_IN, solutionCache: topic }), { purpose: 'topic' })).status, 200);
+  await flush();
+  assert.equal(topic.calls.length, 0, 'topic purpose');
+  const normal = recordingCache();
+  await detectOne(harness([{ text: DETECT_REPLY(one) }], { ...SIGNED_IN, solutionCache: normal }));
+  await flush();
+  assert.equal(normal.calls.length, 1, 'default = the question-reading detect');
+  const freeTopic = recordingCache();
+  await detectOne(harness([{ text: DETECT_REPLY(one) }], { solutionCache: freeTopic }), { __ltFreeCheckAdmitted: true, purpose: 'topic' });
+  await flush();
+  assert.equal(freeTopic.calls.length, 0, 'a free check\'s topic re-detect too');
 });
 
 test('§S.6 S2 in-flight de-dupe: a grade arriving while the prepare is generating awaits it — ONE generation, two callers served', async () => {

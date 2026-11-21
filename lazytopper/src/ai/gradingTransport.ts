@@ -60,6 +60,8 @@ export const GRADING_TIMEOUT_MS = 90_000;
 export const GRADING_SINGLE_TIMEOUT_MS = 118_000;
 /** GRADE-SPEED-1: a ONE-question grade still unanswered after this long shows "Taking a little longer than usual". */
 export const GRADING_SLOW_STAGE_MS = 30_000;
+/** GRADE-SPEED-1: if upload.onload never fires (some WebViews), the slow stage shows this long after send() at the latest. */
+export const GRADING_SLOW_FALLBACK_MS = 45_000;
 /** R1: retries after the first attempt (so at most 3 sends). */
 export const GRADING_MAX_RETRIES = 2;
 /** R1: backoff before retry n (1-based) is base * 2^(n-1), plus up to the same again as jitter. */
@@ -238,7 +240,10 @@ function xhrAttempt(
     const xhr = new XMLHttpRequest();
     let sentTimer: ReturnType<typeof setTimeout> | null = null;
     let slowTimer: ReturnType<typeof setTimeout> | null = null;
+    let slowFallback: ReturnType<typeof setTimeout> | null = null;
     const clear = () => {
+      if (slowFallback !== null) clearTimeout(slowFallback);
+      slowFallback = null;
       if (sentTimer !== null) clearTimeout(sentTimer);
       sentTimer = null;
       if (slowTimer !== null) clearTimeout(slowTimer);
@@ -278,6 +283,9 @@ function xhrAttempt(
     };
     onStage({ kind: "uploading", percent: 0 });
     xhr.send(body);
+    // Fallback for a WebView whose upload.onload never fires: whichever comes first, the 30 s clock after upload.onload or
+    // this bound after send(), shows the slow stage (never both: the stage is idempotent and clear() cancels both).
+    if (slowAfterMs !== null) slowFallback = setTimeout(() => { if (slowTimer === null) onStage({ kind: "retrying", attempt: 0, reason: "slow" }); }, GRADING_SLOW_FALLBACK_MS);
     // GRADE-SPEED-1: a one-question grade now may run to ~110 s, so say so honestly 30 s after the upload finished
     // (see upload.onload above) — the same "Taking a little longer than usual — still checking…" the slow retry
     // shows (attempt 0 = the FIRST send is still being answered; nothing has failed). Cleared when the attempt settles.

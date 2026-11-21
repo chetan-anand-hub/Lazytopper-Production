@@ -292,7 +292,7 @@ function createCheckSolutionRoute(deps) {
    * and this lane may not change it (stepSolution cache keys), so the prepare is limited to reads whose subject AND
    * chapter the detect named; a corrected read is rare, and the scheme is a student-agnostic CBSE solution that
    * differs only in the chapter/subject framing line, never in the marking rules.
-   *   · only for a SIGNED-IN caller (a bound, verified uid) or a marked free check: an unmarked signed-out detect
+   *   · only for a SIGNED-IN caller (a bound, verified uid) or an ADMITTED free check (req.__ltFreeCheckAdmitted); never for a body {purpose:'topic'} (the per-question topic re-detect after a paper is graded): an unmarked signed-out detect
    *     never prepares (detect is the cheap practice bucket; this would multiply spend per detect);
    *   · several questions -> only on a free-check marker, and only question 1; otherwise a paper prepares NOTHING;
    *   · only a question the grader itself would give a scheme (core.isSchemeCandidate) and whose text does not print
@@ -310,10 +310,13 @@ function createCheckSolutionRoute(deps) {
       const cache = deps.solutionCache;
       if (!cache || typeof cache.getOrCreateModelSolution !== 'function') return null;
       if (partialRead || !Array.isArray(detectedQuestions) || detectedQuestions.length === 0) return null;
-      const marker = req && req.headers ? String(req.headers['x-lazytopper-free-check'] || '').trim() : '';
+      // The ADMITTED free-check flag index.cjs sets after freeCheckGate.admit (NOT the raw header: with free checks off, or
+      // refused, a signed-out caller can still send the header).
+      const freeAdmitted = Boolean(req && req.__ltFreeCheckAdmitted === true);
+      if (ctx && ctx.purpose === 'topic') return null; // a topic-only re-detect of a paper already read: never a scheme
       const signedIn = Boolean((typeof deps.currentUid === 'function' ? deps.currentUid() : currentUid()));
-      if (!signedIn && marker !== '1') return null;
-      if (detectedQuestions.length > 1 && marker !== '1') return null;
+      if (!signedIn && !freeAdmitted) return null;
+      if (detectedQuestions.length > 1 && !freeAdmitted) return null;
       // The session-level subject + chapter, exactly as the client resolves them (slug -> vocabulary entry).
       const slug = String((ctx && ctx.detectedTopic) || '').trim();
       const entry = slug && Array.isArray(ctx.topicVocabulary) ? ctx.topicVocabulary.find((t) => t.slug === slug) : null;
@@ -982,7 +985,7 @@ function createCheckSolutionRoute(deps) {
         model: GEMINI_MODEL,
       });
       // GRADE-SPEED-1 S1: AFTER the response is sent; never awaited (see prepareSchemeAfterDetect).
-      prepareSchemeAfterDetect(req, questions, partialRead, { typedQuestion: question, detectedMarks, detectedTopic, topicVocabulary });
+      prepareSchemeAfterDetect(req, questions, partialRead, { purpose: payload.purpose === 'topic' ? 'topic' : '', typedQuestion: question, detectedMarks, detectedTopic, topicVocabulary });
       return detectOut;
     } catch (err) {
       console.error('[detect-question]', err);

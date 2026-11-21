@@ -869,6 +869,9 @@ export async function detectQuestion(req: {
   keySource?: boolean;
   /** GRADE-MARKS-1 — paid Answer Checker read only: marks by section header before any guess. */
   sectionMarks?: boolean;
+  /** GRADE-SPEED-1 — "topic": a per-question TOPIC-ONLY re-detect of an already-read paper (resolvePerQuestionGradeTopics).
+   *  The server never prepares a grading scheme for it. Absent = the ordinary question-reading detect. */
+  purpose?: "topic";
 }, opts?: PaidCallOptions): Promise<DetectQuestionResponse> {
   const res = await sendWithTokenRefresh(
     opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),

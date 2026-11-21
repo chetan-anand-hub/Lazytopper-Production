@@ -33,6 +33,7 @@ import {
   GRADING_TIMEOUT_MS,
   GRADING_SINGLE_TIMEOUT_MS,
   GRADING_SLOW_STAGE_MS,
+  GRADING_SLOW_FALLBACK_MS,
   GRADING_MAX_RETRIES,
   GradingNetworkError,
   IDEMPOTENCY_HEADER,
@@ -285,6 +286,31 @@ describe("GRADE-SPEED-1 S3 · a ONE-question grade waits up to 118 s; every othe
   });
 });
 
+describe("GRADE-SPEED-1 · slow-stage fallback when upload.onload never fires", () => {
+  it("the stage still appears (45 s after send) on a WebView with no upload.onload; a normal upload shows it once, at upload + 30 s", async () => {
+    xhrs.length = 0;
+    xhrScript = [{ noUploadLoad: true }];
+    vi.stubGlobal("XMLHttpRequest", FakeXHR);
+    vi.useFakeTimers();
+    const stages: GradingStage[] = [];
+    const p = checkSolutionImage({ question: "Q", imageBase64: "AAAA" }, { surface: "check-improve", onStage: (s) => stages.push(s) });
+    await vi.advanceTimersByTimeAsync(GRADING_SLOW_STAGE_MS + 5_000);
+    expect(stages.some((s) => s.kind === "retrying"), "no upload.onload: not yet at 35 s").toBe(false);
+    await vi.advanceTimersByTimeAsync(GRADING_SLOW_FALLBACK_MS - GRADING_SLOW_STAGE_MS - 5_000 + 1);
+    expect(stages.filter((s) => s.kind === "retrying")).toHaveLength(1);
+    xhrs[0].respond();
+    await p;
+    // normal upload: exactly one slow stage, even past the fallback bound
+    xhrScript = [{}];
+    const st2: GradingStage[] = [];
+    const p2 = checkSolutionImage({ question: "Q", imageBase64: "AAAA" }, { surface: "check-improve", onStage: (s) => st2.push(s) });
+    await vi.advanceTimersByTimeAsync(GRADING_SLOW_FALLBACK_MS + 5_000);
+    expect(st2.filter((s) => s.kind === "retrying")).toHaveLength(1);
+    xhrs[1].respond();
+    await p2;
+  });
+});
+
 describe("R1 · the 90 s timeout", () => {
   it("★ fetch path: an attempt that hangs is abandoned at 90 s and retried (same key)", async () => {
     vi.useFakeTimers();
@@ -315,7 +341,7 @@ describe("R1 · the 90 s timeout", () => {
 
 /* ── XHR (stages) ─────────────────────────────────────────────────────────── */
 
-type XhrScript = { status?: number; body?: string; fail?: "error" | "timeout" };
+type XhrScript = { status?: number; body?: string; fail?: "error" | "timeout"; noUploadLoad?: boolean };
 const xhrs: FakeXHR[] = [];
 let xhrScript: XhrScript[] = [];
 
@@ -351,7 +377,7 @@ class FakeXHR {
       if (step.fail === "timeout") return this.ontimeout?.();
       this.upload.onprogress?.({ lengthComputable: true, loaded: 50, total: 100 } as ProgressEvent);
       this.upload.onprogress?.({ lengthComputable: true, loaded: 100, total: 100 } as ProgressEvent);
-      this.upload.onload?.();
+      if (!step.noUploadLoad) this.upload.onload?.();
     });
   }
   /** The server answers (called by the test). */
@@ -522,7 +548,7 @@ describe("GRADE-SPEED-1 · prepare parity with buildSingleGradeRequest (subject,
       { slug: vocab.find((t) => t.subject === "Science")!.slug, subject: "Science", marks: 2, text: "State Snell's law of refraction." },
       { slug: vocab.find((t) => t.subject === "Maths")!.slug, subject: "Maths", marks: 5, text: "Prove that the tangent at any point of a circle is perpendicular to the radius." },
     ];
-    for (const c of cases) {
+    for (const c of [...cases.map((x) => ({ ...x, photo: false })), { ...cases[0], photo: true }, { ...cases[1], photo: true }]) {
       const prepared: Array<Record<string, unknown>> = [];
       const reply = JSON.stringify({
         detectedMarks: c.marks, marksSource: "stated", detectedSubject: c.subject, detectedTopic: c.slug, detectedObjective: false,
@@ -540,18 +566,35 @@ describe("GRADE-SPEED-1 · prepare parity with buildSingleGradeRequest (subject,
         currentUid: () => "stu-1",
         solutionCache: { getOrCreateModelSolution: async (f: Record<string, unknown>) => { prepared.push(f); return null; } },
       });
-      await route.handleDetectQuestion({ question: c.text, topicVocabulary: vocab, headers: {} }, { setHeader: () => {} });
+      // photo path: NO typed question, the read text comes from the image (the page sends questions[0].questionText)
+      await route.handleDetectQuestion(c.photo ? { imageBase64: "AAAA", imageMimeType: "image/jpeg", topicVocabulary: vocab, headers: {} } : { question: c.text, topicVocabulary: vocab, headers: {} }, { setHeader: () => {} });
       await new Promise((r) => setImmediate(r));
       expect(prepared, "exactly one preparation").toHaveLength(1);
       // what the page does with the SAME detect response, then hands to checkSolutionImage
       const detect = out!.body;
       const confirmed = buildConfirmedDetection(detect as never, c.text);
-      const gradeReq = buildSingleGradeRequest({ question: c.text, confirmed, firstDetected: detect.questions[0], freeCall: false, answerPart: { textAnswer: "x" } });
+      const { resolveCiQuestionText } = await import("../utils/checkImproveDetection");
+      const gradeReq = buildSingleGradeRequest({ question: resolveCiQuestionText(c.photo ? null : c.text, detect.questions),  confirmed, firstDetected: detect.questions[0], freeCall: false, answerPart: { textAnswer: "x" } });
       expect(prepared[0].subject, "subject").toBe(gradeReq.subject);
       expect(prepared[0].topic, "topic").toBe(gradeReq.topic);
       expect(prepared[0].marks, "marks").toBe(gradeReq.marks);
       expect(prepared[0].question, "text").toBe(gradeReq.question);
       expect(gradeReq.topic, "a real chapter name, never empty").not.toBe("");
     }
+  });
+});
+
+describe("GRADE-SPEED-1 · the per-question topic re-detect is marked purpose:\"topic\" (server never prepares for it)", () => {
+  it("resolvePerQuestionGradeTopics sends purpose topic on every call; the ordinary detectQuestion call does not", async () => {
+    const { resolvePerQuestionGradeTopics } = await import("../utils/checkImproveDetection");
+    const { detectQuestion } = await import("./aiClient");
+    const bodies: Array<Record<string, unknown>> = [];
+    vi.stubGlobal("fetch", vi.fn(async (_u: string, init: { body: string }) => {
+      bodies.push(JSON.parse(init.body));
+      return { ok: true, status: 200, text: async () => JSON.stringify({ ok: true, detectedTopic: null, detectedSubject: "Maths", detectedMarks: 3 }) };
+    }));
+    await resolvePerQuestionGradeTopics([{ questionNumber: 1, questionText: "Q one" }, { questionNumber: 2, questionText: "Q two" }], []);
+    await detectQuestion({ question: "Q one", topicVocabulary: [] });
+    expect(bodies.map((b) => b.purpose)).toEqual(["topic", "topic", undefined]);
   });
 });
