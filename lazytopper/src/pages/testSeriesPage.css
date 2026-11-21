@@ -31,9 +31,24 @@
 .lt-ts-hero__eyebrow {
   color: #6ee7a8;
 }
+/*
+ * SPEED-HERO-LCP-1: the hero h1 uses its OWN Fraunces face, font-display: BLOCK (same woff2 as the global swap face and the head preload,
+ * so one download). With the global `swap` face the prerendered h1 painted in the fallback, then the app's re-rendered h1 painted in real
+ * Fraunces, BIGGER, as a NEW later largest-contentful-paint candidate (LCP 1.2 s -> 3.5 s+). With `block` the first paint and the app's
+ * re-render use the same face: one candidate. Do NOT change this back to swap, and do not touch styles.css's global "Fraunces" face.
+ */
+@font-face {
+  font-family: "LT Fraunces Hero";
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url("/fonts/fraunces-700-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 .lt-ts-hero__h1 {
   margin: 0;
-  font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  font-family: "LT Fraunces Hero", "Fraunces Fallback", Georgia, serif;
   font-size: 1.65rem;
   line-height: 1.18;
   font-weight: 700;
