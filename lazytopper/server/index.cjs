@@ -217,7 +217,7 @@ const {
 // PAY-PHONE-1 - "Pay now with your phone number": order/verify dark unless PAYMENTS_ENABLED + GUEST_PAY_ENABLED; the claim
 // (auth required) reads the phone ONLY from the verified ID token.
 const { createMoveToOtherRoutes, MOVE_TO_OTHER_PATH } = require('./routes/moveToOther.cjs');
-const { createGuestPayRoutes, GUEST_ORDER_PATH, GUEST_VERIFY_PATH, GUEST_CLAIM_PATH, GUEST_ATTACH_PATH, GUEST_RECEIPT_PATH, GUEST_GST_DETAILS_PATH, GUEST_PROOF_CLAIM_PATH, GUEST_ZIP_LINK_PATH } = require('./routes/guestPay.cjs');
+const { createGuestPayRoutes, GUEST_ORDER_PATH, GUEST_VERIFY_PATH, GUEST_CLAIM_PATH, GUEST_ATTACH_PATH, GUEST_RECEIPT_PATH, GUEST_GST_DETAILS_PATH, GUEST_PROOF_CLAIM_PATH, GUEST_ZIP_LINK_PATH, GUEST_ORDER_STATUS_PATH } = require('./routes/guestPay.cjs');
 // EMAIL-CODE-1 - sign in with a 6-digit code from email, on the spot. Dark unless EMAIL_CODE_SIGNIN_ENABLED; see the module.
 const { createEmailCodeRoutes, EMAIL_CODE_SEND_PATH, EMAIL_CODE_VERIFY_PATH } = require('./routes/emailCode.cjs');
 // PARENT-REPORT-1: a parent's read-only page for ONE result the student chose to share. The
@@ -845,6 +845,8 @@ async function handleRequest(req, res) {
       const admission = await freeCheckGate.admit(req, reqPath);
       if (!admission.admitted) return sendJson(res, admission.status, admission.body);
       freeCheckAdmitted = true;
+      // GRADE-SPEED-1: carry the ADMITTED flag (never the raw marker header) to the handlers, which key the early scheme prepare on it.
+      Object.defineProperty(req, '__ltFreeCheckAdmitted', { value: true, enumerable: false, configurable: true });
     }
 
     // FAIR-USE-1 (U4): a PREMIUM caller is never paused by the day's budget. The tier
@@ -1017,6 +1019,7 @@ async function handleRequest(req, res) {
   // PAY-PHONE-1 — self-gating (404 while dark); the claim resolves the verified uid + phone itself (401 on none).
   if (req.method === 'POST' && reqPath === GUEST_ORDER_PATH) return guestPayRoutes.handleOrder(req, res);
   if (req.method === 'POST' && reqPath === GUEST_VERIFY_PATH) return guestPayRoutes.handleVerify(req, res);
+  if (req.method === 'POST' && reqPath === GUEST_ORDER_STATUS_PATH) return guestPayRoutes.handleOrderStatus(req, res); // PAY-RETURN-1
   if (req.method === 'POST' && reqPath === GUEST_CLAIM_PATH) return guestPayRoutes.handleClaim(req, res);
   // SELFPAY-ATTACH-1 - self-gating (404 while CHECKOUT_SELF_ATTACH_DISABLED or checkout-who is dark); signed out, Razorpay's signature is the proof.
   if (req.method === 'POST' && reqPath === GUEST_ATTACH_PATH) return guestPayRoutes.handleAttach(req, res);

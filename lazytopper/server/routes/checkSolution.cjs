@@ -21,7 +21,9 @@ const {
   isObjective,
 } = require('./objectiveScoring.cjs');
 const grading = require('../grading/index.cjs');
-const { createGradingCore } = require('../grading/core.cjs');
+const { createGradingCore, isSchemeCandidate, schemeFieldsOf } = require('../grading/core.cjs');
+// GRADE-SPEED-1 S1: the early scheme prepare runs in a meter group that is never settled (writes nothing to a student's ledger).
+const { createMeterGroup, runInMeterGroup, currentUid } = require('../services/usageLedger.cjs');
 // PR-3 (C9): what a grade CHARGES — the chargeable-question count, recorded on `res` before
 // every 2xx grading response (fair use commits exactly that; see grading/charge.cjs).
 const { chargeableCount, isChargeable, setChargeableCount, unreadableSummary, setUnreadableSummary } = require('../grading/charge.cjs');
@@ -268,6 +270,84 @@ function createCheckSolutionRoute(deps) {
   // and falls back to GEMINI_MODEL for every direct / legacy construction. The optional
   // `solutionCache` dep (C&I PR-3) reaches it through `deps` unchanged.
   const core = createGradingCore(deps);
+
+  /**
+   * GRADE-SPEED-1 S1 · PREPARE THE SCHEME WHEN THE QUESTION IS READ.
+   * After /api/detect-question succeeds, start the solution-cache lookup/generation for the ONE question a
+   * single grade will use, so the later grade finds it (cacheMs ~ a cache read, not 7-10 s of generation).
+   *
+   * ★ ACCURACY-NEUTRAL ONLY IF THE PREPARE BUILDS THE SAME INPUTS THE GRADE WILL. The cache key is the question
+   * text + marks ONLY, but the generator's prompt also carries the subject (041 / 086) and the chapter, and
+   * whoever generates first defines the scheme every later grade of that question reads. So the prepare mirrors
+   * exactly what the Answer Checker client sends at grade time (buildSingleGradeRequest / gradeMultiQuestion):
+   *   · subject + topic: the SESSION-level detect (top-level detectedTopic slug -> its name and subject from the
+   *     topicVocabulary the client sent, = desktopTopicForWeakAreaKey). NO default: when the detect named no topic,
+   *     or one the vocabulary does not hold, nothing is prepared (the client may fill a missing chapter by its own
+   *     guard, which the server cannot mirror, so a prepare would risk a different scheme);
+   *   · marks: ONE read -> the response's detectedMarks (what clampDetectedMarks gives the client); question 1 of a
+   *     free-check paper -> that question's own marks (what grade-worksheet sends);
+   *   · text: ONE read -> the typed question if there is one, else the read text (resolveCiQuestionText).
+   * ACCEPTED RISK: if the student then changes the subject/chapter on "Looks right? Change", the grade (same
+   * text + marks) reuses a scheme generated under the detected subject/chapter. The hash cannot see subject/chapter
+   * and this lane may not change it (stepSolution cache keys), so the prepare is limited to reads whose subject AND
+   * chapter the detect named; a corrected read is rare, and the scheme is a student-agnostic CBSE solution that
+   * differs only in the chapter/subject framing line, never in the marking rules.
+   *   · only for a SIGNED-IN caller (a bound, verified uid) or an ADMITTED free check (req.__ltFreeCheckAdmitted); never for a body {purpose:'topic'} (the per-question topic re-detect after a paper is graded): an unmarked signed-out detect
+   *     never prepares (detect is the cheap practice bucket; this would multiply spend per detect);
+   *   · several questions -> only on a free-check marker, and only question 1; otherwise a paper prepares NOTHING;
+   *   · only a question the grader itself would give a scheme (core.isSchemeCandidate) and whose text does not print
+   *     MCQ options (printedOptionsUpgrade);
+   *   · the SAME builder (core.schemeFieldsOf) and function (deps.solutionCache) the grade uses;
+   *   · fire-and-forget: never awaited, never throws, cannot delay the detect response. It runs in an UNSETTLED meter
+   *     group, so no usage / fair-use counters are written to the student's ledger for a scheme they may never grade
+   *     (provider spend is still recorded by usageLedger.writeSpend for a signed-in caller). Counted as scheme_prewarm.*;
+   *   · kill switch: SCHEME_PREWARM_DISABLED=1 -> nothing is started.
+   */
+  function prepareSchemeAfterDetect(req, detectedQuestions, partialRead, ctx) {
+    try {
+      const flag = String(process.env.SCHEME_PREWARM_DISABLED || '').trim().toLowerCase();
+      if (flag === '1' || flag === 'true' || flag === 'on' || flag === 'yes') return null;
+      const cache = deps.solutionCache;
+      if (!cache || typeof cache.getOrCreateModelSolution !== 'function') return null;
+      if (partialRead || !Array.isArray(detectedQuestions) || detectedQuestions.length === 0) return null;
+      // The ADMITTED free-check flag index.cjs sets after freeCheckGate.admit (NOT the raw header: with free checks off, or
+      // refused, a signed-out caller can still send the header).
+      const freeAdmitted = Boolean(req && req.__ltFreeCheckAdmitted === true);
+      if (ctx && ctx.purpose === 'topic') return null; // a topic-only re-detect of a paper already read: never a scheme
+      const signedIn = Boolean((typeof deps.currentUid === 'function' ? deps.currentUid() : currentUid()));
+      if (!signedIn && !freeAdmitted) return null;
+      if (detectedQuestions.length > 1 && !freeAdmitted) return null;
+      // The session-level subject + chapter, exactly as the client resolves them (slug -> vocabulary entry).
+      const slug = String((ctx && ctx.detectedTopic) || '').trim();
+      const entry = slug && Array.isArray(ctx.topicVocabulary) ? ctx.topicVocabulary.find((t) => t.slug === slug) : null;
+      if (!entry || !entry.name || (entry.subject !== 'Maths' && entry.subject !== 'Science')) return null;
+      const dq = detectedQuestions[0];
+      const single = detectedQuestions.length === 1;
+      const q = {
+        questionText: (single && ctx.typedQuestion) ? ctx.typedQuestion : String((dq && dq.questionText) || '').trim(),
+        marks: single ? Number(ctx.detectedMarks) : Number(dq && dq.marks),
+        objective: Boolean(dq && dq.objective === true),
+        subject: entry.subject,
+        topicLabel: entry.name,
+        solutionSteps: null,
+      };
+      if (!q.questionText || !(q.marks >= 1)) return null;
+      if (!isSchemeCandidate(q) || printedOptionsUpgrade({}, q.questionText, q.marks)) return null;
+      const count = (name) => { try { if (deps.telemetry && typeof deps.telemetry.increment === 'function') deps.telemetry.increment(name, 1); } catch { /* a counter never fails a request */ } };
+      count('scheme_prewarm.started');
+      const started = Date.now();
+      const job = Promise.resolve()
+        .then(() => runInMeterGroup(createMeterGroup(), () => cache.getOrCreateModelSolution(schemeFieldsOf(q, entry.subject))))
+        .then((r) => {
+          count(r && Array.isArray(r.schemeSteps) && r.schemeSteps.length > 0 ? (r.fromCache === true ? 'scheme_prewarm.cache_hit' : 'scheme_prewarm.generated') : 'scheme_prewarm.no_scheme');
+          console.log('[scheme-prewarm] done in ' + (Date.now() - started) + ' ms');
+        })
+        .catch(() => count('scheme_prewarm.failed'));
+      return job;
+    } catch {
+      return null;
+    }
+  }
   // J1: the job runner (server/index.cjs passes it with GRADING_JOBS). Absent → never a job.
   const gradingJobs = deps.gradingJobs || null;
   // PR-3 (C8): the clock the grading deadline is measured on (a test may inject one).
@@ -889,7 +969,7 @@ function createCheckSolutionRoute(deps) {
         });
       }
 
-      return sendJson(res, 200, {
+      const detectOut = sendJson(res, 200, {
         ok: true,
         detectedMarks,
         detectedSubject,
@@ -904,6 +984,9 @@ function createCheckSolutionRoute(deps) {
         provider: ACTIVE_PROVIDER,
         model: GEMINI_MODEL,
       });
+      // GRADE-SPEED-1 S1: AFTER the response is sent; never awaited (see prepareSchemeAfterDetect).
+      prepareSchemeAfterDetect(req, questions, partialRead, { purpose: payload.purpose === 'topic' ? 'topic' : '', typedQuestion: question, detectedMarks, detectedTopic, topicVocabulary });
+      return detectOut;
     } catch (err) {
       console.error('[detect-question]', err);
       return sendJson(res, 500, {

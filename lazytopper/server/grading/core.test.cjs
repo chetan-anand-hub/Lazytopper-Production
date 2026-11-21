@@ -1517,8 +1517,10 @@ test('§C8.9 ★ grading is INDEPENDENT of GEMINI_TIMEOUT_MS: every grading call
   const h = harness({ reply: echoReply });
   await h.sheet(sheet(typedPaper(11))); // D43: > 10 questions → chunked, so the chunk cap applies
   await h.single(single());
-  for (const c of h.calls) {
-    assert.ok(Number.isFinite(c.genConfig.timeoutMs) && c.genConfig.timeoutMs <= timing.DEFAULT_GRADING_DEADLINE_MS, 'explicit per-call timeout');
+  for (const [i, c] of h.calls.entries()) {
+    // GRADE-SPEED-1 S3: the ONE-question request (the second call) may run to the single-question deadline; the paper never.
+    const cap = i === h.calls.length - 1 ? timing.DEFAULT_SINGLE_QUESTION_DEADLINE_MS : timing.DEFAULT_GRADING_DEADLINE_MS;
+    assert.ok(Number.isFinite(c.genConfig.timeoutMs) && c.genConfig.timeoutMs <= cap, 'explicit per-call timeout');
     assert.ok(Number.isFinite(c.genConfig.deadlineAt), 'absolute deadline');
   }
   assert.ok(h.calls[0].genConfig.timeoutMs <= timing.DEFAULT_GRADING_CHUNK_TIMEOUT_MS, 'a multi-question chunk is capped at the chunk timeout');

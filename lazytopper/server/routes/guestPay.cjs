@@ -75,6 +75,8 @@ const {
   gstResponseFields,
   readRawBody,
   paymentMismatch,
+  hmacSha256Hex,
+  timingSafeHexEqual,
   PAY_ORDERS_COLLECTION,
   RAZORPAY_API_BASE,
 } = require('./payments.cjs');
@@ -129,6 +131,20 @@ const PARENT_PAYER_TYPE = 'parent';
 const RECEIPT_WINDOW_MS = 24 * 60 * 60 * 1000;
 /** GUEST-ZIP-1 - one ZIP of the whole pack for a signed-out buyer. Same proof and window as the receipt. */
 const GUEST_ZIP_LINK_PATH = '/api/pay/guest/zip-link';
+/**
+ * PAY-RETURN-1 - a buyer who came back from the UPI app to a reset page (the Razorpay handler never ran, so no verify) asks the server
+ * what became of their order. Proof = a per-order random secret minted at order creation (stored only as a SHA-256 hash).
+ */
+const GUEST_ORDER_STATUS_PATH = '/api/pay/guest/order-status';
+/** PAY-RETURN-1: how long after the order was made the status route answers (the browser keeps its entry for 30 min). */
+const STATUS_PROOF_TTL_MS = 2 * 60 * 60 * 1000;
+/** PAY-RETURN-1: status calls per order per hour (a short poll is 3; this bounds a stuck tab). */
+const STATUS_CALLS_PER_ORDER_PER_HOUR = 40;
+/** PAY-RETURN-1: status calls per client (IP) per IST day - its OWN budget, so polling never eats the order / verify budget. */
+const MAX_STATUS_CALLS_PER_CLIENT_PER_DAY = 400;
+/** PAY-RETURN-1: an order with no payment attempt at all this long after creation reads "didn't complete" (before it: still pending). */
+const NO_ATTEMPT_FAILED_AFTER_MS = 3 * 60 * 1000;
+const STATUS_PROOF_PATTERN = /^[A-Za-z0-9_-]{16,64}$/;
 /** SELFPAY-ATTACH-1 (owner 12 Nov 2026: "make it 10 mins"): how long a paid attach order waits for its payer's choice. */
 const ATTACH_HOLD_MS = 10 * 60 * 1000;
 
@@ -198,6 +214,29 @@ function isPutOnAccountDisabled(env = process.env) {
 }
 function isSelfAttachDisabled(env = process.env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.CHECKOUT_SELF_ATTACH_DISABLED) || '').trim());
+}
+
+/** PAY-RETURN-1 kill switch: PAY_RETURN_DISABLED=1 -> no proof is minted, order-status answers 404, every order behaves exactly as before. */
+function isPayReturnDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.PAY_RETURN_DISABLED) || '').trim());
+}
+/** PAY-RETURN-1: { proof, hash } - 24 random bytes (base64url) and its SHA-256 hex; only the hash is ever stored. */
+function mintStatusProof(env = process.env) {
+  if (isPayReturnDisabled(env)) return null;
+  const proof = crypto.randomBytes(24).toString('base64url');
+  return { proof, hash: crypto.createHash('sha256').update(proof).digest('hex') };
+}
+/** PAY-RETURN-1: the order doc's additive field ({} when the switch is off), and the order reply's `statusProof` ({} likewise). */
+const statusProofStore = (sp) => (sp ? { statusProofHash: sp.hash } : {});
+const statusProofReply = (sp) => (sp ? { statusProof: sp.proof } : {});
+/** PAY-RETURN-1: Razorpay's checkout signature for (order, payment) - byte-for-byte what its handler gives the browser. */
+const checkoutSignatureFor = (orderId, paymentId, keySecret) => hmacSha256Hex(keySecret, `${orderId}|${paymentId}`);
+/** PAY-RETURN-1: does `proof` match the order's stored hash? Constant time; false when the order has no hash. */
+function statusProofMatches(order, proof) {
+  const stored = order && typeof order.statusProofHash === 'string' ? order.statusProofHash : '';
+  if (!stored || typeof proof !== 'string' || !STATUS_PROOF_PATTERN.test(proof)) return false;
+  const given = crypto.createHash('sha256').update(proof).digest('hex');
+  return timingSafeHexEqual(given, stored);
 }
 
 /** A stored time (Date, Firestore Timestamp, or epoch ms) as epoch ms; NaN when it is none of those. */
@@ -297,6 +336,15 @@ function createGuestPayLimiters({ telemetry, now } = {}) {
       paidEndpoints: { [GUEST_ORDER_PATH]: GUEST_PHONE_CLASS },
       limits: {
         [GUEST_PHONE_CLASS]: { soft: Math.ceil(MAX_GUEST_ORDERS_PER_PHONE_PER_DAY / 2), hard: MAX_GUEST_ORDERS_PER_PHONE_PER_DAY },
+      },
+    }),
+    // PAY-RETURN-1: the status poll has its OWN per-client budget.
+    status: createRateLimiter({
+      telemetry,
+      now,
+      paidEndpoints: { [GUEST_ORDER_STATUS_PATH]: 'guestPayStatus' },
+      limits: {
+        [ANONYMOUS_CLASS]: { soft: Math.ceil(MAX_STATUS_CALLS_PER_CLIENT_PER_DAY / 2), hard: MAX_STATUS_CALLS_PER_CLIENT_PER_DAY },
       },
     }),
     claim: createRateLimiter({
@@ -591,6 +639,7 @@ function createGuestPayRoutes(deps = {}) {
       return sendJson(res, 502, { ok: false, error: 'Payment provider refused the order.' });
     }
 
+    const sp = mintStatusProof(env);
     try {
       await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(order.id).set({
         uid: null,
@@ -604,6 +653,7 @@ function createGuestPayRoutes(deps = {}) {
         ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: valid number + explicit tick only
         ...orderSourceField(body, env), // ORDER-SOURCE-1
         ...signalsFor(serverEvents, body, req), // SERVER-EVENTS-1: only when server events are ON
+        ...statusProofStore(sp), // PAY-RETURN-1: the hash only
         offerKey: quote.offerKey,
         status: GUEST_STATUS.created,
         createdAt: new Date(now()),
@@ -620,6 +670,7 @@ function createGuestPayRoutes(deps = {}) {
       orderId: order.id,
       keyId: keys.keyId,
       amountPaise: quote.amountPaise,
+      ...statusProofReply(sp),
       ...gstResponseFields(quote, 0),
       // Review fix 6: never the number itself (the browser already has what it typed); only its masked form.
       phoneMasked: maskIndianMobile(phone),
@@ -771,6 +822,7 @@ function createGuestPayRoutes(deps = {}) {
       return sendJson(res, 502, { ok: false, error: 'Payment provider refused the order.' });
     }
 
+    const sp = mintStatusProof(env);
     const stored = {
       uid: null,
       payer: GUEST_PAYER,
@@ -788,6 +840,7 @@ function createGuestPayRoutes(deps = {}) {
       ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: the visitor's own WhatsApp number (not the recipient's); valid + ticked only
       ...orderSourceField(body, env), // ORDER-SOURCE-1
         ...signalsFor(serverEvents, body, req), // SERVER-EVENTS-1: only when server events are ON
+      ...statusProofStore(sp), // PAY-RETURN-1: the hash only
       offerKey: quote.offerKey,
       status: GUEST_STATUS.created,
       createdAt: new Date(now()),
@@ -801,7 +854,7 @@ function createGuestPayRoutes(deps = {}) {
     }
 
     emit('payments.guest.order.created');
-    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, 0), ...recipientMasked(stored) });
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...statusProofReply(sp), ...gstResponseFields(quote, 0), ...recipientMasked(stored) });
   }
 
   /* ── POST /api/pay/guest/order with `self: true` (CHECKOUT-SELF-2, "Buy for me") ─────────────────────────────── */
@@ -846,6 +899,7 @@ function createGuestPayRoutes(deps = {}) {
       console.error('[pay/guest/order] razorpay refused the order, status', created.status);
       return sendJson(res, 502, { ok: false, error: 'Payment provider refused the order.' });
     }
+    const sp = mintStatusProof(env);
     try {
       await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(order.id).set({
         uid: null,
@@ -863,6 +917,7 @@ function createGuestPayRoutes(deps = {}) {
         ...orderOptInField(body, now()), // WHATSAPP-OPTIN-1: valid number + explicit tick only
         ...orderSourceField(body, env), // ORDER-SOURCE-1
         ...signalsFor(serverEvents, body, req), // SERVER-EVENTS-1: only when server events are ON
+        ...statusProofStore(sp), // PAY-RETURN-1: the hash only
         offerKey: quote.offerKey,
         status: GUEST_STATUS.created,
         createdAt: new Date(now()),
@@ -874,7 +929,7 @@ function createGuestPayRoutes(deps = {}) {
     }
     emit('payments.guest.order.created');
     emit('payments.guest.order.self_created');
-    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, 0) });
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...statusProofReply(sp), ...gstResponseFields(quote, 0) });
   }
 
   /**
@@ -937,6 +992,36 @@ function createGuestPayRoutes(deps = {}) {
     }
   }
 
+  // CHECKOUT-SELF-2: the buyer's own contact, as Razorpay recorded it on THEIR verified payment, is handed back to THEM (verify proves the
+  // payment with Razorpay's signature; PAY-RETURN-1's order-status proves it with the per-order secret) so the thank-you screen can open the
+  // account. null = nothing usable.
+  const selfContactOf = (o) => {
+    if (!o || o.selfPay !== true) return {};
+    const phone = typeof o.guestPhone === 'string' && o.guestPhone ? o.guestPhone : null;
+    const email = typeof o.guestEmail === 'string' && o.guestEmail ? o.guestEmail : null;
+    return { selfContact: phone || email ? { ...(phone ? { phone } : {}), ...(email ? { email } : {}), first: phone ? 'phone' : 'email' } : null };
+  };
+  // SELFPAY-ATTACH-1: an attach order tells its payer the choice is open (and until when) or already made.
+  const attachInfoOf = (o) => {
+    if (!o || o.attachFlow !== true) return {};
+    if (o.attachedAt) return { attach: { attached: true } };
+    const paidMs = timeMs(o.guestPaidAt);
+    const holdUntilMs = (Number.isFinite(paidMs) ? paidMs : now()) + ATTACH_HOLD_MS;
+    // F10: the remaining time on the SERVER's clock, so a device with a wrong clock still waits the right time.
+    return { attach: { attached: false, holdUntilMs, holdRemainingMs: Math.max(0, holdUntilMs - now()) } };
+  };
+  /** The ONE success body of a recorded guest payment: verify's answer, and (PAY-RETURN-1) order-status's. */
+  const paidBody = (order, current = order) => ({
+    ok: true,
+    status: GUEST_STATUS.paidUnclaimed,
+    ...describeOrder(order),
+    phoneMasked: maskIndianMobile(current.guestPhone),
+    ...selfContactOf(current),
+    ...attachInfoOf(current),
+    // CHECKOUT-WHO-1: the masked email too. ONE answer whether or not an account exists (delivery runs AFTER it).
+    ...(order.checkoutWho === true ? recipientMasked(current) : {}),
+  });
+
   /* ── POST /api/pay/guest/verify — every check, then paid_unclaimed (no grant) ── */
   async function handleVerify(req, res) {
     if (!admitGuestCall(req, res, 'verify', GUEST_VERIFY_PATH)) return undefined;
@@ -973,34 +1058,7 @@ function createGuestPayRoutes(deps = {}) {
     if (order.payer !== GUEST_PAYER || (typeof order.guestPhone !== 'string' && !whoOrder)) return reject(res, 'verify', 'not_guest');
     if (!Number.isInteger(order.amountPaise) || order.amountPaise <= 0) return reject(res, 'verify', 'bad_order');
 
-    // CHECKOUT-SELF-2: the buyer's own contact, as Razorpay recorded it on THEIR verified payment, is handed back to THEM (this
-    // call proves the payment with Razorpay's signature) so the thank-you screen can open the account. null = nothing usable.
-    const selfContactOf = (o) => {
-      if (!o || o.selfPay !== true) return {};
-      const phone = typeof o.guestPhone === 'string' && o.guestPhone ? o.guestPhone : null;
-      const email = typeof o.guestEmail === 'string' && o.guestEmail ? o.guestEmail : null;
-      return { selfContact: phone || email ? { ...(phone ? { phone } : {}), ...(email ? { email } : {}), first: phone ? 'phone' : 'email' } : null };
-    };
-    // SELFPAY-ATTACH-1: an attach order tells its payer the choice is open (and until when) or already made.
-    const attachInfoOf = (o) => {
-      if (!o || o.attachFlow !== true) return {};
-      if (o.attachedAt) return { attach: { attached: true } };
-      const paidMs = timeMs(o.guestPaidAt);
-      const holdUntilMs = (Number.isFinite(paidMs) ? paidMs : now()) + ATTACH_HOLD_MS;
-      // F10: the remaining time on the SERVER's clock, so a device with a wrong clock still waits the right time.
-      return { attach: { attached: false, holdUntilMs, holdRemainingMs: Math.max(0, holdUntilMs - now()) } };
-    };
-    const done = (current = order) =>
-      sendJson(res, 200, {
-        ok: true,
-        status: GUEST_STATUS.paidUnclaimed,
-        ...describeOrder(order),
-        phoneMasked: maskIndianMobile(current.guestPhone),
-        ...selfContactOf(current),
-        ...attachInfoOf(current),
-        // CHECKOUT-WHO-1: the masked email too. ONE answer whether or not an account exists (delivery runs AFTER it).
-        ...(order.checkoutWho === true ? recipientMasked(current) : {}),
-      });
+    const done = (current = order) => sendJson(res, 200, paidBody(order, current));
     // CHECKOUT-WHO-1: after the response, a recipient who already has an account gets it now; an email recipient is told.
     const afterPaid = async () => {
       if (order.checkoutWho !== true) return;
@@ -1057,6 +1115,171 @@ function createGuestPayRoutes(deps = {}) {
     }
     done(order.selfPay === true ? (await ensureSelfContact(orderId, paymentId, payment)) || order : order);
     return afterPaid();
+  }
+
+  /* ── POST /api/pay/guest/order-status (PAY-RETURN-1) ───────────────────────────────────────────────────────────────────── */
+  const statusHits = new Map();
+  /** Per-order hourly cap (in memory, bounded), counted only AFTER the proof matched so a stranger cannot burn a buyer's budget. */
+  function statusLimited(orderId) {
+    const t = now();
+    const recent = (statusHits.get(orderId) || []).filter((x) => t - x < 60 * 60 * 1000);
+    recent.push(t);
+    statusHits.delete(orderId);
+    statusHits.set(orderId, recent);
+    while (statusHits.size > 5000) statusHits.delete(statusHits.keys().next().value);
+    return recent.length > STATUS_CALLS_PER_ORDER_PER_HOUR;
+  }
+
+  /**
+   * Razorpay's own list of payments for THIS order -> { payment } (captured, or an authorized one captured now for the STORED amount by
+   * the same fetchCapturedPayment verify uses) | { pending } | { failed, reason } | { upstream }. Never trusts a client amount.
+   */
+  async function findPaymentForOrder(keys, orderId, order) {
+    const listed = await razorpay(keys, 'GET', `/orders/${orderId}/payments`);
+    if (!listed.ok || !listed.json || !Array.isArray(listed.json.items)) return { upstream: 'list_failed' };
+    let inFlight = false;
+    let failedReason = '';
+    for (const item of listed.json.items) {
+      if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !ID_PATTERN.test(item.id)) continue;
+      // Never believe a payment that is not this order's, in INR, for the stored amount (the identity half of paymentMismatch).
+      if (paymentMismatch({ ...item, status: 'captured' }, { orderId, amountPaise: order.amountPaise })) continue;
+      if (item.status === 'captured') return { payment: item };
+      if (item.status === 'authorized') {
+        const result = await fetchCapturedPayment(keys, item.id, order.amountPaise, order);
+        if (result.error === 'order_expired') continue;
+        if (result.error) return { upstream: result.error };
+        const payment = result.payment;
+        if (payment.id !== undefined && payment.id !== item.id) continue;
+        if (!paymentMismatch(payment, { orderId, amountPaise: order.amountPaise })) return { payment: { ...payment, id: item.id } };
+        inFlight = true;
+      } else if (item.status === 'failed') {
+        if (!failedReason) failedReason = typeof item.error_reason === 'string' && /^[A-Za-z0-9_]{1,40}$/.test(item.error_reason) ? item.error_reason : 'payment_failed';
+      } else {
+        inFlight = true; // created / refunded-less states: the buyer may still be in their UPI app
+      }
+    }
+    if (inFlight) return { pending: 'in_progress' };
+    if (failedReason) return { failed: failedReason };
+    return { none: true };
+  }
+
+  async function handleOrderStatus(req, res) {
+    // Kill switch FIRST: before the limiter, the store or Razorpay.
+    if (isPayReturnDisabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
+    if (!isGuestPayEnabled(env) && !isCheckoutWhoEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
+    const verdict = limiters.status.check(req, GUEST_ORDER_STATUS_PATH, '', { signedOut: true });
+    if (!verdict.allowed) {
+      emit('payments.guest.order_status.rate_limited');
+      return sendJson(res, 429, { ok: false, error: 'Too many attempts. Please try again later.' });
+    }
+    if (!adminFirestore) return unavailable(res);
+    const keys = readKeys();
+    if (!keys.keyId || !keys.keySecret) return unavailable(res);
+    const body = await readJsonBody(req, res);
+    if (!body) return undefined;
+    const orderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
+    const proof = typeof body.proof === 'string' ? body.proof.trim() : '';
+    if (!ID_PATTERN.test(orderId) || !STATUS_PROOF_PATTERN.test(proof)) return reject(res, 'order_status', 'malformed');
+
+    let order;
+    try {
+      const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).get();
+      order = snap && snap.exists ? snap.data() || {} : null;
+    } catch (e) {
+      emit('payments.guest.order_status.store_read_failed');
+      console.error('[pay/guest/order-status] read failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not read the order.' });
+    }
+    // ONE answer for an unknown order, a non-guest order, an order with no proof and a wrong proof (no enumeration).
+    if (!order || order.payer !== GUEST_PAYER || !statusProofMatches(order, proof)) return reject(res, 'order_status', 'invalid_proof', 403);
+    const createdMs = timeMs(order.createdAt);
+    if (!Number.isFinite(createdMs) || now() > createdMs + STATUS_PROOF_TTL_MS) return reject(res, 'order_status', 'expired', 410);
+    if (statusLimited(orderId)) {
+      emit('payments.guest.order_status.order_rate_limited');
+      return sendJson(res, 429, { ok: false, error: 'Too many attempts. Please try again later.' });
+    }
+    if (!Number.isInteger(order.amountPaise) || order.amountPaise <= 0) return reject(res, 'order_status', 'bad_order');
+
+    // The signature Razorpay's handler would have handed the browser, for the receipt / files / attach / GST routes that take it.
+    const paidReply = (o, current, paymentId) =>
+      sendJson(res, 200, { ...paidBody(o, current), receipt: { orderId, paymentId, signature: checkoutSignatureFor(orderId, paymentId, keys.keySecret) } });
+
+    // A. Already recorded paid (the webhook, the sweep or a verify got there first): the SAME body verify returns. No grant, no event, no email.
+    if (order.status !== GUEST_STATUS.created) {
+      if (typeof order.paymentId !== 'string' || !ID_PATTERN.test(order.paymentId)) return sendJson(res, 200, { ok: true, status: 'pending', reason: 'recording' });
+      emit('payments.guest.order_status.already_paid');
+      const current = order.selfPay === true ? (await ensureSelfContact(orderId, order.paymentId, null)) || order : order;
+      return paidReply(order, current, order.paymentId);
+    }
+
+    // B. Not recorded yet: ask Razorpay what became of this order.
+    let found;
+    try {
+      found = await findPaymentForOrder(keys, orderId, order);
+    } catch (e) {
+      emit('payments.guest.order_status.razorpay_unreachable');
+      console.error('[pay/guest/order-status] razorpay unreachable:', e && e.message);
+      return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
+    }
+    if (found.upstream) {
+      emit(`payments.guest.order_status.${found.upstream}`);
+      return sendJson(res, 502, { ok: false, error: 'Payment provider did not confirm the payment.' });
+    }
+    if (found.pending) return sendJson(res, 200, { ok: true, status: 'pending', reason: found.pending });
+    if (found.failed) {
+      emit('payments.guest.order_status.failed');
+      return sendJson(res, 200, { ok: true, status: 'failed', reason: found.failed });
+    }
+    if (found.none) {
+      // No payment attempt at all: just after the order it may not have reached Razorpay yet; later it simply did not happen.
+      if (now() - createdMs < NO_ATTEMPT_FAILED_AFTER_MS) return sendJson(res, 200, { ok: true, status: 'pending', reason: 'no_payment_yet' });
+      emit('payments.guest.order_status.failed');
+      return sendJson(res, 200, { ok: true, status: 'failed', reason: 'no_payment' });
+    }
+
+    // C. A captured payment for this order: the SAME recording verify does (created -> paid_unclaimed, once). NO grant here either:
+    // the grant path is the one verify / the webhook already use (claim, auto-account, delivery).
+    const payment = found.payment;
+    const paymentId = payment.id;
+    if (!ID_PATTERN.test(paymentId)) return sendJson(res, 200, { ok: true, status: 'pending', reason: 'in_progress' });
+    let marked;
+    try {
+      marked = await markGuestOrderPaid(adminFirestore, { orderId, paymentId, nowMs: now() });
+    } catch (e) {
+      emit('payments.guest.order_status.store_write_failed');
+      console.error('[pay/guest/order-status] could not record the payment:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Could not record the payment.' });
+    }
+    if (!marked.ok) return reject(res, 'order_status', marked.reason || 'bad_order');
+    // A different payment already won the order (a verify / the webhook): answer from what is stored, fire nothing.
+    let recordedOrder = order;
+    let recordedPaymentId = paymentId;
+    if (!marked.changed) {
+      emit('payments.guest.order_status.already_paid');
+      try {
+        const snap = await adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId).get();
+        recordedOrder = snap && snap.exists ? snap.data() || order : order;
+      } catch {
+        recordedOrder = order;
+      }
+      if (typeof recordedOrder.paymentId === 'string' && ID_PATTERN.test(recordedOrder.paymentId)) recordedPaymentId = recordedOrder.paymentId;
+    } else {
+      emit('payments.guest.order_status.paid_unclaimed');
+      // ONLY the call that really moved created -> paid_unclaimed fires the once-per-order side effects (a concurrent webhook / verify
+      // that won the transaction fires its own): the purchase events, the invoice + receipt email. Never awaited.
+      if (serverEvents) fireServerEvent(() => serverEvents.orderPaid({ orderId, payment }));
+      const wantsReceipt = !!receiptEmailer && typeof receiptEmailer.sendForPayment === 'function';
+      afterCapture({
+        invoicer,
+        input: { orderId, paymentId, payment },
+        sendReceipt: wantsReceipt ? () => void receiptEmailer.sendForPayment({ orderId, paymentId, email: typeof payment.email === 'string' ? payment.email : '' }) : null,
+      });
+    }
+    const current = recordedOrder.selfPay === true ? (await ensureSelfContact(orderId, recordedPaymentId, recordedPaymentId === paymentId ? payment : null)) || recordedOrder : recordedOrder;
+    paidReply(recordedOrder, current, recordedPaymentId);
+    // After the answer, exactly as verify: a recipient order is delivered to an existing account / held for its attach choice (idempotent).
+    if (marked.changed && recordedOrder.checkoutWho === true) await afterRecipientPaid({ orderId, paymentId });
+    return undefined;
   }
 
   /**
@@ -1969,7 +2192,7 @@ function createGuestPayRoutes(deps = {}) {
     });
   }
 
-  return { handleOrder, handleVerify, handleClaim, handleClaimWithProof, handleAttach, handleReceipt, handleGstDetails, handleZipLink, afterRecipientPaid, findOrCreateAccount, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
+  return { handleOrder, handleVerify, handleOrderStatus, handleClaim, handleClaimWithProof, handleAttach, handleReceipt, handleGstDetails, handleZipLink, afterRecipientPaid, findOrCreateAccount, isEnabled: () => isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) };
 }
 
 module.exports = {
@@ -1994,6 +2217,13 @@ module.exports = {
   TWO_ACCOUNTS_NOTE,
   GUEST_ORDER_PATH,
   GUEST_VERIFY_PATH,
+  GUEST_ORDER_STATUS_PATH,
+  isPayReturnDisabled,
+  statusProofMatches,
+  STATUS_PROOF_TTL_MS,
+  STATUS_CALLS_PER_ORDER_PER_HOUR,
+  MAX_STATUS_CALLS_PER_CLIENT_PER_DAY,
+  NO_ATTEMPT_FAILED_AFTER_MS,
   GUEST_CLAIM_PATH,
   GUEST_ATTACH_PATH,
   GUEST_RECEIPT_PATH,

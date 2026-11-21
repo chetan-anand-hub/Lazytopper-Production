@@ -2199,6 +2199,21 @@ export interface OnboardingEventParams {
   inapp_pay_rescue_copy_link: { app: "instagram" | "facebook" | "youtube" | "other" };
 }
 
+/**
+ * PAY-RETURN-1 - a buyer back from the UPI app on a page that reset (Razorpay's handler never ran) asked the server what became of
+ * the order. `host` = the page slug (packs | cbq_packs | pricing | board_pass | for_parents | test_series | other); `in_app` = the
+ * in-app browser vendor (instagram | facebook | youtube | other) or "none". Vendors and page slugs only: no id, phone or email.
+ */
+export interface PayReturnEventParams {
+  host: string;
+  in_app: "instagram" | "facebook" | "youtube" | "other" | "none";
+}
+export interface OnboardingEventParams {
+  pay_return_resume_paid: PayReturnEventParams;
+  pay_return_resume_failed: PayReturnEventParams;
+  pay_return_resume_pending: PayReturnEventParams;
+}
+
 /* ------------------------------------------------------------------------- *
  * AUTH-SIGNAL-1 — sign-in telemetry, so the loss between "tapped Google" and "signed in" can be
  * sized per client (YouTube / Instagram / Facebook in-app browsers, Android or iOS webviews,

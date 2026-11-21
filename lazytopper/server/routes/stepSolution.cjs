@@ -498,6 +498,19 @@ function renderSolutionSchemeSteps(solution) {
 // before, with the empty scheme slot. Never throws: grading must never block on
 // the cache. Student-agnostic by construction: fields carry ONLY question
 // metadata; existingAnswer/existingExplanation are forced empty.
+// GRADE-SPEED-1 S2 · in-flight de-dupe. The scheme for a question may be requested twice within seconds:
+// once by the early prepare (checkSolution.cjs, right after detect) and once by the grade's own pre-phase.
+// Per PROCESS (a Map; one Railway replica does not see another's): the second caller awaits the first
+// caller's promise instead of starting a second generation. The entry is removed the moment the work
+// settles, so nothing is ever served from this Map after that — the cache (Postgres) is the store.
+// Never rejects (the work below returns null on any failure), so a joiner can never be left hanging.
+const inflightSolutions = new Map();
+
+/** TEST seam: how many generations are in flight right now. */
+function __inflightSolutionCount() {
+  return inflightSolutions.size;
+}
+
 async function getOrCreateModelSolution(fields, deps) {
   try {
     if (!getPool()) return null; // cache-gated: with no cache there is nothing to amortize
@@ -506,6 +519,25 @@ async function getOrCreateModelSolution(fields, deps) {
     if (!question || marks < 1) return null;
 
     const hash = computeQuestionHash(question, marks);
+    const pending = inflightSolutions.get(hash);
+    if (pending) {
+      const joined = await pending;
+      // Each caller gets its OWN array: the grade writes it onto its question.
+      return joined && Array.isArray(joined.schemeSteps) ? { ...joined, schemeSteps: [...joined.schemeSteps] } : joined;
+    }
+    const work = readOrGenerateModelSolution(fields, deps, hash, question, marks)
+      .finally(() => { if (inflightSolutions.get(hash) === work) inflightSolutions.delete(hash); });
+    inflightSolutions.set(hash, work);
+    return await work;
+  } catch (e) {
+    console.warn('[solution-cache] getOrCreateModelSolution failed:', e.message);
+    return null;
+  }
+}
+
+/** The body of getOrCreateModelSolution after the hash: read, else generate + quality-gate + write-if-pass. Never rejects. */
+async function readOrGenerateModelSolution(fields, deps, hash, question, marks) {
+  try {
     const cached = await getCachedSolution(hash);
     if (cached) {
       const schemeSteps = renderSolutionSchemeSteps(cached);
@@ -684,4 +716,5 @@ module.exports = {
   renderSolutionSchemeSteps,
   getOrCreateModelSolution,
   __setPoolForTests,
+  __inflightSolutionCount,
 };

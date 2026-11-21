@@ -57,6 +57,7 @@ import {
   GOOGLE_RATING,
 } from "../config/forParentsPage";
 import "./forParents.css";
+import PayReturnResume from "../components/payReturn/PayReturnResume";
 
 /** The signed-out Board Pass checkout (pay first, then "Who will use it?"), lazy: fetched when the page is idle, opened on a Pay tap. */
 const CheckoutSheet = lazy(() => import("../components/checkoutWho/CheckoutSheet"));
@@ -362,6 +363,8 @@ export default function ForParentsPage() {
 
   return (
     <main className="lt-fp" data-testid="for-parents-page">
+      {/* PAY-RETURN-1 (review N3): this page mounts CheckoutSheet directly, so the resume lives here. */}
+      <PayReturnResume />
       <div className="lt-fp__top">
         <header className="lt-fp__hero">
           <div className="lt-fp__hero-in">
