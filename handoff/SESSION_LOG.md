@@ -1,3 +1,27 @@
+## 2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793: admin ad-source names, one-question signed-out free check, Google Ads re-budget (trunk `52eac50a`)
+
+**PROVENANCE.** *(Daily handoff, CLAUDE.md section 10. Covers `#1792` and `#1793`, merged 21 Nov 06:01 and 08:32 UTC (11:31 and 14:02 IST). Merge SHAs, times, titles, file lists and PR bodies [gh]; rulings, live results, findings and all Google Ads and Bing changes [coordinator]. Ads changes are the owner's words, off-repo, not re-checked by the docs builder.)*
+
+**How the window went (IST).**
+- **11:31.** `#1792` ADSRC-4: the owner asked to analyse the whole pipeline from ads to the students dashboard and fix anything broken or misplaced. The Test Series campaign had been copied from Board Pass and kept its tracking tag, so Test Series visitors read as Board Pass in admin; ad groups showed as raw `ag...` ids; Demand Gen clicks read "YouTube (untagged)". Fixed in `adSourceNames.ts` (display only), with a test whose mutation (dropping `demandgen`) goes red.
+- **14:02.** `#1793` FREECHECK-ONEQ-1. **Why:** a real visitor got 5 questions graded on one free check (owner ruling, 21 Nov). Independent Opus review: one round of nits plus a CI clock-changed test fix, then APPROVE at head `a903c69e`. Kill switches `FREE_CHECK_ONE_QUESTION_DISABLED=1` (server) and `VITE_FREE_CHECK_ONE_QUESTION_DISABLED=1` (client). `/version.json` serves `52eac50a`. Signed-in multi-question live verify passed (3 of 3, 6/6, no locked rows); signed-out verify pending.
+
+**Google Ads and Bing, 21 Nov (owner's words) [coordinator].**
+- Removed the "online test" negative from Test Series only (it blocked 8 Test Series keywords). Test Series URL suffix is now `utm_campaign=search_test_series`.
+- Test Series, Board Pass and PDF Packs now optimise for Purchases only (PDF Packs "Leads from messages" removed).
+- Daily budgets: PDF Packs ₹8,000, Board Pass ₹3,500 (it had lost 43% of impressions to budget), Test Series ₹5,500, YouTube ₹1,500; total ₹18,500/day.
+- YouTube ads repointed to selling pages; the Dandiya Short is re-enabled and points to /test-series (under Google review).
+- YouTube sitelinks: 7 repointed to /cbq-packs, /packs?mock=maths, /packs?mock=science, /cbq-packs?subject=science, /packs?chapter=quadratic-equations, /packs?pack=subject&subject=maths, /packs?pack=subject&subject=science; 4 free-page sitelinks removed.
+- PDF Packs: free-page sitelinks repointed and 30 Google-made sitelinks to free pages removed.
+- Bing: the remaining 94 URLs were submitted; all 191 sitemap URLs are now submitted.
+
+**Findings [coordinator].**
+- A CBQ Pack per subject is exactly 79 files: 1 start page plus 13 chapters x 3 parts x (questions and answers).
+- Admin "Basic" Answer Checker counts above 1 were trial-period checks: the plan column shows the plan NOW, not at the time of the activity.
+- The Cancellation Policy (/legal/refund) does not name Test Series or CBQ Packs; owner to approve wording.
+
+**Dated checks.** Unchanged: 22 Nov Sign-ups v2 decision; 24 Nov ads review; 25 Nov YouTube check; 30 Nov founding prices end; 1 Dec price switch.
+
 ## 2026-11-19 (daily; UTC day 19 Nov, written 20 Nov) - #1777 - #1789: Test Series to 180 tests, free re-check, Quick Practice gate, step-mark data fixes, validity to 28 Feb 2027 (trunk `d113a332`)
 
 **PROVENANCE.** *(Daily handoff, CLAUDE.md section 10. Covers `#1777` to `#1789`, merged 19 Nov 07:56 UTC to 19 Nov 20:37 UTC (13:26 IST to 02:07 IST on 20 Nov). Merge SHAs and times **[gh]**; what each PR changed **[PR titles; coordinator]**; rulings, live results, env changes, ads and the 20 Nov dashboard reading **[coordinator]**. The docs builder did not re-read the diffs. Grader production setup unchanged.)*

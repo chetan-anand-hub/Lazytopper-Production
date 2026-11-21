@@ -1,3 +1,9 @@
+## 2026-11-21 (daily; UTC day 21 Nov, written 21 Nov) - #1792 - #1793 - MERGED
+
+- DONE. `#1792` (`316f361e`) ADSRC-4 (admin ad-source names; Demand Gen reads "YouTube ad"). `#1793` (`52eac50a`) FREECHECK-ONEQ-1 (signed-out free check marks only the first question; server-authoritative; kill switches).
+- DONE off-repo: Google Ads budgets, Purchases-only optimisation, sitelink and YouTube repointing; Bing all 191 sitemap URLs submitted.
+- NEXT: signed-out live verify of `#1793` on a real phone; refund page wording for Test Series and CBQ Packs; admin plan-at-the-time of activity. The earlier lists stand.
+
 ## 2026-11-19 (daily; UTC day 19 Nov, written 20 Nov) - #1777 - #1789 - MERGED
 
 - DONE. `#1778` (`500a7324`) BANK-RETIRE-1. `#1777` (`b8f0d8ce`) STEPMARK-2 batch 1. `#1779` (`96ba6c15`) STEPMARK-2 batch 2. `#1784` (`872e1a2d`) packs Product JSON-LD image. `#1786` (`197da51d`) MerchantReturnNotPermitted and instant digital delivery. `#1785` (`e7739653`) GATE-QP-1. `#1780` (`c0ab0d92`) TS-MORE-1 (180 tests). `#1782` (`e1967e2a`) TS-RECHECK-1. `#1781` (`0c9afcb8`) STEPMARK-2 batch 3A. `#1783` (`4c056b68`) STEPMARK-2 batch 3B. `#1787` (`568a7f78`) TS-UX-SCORE-1. `#1788` (`95ba6001`) TS-UX-PAGE-1. `#1789` (`d113a332`) VALIDITY-FEB27.
