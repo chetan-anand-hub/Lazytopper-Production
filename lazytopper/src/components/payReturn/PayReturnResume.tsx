@@ -132,15 +132,17 @@ export default function PayReturnResume() {
   }, [active, run]);
 
   // Review N6: "pending" promises an update within a few minutes, so keep asking: every 30 s, at most 10 times (5 min).
+  // The count lives in a ref: each re-check flips the view to "checking" and back, which re-runs this effect.
+  const repolls = useRef(0);
   useEffect(() => {
+    if (view.name === "paid" || view.name === "failed" || view.name === "idle") repolls.current = 0;
     if (!active || view.name !== "pending") return undefined;
-    let n = 0;
     const id = window.setInterval(() => {
-      n += 1;
-      if (n > PENDING_REPOLL_MAX) {
+      if (repolls.current >= PENDING_REPOLL_MAX) {
         window.clearInterval(id);
         return;
       }
+      repolls.current += 1;
       void run();
     }, PENDING_REPOLL_MS);
     return () => window.clearInterval(id);

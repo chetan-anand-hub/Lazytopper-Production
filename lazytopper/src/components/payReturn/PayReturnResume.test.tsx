@@ -143,6 +143,33 @@ describe("PAY-RETURN-1 PayReturnResume", () => {
     expect(await screen.findByTestId("purchase-card-stub")).toBeTruthy();
   });
 
+  it("PENDING re-checks every 30 s, and stops after 10 re-checks even though each one flips the view to checking and back", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    note();
+    answer(ANSWER.pending);
+    render(<PayReturnResume />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(11_000);
+    });
+    expect(await screen.findByText(PAY_RETURN_PENDING)).toBeTruthy();
+    const pendings = () => onboarding.mock.calls.filter((c: unknown[]) => c[0] === "pay_return_resume_pending").length;
+    expect(pendings()).toBe(1);
+    // One second per act(), so each re-check's "checking" view really renders between "pending"s, as it does in a browser
+    // (a single long act() batches checking -> pending into one render and hides the effect re-run this test is about).
+    const tick = async (seconds: number) => {
+      for (let i = 0; i < seconds; i += 1) {
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(1000);
+        });
+      }
+    };
+    await tick(45);
+    expect(pendings()).toBe(2);
+    // 15 minutes, well past 10 re-checks (each ~30 s + its short poll) but inside the 30-minute note TTL
+    await tick(900);
+    expect(pendings()).toBe(11);
+  });
+
   it("pageshow (a bfcache / reload return) resumes too", async () => {
     render(<PayReturnResume />);
     await act(async () => undefined);
