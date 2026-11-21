@@ -523,7 +523,8 @@ async function getOrCreateModelSolution(fields, deps) {
     if (pending) {
       const joined = await pending;
       // Each caller gets its OWN array: the grade writes it onto its question.
-      return joined && Array.isArray(joined.schemeSteps) ? { ...joined, schemeSteps: [...joined.schemeSteps] } : joined;
+      // `joined: true` tells the caller it waited for ANOTHER caller's in-flight generation (telemetry: schemeJoined).
+      return joined && Array.isArray(joined.schemeSteps) ? { ...joined, schemeSteps: [...joined.schemeSteps], joined: true } : joined;
     }
     const work = readOrGenerateModelSolution(fields, deps, hash, question, marks)
       .finally(() => { if (inflightSolutions.get(hash) === work) inflightSolutions.delete(hash); });
@@ -541,6 +542,7 @@ async function readOrGenerateModelSolution(fields, deps, hash, question, marks) 
     const cached = await getCachedSolution(hash);
     if (cached) {
       const schemeSteps = renderSolutionSchemeSteps(cached);
+      if (schemeSteps.length === 0) console.warn('[solution-cache] stored row renders no scheme steps hash=' + hash.slice(0, 8));
       return schemeSteps.length > 0 ? { schemeSteps, fromCache: true, hash } : null;
     }
 
@@ -559,11 +561,17 @@ async function readOrGenerateModelSolution(fields, deps, hash, question, marks) 
       },
       deps
     );
-    if (!gen) return null;
+    if (!gen) {
+      // GRADE-SPEED-1b: a generation that yields no usable scheme was SILENT (nothing stored, so the next caller regenerates).
+      console.warn('[solution-cache] generation returned no usable scheme — nothing stored hash=' + hash.slice(0, 8));
+      return null;
+    }
 
     const quality = validateSolutionQuality(gen.solution, marks, isObj);
     if (gen.cacheable && quality.ok) {
       await saveSolution(hash, gen.solution);
+    } else if (quality.ok) {
+      console.warn('[solution-cache] generated scheme is not cacheable — served once, not stored hash=' + hash.slice(0, 8));
     } else if (!quality.ok) {
       console.warn('[solution-cache] quality-gate FAIL — served once, not cached:', hash, quality.reasons.join(','));
     }
