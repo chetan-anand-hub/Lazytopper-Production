@@ -23,7 +23,7 @@ describe("SOURCE-3 adSourceText", () => {
   });
 
   it("the Google Ads ad group names are mapped verbatim", () => {
-    expect(Object.keys(AD_GROUP_NAMES)).toHaveLength(21);
+    expect(Object.keys(AD_GROUP_NAMES)).toHaveLength(25);
     expect(adSourceText({ utm_source: "google", utm_medium: "cpc", utm_campaign: "search_pdf_packs", utm_content: "ag203232893498" })).toBe(
       "Google ad \u00B7 Search \u00B7 PDF Packs \u203A Question bank \u2013 Class 10",
     );
@@ -52,5 +52,14 @@ describe("SOURCE-3 adSourceText", () => {
     expect(adSourceText(null)).toBe("No source recorded");
     expect(adSourceText(undefined)).toBe("No source recorded");
     expect(adSourceText({})).toBe("Direct");
+  });
+
+  it("21 Nov 2026: Board Pass and Test Series campaigns and ad groups are named; a Demand Gen click is a YouTube ad", () => {
+    expect(adSourceText({ ...base, utm_campaign: "search_board_pass", utm_content: "ag199221652781" })).toBe("Google ad · Search · Board Pass › Board Pass");
+    expect(adSourceText({ ...base, utm_campaign: "search_test_series", utm_content: "ag207975397091" })).toBe("Google ad · Search · Test Series › TS - Mock tests");
+    expect(adSourceText({ utm_source: "youtube", utm_medium: "demandgen", utm_campaign: "students", utm_content: "cbq_pack", landing: "/cbq-packs" })).toBe(
+      "YouTube ad · YouTube · Students · content cbq_pack · landed /cbq-packs",
+    );
+    expect(adSourceText({ utm_source: "youtube" })).toBe("YouTube (untagged)");
   });
 });

@@ -27,6 +27,10 @@ export const CAMPAIGN_NAMES: Record<string, string> = {
   search_pdf_packs: "Search · PDF Packs",
   search_signups_v2: "Search · Sign-ups v2 (old, free pages)",
   search_signups_v2_sales: "Search · Sign-ups v2 (sales)",
+  // 21 Nov 2026: the Board Pass (19 Nov) and Test Series (20 Nov) Search campaigns. Test Series was copied from Board Pass
+  // and carried its "search_board_pass" tag until the owner-approved suffix fix on 21 Nov 2026.
+  search_board_pass: "Search · Board Pass",
+  search_test_series: "Search · Test Series",
   students: "YouTube · Students",
   yt_students: "YouTube · Students",
   ct_electricity_short: "YouTube · Students",
@@ -57,6 +61,12 @@ export const AD_GROUP_NAMES: Record<string, string> = {
   ag200280254399: "3a Maths important questions",
   ag200279966559: "2 Competency and CBQs",
   ag207788120144: "1b How answers are marked",
+  // Search · Board Pass (read from Google Ads 21 Nov 2026)
+  ag199221652781: "Board Pass",
+  // Search · Test Series (read from Google Ads 21 Nov 2026)
+  ag201613974465: "TS - Test series",
+  ag202984197340: "TS - Online & chapter tests",
+  ag207975397091: "TS - Mock tests",
 };
 
 const AD_GROUP_CONTENT = /^ag\d+$/i;
@@ -84,6 +94,12 @@ const META_PLACEMENT: Record<string, string> = {
 };
 
 /**
+ * The `utm_medium` values our own paid ads carry. "demandgen" is the medium on most YouTube Demand Gen final URLs; without it
+ * those paid YouTube clicks read "YouTube (untagged)" in admin (found 21 Nov 2026).
+ */
+const PAID_MEDIUMS: ReadonlySet<string> = new Set(["paid", "cpc", "demandgen"]);
+
+/**
  * Where the visit came from, as a short head ("Google ad", "YouTube post", "Direct"). A missing source is
  * "No source recorded" - never a guess, never "Direct" (which means a doc with no tags).
  * `utm_medium` tells a paid ad from an organic post from an untagged link; fbclid alone is not an ad.
@@ -95,8 +111,8 @@ export function sourceHead(source: AdSourceFields | null | undefined): string {
   const platform = own(SOURCE_PLATFORM, src);
   const metaPlacement = own(META_PLACEMENT, src);
   if (src === "parent_share") return "Parent share";
-  if (metaPlacement) return medium === "paid" || medium === "cpc" ? `Meta ad (${metaPlacement})` : `Meta (${metaPlacement})`;
-  if (platform && (medium === "paid" || medium === "cpc")) return src === "meta" ? "Meta ad" : `${platform} ad`;
+  if (metaPlacement) return PAID_MEDIUMS.has(medium) ? `Meta ad (${metaPlacement})` : `Meta (${metaPlacement})`;
+  if (platform && PAID_MEDIUMS.has(medium)) return src === "meta" ? "Meta ad" : `${platform} ad`;
   if (platform && medium === "organic" && src !== "google") return `${platform} post`;
   if (platform && medium !== "organic") return `${platform} (untagged)`;
   if ((source.ref ?? "").toLowerCase() === "syndicatedsearch.goog") return "Google ad (search partner)";
