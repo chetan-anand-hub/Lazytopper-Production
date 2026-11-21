@@ -1456,7 +1456,7 @@ test('§C8.5 ★ a chunk that TIMES OUT is retried ONCE, smaller (as single-ques
 });
 const textOfCallP = (c) => c.contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
 
-test('§C8.6 when EVERY chunk fails with a provider error the handlers keep their 500 (not re-sent by the client) — answered by the deadline', async () => {
+test('§C8.6 when EVERY chunk runs out the deadline the handlers answer 504 (retryable; GRADE-TIMEOUT-RETRY-1 — was a dead-end 500); kill switch -> the old 500 — answered by the deadline', async () => {
   const t0 = Date.now();
   const h = harness({ reply: () => never(), deps: FAST() });
   const origError = console.error;
@@ -1464,8 +1464,21 @@ test('§C8.6 when EVERY chunk fails with a provider error the handlers keep thei
   try {
     await quietWarn(async () => { h.single1 = await h.single(single()); h.sheet1 = await h.sheet(sheet(typedPaper(2))); });
   } finally { console.error = origError; }
-  assert.deepEqual([h.single1.status, h.sheet1.status], [500, 500]);
+  assert.deepEqual([h.single1.status, h.sheet1.status], [504, 504], 'a time-out is a retryable 504');
   assert.ok(Date.now() - t0 < 2 * 600 + 300, 'each request ended by its deadline');
+  // KILL SWITCH: GRADING_TIMEOUT_504_DISABLED=1 -> byte-identical to before (500).
+  const prevSwitch = process.env.GRADING_TIMEOUT_504_DISABLED;
+  process.env.GRADING_TIMEOUT_504_DISABLED = '1';
+  try {
+    const off = harness({ reply: () => never(), deps: FAST() });
+    console.error = () => {};
+    await quietWarn(async () => { off.single1 = await off.single(single()); off.sheet1 = await off.sheet(sheet(typedPaper(2))); });
+    console.error = origError;
+    assert.deepEqual([off.single1.status, off.sheet1.status], [500, 500], 'switch on: the old 500');
+  } finally {
+    console.error = origError;
+    if (prevSwitch === undefined) delete process.env.GRADING_TIMEOUT_504_DISABLED; else process.env.GRADING_TIMEOUT_504_DISABLED = prevSwitch;
+  }
   // a one-question chunk is not cut at the chunk cap (its retry would be the same size): one call, the whole budget
   assert.ok(h.calls[0].genConfig.timeoutMs > 150, 'single-question first attempt gets the remaining budget, not the chunk cap');
 });

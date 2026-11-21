@@ -55,6 +55,29 @@ const STEP_STATUS_VALUES = grading.LEGACY_STEP_STATUSES.slice();
 const MAX_BATCH_UPLOADS = 12;
 const MARKS_SOURCE_VALUES = ['stated', 'inferred'];
 
+/**
+ * GRADE-TIMEOUT-RETRY-1 — a grading TIME-OUT (the core's deadline, or the Gemini client's own
+ * abort) is a retryable 504, not a dead-end 500. Anything else stays a 500. The client re-sends
+ * a 504 with the SAME idempotency key (gradingTransport R1); a non-2xx releases the idempotency
+ * marker and charges nothing (fair use, limits and the paper pass all settle on a 2xx only), so the
+ * re-send grades afresh, once. A timed-out FREE check still counts as served (the durable daily ceiling
+ * must bound model spend); it is not refunded.
+ * Kill switch: GRADING_TIMEOUT_504_DISABLED=1 (read per request) -> byte-identical to before.
+ */
+function isGradingTimeout(err) {
+  if (!err) return false;
+  if (/^(1|true|on|yes)$/i.test(String(process.env.GRADING_TIMEOUT_504_DISABLED || '').trim())) return false;
+  return err.gradingDeadline === true || Number(err.status || err.statusCode) === 504;
+}
+
+/** Answer a caught grading error: 504 + `retryable: true` for a time-out, else the given 500 body. */
+async function sendGradeFailure(sendJson, req, res, err, body500) {
+  if (isGradingTimeout(err)) {
+    return sendJson(res, 504, { ...body500, retryable: true });
+  }
+  return sendJson(res, 500, body500);
+}
+
 const deepFreeze = grading.deepFreeze;
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -533,7 +556,7 @@ function createCheckSolutionRoute(deps) {
       return sendJson(res, 200, body);
     } catch (err) {
       console.error('[check-solution]', err);
-      return sendJson(res, 500, {
+      return sendGradeFailure(sendJson, req, res, err, {
         ok: false,
         error: 'Failed to evaluate solution. Please try again.',
       });
@@ -1180,7 +1203,7 @@ function createCheckSolutionRoute(deps) {
       return sendJson(res, 200, { ...buildWorksheetBody(graded, { worksheetId, acceptsV2 }), ...freeCheckOneQuestion.fieldFor(payload) });
     } catch (err) {
       console.error('[grade-worksheet]', err);
-      return sendJson(res, 500, { ok: false, error: 'Failed to grade the worksheet. Please try again.' });
+      return sendGradeFailure(sendJson, req, res, err, { ok: false, error: 'Failed to grade the worksheet. Please try again.' });
     }
   }
 

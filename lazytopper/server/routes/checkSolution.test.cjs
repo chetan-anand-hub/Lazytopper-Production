@@ -3715,3 +3715,78 @@ test('§DO.9 ★ review R2-2: the model\'s own marks > 1 BLOCK the upgrade (no s
   await h1.route.handleDetectQuestion({ question: PROB }, {});
   assert.deepEqual([h1.body().detectedObjective, h1.body().detectedMarks, h1.body().marksSource], [true, 1, 'inferred']);
 });
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §T · GRADE-TIMEOUT-RETRY-1 — a grading time-out is a retryable 504, not a dead-end 500
+   Only the HTTP status of a time-out changes. No mark, prompt, rule or mistake type.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const deadlineErr = () => Object.assign(new Error('Grading time budget reached after 78000ms'), { status: 504, gradingDeadline: true });
+const geminiTimeoutErr = () => Object.assign(new Error('Gemini request timed out after 55000ms'), { status: 504 });
+const throwing = (mk) => ({ depOverrides: { callGemini: async () => { throw mk(); } } });
+const withEnv = async (name, value, fn) => {
+  const prev = process.env[name];
+  if (value === undefined) delete process.env[name]; else process.env[name] = value;
+  try { return await fn(); } finally { if (prev === undefined) delete process.env[name]; else process.env[name] = prev; }
+};
+const QUIET = async (fn) => { const e = console.error, w = console.warn; console.error = () => {}; console.warn = () => {}; try { return await fn(); } finally { console.error = e; console.warn = w; } };
+
+test('§T.1 check-solution: the core\'s deadline error -> 504 + the SAME body + retryable:true', async () => {
+  const h = buildRoute(throwing(deadlineErr));
+  await QUIET(() => h.route.handleCheckSolution(SUBJECTIVE_REQ(), {}));
+  assert.equal(h.status(), 504);
+  assert.deepEqual(h.body(), { ok: false, error: 'Failed to evaluate solution. Please try again.', retryable: true });
+});
+
+test('§T.2 check-solution: a Gemini client time-out (status 504) -> 504 + retryable', async () => {
+  const h = buildRoute(throwing(geminiTimeoutErr));
+  await QUIET(() => h.route.handleCheckSolution(SUBJECTIVE_REQ(), {}));
+  assert.equal(h.status(), 504);
+  assert.equal(h.body().retryable, true);
+});
+
+test('§T.3 check-solution: any OTHER error stays a 500 with no `retryable`', async () => {
+  for (const mk of [() => new Error('boom'), () => Object.assign(new Error('bad'), { status: 400 }), () => Object.assign(new Error('x'), { status: 503 })]) {
+    const h = buildRoute(throwing(mk));
+    await QUIET(() => h.route.handleCheckSolution(SUBJECTIVE_REQ(), {}));
+    assert.equal(h.status(), 500);
+    assert.deepEqual(h.body(), { ok: false, error: 'Failed to evaluate solution. Please try again.' });
+  }
+});
+
+test('§T.4 check-solution: the kill switch GRADING_TIMEOUT_504_DISABLED=1 -> byte-identical 500 for both time-out shapes', async () => {
+  await withEnv('GRADING_TIMEOUT_504_DISABLED', '1', async () => {
+    for (const mk of [deadlineErr, geminiTimeoutErr]) {
+      const h = buildRoute(throwing(mk));
+      await QUIET(() => h.route.handleCheckSolution(SUBJECTIVE_REQ(), {}));
+      assert.equal(h.status(), 500);
+      assert.deepEqual(h.body(), { ok: false, error: 'Failed to evaluate solution. Please try again.' });
+    }
+  });
+});
+
+test('§T.5 grade-worksheet (the synchronous path): deadline / Gemini time-out -> 504 + retryable; other -> 500; kill switch -> 500', async () => {
+  const Q = () => WORKSHEET_REQ([{ qNumber: 1, marks: 1, questionText: 'Q1' }]);
+  for (const mk of [deadlineErr, geminiTimeoutErr]) {
+    const h = buildRoute(throwing(mk));
+    await QUIET(() => h.route.handleGradeWorksheet(Q(), {}));
+    assert.equal(h.status(), 504);
+    assert.deepEqual(h.body(), { ok: false, error: 'Failed to grade the worksheet. Please try again.', retryable: true });
+  }
+  const other = buildRoute(throwing(() => new Error('boom')));
+  await QUIET(() => other.route.handleGradeWorksheet(Q(), {}));
+  assert.deepEqual([other.status(), other.body()], [500, { ok: false, error: 'Failed to grade the worksheet. Please try again.' }]);
+  await withEnv('GRADING_TIMEOUT_504_DISABLED', '1', async () => {
+    const h = buildRoute(throwing(deadlineErr));
+    await QUIET(() => h.route.handleGradeWorksheet(Q(), {}));
+    assert.deepEqual([h.status(), h.body()], [500, { ok: false, error: 'Failed to grade the worksheet. Please try again.' }]);
+  });
+});
+
+test('§T.6 CONTROL: a good grade is still a 200 with no `retryable` (the 504 path is not always firing)', async () => {
+  const h = buildRoute({ replies: [GOOD_GRADE] });
+  await h.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  assert.equal(h.status(), 200);
+  assert.equal('retryable' in h.body(), false);
+});
