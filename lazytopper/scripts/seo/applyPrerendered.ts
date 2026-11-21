@@ -533,10 +533,50 @@ export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
 export const INLINE_ROUTE_CSS_MODULES: readonly string[] = Object.keys(INLINE_ROUTE_CSS);
 
 /**
+ * SPEED-SALES-CSS-1 (21 Nov 2026) - the sales landing pages still LINKED 3-7 tiny stylesheets each (render-blocking, one round trip
+ * apiece on 4G; PageSpeed /cbq-packs mobile "render-blocking requests" ~590 ms). These are the sheets (each <= 6 KB raw) that those
+ * links carried, per route module, now inlined instead.
+ *
+ * ★ THEY ARE A SEPARATE TABLE, NOT MORE ENTRIES IN INLINE_ROUTE_CSS, ON PURPOSE. They are emitted AFTER the route's own inline sheets
+ * and its INLINE_MARKUP_CSS sheet, i.e. exactly where the `<link>` elements sat, so the cascade order is byte-for-byte what it was
+ * (adding them to INLINE_ROUTE_CSS put faqContent ahead of PacksPage's own sheet and moved /packs's FAQ by 20 px).
+ * ★ THE PREFIXES ARE THE EMITTED FILE NAMES, case-sensitive: `salesPagesCopy-*.css` and `cbqBand-*.css`. The earlier `salesPages` and
+ * `CbqBand` entries in INLINE_ROUTE_CSS never matched them (`salesPages-` is not a prefix of `salesPagesCopy-`; `CbqBand-` is not
+ * `cbqBand-`), which is why they stayed linked. NOT here: PacksShop-*.css on /test-series (8.9 KB raw, over the 6 KB rule) - still linked.
+ */
+export const INLINE_ROUTE_CSS_LATE: Readonly<Record<string, readonly string[]>> = {
+  BoardPassPage: ["salesPagesCopy", "GuestPaySheet", "WhatsAppOptInCheckout", "ParentReturnLink", "SalesStickyBar"],
+  CbqPacksPage: ["salesPagesCopy", "GuestPaySheet", "WhatsAppOptInCheckout", "packReady", "ParentReturnLink", "faqContent", "cbqBand"],
+  TestSeriesPage: ["TestSeriesPerTest", "GuestPaySheet", "WhatsAppOptInCheckout", "PackSampleLink", "packReady"],
+  PacksPage: ["faqContent", "GuestPaySheet", "WhatsAppOptInCheckout", "TestSeriesPerTest"],
+  ForParentsPage: ["TestimonialVideo", "SalesStickyBar"],
+};
+
+/**
  * PACKS-TIDY-2 (A2) - island MARKUP sheets (ISLAND_MARKUP_CSS below) inlined instead of linked on these paths, so the page has no
  * render-blocking stylesheet left. Small sheets only (WhatsAppFab: < 1 KB). Every other island page links them exactly as before.
  */
-export const INLINE_MARKUP_CSS: Readonly<Record<string, readonly string[]>> = { "/packs": ["WhatsAppFab"] };
+export const INLINE_MARKUP_CSS: Readonly<Record<string, readonly string[]>> = { "/packs": ["WhatsAppFab"], "/for-parents": ["WhatsAppFab"] }; // /for-parents: SPEED-SALES-CSS-1
+
+/** The SPEED-SALES-CSS-1 sheets (INLINE_ROUTE_CSS_LATE) for `path`, in the route chunk's dependency order - the order their links had. */
+export function lateRouteCssFor(
+  path: string,
+  assetsDir: string,
+  shellHtml: string,
+  assetFiles: readonly string[],
+): string[] {
+  const { entry } = entryScriptOf(shellHtml);
+  const entryCode = readFileSync(join(assetsDir, entry), "utf8");
+  const css: string[] = [];
+  for (const moduleName of routeChunkModulesFor(path)) {
+    const prefixes = INLINE_ROUTE_CSS_LATE[moduleName];
+    if (!prefixes) continue;
+    for (const file of dynamicImportCssOf(entryCode, resolveRouteChunk(moduleName, assetFiles))) {
+      if (prefixes.some((prefix) => file.startsWith(`${prefix}-`)) && !css.includes(file)) css.push(file);
+    }
+  }
+  return css;
+}
 
 /** The allowlisted route's own CSS files (never shared deps such as KaTeX) for `path`, in order. */
 export function routeCssFor(
@@ -1311,7 +1351,7 @@ export function applyArtifact(
     for (const path of expected) {
       routeStyles.set(
         path,
-        [...routeCssFor(path, assetsDir, cleanShell, assetFiles), ...(INLINE_MARKUP_CSS[path] ?? []).map((name) => resolveStylesheet(name, assetFiles))].map((file) => ({
+        [...routeCssFor(path, assetsDir, cleanShell, assetFiles), ...(INLINE_MARKUP_CSS[path] ?? []).map((name) => resolveStylesheet(name, assetFiles)), ...lateRouteCssFor(path, assetsDir, cleanShell, assetFiles)].map((file) => ({
           file,
           css: inlinableCss(file, readFileSync(join(assetsDir, file), "utf8")),
         })),

@@ -25,7 +25,8 @@ describe("CLS-1 first paint", () => {
 
   it("PACKS-TIDY-2 (A2): /packs inlines every sheet its island used to LINK (render-blocking), WhatsApp button included; no other page changes", () => {
     expect(INLINE_ROUTE_CSS.PacksPage).toEqual(expect.arrayContaining(["SubjectSwitch", "packReady", "myInvoices"]));
-    expect(INLINE_MARKUP_CSS).toEqual({ "/packs": ["WhatsAppFab"] });
+    // SPEED-SALES-CSS-1: + /for-parents (its island linked WhatsAppFab); no other path inlines markup CSS.
+    expect(INLINE_MARKUP_CSS).toEqual({ "/packs": ["WhatsAppFab"], "/for-parents": ["WhatsAppFab"] });
   });
 
   it("never inlines KaTeX CSS (it delayed first paint on the notes pages)", () => {
