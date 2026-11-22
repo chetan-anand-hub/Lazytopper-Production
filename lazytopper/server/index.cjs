@@ -1339,6 +1339,18 @@ server.listen(config.PORT, () => {
       log: (line) => console.log(line),
     })
     .start();
+  // AI-BILLING-ALERT-1 — owner email (AI_ALERT_TO, else OPS_REPORT_TO) + WhatsApp (OWNER_ALERT_WHATSAPP + CALLMEBOT_APIKEY)
+  // when Gemini fails on the key / billing; email uses the SAME
+  // Resend rails as the unclaimed alert. The gateway reports to this instance fire-and-forget; log only until configured.
+  {
+    const aiBillingAlert = require('./services/aiBillingAlert.cjs');
+    aiBillingAlert.configure({
+      send: (mail) => paymentReceiptEmailer.rails.send(mail),
+      canSend: () => paymentReceiptEmailer.rails.canSend(),
+      log: (line) => console.warn(line),
+    });
+    console.log(aiBillingAlert.describe());
+  }
   // GST-INVOICE-BACKDATE-1 — the hourly drain of state forms + reminders; armed only with invoicing, email and the link secret.
   gstBackdate.startRunner();
 
