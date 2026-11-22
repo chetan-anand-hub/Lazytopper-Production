@@ -252,6 +252,25 @@ describe("PAY-HANG-1 · Check payment status (guest, with a status route)", () =
     await tap();
     expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
+  it("N1: a receipt for ANOTHER order is never delivered as this order's payment - treated as unknown, the sheet stays", async () => {
+    const verify = vi.fn(async () => undefined);
+    const rz = fakeRazorpay();
+    const outcome = buyAsGuest(GITEM, "9876543210", { createOrder: async () => ORDER, loadScript: async () => rz.ctor, verify });
+    await flush();
+    await flush();
+    await appSwitchAndBack();
+    await vi.advanceTimersByTimeAsync(HANG_ARM_MS + 100);
+    answer({ ok: true, status: "paid_unclaimed", receipt: { ...RECEIPT, orderId: "order_OTHER" } });
+    await tap();
+    await vi.advanceTimersByTimeAsync(300);
+    expect(line()).toBe(PAY_HANG_CHECK_ERROR);
+    expect(rz.seen.close).toBe(0);
+    expect(verify).not.toHaveBeenCalled();
+    expect(readReceiptProof()).toBeNull();
+    expect(btn("retry")).toBeNull();
+    rz.seen.opts?.modal.ondismiss();
+    await outcome;
+  });
   it("gone (404 / 403 / 410) and error / rate limit: say so, never 'failed', never Try again, the sheet stays", async () => {
     const { rz } = await barUp();
     for (const status of [404, 403, 410, 429, 500]) {
@@ -359,17 +378,13 @@ describe("PAY-HANG-1 · Check payment status (guest, with a status route)", () =
 });
 
 describe("PAY-HANG-1 · Razorpay's own timeout", () => {
-  it("every entry point passes the timeout option", async () => {
-    const seenAll: Array<[string, number | undefined]> = [];
-    const mk = (name: string) => {
-      const rz = fakeRazorpay();
-      const ctor = function (this: unknown, o: Opts) {
-        seenAll.push([name, o.timeout]);
+  it("the guest checkouts (they have a status route) pass the timeout; the four flows with NO status route pass none (options as before: Razorpay may still auto-capture within 12 min)", async () => {
+    const seenAll: Array<[string, Opts]> = [];
+    const mk = (name: string) =>
+      function (this: unknown, o: Opts) {
+        seenAll.push([name, o]);
         return { open: () => o.modal.ondismiss(), close: () => undefined, on: () => undefined };
       } as unknown as never;
-      void rz;
-      return ctor;
-    };
     const order = { ...ORDER };
     await buyAsGuest(GITEM, "9876543210", { createOrder: async () => order, loadScript: async () => mk("guest"), verify: async () => undefined });
     await buyForRecipient(GITEM, { kind: "phone", phone: "9876543210" } as never, false, { createOrder: async () => order, loadScript: async () => mk("recipient"), verify: async () => undefined } as never);
@@ -379,7 +394,10 @@ describe("PAY-HANG-1 · Razorpay's own timeout", () => {
     await buyPassAsParent("tok", "month", { createOrder: async () => order, loadScript: async () => mk("parent"), verify: async () => ({ passEnd: "x", firstName: "A" }) });
     await buyPackAsParent("tok", "Pack", { createOrder: async () => order, loadScript: async () => mk("parentPack"), verify: async () => ({ firstName: "A", duplicate: false }) });
     expect(seenAll.map((x) => x[0])).toEqual(["guest", "recipient", "self", "pass", "pack", "parent", "parentPack"]);
-    for (const [, t] of seenAll) expect(t).toBe(RAZORPAY_TIMEOUT_SECONDS);
+    for (const [name, o] of seenAll) {
+      if (["guest", "recipient", "self"].includes(name)) expect(o.timeout).toBe(RAZORPAY_TIMEOUT_SECONDS);
+      else expect("timeout" in o).toBe(false);
+    }
   });
   it("the sheet closed by the timeout keeps the note and asks the resume to check the order first; a buyer's own close still drops it", async () => {
     const events: string[] = [];

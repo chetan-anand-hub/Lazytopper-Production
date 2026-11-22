@@ -37,7 +37,7 @@ import {
   type RazorpaySuccess,
 } from "./checkout";
 import { confirmServerPrice, razorpaySheetDescription } from "./priceConfirm";
-import { razorpayHangOption, watchSheetForHang } from "./payReturn";
+import { watchSheetForHang } from "./payReturn";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { isGstBuyerCancelled } from "./gstBuyerOrder";
 
@@ -591,7 +591,6 @@ export async function buyPack(
           },
         },
         ...razorpayUpiFirstOption(),
-        ...razorpayHangOption(),
         ...prefillOption(prefill),
       });
       watchPaymentFailed(checkout, () => {

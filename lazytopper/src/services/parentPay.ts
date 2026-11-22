@@ -29,7 +29,7 @@ import { loadCheckoutScript, watchPaymentFailed, type PassType, type RazorpayCon
 // PARENT-PACKS-1: the pack half lives in ./parentPayPack (a lazy chunk); only types are shared here (erased at build).
 import type { ParentPackRef } from "./parentPayPack";
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
-import { razorpayHangOption, watchSheetForHang } from "./payReturn";
+import { watchSheetForHang } from "./payReturn";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
@@ -284,7 +284,6 @@ export async function buyPassAsParent(
           },
         },
         ...razorpayUpiFirstOption(),
-        ...razorpayHangOption(),
       });
       // PAY-RESCUE-1 - listen only: the sheet stays open for a retry and the server records the
       // reason from Razorpay's signed `payment.failed` webhook. Nothing is sent from here.

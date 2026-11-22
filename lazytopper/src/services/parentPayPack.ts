@@ -33,7 +33,7 @@ import {
 } from "./parentPay";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
-import { razorpayHangOption, watchSheetForHang } from "./payReturn";
+import { watchSheetForHang } from "./payReturn";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
@@ -166,7 +166,6 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
           },
         },
         ...razorpayUpiFirstOption(),
-        ...razorpayHangOption(),
       });
       watchPaymentFailed(checkout, () => undefined);
       hang.attach(checkout);

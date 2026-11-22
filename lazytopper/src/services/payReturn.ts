@@ -255,7 +255,11 @@ export function isPayHangDisabled(): boolean {
   }
 }
 
-/** Spread into every `new Razorpay({...})` options object. `{}` under the kill switch. */
+/**
+ * Spread into the options of the GUEST checkouts only (they have a status route). Razorpay captures automatically if a payment is
+ * authorised within 12 minutes of opening, so a sheet that closes itself at 10 minutes must never be treated as "nothing happened" by a
+ * flow with no way to ask: signed-in pass / pack and the parent links pass NO timeout (options identical to before). `{}` under the kill switch.
+ */
 export function razorpayHangOption(): { timeout?: number } {
   return isPayHangDisabled() ? {} : { timeout: RAZORPAY_TIMEOUT_SECONDS };
 }
@@ -478,7 +482,9 @@ export function watchSheetForHang(args: { order: { orderId: string; statusProof?
     try {
       if (proof) {
         const out = await fetchOrderStatus({ orderId: order.orderId, proof }, fetchImpl);
-        if (out.kind === "paid") {
+        // A receipt for ANOTHER order is never trusted to settle this one (it would be delivered as this order's payment): unknown.
+        if (out.kind === "paid" && out.receipt.orderId !== order.orderId) status = "unknown";
+        else if (out.kind === "paid") {
           status = "paid";
           receipt = out.receipt;
         } else if (out.kind === "failed") status = "failed";

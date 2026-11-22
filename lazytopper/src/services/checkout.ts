@@ -16,7 +16,7 @@
 
 import { VALIDITY_LABEL, VALIDITY_SHORT } from "../config/validity";
 import { confirmServerPrice, serverPriceFields, type ServerGst, razorpaySheetDescription } from "./priceConfirm";
-import { razorpayHangOption, watchSheetForHang } from "./payReturn";
+import { watchSheetForHang } from "./payReturn";
 import { razorpayUpiFirstOption, type RazorpayDisplayConfig } from "./razorpayDisplay";
 // GST-INVOICE-1: "Your state" before the order (off by default: the body is byte-identical).
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
@@ -482,7 +482,6 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, 
           },
         },
         ...razorpayUpiFirstOption(),
-        ...razorpayHangOption(),
         ...prefillOption(prefill),
       });
       watchPaymentFailed(checkout, () => {
