@@ -618,12 +618,14 @@ const REASON_PLACEHOLDERS = new Set(['reason not given', 'no reason given', 'rea
 // Review round 2: the placeholder words are read ONLY on a step the MODEL reported absent ("missing" / "unattempted").
 // On any other step they may be the student's own answer (a wrong "None" on a working step): only truly empty is blank.
 const PLACEHOLDER_STATUSES = new Set(['missing', 'unattempted']);
-function isBlankWork(text, status) {
+// withReasonPlaceholders: ONLY the post-mark, type-only passes (omissionsInAttemptedWork, settleUntypedLosses, typeBlankAskedReasons) pass true.
+// workingNotShown runs BEFORE the marks are final and tags a step out of the exam-technique cap, so it must never see a placeholder (a mark leak).
+function isBlankWork(text, status, withReasonPlaceholders = false) {
   if (nonAttemptText(text) === 'empty') return true;
   if (!PLACEHOLDER_STATUSES.has(status)) return false;
   const t = String(text == null ? '' : text).normalize('NFKC').toLowerCase()
     .replace(/[’‘'`"“”[\](){}.!?,:;\-–—_/\\]/g, ' ').replace(/\s+/g, ' ').trim();
-  return !t || ABSENT_WORK.has(t) || (REASON_PLACEHOLDERS.has(t) && process.env.GRADER_TYPE_1_DISABLED !== '1');
+  return !t || ABSENT_WORK.has(t) || (withReasonPlaceholders && REASON_PLACEHOLDERS.has(t) && process.env.GRADER_TYPE_1_DISABLED !== '1');
 }
 function toUnattempted(s) {
   s.status = 'unattempted';
@@ -755,7 +757,7 @@ function knowledgeProven(u, live, questionText, reasonGate = false) {
    comment prose. GRADER_TYPE_1_DISABLED=1 restores knowledgeProven unchanged. */
 const REASON_FILLER = new Set(['hence', 'therefore', 'thus', 'so', 'since', 'then', 'now', 'ans', 'answer', 'required', 'number', 'value', 'total', 'final', 'least',
   'is', 'are', 'the', 'of', 'we', 'get', 'gives', 'find', 'from', 'with', 'given', 'that', 'this', 'each', 'also', 'here', 'have', 'must', 'need', 'needs',
-  'hoga', 'hai', 'tha',
+  'hoga', 'hai', 'tha', 'correct', 'clearly', 'obviously', 'proved', 'verified', 'lhs', 'rhs',
   'cm', 'mm', 'km', 'kg', 'sec', 'units', 'metre', 'metres', 'meter', 'meters', 'degree', 'degrees', 'second', 'seconds', 'litre', 'litres',
   'volt', 'volts', 'ohm', 'ohms', 'watt', 'watts', 'joule', 'joules', 'newton', 'newtons']);
 const EVIDENCE_WORD = /[\p{L}\p{M}]+/gu;
@@ -764,7 +766,8 @@ const NAMED_THEOREM = /(?<![\p{L}])(?:bpt|aa|sas|sss|asa|aas|rhs|cpct|pythagoras
 const CLAUSE_SPLIT = /[,;:∴()]|(?<![\p{L}])(?:since|as|because|so|hence|by|taking)(?![\p{L}])/u;
 const UNIT_AFTER_NUMBER = /(?<=\d)(?:\s*[\p{L}°]{1,3}\d?(?![\p{L}\p{N}])(?:\s*\/\s*\p{L}{1,3})?)+/gu;
 /** Normal form of a quote for the reason tests: lower-case, ⟂ -> ⊥, || -> ∥, "x" between digits -> ×. */
-const reasonForm = (t) => normEvidence(t).replace(/⟂/g, '⊥').replace(/\|\|/g, '∥').replace(/(?<=\d)\s*x\s*(?=\d)/g, ' × ');
+const reasonForm = (t) => normEvidence(t).replace(/⟂/g, '⊥').replace(/\|\|/g, '∥').replace(/(?<=\d)\s*x\s*(?=\d)/g, ' × ')
+  .replace(/(?<![\p{L}])(?:\p{L}\.){2,}/gu, (m) => m.replace(/\./g, ''));   // "B.P.T." -> "bpt"
 const dropFiller = (t) => t.replace(EVIDENCE_WORD, (w) => (REASON_FILLER.has(w) ? ' ' : w));
 /** A parenthesised remark with a word in it ("(given)", "(from figure)", "(with prime factors)") is annotation, not the student's reason. */
 function dropRemarks(t) {
@@ -780,7 +783,8 @@ const reasonSquash = (t) => dropFiller(reasonForm(t)).replace(/[^\p{L}\p{N}=<>�
  *  never proof. A lone label beside a worked-out number is a result. */
 function reasonEvidenceStatesPrinciple(rawEv, questionText) {
   const base = reasonForm(rawEv);
-  if (NAMED_THEOREM.test(base)) return true;
+  // "LHS = RHS" is a restatement, not the right-hand-side criterion: RHS counts as a theorem only where LHS is not also named
+  if (NAMED_THEOREM.test(/(?<![\p{L}])lhs(?![\p{L}])/u.test(base) ? base.replace(/(?<![\p{L}])rhs(?![\p{L}])/gu, ' ') : base)) return true;
   const clean = dropRemarks(base);
   const eq = clean.indexOf('=');
   const lastClause = eq >= 0 ? clean.slice(0, eq).split(CLAUSE_SPLIT).pop() : '';
@@ -790,7 +794,8 @@ function reasonEvidenceStatesPrinciple(rawEv, questionText) {
   const inQuestion = new Set(normEvidence(questionText).match(EVIDENCE_WORD) || []);
   const words = new Set((s2.match(EVIDENCE_WORD) || []).filter((w) => !label.has(w) && !inQuestion.has(w) && (/\p{Script=Latin}/u.test(w) ? w.length >= 4 : w.length >= 2)));
   if (words.size >= 2) return true;
-  return s2.split(/[=<>≤≥⊥∥~→]/).filter((side) => /\p{L}/u.test(side)).length >= 2;
+  // one relation, two letter-named sides — a list of separate facts ("x = 2, y = 3", "AE = 3 cm, EC = 2 cm") is not a relation
+  return s2.split(/[,;]/).some((cl) => cl.split(/[=<>≤≥⊥∥~→]/).filter((side) => /\p{L}/u.test(side)).length >= 2);
 }
 function isAskedReasonStep(u) {
   const d = String(u.description || '');
@@ -830,7 +835,7 @@ function omissionsInAttemptedWork(steps, { q, totalMarks, only = null }) {
   // MISSING-TYPE-1: `only` (a Set) re-runs the flip below for the steps settleUntypedLosses just made
   // "unattempted" — the model-typing pass already ran, so it is skipped.
   if (ENFORCE_EVIDENCE_ON_MODEL_TYPING && !only) for (const s of live) {
-    if (s.status !== 'missing' || s.mistakeType !== 'presentation' || !isBlankWork(s.studentWork, s.status)) continue;
+    if (s.status !== 'missing' || s.mistakeType !== 'presentation' || !isBlankWork(s.studentWork, s.status, true)) continue;
     // delta review item 2 (the MINIMUM fix): a step still holding marks — the model's own, or given back by the
     // exam-technique cap (capExamTechnique, step 5, runs BEFORE this) — keeps the model's typing, as on trunk, so
     // an "unattempted" step never holds marks. (Deciding the evidence before the cap would LOWER marks: owner
@@ -847,7 +852,7 @@ function omissionsInAttemptedWork(steps, { q, totalMarks, only = null }) {
   }
   for (const u of live) {
     if (only && !only.has(u)) continue;
-    if (u.status !== 'unattempted' || u.marksAwarded > 0 || !isBlankWork(u.studentWork, u.status)) continue;
+    if (u.status !== 'unattempted' || u.marksAwarded > 0 || !isBlankWork(u.studentWork, u.status, true)) continue;
     if (PART_NAMED.test(String(u.description || '')) || DIAGRAM_STEP.test(String(u.description || ''))) continue;
     if (partKey(u.part) === '' && (anyLabelled || !realQuestion || SUB_PART_MARKER.test(questionText))) continue;
     const { group, before, after } = sides(u);
@@ -1142,7 +1147,7 @@ function settleUntypedLosses(steps, { q, totalMarks, zeroedBy }) {
       || s.status === 'unattempted' || s.status === 'withdrawn') return;
     // only a "missing" step: a blank "incorrect" one stays as the model judged it (a bare wrong answer it did not
     // quote is still an attempt — markGenuinelyUnattempted, checkSolution.test.cjs §4.1).
-    if (s.status === 'missing' && !(s.marksAwarded > 0) && (nonAttemptText(s.studentWork) !== null || isBlankWork(s.studentWork, s.status))) {
+    if (s.status === 'missing' && !(s.marksAwarded > 0) && (nonAttemptText(s.studentWork) !== null || isBlankWork(s.studentWork, s.status, true))) {
       s.status = 'unattempted'; blank.push(s);
       // nit: a step typed conceptual LATER by typeBlankAskedReasons was never a final 'unattempted' — it is counted ONCE, there.
       Object.defineProperty(s, '_settledUnattempted', { value: true, enumerable: false, configurable: true, writable: true });
@@ -1202,7 +1207,7 @@ function typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy }) {
   const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded, Number(s.marksDeducted) || 0));
   steps.forEach((u, i) => {
     if (u.status === 'withdrawn' || zeroedBy.has(i) || u._ecf || u.mistakeType || u._consequentialOrigin || u.isDeparture || !(u.marksDeducted > 0)) return;
-    const blankStep = u.marksAwarded === 0 && ['missing', 'unattempted'].includes(u.status) && isBlankWork(u.studentWork, u.status) && nonAttemptText(u.studentWork) !== 'phrase';
+    const blankStep = u.marksAwarded === 0 && ['missing', 'unattempted'].includes(u.status) && isBlankWork(u.studentWork, u.status, true) && nonAttemptText(u.studentWork) !== 'phrase';
     const foldedStep = !blankStep && u._omittedAsk === 'reason' && ATTEMPTED_STATUSES.has(u.status);
     if (!blankStep && !foldedStep) return;
     const flagged = u._omittedAsk === 'reason';
@@ -1228,7 +1233,7 @@ function typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy }) {
     // step — an earlier step of the part is correct work.
     const earlier = live.filter((s) => s !== u && partKey(s.part) === partKey(u.part) && live.indexOf(s) < at);
     const nothingWrongBefore = !earlier.some((s) => s.status === 'incorrect' || ['conceptual', 'calculation', 'silly'].includes(s.mistakeType));
-    const answerRight = nothingWrongBefore && earlier.some((s) => s.status === 'correct' && nonAttemptText(s.studentWork) === null && !isBlankWork(s.studentWork, s.status));
+    const answerRight = nothingWrongBefore && earlier.some((s) => s.status === 'correct' && nonAttemptText(s.studentWork) === null && !isBlankWork(s.studentWork, s.status, true));
     if (blankStep && !answerRight) return;
     if (foldedStep && (u.status === 'incorrect' || !nothingWrongBefore)) return;
     if (reasonKnowledgeProven(u, live, questionText)) {

@@ -253,13 +253,13 @@ for (const s of SURFACES) {
       'R = 15 Ω', 'λ = 500 nm', 'V = 2 x 5 = 10 V', 'R = 5 + 10 = 15 Ω', 'Speed = 120/2 = 60 km/h', 'Area = 22/7 x 7 x 7 = 154 sq cm',
       'So she needs 2520 chocolates', '2520 is the LCM of all numbers from 1 to 10', '∠AOB = 180° - 80° = 100° (from figure)',
       'Distance = 4 x 5 = 20 metres', '∠OAB = 90 - 50 = 40 degrees', 'LCM = ' + LCM + ' hoga', 'LCM = 2520 (with prime factors)',
-      'angle TAB = 50 degrees (given)', 'Given: TA is a tangent to a circle', 'TA is a tangent', '∴ LCM = ' + LCM, 'OA=5cm', 'OA = 5 units'];
+      'LHS = RHS', 'x = 2, y = 3', 'AE = 3 cm, EC = 2 cm', 'answer is correct obviously', 'angle TAB = 50 degrees (given)', 'Given: TA is a tangent to a circle', 'TA is a tangent', '∴ LCM = ' + LCM, 'OA=5cm', 'OA = 5 units'];
     const PRINCIPLES = ['tangent is perpendicular to the radius', 'LCM = product of the highest powers of the primes = ' + LCM, 'AB + CD = BC + DA',
       'CD = CR + DR = 12 + 6', 'a^2 + b^2 = c^2', 'V = IR = 0.5 x 10 = 5 V', '1/v - 1/u = 1/f', 'OA ⊥ AT', 'AD/DB = AE/EC (BPT)',
       '2H2 + O2 → 2H2O', 'स्पर्श रेखा त्रिज्या पर लम्ब होती है', '∠OPT = 90° = ∠OQT',
       // review round 3: the label is only the LAST clause before "="; a named CBSE theorem is a stated reason
       'Since LCM is product of highest powers, LCM = 2^3 x 3^2 x 5 x 7 = 2520', 'Taking highest powers, LCM = 2^3 x 3^2 x 5 x 7 = 2520',
-      'As tangent is perpendicular to radius, ∠OAT = 90°', 'tangent ⟂ radius so ∠OAT = 90°', 'By BPT', 'By BPT, AD/DB = AE/EC', 'as OA ⊥ AT', '∴ OA ⊥ AT',
+      'As tangent is perpendicular to radius, ∠OAT = 90°', 'tangent ⟂ radius so ∠OAT = 90°', 'By BPT', 'By B.P.T.', 'By BPT, AD/DB = AE/EC', 'as OA ⊥ AT', '∴ OA ⊥ AT',
       'Since tangents from an external point are equal, AP = AS', 'm = h2/h1 = -v/u', 'kyunki tangent radius pe perpendicular hota hai'];
     for (const ev of RESULTS) {
       const r = await run(s, c, { steps: withEv(ev) });
@@ -268,6 +268,31 @@ for (const s of SURFACES) {
     for (const ev of PRINCIPLES) {
       const r = await run(s, c, { steps: withEv(ev) });
       assert.equal(typesOf(r.result)[1][2], 'presentation', s.id + ': a principle is proof — ' + ev);
+    }
+  });
+
+  // Review of 2d5191b1 (BLOCKER): the reason-placeholder reading of isBlankWork must never reach workingNotShown (pre-mark, tags a step out of
+  // the exam-technique cap) — it moved a mark: trunk 2/3, rule on 1/3.
+  test('GRADER-TYPE-1 — ' + s.id + ': MARK LEAK — a "not justified" placeholder on a missing working step keeps the exam-technique mark restore: 2/3 with the rule on, off and as trunk', async () => {
+    const steps = () => [
+      { part: null, description: 'Splitting the middle term', studentWork: '', status: 'partial', marksAvailable: 1, marksAwarded: 0, marksDeducted: 1, teacherAnnotation: 'x', mistakeType: 'presentation' },
+      { part: null, description: 'Factorisation working', studentWork: 'not justified', status: 'missing', marksAvailable: 1, marksAwarded: 0, marksDeducted: 1, teacherAnnotation: 'x', mistakeType: 'presentation' },
+      { part: null, description: 'Final factors', studentWork: '(x+2)(x+3)', status: 'correct', marksAvailable: 1, marksAwarded: 1, marksDeducted: 0, teacherAnnotation: '✓', mistakeType: null },
+    ];
+    const c = CASES['T1-TANGENT-CONTROL'];
+    const txt = 'Factorise x^2 + 5x + 6. [3 marks]';
+    const on = await run(s, c, { text: txt, marks: 3, steps: steps() });
+    const off = await withEnv('GRADER_TYPE_1_DISABLED', '1', () => run(s, c, { text: txt, marks: 3, steps: steps() }));
+    assert.equal(off.result.marksAwarded, 2, s.id + ': kill switch = trunk');
+    assert.equal(on.result.marksAwarded, 2, s.id + ': rule on must not move the mark');
+  });
+
+  test('GRADER-TYPE-1 — ' + s.id + ': NEVER A MARK — for every fixture the marks with the rule on equal the marks with the kill switch', async () => {
+    for (const c of FIX.cases) {
+      const on = await run(s, c);
+      const off = await withEnv('GRADER_TYPE_1_DISABLED', '1', () => run(s, c));
+      assert.equal(on.result.marksAwarded, off.result.marksAwarded, s.id + ' ' + c.id);
+      assert.deepEqual(on.result.annotatedSteps.map((st) => st.marksAwarded), off.result.annotatedSteps.map((st) => st.marksAwarded), s.id + ' ' + c.id + ' per step');
     }
   });
 
