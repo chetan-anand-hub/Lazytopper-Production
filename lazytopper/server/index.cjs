@@ -1341,6 +1341,7 @@ server.listen(config.PORT, () => {
     })
     .start();
   // AI-BILLING-ALERT-1 — owner email (AI_ALERT_TO, else OPS_REPORT_TO) + WhatsApp (OWNER_ALERT_WHATSAPP + CALLMEBOT_APIKEY)
+  // + Telegram (TELEGRAM_ALERT_BOT_TOKEN + TELEGRAM_ALERT_CHAT_ID; AI-ALERT-TELEGRAM-1)
   // when Gemini fails on the key / billing; email uses the SAME
   // Resend rails as the unclaimed alert. The gateway reports to this instance fire-and-forget. This configure() call is
   // what ARMS it: until here (and in every script / eval that never calls it) it logs only, whatever the env says.
@@ -1352,6 +1353,9 @@ server.listen(config.PORT, () => {
       log: (line) => console.warn(line),
     });
     console.log(aiBillingAlert.describe());
+    // AI-ALERT-TELEGRAM-1: token set but no TELEGRAM_ALERT_CHAT_ID -> read getUpdates ONCE and LOG the latest PRIVATE chat
+    // id to copy into the env. Never sends, never adopts it, never a group/channel, never logs the token. Not awaited.
+    void aiBillingAlert.bootTelegramHelp();
   }
   // GST-INVOICE-BACKDATE-1 — the hourly drain of state forms + reminders; armed only with invoicing, email and the link secret.
   gstBackdate.startRunner();
