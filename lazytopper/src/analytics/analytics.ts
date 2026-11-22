@@ -2200,6 +2200,16 @@ export interface OnboardingEventParams {
 }
 
 /**
+ * INAPP-PAY-CHOICE-1 - the up-front "Pay in Chrome / Safari" option in an in-app browser. First-party / GA4 only (not in META_EVENTS).
+ * `app` / `platform` are coarse slugs, `surface` a page slug (packs | cbq_packs | test_series | board_pass | pricing | for_parents).
+ */
+export interface OnboardingEventParams {
+  inapp_pay_choice_shown: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
+  inapp_pay_open_external: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
+  inapp_pay_copy_link: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
+}
+
+/**
  * PAY-RETURN-1 - a buyer back from the UPI app on a page that reset (Razorpay's handler never ran) asked the server what became of
  * the order. `host` = the page slug (packs | cbq_packs | pricing | board_pass | for_parents | test_series | other); `in_app` = the
  * in-app browser vendor (instagram | facebook | youtube | other) or "none". Vendors and page slugs only: no id, phone or email.

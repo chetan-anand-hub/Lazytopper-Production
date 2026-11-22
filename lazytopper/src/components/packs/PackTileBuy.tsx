@@ -1,6 +1,7 @@
 import { packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import { OTHER_PAYMENT_BUSY_COPY, type PacksShopApi } from "./PacksShop";
 import type { SampleBuy } from "./PackSampleLink";
+import InAppPayChoice from "../payRescue/InAppPayChoice";
 import "./packTileBuy.css";
 
 /**
@@ -45,6 +46,17 @@ function BuyButton({ blocked, onClick, testId, className = "lt-ptb__btn", childr
   );
 }
 
+/**
+ * INAPP-PAY-CHOICE-1: the extra "Pay in Chrome / Safari" under a tile Buy. In-app browsers and SIGNED-OUT visitors only (the component
+ * renders nothing elsewhere); never while the pack's own rescue card shows or another payment is open. `target` only for targeted packs.
+ */
+function TileChoice({ api, sku, target }: { api: PacksShopApi; sku: PackSku; target?: string }) {
+  if (!api.signedOut || api.blockedBy(sku, target) || api.rescueShowing?.(sku, target) || api.ownsPack(sku, target)) return null;
+  return <InAppPayChoice buy={{ kind: "pack", sku, ...(target ? { target } : {}) }} />;
+}
+
+export { TileChoice as InAppTileChoice };
+
 function BusyNote({ show }: { show: boolean }) {
   return show ? <span className="lt-ptb__busy" role="status">{OTHER_PAYMENT_BUSY_COPY}</span> : null;
 }
@@ -83,6 +95,7 @@ export default function PackTileBuy({ sku, api, tone = "light", subject }: { sku
         ) : (
           <BuyButton blocked={blocked} onClick={() => api.buyNow(sku)} testId={`tile-buy-${sku}`}>{`Buy · ${price}`}</BuyButton>
         )}
+        <TileChoice api={api} sku={sku} />
         <GstNote sku={sku} show={!api.ownsPack(sku)} />
         <BusyNote show={blocked && !api.ownsPack(sku)} />
       </div>
@@ -102,6 +115,7 @@ export default function PackTileBuy({ sku, api, tone = "light", subject }: { sku
           </BuyButton>
         ),
       )}
+      {shown.map((s) => <TileChoice key={s} api={api} sku={sku} target={s} />)}
       <GstNote sku={sku} show={shown.some((s) => !api.ownsPack(sku, s))} />
       <BusyNote show={anyBlocked} />
     </div>
@@ -136,6 +150,7 @@ export function PackCbqBuy({ subject, api, testPrefix }: { subject: PackSubject;
           {`Buy ${subjectLabel(subject)} CBQ · ${packPayLabel("pack_cbq")}`}
         </BuyButton>
       )}
+      <TileChoice api={api} sku="pack_cbq" target={subject} />
       <GstNote sku="pack_cbq" show={!api.ownsPack("pack_cbq", subject)} />
       <BusyNote show={!api.ownsPack("pack_cbq", subject) && api.blockedBy("pack_cbq", subject)} />
       {see}

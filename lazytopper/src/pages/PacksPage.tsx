@@ -18,7 +18,7 @@ import { TestSeriesExaminerLine, TestSeriesPerTest } from "../components/packs/T
 import { chaptersOfSubject, isTestSeriesPackOffered, testSeriesFoundingClause, testSeriesPriceLine, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
 import PackSampleLink, { PackSampleChoice, SampleBuyNext } from "../components/packs/PackSampleLink";
 import SubjectSwitch from "../components/packs/SubjectSwitch";
-import PackTileBuy, { sampleBuyFor } from "../components/packs/PackTileBuy";
+import PackTileBuy, { sampleBuyFor, InAppTileChoice } from "../components/packs/PackTileBuy";
 import type { PacksShopApi } from "../components/packs/PacksShop";
 import { packsUrlSubject } from "../lib/packs/packsUrlSubject";
 import { BOARD_PASS_NAME } from "../config/pricing";
@@ -582,6 +582,7 @@ function CompactBuy({ t, api, subject }: { t: Tile; api: PacksShopApi; subject: 
   }
   const blocked = api.blockedBy(sku, subject);
   return (
+    <>
     <button
       type="button"
       className="lt-pk-cbuy"
@@ -594,6 +595,8 @@ function CompactBuy({ t, api, subject }: { t: Tile; api: PacksShopApi; subject: 
     >
       {`Buy ${packPayLabel(sku)}`}
     </button>
+    <InAppTileChoice api={api} sku={sku} target={subject} />
+    </>
   );
 }
 

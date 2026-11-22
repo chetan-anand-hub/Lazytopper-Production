@@ -737,9 +737,13 @@ describe("SPEED-CI-3 — in-app browsers get the door; a web view without storag
     expect(readers.sort()).toEqual([
       "components/auth/inAppSigninCopy.ts",
       "components/guestPay/GuestPaySheet.tsx",
+      // INAPP-PAY-CHOICE-1: the up-front "Pay in Chrome / Safari" option. Rendered only by PacksShop, PassCheckout, /cbq-packs and
+      // /for-parents (lazy) buy areas - none mounts on /check-improve's first frame, so its parity is unaffected.
+      "components/payRescue/InAppPayChoice.tsx",
       "utils/authSignal.ts",
       "utils/inAppBrowserLinks.ts",
-      // INAPP-PAY-1: read only when a checkout starts (event flag) or after a closed pay sheet (rescue card) - never on a first frame.
+      // INAPP-PAY-1: read when a checkout starts (event flag) or after a closed pay sheet (rescue card). INAPP-PAY-CHOICE-1: also when a
+      // buy area mounts (the extra option, signed-out in-app visitors only); that is NOT a first frame of /check-improve.
       "utils/inAppPay.ts",
     ]);
   });
