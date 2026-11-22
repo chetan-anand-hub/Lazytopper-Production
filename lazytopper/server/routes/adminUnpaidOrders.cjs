@@ -17,9 +17,11 @@
  *       "Same buyer" = any shared uid / payerUid / phone / email on the two orders; "same product" = any Board Pass for a
  *       Board Pass, the same pack (sku + target) for a pack; "since" = the payment came at or after the unpaid order.
  *
- * ★ CONTACT RULE (many buyers are minors). The payer's contact is returned in FULL only when THIS order carries the
- *   WhatsApp consent tick (`waOptIn`, WHATSAPP-OPTIN-1: a valid number + consentVersion, stored only when the visitor ticked).
- *   Otherwise every value is MASKED here, on the server - the full value never leaves the store. "Payer" means:
+ * ★ CONTACT RULE (many buyers are minors; owner ruling, PII review R1). ONLY the WhatsApp number the buyer agreed to on
+ *   THIS order (`waOptIn`, WHATSAPP-OPTIN-1: a valid number + consentVersion === WA_OPTIN_VERSION, stored only when the
+ *   visitor ticked) is returned in FULL. Every other value - account email / phone, the phone / email typed at checkout -
+ *   is MASKED here, on the server, even when the order carries consent; the full value never leaves the store. An account
+ *   or checkout phone EQUAL to the consented number is that number, so it shows once, as 'whatsapp', in full. "Payer" means:
  *     signed-in student  -> the account's email / phone (Firebase Auth);
  *     guest phone order  -> the number (and email) typed at checkout;
  *     for someone        -> the signed-in payer's account (payerUid); the RECIPIENT's phone / email is never shown here;
@@ -34,6 +36,7 @@ const { maskIndianMobile, maskEmail, normaliseIndianMobile, normaliseEmail } = r
 const pricing = require('../services/passPricing.cjs');
 const { isPackProduct, packIdFor } = require('../services/packProducts.cjs');
 const { emailItemLabel } = require('../services/paymentReceiptEmail.cjs');
+const { WA_OPTIN_VERSION } = require('../services/waOptIn.cjs');
 
 const PAY_ORDERS_COLLECTION = 'payOrders';
 const NO_STORE = Object.freeze({ 'Cache-Control': 'no-store' });
@@ -95,11 +98,12 @@ function productNameOf(o) {
   return label || (target ? `${passType} (${target})` : passType || 'Unknown product');
 }
 
-/** The order's valid WhatsApp consent: the E.164 number, or null. Only a ticked opt-in is ever stored. PURE. */
+/** The order's valid WhatsApp consent: the E.164 number, or null. Only a ticked opt-in at the CURRENT consent wording
+ *  (WA_OPTIN_VERSION) counts - any other / missing version is not consent. PURE. */
 function consentPhoneOf(o) {
   const w = o && o.waOptIn;
   if (!w || typeof w !== 'object' || Array.isArray(w)) return null;
-  if (!str(w.consentVersion)) return null;
+  if (w.consentVersion !== WA_OPTIN_VERSION) return null;
   return normaliseIndianMobile(typeof w.phone === 'string' ? w.phone : '') || null;
 }
 
@@ -222,13 +226,14 @@ function createAdminUnpaidOrdersRoutes(deps = {}) {
     return out;
   }
 
-  /** ★ THE CONTACT RULE: full only with consent on this order; masked otherwise. */
+  /** ★ THE CONTACT RULE: `full` ONLY for the consented WhatsApp number on this order; every other contact stays masked,
+   *  consent or not (owner ruling, PII review R1). */
   function contactsOut(raw, consent) {
     return raw.map((c) => ({
       kind: c.kind,
       source: c.source,
       masked: c.kind === 'phone' ? maskPhone(c.value) : maskEmail(c.value) || '•••',
-      ...(consent ? { full: c.value } : {}),
+      ...(consent && c.kind === 'phone' && c.source === 'whatsapp' ? { full: c.value } : {}),
     }));
   }
 

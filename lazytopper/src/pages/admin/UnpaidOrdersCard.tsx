@@ -2,8 +2,9 @@
  * UnpaidOrdersCard - UNPAID-ORDERS-LIST-1 (owner YES 22 Nov 2026). "Ordered, not paid" on /admin/students: one row per
  * order still unpaid, created in the last 24 h (or 7 days), newest first. READ-ONLY: no export, no email, no writes.
  *
- * ★ CONTACT RULE (many buyers are minors). The SERVER decides what is shown: a contact arrives with `full` only when the
- *   order carries the WhatsApp consent tick; otherwise only its masked form arrives. This card never unmasks anything.
+ * ★ CONTACT RULE (many buyers are minors). The SERVER decides what is shown: ONLY the WhatsApp number the buyer agreed to
+ *   on that order arrives with `full`; every other contact (account email / phone, checkout phone / email) arrives masked
+ *   only, consent or not. This card never unmasks anything.
  * ★ Orders the same buyer has since paid for (same product) are hidden by the server and shown here only as a count.
  * ★ Loads ON REQUEST, like every other card on the page (the page pins its own reads: one list + one summary on mount).
  * ★ Kill switch: the server answers 404 when UNPAID_ORDERS_LIST_DISABLED=1, and the card then renders nothing.
@@ -105,8 +106,8 @@ export default function UnpaidOrdersCard({ getToken }: { getToken: () => Promise
         Ordered, not paid ({windowLabel})
       </h2>
       <p className="sa-muted gh-note">
-        Orders still unpaid, newest first, times in IST. Admin / test orders and top-ups are not listed. Contact details are shown in
-        full only when the buyer ticked the WhatsApp consent on that order; otherwise they stay masked. Read-only: do not copy or
+        Orders still unpaid, newest first, times in IST. Admin / test orders and top-ups are not listed. Only the WhatsApp number the
+        buyer agreed to on that order is shown in full; every other contact detail stays masked. Read-only: do not copy or
         share this list.
       </p>
       <div className="sa-filters">

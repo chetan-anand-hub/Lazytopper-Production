@@ -18,12 +18,12 @@ const masked = {
 const full = {
   orderId: "order_f", createdAtMs: T - 3600000, product: { name: "Board Pass", passType: "till_boards", packTarget: null }, amountInr: 1917,
   buyerType: "signed_in", consent: true,
-  contacts: [{ kind: "email", source: "account", masked: "me••••@gmail.com", full: "meera.p@gmail.com" }, { kind: "phone", source: "whatsapp", masked: "+91 70•••••678", full: "+917012345678" }],
+  contacts: [{ kind: "email", source: "account", masked: "me••••@gmail.com" }, { kind: "phone", source: "whatsapp", masked: "+91 70•••••678", full: "+917012345678" }],
 };
 const body = (over = {}) => ({ ok: true, days: 1, sinceMs: T - 86400000, generatedAtMs: T, items: [masked, full], hiddenPaidLater: 2, excludedAdminTest: 1, truncated: false, ...over });
 
 describe("UnpaidOrdersCard", () => {
-  it("loads the 24 h list with the admin token; masked rows show masks only, consented rows show full contact", async () => {
+  it("loads the 24 h list with the admin token; masked rows show masks only, consented rows show only the WhatsApp number in full", async () => {
     const fetchMock = vi.fn(async (..._a: unknown[]) => ({ ok: true, status: 200, json: async () => body() }));
     vi.stubGlobal("fetch", fetchMock);
     render(<UnpaidOrdersCard getToken={async () => "tok"} />);
@@ -34,7 +34,7 @@ describe("UnpaidOrdersCard", () => {
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ headers: { Authorization: "Bearer tok" } });
     expect(screen.getByTestId("uo-contact-order_m").textContent).toBe("+91 98•••••948 (checkout)");
     expect(screen.getByTestId("uo-consent-order_m").textContent).toBe("✗");
-    expect(screen.getByTestId("uo-contact-order_f").textContent).toBe("meera.p@gmail.com (account)+917012345678 (WhatsApp)");
+    expect(screen.getByTestId("uo-contact-order_f").textContent).toBe("me••••@gmail.com (account)+917012345678 (WhatsApp)");
     expect(screen.getByTestId("uo-consent-order_f").textContent).toBe("✓");
     expect(screen.getByTestId("uo-row-order_m").textContent).toContain("Maths Mock Pack");
     expect(screen.getByTestId("uo-row-order_m").textContent).toContain("pack_mock:maths");

@@ -197,6 +197,24 @@ describe("UNPAID-ORDERS-LIST-1 — gate and kill switch", () => {
     expect(src).toMatch(/'Cache-Control': 'no-store'/);
   });
 
+  it("no admin gate or no Firestore on the deploy -> 503, no items", async () => {
+    const { createAdminUnpaidOrdersRoutes } = loadRoute();
+    const sendJson = (res: Res, status: number, body: Data) => {
+      res.status = status;
+      res.body = body;
+    };
+    const noGate = createAdminUnpaidOrdersRoutes({ sendJson, adminFirestore: fakeFirestore([]), now: () => NOW, env: {} });
+    const a: Res = { status: null, body: null };
+    await noGate.list({ method: "GET", url: "/api/admin/unpaid-orders", headers: {} }, a);
+    expect(a.status).toBe(503);
+    expect(a.body).not.toHaveProperty("items");
+    const noStore = createAdminUnpaidOrdersRoutes({ sendJson, requireAdmin: async () => ({ ok: true, uid: "adminU" }), now: () => NOW, env: {} });
+    const b: Res = { status: null, body: null };
+    await noStore.list({ method: "GET", url: "/api/admin/unpaid-orders", headers: {} }, b);
+    expect(b.status).toBe(503);
+    expect(b.body).not.toHaveProperty("items");
+  });
+
   it("UNPAID_ORDERS_LIST_DISABLED=1 -> 404 even for an admin", async () => {
     const w = use(world([created("o1", HOUR)], { env: { UNPAID_ORDERS_LIST_DISABLED: "1" } }));
     const r = await w.get();
@@ -241,14 +259,47 @@ describe("UNPAID-ORDERS-LIST-1 — contact masking vs consent", () => {
     }
   });
 
-  it("consent ticked on the order: the payer's contacts come in full, with the WhatsApp number", async () => {
+  it("consent ticked on the order: ONLY the WhatsApp number comes in full; the account email stays masked", async () => {
     const w = use(world(orders()));
     const it = row(await w.get(), "withConsent")!;
     expect(it.consent).toBe(true);
     expect(it.contacts).toEqual([
-      { kind: "email", source: "account", masked: "me••••@gmail.com", full: "meera.p@gmail.com" },
+      { kind: "email", source: "account", masked: "me••••@gmail.com" },
       { kind: "phone", source: "whatsapp", masked: "+91 70•••••678", full: WA_PHONE },
     ]);
+  });
+
+  it("R1: consent + a DIFFERENT account phone + account email + guest-typed email -> only the WhatsApp entry has `full`; no other raw value is in the body", async () => {
+    const w = use(
+      world([
+        // stu1's account: rohan.s@gmail.com / +919811122233 — neither is the consented number.
+        created("acctConsent", HOUR, { waOptIn: wa() }),
+        // A guest who typed an email and a phone at checkout, then ticked WhatsApp for a different number.
+        created("guestConsent", 2 * HOUR, { uid: null, payer: "guest", guestPhone: KID_PHONE, guestEmail: KID_EMAIL, waOptIn: wa() }),
+      ]),
+    );
+    const r = await w.get();
+    for (const id of ["acctConsent", "guestConsent"]) {
+      const it = row(r, id)!;
+      expect(it.consent).toBe(true);
+      const withFull = it.contacts.filter((c) => c.full !== undefined);
+      expect(withFull).toEqual([{ kind: "phone", source: "whatsapp", masked: "+91 70•••••678", full: WA_PHONE }]);
+      expect(it.contacts.filter((c) => c.source !== "whatsapp").length).toBe(2);
+    }
+    expect(row(r, "acctConsent")!.contacts.map((c) => c.masked)).toEqual(["ro••••@gmail.com", "+91 98•••••233", "+91 70•••••678"]);
+    const body = JSON.stringify(r.body);
+    expect(body).toContain(WA_PHONE);
+    for (const raw of ["rohan.s@gmail.com", "+919811122233", "9811122233", KID_PHONE, "9876543948", KID_EMAIL]) {
+      expect(body).not.toContain(raw);
+    }
+  });
+
+  it("consent counts only at the current wording (WA_OPTIN_VERSION): another version is not consent, nothing in full", async () => {
+    const w = use(world([created("oldVersion", HOUR, { uid: "stu2", waOptIn: { ...wa(), consentVersion: "wa-optin-v0" } })]));
+    const it = row(await w.get(), "oldVersion")!;
+    expect(it.consent).toBe(false);
+    expect(it.contacts.every((c) => c.full === undefined)).toBe(true);
+    expect(JSON.stringify(it)).not.toContain(WA_PHONE);
   });
 
   it("guest phone order: masked without consent, full with it (one row for the same number)", async () => {
