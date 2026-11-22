@@ -856,3 +856,11 @@ test('§12d GRADER-TYPE-1 — the STORED paid type-probe run (2026-11-22, 3 runs
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.match(r.stdout, /TYPE-PROBES: probes=12 stable=12 calls=0 verdict=PASS/);
 });
+
+test('§12e GRADER-TYPE-1 — the STORED paid probe run on prompt 0e213ab8 (lt-probes5, 2026-11-22) replays zero-call: every probe is stable EXCEPT T1-Q25-REASON-PROVEN, whose model replies in runs 2 and 3 typed the reason `conceptual` with knowledgeEvidence null (a model-side miss of the proof; the server never invents proof). KNOWN OPEN — when the prompt fixes it this test must be tightened to 12/12.', () => {
+  const { spawnSync } = require('child_process');
+  const r = spawnSync(process.execPath, [path.join(__dirname, 'goldenTypeProbes.cjs'), '--run', path.join(__dirname, 'runs', 't1-probes5-2026-11-22'), '--runs', '3'], { encoding: 'utf8' });
+  const fails = r.stdout.split('\n').filter((l) => /^FAIL /.test(l)).map((l) => l.split(' ')[1]).sort();
+  assert.deepEqual(fails, ['S.T1.T1-Q25-REASON-PROVEN', 'W.T1.T1-Q25-REASON-PROVEN'], r.stdout);
+  assert.match(r.stdout, /TYPE-PROBES: probes=12 stable=10 calls=0/);
+});
