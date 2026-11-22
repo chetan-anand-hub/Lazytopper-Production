@@ -33,6 +33,7 @@ import {
 } from "./parentPay";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
+import { razorpayHangOption, watchSheetForHang } from "./payReturn";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
@@ -145,6 +146,8 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
     // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
     if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
+      // PAY-HANG-1: the parent link has no status route and no ?buy= arrival -> the bar offers "Try again" (closes the sheet) only.
+      const hang = watchSheetForHang({ order: { orderId: order.orderId } });
       const checkout = new Razorpay({
         key: order.keyId,
         amount: order.amountPaise,
@@ -152,11 +155,21 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
         order_id: order.orderId,
         name: "LazyTopper",
         description: razorpaySheetDescription(`${packName || "PDF pack"} (for your child)`, order),
-        handler: (response) => resolve(response),
-        modal: { ondismiss: () => resolve(null) },
+        handler: (response) => {
+          hang.stop();
+          resolve(response);
+        },
+        modal: {
+          ondismiss: () => {
+            hang.stop();
+            resolve(null);
+          },
+        },
         ...razorpayUpiFirstOption(),
+        ...razorpayHangOption(),
       });
       watchPaymentFailed(checkout, () => undefined);
+      hang.attach(checkout);
       checkout.open();
     });
     if (!success) return { status: "dismissed" };

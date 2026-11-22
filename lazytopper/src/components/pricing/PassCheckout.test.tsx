@@ -383,7 +383,7 @@ describe("buyPass", () => {
     const verify = vi.fn(async () => ({ passEnd: "2026-10-27T06:30:00.000Z" }));
     await buyPass("till_boards", { createOrder: async () => order, loadScript: async () => rz.Ctor, verify });
     expect(Object.keys(rz.seen[0]).sort()).toEqual(
-      ["amount", "config", "currency", "description", "handler", "key", "modal", "name", "order_id"],
+      ["amount", "config", "currency", "description", "handler", "key", "modal", "name", "order_id", "timeout"], // PAY-HANG-1: + Razorpay's own sheet timeout
     );
     expect(verify).toHaveBeenCalledTimes(1);
     expect(verify.mock.calls[0]).toEqual([{ razorpay_payment_id: "pay_1", razorpay_order_id: "order_1", razorpay_signature: "sig" }]);

@@ -16,6 +16,7 @@
 
 import { VALIDITY_LABEL, VALIDITY_SHORT } from "../config/validity";
 import { confirmServerPrice, serverPriceFields, type ServerGst, razorpaySheetDescription } from "./priceConfirm";
+import { razorpayHangOption, watchSheetForHang } from "./payReturn";
 import { razorpayUpiFirstOption, type RazorpayDisplayConfig } from "./razorpayDisplay";
 // GST-INVOICE-1: "Your state" before the order (off by default: the body is byte-identical).
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
@@ -158,12 +159,16 @@ interface RazorpayOptions {
   config?: RazorpayDisplayConfig;
   /** PAY-RESCUE-1 - only values we already hold for the signed-in user; absent when we hold none. */
   prefill?: CheckoutPrefill;
+  /** PAY-HANG-1 - Razorpay's own sheet timeout (seconds); absent under VITE_PAY_HANG_DISABLED=1. */
+  timeout?: number;
   /** PAY-PHONE-1 - Razorpay's own read-only lock: the guest's number is shown but cannot be changed in the sheet. */
   readonly?: { contact?: boolean; email?: boolean };
 }
 
 interface RazorpayInstance {
   open(): void;
+  /** PAY-HANG-1 - Razorpay's own close(); optional so a fake / older instance never breaks checkout. */
+  close?(): void;
   /** Razorpay's event hook; `payment.failed` fires while the sheet stays open for a retry. */
   on?(event: "payment.failed", callback: () => void): void;
 }
@@ -440,6 +445,15 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, 
     writePayPending(order.orderId);
     let sawFailure = false;
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
+      // PAY-HANG-1: a buyer back from the UPI app to a sheet that keeps "waiting" gets a way out (signed-in: the existing status call).
+      const hang = watchSheetForHang({
+        order: { orderId: order.orderId },
+        item: { kind: "pass" },
+        signedInStatus: async () => {
+          const r = await checkPayStatus(order.orderId);
+          return r.state === "paid" ? "paid" : r.state === "pending" ? "pending" : r.state === "expired" ? "failed" : "unknown";
+        },
+      });
       const checkout = new Razorpay({
         key: order.keyId,
         // The amount is the SERVER's order amount — the checkout charges the order.
@@ -448,14 +462,24 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, 
         order_id: order.orderId,
         name: "LazyTopper",
         description: razorpaySheetDescription(passType === "month" ? "Premium pass for a month" : BOARD_PASS_CHECKOUT_DESCRIPTION, order),
-        handler: (response) => resolve(response),
-        modal: { ondismiss: () => resolve(null) },
+        handler: (response) => {
+          hang.stop();
+          resolve(response);
+        },
+        modal: {
+          ondismiss: () => {
+            hang.stop();
+            resolve(null);
+          },
+        },
         ...razorpayUpiFirstOption(),
+        ...razorpayHangOption(),
         ...prefillOption(prefill),
       });
       watchPaymentFailed(checkout, () => {
         sawFailure = true;
       });
+      hang.attach(checkout);
       checkout.open();
     });
     // PAY-RECOVER-1 — the marker is KEPT on dismiss: a UPI app can finish after the sheet closes.
