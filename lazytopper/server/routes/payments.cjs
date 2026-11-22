@@ -69,6 +69,7 @@ const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs')
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
 const { fire: fireServerEvent, signalsFor } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
+const { guardManualCapture, isUncapturedReason, razorpaySecondsMs, OWNERSHIP_READ_FAILED } = require('../services/lateAuthGuard.cjs'); // LATE-AUTH-GUARD-1
 
 /**
  * MONEY-DUPGUARD-1 - parentPay.cjs `coveredTillBoards`, the SAME function guest and parent pay use (not a copy). Read at
@@ -920,7 +921,24 @@ function createPaymentRoutes(deps = {}) {
     return true;
   }
 
-  async function fetchCapturedPayment(keys, paymentId, amountPaise, order) {
+  /** LATE-AUTH-GUARD-1 (b): does this order's buyer already own what it buys? Reuses the order route's own checks. Throws on a failed read. */
+  async function orderProductAlreadyOwned(order) {
+    if (!order || typeof order.uid !== 'string' || !order.uid) return false;
+    if (isPackProduct(order.passType)) return isAlreadyOwned(await listPacks(adminFirestore, order.uid), order.passType, order.packTarget);
+    if (Object.prototype.hasOwnProperty.call(PASS_TYPES, order.passType)) {
+      const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(order.uid).get();
+      return coveredTillBoards(snap && snap.exists ? snap.data() || {} : {}, now());
+    }
+    return false; // a top-up is consumable: buying it again is not a duplicate
+  }
+
+  /** LATE-AUTH-GUARD-1 (a): Razorpay's own order creation time, epoch ms or null. Asked only when our stored time is unreadable. */
+  async function razorpayOrderCreatedMs(keys, orderId) {
+    const r = await razorpay(keys, 'GET', `/orders/${orderId}`);
+    return r.ok && r.json ? razorpaySecondsMs(r.json.created_at) : null;
+  }
+
+  async function fetchCapturedPayment(keys, paymentId, amountPaise, order, orderId) {
     const fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
     if (!fetched.ok || !fetched.json) return { error: 'payment_fetch_failed', upstream: true };
     let payment = fetched.json;
@@ -938,6 +956,19 @@ function createPaymentRoutes(deps = {}) {
       // after the close, for a buyer who is not already a founder, is refused here BEFORE capture: the
       // authorization lapses and Razorpay releases it, so no money is taken for a pass we refuse.
       if (await refuseStaleFoundingOrder(order)) return { error: 'order_expired', upstream: false };
+      // LATE-AUTH-GUARD-1 - an authorisation outside Razorpay's auto-capture window, or for a product the buyer already owns, is
+      // never captured by us: left uncaptured, Razorpay refunds it. LATE_AUTH_GUARD_DISABLED=1 -> exactly the old behaviour.
+      const guard = await guardManualCapture({
+        env,
+        payment,
+        paymentId,
+        orderId: orderId || payment.order_id,
+        storedOrderCreatedAt: order && order.createdAt,
+        nowMs: now(),
+        readRazorpayOrderCreatedMs: (id) => razorpayOrderCreatedMs(keys, id),
+        isAlreadyOwned: () => orderProductAlreadyOwned(order),
+      });
+      if (!guard.capture) return { error: guard.error, upstream: guard.error === OWNERSHIP_READ_FAILED };
       // Capture for the STORED amount — the only amount this server ever charges.
       const captured = await razorpay(keys, 'POST', `/payments/${paymentId}/capture`, {
         amount: amountPaise,
@@ -993,7 +1024,7 @@ function createPaymentRoutes(deps = {}) {
     // 3. What Razorpay says was actually paid.
     let result;
     try {
-      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order);
+      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order, orderId);
     } catch (e) {
       emit('payments.verify.razorpay_unreachable');
       console.error('[pay/verify] razorpay unreachable:', e && e.message);
@@ -1003,6 +1034,11 @@ function createPaymentRoutes(deps = {}) {
     if (result.error === 'order_already_paid') {
       emit('payments.verify.late_auth_not_captured');
       return reject(res, 'verify', 'order_already_paid', { orderId, paymentId, status: order.status });
+    }
+    // LATE-AUTH-GUARD-1: left uncaptured on purpose (the bank refunds it) - no grant, a clear reason.
+    if (isUncapturedReason(result.error)) {
+      emit(`payments.verify.left_uncaptured.${result.error}`);
+      return reject(res, 'verify', result.error, { orderId, paymentId, status: order.status });
     }
     if (result.error) {
       emit(`payments.verify.${result.error}`);
@@ -1267,9 +1303,11 @@ function createPaymentRoutes(deps = {}) {
       if (paymentIdentityMismatch(item, { orderId, amountPaise })) continue;
       let payment = item;
       if (item.status === 'authorized') {
-        const result = await fetchCapturedPayment(keys, item.id, amountPaise, order);
+        const result = await fetchCapturedPayment(keys, item.id, amountPaise, order, orderId);
         // A stale authorized item must not hide a captured one later on the order: keep looking.
         if (result.error === 'order_expired') { sawExpired = true; continue; }
+        // LATE-AUTH-GUARD-1: left uncaptured on purpose (the bank refunds it); a captured payment later on the order still wins.
+        if (isUncapturedReason(result.error)) { emit(`payments.status.left_uncaptured.${result.error}`); continue; }
         // MONEY-DUPGUARD-1 (F3): a second authorisation on an order already paid by another payment is never captured.
         if (result.error === 'order_already_paid') { emit('payments.status.late_auth_not_captured'); continue; }
         if (result.error) return { upstream: result.error };

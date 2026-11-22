@@ -96,6 +96,7 @@ const { grantPack, listPacks, PackGrantInputError } = require('../services/packG
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
 const { fire: fireServerEvent, signalsFor } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
+const { guardManualCapture, isUncapturedReason, razorpaySecondsMs } = require('../services/lateAuthGuard.cjs'); // LATE-AUTH-GUARD-1
 
 const PARENT_LINK_PATH = '/api/pay/parent-link';
 const PARENT_VIEW_PATH = '/api/pay/parent/view';
@@ -370,8 +371,25 @@ function createParentPayRoutes(deps = {}) {
     return true;
   }
 
+  /**
+   * LATE-AUTH-GUARD-1 (b): is this a DUPLICATE purchase for the child? This order already paid by a different payment, another
+   * order of the same link already paid, or the child already owning it (the link route's own childOwnsPack /
+   * coveredTillBoards checks). Throws on a failed read.
+   */
+  async function parentOrderAlreadyCovered(order, orderId, paymentId) {
+    if (!order || typeof order.uid !== 'string' || !order.uid) return false;
+    if (order.status === 'paid' && typeof order.paymentId === 'string' && order.paymentId && order.paymentId !== paymentId) return true;
+    if (typeof order.parentLinkId === 'string' && order.parentLinkId) {
+      const paidOrderId = await linkAlreadyPaid(order.parentLinkId);
+      if (paidOrderId && paidOrderId !== orderId) return true;
+    }
+    if (isPackProduct(order.passType)) return childOwnsPack(order.uid, { sku: order.passType, target: order.packTarget });
+    if (Object.prototype.hasOwnProperty.call(PASS_TYPES, order.passType)) return coveredTillBoards(await readSubscription(order.uid), now());
+    return false;
+  }
+
   /** Same as payments.cjs fetchCapturedPayment: Razorpay's record, captured for the STORED amount. */
-  async function fetchCapturedPayment(keys, paymentId, amountPaise, order) {
+  async function fetchCapturedPayment(keys, paymentId, amountPaise, order, orderId) {
     const fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
     if (!fetched.ok || !fetched.json) return { error: 'payment_fetch_failed' };
     let payment = fetched.json;
@@ -379,6 +397,22 @@ function createParentPayRoutes(deps = {}) {
       // PRICING-1 — see payments.cjs (manual-capture path only; a captured payment is always honoured,
       // an existing founder is never refused): a stale founding order is not captured, the authorization lapses.
       if (await refuseStaleFoundingOrder(order)) return { error: 'order_expired' };
+      // LATE-AUTH-GUARD-1 - see payments.cjs: a late authorisation, or a duplicate purchase, is left uncaptured (Razorpay refunds it).
+      const forOrder = orderId || payment.order_id;
+      const guard = await guardManualCapture({
+        env,
+        payment,
+        paymentId,
+        orderId: forOrder,
+        storedOrderCreatedAt: order && order.createdAt,
+        nowMs: now(),
+        readRazorpayOrderCreatedMs: async (id) => {
+          const r = await razorpay(keys, 'GET', `/orders/${id}`);
+          return r.ok && r.json ? razorpaySecondsMs(r.json.created_at) : null;
+        },
+        isAlreadyOwned: () => parentOrderAlreadyCovered(order, forOrder, paymentId),
+      });
+      if (!guard.capture) return { error: guard.error };
       const captured = await razorpay(keys, 'POST', `/payments/${paymentId}/capture`, { amount: amountPaise, currency: CURRENCY });
       if (captured.ok && captured.json) {
         payment = captured.json;
@@ -964,13 +998,18 @@ function createParentPayRoutes(deps = {}) {
     // 3. What Razorpay says was actually paid.
     let result;
     try {
-      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order);
+      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order, orderId);
     } catch (e) {
       emit('payments.parent.verify.razorpay_unreachable');
       console.error('[pay/parent/verify] razorpay unreachable:', e && e.message);
       return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
     }
     if (result.error === 'order_expired') return reject(res, 'verify', 'order_expired');
+    // LATE-AUTH-GUARD-1: left uncaptured on purpose (the bank refunds it) - no grant, a clear reason.
+    if (isUncapturedReason(result.error)) {
+      emit(`payments.parent.verify.left_uncaptured.${result.error}`);
+      return reject(res, 'verify', result.error);
+    }
     if (result.error) {
       emit(`payments.parent.verify.${result.error}`);
       return sendJson(res, 502, { ok: false, error: 'Payment provider did not confirm the payment.' });

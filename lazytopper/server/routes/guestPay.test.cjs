@@ -3874,3 +3874,102 @@ test('PR · concurrent status calls alone: the purchase event, the invoice step 
   assert.equal(paidEvents, 1, 'a later status call fires nothing');
   assert.equal(receipts, 1);
 });
+
+/* ── LATE-AUTH-GUARD-1 · never capture a late-authorised guest payment ourselves (guest verify + PAY-RETURN order-status) ── */
+{
+  const MIN = 60 * 1000;
+  const secs = (msValue) => Math.floor(msValue / 1000);
+  const captures = (srv) => srv.rzp.calls.filter((c) => c.method === 'POST' && c.url.endsWith('/capture'));
+  async function lateGuest(t, { env = PR_ENV } = {}) {
+    const clock = { t: NOW };
+    const srv = await startRoutes({ env, nowFn: () => clock.t });
+    t.after(srv.close);
+    return { srv, clock };
+  }
+
+  test('LATE-AUTH · guest verify: a payment AUTHORISED 13 min after the order is NOT captured and NOT recorded', async (t) => {
+    const { srv, clock } = await lateGuest(t);
+    const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+    assert.equal(o.status, 200, o.text);
+    const p = srv.rzp.pay(o.json.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW + 13 * MIN);
+    clock.t = NOW + 13 * MIN + 20 * 1000;
+    const v = await guestVerify(srv, o.json.orderId, p.id);
+    assert.equal(v.status, 400, v.text);
+    assert.equal(v.json.reason, 'late_authorisation');
+    assert.equal(captures(srv).length, 0, 'the late authorisation was captured by us');
+    assert.equal(srv.rzp.payments.get(p.id).status, 'authorized');
+    assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'created');
+    assert.ok(srv.events.includes('payments.guest.verify.left_uncaptured.late_authorisation'));
+  });
+
+  test('LATE-AUTH · guest order-status (PAY-RETURN resume): a payment still authorised 15 min after it began is NOT captured; the buyer is told it failed', async (t) => {
+    const { srv, clock } = await lateGuest(t);
+    const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+    const p = srv.rzp.pay(o.json.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW + 1 * MIN);
+    clock.t = NOW + 16 * MIN;
+    const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+    assert.equal(r.status, 200, r.text);
+    assert.equal(r.json.status, 'failed');
+    assert.equal(r.json.reason, 'late_authorisation');
+    assert.equal(captures(srv).length, 0, 'the 30 s resume re-check captured a late authorisation');
+    assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'created');
+  });
+
+  test('LATE-AUTH · guest: a payment authorised 5 min after the order is captured and recorded exactly as today', async (t) => {
+    const { srv, clock } = await lateGuest(t);
+    const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+    const p = srv.rzp.pay(o.json.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW + 5 * MIN);
+    clock.t = NOW + 5 * MIN + 30 * 1000;
+    const v = await guestVerify(srv, o.json.orderId, p.id);
+    assert.equal(v.status, 200, v.text);
+    assert.equal(captures(srv).length, 1);
+    assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'paid_unclaimed');
+  });
+
+  test('LATE-AUTH · guest: a second order for a product the same number ALREADY PAID FOR is not captured (verify and order-status)', async (t) => {
+    const { srv } = await lateGuest(t);
+    // Two orders for the same pass and number, opened before either was paid (a hung sheet, then a fresh try).
+    const first = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+    const second = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+    assert.equal(second.status, 200, second.text);
+    assert.notEqual(first.json.orderId, second.json.orderId);
+    const paidFirst = srv.rzp.pay(first.json.orderId);
+    assert.equal((await guestVerify(srv, first.json.orderId, paidFirst.id)).status, 200);
+    // ...and then the first sheet's bank approves too.
+    const dup = srv.rzp.pay(second.json.orderId, { status: 'authorized' });
+    const v = await guestVerify(srv, second.json.orderId, dup.id);
+    assert.equal(v.status, 400, v.text);
+    assert.equal(v.json.reason, 'already_owned_uncaptured');
+    const r = await statusCall(srv, second.json.orderId, second.json.statusProof);
+    assert.equal(r.json.status, 'failed');
+    assert.equal(r.json.reason, 'already_owned_uncaptured');
+    assert.equal(captures(srv).length, 0, 'the duplicate purchase was captured');
+    assert.equal(srv.rzp.payments.get(dup.id).status, 'authorized');
+    assert.equal(srv.db.read(`payOrders/${second.json.orderId}`).status, 'created');
+  });
+
+  test('LATE-AUTH · guest: a payment Razorpay already CAPTURED (13 min late) is recorded exactly as today', async (t) => {
+    const { srv, clock } = await lateGuest(t);
+    const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+    const p = srv.rzp.pay(o.json.orderId);
+    p.created_at = secs(NOW + 13 * MIN);
+    clock.t = NOW + 14 * MIN;
+    const v = await guestVerify(srv, o.json.orderId, p.id);
+    assert.equal(v.status, 200, v.text);
+    assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'paid_unclaimed');
+  });
+
+  test('LATE-AUTH · guest kill switch LATE_AUTH_GUARD_DISABLED=1: a late authorisation is captured (the old behaviour)', async (t) => {
+    const { srv, clock } = await lateGuest(t, { env: { ...PR_ENV, LATE_AUTH_GUARD_DISABLED: '1' } });
+    const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+    const p = srv.rzp.pay(o.json.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW + 13 * MIN);
+    clock.t = NOW + 14 * MIN;
+    const v = await guestVerify(srv, o.json.orderId, p.id);
+    assert.equal(v.status, 200, v.text);
+    assert.equal(captures(srv).length, 1);
+  });
+}

@@ -1515,3 +1515,85 @@ test('TS-PRICE-2 · parent link: a founding-member child gets no exemption for a
   assert.equal(r.json.reason, 'order_expired');
   assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0);
 });
+
+/* ── LATE-AUTH-GUARD-1 · never capture a late-authorised parent payment ourselves ─────────────────────────────────────── */
+{
+  const MIN = 60 * 1000;
+  const secs = (msValue) => Math.floor(msValue / 1000);
+  const captures = (srv) => srv.rzp.calls.filter((c) => c.url.endsWith('/capture'));
+
+  test('LATE-AUTH · parent verify: a payment AUTHORISED 13 min after the order is NOT captured and NOT granted', async (t) => {
+    const srv = await startRoutes();
+    t.after(srv.close);
+    const { token } = await mint(srv);
+    const { json: o } = await parentOrder(srv, token);
+    const p = srv.rzp.pay(o.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW + 13 * MIN);
+    srv.clock.t = NOW + 13 * MIN + 20 * 1000;
+    const r = await parentVerify(srv, token, o.orderId, p.id);
+    assert.equal(r.status, 400, r.text);
+    assert.equal(r.json.reason, 'late_authorisation');
+    assert.equal(captures(srv).length, 0, 'the late authorisation was captured by us');
+    assert.equal(srv.rzp.payments.get(p.id).status, 'authorized');
+    assert.equal(srv.db.read('subscriptions/child1'), undefined);
+    assert.ok(srv.events.includes('payments.parent.verify.left_uncaptured.late_authorisation'));
+  });
+
+  test('LATE-AUTH · parent: a payment authorised 5 min after the order is captured and granted exactly as today', async (t) => {
+    const srv = await startRoutes();
+    t.after(srv.close);
+    const { token } = await mint(srv);
+    const { json: o } = await parentOrder(srv, token);
+    const p = srv.rzp.pay(o.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW + 5 * MIN);
+    srv.clock.t = NOW + 5 * MIN + 30 * 1000;
+    const r = await parentVerify(srv, token, o.orderId, p.id);
+    assert.equal(r.status, 200, r.text);
+    assert.equal(captures(srv).length, 1);
+    assert.equal(srv.db.read('subscriptions/child1').tier, 'premium');
+  });
+
+  test('LATE-AUTH · parent: a second order on a link ALREADY PAID by another order is not captured and not granted twice', async (t) => {
+    const srv = await startRoutes();
+    t.after(srv.close);
+    const { token } = await mint(srv);
+    const { json: a } = await parentOrder(srv, token);
+    const { json: b } = await parentOrder(srv, token);
+    assert.notEqual(a.orderId, b.orderId);
+    const paidA = srv.rzp.pay(a.orderId);
+    assert.equal((await parentVerify(srv, token, a.orderId, paidA.id)).status, 200);
+    const dup = srv.rzp.pay(b.orderId, { status: 'authorized' });
+    const r = await parentVerify(srv, token, b.orderId, dup.id);
+    assert.equal(r.status, 400, r.text);
+    assert.equal(r.json.reason, 'already_owned_uncaptured');
+    assert.equal(captures(srv).length, 0, 'the duplicate purchase was captured');
+    assert.equal(srv.rzp.payments.get(dup.id).status, 'authorized');
+    assert.equal(srv.db.read(`payOrders/${b.orderId}`).status, 'created');
+  });
+
+  test('LATE-AUTH · parent: a payment Razorpay already CAPTURED (13 min late) is granted exactly as today', async (t) => {
+    const srv = await startRoutes();
+    t.after(srv.close);
+    const { token } = await mint(srv);
+    const { json: o } = await parentOrder(srv, token);
+    const p = srv.rzp.pay(o.orderId);
+    p.created_at = secs(NOW + 13 * MIN);
+    srv.clock.t = NOW + 14 * MIN;
+    const r = await parentVerify(srv, token, o.orderId, p.id);
+    assert.equal(r.status, 200, r.text);
+    assert.equal(srv.db.read('subscriptions/child1').tier, 'premium');
+  });
+
+  test('LATE-AUTH · parent kill switch LATE_AUTH_GUARD_DISABLED=1: a late authorisation is captured (the old behaviour)', async (t) => {
+    const srv = await startRoutes({ env: { ...ENV_ON, LATE_AUTH_GUARD_DISABLED: '1' } });
+    t.after(srv.close);
+    const { token } = await mint(srv);
+    const { json: o } = await parentOrder(srv, token);
+    const p = srv.rzp.pay(o.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW + 13 * MIN);
+    srv.clock.t = NOW + 14 * MIN;
+    const r = await parentVerify(srv, token, o.orderId, p.id);
+    assert.equal(r.status, 200, r.text);
+    assert.equal(captures(srv).length, 1);
+  });
+}
