@@ -188,7 +188,7 @@ type PayPlacement = "hero" | "second" | "sticky";
 function PayButton({ placement, onPay }: { placement: PayPlacement; onPay: (placement: PayPlacement) => void }) {
   const mounted = useMounted();
   return (
-    <button type="button" className="lt-fp__pay" onClick={() => onPay(placement)} aria-haspopup="dialog" data-testid={`fp-pay-${placement}`} data-checkout-buy="">
+    <button type="button" className="lt-fp__pay" onClick={() => onPay(placement)} aria-haspopup="dialog" data-checkout-buy="" data-testid={`fp-pay-${placement}`}>
       {mounted ? `${PAY_LABEL} · ${boardPassPayDisplay()}` : PAY_LABEL}
     </button>
   );
@@ -348,7 +348,7 @@ export default function ForParentsPage() {
   const [payOpen, setPayOpen] = useState(false);
   const mounted = useMounted();
 
-  // CHECKOUT-FAST-1: on INTENT only (first touch, or the Pay button in view; never idle) open Razorpay's connections and load checkout.js (no order). Off: VITE_CHECKOUT_WARM_DISABLED=1.
+  // CHECKOUT-FAST-1: on INTENT only (first touch, or a Pay button in view after the first scroll; never idle) open Razorpay's connections and load checkout.js (no order). Off: VITE_CHECKOUT_WARM_DISABLED=1.
   useEffect(() => {
     warmCheckoutOnPage();
   }, []);
