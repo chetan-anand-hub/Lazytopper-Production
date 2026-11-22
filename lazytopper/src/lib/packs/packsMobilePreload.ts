@@ -10,7 +10,7 @@
  * Kill switch: VITE_PACKS_MOBILE_PRELOAD_DISABLED=1 (build env) makes everything here a no-op.
  *
  * CHECKOUT-FAST-1: /test-series, /board-pass and /for-parents warm too, but ONLY ON INTENT (`intentOnly`): the first touch / pointer press
- * anywhere, or the first buy button scrolling into view - never on idle (Razorpay's iframe bundle is a long task on a low-end phone).
+ * anywhere, or a buy button in view after the first scroll - never on idle (Razorpay's iframe bundle is a long task on a low-end phone).
  * /packs and /cbq-packs keep the idle warm-up exactly as PACKS-MOBILE-1 had it. Kill switch: VITE_CHECKOUT_WARM_DISABLED=1.
  */
 
@@ -127,18 +127,25 @@ export function schedulePacksWarmup(deps: PacksWarmupDeps): () => void {
   };
   // CHECKOUT-FAST-1: the first buy button to scroll into view is as strong a signal as idle - whichever comes first.
   let observer: IntersectionObserver | null = null;
+  let onScroll: (() => void) | null = null;
   const watchBuyButtons = () => {
     const IO = (win as unknown as { IntersectionObserver?: typeof IntersectionObserver }).IntersectionObserver;
     if (!deps.intentOnly || isCheckoutWarmDisabled() || typeof IO !== "function") return;
-    const buttons = doc.querySelectorAll(`[${CHECKOUT_BUY_ATTR}]`);
-    if (buttons.length === 0) return;
-    observer = new IO((entries) => {
-      if (!entries.some((e) => e.isIntersecting)) return;
-      observer?.disconnect();
-      observer = null;
-      onIdle();
-    });
-    buttons.forEach((b) => observer?.observe(b));
+    // A buy button already in view at load does NOT warm (that would be a load-time fetch): the observer is armed by the FIRST SCROLL,
+    // so "a buy button scrolled into view" means the student is moving toward it.
+    onScroll = () => {
+      onScroll = null;
+      const buttons = doc.querySelectorAll(`[${CHECKOUT_BUY_ATTR}]`);
+      if (buttons.length === 0 || cancelled || scriptLoaded) return;
+      observer = new IO((entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        observer?.disconnect();
+        observer = null;
+        onIdle();
+      });
+      buttons.forEach((b) => observer?.observe(b));
+    };
+    win.addEventListener("scroll", onScroll, { once: true, passive: true });
   };
   const afterLoad = () => {
     if (cancelled) return;
@@ -154,6 +161,7 @@ export function schedulePacksWarmup(deps: PacksWarmupDeps): () => void {
   return () => {
     cancelled = true;
     observer?.disconnect();
+    if (onScroll) win.removeEventListener("scroll", onScroll);
     detachTouch();
     win.removeEventListener("load", afterLoad);
     if (idleHandle !== null) win.cancelIdleCallback?.(idleHandle);

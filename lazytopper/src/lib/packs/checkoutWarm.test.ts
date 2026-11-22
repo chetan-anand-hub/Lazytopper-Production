@@ -84,11 +84,14 @@ describe("CHECKOUT-FAST-1 - when checkout.js is fetched (intent only on the new 
     expect(preloadChunks).not.toHaveBeenCalled();
   });
 
-  it("intentOnly: the first buy button scrolling into view warms (off-screen does not); then touch does not repeat it", () => {
+  it("intentOnly: a buy button already in view at load does NOT warm; after the first scroll, a buy button in view does (once); touch then does not repeat it", () => {
     const h = harness();
     const btn = withButton(h);
     const loadScript = vi.fn(() => Promise.resolve(null));
     schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks: vi.fn(), loadScript, intentOnly: true });
+    expect(h.observed).toHaveLength(0); // nothing observed at load - a visible button is not a reason to fetch
+    expect(loadScript).not.toHaveBeenCalled();
+    h.listeners.get("scroll")?.();
     expect(h.observed).toEqual([btn]);
     h.intersect(false);
     expect(loadScript).not.toHaveBeenCalled();
@@ -118,12 +121,12 @@ describe("CHECKOUT-FAST-1 - when checkout.js is fetched (intent only on the new 
     expect(loadScript).not.toHaveBeenCalled();
   });
 
-  it("the default (the /packs and /cbq-packs warm-up) is exactly PACKS-MOBILE-1: idle schedules it, the viewport trigger is NOT used", () => {
+  it("the default (the /packs and /cbq-packs warm-up) is exactly PACKS-MOBILE-1: idle schedules it, no scroll trigger is armed", () => {
     const h = harness();
     withButton(h);
     const loadScript = vi.fn(() => Promise.resolve(null));
     schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks: vi.fn(), loadScript });
-    expect(h.observed).toHaveLength(0);
+    expect(h.listeners.has("scroll")).toBe(false);
     expect(h.idle).toHaveLength(1);
     h.idle[0]();
     expect(loadScript).toHaveBeenCalledTimes(1);
@@ -134,6 +137,7 @@ describe("CHECKOUT-FAST-1 - when checkout.js is fetched (intent only on the new 
     const h = harness();
     withButton(h);
     schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks: vi.fn(), loadScript: () => Promise.resolve(null), intentOnly: true });
+    expect(h.listeners.has("scroll")).toBe(false);
     expect(h.observed).toHaveLength(0);
   });
 
