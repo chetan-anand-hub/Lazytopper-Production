@@ -25,7 +25,7 @@ const record = (id: string, ws: string) => ({
   status: "partial",
   fourType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
   sectionBreakdown: null,
-  gradedAt: Date.UTC(2026, 10, 15),
+  gradedAt: 1794700800000 /* 15 Nov 2026 */,
   perQuestionRef: `ct:${id}`,
   dedupKey: `${UID}::${id}`,
 });
@@ -38,7 +38,7 @@ const payload = (id: string, ws: string, rows: object[]) => ({
   code: id,
   worksheetId: ws,
   surface: "chapter-test",
-  gradedAt: Date.UTC(2026, 10, 15),
+  gradedAt: 1794700800000 /* 15 Nov 2026 */,
   response: { ok: true, results: rows, totalQuestions: 2, gradedCount: rows.filter((r) => !(r as { couldNotRead?: boolean }).couldNotRead).length, pendingCount: 0, gradedMarksAwarded: 3, gradedMarksTotal: 4, worksheetTotalMarks: 4 },
 });
 

@@ -102,7 +102,7 @@ function rec(over: Partial<SessionRecord> = {}): SessionRecord {
     status: "partial",
     fourType: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 },
     sectionBreakdown: null,
-    gradedAt: Date.UTC(2026, 10, 18),
+    gradedAt: 1794960000000 /* 18 Nov 2026 */,
     perQuestionRef: "ct:CT-M-QUAD-01",
     dedupKey: `${UID}::CT-M-QUAD-01`,
     ...over,
