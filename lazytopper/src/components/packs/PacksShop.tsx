@@ -303,6 +303,10 @@ export interface PacksShopApi {
   buyEnabled: boolean;
   /** True while ANOTHER pack's payment is open or being checked: this Buy waits ("Finishing your other payment…"). */
   blockedBy: (sku: PackSku, target?: string) => boolean;
+  /** INAPP-PAY-CHOICE-1: auth has settled and nobody is signed in (the tile's extra in-app option shows only then). */
+  signedOut?: boolean;
+  /** INAPP-PAY-CHOICE-1: this pack's closed-checkout rescue card is showing (the tile's extra option steps aside). */
+  rescueShowing?: (sku: PackSku, target?: string) => boolean;
   /**
    * PARENT-PACKS-1 - "Forward link to parents" (+ "Share QR code" unless `noQr`) for this pack: a link that carries ONLY this pack,
    * minted by the server for the signed-in student. null when it does not apply (signed out, packs dark, owned, paying).
@@ -941,7 +945,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           {label}
         </button>
         {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Buy (never replaces it). */}
-        {enabled && ready && !isOwned && !busy && !confirming && !blocked && (
+        {enabled && ready && !isOwned && !busy && !confirming && !blocked && !dismissed && !signedIn && !authLoading && (
           <InAppPayChoice buy={{ kind: "pack", sku, ...(target && !packHasNoTarget(sku) ? { target } : {}) }} />
         )}
         {whoEnabled && !checkoutAudience && signedIn && enabled && ready && !isOwned && !busy && !confirming && !blocked && (
@@ -1290,7 +1294,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           {label}
         </button>
         {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Buy (never replaces it). */}
-        {!off && <InAppPayChoice buy={{ kind: "pack", sku }} />}
+        {!off && !signedIn && !authLoading && !(mine_ && buy.phase === "dismissed") && <InAppPayChoice buy={{ kind: "pack", sku }} />}
         {o.showStatus !== false && blocked && <p className={o.noteClass} role="status" data-testid="packs-other-busy">{OTHER_PAYMENT_BUSY_COPY}</p>}
         {o.showStatus !== false && confirming && <p className={o.noteClass} role="status">{PACK_STILL_CONFIRMING_COPY}</p>}
         {o.showStatus !== false && mine_ && buy.phase === "failed" && <p className={`${o.noteClass} ${o.noteClass}--bad`} role="alert">{PACK_FAILED_COPY}</p>}
@@ -1337,6 +1341,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     buyEnabled: enabled,
     // Review fix 2: another pack's checkout is open or being checked - every other Buy waits.
     blockedBy: (sku, target) => otherBusy(sku === "pack_chapter" && !target ? "" : packIdOf(sku, target)),
+    signedOut: !signedIn && !authLoading,
+    rescueShowing: (sku, target) => buy.key === packIdOf(sku, target) && buy.phase === "dismissed",
     parentAsk: (sku, target, opts) => parentAskFor(sku, target, opts),
     openSku,
     subject,

@@ -12,6 +12,7 @@ import InAppPayChoice, {
   INAPP_CHOICE_COPIED_IOS,
   INAPP_CHOICE_COPIED_OTHER,
   inAppChoiceSurface,
+  resetInAppPayChoiceShown,
 } from "./InAppPayChoice";
 import { currentInAppPayChoice, iosSafariSupported, inAppChoiceUrl } from "../../utils/inAppPay";
 import { readBuyResume } from "../packs/PacksShop";
@@ -21,13 +22,18 @@ const UA = {
   igIos17: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/21C62 Instagram 310.0.0.37.109",
   fbIos16: "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/20G75 [FBAN/FBIOS;FBAV/450.0.0.38.108;FBDV/iPhone12,1]",
   fbAndroid: "Mozilla/5.0 (Linux; Android 12; Pixel 6 Build/SD1A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/119.0.0.0 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/450.0.0.38.108;]",
+  ytAndroid: "Mozilla/5.0 (Linux; Android 13; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Mobile Safari/537.36 com.google.android.youtube/19.30.4 (Linux; Android 13; SM-S901B) gzip",
+  ytIos: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Safari/604.1 com.google.ios.youtube/20.31.6 (iPhone14,5; U; CPU iOS 17_2 like Mac OS X)",
   chrome: "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
   safari: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1",
 };
 const HREF = "https://www.lazytopper.com/packs?utm_source=instagram&utm_campaign=c1&fbclid=zz&gclid=gg";
 const setUa = (ua: string) => Object.defineProperty(navigator, "userAgent", { value: ua, configurable: true });
 
-beforeEach(() => onboarding.mockReset());
+beforeEach(() => {
+  onboarding.mockReset();
+  resetInAppPayChoiceShown();
+});
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
@@ -39,6 +45,8 @@ describe("INAPP-PAY-CHOICE-1 detection matrix (real navigator.userAgent)", () =>
     ["Instagram iOS", UA.igIos17, "instagram", "ios"],
     ["Facebook iOS", UA.fbIos16, "facebook", "ios"],
     ["Facebook Android", UA.fbAndroid, "facebook", "android"],
+    ["YouTube Android", UA.ytAndroid, "youtube", "android"],
+    ["YouTube iOS", UA.ytIos, "youtube", "ios"],
   ])("%s -> option shown", (_n, ua, app, platform) => {
     setUa(ua);
     expect(currentInAppPayChoice()).toEqual({ app, platform });
@@ -144,6 +152,14 @@ describe("INAPP-PAY-CHOICE-1 the link reopens the same item, carries attribution
     expect(u.searchParams.has("gclid")).toBe(false);
     expect(u.searchParams.has("email")).toBe(false);
     expect(u.searchParams.has("utm_medium")).toBe(false);
+    expect(u.searchParams.get("via")).toBe("inapp");
+  });
+  it("no item (/for-parents): the link is the page itself, any ?buy= dropped, never /board-pass", () => {
+    const u = new URL(inAppChoiceUrl("https://www.lazytopper.com/for-parents?utm_source=ig&buy=board_pass&t=x", undefined, [])!);
+    expect(u.pathname).toBe("/for-parents");
+    expect(u.searchParams.has("buy")).toBe(false);
+    expect(u.searchParams.has("t")).toBe(false);
+    expect(u.searchParams.get("utm_source")).toBe("ig");
     expect(u.searchParams.get("via")).toBe("inapp");
   });
   it("a non-http(s) page gives no link; surface slugs", () => {

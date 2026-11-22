@@ -5,6 +5,7 @@
  *   iOS 17+ -> "Pay in Safari" (x-safari-https) + "Copy payment link"; older iOS -> copy only
  *   other   -> "Copy payment link"
  * The link keeps the page's utm_* / fbclid / gclid, adds the stored first-touch utm_* and `via=inapp`. No personal data in it.
+ * Callers render it for SIGNED-OUT visitors only (a signed-in buyer who hops to Chrome arrives signed out and loses account pricing).
  * Renders nothing in a normal browser, or with VITE_INAPP_PAY_CHOICE_DISABLED=1 / VITE_INAPP_PAY_DISABLED=1. Touches no price, order or verification.
  */
 import { useEffect, useRef, useState } from "react";
@@ -39,9 +40,15 @@ export function inAppChoiceSurface(pathname: string): string {
   return "other";
 }
 
+/** At most one `inapp_pay_choice_shown` per page view, however many buttons render the option. Test seam: reset. */
+let choiceShownSent = false;
+export function resetInAppPayChoiceShown(): void {
+  choiceShownSent = false;
+}
+
 export interface InAppPayChoiceProps {
-  /** The item this Buy / Pay is for: reopened by `?buy=` in the real browser. */
-  buy: InAppBuyTarget;
+  /** The item this Buy / Pay is for: reopened by `?buy=` in the real browser. Absent (/for-parents): the link is the page itself, no `?buy=`. */
+  buy?: InAppBuyTarget;
   surface?: string;
   /** Test seams: detected app/platform (null = normal browser), this page's URL, the UA and the stored first-touch params. */
   inApp?: InAppPayDetected | null;
@@ -58,6 +65,8 @@ export default function InAppPayChoice({ buy, surface, inApp, href, userAgent, s
   useEffect(() => {
     if (!detected || shown.current) return;
     shown.current = true;
+    if (choiceShownSent) return;
+    choiceShownSent = true;
     trackOnboardingEvent("inapp_pay_choice_shown", { app: detected.app, platform: detected.platform, surface: where });
   }, [detected, where]);
   if (!detected) return null;

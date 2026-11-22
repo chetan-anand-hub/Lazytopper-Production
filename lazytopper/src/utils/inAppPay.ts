@@ -119,7 +119,7 @@ export const INAPP_CHOICE_MARKER = ["via", "inapp"] as const;
 const CHOICE_SOURCE_KEYS = new Set(["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "lt_clk"]);
 
 /**
- * The https URL the real browser opens: inAppRescueUrl (this page's path + query incl. utm_* / fbclid / gclid, `?buy=` for the item)
+ * The https URL the real browser opens (the page itself when `buy` is absent): inAppRescueUrl (this page's path + query incl. utm_* / fbclid / gclid, `?buy=` for the item)
  * + the stored first-touch utm_* when the URL lacks them + `via=inapp`. Null if href is not http(s).
  */
 export function inAppChoiceUrl(
@@ -130,6 +130,11 @@ export function inAppChoiceUrl(
   const base = inAppRescueUrl(href, buy);
   if (!base) return null;
   const url = new URL(base);
+  // No item (/for-parents): the link is the page itself, never a checkout arrival; the parent taps Pay again in the real browser.
+  if (!buy) {
+    url.searchParams.delete("buy");
+    url.searchParams.delete("t");
+  }
   for (const [key, value] of sourceParams) {
     if (!CHOICE_SOURCE_KEYS.has(key) || url.searchParams.has(key)) continue;
     if (typeof value !== "string" || !/^[A-Za-z0-9_.\-{},]{1,64}$/.test(value)) continue;

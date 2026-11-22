@@ -71,10 +71,13 @@ const loadCheckoutSheet = () => import("../components/checkoutWho/CheckoutSheet"
 const InAppPayChoice = lazy(() => import("../components/payRescue/InAppPayChoice"));
 function InAppChoiceSlot() {
   const mounted = useMounted();
-  if (!mounted || !currentInAppPayChoice()) return null;
+  const { user, loading } = useAuth();
+  if (!mounted || loading || (Boolean(user) && !user?.isLocalSession) || !currentInAppPayChoice()) return null;
+  // No `?buy=`: the link is /for-parents itself, so the parent taps Pay again in the real browser and gets the PARENT sheet
+  // (a /board-pass?buy=board_pass hand-over would open the student's "Buy for yourself" sheet).
   return (
     <Suspense fallback={null}>
-      <InAppPayChoice buy={{ kind: "pass" }} surface="for_parents" />
+      <InAppPayChoice surface="for_parents" />
     </Suspense>
   );
 }

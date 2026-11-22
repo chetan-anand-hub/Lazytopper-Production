@@ -5,16 +5,23 @@ import { MemoryRouter } from "react-router-dom";
 
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 vi.mock("../../services/activityClient", () => ({ recordActivity: vi.fn() }));
-vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
+const auth = vi.hoisted(() => ({ user: null as null | { uid: string } }));
+vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
 vi.mock("../../services/packs", async (orig) => {
   const actual = await orig<typeof import("../../services/packs")>();
   return { ...actual, isPacksClientEnabled: () => true, fetchMyPacks: vi.fn(), buyPack: vi.fn(), checkPackOrder: vi.fn() };
 });
 vi.mock("../../lib/packs/packContent", () => ({ loadChapter: async () => undefined, countChapterQuestions: () => 100, countCbqPackQuestions: () => 50 }));
 vi.mock("../../pages/PackDialog", () => ({ default: () => null }));
+const onboarding = vi.hoisted(() => vi.fn());
+vi.mock("../../analytics/analytics", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../analytics/analytics")>()),
+  trackOnboardingEvent: onboarding,
+}));
 
 import PacksShop from "./PacksShop";
 import { PassCheckoutView } from "../pricing/PassCheckout";
+import { resetInAppPayChoiceShown } from "../payRescue/InAppPayChoice";
 
 const IG_ANDROID =
   "Mozilla/5.0 (Linux; Android 13; SM-A546E Build/TP1A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/120.0.0.0 Mobile Safari/537.36 Instagram 310.0.0.37.109 Android";
@@ -22,6 +29,9 @@ const CHROME = "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHT
 const setUa = (ua: string) => Object.defineProperty(navigator, "userAgent", { value: ua, configurable: true });
 
 beforeEach(() => {
+  onboarding.mockReset();
+  auth.user = null;
+  resetInAppPayChoiceShown();
   window.history.pushState({}, "", "/test-series?utm_source=instagram&fbclid=zz");
   vi.stubEnv("VITE_PAYMENTS_ENABLED", "true");
 });
@@ -39,10 +49,10 @@ function shop() {
     </MemoryRouter>,
   );
 }
-function pass() {
+function pass(o: { signedIn?: boolean; tsUpgrade?: { creditInr: number; fullBaseInr: number; baseInr: number; gstInr: number; payInr: number } } = {}) {
   return render(
     <MemoryRouter>
-      <PassCheckoutView signedIn offerOpen activePassEnd={null} onSignIn={() => undefined} onBuy={async () => ({ status: "dismissed" })} />
+      <PassCheckoutView signedIn={o.signedIn ?? false} inAppChoice={!o.signedIn} {...(o.tsUpgrade ? { tsUpgrade: o.tsUpgrade } : {})} offerOpen activePassEnd={null} onSignIn={() => undefined} onBuy={async () => ({ status: "dismissed" })} />
     </MemoryRouter>,
   );
 }
@@ -73,5 +83,29 @@ describe("INAPP-PAY-CHOICE-1 call sites", () => {
     shop();
     pass();
     expect(screen.queryByTestId("inapp-pay-choice")).toBeNull();
+  });
+
+  it("signed-in buyer (even a Test Series owner with the upgrade price): no option, on the pass Pay and the shop Buy", () => {
+    setUa(IG_ANDROID);
+    auth.user = { uid: "u1" };
+    pass({ signedIn: true, tsUpgrade: { creditInr: 999, fullBaseInr: 1917, baseInr: 918, gstInr: 165, payInr: 1083 } });
+    shop();
+    expect(screen.queryByTestId("inapp-pay-choice")).toBeNull();
+  });
+  it("PassCheckoutView without the page's auth-settled flag renders none (no flash while auth loads)", () => {
+    setUa(IG_ANDROID);
+    render(
+      <MemoryRouter>
+        <PassCheckoutView signedIn={false} offerOpen activePassEnd={null} onSignIn={() => undefined} onBuy={async () => ({ status: "dismissed" })} />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByTestId("inapp-pay-choice")).toBeNull();
+  });
+  it("inapp_pay_choice_shown fires at most once per page view across several buttons", () => {
+    setUa(IG_ANDROID);
+    shop();
+    shop();
+    pass();
+    expect(onboarding.mock.calls.filter((c) => c[0] === "inapp_pay_choice_shown")).toHaveLength(1);
   });
 });
