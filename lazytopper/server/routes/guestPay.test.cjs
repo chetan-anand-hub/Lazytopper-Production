@@ -3875,7 +3875,87 @@ test('PR · concurrent status calls alone: the purchase event, the invoice step 
   assert.equal(receipts, 1);
 });
 
-/* ══ CHECKOUT-FAST-1 · the order routes' critical path + the kept-alive Razorpay transport ═════════
+/* ══ CHECKOUT-FAST-1 · the order routes' critical path (parallel independent reads) ═════════
  * Kept in their own files (not *.test.cjs, so each is gated through THIS wired suite - the ci_docs_lane a15 rule). */
 require('./orderTiming.cases.cjs');
 require('../services/payOrderTiming.cases.cjs');
+/* ── LATE-AUTH-GUARD-1 v1.1 · guest verify + PAY-RETURN order-status: payment age only; a refusal is PENDING ──────────── */
+{
+  const MIN = 60 * 1000;
+  const secs = (msValue) => Math.floor(msValue / 1000);
+  const captures = (srv) => srv.rzp.calls.filter((c) => c.method === 'POST' && c.url.endsWith('/capture'));
+  async function lateGuest(t, { env = PR_ENV } = {}) {
+    const clock = { t: NOW };
+    const srv = await startRoutes({ env, nowFn: () => clock.t });
+    t.after(srv.close);
+    const o = await guestOrder(srv, { sku: 'till_boards', phone: PHONE });
+    assert.equal(o.status, 200, o.text);
+    return { srv, clock, o };
+  }
+
+  test('LATE-AUTH · guest: a 20-minute-old order + a fresh payment authorised within seconds is captured and recorded', async (t) => {
+    const { srv, clock, o } = await lateGuest(t);
+    clock.t = NOW + 20 * MIN;
+    const p = srv.rzp.pay(o.json.orderId, { status: 'authorized' });
+    p.created_at = secs(clock.t - 5 * 1000);
+    const v = await guestVerify(srv, o.json.orderId, p.id);
+    assert.equal(v.status, 200, v.text);
+    assert.equal(captures(srv).length, 1);
+    assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'paid_unclaimed');
+  });
+
+  test('LATE-AUTH · guest order-status: authorised 11:30 after it began, still authorised at 11:35 -> PENDING (not failed), not captured', async (t) => {
+    const { srv, clock, o } = await lateGuest(t);
+    const p = srv.rzp.pay(o.json.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW);
+    clock.t = NOW + 11 * MIN + 35 * 1000;
+    const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+    assert.equal(r.status, 200, r.text);
+    assert.deepEqual([r.json.status, r.json.reason], ['pending', 'awaiting_bank']);
+    assert.equal(captures(srv).length, 0);
+    assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'created');
+  });
+
+  test('LATE-AUTH · guest: still authorised at 13 min -> verify and order-status PENDING, never captured; Razorpay\'s refund then reads FAILED', async (t) => {
+    const { srv, clock, o } = await lateGuest(t);
+    const p = srv.rzp.pay(o.json.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW);
+    clock.t = NOW + 13 * MIN;
+    const v = await guestVerify(srv, o.json.orderId, p.id);
+    assert.equal(v.status, 202, v.text);
+    assert.deepEqual(v.json, { ok: false, status: 'pending', reason: 'awaiting_bank' }, 'a refused capture is never "rejected"');
+    const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+    assert.deepEqual([r.json.status, r.json.reason], ['pending', 'awaiting_bank']);
+    assert.equal(captures(srv).length, 0, 'a late authorisation was captured by us');
+    assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'created');
+    assert.ok(srv.events.includes('payments.guest.verify.left_uncaptured'));
+    // Razorpay refunds the late authorisation: the pending order can now end.
+    srv.rzp.payments.get(p.id).status = 'refunded';
+    clock.t = NOW + 20 * MIN;
+    const after = await statusCall(srv, o.json.orderId, o.json.statusProof);
+    assert.deepEqual([after.json.status, after.json.reason], ['failed', 'refunded']);
+    assert.equal(captures(srv).length, 0);
+  });
+
+  test('LATE-AUTH · guest: a payment Razorpay already CAPTURED (13 min old) is recorded exactly as today (verify and order-status)', async (t) => {
+    const { srv, clock, o } = await lateGuest(t);
+    const p = srv.rzp.pay(o.json.orderId);
+    p.created_at = secs(NOW);
+    clock.t = NOW + 13 * MIN;
+    const r = await statusCall(srv, o.json.orderId, o.json.statusProof);
+    assert.equal(r.json.status, 'paid_unclaimed', r.text);
+    const v = await guestVerify(srv, o.json.orderId, p.id);
+    assert.equal(v.status, 200, v.text);
+  });
+
+  test('LATE-AUTH · guest kill switch LATE_AUTH_GUARD_DISABLED=1: a 13-min-old authorisation is captured (exactly the old behaviour)', async (t) => {
+    const { srv, clock, o } = await lateGuest(t, { env: { ...PR_ENV, LATE_AUTH_GUARD_DISABLED: '1' } });
+    const p = srv.rzp.pay(o.json.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW);
+    clock.t = NOW + 13 * MIN;
+    const v = await guestVerify(srv, o.json.orderId, p.id);
+    assert.equal(v.status, 200, v.text);
+    assert.equal(captures(srv).length, 1);
+    assert.equal(srv.db.read(`payOrders/${o.json.orderId}`).status, 'paid_unclaimed');
+  });
+}

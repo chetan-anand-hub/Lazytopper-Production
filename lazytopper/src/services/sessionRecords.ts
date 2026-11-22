@@ -1204,6 +1204,32 @@ export async function getSessionPerQuestion(
   }
 }
 
+/** RESULT-LIST-BACKFILL-1 (ADDITIVE, READ-ONLY) - the device mirror's payloads by ref, parsed ONCE
+ *  (a caller looks up many refs in the one map). Synchronous (localStorage only, no network). */
+export function readLocalSessionPerQuestionMap(uid: string | null | undefined): Readonly<Record<string, SessionPerQuestionPayload>> {
+  const id = readableUid(uid);
+  return id ? readLocalPayloads(id) : {};
+}
+
+/** RESULT-LIST-BACKFILL-1 (ADDITIVE, READ-ONLY) - ONE payload doc read by its id (the same
+ *  `sessionRecords/{uid}/perQuestion/{ref}` doc `writeSessionPerQuestion` writes), never the whole
+ *  collection. null when absent, another ref's, Firestore is off or the read fails. Never writes. */
+export async function getSessionPerQuestionDocFromCloud(
+  uid: string | null | undefined,
+  ref: string,
+): Promise<SessionPerQuestionPayload | null> {
+  const id = readableUid(uid);
+  if (!id || !ref || !isFirestoreEnabled()) return null;
+  try {
+    const snap = await withFirestore(({ fs, db }) => fs.getDoc(fs.doc(db, "sessionRecords", id, "perQuestion", sanitizeDocId(ref))));
+    if (!snap.exists()) return null;
+    const p = snap.data() as SessionPerQuestionPayload | undefined;
+    return p && p.ref === ref ? p : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * PR-B (ADDITIVE, READ-ONLY): fetch ALL per-question payloads for a uid in ONE
  * cloud round-trip, so the progress aggregator can join per-question marks →

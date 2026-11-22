@@ -58,10 +58,29 @@ import {
 } from "../config/forParentsPage";
 import "./forParents.css";
 import PayReturnResume from "../components/payReturn/PayReturnResume";
+import { currentInAppPayChoice } from "../utils/inAppPay";
 
 /** The signed-out Board Pass checkout (pay first, then "Who will use it?"), lazy: fetched when the page is idle, opened on a Pay tap. */
 const CheckoutSheet = lazy(() => import("../components/checkoutWho/CheckoutSheet"));
 const loadCheckoutSheet = () => import("../components/checkoutWho/CheckoutSheet");
+
+/**
+ * INAPP-PAY-CHOICE-1: the extra "Pay in Chrome / Safari" under a Pay button, in an in-app browser only. Its own lazy chunk, fetched
+ * ONLY when the page really runs in Instagram / Facebook / YouTube's browser (so a normal visit adds no request, CSS or JS).
+ */
+const InAppPayChoice = lazy(() => import("../components/payRescue/InAppPayChoice"));
+function InAppChoiceSlot() {
+  const mounted = useMounted();
+  const { user, loading } = useAuth();
+  if (!mounted || loading || (Boolean(user) && !user?.isLocalSession) || !currentInAppPayChoice()) return null;
+  // No `?buy=`: the link is /for-parents itself, so the parent taps Pay again in the real browser and gets the PARENT sheet
+  // (a /board-pass?buy=board_pass hand-over would open the student's "Buy for yourself" sheet).
+  return (
+    <Suspense fallback={null}>
+      <InAppPayChoice surface="for_parents" />
+    </Suspense>
+  );
+}
 
 /**
  * ForParentsPage - `/for-parents`, rebuilt for sales (PARENTS-V2-1, owner 12 Nov 2026; approved mock-up). One Pay, four times: the hero
@@ -188,6 +207,7 @@ function PriceCard({ onPay }: { onPay: (placement: PayPlacement) => void }) {
       <p className="lt-fp__card-once">{card?.once ?? ""}</p>
       <p className="lt-fp__card-deadline" data-testid="fp-price-deadline">{card?.deadline ?? ""}</p>
       <PayButton placement="hero" onPay={onPay} />
+      <InAppChoiceSlot />
       <p className="lt-fp__card-note">{FP_PAY_NOTE}</p>
     </div>
   );
@@ -362,6 +382,7 @@ export default function ForParentsPage() {
   const second = (
     <div className="lt-fp__second" data-testid="fp-pay-area-second" data-lt-pay-area="second">
       <PayButton placement="second" onPay={onPay} />
+      <InAppChoiceSlot />
       <p className="lt-fp__card-note lt-fp__card-note--dark">{FP_PAY_NOTE}</p>
     </div>
   );
