@@ -22,7 +22,7 @@ import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
 import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
-import { beginPendingCheckout } from "./payReturn";
+import { beginPendingCheckout, razorpayHangOption, successFromReceipt } from "./payReturn";
 
 export const GUEST_ORDER_ENDPOINT = "/api/pay/guest/order";
 export const GUEST_VERIFY_ENDPOINT = "/api/pay/guest/verify";
@@ -198,7 +198,7 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
   const phone = normaliseIndianMobile(rawPhone);
   if (!phone) return { status: "invalid_phone" };
   const phoneMasked = maskIndianMobile(phone);
-  let pending: { settle: () => void } | null = null;
+  let pending: ReturnType<typeof beginPendingCheckout> | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item, phone), deps.loadScript()]);
     // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
@@ -221,16 +221,18 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
         },
         modal: {
           ondismiss: () => {
-            closing.settle();
+            closing.dismissed(); // PAY-HANG-1: settles; if Razorpay's own timeout closed the sheet, the order is checked first
             resolve(null);
           },
         },
         ...razorpayUpiFirstOption(),
+        ...razorpayHangOption(),
         // The number the visitor typed (normalised here); the server never echoes it back (review fix 6).
         prefill: { contact: phone },
         readonly: { contact: true },
       });
       watchPaymentFailed(checkout, () => undefined);
+      closing.watch(checkout, { onPaid: (receipt) => resolve(successFromReceipt(receipt)), onClosed: () => resolve(null) });
       checkout.open();
     });
     if (!success) return { status: "dismissed" };

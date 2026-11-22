@@ -124,3 +124,41 @@
   text-align: center;
   text-decoration: none;
 }
+
+/* INAPP-PAY-CHOICE-1 - the quiet extra option under a Buy / Pay button (in-app browsers only). Secondary look, 44px target. */
+.lt-pay-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: 100%;
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+.lt-pay-choice__btn {
+  appearance: none;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--lt-line, #c9d3e0);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.lt-pay-choice__note {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}

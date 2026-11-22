@@ -15,6 +15,9 @@
 // READ COST (spec: one cheap read, no per-view read storm):
 //   • Every Home mount: two localStorage reads (the session-record mirror and the QP ring). No
 //     network.
+//   • RESULT-LIST-BACKFILL-1: only when a Chapter Test / Full Mock record written before #1802 is
+//     `partial` with no `writtenGraded`, its stored payload is read (device mirror first; else ONE doc
+//     read by id, memoised per tab, capped) to see whether its written sheet was graded. Nothing written.
 //   • Once per tab per account: ONE hydration — `getSessionRecordsFromCloud` (one collection read
 //     of sessionRecords/{uid}/records, which also refreshes the device mirror) and
 //     `listQuickPracticePapers` (one read of sessionRecords/{uid}/quickPracticePapers). Both are
@@ -38,6 +41,7 @@ import {
   type QuickPracticePaperSnapshot,
 } from "../../services/quickPracticePaperStore";
 import { buildQuickPracticeReviewHref, withScorecardReviewParam } from "../../pages/tutor/tutorRoundTrip";
+import { deriveWrittenGraded, withDerivedWrittenGradedLocal } from "../../services/legacyWrittenGraded";
 
 export type PendingPaperSurface = "worksheet" | "chapter-test" | "full-mock" | "quick-practice";
 
@@ -211,7 +215,8 @@ function qpSignature(list: readonly QuickPracticePaperSnapshot[]): string {
 export function readPendingPapersLocal(uid: string | null): PendingPaper[] {
   if (!uid) return [];
   return mergePendingPapers(
-    pendingFromSessionRecords(loadLocalSessionRecords(uid)),
+    // RESULT-LIST-BACKFILL-1: a pre-#1802 graded partial, proven by this device's stored payload (no network).
+    pendingFromSessionRecords(withDerivedWrittenGradedLocal(uid, loadLocalSessionRecords(uid))),
     pendingFromQuickPracticePapers(readLocalQuickPracticePapers(uid)),
   );
 }
@@ -259,8 +264,11 @@ export async function loadPendingPapers(user: Pick<AuthUser, "uid" | "isLocalSes
   await current.done;
   const localQp = readLocalQuickPracticePapers(uid);
   const localCodes = new Set(localQp.map((s) => s.code));
+  // RESULT-LIST-BACKFILL-1: a pre-#1802 graded partial, proven by its stored payload (device first; a payload only
+  // the cloud holds costs one doc read, memoised for the tab - see legacyWrittenGraded READ COST).
+  const records = await deriveWrittenGraded(uid, loadLocalSessionRecords(uid));
   return mergePendingPapers(
-    pendingFromSessionRecords(loadLocalSessionRecords(uid)),
+    pendingFromSessionRecords(records),
     pendingFromQuickPracticePapers(localQp),
     pendingFromQuickPracticePapers(current.uid === uid ? current.cloudOnlyQp.filter((s) => !localCodes.has(s.code)) : []),
   );

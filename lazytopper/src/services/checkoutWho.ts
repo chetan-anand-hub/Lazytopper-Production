@@ -17,7 +17,7 @@ import { VALIDITY_SHORT } from "../config/validity";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
-import { beginPendingCheckout } from "./payReturn";
+import { beginPendingCheckout, razorpayHangOption, successFromReceipt } from "./payReturn";
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
@@ -523,7 +523,7 @@ function gstProofOf(success: RazorpaySuccess): { gstProof?: AttachProof } {
 
 /** Order (server-priced) -> Razorpay -> server verify. Never throws. */
 export async function buyForRecipient(item: GuestItem, recipient: Recipient, signedIn: boolean, deps: WhoBuyDeps = DEFAULT_DEPS): Promise<WhoBuyOutcome> {
-  let pending: { settle: () => void } | null = null;
+  let pending: ReturnType<typeof beginPendingCheckout> | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item, recipient, signedIn), deps.loadScript()]);
     // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
@@ -546,14 +546,16 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
         },
         modal: {
           ondismiss: () => {
-            closing.settle();
+            closing.dismissed(); // PAY-HANG-1: settles; if Razorpay's own timeout closed the sheet, the order is checked first
             resolve(null);
           },
         },
         ...razorpayUpiFirstOption(),
+        ...razorpayHangOption(),
         ...whoPrefill(recipient, signedIn),
       });
       watchPaymentFailed(checkout, () => undefined);
+      closing.watch(checkout, { onPaid: (receipt) => resolve(successFromReceipt(receipt)), onClosed: () => resolve(null) });
       checkout.open();
     });
     if (!success) return { status: "dismissed" };
@@ -624,7 +626,7 @@ const SELF_DEPS: SelfBuyDeps = { createOrder: createSelfOrder, loadScript: () =>
 
 /** Order (server-priced, no identifier) -> Razorpay (no prefill: it asks the buyer) -> server verify -> the contact it read. Never throws. */
 export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS): Promise<SelfBuyOutcome> {
-  let pending: { settle: () => void } | null = null;
+  let pending: ReturnType<typeof beginPendingCheckout> | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item), deps.loadScript()]);
     if (!(await confirmServerPrice(order))) return { status: "dismissed" };
@@ -644,13 +646,15 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
         },
         modal: {
           ondismiss: () => {
-            closing.settle();
+            closing.dismissed(); // PAY-HANG-1: settles; if Razorpay's own timeout closed the sheet, the order is checked first
             resolve(null);
           },
         },
         ...razorpayUpiFirstOption(),
+        ...razorpayHangOption(),
       });
       watchPaymentFailed(checkout, () => undefined);
+      closing.watch(checkout, { onPaid: (receipt) => resolve(successFromReceipt(receipt)), onClosed: () => resolve(null) });
       checkout.open();
     });
     if (!success) return { status: "dismissed" };

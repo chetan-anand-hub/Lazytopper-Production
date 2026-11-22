@@ -178,6 +178,7 @@ import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUplo
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
 import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
+import { useDerivedWrittenGraded } from "../hooks/useDerivedWrittenGraded";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
 type Phase = "setup" | "taking" | "results" | "pick";
@@ -342,6 +343,9 @@ export default function FullMockPage() {
     () => records.filter((r) => r.surface === "full-mock").sort((a, b) => b.gradedAt - a.gradedAt),
     [records],
   );
+  // RESULT-LIST-BACKFILL-1: the DISPLAY copy for the history panel and the awaiting banner - a pre-#1802 partial
+  // whose stored payload proves the written sheet was graded is not "awaiting" (read-time only; nothing is written).
+  const listedMockRecords = useDerivedWrittenGraded(mockRecords, isSignedIn ? user?.uid : null);
 
   // ── The fresh draw (only for a NEW mock; resume restores its own paper) ─────
   // BANK-SPLIT-1 PR-2 (L4): the draw reads every chapter of this subject from the
@@ -1462,7 +1466,7 @@ export default function FullMockPage() {
     : 0;
 
   // TS-FIX-2: a graded sitting never keeps the "awaiting your answer sheet" banner alive.
-  const pendingRecords = pendingMockRecords(mockRecords, fullResponse && activeMock ? activeMock.code : null);
+  const pendingRecords = pendingMockRecords(listedMockRecords, fullResponse && activeMock ? activeMock.code : null);
   const awaitingCount = pendingRecords.length;
 
   // ══════════════════════════════════════════════════════════════════════════════
@@ -1513,7 +1517,7 @@ export default function FullMockPage() {
       {/* History overlay panel (worksheet pattern — spec §4). */}
       {panelOpen && (
         <FullMockHistoryPanel
-          records={mockRecords}
+          records={listedMockRecords}
           loading={recordsLoading}
           defaultSubject={sessionSubject}
           pendingOnly={panelPendingOnly}

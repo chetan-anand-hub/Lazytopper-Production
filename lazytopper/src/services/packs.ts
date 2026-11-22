@@ -37,6 +37,7 @@ import {
   type RazorpaySuccess,
 } from "./checkout";
 import { confirmServerPrice, razorpaySheetDescription } from "./priceConfirm";
+import { watchSheetForHang } from "./payReturn";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { isGstBuyerCancelled } from "./gstBuyerOrder";
 
@@ -570,6 +571,8 @@ export async function buyPack(
     // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
     if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
+      // PAY-HANG-1: no status route for a signed-in pack order -> the bar only says to finish or cancel in the UPI app (never a way to pay again).
+      const hang = watchSheetForHang({ order: { orderId: order.orderId }, item: { kind: "pack", sku, ...(target ? { target } : {}) }, onClosed: () => resolve(null) });
       const checkout = new Razorpay({
         key: order.keyId,
         amount: order.amountPaise,
@@ -577,14 +580,23 @@ export async function buyPack(
         order_id: order.orderId,
         name: "LazyTopper",
         description: razorpaySheetDescription(packCheckoutDescription(sku, target, options.chapterName), order),
-        handler: (response) => resolve(response),
-        modal: { ondismiss: () => resolve(null) },
+        handler: (response) => {
+          hang.stop();
+          resolve(response);
+        },
+        modal: {
+          ondismiss: () => {
+            hang.stop();
+            resolve(null);
+          },
+        },
         ...razorpayUpiFirstOption(),
         ...prefillOption(prefill),
       });
       watchPaymentFailed(checkout, () => {
         sawFailure = true;
       });
+      hang.attach(checkout);
       checkout.open();
     });
     if (!success) return sawFailure ? { status: "dismissed", afterFailure: true } : { status: "dismissed" };

@@ -1540,3 +1540,62 @@ test('META-IC-1 · a parent pass order and a parent pack order each fire ONE ord
     [pack.json.orderId, 'pack_cbq', pack.json.amountPaise, 'child1', 'lt_ic_parent_02'],
   ]);
 });
+
+/* ── LATE-AUTH-GUARD-1 v1.1 · parent verify: payment age only; a refusal is PENDING ─────────────────────────────────── */
+{
+  const MIN = 60 * 1000;
+  const secs = (msValue) => Math.floor(msValue / 1000);
+  const captures = (srv) => srv.rzp.calls.filter((c) => c.url.endsWith('/capture'));
+  async function lateParent(t, opts = {}) {
+    const srv = await startRoutes(opts);
+    t.after(srv.close);
+    const { token } = await mint(srv);
+    const { json: o } = await parentOrder(srv, token);
+    return { srv, token, o };
+  }
+
+  test('LATE-AUTH · parent: a 20-minute-old order + a fresh payment authorised within seconds is captured and granted', async (t) => {
+    const { srv, token, o } = await lateParent(t);
+    srv.clock.t = NOW + 20 * MIN;
+    const p = srv.rzp.pay(o.orderId, { status: 'authorized' });
+    p.created_at = secs(srv.clock.t - 5 * 1000);
+    const r = await parentVerify(srv, token, o.orderId, p.id);
+    assert.equal(r.status, 200, r.text);
+    assert.equal(captures(srv).length, 1);
+    assert.equal(srv.db.read('subscriptions/child1').tier, 'premium');
+  });
+
+  test('LATE-AUTH · parent: still authorised 13 min after it was created -> PENDING, not captured, never granted', async (t) => {
+    const { srv, token, o } = await lateParent(t);
+    const p = srv.rzp.pay(o.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW);
+    srv.clock.t = NOW + 13 * MIN;
+    const r = await parentVerify(srv, token, o.orderId, p.id);
+    assert.equal(r.status, 202, r.text);
+    assert.deepEqual(r.json, { ok: false, status: 'pending', reason: 'awaiting_bank' });
+    assert.equal(captures(srv).length, 0, 'a late authorisation was captured by us');
+    assert.equal(srv.rzp.payments.get(p.id).status, 'authorized');
+    assert.equal(srv.db.read('subscriptions/child1'), undefined);
+    assert.ok(srv.events.includes('payments.parent.verify.left_uncaptured'));
+  });
+
+  test('LATE-AUTH · parent: a payment Razorpay already CAPTURED (13 min old) is granted exactly as today', async (t) => {
+    const { srv, token, o } = await lateParent(t);
+    const p = srv.rzp.pay(o.orderId);
+    p.created_at = secs(NOW);
+    srv.clock.t = NOW + 13 * MIN;
+    const r = await parentVerify(srv, token, o.orderId, p.id);
+    assert.equal(r.status, 200, r.text);
+    assert.equal(srv.db.read('subscriptions/child1').tier, 'premium');
+  });
+
+  test('LATE-AUTH · parent kill switch LATE_AUTH_GUARD_DISABLED=1: a 13-min-old authorisation is captured (exactly the old behaviour)', async (t) => {
+    const { srv, token, o } = await lateParent(t, { env: { ...ENV_ON, LATE_AUTH_GUARD_DISABLED: '1' } });
+    const p = srv.rzp.pay(o.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW);
+    srv.clock.t = NOW + 13 * MIN;
+    const r = await parentVerify(srv, token, o.orderId, p.id);
+    assert.equal(r.status, 200, r.text);
+    assert.equal(captures(srv).length, 1);
+  });
+}

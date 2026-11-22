@@ -123,9 +123,9 @@ describe("PUT-ON-THIS-ACCOUNT-1 · the offer after a sign-in claim that found no
     proofMod.storeReceiptProof({ orderId: "order_1", paymentId: "pay_1", signature: "ab".repeat(32) });
     mod.resetGuestClaimSessionForTests();
     await mod.claimOncePerSession("uB", { claim: async () => [] });
-    await settle();
+    // PAY-HANG-1: wait for the offer (three dynamic imports) instead of a fixed 20 ms - it failed under load
+    await vi.waitFor(() => expect(show).toHaveBeenCalledWith("uB"), { timeout: 5000 });
     expect(show).toHaveBeenCalledTimes(1);
-    expect(show).toHaveBeenCalledWith("uB");
     // the claim attached something: no offer
     show.mockClear();
     mod.resetGuestClaimSessionForTests();
