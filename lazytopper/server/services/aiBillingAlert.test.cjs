@@ -27,6 +27,8 @@ const {
   buildTelegramSendRequest,
   createTelegramSender,
   pickPrivateChat,
+  pickPrivateChats,
+  telegramToken,
   maskChatId,
 } = require('./aiBillingAlert.cjs');
 const aiBillingAlertModule = require('./aiBillingAlert.cjs');
@@ -707,7 +709,7 @@ test('telegram: independent — a failing, throwing or hanging Telegram send nev
 test('telegram: missing token or chat id -> off (others unaffected); boot line masks the chat id; kill switch; armed only via configure', async () => {
   const fetched = [];
   const fetchImpl = async (u) => { fetched.push(u); return { ok: true, status: 200, json: async () => ({ ok: true }) }; };
-  for (const env of [{ ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }, { ...ENV, TELEGRAM_ALERT_CHAT_ID: '987654321' }, { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN, TELEGRAM_ALERT_CHAT_ID: 'abc' }]) {
+  for (const env of [{ ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }, { ...ENV, TELEGRAM_ALERT_CHAT_ID: '987654321' }]) {
     const { alert, sent } = makeAlert({ env, fetchImpl });
     alert.note(402, '', 'billing');
     await flush();
@@ -782,11 +784,11 @@ test('telegram boot helper: token without chat id -> ONE getUpdates, logs the pr
   const fetchImpl = async (url, opts) => { calls.push({ url, method: opts && opts.method }); return { ok: true, status: 200, json: async () => updates }; };
   const a = createAiBillingAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }, fetchImpl, log: (l) => lines.push(l) });
   const chat = await a.bootTelegramHelp();
-  assert.deepEqual(chat, { id: '222333', username: 'owner_me' });
+  assert.deepEqual(chat, [{ id: '222333', username: 'owner_me' }]);
   assert.equal(calls.length, 1);
   assert.match(calls[0].url, /\/getUpdates$/);
   assert.equal(calls[0].method, 'GET');
-  assert.ok(lines.includes('[ai-billing] Telegram: set TELEGRAM_ALERT_CHAT_ID=222333 (from a private /start by @owner_me)'));
+  assert.ok(lines.includes('[ai-billing] Telegram private chats: 222333 (@owner_me); set TELEGRAM_ALERT_CHAT_ID to YOUR id'));
   // Even with an outage, nothing goes to the discovered chat: the channel stays off without an explicit chat id.
   a.note(402, '', 'billing');
   await flush();
@@ -803,4 +805,70 @@ test('telegram boot helper: token without chat id -> ONE getUpdates, logs the pr
     assert.equal(await c.bootTelegramHelp(), null);
     assert.equal(calls.length, n, 'no getUpdates call');
   }
+});
+
+/* ── #1815 review fixes ──────────────────────────────────────────────────── */
+
+test('N2: a NEGATIVE / non-digit chat id (group or channel, e.g. the public channel) -> Telegram OFF "chat id must be a private chat"; nothing sent', async () => {
+  for (const bad of ['-1001234567890', '-4444', 'abc', '12 34']) {
+    const fetched = [];
+    const { alert, sent } = makeAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN, TELEGRAM_ALERT_CHAT_ID: bad }, fetchImpl: async (u) => { fetched.push(u); return { ok: true, status: 200, json: async () => ({ ok: true }) }; } });
+    alert.note(402, '', 'billing');
+    await flush();
+    assert.equal(fetched.filter((u) => /sendMessage/.test(u)).length, 0, `no send to ${bad}`);
+    assert.equal(sent.length, 1, 'email unaffected');
+    assert.match(alert.describe(), /\| Telegram OFF \(chat id must be a private chat\)$/);
+    assert.ok(!alert.describe().includes(bad.replace('-', '')), 'the chat id is not echoed');
+  }
+  // The transport itself refuses a negative id too.
+  const direct = createTelegramSender({ env: { TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN, TELEGRAM_ALERT_CHAT_ID: '-1009999' }, fetchImpl: async () => { throw new Error('must not be called'); } });
+  assert.deepEqual(await direct('x'), { ok: false, code: 'not_configured' });
+  // A positive id is accepted.
+  const ok = makeAlert({ env: TG_ENV });
+  assert.match(ok.alert.describe(), /Telegram ON to chat \*\*\*4321$/);
+});
+
+test('N3: a malformed bot token -> Telegram OFF "missing/invalid token" without echoing the value; the helper does not call getUpdates', async () => {
+  assert.equal(telegramToken({ TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }), FAKE_TOKEN);
+  for (const bad of ['not-a-token', '12345', ':abc', '123:ab c', '123:abc/def']) {
+    assert.equal(telegramToken({ TELEGRAM_ALERT_BOT_TOKEN: bad }), '', bad);
+    const calls = [];
+    const { alert } = makeAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: bad, TELEGRAM_ALERT_CHAT_ID: '987654321' }, fetchImpl: async (u) => { calls.push(u); return { ok: true, status: 200, json: async () => ({ ok: true }) }; } });
+    assert.match(alert.describe(), /\| Telegram OFF \(missing\/invalid token\)$/);
+    assert.ok(!alert.describe().includes(bad), 'the token value is never echoed');
+    alert.note(402, '', 'billing');
+    await flush();
+    const h = createAiBillingAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: bad }, fetchImpl: async (u) => { calls.push(u); return { ok: true, status: 200, json: async () => ({ ok: true, result: [] }) }; }, log: () => {} });
+    assert.equal(await h.bootTelegramHelp(), null);
+    assert.equal(calls.length, 0, 'no Bot API call with a malformed token');
+  }
+});
+
+test('N1: the boot helper lists EVERY distinct private chat, newest first, max 5 — the owner picks his own', async () => {
+  const lines = [];
+  const result = [
+    { update_id: 20, message: { chat: { id: 111, type: 'private' }, from: { username: 'stranger' }, text: '/start' } },
+    { update_id: 21, message: { chat: { id: 222333, type: 'private' }, from: { username: 'owner_me' }, text: '/start' } },
+    { update_id: 22, message: { chat: { id: 111, type: 'private' }, from: { username: 'stranger' }, text: 'hi again' } },
+    { update_id: 23, channel_post: { chat: { id: -1009999, type: 'channel', username: 'lazytopper_cbse' } } },
+  ];
+  const a = createAiBillingAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }, fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({ ok: true, result }) }), log: (l) => lines.push(l) });
+  const chats = await a.bootTelegramHelp();
+  assert.deepEqual(chats, [{ id: '111', username: 'stranger' }, { id: '222333', username: 'owner_me' }]);
+  assert.ok(lines.includes('[ai-billing] Telegram private chats: 111 (@stranger); 222333 (@owner_me); set TELEGRAM_ALERT_CHAT_ID to YOUR id'), lines.join('\n'));
+  // At most 5.
+  const many = Array.from({ length: 8 }, (_, i) => ({ update_id: i, message: { chat: { id: 1000 + i, type: 'private' }, from: { username: `u${i}` } } }));
+  const five = pickPrivateChats(many);
+  assert.equal(five.length, 5);
+  assert.deepEqual(five.map((c) => c.id), ['1007', '1006', '1005', '1004', '1003']);
+  assert.deepEqual(pickPrivateChat(many), { id: '1007', username: 'u7' });
+});
+
+test('token: a getUpdates fetch that THROWS an error carrying the URL never puts the token in a log line', async () => {
+  const lines = [];
+  const fetchImpl = async (url) => { const e = new Error(`request to ${url} failed, reason: ECONNRESET`); throw e; };
+  const a = createAiBillingAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }, fetchImpl, log: (l) => lines.push(l) });
+  assert.equal(await a.bootTelegramHelp(), null);
+  assert.ok(lines.some((l) => /could not read the bot's updates \(network\)/.test(l)), lines.join('\n'));
+  for (const l of lines) assert.doesNotMatch(l, /FAKE-test-token|000000:|api\.telegram\.org/, `leaked: ${l}`);
 });

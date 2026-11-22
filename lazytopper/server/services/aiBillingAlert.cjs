@@ -32,9 +32,10 @@
  * `deps.sendWhatsApp(text) -> { ok }` is the seam a Meta Cloud API backend replaces later. No number is hard-coded.
  * Telegram (AI-ALERT-TELEGRAM-1, owner 22 Nov 10:51 - CallMeBot's free WhatsApp bot is full): a third channel on the
  * official Bot API (POST /bot<TOKEN>/sendMessage, 10 s timeout), the SAME cadence and texts as WhatsApp, its own send
- * state. TELEGRAM_ALERT_BOT_TOKEN (SECRET - never logged, never in a test) + TELEGRAM_ALERT_CHAT_ID; either missing ->
- * off, and the boot line says so (chat id masked to its last 4 digits). Kill switch AI_ALERT_TELEGRAM_DISABLED=1. When
- * only the token is set, `bootTelegramHelp` LOGS the most recent PRIVATE chat id from getUpdates (never a group or a
+ * state. TELEGRAM_ALERT_BOT_TOKEN (SECRET - never logged, never in a test; must look like
+ * <digits>:<chars>) + TELEGRAM_ALERT_CHAT_ID (POSITIVE digits = a private chat; a negative group/channel id is refused);
+ * either missing or invalid -> off, and the boot line says so (chat id masked to its last 4 digits). Kill switch AI_ALERT_TELEGRAM_DISABLED=1. When
+ * only the token is set, `bootTelegramHelp` LOGS every distinct PRIVATE chat id (newest first, max 5) from getUpdates (never a group or a
  * channel) for the owner to copy; nothing is ever sent without an explicit TELEGRAM_ALERT_CHAT_ID.
  * ★ ARMING: the process-wide instance is UNARMED until index.cjs's boot wiring calls `configure`. An eval, backfill or any
  *   other script that reaches Gemini through geminiClient only LOGS, even with every env var above set - it never pages.
@@ -229,22 +230,34 @@ function whatsappRecoveredText({ recoveredMs }) {
 const TELEGRAM_API = 'https://api.telegram.org';
 const TELEGRAM_TIMEOUT_MS = 10 * 1000;
 
+const TELEGRAM_TOKEN_RE = /^\d+:[A-Za-z0-9_-]+$/;
+/** The raw TELEGRAM_ALERT_BOT_TOKEN ('' when unset). Never log it. */
+function telegramTokenRaw(env = process.env) {
+  return env && typeof env.TELEGRAM_ALERT_BOT_TOKEN === 'string' ? env.TELEGRAM_ALERT_BOT_TOKEN.trim() : '';
+}
+/** The bot token when it has the Bot API shape (<digits>:<letters/digits/_/->), else ''. Never log it. */
 function telegramToken(env = process.env) {
-  const v = env && typeof env.TELEGRAM_ALERT_BOT_TOKEN === 'string' ? env.TELEGRAM_ALERT_BOT_TOKEN.trim() : '';
-  return v;
+  const v = telegramTokenRaw(env);
+  return TELEGRAM_TOKEN_RE.test(v) ? v : '';
 }
 
-/** TELEGRAM_ALERT_CHAT_ID as digits (a leading '-' allowed, e.g. a group id); '' when absent / malformed. */
+function telegramChatIdRaw(env = process.env) {
+  return env && typeof env.TELEGRAM_ALERT_CHAT_ID === 'string' ? env.TELEGRAM_ALERT_CHAT_ID.trim() : '';
+}
+/**
+ * TELEGRAM_ALERT_CHAT_ID as POSITIVE digits only - a PRIVATE chat (review N2). A negative id is a group or a channel
+ * (e.g. -100... for LazyTopper's public channel) and is refused, so the channel stays OFF. '' when absent / refused.
+ */
 function telegramChatId(env = process.env) {
-  const v = env && typeof env.TELEGRAM_ALERT_CHAT_ID === 'string' ? env.TELEGRAM_ALERT_CHAT_ID.trim() : '';
-  return /^-?\d{1,20}$/.test(v) ? v : '';
+  const v = telegramChatIdRaw(env);
+  return /^\d{1,20}$/.test(v) ? v : '';
 }
 
 function isTelegramDisabled(env = process.env) {
   return truthy(env && env.AI_ALERT_TELEGRAM_DISABLED);
 }
 
-/** "123456789" -> "***6789"; "-1001234" -> "***1234". Never more than the last 4 digits. */
+/** "123456789" -> "***6789". Never more than the last 4 digits. */
 function maskChatId(id) {
   const d = String(id || '').replace(/^-/, '');
   return d.length >= 4 ? `***${d.slice(-4)}` : '***';
@@ -292,24 +305,35 @@ function createTelegramSender({ env = process.env, fetchImpl } = {}) {
 }
 
 /**
- * PURE. From a getUpdates `result` array, the most recent PRIVATE chat (highest update_id) that messaged the bot:
- * { id, username } or null. Only `message` / `edited_message` with chat.type === 'private' count; channel posts, groups,
- * supergroups and membership updates are ignored, so a channel or group can never be suggested.
+ * PURE. From a getUpdates `result` array, every DISTINCT PRIVATE chat that messaged the bot, newest first (by update_id),
+ * at most `max`: [{ id, username }]. Only `message` / `edited_message` with chat.type === 'private' (and a positive id)
+ * count; channel posts, groups, supergroups and membership updates are ignored, so a channel or group is never listed.
  */
-function pickPrivateChat(updates) {
-  let best = null;
+function pickPrivateChats(updates, max = 5) {
+  const byId = new Map();
   for (const u of Array.isArray(updates) ? updates : []) {
     if (!u || typeof u !== 'object') continue;
     const m = u.message || u.edited_message;
     const chat = m && m.chat;
     if (!chat || chat.type !== 'private') continue;
-    if (typeof chat.id !== 'number' && !/^-?\d+$/.test(String(chat.id))) continue;
+    const id = String(chat.id);
+    if (!/^\d{1,20}$/.test(id)) continue;
     const uid = Number(u.update_id);
-    if (best && !(uid > best.updateId)) continue;
-    const username = (m.from && m.from.username) || chat.username || '';
-    best = { updateId: Number.isFinite(uid) ? uid : -Infinity, id: String(chat.id), username };
+    const updateId = Number.isFinite(uid) ? uid : -Infinity;
+    const prev = byId.get(id);
+    if (prev && !(updateId > prev.updateId)) continue;
+    byId.set(id, { updateId, id, username: (m.from && m.from.username) || chat.username || '' });
   }
-  return best ? { id: best.id, username: best.username } : null;
+  return [...byId.values()]
+    .sort((x, y) => y.updateId - x.updateId)
+    .slice(0, max)
+    .map(({ id, username }) => ({ id, username }));
+}
+
+/** PURE. The single most recent private chat (see pickPrivateChats), or null. */
+function pickPrivateChat(updates) {
+  const all = pickPrivateChats(updates, 1);
+  return all.length ? all[0] : null;
 }
 
 function createAiBillingAlert(deps = {}) {
@@ -390,10 +414,17 @@ function createAiBillingAlert(deps = {}) {
     if (isDisabled(env)) return 'AI_BILLING_ALERT_DISABLED=1';
     if (isTelegramDisabled(env)) return 'AI_ALERT_TELEGRAM_DISABLED=1';
     if (customTelegram) return '';
+    // Never echo either value: the reason names the setting only.
     const missing = [];
-    if (!telegramToken(env)) missing.push('TELEGRAM_ALERT_BOT_TOKEN');
-    if (!telegramChatId(env)) missing.push('TELEGRAM_ALERT_CHAT_ID');
-    return missing.length ? `missing ${missing.join(' + ')}` : '';
+    const reasons = [];
+    const rawToken = telegramTokenRaw(env);
+    if (!rawToken) missing.push('TELEGRAM_ALERT_BOT_TOKEN');
+    else if (!telegramToken(env)) reasons.push('missing/invalid token');
+    const rawChat = telegramChatIdRaw(env);
+    if (!rawChat) missing.push('TELEGRAM_ALERT_CHAT_ID');
+    else if (!telegramChatId(env)) reasons.push('chat id must be a private chat');
+    if (missing.length) reasons.unshift(`missing ${missing.join(' + ')}`);
+    return reasons.join('; ');
   }
 
   const emailChannel = makeChannel(
@@ -499,13 +530,15 @@ function createAiBillingAlert(deps = {}) {
       } catch {
         json = null;
       }
-      const chat = pickPrivateChat(json && json.result);
-      if (!chat) {
+      const chats = pickPrivateChats(json && json.result, 5);
+      if (!chats.length) {
         say('[ai-billing] Telegram: no private chat found - send /start to your bot, then restart.');
         return null;
       }
-      say(`[ai-billing] Telegram: set TELEGRAM_ALERT_CHAT_ID=${chat.id} (from a private /start by @${chat.username || 'unknown'})`);
-      return chat;
+      // Every distinct private chat (newest first, max 5), so the owner picks HIS own id - never adopted here (N1).
+      const list = chats.map((c) => `${c.id} (@${c.username || 'unknown'})`).join('; ');
+      say(`[ai-billing] Telegram private chats: ${list}; set TELEGRAM_ALERT_CHAT_ID to YOUR id`);
+      return chats;
     } catch {
       return null;
     }
@@ -687,6 +720,8 @@ module.exports = {
   buildTelegramSendRequest,
   createTelegramSender,
   pickPrivateChat,
+  pickPrivateChats,
+  telegramToken,
   TELEGRAM_TIMEOUT_MS,
   defaultAlert,
   ALERT_EVERY_MS,
