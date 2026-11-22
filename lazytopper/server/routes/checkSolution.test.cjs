@@ -948,7 +948,17 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // GRADER-CREDIT-1 review round 1 (same pin, rebased onto GRADER-BALANCE-1): SEPARATE VALUES says which items it
 // covers (non-objective, incl. a 1-mark item or case-study part; never an objective item) and that answer-only
 // separable values share the final-answer mark; FINAL ANSWER's single-mark sentence names the same exception.
-const NO_UPLOADS_CONTENTS_SHA256 = 'c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860';
+// GRADER-TYPE-1 (owner rulings R1-R2, 22 Nov 2026; c9c7d082… → below): the blank asked-for REASON is always its own step, typed
+// conceptual with no proof (rules (b) / (b2), the omittedAsk field, no longer a "format element" to fold) and case law 13
+// (a dropped power: silly only where the page shows the rule). Rule TEXT only, in the ONE rulebook — every transport moved together.
+// GRADER-TYPE-1 fix round: the taxonomy's "copied wrongly = silly" sentence cross-refers case law 13 (5f83acc5… → below); under
+// GRADER_TYPE_1_DISABLED=1 the prompt is BYTE-IDENTICAL to the trunk sha below (pinned in the constant by env).
+//   PREVIOUS c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860
+// GRADER-TYPE-1 probe fix (22 Nov 2026): rule (b) PROOF bullet adds "your correct answer to this part is not proof that you know the reason" (820fa733… → 3c7f7797…).
+// B2: under the kill switch (GRADER_TYPE_1_DISABLED=1) the prompt must be BYTE-IDENTICAL to trunk — pinned by the SHA, not by substrings.
+const NO_UPLOADS_CONTENTS_SHA256 = process.env.GRADER_TYPE_1_DISABLED === '1'
+  ? 'c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860'
+  : '3c7f7797cf7f76dbeec275515c320bc2dff56b54a0fe46dee522e66d87503fa5';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

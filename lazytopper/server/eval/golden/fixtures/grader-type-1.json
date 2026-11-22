@@ -1,0 +1,562 @@
+{
+  "_about": "GRADER-TYPE-1 (owner rulings R1-R2, 22 Nov 2026) deterministic replay fixtures: model-reply SHAPES composed for this lane (SYNTHETIC — never a student's paper; WS-M-FULL-02-Q25i-FOLDED reuses the real Q25 question text and the reconstructed steps of GQ1-WS02-Q25). Driven through the real handlers on every surface by server/grading/type1.surfaces.suite.cjs (CLAUDE.md 4a). `expected` is the ruling; `trunk` is what trunk 075d7d00 returned for the same reply where the case changes.",
+  "synthetic": true,
+  "cases": [
+    {
+      "id": "WS-M-FULL-02-Q25i-FOLDED",
+      "marks": 4,
+      "questionText": "Anjali is planning a birthday party but does not yet know how many guests will come; it could be any number from 1 to 10. She wants to buy a number of chocolates that can be shared equally among the guests, with none left over, whatever the number of guests turns out to be. Based on the above information, answer the following questions: (i) Which is the highest power of 2 and the highest power of 3 that must divide the number of chocolates? Give a reason. [1 mark] (ii) Find the least number of chocolates she must buy. [1 mark] (iii) The shop sold her one chocolate more than a number that can be shared equally among any 1 to 10 guests, and the total was between 6000 and 8000. How many chocolates did she buy? [2 marks]",
+      "reading": "The FOLDED reply shape (analysis §C.2 shape 1): the reason's ½ sits inside the answer step, which is partial with no type. The model flags it with the structured omittedAsk. Marks unchanged; the loss is typed conceptual (R2).",
+      "modelReply": [
+        {
+          "description": "Highest powers of 2 and 3, with the reason",
+          "studentWork": "2³ = 8\n3² = 9",
+          "status": "partial",
+          "marksAvailable": 1,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "x",
+          "mistakeType": null,
+          "omittedAsk": "reason"
+        },
+        {
+          "description": "Least number of chocolates (LCM of 1 to 10)",
+          "studentWork": "LCM(1,2,3,4,...,10) = 2³ × 3² × 5 × 7 = 8 × 9 × 35 = 2520",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ LCM = 2520",
+          "mistakeType": null
+        },
+        {
+          "description": "Number between 6000 and 8000, one more than a multiple of 2520",
+          "studentWork": "2520 × 3 = 7560\nNo. of chocolates bought = 7560 + 1 = 7561",
+          "status": "correct",
+          "marksAvailable": 2,
+          "marksAwarded": 2,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ 7561",
+          "mistakeType": null
+        }
+      ],
+      "expected": {
+        "marksAwarded": 3.5,
+        "steps": [
+          [
+            "partial",
+            0.5,
+            "conceptual"
+          ],
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "correct",
+            2,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "conceptual": 0.5,
+          "untyped": 0,
+          "unattempted": 0
+        }
+      },
+      "trunk": {
+        "marksAwarded": 3.5,
+        "steps": [
+          [
+            "partial",
+            0.5,
+            null
+          ],
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "correct",
+            2,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "conceptual": 0,
+          "untyped": 0.5,
+          "unattempted": 0
+        }
+      }
+    },
+    {
+      "id": "T1-Q25i-PLACEHOLDER",
+      "marks": 4,
+      "questionText": "Anjali is planning a birthday party but does not yet know how many guests will come; it could be any number from 1 to 10. She wants to buy a number of chocolates that can be shared equally among the guests, with none left over, whatever the number of guests turns out to be. Based on the above information, answer the following questions: (i) Which is the highest power of 2 and the highest power of 3 that must divide the number of chocolates? Give a reason. [1 mark] (ii) Find the least number of chocolates she must buy. [1 mark] (iii) The shop sold her one chocolate more than a number that can be shared equally among any 1 to 10 guests, and the total was between 6000 and 8000. How many chocolates did she buy? [2 marks]",
+      "reading": "U2(a): a separate reason step whose studentWork is the model placeholder 'Reason not given' on a missing step is BLANK (ABSENT_WORK widened), then typed conceptual (R2).",
+      "modelReply": [
+        {
+          "description": "Highest powers of 2 and 3",
+          "studentWork": "2³ = 8\n3² = 9",
+          "status": "correct",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0.0,
+          "teacherAnnotation": "✓ 2³ and 3²",
+          "mistakeType": null
+        },
+        {
+          "description": "Giving reason for highest power of 2 and 3",
+          "studentWork": "Reason not given",
+          "status": "missing",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "x",
+          "mistakeType": null
+        },
+        {
+          "description": "Least number of chocolates (LCM of 1 to 10)",
+          "studentWork": "LCM(1,2,3,4,...,10) = 2³ × 3² × 5 × 7 = 8 × 9 × 35 = 2520",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ LCM = 2520",
+          "mistakeType": null
+        },
+        {
+          "description": "Number between 6000 and 8000, one more than a multiple of 2520",
+          "studentWork": "2520 × 3 = 7560\nNo. of chocolates bought = 7560 + 1 = 7561",
+          "status": "correct",
+          "marksAvailable": 2,
+          "marksAwarded": 2,
+          "marksDeducted": 0,
+          "teacherAnnotation": "✓ 7561",
+          "mistakeType": null
+        }
+      ],
+      "expected": {
+        "marksAwarded": 3.5,
+        "steps": [
+          [
+            "correct",
+            0.5,
+            null
+          ],
+          [
+            "missing",
+            0,
+            "conceptual"
+          ],
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "correct",
+            2,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "conceptual": 0.5,
+          "untyped": 0,
+          "unattempted": 0
+        }
+      },
+      "trunk": {
+        "marksAwarded": 3.5,
+        "steps": [
+          [
+            "correct",
+            0.5,
+            null
+          ],
+          [
+            "missing",
+            0,
+            null
+          ],
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "correct",
+            2,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "conceptual": 0,
+          "untyped": 0.5,
+          "unattempted": 0
+        }
+      }
+    },
+    {
+      "id": "T1-TANGENT-CONTROL",
+      "marks": 3,
+      "questionText": "(i) TA is a tangent to a circle with centre O at A and B is a point on the circle with angle TAB = 50 degrees. Find angle OAB. Give a reason. [1½ marks]\n(ii) Hence find angle AOB. [1½ marks]",
+      "reading": "WITH-EVIDENCE CONTROL: the reason in (i) is blank but the student writes 'the tangent is perpendicular to the radius' correctly in (ii) and the model quotes it -> exam technique (presentation), NOT a concept gap (5 Nov ruling, kept by R2).",
+      "modelReply": [
+        {
+          "description": "Finding angle OAB",
+          "studentWork": "∠OAB = 90° − 50° = 40°",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "x",
+          "mistakeType": null,
+          "part": "(i)"
+        },
+        {
+          "description": "Reason for angle OAB = 90° − 50°",
+          "studentWork": "",
+          "status": "missing",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "x",
+          "mistakeType": null,
+          "knowledgeEvidence": "tangent is perpendicular to the radius",
+          "part": "(i)"
+        },
+        {
+          "description": "Finding angle AOB",
+          "studentWork": "OA ⊥ AT because the tangent is perpendicular to the radius; OA = OB so ∠OBA = 40°, ∠AOB = 180° − 40° − 40° = 100°",
+          "status": "correct",
+          "marksAvailable": 1.5,
+          "marksAwarded": 1.5,
+          "marksDeducted": 0,
+          "teacherAnnotation": "x",
+          "mistakeType": null,
+          "part": "(ii)"
+        }
+      ],
+      "expected": {
+        "marksAwarded": 2.5,
+        "steps": [
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "missing",
+            0,
+            "presentation"
+          ],
+          [
+            "correct",
+            1.5,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "presentation": 0.5,
+          "conceptual": 0,
+          "untyped": 0,
+          "unattempted": 0
+        }
+      }
+    },
+    {
+      "id": "T1-FOLDED-WITH-EVIDENCE",
+      "marks": 3,
+      "questionText": "(i) TA is a tangent to a circle with centre O at A and B is a point on the circle with angle TAB = 50 degrees. Find angle OAB. Give a reason. [1½ marks]\n(ii) Hence find angle AOB. [1½ marks]",
+      "reading": "A FOLDED reason (omittedAsk) with proof elsewhere on the page -> presentation (inside the exam-technique cap), never conceptual.",
+      "modelReply": [
+        {
+          "description": "Angle OAB with its reason",
+          "studentWork": "∠OAB = 90° − 50° = 40°",
+          "status": "partial",
+          "marksAvailable": 1.5,
+          "marksAwarded": 1,
+          "marksDeducted": 0.5,
+          "teacherAnnotation": "x",
+          "mistakeType": null,
+          "omittedAsk": "reason",
+          "knowledgeEvidence": "tangent is perpendicular to the radius",
+          "part": "(i)"
+        },
+        {
+          "description": "Finding angle AOB",
+          "studentWork": "OA ⊥ AT because the tangent is perpendicular to the radius; OA = OB so ∠OBA = 40°, ∠AOB = 180° − 40° − 40° = 100°",
+          "status": "correct",
+          "marksAvailable": 1.5,
+          "marksAwarded": 1.5,
+          "marksDeducted": 0,
+          "teacherAnnotation": "x",
+          "mistakeType": null,
+          "part": "(ii)"
+        }
+      ],
+      "expected": {
+        "marksAwarded": 2.5,
+        "steps": [
+          [
+            "partial",
+            1,
+            "presentation"
+          ],
+          [
+            "correct",
+            1.5,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "presentation": 0.5,
+          "conceptual": 0,
+          "untyped": 0
+        }
+      }
+    },
+    {
+      "id": "LCM-DROP-NO-RULE",
+      "marks": 2,
+      "questionText": "Find the HCF and the LCM of 20 and 30 using prime factorisation. [2 marks]",
+      "reading": "R1 (no rule shown anywhere on the page): the model types the dropped power conceptual; the server leaves it (no ECF opens). Pins the pass-through.",
+      "modelReply": [
+        {
+          "description": "Prime factorisations and HCF",
+          "studentWork": "20 = 2² × 5\n30 = 2 × 3 × 5\nHCF = 2 × 5 = 10",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "x",
+          "mistakeType": null
+        },
+        {
+          "description": "LCM by highest powers",
+          "studentWork": "LCM = 2 × 3 × 5 = 30",
+          "status": "incorrect",
+          "marksAvailable": 1,
+          "marksAwarded": 0,
+          "marksDeducted": 1,
+          "teacherAnnotation": "x",
+          "mistakeType": "conceptual"
+        }
+      ],
+      "expected": {
+        "marksAwarded": 1,
+        "steps": [
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "incorrect",
+            0,
+            "conceptual"
+          ]
+        ],
+        "marksLostByType": {
+          "conceptual": 1,
+          "silly": 0,
+          "calculation": 0,
+          "untyped": 0
+        }
+      }
+    },
+    {
+      "id": "LCM-DROP-RULE-SHOWN-ELSEWHERE",
+      "marks": 4,
+      "questionText": "(i) Find the LCM of 12 and 18 using prime factorisation. [1 mark]\n(ii) Find the LCM of 20 and 30 using prime factorisation. [1 mark]\n(iii) Hence find the smallest number divisible by both 20 and 30, and add 1. [2 marks]",
+      "reading": "R1 (rule shown correctly in (i)): typed silly. MARKS MOVE: silly opens the miscopy-1/2 rule, the dropped-power step is restored to -1/2 because (iii) earned its marks from the student's own value (ECF). Conceptual (below) would not.",
+      "modelReply": [
+        {
+          "description": "LCM of 12 and 18",
+          "studentWork": "12 = 2² × 3, 18 = 2 × 3²\nLCM = highest powers = 2² × 3² = 36",
+          "status": "correct",
+          "marksAvailable": 1,
+          "marksAwarded": 1,
+          "marksDeducted": 0,
+          "teacherAnnotation": "x",
+          "mistakeType": null,
+          "part": "(i)"
+        },
+        {
+          "description": "LCM of 20 and 30",
+          "studentWork": "20 = 2² × 5, 30 = 2 × 3 × 5\nLCM = 2 × 3 × 5 = 30",
+          "status": "incorrect",
+          "marksAvailable": 1,
+          "marksAwarded": 0,
+          "marksDeducted": 1,
+          "teacherAnnotation": "x",
+          "mistakeType": "silly",
+          "part": "(ii)"
+        },
+        {
+          "description": "Smallest number divisible by both, plus 1",
+          "studentWork": "30 + 1 = 31",
+          "status": "correct",
+          "marksAvailable": 2,
+          "marksAwarded": 2,
+          "marksDeducted": 0,
+          "teacherAnnotation": "x",
+          "mistakeType": null,
+          "part": "(iii)"
+        }
+      ],
+      "expected": {
+        "marksAwarded": 3.5,
+        "steps": [
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "partial",
+            0.5,
+            "silly"
+          ],
+          [
+            "correct",
+            2,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "silly": 0.5,
+          "conceptual": 0,
+          "untyped": 0
+        }
+      },
+      "ifConceptual": {
+        "marksAwarded": 3,
+        "steps": [
+          [
+            "correct",
+            1,
+            null
+          ],
+          [
+            "incorrect",
+            0,
+            "conceptual"
+          ],
+          [
+            "correct",
+            2,
+            null
+          ]
+        ],
+        "marksLostByType": {
+          "conceptual": 1,
+          "silly": 0,
+          "untyped": 0
+        }
+      }
+    },
+    {
+      "id": "LCM-LOWEST-POWERS-THROUGHOUT",
+      "marks": 2,
+      "questionText": "(i) Find the LCM of 12 and 18 using prime factorisation. [1 mark]\n(ii) Find the LCM of 20 and 30 using prime factorisation. [1 mark]",
+      "reading": "R1 control: the lowest powers are taken in EVERY line, so no line shows the rule -> conceptual in both parts.",
+      "modelReply": [
+        {
+          "description": "LCM of 12 and 18",
+          "studentWork": "12 = 2² × 3, 18 = 2 × 3²\nLCM = 2 × 3 = 6",
+          "status": "incorrect",
+          "marksAvailable": 1,
+          "marksAwarded": 0,
+          "marksDeducted": 1,
+          "teacherAnnotation": "x",
+          "mistakeType": "conceptual",
+          "part": "(i)"
+        },
+        {
+          "description": "LCM of 20 and 30",
+          "studentWork": "20 = 2² × 5, 30 = 2 × 3 × 5\nLCM = 2 × 5 = 10",
+          "status": "incorrect",
+          "marksAvailable": 1,
+          "marksAwarded": 0,
+          "marksDeducted": 1,
+          "teacherAnnotation": "x",
+          "mistakeType": "conceptual",
+          "part": "(ii)"
+        }
+      ],
+      "expected": {
+        "marksAwarded": 0,
+        "steps": [
+          [
+            "incorrect",
+            0,
+            "conceptual"
+          ],
+          [
+            "incorrect",
+            0,
+            "conceptual"
+          ]
+        ],
+        "marksLostByType": {
+          "conceptual": 2,
+          "silly": 0,
+          "untyped": 0
+        }
+      }
+    },
+    {
+      "id": "LCM-HIGHEST-POWERS-MULT-SLIP",
+      "marks": 2,
+      "questionText": "Find the LCM of 20 and 30 using prime factorisation. [2 marks]",
+      "reading": "R1 control: all powers kept, the MULTIPLICATION is wrong (2² × 3 × 5 = 50) -> calculation, even when the model left the step untyped (the arithmetic check, #1399 area, types it).",
+      "modelReply": [
+        {
+          "description": "Prime factorisations",
+          "studentWork": "20 = 2² × 5\n30 = 2 × 3 × 5",
+          "status": "correct",
+          "marksAvailable": 0.5,
+          "marksAwarded": 0.5,
+          "marksDeducted": 0,
+          "teacherAnnotation": "x",
+          "mistakeType": null
+        },
+        {
+          "description": "LCM by highest powers",
+          "studentWork": "LCM = highest powers = 2² × 3 × 5 = 50",
+          "status": "correct",
+          "marksAvailable": 1.5,
+          "marksAwarded": 1.5,
+          "marksDeducted": 0,
+          "teacherAnnotation": "x",
+          "mistakeType": null
+        }
+      ],
+      "expected": {
+        "marksAwarded": 1.5,
+        "steps": [
+          [
+            "correct",
+            0.5,
+            null
+          ],
+          [
+            "partial",
+            1,
+            "calculation"
+          ]
+        ],
+        "marksLostByType": {
+          "calculation": 0.5,
+          "conceptual": 0,
+          "silly": 0,
+          "untyped": 0
+        }
+      }
+    }
+  ]
+}
