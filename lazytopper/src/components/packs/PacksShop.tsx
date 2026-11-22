@@ -47,7 +47,8 @@ import { BUNDLE_NAME, TEST_SERIES_NAME, TEST_SERIES_VALID_TILL, packChapterLabel
 import { TEST_SERIES_PATH, seriesContentsLine, seriesProgress, seriesTotals, type SeriesProgress } from "../../lib/testSeries/testSeries";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import { isPacksWarmupPath, schedulePacksWarmup } from "../../lib/packs/packsMobilePreload";
-import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY, preloadCheckoutScript } from "../../services/checkout";
+import { preloadCheckoutScript } from "../../services/checkout";
+import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY } from "../../services/checkoutTiming";
 import { useCheckoutSlow } from "../../hooks/useCheckoutSlow";
 import PayRescueCard from "../payRescue/PayRescueCard";
 import PackSampleLink, { type SampleBuy } from "./PackSampleLink";
@@ -184,9 +185,10 @@ if (typeof window !== "undefined" && isPacksClientEnabled() && readBuyResume(win
  * sheet chunks, Razorpay's connections and checkout.js, so a Buy tap does not start the pay chain cold. Chunk / script fetches only:
  * no order, no server call. Once per page load; VITE_PACKS_MOBILE_PRELOAD_DISABLED=1 turns it off.
  */
-export function warmPacksCheckout(): void {
+export function warmPacksCheckout(opts: { intentOnly?: boolean } = {}): void {
   if (!isPacksClientEnabled()) return;
-  schedulePacksWarmup({ preloadChunks: preloadBuyChunks, loadScript: () => preloadCheckoutScript(), staticHint: true });
+  // CHECKOUT-FAST-1: /test-series passes `intentOnly` (touch / buy button in view, never idle); /packs and /cbq-packs: as PACKS-MOBILE-1 had it.
+  schedulePacksWarmup({ preloadChunks: preloadBuyChunks, loadScript: () => preloadCheckoutScript(), ...(opts.intentOnly ? { intentOnly: true } : {}) });
 }
 
 // Module top level: the page chunk is evaluated BEFORE the app hydrates, so a cold phone starts warming while it is still booting.

@@ -11,7 +11,7 @@ vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 vi.mock("../../services/activityClient", () => ({ recordActivity: vi.fn() }));
 const auth = vi.hoisted(() => ({ user: null as null | { uid: string; email?: string } }));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: auth.user, loading: false }) }));
-vi.mock("../../services/checkout", async (orig) => ({ ...(await orig<typeof import("../../services/checkout")>()), CHECKOUT_SLOW_AFTER_MS: 40 }));
+vi.mock("../../services/checkoutTiming", async (orig) => ({ ...(await orig<typeof import("../../services/checkoutTiming")>()), CHECKOUT_SLOW_AFTER_MS: 40 }));
 vi.mock("../../services/guestPay", async (orig) => ({ ...(await orig<typeof import("../../services/guestPay")>()), isGuestPayClientEnabled: () => false }));
 vi.mock("../../services/checkoutWhoFlag", async (orig) => ({ ...(await orig<typeof import("../../services/checkoutWhoFlag")>()), isCheckoutWhoClientEnabled: () => false }));
 vi.mock("../../services/packs", async (orig) => {

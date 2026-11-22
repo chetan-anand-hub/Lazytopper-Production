@@ -3,7 +3,7 @@
  *
  * Four client events through the EXISTING onboarding/funnel sender (`trackOnboardingEvent`: GA4 + Vercel, coarse slugs and small
  * integers only - no id, no text, no phone, no email, no order id):
- *   checkout_open_ms         { ds, surface, warm }   tap -> Razorpay's iframe loaded (ds = tenths of a second; the sender caps a number at
+ *   checkout_open_ms         { ds, surface, warm }   tap -> Razorpay's sheet shown (ds = tenths of a second; the sender caps a number at
  *                                                    1000, so 100 s). warm: 1 when checkout.js was already loaded at the tap.
  *   checkout_dismissed       { surface, ds }         the sheet was closed without paying (Razorpay `modal.ondismiss`); ds = open time.
  *   checkout_payment_failed  { surface, code }       Razorpay `payment.failed`; `code` is Razorpay's error CODE only (e.g. bad_request_error).
@@ -152,20 +152,40 @@ export function beginCheckoutAttempt(warm: boolean): void {
   });
 }
 
-/** Watch for Razorpay's iframe after open(): the sheet is "visible" when its iframe has loaded. */
+/**
+ * Is Razorpay's checkout container on screen? Real checkout.js creates (and loads) its single iframe at SCRIPT LOAD and reuses it for every
+ * open(), so an iframe `load` after open() never comes. What changes on open() is the `.razorpay-container` going from display:none to shown.
+ */
+export function razorpaySheetVisible(doc: Document = document): boolean {
+  const container = doc.querySelector<HTMLElement>(".razorpay-container");
+  if (!container || !container.querySelector("iframe")) return false;
+  const win = doc.defaultView;
+  if (!win) return false;
+  const style = win.getComputedStyle(container);
+  return style.display !== "none" && style.visibility !== "hidden";
+}
+
+/** How often the (bounded) watch looks for the sheet after open(). */
+export const SHEET_POLL_MS = 100;
+
+/** After open(): the sheet is "visible" the moment its container is displayed. Polled (cheap, bounded), checked once straight away. */
 function watchForSheet(a: Attempt): void {
-  if (typeof document === "undefined" || !document.body) return;
-  let observer: MutationObserver | null = null;
-  let timer: ReturnType<typeof setTimeout> | null = null;
+  if (typeof document === "undefined") return;
+  let timer: ReturnType<typeof setInterval> | null = null;
+  let giveUp: ReturnType<typeof setTimeout> | null = null;
   const stop = () => {
-    observer?.disconnect();
-    observer = null;
-    if (timer !== null) clearTimeout(timer);
+    if (timer !== null) clearInterval(timer);
+    if (giveUp !== null) clearTimeout(giveUp);
     timer = null;
+    giveUp = null;
   };
   a.stopWatching = stop;
-  const shown = () => {
-    if (a.shown || a.done) return;
+  const check = (): boolean => {
+    if (a.shown || a.done) {
+      stop();
+      return true;
+    }
+    if (!razorpaySheetVisible()) return false;
     a.shown = true;
     const ms = clock() - a.startedAt;
     stop();
@@ -173,23 +193,11 @@ function watchForSheet(a: Attempt): void {
     cleanupLifecycle = null;
     emitSafe(() => trackOnboardingEvent("checkout_open_ms", { ds: ds(ms), surface: a.surface, warm: a.warm ? 1 : 0 }));
     for (const l of Array.from(shownListeners)) emitSafe(l);
-  };
-  const attach = (): boolean => {
-    const frame = document.querySelector<HTMLIFrameElement>(".razorpay-container iframe, iframe.razorpay-checkout-frame");
-    if (!frame) return false;
-    frame.addEventListener("load", shown, { once: true });
     return true;
   };
-  if (!attach()) {
-    observer = new MutationObserver(() => {
-      if (attach()) {
-        observer?.disconnect();
-        observer = null;
-      }
-    });
-    observer.observe(document.body, { childList: true });
-  }
-  timer = setTimeout(stop, SHEET_WATCH_MS);
+  if (check()) return;
+  timer = setInterval(check, SHEET_POLL_MS);
+  giveUp = setTimeout(stop, SHEET_WATCH_MS);
 }
 
 type AnyOptions = {
@@ -287,8 +295,8 @@ export function instrumentRazorpay<C>(Ctor: C): C {
         register();
         attempt.opened = true;
         attempt.openedAt = clock();
-        emitSafe(() => watchForSheet(attempt));
         originalOpen();
+        emitSafe(() => watchForSheet(attempt));
       };
     }
     return instance;
@@ -305,3 +313,12 @@ export function resetCheckoutTimingForTests(): void {
   current = null;
   lastClickAt = -Infinity;
 }
+
+/**
+ * CHECKOUT-FAST-1 — the Buy button's label from the tap until Razorpay's sheet is visible, and the second line added when it is slow.
+ * Honest: it says what is happening (a secure payment window is opening) and, if it drags, that we are still waiting on Razorpay.
+ */
+export const CHECKOUT_OPENING_COPY = "\u{1F512} Opening secure payment\u2026";
+export const CHECKOUT_SLOW_COPY = "Still connecting to Razorpay \u2014 please don't close this page";
+/** How long the opening state may last before the second line shows. */
+export const CHECKOUT_SLOW_AFTER_MS = 6_000;

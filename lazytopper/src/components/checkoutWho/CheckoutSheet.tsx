@@ -25,7 +25,7 @@ import { newCheckoutAttemptId, trackNamedEvent } from "../../analytics/analytics
 import { trackGuestPurchase } from "../guestPay/GuestPaySheet";
 import { tenDigits, type GuestItem } from "../../services/guestPay";
 import { WHATSAPP_URL } from "../../config/socialProfiles";
-import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY } from "../../services/checkout";
+import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY } from "../../services/checkoutTiming";
 import { useCheckoutSlow } from "../../hooks/useCheckoutSlow";
 import AttachFlow from "./AttachFlow";
 import {

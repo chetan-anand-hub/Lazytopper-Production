@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CHECKOUT_SLOW_AFTER_MS } from "../services/checkout";
+import { CHECKOUT_SLOW_AFTER_MS } from "../services/checkoutTiming";
 import { onCheckoutSheetShown } from "../services/checkoutTiming";
 
 /**

@@ -76,14 +76,8 @@ export class PayAlreadyCoveredError extends Error {
 // Review F2: neutral "pass" - a month pass that runs past the board day covers the student too.
 export const PASS_ALREADY_COVERED_COPY = `Your pass is already valid till ${VALIDITY_LABEL}. There's nothing more to pay.`;
 
-/**
- * CHECKOUT-FAST-1 — the Buy button's label from the tap until Razorpay's sheet is visible, and the second line added when it is slow.
- * Honest: it says what is happening (a secure payment window is opening) and, if it drags, that we are still waiting on Razorpay.
- */
-export const CHECKOUT_OPENING_COPY = "\u{1F512} Opening secure payment\u2026";
-export const CHECKOUT_SLOW_COPY = "Still connecting to Razorpay \u2014 please don't close this page";
-/** How long the opening state may last before the second line shows. */
-export const CHECKOUT_SLOW_AFTER_MS = 6_000;
+// CHECKOUT-FAST-1: the wait copy lives in checkoutTiming.ts (a module no test mocks); re-exported here for the callers that import checkout.
+export { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY, CHECKOUT_SLOW_AFTER_MS } from "./checkoutTiming";
 
 /** Z6 — the owner's failure sentence, word for word. */
 export const PAYMENT_FAILED_COPY = "Payment didn't go through. You haven't been charged twice — try again.";
@@ -289,12 +283,12 @@ export function preloadCheckoutScript(doc: Document = document): Promise<Razorpa
 
 /**
  * CHECKOUT-FAST-1 — a page that opens Razorpay but has no PacksShop warm-up of its own (/board-pass, /for-parents) calls this from an
- * effect: after `load`, once idle (or on the first touch / when a buy button is in view) it opens Razorpay's connections and fetches
- * checkout.js. Once per page load. No order, no server call. Off with VITE_CHECKOUT_WARM_DISABLED=1 (and with the packs preload switch).
+ * effect: after `load`, on INTENT only (the first touch / pointer press, or a buy button scrolling into view - never on idle: Razorpay's
+ * iframe bundle is a long task on a low-end phone) it opens Razorpay's connections and fetches checkout.js. Once per page load. No order, no server call. Off with VITE_CHECKOUT_WARM_DISABLED=1 (and with the packs preload switch).
  */
 export function warmCheckoutOnPage(): void {
   if (!isPaymentsClientEnabled() || isCheckoutWarmDisabled()) return;
-  schedulePacksWarmup({ key: "checkout", preloadChunks: () => undefined, loadScript: () => preloadCheckoutScript(), idleTimeoutMs: 3000, staticHint: true });
+  schedulePacksWarmup({ key: "checkout", preloadChunks: () => undefined, loadScript: () => preloadCheckoutScript(), intentOnly: true });
 }
 
 /** Test seam: forget a loaded script promise. */

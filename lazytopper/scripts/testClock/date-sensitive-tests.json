@@ -1008,6 +1008,7 @@
     "src/services/checkSolutionWorksheetNoWorking.test.ts",
     "src/services/checkout.recover.test.ts",
     "src/services/checkout.rescue.test.ts",
+    "src/services/checkoutTiming.test.ts",
     "src/services/checkoutWho.test.ts",
     "src/services/freeCheckClient.test.ts",
     "src/services/geminiThinkingConfig.test.ts",

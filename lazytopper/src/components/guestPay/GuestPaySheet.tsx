@@ -20,6 +20,8 @@ import { inAppBrowser } from "../../utils/inAppBrowser";
 import { buyAsGuest, maskIndianMobile, normaliseIndianMobile, tenDigits, type GuestBuyOutcome, type GuestItem } from "../../services/guestPay";
 import { boardPassGstBreakdown } from "../../config/pricing";
 import { PACK_SKUS, packGstBreakdown, type PackSku } from "../../services/packs";
+import { useCheckoutSlow } from "../../hooks/useCheckoutSlow";
+import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY } from "../../services/checkoutTiming";
 import "./guestPaySheet.css";
 import { normaliseTypedIndianMobile, TYPED_MOBILE_MAX_LENGTH } from "../../utils/indianMobileInput";
 
@@ -159,6 +161,7 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
 
   const secondary = inApp ? (["phone", "google"] as const) : (["google", "phone"] as const);
   const busy = step.name === "busy";
+  const slowOpen = useCheckoutSlow(busy);
 
   let body;
   if (step.name === "choose") {
@@ -213,8 +216,9 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
         {step.name === "phone" && step.closed && <InAppPayRescue buy={buyTargetFromItem(item)} />}
         <PayReturnHint />
         <button type="submit" className="lt-gps__primary" disabled={busy || !valid} data-testid="guest-pay-continue">
-          {busy ? "Opening payment…" : "Continue"}
+          {busy ? CHECKOUT_OPENING_COPY : "Continue"}
         </button>
+        {busy && slowOpen && <p className="lt-gps__fine" role="status" data-testid="guest-pay-slow-open">{CHECKOUT_SLOW_COPY}</p>}
       </form>
     );
   } else if (step.name === "paid") {

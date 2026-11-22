@@ -86,7 +86,7 @@ describe("one checkout.js tag", () => {
   });
 });
 
-describe("warmCheckoutOnPage", () => {
+describe("warmCheckoutOnPage (intent only)", () => {
   function stubIdle() {
     const idle: Array<() => void> = [];
     (window as unknown as { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback = (cb) => idle.push(cb);
@@ -94,32 +94,34 @@ describe("warmCheckoutOnPage", () => {
     return idle;
   }
 
-  it("payments client flag OFF -> nothing is scheduled (a build that cannot sell warms nothing)", () => {
+  it("payments client flag OFF -> nothing happens, even on a touch", () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "");
-    const idle = stubIdle();
+    stubIdle();
     warmCheckoutOnPage();
-    expect(idle).toHaveLength(0);
+    document.dispatchEvent(new Event("pointerdown", { bubbles: true }));
     expect(tags()).toHaveLength(0);
   });
 
-  it("payments ON: nothing at call time (not first paint); on idle the script tag is added once; a second call is a no-op", () => {
+  it("payments ON: NOTHING on idle (no requestIdleCallback is even asked for); the first touch loads checkout.js once; a second call is a no-op", () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     const idle = stubIdle();
     warmCheckoutOnPage();
     warmCheckoutOnPage();
-    expect(tags()).toHaveLength(0);
-    expect(idle).toHaveLength(1);
-    idle[0]();
+    expect(idle).toHaveLength(0);
+    expect(tags()).toHaveLength(0); // not at first paint, not on idle
+    document.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    document.dispatchEvent(new Event("touchstart", { bubbles: true }));
     expect(tags()).toHaveLength(1);
-    expect(document.head.querySelector('link[rel="preconnect"][href="https://static-next.razorpay.com"]')).not.toBeNull();
+    expect(document.head.querySelector('link[rel="preconnect"][href="https://checkout.razorpay.com"]')).not.toBeNull();
+    expect(document.head.querySelector('link[href*="static-next"]')).toBeNull();
   });
 
-  it("VITE_CHECKOUT_WARM_DISABLED=1 -> today's behaviour: nothing scheduled, no tag until the tap", () => {
+  it("VITE_CHECKOUT_WARM_DISABLED=1 -> today's behaviour: a touch loads nothing; the tap still loads it", () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     vi.stubEnv("VITE_CHECKOUT_WARM_DISABLED", "1");
-    const idle = stubIdle();
+    stubIdle();
     warmCheckoutOnPage();
-    expect(idle).toHaveLength(0);
+    document.dispatchEvent(new Event("pointerdown", { bubbles: true }));
     expect(tags()).toHaveLength(0);
     void loadCheckoutScript(); // the tap still loads it
     expect(tags()).toHaveLength(1);

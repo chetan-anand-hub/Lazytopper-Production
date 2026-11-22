@@ -1,9 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   CHECKOUT_BUY_ATTR,
-  RAZORPAY_STATIC_ORIGIN,
-  addRazorpayHints,
-  addStaticOriginHint,
   isCheckoutWarmDisabled,
   isCheckoutWarmPath,
   isPacksWarmupPath,
@@ -61,105 +58,95 @@ describe("CHECKOUT-FAST-1 - which pages warm checkout", () => {
     for (const p of ["/test-series", "/board-pass", "/for-parents"]) expect(isCheckoutWarmPath(p)).toBe(false);
     for (const p of ["/packs", "/cbq-packs"]) expect(isCheckoutWarmPath(p)).toBe(true);
   });
-
-  it("static-next.razorpay.com gets its own preconnect + dns-prefetch, once; the three PACKS-MOBILE-1 origins are untouched; off with the switch", () => {
-    document.head.innerHTML = "";
-    expect(addRazorpayHints(document)).toHaveLength(6);
-    expect(addStaticOriginHint(document)).toHaveLength(2);
-    expect(addStaticOriginHint(document)).toHaveLength(0);
-    expect(document.head.querySelector(`link[rel="preconnect"][href="${RAZORPAY_STATIC_ORIGIN}"]`)).not.toBeNull();
-    expect(document.head.querySelector(`link[rel="dns-prefetch"][href="${RAZORPAY_STATIC_ORIGIN}"]`)).not.toBeNull();
-    document.head.innerHTML = "";
-    vi.stubEnv("VITE_CHECKOUT_WARM_DISABLED", "1");
-    expect(addStaticOriginHint(document)).toHaveLength(0);
-    expect(document.head.querySelectorAll("link")).toHaveLength(0);
-  });
-
-  it("a warm-up asked for the static hint adds it WITH the others, on idle - never before load", () => {
-    resetPacksWarmupForTests();
-    const h = harness();
-    schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks: vi.fn(), loadScript: () => Promise.resolve(null), staticHint: true });
-    expect(h.doc.head.querySelectorAll("link")).toHaveLength(0);
-    h.idle[0]();
-    expect(h.doc.head.querySelector(`link[rel="preconnect"][href="${RAZORPAY_STATIC_ORIGIN}"]`)).not.toBeNull();
-    expect(h.doc.head.querySelector('link[rel="preconnect"][href="https://api.razorpay.com"]')).not.toBeNull();
-  });
 });
 
-describe("CHECKOUT-FAST-1 - when checkout.js is fetched", () => {
+describe("CHECKOUT-FAST-1 - when checkout.js is fetched (intent only on the new pages)", () => {
   beforeEach(() => {
     resetPacksWarmupForTests();
     document.head.innerHTML = "";
   });
   afterEach(() => vi.unstubAllEnvs());
-
-  it("the first buy button scrolling into view warms at once (before idle); idle afterwards does not repeat it", () => {
-    const h = harness();
+  const withButton = (h: ReturnType<typeof harness>) => {
     const btn = h.doc.createElement("button");
     btn.setAttribute(CHECKOUT_BUY_ATTR, "");
     h.doc.body.appendChild(btn);
+    return btn;
+  };
+
+  it("intentOnly: NOTHING is scheduled on idle - no requestIdleCallback, no timer, no fetch, however long the page sits", () => {
+    const h = harness();
+    withButton(h);
     const loadScript = vi.fn(() => Promise.resolve(null));
     const preloadChunks = vi.fn();
-    schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks, loadScript });
-    expect(h.observed).toEqual([btn]);
-    expect(loadScript).not.toHaveBeenCalled();
-    h.intersect(false);
-    expect(loadScript).not.toHaveBeenCalled(); // off-screen: not yet
-    h.intersect(true);
-    expect(loadScript).toHaveBeenCalledTimes(1);
-    expect(preloadChunks).toHaveBeenCalledTimes(1);
-    h.idle[0]();
-    expect(loadScript).toHaveBeenCalledTimes(1);
-  });
-
-  it("NOT at first paint: before `load` nothing is observed, scheduled or fetched", () => {
-    const h = harness("loading");
-    Object.defineProperty(h.doc, "readyState", { value: "loading", configurable: true });
-    const btn = h.doc.createElement("button");
-    btn.setAttribute(CHECKOUT_BUY_ATTR, "");
-    h.doc.body.appendChild(btn);
-    const loadScript = vi.fn(() => Promise.resolve(null));
-    schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks: vi.fn(), loadScript });
-    expect(h.observed).toHaveLength(0);
+    schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks, loadScript, intentOnly: true });
     expect(h.idle).toHaveLength(0);
     expect(loadScript).not.toHaveBeenCalled();
-    expect(h.doc.head.querySelectorAll("link")).toHaveLength(0);
+    expect(preloadChunks).not.toHaveBeenCalled();
   });
 
-  it("the switch removes the viewport trigger (idle / touch still work, as PACKS-MOBILE-1)", () => {
-    vi.stubEnv("VITE_CHECKOUT_WARM_DISABLED", "1");
+  it("intentOnly: the first buy button scrolling into view warms (off-screen does not); then touch does not repeat it", () => {
     const h = harness();
-    const btn = h.doc.createElement("button");
-    btn.setAttribute(CHECKOUT_BUY_ATTR, "");
-    h.doc.body.appendChild(btn);
+    const btn = withButton(h);
+    const loadScript = vi.fn(() => Promise.resolve(null));
+    schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks: vi.fn(), loadScript, intentOnly: true });
+    expect(h.observed).toEqual([btn]);
+    h.intersect(false);
+    expect(loadScript).not.toHaveBeenCalled();
+    h.intersect(true);
+    expect(loadScript).toHaveBeenCalledTimes(1);
+    h.doc.dispatchEvent(new Event("touchstart", { bubbles: true }));
+    expect(loadScript).toHaveBeenCalledTimes(1);
+  });
+
+  it("intentOnly: the first touch / pointer press warms at once, once", () => {
+    const h = harness();
+    const loadScript = vi.fn(() => Promise.resolve(null));
+    schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks: vi.fn(), loadScript, intentOnly: true });
+    h.doc.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    h.doc.dispatchEvent(new Event("touchstart", { bubbles: true }));
+    expect(loadScript).toHaveBeenCalledTimes(1);
+  });
+
+  it("NOT at first paint: before `load` nothing is observed, listened for or fetched", () => {
+    const h = harness("loading");
+    Object.defineProperty(h.doc, "readyState", { value: "loading", configurable: true });
+    withButton(h);
+    const loadScript = vi.fn(() => Promise.resolve(null));
+    schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks: vi.fn(), loadScript, intentOnly: true });
+    expect(h.observed).toHaveLength(0);
+    h.doc.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    expect(loadScript).not.toHaveBeenCalled();
+  });
+
+  it("the default (the /packs and /cbq-packs warm-up) is exactly PACKS-MOBILE-1: idle schedules it, the viewport trigger is NOT used", () => {
+    const h = harness();
+    withButton(h);
     const loadScript = vi.fn(() => Promise.resolve(null));
     schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks: vi.fn(), loadScript });
     expect(h.observed).toHaveLength(0);
+    expect(h.idle).toHaveLength(1);
     h.idle[0]();
     expect(loadScript).toHaveBeenCalledTimes(1);
   });
 
-  it("separate keys do not block each other (a page with no chunks to fetch must not use up PacksShop's warm-up)", () => {
+  it("the switch removes the viewport trigger", () => {
+    vi.stubEnv("VITE_CHECKOUT_WARM_DISABLED", "1");
+    const h = harness();
+    withButton(h);
+    schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks: vi.fn(), loadScript: () => Promise.resolve(null), intentOnly: true });
+    expect(h.observed).toHaveLength(0);
+  });
+
+  it("separate keys do not block each other", () => {
     const a = harness();
     const b = harness();
     const first = vi.fn(() => Promise.resolve(null));
     const second = vi.fn(() => Promise.resolve(null));
-    schedulePacksWarmup({ win: a.win, doc: a.doc, preloadChunks: vi.fn(), loadScript: first, key: "checkout" });
+    schedulePacksWarmup({ win: a.win, doc: a.doc, preloadChunks: vi.fn(), loadScript: first, key: "checkout", intentOnly: true });
     schedulePacksWarmup({ win: b.win, doc: b.doc, preloadChunks: vi.fn(), loadScript: second });
-    a.idle[0]();
+    a.doc.dispatchEvent(new Event("pointerdown", { bubbles: true }));
     b.idle[0]();
     expect(first).toHaveBeenCalledTimes(1);
     expect(second).toHaveBeenCalledTimes(1);
-  });
-
-  it("the idle timeout is the caller's (default 1500 ms for packs, longer for the other pages)", () => {
-    const seen: Array<number | undefined> = [];
-    const h = harness();
-    (h.win as unknown as { requestIdleCallback: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback = (_cb, o) => {
-      seen.push(o?.timeout);
-      return 1;
-    };
-    schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks: vi.fn(), loadScript: () => Promise.resolve(null), key: "checkout", idleTimeoutMs: 3000 });
-    expect(seen).toEqual([3000]);
   });
 });

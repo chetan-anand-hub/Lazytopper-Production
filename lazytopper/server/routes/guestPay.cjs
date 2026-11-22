@@ -88,7 +88,7 @@ const { packBaseInrAt, isPackProduct, isPackOnSale, validateTarget, packIdFor } 
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
-const { isOrderParallelDisabled, isOrderKeepAliveDisabled, keepAliveFetch, settle } = require('../services/payOrderTiming.cjs'); // CHECKOUT-FAST-1
+const { isOrderParallelDisabled, settle } = require('../services/payOrderTiming.cjs'); // CHECKOUT-FAST-1
 const { fire: fireServerEvent, signalsFor } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
 // Review fix 5: "already covered till the boards" is the parent-pay rule, reused.
 const { coveredTillBoards } = require('./parentPay.cjs');
@@ -437,11 +437,8 @@ function createGuestPayRoutes(deps = {}) {
     return sendJson(res, 503, { ok: false, error: 'Payments are unavailable right now.' });
   }
 
-  // CHECKOUT-FAST-1: the platform fetch is the default; only then may the order POST ride the kept-alive socket (an injected fetch is used as given).
-  const platformFetch = typeof fetch === 'function' ? fetch : null;
-  async function razorpay(keys, method, apiPath, body, opts) {
+  async function razorpay(keys, method, apiPath, body) {
     if (typeof fetchImpl !== 'function') throw new Error('fetch is unavailable');
-    const send = opts && opts.keepAlive && fetchImpl === platformFetch && !isOrderKeepAliveDisabled(env) ? keepAliveFetch : fetchImpl;
     const init = {
       method,
       headers: {
@@ -453,7 +450,7 @@ function createGuestPayRoutes(deps = {}) {
     if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
       init.signal = AbortSignal.timeout(RAZORPAY_TIMEOUT_MS);
     }
-    const res = await send(`${RAZORPAY_API_BASE}${apiPath}`, init);
+    const res = await fetchImpl(`${RAZORPAY_API_BASE}${apiPath}`, init);
     let json = null;
     try {
       json = await res.json();
@@ -571,8 +568,9 @@ function createGuestPayRoutes(deps = {}) {
     }
 
     // CHECKOUT-FAST-1: the account lookup and the two "already paid" reads do not depend on each other, so they START together
-    // (PAY_ORDER_PARALLEL_DISABLED=1 starts them one after another, as before). They are JUDGED in the old order below: account
-    // lookup first, then the price, then the existing-order read - so every status and body is the same as the sequential route.
+    // (PAY_ORDER_PARALLEL_DISABLED=1 starts them one after another, as before). Their RESULTS are judged in the old order below:
+    // account lookup first, then the price, then the existing-order read - so every status and body is the same as the sequential
+    // route. The one difference: when the lookup finds an account (409) or fails (500), the two reads have already run and are discarded.
     const parallel = !isOrderParallelDisabled(env);
     const wanted = isPack ? packIdFor(sku, packTarget) : GUEST_PASS_SKU;
     const readExisting = async () => {
@@ -656,7 +654,7 @@ function createGuestPayRoutes(deps = {}) {
         currency: CURRENCY,
         // No phone and no uid in the notes: the order id is the only link to our record.
         notes: { payer: GUEST_PAYER, passType: sku, ...(isPack ? { packTarget } : {}), ...(quote.offerKey ? { offerKey: quote.offerKey } : {}) },
-      }, { keepAlive: true }); // CHECKOUT-FAST-1
+      });
     } catch (e) {
       emit('payments.guest.order.razorpay_unreachable');
       console.error('[pay/guest/order] razorpay unreachable:', e && e.message);
@@ -878,7 +876,7 @@ function createGuestPayRoutes(deps = {}) {
         currency: CURRENCY,
         // No phone, no email and no uid in the notes: the order id is the only link to our record.
         notes: { payer: GUEST_PAYER, passType: sku, ...(isPack ? { packTarget } : {}), ...(quote.offerKey ? { offerKey: quote.offerKey } : {}) },
-      }, { keepAlive: true }); // CHECKOUT-FAST-1
+      });
     } catch (e) {
       emit('payments.guest.order.razorpay_unreachable');
       console.error('[pay/guest/order] razorpay unreachable:', e && e.message);
@@ -956,7 +954,7 @@ function createGuestPayRoutes(deps = {}) {
         amount: quote.amountPaise,
         currency: CURRENCY,
         notes: { payer: GUEST_PAYER, passType: sku, ...(isPack ? { packTarget } : {}), ...(quote.offerKey ? { offerKey: quote.offerKey } : {}) },
-      }, { keepAlive: true }); // CHECKOUT-FAST-1
+      });
     } catch (e) {
       emit('payments.guest.order.razorpay_unreachable');
       console.error('[pay/guest/order] razorpay unreachable:', e && e.message);

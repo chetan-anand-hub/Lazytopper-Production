@@ -328,7 +328,7 @@ export default function ForParentsPage() {
   const [payOpen, setPayOpen] = useState(false);
   const mounted = useMounted();
 
-  // CHECKOUT-FAST-1: after load + idle (or the first touch) open Razorpay's connections and load checkout.js (no order). Off: VITE_CHECKOUT_WARM_DISABLED=1.
+  // CHECKOUT-FAST-1: on INTENT only (first touch, or the Pay button in view; never idle) open Razorpay's connections and load checkout.js (no order). Off: VITE_CHECKOUT_WARM_DISABLED=1.
   useEffect(() => {
     warmCheckoutOnPage();
   }, []);
