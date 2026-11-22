@@ -857,10 +857,22 @@ test('§12d GRADER-TYPE-1 — the STORED paid type-probe run (2026-11-22, 3 runs
   assert.match(r.stdout, /TYPE-PROBES: probes=12 stable=12 calls=0 verdict=PASS/);
 });
 
-test('§12e GRADER-TYPE-1 — the STORED paid probe run on prompt 0e213ab8 (lt-probes5, 2026-11-22) replays zero-call: every probe is stable EXCEPT T1-Q25-REASON-PROVEN, whose model replies in runs 2 and 3 typed the reason `conceptual` with knowledgeEvidence null (a model-side miss of the proof; the server never invents proof). KNOWN OPEN — when the prompt fixes it this test must be tightened to 12/12.', () => {
+test('§12e GRADER-TYPE-1 — the STORED paid probe run on prompt 3c7f7797 (07a604d7, t1-probes4) replays zero-call under the round-3 reason-evidence rule at probes=12 stable=12', () => {
   const { spawnSync } = require('child_process');
-  const r = spawnSync(process.execPath, [path.join(__dirname, 'goldenTypeProbes.cjs'), '--run', path.join(__dirname, 'runs', 't1-probes5-2026-11-22'), '--runs', '3'], { encoding: 'utf8' });
-  const fails = r.stdout.split('\n').filter((l) => /^FAIL /.test(l)).map((l) => l.split(' ')[1]).sort();
-  assert.deepEqual(fails, ['S.T1.T1-Q25-REASON-PROVEN', 'W.T1.T1-Q25-REASON-PROVEN'], r.stdout);
-  assert.match(r.stdout, /TYPE-PROBES: probes=12 stable=10 calls=0/);
+  const r = spawnSync(process.execPath, [path.join(__dirname, 'goldenTypeProbes.cjs'), '--run', path.join(__dirname, 'runs', 't1-probes4-2026-11-22'), '--runs', '3'], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /TYPE-PROBES: probes=12 stable=12 calls=0 verdict=PASS/);
+});
+
+test('§12f GRADER-TYPE-1 — the STORED full golden candidate (T1-cand2, paid on 07a604d7, prompt 3c7f7797) replayed with the CURRENT post-processing keeps its original headline: marks and mistake types did not move', async () => {
+  const quiet = { warn: console.warn, error: console.error };
+  console.warn = () => {}; console.error = () => {};
+  try {
+    const { evaluateRun } = require('./lib/evaluate.cjs');
+    const ok = await evaluateRun(path.join(GOLDEN, 'runs', '2026-11-22.T1-cand2'));
+    const m = ok.metrics;
+    assert.deepEqual([m.mcq, m.total_exact, m.within_half, m.wrong_step, m.type, m.comments], [100, 92.7, 100, 94.7, 90.9, 100]);
+    assert.deepEqual(ok.integrity.requestDigestMismatch, []);
+    assert.deepEqual(ok.integrity.replayIncomplete, []);
+  } finally { console.warn = quiet.warn; console.error = quiet.error; }
 });
