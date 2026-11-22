@@ -17,7 +17,7 @@ import { VALIDITY_SHORT } from "../config/validity";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
-import { beginPendingCheckout, razorpayHangOption } from "./payReturn";
+import { beginPendingCheckout, razorpayHangOption, successFromReceipt } from "./payReturn";
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
@@ -553,7 +553,7 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
         ...whoPrefill(recipient, signedIn),
       });
       watchPaymentFailed(checkout, () => undefined);
-      closing.watch(checkout);
+      closing.watch(checkout, { onPaid: (receipt) => resolve(successFromReceipt(receipt)), onClosed: () => resolve(null) });
       checkout.open();
     });
     if (!success) return { status: "dismissed" };
@@ -650,7 +650,7 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
         ...razorpayHangOption(),
       });
       watchPaymentFailed(checkout, () => undefined);
-      closing.watch(checkout);
+      closing.watch(checkout, { onPaid: (receipt) => resolve(successFromReceipt(receipt)), onClosed: () => resolve(null) });
       checkout.open();
     });
     if (!success) return { status: "dismissed" };

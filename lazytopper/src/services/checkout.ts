@@ -444,6 +444,7 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, 
     // PAY-RECOVER-1 — remember THIS tab's open order (an order id, never premium state).
     writePayPending(order.orderId);
     let sawFailure = false;
+    let paidViaStatus = false;
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
       // PAY-HANG-1: a buyer back from the UPI app to a sheet that keeps "waiting" gets a way out (signed-in: the existing status call).
       const hang = watchSheetForHang({
@@ -451,8 +452,16 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, 
         item: { kind: "pass" },
         signedInStatus: async () => {
           const r = await checkPayStatus(order.orderId);
-          return r.state === "paid" ? "paid" : r.state === "pending" ? "pending" : r.state === "expired" ? "failed" : "unknown";
+          // "No payment found yet" is said plainly; a signed-in status never invites a second payment.
+          return r.state === "paid" ? "paid" : r.state === "pending" ? "pending" : "none";
         },
+        // The server says it is paid: this flow continues as "pending" (the existing confirming / hold / poll path), never "dismissed".
+        onPaid: () => {
+          paidViaStatus = true;
+          resolve(null);
+          return true;
+        },
+        onClosed: () => resolve(null),
       });
       const checkout = new Razorpay({
         key: order.keyId,
@@ -483,6 +492,7 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, 
       checkout.open();
     });
     // PAY-RECOVER-1 — the marker is KEPT on dismiss: a UPI app can finish after the sheet closes.
+    if (!success && paidViaStatus) return { status: "pending", orderId: order.orderId };
     if (!success) return sawFailure ? { status: "dismissed", afterFailure: true } : { status: "dismissed" };
     // FOLLOWUPS-1 A4 — additive, analytics only: Razorpay's payment id is read from its signed
     // result (before the verify, so a `pending` outcome can carry it) and the amount from the

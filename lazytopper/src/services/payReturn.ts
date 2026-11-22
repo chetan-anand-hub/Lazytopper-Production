@@ -53,14 +53,19 @@ export const PAY_RETURN_PENDING = "Checking your payment… if money was taken i
 export const PAY_RETURN_DISMISS = "Dismiss";
 
 /* ── PAY-HANG-1 copy ─────────────────────────────────────────────────────────────────────────────────────────────────────── */
-export const PAY_HANG_PROMPT = "Payment app closed?";
-export const PAY_HANG_CHECK = "Check status";
+export const PAY_HANG_PROMPT = "Done in your UPI app?";
+export const PAY_HANG_CHECK = "Check payment status";
 export const PAY_HANG_CHECK_AGAIN = "Check again";
 export const PAY_HANG_RETRY = "Try again";
 export const PAY_HANG_WAITING = "Still waiting for your bank — this can take a minute";
-export const PAY_HANG_CHECK_ERROR = "We couldn't check just now. Try again in a moment.";
+export const PAY_HANG_CHECK_ERROR = "We couldn't check just now. Tap Check again in a moment.";
+export const PAY_HANG_NONE = "No payment found yet";
+export const PAY_HANG_NO_ROUTE = "Finish or cancel in your UPI app. If money was taken it will show here within a few minutes.";
+export const PAY_HANG_LIMIT = "Still not confirmed. If money was taken it will show here within a few minutes — reload this page to see it.";
+export const PAY_HANG_STUCK = "The payment screen didn't close. Reload this page.";
 export const PAY_HANG_PAID = "Payment received. Reload this page to see your purchase.";
 export const PAY_HANG_RELOAD = "Reload";
+export const PAY_HANG_HIDE = "Hide";
 
 export interface PendingOrder {
   orderId: string;
@@ -174,18 +179,19 @@ export function isCheckoutSheetOpen(): boolean {
  * Called by a checkout around `checkout.open()`. `settle()` runs when the sheet reports a result (handler) or is closed by the buyer
  * (ondismiss): the sheet is no longer open and the order's entry is dropped. Idempotent. `remember: false` (a signed-in payer, or an
  * order the server gave no proof for) only tracks the open sheet.
- * PAY-HANG-1: `watch(instance)` (call it right before `open()`) arms the "payment app closed?" bar; `dismissed()` is `settle()` for the
- * ondismiss path - when Razorpay's own `timeout` closed the sheet it KEEPS the note and asks the resume to check the order first.
+ * PAY-HANG-1: `watch(instance, hooks)` (call it right before `open()`) arms the "Done in your UPI app?" bar; `dismissed()` is `settle()` for
+ * the ondismiss path - when Razorpay's own `timeout` closed the sheet, or WE closed it after a status answer, it KEEPS the note (a late
+ * success is still resumed and verified); on the timeout it also asks the resume to check the order first.
  */
 export function beginPendingCheckout(
   order: { orderId: string; statusProof?: string },
   item: { kind: "pass" | "pack"; sku?: string; target?: string },
   remember = true,
   hangDeps: SheetWatchDeps = {},
-): { settle: () => void; dismissed: () => void; watch: (instance: SheetInstance) => void } {
+): { settle: () => void; dismissed: () => void; watch: (instance: SheetInstance, hooks?: SheetHooks) => void } {
   openSheets += 1;
   if (remember && order.statusProof) rememberPendingOrder({ orderId: order.orderId, proof: order.statusProof, item });
-  const sheet = watchSheetForHang({ order, item, ...hangDeps });
+  let hooks: SheetHooks = {};
   let settled = false;
   const finish = (keepNote: boolean) => {
     if (settled) return false;
@@ -195,13 +201,33 @@ export function beginPendingCheckout(
     if (!keepNote) forgetPendingOrder(order.orderId);
     return true;
   };
+  const dismissed = () => {
+    const timedOut = sheet.timedOut();
+    const keep = (timedOut || sheet.closedByUs()) && remember && !!order.statusProof;
+    if (finish(keep) && timedOut && keep) dispatchHang({ kind: "resume" });
+  };
+  const sheet = watchSheetForHang({
+    order,
+    item,
+    ...hangDeps,
+    onPaid: (receipt) => {
+      if (!hooks.onPaid || !receipt) return false;
+      finish(false); // the sale is recorded: the note is dropped and the sheet is no longer "open" here
+      hooks.onPaid(receipt);
+      return true;
+    },
+    onClosed: () => {
+      dismissed(); // never leave the open-sheet count stuck, even if the sheet's own ondismiss never came
+      hooks.onClosed?.();
+    },
+  });
   return {
     settle: () => void finish(false),
-    dismissed: () => {
-      const timedOut = sheet.timedOut() && remember && !!order.statusProof;
-      if (finish(timedOut) && timedOut) dispatchHang({ kind: "resume" });
+    dismissed,
+    watch: (instance, h) => {
+      hooks = h ?? {};
+      sheet.attach(instance);
     },
-    watch: (instance) => sheet.attach(instance),
   };
 }
 
@@ -211,8 +237,14 @@ export function beginPendingCheckout(
 export const HANG_ARM_MS = 20_000;
 /** Razorpay's own `timeout` option (seconds): the sheet closes itself after this, so it can never wait forever. */
 export const RAZORPAY_TIMEOUT_SECONDS = 600;
+/** One order may cost at most this many status calls from the bar, at least this far apart (per page). */
+export const HANG_CHECK_MAX = 8;
+export const HANG_CHECK_COOLDOWN_MS = 10_000;
+/** After rzp.close(), how long we wait to SEE the sheet gone before keeping our bar. */
+export const HANG_CLOSE_WAIT_MS = 2000;
 /** Fired on `window` for PayReturnResume (when mounted): { kind: "paid" | "failed" | "resume", handled }. */
 export const PAY_HANG_EVENT = "lt:pay-hang";
+const hangChecks = new Map<string, number>();
 
 export function isPayHangDisabled(): boolean {
   try {
@@ -229,12 +261,29 @@ export function razorpayHangOption(): { timeout?: number } {
 }
 
 export type SheetInstance = { close?: () => void };
-export type HangStatus = "paid" | "failed" | "pending" | "unknown";
+/** "none" = the server has no payment for this order (signed-in status): said plainly, never a re-pay invitation. */
+export type HangStatus = "paid" | "failed" | "pending" | "unknown" | "none";
 export type HangEventDetail = { handled: boolean } & ({ kind: "paid"; receipt: ReceiptProof } | { kind: "failed"; entry: PendingOrder } | { kind: "resume" });
 
+/** What Razorpay's handler would have handed the browser: the receipt the server returns IS that signed result. */
+export function successFromReceipt(r: ReceiptProof): { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string } {
+  return { razorpay_payment_id: r.paymentId, razorpay_order_id: r.orderId, razorpay_signature: r.signature };
+}
+
+/** What a checkout hands the bar: how to deliver a "paid" answer to ITS flow, and how to release its promise after we close the sheet. */
+export interface SheetHooks {
+  /** Called BEFORE we close the sheet, with the server's receipt: the checkout resolves as if Razorpay's handler fired (its paid screen). */
+  onPaid?: (receipt: ReceiptProof) => void;
+  onClosed?: () => void;
+}
+
 export interface SheetWatchDeps {
-  /** A signed-in payer's own status call (no per-order proof): resolves paid / failed / pending / unknown. Absent: no "Check status". */
+  /** A signed-in payer's own status call (no per-order proof): resolves paid / failed / pending / unknown / none. Absent: no "Check payment status". */
   signedInStatus?: () => Promise<HangStatus>;
+  /** Returns true when the checkout took the paid answer itself (then no event / fallback bar). The receipt is null for a signed-in payer. */
+  onPaid?: (receipt: ReceiptProof | null) => boolean | void;
+  /** Called after WE closed the sheet (whether or not it vanished): resolve the checkout's promise, release open-sheet tracking. Idempotent. */
+  onClosed?: () => void;
   fetchImpl?: typeof fetch;
   /** Test seams. */
   navigate?: (path: string) => void;
@@ -246,6 +295,8 @@ export interface SheetWatch {
   stop: () => void;
   /** The sheet was closed by Razorpay's own timeout (not by the buyer). */
   timedOut: () => boolean;
+  /** We started the close (after a paid / failed answer). */
+  closedByUs: () => boolean;
 }
 
 /** Returns whether a mounted PayReturnResume took it. */
@@ -273,7 +324,19 @@ function retryPath(item?: { kind: "pass" | "pack"; sku?: string; target?: string
   }
 }
 
-const NOOP_WATCH: SheetWatch = { attach: () => undefined, stop: () => undefined, timedOut: () => false };
+const NOOP_WATCH: SheetWatch = { attach: () => undefined, stop: () => undefined, timedOut: () => false, closedByUs: () => false };
+
+/** Is a Razorpay sheet still on screen? (absent, or hidden by display / visibility, counts as gone) */
+function razorpaySheetVisible(): boolean {
+  try {
+    return Array.from(document.querySelectorAll(".razorpay-container, iframe.razorpay-checkout-frame")).some((el) => {
+      const cs = window.getComputedStyle(el);
+      return cs.display !== "none" && cs.visibility !== "hidden";
+    });
+  } catch {
+    return false;
+  }
+}
 
 export function watchSheetForHang(args: { order: { orderId: string; statusProof?: string }; item?: { kind: "pass" | "pack"; sku?: string; target?: string } } & SheetWatchDeps): SheetWatch {
   if (isPayHangDisabled() || typeof window === "undefined" || typeof document === "undefined") return NOOP_WATCH;
@@ -286,13 +349,22 @@ export function watchSheetForHang(args: { order: { orderId: string; statusProof?
   let stopped = false;
   let away = false;
   let busy = false;
+  let hidden = false;
+  let weClosed = false;
+  let cooldownUntil = 0;
   let timer: ReturnType<typeof setTimeout> | null = null;
+  let coolTimer: ReturnType<typeof setTimeout> | null = null;
   let bar: HangBar | null = null;
+  let last: { line: string; label: string } = { line: "", label: "" };
   const unlisten: Array<() => void> = [];
 
   const clearTimer = () => {
     if (timer !== null) clearTimeout(timer);
     timer = null;
+  };
+  const clearCool = () => {
+    if (coolTimer !== null) clearTimeout(coolTimer);
+    coolTimer = null;
   };
   const closeSheet = () => {
     try {
@@ -304,52 +376,102 @@ export function watchSheetForHang(args: { order: { orderId: string; statusProof?
   const stop = () => {
     stopped = true;
     clearTimer();
+    clearCool();
     unlisten.splice(0).forEach((f) => f());
     bar?.remove();
     bar = null;
   };
+  const used = () => hangChecks.get(order.orderId) ?? 0;
+  const reload = { id: "reload", label: PAY_HANG_RELOAD, main: true, onClick: () => window.location.reload() };
+  const hideBtn = (b: HangBar | null) => ({
+    id: "hide",
+    label: PAY_HANG_HIDE,
+    onClick: () => {
+      hidden = true;
+      clearCool();
+      b?.remove();
+      if (b === bar) bar = null;
+    },
+  });
 
+  /** The bar's one state. With a status route: ONLY "Check payment status" (+ Hide) - never a way to pay again. Without one: just the wait line. */
   const showPrompt = (line: string, checkLabel: string) => {
-    bar?.set(line, [
-      ...(canCheck ? [{ id: "check", label: checkLabel, main: true, onClick: () => void check() }] : []),
-      { id: "retry", label: PAY_HANG_RETRY, main: !canCheck, onClick: tryAgain },
+    if (!bar) return;
+    last = { line, label: checkLabel };
+    clearCool();
+    if (!canCheck) {
+      bar.set(PAY_HANG_NO_ROUTE, [reload, hideBtn(bar)]);
+      return;
+    }
+    if (used() >= HANG_CHECK_MAX) {
+      bar.set(PAY_HANG_LIMIT, [reload, hideBtn(bar)]);
+      return;
+    }
+    const wait = cooldownUntil - Date.now();
+    bar.set(line, [{ id: "check", label: checkLabel, main: true, disabled: wait > 0, onClick: () => void check() }, hideBtn(bar)]);
+    if (wait > 0) coolTimer = setTimeout(() => showPrompt(last.line, last.label), wait + 20);
+  };
+
+  const waitSheetGone = async () => {
+    const end = Date.now() + HANG_CLOSE_WAIT_MS;
+    while (razorpaySheetVisible()) {
+      if (Date.now() >= end) return false;
+      await new Promise<void>((r) => setTimeout(r, 100));
+    }
+    return true;
+  };
+
+  /** After a paid / failed answer: hand "paid" to the checkout's own flow, close the sheet, SEE it gone; otherwise keep a bar. */
+  const conclude = async (result: { kind: "paid"; receipt: ReceiptProof | null } | { kind: "failed" }) => {
+    weClosed = true;
+    bar?.set(PAY_RETURN_CHECKING, []);
+    let delivered = false;
+    if (result.kind === "paid") {
+      if (result.receipt) storeReceiptProof(result.receipt);
+      forgetPendingOrder(order.orderId);
+      try {
+        delivered = args.onPaid?.(result.receipt) === true;
+      } catch {
+        delivered = false;
+      }
+    }
+    closeSheet(); // a failed answer KEEPS the pending note (B4): a late success is still resumed
+    const gone = await waitSheetGone();
+    stop();
+    try {
+      args.onClosed?.();
+    } catch {
+      /* releasing the checkout must never throw */
+    }
+    const fallback = () => mountHangBar();
+    if (!gone) {
+      const b = fallback();
+      b?.set(result.kind === "paid" ? PAY_HANG_PAID : PAY_HANG_STUCK, [reload, hideBtn(b)]);
+      return;
+    }
+    if (result.kind === "paid") {
+      if (delivered) return;
+      if (result.receipt && dispatchHang({ kind: "paid", receipt: result.receipt })) return;
+      const b = fallback();
+      b?.set(PAY_HANG_PAID, [reload, hideBtn(b)]);
+      return;
+    }
+    const entry: PendingOrder = { orderId: order.orderId, proof: proof ?? "", host: hostSlug(window.location.pathname), ...(item && buyTargetOf(item) ? { buy: buyTargetOf(item) } : {}), startedAt: openedAt };
+    if (dispatchHang({ kind: "failed", entry })) return;
+    // No resume view mounted (or a signed-in payer): the "Try again" appears HERE, only because the server said the payment failed.
+    const b = fallback();
+    const path = retryPath(item);
+    b?.set(PAY_RETURN_FAILED, [
+      ...(path ? [{ id: "retry", label: PAY_HANG_RETRY, main: true, onClick: () => { b.remove(); navigate(path); } }] : []),
+      hideBtn(b),
     ]);
   };
 
-  const tryAgain = () => {
-    if (busy || stopped) return;
-    const path = retryPath(item);
-    stop();
-    closeSheet(); // ondismiss runs the checkout's own settle: the note is dropped, the sheet is no longer "open"
-    if (path) navigate(path); // the same page with ?buy=: every host already reopens that checkout on arrival - a NEW order
-  };
-
-  /** The sheet is closed here and the answer handed to the page; a page with no resume mounted gets a plain bar instead. */
-  const conclude = (detail: { kind: "paid"; receipt: ReceiptProof } | { kind: "failed"; entry: PendingOrder } | null, paidNoReceipt = false) => {
-    stop();
-    closeSheet();
-    const handled = detail ? dispatchHang(detail) : false;
-    if (handled) return;
-    const fallback = mountHangBar();
-    if (!fallback) return;
-    const done = () => fallback.remove();
-    if (detail?.kind === "paid" || paidNoReceipt) {
-      fallback.set(PAY_HANG_PAID, [
-        { id: "reload", label: PAY_HANG_RELOAD, main: true, onClick: () => window.location.reload() },
-        { id: "dismiss", label: "Dismiss", onClick: done },
-      ]);
-    } else {
-      const path = retryPath(item);
-      fallback.set(PAY_RETURN_FAILED, [
-        ...(path ? [{ id: "retry", label: PAY_HANG_RETRY, main: true, onClick: () => { done(); navigate(path); } }] : []),
-        { id: "dismiss", label: "Dismiss", onClick: done },
-      ]);
-    }
-  };
-
   const check = async () => {
-    if (busy || stopped || !bar || !canCheck) return;
+    if (busy || stopped || !bar || !canCheck || used() >= HANG_CHECK_MAX || Date.now() < cooldownUntil) return;
     busy = true;
+    hangChecks.set(order.orderId, used() + 1);
+    cooldownUntil = Date.now() + HANG_CHECK_COOLDOWN_MS;
     bar.set(PAY_RETURN_CHECKING, []); // no button while the call is out: one status call per tap
     let status: HangStatus = "unknown";
     let receipt: ReceiptProof | null = null;
@@ -359,35 +481,31 @@ export function watchSheetForHang(args: { order: { orderId: string; statusProof?
         if (out.kind === "paid") {
           status = "paid";
           receipt = out.receipt;
-        } else if (out.kind === "failed" || out.kind === "gone") status = "failed";
+        } else if (out.kind === "failed") status = "failed";
         else if (out.kind === "pending") status = "pending";
+        // gone / error: the server did not answer about THIS payment - never "failed", never a way to pay again
       } else if (signedInStatus) {
         status = await signedInStatus();
       }
     } catch {
       status = "unknown";
-    } finally {
-      busy = false;
     }
-    if (stopped) return; // the sheet reported by itself while we asked
-    if (status === "paid") {
-      if (receipt) {
-        storeReceiptProof(receipt);
-        forgetPendingOrder(order.orderId);
-        conclude({ kind: "paid", receipt });
-      } else conclude(null, true);
-    } else if (status === "failed") {
-      forgetPendingOrder(order.orderId);
-      conclude({
-        kind: "failed",
-        entry: { orderId: order.orderId, proof: proof ?? "", host: hostSlug(window.location.pathname), ...(item && buyTargetOf(item) ? { buy: buyTargetOf(item) } : {}), startedAt: openedAt },
-      });
-    } else if (status === "pending") showPrompt(PAY_HANG_WAITING, PAY_HANG_CHECK_AGAIN);
-    else showPrompt(PAY_HANG_CHECK_ERROR, PAY_HANG_CHECK_AGAIN);
+    if (stopped) {
+      busy = false;
+      return; // the sheet reported by itself while we asked
+    }
+    if (status === "paid") void conclude({ kind: "paid", receipt });
+    else if (status === "failed") void conclude({ kind: "failed" });
+    else {
+      busy = false;
+      if (status === "pending") showPrompt(PAY_HANG_WAITING, PAY_HANG_CHECK_AGAIN);
+      else if (status === "none") showPrompt(PAY_HANG_NONE, PAY_HANG_CHECK_AGAIN);
+      else showPrompt(PAY_HANG_CHECK_ERROR, PAY_HANG_CHECK_AGAIN);
+    }
   };
 
   const show = () => {
-    if (stopped || bar) return;
+    if (stopped || bar || hidden) return;
     bar = mountHangBar();
     if (bar) showPrompt(PAY_HANG_PROMPT, PAY_HANG_CHECK);
   };
@@ -397,7 +515,7 @@ export function watchSheetForHang(args: { order: { orderId: string; statusProof?
   };
   const onBack = () => {
     // Only after a REAL app switch (the page was hidden), only once, only while the sheet is still open.
-    if (!away || stopped || bar || timer !== null) return;
+    if (!away || stopped || bar || hidden || timer !== null) return;
     timer = setTimeout(() => {
       timer = null;
       if (typeof document.visibilityState === "string" && document.visibilityState === "hidden") return;
@@ -422,12 +540,14 @@ export function watchSheetForHang(args: { order: { orderId: string; statusProof?
     },
     stop,
     timedOut: () => openedAt > 0 && Date.now() - openedAt >= RAZORPAY_TIMEOUT_SECONDS * 1000 - 3000,
+    closedByUs: () => weClosed,
   };
 }
 
 /** Test seam. */
 export function resetPayReturnForTests(): void {
   openSheets = 0;
+  hangChecks.clear();
 }
 
 /* ── asking the server ──────────────────────────────────────────────────────────────────────────────────────────────────── */
