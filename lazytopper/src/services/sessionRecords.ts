@@ -1204,12 +1204,11 @@ export async function getSessionPerQuestion(
   }
 }
 
-/** RESULT-LIST-BACKFILL-1 (ADDITIVE, READ-ONLY) - the device mirror's payload for ONE ref, or null.
- *  Synchronous (localStorage only, no network). */
-export function readLocalSessionPerQuestion(uid: string | null | undefined, ref: string): SessionPerQuestionPayload | null {
+/** RESULT-LIST-BACKFILL-1 (ADDITIVE, READ-ONLY) - the device mirror's payloads by ref, parsed ONCE
+ *  (a caller looks up many refs in the one map). Synchronous (localStorage only, no network). */
+export function readLocalSessionPerQuestionMap(uid: string | null | undefined): Readonly<Record<string, SessionPerQuestionPayload>> {
   const id = readableUid(uid);
-  if (!id || !ref) return null;
-  return readLocalPayloads(id)[ref] ?? null;
+  return id ? readLocalPayloads(id) : {};
 }
 
 /** RESULT-LIST-BACKFILL-1 (ADDITIVE, READ-ONLY) - ONE payload doc read by its id (the same

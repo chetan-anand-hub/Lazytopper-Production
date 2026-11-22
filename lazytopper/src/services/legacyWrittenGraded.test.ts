@@ -152,6 +152,14 @@ describe("the evidence: a graded row the grader produced", () => {
     expect(payloadProvesWrittenGraded(r, payloadFor(r, afterUpload, { surface: "worksheet" }))).toBe(false);
     expect(payloadProvesWrittenGraded(r, null)).toBe(false);
   });
+  it("N4: a payload OLDER than the record proves nothing; same time or newer does", () => {
+    const r = rec();
+    expect(payloadProvesWrittenGraded(r, payloadFor(r, afterUpload, { gradedAt: r.gradedAt - 1 }))).toBe(false);
+    expect(payloadProvesWrittenGraded(r, payloadFor(r, afterUpload, { gradedAt: r.gradedAt }))).toBe(true);
+    expect(payloadProvesWrittenGraded(r, payloadFor(r, afterUpload, { gradedAt: r.gradedAt + 1 }))).toBe(true);
+    // a missing time on either side is not evidence against
+    expect(payloadProvesWrittenGraded(r, payloadFor(r, afterUpload, { gradedAt: undefined as unknown as number }))).toBe(true);
+  });
 });
 
 describe("withDerivedWrittenGraded (pure, in memory only)", () => {
@@ -226,12 +234,31 @@ describe("deriveWrittenGraded (device first, then one doc read per candidate, me
     await deriveWrittenGraded(UID, [legacy, missing]);
     expect(cloud.reads).toHaveLength(2);
   });
-  it("cloud reads are capped per call", async () => {
+  it("N2: cloud reads are capped per account per TAB - a second call (another mount) reads nothing new", async () => {
     const many = Array.from({ length: MAX_CLOUD_READS + 5 }, (_, i) =>
       rec({ id: `CT-M-QUAD-${i}`, perQuestionRef: `ct:CT-M-QUAD-${i}`, worksheetId: `ws-${i}` }),
     );
     await deriveWrittenGraded(UID, many);
     expect(cloud.reads).toHaveLength(MAX_CLOUD_READS);
+    await deriveWrittenGraded(UID, many);
+    expect(cloud.reads).toHaveLength(MAX_CLOUD_READS);
+    const more = Array.from({ length: 5 }, (_, i) => rec({ id: `CT-M-NEW-${i}`, perQuestionRef: `ct:CT-M-NEW-${i}`, worksheetId: `ws-new-${i}` }));
+    await deriveWrittenGraded(UID, more);
+    expect(cloud.reads).toHaveLength(MAX_CLOUD_READS);
+  });
+  it("N1: the device payload blob is parsed ONCE per call, however many candidates", async () => {
+    const list = Array.from({ length: 6 }, (_, i) => rec({ id: `CT-M-QUAD-${i}`, perQuestionRef: `ct:CT-M-QUAD-${i}`, worksheetId: `ws-${i}` }));
+    seedLocalPayloads(list.map((r) => payloadFor(r, afterUpload)));
+    const key = `lazytopper.user.${UID}.sessionPerQuestion.v1`;
+    const spy = vi.spyOn(Storage.prototype, "getItem");
+    const out = await deriveWrittenGraded(UID, list);
+    expect(out.every((r) => r.writtenGraded === true)).toBe(true);
+    expect(spy.mock.calls.filter(([k]) => k === key)).toHaveLength(1);
+    spy.mockClear();
+    withDerivedWrittenGradedLocal(UID, list);
+    expect(spy.mock.calls.filter(([k]) => k === key)).toHaveLength(1);
+    spy.mockRestore();
+    expect(cloud.reads).toEqual([]);
   });
   it("signed out / kill switch -> as stored, no read", async () => {
     cloud.docs.set("ct:CT-M-QUAD-01", payloadFor(rec(), afterUpload));

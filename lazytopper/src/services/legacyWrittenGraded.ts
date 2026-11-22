@@ -23,15 +23,16 @@
 // KILL SWITCH: VITE_RESULT_LIST_BACKFILL_DISABLED=1 -> records are returned untouched (exactly #1802).
 //
 // READ COST: no read at all unless a list holds a legacy candidate (CT/FM, `partial`, no
-// `writtenGraded`). Then the device mirror first; only a candidate it does not hold costs ONE doc read
-// (by id, never the collection), at most MAX_CLOUD_READS per call, and each ref is read at most once per
-// tab (memoised, found or not).
+// `writtenGraded`). Then the device mirror first (its blob parsed ONCE per call, however many candidates);
+// only a candidate it does not hold costs ONE doc read (by id, never the collection). Each ref is read at
+// most once per tab (memoised, found or not), and at most MAX_CLOUD_READS refs per account per TAB in all,
+// so repeated mounts can never add another batch.
 
 import { isGradedQuestion } from "../lib/mistakeDisplay";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
 import {
   getSessionPerQuestionDocFromCloud,
-  readLocalSessionPerQuestion,
+  readLocalSessionPerQuestionMap,
   type SessionPerQuestionPayload,
   type SessionRecord,
 } from "./sessionRecords";
@@ -79,6 +80,10 @@ export function payloadProvesWrittenGraded(record: SessionRecord, payload: Sessi
   if (payload.ref !== record.perQuestionRef) return false;
   if (payload.worksheetId !== record.worksheetId) return false;
   if (payload.surface && payload.surface !== record.surface) return false;
+  // never a payload OLDER than the record (an earlier sitting's copy); the grade services stamp both with the same time
+  const pAt = Number(payload.gradedAt);
+  const rAt = Number(record.gradedAt);
+  if (Number.isFinite(pAt) && Number.isFinite(rAt) && pAt > 0 && rAt > 0 && pAt < rAt) return false;
   return resultsShowGradedWritten(payload.response.results);
 }
 
@@ -96,22 +101,26 @@ export function withDerivedWrittenGraded(
   );
 }
 
-/** Synchronous: the device mirror only (no network). For Home's first paint. */
+/** Synchronous: the device mirror only (no network; the blob is parsed once). For Home's first paint. */
 export function withDerivedWrittenGradedLocal(uid: string | null | undefined, records: readonly SessionRecord[]): SessionRecord[] {
-  if (!uid || !records.some(isLegacyWrittenGradedCandidate)) return records.slice();
-  return withDerivedWrittenGraded(records, (r) => readLocalSessionPerQuestion(uid, r.perQuestionRef));
+  if (!uid || !isLegacyWrittenGradedEnabled() || !records.some(isLegacyWrittenGradedCandidate)) return records.slice();
+  const local = readLocalSessionPerQuestionMap(uid);
+  return withDerivedWrittenGraded(records, (r) => local[r.perQuestionRef]);
 }
 
 // Per-tab memo of what a cloud read found for a ref (the payload, or null = not there / unreadable).
 const cloudMemo = new Map<string, Promise<SessionPerQuestionPayload | null>>();
+// Per-tab count of cloud reads started, per account (the MAX_CLOUD_READS budget).
+const cloudReadsByUid = new Map<string, number>();
 
 /** Test seam. */
 export function __resetLegacyWrittenGradedForTests(): void {
   cloudMemo.clear();
+  cloudReadsByUid.clear();
 }
 
 /**
- * Device mirror first, then ONE doc read per remaining candidate (capped, memoised per tab). Never throws;
+ * Device mirror first, then ONE doc read per remaining candidate (capped per account per tab, memoised per tab). Never throws;
  * a failed read leaves that record exactly as stored.
  */
 export async function deriveWrittenGraded(
@@ -123,10 +132,10 @@ export async function deriveWrittenGraded(
   if (candidates.length === 0) return records.slice();
   const found = new Map<string, SessionPerQuestionPayload | null>();
   const waits: Promise<void>[] = [];
-  let reads = 0;
+  const localMap = readLocalSessionPerQuestionMap(uid);
   for (const r of candidates) {
     const ref = r.perQuestionRef;
-    const local = readLocalSessionPerQuestion(uid, ref);
+    const local = localMap[ref] ?? null;
     if (payloadProvesWrittenGraded(r, local)) {
       found.set(ref, local);
       continue;
@@ -134,8 +143,9 @@ export async function deriveWrittenGraded(
     const key = `${uid}::${ref}`;
     let pending = cloudMemo.get(key);
     if (!pending) {
-      if (reads >= MAX_CLOUD_READS) continue;
-      reads += 1;
+      const used = cloudReadsByUid.get(uid) ?? 0;
+      if (used >= MAX_CLOUD_READS) continue;
+      cloudReadsByUid.set(uid, used + 1);
       pending = getSessionPerQuestionDocFromCloud(uid, ref).catch(() => null);
       cloudMemo.set(key, pending);
     }
