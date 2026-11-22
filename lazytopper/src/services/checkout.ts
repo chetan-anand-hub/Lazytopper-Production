@@ -21,7 +21,7 @@ import { razorpayUpiFirstOption, type RazorpayDisplayConfig } from "./razorpayDi
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
-import { adSignalFields } from "../analytics/adSignals";
+import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 
 /** The two passes the server sells (server/services/passGrant.cjs PASS_TYPES). */
 export type PassType = "month" | "till_boards";
@@ -284,11 +284,13 @@ async function postJson(url: string, body: unknown): Promise<Record<string, unkn
 /** Z2 — the server prices and creates the order. Only the pass TYPE is sent. */
 export async function createPayOrder(passType: PassType, opts: { postPay?: boolean } = {}): Promise<PayOrder> {
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(authHeaders, opts) : {};
-  const json = await postJson(PAY_ORDER_ENDPOINT, { passType, ...gst, ...waOptInOrderFields(), ...orderSourceFields(), ...adSignalFields() }); // WHATSAPP-OPTIN-1: only a valid number + the tick
+  const signals = adSignalFields(); // META-IC-1: the attempt id rides the body and the InitiateCheckout below
+  const json = await postJson(PAY_ORDER_ENDPOINT, { passType, ...gst, ...waOptInOrderFields(), ...orderSourceFields(), ...signals }); // WHATSAPP-OPTIN-1: only a valid number + the tick
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new Error("malformed order");
   }
+  metaIcAfterOrder(signals, json, passType);
   return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
@@ -326,18 +328,20 @@ function readPackGrant(json: Record<string, unknown>): PackGrant | null {
 /** The server prices and creates a pack order. Only the sku and (where the sku has one) the target are sent. */
 export async function createPackOrder(sku: string, packTarget?: string, opts: { postPay?: boolean } = {}): Promise<PayOrder> {
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(authHeaders, opts) : {};
+  const signals = adSignalFields(); // META-IC-1
   const json = await postJson(PAY_ORDER_ENDPOINT, {
     passType: sku,
     ...(packTarget !== undefined ? { packTarget } : {}),
     ...gst,
     ...waOptInOrderFields(), // WHATSAPP-OPTIN-1: only a valid number + the tick
     ...orderSourceFields(), // ORDER-SOURCE-1
-    ...adSignalFields(), // SERVER-EVENTS-1
+    ...signals, // SERVER-EVENTS-1
   });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new Error("malformed order");
   }
+  metaIcAfterOrder(signals, json, sku);
   return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 

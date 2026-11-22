@@ -1241,25 +1241,34 @@ export function trackBeginCheckoutTap(details: CheckoutDetails, signedIn: boolea
 
 /** META-IC-1: attempt ids that already sent Meta's InitiateCheckout in this page load (a repeat is never put on the wire). */
 const metaOrderIcSent = new Set<string>();
+const metaOrderIcOrders = new Set<string>();
 /** Test seam. */
 export function __resetMetaOrderIcForTests(): void {
   metaOrderIcSent.clear();
+  metaOrderIcOrders.clear();
 }
 
 /**
  * META-IC-1 - Meta's InitiateCheckout, sent ONLY when a Razorpay order was created (the order-create response was ok and has an
  * order id), ONCE per checkout attempt, with `eventID` = the attempt id the order-create request carried (the server sends its
- * Conversions API twin with the same event_id, so Meta counts one). Called by the order-create observer (orderIc.ts), never from a
- * tap. Params keep today's shapes: a pass sends { currency, value } (+ `surface` on a sales page); a pack sends
+ * Conversions API twin with the same event_id, so Meta counts one). Called by the order-create service functions (via metaIcAfterOrder in adSignals.ts) once their
+ * response is ok, never from a tap. Params keep today's shapes: a pass sends { currency, value } (+ `surface` on a sales page); a pack sends
  * { currency, value, content_ids, content_type }. `value` is the SERVER order amount (incl. GST) in rupees. Meta only: the
  * first-party log, Vercel and GA4 keep their own `begin_checkout` / `pack_checkout` TAP events exactly as before. Same Meta gate
  * (analytics on, not an admin page, clean address, library queue) as every other Meta event, via sendToMeta.
  */
-export function trackMetaInitiateCheckoutAtOrder(input: { attemptId: string; amountPaise: number | null; sku: string | null }): void {
+export function trackMetaInitiateCheckoutAtOrder(input: { attemptId: string; orderId?: string; reused?: boolean; amountPaise: number | null; sku: string | null }): void {
   try {
     if (metaIcAtOrderDisabled() || !analyticsEnabled()) return;
     const id = input.attemptId;
     if (typeof id !== "string" || !id || metaOrderIcSent.has(id)) return;
+    // A handed-back OPEN order (MONEY-DUPGUARD-1: dismiss + re-tap, a reload, a second tab) was counted when it was created; and an
+    // order id is only ever counted once, whatever attempt id the call carried.
+    if (input.reused === true) return;
+    if (input.orderId) {
+      if (metaOrderIcOrders.has(input.orderId)) return;
+      metaOrderIcOrders.add(input.orderId);
+    }
     if (ADMIN_PATH.test(routerPathOf(window.location.pathname))) return;
     metaOrderIcSent.add(id);
     const value = typeof input.amountPaise === "number" && Number.isFinite(input.amountPaise) && input.amountPaise > 0 ? Math.round(input.amountPaise) / 100 : null;

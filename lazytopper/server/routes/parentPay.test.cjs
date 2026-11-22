@@ -1534,6 +1534,7 @@ test('META-IC-1 · a parent pass order and a parent pack order each fire ONE ord
   assert.equal(packLink.status, 200, packLink.text);
   const pack = await request(srv.port, PARENT_ORDER_PATH, { body: { token: packLink.json.token, product: 'pack', adSignals: { attemptId: 'lt_ic_parent_02' } } });
   assert.equal(pack.status, 200, pack.text);
+  assert.equal(pack.json.sku, 'pack_cbq', 'the pack order names its sku so the browser event carries the same content_ids');
   assert.deepEqual(created.map((c) => [c.orderId, c.passType, c.amountPaise, c.uid, c.signals.attemptId]), [
     [pass.json.orderId, 'till_boards', pass.json.amountPaise, 'child1', 'lt_ic_parent_01'],
     [pack.json.orderId, 'pack_cbq', pack.json.amountPaise, 'child1', 'lt_ic_parent_02'],

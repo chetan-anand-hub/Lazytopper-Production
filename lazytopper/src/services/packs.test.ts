@@ -23,7 +23,8 @@ import { allDesktopTopics } from "../lib/desktop/topics";
 
 /** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
 const withoutAdSignals = (b: Record<string, unknown>): Record<string, unknown> => {
-  const { adSignals: _adSignals, ...rest } = b;
+  const { adSignals, ...rest } = b;
+  expect((adSignals as { attemptId?: string } | undefined)?.attemptId).toMatch(/^lt_/);
   return rest;
 };
 

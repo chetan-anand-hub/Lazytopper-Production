@@ -20,7 +20,7 @@ import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from 
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
-import { adSignalFields } from "../analytics/adSignals";
+import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 import { beginPendingCheckout } from "./payReturn";
 
@@ -153,6 +153,7 @@ async function postJson(url: string, body: unknown, headers: Record<string, stri
 /** Exported for tests; the default `buyAsGuest` path. */
 export async function createGuestOrder(item: GuestItem, phone: string): Promise<GuestOrder> {
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null) : {};
+  const signals = adSignalFields(); // META-IC-1
   const json = await postJson(GUEST_ORDER_ENDPOINT, {
     sku: item.sku,
     ...(item.kind === "pack" && item.target ? { target: item.target } : {}),
@@ -160,12 +161,13 @@ export async function createGuestOrder(item: GuestItem, phone: string): Promise<
     ...gst,
     ...waOptInOrderFields(), // WHATSAPP-OPTIN-1: only a valid number + the tick
     ...orderSourceFields(), // ORDER-SOURCE-1
-    ...adSignalFields(), // SERVER-EVENTS-1
+    ...signals, // SERVER-EVENTS-1
   });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new GuestPayError("failed");
   }
+  metaIcAfterOrder(signals, json, item.sku);
   return { orderId, keyId, amountPaise, ...(typeof json.statusProof === "string" ? { statusProof: json.statusProof } : {}), ...serverPriceFields(json) };
 }
 

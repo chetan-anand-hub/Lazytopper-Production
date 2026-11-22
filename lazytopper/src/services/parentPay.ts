@@ -24,7 +24,7 @@
  * Vercel get a redacted path; Meta sends nothing from an address with a hash).
  */
 import { orderSourceFields } from "../analytics/visitSource";
-import { adSignalFields } from "../analytics/adSignals";
+import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 import { loadCheckoutScript, watchPaymentFailed, type PassType, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 // PARENT-PACKS-1: the pack half lives in ./parentPayPack (a lazy chunk); only types are shared here (erased at build).
 import type { ParentPackRef } from "./parentPayPack";
@@ -224,11 +224,13 @@ export interface ParentBuyDeps {
 export async function createParentOrder(token: string, passType: PassType) {
   // GST-INVOICE-1: the PARENT (the payer) confirms their state.
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null, { postPay: true }) : {}; // host: ParentPayPanel's paid / pending screen mounts PostPayGst
-  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, passType, ...gst, ...orderSourceFields(), ...adSignalFields() });
+  const signals = adSignalFields(); // META-IC-1
+  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, passType, ...gst, ...orderSourceFields(), ...signals });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new ParentLinkError("failed");
   }
+  metaIcAfterOrder(signals, json, passType);
   return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 

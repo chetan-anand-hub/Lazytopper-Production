@@ -10,7 +10,7 @@
  * proof is about answers checked, which a PDF pack does not do.
  */
 import { orderSourceFields } from "../analytics/visitSource";
-import { adSignalFields } from "../analytics/adSignals";
+import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 import { formatInr } from "../config/pricing";
 import type { PackSku } from "./packs";
 import {
@@ -118,9 +118,11 @@ export interface ParentPackBuyDeps {
 export async function createParentPackOrder(token: string) {
   // GST-INVOICE-1: the PARENT (the payer) confirms their state.
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null, { postPay: true }) : {}; // host: ParentPayPanel's paid / pending screen mounts PostPayGst
-  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, product: "pack", ...gst, ...orderSourceFields(), ...adSignalFields() });
+  const signals = adSignalFields(); // META-IC-1
+  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, product: "pack", ...gst, ...orderSourceFields(), ...signals });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new ParentLinkError("failed");
+  metaIcAfterOrder(signals, json, null); // the server names the pack sku in its reply
   return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 

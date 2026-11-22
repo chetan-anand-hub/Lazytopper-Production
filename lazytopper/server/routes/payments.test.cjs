@@ -2092,7 +2092,10 @@ test('REUSE · THE RACE: two tabs ask before either pays -> ONE Razorpay order; 
   const a = await createOrder(srv, 'r1', 'till_boards');
   const b = await createOrder(srv, 'r1', 'till_boards'); // the second tab
   assert.equal(b.orderId, a.orderId, 'a second order was created');
-  assert.deepEqual(b, a, 'the second tab gets the same order, amount and breakup');
+  // META-IC-1: the handed-back order says so (`reused: true`), so the browser sends no second InitiateCheckout for it.
+  assert.equal(b.reused, true);
+  assert.equal(a.reused, undefined);
+  assert.deepEqual({ ...b, reused: undefined }, { ...a, reused: undefined }, 'the second tab gets the same order, amount and breakup');
   assert.equal(orderPosts(srv), 1);
   assert.equal(dgPayOrders(db).length, 1);
   assert.ok(srv.events.includes('payments.order.reused'));

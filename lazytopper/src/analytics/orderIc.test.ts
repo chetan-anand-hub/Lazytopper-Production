@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 const recordActivity = vi.hoisted(() => vi.fn());
 vi.mock("../services/activityClient", () => ({ recordActivity }));
+vi.mock("../services/firebaseClient", () => ({ authClient: { currentUser: { getIdToken: async () => "tok" } } }));
 
 import {
   __resetMetaOrderIcForTests,
@@ -11,14 +12,20 @@ import {
   trackBeginCheckoutTap,
 } from "./analytics";
 import { adSignalFields } from "./adSignals";
+import { createPayOrder, createPackOrder } from "../services/checkout";
+import { createGuestOrder } from "../services/guestPay";
+import { createWhoOrder, createSelfOrder } from "../services/checkoutWho";
+import { createParentOrder } from "../services/parentPay";
+import { createParentPackOrder } from "../services/parentPayPack";
 import { trackPackCheckout, __resetPackMetaCheckoutForTests } from "../lib/packs/packAnalytics";
 
 /**
  * META-IC-1 - Meta's InitiateCheckout fires ONLY when a Razorpay order was created, once per checkout attempt, browser + server
  * with ONE event_id (the attempt id the order-create body carries as adSignals.attemptId).
  *
- * The order-create calls below go through the REAL `adSignalFields()` (which builds the body every service uses) and a stubbed
- * `fetch`; the observer that `adSignalFields()` arms watches the request/response exactly as it does in the app.
+ * The order-create calls below are the REAL service functions (createPayOrder, createPackOrder, createGuestOrder, createWhoOrder,
+ * createSelfOrder, createParentOrder, createParentPackOrder) against a mocked `fetch`: each fires the pixel event itself, once
+ * its response is ok and valid.
  */
 const originalLocation = window.location;
 type Win = { gtag?: unknown; fbq?: unknown; va?: unknown };
@@ -75,26 +82,23 @@ const flush = async (): Promise<void> => {
 };
 const icCalls = (): unknown[][] => meta.filter((c) => c[0] === "track" && c[1] === "InitiateCheckout");
 
-interface Sent {
-  attemptId: string;
-  body: Record<string, unknown>;
-  res: Response;
-}
+const OK = { ok: true, orderId: "order_1", keyId: "k", amountPaise: 108300 };
+const PASS_ITEM = { kind: "pass" as const, sku: "till_boards" as const, label: "Board Pass", description: "x" };
+const PACK_ITEM = { kind: "pack" as const, sku: "pack_cbq", target: "maths", label: "CBQ", description: "x" };
 
-/**
- * One order-create call, built the way the services build it: the body first (adSignalFields, which arms the observer on the
- * CURRENT fetch), then the POST. `signals` re-sends an earlier body's ids (a retry of the same attempt).
- */
-async function createOrder(url: string, fields: Record<string, unknown>, reply: { status?: number; json: unknown }, signals?: ReturnType<typeof adSignalFields>): Promise<Sent> {
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(reply.json), { status: reply.status ?? 200 })));
-  const fresh = adSignalFields();
-  const body = { ...fields, ...(signals ?? fresh) };
-  const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  await flush();
-  return { attemptId: (body as { adSignals?: { attemptId?: string } }).adSignals?.attemptId ?? "", body, res };
+/** Run one real order-create service function against a mocked fetch; returns the request body it sent. */
+async function run(call: () => Promise<unknown>, reply: { status?: number; json: unknown } = { json: OK }): Promise<{ body: Record<string, unknown>; attemptId: string; error: unknown }> {
+  const fetchMock = vi.fn(async () => new Response(JSON.stringify(reply.json), { status: reply.status ?? 200 }));
+  vi.stubGlobal("fetch", fetchMock);
+  let error: unknown = null;
+  try {
+    await call();
+  } catch (e) {
+    error = e;
+  }
+  const body = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body)) as Record<string, unknown>;
+  return { body, attemptId: (body.adSignals as { attemptId?: string } | undefined)?.attemptId ?? "", error };
 }
-
-const OK_PASS = { ok: true, orderId: "order_1", keyId: "k", amountPaise: 108300 };
 
 describe("META-IC-1 - nothing goes to Meta at the TAP; first-party / GA4 / Vercel funnel events are unchanged", () => {
   it("a Board Pass tap (signed out, signed in, resumed) sends begin_checkout to Vercel, GA4 and the first-party log and NOTHING to Meta", () => {
@@ -119,94 +123,103 @@ describe("META-IC-1 - nothing goes to Meta at the TAP; first-party / GA4 / Verce
   });
 
   it("a tap that is abandoned (who-sheet, sign-in, closed) and a resumed auto-start that creates NO order leave the pixel queue empty", async () => {
-    trackBeginCheckoutTap({ passType: "till_boards", itemName: "x", valueInr: 1083 }, false); // tap, then the who-sheet / sign-in
-    trackBeginCheckoutTap({ passType: "till_boards", itemName: "x", valueInr: 1083 }, true, true); // resumed after sign-in, no order
+    trackBeginCheckoutTap({ passType: "till_boards", itemName: "x", valueInr: 1083 }, false);
+    trackBeginCheckoutTap({ passType: "till_boards", itemName: "x", valueInr: 1083 }, true, true);
     await flush();
     expect(icCalls()).toEqual([]);
   });
 });
 
-describe("META-IC-1 - one pixel InitiateCheckout when the order is created, eventID = the attempt id the order carries", () => {
-  it("Board Pass (signed in, /api/pay/order): exactly one event, money only, eventID = adSignals.attemptId; GA4 / Vercel / first-party get nothing for it", async () => {
-    const sent = await createOrder("/api/pay/order", { passType: "till_boards" }, { json: OK_PASS });
-    expect(sent.attemptId).toMatch(/^lt_/);
-    expect(icCalls()).toEqual([["track", "InitiateCheckout", { currency: "INR", value: 1083 }, { eventID: sent.attemptId }]]);
+describe("META-IC-1 - one pixel InitiateCheckout when the order is created (real service functions), eventID = the attempt id the order carries", () => {
+  it("createPayOrder (Board Pass, the Rs 1,083 upgrade, month): one event each, money only, eventID = adSignals.attemptId; GA4 / Vercel / first-party get nothing for it", async () => {
+    const a = await run(() => createPayOrder("till_boards"));
+    expect(a.error).toBeNull();
+    expect(a.attemptId).toMatch(/^lt_/);
+    expect(icCalls()).toEqual([["track", "InitiateCheckout", { currency: "INR", value: 1083 }, { eventID: a.attemptId }]]);
+    const b = await run(() => createPayOrder("month", { postPay: true }), { json: { ...OK, orderId: "order_m", amountPaise: 59900 } });
+    expect(icCalls()[1]).toEqual(["track", "InitiateCheckout", { currency: "INR", value: 599 }, { eventID: b.attemptId }]);
+    expect(b.attemptId).not.toBe(a.attemptId);
     expect(ga4).toEqual([]);
     expect(vercel).toEqual([]);
     expect(recordActivity).not.toHaveBeenCalled();
-    expect(await sent.res.json()).toEqual(OK_PASS); // the caller still reads its own response
   });
 
-  it("the Rs 1,083 upgrade / the month pass: same route, one event each, each with its own id", async () => {
-    const a = await createOrder("/api/pay/order", { passType: "till_boards", postPay: true }, { json: { ...OK_PASS, orderId: "o_up", amountPaise: 108300 } });
-    const b = await createOrder("/api/pay/order", { passType: "month" }, { json: { ...OK_PASS, orderId: "o_m", amountPaise: 59900 } });
-    expect(icCalls().map((c) => [(c[3] as { eventID: string }).eventID, (c[2] as { value: number }).value])).toEqual([
-      [a.attemptId, 1083],
-      [b.attemptId, 599],
+  it("createPackOrder: content_ids = the sku, value = the server amount incl. GST", async () => {
+    const r = await run(() => createPackOrder("pack_chapter", "triangles"), { json: { ...OK, amountPaise: 5782 } });
+    expect(icCalls()).toEqual([["track", "InitiateCheckout", { currency: "INR", value: 57.82, content_ids: ["pack_chapter"], content_type: "product" }, { eventID: r.attemptId }]]);
+  });
+
+  it("createGuestOrder, createWhoOrder, createSelfOrder (Test Series / CBQ pack / pass) each send one", async () => {
+    const g = await run(() => createGuestOrder(PASS_ITEM, "9876543210"), { json: { ...OK, orderId: "o_g" } });
+    const w = await run(() => createWhoOrder(PACK_ITEM, { email: "a@b.co", first: "email" }, false), { json: { ...OK, orderId: "o_w", amountPaise: 23482 } });
+    const s = await run(() => createSelfOrder({ kind: "pack", sku: "test_series", label: "TS", description: "x" }), { json: { ...OK, orderId: "o_s", amountPaise: 117882 } });
+    expect(icCalls().map((c) => [(c[3] as { eventID: string }).eventID, c[2]])).toEqual([
+      [g.attemptId, { currency: "INR", value: 1083 }],
+      [w.attemptId, { currency: "INR", value: 234.82, content_ids: ["pack_cbq"], content_type: "product" }],
+      [s.attemptId, { currency: "INR", value: 1178.82, content_ids: ["test_series"], content_type: "product" }],
     ]);
-    expect(a.attemptId).not.toBe(b.attemptId);
   });
 
-  it("packs / CBQ packs / Test Series: content_ids = the sku, value = the server amount incl. GST", async () => {
-    const pack = await createOrder("/api/pay/order", { passType: "pack_chapter", packTarget: "triangles" }, { json: { ...OK_PASS, amountPaise: 5782 } });
-    const ts = await createOrder("/api/pay/guest/order", { sku: "test_series", phone: "9876543210" }, { json: { ...OK_PASS, orderId: "o_ts", amountPaise: 117882 } });
+  it("createParentOrder (pass) and createParentPackOrder (pack: content_ids from the server's reply) each send one", async () => {
+    const p = await run(() => createParentOrder("tok", "till_boards"), { json: { ...OK, orderId: "o_p" } });
+    const pp = await run(() => createParentPackOrder("tok"), { json: { ...OK, orderId: "o_pp", amountPaise: 23482, sku: "pack_cbq" } });
     expect(icCalls()).toEqual([
-      ["track", "InitiateCheckout", { currency: "INR", value: 57.82, content_ids: ["pack_chapter"], content_type: "product" }, { eventID: pack.attemptId }],
-      ["track", "InitiateCheckout", { currency: "INR", value: 1178.82, content_ids: ["test_series"], content_type: "product" }, { eventID: ts.attemptId }],
+      ["track", "InitiateCheckout", { currency: "INR", value: 1083 }, { eventID: p.attemptId }],
+      ["track", "InitiateCheckout", { currency: "INR", value: 234.82, content_ids: ["pack_cbq"], content_type: "product" }, { eventID: pp.attemptId }],
     ]);
   });
 
-  it("guest order (pay-by-phone / pay-for-someone / pay-for-myself) and parent pay (pass, pack) each send one", async () => {
-    const phone = await createOrder("/api/pay/guest/order", { sku: "till_boards", phone: "9876543210" }, { json: OK_PASS });
-    const parent = await createOrder("/api/pay/parent/order", { token: "t", passType: "till_boards" }, { json: { ...OK_PASS, orderId: "o_p" } });
-    const parentPack = await createOrder("/api/pay/parent/order", { token: "t", product: "pack" }, { json: { ...OK_PASS, orderId: "o_pp", amountPaise: 23482 } });
-    const ids = icCalls().map((c) => (c[3] as { eventID: string }).eventID);
-    expect(ids).toEqual([phone.attemptId, parent.attemptId, parentPack.attemptId]);
-    expect(icCalls()[2][2]).toEqual({ currency: "INR", value: 234.82 }); // a parent pack names no sku on the client: money only
-  });
-
-  it("on a sales page a pass event carries `surface` (as the tap event did); a pack never does", async () => {
+  it("on a sales page a pass event carries `surface` (as the tap event did)", async () => {
     setSalesPageSurface("board-pass");
-    await createOrder("/api/pay/order", { passType: "till_boards" }, { json: OK_PASS });
+    await run(() => createPayOrder("till_boards"));
     expect(icCalls()[0][2]).toEqual({ currency: "INR", value: 1083, surface: "board-pass" });
   });
 
-  it("a retry that re-sends the SAME body (same attempt id) is ONE event; a NEW order after a failure is a new attempt with a new event", async () => {
-    const signals = adSignalFields();
-    await createOrder("/api/pay/order", { passType: "till_boards" }, { json: OK_PASS }, signals);
-    await createOrder("/api/pay/order", { passType: "till_boards" }, { json: OK_PASS }, signals); // same attempt id re-sent
+  it("MONEY-DUPGUARD-1: dismiss + re-tap hands back the SAME open order (`reused: true`) with a fresh attempt id -> still exactly ONE event", async () => {
+    const first = await run(() => createPayOrder("till_boards"));
     expect(icCalls()).toHaveLength(1);
-    const failed = await createOrder("/api/pay/order", { passType: "till_boards" }, { status: 502, json: { ok: false } });
-    expect(icCalls()).toHaveLength(1); // the failed order sent nothing
-    const next = await createOrder("/api/pay/order", { passType: "till_boards" }, { json: { ...OK_PASS, orderId: "order_2" } });
-    expect(icCalls()).toHaveLength(2);
-    expect(next.attemptId).not.toBe(failed.attemptId);
-    expect(next.attemptId).not.toBe((signals.adSignals as { attemptId: string }).attemptId);
+    const again = await run(() => createPayOrder("till_boards"), { json: { ...OK, reused: true } });
+    expect(again.attemptId).not.toBe(first.attemptId);
+    expect(icCalls()).toHaveLength(1);
+    // the same order id coming back WITHOUT the flag (an older server) is still counted once
+    await run(() => createPayOrder("till_boards"));
+    expect(icCalls()).toHaveLength(1);
   });
 
-  it("no event when the order response is not ok, has no order id, or is not JSON; and none for verify / other calls", async () => {
-    await createOrder("/api/pay/order", { passType: "till_boards" }, { status: 409, json: { error: "already_owned" } });
-    await createOrder("/api/pay/order", { passType: "till_boards" }, { json: { ok: true, keyId: "k" } });
-    await createOrder("/api/pay/order", { passType: "till_boards" }, { json: { ok: false, orderId: "o" } });
-    await createOrder("/api/pay/verify", { orderId: "o" }, { json: { ok: true, orderId: "o", amountPaise: 100 } });
-    await createOrder("/api/pay/guest/order-status", { orderId: "o" }, { json: { ok: true, orderId: "o", amountPaise: 100 } });
+  it("a reload / second tab that is handed an open order it never saw created sends no event", async () => {
+    await run(() => createPayOrder("till_boards"), { json: { ...OK, orderId: "order_other_tab", reused: true } });
     expect(icCalls()).toEqual([]);
   });
 
-  it("the observer never changes what the caller gets: same response, and a rejected fetch still rejects", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("network down"); }));
-    const signals = adSignalFields();
-    await expect(fetch("/api/pay/order", { method: "POST", body: JSON.stringify({ passType: "till_boards", ...signals }) })).rejects.toThrow("network down");
-    await flush();
+  it("a NEW order after a failure is a new attempt (new id) and one event; the failed call sent none", async () => {
+    const failed = await run(() => createPayOrder("till_boards"), { status: 502, json: { ok: false } });
+    expect(failed.error).not.toBeNull();
+    expect(icCalls()).toEqual([]);
+    const next = await run(() => createPayOrder("till_boards"), { json: { ...OK, orderId: "order_2" } });
+    expect(next.attemptId).not.toBe(failed.attemptId);
+    expect(icCalls()).toHaveLength(1);
+  });
+
+  it("no event when the order response is not ok, has no key id / order id, or is a 409", async () => {
+    await run(() => createPayOrder("till_boards"), { status: 409, json: { error: "already_owned" } });
+    await run(() => createPayOrder("till_boards"), { json: { ok: true, orderId: "o", amountPaise: 100 } });
+    await run(() => createPayOrder("till_boards"), { json: { ok: true, keyId: "k", amountPaise: 100 } });
     expect(icCalls()).toEqual([]);
   });
 
   it("the Meta gate is unchanged: nothing on an admin page or on a page address Meta may not see", async () => {
     setLocation("/admin/payments");
-    await createOrder("/api/pay/order", { passType: "till_boards" }, { json: OK_PASS });
+    await run(() => createPayOrder("till_boards"));
     setLocation("/u/secrettoken123");
-    await createOrder("/api/pay/order", { passType: "till_boards" }, { json: { ...OK_PASS, orderId: "o2" } });
+    await run(() => createPayOrder("till_boards"), { json: { ...OK, orderId: "o2" } });
     expect(meta.filter((c) => c[0] === "track")).toEqual([]);
+  });
+
+  it("no global fetch patch: the order functions run against the very fetch they were given", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify(OK), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    await createPayOrder("till_boards");
+    expect(globalThis.fetch).toBe(fetchMock);
   });
 });
 
@@ -219,11 +232,11 @@ describe("META-IC-1 kill switch - VITE_META_IC_AT_ORDER_DISABLED=1 restores the 
     expect(taps).toHaveLength(2);
     expect(taps[0]).toEqual(["track", "InitiateCheckout", { currency: "INR", value: 1083 }]);
     expect(taps[1][3]).toEqual({ eventID: "lt_tap_legacy_1" });
-    const sent = await createOrder("/api/pay/order", { passType: "pack_chapter" }, { json: OK_PASS });
-    expect(sent.attemptId).toBe("lt_tap_legacy_1"); // the remembered tap id rides the order, as on trunk
-    expect(icCalls()).toHaveLength(2); // creating the order sends nothing more
-    const plain = await createOrder("/api/pay/order", { passType: "till_boards" }, { json: OK_PASS });
-    expect(plain.attemptId).toBe(""); // no minted id on trunk's path
+    const sent = await run(() => createPackOrder("pack_chapter", "triangles"));
+    expect(sent.attemptId).toBe("lt_tap_legacy_1");
+    expect(icCalls()).toHaveLength(2);
+    const plain = await run(() => createPayOrder("till_boards"));
+    expect(plain.attemptId).toBe("");
     expect(icCalls()).toHaveLength(2);
   });
 });
