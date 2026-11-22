@@ -152,6 +152,7 @@ import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
 import { CT_PAPER_PARAM, CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterPaperNumber, seriesChapterTestOf, seriesChapterWorksheetId, seriesKeyOfWorksheetId } from "../lib/testSeries/testSeries";
 import { tsPinDisabledFor } from "../lib/testSeries/tsPinFlag";
+import { useDerivedWrittenGraded } from "../hooks/useDerivedWrittenGraded";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
 type Phase = "setup" | "taking" | "results" | "pick";
@@ -442,6 +443,9 @@ export default function ChapterTestPage() {
       )
       .sort((a, b) => b.gradedAt - a.gradedAt);
   }, [records, topicKey, sessionSubject]);
+  // RESULT-LIST-BACKFILL-1: the rail's DISPLAY copy - a pre-#1802 partial whose stored payload proves the written
+  // sheet was graded reads as graded (read-time only; nothing is written).
+  const railRecords = useDerivedWrittenGraded(topicRecords, isSignedIn ? user?.uid : null);
 
   // ── Test-taking state ────────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>("setup");
@@ -1362,7 +1366,7 @@ export default function ChapterTestPage() {
           <div className="lt-ct__setup">
             <ChapterTestHistoryRail
               topicLabel={topicName}
-              records={topicRecords}
+              records={railRecords}
               paperTag={seriesPaperTag}
               loading={recordsLoading}
               onOpen={openStored}
