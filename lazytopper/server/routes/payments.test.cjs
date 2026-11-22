@@ -2952,13 +2952,12 @@ test('SERVER-EVENTS-1 · SERVER_EVENTS_DISABLED=1 is a kill switch even with eve
 
 }
 
-/* ── LATE-AUTH-GUARD-1 · never capture a late-authorised payment ourselves (signed-in /verify + /status) ───────────────── */
+/* ── LATE-AUTH-GUARD-1 v1.1 · never capture a payment authorised past Razorpay's window (payment age only) ───────────── */
 {
   const lag = require('../services/lateAuthGuard.cjs');
   const MIN = 60 * 1000;
   const secs = (msValue) => Math.floor(msValue / 1000);
   const captureCalls = (srv) => srv.rzp.calls.filter((c) => c.url.endsWith('/capture'));
-  /** A clock the test moves; the order is created at NOW. */
   async function lateSetup(t, { env = ENV_ON } = {}) {
     const clock = { t: NOW };
     const srv = await startRoutes({ env, now: () => clock.t });
@@ -2967,125 +2966,79 @@ test('SERVER-EVENTS-1 · SERVER_EVENTS_DISABLED=1 is a kill switch even with eve
     return { srv, clock, orderId };
   }
 
-  test('LATE-AUTH · verify: a payment AUTHORISED 13 min after the order is NOT captured and NOT granted', async (t) => {
+  test('LATE-AUTH · a 20-minute-old REUSED order + a fresh payment authorised within seconds is captured and granted (order age plays no part)', async (t) => {
     const { srv, clock, orderId } = await lateSetup(t);
+    clock.t = NOW + 20 * MIN;
+    const again = await createOrder(srv);
+    assert.equal(again.orderId, orderId, 'the open order was reused');
     const p = srv.rzp.pay(orderId, { status: 'authorized' });
-    p.created_at = secs(NOW + 13 * MIN);
-    clock.t = NOW + 13 * MIN + 20 * 1000;
-    const r = await verifyAs(srv, 'u1', orderId, p.id);
-    assert.equal(r.status, 400, r.text);
-    assert.equal(r.json.reason, 'late_authorisation');
-    assert.equal(captureCalls(srv).length, 0, 'the late authorisation was captured by us');
-    assert.equal(srv.rzp.payments.get(p.id).status, 'authorized', 'left uncaptured (Razorpay refunds it)');
-    assert.equal(srv.db.read('subscriptions/u1'), undefined, 'granted');
-    assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'created');
-    assert.ok(srv.events.includes('payments.verify.left_uncaptured.late_authorisation'));
-  });
-
-  test('LATE-AUTH · status: a payment authorised late is NOT captured by the PAY-HANG / resume re-check (order window AND payment age)', async (t) => {
-    const { srv, clock, orderId } = await lateSetup(t);
-    // Payment started 1 min after the order, but still merely authorised 15 min after it was created: outside Razorpay's window.
-    const p = srv.rzp.pay(orderId, { status: 'authorized' });
-    p.created_at = secs(NOW + 1 * MIN);
-    clock.t = NOW + 16 * MIN;
-    const st = await request(srv.port, PAY_STATUS_PATH, { body: { orderId }, headers: asUid('u1') });
-    assert.equal(st.status, 200, st.text);
-    assert.equal(st.json.state, 'pending');
-    assert.equal(captureCalls(srv).length, 0, 'the status re-check captured a late authorisation');
-    assert.equal(srv.db.read('subscriptions/u1'), undefined);
-    assert.ok(srv.events.includes('payments.status.left_uncaptured.late_authorisation'));
-  });
-
-  test('LATE-AUTH · a payment authorised 5 min after the order is captured and granted exactly as today', async (t) => {
-    const { srv, clock, orderId } = await lateSetup(t);
-    const p = srv.rzp.pay(orderId, { status: 'authorized' });
-    p.created_at = secs(NOW + 5 * MIN);
-    clock.t = NOW + 5 * MIN + 30 * 1000;
-    const r = await verifyAs(srv, 'u1', orderId, p.id);
-    assert.equal(r.status, 200, r.text);
-    assert.deepEqual(captureCalls(srv).map((c) => c.body), [{ amount: 59900, currency: 'INR' }]);
-    assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
-  });
-
-  test('LATE-AUTH · a second order for an ALREADY-OWNED product: its authorisation is NOT captured (verify and status)', async (t) => {
-    const { srv, orderId } = await lateSetup(t);
-    // Another order already gave this account a pass to the boards (the order route's own already_covered rule).
-    await srv.db.collection('subscriptions').doc('u1').set({ tier: 'premium', passType: 'till_boards', passEnd: new Date(pricing.validityEndMsFor(NOW)) });
-    const p = srv.rzp.pay(orderId, { status: 'authorized' });
-    p.created_at = secs(NOW + 1 * MIN);
-    const r = await verifyAs(srv, 'u1', orderId, p.id);
-    assert.equal(r.status, 400, r.text);
-    assert.equal(r.json.reason, 'already_owned_uncaptured');
-    const st = await request(srv.port, PAY_STATUS_PATH, { body: { orderId }, headers: asUid('u1') });
-    assert.equal(st.json.state, 'pending');
-    assert.equal(captureCalls(srv).length, 0, 'a duplicate purchase was captured');
-    assert.equal(srv.rzp.payments.get(p.id).status, 'authorized');
-    assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'created');
-    assert.ok(srv.events.includes('payments.verify.left_uncaptured.already_owned_uncaptured'));
-  });
-
-  test('LATE-AUTH · a payment Razorpay already CAPTURED (even 13 min late) is granted exactly as today', async (t) => {
-    const { srv, clock, orderId } = await lateSetup(t);
-    const p = srv.rzp.pay(orderId); // captured
-    p.created_at = secs(NOW + 13 * MIN);
-    clock.t = NOW + 14 * MIN;
-    const r = await verifyAs(srv, 'u1', orderId, p.id);
-    assert.equal(r.status, 200, r.text);
-    assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
-    assert.equal(captureCalls(srv).length, 0);
-  });
-
-  test('LATE-AUTH · kill switch LATE_AUTH_GUARD_DISABLED=1: a late authorisation is captured and granted (the old behaviour)', async (t) => {
-    const { srv, clock, orderId } = await lateSetup(t, { env: { ...ENV_ON, LATE_AUTH_GUARD_DISABLED: '1' } });
-    const p = srv.rzp.pay(orderId, { status: 'authorized' });
-    p.created_at = secs(NOW + 13 * MIN);
-    clock.t = NOW + 14 * MIN;
+    p.created_at = secs(clock.t - 5 * 1000);
     const r = await verifyAs(srv, 'u1', orderId, p.id);
     assert.equal(r.status, 200, r.text);
     assert.equal(captureCalls(srv).length, 1);
     assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
+    assert.ok(srv.events.includes('payments.verify.observed.order_window'), 'the old order window is telemetry only');
   });
 
-  test('LATE-AUTH · an ownership read that fails refuses the capture as a TRANSIENT error (no grant, no refund copy)', async (t) => {
-    const { srv, orderId } = await lateSetup(t);
+  test('LATE-AUTH · verify + status: a payment still authorised 13 min after it was created is NOT captured, reads PENDING, never granted', async (t) => {
+    const { srv, clock, orderId } = await lateSetup(t);
     const p = srv.rzp.pay(orderId, { status: 'authorized' });
-    const realCollection = srv.db.collection;
-    srv.db.collection = (name) => (name === 'subscriptions' ? { doc: () => ({ get: async () => { throw new Error('db down'); } }) } : realCollection(name));
+    p.created_at = secs(NOW);
+    clock.t = NOW + 13 * MIN;
     const r = await verifyAs(srv, 'u1', orderId, p.id);
-    srv.db.collection = realCollection;
-    assert.equal(r.status, 502, r.text);
+    assert.equal(r.status, 202, r.text);
+    assert.deepEqual(r.json, { ok: false, state: 'pending', reason: 'awaiting_bank' });
+    const st = await request(srv.port, PAY_STATUS_PATH, { body: { orderId }, headers: asUid('u1') });
+    assert.equal(st.status, 200, st.text);
+    assert.equal(st.json.state, 'pending');
+    assert.equal(captureCalls(srv).length, 0, 'a late authorisation was captured by us');
+    assert.equal(srv.rzp.payments.get(p.id).status, 'authorized', 'left uncaptured (Razorpay refunds it)');
+    assert.equal(srv.db.read('subscriptions/u1'), undefined, 'granted');
+    assert.equal(srv.db.read(`payOrders/${orderId}`).status, 'created');
+    assert.ok(srv.events.includes('payments.verify.left_uncaptured'));
+    assert.ok(srv.events.includes('payments.status.left_uncaptured'));
+  });
+
+  test('LATE-AUTH · a payment Razorpay already CAPTURED (13 min old) is granted exactly as today', async (t) => {
+    const { srv, clock, orderId } = await lateSetup(t);
+    const p = srv.rzp.pay(orderId);
+    p.created_at = secs(NOW);
+    clock.t = NOW + 13 * MIN;
+    const r = await verifyAs(srv, 'u1', orderId, p.id);
+    assert.equal(r.status, 200, r.text);
+    assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
     assert.equal(captureCalls(srv).length, 0);
   });
 
-  test('LATE-AUTH · the guard itself: time readings, both late bases, the switch grammar, the log line carries no PII', async () => {
-    assert.equal(lag.storedTimeMs(new Date(5000)), 5000);
-    assert.equal(lag.storedTimeMs({ toMillis: () => 7000 }), 7000);
-    assert.equal(lag.storedTimeMs({ _seconds: 9 }), 9000);
-    assert.equal(lag.storedTimeMs(undefined), null);
-    assert.equal(lag.razorpaySecondsMs(1700000000), 1700000000000);
-    assert.equal(lag.razorpaySecondsMs(undefined), null);
+  test('LATE-AUTH · kill switch LATE_AUTH_GUARD_DISABLED=1: a 13-min-old authorisation is captured and granted (exactly the old behaviour)', async (t) => {
+    const { srv, clock, orderId } = await lateSetup(t, { env: { ...ENV_ON, LATE_AUTH_GUARD_DISABLED: '1' } });
+    const p = srv.rzp.pay(orderId, { status: 'authorized' });
+    p.created_at = secs(NOW);
+    clock.t = NOW + 13 * MIN;
+    const r = await verifyAs(srv, 'u1', orderId, p.id);
+    assert.equal(r.status, 200, r.text);
+    assert.equal(captureCalls(srv).length, 1);
+    assert.equal(srv.db.read('subscriptions/u1').tier, 'premium');
+    assert.ok(!srv.events.some((e) => e.includes('observed') || e.includes('left_uncaptured')));
+  });
+
+  test('LATE-AUTH · the decision: payment age only, 1-min skew margin under Razorpay\'s 12, unreadable time decides nothing, no PII in the log', () => {
     const o = 1_000_000_000_000;
-    assert.equal(lag.lateBasis({ paymentCreatedMs: o + 12 * MIN, orderCreatedMs: o, nowMs: o + 12 * MIN }), 'order_window');
-    assert.equal(lag.lateBasis({ paymentCreatedMs: o + 1 * MIN, orderCreatedMs: o, nowMs: o + 13 * MIN }), 'payment_age');
-    assert.equal(lag.lateBasis({ paymentCreatedMs: o + 5 * MIN, orderCreatedMs: o, nowMs: o + 6 * MIN }), null);
-    assert.equal(lag.lateBasis({ paymentCreatedMs: null, orderCreatedMs: o, nowMs: o + 60 * MIN }), null, 'an unreadable time decides nothing');
+    const quiet = { warn() {} };
+    const d = (paymentCreatedMs, nowMs, storedOrderCreatedAt = new Date(o), env = {}) =>
+      lag.decideManualCapture({ env, payment: { created_at: paymentCreatedMs === null ? undefined : secs(paymentCreatedMs) }, paymentId: 'pay_x', orderId: 'order_y', storedOrderCreatedAt, nowMs, log: quiet });
+    assert.equal(d(o, o + 10 * MIN).capture, true);
+    assert.equal(d(o, o + 11 * MIN + 35 * 1000).capture, false, '11:35 after the payment began: refused (margin)');
+    assert.equal(d(o, o + 13 * MIN).error, 'late_authorisation');
+    assert.deepEqual(d(o + 20 * MIN, o + 20 * MIN + 5000), { capture: true, observed: ['order_window'] }, 'an old order alone never refuses');
+    assert.equal(d(null, o + 60 * MIN).capture, true);
+    assert.deepEqual(d(o, o + 60 * MIN, new Date(o), { LATE_AUTH_GUARD_DISABLED: '1' }), { capture: true, observed: [] });
     for (const v of ['1', 'true', 'ON', 'yes']) assert.equal(lag.isLateAuthGuardDisabled({ LATE_AUTH_GUARD_DISABLED: v }), true);
     for (const v of [undefined, '', '0', 'off']) assert.equal(lag.isLateAuthGuardDisabled({ LATE_AUTH_GUARD_DISABLED: v }), false);
+    assert.equal(lag.storedTimeMs({ toMillis: () => 7000 }), 7000);
+    assert.equal(lag.storedTimeMs({ _seconds: 9 }), 9000);
     const lines = [];
-    const out = await lag.guardManualCapture({
-      env: {}, payment: { created_at: secs(o + 20 * MIN) }, paymentId: 'pay_ABCDEFGHIJKL', orderId: 'order_MNOPQRSTUV',
-      storedOrderCreatedAt: new Date(o), nowMs: o + 21 * MIN, log: { warn: (l) => lines.push(l) },
-    });
-    assert.deepEqual(out, { capture: false, error: 'late_authorisation', basis: 'order_window' });
-    assert.deepEqual(lines, ['[pay] left late authorisation uncaptured pay=ABCDEFGH order=MNOPQRST reason=late_authorisation']);
-    // The order time comes from Razorpay only when ours is unreadable.
-    let asked = 0;
-    const viaRzp = await lag.guardManualCapture({
-      env: {}, payment: { created_at: secs(o + 20 * MIN) }, paymentId: 'pay_x', orderId: 'order_y', storedOrderCreatedAt: undefined,
-      nowMs: o + 20 * MIN + 1000, readRazorpayOrderCreatedMs: async () => { asked += 1; return o; }, log: { warn() {} },
-    });
-    assert.equal(asked, 1);
-    assert.equal(viaRzp.error, 'late_authorisation');
-    assert.deepEqual(await lag.guardManualCapture({ env: { LATE_AUTH_GUARD_DISABLED: '1' }, payment: { created_at: 1 }, nowMs: o, isAlreadyOwned: async () => true }), { capture: true });
+    lag.decideManualCapture({ env: {}, payment: { created_at: secs(o) }, paymentId: 'pay_ABCDEFGHIJKL', orderId: 'order_MNOPQRSTUV', nowMs: o + 30 * MIN, log: { warn: (l) => lines.push(l) } });
+    assert.deepEqual(lines, ['[pay] left late authorisation uncaptured pay=ABCDEFGH order=MNOPQRST']);
   });
 }

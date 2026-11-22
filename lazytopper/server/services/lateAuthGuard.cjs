@@ -1,50 +1,46 @@
 'use strict';
 
 /**
- * LATE-AUTH-GUARD-1 (22 Nov 2026) - never capture a late-authorised payment ourselves.
+ * LATE-AUTH-GUARD-1 v1.1 (22 Nov 2026) - never capture a late-authorised payment ourselves.
  *
  * ★ WHY. Orders are created WITHOUT `payment_capture`, so the Razorpay account setting applies: a payment authorised within
- *   12 minutes is captured automatically; one authorised later is refunded instantly. That protects a buyer whose bank
- *   approved late (e.g. a UPI approval 15 minutes on, after they already paid again on a new order) - UNLESS our own manual
- *   capture (verify, /api/pay/status, /api/pay/guest/order-status, the parent verify) captures it first. Owner rule: no
- *   refunds ever, and a double charge must be impossible.
+ *   12 minutes of the PAYMENT's creation is captured automatically by Razorpay; one authorised later is refunded instantly
+ *   (razorpay.com/docs/payments/payments/capture-settings: the timer starts when the payment is created). That protects a
+ *   buyer whose bank approved late (e.g. a UPI approval 15 minutes on, after they already paid again) - UNLESS our own manual
+ *   capture (signed-in verify / status, guest verify / order-status, parent verify) captures it first. Owner rule: no refunds
+ *   ever, and a double charge must be impossible.
  *
- * ★ WHAT IT DECIDES. Only whether OUR server may POST /payments/{id}/capture for a payment Razorpay reports `authorized`.
- *   A payment Razorpay already CAPTURED never reaches here and is honoured exactly as before. Refusing never takes money:
- *   inside Razorpay's window Razorpay captures it itself (and the existing webhook grants it); outside, Razorpay refunds it.
+ * ★ THE ONE RULE (payment age only). A payment Razorpay reports `authorized` is NOT captured by us when it is older than the
+ *   window: now - payment.created_at > LATE_AUTH_WINDOW_MS. Such a payment was authorised after Razorpay's own window (inside
+ *   it Razorpay would already have captured it), so Razorpay will refund it. Inside the window our capture is harmless -
+ *   Razorpay would capture it anyway - and is exactly the behaviour before this guard. The ORDER's age plays no part: a fresh
+ *   payment on an old (reused) order is captured as before.
+ *   A payment whose `created_at` cannot be read decides nothing (captured as before).
+ *   A payment Razorpay already CAPTURED never reaches here and is honoured exactly as before.
  *
- *   The capture is refused when EITHER
- *   (a) LATE: the authorisation is outside Razorpay's auto-capture window. Two readings, either one refuses:
- *       - `order_window`: the payment's `created_at` is more than 11 minutes after the ORDER's creation (our stored order
- *         time, else Razorpay's order `created_at`) - the spec's rule;
- *       - `payment_age`: the payment is still merely authorised more than 11 minutes after its OWN `created_at`. Razorpay
- *         times its window from the PAYMENT's creation (razorpay.com/docs/payments/payments/capture-settings), so an
- *         authorised payment seen this late was authorised after the window, and Razorpay will refund it.
- *       A time that cannot be read decides nothing (the guard does not fire on it).
- *   (b) ALREADY OWNED: the same buyer / recipient already has a paid order or the entitlement for the same product, from a
- *       different order or payment. The route supplies that check (it reuses its own already-owned / already-covered reads).
- *       A read that fails refuses too (never capture blind) but as a TRANSIENT error, so no "refund" copy is shown for it.
+ * ★ A REFUSAL IS "PENDING", NEVER "FAILED": the bank may still be finishing; Razorpay's own refund (payment `refunded`) is what
+ *   ends it. The routes answer their existing pending shapes.
  *
- * Kill switch: LATE_AUTH_GUARD_DISABLED=1 -> no read, no decision: exactly the behaviour before this guard.
+ * ★ OBSERVED ONLY. `order_window` (the payment began more than 12 min after our stored order time) is returned as an
+ *   observation for telemetry; it never changes the decision or any response.
+ *
+ * Kill switch: LATE_AUTH_GUARD_DISABLED=1 -> no decision, no observation: exactly the behaviour before this guard.
  */
 
-/** Razorpay's account window is 12 minutes; one minute of margin for clock skew between us and Razorpay. */
+/**
+ * Razorpay's account window is 12 minutes; we refuse from 11, one minute of margin for clock skew between our server and
+ * Razorpay (refusing inside the window is harmless - Razorpay captures it itself and the webhook grants it).
+ */
+const RAZORPAY_AUTO_CAPTURE_MS = 12 * 60 * 1000;
 const LATE_AUTH_WINDOW_MS = 11 * 60 * 1000;
 
 const LATE_AUTHORISATION = 'late_authorisation';
-const ALREADY_OWNED_UNCAPTURED = 'already_owned_uncaptured';
-const OWNERSHIP_READ_FAILED = 'ownership_read_failed';
-
-/** The two refusals that mean "left uncaptured on purpose - the bank refunds it". */
-const UNCAPTURED_REASONS = Object.freeze([LATE_AUTHORISATION, ALREADY_OWNED_UNCAPTURED]);
+/** The reason the routes put in their pending answers for a refused capture. */
+const AWAITING_BANK = 'awaiting_bank';
 
 /** Same truthy grammar as every other server switch. */
 function isLateAuthGuardDisabled(env = process.env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.LATE_AUTH_GUARD_DISABLED) || '').trim());
-}
-
-function isUncapturedReason(reason) {
-  return UNCAPTURED_REASONS.includes(reason);
 }
 
 /** A stored time (Date, Firestore Timestamp, epoch ms, ISO string) as epoch ms; null when it is none of those. */
@@ -67,87 +63,40 @@ function razorpaySecondsMs(v) {
   return typeof n === 'number' && Number.isFinite(n) && n > 0 ? n * 1000 : null;
 }
 
-/** Rule (a), pure: 'order_window' | 'payment_age' | null. Every input is epoch ms or null. */
-function lateBasis({ paymentCreatedMs, orderCreatedMs, nowMs }) {
-  if (paymentCreatedMs === null || paymentCreatedMs === undefined) return null;
-  if (orderCreatedMs !== null && orderCreatedMs !== undefined && paymentCreatedMs - orderCreatedMs > LATE_AUTH_WINDOW_MS) return 'order_window';
-  if (Number.isFinite(nowMs) && nowMs - paymentCreatedMs > LATE_AUTH_WINDOW_MS) return 'payment_age';
-  return null;
-}
-
 /** Ids for a log line: the 8 characters after Razorpay's `pay_` / `order_` prefix. No PII. */
 function id8(id) {
   return String(id || '').replace(/^[a-z]+_/, '').slice(0, 8) || '-';
 }
 
 /**
- * Decide, BEFORE a manual capture of an `authorized` payment, whether we may capture it.
- *   payment                     - Razorpay's payment entity (its `created_at` is read)
- *   paymentId, orderId          - for the log line only
- *   storedOrderCreatedAt        - our stored order's `createdAt`
- *   nowMs                       - the route's clock
- *   readRazorpayOrderCreatedMs  - async (orderId) -> epoch ms | null; asked ONLY when the stored time is unreadable
- *   isAlreadyOwned              - async () -> boolean; THROWS when the read fails
- * -> { capture: true } | { capture: false, error, basis? }. Never throws.
+ * Decide, BEFORE a manual capture of an `authorized` payment, whether we may capture it. Pure (no reads). Never throws.
+ * -> { capture: true, observed: string[] } | { capture: false, error: 'late_authorisation', observed: string[] }
  */
-async function guardManualCapture({ env, payment, paymentId, orderId, storedOrderCreatedAt, nowMs, readRazorpayOrderCreatedMs, isAlreadyOwned, log = console }) {
-  if (isLateAuthGuardDisabled(env)) return { capture: true };
-
-  // (a) late authorisation - the pure checks first (no read unless the order time must come from Razorpay).
+function decideManualCapture({ env, payment, paymentId, orderId, storedOrderCreatedAt, nowMs, log = console }) {
+  if (isLateAuthGuardDisabled(env)) return { capture: true, observed: [] };
   const paymentCreatedMs = razorpaySecondsMs(payment && payment.created_at);
-  let orderCreatedMs = storedTimeMs(storedOrderCreatedAt);
-  if (orderCreatedMs === null && paymentCreatedMs !== null && typeof readRazorpayOrderCreatedMs === 'function' && orderId) {
+  const observed = [];
+  const orderCreatedMs = storedTimeMs(storedOrderCreatedAt);
+  if (paymentCreatedMs !== null && orderCreatedMs !== null && paymentCreatedMs - orderCreatedMs > RAZORPAY_AUTO_CAPTURE_MS) observed.push('order_window');
+  if (paymentCreatedMs !== null && Number.isFinite(nowMs) && nowMs - paymentCreatedMs > LATE_AUTH_WINDOW_MS) {
     try {
-      orderCreatedMs = await readRazorpayOrderCreatedMs(orderId);
+      log.warn(`[pay] left late authorisation uncaptured pay=${id8(paymentId)} order=${id8(orderId)}`);
     } catch {
-      orderCreatedMs = null; // unreadable: rule (a)'s order reading decides nothing
+      /* a log line must never fail a payment */
     }
+    return { capture: false, error: LATE_AUTHORISATION, observed };
   }
-  const basis = lateBasis({ paymentCreatedMs, orderCreatedMs, nowMs });
-  if (basis) {
-    leftUncaptured(log, paymentId, orderId, LATE_AUTHORISATION);
-    return { capture: false, error: LATE_AUTHORISATION, basis };
-  }
-
-  // (b) the same buyer already owns / already paid for the same product.
-  if (typeof isAlreadyOwned === 'function') {
-    let owned;
-    try {
-      owned = await isAlreadyOwned();
-    } catch (e) {
-      try {
-        log.warn(`[pay] ownership read failed before capture, left uncaptured pay=${id8(paymentId)} order=${id8(orderId)}: ${e && e.message}`);
-      } catch {
-        /* a log line must never fail a payment */
-      }
-      return { capture: false, error: OWNERSHIP_READ_FAILED };
-    }
-    if (owned === true) {
-      leftUncaptured(log, paymentId, orderId, ALREADY_OWNED_UNCAPTURED);
-      return { capture: false, error: ALREADY_OWNED_UNCAPTURED };
-    }
-  }
-  return { capture: true };
-}
-
-function leftUncaptured(log, paymentId, orderId, reason) {
-  try {
-    log.warn(`[pay] left late authorisation uncaptured pay=${id8(paymentId)} order=${id8(orderId)} reason=${reason}`);
-  } catch {
-    /* a log line must never fail a payment */
-  }
+  return { capture: true, observed };
 }
 
 module.exports = {
+  RAZORPAY_AUTO_CAPTURE_MS,
   LATE_AUTH_WINDOW_MS,
   LATE_AUTHORISATION,
-  ALREADY_OWNED_UNCAPTURED,
-  OWNERSHIP_READ_FAILED,
+  AWAITING_BANK,
   isLateAuthGuardDisabled,
-  isUncapturedReason,
   storedTimeMs,
   razorpaySecondsMs,
-  lateBasis,
   id8,
-  guardManualCapture,
+  decideManualCapture,
 };

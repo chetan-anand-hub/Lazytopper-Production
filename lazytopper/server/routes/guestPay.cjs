@@ -91,7 +91,7 @@ const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SO
 const { fire: fireServerEvent, signalsFor } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
 // Review fix 5: "already covered till the boards" is the parent-pay rule, reused.
 const { coveredTillBoards } = require('./parentPay.cjs');
-const { guardManualCapture, isUncapturedReason, razorpaySecondsMs } = require('../services/lateAuthGuard.cjs'); // LATE-AUTH-GUARD-1
+const { decideManualCapture, LATE_AUTHORISATION, AWAITING_BANK } = require('../services/lateAuthGuard.cjs'); // LATE-AUTH-GUARD-1
 const {
   GUEST_PAYER,
   GUEST_STATUS,
@@ -464,49 +464,15 @@ function createGuestPayRoutes(deps = {}) {
    * payments.cjs fetchCapturedPayment, for a guest order: Razorpay's record, captured for the STORED amount. A stale
    * founding order still merely authorized is refused BEFORE capture (PRICING-1): a guest is never yet a founder.
    */
-  /**
-   * LATE-AUTH-GUARD-1 (b): is this a DUPLICATE purchase? This order already recorded paid by a different payment, or another
-   * guest order with the same phone / email for the same product already paid (the order route's own "already paid for with
-   * this number" check). Throws on a failed read.
-   */
-  async function guestProductAlreadyPaid(order, orderId, paymentId) {
-    if (!order) return false;
-    if (order.status !== GUEST_STATUS.created && typeof order.paymentId === 'string' && order.paymentId && order.paymentId !== paymentId) return true;
-    const wanted = isPackProduct(order.passType) ? packIdFor(order.passType, order.packTarget) : order.passType;
-    for (const [field, value] of [['guestPhone', order.guestPhone], ['guestEmail', order.guestEmail]]) {
-      if (typeof value !== 'string' || !value) continue;
-      for (const status of [GUEST_STATUS.paidUnclaimed, GUEST_STATUS.claimed, GUEST_STATUS.paid]) {
-        for (const { id, order: other } of await ordersFor(field, value, status)) {
-          if (id === orderId) continue;
-          const otherId = isPackProduct(other.passType) ? packIdFor(other.passType, other.packTarget) : other.passType;
-          if (otherId === wanted) return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  async function fetchCapturedPayment(keys, paymentId, amountPaise, order, orderId) {
+  async function fetchCapturedPayment(keys, paymentId, amountPaise, order, scope = 'capture') {
     const fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
     if (!fetched.ok || !fetched.json) return { error: 'payment_fetch_failed' };
     let payment = fetched.json;
     if (payment.status === 'authorized') {
       if (isStaleFoundingOrder(order, now())) return { error: 'order_expired' };
-      // LATE-AUTH-GUARD-1 - see payments.cjs: a late authorisation, or a duplicate purchase, is left uncaptured (Razorpay refunds it).
-      const forOrder = orderId || payment.order_id;
-      const guard = await guardManualCapture({
-        env,
-        payment,
-        paymentId,
-        orderId: forOrder,
-        storedOrderCreatedAt: order && order.createdAt,
-        nowMs: now(),
-        readRazorpayOrderCreatedMs: async (id) => {
-          const r = await razorpay(keys, 'GET', `/orders/${id}`);
-          return r.ok && r.json ? razorpaySecondsMs(r.json.created_at) : null;
-        },
-        isAlreadyOwned: () => guestProductAlreadyPaid(order, forOrder, paymentId),
-      });
+      // LATE-AUTH-GUARD-1 - see payments.cjs: authorised past Razorpay's window (payment age) -> never captured by us.
+      const guard = decideManualCapture({ env, payment, paymentId, orderId: payment.order_id, storedOrderCreatedAt: order && order.createdAt, nowMs: now() });
+      for (const seen of guard.observed) emit(`payments.guest.${scope}.observed.${seen}`); // telemetry only
       if (!guard.capture) return { error: guard.error };
       const captured = await razorpay(keys, 'POST', `/payments/${paymentId}/capture`, { amount: amountPaise, currency: CURRENCY });
       if (captured.ok && captured.json) {
@@ -1114,17 +1080,17 @@ function createGuestPayRoutes(deps = {}) {
     // 3. What Razorpay says was actually paid.
     let result;
     try {
-      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order, orderId);
+      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order, 'verify');
     } catch (e) {
       emit('payments.guest.verify.razorpay_unreachable');
       console.error('[pay/guest/verify] razorpay unreachable:', e && e.message);
       return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
     }
     if (result.error === 'order_expired') return reject(res, 'verify', 'order_expired');
-    // LATE-AUTH-GUARD-1: left uncaptured on purpose (the bank refunds it) - nothing recorded, a clear reason.
-    if (isUncapturedReason(result.error)) {
-      emit(`payments.guest.verify.left_uncaptured.${result.error}`);
-      return reject(res, 'verify', result.error);
+    // LATE-AUTH-GUARD-1: left uncaptured on purpose - a not-yet-captured payment (PENDING), never "rejected"; nothing recorded.
+    if (result.error === LATE_AUTHORISATION) {
+      emit('payments.guest.verify.left_uncaptured');
+      return sendJson(res, 202, { ok: false, status: 'pending', reason: AWAITING_BANK });
     }
     if (result.error) {
       emit(`payments.guest.verify.${result.error}`);
@@ -1182,6 +1148,7 @@ function createGuestPayRoutes(deps = {}) {
     const listed = await razorpay(keys, 'GET', `/orders/${orderId}/payments`);
     if (!listed.ok || !listed.json || !Array.isArray(listed.json.items)) return { upstream: 'list_failed' };
     let inFlight = false;
+    let awaitingBank = false; // LATE-AUTH-GUARD-1: an authorised payment we left uncaptured (Razorpay refunds it)
     let failedReason = '';
     for (const item of listed.json.items) {
       if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !ID_PATTERN.test(item.id)) continue;
@@ -1189,13 +1156,12 @@ function createGuestPayRoutes(deps = {}) {
       if (paymentMismatch({ ...item, status: 'captured' }, { orderId, amountPaise: order.amountPaise })) continue;
       if (item.status === 'captured') return { payment: item };
       if (item.status === 'authorized') {
-        const result = await fetchCapturedPayment(keys, item.id, order.amountPaise, order, orderId);
+        const result = await fetchCapturedPayment(keys, item.id, order.amountPaise, order, 'order_status');
         if (result.error === 'order_expired') continue;
-        // LATE-AUTH-GUARD-1: left uncaptured on purpose - reported as failed ("your bank will refund it"), unless a captured
-        // payment later on the order, or one still in flight, says otherwise.
-        if (isUncapturedReason(result.error)) {
-          emit(`payments.guest.order_status.left_uncaptured.${result.error}`);
-          if (!failedReason) failedReason = result.error;
+        // LATE-AUTH-GUARD-1: left uncaptured on purpose - PENDING ('awaiting_bank'), never failed; Razorpay's refund ends it.
+        if (result.error === LATE_AUTHORISATION) {
+          emit('payments.guest.order_status.left_uncaptured');
+          awaitingBank = true;
           continue;
         }
         if (result.error) return { upstream: result.error };
@@ -1205,11 +1171,15 @@ function createGuestPayRoutes(deps = {}) {
         inFlight = true;
       } else if (item.status === 'failed') {
         if (!failedReason) failedReason = typeof item.error_reason === 'string' && /^[A-Za-z0-9_]{1,40}$/.test(item.error_reason) ? item.error_reason : 'payment_failed';
+      } else if (item.status === 'refunded') {
+        // LATE-AUTH-GUARD-1: Razorpay refunded it (e.g. a late authorisation) - it is over, so a pending order can end.
+        if (!failedReason) failedReason = 'refunded';
       } else {
         inFlight = true; // created / refunded-less states: the buyer may still be in their UPI app
       }
     }
     if (inFlight) return { pending: 'in_progress' };
+    if (awaitingBank) return { pending: AWAITING_BANK };
     if (failedReason) return { failed: failedReason };
     return { none: true };
   }
