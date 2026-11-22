@@ -838,6 +838,7 @@ function createParentPayRoutes(deps = {}) {
     }
 
     emit('payments.parent.order.created');
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType, amountPaise: quote.amountPaise, uid, signals: signalsFor(serverEvents, body, req).adSignals })); // META-IC-1
     return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr) });
   }
 
@@ -920,6 +921,7 @@ function createParentPayRoutes(deps = {}) {
     }
 
     emit('payments.parent.order.pack_created');
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType: pack.sku, amountPaise, uid, signals: signalsFor(serverEvents, body, req).adSignals })); // META-IC-1
     return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise, ...gstResponseFields(packQuote, 0) });
   }
 

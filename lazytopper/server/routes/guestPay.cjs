@@ -665,6 +665,7 @@ function createGuestPayRoutes(deps = {}) {
     }
 
     emit('payments.guest.order.created');
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType: sku, amountPaise: quote.amountPaise, uid: null, signals: signalsFor(serverEvents, body, req).adSignals })); // META-IC-1
     return sendJson(res, 200, {
       ok: true,
       orderId: order.id,
@@ -854,6 +855,7 @@ function createGuestPayRoutes(deps = {}) {
     }
 
     emit('payments.guest.order.created');
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType: sku, amountPaise: quote.amountPaise, uid: null, signals: signalsFor(serverEvents, body, req).adSignals })); // META-IC-1
     return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...statusProofReply(sp), ...gstResponseFields(quote, 0), ...recipientMasked(stored) });
   }
 
@@ -929,6 +931,7 @@ function createGuestPayRoutes(deps = {}) {
     }
     emit('payments.guest.order.created');
     emit('payments.guest.order.self_created');
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType: sku, amountPaise: quote.amountPaise, uid: null, signals: signalsFor(serverEvents, body, req).adSignals })); // META-IC-1
     return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...statusProofReply(sp), ...gstResponseFields(quote, 0) });
   }
 

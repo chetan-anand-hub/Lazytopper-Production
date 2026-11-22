@@ -20,6 +20,12 @@ import type { RazorpayConstructor, RazorpaySuccess } from "./checkout";
 import { buildAskParentMessage, parentProofFrom, parentProofLine } from "./parentPayMessage";
 import { buildAskParentPackMessage, buyPackAsParent, createParentPackOrder, mintParentPackLink, parentPackName, verifyParentPackPayment, viewParentLinkWithPack, withValidPack } from "./parentPayPack";
 
+/** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
+const withoutAdSignals = (b: Record<string, unknown>): Record<string, unknown> => {
+  const { adSignals: _adSignals, ...rest } = b;
+  return rest;
+};
+
 const TOKEN = "A".repeat(20) + "b-_9" + "c".repeat(19);
 
 vi.mock("./firebaseClient", () => ({
@@ -335,7 +341,7 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
     vi.stubGlobal("fetch", fetchMock);
     await createParentPackOrder(TOKEN);
     const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toEqual({ token: TOKEN, product: "pack" });
+    expect(withoutAdSignals(JSON.parse(String(init.body)))).toEqual({ token: TOKEN, product: "pack" });
     expect((init.headers as Record<string, string>).Authorization).toBeUndefined();
   });
 

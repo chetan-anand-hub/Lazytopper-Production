@@ -16,6 +16,12 @@ import {
   type GuestItem,
 } from "./guestPay";
 
+/** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
+const withoutAdSignals = (b: Record<string, unknown>): Record<string, unknown> => {
+  const { adSignals: _adSignals, ...rest } = b;
+  return rest;
+};
+
 const ITEM: GuestItem = { kind: "pack", sku: "pack_mock", target: "maths", label: "Mock Pack · Maths", description: "Maths Mock Pack · 8 board-pattern mock papers" };
 
 describe("SELFPAY-ATTACH-HOLD-1 · a claim that finds an order still held", () => {
@@ -250,7 +256,7 @@ describe("PAY-PHONE-1 · buyAsGuest", () => {
     fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify({ ok: false, error: "account_exists" }), { status: 409 }));
     expect(await buyAsGuest(ITEM, "9876543948", d)).toEqual({ status: "account_exists", phoneMasked: "+91 98•••••948", phone: "+919876543948" });
     const sent = JSON.parse(String((fetchSpy.mock.calls[0][1] as RequestInit).body));
-    expect(sent).toEqual({ sku: "pack_mock", target: "maths", phone: "+919876543948" });
+    expect(withoutAdSignals(sent)).toEqual({ sku: "pack_mock", target: "maths", phone: "+919876543948" });
     fetchSpy.mockRestore();
   });
 });

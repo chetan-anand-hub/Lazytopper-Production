@@ -21,6 +21,12 @@ import { PayAlreadyOwnedError, PayOrderExpiredError, type RazorpaySuccess } from
 import { createRequire } from "node:module";
 import { allDesktopTopics } from "../lib/desktop/topics";
 
+/** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
+const withoutAdSignals = (b: Record<string, unknown>): Record<string, unknown> => {
+  const { adSignals: _adSignals, ...rest } = b;
+  return rest;
+};
+
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
@@ -216,7 +222,7 @@ describe("checkout.ts pack variants", () => {
       return { ok: r.status < 400, status: r.status, json: async () => r.json } as Response;
     });
     expect(await checkout.createPackOrder("pack_chapter", "triangles")).toEqual({ orderId: "o1", keyId: "k", amountPaise: 4900 });
-    expect(calls[0]).toEqual({ url: "/api/pay/order", body: { passType: "pack_chapter", packTarget: "triangles" } });
+    expect({ ...calls[0], body: withoutAdSignals(calls[0].body as Record<string, unknown>) }).toEqual({ url: "/api/pay/order", body: { passType: "pack_chapter", packTarget: "triangles" } });
     await expect(checkout.createPackOrder("pack_chapter", "triangles")).rejects.toBeInstanceOf(checkout.PayAlreadyOwnedError);
     expect(await checkout.verifyPackPayment(SUCCESS)).toEqual({ packId: "pack_mock:maths", sku: "pack_mock", target: "maths" });
     // a pass-shaped response is never a pack grant

@@ -6,6 +6,10 @@
  * nothing is persisted by this module beyond one in-memory attempt id. Never throws; absent cookies -> `{}`.
  */
 
+import { newCheckoutAttemptId } from "./analytics";
+import { installOrderIcObserver } from "./orderIc";
+import { metaIcAtOrderDisabled } from "./metaIcFlag";
+
 const ATTEMPT_TTL_MS = 10 * 60 * 1000;
 let lastAttempt: { id: string; at: number } | null = null;
 
@@ -49,7 +53,14 @@ export function adSignalFields(): { adSignals?: AdSignals } {
     if (gas) s.gas = gas;
     s.url = `${window.location.origin}${window.location.pathname}`;
     if (lastAttempt && Date.now() - lastAttempt.at < ATTEMPT_TTL_MS) s.attemptId = lastAttempt.id;
+    else if (!metaIcAtOrderDisabled()) {
+      // META-IC-1: every order-create call is ONE checkout attempt with its own id (a retry that re-sends this body keeps it; a new
+      // order after a failure builds a new body and gets a new one). The order-create observer sends the pixel InitiateCheckout
+      // with this id once the order exists, and the server sends its twin with it.
+      s.attemptId = newCheckoutAttemptId();
+    }
     lastAttempt = null;
+    installOrderIcObserver();
     return s.fbp || s.fbc || s.ga || s.attemptId ? { adSignals: s } : {};
   } catch {
     return {};

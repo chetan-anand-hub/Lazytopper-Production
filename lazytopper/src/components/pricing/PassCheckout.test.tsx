@@ -77,6 +77,12 @@ import {
   type RazorpayConstructor,
 } from "../../services/checkout";
 
+/** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
+const withoutAdSignals = (b: Record<string, unknown>): Record<string, unknown> => {
+  const { adSignals: _adSignals, ...rest } = b;
+  return rest;
+};
+
 // PRICING-1 — the founding offer is read from the CALENDAR at render. These suites assert the
 // offer-OPEN page, so they run at a pinned instant (Date only; a test's own fake timers layer on
 // top) and pass at any real or shifted clock. The closed page is pinned explicitly where asserted.
@@ -226,7 +232,7 @@ describe("Z3 · the buy buttons", () => {
     await waitFor(() => expect(fetchSpy).toHaveBeenCalled());
     const [url, init] = fetchSpy.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe("/api/pay/order");
-    expect(JSON.parse(String(init.body))).toEqual({ passType: "till_boards" });
+    expect(withoutAdSignals(JSON.parse(String(init.body)))).toEqual({ passType: "till_boards" });
     expect((init.headers as Record<string, string>).Authorization).toBe("Bearer id-token");
   });
 });

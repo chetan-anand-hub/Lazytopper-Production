@@ -49,7 +49,8 @@ describe("MONEY-DUPGUARD-1 · createPayOrder", () => {
     const err = await createPayOrder("till_boards").catch((e: unknown) => e);
     expect(err).toBeInstanceOf(PayAlreadyCoveredError);
     expect(err).not.toBeInstanceOf(PayAlreadyOwnedError);
-    expect(calls).toEqual([{ url: "/api/pay/order", body: { passType: "till_boards" } }]);
+    // META-IC-1: the body also carries `adSignals` (cookie ids + the checkout attempt id); this test pins the rest of it.
+    expect(calls.map((c) => ({ ...c, body: (({ adSignals: _adSignals, ...rest }) => rest)(c.body as Record<string, unknown>) }))).toEqual([{ url: "/api/pay/order", body: { passType: "till_boards" } }]);
   });
 
   it("other refusals keep their old mapping: 409 already_owned stays PayAlreadyOwnedError; 409 month_pass_retired / 500 are generic", async () => {

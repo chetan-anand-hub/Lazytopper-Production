@@ -43,6 +43,12 @@ import { alsoSignInLine, maskEmail as flagMaskEmail } from "./checkoutWhoFlag";
 import { isCheckoutWhoCopyOn } from "../components/pricing/pricingPlansCopy";
 import type { GuestItem } from "./guestPay";
 
+/** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
+const withoutAdSignals = (b: Record<string, unknown>): Record<string, unknown> => {
+  const { adSignals: _adSignals, ...rest } = b;
+  return rest;
+};
+
 const PASS: GuestItem = { kind: "pass", sku: "till_boards", label: "Board Pass", description: "Board Pass" };
 const CBQ: GuestItem = { kind: "pack", sku: "pack_cbq", target: "maths", label: "Maths CBQ Pack", description: "Maths CBQ Pack" };
 
@@ -119,7 +125,7 @@ describe("the order body and the Razorpay prefill", () => {
     expect(order).toEqual({ orderId: "order_1", keyId: "k", amountPaise: 19900 });
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe("/api/pay/guest/order");
-    expect(JSON.parse(String(init.body))).toEqual({ sku: "pack_cbq", target: "maths", recipient: { email: "anaya.k@gmail.com", first: "email" } });
+    expect(withoutAdSignals(JSON.parse(String(init.body)))).toEqual({ sku: "pack_cbq", target: "maths", recipient: { email: "anaya.k@gmail.com", first: "email" } });
     expect((init.headers as Record<string, string>).Authorization).toBeUndefined();
   });
 
@@ -254,7 +260,7 @@ describe("CHECKOUT-SELF-2 - Buy for yourself (the browser half)", () => {
     expect(await createSelfOrder(CBQ)).toEqual({ orderId: "order_1", keyId: "k", amountPaise: 5800 });
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe("/api/pay/guest/order");
-    expect(JSON.parse(String(init.body))).toEqual({ sku: "pack_cbq", target: "maths", self: true });
+    expect(withoutAdSignals(JSON.parse(String(init.body)))).toEqual({ sku: "pack_cbq", target: "maths", self: true });
   });
 
   it("paid: Razorpay opens with the server amount and NO prefill; the contact is what the SERVER read off the payment", async () => {
@@ -322,7 +328,7 @@ describe("SELFPAY-ATTACH-1 - pay first, then say who (the browser half)", () => 
     vi.stubGlobal("fetch", fetchMock);
     vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
     await createSelfOrder(CBQ);
-    expect(JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body))).toEqual({ sku: "pack_cbq", target: "maths", self: true, attach: true });
+    expect(withoutAdSignals(JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body)))).toEqual({ sku: "pack_cbq", target: "maths", self: true, attach: true });
     vi.stubEnv("VITE_CHECKOUT_SELF_ATTACH_DISABLED", "1");
     await createSelfOrder(CBQ);
     expect(JSON.parse(String((fetchMock.mock.calls[1] as unknown as [string, RequestInit])[1].body))).not.toHaveProperty("attach");

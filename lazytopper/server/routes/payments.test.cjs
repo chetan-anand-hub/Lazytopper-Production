@@ -2899,17 +2899,31 @@ test('SERVER-EVENTS-1 · SERVER_EVENTS_DISABLED=1 is a kill switch even with eve
     assert.equal(db2.docs.get('payOrders/o5').serverEvents.meta.state, 'sent');
   });
 
-  test('InitiateCheckout: packs only, event_id = the browser attempt id; none without an attempt id; a pass sends none', async () => {
+  test('META-IC-1 InitiateCheckout: EVERY product, event_id = the browser attempt id; none without an attempt id; a pack carries content_ids, a pass money only; a top-up none', async () => {
     const f = fakeFetch();
     const s = se.createServerEvents({ firestore: fakeDb(), env: ENV, fetchImpl: f.fetchImpl, now: () => NOW });
     await s.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'u1', signals: { attemptId: 'lt_attempt_12345', ip: '203.0.113.7' } });
     await s.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'u1', signals: { ip: '203.0.113.7' } });
-    await s.orderCreated({ orderId: 'o', passType: 'till_boards', amountPaise: 1, uid: 'u1', signals: { attemptId: 'lt_attempt_12345' } });
+    await s.orderCreated({ orderId: 'o2', passType: 'till_boards', amountPaise: 108300, uid: 'u1', signals: { attemptId: 'lt_attempt_pass_1' } });
+    await s.orderCreated({ orderId: 'o3', passType: 'month', amountPaise: 59900, uid: null, signals: { attemptId: 'lt_attempt_month_1' } });
+    await s.orderCreated({ orderId: 'o4', passType: 'test_series', amountPaise: 117882, uid: null, signals: { attemptId: 'lt_attempt_ts_1' } });
+    await s.orderCreated({ orderId: 'o5', passType: 'topup_49', amountPaise: 4900, uid: 'u1', signals: { attemptId: 'lt_attempt_topup_1' } });
+    assert.equal(f.calls.length, 4);
+    const evs = f.calls.map((c) => c.body.data[0]);
+    for (const ev of evs) assert.equal(ev.event_name, 'InitiateCheckout');
+    assert.deepEqual(evs.map((e) => e.event_id), ['lt_attempt_12345', 'lt_attempt_pass_1', 'lt_attempt_month_1', 'lt_attempt_ts_1']);
+    assert.deepEqual(evs[0].custom_data, { currency: 'INR', value: 116.82, content_ids: ['pack_mock'], content_type: 'product' });
+    assert.deepEqual(evs[1].custom_data, { currency: 'INR', value: 1083 });
+    assert.deepEqual(evs[2].custom_data, { currency: 'INR', value: 599 });
+  });
+
+  test('META-IC-1 kill switch: META_IC_SERVER_ALL_DISABLED=1 restores packs only', async () => {
+    const f = fakeFetch();
+    const s = se.createServerEvents({ firestore: fakeDb(), env: { ...ENV, META_IC_SERVER_ALL_DISABLED: '1' }, fetchImpl: f.fetchImpl, now: () => NOW });
+    await s.orderCreated({ orderId: 'o2', passType: 'till_boards', amountPaise: 108300, uid: 'u1', signals: { attemptId: 'lt_attempt_pass_1' } });
+    await s.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'u1', signals: { attemptId: 'lt_attempt_12345' } });
     assert.equal(f.calls.length, 1);
-    const ev = f.calls[0].body.data[0];
-    assert.equal(ev.event_name, 'InitiateCheckout');
-    assert.equal(ev.event_id, 'lt_attempt_12345');
-    assert.deepEqual(ev.custom_data, { currency: 'INR', value: 116.82, content_ids: ['pack_mock'], content_type: 'product' });
+    assert.equal(f.calls[0].body.data[0].custom_data.content_ids[0], 'pack_mock');
   });
 
   test('CompleteRegistration: stable id from the uid hash, hashed email + phone, once per call', async () => {
