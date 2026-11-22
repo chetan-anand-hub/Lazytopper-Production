@@ -215,6 +215,44 @@ for (const s of SURFACES) {
     assert.deepEqual(typesOf(r.result)[1], ['missing', 0, 'conceptual'], s.id);
   });
 
+  // T1-Q25-REASON-BLANK paid probe (22 Nov 2026): the model typed the blank reason `presentation` and quoted, as knowledgeEvidence, the
+  // student's own part (ii) calculation "LCM = 2^3 x 3^2 x 5 x 7 = ... = 2520" — a LATER part, but the same RESULT, not the principle.
+  // The three STORED replies (probes-2026-11-22, W shape: runs 2 and 3 typed presentation, run 1 typed conceptual) are replayed here.
+  test('GRADER-TYPE-1 — ' + s.id + ': STORED probe replies — a blank reason whose "evidence" is a calculation repeating the result is a concept gap (runs 2, 3); the conceptual reply stays (run 1)', async () => {
+    const fs = require('fs');
+    const dir = path.join(__dirname, '..', 'eval', 'golden', 'runs', 't1-probes-2026-11-22');
+    const probe = require('../eval/golden/probes/grader-type-1.json').probes.find((p) => p.probeId === 'T1-Q25-REASON-BLANK');
+    for (const n of [1, 2, 3]) {
+      const rec = fs.readFileSync(path.join(dir, 'run' + n + '.jsonl'), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)).find((r) => r.jobKey === 'W.T1.T1-Q25-REASON-BLANK');
+      const steps = JSON.parse(rec.calls[rec.calls.length - 1].text).results[0].annotatedSteps;
+      if (n > 1) assert.equal(steps[1].mistakeType, 'presentation', 'run ' + n + ' is the failing stored reply: the model typed presentation');
+      const r = await run(s, CASES['T1-Q25i-PLACEHOLDER'], { text: probe.question, marks: probe.marks, steps });
+      assert.deepEqual(typesOf(r.result)[1], ['missing', 0, 'conceptual'], s.id + ' run ' + n);
+      assert.equal(r.result.marksAwarded, 1.5, s.id + ' run ' + n + ': marks unchanged');
+      assert.equal(r.result.marksLostByType.conceptual, 0.5, s.id + ' run ' + n);
+      assert.equal(r.result.marksLostByType.presentation, 0, s.id + ' run ' + n);
+      // the SAME reply under the kill switch reads as trunk: the model's presentation typing stands
+      if (n > 1) {
+        const off = await withEnv('GRADER_TYPE_1_DISABLED', '1', () => run(s, CASES['T1-Q25i-PLACEHOLDER'], { text: probe.question, marks: probe.marks, steps }));
+        assert.equal(off.result.annotatedSteps[1].mistakeType, 'presentation', s.id + ' run ' + n + ': switch off = trunk');
+      }
+    }
+  });
+
+  test('GRADER-TYPE-1 — ' + s.id + ': a reason PROVEN by the principle stated in a later part stays presentation; arithmetic or the same answer is not proof', async () => {
+    const c = CASES['T1-TANGENT-CONTROL'];
+    const withEv = (ev, laterWork) => clone(c.modelReply).map((st, i, a) => {
+      if (st.knowledgeEvidence) return { ...st, knowledgeEvidence: ev };
+      return laterWork && i === a.length - 1 ? { ...st, studentWork: laterWork } : st;
+    });
+    const stated = 'LCM = product of the highest powers of the primes = 2^3 x 3^2 x 5 x 7 = 2520';
+    const ok = await run(s, c, { steps: withEv(stated, stated) });
+    assert.equal(typesOf(ok.result)[1][2], 'presentation', s.id + ': the principle is stated in words in another step');
+    const calc = 'LCM = 2^3 x 3^2 x 5 x 7 = 8 x 9 x 35 = 2520';
+    const bad = await run(s, c, { steps: withEv(calc, calc) });
+    assert.equal(typesOf(bad.result)[1][2], 'conceptual', s.id + ': a calculation is a result, not the principle');
+  });
+
   test('GRADER-TYPE-1 — ' + s.id + ': the rule reaches the prompt and the schema on this surface (ONE rulebook, ONE schema)', async () => {
     const call = (await run(s, CASES['LCM-DROP-NO-RULE'])).calls[0];
     assert.ok(call.prompt.includes('ALWAYS ITS OWN STEP') && call.prompt.includes('"omittedAsk": "reason"'), s.id + ': U1 reason rule');

@@ -954,10 +954,11 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // GRADER-TYPE-1 fix round: the taxonomy's "copied wrongly = silly" sentence cross-refers case law 13 (5f83acc5… → below); under
 // GRADER_TYPE_1_DISABLED=1 the prompt is BYTE-IDENTICAL to the trunk sha below (pinned in the constant by env).
 //   PREVIOUS c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860
+// GRADER-TYPE-1 probe fix (22 Nov 2026): rule (b) PROOF bullet adds "your correct answer to this part is not proof that you know the reason" (820fa733… → 3c7f7797…).
 // B2: under the kill switch (GRADER_TYPE_1_DISABLED=1) the prompt must be BYTE-IDENTICAL to trunk — pinned by the SHA, not by substrings.
 const NO_UPLOADS_CONTENTS_SHA256 = process.env.GRADER_TYPE_1_DISABLED === '1'
   ? 'c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860'
-  : '820fa73343b574aadeb0ed56c20155603fc160c635d699fd8a09388dc8f444e5';
+  : '3c7f7797cf7f76dbeec275515c320bc2dff56b54a0fe46dee522e66d87503fa5';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

@@ -740,6 +740,31 @@ function knowledgeProven(u, live, questionText) {
     && (partKey(s.part) !== partKey(u.part) || live.indexOf(s) > at)
     && normEvidence(s.studentWork).includes(ev));
 }
+/* GRADER-TYPE-1 (probe T1-Q25-REASON-BLANK, 22 Nov 2026): for a blank asked-for REASON, evidence must show the PRINCIPLE, not merely
+   the same RESULT. Paid replies typed such a loss `presentation` with knowledgeEvidence = the student's part (ii) line
+   "LCM = 2^3 x 3^2 x 5 x 7 = 8 x 9 x 35 = 2520" (a later part, so knowledgeProven accepted it): it is a calculation that repeats the
+   part (i) result, it says nothing of WHY. A principle is STATED (a word of 4+ letters: "product of the highest powers ...") or APPLIED
+   as a relation between two or more named quantities ("AB + CD = BC + DA", "CD = CR + DR = 12 + 6"). A quote that is a calculation on
+   ONE name — no stating word, no second quantity — is a result, not proof. The quote must also not sit in the answer step(s) the reason belongs to. Structured fields only; never
+   comment prose. GRADER_TYPE_1_DISABLED=1 restores knowledgeProven unchanged. */
+const REASON_STEP_DESC = /\breasons?\b|\breasoning\b/i;
+const REASON_STEP_NOT = /\b(?:verif\w*|relationship|check\w*|substitut\w*)\b/i;
+function isAskedReasonStep(u) {
+  return u._omittedAsk === 'reason' || (REASON_STEP_DESC.test(String(u.description || '')) && !REASON_STEP_NOT.test(String(u.description || '')));
+}
+function reasonKnowledgeProven(u, live, questionText) {
+  if (!knowledgeProven(u, live, questionText)) return false;
+  if (process.env.GRADER_TYPE_1_DISABLED === '1') return true;
+  const ev = normEvidence(u._knowledgeEvidence);
+  const words = ev.match(/[a-z]+/g) || [];
+  // stated in words (a word of 4+ letters) OR applied as a relation between TWO OR MORE DISTINCT named quantities of 2+ letters
+  // ("CD = CR + DR = 12 + 6"); a lone name beside numbers ("LCM = 2^3 x 3^2 ... = 2520", "∠OAT = 90°") is a result, a single-letter "x" is a times sign.
+  const statesPrinciple = words.some((w) => w.length >= 4) || new Set(words.filter((w) => w.length >= 2)).size >= 2;
+  if (!statesPrinciple) return false;
+  // the quote must not be the answer the reason belongs to: an earlier step of the SAME part that carries it
+  const at = live.indexOf(u);
+  return !live.some((s) => s !== u && partKey(s.part) === partKey(u.part) && live.indexOf(s) < at && normEvidence(s.studentWork).includes(ev));
+}
 function omissionsInAttemptedWork(steps, { q, totalMarks, only = null }) {
   let n = 0;
   const live = steps.filter((s) => s.status !== 'withdrawn');
@@ -775,7 +800,7 @@ function omissionsInAttemptedWork(steps, { q, totalMarks, only = null }) {
     if (before && after && !askedByQuestion(s.description, questionText)) continue;
     // no proof → the fourth state, as the examiner key GS-M22-a reads it ("a requested sub-task left wholly
     // unattempted → no mistake type"): `unattempted`, untyped. Marks are untouched (they are final here).
-    if (!knowledgeProven(s, live, questionText)) { s.status = 'unattempted'; s.mistakeType = null; n += 1; }
+    if (!(isAskedReasonStep(s) ? reasonKnowledgeProven : knowledgeProven)(s, live, questionText)) { s.status = 'unattempted'; s.mistakeType = null; n += 1; }
   }
   for (const u of live) {
     if (only && !only.has(u)) continue;
@@ -783,7 +808,7 @@ function omissionsInAttemptedWork(steps, { q, totalMarks, only = null }) {
     if (PART_NAMED.test(String(u.description || '')) || DIAGRAM_STEP.test(String(u.description || ''))) continue;
     if (partKey(u.part) === '' && (anyLabelled || !realQuestion || SUB_PART_MARKER.test(questionText))) continue;
     const { group, before, after } = sides(u);
-    const proven = JUSTIFICATION_STEP.test(String(u.description || '')) && knowledgeProven(u, live, questionText);
+    const proven = JUSTIFICATION_STEP.test(String(u.description || '')) && (isAskedReasonStep(u) ? reasonKnowledgeProven : knowledgeProven)(u, live, questionText);
     // MISSING-TYPE-1 review item 2: the gap rule (working not shown) is never applied to an item the question ASKS for;
     // only #1575's proof of knowledge can make such a blank exam technique.
     const gap = after && !askedByQuestion(u.description, questionText);
@@ -1163,7 +1188,7 @@ function typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy }) {
     const answerRight = nothingWrongBefore && earlier.some((s) => s.status === 'correct' && nonAttemptText(s.studentWork) === null && !isBlankWork(s.studentWork, s.status));
     if (blankStep && !answerRight) return;
     if (foldedStep && (u.status === 'incorrect' || !nothingWrongBefore)) return;
-    if (knowledgeProven(u, live, questionText)) {
+    if (reasonKnowledgeProven(u, live, questionText)) {
       // PROOF (#1575): exam technique, as the 5 Nov ruling says — for a folded reason only inside the A17 cap.
       if (foldedStep) {
         const etLost = half(live.filter((s) => s !== u && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s) && !s._workingNotShown)

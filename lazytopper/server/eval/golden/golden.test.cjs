@@ -849,3 +849,10 @@ test('§12c GRADER-TYPE-1 — checkProbe reads ONLY the server ledger (marksLost
   assert.equal(checkProbe({ ok: true, couldNotRead: true }, 'single', exp).pass, false);
   assert.equal(checkProbe({ ok: false }, 'single', exp).pass, false);
 });
+
+test('§12d GRADER-TYPE-1 — the STORED paid type-probe run (2026-11-22, 3 runs x both entry points) scores 12/12 stable with zero model calls (T1-Q25-REASON-BLANK: a calculation repeating the result is not proof of the reason)', () => {
+  const { spawnSync } = require('child_process');
+  const r = spawnSync(process.execPath, [path.join(__dirname, 'goldenTypeProbes.cjs'), '--run', path.join(__dirname, 'runs', 't1-probes-2026-11-22'), '--runs', '3'], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /TYPE-PROBES: probes=12 stable=12 calls=0 verdict=PASS/);
+});
