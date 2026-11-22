@@ -728,11 +728,15 @@ const BARE_VALUE = /^[a-z][a-z0-9 ]* ?= ?-?[\d.]+ ?(?:[a-z]{1,3}\d?)?$/;
  *  question, not the student's knowledge); and found VERBATIM (normalised) in a correct/partial step that is in
  *  ANOTHER part, or LATER in the same part — never the step itself, nor the same part's earlier steps (the
  *  answer the reason justifies). */
-function knowledgeProven(u, live, questionText) {
+function knowledgeProven(u, live, questionText, reasonGate = false) {
   const ev = normEvidence(u._knowledgeEvidence);
-  if (ev.replace(/\s/g, '').length < 10 || BARE_VALUE.test(ev)) return false;
-  const names = ev.match(/[a-z]+/g) || [];
-  if (!(names.some((w) => w.length >= 4) || (names.length >= 3 && /[=<>≤≥]/.test(ev)))) return false;
+  // reasonGate (GRADER-TYPE-1, asked reasons only): the word / length tests are replaced by reasonEvidenceStatesPrinciple (any script,
+  // short symbolic relations such as "OA ⊥ AT"); the quote must still be non-bare, not the question's own words, and in another step.
+  if (ev.replace(/\s/g, '').length < (reasonGate ? 5 : 10) || BARE_VALUE.test(ev)) return false;
+  if (!reasonGate) {
+    const names = ev.match(/[a-z]+/g) || [];
+    if (!(names.some((w) => w.length >= 4) || (names.length >= 3 && /[=<>≤≥]/.test(ev)))) return false;
+  }
   const nq = normEvidence(questionText);
   if (nq && (nq.includes(ev) || nq.replace(/\s/g, '').includes(ev.replace(/\s/g, '')))) return false;
   const at = live.indexOf(u);
@@ -747,21 +751,34 @@ function knowledgeProven(u, live, questionText) {
    as a relation between two or more named quantities ("AB + CD = BC + DA", "CD = CR + DR = 12 + 6"). A quote that is a calculation on
    ONE name — no stating word, no second quantity — is a result, not proof. The quote must also not sit in the answer step(s) the reason belongs to. Structured fields only; never
    comment prose. GRADER_TYPE_1_DISABLED=1 restores knowledgeProven unchanged. */
-const REASON_STEP_DESC = /\breasons?\b|\breasoning\b/i;
-const REASON_STEP_NOT = /\b(?:verif\w*|relationship|check\w*|substitut\w*)\b/i;
+const REASON_FILLER = new Set(['hence', 'therefore', 'thus', 'so', 'since', 'then', 'now', 'ans', 'answer', 'required', 'number', 'value', 'total', 'final', 'least',
+  'is', 'are', 'the', 'of', 'we', 'get', 'gives', 'find', 'cm', 'mm', 'm', 'km', 'kg', 'g', 's', 'sec', 'units']);
+const EVIDENCE_WORD = /[\p{L}\p{M}]+/gu;
+/** STATED: a content word (Latin 4+ letters, or a non-Latin word of 2+ characters) that is not the label left of the first "=";
+ *  APPLIED: a relation (= < > ≤ ≥ ⊥ ∥ ~ →) with a letter-named quantity on at least two sides. Filler ("Hence", "Ans", "Required number",
+ *  units) is dropped first and "x" between digits is a times sign. A lone label beside a worked-out number is a result. */
+function reasonEvidenceStatesPrinciple(rawEv) {
+  const ev = normEvidence(rawEv).replace(/(?<=\d)\s*x\s*(?=\d)/g, ' × ')
+    .replace(EVIDENCE_WORD, (t) => (REASON_FILLER.has(t) ? ' ' : t));
+  const eq = ev.indexOf('=');
+  const label = new Set(eq >= 0 ? (ev.slice(0, eq).match(EVIDENCE_WORD) || []) : []);
+  const stated = (ev.match(EVIDENCE_WORD) || []).some((w) => !label.has(w) && (/\p{Script=Latin}/u.test(w) ? w.length >= 4 : w.length >= 2));
+  if (stated) return true;
+  return ev.split(/[=<>≤≥⊥∥~→]/).filter((side) => /\p{L}/u.test(side)).length >= 2;
+}
 function isAskedReasonStep(u) {
-  return u._omittedAsk === 'reason' || (REASON_STEP_DESC.test(String(u.description || '')) && !REASON_STEP_NOT.test(String(u.description || '')));
+  const d = String(u.description || '');
+  return u._omittedAsk === 'reason' || (REASON_STEP.test(d) && !NOT_A_REASON_STEP.test(d));
 }
 function reasonKnowledgeProven(u, live, questionText) {
-  if (!knowledgeProven(u, live, questionText)) return false;
-  if (process.env.GRADER_TYPE_1_DISABLED === '1') return true;
-  const ev = normEvidence(u._knowledgeEvidence);
-  const words = ev.match(/[a-z]+/g) || [];
-  // stated in words (a word of 4+ letters) OR applied as a relation between TWO OR MORE DISTINCT named quantities of 2+ letters
-  // ("CD = CR + DR = 12 + 6"); a lone name beside numbers ("LCM = 2^3 x 3^2 ... = 2520", "∠OAT = 90°") is a result, a single-letter "x" is a times sign.
-  const statesPrinciple = words.some((w) => w.length >= 4) || new Set(words.filter((w) => w.length >= 2)).size >= 2;
-  if (!statesPrinciple) return false;
+  if (process.env.GRADER_TYPE_1_DISABLED === '1') return knowledgeProven(u, live, questionText);
+  // the stricter test only where the QUESTION asks for a reason (a photo-only question relies on the model's omittedAsk flag); else trunk
+  const qt = String(questionText || '');
+  const asked = REASON_ASKED.test(qt) || (u._omittedAsk === 'reason' && !isRealQuestionText({ questionText: qt }));
+  if (!asked) return knowledgeProven(u, live, questionText);
+  if (!knowledgeProven(u, live, questionText, true) || !reasonEvidenceStatesPrinciple(u._knowledgeEvidence)) return false;
   // the quote must not be the answer the reason belongs to: an earlier step of the SAME part that carries it
+  const ev = normEvidence(u._knowledgeEvidence);
   const at = live.indexOf(u);
   return !live.some((s) => s !== u && partKey(s.part) === partKey(u.part) && live.indexOf(s) < at && normEvidence(s.studentWork).includes(ev));
 }
@@ -1128,7 +1145,7 @@ function settleUntypedLosses(steps, { q, totalMarks, zeroedBy }) {
 // B1: the DESCRIPTION fallback names a REASON step only ("Reason for …"), never a verification / relationship step that merely
 // "justifies" something; and the QUESTION must ASK for a reason in words ("giving a reason", "justify", "explain why") — a bare
 // "why" anywhere in the text is not an ask (probe B: "Why is the sum positive?" beside a blank verification step).
-const REASON_STEP = /\breasons?\b|\breasoning\b/i;
+const REASON_STEP = /\breasons?\b|\breasoning\b|\bjustif\w*/i;
 const NOT_A_REASON_STEP = /\b(?:verif\w*|relationship|check\w*|substitut\w*)\b/i;
 const REASON_ASKED = /\b(?:reasons?|justif(?:y|ies|ication|ying)|explain\s+why)\b/i;
 // The reason CLAUSE of an instruction ("giving a reason", "Give a reason for …", "Explain why …", "Justify …").

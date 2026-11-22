@@ -239,18 +239,38 @@ for (const s of SURFACES) {
     }
   });
 
-  test('GRADER-TYPE-1 — ' + s.id + ': a reason PROVEN by the principle stated in a later part stays presentation; arithmetic or the same answer is not proof', async () => {
+  // Review of 07a604d7: the evidence test is the reviewer's tighter rule (filler dropped, label excluded, any script, relations on 2+ sides).
+  test('GRADER-TYPE-1 — ' + s.id + ': evidence for a blank asked reason — a result (any filler / unit wrapping) is a concept gap; a stated or applied principle stays presentation', async () => {
     const c = CASES['T1-TANGENT-CONTROL'];
-    const withEv = (ev, laterWork) => clone(c.modelReply).map((st, i, a) => {
+    const withEv = (ev) => clone(c.modelReply).map((st, i, a) => {
       if (st.knowledgeEvidence) return { ...st, knowledgeEvidence: ev };
-      return laterWork && i === a.length - 1 ? { ...st, studentWork: laterWork } : st;
+      return i === a.length - 1 ? { ...st, studentWork: ev } : st;
     });
-    const stated = 'LCM = product of the highest powers of the primes = 2^3 x 3^2 x 5 x 7 = 2520';
-    const ok = await run(s, c, { steps: withEv(stated, stated) });
-    assert.equal(typesOf(ok.result)[1][2], 'presentation', s.id + ': the principle is stated in words in another step');
+    const LCM = '2^3 x 3^2 x 5 x 7 = 8 x 9 x 35 = 2520';
+    const RESULTS = ['LCM = ' + LCM, 'Hence LCM = ' + LCM, 'So LCM = ' + LCM, 'LCM is 2^3 x 3^2 x 5 x 7 = 2520', 'Ans: LCM = ' + LCM,
+      'Required number = ' + LCM, 'Therefore ∠OAB = 90° − 50° = 40°', 'Area = 22/7 x 7 x 7 = 154 cm²'];
+    const PRINCIPLES = ['tangent is perpendicular to the radius', 'LCM = product of the highest powers of the primes = ' + LCM, 'AB + CD = BC + DA',
+      'CD = CR + DR = 12 + 6', 'a^2 + b^2 = c^2', 'V = IR = 0.5 x 10 = 5 V', '1/v - 1/u = 1/f', 'OA ⊥ AT', 'AD/DB = AE/EC (BPT)',
+      '2H2 + O2 → 2H2O', 'स्पर्श रेखा त्रिज्या पर लम्ब होती है', '∠OPT = 90° = ∠OQT'];
+    for (const ev of RESULTS) {
+      const r = await run(s, c, { steps: withEv(ev) });
+      assert.equal(typesOf(r.result)[1][2], 'conceptual', s.id + ': a RESULT is not proof — ' + ev);
+    }
+    for (const ev of PRINCIPLES) {
+      const r = await run(s, c, { steps: withEv(ev) });
+      assert.equal(typesOf(r.result)[1][2], 'presentation', s.id + ': a principle is proof — ' + ev);
+    }
+  });
+
+  test('GRADER-TYPE-1 — ' + s.id + ': the stricter evidence test is gated on the QUESTION asking for a reason (unasked = trunk); a "Justify" description is a reason step without the omittedAsk flag', async () => {
+    const c = CASES['T1-TANGENT-CONTROL'];
     const calc = 'LCM = 2^3 x 3^2 x 5 x 7 = 8 x 9 x 35 = 2520';
-    const bad = await run(s, c, { steps: withEv(calc, calc) });
-    assert.equal(typesOf(bad.result)[1][2], 'conceptual', s.id + ': a calculation is a result, not the principle');
+    const mk = (mut) => clone(c.modelReply).map((st, i, a) => mut(st.knowledgeEvidence ? { ...st, knowledgeEvidence: calc } : (i === a.length - 1 ? { ...st, studentWork: calc } : st), i));
+    const unasked = await run(s, c, { text: c.questionText.replace(/,?\s*giving a reason|\s*Give a reason\.?|\s*Give reason\.?/gi, ''), steps: mk((st) => st) });
+    assert.ok(!/reason|justif/i.test(c.questionText.replace(/,?\s*giving a reason|\s*Give a reason\.?|\s*Give reason\.?/gi, '')), 'fixture question must really be unasked');
+    assert.notEqual(typesOf(unasked.result)[1][2], 'conceptual', s.id + ': an unasked reason keeps trunk behaviour');
+    const justify = await run(s, c, { steps: mk((st) => (st.knowledgeEvidence !== undefined && st.knowledgeEvidence !== null ? { ...st, omittedAsk: null, description: 'Justify the property used' } : st)) });
+    assert.equal(typesOf(justify.result)[1][2], 'conceptual', s.id + ': Justify description, result-only evidence');
   });
 
   test('GRADER-TYPE-1 — ' + s.id + ': the rule reaches the prompt and the schema on this surface (ONE rulebook, ONE schema)', async () => {
