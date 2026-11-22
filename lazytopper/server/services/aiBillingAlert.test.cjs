@@ -19,8 +19,12 @@ const {
   buildCallMeBotUrl,
   createCallMeBotSender,
   ALERT_EVERY_MS,
+  EMAIL_GAP_MS,
+  EMAIL_DAILY_MAX,
+  RECOVERY_QUIET_MS,
   WHATSAPP_TIMEOUT_MS,
 } = require('./aiBillingAlert.cjs');
+const aiBillingAlertModule = require('./aiBillingAlert.cjs');
 const { createGeminiClient } = require('./geminiClient.cjs');
 
 /* ── Real Gemini body shapes ─────────────────────────────────────────────── */
@@ -88,8 +92,10 @@ function makeAlert(over = {}) {
     log: (l) => lines.push(l),
     ...(over.sendWhatsApp ? { sendWhatsApp: over.sendWhatsApp } : {}),
     ...(over.fetchImpl ? { fetchImpl: over.fetchImpl } : {}),
+    ...(over.dispatchTimeoutMs ? { dispatchTimeoutMs: over.dispatchTimeoutMs } : {}),
+    ...(over.log ? { log: over.log } : {}),
   });
-  return { alert, sent, lines, advance: (ms) => { t += ms; } };
+  return { alert, sent, lines, advance: (ms) => { t += ms; }, at: () => t };
 }
 
 const GEMINI_CFG = {
@@ -164,7 +170,7 @@ test('snippet is the error status + message only, trimmed; recipient is masked',
 
 /* ── Throttle and recovery ───────────────────────────────────────────────── */
 
-test('402 -> one email; 20 more 402s inside 30 min -> still one; after 30 min -> a second', async () => {
+test('402 -> one email; 20 more 402s inside 30 min -> still one; the email waits 2 h (N1) before a second', async () => {
   const { alert, sent, lines, advance } = makeAlert();
   alert.note(402, snippetOf(BODY_402_PREPAY), 'billing');
   await flush();
@@ -173,18 +179,23 @@ test('402 -> one email; 20 more 402s inside 30 min -> still one; after 30 min ->
   assert.equal(sent[0].subject, 'LazyTopper: AI is failing (Gemini 402 — billing)');
   assert.match(sent[0].text, /Status: 402/);
   assert.match(sent[0].text, /First seen: .*IST/);
-  assert.match(sent[0].text, /Failures in this window: 1/);
+  assert.match(sent[0].text, /Failed AI calls since the last alert: 1 /);
+  assert.match(sent[0].text, /If billing is fine, check the API key\./);
   assert.match(sent[0].text, /Check AI Studio billing: https:\/\/aistudio\.google\.com\/billing/);
   assert.doesNotMatch(sent[0].text, /test-key/);
   for (let i = 0; i < 20; i++) { advance(60 * 1000); alert.note(402, '', 'billing'); }
   await flush();
   assert.equal(sent.length, 1, 'throttled inside 30 minutes');
   assert.equal(lines.filter((l) => /^\[ai-billing\] FAILURE status=402 count=\d+$/.test(l)).length, 21, 'one log line per event');
-  advance(ALERT_EVERY_MS);
+  advance(ALERT_EVERY_MS); // 50 min after the first email: still inside the email's 2 h gap
   alert.note(402, '', 'billing');
   await flush();
-  assert.equal(sent.length, 2, 'a second email once 30 minutes have passed');
-  assert.match(sent[1].text, /Failures in this window: 21/);
+  assert.equal(sent.length, 1, 'no second email inside 2 hours');
+  advance(EMAIL_GAP_MS);
+  alert.note(402, '', 'billing');
+  await flush();
+  assert.equal(sent.length, 2, 'a second email once 2 hours have passed');
+  assert.match(sent[1].text, /Failed AI calls since the last alert: 22 \(since first seen: 23\)/);
 });
 
 test('success after an alert -> ONE recovered email; further successes send nothing', async () => {
@@ -257,8 +268,8 @@ test('a failed send is retried after 5 minutes, not on every request', async () 
 
 /* ── Through the real gateway ────────────────────────────────────────────── */
 
-test('gateway: a 402 from Gemini reaches the alert once and emails; a later 200 sends the recovered email', async () => {
-  const { alert, sent } = makeAlert();
+test('gateway: a 402 from Gemini reaches the alert once and emails; a 200 five quiet minutes later sends the recovered email', async () => {
+  const { alert, sent, advance } = makeAlert();
   const c = client(alert);
   const r = await withFetch(() => outcome(c.callGemini('gemini-2.5-flash', CONTENTS, {})), async () => resp(402, BODY_402_PREPAY));
   assert.equal(r.ok, false);
@@ -266,6 +277,7 @@ test('gateway: a 402 from Gemini reaches the alert once and emails; a later 200 
   await flush();
   assert.equal(sent.length, 1);
   assert.match(sent[0].text, /Gemini said: RESOURCE_EXHAUSTED: Your prepayment credits are depleted/);
+  advance(RECOVERY_QUIET_MS);
   const ok = await withFetch(() => outcome(c.callGemini('gemini-2.5-flash', CONTENTS, {})), async () => resp(200, OK_BODY));
   assert.deepEqual(ok, { ok: true, text: 'answer' });
   await flush();
@@ -362,9 +374,9 @@ test('whatsapp: sent WITH the email on a failure, and ONE recovered message with
   await flush();
   assert.equal(sent.length, 1);
   assert.equal(wa.texts.length, 1);
-  assert.match(wa.texts[0], /^LazyTopper ALERT: AI failing since .+ IST \(Gemini 402, 1 errors\)\. Check AI Studio billing\.$/);
+  assert.match(wa.texts[0], /^LazyTopper ALERT: AI failing since .+ IST \(Gemini 402, 1 errors\)\. Check AI Studio billing or the API key\.$/);
   assert.doesNotMatch(wa.texts[0], /fake-key-1|10000005678/, 'no secret or number in the text');
-  advance(60 * 1000);
+  advance(RECOVERY_QUIET_MS);
   alert.noteOk();
   await flush();
   assert.equal(sent.length, 2);
@@ -373,7 +385,7 @@ test('whatsapp: sent WITH the email on a failure, and ONE recovered message with
   assert.equal(fetched.length, 0, 'an injected sender replaces the CallMeBot backend entirely (the seam)');
 });
 
-test('whatsapp: the throttle is the same as the email — 20 more failures inside 30 min send nothing more on EITHER channel; after 30 min both send again', async () => {
+test('whatsapp: 30-min cadence beside the email\'s 2 h — 20 more failures inside 30 min send nothing more on EITHER channel; after 30 min only WhatsApp sends; after 2 h both', async () => {
   const wa = waRecorder();
   const { alert, sent, advance } = makeAlert({ env: WA_ENV, sendWhatsApp: wa.fn });
   alert.note(402, '', 'billing');
@@ -385,9 +397,14 @@ test('whatsapp: the throttle is the same as the email — 20 more failures insid
   advance(ALERT_EVERY_MS);
   alert.note(402, '', 'billing');
   await flush();
-  assert.equal(sent.length, 2);
-  assert.equal(wa.texts.length, 2);
+  assert.equal(sent.length, 1, 'email still inside its 2 h gap');
+  assert.equal(wa.texts.length, 2, 'WhatsApp on its 30-min cadence');
   assert.match(wa.texts[1], /\(Gemini 402, 22 errors\)/);
+  advance(EMAIL_GAP_MS);
+  alert.note(402, '', 'billing');
+  await flush();
+  assert.equal(sent.length, 2);
+  assert.equal(wa.texts.length, 3);
 });
 
 test('whatsapp: a failing, throwing or hanging WhatsApp send never stops the email — and a failing email never stops WhatsApp', async () => {
@@ -451,4 +468,163 @@ test('gateway: with WhatsApp on and its sender throwing, the grading call result
   const { alert } = makeAlert({ env: WA_ENV, sendWhatsApp: () => { throw new Error('wa down'); } });
   const r = await withFetch(() => outcome(client(alert).callGemini('gemini-2.5-flash', CONTENTS, {})), async () => resp(402, BODY_402_PREPAY));
   assert.deepEqual(r, baseline);
+});
+
+/* ── Review fixes (PR #1810 review N1-N9) ────────────────────────────────── */
+
+test('N1: the email is capped at 6 per IST day — recovered emails count — and the cap resets on the next IST day; WhatsApp is not capped', async () => {
+  const wa = waRecorder();
+  const { alert, sent, advance, at } = makeAlert({ env: WA_ENV, sendWhatsApp: wa.fn });
+  // Start at 00:30 IST (19:00Z the previous UTC day) so the whole run fits one IST day.
+  advance(Date.UTC(2026, 10, 22, 19, 0, 0) - at());
+  for (let i = 0; i < 5; i++) {
+    alert.note(402, '', 'billing'); // alert email
+    advance(RECOVERY_QUIET_MS);
+    alert.noteOk(); // recovered email
+    await flush();
+    advance(EMAIL_GAP_MS);
+  }
+  assert.equal(sent.length, EMAIL_DAILY_MAX, 'exactly 6 emails that IST day (3 alerts + 3 recovered)');
+  assert.equal(EMAIL_DAILY_MAX, 6);
+  assert.ok(wa.texts.length > EMAIL_DAILY_MAX, 'WhatsApp keeps its own cadence');
+  // The next IST day the email may alert again.
+  advance(Date.UTC(2026, 10, 23, 19, 0, 0) - at());
+  alert.note(402, '', 'billing');
+  await flush();
+  assert.equal(sent.length, EMAIL_DAILY_MAX + 1);
+});
+
+test('N1: the recovered email also starts the 2 h email gap (flapping cannot spend the quota)', async () => {
+  const { alert, sent, advance } = makeAlert();
+  alert.note(402, '', 'billing');
+  await flush();
+  advance(RECOVERY_QUIET_MS);
+  alert.noteOk();
+  await flush();
+  assert.equal(sent.length, 2);
+  advance(60 * 1000);
+  alert.note(402, '', 'billing');
+  await flush();
+  assert.equal(sent.length, 2, 'a new outage right after a recovery waits out the email gap');
+});
+
+test('N2: one model failing while others succeed does NOT flap — recovered only after 5 quiet minutes', async () => {
+  const wa = waRecorder();
+  const { alert, sent, advance } = makeAlert({ env: WA_ENV, sendWhatsApp: wa.fn });
+  alert.note(402, '', 'billing');
+  await flush();
+  for (let i = 0; i < 30; i++) {
+    advance(60 * 1000);
+    alert.noteOk(); // another model succeeds
+    alert.note(402, '', 'billing'); // the failing model keeps failing
+  }
+  await flush();
+  assert.equal(sent.filter((m) => /recovered/.test(m.subject)).length, 0, 'no recovered email while failures continue');
+  assert.equal(wa.texts.filter((t) => /recovered/.test(t)).length, 0, 'no recovered WhatsApp while failures continue');
+  advance(RECOVERY_QUIET_MS - 1);
+  alert.noteOk();
+  await flush();
+  assert.equal(sent.filter((m) => /recovered/.test(m.subject)).length, 0, 'not yet: under 5 quiet minutes');
+  advance(1);
+  alert.noteOk();
+  await flush();
+  assert.equal(sent.filter((m) => /recovered/.test(m.subject)).length, 1);
+  assert.equal(wa.texts.filter((t) => /recovered/.test(t)).length, 1);
+});
+
+test('N3: a THROWING log can never cause an unhandled rejection (failure, sent, not-sent and recovered paths)', async () => {
+  const rejections = [];
+  const onRej = (r) => rejections.push(r);
+  process.on('unhandledRejection', onRej);
+  try {
+    const throwingLog = () => { throw new Error('log down'); };
+    const ok = makeAlert({ log: throwingLog });
+    ok.alert.note(402, '', 'billing');
+    await flush();
+    ok.advance(RECOVERY_QUIET_MS);
+    ok.alert.noteOk();
+    const bad = makeAlert({ log: throwingLog, send: async () => ({ ok: false }) });
+    bad.alert.note(402, '', 'billing');
+    await flush(); await flush(); await flush();
+    assert.equal(ok.sent.length, 2, 'both emails still went out');
+  } finally {
+    process.off('unhandledRejection', onRej);
+  }
+  assert.deepEqual(rejections, []);
+});
+
+test('N5: the process-wide instance is UNARMED until configure() — env vars alone never page the owner', async () => {
+  const sentHere = [];
+  const waHere = [];
+  // A fresh unarmed instance with every setting present except the arming call.
+  const a = createAiBillingAlert({ armed: false, env: WA_ENV, send: async (m) => { sentHere.push(m); return { ok: true }; }, canSend: () => true, sendWhatsApp: async (t) => { waHere.push(t); return { ok: true }; }, log: () => {} });
+  a.note(402, '', 'billing');
+  await flush();
+  assert.equal(sentHere.length + waHere.length, 0, 'unarmed: log only');
+  assert.match(a.describe(), /alert OFF \(not armed .*WhatsApp OFF \(not armed/);
+  a.configure({}); // what index.cjs does at boot
+  a.note(402, '', 'billing');
+  await flush();
+  assert.equal(sentHere.length, 1);
+  assert.equal(waHere.length, 1);
+  // The module's default instance starts unarmed.
+  assert.equal(aiBillingAlertModule.defaultAlert.state().armed, false);
+  assert.match(aiBillingAlertModule.describe(), /not armed/);
+});
+
+test('N6: one failing call is counted ONCE however many 429 retries it made', async () => {
+  const { alert, lines, sent } = makeAlert();
+  const c = client(alert);
+  let hits = 0;
+  await withFetch(() => outcome(c.callGemini('gemini-2.5-flash', CONTENTS, {})), async () => { hits += 1; return resp(429, BODY_429_PREPAY); });
+  await flush();
+  assert.ok(hits > 1, 'the gateway did retry');
+  assert.equal(lines.filter((l) => /FAILURE/.test(l)).length, 1, 'one failed call, one event');
+  assert.match(sent[0].text, /Failed AI calls since the last alert: 1 \(since first seen: 1\)/);
+});
+
+test('N9: a sender that never settles times out, frees its channel, and is retried after 5 minutes', async () => {
+  let calls = 0;
+  const { alert, advance } = makeAlert({ send: () => { calls += 1; return new Promise(() => {}); }, dispatchTimeoutMs: 20 });
+  alert.note(402, '', 'billing');
+  await new Promise((r) => setTimeout(r, 60));
+  assert.equal(alert.state().email.sending, false, 'the hung send no longer blocks the channel');
+  advance(5 * 60 * 1000);
+  alert.note(402, '', 'billing');
+  await flush();
+  assert.equal(calls, 2);
+});
+
+/* ── N4: the streaming path ──────────────────────────────────────────────── */
+
+function sseResp(chunks) {
+  const enc = new TextEncoder();
+  const body = new ReadableStream({ start(c) { for (const ch of chunks) c.enqueue(enc.encode(ch)); c.close(); } });
+  return { ok: true, status: 200, statusText: 'OK', headers: { get: () => null }, text: async () => '', body };
+}
+async function drainStream(gen) {
+  const out = [];
+  try { for await (const piece of gen) out.push(piece); return { ok: true, text: out.join('') }; } catch (e) { return { ok: false, status: e.status }; }
+}
+
+test('N4: stream 402 -> alert; stream 200 five quiet minutes later -> the recovered email; ordinary stream 429 -> nothing', async () => {
+  const { alert, sent, advance } = makeAlert();
+  const c = client(alert);
+  const r = await withFetch(() => drainStream(c.callGeminiStream('gemini-2.5-flash', CONTENTS, {})), async () => resp(402, BODY_402_PREPAY));
+  assert.deepEqual(r, { ok: false, status: 402 });
+  await flush();
+  assert.equal(sent.length, 1);
+  assert.match(sent[0].subject, /Gemini 402/);
+  advance(RECOVERY_QUIET_MS);
+  const chunk = `data: ${JSON.stringify({ candidates: [{ content: { parts: [{ text: 'streamed' }] } }] })}\n\n`;
+  const ok = await withFetch(() => drainStream(c.callGeminiStream('gemini-2.5-flash', CONTENTS, {})), async () => sseResp([chunk]));
+  assert.deepEqual(ok, { ok: true, text: 'streamed' });
+  await flush();
+  assert.equal(sent.length, 2);
+  assert.equal(sent[1].subject, 'LazyTopper: AI recovered');
+  const quiet = makeAlert();
+  const c2 = client(quiet.alert);
+  await withFetch(() => drainStream(c2.callGeminiStream('gemini-2.5-flash', CONTENTS, {})), async () => resp(429, BODY_429_PER_MINUTE));
+  await flush();
+  assert.equal(quiet.sent.length, 0);
 });

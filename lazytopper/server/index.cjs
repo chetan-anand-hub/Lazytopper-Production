@@ -1341,7 +1341,8 @@ server.listen(config.PORT, () => {
     .start();
   // AI-BILLING-ALERT-1 — owner email (AI_ALERT_TO, else OPS_REPORT_TO) + WhatsApp (OWNER_ALERT_WHATSAPP + CALLMEBOT_APIKEY)
   // when Gemini fails on the key / billing; email uses the SAME
-  // Resend rails as the unclaimed alert. The gateway reports to this instance fire-and-forget; log only until configured.
+  // Resend rails as the unclaimed alert. The gateway reports to this instance fire-and-forget. This configure() call is
+  // what ARMS it: until here (and in every script / eval that never calls it) it logs only, whatever the env says.
   {
     const aiBillingAlert = require('./services/aiBillingAlert.cjs');
     aiBillingAlert.configure({
