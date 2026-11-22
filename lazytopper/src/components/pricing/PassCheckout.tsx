@@ -36,6 +36,7 @@ import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { fetchMyPacks, type BoardPassCredit, type TestSeriesUpgrade } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
 import PayRescueCard from "../payRescue/PayRescueCard";
+import InAppPayChoice from "../payRescue/InAppPayChoice";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 import PostPayGstLazy from "../gstInvoice/PostPayGstLazy";
 import PaidSheetLazy, { paidSheetEnabled, paidSheetReceiptLine, preloadPaidSheet } from "../checkoutWho/PaidSheetLazy";
@@ -722,6 +723,8 @@ export function PassCheckoutView({
       >
         {boardsLabel}
       </button>
+      {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Pay (never replaces it). */}
+      {busy === null && recovery === null && <InAppPayChoice buy={{ kind: "pass" }} />}
       {gstBreakdown && !activeLabel && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" data-testid="pass-checkout-gst">
           {gstBreakdown}

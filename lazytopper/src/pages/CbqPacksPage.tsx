@@ -3,6 +3,7 @@ import RestoredPurchaseCard from "../components/checkoutWho/RestoredPurchaseCard
 import { currentSalesPageSurface, setSalesPageSurface } from "../analytics/analytics";
 import { preloadBuyChunks, warmPacksCheckout } from "../components/packs/PacksShop";
 import { Link, useLocation } from "react-router-dom";
+import InAppPayChoice from "../components/payRescue/InAppPayChoice";
 import PacksShop, { type PacksShopApi } from "../components/packs/PacksShop";
 import { PackCbqBuy, sampleBuyFor } from "../components/packs/PackTileBuy";
 import SubjectSwitch from "../components/packs/SubjectSwitch";
@@ -168,6 +169,10 @@ function CbqBuyCard({ api, subject, onSubject }: { api: PacksShopApi; subject: P
             the island replay a tap made on the static copy onto the app's button here even though their labels differ. */}
         <div className="lt-cq-card__buy" data-lt-twin={`cq-buy-${subject}`}>
           <PackCbqBuy subject={subject} api={api} testPrefix="cq-card" />
+          {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Buy (never replaces it). */}
+          {api.buyEnabled && !api.ownsPack("pack_cbq", subject) && !api.blockedBy("pack_cbq", subject) && (
+            <InAppPayChoice buy={{ kind: "pack", sku: "pack_cbq", target: subject }} surface="cbq_packs" />
+          )}
         </div>
         <p className="lt-cbq__count">{CBQ_SUBJECT_CLAIM} · {chaptersOfSubject(subject).length} chapters, {CBQ_CHAPTER_CLAIM} · 1- to 5-mark questions · step-wise worked solutions</p>
         <div className="lt-cbq__sample">

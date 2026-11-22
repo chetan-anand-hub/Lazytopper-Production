@@ -79,3 +79,72 @@ export function inAppChromeIntent(href: string, buy?: InAppBuyTarget | null): st
   const https = inAppRescueUrl(href, buy);
   return https ? chromeIntentUrl(https) : null;
 }
+
+/* ------------------------------------------------------------------------- *
+ * INAPP-PAY-CHOICE-1 - an extra "Pay in Chrome / Safari" option UP FRONT, under the normal Buy / Pay button, in an in-app browser only.
+ * Never replaces or blocks the normal button. Kill switch: VITE_INAPP_PAY_CHOICE_DISABLED=1 (also off when isInAppPayDisabled()).
+ * ------------------------------------------------------------------------- */
+
+export function isInAppPayChoiceDisabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_INAPP_PAY_CHOICE_DISABLED;
+    return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
+
+/** The in-app browser the up-front option is for, or null (a normal browser, either kill switch on). */
+export function currentInAppPayChoice(): { app: InAppPayApp; platform: InAppPayPlatform } | null {
+  if (isInAppPayChoiceDisabled()) return null;
+  return currentInAppPay();
+}
+
+/** iOS major version from the UA ("iPhone OS 17_1" / "CPU OS 17_1"), or null when it cannot be read. */
+export function iosMajorVersion(userAgent: string | null | undefined): number | null {
+  const m = /(?:iPhone OS|CPU OS|CPU iPhone OS) (\d{1,2})[_.]/i.exec(userAgent ?? "");
+  return m ? Number(m[1]) : null;
+}
+
+/** x-safari-https:// opens Safari from another app on iOS 17+. Older / unreadable versions: no Safari button (copy only). */
+export function iosSafariSupported(userAgent: string | null | undefined): boolean {
+  const v = iosMajorVersion(userAgent);
+  return v !== null && v >= 17;
+}
+
+/** Marker for our own funnel; `from` is already used by the shop, so a separate key. */
+export const INAPP_CHOICE_MARKER = ["via", "inapp"] as const;
+
+/** Only these first-touch keys may be added (attribution across the hop): utm_* and the lt_clk flag list. No click-id values, no PII. */
+const CHOICE_SOURCE_KEYS = new Set(["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "lt_clk"]);
+
+/**
+ * The https URL the real browser opens: inAppRescueUrl (this page's path + query incl. utm_* / fbclid / gclid, `?buy=` for the item)
+ * + the stored first-touch utm_* when the URL lacks them + `via=inapp`. Null if href is not http(s).
+ */
+export function inAppChoiceUrl(
+  href: string,
+  buy?: InAppBuyTarget | null,
+  sourceParams: ReadonlyArray<readonly [string, string]> = [],
+): string | null {
+  const base = inAppRescueUrl(href, buy);
+  if (!base) return null;
+  const url = new URL(base);
+  for (const [key, value] of sourceParams) {
+    if (!CHOICE_SOURCE_KEYS.has(key) || url.searchParams.has(key)) continue;
+    if (typeof value !== "string" || !/^[A-Za-z0-9_.\-{},]{1,64}$/.test(value)) continue;
+    url.searchParams.set(key, value);
+  }
+  url.searchParams.set(INAPP_CHOICE_MARKER[0], INAPP_CHOICE_MARKER[1]);
+  return url.toString();
+}
+
+export function inAppChoiceChromeIntent(href: string, buy?: InAppBuyTarget | null, sourceParams: ReadonlyArray<readonly [string, string]> = []): string | null {
+  const https = inAppChoiceUrl(href, buy, sourceParams);
+  return https ? chromeIntentUrl(https) : null;
+}
+
+/** iOS 17+: the same https URL with the x-safari-https scheme. Null for a non-https URL. */
+export function inAppSafariUrl(httpsUrl: string): string | null {
+  return /^https:\/\//i.test(httpsUrl) ? httpsUrl.replace(/^https:/i, "x-safari-https:") : null;
+}
