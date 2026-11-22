@@ -36,6 +36,7 @@ import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { fetchMyPacks, type BoardPassCredit, type TestSeriesUpgrade } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
 import PayRescueCard from "../payRescue/PayRescueCard";
+import InAppPayChoice from "../payRescue/InAppPayChoice";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 import PostPayGstLazy from "../gstInvoice/PostPayGstLazy";
 import PaidSheetLazy, { paidSheetEnabled, paidSheetReceiptLine, preloadPaidSheet } from "../checkoutWho/PaidSheetLazy";
@@ -257,6 +258,8 @@ function checkoutEventDetails(passType: PassType, offerOpen: boolean): CheckoutD
 }
 
 export interface PassCheckoutViewProps {
+  /** INAPP-PAY-CHOICE-1: the page knows auth has settled and nobody is signed in (the extra in-app option renders only then). */
+  inAppChoice?: boolean;
   signedIn: boolean;
   offerOpen: boolean;
   /**
@@ -320,6 +323,7 @@ export interface PassCheckoutViewProps {
  */
 export function PassCheckoutView({
   signedIn,
+  inAppChoice = false,
   offerOpen,
   showMonth = false,
   activePassEnd,
@@ -722,6 +726,8 @@ export function PassCheckoutView({
       >
         {boardsLabel}
       </button>
+      {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Pay (never replaces it). */}
+      {inAppChoice && !signedIn && !rescue && busy === null && recovery === null && <InAppPayChoice buy={{ kind: "pass" }} />}
       {gstBreakdown && !activeLabel && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" data-testid="pass-checkout-gst">
           {gstBreakdown}
@@ -916,6 +922,7 @@ function PassCheckoutConnected() {
     <>
     <PassCheckoutView
       signedIn={Boolean(uid)}
+      inAppChoice={!authLoading && !uid}
       offerOpen={foundingRateApplies(Date.now(), status.foundingMember)}
       showMonth={showMonth}
       activePassEnd={activePassEnd}

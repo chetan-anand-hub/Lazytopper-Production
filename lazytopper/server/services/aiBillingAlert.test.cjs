@@ -23,6 +23,13 @@ const {
   EMAIL_DAILY_MAX,
   RECOVERY_QUIET_MS,
   WHATSAPP_TIMEOUT_MS,
+  TELEGRAM_TIMEOUT_MS,
+  buildTelegramSendRequest,
+  createTelegramSender,
+  pickPrivateChat,
+  pickPrivateChats,
+  telegramToken,
+  maskChatId,
 } = require('./aiBillingAlert.cjs');
 const aiBillingAlertModule = require('./aiBillingAlert.cjs');
 const { createGeminiClient } = require('./geminiClient.cjs');
@@ -94,6 +101,7 @@ function makeAlert(over = {}) {
     ...(over.fetchImpl ? { fetchImpl: over.fetchImpl } : {}),
     ...(over.dispatchTimeoutMs ? { dispatchTimeoutMs: over.dispatchTimeoutMs } : {}),
     ...(over.log ? { log: over.log } : {}),
+    ...(over.sendTelegram ? { sendTelegram: over.sendTelegram } : {}),
   });
   return { alert, sent, lines, advance: (ms) => { t += ms; }, at: () => t };
 }
@@ -243,7 +251,7 @@ test('no recipient / email rails not ready -> log only, and the boot line says w
   assert.equal(rails.sent.length, 0);
   assert.match(rails.alert.describe(), /alert OFF \(email not configured/);
   const ops = makeAlert({ env: { OPS_REPORT_TO: 'ops@example.com' } });
-  assert.equal(ops.alert.describe(), '[ai-billing] alert ON to o***@example.com | WhatsApp OFF (missing OWNER_ALERT_WHATSAPP + CALLMEBOT_APIKEY)');
+  assert.equal(ops.alert.describe(), '[ai-billing] alert ON to o***@example.com | WhatsApp OFF (missing OWNER_ALERT_WHATSAPP + CALLMEBOT_APIKEY) | Telegram OFF (missing TELEGRAM_ALERT_BOT_TOKEN + TELEGRAM_ALERT_CHAT_ID)');
   ops.alert.note(401, '', 'key');
   await flush();
   assert.equal(ops.sent[0].to, 'ops@example.com');
@@ -438,7 +446,7 @@ test('whatsapp: missing number or key -> off (email unaffected) and the boot lin
   }
   assert.equal(fetched.length, 0, 'no CallMeBot call without both settings');
   const on = makeAlert({ env: WA_ENV, fetchImpl });
-  assert.equal(on.alert.describe(), '[ai-billing] alert ON to o***@example.com | WhatsApp ON to ***5678');
+  assert.equal(on.alert.describe(), '[ai-billing] alert ON to o***@example.com | WhatsApp ON to ***5678 | Telegram OFF (missing TELEGRAM_ALERT_BOT_TOKEN + TELEGRAM_ALERT_CHAT_ID)');
   assert.doesNotMatch(on.alert.describe(), /10000005678|fake-key-1/);
   on.alert.note(402, '', 'billing');
   await flush();
@@ -627,4 +635,240 @@ test('N4: stream 402 -> alert; stream 200 five quiet minutes later -> the recove
   await withFetch(() => drainStream(c2.callGeminiStream('gemini-2.5-flash', CONTENTS, {})), async () => resp(429, BODY_429_PER_MINUTE));
   await flush();
   assert.equal(quiet.sent.length, 0);
+});
+
+/* ── Telegram channel (AI-ALERT-TELEGRAM-1) ──────────────────────────────── */
+
+// FAKE token and chat id. The real token is never written in source or tests.
+const FAKE_TOKEN = '000000:FAKE-test-token-xyz';
+const TG_ENV = { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN, TELEGRAM_ALERT_CHAT_ID: '987654321' };
+
+test('telegram: sendMessage request = POST /bot<token>/sendMessage with {chat_id, text, disable_web_page_preview:true}', async () => {
+  const req = buildTelegramSendRequest({ token: FAKE_TOKEN, chatId: '-1001234', text: 'hi & bye' });
+  assert.equal(req.url, `https://api.telegram.org/bot${FAKE_TOKEN}/sendMessage`);
+  assert.deepEqual(JSON.parse(req.body), { chat_id: '-1001234', text: 'hi & bye', disable_web_page_preview: true });
+  const calls = [];
+  const sender = createTelegramSender({ env: TG_ENV, fetchImpl: async (url, opts) => { calls.push({ url, opts }); return { ok: true, status: 200, json: async () => ({ ok: true }) }; } });
+  const r = await sender('LazyTopper: AI recovered at x.');
+  assert.deepEqual(r, { ok: true, code: 'http_200' });
+  assert.equal(calls[0].opts.method, 'POST');
+  assert.equal(calls[0].opts.headers['Content-Type'], 'application/json');
+  assert.ok(calls[0].opts.signal, 'a timeout signal is attached');
+  assert.equal(TELEGRAM_TIMEOUT_MS, 10000);
+  assert.deepEqual(JSON.parse(calls[0].opts.body), { chat_id: '987654321', text: 'LazyTopper: AI recovered at x.', disable_web_page_preview: true });
+  // Telegram's own ok:false and transport errors -> not sent, and the result never carries the token.
+  const notOk = createTelegramSender({ env: TG_ENV, fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({ ok: false }) }) });
+  assert.deepEqual(await notOk('x'), { ok: false, code: 'api_not_ok' });
+  const thrown = createTelegramSender({ env: TG_ENV, fetchImpl: async (url) => { throw new Error(`failed ${url}`); } });
+  const tr = await thrown('x');
+  assert.deepEqual(tr, { ok: false, code: 'network' });
+  assert.doesNotMatch(JSON.stringify(tr), /FAKE-test-token/);
+});
+
+test('telegram: sent WITH the other channels, same texts and 30-min cadence as WhatsApp, one recovered after 5 quiet minutes', async () => {
+  const tg = waRecorder();
+  const wa = waRecorder();
+  const { alert, sent, advance } = makeAlert({ env: { ...TG_ENV, ...WA_ENV, TELEGRAM_ALERT_CHAT_ID: '987654321' }, sendTelegram: tg.fn, sendWhatsApp: wa.fn });
+  alert.note(402, '', 'billing');
+  await flush();
+  assert.equal(sent.length, 1);
+  assert.equal(tg.texts.length, 1);
+  assert.equal(tg.texts[0], wa.texts[0], 'the same text as WhatsApp');
+  assert.match(tg.texts[0], /^LazyTopper ALERT: AI failing since .+ IST \(Gemini 402, 1 errors\)\. Check AI Studio billing or the API key\.$/);
+  for (let i = 0; i < 20; i++) { advance(60 * 1000); alert.note(402, '', 'billing'); }
+  await flush();
+  assert.equal(tg.texts.length, 1, 'throttled inside 30 minutes');
+  advance(ALERT_EVERY_MS);
+  alert.note(402, '', 'billing');
+  await flush();
+  assert.equal(tg.texts.length, 2, 'again after 30 minutes, like WhatsApp');
+  assert.equal(wa.texts.length, 2);
+  advance(RECOVERY_QUIET_MS);
+  alert.noteOk();
+  await flush();
+  assert.equal(tg.texts.length, 3);
+  assert.match(tg.texts[2], /^LazyTopper: AI recovered at .+ IST\.$/);
+});
+
+test('telegram: independent — a failing, throwing or hanging Telegram send never stops email or WhatsApp, and theirs never stop Telegram', async () => {
+  for (const bad of [async () => ({ ok: false }), () => { throw new Error('tg down'); }, () => new Promise(() => {})]) {
+    const wa = waRecorder();
+    const { alert, sent } = makeAlert({ env: { ...WA_ENV, ...TG_ENV }, sendTelegram: bad, sendWhatsApp: wa.fn });
+    alert.note(402, '', 'billing');
+    await flush();
+    assert.equal(sent.length, 1, 'email still sent');
+    assert.equal(wa.texts.length, 1, 'WhatsApp still sent');
+  }
+  const tg = waRecorder();
+  const { alert } = makeAlert({ env: { ...WA_ENV, ...TG_ENV }, sendTelegram: tg.fn, sendWhatsApp: () => { throw new Error('wa down'); }, send: () => { throw new Error('resend down'); } });
+  alert.note(402, '', 'billing');
+  await flush();
+  assert.equal(tg.texts.length, 1, 'Telegram still sent when email and WhatsApp throw');
+});
+
+test('telegram: missing token or chat id -> off (others unaffected); boot line masks the chat id; kill switch; armed only via configure', async () => {
+  const fetched = [];
+  const fetchImpl = async (u) => { fetched.push(u); return { ok: true, status: 200, json: async () => ({ ok: true }) }; };
+  for (const env of [{ ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }, { ...ENV, TELEGRAM_ALERT_CHAT_ID: '987654321' }]) {
+    const { alert, sent } = makeAlert({ env, fetchImpl });
+    alert.note(402, '', 'billing');
+    await flush();
+    assert.equal(sent.length, 1);
+    assert.match(alert.describe(), /\| Telegram OFF \(missing (TELEGRAM_ALERT_BOT_TOKEN|TELEGRAM_ALERT_CHAT_ID)\)$/);
+  }
+  assert.equal(fetched.length, 0, 'no Bot API call without both settings');
+  const on = makeAlert({ env: TG_ENV, fetchImpl });
+  assert.match(on.alert.describe(), /\| Telegram ON to chat \*\*\*4321$/);
+  assert.doesNotMatch(on.alert.describe(), /987654321|FAKE-test-token/);
+  on.alert.note(402, '', 'billing');
+  await flush();
+  assert.equal(fetched.length, 1, 'with both set, the real transport is called');
+  assert.equal(maskChatId('-1001234'), '***1234');
+  // Kill switch.
+  const tg = waRecorder();
+  const off = makeAlert({ env: { ...TG_ENV, AI_ALERT_TELEGRAM_DISABLED: '1' }, sendTelegram: tg.fn });
+  off.alert.note(402, '', 'billing');
+  await flush();
+  assert.equal(tg.texts.length, 0);
+  assert.equal(off.sent.length, 1, 'email unaffected by the Telegram switch');
+  assert.match(off.alert.describe(), /Telegram OFF \(AI_ALERT_TELEGRAM_DISABLED=1\)/);
+  // Unarmed until configure().
+  const tg2 = waRecorder();
+  const un = createAiBillingAlert({ armed: false, env: TG_ENV, sendTelegram: tg2.fn, log: () => {} });
+  un.note(402, '', 'billing');
+  await flush();
+  assert.equal(tg2.texts.length, 0);
+  un.configure({});
+  un.note(402, '', 'billing');
+  await flush();
+  assert.equal(tg2.texts.length, 1);
+});
+
+test('telegram: the token never appears in any log line (failure, send failure, recovery, boot helper)', async () => {
+  const lines = [];
+  const fetchImpl = async (url) => { if (/getUpdates/.test(url)) return { ok: false, status: 401 }; throw new Error(`boom ${url}`); };
+  const a = createAiBillingAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN, TELEGRAM_ALERT_CHAT_ID: '987654321' }, send: async () => ({ ok: true }), canSend: () => true, fetchImpl, log: (l) => lines.push(l) });
+  a.note(402, '', 'billing');
+  await flush(); await flush();
+  a.noteOk();
+  lines.push(a.describe());
+  const b = createAiBillingAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }, fetchImpl, log: (l) => lines.push(l) });
+  await b.bootTelegramHelp();
+  lines.push(b.describe());
+  assert.ok(lines.some((l) => /alert telegram NOT sent/.test(l)), 'the send failure was logged');
+  assert.ok(lines.some((l) => /could not read the bot's updates \(http_401\)/.test(l)));
+  for (const l of lines) assert.doesNotMatch(l, /FAKE-test-token|000000:/, `token leaked in: ${l}`);
+});
+
+test('telegram chat-id helper: picks the most recent PRIVATE chat only; ignores channel_post, groups and supergroups', () => {
+  const updates = [
+    { update_id: 10, message: { chat: { id: 111, type: 'private', username: 'oldowner' }, from: { username: 'oldowner' }, text: '/start' } },
+    { update_id: 11, message: { chat: { id: 222333, type: 'private' }, from: { username: 'owner_me' }, text: '/start' } },
+    { update_id: 12, channel_post: { chat: { id: -1009999, type: 'channel', username: 'lazytopper_cbse' }, text: 'post' } },
+    { update_id: 13, message: { chat: { id: -4444, type: 'group', title: 'g' }, from: { username: 'x' }, text: '/start' } },
+    { update_id: 14, message: { chat: { id: -1005555, type: 'supergroup' }, from: { username: 'y' }, text: '/start' } },
+    { update_id: 15, my_chat_member: { chat: { id: -1009999, type: 'channel' } } },
+  ];
+  assert.deepEqual(pickPrivateChat(updates), { id: '222333', username: 'owner_me' });
+  assert.equal(pickPrivateChat(updates.filter((u) => u.update_id >= 12)), null, 'no private chat -> null, never a group or channel');
+  assert.equal(pickPrivateChat(undefined), null);
+});
+
+test('telegram boot helper: token without chat id -> ONE getUpdates, logs the private chat id, sends NOTHING; none found -> "send /start" line; skipped when chat id set or unarmed', async () => {
+  const calls = [];
+  const lines = [];
+  const updates = { ok: true, result: [
+    { update_id: 5, channel_post: { chat: { id: -1009999, type: 'channel', username: 'lazytopper_cbse' } } },
+    { update_id: 4, message: { chat: { id: 222333, type: 'private' }, from: { username: 'owner_me' }, text: '/start' } },
+  ] };
+  const fetchImpl = async (url, opts) => { calls.push({ url, method: opts && opts.method }); return { ok: true, status: 200, json: async () => updates }; };
+  const a = createAiBillingAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }, fetchImpl, log: (l) => lines.push(l) });
+  const chat = await a.bootTelegramHelp();
+  assert.deepEqual(chat, [{ id: '222333', username: 'owner_me' }]);
+  assert.equal(calls.length, 1);
+  assert.match(calls[0].url, /\/getUpdates$/);
+  assert.equal(calls[0].method, 'GET');
+  assert.ok(lines.includes('[ai-billing] Telegram private chats: 222333 (@owner_me); set TELEGRAM_ALERT_CHAT_ID to YOUR id'));
+  // Even with an outage, nothing goes to the discovered chat: the channel stays off without an explicit chat id.
+  a.note(402, '', 'billing');
+  await flush();
+  assert.equal(calls.filter((c) => /sendMessage/.test(c.url)).length, 0, 'never auto-sends to a discovered chat');
+  // None found.
+  const lines2 = [];
+  const b = createAiBillingAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }, fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({ ok: true, result: [updates.result[0]] }) }), log: (l) => lines2.push(l) });
+  assert.equal(await b.bootTelegramHelp(), null);
+  assert.ok(lines2.some((l) => /send \/start to your bot, then restart/.test(l)));
+  // Skipped: chat id already set; unarmed; Telegram switched off.
+  for (const opts of [{ env: TG_ENV }, { env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }, armed: false }, { env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN, AI_ALERT_TELEGRAM_DISABLED: '1' } }]) {
+    const n = calls.length;
+    const c = createAiBillingAlert({ ...opts, fetchImpl, log: () => {} });
+    assert.equal(await c.bootTelegramHelp(), null);
+    assert.equal(calls.length, n, 'no getUpdates call');
+  }
+});
+
+/* ── #1815 review fixes ──────────────────────────────────────────────────── */
+
+test('N2: a NEGATIVE / non-digit chat id (group or channel, e.g. the public channel) -> Telegram OFF "chat id must be a private chat"; nothing sent', async () => {
+  for (const bad of ['-1001234567890', '-4444', 'abc', '12 34']) {
+    const fetched = [];
+    const { alert, sent } = makeAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN, TELEGRAM_ALERT_CHAT_ID: bad }, fetchImpl: async (u) => { fetched.push(u); return { ok: true, status: 200, json: async () => ({ ok: true }) }; } });
+    alert.note(402, '', 'billing');
+    await flush();
+    assert.equal(fetched.filter((u) => /sendMessage/.test(u)).length, 0, `no send to ${bad}`);
+    assert.equal(sent.length, 1, 'email unaffected');
+    assert.match(alert.describe(), /\| Telegram OFF \(chat id must be a private chat\)$/);
+    assert.ok(!alert.describe().includes(bad.replace('-', '')), 'the chat id is not echoed');
+  }
+  // The transport itself refuses a negative id too.
+  const direct = createTelegramSender({ env: { TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN, TELEGRAM_ALERT_CHAT_ID: '-1009999' }, fetchImpl: async () => { throw new Error('must not be called'); } });
+  assert.deepEqual(await direct('x'), { ok: false, code: 'not_configured' });
+  // A positive id is accepted.
+  const ok = makeAlert({ env: TG_ENV });
+  assert.match(ok.alert.describe(), /Telegram ON to chat \*\*\*4321$/);
+});
+
+test('N3: a malformed bot token -> Telegram OFF "missing/invalid token" without echoing the value; the helper does not call getUpdates', async () => {
+  assert.equal(telegramToken({ TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }), FAKE_TOKEN);
+  for (const bad of ['not-a-token', '12345', ':abc', '123:ab c', '123:abc/def']) {
+    assert.equal(telegramToken({ TELEGRAM_ALERT_BOT_TOKEN: bad }), '', bad);
+    const calls = [];
+    const { alert } = makeAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: bad, TELEGRAM_ALERT_CHAT_ID: '987654321' }, fetchImpl: async (u) => { calls.push(u); return { ok: true, status: 200, json: async () => ({ ok: true }) }; } });
+    assert.match(alert.describe(), /\| Telegram OFF \(missing\/invalid token\)$/);
+    assert.ok(!alert.describe().includes(bad), 'the token value is never echoed');
+    alert.note(402, '', 'billing');
+    await flush();
+    const h = createAiBillingAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: bad }, fetchImpl: async (u) => { calls.push(u); return { ok: true, status: 200, json: async () => ({ ok: true, result: [] }) }; }, log: () => {} });
+    assert.equal(await h.bootTelegramHelp(), null);
+    assert.equal(calls.length, 0, 'no Bot API call with a malformed token');
+  }
+});
+
+test('N1: the boot helper lists EVERY distinct private chat, newest first, max 5 — the owner picks his own', async () => {
+  const lines = [];
+  const result = [
+    { update_id: 20, message: { chat: { id: 111, type: 'private' }, from: { username: 'stranger' }, text: '/start' } },
+    { update_id: 21, message: { chat: { id: 222333, type: 'private' }, from: { username: 'owner_me' }, text: '/start' } },
+    { update_id: 22, message: { chat: { id: 111, type: 'private' }, from: { username: 'stranger' }, text: 'hi again' } },
+    { update_id: 23, channel_post: { chat: { id: -1009999, type: 'channel', username: 'lazytopper_cbse' } } },
+  ];
+  const a = createAiBillingAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }, fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({ ok: true, result }) }), log: (l) => lines.push(l) });
+  const chats = await a.bootTelegramHelp();
+  assert.deepEqual(chats, [{ id: '111', username: 'stranger' }, { id: '222333', username: 'owner_me' }]);
+  assert.ok(lines.includes('[ai-billing] Telegram private chats: 111 (@stranger); 222333 (@owner_me); set TELEGRAM_ALERT_CHAT_ID to YOUR id'), lines.join('\n'));
+  // At most 5.
+  const many = Array.from({ length: 8 }, (_, i) => ({ update_id: i, message: { chat: { id: 1000 + i, type: 'private' }, from: { username: `u${i}` } } }));
+  const five = pickPrivateChats(many);
+  assert.equal(five.length, 5);
+  assert.deepEqual(five.map((c) => c.id), ['1007', '1006', '1005', '1004', '1003']);
+  assert.deepEqual(pickPrivateChat(many), { id: '1007', username: 'u7' });
+});
+
+test('token: a getUpdates fetch that THROWS an error carrying the URL never puts the token in a log line', async () => {
+  const lines = [];
+  const fetchImpl = async (url) => { const e = new Error(`request to ${url} failed, reason: ECONNRESET`); throw e; };
+  const a = createAiBillingAlert({ env: { ...ENV, TELEGRAM_ALERT_BOT_TOKEN: FAKE_TOKEN }, fetchImpl, log: (l) => lines.push(l) });
+  assert.equal(await a.bootTelegramHelp(), null);
+  assert.ok(lines.some((l) => /could not read the bot's updates \(network\)/.test(l)), lines.join('\n'));
+  for (const l of lines) assert.doesNotMatch(l, /FAKE-test-token|000000:|api\.telegram\.org/, `leaked: ${l}`);
 });

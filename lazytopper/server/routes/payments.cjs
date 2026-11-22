@@ -69,6 +69,7 @@ const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs')
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
 const { fire: fireServerEvent, signalsFor } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
+const { decideManualCapture, LATE_AUTHORISATION, AWAITING_BANK } = require('../services/lateAuthGuard.cjs'); // LATE-AUTH-GUARD-1
 
 /**
  * MONEY-DUPGUARD-1 - parentPay.cjs `coveredTillBoards`, the SAME function guest and parent pay use (not a copy). Read at
@@ -920,7 +921,7 @@ function createPaymentRoutes(deps = {}) {
     return true;
   }
 
-  async function fetchCapturedPayment(keys, paymentId, amountPaise, order) {
+  async function fetchCapturedPayment(keys, paymentId, amountPaise, order, scope = 'capture') {
     const fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
     if (!fetched.ok || !fetched.json) return { error: 'payment_fetch_failed', upstream: true };
     let payment = fetched.json;
@@ -938,6 +939,11 @@ function createPaymentRoutes(deps = {}) {
       // after the close, for a buyer who is not already a founder, is refused here BEFORE capture: the
       // authorization lapses and Razorpay releases it, so no money is taken for a pass we refuse.
       if (await refuseStaleFoundingOrder(order)) return { error: 'order_expired', upstream: false };
+      // LATE-AUTH-GUARD-1 - a payment still merely authorised past Razorpay's auto-capture window (timed from the PAYMENT's
+      // creation) was authorised late: Razorpay refunds it, so we never capture it. LATE_AUTH_GUARD_DISABLED=1 -> the old behaviour.
+      const guard = decideManualCapture({ env, payment, paymentId, orderId: payment.order_id, storedOrderCreatedAt: order && order.createdAt, nowMs: now() });
+      for (const seen of guard.observed) emit(`payments.${scope}.observed.${seen}`); // telemetry only - never changes the answer
+      if (!guard.capture) return { error: guard.error, upstream: false };
       // Capture for the STORED amount — the only amount this server ever charges.
       const captured = await razorpay(keys, 'POST', `/payments/${paymentId}/capture`, {
         amount: amountPaise,
@@ -993,7 +999,7 @@ function createPaymentRoutes(deps = {}) {
     // 3. What Razorpay says was actually paid.
     let result;
     try {
-      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order);
+      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order, 'verify');
     } catch (e) {
       emit('payments.verify.razorpay_unreachable');
       console.error('[pay/verify] razorpay unreachable:', e && e.message);
@@ -1003,6 +1009,11 @@ function createPaymentRoutes(deps = {}) {
     if (result.error === 'order_already_paid') {
       emit('payments.verify.late_auth_not_captured');
       return reject(res, 'verify', 'order_already_paid', { orderId, paymentId, status: order.status });
+    }
+    // LATE-AUTH-GUARD-1: left uncaptured on purpose - PENDING (never failed, never granted); Razorpay's refund ends it.
+    if (result.error === LATE_AUTHORISATION) {
+      emit('payments.verify.left_uncaptured');
+      return sendJson(res, 202, { ok: false, state: 'pending', reason: AWAITING_BANK });
     }
     if (result.error) {
       emit(`payments.verify.${result.error}`);
@@ -1267,9 +1278,11 @@ function createPaymentRoutes(deps = {}) {
       if (paymentIdentityMismatch(item, { orderId, amountPaise })) continue;
       let payment = item;
       if (item.status === 'authorized') {
-        const result = await fetchCapturedPayment(keys, item.id, amountPaise, order);
+        const result = await fetchCapturedPayment(keys, item.id, amountPaise, order, 'status');
         // A stale authorized item must not hide a captured one later on the order: keep looking.
         if (result.error === 'order_expired') { sawExpired = true; continue; }
+        // LATE-AUTH-GUARD-1: left uncaptured on purpose - the order reads `pending`; a captured payment later on it still wins.
+        if (result.error === LATE_AUTHORISATION) { emit('payments.status.left_uncaptured'); continue; }
         // MONEY-DUPGUARD-1 (F3): a second authorisation on an order already paid by another payment is never captured.
         if (result.error === 'order_already_paid') { emit('payments.status.late_auth_not_captured'); continue; }
         if (result.error) return { upstream: result.error };
