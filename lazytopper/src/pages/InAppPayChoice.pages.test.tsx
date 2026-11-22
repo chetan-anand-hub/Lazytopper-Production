@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
+import type { ReactElement } from "react";
 
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
 vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
@@ -41,7 +42,7 @@ beforeEach(() => {
 });
 afterEach(() => cleanup());
 
-async function mount(path: string, el: JSX.Element) {
+async function mount(path: string, el: ReactElement) {
   await act(async () => {
     render(
       <MemoryRouter initialEntries={[path]}>
