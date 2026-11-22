@@ -598,3 +598,90 @@ describe("GRADE-SPEED-1 · the per-question topic re-detect is marked purpose:\"
     expect(bodies.map((b) => b.purpose)).toEqual(["topic", "topic", undefined]);
   });
 });
+
+/* ── GRADE-SPEED-1b · END TO END: the real detect handler -> the real client request builders -> the real grade handler ──
+   The prepare's scheme-cache key (question text + marks, via computeQuestionHash) must equal the key the grade looks up. */
+
+describe("GRADE-SPEED-1b · the prepare and the grade hash identically on every Answer Checker single path", () => {
+  const GRADE_REPLY = JSON.stringify({ summary: "s", results: [{ qNumber: 1, couldNotRead: false, addressesQuestion: "yes", annotatedSteps: [{ description: "d", studentWork: "w", status: "correct", marksAwarded: 3, marksDeducted: 0, teacherAnnotation: "ok", mistakeType: null, correctedWorking: null }], teacherNote: "n" }] });
+  const TEXT = "Using prime factorisation, find the HCF and LCM of 84 and 120.";
+
+  async function run(path: "free-photo" | "signed-photo" | "signed-typed", replyOverride?: Record<string, unknown>) {
+    const { createRequire } = await import("node:module");
+    const req = createRequire(import.meta.url);
+    const { createCheckSolutionRoute } = req("../../server/routes/checkSolution.cjs");
+    const { computeQuestionHash } = req("../../server/routes/stepSolution.cjs");
+    const { buildSingleGradeRequest } = await import("../components/ciDemo/ladderGradeRequest");
+    const { buildConfirmedDetection, resolveCiQuestionText } = await import("../utils/checkImproveDetection");
+    const { desktopTopicsBySubject } = await import("../lib/desktop/topics");
+    const vocab = [...desktopTopicsBySubject("Maths"), ...desktopTopicsBySubject("Science")].map((t) => ({ slug: t.slug, name: t.name, subject: t.subject }));
+    const slug = vocab.find((t) => t.subject === "Maths" && /real/i.test(t.name))?.slug ?? vocab.find((t) => t.subject === "Maths")!.slug;
+    const free = path === "free-photo";
+    const typed = path === "signed-typed";
+    const prepared: Array<Record<string, unknown>> = [];
+    const graded: Array<Record<string, unknown>> = [];
+    let detectOut: { questions: Array<{ questionText: string }> } & Record<string, unknown> = null as never;
+    let gradeOut: unknown = null;
+    const detectReply = JSON.stringify(replyOverride ? { detectedSubject: "Maths", detectedTopic: slug, detectedObjective: false, ...replyOverride } : { detectedMarks: 3, marksSource: "stated", detectedSubject: "Maths", detectedTopic: slug, detectedObjective: false,
+      questions: [{ questionNumber: 1, questionText: TEXT, marks: 3, marksSource: "stated", objective: false }] });
+    let mode: "detect" | "grade" = "detect";
+    const route = createCheckSolutionRoute({
+      sendJson: (_r: unknown, _s: number, body: never) => { if (mode === "detect") detectOut = JSON.parse(JSON.stringify(body)); else gradeOut = body; },
+      readJson: async (r: unknown) => r,
+      callGemini: async () => ({ text: mode === "detect" ? detectReply : GRADE_REPLY, raw: {} }),
+      GEMINI_MODEL: "m", ACTIVE_PROVIDER: "t", isStubMode: () => false,
+      extractJsonObjectFromText: (t: string) => JSON.parse(t),
+      buildGeminiImagePart: () => ({}), validateMentorImagePayload: () => ({ ok: true }), makeFenceNonce: () => "n",
+      telemetry: { increment: () => {} },
+      currentUid: () => (free ? "" : "stu-1"),
+      solutionCache: { getOrCreateModelSolution: async (f: Record<string, unknown>) => { (mode === "detect" ? prepared : graded).push(f); return null; } },
+    });
+    // the page's detect request (handleReadQuestion): typed -> question; upload -> the QUESTION photo
+    const detectReq = { ...(typed ? { question: TEXT } : { imageBase64: "AAAA", imageMimeType: "image/jpeg" }), topicVocabulary: vocab, headers: {}, ...(free ? { __ltFreeCheckAdmitted: true } : {}) };
+    await route.handleDetectQuestion(detectReq, { setHeader: () => {} });
+    await new Promise((r) => setImmediate(r));
+    mode = "grade";
+    // the page's grade request (handleGrade): the SAME builders
+    const confirmed = buildConfirmedDetection(detectOut as never, typed ? TEXT : detectOut.questions[0].questionText);
+    const body = buildSingleGradeRequest({
+      question: resolveCiQuestionText(typed ? TEXT : "", detectOut.questions),
+      confirmed, firstDetected: detectOut.questions[0] as never, freeCall: free,
+      answerPart: typed ? { textAnswer: "HCF = 12, LCM = 840" } : { imageBase64: "BBBB", imageMimeType: "image/jpeg" },
+    });
+    await route.handleCheckSolution({ ...body, acceptsV2: !free, headers: {} }, { setHeader: () => {} });
+    void gradeOut;
+    return { prepared, graded, hash: (f: Record<string, unknown>) => computeQuestionHash(String(f.question).trim(), Number(f.marks)) };
+  }
+
+  for (const path of ["free-photo", "signed-photo", "signed-typed"] as const) {
+    it(`${path}: the grade's scheme lookup has the SAME hash as the prepare's`, async () => {
+      const r = await run(path);
+      expect(r.prepared, "one prepare").toHaveLength(1);
+      expect(r.graded, "one grade-time lookup").toHaveLength(1);
+      expect(r.hash(r.graded[0])).toBe(r.hash(r.prepared[0]));
+      expect(r.graded[0].marks).toBe(r.prepared[0].marks);
+    });
+  }
+
+  // A REAL detect reply is messier than a fixture: the question text carries a "Q1." prefix, a "[3]" suffix, NBSP / CRLF and
+  // × ² √; the top-level marks can disagree with questions[0].marks, be fractional, or be missing; the model may add
+  // top-level question / questionText fields. The prepare must key on EXACTLY what the client then sends.
+  const MESSY: Array<[string, Record<string, unknown>]> = [
+    ["Q1. prefix, [3] suffix, NBSP, CRLF, unicode", { detectedMarks: 3, marksSource: "stated", question: "Q1. other", questionText: "Q1. other again",
+      questions: [{ questionNumber: 1, questionText: "  Q1.\u00a0Find the HCF and LCM of 84 and 120 using prime factorisation.\r\n x\u00b2 \u00d7 \u221a2 [3]  ", marks: 2, marksSource: "stated", objective: false }] }],
+    ["top-level marks fractional, questions[0].marks different", { detectedMarks: 2.6, marksSource: "inferred",
+      questions: [{ questionNumber: 1, questionText: TEXT, marks: 5, marksSource: "inferred", objective: false }] }],
+    ["top-level marks missing", { marksSource: "inferred", questions: [{ questionNumber: 1, questionText: TEXT, marks: 4, marksSource: "inferred", objective: false }] }],
+    ["top-level marks out of range", { detectedMarks: 9, marksSource: "inferred", questions: [{ questionNumber: 1, questionText: TEXT, marks: 3, marksSource: "inferred", objective: false }] }],
+  ];
+  for (const [label, reply] of MESSY) {
+    for (const path of ["free-photo", "signed-photo"] as const) {
+      it(`${path} · messy detect reply (${label}): prepare and grade hash identically`, async () => {
+        const r = await run(path, reply);
+        expect(r.prepared, "one prepare").toHaveLength(1);
+        expect(r.graded, "one grade-time lookup").toHaveLength(1);
+        expect(r.hash(r.graded[0])).toBe(r.hash(r.prepared[0]));
+      });
+    }
+  }
+});

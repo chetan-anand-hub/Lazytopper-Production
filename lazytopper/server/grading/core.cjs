@@ -528,6 +528,10 @@ function createGradingCore(deps) {
             if (cached && Array.isArray(cached.schemeSteps) && cached.schemeSteps.length > 0) {
               arrived.set(q, cached.schemeSteps);
               if (cached.fromCache !== true) generated.add(q);
+              // GRADE-SPEED-1b: which stored scheme (first 8 hex of its question hash, never text) and whether this grade
+              // WAITED for an in-flight generation (e.g. the early prepare still running) rather than reading a stored one.
+              if (timingSink && timingSink.schemeHash == null && typeof cached.hash === 'string') timingSink.schemeHash = cached.hash.slice(0, 8);
+              if (timingSink && cached.joined === true) timingSink.schemeJoined = true;
             }
           } catch (e) {
             console.warn(label + ' solution-cache hook failed for Q' + q.qNumber + ' (grading continues):', e.message);

@@ -340,7 +340,7 @@ function createCheckSolutionRoute(deps) {
         .then(() => runInMeterGroup(createMeterGroup(), () => cache.getOrCreateModelSolution(schemeFieldsOf(q, entry.subject))))
         .then((r) => {
           count(r && Array.isArray(r.schemeSteps) && r.schemeSteps.length > 0 ? (r.fromCache === true ? 'scheme_prewarm.cache_hit' : 'scheme_prewarm.generated') : 'scheme_prewarm.no_scheme');
-          console.log('[scheme-prewarm] done in ' + (Date.now() - started) + ' ms');
+          console.log('[scheme-prewarm] done in ' + (Date.now() - started) + ' ms hash=' + (r && typeof r.hash === 'string' ? r.hash.slice(0, 8) : 'none') + ' source=' + (r && Array.isArray(r.schemeSteps) && r.schemeSteps.length > 0 ? (r.fromCache === true ? 'stored' : (r.joined === true ? 'joined' : 'generated')) : 'none'));
         })
         .catch(() => count('scheme_prewarm.failed'));
       return job;

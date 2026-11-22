@@ -56,12 +56,13 @@ function harness(plan, deps = {}) {
     ...deps,
   });
   const lines = [];
+  const prewarmLines = [];
   const realLog = console.log;
   const run = async (handler, payload) => {
     const res = new EventEmitter();
     res.setHeader = () => {};
     res.statusCode = 0;
-    console.log = (...a) => { const l = a.join(' '); if (l.startsWith('[grade-timing]')) lines.push(l); };
+    console.log = (...a) => { const l = a.join(' '); if (l.startsWith('[grade-timing]')) lines.push(l); else if (l.startsWith('[scheme-prewarm]')) prewarmLines.push(l); };
     try {
       captured = null;
       await route[handler](payload, res);
@@ -72,7 +73,7 @@ function harness(plan, deps = {}) {
     return captured;
   };
   return {
-    calls, lines,
+    calls, lines, prewarmLines,
     single: (o = {}) => run('handleCheckSolution', { question: QT, marks: 3, subject: 'Maths', topic: 'Quadratic Equations', textAnswer: SECRET_ANSWER, headers: { 'x-lazytopper-surface': 'check-improve' }, ...o }),
     sheet: (qs, o = {}) => run('handleGradeWorksheet', { worksheetId: 'ws', subject: 'Maths', questions: qs, headers: { 'x-lazytopper-surface': 'worksheet' }, ...o }),
     detect: (o = {}) => run('handleDetectQuestion', { question: QT, headers: {}, ...o }),
@@ -99,7 +100,7 @@ test('§T.1 check-solution: ONE line with route, surface, status, preMs, attempt
   assert.deepEqual(rec.attempts, [{ n: 1, ms: rec.attempts[0].ms, finishReason: 'STOP', thoughtsTokenCount: 9120, outputTokens: 1840, promptTokens: 5000, parseMiss: false, retryReason: null }]);
   assert.ok(Number.isInteger(rec.totalMs) && rec.totalMs >= rec.attempts[0].ms);
   // GRADE-SPEED-1 S6: cacheHit / transport / marks are new, in this order, beside cacheMs.
-  assert.deepEqual(Object.keys(rec), ['route', 'surface', 'status', 'preMs', 'cacheMs', 'cacheHit', 'transport', 'marks', 'attempts', 'totalMs']);
+  assert.deepEqual(Object.keys(rec), ['route', 'surface', 'status', 'preMs', 'cacheMs', 'cacheHit', 'schemeHash', 'schemeJoined', 'transport', 'marks', 'attempts', 'totalMs']);
   assert.deepEqual([rec.cacheHit, rec.transport, rec.marks], [null, 'typedOnly', 3], 'no cache wired -> cacheHit null; typed answer -> typedOnly; the question\'s marks');
   // CONTENT FIREWALL: no answer text, question text or identity.
   assert.ok(!h.lines[0].includes('SECRET-ANSWER-MARKER') && !h.lines[0].includes('factorisation'));
@@ -197,14 +198,14 @@ test('§T.6 a failed grade (every attempt errors) still logs, with status 500 an
 });
 
 test('§T.7 formatGradeTimingLine: closed sets, numbers only, job mode carries no status', () => {
-  const sink = { cacheMs: 12.4, cacheHit: true, transport: 'document', marks: 5, attempts: [{ n: 1, ms: 5, finishReason: 'STOP', thoughtsTokenCount: 1, outputTokens: 2, promptTokens: 3, parseMiss: false, retryReason: null }] };
+  const sink = { cacheMs: 12.4, cacheHit: true, schemeHash: 'abcdef01', schemeJoined: false, transport: 'document', marks: 5, attempts: [{ n: 1, ms: 5, finishReason: 'STOP', thoughtsTokenCount: 1, outputTokens: 2, promptTokens: 3, parseMiss: false, retryReason: null }] };
   const rec = parseLine(gt.formatGradeTimingLine({ route: '/api/grade-worksheet', mode: 'job', surface: 'full-mock', status: 202, preMs: null, sink, totalMs: 99.6 }));
-  assert.deepEqual(rec, { route: '/api/grade-worksheet', mode: 'job', surface: 'full-mock', preMs: null, cacheMs: 12, cacheHit: true, transport: 'document', marks: 5, attempts: sink.attempts, totalMs: 100 });
+  assert.deepEqual(rec, { route: '/api/grade-worksheet', mode: 'job', surface: 'full-mock', preMs: null, cacheMs: 12, cacheHit: true, schemeHash: 'abcdef01', schemeJoined: false, transport: 'document', marks: 5, attempts: sink.attempts, totalMs: 100 });
   const junk = parseLine(gt.formatGradeTimingLine({ route: 'uid-123/evil', surface: 'a@b.com', status: 'x', preMs: -4, sink: null, totalMs: NaN }));
-  assert.deepEqual(junk, { route: null, surface: null, status: null, preMs: null, cacheMs: null, cacheHit: null, transport: null, marks: null, attempts: [], totalMs: null });
+  assert.deepEqual(junk, { route: null, surface: null, status: null, preMs: null, cacheMs: null, cacheHit: null, schemeHash: null, schemeJoined: null, transport: null, marks: null, attempts: [], totalMs: null });
   // GRADE-SPEED-1 S6 · CLOSED SETS: a free-text transport, a non-boolean cacheHit and a negative marks never reach the line.
-  const evil = parseLine(gt.formatGradeTimingLine({ route: '/api/check-solution', surface: 'check-improve', status: 200, preMs: 1, sink: { cacheHit: 'yes', transport: 'uid-123 student@example.com', marks: -3, attempts: [] }, totalMs: 1 }));
-  assert.deepEqual([evil.cacheHit, evil.transport, evil.marks], [null, null, null]);
+  const evil = parseLine(gt.formatGradeTimingLine({ route: '/api/check-solution', surface: 'check-improve', status: 200, preMs: 1, sink: { schemeHash: 'Q: solve x', cacheHit: 'yes', transport: 'uid-123 student@example.com', marks: -3, attempts: [] }, totalMs: 1 }));
+  assert.deepEqual([evil.cacheHit, evil.transport, evil.marks, evil.schemeHash], [null, null, null, null], 'a non-hex schemeHash (free text) never reaches the line');
 });
 
 /* ══ §S · GRADE-SPEED-1 (22 Nov 2026): the scheme is prepared when the question is read, and a one-question grade may run to 110 s ══ */
@@ -419,6 +420,77 @@ test('§S.6 S2 in-flight de-dupe: a grade arriving while the prepare is generati
     assert.equal(again.fromCache, true);
     assert.equal(generations, 1);
   } finally {
+    stepSolution.__setPoolForTests(null);
+  }
+});
+
+test('§S.6b GRADE-SPEED-1b a grade pressed WHILE the prepare is still generating joins it: cacheHit false BUT schemeJoined true and the SAME hash as [scheme-prewarm]; the next grade is a stored hit', async () => {
+  const store = new Map();
+  stepSolution.__setPoolForTests({ query: async (sql, params) => {
+    if (/^SELECT/i.test(sql)) return { rows: store.has(params[0]) ? [{ solution_json: store.get(params[0]) }] : [] };
+    if (/^INSERT/i.test(sql)) { store.set(params[0], JSON.parse(params[1])); return { rows: [] }; }
+    return { rows: [] };
+  } });
+  const realLog = console.log;
+  try {
+    let release; const gate = new Promise((r) => { release = r; });
+    let generations = 0;
+    const genDeps = { GEMINI_MODEL: 'm', ACTIVE_PROVIDER: 't', extractJsonObjectFromText: lenient, callGemini: async () => { generations += 1; await gate; return { text: JSON.stringify({ totalMarks: 3, steps: [
+      { stepNumber: 1, description: 'Formula', working: 'x', marks: 1 }, { stepNumber: 2, description: 'Sub', working: 'y', marks: 1 }, { stepNumber: 3, description: 'Ans', working: 'z', marks: 1 }], commonMistakes: ['a'], examTip: 't' }) }; } };
+    const cache = { getOrCreateModelSolution: (f) => stepSolution.getOrCreateModelSolution(f, genDeps) };
+    const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }, { text: GOOD() }], { ...SIGNED_IN, solutionCache: cache });
+    await detectOne(h); // starts the prepare (generation held)
+    await flush();
+    const gradeP = h.single({ question: QT, marks: 3 }); // pressed while it generates
+    await flush();
+    release();
+    await gradeP;
+    await flush();
+    assert.equal(generations, 1, 'ONE generation');
+    const first = parseLine(h.lines[0]);
+    assert.deepEqual([first.cacheHit, first.schemeJoined], [false, true], 'waited for the in-flight prepare');
+    assert.match(first.schemeHash, /^[0-9a-f]{8}$/);
+    const logs = h.prewarmLines;
+    assert.equal(logs.length, 1);
+    assert.ok(logs[0].includes('hash=' + first.schemeHash), 'the prewarm line and the grade line carry the same hash prefix: ' + logs[0]);
+    assert.ok(!logs[0].includes('factorisation'), 'no text in the log');
+    await h.single({ question: QT, marks: 3 });
+    const second = parseLine(h.lines[1]);
+    assert.deepEqual([second.cacheHit, second.schemeJoined, second.schemeHash], [true, null, first.schemeHash], 'the next grade reads the stored scheme');
+    assert.equal(generations, 1);
+  } finally {
+    console.log = realLog;
+    stepSolution.__setPoolForTests(null);
+  }
+});
+
+test('§S.6c GRADE-SPEED-1b a generation that yields NO usable scheme is no longer silent: a warn with the hash prefix, source=none in [scheme-prewarm], and nothing stored (so the next grade regenerates)', async () => {
+  const store = new Map();
+  stepSolution.__setPoolForTests({ query: async (sql, params) => {
+    if (/^SELECT/i.test(sql)) return { rows: store.has(params[0]) ? [{ solution_json: store.get(params[0]) }] : [] };
+    if (/^INSERT/i.test(sql)) { store.set(params[0], JSON.parse(params[1])); return { rows: [] }; }
+    return { rows: [] };
+  } });
+  const realWarn = console.warn;
+  const realLog6c = console.log;
+  const warns = [];
+  const prewarm = [];
+  console.warn = (...a) => { warns.push(a.join(' ')); };
+  console.log = (...a) => { const l = a.join(' '); if (l.startsWith('[scheme-prewarm]')) prewarm.push(l); else realLog6c(...a); };
+  try {
+    const genDeps = { GEMINI_MODEL: 'm', ACTIVE_PROVIDER: 't', extractJsonObjectFromText: lenient, callGemini: async () => ({ text: '{"totalMarks":3,"steps":[' }) };
+    const cache = { getOrCreateModelSolution: (f) => stepSolution.getOrCreateModelSolution(f, genDeps) };
+    const h = harness([{ text: DETECT_REPLY([{ text: QT, marks: 3 }]) }], { ...SIGNED_IN, solutionCache: cache });
+    await detectOne(h);
+    await flush(); await flush();
+    assert.equal(store.size, 0, 'nothing stored');
+    assert.ok(warns.some((w) => /generation returned no usable scheme/.test(w) && /hash=[0-9a-f]{8}/.test(w)), warns.join(' | '));
+    assert.equal(prewarm.length, 1);
+    assert.match(prewarm[0], /source=none/);
+    assert.ok(!warns.concat(prewarm).some((w) => w.includes('factorisation')), 'no text');
+  } finally {
+    console.warn = realWarn;
+    console.log = realLog6c;
     stepSolution.__setPoolForTests(null);
   }
 });

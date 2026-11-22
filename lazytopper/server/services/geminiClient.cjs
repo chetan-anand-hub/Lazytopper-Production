@@ -594,6 +594,62 @@ function createGeminiClient(cfg) {
     }
   }
 
+  /* ──────────────────────────────────────────────────────────────────────────
+     AI-BILLING-ALERT-1 · owner email when Gemini fails on the KEY or BILLING.
+
+     Same injection shape as the telemetry sink and the ledger: `cfg.billingAlert`
+     wins (tests), otherwise `./aiBillingAlert.cjs` is required LAZILY, once,
+     inside a try/catch. Both hooks are SYNCHRONOUS, never awaited, and wrapped in
+     an empty catch: the alert's email is fire-and-forget inside the module, so
+     neither a slow nor a throwing alert can delay, fail or change a call. The
+     classification (which statuses / bodies count) lives in the module.
+     ────────────────────────────────────────────────────────────────────────── */
+  let billingAlert = cfg && cfg.billingAlert ? cfg.billingAlert : undefined;
+  let billingAlertResolved = billingAlert !== undefined;
+
+  function resolveBillingAlert() {
+    if (!billingAlertResolved) {
+      billingAlertResolved = true;
+      try {
+        billingAlert = require('./aiBillingAlert.cjs');
+      } catch {
+        billingAlert = null;
+      }
+    }
+    return billingAlert;
+  }
+
+  // `call` is the calling request's { noted } flag: a call is counted ONCE however many 429 retries / fallbacks it made
+  // (review N6), so the alert's numbers are failed AI calls, not attempts.
+  function observeGeminiFailure(status, body, call) {
+    try {
+      if (call && call.noted) return;
+      const alert = resolveBillingAlert();
+      if (!alert || typeof alert.note !== 'function') return;
+      const classify =
+        typeof alert.classifyGeminiFailure === 'function'
+          ? alert.classifyGeminiFailure
+          : require('./aiBillingAlert.cjs').classifyGeminiFailure;
+      const kind = classify(status, body);
+      if (!kind) return;
+      if (call) call.noted = true;
+      const snippet =
+        typeof alert.snippetOf === 'function' ? alert.snippetOf(body) : require('./aiBillingAlert.cjs').snippetOf(body);
+      alert.note(status, snippet, kind);
+    } catch {
+      /* An alert failure must NEVER fail a Gemini call. */
+    }
+  }
+
+  function observeGeminiSuccess() {
+    try {
+      const alert = resolveBillingAlert();
+      if (alert && typeof alert.noteOk === 'function') alert.noteOk();
+    } catch {
+      /* An alert failure must NEVER fail a Gemini call. */
+    }
+  }
+
   // The most recent records, newest last. Numbers and labels only — safe to
   // serialise anywhere, because nothing student-written ever enters a record.
   function getTokenTelemetry() {
@@ -669,6 +725,7 @@ function createGeminiClient(cfg) {
     const telemetryCallerStack = captureCallerStack();
     const telemetryStartedAt = Date.now();
     let telemetryAttempts = 0;
+    const billingCall = { noted: false }; // AI-BILLING-ALERT-1: count this call once
 
     if (!GEMINI_API_KEY) {
       throw new Error(
@@ -843,6 +900,8 @@ function createGeminiClient(cfg) {
           rawText = await response.text();
         }
         if (response.status === 429) {
+          // AI-BILLING-ALERT-1: a 429 whose body says the credits / day's quota are gone (NOT a per-minute limit).
+          observeGeminiFailure(429, rawText, billingCall);
           const err = new Error(`Gemini rate limited (429): ${rawText}`);
           err.status = 429;
           err.retryAfter = response.headers.get('Retry-After');
@@ -954,6 +1013,8 @@ function createGeminiClient(cfg) {
     }
 
     if (!response.ok) {
+      // AI-BILLING-ALERT-1: 401 / 402 / 403 (or a bad-key 400) after every retry and fallback.
+      observeGeminiFailure(response.status, rawText, billingCall);
       const err = new Error(
         `Gemini request failed: ${response.status} ${response.statusText} - ${rawText}`
       );
@@ -1040,6 +1101,9 @@ function createGeminiClient(cfg) {
     const finishReason =
       (data && data.candidates && data.candidates[0] && data.candidates[0].finishReason) || null;
 
+    // AI-BILLING-ALERT-1: a good answer ends an outage (one "recovered" email if an alert went out).
+    observeGeminiSuccess();
+
     // UPLOAD-READ-1 PR-A2: ADDITIVE and present ONLY on a streaming read that was stopped at its deadline.
     return { text, raw: data, finishReason, ...(streamDeadlineHit ? { deadlineHit: true } : {}) };
   }
@@ -1098,6 +1162,7 @@ function createGeminiClient(cfg) {
     };
 
     let primaryResult;
+    const billingCall = { noted: false }; // AI-BILLING-ALERT-1: count this call once
     let usedFallback = false;
 
     try {
@@ -1106,6 +1171,7 @@ function createGeminiClient(cfg) {
         if (result.response.status === 429) {
           clearTimeout(result.timeoutId);
           const errText = await result.response.text().catch(() => '');
+          observeGeminiFailure(429, errText, billingCall); // AI-BILLING-ALERT-1
           const err = new Error(`Gemini stream rate limited (429): ${errText}`);
           err.status = 429;
           err.retryAfter = result.response.headers.get('Retry-After');
@@ -1135,18 +1201,22 @@ function createGeminiClient(cfg) {
         if (!fallbackResult.response.ok) {
           clearTimeout(fallbackResult.timeoutId);
           const fallbackErrText = await fallbackResult.response.text().catch(() => '');
+          observeGeminiFailure(fallbackResult.response.status, fallbackErrText, billingCall); // AI-BILLING-ALERT-1
           const e = new Error(`Gemini stream failed: ${fallbackResult.response.status} - ${fallbackErrText}`);
           e.status = fallbackResult.response.status;
           throw e;
         }
+        observeGeminiSuccess(); // AI-BILLING-ALERT-1
         yield* _drainGeminiSSE(fallbackResult.response.body, fallbackResult.controller, fallbackResult.timeoutId);
         return;
       }
+      observeGeminiFailure(response.status, errText, billingCall); // AI-BILLING-ALERT-1
       const e = new Error(`Gemini stream failed: ${response.status} - ${errText}`);
       e.status = response.status;
       throw e;
     }
 
+    observeGeminiSuccess(); // AI-BILLING-ALERT-1
     yield* _drainGeminiSSE(response.body, controller, timeoutId);
   }
 

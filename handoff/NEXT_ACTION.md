@@ -1,3 +1,16 @@
+## 2026-11-22 (third daily of UTC day 21 Nov; written 22 Nov early morning IST) - #1799 - #1800 - #1801 - #1802 - #1803 - #1804 - #1806
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`6dc8620b`** [git].
+
+- **Done [git]:** `#1799`, `#1800`, `#1801`, `#1802`, `#1803`, `#1804`, `#1806` merged (table in CURRENT_STATE). `#1805` (GRADER-TYPE-1) is an OPEN DRAFT, head `d6111132`, NOT merged.
+- **In flight:** the paid golden eval for `#1805` on the owner's laptop (cap ₹4,000 total). Next: read its result; then a two-surface live verify before the owner merges. The owner's standing word: "once all the tasks are checked, verified, and results as expected, merge and make them live".
+- **P0 (top priority):** `[FU-SCHEME-GEN-EMPTY]`. Live, the model-written marking scheme came back EMPTY for a keyless question (hashes match; the grade ran without a scheme after waiting about 7.7 s). Measure how often, then a GRADING lane to fix the generator call (hypothesis: `maxOutputTokens` 1800 on a thinking model). Needs the owner's OK and the full golden bar.
+- **Owner live tests owed:** `[FU-PAYRETURN-LIVE-TEST]` (Instagram in-app: pay, return; cancel; reload; and a normal browser). The earlier owed tests stand (signed-out phone test of `#1793`; the ₹1,083 upgrade, a free account and a Test-Series-only account).
+- **Owner decision owed:** `[FU-RESULT-LIST-BACKFILL]`, a yes to backfill `writtenGraded` on older records (dry run on the owner's own account first). `[FU-REPO-PRIVATE]`: the repository is public; decide whether it should be private.
+- **Copy fix:** `[FU-FREECHECK-GRADE-ALL-COPY]` (the detection box says "to grade all 3" to signed-out users).
+- **Dated checks:** 22 Nov Sign-ups v2 decision is due today; 24 Nov ads review; 25 Nov YouTube check; 30 Nov founding prices end; 1 Dec 00:00 IST price switch. Unchanged.
+- **Follow-ups opened today:** see OPEN_QUESTIONS_AND_FOLLOWUPS (bodies there).
+
 ## 2026-11-21b (second daily; UTC day 21 Nov, written 21 Nov evening) - #1795 - #1796 - #1797
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`c6faee85`** [git].
