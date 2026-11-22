@@ -757,7 +757,7 @@ function knowledgeProven(u, live, questionText, reasonGate = false) {
    comment prose. GRADER_TYPE_1_DISABLED=1 restores knowledgeProven unchanged. */
 const REASON_FILLER = new Set(['hence', 'therefore', 'thus', 'so', 'since', 'then', 'now', 'ans', 'answer', 'required', 'number', 'value', 'total', 'final', 'least',
   'is', 'are', 'the', 'of', 'we', 'get', 'gives', 'find', 'from', 'with', 'given', 'that', 'this', 'each', 'also', 'here', 'have', 'must', 'need', 'needs',
-  'hoga', 'hai', 'tha', 'correct', 'clearly', 'obviously', 'proved', 'verified', 'lhs', 'rhs',
+  'hoga', 'hai', 'tha', 'correct', 'clearly', 'obviously', 'proved', 'verified', 'which', 'lhs', 'rhs',
   'cm', 'mm', 'km', 'kg', 'sec', 'units', 'metre', 'metres', 'meter', 'meters', 'degree', 'degrees', 'second', 'seconds', 'litre', 'litres',
   'volt', 'volts', 'ohm', 'ohms', 'watt', 'watts', 'joule', 'joules', 'newton', 'newtons']);
 const EVIDENCE_WORD = /[\p{L}\p{M}]+/gu;
