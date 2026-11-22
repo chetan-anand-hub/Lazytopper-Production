@@ -1,3 +1,17 @@
+## 2026-11-22b (first daily of UTC day 22 Nov; written 22 Nov about 18:15 IST) - #1810 - #1815 - #1813 - #1812 - #1814 - #1808 - #1817 - #1805 - #1809
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`883cb9ee`** [git].
+
+- **Done [git]:** `#1810`, `#1815`, `#1813`, `#1812`, `#1814`, `#1808`, `#1817`, `#1805`, `#1809` merged (table in CURRENT_STATE).
+- **Monday night 24 Nov, in this order [coordinator]:** merge `#1811` META-IC-1, then `#1816` META-PURCHASE-UNIFY-1. Both are approved. BEFORE merging, merge trunk into each again and re-run CI (`#1809` overlaps both; `#1811` is `dirty` on GitHub; `#1816` is still a DRAFT and must be marked ready; resolve `#1816` against `#1811` with the recipe in its PR body). After deploy: Meta Events Manager test events, one IC per order and one `Purchase` per pack sale. The ruleset will not catch a stale base: `[FU-TRUNK-RULESET-REQUIRED-CHECKS]`.
+- **P0, unchanged:** `[FU-SCHEME-GEN-EMPTY]` (the model-written marking scheme comes back empty; keyless questions graded with no scheme). A GRADING lane; needs the owner's OK and the full golden bar.
+- **Live checks owed:** `#1805` structured path (Worksheet, Chapter Test, Full Mock or multi-question Answer Checker; one `document`/PDF paper per its PR body). Until then `#1805` is PARTIAL (section 4a). `#1809` owner purchases (Test Series, a pack, Board Pass, For Parents; throttled phone and Instagram). The PR-listed checks for `#1810`/`#1815` (set env, read the boot line, set `TELEGRAM_ALERT_CHAT_ID`), `#1812` after the fix, `#1813`, `#1808` and `#1817` are not recorded as done.
+- **Owner question:** `[FU-ADMIN-EMAIL-MASK-SCOPE]`: the "keep emails unmasked" ruling and `#1817` as merged disagree; say which admin list the ruling covers.
+- **Owner purchase this month:** Resend paid plan (ruling 22 Nov; `[FU-RESEND-PAID-PLAN]`).
+- **Do not retry** the rule (b) pronoun wording without a paid probe (`[FU-T1-RULE-B-PRONOUN]`).
+- **Follow-ups opened today:** see OPEN_QUESTIONS_AND_FOLLOWUPS.
+- **Dated checks:** 24 Nov ads review (and the Meta merges); 25 Nov YouTube check; 30 Nov founding prices end; 1 Dec 00:00 IST price switch. Unchanged.
+
 ## 2026-11-22 (third daily of UTC day 21 Nov; written 22 Nov early morning IST) - #1799 - #1800 - #1801 - #1802 - #1803 - #1804 - #1806
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`6dc8620b`** [git].
