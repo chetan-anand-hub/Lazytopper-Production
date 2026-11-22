@@ -248,10 +248,19 @@ for (const s of SURFACES) {
     });
     const LCM = '2^3 x 3^2 x 5 x 7 = 8 x 9 x 35 = 2520';
     const RESULTS = ['LCM = ' + LCM, 'Hence LCM = ' + LCM, 'So LCM = ' + LCM, 'LCM is 2^3 x 3^2 x 5 x 7 = 2520', 'Ans: LCM = ' + LCM,
-      'Required number = ' + LCM, 'Therefore ∠OAB = 90° − 50° = 40°', 'Area = 22/7 x 7 x 7 = 154 cm²'];
+      'Required number = ' + LCM, 'Therefore ∠OAB = 90° − 50° = 40°', 'Area = 22/7 x 7 x 7 = 154 cm²',
+      // review round 3: units after a number, filler, a premise restated from the question, annotations
+      'R = 15 Ω', 'λ = 500 nm', 'V = 2 x 5 = 10 V', 'R = 5 + 10 = 15 Ω', 'Speed = 120/2 = 60 km/h', 'Area = 22/7 x 7 x 7 = 154 sq cm',
+      'So she needs 2520 chocolates', '2520 is the LCM of all numbers from 1 to 10', '∠AOB = 180° - 80° = 100° (from figure)',
+      'Distance = 4 x 5 = 20 metres', '∠OAB = 90 - 50 = 40 degrees', 'LCM = ' + LCM + ' hoga', 'LCM = 2520 (with prime factors)',
+      'angle TAB = 50 degrees (given)', 'Given: TA is a tangent to a circle', 'TA is a tangent', '∴ LCM = ' + LCM, 'OA=5cm', 'OA = 5 units'];
     const PRINCIPLES = ['tangent is perpendicular to the radius', 'LCM = product of the highest powers of the primes = ' + LCM, 'AB + CD = BC + DA',
       'CD = CR + DR = 12 + 6', 'a^2 + b^2 = c^2', 'V = IR = 0.5 x 10 = 5 V', '1/v - 1/u = 1/f', 'OA ⊥ AT', 'AD/DB = AE/EC (BPT)',
-      '2H2 + O2 → 2H2O', 'स्पर्श रेखा त्रिज्या पर लम्ब होती है', '∠OPT = 90° = ∠OQT'];
+      '2H2 + O2 → 2H2O', 'स्पर्श रेखा त्रिज्या पर लम्ब होती है', '∠OPT = 90° = ∠OQT',
+      // review round 3: the label is only the LAST clause before "="; a named CBSE theorem is a stated reason
+      'Since LCM is product of highest powers, LCM = 2^3 x 3^2 x 5 x 7 = 2520', 'Taking highest powers, LCM = 2^3 x 3^2 x 5 x 7 = 2520',
+      'As tangent is perpendicular to radius, ∠OAT = 90°', 'tangent ⟂ radius so ∠OAT = 90°', 'By BPT', 'By BPT, AD/DB = AE/EC', 'as OA ⊥ AT', '∴ OA ⊥ AT',
+      'Since tangents from an external point are equal, AP = AS', 'm = h2/h1 = -v/u', 'kyunki tangent radius pe perpendicular hota hai'];
     for (const ev of RESULTS) {
       const r = await run(s, c, { steps: withEv(ev) });
       assert.equal(typesOf(r.result)[1][2], 'conceptual', s.id + ': a RESULT is not proof — ' + ev);

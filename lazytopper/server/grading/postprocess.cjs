@@ -732,13 +732,15 @@ function knowledgeProven(u, live, questionText, reasonGate = false) {
   const ev = normEvidence(u._knowledgeEvidence);
   // reasonGate (GRADER-TYPE-1, asked reasons only): the word / length tests are replaced by reasonEvidenceStatesPrinciple (any script,
   // short symbolic relations such as "OA ⊥ AT"); the quote must still be non-bare, not the question's own words, and in another step.
-  if (ev.replace(/\s/g, '').length < (reasonGate ? 5 : 10) || BARE_VALUE.test(ev)) return false;
+  if (ev.replace(/\s/g, '').length < (reasonGate ? 5 : 10) || (!reasonGate && BARE_VALUE.test(ev))) return false;
   if (!reasonGate) {
     const names = ev.match(/[a-z]+/g) || [];
     if (!(names.some((w) => w.length >= 4) || (names.length >= 3 && /[=<>≤≥]/.test(ev)))) return false;
   }
   const nq = normEvidence(questionText);
   if (nq && (nq.includes(ev) || nq.replace(/\s/g, '').includes(ev.replace(/\s/g, '')))) return false;
+  // reasons: compare with the filler ("Given:", "(given)", "degrees") dropped on both sides — a restated premise is the question, not knowledge
+  if (reasonGate) { const sq = reasonSquash(u._knowledgeEvidence); if (sq && reasonSquash(questionText).includes(sq)) return false; }
   const at = live.indexOf(u);
   return live.some((s) => s !== u && (s.status === 'correct' || s.status === 'partial')
     && (partKey(s.part) !== partKey(u.part) || live.indexOf(s) > at)
@@ -752,19 +754,43 @@ function knowledgeProven(u, live, questionText, reasonGate = false) {
    ONE name — no stating word, no second quantity — is a result, not proof. The quote must also not sit in the answer step(s) the reason belongs to. Structured fields only; never
    comment prose. GRADER_TYPE_1_DISABLED=1 restores knowledgeProven unchanged. */
 const REASON_FILLER = new Set(['hence', 'therefore', 'thus', 'so', 'since', 'then', 'now', 'ans', 'answer', 'required', 'number', 'value', 'total', 'final', 'least',
-  'is', 'are', 'the', 'of', 'we', 'get', 'gives', 'find', 'cm', 'mm', 'm', 'km', 'kg', 'g', 's', 'sec', 'units']);
+  'is', 'are', 'the', 'of', 'we', 'get', 'gives', 'find', 'from', 'with', 'given', 'that', 'this', 'each', 'also', 'here', 'have', 'must', 'need', 'needs',
+  'hoga', 'hai', 'tha',
+  'cm', 'mm', 'km', 'kg', 'sec', 'units', 'metre', 'metres', 'meter', 'meters', 'degree', 'degrees', 'second', 'seconds', 'litre', 'litres',
+  'volt', 'volts', 'ohm', 'ohms', 'watt', 'watts', 'joule', 'joules', 'newton', 'newtons']);
 const EVIDENCE_WORD = /[\p{L}\p{M}]+/gu;
-/** STATED: a content word (Latin 4+ letters, or a non-Latin word of 2+ characters) that is not the label left of the first "=";
- *  APPLIED: a relation (= < > ≤ ≥ ⊥ ∥ ~ →) with a letter-named quantity on at least two sides. Filler ("Hence", "Ans", "Required number",
- *  units) is dropped first and "x" between digits is a times sign. A lone label beside a worked-out number is a result. */
-function reasonEvidenceStatesPrinciple(rawEv) {
-  const ev = normEvidence(rawEv).replace(/(?<=\d)\s*x\s*(?=\d)/g, ' × ')
-    .replace(EVIDENCE_WORD, (t) => (REASON_FILLER.has(t) ? ' ' : t));
-  const eq = ev.indexOf('=');
-  const label = new Set(eq >= 0 ? (ev.slice(0, eq).match(EVIDENCE_WORD) || []) : []);
-  const stated = (ev.match(EVIDENCE_WORD) || []).some((w) => !label.has(w) && (/\p{Script=Latin}/u.test(w) ? w.length >= 4 : w.length >= 2));
-  if (stated) return true;
-  return ev.split(/[=<>≤≥⊥∥~→]/).filter((side) => /\p{L}/u.test(side)).length >= 2;
+// a NAMED CBSE theorem / criterion is a stated reason on its own ("(By BPT)" is accepted by the marking schemes)
+const NAMED_THEOREM = /(?<![\p{L}])(?:bpt|aa|sas|sss|asa|aas|rhs|cpct|pythagoras)(?![\p{L}])/u;
+const CLAUSE_SPLIT = /[,;:∴()]|(?<![\p{L}])(?:since|as|because|so|hence|by|taking)(?![\p{L}])/u;
+const UNIT_AFTER_NUMBER = /(?<=\d)(?:\s*[\p{L}°]{1,3}\d?(?![\p{L}\p{N}])(?:\s*\/\s*\p{L}{1,3})?)+/gu;
+/** Normal form of a quote for the reason tests: lower-case, ⟂ -> ⊥, || -> ∥, "x" between digits -> ×. */
+const reasonForm = (t) => normEvidence(t).replace(/⟂/g, '⊥').replace(/\|\|/g, '∥').replace(/(?<=\d)\s*x\s*(?=\d)/g, ' × ');
+const dropFiller = (t) => t.replace(EVIDENCE_WORD, (w) => (REASON_FILLER.has(w) ? ' ' : w));
+/** A parenthesised remark with a word in it ("(given)", "(from figure)", "(with prime factors)") is annotation, not the student's reason. */
+function dropRemarks(t) {
+  let prev;
+  do { prev = t; t = t.replace(/\((?:[^()]|\([^()]*\))*\)/g, (m) => (/[\p{L}]{4,}/u.test(m) ? ' ' : m)); } while (t !== prev);
+  return t;
+}
+/** The quote with filler dropped and punctuation gone — to compare it with the question text. */
+const reasonSquash = (t) => dropFiller(reasonForm(t)).replace(/[^\p{L}\p{N}=<>≤≥⊥∥~→]/gu, '');
+/** STATED: at least two distinct content words (Latin 4+ letters, non-Latin 2+) that are neither the label of the result (the LAST clause
+ *  before the first "=") nor in the question text; OR a named CBSE theorem. APPLIED: a relation (= < > ≤ ≥ ⊥ ∥ ~ →) with a letter-named
+ *  quantity on at least two sides. Unit letters after a number, filler, units and parenthesised remarks are dropped first; a bare value is
+ *  never proof. A lone label beside a worked-out number is a result. */
+function reasonEvidenceStatesPrinciple(rawEv, questionText) {
+  const base = reasonForm(rawEv);
+  if (NAMED_THEOREM.test(base)) return true;
+  const clean = dropRemarks(base);
+  const eq = clean.indexOf('=');
+  const lastClause = eq >= 0 ? clean.slice(0, eq).split(CLAUSE_SPLIT).pop() : '';
+  const label = new Set(lastClause.match(EVIDENCE_WORD) || []);
+  const s2 = dropFiller(clean.replace(UNIT_AFTER_NUMBER, ' '));
+  if (/^[\p{L}∠][\p{L}\p{N} ]* ?= ?-?[\d.]+$/u.test(s2.replace(/\s+/g, ' ').trim())) return false;
+  const inQuestion = new Set(normEvidence(questionText).match(EVIDENCE_WORD) || []);
+  const words = new Set((s2.match(EVIDENCE_WORD) || []).filter((w) => !label.has(w) && !inQuestion.has(w) && (/\p{Script=Latin}/u.test(w) ? w.length >= 4 : w.length >= 2)));
+  if (words.size >= 2) return true;
+  return s2.split(/[=<>≤≥⊥∥~→]/).filter((side) => /\p{L}/u.test(side)).length >= 2;
 }
 function isAskedReasonStep(u) {
   const d = String(u.description || '');
@@ -776,7 +802,7 @@ function reasonKnowledgeProven(u, live, questionText) {
   const qt = String(questionText || '');
   const asked = REASON_ASKED.test(qt) || (u._omittedAsk === 'reason' && !isRealQuestionText({ questionText: qt }));
   if (!asked) return knowledgeProven(u, live, questionText);
-  if (!knowledgeProven(u, live, questionText, true) || !reasonEvidenceStatesPrinciple(u._knowledgeEvidence)) return false;
+  if (!knowledgeProven(u, live, questionText, true) || !reasonEvidenceStatesPrinciple(u._knowledgeEvidence, qt)) return false;
   // the quote must not be the answer the reason belongs to: an earlier step of the SAME part that carries it
   const ev = normEvidence(u._knowledgeEvidence);
   const at = live.indexOf(u);
