@@ -8,8 +8,13 @@
  *   pack_checkout              vendors + first-party get `pack_checkout`; GA4 ALSO gets its recommended
  *                              `begin_checkout` ecommerce hit (item_id = sku), GA4 only.
  *   pack_purchase              ONLY from the server-verified paid branch, once per transaction id
- *                              (the same per-tab dedupe as `purchase`). Meta: custom `PackPurchase` with
- *                              { value, currency }. GA4 ALSO gets its recommended `purchase` hit
+ *                              (the same per-tab dedupe as `purchase`). Meta: the STANDARD `Purchase`
+ *                              (META-PURCHASE-UNIFY-1) with { value, currency, content_type, content_ids,
+ *                              content_name, num_items }, eventID = the Razorpay order id - the same name, id
+ *                              and fields as the server CAPI, so Meta counts the sale once. Kill switch
+ *                              VITE_META_PACK_AS_PURCHASE_DISABLED=1 -> today's custom `PackPurchase` with
+ *                              { value, currency } (flip with the server's META_PACK_AS_PURCHASE_DISABLED).
+ *                              GA4 ALSO gets its recommended `purchase` hit
  *                              (transaction_id, items[item_id = sku]), GA4 only.
  */
 
@@ -17,6 +22,7 @@ import {
   CHECKOUT_CURRENCY,
   analyticsEnabled,
   currentSalesPageSurface,
+  isMetaPackAsPurchaseDisabled,
   packIsAdminHit,
   purchaseSentMemory,
   readPurchaseSent,
@@ -206,7 +212,11 @@ export function trackPackPurchase(details: PackCheckoutDetails & { transactionId
     rememberPurchaseSent(id);
     const money = packMoney(details);
     const where = purchaseSurface(details.sku);
-    sendAnalyticsHit("event", { name: "pack_purchase", data: { ...money, sku: details.sku, ...where } }, { ga4: { ...money, sku: details.sku, ...where }, meta: { ...money, ...where }, metaEventId: id });
+    // META-PURCHASE-UNIFY-1: Meta's standard Purchase carries the sku as its product; the kill switch keeps today's payload.
+    const meta = isMetaPackAsPurchaseDisabled()
+      ? { ...money, ...where }
+      : { ...money, content_type: "product", content_ids: [details.sku], content_name: details.sku, num_items: 1, ...where };
+    sendAnalyticsHit("event", { name: "pack_purchase", data: { ...money, sku: details.sku, ...where } }, { ga4: { ...money, sku: details.sku, ...where }, meta, metaEventId: id });
     sendGa4Only("purchase", {
       transaction_id: id,
       ...money,

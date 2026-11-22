@@ -500,15 +500,35 @@ export const META_EVENTS: Readonly<
   engaged_10min: ["trackCustom", "Engaged10Min"],
   // ENGAGE5-1 — five visible minutes in one IST day; the name only, no parameter.
   engaged_5min: ["trackCustom", "Engaged5Min"],
-  // PACKS-CLIENT-1 — a verified pack purchase is its OWN custom Meta event (never the standard Purchase,
-  // which stays the Premium pass), so a Rs 49 pack cannot skew the ad optimiser's Purchase signal.
-  pack_purchase: ["trackCustom", "PackPurchase"],
+  // META-PURCHASE-UNIFY-1 (owner YES 22 Nov 2026) — a verified pack purchase (every pack sku, incl. the Test Series and CBQ
+  // packs) is the STANDARD Purchase, like the Premium pass, so ONE Purchase event covers every sale (a Purchase-optimised
+  // campaign). It carries { currency, value (charged, incl. GST), content_type, content_ids, content_name, num_items } and the
+  // Razorpay order id as `eventID` - the same name, id and fields the server CAPI sends (serverEvents.cjs metaPaidEvent).
+  // Kill switch VITE_META_PACK_AS_PURCHASE_DISABLED=1 -> the old custom `PackPurchase` (META_PACK_PURCHASE_LEGACY, below).
+  pack_purchase: ["track", "Purchase"],
   // META-PACK-CHECKOUT-1 — a pack Buy tap is the STANDARD InitiateCheckout (the Board Pass tap already is), carrying
   // { value (total incl. GST), currency, content_ids, content_type } + the attempt id as `eventID`. Set only by trackPackCheckout.
   pack_checkout: ["track", "InitiateCheckout"],
 };
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
+
+/** META-PURCHASE-UNIFY-1: what `pack_purchase` was before (PACKS-CLIENT-1), restored by the kill switch below. */
+export const META_PACK_PURCHASE_LEGACY = ["trackCustom", "PackPurchase"] as const;
+
+/**
+ * META-PURCHASE-UNIFY-1 kill switch: build env VITE_META_PACK_AS_PURCHASE_DISABLED=1 -> a paid pack goes back to the custom
+ * `PackPurchase` with { value, currency } (today's event). ★ FLIP IT TOGETHER WITH THE SERVER'S META_PACK_AS_PURCHASE_DISABLED=1
+ * (Railway): with only one side flipped, the browser and the server name the same order differently and Meta cannot de-duplicate.
+ */
+export function isMetaPackAsPurchaseDisabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_META_PACK_AS_PURCHASE_DISABLED;
+    return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
 
 /** `utm_*` and the ad click ids, plus `cbq` and `ct` — the CBQ and Chapter Test ad landings' boolean flags (META-CT-PARAM-1). Nothing else. */
 const META_QUERY_KEEP = /^(?:utm_.*|fbclid|gclid|cbq|ct)$/;
@@ -635,13 +655,17 @@ function sendToMeta(
     return;
   }
   const name = payload.name;
-  const mapped =
+  let mapped: MetaCall | undefined =
     kind === "pageview"
       ? META_PAGEVIEW
       : typeof name === "string" && Object.prototype.hasOwnProperty.call(META_EVENTS, name)
         ? META_EVENTS[name as keyof typeof META_EVENTS]
         : undefined;
   if (!mapped) return;
+  // META-PURCHASE-UNIFY-1: under the kill switch a pack purchase is the old custom PackPurchase again.
+  // A pack purchase is a sale: it is sent only WITH its order id (trackPackPurchase), never as a bare, value-less Purchase.
+  if (kind === "event" && name === "pack_purchase" && !eventId) return;
+  if (kind === "event" && name === "pack_purchase" && isMetaPackAsPurchaseDisabled()) mapped = META_PACK_PURCHASE_LEGACY;
   // META-PACK-CHECKOUT-1: a pack checkout is sent only WITH its attempt id (the caller leaves it off a repeat), never bare.
   if (kind === "event" && name === "pack_checkout" && !eventId) return;
   // META-PURCHASE-DEDUP-1: a sale event carries its id as Meta's `eventID` (4th argument; the 3rd must then be an object).

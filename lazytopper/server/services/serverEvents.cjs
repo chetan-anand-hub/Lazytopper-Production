@@ -12,10 +12,14 @@
  *     META_CAPI_ACCESS_TOKEN  META_PIXEL_ID (default 2018097265518900)  META_TEST_EVENT_CODE
  *     GA4_MEASUREMENT_ID (default G-1T8Q12H4RQ, the id the client loads)  GA4_API_SECRET
  *     SERVER_EVENTS_DISABLED=1  (kill switch: everything off)
+ *     META_PACK_AS_PURCHASE_DISABLED=1  (META-PURCHASE-UNIFY-1 kill switch: a paid PACK goes back to the custom `PackPurchase`.
+ *       ★ It flips TOGETHER with the browser's VITE_META_PACK_AS_PURCHASE_DISABLED=1 (Vercel): with only one side flipped, the
+ *       browser and the server send DIFFERENT event names for the same order and Meta cannot de-duplicate them.)
  * ★ PRIVACY. Owner ruling 13 Nov 2026: email + phone go to Meta, SHA-256 hashed + normalised (Meta spec), for every buyer and
  *   sign-up we have them for. Raw values are never logged: logs carry order ids + a status word only.
  *
- * Browser counterparts (src/analytics): Purchase / PackPurchase use eventID = the Razorpay order id (META-PURCHASE-DEDUP-1);
+ * Browser counterparts (src/analytics): Purchase uses eventID = the Razorpay order id (META-PURCHASE-DEDUP-1) - for a pass AND,
+ * since META-PURCHASE-UNIFY-1, for every pack sku (isPackProduct, incl. the Test Series and CBQ packs; PackPurchase only under the kill switch);
  * InitiateCheckout (packs) uses the checkout attempt id (META-PACK-CHECKOUT-1). CompleteRegistration has NO browser eventID
  * today (documented gap): the server sends its own stable id.
  */
@@ -239,6 +243,21 @@ function buildGa4Purchase({ orderId, order, signals }) {
   };
 }
 
+/**
+ * META-PURCHASE-UNIFY-1: the Meta event name + custom_data for a paid order. ONE standard `Purchase` covers every sale: a pass
+ * keeps { currency, value }; a pack (every isPackProduct sku) adds content_type / content_ids / content_name / num_items, the same
+ * fields the browser sends (packAnalytics.trackPackPurchase). `packAsPurchase === false` (kill switch) restores today's custom
+ * `PackPurchase` with { currency, value }. value = the amount CHARGED (amountPaise / 100, GST included); omitted when unknown.
+ */
+function metaPaidEvent(order, packAsPurchase = true) {
+  const value = orderValueInr(order);
+  const money = { currency: 'INR', ...(value === null ? {} : { value }) };
+  const sku = order && order.passType;
+  if (!isPackProduct(sku)) return { name: 'Purchase', customData: money };
+  if (!packAsPurchase) return { name: 'PackPurchase', customData: money };
+  return { name: 'Purchase', customData: { ...money, content_type: 'product', content_ids: [sku], content_name: sku, num_items: 1 } };
+}
+
 /* ── the service ───────────────────────────────────────────────────────────────────────────────────────────────────── */
 
 function createServerEvents(deps = {}) {
@@ -255,6 +274,7 @@ function createServerEvents(deps = {}) {
   const ga4Id = clean(env.GA4_MEASUREMENT_ID) || DEFAULT_GA4_ID;
   const ga4Secret = clean(env.GA4_API_SECRET);
   const metaOn = !disabled && !!metaToken && !!fetchImpl;
+  const packAsPurchase = !truthy(env.META_PACK_AS_PURCHASE_DISABLED);
   const ga4On = !disabled && !!ga4Secret && !!ga4Id && !!fetchImpl;
 
   function count(name) {
@@ -365,7 +385,8 @@ function createServerEvents(deps = {}) {
   }
 
   /**
-   * A server-verified paid order: Meta `Purchase` (pass) / `PackPurchase` (pack) + GA4 `purchase`. Once per order across
+   * A server-verified paid order: Meta `Purchase` (pass AND pack, META-PURCHASE-UNIFY-1; a pack is `PackPurchase` only under
+   * META_PACK_AS_PURCHASE_DISABLED) + GA4 `purchase`. Once per order across
    * verify + webhook + status. Top-ups send nothing (the browser sends none). Resolves; never rejects.
    */
   async function orderPaid({ orderId, payment } = {}) {
@@ -377,16 +398,16 @@ function createServerEvents(deps = {}) {
         jobs.push(() =>
           sendPaidChannel('meta', orderId, pay, async (order) => {
             if (isTopupProduct(order.passType)) return true;
-            const value = orderValueInr(order);
+            const paid = metaPaidEvent(order, packAsPurchase);
             const s = order.adSignals || {};
             const ev = buildMetaEvent({
-              name: isPackProduct(order.passType) ? 'PackPurchase' : 'Purchase',
+              name: paid.name,
               eventId: orderId,
               nowMs: now(),
               url: s.url,
               // A recipient order's stored contact is the RECIPIENT's, not the buyer's: only a plain guest order falls back to it.
               userData: userDataFrom({ email: pay.email || (order.checkoutWho === true ? '' : order.guestEmail), phone: pay.contact || (order.checkoutWho === true ? '' : order.guestPhone), uid: order.uid, signals: s }),
-              customData: { currency: 'INR', ...(value === null ? {} : { value }) },
+              customData: paid.customData,
             });
             return sendMetaEvent(ev);
           }),
@@ -509,6 +530,7 @@ module.exports = {
   hashExternalId,
   buildMetaEvent,
   buildGa4Purchase,
+  metaPaidEvent,
   userDataFrom,
   gaClientIdFrom,
   gaSessionIdFrom,

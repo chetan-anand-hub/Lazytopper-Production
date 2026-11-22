@@ -3447,7 +3447,7 @@ test('ORDER-SOURCE-1 · who-order and self-order store the source too', async (t
 });
 
 
-test('SERVER-EVENTS-1 · a guest pack: ONE PackPurchase for verify + webhook + replay, hashed Razorpay email + phone, event_id = order id', async (t) => {
+test('SERVER-EVENTS-1 · a guest pack: ONE Meta Purchase (META-PURCHASE-UNIFY-1; was PackPurchase) for verify + webhook + replay, hashed Razorpay email + phone, event_id = order id', async (t) => {
   const { createServerEvents } = require('../services/serverEvents.cjs');
   const calls = [];
   const fetchImpl = async (url, init) => { calls.push({ url: String(url), body: JSON.parse(init.body) }); return { ok: true, status: 200 }; };
@@ -3464,7 +3464,8 @@ test('SERVER-EVENTS-1 · a guest pack: ONE PackPurchase for verify + webhook + r
   await new Promise((r) => setTimeout(r, 60));
   assert.equal(calls.length, 1);
   const ev = calls[0].body.data[0];
-  assert.equal(ev.event_name, 'PackPurchase');
+  assert.equal(ev.event_name, 'Purchase');
+  assert.deepEqual(ev.custom_data.content_ids, ['pack_mock']);
   assert.equal(ev.event_id, o.json.orderId);
   assert.equal(ev.user_data.em[0], crypto.createHash('sha256').update('parent@example.com').digest('hex'));
   assert.equal(ev.user_data.fbp, 'fb.1.1700000000000.12345678');
@@ -3663,7 +3664,7 @@ test('PR · concurrent: status x3 + a webhook + a verify on one captured order -
   const stored = srv.db.read(`payOrders/${o.json.orderId}`);
   assert.equal(stored.status, 'paid_unclaimed');
   assert.equal(stored.paymentId, p.id);
-  assert.equal(metaCalls.length, 1, 'one PackPurchase for the sale, whoever recorded it');
+  assert.equal(metaCalls.length, 1, 'one Meta Purchase for the sale, whoever recorded it');
   assert.equal(h.resend.sent.length, 1, 'one receipt email');
   assert.equal(packDocs(srv.db).length, 0);
   assert.equal(subsDocs(srv.db).length, 0);
