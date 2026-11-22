@@ -29,7 +29,7 @@ vi.mock("../../pages/PackDialog", () => ({ default: (p: { buy?: unknown }) => (p
 
 import PacksShop from "./PacksShop";
 import * as packs from "../../services/packs";
-import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY } from "../../services/checkout";
+import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY } from "../../services/checkoutTiming";
 import { checkoutSurface, onCheckoutSheetShown } from "../../services/checkoutTiming";
 
 const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;

@@ -175,6 +175,71 @@ test('guest phone order: a failing account lookup, an existing account and an al
   }
 });
 
+/* ── the recipient ("someone else") order: payer check + phone/email lookups + coverage + the already-paid reads ── */
+async function whoRun({ parallelOff, phoneUid = '', emailUid = '', covered = false, lookupThrows = false, existingThrows = false, seed = {} } = {}) {
+  const pr = probe();
+  const db = slowFirestore(pr, { ...(covered ? { 'subscriptions/uid_R': { passEnd: '2099-01-01T00:00:00.000Z', passType: 'till_boards', plan: 'pass_till_boards', status: 'active' } } : {}), ...seed });
+  if (existingThrows) {
+    const real = db.collection;
+    db.collection = (name) => {
+      const c = real(name);
+      return { ...c, where: () => ({ where: () => ({ limit: () => ({ get: async () => { await pr.op('query:payOrders'); throw new Error('boom'); } }) }) }) };
+    };
+  }
+  const rzp = slowRazorpay(pr);
+  const { sendJson } = createHttpUtils('*');
+  const env = { PAYMENTS_ENABLED: '1', GUEST_PAY_ENABLED: '1', PACKS_ENABLED: '1', CHECKOUT_WHO_ENABLED: '1', RAZORPAY_KEY_ID: KEY_ID, RAZORPAY_KEY_SECRET: KEY_SECRET, ...(parallelOff ? { PAY_ORDER_PARALLEL_DISABLED: '1' } : {}) };
+  const events = [];
+  const guest = createGuestPayRoutes({
+    sendJson,
+    verifiedCaller: { async resolveVerifiedUid() { await pr.op('payer'); return 'uid_payer'; } },
+    adminFirestore: db, telemetry: { increment: (e) => events.push(e) }, env, fetchImpl: rzp.fetchImpl, now: () => NOW, foundingOfferOpen: true,
+    accountExistsForPhone: async () => false,
+    uidForPhone: async () => { await pr.op('byPhone'); if (lookupThrows) throw new Error('auth down'); return phoneUid; },
+    uidForEmail: async () => { await pr.op('byEmail'); if (lookupThrows) throw new Error('auth down'); return emailUid; },
+  });
+  const srv = await serve((req, res) => guest.handleOrder(req, res));
+  try {
+    const r = await post(srv.port, GUEST_ORDER_PATH, { sku: 'till_boards', recipient: { phone: '9876543210', email: 'kid@example.com' } }, { Authorization: 'Bearer uid:uid_payer' });
+    return { r, db, rzp, events, pr };
+  } finally {
+    await srv.close();
+  }
+}
+
+test('recipient order: payer check, both lookups, coverage and the already-paid reads overlap; every read finishes before the Razorpay order starts', async () => {
+  const seq = await whoRun({ parallelOff: true });
+  const par = await whoRun({ parallelOff: false });
+  assert.equal(seq.r.status, 200, JSON.stringify(seq.r.json));
+  assert.equal(par.r.status, 200, JSON.stringify(par.r.json));
+  assert.equal(seq.pr.max, 1, 'kill switch: one call at a time, as before');
+  assert.ok(par.pr.max >= 3, `reads overlap (max in flight ${par.pr.max})`);
+  for (const label of ['payer', 'byPhone', 'byEmail']) assert.ok(par.pr.done(label) < par.pr.started('razorpay'), `${label} finishes before Razorpay starts`);
+  assert.ok(par.pr.trace.lastIndexOf('-query:payOrders') < par.pr.started('razorpay'));
+  const strip = (j) => ({ ...j, orderId: 'X', statusProof: j.statusProof ? 'P' : undefined });
+  assert.deepEqual(strip(par.r.json), strip(seq.r.json));
+  assert.deepEqual(par.rzp.calls.map((c) => [c.method, new URL(c.url).pathname, c.body]), seq.rzp.calls.map((c) => [c.method, new URL(c.url).pathname, c.body]));
+  assert.deepEqual(par.events, seq.events);
+});
+
+test('recipient order: a covered recipient, a failing lookup and an already-paid order answer exactly as before - in BOTH modes', async () => {
+  for (const parallelOff of [true, false]) {
+    const covered = await whoRun({ parallelOff, phoneUid: 'uid_R', covered: true });
+    assert.equal(covered.r.status, 409, `covered (parallelOff=${parallelOff})`);
+    assert.equal(covered.rzp.calls.length, 0);
+    const lookup = await whoRun({ parallelOff, lookupThrows: true, existingThrows: true });
+    assert.deepEqual([lookup.r.status, lookup.r.json], [500, { ok: false, error: 'Could not start the payment.' }]);
+    assert.ok(lookup.events.includes('payments.guest.order.account_lookup_failed'), 'the LOOKUP failure wins over the existing-read failure');
+    assert.equal(lookup.rzp.calls.length, 0);
+    const readFail = await whoRun({ parallelOff, existingThrows: true });
+    assert.equal(readFail.r.status, 500);
+    assert.equal(readFail.rzp.calls.length, 0, 'a failed read fails CLOSED: no order');
+    const paid = await whoRun({ parallelOff, seed: { 'payOrders/order_OLD': { payer: 'guest', guestPhone: '+919876543210', status: 'paid_unclaimed', passType: 'till_boards' } } });
+    assert.deepEqual([paid.r.status, paid.r.json], [409, { ok: false, error: 'payment_unavailable' }]);
+    assert.equal(paid.rzp.calls.length, 0, 'never takes the money twice');
+  }
+});
+
 /* ── the signed-in Board Pass order (the 1,083 upgrade and the full price) ── */
 async function passRun({ parallelOff }) {
   const pr = probe();

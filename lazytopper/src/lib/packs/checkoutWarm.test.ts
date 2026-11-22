@@ -101,6 +101,20 @@ describe("CHECKOUT-FAST-1 - when checkout.js is fetched (intent only on the new 
     expect(loadScript).toHaveBeenCalledTimes(1);
   });
 
+  it("intentOnly: if no buy button existed at the first scroll, the next scroll looks again", () => {
+    const h = harness();
+    const loadScript = vi.fn(() => Promise.resolve(null));
+    schedulePacksWarmup({ win: h.win, doc: h.doc, preloadChunks: vi.fn(), loadScript, intentOnly: true });
+    h.listeners.get("scroll")?.(); // no button yet
+    expect(h.observed).toHaveLength(0);
+    expect(h.listeners.has("scroll")).toBe(true); // re-armed
+    const btn = withButton(h);
+    h.listeners.get("scroll")?.();
+    expect(h.observed).toEqual([btn]);
+    h.intersect(true);
+    expect(loadScript).toHaveBeenCalledTimes(1);
+  });
+
   it("intentOnly: the first touch / pointer press warms at once, once", () => {
     const h = harness();
     const loadScript = vi.fn(() => Promise.resolve(null));

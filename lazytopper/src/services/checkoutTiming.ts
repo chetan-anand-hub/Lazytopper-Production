@@ -129,12 +129,13 @@ function watchLifecycle(a: Attempt): void {
  * The Buy tap: called by `loadCheckoutScript()` (every buy flow calls it at the tap). Starts a fresh attempt unless one is already
  * waiting for its sheet. `warm`: checkout.js was already on the page.
  */
-export function beginCheckoutAttempt(warm: boolean): void {
+export function beginCheckoutAttempt(warm: boolean, tapAtMs?: number): void {
   emitSafe(() => {
     ensureTapTracking();
     const now = clock();
     if (current && !current.done && !current.shown && now - current.startedAt < ATTEMPT_WINDOW_MS) return;
-    const tapAt = now - lastClickAt <= TAP_LOOKBACK_MS ? lastClickAt : now;
+    // The tap time: the click we saw, else the moment loadCheckoutScript was called (this module loads lazily, so a click listener may not have existed yet).
+    const tapAt = now - lastClickAt <= TAP_LOOKBACK_MS ? lastClickAt : tapAtMs !== undefined && tapAtMs <= now ? tapAtMs : now;
     const a: Attempt = {
       startedAt: tapAt,
       warm,

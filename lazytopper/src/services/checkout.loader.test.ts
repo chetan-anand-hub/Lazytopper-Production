@@ -102,11 +102,12 @@ describe("warmCheckoutOnPage (intent only)", () => {
     expect(tags()).toHaveLength(0);
   });
 
-  it("payments ON: NOTHING on idle (no requestIdleCallback is even asked for); the first touch loads checkout.js once; a second call is a no-op", () => {
+  it("payments ON: NOTHING on idle (no requestIdleCallback is even asked for); the first touch loads checkout.js once; a second call is a no-op", async () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     const idle = stubIdle();
     warmCheckoutOnPage();
     warmCheckoutOnPage();
+    await vi.dynamicImportSettled();
     expect(idle).toHaveLength(0);
     expect(tags()).toHaveLength(0); // not at first paint, not on idle
     document.dispatchEvent(new Event("pointerdown", { bubbles: true }));
@@ -116,11 +117,12 @@ describe("warmCheckoutOnPage (intent only)", () => {
     expect(document.head.querySelector('link[href*="static-next"]')).toBeNull();
   });
 
-  it("VITE_CHECKOUT_WARM_DISABLED=1 -> today's behaviour: a touch loads nothing; the tap still loads it", () => {
+  it("VITE_CHECKOUT_WARM_DISABLED=1 -> today's behaviour: a touch loads nothing; the tap still loads it", async () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     vi.stubEnv("VITE_CHECKOUT_WARM_DISABLED", "1");
     stubIdle();
     warmCheckoutOnPage();
+    await vi.dynamicImportSettled();
     document.dispatchEvent(new Event("pointerdown", { bubbles: true }));
     expect(tags()).toHaveLength(0);
     void loadCheckoutScript(); // the tap still loads it

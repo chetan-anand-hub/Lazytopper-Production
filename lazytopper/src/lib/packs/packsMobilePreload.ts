@@ -133,10 +133,19 @@ export function schedulePacksWarmup(deps: PacksWarmupDeps): () => void {
     if (!deps.intentOnly || isCheckoutWarmDisabled() || typeof IO !== "function") return;
     // A buy button already in view at load does NOT warm (that would be a load-time fetch): the observer is armed by the FIRST SCROLL,
     // so "a buy button scrolled into view" means the student is moving toward it.
-    onScroll = () => {
+    let rearms = 0;
+    const handler = () => {
       onScroll = null;
+      if (cancelled || scriptLoaded) return;
       const buttons = doc.querySelectorAll(`[${CHECKOUT_BUY_ATTR}]`);
-      if (buttons.length === 0 || cancelled || scriptLoaded) return;
+      if (buttons.length === 0) {
+        // No buy button existed yet (it renders later): look again on the next scroll, a bounded number of times.
+        if (++rearms < 20) {
+          onScroll = handler;
+          win.addEventListener("scroll", handler, { once: true, passive: true });
+        }
+        return;
+      }
       observer = new IO((entries) => {
         if (!entries.some((e) => e.isIntersecting)) return;
         observer?.disconnect();
@@ -145,7 +154,8 @@ export function schedulePacksWarmup(deps: PacksWarmupDeps): () => void {
       });
       buttons.forEach((b) => observer?.observe(b));
     };
-    win.addEventListener("scroll", onScroll, { once: true, passive: true });
+    onScroll = handler;
+    win.addEventListener("scroll", handler, { once: true, passive: true });
   };
   const afterLoad = () => {
     if (cancelled) return;

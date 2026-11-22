@@ -12,8 +12,9 @@
  * client-side activation anywhere in this file.
  *
  * ★ checkout.js is loaded from Razorpay's own origin, ONCE (one script tag, idempotent). Z3: on the Buy click. CHECKOUT-FAST-1: on a page
- *   that opens checkout it is also fetched EARLY - once the page is idle, or the first buy button scrolls into view (never at first paint) -
- *   through `preloadCheckoutScript`, so a tap finds it already there. VITE_CHECKOUT_WARM_DISABLED=1 turns the early fetch off.
+ *   that opens checkout it is also fetched EARLY, on INTENT only (the first touch / pointer press, or a buy button in view after the first
+ *   scroll; never at first paint, never on idle) through `preloadCheckoutScript`, so a tap finds it already there. (/packs and /cbq-packs
+ *   keep their older idle warm-up in PacksShop.) VITE_CHECKOUT_WARM_DISABLED=1 turns the early fetch off.
  */
 
 import { VALIDITY_LABEL, VALIDITY_SHORT } from "../config/validity";
@@ -25,8 +26,7 @@ import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gst
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
 import { adSignalFields } from "../analytics/adSignals";
-import { isCheckoutWarmDisabled, schedulePacksWarmup } from "../lib/packs/packsMobilePreload";
-import { beginCheckoutAttempt, ensureTapTracking, instrumentRazorpay } from "./checkoutTiming";
+// CHECKOUT-FAST-1: checkoutTiming.ts and packsMobilePreload.ts are loaded with dynamic import() - they stay OUT of the entry chunk (PERF-3 budget).
 
 /** The two passes the server sells (server/services/passGrant.cjs PASS_TYPES). */
 export type PassType = "month" | "till_boards";
@@ -77,8 +77,7 @@ export class PayAlreadyCoveredError extends Error {
 // Review F2: neutral "pass" - a month pass that runs past the board day covers the student too.
 export const PASS_ALREADY_COVERED_COPY = `Your pass is already valid till ${VALIDITY_LABEL}. There's nothing more to pay.`;
 
-// CHECKOUT-FAST-1: the wait copy lives in checkoutTiming.ts (a module no test mocks); re-exported here for the callers that import checkout.
-export { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY, CHECKOUT_SLOW_AFTER_MS } from "./checkoutTiming";
+// CHECKOUT-FAST-1: the wait copy (CHECKOUT_OPENING_COPY etc.) lives in checkoutTiming.ts, imported only by the checkout/buy chunks (not re-exported here: it would pull the module into the entry).
 
 /** Z6 — the owner's failure sentence, word for word. */
 export const PAYMENT_FAILED_COPY = "Payment didn't go through. You haven't been charged twice — try again.";
@@ -273,8 +272,15 @@ function injectCheckoutScript(doc: Document): Promise<RazorpayConstructor> {
  */
 export function loadCheckoutScript(doc: Document = document): Promise<RazorpayConstructor> {
   const win = doc.defaultView as WindowWithRazorpay | null;
-  beginCheckoutAttempt(Boolean(win && typeof win.Razorpay === "function"));
-  return injectCheckoutScript(doc).then((ctor) => instrumentRazorpay(ctor));
+  const warm = Boolean(win && typeof win.Razorpay === "function");
+  const tapAt = typeof performance !== "undefined" && typeof performance.now === "function" ? performance.now() : Date.now();
+  const injected = injectCheckoutScript(doc); // starts at the tap, exactly as before
+  const timing = import("./checkoutTiming").catch(() => null); // measurement only: if it cannot load, the purchase goes on un-instrumented
+  return Promise.all([injected, timing]).then(([ctor, t]) => {
+    if (!t) return ctor;
+    t.beginCheckoutAttempt(warm, tapAt);
+    return t.instrumentRazorpay(ctor);
+  });
 }
 
 /**
@@ -282,7 +288,7 @@ export function loadCheckoutScript(doc: Document = document): Promise<RazorpayCo
  * Never called at first paint: `warmCheckoutOnPage` / PacksShop's warm-up call it after `load`, once idle or when a buy button is in view.
  */
 export function preloadCheckoutScript(doc: Document = document): Promise<RazorpayConstructor> {
-  ensureTapTracking(doc);
+  void import("./checkoutTiming").then((t) => t.ensureTapTracking(doc)).catch(() => undefined);
   return injectCheckoutScript(doc);
 }
 
@@ -292,8 +298,10 @@ export function preloadCheckoutScript(doc: Document = document): Promise<Razorpa
  * iframe bundle is a long task on a low-end phone) it opens Razorpay's connections and fetches checkout.js. Once per page load. No order, no server call. Off with VITE_CHECKOUT_WARM_DISABLED=1 (and with the packs preload switch).
  */
 export function warmCheckoutOnPage(): void {
-  if (!isPaymentsClientEnabled() || isCheckoutWarmDisabled()) return;
-  schedulePacksWarmup({ key: "checkout", preloadChunks: () => undefined, loadScript: () => preloadCheckoutScript(), intentOnly: true });
+  if (!isPaymentsClientEnabled() || String(import.meta.env.VITE_CHECKOUT_WARM_DISABLED ?? "").trim() === "1") return;
+  void import("../lib/packs/packsMobilePreload")
+    .then((m) => m.schedulePacksWarmup({ key: "checkout", preloadChunks: () => undefined, loadScript: () => preloadCheckoutScript(), intentOnly: true }))
+    .catch(() => undefined);
 }
 
 /** Test seam: forget a loaded script promise. */
