@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
 import { TRIAL_DAYS } from "../services/subscriptionService";
 import { currentSalesPageSurface, setSalesPageSurface, trackNamedEvent, trackPaywallAction } from "../analytics/analytics";
-import { isPaymentsClientEnabled } from "../services/checkout";
+import { isPaymentsClientEnabled, warmCheckoutOnPage } from "../services/checkout";
 import { isParentPayClientEnabled } from "../services/parentPay";
 import { isCheckoutWhoClientEnabled } from "../services/checkoutWhoFlag";
 import { predictCbseExamDate } from "../services/cbseExamDate";
@@ -239,6 +239,8 @@ export default function BoardPassPage() {
     // F1: a signed-out Pay opens the "Buy for yourself" sheet, a lazy chunk fetched only at the tap. Fetch it as the page mounts
     // (the same specifier PassCheckout's lazy() uses, so the same chunk, once). Nothing is opened or ordered.
     if (isPaymentsClientEnabled() && isCheckoutWhoClientEnabled()) void import("../components/checkoutWho/CheckoutSheet").catch(() => undefined);
+    // CHECKOUT-FAST-1: on INTENT only (first touch, or the Pay button in view; never idle) open Razorpay's connections and load checkout.js (no order). Off: VITE_CHECKOUT_WARM_DISABLED=1.
+    warmCheckoutOnPage();
     // N1: clear only our own value - on /board-pass -> /cbq-packs the arriving page has already set its own in its first render.
     return () => {
       if (currentSalesPageSurface() === "board-pass") setSalesPageSurface(null);

@@ -8,7 +8,7 @@ import SalesStickyBar from "../components/salesPages/SalesStickyBar";
 import { trackBeginCheckoutTap, trackParentShareClick, type ParentSharePlacement } from "../analytics/analytics";
 import { useAuth } from "../context/AuthContext";
 import { isCheckoutWhoClientEnabled } from "../services/checkoutWhoFlag";
-import { BOARD_PASS_CHECKOUT_DESCRIPTION, isPaymentsClientEnabled } from "../services/checkout";
+import { BOARD_PASS_CHECKOUT_DESCRIPTION, isPaymentsClientEnabled, warmCheckoutOnPage } from "../services/checkout";
 import { withSigninRedirect } from "../services/freeCheckClient";
 import type { GuestSigninState } from "../services/guestPay";
 import { BOARD_PASS_BUY_PATH } from "../components/pricing/boardPassBuy";
@@ -188,7 +188,7 @@ type PayPlacement = "hero" | "second" | "sticky";
 function PayButton({ placement, onPay }: { placement: PayPlacement; onPay: (placement: PayPlacement) => void }) {
   const mounted = useMounted();
   return (
-    <button type="button" className="lt-fp__pay" onClick={() => onPay(placement)} aria-haspopup="dialog" data-testid={`fp-pay-${placement}`}>
+    <button type="button" className="lt-fp__pay" onClick={() => onPay(placement)} aria-haspopup="dialog" data-checkout-buy="" data-testid={`fp-pay-${placement}`}>
       {mounted ? `${PAY_LABEL} · ${boardPassPayDisplay()}` : PAY_LABEL}
     </button>
   );
@@ -347,6 +347,11 @@ export default function ForParentsPage() {
   const signedIn = Boolean(user) && !user?.isLocalSession;
   const [payOpen, setPayOpen] = useState(false);
   const mounted = useMounted();
+
+  // CHECKOUT-FAST-1: on INTENT only (first touch, or a Pay button in view after the first scroll; never idle) open Razorpay's connections and load checkout.js (no order). Off: VITE_CHECKOUT_WARM_DISABLED=1.
+  useEffect(() => {
+    warmCheckoutOnPage();
+  }, []);
 
   // Fetch the checkout sheet once the page is idle, so a Pay tap opens it at once (nothing is opened or ordered).
   useEffect(() => {

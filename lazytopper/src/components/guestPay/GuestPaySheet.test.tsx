@@ -4,7 +4,7 @@
  * phone sign-in; events carry names only.
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 const track = vi.hoisted(() => ({ trackNamedEvent: vi.fn(), trackPurchase: vi.fn(), newCheckoutAttemptId: vi.fn(() => "lt_attempt") }));
 vi.mock("../../analytics/analytics", () => track);
@@ -13,6 +13,7 @@ vi.mock("../../lib/packs/packAnalytics", () => packTrack);
 
 import GuestPaySheet, { GUEST_PAY_ACCOUNT_EXISTS, GUEST_PAY_BOUGHT_BEFORE, GUEST_PAY_BAD_NUMBER, GUEST_PAY_GOOGLE_FIRST, GUEST_PAY_PHONE_CTA, GUEST_PAY_PHONE_FIRST, guestPaidLine } from "./GuestPaySheet";
 import type { GuestBuyOutcome, GuestItem } from "../../services/guestPay";
+import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY } from "../../services/checkoutTiming";
 
 const PACK: GuestItem = { kind: "pack", sku: "pack_mock", target: "maths", label: "Mock Pack · Maths", description: "d" };
 const CHROME = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Mobile Safari/537.36";
@@ -136,6 +137,22 @@ describe("BUY-PATH-1 · a pay-by-phone sale is a purchase in the funnel", () => 
   }
   const allArgs = () => JSON.stringify([...track.trackPurchase.mock.calls, ...packTrack.trackPackPurchase.mock.calls, ...track.trackNamedEvent.mock.calls]);
 
+  it("CHECKOUT-FAST-1: while the order is opening the button says so; after ~6 s a second line says Razorpay is still connecting", async () => {
+    vi.useFakeTimers();
+    try {
+      sheet({ item: PACK, buy: vi.fn(() => new Promise<GuestBuyOutcome>(() => undefined)) });
+      fireEvent.click(screen.getByText(GUEST_PAY_PHONE_CTA));
+      fireEvent.change(screen.getByTestId("guest-pay-input"), { target: { value: "9876543948" } });
+      fireEvent.click(screen.getByTestId("guest-pay-continue"));
+      expect(screen.getByTestId("guest-pay-continue").textContent).toBe(CHECKOUT_OPENING_COPY);
+      expect(screen.queryByTestId("guest-pay-slow-open")).toBeNull();
+      await act(async () => { vi.advanceTimersByTime(6100); });
+      expect(screen.getByTestId("guest-pay-slow-open").textContent).toBe(CHECKOUT_SLOW_COPY);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("a server-verified PACK payment -> ONE pack_purchase: Razorpay payment id as transaction id, the server amount as value", async () => {
     await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 99, paymentId: "pay_G1", orderId: "order_G1" });
     await screen.findByTestId("guest-pay-paid");
@@ -170,7 +187,7 @@ describe("BUY-PATH-1 · a pay-by-phone sale is a purchase in the funnel", () => 
     cleanup();
     for (const o of [{ status: "dismissed" }, { status: "failed" }, { status: "already_paid", phoneMasked: "m", phone: "+919876543948" }] as GuestBuyOutcome[]) {
       await payWith(o);
-      await waitFor(() => expect(screen.queryByText("Opening payment…")).toBeNull());
+      await waitFor(() => expect(screen.queryByText(CHECKOUT_OPENING_COPY)).toBeNull());
       cleanup();
     }
     expect(track.trackPurchase).not.toHaveBeenCalled();

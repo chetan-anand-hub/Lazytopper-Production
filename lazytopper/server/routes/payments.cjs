@@ -69,6 +69,7 @@ const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs')
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
 const { fire: fireServerEvent, signalsFor } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
+const { isOrderParallelDisabled, settle } = require('../services/payOrderTiming.cjs'); // CHECKOUT-FAST-1
 const { decideManualCapture, LATE_AUTHORISATION, AWAITING_BANK } = require('../services/lateAuthGuard.cjs'); // LATE-AUTH-GUARD-1
 
 /**
@@ -719,6 +720,11 @@ function createPaymentRoutes(deps = {}) {
       }
       quote = tableQuote(packBaseInrAt(passType, now()), now());
     }
+    // CHECKOUT-FAST-1: for the Board Pass the Test Series credit read needs nothing from the quote, so it STARTS with the
+    // subscription read instead of after the pack-credit read (PAY_ORDER_PARALLEL_DISABLED=1: as before). Its result is used exactly
+    // where the sequential code used it. The MONEY-DUPGUARD open-order scan is NOT moved: it still runs immediately before the order.
+    const parallel = !isOrderParallelDisabled(env);
+    const tsCreditP = parallel && !isPack && !isTopup && passType === 'till_boards' ? settle(() => testSeriesUpgradeCreditFor(adminFirestore, uid, passType, env)) : null;
     try {
       // A pack needs no subscription read: its price does not depend on the student's plan.
       const snap = isPack ? null : await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
@@ -789,7 +795,14 @@ function createPaymentRoutes(deps = {}) {
     // status compare against it; the order's baseInr / gstInr are the upgrade's own, so the GST invoice reproduces it.
     let tsFields = {};
     if (!isPack && !isTopup && passType === 'till_boards' && packCreditInr === 0) {
-      const tsCredit = await testSeriesUpgradeCreditFor(adminFirestore, uid, passType, env);
+      let tsCredit;
+      if (tsCreditP) {
+        const r = await tsCreditP;
+        if (!r.ok) throw r.error; // the service never throws; if it somehow did, the sequential route threw here too
+        tsCredit = r.value;
+      } else {
+        tsCredit = await testSeriesUpgradeCreditFor(adminFirestore, uid, passType, env);
+      }
       if (tsCredit.disabled) emit('payments.order.ts_upgrade_credit_disabled');
       else if (tsCredit.readFailed) emit('payments.order.ts_upgrade_credit_read_failed');
       if (tsCredit.creditBaseInr > 0) {
