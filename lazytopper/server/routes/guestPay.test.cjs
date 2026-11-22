@@ -3874,3 +3874,8 @@ test('PR · concurrent status calls alone: the purchase event, the invoice step 
   assert.equal(paidEvents, 1, 'a later status call fires nothing');
   assert.equal(receipts, 1);
 });
+
+/* ══ CHECKOUT-FAST-1 · the order routes' critical path + the kept-alive Razorpay transport ═════════
+ * Kept in their own files (not *.test.cjs, so each is gated through THIS wired suite - the ci_docs_lane a15 rule). */
+require('./orderTiming.cases.cjs');
+require('../services/payOrderTiming.cases.cjs');

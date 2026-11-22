@@ -718,6 +718,7 @@ export function PassCheckoutView({
         ref={boardsPayRef}
         className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards"
         disabled={busy !== null || recovery !== null}
+        data-checkout-buy=""
         onClick={() => void handleBuy("till_boards")}
       >
         {boardsLabel}

@@ -47,7 +47,8 @@ import { BUNDLE_NAME, TEST_SERIES_NAME, TEST_SERIES_VALID_TILL, packChapterLabel
 import { TEST_SERIES_PATH, seriesContentsLine, seriesProgress, seriesTotals, type SeriesProgress } from "../../lib/testSeries/testSeries";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import { isPacksWarmupPath, schedulePacksWarmup } from "../../lib/packs/packsMobilePreload";
-import { loadCheckoutScript } from "../../services/checkout";
+import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY, preloadCheckoutScript } from "../../services/checkout";
+import { useCheckoutSlow } from "../../hooks/useCheckoutSlow";
 import PayRescueCard from "../payRescue/PayRescueCard";
 import PackSampleLink, { type SampleBuy } from "./PackSampleLink";
 import PackNamePrompt from "./PackNamePrompt";
@@ -185,7 +186,7 @@ if (typeof window !== "undefined" && isPacksClientEnabled() && readBuyResume(win
  */
 export function warmPacksCheckout(): void {
   if (!isPacksClientEnabled()) return;
-  schedulePacksWarmup({ preloadChunks: preloadBuyChunks, loadScript: () => loadCheckoutScript() });
+  schedulePacksWarmup({ preloadChunks: preloadBuyChunks, loadScript: () => preloadCheckoutScript(), staticHint: true });
 }
 
 // Module top level: the page chunk is evaluated BEFORE the app hydrates, so a cold phone starts warming while it is still booting.
@@ -403,6 +404,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   /** PACKS-CONVERT-1: the Chapter Pack pop-up opened from a sample's buy button; its Buy then reports `from: "sample"`. */
   const sampleChapterBuy = useRef(false);
   const [buy, setBuy] = useState<BuyState>({ key: "", phase: "idle" });
+  // CHECKOUT-FAST-1: still waiting for Razorpay's sheet after ~6 s -> a second line under the button.
+  const slowOpen = useCheckoutSlow(buy.phase === "busy");
   /** PAY-PHONE-1 - the pack a signed-out visitor is paying for with a phone number (the sheet is open), else null. */
   const [guest, setGuest] = useState<{ sku: PackSku; target: string | undefined } | null>(null);
   const guestEnabled = enabled && isGuestPayClientEnabled();
@@ -917,7 +920,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     else if (!ready) label = CHOOSE_CHAPTER_FIRST;
     else if (isOwned) label = "You own this";
     else if (confirming) label = PACK_CHECKING_COPY;
-    else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : "Opening checkout…";
+    else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : CHECKOUT_OPENING_COPY;
     else if (!signedIn && !authLoading) label = `Buy · ${packPayLabel(sku)}`;
     // PAY-PHONE-1 (C) - the sheet was closed without paying: the student stays one tap from paying.
     else if (dismissed) label = `Pay ${packPayLabel(sku)}`;
@@ -936,9 +939,11 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           aria-disabled={off}
           onClick={() => (ownerCard ? setWho({ sku, target, holder: true }) : void handleBuy(sku, target))}
           data-testid={`packs-buy-${sku}`}
+          data-checkout-buy=""
         >
           {label}
         </button>
+        {busy && buy.phase === "busy" && slowOpen && <p className={`${prefix}__note`} role="status" data-testid="packs-slow-open">{CHECKOUT_SLOW_COPY}</p>}
         {whoEnabled && !checkoutAudience && signedIn && enabled && ready && !isOwned && !busy && !confirming && !blocked && (
           <SomeoneElseLink testId={`packs-someone-else-${sku}`} onOpen={() => setWho({ sku, target })} />
         )}
@@ -1273,7 +1278,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     let label: ReactNode = o.label;
     if (isOwned) label = "You own this";
     else if (confirming) label = PACK_CHECKING_COPY;
-    else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : "Opening checkout…";
+    else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : CHECKOUT_OPENING_COPY;
     return (
       <>
         <button type="button" className={o.className} disabled={off} aria-disabled={off} onClick={() => {
@@ -1281,9 +1286,11 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             void handleBuy(sku, undefined);
           }}
           data-testid={o.testId}
+          data-checkout-buy=""
         >
           {label}
         </button>
+        {o.showStatus !== false && busy && buy.phase === "busy" && slowOpen && <p className={o.noteClass} role="status" data-testid="packs-slow-open">{CHECKOUT_SLOW_COPY}</p>}
         {o.showStatus !== false && blocked && <p className={o.noteClass} role="status" data-testid="packs-other-busy">{OTHER_PAYMENT_BUSY_COPY}</p>}
         {o.showStatus !== false && confirming && <p className={o.noteClass} role="status">{PACK_STILL_CONFIRMING_COPY}</p>}
         {o.showStatus !== false && mine_ && buy.phase === "failed" && <p className={`${o.noteClass} ${o.noteClass}--bad`} role="alert">{PACK_FAILED_COPY}</p>}

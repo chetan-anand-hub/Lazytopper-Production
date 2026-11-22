@@ -25,6 +25,8 @@ import { newCheckoutAttemptId, trackNamedEvent } from "../../analytics/analytics
 import { trackGuestPurchase } from "../guestPay/GuestPaySheet";
 import { tenDigits, type GuestItem } from "../../services/guestPay";
 import { WHATSAPP_URL } from "../../config/socialProfiles";
+import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY } from "../../services/checkout";
+import { useCheckoutSlow } from "../../hooks/useCheckoutSlow";
 import AttachFlow from "./AttachFlow";
 import {
   ATTACH_BEFORE_PAY,
@@ -242,6 +244,8 @@ export default function CheckoutSheet({
   }, []);
 
   const busy = step.name === "busy" || step.name === "selfBusy";
+  // CHECKOUT-FAST-1: ~6 s without Razorpay's sheet -> one honest second line.
+  const slowOpen = useCheckoutSlow(busy);
   // SELFPAY-ATTACH-1: closing before choosing who it is for asks first (one line; the payment is already safe).
   const attachPending = step.name === "attach" && !attachSettled;
   const attachContactMasked = step.name === "attach" && step.contact ? attachMaskedIds(step.contact)[0] || "" : "";
@@ -328,7 +332,12 @@ export default function CheckoutSheet({
   let body;
   if (autoSelf && (step.name === "selfBusy" || (step.name === "selfOut" && !step.error && !step.closed))) {
     // CHECKOUT-ONE-TAP-1: no pre-pay step - just the status while Razorpay opens. After a dismissal / failure the ordinary Pay step shows.
-    body = <p className="lt-gps__fine" role="status" data-testid="who-auto-opening">Opening payment…</p>;
+    body = (
+      <>
+        <p className="lt-gps__fine" role="status" data-testid="who-auto-opening">{CHECKOUT_OPENING_COPY}</p>
+        {slowOpen && <p className="lt-gps__fine" role="status" data-testid="who-slow-open">{CHECKOUT_SLOW_COPY}</p>}
+      </>
+    );
   } else if (step.name === "selfOut" || step.name === "selfBusy") {
     const selfError = step.name === "selfOut" ? step.error : undefined;
     body = (
@@ -342,8 +351,9 @@ export default function CheckoutSheet({
         {/* PAY-RETURN-1: one line, in-app browsers only. */}
         <PayReturnHint />
         <button type="button" className="lt-gps__primary" disabled={busy} data-testid="who-pay-self-out" onClick={() => void paySelf()}>
-          {busy ? "Opening payment…" : payReadBack(item.priceDisplay, "")}
+          {busy ? CHECKOUT_OPENING_COPY : payReadBack(item.priceDisplay, "")}
         </button>
+        {busy && slowOpen && <p className="lt-gps__fine" role="status" data-testid="who-slow-open">{CHECKOUT_SLOW_COPY}</p>}
         {showAttach && <p className="lt-gps__fine" data-testid="who-attach-before">{ATTACH_BEFORE_PAY}</p>}
         {!showAttach && (
           <button type="button" className="lt-gps__textlink" disabled={busy} data-testid="who-someone-else" onClick={() => setStep({ name: "form" })}>
@@ -460,8 +470,9 @@ export default function CheckoutSheet({
         {step.name === "form" && step.closed && <InAppPayRescue buy={buyTargetFromItem(item)} />}
         {!signedIn && <PayReturnHint />}
         <button type="submit" className="lt-gps__primary lt-who__pay" disabled={busy || !recipient} data-testid="who-pay">
-          {busy ? "Opening payment…" : payReadBack(item.priceDisplay, first)}
+          {busy ? CHECKOUT_OPENING_COPY : payReadBack(item.priceDisplay, first)}
         </button>
+        {busy && slowOpen && <p className="lt-gps__fine" role="status" data-testid="who-slow-open">{CHECKOUT_SLOW_COPY}</p>}
         {!signedIn && (
           <button type="button" className="lt-gps__textlink" disabled={busy} onClick={onSignIn} data-testid="who-sign-in-first">
             {WHO_HAVE_ACCOUNT}

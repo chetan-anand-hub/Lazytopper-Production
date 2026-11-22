@@ -8,6 +8,10 @@
  * touch / pointer press anywhere (a student about to tap Buy). NEVER before `load`, never blocks paint.
  *
  * Kill switch: VITE_PACKS_MOBILE_PRELOAD_DISABLED=1 (build env) makes everything here a no-op.
+ *
+ * CHECKOUT-FAST-1: the same warm-up now also covers /test-series, /board-pass and /for-parents, adds Razorpay's static-next origin to
+ * the hints, and warms on the first buy button entering the viewport (whichever comes first with idle / touch). Kill switch for
+ * ALL of that: VITE_CHECKOUT_WARM_DISABLED=1 - /packs and /cbq-packs then behave exactly as PACKS-MOBILE-1 did.
  */
 
 /** Razorpay origins the pay path talks to, in the order it needs them. */
@@ -17,10 +21,44 @@ export const RAZORPAY_PRECONNECT_ORIGINS: readonly string[] = [
   "https://lumberjack.razorpay.com",
 ];
 
-/** The pages that sell packs and share PacksShop's pay path. */
+/** CHECKOUT-FAST-1 - the pages that open Razorpay but were not warmed before. */
+const CHECKOUT_WARM_EXTRA_PATHS: readonly string[] = ["/test-series", "/board-pass", "/for-parents"];
+
+/** Razorpay's checkout iframe bundle host (v2-entry chunks): it starts only after our order returns, so its connection is opened early. */
+export const RAZORPAY_STATIC_ORIGIN = "https://static-next.razorpay.com";
+
+/** CHECKOUT-FAST-1 kill switch (build env): the new pages, the viewport trigger and the static-next hint all stand down. */
+export function isCheckoutWarmDisabled(): boolean {
+  return String(import.meta.env.VITE_CHECKOUT_WARM_DISABLED ?? "").trim() === "1";
+}
+
+/** The pages that sell packs and share PacksShop's pay path (unchanged by CHECKOUT-FAST-1: PacksShop's own module-level warm-up keys on it). */
 export function isPacksWarmupPath(pathname: string): boolean {
   const p = pathname.replace(/\/+$/, "") || "/";
   return p === "/packs" || p === "/cbq-packs";
+}
+
+/** CHECKOUT-FAST-1 - every page that opens Razorpay and warms it: the packs pages, plus Test Series, Board Pass and For parents (each calls the warm-up itself). */
+export function isCheckoutWarmPath(pathname: string): boolean {
+  const p = pathname.replace(/\/+$/, "") || "/";
+  if (isPacksWarmupPath(p)) return true;
+  return !isCheckoutWarmDisabled() && CHECKOUT_WARM_EXTRA_PATHS.includes(p);
+}
+
+/** CHECKOUT-FAST-1: preconnect (+ dns-prefetch) to Razorpay's static-next host once. Not part of `addRazorpayHints` (that keeps its three origins). */
+export function addStaticOriginHint(doc: Document = document): HTMLLinkElement[] {
+  const added: HTMLLinkElement[] = [];
+  if (isCheckoutWarmDisabled()) return added;
+  for (const rel of ["preconnect", "dns-prefetch"] as const) {
+    if (doc.head.querySelector(`link[rel="${rel}"][href="${RAZORPAY_STATIC_ORIGIN}"]`)) continue;
+    const link = doc.createElement("link");
+    link.rel = rel;
+    link.href = RAZORPAY_STATIC_ORIGIN;
+    if (rel === "preconnect") link.crossOrigin = "anonymous";
+    doc.head.appendChild(link);
+    added.push(link);
+  }
+  return added;
 }
 
 export function isPacksMobilePreloadDisabled(): boolean {
@@ -51,14 +89,23 @@ export interface PacksWarmupDeps {
   loadScript: () => Promise<unknown>;
   win?: Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (h: number) => void };
   doc?: Document;
+  /** CHECKOUT-FAST-1: one warm-up per `key` per page load (default "packs"), so a page with no chunks to fetch does not use up PacksShop's. */
+  key?: string;
+  /** CHECKOUT-FAST-1: also open Razorpay's static-next connection with the other hints (off under VITE_CHECKOUT_WARM_DISABLED). */
+  staticHint?: boolean;
+  /** CHECKOUT-FAST-1: the idle timeout (ms). Default 1500; pages that are not packs shops pass a longer one to keep the main thread free. */
+  idleTimeoutMs?: number;
 }
 
 const WARM_EVENTS = ["pointerdown", "touchstart"] as const;
-let started = false;
+const started = new Set<string>();
+
+/** CHECKOUT-FAST-1: a buy button carries this attribute so its first appearance in the viewport can start the warm-up. */
+export const CHECKOUT_BUY_ATTR = "data-checkout-buy";
 
 /** Test seam. */
 export function resetPacksWarmupForTests(): void {
-  started = false;
+  started.clear();
 }
 
 /**
@@ -68,8 +115,9 @@ export function resetPacksWarmupForTests(): void {
 export function schedulePacksWarmup(deps: PacksWarmupDeps): () => void {
   const win = deps.win ?? (typeof window !== "undefined" ? (window as PacksWarmupDeps["win"]) : undefined);
   const doc = deps.doc ?? (typeof document !== "undefined" ? document : undefined);
-  if (!win || !doc || started || isPacksMobilePreloadDisabled()) return () => undefined;
-  started = true;
+  const key = deps.key ?? "packs";
+  if (!win || !doc || started.has(key) || isPacksMobilePreloadDisabled()) return () => undefined;
+  started.add(key);
 
   let cancelled = false;
   let idleHandle: number | null = null;
@@ -86,6 +134,7 @@ export function schedulePacksWarmup(deps: PacksWarmupDeps): () => void {
     if (cancelled || chunksWarmed) return;
     chunksWarmed = true;
     addRazorpayHints(doc);
+    if (deps.staticHint) addStaticOriginHint(doc);
     deps.preloadChunks();
   };
   // A touch / press anywhere is the strongest signal of an imminent Buy: do everything now, don't wait for idle.
@@ -98,10 +147,26 @@ export function schedulePacksWarmup(deps: PacksWarmupDeps): () => void {
     warmChunks();
     loadScriptOnce();
   };
+  // CHECKOUT-FAST-1: the first buy button to scroll into view is as strong a signal as idle - whichever comes first.
+  let observer: IntersectionObserver | null = null;
+  const watchBuyButtons = () => {
+    const IO = (win as unknown as { IntersectionObserver?: typeof IntersectionObserver }).IntersectionObserver;
+    if (isCheckoutWarmDisabled() || typeof IO !== "function") return;
+    const buttons = doc.querySelectorAll(`[${CHECKOUT_BUY_ATTR}]`);
+    if (buttons.length === 0) return;
+    observer = new IO((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      observer?.disconnect();
+      observer = null;
+      onIdle();
+    });
+    buttons.forEach((b) => observer?.observe(b));
+  };
   const afterLoad = () => {
     if (cancelled) return;
     WARM_EVENTS.forEach((e) => doc.addEventListener(e, onTouch, { capture: true, passive: true, once: true }));
-    if (typeof win.requestIdleCallback === "function") idleHandle = win.requestIdleCallback(onIdle, { timeout: 1500 });
+    watchBuyButtons();
+    if (typeof win.requestIdleCallback === "function") idleHandle = win.requestIdleCallback(onIdle, { timeout: deps.idleTimeoutMs ?? 1500 });
     else timer = win.setTimeout(onIdle, 300);
   };
   if (doc.readyState === "complete") afterLoad();
@@ -109,6 +174,7 @@ export function schedulePacksWarmup(deps: PacksWarmupDeps): () => void {
 
   return () => {
     cancelled = true;
+    observer?.disconnect();
     detachTouch();
     win.removeEventListener("load", afterLoad);
     if (idleHandle !== null) win.cancelIdleCallback?.(idleHandle);

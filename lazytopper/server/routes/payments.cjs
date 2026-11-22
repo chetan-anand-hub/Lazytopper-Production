@@ -69,6 +69,7 @@ const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs')
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
 const { fire: fireServerEvent, signalsFor } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
+const { isOrderParallelDisabled, isOrderKeepAliveDisabled, keepAliveFetch, settle } = require('../services/payOrderTiming.cjs'); // CHECKOUT-FAST-1
 
 /**
  * MONEY-DUPGUARD-1 - parentPay.cjs `coveredTillBoards`, the SAME function guest and parent pay use (not a copy). Read at
@@ -560,8 +561,11 @@ function createPaymentRoutes(deps = {}) {
     return `Basic ${Buffer.from(`${keys.keyId}:${keys.keySecret}`).toString('base64')}`;
   }
 
-  async function razorpay(keys, method, apiPath, body) {
+  // CHECKOUT-FAST-1: only the order-creation POST may ride the kept-alive socket, and only with the platform fetch (an injected fetch is used as given).
+  const platformFetch = typeof fetch === 'function' ? fetch : null;
+  async function razorpay(keys, method, apiPath, body, opts) {
     if (typeof fetchImpl !== 'function') throw new Error('fetch is unavailable');
+    const send = opts && opts.keepAlive && fetchImpl === platformFetch && !isOrderKeepAliveDisabled(env) ? keepAliveFetch : fetchImpl;
     const init = {
       method,
       headers: { Authorization: razorpayAuthHeader(keys), 'Content-Type': 'application/json' },
@@ -570,7 +574,7 @@ function createPaymentRoutes(deps = {}) {
     if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
       init.signal = AbortSignal.timeout(RAZORPAY_TIMEOUT_MS);
     }
-    const res = await fetchImpl(`${RAZORPAY_API_BASE}${apiPath}`, init);
+    const res = await send(`${RAZORPAY_API_BASE}${apiPath}`, init);
     let json = null;
     try {
       json = await res.json();
@@ -617,13 +621,26 @@ function createPaymentRoutes(deps = {}) {
    * with no payment on it already authorized or captured (Razorpay refuses a new payment on such an order). Every read
    * failure, refusal or odd answer -> null (a fresh order: today's behaviour), with a telemetry counter.
    */
-  async function reusableOpenPassOrder(keys, uid, terms) {
+  /** The caller's open `created` orders of one pass type (the reuse scan's one Firestore read). */
+  function readOpenOrderSnap(uid, passType) {
+    return adminFirestore
+      .collection(PAY_ORDERS_COLLECTION)
+      .where('uid', '==', uid).where('passType', '==', passType).where('status', '==', 'created')
+      .limit(REUSE_SCAN_LIMIT).get();
+  }
+
+  /** `prefetched`: CHECKOUT-FAST-1 - the already-started scan read as a settled { ok, value | error }; absent -> read it here. */
+  async function reusableOpenPassOrder(keys, uid, terms, prefetched) {
     let candidate = null;
     try {
-      const snap = await adminFirestore
-        .collection(PAY_ORDERS_COLLECTION)
-        .where('uid', '==', uid).where('passType', '==', terms.passType).where('status', '==', 'created')
-        .limit(REUSE_SCAN_LIMIT).get();
+      let snap;
+      if (prefetched) {
+        const r = await prefetched;
+        if (!r.ok) throw r.error;
+        snap = r.value;
+      } else {
+        snap = await readOpenOrderSnap(uid, terms.passType);
+      }
       const nowMs = now();
       for (const d of (snap && snap.docs) || []) {
         const stored = d.data() || {};
@@ -718,6 +735,12 @@ function createPaymentRoutes(deps = {}) {
       }
       quote = tableQuote(packBaseInrAt(passType, now()), now());
     }
+    // CHECKOUT-FAST-1: for a pass, the open-order scan (reuse check) and - for the Board Pass - the Test Series credit read need
+    // nothing from the quote, so they START with the subscription read instead of after it (PAY_ORDER_PARALLEL_DISABLED=1: as
+    // before, one after another). Their results are used exactly where the sequential code used them.
+    const parallel = !isOrderParallelDisabled(env);
+    const reuseScanP = parallel && !isPack && !isTopup ? settle(() => readOpenOrderSnap(uid, passType)) : null;
+    const tsCreditP = parallel && !isPack && !isTopup && passType === 'till_boards' ? settle(() => testSeriesUpgradeCreditFor(adminFirestore, uid, passType, env)) : null;
     try {
       // A pack needs no subscription read: its price does not depend on the student's plan.
       const snap = isPack ? null : await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
@@ -788,7 +811,14 @@ function createPaymentRoutes(deps = {}) {
     // status compare against it; the order's baseInr / gstInr are the upgrade's own, so the GST invoice reproduces it.
     let tsFields = {};
     if (!isPack && !isTopup && passType === 'till_boards' && packCreditInr === 0) {
-      const tsCredit = await testSeriesUpgradeCreditFor(adminFirestore, uid, passType, env);
+      let tsCredit;
+      if (tsCreditP) {
+        const r = await tsCreditP;
+        if (!r.ok) throw r.error; // the service never throws; if it somehow did, the sequential route threw here too
+        tsCredit = r.value;
+      } else {
+        tsCredit = await testSeriesUpgradeCreditFor(adminFirestore, uid, passType, env);
+      }
       if (tsCredit.disabled) emit('payments.order.ts_upgrade_credit_disabled');
       else if (tsCredit.readFailed) emit('payments.order.ts_upgrade_credit_read_failed');
       if (tsCredit.creditBaseInr > 0) {
@@ -821,7 +851,7 @@ function createPaymentRoutes(deps = {}) {
     // order: two tabs then share ONE Razorpay order, and Razorpay binds a single successful payment to an order. Pass
     // orders only. Any read failure -> a fresh order, exactly as before (never blocks the student).
     if (!isPack && !isTopup) {
-      const reuse = await reusableOpenPassOrder(keys, uid, orderTerms);
+      const reuse = await reusableOpenPassOrder(keys, uid, orderTerms, reuseScanP);
       if (reuse) {
         emit('payments.order.reused');
         // WHATSAPP-OPTIN-1: the handed-back open order takes this tap's valid + ticked opt-in too (best effort; never blocks the order).
@@ -850,7 +880,7 @@ function createPaymentRoutes(deps = {}) {
           ...creditNotes(packCreditInr, packCreditIds),
           ...tsCreditNotes(tsFields),
         },
-      });
+      }, { keepAlive: true }); // CHECKOUT-FAST-1
     } catch (e) {
       emit('payments.order.razorpay_unreachable');
       console.error('[pay/order] razorpay unreachable:', e && e.message);
