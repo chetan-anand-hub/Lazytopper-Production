@@ -123,6 +123,12 @@ function markValue(token: string): number {
 // servedSchemeResidue.guard.test.ts.
 const IS_OR_STEP = /^\s*(?:OR\b|\[[^\]]*\]\s*OR\b)(?!\s*=)/;
 
+/** True when a solution step is an OR alternative (Rule 3's test). EXPORTED so `isStepMarked` in
+ *  src/lib/packs/packContent.ts applies the SAME OR convention (STEPMARK-3), not a second copy of it. */
+export function isOrStep(step: string): boolean {
+  return IS_OR_STEP.test(step);
+}
+
 export function stepMarks(step: string): number | null {
   const m = LEADING_MARK.exec(step) ?? TRAILING_MARK.exec(step);
   return m ? markValue(m[1]) : null;
@@ -338,7 +344,7 @@ export function isPublishable(
     // OR-AWARE: an OR question carries two routes through the same marks. The steps that begin "OR ..." are the
     // alternative; the rest are the main route, and THAT sum must equal q.marks (the same rule servedSchemeResidue
     // applies). Summing both routes would reject every OR question for being right.
-    const isOr = steps.map((st) => IS_OR_STEP.test(st));
+    const isOr = steps.map(isOrStep);
     const main = (marks as number[]).reduce((a, b, i) => (isOr[i] ? a : a + b), 0);
     if (!isOr.some(Boolean) || Math.abs(main - q.marks) > 1e-9) {
       return { ok: false, reason: "marks-do-not-sum", detail: `${total} vs ${q.marks}` };

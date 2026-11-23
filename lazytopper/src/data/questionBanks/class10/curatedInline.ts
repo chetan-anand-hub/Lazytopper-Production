@@ -357,11 +357,11 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "A homologous series is a group of organic compounds with the same functional group and similar chemical properties, in which successive members differ by a –CH₂– group (14 u). Characteristics: successive members differ by 14 u and have similar chemical properties. Example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀.",
     "explanation": "",
     "solutionSteps": [
-      "Define homologous series as a group of organic compounds having the same functional group and similar chemical properties, in which any two successive members differ by a –CH₂– group.",
-      "State first characteristic: successive members differ by a constant mass of 14 u (due to –CH₂– group).",
-      "State second characteristic: they have similar chemical properties because of the same functional group.",
-      "Mention that they show a gradual change in physical properties such as boiling point as molecular mass increases.",
-      "Give an example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀, etc. form a homologous series."
+      "[1 mark] Define homologous series as a group of organic compounds having the same functional group and similar chemical properties, in which any two successive members differ by a –CH₂– group.",
+      "[0.5 mark] State first characteristic: successive members differ by a constant mass of 14 u (due to –CH₂– group).",
+      "[0.5 mark] State second characteristic: they have similar chemical properties because of the same functional group.",
+      "[0.5 mark] Mention that they show a gradual change in physical properties such as boiling point as molecular mass increases.",
+      "[0.5 mark] Give an example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀, etc. form a homologous series."
     ],
     "finalAnswer": "A homologous series is a group of organic compounds with the same functional group and similar chemical properties, in which successive members differ by a –CH₂– group (14 u). Characteristics: successive members differ by 14 u and have similar chemical properties. Example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀.",
     "strategyHint": "",

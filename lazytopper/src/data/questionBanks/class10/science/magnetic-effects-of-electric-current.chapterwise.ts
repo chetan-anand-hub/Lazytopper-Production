@@ -230,7 +230,7 @@ export const MAGNETIC_EFFECTS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-MAG-030", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "An alternating electric current has a frequency of 50 Hz. How many times does it change its direction in one second? Give reason for your answer.",
     answer: "100 times in one second because one complete cycle involves two times change of direction.",
-    solutionSteps: ["100 times in one second because one complete cycle involves two times change of direction."],
+    solutionSteps: ["[1 mark] 100 times in one second", "[1 mark] because one complete cycle involves two times change of direction."],
     ncertRef: "cbjesccq13 Q34", isCompetencyBased: true },
   // cbjesccq13 Q35 (Section B, 2mk)
   { id: "SCQ-S-MAG-031", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",

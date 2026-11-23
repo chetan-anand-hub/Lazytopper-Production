@@ -46,9 +46,9 @@ export const CONTROL_COORDINATION_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Iodine is essential for thyroxin synthesis; thyroxin regulates metabolism and growth.",
     "solutionSteps": [
-      "Iodine is essential for the synthesis of the thyroxin hormone (produced by the thyroid gland).",
-      "Thyroxin regulates carbohydrate, protein and fat metabolism in the body.",
-      "Thyroxin provides the best balance for normal growth in the body; iodine deficiency causes goitre and slowed growth, which is why iodised salt is recommended in the diet."
+      "[1 mark] Iodine is essential for the synthesis of the thyroxin hormone (produced by the thyroid gland).",
+      "[1 mark] Thyroxin regulates carbohydrate, protein and fat metabolism in the body.",
+      "[1 mark] Thyroxin provides the best balance for normal growth in the body; iodine deficiency causes goitre and slowed growth, which is why iodised salt is recommended in the diet."
     ],
     "finalAnswer": "Iodine → thyroxin synthesis → metabolic regulation and growth balance.",
     "isCompetencyBased": true
