@@ -42,8 +42,9 @@ export default defineConfig({
     timeout: 10_000,
     toHaveScreenshot: { maxDiffPixelRatio: 0.002, animations: 'disabled', caret: 'hide' },
   },
-  // CI never writes a missing baseline silently: a missing one is a failure (and the run's
-  // report artifact carries the actual image). UPDATE_SNAPSHOTS=all|missing overrides.
+  // CI: a missing baseline FAILS ('none'). Playwright's 'missing' mode would write it and PASS,
+  // so a page added without a baseline would never be compared. ui-e2e.yml writes missing ones
+  // only after a failed run, for committing. UPDATE_SNAPSHOTS=all|missing|none overrides.
   updateSnapshots: (process.env.UPDATE_SNAPSHOTS as 'all' | 'missing' | 'none' | undefined) ?? (CI ? 'none' : 'missing'),
   retries: CI ? 1 : 0,
   workers: CI ? 2 : undefined,
