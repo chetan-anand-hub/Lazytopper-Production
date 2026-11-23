@@ -141,8 +141,9 @@ test('T5 rules a-d: part-marks rule (all non-objective), Science-only decision r
   assert.ok(sci.includes('13. If the question prints marks for its parts (e.g. "[1½]", "(1)", "[2]", "1 mark"), the steps for each part MUST sum to exactly that part\'s printed marks; never move marks to working the question does not ask for.'));
   assert.ok(sci.includes('14. Marks go to what the question explicitly asks for (each asked value, ratio, decision, reason). Supporting working (restating a formula, a cross or Punnett diagram) earns at most 0.5, and only when the question asks to show it.'));
   assert.ok(sci.includes('15. For "Can/Should/Is ... ? Give reason" questions, the decision plus the reason together carry at least half the marks; each supporting calculated value carries at most 0.5.'));
-  assert.ok(sci.includes('Can a fuse of rating 3 A be used with it? Give reason.'));
-  assert.match(sci, /Step 1: desc="Calculating the current drawn"[^\n]*marks=0\.5\nStep 2: desc="Stating the decision"[^\n]*marks=0\.5\nStep 3: desc="Giving the reason"[^\n]*marks=1\n/);
+  assert.ok(sci.includes('Can a copper vessel be used to store dilute hydrochloric acid? Give reason.'));
+  assert.ok(!/kettle/i.test(sci.split('RESPOND with')[0].replace(SCIENCE_FIELDS.question, '')), 'the example is not the golden CP04-Q03 kettle/fuse scenario');
+  assert.match(sci, /Step 1: desc="Stating the position of copper"[^\n]*marks=0\.5\nStep 2: desc="Stating the decision"[^\n]*marks=0\.5\nStep 3: desc="Giving the reason"[^\n]*marks=1\n/);
   assert.ok(sci.includes('name the type of reaction when iron reacts'), 'the Fe example now asks for the reaction type it awards a step for');
   const maths = await promptFor(FIELDS);
   assert.ok(maths.includes('13. If the question prints marks for its parts'));

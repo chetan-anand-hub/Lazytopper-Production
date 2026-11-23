@@ -372,10 +372,10 @@ async function generateModelSolution(fields, deps) {
     'Step 2: desc="Stating Snell\'s law", working="The ratio of sine of angle of incidence to sine of angle of refraction is constant for a given pair of media. This constant is called refractive index.", marks=1\n' +
     'Step 3: desc="Writing the formula", working="sin i / sin r = n₂₁ (refractive index of medium 2 w.r.t. medium 1)", marks=1\n' +
     (partMarkRules ? (
-      '--- Example: 2-mark question "A kettle of power 750 W works on 220 V mains. Can a fuse of rating 3 A be used with it? Give reason." ---\n' +
-      'Step 1: desc="Calculating the current drawn", working="I = P/V = 750/220 = 3.4 A", marks=0.5\n' +
-      'Step 2: desc="Stating the decision", working="No, the 3 A fuse cannot be used.", marks=0.5\n' +
-      'Step 3: desc="Giving the reason", working="The kettle draws 3.4 A, which is more than the 3 A rating, so the fuse would melt every time the kettle is switched on.", marks=1\n'
+      '--- Example: 2-mark question "Can a copper vessel be used to store dilute hydrochloric acid? Give reason." ---\n' +
+      'Step 1: desc="Stating the position of copper", working="Copper is placed below hydrogen in the reactivity series.", marks=0.5\n' +
+      'Step 2: desc="Stating the decision", working="Yes, a copper vessel can be used to store dilute hydrochloric acid.", marks=0.5\n' +
+      'Step 3: desc="Giving the reason", working="Copper is less reactive than hydrogen, so it cannot displace hydrogen from the acid; it does not react with dilute HCl and the vessel is not corroded.", marks=1\n'
     ) : '');
 
   const mcqInstructions = isObj ? (
