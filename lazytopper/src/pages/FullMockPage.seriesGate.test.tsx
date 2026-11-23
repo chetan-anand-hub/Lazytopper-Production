@@ -29,7 +29,18 @@ vi.mock("../hooks/useSubscription", () => ({
 }));
 vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: USER, loading: false }) }));
 // MYPACKS-TS-1: ownership is a three-state read now; a student who owns nothing resolves to "not owned" (the upgrade card), a failed read is a retry.
-vi.mock("../services/packs", async (orig) => ({ ...(await orig<typeof import("../services/packs")>()), fetchMyPacks: async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: null }) }));
+// TS-FREE-CHECK-1: `mine.freeTest` is the server's free-test state (absent = the server switch is off / an older server: today's page).
+const mine = vi.hoisted(() => ({ freeTest: undefined as unknown }));
+vi.mock("../services/packs", async (orig) => {
+  const actual = await orig<typeof import("../services/packs")>();
+  return {
+    ...actual,
+    fetchMyPacks: async () => {
+      const freeTest = actual.readTestSeriesFreeTest(mine.freeTest);
+      return { packs: [], licensee: { name: "", email: "" }, boardPassCredit: null, ...(freeTest ? { freeTest } : {}) };
+    },
+  };
+});
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: () => {} }));
 vi.mock("../ai/paidCallHeaders", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../ai/paidCallHeaders")>();
@@ -90,6 +101,9 @@ vi.mock("../services/fullMockGradeService", async (importOriginal) => {
 import FullMockPage from "./FullMockPage";
 import { awaitingPaperResponse } from "../components/papers/paperDownloadRecord";
 import { __resetUsageClientForTests } from "../services/usageClient";
+import { resetTestSeriesOwnershipForTests } from "../components/testSeries/testSeriesOwnership";
+import { resetOwnedPacksCache } from "../components/packs/useOwnedPacks";
+import { seriesMockWorksheetId } from "../lib/testSeries/testSeries";
 
 const CODE = "FM-M-02";
 const paper: PersistedWorksheet = {
@@ -132,6 +146,9 @@ beforeEach(() => {
   pdf.calls = [];
   grade.calls = [];
   grade.ok = null;
+  mine.freeTest = undefined;
+  resetTestSeriesOwnershipForTests();
+  resetOwnedPacksCache();
   vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ enforced: false }), { status: 200 })));
   vi.spyOn(console, "error").mockImplementation(() => {});
   vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -193,5 +210,54 @@ describe.each(["free", "trial", "premium"] as const)("Full Mock · %s account", 
       expect(wall.textContent).toContain(`Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all ${seriesTotals().total} tests`);
       expect(screen.getByRole("button", { name: /Start the mock/ })).toBeTruthy();
     }
+  }, 90000);
+});
+
+/* ── TS-FREE-CHECK-1 (owner ruling 23 Nov 2026) · the free Test Series test includes written-answer marking ─────────────────── */
+// The server pins the free paper at the first written check and refuses every other paper (server/services/testSeriesChecks.test.cjs);
+// here: the same downloaded-paper flow as above, on a Test Series Full-Length paper that IS the account's one free test.
+const SERIES_CODE = "FM-M-03";
+const seriesPaper: PersistedWorksheet = { ...paper, worksheetId: seriesMockWorksheetId("fm-downloaded-1", "Maths", 1), code: SERIES_CODE };
+function seriesPendingRecord(): SessionRecord {
+  return buildFullMockSessionRecord({ paper: seriesPaper, code: SERIES_CODE, subject: "maths", uid: "student-1", response: awaitingPaperResponse(seriesPaper) });
+}
+async function uploadSeriesPaper() {
+  records.list = [seriesPendingRecord()];
+  fs.docs[`sessionRecords/student-1/fullMockPapers/${SERIES_CODE}`] = {
+    code: SERIES_CODE, name: "Maths · Mock #1", subject: "Maths", grade: "10", paper: seriesPaper,
+    startedAt: 1, durationMs: 0, objective: null, downloaded: true, savedAt: 1,
+  };
+  fs.docs[`sessionRecords/student-1/records/${SERIES_CODE}`] = seriesPendingRecord();
+  mount();
+  fireEvent.click(await screen.findByRole("button", { name: /Upload now/ }, { timeout: 60000 }));
+  await screen.findByTestId("section-a-picker");
+  fireEvent.click(screen.getAllByRole("button", { name: /^B/ })[1]);
+  fireEvent.click(screen.getByRole("button", { name: /Continue to upload/ }));
+  await waitFor(() => expect(recordWrites().at(-1)?.body).toMatchObject({ id: SERIES_CODE, status: "partial" }));
+}
+
+describe.each(["free", "trial"] as const)("TS-FREE-CHECK-1 · Full Mock series paper · %s account", (tier) => {
+  it("the free test (no pin yet; it is the account's one test) -> the written-answer upload with the free test's 2 checks", async () => {
+    sub.tier = tier;
+    mine.freeTest = { paperKey: null, checksPerPaper: 2, used: 0 };
+    await uploadSeriesPaper();
+    expect((await screen.findByTestId("upload-step")).textContent).toContain(`${SERIES_CODE} · objective 1/2`);
+    expect(screen.queryByTestId("written-check-upgrade")).toBeNull();
+    expect((await screen.findByTestId("series-checks-left")).textContent).toBe("Your free test · Checks left on this paper: 2 of 2");
+  }, 90000);
+
+  it("the server pinned ANOTHER paper as the free test -> the upgrade card, no upload (today's behaviour)", async () => {
+    sub.tier = tier;
+    mine.freeTest = { paperKey: "TS-CT-M01", checksPerPaper: 2, used: 2 };
+    await uploadSeriesPaper();
+    expect(await screen.findByTestId("written-check-upgrade")).toBeTruthy();
+    expect(screen.queryByTestId("upload-step")).toBeNull();
+  }, 90000);
+
+  it("no `freeTest` from the server (its kill switch) -> the upgrade card exactly as before", async () => {
+    sub.tier = tier;
+    await uploadSeriesPaper();
+    expect(await screen.findByTestId("written-check-upgrade")).toBeTruthy();
+    expect(screen.queryByTestId("upload-step")).toBeNull();
   }, 90000);
 });
