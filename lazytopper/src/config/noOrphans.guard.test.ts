@@ -47,6 +47,7 @@ export const ALLOWED_ORPHANS: Record<string, string> = {
   "src/lib/packs/EndedPacksNote.tsx": "REDOWNLOAD-ENFORCE-1 (4 Nov 2026): My packs' 're-download window ended' line, built and tested ahead of its mount; My packs lives in PacksShop.tsx (lane PARENT-PACKS-1 #1542 holds it). Mount it and drop this entry with [FU-REDOWNLOAD-ENDED-MOUNT] (before 31 Mar 2027)",
   "src/lib/packs/packEnded.ts": "REDOWNLOAD-ENFORCE-1: the parser/wording for the server's endedPacks; its only importer is EndedPacksNote (above); goes live with [FU-REDOWNLOAD-ENDED-MOUNT]",
   "src/components/startHere/startHereAvailabilitySource.ts": "QP-SCORECARD-2 D3: build-time source of startHereAvailability.generated.ts - read only by scripts/generateStartHereAvailability.mjs and the drift guard in startHereBank.test.ts; the live app imports the generated file",
+  "src/lib/testSeries/focusSetDraw.ts": "TS-THEMES-1 (23 Nov 2026): the one-time draw + theme rules of the Test Series focus sets - read only by focusSets.guard.test.ts (write mode creates focusSetIds.json / server testSeriesFocusSets.json; guard mode re-checks every pinned set against the rules); the live app builds each set from its pins (pinnedFocusSet.ts)",
 };
 
 const SKIP_DIRS = new Set(["node_modules", "dist", ".git"]);
