@@ -355,7 +355,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(gaps.map((q) => q.id)).toEqual([]);
   });
 
-  it("the addressable step-marking backlog only shrinks (at most 656 rows)", () => {
+  it("the addressable step-marking backlog only shrinks (at most 647 rows)", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
      * rows that Rule 1 rejects permanently and that policy says to RETIRE, not
@@ -447,11 +447,13 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // splits on 26 hand-sourced heredity rows (every one left "unmarked-step").
     // 671 -> 656: STEPMARK-3 mixed group (#1834), measured on the merged tree (trunk 8c96da9a + #1834): leading [N mark]
     // splits on 15 hand-sourced rows (our-environment, life-processes, light, electricity, acids, chemical reactions).
+    // 656 -> 647: STEPMARK-3 tail (owner ruling 23 Nov 21:13 IST: CBSE marks 2-mark answers unevenly, e.g. 1 + ½ + ½), measured on
+    // trunk ce38ae82 + this PR: 9 rows marked with uneven CBSE-style splits (every one left "unmarked-step").
     // CEILING (PR-3) — the backlog is worked DOWN by STEPMARK batches and must never be
     // worked up: a wiring PR that lands rows unannotated grows it and goes red here,
     // which is the right red — annotate before wiring. 2,336 at PR-3 (2026-09-11); the
     // 21 bound-but-unmarked rows PR-3 exposed are inside this number, not added to it.
-    expect(addressable.length).toBeLessThanOrEqual(656);
+    expect(addressable.length).toBeLessThanOrEqual(647);
   });
 });
 

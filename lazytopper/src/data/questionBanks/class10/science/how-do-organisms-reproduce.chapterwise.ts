@@ -245,7 +245,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-REPR-032", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Define the following processes of asexual reproduction: a. Spore formation b. Regeneration c. Multiple fission",
     answer: "a. Reproduction seen in organisms by formation of spores. b. Organisms are cut into any number of pieces and each piece grows into a complete organism. c. Unicellular organisms divide into many daughter cells simultaneously.",
-    solutionSteps: ["a. Reproduction seen in organisms by formation of spores. b. Organisms are cut into any number of pieces and each piece grows into a complete organism. c. Unicellular organisms divide into many daughter cells simultaneously."],
+    solutionSteps: ["[0.5 mark] a. Reproduction seen in organisms by formation of spores.", "[1 mark] b. Organisms are cut into any number of pieces and each piece grows into a complete organism.", "[0.5 mark] c. Unicellular organisms divide into many daughter cells simultaneously."],
     ncertRef: "cbjesccq08 Q36", isCompetencyBased: false },
   // cbjesccq08 Q71 (Section C, 3mk)
   { id: "SCQ-S-REPR-033", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
