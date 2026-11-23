@@ -798,3 +798,6 @@
     transition: none;
   }
 }
+
+/* THROWAWAY (UI-E2E-1 regression proof, reverted next commit): push the hero Buy button down. */
+.lt-ts-offer--hero .lt-ts-offer__btn { margin-top: 420px; }
