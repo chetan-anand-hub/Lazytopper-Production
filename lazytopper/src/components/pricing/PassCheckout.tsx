@@ -25,6 +25,7 @@ import {
   boardPassPayDisplay,
   boardPassPriceDisplay,
   foundingRateApplies,
+  chargedValueInr,
   formatInr,
   PRICE_MONTHLY_FOUNDING_INR,
   PRICE_MONTHLY_LIST_INR,
@@ -414,7 +415,7 @@ export function PassCheckoutView({
     // DID record before its response was lost is still counted once.
     trackPurchase({
       ...pending.details,
-      ...(result.amountInr !== undefined ? { valueInr: result.amountInr } : {}),
+      valueInr: chargedValueInr(result.amountInr, pending.details.valueInr), // server amount (GST incl.), else base + GST
       // META-PURCHASE-DEDUP-1: the ORDER id (the pending order always has one), so this and the verify-time purchase are ONE id.
       transactionId: result.orderId || pending.orderId || result.paymentId || pending.paymentId || pending.attemptId,
     });
@@ -497,7 +498,7 @@ export function PassCheckoutView({
       // amount as value when the outcome carries them; else the per-attempt id / config quote.
       trackPurchase({
         ...details,
-        ...(outcome.amountInr !== undefined ? { valueInr: outcome.amountInr } : {}),
+        valueInr: chargedValueInr(outcome.amountInr, details.valueInr), // server amount (GST incl.), else base + GST
         // META-PURCHASE-DEDUP-1: the ORDER id (a later status poll for the same order settles under the same id).
         transactionId: outcome.orderId || outcome.paymentId || attemptId,
       });
