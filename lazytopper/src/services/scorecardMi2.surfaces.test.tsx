@@ -594,8 +594,12 @@ const MCQ = paperQ(1, 1, "A", { options: ["2", "root 2", "4", "8"], answer: "roo
 const CT_QS = [MCQ, paperQ(2, 3, "C"), paperQ(3, 3, "C")];
 
 async function assertTestScorecard(container: HTMLElement) {
-  // hero: graded only — Q1 1/1 + Q2 2/3; Q3 (mismatch) neither a 0 nor in the total
-  expect(text(container.querySelector(".lt-sc__big"))).toBe("3 / 4");
+  // hero: TS-BOARDSCORE-1 OWNER RULING (23 Nov 2026, 19:59 IST) — out of the paper's FULL marks (7), the 3 marks of Q3
+  // (mismatch) listed apart as not marked yet: Q1 1/1 + Q2 2/3 awarded; Q3 is neither a 0 nor lost.
+  expect(text(container.querySelector(".lt-sc__big"))).toBe("3 / 7");
+  expect(text(container.querySelector('[data-testid="score-not-marked"]'))).toBe(
+    "3 marks not marked yet (1 question) \u2014 see the list below to complete",
+  );
   expect(text(container.querySelector(".lt-sc__desc"))).toContain("across 2 of 3");
   // the pending strip names Q3 in the owner's words, and nothing reads "couldn't be read"
   expect(Array.from(container.querySelectorAll(".lt-sc__pend")).map((p) => text(p))).toEqual([`Q3: ${COPY}`]);
