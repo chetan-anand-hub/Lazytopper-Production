@@ -472,8 +472,8 @@ export function orderSourceForCheckout(): OrderSource | undefined {
 }
 
 /**
- * BUYER-SCORE-1: the stored first touch (tab copy, else the 7-day tagged copy), re-cleaned, for the buyer score. READ ONLY:
- * nothing is captured or written here. Unlike orderSourceForCheckout it ignores the order-source kill switch.
+ * BUYER-SCORE-1: the stored first touch (tab copy, else the 7-day tagged copy), re-cleaned, for the buyer score. It captures and
+ * writes nothing; the only side effect is the one readLongKeep already has (it removes an EXPIRED 7-day key). Unlike orderSourceForCheckout it ignores the order-source kill switch.
  */
 export function storedVisitSourceForScore(): VisitSource | null {
   try {

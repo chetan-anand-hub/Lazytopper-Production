@@ -3,6 +3,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const { getAdditionalUserInfo } = vi.hoisted(() => ({ getAdditionalUserInfo: vi.fn() }));
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo }));
 vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
+const customer = vi.hoisted(() => ({ uid: null as string | null, paid: false, ownsPack: null as boolean | null }));
+vi.mock("../services/firebaseClient", () => ({
+  get authClient() {
+    return customer.uid ? { currentUser: { uid: customer.uid } } : null;
+  },
+}));
+vi.mock("../services/subscriptionService", () => ({
+  loadSubscription: () => ({ tier: customer.paid ? "premium" : "free" }),
+  isPaidPremium: (st: { tier?: string }) => st?.tier === "premium",
+}));
+vi.mock("../lib/packs/myPacksCache", () => ({ peekOwnsAnyPack: () => customer.ownsPack }));
 
 import {
   BUYER_SCORE_KEY,
@@ -12,6 +23,7 @@ import {
   hourBlock,
   istHour,
   landingGroup,
+  resetBuyerScoreSessionForTests,
   scoreOf,
   tierOf,
 } from "./buyerScore";
@@ -173,6 +185,10 @@ function seedSource(touch: Record<string, unknown>): void {
 }
 
 beforeEach(() => {
+  resetBuyerScoreSessionForTests();
+  customer.uid = null;
+  customer.paid = false;
+  customer.ownsPack = null;
   window.localStorage.clear();
   window.sessionStorage.clear();
   gtagCalls = [];
@@ -271,5 +287,34 @@ describe("tracker: announcing a rising tier", () => {
     const stored = window.localStorage.getItem(BUYER_SCORE_KEY) as string;
     expect(Object.keys(JSON.parse(stored)).sort()).toEqual(["cls", "days", "fired", "first", "lg", "pv", "v"]);
     expect(stored).not.toMatch(/@|email|phone|uid|utm_|gclid/i);
+  });
+
+  it("storage that throws: five page views announce at most once (persisted-first, page-session guard)", () => {
+    seedSource(packsSource);
+    const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation((k: string) => {
+      if (k === BUYER_SCORE_KEY) throw new Error("QuotaExceededError");
+    });
+    try {
+      for (let i = 0; i < 5; i++) buyerScoreNote({ kind: "page", path: "/packs" }, T0 + i * 1000);
+    } finally {
+      spy.mockRestore();
+    }
+    expect(tierEvents().length).toBeLessThanOrEqual(1);
+    expect(fbqCalls.length).toBeLessThanOrEqual(1);
+  });
+
+  it("an existing customer (paid Premium / Board Pass, or an owned pack) is never announced", () => {
+    seedSource(packsSource);
+    customer.uid = "u1";
+    customer.paid = true;
+    expect(buyerScoreNote({ kind: "page", path: "/packs" }, T0)).toBeNull();
+    customer.paid = false;
+    customer.ownsPack = true;
+    expect(buyerScoreNote({ kind: "page", path: "/packs" }, T0 + 1)).toBeNull();
+    expect(tierEvents()).toHaveLength(0);
+    expect(window.localStorage.getItem(BUYER_SCORE_KEY)).toBeNull();
+    // a signed-in student who owns nothing is still a prospect
+    customer.ownsPack = false;
+    expect(buyerScoreNote({ kind: "page", path: "/packs" }, T0 + 2)).toBe("hot");
   });
 });

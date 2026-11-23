@@ -680,8 +680,7 @@ const buyerQueue: BuyerNote[] = [];
 
 function buyerScoreDisabled(): boolean {
   try {
-    const raw: unknown = import.meta.env.VITE_BUYER_SCORE_DISABLED;
-    return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+    return /^(1|true|on|yes)$/i.test(String(import.meta.env.VITE_BUYER_SCORE_DISABLED ?? "").trim());
   } catch {
     return false;
   }
@@ -724,10 +723,7 @@ function noteBuyerScore(note: BuyerNote): void {
  */
 export function trackBuyerTier(tier: "warm" | "hot", score: number): boolean {
   try {
-    if (!analyticsEnabled()) return false;
-    if (tier !== "warm" && tier !== "hot") return false;
-    if (typeof score !== "number" || !Number.isFinite(score)) return false;
-    if (ADMIN_PATH.test(routerPathOf(window.location.pathname))) return false;
+    if (!analyticsEnabled() || ADMIN_PATH.test(routerPathOf(window.location.pathname))) return false;
     const data = { tier, score: Math.round(score) };
     send("event", { name: "buyer_tier", data }, { ga4: data });
     return true;
@@ -772,8 +768,8 @@ export function trackPageview(path: string): void {
   }
   // BUYER-SCORE-1: count this page view for the (lazily loaded) buyer score. Not in an automated context, not on /admin.
   try {
-    const cleanPath = normalisePath(path);
-    if (analyticsEnabled() && !ADMIN_PATH.test(cleanPath)) noteBuyerScore({ kind: "page", path: cleanPath });
+    const p = normalisePath(path);
+    if (analyticsEnabled() && !ADMIN_PATH.test(p)) noteBuyerScore({ kind: "page", path: p });
   } catch {
     /* analytics must never break the page */
   }

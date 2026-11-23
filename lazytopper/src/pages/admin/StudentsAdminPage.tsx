@@ -46,6 +46,7 @@ import {
   type SummaryResponse,
 } from "./studentsAdminModel";
 import { adSourceLines } from "./adSourceNames";
+import BUYER_POINTS from "../../config/buyerScorePoints.json";
 import "./studentsAdmin.css";
 import { readGuidePreview, setGuidePreview, type GuidePreview } from "../../components/guide/guideVariant";
 
@@ -484,7 +485,7 @@ export default function StudentsAdminPage() {
                             <SourceCell source={(row as { source?: RowSource | null }).source} />
                           </td>
                           {showBuyer ? (
-                            <td data-label="Buyer score" title="Source + landing page + sign-up hour. Hot 12 or more, Warm 8 to 11.">
+                            <td data-label="Buyer score" title={`Source + landing page + sign-up hour. Hot ${BUYER_POINTS.tiers.hot} or more, Warm ${BUYER_POINTS.tiers.warm} to ${BUYER_POINTS.tiers.hot - 1}.`}>
                               {row.buyerScore ? (
                                 <span data-testid="sa-buyer-score">
                                   {row.buyerScore.points}{" "}

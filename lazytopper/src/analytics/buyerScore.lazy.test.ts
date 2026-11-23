@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const { getAdditionalUserInfo } = vi.hoisted(() => ({ getAdditionalUserInfo: vi.fn() }));
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo }));
 vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
+vi.mock("../services/firebaseClient", () => ({ authClient: null }));
 
 /**
  * BUYER-SCORE-1 - the lazy wiring in analytics.ts: nothing is loaded until after idle, a hot visit then announces itself

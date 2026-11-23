@@ -19,7 +19,17 @@ const srv = req("../../server/services/buyerScore.cjs") as {
   isDisabled: (env: Record<string, string>) => boolean;
 };
 
+// Every source token and referrer host the classifier knows, combined so a dropped token on either side fails.
+const utmSources = ["", "ig", "an", "meta", "facebook", "instagram", "youtube", "google", "parent_share", "whatsapp", "chatgpt", "newsletter"];
+const refs = ["", "www.google.com", "yahoo.com", "www.msn.com", "search.brave.com", "duckduckgo.com", "www.bing.com", "l.facebook.com", "l.instagram.com", "m.youtube.com", "chatgpt.com", "googleads.g.doubleclick.net.syndicated", "example.org"];
+const grid: Array<Record<string, unknown>> = [];
+for (const u of utmSources) for (const r of refs) for (const click of [{}, { gclid: true }, { fbclid: true }, { gbraid: true }]) grid.push({ utm_source: u, ref: r, ...click });
+for (const c of ["search_pdf_packs", "search_test_series", "search_board_pass", "search_signups_v2", "other", ""]) {
+  grid.push({ utm_source: "google", utm_medium: "cpc", utm_campaign: c });
+}
+
 const touches = [
+  ...grid,
   {},
   { gclid: true },
   { gclid: true, ref: "www.google.com" },

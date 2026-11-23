@@ -1,6 +1,9 @@
 import POINTS from "../config/buyerScorePoints.json";
 import { ADMIN_PATH, analyticsEnabled, readPurchaseSent, routerPathOf, trackBuyerTier } from "./analytics";
 import { storedVisitSourceForScore, type VisitSource } from "./visitSource";
+import { authClient } from "../services/firebaseClient";
+import { isPaidPremium, loadSubscription } from "../services/subscriptionService";
+import { peekOwnsAnyPack } from "../lib/packs/myPacksCache";
 
 /**
  * BUYER-SCORE-1 - the buyer-propensity score, so likely buyers can be put in a Google Ads (via GA4)
@@ -179,11 +182,36 @@ function read(): Stored | null {
   }
 }
 
-function write(s: Stored): void {
+/** Whether the write landed: a blocked / full storage returns false (see the once-per-page-session record below). */
+function write(s: Stored): boolean {
   try {
     window.localStorage.setItem(BUYER_SCORE_KEY, JSON.stringify(s));
+    return true;
   } catch {
-    /* blocked storage: no score, no event */
+    return false;
+  }
+}
+
+/** When each tier was last announced by THIS page session: the once-per-tier guard when storage cannot hold it. */
+const firedThisSession: { warm?: number; hot?: number } = {};
+
+/** Test seam. */
+export function resetBuyerScoreSessionForTests(): void {
+  delete firedThisSession.warm;
+  delete firedThisSession.hot;
+}
+
+/**
+ * An existing customer is not a prospect: a paid Premium / Board Pass (the cached status, no network) or a pack
+ * already known to be owned (the in-memory answer of the My packs lookup, never fetched from here).
+ */
+function isExistingCustomer(): boolean {
+  try {
+    const uid = authClient?.currentUser?.uid;
+    if (!uid) return false;
+    return isPaidPremium(loadSubscription(uid)) || peekOwnsAnyPack(uid) === true;
+  } catch {
+    return false;
   }
 }
 
@@ -216,7 +244,7 @@ export function buyerScoreNote(note: BuyerNote, nowMs: number = Date.now()): "wa
     if (!analyticsEnabled()) return null;
     if (ADMIN_PATH.test(routerPathOf(window.location.pathname))) return null;
     if (note.kind === "page" && ADMIN_PATH.test(note.path)) return null;
-    if (readPurchaseSent().length > 0) return null;
+    if (readPurchaseSent().length > 0 || isExistingCustomer()) return null;
 
     const s: Stored = read() ?? { v: 1, first: nowMs, days: [], pv: 0 };
     const src = sourceNow();
@@ -244,13 +272,16 @@ export function buyerScoreNote(note: BuyerNote, nowMs: number = Date.now()): "wa
     let announced: "warm" | "hot" | null = null;
     if (tier !== "cold") {
       const fired = s.fired ?? {};
-      const recent = (t: "warm" | "hot") => typeof fired[t] === "number" && nowMs - (fired[t] as number) < BUYER_TIER_REFIRE_MS;
+      const last = (t: "warm" | "hot") => Math.max(fired[t] ?? 0, firedThisSession[t] ?? 0);
+      const recent = (t: "warm" | "hot") => last(t) > 0 && nowMs - last(t) < BUYER_TIER_REFIRE_MS;
       // Once per tier per 7 days, and never "warm" while a recent "hot" stands.
       if (!recent(tier) && !(tier === "warm" && recent("hot"))) {
-        if (trackBuyerTier(tier, score)) {
-          s.fired = { ...fired, [tier]: nowMs };
-          announced = tier;
-        }
+        // Persist FIRST; the page-session record covers a storage that cannot hold it (at most one event per tier per page session).
+        s.fired = { ...fired, [tier]: nowMs };
+        write(s);
+        firedThisSession[tier] = nowMs;
+        if (trackBuyerTier(tier, score)) announced = tier;
+        return announced;
       }
     }
     write(s);
