@@ -387,7 +387,14 @@ export function WrittenCheckUpgradeCard({
         <div className="lt-ct__eyebrow">{eyebrow}</div>
         <div className="lt-ct__title lt-ct__fr">{name}</div>
         <div className="lt-ct__sub" data-testid="written-check-objective">
-          {code} · Section A marked: <b>{objective.awarded}/{objective.total}</b>
+          {/* TS-THEMES-1: a focus set has no Section A - only its code (never "0/0"). */}
+          {objective.total > 0 ? (
+            <>
+              {code} · Section A marked: <b>{objective.awarded}/{objective.total}</b>
+            </>
+          ) : (
+            code
+          )}
         </div>
         <div className="lt-wcg">
           <p className="lt-wcg__line">

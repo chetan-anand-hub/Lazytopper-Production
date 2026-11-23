@@ -264,6 +264,35 @@
   background: #e8edf5;
   border-radius: 14px;
 }
+/* TS-THEMES-1: three test types (Chapter tests | Full-length | Focus sets) - still one row on a 360 px phone. */
+.lt-ts-pick__seg--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.lt-ts .lt-ts-pick__seg--3 .lt-ts-pick__segbtn {
+  padding: 6px 4px;
+  font-size: 0.86rem;
+  line-height: 1.15;
+}
+.lt-ts-focus__bonus {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--lt-sp-ink-2);
+}
+.lt-ts-focus__tag {
+  flex: none;
+  padding: 1px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--lt-sp-green);
+  background: #dff7e8;
+  color: #0b5a2e;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.5;
+}
 .lt-ts-pick__seg--4 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -731,6 +760,14 @@
     align-items: end;
   }
   .lt-ts-pick__row .lt-ts-pick__fld--wide:only-child {
+    grid-column: 1 / -1;
+  }
+  /* TS-THEMES-1: the focus row's bonus line and theme blurb span both columns (question type | set sit side by side). */
+  .lt-ts-pick__row--focus {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .lt-ts-pick__row .lt-ts-focus__bonus,
+  .lt-ts-pick__row .lt-ts-focus__blurb {
     grid-column: 1 / -1;
   }
   .lt-ts-pick__go {

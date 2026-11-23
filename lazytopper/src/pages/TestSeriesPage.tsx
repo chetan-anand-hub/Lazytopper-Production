@@ -32,6 +32,7 @@ import {
   type SeriesScheduleRow,
   type SeriesSubject,
 } from "../lib/testSeries/testSeries";
+import { focusSetCount, focusSetProgress, focusSets as allFocusSets, tsFocusSetsDisabled, type FocusSetProgress } from "../lib/testSeries/focusSets";
 import "../components/salesPages/salesPages.css";
 import "./testSeriesPage.css";
 
@@ -85,7 +86,7 @@ function istToday(now: Date): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
 }
 
-type Load = { state: "signed-out" } | { state: "loading" } | { state: "ready"; progress: SeriesProgress };
+type Load = { state: "signed-out" } | { state: "loading" } | { state: "ready"; progress: SeriesProgress; focus?: Record<string, FocusSetProgress> };
 function CalendarRibbon({ rows, current }: { rows: SeriesScheduleRow[]; current: SeriesScheduleRow["id"] | null }) {
   return (
     <ol className="lt-ts-cal" data-testid="ts-schedule">
@@ -159,6 +160,8 @@ export default function TestSeriesPage() {
   const chapters = useMemo(() => seriesChapterTests(), []);
   const mocks = useMemo(() => seriesFullMocks(), []);
   const rounds = useMemo(() => seriesMockRounds(), []);
+  // TS-THEMES-1: the BONUS focus sets (not in `totals`: the series' own counts and copy are unchanged). None under the kill switch.
+  const focusSets = useMemo(() => (tsFocusSetsDisabled() ? [] : allFocusSets()), []);
   const schedule = useMemo(() => seriesSchedule(predictCbseExamDate("10")), []);
 
   // After mount only: today's schedule row, the founding line and the prices (the capture strips every price and clock node).
@@ -202,10 +205,10 @@ export default function TestSeriesPage() {
     setLoad({ state: "loading" });
     getSessionRecordsFromCloud(user.uid)
       .then((records) => {
-        if (live) setLoad({ state: "ready", progress: seriesProgress(records) });
+        if (live) setLoad({ state: "ready", progress: seriesProgress(records), focus: focusSetProgress(records) });
       })
       .catch(() => {
-        if (live) setLoad({ state: "ready", progress: seriesProgress([]) });
+        if (live) setLoad({ state: "ready", progress: seriesProgress([]), focus: focusSetProgress([]) });
       });
     return () => {
       live = false;
@@ -425,7 +428,16 @@ export default function TestSeriesPage() {
                   {totals.papersPerChapter > 1 ? `${totals.papersPerChapter} board-pattern tests per chapter` : "One board-pattern test per chapter"}, plus{" "}
                   {totals.mocksPerSubject} full-length papers per subject. Pick one and start.
                 </p>
-                <TestSeriesPaperPicker chapters={chapters} mocks={mocks} rounds={rounds} progress={progress} mocksPerSubject={totals.mocksPerSubject} />
+                <TestSeriesPaperPicker
+                  chapters={chapters}
+                  mocks={mocks}
+                  rounds={rounds}
+                  progress={progress}
+                  mocksPerSubject={totals.mocksPerSubject}
+                  focusSets={focusSets}
+                  focusProgress={load.state === "ready" ? load.focus ?? null : null}
+                  focusCount={focusSets.length > 0 ? focusSetCount() : 0}
+                />
                 {load.state === "ready" && <MockTrend load={load} />}
               </section>
 
