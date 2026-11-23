@@ -71,7 +71,7 @@ a.lt-pseg__seg:focus-visible {
   margin: 8px 0 0;
   font-size: 12.5px;
   line-height: 1.4;
-  color: #64748b;
+  color: #5b6b80;
 }
 @media (min-width: 768px) {
   .lt-pseg__row {

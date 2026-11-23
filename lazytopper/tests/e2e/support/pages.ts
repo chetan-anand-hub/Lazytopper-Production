@@ -36,13 +36,10 @@ export const COVERED_PAGES: readonly CoveredPage[] = [
   {
     path: "/pricing",
     slug: "pricing",
-    // Phone: the Board Pass Pay bar (pricing-sticky-bar) IS the page's buy CTA on a phone.
-    // Desktop has no sticky bar; its first buy button is the Board Pass card's "Pay ₹… once".
-    ctaLabel: (v) => (v === "mobile" ? 'sticky "Pay ₹…" (Board Pass)' : 'Board Pass card "Pay ₹… once"'),
-    cta: (page, v) =>
-      v === "mobile"
-        ? page.getByTestId("pricing-sticky-bar-go")
-        : page.locator("main").getByRole("button", { name: /^Pay ₹[\d,]+ once/ }).first(),
+    // The shortcut bar (pricing-sticky-bar) IS the page's first buy CTA on both viewports: on a phone it always was; since
+    // UI-FIX-1 it also shows on desktop, where the cards' own Pay rows start ~900 px down.
+    ctaLabel: () => 'sticky "Pay ₹…" (Board Pass)',
+    cta: (page) => page.getByTestId("pricing-sticky-bar-go"),
   },
   {
     path: "/packs",

@@ -1,7 +1,7 @@
 {
   "/": {
-    "sha256": "d806cd69c3497983b9b12befd3e2795340fd2fdc88095583a34b5d2ca8ad6538",
-    "lastmod": "2026-11-20"
+    "sha256": "3e7722e78f2a4b087c7a8cc0e7df502d7cd9a63ad7459768daf19bf07900197d",
+    "lastmod": "2026-11-23"
   },
   "/board-pass": {
     "sha256": "a2930b4dd774a1f4f8692bcabce8dbf11887940f6991c557afd9374084f14e13",
@@ -600,8 +600,8 @@
     "lastmod": "2026-11-18"
   },
   "/notes/our-environment": {
-    "sha256": "40abd44e1f68bd6ece6b459909b9cd6f5f96cc8aaca1c0d460ed34708bf37804",
-    "lastmod": "2026-11-18"
+    "sha256": "795f31e0b0d740d1a95918dacf3e2550ad4ec101ca0df0099eda5bcee40d95c4",
+    "lastmod": "2026-11-23"
   },
   "/notes/pair-of-linear-equations": {
     "sha256": "0c808e47be1ef3195a080dbe9106fd251fdc7d6b370e6be9d9e5970765dc23da",
@@ -644,12 +644,12 @@
     "lastmod": "2026-11-20"
   },
   "/practice-hub": {
-    "sha256": "a3c573d4709ff78b66ac22cc00a8878df3603b0d09cb4bcb3ffe6c513d111323",
-    "lastmod": "2026-11-19"
+    "sha256": "f07040ab4ca8a056b06a8bf265a01da6cb7d67d3da717fe7945c379f6473bd6d",
+    "lastmod": "2026-11-23"
   },
   "/pricing": {
-    "sha256": "7710735d5babd32159fc75c2c0b938f34781358d8630928937d95d8d25538462",
-    "lastmod": "2026-11-22"
+    "sha256": "e78c3ec049f0679ae97620d2388aec94eed3cb70b1780543bca4ee431ea3f856",
+    "lastmod": "2026-11-23"
   },
   "/question-bank-class-10": {
     "sha256": "f2f274d1aab87db0d36ab864d7d3d2feed190fb3db1b28fdc1bc767df109a259",

@@ -355,7 +355,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(gaps.map((q) => q.id)).toEqual([]);
   });
 
-  it("the addressable step-marking backlog only shrinks (at most 671 rows)", () => {
+  it("the addressable step-marking backlog only shrinks (at most 656 rows)", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
      * rows that Rule 1 rejects permanently and that policy says to RETIRE, not
@@ -445,11 +445,13 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // report "requires-absent-figure", outside this count).
     // 697 -> 671: STEPMARK-3 heredity (#1829), measured on the merged tree (trunk b347a4d7 + #1829): leading [N mark]
     // splits on 26 hand-sourced heredity rows (every one left "unmarked-step").
+    // 671 -> 656: STEPMARK-3 mixed group (#1834), measured on the merged tree (trunk 8c96da9a + #1834): leading [N mark]
+    // splits on 15 hand-sourced rows (our-environment, life-processes, light, electricity, acids, chemical reactions).
     // CEILING (PR-3) — the backlog is worked DOWN by STEPMARK batches and must never be
     // worked up: a wiring PR that lands rows unannotated grows it and goes red here,
     // which is the right red — annotate before wiring. 2,336 at PR-3 (2026-09-11); the
     // 21 bound-but-unmarked rows PR-3 exposed are inside this number, not added to it.
-    expect(addressable.length).toBeLessThanOrEqual(671);
+    expect(addressable.length).toBeLessThanOrEqual(656);
   });
 });
 
