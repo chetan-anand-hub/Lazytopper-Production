@@ -921,7 +921,7 @@
  },
  "how-do-organisms-reproduce::rows": {
   "n": 503,
-  "sha256": "5c11fdce8565026d58298a6ff78abb7f8a6b07b9308b00cddc66d4e5417d5dbf"
+  "sha256": "f7af0862d5d84d47113f7e9f0ec191541e9ebf17942a08e117f8e9bac94fc146"
  },
  "how-do-organisms-reproduce::rank": {
   "n": 503,
@@ -1045,6 +1045,6 @@
  },
  "subject::Science": {
   "n": 5780,
-  "sha256": "3cd44b7618cbd1585ac820cbf383c55133b6edcae6bad2c54045793e4c3d5b41"
+  "sha256": "d16edd86ec5b74b160f491e61472f184c695f006af31d69cbafd5c759831a30a"
  }
 }
