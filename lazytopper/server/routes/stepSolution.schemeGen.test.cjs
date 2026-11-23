@@ -161,3 +161,39 @@ test('T6 SCHEME_GEN_LEGACY=1 -> the prompt is byte-identical to trunk 66ffe1f7 (
     for (const i of [0, 1, 3]) assert.notEqual(sha(await promptFor(shapes[i])), TRUNK_PROMPT_SHA256[i], 'default prompt #' + i + ' carries the new rules');
   });
 });
+
+test('T7 a rejected thinking budget (HTTP 400) retries ONCE without thinkingConfig, logs and counts; other errors do not retry', () => withEnv({}, async () => {
+  const seen = []; const counts = {}; let n = 0;
+  const deps = stubDeps(() => {
+    n++;
+    if (n === 1) { const e = new Error('Invalid thinking budget for this model'); e.status = 400; throw e; }
+    return { text: GOOD, finishReason: 'STOP' };
+  }, seen, counts);
+  const { r, lines } = await captureWarn(() => stepSolution.generateModelSolution(FIELDS, deps));
+  assert.ok(r && r.solution.steps.length === 3);
+  assert.equal(seen.length, 2);
+  assert.ok(seen[0].thinkingConfig, 'first attempt carries the thinking budget');
+  assert.equal(seen[1].thinkingConfig, undefined, 'retry has no thinkingConfig');
+  assert.equal(seen[1].maxOutputTokens, seen[0].maxOutputTokens);
+  assert.equal(counts['scheme_gen.thinking_retry'], 1);
+  assert.equal(lines.filter((l) => l === '[scheme-gen] thinking rejected, retried without').length, 1);
+  // a 400 that is not about thinking, and a 500, are not retried
+  for (const [status, msg] of [[400, 'bad request: malformed contents'], [500, 'thinking service down']]) {
+    const seen2 = []; const c2 = {};
+    const d2 = stubDeps(() => { const e = new Error(msg); e.status = status; throw e; }, seen2, c2);
+    await captureWarn(() => assert.rejects(() => stepSolution.generateModelSolution(FIELDS, d2)));
+    assert.equal(seen2.length, 1); assert.equal(c2['scheme_gen.thinking_retry'], undefined); assert.equal(c2['scheme_gen.error'], 1);
+  }
+  // if the retry itself fails, that error surfaces (counted once as error)
+  const seen3 = []; const c3 = {};
+  const d3 = stubDeps(() => { const e = new Error('thinking budget rejected'); e.status = 400; throw e; }, seen3, c3);
+  await captureWarn(() => assert.rejects(() => stepSolution.generateModelSolution(FIELDS, d3)));
+  assert.equal(seen3.length, 2); assert.equal(c3['scheme_gen.error'], 1);
+}));
+
+test('T7b legacy config has no thinkingConfig, so a 400 about thinking is never retried', () => withEnv({ SCHEME_GEN_LEGACY: '1' }, async () => {
+  const seen = []; const counts = {};
+  const d = stubDeps(() => { const e = new Error('thinking budget'); e.status = 400; throw e; }, seen, counts);
+  await captureWarn(() => assert.rejects(() => stepSolution.generateModelSolution(FIELDS, d)));
+  assert.equal(seen.length, 1); assert.equal(counts['scheme_gen.thinking_retry'], undefined);
+}));

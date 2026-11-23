@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { isThinkingRejected } = require('../grading/modelConfig.cjs');
 
 let _pool = null;
 function getPool() {
@@ -439,7 +440,20 @@ async function generateModelSolution(fields, deps) {
 
   let reply;
   try {
-    reply = await callGemini(GEMINI_MODEL, contents, genCfg.config);
+    try {
+      reply = await callGemini(GEMINI_MODEL, contents, genCfg.config);
+    } catch (e0) {
+      // A rejected thinking budget is not a failed generation: retry ONCE on the same model without it (as grading/core.cjs does).
+      if (genCfg.config.thinkingConfig && isThinkingRejected(e0)) {
+        schemeGenCount(deps, 'scheme_gen.thinking_retry');
+        console.warn('[scheme-gen] thinking rejected, retried without');
+        const cfgNoThinking = { ...genCfg.config };
+        delete cfgNoThinking.thinkingConfig;
+        reply = await callGemini(GEMINI_MODEL, contents, cfgNoThinking);
+      } else {
+        throw e0;
+      }
+    }
   } catch (e) {
     schemeGenCount(deps, 'scheme_gen.error');
     console.warn('[scheme-gen] model call failed: ' + String((e && e.message) || e).slice(0, 120) + ' legacy=' + (genCfg.legacy ? 1 : 0));
