@@ -173,11 +173,11 @@ import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
+import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUploadNotAllowed, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
-import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
+import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId, seriesPaperKeyOfWorksheetId } from "../lib/testSeries/testSeries";
 import { useDerivedWrittenGraded } from "../hooks/useDerivedWrittenGraded";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
@@ -406,6 +406,13 @@ export default function FullMockPage() {
   const [phase, setPhase] = useState<Phase>("setup");
   useScrollTopOnChange(phase); // SCROLL-TOP-1 — each phase/view opens at the top
   const [activeMock, setActiveMock] = useState<ActiveMock | null>(null);
+  // TS-FREE-CHECK-1 (owner ruling 23 Nov 2026): a free / trial account's ONE free test includes written-answer checking on a Test
+  // Series paper - this paper's key (the sitting's, else the series paper opened) against the server's free-test pin + the
+  // one-test rule's records. The SERVER pins the free paper and refuses every other one; this only decides what the page SHOWS.
+  const freeTestPaperKey =
+    seriesPaperKeyOfWorksheetId(activeMock?.paper.worksheetId) ??
+    (seriesN !== null ? seriesPaperKeyOfWorksheetId(seriesMockWorksheetId("fm-0-0", subject === "Science" ? "Science" : "Maths", seriesN)) : null);
+  const freeWritten = isSignedIn && seriesFreeTestWritten(seriesAccess, freeTestPaperKey, records);
   // RECORD-SAFE-1: when a record had to be saved under a different code than the paper was drawn with (that code
   // belonged to another paper), the sitting follows it - scorecard, graded sheet, detail lock, delta line and
   // downloads all read `activeMock.code`.
@@ -1726,7 +1733,7 @@ export default function FullMockPage() {
                       )}
                       {seriesDownloadAccess && <LimitChip />}
                     </div>
-                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote />}
+                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote written={freeWritten} />}
                     {startWall && !seriesPaperAccess && (seriesAccess.failed ? <AccessFailed onRetry={seriesAccess.retry} /> : seriesAccess.checking ? <AccessChecking /> : <SeriesStartWall />)}
 
                     {downloadedNote && (
@@ -2077,7 +2084,7 @@ export default function FullMockPage() {
           {resultsPhase === "partial" ? (
             <ResultAccessSlot
               access={seriesAccess}
-              uploadAllowed={seriesPaperAccess || isBeforeSeriesRules(Date.parse(activeMock.paper.createdAt))}
+              uploadAllowed={seriesPaperAccess || freeWritten || isBeforeSeriesRules(Date.parse(activeMock.paper.createdAt))}
               worksheetId={activeMock.paper.worksheetId}
               upgrade={
                 <WrittenCheckUpgradeCard
@@ -2092,7 +2099,7 @@ export default function FullMockPage() {
               upload={
                 <>
                   {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
-                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
+                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} />
                   <ChapterTestUploadPanel
                     eyebrow="Full Mock · Result"
                     sectionsLabel="Sections B–E"
@@ -2123,7 +2130,7 @@ export default function FullMockPage() {
                     ? ` · ${fullResponse.pendingCount} page(s) pending`
                     : ""}
                 </div>
-                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
+                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} />
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
@@ -2201,7 +2208,7 @@ export default function FullMockPage() {
               variant={withSeriesWorksheet(fullMockScorecardVariant({
                 // TS-UX-SCORE-1: the SAME allow-logic the paywall below uses (ResultAccessSlot `uploadAllowed`); while the read is
                 // pending or failed the page shows neither paywall nor card, so the scorecard keeps today's upload prompt.
-                uploadNotAllowed: scorecardUploadNotAllowed({ canCheck: seriesPaperAccess, createdMs: Date.parse(activeMock.paper.createdAt), checking: seriesAccess.checking, failed: seriesAccess.failed }),
+                uploadNotAllowed: scorecardUploadNotAllowed({ canCheck: seriesPaperAccess || freeWritten, createdMs: Date.parse(activeMock.paper.createdAt), checking: seriesAccess.checking, failed: seriesAccess.failed }),
                 name: activeMock.name,
                 code: activeMock.code,
                 phase: "partial",

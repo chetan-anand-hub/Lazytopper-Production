@@ -167,6 +167,19 @@ function createPackRoutes(deps = {}) {
         testSeries = undefined;
       }
     }
+    // TS-FREE-CHECK-1: a student WITHOUT the pack sees their ONE free test's written-check state (READ ONLY): `paperKey` (the paper
+    // the server pinned at the first written check, or null = none yet), `checksPerPaper`, `used`, `freeRecheck`. Absent when the rule
+    // is off (TS_FREE_WRITTEN_CHECK_DISABLED / TS_CHECKS_DISABLED), for a pack owner, or when it cannot be read - the browser then
+    // shows today's MCQ-only free test. The server decides every grade (testSeriesChecks.hold); this only decides what the page SHOWS.
+    let freeTest;
+    if (!owned.some((p) => p && p.sku === TEST_SERIES_SKU) && testSeriesChecks && typeof testSeriesChecks.freeTestStatus === 'function') {
+      try {
+        const f = await testSeriesChecks.freeTestStatus(uid);
+        if (f) freeTest = { paperKey: f.paperKey, checksPerPaper: f.checksPerPaper, used: f.used, ...(f.freeRecheck ? { freeRecheck: true } : {}) };
+      } catch {
+        freeTest = undefined;
+      }
+    }
     return sendJson(res, 200, {
       packs,
       licensee,
@@ -175,6 +188,7 @@ function createPackRoutes(deps = {}) {
       ...(ended.length > 0 ? { endedPacks: ended } : {}),
       ...(ownsTestSeries ? { ownsTestSeries: true } : {}),
       ...(testSeries ? { testSeries } : {}),
+      ...(freeTest ? { freeTest } : {}),
     });
   }
 

@@ -157,7 +157,7 @@ function fakeRazorpay() {
   return { fetchImpl, orders, payments, calls, pay };
 }
 
-async function start({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), licensees = {}, throwLicensee = false, nowMs = NOW } = {}) {
+async function start({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), licensees = {}, throwLicensee = false, nowMs = NOW, testSeriesChecks } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -170,6 +170,7 @@ async function start({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(
   const pay = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now: () => nowMs, foundingOfferOpen: true });
   const packs = createPackRoutes({
     sendJson, verifiedCaller, adminFirestore: db, telemetry, now: () => nowMs, foundingOfferOpen: true,
+    ...(testSeriesChecks ? { testSeriesChecks } : {}),
     getLicensee: async (uid) => { if (throwLicensee) throw new Error('auth down'); return licensees[uid] || { name: '', email: '' }; },
   });
   const server = http.createServer((req, res) => {
@@ -1310,4 +1311,36 @@ test('TS-PRICE-2 · a Board Pass FOUNDING MEMBER gets no exemption: their stale 
   assert.equal(r.status, 400, r.text);
   assert.equal(r.json.reason, 'order_expired');
   assert.equal(rzp.calls.filter((c) => c.url.includes('/capture')).length, 0);
+});
+
+/* ── TS-FREE-CHECK-1 · /api/packs/mine carries a NON-owner's free-test state (read only) ──────────────────────────────────── */
+test('TS-FREE-CHECK-1 · /api/packs/mine: `freeTest` for a non-owner only; absent for an owner, when the rule is off (null), or on a read failure', async (t) => {
+  const db = memoryFirestore();
+  db.docs.set('packEntitlements/m1/packs/test_series:all', { data: { packId: 'test_series:all', sku: 'test_series', target: 'all', pricePaidInr: 1179, paidAt: TS_AFTER_GST, orderId: 'o', paymentRef: 'p', creditedToPass: false }, version: 1 });
+  const asked = [];
+  const stub = {
+    status: async () => ({ owned: true, active: true, validUntilMs: 1, checksPerPaper: 2, used: {} }),
+    freeTestStatus: async (uid) => {
+      asked.push(uid);
+      if (uid === 'boom') throw new Error('read failed');
+      if (uid === 'off') return null;
+      return uid === 'pinned' ? { paperKey: 'TS-CT-M01', checksPerPaper: 2, used: 1, freeRecheck: true } : { paperKey: null, checksPerPaper: 2, used: 0 };
+    },
+  };
+  const srv = await start({ db, nowMs: TS_AFTER_GST, testSeriesChecks: stub, licensees: Object.fromEntries(['m1', 'fresh', 'pinned', 'off', 'boom'].map((u) => [u, { name: u, email: `${u}@example.com` }])) });
+  t.after(srv.close);
+  const fresh = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('fresh') });
+  assert.equal(fresh.status, 200, fresh.text);
+  assert.deepEqual(fresh.json.freeTest, { paperKey: null, checksPerPaper: 2, used: 0 });
+  const pinned = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('pinned') });
+  assert.deepEqual(pinned.json.freeTest, { paperKey: 'TS-CT-M01', checksPerPaper: 2, used: 1, freeRecheck: true });
+  const owner = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid('m1') });
+  assert.equal('freeTest' in owner.json, false, 'an owner sees the owner view');
+  assert.equal(owner.json.ownsTestSeries, true);
+  assert.ok(!asked.includes('m1'), 'an owner is never asked');
+  for (const uid of ['off', 'boom']) {
+    const r = await call(srv.port, 'GET', PACKS_MINE_PATH, { headers: asUid(uid) });
+    assert.equal(r.status, 200, uid);
+    assert.equal('freeTest' in r.json, false, uid);
+  }
 });
