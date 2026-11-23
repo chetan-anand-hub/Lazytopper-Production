@@ -37,6 +37,8 @@ const ACKNOWLEDGED_DRIFT: readonly string[] = [
   "TS-FM-M1", "TS-FM-M4", "TS-FM-M5", "TS-FM-M6", "TS-FM-M8", "TS-FM-M9", "TS-FM-M10", "TS-FM-M11", "TS-FM-M12", "TS-FM-M14", "TS-FM-M18", "TS-FM-M15", "TS-FM-M17", "TS-FM-M20", "TS-FM-S3",
   // STEPMARK-2 batch 1 (19 Nov 2026): hand-sourced Maths ch 1-4 rows gained [N mark] step prefixes; the seeded draw only takes step-marked rows, so these seeded Maths draws moved too. The pins did not.
   "TS-FM-M2", "TS-FM-M3", "TS-FM-M7", "TS-FM-M13", "TS-FM-M16", "TS-FM-M19",
+  // STEPMARK-3 carbon (23 Nov 2026): newly step-marked rows moved these seeded Science draws. The pins did not.
+  "TS-FM-S1", "TS-FM-S4", "TS-FM-S6", "TS-FM-S7", "TS-FM-S8", "TS-FM-S9", "TS-FM-S10", "TS-FM-S11", "TS-FM-S12", "TS-FM-S13", "TS-FM-S14", "TS-FM-S15", "TS-FM-S16", "TS-FM-S17", "TS-FM-S18", "TS-FM-S19", "TS-FM-S20",
 ];
 
 /** TS-MORE-1: 180 papers make these loops long; yield to the event loop each paper so the vitest worker keeps answering its heartbeat on a loaded CI runner. */
