@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  DIFFICULTY_EXPLAINER,
+  DIFFICULTY_LABELS,
+  loadPaperDifficulty,
+  showsChip,
+  tsDifficultyDisabled,
+  type PaperDifficultyLabel,
+  type PaperDifficultyMap,
+} from "../../lib/testSeries/paperDifficulty";
 import type { SeriesChapterTest, SeriesFullMock, SeriesMockRound, SeriesProgress, SeriesSubject, SeriesTestProgress } from "../../lib/testSeries/testSeries";
 
 /**
@@ -12,6 +21,9 @@ import type { SeriesChapterTest, SeriesFullMock, SeriesMockRound, SeriesProgress
  * Progress ("not started", "attempted", "graded 31 of 40") comes only from the student's REAL session records (the `progress` prop);
  * signed out, the selects show no status at all. Nothing here gates or grants anything: the routes' own rules decide access.
  * Every control is >= 48 px tall (CSS .lt-ts-pick__ctl). Class-based CSS only.
+ *
+ * TS-DIFF-1: an "Easier / Standard / Harder" chip + a filter on the full-length list. The labels are LAZY (paperDifficulty.json is its own
+ * chunk, fetched after mount), so the first paint is unchanged; until they load - or under VITE_TS_DIFFICULTY_DISABLED - nothing shows.
  */
 
 type SeriesType = "chapter" | "full";
@@ -32,6 +44,17 @@ export function statusWords(p: SeriesTestProgress | undefined, signedIn: boolean
 }
 
 const SUBJECTS: readonly SeriesSubject[] = ["Maths", "Science"];
+
+type DiffFilter = "all" | PaperDifficultyLabel;
+const FILTERS: ReadonlyArray<{ id: DiffFilter; text: string }> = [{ id: "all", text: "All" }, ...DIFFICULTY_LABELS.map((l) => ({ id: l, text: l }))];
+
+function DifficultyChip({ label, testId }: { label: PaperDifficultyLabel; testId: string }) {
+  return (
+    <span className={`lt-ts-diff lt-ts-diff--${label.toLowerCase()}`} aria-label={`Difficulty: ${label}`} data-testid={testId}>
+      {label}
+    </span>
+  );
+}
 
 /** A small bar of REAL progress (done of total); signed out it shows the count only, in the same box. */
 function MiniProgress({ done, total, show, testId }: { done: number; total: number; show: boolean; testId: string }) {
@@ -61,6 +84,20 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
   // The student's own choice always wins: the "next test" suggestion seeds the pickers once, and never after they touched one.
   const touched = useRef(false);
   const seeded = useRef(false);
+  // TS-DIFF-1: the labels arrive after mount (lazy chunk); null = not loaded, killed, or failed -> no chip, no filter.
+  const [diff, setDiff] = useState<PaperDifficultyMap | null>(null);
+  const [diffFilter, setDiffFilter] = useState<DiffFilter>("all");
+  useEffect(() => {
+    if (tsDifficultyDisabled()) return;
+    let live = true;
+    void loadPaperDifficulty().then((m) => {
+      if (live) setDiff(m);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+  const labelOf = (code: string): PaperDifficultyLabel | undefined => diff?.[`TS-${code}`]?.label;
 
   const groups = useMemo(() => {
     const m = new Map<string, SeriesChapterTest[]>();
@@ -92,7 +129,13 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
 
   const group = subjectGroups.find((g) => g[0].baseCode === chapterKey) ?? subjectGroups[0];
   const chapterTest = group ? group.find((c) => c.paper === paper) ?? group[0] : undefined;
-  const fullTest = subjectMocks.find((m) => m.n === fullN) ?? subjectMocks[0];
+  // The filter only narrows the full-length list; an empty result (cannot happen with real labels) falls back to the whole list.
+  const filteredMocks = useMemo(() => {
+    if (!diff || diffFilter === "all") return subjectMocks;
+    const f = subjectMocks.filter((m) => diff[`TS-${m.code}`]?.label === diffFilter);
+    return f.length ? f : subjectMocks;
+  }, [diff, diffFilter, subjectMocks]);
+  const fullTest = filteredMocks.find((m) => m.n === fullN) ?? filteredMocks[0];
   const selected = type === "chapter" ? chapterTest : fullTest;
   const touch = () => {
     touched.current = true;
@@ -103,6 +146,8 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
     const head = `${String(c.index).padStart(2, "0")} · ${c.label}`;
     return signedIn ? `${head} · ${startedCount(g.map((p) => p.code))} of ${g.length} done` : head;
   };
+  const selLabel = selected ? labelOf(selected.code) : undefined;
+  const selChip = selected && showsChip(selected.kind, selLabel) ? selLabel : undefined;
   const picked = selected ? statusWords(status(selected.code), signedIn) : "";
   const goLabel =
     selected && selected.kind === "chapter"
@@ -196,7 +241,7 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
               >
                 {group.map((p) => (
                   <option key={p.code} value={p.paper}>
-                    {`Paper ${p.paper}${signedIn ? ` · ${statusWords(status(p.code), true)}` : ""}`}
+                    {`Paper ${p.paper}${showsChip("chapter", labelOf(p.code)) ? ` · ${labelOf(p.code)}` : ""}${signedIn ? ` · ${statusWords(status(p.code), true)}` : ""}`}
                   </option>
                 ))}
               </select>
@@ -205,6 +250,25 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
         </div>
       ) : (
         <div className="lt-ts-pick__row" data-testid="ts-pick-full-row">
+          {diff && (
+            <div className="lt-ts-pick__seg lt-ts-pick__seg--4" role="group" aria-label="Filter full-length papers by difficulty" data-testid="ts-pick-diff-filter">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  className="lt-ts-pick__segbtn"
+                  aria-pressed={diffFilter === f.id}
+                  onClick={() => {
+                    touch();
+                    setDiffFilter(f.id);
+                  }}
+                  data-testid={`ts-pick-diff-${f.id}`}
+                >
+                  {f.text}
+                </button>
+              ))}
+            </div>
+          )}
           <label className="lt-ts-pick__fld lt-ts-pick__fld--wide">
             <span className="lt-ts-pick__lbl">Full-length paper (80 marks, 3 hours)</span>
             <select
@@ -216,13 +280,15 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
               }}
               data-testid="ts-pick-full"
             >
-              {rounds.map((r) => (
+              {rounds
+                .filter((r) => filteredMocks.some((m) => m.n >= r.from && m.n <= r.to))
+                .map((r) => (
                 <optgroup key={r.id} label={`${r.id === "round1" ? "Round 1 (Dec)" : "Round 2 (Jan)"}: ${r.from}–${r.to}`}>
-                  {subjectMocks
+                  {filteredMocks
                     .filter((m) => m.n >= r.from && m.n <= r.to)
                     .map((m) => (
                       <option key={m.code} value={m.n}>
-                        {`Full-length ${m.n}${signedIn ? ` · ${statusWords(status(m.code), true)}` : ""}`}
+                        {`Full-length ${m.n}${showsChip("mock", labelOf(m.code)) ? ` · ${labelOf(m.code)}` : ""}${signedIn ? ` · ${statusWords(status(m.code), true)}` : ""}`}
                       </option>
                     ))}
                 </optgroup>
@@ -237,6 +303,12 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
           <Link className="lt-ts-btn lt-ts-btn--primary lt-ts-pick__btn" to={selected.href} data-testid="ts-start" data-code={selected.code} data-status={status(selected.code)?.status ?? "not-started"}>
             {goLabel} →
           </Link>
+        )}
+        {diff && (
+          <p className="lt-ts-diff__note" data-testid="ts-pick-diff-note">
+            {selChip && <DifficultyChip label={selChip} testId="ts-pick-diff-chip" />}
+            <span>{DIFFICULTY_EXPLAINER}</span>
+          </p>
         )}
         <p className="lt-ts-pick__state" data-testid="ts-pick-state">
           {signedIn ? picked : `${type === "chapter" ? "Chapter tests" : `${mocksPerSubject} full-length papers`} · ${subject}`}
