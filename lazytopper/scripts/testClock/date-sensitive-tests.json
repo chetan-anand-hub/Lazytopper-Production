@@ -1096,6 +1096,7 @@
     "src/services/weakAreaAggregator.saturation.test.ts",
     "src/services/weakAreaAggregator.syllabus.test.ts",
     "src/test/testClock.test.ts",
-    "src/utils/authSignal.test.ts"
+    "src/utils/authSignal.test.ts",
+    "src/utils/inAppPayFirst.test.tsx"
   ]
 }

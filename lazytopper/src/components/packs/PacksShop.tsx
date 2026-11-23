@@ -51,7 +51,8 @@ import { preloadCheckoutScript } from "../../services/checkout";
 import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY } from "../../services/checkoutTiming";
 import { useCheckoutSlow } from "../../hooks/useCheckoutSlow";
 import PayRescueCard from "../payRescue/PayRescueCard";
-import InAppPayChoice from "../payRescue/InAppPayChoice";
+import InAppPayChoice, { inAppChoiceSurface } from "../payRescue/InAppPayChoice";
+import { inAppPayFirstHop } from "../../utils/inAppPayFirst";
 import PackSampleLink, { type SampleBuy } from "./PackSampleLink";
 import PackNamePrompt from "./PackNamePrompt";
 import { packNameSkipped } from "../../services/studentName";
@@ -700,6 +701,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // Review fix 1 (double charge): this very pack was just paid, or its payment is still confirming - never a second order.
     if (settling(packIdOf(sku, target))) return;
     if (!signedIn) {
+      // INAPP-PAY-FIRST-1: Instagram / Facebook on Android, signed out: the tap goes straight to Chrome for THIS item (no order, no
+      // checkout event here). Not for an automatic ?buy= arrival or the Who-sheet's own continue. "Pay here instead" / a failed hop: today's flow.
+      if (!resumed && !opts.fromWho && inAppPayFirstHop({ signedIn, surface: inAppChoiceSurface(location.pathname), sku, buy: { kind: "pack", sku, ...(target && !packHasNoTarget(sku) ? { target } : {}) } })) return;
       // BUY-PATH-1: the funnel's checkout event at the TAP, before the branch to pay-by-phone or sign-in (it used to fire
       // only for a signed-in tap, so a signed-out Buy with paying-by-phone off sent nothing at all).
       trackPackCheckout(packCheckoutDetails(sku, target), { signedIn: false, ...(from ? { from } : {}) });
@@ -953,7 +957,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         {busy && buy.phase === "busy" && slowOpen && <p className={`${prefix}__note`} role="status" data-testid="packs-slow-open">{CHECKOUT_SLOW_COPY}</p>}
         {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Buy (never replaces it). */}
         {enabled && ready && !isOwned && !busy && !confirming && !blocked && !dismissed && !signedIn && !authLoading && (
-          <InAppPayChoice buy={{ kind: "pack", sku, ...(target && !packHasNoTarget(sku) ? { target } : {}) }} />
+          <InAppPayChoice buy={{ kind: "pack", sku, ...(target && !packHasNoTarget(sku) ? { target } : {}) }} onPayHere={() => void handleBuy(sku, target)} />
         )}
         {whoEnabled && !checkoutAudience && signedIn && enabled && ready && !isOwned && !busy && !confirming && !blocked && (
           <SomeoneElseLink testId={`packs-someone-else-${sku}`} onOpen={() => setWho({ sku, target })} />
@@ -1303,7 +1307,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         </button>
         {o.showStatus !== false && busy && buy.phase === "busy" && slowOpen && <p className={o.noteClass} role="status" data-testid="packs-slow-open">{CHECKOUT_SLOW_COPY}</p>}
         {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Buy (never replaces it). */}
-        {!off && !signedIn && !authLoading && !(mine_ && buy.phase === "dismissed") && <InAppPayChoice buy={{ kind: "pack", sku }} />}
+        {!off && !signedIn && !authLoading && !(mine_ && buy.phase === "dismissed") && <InAppPayChoice buy={{ kind: "pack", sku }} onPayHere={() => void handleBuy(sku, undefined)} />}
         {o.showStatus !== false && blocked && <p className={o.noteClass} role="status" data-testid="packs-other-busy">{OTHER_PAYMENT_BUSY_COPY}</p>}
         {o.showStatus !== false && confirming && <p className={o.noteClass} role="status">{PACK_STILL_CONFIRMING_COPY}</p>}
         {o.showStatus !== false && mine_ && buy.phase === "failed" && <p className={`${o.noteClass} ${o.noteClass}--bad`} role="alert">{PACK_FAILED_COPY}</p>}
