@@ -101,13 +101,24 @@ export function gradedTotalOf(score: { total: number; notMarked?: { marks: numbe
 }
 
 /**
+ * LIVE-FIX-1 (live run 23 Nov 2026) - the ONE status word for a full-paper result (Full Mock / Chapter Test, FULL phase): the
+ * scorecard header, the result card behind it and every other reader agree. "fully graded" ONLY when every mark on the paper
+ * was marked: any marks not marked yet, or any pages / questions still pending, read "graded". Before this the scorecard header
+ * said "fully graded" while its own hero showed "58 marks not marked yet (17 questions)".
+ */
+export function paperGradeStatus(response: ResponseLike): "graded" | "fully graded" {
+  const ps = paperMarksScore(response);
+  return ps.notMarked || (Number(response.pendingCount) || 0) > 0 ? "graded" : "fully graded";
+}
+
+/**
  * TS-BOARDSCORE-1 (review nit) - the result card behind the scorecard (Full Mock / Chapter Test, FULL phase), consistent with the
  * hero: "fully graded" only when everything was marked; the score out of the paper's FULL marks; the marks not marked yet named.
  */
 export function resultCardParts(response: ResponseLike): { status: string; score: string; tail: string } {
   const ps = paperMarksScore(response);
   return {
-    status: ps.notMarked ? "graded" : "fully graded",
+    status: paperGradeStatus(response),
     score: `${formatScoreNumber(ps.awarded)} / ${formatScoreNumber(ps.total)}`,
     tail: ps.notMarked ? ` \u00b7 ${marksPhrase(ps.notMarked.marks)} not marked yet` : "",
   };

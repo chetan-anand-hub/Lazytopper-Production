@@ -32,6 +32,7 @@ const WrittenCheckOffers = lazy(() => import("../testSeries/WrittenCheckGate").t
 import PackPromo from "../packs/PackPromoLazy";
 import { ScorecardGuide } from "../guide/lazyGuide";
 import { formatScoreNumber } from "./scoreNumber";
+import { NOT_FOUND_ADD_PAGE_ACTION } from "../../lib/notFoundNotAttempted";
 import { useDetailLock, type DetailLimitKey } from "./useDetailLock";
 import type {
   ScorecardAllPending,
@@ -740,7 +741,7 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                 );
                 return (
                   <>
-                    {notFound > 0 && (
+                    {notFound > 0 && variant.notFoundNotAttempted?.mode !== "not-marked" && (
                       <div className="lt-sc__pend" data-grade-state="not-found">
                         <b>
                           {notFound} question{notFound === 1 ? "" : "s"} not answered on your pages
@@ -773,6 +774,19 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                   </>
                 );
               })()}
+
+              {/* LIVE-FIX-1 #5 (owner ruling 23 Nov 2026, 23:05 IST) - Chapter Test / Full Mock: questions NOT FOUND on the uploaded
+                  pages count "Not attempted · 0" (in the score, never a mistake), with ONE helper line and the existing re-upload step. */}
+              {variant.notFoundNotAttempted && variant.notFoundNotAttempted.questions.length > 0 && (
+                <div className="lt-sc__nfna" data-testid="sc-not-found-not-attempted">
+                  <b>{variant.notFoundNotAttempted.lead}</b> {variant.notFoundNotAttempted.line}.
+                  {variant.notFoundNotAttempted.onAddPage && (
+                    <button type="button" className="lt-sc__nfna-btn" data-testid="sc-add-page" onClick={variant.notFoundNotAttempted.onAddPage}>
+                      {NOT_FOUND_ADD_PAGE_ACTION}
+                    </button>
+                  )}
+                </div>
+              )}
 
               {variant.message && <p className="lt-sc__msg">{variant.message}</p>}
               {variant.note && <p className="lt-sc__note">{variant.note}</p>}
@@ -988,6 +1002,18 @@ const SC_CSS = `
   padding: 11px 15px; font-size: 12.5px; color: #f0cf9a; margin-bottom: 26px; line-height: 1.55;
 }
 .lt-sc__pend b { color: #f6dcab; }
+/* LIVE-FIX-1 #5 - "Not attempted · 0" for questions not found on the pages: calm (not a warning), with the add-page step. */
+.lt-sc__nfna {
+  background: rgba(255, 255, 255, 0.06); border-left: 3px solid #8294ad; border-radius: 8px;
+  padding: 11px 15px; font-size: 12.5px; color: #cfd7e2; margin-bottom: 26px; line-height: 1.55;
+}
+.lt-sc__nfna b { color: #e3e9f1; }
+.lt-sc__nfna-btn {
+  display: block; min-height: 44px; margin-top: 10px; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28); background: transparent; color: #fff;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.lt-sc__nfna-btn:hover { border-color: rgba(255, 255, 255, 0.6); }
 
 /* Quick-practice honest framing + nudge (navy body). */
 .lt-sc__msg { font-size: 13.5px; color: #e3e9f1; margin: 0 0 10px; line-height: 1.55; font-weight: 600; }

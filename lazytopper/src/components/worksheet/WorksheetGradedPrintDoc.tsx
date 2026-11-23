@@ -29,6 +29,7 @@ import {
   stepShowsType,
 } from "../../lib/mistakeDisplay";
 import { paperMarksScore } from "../results/scoreTotals";
+import { notFoundAddPageLine, notFoundLead, notFoundNotAttemptedQNumbers } from "../../lib/notFoundNotAttempted";
 import { RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
@@ -174,6 +175,8 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
   const markedOn = formatDate(gradedAt);
   const fullPaper = isFullPaperKind(kindLabel);
   const paperScore = fullPaper ? paperMarksScore(response) : null;
+  // LIVE-FIX-1 #5 - Chapter Test / Full Mock only (the rule never sets the flag elsewhere).
+  const notFoundQs = fullPaper ? notFoundNotAttemptedQNumbers(response.results) : [];
   const byNumber = new Map<number, PersistedWorksheetQuestion>(
     ws.questions.map((q) => [q.qNumber, q]),
   );
@@ -236,6 +239,12 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
             {paperScore?.notMarked && (
               <div className="lt-gp__notmarked" data-testid="gp-not-marked">
                 {paperScore.notMarked.line}
+              </div>
+            )}
+            {/* LIVE-FIX-1 #5 - the scorecard's "Not attempted · 0" line for questions not found on the pages, word for word. */}
+            {notFoundQs.length > 0 && (
+              <div className="lt-gp__notmarked" data-testid="gp-not-found-not-attempted">
+                {notFoundLead("not-attempted", notFoundQs)} {notFoundAddPageLine(notFoundQs.length)}.
               </div>
             )}
           </div>

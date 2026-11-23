@@ -83,6 +83,10 @@ export const CT_CSS = `
 .lt-ct__btn--ghost { background: var(--ct-bg); color: var(--ct-ink); border: 1px solid var(--ct-line); }
 .lt-ct__btn--ghost:hover:not(:disabled) { border-color: var(--ct-ink-3); }
 .lt-ct__btn--sm { font-size: 13px; padding: 9px 15px; }
+/* LIVE-FIX-1 #5 - "Q12, Q15: Not attempted · 0" for questions not found on the pages, with the add-page step. */
+.lt-ct__nfna { font-size: 13px; color: var(--ct-ink-2); line-height: 1.5; margin: 8px 0 4px; }
+.lt-ct__nfna b { color: var(--ct-ink); }
+.lt-ct__nfna-btn { display: inline-flex; align-items: center; min-height: 44px; margin-left: 6px; padding: 0 4px; border: 0; background: transparent; color: var(--ct-green-d); font-weight: 700; font-size: 13px; cursor: pointer; text-decoration: underline; }
 .lt-ct__honest { font-size: 12px; color: var(--ct-ink-3); font-style: italic; margin-top: 14px; display: flex; gap: 7px; align-items: flex-start; }
 .lt-ct__empty { text-align: center; padding: 26px 16px; color: var(--ct-ink-2); font-size: 14px; }
 /* PREEXIST-FIX-1 (7 Nov 2026): "Building your test…" holds roughly the height of the setup it turns into (chips, blueprint, toggle,

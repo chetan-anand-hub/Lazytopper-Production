@@ -32,8 +32,9 @@ import { deriveSectionLens, deriveTypeLens, stampFromPaper, type PaperLensQuesti
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
 import { formatScoreNumber } from "./scoreNumber";
+import { notFoundAddPageLine, notFoundLead, notFoundSummary } from "../../lib/notFoundNotAttempted";
 import type { BoardScoreView } from "../../lib/fullmock/boardEstimate";
-import { awaitingSheetScore, paperMarksScore, type ScoreNotMarked } from "./scoreTotals";
+import { awaitingSheetScore, paperGradeStatus, paperMarksScore, type ScoreNotMarked } from "./scoreTotals";
 import {
   ANSWER_MISMATCH_COPY,
   NOT_GRADED_TRY_AGAIN_COPY,
@@ -44,6 +45,7 @@ import {
   isCarelessType,
   isGradedQuestion,
   isQuestionNotAttempted,
+  marksLostToWork,
   paperMarksLost,
   type GradeState,
   type MarksLostByType,
@@ -178,7 +180,17 @@ export interface ScorecardConceptLensRow {
   total: number;
   /** Marks lost on this concept (total − awarded, clamped ≥ 0) — drives the sort. */
   lost: number;
+  /** LIVE-FIX-1 - the part of `lost` lost to MISTAKES (lib/mistakeDisplay `marksLostToWork`: the loss minus anything not
+   *  attempted). Never a not-marked question (those are not in the row at all). Drives "the single biggest loss" line;
+   *  absent -> the row never names a loss. */
+  mistakeLost?: number;
 }
+
+/** LIVE-FIX-1 - one graded result's marks lost to mistakes (never not-attempted; a not-marked result is 0). */
+function mistakeLossOf(r: Parameters<typeof marksLostToWork>[0]): number {
+  return isGradedQuestion(r) ? marksLostToWork(r) : 0;
+}
+const round2m = (x: number) => Math.round(x * 100) / 100;
 
 /* ── BATCH-2 · THE QUICK PRACTICE GRADED ANSWER SHEET ────────────────────────────
  *
@@ -362,6 +374,10 @@ export interface ScorecardVariant {
    *  biggest loss on this paper." Honest-or-silent: null when nothing was lost. */
   chapterLensNote?: string | null;
   pending?: ScorecardPending | null;
+  /** LIVE-FIX-1 #5 (owner ruling 23 Nov 2026, 23:05 IST) - Chapter Test / Full Mock: the questions not found on the uploaded pages,
+   *  counted "Not attempted · 0" (lib/notFoundNotAttempted), with ONE helper line and the host's add-page action (the existing
+   *  re-upload step). Absent/null -> nothing. */
+  notFoundNotAttempted?: ScorecardNotFoundNotAttempted | null;
   allPending?: ScorecardAllPending | null;
   /** BATCH-2 · the set scorecard's MCQ/written split. Absent everywhere else. */
   split?: ScorecardSplit | null;
@@ -1277,6 +1293,8 @@ export interface ChapterTestVariantInput {
   onDownloadGraded?: () => void;
   onDownloadSolution?: () => void;
   onRevisit?: () => void;
+  /** LIVE-FIX-1 #5 - FULL phase: the existing re-upload step, offered beside "If you answered these, upload all your pages again, including the missing one". */
+  onAddPage?: () => void;
   /** GUIDE-SCORE-1 — FULL phase only: the honest change since the last graded test of the SAME
    *  chapter with the SAME paper total (`chapterTestDeltaLine`), shown under the hero. */
   deltaLine?: string | null;
@@ -1316,6 +1334,8 @@ export interface StoredChapterTestVariantInput {
   onDownloadGraded?: () => void;
   onDownloadSolution?: () => void;
   downloading?: boolean;
+  /** LIVE-FIX-1 #5 - the existing re-upload step for a record with questions counted "Not attempted · 0" (not found on the pages). */
+  onAddPage?: () => void;
 }
 
 // ── LIVE variant: FULL MOCK (fills PR-2's deferred seam — Full Mock spec §5) ───────
@@ -1362,7 +1382,7 @@ export function deriveFullMockChapterLens(
   const byQNumber = new Map<number, FullMockLensQuestion>();
   for (const q of questions) byQNumber.set(q.qNumber, q);
 
-  const buckets = new Map<string, { label: string; awarded: number; total: number }>();
+  const buckets = new Map<string, { label: string; awarded: number; total: number; mistakeLost: number }>();
   for (const r of response.results) {
     if (!isGradedQuestion(r)) continue; // PR-2: not graded (unreadable / mismatch) is never a 0
     const q = byQNumber.get(r.qNumber);
@@ -1372,9 +1392,11 @@ export function deriveFullMockChapterLens(
       label: q?.topicLabel || resolveTopicDisplayName("", slug),
       awarded: 0,
       total: 0,
+      mistakeLost: 0,
     };
     b.awarded += Number(r.marksAwarded) || 0;
     b.total += Number(r.totalMarks) || 0;
+    b.mistakeLost = round2m(b.mistakeLost + mistakeLossOf(r));
     buckets.set(slug, b);
   }
   if (buckets.size === 0) return null;
@@ -1385,6 +1407,7 @@ export function deriveFullMockChapterLens(
     awarded: b.awarded,
     total: b.total,
     lost: Math.max(0, b.total - b.awarded),
+    mistakeLost: b.mistakeLost,
   }));
   rows.sort((a, b) => b.lost - a.lost || b.total - a.total || a.key.localeCompare(b.key));
   return rows;
@@ -1393,12 +1416,27 @@ export function deriveFullMockChapterLens(
 // BANK-LEAN-1 (C3): `topicKeyForQuestionId` + `deriveStoredFullMockChapterLens` (the
 // stored re-open chapter join over the canonical bank) live in ./scorecardBankLenses.
 
-/** The one honest sentence under the chapter bars — from the worst row, only
- *  when marks were actually lost (silent on a clean paper, never invented). */
+/**
+ * LIVE-FIX-1 (live run 23 Nov 2026: "Triangles cost you 3 marks" on a paper with NO mistakes - the 3 marks were questions left
+ * unattempted) - the row whose marks lost to MISTAKES (`mistakeLost`) are the most, or null when no row lost a mark to a mistake.
+ * Not-attempted marks and not-marked questions never make a chapter "the biggest loss". Ties keep the rows' own order.
+ */
+export function biggestMistakeLossRow(rows: ScorecardConceptLensRow[] | null | undefined): ScorecardConceptLensRow | null {
+  let best: ScorecardConceptLensRow | null = null;
+  for (const r of rows ?? []) {
+    const m = Number(r.mistakeLost) || 0;
+    if (m > 0 && (!best || m > (Number(best.mistakeLost) || 0))) best = r;
+  }
+  return best;
+}
+
+/** The one honest sentence under the chapter bars — the chapter with the most marks lost to MISTAKES (LIVE-FIX-1), only when a
+ *  mark was lost to one (silent on a clean paper or one whose only losses were not attempted / not marked; never invented). */
 export function fullMockChapterLensNote(rows: ScorecardConceptLensRow[] | null): string | null {
-  const worst = rows?.[0];
-  if (!worst || worst.lost <= 0) return null;
-  return `${worst.label} cost you ${worst.lost} mark${worst.lost === 1 ? "" : "s"} — the single biggest loss on this paper.`;
+  const worst = biggestMistakeLossRow(rows);
+  if (!worst) return null;
+  const n = Number(worst.mistakeLost) || 0;
+  return `${worst.label} cost you ${formatScoreNumber(n)} mark${n === 1 ? "" : "s"} — the single biggest loss on this paper.`;
 }
 
 /** Format the §8b focus aggregates into the neutral scorecard line —
@@ -1456,8 +1494,41 @@ export interface FullMockVariantInput {
   onPractiseChapter?: () => void;
   onDownloadGraded?: () => void;
   onDownloadSolution?: () => void;
+  /** LIVE-FIX-1 #5 - FULL phase: the existing re-upload step, offered beside "If you answered these, upload all your pages again, including the missing one". */
+  onAddPage?: () => void;
 }
 
+
+/** LIVE-FIX-1 #5 - the scorecard's block for the questions not found on the uploaded pages: "Not attempted · 0" when the check
+ *  was counted, else still "not marked yet" (REVIEW S3), with the one helper line and the upload step. */
+export interface ScorecardNotFoundNotAttempted {
+  mode: "not-attempted" | "not-marked";
+  /** "Q12", "Q15" - paper order. */
+  questions: string[];
+  /** The lead (notFoundLead): "Q12, Q15: Not attempted · 0 — not found on the pages you uploaded." */
+  lead: string;
+  /** "If you answered these, upload all your pages again, including the missing one" (notFoundAddPageLine). */
+  line: string;
+  /** The host's upload step; absent -> the line names no button. */
+  onAddPage?: () => void;
+}
+
+/** LIVE-FIX-1 #5 - the block for a FULL-phase / re-opened Chapter Test or Full Mock response, or null when no question is
+ *  missing from the pages. PURE. */
+export function notFoundNotAttemptedBlock(
+  response: WorksheetGradeResponse | null | undefined,
+  onAddPage?: () => void,
+): ScorecardNotFoundNotAttempted | null {
+  const sum = notFoundSummary(response?.results);
+  if (!sum) return null;
+  return {
+    mode: sum.mode,
+    questions: sum.qNumbers.map((n) => `Q${n}`),
+    lead: notFoundLead(sum.mode, sum.qNumbers),
+    line: notFoundAddPageLine(sum.qNumbers.length),
+    ...(onAddPage ? { onAddPage } : {}),
+  };
+}
 
 /** TS-BOARDSCORE-1 - a paper with anything not marked yet keeps only the board view's score line (the "So far" line). */
 export function boardScoreFor(view: BoardScoreView | null, incomplete: boolean): BoardScoreView | null {
@@ -1568,9 +1639,10 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
   // FULL
   const chapterLens = input.questions ? deriveFullMockChapterLens(response, input.questions) : null;
   const chapterLensNote = fullMockChapterLensNote(chapterLens);
-  const worstChapter = chapterLens?.[0];
+  // LIVE-FIX-1 - "your biggest loss" is the same chapter the note names (marks lost to mistakes), never not-attempted marks.
+  const worstChapter = biggestMistakeLossRow(chapterLens);
   const practiseLabel =
-    worstChapter && worstChapter.lost > 0
+    worstChapter
       ? `Worksheet on ${worstChapter.label} — your biggest loss`
       : "Build a worksheet on this subject";
 
@@ -1616,7 +1688,8 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
   return {
     surface: "full-mock",
     title: name,
-    subtitle: `${code} · fully graded · saved to your progress`,
+    // LIVE-FIX-1 - "fully graded" only when every mark was marked (paperGradeStatus, the result card's own word).
+    subtitle: `${code} · ${paperGradeStatus(response)} · saved to your progress`,
     score: {
       kind: "marks",
       awarded: paperScore.awarded,
@@ -1642,6 +1715,7 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
     chapterLens,
     chapterLensNote,
     pending: pendingStrip(response),
+    notFoundNotAttempted: notFoundNotAttemptedBlock(response, input.onAddPage),
     allPending: null,
     actionsHeading: "What next?",
     stackActions: true,
@@ -1668,6 +1742,8 @@ export interface StoredFullMockVariantInput {
   /** TS-BOARDSCORE-1 - the board view AS OF this record (only papers graded at or before it), so a re-opened card reads as the
    *  live one did. Rendered only on a fully graded record; null/omitted -> nothing. */
   boardScore?: BoardScoreView | null;
+  /** LIVE-FIX-1 #5 - the existing re-upload step for a record with questions counted "Not attempted · 0" (not found on the pages). */
+  onAddPage?: () => void;
 }
 
 // BANK-LEAN-1 (C3): `storedFullMockScorecardVariant` (it needs the bank-backed chapter
@@ -1723,7 +1799,7 @@ const CI_MIXED_MESSAGE =
 export function deriveCheckImproveTopicLens(
   response: WorksheetGradeResponse,
 ): ScorecardConceptLensRow[] | null {
-  const buckets = new Map<string, { label: string; awarded: number; total: number }>();
+  const buckets = new Map<string, { label: string; awarded: number; total: number; mistakeLost: number }>();
   for (const r of response.results) {
     if (!isGradedQuestion(r)) continue; // PR-2: not graded (unreadable / mismatch) is never a 0
     const raw = String(r.topicSlug || "").trim();
@@ -1733,9 +1809,11 @@ export function deriveCheckImproveTopicLens(
       label: r.topicLabel || resolveTopicDisplayName("", key),
       awarded: 0,
       total: 0,
+      mistakeLost: 0,
     };
     b.awarded += Number(r.marksAwarded) || 0;
     b.total += Number(r.totalMarks) || 0;
+    b.mistakeLost = round2m(b.mistakeLost + mistakeLossOf(r)); // LIVE-FIX-1 - the shared note names mistake losses only
     buckets.set(key, b);
   }
   if (buckets.size < 2) return null; // single-topic (or none) → omit the lens (spec §5)
@@ -1746,6 +1824,7 @@ export function deriveCheckImproveTopicLens(
     awarded: b.awarded,
     total: b.total,
     lost: Math.max(0, b.total - b.awarded),
+    mistakeLost: b.mistakeLost,
   }));
   rows.sort((a, b) => b.lost - a.lost || b.total - a.total || a.key.localeCompare(b.key));
   return rows;

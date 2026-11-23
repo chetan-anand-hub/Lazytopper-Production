@@ -1272,6 +1272,26 @@ test('TS-FREE-CHECK-1 background job (202): the free-test hold rides the deferre
   assert.equal(holdsOf(s.db, s.uid), 0);
 });
 
+test('LIVE-FIX-1 the live run (23 Nov 2026): a free-test JOB check with one written answer on the page (17 of 18 not on it) is the free re-check - not counted, said so - and the 2-per-paper cap still holds', async () => {
+  const { testSeriesDeferredOf } = require('./testSeriesChecks.cjs');
+  const s = setup({ owns: false });
+  const job = async (detail) => {
+    const res = fakeRes();
+    assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid), false, 'admitted');
+    res.serve(202, 0);
+    await settle();
+    s.checks.settleDeferred({ uid: s.uid, testSeries: testSeriesDeferredOf(res) }, 1, detail);
+    await settle();
+  };
+  await job({ unreadable: 17, total: 18 });
+  assert.deepEqual(await s.checks.freeTestStatus(s.uid), { paperKey: CT, checksPerPaper: 2, used: 0, freeRecheck: true });
+  await job({ unreadable: 17, total: 18 }); // the free re-check is once per paper: this one counts
+  assert.deepEqual(await s.checks.freeTestStatus(s.uid), { paperKey: CT, checksPerPaper: 2, used: 1 });
+  await job({ unreadable: 0, total: 18 });
+  assert.deepEqual(await s.checks.freeTestStatus(s.uid), { paperKey: CT, checksPerPaper: 2, used: 2 });
+  assert.equal((await check(s, seriesBody())).sent.body.testSeries.reason, 'exhausted', 'never a third counted check');
+});
+
 test('TS-FREE-CHECK-1 a Firestore failure while pinning -> 503, nothing pinned (never an unrecorded free check)', async () => {
   const s = setup({ owns: false });
   s.db.runTransaction = async () => { throw new Error('FIRESTORE DOWN'); };

@@ -213,6 +213,36 @@ describe.each(["free", "trial", "premium"] as const)("Full Mock · %s account", 
   }, 90000);
 });
 
+/* ── LIVE-FIX-1 #3 (live run 23 Nov 2026) · a trial account whose free test is used AND whose weekly mock is spent ─────────── */
+describe("LIVE-FIX-1 · the one-free-test wall comes before the weekly fair-use limit", () => {
+  it("trial, one test taken, this week's mock used -> 'You've used your 1 free test' with the Test Series AND the Board Pass (totals on the buttons); no weekly-limit panel", async () => {
+    sub.tier = "trial";
+    records.list = [{ ...pendingRecord(), id: "FM-M-01", worksheetId: "fm-old" }];
+    const resetAt = "2026-11-29T18:30:00.000Z";
+    vi.stubGlobal("fetch", vi.fn(async (url: string) =>
+      String(url).includes("/api/usage/me")
+        ? new Response(JSON.stringify({
+          enforced: true, tier: "trial",
+          trial: { checksLeftToday: 5, chapterTestsLeftToday: 1, mocksLeft: 0, worksheetsLeft: 1, resets: { checks: resetAt, chapterTests: resetAt, mocks: resetAt, worksheets: resetAt } },
+          premium: null,
+        }), { status: 200 })
+        : new Response("{}", { status: 404 })));
+    mount();
+    const start = await screen.findByRole("button", { name: /Start the mock/ }, { timeout: 60000 });
+    // let the usage snapshot land before the tap (the gate reads whatever snapshot is already here)
+    await new Promise((r) => setTimeout(r, 50));
+    fireEvent.click(start);
+    const wall = await screen.findByTestId("series-start-wall");
+    expect(wall.textContent).toContain("You've used your 1 free test.");
+    expect(wall.textContent).toContain(`Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all ${seriesTotals().total} tests`);
+    expect(screen.getByTestId("series-start-wall-ts").getAttribute("href")).toBe("/packs?buy=test_series");
+    expect(screen.getByTestId("series-start-wall-ts-pay").textContent).toMatch(/^Pay ₹[\d,]+$/);
+    expect(screen.getByTestId("series-start-wall-bp").getAttribute("href")).toBe("/board-pass");
+    await waitFor(() => expect(screen.getByTestId("series-start-wall-bp-pay").textContent).toMatch(/^Pay ₹[\d,]+$/));
+    expect(screen.queryByTestId("fair-use-limit-panel")).toBeNull();
+  }, 90000);
+});
+
 /* ── TS-FREE-CHECK-1 (owner ruling 23 Nov 2026) · the free Test Series test includes written-answer marking ─────────────────── */
 // The server pins the free paper at the first written check and refuses every other paper (server/services/testSeriesChecks.test.cjs);
 // here: the same downloaded-paper flow as above, on a Test Series Full-Length paper that IS the account's one free test.

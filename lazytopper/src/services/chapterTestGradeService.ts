@@ -42,6 +42,7 @@ import { isGradedQuestion, objectiveMarksLost, v2GradeFields, withEffectiveCount
 // never edited): its punctuation / option-letter bridging today, and GRADER-CORE-1 PR-2's case
 // rule (options that differ only by case compared case-sensitively) once that lands there.
 import { scoreObjective } from "../lib/objectiveScoring";
+import { notFoundAsNotAttempted } from "../lib/notFoundNotAttempted";
 import { conceptForBankQuestionId } from "./mistakeConcept";
 import { recordAttempt } from "./practiceInsights";
 import {
@@ -175,7 +176,9 @@ export function buildChapterTestResponse(args: {
   const { paper, objective, subjectiveQuestions, subjectiveResponse } = args;
   const rows: WorksheetQuestionGrade[] = [
     ...objectiveGradeRows(objective),
-    ...(subjectiveResponse ? subjectiveResponse.results : pendingSubjectiveRows(subjectiveQuestions)),
+    // LIVE-FIX-1 #5 (owner ruling 23 Nov 2026, 23:05 IST): a written answer NOT FOUND on the uploaded pages is "Not attempted · 0"
+    // (lib/notFoundNotAttempted) - graded, in the paper's total - when the sheet was read; unreadable / mismatched stay pending.
+    ...(subjectiveResponse ? notFoundAsNotAttempted(subjectiveResponse.results) : pendingSubjectiveRows(subjectiveQuestions)),
   ];
   // PR-2 — graded totals over GRADED questions only (an unreadable or mismatched answer is
   // neither a 0 nor part of the total; it is pending, and the paper total still counts it).
