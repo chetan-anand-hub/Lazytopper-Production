@@ -568,16 +568,13 @@
           ]
         },
         {
-          "id": "APQ-S-EYE-005",
-          "questionText": "A person is unable to see objects distinctly placed within 75 cm from his eyes. (a) Name the defect of vision the person is suffering from. (b) List its two possible causes. (c) Calculate the power of the lens needed to correct this defect. Assume that the near point for the normal eye is 25 cm.",
-          "marks": 5,
-          "section": "D",
+          "id": "APQ-S-EYE-004",
+          "questionText": "Give reasons for the following: (a) Red traffic signals can be seen from a very long distance. (b) Stars appear to be slightly higher than their actual position.",
+          "marks": 2,
+          "section": "B",
           "solutionSteps": [
-            "[1 mark] (a) The defect is HYPERMETROPIA (long-sightedness) — the near point has moved away from the normal 25 cm.",
-            "[1 mark] (b) Cause 1: the curvature of the eye lens decreases (eye lens becomes less convergent, focal length too long).",
-            "[1 mark] (b) Cause 2: the eyeball becomes too short, so the image of a near object forms behind the retina.",
-            "[1 mark] (c) To correct, an object at 25 cm must give a virtual image at the near point 75 cm: u = −25 cm, v = −75 cm. Lens formula 1/f = 1/v − 1/u = 1/(−75) − 1/(−25) = −1/75 + 3/75 = 2/75 ⟹ f = 37.5 cm = 0.375 m.",
-            "[1 mark] (c) Power P = 1/f(in m) = 1/0.375 ≈ +2.67 D (positive ⟹ convex lens)."
+            "[1 mark] (a) Red light has the LONGEST wavelength among visible colours; it is therefore the LEAST scattered by air molecules and can travel longer distances without losing intensity — making red traffic signals visible from afar even in fog/dust.",
+            "[1 mark] (b) Optical density of atmospheric layers INCREASES as light travels from outer space to ground. Light from a star bends towards the normal due to this gradient (atmospheric refraction) — the observer perceives the star along the apparent ray, slightly HIGHER than its true position."
           ]
         }
       ]
