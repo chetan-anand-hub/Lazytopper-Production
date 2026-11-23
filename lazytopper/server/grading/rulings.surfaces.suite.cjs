@@ -133,6 +133,9 @@ async function drive(s, { mutateTarget, targetSteps, otherSteps, acceptsV2 = fal
 
 // GRADER-BALANCE-1: the balancing suite (balancing.surfaces.suite.cjs) drives the SAME surfaces the same way.
 module.exports = { SURFACES, drive };
+// GRADER-TYPE-1 (owner rulings R1-R2, 22 Nov 2026): the same nine surfaces, the type-1 fixtures. Required AFTER the export above
+// (type1.surfaces.suite.cjs imports { SURFACES, drive } from this file), so it runs wherever this suite runs.
+require('./type1.surfaces.suite.cjs');
 
 // A bank question's stored final answer is compared on its own (verify.cjs compareFinalAnswer) and can cap
 // the mark independently of units; the unit tests take it out of play (the field stays, null).
@@ -460,7 +463,7 @@ for (const s of SURFACES) {
     assert.ok(!('knowledgeEvidence' in r.result.annotatedSteps[1]) && !('_knowledgeEvidence' in r.result.annotatedSteps[1]), s.id + ': internal only — the response shape is unchanged');
   });
 
-  test('GRADER-QUALITY-1 D1 — ' + s.id + ': the REAL paper\'s Q24 (book page 8) — "AB + CD = BC + DA" is the question\'s own "Show that …", not proof: (i)\'s blank reason stays as trunk, unlabelled AND labelled', async () => {
+  test('GRADER-QUALITY-1 D1 — ' + s.id + ': the REAL paper\'s Q24 (book page 8) — "AB + CD = BC + DA" is the question\'s own "Show that …", not proof: (i)\'s blank reason is a Concept gap (R2, 22 Nov 2026), unlabelled AND labelled', async () => {
     const X = GQ1['GQ1-WS02-Q24'];
     const real = await drive(s, { mutateTarget: withMarks(4, Q24_TEXT), targetSteps: q24RealSteps, acceptsV2: true });
     assert.equal(real.result.marksAwarded, X.expected.marksAwarded, s.id);
@@ -469,10 +472,11 @@ for (const s of SURFACES) {
     const labelled = await drive(s, { mutateTarget: withMarks(4, Q24_TEXT), acceptsV2: true, targetSteps: () => {
       const st = q24RealSteps(); ['(i)', '(i)', '(ii)', '(iii)', '(iii)'].forEach((p, i) => { st[i].part = p; }); st[2] = { ...st[2], status: 'correct', marksAwarded: 1, marksDeducted: 0, mistakeType: null }; return st;
     } });
-    assert.deepEqual([labelled.result.annotatedSteps[1].status, labelled.result.annotatedSteps[1].mistakeType], ['unattempted', null], s.id + ': evidence that is the question text is rejected (delta item 3)');
+    assert.deepEqual([labelled.result.annotatedSteps[1].status, labelled.result.annotatedSteps[1].mistakeType], ['missing', 'conceptual'], s.id + ': evidence that is the question text is rejected (delta item 3) -> no proof -> Concept gap (GRADER-TYPE-1 R2)');
   });
 
-  // OWNER RULING 5 Nov 2026: no proof, no exam technique — each stays EXACTLY as on trunk (unattempted, untyped).
+  // OWNER RULING 5 Nov 2026: no proof, no exam technique. OWNER RULING R2 (22 Nov 2026, GRADER-TYPE-1): and no proof means the lost
+  // mark of an asked-for REASON is a Concept gap — `missing`, typed `conceptual` (it was `unattempted`, untyped). Marks never move.
   const NO_PROOF = [
     ['no knowledgeEvidence at all (an old reply)', (st) => { delete st[1].knowledgeEvidence; }],
     ['knowledgeEvidence null', (st) => { st[1].knowledgeEvidence = null; }],
@@ -486,9 +490,9 @@ for (const s of SURFACES) {
     ['a trivially short quote ("= 3")', (st) => { st[1].knowledgeEvidence = '= 3'; }],
   ];
   for (const [label, mutate] of NO_PROOF) {
-    test('GRADER-QUALITY-1 D1 evidence — ' + s.id + ': ' + label + ' → the blank reason stays as on trunk', async () => {
+    test('GRADER-QUALITY-1 D1 evidence — ' + s.id + ': ' + label + ' → no proof: the blank reason is a Concept gap (R2)', async () => {
       const r = await drive(s, { mutateTarget: withMarks(4, Q24_TEXT), acceptsV2: true, targetSteps: () => { const st = q24Steps(); mutate(st); return st; } });
-      assert.deepEqual([r.result.annotatedSteps[1].status, r.result.annotatedSteps[1].mistakeType], ['unattempted', null], s.id + ' — ' + label);
+      assert.deepEqual([r.result.annotatedSteps[1].status, r.result.annotatedSteps[1].mistakeType], ['missing', 'conceptual'], s.id + ' — ' + label);
       assert.equal(r.result.marksLostByType.presentation, 0, s.id + ' — ' + label);
     });
   }
@@ -774,19 +778,20 @@ const apAs = (status, mistakeType) => () => fixtureSteps('MT1-AP-47-SINGLE')().m
 const apTarget = (view, req) => { withMarks(2, AP.questionText)(view, req); view.textAnswer = AP.textAnswer; };
 
 for (const s of SURFACES) {
-  test('MISSING-TYPE-1 — ' + s.id + ': Q25 shape (book page 9) — a blank asked-for REASON, untyped "missing", is NOT ATTEMPTED like Q24, never "reason not recorded"; marks unchanged', async () => {
+  test('MISSING-TYPE-1 — ' + s.id + ': Q25 shape (book page 9) — a blank asked-for REASON, untyped "missing", is a CONCEPT GAP like Q24 (R2, 22 Nov 2026; it was Not attempted), never "reason not recorded"; marks unchanged', async () => {
     const X = GQ1['GQ1-WS02-Q25'];
     for (const acceptsV2 of [false, true]) {
       const r = await drive(s, { mutateTarget: withMarks(4, Q25_TEXT), targetSteps: fixtureSteps('GQ1-WS02-Q25'), acceptsV2 });
       assert.equal(r.result.marksAwarded, X.expected.marksAwarded, s.id + ' v2=' + acceptsV2);
-      if (!acceptsV2) { assert.deepEqual([r.result.annotatedSteps[1].status, r.result.annotatedSteps[1].mistakeType], ['missing', null], s.id + ': the legacy shape shows the fourth state as "missing"'); continue; }
+      if (!acceptsV2) { assert.deepEqual([r.result.annotatedSteps[1].status, r.result.annotatedSteps[1].mistakeType], ['missing', 'conceptual'], s.id + ': the legacy shape carries the same typed step'); continue; }
       assert.deepEqual(typesOf(r.result), X.expected.steps, s.id);
-      assert.deepEqual(r.result.marksLostByType, { ...zeroLostOf(), unattempted: 0.5 }, s.id + ': Not attempted ½, untyped 0');
+      assert.deepEqual(r.result.marksLostByType, { ...zeroLostOf(), conceptual: 0.5 }, s.id + ': Concept gap ½, Not attempted 0, untyped 0');
     }
     // the SAME label as the real Q24 (i) — same shape, one label
     const q24 = await drive(s, { mutateTarget: withMarks(4, Q24_TEXT), targetSteps: q24RealSteps, acceptsV2: true });
     assert.deepEqual(typesOf(q24.result), GQ1['GQ1-WS02-Q24'].expected.steps, s.id + ': Q24 unchanged');
-    assert.equal(q24.result.marksLostByType.unattempted, 0.5, s.id);
+    assert.equal(q24.result.marksLostByType.conceptual, 0.5, s.id);
+    assert.equal(q24.result.marksLostByType.unattempted, 0, s.id);
   });
 
   test('MISSING-TYPE-1 — ' + s.id + ': SYNTHETIC Q25 — #1575 takes precedence: a blank reason WITH proof of knowledge in (ii) is exam technique ½, not Not attempted', async () => {

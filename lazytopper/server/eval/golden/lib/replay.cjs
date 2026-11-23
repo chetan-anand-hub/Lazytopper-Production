@@ -82,7 +82,9 @@ function pickStoredCall(calls, used, model, cfg) {
 }
 
 async function replayJob(planJob, record, opts = {}) {
-  const calls = (record.calls || []).slice();
+  // E1: a scheme-GENERATION call of a scheme-ON live run is not part of the replay pool — the scheme is replayed from the record.
+  const calls = (record.calls || []).filter((c) => !c.scheme);
+  const schemeReplay = opts.schemeStep ? (record.schemes || {}) : null;
   const used = new Set();
   const callGemini = opts.callGeminiOverride || (async (model, _contents, cfg) => {
     const at = pickStoredCall(calls, used, model, cfg);
@@ -113,8 +115,8 @@ async function replayJob(planJob, record, opts = {}) {
   const detectModel = opts.detectModel || 'gemini-2.5-flash';
   const driver = cfg && cfg.core
     ? createDriver({ callGemini, model: detectModel, gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget ?? null,
-      gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel })
-    : createDriver({ callGemini, model: record.model || opts.model });
+      gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel, schemeReplay })
+    : createDriver({ callGemini, model: record.model || opts.model, schemeReplay });
   const out = await driver.run(planJob);
   return {
     ...out,

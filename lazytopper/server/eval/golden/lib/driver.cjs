@@ -14,9 +14,9 @@
 // Stubbed, and why (identical to the audit's harness, grader-audit-1/s3/harness/run.cjs):
 //   * no fair-use / idempotency / entitlement / free-check middleware: the handler is
 //     called directly, so nothing is charged and no idempotent replay can serve a grade;
-//   * the solution cache returns null — what production's real cache returns with no
-//     DATABASE_URL (stepSolution.cjs). Invocations are counted, so a cache that ever
-//     generated a scheme (an extra model call) would be visible.
+//   * the solution cache: by default (opts.scheme falsy) it returns null — what production's real cache returns with no
+//     DATABASE_URL (stepSolution.cjs). With opts.scheme (GRADER-TYPE-1 E1, owner ruling R3) it is the REAL scheme step: an
+//     in-memory cache in front of production's own generator, metered. Invocations are counted either way.
 
 const path = require('path');
 
@@ -26,6 +26,11 @@ const { createHttpUtils, extractJsonObjectFromText } = require(path.join(SERVER_
 const { buildGeminiImagePart, validateMentorImagePayload } = require(path.join(SERVER_DIR, 'mentorImageSupport.cjs'));
 const { chargeableCountOf } = require(path.join(SERVER_DIR, 'grading', 'charge.cjs'));
 const ledgerLib = require(path.join(SERVER_DIR, 'services', 'usageLedger.cjs'));
+const fs = require('fs');
+const crypto = require('crypto');
+const lfOnlyHash = (file) => crypto.createHash('sha256').update(fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n')).digest('hex');
+const { AsyncLocalStorage } = require('async_hooks');
+const { createInMemorySchemeCache, createReplaySchemeCache } = require('./schemeCache.cjs');
 
 // A17 owner rulings 2 and 5 (GRADING-JOBS-1 J0): what a job CHARGES (the count fair use commits —
 // grading/charge.cjs, the handler's side channel on `res`) and what the PREMIUM METER records. The
@@ -59,7 +64,7 @@ function fakeRes() {
  */
 function createDriver(opts) {
   const { sendJson } = createHttpUtils('*');
-  const cacheHook = { calls: 0 };
+  const cacheHook = { calls: 0, generated: 0, hits: 0, unfrozen: 0 };
   const meter = { writes: [], okCalls: 0 };
   const ledger = ledgerLib.createUsageLedger({
     resolveFirestore: () => ({ db: { collection: () => ({ doc: () => ({ collection: () => ({ doc: () => ({ set: (d) => { meter.writes.push(d); return Promise.resolve(); } }) }) }) }) }, FieldValue: { increment: (n) => n } }),
@@ -79,10 +84,44 @@ function createDriver(opts) {
     ...(opts.gradingModel ? { GRADING_MODEL: opts.gradingModel, GRADING_THINKING_BUDGET: opts.gradingThinkingBudget ?? null } : {}),
     ...(opts.gradingMode ? { GRADING_MODE: opts.gradingMode, GRADING_LIGHT_MODEL: opts.gradingLightModel || 'gemini-2.5-flash' } : {}),
     ...(typeof opts.makeFenceNonce === 'function' ? { makeFenceNonce: opts.makeFenceNonce } : {}),
-    solutionCache: {
-      getOrCreateModelSolution: async () => { cacheHook.calls += 1; return null; },
-    },
+    // GRADER-TYPE-1 E1 (R3): `opts.scheme` true -> the REAL scheme step (lib/schemeCache.cjs: the production generator behind an
+    // in-memory cache, metered through meteredCallGemini). Default false -> the historical null stub (what stored baselines and
+    // the zero-call replay of them were made under; goldenLive passes the flag, `--no-scheme` turns it back off).
+    solutionCache: null,
   };
+  // Per-job collection (AsyncLocalStorage): the schemes the job used and the raw texts of its scheme-generation calls.
+  const jobAls = new AsyncLocalStorage();
+  // E-b: the scheme file carries PROVENANCE — {header: {schemeModel, stepSolutionSha256, createdAt}, schemes}. A file made under another
+  // scheme model or another generator (routes/stepSolution.cjs) is REFUSED unless `schemeFileForce`.
+  // LF-only hash (as goldenLive's manifest hashes server files): a file written on a Windows CRLF checkout must not be refused on Linux.
+  const stepSolutionSha256 = lfOnlyHash(path.join(__dirname, '..', '..', '..', 'routes', 'stepSolution.cjs'));
+  const schemeModel = opts.schemeModel || opts.gradingModel || opts.model;
+  let preload = {};
+  let fileHeader = { schemeModel, stepSolutionSha256, createdAt: new Date().toISOString() };
+  if (opts.scheme && opts.schemeFile && fs.existsSync(opts.schemeFile)) {
+    const loaded = JSON.parse(fs.readFileSync(opts.schemeFile, 'utf8'));
+    const h = loaded && loaded.header;
+    if (!h || !loaded.schemes) {
+      if (!opts.schemeFileForce) throw new Error('scheme file ' + opts.schemeFile + ' has no provenance header (not written by this tool) — refused; pass --scheme-file-force to use it anyway');
+      preload = loaded.schemes || loaded;
+    } else {
+      if ((h.schemeModel !== schemeModel || h.stepSolutionSha256 !== stepSolutionSha256) && !opts.schemeFileForce) {
+        throw new Error('scheme file ' + opts.schemeFile + ' provenance mismatch — file: model=' + h.schemeModel + ' stepSolution=' + String(h.stepSolutionSha256).slice(0, 12) + '; this run: model=' + schemeModel + ' stepSolution=' + stepSolutionSha256.slice(0, 12) + ' — refused; pass --scheme-file-force to use it anyway');
+      }
+      preload = loaded.schemes;
+      fileHeader = h;
+    }
+  }
+  const persist = opts.schemeFile
+    ? (_h, _s, store) => { const tmp = opts.schemeFile + '.tmp'; fs.writeFileSync(tmp, JSON.stringify({ header: fileHeader, schemes: Object.fromEntries(store) }, null, 1) + '\n'); fs.renameSync(tmp, opts.schemeFile); }
+    : null;
+  let schemeCache = null;
+  if (opts.schemeReplay) deps.solutionCache = createReplaySchemeCache(opts.schemeReplay, cacheHook);
+  else if (opts.scheme) {
+    // the scheme is generated on `schemeModel` (--scheme-model; default the grading model) — a PROXY for production's GEMINI_MODEL, which the eval key refuses
+    schemeCache = createInMemorySchemeCache(deps, cacheHook, { als: jobAls, schemeModel, preload, onStore: persist });
+    deps.solutionCache = schemeCache;
+  } else deps.solutionCache = { getOrCreateModelSolution: async () => { cacheHook.calls += 1; return null; } };
   const routes = createCheckSolutionRoute(deps);
 
   async function run(job) {
@@ -93,10 +132,11 @@ function createDriver(opts) {
     const t0 = Date.now();
     let harnessError = null;
     meter.writes = []; meter.okCalls = 0;
+    const jobStore = { used: {} };
     try {
       await ledgerLib.runWithRequestContext(async () => {
         ledgerLib.bindRequestUid(METER_UID, job.handler === 'handleGradeWorksheet' ? '/api/grade-worksheet' : '/api/check-solution');
-        await handler({ __payload: JSON.parse(JSON.stringify(job.request)) }, res);
+        await jobAls.run(jobStore, () => handler({ __payload: JSON.parse(JSON.stringify(job.request)) }, res));
       });
     } catch (e) {
       harnessError = (e && e.message) || String(e);
@@ -110,11 +150,11 @@ function createDriver(opts) {
     const unitCost = ledgerLib.buildLedgerIncrement(METER_UNIT, { env: {} }).increment.costMicroInr;
     const written = meter.writes.reduce((a, w) => a + (Number(w.costMicroInr) || 0), 0);
     const charged = chargeableCountOf(res);
-    return { httpStatus: res.statusCode, body, wallMs: Date.now() - t0, harnessError, cacheHookCalls: cacheHook.calls - before,
+    return { httpStatus: res.statusCode, body, wallMs: Date.now() - t0, harnessError, cacheHookCalls: cacheHook.calls - before, schemes: jobStore.used,
       charged: charged === undefined ? null : charged, meteredShare: meter.okCalls > 0 ? Math.round((1000 * written) / (unitCost * meter.okCalls)) / 1000 : null };
   }
 
-  return { run, deps };
+  return { run, deps, schemeCounters: cacheHook, schemeCache, schemeModel, stepSolutionSha256, lfOnlyHash };
 }
 
 module.exports = { createDriver, SERVER_DIR };

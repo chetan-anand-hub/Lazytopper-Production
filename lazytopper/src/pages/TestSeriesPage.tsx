@@ -11,7 +11,8 @@ import { useTestSeriesOwnership } from "../components/testSeries/testSeriesOwner
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { TestSeriesExaminerLine, TestSeriesPerTest } from "../components/packs/TestSeriesPerTest";
 import { TsClockSlot } from "../components/packs/TestSeriesFoundingClause";
-import PacksShop, { type PacksShopApi } from "../components/packs/PacksShop";
+import PacksShop, { warmPacksCheckout, type PacksShopApi } from "../components/packs/PacksShop";
+import { isCheckoutWarmDisabled } from "../lib/packs/packsMobilePreload";
 import PayReturnResume from "../components/payReturn/PayReturnResume";
 import TestSeriesPaperPicker from "../components/testSeries/TestSeriesPaperPicker";
 import { TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_VALIDITY_LONG, TEST_SERIES_WRITTEN_SECTIONS } from "../lib/packs/packLabels";
@@ -159,6 +160,12 @@ export default function TestSeriesPage() {
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [plansOpen, setPlansOpen] = useState(false);
   const [buyFrom, setBuyFrom] = useState<string | null>(null);
+
+  // CHECKOUT-FAST-1: the Buy opens the checkout sheet / Razorpay. On INTENT only (the first touch, or the Buy scrolling into view; never on idle) fetch the
+  // sheet chunk, open Razorpay's connections and load checkout.js - never at first paint, no order. VITE_CHECKOUT_WARM_DISABLED=1 = today's on-tap load.
+  useEffect(() => {
+    if (!isCheckoutWarmDisabled()) warmPacksCheckout({ intentOnly: true });
+  }, []);
 
   // The section mounts on the tap, so the anchor jump happens once it exists.
   useEffect(() => {

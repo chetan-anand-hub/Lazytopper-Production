@@ -1,3 +1,26 @@
+## 2026-11-22b (first daily of UTC day 22 Nov; written 22 Nov about 18:15 IST) - #1810 - #1815 - #1813 - #1812 - #1814 - #1808 - #1817 - #1805 - #1809: AI billing alerts, payment-path guards, in-app pay choice, unpaid-orders list, grader typing, faster checkout (trunk `883cb9ee`)
+
+**PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1807`. Covers nine PRs merged 22 Nov 04:58 to 10:56 UTC (10:28 to 16:26 IST). Merge SHAs and times [gh], each SHA an ancestor of trunk [git], nine first-parent commits after `b0c4ff35` [git]; PR bodies, file lists and squash commit messages [gh]; live results, rulings and the open-PR plan [coordinator]. Not re-checked by the docs builder except where tagged [gh] or [git].)*
+
+**How the day went (IST).**
+- **About 05:10 to 08:24.** Every AI feature failed with Gemini `402 Payment Required - prepayment credits are depleted`; nobody knew for about 3 hours [gh, `#1810` body].
+- **About 07:59.** The owner's live Instagram in-app test of PAY-RETURN-1 (`#1803`), signed out, /packs: paying PASSED; cancelling inside the UPI app then left Razorpay's sheet waiting forever (one order-status at 07:59:26, then nothing) [gh, `#1812` body]. That partly answers `[FU-PAYRETURN-LIVE-TEST]` (pay and return worked) and started PAY-HANG-1.
+- **10:28.** `#1810` AI-BILLING-ALERT-1: conservative key/billing failure classifier; owner alerts by email (at most every 2 h, at most 6 a day, because it shares the Resend free-plan quota with receipts) and WhatsApp (CallMeBot, every 30 min); one "recovered" after 5 quiet minutes.
+- **10:51.** Owner: CallMeBot's free WhatsApp bot is full. **12:59.** `#1815` adds Telegram (Bot API; private chat id only; a boot helper LOGS candidate chat ids and never adopts one).
+- **13:20.** `#1813` LATE-AUTH-GUARD-1 (payment age only; refusals answer pending; refunded ends a pending guest order), `#1812` PAY-HANG-1 (v1.2: Check status first, Try again only after a confirmed failure; no Razorpay timeout where there is no status route) and `#1814` RESULT-LIST-BACKFILL-1 (read-time `writtenGraded`; no writes) merged within 28 s.
+- **13:50.** `#1808` INAPP-PAY-CHOICE-1: signed-out, in-app-browser-only "Pay in Chrome" / "Pay in Safari" / "Copy payment link" under the normal button.
+- **14:16.** `#1817` UNPAID-ORDERS-LIST-1: admin "Ordered, not paid" card. A PII review (R1) narrowed it before merge: only the consented WhatsApp number shows in full.
+- **15:46.** `#1805` GRADER-TYPE-1, after six review rounds (round 5: a mark leak fixed; round 4: the rule (b) pronoun wording reverted because it regressed `T1-Q25-REASON-PROVEN` on paid probes).
+- **16:26.** `#1809` CHECKOUT-FAST-1: intent-only checkout.js warm-up, overlapped order-route reads, "Opening secure payment..." until the sheet is visible, open-time events.
+
+**Live checks [coordinator].** `#1805` on the Answer Checker (single path): 1.5/2, the lost half mark typed Concept gap, which is correct under R2. The structured path is still owed (PARTIAL under section 4a). `#1814` checked on the owner's account. `#1809` owner purchases still owed.
+
+**Owner rulings [coordinator].** Admin lists keep emails unmasked; no contact field before Razorpay on signed-out checkout; LCM/HCF dropped power is a concept gap unless the rule is used correctly elsewhere on the page; a blank asked-for reason with no proof is a concept gap; the Resend paid plan will be bought this month. Reasons in DECISION_LOG. The first ruling and `#1817` as merged disagree: `[FU-ADMIN-EMAIL-MASK-SCOPE]`.
+
+**Still open [coordinator; state [gh]].** `#1811` META-IC-1 and `#1816` META-PURCHASE-UNIFY-1, both approved, to merge Monday night 24 Nov in that order, each merged with trunk again first (`#1809` overlaps them). `#1811` is `dirty` on GitHub; `#1816` is still marked draft.
+
+**CI [coordinator].** Flakes noted: `TrialTutorSummary.test.tsx`, the guestPay PUT-ON-THIS-ACCOUNT-1 20 ms timer, `accountExport` timing. The trunk ruleset requires only `quality-gate` and `lane-overlap`, not strict [gh].
+
 ## 2026-11-22 (third daily of UTC day 21 Nov; written 22 Nov early morning IST) - #1799 - #1800 - #1801 - #1802 - #1803 - #1804 - #1806: Answer Checker upload fix, grading retry, honest result copy and lists, pay-return rescue, grade speed, and the empty-scheme finding (trunk `6dc8620b`)
 
 **PROVENANCE.** *(Third daily handoff of UTC day 21 Nov, CLAUDE.md section 10. Covers `#1799`, `#1800`, `#1801`, `#1802`, `#1803`, `#1804`, `#1806`, merged 21 Nov 14:49, 15:22, 16:52, 18:00, 19:33, 20:28 and 21:18 UTC (20:19, 20:52, 22:22, 23:30 IST, then 01:03, 01:58 and 02:48 IST on 22 Nov). Merge SHAs and times [gh], each SHA an ancestor of trunk [git]; PR file lists [gh]; the owner report, live results, measurements, review outcomes, the paid eval and rulings [coordinator]. Not re-checked by the docs builder except where tagged [gh] or [git].)*

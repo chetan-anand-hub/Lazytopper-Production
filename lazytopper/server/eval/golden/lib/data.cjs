@@ -178,6 +178,8 @@ function load() {
 
   const owner = readJson('owner-anomaly-01/case.json');
   const probes = readJson('probes/injection.json');
+  // GRADER-TYPE-1: live type probes (opt-in plan only — never in the default plan / G1 gate).
+  const typeProbes = readJson('probes/grader-type-1.json');
   const mismatch = resolveMismatch(readJson('truth/mismatch.json'), { itemsById, casesById, detect, nameBySlug });
   // A17 owner rulings (GRADING-JOBS-1 J0): truth/rulings-a17.json, composed on golden questions.
   const a17 = resolveA17(readJson('truth/rulings-a17.json'), { itemsById, casesById, detect, nameBySlug });
@@ -223,7 +225,7 @@ function load() {
   // A17: owner rulings that change a PAPER case's truth (truth/repins.json, guarded by the old value).
   for (const r of applyRepins(paperCaseById, repins, { paper: true })) appliedRepins.push(r);
 
-  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, a17, papers, paperCaseById, dupPaper, owner2, GOLDEN_DIR };
+  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, typeProbes, mismatch, a17, papers, paperCaseById, dupPaper, owner2, GOLDEN_DIR };
   return _cache;
 }
 

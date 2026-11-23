@@ -1,0 +1,59 @@
+{
+  "_about": "GRADER-TYPE-1 (owner rulings R1-R2, 22 Nov 2026) LIVE probes. SYNTHETIC typed answers composed for this lane (never a student's paper). Each probe is sent on BOTH entry points (single /api/check-solution and set /api/grade-worksheet, typed transport) with acceptsV2 true. They are NOT part of the default golden plan (the G1 gate, floor.json and the stored baselines are untouched): `goldenLive.cjs --type-probes --filter T1.` plans only these, `goldenTypeProbes.cjs --run <dir>` scores them (stable = every run passes). The expectation is the OWNER RULING, written as bounds on marksLostByType (the server's own ledger) — never on prose. Papers on the `document` transport (a PDF) are not covered here: that live verify is a separate step (see the PR).",
+  "rulings": {
+    "R1": "HCF/LCM-type dropped power or factor: a factorisation written correctly, then used with a power/factor dropped, is `silly` ONLY when the student's own work elsewhere on the page shows the rule the use needs applied correctly; otherwise `conceptual`.",
+    "R2": "Blank asked-for reason, answer right, nothing on the page proving the student knows it -> the lost mark is typed `conceptual`. With proof (knowledgeEvidence) it stays `presentation` (Exam technique).",
+    "R3": "Paid golden runs include the production scheme step (the solution cache), not the null stub."
+  },
+  "bounds": "each bound is one of: 'gt0' (> 0), 'eq0' (= 0), or a number (exact). marks: [min, max] inclusive. A key left out is not checked.",
+  "probes": [
+    {
+      "probeId": "T1-Q25-REASON-BLANK",
+      "ruling": "R2",
+      "subject": "Maths", "topic": "Real Numbers", "marks": 2,
+      "question": "(i) Write the highest power of 2 and the highest power of 3 among the numbers 1 to 10 that must divide a number that is shared equally among any 1 to 10 guests. Give a reason. [1 mark]\n(ii) Hence find the least number of chocolates that can be shared equally among 1 to 10 guests. [1 mark]",
+      "textAnswer": "(i) 2^3 and 3^2\n(ii) LCM = 2^3 x 3^2 x 5 x 7 = 8 x 9 x 35 = 2520",
+      "expect": { "marksLostByType": { "conceptual": 0.5, "unattempted": "eq0", "untyped": "eq0", "presentation": "eq0" }, "marks": [1.5, 1.5] }
+    },
+    {
+      "probeId": "T1-Q25-REASON-PROVEN",
+      "ruling": "R2",
+      "subject": "Maths", "topic": "Real Numbers", "marks": 2,
+      "question": "(i) Write the highest power of 2 and the highest power of 3 among the numbers 1 to 10 that must divide a number that is shared equally among any 1 to 10 guests. Give a reason. [1 mark]\n(ii) Hence find the least number of chocolates that can be shared equally among 1 to 10 guests. [1 mark]",
+      "textAnswer": "(i) 2^3 and 3^2\n(ii) LCM = product of the highest powers of the primes = 2^3 x 3^2 x 5 x 7 = 8 x 9 x 35 = 2520",
+      "expect": { "marksLostByType": { "conceptual": "eq0", "unattempted": "eq0", "untyped": "eq0" } }
+    },
+    {
+      "probeId": "T1-LCM-DROP-NO-RULE",
+      "ruling": "R1",
+      "subject": "Maths", "topic": "Real Numbers", "marks": 2,
+      "question": "Find the HCF and the LCM of 20 and 30 using prime factorisation. [2 marks]",
+      "textAnswer": "20 = 2^2 x 5\n30 = 2 x 3 x 5\nHCF = 2 x 5 = 10\nLCM = 2 x 3 x 5 = 30",
+      "expect": { "marksLostByType": { "conceptual": "gt0", "silly": "eq0", "unattempted": "eq0" } }
+    },
+    {
+      "probeId": "T1-LCM-DROP-RULE-SHOWN-ELSEWHERE",
+      "ruling": "R1",
+      "subject": "Maths", "topic": "Real Numbers", "marks": 2,
+      "question": "(i) Find the LCM of 12 and 18 using prime factorisation. [1 mark]\n(ii) Find the LCM of 20 and 30 using prime factorisation. [1 mark]",
+      "textAnswer": "(i) 12 = 2^2 x 3, 18 = 2 x 3^2\nLCM = highest powers = 2^2 x 3^2 = 36\n(ii) 20 = 2^2 x 5, 30 = 2 x 3 x 5\nLCM = 2 x 3 x 5 = 30",
+      "expect": { "marksLostByType": { "silly": "gt0", "conceptual": "eq0", "unattempted": "eq0" } }
+    },
+    {
+      "probeId": "T1-LCM-LOWEST-POWERS-THROUGHOUT",
+      "ruling": "R1",
+      "subject": "Maths", "topic": "Real Numbers", "marks": 2,
+      "question": "(i) Find the LCM of 12 and 18 using prime factorisation. [1 mark]\n(ii) Find the LCM of 20 and 30 using prime factorisation. [1 mark]",
+      "textAnswer": "(i) 12 = 2^2 x 3, 18 = 2 x 3^2\nLCM = 2 x 3 = 6\n(ii) 20 = 2^2 x 5, 30 = 2 x 3 x 5\nLCM = 2 x 5 = 10",
+      "expect": { "marksLostByType": { "conceptual": "gt0", "silly": "eq0", "unattempted": "eq0" } }
+    },
+    {
+      "probeId": "T1-LCM-HIGHEST-POWERS-MULT-SLIP",
+      "ruling": "R1",
+      "subject": "Maths", "topic": "Real Numbers", "marks": 2,
+      "question": "Find the LCM of 20 and 30 using prime factorisation. [2 marks]",
+      "textAnswer": "20 = 2^2 x 5\n30 = 2 x 3 x 5\nLCM = highest powers = 2^2 x 3 x 5 = 50",
+      "expect": { "marksLostByType": { "calculation": "gt0", "conceptual": "eq0", "silly": "eq0", "unattempted": "eq0" } }
+    }
+  ]
+}

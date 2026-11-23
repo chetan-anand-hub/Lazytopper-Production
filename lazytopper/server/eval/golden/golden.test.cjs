@@ -613,3 +613,266 @@ test('§11d ★ g-mcq-habit-1 accepts exactly the 0-mark habit type on a RIGHT o
   assert.ok(habitViolations(delta.filter((d) => d[0][0] !== 'mistakeSummary'), body).some((v) => /summary moved 0 but steps gained 1/.test(v)), 'a step type with no summary count is refused');
   assert.ok(habitViolations(delta.concat([[['annotatedSteps', 2, 'mistakeType'], null, 'silly'], [['mistakeSummary', 'silly'], 0, 1]]), body).some((v) => /2 steps gained a type/.test(v)), 'two habit types on one question are refused');
 });
+
+// ── §12 GRADER-TYPE-1 E1 (owner ruling R3): the golden driver's REAL scheme step; the type probes are opt-in ──────────
+test('§12a E1 — the driver\'s scheme step: OFF by default (null stub, zero model calls); ON = the production generator behind an in-memory cache, METERED, one generation per distinct question', async () => {
+  const { createDriver } = require('./lib/driver.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const job = buildPlan({}).find((j) => j.jobKey === 'S.CI.GS-M04-a');
+  assert.ok(job, 'CONTROL: the plan has a keyless subjective single job');
+  const mk = (withScheme) => {
+    const seen = [];
+    const callGemini = async (_model, contents) => {
+      const prompt = contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+      if (/authors the OFFICIAL marking scheme|marking scheme for/.test(prompt) && !/GRADING RULES/.test(prompt)) {
+        seen.push('scheme');
+        return { text: JSON.stringify({ steps: [{ stepNumber: 1, description: 'Formula', working: 'a = 1', marks: 1 }, { stepNumber: 2, description: 'Answer', working: 'x = 2', marks: 1 }], finalAnswer: 'x = 2' }), raw: {} };
+      }
+      seen.push('grade');
+      return { text: JSON.stringify({ totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ stepNumber: 1, description: 'd', studentWork: 'w', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, finalAnswerCorrect: true, teacherNote: 'ok' }), raw: {} };
+    };
+    return { seen, driver: createDriver({ callGemini, model: 'test-model', scheme: withScheme }) };
+  };
+  const off = mk(false);
+  const r0 = await off.driver.run(job);
+  assert.equal(off.seen.filter((x) => x === 'scheme').length, 0, 'default: no scheme generation (the historical null stub)');
+  assert.ok(r0.cacheHookCalls >= 1, 'the hook is still invoked and counted');
+  const on = mk(true);
+  const r1 = await on.driver.run(job);
+  const r2 = await on.driver.run(job);
+  assert.equal(on.seen.filter((x) => x === 'scheme').length, 1, 'scheme ON: ONE generation for the question, the second job is a cache hit');
+  assert.ok(on.seen.filter((x) => x === 'grade').length >= 2, 'the grader still runs for both jobs');
+  assert.ok(r1.cacheHookCalls >= 1 && r2.cacheHookCalls >= 1);
+  assert.equal(r1.meteredShare, 1, 'every model call (scheme + grade) is metered, exactly as production');
+});
+
+test('§12a2 E1/B3 — a TWO-job scheme-ON run REPLAYS faithfully: each job brings its own stored scheme, a FRESH driver per job (empty cache) serves it with no model call, and the scheme-generation call is never consumed as the grade reply', async () => {
+  const os = require('os');
+  const fs = require('fs');
+  const { createDriver } = require('./lib/driver.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const { replayJob } = require('./lib/replay.cjs');
+  const isSchemePrompt = (prompt) => /authors the OFFICIAL marking scheme|marking scheme for/.test(prompt) && !/GRADING RULES/.test(prompt);
+  let cur = null;
+  const models = [];
+  const fake = async (model, contents) => {
+    const prompt = contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+    const text = isSchemePrompt(prompt)
+      ? JSON.stringify({ steps: [{ stepNumber: 1, description: 'Formula', working: 'a = 1', marks: 1 }, { stepNumber: 2, description: 'Answer', working: 'x = 2', marks: 1 }], finalAnswer: 'x = 2' })
+      : JSON.stringify({ totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ stepNumber: 1, description: 'd', studentWork: 'w', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, finalAnswerCorrect: true, teacherNote: 'ok' });
+    models.push({ model, scheme: isSchemePrompt(prompt) });
+    // lib/live.cjs tags the call record at call time from the job's async context (E-c); the fake client mirrors that.
+    if (cur) cur.push({ text, scheme: require('./lib/schemeCallContext.cjs').schemeCallAls.getStore() === true });
+    return { text, raw: { candidates: [{ finishReason: 'STOP' }] } };
+  };
+  const live = createDriver({ callGemini: fake, model: 'test-model', scheme: true });
+  const records = []; const jobs = []; const seenHashes = new Set();
+  for (const job of buildPlan({}).filter((j) => j.entry === 'single')) {
+    if (jobs.length === 2) break;
+    cur = [];
+    const res = await live.run(job);
+    const hashes = Object.keys(res.schemes || {});
+    if (!hashes.length || hashes.some((h) => seenHashes.has(h))) continue;
+    hashes.forEach((h) => seenHashes.add(h));
+    jobs.push({ job, body: res.body });
+    records.push({ jobKey: job.jobKey, requestDigest: job.requestDigest, model: 'test-model', schemes: res.schemes,
+      calls: cur.map((c) => ({ ok: true, text: c.text, http: [], ...(c.scheme ? { scheme: true } : {}) })) });
+  }
+  cur = null;
+  assert.equal(jobs.length, 2, 'CONTROL: two keyless jobs with DIFFERENT schemes were recorded');
+  assert.ok(records[0].calls.some((c) => c.scheme), 'the generation call is tagged scheme:true in the record');
+  const before = models.length;
+  for (let i = 0; i < 2; i += 1) {
+    const rep = await replayJob(jobs[i].job, records[i], { schemeStep: true, model: 'test-model' });
+    assert.equal(rep.harnessError, null, 'job ' + i + ': the replay did not throw (the old replay consumed the grade reply as the scheme and ran dry)');
+    assert.deepEqual(rep.body, jobs[i].body, 'job ' + i + ': the replayed body equals the live body');
+    assert.equal(rep.servedCalls, records[i].calls.filter((c) => !c.scheme).length, 'job ' + i + ': every non-scheme stored call served');
+    assert.equal(rep.unusedCalls, 0);
+  }
+  assert.equal(models.length, before, 'replay made ZERO model calls through the live client');
+});
+
+test('§12a3 E1/M1 — a frozen scheme FILE: the first run writes, a later run READS it (zero generation, hits counted); scheme generation runs on --scheme-model (default the grading model; a PROXY for production\'s GEMINI_MODEL), never the detect proxy; provenance is checked; not-frozen questions are counted', async () => {
+  const os = require('os');
+  const fs = require('fs');
+  const path = require('path');
+  const { createDriver } = require('./lib/driver.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const job = buildPlan({}).find((j) => j.jobKey === 'S.CI.GS-M04-a');
+  const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'schemefile-')), 'schemes.json');
+  const calls = [];
+  const fake = async (model, contents) => {
+    const prompt = contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+    const scheme = /authors the OFFICIAL marking scheme|marking scheme for/.test(prompt) && !/GRADING RULES/.test(prompt);
+    calls.push({ model, scheme });
+    return { text: scheme
+      ? JSON.stringify({ steps: [{ stepNumber: 1, description: 'Formula', working: 'a = 1', marks: 1 }, { stepNumber: 2, description: 'Answer', working: 'x = 2', marks: 1 }], finalAnswer: 'x = 2' })
+      : JSON.stringify({ totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ stepNumber: 1, description: 'd', studentWork: 'w', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, finalAnswerCorrect: true, teacherNote: 'ok' }), raw: {} };
+  };
+  const mk = () => createDriver({ callGemini: fake, model: 'detect-proxy', gradingModel: 'grading-model', gradingMode: 'single', scheme: true, schemeFile: file });
+  const a = mk();
+  await a.run(job);
+  assert.ok(fs.existsSync(file), 'the first run WROTE the scheme file');
+  assert.equal(a.schemeCounters.generated, 1);
+  const gen = calls.filter((c) => c.scheme);
+  assert.ok(gen.length >= 1 && gen.every((c) => c.model === 'grading-model'), 'scheme generation ran on the scheme model (default: the grading model, a proxy for production GEMINI_MODEL), not the detect proxy: ' + JSON.stringify(gen));
+  calls.length = 0;
+  const b = mk();
+  await b.run(job);
+  assert.equal(calls.filter((c) => c.scheme).length, 0, 'the second run READ the frozen file: no generation');
+  assert.equal(b.schemeCounters.generated, 0);
+  assert.ok(b.schemeCounters.hits >= 1, 'the hit is counted');
+});
+
+test('§12a4 E-b — the scheme file carries PROVENANCE: a different scheme model, a different generator sha or a headerless file is REFUSED unless --scheme-file-force; --scheme-model overrides the model', async () => {
+  const os = require('os');
+  const fs = require('fs');
+  const path = require('path');
+  const { createDriver } = require('./lib/driver.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const job = buildPlan({}).find((j) => j.jobKey === 'S.CI.GS-M04-a');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'schemeprov-'));
+  const file = path.join(dir, 'schemes.json');
+  const models = [];
+  const fake = async (model, contents) => {
+    const prompt = contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+    const scheme = /authors the OFFICIAL marking scheme|marking scheme for/.test(prompt) && !/GRADING RULES/.test(prompt);
+    if (scheme) models.push(model);
+    return { text: scheme
+      ? JSON.stringify({ steps: [{ stepNumber: 1, description: 'Formula', working: 'a = 1', marks: 1 }, { stepNumber: 2, description: 'Answer', working: 'x = 2', marks: 1 }], finalAnswer: 'x = 2' })
+      : JSON.stringify({ totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ stepNumber: 1, description: 'd', studentWork: 'w', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, finalAnswerCorrect: true, teacherNote: 'ok' }), raw: {} };
+  };
+  const mk = (extra) => createDriver({ callGemini: fake, model: 'detect-proxy', gradingModel: 'grading-model', gradingMode: 'single', scheme: true, schemeFile: file, ...extra });
+  const a = mk({ schemeModel: 'scheme-proxy' });
+  await a.run(job);
+  assert.ok(models.length >= 1 && models.every((m) => m === 'scheme-proxy'), '--scheme-model wins over the grading model: ' + models);
+  const written = JSON.parse(fs.readFileSync(file, 'utf8'));
+  assert.equal(written.header.schemeModel, 'scheme-proxy');
+  assert.match(written.header.stepSolutionSha256, /^[0-9a-f]{64}$/);
+  assert.ok(written.header.createdAt && Object.keys(written.schemes).length === 1);
+  assert.equal(a.schemeCounters.unfrozen, 0, 'a stored scheme is frozen');
+  assert.throws(() => mk({}), /provenance mismatch/, 'another scheme model is refused');
+  mk({ schemeModel: 'scheme-proxy' }); // same model + same generator: accepted
+  assert.doesNotThrow(() => mk({ schemeFileForce: true }), 'forced');
+  fs.writeFileSync(file, JSON.stringify({ header: { ...written.header, stepSolutionSha256: 'f'.repeat(64) }, schemes: written.schemes }));
+  assert.throws(() => mk({ schemeModel: 'scheme-proxy' }), /provenance mismatch/, 'another generator sha is refused');
+  fs.writeFileSync(file, JSON.stringify(written.schemes));
+  assert.throws(() => mk({ schemeModel: 'scheme-proxy' }), /no provenance header/, 'a headerless file is refused');
+});
+
+test('§12a7 E-b — the scheme-file stepSolution hash is LF-ONLY: a CRLF checkout of the generator hashes the same as an LF one', () => {
+  const os = require('os');
+  const fs = require('fs');
+  const path = require('path');
+  const { createDriver } = require('./lib/driver.cjs');
+  const d = createDriver({ callGemini: async () => ({ text: '{}', raw: {} }), model: 'm', scheme: true });
+  const lf = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'lfhash-')), 'a.cjs');
+  const crlf = path.join(path.dirname(lf), 'b.cjs');
+  fs.writeFileSync(lf, 'a\nb\nc\n');
+  fs.writeFileSync(crlf, 'a\r\nb\r\nc\r\n');
+  assert.equal(d.lfOnlyHash(crlf), d.lfOnlyHash(lf));
+  assert.match(d.stepSolutionSha256, /^[0-9a-f]{64}$/);
+  assert.equal(d.stepSolutionSha256, d.lfOnlyHash(path.join(__dirname, '..', '..', 'routes', 'stepSolution.cjs')), 'the provenance hash IS the LF-only hash of stepSolution.cjs');
+});
+
+test('§12a5 E-b — a scheme that fails the quality gate is NOT frozen: counted in schemeCounters.unfrozen (it regenerates every run)', async () => {
+  const { createDriver } = require('./lib/driver.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const job = buildPlan({}).find((j) => j.jobKey === 'S.CI.GS-M04-a');
+  const fake = async (_m, contents) => {
+    const prompt = contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+    const scheme = /authors the OFFICIAL marking scheme|marking scheme for/.test(prompt) && !/GRADING RULES/.test(prompt);
+    return { text: scheme ? JSON.stringify({ steps: [], finalAnswer: '' }) : JSON.stringify({ totalMarks: 1, marksAwarded: 1, annotatedSteps: [{ stepNumber: 1, description: 'd', studentWork: 'w', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, finalAnswerCorrect: true, teacherNote: 'ok' }), raw: {} };
+  };
+  const d = createDriver({ callGemini: fake, model: 'm', scheme: true });
+  await d.run(job);
+  assert.equal(d.schemeCounters.hits, 0);
+  assert.ok(d.schemeCounters.unfrozen >= 1, 'the unfrozen question is counted: ' + JSON.stringify(d.schemeCounters));
+});
+
+test('§12a6 E-c — a scheme call is tagged AT CALL TIME in the live client record, FAILED calls too; a failed scheme call never reaches the grading pool, and replay does not feed it to the grader', async () => {
+  const os = require('os');
+  const fs = require('fs');
+  const path = require('path');
+  const { schemeCallAls } = require('./lib/schemeCallContext.cjs');
+  const savedFetch = globalThis.fetch;
+  const savedKey = process.env.API_KEY;
+  const savedProv = process.env.AI_PROVIDER;
+  process.env.API_KEY = 'AIzaSyTEST_TEST_TEST_TEST_TEST_TEST_TEST_';
+  delete process.env.AI_PROVIDER;
+  globalThis.fetch = async () => new Response(JSON.stringify({ error: { code: 400, message: 'synthetic scheme failure', status: 'INVALID_ARGUMENT' } }), { status: 400, headers: { 'content-type': 'application/json' } });
+  try {
+    const { createLiveClient } = require('./lib/live.cjs');
+    const client = createLiveClient({ model: 'm', thinkingBudget: null, ledgerFile: path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'liveled-')), 'l.jsonl'), cap: 50, configId: 't', pr: 'T' });
+    const contents = [{ role: 'user', parts: [{ text: 'x' }] }];
+    const { calls } = await client.runInContext({ fn: 'f', jobKey: 'J', run: 1 }, async () => {
+      await schemeCallAls.run(true, () => client.callGemini('m', contents, {})).catch(() => null);
+      await client.callGemini('m', contents, {}).catch(() => null);
+    });
+    assert.equal(calls.length, 2);
+    assert.equal(calls[0].ok, false, 'the scheme call FAILED');
+    assert.equal(calls[0].scheme, true, 'a FAILED scheme call is tagged scheme:true (the old text-match tagged successful calls only)');
+    assert.notEqual(calls[1].scheme, true, 'a grading call is not tagged');
+    // the replay pool: only the grading call remains, so the failed scheme call can never be served as a grade reply
+    const { pickStoredCall } = require('./lib/replay.cjs');
+    const pool = calls.filter((c) => !c.scheme);
+    assert.equal(pool.length, 1);
+    assert.equal(pickStoredCall(pool, new Set(), 'm', {}), 0);
+  } finally {
+    globalThis.fetch = savedFetch;
+    if (savedKey === undefined) delete process.env.API_KEY; else process.env.API_KEY = savedKey;
+    if (savedProv !== undefined) process.env.AI_PROVIDER = savedProv;
+  }
+});
+
+test('§12b GRADER-TYPE-1 — the type probes are OPT-IN: the default plan is unchanged (no T1 job), the probe plan holds ONLY probes, both entry points, acceptsV2', () => {
+  const { buildPlan } = require('./lib/planner.cjs');
+  const def = buildPlan({ includeDetect: true });
+  assert.ok(!def.some((j) => /\.T1\./.test(j.jobKey)), 'the default plan (G1, floor.json, stored runs) has no type probe');
+  const probes = buildPlan({ typeProbes: true });
+  assert.ok(probes.length >= 12 && probes.every((j) => /^[SW]\.T1\./.test(j.jobKey) && j.request.acceptsV2 === true));
+  assert.deepEqual([...new Set(probes.map((j) => j.entry))].sort(), ['set', 'single']);
+  for (const id of ['T1-Q25-REASON-BLANK', 'T1-LCM-DROP-NO-RULE', 'T1-LCM-DROP-RULE-SHOWN-ELSEWHERE', 'T1-LCM-LOWEST-POWERS-THROUGHOUT', 'T1-LCM-HIGHEST-POWERS-MULT-SLIP']) {
+    assert.ok(probes.some((j) => j.jobKey === 'S.T1.' + id) && probes.some((j) => j.jobKey === 'W.T1.' + id), id);
+  }
+});
+
+test('§12c GRADER-TYPE-1 — checkProbe reads ONLY the server ledger (marksLostByType) and the marks; a wrong bucket or a moved mark FAILS', () => {
+  const { checkProbe } = require('./lib/typeProbes.cjs');
+  const exp = { marksLostByType: { conceptual: 0.5, untyped: 'eq0', silly: 'eq0' }, marks: [1.5, 1.5] };
+  const ok = { ok: true, marksAwarded: 1.5, marksLostByType: { conceptual: 0.5, untyped: 0, silly: 0 } };
+  assert.equal(checkProbe(ok, 'single', exp).pass, true);
+  assert.equal(checkProbe({ ok: true, results: [ok] }, 'set', exp).pass, true);
+  assert.equal(checkProbe({ ...ok, marksLostByType: { conceptual: 0, untyped: 0.5, silly: 0 } }, 'single', exp).pass, false, 'untyped instead of conceptual');
+  assert.equal(checkProbe({ ...ok, marksLostByType: { conceptual: 0.5, untyped: 0, silly: 0.5 } }, 'single', exp).pass, false, 'silly where the ruling says conceptual');
+  assert.equal(checkProbe({ ...ok, marksAwarded: 1 }, 'single', exp).pass, false, 'a mark moved');
+  assert.equal(checkProbe({ ok: true, couldNotRead: true }, 'single', exp).pass, false);
+  assert.equal(checkProbe({ ok: false }, 'single', exp).pass, false);
+});
+
+test('§12d GRADER-TYPE-1 — the STORED paid type-probe run (2026-11-22, 3 runs x both entry points) scores 12/12 stable with zero model calls (T1-Q25-REASON-BLANK: a calculation repeating the result is not proof of the reason)', () => {
+  const { spawnSync } = require('child_process');
+  const r = spawnSync(process.execPath, [path.join(__dirname, 'goldenTypeProbes.cjs'), '--run', path.join(__dirname, 'runs', 't1-probes-2026-11-22'), '--runs', '3'], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /TYPE-PROBES: probes=12 stable=12 calls=0 verdict=PASS/);
+});
+
+test('§12e GRADER-TYPE-1 — the STORED paid probe run on prompt 3c7f7797 (07a604d7, t1-probes4) replays zero-call under the round-3 reason-evidence rule at probes=12 stable=12', () => {
+  const { spawnSync } = require('child_process');
+  const r = spawnSync(process.execPath, [path.join(__dirname, 'goldenTypeProbes.cjs'), '--run', path.join(__dirname, 'runs', 't1-probes4-2026-11-22'), '--runs', '3'], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /TYPE-PROBES: probes=12 stable=12 calls=0 verdict=PASS/);
+});
+
+test('§12f GRADER-TYPE-1 — the STORED full golden candidate (T1-cand2, paid on 07a604d7, prompt 3c7f7797) replayed with the CURRENT post-processing keeps its original headline: marks and mistake types did not move', async () => {
+  const quiet = { warn: console.warn, error: console.error };
+  console.warn = () => {}; console.error = () => {};
+  try {
+    const { evaluateRun } = require('./lib/evaluate.cjs');
+    const ok = await evaluateRun(path.join(GOLDEN, 'runs', '2026-11-22.T1-cand2'));
+    const m = ok.metrics;
+    assert.deepEqual([m.mcq, m.total_exact, m.within_half, m.wrong_step, m.type, m.comments], [100, 92.7, 100, 94.7, 90.9, 100]);
+    assert.deepEqual(ok.integrity.requestDigestMismatch, []);
+    assert.deepEqual(ok.integrity.replayIncomplete, []);
+  } finally { console.warn = quiet.warn; console.error = quiet.error; }
+});

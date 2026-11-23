@@ -23,6 +23,64 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-22b (first daily of UTC day 22 Nov; written 22 Nov about 18:15 IST) - #1810 - #1815 - #1813 - #1812 - #1814 - #1808 - #1817 - #1805 - #1809 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Closed:** `[FU-RESULT-LIST-BACKFILL]` by `#1814` (read-time derivation, no data write; checked on the owner's account [coordinator]). Its 22 Nov entry below is left as written (standing rule 3).
+**Partly answered:** `[FU-PAYRETURN-LIVE-TEST]`. The owner's Instagram in-app test about 07:59 IST: pay and return PASSED; cancel in the UPI app hung, fixed by `#1812` [gh]. A re-test after `#1812` (cancel, reload, normal browser) is still owed.
+**Still OPEN, P0, unchanged:** `[FU-SCHEME-GEN-EMPTY]` (body in the 22 Nov section below).
+**New (each has its own heading below):** `[FU-T1-RULE-B-PRONOUN]`, `[FU-TS-UPGRADE-SIGNED-OUT]`, `[FU-NUDGE-BAD-PRODUCT]`, `[FU-GUEST-OPEN-ORDER-REUSE]`, `[FU-FLAKY-TRIAL-TUTOR-SUMMARY]`, `[FU-FLAKY-GUESTPAY-PUT-ON-THIS-ACCOUNT]`, `[FU-FLAKY-ACCOUNTEXPORT-TIMING]`, `[FU-INAPP-PAY-CHOICE-NITS]`, `[FU-UNPAID-ORDERS-NITS]`, `[FU-CHECKOUT-FAST-NITS]`, `[FU-TRUNK-RULESET-REQUIRED-CHECKS]`, `[FU-GRADER-TYPE-1-STRUCTURED-LIVE]`, `[FU-CHECKOUT-FAST-LIVE-PURCHASES]`, `[FU-ADMIN-EMAIL-MASK-SCOPE]`, `[FU-GUEST-VERIFY-REFUSED-COPY]`, `[FU-SINGLE-VS-STRUCTURED-HINGLISH-HALF]`, `[FU-META-OPEN-PRS-REMERGE]`.
+
+### [FU-T1-RULE-B-PRONOUN]
+OPEN, **do not retry without a paid probe.** In `#1805` the prompt rule (b) proof sentence was reworded into the third person ("the student's correct answer to this part is not proof that the student knows the reason"; prompt pin `3c7f7797` to `0e213ab8`). Paid probes5 on `0e213ab8` showed it REGRESSED `T1-Q25-REASON-PROVEN` (the model stopped quoting the proof: 1/3 on both shapes; REASON-BLANK and R1 stayed 3/3), so round 4 reverted it: `rules.cjs` is byte-identical to `07a604d7`, default prompt pin `3c7f7797`, kill-switch pin `c9c7d082` unchanged. The wording is still second person. Any future attempt must run the paid type probes before and after. [gh, `#1805` commits; coordinator]
+
+### [FU-TS-UPGRADE-SIGNED-OUT]
+OPEN. The coordinator gave this ID with no body. From its name it concerns the Test Series upgrade for a signed-out visitor; the docs builder did not find the detail in the repo and has not invented it. (Context only: `#1809` says the ₹1,083 upgrade path is the signed-in `till_boards` order with a Test Series credit.) Whoever picks this up: write the real body here. [coordinator]
+
+### [FU-NUDGE-BAD-PRODUCT]
+OPEN. The coordinator gave this ID with no body. From its name it concerns a nudge (email or WhatsApp) naming or linking the wrong product; the detail is not in the repo and has not been invented. Write the real body before working it. [coordinator]
+
+### [FU-GUEST-OPEN-ORDER-REUSE]
+OPEN, **optional.** Let a guest checkout reuse its own open Razorpay order for up to 30 minutes instead of creating a new one per tap. Today only the signed-in `/api/pay/order` pass path has reuse (MONEY-DUPGUARD-1); guest checkouts create a new order every time, so after `#1811` guest InitiateCheckout follows guest order creation one for one [gh, `#1811` body]. Money path: needs a spec, the owner's yes and an independent review. [coordinator]
+
+### [FU-FLAKY-TRIAL-TUTOR-SUMMARY]
+OPEN, CI flake. `TrialTutorSummary.test.tsx` failed in CI around this window, unrelated to the PR under test [coordinator]. If it fails again, find the race instead of re-running. Same family as `[FU-FLAKY-TRIALEND-BANNER-IST]`.
+
+### [FU-FLAKY-GUESTPAY-PUT-ON-THIS-ACCOUNT]
+OPEN, CI flake. `src/services/guestPay.test.ts` "PUT-ON-THIS-ACCOUNT-1" waits on a 20 ms settle timer; it failed twice in large multi-directory runs under load and passes alone and on re-run [gh, `#1812` body]. `#1812` v1.1 changed the test to `vi.waitFor` [gh, commit message]; the coordinator still lists it as a flake, so watch whether that cured it. [coordinator]
+
+### [FU-FLAKY-ACCOUNTEXPORT-TIMING]
+OPEN, CI flake. An `accountExport` timing test failed once under machine load and passed on re-run [gh, `#1812` body; coordinator]. Make it independent of wall-clock load.
+
+### [FU-INAPP-PAY-CHOICE-NITS]
+OPEN. The coordinator recorded review nits on `#1808` (INAPP-PAY-CHOICE-1) as open but did not pass the list, and it is not on GitHub (no PR review or comment carries it) [gh]. The review fixes that WERE made are in the squash message (B1-B3, N1-N3). Write the remaining nits here from the review notes before closing. [coordinator]
+
+### [FU-UNPAID-ORDERS-NITS]
+OPEN. As for `#1808`: review nits on `#1817` (UNPAID-ORDERS-LIST-1) are open but their list was not passed and is not on GitHub. Known from the PR body [gh]: the older Purchases card's "Abandoned checkouts" list shows signed-in buyers' emails unmasked whatever the consent, and `#1817` left that to the owner (see `[FU-ADMIN-EMAIL-MASK-SCOPE]`). [coordinator]
+
+### [FU-CHECKOUT-FAST-NITS]
+OPEN. As above for `#1809` (CHECKOUT-FAST-1): review nits open, list not passed, not on GitHub. Known from the PR body [gh]: the real post-touch cost of Razorpay's script was not measured (stubbed); TBT on /test-series and /board-pass was within noise (`[FU-CBQ-TBT-CHECKOUT-WARM]`); whether Razorpay's iframe bundle starts sooner with checkout.js pre-loaded needs a real order on a phone. [coordinator]
+
+### [FU-TRUNK-RULESET-REQUIRED-CHECKS]
+OPEN, process. The branch ruleset on `base/approved-thru-437` requires only the `quality-gate` and `lane-overlap` status checks, with `strict_required_status_checks_policy: false` [gh, `rules/branches/base/approved-thru-437`; also: no deletion, no non-fast-forward, code-owner review]. So a PR whose base is behind trunk can merge on a green run against an OLD base, and other checks (Container Boot, prerender-capture) do not block. Consequence today: `#1811` and `#1816` must be merged with trunk again by hand before the 24 Nov merge. Decide whether to turn on strict or add checks (CI cost trade-off: strict forces re-runs after every merge). [gh; coordinator]
+
+### [FU-GRADER-TYPE-1-STRUCTURED-LIVE]
+OPEN, **section 4a.** `#1805` was live-checked on the single path only (Answer Checker 1.5/2, lost half mark typed Concept gap, correct) [coordinator]. A structured-path check (multi-question Answer Checker, Worksheet, Chapter Test or Full Mock) is owed, and per the `#1805` body it should include one `document` (PDF) paper, because the surface tests used the typed transport. Until then `#1805` is PARTIAL.
+
+### [FU-CHECKOUT-FAST-LIVE-PURCHASES]
+OPEN, owner. `#1809` is a money path; its live-verify list [gh] is owed: throttled phone, signed out, /test-series time to the sheet and the form (against 2.5 s / 10.7 s), ONE Razorpay order per tap; the same in Instagram; the wait copy; the four events in GA4; a normal purchase on Test Series, a pack, Board Pass and For Parents; dismiss and retry; PAY-RETURN-1 resume. [coordinator]
+
+### [FU-ADMIN-EMAIL-MASK-SCOPE]
+OPEN, **owner question.** Owner ruling 22 Nov [coordinator]: "admin lists keep emails unmasked, because the owner needs them to contact buyers". `#1817` as merged does the opposite in its own card: only the consented WhatsApp number is returned in full and account and checkout emails are masked on the server (`adminUnpaidOrders.cjs` L229-236 at `883cb9ee` [git]; final commit "only the consented WhatsApp number in full (PII review R1)", which itself cites an owner ruling [gh]). The ruling most likely answers the question `#1817`'s body left open (keep the older Purchases card's "Abandoned checkouts" emails unmasked), but that is the docs builder's reading, not the owner's words. Ask the owner which list(s) the ruling covers; if it covers the unpaid-orders card, that is a product lane (PII, minors: independent review). Nothing changed here.
+
+### [FU-GUEST-VERIFY-REFUSED-COPY]
+OPEN, money-path copy. Raised in the `#1813` body [gh]: any guest verify rejection, including the new 202 "pending / awaiting_bank" answer, renders "Payment received ✓". At `883cb9ee`, `src/services/guestPay.ts` L238-253 still returns `status: "paid"` (with `confirmed: false` on a verify throw) whatever verify answers, and `CheckoutSheet.tsx` L371 shows "Payment received ✓" [git]. The comment there gives the reason (Razorpay signed a success). But after `#1813` a late authorisation may be refunded, not captured, so "received" can be wrong. Needs a client lane. [gh; git]
+
+### [FU-SINGLE-VS-STRUCTURED-HINGLISH-HALF]
+OPEN, **section 4a defect shape.** Logged in the `#1805` body [gh]: the same model reply scores 2.5 on the single path (Answer Checker) and 2 on the structured path (Worksheet, Chapter Test). Pre-existing, not caused by `#1805`. Repro: `/home/claude/scratch-review-1805/b8.test.cjs` (outside the repo). It is the "same reply, different result on the two paths" shape that CLAUDE.md section 4a warns about; a fix is a GRADING lane and must be verified on both paths.
+
+### [FU-META-OPEN-PRS-REMERGE]
+OPEN, **due Monday night 24 Nov.** `#1811` META-IC-1 (approved; `mergeable: false`, `dirty`; shares 5 files with `#1809`) and `#1816` META-PURCHASE-UNIFY-1 (approved; still a DRAFT on GitHub; base `a09cf52c`; shares `guestPay.test.cjs` with `#1809`) [gh]. Order: `#1811` first, then `#1816`. Each must be merged with trunk again, CI re-run, and `#1816` resolved against `#1811` using its PR body's recipe. After deploy: Meta test events (one IC per order; one `Purchase` per pack, de-duplicated; no `PackPurchase`). Flip the two `#1816` kill switches together if needed. [coordinator; gh]
+
 ## 2026-11-22 (third daily of UTC day 21 Nov; written 22 Nov early morning IST) - #1799 - #1800 - #1801 - #1802 - #1803 - #1804 - #1806 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **New (each has its own heading below):** `[FU-SCHEME-GEN-EMPTY]` (P0), `[FU-FREECHECK-GRADE-ALL-COPY]`, `[FU-RESULT-LIST-BACKFILL]`, `[FU-PAYRETURN-LIVE-TEST]`, `[FU-PAYRETURN-N5-GUEST-CAPTURE-GAP]`, `[FU-SLOW-STAGE-DOUBLE-SHOW]`, `[FU-SCHEME-PREWARM-WORKLOAD-CLASS]`, `[FU-IDEMPOTENCY-STALE-VS-118S]`, `[FU-EVAL-55S-TIMEOUTS]`, `[FU-FLAKY-TRIALEND-BANNER-IST]`, `[FU-REPO-PRIVATE]`.

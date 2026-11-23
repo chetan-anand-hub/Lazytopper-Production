@@ -3913,6 +3913,10 @@ test('META-IC-1 · pay-by-phone, pay-for-someone and pay-for-myself orders each 
   assert.equal(rec.created.length, before, 'no order -> no InitiateCheckout');
 });
 
+/* ══ CHECKOUT-FAST-1 · the order routes' critical path (parallel independent reads) ═════════
+ * Kept in their own files (not *.test.cjs, so each is gated through THIS wired suite - the ci_docs_lane a15 rule). */
+require('./orderTiming.cases.cjs');
+require('../services/payOrderTiming.cases.cjs');
 /* ── LATE-AUTH-GUARD-1 v1.1 · guest verify + PAY-RETURN order-status: payment age only; a refusal is PENDING ──────────── */
 {
   const MIN = 60 * 1000;
