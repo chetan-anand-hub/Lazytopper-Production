@@ -521,7 +521,7 @@
  },
  "chemical-reactions-and-equations::rows": {
   "n": 502,
-  "sha256": "c4de3602741e0076ddd717aeeb9b72d6deed4d601e0c31968bebbdfa92ed8b2c"
+  "sha256": "5eeedc18ce344da9ceaafba678e36f886722a14b3e72a3238c354795f90d0f9c"
  },
  "chemical-reactions-and-equations::rank": {
   "n": 502,
@@ -561,7 +561,7 @@
  },
  "acids-bases-and-salts::rows": {
   "n": 548,
-  "sha256": "1686742e9ec8b953ae69bbbca677e7bbf68f64faa9ea5065a2bf3d0817b66c4c"
+  "sha256": "bf4155fa7ea54dc1f62839705f9d294eb862161866aa4f834829bf39660fc485"
  },
  "acids-bases-and-salts::rank": {
   "n": 548,
@@ -681,7 +681,7 @@
  },
  "light-reflection-and-refraction::rows": {
   "n": 786,
-  "sha256": "5c63fb9964e8b7fe377787a39252bfdde65515997ed09598af6afcec3620aef5"
+  "sha256": "b36ac0777ee437b1003abc8f4071dd75d1a741df93ca6340e198fd8dbd16ff02"
  },
  "light-reflection-and-refraction::rank": {
   "n": 786,
@@ -761,7 +761,7 @@
  },
  "electricity::rows": {
   "n": 384,
-  "sha256": "928d2e9d015f9852e72b7f8ef41b25bb2b0c86b577c425c3c9774ee934abdd7c"
+  "sha256": "d89455772493ccf4d1d26727cd4bdd67e6c832d8bd37e3bd4e139821287db765"
  },
  "electricity::rank": {
   "n": 384,
@@ -841,7 +841,7 @@
  },
  "life-processes::rows": {
   "n": 579,
-  "sha256": "404aa86b13d5a68feee9c18fc34bf8a78feb2a6d7f35cad012135b628920fc06"
+  "sha256": "50edb5e935d3fc497b4a3a5a753880a436112fb612d9b3912a75b3dbc8dc0002"
  },
  "life-processes::rank": {
   "n": 579,
@@ -1001,7 +1001,7 @@
  },
  "our-environment::rows": {
   "n": 358,
-  "sha256": "cbd5d55a03f8037c61479a8f7e29de822b2f2110a7c54fcd14e05aa8a9d6752f"
+  "sha256": "cda00722fa227c50a6a26bf9f7d296c16a0705122b33824332bdf15531145dd3"
  },
  "our-environment::rank": {
   "n": 358,
@@ -1045,6 +1045,6 @@
  },
  "subject::Science": {
   "n": 5780,
-  "sha256": "40096e5a8aceb893a54256dcae890a2776e75fc92198149fa47e06c03c2dbfbb"
+  "sha256": "f23e09b05f260ffc9b1b280bd4f1dd902b5f947e1158b94f4572fc41dbc0e549"
  }
 }

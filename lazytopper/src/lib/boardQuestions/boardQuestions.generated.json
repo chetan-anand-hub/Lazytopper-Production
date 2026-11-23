@@ -754,6 +754,26 @@
       "subject": "science",
       "questions": [
         {
+          "id": "APQ-S-ENV-004",
+          "questionText": "Two food pyramids are shown — a traditional land pyramid (producers largest) and an aquatic pyramid where producers (phytoplankton) have less total mass than top consumers (big fishes). (a) Which level is likely to have the most amount of energy in such an aquatic ecosystem? Give a reason. (b) Such aquatic ecosystems are not considered to be sustainable. Justify.",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] (a) Even with smaller MASS, phytoplankton (producers) capture maximum sunlight energy. Energy flow follows the 10% rule: producers always have the highest TOTAL energy captured from sunlight, decreasing with each higher level.",
+            "[1 mark] (b) The low mass of producers means very limited food available to the higher trophic levels. Top consumers may exhaust the phytoplankton supply faster than it can regenerate ⟹ organisms at higher levels starve and die sooner ⟹ the ecosystem is not sustainable in the long term."
+          ]
+        },
+        {
+          "id": "APQ-S-ENV-008",
+          "questionText": "Marked decline in the thickness of ozone layer was noticed in the 1980s. Which human activity can be held accountable for this change? What is the possible effect of this on human health?",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] Human activities releasing CHLOROFLUOROCARBONS (CFCs) — used in refrigerators, air conditioners, and aerosol sprays — were responsible for the marked depletion of the ozone layer.",
+            "[1 mark] The ozone layer shields the Earth's surface from harmful UV rays of the Sun. Its depletion increases UV exposure, which causes SKIN CANCER and other harmful effects on human health (also cataracts, immune suppression)."
+          ]
+        },
+        {
           "id": "CBE-S-ENVI-A-004",
           "questionText": "A food web is shown. Which food chain from this web has the most efficient transfer of energy to the human?",
           "marks": 1,
@@ -770,35 +790,6 @@
           "figures": [
             {
               "src": "/figures/itembank-science/our-environment/CBE-S-ENVI-A-004.webp",
-              "alt": "Source figure"
-            }
-          ]
-        },
-        {
-          "id": "CBE-S-ENVI-E-001",
-          "questionText": "In periods of high rainfall, fertiliser can flow into lake ecosystems. Explain what is meant by the term ecosystem.",
-          "marks": 3,
-          "section": "C",
-          "solutionSteps": [
-            "[1 mark] An ecosystem consists of all the living organisms (plants, animals, microorganisms) living together in an area/habitat.",
-            "[1 mark] These organisms interact with one another (biotic interactions).",
-            "[1 mark] They also interact with their non-living surroundings (abiotic factors such as water, light, temperature, soil)."
-          ]
-        },
-        {
-          "id": "CBE-S-ENVI-E-002",
-          "questionText": "Discuss the impact of pesticides on the desert food web shown in Fig. 1.",
-          "marks": 4,
-          "section": "E",
-          "solutionSteps": [
-            "[1 mark] Pesticides kill the insects (primary consumers), reducing their numbers in the web.",
-            "[1 mark] With fewer insects there is less food for the scorpion / large lizard, so these secondary consumers decline, giving less food for the fox / falcon.",
-            "[1 mark] The pesticide passes along the chain and bioaccumulates in the top predators (falcon / fox), reaching toxic levels that can damage them and their offspring.",
-            "[1 mark] Removing insects also means less damage to the cacti and more plant food for small lizards / rats, so populations of consumers across the web change."
-          ],
-          "figures": [
-            {
-              "src": "/figures/itembank-science/our-environment/CBE-S-ENVI-E-002.webp",
               "alt": "Source figure"
             }
           ]

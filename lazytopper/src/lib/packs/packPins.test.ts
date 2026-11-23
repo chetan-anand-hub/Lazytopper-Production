@@ -41,6 +41,8 @@ const ACKNOWLEDGED_DRAW_DRIFT: readonly string[] = [
   ...["arithmetic-progression", "coordinate-geometry", "triangles", "circles"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
   // STEPMARK-2 batch 3B (19 Nov 2026): the same for areas-related-to-circles, surface-areas-and-volumes, probability.
   ...["areas-related-to-circles", "surface-areas-and-volumes", "probability"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
+  // STEPMARK-3 mixed group (#1834, re-measured on trunk 8c96da9a): the step-mark splits moved these seeded draws; the pins did not.
+  "ct1:acids-bases-and-salts", "ct2:acids-bases-and-salts", "ct1:light-reflection-and-refraction", "ct2:light-reflection-and-refraction", "ct1:life-processes", "ct2:life-processes", "ct1:our-environment", "ct2:our-environment",
   // STEPMARK-3 heredity (#1829, re-measured on trunk b347a4d7): the step-mark splits moved these seeded draws; the pins did not.
   "ct1:heredity", "ct2:heredity",
   // STEPMARK-3 human-eye (#1828, re-measured on trunk 0844ef4a): the step-mark splits moved these seeded draws; the pins did not.
@@ -182,7 +184,9 @@ describe("PACK-PIN-1 pinned builds equal the seeded draws", () => {
 
 describe("PACK-PIN-1 provenance and the kill switch", () => {
   it("pinned Chapter Test carries the same provenance as the draw (withProvenance over the chapter rows)", async () => {
-    const slug = PACK_CHAPTER_SLUGS.find((x) => !ack(`ct1:${x}`) && !ack(`ct2:${x}`))!; // STEPMARK-2: first chapter whose seeded draw did not move
+    // STEPMARK-2: first chapter whose seeded draw did not move. STEPMARK-3 (#1834): only Chapter Test 1 is compared below
+    // ([pinned] / [drawn] take paper 1), and after STEPMARK-3 every chapter has an acknowledged ct2 drift, so the guard asks for ct1 only.
+    const slug = PACK_CHAPTER_SLUGS.find((x) => !ack(`ct1:${x}`))!;
     const rows = chapterPackRows(slug);
     const drawRows = chapterPackDrawRows(slug);
     const [pinned] = await packChapterTestPapers(slug, drawRows);
