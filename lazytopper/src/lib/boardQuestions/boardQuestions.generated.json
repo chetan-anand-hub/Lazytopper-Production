@@ -183,6 +183,19 @@
           ]
         },
         {
+          "id": "APQ-S-CARB-002",
+          "questionText": "A carbon compound P is neutral to red/blue litmus. A gas that burns with a 'pop' sound is produced when a metal reacts with P. (a) Write the chemical equation for the reaction. (b) P is heated with conc. H2SO4 to give compound Q. (i) Write the chemical equation. (ii) Describe the flame Q produces on combustion. (c) What is likely observed on heating P with ethanoic acid + acid catalyst? Write the equation.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] P is neutral and reacts with metal to release H2 — characteristic of an alcohol. Take P = ethanol (C2H5OH).",
+            "[1 mark] (a) 2 Na + 2 CH3CH2OH → 2 CH3CH2ONa + H2↑ (gas burns with pop sound).",
+            "[1 mark] (b)(i) Dehydration with conc. H2SO4 at high temp: CH3CH2OH → CH2=CH2 + H2O. Q = ethene (ethylene).",
+            "[1 mark] (b)(ii) Ethene burns with yellow flame and black smoke (high C/H ratio — sooty).",
+            "[1 mark] (c) Ethanol + ethanoic acid → ester (ethyl ethanoate, a sweet/fruity-smelling compound). Equation: CH3COOH + C2H5OH ⇌ CH3COOC2H5 + H2O (acid catalyst, esterification)."
+          ]
+        },
+        {
           "id": "APQ-S-CARB-003",
           "questionText": "Given a 4-carbon skeleton of a hydrocarbon compound. (a) Fill in the hydrogen atoms/bonds to form: (i) a saturated hydrocarbon (ii) an unsaturated hydrocarbon. (b) If the four-carbon skeleton is of a straight chained alkene, draw the structures of all the possible compounds.",
           "marks": 4,
@@ -192,18 +205,6 @@
             "[1 mark] (a)(ii) Unsaturated hydrocarbon: butene CH2=CH-CH2-CH3 (C4H8) with a C=C double bond (or butyne CH≡C-CH2-CH3, C4H6).",
             "[1 mark] (b) First straight-chain alkene: But-1-ene, CH2=CH-CH2-CH3, with the double bond at position 1.",
             "[1 mark] (b) Second straight-chain alkene: But-2-ene, CH3-CH=CH-CH3, with the double bond at position 2."
-          ]
-        },
-        {
-          "id": "APQ-S-CARB-004",
-          "questionText": "If the four-carbon skeleton is of a straight chained alkyne: (i) How many carbon atoms may NOT be bonded to any hydrogen atoms? (ii) How many hydrogen atoms will there be in the compound?",
-          "marks": 4,
-          "section": "E",
-          "solutionSteps": [
-            "[1 mark] The straight-chain alkynes with 4 carbons are but-1-yne (HC≡C-CH2-CH3) and but-2-yne (CH3-C≡C-CH3), both C4H6.",
-            "[1 mark] (i) In but-1-yne, HC≡C-CH2-CH3: C1 has 1 H, C2 has 0 H, C3 has 2 H, C4 has 3 H → one carbon (C2) is bonded to no hydrogen.",
-            "[1 mark] (i) In but-2-yne, CH3-C≡C-CH3: C1 has 3 H, C2 has 0 H, C3 has 0 H, C4 has 3 H → two carbons (C2 and C3) are bonded to no hydrogen. So one or two carbons may not be bonded to any H.",
-            "[1 mark] (ii) The molecular formula is C4H6, so the compound contains six hydrogen atoms."
           ]
         }
       ]
@@ -316,42 +317,38 @@
       "subject": "science",
       "questions": [
         {
-          "id": "APQ-S-CTRL-005",
-          "questionText": "(a) How does blood sugar level get regulated in the human body? (b) (i) Which hormone is secreted into the blood when you are under stress? Name the gland that secretes this hormone. (ii) How does it help the body to cope up in an emergency situation?",
-          "marks": 5,
-          "section": "D",
-          "solutionSteps": [
-            "[1 mark] (a) Regulation of blood sugar: When the blood sugar level rises, the beta-cells of the pancreas detect it and secrete more of the hormone INSULIN.",
-            "[1 mark] (a) Insulin lowers the blood sugar level by promoting the uptake of glucose and its conversion into glycogen; when the level falls, less insulin is secreted — this is controlled by a FEEDBACK MECHANISM.",
-            "[1 mark] (b)(i) Under stress the hormone ADRENALINE is secreted into the blood; it is secreted by the ADRENAL GLAND, situated above the kidneys.",
-            "[1 mark] (b)(ii) Adrenaline acts on the heart, making it beat faster so that more oxygenated blood is supplied to the skeletal muscles.",
-            "[1 mark] (b)(ii) It also increases the breathing rate through contraction of the diaphragm and rib muscles and diverts blood to the muscles — preparing the body for a 'fight or flight' response."
-          ]
-        },
-        {
-          "id": "CBE-S-CTRL-E-001",
-          "questionText": "A potted plant is kept near a window. After a few days its shoot is seen bending towards the light coming in through the window. Explain how the plant hormone controls this growth response of the shoot.",
+          "id": "APQ-S-CTRL-001",
+          "questionText": "In animals, hormones can be secreted by one organ and can act on multiple organs. Justify this statement by explaining the effect of a single animal hormone on three organs.",
           "marks": 3,
           "section": "C",
           "solutionSteps": [
-            "[1 mark] The hormone auxin is synthesised at the shoot tip and diffuses down the shoot.",
-            "[1 mark] When light falls from one side, auxin collects on the side of the shoot away from the light (the shaded side).",
-            "[1 mark] Auxin causes the cells on the shaded side to elongate more, so that side grows faster and the shoot bends towards the light (phototropism)."
+            "[1 mark] Adrenaline (secreted by adrenal glands) on sweat glands: induces more sweat production (\"fight or flight\" response).",
+            "[1 mark] Adrenaline on heart: increases force/rate of contraction of cardiac muscles — pumps more oxygenated blood.",
+            "[1 mark] Adrenaline on blood vessels of digestive system: constricts them (diverts blood to muscles instead). Hence one hormone, three organs."
           ]
         },
         {
-          "id": "CFPQ-S-CTRL-001",
-          "questionText": "Sapna suffers from a condition due to which her average blood sugar level is 174 mg/dL. The average blood sugar level in a healthy adult is <140 mg/dL.\n\nWhich of the following could be the cause of Sapna's condition?",
-          "marks": 1,
-          "section": "A",
+          "id": "APQ-S-CTRL-002",
+          "questionText": "Sagar saw a beautiful rose and smelled it. As he was smelling it, he happened to touch a thorn and pull his hand away. State TWO differences and similarities each in the way the nervous system performs the two actions. (b) Are all involuntary actions reflex actions? Justify.",
+          "marks": 5,
+          "section": "D",
           "solutionSteps": [
-            "[1 mark] Correct option: (2) insufficient production of insulin in her body. Insulin lowers blood glucose; too little of it leaves the blood sugar persistently high, which is what her reading shows. Excess insulin would lower it, and thyroxine regulates metabolism rather than blood glucose directly. Answer: (B)"
-          ],
-          "options": [
-            "insufficient production of thyroxine in her body",
-            "insufficient production of insulin in her body",
-            "excess production of thyroxine in her body",
-            "excess production of insulin in her body"
+            "[1 mark] Similarity 1: Both signals initiated by receptors at specific sense organs (olfactory in nose; pain in hand).",
+            "[1 mark] Similarity 2: Both use neurotransmitters released and accepted by neurons to carry impulse.",
+            "[1 mark] Difference 1: Smelling the rose is VOLUNTARY; pulling hand away is INVOLUNTARY (reflex).",
+            "[1 mark] Difference 2: Smelling — impulse reaches the brain and back (long pathway). Pulling hand — impulse travels only to spinal cord and back (reflex arc, much faster).",
+            "[1 mark] (b) NO, not all involuntary actions are reflex. Reflexes require an external stimulus and reflex arc (e.g., touching thorn). Many involuntary actions (heartbeat, peristalsis, breathing) occur continuously without external stimulus — controlled by medulla and autonomic nervous system, not by a reflex arc."
+          ]
+        },
+        {
+          "id": "APQ-S-CTRL-004",
+          "questionText": "Given below are some disorders noticed in some patients. It could be due to malfunctioning of which part of the brain? (a) Loss of sensation of feeling full (b) Lowered ability to salivate (c) Difficulty in maintaining the posture and balance in body",
+          "marks": 3,
+          "section": "C",
+          "solutionSteps": [
+            "[1 mark] (a) Loss of sensation of feeling full (satiety centre) is controlled by the FOREBRAIN.",
+            "[1 mark] (b) Salivation is an involuntary action controlled by the MEDULLA in the hind-brain.",
+            "[1 mark] (c) Maintenance of posture and balance is controlled by the CEREBELLUM (part of the hind-brain)."
           ]
         }
       ]
