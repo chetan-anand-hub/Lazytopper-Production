@@ -264,6 +264,46 @@
   background: #e8edf5;
   border-radius: 14px;
 }
+.lt-ts-pick__seg--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.lt-ts-pick__seg--4 .lt-ts-pick__segbtn {
+  padding: 6px 0;
+  font-size: 0.8rem;
+}
+/* TS-DIFF-1: the Easier / Standard / Harder chip and its one-line explainer (calm tones, no red: harder is not worse). */
+.lt-ts-diff {
+  display: inline-block;
+  flex: none;
+  padding: 1px 10px;
+  border-radius: 999px;
+  border: 1px solid #c3cde0;
+  background: #e8edf5;
+  color: #28365a;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.lt-ts-diff--easier {
+  border-color: #2e9d5b;
+  background: #dff7e8;
+  color: #0b5a2e;
+}
+.lt-ts-diff--harder {
+  border-color: #c98a1b;
+  background: #fff1d6;
+  color: #6b4500;
+}
+.lt-ts-diff__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--lt-sp-ink-2);
+}
 .lt-ts .lt-ts-pick__segbtn {
   min-height: 48px;
   padding: 6px 8px;
