@@ -19,7 +19,7 @@
  * <= 5 tests, "over your last 5 full tests" with more), so it always describes what is on screen.
  */
 
-import { focusSetCodeOfWorksheetId } from "../testSeries/focusSets";
+import { isFocusSetRecord } from "../testSeries/focusSetFlags";
 
 /** The theory paper's total in the CBSE pattern (A 20x1, B 5x2, C 6x3, D 4x5, E 3x4). */
 export const BOARD_THEORY_TOTAL = 80;
@@ -52,7 +52,7 @@ export function isFullyGradedFullPaper(r: FullTestRecordLike): boolean {
     r.surface === "full-mock" &&
     // TS-THEMES-1: a focus set runs on the Full Mock page (surface "full-mock") but is a short one-type paper, never an 80-mark
     // board paper - it never feeds the trend or the estimate, whatever its marks.
-    !focusSetCodeOfWorksheetId(r.worksheetId) &&
+    !isFocusSetRecord(r) &&
     r.status === "graded" && // "graded" = nothing pending (sessionRecords: pendingCount > 0 -> "partial")
     r.marksTotal === BOARD_THEORY_TOTAL &&
     Number.isFinite(r.marksAwarded) &&

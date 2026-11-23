@@ -14,6 +14,7 @@
  * Every function that depends on time takes `now` — none reads the clock itself.
  */
 import type { GuideMomentId } from "../../../analytics/analytics";
+import { isFocusSetRecord } from "../../../lib/testSeries/focusSetFlags";
 import type { SessionRecord } from "../../../services/sessionRecords";
 import { guideAccountTag, guidePreviewActive } from "../guideVariant";
 import { anyMascotHost } from "../mascotPresence";
@@ -216,7 +217,10 @@ export function previousSameScore(
 export const MILESTONES = ["firstWritten", "firstChapterTest", "firstFullMock", "answers10", "answers50"] as const;
 export type MilestoneId = (typeof MILESTONES)[number];
 
-type FactRecord = Pick<SessionRecord, "surface" | "status" | "gradedAt" | "topicKeys" | "subject">;
+type FactRecord = Pick<SessionRecord, "surface" | "status" | "gradedAt" | "topicKeys" | "subject"> & { worksheetId?: string };
+
+/** TS-THEMES-1: a Test Series focus set (a short paper sat on the Full Mock page) never makes the "first full mock" milestone. */
+const isFullMockRecord = (r: FactRecord): boolean => r.surface === "full-mock" && !isFocusSetRecord(r);
 
 export interface ActivityFacts {
   records: readonly FactRecord[];
@@ -226,7 +230,8 @@ export interface ActivityFacts {
 
 /** Every milestone this account has truly reached, from this device's records and attempts. */
 export function achievedMilestones(f: ActivityFacts): MilestoneId[] {
-  const done = (surface: SessionRecord["surface"]) => f.records.some((r) => r.surface === surface && r.status === "graded");
+  const done = (surface: SessionRecord["surface"]) =>
+    f.records.some((r) => r.surface === surface && r.status === "graded" && (surface !== "full-mock" || isFullMockRecord(r)));
   const out: MilestoneId[] = [];
   if (f.gradedAnswers >= 1 || done("check-improve")) out.push("firstWritten");
   if (done("chapter-test")) out.push("firstChapterTest");
@@ -245,7 +250,10 @@ export function milestoneCrossings(records: readonly FactRecord[], gradedTimes: 
   const t = gradedTimes.filter((x) => Number.isFinite(x)).slice().sort((a, b) => a - b);
   const first = (surface: SessionRecord["surface"]): number | undefined => {
     let best: number | undefined;
-    for (const r of records) if (r.surface === surface && r.status === "graded" && (best === undefined || r.gradedAt < best)) best = r.gradedAt;
+    for (const r of records) {
+      if (r.surface !== surface || r.status !== "graded" || (surface === "full-mock" && !isFullMockRecord(r))) continue;
+      if (best === undefined || r.gradedAt < best) best = r.gradedAt;
+    }
     return best;
   };
   const out: Partial<Record<MilestoneId, number>> = {};

@@ -37,6 +37,7 @@
 //     span for the short-term-trend label ([FU-PROG-WINDOW-MODEL]).
 
 import { getAttempts, getAttemptsFromCloud, type PracticeAttempt } from "./practiceInsights";
+import { isFocusSetRecord } from "../lib/testSeries/focusSetFlags";
 import {
   loadLocalSessionRecords,
   getSessionRecordsFromCloud,
@@ -132,7 +133,8 @@ export function getActivitySummary(uid?: string | null, sinceDays?: number): Act
   for (const r of records) {
     if (r.surface === "worksheet") summary.worksheets += 1;
     else if (r.surface === "chapter-test") summary.chapterTests += 1;
-    else if (r.surface === "full-mock") summary.fullMocks += 1;
+    // TS-THEMES-1: a Test Series focus set (surface "full-mock", `fm-tsfs-` id) is not a full mock - never counted as one.
+    else if (r.surface === "full-mock" && !isFocusSetRecord(r)) summary.fullMocks += 1;
   }
   summary.practiceAttempts = getAttempts(cutoff ? { start: cutoff } : {}).length;
   return summary;
@@ -1382,7 +1384,7 @@ export async function getWindowedProgress(
     activity: {
       worksheets: takenRecords.filter((r) => r.surface === "worksheet").length,
       chapterTests: takenRecords.filter((r) => r.surface === "chapter-test").length,
-      fullMocks: takenRecords.filter((r) => r.surface === "full-mock").length,
+      fullMocks: takenRecords.filter((r) => r.surface === "full-mock" && !isFocusSetRecord(r)).length, // TS-THEMES-1: not focus sets
       checks: takenRecords.filter((r) => r.surface === "check-improve").length,
       practiceAttempts: winAttempts.length,
       gradedAnswers: winAttempts.filter((a) => a.mode === "graded").length,

@@ -45,9 +45,9 @@ vi.mock("../services/sessionRecords", async (importOriginal) => {
   return { ...actual, getSessionRecordsFromCloud: async () => records.list, getSessionPerQuestion: async () => null };
 });
 vi.mock("../components/chaptertest/ChapterTestUploadPanel", () => ({
-  default: (p: { code: string; objective: { awarded: number; total: number }; onGrade: (u: unknown) => void }) => (
+  default: (p: { code: string; sectionsLabel: string; objective: { awarded: number; total: number }; onGrade: (u: unknown) => void }) => (
     <div data-testid="upload-step">
-      {p.code} · objective {p.objective.awarded}/{p.objective.total}
+      {p.code} · objective {p.objective.awarded}/{p.objective.total} · {p.sectionsLabel}
       <button type="button" onClick={() => p.onGrade({ imageBase64: "x", imageMimeType: "application/pdf" })}>
         stub-grade
       </button>
@@ -129,6 +129,9 @@ describe("TS-THEMES-1 · a focus set on the Full Mock page", () => {
     fireEvent.click(within(card).getByRole("button", { name: /Upload answer sheet for the full result/ }));
     const step = await screen.findByTestId("upload-step", {}, { timeout: 30000 });
     expect(step.textContent).toContain("objective 0/0");
+    // review nit: the upload names the set's own written section (long answers: Section D), not "Sections B–E".
+    expect(step.textContent).toContain("· Section D");
+    expect(step.textContent).not.toContain("B–E");
     fireEvent.click(screen.getByRole("button", { name: "stub-grade" }));
     await waitFor(() => expect(grade.calls.length).toBe(1));
     const call = grade.calls[0];
@@ -156,21 +159,22 @@ describe("TS-THEMES-1 · a focus set on the Full Mock page", () => {
     expect((await screen.findByTestId("series-checks-left")).textContent).toBe("Your free test · Checks left on this paper: 2 of 2");
   }, 300000);
 
-  it("TS-FREE-CHECK-1: the server pinned ANOTHER paper as the free test -> a focus set gets the upgrade card, no upload", async () => {
+  it.each([
+    ["the server pinned ANOTHER paper as the free test", { paperKey: "TS-CT-M01", checksPerPaper: 2, used: 1 }],
+    ["the server's free written check is off (no freeTest)", undefined],
+  ])("review fix: %s -> a focus set never becomes the free test: no MCQ free-test note, Start shows the upgrade card, no sitting", async (_why, free) => {
     sub.tier = "free";
-    mine.freeTest = { paperKey: "TS-CT-M01", checksPerPaper: 2, used: 1 };
+    mine.freeTest = free;
     records.list = [];
     mount("/full-mock/10/Maths?focus=FS-M-LA-3");
     await screen.findByTestId("fm-focus-minutes", {}, { timeout: 60000 });
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.queryByTestId("series-free-test-note")).toBeNull();
+    expect(document.body.textContent).not.toContain("MCQs (Section A) are marked free");
     fireEvent.click(screen.getByRole("button", { name: /Start the mock/ }));
-    await waitFor(() => expect(document.querySelector(".lt-ct__exit")).not.toBeNull());
-    for (let i = 0; i < 40 && screen.queryByRole("button", { name: /^Next →$/ }); i += 1) fireEvent.click(screen.getByRole("button", { name: /^Next →$/ }));
-    fireEvent.click(screen.getAllByRole("button", { name: /Submit & exit →/ })[0]);
-    fireEvent.click(await screen.findByRole("button", { name: /Submit now →/ }));
-    const card = await screen.findByRole("dialog", {}, { timeout: 30000 });
-    fireEvent.click(within(card).getAllByRole("button").find((b) => /✕|Close/.test(b.textContent ?? "") || b.getAttribute("aria-label") === "Close")!);
-    expect(await screen.findByTestId("written-check-upgrade")).toBeTruthy();
-    expect(screen.queryByTestId("upload-step")).toBeNull();
+    expect(await screen.findByTestId("series-start-wall", {}, { timeout: 30000 })).toBeTruthy();
+    expect(screen.getByTestId("fm-focus-free-unavailable").textContent).toContain("written marking for a free test is not available");
+    expect(document.querySelector(".lt-ct__exit")).toBeNull();
   }, 300000);
 
   it("a free account whose one free test is used meets the same start wall (rule unchanged)", async () => {

@@ -183,7 +183,7 @@ import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUplo
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
 import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId, seriesPaperKeyOfWorksheetId } from "../lib/testSeries/testSeries";
-import { FOCUS_PARAM, focusSetCodeOfWorksheetId, focusSetLabel, focusSetOf, focusSetWorksheetId } from "../lib/testSeries/focusSets";
+import { FOCUS_PARAM, focusSectionsLabel, focusSetCodeOfWorksheetId, focusSetLabel, focusSetOf, focusSetWorksheetId } from "../lib/testSeries/focusSets";
 import { useDerivedWrittenGraded } from "../hooks/useDerivedWrittenGraded";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
@@ -820,6 +820,17 @@ export default function FullMockPage() {
       setStartWall(true);
       return;
     }
+    // TS-THEMES-1 (review fix): a focus set has NO Section A, so as a free / trial account's one free test it is worth taking only when
+    // its WRITTEN answers will be marked (TS-FREE-CHECK-1). When they will not (server switch off, the free test pinned elsewhere, or
+    // the access read not settled) the set never becomes the free test: the upgrade card, not a sitting where nothing is marked.
+    if (focusActive && !seriesPaperAccess && !freeWritten) {
+      if (seriesAccess.checking) {
+        setPaperNotice(ACCESS_CHECKING_LINE);
+        return;
+      }
+      setStartWall(true);
+      return;
+    }
     // CT-RESUME-2: a visit let through as a RESUME of a saved mock was not counted. Starting a NEW
     // mock instead is counted now — or refused when today's papers are used up.
     if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && onSeriesPaper), location.search)) {
@@ -852,7 +863,7 @@ export default function FullMockPage() {
     });
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
-  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, onSeriesPaper, focusActive, seriesState?.durationMs, isSignedIn, records, navigate]);
+  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, onSeriesPaper, focusActive, freeWritten, seriesState?.durationMs, isSignedIn, records, navigate]);
 
   const resumeMock = useCallback(() => {
     const s = inProgress ?? findInProgressSession(sessionUid);
@@ -1464,7 +1475,9 @@ export default function FullMockPage() {
         r.status === "graded" &&
         r.id !== activeMock.code &&
         r.marksTotal === fullResponse.gradedMarksTotal &&
-        r.marksTotal > 0,
+        r.marksTotal > 0 &&
+        // TS-THEMES-1: a full mock compares only with full mocks, a focus set only with an earlier sitting of the SAME set.
+        focusSetCodeOfWorksheetId(r.worksheetId) === focusSetCodeOfWorksheetId(activeMock.paper.worksheetId),
     );
     if (!prev) return null;
     const d = fullResponse.gradedMarksAwarded - prev.marksAwarded;
@@ -1524,6 +1537,11 @@ export default function FullMockPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate, subject, grade, fullResponse, seriesPaperUrl]);
 
+  // TS-THEMES-1 (review nit): the written section(s) the upload / upgrade cards name - a focus set's own (e.g. "Section D"), else B–E.
+  const writtenSectionsLabel =
+    activeMock && focusSetCodeOfWorksheetId(activeMock.paper.worksheetId)
+      ? focusSectionsLabel(fullMockSubjectiveQuestions(activeMock.paper).map((q) => String(q.section)))
+      : "Sections B–E";
   const currentQuestion = activeMock?.paper.questions.find((q) => q.qNumber === currentQNumber) ?? null;
   const currentIsObjective = currentQuestion ? String(currentQuestion.section).toUpperCase() === "A" : false;
   const unansweredObjective = activeMock
@@ -1822,7 +1840,14 @@ export default function FullMockPage() {
                       )}
                       {seriesDownloadAccess && <LimitChip />}
                     </div>
-                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote written={freeWritten} />}
+                    {/* TS-THEMES-1: on a focus set the free-test note shows only when its written answers WILL be marked (no "MCQs marked free"
+                        line on a paper with no MCQs); otherwise starting it shows the upgrade card below. */}
+                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && (!focusActive || freeWritten) && <FreeTestNote written={freeWritten} />}
+                    {startWall && !seriesPaperAccess && focusActive && !freeWritten && !seriesAccess.checking && !seriesAccess.failed && (
+                      <p className="lt-wcg__line" data-testid="fm-focus-free-unavailable">
+                        A focus set has only written answers, and written marking for a free test is not available on it right now.
+                      </p>
+                    )}
                     {startWall && !seriesPaperAccess && (seriesAccess.failed ? <AccessFailed onRetry={seriesAccess.retry} /> : seriesAccess.checking ? <AccessChecking /> : <SeriesStartWall />)}
 
                     {downloadedNote && (
@@ -2189,7 +2214,7 @@ export default function FullMockPage() {
                   name={activeMock.name}
                   code={activeMock.code}
                   objective={{ awarded: objective.awarded, total: objective.total }}
-                  sectionsLabel="Sections B–E"
+                  sectionsLabel={writtenSectionsLabel}
                   onDone={() => setPhase("setup")}
                 />
               }
@@ -2199,7 +2224,7 @@ export default function FullMockPage() {
                   <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} />
                   <ChapterTestUploadPanel
                     eyebrow="Full Mock · Result"
-                    sectionsLabel="Sections B–E"
+                    sectionsLabel={writtenSectionsLabel}
                     name={activeMock.name}
                     code={activeMock.code}
                     objective={{ awarded: objective.awarded, total: objective.total }}

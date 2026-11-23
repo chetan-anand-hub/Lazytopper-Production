@@ -16,6 +16,8 @@
  * byte for byte. NAVIGATION ONLY: nothing here touches grading, pricing, payment or the trial. Safe redirects only: every target
  * is an internal path (one leading slash, no scheme, no "//").
  */
+import { tsFocusSetsDisabled } from "./focusSetFlags";
+
 export const TEST_SERIES_NAV_PATH = "/test-series";
 export const TS_FROM_PARAM = "from";
 export const TS_FROM_VALUE = "test-series";
@@ -38,8 +40,9 @@ export function isSeriesPaperLocation(pathname: string, search: string): boolean
   if (import.meta.env?.VITE_TEST_SERIES_DISABLED === "1") return false;
   const sp = new URLSearchParams(search);
   if (/^\/chapter-test\/[^/]+\/[^/]+\/[^/]+\/?$/.test(pathname)) return sp.get("series") === "1";
-  // TS-THEMES-1: a focus set (`?focus=FS-M-LA-1`) is a series paper too (its kill switch is the page's own check).
-  if (/^\/full-mock\/[^/]+\/[^/]+\/?$/.test(pathname)) return /^\d{1,2}$/.test(sp.get("paper") ?? "") || /^FS-[MS]-[A-Z]{2}-\d$/.test(sp.get("focus") ?? "");
+  // TS-THEMES-1: a focus set (`?focus=FS-M-LA-1`) is a series paper too - not under VITE_TS_FOCUS_SETS_DISABLED (the page then opens
+  // the ordinary mock, so its Back must be the ordinary one).
+  if (/^\/full-mock\/[^/]+\/[^/]+\/?$/.test(pathname)) return /^\d{1,2}$/.test(sp.get("paper") ?? "") || (!tsFocusSetsDisabled() && /^FS-[MS]-[A-Z]{2}-\d$/.test(sp.get("focus") ?? ""));
   return false;
 }
 

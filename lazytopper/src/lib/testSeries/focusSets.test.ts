@@ -5,8 +5,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   FOCUS_PARAM,
+  focusSectionsLabel,
   focusSetCodeOfWorksheetId,
   focusSetCount,
+  isFocusSetRecord,
   focusSetLabel,
   focusSetMinutes,
   focusSetOf,
@@ -137,6 +139,23 @@ describe("TS-THEMES-1 leaves every series count and claim exactly as it was", ()
     expect(testSeriesPackLine().startsWith("130 chapter tests + 50 full-length tests, Maths + Science.")).toBe(true);
     // "₹6 per test" divides by the 180 tests (the focus sets are not in the denominator).
     expect(testSeriesPerTestInr(Date.parse("2026-11-23T12:00:00+05:30"))).toBe(Math.round(999 / 180));
+  });
+
+  it("review nit: under VITE_TS_FOCUS_SETS_DISABLED ?focus= is no series paper location (the page opens the ordinary mock)", () => {
+    vi.stubEnv("VITE_TS_FOCUS_SETS_DISABLED", "1");
+    expect(isSeriesPaperLocation("/full-mock/10/Maths", "?focus=FS-M-LA-1")).toBe(false);
+    expect(isSeriesPaperLocation("/full-mock/10/Maths", "?paper=3")).toBe(true);
+  });
+
+  it("the written-section label names a set's own sections; isFocusSetRecord reads the worksheet id", () => {
+    expect(focusSectionsLabel(["D", "D", "D", "D"])).toBe("Section D");
+    expect(focusSectionsLabel(["B", "C", "C"])).toBe("Sections B\u2013C");
+    expect(focusSectionsLabel(["C", "D", "D"])).toBe("Sections C\u2013D");
+    expect(focusSectionsLabel(["B", "D"])).toBe("Sections B, D");
+    expect(isFocusSetRecord({ worksheetId: "fm-tsfs-mla1--x" })).toBe(true);
+    expect(isFocusSetRecord({ worksheetId: "fm-ts1-m1--x" })).toBe(false);
+    expect(isFocusSetRecord({})).toBe(false);
+    expect(isFocusSetRecord(null)).toBe(false);
   });
 
   it("a focus set URL is a series paper location (Back leads to /test-series); a plain mock is not", () => {

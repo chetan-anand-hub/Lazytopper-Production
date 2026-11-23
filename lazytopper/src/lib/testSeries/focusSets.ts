@@ -18,21 +18,17 @@
  * Kill switch: VITE_TS_FOCUS_SETS_DISABLED (any value but "", "0", "false") hides the tab and the page ignores `?focus=` (the
  * ordinary fresh mock opens). The server twin is TS_FOCUS_SETS_DISABLED.
  */
+import { FOCUS_TAG, isFocusSetRecord, tsFocusSetsDisabled } from "./focusSetFlags";
+
+export { FOCUS_TAG, isFocusSetRecord, tsFocusSetsDisabled };
+
 export type FocusSubject = "Maths" | "Science";
 export type FocusThemeId = "LA" | "CB" | "SA" | "NU";
 
-export function tsFocusSetsDisabled(): boolean {
-  const v = import.meta.env?.VITE_TS_FOCUS_SETS_DISABLED;
-  if (typeof v !== "string") return false;
-  const t = v.trim().toLowerCase();
-  return t !== "" && t !== "0" && t !== "false";
-}
 
 export const FOCUS_SETS_PER_THEME = 5;
 /** The Full Mock URL param that opens a focus set (`?focus=FS-M-LA-1`). */
 export const FOCUS_PARAM = "focus";
-/** The tag in a focus set's worksheet id (`fm-tsfs-mla1--…`): not `ts1`, so no series (`fm-ts1-`) id can ever be read as one. */
-export const FOCUS_TAG = "tsfs";
 
 export interface FocusTheme {
   id: FocusThemeId;
@@ -119,6 +115,16 @@ export function focusSetCodeOfWorksheetId(id: string | null | undefined): string
   if (!m) return null;
   const code = `FS-${m[1].toUpperCase()}-${m[2].toUpperCase()}-${m[3]}`;
   return focusSets().some((f) => f.code === code) ? code : null;
+}
+
+
+/** "Section D" / "Sections B–C" / "Sections B, D": the written section(s) a focus set actually has (its upload and result copy). */
+export function focusSectionsLabel(sections: readonly string[]): string {
+  const u = [...new Set(sections.map((x) => String(x).toUpperCase()).filter((x) => /^[A-E]$/.test(x)))].sort();
+  if (u.length === 0) return "Written answers";
+  if (u.length === 1) return `Section ${u[0]}`;
+  const contiguous = u.every((x, i) => i === 0 || x.charCodeAt(0) === u[i - 1].charCodeAt(0) + 1);
+  return contiguous ? `Sections ${u[0]}\u2013${u[u.length - 1]}` : `Sections ${u.join(", ")}`;
 }
 
 /** Board minutes for `marks` at the Full Mock's pace (80 marks in 180 minutes), rounded UP to 5 minutes. */

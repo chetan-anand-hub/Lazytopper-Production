@@ -1455,6 +1455,21 @@ test('TS-THEMES-1 x TS-FREE-CHECK-1: LIMITS-1 / scorecard helpers treat a pinned
   assert.equal(await s.checks.freeTestPaper(s.uid, 'full-mock', 'fm-tsfs-mla1--x'), true);
   assert.equal(await s.checks.freeTestPaper(s.uid, 'chapter-test', 'fm-tsfs-mla1--x'), false, 'wrong kind');
   const off = setup({ manifest: FOCUS2, owns: false, env: { TS_FOCUS_SETS_DISABLED: '1' } });
+  // Review fix: with the switch on a focus set is no series paper for the LIMITS-1 helpers either - no free-test exemption from
+  // metering (decide() would answer not_series, so no hold / cap would apply).
+  assert.equal(await off.checks.freeTestGrade(reqWith(fsBody()), off.uid), false, 'freeTestGrade: no exemption under the switch');
+  assert.equal(await off.checks.freeTestPaper(off.uid, 'full-mock', 'fm-tsfs-mla1--x'), false, 'freeTestPaper: no exemption under the switch');
+  // ...even for an account whose free test was ALREADY pinned on that focus set before the switch went on
+  const pinnedThenOff = setup({ manifest: FOCUS2, owns: false });
+  await check(pinnedThenOff, fsBody());
+  assert.equal(pinOf(pinnedThenOff.db, pinnedThenOff.uid), FS1);
+  const offAfter = createTestSeriesChecks({ adminFirestore: pinnedThenOff.db, now: () => pinnedThenOff.clock.now, manifest: FOCUS2, readBody: async (r) => r.body, env: { TS_FOCUS_SETS_DISABLED: 'on' } });
+  const onAgain = createTestSeriesChecks({ adminFirestore: pinnedThenOff.db, now: () => pinnedThenOff.clock.now, manifest: FOCUS2, readBody: async (r) => r.body, env: {} });
+  assert.equal(await onAgain.freeTestPaper(pinnedThenOff.uid, 'full-mock', 'fm-tsfs-mla1--x'), true, 'control: switch off -> the pinned set is the free paper');
+  assert.equal(await offAfter.freeTestGrade(reqWith(fsBody()), pinnedThenOff.uid), false);
+  assert.equal(await offAfter.freeTestPaper(pinnedThenOff.uid, 'full-mock', 'fm-tsfs-mla1--x'), false);
+  // the series papers keep their free-test helpers under the focus switch
+  assert.equal(await off.checks.freeTestGrade(reqWith(seriesBody()), off.uid), true, 'a series paper may still take the free test');
   const r = await check(off, fsBody());
   assert.equal(r.refused, true);
   assert.equal(r.sent.body.feature, 'grade-worksheet', 'the ordinary 402: not a series paper under the kill switch');

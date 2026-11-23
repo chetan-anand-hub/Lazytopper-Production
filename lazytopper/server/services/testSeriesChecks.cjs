@@ -633,7 +633,7 @@ function createTestSeriesChecks(deps = {}) {
     try {
       if (!freeTestOn()) return false;
       const body = await bodyOf(req);
-      const paper = seriesPaperOf(body, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
+      const paper = seriesPaperOf(body, manifest, paperOpts(env));
       if (!paper || !verifySubmission(body, paper).ok) return false;
       const st = await freeTestStateOf(uid);
       return !!st && !st.owner && (!st.pinned || st.pinned === paper.key);
@@ -649,7 +649,7 @@ function createTestSeriesChecks(deps = {}) {
   async function freeTestPaper(uid, kind, worksheetId) {
     try {
       if (!freeTestOn()) return false;
-      const paper = seriesPaperOf({ worksheetId }, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
+      const paper = seriesPaperOf({ worksheetId }, manifest, paperOpts(env));
       if (!paper) return false;
       const paperKind = paper.prefix.startsWith('ct-') ? 'chapter-test' : paper.prefix.startsWith('fm-') ? 'full-mock' : '';
       if (kind !== paperKind) return false;
