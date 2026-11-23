@@ -65,7 +65,7 @@ import {
 } from "../../src/config/solutionsPublishSafe";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
 import { allDesktopTopics } from "../../src/lib/desktop/topics";
-import { seriesContentsLine } from "../../src/lib/testSeries/testSeries";
+import { seriesTotals } from "../../src/lib/testSeries/testSeries";
 import { ncertFileCodeFromSpec } from "../../src/lib/ncertFileCode";
 import { cbqHeadForPath, cbqJsonLd } from "../../src/components/cbq/cbqSeo";
 import { dailyHeadForPath, dailyJsonLd } from "../../src/components/dailyQuestion/dailyQuestions";
@@ -233,8 +233,8 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
   "/test-series": {
     title: "CBSE Class 10 Test Series 2026-27 (Maths & Science) — Pre-Boards | LazyTopper",
     description:
-      `Class 10 Maths & Science pre-boards: ${seriesContentsLine()}, one numbered paper for all, a calendar, ` +
-      "valid till 28 Feb 2027, step-marked.",
+      // TS-HERO-1 (owner, 23 Nov 2026): leads with the promise, as the page's hero does (<= 155 rendered characters).
+      `Write on paper, upload a photo, get every step marked like a CBSE examiner in minutes. Class 10 Maths & Science, ${seriesTotals().total} tests, valid till 28 Feb 2027.`,
   },
   // CONTACT-INDEX-1 (owner ruling, 18 Oct 2026) — the contact page. Both strings are the page's
   // own CONTACT_TITLE / CONTACT_DESCRIPTION (src/pages/ContactPage.tsx), word for word; the

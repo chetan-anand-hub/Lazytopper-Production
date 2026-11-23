@@ -14,7 +14,8 @@ describe("prerendered /test-series carries no price", () => {
       const file = resolve(__dirname, "../..", rel);
       expect(existsSync(file), rel).toBe(true);
       const html = readFileSync(file, "utf8");
-      expect(html).toContain("CBSE Class 10 Test Series");
+      expect(html).toContain("CBSE CLASS 10 TEST SERIES");
+      expect(html).toContain("Get every step marked like a CBSE examiner");
       expect(html).not.toContain("₹");
       expect(html).not.toMatch(/founding price/i);
     });
