@@ -18,6 +18,7 @@
 import { BOARD_CHAPTER_KEYS, chapterUnit } from "../../config/syllabusUnits2026-27";
 import { desktopTopicBySlug } from "../desktop/topics";
 import { MOCKS_PER_SUBJECT, TEST_SERIES_CHECKS_PER_PAPER_COPY, TEST_SERIES_VALIDITY, TEST_SERIES_WRITTEN_SECTIONS } from "../packs/packLabels";
+import { focusSetCodeOfWorksheetId, focusSetKey, tsFocusSetsDisabled } from "./focusSets";
 
 // HUB-TS-1: the constant lives in ./seriesCounts (import-free, for the Practice hub's first paint); re-exported here unchanged.
 import {
@@ -301,6 +302,9 @@ export function seriesKeyOfWorksheetId(id: string | null | undefined): SeriesKey
  * belongs to, or null. The server counts a Test Series Pack's checks per paper under this key (GET /api/packs/mine `testSeries.used`).
  */
 export function seriesPaperKeyOfWorksheetId(id: string | null | undefined): string | null {
+  // TS-THEMES-1: a focus set's sitting (`fm-tsfs-mla1--…`) is counted under its own key ("TS-FS-M-LA-1"), like any series paper.
+  const focus = tsFocusSetsDisabled() ? null : focusSetCodeOfWorksheetId(id);
+  if (focus) return focusSetKey(focus);
   const k = seriesKeyOfWorksheetId(id);
   if (!k) return null;
   if (k.kind === "chapter") {

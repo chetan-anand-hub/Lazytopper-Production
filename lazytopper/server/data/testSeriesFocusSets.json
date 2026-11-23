@@ -1,0 +1,908 @@
+[
+  {
+    "key": "TS-FS-M-LA-1",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 1,
+    "paperCode": "FS-M-LA-1",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-mla1--",
+    "questionIds": [
+      "BX-AP-D-040",
+      "PYQ-M-2024-SAV-005",
+      "BX-PLE-D-028",
+      "RNSD-007"
+    ],
+    "sectionBEQuestionIds": [
+      "BX-AP-D-040",
+      "PYQ-M-2024-SAV-005",
+      "BX-PLE-D-028",
+      "RNSD-007"
+    ],
+    "textHashes": {
+      "BX-AP-D-040": "b453d96aaa67c2b5fcc89a0b7919a89fbb24c90121d5fe2f2acca03b8c22cd37",
+      "PYQ-M-2024-SAV-005": "799a5642e20dd53e90e1e709b9814b4eb9136eb18ff5635c8de48030c813b641",
+      "BX-PLE-D-028": "66181ddc91a58ecc73f08cffd0680e94d802b21b28e252cbce71a5745556e2ad",
+      "RNSD-007": "15153527077b4e6cdc04b00e4d9a6fc802a20a019355e50651d0edb4072c626d"
+    }
+  },
+  {
+    "key": "TS-FS-M-LA-2",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 2,
+    "paperCode": "FS-M-LA-2",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-mla2--",
+    "questionIds": [
+      "PYQ-M-2025-PROB-007",
+      "LTG-M-CIRC-292",
+      "TRIG2-H10",
+      "SAV-H02"
+    ],
+    "sectionBEQuestionIds": [
+      "PYQ-M-2025-PROB-007",
+      "LTG-M-CIRC-292",
+      "TRIG2-H10",
+      "SAV-H02"
+    ],
+    "textHashes": {
+      "PYQ-M-2025-PROB-007": "60e28aa610236c0038b1cedf5f856a5ef20e214e6516748e29cd6f8204e35e39",
+      "LTG-M-CIRC-292": "81b6ca91d356eeee3f7cbd018551bf2f207f98acb01b1aef221802112c08c2e6",
+      "TRIG2-H10": "b943f5e94d464736e6c6eb72a2ded1e837a58a834596117a94642b99797fb82a",
+      "SAV-H02": "3d3321521818d62d398213dd173837a0be44553a4957bc34c25bdd3d191204ae"
+    }
+  },
+  {
+    "key": "TS-FS-M-LA-3",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 3,
+    "paperCode": "FS-M-LA-3",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-mla3--",
+    "questionIds": [
+      "TRI2-H05",
+      "LTG-M-PLE-300",
+      "LTG-M-CIRC-287",
+      "BX-AP-D-073"
+    ],
+    "sectionBEQuestionIds": [
+      "TRI2-H05",
+      "LTG-M-PLE-300",
+      "LTG-M-CIRC-287",
+      "BX-AP-D-073"
+    ],
+    "textHashes": {
+      "TRI2-H05": "dd7b5e904c9ab16daeb838cdd8134fcb6ce6cac2b1197211e40c04d9b21bad4b",
+      "LTG-M-PLE-300": "4e667e73db2323489b840afad483eb0760c96dccea3fe956e99bf2fb60aa4b14",
+      "LTG-M-CIRC-287": "43f27432dc5698464e81b53fe160d8fe8c5386a2ce9d962dbe44e9d92123536c",
+      "BX-AP-D-073": "2ac171ab75efcbc8948f6b1fff022c0306b379762df475f511d4cd26e7ad95d3"
+    }
+  },
+  {
+    "key": "TS-FS-M-LA-4",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 4,
+    "paperCode": "FS-M-LA-4",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-mla4--",
+    "questionIds": [
+      "TRIG-N-EXMPLR-8-LA-001",
+      "APQ-M-SAV-008",
+      "PYQ-M-STAT-008",
+      "BX-TRI-D-022"
+    ],
+    "sectionBEQuestionIds": [
+      "TRIG-N-EXMPLR-8-LA-001",
+      "APQ-M-SAV-008",
+      "PYQ-M-STAT-008",
+      "BX-TRI-D-022"
+    ],
+    "textHashes": {
+      "TRIG-N-EXMPLR-8-LA-001": "2ad699dc6a1f073649427c08210c238b43a242157c1106fbed04f08ad226f9a3",
+      "APQ-M-SAV-008": "98cd1b27bbdd1cd3a7b54b347c100f8e5e3ae4397a6dab13f760e9bc24119807",
+      "PYQ-M-STAT-008": "c4e871e020fc38673214c88fa911a3bed24233838bf26c31a5fd95929d959bb8",
+      "BX-TRI-D-022": "ea4a950a0319eabe14620ba0f8384f87b844fb224c6f8ecf4a7af099e4b2960e"
+    }
+  },
+  {
+    "key": "TS-FS-M-LA-5",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 5,
+    "paperCode": "FS-M-LA-5",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-mla5--",
+    "questionIds": [
+      "BX-PLE-D-029",
+      "STAT-H12",
+      "BX-QUAD-D-012",
+      "CI2-056"
+    ],
+    "sectionBEQuestionIds": [
+      "BX-PLE-D-029",
+      "STAT-H12",
+      "BX-QUAD-D-012",
+      "CI2-056"
+    ],
+    "textHashes": {
+      "BX-PLE-D-029": "1935754a4a3cf829d4ce9341ea0406ff87547eaefa948d909babecf5e1f8bc73",
+      "STAT-H12": "72d1f7047b683015c317b9069af5e30bd445f549e5e39ffee1aff2ff89f2da33",
+      "BX-QUAD-D-012": "d5670644afe808185ac90df4bfeb948097957c35de1fee9ab8c8f29a377d0b88",
+      "CI2-056": "04b4f25725bc1ba5243b8097e6116182350a75c129460f92395d99e4509a7ceb"
+    }
+  },
+  {
+    "key": "TS-FS-M-CB-1",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 1,
+    "paperCode": "FS-M-CB-1",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-mcb1--",
+    "questionIds": [
+      "LTG-M-RN-299",
+      "BX-QUAD-E-023",
+      "LTG-M-ARC-285",
+      "LTG-M-CIRC-109",
+      "TRIG-N-EXMPLR-9-CB-002"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-M-RN-299",
+      "BX-QUAD-E-023",
+      "LTG-M-ARC-285",
+      "LTG-M-CIRC-109",
+      "TRIG-N-EXMPLR-9-CB-002"
+    ],
+    "textHashes": {
+      "LTG-M-RN-299": "bf882729bcb17f14e90d940d00ebde842e885cf5b5658f3d554eb064f9b359b3",
+      "BX-QUAD-E-023": "1263d5c744c58d6c5b8bb4fbbc2503f7d73e8b79bacdc2302190c843b4c889de",
+      "LTG-M-ARC-285": "d199739ff862c7681b035f4750d7abde54b5f1915e3d2f4b6a9bbc6ce384869b",
+      "LTG-M-CIRC-109": "a2f8e7467c2ddf81dbede9133b1a2d476496272578f357eff7cda968a01a5e25",
+      "TRIG-N-EXMPLR-9-CB-002": "f68eb16699fe038033f1d2b3471b06ad4c54be9a246227c3aa2ceab988f9d79b"
+    }
+  },
+  {
+    "key": "TS-FS-M-CB-2",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 2,
+    "paperCode": "FS-M-CB-2",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-mcb2--",
+    "questionIds": [
+      "BX-PLE-E-013",
+      "TRIG-N-NCERT-9-CB-002",
+      "BX-QUAD-E-010",
+      "ARC2-013",
+      "CG-CB02"
+    ],
+    "sectionBEQuestionIds": [
+      "BX-PLE-E-013",
+      "TRIG-N-NCERT-9-CB-002",
+      "BX-QUAD-E-010",
+      "ARC2-013",
+      "CG-CB02"
+    ],
+    "textHashes": {
+      "BX-PLE-E-013": "d8445223553c03a369909d4dbfa320044a23a601b117c7b71cda89e654acb4c9",
+      "TRIG-N-NCERT-9-CB-002": "5dbd326110a09332eecabb670968cb9753995c48244e6285ec3a3adc03219ab4",
+      "BX-QUAD-E-010": "360e1fe6c07265ab7cde9e237abe9eec9483c39c1a56c6db2301b816fb6cf4e4",
+      "ARC2-013": "a3f765a937128bd307bdec63050bd4900240a694051e99915751d58fb4ab617e",
+      "CG-CB02": "9bb84fc2e7120234fa3f2d910781a549937c236211d50a6b1743f4641a1c2f20"
+    }
+  },
+  {
+    "key": "TS-FS-M-CB-3",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 3,
+    "paperCode": "FS-M-CB-3",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-mcb3--",
+    "questionIds": [
+      "LTG-M-TRIG-292",
+      "LTG-M-POLY-277",
+      "BX-QUAD-E-032",
+      "LTG-M-TRI-287",
+      "RNSE-012"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-M-TRIG-292",
+      "LTG-M-POLY-277",
+      "BX-QUAD-E-032",
+      "LTG-M-TRI-287",
+      "RNSE-012"
+    ],
+    "textHashes": {
+      "LTG-M-TRIG-292": "8710729d7e8eeea9fba3997d4a4adeb41cbd62f5f7b1a3228a9af22930edb956",
+      "LTG-M-POLY-277": "bf682386af797dba88c6ece16138d6b5dcbf8745e06145da196877812834f18a",
+      "BX-QUAD-E-032": "e99d0de83443d1f726d18c4215d172b2898f2a62766cf13240f754067be5fd72",
+      "LTG-M-TRI-287": "a23ab793f52f1d7070d80304771bccd382191551a04588c4df5e95573901e905",
+      "RNSE-012": "b9860a54be455cf5b6b7fed6744410b5a134056947a9d16a18e328a7e1f05a4f"
+    }
+  },
+  {
+    "key": "TS-FS-M-CB-4",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 4,
+    "paperCode": "FS-M-CB-4",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-mcb4--",
+    "questionIds": [
+      "BX-PLE-E-027",
+      "LTG-M-CG-298",
+      "BX-POLY-E-020",
+      "BX-QUAD-E-027",
+      "LTG-M-TRI-290"
+    ],
+    "sectionBEQuestionIds": [
+      "BX-PLE-E-027",
+      "LTG-M-CG-298",
+      "BX-POLY-E-020",
+      "BX-QUAD-E-027",
+      "LTG-M-TRI-290"
+    ],
+    "textHashes": {
+      "BX-PLE-E-027": "030c56f33ddcce065281d69d58b75b6eaf88693785fb342832a9d41d2306fba7",
+      "LTG-M-CG-298": "683cf34281eabb3228366532bc30d01b7c162ee38d5df142b73d25f4c242b55f",
+      "BX-POLY-E-020": "32c341b4e922c6d77b75507e0e7ac6522f3c0c1e1cbdbedef97e8de96ee46282",
+      "BX-QUAD-E-027": "acee402e87d1c6664b7cd1c151d146398c9c7be3a0d22d7fee5313b8d5468c7b",
+      "LTG-M-TRI-290": "ca4067404562ed1eca8bb7ac0c5a6b033a01b445173dbe87bb0f63320d4f1c8a"
+    }
+  },
+  {
+    "key": "TS-FS-M-CB-5",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 5,
+    "paperCode": "FS-M-CB-5",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-mcb5--",
+    "questionIds": [
+      "Z3-SAV-005",
+      "BX-TRI-E-002",
+      "LTG-M-PROB-301",
+      "BX-QUAD-E-042",
+      "BX-POLY-E-027"
+    ],
+    "sectionBEQuestionIds": [
+      "Z3-SAV-005",
+      "BX-TRI-E-002",
+      "LTG-M-PROB-301",
+      "BX-QUAD-E-042",
+      "BX-POLY-E-027"
+    ],
+    "textHashes": {
+      "Z3-SAV-005": "32020dc68c82f793ae66e38603d1ddd3b11c2b4d4af7be8e5ab81cea32aaea36",
+      "BX-TRI-E-002": "df346fb2d6df0754a43cf426163abeb52b98eebf0e663e16062c7c1ef2afce99",
+      "LTG-M-PROB-301": "8fa4a1b313b890ea6c31b48f575173c68f25d45991c2375419d8f49623c3e297",
+      "BX-QUAD-E-042": "2374a3f71a10c13d666564db834c478c2c26d928023b1193f83c337dc94a5e08",
+      "BX-POLY-E-027": "23b74219660421ef81c540d46f48f809cca29d06a3b24ed7a47d38619070568b"
+    }
+  },
+  {
+    "key": "TS-FS-M-SA-1",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 1,
+    "paperCode": "FS-M-SA-1",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-msa1--",
+    "questionIds": [
+      "ARC-N-EXEM-11-SA-005",
+      "CG-N-EXEM2-7-SA-009",
+      "QE-H12",
+      "AP-N-NCERT-5-CRE-001",
+      "APQ-M-TRIG-008",
+      "PROB-H05",
+      "BX-PLE-EX-C-007"
+    ],
+    "sectionBEQuestionIds": [
+      "ARC-N-EXEM-11-SA-005",
+      "CG-N-EXEM2-7-SA-009",
+      "QE-H12",
+      "AP-N-NCERT-5-CRE-001",
+      "APQ-M-TRIG-008",
+      "PROB-H05",
+      "BX-PLE-EX-C-007"
+    ],
+    "textHashes": {
+      "ARC-N-EXEM-11-SA-005": "a9532c2dad7108b5f50250ecb30e772d3ecd4d082e86f83110017bbea8ad9f30",
+      "CG-N-EXEM2-7-SA-009": "8224e2ce8127fa86f5be9a0e963e6435fa2f1153fdd8d622d2bc409b2f2ffea6",
+      "QE-H12": "13673f338f5f5d6303d1464b16fb3b7859a2d2974c4526bb9661136103ab1aa7",
+      "AP-N-NCERT-5-CRE-001": "6a525feb97b2db914d70fc925b0734aac5879b238470251d7f5889385ae8fe97",
+      "APQ-M-TRIG-008": "ca805d1046d3e552c3202fdca026157fdf6af2b05b6b31717462c4c6fa4dc49e",
+      "PROB-H05": "50a375c89d38ecdeb3484eba20368302121f1664571adc968b28b09bb6b36dd9",
+      "BX-PLE-EX-C-007": "0948c18ef189e1a005afabe5f18c83a308f7f90cb629bbfa8ed98da8f1ecb0de"
+    }
+  },
+  {
+    "key": "TS-FS-M-SA-2",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 2,
+    "paperCode": "FS-M-SA-2",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-msa2--",
+    "questionIds": [
+      "SP-M-2022-TRIG-B-002",
+      "APQ-M-ARC-004",
+      "APQ-M-RN-005",
+      "LTG-M-PROB-267",
+      "AP-H08",
+      "CBE-M-CIRC-C-001",
+      "QE-H06",
+      "POLY-H14"
+    ],
+    "sectionBEQuestionIds": [
+      "SP-M-2022-TRIG-B-002",
+      "APQ-M-ARC-004",
+      "APQ-M-RN-005",
+      "LTG-M-PROB-267",
+      "AP-H08",
+      "CBE-M-CIRC-C-001",
+      "QE-H06",
+      "POLY-H14"
+    ],
+    "textHashes": {
+      "SP-M-2022-TRIG-B-002": "8d89e4975c974428ff1ac2061ffd50612cecd3c3e251a9fd95bc8da9e904eccc",
+      "APQ-M-ARC-004": "066c5f97885b96c4c33bc4232373dd24440236e0789ef1b6e12a5ad5d7dfb0eb",
+      "APQ-M-RN-005": "44f28b27f8d98ab1a0c07835fd99953ec2a05f9340afc760029768c679102ae8",
+      "LTG-M-PROB-267": "e5e3c7f83c1d1ba3b4e5d7d709cc0d8fd7f697bf39104cee1c7bed87a06658f0",
+      "AP-H08": "f2e35eb5c6f3a5dbba82c47db15381c0e0c997b83677c3a23a6495fa93b704c0",
+      "CBE-M-CIRC-C-001": "a46e5f9cac241fd1997e469f057c9da3d9eb6cde61470918e6c30001a0e0f3ef",
+      "QE-H06": "49c367564ce7ca5aa323dd09a0de75fa411ef0f7ee1d205b891a35c9b1e6c6dc",
+      "POLY-H14": "880dfd26b341f2ebf6ca9ab682923f97b05ec40b3c3f7ac6918fc7a40266f199"
+    }
+  },
+  {
+    "key": "TS-FS-M-SA-3",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 3,
+    "paperCode": "FS-M-SA-3",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-msa3--",
+    "questionIds": [
+      "ARC-N-EXEM2-11-SA-004",
+      "LTG-M-RN-255",
+      "BX-TRI-PF-018",
+      "LTG-M-QE-249",
+      "SP-M-2022-TRIG-C-001",
+      "AP-H13",
+      "BX-PLE-EX-C-009"
+    ],
+    "sectionBEQuestionIds": [
+      "ARC-N-EXEM2-11-SA-004",
+      "LTG-M-RN-255",
+      "BX-TRI-PF-018",
+      "LTG-M-QE-249",
+      "SP-M-2022-TRIG-C-001",
+      "AP-H13",
+      "BX-PLE-EX-C-009"
+    ],
+    "textHashes": {
+      "ARC-N-EXEM2-11-SA-004": "f085ab7fdbc6f886a311b524455562ce1436bf9b2cd49dfc2c1d30b69607e042",
+      "LTG-M-RN-255": "7f7cc37921c64b5acecfd6b786221e77b41691e255716491c1723c925f4ad292",
+      "BX-TRI-PF-018": "dad44dfbc9dc75acc82fadf49bf9fb95a877555541e60c9e3506de899da2a6ca",
+      "LTG-M-QE-249": "b788696d91dd46ec65d53c188f822ca02ef9ce8f675c404fc24ba54c563085a7",
+      "SP-M-2022-TRIG-C-001": "e3a9150351cd8e21a82fe8d01cee416959b6748b8eadd8da0f69af83c1a06647",
+      "AP-H13": "cacbf5e03ba186af7d75fbe31ea6dcc55663a150b89ef12f770c26974aa16fe8",
+      "BX-PLE-EX-C-009": "8e10598b95a5febdf792343ca8f2274b833456c5cb82139a3fc1e45ff512493f"
+    }
+  },
+  {
+    "key": "TS-FS-M-SA-4",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 4,
+    "paperCode": "FS-M-SA-4",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-msa4--",
+    "questionIds": [
+      "CG-N-EXEM2-7-SA-007",
+      "QE-N-NCERT-4-SH-009",
+      "PLE-H08",
+      "PB-M-2-TRI-C-001",
+      "LTG-M-ARC-251",
+      "LTG-M-AP-252",
+      "CIR-PRF-C-005"
+    ],
+    "sectionBEQuestionIds": [
+      "CG-N-EXEM2-7-SA-007",
+      "QE-N-NCERT-4-SH-009",
+      "PLE-H08",
+      "PB-M-2-TRI-C-001",
+      "LTG-M-ARC-251",
+      "LTG-M-AP-252",
+      "CIR-PRF-C-005"
+    ],
+    "textHashes": {
+      "CG-N-EXEM2-7-SA-007": "911b14c4a6b9e022f810053ce1287363e342ddc4b196b477eb85fb1721223cf0",
+      "QE-N-NCERT-4-SH-009": "a409eefab32d050fe5ce94d62b7f0bfb8f90b30f2c4864b2c030706c9b10557a",
+      "PLE-H08": "e35bef579910ab5f505cd32ce70b42879a3d14b15d9f0d898272937fce94c57b",
+      "PB-M-2-TRI-C-001": "a3009bcace50c07e5902523f0b47619d4b1badceda697c65f5f3df3b86283682",
+      "LTG-M-ARC-251": "bf7b06143649d4360fd667019118e7ea5a071eaa9abecd940d625d8b94131a11",
+      "LTG-M-AP-252": "612470546c3f100e6db17551df9ea301c5f1c1a4df1cf074dc8e8648fe4c1133",
+      "CIR-PRF-C-005": "c78e52f38e1ac414f7b335c2d8eb9d26a01b5e06ecf5448558664043c89eb637"
+    }
+  },
+  {
+    "key": "TS-FS-M-SA-5",
+    "subject": "Maths",
+    "kind": "focus",
+    "number": 5,
+    "paperCode": "FS-M-SA-5",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-msa5--",
+    "questionIds": [
+      "LTG-M-QE-273",
+      "LTG-M-CIRC-251",
+      "TRIG2-H11",
+      "BX-AP-EX-C-003",
+      "RN-H08",
+      "ARC-H11",
+      "LTG-M-TRI-250"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-M-QE-273",
+      "LTG-M-CIRC-251",
+      "TRIG2-H11",
+      "BX-AP-EX-C-003",
+      "RN-H08",
+      "ARC-H11",
+      "LTG-M-TRI-250"
+    ],
+    "textHashes": {
+      "LTG-M-QE-273": "701c8290df9c08552f8930cd01db90f434b6299ab191dd63eb6190473ae720c5",
+      "LTG-M-CIRC-251": "8a0546b3823dca72760a56ca444ca15aa3d3e2012a3cda06dce0dd4e0e981fac",
+      "TRIG2-H11": "1f9e968ac7f1aa7a70091c2659c7ff4337ee787fb18eb0dbf0dfee54af6221dc",
+      "BX-AP-EX-C-003": "42b47b5afce6f284c7b3c2b4fef724ee0e85764eea5b2f8f122d96afbd3415b5",
+      "RN-H08": "af17869a19b091ce2ca2ccab336696d52bb74ff736575f4ad4f491ff04bb6dd5",
+      "ARC-H11": "e4f9d0e3b9b74daae0279a59028cc9d9566cbf259cfe51e9ec09e1e6b6b74dd7",
+      "LTG-M-TRI-250": "030e459c63c23717d311321c9ecfd5d5c9b35c789331d08a68b4acb1b91e26ba"
+    }
+  },
+  {
+    "key": "TS-FS-S-LA-1",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 1,
+    "paperCode": "FS-S-LA-1",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-sla1--",
+    "questionIds": [
+      "LTG-S-REPR-111",
+      "SCQ-S-CARB-038",
+      "ACID-EXMPLR-2-LONG-003",
+      "LTG-S-HERED-238"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-S-REPR-111",
+      "SCQ-S-CARB-038",
+      "ACID-EXMPLR-2-LONG-003",
+      "LTG-S-HERED-238"
+    ],
+    "textHashes": {
+      "LTG-S-REPR-111": "95d788fd8d31dd8dbd0bc1d94441873a96b2e6f6f5d8f24ecf6ee43063a799a7",
+      "SCQ-S-CARB-038": "e9ff370aeac4efb763b85efc4b7d57cf721d74e8025e17d60478ba6f7102c488",
+      "ACID-EXMPLR-2-LONG-003": "7876e6bc2545029ae2af774d40b321af696f4a174f5492f1f11dcc9d39e5da91",
+      "LTG-S-HERED-238": "b6bc454cf578fdde7faa5284723e5ab74a29839b4962886a0d5405eeb33534b5"
+    }
+  },
+  {
+    "key": "TS-FS-S-LA-2",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 2,
+    "paperCode": "FS-S-LA-2",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-sla2--",
+    "questionIds": [
+      "SCQ-S-CHEM-036",
+      "LTG-S-CARB-278",
+      "LTG-S-ENV-310",
+      "SCQ-S-EYE-033"
+    ],
+    "sectionBEQuestionIds": [
+      "SCQ-S-CHEM-036",
+      "LTG-S-CARB-278",
+      "LTG-S-ENV-310",
+      "SCQ-S-EYE-033"
+    ],
+    "textHashes": {
+      "SCQ-S-CHEM-036": "da170937f81a845fab49c3b480dbf26057925b2e24ad0ec5011509574722cfcb",
+      "LTG-S-CARB-278": "0eca4b7c7336ac20cc0622d63949e43f80a801a48dffa0159e0e7299591c8ae9",
+      "LTG-S-ENV-310": "e2105a94ec59abd3e8afafc2c628d712eb30e429d9f3a20c185000365535a4c0",
+      "SCQ-S-EYE-033": "4f22ef533b66c53471289f04a39e83c1c887256946ce25647cf5e244d13daaed"
+    }
+  },
+  {
+    "key": "TS-FS-S-LA-3",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 3,
+    "paperCode": "FS-S-LA-3",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-sla3--",
+    "questionIds": [
+      "SCQ-S-LIGHT-044",
+      "CHEM-EXMPLR-1-LONG-006",
+      "LTG-S-HERED-259",
+      "CARB-H06"
+    ],
+    "sectionBEQuestionIds": [
+      "SCQ-S-LIGHT-044",
+      "CHEM-EXMPLR-1-LONG-006",
+      "LTG-S-HERED-259",
+      "CARB-H06"
+    ],
+    "textHashes": {
+      "SCQ-S-LIGHT-044": "3b76a52e08d533a399dec894f805c4775c8408593ed0e945f6a8b05c54718f4a",
+      "CHEM-EXMPLR-1-LONG-006": "15ca6cf6a12cbd06627ce19fe3a06921d6f463287b9739ce5ac885f7ffeee174",
+      "LTG-S-HERED-259": "17b6dd5f78485771120cff8b5ac7cb07b2f653a1c9221d43af6d4be9a744be35",
+      "CARB-H06": "236a23bf364babb62d6db7fb62b3592fe4e36c4614f4ccec9c215d77007d1de4"
+    }
+  },
+  {
+    "key": "TS-FS-S-LA-4",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 4,
+    "paperCode": "FS-S-LA-4",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-sla4--",
+    "questionIds": [
+      "LTG-S-LIGHT-259",
+      "LTG-S-MAG-239",
+      "LTG-S-CHEMRXN-238",
+      "LTG-S-ENV-238"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-S-LIGHT-259",
+      "LTG-S-MAG-239",
+      "LTG-S-CHEMRXN-238",
+      "LTG-S-ENV-238"
+    ],
+    "textHashes": {
+      "LTG-S-LIGHT-259": "6a27aa3eaf1170c6a7319e89d9192fbae5f3004893f4818f07c702780c7a55ae",
+      "LTG-S-MAG-239": "7ce9423c83a16305bde4c407d110fd7af618ed7e33e94d1115b469fd76c438c0",
+      "LTG-S-CHEMRXN-238": "c590dc6c08c3da478269089cf7cd3ec951ec1b94a5d0d02457d2f25a6b2db5ce",
+      "LTG-S-ENV-238": "e44809de9c651848c2f851b9be0bfd8c42f2cfe31dda2f432f36527f40e5efed"
+    }
+  },
+  {
+    "key": "TS-FS-S-LA-5",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 5,
+    "paperCode": "FS-S-LA-5",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-sla5--",
+    "questionIds": [
+      "LTG-S-ENV-105",
+      "LTG-S-ACID-238",
+      "SCQ-S-CHEM-035",
+      "SCQ-S-LIGHT-040"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-S-ENV-105",
+      "LTG-S-ACID-238",
+      "SCQ-S-CHEM-035",
+      "SCQ-S-LIGHT-040"
+    ],
+    "textHashes": {
+      "LTG-S-ENV-105": "b35cccf32f5f1080be61d2e38489d59a0f1cabb949c51aca919ed083b9f3dd03",
+      "LTG-S-ACID-238": "feebfd76e6aabe9d26903abdd012241620c8a7d4f85b0d54b28ed9aa8d943ca2",
+      "SCQ-S-CHEM-035": "e9cd926e15cf6170c9267279db74fdc03e451b9b6a374991e2cd654718266b02",
+      "SCQ-S-LIGHT-040": "2b089f3811e409704d2cf6a4c172a7284c145ca0ba37c52ba3aa6c1587db35fb"
+    }
+  },
+  {
+    "key": "TS-FS-S-CB-1",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 1,
+    "paperCode": "FS-S-CB-1",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-scb1--",
+    "questionIds": [
+      "ABS-H10",
+      "CR-H06",
+      "LTG-S-HERED-236",
+      "LTG-S-EYE-254",
+      "BX-MNM-E-036"
+    ],
+    "sectionBEQuestionIds": [
+      "ABS-H10",
+      "CR-H06",
+      "LTG-S-HERED-236",
+      "LTG-S-EYE-254",
+      "BX-MNM-E-036"
+    ],
+    "textHashes": {
+      "ABS-H10": "4456049bc5e0c3c30ceb50070ffa8b8ad3bdde211769ecf5501a86c0ffeedaa7",
+      "CR-H06": "4ba82f7a0e27b27e70bc9faffa2589dfbda5e423e8f782be412967d08b5c599a",
+      "LTG-S-HERED-236": "9b01cd4918cebe5964292046bc51c493f800fb31efb51ef69843c45500836f5c",
+      "LTG-S-EYE-254": "2bf9a621cb329c4955779ad7b5dca85628b37443d7e316d116b5c8afab48cca1",
+      "BX-MNM-E-036": "409841b408167b41e450795e1fa87e74ed5d5739e4859b826ca9203c82a262d8"
+    }
+  },
+  {
+    "key": "TS-FS-S-CB-2",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 2,
+    "paperCode": "FS-S-CB-2",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-scb2--",
+    "questionIds": [
+      "LTG-S-CTRL-235",
+      "LTG-S-CARB-214",
+      "LTG-S-CHEMRXN-216",
+      "LTG-S-EYE-236",
+      "LTG-S-ACID-216"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-S-CTRL-235",
+      "LTG-S-CARB-214",
+      "LTG-S-CHEMRXN-216",
+      "LTG-S-EYE-236",
+      "LTG-S-ACID-216"
+    ],
+    "textHashes": {
+      "LTG-S-CTRL-235": "1dccef09cfce0ef0f48348442841ccaf1e0ddcd866401f9074f3523daa02b21a",
+      "LTG-S-CARB-214": "037ed2773436c7742c82024111009f31b5e0757f191d78101eed0b5ee7c36dc3",
+      "LTG-S-CHEMRXN-216": "6dc351e00262cc37e249d2eee152b68af1690189a4faebf21c847ba94dd3f697",
+      "LTG-S-EYE-236": "00df9d63504ee2256934413ca3ac3dd2eaad308406637abab51687fb5f5b9adb",
+      "LTG-S-ACID-216": "f4aeb7f33c405494a021b71e7a2874566804be2726d4fcbf6fb7298c48d1f52e"
+    }
+  },
+  {
+    "key": "TS-FS-S-CB-3",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 3,
+    "paperCode": "FS-S-CB-3",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-scb3--",
+    "questionIds": [
+      "LTG-S-HERED-254",
+      "ME2-043",
+      "BX-ABS-E-040",
+      "BX-REP-E1-004",
+      "BX-CHEM-E-022"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-S-HERED-254",
+      "ME2-043",
+      "BX-ABS-E-040",
+      "BX-REP-E1-004",
+      "BX-CHEM-E-022"
+    ],
+    "textHashes": {
+      "LTG-S-HERED-254": "3e45eed4c9a9755edf29e007aae12204b22e77554831dde043eaaca659e0b3a4",
+      "ME2-043": "b0b5aa8d7a2d9d0990c2478a23bb8bd1d259100c98b892ce7585adfba62ebc2a",
+      "BX-ABS-E-040": "127d83e35c90f4394f1422bd77d39fd55930aee245ed249379c492b528a71c48",
+      "BX-REP-E1-004": "011300526baabdf6fa27fd46724943d36e2043f66ee1fcb8363e586031d9aedb",
+      "BX-CHEM-E-022": "d0a163f044f47c16c8f955eb7112b1c866d22d6403f9724ed7d8a2870713baf9"
+    }
+  },
+  {
+    "key": "TS-FS-S-CB-4",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 4,
+    "paperCode": "FS-S-CB-4",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-scb4--",
+    "questionIds": [
+      "LTG-S-REPR-277",
+      "LPSE-008",
+      "LTG-S-MAG-277",
+      "PYQ-S-METAL-003",
+      "BX-CHEM-E-032"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-S-REPR-277",
+      "LPSE-008",
+      "LTG-S-MAG-277",
+      "PYQ-S-METAL-003",
+      "BX-CHEM-E-032"
+    ],
+    "textHashes": {
+      "LTG-S-REPR-277": "11871442934687dd91fb26bed531c560b136cc2a668102f4266c11d247f231e1",
+      "LPSE-008": "c7f8821a329cecade2cad2ee18e7c908346b9f366d43b53ce7c88bd29c6c39e4",
+      "LTG-S-MAG-277": "641b70ef256429ef26d5417f0043d9c8fc400bdd252410d4f1175d056d58a9cf",
+      "PYQ-S-METAL-003": "b457f17def1d7cf7b3d828f61b58d21976a250f4a970c089c03069d4deb39eb4",
+      "BX-CHEM-E-032": "2eca95e0451947efdc1fda0c15000e22bf14c25eafdf30ff8b24f5f3f706640b"
+    }
+  },
+  {
+    "key": "TS-FS-S-CB-5",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 5,
+    "paperCode": "FS-S-CB-5",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-scb5--",
+    "questionIds": [
+      "LTG-S-ELEC-237",
+      "LTG-S-LIFE-254",
+      "BX-CHEM-E-059",
+      "LTG-S-MAG-235",
+      "LTG-S-LIGHT-216"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-S-ELEC-237",
+      "LTG-S-LIFE-254",
+      "BX-CHEM-E-059",
+      "LTG-S-MAG-235",
+      "LTG-S-LIGHT-216"
+    ],
+    "textHashes": {
+      "LTG-S-ELEC-237": "9372fdfff9f7049c8aee33b7d137376aaf420eab3a79a2fae947bed63d83d079",
+      "LTG-S-LIFE-254": "fc16652c08b1562f695ebcabb833fa25c3bab382c68d1f2150327648087d88ff",
+      "BX-CHEM-E-059": "947feaf23d81c4546f91df4306f08e867ca7606a06b8c55cb1f1f7714c45339f",
+      "LTG-S-MAG-235": "097e619aca8ba8c79472b611757ef4fef6a75407a4166106f6c066ebccc35885",
+      "LTG-S-LIGHT-216": "b321eeeae91f3d90f885aec7a615a7390bed6397292ea9bd4adf4e5b5bc4df02"
+    }
+  },
+  {
+    "key": "TS-FS-S-NU-1",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 1,
+    "paperCode": "FS-S-NU-1",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-snu1--",
+    "questionIds": [
+      "GDR-L-NUM-045",
+      "LTG-S-LIGHT-232",
+      "GDR-L-NUM-077",
+      "EL-H05",
+      "LTG-S-EYE-239",
+      "FND-L-SPQ-020"
+    ],
+    "sectionBEQuestionIds": [
+      "GDR-L-NUM-045",
+      "LTG-S-LIGHT-232",
+      "GDR-L-NUM-077",
+      "EL-H05",
+      "LTG-S-EYE-239",
+      "FND-L-SPQ-020"
+    ],
+    "textHashes": {
+      "GDR-L-NUM-045": "e8bbb79d7d7e57f1d19a25a6f2a6be8f0740ac1de4ef7e1e2c011cacc204777a",
+      "LTG-S-LIGHT-232": "4069da9bc71385a83cc515b5f937fb1eedfd12d0b364dacc2efc608b95684833",
+      "GDR-L-NUM-077": "21bf485dd0ce727f90427f7fcc193c93881241ce93c4e194eb00eda3bbe30fc4",
+      "EL-H05": "5a61ec8570b81cf7feabe8e05f848a7cff8abc43278071e6fd76b1948cc7eed8",
+      "LTG-S-EYE-239": "c9b2464285a387eb32683f6ebe40bcf0eff0d4c219c4a4a3bef8ea4ca405f5ee",
+      "FND-L-SPQ-020": "15dfbbdfae8c04645aee95087df411007a570185ce73ba80c2f05572512ecc8b"
+    }
+  },
+  {
+    "key": "TS-FS-S-NU-2",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 2,
+    "paperCode": "FS-S-NU-2",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-snu2--",
+    "questionIds": [
+      "APQ-S-ELEC-002",
+      "LTG-S-MAG-291",
+      "PYQ-S-2025-LIGHT-019",
+      "LTG-S-ELEC-299",
+      "PYQ-S-2026-ELEC-012"
+    ],
+    "sectionBEQuestionIds": [
+      "APQ-S-ELEC-002",
+      "LTG-S-MAG-291",
+      "PYQ-S-2025-LIGHT-019",
+      "LTG-S-ELEC-299",
+      "PYQ-S-2026-ELEC-012"
+    ],
+    "textHashes": {
+      "APQ-S-ELEC-002": "f8e57b5c3a7044e2c369ac108c009e9bd9f24849f3ca23bae76aead4ab752f1a",
+      "LTG-S-MAG-291": "5057688dcca1121a599dc006266f1ea419f1455835c598b24199a55c957f08a8",
+      "PYQ-S-2025-LIGHT-019": "0527938fe8111ca3066c7d32197e0294bc5a169809583e4d173f28ac0bee2fb3",
+      "LTG-S-ELEC-299": "128d8557351d8e06e46f846b1a9966e9da63591f6b0e8defb465a5d6bb4d2d6a",
+      "PYQ-S-2026-ELEC-012": "356d94b901b8b387407f45d232d0a18673d08dfbf415f7614313ee86bc876693"
+    }
+  },
+  {
+    "key": "TS-FS-S-NU-3",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 3,
+    "paperCode": "FS-S-NU-3",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-snu3--",
+    "questionIds": [
+      "LTG-S-ELEC-259",
+      "PYQ-S-2025-LIGHT-020",
+      "LTG-S-MAG-298",
+      "LTG-S-LIGHT-299"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-S-ELEC-259",
+      "PYQ-S-2025-LIGHT-020",
+      "LTG-S-MAG-298",
+      "LTG-S-LIGHT-299"
+    ],
+    "textHashes": {
+      "LTG-S-ELEC-259": "917b5dd56bc6fe9095a72bbaa6cf6c18bf26ee53875d80d81f0927a5357607f6",
+      "PYQ-S-2025-LIGHT-020": "ec0f860bb3f6277222dc3a587dc92a6b6892e50d1f31a70b36a7d1f0dc8be36c",
+      "LTG-S-MAG-298": "63408ae3fece20b3b5e7b3dbfa1166ae1283a3757cc29ca7f6afbd23c37838cc",
+      "LTG-S-LIGHT-299": "573121e248b1a5ed0be05e18fab7905ec06a8b3f342b98db7c0e52aa48e6bb0a"
+    }
+  },
+  {
+    "key": "TS-FS-S-NU-4",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 4,
+    "paperCode": "FS-S-NU-4",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-snu4--",
+    "questionIds": [
+      "LTG-S-ELEC-291",
+      "LTG-S-LIGHT-218",
+      "CFPQ-S-ELEC-011",
+      "LTG-S-EYE-218",
+      "FND-L-SPQ-030"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-S-ELEC-291",
+      "LTG-S-LIGHT-218",
+      "CFPQ-S-ELEC-011",
+      "LTG-S-EYE-218",
+      "FND-L-SPQ-030"
+    ],
+    "textHashes": {
+      "LTG-S-ELEC-291": "05ae3f8ee56785bc5703e8a33e4442b21d85b945a57604b7882d2f44f6540070",
+      "LTG-S-LIGHT-218": "3735295f83f535ceca748648f3999a31beaca40ddedddf396a8262aab4bc2e3d",
+      "CFPQ-S-ELEC-011": "f50e0a6a45d75fa5ed5ca0ff8e93959f66da5214dec4411082054b5a736e17eb",
+      "LTG-S-EYE-218": "31609ada9c1250319c866d0013def95f19f9c77196fd87890aa04e1e30c1b582",
+      "FND-L-SPQ-030": "03d5adec97b18f2918e720cfa0f3ee4516edb5da0755f03f8dced17127e089ae"
+    }
+  },
+  {
+    "key": "TS-FS-S-NU-5",
+    "subject": "Science",
+    "kind": "focus",
+    "number": 5,
+    "paperCode": "FS-S-NU-5",
+    "topicKey": null,
+    "worksheetIdPrefix": "fm-tsfs-snu5--",
+    "questionIds": [
+      "LTG-S-MAG-251",
+      "CBE-S-LGHT-C-001",
+      "GDR-L-NUM-093",
+      "LTG-S-ELEC-212",
+      "LT2-044",
+      "LTG-S-ELEC-239"
+    ],
+    "sectionBEQuestionIds": [
+      "LTG-S-MAG-251",
+      "CBE-S-LGHT-C-001",
+      "GDR-L-NUM-093",
+      "LTG-S-ELEC-212",
+      "LT2-044",
+      "LTG-S-ELEC-239"
+    ],
+    "textHashes": {
+      "LTG-S-MAG-251": "8ce44b8540ff8b18ac01e6b4a11808580e862031c751e837e5263db1d8bf28b4",
+      "CBE-S-LGHT-C-001": "ed2871647a49d5a0e15574135d4d04fd5f7b6d8504f7ef968675ef4956ec2d72",
+      "GDR-L-NUM-093": "cac5bc64cdb4d2d96addbcf265943b32957ba2448e788afe1a995cfd7d45f3f0",
+      "LTG-S-ELEC-212": "c06ded8e3fe6f0fa011a1273bb3ab39bb9fd8e64f1a0ec13202592c662a4c291",
+      "LT2-044": "f7a6394804e4f90b6909bd505ee523d132b8ccd4f76cdc31c1bfcbf131f3ff76",
+      "LTG-S-ELEC-239": "775c7d623f3584cbfd2264963165f640288cb9032626417b5eeb72131315f303"
+    }
+  }
+]

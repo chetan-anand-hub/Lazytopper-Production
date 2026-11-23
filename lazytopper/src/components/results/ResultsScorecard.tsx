@@ -1208,7 +1208,7 @@ const SC_CSS = `
   border-radius: 13px; padding: 15px 16px; cursor: pointer; border: none; text-align: center;
 }
 .lt-sc__btn--ghost { background: #fff; color: #15233a; border: 1.5px solid hsl(152, 55%, 45%); }
-.lt-sc__btn--primary { background: hsl(152, 55%, 45%); color: #fff; box-shadow: 0 4px 12px hsla(152, 55%, 45%, 0.32); }
+.lt-sc__btn--primary { background: var(--lt-green-fill, #257e55); color: #fff; box-shadow: 0 4px 12px hsla(152, 55%, 45%, 0.32); }
 .lt-sc__btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
 /* Quick-practice what-next menu (white footer). */
@@ -1221,7 +1221,7 @@ const SC_CSS = `
   border-radius: 12px; padding: 13px 15px;
 }
 .lt-sc__mi--plain { background: #f2f5f9; color: #15233a; border: 1px solid #e4e9f0; }
-.lt-sc__mi--primary { background: hsl(152, 55%, 45%); color: #fff; border: none; box-shadow: 0 4px 12px hsla(152, 55%, 45%, 0.28); }
+.lt-sc__mi--primary { background: var(--lt-green-fill, #257e55); color: #fff; border: none; box-shadow: 0 4px 12px hsla(152, 55%, 45%, 0.28); }
 .lt-sc__mi:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 .lt-sc__mitag { font-size: 10.5px; font-weight: 800; letter-spacing: 0.04em; min-width: 34px; opacity: 0.7; }
 .lt-sc__mi--primary .lt-sc__mitag { opacity: 0.85; }

@@ -10,6 +10,7 @@ import {
   type PaperDifficultyMap,
 } from "../../lib/testSeries/paperDifficulty";
 import type { SeriesChapterTest, SeriesFullMock, SeriesMockRound, SeriesProgress, SeriesSubject, SeriesTestProgress } from "../../lib/testSeries/testSeries";
+import { FOCUS_THEMES, loadFocusSetMeta, type FocusSet, type FocusSetMeta, type FocusSetProgress, type FocusThemeId } from "../../lib/testSeries/focusSets";
 
 /**
  * TS-UX-PAGE-1 (owner, 19 Nov 2026) - /test-series "Take a test": the 180-tile grid replaced by four short steps, so the page is a few
@@ -24,9 +25,13 @@ import type { SeriesChapterTest, SeriesFullMock, SeriesMockRound, SeriesProgress
  *
  * TS-DIFF-1: an "Easier / Standard / Harder" chip + a filter on the full-length list. The labels are LAZY (paperDifficulty.json is its own
  * chunk, fetched after mount), so the first paint is unchanged; until they load - or under VITE_TS_DIFFICULTY_DISABLED - nothing shows.
+ *
+ * TS-THEMES-1: a third segment, "Focus sets" (a BONUS: short papers on one question type, not counted in the series' test count),
+ * shown only when the page passes `focusSets` (none under VITE_TS_FOCUS_SETS_DISABLED). Theme (select), then set 1..5 (select, with
+ * its marks and minutes once the small pins chunk has loaded), then the same ONE Start link to the set's Full Mock URL.
  */
 
-type SeriesType = "chapter" | "full";
+type SeriesType = "chapter" | "full" | "focus";
 
 export interface TestSeriesPaperPickerProps {
   chapters: SeriesChapterTest[];
@@ -35,6 +40,12 @@ export interface TestSeriesPaperPickerProps {
   /** The student's real series progress; null = signed out / still loading. */
   progress: SeriesProgress | null;
   mocksPerSubject: number;
+  /** TS-THEMES-1: the bonus focus sets; empty / absent = no "Focus sets" segment (the kill switch). */
+  focusSets?: FocusSet[];
+  /** The student's real focus-set progress (from their session records); null = signed out / loading. */
+  focusProgress?: Record<string, FocusSetProgress> | null;
+  /** "Bonus: 30 focus sets" - the count, from code. */
+  focusCount?: number;
 }
 
 export function statusWords(p: SeriesTestProgress | undefined, signedIn: boolean): string {
@@ -57,7 +68,7 @@ function DifficultyChip({ label, testId }: { label: PaperDifficultyLabel; testId
 }
 
 /** A small bar of REAL progress (done of total); signed out it shows the count only, in the same box. */
-function MiniProgress({ done, total, show, testId }: { done: number; total: number; show: boolean; testId: string }) {
+function MiniProgress({ done, total, show, testId, noun = "tests" }: { done: number; total: number; show: boolean; testId: string; noun?: string }) {
   return (
     <span className="lt-ts-mini" data-testid={testId}>
       {show ? (
@@ -68,13 +79,15 @@ function MiniProgress({ done, total, show, testId }: { done: number; total: numb
           </span>
         </>
       ) : (
-        <span className="lt-ts-mini__lbl">{total} tests</span>
+        <span className="lt-ts-mini__lbl">
+          {total} {noun}
+        </span>
       )}
     </span>
   );
 }
 
-export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progress, mocksPerSubject }: TestSeriesPaperPickerProps) {
+export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progress, mocksPerSubject, focusSets = [], focusProgress = null, focusCount = 0 }: TestSeriesPaperPickerProps) {
   const signedIn = Boolean(progress);
   const [subject, setSubject] = useState<SeriesSubject>("Maths");
   const [type, setType] = useState<SeriesType>("chapter");
@@ -98,6 +111,21 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
     };
   }, []);
   const labelOf = (code: string): PaperDifficultyLabel | undefined => diff?.[`TS-${code}`]?.label;
+  // TS-THEMES-1: the focus-set marks / minutes come from the pins chunk, fetched only when the "Focus sets" segment is opened.
+  const hasFocus = focusSets.length > 0;
+  const [focusTheme, setFocusTheme] = useState<FocusThemeId | "">("");
+  const [focusN, setFocusN] = useState(1);
+  const [focusMeta, setFocusMeta] = useState<Record<string, FocusSetMeta> | null>(null);
+  useEffect(() => {
+    if (type !== "focus" || focusMeta || !hasFocus) return undefined;
+    let live = true;
+    void loadFocusSetMeta().then((m) => {
+      if (live) setFocusMeta(m);
+    });
+    return () => {
+      live = false;
+    };
+  }, [type, focusMeta, hasFocus]);
 
   const groups = useMemo(() => {
     const m = new Map<string, SeriesChapterTest[]>();
@@ -136,7 +164,16 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
     return f.length ? f : subjectMocks;
   }, [diff, diffFilter, subjectMocks]);
   const fullTest = filteredMocks.find((m) => m.n === fullN) ?? filteredMocks[0];
-  const selected = type === "chapter" ? chapterTest : fullTest;
+  const subjectThemes = FOCUS_THEMES.filter((t) => t.subject === subject && focusSets.some((f) => f.subject === subject && f.theme === t.id));
+  const theme = subjectThemes.find((t) => t.id === focusTheme) ?? subjectThemes[0];
+  const themeSets = theme ? focusSets.filter((f) => f.subject === subject && f.theme === theme.id) : [];
+  const focusTest = themeSets.find((f) => f.n === focusN) ?? themeSets[0];
+  const selected = type === "chapter" ? chapterTest : type === "full" ? fullTest : focusTest;
+  const focusStatus = (code: string): SeriesTestProgress | undefined => focusProgress?.[code];
+  const metaWords = (code: string) => {
+    const m = focusMeta?.[code];
+    return m ? ` · ${m.marks} marks · ${m.minutes} min` : "";
+  };
   const touch = () => {
     touched.current = true;
   };
@@ -146,16 +183,20 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
     const head = `${String(c.index).padStart(2, "0")} · ${c.label}`;
     return signedIn ? `${head} · ${startedCount(g.map((p) => p.code))} of ${g.length} done` : head;
   };
-  const selLabel = selected ? labelOf(selected.code) : undefined;
-  const selChip = selected && showsChip(selected.kind, selLabel) ? selLabel : undefined;
-  const picked = selected ? statusWords(status(selected.code), signedIn) : "";
+  const selLabel = selected && selected.kind !== "focus" ? labelOf(selected.code) : undefined;
+  const selChip = selected && selected.kind !== "focus" && showsChip(selected.kind, selLabel) ? selLabel : undefined;
+  const picked = selected ? statusWords(selected.kind === "focus" ? focusStatus(selected.code) : status(selected.code), signedIn) : "";
   const goLabel =
     selected && selected.kind === "chapter"
       ? `Start: ${selected.label}${group && group.length > 1 ? `, paper ${selected.paper}` : ""}`
-      : selected
-        ? `Start: Full-length test ${selected.n}`
-        : "Start";
-  const subjectCodes = (type === "chapter" ? chapters : mocks).filter((t) => t.subject === subject).map((t) => t.code);
+      : selected && selected.kind === "focus"
+        ? `Start: ${selected.themeTitle}, set ${selected.n}`
+        : selected
+          ? `Start: Full-length test ${selected.n}`
+          : "Start";
+  const subjectCodes = (type === "chapter" ? chapters : type === "full" ? mocks : focusSets).filter((t) => t.subject === subject).map((t) => t.code);
+  const doneCount = (codes: string[]) =>
+    type === "focus" ? (focusProgress ? codes.filter((c) => (focusStatus(c)?.status ?? "not-started") !== "not-started").length : 0) : startedCount(codes);
 
   return (
     <div className="lt-ts-pick" data-testid="ts-picker">
@@ -172,6 +213,8 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
               setChapterKey("");
               setPaper(1);
               setFullN(1);
+              setFocusTheme("");
+              setFocusN(1);
             }}
             data-testid={`ts-pick-subject-${s}`}
           >
@@ -179,7 +222,7 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
           </button>
         ))}
       </div>
-      <div className="lt-ts-pick__seg" role="group" aria-label="Test type" data-testid="ts-pick-type">
+      <div className={`lt-ts-pick__seg${hasFocus ? " lt-ts-pick__seg--3" : ""}`} role="group" aria-label="Test type" data-testid="ts-pick-type">
         <button
           type="button"
           className="lt-ts-pick__segbtn"
@@ -204,6 +247,20 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
         >
           Full-length
         </button>
+        {hasFocus && (
+          <button
+            type="button"
+            className="lt-ts-pick__segbtn"
+            aria-pressed={type === "focus"}
+            onClick={() => {
+              touch();
+              setType("focus");
+            }}
+            data-testid="ts-pick-type-focus"
+          >
+            Focus sets
+          </button>
+        )}
       </div>
 
       {type === "chapter" ? (
@@ -246,6 +303,57 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
                 ))}
               </select>
             </label>
+          )}
+        </div>
+      ) : type === "focus" ? (
+        <div className="lt-ts-pick__row lt-ts-pick__row--focus" data-testid="ts-pick-focus-row">
+          <p className="lt-ts-focus__bonus" data-testid="ts-pick-focus-bonus">
+            <span className="lt-ts-focus__tag">Bonus</span>
+            <span>
+              {focusCount} focus sets: short papers on one question type, on top of the series tests. Written answers, checked step by step.
+            </span>
+          </p>
+          <label className="lt-ts-pick__fld lt-ts-pick__fld--wide">
+            <span className="lt-ts-pick__lbl">Question type</span>
+            <select
+              className="lt-ts-pick__ctl"
+              value={theme?.id ?? ""}
+              onChange={(e) => {
+                touch();
+                setFocusTheme(e.target.value as FocusThemeId);
+                setFocusN(1);
+              }}
+              data-testid="ts-pick-focus-theme"
+            >
+              {subjectThemes.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="lt-ts-pick__fld">
+            <span className="lt-ts-pick__lbl">Set</span>
+            <select
+              className="lt-ts-pick__ctl"
+              value={focusTest?.n ?? 1}
+              onChange={(e) => {
+                touch();
+                setFocusN(Number(e.target.value));
+              }}
+              data-testid="ts-pick-focus-set"
+            >
+              {themeSets.map((f) => (
+                <option key={f.code} value={f.n}>
+                  {`Set ${f.n}${metaWords(f.code)}${signedIn ? ` · ${statusWords(focusStatus(f.code), true)}` : ""}`}
+                </option>
+              ))}
+            </select>
+          </label>
+          {theme && (
+            <p className="lt-ts-diff__note lt-ts-focus__blurb" data-testid="ts-pick-focus-blurb">
+              {theme.blurb}
+            </p>
           )}
         </div>
       ) : (
@@ -300,21 +408,29 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
 
       <div className="lt-ts-pick__go" data-testid="ts-pick-go">
         {selected && (
-          <Link className="lt-ts-btn lt-ts-btn--primary lt-ts-pick__btn" to={selected.href} data-testid="ts-start" data-code={selected.code} data-status={status(selected.code)?.status ?? "not-started"}>
+          <Link
+            className="lt-ts-btn lt-ts-btn--primary lt-ts-pick__btn"
+            to={selected.href}
+            data-testid="ts-start"
+            data-code={selected.code}
+            data-status={(selected.kind === "focus" ? focusStatus(selected.code) : status(selected.code))?.status ?? "not-started"}
+          >
             {goLabel} →
           </Link>
         )}
-        {diff && (
+        {diff && type !== "focus" && (
           <p className="lt-ts-diff__note" data-testid="ts-pick-diff-note">
             {selChip && <DifficultyChip label={selChip} testId="ts-pick-diff-chip" />}
             <span>{DIFFICULTY_EXPLAINER}</span>
           </p>
         )}
         <p className="lt-ts-pick__state" data-testid="ts-pick-state">
-          {signedIn ? picked : `${type === "chapter" ? "Chapter tests" : `${mocksPerSubject} full-length papers`} · ${subject}`}
+          {signedIn
+            ? picked
+            : `${type === "chapter" ? "Chapter tests" : type === "full" ? `${mocksPerSubject} full-length papers` : `${subjectCodes.length} focus sets`} · ${subject}`}
         </p>
       </div>
-      <MiniProgress done={startedCount(subjectCodes)} total={subjectCodes.length} show={signedIn} testId="ts-pick-progress" />
+      <MiniProgress done={doneCount(subjectCodes)} total={subjectCodes.length} show={signedIn} testId="ts-pick-progress" noun={type === "focus" ? "sets" : "tests"} />
     </div>
   );
 }

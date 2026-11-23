@@ -45,6 +45,9 @@
 }
 
 :root {
+  /* UI-FIX-2: the ONE green behind white text (5.01:1 on white) and the ONE green for text on light backgrounds (5.50:1 on white). Decorative green (icons, borders, dots, bars) is NOT this. Guard: src/config/greenContrast.guard.test.ts */
+  --lt-green-fill: #257e55;
+  --lt-green-text: #22774f;
   --bg: #0a0a0a;
   --bg-card: rgba(255,255,255,0.03);
   --bg-card-border: rgba(255,255,255,0.06);
@@ -4092,7 +4095,7 @@ input::placeholder {
 
 /* Exam stack buttons at the bottom of Chapters page */
 .exam-stack-btn-primary {
-  background: linear-gradient(135deg, #22c55e, #1cb0f6);
+  background: linear-gradient(135deg, var(--lt-green-fill, #257e55), #1cb0f6);
   color: #ffffff;
   border-color: transparent;
 }
@@ -4306,7 +4309,7 @@ input::placeholder {
 .lt-topic-hero {
   border-radius: 28px;
   padding: 22px 22px 20px;
-  background: linear-gradient(135deg, #2142ff 0%, #0fb0ff 40%, #2fd39f 100%);
+  background: linear-gradient(135deg, #2142ff 0%, #0fb0ff 40%, var(--lt-green-fill, #257e55) 100%);
   color: #ffffff;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
 }
@@ -4608,7 +4611,7 @@ input::placeholder {
   overflow: hidden;
   padding: 1.4rem 1.2rem;
   border-radius: 24px;
-  background: linear-gradient(145deg, #32b980, #3467d6);
+  background: linear-gradient(145deg, var(--lt-green-fill, #257e55), #3467d6);
   color: #ffffff;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
   display: flex;
@@ -5221,7 +5224,7 @@ input::placeholder {
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  background: linear-gradient(135deg, #1cb0f6, #1cb0f6, #22c55e);
+  background: linear-gradient(135deg, #1cb0f6, #1cb0f6, var(--lt-green-fill, #257e55));
   color: #ffffff;
   box-shadow: 0 14px 30px rgba(59, 130, 246, 0.5);
   transition: filter 0.12s ease, transform 0.08s ease, box-shadow 0.12s ease;
@@ -6841,7 +6844,7 @@ span.ux-return-bar__chip {
   --mob-card: #ffffff;
   --mob-card-border: rgba(0,0,0,0.08);
   --mob-fg: #1e293b;
-  --mob-fg-muted: #64748b;
+  --mob-fg-muted: #5b6b80; /* UI-FIX-1: was #64748b (4.44:1 on #f6f7f9); 5.08:1 */
   --mob-muted: #f1f5f9;
   --mob-muted-border: rgba(0,0,0,0.06);
   --mob-overlay: rgba(0,0,0,0.45);

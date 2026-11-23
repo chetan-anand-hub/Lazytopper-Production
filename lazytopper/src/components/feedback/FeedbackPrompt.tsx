@@ -172,7 +172,7 @@ const FEEDBACK_PROMPT_CSS = `
     box-sizing: border-box;
     padding: 0 14px;
     border-radius: 12px;
-    background: var(--lt-green, #16b96a);
+    background: var(--lt-green-fill, #257e55);
     color: #ffffff;
     font-size: 0.9rem;
     font-weight: 800;

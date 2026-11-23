@@ -9,7 +9,7 @@
 .lt-inv__num { font-weight: 700; overflow-wrap: anywhere; }
 .lt-inv__desc { font-size: 14px; overflow-wrap: anywhere; }
 .lt-inv__meta { font-size: 13px; color: #475569; }
-.lt-inv__dl { min-height: 44px; padding: 0 16px; border: 0; border-radius: 10px; background: #16a34a; color: #ffffff; font-weight: 600; font-size: 15px; cursor: pointer; }
+.lt-inv__dl { min-height: 44px; padding: 0 16px; border: 0; border-radius: 10px; background: var(--lt-green-fill, #257e55); color: #ffffff; font-weight: 600; font-size: 15px; cursor: pointer; }
 .lt-inv__dl:focus-visible { outline: 2px solid #0b1b33; outline-offset: 2px; }
 .lt-inv__err { flex-basis: 100%; margin: 0; font-size: 14px; color: #b42318; }
 @media (min-width: 768px) { .lt-inv__w { margin: 0 24px; } }

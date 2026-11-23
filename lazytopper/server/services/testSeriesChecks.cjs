@@ -102,6 +102,13 @@ function testSeriesDeferredOf(res) {
 
 /** Where TEST-SERIES-1 commits the manifest. */
 const MANIFEST_PATH = path.join(__dirname, '..', 'data', 'testSeriesPapers.json');
+/**
+ * TS-THEMES-1 (owner-approved 23 Nov 2026): the 30 FOCUS SETS (short one-question-type papers, a bonus on top of the 180) are pinned
+ * in their own file, SAME entry shape, keys "TS-FS-M-LA-1", prefixes "fm-tsfs-mla1--". The server reads both files as ONE manifest
+ * (indexManifest's duplicate-key / duplicate-prefix rules apply across them). Kill switch: TS_FOCUS_SETS_DISABLED.
+ */
+const FOCUS_MANIFEST_PATH = path.join(__dirname, '..', 'data', 'testSeriesFocusSets.json');
+const MANIFEST_FILES = Object.freeze([MANIFEST_PATH, FOCUS_MANIFEST_PATH]);
 
 /** ★ THE MANIFEST FIELD NAMES - in ONE place. */
 const F = Object.freeze({
@@ -175,11 +182,35 @@ function indexManifest(raw) {
   return { papers, byKey, count: papers.length, dropped };
 }
 
-/** Read and index the manifest file. Missing / unreadable / no usable paper -> no papers, and an ERROR is logged. */
+/**
+ * Read and index the manifest file. Missing / unreadable / no usable paper -> no papers, and an ERROR is logged.
+ * TS-THEMES-1: `file` may be a LIST of files (MANIFEST_FILES), indexed as one manifest. A missing or unreadable file in a list is
+ * logged and skipped (the others still load); only when NONE can be read is the manifest empty.
+ */
 function loadManifest(file = MANIFEST_PATH, logger = console) {
   let out;
   try {
-    out = indexManifest(JSON.parse(fs.readFileSync(file, 'utf8')));
+    if (Array.isArray(file)) {
+      const all = [];
+      let read = 0;
+      for (const f of file) {
+        try {
+          const raw = JSON.parse(fs.readFileSync(f, 'utf8'));
+          if (Array.isArray(raw)) all.push(...raw);
+          read += 1;
+        } catch (e) {
+          try {
+            logger.error(`[test-series] manifest file unreadable (${f}) - its papers cannot be checked on the pack: ${(e && e.message) || e}`);
+          } catch {
+            /* logging never fails a boot */
+          }
+        }
+      }
+      if (read === 0) throw new Error('no manifest file could be read');
+      out = indexManifest(all);
+    } else {
+      out = indexManifest(JSON.parse(fs.readFileSync(file, 'utf8')));
+    }
   } catch (e) {
     out = { papers: [], byKey: new Map(), count: 0, dropped: 0, unreadable: true };
     try {
@@ -208,8 +239,10 @@ function seriesPaperOf(body, manifest, opts) {
   const id = typeof body.worksheetId === 'string' ? body.worksheetId.trim() : '';
   if (!id || id.length > ID_MAX) return null;
   const skipMore = !!(opts && opts.moreDisabled);
+  const skipFocus = !!(opts && opts.focusDisabled);
   for (const p of manifest.papers) {
     if (skipMore && isMorePaper(p)) continue;
+    if (skipFocus && isFocusPaper(p)) continue;
     if (id.startsWith(p.prefix) && id.length > p.prefix.length) return p;
   }
   return null;
@@ -287,6 +320,24 @@ function isMorePaper(paper) {
   return !!fm && Number(fm[1]) > 20;
 }
 
+/**
+ * TS-THEMES-1: TS_FOCUS_SETS_DISABLED (1 / true / on / yes) is the server twin of the client's VITE_TS_FOCUS_SETS_DISABLED: the focus
+ * sets stop being series papers HERE (no admission, no LIMITS-1 exemption - a request falls to the ordinary rules, exactly as before
+ * this lane). The 180 numbered papers are untouched. PURE.
+ */
+function testSeriesFocusSetsDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.TS_FOCUS_SETS_DISABLED) || '').trim());
+}
+/** Is this manifest paper a focus set (by its key "TS-FS-<M|S>-<theme>-<n>")? PURE. */
+function isFocusPaper(paper) {
+  const key = paper && typeof paper.key === 'string' ? paper.key : '';
+  return /^TS-FS-[MS]-[A-Z]{2}-\d+$/.test(key);
+}
+/** The seriesPaperOf options the env asks for (the TS-MORE-1 and TS-THEMES-1 kill switches). PURE. */
+function paperOpts(env) {
+  return { moreDisabled: testSeriesMoreDisabled(env), focusDisabled: testSeriesFocusSetsDisabled(env) };
+}
+
 const docId = (v) => (typeof v === 'string' && v.trim() && !v.includes('/') ? v.trim() : '');
 const mapOf = (data, field) => (data && data[field] && typeof data[field] === 'object' && !Array.isArray(data[field]) ? data[field] : {});
 
@@ -328,7 +379,7 @@ function isLivePack(pack, nowMs) {
 function createTestSeriesChecks(deps = {}) {
   const { adminFirestore = null, telemetry = null, now = () => Date.now(), readBody = null, env = process.env } = deps;
   const newHoldId = typeof deps.newHoldId === 'function' ? deps.newHoldId : () => crypto.randomUUID().replace(/-/g, '');
-  const manifest = deps.manifest || loadManifest(MANIFEST_PATH, deps.logger || console);
+  const manifest = deps.manifest || loadManifest(MANIFEST_FILES, deps.logger || console);
   const emit = (e) => {
     try {
       if (telemetry && typeof telemetry.increment === 'function') telemetry.increment(e);
@@ -523,7 +574,7 @@ function createTestSeriesChecks(deps = {}) {
   async function decide(req, res, uid) {
     if (manifest.count === 0) return { kind: 'not_series' };
     const body = await bodyOf(req);
-    const paper = seriesPaperOf(body, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
+    const paper = seriesPaperOf(body, manifest, paperOpts(env));
     if (!paper) return { kind: 'not_series' };
     emit('test_series.series_request');
     const verdict = verifySubmission(body, paper);
@@ -582,7 +633,7 @@ function createTestSeriesChecks(deps = {}) {
     try {
       if (!freeTestOn()) return false;
       const body = await bodyOf(req);
-      const paper = seriesPaperOf(body, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
+      const paper = seriesPaperOf(body, manifest, paperOpts(env));
       if (!paper || !verifySubmission(body, paper).ok) return false;
       const st = await freeTestStateOf(uid);
       return !!st && !st.owner && (!st.pinned || st.pinned === paper.key);
@@ -598,7 +649,7 @@ function createTestSeriesChecks(deps = {}) {
   async function freeTestPaper(uid, kind, worksheetId) {
     try {
       if (!freeTestOn()) return false;
-      const paper = seriesPaperOf({ worksheetId }, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
+      const paper = seriesPaperOf({ worksheetId }, manifest, paperOpts(env));
       if (!paper) return false;
       const paperKind = paper.prefix.startsWith('ct-') ? 'chapter-test' : paper.prefix.startsWith('fm-') ? 'full-mock' : '';
       if (kind !== paperKind) return false;
@@ -637,7 +688,7 @@ function createTestSeriesChecks(deps = {}) {
     try {
       // The kill switch turns the exemption off too: with TS_CHECKS_DISABLED every paper is metered exactly as before.
       if (testSeriesChecksDisabled(env) || manifest.count === 0) return false;
-      const paper = seriesPaperOf({ worksheetId }, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
+      const paper = seriesPaperOf({ worksheetId }, manifest, paperOpts(env));
       if (!paper) return false;
       const paperKind = paper.prefix.startsWith('ct-') ? 'chapter-test' : paper.prefix.startsWith('fm-') ? 'full-mock' : '';
       if (kind !== paperKind) return false;
@@ -656,7 +707,7 @@ function createTestSeriesChecks(deps = {}) {
     try {
       if (testSeriesChecksDisabled(env) || manifest.count === 0) return false;
       const body = await bodyOf(req);
-      const paper = seriesPaperOf(body, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
+      const paper = seriesPaperOf(body, manifest, paperOpts(env));
       if (!paper || !verifySubmission(body, paper).ok) return false;
       return (await ownsActive(uid)) === true;
     } catch {
@@ -701,6 +752,10 @@ module.exports = {
   freeRecheckSpent,
   testSeriesMoreDisabled,
   isMorePaper,
+  testSeriesFocusSetsDisabled,
+  isFocusPaper,
+  FOCUS_MANIFEST_PATH,
+  MANIFEST_FILES,
   setTestSeriesDeferred,
   testSeriesDeferredOf,
   TS_DEFERRED,

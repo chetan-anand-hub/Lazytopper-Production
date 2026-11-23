@@ -992,6 +992,106 @@ test('TS-MORE-1: existing buyers\' counters are unchanged - status() lists commi
   assert.equal(st.checksPerPaper, CHECKS_PER_PAPER);
 });
 
+/* ── TS-THEMES-1: the 30 FOCUS SETS - admitted exactly like the series papers, counted under their own keys, own kill switch ── */
+
+const QF = { 'm-fs-la-d1': { text: 'A train travels 360 km at a uniform speed ... find the speed.', marks: 5 }, 'm-fs-la-d2': { text: 'Prove the basic proportionality theorem.', marks: 5 } };
+Object.assign(Q, QF);
+const FOCUS_RAW = [
+  ...MORE_RAW,
+  {
+    key: 'TS-FS-M-LA-1', subject: 'Maths', kind: 'focus', number: 1, paperCode: 'FS-M-LA-1', topicKey: null,
+    worksheetIdPrefix: 'fm-tsfs-mla1--', questionIds: ['m-fs-la-d1', 'm-fs-la-d2'], sectionBEQuestionIds: ['m-fs-la-d1', 'm-fs-la-d2'],
+    textHashes: Object.fromEntries(['m-fs-la-d1', 'm-fs-la-d2'].map((id) => [id, canonicalQuestionTextHash(Q[id].text)])),
+  },
+];
+const FOCUS = indexManifest(FOCUS_RAW);
+const FS1 = 'TS-FS-M-LA-1';
+const fsBody = (over = {}) => ({ worksheetId: 'fm-tsfs-mla1--mz1abc-7f3', questions: [q('m-fs-la-d1', 1), q('m-fs-la-d2', 2)], imageBase64: 'AAAA', ...over });
+
+test('TS-THEMES-1: a focus set check is admitted, counted under its OWN key (2 per paper), and no series counter moves', async () => {
+  const s = setup({ manifest: FOCUS, used: { [FM]: 1 } });
+  const res = fakeRes();
+  assert.equal(await s.gate.applyToRequest(reqWith(fsBody()), res, GRADE, s.uid), false);
+  assert.equal(s.sent.length, 0);
+  res.serve(200, 2);
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, FS1), 1);
+  assert.equal(usedOnPaper(s.db, s.uid, FM), 1);
+  const ex = setup({ manifest: FOCUS, used: { [FS1]: 2 } });
+  assert.equal(await ex.gate.applyToRequest(reqWith(fsBody()), fakeRes(), GRADE, ex.uid), true);
+  assert.equal(ex.sent[0].status, 402);
+  assert.equal(ex.sent[0].body.testSeries.reason, 'exhausted');
+  assert.equal(ex.sent[0].body.testSeries.paperKey, FS1);
+});
+
+test('TS-THEMES-1: a focus set is a FULL-MOCK paper for LIMITS-1 (owner exemption), never a chapter test; its questions cannot ride another paper', async () => {
+  const s = setup({ manifest: FOCUS });
+  assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'full-mock', 'fm-tsfs-mla1--abc'), true);
+  assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'chapter-test', 'fm-tsfs-mla1--abc'), false);
+  assert.equal(await s.checks.ownerSeriesGrade(reqWith(fsBody()), s.uid), true);
+  // a focus set's questions under a series mock id, and a mock's question under the focus id -> mismatch, nothing spent
+  assert.equal(await s.gate.applyToRequest(reqWith(fsBody({ worksheetId: 'fm-ts1-m1--abc' })), fakeRes(), GRADE, s.uid), true);
+  assert.equal(s.sent.at(-1).status, 409);
+  assert.equal(await s.gate.applyToRequest(reqWith({ worksheetId: 'fm-tsfs-mla1--abc', questions: [q('m-fm-01-b1', 21)] }), fakeRes(), GRADE, s.uid), true);
+  assert.equal(s.sent.at(-1).status, 409);
+  // a focus set the manifest does not have is no series paper (the ordinary 402)
+  assert.equal(await s.gate.applyToRequest(reqWith(fsBody({ worksheetId: 'fm-tsfs-mla6--abc' })), fakeRes(), GRADE, s.uid), true);
+  assert.equal(s.sent.at(-1).body.feature, 'grade-worksheet');
+  assert.equal(holdsOf(s.db, s.uid), 0);
+});
+
+test('TS-THEMES-1 kill switch TS_FOCUS_SETS_DISABLED: focus sets are no longer admitted (ordinary 402, no exemption); every series paper is untouched', async () => {
+  const { testSeriesFocusSetsDisabled, isFocusPaper } = require('./testSeriesChecks.cjs');
+  for (const v of ['1', 'true', 'on', 'yes']) {
+    assert.equal(testSeriesFocusSetsDisabled({ TS_FOCUS_SETS_DISABLED: v }), true, v);
+    const s = setup({ manifest: FOCUS, env: { TS_FOCUS_SETS_DISABLED: v } });
+    assert.equal(await s.gate.applyToRequest(reqWith(fsBody()), fakeRes(), GRADE, s.uid), true, v);
+    assert.equal(s.sent.at(-1).body.feature, 'grade-worksheet', v);
+    assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'full-mock', 'fm-tsfs-mla1--abc'), false, v);
+    assert.equal(await s.checks.ownerSeriesGrade(reqWith(fsBody()), s.uid), false, v);
+    assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'full-mock', 'fm-ts1-m24--abc'), true, `${v}: TS-MORE-1 papers stay on`);
+    const res = fakeRes();
+    assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid), false, v);
+    res.serve(200, 2);
+    await settle();
+    assert.equal(usedOnPaper(s.db, s.uid, CT), 1, v);
+    assert.equal(holdsOf(s.db, s.uid), 0, v);
+  }
+  for (const v of ['', '0', 'false', 'no']) assert.equal(testSeriesFocusSetsDisabled({ TS_FOCUS_SETS_DISABLED: v }), false, v);
+  assert.equal(isFocusPaper({ key: FS1 }), true);
+  assert.equal(isFocusPaper({ key: 'TS-FM-M1' }), false);
+  assert.equal(isFocusPaper({ key: 'TS-CT-M01-3' }), false);
+});
+
+test('TS-THEMES-1: the REAL files load as ONE manifest - 180 series papers + 30 focus sets, none dropped, no prefix is a prefix of another', () => {
+  const { MANIFEST_FILES, FOCUS_MANIFEST_PATH, isFocusPaper, isMorePaper } = require('./testSeriesChecks.cjs');
+  assert.deepEqual([...MANIFEST_FILES], [MANIFEST_PATH, FOCUS_MANIFEST_PATH]);
+  assert.match(FOCUS_MANIFEST_PATH, /server[\\/]data[\\/]testSeriesFocusSets\.json$/);
+  const logs = [];
+  const m = loadManifest(MANIFEST_FILES, { error: (x) => logs.push(x) });
+  assert.deepEqual(logs, []);
+  assert.equal(m.count, 210);
+  assert.equal(m.dropped, 0);
+  assert.equal(m.papers.filter(isFocusPaper).length, 30);
+  assert.equal(m.papers.filter(isMorePaper).length, 180 - 66, 'no focus set is read as a TS-MORE-1 paper');
+  const prefixes = m.papers.map((p) => p.prefix);
+  for (const a of prefixes) for (const b of prefixes) if (a !== b) assert.equal(b.startsWith(a), false, `${a} is a prefix of ${b}`);
+  for (const p of m.papers) assert.equal(seriesPaperOf({ worksheetId: `${p.prefix}mz1abc-7f3` }, m).key, p.key);
+  // the series file alone is still exactly the 180 (nothing was appended to it)
+  assert.equal(loadManifest(MANIFEST_PATH, { error: () => {} }).count, 180);
+});
+
+test('TS-THEMES-1: a missing focus file never takes the series papers down (logged; the 180 still load)', () => {
+  const logs = [];
+  const m = loadManifest([MANIFEST_PATH, '/nonexistent/testSeriesFocusSets.json'], { error: (x) => logs.push(x) });
+  assert.equal(m.count, 180);
+  assert.equal(logs.length, 1);
+  assert.match(logs[0], /testSeriesFocusSets\.json/);
+  const none = [];
+  assert.equal(loadManifest(['/nonexistent/a.json', '/nonexistent/b.json'], { error: (x) => none.push(x) }).count, 0);
+  assert.ok(none.some((l) => /NO Test Series paper/.test(l)));
+});
+
 /* ── TS-FREE-CHECK-1 (owner ruling 23 Nov 2026, 19:59 IST) · the free test includes written-answer marking ─────────────────── */
 // A student WITHOUT the pack (free or trial) gets ONE series paper checked - the first one a written check is admitted on, pinned
 // server-side in `testSeriesFreeTest` - with the owner's per-paper allowance (2 checks + the free re-check). Every bypass below must fail.
@@ -1316,4 +1416,82 @@ test('TS-FREE-CHECK-1 LIMITS-1 bypass path (Basic\'s first paper of a kind): the
   const s = setup({ owns: false });
   assert.equal((await check(s, seriesBody(), undefined, { limitsBypass: true })).refused, false);
   assert.equal((await check(s, fmBody(), undefined, { limitsBypass: true })).sent.body.testSeries.reason, 'free_test_used');
+});
+
+/* ── TS-THEMES-1 x TS-FREE-CHECK-1: a FOCUS SET can be the one free test (owner rule: the free test includes written marking) ── */
+const QF2 = { 's-fs-nu-c1': { text: 'A bulb rated 60 W, 220 V is used for 5 h. Find the energy in kWh.', marks: 3 } };
+Object.assign(Q, QF2);
+const FOCUS2 = indexManifest([
+  ...FOCUS_RAW,
+  {
+    key: 'TS-FS-S-NU-1', subject: 'Science', kind: 'focus', number: 1, paperCode: 'FS-S-NU-1', topicKey: null,
+    worksheetIdPrefix: 'fm-tsfs-snu1--', questionIds: ['s-fs-nu-c1'], sectionBEQuestionIds: ['s-fs-nu-c1'],
+    textHashes: { 's-fs-nu-c1': canonicalQuestionTextHash(Q['s-fs-nu-c1'].text) },
+  },
+]);
+const fs2Body = () => ({ worksheetId: 'fm-tsfs-snu1--mz1abc-7f3', questions: [q('s-fs-nu-c1', 1)], imageBase64: 'AAAA' });
+
+test('TS-THEMES-1 x TS-FREE-CHECK-1: a free (and a trial) student\'s FIRST written check on a focus set is admitted and PINS the FS- paper', async () => {
+  for (const sub of ['free', 'trial']) {
+    const s = setup({ manifest: FOCUS2, owns: false, ...(sub === 'trial' ? { sub } : {}) });
+    const c = await check(s, fsBody());
+    assert.equal(c.refused, false, sub);
+    assert.deepEqual(c.req.lazytopperTestSeriesCheck, { paperKey: FS1, used: 1, left: 1, checksPerPaper: 2, freeTest: true }, sub);
+    assert.equal(pinOf(s.db, s.uid), FS1, `${sub}: the focus set is the pinned free test`);
+    assert.equal(usedOnPaper(s.db, s.uid, FS1), 1, sub);
+    // the same focus set again (a new sitting) shares its 2 checks
+    assert.equal((await check(s, fsBody({ worksheetId: 'fm-tsfs-mla1--second-sitting' }))).refused, false, sub);
+    assert.equal(usedOnPaper(s.db, s.uid, FS1), 2, sub);
+    assert.equal((await check(s, fsBody())).sent.status, 402, `${sub}: the third check on the free set is refused`);
+  }
+});
+
+test('TS-THEMES-1 x TS-FREE-CHECK-1: after a focus-set pin, a second paper - a series paper OR another focus set - is refused (free_test_used), nothing held or counted', async () => {
+  const s = setup({ manifest: FOCUS2, owns: false });
+  await check(s, fsBody());
+  for (const body of [seriesBody(), fmBody(), fs2Body(), { worksheetId: 'fm-ts1-m24--abc', questions: [q('m-fm-24-b1', 22)] }]) {
+    const r = await check(s, body);
+    assert.equal(r.refused, true, body.worksheetId);
+    assert.equal(r.sent.status, 402, body.worksheetId);
+    assert.equal(r.sent.body.testSeries.reason, 'free_test_used', body.worksheetId);
+  }
+  assert.equal(pinOf(s.db, s.uid), FS1, 'the pin never moves');
+  assert.equal(usedOnPaper(s.db, s.uid, CT) + usedOnPaper(s.db, s.uid, FM) + usedOnPaper(s.db, s.uid, 'TS-FS-S-NU-1'), 0);
+  assert.equal(holdsOf(s.db, s.uid), 0);
+  // and the reverse: a series paper pinned first refuses a focus set
+  const t = setup({ manifest: FOCUS2, owns: false });
+  await check(t, seriesBody());
+  const r = await check(t, fsBody());
+  assert.equal(r.sent.body.testSeries.reason, 'free_test_used');
+  assert.equal(pinOf(t.db, t.uid), CT);
+});
+
+test('TS-THEMES-1 x TS-FREE-CHECK-1: LIMITS-1 / scorecard helpers treat a pinned focus set as the full-mock free paper; TS_FOCUS_SETS_DISABLED makes it no series paper (nothing pinned)', async () => {
+  const s = setup({ manifest: FOCUS2, owns: false });
+  assert.equal(await s.checks.freeTestGrade(reqWith(fsBody()), s.uid), true, 'no pin yet: a focus set may take it');
+  await check(s, fsBody());
+  assert.equal(await s.checks.freeTestGrade(reqWith(fsBody()), s.uid), true);
+  assert.equal(await s.checks.freeTestGrade(reqWith(fs2Body()), s.uid), false);
+  assert.equal(await s.checks.freeTestPaper(s.uid, 'full-mock', 'fm-tsfs-mla1--x'), true);
+  assert.equal(await s.checks.freeTestPaper(s.uid, 'chapter-test', 'fm-tsfs-mla1--x'), false, 'wrong kind');
+  const off = setup({ manifest: FOCUS2, owns: false, env: { TS_FOCUS_SETS_DISABLED: '1' } });
+  // Review fix: with the switch on a focus set is no series paper for the LIMITS-1 helpers either - no free-test exemption from
+  // metering (decide() would answer not_series, so no hold / cap would apply).
+  assert.equal(await off.checks.freeTestGrade(reqWith(fsBody()), off.uid), false, 'freeTestGrade: no exemption under the switch');
+  assert.equal(await off.checks.freeTestPaper(off.uid, 'full-mock', 'fm-tsfs-mla1--x'), false, 'freeTestPaper: no exemption under the switch');
+  // ...even for an account whose free test was ALREADY pinned on that focus set before the switch went on
+  const pinnedThenOff = setup({ manifest: FOCUS2, owns: false });
+  await check(pinnedThenOff, fsBody());
+  assert.equal(pinOf(pinnedThenOff.db, pinnedThenOff.uid), FS1);
+  const offAfter = createTestSeriesChecks({ adminFirestore: pinnedThenOff.db, now: () => pinnedThenOff.clock.now, manifest: FOCUS2, readBody: async (r) => r.body, env: { TS_FOCUS_SETS_DISABLED: 'on' } });
+  const onAgain = createTestSeriesChecks({ adminFirestore: pinnedThenOff.db, now: () => pinnedThenOff.clock.now, manifest: FOCUS2, readBody: async (r) => r.body, env: {} });
+  assert.equal(await onAgain.freeTestPaper(pinnedThenOff.uid, 'full-mock', 'fm-tsfs-mla1--x'), true, 'control: switch off -> the pinned set is the free paper');
+  assert.equal(await offAfter.freeTestGrade(reqWith(fsBody()), pinnedThenOff.uid), false);
+  assert.equal(await offAfter.freeTestPaper(pinnedThenOff.uid, 'full-mock', 'fm-tsfs-mla1--x'), false);
+  // the series papers keep their free-test helpers under the focus switch
+  assert.equal(await off.checks.freeTestGrade(reqWith(seriesBody()), off.uid), true, 'a series paper may still take the free test');
+  const r = await check(off, fsBody());
+  assert.equal(r.refused, true);
+  assert.equal(r.sent.body.feature, 'grade-worksheet', 'the ordinary 402: not a series paper under the kill switch');
+  assert.equal(pinOf(off.db, off.uid), null, 'nothing pinned');
 });

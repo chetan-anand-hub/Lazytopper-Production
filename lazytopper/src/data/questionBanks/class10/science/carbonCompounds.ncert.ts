@@ -23,7 +23,7 @@ export const CARBON_COMPOUNDS_NCERT: CanonicalQuestion[] = [
   { id: "CARB-NCERT-4-VSA-003", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Versatility of Carbon", section: "B", marks: 2, format: "VSA", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "How many structural isomers can you draw for pentane?",
     answer: "Three structural isomers: n-pentane (straight chain), isopentane (2-methylbutane), and neopentane (2,2-dimethylpropane).",
-    solutionSteps: ["n-Pentane: CH₃–CH₂–CH₂–CH₂–CH₃ (straight chain).", "Isopentane (2-methylbutane): branched 4-carbon chain with a methyl substituent.", "Neopentane (2,2-dimethylpropane): central C with 4 methyl groups."],
+    solutionSteps: ["[0.5 mark] n-Pentane: CH₃–CH₂–CH₂–CH₂–CH₃ (straight chain).", "[0.5 mark] Isopentane (2-methylbutane): branched 4-carbon chain with a methyl substituent.", "[1 mark] Neopentane (2,2-dimethylpropane): central C with 4 methyl groups."],
     finalAnswer: "3 — n-pentane, isopentane (2-methylbutane), neopentane (2,2-dimethylpropane).",
     ncertRef: "In-text Q1 (after §4.2)", isCompetencyBased: false },
   { id: "CARB-NCERT-4-VSA-004", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Versatility of Carbon", section: "B", marks: 2, format: "VSA", difficulty: "Easy", bloomSkill: "Understanding",
