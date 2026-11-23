@@ -99,3 +99,16 @@ export function gradedTotalOf(score: { total: number; notMarked?: { marks: numbe
   const nm = Number(score.notMarked?.marks) || 0;
   return round2(Math.max(0, score.total - Math.max(0, nm)));
 }
+
+/**
+ * TS-BOARDSCORE-1 (review nit) - the result card behind the scorecard (Full Mock / Chapter Test, FULL phase), consistent with the
+ * hero: "fully graded" only when everything was marked; the score out of the paper's FULL marks; the marks not marked yet named.
+ */
+export function resultCardParts(response: ResponseLike): { status: string; score: string; tail: string } {
+  const ps = paperMarksScore(response);
+  return {
+    status: ps.notMarked ? "graded" : "fully graded",
+    score: `${formatScoreNumber(ps.awarded)} / ${formatScoreNumber(ps.total)}`,
+    tail: ps.notMarked ? ` \u00b7 ${marksPhrase(ps.notMarked.marks)} not marked yet` : "",
+  };
+}

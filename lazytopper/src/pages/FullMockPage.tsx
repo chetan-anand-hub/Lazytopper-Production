@@ -151,7 +151,7 @@ import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintD
 import { buildDesktopWorksheetPath } from "../lib/desktop/navigation";
 import { formatScoreNumber } from "../components/results/scoreNumber";
 import { buildBoardScoreView, fullTestScores } from "../lib/fullmock/boardEstimate";
-import { paperMarksScore } from "../components/results/scoreTotals";
+import { paperMarksScore, resultCardParts } from "../components/results/scoreTotals";
 import { boardEstimateDisabled } from "../lib/fullmock/boardEstimateFlag";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import { FM_CSS } from "../components/fullmock/fullMockStyles";
@@ -2156,13 +2156,10 @@ export default function FullMockPage() {
                 <div className="lt-ct__eyebrow">Full Mock · Result</div>
                 <div className="lt-ct__title lt-ct__fr">{activeMock.name}</div>
                 <div className="lt-ct__sub">
-                  {activeMock.code} · fully graded —{" "}
-                  <b>
-                    {fullResponse?.gradedMarksAwarded}/{fullResponse?.gradedMarksTotal}
-                  </b>
-                  {fullResponse && fullResponse.pendingCount > 0
-                    ? ` · ${fullResponse.pendingCount} page(s) pending`
-                    : ""}
+                  {/* TS-BOARDSCORE-1 - consistent with the hero: out of the paper's full marks; "fully graded" only when it is. */}
+                  {activeMock.code} · {fullResponse ? resultCardParts(fullResponse).status : "fully graded"} —{" "}
+                  <b>{fullResponse ? resultCardParts(fullResponse).score : null}</b>
+                  {fullResponse ? resultCardParts(fullResponse).tail : ""}
                 </div>
                 <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
                 <div className="lt-ct__startrow">

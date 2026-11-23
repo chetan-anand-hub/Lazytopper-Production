@@ -3,9 +3,9 @@
 // share image alike.
 import { describe, expect, it } from "vitest";
 import type { WorksheetGradeResponse, WorksheetQuestionGrade } from "../../ai/aiClient";
-import { gradedTotalOf, notMarkedLine, paperMarksScore } from "./scoreTotals";
+import { gradedTotalOf, notMarkedLine, paperMarksScore, resultCardParts } from "./scoreTotals";
 import { ziggyReactionFor } from "../guide/ziggyModel";
-import { buildShareCardModel } from "./share/shareCardModel";
+import { buildShareCardModel, canShareScore } from "./share/shareCardModel";
 import { fullMockScorecardVariant } from "./scorecardVariants";
 import { chapterTestScorecardVariant } from "./scorecardBankLenses";
 
@@ -88,12 +88,17 @@ describe("the score's readers never count not-marked marks as lost", () => {
     expect(ziggyReactionFor({ kind: "marks", awarded: 70, total: 80 })?.line).toBe("70 out of 80. 10 marks to fix. I've got this.");
   });
 
-  it("the share image prints 70 / 80 but reads the mood from the graded 70 / 74", () => {
+  it("review B1: a FULL card with marks not marked yet cannot be shared as an image (no '70 / 80' without its caveat)", () => {
     const v = fullMockScorecardVariant({ name: "M", code: "FM-M-01", phase: "full", response: unmarked });
-    const m = buildShareCardModel(v, { dateLabel: "23 Nov 2026" })!;
-    expect(m.awarded).toBe(70);
-    expect(m.total).toBe(80);
-    expect(m.ziggy.mood).not.toBe("great"); // 1 of 2 questions graded: never "board-ready"
+    expect(canShareScore(v)).toBe(false);
+    expect(buildShareCardModel(v, { dateLabel: "23 Nov 2026" })).toBeNull();
+  });
+
+  it("review B1: a fully marked FULL card still shares, out of 80", () => {
+    const done = resp([q({ marksAwarded: 5 })], { gradedMarksAwarded: 70, gradedMarksTotal: 80 });
+    const v = fullMockScorecardVariant({ name: "M", code: "FM-M-01", phase: "full", response: done });
+    expect(canShareScore(v)).toBe(true);
+    expect(buildShareCardModel(v, { dateLabel: "23 Nov 2026" })).toMatchObject({ awarded: 70, total: 80 });
   });
 
   it("Chapter Test: the same paper score (shared hero)", () => {
@@ -146,11 +151,21 @@ describe("awaiting-sheet (PARTIAL) phase - out of full marks, written marks WAIT
     expect(ct.score.kind === "marks" && ct.score.notMarked?.line).toBe("12 marks waiting for your answer sheet");
   });
 
-  it("Ziggy stays silent; the share mood reads the marked 17 / 20, never 17 / 80", () => {
+  it("Ziggy stays silent; review B1: no share image while the sheet is awaited (never '17 / 80 · Board-ready vibes')", () => {
     const v = fullMockScorecardVariant({ name: "M", code: "FM-M-04", phase: "partial", response: partialResp(), onUpload: () => {}, onUploadLater: () => {} });
     expect(ziggyReactionFor(v.score)).toBeNull();
-    const m = buildShareCardModel(v, { dateLabel: "23 Nov 2026" })!;
-    expect(m.total).toBe(80);
-    expect(m.ziggy.mood).not.toBe("oops"); // 17/20 = 85% marked: never scored as 17/80 = 21%
+    expect(canShareScore(v)).toBe(false);
+    expect(buildShareCardModel(v, { dateLabel: "23 Nov 2026" })).toBeNull();
+    const ct = chapterTestScorecardVariant({ name: "CT", code: "CT-01", phase: "partial", response: partialResp({ worksheetTotalMarks: 32 }) });
+    expect(canShareScore(ct)).toBe(false);
+  });
+
+  it("review nit: the result card behind the scorecard matches the hero", () => {
+    expect(resultCardParts(partialResp({ gradedMarksAwarded: 61, gradedMarksTotal: 80 }))).toEqual({ status: "fully graded", score: "61 / 80", tail: "" });
+    expect(
+      resultCardParts(
+        resp([q({}), q({ qNumber: 2, couldNotRead: true, totalMarks: 6 })], { gradedMarksAwarded: 52, gradedMarksTotal: 74, pendingCount: 1 }),
+      ),
+    ).toEqual({ status: "graded", score: "52 / 80", tail: " \u00b7 6 marks not marked yet" });
   });
 });
