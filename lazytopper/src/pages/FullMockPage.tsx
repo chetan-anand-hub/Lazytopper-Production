@@ -117,6 +117,7 @@ import {
 import {
   fullMockScorecardVariant,
   deriveFullMockChapterLens,
+  biggestMistakeLossRow,
   fullMockFocusLine,
   withPaperTutorAsks,
   withGuideTarget,
@@ -154,6 +155,8 @@ import { buildBoardScoreView, fullTestScores } from "../lib/fullmock/boardEstima
 import { paperMarksScore, resultCardParts } from "../components/results/scoreTotals";
 import { boardEstimateDisabled } from "../lib/fullmock/boardEstimateFlag";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
+import NotFoundAddPageLine from "../components/chaptertest/NotFoundAddPageLine";
+import { notFoundNotAttemptedQNumbers } from "../lib/notFoundNotAttempted";
 import { FM_CSS } from "../components/fullmock/fullMockStyles";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
 import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadPanel";
@@ -178,7 +181,7 @@ import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
+import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesOfferButtons, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUploadNotAllowed, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
@@ -274,6 +277,11 @@ export default function FullMockPage() {
   // MYPACKS-TS-1: three-state (checking / failed / decided); downloads also open for a PDF pack that covers this subject's mocks.
   const seriesAccess = useSeriesAccess(user?.uid ?? null, { kind: "full-mock", subject: subject === "Science" ? "science" : "maths" });
   const seriesPaperAccess = seriesAccess.canCheck;
+  // LIVE-FIX-1 (live run 23 Nov 2026): on a Test Series paper the fair-use panel offers the Test Series beside its Board Pass - only
+  // once access is DECIDED and the account can't check (a Board Pass holder or a Test Series owner never sees it; the panel itself
+  // also draws it on a trial refusal only).
+  const fairUseSeriesOffer =
+    seriesN !== null && !seriesAccess.checking && !seriesAccess.failed && !seriesAccess.canCheck ? <SeriesOfferButtons testIdPrefix="fair-use" only="test-series" showTotal /> : null;
   const seriesDownloadAccess = seriesAccess.canDownload;
   // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
   const boardPassHolder = useBoardPassHolder();
@@ -556,6 +564,12 @@ export default function FullMockPage() {
     [moveFmPaper],
   );
   const [resultsPhase, setResultsPhase] = useState<"partial" | "full">("partial");
+  // LIVE-FIX-1 #5 - "If you answered these, add the page": back to THIS paper's upload step (the same step the first upload used;
+  // the grade then replaces this result under the same code). Re-upload rules and check counts are the server's, unchanged.
+  const addMissingPage = useCallback(() => {
+    setScorecardOpen(false);
+    setResultsPhase("partial");
+  }, []);
   const [scorecardOpen, setScorecardOpen] = useState(false);
   const [fullResponse, setFullResponse] = useState<WorksheetGradeResponse | null>(null);
   // TS-ANALYSIS-1 (feature 2) — time on screen per question while the mock is being taken (device-local).
@@ -781,10 +795,10 @@ export default function FullMockPage() {
   // ── Start / resume ───────────────────────────────────────────────────────────
   const startTest = useCallback(() => {
     if (!draw || !nomen || !draw.enoughQuestions) return;
-    // FAIR-USE-UI-1 (UI3): this week's mock already used -> the panel, not the paper.
-    // A RESUME is not a start and is never blocked.
-    if (fairUse.blockPaperStart()) return;
     // TEST-SERIES-1 (owner 19:44 IST): a free / trial account takes ONE test in total; signed out signs in first.
+    // LIVE-FIX-1 (live run 23 Nov 2026): decided BEFORE the weekly fair-use check. A trial account that has used its one free
+    // test is told THAT ("You've used your 1 free test") with the Test Series AND the Board Pass - not the weekly mock limit
+    // with the Board Pass alone (the week resetting would not let it start anyway). Entitled accounts decide "start" here.
     const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records) });
     if (startDecision === "upgrade" && seriesAccess.checking) {
       setPaperNotice(ACCESS_CHECKING_LINE);
@@ -798,6 +812,10 @@ export default function FullMockPage() {
       setStartWall(true);
       return;
     }
+    // FAIR-USE-UI-1 (UI3): this week's mock already used -> the panel, not the paper.
+    // A RESUME is not a start and is never blocked. LIVE-FIX-1: a Test Series owner's series paper is never metered (the server's
+    // LIMITS-1 exempts it - testSeriesChecks.ownerSeriesPaper - and claimNewPaperView below already does), so no panel for it.
+    if (!(seriesAccess.ownsSeries && seriesN !== null) && fairUse.blockPaperStart()) return;
     // CT-RESUME-2: a visit let through as a RESUME of a saved mock was not counted. Starting a NEW
     // mock instead is counted now — or refused when today's papers are used up.
     if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && seriesN !== null), location.search)) {
@@ -927,8 +945,11 @@ export default function FullMockPage() {
           clearFullMockSession(sessionUid, a.code);
           // Fully graded — the durable record + perQuestion payload exist; the
           // cross-device paper snapshot has done its job. Only THIS paper's copy (by identity).
-          deleteFullMockPaperSnapshot(user, a.code, a.paper.worksheetId);
-          if (gradedAs.code !== a.code) deleteFullMockPaperSnapshot(user, gradedAs.code, a.paper.worksheetId);
+          // LIVE-FIX-1 #5: a paper with questions not found on the pages keeps its snapshot - "add the page" re-opens its upload step.
+          if (notFoundNotAttemptedQNumbers(outcome.response.results).length === 0) {
+            deleteFullMockPaperSnapshot(user, a.code, a.paper.worksheetId);
+            if (gradedAs.code !== a.code) deleteFullMockPaperSnapshot(user, gradedAs.code, a.paper.worksheetId);
+          }
           trackUxEvent("full_mock_complete", "FullMockPage", {
             subject,
             score: `${outcome.response.gradedMarksAwarded}/${outcome.response.gradedMarksTotal}`,
@@ -1482,8 +1503,9 @@ export default function FullMockPage() {
     const a = activeRef.current;
     const lens =
       a && fullResponse ? deriveFullMockChapterLens(fullResponse, a.paper.questions) : null;
-    const worst = lens?.[0];
-    const single = !!worst && worst.lost > 0;
+    // LIVE-FIX-1 #4 - the SAME chapter the scorecard names as "your biggest loss": marks lost to mistakes, never not attempted.
+    const worst = biggestMistakeLossRow(lens);
+    const single = !!worst;
     const built = buildDesktopWorksheetPath({
       ...(single ? { scope: "topic" as const, topic: worst!.key } : { scope: "full-subject" as const }),
       subject,
@@ -1550,6 +1572,12 @@ export default function FullMockPage() {
               ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
               : {}),
             onDone: () => setReopen(null),
+            // LIVE-FIX-1 #5 - a record with questions not found on the pages offers its own upload step (the paper is kept for it).
+            onAddPage: () => {
+              const record = reopen.record;
+              setReopen(null);
+              void openPendingUpload(record);
+            },
             // PAPER-REBUILD-1 (D103a): the no-paper state's way forward, through the setup's own start.
             onStartNew: reopen.noPaper
               ? () => {
@@ -1750,7 +1778,7 @@ export default function FullMockPage() {
                       scopeName={subject}
                     />
 
-                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} /> : null}
+                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} /> : null}
 
                     {/* GUIDE-PAGES-1 — reserved for COMPANION-1's optional pre-test "breathe" moment (renders nothing today). */}
                     <PreTestSlot surface="full_mock" />
@@ -2103,7 +2131,7 @@ export default function FullMockPage() {
             {seriesNavOn && seriesBack.to !== TEST_SERIES_NAV_PATH && <SeriesCrumb />}
           </div>
 
-          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
+          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} /> : null}
           {paperWall && (seriesAccess.ownsSeries ? (
             <SeriesOwnerNotice onClose={() => setPaperWall(false)} worksheetId={activeMock.paper.worksheetId} status={seriesAccess.status} />
           ) : (
@@ -2164,11 +2192,12 @@ export default function FullMockPage() {
                 <div className="lt-ct__title lt-ct__fr">{activeMock.name}</div>
                 <div className="lt-ct__sub">
                   {/* TS-BOARDSCORE-1 - consistent with the hero: out of the paper's full marks; "fully graded" only when it is. */}
-                  {activeMock.code} · {fullResponse ? resultCardParts(fullResponse).status : "fully graded"} —{" "}
+                  {activeMock.code} · {fullResponse ? resultCardParts(fullResponse).status : "graded"} —{" "}
                   <b>{fullResponse ? resultCardParts(fullResponse).score : null}</b>
                   {fullResponse ? resultCardParts(fullResponse).tail : ""}
                 </div>
                 <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} />
+                <NotFoundAddPageLine response={fullResponse} onAddPage={addMissingPage} />
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
@@ -2288,6 +2317,8 @@ export default function FullMockPage() {
                 // has no such view, so closing dropped the student onto a summary card whose only
                 // primary action reopened the panel they had just left - a loop with no way on.
                 onReadSheet: revealGradedSheet,
+                // LIVE-FIX-1 #5 - "If you answered these, add the page": back to this paper's upload step (re-upload rules unchanged).
+                onAddPage: addMissingPage,
                 onPractiseChapter: () => {
                   setScorecardOpen(false);
                   practiseWorstChapter();

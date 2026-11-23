@@ -32,8 +32,15 @@ async function readOnce(): Promise<Read> {
 
 export const OWNERSHIP_RETRY_DELAY_MS = 700;
 
+/**
+ * LIVE-FIX-1 - every read is numbered and ONLY the newest one may write the entry: a slow read started before a grade (the count
+ * before the check) must never land after the read started once the grade finished and put the stale count back on screen.
+ */
+let seq = 0;
+
 async function load(uid: string, force: boolean): Promise<void> {
   if (!force && (entry?.uid === uid || inflight === uid)) return;
+  const mine = ++seq;
   inflight = uid;
   try {
     let r: Read | null = null;
@@ -48,10 +55,13 @@ async function load(uid: string, force: boolean): Promise<void> {
         r = null;
       }
     }
+    if (mine !== seq) return; // a newer read is in flight (or landed): it writes the entry, never this older one
     entry = r ? { uid, owns: r.owns, status: r.status, freeTest: r.freeTest, failed: false } : { uid, owns: false, status: null, freeTest: null, failed: true };
   } finally {
-    if (inflight === uid) inflight = null;
-    listeners.forEach((fn) => fn());
+    if (mine === seq) {
+      if (inflight === uid) inflight = null;
+      listeners.forEach((fn) => fn());
+    }
   }
 }
 
@@ -70,16 +80,15 @@ export function useTestSeriesOwnership(
       listeners.delete(fn);
     };
   }, []);
+  // LIVE-FIX-1 (live run 23 Nov 2026: "Checks left on this paper: 2 of 2" after a completed check) - a reader that passes a
+  // `refreshKey` (the checks-left line) re-reads the SERVER's count when it MOUNTS, not only when the key later changes. The
+  // result screen's line mounts fresh after the grade (the upload screen's line unmounts with it), so it used to skip its first
+  // refresh and show the count cached before the check. A reader with no `refreshKey` keeps the page-life cache (one request).
+  const mounted = useRef(false);
   useEffect(() => {
-    if (uid) void load(uid, false);
-  }, [uid]);
-  const first = useRef(true);
-  useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    if (uid) void load(uid, true);
+    const force = mounted.current || refreshKey !== undefined;
+    mounted.current = true;
+    if (uid) void load(uid, force);
   }, [uid, refreshKey]);
   const retry = () => {
     if (uid) {
@@ -96,5 +105,6 @@ export function useTestSeriesOwnership(
 export function resetTestSeriesOwnershipForTests(): void {
   entry = null;
   inflight = null;
+  seq = 0;
   listeners.clear();
 }

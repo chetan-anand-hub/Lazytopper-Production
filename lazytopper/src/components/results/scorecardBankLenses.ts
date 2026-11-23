@@ -46,9 +46,10 @@ import {
   type StoredFullMockVariantInput,
   noUploadPartial,
   boardScoreFor,
+  notFoundNotAttemptedBlock,
   type ScorecardScore,
 } from "./scorecardVariants";
-import { awaitingSheetScore, paperMarksScore } from "./scoreTotals";
+import { awaitingSheetScore, paperGradeStatus, paperMarksScore } from "./scoreTotals";
 
 /** Lazily-built canonical questionId → subtopic index (built once on first use; the
  *  bank is a static in-memory array, so this stays pure/synchronous). */
@@ -274,7 +275,8 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
   return {
     surface: "chapter-test",
     title: name,
-    subtitle: `${code} · fully graded`,
+    // LIVE-FIX-1 - "fully graded" only when every mark was marked (paperGradeStatus, the result card's own word).
+    subtitle: `${code} · ${paperGradeStatus(response)}`,
     // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:59 IST) - out of the paper's FULL marks; unmarked questions listed apart.
     score: liveCtScore(response),
     fourType: aggregateFourType(response),
@@ -290,6 +292,8 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
     // of honest-ungraded rules.
     gradedAnswers: ctGradedAnswers.length > 0 ? ctGradedAnswers : null,
     pending: pendingStrip(response),
+    // LIVE-FIX-1 #5 - questions not found on the pages: "Not attempted · 0" + "If you answered these, add the page".
+    notFoundNotAttempted: notFoundNotAttemptedBlock(response, input.onAddPage),
     allPending: null,
     // GUIDE-SCORE-1 — the honest change since the last same-total test of this chapter.
     ...(input.deltaLine ? { message: input.deltaLine } : {}),
@@ -380,6 +384,8 @@ export function storedChapterTestScorecardVariant(
     ...(response ? sectionTypeLensFields(chapterTestLensResponse(response, conceptQuestions)) : {}),
     conceptLens: conceptQuestions ? deriveChapterTestConceptLens(response!, conceptQuestions) : null,
     pending: null,
+    // LIVE-FIX-1 #5 - the re-open reads the SAME stored payload the live card did, so it lists the same questions.
+    notFoundNotAttempted: notFoundNotAttemptedBlock(response, input.onAddPage),
     allPending: null,
     actions,
   };
@@ -520,6 +526,8 @@ export function storedFullMockScorecardVariant(
     chapterLens,
     chapterLensNote: fullMockChapterLensNote(chapterLens),
     pending: null,
+    // LIVE-FIX-1 #5 - the re-open reads the SAME stored payload the live card did, so it lists the same questions.
+    notFoundNotAttempted: notFoundNotAttemptedBlock(response, input.onAddPage),
     allPending: null,
     actions,
   };

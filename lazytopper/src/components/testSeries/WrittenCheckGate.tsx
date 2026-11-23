@@ -21,8 +21,9 @@ import { Link, useLocation } from "react-router-dom";
 import { tagWhenSeriesPaper } from "../../lib/testSeries/seriesNav";
 import { useSubscription } from "../../hooks/useSubscription";
 import { isPaidPremium } from "../../services/subscriptionService";
-import { boardPassPriceDisplay } from "../../config/pricing";
+import { boardPassPayDisplay, boardPassPriceDisplay } from "../../config/pricing";
 import {
+  FREE_TESTS_ALLOWED,
   canCheckSeriesPapers,
   canDownloadPaper,
   countTestsTaken,
@@ -35,7 +36,7 @@ import { useOwnedPacks } from "../packs/useOwnedPacks";
 import { ownsChapter, ownsMocks, type PackSubject } from "../../services/packs";
 import type { TestSeriesFreeTest, TestSeriesStatus } from "../../services/packs";
 import { TEST_SERIES_BUY_PATH, seriesPaperKeyOfWorksheetId, seriesTotals } from "../../lib/testSeries/testSeries";
-import { SHEET_UNREADABLE_NOT_COUNTED_LINE, packPriceLabel, testSeriesChecksLeftLine, testSeriesPriceLine, testSeriesRecheckNote } from "../../services/packs";
+import { SHEET_UNREADABLE_NOT_COUNTED_LINE, packPayLabel, packPriceLabel, testSeriesChecksLeftLine, testSeriesPriceLine, testSeriesRecheckNote } from "../../services/packs";
 import { useTestSeriesOwnership } from "./testSeriesOwnership";
 import "./writtenCheckGate.css";
 
@@ -48,9 +49,18 @@ export function writtenCheckGateDisabled(): boolean {
   return import.meta.env?.VITE_WRITTEN_CHECK_GATE_DISABLED === "1";
 }
 
-/** "Upgrade to the Test Series (price from code) or the Board Pass to take all <total> tests" — the price and the count come from code. */
+/**
+ * "You've used your 1 free test. Upgrade to the Test Series (price from code) or the Board Pass to take all <total> tests" — the
+ * free-test count, the price and the count come from code. LIVE-FIX-1 (live run 23 Nov 2026): the wall is shown only to a signed-in
+ * free / trial account whose one free test is spent (seriesStartDecision "upgrade"), so it says so first.
+ */
 export function seriesStartWallLine(): string {
-  return `Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all ${seriesTotals().total} tests`;
+  return `${seriesFreeTestUsedLine()} Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all ${seriesTotals().total} tests`;
+}
+
+/** LIVE-FIX-1 - "You've used your 1 free test." (FREE_TESTS_ALLOWED from code). */
+export function seriesFreeTestUsedLine(): string {
+  return `You've used your ${FREE_TESTS_ALLOWED} free test${FREE_TESTS_ALLOWED === 1 ? "" : "s"}.`;
 }
 
 /**
@@ -343,24 +353,46 @@ export function useBoardPassHolder(): boolean {
   return writtenCheckGateDisabled() || isPaidPremium(status);
 }
 
-/** The two offers, equal weight: the Test Series and the Board Pass (its price is date-driven, so read after mount). */
-export function SeriesOfferButtons({ testIdPrefix, only }: { testIdPrefix: string; /** "board-pass": the tutor / no-checks walls offer the Board Pass ONLY (the Test Series has no tutor). */ only?: "board-pass" }) {
+/**
+ * The two offers, equal weight: the Test Series and the Board Pass (its price is date-driven, so read after mount).
+ * LIVE-FIX-1 `showTotal`: each button also names what is CHARGED ("Pay ₹1,179" - packPayLabel / boardPassPayDisplay, GST included),
+ * the convention every Pay button follows. The links and the buy entries they lead to are unchanged.
+ */
+export function SeriesOfferButtons({
+  testIdPrefix,
+  only,
+  showTotal = false,
+}: {
+  testIdPrefix: string;
+  /** "board-pass": the tutor / no-checks walls offer the Board Pass ONLY (the Test Series has no tutor). "test-series": a wall that
+   *  already carries its own Board Pass offer (the fair-use panel) adds the Test Series beside it. */
+  only?: "board-pass" | "test-series";
+  showTotal?: boolean;
+}) {
   const [bpPrice, setBpPrice] = useState<string | null>(null);
+  const [bpPay, setBpPay] = useState<string | null>(null);
   // TS-NAV-1: on a series paper the buy pages get `from=test-series&returnTo=<paper>` so their Back row leads back to the paper.
   const { pathname, search } = useLocation();
-  useEffect(() => setBpPrice(boardPassPriceDisplay(Date.now())), []);
+  useEffect(() => {
+    setBpPrice(boardPassPriceDisplay(Date.now()));
+    setBpPay(boardPassPayDisplay(Date.now()));
+  }, []);
   return (
-    <div className="lt-wcg__offers">
+    <div className={only === "test-series" ? "lt-wcg__offers lt-wcg__offers--one" : "lt-wcg__offers"}>
       {only !== "board-pass" && (
       <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(TEST_SERIES_BUY_PATH, pathname, search)} data-testid={`${testIdPrefix}-ts`}>
         <span className="lt-wcg__main">Test Series</span>
         <span className="lt-wcg__price">{testSeriesPriceLine()} · all {seriesTotals().total} tests</span>
+        {showTotal && <span className="lt-wcg__pay" data-testid={`${testIdPrefix}-ts-pay`}>Pay {packPayLabel("test_series")}</span>}
       </Link>
       )}
+      {only !== "test-series" && (
       <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(BOARD_PASS_PATH, pathname, search)} data-testid={`${testIdPrefix}-bp`}>
         <span className="lt-wcg__main">Board Pass</span>
         <span className="lt-wcg__price">{bpPrice ? `${bpPrice} · everything + tutor` : "everything + tutor"}</span>
+        {showTotal && <span className="lt-wcg__pay" data-testid={`${testIdPrefix}-bp-pay`}>{bpPay ? `Pay ${bpPay}` : "\u00a0"}</span>}
       </Link>
+      )}
     </div>
   );
 }
@@ -410,7 +442,7 @@ export function SeriesStartWall() {
   return (
     <div className="lt-wcg" role="alert" data-testid="series-start-wall">
       <p className="lt-wcg__line">{seriesStartWallLine()}.</p>
-      <SeriesOfferButtons testIdPrefix="series-start-wall" />
+      <SeriesOfferButtons testIdPrefix="series-start-wall" showTotal />
     </div>
   );
 }

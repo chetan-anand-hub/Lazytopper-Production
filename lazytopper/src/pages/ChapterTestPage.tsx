@@ -126,6 +126,8 @@ import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/work
 import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintDoc";
 import { resultCardParts } from "../components/results/scoreTotals";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
+import NotFoundAddPageLine from "../components/chaptertest/NotFoundAddPageLine";
+import { notFoundNotAttemptedQNumbers } from "../lib/notFoundNotAttempted";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
 import ChapterTestHistoryRail from "../components/chaptertest/ChapterTestHistoryRail";
 import { useQuestionTimes } from "../components/testAnalysis/questionTimes";
@@ -147,7 +149,7 @@ import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesChecksLeftLine, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess } from "../components/testSeries/WrittenCheckGate";
+import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesChecksLeftLine, SeriesOwnerNotice, SeriesOfferButtons, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUploadNotAllowed, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
@@ -462,6 +464,12 @@ export default function ChapterTestPage() {
   // ── Results state (two-phase) ────────────────────────────────────────────────
   const [objective, setObjective] = useState<ObjectiveScore | null>(null);
   const [resultsPhase, setResultsPhase] = useState<"partial" | "full">("partial");
+  // LIVE-FIX-1 #5 - "If you answered these, add the page": back to THIS paper's upload step (the same step the first upload used;
+  // the grade then replaces this result under the same code). Re-upload rules and check counts are the server's, unchanged.
+  const addMissingPage = useCallback(() => {
+    setScorecardOpen(false);
+    setResultsPhase("partial");
+  }, []);
   const [scorecardOpen, setScorecardOpen] = useState(false);
   const [fullResponse, setFullResponse] = useState<WorksheetGradeResponse | null>(null);
   // SHEET-HEADER-1 — when THIS fullResponse was marked (set beside it; it is only ever set from a fresh grade).
@@ -482,6 +490,11 @@ export default function ChapterTestPage() {
   // MYPACKS-TS-1: three-state (checking / failed / decided); downloads also open for a PDF pack that covers this chapter.
   const seriesAccess = useSeriesAccess(user?.uid ?? null, { kind: "chapter-test", chapterSlug: resolveCanonicalSlug(topicKey) || null });
   const seriesPaperAccess = seriesAccess.canCheck;
+  // LIVE-FIX-1 (live run 23 Nov 2026): on a Test Series paper the fair-use panel offers the Test Series beside its Board Pass - only
+  // once access is DECIDED and the account can't check (a Board Pass holder or a Test Series owner never sees it; the panel itself
+  // also draws it on a trial refusal only).
+  const fairUseSeriesOffer =
+    !!seriesTest && !seriesAccess.checking && !seriesAccess.failed && !seriesAccess.canCheck ? <SeriesOfferButtons testIdPrefix="fair-use" only="test-series" showTotal /> : null;
   const seriesDownloadAccess = seriesAccess.canDownload;
   // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
   const boardPassHolder = useBoardPassHolder();
@@ -772,9 +785,9 @@ export default function ChapterTestPage() {
 
   const [starting, setStarting] = useState(false);
   const startTest = useCallback(async () => {
-    // FAIR-USE-UI-1 (UI3): today's chapter test already used -> the panel, not the paper.
-    if (fairUse.blockPaperStart()) return;
     // TEST-SERIES-1 (owner 19:44 IST): a free / trial account takes ONE test in total; signed out signs in first.
+    // LIVE-FIX-1 (live run 23 Nov 2026): decided BEFORE the daily fair-use check - a trial account that has used its one free
+    // test is told THAT, with the Test Series AND the Board Pass, not the fair-use limit with the Board Pass alone.
     const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records) });
     if (startDecision === "upgrade" && seriesAccess.checking) {
       setLimitNotice(ACCESS_CHECKING_LINE);
@@ -788,6 +801,9 @@ export default function ChapterTestPage() {
       setStartWall(true);
       return;
     }
+    // FAIR-USE-UI-1 (UI3): today's chapter test already used -> the panel, not the paper. LIVE-FIX-1: a Test Series owner's series
+    // paper is never metered (server LIMITS-1 ownerSeriesPaper; claimNewPaperView below), so no panel for it.
+    if (!(seriesAccess.ownsSeries && !!seriesTest) && fairUse.blockPaperStart()) return;
     // CT-RESUME-2: starting a paper is a NEW paper. A visit the daily gate let through uncounted
     // (it looked like a resume) is counted now — or refused at today's limit.
     if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest), location.search)) {
@@ -902,7 +918,8 @@ export default function ChapterTestPage() {
           fairUse.noteGraded();
           // Fully graded: the record + per-question payload are the durable copy now.
           const gradedAs = adoptSavedCode(outcome.savedCode, nomen);
-          if (outcome.response.pendingCount === 0) {
+          // LIVE-FIX-1 #5: a paper with questions not found on the pages keeps its copy - "add the page" re-opens its upload step.
+          if (outcome.response.pendingCount === 0 && notFoundNotAttemptedQNumbers(outcome.response.results).length === 0) {
             // only THIS paper's saved copy (by identity), under the code it was saved under and the one it was graded as
             deleteChapterTestPaper(user, nomen.code, paper.worksheetId);
             if (gradedAs.code !== nomen.code) deleteChapterTestPaper(user, gradedAs.code, paper.worksheetId);
@@ -1342,6 +1359,8 @@ export default function ChapterTestPage() {
               reopen.record.status !== "graded" && !reopen.response && !reopen.noPaper
                 ? () => void openPendingUpload(reopen.record)
                 : undefined,
+            // LIVE-FIX-1 #5 - a record with questions not found on the pages offers its own upload step (the paper is kept for it).
+            onAddPage: () => void openPendingUpload(reopen.record),
             // The no-paper state's way forward (D103a): a new test of this chapter, through the
             // same start as the setup button (fair-use gate included).
             onStartNew: reopen.noPaper
@@ -1471,7 +1490,7 @@ export default function ChapterTestPage() {
                       />
                     </div>
 
-                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} /> : null}
+                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} /> : null}
 
                     {restoredPaper && (
                       <div className="lt-ct__honest" data-testid="ct-resume-note">
@@ -1784,7 +1803,7 @@ export default function ChapterTestPage() {
             {seriesNavOn && seriesBack.to !== TEST_SERIES_NAV_PATH && <SeriesCrumb />}
           </div>
 
-          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
+          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} /> : null}
           {paperWall && (seriesAccess.ownsSeries ? (
             <SeriesOwnerNotice onClose={() => setPaperWall(false)} worksheetId={paper.worksheetId} status={seriesAccess.status} />
           ) : (
@@ -1831,11 +1850,12 @@ export default function ChapterTestPage() {
                 <div className="lt-ct__title lt-ct__fr">{nomen.name}</div>
                 <div className="lt-ct__sub">
                   {/* TS-BOARDSCORE-1 - consistent with the hero: out of the paper's full marks; "fully graded" only when it is. */}
-                  {nomen.code} · {fullResponse ? resultCardParts(fullResponse).status : "fully graded"} —{" "}
+                  {nomen.code} · {fullResponse ? resultCardParts(fullResponse).status : "graded"} —{" "}
                   <b>{fullResponse ? resultCardParts(fullResponse).score : null}</b>
                   {fullResponse ? resultCardParts(fullResponse).tail : ""}
                 </div>
                 <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} />
+                <NotFoundAddPageLine response={fullResponse} onAddPage={addMissingPage} />
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
@@ -1969,6 +1989,8 @@ export default function ChapterTestPage() {
                 // has no such view, so closing dropped the student onto a summary card whose only
                 // primary action reopened the panel they had just left - a loop with no way on.
                 onReadSheet: revealGradedSheet,
+                // LIVE-FIX-1 #5 - "If you answered these, add the page": back to this paper's upload step (re-upload rules unchanged).
+                onAddPage: addMissingPage,
                 onPractise: practiseTopic,
                 // TEST-SERIES-1: the PDFs are for a Test Series / Board Pass holder.
                 ...(seriesDownloadAccess
