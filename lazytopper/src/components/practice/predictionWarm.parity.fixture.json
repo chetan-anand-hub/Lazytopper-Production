@@ -641,7 +641,7 @@
  },
  "carbon-and-its-compounds::rows": {
   "n": 365,
-  "sha256": "037ff7eb837cd7ab085af891412a2bb43f06768f336c08a1d8eb745ca3461b95"
+  "sha256": "f9453232d15c46a7036097db26fa11139cda741c006e13b30d7d924c7c0f8274"
  },
  "carbon-and-its-compounds::rank": {
   "n": 365,
@@ -801,7 +801,7 @@
  },
  "magnetic-effects-of-electric-current::rows": {
   "n": 269,
-  "sha256": "66b3eeb03ec14ad1f633c1262ecc5eb2ca5a9279feaae9baa75e00d09d0705cb"
+  "sha256": "9fa48d10a45f50354ed95af6535a24d5e7375f9aaff68bf7cb639fb305f3a361"
  },
  "magnetic-effects-of-electric-current::rank": {
   "n": 269,
@@ -921,7 +921,7 @@
  },
  "how-do-organisms-reproduce::rows": {
   "n": 503,
-  "sha256": "f7af0862d5d84d47113f7e9f0ec191541e9ebf17942a08e117f8e9bac94fc146"
+  "sha256": "fc9f557088637bb9139547add028e9b6d56fa515e71dcbdee44bceb254468504"
  },
  "how-do-organisms-reproduce::rank": {
   "n": 503,
@@ -1001,7 +1001,7 @@
  },
  "our-environment::rows": {
   "n": 358,
-  "sha256": "cda00722fa227c50a6a26bf9f7d296c16a0705122b33824332bdf15531145dd3"
+  "sha256": "bce9e71008817aa5ce949225b25f5e24be3c9c68e1a291441957677ba31f3c30"
  },
  "our-environment::rank": {
   "n": 358,
@@ -1045,6 +1045,6 @@
  },
  "subject::Science": {
   "n": 5780,
-  "sha256": "f23e09b05f260ffc9b1b280bd4f1dd902b5f947e1158b94f4572fc41dbc0e549"
+  "sha256": "094edc402b571b8c5d0eaa7e67bbd3a21f6a488d62a281d3a18a657a6a8dcd14"
  }
 }

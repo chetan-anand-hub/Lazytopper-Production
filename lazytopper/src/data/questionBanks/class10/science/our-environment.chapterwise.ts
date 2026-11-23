@@ -182,7 +182,7 @@ export const OUR_ENVIRONMENT_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-ENV-022", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Why is forest/lake considered a natural ecosystem?",
     answer: "[Delhi 2017] Forests and lakes have both biotic and abiotic components which are present naturally and are interacting without manjs interference.",
-    solutionSteps: ["[Delhi 2017] Forests and lakes have both biotic and abiotic components which are present naturally and are interacting without manjs interference."],
+    solutionSteps: ["[1 mark] [Delhi 2017] Forests and lakes have both biotic and abiotic components which are present naturally", "[1 mark] and are interacting without man's interference."],
     ncertRef: "cbjesccq15 Q2", isCompetencyBased: true },
   // cbjesccq15 Q3 (Section A, 1mk)
   { id: "SCQ-S-ENV-023", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -241,7 +241,7 @@ export const OUR_ENVIRONMENT_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-ENV-031", subject: "Science", topicKey: "our-environment", subtopic: "Chapter Practice — Our Environment", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Pesticides like DDT which are sprayed to kill pests on crops are found to be present in the soil, groundwater, water bodies etc. Explain how do they reach these places?",
     answer: "Soil: Pesticides sprayed on crops to protect them from insects settle on the soil particles. Groundwater: Through irrigation and rain water, the pesticides present in the soil seep into the lower layers of soil and reach the groundwater. Water bodies: When waste water or agricultural run-off is drained into water bodies like rivers, canals and ponds, the pesticides reach these water bodies.",
-    solutionSteps: ["Soil: Pesticides sprayed on crops to protect them from insects settle on the soil particles.", "Groundwater: Through irrigation and rain water, pesticides in the soil seep into lower layers and reach the groundwater.", "Water bodies: Waste water and agricultural run-off carrying pesticides are drained into rivers, canals and ponds, so the pesticides reach these water bodies."],
+    solutionSteps: ["[0.5 mark] Soil: Pesticides sprayed on crops to protect them from insects settle on the soil particles.", "[1 mark] Groundwater: Through irrigation and rain water, pesticides in the soil seep into lower layers and reach the groundwater.", "[0.5 mark] Water bodies: Waste water and agricultural run-off carrying pesticides are drained into rivers, canals and ponds, so the pesticides reach these water bodies."],
     ncertRef: "cbjesccq15 Q65", isCompetencyBased: true,
     finalAnswer: "Pesticides settle on soil, seep down to groundwater with irrigation/rain water, and reach rivers, canals and ponds with waste water and agricultural run-off.",
     sourceOverride: "others", },
