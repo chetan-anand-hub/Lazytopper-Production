@@ -694,6 +694,10 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     return stop;
   }, [location.hash, mine, myPacksMounted, signedOutMine, bridgeSettled, sheetHold]);
 
+  /** INAPP-PAY-FIRST-1: true when this signed-out tap went to Chrome (Instagram / Facebook on Android); `from=sample` rides along. */
+  function packFirstHop(sku: PackSku, target: string | undefined, from: PackCheckoutFrom | undefined, automatic: boolean): boolean {
+    return inAppPayFirstHop({ automatic, signedIn, surface: inAppChoiceSurface(location.pathname), sku, buy: { kind: "pack", sku, ...(target && !packHasNoTarget(sku) ? { target } : {}), ...(from === "sample" ? { from } : {}) } });
+  }
   async function handleBuy(sku: PackSku, target: string | undefined, opts: { resumed?: boolean; from?: PackCheckoutFrom; fromWho?: boolean } = {}) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
     const resumed = opts.resumed === true;
@@ -703,7 +707,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     if (!signedIn) {
       // INAPP-PAY-FIRST-1: Instagram / Facebook on Android, signed out: the tap goes straight to Chrome for THIS item (no order, no
       // checkout event here). Not for an automatic ?buy= arrival or the Who-sheet's own continue. "Pay here instead" / a failed hop: today's flow.
-      if (!resumed && !opts.fromWho && inAppPayFirstHop({ signedIn, surface: inAppChoiceSurface(location.pathname), sku, buy: { kind: "pack", sku, ...(target && !packHasNoTarget(sku) ? { target } : {}) } })) return;
+      if (packFirstHop(sku, target, from, resumed || opts.fromWho === true)) return;
       // BUY-PATH-1: the funnel's checkout event at the TAP, before the branch to pay-by-phone or sign-in (it used to fire
       // only for a signed-in tap, so a signed-out Buy with paying-by-phone off sent nothing at all).
       trackPackCheckout(packCheckoutDetails(sku, target), { signedIn: false, ...(from ? { from } : {}) });
@@ -1334,6 +1338,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       openPack("pack_cbq");
     },
     buyNow: (sku, target, opts) => {
+      // INAPP-PAY-FIRST-1b: a signed-out Instagram/Facebook-Android tap hops BEFORE the pack pop-up opens (no dialog flash before navigating); `from=sample` rides along.
+      if (enabled && buy.phase !== "busy" && buy.phase !== "checking" && packFirstHop(sku, target, opts?.from, false)) return;
       if (sku === "pack_chapter" && target) setChapter(target);
       else if (target === "maths" || target === "science") setSubject(target);
       if (!opts?.inPlace && !inPlace) openPack(sku);

@@ -469,7 +469,7 @@ export function PassCheckoutView({
     if (busy || recovery !== null) return;
     // INAPP-PAY-FIRST-1: Instagram / Facebook on Android, signed out: the Board Pass tap goes straight to Chrome (/board-pass?buy=board_pass), no order, no begin_checkout.
     // (The month pass and an automatic ?buy= arrival are unchanged.)
-    if (passType === "till_boards" && !opts.resumed && !opts.fromWho && inAppPayFirstHop({ signedIn, surface: inAppChoiceSurface(window.location.pathname), sku: "board_pass", buy: { kind: "pass" } })) return;
+    if (passType === "till_boards" && inAppPayFirstHop({ automatic: opts.resumed === true || opts.fromWho === true, signedIn, surface: inAppChoiceSurface(window.location.pathname), sku: "board_pass", buy: { kind: "pass" } })) return;
     buyStartedRef.current = true;
     const resumed = opts.resumed === true;
     const details = checkoutEventDetails(passType, offerOpen);
