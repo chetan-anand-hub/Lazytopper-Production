@@ -52,7 +52,7 @@ function BuyButton({ blocked, onClick, testId, className = "lt-ptb__btn", childr
  */
 function TileChoice({ api, sku, target }: { api: PacksShopApi; sku: PackSku; target?: string }) {
   if (!api.signedOut || api.blockedBy(sku, target) || api.rescueShowing?.(sku, target) || api.ownsPack(sku, target)) return null;
-  return <InAppPayChoice buy={{ kind: "pack", sku, ...(target ? { target } : {}) }} />;
+  return <InAppPayChoice buy={{ kind: "pack", sku, ...(target ? { target } : {}) }} onPayHere={() => api.buyNow(sku, target)} />;
 }
 
 export { TileChoice as InAppTileChoice };
