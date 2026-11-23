@@ -73,6 +73,14 @@ afterEach(() => {
 });
 
 describe("scorecardUpgradeCopy", () => {
+  it("TS-BOARDSCORE-1: marks NOT marked yet are never called lost (52 / 80 with 6 unmarked is not 'You lost 28')", () => {
+    const score = { ...marks(52, 80), notMarked: { marks: 6, questions: 2, line: "x" } };
+    for (const surface of ["full-mock", "chapter-test"] as const) {
+      expect(scorecardUpgradeCopy(variantFor(surface, score))?.text).not.toMatch(/lost/i);
+      expect(scorecardHeadline(variantFor(surface, score))?.join(" ")).not.toMatch(/lost/i);
+    }
+  });
+
   it("names the real marks lost, singular-aware", () => {
     expect(scorecardUpgradeCopy(variantFor("worksheet", marks(7, 10)))?.text).toBe(
       "You lost 3 marks here. Get every answer marked like this, valid till 28 Feb 2027 — Board Pass →",

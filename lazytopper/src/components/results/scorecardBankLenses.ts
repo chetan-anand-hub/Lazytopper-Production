@@ -45,7 +45,10 @@ import {
   type StoredChapterTestVariantInput,
   type StoredFullMockVariantInput,
   noUploadPartial,
+  boardScoreFor,
+  type ScorecardScore,
 } from "./scorecardVariants";
+import { paperMarksScore } from "./scoreTotals";
 
 /** Lazily-built canonical questionId → subtopic index (built once on first use; the
  *  bank is a static in-memory array, so this stays pure/synchronous). */
@@ -146,6 +149,30 @@ function chapterTestLensResponse(
  * written answers", and the what-next menu. Pending pages surface honestly; nothing
  * is fabricated.
  */
+/** TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:59 IST) - the live Chapter Test score: out of the paper's FULL marks, with the
+ *  marks that could not be marked listed apart (the Full Mock rule; both share the hero and the graded sheet). */
+function liveCtScore(response: WorksheetGradeResponse): ScorecardScore {
+  const ps = paperMarksScore(response);
+  return {
+    kind: "marks",
+    awarded: ps.awarded,
+    total: ps.total,
+    gradedCount: response.gradedCount,
+    totalQuestions: response.totalQuestions,
+    ...(ps.notMarked ? { notMarked: ps.notMarked } : {}),
+  };
+}
+
+/** TS-BOARDSCORE-1 - a re-opened Chapter Test / Full Mock score. The record's own awarded marks; out of the paper's FULL marks
+ *  when the stored payload is there to say what they are (and what could not be marked); else the record's total (a graded
+ *  record is fully marked, so its total IS the paper's). */
+function storedPaperScore(record: SessionRecord, response: WorksheetGradeResponse | null | undefined, totalQuestions: number): ScorecardScore {
+  const counts = record.status === "graded" && totalQuestions > 0 ? { gradedCount: totalQuestions, totalQuestions } : {};
+  if (!response) return { kind: "marks", awarded: record.marksAwarded, total: record.marksTotal, ...counts };
+  const ps = paperMarksScore({ ...response, gradedMarksAwarded: record.marksAwarded });
+  return { kind: "marks", awarded: record.marksAwarded, total: ps.total, ...counts, ...(ps.notMarked ? { notMarked: ps.notMarked } : {}) };
+}
+
 export function chapterTestScorecardVariant(input: ChapterTestVariantInput): ScorecardVariant {
   const { name, code, response, phase, downloading = false } = input;
 
@@ -238,13 +265,8 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
     surface: "chapter-test",
     title: name,
     subtitle: `${code} · fully graded`,
-    score: {
-      kind: "marks",
-      awarded: response.gradedMarksAwarded,
-      total: response.gradedMarksTotal,
-      gradedCount: response.gradedCount,
-      totalQuestions: response.totalQuestions,
-    },
+    // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:59 IST) - out of the paper's FULL marks; unmarked questions listed apart.
+    score: liveCtScore(response),
     fourType: aggregateFourType(response),
     marksLost: aggregateMarksLost(response),
     // SCORECARD-SECTION-TYPE-1 - the bank row's REAL section (A-E, E no longer folded into D) and type.
@@ -340,14 +362,7 @@ export function storedChapterTestScorecardVariant(
     surface: "chapter-test",
     title: record.title,
     subtitle: `${record.id} · graded ${gradedDateLabel}`,
-    score: {
-      kind: "marks",
-      awarded: record.marksAwarded,
-      total: record.marksTotal,
-      ...(record.status === "graded" && totalQuestions > 0
-        ? { gradedCount: totalQuestions, totalQuestions }
-        : {}),
-    },
+    score: storedPaperScore(record, response, totalQuestions),
     message: record.status === "partial" ? "Graded portion shown — some pages were pending on this test." : null,
     fourType: record.fourType,
     // PR-2 (B7) — marks when the stored payload carries them; a count-only record stays counts (G5).
@@ -464,18 +479,12 @@ export function storedFullMockScorecardVariant(
     surface: "full-mock",
     title: record.title,
     subtitle: `${record.id} · graded ${gradedDateLabel}`,
-    score: {
-      kind: "marks",
-      awarded: record.marksAwarded,
-      total: record.marksTotal,
-      ...(record.status === "graded" && totalQuestions > 0
-        ? { gradedCount: totalQuestions, totalQuestions }
-        : {}),
-    },
+    score: storedPaperScore(record, response, totalQuestions),
     message: record.status === "partial" ? "Graded portion shown — some pages were pending on this mock." : null,
     note: focusLine,
-    // TS-BOARDSCORE-1 - the same board view the live card showed, as of this record; a fully graded 80-mark record only.
-    boardScore: record.status === "graded" && record.marksTotal === 80 ? (input.boardScore ?? null) : null,
+    // TS-BOARDSCORE-1 - the same board view the live card showed, as of this record. A record with anything not marked keeps
+    // only the "So far" line (re-checked here, whatever the host passed).
+    boardScore: boardScoreFor(input.boardScore ?? null, record.status !== "graded"),
     fourType: record.fourType,
     // PR-2 (B7) — marks when the stored payload carries them; a count-only record stays counts (G5).
     marksLost: input.response ? aggregateMarksLost(input.response) : null,

@@ -115,7 +115,7 @@ function ScoreHero({ score }: { score: ScorecardScore }) {
     // (the LIVE worksheet variant always passes them; a stored re-open may omit them to
     // avoid a fabricated count — honest-or-silent).
     const hasCounts = score.gradedCount != null && score.totalQuestions != null;
-    return (
+    const top = (
       <div className="lt-sc__top">
         <div className="lt-sc__big">
           {/* GUIDE-SCORE-1 — one number format for the hero and the guide's lines (no float noise). */}
@@ -130,6 +130,15 @@ function ScoreHero({ score }: { score: ScorecardScore }) {
           </div>
         )}
       </div>
+    );
+    // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:59 IST) — Full Mock / Chapter Test: the hero is out of the paper's FULL
+    // marks, and the marks that could not be marked are named right under it (never scored 0, never lost).
+    if (!score.notMarked) return top;
+    return (
+      <>
+        {top}
+        <p className="lt-sc__notmarked" data-testid="score-not-marked">{score.notMarked.line}</p>
+      </>
     );
   }
   // attempts — "X of N attempted" (never marks/total, D-PROG-2).
@@ -972,6 +981,7 @@ const SC_CSS = `
 .lt-sc__big small { font-size: 28px; color: #8294ad; }
 .lt-sc__desc { font-size: 14px; color: #cfd7e2; padding-bottom: 6px; line-height: 1.3; }
 .lt-sc__mcq { color: #9fb0c6; }
+.lt-sc__notmarked { margin: -6px 0 16px; font-size: 13px; line-height: 1.5; font-weight: 600; color: #f0cf9a; }
 
 .lt-sc__pend {
   background: rgba(232, 183, 101, 0.12); border-left: 3px solid #e8b765; border-radius: 8px;

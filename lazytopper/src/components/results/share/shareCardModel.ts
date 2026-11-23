@@ -7,6 +7,7 @@ import {
   type StoredMistakeType,
 } from "../../../lib/mistakeDisplay";
 import type { ScorecardSurface, ScorecardVariant } from "../scorecardVariants";
+import { gradedTotalOf } from "../scoreTotals";
 import { BYTE_TIPS, ZIGGY_LINES, fillLine, type ByteTipKey, type ZiggyMood } from "./shareCopy";
 
 /**
@@ -341,8 +342,11 @@ export function buildShareCardModel(variant: ScorecardVariant, opts: ShareModelO
   const markedRows = rows ? rows.map((r) => ({ ...r, biggest: biggest?.kind === r.type })) : null;
   const coverage = coverageOf(variant);
   const noMistakeLoss = mi === "marks" && !!rows && rows.every((r) => (r.marks ?? 0) <= 0);
-  const mood = ziggyMoodOf(awarded, total, biggest, coverage);
-  const tipKey = byteTipKey(mi, biggest, objective, roundMarks(total - awarded));
+  // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026) — the image prints the hero (out of the paper's FULL marks); the mood and the
+  // tip read the GRADED subtotal, so marks not marked yet are never treated as lost.
+  const gradedTotal = roundMarks(gradedTotalOf(variant.score));
+  const mood = ziggyMoodOf(awarded, gradedTotal, biggest, coverage);
+  const tipKey = byteTipKey(mi, biggest, objective, roundMarks(gradedTotal - awarded));
   const tip = BYTE_TIPS[tipKey];
   const line = fillLine(tip.line, {
     marks: biggest?.marks != null ? marksWithUnit(biggest.marks) : undefined,

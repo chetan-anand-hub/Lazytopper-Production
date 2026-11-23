@@ -125,6 +125,17 @@ describe("buildBoardScoreView - the copy", () => {
     expect(view([17], { total: 20 })).toBeNull(); // Section A only
   });
 
+  it("owner ruling 19:59 - marks not marked yet: 'So far: X / 80 · N marks not marked yet', never the trend or the estimate", () => {
+    const v = buildBoardScoreView({
+      paper: { awarded: 52, total: 80, pendingCount: 2, notMarkedMarks: 6 },
+      scores: sc([50, 52]),
+    });
+    expect(v).toEqual({ scoreLine: "So far: 52 / 80 \u00b7 6 marks not marked yet", trend: null, estimate: null, estimateHint: null });
+    expect(buildBoardScoreView({ paper: { awarded: 52, total: 80, pendingCount: 1, notMarkedMarks: 1 }, scores: [] })!.scoreLine).toBe(
+      "So far: 52 / 80 \u00b7 1 mark not marked yet",
+    );
+  });
+
   it("0 tests in history (defensive): just the score line", () => {
     const v = buildBoardScoreView({ paper: { awarded: 52, total: 80, pendingCount: 0 }, scores: [] })!;
     expect(v).toEqual({ scoreLine: "You scored 52 / 80 on a full CBSE-pattern paper.", trend: null, estimate: null, estimateHint: null });

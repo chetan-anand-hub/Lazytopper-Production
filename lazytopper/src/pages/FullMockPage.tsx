@@ -151,6 +151,7 @@ import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintD
 import { buildDesktopWorksheetPath } from "../lib/desktop/navigation";
 import { formatScoreNumber } from "../components/results/scoreNumber";
 import { buildBoardScoreView, fullTestScores } from "../lib/fullmock/boardEstimate";
+import { paperMarksScore } from "../components/results/scoreTotals";
 import { boardEstimateDisabled } from "../lib/fullmock/boardEstimateFlag";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import { FM_CSS } from "../components/fullmock/fullMockStyles";
@@ -213,6 +214,16 @@ function mintFullMockId(): string {
 }
 /** Product-voice coaching line for the graded PDF (mirrors the CT page's local
  *  helper — a page-level presentation string, not shared logic). */
+/** TS-BOARDSCORE-1 - a re-opened result's paper for the board view: out of the paper's full marks (owner ruling 23 Nov 2026,
+ *  19:59 IST). With the stored payload, its own full/graded totals; without it, the record (a graded record is fully marked). */
+function reopenBoardPaper(record: SessionRecord, response: WorksheetGradeResponse | null | undefined) {
+  if (response) {
+    const ps = paperMarksScore(response);
+    return { awarded: record.marksAwarded, total: ps.total, pendingCount: Number(response.pendingCount) || 0, notMarkedMarks: ps.notMarked?.marks ?? 0 };
+  }
+  return { awarded: record.marksAwarded, total: record.marksTotal, pendingCount: record.status === "graded" ? 0 : 1 };
+}
+
 function coachingLine(resp: WorksheetGradeResponse): string {
   // SCORECARD-MI-1 — the ONE coaching function (lib/mistakeDisplay): owner's groups, counts in
   // mistakes, and never "Clean" while marks were lost (GA-24).
@@ -1443,8 +1454,10 @@ export default function FullMockPage() {
       score: fullResponse.gradedMarksAwarded,
       gradedAt: Number.MAX_SAFE_INTEGER, // always the newest point (fullTestScores appends it last)
     };
+    // Owner ruling 23 Nov 2026, 19:59 IST: out of the paper's FULL marks; marks not marked yet are listed, never extrapolated.
+    const ps = paperMarksScore(fullResponse);
     return buildBoardScoreView({
-      paper: { awarded: fullResponse.gradedMarksAwarded, total: fullResponse.gradedMarksTotal, pendingCount: fullResponse.pendingCount },
+      paper: { awarded: ps.awarded, total: ps.total, pendingCount: fullResponse.pendingCount, notMarkedMarks: ps.notMarked?.marks ?? 0 },
       scores: fullTestScores(mockRecords, sessionSubject, { current }),
       estimateDisabled: boardEstimateDisabled(),
     });
@@ -1522,11 +1535,7 @@ export default function FullMockPage() {
             awaitingDetail: reopen.awaitingDetail,
             // TS-BOARDSCORE-1 - the board view as of THIS record (papers graded at or before it), so it reads as the live card did.
             boardScore: buildBoardScoreView({
-              paper: {
-                awarded: reopen.record.marksAwarded,
-                total: reopen.record.marksTotal,
-                pendingCount: reopen.record.status === "graded" ? 0 : 1,
-              },
+              paper: reopenBoardPaper(reopen.record, reopen.response),
               scores: fullTestScores(mockRecords, reopen.record.subject, { asOf: { id: reopen.record.id, gradedAt: reopen.record.gradedAt } }),
               estimateDisabled: boardEstimateDisabled(),
             }),

@@ -78,6 +78,34 @@ function renderCard(withBoard: boolean) {
 }
 
 describe("ResultsScorecard - TS-BOARDSCORE-1 board view", () => {
+  it("owner ruling 19:59: the hero is out of 80 and the unmarked marks are named under it, with the 'So far' line", async () => {
+    const response: WorksheetGradeResponse = {
+      ...full80(),
+      results: [
+        { qNumber: 1, couldNotRead: false, totalMarks: 5, marksAwarded: 2 },
+        { qNumber: 2, couldNotRead: true, totalMarks: 3, marksAwarded: 0 },
+        { qNumber: 3, couldNotRead: true, totalMarks: 3, marksAwarded: 0 },
+      ],
+      gradedCount: 36,
+      pendingCount: 2,
+      gradedMarksAwarded: 52,
+      gradedMarksTotal: 74,
+    };
+    const boardScore = buildBoardScoreView({ paper: { awarded: 52, total: 80, pendingCount: 2, notMarkedMarks: 6 }, scores: [] });
+    const variant = fullMockScorecardVariant({ name: "Maths · Mock #2", code: "FM-M-02", phase: "full", response, boardScore });
+    render(
+      <MemoryRouter>
+        <ResultsScorecard variant={variant} onClose={() => {}} />
+      </MemoryRouter>,
+    );
+    expect(document.querySelector(".lt-sc__big")?.textContent).toBe("52 / 80");
+    expect(screen.getByTestId("score-not-marked").textContent).toBe(
+      "6 marks not marked yet (2 questions) \u2014 upload a clearer photo to complete",
+    );
+    expect(await screen.findByText("So far: 52 / 80 \u00b7 6 marks not marked yet")).toBeTruthy();
+    expect(screen.queryByText(/Board estimate/)).toBeNull();
+  });
+
   it("renders the board view on a fully graded full-length card, beside the MI block", async () => {
     renderCard(true);
     expect(await screen.findByTestId("board-score")).toBeTruthy();

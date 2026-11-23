@@ -36,6 +36,9 @@ export function ziggyReactionFor(score: ScorecardScore): ZiggyReaction | null {
   let unit: "marks" | "count";
   if (score.kind === "marks") {
     if (!Number.isFinite(score.total) || score.total <= 0 || !Number.isFinite(score.awarded) || score.awarded < 0) return null;
+    // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026) — a paper with marks NOT marked yet (out of its full marks): Ziggy waits for the
+    // complete result rather than call unmarked marks "to fix" (or a full graded subtotal "Full marks!").
+    if ((Number(score.notMarked?.marks) || 0) > 0) return null;
     got = score.awarded;
     total = score.total;
     unit = "marks";

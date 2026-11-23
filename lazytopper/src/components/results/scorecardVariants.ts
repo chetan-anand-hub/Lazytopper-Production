@@ -33,6 +33,7 @@ import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
 import { formatScoreNumber } from "./scoreNumber";
 import type { BoardScoreView } from "../../lib/fullmock/boardEstimate";
+import { paperMarksScore, type ScoreNotMarked } from "./scoreTotals";
 import {
   ANSWER_MISMATCH_COPY,
   NOT_GRADED_TRY_AGAIN_COPY,
@@ -74,6 +75,10 @@ export type ScorecardScore =
        *  score without a fabricated count. */
       gradedCount?: number;
       totalQuestions?: number;
+      /** TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:59 IST) - Full Mock / Chapter Test: `total` is the paper's FULL marks and
+       *  these are the marks that could NOT be marked yet (never scored 0, never lost, never earned). Absent everywhere else, and
+       *  when every question was marked. Anything measuring "lost" uses `gradedTotalOf` (scoreTotals.ts). */
+      notMarked?: ScoreNotMarked | null;
     }
   | {
       kind: "attempts";
@@ -1454,6 +1459,12 @@ export interface FullMockVariantInput {
 }
 
 
+/** TS-BOARDSCORE-1 - a paper with anything not marked yet keeps only the board view's score line (the "So far" line). */
+export function boardScoreFor(view: BoardScoreView | null, incomplete: boolean): BoardScoreView | null {
+  if (!view) return null;
+  return incomplete ? { ...view, trend: null, estimate: null, estimateHint: null } : view;
+}
+
 /** TS-UX-SCORE-1 - tag a live scorecard with the paper's worksheet id so the upsell line can recognise a Test Series owner on a series paper. */
 export function withSeriesWorksheet(variant: ScorecardVariant, worksheetId: string | null | undefined): ScorecardVariant {
   return worksheetId ? { ...variant, seriesWorksheetId: worksheetId } : variant;
@@ -1576,6 +1587,8 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
   ];
 
   const fmGradedAnswers = buildGradedAnswersFromWorksheetResponse(response, input.questions);
+  // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:59 IST) - out of the paper's FULL marks; unmarked questions listed apart.
+  const paperScore = paperMarksScore(response);
 
   return {
     surface: "full-mock",
@@ -1583,15 +1596,17 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
     subtitle: `${code} · fully graded · saved to your progress`,
     score: {
       kind: "marks",
-      awarded: response.gradedMarksAwarded,
-      total: response.gradedMarksTotal,
+      awarded: paperScore.awarded,
+      total: paperScore.total,
       gradedCount: response.gradedCount,
       totalQuestions: response.totalQuestions,
+      ...(paperScore.notMarked ? { notMarked: paperScore.notMarked } : {}),
     },
     message: input.deltaLine ?? null,
     note: input.focusLine ?? null,
-    // TS-BOARDSCORE-1 - only a fully graded 80-mark paper (the host's builder returns null otherwise; re-checked here).
-    boardScore: response.pendingCount > 0 ? null : (input.boardScore ?? null),
+    // TS-BOARDSCORE-1 - the host's board view. With anything not marked yet only the "So far" line may show: the trend and the
+    // estimate use fully marked papers only (re-checked here, whatever the host passed).
+    boardScore: boardScoreFor(input.boardScore ?? null, paperScore.notMarked != null || response.pendingCount > 0),
     fourType: aggregateFourType(response),
     marksLost: aggregateMarksLost(response),
     // SCORECARD-SECTION-TYPE-1 - the bank row's real A-E section and the question type, from the paper's

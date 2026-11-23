@@ -129,7 +129,7 @@ function fmt(x: number): string {
 
 /** What the scorecard renders. Every string is final copy; absent parts render nothing. */
 export interface BoardScoreView {
-  /** (a) "You scored X / 80 on a full CBSE-pattern paper." */
+  /** (a) "You scored X / 80 on a full CBSE-pattern paper." - or, with marks not marked yet, "So far: X / 80 · N marks not marked yet". */
   scoreLine: string;
   /** (b) the last up to 5 scores, oldest -> newest (the last one is this paper); null with fewer than 2. */
   trend: { points: number[]; changeLine: string } | null;
@@ -149,17 +149,25 @@ export function boardEstimateSmallPrint(n: number): string {
 }
 
 /**
- * The board view for the paper on screen, or null when it is not a fully graded 80-mark paper (then the card shows nothing new).
+ * The board view for the paper on screen, or null when it is not an 80-mark full-length paper (then the card shows nothing new).
+ * `paper.total` is the paper's FULL marks; `paper.notMarkedMarks` the marks that could not be marked yet (owner ruling 23 Nov 2026,
+ * 19:59 IST). With any not marked, only "So far: X / 80 · N marks not marked yet" shows - never the trend or the estimate.
  * `scores` are this subject's fully graded full tests oldest -> newest, ENDING with this paper (fullTestScores).
  * `estimateDisabled` (VITE_BOARD_ESTIMATE_DISABLED) hides the trend and the estimate; the score line stays.
  */
 export function buildBoardScoreView(input: {
-  paper: { awarded: number; total: number; pendingCount: number };
+  paper: { awarded: number; total: number; pendingCount: number; notMarkedMarks?: number };
   scores: ReadonlyArray<FullTestScore>;
   estimateDisabled?: boolean;
 }): BoardScoreView | null {
   const { paper, scores, estimateDisabled = false } = input;
-  if (paper.total !== BOARD_THEORY_TOTAL || paper.pendingCount > 0 || !Number.isFinite(paper.awarded)) return null;
+  if (paper.total !== BOARD_THEORY_TOTAL || !Number.isFinite(paper.awarded)) return null;
+  const notMarked = Math.max(0, Number(paper.notMarkedMarks) || 0);
+  if (notMarked > 0) {
+    const m = `${fmt(notMarked)} mark${notMarked === 1 ? "" : "s"}`;
+    return { scoreLine: `So far: ${fmt(paper.awarded)} / ${BOARD_THEORY_TOTAL} \u00b7 ${m} not marked yet`, trend: null, estimate: null, estimateHint: null };
+  }
+  if (paper.pendingCount > 0) return null; // pending with no marks unaccounted for: an inconsistent grade, say nothing
   const scoreLine = `You scored ${fmt(paper.awarded)} / ${BOARD_THEORY_TOTAL} on a full CBSE-pattern paper.`;
   if (estimateDisabled) return { scoreLine, trend: null, estimate: null, estimateHint: null };
 

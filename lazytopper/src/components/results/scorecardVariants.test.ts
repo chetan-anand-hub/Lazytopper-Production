@@ -736,11 +736,65 @@ describe("fullMockScorecardVariant", () => {
     expect(allText).not.toMatch(/projected|predicted|guarantee|you will score/i);
   });
 
-  it("TS-BOARDSCORE-1: a paper with a pending page never shows the board view, even if the host passed one", () => {
-    const resp = response({ gradedCount: 37, pendingCount: 1, gradedMarksAwarded: 60, gradedMarksTotal: 75 });
-    const boardScore = buildBoardScoreView({ paper: { awarded: 60, total: 80, pendingCount: 0 }, scores: [] });
+  it("TS-BOARDSCORE-1: a paper with a pending page keeps only the score line - never the trend or the estimate, whatever the host passed", () => {
+    const resp = response({ gradedCount: 37, pendingCount: 1, gradedMarksAwarded: 60, gradedMarksTotal: 75, worksheetTotalMarks: 80 });
+    const boardScore = buildBoardScoreView({
+      paper: { awarded: 60, total: 80, pendingCount: 0 },
+      scores: [
+        { id: "FM-M-01", score: 50, gradedAt: 1 },
+        { id: "FM-M-02", score: 60, gradedAt: 2 },
+      ],
+    });
     const v = fullMockScorecardVariant({ name: "Maths · Mock #2", code: "FM-M-02", phase: "full", response: resp, boardScore });
-    expect(v.boardScore).toBeNull();
+    expect(v.boardScore?.trend).toBeNull();
+    expect(v.boardScore?.estimate).toBeNull();
+    expect(v.boardScore?.estimateHint).toBeNull();
+  });
+
+  it("TS-BOARDSCORE-1 (owner ruling 19:59): FULL hero is out of the paper's 80; unmarked marks listed apart, never scored 0", () => {
+    const resp = response({
+      results: [
+        { qNumber: 1, couldNotRead: false, totalMarks: 5, marksAwarded: 3 },
+        { qNumber: 2, couldNotRead: true, totalMarks: 3, marksAwarded: 0 },
+        { qNumber: 3, couldNotRead: true, totalMarks: 3, marksAwarded: 0 },
+      ],
+      totalQuestions: 3,
+      gradedCount: 1,
+      pendingCount: 2,
+      gradedMarksAwarded: 52,
+      gradedMarksTotal: 74,
+      worksheetTotalMarks: 80,
+    });
+    const boardScore = buildBoardScoreView({
+      paper: { awarded: 52, total: 80, pendingCount: 2, notMarkedMarks: 6 },
+      scores: [{ id: "FM-M-02", score: 52, gradedAt: 1 }],
+    });
+    const v = fullMockScorecardVariant({ name: "Maths · Mock #2", code: "FM-M-02", phase: "full", response: resp, boardScore });
+    expect(v.score).toMatchObject({ kind: "marks", awarded: 52, total: 80 });
+    expect(v.score.kind === "marks" && v.score.notMarked).toEqual({
+      marks: 6,
+      questions: 2,
+      line: "6 marks not marked yet (2 questions) \u2014 upload a clearer photo to complete",
+    });
+    expect(v.boardScore).toEqual({ scoreLine: "So far: 52 / 80 \u00b7 6 marks not marked yet", trend: null, estimate: null, estimateHint: null });
+    expect(v.pending).not.toBeNull(); // the per-question strip still names each one
+  });
+
+  it("TS-BOARDSCORE-1: a fully marked FULL paper (blank questions graded 0) is X / 80 with nothing listed apart", () => {
+    const resp = response({
+      results: [
+        { qNumber: 1, couldNotRead: false, totalMarks: 5, marksAwarded: 0, annotatedSteps: [] }, // blank: graded, 0
+        { qNumber: 2, couldNotRead: false, totalMarks: 3, marksAwarded: 3 },
+      ],
+      gradedCount: 38,
+      pendingCount: 0,
+      gradedMarksAwarded: 61,
+      gradedMarksTotal: 80,
+      worksheetTotalMarks: 80,
+    });
+    const v = fullMockScorecardVariant({ name: "Maths · Mock #2", code: "FM-M-02", phase: "full", response: resp });
+    expect(v.score).toMatchObject({ awarded: 61, total: 80 });
+    expect(v.score.kind === "marks" && v.score.notMarked).toBeFalsy();
   });
 
   it("TS-BOARDSCORE-1: the PARTIAL phase never carries a board view", () => {
@@ -791,10 +845,22 @@ describe("storedFullMockScorecardVariant", () => {
     const partial = storedFullMockScorecardVariant(record({ status: "partial", marksAwarded: 50, marksTotal: 75 }), {
       gradedDateLabel: "23 Nov 2026",
       onDone: noop,
-      response: response({ gradedMarksAwarded: 50, gradedMarksTotal: 75, pendingCount: 1 }),
+      response: response({
+        results: [{ qNumber: 1, couldNotRead: true, totalMarks: 5, marksAwarded: 0 }],
+        gradedMarksAwarded: 50,
+        gradedMarksTotal: 75,
+        pendingCount: 1,
+        worksheetTotalMarks: 80,
+      }),
       boardScore,
     });
-    expect(partial.boardScore).toBeNull();
+    // Owner ruling 19:59: the re-open is out of the paper's 80 too, the 5 unmarked marks listed apart; no trend / estimate.
+    expect(partial.score).toMatchObject({ awarded: 50, total: 80 });
+    expect(partial.score.kind === "marks" && partial.score.notMarked?.line).toBe(
+      "5 marks not marked yet (1 question) \u2014 upload a clearer photo to complete",
+    );
+    expect(partial.boardScore?.trend).toBeNull();
+    expect(partial.boardScore?.estimate).toBeNull();
     const awaiting = storedFullMockScorecardVariant(record(), { gradedDateLabel: "23 Nov 2026", onDone: noop, boardScore });
     expect(awaiting.boardScore).toBeUndefined();
   });
