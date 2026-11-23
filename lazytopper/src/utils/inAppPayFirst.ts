@@ -25,6 +25,7 @@ export function isInAppPayFirstDisabled(): boolean {
 
 let bypass = false; // "Pay here instead" was chosen on this page view
 let stuck = false; // a hop did not leave the page
+let hopping = false; // a hop is in flight (a double tap makes ONE hop, one event, one timer)
 const listeners = new Set<() => void>();
 function notify(): void {
   listeners.forEach((l) => l());
@@ -34,6 +35,7 @@ function notify(): void {
 export function resetInAppPayFirst(): void {
   bypass = false;
   stuck = false;
+  hopping = false;
   notify();
 }
 
@@ -68,14 +70,17 @@ export function inAppPayFirstStuck(): boolean {
  * The Buy-tap hook. Returns true when it navigated to Chrome (the caller must stop: no order, no checkout event); false = carry on
  * exactly as today. `buy` absent = the page itself (/for-parents).
  */
-export function inAppPayFirstHop(opts: { signedIn: boolean; surface: string; sku?: string; buy?: InAppBuyTarget }): boolean {
+export function inAppPayFirstHop(opts: { signedIn: boolean; surface: string; sku?: string; buy?: InAppBuyTarget; /** An automatic ?buy= arrival or the Who-sheet's own continue: never a tap, never hops. */ automatic?: boolean }): boolean {
   try {
-    if (!inAppPayFirstActive(opts.signedIn) || typeof window === "undefined") return false;
+    if (opts.automatic || !inAppPayFirstActive(opts.signedIn) || typeof window === "undefined") return false;
+    if (hopping) return true; // double tap: already on its way to Chrome
     const intent = inAppChoiceChromeIntent(window.location.href, opts.buy, handoffSourceParams());
     if (!intent) return false;
     trackOnboardingEvent("inapp_pay_first_hop", { surface: opts.surface, sku: opts.sku ?? (opts.buy ? (opts.buy.kind === "pass" ? "board_pass" : opts.buy.sku) : "page") });
+    hopping = true;
     window.location.href = intent;
     window.setTimeout(() => {
+      hopping = false;
       if (typeof document !== "undefined" && document.visibilityState === "visible") {
         stuck = true;
         notify();

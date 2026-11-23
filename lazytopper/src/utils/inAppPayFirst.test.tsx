@@ -30,7 +30,7 @@ import PacksShop from "../components/packs/PacksShop";
 import { PassCheckoutView } from "../components/pricing/PassCheckout";
 import ForParentsPage from "../pages/ForParentsPage";
 import { resetInAppPayChoiceShown } from "../components/payRescue/InAppPayChoice";
-import { INAPP_PAY_FIRST_NOTE, INAPP_PAY_FIRST_HERE_LABEL, resetInAppPayFirst } from "./inAppPayFirst";
+import { INAPP_PAY_FIRST_NOTE, INAPP_PAY_FIRST_HERE_LABEL, inAppPayFirstHop, resetInAppPayFirst } from "./inAppPayFirst";
 
 const UA = {
   igAndroid: "Mozilla/5.0 (Linux; Android 13; SM-A546E Build/TP1A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/120.0.0.0 Mobile Safari/537.36 Instagram 310.0.0.37.109 Android",
@@ -179,6 +179,90 @@ describe("INAPP-PAY-FIRST-1 · Instagram / Facebook on Android, signed out", () 
     expect(screen.getByTestId("inapp-pay-choice-chrome").getAttribute("href")).toContain("intent://");
     p.pay();
     expect(p.onSignIn).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("INAPP-PAY-FIRST-1b · review follow-ups", () => {
+  it("an automatic ?buy= arrival or the Who-sheet continue (automatic) never hops, even in Instagram Android signed out", () => {
+    setUa(UA.igAndroid);
+    const start = fakeLocation("/packs?buy=pack_bundle");
+    expect(inAppPayFirstHop({ signedIn: false, surface: "packs", sku: "pack_bundle", buy: { kind: "pack", sku: "pack_bundle" }, automatic: true })).toBe(false);
+    expect(loc.href).toBe(start);
+    expect(hops()).toHaveLength(0);
+  });
+
+  it("a signed-out ?buy= arrival on the shop opens the sheet with no hop", async () => {
+    setUa(UA.igAndroid);
+    const start = fakeLocation("/test-series?buy=test_series");
+    render(
+      <MemoryRouter initialEntries={["/test-series?buy=test_series"]}>
+        <PacksShop embedded hideMyPacks skipView inPlace returnPath="/test-series">
+          {(api) => <div>{api.buyButton?.("test_series", { label: "Get", className: "b", testId: "ts-buy", noteClass: "n" })}</div>}
+        </PacksShop>
+      </MemoryRouter>,
+    );
+    await act(async () => {});
+    expect(loc.href).toBe(start);
+    expect(hops()).toHaveLength(0);
+  });
+
+  it("a YouTube Android webview never hops (only Instagram / Facebook)", () => {
+    setUa("Mozilla/5.0 (Linux; Android 13; Pixel 7; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/120.0.0.0 Mobile Safari/537.36 com.google.android.youtube/19.0");
+    const p = pass();
+    const before = loc.href;
+    expect(screen.queryByTestId("inapp-pay-first")).toBeNull();
+    p.pay();
+    expect(loc.href).toBe(before);
+    expect(hops()).toHaveLength(0);
+    expect(p.onSignIn).toHaveBeenCalledTimes(1);
+  });
+
+  it("a double tap makes ONE hop, one event, one timer", () => {
+    vi.useFakeTimers();
+    setUa(UA.igAndroid);
+    const p = pass();
+    p.pay();
+    const first = loc.href;
+    p.pay();
+    p.pay();
+    expect(loc.href).toBe(first);
+    expect(hops()).toHaveLength(1);
+    expect(p.onSignIn).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(1);
+  });
+
+  it("the Liked-the-sample buy keeps from=sample across the hop, and the pack pop-up is not opened first", () => {
+    setUa(UA.fbAndroid);
+    fakeLocation("/packs?utm_source=facebook");
+    render(
+      <MemoryRouter initialEntries={["/packs"]}>
+        <PacksShop>
+          {(api) => <button type="button" data-testid="sample-buy" onClick={() => api.buyNow("pack_mock", "maths", { from: "sample" })}>s</button>}
+        </PacksShop>
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByTestId("sample-buy"));
+    const href = decodeURIComponent(loc.href);
+    expect(href).toContain("buy=pack_mock");
+    expect(href).toContain("from=sample");
+    expect(screen.queryByTestId("packs-buy-pack_mock")).toBeNull(); // no pop-up flash
+    expect(hops()).toHaveLength(1);
+  });
+
+  it("inapp_pay_choice_shown is NOT sent while the pay-first note is showing; it fires when the choice really appears (stuck)", () => {
+    vi.useFakeTimers();
+    setUa(UA.igAndroid);
+    const p = pass();
+    expect(screen.getByTestId("inapp-pay-first")).toBeTruthy();
+    expect(onboarding.mock.calls.filter((c) => c[0] === "inapp_pay_choice_shown")).toHaveLength(0);
+    const page = loc.href;
+    p.pay();
+    loc.href = page;
+    act(() => {
+      vi.advanceTimersByTime(2600);
+    });
+    expect(screen.getByTestId("inapp-pay-choice-chrome")).toBeTruthy();
+    expect(onboarding.mock.calls.filter((c) => c[0] === "inapp_pay_choice_shown")).toHaveLength(1);
   });
 });
 

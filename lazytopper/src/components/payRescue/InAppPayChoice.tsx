@@ -67,13 +67,15 @@ export default function InAppPayChoice({ buy, surface, inApp, href, userAgent, s
   // INAPP-PAY-FIRST-1: while the Buy tap hops to Chrome (Instagram / Facebook on Android, signed out), this slot is the short note + "Pay here instead".
   const payFirst = useSyncExternalStore(subscribeInAppPayFirst, () => inAppPayFirstActive(false), () => false);
   const where = surface ?? (typeof window !== "undefined" ? inAppChoiceSurface(window.location.pathname) : "other");
+  // INAPP-PAY-FIRST-1b: while the pay-first note is what shows, this is not a "choice shown" (keeps the PAY-CHOICE-1 funnel honest); it fires when the choice really appears.
+  const noteShowing = payFirst && !!onPayHere;
   useEffect(() => {
-    if (!detected || shown.current) return;
+    if (!detected || shown.current || noteShowing) return;
     shown.current = true;
     if (choiceShownSent) return;
     choiceShownSent = true;
     trackOnboardingEvent("inapp_pay_choice_shown", { app: detected.app, platform: detected.platform, surface: where });
-  }, [detected, where]);
+  }, [detected, where, noteShowing]);
   if (!detected) return null;
   if (payFirst && onPayHere) {
     return (
