@@ -459,13 +459,11 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "The phenotypic ratio in F₂ is 3 tall : 1 dwarf.",
     "explanation": "",
     "solutionSteps": [
-      "State that tallness (T) is dominant and dwarfness (t) is recessive.",
-      "Both parents are heterozygous tall, so their genotypes are Tt and Tt.",
-      "Write the possible gametes from each parent: T and t from each.",
-      "Construct the Punnett square combining these gametes: TT, Tt, Tt, tt.",
-      "Identify genotypes: 1 TT, 2 Tt, 1 tt.",
-      "Determine phenotypes: TT and Tt are tall, tt is dwarf.",
-      "So the phenotypic ratio in F₂ is 3 tall : 1 dwarf."
+      "[0.5 mark] State that tallness (T) is dominant and dwarfness (t) is recessive. Both parents are heterozygous tall, so their genotypes are Tt and Tt.",
+      "[0.5 mark] Write the possible gametes from each parent: T and t from each.",
+      "[1 mark] Construct the Punnett square combining these gametes: TT, Tt, Tt, tt. Identify genotypes: 1 TT, 2 Tt, 1 tt.",
+      "[0.5 mark] Determine phenotypes: TT and Tt are tall, tt is dwarf.",
+      "[0.5 mark] So the phenotypic ratio in F₂ is 3 tall : 1 dwarf."
     ],
     "finalAnswer": "The phenotypic ratio in F₂ is 3 tall : 1 dwarf.",
     "strategyHint": "",

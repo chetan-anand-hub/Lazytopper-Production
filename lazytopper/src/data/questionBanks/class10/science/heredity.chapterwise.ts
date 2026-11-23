@@ -218,13 +218,13 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-HERED-027", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "(a) On what rules inheritance is based? (b) Is each trait influenced by both paternal and maternal DNA?",
     answer: "a. The rules of inheritance is based on the fact that the traits in the progeny are carried out by DNA's of both the parents (mother and father). These rules are known s 'Mendel's Laws of Inheritance'. The rules are: (i) Law of dominance, (ii) Law of segregation, and (iii) Law of",
-    solutionSteps: ["a. The rules of inheritance is based on the fact that the traits in the progeny are carried out by DNA's of both the parents (mother and father). These rules are known s 'Mendel's Laws of Inheritance'. The rules are: (i) Law of dominance, (ii) Law of segregation, and (iii) Law of independent assortment. b. Yes, it is true that each trait is influenced by both paternal and maternal DNA."],
+    solutionSteps: ["[1 mark] a. The rules of inheritance is based on the fact that the traits in the progeny are carried out by DNA's of both the parents (mother and father). These rules are known s 'Mendel's Laws of Inheritance'. The rules are: (i) Law of dominance, (ii) Law of segregation, and (iii) Law of independent assortment.", "[1 mark] b. Yes, it is true that each trait is influenced by both paternal and maternal DNA."],
     ncertRef: "cbjesccq09 Q34", isCompetencyBased: false },
   // cbjesccq09 Q35 (Section B, 2mk)
   { id: "SCQ-S-HERED-028", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "a. What is the genetic constitution of human sperm? b. Mention the chromosomes pair present in zygote determining the sex of a male child.",
     answer: "a. 22 + Y or 22 + X b. (22 + Y + 22 + X)",
-    solutionSteps: ["a. 22 + Y or 22 + X b. (22 + Y + 22 + X)"],
+    solutionSteps: ["[1 mark] a. 22 + Y or 22 + X", "[1 mark] b. (22 + Y + 22 + X)"],
     ncertRef: "cbjesccq09 Q35", isCompetencyBased: false },
   // cbjesccq09 Q38 (Section B, 2mk)
   { id: "SCQ-S-HERED-029", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -236,19 +236,19 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-HERED-030", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "\"The chromosome number of the sexually producing parents and their offspring is the same\". Justify this statement.",
     answer: "In sexual reproduction, both the gametes (male and female) contain half the number of chromosomes (haploid or n) and by the fusion of these gametes, the zygote have full set (diploid 2n) chromosomes.",
-    solutionSteps: ["In sexual reproduction, both the gametes (male and female) contain half the number of chromosomes (haploid or n) and by the fusion of these gametes, the zygote have full set (diploid 2n) chromosomes."],
+    solutionSteps: ["[1 mark] In sexual reproduction, both the gametes (male and female) contain half the number of chromosomes (haploid or n)", "[1 mark] and by the fusion of these gametes, the zygote have full set (diploid 2n) chromosomes."],
     ncertRef: "cbjesccq09 Q40", isCompetencyBased: true },
   // cbjesccq09 Q41 (Section B, 2mk)
   { id: "SCQ-S-HERED-031", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "If YYRR is round yellow, what do the following represent? yyrr yyRR",
     answer: "yyrr - Wrinkled, green seeds yyRR — Round, green seeds",
-    solutionSteps: ["yyrr - Wrinkled, green seeds yyRR — Round, green seeds"],
+    solutionSteps: ["[1 mark] yyrr - Wrinkled, green seeds", "[1 mark] yyRR — Round, green seeds"],
     ncertRef: "cbjesccq09 Q41", isCompetencyBased: false },
   // cbjesccq09 Q42 (Section B, 2mk)
   { id: "SCQ-S-HERED-032", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "How did Mendel explain that it is possible that a trait is inherited but not expressed in an organism?",
     answer: "[All India 2017] Yes, it is possible. Example - When pure tall pea plants are crossed with pure dwarf pea plants, only tall pea plants are obtained in F1 generation. On selfing tall plants of F1 both tall and dwarf plants are obtained in F2 generation in the ratio 3:1. Reappearan",
-    solutionSteps: ["[All India 2017] Yes, it is possible. Example - When pure tall pea plants are crossed with pure dwarf pea plants, only tall pea plants are obtained in F1 generation. On selfing tall plants of F1 both tall and dwarf plants are obtained in F2 generation in the ratio 3:1. Reappearance of the dwarf character, a recessive trait in F2 generation shows that the dwarf trait/ character was present in individuals of F1 but it did not express (due to the present of tallness, a dominant trait / character)"],
+    solutionSteps: ["[1 mark] [All India 2017] Yes, it is possible. Example - When pure tall pea plants are crossed with pure dwarf pea plants, only tall pea plants are obtained in F1 generation. On selfing tall plants of F1 both tall and dwarf plants are obtained in F2 generation in the ratio 3:1.", "[1 mark] Reappearance of the dwarf character, a recessive trait in F2 generation shows that the dwarf trait/ character was present in individuals of F1 but it did not express (due to the present of tallness, a dominant trait / character)"],
     ncertRef: "cbjesccq09 Q42", isCompetencyBased: true },
   // cbjesccq09 Q63 (Section C, 3mk)
   { id: "SCQ-S-HERED-033", subject: "Science", topicKey: "heredity", subtopic: "Chapter Practice — Heredity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
