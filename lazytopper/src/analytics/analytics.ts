@@ -516,10 +516,7 @@ export const META_EVENTS: Readonly<
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
 
 /** BUYER-SCORE-1: `buyer_tier` reaches Meta only as one of these custom events: the name, no value, no parameter. */
-const BUYER_TIER_META: Readonly<Record<string, readonly ["trackCustom", string]>> = {
-  warm: ["trackCustom", "BuyerTierWarm"],
-  hot: ["trackCustom", "BuyerTierHot"],
-};
+
 
 /** `utm_*` and the ad click ids, plus `cbq` and `ct` — the CBQ and Chapter Test ad landings' boolean flags (META-CT-PARAM-1). Nothing else. */
 const META_QUERY_KEEP = /^(?:utm_.*|fbclid|gclid|cbq|ct)$/;
@@ -652,7 +649,7 @@ function sendToMeta(
       : typeof name === "string" && Object.prototype.hasOwnProperty.call(META_EVENTS, name)
         ? META_EVENTS[name as keyof typeof META_EVENTS]
         : name === "buyer_tier"
-          ? BUYER_TIER_META[(payload.data as { tier?: string } | undefined)?.tier ?? ""]
+          ? (["trackCustom", `BuyerTier${(payload.data as { tier: string }).tier === "hot" ? "Hot" : "Warm"}`] as const)
           : undefined;
   if (!mapped) return;
   // META-PACK-CHECKOUT-1: a pack checkout is sent only WITH its attempt id (the caller leaves it off a repeat), never bare.
@@ -694,7 +691,6 @@ function noteBuyerScore(note: BuyerNote): void {
       return;
     }
     buyerQueue.push(note);
-    if (buyerQueue.length > 50) buyerQueue.shift();
     if (buyerScheduled) return;
     buyerScheduled = true;
     const load = () => {
@@ -718,13 +714,13 @@ function noteBuyerScore(note: BuyerNote): void {
 /**
  * BUYER-SCORE-1 - `buyer_tier`, sent by buyerScore.ts when a browser's tier rises to warm or hot (once per tier per 7 days).
  * GA4 + Vercel get `{ tier, score }` and nothing else; Meta gets the bare custom event BuyerTierWarm / BuyerTierHot
- * (BUYER_TIER_META). Not in `NamedAnalyticsEvent`, so the first-party activity log drops it. Returns whether it was sent:
+ * (see sendToMeta). Not in `NamedAnalyticsEvent`, so the first-party activity log drops it. Returns whether it was sent:
  * false in an automated context, on /admin, or for any tier but warm / hot.
  */
 export function trackBuyerTier(tier: "warm" | "hot", score: number): boolean {
   try {
     if (!analyticsEnabled() || ADMIN_PATH.test(routerPathOf(window.location.pathname))) return false;
-    const data = { tier, score: Math.round(score) };
+    const data = { tier, score };
     send("event", { name: "buyer_tier", data }, { ga4: data });
     return true;
   } catch {

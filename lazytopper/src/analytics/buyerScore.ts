@@ -2,7 +2,7 @@ import POINTS from "../config/buyerScorePoints.json";
 import { ADMIN_PATH, analyticsEnabled, readPurchaseSent, routerPathOf, trackBuyerTier } from "./analytics";
 import { storedVisitSourceForScore, type VisitSource } from "./visitSource";
 import { authClient } from "../services/firebaseClient";
-import { isPaidPremium, loadSubscription } from "../services/subscriptionService";
+import { peekPaidPremium } from "../services/subscriptionService";
 import { peekOwnsAnyPack } from "../lib/packs/myPacksCache";
 
 /**
@@ -202,14 +202,14 @@ export function resetBuyerScoreSessionForTests(): void {
 }
 
 /**
- * An existing customer is not a prospect: a paid Premium / Board Pass (the cached status, no network) or a pack
+ * An existing customer is not a prospect: a paid Premium / Board Pass (the cached status, read-only: no write, no Firestore) or a pack
  * already known to be owned (the in-memory answer of the My packs lookup, never fetched from here).
  */
 function isExistingCustomer(): boolean {
   try {
     const uid = authClient?.currentUser?.uid;
     if (!uid) return false;
-    return isPaidPremium(loadSubscription(uid)) || peekOwnsAnyPack(uid) === true;
+    return peekPaidPremium(uid) || peekOwnsAnyPack(uid) === true;
   } catch {
     return false;
   }

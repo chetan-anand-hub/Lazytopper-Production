@@ -475,6 +475,12 @@ export function loadSubscription(uid: string): SubscriptionStatus {
   return resolved;
 }
 
+/** BUYER-SCORE-1: strictly READ-ONLY "is the cached status a paid pass right now?" No save, no Firestore, no SDK load; unlike loadSubscription it never writes a downgrade back. */
+export function peekPaidPremium(uid: string): boolean {
+  const l = loadLocal(uid);
+  return !!l && applyExpiry(l).tier === "premium";
+}
+
 export function saveSubscription(uid: string, status: SubscriptionStatus): void {
   saveLocal(uid, status);
   void saveCloud(uid, status);

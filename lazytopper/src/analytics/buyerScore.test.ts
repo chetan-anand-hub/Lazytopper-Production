@@ -9,10 +9,7 @@ vi.mock("../services/firebaseClient", () => ({
     return customer.uid ? { currentUser: { uid: customer.uid } } : null;
   },
 }));
-vi.mock("../services/subscriptionService", () => ({
-  loadSubscription: () => ({ tier: customer.paid ? "premium" : "free" }),
-  isPaidPremium: (st: { tier?: string }) => st?.tier === "premium",
-}));
+vi.mock("../services/subscriptionService", () => ({ peekPaidPremium: () => customer.paid }));
 vi.mock("../lib/packs/myPacksCache", () => ({ peekOwnsAnyPack: () => customer.ownsPack }));
 
 import {
