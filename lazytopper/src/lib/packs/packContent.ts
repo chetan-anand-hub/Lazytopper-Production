@@ -13,6 +13,7 @@ import { ensureBankChapters, ensureBankSubject, getBankRowsForSubject } from "..
 import { selectBankQuestions } from "../../data/bankQuery";
 import type { CanonicalQuestion } from "../../data/predictionTypes";
 import { needsMissingFigure } from "../figureSafe";
+import { isOrStep } from "../../../scripts/seo/publishability";
 import { isCbq } from "../cbq/cbqClassification";
 import { packChapterLabel } from "./packLabels";
 import type { ServedAt } from "../freshSet/servedHistory";
@@ -120,6 +121,10 @@ function markValue(raw: string): number {
  * True when the question has FULL step marks: every solution step carries its own `[N mark]` mark and they sum to
  * `marks`. A 1-mark objective question (MCQ / Assertion-Reason, i.e. Section A) counts as step-marked: CBSE scores it
  * 0 or 1 on the answer alone, and the key shows one "1 mark" chip for the whole solution.
+ *
+ * OR-AWARE (STEPMARK-3, owner ruling 23 Nov 2026): an OR question carries two routes through the same marks. When the
+ * steps do not sum to `marks` but some are OR alternatives (`isOrStep`, publishability Rule 3's own test), the steps
+ * that are NOT OR alternatives (the main route) must sum to `marks`. Same convention as Rule 3, shared, not copied.
  */
 export function isStepMarked(q: { marks: number | string; options?: readonly string[]; solutionSteps?: readonly string[] }): boolean {
   const marks = Number(q.marks) || 0;
@@ -127,14 +132,19 @@ export function isStepMarked(q: { marks: number | string; options?: readonly str
   const steps = Array.isArray(q.solutionSteps) ? q.solutionSteps.filter(Boolean) : [];
   if (steps.length === 0 || marks <= 0) return false;
   let sum = 0;
+  let main = 0;
+  let hasOr = false;
   for (const st of steps) {
     const m = LEADING_MARK.exec(st) ?? TRAILING_MARK.exec(st);
     if (!m) return false;
     const v = markValue(m[1]);
     if (!Number.isFinite(v)) return false;
     sum += v;
+    if (isOrStep(st)) hasOr = true;
+    else main += v;
   }
-  return Math.abs(sum - marks) < 1e-9;
+  if (Math.abs(sum - marks) < 1e-9) return true;
+  return hasOr && Math.abs(main - marks) < 1e-9;
 }
 
 /** Stable partition: step-marked rows first, the rest after, each keeping its relative order. */

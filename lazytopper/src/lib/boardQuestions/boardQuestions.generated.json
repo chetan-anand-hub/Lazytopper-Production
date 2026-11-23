@@ -183,6 +183,19 @@
           ]
         },
         {
+          "id": "APQ-S-CARB-002",
+          "questionText": "A carbon compound P is neutral to red/blue litmus. A gas that burns with a 'pop' sound is produced when a metal reacts with P. (a) Write the chemical equation for the reaction. (b) P is heated with conc. H2SO4 to give compound Q. (i) Write the chemical equation. (ii) Describe the flame Q produces on combustion. (c) What is likely observed on heating P with ethanoic acid + acid catalyst? Write the equation.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] P is neutral and reacts with metal to release H2 — characteristic of an alcohol. Take P = ethanol (C2H5OH).",
+            "[1 mark] (a) 2 Na + 2 CH3CH2OH → 2 CH3CH2ONa + H2↑ (gas burns with pop sound).",
+            "[1 mark] (b)(i) Dehydration with conc. H2SO4 at high temp: CH3CH2OH → CH2=CH2 + H2O. Q = ethene (ethylene).",
+            "[1 mark] (b)(ii) Ethene burns with yellow flame and black smoke (high C/H ratio — sooty).",
+            "[1 mark] (c) Ethanol + ethanoic acid → ester (ethyl ethanoate, a sweet/fruity-smelling compound). Equation: CH3COOH + C2H5OH ⇌ CH3COOC2H5 + H2O (acid catalyst, esterification)."
+          ]
+        },
+        {
           "id": "APQ-S-CARB-003",
           "questionText": "Given a 4-carbon skeleton of a hydrocarbon compound. (a) Fill in the hydrogen atoms/bonds to form: (i) a saturated hydrocarbon (ii) an unsaturated hydrocarbon. (b) If the four-carbon skeleton is of a straight chained alkene, draw the structures of all the possible compounds.",
           "marks": 4,
@@ -192,18 +205,6 @@
             "[1 mark] (a)(ii) Unsaturated hydrocarbon: butene CH2=CH-CH2-CH3 (C4H8) with a C=C double bond (or butyne CH≡C-CH2-CH3, C4H6).",
             "[1 mark] (b) First straight-chain alkene: But-1-ene, CH2=CH-CH2-CH3, with the double bond at position 1.",
             "[1 mark] (b) Second straight-chain alkene: But-2-ene, CH3-CH=CH-CH3, with the double bond at position 2."
-          ]
-        },
-        {
-          "id": "APQ-S-CARB-004",
-          "questionText": "If the four-carbon skeleton is of a straight chained alkyne: (i) How many carbon atoms may NOT be bonded to any hydrogen atoms? (ii) How many hydrogen atoms will there be in the compound?",
-          "marks": 4,
-          "section": "E",
-          "solutionSteps": [
-            "[1 mark] The straight-chain alkynes with 4 carbons are but-1-yne (HC≡C-CH2-CH3) and but-2-yne (CH3-C≡C-CH3), both C4H6.",
-            "[1 mark] (i) In but-1-yne, HC≡C-CH2-CH3: C1 has 1 H, C2 has 0 H, C3 has 2 H, C4 has 3 H → one carbon (C2) is bonded to no hydrogen.",
-            "[1 mark] (i) In but-2-yne, CH3-C≡C-CH3: C1 has 3 H, C2 has 0 H, C3 has 0 H, C4 has 3 H → two carbons (C2 and C3) are bonded to no hydrogen. So one or two carbons may not be bonded to any H.",
-            "[1 mark] (ii) The molecular formula is C4H6, so the compound contains six hydrogen atoms."
           ]
         }
       ]
@@ -482,6 +483,16 @@
       "subject": "science",
       "questions": [
         {
+          "id": "APQ-S-REPR-002",
+          "questionText": "Ravi cultivated mustard, a plant with bisexual flowers, on his farm. His plants were diseased due to a gene defect and therefore had reduced yield. Ravi removed the stamens from the diseased plants and also planted fresh disease-free mustard plants where he removed the pistils. How will Ravi's strategy help in improving the yield of mustard?",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] By removing stamens from diseased plants and pistils from healthy plants, Ravi turned bisexual flowers into unisexual ones — preventing self-pollination.",
+            "[1 mark] Pollen from disease-free plants (with stamens intact) must now pollinate the diseased plants' pistils. This cross-pollination introduces genetic variation, allowing disease-resistant alleles to enter the next generation — improving yield."
+          ]
+        },
+        {
           "id": "APQ-S-REPR-003",
           "questionText": "(a) Certain specialised cells in animals called stem cells have the ability to divide and differentiate into different cell types. This helps in the replacement of a damaged organ. Name and explain two methods of asexual reproduction that are similar to stem cells and occur mostly in multicellular organisms. (b) Identify TWO pairs of reproductive organs in males and females that are functionally similar to each other. Justify.",
           "marks": 5,
@@ -495,29 +506,14 @@
           ]
         },
         {
-          "id": "CBE-S-REPR-C-001",
-          "questionText": "Nivedita has dark brown eyes like her mother but the same shaped nose as her father. Explain why Nivedita has features from both of her parents.",
+          "id": "APQ-S-REPR-005",
+          "questionText": "State any three reasons to justify the use of contraceptive methods.",
           "marks": 3,
           "section": "C",
           "solutionSteps": [
-            "[1 mark] Features are passed on by inheritance.",
-            "[1 mark] She was produced by sexual reproduction, involving both parents.",
-            "[1 mark] Genes are transferred from each parent to the offspring, so she shows features of both."
-          ]
-        },
-        {
-          "id": "CFPQ-S-REPR-001",
-          "questionText": "Two statements are given - one labelled Assertion (A) and the other labelled Reason (R). Read the statements carefully and choose the option that correctly describes statements A and R.\n\nAssertion (A): Oral contraceptive pills and copper-T do not prevent sexually transmitted diseases.\nReason (R): Sexually transmitted disease are transmitted by contact with mucous membranes of infected organs.",
-          "marks": 1,
-          "section": "A",
-          "solutionSteps": [
-            "[1 mark] Correct option: (1) Both A and R are true and R is the correct explanation of A. Neither pills nor copper-T forms a barrier at the mucous membranes, and it is exactly that contact route named in R which explains why these methods cannot prevent transmission. Answer: (A)"
-          ],
-          "options": [
-            "Both A and R are true and R is the correct explanation of A.",
-            "Both A and R are true but R is not the correct explanation of A.",
-            "A is true but R is false.",
-            "A is false but R is true."
+            "[1 mark] (a) To prevent UNWANTED PREGNANCIES — helps individuals/families plan when and how many children to have, supporting maternal health.",
+            "[1 mark] (b) To CONTROL POPULATION growth and birth rate — supports balanced demographic growth and conservation of resources.",
+            "[1 mark] (c) To PREVENT the transfer of sexually transmitted diseases / infections (HIV/AIDS, syphilis, etc.) — barrier methods like condoms protect against STIs."
           ]
         }
       ]
