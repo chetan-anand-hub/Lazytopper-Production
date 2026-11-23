@@ -292,8 +292,8 @@ function resolveSchemeGenConfig(env = process.env) {
 
 // SCHEME-GEN-1 follow-up (paid eval, 23 Nov 2026): rules that keep a generated scheme's marks on what the question asks for.
 // Rule 13 applies to every non-objective question; 14 and 15 are Science-only (Maths keeps its method-step marking untouched).
-const PART_MARKS_RULE_13 = '\n13. If the question prints marks for its parts (e.g. "[1½]", "(1)", "[2]", "1 mark"), the steps for each part MUST sum to exactly that part\'s printed marks; never move marks to working the question does not ask for.';
-const PART_MARKS_RULE_14 = '\n14. Marks go to what the question explicitly asks for (each asked value, ratio, decision, reason). Supporting working (restating a formula, a cross or Punnett diagram) earns at most 0.5, and only when the question asks to show it.';
+const PART_MARKS_RULE_13 = '\n13. If the question prints marks for its parts (e.g. "[1½]", "(1 mark)", "[2]", "1 mark"), the steps for each part MUST sum to exactly that part\'s printed marks; never move marks to working the question does not ask for.';
+const PART_MARKS_RULE_14 = '\n14. Marks go to what the question explicitly asks for (each asked value, ratio, decision, reason). Working the question does not ask for (for example a cross or Punnett diagram) earns at most 0.5. In a numerical, the correct formula still earns 0.5 and correct substitution/calculation steps earn their usual credit.';
 const PART_MARKS_RULE_15 = '\n15. For "Can/Should/Is ... ? Give reason" questions, the decision plus the reason together carry at least half the marks; each supporting calculated value carries at most 0.5.';
 
 function schemeGenCount(deps, name) {
@@ -375,7 +375,7 @@ async function generateModelSolution(fields, deps) {
       '--- Example: 2-mark question "Can zinc displace iron from iron sulphate solution? Give reason." ---\n' +
       'Step 1: desc="Stating the positions in the reactivity series", working="Zinc is placed above iron in the reactivity series.", marks=0.5\n' +
       'Step 2: desc="Stating the decision", working="Yes, zinc displaces iron from iron sulphate solution.", marks=0.5\n' +
-      'Step 3: desc="Giving the reason", working="Zinc is more reactive than iron, so it displaces iron: Zn + FeSO₄ → ZnSO₄ + Fe.", marks=1\n'
+      'Step 3: desc="Giving the reason", working="Zinc is more reactive than iron, so it displaces iron: Zn(s) + FeSO₄(aq) → ZnSO₄(aq) + Fe(s).", marks=1\n'
     ) : '');
 
   const mcqInstructions = isObj ? (

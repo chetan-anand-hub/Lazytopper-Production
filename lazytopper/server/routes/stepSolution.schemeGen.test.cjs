@@ -136,12 +136,13 @@ async function promptFor(fields) {
 }
 const sha = (t) => require('node:crypto').createHash('sha256').update(t).digest('hex');
 
-test('T5 rules a-d: part-marks rule (all non-objective), Science-only decision rules and the fuse example are in the prompt', () => withEnv({}, async () => {
+test('T5 rules a-d: part-marks rule (all non-objective), Science-only marks-to-asked-items and decision rules, and the zinc displacement example are in the prompt', () => withEnv({}, async () => {
   const sci = await promptFor(SCIENCE_FIELDS);
-  assert.ok(sci.includes('13. If the question prints marks for its parts (e.g. "[1½]", "(1)", "[2]", "1 mark"), the steps for each part MUST sum to exactly that part\'s printed marks; never move marks to working the question does not ask for.'));
-  assert.ok(sci.includes('14. Marks go to what the question explicitly asks for (each asked value, ratio, decision, reason). Supporting working (restating a formula, a cross or Punnett diagram) earns at most 0.5, and only when the question asks to show it.'));
+  assert.ok(sci.includes('13. If the question prints marks for its parts (e.g. "[1½]", "(1 mark)", "[2]", "1 mark"), the steps for each part MUST sum to exactly that part\'s printed marks; never move marks to working the question does not ask for.'));
+  assert.ok(sci.includes('14. Marks go to what the question explicitly asks for (each asked value, ratio, decision, reason). Working the question does not ask for (for example a cross or Punnett diagram) earns at most 0.5. In a numerical, the correct formula still earns 0.5 and correct substitution/calculation steps earn their usual credit.'));
   assert.ok(sci.includes('15. For "Can/Should/Is ... ? Give reason" questions, the decision plus the reason together carry at least half the marks; each supporting calculated value carries at most 0.5.'));
   assert.ok(sci.includes('Can zinc displace iron from iron sulphate solution? Give reason.'));
+  assert.ok(sci.includes('Zn(s) + FeSO₄(aq) → ZnSO₄(aq) + Fe(s).'), 'example equation carries state symbols (rule 6)');
   assert.ok(!/kettle/i.test(sci.split('RESPOND with')[0].replace(SCIENCE_FIELDS.question, '')), 'the example is not the golden CP04-Q03 kettle/fuse scenario');
   assert.match(sci, /Step 1: desc="Stating the positions in the reactivity series"[^\n]*marks=0\.5\nStep 2: desc="Stating the decision"[^\n]*marks=0\.5\nStep 3: desc="Giving the reason"[^\n]*marks=1\n/);
   assert.ok(sci.includes('name the type of reaction when iron reacts'), 'the Fe example now asks for the reaction type it awards a step for');
