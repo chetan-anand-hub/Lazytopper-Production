@@ -332,6 +332,8 @@ describe("/test-series — TS-UX-PAGE-1 buy in place", () => {
 
 describe("/test-series — signed in", () => {
   it("progress comes only from real series sittings (the pickers' own done / graded words)", async () => {
+    // TS-DIFF-1: this test pins the progress words; the difficulty labels have their own test (TestSeriesPaperPicker.difficulty.test.tsx).
+    vi.stubEnv("VITE_TS_DIFFICULTY_DISABLED", "1");
     mockAuth.user = { uid: "u1" };
     records.list = [
       { worksheetId: "ct-ts1-real-numbers--a", surface: "chapter-test", status: "graded", marksAwarded: 24, marksTotal: 30, gradedAt: 2 },
