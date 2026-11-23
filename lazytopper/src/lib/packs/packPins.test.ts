@@ -41,6 +41,8 @@ const ACKNOWLEDGED_DRAW_DRIFT: readonly string[] = [
   ...["arithmetic-progression", "coordinate-geometry", "triangles", "circles"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
   // STEPMARK-2 batch 3B (19 Nov 2026): the same for areas-related-to-circles, surface-areas-and-volumes, probability.
   ...["areas-related-to-circles", "surface-areas-and-volumes", "probability"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
+  // STEPMARK-3 heredity (#1829, re-measured on trunk b347a4d7): the step-mark splits moved these seeded draws; the pins did not.
+  "ct1:heredity", "ct2:heredity",
   // STEPMARK-3 human-eye (#1828, re-measured on trunk 0844ef4a): the step-mark splits moved these seeded draws; the pins did not.
   "ct1:human-eye-and-colourful-world", "ct2:human-eye-and-colourful-world",
   // STEPMARK-3 carbon (23 Nov 2026, re-measured on trunk 9ad53fbe): the step-mark splits moved these seeded draws; the pins did not.
