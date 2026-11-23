@@ -289,6 +289,12 @@ function resolveSchemeGenConfig(env = process.env) {
   return { legacy: false, config: { temperature: 0.2, maxOutputTokens, thinkingConfig: { thinkingBudget } } };
 }
 
+// SCHEME-GEN-1 follow-up (paid eval, 23 Nov 2026): rules that keep a generated scheme's marks on what the question asks for.
+// Rule 13 applies to every non-objective question; 14 and 15 are Science-only (Maths keeps its method-step marking untouched).
+const PART_MARKS_RULE_13 = '\n13. If the question prints marks for its parts (e.g. "[1½]", "(1)", "[2]", "1 mark"), the steps for each part MUST sum to exactly that part\'s printed marks; never move marks to working the question does not ask for.';
+const PART_MARKS_RULE_14 = '\n14. Marks go to what the question explicitly asks for (each asked value, ratio, decision, reason). Supporting working (restating a formula, a cross or Punnett diagram) earns at most 0.5, and only when the question asks to show it.';
+const PART_MARKS_RULE_15 = '\n15. For "Can/Should/Is ... ? Give reason" questions, the decision plus the reason together carry at least half the marks; each supporting calculated value carries at most 0.5.';
+
 function schemeGenCount(deps, name) {
   try {
     const t = (deps && deps.telemetry) || require('../telemetry.cjs');
@@ -330,6 +336,9 @@ async function generateModelSolution(fields, deps) {
   const { callGemini, GEMINI_MODEL, ACTIVE_PROVIDER, extractJsonObjectFromText } = deps;
 
   const isMaths = /math/i.test(subject);
+  const genCfg = resolveSchemeGenConfig();
+  // SCHEME-GEN-1 follow-up: the part-marks rules + example below exist only when NOT on the SCHEME_GEN_LEGACY kill switch.
+  const partMarkRules = !genCfg.legacy;
   const systemPrompt =
     'You are a CBSE Class 10 board exam evaluator who authors the OFFICIAL marking scheme for ' +
     subject + ' (Subject Code: ' + (isMaths ? '041' : '086') + '). ' +
@@ -351,14 +360,22 @@ async function generateModelSolution(fields, deps) {
 
   const scienceExample =
     'CBSE MARKING SCHEME FORMAT EXAMPLES (Science):\n' +
-    '--- Example: 2-mark question "Write the balanced chemical equation when iron reacts with copper sulphate" ---\n' +
+    (partMarkRules
+      ? '--- Example: 2-mark question "Write the balanced chemical equation and name the type of reaction when iron reacts with copper sulphate" ---\n'
+      : '--- Example: 2-mark question "Write the balanced chemical equation when iron reacts with copper sulphate" ---\n') +
     'Step 1: desc="Writing reactants and products", working="Fe + CuSO₄ → FeSO₄ + Cu", marks=0.5\n' +
     'Step 2: desc="Balanced equation with state symbols", working="Fe(s) + CuSO₄(aq) → FeSO₄(aq) + Cu(s)", marks=1\n' +
     'Step 3: desc="Identifying type of reaction", working="This is a displacement reaction (Fe displaces Cu).", marks=0.5\n' +
     '--- Example: 3-mark question "What is refraction? State Snell\'s law with formula" ---\n' +
     'Step 1: desc="Defining refraction", working="Refraction is the change in direction of light when it passes from one transparent medium to another.", marks=1\n' +
     'Step 2: desc="Stating Snell\'s law", working="The ratio of sine of angle of incidence to sine of angle of refraction is constant for a given pair of media. This constant is called refractive index.", marks=1\n' +
-    'Step 3: desc="Writing the formula", working="sin i / sin r = n₂₁ (refractive index of medium 2 w.r.t. medium 1)", marks=1\n';
+    'Step 3: desc="Writing the formula", working="sin i / sin r = n₂₁ (refractive index of medium 2 w.r.t. medium 1)", marks=1\n' +
+    (partMarkRules ? (
+      '--- Example: 2-mark question "A kettle of power 750 W works on 220 V mains. Can a fuse of rating 3 A be used with it? Give reason." ---\n' +
+      'Step 1: desc="Calculating the current drawn", working="I = P/V = 750/220 = 3.4 A", marks=0.5\n' +
+      'Step 2: desc="Stating the decision", working="No, the 3 A fuse cannot be used.", marks=0.5\n' +
+      'Step 3: desc="Giving the reason", working="The kettle draws 3.4 A, which is more than the 3 A rating, so the fuse would melt every time the kettle is switched on.", marks=1\n'
+    ) : '');
 
   const mcqInstructions = isObj ? (
     '\n\nIMPORTANT — THIS IS AN OBJECTIVE/MCQ QUESTION (Section A, ' + marks + ' mark):\n' +
@@ -413,13 +430,13 @@ async function generateModelSolution(fields, deps) {
     '9. commonMistakes must be SPECIFIC to this question (not generic advice)\n' +
     '10. examTip must reference the CBSE board marking pattern for this question type\n' +
     (isObj ? '' : '11. For word problems: include step for framing the equation AND step for rejecting invalid values with reason\n') +
-    '12. Total steps: ' + (isObj ? '1-mark MCQ → 2 steps (1 scored + 1 explanatory)' : '2-mark Q → 3 steps, 3-mark Q → 4 steps, 5-mark Q → 5-6 steps (matching CBSE scheme density)');
+    '12. Total steps: ' + (isObj ? '1-mark MCQ → 2 steps (1 scored + 1 explanatory)' : '2-mark Q → 3 steps, 3-mark Q → 4 steps, 5-mark Q → 5-6 steps (matching CBSE scheme density)') +
+    (partMarkRules && !isObj ? PART_MARKS_RULE_13 + (isMaths ? '' : PART_MARKS_RULE_14 + PART_MARKS_RULE_15) : '');
 
   const contents = [
     { role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] },
   ];
 
-  const genCfg = resolveSchemeGenConfig();
   let reply;
   try {
     reply = await callGemini(GEMINI_MODEL, contents, genCfg.config);

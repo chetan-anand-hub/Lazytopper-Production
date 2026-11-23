@@ -115,3 +115,49 @@ test('T4 every committed MAX_TOKENS scheme text from the eval runs parses to nul
     assert.ok(lines.some((l) => /^\[scheme-gen\].*finish=MAX_TOKENS/.test(l)));
   }
 });
+
+// ── SCHEME-GEN-1 follow-up: part-marks rules in the generator prompt ──────────────────────────────────────────
+const SCIENCE_FIELDS = { question: 'A kettle of power 750 W works on 220 V. Can a 3 A fuse be used? Give reason.', marks: 2, subject: 'Science', topic: 'Electricity', qType: 'short', section: 'B', isObjective: false };
+const MCQ_FIELDS = { question: 'Which gas is evolved? (a) H2 (b) O2', marks: 1, subject: 'Science', topic: 'Acids', qType: 'mcq', section: 'A', isObjective: true, existingAnswer: '(a)', existingExplanation: 'Metal + acid gives hydrogen.' };
+const GENETICS_FIELDS = { question: 'Cross tall and dwarf pea plants. Give phenotypic ratio [1½] and genotypic ratio [1½].', marks: 3, subject: 'Science', topic: 'Heredity', qType: 'short', section: 'C', isObjective: false, existingAnswer: '3:1; 1:2:1' };
+// sha256 of the FULL prompt text the trunk generator (66ffe1f7) builds for FIELDS, SCIENCE_FIELDS, MCQ_FIELDS, GENETICS_FIELDS.
+const TRUNK_PROMPT_SHA256 = [
+  '757ac6edc3904d00a7d6826be5d3e8efdeea85f96befedd3d49ba88d12032712',
+  '634cd24c3d0761cb2d8f8659a4d6e747e3342400b062a78104e75878d069aa5d',
+  'f096cd970e0ba1ed02fd267421a5321ff1c64e177f5d058c9ffb4037c39a3ed0',
+  '68d7288f408945f39b559b6bb16ced6c228e3aa204841bd418e2afcf4aeae27e',
+];
+async function promptFor(fields) {
+  let text = '';
+  const deps = stubDeps({ text: GOOD, finishReason: 'STOP' });
+  deps.callGemini = async (_m, contents) => { text = contents[0].parts[0].text; return { text: GOOD, finishReason: 'STOP' }; };
+  await stepSolution.generateModelSolution(fields, deps);
+  return text;
+}
+const sha = (t) => require('node:crypto').createHash('sha256').update(t).digest('hex');
+
+test('T5 rules a-d: part-marks rule (all non-objective), Science-only decision rules and the fuse example are in the prompt', () => withEnv({}, async () => {
+  const sci = await promptFor(SCIENCE_FIELDS);
+  assert.ok(sci.includes('13. If the question prints marks for its parts (e.g. "[1½]", "(1)", "[2]", "1 mark"), the steps for each part MUST sum to exactly that part\'s printed marks; never move marks to working the question does not ask for.'));
+  assert.ok(sci.includes('14. Marks go to what the question explicitly asks for (each asked value, ratio, decision, reason). Supporting working (restating a formula, a cross or Punnett diagram) earns at most 0.5, and only when the question asks to show it.'));
+  assert.ok(sci.includes('15. For "Can/Should/Is ... ? Give reason" questions, the decision plus the reason together carry at least half the marks; each supporting calculated value carries at most 0.5.'));
+  assert.ok(sci.includes('Can a fuse of rating 3 A be used with it? Give reason.'));
+  assert.match(sci, /Step 1: desc="Calculating the current drawn"[^\n]*marks=0\.5\nStep 2: desc="Stating the decision"[^\n]*marks=0\.5\nStep 3: desc="Giving the reason"[^\n]*marks=1\n/);
+  assert.ok(sci.includes('name the type of reaction when iron reacts'), 'the Fe example now asks for the reaction type it awards a step for');
+  const maths = await promptFor(FIELDS);
+  assert.ok(maths.includes('13. If the question prints marks for its parts'));
+  assert.ok(!maths.includes('14. Marks go to what') && !maths.includes('15. For "Can/Should/Is'), 'Maths method-step marking is untouched by 14/15');
+  const mcq = await promptFor(MCQ_FIELDS);
+  assert.ok(!/\n1[345]\. /.test(mcq), 'objective questions get none of the new rules');
+  assert.equal(sha(mcq), TRUNK_PROMPT_SHA256[2], 'the objective prompt is byte-identical to trunk');
+}));
+
+test('T6 SCHEME_GEN_LEGACY=1 -> the prompt is byte-identical to trunk 66ffe1f7 (4 shapes); default differs only where intended', async () => {
+  const shapes = [FIELDS, SCIENCE_FIELDS, MCQ_FIELDS, GENETICS_FIELDS];
+  await withEnv({ SCHEME_GEN_LEGACY: '1' }, async () => {
+    for (let i = 0; i < shapes.length; i++) assert.equal(sha(await promptFor(shapes[i])), TRUNK_PROMPT_SHA256[i], 'legacy prompt #' + i + ' == trunk');
+  });
+  await withEnv({}, async () => {
+    for (const i of [0, 1, 3]) assert.notEqual(sha(await promptFor(shapes[i])), TRUNK_PROMPT_SHA256[i], 'default prompt #' + i + ' carries the new rules');
+  });
+});
