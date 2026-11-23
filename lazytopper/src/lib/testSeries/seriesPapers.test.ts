@@ -53,7 +53,7 @@ describe("Chapter Test fixed paper", () => {
  *  Full-Length Test 20 no longer equals the seeded pack draw n = 20 (the pool is smaller where the no-repeat fallback starts). The served paper is
  *  the PINNED one (TS-FM-M20, seriesPaperIds.json, acknowledged in pinnedPapers.test.ts), so no student sees a different paper; the seeded draws
  *  are only the kill-switch path. The identity and the pin are still asserted. Drop the entry when the draws agree again. */
-const ACKNOWLEDGED_SEEDED_PARITY_DRIFT: readonly string[] = ["Maths:20", "Maths:3", "Maths:25", "Science:25"]; // Maths:25 - TS-MORE-1: the pin-only paper 25 chains from the pins (drawPackMockAfter), the online seeded draw does not; Maths:3 - STEPMARK-2 batch 1 (step-mark prefixes moved the seeded Maths draw)
+const ACKNOWLEDGED_SEEDED_PARITY_DRIFT: readonly string[] = ["Maths:20", "Maths:3", "Maths:25", "Science:25", "Science:2", "Science:8"]; // STEPMARK-3 mixed group (23 Nov 2026): Science:2/Science:8 (step-mark splits moved the seeded draw); Maths:25 - TS-MORE-1: the pin-only paper 25 chains from the pins (drawPackMockAfter), the online seeded draw does not; Maths:3 - STEPMARK-2 batch 1 (step-mark prefixes moved the seeded Maths draw)
 
 describe("Full-Length Test #n === the pack draw's paper n (#1–8 = PDF Mock #n)", () => {
   it.each([

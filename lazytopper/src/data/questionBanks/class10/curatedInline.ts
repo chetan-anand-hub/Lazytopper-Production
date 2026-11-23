@@ -540,13 +540,12 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "In aerobic respiration glucose is completely oxidised in the presence of oxygen (C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + energy), mainly in the mitochondria, releasing about 38 ATP; anaerobic respiration only partially breaks glucose down (lactic acid or ethanol) and releases about 2 ATP, so aerobic respiration is more efficient.",
     "explanation": "",
     "solutionSteps": [
-      "State that respiration is the process of releasing energy from food (glucose) in cells.",
-      "In aerobic respiration, glucose is completely oxidised in the presence of oxygen.",
-      "Write the overall equation: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + energy (ATP).",
-      "Mention that this process mainly occurs in the mitochondria of cells.",
-      "Complete oxidation of glucose releases a large amount of energy (about 38 ATP molecules).",
-      "In anaerobic respiration, glucose is only partially broken down, producing lactic acid or ethanol and much less energy (about 2 ATP).",
-      "Therefore, aerobic respiration is considered more efficient than anaerobic respiration."
+      "[0.5 mark] State that respiration is the process of releasing energy from food (glucose) in cells. In aerobic respiration, glucose is completely oxidised in the presence of oxygen.",
+      "[0.5 mark] Write the overall equation: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + energy (ATP).",
+      "[0.5 mark] Mention that this process mainly occurs in the mitochondria of cells.",
+      "[0.5 mark] Complete oxidation of glucose releases a large amount of energy (about 38 ATP molecules).",
+      "[0.5 mark] In anaerobic respiration, glucose is only partially broken down, producing lactic acid or ethanol and much less energy (about 2 ATP).",
+      "[0.5 mark] Therefore, aerobic respiration is considered more efficient than anaerobic respiration."
     ],
     "finalAnswer": "In aerobic respiration glucose is completely oxidised in the presence of oxygen (C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + energy), mainly in the mitochondria, releasing about 38 ATP; anaerobic respiration only partially breaks glucose down (lactic acid or ethanol) and releases about 2 ATP, so aerobic respiration is more efficient.",
     "strategyHint": "",
@@ -568,12 +567,12 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "v = −30 cm: the image is real, inverted and equal in size to the object, formed 30 cm in front of the mirror.",
     "explanation": "",
     "solutionSteps": [
-      "Write the mirror formula: 1/f = 1/v + 1/u.",
-      "For a concave mirror, take focal length f = −15 cm and object distance u = −30 cm (from sign convention).",
-      "Substitute into the formula: 1/(−15) = 1/v + 1/(−30).",
-      "Rearrange: 1/v = 1/(−15) + 1/30 = (−2 + 1)/30 = −1/30.",
-      "Thus, v = −30 cm, meaning the image is formed 30 cm in front of the mirror (on the same side as the object).",
-      "Since v is negative and the image is formed in front of the mirror, it is real and inverted; here its size is equal to the object (because |u| = |v|)."
+      "[0.5 mark] Write the mirror formula: 1/f = 1/v + 1/u.",
+      "[0.5 mark] For a concave mirror, take focal length f = −15 cm and object distance u = −30 cm (from sign convention).",
+      "[0.5 mark] Substitute into the formula: 1/(−15) = 1/v + 1/(−30).",
+      "[0.5 mark] Rearrange: 1/v = 1/(−15) + 1/30 = (−2 + 1)/30 = −1/30.",
+      "[0.5 mark] Thus, v = −30 cm, meaning the image is formed 30 cm in front of the mirror (on the same side as the object).",
+      "[0.5 mark] Since v is negative and the image is formed in front of the mirror, it is real and inverted; here its size is equal to the object (because |u| = |v|)."
     ],
     "finalAnswer": "v = −30 cm: the image is real, inverted and equal in size to the object, formed 30 cm in front of the mirror.",
     "strategyHint": "",
@@ -670,12 +669,12 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "A food chain is a sequence of organisms in which each feeds on the previous one (e.g. grass → grasshopper → frog → snake → eagle). Only about 10% of the energy passes to the next trophic level and the rest is lost as heat, so energy cannot flow back and its flow is unidirectional—from the sun to producers and then to consumers.",
     "explanation": "",
     "solutionSteps": [
-      "Define a food chain as a sequence of organisms in which each organism feeds on the previous one and provides food for the next.",
-      "Give an example food chain: grass → grasshopper → frog → snake → eagle.",
-      "Explain that energy is passed from one trophic level to the next, but only about 10% of the energy is transferred; the rest is lost as heat.",
-      "Because of this loss, energy keeps decreasing at each higher trophic level.",
-      "Due to this continuous loss, energy cannot flow back from consumers to producers.",
-      "Therefore, the flow of energy in an ecosystem is unidirectional—from the sun to producers and then to various levels of consumers, not in reverse."
+      "[0.5 mark] Define a food chain as a sequence of organisms in which each organism feeds on the previous one and provides food for the next.",
+      "[0.5 mark] Give an example food chain: grass → grasshopper → frog → snake → eagle.",
+      "[0.5 mark] Explain that energy is passed from one trophic level to the next, but only about 10% of the energy is transferred; the rest is lost as heat.",
+      "[0.5 mark] Because of this loss, energy keeps decreasing at each higher trophic level.",
+      "[0.5 mark] Due to this continuous loss, energy cannot flow back from consumers to producers.",
+      "[0.5 mark] Therefore, the flow of energy in an ecosystem is unidirectional—from the sun to producers and then to various levels of consumers, not in reverse."
     ],
     "finalAnswer": "A food chain is a sequence of organisms in which each feeds on the previous one (e.g. grass → grasshopper → frog → snake → eagle). Only about 10% of the energy passes to the next trophic level and the rest is lost as heat, so energy cannot flow back and its flow is unidirectional—from the sun to producers and then to consumers.",
     "strategyHint": "",

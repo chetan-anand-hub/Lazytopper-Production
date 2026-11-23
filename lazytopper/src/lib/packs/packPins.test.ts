@@ -41,6 +41,8 @@ const ACKNOWLEDGED_DRAW_DRIFT: readonly string[] = [
   ...["arithmetic-progression", "coordinate-geometry", "triangles", "circles"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
   // STEPMARK-2 batch 3B (19 Nov 2026): the same for areas-related-to-circles, surface-areas-and-volumes, probability.
   ...["areas-related-to-circles", "surface-areas-and-volumes", "probability"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
+  // STEPMARK-3 mixed group (23 Nov 2026): the step-mark splits moved these seeded draws; the pins did not.
+  "ct1:acids-bases-and-salts", "ct2:acids-bases-and-salts", "ct1:light-reflection-and-refraction", "ct2:light-reflection-and-refraction", "ct1:electricity", "ct2:electricity", "ct1:life-processes", "ct2:life-processes", "ct1:our-environment", "ct2:our-environment", "mock:science:1", "mock:science:2", "mock:science:4", "mock:science:8",
   "mock:maths:2", "mock:maths:3",
 ];
 const ack = (k: string) => ACKNOWLEDGED_DRAW_DRIFT.includes(k);
