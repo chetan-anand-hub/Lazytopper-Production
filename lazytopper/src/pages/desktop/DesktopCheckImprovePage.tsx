@@ -293,7 +293,7 @@ const CARD_BG = "#ffffff";
 const MUTED_BG = "hsl(220, 20%, 97%)";
 const SECONDARY_BG = "hsl(150, 35%, 94%)";
 
-const ACCENT_FG = "hsl(152, 55%, 35%)";
+const ACCENT_FG = "hsl(152, 55%, 30%)"; // UI-FIX-1: was 35% (4.30:1 on white, 3.85 on #eaf5f0); now #22774f = 5.50 / 4.93
 const ACCENT_SOFT = "hsl(150, 60%, 92%)";
 
 /* ── CONVERGENCE (§2.1) — the fluid layout constants ─────────────────────────
