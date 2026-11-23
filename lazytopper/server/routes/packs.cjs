@@ -111,10 +111,14 @@ function createPackRoutes(deps = {}) {
     // or doubtful read is credit 0 (the packs themselves are still returned). The order route decides the
     // amount actually charged, again, with the same rule.
     let boardPassCredit = { creditInr: 0, expiresAtMs: null, payInr: null };
+    // TS-FREE-CHECK-1 (review nit 5): the subscription read below also tells whether the caller is Premium (a Board Pass holder
+    // or an admin grant), so `freeTest` is never sent to them. null = unread (the free test is then not shown either).
+    let premium = null;
     try {
       const snap = await adminFirestore.collection(SUBSCRIPTIONS_COLLECTION).doc(uid).get();
       const stored = snap && snap.exists ? snap.data() || {} : {};
       const nowMs = now();
+      premium = deriveEffectiveTier(stored, nowMs).tier === 'premium';
       const quote = quotePass(stored, 'till_boards', nowMs, { foundingOfferOpen });
       const credit = await boardPassCreditFor(adminFirestore, uid, 'till_boards', quote.pricePaidInr, nowMs);
       if (credit.readFailed) emit('packs.mine.credit_read_failed');
@@ -169,10 +173,11 @@ function createPackRoutes(deps = {}) {
     }
     // TS-FREE-CHECK-1: a student WITHOUT the pack sees their ONE free test's written-check state (READ ONLY): `paperKey` (the paper
     // the server pinned at the first written check, or null = none yet), `checksPerPaper`, `used`, `freeRecheck`. Absent when the rule
-    // is off (TS_FREE_WRITTEN_CHECK_DISABLED / TS_CHECKS_DISABLED), for a pack owner, or when it cannot be read - the browser then
+    // is off (TS_FREE_WRITTEN_CHECK_DISABLED / TS_CHECKS_DISABLED), for a pack owner, for a Premium account (or when its tier could
+    // not be read), or when it cannot be read - the browser then
     // shows today's MCQ-only free test. The server decides every grade (testSeriesChecks.hold); this only decides what the page SHOWS.
     let freeTest;
-    if (!owned.some((p) => p && p.sku === TEST_SERIES_SKU) && testSeriesChecks && typeof testSeriesChecks.freeTestStatus === 'function') {
+    if (premium === false && !owned.some((p) => p && p.sku === TEST_SERIES_SKU) && testSeriesChecks && typeof testSeriesChecks.freeTestStatus === 'function') {
       try {
         const f = await testSeriesChecks.freeTestStatus(uid);
         if (f) freeTest = { paperKey: f.paperKey, checksPerPaper: f.checksPerPaper, used: f.used, ...(f.freeRecheck ? { freeRecheck: true } : {}) };

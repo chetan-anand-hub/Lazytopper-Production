@@ -1343,4 +1343,15 @@ test('TS-FREE-CHECK-1 · /api/packs/mine: `freeTest` for a non-owner only; absen
     assert.equal(r.status, 200, uid);
     assert.equal('freeTest' in r.json, false, uid);
   }
+  // review nit 5: a Premium account (Board Pass / admin grant) is never sent `freeTest` (and never asked); a trial account is
+  db.docs.set('subscriptions/prem', { data: { tier: 'premium' }, version: 1 });
+  db.docs.set('subscriptions/tri', { data: { tier: 'trial', trialStartDate: { seconds: Math.floor((TS_AFTER_GST - 86400000) / 1000) } }, version: 1 });
+  const srv2 = await start({ db, nowMs: TS_AFTER_GST, testSeriesChecks: stub, licensees: { prem: { name: 'P', email: 'p@example.com' }, tri: { name: 'T', email: 't@example.com' } } });
+  t.after(srv2.close);
+  const prem = await call(srv2.port, 'GET', PACKS_MINE_PATH, { headers: asUid('prem') });
+  assert.equal(prem.status, 200, prem.text);
+  assert.equal('freeTest' in prem.json, false, 'premium: no freeTest');
+  assert.ok(!asked.includes('prem'), 'premium is never asked');
+  const tri = await call(srv2.port, 'GET', PACKS_MINE_PATH, { headers: asUid('tri') });
+  assert.deepEqual(tri.json.freeTest, { paperKey: null, checksPerPaper: 2, used: 0 }, 'a trial account gets its free test');
 });

@@ -18,6 +18,10 @@ describe("prerendered /test-series carries no price", () => {
       expect(html).toContain("Get every step marked like a CBSE examiner");
       expect(html).not.toContain("₹");
       expect(html).not.toMatch(/founding price/i);
+      // TS-FREE-CHECK-1: the capture is taken with default flags (free written check ON) - its free-test lines say so.
+      expect(html).toContain("· your first test is free — written answers marked too</p>");
+      expect(html).toContain("Your first test is free, written answers included · after that, written answers are checked with the Test Series or the Board Pass");
+      expect(html).not.toContain("try one test free");
     });
   }
 });
