@@ -6841,7 +6841,7 @@ span.ux-return-bar__chip {
   --mob-card: #ffffff;
   --mob-card-border: rgba(0,0,0,0.08);
   --mob-fg: #1e293b;
-  --mob-fg-muted: #64748b;
+  --mob-fg-muted: #5b6b80; /* UI-FIX-1: was #64748b (4.44:1 on #f6f7f9); 5.08:1 */
   --mob-muted: #f1f5f9;
   --mob-muted-border: rgba(0,0,0,0.06);
   --mob-overlay: rgba(0,0,0,0.45);
