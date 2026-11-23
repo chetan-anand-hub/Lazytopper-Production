@@ -276,6 +276,13 @@ function createServerEvents(deps = {}) {
   const metaOn = !disabled && !!metaToken && !!fetchImpl;
   const packAsPurchase = !truthy(env.META_PACK_AS_PURCHASE_DISABLED);
   const ga4On = !disabled && !!ga4Secret && !!ga4Id && !!fetchImpl;
+  // META-CAPI-EXCLUDE-1: admin / test accounts stay out of Meta (ADMIN_FIREBASE_UIDS, as the admin routes parse it, plus the optional
+  // META_CAPI_EXCLUDE_UIDS). Meta only: GA4 is unchanged; a signed-out order (no uid) is always sent.
+  const csvSet = (raw) => new Set(String(raw || '').split(',').map((x) => x.trim()).filter(Boolean));
+  const metaExcluded = (uid) => {
+    const u = clean(uid);
+    return !!u && (csvSet(env.ADMIN_FIREBASE_UIDS).has(u) || csvSet(env.META_CAPI_EXCLUDE_UIDS).has(u));
+  };
 
   function count(name) {
     try {
@@ -398,6 +405,7 @@ function createServerEvents(deps = {}) {
         jobs.push(() =>
           sendPaidChannel('meta', orderId, pay, async (order) => {
             if (isTopupProduct(order.passType)) return true;
+            if (metaExcluded(order.uid)) return true; // META-CAPI-EXCLUDE-1: nothing sent; marked done so a re-check does not retry
             const paid = metaPaidEvent(order, packAsPurchase);
             const s = order.adSignals || {};
             const ev = buildMetaEvent({
@@ -442,6 +450,7 @@ function createServerEvents(deps = {}) {
   async function orderCreated({ orderId, passType, amountPaise, uid, signals } = {}) {
     try {
       if (!metaOn || !signals || !signals.attemptId || !isPackProduct(passType)) return;
+      if (metaExcluded(uid)) return; // META-CAPI-EXCLUDE-1
       const value = orderValueInr({ amountPaise });
       await sendMetaEvent(
         buildMetaEvent({

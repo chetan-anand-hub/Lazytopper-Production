@@ -2973,6 +2973,32 @@ test('SERVER-EVENTS-1 · SERVER_EVENTS_DISABLED=1 is a kill switch even with eve
     assert.deepEqual(ev.custom_data, { currency: 'INR', value: 116.82, content_ids: ['pack_mock'], content_type: 'product' });
   });
 
+  test('META-CAPI-EXCLUDE-1 · admin / META_CAPI_EXCLUDE_UIDS accounts send no Meta Purchase or InitiateCheckout; others, signed-out orders and GA4 are unchanged', async () => {
+    const env = { META_CAPI_ACCESS_TOKEN: 'tok', GA4_API_SECRET: 'sec', ADMIN_FIREBASE_UIDS: 'adm1, adm2', META_CAPI_EXCLUDE_UIDS: 'tester9' };
+    const docs = {
+      'payOrders/o_adm': order({ uid: 'adm2', passType: 'pack_mock' }),
+      'payOrders/o_tst': order({ uid: 'tester9', passType: 'test_series' }),
+      'payOrders/o_ok': order({ uid: 'real1', passType: 'pack_mock' }),
+      'payOrders/o_anon': order({ uid: null, passType: 'pack_mock' }),
+    };
+    const f = fakeFetch();
+    const s = se.createServerEvents({ firestore: fakeDb(docs), env, fetchImpl: f.fetchImpl, now: () => NOW });
+    for (const id of ['o_adm', 'o_tst', 'o_ok', 'o_anon']) await s.orderPaid({ orderId: id, payment: {} });
+    const meta = f.calls.filter((c) => c.url.includes('graph.facebook.com')).map((c) => c.body.data[0].event_id);
+    assert.deepEqual(meta.sort(), ['o_anon', 'o_ok']);
+    const ga = f.calls.filter((c) => !c.url.includes('graph.facebook.com')).map((c) => c.body.events[0].params.transaction_id);
+    assert.deepEqual(ga.sort(), ['o_adm', 'o_anon', 'o_ok', 'o_tst'], 'GA4 still counts every order');
+    const f2 = fakeFetch();
+    const s2 = se.createServerEvents({ firestore: fakeDb(), env, fetchImpl: f2.fetchImpl, now: () => NOW });
+    const sig = { attemptId: 'lt_attempt_12345', ip: '203.0.113.7' };
+    await s2.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'adm1', signals: sig });
+    await s2.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'tester9', signals: sig });
+    assert.equal(f2.calls.length, 0, 'excluded uids send no InitiateCheckout');
+    await s2.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'real1', signals: sig });
+    await s2.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: null, signals: sig });
+    assert.equal(f2.calls.length, 2);
+  });
+
   test('CompleteRegistration: stable id from the uid hash, hashed email + phone, once per call', async () => {
     const f = fakeFetch();
     const s = se.createServerEvents({ firestore: fakeDb(), env: ENV, fetchImpl: f.fetchImpl, now: () => NOW });
