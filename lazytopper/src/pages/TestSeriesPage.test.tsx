@@ -122,10 +122,15 @@ describe("/test-series — signed out", () => {
   it("counts from code; the long grid is gone, replaced by the subject -> type -> chapter -> paper pickers", async () => {
     await mount();
     const t = seriesTotals();
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("CBSE Class 10 Test Series");
-    expect(screen.getByTestId("ts-contents").textContent).toBe(
-      `${t.chapterTests} chapter tests + ${t.fullMocks} full-length board papers · written answers checked step by step`,
-    );
+    // TS-HERO-1 (owner, 23 Nov 2026): the hero leads with the step-by-step marking promise, in the H1 and a 3-step row.
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Write on paper. Snap a photo. Get every step marked like a CBSE examiner — in minutes.");
+    const steps = within(screen.getByTestId("ts-hero-steps")).getAllByRole("listitem");
+    expect(steps.map((li) => li.textContent)).toEqual(["1Take the test", "2Upload your answer sheet", "3See marks for every step and where you lost them"]);
+    // The free test is MCQs-marked only (seriesAccess): the hero says "try one test free" and never promises free written marking.
+    expect(screen.getByTestId("ts-contents").textContent).toBe(`${t.chapterTests} chapter tests + ${t.fullMocks} full-length board papers · try one test free`);
+    const heroText = document.querySelector(".lt-ts-hero")?.textContent ?? "";
+    expect(heroText).not.toMatch(/\bAI\b|answer key|Check & Improve/i);
+    expect(heroText).not.toMatch(/first test is free|marking included/i);
     expect(screen.getByTestId("ts-rule").textContent).toBe("MCQs marked free · written answers checked with the Test Series or the Board Pass");
     // TS-UX-PAGE-1: no 180-link grid. One Start link; chapter / paper selects; nothing per test in the DOM but options.
     expect(screen.queryAllByTestId(/^ts-test-/)).toHaveLength(0);

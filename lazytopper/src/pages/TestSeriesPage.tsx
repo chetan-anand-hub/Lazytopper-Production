@@ -59,6 +59,8 @@ const SUBJECTS: readonly SeriesSubject[] = ["Maths", "Science"];
 export const TEST_SERIES_ACCESS_LINE = "MCQs marked free · written answers checked with the Test Series or the Board Pass";
 const LOGIN_HREF = `/login?redirect=${encodeURIComponent(TEST_SERIES_PATH)}`;
 const TESTS_ANCHOR = "ts-tests";
+/** TS-HERO-1 (owner, 23 Nov 2026): the three steps under the headline. "Try one test free" = one free test with its MCQs marked (seriesAccess FREE_TESTS_ALLOWED); written-answer checking needs the Test Series or the Board Pass. */
+const TS_HERO_STEPS: readonly string[] = ["Take the test", "Upload your answer sheet", "See marks for every step and where you lost them"];
 
 function istToday(now: Date): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
@@ -313,17 +315,28 @@ export default function TestSeriesPage() {
               <header className="lt-ts-hero" aria-labelledby="ts-h1">
                 <div className="lt-sp__w lt-ts-hero__in">
                   <div className="lt-ts-hero__copy">
-                    <p className="lt-sp-eyebrow lt-ts-hero__eyebrow">{TEST_SERIES_NAME.toUpperCase()} · 2026-27</p>
+                    <p className="lt-sp-eyebrow lt-ts-hero__eyebrow">CBSE CLASS 10 TEST SERIES · MATHS &amp; SCIENCE</p>
                     <h1 id="ts-h1" className="lt-ts-hero__h1">
-                      {/* Two fixed lines from 768 px: Fraunces swapping in for its fallback re-wrapped one line into two (a desktop shift). */}
-                      <span className="lt-ts-hero__h1-l">CBSE Class 10 Test Series:</span>{" "}
-                      <span className="lt-ts-hero__h1-l">Maths &amp; Science</span>
+                      {/* TS-HERO-1 (owner, 23 Nov 2026): the page leads with the promise. Two fixed lines from 768 px (Fraunces swapping in for its
+                          fallback re-wrapped one line into two: a desktop shift). */}
+                      <span className="lt-ts-hero__h1-l">Write on paper. Snap a photo.</span>{" "}
+                      <span className="lt-ts-hero__h1-l">Get every step marked like a CBSE examiner — in minutes.</span>
                     </h1>
+                    <ol className="lt-ts-hero__steps" data-testid="ts-hero-steps">
+                      {TS_HERO_STEPS.map((t, i) => (
+                        <li key={t} className="lt-ts-hero__step">
+                          <span className="lt-ts-hero__stepn" aria-hidden="true">
+                            {i + 1}
+                          </span>
+                          <span>{t}</span>
+                        </li>
+                      ))}
+                    </ol>
                     <p className="lt-ts-hero__lede" data-testid="ts-contents">
                       <strong>
                         {totals.chapterTests} chapter tests + {totals.fullMocks} full-length board papers
                       </strong>{" "}
-                      · written answers checked step by step
+                      · try one test free
                     </p>
                   </div>
                   {/* Price + action beside the headline (desktop) / straight under it (phone): above the fold. */}
