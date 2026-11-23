@@ -32,6 +32,7 @@ import { deriveSectionLens, deriveTypeLens, stampFromPaper, type PaperLensQuesti
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
 import { formatScoreNumber } from "./scoreNumber";
+import type { BoardScoreView } from "../../lib/fullmock/boardEstimate";
 import {
   ANSWER_MISMATCH_COPY,
   NOT_GRADED_TRY_AGAIN_COPY,
@@ -401,6 +402,11 @@ export interface ScorecardVariant {
   /** TS-UX-SCORE-1 - the series paper this scorecard is for (its worksheet id): lets the upsell line see a Test Series owner on a
    *  series paper. Display only. */
   seriesWorksheetId?: string | null;
+  /** TS-BOARDSCORE-1 - a FULL-LENGTH test (Full Mock / Test Series full-length) that is fully graded out of 80: the honest
+   *  full-paper score line, the trend across the student's own full tests of this subject, and the board estimate (owner
+   *  ruling 23 Nov 2026). Built by lib/fullmock/boardEstimate from the student's own graded records; absent/null renders
+   *  nothing. Display only - never a mark. */
+  boardScore?: BoardScoreView | null;
 }
 
 /** SALE-MOMENT-2 - marks a Full Mock variant with its subject so the buying line offers that subject's Mock Pack. */
@@ -1314,8 +1320,14 @@ export interface StoredChapterTestVariantInput {
 // right/wrong, not a WHY) → FULL (total + honest mock-to-mock delta + BY-SECTION
 // A–E + BY-CHAPTER marks-lost bars + four-type from written answers). All lenses
 // are DERIVED at render (sectionBreakdown stays null — owner decision 2026-07-12).
-// NO board-readiness projection, ever (spec §5 — a fabricated "68/80" to a student
-// who scores 52 is harm; [FU-BOARD-READINESS-MODEL] tracks any future model).
+// TS-BOARDSCORE-1 — OWNER RULING (23 Nov 2026, 19:04 IST) supersedes the old "NO
+// board-readiness projection, ever" line ([FU-BOARD-READINESS-MODEL]): build (a) the
+// honest full-paper score line, (b) a trend across the student's full tests, and (c) a
+// board-readiness ESTIMATE. The original harm (a fabricated "68/80" to a student who
+// scores 52) stays ruled out by HOW it is built: only fully graded 80-mark papers of the
+// same subject, only the student's own scores, never a partial paper extrapolated, a
+// RANGE labelled "an estimate, not a promise", and only with >= 2 such papers (`boardScore`,
+// lib/fullmock/boardEstimate.ts). Kill switch: VITE_BOARD_ESTIMATE_DISABLED.
 
 /** A full-mock question's identity for the render-time lens joins: qNumber (to
  *  match a grade row) + the paper's REAL section + canonical chapter. Satisfied
@@ -1425,6 +1437,8 @@ export interface FullMockVariantInput {
   /** §8b focus line — measured aggregates only, neutral framing; null when
    *  unmeasured (see fullMockFocusLine). */
   focusLine?: string | null;
+  /** TS-BOARDSCORE-1 - FULL phase only: the board view the host built (lib/fullmock/boardEstimate). null/omitted -> nothing. */
+  boardScore?: BoardScoreView | null;
   downloading?: boolean;
   // Partial-phase handlers:
   onUpload?: () => void;
@@ -1576,6 +1590,8 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
     },
     message: input.deltaLine ?? null,
     note: input.focusLine ?? null,
+    // TS-BOARDSCORE-1 - only a fully graded 80-mark paper (the host's builder returns null otherwise; re-checked here).
+    boardScore: response.pendingCount > 0 ? null : (input.boardScore ?? null),
     fourType: aggregateFourType(response),
     marksLost: aggregateMarksLost(response),
     // SCORECARD-SECTION-TYPE-1 - the bank row's real A-E section and the question type, from the paper's
@@ -1611,6 +1627,9 @@ export interface StoredFullMockVariantInput {
   awaitingDetail?: string;
   /** PAPER-REBUILD-1 (D103d): the no-paper state's "Start a new test". */
   onStartNew?: () => void;
+  /** TS-BOARDSCORE-1 - the board view AS OF this record (only papers graded at or before it), so a re-opened card reads as the
+   *  live one did. Rendered only on a fully graded record; null/omitted -> nothing. */
+  boardScore?: BoardScoreView | null;
 }
 
 // BANK-LEAN-1 (C3): `storedFullMockScorecardVariant` (it needs the bank-backed chapter
@@ -1622,7 +1641,9 @@ export interface StoredFullMockVariantInput {
 // note/fourType/pending/allPending/actions all pre-exist. Lenses: FOUR-TYPE ONLY in
 // PR-1 — the spec's by-topic lens is Step-2-gated (per-question topic doesn't exist
 // yet: omitted entirely for single-topic papers, unknowable for MIX until PR-3).
-// NO board-readiness projection (spec §5, the Full-Mock reasoning applies as-is).
+// NO board-readiness projection (spec §5). TS-BOARDSCORE-1's owner ruling (23 Nov 2026) lifts
+// that only for FULL-LENGTH 80-mark papers (Full Mock / Test Series full-length); a student's own
+// questions here are not a CBSE-pattern paper, so this surface keeps none.
 // The quiet provenance line is DISPLAY-ONLY in PR-1 (a post-grade "Change"
 // affordance is PR-2's confirm-step scope). The page's bespoke graded views stay
 // byte-intact underneath as "the graded sheet" behind the primary action.

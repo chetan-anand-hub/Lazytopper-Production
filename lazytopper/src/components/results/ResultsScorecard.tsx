@@ -98,6 +98,8 @@ interface ResultsScorecardProps {
 const LockedDetail = lazy(() => import("./LockedDetail"));
 // SCORECARD-SECTION-TYPE-1 - the by-section / by-type tables load on demand (entry-chunk budget).
 const SectionTypeLens = lazy(() => import("./SectionTypeLens"));
+// TS-BOARDSCORE-1 - the full-length board view (score line, trend, board estimate) loads on demand (entry-chunk budget).
+const BoardScoreBlock = lazy(() => import("./BoardScoreBlock"));
 
 /** "11 of 20" / "7 of 10" from the card's own numbers, for the locked-detail card. */
 function scoreLine(score: ScorecardScore): string {
@@ -765,6 +767,13 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
 
               {variant.message && <p className="lt-sc__msg">{variant.message}</p>}
               {variant.note && <p className="lt-sc__note">{variant.note}</p>}
+
+              {/* TS-BOARDSCORE-1 (owner ruling 23 Nov 2026) - a fully graded full-length paper only; absent renders nothing. */}
+              {variant.boardScore && (
+                <Suspense fallback={null}>
+                  <BoardScoreBlock view={variant.boardScore} />
+                </Suspense>
+              )}
 
               {variant.sectionLens && variant.sectionLens.length > 0 && (
                 <Suspense fallback={null}>

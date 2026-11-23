@@ -30,6 +30,7 @@ import {
   storedFullMockScorecardVariant,
 } from "./scorecardBankLenses";
 import { COULD_NOT_READ_COPY, UNTYPED_MARKS_NOTE } from "../../lib/mistakeDisplay";
+import { buildBoardScoreView } from "../../lib/fullmock/boardEstimate";
 
 // A minimal grade-response fixture. `couldNotRead` questions carry NO grade and must
 // never be folded into the four-type or a 0 (honest-failure contract).
@@ -709,9 +710,47 @@ describe("fullMockScorecardVariant", () => {
     expect(v.message).toBe("▲ 9 marks vs Maths · Mock #3");
     expect(v.fourType).toEqual({ conceptual: 2, calculation: 0, silly: 0, presentation: 0 });
     expect(v.actions[1].label).toBe("Worksheet on Trigonometry — your biggest loss");
-    // NO board-readiness projection anywhere (spec §5).
+    // TS-BOARDSCORE-1 - OWNER RULING (23 Nov 2026, 19:04 IST) supersedes [FU-BOARD-READINESS-MODEL]'s "no projection, ever"
+    // for full-length papers: the board view (score line, trend, ESTIMATE) is allowed, but ONLY from the host's boardScore.
+    // A variant built without one (this 8-mark fixture) still carries no board wording at all.
+    expect(v.boardScore).toBeNull();
     const allText = JSON.stringify(v);
-    expect(allText).not.toMatch(/readiness|projected/i);
+    expect(allText).not.toMatch(/readiness|projected|predicted|board estimate/i);
+  });
+
+  it("TS-BOARDSCORE-1: FULL passes the host's board view through, labelled an estimate - never a prediction", () => {
+    const resp = response({ gradedCount: 38, pendingCount: 0, gradedMarksAwarded: 62, gradedMarksTotal: 80 });
+    const boardScore = buildBoardScoreView({
+      paper: { awarded: 62, total: 80, pendingCount: 0 },
+      scores: [
+        { id: "FM-M-01", score: 54, gradedAt: 1 },
+        { id: "FM-M-02", score: 62, gradedAt: 2 },
+      ],
+    });
+    const v = fullMockScorecardVariant({ name: "Maths · Mock #2", code: "FM-M-02", phase: "full", response: resp, boardScore });
+    expect(v.boardScore?.scoreLine).toBe("You scored 62 / 80 on a full CBSE-pattern paper.");
+    expect(v.boardScore?.estimate?.line).toBe("Board estimate (theory): 51\u201367 / 80");
+    const allText = JSON.stringify(v);
+    expect(allText).toMatch(/An estimate, not a promise/);
+    // The words of a promise stay out (the harm the old ruling guarded against).
+    expect(allText).not.toMatch(/projected|predicted|guarantee|you will score/i);
+  });
+
+  it("TS-BOARDSCORE-1: a paper with a pending page never shows the board view, even if the host passed one", () => {
+    const resp = response({ gradedCount: 37, pendingCount: 1, gradedMarksAwarded: 60, gradedMarksTotal: 75 });
+    const boardScore = buildBoardScoreView({ paper: { awarded: 60, total: 80, pendingCount: 0 }, scores: [] });
+    const v = fullMockScorecardVariant({ name: "Maths · Mock #2", code: "FM-M-02", phase: "full", response: resp, boardScore });
+    expect(v.boardScore).toBeNull();
+  });
+
+  it("TS-BOARDSCORE-1: the PARTIAL phase never carries a board view", () => {
+    const v = fullMockScorecardVariant({
+      name: "Maths · Mock #4",
+      code: "FM-M-04",
+      phase: "partial",
+      response: response({ gradedMarksAwarded: 17, gradedMarksTotal: 20, worksheetTotalMarks: 80 }),
+    });
+    expect(v.boardScore).toBeUndefined();
   });
 });
 
@@ -733,6 +772,31 @@ describe("storedFullMockScorecardVariant", () => {
     perQuestionRef: "fm:FM-M-03",
     dedupKey: "u::FM-M-03",
     ...over,
+  });
+
+  it("TS-BOARDSCORE-1: a fully graded 80-mark re-open shows the board view it is given; partial / awaiting re-opens never do", () => {
+    const boardScore = buildBoardScoreView({
+      paper: { awarded: 62, total: 80, pendingCount: 0 },
+      scores: [
+        { id: "FM-M-02", score: 54, gradedAt: 1 },
+        { id: "FM-M-03", score: 62, gradedAt: 2 },
+      ],
+    });
+    const graded = storedFullMockScorecardVariant(record({ status: "graded", marksAwarded: 62, marksTotal: 80 }), {
+      gradedDateLabel: "23 Nov 2026",
+      onDone: noop,
+      boardScore,
+    });
+    expect(graded.boardScore).toBe(boardScore);
+    const partial = storedFullMockScorecardVariant(record({ status: "partial", marksAwarded: 50, marksTotal: 75 }), {
+      gradedDateLabel: "23 Nov 2026",
+      onDone: noop,
+      response: response({ gradedMarksAwarded: 50, gradedMarksTotal: 75, pendingCount: 1 }),
+      boardScore,
+    });
+    expect(partial.boardScore).toBeNull();
+    const awaiting = storedFullMockScorecardVariant(record(), { gradedDateLabel: "23 Nov 2026", onDone: noop, boardScore });
+    expect(awaiting.boardScore).toBeUndefined();
   });
 
   it("awaiting-sheet re-open: real objective score + honest upload state, never a 0", () => {
@@ -830,6 +894,7 @@ describe("checkImproveScorecardVariant", () => {
     expect(v.fourType).toBeNull();
   });
 
+  // TS-BOARDSCORE-1's owner ruling (23 Nov 2026) covers FULL-LENGTH papers only: this surface keeps no board projection.
   it("NO board-readiness projection and NO solution key (the questions are the student's own)", () => {
     const v = checkImproveScorecardVariant(base);
     const allText = JSON.stringify(v);

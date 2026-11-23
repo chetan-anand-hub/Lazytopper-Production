@@ -474,6 +474,8 @@ export function storedFullMockScorecardVariant(
     },
     message: record.status === "partial" ? "Graded portion shown — some pages were pending on this mock." : null,
     note: focusLine,
+    // TS-BOARDSCORE-1 - the same board view the live card showed, as of this record; a fully graded 80-mark record only.
+    boardScore: record.status === "graded" && record.marksTotal === 80 ? (input.boardScore ?? null) : null,
     fourType: record.fourType,
     // PR-2 (B7) — marks when the stored payload carries them; a count-only record stays counts (G5).
     marksLost: input.response ? aggregateMarksLost(input.response) : null,
