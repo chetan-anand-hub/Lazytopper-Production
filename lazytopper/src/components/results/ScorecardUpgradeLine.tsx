@@ -75,6 +75,7 @@ export function scorecardUpgradeCopy(
     score.kind === "marks" &&
     !variant.pending &&
     !variant.awaitingSheet &&
+    !(score.kind === "marks" && (Number(score.notMarked?.marks) || 0) > 0) && // TS-BOARDSCORE-1: unmarked marks are not "lost"
     Number.isFinite(score.awarded) &&
     Number.isFinite(score.total) &&
     score.total > 0;
@@ -105,6 +106,7 @@ export function scorecardHeadline(
     score.kind === "marks" &&
     !variant.pending &&
     !variant.awaitingSheet &&
+    !(score.kind === "marks" && (Number(score.notMarked?.marks) || 0) > 0) && // TS-BOARDSCORE-1: unmarked marks are not "lost"
     Number.isFinite(score.awarded) &&
     Number.isFinite(score.total) &&
     score.total > 0;

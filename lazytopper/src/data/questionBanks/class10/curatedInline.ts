@@ -357,11 +357,11 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "A homologous series is a group of organic compounds with the same functional group and similar chemical properties, in which successive members differ by a –CH₂– group (14 u). Characteristics: successive members differ by 14 u and have similar chemical properties. Example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀.",
     "explanation": "",
     "solutionSteps": [
-      "Define homologous series as a group of organic compounds having the same functional group and similar chemical properties, in which any two successive members differ by a –CH₂– group.",
-      "State first characteristic: successive members differ by a constant mass of 14 u (due to –CH₂– group).",
-      "State second characteristic: they have similar chemical properties because of the same functional group.",
-      "Mention that they show a gradual change in physical properties such as boiling point as molecular mass increases.",
-      "Give an example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀, etc. form a homologous series."
+      "[1 mark] Define homologous series as a group of organic compounds having the same functional group and similar chemical properties, in which any two successive members differ by a –CH₂– group.",
+      "[0.5 mark] State first characteristic: successive members differ by a constant mass of 14 u (due to –CH₂– group).",
+      "[0.5 mark] State second characteristic: they have similar chemical properties because of the same functional group.",
+      "[0.5 mark] Mention that they show a gradual change in physical properties such as boiling point as molecular mass increases.",
+      "[0.5 mark] Give an example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀, etc. form a homologous series."
     ],
     "finalAnswer": "A homologous series is a group of organic compounds with the same functional group and similar chemical properties, in which successive members differ by a –CH₂– group (14 u). Characteristics: successive members differ by 14 u and have similar chemical properties. Example: the alkanes CH₄, C₂H₆, C₃H₈, C₄H₁₀.",
     "strategyHint": "",
@@ -459,13 +459,11 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "The phenotypic ratio in F₂ is 3 tall : 1 dwarf.",
     "explanation": "",
     "solutionSteps": [
-      "State that tallness (T) is dominant and dwarfness (t) is recessive.",
-      "Both parents are heterozygous tall, so their genotypes are Tt and Tt.",
-      "Write the possible gametes from each parent: T and t from each.",
-      "Construct the Punnett square combining these gametes: TT, Tt, Tt, tt.",
-      "Identify genotypes: 1 TT, 2 Tt, 1 tt.",
-      "Determine phenotypes: TT and Tt are tall, tt is dwarf.",
-      "So the phenotypic ratio in F₂ is 3 tall : 1 dwarf."
+      "[0.5 mark] State that tallness (T) is dominant and dwarfness (t) is recessive. Both parents are heterozygous tall, so their genotypes are Tt and Tt.",
+      "[0.5 mark] Write the possible gametes from each parent: T and t from each.",
+      "[1 mark] Construct the Punnett square combining these gametes: TT, Tt, Tt, tt. Identify genotypes: 1 TT, 2 Tt, 1 tt.",
+      "[0.5 mark] Determine phenotypes: TT and Tt are tall, tt is dwarf.",
+      "[0.5 mark] So the phenotypic ratio in F₂ is 3 tall : 1 dwarf."
     ],
     "finalAnswer": "The phenotypic ratio in F₂ is 3 tall : 1 dwarf.",
     "strategyHint": "",
@@ -513,12 +511,10 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "Myopia (short-sightedness) is the defect in which nearby objects are seen clearly but distant objects are not. Causes: the eyeball becomes too long, or the focal length of the eye lens decreases. It is corrected by a concave (diverging) lens of suitable focal length.",
     "explanation": "",
     "solutionSteps": [
-      "Define myopia (short-sightedness) as the defect in which a person can see nearby objects clearly but cannot see distant objects distinctly.",
-      "State two causes: (i) the eyeball becomes too long, (ii) the focal length of the eye lens decreases.",
-      "Explain that due to myopia, images of distant objects are formed in front of the retina instead of on it.",
-      "Myopia is corrected by using a concave (diverging) lens of suitable focal length in spectacles.",
-      "The concave lens diverges the incoming parallel rays so that after refraction by the eye lens, the image forms exactly on the retina.",
-      "Draw a labelled ray diagram showing a distant object, concave lens in front of the myopic eye, and the final image on the retina."
+      "[0.5 mark] Define myopia (short-sightedness) as the defect in which a person can see nearby objects clearly but cannot see distant objects distinctly.",
+      "[1 mark] State two causes: (i) the eyeball becomes too long, (ii) the focal length of the eye lens decreases.",
+      "[0.5 mark] Explain that due to myopia, images of distant objects are formed in front of the retina instead of on it. Myopia is corrected by using a concave (diverging) lens of suitable focal length in spectacles. The concave lens diverges the incoming parallel rays so that after refraction by the eye lens, the image forms exactly on the retina.",
+      "[1 mark] Draw a labelled ray diagram showing a distant object, concave lens in front of the myopic eye, and the final image on the retina."
     ],
     "finalAnswer": "Myopia (short-sightedness) is the defect in which nearby objects are seen clearly but distant objects are not. Causes: the eyeball becomes too long, or the focal length of the eye lens decreases. It is corrected by a concave (diverging) lens of suitable focal length.",
     "strategyHint": "",
@@ -594,10 +590,10 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "Fleming’s left-hand rule: stretch the thumb, forefinger and middle finger of the left hand mutually perpendicular; the forefinger shows the direction of the magnetic field, the middle finger the direction of current, and the thumb the direction of force (motion) on the conductor.",
     "explanation": "",
     "solutionSteps": [
-      "State Fleming’s left-hand rule: If the thumb, forefinger and middle finger of the left hand are stretched mutually perpendicular, then the forefinger indicates the direction of magnetic field, the middle finger the direction of current, and the thumb gives the direction of force (motion) on the conductor.",
-      "Explain that for a current-carrying conductor placed in a magnetic field, force acts perpendicular to both field and current.",
-      "To use the rule, align the forefinger along the magnetic field direction and the middle finger along the current direction.",
-      "The thumb then automatically points in the direction of motion or force on the conductor."
+      "[1 mark] State Fleming’s left-hand rule: If the thumb, forefinger and middle finger of the left hand are stretched mutually perpendicular, then the forefinger indicates the direction of magnetic field, the middle finger the direction of current, and the thumb gives the direction of force (motion) on the conductor.",
+      "[0.5 mark] Explain that for a current-carrying conductor placed in a magnetic field, force acts perpendicular to both field and current.",
+      "[1 mark] To use the rule, align the forefinger along the magnetic field direction and the middle finger along the current direction.",
+      "[0.5 mark] The thumb then automatically points in the direction of motion or force on the conductor."
     ],
     "finalAnswer": "Fleming’s left-hand rule: stretch the thumb, forefinger and middle finger of the left hand mutually perpendicular; the forefinger shows the direction of the magnetic field, the middle finger the direction of current, and the thumb the direction of force (motion) on the conductor.",
     "strategyHint": "",

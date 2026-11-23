@@ -394,8 +394,8 @@ test('expired pack (after 31 May 2027 IST) -> 402, nothing counted', async () =>
   assert.equal(await last.gate.applyToRequest(reqWith(seriesBody()), fakeRes(), GRADE, last.uid), false, 'the whole last day is valid');
 });
 
-test('NON-OWNER: free student, series paper -> the ordinary 402; the body is never read; nothing written', async () => {
-  const s = setup({ owns: false, packs: [CBQ_PACK] });
+test('NON-OWNER (TS_FREE_WRITTEN_CHECK_DISABLED=1): free student, series paper -> the ordinary 402; the body is never read; nothing written', async () => {
+  const s = setup({ owns: false, packs: [CBQ_PACK], env: { TS_FREE_WRITTEN_CHECK_DISABLED: '1' } });
   const req = reqWith(seriesBody());
   let read = 0;
   Object.defineProperty(req, 'body', { get() { read += 1; return seriesBody(); } });
@@ -474,8 +474,8 @@ test('TS-PACK-JOBFIX: a 202 (a background job took the grade) settles NOTHING he
   assert.equal(usedOnPaper(s.db, s.uid, CT), 1);
 });
 
-test('TRIAL: no series paper on the trial (non-owner -> 402); an owner on trial spends a pack check; other papers unchanged', async () => {
-  const s = setup({ sub: 'trial', owns: false });
+test('TRIAL (TS_FREE_WRITTEN_CHECK_DISABLED=1): no series paper on the trial (non-owner -> 402); an owner on trial spends a pack check; other papers unchanged', async () => {
+  const s = setup({ sub: 'trial', owns: false, env: { TS_FREE_WRITTEN_CHECK_DISABLED: '1' } });
   assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), fakeRes(), GRADE, s.uid), true);
   assert.equal(s.sent[0].status, 402);
   assert.equal(s.sent[0].body.feature, 'test-series-check');
@@ -492,8 +492,8 @@ test('TRIAL: no series paper on the trial (non-owner -> 402); an owner on trial 
   assert.equal(usedOnPaper(o.db, o.uid, CT), 1);
 });
 
-test('LIMITS-1 "first paper of each kind": never a series paper for a non-owner; any other paper still bypasses as before', async () => {
-  const s = setup({ owns: false });
+test('LIMITS-1 "first paper of each kind" (TS_FREE_WRITTEN_CHECK_DISABLED=1): never a series paper for a non-owner; any other paper still bypasses as before', async () => {
+  const s = setup({ owns: false, env: { TS_FREE_WRITTEN_CHECK_DISABLED: '1' } });
   assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), fakeRes(), GRADE, s.uid, undefined, { limitsBypass: true }), true);
   assert.equal(s.sent[0].status, 402);
   assert.equal(await s.gate.applyToRequest(reqWith({ worksheetId: 'ws-1', questions: [] }), fakeRes(), GRADE, s.uid, undefined, { limitsBypass: true }), false);
@@ -990,4 +990,310 @@ test('TS-MORE-1: existing buyers\' counters are unchanged - status() lists commi
   const st = await s.checks.status(s.uid);
   assert.deepEqual(st.used, { [CT]: 1, [FM]: 2 });
   assert.equal(st.checksPerPaper, CHECKS_PER_PAPER);
+});
+
+/* ── TS-FREE-CHECK-1 (owner ruling 23 Nov 2026, 19:59 IST) · the free test includes written-answer marking ─────────────────── */
+// A student WITHOUT the pack (free or trial) gets ONE series paper checked - the first one a written check is admitted on, pinned
+// server-side in `testSeriesFreeTest` - with the owner's per-paper allowance (2 checks + the free re-check). Every bypass below must fail.
+const { FREE_TEST_FIELD, testSeriesFreeCheckDisabled, freeTestPaperOf } = require('./testSeriesChecks.cjs');
+const fmBody = (over = {}) => ({ worksheetId: 'fm-ts1-m1--mz9xyz-1a2', questions: [q('m-fm-01-b1', 21)], imageBase64: 'AAAA', ...over });
+const pinOf = (db, uid) => freeTestPaperOf(db.read(`packEntitlements/${uid}`) || {});
+async function check(s, body, finish = (r) => r.serve(200, 2), opts) {
+  const res = fakeRes();
+  const req = reqWith(body);
+  const refused = await s.gate.applyToRequest(req, res, GRADE, s.uid, undefined, opts);
+  if (!refused) finish(res);
+  await settle();
+  return { refused, req, res, sent: refused ? s.sent.at(-1) : null };
+}
+
+test('TS-FREE-CHECK-1 FREE non-owner: the first written check on a series paper is admitted, PINS that paper server-side, and counts like an owner check', async () => {
+  const s = setup({ owns: false });
+  const c = await check(s, seriesBody());
+  assert.equal(c.refused, false);
+  assert.equal(s.sent.length, 0);
+  assert.deepEqual(c.req.lazytopperTestSeriesCheck, { paperKey: CT, used: 1, left: 1, checksPerPaper: 2, freeTest: true });
+  assert.equal(pinOf(s.db, s.uid), CT, 'the free test is pinned on the server');
+  assert.equal(typeof (s.db.read(`packEntitlements/${s.uid}`)[FREE_TEST_FIELD].atMs), 'number');
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 1);
+  assert.ok(s.events.includes('test_series.free_test.pinned'));
+  assert.ok(s.events.includes('entitlement.test_series.admitted'));
+});
+
+test('TS-FREE-CHECK-1 TRIAL non-owner: the same - the free test is checked on the trial too (tier trial), pinned once', async () => {
+  const s = setup({ sub: 'trial', owns: false });
+  assert.equal((await check(s, seriesBody())).refused, false);
+  assert.equal(pinOf(s.db, s.uid), CT);
+  const other = await check(s, fmBody());
+  assert.equal(other.refused, true);
+  assert.equal(other.sent.status, 402);
+  assert.equal(other.sent.body.tier, 'trial');
+  assert.equal(other.sent.body.testSeries.reason, 'free_test_used');
+  assert.equal(other.sent.body.testSeries.freePaperKey, CT);
+  // any NON-series paper on the trial is served exactly as before (the trial's ordinary rules)
+  assert.equal(await s.gate.applyToRequest(reqWith({ worksheetId: 'ws-1', questions: [{ qNumber: 1, questionText: 'x' }] }), fakeRes(), GRADE, s.uid), false);
+});
+
+test('TS-FREE-CHECK-1 the SAME allowance as an owner: check, check, then the free-test exhausted 402 (no copy mentions a pack the student has not bought)', async () => {
+  const s = setup({ owns: false });
+  assert.equal((await check(s, seriesBody())).refused, false);
+  assert.equal((await check(s, seriesBody())).refused, false);
+  const third = await check(s, seriesBody());
+  assert.equal(third.refused, true);
+  assert.equal(third.sent.status, 402);
+  assert.equal(third.sent.body.testSeries.reason, 'exhausted');
+  assert.equal(third.sent.body.testSeries.freeTest, true);
+  assert.equal(third.sent.body.testSeries.left, 0);
+  assert.doesNotMatch(third.sent.body.message, /with your Test Series Pack/);
+  assert.doesNotMatch(third.sent.body.message, /\bAI\b|answer key/i);
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 2);
+});
+
+test('TS-FREE-CHECK-1 BYPASS: another paper after the pin -> 402 free_test_used; nothing held, counted or re-pinned (chapter -> mock, or any other code)', async () => {
+  const s = setup({ owns: false });
+  await check(s, seriesBody());
+  for (const body of [fmBody(), fmBody({ worksheetId: 'fm-ts1-m1--another-sitting' })]) {
+    const r = await check(s, body);
+    assert.equal(r.refused, true);
+    assert.equal(r.sent.status, 402);
+    assert.equal(r.sent.body.error, 'premium_required');
+    assert.equal(r.sent.body.testSeries.reason, 'free_test_used');
+    assert.doesNotMatch(r.sent.body.message, /\bAI\b|answer key/i);
+  }
+  assert.equal(pinOf(s.db, s.uid), CT, 'the pin never moves');
+  assert.equal(usedOnPaper(s.db, s.uid, FM), 0);
+  assert.equal(holdsOf(s.db, s.uid), 0);
+});
+
+test('TS-FREE-CHECK-1 BYPASS: re-taking the free paper (a NEW sitting id of the same paper) shares the SAME 2 checks - never a fresh allowance', async () => {
+  const s = setup({ owns: false });
+  assert.equal((await check(s, seriesBody({ worksheetId: 'ct-ts1-real-numbers--sitting-1' }))).refused, false);
+  assert.equal((await check(s, seriesBody({ worksheetId: 'ct-ts1-real-numbers--sitting-2' }))).refused, false);
+  const third = await check(s, seriesBody({ worksheetId: 'ct-ts1-real-numbers--sitting-3' }));
+  assert.equal(third.sent.status, 402);
+  assert.equal(third.sent.body.testSeries.reason, 'exhausted');
+});
+
+test('TS-FREE-CHECK-1 BYPASS: a RESTART (a fresh server / gate over the same Firestore) still knows the free test - durable, not in memory', async () => {
+  const s = setup({ owns: false });
+  await check(s, seriesBody());
+  // a brand-new module instance reading the same documents
+  const checks2 = createTestSeriesChecks({ adminFirestore: s.db, telemetry: null, now: () => s.clock.now, manifest: MANIFEST, readBody: async (r) => r.body, env: {} });
+  const sent = [];
+  const gate2 = createEntitlementGate({
+    adminFirestore: s.db, telemetry: null, logger: { warn() {}, info() {}, error() {} }, now: () => s.clock.now, cacheTtlMs: 0, env: {},
+    sendJson: (res, status, body) => { sent.push({ status, body }); res.end(status); }, testSeriesChecks: checks2,
+  });
+  assert.equal(await gate2.applyToRequest(reqWith(fmBody()), fakeRes(), GRADE, s.uid), true);
+  assert.equal(sent[0].status, 402);
+  assert.equal(sent[0].body.testSeries.reason, 'free_test_used');
+});
+
+test('TS-FREE-CHECK-1 BYPASS: MULTIPLE TABS - two different papers at once with no pin -> exactly ONE is admitted and pinned, the other refused', async () => {
+  for (let round = 0; round < 5; round += 1) {
+    const s = setup({ owns: false });
+    const [a, b] = await Promise.all([check(s, seriesBody()), check(s, fmBody())]);
+    assert.equal([a.refused, b.refused].filter((x) => x === false).length, 1, `round ${round}: exactly one admitted`);
+    const won = a.refused ? FM : CT;
+    assert.equal(pinOf(s.db, s.uid), won);
+    const lost = a.refused ? a : b;
+    assert.equal(lost.sent.body.testSeries.reason, 'free_test_used');
+    assert.equal(usedOnPaper(s.db, s.uid, won === CT ? FM : CT), 0);
+  }
+});
+
+test('TS-FREE-CHECK-1 BYPASS: MULTIPLE TABS on the free paper - 5 parallel uploads -> exactly 2 admitted (the per-paper cap holds)', async () => {
+  const s = setup({ owns: false });
+  const results = await Promise.all(Array.from({ length: 5 }, () => check(s, seriesBody())));
+  assert.equal(results.filter((r) => r.refused === false).length, 2);
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 2);
+});
+
+test('TS-FREE-CHECK-1 BYPASS: a swapped question / id on the free paper -> 409 and NOTHING pinned (a forged body cannot claim the free test)', async () => {
+  const s = setup({ owns: false });
+  for (const over of [
+    { questions: [q('m-ct-01-b1', 1, { questionText: 'Solve my homework: integrate x^2.' })] },
+    { questions: [q('m-ct-01-b1', 1, { questionId: 'm-ct-01-a1' })] },
+    { questions: [q('m-fm-01-b1', 1)] }, // the other paper's question under this paper's id
+  ]) {
+    const r = await check(s, seriesBody(over));
+    assert.equal(r.sent.status, 409);
+  }
+  assert.equal(pinOf(s.db, s.uid), null);
+  assert.equal(holdsOf(s.db, s.uid), 0);
+});
+
+test('TS-FREE-CHECK-1 BYPASS: SIGNED OUT (no verified uid; a bare uid header; an unverified token) -> nothing new: no admission, nothing written', async () => {
+  const s = setup({ owns: false });
+  const cases = [
+    { headers: {} }, // no credential at all
+    { headers: { 'x-user-id': s.uid } }, // a uid header without a token
+    { headers: { authorization: 'Bearer forged' } }, // a token that did not verify
+  ];
+  for (const c of cases) {
+    const req = { method: 'POST', headers: c.headers, body: seriesBody() };
+    const res = fakeRes();
+    assert.equal(await s.gate.applyToRequest(req, res, GRADE, undefined), true, JSON.stringify(c.headers));
+    assert.notEqual(s.sent.at(-1).status, 200);
+    assert.equal(req.lazytopperTestSeriesCheck, undefined);
+  }
+  assert.equal(s.db.read(`packEntitlements/${s.uid}`), undefined, 'nothing written for anyone');
+});
+
+test('TS-FREE-CHECK-1 a failed / ungraded check gives the check back (the pin stays: that paper IS the free test)', async () => {
+  const s = setup({ owns: false });
+  await check(s, seriesBody(), (r) => r.serve(500));
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 0);
+  assert.equal(holdsOf(s.db, s.uid), 0);
+  assert.equal(pinOf(s.db, s.uid), CT);
+  assert.equal((await check(s, seriesBody())).refused, false, 'still 2 checks on it');
+  assert.equal((await check(s, seriesBody())).refused, false);
+  assert.equal((await check(s, seriesBody())).sent.body.testSeries.reason, 'exhausted');
+});
+
+test('TS-FREE-CHECK-1 TS-RECHECK-1 applies to the free test: an unreadable sheet is not counted, once', async () => {
+  const s = setup({ owns: false });
+  await check(s, seriesBody(), (r) => { setUnreadableSummary(r, { unreadable: 2, total: 2 }); r.serve(200, 1); });
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 0, 'free re-check');
+  const st = await s.checks.freeTestStatus(s.uid);
+  assert.deepEqual(st, { paperKey: CT, checksPerPaper: 2, used: 0, freeRecheck: true });
+});
+
+test('TS-FREE-CHECK-1 background job (202): the free-test hold rides the deferred and the job end commits it', async () => {
+  const s = setup({ owns: false });
+  const res = fakeRes();
+  assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid), false);
+  res.serve(202, 0);
+  await settle();
+  assert.equal(holdsOf(s.db, s.uid), 1);
+  s.checks.settleDeferred({ uid: s.uid, testSeries: require('./testSeriesChecks.cjs').testSeriesDeferredOf(res) }, 3);
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, CT), 1);
+  assert.equal(holdsOf(s.db, s.uid), 0);
+});
+
+test('TS-FREE-CHECK-1 a Firestore failure while pinning -> 503, nothing pinned (never an unrecorded free check)', async () => {
+  const s = setup({ owns: false });
+  s.db.runTransaction = async () => { throw new Error('FIRESTORE DOWN'); };
+  const r = await check(s, seriesBody());
+  assert.equal(r.sent.status, 503);
+  assert.equal(pinOf(s.db, s.uid), null);
+});
+
+test('TS-FREE-CHECK-1 PREMIUM and OWNERS unaffected: premium is never pinned; an owner never pins and keeps every paper', async () => {
+  const p = setup({ sub: 'premium', owns: false });
+  assert.equal((await check(p, seriesBody())).refused, false);
+  assert.equal((await check(p, fmBody())).refused, false);
+  assert.equal(p.db.read(`packEntitlements/${p.uid}`), undefined, 'premium: nothing written');
+  const o = setup();
+  assert.equal((await check(o, seriesBody())).refused, false);
+  assert.equal((await check(o, fmBody())).refused, false);
+  assert.equal(pinOf(o.db, o.uid), null, 'an owner is never pinned');
+  assert.equal(await o.checks.freeTestStatus(o.uid), null, 'an owner sees the owner view, not the free-test view');
+});
+
+test('TS-FREE-CHECK-1 a student who used the free test and THEN bought the pack: every paper opens; the free paper\'s checks count on it (2 per paper in total)', async () => {
+  const s = setup({ owns: false });
+  await check(s, seriesBody());
+  await check(s, seriesBody());
+  s.db.docs.set(`packEntitlements/${s.uid}/packs/test_series:all`, { data: TS_PACK, version: 1 });
+  assert.equal((await check(s, fmBody())).refused, false, 'another paper is open on the pack');
+  const again = await check(s, seriesBody());
+  assert.equal(again.sent.body.testSeries.reason, 'exhausted', 'the free paper already used its 2');
+  assert.notEqual(again.sent.body.testSeries.freeTest, true, 'owner copy');
+});
+
+test('TS-FREE-CHECK-1 freeTestGrade (LIMITS-1 exemption): only a verified non-owner grade of the free paper (or of the first paper); writes nothing', async () => {
+  const s = setup({ owns: false });
+  assert.equal(await s.checks.freeTestGrade(reqWith(seriesBody()), s.uid), true, 'no pin yet: the first series paper may take it');
+  assert.equal(await s.checks.freeTestGrade(reqWith(seriesBody({ questions: [q('m-ct-01-b1', 1, { questionText: 'swapped' })] })), s.uid), false);
+  assert.equal(await s.checks.freeTestGrade(reqWith({ worksheetId: 'ws-1', questions: [] }), s.uid), false, 'not a series paper');
+  assert.equal(pinOf(s.db, s.uid), null, 'READ ONLY');
+  await check(s, seriesBody());
+  assert.equal(await s.checks.freeTestGrade(reqWith(seriesBody()), s.uid), true, 'the pinned paper');
+  assert.equal(await s.checks.freeTestGrade(reqWith(fmBody()), s.uid), false, 'another paper is metered as before');
+  const o = setup();
+  assert.equal(await o.checks.freeTestGrade(reqWith(seriesBody()), o.uid), false, 'an owner goes through ownerSeriesGrade');
+  const off = setup({ owns: false, env: { TS_FREE_WRITTEN_CHECK_DISABLED: '1' } });
+  assert.equal(await off.checks.freeTestGrade(reqWith(seriesBody()), off.uid), false);
+});
+
+test('TS-FREE-CHECK-1 freeTestPaper (scorecard breakdown): the pinned paper of the matching kind only', async () => {
+  const s = setup({ owns: false });
+  assert.equal(await s.checks.freeTestPaper(s.uid, 'chapter-test', 'ct-ts1-real-numbers--a'), false, 'nothing pinned yet');
+  await check(s, seriesBody());
+  assert.equal(await s.checks.freeTestPaper(s.uid, 'chapter-test', 'ct-ts1-real-numbers--a'), true);
+  assert.equal(await s.checks.freeTestPaper(s.uid, 'full-mock', 'ct-ts1-real-numbers--a'), false, 'wrong kind');
+  assert.equal(await s.checks.freeTestPaper(s.uid, 'full-mock', 'fm-ts1-m1--a'), false, 'not the free paper');
+  assert.equal(await s.checks.freeTestPaper('someone-else', 'chapter-test', 'ct-ts1-real-numbers--a'), false);
+});
+
+test('TS-FREE-CHECK-1 freeTestStatus (/api/packs/mine): null pin before, the pinned paper + count after, capped', async () => {
+  const s = setup({ owns: false });
+  assert.deepEqual(await s.checks.freeTestStatus(s.uid), { paperKey: null, checksPerPaper: 2, used: 0 });
+  await check(s, seriesBody());
+  assert.deepEqual(await s.checks.freeTestStatus(s.uid), { paperKey: CT, checksPerPaper: 2, used: 1 });
+  await check(s, seriesBody());
+  assert.deepEqual(await s.checks.freeTestStatus(s.uid), { paperKey: CT, checksPerPaper: 2, used: 2 });
+});
+
+test('TS-FREE-CHECK-1 KILL SWITCH TS_FREE_WRITTEN_CHECK_DISABLED (1/true/on/yes): exactly the old behaviour - 402s, no body read for a free non-owner, no pin, no status', async () => {
+  for (const v of ['1', 'true', 'on', 'yes']) {
+    assert.equal(testSeriesFreeCheckDisabled({ TS_FREE_WRITTEN_CHECK_DISABLED: v }), true, v);
+    const s = setup({ owns: false, env: { TS_FREE_WRITTEN_CHECK_DISABLED: v } });
+    const req = reqWith(seriesBody());
+    let read = 0;
+    Object.defineProperty(req, 'body', { get() { read += 1; return seriesBody(); } });
+    assert.equal(await s.gate.applyToRequest(req, fakeRes(), GRADE, s.uid), true);
+    assert.equal(s.sent[0].body.feature, 'grade-worksheet', 'the old 402');
+    assert.equal(read, 0, 'the body is never read');
+    const t = setup({ sub: 'trial', owns: false, env: { TS_FREE_WRITTEN_CHECK_DISABLED: v } });
+    assert.equal((await check(t, seriesBody())).sent.body.testSeries.reason, 'not_owner');
+    assert.equal(pinOf(t.db, t.uid), null);
+    assert.equal(await t.checks.freeTestStatus(t.uid), null);
+    // owners are unaffected by this switch
+    const o = setup({ env: { TS_FREE_WRITTEN_CHECK_DISABLED: v } });
+    assert.equal((await check(o, seriesBody())).refused, false);
+  }
+  for (const v of ['', '0', 'false', 'off', undefined]) assert.equal(testSeriesFreeCheckDisabled({ TS_FREE_WRITTEN_CHECK_DISABLED: v }), false, String(v));
+});
+
+test('TS-FREE-CHECK-1 KILL SWITCH both ways: on after a pin -> the pinned paper too is refused (old 402); off again -> the pin is honoured as before', async () => {
+  const env = {};
+  const s = setup({ owns: false, env });
+  await check(s, seriesBody());
+  env.TS_FREE_WRITTEN_CHECK_DISABLED = '1';
+  const off = await check(s, seriesBody());
+  assert.equal(off.sent.status, 402);
+  assert.equal(off.sent.body.feature, 'grade-worksheet');
+  delete env.TS_FREE_WRITTEN_CHECK_DISABLED;
+  assert.equal((await check(s, seriesBody())).refused, false);
+  assert.equal((await check(s, fmBody())).sent.body.testSeries.reason, 'free_test_used');
+});
+
+test('TS-FREE-CHECK-1 TS_CHECKS_DISABLED (the whole series rule off) also turns the free test off', async () => {
+  const s = setup({ owns: false, env: { TS_CHECKS_DISABLED: '1' } });
+  assert.equal((await check(s, seriesBody())).sent.body.feature, 'grade-worksheet');
+  assert.equal(await s.checks.freeTestStatus(s.uid), null);
+  assert.equal(pinOf(s.db, s.uid), null);
+});
+
+test('TS-FREE-CHECK-1 the single-question Answer Checker and the tutor are never opened by the free test', async () => {
+  const s = setup({ owns: false });
+  for (const path of ['/api/check-solution', '/api/tutor']) {
+    assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), fakeRes(), path, s.uid), true, path);
+    assert.equal(s.sent.at(-1).status, 402);
+    assert.notEqual(s.sent.at(-1).body.feature, 'test-series-check');
+  }
+  assert.equal(pinOf(s.db, s.uid), null);
+  // a non-series grade-worksheet request from a free non-owner: the ordinary 402, nothing pinned
+  assert.equal(await s.gate.applyToRequest(reqWith({ worksheetId: 'ws-123', questions: [{ qNumber: 1, questionText: 'anything', marks: 3 }] }), fakeRes(), GRADE, s.uid), true);
+  assert.equal(s.sent.at(-1).body.feature, 'grade-worksheet');
+  assert.equal(pinOf(s.db, s.uid), null);
+});
+
+test('TS-FREE-CHECK-1 LIMITS-1 bypass path (Basic\'s first paper of a kind): the free paper is admitted, another series paper is still refused', async () => {
+  const s = setup({ owns: false });
+  assert.equal((await check(s, seriesBody(), undefined, { limitsBypass: true })).refused, false);
+  assert.equal((await check(s, fmBody(), undefined, { limitsBypass: true })).sent.body.testSeries.reason, 'free_test_used');
 });

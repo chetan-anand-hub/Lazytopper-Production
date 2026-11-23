@@ -49,9 +49,9 @@ export const HEREDITY_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Equal probability — 50% girl and 50% boy (determined by sperm carrying X or Y from father).",
     "solutionSteps": [
-      "There are 50% chances that a girl may be born and 50% chances that a boy may be born.",
-      "Humans have 22 pairs of autosomes plus one pair of sex chromosomes. Women have a perfect pair: XX. Men have a mismatched pair: XY (X is full-sized, Y is shorter).",
-      "A child receives one X from the mother (always X). From the father, the child receives either an X or a Y. X from father → daughter (XX); Y from father → son (XY). Because sperm carrying X and sperm carrying Y are produced in equal proportions, the probability of a girl or a boy is 1/2 each."
+      "[1 mark] There are 50% chances that a girl may be born and 50% chances that a boy may be born.",
+      "[1 mark] Humans have 22 pairs of autosomes plus one pair of sex chromosomes. Women have a perfect pair: XX. Men have a mismatched pair: XY (X is full-sized, Y is shorter).",
+      "[1 mark] A child receives one X from the mother (always X). From the father, the child receives either an X or a Y. X from father → daughter (XX); Y from father → son (XY). Because sperm carrying X and sperm carrying Y are produced in equal proportions, the probability of a girl or a boy is 1/2 each."
     ],
     "finalAnswer": "Probability of a girl = 1/2; probability of a boy = 1/2. Determined by the X- or Y-bearing sperm from the father.",
     "isCompetencyBased": false

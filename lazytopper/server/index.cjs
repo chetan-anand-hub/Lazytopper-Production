@@ -395,7 +395,12 @@ const fairUse = createFairUse({ adminFirestore, telemetry, sendJson, verifiedCal
 // LIMITS-1: download limits (dark until LIMITS_ENFORCE=1). See services/limits.cjs.
 // TS-PACK-JOBFIX (review P0 #1): a Test Series Pack owner's series paper is not metered by LIMITS-1 (testSeriesChecks is created below;
 // this is called per request, long after both exist).
-const limits = createLimits({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson, seriesOwnerPaper: (uid, kind, worksheetId) => testSeriesChecks.ownerSeriesPaper(uid, kind, worksheetId) });
+// TS-FREE-CHECK-1: a NON-owner's pinned free-test paper keeps its scorecard breakdown (downloads are not widened).
+const limits = createLimits({
+  adminFirestore, telemetry, sendJson, verifiedCaller, readJson,
+  seriesOwnerPaper: (uid, kind, worksheetId) => testSeriesChecks.ownerSeriesPaper(uid, kind, worksheetId),
+  seriesFreeTestPaper: (uid, kind, worksheetId) => testSeriesChecks.freeTestPaper(uid, kind, worksheetId),
+});
 // LOW-END-1 R4: a retried grade (same verified uid + Idempotency-Key, 24 h) is answered
 // from its stored result — never graded or charged twice. See fairUse.cjs.
 const gradingIdempotency = createGradingIdempotency({ telemetry, corsOrigin: config.CORS_ORIGIN });
@@ -882,7 +887,9 @@ async function handleRequest(req, res) {
       ? {}
       : await limits.gradingGate(req, res, reqPath, verifiedUid, {
           // TS-PACK-JOBFIX (review P0 #1): an owner's series-paper grade skips LIMITS-1 (the pack's 2-per-paper rule caps it).
-          seriesOwnerGrade: (r) => testSeriesChecks.ownerSeriesGrade(r, verifiedUid),
+          // TS-FREE-CHECK-1: so does a NON-owner's free-test grade (its own 2-per-paper rule caps it; no trial / Basic grade spent).
+          seriesOwnerGrade: async (r) => (await testSeriesChecks.ownerSeriesGrade(r, verifiedUid)) === true
+            || (await testSeriesChecks.freeTestGrade(r, verifiedUid)) === true,
           paperKeyOf: (r, surface) => {
             const pass = fairUseModule.verifyPaperPass(r.headers[fairUseModule.PAPER_HEADER], {
               uid: verifiedUid, surface, nowMs: Date.now(), secret: process.env[fairUseModule.PAPER_SECRET_ENV],
