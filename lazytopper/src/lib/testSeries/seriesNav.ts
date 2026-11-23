@@ -6,7 +6,8 @@
  * PURE and light (no bank, no services): the pages, the analysis panel, the upgrade walls and the global Back row (RouteNavBar)
  * all read the same rules from here.
  *
- *   - A SERIES PAPER is `/chapter-test/<grade>/<subject>/<topic>?series=1` or `/full-mock/<grade>/<subject>?paper=<n>`.
+ *   - A SERIES PAPER is `/chapter-test/<grade>/<subject>/<topic>?series=1`, `/full-mock/<grade>/<subject>?paper=<n>` or a focus set
+ *     `/full-mock/<grade>/<subject>?focus=FS-M-LA-1` (TS-THEMES-1).
  *   - A link that LEAVES a series paper carries `from=test-series` and `returnTo=<the paper's own path>` (the existing
  *     return-ticket convention). RouteNavBar reads the pair on the page it lands on and points "Back" at that paper.
  *   - On the paper itself Back goes to /test-series.
@@ -37,7 +38,8 @@ export function isSeriesPaperLocation(pathname: string, search: string): boolean
   if (import.meta.env?.VITE_TEST_SERIES_DISABLED === "1") return false;
   const sp = new URLSearchParams(search);
   if (/^\/chapter-test\/[^/]+\/[^/]+\/[^/]+\/?$/.test(pathname)) return sp.get("series") === "1";
-  if (/^\/full-mock\/[^/]+\/[^/]+\/?$/.test(pathname)) return /^\d{1,2}$/.test(sp.get("paper") ?? "");
+  // TS-THEMES-1: a focus set (`?focus=FS-M-LA-1`) is a series paper too (its kill switch is the page's own check).
+  if (/^\/full-mock\/[^/]+\/[^/]+\/?$/.test(pathname)) return /^\d{1,2}$/.test(sp.get("paper") ?? "") || /^FS-[MS]-[A-Z]{2}-\d$/.test(sp.get("focus") ?? "");
   return false;
 }
 

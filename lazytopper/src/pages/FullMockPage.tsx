@@ -178,6 +178,7 @@ import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUplo
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
 import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
+import { FOCUS_PARAM, focusSetLabel, focusSetOf, focusSetWorksheetId } from "../lib/testSeries/focusSets";
 import { useDerivedWrittenGraded } from "../hooks/useDerivedWrittenGraded";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
@@ -250,6 +251,11 @@ export default function FullMockPage() {
   // TEST-SERIES-1 — `?paper=<n>` opens series Full Mock #n: the SAME paper as PDF Mock #n, for every student.
   // Kill switch: VITE_TEST_SERIES_DISABLED=1 (the param is then ignored and the fresh mock opens, as before).
   const seriesN = import.meta.env?.VITE_TEST_SERIES_DISABLED === "1" ? null : seriesMockNumber(sp.get(FM_PAPER_PARAM));
+  // TS-THEMES-1 — `?focus=FS-M-LA-1` opens a Test Series FOCUS SET (a short one-question-type paper, pinned) on this page: the same
+  // grading, access rules and server admission as a series Full-Length Test. A `?paper=` wins; VITE_TS_FOCUS_SETS_DISABLED (inside
+  // focusSetOf) or VITE_TEST_SERIES_DISABLED -> the param is ignored and the ordinary fresh mock opens.
+  const focusSet = seriesN !== null || import.meta.env?.VITE_TEST_SERIES_DISABLED === "1" ? null : focusSetOf(sp.get(FOCUS_PARAM), subject);
+  const onSeriesPaper = seriesN !== null || focusSet !== null;
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const fairUse = useFairUse("full-mock", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live (see ChapterTestPage).
@@ -266,7 +272,7 @@ export default function FullMockPage() {
   const [tutorWall, setTutorWall] = useState(false);
   const sessionUid = user?.uid ?? null;
   // TS-NAV-1 — a Test Series paper's parent is /test-series, not Practice (kill switch VITE_TS_NAV_DISABLED -> Practice, as before).
-  const seriesNavOn = seriesN !== null && !tsNavDisabled();
+  const seriesNavOn = onSeriesPaper && !tsNavDisabled();
   // TS-UX-SCORE-1: a paper opened from the Practice-hub chooser carries a safe `returnTo` and Back leads there; else /test-series.
   const seriesBack = seriesPaperBackTarget(location.search);
   const backTo = seriesNavOn ? seriesBack.to : "/practice-hub";
@@ -355,23 +361,32 @@ export default function FullMockPage() {
   // A paper that cannot be drawn falls back to the ordinary fresh mock rather than a blank page.
   // TS-PIN-1 - the paper is built from its PINNED question ids (seriesFullMock.buildSeriesFullMock); `missingIds` are pinned ids that no
   // longer exist anywhere (left out, never swapped). VITE_TS_PIN_DISABLED / no pinned entry -> today's seeded draw.
-  const [series, setSeries] = useState<{ key: string; drawn: DrawnFullMock | null; failed: boolean; missingIds: string[] } | null>(null);
-  const seriesKey = nomen && seriesN ? `${nomen.code}|${subject}|${seriesN}` : null;
+  // TS-THEMES-1: a focus set rides the same state (its own builder, lazy chunk) and carries its own time limit (`durationMs`).
+  const [series, setSeries] = useState<{ key: string; drawn: DrawnFullMock | null; failed: boolean; missingIds: string[]; durationMs?: number } | null>(null);
+  const seriesKey = nomen && (seriesN || focusSet) ? `${nomen.code}|${subject}|${seriesN ?? focusSet?.code}` : null;
   useEffect(() => {
-    if (!seriesKey || !nomen || !seriesN || !bank.ready) return undefined;
+    if (!seriesKey || !nomen || !(seriesN || focusSet) || !bank.ready) return undefined;
     let live = true;
     const timer = setTimeout(() => {
-      import("../lib/testSeries/seriesFullMock")
-        .then((m) =>
-          m.buildSeriesFullMock(subject, seriesN, {
-            worksheetId: seriesMockWorksheetId(mintFullMockId(), subject, seriesN),
-            code: nomen.code,
-            name: nomen.name,
-          }),
-        )
+      const build: Promise<{ drawn: DrawnFullMock; missingIds: string[]; durationMs?: number } | null> = focusSet
+        ? import("../lib/testSeries/pinnedFocusSet").then((m) =>
+            m.buildFocusSet(focusSet, {
+              worksheetId: focusSetWorksheetId(mintFullMockId(), focusSet),
+              code: nomen.code,
+              name: nomen.name,
+            }),
+          )
+        : import("../lib/testSeries/seriesFullMock").then((m) =>
+            m.buildSeriesFullMock(subject, seriesN as number, {
+              worksheetId: seriesMockWorksheetId(mintFullMockId(), subject, seriesN as number),
+              code: nomen.code,
+              name: nomen.name,
+            }),
+          );
+      build
         .then((r) => {
           if (!live) return;
-          setSeries({ key: seriesKey, drawn: r ? r.drawn : null, failed: !r, missingIds: r ? r.missingIds : [] });
+          setSeries({ key: seriesKey, drawn: r ? r.drawn : null, failed: !r, missingIds: r ? r.missingIds : [], ...(r?.durationMs ? { durationMs: r.durationMs } : {}) });
         })
         .catch(() => {
           if (live) setSeries({ key: seriesKey, drawn: null, failed: true, missingIds: [] });
@@ -384,7 +399,9 @@ export default function FullMockPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seriesKey, bank.ready]);
   const seriesState = series && series.key === seriesKey ? series : null;
-  const seriesActive = !!seriesN && !seriesState?.failed;
+  const seriesActive = onSeriesPaper && !seriesState?.failed;
+  // TS-THEMES-1: the focus set is what is on screen (not its fresh-mock fallback).
+  const focusActive = !!focusSet && seriesActive;
   const freshDraw: DrawnFullMock | null = useMemo(() => {
     if (!nomen || !bank.ready || seriesActive) return null;
     return drawFullMock({
@@ -778,7 +795,7 @@ export default function FullMockPage() {
     }
     // CT-RESUME-2: a visit let through as a RESUME of a saved mock was not counted. Starting a NEW
     // mock instead is counted now — or refused when today's papers are used up.
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && seriesN !== null), location.search)) {
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && onSeriesPaper), location.search)) {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -789,7 +806,8 @@ export default function FullMockPage() {
       code: nomen.code,
       name: nomen.name,
       startedAt: Date.now(),
-      durationMs: FM_DURATION_MS,
+      // TS-THEMES-1: a focus set is timed at the Full Mock's pace for ITS marks (80 marks in 3 hours), e.g. 20 marks -> 45 minutes.
+      durationMs: focusActive && seriesState?.durationMs ? seriesState.durationMs : FM_DURATION_MS,
       pyqCount: draw.pyqCount,
       freshCount: draw.freshCount,
     };
@@ -807,7 +825,7 @@ export default function FullMockPage() {
     });
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
-  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, seriesN, isSignedIn, records, navigate]);
+  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, onSeriesPaper, focusActive, seriesState?.durationMs, isSignedIn, records, navigate]);
 
   const resumeMock = useCallback(() => {
     const s = inProgress ?? findInProgressSession(sessionUid);
@@ -1204,7 +1222,7 @@ export default function FullMockPage() {
   const downloadPaper = useCallback(async () => {
     if (!paperForExport || downloading || !seriesDownloadAccess) return;
     // CT-RESUME-2: downloading the NEW draw (not the mock being sat) is a new paper.
-    if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && seriesN !== null), location.search)) {
+    if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && onSeriesPaper), location.search)) {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -1269,7 +1287,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress, guardDownload, seriesDownloadAccess, seriesAccess.ownsSeries, seriesN]);
+  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress, guardDownload, seriesDownloadAccess, seriesAccess.ownsSeries, onSeriesPaper]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded mock's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1559,7 +1577,7 @@ export default function FullMockPage() {
               <div className="lt-fm__headrow">
                 <div>
                   <div className="lt-ct__eyebrow" data-testid={seriesActive ? "fm-series-label" : undefined}>
-                    {seriesActive && seriesN ? `${fullMockSeriesLabel(seriesN)} · ${subject}` : `Full mock · ${subject}`}
+                    {focusActive && focusSet ? `${focusSetLabel(focusSet)} · ${subject}` : seriesActive && seriesN ? `${fullMockSeriesLabel(seriesN)} · ${subject}` : `Full mock · ${subject}`}
                   </div>
                   <h1 className="lt-ct__fr">{nomen?.name ?? `${subject} · Mock`}</h1>
                 </div>
@@ -1598,10 +1616,18 @@ export default function FullMockPage() {
               )}
 
               <div className="lt-ct__card">
+                {focusActive ? (
+                  // TS-THEMES-1 — a focus set is one question type, written answers only: say so (no full-paper claims).
+                  <div className="lt-ct__sub" data-testid="fm-focus-sub">
+                    A short Test Series focus set: one question type, from different chapters, timed at board pace. Write your
+                    answers on paper and upload them for step-by-step marking.
+                  </div>
+                ) : (
                 <div className="lt-ct__sub">
                   A complete board paper — every chapter, CBSE&rsquo;s unit marks, real timing. Objective is
                   scored the moment you submit; write the rest on paper and upload for the full result.
                 </div>
+                )}
 
                 {!draw && bank.error ? (
                   <div className="lt-ct__empty">
@@ -1630,17 +1656,23 @@ export default function FullMockPage() {
                       <span className="lt-ct__chip">
                         <b>{draw.totalMarks}</b> marks
                       </span>
+                      {focusActive ? (
+                        <span className="lt-ct__chip" data-testid="fm-focus-minutes">
+                          <b>{Math.round((seriesState?.durationMs ?? FM_DURATION_MS) / 60000)}</b> minutes
+                        </span>
+                      ) : (
+                        <span className="lt-ct__chip">
+                          <b>3</b> hours
+                        </span>
+                      )}
                       <span className="lt-ct__chip">
-                        <b>3</b> hours
-                      </span>
-                      <span className="lt-ct__chip">
-                        Sections <b>A–E</b>
+                        {focusActive ? "Written answers" : <>Sections <b>A–E</b></>}
                       </span>
                       <span className="lt-ct__chip">⏱ always timed</span>
                     </div>
 
                     <div className="lt-ct__blueprint">
-                      {draw.blueprint.map((row) => (
+                      {draw.blueprint.filter((row) => !focusActive || row.actualCount > 0).map((row) => (
                         <div
                           key={row.section}
                           className={`lt-ct__bp-row${row.actualCount === 0 ? " lt-ct__bp-row--empty" : ""}`}
@@ -1660,6 +1692,9 @@ export default function FullMockPage() {
                       ))}
                     </div>
 
+                    {/* TS-THEMES-1: a one-type focus set has no unit-marks or CBQ-share target - those lines are for the full paper. */}
+                    {!focusActive && (
+                    <>
                     {/* SYLLABUS-FIX-CODE F3: marks per CBSE UNIT, the only split CBSE publishes
                         (src/config/syllabus2026-27.ts). No per-chapter claim. A unit the bank
                         could not fill shows its real marks against CBSE's, never a padded total. */}
@@ -1684,6 +1719,8 @@ export default function FullMockPage() {
                         </div>
                       ))}
                     </div>
+                    </>
+                    )}
 
                     <div className="lt-fm__mix">
                       This draw: <b>{draw.pyqCount}</b> past-year board question
@@ -1692,6 +1729,7 @@ export default function FullMockPage() {
                     </div>
 
                     {/* CBQ-1 PR-2: the paper's REAL CBQ share (target ≥ 40 of 80; CBSE pattern 50% competency); an honest note when short. */}
+                    {!focusActive && (
                     <CbqShareNote
                       cbqMarks={draw.cbqMarks}
                       totalMarks={draw.totalMarks}
@@ -1701,6 +1739,7 @@ export default function FullMockPage() {
                       scope="subject"
                       scopeName={subject}
                     />
+                    )}
 
                     {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} /> : null}
 
@@ -1717,7 +1756,7 @@ export default function FullMockPage() {
                           onClick={downloadPaper}
                           disabled={downloading}
                         >
-                          {downloading ? "Preparing…" : "⤓ Download this paper (PDF) — recommended for a 3-hour sitting"}
+                          {downloading ? "Preparing…" : focusActive ? "⤓ Download this paper (PDF)" : "⤓ Download this paper (PDF) — recommended for a 3-hour sitting"}
                         </button>
                       ) : seriesAccess.checking ? (
                         <AccessChecking />
@@ -1758,13 +1797,21 @@ export default function FullMockPage() {
                     <div className="lt-ct__honest">
                       <span>·</span>
                       <span>
-                        This is a 3-hour paper. Your answers and timer are saved — if you’re
+                        {focusActive ? `This is a ${Math.round((seriesState?.durationMs ?? FM_DURATION_MS) / 60000)}-minute paper.` : "This is a 3-hour paper."} Your answers and timer are saved — if you’re
                         interrupted you can resume exactly where you left off. Your on-screen time is
                         recorded, like the real exam hall; leaving doesn’t pause the clock.{" "}
                         {seriesActive ? (
                           // TEST-SERIES-1 — a fixed paper: not a fresh draw, so no freshness claim.
                           <span data-testid="fm-series-line">
-                            <b>A Test Series paper</b> — every student gets the same {subject} Full-Length Test {seriesN}.
+                            {focusActive && focusSet ? (
+                              <>
+                                <b>A Test Series focus set</b> — every student gets the same {subject} {focusSet.themeTitle.toLowerCase()} set {focusSet.n} ({focusSet.code}).
+                              </>
+                            ) : (
+                              <>
+                                <b>A Test Series paper</b> — every student gets the same {subject} Full-Length Test {seriesN}.
+                              </>
+                            )}
                             {seriesState && seriesState.missingIds.length > 0 ? (
                               // TS-PIN-1 - a pinned question that no longer exists anywhere is left out, never swapped for another.
                               <span data-testid="fm-series-missing">
@@ -2195,7 +2242,8 @@ export default function FullMockPage() {
             />
           </Suspense>
 
-          {scorecardOpen && resultsPhase === "partial" && (
+          {/* TS-THEMES-1: a paper with no Section A (a focus set) has no objective score to show before its upload - the upload step itself is the next screen. */}
+          {scorecardOpen && resultsPhase === "partial" && fullMockObjectiveQuestions(activeMock.paper).length > 0 && (
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               variant={withSeriesWorksheet(fullMockScorecardVariant({

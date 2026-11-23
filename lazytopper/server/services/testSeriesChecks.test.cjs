@@ -991,3 +991,103 @@ test('TS-MORE-1: existing buyers\' counters are unchanged - status() lists commi
   assert.deepEqual(st.used, { [CT]: 1, [FM]: 2 });
   assert.equal(st.checksPerPaper, CHECKS_PER_PAPER);
 });
+
+/* ── TS-THEMES-1: the 30 FOCUS SETS - admitted exactly like the series papers, counted under their own keys, own kill switch ── */
+
+const QF = { 'm-fs-la-d1': { text: 'A train travels 360 km at a uniform speed ... find the speed.', marks: 5 }, 'm-fs-la-d2': { text: 'Prove the basic proportionality theorem.', marks: 5 } };
+Object.assign(Q, QF);
+const FOCUS_RAW = [
+  ...MORE_RAW,
+  {
+    key: 'TS-FS-M-LA-1', subject: 'Maths', kind: 'focus', number: 1, paperCode: 'FS-M-LA-1', topicKey: null,
+    worksheetIdPrefix: 'fm-tsfs-mla1--', questionIds: ['m-fs-la-d1', 'm-fs-la-d2'], sectionBEQuestionIds: ['m-fs-la-d1', 'm-fs-la-d2'],
+    textHashes: Object.fromEntries(['m-fs-la-d1', 'm-fs-la-d2'].map((id) => [id, canonicalQuestionTextHash(Q[id].text)])),
+  },
+];
+const FOCUS = indexManifest(FOCUS_RAW);
+const FS1 = 'TS-FS-M-LA-1';
+const fsBody = (over = {}) => ({ worksheetId: 'fm-tsfs-mla1--mz1abc-7f3', questions: [q('m-fs-la-d1', 1), q('m-fs-la-d2', 2)], imageBase64: 'AAAA', ...over });
+
+test('TS-THEMES-1: a focus set check is admitted, counted under its OWN key (2 per paper), and no series counter moves', async () => {
+  const s = setup({ manifest: FOCUS, used: { [FM]: 1 } });
+  const res = fakeRes();
+  assert.equal(await s.gate.applyToRequest(reqWith(fsBody()), res, GRADE, s.uid), false);
+  assert.equal(s.sent.length, 0);
+  res.serve(200, 2);
+  await settle();
+  assert.equal(usedOnPaper(s.db, s.uid, FS1), 1);
+  assert.equal(usedOnPaper(s.db, s.uid, FM), 1);
+  const ex = setup({ manifest: FOCUS, used: { [FS1]: 2 } });
+  assert.equal(await ex.gate.applyToRequest(reqWith(fsBody()), fakeRes(), GRADE, ex.uid), true);
+  assert.equal(ex.sent[0].status, 402);
+  assert.equal(ex.sent[0].body.testSeries.reason, 'exhausted');
+  assert.equal(ex.sent[0].body.testSeries.paperKey, FS1);
+});
+
+test('TS-THEMES-1: a focus set is a FULL-MOCK paper for LIMITS-1 (owner exemption), never a chapter test; its questions cannot ride another paper', async () => {
+  const s = setup({ manifest: FOCUS });
+  assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'full-mock', 'fm-tsfs-mla1--abc'), true);
+  assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'chapter-test', 'fm-tsfs-mla1--abc'), false);
+  assert.equal(await s.checks.ownerSeriesGrade(reqWith(fsBody()), s.uid), true);
+  // a focus set's questions under a series mock id, and a mock's question under the focus id -> mismatch, nothing spent
+  assert.equal(await s.gate.applyToRequest(reqWith(fsBody({ worksheetId: 'fm-ts1-m1--abc' })), fakeRes(), GRADE, s.uid), true);
+  assert.equal(s.sent.at(-1).status, 409);
+  assert.equal(await s.gate.applyToRequest(reqWith({ worksheetId: 'fm-tsfs-mla1--abc', questions: [q('m-fm-01-b1', 21)] }), fakeRes(), GRADE, s.uid), true);
+  assert.equal(s.sent.at(-1).status, 409);
+  // a focus set the manifest does not have is no series paper (the ordinary 402)
+  assert.equal(await s.gate.applyToRequest(reqWith(fsBody({ worksheetId: 'fm-tsfs-mla6--abc' })), fakeRes(), GRADE, s.uid), true);
+  assert.equal(s.sent.at(-1).body.feature, 'grade-worksheet');
+  assert.equal(holdsOf(s.db, s.uid), 0);
+});
+
+test('TS-THEMES-1 kill switch TS_FOCUS_SETS_DISABLED: focus sets are no longer admitted (ordinary 402, no exemption); every series paper is untouched', async () => {
+  const { testSeriesFocusSetsDisabled, isFocusPaper } = require('./testSeriesChecks.cjs');
+  for (const v of ['1', 'true', 'on', 'yes']) {
+    assert.equal(testSeriesFocusSetsDisabled({ TS_FOCUS_SETS_DISABLED: v }), true, v);
+    const s = setup({ manifest: FOCUS, env: { TS_FOCUS_SETS_DISABLED: v } });
+    assert.equal(await s.gate.applyToRequest(reqWith(fsBody()), fakeRes(), GRADE, s.uid), true, v);
+    assert.equal(s.sent.at(-1).body.feature, 'grade-worksheet', v);
+    assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'full-mock', 'fm-tsfs-mla1--abc'), false, v);
+    assert.equal(await s.checks.ownerSeriesGrade(reqWith(fsBody()), s.uid), false, v);
+    assert.equal(await s.checks.ownerSeriesPaper(s.uid, 'full-mock', 'fm-ts1-m24--abc'), true, `${v}: TS-MORE-1 papers stay on`);
+    const res = fakeRes();
+    assert.equal(await s.gate.applyToRequest(reqWith(seriesBody()), res, GRADE, s.uid), false, v);
+    res.serve(200, 2);
+    await settle();
+    assert.equal(usedOnPaper(s.db, s.uid, CT), 1, v);
+    assert.equal(holdsOf(s.db, s.uid), 0, v);
+  }
+  for (const v of ['', '0', 'false', 'no']) assert.equal(testSeriesFocusSetsDisabled({ TS_FOCUS_SETS_DISABLED: v }), false, v);
+  assert.equal(isFocusPaper({ key: FS1 }), true);
+  assert.equal(isFocusPaper({ key: 'TS-FM-M1' }), false);
+  assert.equal(isFocusPaper({ key: 'TS-CT-M01-3' }), false);
+});
+
+test('TS-THEMES-1: the REAL files load as ONE manifest - 180 series papers + 30 focus sets, none dropped, no prefix is a prefix of another', () => {
+  const { MANIFEST_FILES, FOCUS_MANIFEST_PATH, isFocusPaper, isMorePaper } = require('./testSeriesChecks.cjs');
+  assert.deepEqual([...MANIFEST_FILES], [MANIFEST_PATH, FOCUS_MANIFEST_PATH]);
+  assert.match(FOCUS_MANIFEST_PATH, /server[\\/]data[\\/]testSeriesFocusSets\.json$/);
+  const logs = [];
+  const m = loadManifest(MANIFEST_FILES, { error: (x) => logs.push(x) });
+  assert.deepEqual(logs, []);
+  assert.equal(m.count, 210);
+  assert.equal(m.dropped, 0);
+  assert.equal(m.papers.filter(isFocusPaper).length, 30);
+  assert.equal(m.papers.filter(isMorePaper).length, 180 - 66, 'no focus set is read as a TS-MORE-1 paper');
+  const prefixes = m.papers.map((p) => p.prefix);
+  for (const a of prefixes) for (const b of prefixes) if (a !== b) assert.equal(b.startsWith(a), false, `${a} is a prefix of ${b}`);
+  for (const p of m.papers) assert.equal(seriesPaperOf({ worksheetId: `${p.prefix}mz1abc-7f3` }, m).key, p.key);
+  // the series file alone is still exactly the 180 (nothing was appended to it)
+  assert.equal(loadManifest(MANIFEST_PATH, { error: () => {} }).count, 180);
+});
+
+test('TS-THEMES-1: a missing focus file never takes the series papers down (logged; the 180 still load)', () => {
+  const logs = [];
+  const m = loadManifest([MANIFEST_PATH, '/nonexistent/testSeriesFocusSets.json'], { error: (x) => logs.push(x) });
+  assert.equal(m.count, 180);
+  assert.equal(logs.length, 1);
+  assert.match(logs[0], /testSeriesFocusSets\.json/);
+  const none = [];
+  assert.equal(loadManifest(['/nonexistent/a.json', '/nonexistent/b.json'], { error: (x) => none.push(x) }).count, 0);
+  assert.ok(none.some((l) => /NO Test Series paper/.test(l)));
+});
