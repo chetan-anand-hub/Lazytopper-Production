@@ -4113,7 +4113,7 @@ const DesktopCheckImprovePageInner: React.FC<{
           >
             {status === "loading" ? (
               <>
-                <SpinnerGlyph color="#ffffff" /> {gradeStage ? gradingStageLabel(gradeStage) : "Grading…"}
+                <SpinnerGlyph color="#ffffff" /> {gradeStage && !(gradeStage.kind === "retrying" && gradeStage.reason === "slow" && !isMultiQuestion && !gradeProgressDisabled()) ? gradingStageLabel(gradeStage) : "Grading…"}
               </>
             ) : status === "error" ? (
               <>Retry grading <ChevronRightGlyph /></>

@@ -177,4 +177,30 @@ describe("GRADE-PROGRESS-1 - Answer Checker, single question", () => {
     expect(screen.getByRole("button", { name: /Grading…/ })).toBeTruthy();
     await act(async () => { release(GRADED); });
   });
+
+  it("slow stage: the reassurance shows once, in the panel; the button stays 'Grading…' (kill switch: today's button text)", async () => {
+    let onStage: (s: unknown) => void = () => {};
+    H.checkSolutionImage.mockImplementation((_r: unknown, o: { onStage?: (s: unknown) => void }) => {
+      onStage = o.onStage ?? onStage;
+      return new Promise((r) => { release = r; });
+    });
+    const SLOW = "Taking a little longer than usual — still checking…";
+    render(page());
+    await startGrade();
+    await act(async () => { onStage({ kind: "retrying", reason: "slow" }); });
+    expect(screen.getByTestId("grade-progress-slow").textContent).toBe(SLOW);
+    expect(screen.getAllByText(SLOW)).toHaveLength(1);
+    expect(screen.getByRole("button", { name: /Grading…/ })).toBeTruthy();
+    await act(async () => { release(GRADED); });
+    cleanup();
+    H.detectQuestion.mockClear();
+    H.checkSolutionImage.mockClear();
+    vi.stubEnv("VITE_GRADE_PROGRESS_DISABLED", "1");
+    render(page());
+    await startGrade();
+    await act(async () => { onStage({ kind: "retrying", reason: "slow" }); });
+    expect(screen.queryByTestId("grade-progress-panel")).toBeNull();
+    expect(screen.getByRole("button", { name: new RegExp(SLOW) })).toBeTruthy();
+    await act(async () => { release(GRADED); });
+  });
 });
