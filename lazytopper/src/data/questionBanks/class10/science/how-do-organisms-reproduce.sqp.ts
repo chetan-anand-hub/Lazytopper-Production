@@ -48,8 +48,8 @@ export const HOW_DO_ORGANISMS_REPRODUCE_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Zygote → embryo; ovule → seed; ovary → fruit; petals/sepals/stamens/style shrivel and fall off.",
     "solutionSteps": [
-      "After fertilisation, the zygote divides several times to form an embryo within the ovule. The ovule develops a tough coat and is gradually converted into a seed.",
-      "The ovary grows rapidly and ripens to form a fruit. The petals, sepals, stamens, style and stigma may shrivel and fall off."
+      "[1 mark] After fertilisation, the zygote divides several times to form an embryo within the ovule. The ovule develops a tough coat and is gradually converted into a seed.",
+      "[1 mark] The ovary grows rapidly and ripens to form a fruit. The petals, sepals, stamens, style and stigma may shrivel and fall off."
     ],
     "finalAnswer": "Zygote → embryo; ovule → seed; ovary → fruit; other floral parts wither.",
     "isCompetencyBased": false
@@ -68,11 +68,11 @@ export const HOW_DO_ORGANISMS_REPRODUCE_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Sperm formation is impaired as testes need a lower-than-body temperature. (b) Sperms cannot be transferred – infertility. (c) Sperms lack nourishment and fluid medium for transport. (d) Egg survives about a day; uterine lining breaks down – menstruation. (e) Embryo gets inadequate nutrition and oxygen – growth affected.",
     "solutionSteps": [
-      "(a) Sperm formation will be adversely affected because spermatogenesis requires a temperature lower than core body temperature (the scrotum keeps testes ~2 °C cooler). Undescended testes → reduced or absent sperm production.",
-      "(b) Vas deferens is the passage for sperm transfer from testis to urethra. If plugged, sperms cannot be transferred further — leading to infertility despite normal sperm production.",
-      "(c) Prostate gland and seminal vesicles produce secretions that nourish sperm and form the medium (semen) for sperm transport. If non-functional, sperms lack nourishment and proper transport medium.",
-      "(d) If the egg is not fertilised, it lives for about one day. Then the thickened lining of the uterus breaks, leading to discharge of blood and mucus along with the unfertilised egg — this is called menstruation.",
-      "(e) Placenta provides nutrition and oxygen to the growing embryo. Sub-optimal attachment will impair nutrition and oxygen supply, affecting embryo growth and possibly causing serious complications."
+      "[1 mark] (a) Sperm formation will be adversely affected because spermatogenesis requires a temperature lower than core body temperature (the scrotum keeps testes ~2 °C cooler). Undescended testes → reduced or absent sperm production.",
+      "[1 mark] (b) Vas deferens is the passage for sperm transfer from testis to urethra. If plugged, sperms cannot be transferred further — leading to infertility despite normal sperm production.",
+      "[1 mark] (c) Prostate gland and seminal vesicles produce secretions that nourish sperm and form the medium (semen) for sperm transport. If non-functional, sperms lack nourishment and proper transport medium.",
+      "[1 mark] (d) If the egg is not fertilised, it lives for about one day. Then the thickened lining of the uterus breaks, leading to discharge of blood and mucus along with the unfertilised egg — this is called menstruation.",
+      "[1 mark] (e) Placenta provides nutrition and oxygen to the growing embryo. Sub-optimal attachment will impair nutrition and oxygen supply, affecting embryo growth and possibly causing serious complications."
     ],
     "finalAnswer": "(a) Sperm formation impaired; (b) sperm transfer blocked – infertility; (c) sperms lack nourishment/transport medium; (d) menstruation follows; (e) embryo's nutrition and oxygen supply impaired.",
     "isCompetencyBased": true,

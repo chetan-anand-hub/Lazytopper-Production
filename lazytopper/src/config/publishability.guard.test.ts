@@ -355,7 +355,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(gaps.map((q) => q.id)).toEqual([]);
   });
 
-  it("the addressable step-marking backlog only shrinks (at most 928 rows)", () => {
+  it("the addressable step-marking backlog only shrinks (at most 868 rows)", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
      * rows that Rule 1 rejects permanently and that policy says to RETIRE, not
@@ -430,11 +430,14 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // solutionSteps on 152 non-AI rows; every one left "unmarked-step" (trunk itself measured 1,229).
     // Batch 3A (arithmetic-progression, coordinate-geometry, triangles, circles) lowers it independently
     // by 149; whichever of 3A/3B merges second re-pins this ceiling to the measured number.
+    // 928 -> 868: -60. STEPMARK-3 PR 1 (23 Nov 2026, owner grant 16:13 IST), measured at trunk 66ffe1f7:
+    // leading [N mark] splits on 60 hand-sourced how-do-organisms-reproduce rows (every one left "unmarked-step").
+    // Later STEPMARK-3 PRs lower the same ceiling independently; whichever merges after another re-pins it to the measured number.
     // CEILING (PR-3) — the backlog is worked DOWN by STEPMARK batches and must never be
     // worked up: a wiring PR that lands rows unannotated grows it and goes red here,
     // which is the right red — annotate before wiring. 2,336 at PR-3 (2026-09-11); the
     // 21 bound-but-unmarked rows PR-3 exposed are inside this number, not added to it.
-    expect(addressable.length).toBeLessThanOrEqual(928);
+    expect(addressable.length).toBeLessThanOrEqual(868);
   });
 });
 

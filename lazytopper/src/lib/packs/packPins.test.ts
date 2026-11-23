@@ -41,6 +41,8 @@ const ACKNOWLEDGED_DRAW_DRIFT: readonly string[] = [
   ...["arithmetic-progression", "coordinate-geometry", "triangles", "circles"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
   // STEPMARK-2 batch 3B (19 Nov 2026): the same for areas-related-to-circles, surface-areas-and-volumes, probability.
   ...["areas-related-to-circles", "surface-areas-and-volumes", "probability"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
+  // STEPMARK-3 (23 Nov 2026): leading [N mark] splits on 60 how-do-organisms-reproduce rows moved its ct1/ct2 seeded draws and Science mock 8; the pins did not.
+  "ct1:how-do-organisms-reproduce", "ct2:how-do-organisms-reproduce", "mock:science:8",
   "mock:maths:2", "mock:maths:3",
 ];
 const ack = (k: string) => ACKNOWLEDGED_DRAW_DRIFT.includes(k);
