@@ -41,6 +41,9 @@ const ACKNOWLEDGED_DRAW_DRIFT: readonly string[] = [
   ...["arithmetic-progression", "coordinate-geometry", "triangles", "circles"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
   // STEPMARK-2 batch 3B (19 Nov 2026): the same for areas-related-to-circles, surface-areas-and-volumes, probability.
   ...["areas-related-to-circles", "surface-areas-and-volumes", "probability"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
+  // STEPMARK-3 OR-aware isStepMarked (23 Nov 2026): 21 OR rows whose main route sums became step-marked, so these seeded draws moved; the pins did not.
+  ...["electricity", "magnetic-effects-of-electric-current", "control-and-coordination", "how-do-organisms-reproduce"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
+  "mock:science:2", "mock:science:4", "mock:science:8",
   "mock:maths:2", "mock:maths:3",
 ];
 const ack = (k: string) => ACKNOWLEDGED_DRAW_DRIFT.includes(k);
