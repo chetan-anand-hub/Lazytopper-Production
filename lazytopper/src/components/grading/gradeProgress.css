@@ -1,0 +1,33 @@
+/* GRADE-PROGRESS-1 - waiting panel. Mobile-first; colours from the shared tokens. */
+.lt-gp {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid hsl(220, 18%, 88%);
+  background: hsl(220, 30%, 98%);
+  color: hsl(222, 30%, 20%);
+  font-size: 13px;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+.lt-gp__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.lt-gp__done { font-weight: 700; color: hsl(152, 55%, 28%); }
+.lt-gp__now { display: flex; align-items: flex-start; gap: 8px; animation: lt-gp-fade 400ms ease both; }
+.lt-gp__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: hsl(152, 55%, 38%);
+  animation: lt-gp-pulse 1.6s ease-in-out infinite;
+}
+.lt-gp__slow { margin: 8px 0 0; font-weight: 700; }
+.lt-gp__note { margin: 8px 0 0; font-size: 12px; color: hsl(220, 10%, 40%); }
+@keyframes lt-gp-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lt-gp-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) {
+  .lt-gp__now, .lt-gp__dot { animation: none; }
+}
+@media (min-width: 720px) { .lt-gp { max-width: 520px; } }

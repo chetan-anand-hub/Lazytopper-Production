@@ -36,6 +36,8 @@ import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import ParentReturnLink from "../../components/parents/ParentReturnLink";
 import "./checkImproveParentReturn.css";
+import GradeProgressPanel from "../../components/grading/GradeProgressPanel";
+import { gradeProgressDisabled } from "../../components/grading/gradeProgressFlag";
 import {
   buildConfirmedDetection,
   withSubjectCorrected,
@@ -4120,6 +4122,13 @@ const DesktopCheckImprovePageInner: React.FC<{
             )}
           </button>
         </div>
+
+        {/* GRADE-PROGRESS-1 - honest waiting panel, single-question grade only (a paper shows rows arriving). */}
+        {status === "loading" && !isMultiQuestion && !gradeProgressDisabled() && (
+          <GradeProgressPanel
+            slowLabel={gradeStage?.kind === "retrying" && gradeStage.reason === "slow" ? gradingStageLabel(gradeStage) : null}
+          />
+        )}
 
         {/* MOMENTS-1 M5 — first session, while the grader works: Ziggy, then Byte in his place. */}
         <GuideMomentSlot
