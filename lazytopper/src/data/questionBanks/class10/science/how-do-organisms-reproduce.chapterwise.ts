@@ -173,31 +173,31 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-REPR-021", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Name the method by which Spirogyra reproduce under favourable conditions. Is this method sexual or asexual?",
     answer: "[Delhi 2017] Fragmentation. Asexual",
-    solutionSteps: ["[Delhi 2017] Fragmentation. Asexual"],
+    solutionSteps: ["[1 mark] [Delhi 2017] Fragmentation.", "[1 mark] Asexual"],
     ncertRef: "cbjesccq08 Q1", isCompetencyBased: false },
   // cbjesccq08 Q2 (Section A, 1mk)
   { id: "SCQ-S-REPR-022", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Name the method by which Planaria reproduce under favourable conditions. Is this method sexual or asexual?",
     answer: "[Delhi 2017] Regeneration. Asexual",
-    solutionSteps: ["[Delhi 2017] Regeneration. Asexual"],
+    solutionSteps: ["[1 mark] [Delhi 2017] Regeneration.", "[1 mark] Asexual"],
     ncertRef: "cbjesccq08 Q2", isCompetencyBased: false },
   // cbjesccq08 Q3 (Section A, 1mk)
   { id: "SCQ-S-REPR-023", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Name the method by which Plasmodium reproduce under favourable conditions. Is this method sexual or asexual?",
     answer: "[Delhi 2017] Multiple Fission. Asexual",
-    solutionSteps: ["[Delhi 2017] Multiple Fission. Asexual"],
+    solutionSteps: ["[1 mark] [Delhi 2017] Multiple Fission.", "[1 mark] Asexual"],
     ncertRef: "cbjesccq08 Q3", isCompetencyBased: false },
   // cbjesccq08 Q4 (Section A, 1mk)
   { id: "SCQ-S-REPR-024", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "When a cell reproduces, what happens to its DNA?",
     answer: "[All India 2017] Its DNA first doubles up followed by its equal and accurate division between two daughter cells.",
-    solutionSteps: ["[All India 2017] Its DNA first doubles up followed by its equal and accurate division between two daughter cells."],
+    solutionSteps: ["[1 mark] [All India 2017] Its DNA first doubles up", "[1 mark] followed by its equal and accurate division between two daughter cells."],
     ncertRef: "cbjesccq08 Q4", isCompetencyBased: true },
   // cbjesccq08 Q5 (Section A, 1mk)
   { id: "SCQ-S-REPR-025", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "List two functions of ovary of human female reproductive system.",
     answer: "[All India 2016] In human female, ovary contains thousands of eggs. One egg is produced every month one of the ovaries. Ovary also secretes estrogens hormone for development of sexual characteristics at puberty.",
-    solutionSteps: ["[All India 2016] In human female, ovary contains thousands of eggs. One egg is produced every month one of the ovaries. Ovary also secretes estrogens hormone for development of sexual characteristics at puberty."],
+    solutionSteps: ["[1 mark] [All India 2016] In human female, ovary contains thousands of eggs. One egg is produced every month one of the ovaries.", "[1 mark] Ovary also secretes estrogens hormone for development of sexual characteristics at puberty."],
     ncertRef: "cbjesccq08 Q5", isCompetencyBased: false },
   // cbjesccq08 Q6 (Section A, 1mk)
   // REPR-026 repaired (SCI-BACKLOG-1, 14 Oct, D244): Booklet cbjesccq08 Q6 [All India 2016]; key checked against NCERT Class 10 Science 2026-27 jesc107, section 7.3.2 'Sexual Reproduction in Flowering Plants' (unisexual vs bisexual flowers)
@@ -211,7 +211,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-REPR-027", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "State the changes that take place in the uterus when a. implantation of embryo has occurred b. female gamete/egg is not fertilized",
     answer: "[Delhi 2017] a. Uterus wall becomes thicker due to development of blood vessels and glands in it and placenta develops from the side of foetus so that it can derive nutrition from mother and pass the waste to mother's blood. b. Uterus lining gets peeled and shed off along with mu",
-    solutionSteps: ["[Delhi 2017] a. Uterus wall becomes thicker due to development of blood vessels and glands in it and placenta develops from the side of foetus so that it can derive nutrition from mother and pass the waste to mother's blood. b. Uterus lining gets peeled and shed off along with mucus, blood, dead ovum during menstruation."],
+    solutionSteps: ["[1 mark] [Delhi 2017] a. Uterus wall becomes thicker due to development of blood vessels and glands in it and placenta develops from the side of foetus so that it can derive nutrition from mother and pass the waste to mother's blood.", "[1 mark] b. Uterus lining gets peeled and shed off along with mucus, blood, dead ovum during menstruation."],
     ncertRef: "cbjesccq08 Q31", isCompetencyBased: false },
   // cbjesccq08 Q32 (Section B, 2mk)
   // REPR-028 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 7 How do Organisms Reproduce?, 7.2.1 Fission and 7.2.2 Fragmentation
@@ -225,13 +225,13 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-REPR-029", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "a. What is the location of the following: (i) DNA in a cell (ii) Gene b. Expand DNA.",
     answer: "a. (i) Nucleus. (ii) Located on the chromosomes. b. Deoxyribo Nucleic Acid.",
-    solutionSteps: ["a. (i) Nucleus. (ii) Located on the chromosomes. b. Deoxyribo Nucleic Acid."],
+    solutionSteps: ["[1 mark] a. (i) Nucleus. (ii) Located on the chromosomes.", "[1 mark] b. Deoxyribo Nucleic Acid."],
     ncertRef: "cbjesccq08 Q33", isCompetencyBased: false },
   // cbjesccq08 Q34 (Section B, 2mk)
   { id: "SCQ-S-REPR-030", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Explain how do organisms create an exact copy of themselves.",
     answer: "To build the copies of DNA or the genetic material, the cells use biochemical reactions. Additional cellular apparatus along with the DNA copies are separated and so a cell divides to give rise to two almost identical cells.",
-    solutionSteps: ["To build the copies of DNA or the genetic material, the cells use biochemical reactions. Additional cellular apparatus along with the DNA copies are separated and so a cell divides to give rise to two almost identical cells."],
+    solutionSteps: ["[1 mark] To build the copies of DNA or the genetic material, the cells use biochemical reactions.", "[1 mark] Additional cellular apparatus along with the DNA copies are separated and so a cell divides to give rise to two almost identical cells."],
     ncertRef: "cbjesccq08 Q34", isCompetencyBased: true },
   // cbjesccq08 Q35 (Section B, 2mk)
   // REPR-031 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Class 10 Science 2026-27 Ch 7 How do Organisms Reproduce?, 7.1 Do Organisms Create Exact Copies of Themselves? and 7.3 Sexual Reproduction; Ch 8 Heredity 8.1
@@ -281,7 +281,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-REPR-036", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Mention the total number of chromosomes, along with the sex chromosomes, in human beings. Explain how, in a sexually reproducing organism, the chromosome number of the parents and their offspring remains the same.",
     answer: "Humans have 46 chromosomes (23 pairs): 22 pairs of autosomes and 1 pair of sex chromosomes — XX in females and XY in males. Germ cells (gametes) are formed in specialised reproductive organs and carry only half the number of chromosomes (and half the DNA) of body cells. When a male and a female gamete fuse at fertilisation, the zygote gets the full (original) chromosome number back, so offspring have the same chromosome number as the parents.",
-    solutionSteps: ["Humans have 46 chromosomes, i.e. 23 pairs: 22 pairs of autosomes + 1 pair of sex chromosomes (XX in females, XY in males).", "Gametes are formed in specialised reproductive organs and contain only half the number of chromosomes and half the DNA of a body cell (23 in humans).", "At fertilisation a male and a female gamete fuse (23 + 23 = 46), restoring the original chromosome number in the zygote; hence parents and offspring have the same chromosome number."],
+    solutionSteps: ["[1 mark] Humans have 46 chromosomes, i.e. 23 pairs: 22 pairs of autosomes + 1 pair of sex chromosomes (XX in females, XY in males).", "[1 mark] Gametes are formed in specialised reproductive organs and contain only half the number of chromosomes and half the DNA of a body cell (23 in humans).", "[1 mark] At fertilisation a male and a female gamete fuse (23 + 23 = 46), restoring the original chromosome number in the zygote; hence parents and offspring have the same chromosome number."],
     ncertRef: "cbjesccq08 Q74", isCompetencyBased: true,
     finalAnswer: "46 chromosomes (22 pairs autosomes + XX/XY); gametes are haploid and fertilisation restores the full number, keeping it constant across generations.",
     sourceOverride: "others", },
@@ -299,7 +299,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-REPR-038", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "What happens when: a. Accidentally Planaria is cut into three different pieces. b. Bryophyllum leaf fall on the wet soil. c. On maturation sporangia of Rhizopus burst.",
     answer: "a. Each of the three pieces grows into a complete new Planaria by regeneration. b. Buds present in the notches along the leaf margin develop into new plantlets, which grow into new plants (vegetative propagation). c. Spores are released and dispersed; on reaching a suitable moist substratum each spore germinates into a new Rhizopus individual (spore formation).",
-    solutionSteps: ["a. Each of the three cut pieces of Planaria grows into a complete new Planaria — regeneration.", "b. Buds in the notches of the Bryophyllum leaf margin develop into new plantlets that grow into new plants — vegetative propagation.", "c. The sporangia release numerous spores which, on a suitable moist substratum, germinate into new Rhizopus individuals — spore formation."],
+    solutionSteps: ["[1 mark] a. Each of the three cut pieces of Planaria grows into a complete new Planaria — regeneration.", "[1 mark] b. Buds in the notches of the Bryophyllum leaf margin develop into new plantlets that grow into new plants — vegetative propagation.", "[1 mark] c. The sporangia release numerous spores which, on a suitable moist substratum, germinate into new Rhizopus individuals — spore formation."],
     ncertRef: "cbjesccq08 Q76", isCompetencyBased: true,
     finalAnswer: "a. Regeneration into three Planaria; b. Leaf-notch buds form new plantlets (vegetative propagation); c. Spores released germinate into new Rhizopus.",
     sourceOverride: "others", },

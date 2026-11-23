@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { isThinkingRejected } = require('../grading/modelConfig.cjs');
 
 let _pool = null;
 function getPool() {
@@ -200,8 +201,8 @@ function validateSolutionQuality(solution, marks, isObjective) {
     reasons.push('too-few-steps-for-marks');
   }
 
-  // Size sanity: generation is capped at 1800 output tokens; anything hugely over
-  // that serialized is runaway/duplicated content, not a solution.
+  // Size sanity: anything hugely over this serialized is runaway/duplicated content,
+  // not a solution (the generation cap is SCHEME_GEN_MAX_OUTPUT_TOKENS, default 8192).
   try {
     if (JSON.stringify(solution).length > 20000) reasons.push('oversized');
   } catch (e) {
@@ -258,6 +259,61 @@ function buildFromPrewrittenSteps(stepsArr, finalAnswer, totalMarks, qType, sect
   };
 }
 
+// SCHEME-GEN-1 (23 Nov 2026): the scheme generator's model config. gemini-2.5-flash THINKS by default and its thinking
+// tokens count against maxOutputTokens, so the old 1800 cap was eaten by thinking and the JSON was cut off
+// (finishReason MAX_TOKENS -> unparseable -> "no usable scheme"). Now: a bounded thinking budget AND room for the JSON.
+// Env-overridable integers; anything invalid -> the defaults. SCHEME_GEN_LEGACY=1 -> the exact pre-fix config (kill switch).
+const SCHEME_GEN_DEFAULT_MAX_OUTPUT_TOKENS = 8192;
+const SCHEME_GEN_DEFAULT_THINKING_BUDGET = 1024;
+const SCHEME_GEN_LEGACY_CONFIG = Object.freeze({ temperature: 0.2, maxOutputTokens: 1800 });
+
+function parseEnvInt(raw, min, max) {
+  const t = String(raw === undefined || raw === null ? '' : raw).trim();
+  if (!/^\d+$/.test(t)) return null;
+  const n = Number(t);
+  return Number.isSafeInteger(n) && n >= min && n <= max ? n : null;
+}
+
+/** The generator's config, read from `env` at call time (so the kill switch needs no redeploy-time import order). */
+function resolveSchemeGenConfig(env = process.env) {
+  const legacy = ['1', 'true', 'yes', 'on'].includes(String((env && env.SCHEME_GEN_LEGACY) || '').trim().toLowerCase());
+  if (legacy) return { legacy: true, config: { ...SCHEME_GEN_LEGACY_CONFIG } };
+  let maxOutputTokens = parseEnvInt(env && env.SCHEME_GEN_MAX_OUTPUT_TOKENS, 1024, 65536);
+  let thinkingBudget = parseEnvInt(env && env.SCHEME_GEN_THINKING_BUDGET, 0, 24576);
+  if (maxOutputTokens === null) maxOutputTokens = SCHEME_GEN_DEFAULT_MAX_OUTPUT_TOKENS;
+  if (thinkingBudget === null) thinkingBudget = SCHEME_GEN_DEFAULT_THINKING_BUDGET;
+  // A cap that leaves the JSON no room beyond the thinking budget re-creates the bug: fall back to the defaults for both.
+  if (maxOutputTokens < thinkingBudget + 1024) {
+    maxOutputTokens = SCHEME_GEN_DEFAULT_MAX_OUTPUT_TOKENS;
+    thinkingBudget = SCHEME_GEN_DEFAULT_THINKING_BUDGET;
+  }
+  return { legacy: false, config: { temperature: 0.2, maxOutputTokens, thinkingConfig: { thinkingBudget } } };
+}
+
+// SCHEME-GEN-1 follow-up (paid eval, 23 Nov 2026): rules that keep a generated scheme's marks on what the question asks for.
+// Rule 13 applies to every non-objective question; 14 and 15 are Science-only (Maths keeps its method-step marking untouched).
+const PART_MARKS_RULE_13 = '\n13. If the question prints marks for its parts (e.g. "[1½]", "(1 mark)", "[2]", "1 mark"), the steps for each part MUST sum to exactly that part\'s printed marks; never move marks to working the question does not ask for.';
+const PART_MARKS_RULE_14 = '\n14. Marks go to what the question explicitly asks for (each asked value, ratio, decision, reason). Working the question does not ask for (for example a cross or Punnett diagram) earns at most 0.5. In a numerical, the correct formula still earns 0.5 and correct substitution/calculation steps earn their usual credit.';
+const PART_MARKS_RULE_15 = '\n15. For "Can/Should/Is ... ? Give reason" questions, the decision plus the reason together carry at least half the marks; each supporting calculated value carries at most 0.5.';
+
+function schemeGenCount(deps, name) {
+  try {
+    const t = (deps && deps.telemetry) || require('../telemetry.cjs');
+    if (t && typeof t.increment === 'function') t.increment(name, 1);
+  } catch { /* a counter never fails a generation */ }
+}
+
+/** ONE log line + one counter for a generation that yielded no usable scheme. Logs LENGTHS and counts only, never the text. */
+function noteSchemeGenFailure(reply, cfg, deps) {
+  const finish = (reply && reply.finishReason) || (reply && reply.raw && reply.raw.candidates && reply.raw.candidates[0] && reply.raw.candidates[0].finishReason) || 'none';
+  const usage = (reply && reply.raw && reply.raw.usageMetadata) || {};
+  const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 'na');
+  const textLen = reply && typeof reply.text === 'string' ? reply.text.length : 0;
+  schemeGenCount(deps, finish === 'MAX_TOKENS' ? 'scheme_gen.max_tokens' : 'scheme_gen.parse_fail');
+  console.warn('[scheme-gen] no usable scheme finish=' + finish + ' candidates_tokens=' + num(usage.candidatesTokenCount) + ' thoughts_tokens=' + num(usage.thoughtsTokenCount) +
+    ' text_len=' + textLen + ' max_output=' + cfg.config.maxOutputTokens + ' thinking_budget=' + (cfg.config.thinkingConfig ? cfg.config.thinkingConfig.thinkingBudget : 'default') + ' legacy=' + (cfg.legacy ? 1 : 0));
+}
+
 // ── Shared model-solution generation core (C&I PR-3) ───────────────────────────
 // Generates an official-marking-scheme-style solution from the QUESTION ALONE.
 // The student's answer/image/PII never enters this prompt, so the artifact is
@@ -281,6 +337,9 @@ async function generateModelSolution(fields, deps) {
   const { callGemini, GEMINI_MODEL, ACTIVE_PROVIDER, extractJsonObjectFromText } = deps;
 
   const isMaths = /math/i.test(subject);
+  const genCfg = resolveSchemeGenConfig();
+  // SCHEME-GEN-1 follow-up: the part-marks rules + example below exist only when NOT on the SCHEME_GEN_LEGACY kill switch.
+  const partMarkRules = !genCfg.legacy;
   const systemPrompt =
     'You are a CBSE Class 10 board exam evaluator who authors the OFFICIAL marking scheme for ' +
     subject + ' (Subject Code: ' + (isMaths ? '041' : '086') + '). ' +
@@ -302,14 +361,22 @@ async function generateModelSolution(fields, deps) {
 
   const scienceExample =
     'CBSE MARKING SCHEME FORMAT EXAMPLES (Science):\n' +
-    '--- Example: 2-mark question "Write the balanced chemical equation when iron reacts with copper sulphate" ---\n' +
+    (partMarkRules
+      ? '--- Example: 2-mark question "Write the balanced chemical equation and name the type of reaction when iron reacts with copper sulphate" ---\n'
+      : '--- Example: 2-mark question "Write the balanced chemical equation when iron reacts with copper sulphate" ---\n') +
     'Step 1: desc="Writing reactants and products", working="Fe + CuSO₄ → FeSO₄ + Cu", marks=0.5\n' +
     'Step 2: desc="Balanced equation with state symbols", working="Fe(s) + CuSO₄(aq) → FeSO₄(aq) + Cu(s)", marks=1\n' +
     'Step 3: desc="Identifying type of reaction", working="This is a displacement reaction (Fe displaces Cu).", marks=0.5\n' +
     '--- Example: 3-mark question "What is refraction? State Snell\'s law with formula" ---\n' +
     'Step 1: desc="Defining refraction", working="Refraction is the change in direction of light when it passes from one transparent medium to another.", marks=1\n' +
     'Step 2: desc="Stating Snell\'s law", working="The ratio of sine of angle of incidence to sine of angle of refraction is constant for a given pair of media. This constant is called refractive index.", marks=1\n' +
-    'Step 3: desc="Writing the formula", working="sin i / sin r = n₂₁ (refractive index of medium 2 w.r.t. medium 1)", marks=1\n';
+    'Step 3: desc="Writing the formula", working="sin i / sin r = n₂₁ (refractive index of medium 2 w.r.t. medium 1)", marks=1\n' +
+    (partMarkRules ? (
+      '--- Example: 2-mark question "Can zinc displace iron from iron sulphate solution? Give reason." ---\n' +
+      'Step 1: desc="Stating the positions in the reactivity series", working="Zinc is placed above iron in the reactivity series.", marks=0.5\n' +
+      'Step 2: desc="Stating the decision", working="Yes, zinc displaces iron from iron sulphate solution.", marks=0.5\n' +
+      'Step 3: desc="Giving the reason", working="Zinc is more reactive than iron, so it displaces iron: Zn(s) + FeSO₄(aq) → ZnSO₄(aq) + Fe(s).", marks=1\n'
+    ) : '');
 
   const mcqInstructions = isObj ? (
     '\n\nIMPORTANT — THIS IS AN OBJECTIVE/MCQ QUESTION (Section A, ' + marks + ' mark):\n' +
@@ -364,19 +431,40 @@ async function generateModelSolution(fields, deps) {
     '9. commonMistakes must be SPECIFIC to this question (not generic advice)\n' +
     '10. examTip must reference the CBSE board marking pattern for this question type\n' +
     (isObj ? '' : '11. For word problems: include step for framing the equation AND step for rejecting invalid values with reason\n') +
-    '12. Total steps: ' + (isObj ? '1-mark MCQ → 2 steps (1 scored + 1 explanatory)' : '2-mark Q → 3 steps, 3-mark Q → 4 steps, 5-mark Q → 5-6 steps (matching CBSE scheme density)');
+    '12. Total steps: ' + (isObj ? '1-mark MCQ → 2 steps (1 scored + 1 explanatory)' : '2-mark Q → 3 steps, 3-mark Q → 4 steps, 5-mark Q → 5-6 steps (matching CBSE scheme density)') +
+    (partMarkRules && !isObj ? PART_MARKS_RULE_13 + (isMaths ? '' : PART_MARKS_RULE_14 + PART_MARKS_RULE_15) : '');
 
   const contents = [
     { role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] },
   ];
 
-  const reply = await callGemini(GEMINI_MODEL, contents, {
-    temperature: 0.2,
-    maxOutputTokens: 1800,
-  });
+  let reply;
+  try {
+    try {
+      reply = await callGemini(GEMINI_MODEL, contents, genCfg.config);
+    } catch (e0) {
+      // A rejected thinking budget is not a failed generation: retry ONCE on the same model without it (as grading/core.cjs does).
+      if (genCfg.config.thinkingConfig && isThinkingRejected(e0)) {
+        schemeGenCount(deps, 'scheme_gen.thinking_retry');
+        console.warn('[scheme-gen] thinking rejected, retried without');
+        const cfgNoThinking = { ...genCfg.config };
+        delete cfgNoThinking.thinkingConfig;
+        reply = await callGemini(GEMINI_MODEL, contents, cfgNoThinking);
+      } else {
+        throw e0;
+      }
+    }
+  } catch (e) {
+    schemeGenCount(deps, 'scheme_gen.error');
+    console.warn('[scheme-gen] model call failed: ' + String((e && e.message) || e).slice(0, 120) + ' legacy=' + (genCfg.legacy ? 1 : 0));
+    throw e;
+  }
 
   const parsed = extractJsonObjectFromText(reply.text);
-  if (!(parsed && Array.isArray(parsed.steps) && parsed.steps.length > 0)) return null;
+  if (!(parsed && Array.isArray(parsed.steps) && parsed.steps.length > 0)) {
+    noteSchemeGenFailure(reply, genCfg, deps);
+    return null;
+  }
 
   let steps = parsed.steps
     .filter((s) => s && (s.description || s.working))
@@ -387,7 +475,10 @@ async function generateModelSolution(fields, deps) {
       marks: Math.max(0, Math.round(Number(s.marks) * 2) / 2),
     }));
 
-  if (steps.length === 0) return null;
+  if (steps.length === 0) {
+    noteSchemeGenFailure(reply, genCfg, deps);
+    return null;
+  }
 
   const maxSteps = Math.floor(marks / 0.5);
   if (steps.length > maxSteps) {
@@ -459,6 +550,7 @@ async function generateModelSolution(fields, deps) {
     }
   }
 
+  schemeGenCount(deps, 'scheme_gen.ok');
   const solution = {
     totalMarks: marks,
     steps,
@@ -721,6 +813,7 @@ module.exports = {
   deleteSolution,
   validateSolutionQuality,
   generateModelSolution,
+  resolveSchemeGenConfig,
   renderSolutionSchemeSteps,
   getOrCreateModelSolution,
   __setPoolForTests,
