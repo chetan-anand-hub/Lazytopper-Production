@@ -46,9 +46,9 @@ export const NOT_FOUND_ADD_PAGE_ACTION = "Upload all pages again";
 
 /** REVIEW B2 - the banner on the upload step that action opens. */
 export const ADD_PAGES_UPLOAD_BANNER = "Upload every page of this paper, not just the missing one — this check replaces the last one.";
-/** ...and, on a Test Series paper without the Board Pass (an owner's paper or the free test), what it costs: the server's count. */
-export const ADD_PAGES_USES_CHECK_LINE =
-  "It uses one of this paper's checks — unless most answers can't be found or read, when it isn't counted (once per paper).";
+/** ...and, on a Test Series paper without the Board Pass (an owner's paper or the free test), what it costs. RE-REVIEW SF2: said
+ *  plainly - the page cannot tell whether this paper's one free re-check is still unused, so it promises none. */
+export const ADD_PAGES_USES_CHECK_LINE = "It uses one of this paper's checks.";
 
 /** The lead of the block, the result card and the PDF: converted ("Not attempted · 0") or still not marked. PURE. */
 export function notFoundLead(mode: "not-attempted" | "not-marked", qNumbers: ReadonlyArray<number>): string {
@@ -81,10 +81,27 @@ export function asNotFoundNotAttempted(row: WorksheetQuestionGrade): WorksheetQu
   };
 }
 
-/** A written row the server's TS-RECHECK-1 counts as "could not support" (charge.cjs UNREADABLE_REASONS, as the client sees them). */
+/**
+ * RE-REVIEW SF1 - the server's `R.NO_ANSWER_ON_PAGE_NOTE` (server/grading/rules.cjs), the teacherNote of a row graded 0 "unattempted"
+ * because the page inventory had no answer for it: `firstLineNotInWork` (which TS-RECHECK-1 COUNTS as unsupported) or a blank slot
+ * (which it does not). The server does not send `_reason`, so the client cannot tell them apart and counts BOTH - the safe
+ * direction: the client's share can only be higher than the server's, never lower, so it never calls a paper final on a check the
+ * server did not count. A MIRROR, not an import: rules.cjs is the grader's whole prompt rulebook and must not ship to the browser;
+ * a test pins this string equal to the server's export.
+ */
+export const SERVER_NO_ANSWER_ON_PAGE_NOTE =
+  "No answer to this question was found on your page, so it earns no marks — if you did answer it, check that the page is included and the question number is written beside it.";
+
+/** A graded 0 row the server filed as "no answer on the page" (firstLineNotInWork, or a blank slot). */
+function noAnswerOnPage(r: WorksheetQuestionGrade): boolean {
+  return isGradedQuestion(r) && r.teacherNote === SERVER_NO_ANSWER_ON_PAGE_NOTE;
+}
+
+/** A written row the server's TS-RECHECK-1 may count as "could not support" (charge.cjs UNREADABLE_REASONS, as the client sees
+ *  them - never fewer than the server counts; see SERVER_NO_ANSWER_ON_PAGE_NOTE). */
 function unreadableLike(r: WorksheetQuestionGrade): boolean {
   const state = gradeStateOf(r);
-  return isNotFoundOnPages(r) || state === "could-not-read" || state === "answer-mismatch";
+  return isNotFoundOnPages(r) || noAnswerOnPage(r) || state === "could-not-read" || state === "answer-mismatch";
 }
 
 /** Real written work was graded from the sheet: a graded row that is not a blank / not-attempted 0 (REVIEW S3). */
@@ -135,7 +152,7 @@ export function notFoundSummary(
  */
 export function notCountedReasonOf(rows: ReadonlyArray<WorksheetQuestionGrade> | null | undefined): "not-found" | "unreadable" | null {
   const list = rows ?? [];
-  const missing = list.some((r) => isNotFoundNotAttempted(r) || isNotFoundOnPages(r));
+  const missing = list.some((r) => isNotFoundNotAttempted(r) || isNotFoundOnPages(r) || noAnswerOnPage(r));
   const unread = list.some((r) => !isNotFoundOnPages(r) && (gradeStateOf(r) === "could-not-read" || gradeStateOf(r) === "unread-option"));
   if (missing && !unread) return "not-found";
   if (unread && !missing) return "unreadable";

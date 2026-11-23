@@ -60,7 +60,7 @@ describe("LIVE-FIX-1 - the free test's checks-left line after a check", () => {
     // The live run's sheet: answers missing from the pages (not unreadable) -> the not-found wording (coordinator ruling 24 Nov).
     render(<MemoryRouter><SeriesChecksLeftLine uid="u1" worksheetId={FM_ID} refreshKey="full:false" freeTest notCountedReason="not-found" /></MemoryRouter>);
     await waitFor(() => expect(screen.getByTestId("series-recheck-note").textContent).toBe(
-      "This check wasn't counted — most answers weren't on the pages. Add all your pages and check again free.",
+      "This check wasn't counted — half or more of the answers couldn't be found or read on the pages. Add all your pages and check again. This free re-check is given once per paper.",
     ));
     expect(line()).toBe("Your free test · Checks left on this paper: 2 of 2");
   });

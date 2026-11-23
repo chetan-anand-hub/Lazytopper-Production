@@ -347,9 +347,12 @@ export const SHEET_UNREADABLE_NOT_COUNTED_LINE =
  * were not on the uploaded pages (TS-RECHECK-1, unchanged). The note names the reason only when the page KNOWS it from the check
  * it just showed; otherwise one neutral line fits both.
  */
+// RE-REVIEW SF2: the free re-check has JUST been used (one per paper) - the next check counts, so neither line says "free".
+// NIT: "half or more ... couldn't be found or read" is true in every case TS-RECHECK-1 triggers (exactly half; another question's answer).
 export const ANSWERS_NOT_FOUND_NOT_COUNTED_LINE =
-  "This check wasn't counted — most answers weren't on the pages. Add all your pages and check again free.";
-export const CHECK_NOT_COUNTED_NEUTRAL_LINE = "This check wasn't counted — add any missing or unclear pages and check again free.";
+  "This check wasn't counted — half or more of the answers couldn't be found or read on the pages. Add all your pages and check again. This free re-check is given once per paper.";
+export const CHECK_NOT_COUNTED_NEUTRAL_LINE =
+  "This check wasn't counted — add any missing or unclear pages and check again. This free re-check is given once per paper.";
 
 export type NotCountedReason = "not-found" | "unreadable" | null;
 

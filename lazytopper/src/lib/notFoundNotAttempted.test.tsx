@@ -8,6 +8,7 @@
  * (live + re-open), the result-card line and the graded PDF.
  */
 import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -21,11 +22,13 @@ import { buildChapterTestResponse, scoreObjectiveSection } from "../services/cha
 import { buildFullMockResponse } from "../services/fullMockGradeService";
 import { buildChapterTestSessionRecord, buildFullMockSessionRecord } from "../services/sessionRecords";
 import { isFullyGradedFullPaper, buildBoardScoreView } from "./fullmock/boardEstimate";
-import { gradeStateOf, isGradedQuestion, isLossOnlyNotAttempted, paperMarksLost } from "./mistakeDisplay";
+import { gradeStateOf, isGradedQuestion, isLossOnlyNotAttempted, isNotFoundOnPages, paperMarksLost } from "./mistakeDisplay";
 import {
   ADD_PAGES_UPLOAD_BANNER,
+  ADD_PAGES_USES_CHECK_LINE,
   NOT_FOUND_ADD_PAGE_ACTION,
   NOT_FOUND_NOT_ATTEMPTED_NOTE,
+  SERVER_NO_ANSWER_ON_PAGE_NOTE,
   UNREADABLE_SHARE,
   isNotFoundNotAttempted,
   notCountedReasonOf,
@@ -80,6 +83,8 @@ const notFound = (q: number): WorksheetQuestionGrade =>
   ({ qNumber: q, couldNotRead: true, totalMarks: MARKS.get(q) ?? 3, marksAwarded: 0, note: NOT_FOUND_SERVER, notGraded: "unreadable", _reason: "notInInventory" } as unknown as WorksheetQuestionGrade);
 const unreadable = (q: number): WorksheetQuestionGrade =>
   ({ qNumber: q, couldNotRead: true, totalMarks: MARKS.get(q) ?? 3, marksAwarded: 0, note: "The photo is too blurry to read", notGraded: "unreadable" } as WorksheetQuestionGrade);
+// As postprocess.cjs `unattempted(R.NO_ANSWER_ON_PAGE_NOTE, 'firstLineNotInWork')` sends it (`_reason` is not sent).
+const noAnswerOnPage = (q: number): WorksheetQuestionGrade => ({ ...blank(q), teacherNote: SERVER_NO_ANSWER_ON_PAGE_NOTE });
 const mismatch = (q: number): WorksheetQuestionGrade => ({ ...graded(q, 0), answerMismatch: true } as WorksheetQuestionGrade);
 
 /** The 18 written rows: `pick(q)` decides each one (default: graded full marks). */
@@ -101,12 +106,30 @@ const TWO = () => fm(sheet((q) => (q === 33 || q === 34 ? notFound(q) : q === 21
 const SEVENTEEN = () => fm(sheet((q) => (q === 21 ? graded(21, 2) : notFound(q))));
 
 describe("the server's rule decides (REVIEW S3)", () => {
-  it("UNREADABLE_SHARE mirrors the server's TS-RECHECK-1 constant; the reasons it counts are the ones charge.cjs lists", () => {
-    const server = resolve(__dirname, "../../server");
-    const checks = readFileSync(resolve(server, "services/testSeriesChecks.cjs"), "utf8");
+  it("pinned to what the server SENDS: its not-found note is read as not found, its no-answer note counts as unsupported, the share is its constant", () => {
+    const require = createRequire(import.meta.url);
+    const R = require("../../server/grading/rules.cjs") as Record<string, unknown>;
+    // RE-REVIEW SF1: the client's mirror IS the server's string, and a row carrying it (as postprocess.cjs `unattempted` sends it:
+    // graded 0, its whole loss not attempted) pushes the share up.
+    expect(SERVER_NO_ANSWER_ON_PAGE_NOTE).toBe(R.NO_ANSWER_ON_PAGE_NOTE);
+    expect(isNotFoundOnPages({ qNumber: 1, couldNotRead: true, totalMarks: 3, note: String(R.NOT_FOUND_ON_PAGE_NOTE), notGraded: "unreadable" } as WorksheetQuestionGrade)).toBe(true);
+    expect(notCountedReasonOf([noAnswerOnPage(21), graded(22, 3)])).toBe("not-found");
+    // The share is the server's TS-RECHECK-1 constant (testSeriesChecks.cjs is not required here: it loads Firestore wiring).
+    const checks = readFileSync(resolve(__dirname, "../../server/services/testSeriesChecks.cjs"), "utf8");
     expect(checks).toContain(`const UNREADABLE_SHARE = ${UNREADABLE_SHARE};`);
-    const charge = readFileSync(resolve(server, "grading/charge.cjs"), "utf8");
-    expect(charge).toContain("const UNREADABLE_REASONS = new Set(['couldNotRead', 'notInInventory', 'firstLineNotInWork', 'answerMismatch']);");
+  });
+
+  it("RE-REVIEW SF1: 10 written questions, 4 not found + 1 first-line-not-in-work (graded 0 'no answer on the page') -> 5 / 10 -> nothing converts", () => {
+    const ten = (rows: WorksheetQuestionGrade[]) =>
+      buildFullMockResponse({ paper: PAPER, objective: OBJECTIVE, subjectiveQuestions: WRITTEN, subjectiveResponse: subjective(rows) });
+    const rows = [notFound(21), notFound(22), notFound(23), notFound(24), noAnswerOnPage(25), graded(26, 3), graded(27, 3), graded(28, 3), graded(29, 2), graded(30, 3)];
+    const r = ten(rows);
+    expect(r.results.some((x) => isNotFoundNotAttempted(x))).toBe(false);
+    expect(r.pendingCount).toBe(4);
+    expect(buildFullMockSessionRecord({ paper: PAPER, code: "FM-M-05", subject: "maths", response: r, uid: "u1" }).status).toBe("partial");
+    // One fewer unsupported row (4 / 10) -> the server counts the check -> the 3 missing answers convert.
+    const below = ten([notFound(21), notFound(22), notFound(23), graded(24, 3), noAnswerOnPage(25), graded(26, 3), graded(27, 3), graded(28, 3), graded(29, 2), graded(30, 3)]);
+    expect(notFoundNotAttemptedQNumbers(below.results)).toEqual([21, 22, 23]);
   });
 
   it("2 / 18 not found -> those 2 are GRADED 'Not attempted · 0' in the total: X / 80 final, nothing pending", () => {
@@ -141,7 +164,7 @@ describe("the server's rule decides (REVIEW S3)", () => {
     expect(isFullyGradedFullPaper(rec as never)).toBe(false);
     expect(notFoundSummary(r.results)?.mode).toBe("not-marked");
     expect(notCountedReasonOf(r.results)).toBe("not-found");
-    expect(checkNotCountedLine(notCountedReasonOf(r.results))).toBe("This check wasn't counted — most answers weren't on the pages. Add all your pages and check again free.");
+    expect(checkNotCountedLine(notCountedReasonOf(r.results))).toBe("This check wasn't counted — half or more of the answers couldn't be found or read on the pages. Add all your pages and check again. This free re-check is given once per paper.");
   });
 
   it("missing + unreadable + another question's answer reaching half -> nothing converts (the server's combined share)", () => {
@@ -245,6 +268,7 @@ describe("the scorecard (live + re-open), the result card and the PDF - copy ask
     expect(container.textContent).toBe("");
     expect(notFoundAddPageLine(1)).toBe("If you answered this, upload all your pages again, including the missing one");
     expect(ADD_PAGES_UPLOAD_BANNER).toBe("Upload every page of this paper, not just the missing one — this check replaces the last one.");
+    expect(ADD_PAGES_USES_CHECK_LINE).toBe("It uses one of this paper's checks."); // RE-REVIEW SF2: no promise of a free re-check
   });
 
   it("the graded PDF lists them 'Not attempted · 0' with the helper line; no 'not marked yet'", () => {
@@ -262,6 +286,6 @@ describe("the not-counted note's reason (TS-RECHECK-1 copy)", () => {
     expect(notCountedReasonOf(fm(sheet((q) => (q <= 25 ? notFound(q) : q <= 30 ? unreadable(q) : null))).results)).toBeNull();
     expect(notCountedReasonOf(fm(sheet((q) => (q <= 30 ? mismatch(q) : null))).results)).toBeNull();
     expect(notCountedReasonOf(null)).toBeNull();
-    expect(checkNotCountedLine(null)).toBe("This check wasn't counted — add any missing or unclear pages and check again free.");
+    expect(checkNotCountedLine(null)).toBe("This check wasn't counted — add any missing or unclear pages and check again. This free re-check is given once per paper.");
   });
 });
