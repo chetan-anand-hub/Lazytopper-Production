@@ -513,12 +513,10 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "Myopia (short-sightedness) is the defect in which nearby objects are seen clearly but distant objects are not. Causes: the eyeball becomes too long, or the focal length of the eye lens decreases. It is corrected by a concave (diverging) lens of suitable focal length.",
     "explanation": "",
     "solutionSteps": [
-      "Define myopia (short-sightedness) as the defect in which a person can see nearby objects clearly but cannot see distant objects distinctly.",
-      "State two causes: (i) the eyeball becomes too long, (ii) the focal length of the eye lens decreases.",
-      "Explain that due to myopia, images of distant objects are formed in front of the retina instead of on it.",
-      "Myopia is corrected by using a concave (diverging) lens of suitable focal length in spectacles.",
-      "The concave lens diverges the incoming parallel rays so that after refraction by the eye lens, the image forms exactly on the retina.",
-      "Draw a labelled ray diagram showing a distant object, concave lens in front of the myopic eye, and the final image on the retina."
+      "[0.5 mark] Define myopia (short-sightedness) as the defect in which a person can see nearby objects clearly but cannot see distant objects distinctly.",
+      "[1 mark] State two causes: (i) the eyeball becomes too long, (ii) the focal length of the eye lens decreases.",
+      "[0.5 mark] Explain that due to myopia, images of distant objects are formed in front of the retina instead of on it. Myopia is corrected by using a concave (diverging) lens of suitable focal length in spectacles. The concave lens diverges the incoming parallel rays so that after refraction by the eye lens, the image forms exactly on the retina.",
+      "[1 mark] Draw a labelled ray diagram showing a distant object, concave lens in front of the myopic eye, and the final image on the retina."
     ],
     "finalAnswer": "Myopia (short-sightedness) is the defect in which nearby objects are seen clearly but distant objects are not. Causes: the eyeball becomes too long, or the focal length of the eye lens decreases. It is corrected by a concave (diverging) lens of suitable focal length.",
     "strategyHint": "",
