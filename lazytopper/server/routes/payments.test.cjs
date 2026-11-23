@@ -2982,10 +2982,15 @@ test('SERVER-EVENTS-1 · SERVER_EVENTS_DISABLED=1 is a kill switch even with eve
       'payOrders/o_anon': order({ uid: null, passType: 'pack_mock' }),
     };
     const f = fakeFetch();
-    const s = se.createServerEvents({ firestore: fakeDb(docs), env, fetchImpl: f.fetchImpl, now: () => NOW });
+    const db1 = fakeDb(docs);
+    const s = se.createServerEvents({ firestore: db1, env, fetchImpl: f.fetchImpl, now: () => NOW });
     for (const id of ['o_adm', 'o_tst', 'o_ok', 'o_anon']) await s.orderPaid({ orderId: id, payment: {} });
     const meta = f.calls.filter((c) => c.url.includes('graph.facebook.com')).map((c) => c.body.data[0].event_id);
     assert.deepEqual(meta.sort(), ['o_anon', 'o_ok']);
+    assert.equal(db1.docs.get('payOrders/o_adm').serverEvents.meta.state, 'excluded', 'distinct marker, never retried');
+    assert.equal(db1.docs.get('payOrders/o_ok').serverEvents.meta.state, 'sent');
+    await s.orderPaid({ orderId: 'o_adm', payment: {} });
+    assert.equal(f.calls.filter((c) => c.url.includes('graph.facebook.com')).length, 2, 'an excluded order is not retried');
     const ga = f.calls.filter((c) => !c.url.includes('graph.facebook.com')).map((c) => c.body.events[0].params.transaction_id);
     assert.deepEqual(ga.sort(), ['o_adm', 'o_anon', 'o_ok', 'o_tst'], 'GA4 still counts every order');
     const f2 = fakeFetch();

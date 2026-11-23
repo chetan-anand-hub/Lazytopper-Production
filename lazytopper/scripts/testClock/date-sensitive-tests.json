@@ -750,6 +750,7 @@
     "src/config/passPricing.parity.test.ts",
     "src/config/phase2Date.parity.test.ts",
     "src/config/prerenderPrice.guard.test.ts",
+    "src/config/pricing.chargedValue.test.ts",
     "src/config/pricing.guard.test.ts",
     "src/config/pricing.tillBoards.test.ts",
     "src/config/pricingCompare.test.ts",

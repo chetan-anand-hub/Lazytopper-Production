@@ -353,7 +353,7 @@ function createServerEvents(deps = {}) {
       const order = snap.data() || {};
       if (!PAID_STATES.includes(order.status)) return null;
       const mark = order.serverEvents && order.serverEvents[channel];
-      if (mark && (mark.state === 'sent' || (mark.state === 'pending' && now() - Number(mark.at || 0) < PENDING_STALE_MS))) return null;
+      if (mark && (mark.state === 'sent' || mark.state === 'excluded' || (mark.state === 'pending' && now() - Number(mark.at || 0) < PENDING_STALE_MS))) return null;
       tx.set(ref, { serverEvents: { ...(order.serverEvents || {}), [channel]: { state: 'pending', at: now() } } }, { merge: true });
       return order;
     });
@@ -365,7 +365,7 @@ function createServerEvents(deps = {}) {
       await firestore.runTransaction(async (tx) => {
         const snap = await tx.get(ref);
         const prev = snap && snap.exists ? (snap.data() || {}).serverEvents || {} : {};
-        tx.set(ref, { serverEvents: { ...prev, [channel]: { state: ok ? 'sent' : 'failed', at: now() } } }, { merge: true });
+        tx.set(ref, { serverEvents: { ...prev, [channel]: { state: ok === 'excluded' ? 'excluded' : ok ? 'sent' : 'failed', at: now() } } }, { merge: true });
       });
     } catch {
       count(`${channel}.marker_error`);
@@ -388,7 +388,7 @@ function createServerEvents(deps = {}) {
       count(`${channel}.error`);
     }
     await settle(orderId, channel, ok);
-    return ok;
+    return ok === true;
   }
 
   /**
@@ -405,7 +405,7 @@ function createServerEvents(deps = {}) {
         jobs.push(() =>
           sendPaidChannel('meta', orderId, pay, async (order) => {
             if (isTopupProduct(order.passType)) return true;
-            if (metaExcluded(order.uid)) return true; // META-CAPI-EXCLUDE-1: nothing sent; marked done so a re-check does not retry
+            if (metaExcluded(order.uid)) { count('meta.excluded'); return 'excluded'; } // META-CAPI-EXCLUDE-1: nothing sent; settled as 'excluded' (claim treats it like 'sent': never retried)
             const paid = metaPaidEvent(order, packAsPurchase);
             const s = order.adSignals || {};
             const ev = buildMetaEvent({

@@ -13,7 +13,7 @@ describe("chargedValueInr", () => {
     expect(v).toBe(priceWithGst(999, NOW));
     expect(v).toBeGreaterThan(999);
   });
-  it("a zero / invalid server amount also falls back; nothing known -> undefined", () => {
+  it("a zero / invalid server amount also falls back; nothing known -> null", () => {
     expect(chargedValueInr(0, 999, NOW)).toBe(priceWithGst(999, NOW));
     expect(chargedValueInr(undefined, undefined, NOW)).toBeNull();
   });
