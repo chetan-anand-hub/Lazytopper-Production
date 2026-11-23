@@ -23,6 +23,69 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-23 (daily; UTC day 23 Nov, written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*(Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-23.md` section 6 [coordinator]. Tags the handoff gave are used as written; a tag marked "minted" had none in the handoff and was named here so it has its own heading (standing rule 1). Older entries are left as written (standing rule 3); the corrections are here.)*
+
+**Closed or corrected this window.**
+- `[FU-BANK-SOLUTIONSTEPS-1875]` (its 18 Nov entry stays as written): **CLOSED as mis-stated.** "About 1,875 B to E rows lack `solutionSteps`" was a stale misreading of a 25 Oct figure. Measured at trunk `66ffe1f7`: 10,175 served rows, 0 rows without `solutionSteps` (every 2-5-mark row has them), 328 rows lacking step MARKS (311 Science, 17 Maths). The real work was STEPMARK-3 (below).
+- `[FU-STEPMARK-REMAINING-1875]` (its older entry stays as written): **UPDATED.** The step-mark backfill is done: 328 rows without step marks, now **26 flagged and withheld** (`[FU-STEPMARK-26-FLAGGED]`). The "every question step-marked" copy (ads, `/packs`, creatives; the variant copy is ready) can now say "all but a few flagged questions"; do not say "every" until the 26 are fixed or retired. Grep the whole claim family when flipping (PackDialog, ledes, alt text).
+- `[FU-BOARD-READINESS-MODEL]`: **SUPERSEDED** by the owner's 23 Nov 19:04 IST ruling. The old rule "no board-readiness projection, ever" (cited in `scorecardVariants.ts` and `boardEstimate.ts`; there was no heading for it on this board) no longer stands: the board estimate shipped in `#1832` (full-length scorecards out of 80, a trend, and an estimate with a range, shown only after at least two fully graded same-subject 80-mark full tests; 20 internal-assessment marks not included; kill switch `VITE_BOARD_ESTIMATE_DISABLED`). Reason: students and parents want to know where they stand, and competitors (Vedantu Board Score Booster) are moving there. What stays open: the estimate is not yet seen live, and its model is simple (weighted mean of the last five, with a +/- band); revisit when real scores exist.
+- `[FU-SCHEME-GEN-EMPTY]` (P0 in the 22 Nov entries; those entries stay as written): **FIX MERGED in `#1822`; do NOT close yet.** Truncated schemes went from 73 to 0 on the golden eval, but that evidence is from the stand-in model gemini-3.8-flash. Close it after the Railway `[scheme-gen]` line and `scheme_gen.{ok,max_tokens,parse_fail,error}` counters confirm production (`[FU-SCHEME-GEN-PROD-LOGS]`).
+
+### [FU-FAIRUSE-TS-OWNER-EXEMPT]
+OPEN. The server's FAIR-USE paper pass (`fairUse.cjs` `handlePaperPass`) has no Test Series owner exemption. So a trial-tier Test Series buyer could write a whole paper and then be refused at grade time (409 `trial_limit`). `#1840` first skipped the client weekly-limit check for series owners (unrequested); that was **reverted** (cofounder ruling 16, DECISION_LOG). Fix order: add the exemption server-side first, then relax the client so series owners can start a second paper in a week. Money / entitlement path: needs a spec, an independent review and a kill switch. [coordinator]
+
+### [FU-ADD-PAGE-MERGE-GRADES]
+OPEN, possible later lane. A re-upload ("Upload all pages again") replaces the earlier check; grades are NOT merged (cofounder ruling 15). Merging a re-upload with the earlier grade would let a student add only the missing page. Grading path: needs an eval, and CLAUDE.md section 4a applies (all six surfaces, two live). [coordinator]
+
+### [FU-STEPMARK-26-FLAGGED]
+OPEN, content. Hand-fix the 26 bank rows left without step marks, all flagged and withheld (`#1842`'s PR body lists them by id): 5 with the figure missing from the row; 3 whose stem asks for a diagram the steps do not include; 5 with garbled text or extraction residue; 2 with wrong content (CARB-EXMPLR-4-LONG-010, HERED-NCERT-8-SA-005); 11 one-clause 2-mark rows with a single value point (this group, and SCQ-S-EYE-021, stay flagged). `src/data/` is globally forbidden unless scoped; re-read `syllabusGuard.ts` first. [coordinator]
+
+### [FU-SCHEME-CP04-SUPPORT-VALUE]
+OPEN, needs its own eval. CP04-Q03 is over-credited on BOTH trunk and the `#1822` fix: a supporting value plus its formula gets 1 mark where the board gives 1/2. Fix idea: cap at 1/2 in "Can...? give reason" questions. [coordinator]
+
+### [FU-SCHEME-CACHE-VERSION] (minted)
+OPEN, owner decision. Schemes cached under the old prompt stay in use, so the `#1822` prompt rules 13-15 only reach cache misses. Bumping `CACHE_VERSION` (v3) regenerates every cached scheme and costs money. [coordinator]
+
+### [FU-SCHEME-EXAMPLE-S13] (minted)
+OPEN, small prompt fix plus a re-check. The `#1822` prompt example (iron / copper sulphate) merges "balanced equation" and "state symbols" into one step; CLAUDE.md section 13 says two separate 1/2 steps. [coordinator]
+
+### [FU-SCHEME-GEN-PROD-LOGS] (minted)
+OPEN, Railway. Confirm the production `[scheme-gen]` log line and the `scheme_gen.{ok,max_tokens,parse_fail,error}` counters. The truncation evidence came from the eval stand-in gemini-3.8-flash, while production runs gemini-2.5-flash. [coordinator]
+
+### [FU-ISLIVEPACK-REFUND]
+OPEN, low priority (pre-existing, found in the `#1836` review). `isLivePack` ignores `refundedAt` / `revokedAt`, so a refunded owner would keep pack access. Not urgent because there are never refunds. [coordinator]
+
+### [FU-DESKTOPSHELL-AVATAR-CONTRAST]
+OPEN. The desktop sidebar avatar gradient is still white on light green (2.70:1). `DesktopShell.tsx` is globally forbidden, so this needs a scoped owner grant. [coordinator]
+
+### [FU-GREEN-GUARD-LIMIT] (minted)
+OPEN, accept or extend. `greenContrast.guard.test.ts` (`#1841`) only catches a background and white text in the same CSS rule. [coordinator]
+
+### [FU-UI-E2E-REQUIRED-CHECK] (minted)
+OPEN. Make `ui-e2e` a required check after a few clean days. Keep `tests/e2e/buildEnv.json` in sync with Vercel production `VITE_*` flags; optionally set the flags on Vercel Preview. It runs on every PR now (about 2.5 min). [coordinator]
+
+### [FU-UI-E2E-SNAPSHOT-REFRESH] (minted)
+Method. Refresh screenshots by running the ui-e2e workflow with `update_snapshots` ticked, then commit the artifact; refresh only intended changes and look at them first. [coordinator]
+
+### [FU-PRERENDER-CAPTURE-ARTIFACT] (minted)
+Method, hit twice this session. Any CSS or copy change on a prerendered page fails `capture` until the capture job's own artifact is committed unedited. [coordinator]
+
+### [FU-FOCUS-SET-SNAPSHOT] (minted)
+OPTIONAL. The `/test-series` ui-e2e snapshot covers only the top of the page; the focus-set picker tab sits below it. A lower snapshot would cover it. [coordinator]
+
+### [FU-SHORTER-FEEDBACK-EVAL] (minted)
+OPTIONAL, needs the owner's spend OK (about ₹150). Fewer output tokens could save about 6 s on a single check. The thinking-setting eval (₹340) found no ship candidate; keep dynamic thinking. [coordinator]
+
+### [FU-SERVER-UNREADABLE-SHARE]
+OPEN, small server change plus a test. The server should send `{unreadable, total}` in the grade response so the client stops mirroring the share (`UNREADABLE_SHARE` 0.5). Today the client also counts genuine blank slots, so a student who truly skipped half the written questions stays "partial" with no final /80. The safe direction today. [coordinator]
+
+### [FU-OWNERSHIP-EXTRA-READ] (minted)
+NIT, accepted. `useTestSeriesOwnership` adds one `/api/packs/mine` read per mount of a `refreshKey` reader (from `#1840`). [coordinator]
+
+**Carried from 22 Nov, still open [coordinator]** (their entries are above): INAPP-SIGNED-IN-HANDOFF (spec first); `[FU-TS-UPGRADE-SIGNED-OUT]`; `[FU-NUDGE-BAD-PRODUCT]`; reviewer nits on `#1808`, `#1817` and `#1809`; CI flakes (`[FU-FLAKY-TRIAL-TUTOR-SUMMARY]`, `[FU-FLAKY-GUESTPAY-PUT-ON-THIS-ACCOUNT]`); laptop worktree cleanup; the 21 Nov queue (speed lane for ad landing pages, free MCQ pages, signed-out free-check phone test).
+
 ## 2026-11-22b (first daily of UTC day 22 Nov; written 22 Nov about 18:15 IST) - #1810 - #1815 - #1813 - #1812 - #1814 - #1808 - #1817 - #1805 - #1809 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **Closed:** `[FU-RESULT-LIST-BACKFILL]` by `#1814` (read-time derivation, no data write; checked on the owner's account [coordinator]). Its 22 Nov entry below is left as written (standing rule 3).
