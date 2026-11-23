@@ -355,7 +355,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(gaps.map((q) => q.id)).toEqual([]);
   });
 
-  it("the addressable step-marking backlog only shrinks (at most 768 rows)", () => {
+  it("the addressable step-marking backlog only shrinks (at most 730 rows)", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
      * rows that Rule 1 rejects permanently and that policy says to RETIRE, not
@@ -437,11 +437,14 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // splits on 54 hand-sourced carbon rows (every one left "unmarked-step").
     // 814 -> 768: STEPMARK-3 control-and-coordination (#1826), measured on the merged tree (trunk d02df856 + #1826): leading
     // [N mark] splits on 46 hand-sourced control-and-coordination rows (every one left "unmarked-step").
+    // 768 -> 730: STEPMARK-3 magnetic-effects-of-electric-current (#1827), measured on the merged tree (trunk fad42a83 + #1827):
+    // leading [N mark] splits on 38 hand-sourced magnetic-effects rows (36 + MAG-EXMPLR-12-SA-011 and SCQ-S-MAG-030, which
+    // are in the 2026-27 syllabus: 'Alternating current: frequency of AC. Advantage of AC over DC').
     // CEILING (PR-3) — the backlog is worked DOWN by STEPMARK batches and must never be
     // worked up: a wiring PR that lands rows unannotated grows it and goes red here,
     // which is the right red — annotate before wiring. 2,336 at PR-3 (2026-09-11); the
     // 21 bound-but-unmarked rows PR-3 exposed are inside this number, not added to it.
-    expect(addressable.length).toBeLessThanOrEqual(768);
+    expect(addressable.length).toBeLessThanOrEqual(730);
   });
 });
 

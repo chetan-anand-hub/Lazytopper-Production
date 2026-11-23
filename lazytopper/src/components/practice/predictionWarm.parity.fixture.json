@@ -801,7 +801,7 @@
  },
  "magnetic-effects-of-electric-current::rows": {
   "n": 269,
-  "sha256": "11049c2e36e9b4fbb503dbf4127c1d6cdeb7e90bb00a5dfe3123490526aacd9d"
+  "sha256": "66b3eeb03ec14ad1f633c1262ecc5eb2ca5a9279feaae9baa75e00d09d0705cb"
  },
  "magnetic-effects-of-electric-current::rank": {
   "n": 269,
@@ -1045,6 +1045,6 @@
  },
  "subject::Science": {
   "n": 5780,
-  "sha256": "6a13337bb8a5b8d0f248ab9fb9a65e81f03df04c5a6422c042da271a394265ac"
+  "sha256": "17292387cd45189826a42eeb2a3b6dc33f1fe0304141547861f841fdefcc904c"
  }
 }

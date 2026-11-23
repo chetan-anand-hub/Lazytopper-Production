@@ -595,10 +595,10 @@ export const CURATED_INLINE_QUESTIONS: CanonicalQuestion[] = [
     "answer": "Fleming’s left-hand rule: stretch the thumb, forefinger and middle finger of the left hand mutually perpendicular; the forefinger shows the direction of the magnetic field, the middle finger the direction of current, and the thumb the direction of force (motion) on the conductor.",
     "explanation": "",
     "solutionSteps": [
-      "State Fleming’s left-hand rule: If the thumb, forefinger and middle finger of the left hand are stretched mutually perpendicular, then the forefinger indicates the direction of magnetic field, the middle finger the direction of current, and the thumb gives the direction of force (motion) on the conductor.",
-      "Explain that for a current-carrying conductor placed in a magnetic field, force acts perpendicular to both field and current.",
-      "To use the rule, align the forefinger along the magnetic field direction and the middle finger along the current direction.",
-      "The thumb then automatically points in the direction of motion or force on the conductor."
+      "[1 mark] State Fleming’s left-hand rule: If the thumb, forefinger and middle finger of the left hand are stretched mutually perpendicular, then the forefinger indicates the direction of magnetic field, the middle finger the direction of current, and the thumb gives the direction of force (motion) on the conductor.",
+      "[0.5 mark] Explain that for a current-carrying conductor placed in a magnetic field, force acts perpendicular to both field and current.",
+      "[1 mark] To use the rule, align the forefinger along the magnetic field direction and the middle finger along the current direction.",
+      "[0.5 mark] The thumb then automatically points in the direction of motion or force on the conductor."
     ],
     "finalAnswer": "Fleming’s left-hand rule: stretch the thumb, forefinger and middle finger of the left hand mutually perpendicular; the forefinger shows the direction of the magnetic field, the middle finger the direction of current, and the thumb the direction of force (motion) on the conductor.",
     "strategyHint": "",

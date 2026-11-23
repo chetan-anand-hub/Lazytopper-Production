@@ -667,48 +667,40 @@
       "subject": "science",
       "questions": [
         {
-          "id": "PYQ-S-2024-MAG-001",
-          "questionText": "The current carrying device which produces a magnetic field similar to that of a bar magnet is :",
-          "marks": 1,
-          "section": "A",
+          "id": "APQ-S-MAG-002",
+          "questionText": "A helical coil whose length is greater than its diameter is connected to a battery. Two points P and Q lie inside the coil. (a) How does the magnetic field at point P compare with the magnetic field at point Q? Justify your answer. (b) State one way in which the strength of the magnetic field inside a current-carrying helical coil can be changed.",
+          "marks": 2,
+          "section": "B",
           "solutionSteps": [
-            "[1 mark] The magnetic field lines of a current-carrying solenoid emerge from one end and enter the other, exactly like a bar magnet; one end acts as a north pole and the other as a south pole. Hence (c) a solenoid. Answer: (C)"
+            "[1 mark] (a) The helical coil acts as a solenoid. Inside a solenoid (length >> diameter), the magnetic field is UNIFORM and consists of parallel straight lines. So magnetic field at P = magnetic field at Q.",
+            "[1 mark] (b) To change the strength: (i) increase/decrease the number of turns per unit length, OR (ii) increase/decrease the current through the coil. (Also: insert an iron core to dramatically increase B.)"
           ],
-          "options": [
-            "A straight conductor",
-            "A circular loop",
-            "A solenoid",
-            "A circular coil"
-          ],
-          "pyqYear": "2024"
+          "figures": [
+            {
+              "src": "/figures/other-science/magnetic-effects-of-electric-current/APQ-S-MAG-002.webp",
+              "alt": "Helical coil connected to a battery, with two points P and Q marked inside the coil"
+            }
+          ]
         },
         {
-          "id": "PYQ-S-2024-METAL-002",
-          "questionText": "A student fixes a sheet of white paper on a drawing board. He places a bar magnet in the centre of it. He sprinkles some iron filings uniformly around the bar magnet. Then he taps the drawing board gently and observes that the iron filings arrange themselves in a particular pattern. (a) Why do iron filings arrange in a particular pattern ? (b) What does the crowding of iron filings at the ends of the magnet indicate ? (c) What do the lines, along which the iron filings align, represent ? (d) If the student places a cardboard horizontally in a current carrying solenoid and repeats the above activity, in what pattern would the iron filings arrange ? State the conclusion drawn about the magnetic field based on the observed pattern of the lines.",
-          "marks": 3,
-          "section": "C",
+          "id": "APQ-S-MAG-004",
+          "questionText": "Imagine a current-carrying circular loop of wire on the plane of your answer sheet. The magnetic field inside the loop is into the plane of the paper. (i) What must be the direction of the current in the loop? (ii) State the rule used here.",
+          "marks": 2,
+          "section": "B",
           "solutionSteps": [
-            "[1 mark] (a) Because a magnetic field exists around the bar magnet",
-            "[1 mark] (b) Strength of the magnetic field is maximum near the poles of the magnet",
-            "[1 mark] (c) The lines represent the magnetic field lines. (d) Equidistant parallel lines; the magnetic field inside the solenoid is uniform."
-          ],
-          "pyqYear": "2024"
+            "[1 mark] (i) Using the right-hand thumb rule: if the magnetic field inside the loop is INTO the plane of the paper, point the right-hand thumb in that direction; fingers curl in the direction of current flow — CLOCKWISE in the plane of the paper.",
+            "[1 mark] (ii) The rule used is the RIGHT-HAND THUMB RULE: imagine holding a current-carrying conductor in your right hand with the thumb pointing in the direction of current; the fingers wrap around the conductor in the direction of the magnetic field lines."
+          ]
         },
         {
-          "id": "PYQ-S-2025-MAG-001",
-          "questionText": "Which one of the following statements is not true about a bar magnet ?",
-          "marks": 1,
-          "section": "A",
+          "id": "APQ-S-MAG-005",
+          "questionText": "(a) State the rule to determine the direction of the force experienced by a current-carrying straight conductor placed in a magnetic field which is perpendicular to it. (b) When will the magnitude of the displacement of the rod be the largest?",
+          "marks": 2,
+          "section": "B",
           "solutionSteps": [
-            "[1 mark] Correct option: (d) The direction of magnetic field lines inside a bar magnet is from its north pole to its south pole."
-          ],
-          "options": [
-            "It sets itself in north-south direction when suspended freely.",
-            "It has attractive power for iron filings.",
-            "It produces magnetic field lines.",
-            "The direction of magnetic field lines inside a bar magnet is from its north pole to its south pole."
-          ],
-          "pyqYear": "2025"
+            "[1 mark] (a) FLEMING'S LEFT-HAND RULE: stretch the forefinger, middle finger and thumb of the left hand mutually perpendicular to each other. If the forefinger points in the direction of the MAGNETIC FIELD and the middle finger points in the direction of CURRENT, then the THUMB indicates the direction of the FORCE / motion of the conductor.",
+            "[1 mark] (b) The displacement (and force F = B I L sin θ) of the rod is LARGEST when sin θ = 1 ⟹ θ = 90°, i.e., when the direction of current is at RIGHT ANGLES to the direction of the magnetic field."
+          ]
         }
       ]
     },
