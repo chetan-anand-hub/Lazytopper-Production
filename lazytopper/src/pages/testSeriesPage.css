@@ -616,6 +616,62 @@
   min-height: 44px;
 }
 
+/* TS-HERO-1 (owner, 23 Nov 2026): on a phone the Buy button must sit above the bottom nav on the first screen (360 x 740). CSS only, same
+   markup: tighter hero padding and step rows, the offer card's "Pre-boards" tag hidden, the "₹6 per test" badge inline with the name row. */
+@media (max-width: 767px) {
+  .lt-ts .lt-ts-hero {
+    padding: 10px 0 14px;
+  }
+  .lt-ts-hero__in {
+    gap: 8px;
+  }
+  .lt-ts-hero__copy {
+    gap: 6px;
+  }
+  .lt-ts-hero__h1 {
+    font-size: 1.3rem;
+  }
+  .lt-ts-hero__steps {
+    gap: 3px;
+    font-size: 0.85rem;
+  }
+  .lt-ts-hero__lede {
+    font-size: 0.88rem;
+    line-height: 1.35;
+  }
+  .lt-ts .lt-ts-offer--hero {
+    position: relative;
+    gap: 3px;
+    padding: 10px 14px 12px;
+    border-top-width: 4px;
+  }
+  .lt-ts-offer--hero .lt-ts-offer__tag {
+    display: none;
+  }
+  .lt-ts-offer--hero .lt-ts-offer__name {
+    font-size: 1.1rem;
+  }
+  .lt-ts-offer--hero .lt-tspt {
+    position: absolute;
+    top: 8px;
+    right: 14px;
+    margin: 0;
+    min-height: 0;
+  }
+  .lt-ts-offer--hero .lt-tspt__badge {
+    font-size: 0.8rem;
+    padding: 0 10px;
+  }
+  .lt-ts-offer--hero .lt-ts-offer__price {
+    font-size: 0.95rem;
+    min-height: 2.6em;
+  }
+  .lt-ts-offer--hero .lt-ts-offer__valid {
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+}
+
 /* ── Tablet ───────────────────────────────────────────────────────────── */
 @media (min-width: 768px) {
   .lt-ts .lt-ts-hero {
