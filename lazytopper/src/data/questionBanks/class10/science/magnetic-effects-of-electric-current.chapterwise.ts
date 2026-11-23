@@ -182,7 +182,7 @@ export const MAGNETIC_EFFECTS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-MAG-022", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "State the observation made by Oersted on the basis of his experiment with current carrying conductors.",
     answer: "A magnetic field is produced near a current carrying conductor which last so long till there is current in the conductor on reversing the current the direction of magnetic field is also reversed.",
-    solutionSteps: ["A magnetic field is produced near a current carrying conductor which last so long till there is current in the conductor on reversing the current the direction of magnetic field is also reversed."],
+    solutionSteps: ["[1 mark] A magnetic field is produced near a current carrying conductor which last so long till there is current in the conductor", "[1 mark] on reversing the current the direction of magnetic field is also reversed."],
     ncertRef: "cbjesccq13 Q2", isCompetencyBased: true },
   // cbjesccq13 Q3 (Section A, 1mk)
   { id: "SCQ-S-MAG-023", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -212,13 +212,13 @@ export const MAGNETIC_EFFECTS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-MAG-027", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "State two ways by which the strength of an electromagnet can be increased.",
     answer: "By increasing the strength of current and number of turns of the solenoid we can increase the strength of an electromagnet.",
-    solutionSteps: ["By increasing the strength of current and number of turns of the solenoid we can increase the strength of an electromagnet."],
+    solutionSteps: ["[1 mark] By increasing the strength of current", "[1 mark] and number of turns of the solenoid we can increase the strength of an electromagnet."],
     ncertRef: "cbjesccq13 Q31", isCompetencyBased: false },
   // cbjesccq13 Q32 (Section B, 2mk)
   { id: "SCQ-S-MAG-028", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Define a solenoid. How is it different from a coil?",
     answer: "A coil of many circular turns of insulated wire wrapped closely in the form of a cylinder is called a solenoid. In a current carrying solenoid magnetic field is same at all points inside it, i.e. field is uniform inside the solenoid. The magnetic field inside a coil vary.",
-    solutionSteps: ["A coil of many circular turns of insulated wire wrapped closely in the form of a cylinder is called a solenoid. In a current carrying solenoid magnetic field is same at all points inside it, i.e. field is uniform inside the solenoid. The magnetic field inside a coil vary."],
+    solutionSteps: ["[1 mark] A coil of many circular turns of insulated wire wrapped closely in the form of a cylinder is called a solenoid.", "[1 mark] In a current carrying solenoid magnetic field is same at all points inside it, i.e. field is uniform inside the solenoid. The magnetic field inside a coil vary."],
     ncertRef: "cbjesccq13 Q32", isCompetencyBased: true },
   // cbjesccq13 Q33 (Section B, 2mk)
   { id: "SCQ-S-MAG-029", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -230,7 +230,7 @@ export const MAGNETIC_EFFECTS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-MAG-030", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "An alternating electric current has a frequency of 50 Hz. How many times does it change its direction in one second? Give reason for your answer.",
     answer: "100 times in one second because one complete cycle involves two times change of direction.",
-    solutionSteps: ["100 times in one second because one complete cycle involves two times change of direction."],
+    solutionSteps: ["[1 mark] 100 times in one second", "[1 mark] because one complete cycle involves two times change of direction."],
     ncertRef: "cbjesccq13 Q34", isCompetencyBased: true },
   // cbjesccq13 Q35 (Section B, 2mk)
   { id: "SCQ-S-MAG-031", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -272,7 +272,7 @@ export const MAGNETIC_EFFECTS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-MAG-036", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Domestic Electric Circuits — Fuse Rating", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Find the minimum rating of fuse that can be safely used on a line on which two 1.1 kW, electric geysers are to run simultaneously. The supply voltage is 220 V.",
     answer: "Current drawn I = P/V = 2200 W / 220 V = 10 A, so the minimum fuse rating is 10 A (in practice a fuse slightly above 10 A is used).",
-    solutionSteps: ["Total power of two geysers run together: P = 2 × 1.1 kW = 2.2 kW = 2200 W", "Current drawn from the line: I = P/V = 2200 W / 220 V", "I = 10 A, so the fuse must be able to carry at least 10 A: minimum fuse rating = 10 A (a fuse slightly above 10 A is used in practice)."],
+    solutionSteps: ["[1 mark] Total power of two geysers run together: P = 2 × 1.1 kW = 2.2 kW = 2200 W", "[1 mark] Current drawn from the line: I = P/V = 2200 W / 220 V", "[1 mark] I = 10 A, so the fuse must be able to carry at least 10 A: minimum fuse rating = 10 A (a fuse slightly above 10 A is used in practice)."],
     ncertRef: "cbjesccq13 Q76", isCompetencyBased: true,
     finalAnswer: "Minimum fuse rating = 10 A (I = 2200 W / 220 V = 10 A)",
     sourceOverride: "others", },

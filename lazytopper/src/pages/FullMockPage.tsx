@@ -8,7 +8,9 @@
 // computed from Date.now(); never a ticking counter that dies with the tab) ·
 // per-interaction autosave + resume + guarded exit · §8b focus aggregates ·
 // subject-scoped history OVERLAY panel + pending banner (worksheet pattern) ·
-// scorecard with the section AND chapter lenses. NO board-readiness projection.
+// scorecard with the section AND chapter lenses. TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, superseding the old
+// "NO board-readiness projection"): a fully graded 80-mark paper also shows the full-paper line, the trend across the
+// student's own full tests and a labelled board ESTIMATE range (lib/fullmock/boardEstimate.ts).
 //
 // Reused byte-unchanged: ChapterTestNavigator, PreSubmitConfirm +
 // ChapterTestUploadPanel (additive copy props only), scoreObjectiveSection +
@@ -148,6 +150,9 @@ import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/work
 import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintDoc";
 import { buildDesktopWorksheetPath } from "../lib/desktop/navigation";
 import { formatScoreNumber } from "../components/results/scoreNumber";
+import { buildBoardScoreView, fullTestScores } from "../lib/fullmock/boardEstimate";
+import { paperMarksScore, resultCardParts } from "../components/results/scoreTotals";
+import { boardEstimateDisabled } from "../lib/fullmock/boardEstimateFlag";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import { FM_CSS } from "../components/fullmock/fullMockStyles";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
@@ -209,6 +214,16 @@ function mintFullMockId(): string {
 }
 /** Product-voice coaching line for the graded PDF (mirrors the CT page's local
  *  helper — a page-level presentation string, not shared logic). */
+/** TS-BOARDSCORE-1 - a re-opened result's paper for the board view: out of the paper's full marks (owner ruling 23 Nov 2026,
+ *  19:59 IST). With the stored payload, its own full/graded totals; without it, the record (a graded record is fully marked). */
+function reopenBoardPaper(record: SessionRecord, response: WorksheetGradeResponse | null | undefined) {
+  if (response) {
+    const ps = paperMarksScore(response);
+    return { awarded: record.marksAwarded, total: ps.total, pendingCount: Number(response.pendingCount) || 0, notMarkedMarks: ps.notMarked?.marks ?? 0 };
+  }
+  return { awarded: record.marksAwarded, total: record.marksTotal, pendingCount: record.status === "graded" ? 0 : 1 };
+}
+
 function coachingLine(resp: WorksheetGradeResponse): string {
   // SCORECARD-MI-1 — the ONE coaching function (lib/mistakeDisplay): owner's groups, counts in
   // mistakes, and never "Clean" while marks were lost (GA-24).
@@ -1428,6 +1443,26 @@ export default function FullMockPage() {
     return `${d > 0 ? "▲" : "▼"} ${formatScoreNumber(Math.abs(d))} mark${Math.abs(d) === 1 ? "" : "s"} vs ${prev.title || prev.id}`;
   }, [fullResponse, activeMock, mockRecords, sessionSubject]);
 
+  // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:04 IST) - the board view: the honest full-paper line, the trend and the board
+  // estimate, from THIS student's fully graded 80-mark full tests of THIS subject (graded SessionRecords - never
+  // mockScoreHistory, which this page does not write). The paper on screen is the newest point; null unless it is fully graded
+  // out of 80. Read-only: nothing is written.
+  const boardScore = useMemo(() => {
+    if (!fullResponse || !activeMock) return null;
+    const current = {
+      id: activeMock.code,
+      score: fullResponse.gradedMarksAwarded,
+      gradedAt: Number.MAX_SAFE_INTEGER, // always the newest point (fullTestScores appends it last)
+    };
+    // Owner ruling 23 Nov 2026, 19:59 IST: out of the paper's FULL marks; marks not marked yet are listed, never extrapolated.
+    const ps = paperMarksScore(fullResponse);
+    return buildBoardScoreView({
+      paper: { awarded: ps.awarded, total: ps.total, pendingCount: fullResponse.pendingCount, notMarkedMarks: ps.notMarked?.marks ?? 0 },
+      scores: fullTestScores(mockRecords, sessionSubject, { current }),
+      estimateDisabled: boardEstimateDisabled(),
+    });
+  }, [fullResponse, activeMock, mockRecords, sessionSubject]);
+
   // Cheap per-render read: focusRef is frozen once the test ends, which is the
   // only time this line renders (partial + full scorecards).
   // AWAIT-1: a mock sat on paper shows no on-screen time line (none was measured).
@@ -1498,6 +1533,12 @@ export default function FullMockPage() {
             }),
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
+            // TS-BOARDSCORE-1 - the board view as of THIS record (papers graded at or before it), so it reads as the live card did.
+            boardScore: buildBoardScoreView({
+              paper: reopenBoardPaper(reopen.record, reopen.response),
+              scores: fullTestScores(mockRecords, reopen.record.subject, { asOf: { id: reopen.record.id, gradedAt: reopen.record.gradedAt } }),
+              estimateDisabled: boardEstimateDisabled(),
+            }),
             ...(seriesDownloadAccess && reopenSheetOpen && hasStoredPaperSheet(reopen.response)
               ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
               : {}),
@@ -2115,13 +2156,10 @@ export default function FullMockPage() {
                 <div className="lt-ct__eyebrow">Full Mock · Result</div>
                 <div className="lt-ct__title lt-ct__fr">{activeMock.name}</div>
                 <div className="lt-ct__sub">
-                  {activeMock.code} · fully graded —{" "}
-                  <b>
-                    {fullResponse?.gradedMarksAwarded}/{fullResponse?.gradedMarksTotal}
-                  </b>
-                  {fullResponse && fullResponse.pendingCount > 0
-                    ? ` · ${fullResponse.pendingCount} page(s) pending`
-                    : ""}
+                  {/* TS-BOARDSCORE-1 - consistent with the hero: out of the paper's full marks; "fully graded" only when it is. */}
+                  {activeMock.code} · {fullResponse ? resultCardParts(fullResponse).status : "fully graded"} —{" "}
+                  <b>{fullResponse ? resultCardParts(fullResponse).score : null}</b>
+                  {fullResponse ? resultCardParts(fullResponse).tail : ""}
                 </div>
                 <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
                 <div className="lt-ct__startrow">
@@ -2234,6 +2272,7 @@ export default function FullMockPage() {
                 questions: activeMock.paper.questions,
                 deltaLine,
                 focusLine,
+                boardScore,
                 downloading,
                 // GRADED-STEP-BLOCK - the read-sheet action now TAKES the student to their
                 // graded answer sheet inside the open scorecard, instead of closing the panel.

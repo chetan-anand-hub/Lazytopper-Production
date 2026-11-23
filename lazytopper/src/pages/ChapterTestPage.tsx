@@ -124,6 +124,7 @@ import {
 } from "./tutor/tutorRoundTrip";
 import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
 import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintDoc";
+import { resultCardParts } from "../components/results/scoreTotals";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
 import ChapterTestHistoryRail from "../components/chaptertest/ChapterTestHistoryRail";
@@ -1824,13 +1825,10 @@ export default function ChapterTestPage() {
                 <div className="lt-ct__eyebrow">Chapter Test · Result</div>
                 <div className="lt-ct__title lt-ct__fr">{nomen.name}</div>
                 <div className="lt-ct__sub">
-                  {nomen.code} · fully graded —{" "}
-                  <b>
-                    {fullResponse?.gradedMarksAwarded}/{fullResponse?.gradedMarksTotal}
-                  </b>
-                  {fullResponse && fullResponse.pendingCount > 0
-                    ? ` · ${fullResponse.pendingCount} page(s) pending`
-                    : ""}
+                  {/* TS-BOARDSCORE-1 - consistent with the hero: out of the paper's full marks; "fully graded" only when it is. */}
+                  {nomen.code} · {fullResponse ? resultCardParts(fullResponse).status : "fully graded"} —{" "}
+                  <b>{fullResponse ? resultCardParts(fullResponse).score : null}</b>
+                  {fullResponse ? resultCardParts(fullResponse).tail : ""}
                 </div>
                 <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
                 <div className="lt-ct__startrow">

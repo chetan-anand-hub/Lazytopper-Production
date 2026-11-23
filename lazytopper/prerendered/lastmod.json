@@ -344,8 +344,8 @@
     "lastmod": "2026-11-19"
   },
   "/ncert-exemplar/carbon-and-its-compounds": {
-    "sha256": "45394af06568be23f7944d04851d9b4586d2ec9e28775f309a866039ae7dd09d",
-    "lastmod": "2026-11-17"
+    "sha256": "8a6e0a5d8e6f46df4091ebe0893951a3c1aaecf05af0838dc5660a1002580eca",
+    "lastmod": "2026-11-23"
   },
   "/ncert-exemplar/chemical-reactions-and-equations": {
     "sha256": "929194dcc8ea70caeec8878f75ff78b11c6a0ba2aedca3a05548b1ec50a74101",
@@ -356,8 +356,8 @@
     "lastmod": "2026-11-19"
   },
   "/ncert-exemplar/control-and-coordination": {
-    "sha256": "58c8c6e975e19bfa9019537595c81df84e4706361a9c57bb2184842df5e49b0f",
-    "lastmod": "2026-11-17"
+    "sha256": "dff6f401491b1fbc951fad9ee41b950af8aebd2860617300fa835b584d11041c",
+    "lastmod": "2026-11-23"
   },
   "/ncert-exemplar/coordinate-geometry": {
     "sha256": "e79c88bdc2cc41b7fbf5a1bfc446e26515af810c1b1b979753468771beb91068",
@@ -372,8 +372,8 @@
     "lastmod": "2026-11-17"
   },
   "/ncert-exemplar/how-do-organisms-reproduce": {
-    "sha256": "a2c5514e5a8f9786ab70425067278255e5b26e80f1ac8f1e622cd164e7379c10",
-    "lastmod": "2026-11-17"
+    "sha256": "fa716a72f808a1011141ea79febc1a8346520b220831c479eaae17186022dabb",
+    "lastmod": "2026-11-23"
   },
   "/ncert-exemplar/human-eye-and-colourful-world": {
     "sha256": "8d37bab48d022e48b1e3b9a5df9392292395fb0c3acb70e4c952cb273194bcd8",
@@ -444,8 +444,8 @@
     "lastmod": "2026-11-19"
   },
   "/ncert-solutions/carbon-and-its-compounds": {
-    "sha256": "a11a80168239e6805457ec60ea900e8c4bdf35da13783287957a1a6242d93336",
-    "lastmod": "2026-11-17"
+    "sha256": "fe08f0e29d002819fbe8ae0248f562498ba678fecbbf1a04091f10402c938486",
+    "lastmod": "2026-11-23"
   },
   "/ncert-solutions/chemical-reactions-and-equations": {
     "sha256": "622d9b654d1d814ed3650087e444bbec11697922fb3ce30031e58412e4b4b968",
@@ -456,8 +456,8 @@
     "lastmod": "2026-11-19"
   },
   "/ncert-solutions/control-and-coordination": {
-    "sha256": "4007a42aeb2f656efcd5b5c14ec8a4ff561f8ca5e07a3923450b011aa7df55be",
-    "lastmod": "2026-11-17"
+    "sha256": "5b1b69f0b78b95a32a961316b73ef4a08fe76aa3674f20e87b53e6b0a9b79ff1",
+    "lastmod": "2026-11-23"
   },
   "/ncert-solutions/coordinate-geometry": {
     "sha256": "e217a8933a5171def8f89f7232a8bf9f4f1fa050b64ae09e8c4390260ce374ab",
@@ -468,8 +468,8 @@
     "lastmod": "2026-11-17"
   },
   "/ncert-solutions/how-do-organisms-reproduce": {
-    "sha256": "0f19791f93af235b18f6a3d57553747222e2fe37f29efccbd8d552417e002356",
-    "lastmod": "2026-11-17"
+    "sha256": "23e263e7b0dd797a10808d6ddbc181c91005b6048801263be413647d0dec09df",
+    "lastmod": "2026-11-23"
   },
   "/ncert-solutions/human-eye-and-colourful-world": {
     "sha256": "8a0e50aeca1366c8c6b7a44761f11ec5ed1e4cac9fdc53100b4d9712e878c62f",
@@ -488,8 +488,8 @@
     "lastmod": "2026-11-17"
   },
   "/ncert-solutions/magnetic-effects-of-electric-current": {
-    "sha256": "5956cfd7456c9be466f341ba9fd33dc6686f2e73e1dbacfa7ce3fdfda022f94e",
-    "lastmod": "2026-11-17"
+    "sha256": "369e2db2825e343e23465e00187164ec9268f4d3a2286817064c7ec7a696136d",
+    "lastmod": "2026-11-23"
   },
   "/ncert-solutions/metals-and-non-metals": {
     "sha256": "347f0399f606650bb0b207672c03977b08a0683db0e387dfa6d9dd71cc6a5264",
@@ -548,8 +548,8 @@
     "lastmod": "2026-11-19"
   },
   "/notes/carbon-and-its-compounds": {
-    "sha256": "f27ae8909d77fb17ae7a63310e30ae426f636fd70849d3c996d8a6da025df17c",
-    "lastmod": "2026-11-18"
+    "sha256": "70736506b4a0b5a0b0bbe00b3e35cbf1ea84abbc4abaa5d01ec2a949428609f5",
+    "lastmod": "2026-11-23"
   },
   "/notes/chemical-reactions-and-equations": {
     "sha256": "8ddddcf5e4d488ffec8a442e7efd35b18f39c30967e048845dd81b1468c5b0c4",
@@ -560,8 +560,8 @@
     "lastmod": "2026-11-19"
   },
   "/notes/control-and-coordination": {
-    "sha256": "e99916216828d6db9ab8eaa651445a9b6f5bed414e0ba7341103f7d81a21112f",
-    "lastmod": "2026-11-18"
+    "sha256": "bf1df2a23882ed6cedf727669a8d27e89975196efdd5a058acc344ae3b6add77",
+    "lastmod": "2026-11-23"
   },
   "/notes/coordinate-geometry": {
     "sha256": "dadb43aff9d75a1f5b8808f9955860b2642945e75345c304df611798b0a579c6",
@@ -576,8 +576,8 @@
     "lastmod": "2026-11-18"
   },
   "/notes/how-do-organisms-reproduce": {
-    "sha256": "9eb03369d4c09a6bad9ef02093a8589ca74e7d60c0e3bb0daa27ec1a7bfe550a",
-    "lastmod": "2026-11-18"
+    "sha256": "dac80ff901d68b8439a02a54ddb739792815385a04cc15dea0ce4bf82e81f285",
+    "lastmod": "2026-11-23"
   },
   "/notes/human-eye-and-colourful-world": {
     "sha256": "326cd69cfbe1a26cd649fe7132cb5764ebacf4393b103e8e1dd155ab57e094b1",
@@ -592,8 +592,8 @@
     "lastmod": "2026-11-18"
   },
   "/notes/magnetic-effects-of-electric-current": {
-    "sha256": "40b16e75cc1ed808fa0f3798968257515596e442ce1ab8c281c125a4c864bb59",
-    "lastmod": "2026-11-18"
+    "sha256": "d088d8c1a58a06062841da7f1fdfe125eea4d52c6d61daa4620600764cc5de8b",
+    "lastmod": "2026-11-23"
   },
   "/notes/metals-and-non-metals": {
     "sha256": "e6d3db417c82cd7832c253e2095ab6582c6fd202ae6311095b62df6d312a3eca",
@@ -656,8 +656,8 @@
     "lastmod": "2026-11-18"
   },
   "/test-series": {
-    "sha256": "4d70e81f66be284051f9e8911797391b5ec23c1324973f15346f09533da80f7a",
-    "lastmod": "2026-11-20"
+    "sha256": "a16cb0b9161d932d22a27c1f106fe77f00c82d50e2f73eb7611a8cdbdf5f9ef6",
+    "lastmod": "2026-11-23"
   },
   "/topic-hub/acids-bases-and-salts": {
     "sha256": "3bcdddbaa1f6b7030831535ef4fcdd28bf1b6bf44850bfe898e8955d1d5632fd",
