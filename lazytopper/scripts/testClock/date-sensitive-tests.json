@@ -473,6 +473,7 @@
     "src/App.routing.contract.test.tsx",
     "src/App.signInReturnPath.test.tsx",
     "src/ai/aiClient.fairUse.test.ts",
+    "src/ai/gradingJobs.single.test.ts",
     "src/ai/gradingTransport.test.ts",
     "src/ai/paidCallHeaders.test.ts",
     "src/ai/tutorClient.test.ts",
