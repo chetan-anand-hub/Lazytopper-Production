@@ -33,7 +33,7 @@ import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
 import { formatScoreNumber } from "./scoreNumber";
 import type { BoardScoreView } from "../../lib/fullmock/boardEstimate";
-import { paperMarksScore, type ScoreNotMarked } from "./scoreTotals";
+import { awaitingSheetScore, paperMarksScore, type ScoreNotMarked } from "./scoreTotals";
 import {
   ANSWER_MISMATCH_COPY,
   NOT_GRADED_TRY_AGAIN_COPY,
@@ -1501,11 +1501,21 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
       (Number(response.worksheetTotalMarks) || 0) - (Number(response.gradedMarksTotal) || 0),
     );
     const noUpload = input.uploadNotAllowed ? noUploadPartial(objectiveMarks, "Sections B–E") : null;
+    // TS-BOARDSCORE-1 - out of the paper's FULL marks; the written sections are named as waiting for the answer sheet.
+    const waiting = awaitingSheetScore(
+      {
+        awarded: response.gradedMarksAwarded,
+        gradedTotal: response.gradedMarksTotal,
+        paperTotal: response.worksheetTotalMarks,
+        writtenQuestions: Math.max(0, (Number(response.totalQuestions) || 0) - (Number(response.gradedCount) || 0)),
+      },
+      !input.uploadNotAllowed,
+    );
     return {
       surface: "full-mock",
       title: name,
       subtitle: `${code} · submitted & scored`,
-      score: { kind: "marks", awarded: response.gradedMarksAwarded, total: response.gradedMarksTotal },
+      score: { kind: "marks", awarded: waiting.awarded, total: waiting.total, ...(waiting.notMarked ? { notMarked: waiting.notMarked } : {}) },
       awaitingSheet: true,
       message:
         `Objective section scored (${objectiveMarks}). Upload your written answers ` +

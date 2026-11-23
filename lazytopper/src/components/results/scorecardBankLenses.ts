@@ -48,7 +48,7 @@ import {
   boardScoreFor,
   type ScorecardScore,
 } from "./scorecardVariants";
-import { paperMarksScore } from "./scoreTotals";
+import { awaitingSheetScore, paperMarksScore } from "./scoreTotals";
 
 /** Lazily-built canonical questionId → subtopic index (built once on first use; the
  *  bank is a static in-memory array, so this stays pure/synchronous). */
@@ -179,11 +179,21 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
   if (phase === "partial") {
     const objectiveMarks = `${response.gradedMarksAwarded}/${response.gradedMarksTotal}`;
     const noUpload = input.uploadNotAllowed ? noUploadPartial(objectiveMarks, "Sections B–D") : null;
+    // TS-BOARDSCORE-1 - out of the test's FULL marks; the written sections are named as waiting for the answer sheet.
+    const waiting = awaitingSheetScore(
+      {
+        awarded: response.gradedMarksAwarded,
+        gradedTotal: response.gradedMarksTotal,
+        paperTotal: response.worksheetTotalMarks,
+        writtenQuestions: Math.max(0, (Number(response.totalQuestions) || 0) - (Number(response.gradedCount) || 0)),
+      },
+      !input.uploadNotAllowed,
+    );
     return {
       surface: "chapter-test",
       title: name,
       subtitle: `${code} · submitted & scored`,
-      score: { kind: "marks", awarded: response.gradedMarksAwarded, total: response.gradedMarksTotal },
+      score: { kind: "marks", awarded: waiting.awarded, total: waiting.total, ...(waiting.notMarked ? { notMarked: waiting.notMarked } : {}) },
       awaitingSheet: true,
       message:
         `Objective section scored (${objectiveMarks}). Upload your written answers ` +

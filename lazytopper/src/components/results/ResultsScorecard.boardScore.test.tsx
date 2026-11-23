@@ -78,6 +78,27 @@ function renderCard(withBoard: boolean) {
 }
 
 describe("ResultsScorecard - TS-BOARDSCORE-1 board view", () => {
+  it("awaiting-sheet phase: hero out of 80, the written marks named as waiting, no board view", async () => {
+    const response: WorksheetGradeResponse = {
+      ...full80(),
+      results: [{ qNumber: 1, couldNotRead: false, totalMarks: 1, marksAwarded: 1 }],
+      totalQuestions: 38,
+      gradedCount: 20,
+      gradedMarksAwarded: 17,
+      gradedMarksTotal: 20,
+    };
+    const variant = fullMockScorecardVariant({ name: "Maths · Mock #4", code: "FM-M-04", phase: "partial", response, onUpload: () => {}, onUploadLater: () => {} });
+    render(
+      <MemoryRouter>
+        <ResultsScorecard variant={variant} onClose={() => {}} />
+      </MemoryRouter>,
+    );
+    expect(document.querySelector(".lt-sc__big")?.textContent).toBe("17 / 80");
+    expect(screen.getByTestId("score-not-marked").textContent).toBe("60 marks waiting for your answer sheet \u2014 upload it to complete");
+    expect(screen.getByText("Upload answer sheet for the full result")).toBeTruthy();
+    expect(screen.queryByTestId("board-score")).toBeNull();
+  });
+
   it("owner ruling 19:59: the hero is out of 80 and the unmarked marks are named under it, with the 'So far' line", async () => {
     const response: WorksheetGradeResponse = {
       ...full80(),

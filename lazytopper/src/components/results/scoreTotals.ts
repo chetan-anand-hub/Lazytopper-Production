@@ -75,6 +75,25 @@ export function paperMarksScore(response: ResponseLike): { awarded: number; tota
   };
 }
 
+/**
+ * The AWAITING-SHEET (partial) score: the objective section is marked and the written sections wait for the student's upload. Out of
+ * the paper's FULL marks too (coordinator ruling on the owner's "always out of full marks", 23 Nov 2026), with the written marks named
+ * as WAITING FOR THE ANSWER SHEET - not "not marked yet": nothing was tried and failed, the student has not uploaded yet.
+ * `canUpload` false (an account the card offers the Test Series / Board Pass instead) -> the line names no upload it cannot make.
+ * The shape is the same `notMarked` (marks neither lost nor earned), so every reader stays silent or uses the marked subtotal.
+ */
+export function awaitingSheetScore(
+  input: { awarded: number; gradedTotal: number; paperTotal?: number | null; writtenQuestions?: number },
+  canUpload = true,
+): { awarded: number; total: number; notMarked: ScoreNotMarked | null } {
+  const graded = Number(input.gradedTotal) || 0;
+  const total = Math.max(Number(input.paperTotal) || 0, graded);
+  const marks = round2(Math.max(0, total - graded));
+  if (marks <= 0) return { awarded: input.awarded, total, notMarked: null };
+  const line = `${marksPhrase(marks)} waiting for your answer sheet${canUpload ? " \u2014 upload it to complete" : ""}`;
+  return { awarded: input.awarded, total, notMarked: { marks, questions: Math.max(0, Number(input.writtenQuestions) || 0), line } };
+}
+
 /** The marks actually GRADED on a marks score: the shown total minus any not-marked-yet marks. "Lost" is measured against this. */
 export function gradedTotalOf(score: { total: number; notMarked?: { marks: number } | null }): number {
   const nm = Number(score.notMarked?.marks) || 0;

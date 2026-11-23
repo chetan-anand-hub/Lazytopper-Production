@@ -81,6 +81,15 @@ describe("scorecardUpgradeCopy", () => {
     }
   });
 
+  it("TS-BOARDSCORE-1: the awaiting-sheet phase (17 / 80, 60 marks waiting) never says 'You lost 63'", () => {
+    const score = { ...marks(17, 80), notMarked: { marks: 60, questions: 18, line: "x" } };
+    for (const surface of ["full-mock", "chapter-test"] as const) {
+      const v = { ...variantFor(surface, score), awaitingSheet: true } as ScorecardVariant;
+      expect(scorecardUpgradeCopy(v)?.text).not.toMatch(/lost/i);
+      expect(scorecardHeadline(v)?.join(" ")).not.toMatch(/lost/i);
+    }
+  });
+
   it("names the real marks lost, singular-aware", () => {
     expect(scorecardUpgradeCopy(variantFor("worksheet", marks(7, 10)))?.text).toBe(
       "You lost 3 marks here. Get every answer marked like this, valid till 28 Feb 2027 — Board Pass →",

@@ -102,3 +102,55 @@ describe("the score's readers never count not-marked marks as lost", () => {
     expect(v.score.kind === "marks" && v.score.notMarked?.marks).toBe(6);
   });
 });
+
+describe("awaiting-sheet (PARTIAL) phase - out of full marks, written marks WAITING for the answer sheet", () => {
+  const partialResp = (over: Partial<WorksheetGradeResponse> = {}): WorksheetGradeResponse =>
+    resp([q({ qNumber: 1, totalMarks: 1, marksAwarded: 1 })], {
+      totalQuestions: 38,
+      gradedCount: 20,
+      gradedMarksAwarded: 17,
+      gradedMarksTotal: 20,
+      worksheetTotalMarks: 80,
+      ...over,
+    });
+
+  it("Full Mock: 17 / 80 + '60 marks waiting for your answer sheet — upload it to complete'; upload prompt kept", () => {
+    const v = fullMockScorecardVariant({ name: "M", code: "FM-M-04", phase: "partial", response: partialResp(), onUpload: () => {}, onUploadLater: () => {} });
+    expect(v.score).toMatchObject({ kind: "marks", awarded: 17, total: 80 });
+    expect(v.score.kind === "marks" && v.score.notMarked).toEqual({
+      marks: 60,
+      questions: 18,
+      line: "60 marks waiting for your answer sheet — upload it to complete",
+    });
+    expect(v.score.kind === "marks" && v.score.notMarked?.line).not.toMatch(/not marked/);
+    expect(v.awaitingSheet).toBe(true);
+    expect(v.actions[0].label).toContain("Upload answer sheet");
+    expect(v.boardScore).toBeUndefined();
+  });
+
+  it("Chapter Test: X / its full marks, same waiting line", () => {
+    const v = chapterTestScorecardVariant({
+      name: "CT",
+      code: "CT-01",
+      phase: "partial",
+      response: partialResp({ gradedMarksAwarded: 4, gradedMarksTotal: 5, worksheetTotalMarks: 32, totalQuestions: 12, gradedCount: 5 }),
+    });
+    expect(v.score).toMatchObject({ awarded: 4, total: 32 });
+    expect(v.score.kind === "marks" && v.score.notMarked?.line).toBe("27 marks waiting for your answer sheet — upload it to complete");
+  });
+
+  it("an account that may not upload: the line names no upload it cannot make", () => {
+    const fm = fullMockScorecardVariant({ name: "M", code: "FM-M-04", phase: "partial", response: partialResp(), uploadNotAllowed: true });
+    expect(fm.score.kind === "marks" && fm.score.notMarked?.line).toBe("60 marks waiting for your answer sheet");
+    const ct = chapterTestScorecardVariant({ name: "CT", code: "CT-01", phase: "partial", response: partialResp({ worksheetTotalMarks: 32 }), uploadNotAllowed: true });
+    expect(ct.score.kind === "marks" && ct.score.notMarked?.line).toBe("12 marks waiting for your answer sheet");
+  });
+
+  it("Ziggy stays silent; the share mood reads the marked 17 / 20, never 17 / 80", () => {
+    const v = fullMockScorecardVariant({ name: "M", code: "FM-M-04", phase: "partial", response: partialResp(), onUpload: () => {}, onUploadLater: () => {} });
+    expect(ziggyReactionFor(v.score)).toBeNull();
+    const m = buildShareCardModel(v, { dateLabel: "23 Nov 2026" })!;
+    expect(m.total).toBe(80);
+    expect(m.ziggy.mood).not.toBe("oops"); // 17/20 = 85% marked: never scored as 17/80 = 21%
+  });
+});
