@@ -19,7 +19,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_APQ: CanonicalQuestion[] = [
   { id: "APQ-S-REPR-002", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Sexual Reproduction — Cross-Pollination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Analysing",
     questionText: "Ravi cultivated mustard, a plant with bisexual flowers, on his farm. His plants were diseased due to a gene defect and therefore had reduced yield. Ravi removed the stamens from the diseased plants and also planted fresh disease-free mustard plants where he removed the pistils. How will Ravi's strategy help in improving the yield of mustard?",
     answer: "Forces cross-pollination — increases variation and disease-free offspring.",
-    solutionSteps: ["By removing stamens from diseased plants and pistils from healthy plants, Ravi turned bisexual flowers into unisexual ones — preventing self-pollination.", "Pollen from disease-free plants (with stamens intact) must now pollinate the diseased plants' pistils. This cross-pollination introduces genetic variation, allowing disease-resistant alleles to enter the next generation — improving yield."],
+    solutionSteps: ["[1 mark] By removing stamens from diseased plants and pistils from healthy plants, Ravi turned bisexual flowers into unisexual ones — preventing self-pollination.", "[1 mark] Pollen from disease-free plants (with stamens intact) must now pollinate the diseased plants' pistils. This cross-pollination introduces genetic variation, allowing disease-resistant alleles to enter the next generation — improving yield."],
     finalAnswer: "Forced cross-pollination introduces variation and disease-free traits → better yield.",
     ncertRef: "APQ Science-PQ Q22", isCompetencyBased: true },
 
@@ -37,7 +37,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_APQ: CanonicalQuestion[] = [
   { id: "APQ-S-REPR-004", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Asexual Reproduction — Rhizopus Spores", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "(i) Name the reproductive and non-reproductive parts of Rhizopus. (ii) How are the spores protected till they begin to grow?",
     answer: "(i) Reproductive: sporangia; Non-reproductive: hyphae. (ii) Thick walls cover the spores.",
-    solutionSteps: ["(i) In Rhizopus, the non-reproductive parts are the HYPHAE (thread-like vegetative filaments). The reproductive parts are the SPORANGIA (knob-like sacs at the tips of hyphae that contain the spores).", "(ii) The spores are covered by THICK WALLS that protect them from harsh conditions (drying, heat, etc.) until they come in contact with a moist surface; on moisture they germinate and begin to grow into new individuals."],
+    solutionSteps: ["[1 mark] (i) In Rhizopus, the non-reproductive parts are the HYPHAE (thread-like vegetative filaments). The reproductive parts are the SPORANGIA (knob-like sacs at the tips of hyphae that contain the spores).", "[1 mark] (ii) The spores are covered by THICK WALLS that protect them from harsh conditions (drying, heat, etc.) until they come in contact with a moist surface; on moisture they germinate and begin to grow into new individuals."],
     finalAnswer: "(i) Reproductive = sporangia; non-reproductive = hyphae; (ii) thick protective walls around spores.",
     ncertRef: "APQ Science-PQ2 Q22", isCompetencyBased: false },
 
@@ -45,7 +45,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_APQ: CanonicalQuestion[] = [
   { id: "APQ-S-REPR-005", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Reproductive Health — Contraceptive Methods", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "State any three reasons to justify the use of contraceptive methods.",
     answer: "(a) Prevent unwanted pregnancies; (b) control population/birth rate; (c) prevent STIs.",
-    solutionSteps: ["(a) To prevent UNWANTED PREGNANCIES — helps individuals/families plan when and how many children to have, supporting maternal health.", "(b) To CONTROL POPULATION growth and birth rate — supports balanced demographic growth and conservation of resources.", "(c) To PREVENT the transfer of sexually transmitted diseases / infections (HIV/AIDS, syphilis, etc.) — barrier methods like condoms protect against STIs."],
+    solutionSteps: ["[1 mark] (a) To prevent UNWANTED PREGNANCIES — helps individuals/families plan when and how many children to have, supporting maternal health.", "[1 mark] (b) To CONTROL POPULATION growth and birth rate — supports balanced demographic growth and conservation of resources.", "[1 mark] (c) To PREVENT the transfer of sexually transmitted diseases / infections (HIV/AIDS, syphilis, etc.) — barrier methods like condoms protect against STIs."],
     finalAnswer: "(a) Avoid unwanted pregnancies; (b) control population; (c) prevent STIs.",
     ncertRef: "APQ Science-PQ2 Q29", isCompetencyBased: true },
 ];
