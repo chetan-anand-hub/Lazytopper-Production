@@ -372,10 +372,10 @@ async function generateModelSolution(fields, deps) {
     'Step 2: desc="Stating Snell\'s law", working="The ratio of sine of angle of incidence to sine of angle of refraction is constant for a given pair of media. This constant is called refractive index.", marks=1\n' +
     'Step 3: desc="Writing the formula", working="sin i / sin r = n₂₁ (refractive index of medium 2 w.r.t. medium 1)", marks=1\n' +
     (partMarkRules ? (
-      '--- Example: 2-mark question "Can a copper vessel be used to store dilute hydrochloric acid? Give reason." ---\n' +
-      'Step 1: desc="Stating the position of copper", working="Copper is placed below hydrogen in the reactivity series.", marks=0.5\n' +
-      'Step 2: desc="Stating the decision", working="Yes, a copper vessel can be used to store dilute hydrochloric acid.", marks=0.5\n' +
-      'Step 3: desc="Giving the reason", working="Copper is less reactive than hydrogen, so it cannot displace hydrogen from the acid; it does not react with dilute HCl and the vessel is not corroded.", marks=1\n'
+      '--- Example: 2-mark question "Can zinc displace iron from iron sulphate solution? Give reason." ---\n' +
+      'Step 1: desc="Stating the positions in the reactivity series", working="Zinc is placed above iron in the reactivity series.", marks=0.5\n' +
+      'Step 2: desc="Stating the decision", working="Yes, zinc displaces iron from iron sulphate solution.", marks=0.5\n' +
+      'Step 3: desc="Giving the reason", working="Zinc is more reactive than iron, so it displaces iron: Zn + FeSO₄ → ZnSO₄ + Fe.", marks=1\n'
     ) : '');
 
   const mcqInstructions = isObj ? (
