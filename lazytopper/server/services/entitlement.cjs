@@ -272,6 +272,15 @@ const TEST_SERIES_EXHAUSTED_FEATURE = Object.freeze({
   feature: 'test-series-check',
   message: `You've had this paper checked ${TEST_SERIES_CHECKS_PER_PAPER === 2 ? 'twice' : `${TEST_SERIES_CHECKS_PER_PAPER} times`} with your Test Series Pack. The Board Pass checks every paper, every time.`,
 });
+// TS-FREE-CHECK-1: the refusals a student WITHOUT the pack meets on the free test (same register: plain product description).
+const TEST_SERIES_FREE_TEST_USED_FEATURE = Object.freeze({
+  feature: 'test-series-check',
+  message: 'Your free test has had its written answers checked. The Test Series and the Board Pass check your written answers on every other paper.',
+});
+const TEST_SERIES_FREE_TEST_EXHAUSTED_FEATURE = Object.freeze({
+  feature: 'test-series-check',
+  message: `You've had your free test checked ${TEST_SERIES_CHECKS_PER_PAPER === 2 ? 'twice' : `${TEST_SERIES_CHECKS_PER_PAPER} times`}. The Test Series and the Board Pass check your written answers on every paper.`,
+});
 const TEST_SERIES_MISMATCH_MESSAGE =
   "This paper doesn't match the Test Series paper it names. Reload the test and try again.";
 const TEST_SERIES_UNAVAILABLE_MESSAGE = "We couldn't check your Test Series Pack just now. Please try again in a minute.";
@@ -817,7 +826,9 @@ function createEntitlementGate(deps = {}) {
    * TS-PACK-1 - the Test Series rule on /api/grade-worksheet (testSeriesChecks.decide does the work and the counting):
    *   Premium (and every fail-open)        -> never consulted: unchanged.
    *   Trial                                -> a Test Series paper is NOT checked on the trial (owner ruling 18 Nov 2026):
-   *                                           only on the pack (an owner spends a check) - else the 402.
+   *                                           only on the pack (an owner spends a check) - else the 402. TS-FREE-CHECK-1
+   *                                           (owner ruling 23 Nov 2026): EXCEPT the ONE free-test paper (2 checks), pinned
+   *                                           server-side by testSeriesChecks.hold; the same for a free (not entitled) account.
    *   Not entitled (free / expired trial)  -> a pack OWNER's series paper is checked on the pack; everything else is the
    *                                           402 exactly as before (a non-owner's body is never read for this).
    *   LIMITS-1 "first paper of each kind"  -> never a Test Series paper; any other paper exactly as before.
@@ -840,7 +851,10 @@ function createEntitlementGate(deps = {}) {
     }
     if (verdict.kind === 'admitted') {
       emit(TEST_SERIES_ADMIT_EVENT);
-      req.lazytopperTestSeriesCheck = { paperKey: verdict.paperKey, used: verdict.used, left: verdict.left, checksPerPaper: TEST_SERIES_CHECKS_PER_PAPER };
+      req.lazytopperTestSeriesCheck = {
+        paperKey: verdict.paperKey, used: verdict.used, left: verdict.left, checksPerPaper: TEST_SERIES_CHECKS_PER_PAPER,
+        ...(verdict.freeTest ? { freeTest: true } : {}),
+      };
       return 'admit';
     }
     if (verdict.kind === 'not_series') return 'not_series';
@@ -852,7 +866,13 @@ function createEntitlementGate(deps = {}) {
         sendJson(res, 503, { error: 'test_series_unavailable', message: TEST_SERIES_UNAVAILABLE_MESSAGE });
       } else {
         const exhausted = verdict.reason === 'exhausted';
-        const body = premiumRequiredBody(exhausted ? TEST_SERIES_EXHAUSTED_FEATURE : TEST_SERIES_FEATURE, decision);
+        const freeUsed = verdict.reason === 'free_test_used';
+        const spec = freeUsed
+          ? TEST_SERIES_FREE_TEST_USED_FEATURE
+          : exhausted
+            ? (verdict.freeTest ? TEST_SERIES_FREE_TEST_EXHAUSTED_FEATURE : TEST_SERIES_EXHAUSTED_FEATURE)
+            : TEST_SERIES_FEATURE;
+        const body = premiumRequiredBody(spec, decision);
         sendJson(res, 402, {
           ...body,
           testSeries: {
@@ -860,6 +880,8 @@ function createEntitlementGate(deps = {}) {
             paperKey: verdict.paperKey,
             checksPerPaper: TEST_SERIES_CHECKS_PER_PAPER,
             left: exhausted ? 0 : null,
+            ...(verdict.freeTest ? { freeTest: true } : {}),
+            ...(freeUsed && typeof verdict.freePaperKey === 'string' ? { freePaperKey: verdict.freePaperKey } : {}),
           },
         });
       }
@@ -941,9 +963,13 @@ function createEntitlementGate(deps = {}) {
       if (taste && taste.owned) bonusBody = { used: taste.used, left: 0, limit: taste.limit };
     }
 
-    // TS-PACK-1: a NON-Premium Test Series Pack OWNER's series paper is checked on the pack. A non-owner never has the
-    // body read for this: one document read, then the 402 below exactly as before.
-    if (series && (await testSeriesChecks.ownsActive(verifiedUid)) === true) {
+    // TS-PACK-1: a NON-Premium Test Series Pack OWNER's series paper is checked on the pack.
+    // TS-FREE-CHECK-1: so is a NON-owner's ONE free-test paper (testSeriesChecks.hold pins it server-side). With the free test
+    // on, a non-owner's grade-worksheet body is read (the same pre-read the handler gets) to see whether it names a series paper;
+    // anything that is not one is the 402 below exactly as before. TS_FREE_WRITTEN_CHECK_DISABLED=1: a non-owner never has the
+    // body read for this - one document read, then the 402 below, exactly as before this lane.
+    const freeTestOn = series && typeof testSeriesChecks.freeTestOn === 'function' && testSeriesChecks.freeTestOn() === true;
+    if (series && (freeTestOn || (await testSeriesChecks.ownsActive(verifiedUid)) === true)) {
       const r = await applySeriesRule(req, res, verifiedUid, decision);
       if (r === 'admit') return false;
       if (r === 'responded') return true;
@@ -982,6 +1008,8 @@ module.exports = {
   testSeriesChecksDisabled,
   TEST_SERIES_FEATURE,
   TEST_SERIES_EXHAUSTED_FEATURE,
+  TEST_SERIES_FREE_TEST_USED_FEATURE,
+  TEST_SERIES_FREE_TEST_EXHAUSTED_FEATURE,
   STEP_SOLUTION_PATH,
   STEP_SOLUTION_FEATURE,
   TRIAL_DAYS,

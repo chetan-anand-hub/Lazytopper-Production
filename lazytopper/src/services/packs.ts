@@ -258,6 +258,32 @@ export interface MyPacks {
   testSeries?: TestSeriesStatus;
   /** TS-UPGRADE-CREDIT-1 - the server's Board Pass upgrade price for a Test Series owner; absent for everyone else. */
   testSeriesUpgrade?: TestSeriesUpgrade;
+  /** TS-FREE-CHECK-1 - a NON-owner's one free test (written answers checked): the server's pin + count; absent when the rule is off. */
+  freeTest?: TestSeriesFreeTest;
+}
+
+/**
+ * TS-FREE-CHECK-1 (owner ruling 23 Nov 2026) - the server's view of a student's ONE free Test Series test (GET /api/packs/mine
+ * `freeTest`, present only for a student WITHOUT the pack while the rule is on). `paperKey` is the paper the SERVER pinned at the
+ * first written check ("TS-CT-M01"), or null when no written check has been taken yet. Display only: the server decides every grade.
+ */
+export interface TestSeriesFreeTest {
+  paperKey: string | null;
+  checksPerPaper: number;
+  used: number;
+  /** TS-RECHECK-1 on the free paper: its latest check was NOT counted (the sheet could not be read). */
+  freeRecheck?: true;
+}
+
+/** The server's `freeTest` object -> a sane value, or null (then the page shows today's MCQ-only free test). PURE. */
+export function readTestSeriesFreeTest(raw: unknown): TestSeriesFreeTest | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const r = raw as { paperKey?: unknown; checksPerPaper?: unknown; used?: unknown; freeRecheck?: unknown };
+  const paperKey = typeof r.paperKey === "string" && /^TS-[A-Z0-9-]{2,40}$/.test(r.paperKey) ? r.paperKey : r.paperKey === null ? null : undefined;
+  if (paperKey === undefined) return null;
+  const per = typeof r.checksPerPaper === "number" && Number.isInteger(r.checksPerPaper) && r.checksPerPaper > 0 ? r.checksPerPaper : TEST_SERIES_CHECKS_PER_PAPER;
+  const used = typeof r.used === "number" && Number.isFinite(r.used) && r.used > 0 ? Math.min(per, Math.floor(r.used)) : 0;
+  return { paperKey, checksPerPaper: per, used: paperKey ? used : 0, ...(paperKey && r.freeRecheck === true ? { freeRecheck: true as const } : {}) };
 }
 
 /**
@@ -454,7 +480,7 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     }
     throw new Error(`request failed: ${res.status}`);
   }
-  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown; ownsTestSeries?: unknown; testSeries?: unknown };
+  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown; ownsTestSeries?: unknown; testSeries?: unknown; freeTest?: unknown };
   const packs = Array.isArray(json.packs) ? json.packs.map(readOwned).filter((p): p is OwnedPack => p !== null) : [];
   const licensee: PackLicensee = {
     name: typeof json.licensee?.name === "string" ? json.licensee.name : "",
@@ -470,6 +496,8 @@ export async function fetchMyPacks(): Promise<MyPacks> {
   // TS-PACK-1: only the server's literal `true` unlocks the series; the status is display only.
   const testSeries = readTestSeriesStatus(json.testSeries);
   const testSeriesUpgrade = readTestSeriesUpgrade(json.boardPassCredit);
+  // TS-FREE-CHECK-1: never for an owner (the owner view applies), whatever the server sent.
+  const freeTest = json.ownsTestSeries === true ? null : readTestSeriesFreeTest(json.freeTest);
   return {
     packs,
     licensee,
@@ -478,6 +506,7 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     ...(json.ownsTestSeries === true ? { ownsTestSeries: true } : {}),
     ...(testSeries ? { testSeries } : {}),
     ...(testSeriesUpgrade ? { testSeriesUpgrade } : {}),
+    ...(freeTest ? { freeTest } : {}),
   };
 }
 
