@@ -36,7 +36,7 @@ import { useOwnedPacks } from "../packs/useOwnedPacks";
 import { ownsChapter, ownsMocks, type PackSubject } from "../../services/packs";
 import type { TestSeriesFreeTest, TestSeriesStatus } from "../../services/packs";
 import { TEST_SERIES_BUY_PATH, seriesPaperKeyOfWorksheetId, seriesTotals } from "../../lib/testSeries/testSeries";
-import { SHEET_UNREADABLE_NOT_COUNTED_LINE, packPayLabel, packPriceLabel, testSeriesChecksLeftLine, testSeriesPriceLine, testSeriesRecheckNote } from "../../services/packs";
+import { checkNotCountedLine, type NotCountedReason, packPayLabel, packPriceLabel, testSeriesChecksLeftLine, testSeriesPriceLine, testSeriesRecheckNote } from "../../services/packs";
 import { useTestSeriesOwnership } from "./testSeriesOwnership";
 import "./writtenCheckGate.css";
 
@@ -302,12 +302,15 @@ export function SeriesChecksLeftLine({
   worksheetId,
   refreshKey,
   freeTest = false,
+  notCountedReason = null,
 }: {
   uid?: string | null;
   worksheetId: string | null | undefined;
   refreshKey?: unknown;
   /** TS-FREE-CHECK-1: this paper is the account's free test (`seriesFreeTestWritten`): show its checks from the server's free-test count. */
   freeTest?: boolean;
+  /** LIVE-FIX-1: why the check on screen may not have been counted (lib/notFoundNotAttempted `notCountedReasonOf`); null -> neutral. */
+  notCountedReason?: NotCountedReason;
 }) {
   const { status } = useSubscription();
   const paid = isPaidPremium(status);
@@ -322,7 +325,7 @@ export function SeriesChecksLeftLine({
       <>
         {f.paperKey === paperKey && f.freeRecheck && (
           <p className="lt-wcg__line" role="status" data-testid="series-recheck-note">
-            {SHEET_UNREADABLE_NOT_COUNTED_LINE}
+            {checkNotCountedLine(notCountedReason)}
           </p>
         )}
         <p className="lt-wcg__checks" role="status" data-testid="series-checks-left">
@@ -337,7 +340,7 @@ export function SeriesChecksLeftLine({
     <>
       {testSeriesRecheckNote(own.status, paperKey) && (
         <p className="lt-wcg__line" role="status" data-testid="series-recheck-note">
-          {SHEET_UNREADABLE_NOT_COUNTED_LINE}
+          {checkNotCountedLine(notCountedReason)}
         </p>
       )}
       <p className="lt-wcg__checks" role="status" data-testid="series-checks-left">

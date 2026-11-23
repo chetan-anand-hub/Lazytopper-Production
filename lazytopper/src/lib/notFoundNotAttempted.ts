@@ -18,7 +18,7 @@
  * service feeds MI from the grader's own rows, where it is still not graded, so no entry and no attempt is written for it.
  */
 import type { WorksheetQuestionGrade } from "../ai/aiClient";
-import { isGradedQuestion, isNotFoundOnPages, objectiveMarksLost } from "./mistakeDisplay";
+import { gradeStateOf, isGradedQuestion, isNotFoundOnPages, objectiveMarksLost } from "./mistakeDisplay";
 
 /** The per-question line on the scorecard's graded sheet and the PDF. */
 export const NOT_FOUND_NOT_ATTEMPTED_NOTE = "Not attempted · 0 — your answer to this question was not found on the pages you uploaded.";
@@ -72,4 +72,19 @@ export function isNotFoundNotAttempted(row: { notFoundOnPages?: unknown } | null
 /** The question numbers this rule counted as "Not attempted · 0", in paper order. PURE. */
 export function notFoundNotAttemptedQNumbers(rows: ReadonlyArray<WorksheetQuestionGrade> | null | undefined): number[] {
   return (rows ?? []).filter((r) => isNotFoundNotAttempted(r)).map((r) => r.qNumber).sort((a, b) => a - b);
+}
+
+/**
+ * LIVE-FIX-1 - why the check on screen may not have been counted (the server's TS-RECHECK-1 free re-check), as far as THIS
+ * check's rows say: "not-found" when answers were missing from the pages and nothing was unreadable; "unreadable" when a page or
+ * option could not be read and nothing was missing; null otherwise (both, neither, an answer to a different question, or no
+ * check on screen) - the caller then shows the neutral line. PURE.
+ */
+export function notCountedReasonOf(rows: ReadonlyArray<WorksheetQuestionGrade> | null | undefined): "not-found" | "unreadable" | null {
+  const list = rows ?? [];
+  const missing = list.some((r) => isNotFoundNotAttempted(r) || isNotFoundOnPages(r));
+  const unread = list.some((r) => !isNotFoundOnPages(r) && (gradeStateOf(r) === "could-not-read" || gradeStateOf(r) === "unread-option"));
+  if (missing && !unread) return "not-found";
+  if (unread && !missing) return "unreadable";
+  return null;
 }

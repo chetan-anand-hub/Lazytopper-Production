@@ -18,7 +18,7 @@ import { buildFullMockResponse } from "../services/fullMockGradeService";
 import { buildChapterTestSessionRecord, buildFullMockSessionRecord } from "../services/sessionRecords";
 import { isFullyGradedFullPaper, buildBoardScoreView } from "./fullmock/boardEstimate";
 import { gradeStateOf, isGradedQuestion, isLossOnlyNotAttempted, paperMarksLost } from "./mistakeDisplay";
-import { NOT_FOUND_NOT_ATTEMPTED_NOTE, isNotFoundNotAttempted, notFoundAddPageLine, notFoundAsNotAttempted, notFoundNotAttemptedQNumbers } from "./notFoundNotAttempted";
+import { NOT_FOUND_NOT_ATTEMPTED_NOTE, isNotFoundNotAttempted, notCountedReasonOf, notFoundAddPageLine, notFoundAsNotAttempted, notFoundNotAttemptedQNumbers } from "./notFoundNotAttempted";
 import { paperGradeStatus, paperMarksScore, resultCardParts } from "../components/results/scoreTotals";
 import { boardScoreFor, fullMockChapterLensNote, deriveFullMockChapterLens, fullMockScorecardVariant } from "../components/results/scorecardVariants";
 import { chapterTestScorecardVariant, storedChapterTestScorecardVariant, storedFullMockScorecardVariant } from "../components/results/scorecardBankLenses";
@@ -234,5 +234,16 @@ describe("the scorecard (live + re-open), the result card and the PDF", () => {
     );
     expect(screen.queryByTestId("gp-not-marked")).toBeNull();
     expect(document.body.textContent).toContain(NOT_FOUND_NOT_ATTEMPTED_NOTE);
+  });
+});
+
+describe("the not-counted note's reason (TS-RECHECK-1 copy, coordinator ruling 24 Nov 2026)", () => {
+  it("missing answers only -> not-found; an unreadable page only -> unreadable; both / mismatch / no check -> null (neutral)", () => {
+    expect(notCountedReasonOf(LIVE().results)).toBe("not-found");
+    expect(notCountedReasonOf(fm([notFound(21, 20), notFound(22, 15), notFound(23, 15), notFound(24, 10)]).results)).toBe("not-found");
+    expect(notCountedReasonOf(fm([graded(21, 12, 20), unreadable(22, 15), graded(23, 15, 15), graded(24, 10, 10)]).results)).toBe("unreadable");
+    expect(notCountedReasonOf(fm([graded(21, 12, 20), notFound(22, 15), unreadable(23, 15), graded(24, 10, 10)]).results)).toBeNull();
+    expect(notCountedReasonOf(fm([graded(21, 12, 20), mismatch(22, 15), graded(23, 15, 15), graded(24, 10, 10)]).results)).toBeNull();
+    expect(notCountedReasonOf(null)).toBeNull();
   });
 });

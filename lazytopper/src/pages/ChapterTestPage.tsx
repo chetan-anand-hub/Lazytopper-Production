@@ -127,7 +127,7 @@ import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintD
 import { resultCardParts } from "../components/results/scoreTotals";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import NotFoundAddPageLine from "../components/chaptertest/NotFoundAddPageLine";
-import { notFoundNotAttemptedQNumbers } from "../lib/notFoundNotAttempted";
+import { notCountedReasonOf, notFoundNotAttemptedQNumbers } from "../lib/notFoundNotAttempted";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
 import ChapterTestHistoryRail from "../components/chaptertest/ChapterTestHistoryRail";
 import { useQuestionTimes } from "../components/testAnalysis/questionTimes";
@@ -1854,7 +1854,7 @@ export default function ChapterTestPage() {
                   <b>{fullResponse ? resultCardParts(fullResponse).score : null}</b>
                   {fullResponse ? resultCardParts(fullResponse).tail : ""}
                 </div>
-                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} />
+                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} notCountedReason={notCountedReasonOf(fullResponse?.results)} />
                 <NotFoundAddPageLine response={fullResponse} onAddPage={addMissingPage} />
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>

@@ -57,8 +57,11 @@ describe("LIVE-FIX-1 - the free test's checks-left line after a check", () => {
     upload.unmount();
 
     mine.fn.mockResolvedValue(mineOf({ paperKey: FM_KEY, checksPerPaper: 2, used: 0, freeRecheck: true }));
-    render(<MemoryRouter><SeriesChecksLeftLine uid="u1" worksheetId={FM_ID} refreshKey="full:false" freeTest /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByTestId("series-recheck-note")).toBeTruthy());
+    // The live run's sheet: answers missing from the pages (not unreadable) -> the not-found wording (coordinator ruling 24 Nov).
+    render(<MemoryRouter><SeriesChecksLeftLine uid="u1" worksheetId={FM_ID} refreshKey="full:false" freeTest notCountedReason="not-found" /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByTestId("series-recheck-note").textContent).toBe(
+      "This check wasn't counted — some answers weren't on the pages you uploaded. Add those pages and check again free.",
+    ));
     expect(line()).toBe("Your free test · Checks left on this paper: 2 of 2");
   });
 

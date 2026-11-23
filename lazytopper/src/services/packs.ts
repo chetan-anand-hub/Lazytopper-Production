@@ -342,6 +342,24 @@ export function readTestSeriesStatus(raw: unknown): TestSeriesStatus | null {
 export const SHEET_UNREADABLE_NOT_COUNTED_LINE =
   "We couldn't read most of your sheet, so this check wasn't counted. Retake the photo in good light and upload again. This free re-check is given once per paper.";
 
+/**
+ * LIVE-FIX-1 (coordinator ruling 24 Nov 2026) - the server's free re-check covers BOTH a sheet it could not read and answers that
+ * were not on the uploaded pages (TS-RECHECK-1, unchanged). The note names the reason only when the page KNOWS it from the check
+ * it just showed; otherwise one neutral line fits both.
+ */
+export const ANSWERS_NOT_FOUND_NOT_COUNTED_LINE =
+  "This check wasn't counted — some answers weren't on the pages you uploaded. Add those pages and check again free.";
+export const CHECK_NOT_COUNTED_NEUTRAL_LINE = "This check wasn't counted — add any missing or unclear pages and check again free.";
+
+export type NotCountedReason = "not-found" | "unreadable" | null;
+
+/** The not-counted note for a reason (null / unknown -> the neutral line). PURE. */
+export function checkNotCountedLine(reason: NotCountedReason | undefined): string {
+  if (reason === "not-found") return ANSWERS_NOT_FOUND_NOT_COUNTED_LINE;
+  if (reason === "unreadable") return SHEET_UNREADABLE_NOT_COUNTED_LINE;
+  return CHECK_NOT_COUNTED_NEUTRAL_LINE;
+}
+
 /** True when the server says this paper's latest check was not counted (free re-check). PURE. */
 export function testSeriesRecheckNote(status: TestSeriesStatus | null | undefined, paperKey: string): boolean {
   return Boolean(status && paperKey && status.freeRecheck && status.freeRecheck[paperKey] === true);

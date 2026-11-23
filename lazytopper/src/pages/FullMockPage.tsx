@@ -156,7 +156,7 @@ import { paperMarksScore, resultCardParts } from "../components/results/scoreTot
 import { boardEstimateDisabled } from "../lib/fullmock/boardEstimateFlag";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import NotFoundAddPageLine from "../components/chaptertest/NotFoundAddPageLine";
-import { notFoundNotAttemptedQNumbers } from "../lib/notFoundNotAttempted";
+import { notCountedReasonOf, notFoundNotAttemptedQNumbers } from "../lib/notFoundNotAttempted";
 import { FM_CSS } from "../components/fullmock/fullMockStyles";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
 import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadPanel";
@@ -2196,7 +2196,7 @@ export default function FullMockPage() {
                   <b>{fullResponse ? resultCardParts(fullResponse).score : null}</b>
                   {fullResponse ? resultCardParts(fullResponse).tail : ""}
                 </div>
-                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} />
+                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} notCountedReason={notCountedReasonOf(fullResponse?.results)} />
                 <NotFoundAddPageLine response={fullResponse} onAddPage={addMissingPage} />
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
