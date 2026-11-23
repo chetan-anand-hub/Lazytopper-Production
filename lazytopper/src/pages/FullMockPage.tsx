@@ -183,7 +183,7 @@ import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUplo
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
 import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId, seriesPaperKeyOfWorksheetId } from "../lib/testSeries/testSeries";
-import { FOCUS_PARAM, focusSetLabel, focusSetOf, focusSetWorksheetId } from "../lib/testSeries/focusSets";
+import { FOCUS_PARAM, focusSetCodeOfWorksheetId, focusSetLabel, focusSetOf, focusSetWorksheetId } from "../lib/testSeries/focusSets";
 import { useDerivedWrittenGraded } from "../hooks/useDerivedWrittenGraded";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
@@ -443,7 +443,12 @@ export default function FullMockPage() {
   // one-test rule's records. The SERVER pins the free paper and refuses every other one; this only decides what the page SHOWS.
   const freeTestPaperKey =
     seriesPaperKeyOfWorksheetId(activeMock?.paper.worksheetId) ??
-    (seriesN !== null ? seriesPaperKeyOfWorksheetId(seriesMockWorksheetId("fm-0-0", subject === "Science" ? "Science" : "Maths", seriesN)) : null);
+    (seriesN !== null
+      ? seriesPaperKeyOfWorksheetId(seriesMockWorksheetId("fm-0-0", subject === "Science" ? "Science" : "Maths", seriesN))
+      : // TS-THEMES-1: a focus set can be the free test too (its server key "TS-FS-M-LA-1").
+        focusSet
+        ? seriesPaperKeyOfWorksheetId(focusSetWorksheetId("fm-0-0", focusSet))
+        : null);
   const freeWritten = isSignedIn && seriesFreeTestWritten(seriesAccess, freeTestPaperKey, records);
   // RECORD-SAFE-1: when a record had to be saved under a different code than the paper was drawn with (that code
   // belonged to another paper), the sitting follows it - scorecard, graded sheet, detail lock, delta line and
@@ -1474,6 +1479,8 @@ export default function FullMockPage() {
   // out of 80. Read-only: nothing is written.
   const boardScore = useMemo(() => {
     if (!fullResponse || !activeMock) return null;
+    // TS-THEMES-1: a focus set is not a full board paper - no full-paper line, trend or board estimate on its scorecard.
+    if (focusSetCodeOfWorksheetId(activeMock.paper.worksheetId)) return null;
     const current = {
       id: activeMock.code,
       score: fullResponse.gradedMarksAwarded,
@@ -1559,11 +1566,13 @@ export default function FullMockPage() {
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
             // TS-BOARDSCORE-1 - the board view as of THIS record (papers graded at or before it), so it reads as the live card did.
-            boardScore: buildBoardScoreView({
-              paper: reopenBoardPaper(reopen.record, reopen.response),
-              scores: fullTestScores(mockRecords, reopen.record.subject, { asOf: { id: reopen.record.id, gradedAt: reopen.record.gradedAt } }),
-              estimateDisabled: boardEstimateDisabled(),
-            }),
+            boardScore: focusSetCodeOfWorksheetId(reopen.record.worksheetId)
+              ? null // TS-THEMES-1: a re-opened focus set has no board view either.
+              : buildBoardScoreView({
+                  paper: reopenBoardPaper(reopen.record, reopen.response),
+                  scores: fullTestScores(mockRecords, reopen.record.subject, { asOf: { id: reopen.record.id, gradedAt: reopen.record.gradedAt } }),
+                  estimateDisabled: boardEstimateDisabled(),
+                }),
             ...(seriesDownloadAccess && reopenSheetOpen && hasStoredPaperSheet(reopen.response)
               ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
               : {}),
@@ -2287,8 +2296,7 @@ export default function FullMockPage() {
             />
           </Suspense>
 
-          {/* TS-THEMES-1: a paper with no Section A (a focus set) has no objective score to show before its upload - the upload step itself is the next screen. */}
-          {scorecardOpen && resultsPhase === "partial" && fullMockObjectiveQuestions(activeMock.paper).length > 0 && (
+          {scorecardOpen && resultsPhase === "partial" && (
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               variant={withSeriesWorksheet(fullMockScorecardVariant({

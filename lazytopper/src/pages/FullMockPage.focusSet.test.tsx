@@ -3,7 +3,7 @@
 // to the upload step (no 0/0 objective scorecard); the grade request carries the focus worksheet id + the set's own questions.
 // A free account with its one free test used meets the SAME start wall as any series paper (the rule is unchanged).
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { focusSetCodeOfWorksheetId } from "../lib/testSeries/focusSets";
 import { focusSetSpecOf } from "../lib/testSeries/pinnedFocusSet";
@@ -21,7 +21,18 @@ vi.mock("../hooks/useSubscription", () => ({
 }));
 vi.mock("../services/firebaseClient", () => ({ firestoreDb: null }));
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: () => {} }));
-vi.mock("../services/packs", async (orig) => ({ ...(await orig<typeof import("../services/packs")>()), fetchMyPacks: async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: null }) }));
+// TS-FREE-CHECK-1: `mine.freeTest` is the server's free-test state for a free / trial account (absent = no free written check).
+const mine = vi.hoisted(() => ({ freeTest: undefined as unknown }));
+vi.mock("../services/packs", async (orig) => {
+  const actual = await orig<typeof import("../services/packs")>();
+  return {
+    ...actual,
+    fetchMyPacks: async () => {
+      const freeTest = actual.readTestSeriesFreeTest(mine.freeTest);
+      return { packs: [], licensee: { name: "", email: "" }, boardPassCredit: null, ...(freeTest ? { freeTest } : {}) };
+    },
+  };
+});
 vi.mock("../components/usage/useFairUse", () => ({
   useFairUse: () => ({
     limit: null, clearLimit: () => {}, noteGraded: () => {}, handleRefusal: async () => false,
@@ -56,6 +67,8 @@ vi.mock("../services/fullMockGradeService", async (importOriginal) => {
 });
 
 import FullMockPage from "./FullMockPage";
+import { resetTestSeriesOwnershipForTests } from "../components/testSeries/testSeriesOwnership";
+import { resetOwnedPacksCache } from "../components/packs/useOwnedPacks";
 
 function mount(entry: string) {
   render(
@@ -73,6 +86,9 @@ beforeEach(() => {
   grade.calls = [];
   records.list = [];
   sub.tier = "premium";
+  mine.freeTest = undefined;
+  resetTestSeriesOwnershipForTests();
+  resetOwnedPacksCache();
   vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ enforced: false }), { status: 200 })));
 });
 afterEach(() => {
@@ -99,10 +115,20 @@ describe("TS-THEMES-1 · a focus set on the Full Mock page", () => {
     for (let i = 0; i < 40 && screen.queryByRole("button", { name: /^Next →$/ }); i += 1) fireEvent.click(screen.getByRole("button", { name: /^Next →$/ }));
     fireEvent.click(screen.getAllByRole("button", { name: /Submit & exit →/ })[0]);
     fireEvent.click(await screen.findByRole("button", { name: /Submit now →/ }));
+    // TS-BOARDSCORE-1 x TS-THEMES-1: the awaiting-sheet card reads out of the SET's full marks (0 / 20), names the written marks it
+    // waits for, never "0/0" and never an MCQ line; no board view (a focus set is not an 80-mark full test).
+    const card = await screen.findByRole("dialog", {}, { timeout: 30000 });
+    const shown = card.cloneNode(true) as HTMLElement;
+    shown.querySelectorAll("style").forEach((n) => n.remove());
+    const text = shown.textContent ?? "";
+    expect(text).toContain(`0 / ${spec.marks}`);
+    expect(text).toContain(`${spec.marks} marks waiting for your answer sheet`);
+    expect(text).toContain(`Upload your written answers (${spec.marks} marks)`);
+    expect(text).not.toMatch(/0\s*\/\s*0\b/);
+    expect(text).not.toMatch(/MCQ|Objective section scored|Board estimate|\/ 80/);
+    fireEvent.click(within(card).getByRole("button", { name: /Upload answer sheet for the full result/ }));
     const step = await screen.findByTestId("upload-step", {}, { timeout: 30000 });
     expect(step.textContent).toContain("objective 0/0");
-    // No Section A on a focus set: no partial scorecard dialog over the upload step.
-    expect(screen.queryByRole("dialog")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "stub-grade" }));
     await waitFor(() => expect(grade.calls.length).toBe(1));
     const call = grade.calls[0];
@@ -111,6 +137,40 @@ describe("TS-THEMES-1 · a focus set on the Full Mock page", () => {
     // The sitting's clock is the set's own (persisted with the session), not the 3-hour Full Mock clock.
     const saved = Object.keys(window.localStorage).filter((k) => k.startsWith("lazytopper.fm.session.v1.")).map((k) => JSON.parse(window.localStorage.getItem(k)!));
     expect(saved.some((x) => x.durationMs === spec.minutes * 60_000)).toBe(true);
+  }, 300000);
+
+  it.each(["free", "trial"] as const)("TS-FREE-CHECK-1: a %s account's ONE free test can be a focus set - its written answers get the upload (free test's 2 checks)", async (tier) => {
+    sub.tier = tier as "free";
+    mine.freeTest = { paperKey: null, checksPerPaper: 2, used: 0 };
+    mount("/full-mock/10/Maths?focus=FS-M-SA-2");
+    await screen.findByTestId("fm-focus-minutes", {}, { timeout: 60000 });
+    fireEvent.click(screen.getByRole("button", { name: /Start the mock/ }));
+    await waitFor(() => expect(document.querySelector(".lt-ct__exit")).not.toBeNull());
+    for (let i = 0; i < 40 && screen.queryByRole("button", { name: /^Next →$/ }); i += 1) fireEvent.click(screen.getByRole("button", { name: /^Next →$/ }));
+    fireEvent.click(screen.getAllByRole("button", { name: /Submit & exit →/ })[0]);
+    fireEvent.click(await screen.findByRole("button", { name: /Submit now →/ }));
+    const card = await screen.findByRole("dialog", {}, { timeout: 30000 });
+    fireEvent.click(within(card).getByRole("button", { name: /Upload answer sheet for the full result/ }));
+    expect(await screen.findByTestId("upload-step", {}, { timeout: 30000 })).toBeTruthy();
+    expect(screen.queryByTestId("written-check-upgrade")).toBeNull();
+    expect((await screen.findByTestId("series-checks-left")).textContent).toBe("Your free test · Checks left on this paper: 2 of 2");
+  }, 300000);
+
+  it("TS-FREE-CHECK-1: the server pinned ANOTHER paper as the free test -> a focus set gets the upgrade card, no upload", async () => {
+    sub.tier = "free";
+    mine.freeTest = { paperKey: "TS-CT-M01", checksPerPaper: 2, used: 1 };
+    records.list = [];
+    mount("/full-mock/10/Maths?focus=FS-M-LA-3");
+    await screen.findByTestId("fm-focus-minutes", {}, { timeout: 60000 });
+    fireEvent.click(screen.getByRole("button", { name: /Start the mock/ }));
+    await waitFor(() => expect(document.querySelector(".lt-ct__exit")).not.toBeNull());
+    for (let i = 0; i < 40 && screen.queryByRole("button", { name: /^Next →$/ }); i += 1) fireEvent.click(screen.getByRole("button", { name: /^Next →$/ }));
+    fireEvent.click(screen.getAllByRole("button", { name: /Submit & exit →/ })[0]);
+    fireEvent.click(await screen.findByRole("button", { name: /Submit now →/ }));
+    const card = await screen.findByRole("dialog", {}, { timeout: 30000 });
+    fireEvent.click(within(card).getAllByRole("button").find((b) => /✕|Close/.test(b.textContent ?? "") || b.getAttribute("aria-label") === "Close")!);
+    expect(await screen.findByTestId("written-check-upgrade")).toBeTruthy();
+    expect(screen.queryByTestId("upload-step")).toBeNull();
   }, 300000);
 
   it("a free account whose one free test is used meets the same start wall (rule unchanged)", async () => {

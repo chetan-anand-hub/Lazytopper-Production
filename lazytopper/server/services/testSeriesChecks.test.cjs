@@ -1397,3 +1397,66 @@ test('TS-FREE-CHECK-1 LIMITS-1 bypass path (Basic\'s first paper of a kind): the
   assert.equal((await check(s, seriesBody(), undefined, { limitsBypass: true })).refused, false);
   assert.equal((await check(s, fmBody(), undefined, { limitsBypass: true })).sent.body.testSeries.reason, 'free_test_used');
 });
+
+/* ── TS-THEMES-1 x TS-FREE-CHECK-1: a FOCUS SET can be the one free test (owner rule: the free test includes written marking) ── */
+const QF2 = { 's-fs-nu-c1': { text: 'A bulb rated 60 W, 220 V is used for 5 h. Find the energy in kWh.', marks: 3 } };
+Object.assign(Q, QF2);
+const FOCUS2 = indexManifest([
+  ...FOCUS_RAW,
+  {
+    key: 'TS-FS-S-NU-1', subject: 'Science', kind: 'focus', number: 1, paperCode: 'FS-S-NU-1', topicKey: null,
+    worksheetIdPrefix: 'fm-tsfs-snu1--', questionIds: ['s-fs-nu-c1'], sectionBEQuestionIds: ['s-fs-nu-c1'],
+    textHashes: { 's-fs-nu-c1': canonicalQuestionTextHash(Q['s-fs-nu-c1'].text) },
+  },
+]);
+const fs2Body = () => ({ worksheetId: 'fm-tsfs-snu1--mz1abc-7f3', questions: [q('s-fs-nu-c1', 1)], imageBase64: 'AAAA' });
+
+test('TS-THEMES-1 x TS-FREE-CHECK-1: a free (and a trial) student\'s FIRST written check on a focus set is admitted and PINS the FS- paper', async () => {
+  for (const sub of ['free', 'trial']) {
+    const s = setup({ manifest: FOCUS2, owns: false, ...(sub === 'trial' ? { sub } : {}) });
+    const c = await check(s, fsBody());
+    assert.equal(c.refused, false, sub);
+    assert.deepEqual(c.req.lazytopperTestSeriesCheck, { paperKey: FS1, used: 1, left: 1, checksPerPaper: 2, freeTest: true }, sub);
+    assert.equal(pinOf(s.db, s.uid), FS1, `${sub}: the focus set is the pinned free test`);
+    assert.equal(usedOnPaper(s.db, s.uid, FS1), 1, sub);
+    // the same focus set again (a new sitting) shares its 2 checks
+    assert.equal((await check(s, fsBody({ worksheetId: 'fm-tsfs-mla1--second-sitting' }))).refused, false, sub);
+    assert.equal(usedOnPaper(s.db, s.uid, FS1), 2, sub);
+    assert.equal((await check(s, fsBody())).sent.status, 402, `${sub}: the third check on the free set is refused`);
+  }
+});
+
+test('TS-THEMES-1 x TS-FREE-CHECK-1: after a focus-set pin, a second paper - a series paper OR another focus set - is refused (free_test_used), nothing held or counted', async () => {
+  const s = setup({ manifest: FOCUS2, owns: false });
+  await check(s, fsBody());
+  for (const body of [seriesBody(), fmBody(), fs2Body(), { worksheetId: 'fm-ts1-m24--abc', questions: [q('m-fm-24-b1', 22)] }]) {
+    const r = await check(s, body);
+    assert.equal(r.refused, true, body.worksheetId);
+    assert.equal(r.sent.status, 402, body.worksheetId);
+    assert.equal(r.sent.body.testSeries.reason, 'free_test_used', body.worksheetId);
+  }
+  assert.equal(pinOf(s.db, s.uid), FS1, 'the pin never moves');
+  assert.equal(usedOnPaper(s.db, s.uid, CT) + usedOnPaper(s.db, s.uid, FM) + usedOnPaper(s.db, s.uid, 'TS-FS-S-NU-1'), 0);
+  assert.equal(holdsOf(s.db, s.uid), 0);
+  // and the reverse: a series paper pinned first refuses a focus set
+  const t = setup({ manifest: FOCUS2, owns: false });
+  await check(t, seriesBody());
+  const r = await check(t, fsBody());
+  assert.equal(r.sent.body.testSeries.reason, 'free_test_used');
+  assert.equal(pinOf(t.db, t.uid), CT);
+});
+
+test('TS-THEMES-1 x TS-FREE-CHECK-1: LIMITS-1 / scorecard helpers treat a pinned focus set as the full-mock free paper; TS_FOCUS_SETS_DISABLED makes it no series paper (nothing pinned)', async () => {
+  const s = setup({ manifest: FOCUS2, owns: false });
+  assert.equal(await s.checks.freeTestGrade(reqWith(fsBody()), s.uid), true, 'no pin yet: a focus set may take it');
+  await check(s, fsBody());
+  assert.equal(await s.checks.freeTestGrade(reqWith(fsBody()), s.uid), true);
+  assert.equal(await s.checks.freeTestGrade(reqWith(fs2Body()), s.uid), false);
+  assert.equal(await s.checks.freeTestPaper(s.uid, 'full-mock', 'fm-tsfs-mla1--x'), true);
+  assert.equal(await s.checks.freeTestPaper(s.uid, 'chapter-test', 'fm-tsfs-mla1--x'), false, 'wrong kind');
+  const off = setup({ manifest: FOCUS2, owns: false, env: { TS_FOCUS_SETS_DISABLED: '1' } });
+  const r = await check(off, fsBody());
+  assert.equal(r.refused, true);
+  assert.equal(r.sent.body.feature, 'grade-worksheet', 'the ordinary 402: not a series paper under the kill switch');
+  assert.equal(pinOf(off.db, off.uid), null, 'nothing pinned');
+});

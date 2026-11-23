@@ -1500,7 +1500,18 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
       0,
       (Number(response.worksheetTotalMarks) || 0) - (Number(response.gradedMarksTotal) || 0),
     );
-    const noUpload = input.uploadNotAllowed ? noUploadPartial(objectiveMarks, "Sections B–E") : null;
+    // TS-THEMES-1: a paper with NO objective section (a Test Series focus set: written questions only) has no "0/0" to report and
+    // no MCQs to explain - its awaiting-sheet card names only the written marks it is waiting for.
+    const noObjective = (Number(response.gradedMarksTotal) || 0) === 0 && notYetGraded > 0;
+    const noUpload = input.uploadNotAllowed
+      ? noObjective
+        ? {
+            ...noUploadPartial(objectiveMarks, "Sections B–E"),
+            message: `Your written answers (${notYetGraded} marks) are checked with the Test Series or the Board Pass.`,
+            footnote: "No mistake breakdown yet \u2014 that view appears once your written work is graded.",
+          }
+        : noUploadPartial(objectiveMarks, "Sections B–E")
+      : null;
     // TS-BOARDSCORE-1 - out of the paper's FULL marks; the written sections are named as waiting for the answer sheet.
     const waiting = awaitingSheetScore(
       {
@@ -1517,10 +1528,11 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
       subtitle: `${code} · submitted & scored`,
       score: { kind: "marks", awarded: waiting.awarded, total: waiting.total, ...(waiting.notMarked ? { notMarked: waiting.notMarked } : {}) },
       awaitingSheet: true,
-      message:
-        `Objective section scored (${objectiveMarks}). Upload your written answers ` +
-        `(Sections B–E, ${notYetGraded} marks) to complete your score — with a ` +
-        `chapter-wise breakdown and mistake analysis.`,
+      message: noObjective
+        ? `Upload your written answers (${notYetGraded} marks) for your score — with a chapter-wise breakdown and mistake analysis.`
+        : `Objective section scored (${objectiveMarks}). Upload your written answers ` +
+          `(Sections B–E, ${notYetGraded} marks) to complete your score — with a ` +
+          `chapter-wise breakdown and mistake analysis.`,
       note: input.focusLine ?? null,
       fourType: null, // MCQs tell us right/wrong, not why (spec §5)
       sectionLens: null,
@@ -1530,8 +1542,9 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
       allPending: null,
       actionsHeading: "For now",
       stackActions: true,
-      footnote:
-        "No mistake breakdown yet — MCQs only tell us right or wrong, not why. That view appears once your written work is graded.",
+      footnote: noObjective
+        ? "No mistake breakdown yet — that view appears once your written work is graded."
+        : "No mistake breakdown yet — MCQs only tell us right or wrong, not why. That view appears once your written work is graded.",
       actions: [
         {
           label: "Upload answer sheet for the full result",
