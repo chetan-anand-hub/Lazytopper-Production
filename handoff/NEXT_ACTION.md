@@ -1,3 +1,34 @@
+## 2026-11-23 (daily; UTC day 23 Nov, written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840
+
+*(The owner items of every block below stand, except where this block narrows them. Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-23.md` [coordinator].)* Trunk at writing: **`91624151`** [git].
+
+- **Done [git]:** the 22 PRs in CURRENT_STATE merged. **Standing merge permission (owner, 23 Nov 22:08): the coordinator no longer asks before merging.** This supersedes "ask me for merge permission" in the dispatch. Independent reviews for money, auth, entitlement or free-access PRs are still required first.
+- **Owner to-dos, remind at the start of the session [coordinator]:**
+  1. Make the repo private again (it was public for the 23 Nov session).
+  2. Google Ads top-up by 24-25 Nov (funds were ₹69,261 on 23 Nov).
+  3. Resend paid plan this month (the free 100/day is shared with sign-in codes and receipts; nudges hit the cap on 22 Nov).
+  4. AI Studio: add a backup payment method and move the Eval / Default / POC projects off the shared prepaid billing account (balance ₹15,256 at 19:45 IST on 23 Nov, from about ₹18,405 that morning; the ledger under-counts the real bill by about 1.5-2x). Check the balance before any paid eval.
+  5. Vercel two-factor sign-in; GoDaddy auto-renew (both open since 22 Nov).
+  6. Pallabi: accept the Google Ads invite.
+- **Live checks owed by the owner; nothing on the grading path is "done" without them [coordinator]:**
+  - **`#1840` LIVE-FIX-1, on BOTH a Chapter Test and a Full Mock:** (a) a sheet with a page or two missing, under half the written answers missing: the missing questions show "Not attempted · 0" and the paper is graded X/80; (b) a sheet with most answers missing or unreadable: they stay "not marked yet", the paper stays partial, and the "This check wasn't counted" note shows; (c) "Upload all pages again", from both the live result and a reopened record; (d) after a normal check, "Checks left" drops to 1 of 2. Until both surfaces are run, `#1840` is PARTIAL (section 4a).
+  - **STEPMARK-3 (`#1823` to `#1842`):** one graded Chapter Test from a changed chapter (carbon, control and coordination, magnetic effects, human eye, heredity, reproduction), plus one Worksheet or Quick Practice.
+  - **`#1822` SCHEME-GEN-1:** a second surface. Answer Checker (own question) and Quick Practice were checked by the cofounder in the owner's Chrome on 23 Nov. Also read the Railway `[scheme-gen]` log line and the `scheme_gen.{ok,max_tokens,parse_fail,error}` counters.
+  - **Board estimate (`#1832`):** needs an account with two fully graded same-subject full tests; not yet seen live.
+- **Tue 24 Nov night, in this order [coordinator]:** (1) mark `#1811` META-IC-1 READY first (it was converted to draft on 23 Nov only so lane-overlap would let `#1835` merge), merge trunk in, re-run CI, merge; (2) `#1816` META-PURCHASE-UNIFY-1, after its follow-ups; (3) `#1819`, after a re-review of head `792004f6`. Then tell the owner so he can run Meta Test Events with Pallabi: one Board Pass order plus one pack order, expecting one deduplicated InitiateCheckout each. Do NOT touch the 6 ad sets on InitiateCheckout. The entry chunk must stay at or under 170,627 gz (169,251 after `#1837`). `[FU-TRUNK-RULESET-REQUIRED-CHECKS]` still means the ruleset will not catch a stale base.
+- **Stays a draft on purpose:** `#1833` GRADE-SINGLE-JOB-1 (flag `GRADING_SINGLE_JOBS` default OFF; a safety net, not needed now).
+- **Follow-ups to pick up, from the 23 Nov list (bodies in OPEN_QUESTIONS) [coordinator]:**
+  - Money / entitlement, needs a spec, an independent review and a kill switch: `[FU-FAIRUSE-TS-OWNER-EXEMPT]` (server-side exemption first, then the client).
+  - Grading, needs an eval and the owner's spend OK: `[FU-ADD-PAGE-MERGE-GRADES]`, `[FU-SCHEME-CP04-SUPPORT-VALUE]`, the scheme example's section 13 fix, an optional shorter-feedback eval (about ₹150).
+  - Owner decision: the scheme cache version (bumping regenerates every cached scheme and costs money).
+  - Content: `[FU-STEPMARK-26-FLAGGED]` (hand-fix 26 bank rows); then the "every question step-marked" copy can say "all but a few flagged questions" (`[FU-STEPMARK-REMAINING-1875]`).
+  - Server: `[FU-SERVER-UNREADABLE-SHARE]`. Scoped owner grant needed: `[FU-DESKTOPSHELL-AVATAR-CONTRAST]` (DesktopShell.tsx is globally forbidden).
+  - Low priority: `[FU-ISLIVEPACK-REFUND]`; the green guard's limit; ui-e2e housekeeping (make it a required check after a few clean days; keep `tests/e2e/buildEnv.json` in sync with Vercel prod `VITE_*` flags).
+- **Carried from 22 Nov, still open [coordinator]:** INAPP-SIGNED-IN-HANDOFF ("Pay in Chrome" for signed-in buyers; spec first); `[FU-TS-UPGRADE-SIGNED-OUT]`; `[FU-NUDGE-BAD-PRODUCT]`; reviewer nits on `#1808`, `#1817`, `#1809`; CI flakes (TrialTutorSummary, guestPay 20 ms timer); laptop worktree cleanup (`C:\Projects\LT-worktrees\eval-type1`, then `git worktree prune`, the one git write allowed there); the 21 Nov queue (speed lane for ad landing pages, free MCQ pages, signed-out free-check phone test).
+- **Ads, only on the owner's words [coordinator]:** Test Series ad visuals with the scorecard (product screenshots, no text overlays); Google Ads Test Series copy "marked step by step in minutes · first test free (marking included)"; the Meta brief for Pallabi. Ads review 24-25 Nov: Test Series on the ₹40 cap ("Limited by bid" to ₹60; back to Purchases after 5-10 sales), Board Pass ₹3,500/day, Purchases-only goals.
+- **Dated checks:** Tue 24 Nov night Meta deploy; 24-25 Nov Google Ads top-up and ads review; Wed 25 Nov YouTube decision (₹1,500/day cap, sign-ups only; 23 Nov ₹877 / 191 clicks / 0 sign-ups); 30 Nov founding prices end; 1 Dec price switch (Board Pass ₹2,499 + GST, Test Series ₹1,499 + GST at ₹8 per test; prerender re-capture; ad copy; scheduled tasks exist); about 11 Dec GSC re-check of the free-MCQ pages; before 15 Feb 2027 the sale cutoff and the improvement-exam product.
+- **Standing rules carried, unchanged [coordinator]:** no refunds, ever; check the AI Studio balance before any paid eval; ads change only on the owner's words; copy is "₹X + GST" with the total on the button, no "AI" or "answer key" in new copy, "7-day free trial", "Answer Checker"; never pay, never type passwords or codes; the product is live with paying students, so nothing may break, including purchase; grading quality must never decrease; never create worktrees on the owner's laptop.
+
 ## 2026-11-22b (first daily of UTC day 22 Nov; written 22 Nov about 18:15 IST) - #1810 - #1815 - #1813 - #1812 - #1814 - #1808 - #1817 - #1805 - #1809
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`883cb9ee`** [git].
