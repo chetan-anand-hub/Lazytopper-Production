@@ -108,4 +108,19 @@ describe("analytics.ts -> buyerScore wiring", () => {
     await flush();
     expect(window.localStorage.getItem("lazytopper.buyerScore")).toBeNull();
   });
+
+  it("a failed chunk import cannot grow the pre-load queue without bound", async () => {
+    vi.doMock("./buyerScore", () => {
+      throw new Error("chunk 404");
+    });
+    const a = await import("./analytics");
+    for (let i = 0; i < 120; i++) a.trackPageview("/practice-hub");
+    await flush(); // the import fails; the queue keeps only its newest notes
+    vi.doUnmock("./buyerScore");
+    a.trackPageview("/practice-hub"); // retry now succeeds and drains what was kept
+    await flush();
+    const stored = JSON.parse(window.localStorage.getItem("lazytopper.buyerScore") as string);
+    expect(stored.pv).toBeLessThanOrEqual(51);
+    expect(stored.pv).toBeGreaterThan(0);
+  });
 });

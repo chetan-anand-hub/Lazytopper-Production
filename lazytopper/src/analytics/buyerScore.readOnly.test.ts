@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { getAdditionalUserInfo, setDoc } = vi.hoisted(() => ({ getAdditionalUserInfo: vi.fn(), setDoc: vi.fn() }));
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo }));
@@ -13,10 +13,22 @@ import { peekPaidPremium } from "../services/subscriptionService";
 /** BUYER-SCORE-1 - the customer check must be a pure read: an expired cached trial is never saved back, locally or to Firestore. */
 const T0 = Date.parse("2026-11-20T03:30:00Z");
 
+const originalLocation = window.location;
 beforeEach(() => {
+  // A real host: on localhost analytics is off and the tracker would return before the customer check.
+  const url = new URL("/packs", "https://www.lazytopper.com");
+  Object.defineProperty(window, "location", {
+    configurable: true,
+    writable: true,
+    value: { href: url.href, origin: url.origin, hostname: url.hostname, pathname: url.pathname, search: "", hash: "" },
+  });
   window.localStorage.clear();
   window.sessionStorage.clear();
   setDoc.mockClear();
+});
+
+afterEach(() => {
+  Object.defineProperty(window, "location", { configurable: true, writable: true, value: originalLocation });
 });
 
 describe("existing-customer check is read-only", () => {
@@ -32,7 +44,7 @@ describe("existing-customer check is read-only", () => {
     });
     try {
       expect(peekPaidPremium("u-expired")).toBe(false);
-      buyerScoreNote({ kind: "page", path: "/packs" }, T0);
+      expect(buyerScoreNote({ kind: "page", path: "/packs" }, T0)).not.toBeUndefined(); // reached past the analytics gate
     } finally {
       spy.mockRestore();
     }

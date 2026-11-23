@@ -691,6 +691,7 @@ function noteBuyerScore(note: BuyerNote): void {
       return;
     }
     buyerQueue.push(note);
+    if (buyerQueue.length > 50) buyerQueue.shift();
     if (buyerScheduled) return;
     buyerScheduled = true;
     const load = () => {
