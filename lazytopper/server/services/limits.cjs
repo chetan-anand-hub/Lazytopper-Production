@@ -397,6 +397,20 @@ function createLimits(deps = {}) {
       return false;
     }
   }
+  /**
+   * TS-FREE-CHECK-1: (uid, kind, worksheetId) -> Promise<boolean>, true for a sitting of a NON-owner's pinned free-test series paper
+   * (testSeriesChecks.freeTestPaper). Used ONLY to keep that paper's scorecard breakdown open, as for an owner's series paper; the
+   * download mint is not widened. Absent -> exactly today's limits.
+   */
+  const seriesFreeTestPaper = typeof deps.seriesFreeTestPaper === 'function' ? deps.seriesFreeTestPaper : null;
+  async function isSeriesFreeTestPaper(uid, kind, worksheetId) {
+    if (!seriesFreeTestPaper || (kind !== 'chapter-test' && kind !== 'full-mock') || typeof worksheetId !== 'string' || !worksheetId) return false;
+    try {
+      return (await seriesFreeTestPaper(uid, kind, worksheetId)) === true;
+    } catch {
+      return false;
+    }
+  }
   const resolveFirestore = typeof deps.resolveFirestore === 'function' ? deps.resolveFirestore : defaultResolveFirestore;
   const getCreationMs = typeof deps.getCreationMs === 'function' ? deps.getCreationMs : defaultGetCreationMs;
 
@@ -757,6 +771,10 @@ function createLimits(deps = {}) {
       emit('limits.detail.test_series');
       return open({ testSeries: true });
     }
+    if (worksheetId && worksheetId.length <= PAPER_KEY_MAX && (await isSeriesFreeTestPaper(uid, kind, worksheetId))) {
+      emit('limits.detail.test_series_free_test');
+      return open({ testSeries: true, freeTest: true });
+    }
     const db = ledgerDb();
     if (!db || typeof db.runTransaction !== 'function') {
       emit('limits.fail_open');
@@ -810,6 +828,9 @@ function createLimits(deps = {}) {
       // TS-PACK-JOBFIX (review P0 #1): a VERIFIED Test Series Pack owner grading a series paper (manifest paper + its exact written
       // questions) is not metered here at all - no trial cap, no reservation, no "first free" bypass. The entitlement gate then
       // admits it on the pack, whose 2-per-paper rule is the only cap. Any other grade is decided exactly as before.
+      // TS-FREE-CHECK-1: index.cjs's `seriesOwnerGrade` also answers true for a NON-owner's free-test grade (testSeriesChecks
+      // .freeTestGrade): it spends no trial weekly chapter-test / full-mock grade and no Basic "first free" grade; the free test's
+      // own 2-per-paper rule (entitlement gate -> testSeriesChecks.hold) is its only cap. The Answer Checker bucket is never touched.
       if (reqPath === GRADE_WORKSHEET_PATH && typeof opts.seriesOwnerGrade === 'function') {
         let owner = false;
         try {

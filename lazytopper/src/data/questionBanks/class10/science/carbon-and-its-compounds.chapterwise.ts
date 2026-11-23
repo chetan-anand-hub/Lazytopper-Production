@@ -169,25 +169,25 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-CARB-020", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Write the molecular formula of first two members of homologous series having functional group —Cl.",
     answer: "(1) CH3Cl Chloromethane (2) CH3CH2Cl Chloroethane",
-    solutionSteps: ["(1) CH3Cl Chloromethane (2) CH3CH2Cl Chloroethane"],
+    solutionSteps: ["[1 mark] (1) CH3Cl Chloromethane", "[1 mark] (2) CH3CH2Cl Chloroethane"],
     ncertRef: "cbjesccq04 Q1", isCompetencyBased: false },
   // cbjesccq04 Q2 (Section A, 1mk)
   { id: "SCQ-S-CARB-021", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Write the molecular formula of first two members of homologous series having functional group —Br.",
     answer: "(1) CH3Br Bromomethane (2) C2H5Br Bromoethane",
-    solutionSteps: ["(1) CH3Br Bromomethane (2) C2H5Br Bromoethane"],
+    solutionSteps: ["[1 mark] (1) CH3Br Bromomethane", "[1 mark] (2) C2H5Br Bromoethane"],
     ncertRef: "cbjesccq04 Q2", isCompetencyBased: false },
   // cbjesccq04 Q3 (Section A, 1mk)
   { id: "SCQ-S-CARB-022", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Write the molecular formula of first two members of homologous series having functional group —OH.",
     answer: "(1) CH3OH Methanol (2) C2H5OH Ethanol",
-    solutionSteps: ["(1) CH3OH Methanol (2) C2H5OH Ethanol"],
+    solutionSteps: ["[1 mark] (1) CH3OH Methanol", "[1 mark] (2) C2H5OH Ethanol"],
     ncertRef: "cbjesccq04 Q3", isCompetencyBased: false },
   // cbjesccq04 Q4 (Section A, 1mk)
   { id: "SCQ-S-CARB-023", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Write the molecular formula of 2nd and the 3rd member of homologous series whose first member is methane.",
     answer: "(1) CH3—CH3 Ethane (2) CH3—CH2—CH3 Propane",
-    solutionSteps: ["(1) CH3—CH3 Ethane (2) CH3—CH2—CH3 Propane"],
+    solutionSteps: ["[1 mark] (1) CH3—CH3 Ethane", "[1 mark] (2) CH3—CH2—CH3 Propane"],
     ncertRef: "cbjesccq04 Q4", isCompetencyBased: false },
   // cbjesccq04 Q5 (Section A, 1mk)
   { id: "SCQ-S-CARB-024", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -224,7 +224,7 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-CARB-028", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Compare the structures of benzene and cyclohexane by drawing them.",
     answer: "Benzene has 3 double bonds whereas cyclohexane has all single bonds.",
-    solutionSteps: ["Benzene has 3 double bonds whereas cyclohexane has all single bonds."],
+    solutionSteps: ["[1 mark] Benzene has 3 double bonds", "[1 mark] whereas cyclohexane has all single bonds."],
     ncertRef: "cbjesccq04 Q74", isCompetencyBased: true },
   // cbjesccq04 Q75 (Section B, 2mk)
   // CARB-029 repaired (SCI-BACKLOG-1 batch 3, 14 Oct, D244): NCERT Ch 4 (jesc104) sec 4.4.1 Properties of Ethanol (reaction with sodium) and 4.4.2 Properties of Ethanoic Acid
@@ -238,7 +238,7 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-CARB-030", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "State reasons to explain why covalent compounds: a. are bad conductors of electricity? b. have low melting and boiling points?",
     answer: "a. Covalent compounds do not form ions, hence they are bad conductor of electricity. b. Covalent compounds have weak intermolecular forces of attraction, therefore, have low melting and boiling points.",
-    solutionSteps: ["a. Covalent compounds do not form ions, hence they are bad conductor of electricity. b. Covalent compounds have weak intermolecular forces of attraction, therefore, have low melting and boiling points."],
+    solutionSteps: ["[1 mark] a. Covalent compounds do not form ions, hence they are bad conductor of electricity.", "[1 mark] b. Covalent compounds have weak intermolecular forces of attraction, therefore, have low melting and boiling points."],
     ncertRef: "cbjesccq04 Q76", isCompetencyBased: true },
   // cbjesccq04 Q77 (Section B, 2mk)
   // CARB-031 repaired (SCI-BACKLOG-1, 14 Oct, D244): NCERT Class 10 Science 2026-27 jesc104 section 4.2.4 'Homologous Series' and section 4.2.5 'Nomenclature of Carbon Compounds'

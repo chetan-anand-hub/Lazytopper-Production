@@ -597,12 +597,12 @@ describe("SEO-5 PR-2 — capture widths, and every validator on BOTH sets", () =
 describe("TS-PAGE-2 — H1 witness and clock nodes", () => {
   it("a /test-series capture without its <h1> fails; with it, passes", () => {
     const h1 = H1_WITNESSES.find((w) => w.path === "/test-series")?.h1 ?? "";
-    expect(h1).toBe("CBSE Class 10 Test Series: Maths & Science");
+    expect(h1).toBe("Write on paper. Snap a photo. Get every step marked like a CBSE examiner — in minutes.");
     expect(h1WitnessFailures({ path: "/test-series", html: "<main><h2>Take all 66 tests</h2></main>", text: "Take all 66 tests" })).toHaveLength(1);
     expect(h1WitnessFailures({ path: "/test-series", html: `<main><h1 id="ts-h1">${h1}</h1></main>`, text: h1 })).toEqual([]);
     expect(h1WitnessFailures({ path: "/pricing", html: "<main></main>", text: "" })).toEqual([]);
     // innerText of an H1 in two block lines carries a newline: still the same heading.
-    expect(h1WitnessFailures({ path: "/test-series", html: "<h1>x</h1>", text: "CBSE Class 10 Test Series:\nMaths & Science" })).toEqual([]);
+    expect(h1WitnessFailures({ path: "/test-series", html: "<h1>x</h1>", text: "Write on paper. Snap a photo.\nGet every step marked like a CBSE examiner — in minutes." })).toEqual([]);
   });
   it("rule 2 keeps a hero that is not a <section>: only the sign-in pair goes, the reserved box stays", () => {
     const root = document.createElement("div");
@@ -627,7 +627,7 @@ describe("TS-PAGE-2 — H1 witness and clock nodes", () => {
     for (const file of ["test-series.html", "__desktop/test-series.html"]) {
       const html = readFileSync(resolve(process.cwd(), "prerendered", file), "utf8");
       const h1 = /<h1[^>]*>([\s\S]*?)<\/h1>/.exec(html)?.[1] ?? "";
-      expect(h1.replace(/<[^>]+>/g, ""), file).toBe("CBSE Class 10 Test Series: Maths &amp; Science");
+      expect(h1.replace(/<[^>]+>/g, ""), file).toBe("Write on paper. Snap a photo. Get every step marked like a CBSE examiner — in minutes.");
       expect(html, file).not.toContain("data-lt-clock");
       expect(html, file).not.toContain('href="/login');
     }

@@ -124,6 +124,7 @@ import {
 } from "./tutor/tutorRoundTrip";
 import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
 import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintDoc";
+import { resultCardParts } from "../components/results/scoreTotals";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
 import ChapterTestHistoryRail from "../components/chaptertest/ChapterTestHistoryRail";
@@ -146,11 +147,11 @@ import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesChecksLeftLine, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesAccess } from "../components/testSeries/WrittenCheckGate";
+import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesChecksLeftLine, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUploadNotAllowed, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
-import { CT_PAPER_PARAM, CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterPaperNumber, seriesChapterTestOf, seriesChapterWorksheetId, seriesKeyOfWorksheetId } from "../lib/testSeries/testSeries";
+import { CT_PAPER_PARAM, CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterPaperNumber, seriesChapterTestOf, seriesChapterWorksheetId, seriesKeyOfWorksheetId, seriesPaperKeyOfWorksheetId } from "../lib/testSeries/testSeries";
 import { tsPinDisabledFor } from "../lib/testSeries/tsPinFlag";
 import { useDerivedWrittenGraded } from "../hooks/useDerivedWrittenGraded";
 
@@ -535,6 +536,11 @@ export default function ChapterTestPage() {
   // CT-RELOAD-1 — the paper of an in-progress attempt, restored after a reload (see below).
   const [restoredPaper, setRestoredPaper] = useState<PersistedWorksheet | null>(null);
   const paper = resumedCt?.paper ?? restoredPaper ?? draw?.paper ?? null;
+  // TS-FREE-CHECK-1 (owner ruling 23 Nov 2026): a free / trial account's ONE free test includes written-answer checking on a Test
+  // Series paper - this paper's key (the sitting's, else the series paper opened) against the server's free-test pin + the
+  // one-test rule's records. The SERVER pins the free paper and refuses every other one; this only decides what the page SHOWS.
+  const freeTestPaperKey = seriesPaperKeyOfWorksheetId(paper?.worksheetId) ?? (seriesTest ? `TS-${seriesTest.code}` : null);
+  const freeWritten = isSignedIn && seriesFreeTestWritten(seriesAccess, freeTestPaperKey, records);
   // CT-RESUME-2 — the start screen describes the paper the student will actually sit: the SAVED
   // paper when one is being offered for resume (its counts, marks, sections and CBQ share), else
   // this visit's fresh draw. Never the hidden new draw behind a resume.
@@ -1379,7 +1385,7 @@ export default function ChapterTestPage() {
                 </div>
                 <div className="lt-ct__title lt-ct__fr">Ready for a board-pattern test?</div>
                 <div className="lt-ct__sub">
-                  {seriesPaperAccess
+                  {seriesPaperAccess || freeWritten
                     ? "Objective questions are scored the moment you submit. Write the rest on paper, upload, and get your full graded result with a mistake breakdown."
                     : "Objective questions (MCQs) are scored the moment you submit. Written answers are checked step by step with the Test Series or the Board Pass."}
                 </div>
@@ -1507,7 +1513,7 @@ export default function ChapterTestPage() {
                       )}
                       {seriesDownloadAccess && <LimitChip />}
                     </div>
-                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote />}
+                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote written={freeWritten} />}
                     {startWall && !seriesPaperAccess && (seriesAccess.failed ? <AccessFailed onRetry={seriesAccess.retry} /> : seriesAccess.checking ? <AccessChecking /> : <SeriesStartWall />)}
                     {limitNotice && (
                       <div className="lt-ct__honest" role="alert" data-testid="ct-limit-notice">
@@ -1788,7 +1794,7 @@ export default function ChapterTestPage() {
           {resultsPhase === "partial" ? (
             <ResultAccessSlot
               access={seriesAccess}
-              uploadAllowed={seriesPaperAccess || isBeforeSeriesRules(Date.parse(paper.createdAt))}
+              uploadAllowed={seriesPaperAccess || freeWritten || isBeforeSeriesRules(Date.parse(paper.createdAt))}
               worksheetId={paper.worksheetId}
               upgrade={
                 <WrittenCheckUpgradeCard
@@ -1803,7 +1809,7 @@ export default function ChapterTestPage() {
               upload={
                 <>
                   {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
-                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
+                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} />
                   <ChapterTestUploadPanel
                     name={nomen.name}
                     code={nomen.code}
@@ -1824,15 +1830,12 @@ export default function ChapterTestPage() {
                 <div className="lt-ct__eyebrow">Chapter Test · Result</div>
                 <div className="lt-ct__title lt-ct__fr">{nomen.name}</div>
                 <div className="lt-ct__sub">
-                  {nomen.code} · fully graded —{" "}
-                  <b>
-                    {fullResponse?.gradedMarksAwarded}/{fullResponse?.gradedMarksTotal}
-                  </b>
-                  {fullResponse && fullResponse.pendingCount > 0
-                    ? ` · ${fullResponse.pendingCount} page(s) pending`
-                    : ""}
+                  {/* TS-BOARDSCORE-1 - consistent with the hero: out of the paper's full marks; "fully graded" only when it is. */}
+                  {nomen.code} · {fullResponse ? resultCardParts(fullResponse).status : "fully graded"} —{" "}
+                  <b>{fullResponse ? resultCardParts(fullResponse).score : null}</b>
+                  {fullResponse ? resultCardParts(fullResponse).tail : ""}
                 </div>
-                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
+                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} />
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
@@ -1924,7 +1927,7 @@ export default function ChapterTestPage() {
               variant={withSeriesWorksheet(chapterTestScorecardVariant({
                 // TS-UX-SCORE-1: the SAME allow-logic the paywall below uses (ResultAccessSlot `uploadAllowed`); while the read is
                 // pending or failed the page shows neither paywall nor card, so the scorecard keeps today's upload prompt.
-                uploadNotAllowed: scorecardUploadNotAllowed({ canCheck: seriesPaperAccess, createdMs: Date.parse(paper.createdAt), checking: seriesAccess.checking, failed: seriesAccess.failed }),
+                uploadNotAllowed: scorecardUploadNotAllowed({ canCheck: seriesPaperAccess || freeWritten, createdMs: Date.parse(paper.createdAt), checking: seriesAccess.checking, failed: seriesAccess.failed }),
                 name: nomen.name,
                 code: nomen.code,
                 phase: "partial",

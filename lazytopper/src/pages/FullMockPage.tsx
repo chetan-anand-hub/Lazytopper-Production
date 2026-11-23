@@ -8,7 +8,9 @@
 // computed from Date.now(); never a ticking counter that dies with the tab) ·
 // per-interaction autosave + resume + guarded exit · §8b focus aggregates ·
 // subject-scoped history OVERLAY panel + pending banner (worksheet pattern) ·
-// scorecard with the section AND chapter lenses. NO board-readiness projection.
+// scorecard with the section AND chapter lenses. TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, superseding the old
+// "NO board-readiness projection"): a fully graded 80-mark paper also shows the full-paper line, the trend across the
+// student's own full tests and a labelled board ESTIMATE range (lib/fullmock/boardEstimate.ts).
 //
 // Reused byte-unchanged: ChapterTestNavigator, PreSubmitConfirm +
 // ChapterTestUploadPanel (additive copy props only), scoreObjectiveSection +
@@ -148,6 +150,9 @@ import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/work
 import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintDoc";
 import { buildDesktopWorksheetPath } from "../lib/desktop/navigation";
 import { formatScoreNumber } from "../components/results/scoreNumber";
+import { buildBoardScoreView, fullTestScores } from "../lib/fullmock/boardEstimate";
+import { paperMarksScore, resultCardParts } from "../components/results/scoreTotals";
+import { boardEstimateDisabled } from "../lib/fullmock/boardEstimateFlag";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import { FM_CSS } from "../components/fullmock/fullMockStyles";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
@@ -173,11 +178,11 @@ import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
+import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUploadNotAllowed, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
-import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
+import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId, seriesPaperKeyOfWorksheetId } from "../lib/testSeries/testSeries";
 import { useDerivedWrittenGraded } from "../hooks/useDerivedWrittenGraded";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
@@ -209,6 +214,16 @@ function mintFullMockId(): string {
 }
 /** Product-voice coaching line for the graded PDF (mirrors the CT page's local
  *  helper — a page-level presentation string, not shared logic). */
+/** TS-BOARDSCORE-1 - a re-opened result's paper for the board view: out of the paper's full marks (owner ruling 23 Nov 2026,
+ *  19:59 IST). With the stored payload, its own full/graded totals; without it, the record (a graded record is fully marked). */
+function reopenBoardPaper(record: SessionRecord, response: WorksheetGradeResponse | null | undefined) {
+  if (response) {
+    const ps = paperMarksScore(response);
+    return { awarded: record.marksAwarded, total: ps.total, pendingCount: Number(response.pendingCount) || 0, notMarkedMarks: ps.notMarked?.marks ?? 0 };
+  }
+  return { awarded: record.marksAwarded, total: record.marksTotal, pendingCount: record.status === "graded" ? 0 : 1 };
+}
+
 function coachingLine(resp: WorksheetGradeResponse): string {
   // SCORECARD-MI-1 — the ONE coaching function (lib/mistakeDisplay): owner's groups, counts in
   // mistakes, and never "Clean" while marks were lost (GA-24).
@@ -406,6 +421,13 @@ export default function FullMockPage() {
   const [phase, setPhase] = useState<Phase>("setup");
   useScrollTopOnChange(phase); // SCROLL-TOP-1 — each phase/view opens at the top
   const [activeMock, setActiveMock] = useState<ActiveMock | null>(null);
+  // TS-FREE-CHECK-1 (owner ruling 23 Nov 2026): a free / trial account's ONE free test includes written-answer checking on a Test
+  // Series paper - this paper's key (the sitting's, else the series paper opened) against the server's free-test pin + the
+  // one-test rule's records. The SERVER pins the free paper and refuses every other one; this only decides what the page SHOWS.
+  const freeTestPaperKey =
+    seriesPaperKeyOfWorksheetId(activeMock?.paper.worksheetId) ??
+    (seriesN !== null ? seriesPaperKeyOfWorksheetId(seriesMockWorksheetId("fm-0-0", subject === "Science" ? "Science" : "Maths", seriesN)) : null);
+  const freeWritten = isSignedIn && seriesFreeTestWritten(seriesAccess, freeTestPaperKey, records);
   // RECORD-SAFE-1: when a record had to be saved under a different code than the paper was drawn with (that code
   // belonged to another paper), the sitting follows it - scorecard, graded sheet, detail lock, delta line and
   // downloads all read `activeMock.code`.
@@ -1428,6 +1450,26 @@ export default function FullMockPage() {
     return `${d > 0 ? "▲" : "▼"} ${formatScoreNumber(Math.abs(d))} mark${Math.abs(d) === 1 ? "" : "s"} vs ${prev.title || prev.id}`;
   }, [fullResponse, activeMock, mockRecords, sessionSubject]);
 
+  // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:04 IST) - the board view: the honest full-paper line, the trend and the board
+  // estimate, from THIS student's fully graded 80-mark full tests of THIS subject (graded SessionRecords - never
+  // mockScoreHistory, which this page does not write). The paper on screen is the newest point; null unless it is fully graded
+  // out of 80. Read-only: nothing is written.
+  const boardScore = useMemo(() => {
+    if (!fullResponse || !activeMock) return null;
+    const current = {
+      id: activeMock.code,
+      score: fullResponse.gradedMarksAwarded,
+      gradedAt: Number.MAX_SAFE_INTEGER, // always the newest point (fullTestScores appends it last)
+    };
+    // Owner ruling 23 Nov 2026, 19:59 IST: out of the paper's FULL marks; marks not marked yet are listed, never extrapolated.
+    const ps = paperMarksScore(fullResponse);
+    return buildBoardScoreView({
+      paper: { awarded: ps.awarded, total: ps.total, pendingCount: fullResponse.pendingCount, notMarkedMarks: ps.notMarked?.marks ?? 0 },
+      scores: fullTestScores(mockRecords, sessionSubject, { current }),
+      estimateDisabled: boardEstimateDisabled(),
+    });
+  }, [fullResponse, activeMock, mockRecords, sessionSubject]);
+
   // Cheap per-render read: focusRef is frozen once the test ends, which is the
   // only time this line renders (partial + full scorecards).
   // AWAIT-1: a mock sat on paper shows no on-screen time line (none was measured).
@@ -1498,6 +1540,12 @@ export default function FullMockPage() {
             }),
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
+            // TS-BOARDSCORE-1 - the board view as of THIS record (papers graded at or before it), so it reads as the live card did.
+            boardScore: buildBoardScoreView({
+              paper: reopenBoardPaper(reopen.record, reopen.response),
+              scores: fullTestScores(mockRecords, reopen.record.subject, { asOf: { id: reopen.record.id, gradedAt: reopen.record.gradedAt } }),
+              estimateDisabled: boardEstimateDisabled(),
+            }),
             ...(seriesDownloadAccess && reopenSheetOpen && hasStoredPaperSheet(reopen.response)
               ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
               : {}),
@@ -1726,7 +1774,7 @@ export default function FullMockPage() {
                       )}
                       {seriesDownloadAccess && <LimitChip />}
                     </div>
-                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote />}
+                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote written={freeWritten} />}
                     {startWall && !seriesPaperAccess && (seriesAccess.failed ? <AccessFailed onRetry={seriesAccess.retry} /> : seriesAccess.checking ? <AccessChecking /> : <SeriesStartWall />)}
 
                     {downloadedNote && (
@@ -2077,7 +2125,7 @@ export default function FullMockPage() {
           {resultsPhase === "partial" ? (
             <ResultAccessSlot
               access={seriesAccess}
-              uploadAllowed={seriesPaperAccess || isBeforeSeriesRules(Date.parse(activeMock.paper.createdAt))}
+              uploadAllowed={seriesPaperAccess || freeWritten || isBeforeSeriesRules(Date.parse(activeMock.paper.createdAt))}
               worksheetId={activeMock.paper.worksheetId}
               upgrade={
                 <WrittenCheckUpgradeCard
@@ -2092,7 +2140,7 @@ export default function FullMockPage() {
               upload={
                 <>
                   {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
-                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
+                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} />
                   <ChapterTestUploadPanel
                     eyebrow="Full Mock · Result"
                     sectionsLabel="Sections B–E"
@@ -2115,15 +2163,12 @@ export default function FullMockPage() {
                 <div className="lt-ct__eyebrow">Full Mock · Result</div>
                 <div className="lt-ct__title lt-ct__fr">{activeMock.name}</div>
                 <div className="lt-ct__sub">
-                  {activeMock.code} · fully graded —{" "}
-                  <b>
-                    {fullResponse?.gradedMarksAwarded}/{fullResponse?.gradedMarksTotal}
-                  </b>
-                  {fullResponse && fullResponse.pendingCount > 0
-                    ? ` · ${fullResponse.pendingCount} page(s) pending`
-                    : ""}
+                  {/* TS-BOARDSCORE-1 - consistent with the hero: out of the paper's full marks; "fully graded" only when it is. */}
+                  {activeMock.code} · {fullResponse ? resultCardParts(fullResponse).status : "fully graded"} —{" "}
+                  <b>{fullResponse ? resultCardParts(fullResponse).score : null}</b>
+                  {fullResponse ? resultCardParts(fullResponse).tail : ""}
                 </div>
-                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
+                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} />
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
@@ -2201,7 +2246,7 @@ export default function FullMockPage() {
               variant={withSeriesWorksheet(fullMockScorecardVariant({
                 // TS-UX-SCORE-1: the SAME allow-logic the paywall below uses (ResultAccessSlot `uploadAllowed`); while the read is
                 // pending or failed the page shows neither paywall nor card, so the scorecard keeps today's upload prompt.
-                uploadNotAllowed: scorecardUploadNotAllowed({ canCheck: seriesPaperAccess, createdMs: Date.parse(activeMock.paper.createdAt), checking: seriesAccess.checking, failed: seriesAccess.failed }),
+                uploadNotAllowed: scorecardUploadNotAllowed({ canCheck: seriesPaperAccess || freeWritten, createdMs: Date.parse(activeMock.paper.createdAt), checking: seriesAccess.checking, failed: seriesAccess.failed }),
                 name: activeMock.name,
                 code: activeMock.code,
                 phase: "partial",
@@ -2234,6 +2279,7 @@ export default function FullMockPage() {
                 questions: activeMock.paper.questions,
                 deltaLine,
                 focusLine,
+                boardScore,
                 downloading,
                 // GRADED-STEP-BLOCK - the read-sheet action now TAKES the student to their
                 // graded answer sheet inside the open scorecard, instead of closing the panel.

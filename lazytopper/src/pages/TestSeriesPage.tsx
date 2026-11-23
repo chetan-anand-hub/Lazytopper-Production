@@ -8,6 +8,7 @@ import { boardPassPriceDisplay, FOUNDING_OFFER_LAST_DAY_LABEL, foundingOfferOpen
 import { isTestSeriesPackOffered, packPayLabel, packPriceLabel, testSeriesFoundingClause, testSeriesPriceLine, TEST_SERIES_CHECKS_PER_PAPER } from "../services/packs";
 import { isPaidPremium } from "../services/subscriptionService";
 import { useTestSeriesOwnership } from "../components/testSeries/testSeriesOwnership";
+import { freeWrittenCheckDisabled } from "../lib/testSeries/seriesAccess";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { TestSeriesExaminerLine, TestSeriesPerTest } from "../components/packs/TestSeriesPerTest";
 import { TsClockSlot } from "../components/packs/TestSeriesFoundingClause";
@@ -57,8 +58,28 @@ const MistakeNotebookSection = lazy(() => import("../components/testAnalysis/Mis
 const SUBJECTS: readonly SeriesSubject[] = ["Maths", "Science"];
 /** Owner ruling 18 Nov 2026, 19:31 IST — said plainly on the page. */
 export const TEST_SERIES_ACCESS_LINE = "MCQs marked free · written answers checked with the Test Series or the Board Pass";
+
+/**
+ * TS-FREE-CHECK-1 (owner ruling 23 Nov 2026, 19:59 IST): the ONE free test includes written-answer marking. The page's three
+ * free-test lines say so while the client flag is on (VITE_TS_FREE_WRITTEN_CHECK_DISABLED unset - the default, and what the static
+ * capture renders); with the flag set, today's lines exactly. The server decides every grade (testSeriesChecks.cjs).
+ */
+export const TEST_SERIES_ACCESS_LINE_FREE_WRITTEN =
+  "Your first test is free, written answers included · after that, written answers are checked with the Test Series or the Board Pass";
+export const TS_HERO_FREE_LEDE = "try one test free";
+export const TS_HERO_FREE_LEDE_WRITTEN = "your first test is free — written answers marked too";
+export const TS_PLANS_LEDE = "Free and trial accounts can take one test, with its MCQs marked. Pick the plan that fits you.";
+export const TS_PLANS_LEDE_WRITTEN = "Free and trial accounts can take one test, with its written answers marked too. Pick the plan that fits you.";
+/** The page's free-test copy for the current client flag. */
+export function testSeriesFreeCopy(): { heroLede: string; accessLine: string; plansLede: string } {
+  return freeWrittenCheckDisabled()
+    ? { heroLede: TS_HERO_FREE_LEDE, accessLine: TEST_SERIES_ACCESS_LINE, plansLede: TS_PLANS_LEDE }
+    : { heroLede: TS_HERO_FREE_LEDE_WRITTEN, accessLine: TEST_SERIES_ACCESS_LINE_FREE_WRITTEN, plansLede: TS_PLANS_LEDE_WRITTEN };
+}
 const LOGIN_HREF = `/login?redirect=${encodeURIComponent(TEST_SERIES_PATH)}`;
 const TESTS_ANCHOR = "ts-tests";
+/** TS-HERO-1 (owner, 23 Nov 2026): the three steps under the headline. "Try one test free" = one free test (seriesAccess FREE_TESTS_ALLOWED); TS-FREE-CHECK-1: its written answers are marked too (testSeriesFreeCopy). */
+const TS_HERO_STEPS: readonly string[] = ["Take the test", "Upload your answer sheet", "See marks for every step and where you lost them"];
 
 function istToday(now: Date): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
@@ -313,17 +334,28 @@ export default function TestSeriesPage() {
               <header className="lt-ts-hero" aria-labelledby="ts-h1">
                 <div className="lt-sp__w lt-ts-hero__in">
                   <div className="lt-ts-hero__copy">
-                    <p className="lt-sp-eyebrow lt-ts-hero__eyebrow">{TEST_SERIES_NAME.toUpperCase()} · 2026-27</p>
+                    <p className="lt-sp-eyebrow lt-ts-hero__eyebrow">CBSE CLASS 10 TEST SERIES · MATHS &amp; SCIENCE</p>
                     <h1 id="ts-h1" className="lt-ts-hero__h1">
-                      {/* Two fixed lines from 768 px: Fraunces swapping in for its fallback re-wrapped one line into two (a desktop shift). */}
-                      <span className="lt-ts-hero__h1-l">CBSE Class 10 Test Series:</span>{" "}
-                      <span className="lt-ts-hero__h1-l">Maths &amp; Science</span>
+                      {/* TS-HERO-1 (owner, 23 Nov 2026): the page leads with the promise. Two fixed lines from 768 px (Fraunces swapping in for its
+                          fallback re-wrapped one line into two: a desktop shift). */}
+                      <span className="lt-ts-hero__h1-l">Write on paper. Snap a photo.</span>{" "}
+                      <span className="lt-ts-hero__h1-l">Get every step marked like a CBSE examiner — in minutes.</span>
                     </h1>
+                    <ol className="lt-ts-hero__steps" data-testid="ts-hero-steps">
+                      {TS_HERO_STEPS.map((t, i) => (
+                        <li key={t} className="lt-ts-hero__step">
+                          <span className="lt-ts-hero__stepn" aria-hidden="true">
+                            {i + 1}
+                          </span>
+                          <span>{t}</span>
+                        </li>
+                      ))}
+                    </ol>
                     <p className="lt-ts-hero__lede" data-testid="ts-contents">
                       <strong>
                         {totals.chapterTests} chapter tests + {totals.fullMocks} full-length board papers
                       </strong>{" "}
-                      · written answers checked step by step
+                      · {testSeriesFreeCopy().heroLede}
                     </p>
                   </div>
                   {/* Price + action beside the headline (desktop) / straight under it (phone): above the fold. */}
@@ -379,7 +411,7 @@ export default function TestSeriesPage() {
                   <div className="lt-ts-hero__more">
                     <TestSeriesExaminerLine testId="ts-hero-examiner" />
                     <p className="lt-ts-hero__rule" data-testid="ts-rule">
-                      {TEST_SERIES_ACCESS_LINE}
+                      {testSeriesFreeCopy().accessLine}
                     </p>
                   </div>
                 </div>
@@ -422,7 +454,7 @@ export default function TestSeriesPage() {
                     <h2 id="ts-offers-h" className="lt-sp-h2">
                       Take all {totals.total} tests
                     </h2>
-                    <p className="lt-sp-lede">Free and trial accounts can take one test, with its MCQs marked. Pick the plan that fits you.</p>
+                    <p className="lt-sp-lede">{testSeriesFreeCopy().plansLede}</p>
                     {/* The Board Pass founding-price line sits here, beside the plan comparison (the products sell each other). Clock-derived:
                         written after mount and stripped from the capture. Not shown to anyone who already owns the series. */}
                     {!ownerUnknown && (

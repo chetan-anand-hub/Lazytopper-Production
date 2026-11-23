@@ -7,6 +7,7 @@ import {
   type StoredMistakeType,
 } from "../../../lib/mistakeDisplay";
 import type { ScorecardSurface, ScorecardVariant } from "../scorecardVariants";
+import { gradedTotalOf } from "../scoreTotals";
 import { BYTE_TIPS, ZIGGY_LINES, fillLine, type ByteTipKey, type ZiggyMood } from "./shareCopy";
 
 /**
@@ -192,6 +193,11 @@ export function canShareScore(variant: ScorecardVariant): boolean {
   const { awarded, total } = variant.score;
   if (!Number.isFinite(awarded) || !Number.isFinite(total) || total <= 0 || awarded < 0) return false;
   if (variant.actions.some((a) => a.tag === "Save")) return false;
+  // TS-BOARDSCORE-1 (review B1, CLAUDE.md §5) - a score is shared only once it is COMPLETE: never while the answer sheet is awaited,
+  // and never while any marks are not marked yet. An image of "17 / 80" (or "52 / 80" with 6 marks unmarked) would travel without
+  // the line that explains it.
+  if (variant.awaitingSheet) return false;
+  if ((Number(variant.score.notMarked?.marks) || 0) > 0) return false;
   return true;
 }
 
@@ -341,8 +347,13 @@ export function buildShareCardModel(variant: ScorecardVariant, opts: ShareModelO
   const markedRows = rows ? rows.map((r) => ({ ...r, biggest: biggest?.kind === r.type })) : null;
   const coverage = coverageOf(variant);
   const noMistakeLoss = mi === "marks" && !!rows && rows.every((r) => (r.marks ?? 0) <= 0);
-  const mood = ziggyMoodOf(awarded, total, biggest, coverage);
-  const tipKey = byteTipKey(mi, biggest, objective, roundMarks(total - awarded));
+  // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026) — the image prints the hero (out of the paper's FULL marks); the mood and the
+  // tip read the GRADED subtotal, so marks not marked yet are never treated as lost.
+  const gradedTotal = roundMarks(gradedTotalOf(variant.score));
+  const rawMood = ziggyMoodOf(awarded, gradedTotal, biggest, coverage);
+  // Defence in depth (canShareScore already refuses it): with marks not marked yet the mood is never "great" / board-ready.
+  const mood: ZiggyMood = (Number(variant.score.notMarked?.marks) || 0) > 0 && rawMood === "great" ? "keepgoing" : rawMood;
+  const tipKey = byteTipKey(mi, biggest, objective, roundMarks(gradedTotal - awarded));
   const tip = BYTE_TIPS[tipKey];
   const line = fillLine(tip.line, {
     marks: biggest?.marks != null ? marksWithUnit(biggest.marks) : undefined,

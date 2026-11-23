@@ -83,7 +83,10 @@ describe("P1-6 · copy that was false is gone", () => {
     const read = (p: string) => readFileSync(resolve(__dirname, "../..", p), "utf8");
     expect(read("components/auth/MockViewGate.tsx")).not.toMatch(/everything unlocked/);
     expect(read("components/worksheet/WorksheetGenerator.tsx")).not.toMatch(/everything unlocked/);
-    const { FREE_TEST_NOTE } = await import("../testSeries/seriesAccess");
-    expect(FREE_TEST_NOTE).toBe("This is your 1 free test. Its MCQs (Section A) are marked free.");
+    // TS-FREE-CHECK-1 (owner ruling 23 Nov 2026): the free test now includes written-answer marking; the MCQ-only sentence stays
+    // for the kill switch and for a paper the free written check cannot reach.
+    const { FREE_TEST_NOTE, FREE_TEST_NOTE_MCQ_ONLY } = await import("../testSeries/seriesAccess");
+    expect(FREE_TEST_NOTE).toBe("This is your 1 free test — written answers marked step by step, like a CBSE examiner.");
+    expect(FREE_TEST_NOTE_MCQ_ONLY).toBe("This is your 1 free test. Its MCQs (Section A) are marked free.");
   });
 });

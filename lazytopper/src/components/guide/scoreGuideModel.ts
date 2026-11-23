@@ -31,6 +31,7 @@
 import type { Pose } from "./rig";
 import type { ScorecardSurface, ScorecardVariant } from "../results/scorecardVariants";
 import { formatScoreNumber } from "../results/scoreNumber";
+import { gradedTotalOf } from "../results/scoreTotals";
 import { countWithUnit, marksWithUnit } from "../../lib/mistakeDisplay";
 import { companionScoreMoment, scorePct } from "./companion/companionModel";
 import type { ScoreGuideMomentSituation, ScoreGuideMomentSurface } from "../../analytics/analytics";
@@ -485,7 +486,11 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
     got = s.mcqCorrect;
     total = s.mcqAnswered;
   }
-  const ratio = got / total;
+  // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026) — a Full Mock / Chapter Test hero is out of the paper's FULL marks; marks not marked
+  // yet are neither lost nor earned, so the band and the scene read the GRADED subtotal. The printed numbers stay the hero's.
+  const gradedTotal = s.kind === "marks" ? gradedTotalOf(s) : total;
+  if (!(gradedTotal > 0)) return null;
+  const ratio = got / gradedTotal;
   const band: "great" | "mixed" | "low" = ratio >= 0.8 ? "great" : ratio >= 0.5 ? "mixed" : "low";
   const delta = printedImprovement(v);
   const objectiveOnly = isObjectiveOnly(v);
@@ -514,8 +519,8 @@ export function scoreGuidePlan(v: ScorecardVariant, opts: ScoreGuideOptions = {}
   // The scene: COMPANION-1's OWN rule (companionScoreMoment) over whole percentages — the previous
   // result is the card's printed ▲ (both hosts print one only for an equal paper total, so the
   // previous mark is this total's got − delta). Improvement ≥ 10 points wins; else comfort < 40 %.
-  const pct = scorePct(got, total);
-  const previousPct = delta ? scorePct(got - delta.marks, total) : null;
+  const pct = scorePct(got, gradedTotal);
+  const previousPct = delta ? scorePct(got - delta.marks, gradedTotal) : null;
   const moment = companionScoreMoment(pct, previousPct);
   const scene: ScoreScene | null = moment?.moment === "improve" ? "improvement" : moment?.moment === "lowScore" ? "comfort" : null;
 
