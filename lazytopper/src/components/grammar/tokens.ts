@@ -12,6 +12,9 @@
 export const GREEN = "hsl(152, 55%, 45%)";
 export const GREEN_SOFT = "hsl(152, 55%, 95%)";
 export const GREEN_RING = "hsla(152, 55%, 45%, 0.30)";
+/** UI-FIX-2: same values as --lt-green-fill / --lt-green-text in styles.css (use these where a stylesheet var cannot reach). */
+export const GREEN_FILL = "#257e55";
+export const GREEN_TEXT_ON_LIGHT = "#22774f";
 export const GREEN_DARK = "hsl(152, 60%, 30%)";
 
 export const FG = "hsl(220, 25%, 12%)";

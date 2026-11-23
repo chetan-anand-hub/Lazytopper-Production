@@ -37,6 +37,6 @@
   cursor: pointer;
 }
 .lt-lockd__btn--primary {
-  background: hsl(152, 55%, 45%);
+  background: var(--lt-green-fill, #257e55);
   color: #fff;
 }

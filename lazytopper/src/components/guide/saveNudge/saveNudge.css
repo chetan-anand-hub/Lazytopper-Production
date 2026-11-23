@@ -9,7 +9,7 @@
 .lt-savenudge__say { margin: 0; font-size: 0.86rem; font-weight: 700; line-height: 1.4; flex: 1 1 160px; }
 .lt-savenudge__save {
   min-height: 44px; min-width: 44px; padding: 0 16px; border-radius: 10px; cursor: pointer;
-  border: 1px solid hsl(152, 55%, 38%); background: hsl(152, 55%, 38%); color: #fff;
+  border: 1px solid hsl(152, 55%, 38%); background: var(--lt-green-fill, #257e55); color: #fff;
   font: inherit; font-size: 0.86rem; font-weight: 800;
 }
 .lt-savenudge__save:hover { background: hsl(152, 55%, 32%); }
