@@ -14,6 +14,9 @@
  *   - centre m = weighted mean;
  *   - spread = max(4, round(sample standard deviation)) - with only 2 papers, spread = max(6, |s2 - s1|);
  *   - range = [round(m - spread), round(m + spread)], clipped to 0..80.
+ *
+ * Trend (b): the last up to 5 scores; the change line is newest minus the OLDEST chip shown ("since your first full test" with
+ * <= 5 tests, "over your last 5 full tests" with more), so it always describes what is on screen.
  */
 
 /** The theory paper's total in the CBSE pattern (A 20x1, B 5x2, C 6x3, D 4x5, E 3x4). */
@@ -164,14 +167,21 @@ export function buildBoardScoreView(input: {
   const n = all.length;
   let trend: BoardScoreView["trend"] = null;
   if (n >= 2) {
-    const change = Math.round((all[n - 1] - all[0]) * 100) / 100;
+    // The change describes what is ON SCREEN: newest chip minus the OLDEST chip shown. With <= 5 tests the oldest chip IS the
+    // first full test; with more, it is the first of the last 5.
+    const points = all.slice(-BOARD_WINDOW);
+    const change = Math.round((points[points.length - 1] - points[0]) * 100) / 100;
+    const windowed = n > BOARD_WINDOW;
+    const since = windowed ? `over your last ${BOARD_WINDOW} full tests` : "since your first full test";
     const changeLine =
       change > 0
-        ? `Up ${fmt(change)} since your first full test`
+        ? `Up ${fmt(change)} ${since}`
         : change < 0
-          ? `Down ${fmt(-change)} since your first full test`
-          : "Level with your first full test";
-    trend = { points: all.slice(-BOARD_WINDOW), changeLine };
+          ? `Down ${fmt(-change)} ${since}`
+          : windowed
+            ? `Level over your last ${BOARD_WINDOW} full tests`
+            : "Level with your first full test";
+    trend = { points, changeLine };
   }
   const est = boardEstimate(all);
   return {

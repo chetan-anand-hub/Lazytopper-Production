@@ -157,11 +157,20 @@ describe("buildBoardScoreView - the copy", () => {
     expect(v.estimate!.smallPrint).toBe(boardEstimateSmallPrint(5));
   });
 
-  it("7 tests: the last five chips; the change is since the FIRST full test; N = 5", () => {
+  it("7 tests: the last five chips; the change is against the OLDEST chip shown, worded over the last 5; N = 5", () => {
     const v = view([40, 44, 50, 52, 55, 58, 61])!;
     expect(v.trend!.points).toEqual([50, 52, 55, 58, 61]);
-    expect(v.trend!.changeLine).toBe("Up 21 since your first full test");
+    expect(v.trend!.changeLine).toBe("Up 11 over your last 5 full tests");
     expect(v.estimate!.smallPrint).toContain("From your last 5 full tests");
+  });
+
+  it("6 tests: Down / Level over the last 5 (never against a test that is not on screen)", () => {
+    expect(view([20, 60, 58, 55, 57, 57])!.trend).toEqual({ points: [60, 58, 55, 57, 57], changeLine: "Down 3 over your last 5 full tests" });
+    expect(view([20, 50, 52, 49, 51, 50])!.trend!.changeLine).toBe("Level over your last 5 full tests");
+  });
+
+  it("exactly 5 tests: the oldest chip is the first full test", () => {
+    expect(view([50, 52, 55, 58, 61])!.trend!.changeLine).toBe("Up 11 since your first full test");
   });
 
   it("no change: level, never 'Up 0'", () => {
