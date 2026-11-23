@@ -239,8 +239,8 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .lt-ts-pick__seg--4 .lt-ts-pick__segbtn {
-  padding: 6px 2px;
-  font-size: 0.84rem;
+  padding: 6px 0;
+  font-size: 0.8rem;
 }
 /* TS-DIFF-1: the Easier / Standard / Harder chip and its one-line explainer (calm tones, no red: harder is not worse). */
 .lt-ts-diff {
