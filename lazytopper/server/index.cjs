@@ -340,6 +340,8 @@ const routeDeps = {
   GRADING_CACHE_BUDGET_MS: config.GRADING_CACHE_BUDGET_MS,
   // GRADING-JOBS-1 J1: the switch and the job runner reach the grade-worksheet handler.
   GRADING_JOBS: config.GRADING_JOBS,
+  // GRADE-SINGLE-JOB-1: one-question checks (/api/check-solution) as jobs too — off unless GRADING_SINGLE_JOBS=1.
+  GRADING_SINGLE_JOBS: config.GRADING_SINGLE_JOBS,
   gradingJobs,
   CLAUDE_MODEL_SONNET: config.CLAUDE_MODEL_SONNET,
   ACTIVE_PROVIDER: config.ACTIVE_PROVIDER,

@@ -524,10 +524,13 @@ function createCheckSolutionRoute(deps) {
       return sendJson(res, 503, gradingUnavailableBody());
     }
 
+    // A SET OF ONE. The photo (or PDF) is that one question's answer part; a typed
+    // answer makes it a typed-only set. Exactly the fields the set grader would carry.
+    // GRADE-SINGLE-JOB-1: built ONCE, before the job/sync split, so both paths grade the SAME question
+    // with the SAME grading input (singleGradeInput below) — only the time budget differs.
+    let one;
     try {
-      // A SET OF ONE. The photo (or PDF) is that one question's answer part; a typed
-      // answer makes it a typed-only set. Exactly the fields the set grader would carry.
-      const one = {
+      one = {
         qNumber: 1,
         marks: guardedObjectiveMarks({ ...objectiveMeta, objective: detectedObjective, questionText: question }, marks),
         questionText: question,
@@ -541,106 +544,195 @@ function createCheckSolutionRoute(deps) {
         textAnswer: hasImage ? '' : textAnswer,
         pickedOption: '',
       };
+    } catch (err) {
+      console.error('[check-solution]', err);
+      return sendGradeFailure(sendJson, req, res, err, SINGLE_GRADE_FAILED_BODY);
+    }
+    const replyCtx = { acceptsV2, hasImage, objectiveMeta, detectedObjective };
+    /** THE grading input of this check — the ONE object both the synchronous grade and a background job
+     *  hand to the core (a job adds only its own time budget and its progress hook). */
+    const singleGradeInput = () => ({
+      questions: [one],
+      uploads: hasImage ? [{ qNumber: 1, imageBase64, imageMimeType }] : [],
+      document: null,
+      subject,
+      acceptsV2,
+      single: true,
+      autoDetect: autoDetect ? { topicVocabulary, fallbackMarks: marks } : null,
+      label: '[check-solution]',
+    });
+
+    // ── GRADE-SINGLE-JOB-1 · A ONE-QUESTION BACKGROUND JOB, when — and only when — every condition holds
+    // (the grade-worksheet rule, D9, plus its own switch): the client asked (`Prefer: respond-async`);
+    // GRADING_JOBS AND GRADING_SINGLE_JOBS are on; the request was CLAIMED by idempotency on THIS path (so it
+    // has a verified uid, a valid Idempotency-Key and Firestore — never the signed-out free check); it asks for
+    // the v2 shape; it is not the legacy auto-detect read (no live client sends `detectMarks`). Anything else —
+    // including a job store that refuses the job — falls through to the synchronous grade below, unchanged.
+    // The job grades with singleGradeInput() — the same prompt, scheme-first cache, objective clamp and
+    // post-processing — and stores as its `final` the EXACT bytes this handler would have sent (singleReplyOf).
+    if (
+      deps.GRADING_JOBS === true && deps.GRADING_SINGLE_JOBS === true && gradingJobs && acceptsV2 && !autoDetect
+      && jobsLib.wantsAsync(req, payload)
+    ) {
+      const attempt = gradingAttemptOf(req);
+      if (attempt && attempt.path === '/api/check-solution') {
+        const job = await gradingJobs.submit({
+          attempt,
+          total: 1,
+          meta: [{ qNumber: 1, totalMarks: one.marks }],
+          // D12: what the fair-use / limits `finish` hooks would have committed — settled once, at the end.
+          deferred: withTestSeriesDeferred(withLimitsDeferred(deferredCommitOf(res), limitsDeferredOf(res)), testSeriesDeferredOf(res)),
+          // Its own lane (jobs.cjs): a check never waits behind papers.
+          lane: jobsLib.SINGLE_LANE,
+          run: (onPartSettled) => runTimedJob(req, (timingSink, jobStartedAt) => core.gradeSet({
+            ...singleGradeInput(),
+            timingSink,
+            startedAt: jobStartedAt,
+            onPartSettled,
+            // The job budget (timing.cjs): 120 s per call, the abort re-split at 180 s, the 270 s wall.
+            jobTiming: typeof deps.jobTimingFor === 'function' ? deps.jobTimingFor(1) : timingLib.jobTiming(),
+          }), '/api/check-solution'),
+          finish: (graded) => singleJobOutcome(graded, replyCtx),
+        });
+        if (job.ok) {
+          // D12 · THE 202 CHARGES NOTHING (fair use, limits and the paper pass settle when the job ends).
+          setChargeableCount(res, 0);
+          return sendJson(res, 202, {
+            ok: true,
+            jobId: job.jobId,
+            state: job.state,
+            total: job.total,
+            pollAfterMs: job.pollAfterMs,
+            pollPath: jobsLib.JOB_POLL_PATH_PREFIX + job.jobId,
+          });
+        }
+      }
+    }
+
+    try {
       // GRADE-SPEED-1: one [grade-timing] line when this response finishes (armed only for a request that
       // reaches the grader, so a 400 logs nothing).
       const gradeTiming = gradeTimingLib.armGradeTiming({ req, res, route: '/api/check-solution', startedAt, now: nowMs });
       const graded = await core.gradeSet({
         timingSink: gradeTiming.sink,
-        questions: [one],
-        uploads: hasImage ? [{ qNumber: 1, imageBase64, imageMimeType }] : [],
-        document: null,
-        subject,
-        acceptsV2,
-        single: true,
-        autoDetect: autoDetect ? { topicVocabulary, fallbackMarks: marks } : null,
-        label: '[check-solution]',
+        ...singleGradeInput(),
         startedAt,
       });
       setGradingModelHeader(res, graded.modelUsed);
+      const reply = singleReplyOf(graded, replyCtx);
+      // C9: what this reply charges (0 or 1) — set before the response, which the fair-use hooks read.
+      setChargeableCount(res, reply.chargeable);
+      return sendJson(res, 200, reply.body);
+    } catch (err) {
+      console.error('[check-solution]', err);
+      return sendGradeFailure(sendJson, req, res, err, SINGLE_GRADE_FAILED_BODY);
+    }
+  }
 
-      if (!graded.ok) {
-        setChargeableCount(res, 0); // C9: a reply we could not use grades nothing, charges nothing
-        return sendJson(res, 200, {
-          ok: false,
-          error: "We couldn't read the grading this time — please try again.",
-        });
-      }
+  // The synchronous single check's failure body (its 500 / 504 copy) — also a failed job's `final`.
+  const SINGLE_GRADE_FAILED_BODY = Object.freeze({
+    ok: false,
+    error: 'Failed to evaluate solution. Please try again.',
+  });
 
-      const r = graded.results[0];
-      // C9: charged only when a grade was delivered (never couldNotRead, an unread option, a
-      // withheld grade, an answer that does not match the question, or an unattempted answer).
-      setChargeableCount(res, isChargeable(r) ? 1 : 0);
-      const det = graded.detection || null;
-      const detected = {
-        detectedSubject: det ? det.detectedSubject : null,
-        detectedTopic: det ? det.detectedTopic : null,
-        marksSource: det ? det.marksSource : null,
-      };
+  /**
+   * GRADE-SINGLE-JOB-1 · THE single-check reply — ONE builder for the synchronous 200 and a one-question
+   * job's `final` (moved here verbatim from handleCheckSolution). Returns the body and what it charges.
+   */
+  function singleReplyOf(graded, { acceptsV2, hasImage, objectiveMeta, detectedObjective }) {
+    if (!graded.ok) {
+      // C9: a reply we could not use grades nothing, charges nothing
+      return { chargeable: 0, body: {
+        ok: false,
+        error: "We couldn't read the grading this time — please try again.",
+      } };
+    }
 
-      // Not marked (could not read · an unread MCQ option · a grade withheld for citing an
-      // injected instruction). An answer that does not address the question is handled below.
-      if (r.couldNotRead === true) {
-        if (!acceptsV2) return sendJson(res, 200, { ok: false, error: notMarkedMessage(r, !hasImage) });
-        return sendJson(res, 200, {
-          ok: true,
-          totalMarks: r.totalMarks,
-          marksAwarded: 0,
-          percentage: 0,
-          annotatedSteps: [],
-          mistakeSummary: zeroSummary(),
-          teacherNote: r.note,
-          questionDepartureError: false,
-          objective: isObjective(objectiveMeta) || (detectedObjective && r.totalMarks <= 1),
-          ...detected,
-          provider: ACTIVE_PROVIDER,
-          model: graded.modelUsed,
-          couldNotRead: true,
-          answerMismatch: r.answerMismatch,
-          departureKind: null,
-          marksLostByType: r.marksLostByType,
-          rubric: null,
-          objectiveResolved: r.objectiveResolved,
-        });
-      }
+    const r = graded.results[0];
+    // C9: charged only when a grade was delivered (never couldNotRead, an unread option, a
+    // withheld grade, an answer that does not match the question, or an unattempted answer).
+    const chargeable = isChargeable(r) ? 1 : 0;
+    const det = graded.detection || null;
+    const detected = {
+      detectedSubject: det ? det.detectedSubject : null,
+      detectedTopic: det ? det.detectedTopic : null,
+      marksSource: det ? det.marksSource : null,
+    };
 
-      const body = {
+    // Not marked (could not read · an unread MCQ option · a grade withheld for citing an
+    // injected instruction). An answer that does not address the question is handled below.
+    if (r.couldNotRead === true) {
+      if (!acceptsV2) return { chargeable, body: { ok: false, error: notMarkedMessage(r, !hasImage) } };
+      return { chargeable, body: {
         ok: true,
         totalMarks: r.totalMarks,
-        marksAwarded: r.marksAwarded,
-        percentage: r.percentage,
-        annotatedSteps: r.annotatedSteps,
-        mistakeSummary: r.mistakeSummary,
-        // The departure's voice (only for its kind, only when true) and the validated rubric
-        // are produced server-side in the core; `teacherNote` renders on every surface.
-        teacherNote: r.teacherNote,
-        questionDepartureError: r.questionDepartureError,
-        // Objective echo: the clamp zeroed every per-step mark BY DESIGN (the whole mark
-        // lives at answer level), so the view suppresses the misleading per-step chip.
-        objective: r.objective,
+        marksAwarded: 0,
+        percentage: 0,
+        annotatedSteps: [],
+        mistakeSummary: zeroSummary(),
+        teacherNote: r.note,
+        questionDepartureError: false,
+        objective: isObjective(objectiveMeta) || (detectedObjective && r.totalMarks <= 1),
         ...detected,
         provider: ACTIVE_PROVIDER,
         model: graded.modelUsed,
-        // MCQ-KEY-TRUST-1 · admin observability only; present only when true.
-        ...(r.derivedKeyDisagreed === true ? { derivedKeyDisagreed: true } : {}),
-      };
-      if (acceptsV2) {
-        Object.assign(body, {
-          couldNotRead: false,
-          answerMismatch: r.answerMismatch,
-          departureKind: r.departureKind,
-          marksLostByType: r.marksLostByType,
-          rubric: r.rubric,
-          objectiveResolved: r.objectiveResolved,
-        });
-      }
-      return sendJson(res, 200, body);
-    } catch (err) {
-      console.error('[check-solution]', err);
-      return sendGradeFailure(sendJson, req, res, err, {
-        ok: false,
-        error: 'Failed to evaluate solution. Please try again.',
+        couldNotRead: true,
+        answerMismatch: r.answerMismatch,
+        departureKind: null,
+        marksLostByType: r.marksLostByType,
+        rubric: null,
+        objectiveResolved: r.objectiveResolved,
+      } };
+    }
+
+    const body = {
+      ok: true,
+      totalMarks: r.totalMarks,
+      marksAwarded: r.marksAwarded,
+      percentage: r.percentage,
+      annotatedSteps: r.annotatedSteps,
+      mistakeSummary: r.mistakeSummary,
+      // The departure's voice (only for its kind, only when true) and the validated rubric
+      // are produced server-side in the core; `teacherNote` renders on every surface.
+      teacherNote: r.teacherNote,
+      questionDepartureError: r.questionDepartureError,
+      // Objective echo: the clamp zeroed every per-step mark BY DESIGN (the whole mark
+      // lives at answer level), so the view suppresses the misleading per-step chip.
+      objective: r.objective,
+      ...detected,
+      provider: ACTIVE_PROVIDER,
+      model: graded.modelUsed,
+      // MCQ-KEY-TRUST-1 · admin observability only; present only when true.
+      ...(r.derivedKeyDisagreed === true ? { derivedKeyDisagreed: true } : {}),
+    };
+    if (acceptsV2) {
+      Object.assign(body, {
+        couldNotRead: false,
+        answerMismatch: r.answerMismatch,
+        departureKind: r.departureKind,
+        marksLostByType: r.marksLostByType,
+        rubric: r.rubric,
+        objectiveResolved: r.objectiveResolved,
       });
     }
+    return { chargeable, body };
+  }
+
+  /**
+   * GRADE-SINGLE-JOB-1 · what a finished one-question JOB stores: its final body — the EXACT bytes the
+   * synchronous path would have sent for the same grade (sendJson = JSON.stringify(redactErrorDetails(body))) —
+   * the questions it charges (0 or 1, isChargeable — the synchronous rule) and the model. A job whose grading
+   * threw (every attempt failed or timed out, inside the job's 270 s) stores the synchronous failure copy,
+   * charged nothing.
+   */
+  function singleJobOutcome(graded, ctx) {
+    const asBytes = (body) => JSON.stringify(redactErrorDetails(body));
+    if (!graded || graded.error || graded.gradingUnavailable) {
+      if (graded && graded.error) console.error('[check-solution job]', graded.error);
+      return { body: asBytes(SINGLE_GRADE_FAILED_BODY), graded: 0, model: null };
+    }
+    const reply = singleReplyOf(graded, ctx);
+    return { body: asBytes(reply.body), graded: reply.chargeable, model: graded.modelUsed || null };
   }
 
   // ── Detection-only (detect-then-confirm, Claim 2 UX) — NOT part of the grading core (it
@@ -1086,7 +1178,7 @@ function createCheckSolutionRoute(deps) {
   }
 
   /** GRADE-SPEED-1: a background job's grade, with its own [grade-timing] line (mode "job") when it ends. */
-  async function runTimedJob(req, grade) {
+  async function runTimedJob(req, grade, route = '/api/grade-worksheet') {
     const jobStartedAt = nowMs();
     const sink = gradeTimingLib.createTimingSink();
     try {
@@ -1094,7 +1186,7 @@ function createCheckSolutionRoute(deps) {
     } finally {
       try {
         const surface = req && req.headers ? String(req.headers['x-lazytopper-surface'] || '').trim().toLowerCase() : '';
-        console.log(gradeTimingLib.formatGradeTimingLine({ route: '/api/grade-worksheet', mode: 'job', surface, preMs: null, sink, totalMs: nowMs() - jobStartedAt }));
+        console.log(gradeTimingLib.formatGradeTimingLine({ route, mode: 'job', surface, preMs: null, sink, totalMs: nowMs() - jobStartedAt }));
       } catch { /* a log line never fails a grade */ }
     }
   }

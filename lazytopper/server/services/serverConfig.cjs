@@ -51,6 +51,22 @@ function resolveGradingJobsSwitch(env = process.env) {
   return describeGradingJobsSwitch(env).on;
 }
 
+/*
+ * GRADE-SINGLE-JOB-1: a ONE-question Answer Checker check (POST /api/check-solution) may run as a
+ * background grading job — the same engine as papers (GRADING_JOBS above), as a job of one question —
+ * so a slow check is never cut off by the request deadline. OFF BY DEFAULT (an opt-in, unlike
+ * GRADING_JOBS): only "1" | "on" | "true" (trimmed, any case) turns it on; unset, empty, an off value
+ * or anything else leaves it OFF, and every check is graded synchronously exactly as before. It works
+ * only while GRADING_JOBS is also on (GRADING_JOBS=0 turns single-question jobs off too).
+ */
+function describeSingleJobsSwitch(env = process.env) {
+  const value = String((env && env.GRADING_SINGLE_JOBS) || '').trim().toLowerCase();
+  if (!value) return { on: false, envNote: null };
+  if (GRADING_JOBS_ON_VALUES.has(value)) return { on: true, envNote: 'GRADING_SINGLE_JOBS=1' };
+  if (GRADING_JOBS_OFF_VALUES.has(value)) return { on: false, envNote: 'GRADING_SINGLE_JOBS=off' };
+  return { on: false, envNote: 'GRADING_SINGLE_JOBS=off(unrecognised value; use 1/on/true to turn single-question jobs on)' };
+}
+
 function resolveConfig() {
   loadDotEnvIfPresent();
 
@@ -115,6 +131,9 @@ function resolveConfig() {
   // set to 0/off/false is the kill switch: off, a submit asking for one is graded synchronously.
   const { on: GRADING_JOBS, envNote: GRADING_JOBS_ENV_NOTE } = describeGradingJobsSwitch(process.env);
   if (GRADING_JOBS_ENV_NOTE) ENV_USED.push(GRADING_JOBS_ENV_NOTE);
+  // GRADE-SINGLE-JOB-1: one-question checks as background jobs — OFF unless GRADING_SINGLE_JOBS=1.
+  const { on: GRADING_SINGLE_JOBS, envNote: GRADING_SINGLE_JOBS_ENV_NOTE } = describeSingleJobsSwitch(process.env);
+  if (GRADING_SINGLE_JOBS_ENV_NOTE) ENV_USED.push(GRADING_SINGLE_JOBS_ENV_NOTE);
   const IS_DEV = String(process.env.NODE_ENV || '').toLowerCase() !== 'production';
   const REPO_ROOT = process.cwd();
   const MAX_HISTORY_TURNS = 4;
@@ -139,7 +158,7 @@ function resolveConfig() {
     PORT, CORS_ORIGIN, ENV_USED,
     GEMINI_API_KEY, DIRECT_GEMINI_API_KEY, GEMINI_MODEL, GEMINI_TUTOR_MODEL, GEMINI_TIMEOUT_MS,
     GRADING_MODEL, GRADING_THINKING_BUDGET, GRADING_MODE, GRADING_LIGHT_MODEL,
-    GRADING_DEADLINE_MS, GRADING_CHUNK_TIMEOUT_MS, GRADING_CACHE_BUDGET_MS, GRADING_JOBS,
+    GRADING_DEADLINE_MS, GRADING_CHUNK_TIMEOUT_MS, GRADING_CACHE_BUDGET_MS, GRADING_JOBS, GRADING_SINGLE_JOBS,
     HAS_REPLIT_PROXY, REPLIT_GEMINI_BASE_URL, REPLIT_GEMINI_API_KEY,
     HAS_ANTHROPIC_PROXY, REPLIT_ANTHROPIC_BASE_URL, REPLIT_ANTHROPIC_API_KEY,
     ANTHROPIC_TIMEOUT_MS,
@@ -152,4 +171,4 @@ function resolveConfig() {
   };
 }
 
-module.exports = { resolveConfig, resolveGradingJobsSwitch, describeGradingJobsSwitch };
+module.exports = { resolveConfig, resolveGradingJobsSwitch, describeGradingJobsSwitch, describeSingleJobsSwitch };

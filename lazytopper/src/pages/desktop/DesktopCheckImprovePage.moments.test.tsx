@@ -267,6 +267,9 @@ describe("MOMENTS-1 M5 · the grading wait (first session)", () => {
     // display only: ONE grade call, carrying the student's typed answer and nothing new
     expect(H.checkSolutionImage).toHaveBeenCalledTimes(1);
     expect(H.checkSolutionImage.mock.calls[0][0]).toMatchObject({ textAnswer: ANSWER, marks: 3 });
+    // GRADE-SINGLE-JOB-1: the signed-in ONE-question check asks for a background job (the server decides); the
+    // signed-out free check never does (DesktopCheckImprovePage.freeCheck.test.tsx pins its options exactly).
+    expect(H.checkSolutionImage.mock.calls[0][1]).toEqual({ surface: "check-improve", singleJob: true, onStage: expect.any(Function) });
   });
 
   it("★★ CONTROL arm: no wait moment", async () => {

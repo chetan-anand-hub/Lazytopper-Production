@@ -143,6 +143,11 @@ export interface PaidCallOptions {
    *  paper, Worksheets, Chapter Test, Full Mock, Quick Practice batch > 1). Ignored on a free
    *  check and by every other endpoint. Omitted, the request is byte-identical to before. */
   job?: GradingJobOptions;
+  /** GRADE-SINGLE-JOB-1 — opt this ONE check-solution call into a one-question background job (the same
+   *  `Prefer: respond-async` contract). The SERVER decides (switch GRADING_SINGLE_JOBS): off, it answers today's
+   *  200 and the call behaves exactly as before. Only the signed-in Answer Checker single check passes it.
+   *  Ignored on a free check and by every other endpoint. */
+  singleJob?: boolean;
 }
 
 /**
@@ -790,6 +795,33 @@ export async function checkSolutionImage(req: {
   objective?: boolean;
 }, opts?: PaidCallOptions): Promise<CheckSolutionResponse> {
   const surface: Record<string, string> = opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {};
+  // GRADE-SINGLE-JOB-1: a background job ONLY when the caller opted in — never a free check (no uid: the server
+  // could never make it a job). The request body and headers are today's, plus `Prefer: respond-async`.
+  if (opts?.singleJob && !opts.freeCheck) {
+    const { gradeSingleJob, PREFER_HEADER, PREFER_ASYNC_VALUE } = await import("./gradingJobs");
+    const identity = await paidJsonHeaders();
+    const userStage = opts.onStage;
+    // The transport says "Done" on any 2xx — a 202 too. On this path "Done" is said when the RESULT arrives.
+    const submitOpts: PaidCallOptions = userStage
+      ? { ...opts, onStage: (stage) => { if (stage.kind !== "done") userStage(stage); } }
+      : opts;
+    return gradeSingleJob<CheckSolutionResponse>(withAcceptsV2(req, opts), {
+      submit: (payload, sendOpts) => {
+        const sendExtra = sendOpts.preferAsync ? { ...surface, [PREFER_HEADER]: PREFER_ASYNC_VALUE } : surface;
+        return postGrading(
+          `${API_BASE}/check-solution`,
+          { ...identity, ...sendExtra },
+          payload,
+          submitOpts,
+          refreshedPaidHeaders(sendExtra),
+          sendOpts.idempotencyKey,
+          true,
+        );
+      },
+      poll: pollGradingJob,
+      parse: <T,>(res: Pick<Response, "ok" | "status" | "text">) => handleJsonResponse<T>(res),
+    }, userStage ? { onStage: userStage } : {});
+  }
   const res = await postGrading(
     `${API_BASE}/check-solution`,
     { ...(opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders()), ...surface },

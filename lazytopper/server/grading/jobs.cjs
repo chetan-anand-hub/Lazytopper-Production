@@ -40,6 +40,11 @@
 //     the remaining questions again.
 //   • PROCESS CAP (D16). At most MAX_INFLIGHT_JOBS run at once in this process; the rest wait `queued`
 //     (heartbeating, so a queued job is not mistaken for a dead one).
+//   • GRADE-SINGLE-JOB-1: a ONE-question Answer Checker check (POST /api/check-solution, switch
+//     GRADING_SINGLE_JOBS) is a job too, submitted with `lane: 'single'`. It runs in its OWN lane — its own
+//     cap (MAX_INFLIGHT_SINGLE_JOBS) and its own queue — so a one-question check never waits behind four
+//     long papers, and a paper never waits behind checks. A submit without `lane` is a paper: the paper
+//     lane's cap, queue and order are exactly as before.
 
 const timingLib = require('./timing.cjs');
 const { isChargeable } = require('./charge.cjs');
@@ -52,6 +57,9 @@ const JOB_STATES = Object.freeze({ QUEUED: 'queued', RUNNING: 'running', DONE: '
 const LIVE_STATES = new Set([JOB_STATES.QUEUED, JOB_STATES.RUNNING]);
 /** D16: background jobs grading at once in ONE process; the next one waits `queued`. */
 const MAX_INFLIGHT_JOBS = 4;
+/** GRADE-SINGLE-JOB-1: one-question jobs grading at once in ONE process (their own lane; see above). */
+const MAX_INFLIGHT_SINGLE_JOBS = 8;
+const SINGLE_LANE = 'single';
 /** How soon the client should poll again (the 202 and every unfinished poll carry it). */
 const POLL_AFTER_MS = 2500;
 /** A job id is an idempotency attempt id: 40 lower-case hex. Anything else is never a job. */
@@ -115,13 +123,18 @@ function createGradingJobs(deps = {}) {
   const now = typeof deps.now === 'function' ? deps.now : () => Date.now();
   const telemetry = deps.telemetry || null;
   const maxInFlight = Number.isFinite(deps.maxInFlight) && deps.maxInFlight > 0 ? Math.floor(deps.maxInFlight) : MAX_INFLIGHT_JOBS;
+  const maxInFlightSingle = Number.isFinite(deps.maxInFlightSingle) && deps.maxInFlightSingle > 0 ? Math.floor(deps.maxInFlightSingle) : MAX_INFLIGHT_SINGLE_JOBS;
   const heartbeatMs = Number.isFinite(deps.heartbeatMs) && deps.heartbeatMs > 0 ? deps.heartbeatMs : timingLib.JOB_HEARTBEAT_MS;
   const staleMs = Number.isFinite(deps.staleMs) && deps.staleMs > 0 ? deps.staleMs : timingLib.JOB_STALE_MS;
 
   /** Jobs this process owns, by `uid/jobId`: { ref, state, timer, erased }. */
   const live = new Map();
-  const queue = [];
-  let running = 0;
+  /** GRADE-SINGLE-JOB-1: each lane has its own cap, its own queue and its own running count. A paper
+   *  (no `lane` on submit) is in `paper` — the one lane that existed before, unchanged. */
+  const lanes = {
+    paper: { max: maxInFlight, queue: [], running: 0 },
+    single: { max: maxInFlightSingle, queue: [], running: 0 },
+  };
 
   function emit(event) {
     try {
@@ -192,7 +205,7 @@ function createGradingJobs(deps = {}) {
    *   grading on its own clock (the core's), from the moment run() is called.
    *   finish(graded | { error }) → { body: string, graded: number, model: string|null }
    */
-  async function submit({ attempt, total, meta, deferred, run, finish }) {
+  async function submit({ attempt, total, meta, deferred, run, finish, lane: laneName }) {
     const db = database();
     if (!db || !attempt || !attempt.uid || !JOB_ID_RE.test(String(attempt.attemptId || ''))) return { ok: false };
     if (!(total > 0) || total > MAX_JOB_QUESTIONS) return { ok: false };
@@ -215,16 +228,17 @@ function createGradingJobs(deps = {}) {
       emit('grading_jobs.submit_failed');
       return { ok: false };
     }
-    const state = running < maxInFlight ? JOB_STATES.RUNNING : JOB_STATES.QUEUED;
+    const lane = laneName === SINGLE_LANE ? lanes.single : lanes.paper;
+    const state = lane.running < lane.max ? JOB_STATES.RUNNING : JOB_STATES.QUEUED;
     const key = attempt.uid + '/' + attempt.attemptId;
-    const entry = { key, db, ref, erased: false, timer: null, inContext: captureRequestContext(), run, finish };
+    const entry = { key, db, ref, erased: false, timer: null, inContext: captureRequestContext(), run, finish, lane };
     live.set(key, entry);
     // Heartbeat from submit: a QUEUED job is alive too.
     entry.timer = setInterval(() => { void beat(entry); }, heartbeatMs);
     if (entry.timer && typeof entry.timer.unref === 'function') entry.timer.unref();
     emit('grading_jobs.submitted');
     if (state === JOB_STATES.RUNNING) startJob(entry);
-    else { queue.push(entry); emit('grading_jobs.queued'); }
+    else { lane.queue.push(entry); emit('grading_jobs.queued'); }
     return { ok: true, jobId: attempt.attemptId, total, pollAfterMs: POLL_AFTER_MS, state };
   }
 
@@ -239,15 +253,16 @@ function createGradingJobs(deps = {}) {
   }
 
   function startJob(entry) {
-    running += 1;
+    const lane = entry.lane;
+    lane.running += 1;
     entry.inContext(() => {
       void work(entry).finally(() => {
-        running -= 1;
+        lane.running -= 1;
         if (entry.timer) clearInterval(entry.timer);
         live.delete(entry.key);
         entry.run = null; // the document leaves memory with the closure
         entry.finish = null;
-        const next = queue.shift();
+        const next = lane.queue.shift();
         if (next) startJob(next);
       });
     });
@@ -395,7 +410,11 @@ function createGradingJobs(deps = {}) {
 
   return {
     submit, read, interruptAll,
-    stats: () => ({ running, queued: queue.length, live: live.size }),
+    stats: () => ({
+      running: lanes.paper.running + lanes.single.running,
+      queued: lanes.paper.queue.length + lanes.single.queue.length,
+      live: live.size,
+    }),
   };
 }
 
@@ -405,6 +424,8 @@ module.exports = {
   interruptedRow,
   JOB_STATES,
   MAX_INFLIGHT_JOBS,
+  MAX_INFLIGHT_SINGLE_JOBS,
+  SINGLE_LANE,
   MAX_JOB_QUESTIONS,
   POLL_AFTER_MS,
   JOB_ID_RE,
