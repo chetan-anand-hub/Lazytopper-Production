@@ -126,12 +126,12 @@ describe("/test-series — signed out", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Write on paper. Snap a photo. Get every step marked like a CBSE examiner — in minutes.");
     const steps = within(screen.getByTestId("ts-hero-steps")).getAllByRole("listitem");
     expect(steps.map((li) => li.textContent)).toEqual(["1Take the test", "2Upload your answer sheet", "3See marks for every step and where you lost them"]);
-    // The free test is MCQs-marked only (seriesAccess): the hero says "try one test free" and never promises free written marking.
-    expect(screen.getByTestId("ts-contents").textContent).toBe(`${t.chapterTests} chapter tests + ${t.fullMocks} full-length board papers · try one test free`);
+    // TS-FREE-CHECK-1 (owner ruling 23 Nov 2026): the free test includes written-answer marking (flag on by default) - the hero says so.
+    expect(screen.getByTestId("ts-contents").textContent).toBe(`${t.chapterTests} chapter tests + ${t.fullMocks} full-length board papers · your first test is free — written answers marked too`);
     const heroText = document.querySelector(".lt-ts-hero")?.textContent ?? "";
     expect(heroText).not.toMatch(/\bAI\b|answer key|Check & Improve/i);
-    expect(heroText).not.toMatch(/first test is free|marking included/i);
-    expect(screen.getByTestId("ts-rule").textContent).toBe("MCQs marked free · written answers checked with the Test Series or the Board Pass");
+    expect(screen.getByTestId("ts-rule").textContent).toBe("Your first test is free, written answers included · after that, written answers are checked with the Test Series or the Board Pass");
+    expect(document.body.textContent).toContain("Free and trial accounts can take one test, with its written answers marked too. Pick the plan that fits you.");
     // TS-UX-PAGE-1: no 180-link grid. One Start link; chapter / paper selects; nothing per test in the DOM but options.
     expect(screen.queryAllByTestId(/^ts-test-/)).toHaveLength(0);
     expect(screen.getAllByTestId("ts-start")).toHaveLength(1);
@@ -451,5 +451,32 @@ describe("/test-series — TS-ANALYSIS-1 Mistake notebook link", () => {
     });
     expect(screen.getByTestId("ts-notebook")).toBeTruthy();
     expect(await screen.findByText(/No lost-marks questions/)).toBeTruthy();
+  });
+});
+
+/* ── TS-FREE-CHECK-1 · with VITE_TS_FREE_WRITTEN_CHECK_DISABLED=1 the page says exactly what it said before ────────────────── */
+describe("/test-series — TS-FREE-CHECK-1 client flag", () => {
+  it("flag set: the MCQs-only free-test lines, word for word as before; flag unset: the written-marking lines", async () => {
+    const { testSeriesFreeCopy } = await import("./TestSeriesPage");
+    expect(testSeriesFreeCopy()).toEqual({
+      heroLede: "your first test is free — written answers marked too",
+      accessLine: "Your first test is free, written answers included · after that, written answers are checked with the Test Series or the Board Pass",
+      plansLede: "Free and trial accounts can take one test, with its written answers marked too. Pick the plan that fits you.",
+    });
+    vi.stubEnv("VITE_TS_FREE_WRITTEN_CHECK_DISABLED", "1");
+    try {
+      expect(testSeriesFreeCopy()).toEqual({
+        heroLede: "try one test free",
+        accessLine: "MCQs marked free · written answers checked with the Test Series or the Board Pass",
+        plansLede: "Free and trial accounts can take one test, with its MCQs marked. Pick the plan that fits you.",
+      });
+      await mount();
+      const t = seriesTotals();
+      expect(screen.getByTestId("ts-contents").textContent).toBe(`${t.chapterTests} chapter tests + ${t.fullMocks} full-length board papers · try one test free`);
+      expect(screen.getByTestId("ts-rule").textContent).toBe("MCQs marked free · written answers checked with the Test Series or the Board Pass");
+      expect(document.body.textContent).not.toMatch(/first test is free|written answers marked too/i);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });

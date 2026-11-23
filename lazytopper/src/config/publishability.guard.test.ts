@@ -355,7 +355,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(gaps.map((q) => q.id)).toEqual([]);
   });
 
-  it("the addressable step-marking backlog only shrinks (at most 928 rows)", () => {
+  it("the addressable step-marking backlog only shrinks (at most 730 rows)", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
      * rows that Rule 1 rejects permanently and that policy says to RETIRE, not
@@ -430,11 +430,21 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // solutionSteps on 152 non-AI rows; every one left "unmarked-step" (trunk itself measured 1,229).
     // Batch 3A (arithmetic-progression, coordinate-geometry, triangles, circles) lowers it independently
     // by 149; whichever of 3A/3B merges second re-pins this ceiling to the measured number.
+    // 928 -> 868: -60. STEPMARK-3 PR 1 (23 Nov 2026, owner grant 16:13 IST), measured at trunk 66ffe1f7:
+    // leading [N mark] splits on 60 hand-sourced how-do-organisms-reproduce rows (every one left "unmarked-step").
+    // Later STEPMARK-3 PRs lower the same ceiling independently; whichever merges after another re-pins it to the measured number.
+    // 868 -> 814: STEPMARK-3 carbon-and-its-compounds (#1825), measured on the merged tree (trunk 9ad53fbe + #1825): leading [N mark]
+    // splits on 54 hand-sourced carbon rows (every one left "unmarked-step").
+    // 814 -> 768: STEPMARK-3 control-and-coordination (#1826), measured on the merged tree (trunk d02df856 + #1826): leading
+    // [N mark] splits on 46 hand-sourced control-and-coordination rows (every one left "unmarked-step").
+    // 768 -> 730: STEPMARK-3 magnetic-effects-of-electric-current (#1827), measured on the merged tree (trunk fad42a83 + #1827):
+    // leading [N mark] splits on 38 hand-sourced magnetic-effects rows (36 + MAG-EXMPLR-12-SA-011 and SCQ-S-MAG-030, which
+    // are in the 2026-27 syllabus: 'Alternating current: frequency of AC. Advantage of AC over DC').
     // CEILING (PR-3) — the backlog is worked DOWN by STEPMARK batches and must never be
     // worked up: a wiring PR that lands rows unannotated grows it and goes red here,
     // which is the right red — annotate before wiring. 2,336 at PR-3 (2026-09-11); the
     // 21 bound-but-unmarked rows PR-3 exposed are inside this number, not added to it.
-    expect(addressable.length).toBeLessThanOrEqual(928);
+    expect(addressable.length).toBeLessThanOrEqual(730);
   });
 });
 
