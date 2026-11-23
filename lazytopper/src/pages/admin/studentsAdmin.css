@@ -766,3 +766,15 @@
   font-size: 0.78rem;
   overflow-wrap: anywhere;
 }
+
+/* BUYER-SCORE-1: the Buyer score pill reuses .sa-plan's shape and the page's own colours. */
+.sa-buyer-hot {
+  color: var(--sa-green);
+  border-color: var(--sa-green);
+}
+.sa-buyer-warm {
+  color: var(--sa-amber);
+}
+.sa-buyer-cold {
+  color: var(--sa-white-2);
+}

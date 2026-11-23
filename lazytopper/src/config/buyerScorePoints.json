@@ -1,0 +1,33 @@
+{
+  "_comment": "BUYER-SCORE-1: points per level from the 23 Nov 2026 buyer-propensity scorecard (buyer_scorecard_2026-11-23.csv). The ONE table: src/analytics/buyerScore.ts (client) and server/services/buyerScore.cjs (admin) both read it. A source class or landing group not listed scores 0.",
+  "source": {
+    "GSearch PDF Packs": 7,
+    "Direct/unknown": 5,
+    "Bing/other search": 4,
+    "GSearch untagged": 4,
+    "Meta": 3,
+    "Organic Google": 2
+  },
+  "landing": {
+    "packs": 7,
+    "for-parents": 3,
+    "login": 3,
+    "notes/SEO": 3,
+    "pricing/board-pass": 3,
+    "answer-checker": 1
+  },
+  "hour": {
+    "09-13": 2,
+    "06-09": 1,
+    "21-24": 1
+  },
+  "behaviour": {
+    "viewedSellingPage": 3,
+    "openedPack": 3,
+    "startedCheckout": 5,
+    "activeTwoDays": 3,
+    "freePracticeOnly": -3,
+    "freePracticeOnlyMinPageViews": 3
+  },
+  "tiers": { "hot": 12, "warm": 8 }
+}

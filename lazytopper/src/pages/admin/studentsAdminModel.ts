@@ -46,6 +46,8 @@ export interface StudentRow {
    * (`readFailed`); never 0 for either. Absent from a server before COST-1.
    */
   aiCost?: RowAiCost;
+  /** BUYER-SCORE-1: source + landing + sign-up hour only (no behaviour). null = no source recorded; absent = switched off on the server. */
+  buyerScore?: { points: number; tier: "hot" | "warm" | "cold" } | null;
 }
 
 export interface RowAiCost {

@@ -471,6 +471,22 @@ export function orderSourceForCheckout(): OrderSource | undefined {
   }
 }
 
+/**
+ * BUYER-SCORE-1: the stored first touch (tab copy, else the 7-day tagged copy), re-cleaned, for the buyer score. READ ONLY:
+ * nothing is captured or written here. Unlike orderSourceForCheckout it ignores the order-source kill switch.
+ */
+export function storedVisitSourceForScore(): VisitSource | null {
+  try {
+    for (const key of [ORDER_SOURCE_KEY, VISIT_SOURCE_KEY]) {
+      const v = sanitiseStored(parseStored(window.sessionStorage.getItem(key)));
+      if (v) return v;
+    }
+    return readLongKeep();
+  } catch {
+    return null;
+  }
+}
+
 /** Spread into an order-create body: `{ source }` or `{}`. */
 export function orderSourceFields(): { source?: OrderSource } {
   const source = orderSourceForCheckout();

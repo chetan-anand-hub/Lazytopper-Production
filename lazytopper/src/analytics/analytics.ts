@@ -299,6 +299,11 @@ function send(
     adminHit = true;
   }
   if (!adminHit) sendToVendors(kind, payload, params);
+  // BUYER-SCORE-1: feed the lazily loaded buyer score from the three buying-intent events. Never on /admin.
+  if (!adminHit && kind === "event") {
+    const n = payload.name;
+    if (n === "pack_view" || n === "begin_checkout" || n === "pack_checkout") noteBuyerScore({ kind: "event", name: n });
+  }
   // ★ STUDENT-ACTIVITY-1 (owner ruling 2026-10-01) — the FIRST-PARTY activity log, and
   // the one place this module deals with a signed-in student. It is NOT a vendor and
   // NOT an identify(): nothing is added to what GA4 or Vercel receive (above, unchanged).
@@ -510,6 +515,12 @@ export const META_EVENTS: Readonly<
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
 
+/** BUYER-SCORE-1: `buyer_tier` reaches Meta only as one of these custom events: the name, no value, no parameter. */
+const BUYER_TIER_META: Readonly<Record<string, readonly ["trackCustom", string]>> = {
+  warm: ["trackCustom", "BuyerTierWarm"],
+  hot: ["trackCustom", "BuyerTierHot"],
+};
+
 /** `utm_*` and the ad click ids, plus `cbq` and `ct` — the CBQ and Chapter Test ad landings' boolean flags (META-CT-PARAM-1). Nothing else. */
 const META_QUERY_KEEP = /^(?:utm_.*|fbclid|gclid|cbq|ct)$/;
 const HANDOFF_PATH = /^(?:\/app)?\/u(?:\/|$)/;
@@ -640,7 +651,9 @@ function sendToMeta(
       ? META_PAGEVIEW
       : typeof name === "string" && Object.prototype.hasOwnProperty.call(META_EVENTS, name)
         ? META_EVENTS[name as keyof typeof META_EVENTS]
-        : undefined;
+        : name === "buyer_tier"
+          ? BUYER_TIER_META[(payload.data as { tier?: string } | undefined)?.tier ?? ""]
+          : undefined;
   if (!mapped) return;
   // META-PACK-CHECKOUT-1: a pack checkout is sent only WITH its attempt id (the caller leaves it off a repeat), never bare.
   if (kind === "event" && name === "pack_checkout" && !eventId) return;
@@ -653,6 +666,74 @@ function sendToMeta(
         : mapped;
   if (metaLibraryLoaded(fbq)) fbq(...call);
   else holdMetaCall(call);
+}
+
+/**
+ * BUYER-SCORE-1 - the lazy loader. buyerScore.ts (the score + its localStorage counters) is requested by dynamic import
+ * after the first idle moment (4 s at most), so the entry chunk does not carry it; notes made before it loads wait here.
+ * Kill switch VITE_BUYER_SCORE_DISABLED=1: nothing is queued, nothing loads, nothing fires.
+ */
+type BuyerNote = import("./buyerScore").BuyerNote;
+let buyerMod: typeof import("./buyerScore") | null = null;
+let buyerScheduled = false;
+const buyerQueue: BuyerNote[] = [];
+
+function buyerScoreDisabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_BUYER_SCORE_DISABLED;
+    return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
+
+function noteBuyerScore(note: BuyerNote): void {
+  try {
+    if (buyerScoreDisabled()) return;
+    if (buyerMod) {
+      buyerMod.buyerScoreNote(note);
+      return;
+    }
+    buyerQueue.push(note);
+    if (buyerQueue.length > 50) buyerQueue.shift();
+    if (buyerScheduled) return;
+    buyerScheduled = true;
+    const load = () => {
+      void import("./buyerScore")
+        .then((m) => {
+          buyerMod = m;
+          for (const q of buyerQueue.splice(0)) m.buyerScoreNote(q);
+        })
+        .catch(() => {
+          buyerScheduled = false;
+        });
+    };
+    const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
+    if (typeof ric === "function") ric(load, { timeout: 4000 });
+    else setTimeout(load, 2000);
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
+ * BUYER-SCORE-1 - `buyer_tier`, sent by buyerScore.ts when a browser's tier rises to warm or hot (once per tier per 7 days).
+ * GA4 + Vercel get `{ tier, score }` and nothing else; Meta gets the bare custom event BuyerTierWarm / BuyerTierHot
+ * (BUYER_TIER_META). Not in `NamedAnalyticsEvent`, so the first-party activity log drops it. Returns whether it was sent:
+ * false in an automated context, on /admin, or for any tier but warm / hot.
+ */
+export function trackBuyerTier(tier: "warm" | "hot", score: number): boolean {
+  try {
+    if (!analyticsEnabled()) return false;
+    if (tier !== "warm" && tier !== "hot") return false;
+    if (typeof score !== "number" || !Number.isFinite(score)) return false;
+    if (ADMIN_PATH.test(routerPathOf(window.location.pathname))) return false;
+    const data = { tier, score: Math.round(score) };
+    send("event", { name: "buyer_tier", data }, { ga4: data });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -686,6 +767,13 @@ export function trackPageview(path: string): void {
       startEngagedVisitWatch(trackEngagedVisit);
       startEngaged10();
     }
+  } catch {
+    /* analytics must never break the page */
+  }
+  // BUYER-SCORE-1: count this page view for the (lazily loaded) buyer score. Not in an automated context, not on /admin.
+  try {
+    const cleanPath = normalisePath(path);
+    if (analyticsEnabled() && !ADMIN_PATH.test(cleanPath)) noteBuyerScore({ kind: "page", path: cleanPath });
   } catch {
     /* analytics must never break the page */
   }
