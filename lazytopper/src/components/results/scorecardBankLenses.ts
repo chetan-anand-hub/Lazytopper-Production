@@ -292,7 +292,7 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
     // of honest-ungraded rules.
     gradedAnswers: ctGradedAnswers.length > 0 ? ctGradedAnswers : null,
     pending: pendingStrip(response),
-    // LIVE-FIX-1 #5 - questions not found on the pages: "Not attempted · 0" + "If you answered these, add the page".
+    // LIVE-FIX-1 #5 - questions not found on the pages: "Not attempted · 0" + "If you answered these, upload all your pages again, including the missing one".
     notFoundNotAttempted: notFoundNotAttemptedBlock(response, input.onAddPage),
     allPending: null,
     // GUIDE-SCORE-1 — the honest change since the last same-total test of this chapter.

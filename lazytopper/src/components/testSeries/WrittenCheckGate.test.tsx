@@ -121,7 +121,7 @@ describe("TS-PACK-1 · ownsTestSeries unlocks the series papers; the checks-left
     cleanup();
     render(<SeriesChecksLeftLine uid="u4" worksheetId="ct-ts1-real-numbers--abc" notCountedReason="not-found" />);
     expect((await screen.findByTestId("series-recheck-note")).textContent).toBe(
-      "This check wasn't counted — some answers weren't on the pages you uploaded. Add those pages and check again free.",
+      "This check wasn't counted — most answers weren't on the pages. Add all your pages and check again free.",
     );
     cleanup();
     render(<SeriesChecksLeftLine uid="u4" worksheetId="ct-ts1-real-numbers--abc" />);

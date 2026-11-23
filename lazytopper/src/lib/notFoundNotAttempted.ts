@@ -2,7 +2,8 @@
  * LIVE-FIX-1 #5 - OWNER RULING (23 Nov 2026, 23:05 IST): on a Chapter Test and a Full Mock (Test Series full-length papers
  * included - they are Full Mocks), a written question whose answer was NOT FOUND on the uploaded pages counts as
  * "Not attempted · 0", like a CBSE board paper - not "not marked yet / add the missing page". It stays in the paper's total
- * (so the score is final, X / 80), and the result shows ONE helper line: "If you answered these, add the page".
+ * (so the score is final, X / 80), and the result shows ONE helper line: "If you answered these, upload all your pages again, including
+ * the missing one" (REVIEW B2: a new upload replaces the last check). Only when the server COUNTED the check (REVIEW S3, below).
  *
  * ONLY "not found on the pages" moves. A page or option that could not be READ, an answer to a different question
  * (answer-mismatch) and a question the server did not grade stay "not marked yet", exactly as before.
@@ -18,18 +19,44 @@
  * service feeds MI from the grader's own rows, where it is still not graded, so no entry and no attempt is written for it.
  */
 import type { WorksheetQuestionGrade } from "../ai/aiClient";
-import { gradeStateOf, isGradedQuestion, isNotFoundOnPages, objectiveMarksLost } from "./mistakeDisplay";
+import { gradeStateOf, isGradedQuestion, isNotFoundOnPages, isQuestionNotAttempted, objectiveMarksLost } from "./mistakeDisplay";
+
+/**
+ * REVIEW S3 (coordinator ruling 24 Nov 2026) - the SERVER's unreadable rule decides. TS-RECHECK-1 (server/services/testSeriesChecks.cjs
+ * `UNREADABLE_SHARE`, reasons in server/grading/charge.cjs `UNREADABLE_REASONS`: not read / not on the pages / first line not in the
+ * work / an answer to another question) does NOT count a check when at least this share of its written questions are like that.
+ * Mirrored here - a test pins it equal to the server's constant - so the page never calls a paper final ("Not attempted · 0") on a
+ * check the server did not count.
+ */
+export const UNREADABLE_SHARE = 0.5;
 
 /** The per-question line on the scorecard's graded sheet and the PDF. */
 export const NOT_FOUND_NOT_ATTEMPTED_NOTE = "Not attempted · 0 — your answer to this question was not found on the pages you uploaded.";
 
-/** The ONE helper line (owner copy). One question reads "this" instead of "these". */
+/**
+ * The ONE helper line. REVIEW B2: a new upload REPLACES the last check (grades are not merged), so it asks for ALL the pages -
+ * a student who uploaded only the missing page would see every other question come back "not found".
+ */
 export function notFoundAddPageLine(count: number): string {
-  return count === 1 ? "If you answered this, add the page" : "If you answered these, add the page";
+  return `If you answered ${count === 1 ? "this" : "these"}, upload all your pages again, including the missing one`;
 }
 
-/** The add-page action's label. */
-export const NOT_FOUND_ADD_PAGE_ACTION = "Add the page";
+/** The action's label (REVIEW B2). */
+export const NOT_FOUND_ADD_PAGE_ACTION = "Upload all pages again";
+
+/** REVIEW B2 - the banner on the upload step that action opens. */
+export const ADD_PAGES_UPLOAD_BANNER = "Upload every page of this paper, not just the missing one — this check replaces the last one.";
+/** ...and, on a Test Series paper without the Board Pass (an owner's paper or the free test), what it costs: the server's count. */
+export const ADD_PAGES_USES_CHECK_LINE =
+  "It uses one of this paper's checks — unless most answers can't be found or read, when it isn't counted (once per paper).";
+
+/** The lead of the block, the result card and the PDF: converted ("Not attempted · 0") or still not marked. PURE. */
+export function notFoundLead(mode: "not-attempted" | "not-marked", qNumbers: ReadonlyArray<number>): string {
+  const qs = qNumbers.map((n) => `Q${n}`).join(", ");
+  return mode === "not-attempted"
+    ? `${qs}: Not attempted · 0 — not found on the pages you uploaded.`
+    : `${qs}: not found on the pages you uploaded — not marked yet.`;
+}
 
 /** One not-found row as a GRADED "Not attempted · 0" row. Anything else is returned unchanged. PURE. */
 export function asNotFoundNotAttempted(row: WorksheetQuestionGrade): WorksheetQuestionGrade {
@@ -54,13 +81,26 @@ export function asNotFoundNotAttempted(row: WorksheetQuestionGrade): WorksheetQu
   };
 }
 
+/** A written row the server's TS-RECHECK-1 counts as "could not support" (charge.cjs UNREADABLE_REASONS, as the client sees them). */
+function unreadableLike(r: WorksheetQuestionGrade): boolean {
+  const state = gradeStateOf(r);
+  return isNotFoundOnPages(r) || state === "could-not-read" || state === "answer-mismatch";
+}
+
+/** Real written work was graded from the sheet: a graded row that is not a blank / not-attempted 0 (REVIEW S3). */
+function hasRealWork(r: WorksheetQuestionGrade): boolean {
+  return isGradedQuestion(r) && !isQuestionNotAttempted(r);
+}
+
 /**
- * The written rows of one upload, with every not-found row counted as "Not attempted · 0" - but ONLY when the sheet was really
- * read: at least one written question was graded from it. When NOTHING was found or graded (the wrong pages, say), every row
- * stays "not marked yet" so a wrong upload is never turned into a final 0. PURE.
+ * The written rows of ONE upload, with every not-found row counted as "Not attempted · 0" - ONLY when the server COUNTED this
+ * check (REVIEW S3): the share of written questions it could not support (not found, unreadable, another question's answer) is
+ * BELOW UNREADABLE_SHARE, and at least one question with real written work was graded. Otherwise nothing converts: the questions
+ * stay "not marked yet", the record stays partial, and the free re-check note says the check was not counted. PURE.
  */
 export function notFoundAsNotAttempted(rows: ReadonlyArray<WorksheetQuestionGrade>): WorksheetQuestionGrade[] {
-  if (!rows.some((r) => isGradedQuestion(r))) return [...rows];
+  if (rows.length === 0 || !rows.some(hasRealWork)) return [...rows];
+  if (rows.filter(unreadableLike).length / rows.length >= UNREADABLE_SHARE) return [...rows];
   return rows.map(asNotFoundNotAttempted);
 }
 
@@ -72,6 +112,19 @@ export function isNotFoundNotAttempted(row: { notFoundOnPages?: unknown } | null
 /** The question numbers this rule counted as "Not attempted · 0", in paper order. PURE. */
 export function notFoundNotAttemptedQNumbers(rows: ReadonlyArray<WorksheetQuestionGrade> | null | undefined): number[] {
   return (rows ?? []).filter((r) => isNotFoundNotAttempted(r)).map((r) => r.qNumber).sort((a, b) => a - b);
+}
+
+/**
+ * What the result shows about answers missing from the pages: the converted questions ("not-attempted"), else the ones still not
+ * marked because the check was not counted ("not-marked"), else null. PURE.
+ */
+export function notFoundSummary(
+  rows: ReadonlyArray<WorksheetQuestionGrade> | null | undefined,
+): { mode: "not-attempted" | "not-marked"; qNumbers: number[] } | null {
+  const converted = notFoundNotAttemptedQNumbers(rows);
+  if (converted.length > 0) return { mode: "not-attempted", qNumbers: converted };
+  const pending = (rows ?? []).filter((r) => isNotFoundOnPages(r)).map((r) => r.qNumber).sort((a, b) => a - b);
+  return pending.length > 0 ? { mode: "not-marked", qNumbers: pending } : null;
 }
 
 /**

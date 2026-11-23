@@ -348,7 +348,7 @@ export const SHEET_UNREADABLE_NOT_COUNTED_LINE =
  * it just showed; otherwise one neutral line fits both.
  */
 export const ANSWERS_NOT_FOUND_NOT_COUNTED_LINE =
-  "This check wasn't counted — some answers weren't on the pages you uploaded. Add those pages and check again free.";
+  "This check wasn't counted — most answers weren't on the pages. Add all your pages and check again free.";
 export const CHECK_NOT_COUNTED_NEUTRAL_LINE = "This check wasn't counted — add any missing or unclear pages and check again free.";
 
 export type NotCountedReason = "not-found" | "unreadable" | null;

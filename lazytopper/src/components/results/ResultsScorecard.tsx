@@ -741,7 +741,7 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                 );
                 return (
                   <>
-                    {notFound > 0 && (
+                    {notFound > 0 && variant.notFoundNotAttempted?.mode !== "not-marked" && (
                       <div className="lt-sc__pend" data-grade-state="not-found">
                         <b>
                           {notFound} question{notFound === 1 ? "" : "s"} not answered on your pages
@@ -779,8 +779,7 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                   pages count "Not attempted · 0" (in the score, never a mistake), with ONE helper line and the existing re-upload step. */}
               {variant.notFoundNotAttempted && variant.notFoundNotAttempted.questions.length > 0 && (
                 <div className="lt-sc__nfna" data-testid="sc-not-found-not-attempted">
-                  <b>{variant.notFoundNotAttempted.questions.join(", ")}: Not attempted · 0</b> — not found on the pages you uploaded.{" "}
-                  {variant.notFoundNotAttempted.line}.
+                  <b>{variant.notFoundNotAttempted.lead}</b> {variant.notFoundNotAttempted.line}.
                   {variant.notFoundNotAttempted.onAddPage && (
                     <button type="button" className="lt-sc__nfna-btn" data-testid="sc-add-page" onClick={variant.notFoundNotAttempted.onAddPage}>
                       {NOT_FOUND_ADD_PAGE_ACTION}

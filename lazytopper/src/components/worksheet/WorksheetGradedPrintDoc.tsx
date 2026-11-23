@@ -29,7 +29,7 @@ import {
   stepShowsType,
 } from "../../lib/mistakeDisplay";
 import { paperMarksScore } from "../results/scoreTotals";
-import { notFoundAddPageLine, notFoundNotAttemptedQNumbers } from "../../lib/notFoundNotAttempted";
+import { notFoundAddPageLine, notFoundLead, notFoundNotAttemptedQNumbers } from "../../lib/notFoundNotAttempted";
 import { RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
@@ -244,7 +244,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
             {/* LIVE-FIX-1 #5 - the scorecard's "Not attempted · 0" line for questions not found on the pages, word for word. */}
             {notFoundQs.length > 0 && (
               <div className="lt-gp__notmarked" data-testid="gp-not-found-not-attempted">
-                {notFoundQs.map((n) => `Q${n}`).join(", ")}: Not attempted · 0 — not found on the pages you uploaded. {notFoundAddPageLine(notFoundQs.length)}.
+                {notFoundLead("not-attempted", notFoundQs)} {notFoundAddPageLine(notFoundQs.length)}.
               </div>
             )}
           </div>

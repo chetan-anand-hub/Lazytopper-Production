@@ -156,7 +156,7 @@ import { paperMarksScore, resultCardParts } from "../components/results/scoreTot
 import { boardEstimateDisabled } from "../lib/fullmock/boardEstimateFlag";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import NotFoundAddPageLine from "../components/chaptertest/NotFoundAddPageLine";
-import { notCountedReasonOf, notFoundNotAttemptedQNumbers } from "../lib/notFoundNotAttempted";
+import { ADD_PAGES_UPLOAD_BANNER, ADD_PAGES_USES_CHECK_LINE, notCountedReasonOf, notFoundSummary } from "../lib/notFoundNotAttempted";
 import { FM_CSS } from "../components/fullmock/fullMockStyles";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
 import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadPanel";
@@ -564,12 +564,21 @@ export default function FullMockPage() {
     [moveFmPaper],
   );
   const [resultsPhase, setResultsPhase] = useState<"partial" | "full">("partial");
-  // LIVE-FIX-1 #5 - "If you answered these, add the page": back to THIS paper's upload step (the same step the first upload used;
+  // LIVE-FIX-1 #5 - "If you answered these, upload all your pages again, including the missing one": back to THIS paper's upload step (the same step the first upload used;
   // the grade then replaces this result under the same code). Re-upload rules and check counts are the server's, unchanged.
+  // REVIEW B2: the upload step it opens says to upload EVERY page (the new check replaces the last one; grades are not merged).
+  const [addingPages, setAddingPages] = useState(false);
   const addMissingPage = useCallback(() => {
     setScorecardOpen(false);
+    setAddingPages(true);
     setResultsPhase("partial");
   }, []);
+  useEffect(() => {
+    if (resultsPhase === "full") setAddingPages(false);
+  }, [resultsPhase]);
+  useEffect(() => {
+    if (phase !== "results") setAddingPages(false); // leaving the paper ends the add-pages step
+  }, [phase]);
   const [scorecardOpen, setScorecardOpen] = useState(false);
   const [fullResponse, setFullResponse] = useState<WorksheetGradeResponse | null>(null);
   // TS-ANALYSIS-1 (feature 2) — time on screen per question while the mock is being taken (device-local).
@@ -601,6 +610,8 @@ export default function FullMockPage() {
     awaitingDetail?: string;
     /** PAPER-REBUILD-1 (D103a): the paper lookup failed; the scorecard offers "Start a new test". */
     noPaper?: boolean;
+    /** REVIEW NIT4: this paper's saved copy is there, so "Upload all pages again" can open its upload step (else no button). */
+    canAddPages?: boolean;
   } | null>(null);
 
   // TUTOR-RETURN-SHEET-1 - the restored card's graded-sheet download (the page re-mounted on the
@@ -813,9 +824,10 @@ export default function FullMockPage() {
       return;
     }
     // FAIR-USE-UI-1 (UI3): this week's mock already used -> the panel, not the paper.
-    // A RESUME is not a start and is never blocked. LIVE-FIX-1: a Test Series owner's series paper is never metered (the server's
-    // LIMITS-1 exempts it - testSeriesChecks.ownerSeriesPaper - and claimNewPaperView below already does), so no panel for it.
-    if (!(seriesAccess.ownsSeries && seriesN !== null) && fairUse.blockPaperStart()) return;
+    // A RESUME is not a start and is never blocked. [FU-FAIRUSE-TS-OWNER-EXEMPT]: a Test Series owner's series paper is still
+    // blocked here on purpose - the fair-use paper-pass mint (server fairUse.cjs handlePaperPass) has no owner exemption, so a
+    // client bypass would let a trial-tier owner write a whole paper and be refused at grade time. Server exemption first.
+    if (fairUse.blockPaperStart()) return;
     // CT-RESUME-2: a visit let through as a RESUME of a saved mock was not counted. Starting a NEW
     // mock instead is counted now — or refused when today's papers are used up.
     if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && seriesN !== null), location.search)) {
@@ -945,8 +957,8 @@ export default function FullMockPage() {
           clearFullMockSession(sessionUid, a.code);
           // Fully graded — the durable record + perQuestion payload exist; the
           // cross-device paper snapshot has done its job. Only THIS paper's copy (by identity).
-          // LIVE-FIX-1 #5: a paper with questions not found on the pages keeps its snapshot - "add the page" re-opens its upload step.
-          if (notFoundNotAttemptedQNumbers(outcome.response.results).length === 0) {
+          // LIVE-FIX-1 #5: a paper with answers not found on the pages keeps its snapshot - "Upload all pages again" re-opens its upload step.
+          if (notFoundSummary(outcome.response.results) === null) {
             deleteFullMockPaperSnapshot(user, a.code, a.paper.worksheetId);
             if (gradedAs.code !== a.code) deleteFullMockPaperSnapshot(user, gradedAs.code, a.paper.worksheetId);
           }
@@ -1111,10 +1123,17 @@ export default function FullMockPage() {
         const payload = await getSessionPerQuestion(user?.uid, record.perQuestionRef);
         response = payload?.response ?? null;
       }
+      // REVIEW NIT4: "Upload all pages again" only when this paper's saved copy is there to open (never the no-paper dead end).
+      let canAddPages = false;
+      if (notFoundSummary(response?.results)) {
+        const local = loadFullMockSession(sessionUid, record.id);
+        canAddPages = Boolean(local && local.phase === "awaiting-upload" && local.objective)
+          || Boolean((await fetchFullMockPaperSnapshot(user, record.id))?.objective);
+      }
       setPanelOpen(false);
-      setReopen({ record, response });
+      setReopen({ record, response, ...(canAddPages ? { canAddPages } : {}) });
     },
-    [user?.uid],
+    [user, sessionUid],
   );
 
   // FOLLOWUPS-1 B — "Ask the tutor why I lost this mark" on a SAVED mock's scorecard (the QP /
@@ -1572,12 +1591,16 @@ export default function FullMockPage() {
               ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
               : {}),
             onDone: () => setReopen(null),
-            // LIVE-FIX-1 #5 - a record with questions not found on the pages offers its own upload step (the paper is kept for it).
-            onAddPage: () => {
-              const record = reopen.record;
-              setReopen(null);
-              void openPendingUpload(record);
-            },
+            // LIVE-FIX-1 #5 - a record with answers not found on the pages offers its own upload step, only when its saved copy is
+            // there (REVIEW NIT4); the step says to upload every page (REVIEW B2).
+            onAddPage: reopen.canAddPages
+              ? () => {
+                  const record = reopen.record;
+                  setReopen(null);
+                  setAddingPages(true);
+                  void openPendingUpload(record);
+                }
+              : undefined,
             // PAPER-REBUILD-1 (D103a): the no-paper state's way forward, through the setup's own start.
             onStartNew: reopen.noPaper
               ? () => {
@@ -2167,8 +2190,15 @@ export default function FullMockPage() {
               }
               upload={
                 <>
+                  {/* REVIEW B2 - the upload step opened by "Upload all pages again": every page, and what it costs on a series paper. */}
+                  {addingPages && (
+                    <p className="lt-ct__nfna" data-testid="add-pages-banner">
+                      <b>{ADD_PAGES_UPLOAD_BANNER}</b>
+                      {seriesN !== null && !boardPassHolder ? ` ${ADD_PAGES_USES_CHECK_LINE}` : ""}
+                    </p>
+                  )}
                   {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
-                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} />
+                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} notCountedReason={addingPages ? notCountedReasonOf(fullResponse?.results) : null} />
                   <ChapterTestUploadPanel
                     eyebrow="Full Mock · Result"
                     sectionsLabel="Sections B–E"
@@ -2317,7 +2347,7 @@ export default function FullMockPage() {
                 // has no such view, so closing dropped the student onto a summary card whose only
                 // primary action reopened the panel they had just left - a loop with no way on.
                 onReadSheet: revealGradedSheet,
-                // LIVE-FIX-1 #5 - "If you answered these, add the page": back to this paper's upload step (re-upload rules unchanged).
+                // LIVE-FIX-1 #5 - "If you answered these, upload all your pages again, including the missing one": back to this paper's upload step (re-upload rules unchanged).
                 onAddPage: addMissingPage,
                 onPractiseChapter: () => {
                   setScorecardOpen(false);

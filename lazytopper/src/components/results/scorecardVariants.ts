@@ -32,7 +32,7 @@ import { deriveSectionLens, deriveTypeLens, stampFromPaper, type PaperLensQuesti
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
 import { formatScoreNumber } from "./scoreNumber";
-import { notFoundAddPageLine, notFoundNotAttemptedQNumbers } from "../../lib/notFoundNotAttempted";
+import { notFoundAddPageLine, notFoundLead, notFoundSummary } from "../../lib/notFoundNotAttempted";
 import type { BoardScoreView } from "../../lib/fullmock/boardEstimate";
 import { awaitingSheetScore, paperGradeStatus, paperMarksScore, type ScoreNotMarked } from "./scoreTotals";
 import {
@@ -1293,7 +1293,7 @@ export interface ChapterTestVariantInput {
   onDownloadGraded?: () => void;
   onDownloadSolution?: () => void;
   onRevisit?: () => void;
-  /** LIVE-FIX-1 #5 - FULL phase: the existing re-upload step, offered beside "If you answered these, add the page". */
+  /** LIVE-FIX-1 #5 - FULL phase: the existing re-upload step, offered beside "If you answered these, upload all your pages again, including the missing one". */
   onAddPage?: () => void;
   /** GUIDE-SCORE-1 — FULL phase only: the honest change since the last graded test of the SAME
    *  chapter with the SAME paper total (`chapterTestDeltaLine`), shown under the hero. */
@@ -1494,33 +1494,43 @@ export interface FullMockVariantInput {
   onPractiseChapter?: () => void;
   onDownloadGraded?: () => void;
   onDownloadSolution?: () => void;
-  /** LIVE-FIX-1 #5 - FULL phase: the existing re-upload step, offered beside "If you answered these, add the page". */
+  /** LIVE-FIX-1 #5 - FULL phase: the existing re-upload step, offered beside "If you answered these, upload all your pages again, including the missing one". */
   onAddPage?: () => void;
 }
 
 
-/** TS-BOARDSCORE-1 - a paper with anything not marked yet keeps only the board view's score line (the "So far" line). */
-/** LIVE-FIX-1 #5 - the scorecard's "Not attempted · 0" block for the questions not found on the uploaded pages. */
+/** LIVE-FIX-1 #5 - the scorecard's block for the questions not found on the uploaded pages: "Not attempted · 0" when the check
+ *  was counted, else still "not marked yet" (REVIEW S3), with the one helper line and the upload step. */
 export interface ScorecardNotFoundNotAttempted {
+  mode: "not-attempted" | "not-marked";
   /** "Q12", "Q15" - paper order. */
   questions: string[];
-  /** "If you answered these, add the page" (notFoundAddPageLine). */
+  /** The lead (notFoundLead): "Q12, Q15: Not attempted · 0 — not found on the pages you uploaded." */
+  lead: string;
+  /** "If you answered these, upload all your pages again, including the missing one" (notFoundAddPageLine). */
   line: string;
-  /** The host's existing re-upload step; absent -> the line names no button. */
+  /** The host's upload step; absent -> the line names no button. */
   onAddPage?: () => void;
 }
 
-/** LIVE-FIX-1 #5 - the block for a FULL-phase / re-opened Chapter Test or Full Mock response, or null when no question was
- *  counted "Not attempted · 0" for being missing from the pages. PURE. */
+/** LIVE-FIX-1 #5 - the block for a FULL-phase / re-opened Chapter Test or Full Mock response, or null when no question is
+ *  missing from the pages. PURE. */
 export function notFoundNotAttemptedBlock(
   response: WorksheetGradeResponse | null | undefined,
   onAddPage?: () => void,
 ): ScorecardNotFoundNotAttempted | null {
-  const qs = notFoundNotAttemptedQNumbers(response?.results);
-  if (qs.length === 0) return null;
-  return { questions: qs.map((n) => `Q${n}`), line: notFoundAddPageLine(qs.length), ...(onAddPage ? { onAddPage } : {}) };
+  const sum = notFoundSummary(response?.results);
+  if (!sum) return null;
+  return {
+    mode: sum.mode,
+    questions: sum.qNumbers.map((n) => `Q${n}`),
+    lead: notFoundLead(sum.mode, sum.qNumbers),
+    line: notFoundAddPageLine(sum.qNumbers.length),
+    ...(onAddPage ? { onAddPage } : {}),
+  };
 }
 
+/** TS-BOARDSCORE-1 - a paper with anything not marked yet keeps only the board view's score line (the "So far" line). */
 export function boardScoreFor(view: BoardScoreView | null, incomplete: boolean): BoardScoreView | null {
   if (!view) return null;
   return incomplete ? { ...view, trend: null, estimate: null, estimateHint: null } : view;
