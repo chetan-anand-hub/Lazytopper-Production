@@ -194,7 +194,7 @@ export const CARBON_COMPOUNDS_EXEMPLAR: CanonicalQuestion[] = [
   { id: "CARB-EXMPLR-4-SA-001", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Ethyne Structure", section: "C", marks: 3, format: "Short", difficulty: "Easy", bloomSkill: "Applying",
     questionText: "Draw the electron dot structure of ethyne and also draw its structural formula.",
     answer: "Ethyne C₂H₂: H–C≡C–H. Electron dot: H:C:::C:H (each C-C triple bond = 3 shared electron pairs; each C-H = 1 shared pair). Each C has 4 bonds (3 to the other C, 1 to H); no lone pairs.",
-    solutionSteps: ["[1 mark] Ethyne has 2 C atoms triple-bonded plus 1 H on each C.", "[1 mark] Structural: H-C≡C-H.", "[1 mark] Electron dots: between the two C atoms there are 6 dots (3 pairs = triple bond); 2 dots between each C and H (single bond)."],
+    solutionSteps: ["[0.5 mark] Ethyne has 2 C atoms triple-bonded plus 1 H on each C.", "[1 mark] Structural: H-C≡C-H.", "[1.5 marks] Electron dots: between the two C atoms there are 6 dots (3 pairs = triple bond); 2 dots between each C and H (single bond)."],
     finalAnswer: "H-C≡C-H (structural); H:C:::C:H (electron dot).",
     ncertRef: "Exemplar Ex 4.2 Q30 (SA)", isCompetencyBased: false },
   { id: "CARB-EXMPLR-4-SA-002", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Nomenclature", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
