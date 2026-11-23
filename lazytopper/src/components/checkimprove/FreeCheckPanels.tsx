@@ -90,7 +90,7 @@ const FC_CSS = `
 }
 .lt-fc__cta,
 .lt-fc__btn--primary {
-  background: hsl(152, 55%, 38%);
+  background: var(--lt-green-fill, #257e55);
   color: #ffffff;
 }
 .lt-fc__cta:hover,

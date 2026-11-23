@@ -154,7 +154,7 @@ const BANNER_CSS = `
   font-weight: 650;
   text-decoration: none;
 }
-.lt-trial-banner__cta--primary { background: hsl(152, 55%, 42%); color: #ffffff; }
+.lt-trial-banner__cta--primary { background: var(--lt-green-fill, #257e55); color: #ffffff; }
 .lt-trial-banner__cta--secondary { background: hsla(0, 0%, 100%, 0.1); color: #ffffff; }
 .lt-trial-banner__cta:focus-visible,
 .lt-trial-banner__close:focus-visible {

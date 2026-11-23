@@ -320,7 +320,7 @@ const PICKER_CSS = `
     width: 100%; text-align: center; padding: 12px; font-size: 13.5px;
     border-radius: 12px; font-weight: 700; cursor: pointer; border: 1px solid transparent;
     font-family: inherit; color: #fff;
-    background: linear-gradient(140deg, hsl(152,55%,45%), hsl(152,60%,30%));
+    background: linear-gradient(140deg, var(--lt-green-fill, #257e55), hsl(152,60%,30%));
     box-shadow: 0 4px 12px -5px hsla(152, 55%, 28%, 0.55);
   }
   .lt-tutor-foot {

@@ -55,7 +55,7 @@
   min-height: 44px;
   padding: 0 18px;
   border-radius: 12px;
-  background: hsl(152, 55%, 36%);
+  background: var(--lt-green-fill, #257e55);
   color: #ffffff;
   font-size: 14px;
   font-weight: 650;
@@ -133,7 +133,7 @@
   min-height: 44px;
   padding: 0 16px;
   border-radius: 12px;
-  background: hsl(152, 55%, 36%);
+  background: var(--lt-green-fill, #257e55);
   color: #ffffff;
   font-size: 14px;
   font-weight: 650;
@@ -162,7 +162,7 @@
   min-height: 44px;
   padding: 0 16px;
   border-radius: 12px;
-  background: hsl(152, 55%, 42%);
+  background: var(--lt-green-fill, #257e55);
   color: #ffffff;
   font-size: 14px;
   font-weight: 650;

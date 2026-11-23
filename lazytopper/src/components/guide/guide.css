@@ -123,7 +123,7 @@
 .lt-scg--byte .lt-scg__bub { background: #e9f7fd; }
 .lt-scg__say { margin: 0; font-size: 14px; line-height: 1.32; font-weight: 700; overflow-wrap: anywhere; }
 .lt-scg__cta { display: inline-flex; align-items: center; justify-content: center; max-width: 100%; box-sizing: border-box;
-  min-height: 44px; min-width: 44px; margin: 6px 0 0; padding: 0 14px; border-radius: 10px; background: hsl(152, 55%, 38%);
+  min-height: 44px; min-width: 44px; margin: 6px 0 0; padding: 0 14px; border-radius: 10px; background: var(--lt-green-fill, #257e55);
   color: #fff; font-size: 13.5px; font-weight: 800; text-decoration: none; text-align: center; }
 .lt-scg__cta:hover { background: hsl(152, 55%, 32%); }
 button.lt-scg__cta { border: 0; cursor: pointer; font-family: inherit; }
