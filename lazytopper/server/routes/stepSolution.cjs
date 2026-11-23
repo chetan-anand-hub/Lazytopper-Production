@@ -200,8 +200,8 @@ function validateSolutionQuality(solution, marks, isObjective) {
     reasons.push('too-few-steps-for-marks');
   }
 
-  // Size sanity: generation is capped at 1800 output tokens; anything hugely over
-  // that serialized is runaway/duplicated content, not a solution.
+  // Size sanity: anything hugely over this serialized is runaway/duplicated content,
+  // not a solution (the generation cap is SCHEME_GEN_MAX_OUTPUT_TOKENS, default 8192).
   try {
     if (JSON.stringify(solution).length > 20000) reasons.push('oversized');
   } catch (e) {
@@ -256,6 +256,55 @@ function buildFromPrewrittenSteps(stepsArr, finalAnswer, totalMarks, qType, sect
       ? 'For MCQs: read all 4 options first, eliminate obviously wrong ones, then pick. No negative marking in CBSE — never leave blank.'
       : 'Write each step on a new line. Method marks are awarded even if the final answer has a calculation error.',
   };
+}
+
+// SCHEME-GEN-1 (23 Nov 2026): the scheme generator's model config. gemini-2.5-flash THINKS by default and its thinking
+// tokens count against maxOutputTokens, so the old 1800 cap was eaten by thinking and the JSON was cut off
+// (finishReason MAX_TOKENS -> unparseable -> "no usable scheme"). Now: a bounded thinking budget AND room for the JSON.
+// Env-overridable integers; anything invalid -> the defaults. SCHEME_GEN_LEGACY=1 -> the exact pre-fix config (kill switch).
+const SCHEME_GEN_DEFAULT_MAX_OUTPUT_TOKENS = 8192;
+const SCHEME_GEN_DEFAULT_THINKING_BUDGET = 1024;
+const SCHEME_GEN_LEGACY_CONFIG = Object.freeze({ temperature: 0.2, maxOutputTokens: 1800 });
+
+function parseEnvInt(raw, min, max) {
+  const t = String(raw === undefined || raw === null ? '' : raw).trim();
+  if (!/^\d+$/.test(t)) return null;
+  const n = Number(t);
+  return Number.isSafeInteger(n) && n >= min && n <= max ? n : null;
+}
+
+/** The generator's config, read from `env` at call time (so the kill switch needs no redeploy-time import order). */
+function resolveSchemeGenConfig(env = process.env) {
+  const legacy = ['1', 'true', 'yes', 'on'].includes(String((env && env.SCHEME_GEN_LEGACY) || '').trim().toLowerCase());
+  if (legacy) return { legacy: true, config: { ...SCHEME_GEN_LEGACY_CONFIG } };
+  let maxOutputTokens = parseEnvInt(env && env.SCHEME_GEN_MAX_OUTPUT_TOKENS, 1024, 65536);
+  let thinkingBudget = parseEnvInt(env && env.SCHEME_GEN_THINKING_BUDGET, 0, 24576);
+  if (maxOutputTokens === null) maxOutputTokens = SCHEME_GEN_DEFAULT_MAX_OUTPUT_TOKENS;
+  if (thinkingBudget === null) thinkingBudget = SCHEME_GEN_DEFAULT_THINKING_BUDGET;
+  // A cap that leaves the JSON no room beyond the thinking budget re-creates the bug: fall back to the defaults for both.
+  if (maxOutputTokens < thinkingBudget + 1024) {
+    maxOutputTokens = SCHEME_GEN_DEFAULT_MAX_OUTPUT_TOKENS;
+    thinkingBudget = SCHEME_GEN_DEFAULT_THINKING_BUDGET;
+  }
+  return { legacy: false, config: { temperature: 0.2, maxOutputTokens, thinkingConfig: { thinkingBudget } } };
+}
+
+function schemeGenCount(deps, name) {
+  try {
+    const t = (deps && deps.telemetry) || require('../telemetry.cjs');
+    if (t && typeof t.increment === 'function') t.increment(name, 1);
+  } catch { /* a counter never fails a generation */ }
+}
+
+/** ONE log line + one counter for a generation that yielded no usable scheme. Logs LENGTHS and counts only, never the text. */
+function noteSchemeGenFailure(reply, cfg, deps) {
+  const finish = (reply && reply.finishReason) || (reply && reply.raw && reply.raw.candidates && reply.raw.candidates[0] && reply.raw.candidates[0].finishReason) || 'none';
+  const usage = (reply && reply.raw && reply.raw.usageMetadata) || {};
+  const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 'na');
+  const textLen = reply && typeof reply.text === 'string' ? reply.text.length : 0;
+  schemeGenCount(deps, finish === 'MAX_TOKENS' ? 'scheme_gen.max_tokens' : 'scheme_gen.parse_fail');
+  console.warn('[scheme-gen] no usable scheme finish=' + finish + ' candidates_tokens=' + num(usage.candidatesTokenCount) + ' thoughts_tokens=' + num(usage.thoughtsTokenCount) +
+    ' text_len=' + textLen + ' max_output=' + cfg.config.maxOutputTokens + ' thinking_budget=' + (cfg.config.thinkingConfig ? cfg.config.thinkingConfig.thinkingBudget : 'default') + ' legacy=' + (cfg.legacy ? 1 : 0));
 }
 
 // ── Shared model-solution generation core (C&I PR-3) ───────────────────────────
@@ -370,13 +419,21 @@ async function generateModelSolution(fields, deps) {
     { role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] },
   ];
 
-  const reply = await callGemini(GEMINI_MODEL, contents, {
-    temperature: 0.2,
-    maxOutputTokens: 1800,
-  });
+  const genCfg = resolveSchemeGenConfig();
+  let reply;
+  try {
+    reply = await callGemini(GEMINI_MODEL, contents, genCfg.config);
+  } catch (e) {
+    schemeGenCount(deps, 'scheme_gen.error');
+    console.warn('[scheme-gen] model call failed: ' + String((e && e.message) || e).slice(0, 120) + ' legacy=' + (genCfg.legacy ? 1 : 0));
+    throw e;
+  }
 
   const parsed = extractJsonObjectFromText(reply.text);
-  if (!(parsed && Array.isArray(parsed.steps) && parsed.steps.length > 0)) return null;
+  if (!(parsed && Array.isArray(parsed.steps) && parsed.steps.length > 0)) {
+    noteSchemeGenFailure(reply, genCfg, deps);
+    return null;
+  }
 
   let steps = parsed.steps
     .filter((s) => s && (s.description || s.working))
@@ -387,7 +444,10 @@ async function generateModelSolution(fields, deps) {
       marks: Math.max(0, Math.round(Number(s.marks) * 2) / 2),
     }));
 
-  if (steps.length === 0) return null;
+  if (steps.length === 0) {
+    noteSchemeGenFailure(reply, genCfg, deps);
+    return null;
+  }
 
   const maxSteps = Math.floor(marks / 0.5);
   if (steps.length > maxSteps) {
@@ -459,6 +519,7 @@ async function generateModelSolution(fields, deps) {
     }
   }
 
+  schemeGenCount(deps, 'scheme_gen.ok');
   const solution = {
     totalMarks: marks,
     steps,
@@ -721,6 +782,7 @@ module.exports = {
   deleteSolution,
   validateSolutionQuality,
   generateModelSolution,
+  resolveSchemeGenConfig,
   renderSolutionSchemeSteps,
   getOrCreateModelSolution,
   __setPoolForTests,
