@@ -135,7 +135,19 @@ import {
   hubPositionLine,
   hubTabPrice,
   type HubCardKey,
+  HUB_BANK_FACE_BULLETS,
+  HUB_CBQ_FACE_BULLETS,
+  HUB_CBQ_MORE,
+  HUB_OPEN_CUE,
+  HUB_PASS_FACE_BULLETS,
+  HUB_PASS_MORE,
+  HUB_TS_ANALYSIS_LINE,
+  HUB_TS_FACE_BULLETS,
+  HUB_TS_MORE,
+  hubBankMore,
+  hubOpenAria,
 } from "./hubCopy";
+import { VALIDITY_LONG } from "../../config/validity";
 import { HUB_CSS } from "./pricingHubCss";
 import { seriesTotals } from "../../lib/testSeries/testSeries";
 import { TestSeriesFoundingClause, TsClockSlot } from "../../components/packs/TestSeriesFoundingClause";
@@ -585,30 +597,48 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
       passEndMs > nowMs &&
       passEndMs - nowMs > 7 * 86_400_000);
 
-  // PRICING-CTA-UP-1 (owner, 24 Nov 2026) - each card reads tag · name · its hero line · price · Buy area, THEN its features, "what's
-  // inside" and the details link; the Buy area is no longer pinned to the card's foot. The SAME elements, test ids, handlers and Buy-area
-  // order - only their place in the card moves. Kill switch: VITE_PRICING_CTA_UP_DISABLED=1 (build-time; set in Vercel and redeploy)
-  // restores today's layout exactly (the Buy area at the bottom, the details link inside it).
+  // PRICING-CTA-UP-1 (owner, 24 Nov 2026; v1.1 23:05 IST) - each card's FACE is tag · name (one link to the product page) · hook · at
+  // most three bullets · price line · ONE Buy; everything else sits in the card's folded "more" row or on the product page. The Buy
+  // elements, test ids, handlers and the Board Pass's PassCheckout (with its display-only `compact`) are the same ones. Kill switch:
+  // VITE_PRICING_CTA_UP_DISABLED=1 (build-time; set in Vercel and redeploy) renders today's cards exactly (`legacyInside`).
   const ctaUp = import.meta.env.VITE_PRICING_CTA_UP_DISABLED !== "1";
-  /** One card's inside, in the order the switch says. `buy` is the card's Buy area (its `.lt-ph-foot` contents minus the details link). */
-  const cardInside = (head: ReactNode, body: ReactNode, buy: ReactNode, details: ReactNode): ReactNode =>
-    ctaUp ? (
-      <>
-        {head}
-        <div className="lt-ph-foot">{buy}</div>
-        {body}
+  /** Today's card inside (kill switch on): head, features, then the foot (Buy area + the details link) pinned to the bottom. */
+  const legacyInside = (head: ReactNode, body: ReactNode, buy: ReactNode, details: ReactNode): ReactNode => (
+    <>
+      {head}
+      {body}
+      <div className="lt-ph-foot">
+        {buy}
         {details}
-      </>
-    ) : (
-      <>
-        {head}
-        {body}
-        <div className="lt-ph-foot">
-          {buy}
-          {details}
-        </div>
-      </>
-    );
+      </div>
+    </>
+  );
+  /**
+   * v1.1 - the card's top area: ONE link to the product page (the name heading's link is stretched over tag, name, hook and bullets;
+   * "Details ›" is its visible cue). No other control sits inside it; the Buy is outside, below it. ?from=for_parents is kept.
+   */
+  const face = (opts: { name: string; to: string; testId: string; top: ReactNode; hook: ReactNode; bullets: readonly string[] }): ReactNode => (
+    <div className="lt-ph-face">
+      {opts.top}
+      <h2 className="lt-ph-name">
+        <Link className="lt-ph-open" to={withFrom(opts.to)} aria-label={hubOpenAria(opts.name)} data-testid={opts.testId}>
+          {opts.name}
+        </Link>
+      </h2>
+      {opts.hook}
+      <Ticks items={opts.bullets.map((text, i) => ({ id: String(i), text }))} label={`What the ${opts.name} gives`} />
+      <span className="lt-ph-open__cue" aria-hidden="true">
+        {HUB_OPEN_CUE}
+      </span>
+    </div>
+  );
+  /** v1.1 - the folded row under the Buy: what the face no longer shows, so no sales option leaves /pricing. Closed by default. */
+  const more = (summary: string, testId: string, body: ReactNode): ReactNode => (
+    <details className="lt-ph-more" data-testid={testId}>
+      <summary className="lt-ph-more__sum">{summary}</summary>
+      <div className="lt-ph-more__body">{body}</div>
+    </details>
+  );
 
   // PRICING-CTA-UP-1 §2.4 - the bar's Board Pass words follow the card's own Pay button. A MutationObserver re-reads that button (and
   // whether the card shows the Test Series upgrade line) whenever it changes, so the bar's copy changes the moment the server's
@@ -709,7 +739,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
 
   const passCard = (
     <div className="lt-ph-card lt-ph-card--pass" id={HUB_CARD_ID.pass} data-testid="hub-card-pass" data-card="pass">
-      {cardInside(
+      {legacyInside(
         <>
           <div className="lt-ph-card__top">
             <p className="lt-ph-tag">{HUB_PASS_TAG}</p>
@@ -795,7 +825,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
     const seriesIncluded = Boolean(user) && subscription.hydrated && isPaidPremium(subscription.status);
     return (
     <div className="lt-ph-card lt-ph-card--ts" id={HUB_CARD_ID.ts} data-testid="hub-card-ts" data-card="ts">
-      {cardInside(
+      {legacyInside(
         <>
           <div className="lt-ph-card__top">
             <p className="lt-ph-tag">{HUB_TS_TAG}</p>
@@ -892,7 +922,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
     const ownsAny = api.buyEnabled && SUBJECTS.some((s) => api.ownsPack("pack_cbq", s));
     return (
       <div className="lt-ph-card lt-ph-card--cbq" id={HUB_CARD_ID.cbq} data-testid="hub-card-cbq" data-card="cbq">
-        {cardInside(
+        {legacyInside(
           <>
             <ParentReturnLink testId="parent-return-cbq" />
             <div className="lt-ph-card__top">
@@ -961,7 +991,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
     const ownsBundle = api.buyEnabled && api.ownsPack("pack_bundle");
     return (
       <div className="lt-ph-card lt-ph-card--bank" id={HUB_CARD_ID.bank} data-testid="hub-card-bank" data-card="bank">
-        {cardInside(
+        {legacyInside(
           <>
             <ParentReturnLink testId="parent-return-packs" />
             <div className="lt-ph-card__top">
@@ -1013,6 +1043,314 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
           <Link className="lt-ph-details" to={withFrom(QUESTION_BANK_PAGE_PATH)} data-testid="hub-bank-details">
             {hubBankDetails()}
           </Link>,
+        )}
+      </div>
+    );
+  };
+
+  /* ── PRICING-CTA-UP-1 v1.1: the slim card faces (the kill switch renders the four cards above instead) ───────────────────── */
+
+  const passFace = (
+    <div className="lt-ph-card lt-ph-card--pass lt-ph-card--face" id={HUB_CARD_ID.pass} data-testid="hub-card-pass" data-card="pass">
+      {face({
+        name: BOARD_PASS_NAME,
+        to: BOARD_PASS_PAGE_PATH,
+        testId: "hub-pass-details",
+        top: (
+          <div className="lt-ph-card__top">
+            <p className="lt-ph-tag">{HUB_PASS_TAG}</p>
+            <span className="lt-ph-chip">{START_HERE_BADGE}</span>
+          </div>
+        ),
+        hook: (
+          <div className="lt-ph-minute" data-testid="hub-pass-minute">
+            <span className="lt-ph-minute__fig" aria-hidden="true">
+              <span className="lt-ph-minute__num">{HUB_PASS_MINUTE_FIGURE}</span>
+              <span className="lt-ph-minute__unit">{HUB_PASS_MINUTE_UNIT}</span>
+            </span>
+            <p className="lt-ph-minute__text">
+              <span className="lt-pricing-sr">{`${HUB_PASS_MINUTE_FIGURE} ${HUB_PASS_MINUTE_UNIT.toLowerCase()}: `}</span>
+              <strong className="lt-ph-minute__strong">{HUB_PASS_MINUTE_STRONG}</strong>
+              <span>{HUB_PASS_MINUTE_LINE}</span>
+            </p>
+          </div>
+        ),
+        bullets: HUB_PASS_FACE_BULLETS,
+      })}
+      <div className="lt-ph-foot">
+        {boardPassOwner ? (
+          <p className="lt-ph-owned" data-testid="hub-pass-owned">
+            {HUB_PASS_OWNED}
+            <Link to={PRACTICE_PATH} data-testid="hub-pass-owned-go">{HUB_PASS_OWNED_GO}</Link>
+          </p>
+        ) : (
+          <TillBoardsOffer />
+        )}
+        {/* PAYWALL-PAY-1 - a tap on Pay is the "pay" paywall action (capture phase; PassCheckout is untouched but for `compact`). */}
+        <div className="lt-pricing-passes" data-testid={PASS_PAY_TESTID} onClickCapture={trackPricingPayTap}>
+          {monthBuyer && !runningPassHidesMonth && (
+            <div className="lt-pricing-month">
+              <span className="lt-pricing-month__name">Month pass</span>
+              <PremiumPriceHead offerOpen={foundingRate} />
+              <span className="lt-pricing-period">{TUITION_ANCHOR}</span>
+              {foundingRate && <p className="lt-pricing-founding-note">{FOUNDING_LOCK_COPY}</p>}
+            </div>
+          )}
+          {paymentsOn ? <PassCheckout compact /> : <p className="lt-pricing-manual" data-testid="pricing-manual">{parts.manualPaymentsOff}</p>}
+        </div>
+      </div>
+      {(trialAction || showParentActions || (paymentsOn && !boardPassOwner)) &&
+        more(
+          HUB_PASS_MORE,
+          "hub-pass-more",
+          <>
+            {trialAction && <div className="lt-ph-trial lt-pricing-trial-slot">{trialAction}</div>}
+            {showParentActions && (
+              <div className="lt-parent-share lt-pp-parents" data-testid="pricing-parent-share">
+                <PaywallActions surface="pricing" forwardLabel={FORWARD_TO_PARENTS_LABEL} qrLabel={SHARE_QR_LABEL} />
+              </div>
+            )}
+            {paymentsOn && !boardPassOwner && (
+              <>
+                <p className="lt-ph-more__line" data-testid="hub-pass-validity">{VALIDITY_LONG}</p>
+                <p className="lt-pp-payline" data-testid="pricing-payline">
+                  {payLine({ checkoutWho, guestPay: isGuestPayClientEnabled() })}
+                </p>
+              </>
+            )}
+          </>,
+        )}
+    </div>
+  );
+
+  const tsFace = (api: PacksShopApi) => {
+    const ownsSeries = api.buyEnabled && api.ownsPack("test_series");
+    const seriesIncluded = Boolean(user) && subscription.hydrated && isPaidPremium(subscription.status);
+    const selling = !ownsSeries && !seriesIncluded;
+    return (
+      <div className="lt-ph-card lt-ph-card--ts lt-ph-card--face" id={HUB_CARD_ID.ts} data-testid="hub-card-ts" data-card="ts">
+        {face({
+          name: TEST_SERIES_CARD_NAME,
+          to: HUB_TS_DETAILS_PATH,
+          testId: "hub-ts-details",
+          top: (
+            <div className="lt-ph-card__top">
+              <p className="lt-ph-tag">{HUB_TS_TAG}</p>
+              <span className="lt-ph-chip lt-ph-chip--new">{HUB_TS_NEW}</span>
+            </div>
+          ),
+          hook: (
+            <>
+              <p className="lt-ph-hero lt-ph-ts-head" data-testid="hub-ts-headline">
+                <strong>{tsHead.chapter}</strong> + <strong>{tsHead.full}</strong>
+              </p>
+              <TestSeriesPerTest testId="hub-ts-per-test" />
+            </>
+          ),
+          bullets: HUB_TS_FACE_BULLETS,
+        })}
+        <div className="lt-ph-foot">
+          {ownsSeries ? (
+            <>
+              <span className="lt-ph-owned-pill" data-testid="hub-ts-owned">
+                <span aria-hidden="true">&#10003;</span>
+                {HUB_TS_OWNED}
+              </span>
+              <Link className="lt-ph-buy lt-ph-buy--link" to={HUB_TS_DETAILS_PATH} data-testid="hub-ts-open">
+                {HUB_TS_PASS_GO}
+              </Link>
+            </>
+          ) : seriesIncluded ? (
+            <>
+              <p className="lt-ph-sep" data-testid="hub-ts-included">{HUB_TS_PASS_INCLUDED}</p>
+              <Link className="lt-ph-buy lt-ph-buy--link" to={HUB_TS_DETAILS_PATH} data-testid="hub-ts-open">
+                {HUB_TS_PASS_GO}
+              </Link>
+            </>
+          ) : (
+            <>
+              <p className="lt-ph-price">
+                <span className="lt-ph-price__amt" data-testid="hub-ts-price">
+                  <TsClockSlot variant="tag">{hubTsPrice()}</TsClockSlot>
+                </span>
+                <TestSeriesFoundingClause className="lt-ph-price__meta" testId="hub-ts-founding" />
+                <span className="lt-ph-price__meta">{HUB_TS_PRICE_META}</span>
+              </p>
+              <div data-testid={TS_BUY_TESTID}>
+                {api.buyEnabled && api.buyButton && isTestSeriesPackOffered() && !fromParents ? (
+                  api.buyButton("test_series", {
+                    label: tsBuyLabel,
+                    className: "lt-ph-buy",
+                    noteClass: "lt-ph-note",
+                    testId: "hub-buy-test_series",
+                    onTap: () => trackNamedEvent("pricing_ts_buy_tap"),
+                  })
+                ) : (
+                  <Link
+                    className="lt-ph-buy lt-ph-buy--link"
+                    to={withFrom(hubTsBuyPath())}
+                    onClick={() => trackNamedEvent("pricing_ts_buy_tap")}
+                    data-testid="hub-buy-test_series"
+                  >
+                    {tsBuyLabel}
+                  </Link>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+        {more(
+          HUB_TS_MORE,
+          "hub-ts-more",
+          <>
+            <TestSeriesExaminerLine testId="hub-ts-examiner" />
+            <p className="lt-ph-more__line" data-testid="hub-ts-analysis">{HUB_TS_ANALYSIS_LINE}</p>
+            {selling && <p className="lt-ph-note" data-testid="hub-ts-checks">{HUB_TS_CHECKS_LINE}</p>}
+            {selling && <p className="lt-ph-more__line" data-testid="hub-ts-try">{HUB_TS_TRY_LINE}</p>}
+            <div className="lt-ph-more__group" data-testid="hub-ts-inside">
+              <h3 className="lt-ph-extra__title">{HUB_TS_INSIDE_TITLE}</h3>
+              {hubTsInsideRows(series).map((r) => (
+                <p key={r.id} className="lt-ph-tsrow" data-testid={`hub-ts-inside-${r.id}`}>
+                  <span className="lt-ph-tsrow__name">{r.name}</span>
+                  <span className="lt-ph-tsrow__line">{r.line}</span>
+                </p>
+              ))}
+            </div>
+            {!seriesIncluded && (
+              <p className="lt-ph-upsell" data-testid="hub-ts-upsell">
+                <span>{HUB_TS_UPSELL_Q}</span>{" "}
+                <button type="button" className="lt-ph-upsell__go" onClick={showPassCard} data-testid="hub-ts-upsell-go">
+                  {HUB_TS_UPSELL_GO}
+                </button>
+              </p>
+            )}
+          </>,
+        )}
+      </div>
+    );
+  };
+
+  const cbqFace = (api: PacksShopApi) => {
+    const ownsAny = api.buyEnabled && SUBJECTS.some((s) => api.ownsPack("pack_cbq", s));
+    return (
+      <div className="lt-ph-card lt-ph-card--cbq lt-ph-card--face" id={HUB_CARD_ID.cbq} data-testid="hub-card-cbq" data-card="cbq">
+        <ParentReturnLink testId="parent-return-cbq" />
+        {face({
+          name: CBQ_PACKS_NAME,
+          to: CBQ_PACKS_PAGE_PATH,
+          testId: "hub-cbq-details",
+          top: (
+            <div className="lt-ph-card__top">
+              <p className="lt-ph-tag">{HUB_CBQ_TAG}</p>
+            </div>
+          ),
+          hook: <p className="lt-ph-hero">{HUB_CBQ_HERO}</p>,
+          bullets: HUB_CBQ_FACE_BULLETS,
+        })}
+        <div className="lt-ph-foot">
+          <p className="lt-ph-price">
+            <span className="lt-ph-price__amt" data-testid="hub-cbq-price">{hubCbqPrice()}</span>
+            <span className="lt-ph-price__meta">{HUB_CBQ_PRICE_META}</span>
+          </p>
+          <div className="lt-ph-pair" data-testid={CBQ_BUY_TESTID}>
+            {SUBJECTS.map((s) => (
+              <div key={s} className="lt-ph-pair__one">
+                <HubPackBuy
+                  api={api}
+                  sku="pack_cbq"
+                  target={s}
+                  label={hubCbqBuyLabel(s)}
+                  ariaLabel={hubCbqBuyAria(s)}
+                  testId={`hub-buy-pack_cbq-${s}`}
+                  ownedLabel={`${subjectLabel(s)} CBQ`}
+                />
+              </div>
+            ))}
+          </div>
+          <p className="lt-ph-sep" data-testid="hub-cbq-not-in-bundle">{HUB_CBQ_NOT_IN_BUNDLE}</p>
+          {ownsAny && (
+            <Link className="lt-ph-mypacks" to={MY_PACKS_PATH} data-testid="hub-cbq-my-packs">
+              {HUB_OPEN_MY_PACKS}
+            </Link>
+          )}
+        </div>
+        {more(
+          HUB_CBQ_MORE,
+          "hub-cbq-more",
+          <>
+            <div className="lt-ph-more__group" data-testid="hub-cbq-inside">
+              <ul className="lt-ph-chips" aria-label="Question types">
+                {HUB_CBQ_INSIDE_CHIPS.map((c) => (
+                  <li key={c} className="lt-ph-chip2">{c}</li>
+                ))}
+              </ul>
+              {HUB_CBQ_INSIDE_LINES.map((l) => (
+                <p key={l} className="lt-ph-more__line">{l}</p>
+              ))}
+            </div>
+            {/* PARENT-PACKS-1: per subject, a link that carries THAT subject's CBQ Pack only (signed in; nothing otherwise). */}
+            <div className="lt-ph-share lt-ph-share--pair" data-testid="hub-cbq-share">
+              {SUBJECTS.map((s) => api.parentAsk("pack_cbq", s, { noQr: true }))}
+            </div>
+          </>,
+        )}
+      </div>
+    );
+  };
+
+  const bankFace = (api: PacksShopApi) => {
+    const ownsBundle = api.buyEnabled && api.ownsPack("pack_bundle");
+    return (
+      <div className="lt-ph-card lt-ph-card--bank lt-ph-card--face" id={HUB_CARD_ID.bank} data-testid="hub-card-bank" data-card="bank">
+        <ParentReturnLink testId="parent-return-packs" />
+        {face({
+          name: QUESTION_BANK_NAME,
+          to: QUESTION_BANK_PAGE_PATH,
+          testId: "hub-bank-details",
+          top: (
+            <div className="lt-ph-card__top">
+              <p className="lt-ph-tag" data-testid="hub-bank-tag">{hubBankTag()}</p>
+            </div>
+          ),
+          hook: <Tiles tiles={HUB_BANK_TILES} testPrefix="hub-bank-tile" />,
+          bullets: HUB_BANK_FACE_BULLETS,
+        })}
+        <div className="lt-ph-foot">
+          <p className="lt-ph-price">
+            <span className="lt-ph-price__amt" data-testid="hub-bank-price">{hubBankPrice()}</span>
+            <span className="lt-ph-price__meta">{HUB_BANK_PRICE_META}</span>
+          </p>
+          <div data-testid={BANK_BUY_TESTID}>
+            <HubPackBuy api={api} sku="pack_bundle" label={BUNDLE_BUY_LABEL} testId="hub-buy-pack_bundle" ownedLabel="Bundle" />
+          </div>
+          <p className="lt-ph-sep" data-testid="hub-bank-separate">{HUB_BANK_SEPARATE}</p>
+          {ownsBundle && (
+            <Link className="lt-ph-mypacks" to={MY_PACKS_PATH} data-testid="hub-bank-my-packs">
+              {HUB_OPEN_MY_PACKS}
+            </Link>
+          )}
+        </div>
+        {more(
+          hubBankMore(),
+          "hub-bank-more",
+          <>
+            {/* The smaller packs, at every size (the phone route to them): links to their /packs pop-ups, never a buy path here. */}
+            <div className="lt-ph-more__group" data-testid="hub-bank-rows">
+              {hubBankRows(subject).map((r) => (
+                <Link key={r.id} className="lt-ph-row" to={withFrom(r.to)} data-testid={`hub-bank-row-${r.id}`}>
+                  <span className="lt-ph-row__top">
+                    <span className="lt-ph-row__name">{r.name}</span>
+                    <span className="lt-ph-row__price">{r.price}</span>
+                  </span>
+                  <span className="lt-ph-row__line">{r.line} &rarr;</span>
+                </Link>
+              ))}
+            </div>
+            {/* PARENT-PACKS-1: "Forward link to parents" + QR for the Bundle (signed in; nothing otherwise). */}
+            <div className="lt-ph-share" data-testid="hub-bank-share">
+              {api.parentAsk("pack_bundle")}
+            </div>
+          </>,
         )}
       </div>
     );
@@ -1088,10 +1426,10 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
                       </p>
                     ))}
                     <span className="lt-ph-divider" aria-hidden="true" />
-                    {passCard}
-                    {tsCard(api)}
-                    {cbqCard(api)}
-                    {bankCard(api)}
+                    {ctaUp ? passFace : passCard}
+                    {ctaUp ? tsFace(api) : tsCard(api)}
+                    {ctaUp ? cbqFace(api) : cbqCard(api)}
+                    {ctaUp ? bankFace(api) : bankCard(api)}
                   </div>
                   <div className="lt-ph-pager" aria-hidden="true" data-testid="hub-pager">
                     <span className="lt-ph-dots">

@@ -212,6 +212,7 @@ describe("the page, top to bottom (§2)", () => {
   });
 
   it("Board Pass card: 1 MINUTE hero, the pinned bank claims, tutor, ticks, price from config, Pay, payline, trial, details link", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); the v1.1 face is pinned below.
     await renderAt("/pricing");
     const c = card("pass");
     expect(within(c).getByText("START HERE")).toBeInTheDocument();
@@ -232,6 +233,7 @@ describe("the page, top to bottom (§2)", () => {
   });
 
   it("CBQ card: hero, claims, ticks, price + GST, two Buys naming the total, 'Not in the Bundle.', details link", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); the v1.1 face is pinned below.
     await renderAt("/pricing");
     const c = card("cbq");
     expect(c).toHaveTextContent("ON PAPER · MOST ASKED-FOR");
@@ -248,6 +250,7 @@ describe("the page, top to bottom (§2)", () => {
   });
 
   it("Question Bank card: season tag, tiles, the pinned Bundle claim, ticks with config prices, Bundle Buy, separate line, details", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); the v1.1 face is pinned below.
     await renderAt("/pricing");
     const c = card("bank");
     expect(within(c).getByTestId("hub-bank-tag")).toHaveTextContent(hubBankTag());
@@ -573,6 +576,7 @@ describe("round 2", () => {
   });
 
   it("R1: desktop extras - CBQ 'What's inside' and the smaller-pack rows linking to their /packs pop-ups (no buy path)", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); the v1.1 face is pinned below.
     await renderAt("/pricing?subject=science&from=for_parents");
     const inside = screen.getByTestId("hub-cbq-inside");
     expect(inside).toHaveTextContent("What's inside");
@@ -688,6 +692,7 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
   });
 
   it("Test Series card: headline counts from the series config, ticks, the Board Pass line, price + GST, Buy and 'See all N tests'", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); the v1.1 face is pinned below.
     await renderAt("/pricing");
     const c = card("ts");
     expect(within(c).getByRole("heading", { level: 2 })).toHaveTextContent("Test Series");
@@ -923,6 +928,7 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
 
 describe("PRICING-HUB-2 H1 - the two 10,000+ claims read as two different things", () => {
   it("Board Pass: questions ONLINE with solutions; Question Bank: questions to PRINT in the Bundle; each from its pinned constant", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); the v1.1 face is pinned below.
     await renderAt("/pricing");
     const pass = screen.getByTestId("hub-pass-tile-questions").textContent ?? "";
     const bank = screen.getByTestId("hub-bank-claim").textContent ?? "";
@@ -1150,43 +1156,146 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
     };
   };
 
-  it("every card: tag · name · hero line · price · Buy, THEN the features and the details link; same Buy elements and test ids", async () => {
+  /** v1.1 - the card's face (one link), its foot (price + Buy) and its folded row. */
+  const v11 = (k: "pass" | "ts" | "cbq" | "bank") => {
+    const c = card(k);
+    return { c, face: q(c, ".lt-ph-face"), foot: q(c, ".lt-ph-foot"), more: c.querySelector("details.lt-ph-more") };
+  };
+  const PAGE = { pass: "/board-pass", ts: "/test-series", cbq: "/cbq-packs", bank: "/packs" } as const;
+  const NAME = { pass: "Board Pass", ts: "Test Series", cbq: "CBQ Packs", bank: "Question Bank + Mocks" } as const;
+
+  it("v1.1 face: tag · name (ONE link to the product page, 'Details ›') · hook · at most 3 ticks · price · the Buy, then a closed fold", async () => {
     auth.user = { uid: "u1" };
     setSub({});
     await renderAt("/pricing");
     expect(screen.getByTestId("hub-cards")).toHaveClass("lt-ph-cards--up");
     for (const k of ["pass", "ts", "cbq", "bank"] as const) {
-      const p = parts(k);
-      before(p.tag, p.name);
-      before(p.name, p.hero);
-      before(p.hero, p.price);
-      before(p.price, p.buy);
-      before(p.buy, p.feature);
-      before(p.buy, p.ticks);
-      before(p.ticks, p.details);
-      // The Buy area is the card's foot (one block, its own order kept); the details link closes the card, outside it.
-      expect(p.foot.contains(p.buy)).toBe(true);
-      expect(p.foot.contains(p.details)).toBe(false);
-      expect(p.c.lastElementChild).toBe(p.details);
+      const { c, face, foot, more } = v11(k);
+      // The face holds exactly one interactive control: the name's link, stretched over the top area. The Buy is outside it.
+      const controls = face.querySelectorAll("a, button, input, select, textarea, summary");
+      expect(controls).toHaveLength(1);
+      const link = controls[0] as HTMLAnchorElement;
+      expect(link.closest("h2")).not.toBeNull();
+      expect(link).toHaveClass("lt-ph-open");
+      expect(link).toHaveAttribute("href", PAGE[k]);
+      expect(link).toHaveAttribute("aria-label", `${NAME[k]} details`);
+      expect(link).toHaveTextContent(NAME[k]);
+      expect(face).toHaveTextContent("Details ›");
+      expect(face.querySelectorAll(".lt-ph-ticks li").length).toBeLessThanOrEqual(3);
+      before(q(face, ".lt-ph-tag"), link);
+      // Order: face -> foot (price, Buy) -> fold; the fold starts closed.
+      before(face, foot);
+      expect(foot.parentElement).toBe(c);
+      expect(more).not.toBeNull();
+      before(foot, more as Element);
+      expect((more as HTMLDetailsElement).open).toBe(false);
+      expect(face.contains(foot)).toBe(false);
     }
-    // The Buy-area order inside each foot is today's: Board Pass Pay -> payline -> trial; CBQ Buys -> parent row -> "Not in the Bundle.".
-    const pass = parts("pass");
-    before(q(pass.foot, '[data-testid="pricing-passes"]'), q(pass.foot, '[data-testid="pricing-payline"]'));
-    before(q(pass.foot, '[data-testid="pricing-payline"]'), q(pass.foot, '[data-testid="pricing-trial"]'));
-    const cbq = parts("cbq");
-    before(q(cbq.foot, '[data-testid="hub-buy-cbq"]'), q(cbq.foot, '[data-testid="hub-cbq-share"]'));
-    before(q(cbq.foot, '[data-testid="hub-cbq-share"]'), q(cbq.foot, '[data-testid="hub-cbq-not-in-bundle"]'));
-    const bank = parts("bank");
-    before(q(bank.foot, '[data-testid="hub-buy-bank"]'), q(bank.foot, '[data-testid="hub-bank-share"]'));
-    before(q(bank.foot, '[data-testid="hub-bank-share"]'), q(bank.foot, '[data-testid="hub-bank-separate"]'));
-    // The Test Series checks line stays right above its Buy (TS-UX-PAGE-1).
-    const ts = parts("ts");
-    before(q(ts.foot, '[data-testid="hub-ts-price"]'), q(ts.foot, '[data-testid="hub-ts-checks"]'));
-    before(q(ts.foot, '[data-testid="hub-ts-checks"]'), q(ts.foot, '[data-testid="hub-buy-ts"]'));
+    // ONE Buy per face (the CBQ card's Buy is its per-subject pair).
+    expect(v11("pass").foot.querySelectorAll("button")).toHaveLength(1);
+    expect(v11("pass").foot.querySelector(".lt-pricing-pay--boards")).not.toBeNull();
+    expect(v11("ts").foot.querySelectorAll("button, a")).toHaveLength(1);
+    expect(v11("cbq").foot.querySelectorAll("button")).toHaveLength(2);
+    expect(v11("bank").foot.querySelectorAll("button, a")).toHaveLength(1);
+    // Nothing else on the Board Pass face: no WhatsApp box, no GST breakup, no "Buying for someone else?", no trial, no payline.
+    const passFoot = v11("pass").foot;
+    for (const id of ["pass-checkout-gst", "pricing-trial", "pricing-payline", "pricing-parent-share"]) {
+      expect(passFoot.querySelector(`[data-testid="${id}"]`), id).toBeNull();
+    }
+    expect(passFoot.querySelector("input")).toBeNull();
+    // ... they sit in its fold instead (the trial: owner 24 Nov, "inside the card after the click, in details").
+    const passMore = v11("pass").more as HTMLElement;
+    expect(within(passMore).getByTestId("pricing-trial")).toHaveTextContent("Try the Board Pass free for 7 days");
+    expect(within(passMore).getByTestId("pricing-payline")).toBeInTheDocument();
+    expect(within(passMore).getByTestId("hub-pass-validity")).toHaveTextContent("valid till 28 Feb 2027");
   });
 
-  it("CSS: the foot is not pinned to the bottom and the cards take their own height (only under the --up class)", () => {
-    expect(HUB_CSS).toMatch(/\.lt-ph-cards--up \.lt-ph-foot \{\s*margin-top: 0;/);
+  it("v1.1 Board Pass face: the 1 MINUTE hook, three ticks from the pinned constants (ONLINE questions), the price from config, Pay total", async () => {
+    await renderAt("/pricing");
+    const { face, foot, more } = v11("pass");
+    expect(within(face as HTMLElement).getByText("START HERE")).toBeInTheDocument();
+    expect(within(face as HTMLElement).getByTestId("hub-pass-minute")).toHaveTextContent("1MINUTE1 minute: CBSE-style marking of your answer");
+    expect(Array.from(face.querySelectorAll(".lt-ph-ticks li")).map((li) => li.textContent)).toEqual([
+      `✓${BANK_QUESTIONS_CLAIM} questions online · ${BANK_CBQS_CLAIM} CBQs, every type`,
+      "✓Personal tutor: explains the step you got wrong",
+      "✓Graded tests, mocks + Mistake Intelligence",
+    ]);
+    expect(within(foot as HTMLElement).getByTestId("till-boards-figures")).toHaveTextContent(boardPassPriceDisplay());
+    expect((foot.querySelector(".lt-pricing-pay--boards") as HTMLElement).textContent).toBe(`Pay ${boardPassPayDisplay()} once · valid till 28 Feb 2027`);
+    expect(more).not.toBeNull();
+  });
+
+  it("v1.1 Test Series face: counts from the series config, the founding clause by the price, the Buy total; the fold keeps the rest", async () => {
+    const series = seriesTotals();
+    await renderAt("/pricing?from=for_parents");
+    const { face, foot, more } = v11("ts");
+    expect(within(face as HTMLElement).getByTestId("hub-ts-headline").textContent).toBe(`${series.chapterTests} chapter tests + ${series.fullMocks} full-length board papers`);
+    expect(within(face as HTMLElement).getByTestId("hub-ts-details")).toHaveAttribute("href", "/test-series?from=for_parents");
+    expect(Array.from(face.querySelectorAll(".lt-ph-ticks li")).map((li) => li.textContent)).toEqual([
+      "✓Written answers marked step by step",
+      "✓Scorecard and graded answer sheet",
+      "✓Your pre-boards calendar",
+    ]);
+    expect(face.textContent).not.toMatch(/tutor|Answer Checker/i);
+    expect(within(foot as HTMLElement).getByTestId("hub-ts-price")).toHaveTextContent(packPriceLabel("test_series"));
+    expect(within(foot as HTMLElement).getByTestId("hub-buy-test_series")).toHaveTextContent(`Get the Test Series · ${packPayLabel("test_series")}`);
+    const m = more as HTMLElement;
+    expect(within(m).getByTestId("hub-ts-checks")).toHaveTextContent("Each paper can be checked twice");
+    expect(within(m).getByTestId("hub-ts-try")).toHaveTextContent("Your first test is free, written answers marked too.");
+    expect(within(m).getByTestId("hub-ts-analysis")).toHaveTextContent("after-test analysis: weakest chapters, time per question, mistake notebook");
+    expect(within(m).getByTestId("hub-ts-inside-maths")).toHaveTextContent(`${series.chapterTestsPerSubject.Maths} chapter tests`);
+    expect(within(m).getByTestId("hub-ts-upsell")).toHaveTextContent("Want the tutor and Answer Checker too? Board Pass →");
+    expect(document.body.textContent).not.toContain("its MCQs are marked free");
+  });
+
+  it("v1.1 CBQ + Question Bank faces: ticks from the pinned constants, 'Not in the Bundle.' / 'CBQ Packs are separate.' on the face, smaller packs in the fold", async () => {
+    await renderAt("/pricing?subject=science&from=for_parents");
+    const cbq = v11("cbq");
+    expect(cbq.face).toHaveTextContent("Half your board paper is competency-based. Practise every type.");
+    expect(Array.from(cbq.face.querySelectorAll(".lt-ph-ticks li")).map((li) => li.textContent)).toEqual([
+      `✓${CBQ_SUBJECT_CLAIM} per subject, 100+ per chapter`,
+      `✓Every type: ${CBQ_QUESTION_TYPES.join(", ")}`,
+      "✓Printable PDF, step-wise solutions",
+    ]);
+    expect(within(cbq.foot as HTMLElement).getByTestId("hub-cbq-not-in-bundle")).toHaveTextContent("Not in the Bundle.");
+    expect(within(cbq.more as HTMLElement).getByTestId("hub-cbq-inside")).toHaveTextContent(`Download again any time until ${REDOWNLOAD_UNTIL}`);
+    const bank = v11("bank");
+    expect(within(bank.face as HTMLElement).getByTestId("hub-bank-tile-chapters")).toHaveTextContent("26chapters, Maths + Science");
+    expect(Array.from(bank.face.querySelectorAll(".lt-ph-ticks li")).map((li) => li.textContent)).toEqual([
+      `✓${BUNDLE_QUESTIONS_CLAIM} questions to print`,
+      "✓Full board papers with the marking guide",
+      "✓Worked solutions, step by step",
+    ]);
+    expect(within(bank.foot as HTMLElement).getByTestId("hub-bank-separate")).toHaveTextContent("CBQ Packs are separate.");
+    // The smaller packs stay reachable from /pricing at every size (no desktop-only class), as links to their /packs pop-ups.
+    const m = bank.more as HTMLElement;
+    expect(m.querySelector("summary")).toHaveTextContent(`Smaller packs from ₹${PACK_PRICE_INR.pack_chapter} and more`);
+    const rows = within(m).getByTestId("hub-bank-rows");
+    expect(rows).not.toHaveClass("lt-ph-extra");
+    expect(within(rows).getByTestId("hub-bank-row-subject")).toHaveAttribute("href", "/packs?pack=subject&subject=science&from=for_parents");
+    expect(within(rows).getByTestId("hub-bank-row-mock")).toHaveAttribute("href", "/packs?mock=science&from=for_parents");
+    expect(within(rows).getByTestId("hub-bank-row-chapter")).toHaveAttribute("href", "/packs?pack=chapter&from=for_parents");
+    expect(rows.querySelector("button")).toBeNull();
+  });
+
+  it("v1.1 parent share rows sit in the folds, after the Buys; the ad anchors are on their cards", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    const cbq = v11("cbq");
+    const share = within(cbq.more as HTMLElement).getByTestId("hub-cbq-share");
+    before(q(cbq.foot, '[data-testid="hub-buy-cbq"]'), share);
+    expect(within(v11("bank").more as HTMLElement).getByTestId("hub-bank-share")).toBeInTheDocument();
+    expect(card("pass").id).toBe("lt-premium-card");
+    expect(card("ts").id).toBe("test-series");
+    expect(card("cbq").id).toBe("cbq");
+    expect(card("bank").id).toBe("packs");
+  });
+
+  it("CSS v1.1: the face link is stretched over the top area; the foot is not pinned; each card takes its own height", () => {
+    expect(HUB_CSS).toMatch(/\.lt-ph-face \{\s*position: relative;/);
+    expect(HUB_CSS).toMatch(/\.lt-ph-open::after \{\s*content: "";\s*position: absolute;/);
+    expect(HUB_CSS).toMatch(/\.lt-ph-card--face \.lt-ph-foot \{\s*margin-top: 0;/);
     expect(HUB_CSS).toMatch(/@media \(min-width: 768px\) \{[\s\S]*?\.lt-ph-cards--up \{\s*align-items: start;/);
     // Today's pinned foot is still the rule the kill switch falls back to.
     expect(HUB_CSS).toMatch(/\.lt-ph-foot \{\s*margin-top: auto;/);
@@ -1231,8 +1340,8 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
     expect(await screen.findByTestId("hub-ts-owned")).toBeInTheDocument();
     expect(within(card("ts")).queryByTestId("hub-buy-test_series")).toBeNull();
     expect(await screen.findByTestId("hub-buy-pack_bundle-owned")).toBeInTheDocument();
-    // The owned states sit where the Buy sat: above the features.
-    before(screen.getByTestId("hub-ts-owned"), card("ts").querySelector(".lt-ph-ticks") as Element);
+    // The owned states sit where the Buy sat: in the card's foot, under its face.
+    expect((card("ts").querySelector(".lt-ph-foot") as Element).contains(screen.getByTestId("hub-ts-owned"))).toBe(true);
   });
 
   it("§2.4 a Test Series owner: the bar says 'Board Pass upgrade' / the card's own Pay ₹1,083, never the list total - also while Pay opens", async () => {

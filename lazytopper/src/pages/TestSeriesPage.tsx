@@ -277,6 +277,7 @@ export default function TestSeriesPage() {
             Written answers, {TEST_SERIES_WRITTEN_SECTIONS}, checked step by step: <strong>{TEST_SERIES_CHECKS_PER_PAPER} checks per paper</strong>
           </li>
           <li>Full scorecard and your graded answer sheet on screen</li>
+          <li>After-test analysis: weakest chapters, time per question, mistake notebook</li>
           <li>Download and print every paper</li>
         </ul>
       )}

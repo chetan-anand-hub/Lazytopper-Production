@@ -1116,4 +1116,144 @@ export const HUB_CSS = `
 .lt-tsclk--tag { min-width: 9ch; }
 .lt-tsclk--amt { min-width: 5.5ch; }
 .lt-tsclk--line { display: block; min-height: 1.3em; }
+
+/* ── PRICING-CTA-UP-1 v1.1 (owner, 24 Nov 2026): the slim card faces ─────────────────────────────────────────────────────────────
+   Face = tag · name (the ONE link to the product page, stretched over the top area) · hook · three ticks · "Details ›" · price · Buy;
+   then a folded "more" row. One rhythm in every card: 14 px between the top area's parts, a hairline before the price block, the Buy
+   full width. Each card takes its own height (no stretched blank band). The app's own fonts and colours only. */
+.lt-ph-card--face {
+  gap: 14px;
+}
+.lt-ph-face {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 12px;
+}
+.lt-ph-open {
+  color: inherit;
+  text-decoration: none;
+}
+.lt-pricing-page .lt-ph-open {
+  color: inherit;
+}
+/* The stretched link: the whole top area (tag, name, hook, ticks, cue) is one tap target; nothing else in it is interactive. */
+.lt-ph-open::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 14px;
+}
+.lt-ph-open:focus-visible {
+  outline: none;
+}
+.lt-ph-open:focus-visible::after {
+  outline: 3px solid var(--ph-green-bright);
+  outline-offset: 2px;
+}
+.lt-ph-open__cue {
+  align-self: flex-start;
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: var(--ph-green);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+.lt-ph-card--pass .lt-ph-open__cue {
+  color: var(--ph-mint);
+}
+.lt-ph-card--cbq .lt-ph-open__cue {
+  color: var(--ph-amber-ink);
+}
+.lt-ph-face:hover .lt-ph-open__cue {
+  text-decoration-thickness: 2.5px;
+}
+.lt-ph-card--face .lt-ph-ticks li {
+  font-size: 0.9rem;
+}
+.lt-ph-card--face .lt-ph-ts-head {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.4;
+}
+/* The price block opens with a hairline, so tag/hook/ticks and price/Buy read as two parts of one card. */
+.lt-ph-card--face .lt-ph-foot {
+  margin-top: 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(11, 27, 58, 0.12);
+  gap: 10px;
+}
+.lt-ph-card--pass.lt-ph-card--face .lt-ph-foot {
+  border-top-color: rgba(255, 255, 255, 0.18);
+}
+/* The Pay button already says "valid till 28 Feb 2027"; the long validity line sits in the folded row instead. */
+.lt-ph-card--face .lt-pricing-tillboards-validity {
+  display: none;
+}
+.lt-ph-card--face .lt-pricing-tillboards-slot {
+  min-height: 0;
+}
+/* The folded row. */
+.lt-ph-more {
+  margin: 0;
+  border-top: 1px solid rgba(11, 27, 58, 0.12);
+}
+.lt-ph-card--pass .lt-ph-more {
+  border-top-color: rgba(255, 255, 255, 0.18);
+}
+.lt-ph-more__sum {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #22324d;
+}
+.lt-ph-more__sum::-webkit-details-marker {
+  display: none;
+}
+.lt-ph-more__sum::after {
+  content: "+";
+  flex: 0 0 auto;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.lt-ph-more[open] > .lt-ph-more__sum::after {
+  content: "\\2212";
+}
+.lt-ph-more__sum:focus-visible {
+  outline: 3px solid var(--ph-green);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.lt-ph-card--pass .lt-ph-more__sum {
+  color: #dbe5f3;
+}
+.lt-ph-more__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 2px 0 6px;
+}
+.lt-ph-more__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lt-ph-more__line {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: #4a5a73;
+}
+.lt-ph-card--pass .lt-ph-more__line {
+  color: #c9d6e6;
+}
 `;

@@ -160,7 +160,8 @@ export function hubTsInsideRows(t: SeriesTotals = seriesTotals()): ReadonlyArray
     line: `${t.chapterTestsPerSubject[s]} chapter tests + ${SERIES_MOCKS_PER_SUBJECT} full-length papers`,
   }));
 }
-export const HUB_TS_TRY_LINE = `Try ${FREE_TESTS_ALLOWED === 1 ? "one test" : `${FREE_TESTS_ALLOWED} tests`} first: its MCQs are marked free.`;
+/** TS-FREE-CHECK-1 (owner, 23 Nov 2026): the free test now includes written-answer marking (was "Try one test first: its MCQs are marked free."). */
+export const HUB_TS_TRY_LINE = `Your ${FREE_TESTS_ALLOWED === 1 ? "first test is" : `first ${FREE_TESTS_ALLOWED} tests are`} free, written answers marked too.`;
 
 /**
  * Where "Get the Test Series" goes: the same link /test-series uses, or - while TS-PACK-1's client kill switch is on
@@ -270,3 +271,44 @@ export const HUB_FOLD_VIDEO = "See the Answer Checker at work";
 export function hubBundleStickyCopy(name: string): { label: string; button: string } {
   return { label: `${name} ${packPriceLabel("pack_bundle")}`, button: `Buy ${packPayLabel("pack_bundle")}` };
 }
+
+/* ── PRICING-CTA-UP-1 v1.1 (owner, 24 Nov 2026): the slim card faces ─────────────────────────────────
+ * Each card's FACE is tag · name (one link to the product page, "Details ›") · hook · at most three bullets · price line · ONE Buy.
+ * Everything else moves into the card's folded "more" row (or lives on the product page). Counts come from the pinned constants. */
+
+/** The visible cue on the face's link (the whole top area opens the product page). */
+export const HUB_OPEN_CUE = "Details ›";
+/** The face link's accessible name: "Board Pass details". */
+export function hubOpenAria(name: string): string {
+  return `${name} details`;
+}
+export const HUB_PASS_FACE_BULLETS: readonly string[] = [
+  // PRICING-HUB-2 H1 (owner 11 Nov 23:14): the pass's bank reads as ONLINE practice, the Bundle's as print.
+  `${BANK_QUESTIONS_CLAIM} questions online · ${BANK_CBQS_CLAIM} CBQs, every type`,
+  "Personal tutor: explains the step you got wrong",
+  "Graded tests, mocks + Mistake Intelligence",
+];
+export const HUB_TS_FACE_BULLETS: readonly string[] = [
+  "Written answers marked step by step",
+  "Scorecard and graded answer sheet",
+  "Your pre-boards calendar",
+];
+export const HUB_CBQ_FACE_BULLETS: readonly string[] = [
+  `${CBQ_SUBJECT_CLAIM} per subject, ${CBQ_MIN_PER_CHAPTER}+ per chapter`,
+  `Every type: ${CBQ_QUESTION_TYPES.join(", ")}`,
+  "Printable PDF, step-wise solutions",
+];
+export const HUB_BANK_FACE_BULLETS: readonly string[] = [
+  `${BUNDLE_QUESTIONS_CLAIM} questions to print`,
+  "Full board papers with the marking guide",
+  "Worked solutions, step by step",
+];
+/** The folded row under each card's Buy: what the face no longer shows (never a sales option lost from /pricing). */
+export const HUB_PASS_MORE = "7-day free trial and more";
+export const HUB_TS_MORE = "How checking works and more";
+export const HUB_CBQ_MORE = "What's inside and more";
+export function hubBankMore(): string {
+  return `Smaller packs from ${formatInr(PACK_PRICE_INR.pack_chapter)} and more`;
+}
+/** The full Test Series feature line (the face bullet is its short form). */
+export const HUB_TS_ANALYSIS_LINE = HUB_TS_TICKS[0].text;
