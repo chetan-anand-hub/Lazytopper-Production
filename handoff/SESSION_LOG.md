@@ -1,28 +1,45 @@
-## 2026-11-24 (daily; UTC day 24 Nov, merges 14:39 to 18:30 IST; written 24 Nov about 21:45 IST) - #1846 - #1847 - #1848 - #1849 - #1850: /test-series h1 keyword, sameAs directories, admin mistake-type split, schools booklet (trunk `5783881e`)
+## 2026-11-24 (daily; UTC day 24 Nov, merges 14:39 to 22:55 IST; written 24 Nov, updated about 23:05 IST) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819: /test-series h1 keyword, sameAs directories, admin mistake-type split, schools booklet, Meta InitiateCheckout at order, packs as standard Purchase, buyer score (trunk `2d851629`)
 
-**PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1843`. Covers five product PRs squash-merged on 24 Nov, 09:09 to 13:00 UTC. Merge SHAs, titles, merge times and file lists [git: first-parent trunk log, 5 commits after `ec9b437d`]. Everything else is from the cofounder session handoff `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` sections 2-4 as relayed by the coordinator [coordinator]; the docs builder could not open that doc in its sandbox, so the ads diagnosis is summarised from the coordinator's brief and not copied. Items tagged [owner-rulings record] come from the owner's ruling record kept outside the repo, read by the docs builder, and should be checked against the handoff doc section 3.2. Tonight's two rulings (about 21:35 IST) were relayed by the coordinator from the 24 Nov cofounder session. Merge table: CURRENT_STATE. Reasons for every ruling: DECISION_LOG.)*
+**PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1843`. Covers eight product PRs squash-merged on 24 Nov, 09:09 to 17:25 UTC. Merge SHAs, titles, merge times and file lists [git: first-parent trunk log, 8 commits after `ec9b437d`]. Everything else is from the cofounder session handoff `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` sections 2-4 and the coordinator's messages from this session (https://claude.ai/code/session_01QscBGog9Fe4ZxiPQ6vdGo7), as relayed by the coordinator [coordinator]. The docs builder did not open the handoff doc itself and did not re-read the PR bodies. Merge table: CURRENT_STATE. Reasons for every ruling: DECISION_LOG.)*
 
 **How the day went (IST).**
+- **13:24-13:27.** The owner's own Google Ads edits: Target ROAS 15% on Search | PDF Packs, and "Leads from messages" re-added as a goal (later changed back to Purchases only, below).
 - **14:39.** `#1846` TS-H1-KEYWORD-1: the /test-series h1 starts with "CBSE Class 10 Test Series"; "mock tests" wording. Owner approved it to lift Google Ads relevance for "class 10 test series" searches.
 - **17:52.** `#1847` SAMEAS-DIRECTORIES-1: Crunchbase and Wellfound added to the Organization `sameAs` (10 URLs pinned by the guard test).
 - **18:01.** `#1848` MISTAKE-SPLIT-1: read-only admin GET `/api/admin/mistake-split`.
 - **18:15 and 18:30.** `#1849` SCHOOLS-BOOKLET-1 hosts the schools booklet PDF; `#1850` SCHOOLS-BOOKLET-2 gives it a new cover.
-<!-- META ROWS: add #1811, #1816 and #1819 here with their IST merge times when they merge tonight. -->
-- **About 21:35.** Owner rulings: the Meta deploy (`#1811`, `#1816`, `#1819`) happens TONIGHT; the Test Series checkout offers BOTH options, buy directly or forward the pay link to a parent (spec first). Reasons in DECISION_LOG.
+- **About 21:35.** Owner rulings: the Meta deploy (`#1811`, `#1816`, `#1819`) happens TONIGHT; the Test Series checkout keeps Buy and adds "Forward link to parents" (spec first). Reasons in DECISION_LOG.
+- **21:54.** `#1811` META-IC-1 merged (independent review APPROVE; the trunk merges since its earlier approval at `9bf021d6` were checked).
+- **22:04.** `#1816` META-PURCHASE-UNIFY-1 merged (review APPROVE-WITH-NITS); live on Vercel and Railway.
+- **22:08.** The owner ran the school-outreach scheduled task by hand; it ended in about 1.5 min without touching the tracker (the task has no computer attached).
+- **22:20.** Owner accepted PRICING-CTA-UP-1 (/pricing price and Buy moved up on every card; an honest sticky-bar price for Test Series owners). He also wants slimmer card faces (USPs only, each card clickable to its page); an independent UX review is running.
+- **22:55.** `#1819` BUYER-SCORE-1 merged, after a fix for the PERF-3 entry budget (below).
+- **Evening.** The cofounder ran the owed `#1840` live checks on a Chapter Test (PASS, below). The `login_abandon` question was settled from the code (below).
 
 **Measurement [coordinator].** First reading of `/api/admin/mistake-split`: 1,178 mistake logs from 163 students, 20 Apr to 23 Nov: conceptual 57.2%, presentation 22.7%, calculation 12.9%, silly 7.2%.
 
-**Test Series checkout finding [coordinator].** 9 Test Series checkouts in about 15 h, with 0 payment attempts. Most were students at night who cannot pay themselves. This is why the owner wants a "forward the pay link to a parent" option next to "buy directly" (`[FU-TS-CHECKOUT-BOTH-OPTIONS]`).
+**`#1819` entry-budget catch [coordinator].** Before merge, `#1819` was 217 B over the PERF-3 entry budget in the production-flag build (170,844 vs 170,627 gz). The local build without the production flags had hidden it. Fixed in `84ff18c4` by moving the score into `engaged10.ts`'s late chunk: entry went from trunk 170,396 to 170,593, leaving **34 B** (`[FU-PERF3-HEADROOM-34B]`). Lesson: measure the entry chunk on a production-flag build.
 
-**Google Ads, 24 Nov [coordinator; full diagnosis table in the handoff doc section 3.1-3.2].** The day's ads review found the account spending without Test Series purchases and pre-boards already started. Changes and rulings recorded [owner-rulings record]: Search | PDF Packs moved to Target ROAS (15%, budget unchanged); a Google remarketing campaign approved at ₹500/day, with GA4 audiences building the list (Meta retargeting goes through Pallabi); "coaching" kept as a negative keyword on Board Pass ads; the /test-series h1 change (`#1846`) for "class 10 test series" relevance. The docs builder did not see the per-campaign numbers and does not repeat any here.
+**Reviews [coordinator].** `#1811` APPROVE. `#1816` APPROVE-WITH-NITS (N1 `trackGuestPurchase` has no fallback value; N2 a pre-existing `paymentId` fallback). `#1819` APPROVE-WITH-NITS (`[FU-BUYERSCORE-LAZY-TEST]`).
+
+**Live check, `#1840` LIVE-FIX-1 on a Chapter Test [coordinator].** Run by the cofounder on freelance.iitian (a Test Series owner since tonight), Real Numbers Chapter Test 1. (a) 6 of 9 written answered: "fully graded - 16 / 31", Q13-Q15 "Not attempted · 0". (b) One answer only: "graded - 4 / 31 · 23 marks not marked yet", "This check wasn't counted", checks stayed 2 of 2. (c) "Upload all pages again" works from the live result and from a reopened record. (d) Checks left went 2 to 1. **Chapter Test: PASS. Full Mock: still OWED (`#1840` stays PARTIAL there).**
+
+**`login_abandon` at `google_redirect_started` is NOT a bug [coordinator; code read by the docs builder, git].** `lazytopper/src/utils/loginAbandon.ts` (header comment, about lines 37-40, and `EXPECTED_UNLOAD` at line 60) records the Google redirect and the Chrome hand-off with `leave: "expected"`, because those steps unload the page on purpose; a real abandonment is `leave: "abandon"`. `[FU-LOGIN-ABANDON-REDIRECT-STEP]` is closed with this evidence.
+
+**Test Series checkout finding [coordinator].** 9 Test Series checkouts in about 15 h, with 0 payment attempts. Most were students at night who cannot pay themselves. Hence the owner's ruling: keep Buy and add "Forward link to parents" (lane TS-PARENT-FORWARD-1, in build). Its pre-flight found the parent message and landing called the Test Series "printable PDFs"; corrected to "board-pattern tests I can take online or print", because series owners can download and print papers (18 Nov ruling).
+
+**Google Ads, 24 Nov [coordinator, handoff doc section 3].**
+- **Diagnosis:** no site or payment fault. The owner's 13:24-13:27 edits had set Target ROAS 15% on PDF Packs and re-added "Leads from messages" as a goal.
+- **Changes, each on the owner's words:** Search | PDF Packs goals set to Purchases only (tROAS 15% and ₹9,750/day kept until the Thu 26 Nov evening review). Search | Test Series ₹2,000 to ₹1,000/day, Purchases only; 8 phrase negatives added (important questions, important question, half yearly, notes, ncert, solutions, pdf, chapter 1); 2 conflicting "syllabus" negatives removed; new headlines and a sitelink about the free first test; one keyword paused. The disapproved Price asset removed (no appeal). The stale "Month pass ₹599" sitelink removed.
+- **Rulings:** the goal is purchases; the Board Pass is not online coaching (keep the "coaching" negatives); a remarketing campaign at ₹500/day (created by the owner).
 
 **Growth listings and outreach, not code [coordinator].**
-- Startup and directory listings were made. Crunchbase and Wellfound are in `sameAs` (`#1847`); F6S (after approval), Tracxn, and Product Hunt (after launch) are to follow (`[FU-SAMEAS-MORE-DIRECTORIES]`). The Product Hunt launch is set for Wed 25 Nov, live 1:31 pm IST [owner-rulings record].
-- School outreach batch 1: 49 metro CBSE schools emailed, 2 bounced. Follow-ups on 1 Dec. A scheduled task sends the next batch of about 50 every 3 days; next run 25 Nov 11:37 IST. The emails link the booklet hosted by `#1849` / `#1850`.
+- Startup and directory listings were made. Crunchbase and Wellfound are in `sameAs` (`#1847`); F6S (after approval), Tracxn, and Product Hunt (after launch) are to follow (`[FU-SAMEAS-MORE-DIRECTORIES]`).
+- School outreach batch 1: 49 metro CBSE schools emailed, 2 bounced. Follow-ups on 1 Dec. The scheduled task (next batch of about 50 every 3 days; next run 25 Nov 11:37 IST) has **no computer attached**; the owner will fix it himself ("Require this computer" in the desktop app) before that run. The emails link the booklet hosted by `#1849` / `#1850`.
 
-**UI tests [coordinator].** Phase 2 (signed-in real-browser checks) was not started. It needs a preview-only test sign-in first (`[FU-UI-E2E-PHASE2-TEST-SIGNIN]`).
+**UI tests [coordinator].** Phase 2 (signed-in real-browser checks): the preview/test-only sign-in spec is written (Firebase emulator in the CI build, no server change), waiting for the owner's OK (`[FU-UI-E2E-PHASE2-TEST-SIGNIN]`).
 
-**Unverified signal [coordinator].** `login_abandon` events at the `google_redirect_started` step may be a measurement bug, not real drop-off (`[FU-LOGIN-ABANDON-REDIRECT-STEP]`).
+**Meta, still to do [coordinator].** The owner and Pallabi run Meta Test Events at the end of tonight's session, else next session; then `META_TEST_EVENT_CODE` must be removed from Railway.
 
 **Grading.** No PR in this window changes grading behaviour (CLAUDE.md section 4a); see SURFACE_TRACKER.
 

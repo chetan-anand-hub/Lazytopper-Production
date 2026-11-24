@@ -23,24 +23,37 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
-## 2026-11-24 (daily; UTC day 24 Nov, written 24 Nov about 21:45 IST) - #1846 - #1847 - #1848 - #1849 - #1850 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+## 2026-11-24 (daily; UTC day 24 Nov, merges 14:39 to 22:55 IST; written 24 Nov, updated about 23:05 IST) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
-*(Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` and the coordinator's brief [coordinator]. All five tags below are minted here: the board was searched first (sameAs, directories, `login_abandon`, `google_redirect_started`, parent pay link, ui-e2e, Phase 2) and none of these had an entry with the same meaning. `[FU-UI-E2E-REQUIRED-CHECK]` already exists (23 Nov) and is NOT duplicated; see its status line below. Older entries are left as written (standing rule 3).)*
+*(Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` and the coordinator's messages from this session [coordinator]. All tags below are minted here: the board was searched first (sameAs, directories, `login_abandon`, `google_redirect_started`, parent pay link, ui-e2e, Phase 2, buyer score, PERF-3 headroom) and none had an entry with the same meaning. `[FU-UI-E2E-REQUIRED-CHECK]` already exists (23 Nov) and is NOT duplicated; see its status line below. Older entries are left as written (standing rule 3).)*
 
-**Status of an existing entry.**
+**Status of existing entries.**
 - `[FU-UI-E2E-REQUIRED-CHECK]` (23 Nov entry stays as written): **still OPEN.** Make `ui-e2e` a required check after a few clean days. Nothing changed on 24 Nov.
+- `#1840` LIVE-FIX-1 live verify (23 Nov, NEXT_ACTION and SURFACE_TRACKER): **Chapter Test surface PASSED** on 24 Nov (checks (a)-(d), Real Numbers Chapter Test 1, freelance.iitian). **Full Mock surface still OWED**, so `#1840` stays PARTIAL there.
 
 ### [FU-TS-CHECKOUT-BOTH-OPTIONS] (minted)
-OPEN, money path; **spec FIRST, shown to the owner before any build.** The Test Series checkout should offer BOTH options: buy directly, or forward the pay link to a parent (owner ruling, 24 Nov about 21:35 IST; DECISION_LOG 2026-11-24 ruling 2). Evidence: 9 Test Series checkouts in about 15 h with 0 payment attempts, mostly students at night who cannot pay themselves. Needs an independent review and a kill switch. Related, not the same: `[FU-TS-UPGRADE-PARENT-GUEST]` (no Test Series upgrade credit on parent pay-link and guest Board Pass checkouts). [coordinator]
+OPEN, IN BUILD as lane TS-PARENT-FORWARD-1; money path. The Test Series checkout keeps Buy and adds "Forward link to parents" (owner ruling, 24 Nov about 21:35 IST; DECISION_LOG 2026-11-24 ruling 2). Evidence: 9 Test Series checkouts in about 15 h with 0 payment attempts, mostly students at night who cannot pay themselves. The lane's pre-flight found the parent message and landing called the Test Series "printable PDFs"; corrected to "board-pattern tests I can take online or print", because series owners can download and print papers (18 Nov ruling). Needs an independent review and a kill switch. Related, not the same: `[FU-TS-UPGRADE-PARENT-GUEST]` (no Test Series upgrade credit on parent pay-link and guest Board Pass checkouts). [coordinator]
 
 ### [FU-SAMEAS-MORE-DIRECTORIES] (minted)
-OPEN, small. `#1847` added Crunchbase and Wellfound to the Organization `sameAs` (10 URLs, pinned in `socialProfiles.guard.test.tsx`). Add, each only once its listing is live: F6S (after its approval), Tracxn, and Product Hunt (after the launch). Each addition must update `config/socialProfiles.ts`, `index.html` and the guard test's count together. [coordinator]
+OPEN, small. `#1847` added Crunchbase and Wellfound to the Organization `sameAs` (10 URLs, pinned in `socialProfiles.guard.test.tsx`). Add, each only once its listing is live: F6S (after its approval), Tracxn, and Product Hunt (after the launch). Each addition must update `config/socialProfiles.ts`, `index.html` and the guard test together. [coordinator]
 
 ### [FU-LOGIN-ABANDON-REDIRECT-STEP] (minted)
-OPEN, UNVERIFIED. `login_abandon` events recorded at the `google_redirect_started` step may be a measurement bug (for example an abandon fired while the page is leaving for Google's full-page redirect), not real drop-off. Verify how the event fires on the redirect path before using the number for any decision. Events came from `#1601` LOGIN-FIX-2. [coordinator]
+**CLOSED, not a bug.** The question was whether `login_abandon` events at the `google_redirect_started` step are a measurement bug. They are not: `lazytopper/src/utils/loginAbandon.ts` (header comment, about lines 37-40, and `EXPECTED_UNLOAD` at line 60) records the Google redirect and the Chrome hand-off with `leave: "expected"`, because those steps unload the page on purpose; a real abandonment is `leave: "abandon"`. Count drop-off with `leave: "abandon"` only. Events came from `#1601` LOGIN-FIX-2. [coordinator; code read at trunk `2d851629`, git]
 
 ### [FU-UI-E2E-PHASE2-TEST-SIGNIN] (minted)
-OPEN, not started. UI tests Phase 2 (signed-in real-browser checks) needs a test sign-in that works on preview builds ONLY and can never work in production. Auth path: needs a spec and an independent review. Phase 1 is `#1838` (six signed-out pages). [coordinator]
+OPEN, spec written, **waiting for the owner's OK.** UI tests Phase 2 (signed-in real-browser checks) needs a sign-in that works only in the test build: the spec uses the Firebase emulator in the CI build, with no server change. Auth path: independent review before merge. Phase 1 is `#1838` (six signed-out pages). [coordinator]
+
+### [FU-BUYERSCORE-LAZY-TEST] (minted)
+OPEN, review nits on `#1819` BUYER-SCORE-1 (APPROVE-WITH-NITS): (1) lazy-load test 2 is misnamed and near-vacuous; (2) no test pins the about 2 s late load of the score; (3) the kill-switch regex lost its `.trim()`; (4) `engaged10` now depends on the buyerScore chunks; (5) stacked JSDoc blocks. [coordinator]
+
+### [FU-PERF3-HEADROOM-34B] (minted)
+OPEN, budget decision needed. After `#1819` the PERF-3 entry chunk is 170,593 of the 170,627 gz budget: **34 B left**. The next PR that adds any byte to the entry chunk needs a budget decision (raise the budget with a reason, or move code out of the entry). `#1819` was first 217 B over (170,844) in the production-flag build while the local non-flag build hid it, so measure the production-flag build. [coordinator]
+
+### [FU-OUTREACH-TASK-NO-COMPUTER] (minted)
+OPEN, owner action. The school-outreach scheduled task has no computer attached: the owner's 22:08 IST manual run on 24 Nov ended in about 1.5 min without touching the tracker. The owner will fix it himself (desktop app, "Require this computer") before the next run, 25 Nov 11:37 IST. Check after that run that the tracker moved. [coordinator]
+
+### [FU-META-TEST-EVENT-CODE-REMOVE] (minted)
+OPEN, after Meta Test Events. The owner and Pallabi run Meta Test Events (one Board Pass order plus one pack order, one deduplicated InitiateCheckout each) at the end of the 24 Nov session, else the next session. Then remove `META_TEST_EVENT_CODE` from Railway (it is only for the test run). [coordinator]
 
 ## 2026-11-23 (daily; UTC day 23 Nov, written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
