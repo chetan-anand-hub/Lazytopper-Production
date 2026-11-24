@@ -337,8 +337,10 @@ export default function TestSeriesPage() {
               <header className="lt-ts-hero" aria-labelledby="ts-h1">
                 <div className="lt-sp__w lt-ts-hero__in">
                   <div className="lt-ts-hero__copy">
-                    <p className="lt-sp-eyebrow lt-ts-hero__eyebrow">CBSE CLASS 10 TEST SERIES · MATHS &amp; SCIENCE</p>
                     <h1 id="ts-h1" className="lt-ts-hero__h1">
+                      {/* TS-H1-KEYWORD-1 (owner, 24 Nov 2026): the eyebrow lives INSIDE the h1 so the crawled/accessible heading starts with
+                          "CBSE Class 10 Test Series" (Google Ads relevance); it is styled as the eyebrow (display:block, uppercase via CSS). */}
+                      <span className="lt-sp-eyebrow lt-ts-hero__eyebrow">CBSE Class 10 Test Series · Maths &amp; Science</span>{" "}
                       {/* TS-HERO-1 (owner, 23 Nov 2026): the page leads with the promise. Two fixed lines from 768 px (Fraunces swapping in for its
                           fallback re-wrapped one line into two: a desktop shift). */}
                       <span className="lt-ts-hero__h1-l">Write on paper. Snap a photo.</span>{" "}
@@ -356,7 +358,7 @@ export default function TestSeriesPage() {
                     </ol>
                     <p className="lt-ts-hero__lede" data-testid="ts-contents">
                       <strong>
-                        {totals.chapterTests} chapter tests + {totals.fullMocks} full-length board papers
+                        {totals.chapterTests} chapter tests + {totals.fullMocks} full-length mock tests
                       </strong>{" "}
                       · {testSeriesFreeCopy().heroLede}
                     </p>
@@ -426,7 +428,7 @@ export default function TestSeriesPage() {
                 </h2>
                 <p className="lt-sp-lede" data-testid="ts-picker-lede">
                   {totals.papersPerChapter > 1 ? `${totals.papersPerChapter} board-pattern tests per chapter` : "One board-pattern test per chapter"}, plus{" "}
-                  {totals.mocksPerSubject} full-length papers per subject. Pick one and start.
+                  {totals.mocksPerSubject} full-length mock tests per subject. Pick one and start.
                 </p>
                 <TestSeriesPaperPicker
                   chapters={chapters}
