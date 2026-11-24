@@ -17,7 +17,7 @@ import { isCheckoutWarmDisabled } from "../lib/packs/packsMobilePreload";
 import { isPaymentsClientEnabled } from "../services/checkout";
 import { isParentPayClientEnabled } from "../services/parentPay";
 import { ASK_PARENT_LABEL } from "../components/pricing/PaywallActions";
-import { isCheckoutWhoClientEnabled } from "../services/checkoutWhoFlag";
+import { isSelfAttachClientEnabled } from "../services/checkoutWho";
 import { buildParentSeriesShareMessage } from "../services/parentPayPack";
 import { trackPaywallAction } from "../analytics/analytics";
 import { openWhatsAppLink, type ShareNavigator } from "../components/results/share/shareScore";
@@ -313,7 +313,8 @@ export default function TestSeriesPage() {
    * TS-PARENT-FORWARD-1 - "Forward link to parents" under a Buy. Signed in: the shop's own parent action for the Test Series (null when
    * owned, paying, packs off or parent pay off), no QR (a tight card; the parent is on another phone). Signed out (TS-PARENT-FORWARD-2):
    * a button that shares this page (forwardSignedOut) - no sign-in. Only beside the in-place Buy (packs on, the series offered), while
-   * payments are on, and - signed in - parent pay, or - signed out - "Who will use it?" (how a parent's payment reaches the child).
+   * payments are on, and - signed in - parent pay, or - signed out - pay-first "Who will use it?" (isSelfAttachClientEnabled: Who + self +
+   * attach, all three - how a parent's payment reaches the child; any one off and the message's "pay, then enter my number" is untrue).
    * ★ CLS: the static capture is built with packs off (its Buy is the /packs link), so the SIGNED-OUT box is always rendered (a
    * reserved height, `--out`) and only its contents wait for the live flags: the first paint never moves when the button arrives.
    */
@@ -330,7 +331,7 @@ export default function TestSeriesPage() {
     }
     return (
       <div className="lt-ts-forward lt-ts-forward--out" data-testid={testId}>
-        {inPlace && isCheckoutWhoClientEnabled() && (
+        {inPlace && isSelfAttachClientEnabled() && (
           <>
             <button type="button" className="lt-ts-btn lt-ts-forward__btn" data-testid={`${testId}-share`} onClick={() => void forwardSignedOut(testId)}>
               {ASK_PARENT_LABEL}

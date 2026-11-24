@@ -4,7 +4,8 @@
  * "test_series"). Signed out (TS-PARENT-FORWARD-2, no sign-in in any pay path): the button shares this page's link with a message
  * (share sheet, else WhatsApp); the parent pays here signed out and "Who will use it?" puts it on the child's number.
  * Owners and "Checking your plan…": neither. VITE_TS_PARENT_FORWARD_DISABLED=1: the page as before.
- * The share sheet itself is PaywallActions' own (PaywallActions.test.tsx); here: WHERE it appears and WHAT it carries.
+ * Signed in, the share sheet is PaywallActions' own (PaywallActions.test.tsx); signed out it is this page's forwardSignedOut.
+ * Here: WHERE each appears and WHAT it carries.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -236,6 +237,17 @@ describe("TS-PARENT-FORWARD-2 · signed out: share, never sign-in", () => {
     expect(screen.getByTestId("ts-hero-buy").getAttribute("href")).toContain("/packs");
     expect(screen.getByTestId("ts-hero-forward").childElementCount).toBe(0);
     expect(screen.getByTestId("ts-offer-forward").childElementCount).toBe(0);
+  });
+
+  it("pay-first off (self or attach switch off): the box stays, empty - 'pay, then enter my number' would be untrue", async () => {
+    for (const key of ["VITE_CHECKOUT_SELF_DISABLED", "VITE_CHECKOUT_SELF_ATTACH_DISABLED"]) {
+      vi.stubEnv(key, "1");
+      await mount();
+      expect(screen.getByTestId("ts-hero-forward").childElementCount).toBe(0);
+      expect(screen.getByTestId("ts-offer-forward").childElementCount).toBe(0);
+      cleanup();
+      vi.stubEnv(key, "");
+    }
   });
 
   it("parent pay off does not matter signed out (no per-account link is used)", async () => {
