@@ -843,6 +843,7 @@ function createParentPayRoutes(deps = {}) {
     }
 
     emit('payments.parent.order.created');
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType, amountPaise: quote.amountPaise, uid, signals: signalsFor(serverEvents, body, req).adSignals })); // META-IC-1
     return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr) });
   }
 
@@ -925,7 +926,8 @@ function createParentPayRoutes(deps = {}) {
     }
 
     emit('payments.parent.order.pack_created');
-    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise, ...gstResponseFields(packQuote, 0) });
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType: pack.sku, amountPaise, uid, signals: signalsFor(serverEvents, body, req).adSignals })); // META-IC-1
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise, sku: pack.sku, ...gstResponseFields(packQuote, 0) }); // META-IC-1: `sku` lets the browser's InitiateCheckout carry the same content_ids as the server's
   }
 
   /* ── POST /api/pay/parent/verify — every check, then the CHILD's grant ────── */

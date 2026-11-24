@@ -3875,6 +3875,44 @@ test('PR · concurrent status calls alone: the purchase event, the invoice step 
   assert.equal(receipts, 1);
 });
 
+// ---- META-IC-1: the server sends InitiateCheckout for EVERY guest order route, once per created order ------------------------
+function icRecorder() {
+  const created = [];
+  return {
+    created,
+    serverEvents: {
+      signalsField: (body) => ({ adSignals: { attemptId: body && body.adSignals && body.adSignals.attemptId } }),
+      orderCreated: async (a) => { created.push(a); },
+      orderPaid: async () => {},
+      metaOn: true,
+      ga4On: false,
+    },
+  };
+}
+
+test('META-IC-1 · pay-by-phone, pay-for-someone and pay-for-myself orders each fire ONE orderCreated carrying the browser attempt id; a refused order fires none', async (t) => {
+  const rec = icRecorder();
+  const srv = await startRoutes({ env: PR_ENV, serverEvents: rec.serverEvents });
+  t.after(srv.close);
+  const phone = await guestOrder(srv, { sku: 'till_boards', phone: PHONE, adSignals: { attemptId: 'lt_ic_phone_001' } });
+  assert.equal(phone.status, 200, phone.text);
+  const who = await whoOrder(srv, { sku: 'till_boards', recipient: { email: EMAIL }, adSignals: { attemptId: 'lt_ic_who_0001' } });
+  assert.equal(who.status, 200, who.text);
+  const self = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths', adSignals: { attemptId: 'lt_ic_self_001' } });
+  assert.equal(self.status, 200, self.text);
+  await srv.idle();
+  assert.deepEqual(rec.created.map((c) => [c.orderId, c.passType, c.amountPaise, c.uid, c.signals.attemptId]), [
+    [phone.json.orderId, 'till_boards', phone.json.amountPaise, null, 'lt_ic_phone_001'],
+    [who.json.orderId, 'till_boards', who.json.amountPaise, null, 'lt_ic_who_0001'],
+    [self.json.orderId, 'pack_cbq', self.json.amountPaise, null, 'lt_ic_self_001'],
+  ]);
+  const before = rec.created.length;
+  const bad = await guestOrder(srv, { sku: 'not_a_sku', phone: PHONE, adSignals: { attemptId: 'lt_ic_bad_00001' } });
+  assert.notEqual(bad.status, 200);
+  await srv.idle();
+  assert.equal(rec.created.length, before, 'no order -> no InitiateCheckout');
+});
+
 /* ══ CHECKOUT-FAST-1 · the order routes' critical path (parallel independent reads) ═════════
  * Kept in their own files (not *.test.cjs, so each is gated through THIS wired suite - the ci_docs_lane a15 rule). */
 require('./orderTiming.cases.cjs');

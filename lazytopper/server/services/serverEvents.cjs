@@ -414,13 +414,19 @@ function createServerEvents(deps = {}) {
   }
 
   /**
-   * Meta `InitiateCheckout` when the server has created a Razorpay order. event_id is the BROWSER's checkout attempt id, passed
-   * through on the order body (packs only today: the Board Pass tap sends no eventID, so there is nothing to dedupe against and
-   * none is sent). Resolves; never rejects.
+   * Meta `InitiateCheckout` when the server has created a Razorpay order (META-IC-1: EVERY product - Board Pass, Premium month,
+   * packs, Test Series, parent pay - one per order). event_id is the BROWSER's checkout attempt id, which the order-create body
+   * carries as `adSignals.attemptId` and the browser's pixel InitiateCheckout (sent when the order response arrives) uses as its
+   * eventID, so Meta dedupes the two to ONE. No attempt id -> nothing is sent (an older cached bundle still sent its own tap
+   * event; a server event with a made-up id would double it). Kill switch META_IC_SERVER_ALL_DISABLED=1 restores the packs-only
+   * behaviour. Resolves; never rejects.
    */
   async function orderCreated({ orderId, passType, amountPaise, uid, signals } = {}) {
     try {
-      if (!metaOn || !signals || !signals.attemptId || !isPackProduct(passType)) return;
+      if (!metaOn || !signals || !signals.attemptId) return;
+      const isPack = isPackProduct(passType);
+      if (!isPack && truthy(env.META_IC_SERVER_ALL_DISABLED)) return;
+      if (!isPack && isTopupProduct(passType)) return; // a top-up sends no Purchase either
       const value = orderValueInr({ amountPaise });
       await sendMetaEvent(
         buildMetaEvent({
@@ -429,7 +435,8 @@ function createServerEvents(deps = {}) {
           nowMs: now(),
           url: signals.url,
           userData: userDataFrom({ uid, signals }),
-          customData: { currency: 'INR', ...(value === null ? {} : { value }), content_ids: [passType], content_type: 'product' },
+          // Same shape as the browser event: packs carry content_ids; a pass carries money only.
+          customData: { currency: 'INR', ...(value === null ? {} : { value }), ...(isPack ? { content_ids: [passType], content_type: 'product' } : {}) },
         }),
       );
     } catch {
