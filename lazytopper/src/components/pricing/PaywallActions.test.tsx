@@ -469,6 +469,24 @@ describe("PARENT-PACKS-1 · a pack link", () => {
     expect(withoutSanctioned(document.body.textContent || "")).not.toMatch(ASK_PARENT);
   });
 
+  it("TS-PARENT-FORWARD-1 review A: a Test Series link's message is chosen by the product's SKU (en + hi), never PDFs", async () => {
+    const TS = { kind: "pack" as const, sku: "test_series" as const, name: "Test Series Pack" };
+    const TS_MINTED: MintedParentLink = { ...MINTED, prices: { month: null, till_boards: null }, pack: { sku: "test_series", target: "all", priceInr: 999, totalInr: 1179, gstInr: 180 } };
+    render(
+      <MemoryRouter>
+        <PaywallActionsView surface="test_series" showParent product={TS} noQr deps={deps({ mint: vi.fn(async () => TS_MINTED) })} />
+      </MemoryRouter>,
+    );
+    await tap(FORWARD_LABEL);
+    const en = screen.getByTestId("parent-share-message").textContent || "";
+    expect(en).toContain("can you get me the Test Series on LazyTopper? It's ₹1,179, one time, valid till my boards:");
+    expect(en).not.toMatch(/PDF|printable/);
+    fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+    const hi = screen.getByTestId("parent-share-message").textContent || "";
+    expect(hi).toContain("यह एक बार का ₹1,179 है और मेरे बोर्ड तक चलेगी:");
+    expect(hi).not.toMatch(/PDF/);
+  });
+
   it("the QR names the pack; noQr leaves only the text share", async () => {
     packView(deps({ mint: vi.fn(async () => PACK_MINTED) }));
     await tap(QR_LABEL);

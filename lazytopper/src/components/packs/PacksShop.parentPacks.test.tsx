@@ -133,3 +133,25 @@ describe("PARENT-PACKS-1 · api.parentAsk (the /pricing cards)", () => {
     expect(screen.queryByTestId("ask-parent")).toBeNull();
   });
 });
+
+describe("TS-PARENT-FORWARD-1 · api.parentAsk's optional surface", () => {
+  it("absent -> 'pricing' (every existing caller unchanged); 'test_series' passes through; the Test Series link carries no target", async () => {
+    shop("/pricing", (a) => (
+      <>
+        {a.parentAsk("pack_bundle")}
+        {a.parentAsk("pack_cbq", "science", { noQr: true })}
+        {a.parentAsk("test_series", undefined, { noQr: true, surface: "test_series" })}
+      </>
+    ));
+    await waitFor(() => expect(screen.getAllByTestId("ask-parent")).toHaveLength(3));
+    expect(screen.getAllByTestId("ask-parent").map((e) => e.getAttribute("data-surface"))).toEqual(["pricing", "pricing", "test_series"]);
+    expect(products()[2]).toEqual({ kind: "pack", sku: "test_series", name: "Test Series Pack" });
+  });
+
+  it("an owned Test Series: nothing, whatever the surface", async () => {
+    state.owned = [{ packId: "test_series:all", sku: "test_series", target: "all" }];
+    shop("/pricing", (a) => <>{a.parentAsk("test_series", undefined, { surface: "test_series" })}{a.parentAsk("pack_bundle")}</>);
+    await waitFor(() => expect(screen.getAllByTestId("ask-parent")).toHaveLength(1));
+    expect(products()).toEqual([{ kind: "pack", sku: "pack_bundle", name: "Maths + Science Bundle" }]);
+  });
+});

@@ -20,6 +20,7 @@ import { ParentPayPanelView } from "./ParentPayPanel";
 import * as analytics from "../../analytics/analytics";
 import * as packAnalytics from "../../lib/packs/packAnalytics";
 import { ParentLinkError, type ParentBuyOutcome, type ParentLinkView } from "../../services/parentPay";
+import { seriesTotals } from "../../lib/testSeries/testSeries";
 
 const begin = analytics.trackBeginCheckout as unknown as ReturnType<typeof vi.fn>;
 const purchase = analytics.trackPurchase as unknown as ReturnType<typeof vi.fn>;
@@ -317,6 +318,39 @@ describe("PARENT-PACKS-1 · a pack link", () => {
  * LazyTopper Board Pass". A refusal from the server names no product, so the heading is neutral; when the page already viewed
  * the link (refused AFTER the view), it keeps the product and the child's name.
  */
+describe("TS-PARENT-FORWARD-1 · a Test Series link says what the Test Series is (never a PDF pack)", () => {
+  const TS_VIEW: ParentLinkView = { ...VIEW, prices: { month: null, till_boards: null }, pack: { sku: "test_series", target: "all", priceInr: 999, totalInr: 1179, gstInr: 180 } };
+  const CBQ_VIEW: ParentLinkView = { ...VIEW, prices: { month: null, till_boards: null }, pack: { sku: "pack_cbq", target: "maths", priceInr: 199 } };
+  const intro = () => document.querySelector(".lt-parent-pay-text")?.textContent ?? "";
+
+  it("English: online tests (papers printable) and the step-by-step marking, the server's total on the Pay button; no PDF / AI / free", async () => {
+    await renderPanel({ view: vi.fn(async () => TS_VIEW) });
+    expect(intro()).toBe(
+      `Aarav sent you this link for the Test Series on LazyTopper: ${seriesTotals().total} CBSE Class 10 board-pattern tests to take online (the papers can also be printed), with written answers marked step by step like a CBSE examiner. It's a one-time payment — nothing renews.`,
+    );
+    expect(screen.getByRole("button", { name: "Pay ₹1,179 once" })).toBeEnabled();
+    expect(intro()).not.toMatch(/PDF|printable|\bAI\b|answer key|free/i);
+  });
+
+  it("Hindi: the same facts, no PDF", async () => {
+    await renderPanel({ view: vi.fn(async () => TS_VIEW) });
+    fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+    expect(intro()).toBe(
+      `Aarav ने आपको LazyTopper की Test Series के लिए यह लिंक भेजा है: CBSE कक्षा 10 के ${seriesTotals().total} बोर्ड-पैटर्न टेस्ट, जो ऑनलाइन दिए जाते हैं (पेपर प्रिंट भी किए जा सकते हैं), और जिनमें लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं। यह एक बार का भुगतान है — कुछ भी अपने-आप रिन्यू नहीं होता।`,
+    );
+    expect(intro()).not.toMatch(/PDF/);
+  });
+
+  it("every other pack's intro is byte-identical to before (en + hi)", async () => {
+    await renderPanel({ view: vi.fn(async () => CBQ_VIEW) });
+    expect(intro()).toBe("Aarav sent you this link for the Maths CBQ Pack on LazyTopper: printable CBSE Class 10 practice PDFs. It's a one-time payment — nothing renews.");
+    fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
+    expect(intro()).toBe(
+      "Aarav ने आपको LazyTopper के Maths CBQ Pack के लिए यह लिंक भेजा है: CBSE कक्षा 10 की प्रिंट करने वाली प्रैक्टिस PDF। यह एक बार का भुगतान है — कुछ भी अपने-आप रिन्यू नहीं होता।",
+    );
+  });
+});
+
 describe("PACK-DIALOG-1 · the heading of a used / expired link", () => {
   const TRIANGLES: ParentLinkView = { ...VIEW, prices: { month: null, till_boards: null }, pack: { sku: "pack_chapter", target: "triangles", priceInr: 49 } };
   const refusedView = (reason: "used" | "expired") => vi.fn(async (): Promise<ParentLinkView> => Promise.reject(new ParentLinkError(reason)));

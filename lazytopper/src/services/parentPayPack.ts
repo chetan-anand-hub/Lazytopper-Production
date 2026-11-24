@@ -12,6 +12,8 @@
 import { orderSourceFields } from "../analytics/visitSource";
 import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 import { formatInr } from "../config/pricing";
+import { BOARD_CHAPTER_KEYS, chapterUnit } from "../config/syllabusUnits2026-27";
+import { SERIES_MOCKS_PER_SUBJECT, SERIES_PAPERS_PER_CHAPTER } from "../lib/testSeries/seriesCounts";
 import type { PackSku } from "./packs";
 import {
   childAuthHeaders,
@@ -228,6 +230,8 @@ export interface AskParentPackMessageInput {
   lang: ParentPayLang;
   /** "Maths CBQ Pack" (parentPackName). */
   name: string;
+  /** TS-PARENT-FORWARD-1 (review A): the pack's SKU - picks the message (the Test Series has its own), never the name. */
+  sku: PackSku;
   /** The SERVER's price from the mint response, rupees. */
   priceInr: number;
   url: string;
@@ -235,8 +239,11 @@ export interface AskParentPackMessageInput {
 }
 
 /** The child's message to a parent for ONE pack: the pack, its one-time price, the link and how long it works. */
-export function buildAskParentPackMessage({ lang, name, priceInr, url, days }: AskParentPackMessageInput): string {
+export function buildAskParentPackMessage({ lang, name, sku, priceInr, url, days }: AskParentPackMessageInput): string {
   const price = formatInr(priceInr);
+  // TS-PARENT-FORWARD-1 (owner ruling 18 Nov 2026): the Test Series is taken online (its papers can be printed) and is never presented
+  // like a PDF pack. Chosen by SKU (review A), so renaming parentPackName can never send the Test Series the PDF-pack message.
+  if (sku === "test_series") return buildAskParentSeriesMessage(lang, price, url, days);
   if (lang === "hi") {
     return [
       `मम्मी/पापा, क्या आप मुझे LazyTopper पर ${name} दिला देंगे? यह एक बार का ${price} है — मेरी CBSE कक्षा 10 बोर्ड की तैयारी के लिए प्रिंट करने वाली PDF।`,
@@ -247,6 +254,39 @@ export function buildAskParentPackMessage({ lang, name, priceInr, url, days }: A
   }
   return [
     `Hi Mummy/Papa, can you get me the ${name} on LazyTopper? It's ${price}, one time — printable PDFs for my CBSE Class 10 board prep.`,
+    "This link is only for my account — you don't need to sign up or share any password:",
+    url,
+    `(The link works for ${days} ${days === 1 ? "day" : "days"}.)`,
+  ].join("\n\n");
+}
+
+/**
+ * TS-PARENT-FORWARD-1 - the child's message for the Test Series: the tests (online or printed) and the step-by-step marking, never "PDFs". The price is
+ * the SERVER's (the mint's total); the test count is parentSeriesTestCount() (never typed). The link / no-password / validity lines are the
+ * pack message's own.
+ */
+/**
+ * The Test Series' test count WITHOUT lib/testSeries/testSeries.ts (review: that module put ~5 KB gz on every paywall surface's
+ * PaywallActionsView). Same arithmetic as hubTsFlag's hub card: board chapters x papers per chapter + full-length per subject x 2.
+ * A test pins it equal to seriesTotals().total.
+ */
+export function parentSeriesTestCount(): number {
+  const chapters = BOARD_CHAPTER_KEYS.filter((k) => chapterUnit(k) !== null && chapterUnit(k) !== undefined).length;
+  return chapters * SERIES_PAPERS_PER_CHAPTER + SERIES_MOCKS_PER_SUBJECT * 2;
+}
+
+function buildAskParentSeriesMessage(lang: ParentPayLang, price: string, url: string, days: number): string {
+  const tests = parentSeriesTestCount();
+  if (lang === "hi") {
+    return [
+      `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ${price} है और मेरे बोर्ड तक चलेगी: ${tests} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं।`,
+      "यह लिंक सिर्फ़ मेरे अकाउंट के लिए है — आपको कोई अकाउंट बनाने या पासवर्ड बताने की ज़रूरत नहीं:",
+      url,
+      `(यह लिंक ${days} दिन तक चलेगा।)`,
+    ].join("\n\n");
+  }
+  return [
+    `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? It's ${price}, one time, valid till my boards: ${tests} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner.`,
     "This link is only for my account — you don't need to sign up or share any password:",
     url,
     `(The link works for ${days} ${days === 1 ? "day" : "days"}.)`,
