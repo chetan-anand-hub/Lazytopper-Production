@@ -54,6 +54,8 @@ const buyPack = vi.hoisted(() =>
   vi.fn(async (..._a: unknown[]): Promise<{ status: "dismissed" | "paid" | "pending"; orderId?: string }> => ({ status: "dismissed" })),
 );
 const packsOn = vi.hoisted(() => ({ on: true }));
+/** PRICING-CTA-UP-1: the server's TS-UPGRADE-CREDIT-1 upgrade for a Test Series owner (null for everyone else). */
+const tsUp = vi.hoisted(() => ({ value: null as null | { creditInr: number; fullBaseInr: number; baseInr: number; gstInr: number; payInr: number } }));
 const checkOrder = vi.hoisted(() => vi.fn(async (..._a: unknown[]): Promise<{ state: string }> => ({ state: "pending" })));
 vi.mock("../../services/packs", async (orig) => {
   const actual = await orig<typeof import("../../services/packs")>();
@@ -64,6 +66,7 @@ vi.mock("../../services/packs", async (orig) => {
       packs: owned.packs.map((p, i) => ({ packId: `${p.sku}:${p.target}`, sku: p.sku, target: p.target, paidAt: 1_700_000_000_000 + i })),
       licensee: { name: "Asha", email: "a@b.in" },
       boardPassCredit: null,
+      ...(tsUp.value ? { testSeriesUpgrade: tsUp.value } : {}),
     })),
     buyPack,
     checkPackOrder: (...a: unknown[]) => checkOrder(...a),
@@ -153,6 +156,7 @@ beforeEach(() => {
   vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
   auth.user = null;
   owned.packs = [];
+  tsUp.value = null;
   packsOn.on = true;
   monthBuyer.on = false;
   setSub({}, { hydrated: false });
@@ -1113,5 +1117,156 @@ describe("pure helpers", () => {
       "3 of 4 · next: Question Bank",
       "4 of 4 · next: Board Pass",
     ]);
+  });
+});
+
+describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest bar for a Test Series owner", () => {
+  const FOLLOWS = Node.DOCUMENT_POSITION_FOLLOWING;
+  /** a comes before b in the document. */
+  const before = (a: Element, b: Element) => expect(a.compareDocumentPosition(b) & FOLLOWS).toBeTruthy();
+  const q = (root: Element, sel: string) => {
+    const el = root.querySelector(sel);
+    expect(el, sel).not.toBeNull();
+    return el as Element;
+  };
+  /** Per card: its hero line, its price (or Buy-area first line), its Buy, a feature (ticks / tiles) and its details link. */
+  const parts = (k: "pass" | "ts" | "cbq" | "bank") => {
+    const c = card(k);
+    const hero = { pass: '[data-testid="hub-pass-minute"]', ts: '[data-testid="hub-ts-headline"]', cbq: ".lt-ph-hero", bank: ".lt-ph-hero" }[k];
+    const price = { pass: '[data-testid="pricing-passes"]', ts: '[data-testid="hub-ts-price"]', cbq: '[data-testid="hub-cbq-price"]', bank: '[data-testid="hub-bank-price"]' }[k];
+    const buy = { pass: ".lt-pricing-pay--boards", ts: '[data-testid="hub-buy-test_series"]', cbq: '[data-testid="hub-buy-pack_cbq-maths"]', bank: '[data-testid="hub-buy-pack_bundle"]' }[k];
+    const feature = { pass: '[data-testid="hub-pass-tutor"]', ts: ".lt-ph-ticks", cbq: ".lt-ph-tiles", bank: ".lt-ph-tiles" }[k];
+    return {
+      c,
+      tag: q(c, ".lt-ph-tag"),
+      name: q(c, ".lt-ph-name"),
+      hero: q(c, hero),
+      price: q(c, price),
+      buy: q(c, buy),
+      feature: q(c, feature),
+      ticks: q(c, ".lt-ph-ticks"),
+      details: q(c, ".lt-ph-details"),
+      foot: q(c, ".lt-ph-foot"),
+    };
+  };
+
+  it("every card: tag · name · hero line · price · Buy, THEN the features and the details link; same Buy elements and test ids", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    expect(screen.getByTestId("hub-cards")).toHaveClass("lt-ph-cards--up");
+    for (const k of ["pass", "ts", "cbq", "bank"] as const) {
+      const p = parts(k);
+      before(p.tag, p.name);
+      before(p.name, p.hero);
+      before(p.hero, p.price);
+      before(p.price, p.buy);
+      before(p.buy, p.feature);
+      before(p.buy, p.ticks);
+      before(p.ticks, p.details);
+      // The Buy area is the card's foot (one block, its own order kept); the details link closes the card, outside it.
+      expect(p.foot.contains(p.buy)).toBe(true);
+      expect(p.foot.contains(p.details)).toBe(false);
+      expect(p.c.lastElementChild).toBe(p.details);
+    }
+    // The Buy-area order inside each foot is today's: Board Pass Pay -> payline -> trial; CBQ Buys -> parent row -> "Not in the Bundle.".
+    const pass = parts("pass");
+    before(q(pass.foot, '[data-testid="pricing-passes"]'), q(pass.foot, '[data-testid="pricing-payline"]'));
+    before(q(pass.foot, '[data-testid="pricing-payline"]'), q(pass.foot, '[data-testid="pricing-trial"]'));
+    const cbq = parts("cbq");
+    before(q(cbq.foot, '[data-testid="hub-buy-cbq"]'), q(cbq.foot, '[data-testid="hub-cbq-share"]'));
+    before(q(cbq.foot, '[data-testid="hub-cbq-share"]'), q(cbq.foot, '[data-testid="hub-cbq-not-in-bundle"]'));
+    const bank = parts("bank");
+    before(q(bank.foot, '[data-testid="hub-buy-bank"]'), q(bank.foot, '[data-testid="hub-bank-share"]'));
+    before(q(bank.foot, '[data-testid="hub-bank-share"]'), q(bank.foot, '[data-testid="hub-bank-separate"]'));
+    // The Test Series checks line stays right above its Buy (TS-UX-PAGE-1).
+    const ts = parts("ts");
+    before(q(ts.foot, '[data-testid="hub-ts-price"]'), q(ts.foot, '[data-testid="hub-ts-checks"]'));
+    before(q(ts.foot, '[data-testid="hub-ts-checks"]'), q(ts.foot, '[data-testid="hub-buy-ts"]'));
+  });
+
+  it("CSS: the foot is not pinned to the bottom and the cards take their own height (only under the --up class)", () => {
+    expect(HUB_CSS).toMatch(/\.lt-ph-cards--up \.lt-ph-foot \{\s*margin-top: 0;/);
+    expect(HUB_CSS).toMatch(/@media \(min-width: 768px\) \{[\s\S]*?\.lt-ph-cards--up \{\s*align-items: start;/);
+    // Today's pinned foot is still the rule the kill switch falls back to.
+    expect(HUB_CSS).toMatch(/\.lt-ph-foot \{\s*margin-top: auto;/);
+  });
+
+  it("kill switch VITE_PRICING_CTA_UP_DISABLED=1: today's layout exactly - features first, the Buy area (with the details link) at the foot", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1");
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    expect(screen.getByTestId("hub-cards")).not.toHaveClass("lt-ph-cards--up");
+    for (const k of ["pass", "ts", "cbq", "bank"] as const) {
+      const p = parts(k);
+      before(p.hero, p.feature);
+      before(p.ticks, p.price);
+      before(p.price, p.buy);
+      expect(p.foot.contains(p.details)).toBe(true);
+      expect(p.c.lastElementChild).toBe(p.foot);
+    }
+    cleanup();
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "true"); // only "1" switches it off (the documented value)
+    await renderAt("/pricing");
+    expect(screen.getByTestId("hub-cards")).toHaveClass("lt-ph-cards--up");
+  });
+
+  it("signed out, trial, Board Pass owner, pack owner, Test Series owner: every card renders, and nothing owned is sold again", async () => {
+    await renderAt("/pricing");
+    for (const k of ["pass", "ts", "cbq", "bank"] as const) expect(card(k)).toBeInTheDocument();
+    expect(within(card("pass")).getByTestId("pricing-passes")).toBeInTheDocument();
+    cleanup();
+    auth.user = { uid: "u1" };
+    setSub({ tier: "premium", plan: "pass_till_boards", passEnd: new Date(Date.now() + 60 * DAY).toISOString() });
+    await renderAt("/pricing");
+    expect(within(card("pass")).getByTestId("hub-pass-owned")).toBeInTheDocument();
+    expect(within(card("pass")).queryByTestId("pricing-payline")).toBeNull();
+    expect(within(card("ts")).getByTestId("hub-ts-included")).toBeInTheDocument();
+    expect(within(card("ts")).queryByTestId("hub-buy-test_series")).toBeNull();
+    cleanup();
+    setSub({});
+    owned.packs = [{ sku: "test_series", target: "all" }, { sku: "pack_bundle", target: "all" }];
+    await renderAt("/pricing");
+    expect(await screen.findByTestId("hub-ts-owned")).toBeInTheDocument();
+    expect(within(card("ts")).queryByTestId("hub-buy-test_series")).toBeNull();
+    expect(await screen.findByTestId("hub-buy-pack_bundle-owned")).toBeInTheDocument();
+    // The owned states sit where the Buy sat: above the features.
+    before(screen.getByTestId("hub-ts-owned"), card("ts").querySelector(".lt-ph-ticks") as Element);
+  });
+
+  it("§2.4 a Test Series owner: the bar says 'Board Pass upgrade' / the card's own Pay ₹1,083, never the list total - also while Pay opens", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    owned.packs = [{ sku: "test_series", target: "all" }];
+    tsUp.value = { creditInr: 999, fullBaseInr: 1917, baseInr: 918, gstInr: 165, payInr: 1083 };
+    await renderAt("/pricing");
+    expect(await screen.findByTestId("pass-checkout-ts-upgrade")).toBeInTheDocument();
+    const payBtn = card("pass").querySelector(".lt-pricing-pay--boards") as HTMLButtonElement;
+    expect(payBtn).toHaveTextContent("Pay ₹1,083");
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    const bar = () => screen.getByTestId("pricing-sticky-bar");
+    expect(bar()).toHaveTextContent("Board Pass upgrade");
+    expect(screen.getByTestId("pricing-sticky-bar-go")).toHaveTextContent("Pay ₹1,083");
+    expect(bar().textContent).not.toContain(boardPassPayDisplay());
+    // The card's Pay now reads "Opening secure payment…" (no figure): the bar keeps the last figure, never the list total.
+    await act(async () => {
+      fireEvent.click(payBtn);
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(payBtn.textContent).not.toMatch(/₹/);
+    expect(screen.getByTestId("pricing-sticky-bar-go")).toHaveTextContent("Pay ₹1,083");
+    expect(bar().textContent).not.toContain(boardPassPayDisplay());
+  });
+
+  it("§2.4 everyone else: the bar is today's ('Board Pass <price>' / the card's Pay total)", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    expect(screen.getByTestId("pricing-sticky-bar")).toHaveTextContent(`Board Pass ${boardPassPriceDisplay()}`);
+    expect(screen.getByTestId("pricing-sticky-bar-go")).toHaveTextContent(`Pay ${boardPassPayDisplay()}`);
+    expect(screen.getByTestId("pricing-sticky-bar")).not.toHaveTextContent("upgrade");
   });
 });

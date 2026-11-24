@@ -443,6 +443,11 @@ export const HUB_CSS = `
     flex-direction: column;
     gap: 10px;
   }
+  /* PRICING-CTA-UP-1: the Buy area sits right under the card's hero line (not pinned to the bottom), so no card opens a gap above its
+     Buy; the features follow it. VITE_PRICING_CTA_UP_DISABLED=1 drops the --up class and today's pinned foot returns. */
+  .lt-ph-cards--up .lt-ph-foot {
+    margin-top: 0;
+  }
   .lt-ph-price {
     margin: 0;
     display: flex;
@@ -984,6 +989,10 @@ export const HUB_CSS = `
     }
     .lt-ph-card {
       padding: 20px 20px 18px;
+    }
+    /* PRICING-CTA-UP-1: each card takes its own height (no stretched blank band under a shorter card's features). */
+    .lt-ph-cards--up {
+      align-items: start;
     }
     .lt-ph-card:last-child {
       margin-right: 0;

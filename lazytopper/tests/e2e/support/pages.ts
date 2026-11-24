@@ -36,10 +36,12 @@ export const COVERED_PAGES: readonly CoveredPage[] = [
   {
     path: "/pricing",
     slug: "pricing",
-    // The shortcut bar (pricing-sticky-bar) IS the page's first buy CTA on both viewports: on a phone it always was; since
-    // UI-FIX-1 it also shows on desktop, where the cards' own Pay rows start ~900 px down.
-    ctaLabel: () => 'sticky "Pay ₹…" (Board Pass)',
-    cta: (page) => page.getByTestId("pricing-sticky-bar-go"),
+    // PRICING-CTA-UP-1 (24 Nov 2026): each card's price + Buy now sits under its hero line. Desktop 1280x800: the CBQ Packs and
+    // Bundle Buys are on the first screen (so the shortcut bar hides), and the CBQ "Maths · ₹…" Buy is the first of them. Phone
+    // 360x740: only the selected card (the Board Pass) is on screen and its Pay is below the fold, so the shortcut bar
+    // (pricing-sticky-bar, "Pay ₹…") is still the first buy CTA, as it always was on a phone.
+    ctaLabel: (viewport) => (viewport === "desktop" ? 'CBQ Buy "Maths · ₹…"' : 'sticky "Pay ₹…" (Board Pass)'),
+    cta: (page, viewport) => (viewport === "desktop" ? page.getByTestId("hub-buy-pack_cbq-maths") : page.getByTestId("pricing-sticky-bar-go")),
   },
   {
     path: "/packs",
