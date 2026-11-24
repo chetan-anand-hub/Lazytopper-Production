@@ -32,11 +32,11 @@
   color: #6ee7a8;
 }
 /* TS-H1-KEYWORD-1: the eyebrow sits inside the h1 (crawlers read "CBSE Class 10 Test Series" first) but looks exactly as the old <p>:
-   body face, the old <p>'s 1.5 line height, uppercase via CSS, 10 px under it (the old flex gap). */
+   the page's Inter face, the old <p>'s 1.5 line height, uppercase via CSS, 10 px under it (the old flex gap). */
 .lt-ts-hero__h1 .lt-ts-hero__eyebrow {
   display: block;
   margin: 0 0 10px;
-  font-family: var(--font-body);
+  font-family: "Inter", system-ui, sans-serif;
   line-height: 1.5;
   text-transform: uppercase;
 }
