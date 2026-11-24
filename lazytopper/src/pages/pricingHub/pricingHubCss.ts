@@ -12,6 +12,12 @@
  * a little wider), the two groups labelled above and split by a thin divider - four across needs >= ~280 px per card for the Board
  * Pass Pay area and the two-up CBQ Buys, which only 1280 px gives. Every tap target >= 44 px. Fonts are the app's own.
  */
+/*
+ * PRICING-CTA-UP-1 v1.1 (owner, 24 Nov 2026) - the slim card faces (rules at the end of HUB_CSS; comments kept OUT of the string, it
+ * ships inline in the prerendered page): face = tag · name (the ONE link, stretched over the top area via .lt-ph-open::after) · hook
+ * · three ticks · "Details ›" · a hairline · price · Buy, then the folded .lt-ph-more row. Each card takes its own height from 768 px
+ * (.lt-ph-cards--up). The long validity line is hidden on the face (the Pay button says "valid till ...") and shown in the fold.
+ */
 export const HUB_CSS = `
   .lt-ph {
     --ph-navy: #0b1b3a;
@@ -442,11 +448,6 @@ export const HUB_CSS = `
     display: flex;
     flex-direction: column;
     gap: 10px;
-  }
-  /* PRICING-CTA-UP-1: the Buy area sits right under the card's hero line (not pinned to the bottom), so no card opens a gap above its
-     Buy; the features follow it. VITE_PRICING_CTA_UP_DISABLED=1 drops the --up class and today's pinned foot returns. */
-  .lt-ph-cards--up .lt-ph-foot {
-    margin-top: 0;
   }
   .lt-ph-price {
     margin: 0;
@@ -990,7 +991,6 @@ export const HUB_CSS = `
     .lt-ph-card {
       padding: 20px 20px 18px;
     }
-    /* PRICING-CTA-UP-1: each card takes its own height (no stretched blank band under a shorter card's features). */
     .lt-ph-cards--up {
       align-items: start;
     }
@@ -1117,10 +1117,6 @@ export const HUB_CSS = `
 .lt-tsclk--amt { min-width: 5.5ch; }
 .lt-tsclk--line { display: block; min-height: 1.3em; }
 
-/* ── PRICING-CTA-UP-1 v1.1 (owner, 24 Nov 2026): the slim card faces ─────────────────────────────────────────────────────────────
-   Face = tag · name (the ONE link to the product page, stretched over the top area) · hook · three ticks · "Details ›" · price · Buy;
-   then a folded "more" row. One rhythm in every card: 14 px between the top area's parts, a hairline before the price block, the Buy
-   full width. Each card takes its own height (no stretched blank band). The app's own fonts and colours only. */
 .lt-ph-card--face {
   gap: 14px;
 }
@@ -1138,7 +1134,6 @@ export const HUB_CSS = `
 .lt-pricing-page .lt-ph-open {
   color: inherit;
 }
-/* The stretched link: the whole top area (tag, name, hook, ticks, cue) is one tap target; nothing else in it is interactive. */
 .lt-ph-open::after {
   content: "";
   position: absolute;
@@ -1178,7 +1173,6 @@ export const HUB_CSS = `
   font-size: 1.02rem;
   line-height: 1.4;
 }
-/* The price block opens with a hairline, so tag/hook/ticks and price/Buy read as two parts of one card. */
 .lt-ph-card--face .lt-ph-foot {
   margin-top: 0;
   padding-top: 14px;
@@ -1188,14 +1182,12 @@ export const HUB_CSS = `
 .lt-ph-card--pass.lt-ph-card--face .lt-ph-foot {
   border-top-color: rgba(255, 255, 255, 0.18);
 }
-/* The Pay button already says "valid till 28 Feb 2027"; the long validity line sits in the folded row instead. */
 .lt-ph-card--face .lt-pricing-tillboards-validity {
   display: none;
 }
 .lt-ph-card--face .lt-pricing-tillboards-slot {
   min-height: 0;
 }
-/* The folded row. */
 .lt-ph-more {
   margin: 0;
   border-top: 1px solid rgba(11, 27, 58, 0.12);
