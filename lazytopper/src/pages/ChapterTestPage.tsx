@@ -142,6 +142,9 @@ import { useBankChapters } from "../data/bankChapters/useBankChapters";
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import UsageWarning from "../components/usage/UsageWarning";
 import { useFairUse } from "../components/usage/useFairUse";
+// FAIRUSE-TS-OWNER-1 - who the trial paper wall is not for (a Board Pass holder; a Test Series owner on a series paper).
+import { paperWallVerdict, tsOwnerWallExemptDisabled } from "../components/usage/fairUseGate";
+import { isPaidPremium } from "../services/subscriptionService";
 import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../ai/gradingTransport";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
 import { isPremiumRequiredRefusal, isTrialLimitRefusal } from "../components/limits/limitsCopy";
@@ -149,7 +152,7 @@ import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesChecksLeftLine, SeriesOwnerNotice, SeriesOfferButtons, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess } from "../components/testSeries/WrittenCheckGate";
+import { ACCESS_CHECKING_LINE, ACCESS_FAILED_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesChecksLeftLine, SeriesOwnerNotice, SeriesOfferButtons, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUploadNotAllowed, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
@@ -252,7 +255,8 @@ export default function ChapterTestPage() {
   const fairUse = useFairUse("chapter-test", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live, so a student who pays
   // mid-session (or whose cloud status lands after the gate ran) is never refused a new paper.
-  const { isPremium } = useSubscription();
+  const { isPremium, status: subscriptionStatus } = useSubscription();
+  const paidPremium = isPaidPremium(subscriptionStatus);
 
   const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const topicBackTo = navState?.back || `/topic-hub/${grade}/${subject.toLowerCase()}/${topicKey}`;
@@ -505,6 +509,24 @@ export default function ChapterTestPage() {
   const fairUseSeriesOffer =
     !!seriesTest && !seriesAccess.checking && !seriesAccess.failed && !seriesAccess.canCheck ? <SeriesOfferButtons testIdPrefix="fair-use" only="test-series" showTotal /> : null;
   const seriesDownloadAccess = seriesAccess.canDownload;
+  // FAIRUSE-TS-OWNER-1: the trial paper wall is never drawn for a Board Pass holder, nor for a Test Series owner on a series
+  // paper (the server mints both without the trial limit). `seriesPaper` is decided by the caller (this page's URL, or the saved
+  // paper's worksheetId on the continue path). Kill switch VITE_FAIRUSE_TS_OWNER_EXEMPT_DISABLED.
+  const wallVerdictFor = useCallback(
+    (seriesPaper: boolean) =>
+      paperWallVerdict({
+        disabled: tsOwnerWallExemptDisabled(),
+        paidPremium,
+        seriesPaper,
+        ownsSeries: seriesAccess.ownsSeries,
+        checking: seriesAccess.checking,
+        failed: seriesAccess.failed,
+      }),
+    [paidPremium, seriesAccess.ownsSeries, seriesAccess.checking, seriesAccess.failed],
+  );
+  // FAIRUSE-TS-OWNER-1: a Test Series owner's series paper never downloads against the weekly count (limits.cjs), and a Board Pass
+  // holder is not metered - so the LIMITS-1 "first download is free" chip is not theirs to read.
+  const hideDownloadChip = !tsOwnerWallExemptDisabled() && (paidPremium || (!!seriesTest && seriesAccess.ownsSeries));
   // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
   const boardPassHolder = useBoardPassHolder();
   const [startWall, setStartWall] = useState(false);
@@ -812,9 +834,19 @@ export default function ChapterTestPage() {
       setStartWall(true);
       return;
     }
-    // FAIR-USE-UI-1 (UI3): today's chapter test already used -> the panel, not the paper. [FU-FAIRUSE-TS-OWNER-EXEMPT]: a Test
-    // Series owner's series paper is still blocked here on purpose (server fairUse.cjs handlePaperPass has no owner exemption yet).
-    if (fairUse.blockPaperStart()) return;
+    // FAIR-USE-UI-1 (UI3): today's chapter test already used -> the panel, not the paper. FAIRUSE-TS-OWNER-1 (resolves
+    // [FU-FAIRUSE-TS-OWNER-EXEMPT]): the server now mints a trial Test Series owner's series paper and a Board Pass holder's paper
+    // without the trial limit, so neither is walled here; while ownership is unknown the page waits.
+    const wall = wallVerdictFor(!!seriesTest);
+    if (wall === "wait") {
+      setLimitNotice(ACCESS_CHECKING_LINE);
+      return;
+    }
+    if (wall === "unconfirmed") {
+      setStartWall(true);
+      return;
+    }
+    if (wall !== "exempt" && fairUse.blockPaperStart()) return;
     // CT-RESUME-2: starting a paper is a NEW paper. A visit the daily gate let through uncounted
     // (it looked like a resume) is counted now — or refused at today's limit.
     if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest), location.search)) {
@@ -835,7 +867,7 @@ export default function ChapterTestPage() {
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
-  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper, location.pathname, location.search, user?.uid, isPremium, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, seriesTest, isSignedIn, records, navigate]);
+  }, [topicKey, subject, fairUse.blockPaperStart, wallVerdictFor, markServed, paper, location.pathname, location.search, user?.uid, isPremium, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, seriesTest, isSignedIn, records, navigate]);
 
   // CT-RELOAD-1 — continue the restored paper where it was left. A resume, not a new start:
   // never re-counted against the fair-use allowance.
@@ -1189,8 +1221,18 @@ export default function ChapterTestPage() {
       // AWAIT-1: a downloaded paper first takes its Section A picks (then continueFromPicks).
       if (snap && needsSectionAPicks(snap)) {
         // The same fair-use gate as an in-app start (UI3): an exhausted allowance is stopped
-        // BEFORE a client-scored partial record could be written.
-        if (fairUse.blockPaperStart()) return;
+        // BEFORE a client-scored partial record could be written. FAIRUSE-TS-OWNER-1: "series" is the SAVED paper's own id.
+        const wall = wallVerdictFor(seriesPaperKeyOfWorksheetId(snap.paper?.worksheetId) !== null);
+        if (wall === "wait") {
+          setLimitNotice(ACCESS_CHECKING_LINE);
+          return;
+        }
+        if (wall === "unconfirmed") {
+          setLimitNotice(`${ACCESS_FAILED_LINE} - please try again.`);
+          seriesAccess.retry();
+          return;
+        }
+        if (wall !== "exempt" && fairUse.blockPaperStart()) return;
         setReopen(null);
         setPickPaper(snap);
         setPhase("pick");
@@ -1219,7 +1261,7 @@ export default function ChapterTestPage() {
           "This test was taken before papers were saved, so it can't be uploaded. Start a new test to practise this chapter.",
       });
     },
-    [user, fairUse.blockPaperStart],
+    [user, fairUse.blockPaperStart, wallVerdictFor, seriesAccess.retry],
   );
 
   const openStored = useCallback(
@@ -1513,7 +1555,7 @@ export default function ChapterTestPage() {
                       />
                     </div>
 
-                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} /> : null}
+                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} tsOwner={seriesAccess.ownsSeries} /> : null}
 
                     {restoredPaper && (
                       <div className="lt-ct__honest" data-testid="ct-resume-note">
@@ -1553,7 +1595,7 @@ export default function ChapterTestPage() {
                       ) : (
                         <DownloadWithPlanLink />
                       )}
-                      {seriesDownloadAccess && <LimitChip />}
+                      {seriesDownloadAccess && !hideDownloadChip && <LimitChip />}
                     </div>
                     {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote written={freeWritten} />}
                     {startWall && !seriesPaperAccess && (seriesAccess.failed ? <AccessFailed onRetry={seriesAccess.retry} /> : seriesAccess.checking ? <AccessChecking /> : <SeriesStartWall />)}
@@ -1826,7 +1868,7 @@ export default function ChapterTestPage() {
             {seriesNavOn && seriesBack.to !== TEST_SERIES_NAV_PATH && <SeriesCrumb />}
           </div>
 
-          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} /> : null}
+          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} tsOwner={seriesAccess.ownsSeries} /> : null}
           {paperWall && (seriesAccess.ownsSeries ? (
             <SeriesOwnerNotice onClose={() => setPaperWall(false)} worksheetId={paper.worksheetId} status={seriesAccess.status} />
           ) : (

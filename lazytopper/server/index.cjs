@@ -391,7 +391,12 @@ const testSeriesChecks = createTestSeriesChecks({
   readBody: (r) => fairUseModule.preReadGradingBody(r, readJson),
 });
 const entitlementGate = createEntitlementGate({ adminFirestore, firebaseAdmin, telemetry, sendJson, cbqTutorTaste, testSeriesChecks });
-const fairUse = createFairUse({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
+// FAIRUSE-TS-OWNER-1: a trial Test Series owner's series paper is minted without the trial paper limit (kill switch
+// FAIRUSE_TS_OWNER_EXEMPT_DISABLED). The same server-truth helper LIMITS-1 uses below.
+const fairUse = createFairUse({
+  adminFirestore, telemetry, sendJson, verifiedCaller, readJson,
+  seriesOwnerPaper: (uid, surface, paperKey) => testSeriesChecks.ownerSeriesPaper(uid, surface, paperKey),
+});
 // LIMITS-1: download limits (dark until LIMITS_ENFORCE=1). See services/limits.cjs.
 // TS-PACK-JOBFIX (review P0 #1): a Test Series Pack owner's series paper is not metered by LIMITS-1 (testSeriesChecks is created below;
 // this is called per request, long after both exist).

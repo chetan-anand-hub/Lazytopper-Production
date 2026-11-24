@@ -17,7 +17,7 @@
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { limitCopy, limitResetWhen, trialComeBackLine, type LimitState } from "./fairUseGate";
+import { limitCopy, limitResetWhen, trialComeBackLine, tsOwnerWallExemptDisabled, type LimitState } from "./fairUseGate";
 // PAYWALL-PAY-1 — with payments on, "See plans" becomes Pay / Share QR code / Forward link
 // to parents ("Pay" goes to the same plans page). Payments dark: "See plans", unchanged.
 import PaywallActions from "../pricing/PaywallActions";
@@ -45,8 +45,15 @@ function isTrialDailyChecks(limit: LimitState, when: string): boolean {
   return limit.tier === "trial" && limit.scope === "checks" && when !== "" && limit.window !== "week";
 }
 
+/**
+ * FAIRUSE-TS-OWNER-1: a Test Series owner's Board Pass is an UPGRADE, priced by the server at checkout (TS-UPGRADE-CREDIT-1) -
+ * never the full price this panel would otherwise print. No figure here; checkout shows the upgrade quote.
+ */
+export const TS_OWNER_BOARD_PASS_LINE = "Upgrade to the Board Pass \u2192";
+
 /** The Board Pass price line of a trial refusal. Price and detail come from pricing.ts, never typed here. */
-function boardPassLine(): string {
+function boardPassLine(tsOwner = false): string {
+  if (tsOwner && !tsOwnerWallExemptDisabled()) return TS_OWNER_BOARD_PASS_LINE;
   const offer = boardPassOffer(new Date(), predictCbseExamDate("10"));
   return `${offer.title}${offer.priceDisplay ? ` ${offer.priceDisplay}` : ""} — ${offer.detail}`;
 }
@@ -96,6 +103,7 @@ export default function FairUseLimitPanel({
   pack = null,
   offers = null,
   seriesOffer = null,
+  tsOwner = false,
 }: {
   limit: LimitState;
   onDismiss?: () => void;
@@ -108,6 +116,8 @@ export default function FairUseLimitPanel({
    *  SeriesOfferButtons, `only="test-series"`), drawn beside this panel's own Board Pass offer - on a TRIAL refusal only (the
    *  server's tier); a paid-Premium refusal never shows an offer. Absent -> the panel is exactly as before. */
   seriesOffer?: ReactNode;
+  /** FAIRUSE-TS-OWNER-1: the student owns the Test Series (server truth, /api/packs/mine) - the Board Pass line names no full price. */
+  tsOwner?: boolean;
 }) {
   const copy = limitCopy(limit);
   const when = limitResetWhen(limit);
@@ -151,7 +161,7 @@ export default function FairUseLimitPanel({
         <LimitByte limit={limit} when={when} />
         {copy.showPlans ? (
           <p className="lt-usage__body" data-testid="fair-use-board-pass">
-            {boardPassLine()}
+            {boardPassLine(tsOwner)}
           </p>
         ) : null}
         {copy.showPlans || onDismiss ? (
@@ -234,7 +244,7 @@ export default function FairUseLimitPanel({
           {trialComeBackLine(limit.resetAt ?? "", when, limit.allowance)}
         </p>
         <p className="lt-usage__body" data-testid="fair-use-board-pass">
-          {boardPassLine()}
+          {boardPassLine(tsOwner)}
         </p>
         <div className="lt-usage__actions">
           <PaywallActions
