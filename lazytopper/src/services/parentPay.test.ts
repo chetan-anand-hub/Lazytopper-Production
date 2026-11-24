@@ -18,7 +18,7 @@ import {
 } from "./parentPay";
 import type { RazorpayConstructor, RazorpaySuccess } from "./checkout";
 import { buildAskParentMessage, parentProofFrom, parentProofLine } from "./parentPayMessage";
-import { buildAskParentPackMessage, buyPackAsParent, createParentPackOrder, mintParentPackLink, parentPackName, verifyParentPackPayment, viewParentLinkWithPack, withValidPack } from "./parentPayPack";
+import { buildAskParentPackMessage, buyPackAsParent, createParentPackOrder, mintParentPackLink, parentPackName, parentSeriesTestCount, verifyParentPackPayment, viewParentLinkWithPack, withValidPack } from "./parentPayPack";
 import { seriesTotals } from "../lib/testSeries/testSeries";
 
 /** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
@@ -333,6 +333,18 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
       ].join("\n\n"),
     );
     expect(text).not.toMatch(/PDF/);
+  });
+
+  it("TS-PARENT-FORWARD-1: the light test count equals seriesTotals().total (and the TS-MORE-1 kill switch moves both)", async () => {
+    expect(parentSeriesTestCount()).toBe(seriesTotals().total);
+    vi.stubEnv("VITE_TS_MORE_DISABLED", "1");
+    vi.resetModules();
+    const light = await import("./parentPayPack");
+    const heavy = await import("../lib/testSeries/testSeries");
+    expect(light.parentSeriesTestCount()).toBe(heavy.seriesTotals().total);
+    expect(light.parentSeriesTestCount()).not.toBe(parentSeriesTestCount());
+    vi.unstubAllEnvs();
+    vi.resetModules();
   });
 
   it("TS-PARENT-FORWARD-1 review A: the message is chosen by SKU, never by the name (a renamed Test Series still gets its own text)", () => {

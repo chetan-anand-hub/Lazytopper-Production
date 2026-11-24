@@ -12,7 +12,8 @@
 import { orderSourceFields } from "../analytics/visitSource";
 import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 import { formatInr } from "../config/pricing";
-import { seriesTotals } from "../lib/testSeries/testSeries";
+import { BOARD_CHAPTER_KEYS, chapterUnit } from "../config/syllabusUnits2026-27";
+import { SERIES_MOCKS_PER_SUBJECT, SERIES_PAPERS_PER_CHAPTER } from "../lib/testSeries/seriesCounts";
 import type { PackSku } from "./packs";
 import {
   childAuthHeaders,
@@ -261,11 +262,21 @@ export function buildAskParentPackMessage({ lang, name, sku, priceInr, url, days
 
 /**
  * TS-PARENT-FORWARD-1 - the child's message for the Test Series: the tests (online or printed) and the step-by-step marking, never "PDFs". The price is
- * the SERVER's (the mint's total); the test count is seriesTotals() (never typed). The link / no-password / validity lines are the
+ * the SERVER's (the mint's total); the test count is parentSeriesTestCount() (never typed). The link / no-password / validity lines are the
  * pack message's own.
  */
+/**
+ * The Test Series' test count WITHOUT lib/testSeries/testSeries.ts (review: that module put ~5 KB gz on every paywall surface's
+ * PaywallActionsView). Same arithmetic as hubTsFlag's hub card: board chapters x papers per chapter + full-length per subject x 2.
+ * A test pins it equal to seriesTotals().total.
+ */
+export function parentSeriesTestCount(): number {
+  const chapters = BOARD_CHAPTER_KEYS.filter((k) => chapterUnit(k) !== null && chapterUnit(k) !== undefined).length;
+  return chapters * SERIES_PAPERS_PER_CHAPTER + SERIES_MOCKS_PER_SUBJECT * 2;
+}
+
 function buildAskParentSeriesMessage(lang: ParentPayLang, price: string, url: string, days: number): string {
-  const tests = seriesTotals().total;
+  const tests = parentSeriesTestCount();
   if (lang === "hi") {
     return [
       `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ${price} है और मेरे बोर्ड तक चलेगी: ${tests} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं।`,
