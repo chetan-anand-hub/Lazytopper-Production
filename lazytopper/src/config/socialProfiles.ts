@@ -23,14 +23,17 @@ export const WHATSAPP_CHANNEL_URL = "https://whatsapp.com/channel/0029Vb8hcIcKmC
 export const TELEGRAM_URL = "https://telegram.me/lazytopper_cbse";
 /** A never-expiring invite. */
 export const DISCORD_URL = "https://discord.gg/rqv5vGxwYX";
+/** SAMEAS-DIRECTORIES-1 — LazyTopper's company listings on startup directories (identity only, never footer links). */
+export const CRUNCHBASE_URL = "https://www.crunchbase.com/organization/lazytopper";
+export const WELLFOUND_URL = "https://wellfound.com/company/lazytopper";
 export const WHATSAPP_URL = "https://wa.me/919714568948";
 /** WA-CONTACT-1 — the same number as people read it (the /contact page, the legal pages). */
 export const WHATSAPP_DISPLAY_NUMBER = "+91 97145 68948";
 
 /** The Organization's `sameAs`, in this order. */
-export const SAME_AS: readonly string[] = [YOUTUBE_URL, INSTAGRAM_URL, FACEBOOK_URL, X_URL, LINKEDIN_URL, WHATSAPP_CHANNEL_URL, TELEGRAM_URL, DISCORD_URL];
+export const SAME_AS: readonly string[] = [YOUTUBE_URL, INSTAGRAM_URL, FACEBOOK_URL, X_URL, LINKEDIN_URL, WHATSAPP_CHANNEL_URL, TELEGRAM_URL, DISCORD_URL, CRUNCHBASE_URL, WELLFOUND_URL];
 
-/** The footer's social row, in this order. X and LinkedIn are `sameAs` only. */
+/** The footer's social row, in this order. X, LinkedIn and the directory listings are `sameAs` only. */
 export const FOOTER_SOCIAL: ReadonlyArray<{ label: string; href: string }> = [
   { label: "YouTube", href: YOUTUBE_URL },
   { label: "Instagram", href: INSTAGRAM_URL },

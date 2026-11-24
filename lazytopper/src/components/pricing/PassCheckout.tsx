@@ -38,7 +38,8 @@ import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { fetchMyPacks, type BoardPassCredit, type TestSeriesUpgrade } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
 import PayRescueCard from "../payRescue/PayRescueCard";
-import InAppPayChoice from "../payRescue/InAppPayChoice";
+import InAppPayChoice, { inAppChoiceSurface } from "../payRescue/InAppPayChoice";
+import { inAppPayFirstHop } from "../../utils/inAppPayFirst";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 import PostPayGstLazy from "../gstInvoice/PostPayGstLazy";
 import PaidSheetLazy, { paidSheetEnabled, paidSheetReceiptLine, preloadPaidSheet } from "../checkoutWho/PaidSheetLazy";
@@ -466,6 +467,9 @@ export function PassCheckoutView({
 
   async function handleBuy(passType: PassType, opts: { resumed?: boolean; fromWho?: boolean } = {}) {
     if (busy || recovery !== null) return;
+    // INAPP-PAY-FIRST-1: Instagram / Facebook on Android, signed out: the Board Pass tap goes straight to Chrome (/board-pass?buy=board_pass), no order, no begin_checkout.
+    // (The month pass and an automatic ?buy= arrival are unchanged.)
+    if (passType === "till_boards" && inAppPayFirstHop({ automatic: opts.resumed === true || opts.fromWho === true, signedIn, surface: inAppChoiceSurface(window.location.pathname), sku: "board_pass", buy: { kind: "pass" } })) return;
     buyStartedRef.current = true;
     const resumed = opts.resumed === true;
     const details = checkoutEventDetails(passType, offerOpen);
@@ -733,7 +737,7 @@ export function PassCheckoutView({
       </button>
       {busy !== null && slowOpen && <p className="lt-pricing-plan-desc lt-pricing-checkout-note" role="status" data-testid="pass-slow-open">{CHECKOUT_SLOW_COPY}</p>}
       {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Pay (never replaces it). */}
-      {inAppChoice && !signedIn && !rescue && busy === null && recovery === null && <InAppPayChoice buy={{ kind: "pass" }} />}
+      {inAppChoice && !signedIn && !rescue && busy === null && recovery === null && <InAppPayChoice buy={{ kind: "pass" }} onPayHere={() => void handleBuy("till_boards")} />}
       {gstBreakdown && !activeLabel && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" data-testid="pass-checkout-gst">
           {gstBreakdown}

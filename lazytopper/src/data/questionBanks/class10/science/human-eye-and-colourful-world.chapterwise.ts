@@ -214,14 +214,14 @@ export const HUMAN_EYE_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-EYE-027", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Chapter Practice — Human Eye and the Colourful World", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Mention the factor on which scattering of light depends. Why does the sky appear dark in space?",
     answer: "Scattering of light depends on the size of the scattering particles compared with the wavelength of light (very fine particles scatter shorter wavelengths like blue more; larger particles scatter all colours). In space there is no atmosphere, so there are no particles to scatter sunlight, and the sky appears dark.",
-    solutionSteps: ["Scattering of light depends on the size of the scattering particles relative to the wavelength of light: very fine particles scatter shorter wavelengths (blue) more, larger particles scatter all colours.", "In space there is no atmosphere (no air molecules, dust or water droplets) to scatter sunlight, so no scattered light reaches the eye and the sky appears dark."],
+    solutionSteps: ["[1 mark] Scattering of light depends on the size of the scattering particles relative to the wavelength of light: very fine particles scatter shorter wavelengths (blue) more, larger particles scatter all colours.", "[1 mark] In space there is no atmosphere (no air molecules, dust or water droplets) to scatter sunlight, so no scattered light reaches the eye and the sky appears dark."],
     ncertRef: "cbjesccq11 Q29", isCompetencyBased: true,
     sourceOverride: "others" },
   // cbjesccq11 Q30 (Section B, 2mk)
   { id: "SCQ-S-EYE-028", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Chapter Practice — Human Eye and the Colourful World", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "How can change of size of eyeball be one of the reason for: (a) Myopic (b) Hypermetropic Compare the size of eyeball with that of a normal eye in each case. How does this change of size affect the position of image in each case?",
     answer: "[All India 2016] (a) The eye suffering from myopia, has long eye ball than that of normal eye due to which the retina is at a larger distance from the eye lens. This results in the formation of the image in front of the retina. (b) The eye suffering from hypermetropia has short e",
-    solutionSteps: ["[All India 2016] (a) The eye suffering from myopia, has long eye ball than that of normal eye due to which the retina is at a larger distance from the eye lens. This results in the formation of the image in front of the retina. (b) The eye suffering from hypermetropia has short eye ball than that of normal eye due to which the retina is smaller distance from the eye lens. This results in the formation of the image behind the retina."],
+    solutionSteps: ["[1 mark] [All India 2016] (a) The eye suffering from myopia, has long eye ball than that of normal eye due to which the retina is at a larger distance from the eye lens. This results in the formation of the image in front of the retina.", "[1 mark] (b) The eye suffering from hypermetropia has short eye ball than that of normal eye due to which the retina is smaller distance from the eye lens. This results in the formation of the image behind the retina."],
     ncertRef: "cbjesccq11 Q30", isCompetencyBased: true },
   // cbjesccq11 Q31 (Section B, 2mk)
   { id: "SCQ-S-EYE-029", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Chapter Practice — Human Eye and the Colourful World", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -235,7 +235,7 @@ export const HUMAN_EYE_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-EYE-030", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Chapter Practice — Human Eye and the Colourful World", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "State the function of pupil and ciliary muscles.",
     answer: "a. Pupil controls the amount of light entering the eye. b. Ciliary muscles help in accommodation of power of eye lens.",
-    solutionSteps: ["a. Pupil controls the amount of light entering the eye. b. Ciliary muscles help in accommodation of power of eye lens."],
+    solutionSteps: ["[1 mark] a. Pupil controls the amount of light entering the eye.", "[1 mark] b. Ciliary muscles help in accommodation of power of eye lens."],
     ncertRef: "cbjesccq11 Q32", isCompetencyBased: false },
   // cbjesccq11 Q33 (Section B, 2mk)
   { id: "SCQ-S-EYE-031", subject: "Science", topicKey: "human-eye-and-colourful-world", subtopic: "Chapter Practice — Human Eye and the Colourful World", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",

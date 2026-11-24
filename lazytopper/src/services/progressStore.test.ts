@@ -895,3 +895,23 @@ describe("PR-B-v2 — getTopicTrendFromCloud (Topic Hub cross-device read + runn
     expect(t.points).toEqual([]);
   });
 });
+
+describe("TS-THEMES-1 - a Test Series focus set is never counted as a full mock (no fake progress)", () => {
+  it("activity summary: a graded focus set (surface full-mock, fm-tsfs- id) is not a full mock; a real full mock still is", () => {
+    RECORDS = [
+      rec({ id: "FM-M-01", surface: "full-mock", worksheetId: "fm-ts1-m3--abc" }),
+      rec({ id: "FM-M-02", surface: "full-mock", worksheetId: "fm-tsfs-mla1--abc" }),
+      rec({ id: "FM-M-03", surface: "full-mock", worksheetId: "fm-tsfs-snu2--abc" }),
+    ];
+    expect(getActivitySummary()).toMatchObject({ fullMocks: 1 });
+  });
+
+  it("windowed progress activity: focus sets are not counted as full mocks", async () => {
+    CLOUD_RECORDS = [
+      rec({ id: "FM-M-01", surface: "full-mock", worksheetId: "fm-lq2-9k", gradedAt: NOW - 2 * DAY }),
+      rec({ id: "FM-M-02", surface: "full-mock", worksheetId: "fm-tsfs-mcb3--x", gradedAt: NOW - 1 * DAY }),
+    ];
+    const wp = await getWindowedProgress("u1", "month", undefined, NOW);
+    expect(wp.activity).toMatchObject({ fullMocks: 1 });
+  });
+});

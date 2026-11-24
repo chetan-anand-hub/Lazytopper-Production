@@ -2268,6 +2268,8 @@ export interface OnboardingEventParams {
 export interface OnboardingEventParams {
   inapp_pay_choice_shown: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
   inapp_pay_open_external: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
+  /** INAPP-PAY-FIRST-1: a signed-out Buy tap in Instagram / Facebook on Android went straight to Chrome (no order made). */
+  inapp_pay_first_hop: { surface: string; sku: string };
   inapp_pay_copy_link: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
 }
 

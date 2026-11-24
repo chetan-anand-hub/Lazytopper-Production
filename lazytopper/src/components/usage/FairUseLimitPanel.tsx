@@ -15,7 +15,7 @@
  * (premium, a trial paper allowance) keeps the inline panel exactly as before.
  */
 
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { limitCopy, limitResetWhen, trialComeBackLine, type LimitState } from "./fairUseGate";
 // PAYWALL-PAY-1 — with payments on, "See plans" becomes Pay / Share QR code / Forward link
@@ -95,6 +95,7 @@ export default function FairUseLimitPanel({
   dismissLabel = "OK",
   pack = null,
   offers = null,
+  seriesOffer = null,
 }: {
   limit: LimitState;
   onDismiss?: () => void;
@@ -103,6 +104,10 @@ export default function FairUseLimitPanel({
   pack?: PaperPackLine | null;
   /** OFFERS-V2: the paper's pack rows replace the one generic pack line (a paper wall). Absent -> the line is exactly as before. */
   offers?: PaperOffers | null;
+  /** LIVE-FIX-1 (live run 23 Nov 2026): on a Test Series paper the host passes the Test Series offer (WrittenCheckGate's
+   *  SeriesOfferButtons, `only="test-series"`), drawn beside this panel's own Board Pass offer - on a TRIAL refusal only (the
+   *  server's tier); a paid-Premium refusal never shows an offer. Absent -> the panel is exactly as before. */
+  seriesOffer?: ReactNode;
 }) {
   const copy = limitCopy(limit);
   const when = limitResetWhen(limit);
@@ -169,6 +174,7 @@ export default function FairUseLimitPanel({
             ) : null}
           </div>
         ) : null}
+        {copy.showPlans && seriesOffer && limit.tier === "trial" ? <div data-testid="fair-use-test-series">{seriesOffer}</div> : null}
         {copy.showPlans && offers ? <PaperOffers tier={limit.tier} offers={offers} /> : copy.showPlans && pack ? <PackLine tier={limit.tier} /> : null}
       </section>
     );

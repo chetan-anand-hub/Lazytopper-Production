@@ -26,7 +26,18 @@ vi.mock("../context/AuthContext", () => ({
 }));
 vi.mock("../services/firebaseClient", () => ({ firestoreDb: null }));
 // MYPACKS-TS-1: ownership is a three-state read now; a student who owns nothing resolves to "not owned" (the upgrade card), a failed read is a retry.
-vi.mock("../services/packs", async (orig) => ({ ...(await orig<typeof import("../services/packs")>()), fetchMyPacks: async () => ({ packs: [], licensee: { name: "", email: "" }, boardPassCredit: null }) }));
+// TS-FREE-CHECK-1: `mine.freeTest` is the server's free-test state (absent = the server switch is off / an older server: today's page).
+const mine = vi.hoisted(() => ({ freeTest: undefined as unknown }));
+vi.mock("../services/packs", async (orig) => {
+  const actual = await orig<typeof import("../services/packs")>();
+  return {
+    ...actual,
+    fetchMyPacks: async () => {
+      const freeTest = actual.readTestSeriesFreeTest(mine.freeTest);
+      return { packs: [], licensee: { name: "", email: "" }, boardPassCredit: null, ...(freeTest ? { freeTest } : {}) };
+    },
+  };
+});
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: () => {} }));
 vi.mock("../components/usage/useFairUse", () => ({
   useFairUse: () => ({ limit: null, clearLimit: () => {}, noteGraded: () => {}, handleRefusal: async () => false, blockPaperStart: () => false }),
@@ -42,10 +53,12 @@ vi.mock("../services/sessionRecords", async (importOriginal) => {
 
 import ChapterTestPage from "./ChapterTestPage";
 import { loadLocalSessionRecords } from "../services/sessionRecords";
+import { resetTestSeriesOwnershipForTests } from "../components/testSeries/testSeriesOwnership";
+import { resetOwnedPacksCache } from "../components/packs/useOwnedPacks";
 
-function mount() {
+function mount(url = "/chapter-test/10/maths/real-numbers") {
   render(
-    <MemoryRouter initialEntries={["/chapter-test/10/maths/real-numbers"]}>
+    <MemoryRouter initialEntries={[url]}>
       <Routes>
         <Route path="/chapter-test/:grade/:subject/:topicKey" element={<ChapterTestPage />} />
         <Route path="/login" element={<p>login page</p>} />
@@ -57,6 +70,10 @@ function mount() {
 beforeEach(() => {
   window.localStorage.clear();
   prior.list = [];
+  mine.freeTest = undefined;
+  // TS-FREE-CHECK-1: the ownership read is held per page life (module memory) - each test reads its own server state.
+  resetTestSeriesOwnershipForTests();
+  resetOwnedPacksCache();
   vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ enforced: false }), { status: 200 })));
 });
 afterEach(() => {
@@ -122,5 +139,46 @@ describe.each(["free", "trial", "premium"] as const)("Chapter Test · %s account
       expect(wall.textContent).toContain(`Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all ${seriesTotals().total} tests`);
       expect(document.querySelector(".lt-ct__exit")).toBeNull();
     }
+  }, 90000);
+});
+
+/* ── TS-FREE-CHECK-1 (owner ruling 23 Nov 2026) · the free Test Series test includes written-answer marking ─────────────────── */
+// The server pins the free paper at the first written check and refuses every other paper (server/services/testSeriesChecks.test.cjs);
+// here: what the page shows a free / trial account on a Test Series paper (`?series=1`).
+const SERIES_URL = "/chapter-test/10/maths/real-numbers?series=1";
+
+async function submitFirstTest() {
+  fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 }));
+  await waitFor(() => expect(document.querySelector(".lt-ct__exit")).not.toBeNull());
+  fireEvent.click(document.querySelector(".lt-ct__exit") as HTMLElement);
+  fireEvent.click(await screen.findByRole("button", { name: /Submit now/ }));
+}
+
+describe.each(["free", "trial"] as const)("TS-FREE-CHECK-1 · Chapter Test series paper · %s account", (tier) => {
+  // an earlier test's sitting (same student) must not be resumed here: each case starts from no sitting at all
+  beforeEach(() => window.sessionStorage.clear());
+  it("the free test: the written-marking note before Start, then the upload (not the upgrade card) with the free test's 2 checks", async () => {
+    sub.tier = tier;
+    mine.freeTest = { paperKey: null, checksPerPaper: 2, used: 0 };
+    mount(SERIES_URL);
+    const note = await screen.findByTestId("series-free-test-note", {}, { timeout: 60000 });
+    expect(note.textContent).toBe("This is your 1 free test — written answers marked step by step, like a CBSE examiner.");
+    await submitFirstTest();
+    const close = await screen.findAllByRole("button", { name: /Upload written answers for full result/ }, { timeout: 30000 });
+    fireEvent.click(close[0]);
+    expect((await screen.findAllByText(/Upload your written answers/)).length).toBeGreaterThan(0);
+    expect(screen.queryByTestId("written-check-upgrade")).toBeNull();
+    expect((await screen.findByTestId("series-checks-left")).textContent).toBe("Your free test · Checks left on this paper: 2 of 2");
+  }, 90000);
+
+  it("the server already pinned ANOTHER paper as the free test -> the MCQ-only note and the upgrade card (today's behaviour)", async () => {
+    sub.tier = tier;
+    mine.freeTest = { paperKey: "TS-FM-M1", checksPerPaper: 2, used: 1 };
+    mount(SERIES_URL);
+    const note = await screen.findByTestId("series-free-test-note", {}, { timeout: 60000 });
+    expect(note.textContent).toBe("This is your 1 free test. Its MCQs (Section A) are marked free.");
+    await submitFirstTest();
+    expect(await screen.findByTestId("written-check-upgrade", {}, { timeout: 30000 })).toBeTruthy();
+    expect(screen.queryByText(/Upload your written answers/)).toBeNull();
   }, 90000);
 });

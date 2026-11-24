@@ -9,7 +9,7 @@
 .lt-lo__btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .lt-lo__btn {
   display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; flex: 1 1 140px; min-width: 0;
-  min-height: 44px; padding: 10px 14px; border-radius: 12px; background: hsl(152, 55%, 42%); color: #fff;
+  min-height: 44px; padding: 10px 14px; border-radius: 12px; background: var(--lt-green-fill, #257e55); color: #fff;
   font: inherit; font-size: 0.9rem; font-weight: 700; text-decoration: none; text-align: center; overflow-wrap: anywhere;
 }
 .lt-lo__btn:hover { background: hsl(152, 57%, 37%); }

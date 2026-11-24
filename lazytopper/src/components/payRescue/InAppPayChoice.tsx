@@ -8,7 +8,7 @@
  * Callers render it for SIGNED-OUT visitors only (a signed-in buyer who hops to Chrome arrives signed out and loses account pricing).
  * Renders nothing in a normal browser, or with VITE_INAPP_PAY_CHOICE_DISABLED=1 / VITE_INAPP_PAY_DISABLED=1. Touches no price, order or verification.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { trackOnboardingEvent } from "../../analytics/analytics";
 import { handoffSourceParams } from "../../analytics/visitSource";
 import {
@@ -19,6 +19,7 @@ import {
   inAppSafariUrl,
   type InAppBuyTarget,
 } from "../../utils/inAppPay";
+import { INAPP_PAY_FIRST_HERE_LABEL, INAPP_PAY_FIRST_NOTE, inAppPayFirstActive, inAppPayFirstPayHere, subscribeInAppPayFirst } from "../../utils/inAppPayFirst";
 import type { InAppPayDetected } from "./InAppPayRescue";
 import "./payRescue.css";
 
@@ -55,21 +56,45 @@ export interface InAppPayChoiceProps {
   href?: string;
   userAgent?: string;
   sourceParams?: ReadonlyArray<readonly [string, string]>;
+  /** INAPP-PAY-FIRST-1: runs today's in-webview Buy for this item ("Pay here instead"). Callers render this component for signed-out visitors only. */
+  onPayHere?: () => void;
 }
 
-export default function InAppPayChoice({ buy, surface, inApp, href, userAgent, sourceParams }: InAppPayChoiceProps) {
+export default function InAppPayChoice({ buy, surface, inApp, href, userAgent, sourceParams, onPayHere }: InAppPayChoiceProps) {
   const [detected] = useState(() => (inApp !== undefined ? inApp : currentInAppPayChoice()));
   const [notice, setNotice] = useState<string | null>(null);
   const shown = useRef(false);
+  // INAPP-PAY-FIRST-1: while the Buy tap hops to Chrome (Instagram / Facebook on Android, signed out), this slot is the short note + "Pay here instead".
+  const payFirst = useSyncExternalStore(subscribeInAppPayFirst, () => inAppPayFirstActive(false), () => false);
   const where = surface ?? (typeof window !== "undefined" ? inAppChoiceSurface(window.location.pathname) : "other");
+  // INAPP-PAY-FIRST-1b: while the pay-first note is what shows, this is not a "choice shown" (keeps the PAY-CHOICE-1 funnel honest); it fires when the choice really appears.
+  const noteShowing = payFirst && !!onPayHere;
   useEffect(() => {
-    if (!detected || shown.current) return;
+    if (!detected || shown.current || noteShowing) return;
     shown.current = true;
     if (choiceShownSent) return;
     choiceShownSent = true;
     trackOnboardingEvent("inapp_pay_choice_shown", { app: detected.app, platform: detected.platform, surface: where });
-  }, [detected, where]);
+  }, [detected, where, noteShowing]);
   if (!detected) return null;
+  if (payFirst && onPayHere) {
+    return (
+      <div className="lt-pay-choice" data-testid="inapp-pay-first">
+        <p className="lt-pay-choice__note" data-testid="inapp-pay-first-note">{INAPP_PAY_FIRST_NOTE}</p>
+        <button
+          type="button"
+          className="lt-pay-choice__btn"
+          data-testid="inapp-pay-first-here"
+          onClick={() => {
+            inAppPayFirstPayHere();
+            onPayHere();
+          }}
+        >
+          {INAPP_PAY_FIRST_HERE_LABEL}
+        </button>
+      </div>
+    );
+  }
 
   const pageHref = href ?? (typeof window !== "undefined" ? window.location.href : "");
   const ua = userAgent ?? (typeof navigator !== "undefined" ? navigator.userAgent : "");

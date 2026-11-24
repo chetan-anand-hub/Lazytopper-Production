@@ -184,7 +184,7 @@ export function MobileAccountMenu() {
             width: 34,
             height: 34,
             borderRadius: "50%",
-            background: "linear-gradient(135deg, hsl(152,55%,45%), hsl(152,60%,38%))",
+            background: "linear-gradient(135deg, var(--lt-green-fill, #257e55), var(--lt-green-fill, #257e55))",
             display: "grid",
             placeItems: "center",
             color: "#fff",

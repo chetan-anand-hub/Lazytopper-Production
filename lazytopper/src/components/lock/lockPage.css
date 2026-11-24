@@ -83,7 +83,7 @@
   padding: 12px 16px;
   border: 1px solid #0e7c47;
   border-radius: 12px;
-  background: #16b96a;
+  background: var(--lt-green-fill, #257e55);
   color: #ffffff;
   font: inherit;
   font-size: 1rem;

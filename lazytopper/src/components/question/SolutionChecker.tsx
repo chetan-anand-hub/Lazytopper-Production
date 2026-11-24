@@ -288,7 +288,7 @@ const LOCKED_CTA_CSS = `
     text-transform: uppercase;
     padding: 2px 7px;
     border-radius: 999px;
-    color: #0b8f50;
+    color: var(--lt-green-text, #22774f);
     background: rgba(22, 185, 106, 0.12);
     border: 1px solid rgba(22, 185, 106, 0.26);
   }
@@ -1268,7 +1268,7 @@ export function SolutionChecker({
           style={{
             marginTop: 10, width: "100%", padding: "11px 14px",
             borderRadius: 10, border: "1px solid hsl(152, 55%, 45%)",
-            background: "hsl(152, 55%, 45%)",
+            background: "var(--lt-green-fill, #257e55)",
             color: "white", fontSize: "0.84rem", fontWeight: 700,
             cursor: "pointer",
           }}
@@ -1294,7 +1294,7 @@ export function SolutionChecker({
           <span
             aria-hidden="true"
             style={{
-              width: 21, height: 21, borderRadius: "50%", background: "hsl(152, 55%, 45%)",
+              width: 21, height: 21, borderRadius: "50%", background: "var(--lt-green-fill, #257e55)",
               color: "#fff", flex: "none", display: "grid", placeItems: "center",
               fontSize: "0.72rem", fontWeight: 700, marginTop: 1,
             }}

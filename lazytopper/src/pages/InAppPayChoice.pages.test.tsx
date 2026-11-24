@@ -35,12 +35,16 @@ const UA = {
 const setUa = (ua: string) => Object.defineProperty(navigator, "userAgent", { value: ua, configurable: true });
 
 beforeEach(() => {
+  vi.stubEnv("VITE_INAPP_PAY_FIRST_DISABLED", "1"); // these assert the PAY-CHOICE-1 option under Buy; the pay-first hop (INAPP-PAY-FIRST-1) has its own tests
   auth.user = null;
   auth.loading = false;
   resetInAppPayChoiceShown();
   window.history.pushState({}, "", "/for-parents?utm_source=instagram&fbclid=zz");
 });
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  vi.unstubAllEnvs();
+});
 
 async function mount(path: string, el: ReactElement) {
   await act(async () => {

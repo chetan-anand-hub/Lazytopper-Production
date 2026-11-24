@@ -29,6 +29,7 @@ const CHROME = "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHT
 const setUa = (ua: string) => Object.defineProperty(navigator, "userAgent", { value: ua, configurable: true });
 
 beforeEach(() => {
+  vi.stubEnv("VITE_INAPP_PAY_FIRST_DISABLED", "1"); // these assert the PAY-CHOICE-1 option under Buy; the pay-first hop (INAPP-PAY-FIRST-1) has its own tests
   onboarding.mockReset();
   auth.user = null;
   resetInAppPayChoiceShown();

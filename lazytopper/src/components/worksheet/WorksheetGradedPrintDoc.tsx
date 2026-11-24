@@ -28,6 +28,8 @@ import {
   stepAnnotationText,
   stepShowsType,
 } from "../../lib/mistakeDisplay";
+import { paperMarksScore } from "../results/scoreTotals";
+import { notFoundAddPageLine, notFoundLead, notFoundNotAttemptedQNumbers } from "../../lib/notFoundNotAttempted";
 import { RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } from "./printFigures";
@@ -78,7 +80,9 @@ function toneFor(g: WorksheetQuestionGrade): Tone {
   return "part";
 }
 
-function markPill(g: WorksheetQuestionGrade): string {
+function markPill(g: WorksheetQuestionGrade, fullPaper = false): string {
+  // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:59 IST) - a full paper names every unmarked row the same way.
+  if (fullPaper && !isGradedQuestion(g)) return "Not marked yet";
   if (gradeStateOf(g) === "answer-mismatch") return "not marked";
   if (!isGradedQuestion(g)) return "pending";
   return `${g.marksAwarded ?? 0} / ${g.totalMarks}`;
@@ -155,6 +159,13 @@ export const GRADED_SHEET_KIND = {
   "quick-practice": "Quick Practice",
 } as const;
 
+/** TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:59 IST) - the full-paper sheets (Full Mock, incl. Test Series full-length, and
+ *  Chapter Test) print the total out of the paper's FULL marks, like a real CBSE result; unmarked rows read "Not marked yet".
+ *  Worksheet and Quick Practice sheets print exactly as before. */
+export function isFullPaperKind(kindLabel: string | null | undefined): boolean {
+  return kindLabel === GRADED_SHEET_KIND["full-mock"] || kindLabel === GRADED_SHEET_KIND["chapter-test"];
+}
+
 /** The header word for a record's surface; "Worksheet" for any surface this doc does not print. */
 export function gradedSheetKindFor(surface: string | null | undefined): string {
   return (GRADED_SHEET_KIND as Record<string, string>)[String(surface ?? "")] ?? GRADED_SHEET_KIND.worksheet;
@@ -162,6 +173,10 @@ export function gradedSheetKindFor(surface: string | null | undefined): string {
 
 export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, renderSolutionFigure, kindLabel = "Worksheet", gradedAt }: WorksheetGradedPrintDocProps) {
   const markedOn = formatDate(gradedAt);
+  const fullPaper = isFullPaperKind(kindLabel);
+  const paperScore = fullPaper ? paperMarksScore(response) : null;
+  // LIVE-FIX-1 #5 - Chapter Test / Full Mock only (the rule never sets the flag elsewhere).
+  const notFoundQs = fullPaper ? notFoundNotAttemptedQNumbers(response.results) : [];
   const byNumber = new Map<number, PersistedWorksheetQuestion>(
     ws.questions.map((q) => [q.qNumber, q]),
   );
@@ -218,9 +233,20 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
           <div className="lt-gp__scorebox">
             <div className="lt-gp__scoren">
               {response.gradedMarksAwarded}
-              <span className="lt-gp__scoreden"> / {response.gradedMarksTotal}</span>
+              <span className="lt-gp__scoreden"> / {paperScore ? paperScore.total : response.gradedMarksTotal}</span>
             </div>
-            <div className="lt-gp__scorel">MARKS GRADED</div>
+            <div className="lt-gp__scorel">{paperScore ? "MARKS" : "MARKS GRADED"}</div>
+            {paperScore?.notMarked && (
+              <div className="lt-gp__notmarked" data-testid="gp-not-marked">
+                {paperScore.notMarked.line}
+              </div>
+            )}
+            {/* LIVE-FIX-1 #5 - the scorecard's "Not attempted · 0" line for questions not found on the pages, word for word. */}
+            {notFoundQs.length > 0 && (
+              <div className="lt-gp__notmarked" data-testid="gp-not-found-not-attempted">
+                {notFoundLead("not-attempted", notFoundQs)} {notFoundAddPageLine(notFoundQs.length)}.
+              </div>
+            )}
           </div>
           <div className="lt-gp__heroright">
             {unreadCount > 0 || mismatchCount > 0 || notGradedCount > 0 || notFoundCount > 0 ? (
@@ -313,7 +339,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching, re
                     <div className="lt-gp__qtop">
                       <span className="lt-gp__qn">{r.qNumber}</span>
                       <span className="lt-gp__qmeta">{q ? `${q.marks} mark${q.marks === 1 ? "" : "s"}` : ""}</span>
-                      <span className="lt-gp__qmk lt-gp__qmk--pend">{markPill(r)}</span>
+                      <span className="lt-gp__qmk lt-gp__qmk--pend">{markPill(r, fullPaper)}</span>
                     </div>
                     {q?.questionText && (
                       <div className="lt-gp__qtext"><MathText text={q.questionText} /></div>
@@ -507,6 +533,7 @@ const GRADED_CSS = `
 .lt-gp__scoren { font-family: var(--gp-fd); font-size: 38px; font-weight: 700; color: var(--gp-green-d); line-height: 1; }
 .lt-gp__scoreden { font-size: 22px; color: var(--gp-muted); }
 .lt-gp__scorel { font-size: 11px; color: var(--gp-green-d); margin-top: 4px; font-weight: 600; letter-spacing: 0.03em; }
+.lt-gp__notmarked { font-size: 11px; color: #8a5a12; margin-top: 6px; font-weight: 600; line-height: 1.4; max-width: 190px; }
 .lt-gp__heroright { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 9px; }
 .lt-gp__pending { background: var(--gp-grey-bg); border-left: 4px solid var(--gp-grey); border-radius: 8px; padding: 9px 14px; font-size: 12.5px; color: #566; line-height: 1.5; }
 .lt-gp__pending--clean { border-left-color: var(--gp-green); color: var(--gp-green-d); background: var(--gp-green-bg); }

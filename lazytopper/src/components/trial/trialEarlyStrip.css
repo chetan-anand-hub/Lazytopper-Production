@@ -38,7 +38,7 @@
   min-height: 32px;
   padding: 4px 14px;
   border-radius: 8px;
-  background: hsl(152, 60%, 42%);
+  background: var(--lt-green-fill, #257e55);
   color: #ffffff;
   font-weight: 700;
   text-decoration: none;

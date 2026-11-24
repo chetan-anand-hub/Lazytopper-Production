@@ -305,7 +305,7 @@ const SPINE_CSS = `
   max-width: 190px;
 }
 .lt-spine__btn--stuck {
-  background: hsl(152, 55%, 45%);
+  background: var(--lt-green-fill, #257e55);
   color: #ffffff;
   border-color: hsl(152, 55%, 45%);
 }
@@ -322,7 +322,7 @@ const SPINE_CSS = `
   padding: 9px 16px;
   border-radius: 10px;
   text-decoration: none;
-  background: hsl(152, 55%, 45%);
+  background: var(--lt-green-fill, #257e55);
   color: #ffffff;
   border: 1px solid hsl(152, 55%, 45%);
 }
@@ -384,7 +384,7 @@ const SPINE_CSS = `
 }
 .lt-spine__ab--primary {
   flex: 1.4;
-  background: hsl(152, 55%, 45%);
+  background: var(--lt-green-fill, #257e55);
   border-color: hsl(152, 55%, 45%);
   color: #ffffff;
   cursor: pointer;

@@ -44,6 +44,18 @@
 //   testSeriesChecks: { <paper key>: n }                 committed checks per paper ("TS-CT-M01": 1)
 //   testSeriesHolds:  { <holdId>: { paper, atMs } }      in-flight holds (each removed when its request settles)
 // No new collection; no firestore.rules change (the Admin SDK bypasses rules; no client can reach the document).
+//
+// TS-FREE-CHECK-1 (owner ruling 23 Nov 2026, 19:59 IST) - THE FREE TEST INCLUDES WRITTEN-ANSWER MARKING. A signed-in student WITHOUT
+// the pack (free or trial; Premium never reaches this module) may have ONE Test Series paper checked, with the SAME allowance an owner
+// gets on a paper (CHECKS_PER_PAPER checks + the TS-RECHECK-1 free re-check). Which paper is the free test is decided HERE, once:
+//   testSeriesFreeTest: { paper: <paper key>, atMs }     on the same server-only parent document packEntitlements/{uid}
+// is written in the SAME transaction as the first hold (the first admitted written check on a series paper), and never changes after.
+// Every later check is admitted only for THAT paper key; any other paper -> 'free_test_used' (402). The client cannot set it (Admin
+// SDK only; no rules change), and two tabs racing for different papers serialise on the parent document: exactly one pins.
+// The per-paper counters (testSeriesChecks / testSeriesHolds / testSeriesFreeRechecks) are the owner's ones, keyed by paper: a paper
+// has 2 checks per student in total, whichever way they were spent (a student who later buys the pack does not get the free paper's
+// 2 checks a second time). Kill switch: TS_FREE_WRITTEN_CHECK_DISABLED=1 -> no free-test admission, no pin, no status: exactly the
+// behaviour before this lane (a stored pin then stays in the document, unread).
 
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -66,6 +78,8 @@ const SETTLED_REFS = new WeakSet(); // TS-RECHECK-1: deferred refs already settl
 const FREE_RECHECKS_PER_PAPER = 1;
 /** At least this share of the check's written questions must be unreadable / not on the sheet. */
 const UNREADABLE_SHARE = 0.5;
+/** TS-FREE-CHECK-1: the non-owner's ONE free-test paper `{ paper, atMs }` (written once, server-side, with the first hold). */
+const FREE_TEST_FIELD = 'testSeriesFreeTest';
 /** A hold not settled within this long stops counting (a sync grade's own deadline is far shorter). */
 const HOLD_TTL_MS = 30 * 60 * 1000;
 const GRADE_WORKSHEET_PATH = '/api/grade-worksheet';
@@ -88,6 +102,13 @@ function testSeriesDeferredOf(res) {
 
 /** Where TEST-SERIES-1 commits the manifest. */
 const MANIFEST_PATH = path.join(__dirname, '..', 'data', 'testSeriesPapers.json');
+/**
+ * TS-THEMES-1 (owner-approved 23 Nov 2026): the 30 FOCUS SETS (short one-question-type papers, a bonus on top of the 180) are pinned
+ * in their own file, SAME entry shape, keys "TS-FS-M-LA-1", prefixes "fm-tsfs-mla1--". The server reads both files as ONE manifest
+ * (indexManifest's duplicate-key / duplicate-prefix rules apply across them). Kill switch: TS_FOCUS_SETS_DISABLED.
+ */
+const FOCUS_MANIFEST_PATH = path.join(__dirname, '..', 'data', 'testSeriesFocusSets.json');
+const MANIFEST_FILES = Object.freeze([MANIFEST_PATH, FOCUS_MANIFEST_PATH]);
 
 /** ★ THE MANIFEST FIELD NAMES - in ONE place. */
 const F = Object.freeze({
@@ -161,11 +182,35 @@ function indexManifest(raw) {
   return { papers, byKey, count: papers.length, dropped };
 }
 
-/** Read and index the manifest file. Missing / unreadable / no usable paper -> no papers, and an ERROR is logged. */
+/**
+ * Read and index the manifest file. Missing / unreadable / no usable paper -> no papers, and an ERROR is logged.
+ * TS-THEMES-1: `file` may be a LIST of files (MANIFEST_FILES), indexed as one manifest. A missing or unreadable file in a list is
+ * logged and skipped (the others still load); only when NONE can be read is the manifest empty.
+ */
 function loadManifest(file = MANIFEST_PATH, logger = console) {
   let out;
   try {
-    out = indexManifest(JSON.parse(fs.readFileSync(file, 'utf8')));
+    if (Array.isArray(file)) {
+      const all = [];
+      let read = 0;
+      for (const f of file) {
+        try {
+          const raw = JSON.parse(fs.readFileSync(f, 'utf8'));
+          if (Array.isArray(raw)) all.push(...raw);
+          read += 1;
+        } catch (e) {
+          try {
+            logger.error(`[test-series] manifest file unreadable (${f}) - its papers cannot be checked on the pack: ${(e && e.message) || e}`);
+          } catch {
+            /* logging never fails a boot */
+          }
+        }
+      }
+      if (read === 0) throw new Error('no manifest file could be read');
+      out = indexManifest(all);
+    } else {
+      out = indexManifest(JSON.parse(fs.readFileSync(file, 'utf8')));
+    }
   } catch (e) {
     out = { papers: [], byKey: new Map(), count: 0, dropped: 0, unreadable: true };
     try {
@@ -194,8 +239,10 @@ function seriesPaperOf(body, manifest, opts) {
   const id = typeof body.worksheetId === 'string' ? body.worksheetId.trim() : '';
   if (!id || id.length > ID_MAX) return null;
   const skipMore = !!(opts && opts.moreDisabled);
+  const skipFocus = !!(opts && opts.focusDisabled);
   for (const p of manifest.papers) {
     if (skipMore && isMorePaper(p)) continue;
+    if (skipFocus && isFocusPaper(p)) continue;
     if (id.startsWith(p.prefix) && id.length > p.prefix.length) return p;
   }
   return null;
@@ -235,6 +282,20 @@ function testSeriesRecheckDisabled(env = process.env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.TS_RECHECK_DISABLED) || '').trim());
 }
 
+/**
+ * TS-FREE-CHECK-1 kill switch (TS_FREE_WRITTEN_CHECK_DISABLED=1 / true / on / yes): a non-owner's free test is MCQ-only again - no
+ * free-test admission, no pin written, no free-test status - byte-for-byte the behaviour before this lane. PURE.
+ */
+function testSeriesFreeCheckDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.TS_FREE_WRITTEN_CHECK_DISABLED) || '').trim());
+}
+
+/** TS-FREE-CHECK-1: the paper key pinned as this student's free test, or null (none yet / unusable). PURE. */
+function freeTestPaperOf(data) {
+  const v = data && data[FREE_TEST_FIELD];
+  return v && typeof v === 'object' && !Array.isArray(v) && typeof v.paper === 'string' && v.paper.trim() ? v.paper.trim() : null;
+}
+
 /** Is this check's sheet "mostly unreadable"? `summary` = { unreadable, total } (grading/charge.cjs unreadableSummary). PURE. */
 function mostlyUnreadable(summary) {
   const u = summary && Number(summary.unreadable);
@@ -257,6 +318,24 @@ function isMorePaper(paper) {
   if (/^TS-CT-[MS]\d{2}-[2-9]$/.test(key)) return true;
   const fm = /^TS-FM-[MS](\d{1,2})$/.exec(key);
   return !!fm && Number(fm[1]) > 20;
+}
+
+/**
+ * TS-THEMES-1: TS_FOCUS_SETS_DISABLED (1 / true / on / yes) is the server twin of the client's VITE_TS_FOCUS_SETS_DISABLED: the focus
+ * sets stop being series papers HERE (no admission, no LIMITS-1 exemption - a request falls to the ordinary rules, exactly as before
+ * this lane). The 180 numbered papers are untouched. PURE.
+ */
+function testSeriesFocusSetsDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.TS_FOCUS_SETS_DISABLED) || '').trim());
+}
+/** Is this manifest paper a focus set (by its key "TS-FS-<M|S>-<theme>-<n>")? PURE. */
+function isFocusPaper(paper) {
+  const key = paper && typeof paper.key === 'string' ? paper.key : '';
+  return /^TS-FS-[MS]-[A-Z]{2}-\d+$/.test(key);
+}
+/** The seriesPaperOf options the env asks for (the TS-MORE-1 and TS-THEMES-1 kill switches). PURE. */
+function paperOpts(env) {
+  return { moreDisabled: testSeriesMoreDisabled(env), focusDisabled: testSeriesFocusSetsDisabled(env) };
 }
 
 const docId = (v) => (typeof v === 'string' && v.trim() && !v.includes('/') ? v.trim() : '');
@@ -300,7 +379,7 @@ function isLivePack(pack, nowMs) {
 function createTestSeriesChecks(deps = {}) {
   const { adminFirestore = null, telemetry = null, now = () => Date.now(), readBody = null, env = process.env } = deps;
   const newHoldId = typeof deps.newHoldId === 'function' ? deps.newHoldId : () => crypto.randomUUID().replace(/-/g, '');
-  const manifest = deps.manifest || loadManifest(MANIFEST_PATH, deps.logger || console);
+  const manifest = deps.manifest || loadManifest(MANIFEST_FILES, deps.logger || console);
   const emit = (e) => {
     try {
       if (telemetry && typeof telemetry.increment === 'function') telemetry.increment(e);
@@ -361,13 +440,19 @@ function createTestSeriesChecks(deps = {}) {
   /**
    * ONE transaction: ownership + this paper's committed count + its live holds, and a new hold when a check is left. Expired
    * holds are dropped in the same write. Never throws.
-   * -> { kind: 'held', holdId, used, left } | 'not_owner' | 'expired' | 'exhausted' | 'unavailable'
+   * -> { kind: 'held', holdId, used, left, freeTest? } | 'not_owner' | 'free_test_used' | 'expired' | 'exhausted' | 'unavailable'
+   *
+   * TS-FREE-CHECK-1: a caller WITHOUT the pack is held on their free test (unless TS_FREE_WRITTEN_CHECK_DISABLED): the pin
+   * `testSeriesFreeTest` is read in this same transaction; none yet -> this paper becomes the free test (written with the hold);
+   * this paper -> held like an owner's (2 per paper); any other paper -> 'free_test_used'. Two parallel requests for two different
+   * papers serialise on the parent document: exactly one pins, the other is refused.
    */
   async function hold(uid, paper) {
     const id = docId(uid);
     if (!id || !transacts()) return { kind: 'unavailable' };
     const nowMs = now();
     const holdId = newHoldId();
+    const freeOn = !testSeriesFreeCheckDisabled(env);
     try {
       return await adminFirestore.runTransaction(async (tx) => {
         const userRef = userRefOf(id);
@@ -375,15 +460,20 @@ function createTestSeriesChecks(deps = {}) {
         const packSnap = await tx.get(packRefOf(id));
         const userSnap = await tx.get(userRef);
         const pack = packSnap && packSnap.exists ? packSnap.data() || {} : null;
-        if (!pack || pack.sku !== TEST_SERIES_SKU) return { kind: 'not_owner' };
-        if (!isLivePack(pack, nowMs)) return { kind: 'expired' };
+        const owner = !!pack && pack.sku === TEST_SERIES_SKU;
+        if (!owner && !freeOn) return { kind: 'not_owner' };
+        if (owner && !isLivePack(pack, nowMs)) return { kind: 'expired' };
         const data = userSnap && userSnap.exists ? userSnap.data() || {} : {};
+        const pinned = owner ? null : freeTestPaperOf(data);
+        if (!owner && pinned && pinned !== paper.key) return { kind: 'free_test_used', freePaperKey: pinned };
         const holds = liveHolds(data, nowMs);
         const taken = usedOn(data, paper.key) + heldOn(holds, paper.key);
-        if (taken >= CHECKS_PER_PAPER) return { kind: 'exhausted', used: CHECKS_PER_PAPER, left: 0 };
+        if (taken >= CHECKS_PER_PAPER) return { kind: 'exhausted', used: CHECKS_PER_PAPER, left: 0, ...(owner ? {} : { freeTest: true }) };
         holds[holdId] = { paper: paper.key, atMs: nowMs };
-        tx.set(userRef, { [HOLDS_FIELD]: holds, updatedAt: new Date(nowMs) }, { merge: true });
-        return { kind: 'held', holdId, used: taken + 1, left: CHECKS_PER_PAPER - taken - 1 };
+        const write = { [HOLDS_FIELD]: holds, updatedAt: new Date(nowMs) };
+        if (!owner && !pinned) write[FREE_TEST_FIELD] = { paper: paper.key, atMs: nowMs };
+        tx.set(userRef, write, { merge: true });
+        return { kind: 'held', holdId, used: taken + 1, left: CHECKS_PER_PAPER - taken - 1, ...(owner ? {} : { freeTest: true, pinned: !pinned }) };
       });
     } catch {
       emit('test_series.hold_failed');
@@ -484,7 +574,7 @@ function createTestSeriesChecks(deps = {}) {
   async function decide(req, res, uid) {
     if (manifest.count === 0) return { kind: 'not_series' };
     const body = await bodyOf(req);
-    const paper = seriesPaperOf(body, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
+    const paper = seriesPaperOf(body, manifest, paperOpts(env));
     if (!paper) return { kind: 'not_series' };
     emit('test_series.series_request');
     const verdict = verifySubmission(body, paper);
@@ -495,14 +585,97 @@ function createTestSeriesChecks(deps = {}) {
     const r = await hold(uid, paper);
     if (r.kind !== 'held') {
       emit(`test_series.refused.${r.kind}`);
-      return { kind: 'refused', reason: r.kind, paperKey: paper.key, ...(r.kind === 'exhausted' ? { used: r.used, left: 0 } : {}) };
+      return {
+        kind: 'refused', reason: r.kind, paperKey: paper.key,
+        ...(r.kind === 'exhausted' ? { used: r.used, left: 0 } : {}),
+        ...(r.freeTest ? { freeTest: true } : {}),
+        ...(r.kind === 'free_test_used' ? { freeTest: true, freePaperKey: r.freePaperKey } : {}),
+      };
     }
     // TS-PACK-JOBFIX: graded like every other paper (a background job when the browser asks for one). The hold goes with the
     // response so the grade route can put it into the job's `deferred`; a synchronous answer settles it from res.end.
     setTestSeriesDeferred(res, { uid: docId(uid), paper: paper.key, holdId: r.holdId });
     settleOnEnd(res, uid, paper, r.holdId, env);
     emit('test_series.check_held');
-    return { kind: 'admitted', paperKey: paper.key, used: r.used, left: r.left };
+    if (r.freeTest) emit(r.pinned ? 'test_series.free_test.pinned' : 'test_series.free_test.held');
+    return { kind: 'admitted', paperKey: paper.key, used: r.used, left: r.left, ...(r.freeTest ? { freeTest: true } : {}) };
+  }
+
+  /* ── TS-FREE-CHECK-1 · the non-owner's ONE free test ─────────────────────────────────────────────────────── */
+
+  /** Is the free-test rule on? (TS_CHECKS_DISABLED turns the whole series rule off, this included.) PURE apart from env. */
+  function freeTestOn() {
+    return !testSeriesChecksDisabled(env) && !testSeriesFreeCheckDisabled(env) && manifest.count > 0;
+  }
+
+  /** { owner, pinned, data } for this uid (two reads, no transaction - for READ-ONLY questions), or null when it cannot be read. */
+  async function freeTestStateOf(uid) {
+    const id = docId(uid);
+    if (!id || !usable()) return null;
+    try {
+      const [packSnap, userSnap] = await Promise.all([packRefOf(id).get(), userRefOf(id).get()]);
+      const pack = packSnap && packSnap.exists ? packSnap.data() || {} : null;
+      const data = userSnap && userSnap.exists ? userSnap.data() || {} : {};
+      return { owner: !!pack && pack.sku === TEST_SERIES_SKU, pinned: freeTestPaperOf(data), data };
+    } catch {
+      emit('test_series.read_failed');
+      return null;
+    }
+  }
+
+  /**
+   * TS-FREE-CHECK-1 - the grading gate's question (LIMITS-1, beside ownerSeriesGrade): is this a NON-owner's grade of a series paper,
+   * with exactly that paper's written questions, that the free test can take (no free test pinned yet, or pinned to THIS paper)?
+   * Such a grade is not metered by LIMITS-1 (no trial weekly chapter-test / full-mock cap, no Basic "first free" grade spent): the
+   * free test's own 2-per-paper rule is its only cap, decided by hold() in the entitlement gate. READ ONLY; false on any doubt.
+   */
+  async function freeTestGrade(req, uid) {
+    try {
+      if (!freeTestOn()) return false;
+      const body = await bodyOf(req);
+      const paper = seriesPaperOf(body, manifest, paperOpts(env));
+      if (!paper || !verifySubmission(body, paper).ok) return false;
+      const st = await freeTestStateOf(uid);
+      return !!st && !st.owner && (!st.pinned || st.pinned === paper.key);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * TS-FREE-CHECK-1 - is `worksheetId` (of `kind`) a sitting of THIS non-owner's pinned free-test paper? LIMITS-1 keeps that paper's
+   * scorecard breakdown open (as for an owner's series paper). Downloads are NOT widened. READ ONLY; false on any doubt.
+   */
+  async function freeTestPaper(uid, kind, worksheetId) {
+    try {
+      if (!freeTestOn()) return false;
+      const paper = seriesPaperOf({ worksheetId }, manifest, paperOpts(env));
+      if (!paper) return false;
+      const paperKind = paper.prefix.startsWith('ct-') ? 'chapter-test' : paper.prefix.startsWith('fm-') ? 'full-mock' : '';
+      if (kind !== paperKind) return false;
+      const st = await freeTestStateOf(uid);
+      return !!st && !st.owner && st.pinned === paper.key;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * TS-FREE-CHECK-1 - the non-owner's view for GET /api/packs/mine:
+   *   { paperKey: <pinned key> | null, checksPerPaper, used, freeRecheck? }
+   * `paperKey` null = no written check taken yet (the browser's first test may take it). null when the rule is off, the caller owns
+   * the pack (the owner view applies), or nothing can be read. READ ONLY.
+   */
+  async function freeTestStatus(uid) {
+    if (!freeTestOn()) return null;
+    const st = await freeTestStateOf(uid);
+    if (!st || st.owner) return null;
+    const key = st.pinned;
+    if (!key) return { paperKey: null, checksPerPaper: CHECKS_PER_PAPER, used: 0 };
+    const holds = liveHolds(st.data, now());
+    const used = Math.min(usedOn(st.data, key) + heldOn(holds, key), CHECKS_PER_PAPER);
+    const recheck = freeRecheckSpent(st.data, key) && mapOf(st.data, FREE_FIELD)[key] === usedOn(st.data, key) && heldOn(holds, key) === 0;
+    return { paperKey: key, checksPerPaper: CHECKS_PER_PAPER, used, ...(recheck ? { freeRecheck: true } : {}) };
   }
 
   /**
@@ -515,7 +688,7 @@ function createTestSeriesChecks(deps = {}) {
     try {
       // The kill switch turns the exemption off too: with TS_CHECKS_DISABLED every paper is metered exactly as before.
       if (testSeriesChecksDisabled(env) || manifest.count === 0) return false;
-      const paper = seriesPaperOf({ worksheetId }, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
+      const paper = seriesPaperOf({ worksheetId }, manifest, paperOpts(env));
       if (!paper) return false;
       const paperKind = paper.prefix.startsWith('ct-') ? 'chapter-test' : paper.prefix.startsWith('fm-') ? 'full-mock' : '';
       if (kind !== paperKind) return false;
@@ -534,7 +707,7 @@ function createTestSeriesChecks(deps = {}) {
     try {
       if (testSeriesChecksDisabled(env) || manifest.count === 0) return false;
       const body = await bodyOf(req);
-      const paper = seriesPaperOf(body, manifest, { moreDisabled: testSeriesMoreDisabled(env) });
+      const paper = seriesPaperOf(body, manifest, paperOpts(env));
       if (!paper || !verifySubmission(body, paper).ok) return false;
       return (await ownsActive(uid)) === true;
     } catch {
@@ -561,17 +734,28 @@ function createTestSeriesChecks(deps = {}) {
     }
   }
 
-  return { decide, ownsActive, ownerSeriesPaper, ownerSeriesGrade, status, hold, settleHold, settleDeferred, manifest };
+  return {
+    decide, ownsActive, ownerSeriesPaper, ownerSeriesGrade, status, hold, settleHold, settleDeferred, manifest,
+    // TS-FREE-CHECK-1
+    freeTestOn, freeTestGrade, freeTestPaper, freeTestStatus,
+  };
 }
 
 module.exports = {
   createTestSeriesChecks,
   testSeriesChecksDisabled,
   testSeriesRecheckDisabled,
+  testSeriesFreeCheckDisabled,
+  freeTestPaperOf,
+  FREE_TEST_FIELD,
   mostlyUnreadable,
   freeRecheckSpent,
   testSeriesMoreDisabled,
   isMorePaper,
+  testSeriesFocusSetsDisabled,
+  isFocusPaper,
+  FOCUS_MANIFEST_PATH,
+  MANIFEST_FILES,
   setTestSeriesDeferred,
   testSeriesDeferredOf,
   TS_DEFERRED,

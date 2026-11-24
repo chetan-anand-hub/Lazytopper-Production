@@ -10,7 +10,7 @@ import { useAuth } from "../../context/AuthContext";
  */
 const CSS = `
   .lt-msu { display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
-    min-width: 44px; padding: 0 14px; border-radius: 999px; border: 0; background: hsl(152, 55%, 42%);
+    min-width: 44px; padding: 0 14px; border-radius: 999px; border: 0; background: var(--lt-green-fill, #257e55);
     color: #fff; font-size: 13.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
   .lt-msu:hover { background: hsl(152, 57%, 37%); }
   .lt-msu:focus-visible { outline: 2px solid hsl(152, 55%, 30%); outline-offset: 2px; }

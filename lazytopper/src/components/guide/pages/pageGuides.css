@@ -33,7 +33,7 @@
 .lt-pg-pop__item dd { margin: 0; font-size: 13px; line-height: 1.35; font-weight: 600; color: #2b3a5c; }
 .lt-pg-pop__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 6px; }
 .lt-pg-pop__ok { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border: 0; border-radius: 10px;
-  background: hsl(152, 55%, 38%); color: #fff; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+  background: var(--lt-green-fill, #257e55); color: #fff; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
 .lt-pg-pop__ok:hover { background: hsl(152, 55%, 32%); }
 @media (min-width: 768px) { .lt-pg-pop { right: auto; width: 460px; } .lt-pg-pop__byte { width: 76px; } }
 @media (min-width: 1024px) {

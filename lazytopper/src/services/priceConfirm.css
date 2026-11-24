@@ -43,7 +43,7 @@
 }
 .lt-pc__pay {
   border: 0;
-  background: #16a34a;
+  background: var(--lt-green-fill, #257e55);
   color: #ffffff;
 }
 .lt-pc__cancel {

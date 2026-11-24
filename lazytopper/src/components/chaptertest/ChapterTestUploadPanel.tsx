@@ -92,7 +92,16 @@ export default function ChapterTestUploadPanel({
         <div className="lt-ct__eyebrow">{eyebrow}</div>
         <div className="lt-ct__title lt-ct__fr">{name}</div>
         <div className="lt-ct__sub">
-          {code} · objective scored <b>{objective.awarded}/{objective.total}</b>. Upload your written
+          {/* TS-THEMES-1: a paper with no objective questions (a Test Series focus set) has no "0/0" to report. */}
+          {code}
+          {objective.total > 0 ? (
+            <>
+              {" "}· objective scored <b>{objective.awarded}/{objective.total}</b>.
+            </>
+          ) : (
+            "."
+          )}{" "}
+          Upload your written
           answers ({sectionsLabel}) and we’ll grade them against this test’s marking scheme — with a full
           mistake breakdown.
         </div>

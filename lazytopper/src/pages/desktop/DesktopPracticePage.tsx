@@ -3325,7 +3325,7 @@ export default function DesktopPracticePage() {
             padding: 10px 16px;
             border: 0;
             border-radius: 14px;
-            background: hsl(152, 55%, 42%);
+            background: var(--lt-green-fill, #257e55);
             color: #fff;
             font: inherit;
             font-size: 0.95rem;
