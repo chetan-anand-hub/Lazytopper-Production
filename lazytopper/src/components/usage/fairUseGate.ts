@@ -430,3 +430,36 @@ export function trialPaperNoteCopy(cut: TrialPaperCut, allowance: number | null 
   const body = `The other ${rest} ${rest === 1 ? "question was" : "questions were"} not graded — no marks, and nothing added to your score, progress or mistakes.`;
   return { lead, body, upgrade: "Premium grades the whole paper." };
 }
+
+/* ── FAIRUSE-TS-OWNER-1: who the trial paper wall is NOT for ───────────────── */
+
+/** Kill switch: VITE_FAIRUSE_TS_OWNER_EXEMPT_DISABLED=1 -> every paper start is checked exactly as before this lane. */
+export function tsOwnerWallExemptDisabled(): boolean {
+  return import.meta.env?.VITE_FAIRUSE_TS_OWNER_EXEMPT_DISABLED === "1";
+}
+
+/**
+ * What a paper start does BEFORE the trial wall (`blockPaperStart`):
+ *   "exempt"      - a paid Board Pass holder (any paper), or a Test Series owner on a SERIES paper / focus set: never walled.
+ *   "wait"        - a series paper while ownership is still being read: say "Checking your access…", never the wall then a flip.
+ *   "unconfirmed" - a series paper whose ownership read failed: "Couldn't confirm your purchase - retry", never the wall.
+ *   "check"       - everyone else (and everything with the kill switch on): the wall check, exactly as before.
+ * The SERVER still decides every pass and every grade (fairUse.cjs handlePaperPass); this only decides what the page SHOWS. PURE.
+ */
+export type PaperWallVerdict = "exempt" | "wait" | "unconfirmed" | "check";
+export function paperWallVerdict(a: {
+  disabled: boolean;
+  paidPremium: boolean;
+  seriesPaper: boolean;
+  ownsSeries: boolean;
+  checking: boolean;
+  failed: boolean;
+}): PaperWallVerdict {
+  if (a.disabled) return "check";
+  if (a.paidPremium) return "exempt";
+  if (!a.seriesPaper) return "check";
+  if (a.ownsSeries) return "exempt";
+  if (a.checking) return "wait";
+  if (a.failed) return "unconfirmed";
+  return "check";
+}
