@@ -1090,6 +1090,7 @@ describe("PRICING-HUB-2 H3 - a VERIFIED pack payment on the hub gets the legacy 
 
 describe("PRICING-HUB-2 H6 - the parent-share actions sit in one row under the pack Buys", () => {
   it("signed in, nothing owned: the CBQ row holds both subjects' actions, the Bundle row its own; both rows sit after the Buys", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); v1.1 keeps the rows in the details panel.
     vi.stubEnv("VITE_PARENT_PAY_ENABLED", "1");
     auth.user = { uid: "u1" };
     setSub({});
@@ -1159,7 +1160,7 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
   /** v1.1 - the card's face (one link), its foot (price + Buy) and its folded row. */
   const v11 = (k: "pass" | "ts" | "cbq" | "bank") => {
     const c = card(k);
-    return { c, face: q(c, ".lt-ph-face"), foot: q(c, ".lt-ph-foot"), more: c.querySelector("details.lt-ph-more") };
+    return { c, face: q(c, ".lt-ph-face"), foot: q(c, ".lt-ph-foot"), more: c.querySelector(".lt-ph-panel") as HTMLElement | null };
   };
   const PAGE = { pass: "/board-pass", ts: "/test-series", cbq: "/cbq-packs", bank: "/packs" } as const;
   const NAME = { pass: "Board Pass", ts: "Test Series", cbq: "CBQ Packs", bank: "Question Bank + Mocks" } as const;
@@ -1175,20 +1176,27 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
       const controls = face.querySelectorAll("a, button, input, select, textarea, summary");
       expect(controls).toHaveLength(1);
       const link = controls[0] as HTMLAnchorElement;
-      expect(link.closest("h2")).not.toBeNull();
       expect(link).toHaveClass("lt-ph-open");
       expect(link).toHaveAttribute("href", PAGE[k]);
       expect(link).toHaveAttribute("aria-label", `${NAME[k]} details`);
-      expect(link).toHaveTextContent(NAME[k]);
-      expect(face).toHaveTextContent("Details ›");
+      expect(link).toHaveTextContent("Details ›");
+      // The heading keeps the product's own name (the link is not inside it, so it does not rename it).
+      expect(link.closest("h2")).toBeNull();
+      expect(within(face as HTMLElement).getByRole("heading", { level: 2 })).toHaveAccessibleName(NAME[k]);
       expect(face.querySelectorAll(".lt-ph-ticks li").length).toBeLessThanOrEqual(3);
-      before(q(face, ".lt-ph-tag"), link);
-      // Order: face -> foot (price, Buy) -> fold; the fold starts closed.
-      before(face, foot);
+      before(q(face, ".lt-ph-tag"), q(face, "h2"));
+      // Order: [face + its details panel] (the stage) -> foot (price, Buy) -> "…and more"; the panel starts hidden, over the face only.
       expect(foot.parentElement).toBe(c);
       expect(more).not.toBeNull();
-      before(foot, more as Element);
-      expect((more as HTMLDetailsElement).open).toBe(false);
+      const stage = q(c, ".lt-ph-stage");
+      expect(stage.contains(face) && stage.contains(more as Element)).toBe(true);
+      before(stage, foot);
+      expect((more as HTMLElement).hidden).toBe(true);
+      expect(more).toHaveAttribute("role", "region");
+      const btn = q(c, ".lt-ph-morebtn");
+      before(foot, btn);
+      expect(btn).toHaveAttribute("aria-expanded", "false");
+      expect(btn).toHaveAttribute("aria-controls", (more as HTMLElement).id);
       expect(face.contains(foot)).toBe(false);
     }
     // ONE Buy per face (the CBQ card's Buy is its per-subject pair).
@@ -1246,6 +1254,18 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
     expect(within(m).getByTestId("hub-ts-inside-maths")).toHaveTextContent(`${series.chapterTestsPerSubject.Maths} chapter tests`);
     expect(within(m).getByTestId("hub-ts-upsell")).toHaveTextContent("Want the tutor and Answer Checker too? Board Pass →");
     expect(document.body.textContent).not.toContain("its MCQs are marked free");
+    cleanup();
+    // While the free written check is switched off (as on /test-series), the line says only what is true.
+    vi.stubEnv("VITE_TS_FREE_WRITTEN_CHECK_DISABLED", "1");
+    await renderAt("/pricing");
+    expect(within(v11("ts").more as HTMLElement).getByTestId("hub-ts-try")).toHaveTextContent("Try one test first: its MCQs are marked free.");
+    // The hub reads the flag inline (entry budget); it must agree with /test-series' own reader for every value.
+    const { freeWrittenCheckDisabled } = await import("../../lib/testSeries/seriesAccess");
+    const { hubTsTryLine } = await import("./PricingHub");
+    for (const v of ["1", "", "0", "true"]) {
+      vi.stubEnv("VITE_TS_FREE_WRITTEN_CHECK_DISABLED", v);
+      expect(hubTsTryLine().includes("MCQs"), v).toBe(freeWrittenCheckDisabled());
+    }
   });
 
   it("v1.1 CBQ + Question Bank faces: ticks from the pinned constants, 'Not in the Bundle.' / 'CBQ Packs are separate.' on the face, smaller packs in the fold", async () => {
@@ -1257,7 +1277,9 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
       `✓Every type: ${CBQ_QUESTION_TYPES.join(", ")}`,
       "✓Printable PDF, step-wise solutions",
     ]);
-    expect(within(cbq.foot as HTMLElement).getByTestId("hub-cbq-not-in-bundle")).toHaveTextContent("Not in the Bundle.");
+    // Owner (25 Nov 00:57): "Not in the Bundle." is off the CBQ face, kept in its details panel.
+    expect(within(cbq.foot as HTMLElement).queryByTestId("hub-cbq-not-in-bundle")).toBeNull();
+    expect(within(cbq.more as HTMLElement).getByTestId("hub-cbq-not-in-bundle")).toHaveTextContent("Not in the Bundle.");
     expect(within(cbq.more as HTMLElement).getByTestId("hub-cbq-inside")).toHaveTextContent(`Download again any time until ${REDOWNLOAD_UNTIL}`);
     const bank = v11("bank");
     expect(within(bank.face as HTMLElement).getByTestId("hub-bank-tile-chapters")).toHaveTextContent("26chapters, Maths + Science");
@@ -1269,7 +1291,8 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
     expect(within(bank.foot as HTMLElement).getByTestId("hub-bank-separate")).toHaveTextContent("CBQ Packs are separate.");
     // The smaller packs stay reachable from /pricing at every size (no desktop-only class), as links to their /packs pop-ups.
     const m = bank.more as HTMLElement;
-    expect(m.querySelector("summary")).toHaveTextContent(`Smaller packs from ₹${PACK_PRICE_INR.pack_chapter} and more`);
+    expect(m.querySelector(".lt-ph-panel__title")).toHaveTextContent(`Smaller packs from ₹${PACK_PRICE_INR.pack_chapter} + GST and more`);
+    expect(screen.getByTestId("hub-bank-more-open")).toHaveTextContent(`Smaller packs from ₹${PACK_PRICE_INR.pack_chapter} + GST and more`);
     const rows = within(m).getByTestId("hub-bank-rows");
     expect(rows).not.toHaveClass("lt-ph-extra");
     expect(within(rows).getByTestId("hub-bank-row-subject")).toHaveAttribute("href", "/packs?pack=subject&subject=science&from=for_parents");
@@ -1278,13 +1301,14 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
     expect(rows.querySelector("button")).toBeNull();
   });
 
-  it("v1.1 parent share rows sit in the folds, after the Buys; the ad anchors are on their cards", async () => {
+  it("v1.1 parent share rows sit in the details panels; the ad anchors are on their cards", async () => {
     auth.user = { uid: "u1" };
     setSub({});
     await renderAt("/pricing");
     const cbq = v11("cbq");
+    // In the card's details panel (not on the face, not inside the Buy row).
     const share = within(cbq.more as HTMLElement).getByTestId("hub-cbq-share");
-    before(q(cbq.foot, '[data-testid="hub-buy-cbq"]'), share);
+    expect(cbq.foot.contains(share)).toBe(false);
     expect(within(v11("bank").more as HTMLElement).getByTestId("hub-bank-share")).toBeInTheDocument();
     expect(card("pass").id).toBe("lt-premium-card");
     expect(card("ts").id).toBe("test-series");
@@ -1292,11 +1316,48 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
     expect(card("bank").id).toBe("packs");
   });
 
-  it("CSS v1.1: the face link is stretched over the top area; the foot is not pinned; each card takes its own height", () => {
+  it("v1.1 details panel: '…and more' opens it inside the card (focus to ✕), ✕ and Esc close it (focus back), one panel at a time, Buy outside it", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    const ts = v11("ts");
+    const btn = screen.getByTestId("hub-ts-more-open");
+    const panel = ts.more as HTMLElement;
+    expect(panel.hidden).toBe(true);
+    fireEvent.click(btn);
+    expect(panel.hidden).toBe(false);
+    expect(btn).toHaveAttribute("aria-expanded", "true");
+    expect(document.activeElement).toBe(screen.getByTestId("hub-ts-more-close"));
+    expect(panel).toHaveAccessibleName(/Test Series/);
+    // The Buy is not inside the panel, so it stays visible below it.
+    expect(panel.contains(screen.getByTestId("hub-buy-test_series"))).toBe(false);
+    // Opening another card's panel closes this one.
+    fireEvent.click(screen.getByTestId("hub-bank-more-open"));
+    expect(panel.hidden).toBe(true);
+    expect((v11("bank").more as HTMLElement).hidden).toBe(false);
+    fireEvent.click(screen.getByTestId("hub-bank-more-close"));
+    expect((v11("bank").more as HTMLElement).hidden).toBe(true);
+    expect(document.activeElement).toBe(screen.getByTestId("hub-bank-more-open"));
+    // Esc inside the panel closes it and returns focus to its trigger.
+    fireEvent.click(btn);
+    fireEvent.keyDown(screen.getByTestId("hub-ts-more-close"), { key: "Escape" });
+    expect(panel.hidden).toBe(true);
+    expect(document.activeElement).toBe(btn);
+    // The trial (owner 24 Nov: "inside the card after the click") is in the Board Pass panel.
+    expect(within(v11("pass").more as HTMLElement).getByTestId("pricing-trial")).toBeInTheDocument();
+  });
+
+  it("CSS v1.1: the face link is stretched over the top area; equal-size cards; the details panel overlays the card", () => {
     expect(HUB_CSS).toMatch(/\.lt-ph-face \{\s*position: relative;/);
     expect(HUB_CSS).toMatch(/\.lt-ph-open::after \{\s*content: "";\s*position: absolute;/);
     expect(HUB_CSS).toMatch(/\.lt-ph-card--face \.lt-ph-foot \{\s*margin-top: 0;/);
-    expect(HUB_CSS).toMatch(/@media \(min-width: 768px\) \{[\s\S]*?\.lt-ph-cards--up \{\s*align-items: start;/);
+    // Equal size: every card in a row stretches (phones: the carousel track too); 768-1279 px both card rows share one height.
+    expect(HUB_CSS).toMatch(/\.lt-ph-cards--up \{\s*align-items: stretch;/);
+    expect(HUB_CSS).toMatch(/@media \(min-width: 768px\) \{\s*\.lt-ph-cards--up \{\s*grid-template-rows: auto 1fr auto 1fr;/);
+    expect(HUB_CSS).toMatch(/@media \(min-width: 1280px\) \{\s*\.lt-ph-cards--up \{\s*grid-template-rows: auto 1fr;/);
+    // The details panel overlays the card's own top area (absolute, scrollable): opening it never changes the card's size.
+    expect(HUB_CSS).toMatch(/\.lt-ph-stage \{\s*position: relative;/);
+    expect(HUB_CSS).toMatch(/\.lt-ph-panel \{\s*position: absolute;[\s\S]*?overflow-y: auto;/);
     // Today's pinned foot is still the rule the kill switch falls back to.
     expect(HUB_CSS).toMatch(/\.lt-ph-foot \{\s*margin-top: auto;/);
   });
@@ -1368,6 +1429,22 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
     expect(payBtn.textContent).not.toMatch(/₹/);
     expect(screen.getByTestId("pricing-sticky-bar-go")).toHaveTextContent("Pay ₹1,083");
     expect(bar().textContent).not.toContain(boardPassPayDisplay());
+  });
+
+  it("§2.4 kill switch on: the bar is trunk's exactly for a Test Series owner (the hero figure; no upgrade wording)", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1");
+    auth.user = { uid: "u1" };
+    setSub({});
+    owned.packs = [{ sku: "test_series", target: "all" }];
+    tsUp.value = { creditInr: 999, fullBaseInr: 1917, baseInr: 918, gstInr: 165, payInr: 1083 };
+    await renderAt("/pricing");
+    expect(await screen.findByTestId("pass-checkout-ts-upgrade")).toBeInTheDocument();
+    await act(async () => {
+      window.dispatchEvent(new Event("resize"));
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(screen.getByTestId("pricing-sticky-bar")).toHaveTextContent(`Board Pass ${boardPassPriceDisplay()}`);
+    expect(screen.getByTestId("pricing-sticky-bar")).not.toHaveTextContent("upgrade");
   });
 
   it("§2.4 everyone else: the bar is today's ('Board Pass <price>' / the card's Pay total)", async () => {

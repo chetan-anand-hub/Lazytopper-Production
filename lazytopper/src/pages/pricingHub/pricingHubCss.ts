@@ -14,7 +14,7 @@
  */
 /*
  * PRICING-CTA-UP-1 v1.1 (owner, 24 Nov 2026) - the slim card faces (rules at the end of HUB_CSS; comments kept OUT of the string, it
- * ships inline in the prerendered page): face = tag · name (the ONE link, stretched over the top area via .lt-ph-open::after) · hook
+ * ships inline in the prerendered page): face = tag · name · hook · ticks · "Details ›" (the ONE link, stretched over the top area via .lt-ph-open::after)
  * · three ticks · "Details ›" · a hairline · price · Buy, then the folded .lt-ph-more row. Each card takes its own height from 768 px
  * (.lt-ph-cards--up). The long validity line is hidden on the face (the Pay button says "valid till ...") and shown in the fold.
  */
@@ -991,9 +991,6 @@ export const HUB_CSS = `
     .lt-ph-card {
       padding: 20px 20px 18px;
     }
-    .lt-ph-cards--up {
-      align-items: start;
-    }
     .lt-ph-card:last-child {
       margin-right: 0;
     }
@@ -1127,13 +1124,6 @@ export const HUB_CSS = `
   gap: 12px;
   border-radius: 12px;
 }
-.lt-ph-open {
-  color: inherit;
-  text-decoration: none;
-}
-.lt-pricing-page .lt-ph-open {
-  color: inherit;
-}
 .lt-ph-open::after {
   content: "";
   position: absolute;
@@ -1147,7 +1137,8 @@ export const HUB_CSS = `
   outline: 3px solid var(--ph-green-bright);
   outline-offset: 2px;
 }
-.lt-ph-open__cue {
+.lt-ph-open__cue,
+.lt-pricing-page .lt-ph-open__cue {
   align-self: flex-start;
   font-size: 0.86rem;
   font-weight: 800;
@@ -1156,10 +1147,10 @@ export const HUB_CSS = `
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
 }
-.lt-ph-card--pass .lt-ph-open__cue {
+.lt-pricing-page .lt-ph-card--pass .lt-ph-open__cue {
   color: var(--ph-mint);
 }
-.lt-ph-card--cbq .lt-ph-open__cue {
+.lt-pricing-page .lt-ph-card--cbq .lt-ph-open__cue {
   color: var(--ph-amber-ink);
 }
 .lt-ph-face:hover .lt-ph-open__cue {
@@ -1188,46 +1179,6 @@ export const HUB_CSS = `
 .lt-ph-card--face .lt-pricing-tillboards-slot {
   min-height: 0;
 }
-.lt-ph-more {
-  margin: 0;
-  border-top: 1px solid rgba(11, 27, 58, 0.12);
-}
-.lt-ph-card--pass .lt-ph-more {
-  border-top-color: rgba(255, 255, 255, 0.18);
-}
-.lt-ph-more__sum {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 44px;
-  cursor: pointer;
-  list-style: none;
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: #22324d;
-}
-.lt-ph-more__sum::-webkit-details-marker {
-  display: none;
-}
-.lt-ph-more__sum::after {
-  content: "+";
-  flex: 0 0 auto;
-  font-size: 1.15rem;
-  font-weight: 700;
-  line-height: 1;
-}
-.lt-ph-more[open] > .lt-ph-more__sum::after {
-  content: "\\2212";
-}
-.lt-ph-more__sum:focus-visible {
-  outline: 3px solid var(--ph-green);
-  outline-offset: 2px;
-  border-radius: 6px;
-}
-.lt-ph-card--pass .lt-ph-more__sum {
-  color: #dbe5f3;
-}
 .lt-ph-more__body {
   display: flex;
   flex-direction: column;
@@ -1247,5 +1198,131 @@ export const HUB_CSS = `
 }
 .lt-ph-card--pass .lt-ph-more__line {
   color: #c9d6e6;
+}
+.lt-ph-stage {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.lt-ph-stage > .lt-ph-face {
+  flex: 1 1 auto;
+}
+.lt-ph-panel {
+  position: absolute;
+  inset: -6px -6px 0;
+  z-index: 2;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 6px 10px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--ph-navy);
+}
+.lt-ph-panel[hidden] {
+  display: none;
+}
+.lt-ph-card--pass .lt-ph-panel {
+  background: var(--ph-navy);
+  color: #ffffff;
+}
+.lt-ph-card--ts .lt-ph-panel {
+  background: #f6fbf8;
+}
+.lt-ph-card--cbq .lt-ph-panel {
+  background: var(--ph-cream);
+}
+.lt-ph-panel__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  background: inherit;
+  border-bottom: 1px solid rgba(11, 27, 58, 0.12);
+  margin-bottom: 10px;
+}
+.lt-ph-card--pass .lt-ph-panel__head {
+  border-bottom-color: rgba(255, 255, 255, 0.18);
+}
+.lt-ph-panel__title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+.lt-ph-panel__close {
+  flex: 0 0 auto;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid rgba(11, 27, 58, 0.2);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.lt-ph-card--pass .lt-ph-panel__close {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.lt-ph-panel__close:focus-visible,
+.lt-ph-morebtn:focus-visible {
+  outline: 3px solid var(--ph-green-bright);
+  outline-offset: 2px;
+}
+.lt-ph-morebtn {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid rgba(11, 27, 58, 0.12);
+  background: transparent;
+  color: #22324d;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.lt-ph-morebtn::after {
+  content: "+";
+  flex: 0 0 auto;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.lt-ph-morebtn[aria-expanded="true"]::after {
+  content: "\\2212";
+}
+.lt-ph-card--pass .lt-ph-morebtn {
+  color: #dbe5f3;
+  border-top-color: rgba(255, 255, 255, 0.18);
+}
+.lt-ph-cards--up {
+  align-items: stretch;
+}
+@media (min-width: 768px) {
+  .lt-ph-cards--up {
+    grid-template-rows: auto 1fr auto 1fr;
+  }
+}
+@media (min-width: 1280px) {
+  .lt-ph-cards--up {
+    grid-template-rows: auto 1fr;
+  }
 }
 `;

@@ -162,6 +162,9 @@ export function hubTsInsideRows(t: SeriesTotals = seriesTotals()): ReadonlyArray
 }
 /** TS-FREE-CHECK-1 (owner, 23 Nov 2026): the free test now includes written-answer marking (was "Try one test first: its MCQs are marked free."). */
 export const HUB_TS_TRY_LINE = `Your ${FREE_TESTS_ALLOWED === 1 ? "first test is" : `first ${FREE_TESTS_ALLOWED} tests are`} free, written answers marked too.`;
+/** Trunk's line - still the true one while the free written check is switched off (VITE_TS_FREE_WRITTEN_CHECK_DISABLED=1). */
+export const HUB_TS_TRY_LINE_MCQ = `Try ${FREE_TESTS_ALLOWED === 1 ? "one test" : `${FREE_TESTS_ALLOWED} tests`} first: its MCQs are marked free.`;
+
 
 /**
  * Where "Get the Test Series" goes: the same link /test-series uses, or - while TS-PACK-1's client kill switch is on
@@ -308,7 +311,7 @@ export const HUB_PASS_MORE = "7-day free trial and more";
 export const HUB_TS_MORE = "How checking works and more";
 export const HUB_CBQ_MORE = "What's inside and more";
 export function hubBankMore(): string {
-  return `Smaller packs from ${formatInr(PACK_PRICE_INR.pack_chapter)} and more`;
+  return `Smaller packs from ${formatInr(PACK_PRICE_INR.pack_chapter)} + GST and more`;
 }
 /** The full Test Series feature line (the face bullet is its short form). */
 export const HUB_TS_ANALYSIS_LINE = HUB_TS_TICKS[0].text;
