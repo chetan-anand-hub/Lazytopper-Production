@@ -216,16 +216,15 @@ jobs:
           set -a; . "$RUNNER_TEMP/e2e.env"; set +a
           pnpm --filter lazytopper run build
 
-      # GITHUB_ACTIONS=false for this ONE build: the PERF-3 entry budget is a production budget,
-      # enforced on the normal build above; this test-only bundle carries the emulator connect.
+      # GITHUB_ACTIONS=false for this ONE build command (set inline: the runner overrides a step
+      # `env:` for GITHUB_* names): the PERF-3 entry budget is a production budget, enforced on the
+      # normal build above; this test-only bundle carries the emulator connect (+~110 B gz).
       - name: EMULATOR build (buildEnv.signedIn.json) - the emulator connect must be present
         if: steps.cls.outputs.docs_only != 'true'
-        env:
-          GITHUB_ACTIONS: "false"
         run: |
           node -e 'for (const [k, v] of Object.entries(require("./lazytopper/tests/e2e/buildEnv.signedIn.json").env)) console.log(`${k}=${v}`)' > "$RUNNER_TEMP/e2e-signed-in.env"
           set -a; . "$RUNNER_TEMP/e2e-signed-in.env"; set +a
-          pnpm --filter lazytopper run build
+          GITHUB_ACTIONS=false pnpm --filter lazytopper run build
 
       # The repo's firebase.json declares no emulators (and is not edited for a test), so the
       # emulators get their own config here: the REAL firestore.rules, Auth on 9099, Firestore on
