@@ -284,7 +284,7 @@ export function isInternalDevice(): boolean {
  * carries its codes. Only the name changes: the activity log is still handed nothing but
  * `{ name }`, and the vendors still get exactly `payload` / `params`.
  */
-function send(
+export function send(
   kind: "pageview" | "event",
   payload: Record<string, unknown>,
   params: VendorParams = {},
@@ -300,11 +300,8 @@ function send(
     adminHit = true;
   }
   if (!adminHit) sendToVendors(kind, payload, params);
-  // BUYER-SCORE-1: feed the lazily loaded buyer score from the three buying-intent events. Never on /admin.
-  if (!adminHit && kind === "event") {
-    const n = payload.name;
-    if (n === "pack_view" || n === "begin_checkout" || n === "pack_checkout") noteBuyerScore({ kind: "event", name: n });
-  }
+  // BUYER-SCORE-1: every page view and event reaches the late buyer score, which keeps only what it counts. Never on /admin.
+  if (!adminHit) noteBuyerScore(kind, payload);
   // ★ STUDENT-ACTIVITY-1 (owner ruling 2026-10-01) — the FIRST-PARTY activity log, and
   // the one place this module deals with a signed-in student. It is NOT a vendor and
   // NOT an identify(): nothing is added to what GA4 or Vercel receive (above, unchanged).
@@ -701,68 +698,30 @@ function sendToMeta(
 }
 
 /**
- * BUYER-SCORE-1 - the lazy loader. buyerScore.ts (the score + its localStorage counters) is requested by dynamic import
- * after the first idle moment (4 s at most), so the entry chunk does not carry it; notes made before it loads wait here.
- * Kill switch VITE_BUYER_SCORE_DISABLED=1: nothing is queued, nothing loads, nothing fires.
+ * BUYER-SCORE-1 - the buyer score (buyerScore.ts, its localStorage counters) is NOT imported here: engaged10.ts imports it, so it
+ * arrives in that late chunk (about 2 s after the first page view, on idle) and the entry chunk carries only this small queue
+ * (PERF-3 budget). Notes made before it attaches wait here (50 at most).
+ * Kill switch VITE_BUYER_SCORE_DISABLED=1: buyerScore.ts never attaches, so nothing is counted or fired (the capped queue just waits).
  */
-type BuyerNote = import("./buyerScore").BuyerNote;
-let buyerMod: typeof import("./buyerScore") | null = null;
-let buyerScheduled = false;
-const buyerQueue: BuyerNote[] = [];
+type BuyerSink = (kind: "pageview" | "event", payload: Record<string, unknown>) => void;
+const buyerQueue: Parameters<BuyerSink>[] = [];
+let buyerSink: BuyerSink | null = null;
 
-function buyerScoreDisabled(): boolean {
-  try {
-    return /^(1|true|on|yes)$/i.test(String(import.meta.env.VITE_BUYER_SCORE_DISABLED ?? "").trim());
-  } catch {
-    return false;
-  }
+/** BUYER-SCORE-1 - buyerScore.ts (inside engaged10.ts's late chunk) takes the queued sends and every later one. */
+export function attachBuyerSink(sink: BuyerSink): void {
+  buyerSink = sink;
+  for (const q of buyerQueue.splice(0)) sink(...q);
 }
 
-function noteBuyerScore(note: BuyerNote): void {
+function noteBuyerScore(kind: "pageview" | "event", payload: Record<string, unknown>): void {
   try {
-    if (buyerScoreDisabled()) return;
-    if (buyerMod) {
-      buyerMod.buyerScoreNote(note);
-      return;
-    }
-    buyerQueue.push(note);
-    if (buyerQueue.length > 50) buyerQueue.shift();
-    if (buyerScheduled) return;
-    buyerScheduled = true;
-    const load = () => {
-      void import("./buyerScore")
-        .then((m) => {
-          buyerMod = m;
-          for (const q of buyerQueue.splice(0)) m.buyerScoreNote(q);
-        })
-        .catch(() => {
-          buyerScheduled = false;
-        });
-    };
-    const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
-    if (typeof ric === "function") ric(load, { timeout: 4000 });
-    else setTimeout(load, 2000);
+    if (buyerSink) buyerSink(kind, payload);
+    else if (buyerQueue.length < 50) buyerQueue.push([kind, payload]);
   } catch {
     /* analytics must never break the page */
   }
 }
 
-/**
- * BUYER-SCORE-1 - `buyer_tier`, sent by buyerScore.ts when a browser's tier rises to warm or hot (once per tier per 7 days).
- * GA4 + Vercel get `{ tier, score }` and nothing else; Meta gets the bare custom event BuyerTierWarm / BuyerTierHot
- * (see sendToMeta). Not in `NamedAnalyticsEvent`, so the first-party activity log drops it. Returns whether it was sent:
- * false in an automated context, on /admin, or for any tier but warm / hot.
- */
-export function trackBuyerTier(tier: "warm" | "hot", score: number): boolean {
-  try {
-    if (!analyticsEnabled() || ADMIN_PATH.test(routerPathOf(window.location.pathname))) return false;
-    const data = { tier, score };
-    send("event", { name: "buyer_tier", data }, { ga4: data });
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 /**
  * ⚠ THE SCRIPT TAG CARRIES `data-disable-auto-track="1"`, AND THAT IS LOAD-BEARING.
@@ -795,13 +754,6 @@ export function trackPageview(path: string): void {
       startEngagedVisitWatch(trackEngagedVisit);
       startEngaged10();
     }
-  } catch {
-    /* analytics must never break the page */
-  }
-  // BUYER-SCORE-1: count this page view for the (lazily loaded) buyer score. Not in an automated context, not on /admin.
-  try {
-    const p = normalisePath(path);
-    if (analyticsEnabled() && !ADMIN_PATH.test(p)) noteBuyerScore({ kind: "page", path: p });
   } catch {
     /* analytics must never break the page */
   }

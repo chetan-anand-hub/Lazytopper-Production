@@ -37,6 +37,8 @@
  * it fires (10 s in), long before 10 minutes. Never throws.
  */
 import { ADMIN_PATH, analyticsEnabled, routerPathOf, trackNamedEvent } from "./analytics";
+// BUYER-SCORE-1: the buyer score rides in this late chunk, so the entry chunk does not carry it (PERF-3).
+import { startBuyerScore } from "./buyerScore";
 
 /** ENGAGE5-1: the 5-minute sibling signal, same watcher; its own once-per-day flag (`sent5`). */
 export const ENGAGED5_MS = 5 * 60_000;
@@ -272,6 +274,7 @@ export function startEngaged10Watch(): void {
   if (started) return;
   if (typeof window === "undefined" || typeof document === "undefined") return;
   started = true;
+  startBuyerScore();
   try {
     for (const ev of ACTIVITY_EVENTS) window.addEventListener(ev, onActivity, LISTEN);
     document.addEventListener("visibilitychange", onVisibility);

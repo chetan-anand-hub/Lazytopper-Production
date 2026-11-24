@@ -9,7 +9,7 @@ vi.mock("../services/firebaseClient", () => ({
     return customer.uid ? { currentUser: { uid: customer.uid } } : null;
   },
 }));
-vi.mock("../services/subscriptionService", () => ({ peekPaidPremium: () => customer.paid }));
+vi.mock("./buyerScorePeek", async (orig) => ({ ...(await orig<typeof import("./buyerScorePeek")>()), peekPaidPremium: () => customer.paid }));
 vi.mock("../lib/packs/myPacksCache", () => ({ peekOwnsAnyPack: () => customer.ownsPack }));
 
 import {

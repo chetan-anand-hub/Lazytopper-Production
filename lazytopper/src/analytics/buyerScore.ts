@@ -1,8 +1,8 @@
 import POINTS from "../config/buyerScorePoints.json";
-import { ADMIN_PATH, analyticsEnabled, readPurchaseSent, routerPathOf, trackBuyerTier } from "./analytics";
-import { storedVisitSourceForScore, type VisitSource } from "./visitSource";
+import { ADMIN_PATH, analyticsEnabled, attachBuyerSink, readPurchaseSent, routerPathOf, send } from "./analytics";
+import type { VisitSource } from "./visitSource";
 import { authClient } from "../services/firebaseClient";
-import { peekPaidPremium } from "../services/subscriptionService";
+import { peekPaidPremium, storedVisitSourceForScore } from "./buyerScorePeek";
 import { peekOwnsAnyPack } from "../lib/packs/myPacksCache";
 
 /**
@@ -288,5 +288,41 @@ export function buyerScoreNote(note: BuyerNote, nowMs: number = Date.now()): "wa
     return announced;
   } catch {
     return null;
+  }
+}
+
+/**
+ * BUYER-SCORE-1 - `buyer_tier`, sent when a browser's tier rises to warm or hot (once per tier per 7 days). Lives here, in the
+ * late chunk, not in analytics.ts (PERF-3). GA4 + Vercel get `{ tier, score }` and nothing else; Meta gets the bare custom event
+ * BuyerTierWarm / BuyerTierHot (analytics.ts sendToMeta). Not in `NamedAnalyticsEvent`, so the first-party activity log drops it.
+ * Returns whether it was sent: false in an automated context or on /admin.
+ */
+export function trackBuyerTier(tier: "warm" | "hot", score: number): boolean {
+  try {
+    if (!analyticsEnabled() || ADMIN_PATH.test(routerPathOf(window.location.pathname))) return false;
+    const data = { tier, score };
+    send("event", { name: "buyer_tier", data }, { ga4: data });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * BUYER-SCORE-1 - called once per document by engaged10.ts's late start (analytics.ts never imports this module, PERF-3).
+ * Kill switch VITE_BUYER_SCORE_DISABLED=1: never attaches, so nothing is counted, stored or fired.
+ */
+/** The three buying-intent events the score counts (analytics.ts passes every send; this chunk filters). */
+const BUYING_EVENTS: ReadonlySet<string> = new Set(["pack_view", "begin_checkout", "pack_checkout"]);
+
+export function startBuyerScore(): void {
+  try {
+    if (/^(1|true|on|yes)$/i.test(String(import.meta.env.VITE_BUYER_SCORE_DISABLED ?? ""))) return;
+    attachBuyerSink((kind, payload) => {
+      if (kind === "pageview") buyerScoreNote({ kind: "page", path: String(payload.path ?? "") });
+      else if (BUYING_EVENTS.has(String(payload.name))) buyerScoreNote({ kind: "event", name: String(payload.name) });
+    });
+  } catch {
+    /* analytics must never break the page */
   }
 }

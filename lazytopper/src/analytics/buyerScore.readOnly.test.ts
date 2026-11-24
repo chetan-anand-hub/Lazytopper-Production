@@ -8,7 +8,7 @@ vi.mock("../services/firestoreSdk", () => ({ withFirestore: setDoc, getFirestore
 vi.mock("../lib/packs/myPacksCache", () => ({ peekOwnsAnyPack: () => null }));
 
 import { buyerScoreNote } from "./buyerScore";
-import { peekPaidPremium } from "../services/subscriptionService";
+import { peekPaidPremium } from "./buyerScorePeek";
 
 /** BUYER-SCORE-1 - the customer check must be a pure read: an expired cached trial is never saved back, locally or to Firestore. */
 const T0 = Date.parse("2026-11-20T03:30:00Z");

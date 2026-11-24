@@ -68,20 +68,20 @@ describe("analytics.ts -> buyerScore wiring", () => {
     expect(window.localStorage.getItem("lazytopper.buyerScore")).not.toBeNull();
   });
 
-  it("uses requestIdleCallback with a timeout when the browser has one", async () => {
+  it("loads the score on a plain 3 s timer (no requestIdleCallback: fewer entry-chunk bytes, PERF-3)", async () => {
     const ric = vi.fn((cb: () => void) => cb());
     w.requestIdleCallback = ric;
     const a = await import("./analytics");
     a.trackPageview("/packs");
-    // (other analytics modules also ask for idle time: pick ours by its 4 s timeout)
-    const ours = ric.mock.calls.filter((c) => JSON.stringify((c as unknown[])[1]) === JSON.stringify({ timeout: 4000 }));
-    expect(ours).toHaveLength(1);
-    await vi.dynamicImportSettled();
+    expect(ric.mock.calls.filter((c) => JSON.stringify((c as unknown[])[1]) === JSON.stringify({ timeout: 4000 }))).toHaveLength(0);
+    await flush();
+    expect(gtagCalls.filter((c) => c[0] === "event" && c[1] === "buyer_tier")).toHaveLength(1);
   });
 
   it("a pack_view event reaches the tracker", async () => {
     window.sessionStorage.setItem("lazytopper.visitSource", JSON.stringify({ ref: null, utm_source: null, utm_medium: null, utm_campaign: null, utm_content: null, landing: "/", gclid: false, fbclid: false }));
     const a = await import("./analytics");
+    a.trackPageview("/");
     a.trackNamedEvent("pack_view");
     await flush();
     const stored = JSON.parse(window.localStorage.getItem("lazytopper.buyerScore") as string);
@@ -109,18 +109,12 @@ describe("analytics.ts -> buyerScore wiring", () => {
     expect(window.localStorage.getItem("lazytopper.buyerScore")).toBeNull();
   });
 
-  it("a failed chunk import cannot grow the pre-load queue without bound", async () => {
-    vi.doMock("./buyerScore", () => {
-      throw new Error("chunk 404");
-    });
+  it("the pre-load queue is capped at 50 notes before the buyer score attaches", async () => {
     const a = await import("./analytics");
-    for (let i = 0; i < 120; i++) a.trackPageview("/practice-hub");
-    await flush(); // the import fails; the queue keeps only its newest notes
-    vi.doUnmock("./buyerScore");
-    a.trackPageview("/practice-hub"); // retry now succeeds and drains what was kept
-    await flush();
-    const stored = JSON.parse(window.localStorage.getItem("lazytopper.buyerScore") as string);
-    expect(stored.pv).toBeLessThanOrEqual(51);
-    expect(stored.pv).toBeGreaterThan(0);
+    for (let i = 0; i < 120; i++) a.trackNamedEvent("pack_view"); // no page view yet: the late chunk has not started
+    const seen: unknown[] = [];
+    a.attachBuyerSink((k, p) => void seen.push([k, p]));
+    expect(seen).toHaveLength(50);
   });
+
 });
