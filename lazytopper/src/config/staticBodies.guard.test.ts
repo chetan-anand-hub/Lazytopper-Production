@@ -627,7 +627,8 @@ describe("TS-PAGE-2 — H1 witness and clock nodes", () => {
     for (const file of ["test-series.html", "__desktop/test-series.html"]) {
       const html = readFileSync(resolve(process.cwd(), "prerendered", file), "utf8");
       const h1 = /<h1[^>]*>([\s\S]*?)<\/h1>/.exec(html)?.[1] ?? "";
-      expect(h1.replace(/<[^>]+>/g, ""), file).toBe("Write on paper. Snap a photo. Get every step marked like a CBSE examiner — in minutes.");
+      // TS-H1-KEYWORD-1: the h1 begins with the eyebrow span "CBSE Class 10 Test Series · Maths & Science", then the promise.
+      expect(h1.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&"), file).toBe("CBSE Class 10 Test Series · Maths & Science Write on paper. Snap a photo. Get every step marked like a CBSE examiner — in minutes.");
       expect(html, file).not.toContain("data-lt-clock");
       expect(html, file).not.toContain('href="/login');
     }

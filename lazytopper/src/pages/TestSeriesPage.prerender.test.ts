@@ -14,7 +14,8 @@ describe("prerendered /test-series carries no price", () => {
       const file = resolve(__dirname, "../..", rel);
       expect(existsSync(file), rel).toBe(true);
       const html = readFileSync(file, "utf8");
-      expect(html).toContain("CBSE CLASS 10 TEST SERIES");
+      // TS-H1-KEYWORD-1: the eyebrow is the first span INSIDE the h1, in normal case (CSS uppercases it).
+      expect(html).toMatch(/<h1[^>]*><span class="lt-sp-eyebrow lt-ts-hero__eyebrow">CBSE Class 10 Test Series · Maths &amp; Science<\/span>/);
       expect(html).toContain("Get every step marked like a CBSE examiner");
       expect(html).not.toContain("₹");
       expect(html).not.toMatch(/founding price/i);
