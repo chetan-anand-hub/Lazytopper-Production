@@ -51,6 +51,9 @@ afterEach(() => {
   delete w.va;
 });
 
+/** META-PURCHASE-UNIFY-1: the Meta Purchase params for a pack - the same fields the server CAPI sends. */
+const packMeta = (sku: string, value: number) => ({ currency: "INR", value, content_type: "product", content_ids: [sku], content_name: sku, num_items: 1 });
+
 const names = () => recordActivity.mock.calls.map((c) => (c[1] as { name?: string }).name);
 const ga4Names = () => gtagCalls.filter((c) => c[0] === "event").map((c) => c[1]);
 
@@ -269,9 +272,15 @@ describe("PRICING-PAGES-2 F4 - sales-page surface on the money events", () => {
             },
           ],
           [
-            "PackPurchase",
+            "Purchase",
             {
+              "content_ids": [
+                "pack_cbq",
+              ],
+              "content_name": "pack_cbq",
+              "content_type": "product",
               "currency": "INR",
+              "num_items": 1,
               "value": 199,
             },
           ],
@@ -421,17 +430,17 @@ describe("pack analytics", () => {
     vi.unstubAllEnvs();
   });
 
-  it("pack_purchase: once per transaction; Meta gets the custom PackPurchase (never the standard Purchase); GA4 gets purchase; the Premium `purchase` is NOT logged first-party", () => {
+  it("pack_purchase: once per transaction; Meta gets the STANDARD Purchase (META-PURCHASE-UNIFY-1), never PackPurchase; GA4 gets purchase; the Premium `purchase` is NOT logged first-party", () => {
     const d = { sku: "pack_bundle" as const, itemName: "Complete Bundle", valueInr: 299, transactionId: "pay_1" };
     trackPackPurchase(d);
     trackPackPurchase(d);
     expect(names()).toEqual(["pack_purchase"]);
-    expect(metaCalls).toEqual([["trackCustom", "PackPurchase", { currency: "INR", value: 299 }, { eventID: "pay_1" }]]);
+    expect(metaCalls).toEqual([["track", "Purchase", packMeta("pack_bundle", 299), { eventID: "pay_1" }]]);
     const purchases = gtagCalls.filter((c) => c[0] === "event" && c[1] === "purchase");
     expect(purchases).toHaveLength(1);
     expect(purchases[0][2]).toMatchObject({ transaction_id: "pay_1", currency: "INR", value: 299, items: [{ item_id: "pack_bundle", price: 299, quantity: 1 }] });
     expect(ga4Names()).toContain("pack_purchase");
-    expect(metaCalls.some((c) => c[1] === "Purchase")).toBe(false);
+    expect(metaCalls.some((c) => c[1] === "PackPurchase")).toBe(false);
   });
 
   it("META-PURCHASE-DEDUP-1: the pack sale id is Meta's eventID, and a second tab (shared localStorage) sends nothing", () => {
@@ -440,7 +449,7 @@ describe("pack analytics", () => {
     __resetPurchaseMemoryForTests();
     window.sessionStorage.clear();
     trackPackPurchase(d);
-    expect(metaCalls).toEqual([["trackCustom", "PackPurchase", { currency: "INR", value: 299 }, { eventID: "order_PK" }]]);
+    expect(metaCalls).toEqual([["track", "Purchase", packMeta("pack_bundle", 299), { eventID: "order_PK" }]]);
     expect(gtagCalls.filter((c) => c[0] === "event" && c[1] === "purchase")).toHaveLength(1);
   });
 
@@ -451,7 +460,7 @@ describe("pack analytics", () => {
 
   it("CBQ-PACK-1: pack_cbq purchase reports item_id pack_cbq and value 199 to GA4 and Meta", () => {
     trackPackPurchase({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199, transactionId: "pay_cbq" });
-    expect(metaCalls).toEqual([["trackCustom", "PackPurchase", { currency: "INR", value: 199 }, { eventID: "pay_cbq" }]]);
+    expect(metaCalls).toEqual([["track", "Purchase", packMeta("pack_cbq", 199), { eventID: "pay_cbq" }]]);
     const p = gtagCalls.filter((c) => c[0] === "event" && c[1] === "purchase");
     expect(p).toHaveLength(1);
     expect(p[0][2]).toMatchObject({ transaction_id: "pay_cbq", currency: "INR", value: 199, items: [{ item_id: "pack_cbq", item_name: "Maths CBQ Pack" }] });
@@ -477,5 +486,49 @@ describe("pack analytics", () => {
     expect((recordActivity.mock.calls[2][1] as { data: Record<string, unknown> }).data).not.toHaveProperty("signed_in");
     expect(seen.mock.calls.map((c) => c[0]).slice(-3)).toEqual(["pack_cbq:science", "pack_bundle:all", "pack_mock:maths"]);
     expect(JSON.stringify(recordActivity.mock.calls)).not.toMatch(/@|uid|email/i);
+  });
+});
+
+/**
+ * META-PURCHASE-UNIFY-1 - ONE standard Meta Purchase covers every sale: every pack sku (incl. the Test Series and CBQ packs) is
+ * `Purchase` with the sku as its product and the Razorpay order id as eventID (the server CAPI sends the same name + id, see
+ * server/routes/payments.test.cjs). The Premium pass is unchanged. VITE_META_PACK_AS_PURCHASE_DISABLED=1 restores PackPurchase.
+ */
+describe("META-PURCHASE-UNIFY-1 - a paid pack is Meta's standard Purchase", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("every pack sku -> one Purchase with content_ids / value (charged) / currency, eventID = the order id; no PackPurchase", () => {
+    const skus = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq", "test_series"] as const;
+    skus.forEach((sku, i) => trackPackPurchase({ sku, itemName: sku, valueInr: 100 + i, transactionId: `order_${sku}` }));
+    expect(metaCalls).toEqual(skus.map((sku, i) => ["track", "Purchase", packMeta(sku, 100 + i), { eventID: `order_${sku}` }]));
+    expect(metaCalls.some((c) => c[1] === "PackPurchase")).toBe(false);
+    // The first-party log name and GA4's purchase are unchanged.
+    expect(names()).toEqual(skus.map(() => "pack_purchase"));
+    expect(gtagCalls.filter((c) => c[0] === "event" && c[1] === "purchase")).toHaveLength(skus.length);
+  });
+
+  it("the Test Series at Rs 1,178.82 charged: value is the charged amount, eventID the order id", () => {
+    trackPackPurchase({ sku: "test_series", itemName: "Test Series", valueInr: 1178.82, transactionId: "order_TS1" });
+    expect(metaCalls).toEqual([["track", "Purchase", packMeta("test_series", 1178.82), { eventID: "order_TS1" }]]);
+  });
+
+  it("the Premium pass purchase is unchanged: Purchase with { currency, value } only", () => {
+    trackPurchase({ passType: "till_boards", itemName: "Board Pass", valueInr: 1178.82, transactionId: "order_P1" });
+    expect(metaCalls).toEqual([["track", "Purchase", { currency: "INR", value: 1178.82 }, { eventID: "order_P1" }]]);
+  });
+
+  it("kill switch VITE_META_PACK_AS_PURCHASE_DISABLED=1 -> today's custom PackPurchase with { value, currency }; no Purchase for the pack", () => {
+    vi.stubEnv("VITE_META_PACK_AS_PURCHASE_DISABLED", "1");
+    trackPackPurchase({ sku: "test_series", itemName: "Test Series", valueInr: 1178.82, transactionId: "order_K1" });
+    trackPackPurchase({ sku: "pack_cbq", itemName: "Maths CBQ Pack", valueInr: 199, transactionId: "order_K2" });
+    expect(metaCalls).toEqual([
+      ["trackCustom", "PackPurchase", { currency: "INR", value: 1178.82 }, { eventID: "order_K1" }],
+      ["trackCustom", "PackPurchase", { currency: "INR", value: 199 }, { eventID: "order_K2" }],
+    ]);
+    // The pass is not affected by the pack switch.
+    trackPurchase({ passType: "till_boards", itemName: "Board Pass", valueInr: 599, transactionId: "order_K3" });
+    expect(metaCalls[2]).toEqual(["track", "Purchase", { currency: "INR", value: 599 }, { eventID: "order_K3" }]);
   });
 });
