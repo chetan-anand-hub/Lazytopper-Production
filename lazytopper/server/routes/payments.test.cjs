@@ -2092,7 +2092,10 @@ test('REUSE · THE RACE: two tabs ask before either pays -> ONE Razorpay order; 
   const a = await createOrder(srv, 'r1', 'till_boards');
   const b = await createOrder(srv, 'r1', 'till_boards'); // the second tab
   assert.equal(b.orderId, a.orderId, 'a second order was created');
-  assert.deepEqual(b, a, 'the second tab gets the same order, amount and breakup');
+  // META-IC-1: the handed-back order says so (`reused: true`), so the browser sends no second InitiateCheckout for it.
+  assert.equal(b.reused, true);
+  assert.equal(a.reused, undefined);
+  assert.deepEqual({ ...b, reused: undefined }, { ...a, reused: undefined }, 'the second tab gets the same order, amount and breakup');
   assert.equal(orderPosts(srv), 1);
   assert.equal(dgPayOrders(db).length, 1);
   assert.ok(srv.events.includes('payments.order.reused'));
@@ -2857,15 +2860,76 @@ test('SERVER-EVENTS-1 · SERVER_EVENTS_DISABLED=1 is a kill switch even with eve
     assert.match(g.body.client_id, /^\d+\.\d+$/, 'no GA cookie -> a stable synthetic id');
   });
 
-  test('payload shape: a pack is the CUSTOM Meta event PackPurchase, never Purchase', async () => {
+  test('META-PURCHASE-UNIFY-1 · payload shape: a pack is the STANDARD Meta Purchase with the sku as its product, never PackPurchase', async () => {
     const f = fakeFetch();
     const db = fakeDb({ 'payOrders/o2': order({ passType: 'pack_chapter', amountPaise: 5782 }) });
     const s = se.createServerEvents({ firestore: db, env: ENV, fetchImpl: f.fetchImpl, now: () => NOW });
     await s.orderPaid({ orderId: 'o2', payment: {} });
-    const ev = f.calls.find((c) => c.url.includes('graph.facebook.com')).body.data[0];
-    assert.equal(ev.event_name, 'PackPurchase');
+    const metas = f.calls.filter((c) => c.url.includes('graph.facebook.com'));
+    assert.equal(metas.length, 1, 'exactly one Meta event for the order');
+    const ev = metas[0].body.data[0];
+    assert.equal(ev.event_name, 'Purchase');
     assert.equal(ev.event_id, 'o2');
-    assert.equal(ev.custom_data.value, 57.82);
+    assert.deepEqual(ev.custom_data, { currency: 'INR', value: 57.82, content_type: 'product', content_ids: ['pack_chapter'], content_name: 'pack_chapter', num_items: 1 });
+  });
+
+  test('META-PURCHASE-UNIFY-1 · every pack sku (incl. test_series, pack_cbq) -> ONE Purchase, event_id = order id, value = charged incl. GST; a second orderPaid adds nothing', async () => {
+    const skus = ['pack_chapter', 'pack_mock', 'pack_subject', 'pack_bundle', 'pack_cbq', 'test_series'];
+    const docs = {};
+    skus.forEach((sku, i) => { docs[`payOrders/order_${sku}`] = order({ passType: sku, amountPaise: 117882 + i }); });
+    const f = fakeFetch();
+    const db = fakeDb(docs);
+    const s = se.createServerEvents({ firestore: db, env: { META_CAPI_ACCESS_TOKEN: 'tok' }, fetchImpl: f.fetchImpl, now: () => NOW });
+    for (const sku of skus) {
+      await s.orderPaid({ orderId: `order_${sku}`, payment: {} });
+      await s.orderPaid({ orderId: `order_${sku}`, payment: {} });
+    }
+    const evs = f.calls.filter((c) => c.url.includes('graph.facebook.com')).map((c) => c.body.data[0]);
+    assert.equal(evs.length, skus.length, 'one event per order');
+    skus.forEach((sku, i) => {
+      assert.equal(evs[i].event_name, 'Purchase', sku);
+      assert.equal(evs[i].event_id, `order_${sku}`);
+      assert.deepEqual(evs[i].custom_data, { currency: 'INR', value: (117882 + i) / 100, content_type: 'product', content_ids: [sku], content_name: sku, num_items: 1 });
+    });
+    assert.ok(!evs.some((e) => e.event_name === 'PackPurchase'));
+  });
+
+  test('META-PURCHASE-UNIFY-1 · the pass is unchanged (Purchase, { currency, value } only); a top-up still sends nothing', async () => {
+    const f = fakeFetch();
+    const db = fakeDb({ 'payOrders/p1': order(), 'payOrders/t9': order({ passType: 'topup_49' }) });
+    const s = se.createServerEvents({ firestore: db, env: { META_CAPI_ACCESS_TOKEN: 'tok' }, fetchImpl: f.fetchImpl, now: () => NOW });
+    await s.orderPaid({ orderId: 'p1', payment: {} });
+    await s.orderPaid({ orderId: 't9', payment: {} });
+    const evs = f.calls.filter((c) => c.url.includes('graph.facebook.com')).map((c) => c.body.data[0]);
+    assert.equal(evs.length, 1);
+    assert.equal(evs[0].event_name, 'Purchase');
+    assert.deepEqual(evs[0].custom_data, { currency: 'INR', value: 1178.82 });
+    assert.deepEqual(se.metaPaidEvent({ passType: 'month', amountPaise: 70682 }), { name: 'Purchase', customData: { currency: 'INR', value: 706.82 } });
+  });
+
+  test('META-PURCHASE-UNIFY-1 · kill switch META_PACK_AS_PURCHASE_DISABLED=1 -> today\'s PackPurchase { currency, value } for a pack; the pass stays Purchase', async () => {
+    const f = fakeFetch();
+    const db = fakeDb({ 'payOrders/k1': order({ passType: 'test_series', amountPaise: 117882 }), 'payOrders/k2': order() });
+    const s = se.createServerEvents({ firestore: db, env: { META_CAPI_ACCESS_TOKEN: 'tok', META_PACK_AS_PURCHASE_DISABLED: '1' }, fetchImpl: f.fetchImpl, now: () => NOW });
+    await s.orderPaid({ orderId: 'k1', payment: {} });
+    await s.orderPaid({ orderId: 'k2', payment: {} });
+    const evs = f.calls.filter((c) => c.url.includes('graph.facebook.com')).map((c) => c.body.data[0]);
+    assert.equal(evs.length, 2);
+    assert.equal(evs[0].event_name, 'PackPurchase');
+    assert.equal(evs[0].event_id, 'k1');
+    assert.deepEqual(evs[0].custom_data, { currency: 'INR', value: 1178.82 });
+    assert.equal(evs[1].event_name, 'Purchase');
+    assert.deepEqual(se.metaPaidEvent({ passType: 'pack_cbq', amountPaise: 23482 }, false), { name: 'PackPurchase', customData: { currency: 'INR', value: 234.82 } });
+  });
+
+  test('META-PURCHASE-UNIFY-1 · browser and server name the pack sale the same: Purchase + the same id + the same custom_data keys (the browser side: packAnalytics.test.ts)', () => {
+    const src = require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'src', 'lib', 'packs', 'packAnalytics.ts'), 'utf8');
+    for (const k of ['content_type: "product"', 'content_ids: [details.sku]', 'content_name: details.sku', 'num_items: 1', 'metaEventId: id']) assert.ok(src.includes(k), k);
+    const ana = require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'src', 'analytics', 'analytics.ts'), 'utf8');
+    assert.match(ana, /pack_purchase: \["track", "Purchase"\]/);
+    assert.match(ana, /VITE_META_PACK_AS_PURCHASE_DISABLED/);
+    const ev = se.metaPaidEvent({ passType: 'pack_bundle', amountPaise: 35282 });
+    assert.deepEqual(Object.keys(ev.customData).sort(), ['content_ids', 'content_name', 'content_type', 'currency', 'num_items', 'value']);
   });
 
   test('once per order: a second / concurrent orderPaid sends nothing more; a created or unknown order sends nothing', async () => {
@@ -2899,17 +2963,62 @@ test('SERVER-EVENTS-1 · SERVER_EVENTS_DISABLED=1 is a kill switch even with eve
     assert.equal(db2.docs.get('payOrders/o5').serverEvents.meta.state, 'sent');
   });
 
-  test('InitiateCheckout: packs only, event_id = the browser attempt id; none without an attempt id; a pass sends none', async () => {
+  test('META-IC-1 InitiateCheckout: EVERY product, event_id = the browser attempt id; none without an attempt id; a pack carries content_ids, a pass money only; a top-up none', async () => {
     const f = fakeFetch();
     const s = se.createServerEvents({ firestore: fakeDb(), env: ENV, fetchImpl: f.fetchImpl, now: () => NOW });
     await s.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'u1', signals: { attemptId: 'lt_attempt_12345', ip: '203.0.113.7' } });
     await s.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'u1', signals: { ip: '203.0.113.7' } });
-    await s.orderCreated({ orderId: 'o', passType: 'till_boards', amountPaise: 1, uid: 'u1', signals: { attemptId: 'lt_attempt_12345' } });
+    await s.orderCreated({ orderId: 'o2', passType: 'till_boards', amountPaise: 108300, uid: 'u1', signals: { attemptId: 'lt_attempt_pass_1' } });
+    await s.orderCreated({ orderId: 'o3', passType: 'month', amountPaise: 59900, uid: null, signals: { attemptId: 'lt_attempt_month_1' } });
+    await s.orderCreated({ orderId: 'o4', passType: 'test_series', amountPaise: 117882, uid: null, signals: { attemptId: 'lt_attempt_ts_1' } });
+    await s.orderCreated({ orderId: 'o5', passType: 'topup_49', amountPaise: 4900, uid: 'u1', signals: { attemptId: 'lt_attempt_topup_1' } });
+    assert.equal(f.calls.length, 4);
+    const evs = f.calls.map((c) => c.body.data[0]);
+    for (const ev of evs) assert.equal(ev.event_name, 'InitiateCheckout');
+    assert.deepEqual(evs.map((e) => e.event_id), ['lt_attempt_12345', 'lt_attempt_pass_1', 'lt_attempt_month_1', 'lt_attempt_ts_1']);
+    assert.deepEqual(evs[0].custom_data, { currency: 'INR', value: 116.82, content_ids: ['pack_mock'], content_type: 'product' });
+    assert.deepEqual(evs[1].custom_data, { currency: 'INR', value: 1083 });
+    assert.deepEqual(evs[2].custom_data, { currency: 'INR', value: 599 });
+  });
+
+  test('META-IC-1 kill switch: META_IC_SERVER_ALL_DISABLED=1 restores packs only', async () => {
+    const f = fakeFetch();
+    const s = se.createServerEvents({ firestore: fakeDb(), env: { ...ENV, META_IC_SERVER_ALL_DISABLED: '1' }, fetchImpl: f.fetchImpl, now: () => NOW });
+    await s.orderCreated({ orderId: 'o2', passType: 'till_boards', amountPaise: 108300, uid: 'u1', signals: { attemptId: 'lt_attempt_pass_1' } });
+    await s.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'u1', signals: { attemptId: 'lt_attempt_12345' } });
     assert.equal(f.calls.length, 1);
-    const ev = f.calls[0].body.data[0];
-    assert.equal(ev.event_name, 'InitiateCheckout');
-    assert.equal(ev.event_id, 'lt_attempt_12345');
-    assert.deepEqual(ev.custom_data, { currency: 'INR', value: 116.82, content_ids: ['pack_mock'], content_type: 'product' });
+    assert.equal(f.calls[0].body.data[0].custom_data.content_ids[0], 'pack_mock');
+  });
+
+  test('META-CAPI-EXCLUDE-1 · admin / META_CAPI_EXCLUDE_UIDS accounts send no Meta Purchase or InitiateCheckout; others, signed-out orders and GA4 are unchanged', async () => {
+    const env = { META_CAPI_ACCESS_TOKEN: 'tok', GA4_API_SECRET: 'sec', ADMIN_FIREBASE_UIDS: 'adm1, adm2', META_CAPI_EXCLUDE_UIDS: 'tester9' };
+    const docs = {
+      'payOrders/o_adm': order({ uid: 'adm2', passType: 'pack_mock' }),
+      'payOrders/o_tst': order({ uid: 'tester9', passType: 'test_series' }),
+      'payOrders/o_ok': order({ uid: 'real1', passType: 'pack_mock' }),
+      'payOrders/o_anon': order({ uid: null, passType: 'pack_mock' }),
+    };
+    const f = fakeFetch();
+    const db1 = fakeDb(docs);
+    const s = se.createServerEvents({ firestore: db1, env, fetchImpl: f.fetchImpl, now: () => NOW });
+    for (const id of ['o_adm', 'o_tst', 'o_ok', 'o_anon']) await s.orderPaid({ orderId: id, payment: {} });
+    const meta = f.calls.filter((c) => c.url.includes('graph.facebook.com')).map((c) => c.body.data[0].event_id);
+    assert.deepEqual(meta.sort(), ['o_anon', 'o_ok']);
+    assert.equal(db1.docs.get('payOrders/o_adm').serverEvents.meta.state, 'excluded', 'distinct marker, never retried');
+    assert.equal(db1.docs.get('payOrders/o_ok').serverEvents.meta.state, 'sent');
+    await s.orderPaid({ orderId: 'o_adm', payment: {} });
+    assert.equal(f.calls.filter((c) => c.url.includes('graph.facebook.com')).length, 2, 'an excluded order is not retried');
+    const ga = f.calls.filter((c) => !c.url.includes('graph.facebook.com')).map((c) => c.body.events[0].params.transaction_id);
+    assert.deepEqual(ga.sort(), ['o_adm', 'o_anon', 'o_ok', 'o_tst'], 'GA4 still counts every order');
+    const f2 = fakeFetch();
+    const s2 = se.createServerEvents({ firestore: fakeDb(), env, fetchImpl: f2.fetchImpl, now: () => NOW });
+    const sig = { attemptId: 'lt_attempt_12345', ip: '203.0.113.7' };
+    await s2.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'adm1', signals: sig });
+    await s2.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'tester9', signals: sig });
+    assert.equal(f2.calls.length, 0, 'excluded uids send no InitiateCheckout');
+    await s2.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: 'real1', signals: sig });
+    await s2.orderCreated({ orderId: 'o', passType: 'pack_mock', amountPaise: 11682, uid: null, signals: sig });
+    assert.equal(f2.calls.length, 2);
   });
 
   test('CompleteRegistration: stable id from the uid hash, hashed email + phone, once per call', async () => {

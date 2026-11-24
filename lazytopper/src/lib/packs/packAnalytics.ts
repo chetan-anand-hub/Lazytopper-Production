@@ -8,8 +8,13 @@
  *   pack_checkout              vendors + first-party get `pack_checkout`; GA4 ALSO gets its recommended
  *                              `begin_checkout` ecommerce hit (item_id = sku), GA4 only.
  *   pack_purchase              ONLY from the server-verified paid branch, once per transaction id
- *                              (the same per-tab dedupe as `purchase`). Meta: custom `PackPurchase` with
- *                              { value, currency }. GA4 ALSO gets its recommended `purchase` hit
+ *                              (the same per-tab dedupe as `purchase`). Meta: the STANDARD `Purchase`
+ *                              (META-PURCHASE-UNIFY-1) with { value, currency, content_type, content_ids,
+ *                              content_name, num_items }, eventID = the Razorpay order id - the same name, id
+ *                              and fields as the server CAPI, so Meta counts the sale once. Kill switch
+ *                              VITE_META_PACK_AS_PURCHASE_DISABLED=1 -> today's custom `PackPurchase` with
+ *                              { value, currency } (flip with the server's META_PACK_AS_PURCHASE_DISABLED).
+ *                              GA4 ALSO gets its recommended `purchase` hit
  *                              (transaction_id, items[item_id = sku]), GA4 only.
  */
 
@@ -17,6 +22,7 @@ import {
   CHECKOUT_CURRENCY,
   analyticsEnabled,
   currentSalesPageSurface,
+  isMetaPackAsPurchaseDisabled,
   packIsAdminHit,
   purchaseSentMemory,
   readPurchaseSent,
@@ -27,6 +33,7 @@ import {
   sendGa4Hit,
 } from "../../analytics/analytics";
 import { rememberCheckoutAttempt } from "../../analytics/adSignals";
+import { metaIcAtOrderDisabled } from "../../analytics/metaIcFlag";
 import { priceWithGst } from "../../config/pricing";
 import { currentInAppPay } from "../../utils/inAppPay";
 import { reportPackSampleSeen, signedInHint } from "./packSampleSeen";
@@ -182,8 +189,11 @@ export function trackPackCheckout(
     // other event (META_EVENTS["pack_checkout"]). `eventID` is the attempt id the call site already mints (else one is made here);
     // value is the TOTAL charged (base + GST, rupees); nothing about the person. The Premium pass tap is unchanged.
     const attemptId = ctx.attemptId || newCheckoutAttemptId();
-    rememberCheckoutAttempt(attemptId); // SERVER-EVENTS-1: the order-create body carries it, so the server InitiateCheckout reuses this eventID
-    const sendMeta = !metaCheckoutSent.has(attemptId);
+    // META-IC-1: Meta's InitiateCheckout is no longer sent at this TAP (it fires when the order is created, with the id the
+    // order-create body carries). Only with the kill switch on does the tap remember its id and send the pixel event again.
+    const legacyMeta = metaIcAtOrderDisabled();
+    if (legacyMeta) rememberCheckoutAttempt(attemptId); // SERVER-EVENTS-1 (legacy): the order-create body carries it
+    const sendMeta = legacyMeta && !metaCheckoutSent.has(attemptId);
     if (sendMeta) metaCheckoutSent.add(attemptId);
     const total = typeof details.valueInr === "number" && Number.isFinite(details.valueInr) && details.valueInr > 0 ? priceWithGst(details.valueInr) : null;
     const meta = { currency: CHECKOUT_CURRENCY, ...(total === null ? {} : { value: total }), content_ids: [details.sku], content_type: "product" };
@@ -206,7 +216,11 @@ export function trackPackPurchase(details: PackCheckoutDetails & { transactionId
     rememberPurchaseSent(id);
     const money = packMoney(details);
     const where = purchaseSurface(details.sku);
-    sendAnalyticsHit("event", { name: "pack_purchase", data: { ...money, sku: details.sku, ...where } }, { ga4: { ...money, sku: details.sku, ...where }, meta: { ...money, ...where }, metaEventId: id });
+    // META-PURCHASE-UNIFY-1: Meta's standard Purchase carries the sku as its product; the kill switch keeps today's payload.
+    const meta = isMetaPackAsPurchaseDisabled()
+      ? { ...money, ...where }
+      : { ...money, content_type: "product", content_ids: [details.sku], content_name: details.sku, num_items: 1, ...where };
+    sendAnalyticsHit("event", { name: "pack_purchase", data: { ...money, sku: details.sku, ...where } }, { ga4: { ...money, sku: details.sku, ...where }, meta, metaEventId: id });
     sendGa4Only("purchase", {
       transaction_id: id,
       ...money,

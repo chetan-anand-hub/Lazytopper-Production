@@ -192,7 +192,7 @@ function fakeRazorpay() {
 }
 
 /* ── parent-pay routes AND the existing payment routes, behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), clock, displayNames = { child1: 'Aarav Sharma' }, rateLimiter, receiptEmailer } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), clock, displayNames = { child1: 'Aarav Sharma' }, rateLimiter, receiptEmailer, serverEvents } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -208,6 +208,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now,
     foundingOfferOpen: true,
     ...(receiptEmailer ? { receiptEmailer } : {}),
+    ...(serverEvents ? { serverEvents } : {}), // META-IC-1
     getDisplayName: async (uid) => displayNames[uid] || '',
     ...(rateLimiter ? { rateLimiter } : {}),
   });
@@ -1514,6 +1515,30 @@ test('TS-PRICE-2 · parent link: a founding-member child gets no exemption for a
   assert.equal(r.status, 400, r.text);
   assert.equal(r.json.reason, 'order_expired');
   assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0);
+});
+
+// ---- META-IC-1: the parent-pay order routes fire InitiateCheckout once per created order --------------------------------------
+test('META-IC-1 · a parent pass order and a parent pack order each fire ONE orderCreated (uid = the child) with the browser attempt id', async (t) => {
+  const created = [];
+  const serverEvents = {
+    signalsField: (body) => ({ adSignals: { attemptId: body && body.adSignals && body.adSignals.attemptId } }),
+    orderCreated: async (a) => { created.push(a); },
+    orderPaid: async () => {},
+  };
+  const srv = await startRoutes({ env: ENV_PACKS, serverEvents });
+  t.after(srv.close);
+  const link = await mint(srv);
+  const pass = await parentOrder(srv, link.token, 'till_boards', { adSignals: { attemptId: 'lt_ic_parent_01' } });
+  assert.equal(pass.status, 200, pass.text);
+  const packLink = await mintPack(srv, { sku: 'pack_cbq', target: 'maths', priceInr: 1 });
+  assert.equal(packLink.status, 200, packLink.text);
+  const pack = await request(srv.port, PARENT_ORDER_PATH, { body: { token: packLink.json.token, product: 'pack', adSignals: { attemptId: 'lt_ic_parent_02' } } });
+  assert.equal(pack.status, 200, pack.text);
+  assert.equal(pack.json.sku, 'pack_cbq', 'the pack order names its sku so the browser event carries the same content_ids');
+  assert.deepEqual(created.map((c) => [c.orderId, c.passType, c.amountPaise, c.uid, c.signals.attemptId]), [
+    [pass.json.orderId, 'till_boards', pass.json.amountPaise, 'child1', 'lt_ic_parent_01'],
+    [pack.json.orderId, 'pack_cbq', pack.json.amountPaise, 'child1', 'lt_ic_parent_02'],
+  ]);
 });
 
 /* ── LATE-AUTH-GUARD-1 v1.1 · parent verify: payment age only; a refusal is PENDING ─────────────────────────────────── */

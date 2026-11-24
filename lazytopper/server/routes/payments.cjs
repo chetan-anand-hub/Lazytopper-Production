@@ -847,7 +847,8 @@ function createPaymentRoutes(deps = {}) {
             emit('payments.order.wa_optin_store_failed');
           }
         }
-        return sendJson(res, 200, { ok: true, orderId: reuse, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr, tsFields) });
+        // META-IC-1: `reused: true` tells the client this is an order it was already handed (no new InitiateCheckout for it).
+        return sendJson(res, 200, { ok: true, orderId: reuse, reused: true, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr, tsFields) });
       }
     }
 
