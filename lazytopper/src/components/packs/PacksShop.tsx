@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import { withSigninRedirect } from "../../services/freeCheckClient";
 import { WHATSAPP_URL } from "../../config/socialProfiles";
 import { clearReceiptProof, readReceiptProof, type ReceiptProof } from "../../services/paidReceiptProof";
-import { newCheckoutAttemptId } from "../../analytics/analytics";
+import { newCheckoutAttemptId, type PaywallSurface } from "../../analytics/analytics";
 import { trackPackCheckout, trackPackEvent, trackPackPurchase, type PackCheckoutDetails, type PackCheckoutFrom } from "../../lib/packs/packAnalytics";
 import {
   PACK_ALREADY_OWNED_COPY,
@@ -290,6 +290,15 @@ interface BuyState {
 }
 
 /** What the catalogue (hero tiles on /packs, the strip on /pricing) can do: open a pack's pop-up, optionally on a subject. */
+/**
+ * The options of `parentAsk`. `surface` (TS-PARENT-FORWARD-1) names the page in the `paywall_action` event; absent -> "pricing",
+ * exactly as before, so every existing caller is unchanged.
+ */
+export interface ParentAskOpts {
+  noQr?: boolean;
+  surface?: Extract<PaywallSurface, "pricing" | "test_series">;
+}
+
 export interface PacksShopApi {
   openPack: (sku: PackSku) => void;
   openCbq: (subject: PackSubject) => void;
@@ -315,7 +324,7 @@ export interface PacksShopApi {
    * PARENT-PACKS-1 - "Forward link to parents" (+ "Share QR code" unless `noQr`) for this pack: a link that carries ONLY this pack,
    * minted by the server for the signed-in student. null when it does not apply (signed out, packs dark, owned, paying).
    */
-  parentAsk: (sku: PackSku, target?: string, opts?: { noQr?: boolean }) => ReactNode;
+  parentAsk: (sku: PackSku, target?: string, opts?: ParentAskOpts) => ReactNode;
   /**
    * PACKS-TIDY-1 (additive, read-only): the pack whose pop-up is open (or null) and the subject the shop currently holds (a deep link,
    * a Buy, the pop-up's own switch). /packs uses them to open the matching collapsed row and preselect its Maths / Science switch.
@@ -903,7 +912,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
    * while this pack's own checkout is open / settling (the rescue card owns the closed-sheet moment). Payments / parent pay dark:
    * PaywallActions renders nothing at all.
    */
-  function parentAskFor(sku: PackSku, target: string | undefined, opts: { noQr?: boolean } = {}): ReactNode {
+  function parentAskFor(sku: PackSku, target: string | undefined, opts: ParentAskOpts = {}): ReactNode {
     const t = packHasNoTarget(sku) ? undefined : target;
     if (!enabled || !signedIn || !isValidPackTarget(sku, t)) return null;
     const key = packIdOf(sku, t);
@@ -913,7 +922,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     return (
       <PaywallActions
         key={key}
-        surface="pricing"
+        surface={opts.surface ?? "pricing"}
         product={{ kind: "pack", sku, ...(t ? { target: t } : {}), name }}
         noQr={opts.noQr}
       />

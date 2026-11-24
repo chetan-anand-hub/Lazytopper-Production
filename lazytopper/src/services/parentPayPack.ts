@@ -12,6 +12,7 @@
 import { orderSourceFields } from "../analytics/visitSource";
 import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 import { formatInr } from "../config/pricing";
+import { seriesTotals } from "../lib/testSeries/testSeries";
 import type { PackSku } from "./packs";
 import {
   childAuthHeaders,
@@ -237,6 +238,9 @@ export interface AskParentPackMessageInput {
 /** The child's message to a parent for ONE pack: the pack, its one-time price, the link and how long it works. */
 export function buildAskParentPackMessage({ lang, name, priceInr, url, days }: AskParentPackMessageInput): string {
   const price = formatInr(priceInr);
+  // TS-PARENT-FORWARD-1 (owner ruling 18 Nov 2026): the Test Series is taken online (its papers can be printed) and is never presented like a PDF pack.
+  // The caller (PaywallActionsView) passes the product's NAME only, so the Test Series is recognised by its own parentPackName.
+  if (name === TEST_SERIES_PARENT_NAME) return buildAskParentSeriesMessage(lang, price, url, days);
   if (lang === "hi") {
     return [
       `मम्मी/पापा, क्या आप मुझे LazyTopper पर ${name} दिला देंगे? यह एक बार का ${price} है — मेरी CBSE कक्षा 10 बोर्ड की तैयारी के लिए प्रिंट करने वाली PDF।`,
@@ -247,6 +251,32 @@ export function buildAskParentPackMessage({ lang, name, priceInr, url, days }: A
   }
   return [
     `Hi Mummy/Papa, can you get me the ${name} on LazyTopper? It's ${price}, one time — printable PDFs for my CBSE Class 10 board prep.`,
+    "This link is only for my account — you don't need to sign up or share any password:",
+    url,
+    `(The link works for ${days} ${days === 1 ? "day" : "days"}.)`,
+  ].join("\n\n");
+}
+
+/** The Test Series' name in a parent message ("Test Series Pack"): how buildAskParentPackMessage recognises it. */
+export const TEST_SERIES_PARENT_NAME = parentPackName("test_series", undefined);
+
+/**
+ * TS-PARENT-FORWARD-1 - the child's message for the Test Series: the tests (online or printed) and the step-by-step marking, never "PDFs". The price is
+ * the SERVER's (the mint's total); the test count is seriesTotals() (never typed). The link / no-password / validity lines are the
+ * pack message's own.
+ */
+function buildAskParentSeriesMessage(lang: ParentPayLang, price: string, url: string, days: number): string {
+  const tests = seriesTotals().total;
+  if (lang === "hi") {
+    return [
+      `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ${price} है, मेरे बोर्ड तक चलेगी: ${tests} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं।`,
+      "यह लिंक सिर्फ़ मेरे अकाउंट के लिए है — आपको कोई अकाउंट बनाने या पासवर्ड बताने की ज़रूरत नहीं:",
+      url,
+      `(यह लिंक ${days} दिन तक चलेगा।)`,
+    ].join("\n\n");
+  }
+  return [
+    `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? It's ${price}, one time, valid till my boards: ${tests} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner.`,
     "This link is only for my account — you don't need to sign up or share any password:",
     url,
     `(The link works for ${days} ${days === 1 ? "day" : "days"}.)`,

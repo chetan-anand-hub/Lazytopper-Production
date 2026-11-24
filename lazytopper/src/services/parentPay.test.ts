@@ -18,7 +18,8 @@ import {
 } from "./parentPay";
 import type { RazorpayConstructor, RazorpaySuccess } from "./checkout";
 import { buildAskParentMessage, parentProofFrom, parentProofLine } from "./parentPayMessage";
-import { buildAskParentPackMessage, buyPackAsParent, createParentPackOrder, mintParentPackLink, parentPackName, verifyParentPackPayment, viewParentLinkWithPack, withValidPack } from "./parentPayPack";
+import { buildAskParentPackMessage, buyPackAsParent, createParentPackOrder, mintParentPackLink, parentPackName, TEST_SERIES_PARENT_NAME, verifyParentPackPayment, viewParentLinkWithPack, withValidPack } from "./parentPayPack";
+import { seriesTotals } from "../lib/testSeries/testSeries";
 
 /** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
 const withoutAdSignals = (b: Record<string, unknown>): Record<string, unknown> => {
@@ -304,6 +305,53 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
     expect(text).toContain(url);
     expect(text).toContain("1 दिन");
     expect(text).not.toMatch(/Board Pass|premium|उत्तर जाँचे/i);
+  });
+
+  it("TS-PARENT-FORWARD-1: the Test Series message (en) - the tests and the marking at the SERVER's total, never PDFs", () => {
+    const n = seriesTotals().total;
+    const text = buildAskParentPackMessage({ lang: "en", name: parentPackName("test_series", undefined), priceInr: 1179, url, days: 3 });
+    expect(text).toBe(
+      [
+        `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? It's ₹1,179, one time, valid till my boards: ${n} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner.`,
+        "This link is only for my account — you don't need to sign up or share any password:",
+        url,
+        "(The link works for 3 days.)",
+      ].join("\n\n"),
+    );
+    expect(text).not.toMatch(/PDF|printable|\bAI\b|answer key|free/i);
+  });
+
+  it("TS-PARENT-FORWARD-1: the Test Series message (hi) carries the same facts, no PDF", () => {
+    const n = seriesTotals().total;
+    const text = buildAskParentPackMessage({ lang: "hi", name: TEST_SERIES_PARENT_NAME, priceInr: 1769, url, days: 1 });
+    expect(text).toBe(
+      [
+        `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ₹1,769 है, मेरे बोर्ड तक चलेगी: ${n} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं।`,
+        "यह लिंक सिर्फ़ मेरे अकाउंट के लिए है — आपको कोई अकाउंट बनाने या पासवर्ड बताने की ज़रूरत नहीं:",
+        url,
+        "(यह लिंक 1 दिन तक चलेगा।)",
+      ].join("\n\n"),
+    );
+    expect(text).not.toMatch(/PDF/);
+  });
+
+  it("TS-PARENT-FORWARD-1: every other pack's message is byte-identical to before (en + hi)", () => {
+    expect(buildAskParentPackMessage({ lang: "en", name: "Maths + Science Bundle", priceInr: 471, url, days: 2 })).toBe(
+      [
+        "Hi Mummy/Papa, can you get me the Maths + Science Bundle on LazyTopper? It's ₹471, one time — printable PDFs for my CBSE Class 10 board prep.",
+        "This link is only for my account — you don't need to sign up or share any password:",
+        url,
+        "(The link works for 2 days.)",
+      ].join("\n\n"),
+    );
+    expect(buildAskParentPackMessage({ lang: "hi", name: "Science CBQ Pack", priceInr: 199, url, days: 1 })).toBe(
+      [
+        "मम्मी/पापा, क्या आप मुझे LazyTopper पर Science CBQ Pack दिला देंगे? यह एक बार का ₹199 है — मेरी CBSE कक्षा 10 बोर्ड की तैयारी के लिए प्रिंट करने वाली PDF।",
+        "यह लिंक सिर्फ़ मेरे अकाउंट के लिए है — आपको कोई अकाउंट बनाने या पासवर्ड बताने की ज़रूरत नहीं:",
+        url,
+        "(यह लिंक 1 दिन तक चलेगा।)",
+      ].join("\n\n"),
+    );
   });
 
   it("pack names", () => {
