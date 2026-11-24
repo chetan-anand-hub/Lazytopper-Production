@@ -1,3 +1,14 @@
+## 2026-11-24 (daily; UTC day 24 Nov, written 24 Nov about 21:45 IST) - #1846 - #1847 - #1848 - #1849 - #1850 - MERGED
+
+- DONE, Test Series SEO. `#1846` (`dacd6ae4`) TS-H1-KEYWORD-1: the /test-series h1 starts with "CBSE Class 10 Test Series"; "mock tests" wording.
+- DONE, structured data. `#1847` (`27ff3d02`) SAMEAS-DIRECTORIES-1: Crunchbase and Wellfound in the Organization `sameAs` (10 URLs pinned). More directories later: `[FU-SAMEAS-MORE-DIRECTORIES]`.
+- DONE, admin measurement. `#1848` (`4f02d397`) MISTAKE-SPLIT-1: read-only GET `/api/admin/mistake-split` (first reading: conceptual 57.2%, presentation 22.7%, calculation 12.9%, silly 7.2%; 1,178 logs, 163 students).
+- DONE, schools. `#1849` (`3da53c09`) SCHOOLS-BOOKLET-1 hosts the schools booklet PDF; `#1850` (`5783881e`) SCHOOLS-BOOKLET-2 gives it a new cover.
+- NEXT (TONIGHT, Tue 24 Nov, in order): `#1811` META-IC-1, then `#1816` META-PURCHASE-UNIFY-1, then `#1819`. `#1833` stays a draft.
+- NEXT (spec first, owner sees it before any build): Test Series checkout with both options, buy directly or forward the pay link to a parent (`[FU-TS-CHECKOUT-BOTH-OPTIONS]`).
+- NOT STARTED: UI-E2E Phase 2 (needs a preview-only test sign-in, `[FU-UI-E2E-PHASE2-TEST-SIGNIN]`).
+- OWED: the 23 Nov live checks (`#1840` both surfaces, STEPMARK-3, `#1822` second surface, board estimate). The earlier lists stand.
+
 ## 2026-11-23 (daily; UTC day 23 Nov, written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840 - MERGED
 
 - DONE, Test Series. `#1830` (`b8ff26c4`) TS-HERO-1 (hero line "written answers marked step by step in minutes"; Buy above the fold on phones). `#1831` (`02e8aef0`) TS-DIFF-1 (Easier / Standard / Harder). `#1832` (`fad42a83`) TS-BOARDSCORE-1 (scorecards out of full marks, trend, board estimate). `#1836` (`19720249`) TS-FREE-CHECK-1 (the free test includes written marking). `#1837` (`0756d13f`) TS-THEMES-1 (30 focus sets).

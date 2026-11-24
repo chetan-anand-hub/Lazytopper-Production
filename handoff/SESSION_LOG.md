@@ -1,3 +1,31 @@
+## 2026-11-24 (daily; UTC day 24 Nov, merges 14:39 to 18:30 IST; written 24 Nov about 21:45 IST) - #1846 - #1847 - #1848 - #1849 - #1850: /test-series h1 keyword, sameAs directories, admin mistake-type split, schools booklet (trunk `5783881e`)
+
+**PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1843`. Covers five product PRs squash-merged on 24 Nov, 09:09 to 13:00 UTC. Merge SHAs, titles, merge times and file lists [git: first-parent trunk log, 5 commits after `ec9b437d`]. Everything else is from the cofounder session handoff `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` sections 2-4 as relayed by the coordinator [coordinator]; the docs builder could not open that doc in its sandbox, so the ads diagnosis is summarised from the coordinator's brief and not copied. Items tagged [owner-rulings record] come from the owner's ruling record kept outside the repo, read by the docs builder, and should be checked against the handoff doc section 3.2. Tonight's two rulings (about 21:35 IST) were relayed by the coordinator from the 24 Nov cofounder session. Merge table: CURRENT_STATE. Reasons for every ruling: DECISION_LOG.)*
+
+**How the day went (IST).**
+- **14:39.** `#1846` TS-H1-KEYWORD-1: the /test-series h1 starts with "CBSE Class 10 Test Series"; "mock tests" wording. Owner approved it to lift Google Ads relevance for "class 10 test series" searches.
+- **17:52.** `#1847` SAMEAS-DIRECTORIES-1: Crunchbase and Wellfound added to the Organization `sameAs` (10 URLs pinned by the guard test).
+- **18:01.** `#1848` MISTAKE-SPLIT-1: read-only admin GET `/api/admin/mistake-split`.
+- **18:15 and 18:30.** `#1849` SCHOOLS-BOOKLET-1 hosts the schools booklet PDF; `#1850` SCHOOLS-BOOKLET-2 gives it a new cover.
+<!-- META ROWS: add #1811, #1816 and #1819 here with their IST merge times when they merge tonight. -->
+- **About 21:35.** Owner rulings: the Meta deploy (`#1811`, `#1816`, `#1819`) happens TONIGHT; the Test Series checkout offers BOTH options, buy directly or forward the pay link to a parent (spec first). Reasons in DECISION_LOG.
+
+**Measurement [coordinator].** First reading of `/api/admin/mistake-split`: 1,178 mistake logs from 163 students, 20 Apr to 23 Nov: conceptual 57.2%, presentation 22.7%, calculation 12.9%, silly 7.2%.
+
+**Test Series checkout finding [coordinator].** 9 Test Series checkouts in about 15 h, with 0 payment attempts. Most were students at night who cannot pay themselves. This is why the owner wants a "forward the pay link to a parent" option next to "buy directly" (`[FU-TS-CHECKOUT-BOTH-OPTIONS]`).
+
+**Google Ads, 24 Nov [coordinator; full diagnosis table in the handoff doc section 3.1-3.2].** The day's ads review found the account spending without Test Series purchases and pre-boards already started. Changes and rulings recorded [owner-rulings record]: Search | PDF Packs moved to Target ROAS (15%, budget unchanged); a Google remarketing campaign approved at ₹500/day, with GA4 audiences building the list (Meta retargeting goes through Pallabi); "coaching" kept as a negative keyword on Board Pass ads; the /test-series h1 change (`#1846`) for "class 10 test series" relevance. The docs builder did not see the per-campaign numbers and does not repeat any here.
+
+**Growth listings and outreach, not code [coordinator].**
+- Startup and directory listings were made. Crunchbase and Wellfound are in `sameAs` (`#1847`); F6S (after approval), Tracxn, and Product Hunt (after launch) are to follow (`[FU-SAMEAS-MORE-DIRECTORIES]`). The Product Hunt launch is set for Wed 25 Nov, live 1:31 pm IST [owner-rulings record].
+- School outreach batch 1: 49 metro CBSE schools emailed, 2 bounced. Follow-ups on 1 Dec. A scheduled task sends the next batch of about 50 every 3 days; next run 25 Nov 11:37 IST. The emails link the booklet hosted by `#1849` / `#1850`.
+
+**UI tests [coordinator].** Phase 2 (signed-in real-browser checks) was not started. It needs a preview-only test sign-in first (`[FU-UI-E2E-PHASE2-TEST-SIGNIN]`).
+
+**Unverified signal [coordinator].** `login_abandon` events at the `google_redirect_started` step may be a measurement bug, not real drop-off (`[FU-LOGIN-ABANDON-REDIRECT-STEP]`).
+
+**Grading.** No PR in this window changes grading behaviour (CLAUDE.md section 4a); see SURFACE_TRACKER.
+
 ## 2026-11-23 (daily; UTC day 23 Nov, merges 14:34 IST 23 Nov to 01:26 IST 24 Nov; written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840: in-app Chrome-first pay, marking-scheme fix, Test Series upgrades, step marks, progress display, real-browser checks, live-run fixes (trunk `91624151`)
 
 **PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1818`. Covers 22 product PRs, all squash-merged at reviewed heads with CI green, 23 Nov 09:04 to 19:56 UTC. Merge SHAs, titles and merge times [git: first-parent trunk log, 22 commits after `53d6c1d2`]. Everything else (owner rulings, evals, reviews, live results, the open-PR plan) is from the cofounder session handoff `claude/HANDOFF_COFOUNDER_SESSION_2026-11-23.md` [coordinator]; the source chat is https://claude.ai/code/session_01QscBGmR7ojiUDe6Hqyx24U. The docs builder did not re-run any eval or re-read the PR bodies. Merge table: CURRENT_STATE. Reasons for every ruling: DECISION_LOG.)*

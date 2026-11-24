@@ -23,6 +23,25 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-24 (daily; UTC day 24 Nov, written 24 Nov about 21:45 IST) - #1846 - #1847 - #1848 - #1849 - #1850 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*(Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` and the coordinator's brief [coordinator]. All five tags below are minted here: the board was searched first (sameAs, directories, `login_abandon`, `google_redirect_started`, parent pay link, ui-e2e, Phase 2) and none of these had an entry with the same meaning. `[FU-UI-E2E-REQUIRED-CHECK]` already exists (23 Nov) and is NOT duplicated; see its status line below. Older entries are left as written (standing rule 3).)*
+
+**Status of an existing entry.**
+- `[FU-UI-E2E-REQUIRED-CHECK]` (23 Nov entry stays as written): **still OPEN.** Make `ui-e2e` a required check after a few clean days. Nothing changed on 24 Nov.
+
+### [FU-TS-CHECKOUT-BOTH-OPTIONS] (minted)
+OPEN, money path; **spec FIRST, shown to the owner before any build.** The Test Series checkout should offer BOTH options: buy directly, or forward the pay link to a parent (owner ruling, 24 Nov about 21:35 IST; DECISION_LOG 2026-11-24 ruling 2). Evidence: 9 Test Series checkouts in about 15 h with 0 payment attempts, mostly students at night who cannot pay themselves. Needs an independent review and a kill switch. Related, not the same: `[FU-TS-UPGRADE-PARENT-GUEST]` (no Test Series upgrade credit on parent pay-link and guest Board Pass checkouts). [coordinator]
+
+### [FU-SAMEAS-MORE-DIRECTORIES] (minted)
+OPEN, small. `#1847` added Crunchbase and Wellfound to the Organization `sameAs` (10 URLs, pinned in `socialProfiles.guard.test.tsx`). Add, each only once its listing is live: F6S (after its approval), Tracxn, and Product Hunt (after the launch). Each addition must update `config/socialProfiles.ts`, `index.html` and the guard test's count together. [coordinator]
+
+### [FU-LOGIN-ABANDON-REDIRECT-STEP] (minted)
+OPEN, UNVERIFIED. `login_abandon` events recorded at the `google_redirect_started` step may be a measurement bug (for example an abandon fired while the page is leaving for Google's full-page redirect), not real drop-off. Verify how the event fires on the redirect path before using the number for any decision. Events came from `#1601` LOGIN-FIX-2. [coordinator]
+
+### [FU-UI-E2E-PHASE2-TEST-SIGNIN] (minted)
+OPEN, not started. UI tests Phase 2 (signed-in real-browser checks) needs a test sign-in that works on preview builds ONLY and can never work in production. Auth path: needs a spec and an independent review. Phase 1 is `#1838` (six signed-out pages). [coordinator]
+
 ## 2026-11-23 (daily; UTC day 23 Nov, written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *(Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-23.md` section 6 [coordinator]. Tags the handoff gave are used as written; a tag marked "minted" had none in the handoff and was named here so it has its own heading (standing rule 1). Older entries are left as written (standing rule 3); the corrections are here.)*
