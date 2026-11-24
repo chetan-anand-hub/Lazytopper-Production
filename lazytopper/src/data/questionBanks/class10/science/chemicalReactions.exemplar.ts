@@ -772,13 +772,12 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "Oxidising agents (oxidants): (a) Pb₃O₄, (b) O₂, (c) CuSO₄, (d) V₂O₅, (e) H₂O, (f) CuO.",
     solutionSteps: [
-      "An oxidising agent is the species that gets reduced and causes another species to be oxidised.",
-      "(a) Pb in Pb₃O₄ is reduced (mixed +2/+4 → +2 in PbCl₂); Cl⁻ in HCl is oxidised to Cl₂. So Pb₃O₄ is the oxidising agent.",
-      "(b) O₂ is reduced (0 → −2 in MgO); Mg is oxidised. Oxidant = O₂.",
-      "(c) Cu²⁺ in CuSO₄ is reduced to Cu; Zn is oxidised to Zn²⁺. Oxidant = CuSO₄.",
-      "(d) V in V₂O₅ (+5) reduced to V (0); Ca oxidised to Ca²⁺. Oxidant = V₂O₅.",
-      "(e) H in H₂O (+1) reduced to H₂ (0); Fe oxidised. Oxidant = H₂O.",
-      "(f) Cu²⁺ in CuO reduced to Cu; H₂ oxidised to H₂O. Oxidant = CuO.",
+      "[0.5 mark] An oxidising agent is the species that gets reduced and causes another species to be oxidised. (a) Pb in Pb₃O₄ is reduced (mixed +2/+4 → +2 in PbCl₂); Cl⁻ in HCl is oxidised to Cl₂. So Pb₃O₄ is the oxidising agent.",
+      "[0.5 mark] (b) O₂ is reduced (0 → −2 in MgO); Mg is oxidised. Oxidant = O₂.",
+      "[0.5 mark] (c) Cu²⁺ in CuSO₄ is reduced to Cu; Zn is oxidised to Zn²⁺. Oxidant = CuSO₄.",
+      "[0.5 mark] (d) V in V₂O₅ (+5) reduced to V (0); Ca oxidised to Ca²⁺. Oxidant = V₂O₅.",
+      "[0.5 mark] (e) H in H₂O (+1) reduced to H₂ (0); Fe oxidised. Oxidant = H₂O.",
+      "[0.5 mark] (f) Cu²⁺ in CuO reduced to Cu; H₂ oxidised to H₂O. Oxidant = CuO."
     ],
     finalAnswer: "(a) Pb₃O₄ (b) O₂ (c) CuSO₄ (d) V₂O₅ (e) H₂O (f) CuO",
     ncertRef: "Exemplar Ex 1.2 Q24 (SA)",

@@ -161,6 +161,14 @@ describe("BUY-PATH-1 · a pay-by-phone sale is a purchase in the funnel", () => 
     expect(track.trackPurchase).not.toHaveBeenCalled();
   });
 
+  it("F1: a server-verified TEST SERIES payment -> ONE pack_purchase (test_series), like every other pack", async () => {
+    const TS: GuestItem = { kind: "pack", sku: "test_series", label: "Test Series Pack", description: "d" };
+    await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 1178, paymentId: "pay_G3", orderId: "order_G3" }, TS);
+    await screen.findByTestId("guest-pay-paid");
+    expect(packTrack.trackPackPurchase).toHaveBeenCalledTimes(1);
+    expect(packTrack.trackPackPurchase.mock.calls[0][0]).toEqual({ sku: "test_series", itemName: "Test Series Pack", valueInr: 1178, transactionId: "order_G3" });
+  });
+
   it("a server-verified BOARD PASS payment -> ONE purchase (till_boards), same id / value rule", async () => {
     await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 1917, paymentId: "pay_G2", orderId: "order_G2" }, PASS);
     await screen.findByTestId("guest-pay-paid");

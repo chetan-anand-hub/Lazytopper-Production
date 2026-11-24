@@ -4,6 +4,7 @@ import { rememberVisitSourceOnce } from "./visitSource";
 import { writeFbcCookieOnce } from "./metaClickId";
 import { startEngagedVisitWatch, type EngagedVisitTrigger } from "./engagedVisit";
 import { currentInAppPay } from "../utils/inAppPay";
+import { metaIcAtOrderDisabled } from "./metaIcFlag";
 
 /**
  * THE ONE ANALYTICS ENTRY POINT. Nothing else initialises a vendor, and nothing else
@@ -497,7 +498,8 @@ export const META_EVENTS: Readonly<
   sign_up: ["track", "CompleteRegistration"],
   trial_start: ["track", "StartTrial"],
   // TRACK-2 — the checkout funnel. Value + currency travel as the third argument.
-  begin_checkout: ["track", "InitiateCheckout"],
+  // META-IC-1: `begin_checkout` (the TAP) is NOT a Meta event any more: Meta's InitiateCheckout fires when the Razorpay order is
+  // CREATED (trackMetaInitiateCheckoutAtOrder below). With VITE_META_IC_AT_ORDER_DISABLED=1 sendToMeta maps the tap events again.
   purchase: ["track", "Purchase"],
   // MEASURE-1 B — a custom event (Meta has no standard "activated"); the name only, no surface.
   first_graded: ["trackCustom", "FirstGraded"],
@@ -505,18 +507,41 @@ export const META_EVENTS: Readonly<
   engaged_10min: ["trackCustom", "Engaged10Min"],
   // ENGAGE5-1 — five visible minutes in one IST day; the name only, no parameter.
   engaged_5min: ["trackCustom", "Engaged5Min"],
-  // PACKS-CLIENT-1 — a verified pack purchase is its OWN custom Meta event (never the standard Purchase,
-  // which stays the Premium pass), so a Rs 49 pack cannot skew the ad optimiser's Purchase signal.
-  pack_purchase: ["trackCustom", "PackPurchase"],
-  // META-PACK-CHECKOUT-1 — a pack Buy tap is the STANDARD InitiateCheckout (the Board Pass tap already is), carrying
-  // { value (total incl. GST), currency, content_ids, content_type } + the attempt id as `eventID`. Set only by trackPackCheckout.
+  // META-PURCHASE-UNIFY-1 (owner YES 22 Nov 2026) — a verified pack purchase (every pack sku, incl. the Test Series and CBQ
+  // packs) is the STANDARD Purchase, like the Premium pass, so ONE Purchase event covers every sale (a Purchase-optimised
+  // campaign). It carries { currency, value (charged, incl. GST), content_type, content_ids, content_name, num_items } and the
+  // Razorpay order id as `eventID` - the same name, id and fields the server CAPI sends (serverEvents.cjs metaPaidEvent).
+  // Kill switch VITE_META_PACK_AS_PURCHASE_DISABLED=1 -> the old custom `PackPurchase` (META_PACK_PURCHASE_LEGACY, below).
+  pack_purchase: ["track", "Purchase"],
+  // META-IC-1: `pack_checkout` (the pack Buy TAP) is no longer mapped either (it was META-PACK-CHECKOUT-1's InitiateCheckout).
+};
+
+/** META-IC-1 - the tap events Meta received as InitiateCheckout before; mapped again ONLY while the kill switch is on. */
+const META_IC_TAP_EVENTS: Readonly<Record<string, readonly ["track", string]>> = {
+  begin_checkout: ["track", "InitiateCheckout"],
   pack_checkout: ["track", "InitiateCheckout"],
 };
+/** META-IC-1 - the internal name of the order-created InitiateCheckout: Meta only (never Vercel, GA4 or the first-party log). */
+const META_IC_ORDER_NAME = "meta_ic_order_created";
 
 const META_PAGEVIEW: MetaCall = ["track", "PageView"];
 
-/** BUYER-SCORE-1: `buyer_tier` reaches Meta only as one of these custom events: the name, no value, no parameter. */
+/** META-PURCHASE-UNIFY-1: what `pack_purchase` was before (PACKS-CLIENT-1), restored by the kill switch below. */
+export const META_PACK_PURCHASE_LEGACY = ["trackCustom", "PackPurchase"] as const;
 
+/**
+ * META-PURCHASE-UNIFY-1 kill switch: build env VITE_META_PACK_AS_PURCHASE_DISABLED=1 -> a paid pack goes back to the custom
+ * `PackPurchase` with { value, currency } (today's event). ★ FLIP IT TOGETHER WITH THE SERVER'S META_PACK_AS_PURCHASE_DISABLED=1
+ * (Railway): with only one side flipped, the browser and the server name the same order differently and Meta cannot de-duplicate.
+ */
+export function isMetaPackAsPurchaseDisabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_META_PACK_AS_PURCHASE_DISABLED;
+    return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
 
 /** `utm_*` and the ad click ids, plus `cbq` and `ct` — the CBQ and Chapter Test ad landings' boolean flags (META-CT-PARAM-1). Nothing else. */
 const META_QUERY_KEEP = /^(?:utm_.*|fbclid|gclid|cbq|ct)$/;
@@ -643,15 +668,25 @@ function sendToMeta(
     return;
   }
   const name = payload.name;
-  const mapped =
+  let mapped: MetaCall | undefined =
     kind === "pageview"
       ? META_PAGEVIEW
       : typeof name === "string" && Object.prototype.hasOwnProperty.call(META_EVENTS, name)
         ? META_EVENTS[name as keyof typeof META_EVENTS]
         : name === "buyer_tier"
           ? (["trackCustom", `BuyerTier${(payload.data as { tier: string }).tier === "hot" ? "Hot" : "Warm"}`] as const)
-          : undefined;
+          : name === META_IC_ORDER_NAME
+            ? metaIcAtOrderDisabled()
+              ? undefined
+              : (["track", "InitiateCheckout"] as const)
+            : typeof name === "string" && metaIcAtOrderDisabled() && Object.prototype.hasOwnProperty.call(META_IC_TAP_EVENTS, name)
+              ? META_IC_TAP_EVENTS[name]
+              : undefined;
   if (!mapped) return;
+  // META-PURCHASE-UNIFY-1: under the kill switch a pack purchase is the old custom PackPurchase again.
+  // A pack purchase is a sale: it is sent only WITH its order id (trackPackPurchase), never as a bare, value-less Purchase.
+  if (kind === "event" && name === "pack_purchase" && !eventId) return;
+  if (kind === "event" && name === "pack_purchase" && isMetaPackAsPurchaseDisabled()) mapped = META_PACK_PURCHASE_LEGACY;
   // META-PACK-CHECKOUT-1: a pack checkout is sent only WITH its attempt id (the caller leaves it off a repeat), never bare.
   if (kind === "event" && name === "pack_checkout" && !eventId) return;
   // META-PURCHASE-DEDUP-1: a sale event carries its id as Meta's `eventID` (4th argument; the 3rd must then be an object).
@@ -1301,6 +1336,54 @@ export function trackBeginCheckoutTap(details: CheckoutDetails, signedIn: boolea
     // funnels can drop it so a sign-in-first visitor is not counted twice. Never suppressed.
     const who = { signed_in: signedIn, ...(resumed ? { resumed: true } : {}) };
     send("event", { name: "begin_checkout", data: { ...p.vercel, ...who } }, { ga4: { ...p.ga4, ...who }, meta: p.meta });
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/** META-IC-1: attempt ids that already sent Meta's InitiateCheckout in this page load (a repeat is never put on the wire). */
+const metaOrderIcSent = new Set<string>();
+const metaOrderIcOrders = new Set<string>();
+/** Test seam. */
+export function __resetMetaOrderIcForTests(): void {
+  metaOrderIcSent.clear();
+  metaOrderIcOrders.clear();
+}
+
+/**
+ * META-IC-1 - Meta's InitiateCheckout, sent ONLY when a Razorpay order was created (the order-create response was ok and has an
+ * order id), ONCE per checkout attempt, with `eventID` = the attempt id the order-create request carried (the server sends its
+ * Conversions API twin with the same event_id, so Meta counts one). Called by the order-create service functions (via metaIcAfterOrder in adSignals.ts) once their
+ * response is ok, never from a tap. Params keep today's shapes: a pass sends { currency, value } (+ `surface` on a sales page); a pack sends
+ * { currency, value, content_ids, content_type }. `value` is the SERVER order amount (incl. GST) in rupees. Meta only: the
+ * first-party log, Vercel and GA4 keep their own `begin_checkout` / `pack_checkout` TAP events exactly as before. Same Meta gate
+ * (analytics on, not an admin page, clean address, library queue) as every other Meta event, via sendToMeta.
+ */
+export function trackMetaInitiateCheckoutAtOrder(input: { attemptId: string; orderId?: string; reused?: boolean; amountPaise: number | null; sku: string | null }): void {
+  try {
+    if (metaIcAtOrderDisabled() || !analyticsEnabled()) return;
+    const id = input.attemptId;
+    if (typeof id !== "string" || !id || metaOrderIcSent.has(id)) return;
+    // A handed-back OPEN order (MONEY-DUPGUARD-1: dismiss + re-tap, a reload, a second tab) was counted when it was created; and an
+    // order id is only ever counted once, whatever attempt id the call carried.
+    if (input.reused === true) return;
+    if (input.orderId) {
+      if (metaOrderIcOrders.has(input.orderId)) return;
+      metaOrderIcOrders.add(input.orderId);
+    }
+    if (ADMIN_PATH.test(routerPathOf(window.location.pathname))) return;
+    metaOrderIcSent.add(id);
+    const value = typeof input.amountPaise === "number" && Number.isFinite(input.amountPaise) && input.amountPaise > 0 ? Math.round(input.amountPaise) / 100 : null;
+    const money: Record<string, unknown> = value === null ? { currency: CHECKOUT_CURRENCY } : { currency: CHECKOUT_CURRENCY, value };
+    const isPass = input.sku === "month" || input.sku === "till_boards";
+    const params: Record<string, unknown> = isPass
+      ? salesPageSurface
+        ? { ...money, surface: salesPageSurface }
+        : money
+      : input.sku
+        ? { ...money, content_ids: [input.sku], content_type: "product" }
+        : money;
+    sendToMeta("event", { name: META_IC_ORDER_NAME }, params, id);
   } catch {
     /* analytics must never break the page */
   }
@@ -2287,6 +2370,8 @@ export interface OnboardingEventParams {
 export interface OnboardingEventParams {
   inapp_pay_choice_shown: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
   inapp_pay_open_external: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
+  /** INAPP-PAY-FIRST-1: a signed-out Buy tap in Instagram / Facebook on Android went straight to Chrome (no order made). */
+  inapp_pay_first_hop: { surface: string; sku: string };
   inapp_pay_copy_link: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
 }
 

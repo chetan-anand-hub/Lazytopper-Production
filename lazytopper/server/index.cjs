@@ -395,7 +395,12 @@ const fairUse = createFairUse({ adminFirestore, telemetry, sendJson, verifiedCal
 // LIMITS-1: download limits (dark until LIMITS_ENFORCE=1). See services/limits.cjs.
 // TS-PACK-JOBFIX (review P0 #1): a Test Series Pack owner's series paper is not metered by LIMITS-1 (testSeriesChecks is created below;
 // this is called per request, long after both exist).
-const limits = createLimits({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson, seriesOwnerPaper: (uid, kind, worksheetId) => testSeriesChecks.ownerSeriesPaper(uid, kind, worksheetId) });
+// TS-FREE-CHECK-1: a NON-owner's pinned free-test paper keeps its scorecard breakdown (downloads are not widened).
+const limits = createLimits({
+  adminFirestore, telemetry, sendJson, verifiedCaller, readJson,
+  seriesOwnerPaper: (uid, kind, worksheetId) => testSeriesChecks.ownerSeriesPaper(uid, kind, worksheetId),
+  seriesFreeTestPaper: (uid, kind, worksheetId) => testSeriesChecks.freeTestPaper(uid, kind, worksheetId),
+});
 // LOW-END-1 R4: a retried grade (same verified uid + Idempotency-Key, 24 h) is answered
 // from its stored result — never graded or charged twice. See fairUse.cjs.
 const gradingIdempotency = createGradingIdempotency({ telemetry, corsOrigin: config.CORS_ORIGIN });
@@ -882,7 +887,9 @@ async function handleRequest(req, res) {
       ? {}
       : await limits.gradingGate(req, res, reqPath, verifiedUid, {
           // TS-PACK-JOBFIX (review P0 #1): an owner's series-paper grade skips LIMITS-1 (the pack's 2-per-paper rule caps it).
-          seriesOwnerGrade: (r) => testSeriesChecks.ownerSeriesGrade(r, verifiedUid),
+          // TS-FREE-CHECK-1: so does a NON-owner's free-test grade (its own 2-per-paper rule caps it; no trial / Basic grade spent).
+          seriesOwnerGrade: async (r) => (await testSeriesChecks.ownerSeriesGrade(r, verifiedUid)) === true
+            || (await testSeriesChecks.freeTestGrade(r, verifiedUid)) === true,
           paperKeyOf: (r, surface) => {
             const pass = fairUseModule.verifyPaperPass(r.headers[fairUseModule.PAPER_HEADER], {
               uid: verifiedUid, surface, nowMs: Date.now(), secret: process.env[fairUseModule.PAPER_SECRET_ENV],
@@ -1209,6 +1216,7 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'GET' && (reqPath === '/api/admin/students' || reqPath.startsWith('/api/admin/students/'))) return require('./routes/adminStudents.cjs').handleAdminStudents(req, res, { sendJson, sendJsonWithHeaders, firebaseAdmin, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // STUDENT-ACTIVITY-1 PR-2: admin "Students" page, READ-ONLY, behind the shared ADMIN_FIREBASE_UIDS gate (see the module)
   if ((req.method === 'GET' && reqPath === '/api/admin/key-disputes') || (req.method === 'POST' && reqPath === '/api/admin/key-disputes/resolve')) return require('./routes/adminKeyDisputes.cjs').handleAdminKeyDisputes(req, res, { sendJson, sendJsonWithHeaders, readJson, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // TUTOR-KEY-TRUST-1: disputed answer keys queue, behind the SAME ADMIN_FIREBASE_UIDS gate; same-origin from /admin/students
+  if (req.method === 'GET' && reqPath === '/api/admin/mistake-split') return require('./routes/adminMistakeSplit.cjs').handleAdminMistakeSplit(req, res, { sendJson, sendJsonWithHeaders, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // MISTAKE-SPLIT-1: mistake-type totals across all students, read-only, counts only, SAME ADMIN_FIREBASE_UIDS gate
   if (req.method === 'GET' && reqPath === '/api/admin/purchases') return require('./routes/adminPurchases.cjs').handleAdminPurchases(req, res, { sendJson, sendJsonWithHeaders, adminFirestore, firebaseAdmin, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // ADMIN-PURCHASES-1: who bought what, read-only, SAME ADMIN_FIREBASE_UIDS gate
   if (req.method === 'GET' && reqPath === '/api/admin/unpaid-orders') return require('./routes/adminUnpaidOrders.cjs').handleAdminUnpaidOrders(req, res, { sendJson, sendJsonWithHeaders, adminFirestore, firebaseAdmin, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // UNPAID-ORDERS-LIST-1: ordered-not-paid list, read-only, SAME ADMIN_FIREBASE_UIDS gate; contact masked unless the order carries the WhatsApp consent tick
   if (req.method === 'POST' && reqPath === '/api/admin/purchases/move') return require('./routes/adminPurchases.cjs').handleAdminMovePurchase(req, res, { sendJson, sendJsonWithHeaders, readJson, adminFirestore, firebaseAdmin, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // ADMIN-MOVE-1: admin moves one paid pack order to another account, SAME ADMIN_FIREBASE_UIDS gate; same-origin from /admin/students

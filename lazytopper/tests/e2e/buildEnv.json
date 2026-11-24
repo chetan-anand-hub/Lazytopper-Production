@@ -1,0 +1,23 @@
+{
+  "_about": "UI-E2E-1: the VITE_* environment the ui-e2e build is made with (.github/workflows/ui-e2e.yml exports every key of `env`). Read support/serveBuild.ts for why the suite builds locally instead of testing the Vercel Preview.",
+  "_productionFlags": "The feature flags match Vercel PRODUCTION (Vercel's Preview environment does not carry them). Source for each: the handoff record of when it was switched on in production (handoff/CURRENT_STATE.md, SESSION_LOG.md). When a VITE_* flag is switched on or off in Vercel Production, change it here in the same PR, or the suite tests a page students do not see. Kill switches (*_DISABLED) are unset in production and stay unset here.",
+  "_hermeticFirebase": "The VITE_FIREBASE_* values are DELIBERATELY FAKE. Production's web config is not copied into the repo (CLAUDE.md section 7: no API keys in source files). A configured-but-fake Firebase app is what the free Answer Checker needs to request an App Check token; support/network.ts answers that request with a stub token, and blocks every other Google host, so these values never reach a real Firebase project. Signed out, the pages make no other Firebase call.",
+  "env": {
+    "VITE_FREE_CHECK_ENABLED": "1",
+    "VITE_PAYMENTS_ENABLED": "1",
+    "VITE_PACKS_ENABLED": "1",
+    "VITE_LIMITS_ENABLED": "1",
+    "VITE_GST_STATE_FIELD": "1",
+    "VITE_PAY_AUTO_ACCOUNT_ENABLED": "1",
+    "VITE_CHECKOUT_WHO_ENABLED": "1",
+    "VITE_PARENT_PAY_ENABLED": "1",
+    "VITE_EMAIL_CODE_SIGNIN_ENABLED": "1",
+    "VITE_GUEST_PAY_ENABLED": "1",
+    "VITE_FIREBASE_API_KEY": "ui-e2e-hermetic-not-a-key",
+    "VITE_FIREBASE_AUTH_DOMAIN": "ui-e2e-hermetic.invalid",
+    "VITE_FIREBASE_PROJECT_ID": "ui-e2e-hermetic",
+    "VITE_FIREBASE_APP_ID": "1:000000000000:web:0000000000000000000000",
+    "VITE_FIREBASE_MESSAGING_SENDER_ID": "000000000000",
+    "VITE_FIREBASE_STORAGE_BUCKET": "ui-e2e-hermetic.invalid"
+  }
+}

@@ -40,6 +40,15 @@
   font-size: 0.85rem;
   line-height: 1.35;
 }
+/* LIVE-FIX-1 - the amount charged (GST included), as on every Pay button; keeps its line until the clock-derived figure arrives. */
+.lt-wcg__pay {
+  display: block;
+  min-height: 1.35em;
+  margin-top: 2px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
 .lt-wcg__dl {
   display: inline-flex;
   align-items: center;
@@ -56,6 +65,10 @@
 @media (min-width: 560px) {
   .lt-wcg__offers {
     grid-template-columns: 1fr 1fr;
+  }
+  /* One offer (a wall that carries the other offer itself): full width, never half a grid. */
+  .lt-wcg__offers--one {
+    grid-template-columns: 1fr;
   }
 }
 

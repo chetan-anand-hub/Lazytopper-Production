@@ -47,7 +47,7 @@ export function currentInAppPay(): { app: InAppPayApp; platform: InAppPayPlatfor
 }
 
 /** What the rescue should reopen: the Board Pass one-tap, or a pack (`/packs?buy=<sku>&t=<target>`). */
-export type InAppBuyTarget = { kind: "pass" } | { kind: "pack"; sku: string; target?: string };
+export type InAppBuyTarget = { kind: "pass" } | { kind: "pack"; sku: string; target?: string; /** INAPP-PAY-FIRST-1b: the "Liked the sample?" buy keeps `from=sample` across the hop (the resumed checkout reports it). */ from?: "sample" };
 
 /**
  * The https URL a real browser should open: THIS page's own path and query (utm_*, fbclid, gclid ... all kept)
@@ -70,6 +70,7 @@ export function inAppRescueUrl(href: string, buy?: InAppBuyTarget | null): strin
     url.searchParams.delete("t");
     url.searchParams.set("buy", buy.kind === "pass" ? "board_pass" : buy.sku);
     if (buy.kind === "pack" && buy.target) url.searchParams.set("t", buy.target);
+    if (buy.kind === "pack" && buy.from === "sample") url.searchParams.set("from", "sample");
   }
   return url.toString();
 }

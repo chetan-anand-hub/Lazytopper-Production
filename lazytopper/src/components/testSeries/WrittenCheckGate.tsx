@@ -9,19 +9,34 @@
  * Every wall offers the Test Series and the Board Pass as EQUAL-weight buttons. The Answer Checker, worksheets, the server grader,
  * the server tutor gate and every entitlement are untouched; the PDF packs (/packs) too.
  * Kill switch: VITE_WRITTEN_CHECK_GATE_DISABLED=1 restores the previous behaviour on both surfaces.
+ *
+ * TS-FREE-CHECK-1 (owner ruling 23 Nov 2026, 19:59 IST): the ONE free test now includes written-answer marking - a free / trial
+ * account may upload its answer sheet on the free test's paper (2 checks + the free re-check, like an owner's paper). The SERVER pins
+ * the free paper at the first written check and refuses every other paper (server/services/testSeriesChecks.cjs); the page reads that
+ * state from GET /api/packs/mine `freeTest` and only decides what to SHOW. Kill switches: VITE_TS_FREE_WRITTEN_CHECK_DISABLED=1 (page)
+ * and TS_FREE_WRITTEN_CHECK_DISABLED=1 (server; it also stops sending `freeTest`, which turns the page back by itself).
  */
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { tagWhenSeriesPaper } from "../../lib/testSeries/seriesNav";
 import { useSubscription } from "../../hooks/useSubscription";
 import { isPaidPremium } from "../../services/subscriptionService";
-import { boardPassPriceDisplay } from "../../config/pricing";
-import { FREE_TEST_NOTE, canCheckSeriesPapers, canDownloadPaper } from "../../lib/testSeries/seriesAccess";
+import { boardPassPayDisplay, boardPassPriceDisplay } from "../../config/pricing";
+import {
+  FREE_TESTS_ALLOWED,
+  canCheckSeriesPapers,
+  canDownloadPaper,
+  countTestsTaken,
+  firstCountedTestWorksheetId,
+  freeTestNote,
+  freeTestWrittenAllowed,
+  freeWrittenCheckDisabled,
+} from "../../lib/testSeries/seriesAccess";
 import { useOwnedPacks } from "../packs/useOwnedPacks";
 import { ownsChapter, ownsMocks, type PackSubject } from "../../services/packs";
-import type { TestSeriesStatus } from "../../services/packs";
+import type { TestSeriesFreeTest, TestSeriesStatus } from "../../services/packs";
 import { TEST_SERIES_BUY_PATH, seriesPaperKeyOfWorksheetId, seriesTotals } from "../../lib/testSeries/testSeries";
-import { SHEET_UNREADABLE_NOT_COUNTED_LINE, packPriceLabel, testSeriesChecksLeftLine, testSeriesPriceLine, testSeriesRecheckNote } from "../../services/packs";
+import { checkNotCountedLine, type NotCountedReason, packPayLabel, packPriceLabel, testSeriesChecksLeftLine, testSeriesPriceLine, testSeriesRecheckNote } from "../../services/packs";
 import { useTestSeriesOwnership } from "./testSeriesOwnership";
 import "./writtenCheckGate.css";
 
@@ -34,9 +49,18 @@ export function writtenCheckGateDisabled(): boolean {
   return import.meta.env?.VITE_WRITTEN_CHECK_GATE_DISABLED === "1";
 }
 
-/** "Upgrade to the Test Series (price from code) or the Board Pass to take all <total> tests" — the price and the count come from code. */
+/**
+ * "You've used your 1 free test. Upgrade to the Test Series (price from code) or the Board Pass to take all <total> tests" — the
+ * free-test count, the price and the count come from code. LIVE-FIX-1 (live run 23 Nov 2026): the wall is shown only to a signed-in
+ * free / trial account whose one free test is spent (seriesStartDecision "upgrade"), so it says so first.
+ */
 export function seriesStartWallLine(): string {
-  return `Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all ${seriesTotals().total} tests`;
+  return `${seriesFreeTestUsedLine()} Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all ${seriesTotals().total} tests`;
+}
+
+/** LIVE-FIX-1 - "You've used your 1 free test." (FREE_TESTS_ALLOWED from code). */
+export function seriesFreeTestUsedLine(): string {
+  return `You've used your ${FREE_TESTS_ALLOWED} free test${FREE_TESTS_ALLOWED === 1 ? "" : "s"}.`;
 }
 
 /**
@@ -68,6 +92,8 @@ export interface SeriesAccess {
   /** A Test Series owner (not a Board Pass holder). */
   ownsSeries: boolean;
   status: ReturnType<typeof useTestSeriesOwnership>["status"];
+  /** TS-FREE-CHECK-1: the server's free-test state for a non-owner (null: unknown, an owner, a Board Pass holder, or switched off). */
+  freeTest?: TestSeriesFreeTest | null;
   retry: () => void;
 }
 
@@ -79,7 +105,7 @@ export function useSeriesAccess(uid: string | null | undefined, paper: SeriesAcc
   const ask = !off && !paid ? uid : null;
   const own = useTestSeriesOwnership(ask);
   const packs = useOwnedPacks(ask ?? "", Boolean(ask));
-  if (off || paid) return { canCheck: true, canDownload: true, checking: false, failed: false, ownsSeries: false, status: null, retry: own.retry };
+  if (off || paid) return { canCheck: true, canDownload: true, checking: false, failed: false, ownsSeries: false, status: null, freeTest: null, retry: own.retry };
   const covers =
     packs.phase === "ready" && paper
       ? paper.kind === "chapter-test"
@@ -95,8 +121,30 @@ export function useSeriesAccess(uid: string | null | undefined, paper: SeriesAcc
     failed: Boolean(ask) && own.phase === "error" && !canCheck,
     ownsSeries: own.owns,
     status: own.status,
+    freeTest: own.owns || freeWrittenCheckDisabled() ? null : own.freeTest,
     retry: own.retry,
   };
+}
+
+/**
+ * TS-FREE-CHECK-1 - is THIS paper the account's free test with written-answer checking? `paperKey` is the series paper key
+ * ("TS-CT-M01"; `seriesPaperKeyOfWorksheetId` of the sitting); `records` are the account's session records (the one-test rule's
+ * own source). False for an owner / Board Pass holder (they need no free test), a non-series paper, or while the server state is
+ * unknown. The SERVER still decides every grade.
+ */
+export function seriesFreeTestWritten(
+  access: Pick<SeriesAccess, "canCheck" | "freeTest">,
+  paperKey: string | null,
+  records: ReadonlyArray<{ surface: string; gradedAt?: number; worksheetId?: string }>,
+): boolean {
+  if (access.canCheck) return false;
+  return freeTestWrittenAllowed({
+    disabled: freeWrittenCheckDisabled(),
+    paperKey,
+    server: access.freeTest ?? null,
+    testsTaken: countTestsTaken(records),
+    firstTestPaperKey: seriesPaperKeyOfWorksheetId(firstCountedTestWorksheetId(records)),
+  });
 }
 
 /** The paper a download is for (its pack cover). Same shape as SeriesAccessPaper (kept for PACK-DOWNLOAD-RESTORE, #1763). */
@@ -123,6 +171,8 @@ export function useSeriesDownloadAccess(uid: string | null | undefined, checkAcc
 export const ACCESS_CHECKING_LINE = "Checking your access…";
 export const ACCESS_FAILED_LINE = "Couldn't confirm your purchase";
 export const NO_CHECKS_LEFT_LINE = "No checks left on this paper";
+/** TS-FREE-CHECK-1: the label beside the free test's checks-left line. */
+export const FREE_TEST_CHECKS_LABEL = "Your free test";
 export const SERIES_ONLY_NOTE = "Your Test Series checks the numbered series papers. The Board Pass checks written answers on any paper.";
 
 /** Neutral state while ownership is read - never an upgrade wall. */
@@ -156,15 +206,25 @@ export function checksUsedLine(code: string | null, per: number): string {
   return `You've used ${per === 2 ? "both checks" : `all ${per} checks`} on this paper${code ? ` (${code})` : ""}. Your other papers have their own ${per} checks each.`;
 }
 
-/** Beside the upload when a series paper has 0 checks left: say so (no point uploading) and offer the Board Pass (only). */
-export function NoChecksLeftCard({ code, per = 2 }: { code?: string | null; per?: number } = {}) {
+/** TS-FREE-CHECK-1: the free test's checks are all used. */
+export function freeTestChecksUsedLine(code: string | null, per: number): string {
+  return `You've used ${per === 2 ? "both checks" : `all ${per} checks`} on your free test${code ? ` (${code})` : ""}. The Test Series and the Board Pass check your written answers on every paper.`;
+}
+
+/**
+ * Beside the upload when a series paper has 0 checks left: say so (no point uploading) and offer the Board Pass (only).
+ * TS-FREE-CHECK-1: on the free test (`freeTest`), both offers - the student has bought neither.
+ */
+export function NoChecksLeftCard({ code, per = 2, freeTest = false }: { code?: string | null; per?: number; freeTest?: boolean } = {}) {
   return (
     <div className="lt-wcg" role="status" data-testid="series-no-checks-left">
       <p className="lt-wcg__checks" data-testid="series-zero-checks-line">
         0 of {per} checks left on this paper
       </p>
-      <p className="lt-wcg__line">{checksUsedLine(code ?? null, per)} The Board Pass checks every answer, with no per-paper limit.</p>
-      <SeriesOfferButtons testIdPrefix="no-checks" only="board-pass" />
+      <p className="lt-wcg__line">
+        {freeTest ? freeTestChecksUsedLine(code ?? null, per) : `${checksUsedLine(code ?? null, per)} The Board Pass checks every answer, with no per-paper limit.`}
+      </p>
+      {freeTest ? <SeriesOfferButtons testIdPrefix="no-checks" /> : <SeriesOfferButtons testIdPrefix="no-checks" only="board-pass" />}
     </div>
   );
 }
@@ -209,18 +269,26 @@ export function ResultAccessSlot({
   if (uploadAllowed) {
     const key = seriesPaperKeyOfWorksheetId(worksheetId);
     const left = access.ownsSeries && key && access.status ? access.status.checksPerPaper - (access.status.used[key] ?? 0) : null;
-    return left !== null && left <= 0 ? <NoChecksLeftCard code={paperCodeOfKey(key)} per={access.status?.checksPerPaper ?? 2} /> : <>{upload}</>;
+    if (left !== null && left <= 0) return <NoChecksLeftCard code={paperCodeOfKey(key)} per={access.status?.checksPerPaper ?? 2} />;
+    // TS-FREE-CHECK-1: the free test's paper with both checks used (the SERVER's count).
+    const free = !access.ownsSeries && !access.canCheck && key && access.freeTest && access.freeTest.paperKey === key ? access.freeTest : null;
+    if (free && free.checksPerPaper - free.used <= 0) return <NoChecksLeftCard code={paperCodeOfKey(key)} per={free.checksPerPaper} freeTest />;
+    return <>{upload}</>;
   }
   if (access.checking) return <AccessChecking />;
   if (access.failed) return <AccessFailed onRetry={access.retry} />;
   return <>{upgrade}</>;
 }
 
-/** Before Start: a free / trial account that has not used its one test says so. */
-export function FreeTestNote() {
+/**
+ * Before Start: a free / trial account that has not used its one test says so. TS-FREE-CHECK-1: `written` (this paper's written
+ * answers will be checked as the free test - `seriesFreeTestWritten`) says written answers are marked step by step; otherwise the
+ * MCQ-only line (the kill switch, a non-series paper, or a free paper pinned elsewhere).
+ */
+export function FreeTestNote({ written = false }: { written?: boolean } = {}) {
   return (
-    <p className="lt-wcg__line" data-testid="series-free-test-note">
-      {FREE_TEST_NOTE}
+    <p className="lt-wcg__line" data-testid="series-free-test-note" data-written={written ? "1" : "0"}>
+      {freeTestNote(written)}
     </p>
   );
 }
@@ -229,19 +297,50 @@ export function FreeTestNote() {
  * TS-PACK-1 — "Checks left on this paper: 1 of 2" for a Test Series Pack owner (not a Board Pass holder) on a series paper's upload
  * and result screens. The SERVER's count (refreshed when `refreshKey` changes, e.g. after a grade); nothing when unknown.
  */
-export function SeriesChecksLeftLine({ uid, worksheetId, refreshKey }: { uid?: string | null; worksheetId: string | null | undefined; refreshKey?: unknown }) {
+export function SeriesChecksLeftLine({
+  uid,
+  worksheetId,
+  refreshKey,
+  freeTest = false,
+  notCountedReason = null,
+}: {
+  uid?: string | null;
+  worksheetId: string | null | undefined;
+  refreshKey?: unknown;
+  /** TS-FREE-CHECK-1: this paper is the account's free test (`seriesFreeTestWritten`): show its checks from the server's free-test count. */
+  freeTest?: boolean;
+  /** LIVE-FIX-1: why the check on screen may not have been counted (lib/notFoundNotAttempted `notCountedReasonOf`); null -> neutral. */
+  notCountedReason?: NotCountedReason;
+}) {
   const { status } = useSubscription();
   const paid = isPaidPremium(status);
   const paperKey = seriesPaperKeyOfWorksheetId(worksheetId);
   const own = useTestSeriesOwnership(!paid && paperKey ? uid : null, refreshKey);
-  if (paid || !paperKey || !own.owns) return null;
+  if (paid || !paperKey) return null;
+  if (!own.owns) {
+    const f = freeTest && !freeWrittenCheckDisabled() ? own.freeTest : null;
+    if (!f || (f.paperKey !== null && f.paperKey !== paperKey)) return null;
+    const used = f.paperKey === paperKey ? f.used : 0;
+    return (
+      <>
+        {f.paperKey === paperKey && f.freeRecheck && (
+          <p className="lt-wcg__line" role="status" data-testid="series-recheck-note">
+            {checkNotCountedLine(notCountedReason)}
+          </p>
+        )}
+        <p className="lt-wcg__checks" role="status" data-testid="series-checks-left">
+          {FREE_TEST_CHECKS_LABEL} · Checks left on this paper: {Math.max(0, f.checksPerPaper - used)} of {f.checksPerPaper}
+        </p>
+      </>
+    );
+  }
   const line = testSeriesChecksLeftLine(own.status, paperKey);
   if (!line) return null;
   return (
     <>
       {testSeriesRecheckNote(own.status, paperKey) && (
         <p className="lt-wcg__line" role="status" data-testid="series-recheck-note">
-          {SHEET_UNREADABLE_NOT_COUNTED_LINE}
+          {checkNotCountedLine(notCountedReason)}
         </p>
       )}
       <p className="lt-wcg__checks" role="status" data-testid="series-checks-left">
@@ -257,24 +356,46 @@ export function useBoardPassHolder(): boolean {
   return writtenCheckGateDisabled() || isPaidPremium(status);
 }
 
-/** The two offers, equal weight: the Test Series and the Board Pass (its price is date-driven, so read after mount). */
-export function SeriesOfferButtons({ testIdPrefix, only }: { testIdPrefix: string; /** "board-pass": the tutor / no-checks walls offer the Board Pass ONLY (the Test Series has no tutor). */ only?: "board-pass" }) {
+/**
+ * The two offers, equal weight: the Test Series and the Board Pass (its price is date-driven, so read after mount).
+ * LIVE-FIX-1 `showTotal`: each button also names what is CHARGED ("Pay ₹1,179" - packPayLabel / boardPassPayDisplay, GST included),
+ * the convention every Pay button follows. The links and the buy entries they lead to are unchanged.
+ */
+export function SeriesOfferButtons({
+  testIdPrefix,
+  only,
+  showTotal = false,
+}: {
+  testIdPrefix: string;
+  /** "board-pass": the tutor / no-checks walls offer the Board Pass ONLY (the Test Series has no tutor). "test-series": a wall that
+   *  already carries its own Board Pass offer (the fair-use panel) adds the Test Series beside it. */
+  only?: "board-pass" | "test-series";
+  showTotal?: boolean;
+}) {
   const [bpPrice, setBpPrice] = useState<string | null>(null);
+  const [bpPay, setBpPay] = useState<string | null>(null);
   // TS-NAV-1: on a series paper the buy pages get `from=test-series&returnTo=<paper>` so their Back row leads back to the paper.
   const { pathname, search } = useLocation();
-  useEffect(() => setBpPrice(boardPassPriceDisplay(Date.now())), []);
+  useEffect(() => {
+    setBpPrice(boardPassPriceDisplay(Date.now()));
+    setBpPay(boardPassPayDisplay(Date.now()));
+  }, []);
   return (
-    <div className="lt-wcg__offers">
+    <div className={only === "test-series" ? "lt-wcg__offers lt-wcg__offers--one" : "lt-wcg__offers"}>
       {only !== "board-pass" && (
       <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(TEST_SERIES_BUY_PATH, pathname, search)} data-testid={`${testIdPrefix}-ts`}>
         <span className="lt-wcg__main">Test Series</span>
         <span className="lt-wcg__price">{testSeriesPriceLine()} · all {seriesTotals().total} tests</span>
+        {showTotal && <span className="lt-wcg__pay" data-testid={`${testIdPrefix}-ts-pay`}>Pay {packPayLabel("test_series")}</span>}
       </Link>
       )}
+      {only !== "test-series" && (
       <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(BOARD_PASS_PATH, pathname, search)} data-testid={`${testIdPrefix}-bp`}>
         <span className="lt-wcg__main">Board Pass</span>
         <span className="lt-wcg__price">{bpPrice ? `${bpPrice} · everything + tutor` : "everything + tutor"}</span>
+        {showTotal && <span className="lt-wcg__pay" data-testid={`${testIdPrefix}-bp-pay`}>{bpPay ? `Pay ${bpPay}` : "\u00a0"}</span>}
       </Link>
+      )}
     </div>
   );
 }
@@ -301,7 +422,14 @@ export function WrittenCheckUpgradeCard({
         <div className="lt-ct__eyebrow">{eyebrow}</div>
         <div className="lt-ct__title lt-ct__fr">{name}</div>
         <div className="lt-ct__sub" data-testid="written-check-objective">
-          {code} · Section A marked: <b>{objective.awarded}/{objective.total}</b>
+          {/* TS-THEMES-1: a focus set has no Section A - only its code (never "0/0"). */}
+          {objective.total > 0 ? (
+            <>
+              {code} · Section A marked: <b>{objective.awarded}/{objective.total}</b>
+            </>
+          ) : (
+            code
+          )}
         </div>
         <div className="lt-wcg">
           <p className="lt-wcg__line">
@@ -324,7 +452,7 @@ export function SeriesStartWall() {
   return (
     <div className="lt-wcg" role="alert" data-testid="series-start-wall">
       <p className="lt-wcg__line">{seriesStartWallLine()}.</p>
-      <SeriesOfferButtons testIdPrefix="series-start-wall" />
+      <SeriesOfferButtons testIdPrefix="series-start-wall" showTotal />
     </div>
   );
 }

@@ -99,8 +99,12 @@ describe("the scorecard header splits not-answered from unreadable, with the sur
   for (const [label, build, worth] of cases) {
     it(`${label}: '2 not answered on your pages' + '1 couldn't be read', never 'Worksheet'`, () => {
       const { baseElement } = render(<ResultsScorecard variant={build()} onClose={() => {}} />);
-      const nf = baseElement.querySelector('[data-grade-state="not-found"].lt-sc__pend');
-      expect(text(nf)).toContain("2 questions not answered on your pages");
+      // LIVE-FIX-1 (edited expectation, review B2): on a Chapter Test / Full Mock the answers missing from the pages are named in
+      // ONE block that asks for ALL the pages (a new upload replaces the last check); the strip's "add that page" line is not repeated.
+      expect(baseElement.querySelector('[data-grade-state="not-found"].lt-sc__pend')).toBeNull();
+      const nf = baseElement.querySelector('[data-testid="sc-not-found-not-attempted"]');
+      expect(text(nf)).toContain("Q2, Q3: not found on the pages you uploaded — not marked yet.");
+      expect(text(nf)).toContain("If you answered these, upload all your pages again, including the missing one.");
       expect(text(nf)).not.toMatch(/couldn.t be read|retake/i);
       const pends = Array.from(baseElement.querySelectorAll(".lt-sc__pend")).filter((e) => !e.classList.contains("lt-sc__pend--item"));
       const unread = pends.find((e) => /couldn.t be read/.test(text(e)));
@@ -117,9 +121,10 @@ describe("the scorecard header splits not-answered from unreadable, with the sur
   it("only not-found rows: one honest line carrying the total; no 'couldn't be read' claim", () => {
     const only = resp([gradedRow(1, 2, 4), pendingRow(2, 2, NOT_FOUND_MODEL)], 6);
     const { baseElement } = render(<ResultsScorecard variant={chapterTestScorecardVariant({ name: "N", code: "CT-M-QE-04", response: only, phase: "full" })} onClose={() => {}} />);
-    const nf = baseElement.querySelector('[data-grade-state="not-found"].lt-sc__pend');
-    expect(text(nf)).toContain("1 question not answered on your pages");
-    expect(text(nf)).toContain("The test is worth 6 marks in total.");
+    // LIVE-FIX-1 (edited expectation, review B2): one block, asking for ALL the pages; the hero already shows the score out of 6.
+    const nf = baseElement.querySelector('[data-testid="sc-not-found-not-attempted"]');
+    expect(text(nf)).toContain("Q2: not found on the pages you uploaded — not marked yet.");
+    expect(text(nf)).toContain("If you answered this, upload all your pages again, including the missing one.");
     expect(Array.from(baseElement.querySelectorAll(".lt-sc__pend")).some((e) => /couldn.t be read/.test(text(e)) && !e.classList.contains("lt-sc__pend--item"))).toBe(false);
   });
 

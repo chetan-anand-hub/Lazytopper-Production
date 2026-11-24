@@ -8,6 +8,7 @@ import { WHATSAPP_URL } from "../../config/socialProfiles";
 import { clearReceiptProof, readReceiptProof, type ReceiptProof } from "../../services/paidReceiptProof";
 import { newCheckoutAttemptId } from "../../analytics/analytics";
 import { trackPackCheckout, trackPackEvent, trackPackPurchase, type PackCheckoutDetails, type PackCheckoutFrom } from "../../lib/packs/packAnalytics";
+import { chargedValueInr } from "../../config/pricing";
 import {
   PACK_ALREADY_OWNED_COPY,
   PACK_CHAPTER_SLUGS,
@@ -51,7 +52,8 @@ import { preloadCheckoutScript } from "../../services/checkout";
 import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY } from "../../services/checkoutTiming";
 import { useCheckoutSlow } from "../../hooks/useCheckoutSlow";
 import PayRescueCard from "../payRescue/PayRescueCard";
-import InAppPayChoice from "../payRescue/InAppPayChoice";
+import InAppPayChoice, { inAppChoiceSurface } from "../payRescue/InAppPayChoice";
+import { inAppPayFirstHop } from "../../utils/inAppPayFirst";
 import PackSampleLink, { type SampleBuy } from "./PackSampleLink";
 import PackNamePrompt from "./PackNamePrompt";
 import { packNameSkipped } from "../../services/studentName";
@@ -693,6 +695,10 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     return stop;
   }, [location.hash, mine, myPacksMounted, signedOutMine, bridgeSettled, sheetHold]);
 
+  /** INAPP-PAY-FIRST-1: true when this signed-out tap went to Chrome (Instagram / Facebook on Android); `from=sample` rides along. */
+  function packFirstHop(sku: PackSku, target: string | undefined, from: PackCheckoutFrom | undefined, automatic: boolean): boolean {
+    return inAppPayFirstHop({ automatic, signedIn, surface: inAppChoiceSurface(location.pathname), sku, buy: { kind: "pack", sku, ...(target && !packHasNoTarget(sku) ? { target } : {}), ...(from === "sample" ? { from } : {}) } });
+  }
   async function handleBuy(sku: PackSku, target: string | undefined, opts: { resumed?: boolean; from?: PackCheckoutFrom; fromWho?: boolean } = {}) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
     const resumed = opts.resumed === true;
@@ -700,6 +706,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // Review fix 1 (double charge): this very pack was just paid, or its payment is still confirming - never a second order.
     if (settling(packIdOf(sku, target))) return;
     if (!signedIn) {
+      // INAPP-PAY-FIRST-1: Instagram / Facebook on Android, signed out: the tap goes straight to Chrome for THIS item (no order, no
+      // checkout event here). Not for an automatic ?buy= arrival or the Who-sheet's own continue. "Pay here instead" / a failed hop: today's flow.
+      if (packFirstHop(sku, target, from, resumed || opts.fromWho === true)) return;
       // BUY-PATH-1: the funnel's checkout event at the TAP, before the branch to pay-by-phone or sign-in (it used to fire
       // only for a signed-in tap, so a signed-out Buy with paying-by-phone off sent nothing at all).
       trackPackCheckout(packCheckoutDetails(sku, target), { signedIn: false, ...(from ? { from } : {}) });
@@ -746,7 +755,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.
     if (outcome.status === "paid") {
       resetOwnedPacksCache(); // client cache only: the sale-moment rows must re-ask the server, not offer what was just bought
-      trackPackPurchase({ ...details, valueInr: outcome.amountInr ?? details.valueInr, transactionId: outcome.orderId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
+      trackPackPurchase({ ...details, valueInr: chargedValueInr(outcome.amountInr, details.valueInr), transactionId: outcome.orderId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
     }
     if (!mounted.current && outcome.status !== "pending") return;
     if (outcome.status === "paid") {
@@ -769,7 +778,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         const status = await checkPackOrder(outcome.orderId);
         if (status.state === "paid") {
           resetOwnedPacksCache();
-          trackPackPurchase({ ...details, valueInr: status.amountInr ?? details.valueInr, transactionId: status.orderId || outcome.orderId || status.paymentId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
+          trackPackPurchase({ ...details, valueInr: chargedValueInr(status.amountInr, details.valueInr), transactionId: status.orderId || outcome.orderId || status.paymentId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
           settled = true;
           settledOrderId = status.orderId || outcome.orderId || "";
           break;
@@ -953,7 +962,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         {busy && buy.phase === "busy" && slowOpen && <p className={`${prefix}__note`} role="status" data-testid="packs-slow-open">{CHECKOUT_SLOW_COPY}</p>}
         {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Buy (never replaces it). */}
         {enabled && ready && !isOwned && !busy && !confirming && !blocked && !dismissed && !signedIn && !authLoading && (
-          <InAppPayChoice buy={{ kind: "pack", sku, ...(target && !packHasNoTarget(sku) ? { target } : {}) }} />
+          <InAppPayChoice buy={{ kind: "pack", sku, ...(target && !packHasNoTarget(sku) ? { target } : {}) }} onPayHere={() => void handleBuy(sku, target)} />
         )}
         {whoEnabled && !checkoutAudience && signedIn && enabled && ready && !isOwned && !busy && !confirming && !blocked && (
           <SomeoneElseLink testId={`packs-someone-else-${sku}`} onOpen={() => setWho({ sku, target })} />
@@ -1303,7 +1312,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         </button>
         {o.showStatus !== false && busy && buy.phase === "busy" && slowOpen && <p className={o.noteClass} role="status" data-testid="packs-slow-open">{CHECKOUT_SLOW_COPY}</p>}
         {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Buy (never replaces it). */}
-        {!off && !signedIn && !authLoading && !(mine_ && buy.phase === "dismissed") && <InAppPayChoice buy={{ kind: "pack", sku }} />}
+        {!off && !signedIn && !authLoading && !(mine_ && buy.phase === "dismissed") && <InAppPayChoice buy={{ kind: "pack", sku }} onPayHere={() => void handleBuy(sku, undefined)} />}
         {o.showStatus !== false && blocked && <p className={o.noteClass} role="status" data-testid="packs-other-busy">{OTHER_PAYMENT_BUSY_COPY}</p>}
         {o.showStatus !== false && confirming && <p className={o.noteClass} role="status">{PACK_STILL_CONFIRMING_COPY}</p>}
         {o.showStatus !== false && mine_ && buy.phase === "failed" && <p className={`${o.noteClass} ${o.noteClass}--bad`} role="alert">{PACK_FAILED_COPY}</p>}
@@ -1330,6 +1339,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       openPack("pack_cbq");
     },
     buyNow: (sku, target, opts) => {
+      // INAPP-PAY-FIRST-1b: a signed-out Instagram/Facebook-Android tap hops BEFORE the pack pop-up opens (no dialog flash before navigating); `from=sample` rides along.
+      if (enabled && buy.phase !== "busy" && buy.phase !== "checking" && packFirstHop(sku, target, opts?.from, false)) return;
       if (sku === "pack_chapter" && target) setChapter(target);
       else if (target === "maths" || target === "science") setSubject(target);
       if (!opts?.inPlace && !inPlace) openPack(sku);

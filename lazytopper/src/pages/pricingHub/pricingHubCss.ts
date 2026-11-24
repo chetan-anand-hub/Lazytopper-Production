@@ -1094,6 +1094,14 @@ export const HUB_CSS = `
     }
   }
 
+/* UI-FIX-1: the shortcut bar also shows on desktop (it was phone-only), so a buy button is inside the first 1280x800 screen - the
+   cards' own Pay / Buy rows start ~900 px down. Same bar, same barGo handler, same hide-while-a-Pay-row-is-on-screen rule; only the
+   shared sheet's "hide from 768 px" is overridden for /pricing (this wrapper), and the row is centred, narrower than the page so the Pay button clears the WhatsApp button. */
+@media (min-width: 768px) {
+  .lt-ph-barwrap .lt-stickybar { display: block; }
+  .lt-ph-barwrap .lt-stickybar__row { max-width: 1080px; margin: 0 auto; }
+}
+
 /* TS-PRICE-2: reserved slot for a clock-derived Test Series price (the figure inside is written after mount and stripped from the capture). */
 .lt-tsclk { display: inline-block; min-height: 1.2em; vertical-align: top; }
 .lt-tsclk--tag { min-width: 9ch; }

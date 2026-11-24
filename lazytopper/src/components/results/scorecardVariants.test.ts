@@ -30,6 +30,7 @@ import {
   storedFullMockScorecardVariant,
 } from "./scorecardBankLenses";
 import { COULD_NOT_READ_COPY, UNTYPED_MARKS_NOTE } from "../../lib/mistakeDisplay";
+import { buildBoardScoreView } from "../../lib/fullmock/boardEstimate";
 
 // A minimal grade-response fixture. `couldNotRead` questions carry NO grade and must
 // never be folded into the four-type or a 0 (honest-failure contract).
@@ -709,9 +710,101 @@ describe("fullMockScorecardVariant", () => {
     expect(v.message).toBe("▲ 9 marks vs Maths · Mock #3");
     expect(v.fourType).toEqual({ conceptual: 2, calculation: 0, silly: 0, presentation: 0 });
     expect(v.actions[1].label).toBe("Worksheet on Trigonometry — your biggest loss");
-    // NO board-readiness projection anywhere (spec §5).
+    // TS-BOARDSCORE-1 - OWNER RULING (23 Nov 2026, 19:04 IST) supersedes [FU-BOARD-READINESS-MODEL]'s "no projection, ever"
+    // for full-length papers: the board view (score line, trend, ESTIMATE) is allowed, but ONLY from the host's boardScore.
+    // A variant built without one (this 8-mark fixture) still carries no board wording at all.
+    expect(v.boardScore).toBeNull();
     const allText = JSON.stringify(v);
-    expect(allText).not.toMatch(/readiness|projected/i);
+    expect(allText).not.toMatch(/readiness|projected|predicted|board estimate/i);
+  });
+
+  it("TS-BOARDSCORE-1: FULL passes the host's board view through, labelled an estimate - never a prediction", () => {
+    const resp = response({ gradedCount: 38, pendingCount: 0, gradedMarksAwarded: 62, gradedMarksTotal: 80 });
+    const boardScore = buildBoardScoreView({
+      paper: { awarded: 62, total: 80, pendingCount: 0 },
+      scores: [
+        { id: "FM-M-01", score: 54, gradedAt: 1 },
+        { id: "FM-M-02", score: 62, gradedAt: 2 },
+      ],
+    });
+    const v = fullMockScorecardVariant({ name: "Maths · Mock #2", code: "FM-M-02", phase: "full", response: resp, boardScore });
+    expect(v.boardScore?.scoreLine).toBe("You scored 62 / 80 on a full CBSE-pattern paper.");
+    expect(v.boardScore?.estimate?.line).toBe("Board estimate (theory): 51\u201367 / 80");
+    const allText = JSON.stringify(v);
+    expect(allText).toMatch(/An estimate, not a promise/);
+    // The words of a promise stay out (the harm the old ruling guarded against).
+    expect(allText).not.toMatch(/projected|predicted|guarantee|you will score/i);
+  });
+
+  it("TS-BOARDSCORE-1: a paper with a pending page keeps only the score line - never the trend or the estimate, whatever the host passed", () => {
+    const resp = response({ gradedCount: 37, pendingCount: 1, gradedMarksAwarded: 60, gradedMarksTotal: 75, worksheetTotalMarks: 80 });
+    const boardScore = buildBoardScoreView({
+      paper: { awarded: 60, total: 80, pendingCount: 0 },
+      scores: [
+        { id: "FM-M-01", score: 50, gradedAt: 1 },
+        { id: "FM-M-02", score: 60, gradedAt: 2 },
+      ],
+    });
+    const v = fullMockScorecardVariant({ name: "Maths · Mock #2", code: "FM-M-02", phase: "full", response: resp, boardScore });
+    expect(v.boardScore?.trend).toBeNull();
+    expect(v.boardScore?.estimate).toBeNull();
+    expect(v.boardScore?.estimateHint).toBeNull();
+  });
+
+  it("TS-BOARDSCORE-1 (owner ruling 19:59): FULL hero is out of the paper's 80; unmarked marks listed apart, never scored 0", () => {
+    const resp = response({
+      results: [
+        { qNumber: 1, couldNotRead: false, totalMarks: 5, marksAwarded: 3 },
+        { qNumber: 2, couldNotRead: true, totalMarks: 3, marksAwarded: 0 },
+        { qNumber: 3, couldNotRead: true, totalMarks: 3, marksAwarded: 0 },
+      ],
+      totalQuestions: 3,
+      gradedCount: 1,
+      pendingCount: 2,
+      gradedMarksAwarded: 52,
+      gradedMarksTotal: 74,
+      worksheetTotalMarks: 80,
+    });
+    const boardScore = buildBoardScoreView({
+      paper: { awarded: 52, total: 80, pendingCount: 2, notMarkedMarks: 6 },
+      scores: [{ id: "FM-M-02", score: 52, gradedAt: 1 }],
+    });
+    const v = fullMockScorecardVariant({ name: "Maths · Mock #2", code: "FM-M-02", phase: "full", response: resp, boardScore });
+    expect(v.score).toMatchObject({ kind: "marks", awarded: 52, total: 80 });
+    expect(v.score.kind === "marks" && v.score.notMarked).toEqual({
+      marks: 6,
+      questions: 2,
+      line: "6 marks not marked yet (2 questions) \u2014 upload a clearer photo to complete",
+    });
+    expect(v.boardScore).toEqual({ scoreLine: "So far: 52 / 80 \u00b7 6 marks not marked yet", trend: null, estimate: null, estimateHint: null });
+    expect(v.pending).not.toBeNull(); // the per-question strip still names each one
+  });
+
+  it("TS-BOARDSCORE-1: a fully marked FULL paper (blank questions graded 0) is X / 80 with nothing listed apart", () => {
+    const resp = response({
+      results: [
+        { qNumber: 1, couldNotRead: false, totalMarks: 5, marksAwarded: 0, annotatedSteps: [] }, // blank: graded, 0
+        { qNumber: 2, couldNotRead: false, totalMarks: 3, marksAwarded: 3 },
+      ],
+      gradedCount: 38,
+      pendingCount: 0,
+      gradedMarksAwarded: 61,
+      gradedMarksTotal: 80,
+      worksheetTotalMarks: 80,
+    });
+    const v = fullMockScorecardVariant({ name: "Maths · Mock #2", code: "FM-M-02", phase: "full", response: resp });
+    expect(v.score).toMatchObject({ awarded: 61, total: 80 });
+    expect(v.score.kind === "marks" && v.score.notMarked).toBeFalsy();
+  });
+
+  it("TS-BOARDSCORE-1: the PARTIAL phase never carries a board view", () => {
+    const v = fullMockScorecardVariant({
+      name: "Maths · Mock #4",
+      code: "FM-M-04",
+      phase: "partial",
+      response: response({ gradedMarksAwarded: 17, gradedMarksTotal: 20, worksheetTotalMarks: 80 }),
+    });
+    expect(v.boardScore).toBeUndefined();
   });
 });
 
@@ -733,6 +826,43 @@ describe("storedFullMockScorecardVariant", () => {
     perQuestionRef: "fm:FM-M-03",
     dedupKey: "u::FM-M-03",
     ...over,
+  });
+
+  it("TS-BOARDSCORE-1: a fully graded 80-mark re-open shows the board view it is given; partial / awaiting re-opens never do", () => {
+    const boardScore = buildBoardScoreView({
+      paper: { awarded: 62, total: 80, pendingCount: 0 },
+      scores: [
+        { id: "FM-M-02", score: 54, gradedAt: 1 },
+        { id: "FM-M-03", score: 62, gradedAt: 2 },
+      ],
+    });
+    const graded = storedFullMockScorecardVariant(record({ status: "graded", marksAwarded: 62, marksTotal: 80 }), {
+      gradedDateLabel: "23 Nov 2026",
+      onDone: noop,
+      boardScore,
+    });
+    expect(graded.boardScore).toBe(boardScore);
+    const partial = storedFullMockScorecardVariant(record({ status: "partial", marksAwarded: 50, marksTotal: 75 }), {
+      gradedDateLabel: "23 Nov 2026",
+      onDone: noop,
+      response: response({
+        results: [{ qNumber: 1, couldNotRead: true, totalMarks: 5, marksAwarded: 0 }],
+        gradedMarksAwarded: 50,
+        gradedMarksTotal: 75,
+        pendingCount: 1,
+        worksheetTotalMarks: 80,
+      }),
+      boardScore,
+    });
+    // Owner ruling 19:59: the re-open is out of the paper's 80 too, the 5 unmarked marks listed apart; no trend / estimate.
+    expect(partial.score).toMatchObject({ awarded: 50, total: 80 });
+    expect(partial.score.kind === "marks" && partial.score.notMarked?.line).toBe(
+      "5 marks not marked yet (1 question) \u2014 upload a clearer photo to complete",
+    );
+    expect(partial.boardScore?.trend).toBeNull();
+    expect(partial.boardScore?.estimate).toBeNull();
+    const awaiting = storedFullMockScorecardVariant(record(), { gradedDateLabel: "23 Nov 2026", onDone: noop, boardScore });
+    expect(awaiting.boardScore).toBeUndefined();
   });
 
   it("awaiting-sheet re-open: real objective score + honest upload state, never a 0", () => {
@@ -830,6 +960,7 @@ describe("checkImproveScorecardVariant", () => {
     expect(v.fourType).toBeNull();
   });
 
+  // TS-BOARDSCORE-1's owner ruling (23 Nov 2026) covers FULL-LENGTH papers only: this surface keeps no board projection.
   it("NO board-readiness projection and NO solution key (the questions are the student's own)", () => {
     const v = checkImproveScorecardVariant(base);
     const allText = JSON.stringify(v);

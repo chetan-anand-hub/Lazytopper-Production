@@ -3447,7 +3447,7 @@ test('ORDER-SOURCE-1 · who-order and self-order store the source too', async (t
 });
 
 
-test('SERVER-EVENTS-1 · a guest pack: ONE PackPurchase for verify + webhook + replay, hashed Razorpay email + phone, event_id = order id', async (t) => {
+test('SERVER-EVENTS-1 · a guest pack: ONE Meta Purchase (META-PURCHASE-UNIFY-1; was PackPurchase) for verify + webhook + replay, hashed Razorpay email + phone, event_id = order id', async (t) => {
   const { createServerEvents } = require('../services/serverEvents.cjs');
   const calls = [];
   const fetchImpl = async (url, init) => { calls.push({ url: String(url), body: JSON.parse(init.body) }); return { ok: true, status: 200 }; };
@@ -3464,7 +3464,8 @@ test('SERVER-EVENTS-1 · a guest pack: ONE PackPurchase for verify + webhook + r
   await new Promise((r) => setTimeout(r, 60));
   assert.equal(calls.length, 1);
   const ev = calls[0].body.data[0];
-  assert.equal(ev.event_name, 'PackPurchase');
+  assert.equal(ev.event_name, 'Purchase');
+  assert.deepEqual(ev.custom_data.content_ids, ['pack_mock']);
   assert.equal(ev.event_id, o.json.orderId);
   assert.equal(ev.user_data.em[0], crypto.createHash('sha256').update('parent@example.com').digest('hex'));
   assert.equal(ev.user_data.fbp, 'fb.1.1700000000000.12345678');
@@ -3663,7 +3664,7 @@ test('PR · concurrent: status x3 + a webhook + a verify on one captured order -
   const stored = srv.db.read(`payOrders/${o.json.orderId}`);
   assert.equal(stored.status, 'paid_unclaimed');
   assert.equal(stored.paymentId, p.id);
-  assert.equal(metaCalls.length, 1, 'one PackPurchase for the sale, whoever recorded it');
+  assert.equal(metaCalls.length, 1, 'one Meta Purchase for the sale, whoever recorded it');
   assert.equal(h.resend.sent.length, 1, 'one receipt email');
   assert.equal(packDocs(srv.db).length, 0);
   assert.equal(subsDocs(srv.db).length, 0);
@@ -3873,6 +3874,44 @@ test('PR · concurrent status calls alone: the purchase event, the invoice step 
   await new Promise((r) => setTimeout(r, 30));
   assert.equal(paidEvents, 1, 'a later status call fires nothing');
   assert.equal(receipts, 1);
+});
+
+// ---- META-IC-1: the server sends InitiateCheckout for EVERY guest order route, once per created order ------------------------
+function icRecorder() {
+  const created = [];
+  return {
+    created,
+    serverEvents: {
+      signalsField: (body) => ({ adSignals: { attemptId: body && body.adSignals && body.adSignals.attemptId } }),
+      orderCreated: async (a) => { created.push(a); },
+      orderPaid: async () => {},
+      metaOn: true,
+      ga4On: false,
+    },
+  };
+}
+
+test('META-IC-1 · pay-by-phone, pay-for-someone and pay-for-myself orders each fire ONE orderCreated carrying the browser attempt id; a refused order fires none', async (t) => {
+  const rec = icRecorder();
+  const srv = await startRoutes({ env: PR_ENV, serverEvents: rec.serverEvents });
+  t.after(srv.close);
+  const phone = await guestOrder(srv, { sku: 'till_boards', phone: PHONE, adSignals: { attemptId: 'lt_ic_phone_001' } });
+  assert.equal(phone.status, 200, phone.text);
+  const who = await whoOrder(srv, { sku: 'till_boards', recipient: { email: EMAIL }, adSignals: { attemptId: 'lt_ic_who_0001' } });
+  assert.equal(who.status, 200, who.text);
+  const self = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths', adSignals: { attemptId: 'lt_ic_self_001' } });
+  assert.equal(self.status, 200, self.text);
+  await srv.idle();
+  assert.deepEqual(rec.created.map((c) => [c.orderId, c.passType, c.amountPaise, c.uid, c.signals.attemptId]), [
+    [phone.json.orderId, 'till_boards', phone.json.amountPaise, null, 'lt_ic_phone_001'],
+    [who.json.orderId, 'till_boards', who.json.amountPaise, null, 'lt_ic_who_0001'],
+    [self.json.orderId, 'pack_cbq', self.json.amountPaise, null, 'lt_ic_self_001'],
+  ]);
+  const before = rec.created.length;
+  const bad = await guestOrder(srv, { sku: 'not_a_sku', phone: PHONE, adSignals: { attemptId: 'lt_ic_bad_00001' } });
+  assert.notEqual(bad.status, 200);
+  await srv.idle();
+  assert.equal(rec.created.length, before, 'no order -> no InitiateCheckout');
 });
 
 /* ══ CHECKOUT-FAST-1 · the order routes' critical path (parallel independent reads) ═════════

@@ -30,7 +30,7 @@ import {
   trackPurchase,
   type CheckoutDetails,
 } from "../../analytics/analytics";
-import { formatInr, GST_RATE_PERCENT } from "../../config/pricing";
+import { chargedValueInr, formatInr, GST_RATE_PERCENT } from "../../config/pricing";
 import { formatPassDate, PAY_PENDING_TTL_MS, type PassType } from "../../services/checkout";
 import { trackPackCheckout, trackPackPurchase, type PackCheckoutDetails } from "../../lib/packs/packAnalytics";
 import { packChapterLabel } from "../../lib/packs/packLabels";
@@ -310,7 +310,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
       // flagged `duplicate` (the child already had the pack) is NOT a conversion: no purchase event at all.
       if (!outcome.duplicate) trackPackPurchase({
         ...details,
-        ...(outcome.amountInr !== undefined ? { valueInr: outcome.amountInr } : {}),
+        valueInr: chargedValueInr(outcome.amountInr, details.valueInr),
         transactionId: outcome.orderId || outcome.paymentId || attemptId, // META-PURCHASE-DEDUP-1: the order id
       });
       setPackPaid({ name: outcome.firstName || name, duplicate: outcome.duplicate === true });

@@ -131,7 +131,7 @@ const GRADED_CARD_CSS = `
     background: rgba(22, 185, 106, 0.08);
   }
   .lt-fbg__opt--primary {
-    background: var(--lt-green, #16b96a);
+    background: var(--lt-green-fill, #257e55);
     border-color: var(--lt-green, #16b96a);
     color: #ffffff;
   }

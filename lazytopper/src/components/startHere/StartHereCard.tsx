@@ -135,7 +135,7 @@ const CSS = `
     font-weight: 600; margin: 0 0 14px; color: #fff; }
   .lt-shc .lt-shc-ctas { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   .lt-shc .lt-shc-go { display: inline-flex; align-items: center; justify-content: center;
-    background: hsl(152, 55%, 45%); color: #fff; border: 0; border-radius: 10px; padding: 11px 22px;
+    background: var(--lt-green-fill, #257e55); color: #fff; border: 0; border-radius: 10px; padding: 11px 22px;
     font-size: 14px; font-weight: 700; cursor: pointer; min-height: 44px; box-sizing: border-box; }
   .lt-shc .lt-shc-go:hover { background: hsl(152, 57%, 40%); }
   .lt-shc .lt-shc-go--alt { background: transparent; border: 1px solid rgba(255,255,255,0.45); }
