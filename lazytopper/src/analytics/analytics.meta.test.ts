@@ -8,7 +8,7 @@ const { getAdditionalUserInfo } = vi.hoisted(() => ({
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo }));
 vi.mock("../services/activityClient", () => ({ recordActivity: vi.fn() }));
 
-import { META_EVENTS, metaAddressIsClean, trackFirstGraded, trackNamedEvent, trackPageview, trackSignUp } from "./analytics";
+import { META_EVENTS, META_PACK_PURCHASE_LEGACY, metaAddressIsClean, trackFirstGraded, trackNamedEvent, trackPageview, trackSignUp } from "./analytics";
 import type { NamedAnalyticsEvent } from "./analytics";
 
 /** The retired base (ROOT-URL-1), read from vercel.json's redirect to the root so this file holds no literal of it. */
@@ -224,10 +224,17 @@ describe("Meta — before the library loads", () => {
 });
 
 describe("Meta — named events", () => {
-  it("maps exactly the PR-1 events plus TRACK-2's purchase plus MEASURE-1's first_graded plus ENGAGE10-1's engaged_10min plus ENGAGE5-1's engaged_5min plus PACKS-CLIENT-1's pack_purchase; META-IC-1: the TAP events begin_checkout / pack_checkout are NOT mapped", () => {
+  it("maps exactly the PR-1 events plus TRACK-2's purchase plus MEASURE-1's first_graded plus ENGAGE10-1's engaged_10min plus ENGAGE5-1's engaged_5min plus pack_purchase; META-IC-1: the TAP events begin_checkout / pack_checkout are NOT mapped", () => {
     expect(Object.keys(META_EVENTS).sort()).toEqual(["engaged_10min", "engaged_5min", "first_graded", "pack_purchase", "purchase", "sign_up", "trial_start"]);
-    expect(META_EVENTS.pack_purchase).toEqual(["trackCustom", "PackPurchase"]);
+    // META-PURCHASE-UNIFY-1: a pack purchase is the STANDARD Purchase (was the custom PackPurchase, kept as the kill-switch fallback).
+    expect(META_EVENTS.pack_purchase).toEqual(["track", "Purchase"]);
+    expect(META_PACK_PURCHASE_LEGACY).toEqual(["trackCustom", "PackPurchase"]);
     expect(META_EVENTS.first_graded).toEqual(["trackCustom", "FirstGraded"]);
+  });
+
+  it("META-PURCHASE-UNIFY-1: pack_purchase is never sent bare (no order id -> nothing), so no value-less Purchase can reach Meta", () => {
+    trackNamedEvent("pack_purchase" as NamedAnalyticsEvent);
+    expect(added()).toEqual([]);
   });
 
   it("META-IC-1: the Buy TAP events (begin_checkout, pack_checkout) send NOTHING to Meta", () => {
@@ -236,7 +243,7 @@ describe("Meta — named events", () => {
     expect(added()).toEqual([]);
   });
 
-  it.each(Object.entries(META_EVENTS))("fires %s as one two-argument entry", (name, [method, metaName]) => {
+  it.each(Object.entries(META_EVENTS).filter(([n]) => n !== "pack_purchase"))("fires %s as one two-argument entry", (name, [method, metaName]) => {
     if (name === "sign_up") trackSignUp();
     else if (name === "first_graded") trackFirstGraded("worksheet");
     else trackNamedEvent(name as NamedAnalyticsEvent);

@@ -214,6 +214,15 @@ export function chargeFor(baseInr: number, now: Date | number = Date.now()): Boa
 export function priceWithGst(baseInr: number, now: Date | number = Date.now()): number {
   return chargeFor(baseInr, now).totalInr;
 }
+/**
+ * META-PURCHASE-UNIFY-1 follow-up: the value a browser purchase reports. The server's `amountInr` is what was CHARGED (GST included);
+ * when it is missing, fall back to the BASE price WITH GST (priceWithGst), never the bare base, so browser and server CAPI agree.
+ */
+export function chargedValueInr(serverAmountInr: number | undefined, baseInr: number | null | undefined, now?: Date | number): number | null {
+  if (typeof serverAmountInr === "number" && Number.isFinite(serverAmountInr) && serverAmountInr > 0) return serverAmountInr;
+  return typeof baseInr === "number" && Number.isFinite(baseInr) && baseInr > 0 ? priceWithGst(baseInr, now ?? Date.now()) : null;
+}
+
 /** A base price as a price TAG at `now`: "₹49" before the cut-off; "₹49 + GST" from it. Never on a Pay/Buy button. */
 export function displayPlusGst(baseInr: number, now: Date | number = Date.now()): string {
   return boardPassGstExclusive(now) ? `${formatInr(baseInr)} + GST` : formatInr(baseInr);

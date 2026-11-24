@@ -13,7 +13,7 @@ const track = vi.hoisted(() => ({
 vi.mock("../../analytics/analytics", () => track);
 
 import { PassCheckoutView } from "./PassCheckout";
-import { PRICE_MONTHLY_FOUNDING_INR, PRICE_MONTHLY_LIST_INR } from "../../config/pricing";
+import { priceWithGst, PRICE_MONTHLY_FOUNDING_INR, PRICE_MONTHLY_LIST_INR } from "../../config/pricing";
 import type { BuyOutcome } from "../../services/checkout";
 
 const PAID: BuyOutcome = { status: "paid", passEnd: "2027-01-01T00:00:00.000Z" };
@@ -51,7 +51,7 @@ describe("TRACK-2 · PassCheckout events", () => {
     await waitFor(() => expect(track.trackPurchase).toHaveBeenCalledTimes(1));
     expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({
       passType: "month",
-      valueInr: PRICE_MONTHLY_FOUNDING_INR,
+      valueInr: priceWithGst(PRICE_MONTHLY_FOUNDING_INR), // no server amount: base + GST, never the bare base
       transactionId: "lt_attempt",
     });
   });
@@ -73,7 +73,7 @@ describe("TRACK-2 · PassCheckout events", () => {
     tapMonth(c);
     await waitFor(() => expect(track.trackPurchase).toHaveBeenCalledTimes(1));
     expect(track.trackPurchase.mock.calls[0][0]).toMatchObject({
-      valueInr: PRICE_MONTHLY_FOUNDING_INR,
+      valueInr: priceWithGst(PRICE_MONTHLY_FOUNDING_INR), // no server amount: base + GST, never the bare base
       transactionId: "pay_XYZ",
     });
   });

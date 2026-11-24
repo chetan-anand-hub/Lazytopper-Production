@@ -8,6 +8,7 @@ import { WHATSAPP_URL } from "../../config/socialProfiles";
 import { clearReceiptProof, readReceiptProof, type ReceiptProof } from "../../services/paidReceiptProof";
 import { newCheckoutAttemptId } from "../../analytics/analytics";
 import { trackPackCheckout, trackPackEvent, trackPackPurchase, type PackCheckoutDetails, type PackCheckoutFrom } from "../../lib/packs/packAnalytics";
+import { chargedValueInr } from "../../config/pricing";
 import {
   PACK_ALREADY_OWNED_COPY,
   PACK_CHAPTER_SLUGS,
@@ -754,7 +755,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.
     if (outcome.status === "paid") {
       resetOwnedPacksCache(); // client cache only: the sale-moment rows must re-ask the server, not offer what was just bought
-      trackPackPurchase({ ...details, valueInr: outcome.amountInr ?? details.valueInr, transactionId: outcome.orderId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
+      trackPackPurchase({ ...details, valueInr: chargedValueInr(outcome.amountInr, details.valueInr), transactionId: outcome.orderId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
     }
     if (!mounted.current && outcome.status !== "pending") return;
     if (outcome.status === "paid") {
@@ -777,7 +778,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         const status = await checkPackOrder(outcome.orderId);
         if (status.state === "paid") {
           resetOwnedPacksCache();
-          trackPackPurchase({ ...details, valueInr: status.amountInr ?? details.valueInr, transactionId: status.orderId || outcome.orderId || status.paymentId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
+          trackPackPurchase({ ...details, valueInr: chargedValueInr(status.amountInr, details.valueInr), transactionId: status.orderId || outcome.orderId || status.paymentId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
           settled = true;
           settledOrderId = status.orderId || outcome.orderId || "";
           break;

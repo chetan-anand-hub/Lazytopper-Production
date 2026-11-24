@@ -49,7 +49,7 @@ export function formatRupees(inr: number | undefined): string {
   return typeof inr === "number" && Number.isFinite(inr) && inr > 0 ? `₹${inr.toLocaleString("en-IN")}` : "";
 }
 
-const PACK_SKU_NAMES: readonly PackSkuName[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq"];
+const PACK_SKU_NAMES: readonly PackSkuName[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq", "test_series"];
 
 /**
  * BUY-PATH-1 - a pay-by-phone purchase counts as a sale in the funnel, exactly like a signed-in one: `purchase` (Board Pass) or
