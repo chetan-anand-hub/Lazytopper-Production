@@ -3,7 +3,7 @@
  * moved out of ./parentPay by PARENT-PACKS-1 so the entry chunk (which carries ./parentPay for the paywall gate's switch) does
  * not carry it. Unchanged logic; "Board Pass" naming. Imported only by the lazy share sheet and tests.
  */
-import { formatInr } from "../config/pricing";
+import { formatInr, foundingOfferOpen } from "../config/pricing";
 import type { ParentPayLang, ParentPrices } from "./parentPay";
 
 /** TRIAL-SELL-1 - the mistake groups the proof line may name (lib/mistakeDisplay's keys; no import, the entry stays light). */
@@ -107,6 +107,8 @@ export interface AskParentMessageInput {
   proof?: ParentProof | null;
   url: string;
   days: number;
+  /** The clock (tests). The Board Pass price changes when the founding offer closes, so it is only quoted once closed. */
+  now?: Date | number;
 }
 
 /**
@@ -114,10 +116,13 @@ export interface AskParentMessageInput {
  * count only if there is one, the SERVER prices (a price the server could not quote is left
  * out), and the link. No pressure language, no fake urgency, no claims about results.
  */
-export function buildAskParentMessage({ lang, prices, checkedCount, proof, url, days }: AskParentMessageInput): string {
+export function buildAskParentMessage({ lang, prices, checkedCount, proof, url, days, now = Date.now() }: AskParentMessageInput): string {
   const shown = validProof(proof);
   const n = typeof checkedCount === "number" && Number.isInteger(checkedCount) && checkedCount > 0 ? checkedCount : 0;
-  const boards = typeof prices.till_boards === "number" && prices.till_boards > 0 ? formatInr(prices.till_boards) : null;
+  // FOUNDING-MSG-PRICE-1 (owner, 25 Nov 2026: "there should be no wrong price from 1st december"): the Board Pass price changes at
+  // 00:00 IST 1 Dec and a forwarded message is read later than it is sent (the link lives for days). While the founding offer is
+  // open the line is LEFT OUT (the parent's page shows the real total before paying); from the close it is quoted again.
+  const boards = !foundingOfferOpen(now) && typeof prices.till_boards === "number" && prices.till_boards > 0 ? formatInr(prices.till_boards) : null;
 
   if (lang === "hi") {
     const lines = [

@@ -190,7 +190,9 @@ describe("TS-PARENT-FORWARD-2 · signed out: share, never sign-in", () => {
     expect(shareFn).toHaveBeenCalledTimes(1);
     expect(shareFn).toHaveBeenCalledWith({ text: shareText() });
     const text = String((shareFn.mock.calls[0][0] as { text: string }).text);
-    expect(text).toContain(`It's ${packPayLabel("test_series")}, one time`);
+    // FOUNDING-MSG-PRICE-1: the page clock is 24 Nov (founding open), so the message names no amount (the price changes 1 Dec).
+    expect(text).toContain("It's a one-time payment, valid till my boards:");
+    expect(text).not.toMatch(/₹/);
     expect(text).toContain("/test-series?utm_source=parent_share&utm_medium=whatsapp&utm_campaign=test_series_forward");
     expect(text).toContain("Pay here, then enter my number so it opens on my account:");
     expect(text).not.toMatch(/sign in|login|PDF/i);
