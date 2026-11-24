@@ -1,5 +1,5 @@
-import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
 import { getSessionRecordsFromCloud } from "../services/sessionRecords";
@@ -14,6 +14,9 @@ import { TestSeriesExaminerLine, TestSeriesPerTest } from "../components/packs/T
 import { TsClockSlot } from "../components/packs/TestSeriesFoundingClause";
 import PacksShop, { warmPacksCheckout, type PacksShopApi } from "../components/packs/PacksShop";
 import { isCheckoutWarmDisabled } from "../lib/packs/packsMobilePreload";
+import { isPaymentsClientEnabled } from "../services/checkout";
+import { isParentPayClientEnabled } from "../services/parentPay";
+import { ASK_PARENT_LABEL } from "../components/pricing/PaywallActions";
 import PayReturnResume from "../components/payReturn/PayReturnResume";
 import TestSeriesPaperPicker from "../components/testSeries/TestSeriesPaperPicker";
 import { TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_VALIDITY_LONG, TEST_SERIES_WRITTEN_SECTIONS } from "../lib/packs/packLabels";
@@ -78,6 +81,20 @@ export function testSeriesFreeCopy(): { heroLede: string; accessLine: string; pl
     : { heroLede: TS_HERO_FREE_LEDE_WRITTEN, accessLine: TEST_SERIES_ACCESS_LINE_FREE_WRITTEN, plansLede: TS_PLANS_LEDE_WRITTEN };
 }
 const LOGIN_HREF = `/login?redirect=${encodeURIComponent(TEST_SERIES_PATH)}`;
+
+/**
+ * TS-PARENT-FORWARD-1 (owner ruling 24 Nov 2026, ~21:35 IST: "both the options, for buying directly or forwarding link to parents").
+ * Under each Test Series Buy, "Forward link to parents" (PaywallActions' own label and event, `surface: "test_series"`). Signed out,
+ * a button goes to sign-in and back to `/test-series?parent=1`, where the forward button is scrolled into view and focused (one more
+ * tap shares: a browser only shares on a tap). VITE_TS_PARENT_FORWARD_DISABLED=1 -> the page exactly as before.
+ */
+export function tsParentForwardDisabled(): boolean {
+  return import.meta.env?.VITE_TS_PARENT_FORWARD_DISABLED === "1";
+}
+export const TS_PARENT_FORWARD_PARAM = "parent";
+/** A safe internal path (no scheme): Login's redirect guard keeps the query and returns here. */
+export const TS_PARENT_FORWARD_LOGIN_HREF = `/login?redirect=${encodeURIComponent(`${TEST_SERIES_PATH}?${TS_PARENT_FORWARD_PARAM}=1`)}`;
+export const TS_PARENT_FORWARD_SIGNIN_NOTE = "Sign in first (7-day free trial), then send the link to a parent.";
 const TESTS_ANCHOR = "ts-tests";
 /** TS-HERO-1 (owner, 23 Nov 2026): the three steps under the headline. "Try one test free" = one free test (seriesAccess FREE_TESTS_ALLOWED); TS-FREE-CHECK-1: its written answers are marked too (testSeriesFreeCopy). */
 const TS_HERO_STEPS: readonly string[] = ["Take the test", "Upload your answer sheet", "See marks for every step and where you lost them"];
@@ -184,6 +201,12 @@ export default function TestSeriesPage() {
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [plansOpen, setPlansOpen] = useState(false);
   const [buyFrom, setBuyFrom] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const forwardOn = !tsParentForwardDisabled();
+  const backForForward = forwardOn && new URLSearchParams(location.search).get(TS_PARENT_FORWARD_PARAM) === "1";
+  const heroForwardRef = useRef<HTMLDivElement | null>(null);
+  const forwardFocused = useRef(false);
 
   // CHECKOUT-FAST-1: the Buy opens the checkout sheet / Razorpay. On INTENT only (the first touch, or the Buy scrolling into view; never on idle) fetch the
   // sheet chunk, open Razorpay's connections and load checkout.js - never at first paint, no order. VITE_CHECKOUT_WARM_DISABLED=1 = today's on-tap load.
@@ -229,6 +252,33 @@ export default function TestSeriesPage() {
   const ownershipKnown = phase !== undefined ? phase === "ready" : load.state === "ready";
   const ownerUnknown = signedIn && (!subscription.hydrated || (!holdsPremium && !ownershipKnown));
 
+  // TS-PARENT-FORWARD-1: back from sign-in with `?parent=1`: once the hero's forward button exists (a lazy chunk), scroll it into view and
+  // focus it, once. Owners and the "Checking your plan…" state have no forward button, so nothing happens for them.
+  const forwardTarget = backForForward && signedIn && !ownerUnknown && !holdsPremium && !ownsSeries;
+  useEffect(() => {
+    if (!forwardTarget || forwardFocused.current) return undefined;
+    const box = heroForwardRef.current;
+    if (!box) return undefined;
+    const tryFocus = (): boolean => {
+      const btn = box.querySelector<HTMLButtonElement>('[data-testid="paywall-forward"]');
+      if (!btn) return false;
+      forwardFocused.current = true;
+      btn.scrollIntoView?.({ behavior: "smooth", block: "center" });
+      btn.focus({ preventScroll: true });
+      return true;
+    };
+    if (tryFocus()) return undefined;
+    const obs = new MutationObserver(() => {
+      if (tryFocus()) obs.disconnect();
+    });
+    obs.observe(box, { childList: true, subtree: true });
+    const stop = window.setTimeout(() => obs.disconnect(), 15000);
+    return () => {
+      obs.disconnect();
+      window.clearTimeout(stop);
+    };
+  }, [forwardTarget]);
+
   const allTests = useMemo(() => [...chapters, ...mocks], [chapters, mocks]);
   const nextTest = progress ? allTests.find((t) => (progress.byCode[t.code]?.status ?? "not-started") === "not-started") ?? null : null;
 
@@ -258,6 +308,39 @@ export default function TestSeriesPage() {
         {buyLabel}
       </Link>
     );
+
+  /**
+   * TS-PARENT-FORWARD-1 - "Forward link to parents" under a Buy. Signed in: the shop's own parent action for the Test Series (null when
+   * owned, paying, packs off or parent pay off), no QR (a tight card; the parent is on another phone). Signed out: a button (never a
+   * /login link: the capture strip would delete the plan card's <section>) to sign-in and back here with `?parent=1`. Only beside the
+   * in-place Buy (packs on, the series offered), and only while payments and parent pay are on.
+   * ★ CLS: the static capture is built with packs off (its Buy is the /packs link), so the SIGNED-OUT box is always rendered (a
+   * reserved height, `--out`) and only its contents wait for the live flags: the first paint never moves when the button arrives.
+   */
+  const forwardArea = (api: PacksShopApi, hero: boolean) => {
+    if (!forwardOn) return null;
+    const live = Boolean(api.buyEnabled && api.buyButton) && isTestSeriesPackOffered() && isPaymentsClientEnabled() && isParentPayClientEnabled();
+    const testId = hero ? "ts-hero-forward" : "ts-offer-forward";
+    if (signedIn) {
+      return live ? (
+        <div className="lt-ts-forward" data-testid={testId} ref={hero ? heroForwardRef : undefined}>
+          {api.parentAsk("test_series", undefined, { noQr: true, surface: "test_series" })}
+        </div>
+      ) : null;
+    }
+    return (
+      <div className="lt-ts-forward lt-ts-forward--out" data-testid={testId}>
+        {live && (
+          <>
+            <button type="button" className="lt-ts-btn lt-ts-forward__btn" data-testid={`${testId}-signin`} onClick={() => navigate(TS_PARENT_FORWARD_LOGIN_HREF)}>
+              {ASK_PARENT_LABEL}
+            </button>
+            <p className="lt-ts-forward__note">{TS_PARENT_FORWARD_SIGNIN_NOTE}</p>
+          </>
+        )}
+      </div>
+    );
+  };
 
   /** The Test Series offer card. `hero`: the compact one in the hero (price, validity, per-test, Buy, the checks line); else the full plan card. */
   const tsOffer = (api: PacksShopApi, hero: boolean) => (
@@ -294,7 +377,10 @@ export default function TestSeriesPage() {
           Checking your plan…
         </p>
       ) : (
-        buyButton(api, hero ? "ts-hero-buy" : "ts-cta-buy", "lt-ts-btn lt-ts-btn--primary lt-ts-offer__btn")
+        <>
+          {buyButton(api, hero ? "ts-hero-buy" : "ts-cta-buy", "lt-ts-btn lt-ts-btn--primary lt-ts-offer__btn")}
+          {forwardArea(api, hero)}
+        </>
       )}
       {!ownsSeries && !holdsPremium && !ownerUnknown && (
         <p className="lt-ts-offer__checks" data-testid={hero ? "ts-hero-checks" : "ts-offer-checks"}>

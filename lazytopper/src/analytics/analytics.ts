@@ -1929,7 +1929,9 @@ export type PaywallSurface =
   // TRIAL-SELL-1 - the desktop trial strip (trial days 1-3).
   | "trial_strip"
   // PRICING-PAGES-2 F4 - the dedicated Board Pass page's Pay buttons.
-  | "board-pass";
+  | "board-pass"
+  // TS-PARENT-FORWARD-1 - "Forward link to parents" beside the /test-series Buy.
+  | "test_series";
 
 const PAYWALL_ACTIVITY_NAME: Record<PaywallAction, NamedAnalyticsEvent> = {
   pay: "paywall_action_pay",
