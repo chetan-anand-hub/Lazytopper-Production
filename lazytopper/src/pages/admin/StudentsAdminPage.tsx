@@ -46,6 +46,7 @@ import {
   type SummaryResponse,
 } from "./studentsAdminModel";
 import { adSourceLines } from "./adSourceNames";
+import BUYER_POINTS from "../../config/buyerScorePoints.json";
 import "./studentsAdmin.css";
 import { readGuidePreview, setGuidePreview, type GuidePreview } from "../../components/guide/guideVariant";
 
@@ -316,6 +317,9 @@ export default function StudentsAdminPage() {
     };
   }, [period, stableGetToken]);
 
+  // BUYER-SCORE-1: the column exists only while the server sends the field (BUYER_SCORE_ADMIN_DISABLED=1 omits it).
+  const showBuyer = list.status === "ok" && list.data.rows.some((r) => r.buyerScore !== undefined);
+
   if (list.status === "refused" && list.refusal === "not-authorised") {
     return (
       <main className="sa-page">
@@ -446,6 +450,7 @@ export default function StudentsAdminPage() {
                         <th scope="col">Email</th>
                         <th scope="col">Method</th>
                         <th scope="col">Source</th>
+                        {showBuyer ? <th scope="col">Buyer score</th> : null}
                         <th scope="col">Plan</th>
                         <th scope="col">Days active</th>
                         <th scope="col">C&amp;I sessions</th>
@@ -479,6 +484,20 @@ export default function StudentsAdminPage() {
                           <td data-label="Source" title={sourceTitle((row as { source?: RowSource | null }).source)}>
                             <SourceCell source={(row as { source?: RowSource | null }).source} />
                           </td>
+                          {showBuyer ? (
+                            <td data-label="Buyer score" title={`Source + landing page + sign-up hour. Hot ${BUYER_POINTS.tiers.hot} or more, Warm ${BUYER_POINTS.tiers.warm} to ${BUYER_POINTS.tiers.hot - 1}.`}>
+                              {row.buyerScore ? (
+                                <span data-testid="sa-buyer-score">
+                                  {row.buyerScore.points}{" "}
+                                  <span className={`sa-plan sa-buyer-${row.buyerScore.tier}`}>
+                                    {row.buyerScore.tier === "hot" ? "Hot" : row.buyerScore.tier === "warm" ? "Warm" : "Cold"}
+                                  </span>
+                                </span>
+                              ) : (
+                                "—"
+                              )}
+                            </td>
+                          ) : null}
                           <td data-label="Plan">
                             <span className={`sa-plan sa-plan-${row.plan.kind}`}>{planLabel(row.plan)}</span>
                           </td>

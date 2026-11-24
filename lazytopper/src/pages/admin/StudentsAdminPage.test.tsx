@@ -208,6 +208,34 @@ describe("StudentsAdminPage — list", () => {
     expect(coveredCount(0, "full", "2026-10-02").text).toBe("0"); // a FULL-coverage zero is a real zero
   });
 
+  it("★ BUYER-SCORE-1: a Buyer score column with the number and a Hot / Warm / Cold pill; '—' when none; no column when the server omits it", async () => {
+    routeFn = (url) => ({
+      status: 200,
+      body: url.includes("/summary")
+        ? SUMMARY
+        : listBody([
+            row("hot1", { buyerScore: { points: 16, tier: "hot" } }),
+            row("warm1", { buyerScore: { points: 9, tier: "warm" } }),
+            row("cold1", { buyerScore: { points: 2, tier: "cold" } }),
+            row("none1", { buyerScore: null }),
+          ]),
+    });
+    const { unmount } = render(<StudentsAdminPage />);
+    const rows = await screen.findAllByTestId("sa-row");
+    expect(screen.getByRole("columnheader", { name: "Buyer score" })).toBeTruthy();
+    const cell = (i: number) => rows[i].querySelector('[data-label="Buyer score"]') as HTMLElement;
+    expect(cell(0).textContent).toMatch(/16\s*Hot/);
+    expect(cell(1).textContent).toMatch(/9\s*Warm/);
+    expect(cell(2).textContent).toMatch(/2\s*Cold/);
+    expect(cell(3).textContent).toBe("—");
+    unmount();
+    cleanup();
+    routeFn = (url) => ({ status: 200, body: url.includes("/summary") ? SUMMARY : listBody([row("old1")]) });
+    render(<StudentsAdminPage />);
+    await screen.findAllByTestId("sa-row");
+    expect(screen.queryByRole("columnheader", { name: "Buyer score" })).toBeNull();
+  });
+
   it("★ SOURCE-1: a Source column after Method, with the label rules, campaign text, and 'No source recorded' for a missing doc", async () => {
     const src = (extra: Record<string, unknown>) => ({
       ref: null, utm_source: null, utm_medium: null, utm_campaign: null, utm_content: null, landing: "/", gclid: false, fbclid: false, ...extra,
