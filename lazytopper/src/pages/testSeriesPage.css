@@ -706,6 +706,9 @@
   .lt-ts-hero__copy {
     gap: 6px;
   }
+  .lt-ts-hero__h1 .lt-ts-hero__eyebrow {
+    margin-bottom: 6px; /* TS-H1-KEYWORD-1: the phone gap that sat between the old eyebrow <p> and the h1 */
+  }
   .lt-ts-hero__h1 {
     font-size: 1.3rem;
   }
