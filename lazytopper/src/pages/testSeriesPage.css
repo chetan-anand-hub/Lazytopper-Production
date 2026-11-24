@@ -700,9 +700,9 @@
 .lt-ts .lt-ts-forward .lt-paywall-parent {
   min-height: 48px;
 }
-/* Signed out: the box is in the static page (reserved: the 48 px button + the two-line note), filled once the flags are read. */
+/* Signed out: the box is in the static page (reserved: the 48 px button), filled once the flags are read. */
 .lt-ts .lt-ts-forward--out {
-  min-height: calc(48px + 6px + 2.8 * 0.8rem);
+  min-height: 48px;
 }
 .lt-ts .lt-ts-forward__btn {
   width: 100%;
@@ -714,11 +714,13 @@
 .lt-ts .lt-ts-forward__btn:focus-visible {
   background: var(--lt-mint, #eef8f2);
 }
-.lt-ts .lt-ts-forward__note {
-  margin: 6px 0 0;
-  font-size: 0.8rem;
-  line-height: 1.4;
-  color: var(--lt-sp-ink-2);
+/* TS-PARENT-FORWARD-2: shown only when the share sheet and the WhatsApp window both failed to open (a tap, so no first-paint shift). */
+.lt-ts .lt-ts-forward__wa {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--lt-green-deep, #0e7c47);
 }
 
 .lt-ts-foot a,

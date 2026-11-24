@@ -18,7 +18,7 @@ import {
 } from "./parentPay";
 import type { RazorpayConstructor, RazorpaySuccess } from "./checkout";
 import { buildAskParentMessage, parentProofFrom, parentProofLine } from "./parentPayMessage";
-import { buildAskParentPackMessage, buyPackAsParent, createParentPackOrder, mintParentPackLink, parentPackName, parentSeriesTestCount, verifyParentPackPayment, viewParentLinkWithPack, withValidPack } from "./parentPayPack";
+import { buildAskParentPackMessage, buyPackAsParent, createParentPackOrder, mintParentPackLink, buildParentSeriesShareMessage, parentPackName, parentSeriesTestCount, verifyParentPackPayment, viewParentLinkWithPack, withValidPack } from "./parentPayPack";
 import { seriesTotals } from "../lib/testSeries/testSeries";
 
 /** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
@@ -345,6 +345,21 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
     expect(light.parentSeriesTestCount()).not.toBe(parentSeriesTestCount());
     vi.unstubAllEnvs();
     vi.resetModules();
+  });
+
+  it("TS-PARENT-FORWARD-2: the signed-out share message (en + hi) - the same opening line, then 'pay here, then my number' + the page link; no account link", () => {
+    const n = parentSeriesTestCount();
+    const page = "https://www.lazytopper.com/test-series?utm_source=parent_share&utm_medium=whatsapp&utm_campaign=test_series_forward";
+    expect(buildParentSeriesShareMessage({ lang: "en", price: "₹1,179", url: page })).toBe(
+      `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? It's ₹1,179, one time, valid till my boards: ${n} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner. Pay here, then enter my number so it opens on my account: ${page}`,
+    );
+    expect(buildParentSeriesShareMessage({ lang: "hi", price: "₹1,179", url: page })).toBe(
+      `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ₹1,179 है और मेरे बोर्ड तक चलेगी: ${n} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं। यहाँ भुगतान करें, फिर मेरा नंबर डालें ताकि यह मेरे अकाउंट पर खुल जाए: ${page}`,
+    );
+    for (const lang of ["en", "hi"] as const) {
+      const text = buildParentSeriesShareMessage({ lang, price: "₹1,179", url: page });
+      expect(text).not.toMatch(/PDF|sign in|password|लिंक सिर्फ़/i);
+    }
   });
 
   it("TS-PARENT-FORWARD-1 review A: the message is chosen by SKU, never by the name (a renamed Test Series still gets its own text)", () => {

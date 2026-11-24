@@ -275,20 +275,37 @@ export function parentSeriesTestCount(): number {
   return chapters * SERIES_PAPERS_PER_CHAPTER + SERIES_MOCKS_PER_SUBJECT * 2;
 }
 
-function buildAskParentSeriesMessage(lang: ParentPayLang, price: string, url: string, days: number): string {
+/** The Test Series' opening sentence (price + tests + marking): ONE copy for the per-account link and the signed-out share. */
+function seriesAskLine(lang: ParentPayLang, price: string): string {
   const tests = parentSeriesTestCount();
+  return lang === "hi"
+    ? `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ${price} है और मेरे बोर्ड तक चलेगी: ${tests} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं।`
+    : `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? It's ${price}, one time, valid till my boards: ${tests} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner.`;
+}
+
+function buildAskParentSeriesMessage(lang: ParentPayLang, price: string, url: string, days: number): string {
   if (lang === "hi") {
     return [
-      `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ${price} है और मेरे बोर्ड तक चलेगी: ${tests} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं।`,
+      seriesAskLine(lang, price),
       "यह लिंक सिर्फ़ मेरे अकाउंट के लिए है — आपको कोई अकाउंट बनाने या पासवर्ड बताने की ज़रूरत नहीं:",
       url,
       `(यह लिंक ${days} दिन तक चलेगा।)`,
     ].join("\n\n");
   }
   return [
-    `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? It's ${price}, one time, valid till my boards: ${tests} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner.`,
+    seriesAskLine(lang, price),
     "This link is only for my account — you don't need to sign up or share any password:",
     url,
     `(The link works for ${days} ${days === 1 ? "day" : "days"}.)`,
   ].join("\n\n");
+}
+
+/**
+ * TS-PARENT-FORWARD-2 (owner, 25 Nov 2026: no sign-in in any pay path) - a SIGNED-OUT student's message to a parent. No per-account
+ * link exists without an account, so it sends the public /test-series page: the parent pays there signed out (pay-first) and, after
+ * paying, "Who will use it?" puts the series on the child's number. `price` is the Buy's own total (packPayLabel), never typed.
+ */
+export function buildParentSeriesShareMessage({ lang, price, url }: { lang: ParentPayLang; price: string; url: string }): string {
+  const pay = lang === "hi" ? "यहाँ भुगतान करें, फिर मेरा नंबर डालें ताकि यह मेरे अकाउंट पर खुल जाए:" : "Pay here, then enter my number so it opens on my account:";
+  return `${seriesAskLine(lang, price)} ${pay} ${url}`;
 }

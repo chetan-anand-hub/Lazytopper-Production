@@ -1,7 +1,8 @@
 /**
  * TS-PARENT-FORWARD-1 (owner ruling 24 Nov 2026) - two ways forward on each Test Series offer card: the Buy (unchanged) and
  * "Forward link to parents" under it. Signed in, not an owner: the shop's own parent action for the Test Series (no QR, surface
- * "test_series"). Signed out: a button to sign-in that returns to /test-series?parent=1, where the forward button is focused.
+ * "test_series"). Signed out (TS-PARENT-FORWARD-2, no sign-in in any pay path): the button shares this page's link with a message
+ * (share sheet, else WhatsApp); the parent pays here signed out and "Who will use it?" puts it on the child's number.
  * Owners and "Checking your plan…": neither. VITE_TS_PARENT_FORWARD_DISABLED=1: the page as before.
  * The share sheet itself is PaywallActions' own (PaywallActions.test.tsx); here: WHERE it appears and WHAT it carries.
  */
@@ -64,7 +65,9 @@ vi.mock("../components/pricing/PaywallActions", async (orig) => {
   };
 });
 
-import TestSeriesPage, { TS_PARENT_FORWARD_LOGIN_HREF, TS_PARENT_FORWARD_SIGNIN_NOTE } from "./TestSeriesPage";
+import TestSeriesPage, { TS_PARENT_SHARE_FALLBACK, TS_PARENT_SHARE_PATH } from "./TestSeriesPage";
+import { buildParentSeriesShareMessage } from "../services/parentPayPack";
+import * as analytics from "../analytics/analytics";
 import { packPayLabel } from "../services/packs";
 
 function Where() {
@@ -115,6 +118,7 @@ beforeEach(() => {
   shop.owned = false;
   vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
   vi.stubEnv("VITE_PARENT_PAY_ENABLED", "1");
+  vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
 });
 afterEach(() => {
   cleanup();
@@ -139,66 +143,105 @@ describe("TS-PARENT-FORWARD-1 · signed in, not an owner", () => {
     expect(document.body.textContent).not.toMatch(/\bAsk\b/);
   });
 
-  it("back from sign-in with ?parent=1: the hero's forward button is scrolled into view and focused (no share is started)", async () => {
-    mockAuth.user = { uid: "u1" };
-    const scroll = vi.fn();
-    const proto = HTMLElement.prototype as unknown as { scrollIntoView?: unknown };
-    const had = proto.scrollIntoView;
-    proto.scrollIntoView = scroll;
-    try {
-      await mount("/test-series?parent=1");
-      const heroFwd = await waitFor(() => within(screen.getByTestId("ts-hero-forward")).getByTestId("paywall-forward"));
-      await waitFor(() => expect(document.activeElement).toBe(heroFwd));
-      expect(scroll).toHaveBeenCalled();
-    } finally {
-      proto.scrollIntoView = had;
-    }
-  });
-
-  it("without ?parent=1 nothing is focused", async () => {
+  it("signed in: no share button of the signed-out kind (the per-account link is the shop's)", async () => {
     mockAuth.user = { uid: "u1" };
     await mount();
     await waitFor(() => expect(screen.getAllByTestId("ask-parent")).toHaveLength(2));
-    expect(document.activeElement).toBe(document.body);
+    expect(screen.queryByTestId("ts-hero-forward-share")).toBeNull();
   });
 });
 
-describe("TS-PARENT-FORWARD-1 · signed out", () => {
-  it("each card: the Buy (unchanged), then a 'Forward link to parents' BUTTON (never a /login link) and the sign-in line", async () => {
+const shareText = () =>
+  buildParentSeriesShareMessage({ lang: "en", price: packPayLabel("test_series"), url: `${window.location.origin}${TS_PARENT_SHARE_PATH}` });
+
+describe("TS-PARENT-FORWARD-2 · signed out: share, never sign-in", () => {
+  let shareFn: ReturnType<typeof vi.fn> | null = null;
+  const nav = navigator as unknown as { share?: unknown };
+  const hadShare = nav.share;
+  afterEach(() => {
+    nav.share = hadShare;
+    shareFn = null;
+    vi.restoreAllMocks();
+  });
+
+  it("each card: the Buy (unchanged), then a 'Forward link to parents' BUTTON below it - no /login link, no sign-in line", async () => {
     await mount();
     expectBuyUnchanged();
     for (const [offer, buy, fwd] of [["ts-hero-offer", "ts-hero-buy", "ts-hero-forward"], ["ts-offer-ts", "ts-cta-buy", "ts-offer-forward"]] as const) {
-      const btn = card(offer).getByTestId(`${fwd}-signin`);
+      const btn = card(offer).getByTestId(`${fwd}-share`);
       expect(btn.tagName).toBe("BUTTON");
       expect(btn.textContent).toBe("Forward link to parents");
-      expect(card(offer).getByTestId(fwd).textContent).toContain(TS_PARENT_FORWARD_SIGNIN_NOTE);
+      expect(card(offer).getByTestId(fwd).textContent).toBe("Forward link to parents");
       expect(below(offer, buy, fwd)).toBe(true);
-      // The capture strip deletes the <section> around any /login link: the plan card must carry none.
       expect(screen.getByTestId(fwd).querySelector('a[href*="/login"]')).toBeNull();
     }
-    expect(TS_PARENT_FORWARD_SIGNIN_NOTE).toBe("Sign in first (7-day free trial), then send the link to a parent.");
+    expect(document.body.textContent).not.toMatch(/Sign in first/);
     expect(screen.queryByTestId("ask-parent")).toBeNull();
   });
 
-  it("the button goes to sign-in, which returns to /test-series?parent=1", async () => {
+  it("tap: the share sheet gets the message + this page's parent-share link; the paywall 'ask' event names test_series; no navigation", async () => {
+    shareFn = vi.fn(async () => undefined);
+    nav.share = shareFn;
+    const ev = vi.spyOn(analytics, "trackPaywallAction");
+    const open = vi.spyOn(window, "open");
     await mount();
-    await act(async () => void fireEvent.click(screen.getByTestId("ts-offer-forward-signin")));
-    expect(screen.getByTestId("where").textContent).toBe(TS_PARENT_FORWARD_LOGIN_HREF);
-    expect(new URLSearchParams(TS_PARENT_FORWARD_LOGIN_HREF.split("?")[1]).get("redirect")).toBe("/test-series?parent=1");
+    await act(async () => void fireEvent.click(screen.getByTestId("ts-hero-forward-share")));
+    expect(shareFn).toHaveBeenCalledTimes(1);
+    expect(shareFn).toHaveBeenCalledWith({ text: shareText() });
+    const text = String((shareFn.mock.calls[0][0] as { text: string }).text);
+    expect(text).toContain(`It's ${packPayLabel("test_series")}, one time`);
+    expect(text).toContain("/test-series?utm_source=parent_share&utm_medium=whatsapp&utm_campaign=test_series_forward");
+    expect(text).toContain("Pay here, then enter my number so it opens on my account:");
+    expect(text).not.toMatch(/sign in|login|PDF/i);
+    expect(ev).toHaveBeenCalledWith("ask", "test_series");
+    expect(open).not.toHaveBeenCalled();
+    expect(screen.getByTestId("where").textContent).toBe("/test-series");
   });
 
-  it("parent pay off, or packs off (the Buy falls back to /packs): the reserved box stays (static page = live page), empty", async () => {
-    vi.stubEnv("VITE_PARENT_PAY_ENABLED", "");
+  it("a cancelled share sheet does nothing more (no WhatsApp window)", async () => {
+    nav.share = vi.fn(async () => {
+      throw Object.assign(new Error("x"), { name: "AbortError" });
+    });
+    const open = vi.spyOn(window, "open");
+    await mount();
+    await act(async () => void fireEvent.click(screen.getByTestId("ts-offer-forward-share")));
+    expect(open).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("ts-offer-forward-wa")).toBeNull();
+  });
+
+  it("no share sheet (desktop): wa.me opens with the same text; a blocked popup shows a real WhatsApp link under THAT button", async () => {
+    nav.share = undefined;
+    const opened = { opener: {} as unknown };
+    const open = vi.spyOn(window, "open").mockImplementation(() => opened as unknown as Window);
+    await mount();
+    await act(async () => void fireEvent.click(screen.getByTestId("ts-hero-forward-share")));
+    expect(open).toHaveBeenCalledWith(`https://wa.me/?text=${encodeURIComponent(shareText())}`, "_blank");
+    expect(screen.queryByTestId("ts-hero-forward-wa")).toBeNull();
+    open.mockImplementation(() => null);
+    await act(async () => void fireEvent.click(screen.getByTestId("ts-offer-forward-share")));
+    const link = screen.getByTestId("ts-offer-forward-wa");
+    expect(link.getAttribute("href")).toBe(`https://wa.me/?text=${encodeURIComponent(shareText())}`);
+    expect(link.textContent).toBe(TS_PARENT_SHARE_FALLBACK);
+    expect(screen.queryByTestId("ts-hero-forward-wa")).toBeNull();
+  });
+
+  it("'Who will use it?' off, or packs off (the Buy falls back to /packs): the reserved box stays (static page = live page), empty", async () => {
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "");
     await mount();
     expect(screen.getByTestId("ts-hero-forward").childElementCount).toBe(0);
-    expect(screen.queryByTestId("ts-hero-forward-signin")).toBeNull();
     cleanup();
-    vi.stubEnv("VITE_PARENT_PAY_ENABLED", "1");
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
     shop.on = false;
     await mount();
     expect(screen.getByTestId("ts-hero-buy").getAttribute("href")).toContain("/packs");
     expect(screen.getByTestId("ts-hero-forward").childElementCount).toBe(0);
     expect(screen.getByTestId("ts-offer-forward").childElementCount).toBe(0);
+  });
+
+  it("parent pay off does not matter signed out (no per-account link is used)", async () => {
+    vi.stubEnv("VITE_PARENT_PAY_ENABLED", "");
+    await mount();
+    expect(screen.getByTestId("ts-hero-forward-share")).toBeTruthy();
   });
 
   it("signed in with parent pay off: no box at all", async () => {
@@ -245,7 +288,7 @@ describe("TS-PARENT-FORWARD-1 · kill switch", () => {
     for (const signedIn of [false, true]) {
       mockAuth.user = signedIn ? { uid: "u1" } : null;
       vi.stubEnv("VITE_TS_PARENT_FORWARD_DISABLED", "1");
-      const off = await mount("/test-series?parent=1");
+      const off = await mount("/test-series");
       if (signedIn) await waitFor(() => expect(screen.getAllByTestId("ts-hero-buy").length).toBe(1));
       const offHtml = off.container.innerHTML;
       expect(screen.queryByTestId("ts-hero-forward")).toBeNull();
@@ -255,7 +298,7 @@ describe("TS-PARENT-FORWARD-1 · kill switch", () => {
       cleanup();
       // The same page with the feature ON, its forward boxes removed, is byte-identical: nothing else moved.
       vi.stubEnv("VITE_TS_PARENT_FORWARD_DISABLED", "");
-      const on = await mount("/test-series?parent=1");
+      const on = await mount("/test-series");
       if (signedIn) await waitFor(() => expect(screen.getAllByTestId("ask-parent")).toHaveLength(2));
       for (const el of Array.from(on.container.querySelectorAll('[data-testid="ts-hero-forward"], [data-testid="ts-offer-forward"]'))) el.remove();
       expect(on.container.innerHTML).toBe(offHtml);
