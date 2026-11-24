@@ -8,7 +8,7 @@ import SalesStickyBar from "../components/salesPages/SalesStickyBar";
 import { trackBeginCheckoutTap, trackParentShareClick, type ParentSharePlacement } from "../analytics/analytics";
 import { useAuth } from "../context/AuthContext";
 import { isCheckoutWhoClientEnabled } from "../services/checkoutWhoFlag";
-import { BOARD_PASS_CHECKOUT_DESCRIPTION, isPaymentsClientEnabled } from "../services/checkout";
+import { BOARD_PASS_CHECKOUT_DESCRIPTION, isPaymentsClientEnabled, warmCheckoutOnPage } from "../services/checkout";
 import { withSigninRedirect } from "../services/freeCheckClient";
 import type { GuestSigninState } from "../services/guestPay";
 import { BOARD_PASS_BUY_PATH } from "../components/pricing/boardPassBuy";
@@ -58,10 +58,30 @@ import {
 } from "../config/forParentsPage";
 import "./forParents.css";
 import PayReturnResume from "../components/payReturn/PayReturnResume";
+import { currentInAppPayChoice } from "../utils/inAppPay";
+import { inAppPayFirstHop } from "../utils/inAppPayFirst";
 
 /** The signed-out Board Pass checkout (pay first, then "Who will use it?"), lazy: fetched when the page is idle, opened on a Pay tap. */
 const CheckoutSheet = lazy(() => import("../components/checkoutWho/CheckoutSheet"));
 const loadCheckoutSheet = () => import("../components/checkoutWho/CheckoutSheet");
+
+/**
+ * INAPP-PAY-CHOICE-1: the extra "Pay in Chrome / Safari" under a Pay button, in an in-app browser only. Its own lazy chunk, fetched
+ * ONLY when the page really runs in Instagram / Facebook / YouTube's browser (so a normal visit adds no request, CSS or JS).
+ */
+const InAppPayChoice = lazy(() => import("../components/payRescue/InAppPayChoice"));
+function InAppChoiceSlot({ onPay }: { onPay: () => void }) {
+  const mounted = useMounted();
+  const { user, loading } = useAuth();
+  if (!mounted || loading || (Boolean(user) && !user?.isLocalSession) || !currentInAppPayChoice()) return null;
+  // No `?buy=`: the link is /for-parents itself, so the parent taps Pay again in the real browser and gets the PARENT sheet
+  // (a /board-pass?buy=board_pass hand-over would open the student's "Buy for yourself" sheet).
+  return (
+    <Suspense fallback={null}>
+      <InAppPayChoice surface="for_parents" onPayHere={onPay} />
+    </Suspense>
+  );
+}
 
 /**
  * ForParentsPage - `/for-parents`, rebuilt for sales (PARENTS-V2-1, owner 12 Nov 2026; approved mock-up). One Pay, four times: the hero
@@ -169,7 +189,7 @@ type PayPlacement = "hero" | "second" | "sticky";
 function PayButton({ placement, onPay }: { placement: PayPlacement; onPay: (placement: PayPlacement) => void }) {
   const mounted = useMounted();
   return (
-    <button type="button" className="lt-fp__pay" onClick={() => onPay(placement)} aria-haspopup="dialog" data-testid={`fp-pay-${placement}`}>
+    <button type="button" className="lt-fp__pay" onClick={() => onPay(placement)} aria-haspopup="dialog" data-checkout-buy="" data-testid={`fp-pay-${placement}`}>
       {mounted ? `${PAY_LABEL} · ${boardPassPayDisplay()}` : PAY_LABEL}
     </button>
   );
@@ -188,6 +208,7 @@ function PriceCard({ onPay }: { onPay: (placement: PayPlacement) => void }) {
       <p className="lt-fp__card-once">{card?.once ?? ""}</p>
       <p className="lt-fp__card-deadline" data-testid="fp-price-deadline">{card?.deadline ?? ""}</p>
       <PayButton placement="hero" onPay={onPay} />
+      <InAppChoiceSlot onPay={() => onPay("hero")} />
       <p className="lt-fp__card-note">{FP_PAY_NOTE}</p>
     </div>
   );
@@ -328,6 +349,11 @@ export default function ForParentsPage() {
   const [payOpen, setPayOpen] = useState(false);
   const mounted = useMounted();
 
+  // CHECKOUT-FAST-1: on INTENT only (first touch, or a Pay button in view after the first scroll; never idle) open Razorpay's connections and load checkout.js (no order). Off: VITE_CHECKOUT_WARM_DISABLED=1.
+  useEffect(() => {
+    warmCheckoutOnPage();
+  }, []);
+
   // Fetch the checkout sheet once the page is idle, so a Pay tap opens it at once (nothing is opened or ordered).
   useEffect(() => {
     if (!isPaymentsClientEnabled() || !isCheckoutWhoClientEnabled()) return undefined;
@@ -341,6 +367,8 @@ export default function ForParentsPage() {
   }, []);
 
   const onPay = useCallback(() => {
+    // INAPP-PAY-FIRST-1: Instagram / Facebook on Android, signed out: straight to Chrome (this page; the parent taps Pay again there), no checkout opened here.
+    if (inAppPayFirstHop({ signedIn, surface: "for_parents" })) return;
     // `begin_checkout` at the TAP (no PII), tagged `surface: "for_parents"`; the checkout itself is the shared one.
     trackBeginCheckoutTap(
       { passType: "till_boards", itemName: "Premium pass till your boards", valueInr: tillBoardsPriceInr(), surface: "for_parents" },
@@ -357,6 +385,7 @@ export default function ForParentsPage() {
   const second = (
     <div className="lt-fp__second" data-testid="fp-pay-area-second" data-lt-pay-area="second">
       <PayButton placement="second" onPay={onPay} />
+      <InAppChoiceSlot onPay={() => onPay()} />
       <p className="lt-fp__card-note lt-fp__card-note--dark">{FP_PAY_NOTE}</p>
     </div>
   );

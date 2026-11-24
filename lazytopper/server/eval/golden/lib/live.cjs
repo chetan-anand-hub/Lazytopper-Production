@@ -17,6 +17,7 @@
 const fs = require('fs');
 const path = require('path');
 const { AsyncLocalStorage } = require('async_hooks');
+const { schemeCallAls } = require('./schemeCallContext.cjs');
 const { redact } = require('./redact.cjs');
 
 const SERVER_DIR = path.join(__dirname, '..', '..', '..');
@@ -154,6 +155,7 @@ function createLiveClient(o) {
     if (cfg && cfg.chunkKey) call.chunkKey = String(cfg.chunkKey);
     if (cfg && Number.isFinite(cfg.attempt)) call.attempt = cfg.attempt;
     if (cfg && Number.isFinite(cfg.timeoutMs)) call.timeoutMs = Math.floor(cfg.timeoutMs);
+    if (schemeCallAls.getStore() === true) call.scheme = true; // E-c: tagged at call time, success or failure
     if (ctx) ctx.calls.push(call);
     const runCall = async () => {
       try {

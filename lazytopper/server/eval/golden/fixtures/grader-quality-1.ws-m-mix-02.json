@@ -161,9 +161,9 @@
             null
           ],
           [
-            "unattempted",
+            "missing",
             0,
-            null
+            "conceptual"
           ],
           [
             "partial",
@@ -182,12 +182,14 @@
           ]
         ],
         "marksLostByType": {
-          "unattempted": 0.5,
+          "conceptual": 0.5,
+          "unattempted": 0,
           "presentation": 0
         }
       },
       "note": "The live paper's Q24(ii) DA = 12 (then 14 used in (iii)) — calculation on 4 Nov, careless on 5 Nov — is #1399's area (closed 2 Nov), not this lane's.",
       "rulings": [
+        "GRADER-TYPE-1 (OWNER RULING R2, 22 Nov 2026) — DELIBERATE EXPECTATION CHANGE: the blank asked-for reason with NO proof of knowledge was `unattempted ½` (5 Nov / MISSING-TYPE-1); it is now `missing` typed `conceptual` ½ (Concept gap). Marks are unchanged. With proof (knowledgeEvidence) it stays exam technique — see GQ1-SYNTH-Q24-EVIDENCE.",
         "OWNER RULING 5 Nov 2026 (~08:45): a blank reason is exam technique ONLY with proof of knowledge — the same idea used correctly elsewhere in THIS question, quoted verbatim (knowledgeEvidence) and found in another part / a later correct step, not in the question text. Here there is no such proof in the written work, so Q24(i) stays as trunk (Not attempted ½). Honest outcome; the 20-second 'give the reason' check (separate lane) is for exactly this case.",
         "handoff/DECISION_LOG.md:1478 R1"
       ],
@@ -493,9 +495,9 @@
             null
           ],
           [
-            "unattempted",
+            "missing",
             0,
-            null
+            "conceptual"
           ],
           [
             "correct",
@@ -509,12 +511,14 @@
           ]
         ],
         "marksLostByType": {
-          "unattempted": 0.5,
+          "conceptual": 0.5,
+          "unattempted": 0,
           "untyped": 0,
           "presentation": 0
         }
       },
       "rulings": [
+        "GRADER-TYPE-1 (OWNER RULING R2, 22 Nov 2026) — DELIBERATE EXPECTATION CHANGE: expected `unattempted 0.5`, `untyped 0` (MISSING-TYPE-1, 5 Nov: 'Not attempted; never reason not recorded') is now `missing` typed `conceptual` 0.5, `untyped 0`. The 5 Nov 'no proof -> Not attempted' outcome is REPLACED, for asked-for reasons only, by the 22 Nov ruling: a blank reason beside a right answer with nothing on the page proving the student knows it is a Concept gap. Marks unchanged.",
         "MISSING-TYPE-1 (5 Nov 2026): the same shape as GQ1-WS02-Q24 (an asked-for reason left blank, no proof of knowledge) gets the same label, Not attempted; never \"Marks lost, reason not recorded\"."
       ],
       "studentWritten": {

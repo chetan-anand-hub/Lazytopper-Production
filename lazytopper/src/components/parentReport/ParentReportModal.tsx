@@ -373,7 +373,7 @@ const PRM_CSS = `
 .lt-prm__name { display: flex; align-items: center; gap: 8px; font-size: 13.5px; margin: 12px 0 0; cursor: pointer; }
 .lt-prm__share {
   display: block; width: 100%; margin-top: 14px; padding: 12px 16px; border: 0; border-radius: 999px;
-  background: hsl(152, 55%, 40%); color: #fff; font-weight: 700; font-size: 15px; cursor: pointer;
+  background: var(--lt-green-fill, #257e55); color: #fff; font-weight: 700; font-size: 15px; cursor: pointer;
 }
 .lt-prm__share:disabled { opacity: 0.6; cursor: progress; }
 .lt-prm__ok { font-size: 12.5px; color: hsl(152, 55%, 30%); margin: 8px 0 0; }

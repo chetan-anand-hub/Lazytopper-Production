@@ -96,6 +96,7 @@ const { grantPack, listPacks, PackGrantInputError } = require('../services/packG
 const { gstBuyerFromBody, afterCapture } = require('../services/gstInvoice.cjs');
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
 const { fire: fireServerEvent, signalsFor } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
+const { decideManualCapture, LATE_AUTHORISATION, AWAITING_BANK } = require('../services/lateAuthGuard.cjs'); // LATE-AUTH-GUARD-1
 
 const PARENT_LINK_PATH = '/api/pay/parent-link';
 const PARENT_VIEW_PATH = '/api/pay/parent/view';
@@ -379,6 +380,10 @@ function createParentPayRoutes(deps = {}) {
       // PRICING-1 — see payments.cjs (manual-capture path only; a captured payment is always honoured,
       // an existing founder is never refused): a stale founding order is not captured, the authorization lapses.
       if (await refuseStaleFoundingOrder(order)) return { error: 'order_expired' };
+      // LATE-AUTH-GUARD-1 - see payments.cjs: authorised past Razorpay's window (payment age) -> never captured by us.
+      const guard = decideManualCapture({ env, payment, paymentId, orderId: payment.order_id, storedOrderCreatedAt: order && order.createdAt, nowMs: now() });
+      for (const seen of guard.observed) emit(`payments.parent.verify.observed.${seen}`); // telemetry only
+      if (!guard.capture) return { error: guard.error };
       const captured = await razorpay(keys, 'POST', `/payments/${paymentId}/capture`, { amount: amountPaise, currency: CURRENCY });
       if (captured.ok && captured.json) {
         payment = captured.json;
@@ -838,6 +843,7 @@ function createParentPayRoutes(deps = {}) {
     }
 
     emit('payments.parent.order.created');
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType, amountPaise: quote.amountPaise, uid, signals: signalsFor(serverEvents, body, req).adSignals })); // META-IC-1
     return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...gstResponseFields(quote, packCreditInr) });
   }
 
@@ -920,7 +926,8 @@ function createParentPayRoutes(deps = {}) {
     }
 
     emit('payments.parent.order.pack_created');
-    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise, ...gstResponseFields(packQuote, 0) });
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType: pack.sku, amountPaise, uid, signals: signalsFor(serverEvents, body, req).adSignals })); // META-IC-1
+    return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise, sku: pack.sku, ...gstResponseFields(packQuote, 0) }); // META-IC-1: `sku` lets the browser's InitiateCheckout carry the same content_ids as the server's
   }
 
   /* ── POST /api/pay/parent/verify — every check, then the CHILD's grant ────── */
@@ -971,6 +978,11 @@ function createParentPayRoutes(deps = {}) {
       return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
     }
     if (result.error === 'order_expired') return reject(res, 'verify', 'order_expired');
+    // LATE-AUTH-GUARD-1: left uncaptured on purpose - PENDING (never failed, never granted); Razorpay's refund ends it.
+    if (result.error === LATE_AUTHORISATION) {
+      emit('payments.parent.verify.left_uncaptured');
+      return sendJson(res, 202, { ok: false, status: 'pending', reason: AWAITING_BANK });
+    }
     if (result.error) {
       emit(`payments.parent.verify.${result.error}`);
       return sendJson(res, 502, { ok: false, error: 'Payment provider did not confirm the payment.' });

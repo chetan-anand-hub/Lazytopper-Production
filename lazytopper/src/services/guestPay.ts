@@ -20,9 +20,9 @@ import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from 
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
-import { adSignalFields } from "../analytics/adSignals";
+import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
-import { beginPendingCheckout } from "./payReturn";
+import { beginPendingCheckout, razorpayHangOption, successFromReceipt } from "./payReturn";
 
 export const GUEST_ORDER_ENDPOINT = "/api/pay/guest/order";
 export const GUEST_VERIFY_ENDPOINT = "/api/pay/guest/verify";
@@ -153,6 +153,7 @@ async function postJson(url: string, body: unknown, headers: Record<string, stri
 /** Exported for tests; the default `buyAsGuest` path. */
 export async function createGuestOrder(item: GuestItem, phone: string): Promise<GuestOrder> {
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null) : {};
+  const signals = adSignalFields(); // META-IC-1
   const json = await postJson(GUEST_ORDER_ENDPOINT, {
     sku: item.sku,
     ...(item.kind === "pack" && item.target ? { target: item.target } : {}),
@@ -160,12 +161,13 @@ export async function createGuestOrder(item: GuestItem, phone: string): Promise<
     ...gst,
     ...waOptInOrderFields(), // WHATSAPP-OPTIN-1: only a valid number + the tick
     ...orderSourceFields(), // ORDER-SOURCE-1
-    ...adSignalFields(), // SERVER-EVENTS-1
+    ...signals, // SERVER-EVENTS-1
   });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new GuestPayError("failed");
   }
+  metaIcAfterOrder(signals, json, item.sku);
   return { orderId, keyId, amountPaise, ...(typeof json.statusProof === "string" ? { statusProof: json.statusProof } : {}), ...serverPriceFields(json) };
 }
 
@@ -196,7 +198,7 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
   const phone = normaliseIndianMobile(rawPhone);
   if (!phone) return { status: "invalid_phone" };
   const phoneMasked = maskIndianMobile(phone);
-  let pending: { settle: () => void } | null = null;
+  let pending: ReturnType<typeof beginPendingCheckout> | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item, phone), deps.loadScript()]);
     // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
@@ -219,16 +221,18 @@ export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestB
         },
         modal: {
           ondismiss: () => {
-            closing.settle();
+            closing.dismissed(); // PAY-HANG-1: settles; if Razorpay's own timeout closed the sheet, the order is checked first
             resolve(null);
           },
         },
         ...razorpayUpiFirstOption(),
+        ...razorpayHangOption(),
         // The number the visitor typed (normalised here); the server never echoes it back (review fix 6).
         prefill: { contact: phone },
         readonly: { contact: true },
       });
       watchPaymentFailed(checkout, () => undefined);
+      closing.watch(checkout, { onPaid: (receipt) => resolve(successFromReceipt(receipt)), onClosed: () => resolve(null) });
       checkout.open();
     });
     if (!success) return { status: "dismissed" };

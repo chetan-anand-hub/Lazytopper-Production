@@ -192,7 +192,7 @@ function fakeRazorpay() {
 }
 
 /* ── parent-pay routes AND the existing payment routes, behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), clock, displayNames = { child1: 'Aarav Sharma' }, rateLimiter, receiptEmailer } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), clock, displayNames = { child1: 'Aarav Sharma' }, rateLimiter, receiptEmailer, serverEvents } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -208,6 +208,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now,
     foundingOfferOpen: true,
     ...(receiptEmailer ? { receiptEmailer } : {}),
+    ...(serverEvents ? { serverEvents } : {}), // META-IC-1
     getDisplayName: async (uid) => displayNames[uid] || '',
     ...(rateLimiter ? { rateLimiter } : {}),
   });
@@ -1515,3 +1516,86 @@ test('TS-PRICE-2 · parent link: a founding-member child gets no exemption for a
   assert.equal(r.json.reason, 'order_expired');
   assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0);
 });
+
+// ---- META-IC-1: the parent-pay order routes fire InitiateCheckout once per created order --------------------------------------
+test('META-IC-1 · a parent pass order and a parent pack order each fire ONE orderCreated (uid = the child) with the browser attempt id', async (t) => {
+  const created = [];
+  const serverEvents = {
+    signalsField: (body) => ({ adSignals: { attemptId: body && body.adSignals && body.adSignals.attemptId } }),
+    orderCreated: async (a) => { created.push(a); },
+    orderPaid: async () => {},
+  };
+  const srv = await startRoutes({ env: ENV_PACKS, serverEvents });
+  t.after(srv.close);
+  const link = await mint(srv);
+  const pass = await parentOrder(srv, link.token, 'till_boards', { adSignals: { attemptId: 'lt_ic_parent_01' } });
+  assert.equal(pass.status, 200, pass.text);
+  const packLink = await mintPack(srv, { sku: 'pack_cbq', target: 'maths', priceInr: 1 });
+  assert.equal(packLink.status, 200, packLink.text);
+  const pack = await request(srv.port, PARENT_ORDER_PATH, { body: { token: packLink.json.token, product: 'pack', adSignals: { attemptId: 'lt_ic_parent_02' } } });
+  assert.equal(pack.status, 200, pack.text);
+  assert.equal(pack.json.sku, 'pack_cbq', 'the pack order names its sku so the browser event carries the same content_ids');
+  assert.deepEqual(created.map((c) => [c.orderId, c.passType, c.amountPaise, c.uid, c.signals.attemptId]), [
+    [pass.json.orderId, 'till_boards', pass.json.amountPaise, 'child1', 'lt_ic_parent_01'],
+    [pack.json.orderId, 'pack_cbq', pack.json.amountPaise, 'child1', 'lt_ic_parent_02'],
+  ]);
+});
+
+/* ── LATE-AUTH-GUARD-1 v1.1 · parent verify: payment age only; a refusal is PENDING ─────────────────────────────────── */
+{
+  const MIN = 60 * 1000;
+  const secs = (msValue) => Math.floor(msValue / 1000);
+  const captures = (srv) => srv.rzp.calls.filter((c) => c.url.endsWith('/capture'));
+  async function lateParent(t, opts = {}) {
+    const srv = await startRoutes(opts);
+    t.after(srv.close);
+    const { token } = await mint(srv);
+    const { json: o } = await parentOrder(srv, token);
+    return { srv, token, o };
+  }
+
+  test('LATE-AUTH · parent: a 20-minute-old order + a fresh payment authorised within seconds is captured and granted', async (t) => {
+    const { srv, token, o } = await lateParent(t);
+    srv.clock.t = NOW + 20 * MIN;
+    const p = srv.rzp.pay(o.orderId, { status: 'authorized' });
+    p.created_at = secs(srv.clock.t - 5 * 1000);
+    const r = await parentVerify(srv, token, o.orderId, p.id);
+    assert.equal(r.status, 200, r.text);
+    assert.equal(captures(srv).length, 1);
+    assert.equal(srv.db.read('subscriptions/child1').tier, 'premium');
+  });
+
+  test('LATE-AUTH · parent: still authorised 13 min after it was created -> PENDING, not captured, never granted', async (t) => {
+    const { srv, token, o } = await lateParent(t);
+    const p = srv.rzp.pay(o.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW);
+    srv.clock.t = NOW + 13 * MIN;
+    const r = await parentVerify(srv, token, o.orderId, p.id);
+    assert.equal(r.status, 202, r.text);
+    assert.deepEqual(r.json, { ok: false, status: 'pending', reason: 'awaiting_bank' });
+    assert.equal(captures(srv).length, 0, 'a late authorisation was captured by us');
+    assert.equal(srv.rzp.payments.get(p.id).status, 'authorized');
+    assert.equal(srv.db.read('subscriptions/child1'), undefined);
+    assert.ok(srv.events.includes('payments.parent.verify.left_uncaptured'));
+  });
+
+  test('LATE-AUTH · parent: a payment Razorpay already CAPTURED (13 min old) is granted exactly as today', async (t) => {
+    const { srv, token, o } = await lateParent(t);
+    const p = srv.rzp.pay(o.orderId);
+    p.created_at = secs(NOW);
+    srv.clock.t = NOW + 13 * MIN;
+    const r = await parentVerify(srv, token, o.orderId, p.id);
+    assert.equal(r.status, 200, r.text);
+    assert.equal(srv.db.read('subscriptions/child1').tier, 'premium');
+  });
+
+  test('LATE-AUTH · parent kill switch LATE_AUTH_GUARD_DISABLED=1: a 13-min-old authorisation is captured (exactly the old behaviour)', async (t) => {
+    const { srv, token, o } = await lateParent(t, { env: { ...ENV_ON, LATE_AUTH_GUARD_DISABLED: '1' } });
+    const p = srv.rzp.pay(o.orderId, { status: 'authorized' });
+    p.created_at = secs(NOW);
+    srv.clock.t = NOW + 13 * MIN;
+    const r = await parentVerify(srv, token, o.orderId, p.id);
+    assert.equal(r.status, 200, r.text);
+    assert.equal(captures(srv).length, 1);
+  });
+}

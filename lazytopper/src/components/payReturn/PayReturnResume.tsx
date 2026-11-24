@@ -17,6 +17,7 @@ import { useAuth } from "../../context/AuthContext";
 import { trackOnboardingEvent } from "../../analytics/analytics";
 import { clearReceiptProof, type ReceiptProof } from "../../services/paidReceiptProof";
 import {
+  PAY_HANG_EVENT,
   PAY_RETURN_CHECKING,
   PAY_RETURN_DISMISS,
   PAY_RETURN_FAILED,
@@ -29,6 +30,7 @@ import {
   isPayReturnDisabled,
   readPendingOrders,
   resumePendingPayment,
+  type HangEventDetail,
   type PendingOrder,
 } from "../../services/payReturn";
 import { inAppRescueUrl } from "../../utils/inAppPay";
@@ -137,6 +139,27 @@ export default function PayReturnResume() {
       window.removeEventListener("pageshow", onShow);
       document.removeEventListener("visibilitychange", onVisible);
     };
+  }, [active, run]);
+
+  // PAY-HANG-1: the "payment app closed?" bar on an open Razorpay sheet got an answer (paid / failed: the sheet is closed, say so here),
+  // or Razorpay's own timeout closed the sheet (check the order now, with the usual short poll). The status call was already made by
+  // the bar for paid / failed, so this never asks the server a second time for the same answer.
+  useEffect(() => {
+    if (!active) return undefined;
+    const onHang = (ev: Event) => {
+      const d = (ev as CustomEvent<HangEventDetail>).detail;
+      if (!d) return;
+      d.handled = true;
+      if (d.kind === "paid") {
+        trackOnboardingEvent("pay_return_resume_paid", { host: hostSlug(window.location.pathname), in_app: inAppSlug() });
+        setView({ name: "paid", proof: d.receipt });
+      } else if (d.kind === "failed") {
+        trackOnboardingEvent("pay_return_resume_failed", { host: d.entry.host || hostSlug(window.location.pathname), in_app: inAppSlug() });
+        setView({ name: "failed", entry: d.entry });
+      } else void run();
+    };
+    window.addEventListener(PAY_HANG_EVENT, onHang);
+    return () => window.removeEventListener(PAY_HANG_EVENT, onHang);
   }, [active, run]);
 
   // Review N6: "pending" promises an update within a few minutes, so keep asking: every 30 s, at most 10 times (5 min).

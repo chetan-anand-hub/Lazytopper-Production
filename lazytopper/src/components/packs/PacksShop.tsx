@@ -48,8 +48,12 @@ import { BUNDLE_NAME, TEST_SERIES_NAME, TEST_SERIES_VALID_TILL, packChapterLabel
 import { TEST_SERIES_PATH, seriesContentsLine, seriesProgress, seriesTotals, type SeriesProgress } from "../../lib/testSeries/testSeries";
 import { readPacksQuery } from "../../lib/packs/packEntry";
 import { isPacksWarmupPath, schedulePacksWarmup } from "../../lib/packs/packsMobilePreload";
-import { loadCheckoutScript } from "../../services/checkout";
+import { preloadCheckoutScript } from "../../services/checkout";
+import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY } from "../../services/checkoutTiming";
+import { useCheckoutSlow } from "../../hooks/useCheckoutSlow";
 import PayRescueCard from "../payRescue/PayRescueCard";
+import InAppPayChoice, { inAppChoiceSurface } from "../payRescue/InAppPayChoice";
+import { inAppPayFirstHop } from "../../utils/inAppPayFirst";
 import PackSampleLink, { type SampleBuy } from "./PackSampleLink";
 import PackNamePrompt from "./PackNamePrompt";
 import { packNameSkipped } from "../../services/studentName";
@@ -184,9 +188,10 @@ if (typeof window !== "undefined" && isPacksClientEnabled() && readBuyResume(win
  * sheet chunks, Razorpay's connections and checkout.js, so a Buy tap does not start the pay chain cold. Chunk / script fetches only:
  * no order, no server call. Once per page load; VITE_PACKS_MOBILE_PRELOAD_DISABLED=1 turns it off.
  */
-export function warmPacksCheckout(): void {
+export function warmPacksCheckout(opts: { intentOnly?: boolean } = {}): void {
   if (!isPacksClientEnabled()) return;
-  schedulePacksWarmup({ preloadChunks: preloadBuyChunks, loadScript: () => loadCheckoutScript() });
+  // CHECKOUT-FAST-1: /test-series passes `intentOnly` (touch / buy button in view, never idle); /packs and /cbq-packs: as PACKS-MOBILE-1 had it.
+  schedulePacksWarmup({ preloadChunks: preloadBuyChunks, loadScript: () => preloadCheckoutScript(), ...(opts.intentOnly ? { intentOnly: true } : {}) });
 }
 
 // Module top level: the page chunk is evaluated BEFORE the app hydrates, so a cold phone starts warming while it is still booting.
@@ -303,6 +308,10 @@ export interface PacksShopApi {
   buyEnabled: boolean;
   /** True while ANOTHER pack's payment is open or being checked: this Buy waits ("Finishing your other payment…"). */
   blockedBy: (sku: PackSku, target?: string) => boolean;
+  /** INAPP-PAY-CHOICE-1: auth has settled and nobody is signed in (the tile's extra in-app option shows only then). */
+  signedOut?: boolean;
+  /** INAPP-PAY-CHOICE-1: this pack's closed-checkout rescue card is showing (the tile's extra option steps aside). */
+  rescueShowing?: (sku: PackSku, target?: string) => boolean;
   /**
    * PARENT-PACKS-1 - "Forward link to parents" (+ "Share QR code" unless `noQr`) for this pack: a link that carries ONLY this pack,
    * minted by the server for the signed-in student. null when it does not apply (signed out, packs dark, owned, paying).
@@ -404,6 +413,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
   /** PACKS-CONVERT-1: the Chapter Pack pop-up opened from a sample's buy button; its Buy then reports `from: "sample"`. */
   const sampleChapterBuy = useRef(false);
   const [buy, setBuy] = useState<BuyState>({ key: "", phase: "idle" });
+  // CHECKOUT-FAST-1: still waiting for Razorpay's sheet after ~6 s -> a second line under the button.
+  const slowOpen = useCheckoutSlow(buy.phase === "busy");
   /** PAY-PHONE-1 - the pack a signed-out visitor is paying for with a phone number (the sheet is open), else null. */
   const [guest, setGuest] = useState<{ sku: PackSku; target: string | undefined } | null>(null);
   const guestEnabled = enabled && isGuestPayClientEnabled();
@@ -684,6 +695,10 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     return stop;
   }, [location.hash, mine, myPacksMounted, signedOutMine, bridgeSettled, sheetHold]);
 
+  /** INAPP-PAY-FIRST-1: true when this signed-out tap went to Chrome (Instagram / Facebook on Android); `from=sample` rides along. */
+  function packFirstHop(sku: PackSku, target: string | undefined, from: PackCheckoutFrom | undefined, automatic: boolean): boolean {
+    return inAppPayFirstHop({ automatic, signedIn, surface: inAppChoiceSurface(location.pathname), sku, buy: { kind: "pack", sku, ...(target && !packHasNoTarget(sku) ? { target } : {}), ...(from === "sample" ? { from } : {}) } });
+  }
   async function handleBuy(sku: PackSku, target: string | undefined, opts: { resumed?: boolean; from?: PackCheckoutFrom; fromWho?: boolean } = {}) {
     if (!enabled || buy.phase === "busy" || buy.phase === "checking") return;
     const resumed = opts.resumed === true;
@@ -691,6 +706,9 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // Review fix 1 (double charge): this very pack was just paid, or its payment is still confirming - never a second order.
     if (settling(packIdOf(sku, target))) return;
     if (!signedIn) {
+      // INAPP-PAY-FIRST-1: Instagram / Facebook on Android, signed out: the tap goes straight to Chrome for THIS item (no order, no
+      // checkout event here). Not for an automatic ?buy= arrival or the Who-sheet's own continue. "Pay here instead" / a failed hop: today's flow.
+      if (packFirstHop(sku, target, from, resumed || opts.fromWho === true)) return;
       // BUY-PATH-1: the funnel's checkout event at the TAP, before the branch to pay-by-phone or sign-in (it used to fire
       // only for a signed-in tap, so a signed-out Buy with paying-by-phone off sent nothing at all).
       trackPackCheckout(packCheckoutDetails(sku, target), { signedIn: false, ...(from ? { from } : {}) });
@@ -918,7 +936,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     else if (!ready) label = CHOOSE_CHAPTER_FIRST;
     else if (isOwned) label = "You own this";
     else if (confirming) label = PACK_CHECKING_COPY;
-    else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : "Opening checkout…";
+    else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : CHECKOUT_OPENING_COPY;
     else if (!signedIn && !authLoading) label = `Buy · ${packPayLabel(sku)}`;
     // PAY-PHONE-1 (C) - the sheet was closed without paying: the student stays one tap from paying.
     else if (dismissed) label = `Pay ${packPayLabel(sku)}`;
@@ -937,9 +955,15 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
           aria-disabled={off}
           onClick={() => (ownerCard ? setWho({ sku, target, holder: true }) : void handleBuy(sku, target))}
           data-testid={`packs-buy-${sku}`}
+          data-checkout-buy=""
         >
           {label}
         </button>
+        {busy && buy.phase === "busy" && slowOpen && <p className={`${prefix}__note`} role="status" data-testid="packs-slow-open">{CHECKOUT_SLOW_COPY}</p>}
+        {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Buy (never replaces it). */}
+        {enabled && ready && !isOwned && !busy && !confirming && !blocked && !dismissed && !signedIn && !authLoading && (
+          <InAppPayChoice buy={{ kind: "pack", sku, ...(target && !packHasNoTarget(sku) ? { target } : {}) }} onPayHere={() => void handleBuy(sku, target)} />
+        )}
         {whoEnabled && !checkoutAudience && signedIn && enabled && ready && !isOwned && !busy && !confirming && !blocked && (
           <SomeoneElseLink testId={`packs-someone-else-${sku}`} onOpen={() => setWho({ sku, target })} />
         )}
@@ -1274,7 +1298,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     let label: ReactNode = o.label;
     if (isOwned) label = "You own this";
     else if (confirming) label = PACK_CHECKING_COPY;
-    else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : "Opening checkout…";
+    else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : CHECKOUT_OPENING_COPY;
     return (
       <>
         <button type="button" className={o.className} disabled={off} aria-disabled={off} onClick={() => {
@@ -1282,9 +1306,13 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             void handleBuy(sku, undefined);
           }}
           data-testid={o.testId}
+          data-checkout-buy=""
         >
           {label}
         </button>
+        {o.showStatus !== false && busy && buy.phase === "busy" && slowOpen && <p className={o.noteClass} role="status" data-testid="packs-slow-open">{CHECKOUT_SLOW_COPY}</p>}
+        {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Buy (never replaces it). */}
+        {!off && !signedIn && !authLoading && !(mine_ && buy.phase === "dismissed") && <InAppPayChoice buy={{ kind: "pack", sku }} onPayHere={() => void handleBuy(sku, undefined)} />}
         {o.showStatus !== false && blocked && <p className={o.noteClass} role="status" data-testid="packs-other-busy">{OTHER_PAYMENT_BUSY_COPY}</p>}
         {o.showStatus !== false && confirming && <p className={o.noteClass} role="status">{PACK_STILL_CONFIRMING_COPY}</p>}
         {o.showStatus !== false && mine_ && buy.phase === "failed" && <p className={`${o.noteClass} ${o.noteClass}--bad`} role="alert">{PACK_FAILED_COPY}</p>}
@@ -1311,6 +1339,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
       openPack("pack_cbq");
     },
     buyNow: (sku, target, opts) => {
+      // INAPP-PAY-FIRST-1b: a signed-out Instagram/Facebook-Android tap hops BEFORE the pack pop-up opens (no dialog flash before navigating); `from=sample` rides along.
+      if (enabled && buy.phase !== "busy" && buy.phase !== "checking" && packFirstHop(sku, target, opts?.from, false)) return;
       if (sku === "pack_chapter" && target) setChapter(target);
       else if (target === "maths" || target === "science") setSubject(target);
       if (!opts?.inPlace && !inPlace) openPack(sku);
@@ -1331,6 +1361,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     buyEnabled: enabled,
     // Review fix 2: another pack's checkout is open or being checked - every other Buy waits.
     blockedBy: (sku, target) => otherBusy(sku === "pack_chapter" && !target ? "" : packIdOf(sku, target)),
+    signedOut: !signedIn && !authLoading,
+    rescueShowing: (sku, target) => buy.key === packIdOf(sku, target) && buy.phase === "dismissed",
     parentAsk: (sku, target, opts) => parentAskFor(sku, target, opts),
     openSku,
     subject,

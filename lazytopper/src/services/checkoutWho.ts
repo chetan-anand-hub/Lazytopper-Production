@@ -17,14 +17,14 @@ import { VALIDITY_SHORT } from "../config/validity";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { maskEmail, normaliseEmail } from "./checkoutWhoFlag";
 import { GUEST_ORDER_ENDPOINT, GUEST_VERIFY_ENDPOINT, maskIndianMobile, normaliseIndianMobile, type GuestItem } from "./guestPay";
-import { beginPendingCheckout } from "./payReturn";
+import { beginPendingCheckout, razorpayHangOption, successFromReceipt } from "./payReturn";
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 import { isCheckoutSelfClientEnabled } from "./checkoutWhoFlag";
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
-import { adSignalFields } from "../analytics/adSignals";
+import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 
 export { isCheckoutWhoClientEnabled, isPayAutoAccountClientEnabled, isCheckoutSelfClientEnabled } from "./checkoutWhoFlag";
 
@@ -455,6 +455,7 @@ export async function createWhoOrder(item: GuestItem, recipient: Recipient, sign
   }
   // GST-INVOICE-1: the PAYER's state (a signed-in payer's remembered state is used without asking).
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(signedIn && headers.Authorization ? headers : null, { postPay: true }) : {}; // host: CheckoutSheet (paid / attach steps mount PostPayGst)
+  const signals = adSignalFields(); // META-IC-1
   const json = await postJson(
     GUEST_ORDER_ENDPOINT,
     {
@@ -464,12 +465,13 @@ export async function createWhoOrder(item: GuestItem, recipient: Recipient, sign
       ...gst,
       ...waOptInOrderFields(), // WHATSAPP-OPTIN-1: the payer's own number + tick, never the recipient's
       ...orderSourceFields(), // ORDER-SOURCE-1
-      ...adSignalFields(), // SERVER-EVENTS-1
+      ...signals, // SERVER-EVENTS-1
     },
     headers,
   );
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new WhoError("failed");
+  metaIcAfterOrder(signals, json, item.sku);
   return { orderId, keyId, amountPaise, ...(typeof json.statusProof === "string" ? { statusProof: json.statusProof } : {}), ...serverPriceFields(json) };
 }
 
@@ -521,7 +523,7 @@ function gstProofOf(success: RazorpaySuccess): { gstProof?: AttachProof } {
 
 /** Order (server-priced) -> Razorpay -> server verify. Never throws. */
 export async function buyForRecipient(item: GuestItem, recipient: Recipient, signedIn: boolean, deps: WhoBuyDeps = DEFAULT_DEPS): Promise<WhoBuyOutcome> {
-  let pending: { settle: () => void } | null = null;
+  let pending: ReturnType<typeof beginPendingCheckout> | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item, recipient, signedIn), deps.loadScript()]);
     // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
@@ -544,14 +546,16 @@ export async function buyForRecipient(item: GuestItem, recipient: Recipient, sig
         },
         modal: {
           ondismiss: () => {
-            closing.settle();
+            closing.dismissed(); // PAY-HANG-1: settles; if Razorpay's own timeout closed the sheet, the order is checked first
             resolve(null);
           },
         },
         ...razorpayUpiFirstOption(),
+        ...razorpayHangOption(),
         ...whoPrefill(recipient, signedIn),
       });
       watchPaymentFailed(checkout, () => undefined);
+      closing.watch(checkout, { onPaid: (receipt) => resolve(successFromReceipt(receipt)), onClosed: () => resolve(null) });
       checkout.open();
     });
     if (!success) return { status: "dismissed" };
@@ -592,9 +596,11 @@ export interface SelfBuyDeps {
 /** Exported for tests. The body carries the SKU (+ target) and `self: true`; never an amount, an account phone or an email. WHATSAPP-OPTIN-1: plus `waOptIn` ({ phone, consent: true }) ONLY when the visitor typed a valid WhatsApp number AND ticked - it is not the account's contact. */
 export async function createSelfOrder(item: GuestItem): Promise<WhoOrder> {
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null, { postPay: true }) : {}; // host: CheckoutSheet (attach / paidSelf steps mount PostPayGst)
-  const json = await postJson(GUEST_ORDER_ENDPOINT, { sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), self: true, ...(isSelfAttachClientEnabled() ? { attach: true } : {}), ...gst, ...waOptInOrderFields(), ...orderSourceFields(), ...adSignalFields() });
+  const signals = adSignalFields(); // META-IC-1
+  const json = await postJson(GUEST_ORDER_ENDPOINT, { sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), self: true, ...(isSelfAttachClientEnabled() ? { attach: true } : {}), ...gst, ...waOptInOrderFields(), ...orderSourceFields(), ...signals });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new WhoError("failed");
+  metaIcAfterOrder(signals, json, item.sku);
   return { orderId, keyId, amountPaise, ...(typeof json.statusProof === "string" ? { statusProof: json.statusProof } : {}), ...serverPriceFields(json) };
 }
 
@@ -620,7 +626,7 @@ const SELF_DEPS: SelfBuyDeps = { createOrder: createSelfOrder, loadScript: () =>
 
 /** Order (server-priced, no identifier) -> Razorpay (no prefill: it asks the buyer) -> server verify -> the contact it read. Never throws. */
 export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS): Promise<SelfBuyOutcome> {
-  let pending: { settle: () => void } | null = null;
+  let pending: ReturnType<typeof beginPendingCheckout> | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item), deps.loadScript()]);
     if (!(await confirmServerPrice(order))) return { status: "dismissed" };
@@ -640,13 +646,15 @@ export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS)
         },
         modal: {
           ondismiss: () => {
-            closing.settle();
+            closing.dismissed(); // PAY-HANG-1: settles; if Razorpay's own timeout closed the sheet, the order is checked first
             resolve(null);
           },
         },
         ...razorpayUpiFirstOption(),
+        ...razorpayHangOption(),
       });
       watchPaymentFailed(checkout, () => undefined);
+      closing.watch(checkout, { onPaid: (receipt) => resolve(successFromReceipt(receipt)), onClosed: () => resolve(null) });
       checkout.open();
     });
     if (!success) return { status: "dismissed" };

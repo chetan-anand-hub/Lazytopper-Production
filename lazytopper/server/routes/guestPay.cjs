@@ -88,9 +88,11 @@ const { packBaseInrAt, isPackProduct, isPackOnSale, validateTarget, packIdFor } 
 const { createRateLimiter, ANONYMOUS_CLASS } = require('../services/rateLimiter.cjs');
 const { orderOptInField } = require('../services/waOptIn.cjs'); // WHATSAPP-OPTIN-1
 const { orderSourceField } = require('../services/orderSource.cjs'); // ORDER-SOURCE-1
+const { isOrderParallelDisabled, settle } = require('../services/payOrderTiming.cjs'); // CHECKOUT-FAST-1
 const { fire: fireServerEvent, signalsFor } = require('../services/serverEvents.cjs'); // SERVER-EVENTS-1
 // Review fix 5: "already covered till the boards" is the parent-pay rule, reused.
 const { coveredTillBoards } = require('./parentPay.cjs');
+const { decideManualCapture, LATE_AUTHORISATION, AWAITING_BANK } = require('../services/lateAuthGuard.cjs'); // LATE-AUTH-GUARD-1
 const {
   GUEST_PAYER,
   GUEST_STATUS,
@@ -463,12 +465,16 @@ function createGuestPayRoutes(deps = {}) {
    * payments.cjs fetchCapturedPayment, for a guest order: Razorpay's record, captured for the STORED amount. A stale
    * founding order still merely authorized is refused BEFORE capture (PRICING-1): a guest is never yet a founder.
    */
-  async function fetchCapturedPayment(keys, paymentId, amountPaise, order) {
+  async function fetchCapturedPayment(keys, paymentId, amountPaise, order, scope = 'capture') {
     const fetched = await razorpay(keys, 'GET', `/payments/${paymentId}`);
     if (!fetched.ok || !fetched.json) return { error: 'payment_fetch_failed' };
     let payment = fetched.json;
     if (payment.status === 'authorized') {
       if (isStaleFoundingOrder(order, now())) return { error: 'order_expired' };
+      // LATE-AUTH-GUARD-1 - see payments.cjs: authorised past Razorpay's window (payment age) -> never captured by us.
+      const guard = decideManualCapture({ env, payment, paymentId, orderId: payment.order_id, storedOrderCreatedAt: order && order.createdAt, nowMs: now() });
+      for (const seen of guard.observed) emit(`payments.guest.${scope}.observed.${seen}`); // telemetry only
+      if (!guard.capture) return { error: guard.error };
       const captured = await razorpay(keys, 'POST', `/payments/${paymentId}/capture`, { amount: amountPaise, currency: CURRENCY });
       if (captured.ok && captured.json) {
         payment = captured.json;
@@ -566,6 +572,21 @@ function createGuestPayRoutes(deps = {}) {
       return sendJson(res, 429, { ok: false, error: 'Too many attempts for this number today. Please try again tomorrow.' });
     }
 
+    // CHECKOUT-FAST-1: the account lookup and the two "already paid" reads do not depend on each other, so they START together
+    // (PAY_ORDER_PARALLEL_DISABLED=1 starts them one after another, as before). Their RESULTS are judged in the old order below:
+    // account lookup first, then the price, then the existing-order read - so every status and body is the same as the sequential
+    // route. The one difference: when the lookup finds an account (409) or fails (500), the two reads have already run and are discarded.
+    const parallel = !isOrderParallelDisabled(env);
+    const wanted = isPack ? packIdFor(sku, packTarget) : GUEST_PASS_SKU;
+    const readExisting = async () => {
+      const [unclaimed, claimed] = parallel
+        ? await Promise.all([ordersForPhone(phone, GUEST_STATUS.paidUnclaimed), ordersForPhone(phone, GUEST_STATUS.claimed)])
+        : [await ordersForPhone(phone, GUEST_STATUS.paidUnclaimed), await ordersForPhone(phone, GUEST_STATUS.claimed)];
+      return [...unclaimed, ...claimed];
+    };
+    const lookupP = parallel && typeof accountExistsForPhone === 'function' ? settle(() => accountExistsForPhone(phone)) : null;
+    const existingP = parallel ? settle(readExisting) : null;
+
     // Owner ruling 2 Nov 2026 - PREVENT duplicates: a number that already has a LazyTopper account signs in instead (the
     // signed-in path already refuses an owned pack and never offers a Board Pass to a holder). Checked after the same
     // per-IP and per-phone limits as the order. ONE answer for every existing account, whatever it does or does not
@@ -573,7 +594,13 @@ function createGuestPayRoutes(deps = {}) {
     if (typeof accountExistsForPhone === 'function') {
       let exists;
       try {
-        exists = await accountExistsForPhone(phone);
+        if (lookupP) {
+          const r = await lookupP;
+          if (!r.ok) throw r.error;
+          exists = r.value;
+        } else {
+          exists = await accountExistsForPhone(phone);
+        }
       } catch (e) {
         emit('payments.guest.order.account_lookup_failed');
         console.error('[pay/guest/order] account lookup failed:', e && e.message);
@@ -602,8 +629,14 @@ function createGuestPayRoutes(deps = {}) {
     // The same thing already paid for with this number and not yet claimed: never take the money twice. Read fails
     // CLOSED (no order) - we cannot promise the buyer is not paying twice without it.
     try {
-      const wanted = isPack ? packIdFor(sku, packTarget) : GUEST_PASS_SKU;
-      const existing = [...(await ordersForPhone(phone, GUEST_STATUS.paidUnclaimed)), ...(await ordersForPhone(phone, GUEST_STATUS.claimed))];
+      let existing;
+      if (existingP) {
+        const r = await existingP;
+        if (!r.ok) throw r.error;
+        existing = r.value;
+      } else {
+        existing = await readExisting();
+      }
       const already = existing.some(({ order }) => {
         const id = isPackProduct(order.passType) ? packIdFor(order.passType, order.packTarget) : order.passType;
         return id === wanted;
@@ -665,6 +698,7 @@ function createGuestPayRoutes(deps = {}) {
     }
 
     emit('payments.guest.order.created');
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType: sku, amountPaise: quote.amountPaise, uid: null, signals: signalsFor(serverEvents, body, req).adSignals })); // META-IC-1
     return sendJson(res, 200, {
       ok: true,
       orderId: order.id,
@@ -681,9 +715,17 @@ function createGuestPayRoutes(deps = {}) {
    * CHECKOUT-WHO-1 - the account that would receive this order: the FIRST-entered identifier's account if it has one,
    * else the other's. `note` when phone and email are on two DIFFERENT accounts. Throws when a lookup cannot tell.
    */
-  async function resolveRecipientAccount({ phone, email, first }) {
-    const byPhone = phone && typeof uidForPhone === 'function' ? await uidForPhone(phone) : null;
-    const byEmail = email && typeof uidForEmail === 'function' ? await uidForEmail(email) : null;
+  async function resolveRecipientAccount({ phone, email, first }, parallel = false) {
+    // CHECKOUT-FAST-1: the phone and email lookups are independent; both start together unless PAY_ORDER_PARALLEL_DISABLED=1.
+    const lookPhone = () => (phone && typeof uidForPhone === 'function' ? uidForPhone(phone) : null);
+    const lookEmail = () => (email && typeof uidForEmail === 'function' ? uidForEmail(email) : null);
+    let byPhone;
+    let byEmail;
+    if (parallel) [byPhone, byEmail] = await Promise.all([lookPhone(), lookEmail()]);
+    else {
+      byPhone = await lookPhone();
+      byEmail = await lookEmail();
+    }
     const clean = (u) => (typeof u === 'string' && u && u !== ERASED_UID ? u : null);
     const p = clean(byPhone);
     const e = clean(byEmail);
@@ -745,14 +787,43 @@ function createGuestPayRoutes(deps = {}) {
       }
     }
 
-    const payerUid = await payerUidOf(req);
+    // CHECKOUT-FAST-1: the payer check, the recipient-account chain and the "already paid" reads are independent, so they START
+    // together (PAY_ORDER_PARALLEL_DISABLED=1: one after another, as before) and are JUDGED below in the old order - the
+    // account/coverage answer first, then the price, then the existing-order answer - so statuses and bodies do not change.
+    const parallel = !isOrderParallelDisabled(env);
+    const wantedId = isPack ? packIdFor(sku, packTarget) : GUEST_PASS_SKU;
+    const readExistingWho = async () => {
+      const queries = [['guestPhone', recipient.phone], ['guestEmail', recipient.email]]
+        .filter(([, value]) => value)
+        .flatMap(([field, value]) => [[field, value, GUEST_STATUS.paidUnclaimed], [field, value, GUEST_STATUS.claimed]]);
+      const lists = parallel ? await Promise.all(queries.map(([f, v, st]) => ordersFor(f, v, st))) : [];
+      if (!parallel) for (const [f, v, st] of queries) lists.push(await ordersFor(f, v, st));
+      return lists.flat();
+    };
+    const lookupWho = async () => {
+      const target = await resolveRecipientAccount(recipient, parallel);
+      // CHECKOUT-WHO-2: ALWAYS the coverage read (a fixed dummy id when no account), so timing does not tell.
+      const covered = await recipientCovered(target.uid || NO_ACCOUNT_COVERAGE_ID, sku, packTarget);
+      return { target, covered };
+    };
+    const payerP = parallel ? settle(() => payerUidOf(req)) : null;
+    const lookupP = parallel ? settle(lookupWho) : null;
+    const existingP = parallel ? settle(readExistingWho) : null;
+
+    const payerUid = payerP ? (await payerP).value || '' : await payerUidOf(req);
 
     // An account already holding what is bought is not sold it again. ONE generic answer whatever the reason, and the
     // lookup runs for every order (so an order for nobody costs the same work). A lookup that cannot tell fails CLOSED.
     try {
-      const target = await resolveRecipientAccount(recipient);
-      // CHECKOUT-WHO-2: ALWAYS the coverage read (a fixed dummy id when no account), so timing does not tell.
-      const covered = await recipientCovered(target.uid || NO_ACCOUNT_COVERAGE_ID, sku, packTarget);
+      let looked;
+      if (lookupP) {
+        const r = await lookupP;
+        if (!r.ok) throw r.error;
+        looked = r.value;
+      } else {
+        looked = await lookupWho();
+      }
+      const { target, covered } = looked;
       if (target.uid && covered) {
         emit('payments.guest.order.recipient_covered');
         // SELFPAY-ATTACH-1 (owner 12 Nov: say it plainly): "already has it" is its own answer. Switch off: the generic one below.
@@ -782,15 +853,17 @@ function createGuestPayRoutes(deps = {}) {
 
     // Never take the money twice for the same thing already paid for this recipient and not yet attached.
     try {
-      const wanted = isPack ? packIdFor(sku, packTarget) : GUEST_PASS_SKU;
-      const existing = [];
-      for (const [field, value] of [['guestPhone', recipient.phone], ['guestEmail', recipient.email]]) {
-        if (!value) continue;
-        existing.push(...(await ordersFor(field, value, GUEST_STATUS.paidUnclaimed)), ...(await ordersFor(field, value, GUEST_STATUS.claimed)));
+      let existing;
+      if (existingP) {
+        const r = await existingP;
+        if (!r.ok) throw r.error;
+        existing = r.value;
+      } else {
+        existing = await readExistingWho();
       }
       const already = existing.some(({ order }) => {
         const id = isPackProduct(order.passType) ? packIdFor(order.passType, order.packTarget) : order.passType;
-        return id === wanted;
+        return id === wantedId;
       });
       if (already) {
         emit('payments.guest.order.already_paid_unclaimed');
@@ -854,6 +927,7 @@ function createGuestPayRoutes(deps = {}) {
     }
 
     emit('payments.guest.order.created');
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType: sku, amountPaise: quote.amountPaise, uid: null, signals: signalsFor(serverEvents, body, req).adSignals })); // META-IC-1
     return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...statusProofReply(sp), ...gstResponseFields(quote, 0), ...recipientMasked(stored) });
   }
 
@@ -929,6 +1003,7 @@ function createGuestPayRoutes(deps = {}) {
     }
     emit('payments.guest.order.created');
     emit('payments.guest.order.self_created');
+    if (serverEvents) fireServerEvent(() => serverEvents.orderCreated({ orderId: order.id, passType: sku, amountPaise: quote.amountPaise, uid: null, signals: signalsFor(serverEvents, body, req).adSignals })); // META-IC-1
     return sendJson(res, 200, { ok: true, orderId: order.id, keyId: keys.keyId, amountPaise: quote.amountPaise, ...statusProofReply(sp), ...gstResponseFields(quote, 0) });
   }
 
@@ -1075,13 +1150,18 @@ function createGuestPayRoutes(deps = {}) {
     // 3. What Razorpay says was actually paid.
     let result;
     try {
-      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order);
+      result = await fetchCapturedPayment(keys, paymentId, order.amountPaise, order, 'verify');
     } catch (e) {
       emit('payments.guest.verify.razorpay_unreachable');
       console.error('[pay/guest/verify] razorpay unreachable:', e && e.message);
       return sendJson(res, 502, { ok: false, error: 'Payment provider is unreachable.' });
     }
     if (result.error === 'order_expired') return reject(res, 'verify', 'order_expired');
+    // LATE-AUTH-GUARD-1: left uncaptured on purpose - a not-yet-captured payment (PENDING), never "rejected"; nothing recorded.
+    if (result.error === LATE_AUTHORISATION) {
+      emit('payments.guest.verify.left_uncaptured');
+      return sendJson(res, 202, { ok: false, status: 'pending', reason: AWAITING_BANK });
+    }
     if (result.error) {
       emit(`payments.guest.verify.${result.error}`);
       return sendJson(res, 502, { ok: false, error: 'Payment provider did not confirm the payment.' });
@@ -1138,6 +1218,7 @@ function createGuestPayRoutes(deps = {}) {
     const listed = await razorpay(keys, 'GET', `/orders/${orderId}/payments`);
     if (!listed.ok || !listed.json || !Array.isArray(listed.json.items)) return { upstream: 'list_failed' };
     let inFlight = false;
+    let awaitingBank = false; // LATE-AUTH-GUARD-1: an authorised payment we left uncaptured (Razorpay refunds it)
     let failedReason = '';
     for (const item of listed.json.items) {
       if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !ID_PATTERN.test(item.id)) continue;
@@ -1145,8 +1226,14 @@ function createGuestPayRoutes(deps = {}) {
       if (paymentMismatch({ ...item, status: 'captured' }, { orderId, amountPaise: order.amountPaise })) continue;
       if (item.status === 'captured') return { payment: item };
       if (item.status === 'authorized') {
-        const result = await fetchCapturedPayment(keys, item.id, order.amountPaise, order);
+        const result = await fetchCapturedPayment(keys, item.id, order.amountPaise, order, 'order_status');
         if (result.error === 'order_expired') continue;
+        // LATE-AUTH-GUARD-1: left uncaptured on purpose - PENDING ('awaiting_bank'), never failed; Razorpay's refund ends it.
+        if (result.error === LATE_AUTHORISATION) {
+          emit('payments.guest.order_status.left_uncaptured');
+          awaitingBank = true;
+          continue;
+        }
         if (result.error) return { upstream: result.error };
         const payment = result.payment;
         if (payment.id !== undefined && payment.id !== item.id) continue;
@@ -1154,11 +1241,15 @@ function createGuestPayRoutes(deps = {}) {
         inFlight = true;
       } else if (item.status === 'failed') {
         if (!failedReason) failedReason = typeof item.error_reason === 'string' && /^[A-Za-z0-9_]{1,40}$/.test(item.error_reason) ? item.error_reason : 'payment_failed';
+      } else if (item.status === 'refunded') {
+        // LATE-AUTH-GUARD-1: Razorpay refunded it (e.g. a late authorisation) - it is over, so a pending order can end.
+        if (!failedReason) failedReason = 'refunded';
       } else {
         inFlight = true; // created / refunded-less states: the buyer may still be in their UPI app
       }
     }
     if (inFlight) return { pending: 'in_progress' };
+    if (awaitingBank) return { pending: AWAITING_BANK };
     if (failedReason) return { failed: failedReason };
     return { none: true };
   }

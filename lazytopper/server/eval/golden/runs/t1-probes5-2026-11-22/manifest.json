@@ -1,0 +1,84 @@
+{
+ "runId": "2026-11-22.T1-probes5",
+ "config": {
+  "id": "PR2-a-flash38",
+  "model": "gemini-3.8-flash",
+  "thinkingBudget": null,
+  "core": true,
+  "gradingMode": "single",
+  "label": "PR-2 (a): gemini-3.8-flash only (SUBSTITUTE: gemini-2.5-flash refused to this key), dynamic thinking"
+ },
+ "createdAt": "2026-11-22T06:32:05.639Z",
+ "dry": false,
+ "detectModel": "gemini-3.8-flash",
+ "detectModelIsProxy": true,
+ "note": "Runs under the GRADER-CORE-1 PR-2 grading core (one prompt builder, one post-processing path, the owner rulings of 2026-10-05).",
+ "serverFileSha256LF": {
+  "grading/rules.cjs": "36db28034ad8c44f0e85647dcabcb114d7a6463634523568f846fe375e387ab2",
+  "grading/prompt.cjs": "43cc892377ea2858cbf4acc08f0e46aa681dae9f2810eda521846e707aa3e777",
+  "grading/postprocess.cjs": "83bf5f2eb5df3a449f726824721f54c0030871211b06a7fc2ac2958a4b0b2d59",
+  "grading/core.cjs": "1610d34ca03f9708bca931e966d7be7817788bc95490a9236189e9871acdb41c",
+  "grading/verify.cjs": "86e83472dd9c7040a11b15d748612962a6f179e29cc97e943ef42575ce22dba0",
+  "grading/schema.cjs": "31b5ba2ba0f59a212d361c5f75ee0b0f46f7a83ec739bf0096316fd141a425b1",
+  "grading/fence.cjs": "0ec8a21922bd7da98c24ddd52a758bfee26ececc5b9f690f722da88a9317f64e",
+  "grading/timing.cjs": "af7adf7410d28039f104ace27922436a90ded0b646ba1d3cc8bbcd3769432395",
+  "grading/charge.cjs": "d4377052638d14e5e19a50d7156b0d97aa690e64fc75dc3023cb8e84e38eda67",
+  "grading/detect.cjs": "1fd664d5bb226f13e4c3d5ec948e676c8ddd6f6df36f8bb3b21dd4f97f63ac17",
+  "grading/pdfTextLayer.cjs": "02f32f60165b740cac059ced383df317434b1b34547da6dd88def28b1eff59c8",
+  "routes/checkSolution.cjs": "6fffcad818ff0821e12b0268213858c78b635812384954a6d75892b75464f5e7",
+  "routes/objectiveScoring.cjs": "b63bf9743d110d33eaf40c697e72c44156667d2cba47344b2a41b96af0e66bec",
+  "services/geminiClient.cjs": "531bf1302336cc2c319ae9df15bce419a362ff8182c35f13c884126557a25a64",
+  "services/serverConfig.cjs": "38c955a33910c1a9b498106d4e503d9ecd486e68dcef835e87d78089defe43fb",
+  "services/httpUtils.cjs": "7976672899ed8636044b59338a82b35dddb309aa464bd71c29e8dd10418d7b92",
+  "mentorImageSupport.cjs": "789c9fba7137a8efe02309fff0791ffb1fcce868f7221dc9ddb21a16118d4367",
+  "services/serverUtils.cjs": "802142b6aadf83c23c2cb3324160b8ee0ce7675c6e2725279318e928de43e068"
+ },
+ "timeoutMs": 55000,
+ "concurrency": 3,
+ "runsPlanned": 3,
+ "ledger": "T1-probes5.jsonl",
+ "schemeStep": true,
+ "schemeFile": null,
+ "schemeModel": "gemini-3.8-flash",
+ "schemeModelIsProxy": true,
+ "stepSolutionSha256": "f8d7649438310932060e591de1cd689daa271f87ca4f09eb7727df7ba6d79b86",
+ "stubs": "no fair-use/idempotency/entitlement middleware (handler called directly); solution cache = the production scheme generator behind an IN-MEMORY cache (GRADER-TYPE-1 E1, metered)",
+ "completedAt": "2026-11-22T06:37:04.010Z",
+ "schemeCounters": {
+  "calls": 36,
+  "generated": 4,
+  "hits": 25,
+  "notFrozen": 0
+ },
+ "httpStats": {
+  "http": 42,
+  "ok": 42,
+  "status429": 0,
+  "timeouts": 0,
+  "errors": 0,
+  "httpInFlight": 0,
+  "peakHttpInFlight": 5
+ },
+ "parallel": [
+  {
+   "startedAt": "2026-11-22T06:32:05.664Z",
+   "wallMs": 298346,
+   "jobs": 36,
+   "ramp": [
+    3
+   ],
+   "rampEvery": 8,
+   "peakJobsInFlight": 3,
+   "peakHttpInFlight": 5,
+   "status429": 0,
+   "levels": [
+    {
+     "atMs": 0,
+     "inFlightCap": 3,
+     "why": "start"
+    }
+   ],
+   "timeoutMs": 55000
+  }
+ ]
+}

@@ -17,6 +17,8 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useInRouterContext, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
+import { useCheckoutSlow } from "../../hooks/useCheckoutSlow";
+import { CHECKOUT_OPENING_COPY, CHECKOUT_SLOW_COPY } from "../../services/checkoutTiming";
 import { hydrateSubscriptionFromCloud } from "../../services/subscriptionService";
 import { withSigninRedirect } from "../../services/freeCheckClient";
 import {
@@ -37,6 +39,8 @@ import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { fetchMyPacks, type BoardPassCredit, type TestSeriesUpgrade } from "../../services/packs";
 import { useMonthPassAvailable } from "./useMonthPassAvailable";
 import PayRescueCard from "../payRescue/PayRescueCard";
+import InAppPayChoice, { inAppChoiceSurface } from "../payRescue/InAppPayChoice";
+import { inAppPayFirstHop } from "../../utils/inAppPayFirst";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 import PostPayGstLazy from "../gstInvoice/PostPayGstLazy";
 import PaidSheetLazy, { paidSheetEnabled, paidSheetReceiptLine, preloadPaidSheet } from "../checkoutWho/PaidSheetLazy";
@@ -258,6 +262,8 @@ function checkoutEventDetails(passType: PassType, offerOpen: boolean): CheckoutD
 }
 
 export interface PassCheckoutViewProps {
+  /** INAPP-PAY-CHOICE-1: the page knows auth has settled and nobody is signed in (the extra in-app option renders only then). */
+  inAppChoice?: boolean;
   signedIn: boolean;
   offerOpen: boolean;
   /**
@@ -321,6 +327,7 @@ export interface PassCheckoutViewProps {
  */
 export function PassCheckoutView({
   signedIn,
+  inAppChoice = false,
   offerOpen,
   showMonth = false,
   activePassEnd,
@@ -348,6 +355,8 @@ export function PassCheckoutView({
     if (holderAutoOpen && who) setHolderOpen(true);
   }, [holderAutoOpen, who]);
   const [busy, setBusy] = useState<PassType | null>(null);
+  // CHECKOUT-FAST-1: the honest wait - "Opening secure payment..." on the pressed button, and a slow line after ~6 s.
+  const slowOpen = useCheckoutSlow(busy !== null);
   const [paidUntil, setPaidUntilState] = useState<{ label: string; passType: PassType; orderId?: string; postPay?: boolean } | null>(null);
   // PAID-SHEET-1: a signed-in buyer's confirmed payment opens the "Payment received" pop-up (the inline paid line stays under it).
   const [paidSheetOpen, setPaidSheetOpen] = useState(false);
@@ -459,6 +468,9 @@ export function PassCheckoutView({
 
   async function handleBuy(passType: PassType, opts: { resumed?: boolean; fromWho?: boolean } = {}) {
     if (busy || recovery !== null) return;
+    // INAPP-PAY-FIRST-1: Instagram / Facebook on Android, signed out: the Board Pass tap goes straight to Chrome (/board-pass?buy=board_pass), no order, no begin_checkout.
+    // (The month pass and an automatic ?buy= arrival are unchanged.)
+    if (passType === "till_boards" && inAppPayFirstHop({ automatic: opts.resumed === true || opts.fromWho === true, signedIn, surface: inAppChoiceSurface(window.location.pathname), sku: "board_pass", buy: { kind: "pass" } })) return;
     buyStartedRef.current = true;
     const resumed = opts.resumed === true;
     const details = checkoutEventDetails(passType, offerOpen);
@@ -709,7 +721,7 @@ export function PassCheckoutView({
           disabled={busy !== null || recovery !== null}
           onClick={() => void handleBuy("month")}
         >
-          {monthButtonLabel(offerOpen)}
+          {busy === "month" ? CHECKOUT_OPENING_COPY : monthButtonLabel(offerOpen)}
         </button>
       )}
       {/* WHATSAPP-OPTIN-1: number + tick ABOVE Pay; no extra tap; Pay works with it empty. */}
@@ -719,10 +731,14 @@ export function PassCheckoutView({
         ref={boardsPayRef}
         className="lt-pricing-cta lt-pricing-pay lt-pricing-pay--boards"
         disabled={busy !== null || recovery !== null}
+        data-checkout-buy=""
         onClick={() => void handleBuy("till_boards")}
       >
-        {boardsLabel}
+        {busy === "till_boards" ? CHECKOUT_OPENING_COPY : boardsLabel}
       </button>
+      {busy !== null && slowOpen && <p className="lt-pricing-plan-desc lt-pricing-checkout-note" role="status" data-testid="pass-slow-open">{CHECKOUT_SLOW_COPY}</p>}
+      {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Pay (never replaces it). */}
+      {inAppChoice && !signedIn && !rescue && busy === null && recovery === null && <InAppPayChoice buy={{ kind: "pass" }} onPayHere={() => void handleBuy("till_boards")} />}
       {gstBreakdown && !activeLabel && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" data-testid="pass-checkout-gst">
           {gstBreakdown}
@@ -736,7 +752,7 @@ export function PassCheckoutView({
           onClick={() => void handleBuy("month")}
           data-testid="pass-checkout-renew-month"
         >
-          {renewMonthLabel(offerOpen)}
+          {busy === "month" ? CHECKOUT_OPENING_COPY : renewMonthLabel(offerOpen)}
         </button>
       )}
       {who && signedIn && !activeLabel && (
@@ -917,6 +933,7 @@ function PassCheckoutConnected() {
     <>
     <PassCheckoutView
       signedIn={Boolean(uid)}
+      inAppChoice={!authLoading && !uid}
       offerOpen={foundingRateApplies(Date.now(), status.foundingMember)}
       showMonth={showMonth}
       activePassEnd={activePassEnd}

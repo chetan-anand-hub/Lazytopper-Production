@@ -11,17 +11,22 @@
  * shown as active ONLY from the `passEnd` the server's grant returns — there is no
  * client-side activation anywhere in this file.
  *
- * ★ checkout.js IS LOADED ONLY ON THE BUY CLICK (Z3), from Razorpay's own origin, once.
+ * ★ checkout.js is loaded from Razorpay's own origin, ONCE (one script tag, idempotent). Z3: on the Buy click. CHECKOUT-FAST-1: on a page
+ *   that opens checkout it is also fetched EARLY, on INTENT only (the first touch / pointer press, or a buy button in view after the first
+ *   scroll; never at first paint, never on idle) through `preloadCheckoutScript`, so a tap finds it already there. (/packs and /cbq-packs
+ *   keep their older idle warm-up in PacksShop.) VITE_CHECKOUT_WARM_DISABLED=1 turns the early fetch off.
  */
 
 import { VALIDITY_LABEL, VALIDITY_SHORT } from "../config/validity";
 import { confirmServerPrice, serverPriceFields, type ServerGst, razorpaySheetDescription } from "./priceConfirm";
+import { watchSheetForHang } from "./payReturn";
 import { razorpayUpiFirstOption, type RazorpayDisplayConfig } from "./razorpayDisplay";
 // GST-INVOICE-1: "Your state" before the order (off by default: the body is byte-identical).
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
-import { adSignalFields } from "../analytics/adSignals";
+import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
+// CHECKOUT-FAST-1: checkoutTiming.ts and packsMobilePreload.ts are loaded with dynamic import() - they stay OUT of the entry chunk (PERF-3 budget).
 
 /** The two passes the server sells (server/services/passGrant.cjs PASS_TYPES). */
 export type PassType = "month" | "till_boards";
@@ -71,6 +76,8 @@ export class PayAlreadyCoveredError extends Error {
 /** MONEY-DUPGUARD-1 — the calm line shown instead of a checkout when the server says the student is already covered. */
 // Review F2: neutral "pass" - a month pass that runs past the board day covers the student too.
 export const PASS_ALREADY_COVERED_COPY = `Your pass is already valid till ${VALIDITY_LABEL}. There's nothing more to pay.`;
+
+// CHECKOUT-FAST-1: the wait copy (CHECKOUT_OPENING_COPY etc.) lives in checkoutTiming.ts, imported only by the checkout/buy chunks (not re-exported here: it would pull the module into the entry).
 
 /** Z6 — the owner's failure sentence, word for word. */
 export const PAYMENT_FAILED_COPY = "Payment didn't go through. You haven't been charged twice — try again.";
@@ -158,12 +165,16 @@ interface RazorpayOptions {
   config?: RazorpayDisplayConfig;
   /** PAY-RESCUE-1 - only values we already hold for the signed-in user; absent when we hold none. */
   prefill?: CheckoutPrefill;
+  /** PAY-HANG-1 - Razorpay's own sheet timeout (seconds); absent under VITE_PAY_HANG_DISABLED=1. */
+  timeout?: number;
   /** PAY-PHONE-1 - Razorpay's own read-only lock: the guest's number is shown but cannot be changed in the sheet. */
   readonly?: { contact?: boolean; email?: boolean };
 }
 
 interface RazorpayInstance {
   open(): void;
+  /** PAY-HANG-1 - Razorpay's own close(); optional so a fake / older instance never breaks checkout. */
+  close?(): void;
   /** Razorpay's event hook; `payment.failed` fires while the sheet stays open for a retry. */
   on?(event: "payment.failed", callback: () => void): void;
 }
@@ -223,29 +234,74 @@ type WindowWithRazorpay = Window & { Razorpay?: RazorpayConstructor };
 let scriptPromise: Promise<RazorpayConstructor> | null = null;
 
 /**
- * Z3 — inject checkout.js once and resolve Razorpay's constructor. Called only from the
- * buy click; a failed load is forgotten so the next click can retry.
+ * Inject checkout.js once and resolve Razorpay's constructor. ONE script tag: a second call (a warm-up, then a tap) shares the first's
+ * promise; a failed load is forgotten so the next call can retry.
  */
-export function loadCheckoutScript(doc: Document = document): Promise<RazorpayConstructor> {
+function injectCheckoutScript(doc: Document): Promise<RazorpayConstructor> {
   const win = doc.defaultView as WindowWithRazorpay | null;
   if (win && typeof win.Razorpay === "function") return Promise.resolve(win.Razorpay);
   if (scriptPromise) return scriptPromise;
   scriptPromise = new Promise<RazorpayConstructor>((resolve, reject) => {
-    const script = doc.createElement("script");
-    script.src = CHECKOUT_SCRIPT_URL;
-    script.async = true;
-    script.onload = () => {
+    const existing = doc.querySelector<HTMLScriptElement>(`script[src="${CHECKOUT_SCRIPT_URL}"]`);
+    const script = existing ?? doc.createElement("script");
+    const onLoad = () => {
       const ctor = (doc.defaultView as WindowWithRazorpay | null)?.Razorpay;
       if (typeof ctor === "function") resolve(ctor);
       else reject(new Error("checkout.js loaded without Razorpay"));
     };
-    script.onerror = () => reject(new Error("checkout.js failed to load"));
-    doc.head.appendChild(script);
+    script.addEventListener("load", onLoad);
+    script.addEventListener("error", () => {
+      script.remove(); // a failed tag must not be found again by the retry (it would never fire load)
+      reject(new Error("checkout.js failed to load"));
+    });
+    if (!existing) {
+      script.src = CHECKOUT_SCRIPT_URL;
+      script.async = true;
+      doc.head.appendChild(script);
+    }
   }).catch((e: unknown) => {
     scriptPromise = null;
     throw e;
   });
   return scriptPromise;
+}
+
+/**
+ * Z3 — called by every buy flow AT THE BUY TAP (in parallel with the order call). Resolves Razorpay's constructor, instrumented
+ * (CHECKOUT-FAST-1 part 4: tap -> sheet time, dismiss / failure / abandonment events), and starts the measured attempt.
+ */
+export function loadCheckoutScript(doc: Document = document): Promise<RazorpayConstructor> {
+  const win = doc.defaultView as WindowWithRazorpay | null;
+  const warm = Boolean(win && typeof win.Razorpay === "function");
+  const tapAt = typeof performance !== "undefined" && typeof performance.now === "function" ? performance.now() : Date.now();
+  const injected = injectCheckoutScript(doc); // starts at the tap, exactly as before
+  const timing = import("./checkoutTiming").catch(() => null); // measurement only: if it cannot load, the purchase goes on un-instrumented
+  return Promise.all([injected, timing]).then(([ctor, t]) => {
+    if (!t) return ctor;
+    t.beginCheckoutAttempt(warm, tapAt);
+    return t.instrumentRazorpay(ctor);
+  });
+}
+
+/**
+ * CHECKOUT-FAST-1 — fetch checkout.js WITHOUT a tap (the warm-up): the same single script tag, no measured attempt, failures swallowed.
+ * Never called at first paint: `warmCheckoutOnPage` / PacksShop's warm-up call it after `load`, once idle or when a buy button is in view.
+ */
+export function preloadCheckoutScript(doc: Document = document): Promise<RazorpayConstructor> {
+  void import("./checkoutTiming").then((t) => t.ensureTapTracking(doc)).catch(() => undefined);
+  return injectCheckoutScript(doc);
+}
+
+/**
+ * CHECKOUT-FAST-1 — a page that opens Razorpay but has no PacksShop warm-up of its own (/board-pass, /for-parents) calls this from an
+ * effect: after `load`, on INTENT only (the first touch / pointer press, or a buy button scrolling into view - never on idle: Razorpay's
+ * iframe bundle is a long task on a low-end phone) it opens Razorpay's connections and fetches checkout.js. Once per page load. No order, no server call. Off with VITE_CHECKOUT_WARM_DISABLED=1 (and with the packs preload switch).
+ */
+export function warmCheckoutOnPage(): void {
+  if (!isPaymentsClientEnabled() || String(import.meta.env.VITE_CHECKOUT_WARM_DISABLED ?? "").trim() === "1") return;
+  void import("../lib/packs/packsMobilePreload")
+    .then((m) => m.schedulePacksWarmup({ key: "checkout", preloadChunks: () => undefined, loadScript: () => preloadCheckoutScript(), intentOnly: true }))
+    .catch(() => undefined);
 }
 
 /** Test seam: forget a loaded script promise. */
@@ -284,11 +340,13 @@ async function postJson(url: string, body: unknown): Promise<Record<string, unkn
 /** Z2 — the server prices and creates the order. Only the pass TYPE is sent. */
 export async function createPayOrder(passType: PassType, opts: { postPay?: boolean } = {}): Promise<PayOrder> {
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(authHeaders, opts) : {};
-  const json = await postJson(PAY_ORDER_ENDPOINT, { passType, ...gst, ...waOptInOrderFields(), ...orderSourceFields(), ...adSignalFields() }); // WHATSAPP-OPTIN-1: only a valid number + the tick
+  const signals = adSignalFields(); // META-IC-1: the attempt id rides the body and the InitiateCheckout below
+  const json = await postJson(PAY_ORDER_ENDPOINT, { passType, ...gst, ...waOptInOrderFields(), ...orderSourceFields(), ...signals }); // WHATSAPP-OPTIN-1: only a valid number + the tick
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new Error("malformed order");
   }
+  metaIcAfterOrder(signals, json, passType);
   return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
@@ -326,18 +384,20 @@ function readPackGrant(json: Record<string, unknown>): PackGrant | null {
 /** The server prices and creates a pack order. Only the sku and (where the sku has one) the target are sent. */
 export async function createPackOrder(sku: string, packTarget?: string, opts: { postPay?: boolean } = {}): Promise<PayOrder> {
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(authHeaders, opts) : {};
+  const signals = adSignalFields(); // META-IC-1
   const json = await postJson(PAY_ORDER_ENDPOINT, {
     passType: sku,
     ...(packTarget !== undefined ? { packTarget } : {}),
     ...gst,
     ...waOptInOrderFields(), // WHATSAPP-OPTIN-1: only a valid number + the tick
     ...orderSourceFields(), // ORDER-SOURCE-1
-    ...adSignalFields(), // SERVER-EVENTS-1
+    ...signals, // SERVER-EVENTS-1
   });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new Error("malformed order");
   }
+  metaIcAfterOrder(signals, json, sku);
   return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
@@ -439,7 +499,25 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, 
     // PAY-RECOVER-1 — remember THIS tab's open order (an order id, never premium state).
     writePayPending(order.orderId);
     let sawFailure = false;
+    let paidViaStatus = false;
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
+      // PAY-HANG-1: a buyer back from the UPI app to a sheet that keeps "waiting" gets a way out (signed-in: the existing status call).
+      const hang = watchSheetForHang({
+        order: { orderId: order.orderId },
+        item: { kind: "pass" },
+        signedInStatus: async () => {
+          const r = await checkPayStatus(order.orderId);
+          // "No payment found yet" is said plainly; a signed-in status never invites a second payment.
+          return r.state === "paid" ? "paid" : r.state === "pending" ? "pending" : "none";
+        },
+        // The server says it is paid: this flow continues as "pending" (the existing confirming / hold / poll path), never "dismissed".
+        onPaid: () => {
+          paidViaStatus = true;
+          resolve(null);
+          return true;
+        },
+        onClosed: () => resolve(null),
+      });
       const checkout = new Razorpay({
         key: order.keyId,
         // The amount is the SERVER's order amount — the checkout charges the order.
@@ -448,17 +526,27 @@ export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, 
         order_id: order.orderId,
         name: "LazyTopper",
         description: razorpaySheetDescription(passType === "month" ? "Premium pass for a month" : BOARD_PASS_CHECKOUT_DESCRIPTION, order),
-        handler: (response) => resolve(response),
-        modal: { ondismiss: () => resolve(null) },
+        handler: (response) => {
+          hang.stop();
+          resolve(response);
+        },
+        modal: {
+          ondismiss: () => {
+            hang.stop();
+            resolve(null);
+          },
+        },
         ...razorpayUpiFirstOption(),
         ...prefillOption(prefill),
       });
       watchPaymentFailed(checkout, () => {
         sawFailure = true;
       });
+      hang.attach(checkout);
       checkout.open();
     });
     // PAY-RECOVER-1 — the marker is KEPT on dismiss: a UPI app can finish after the sheet closes.
+    if (!success && paidViaStatus) return { status: "pending", orderId: order.orderId };
     if (!success) return sawFailure ? { status: "dismissed", afterFailure: true } : { status: "dismissed" };
     // FOLLOWUPS-1 A4 — additive, analytics only: Razorpay's payment id is read from its signed
     // result (before the verify, so a `pending` outcome can carry it) and the amount from the

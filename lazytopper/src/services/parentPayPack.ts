@@ -10,7 +10,7 @@
  * proof is about answers checked, which a PDF pack does not do.
  */
 import { orderSourceFields } from "../analytics/visitSource";
-import { adSignalFields } from "../analytics/adSignals";
+import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 import { formatInr } from "../config/pricing";
 import type { PackSku } from "./packs";
 import {
@@ -33,6 +33,7 @@ import {
 } from "./parentPay";
 import { loadCheckoutScript, watchPaymentFailed, type RazorpayConstructor, type RazorpaySuccess } from "./checkout";
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
+import { watchSheetForHang } from "./payReturn";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 
@@ -118,9 +119,11 @@ export interface ParentPackBuyDeps {
 export async function createParentPackOrder(token: string) {
   // GST-INVOICE-1: the PARENT (the payer) confirms their state.
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null, { postPay: true }) : {}; // host: ParentPayPanel's paid / pending screen mounts PostPayGst
-  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, product: "pack", ...gst, ...orderSourceFields(), ...adSignalFields() });
+  const signals = adSignalFields(); // META-IC-1
+  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, product: "pack", ...gst, ...orderSourceFields(), ...signals });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new ParentLinkError("failed");
+  metaIcAfterOrder(signals, json, null); // the server names the pack sku in its reply
   return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
@@ -145,6 +148,8 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
     // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
     if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
+      // PAY-HANG-1: the parent link has no status route and no ?buy= arrival -> the bar only says to finish or cancel in the UPI app (never a way to pay again).
+      const hang = watchSheetForHang({ order: { orderId: order.orderId }, onClosed: () => resolve(null) });
       const checkout = new Razorpay({
         key: order.keyId,
         amount: order.amountPaise,
@@ -152,11 +157,20 @@ export async function buyPackAsParent(token: string, packName: string, deps: Par
         order_id: order.orderId,
         name: "LazyTopper",
         description: razorpaySheetDescription(`${packName || "PDF pack"} (for your child)`, order),
-        handler: (response) => resolve(response),
-        modal: { ondismiss: () => resolve(null) },
+        handler: (response) => {
+          hang.stop();
+          resolve(response);
+        },
+        modal: {
+          ondismiss: () => {
+            hang.stop();
+            resolve(null);
+          },
+        },
         ...razorpayUpiFirstOption(),
       });
       watchPaymentFailed(checkout, () => undefined);
+      hang.attach(checkout);
       checkout.open();
     });
     if (!success) return { status: "dismissed" };

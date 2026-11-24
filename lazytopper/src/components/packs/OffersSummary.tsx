@@ -43,7 +43,7 @@ export const OFFERS_SUMMARY_CSS = `
 .lt-offsum__pay {
   position: absolute; z-index: 1; top: 76px; left: 14px; right: 40px; height: 44px; box-sizing: border-box;
   display: flex; align-items: center; justify-content: center; border-radius: 999px;
-  background: hsl(152, 55%, 38%); color: #fff; font-size: 15px; font-weight: 800; text-decoration: none; white-space: nowrap;
+  background: var(--lt-green-fill, #257e55); color: #fff; font-size: 15px; font-weight: 800; text-decoration: none; white-space: nowrap;
 }
 .lt-offsum__pay:hover { background: hsl(152, 57%, 32%); }
 .lt-offsum__pay:focus-visible { outline: 2px solid hsl(220, 45%, 14%); outline-offset: 2px; }

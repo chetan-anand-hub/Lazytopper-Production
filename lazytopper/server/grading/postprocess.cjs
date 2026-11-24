@@ -612,15 +612,20 @@ const ABSENT_WORK = new Set([
   'no working', 'no work', 'no work shown', 'nothing written', 'blank', 'left blank', 'not provided', 'not given', 'omitted',
   'missing', 'not attempted', 'unattempted', 'not answered', 'no answer', 'empty', 'null', 'none', 'n a', 'na', 'not done',
 ]);
+// GRADER-TYPE-1 (U2a): a model placeholder for a blank asked-for REASON. Read ONLY on a missing/unattempted step (below),
+// and not at all under GRADER_TYPE_1_DISABLED=1.
+const REASON_PLACEHOLDERS = new Set(['reason not given', 'no reason given', 'reason not stated', 'reason not written', 'not justified', 'no justification']);
 // Review round 2: the placeholder words are read ONLY on a step the MODEL reported absent ("missing" / "unattempted").
 // On any other step they may be the student's own answer (a wrong "None" on a working step): only truly empty is blank.
 const PLACEHOLDER_STATUSES = new Set(['missing', 'unattempted']);
-function isBlankWork(text, status) {
+// withReasonPlaceholders: ONLY the post-mark, type-only passes (omissionsInAttemptedWork, settleUntypedLosses, typeBlankAskedReasons) pass true.
+// workingNotShown runs BEFORE the marks are final and tags a step out of the exam-technique cap, so it must never see a placeholder (a mark leak).
+function isBlankWork(text, status, withReasonPlaceholders = false) {
   if (nonAttemptText(text) === 'empty') return true;
   if (!PLACEHOLDER_STATUSES.has(status)) return false;
   const t = String(text == null ? '' : text).normalize('NFKC').toLowerCase()
     .replace(/[’‘'`"“”[\](){}.!?,:;\-–—_/\\]/g, ' ').replace(/\s+/g, ' ').trim();
-  return !t || ABSENT_WORK.has(t);
+  return !t || ABSENT_WORK.has(t) || (withReasonPlaceholders && REASON_PLACEHOLDERS.has(t) && process.env.GRADER_TYPE_1_DISABLED !== '1');
 }
 function toUnattempted(s) {
   s.status = 'unattempted';
@@ -725,17 +730,88 @@ const BARE_VALUE = /^[a-z][a-z0-9 ]* ?= ?-?[\d.]+ ?(?:[a-z]{1,3}\d?)?$/;
  *  question, not the student's knowledge); and found VERBATIM (normalised) in a correct/partial step that is in
  *  ANOTHER part, or LATER in the same part — never the step itself, nor the same part's earlier steps (the
  *  answer the reason justifies). */
-function knowledgeProven(u, live, questionText) {
+function knowledgeProven(u, live, questionText, reasonGate = false) {
   const ev = normEvidence(u._knowledgeEvidence);
-  if (ev.replace(/\s/g, '').length < 10 || BARE_VALUE.test(ev)) return false;
-  const names = ev.match(/[a-z]+/g) || [];
-  if (!(names.some((w) => w.length >= 4) || (names.length >= 3 && /[=<>≤≥]/.test(ev)))) return false;
+  // reasonGate (GRADER-TYPE-1, asked reasons only): the word / length tests are replaced by reasonEvidenceStatesPrinciple (any script,
+  // short symbolic relations such as "OA ⊥ AT"); the quote must still be non-bare, not the question's own words, and in another step.
+  if (ev.replace(/\s/g, '').length < (reasonGate ? 5 : 10) || (!reasonGate && BARE_VALUE.test(ev))) return false;
+  if (!reasonGate) {
+    const names = ev.match(/[a-z]+/g) || [];
+    if (!(names.some((w) => w.length >= 4) || (names.length >= 3 && /[=<>≤≥]/.test(ev)))) return false;
+  }
   const nq = normEvidence(questionText);
   if (nq && (nq.includes(ev) || nq.replace(/\s/g, '').includes(ev.replace(/\s/g, '')))) return false;
+  // reasons: compare with the filler ("Given:", "(given)", "degrees") dropped on both sides — a restated premise is the question, not knowledge
+  if (reasonGate) { const sq = reasonSquash(u._knowledgeEvidence); if (sq && reasonSquash(questionText).includes(sq)) return false; }
   const at = live.indexOf(u);
   return live.some((s) => s !== u && (s.status === 'correct' || s.status === 'partial')
     && (partKey(s.part) !== partKey(u.part) || live.indexOf(s) > at)
     && normEvidence(s.studentWork).includes(ev));
+}
+/* GRADER-TYPE-1 (probe T1-Q25-REASON-BLANK, 22 Nov 2026): for a blank asked-for REASON, evidence must show the PRINCIPLE, not merely
+   the same RESULT. Paid replies typed such a loss `presentation` with knowledgeEvidence = the student's part (ii) line
+   "LCM = 2^3 x 3^2 x 5 x 7 = 8 x 9 x 35 = 2520" (a later part, so knowledgeProven accepted it): it is a calculation that repeats the
+   part (i) result, it says nothing of WHY. A principle is STATED (a word of 4+ letters: "product of the highest powers ...") or APPLIED
+   as a relation between two or more named quantities ("AB + CD = BC + DA", "CD = CR + DR = 12 + 6"). A quote that is a calculation on
+   ONE name — no stating word, no second quantity — is a result, not proof. The quote must also not sit in the answer step(s) the reason belongs to. Structured fields only; never
+   comment prose. GRADER_TYPE_1_DISABLED=1 restores knowledgeProven unchanged. */
+const REASON_FILLER = new Set(['hence', 'therefore', 'thus', 'so', 'since', 'then', 'now', 'ans', 'answer', 'required', 'number', 'value', 'total', 'final', 'least',
+  'is', 'are', 'the', 'of', 'we', 'get', 'gives', 'find', 'from', 'with', 'given', 'that', 'this', 'each', 'also', 'here', 'have', 'must', 'need', 'needs',
+  'hoga', 'hai', 'tha', 'correct', 'clearly', 'obviously', 'proved', 'verified', 'which', 'lhs', 'rhs',
+  'cm', 'mm', 'km', 'kg', 'sec', 'units', 'metre', 'metres', 'meter', 'meters', 'degree', 'degrees', 'second', 'seconds', 'litre', 'litres',
+  'volt', 'volts', 'ohm', 'ohms', 'watt', 'watts', 'joule', 'joules', 'newton', 'newtons']);
+const EVIDENCE_WORD = /[\p{L}\p{M}]+/gu;
+// a NAMED CBSE theorem / criterion is a stated reason on its own ("(By BPT)" is accepted by the marking schemes)
+const NAMED_THEOREM = /(?<![\p{L}])(?:bpt|aa|sas|sss|asa|aas|rhs|cpct|pythagoras)(?![\p{L}])/u;
+const CLAUSE_SPLIT = /[,;:∴()]|(?<![\p{L}])(?:since|as|because|so|hence|by|taking)(?![\p{L}])/u;
+const UNIT_AFTER_NUMBER = /(?<=\d)(?:\s*[\p{L}°]{1,3}\d?(?![\p{L}\p{N}])(?:\s*\/\s*\p{L}{1,3})?)+/gu;
+/** Normal form of a quote for the reason tests: lower-case, ⟂ -> ⊥, || -> ∥, "x" between digits -> ×. */
+const reasonForm = (t) => normEvidence(t).replace(/⟂/g, '⊥').replace(/\|\|/g, '∥').replace(/(?<=\d)\s*x\s*(?=\d)/g, ' × ')
+  .replace(/(?<![\p{L}])(?:\p{L}\.){2,}/gu, (m) => m.replace(/\./g, ''));   // "B.P.T." -> "bpt"
+const dropFiller = (t) => t.replace(EVIDENCE_WORD, (w) => (REASON_FILLER.has(w) ? ' ' : w));
+/** A parenthesised remark with a word in it ("(given)", "(from figure)", "(with prime factors)") is annotation, not the student's reason. */
+function dropRemarks(t) {
+  let prev;
+  do { prev = t; t = t.replace(/\((?:[^()]|\([^()]*\))*\)/g, (m) => (/[\p{L}]{4,}/u.test(m) ? ' ' : m)); } while (t !== prev);
+  return t;
+}
+/** The quote with filler dropped and punctuation gone — to compare it with the question text. */
+const reasonSquash = (t) => dropFiller(reasonForm(t)).replace(/[^\p{L}\p{N}=<>≤≥⊥∥~→]/gu, '');
+/** STATED: at least two distinct content words (Latin 4+ letters, non-Latin 2+) that are neither the label of the result (the LAST clause
+ *  before the first "=") nor in the question text; OR a named CBSE theorem. APPLIED: a relation (= < > ≤ ≥ ⊥ ∥ ~ →) with a letter-named
+ *  quantity on at least two sides. Unit letters after a number, filler, units and parenthesised remarks are dropped first; a bare value is
+ *  never proof. A lone label beside a worked-out number is a result. */
+function reasonEvidenceStatesPrinciple(rawEv, questionText) {
+  const base = reasonForm(rawEv);
+  // "LHS = RHS" is a restatement, not the right-hand-side criterion: RHS counts as a theorem only where LHS is not also named
+  if (NAMED_THEOREM.test(/(?<![\p{L}])lhs(?![\p{L}])/u.test(base) ? base.replace(/(?<![\p{L}])rhs(?![\p{L}])/gu, ' ') : base)) return true;
+  const clean = dropRemarks(base);
+  const eq = clean.indexOf('=');
+  const lastClause = eq >= 0 ? clean.slice(0, eq).split(CLAUSE_SPLIT).pop() : '';
+  const label = new Set(lastClause.match(EVIDENCE_WORD) || []);
+  const s2 = dropFiller(clean.replace(UNIT_AFTER_NUMBER, ' '));
+  if (/^[\p{L}∠][\p{L}\p{N} ]* ?= ?-?[\d.]+$/u.test(s2.replace(/\s+/g, ' ').trim())) return false;
+  const inQuestion = new Set(normEvidence(questionText).match(EVIDENCE_WORD) || []);
+  const words = new Set((s2.match(EVIDENCE_WORD) || []).filter((w) => !label.has(w) && !inQuestion.has(w) && (/\p{Script=Latin}/u.test(w) ? w.length >= 4 : w.length >= 2)));
+  if (words.size >= 2) return true;
+  // one relation, two letter-named sides — a list of separate facts ("x = 2, y = 3", "AE = 3 cm, EC = 2 cm") is not a relation
+  return s2.split(/[,;]/).some((cl) => cl.split(/[=<>≤≥⊥∥~→]/).filter((side) => /\p{L}/u.test(side)).length >= 2);
+}
+function isAskedReasonStep(u) {
+  const d = String(u.description || '');
+  return u._omittedAsk === 'reason' || (REASON_STEP.test(d) && !NOT_A_REASON_STEP.test(d));
+}
+function reasonKnowledgeProven(u, live, questionText) {
+  if (process.env.GRADER_TYPE_1_DISABLED === '1') return knowledgeProven(u, live, questionText);
+  // the stricter test only where the QUESTION asks for a reason (a photo-only question relies on the model's omittedAsk flag); else trunk
+  const qt = String(questionText || '');
+  const asked = REASON_ASKED.test(qt) || (u._omittedAsk === 'reason' && !isRealQuestionText({ questionText: qt }));
+  if (!asked) return knowledgeProven(u, live, questionText);
+  if (!knowledgeProven(u, live, questionText, true) || !reasonEvidenceStatesPrinciple(u._knowledgeEvidence, qt)) return false;
+  // the quote must not be the answer the reason belongs to: an earlier step of the SAME part that carries it
+  const ev = normEvidence(u._knowledgeEvidence);
+  const at = live.indexOf(u);
+  return !live.some((s) => s !== u && partKey(s.part) === partKey(u.part) && live.indexOf(s) < at && normEvidence(s.studentWork).includes(ev));
 }
 function omissionsInAttemptedWork(steps, { q, totalMarks, only = null }) {
   let n = 0;
@@ -759,7 +835,7 @@ function omissionsInAttemptedWork(steps, { q, totalMarks, only = null }) {
   // MISSING-TYPE-1: `only` (a Set) re-runs the flip below for the steps settleUntypedLosses just made
   // "unattempted" — the model-typing pass already ran, so it is skipped.
   if (ENFORCE_EVIDENCE_ON_MODEL_TYPING && !only) for (const s of live) {
-    if (s.status !== 'missing' || s.mistakeType !== 'presentation' || !isBlankWork(s.studentWork, s.status)) continue;
+    if (s.status !== 'missing' || s.mistakeType !== 'presentation' || !isBlankWork(s.studentWork, s.status, true)) continue;
     // delta review item 2 (the MINIMUM fix): a step still holding marks — the model's own, or given back by the
     // exam-technique cap (capExamTechnique, step 5, runs BEFORE this) — keeps the model's typing, as on trunk, so
     // an "unattempted" step never holds marks. (Deciding the evidence before the cap would LOWER marks: owner
@@ -772,15 +848,15 @@ function omissionsInAttemptedWork(steps, { q, totalMarks, only = null }) {
     if (before && after && !askedByQuestion(s.description, questionText)) continue;
     // no proof → the fourth state, as the examiner key GS-M22-a reads it ("a requested sub-task left wholly
     // unattempted → no mistake type"): `unattempted`, untyped. Marks are untouched (they are final here).
-    if (!knowledgeProven(s, live, questionText)) { s.status = 'unattempted'; s.mistakeType = null; n += 1; }
+    if (!(isAskedReasonStep(s) ? reasonKnowledgeProven : knowledgeProven)(s, live, questionText)) { s.status = 'unattempted'; s.mistakeType = null; n += 1; }
   }
   for (const u of live) {
     if (only && !only.has(u)) continue;
-    if (u.status !== 'unattempted' || u.marksAwarded > 0 || !isBlankWork(u.studentWork, u.status)) continue;
+    if (u.status !== 'unattempted' || u.marksAwarded > 0 || !isBlankWork(u.studentWork, u.status, true)) continue;
     if (PART_NAMED.test(String(u.description || '')) || DIAGRAM_STEP.test(String(u.description || ''))) continue;
     if (partKey(u.part) === '' && (anyLabelled || !realQuestion || SUB_PART_MARKER.test(questionText))) continue;
     const { group, before, after } = sides(u);
-    const proven = JUSTIFICATION_STEP.test(String(u.description || '')) && knowledgeProven(u, live, questionText);
+    const proven = JUSTIFICATION_STEP.test(String(u.description || '')) && (isAskedReasonStep(u) ? reasonKnowledgeProven : knowledgeProven)(u, live, questionText);
     // MISSING-TYPE-1 review item 2: the gap rule (working not shown) is never applied to an item the question ASKS for;
     // only #1575's proof of knowledge can make such a blank exam technique.
     const gap = after && !askedByQuestion(u.description, questionText);
@@ -1071,12 +1147,112 @@ function settleUntypedLosses(steps, { q, totalMarks, zeroedBy }) {
       || s.status === 'unattempted' || s.status === 'withdrawn') return;
     // only a "missing" step: a blank "incorrect" one stays as the model judged it (a bare wrong answer it did not
     // quote is still an attempt — markGenuinelyUnattempted, checkSolution.test.cjs §4.1).
-    if (s.status === 'missing' && !(s.marksAwarded > 0) && (nonAttemptText(s.studentWork) !== null || isBlankWork(s.studentWork, s.status))) { s.status = 'unattempted'; blank.push(s); }
+    if (s.status === 'missing' && !(s.marksAwarded > 0) && (nonAttemptText(s.studentWork) !== null || isBlankWork(s.studentWork, s.status, true))) {
+      s.status = 'unattempted'; blank.push(s);
+      // nit: a step typed conceptual LATER by typeBlankAskedReasons was never a final 'unattempted' — it is counted ONCE, there.
+      Object.defineProperty(s, '_settledUnattempted', { value: true, enumerable: false, configurable: true, writable: true });
+    }
     else keptUntyped += 1;
   });
   if (blank.length) omissionsInAttemptedWork(steps, { q, totalMarks, only: new Set(blank) });
   const toExamTechnique = blank.filter((s) => s.mistakeType === 'presentation').length;
   return { toUnattempted: blank.length - toExamTechnique, toExamTechnique, keptUntyped };
+}
+/* ── GRADER-TYPE-1 · OWNER RULING 22 NOV 2026 (R2) — A BLANK ASKED-FOR REASON IS A CONCEPT GAP UNLESS THE PAGE PROVES OTHERWISE ──
+   "A question asks for a reason/justification, the answer is right, the reason is blank, and nothing on the page proves the
+   student knows it → the lost mark is typed `conceptual`." This REPLACES, for asked-for REASONS only, the 5 Nov "no proof →
+   Not attempted" outcome (MISSING-TYPE-1). WITH proof (knowledgeEvidence found in another step, knowledgeProven) it stays exam
+   technique (#1575) — decided by omissionsInAttemptedWork, which this function never overrides. Other blank deliverables
+   (a formula, a diagram, a verification) are NOT reasons and are unchanged. Types and statuses only: NEVER a mark.
+   The signal that a step is an asked-for reason is, in this order, STRUCTURED: the model's `omittedAsk: "reason"`, or — for
+   a separate blank step — the step's own DESCRIPTION naming a reason / justification (the field #1575 already reads) AND the
+   QUESTION TEXT asking for one. Never the teacherAnnotation / comment prose (#1584). Conditions, all: the question is
+   subjective; the step is untyped, earns 0 and lost marks; it is not zeroed work, ECF, a departure or a consequence of an
+   earlier typed error; the answer it justifies was RIGHT (an earlier correct step with work in the same part and no earlier step of that part wrong); no proof.
+   Two shapes: (1) a SEPARATE blank step (missing / unattempted, blank or placeholder work) → status "missing" (it is a part
+   of an attempted answer, not an unattempted part), typed conceptual; (2) a FOLDED reason (U3) — the answer step carries the
+   reason's lost mark and the model flagged `omittedAsk: "reason"` → that step's untyped loss is typed conceptual (or, with proof
+   and inside the exam-technique cap, presentation). Kill switch: GRADER_TYPE_1_DISABLED=1. */
+// B1: the DESCRIPTION fallback names a REASON step only ("Reason for …"), never a verification / relationship step that merely
+// "justifies" something; and the QUESTION must ASK for a reason in words ("giving a reason", "justify", "explain why") — a bare
+// "why" anywhere in the text is not an ask (probe B: "Why is the sum positive?" beside a blank verification step).
+const REASON_STEP = /\breasons?\b|\breasoning\b|\bjustif\w*/i;
+const NOT_A_REASON_STEP = /\b(?:verif\w*|relationship|check\w*|substitut\w*)\b/i;
+const REASON_ASKED = /\b(?:reasons?|justif(?:y|ies|ication|ying)|explain\s+why)\b/i;
+// The reason CLAUSE of an instruction ("giving a reason", "Give a reason for …", "Explain why …", "Justify …").
+const REASON_CLAUSE = /(?:,?\s*(?:and\s+)?(?:giving|give|stating|state|writing|write|with|stating)\s+(?:a|an|your|the|one)?\s*(?:reasons?|justification)\b[^.?;!]*|\b(?:explain\s+why|justify)\b[^.?;!]*|\b(?:a\s+)?reasons?\b[^.?;!]*)/gi;
+const OTHER_ASK = /\b(?:find|state|write|name|which|what|how|show|prove|calculate|determine|evaluate|identify|compute|solve|simplify|factori[sz]e|verify|draw|list|define|express|obtain|name|mention)\b/i;
+/** The question's REASON ask rides on an ANSWER ask in the SAME sub-part ("(i) Write BP and CQ, giving a reason") — so a blank
+ *  reason is a part of an attempted answer. A sub-part that is ONLY a reason ("(ii) Give a reason for your answer to (i)",
+ *  "(ii) Explain why …") is a sub-part of its own: wholly blank, it is UNATTEMPTED (rules.cjs), never an omission inside an answer. */
+function reasonRidesOnAnswer(questionText) {
+  // N1: split on EXACTLY the sub-part markers SUB_PART_MARKER detects ("(i)", "a)", "i.", "1." …) — one shared pattern, not a copy.
+  const parts = String(questionText || '').split(new RegExp(SUB_PART_MARKER.source, 'gim'));
+  const asking = parts.filter((seg) => REASON_ASKED.test(seg));
+  // N2: conservative — EVERY segment that asks for a reason must ride on an answer ask. One riding segment never licenses a blank reason
+  // that may belong to another, reason-only segment ("(ii) Give a reason why 6^n cannot end with 0"): that stays trunk behaviour.
+  return asking.length > 0 && asking.every((seg) => OTHER_ASK.test(seg.replace(REASON_CLAUSE, ' ')));
+}
+const graderType1Disabled = () => process.env.GRADER_TYPE_1_DISABLED === '1';
+function typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy }) {
+  if (graderType1Disabled()) return { toConceptual: 0, toExamTechnique: 0, fromSettled: 0, flagOnlyPhoto: 0 };
+  let toConceptual = 0;
+  let toExamTechnique = 0;
+  let fromSettled = 0;
+  let flagOnlyPhoto = 0;
+  const live = steps.filter((s) => s.status !== 'withdrawn');
+  const questionText = String((q && (q.questionText || q.question)) || '');
+  const realQuestion = isRealQuestionText({ ...(q || {}), questionText });
+  const cap = examTechniqueCap(totalMarks);
+  const lostOf = (s) => half(Math.max(0, (s._available || 0) - s.marksAwarded, Number(s.marksDeducted) || 0));
+  steps.forEach((u, i) => {
+    if (u.status === 'withdrawn' || zeroedBy.has(i) || u._ecf || u.mistakeType || u._consequentialOrigin || u.isDeparture || !(u.marksDeducted > 0)) return;
+    const blankStep = u.marksAwarded === 0 && ['missing', 'unattempted'].includes(u.status) && isBlankWork(u.studentWork, u.status, true) && nonAttemptText(u.studentWork) !== 'phrase';
+    const foldedStep = !blankStep && u._omittedAsk === 'reason' && ATTEMPTED_STATUSES.has(u.status);
+    if (!blankStep && !foldedStep) return;
+    const flagged = u._omittedAsk === 'reason';
+    const desc = String(u.description || '');
+    if (!flagged) {
+      // the TEXT fallback (no structured flag): a REASON-named, blank step the model reported, no bigger than an exam-technique mark
+      if (!REASON_STEP.test(desc) || NOT_A_REASON_STEP.test(desc) || !blankStep || !(Number(u.marksDeducted) <= cap)) return;
+    }
+    // the QUESTION must ask for a reason. A photo-only question (no usable text) relies on the model's structured flag alone.
+    if (realQuestion ? !REASON_ASKED.test(questionText) : !flagged) return;
+    // B1 — the sub-part guards of omissionsInAttemptedWork, for a step that carries NO part label: a step that names a part, or a paper
+    // where other steps ARE labelled, is left alone; and where the text shows sub-parts the reason must RIDE ON an answer ask in its sub-part.
+    if (partKey(u.part) === '') {
+      if (PART_NAMED.test(desc) || DIAGRAM_STEP.test(desc)) return;
+      if (live.some(hasPartLabel)) return;
+      if (realQuestion && SUB_PART_MARKER.test(questionText) && !reasonRidesOnAnswer(questionText)) return;
+    }
+    // a reason has its own part only when it IS the part: then it is an unattempted sub-part (rules.cjs), left alone.
+    // The answer it justifies must be RIGHT: an earlier correct step, with work, of the same part.
+    const at = live.indexOf(u);
+    // "Right" = nothing before the reason is wrong: no earlier step of the part is incorrect or typed conceptual / calculation / silly
+    // (an error AFTER it, or in another part of an unlabelled paper, is not what the reason justifies), and — for a separate blank
+    // step — an earlier step of the part is correct work.
+    const earlier = live.filter((s) => s !== u && partKey(s.part) === partKey(u.part) && live.indexOf(s) < at);
+    const nothingWrongBefore = !earlier.some((s) => s.status === 'incorrect' || ['conceptual', 'calculation', 'silly'].includes(s.mistakeType));
+    const answerRight = nothingWrongBefore && earlier.some((s) => s.status === 'correct' && nonAttemptText(s.studentWork) === null && !isBlankWork(s.studentWork, s.status, true));
+    if (blankStep && !answerRight) return;
+    if (foldedStep && (u.status === 'incorrect' || !nothingWrongBefore)) return;
+    if (reasonKnowledgeProven(u, live, questionText)) {
+      // PROOF (#1575): exam technique, as the 5 Nov ruling says — for a folded reason only inside the A17 cap.
+      if (foldedStep) {
+        const etLost = half(live.filter((s) => s !== u && s.status !== 'unattempted' && s.mistakeType === 'presentation' && countsTowardCap(s) && !s._workingNotShown)
+          .reduce((a, s) => a + lostOf(s), 0));
+        if (half(etLost + lostOf(u)) <= cap) { u.mistakeType = 'presentation'; toExamTechnique += 1; }
+      }
+      return;
+    }
+    if (blankStep) u.status = 'missing';
+    if (u._settledUnattempted) fromSettled += 1;
+    // telemetry: typed by the model's omittedAsk flag ALONE — the question exists only in the photo, so its text could not confirm the ask
+    if (flagged && !realQuestion) flagOnlyPhoto += 1;
+    u.mistakeType = 'conceptual';
+    toConceptual += 1;
+  });
+  return { toConceptual, toExamTechnique, fromSettled, flagOnlyPhoto };
 }
 function countUntyped(kind, n) {
   if (!(n > 0)) return;
@@ -1168,6 +1344,9 @@ function normaliseSteps(rawSteps) {
       Object.defineProperty(step, '_knowledgeEvidence', { value: typeof s.knowledgeEvidence === 'string' ? s.knowledgeEvidence.trim() : '', writable: true, enumerable: false });
       // GRADER-BALANCE-1 (owner ruling 5 Nov 2026): the model's chemical-equation fault for this step and its quote of
       // a failed balancing attempt elsewhere — internal only (never emitted), read by applyBalancingRuling.
+      // GRADER-TYPE-1 (U3): the model's structured flag that the loss on this step is an ASKED-FOR REASON the student did
+      // not write. Internal only (never emitted). A closed value — never read from comment prose (the #1584 precedent).
+      Object.defineProperty(step, '_omittedAsk', { value: s.omittedAsk === 'reason' ? 'reason' : null, writable: true, enumerable: false });
       Object.defineProperty(step, '_equationFault', { value: equationFaultOf(s.equationFault), writable: true, enumerable: false });
       Object.defineProperty(step, '_balancingEvidence', { value: typeof s.balancingEvidence === 'string' ? s.balancingEvidence.trim() : '', writable: true, enumerable: false });
       // What the step could earn, by the model's own ledger when it did not say.
@@ -1863,6 +2042,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   //      assigned between the two (moved here from step 10, unchanged) so a loss that follows a typed error keeps it.
   let untypedSettled = { toUnattempted: 0, toExamTechnique: 0, keptUntyped: 0 };
   let workingFlipped = 0;
+  let reasonsTyped = { toConceptual: 0, toExamTechnique: 0 };
   if (!questionIsObjective) {
     const wns = workingNotShown(steps, q);
     // review (lower priority): a step tagged before the cap that later processing took out of the shape loses the tag.
@@ -1874,6 +2054,8 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     }
     assignConsequentialOrigins(steps, zeroedBy);
     untypedSettled = settleUntypedLosses(steps, { q, totalMarks, zeroedBy });
+    // 7f · GRADER-TYPE-1 (owner ruling R2, 22 Nov 2026): a blank asked-for REASON with no proof of knowledge is a Concept gap.
+    reasonsTyped = typeBlankAskedReasons(steps, { q, totalMarks, zeroedBy });
   }
 
   // 8 · comments made true
@@ -1978,9 +2160,12 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // MISSING-TYPE-1 · admin counters (closed set, no PII; routes/adminTelemetry.cjs `untypedLoss`). Observability only.
   if (!questionIsObjective) {
     countUntyped('working_not_shown', workingFlipped);
-    countUntyped('blank_to_unattempted', untypedSettled.toUnattempted);
+    countUntyped('blank_to_unattempted', untypedSettled.toUnattempted - (reasonsTyped.fromSettled || 0));
     countUntyped('blank_to_exam_technique', untypedSettled.toExamTechnique);
     countUntyped('kept_untyped', untypedSettled.keptUntyped);
+    countUntyped('blank_reason_to_conceptual', reasonsTyped.toConceptual);
+    countUntyped('folded_reason_to_exam_technique', reasonsTyped.toExamTechnique);
+    countUntyped('blank_reason_flag_only_photo', reasonsTyped.flagOnlyPhoto);
     if (marksLostByType.untyped > 0) countUntyped('subjective_questions', 1);
   }
   const lostSum = half(Object.values(marksLostByType).reduce((a, b) => a + b, 0));

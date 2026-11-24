@@ -521,7 +521,7 @@
  },
  "chemical-reactions-and-equations::rows": {
   "n": 502,
-  "sha256": "c4de3602741e0076ddd717aeeb9b72d6deed4d601e0c31968bebbdfa92ed8b2c"
+  "sha256": "5eeedc18ce344da9ceaafba678e36f886722a14b3e72a3238c354795f90d0f9c"
  },
  "chemical-reactions-and-equations::rank": {
   "n": 502,
@@ -561,7 +561,7 @@
  },
  "acids-bases-and-salts::rows": {
   "n": 548,
-  "sha256": "1686742e9ec8b953ae69bbbca677e7bbf68f64faa9ea5065a2bf3d0817b66c4c"
+  "sha256": "bf4155fa7ea54dc1f62839705f9d294eb862161866aa4f834829bf39660fc485"
  },
  "acids-bases-and-salts::rank": {
   "n": 548,
@@ -641,7 +641,7 @@
  },
  "carbon-and-its-compounds::rows": {
   "n": 365,
-  "sha256": "608bc301bfb003f77625eda84b3b2bd7650ce25945412588a171f03845621bda"
+  "sha256": "f9453232d15c46a7036097db26fa11139cda741c006e13b30d7d924c7c0f8274"
  },
  "carbon-and-its-compounds::rank": {
   "n": 365,
@@ -681,7 +681,7 @@
  },
  "light-reflection-and-refraction::rows": {
   "n": 786,
-  "sha256": "5c63fb9964e8b7fe377787a39252bfdde65515997ed09598af6afcec3620aef5"
+  "sha256": "b36ac0777ee437b1003abc8f4071dd75d1a741df93ca6340e198fd8dbd16ff02"
  },
  "light-reflection-and-refraction::rank": {
   "n": 786,
@@ -721,7 +721,7 @@
  },
  "human-eye-and-colourful-world::rows": {
   "n": 304,
-  "sha256": "0779b09f052b5d5a7e217037df447d2290470f6372aaf7dd69c6083efcdcbfa1"
+  "sha256": "5b1041db9bc93303af178f60b176452ae870d6d77e2ae1283f44dd597a6f77c9"
  },
  "human-eye-and-colourful-world::rank": {
   "n": 304,
@@ -761,7 +761,7 @@
  },
  "electricity::rows": {
   "n": 384,
-  "sha256": "928d2e9d015f9852e72b7f8ef41b25bb2b0c86b577c425c3c9774ee934abdd7c"
+  "sha256": "d89455772493ccf4d1d26727cd4bdd67e6c832d8bd37e3bd4e139821287db765"
  },
  "electricity::rank": {
   "n": 384,
@@ -801,7 +801,7 @@
  },
  "magnetic-effects-of-electric-current::rows": {
   "n": 269,
-  "sha256": "11049c2e36e9b4fbb503dbf4127c1d6cdeb7e90bb00a5dfe3123490526aacd9d"
+  "sha256": "9fa48d10a45f50354ed95af6535a24d5e7375f9aaff68bf7cb639fb305f3a361"
  },
  "magnetic-effects-of-electric-current::rank": {
   "n": 269,
@@ -841,7 +841,7 @@
  },
  "life-processes::rows": {
   "n": 579,
-  "sha256": "404aa86b13d5a68feee9c18fc34bf8a78feb2a6d7f35cad012135b628920fc06"
+  "sha256": "50edb5e935d3fc497b4a3a5a753880a436112fb612d9b3912a75b3dbc8dc0002"
  },
  "life-processes::rank": {
   "n": 579,
@@ -881,7 +881,7 @@
  },
  "control-and-coordination::rows": {
   "n": 362,
-  "sha256": "6b1b01346235d593de5dbb5d59b91b82802476629a257dfac217080ce7f53f8d"
+  "sha256": "e30e275479457061ef9d6a14719382685078e994e9eb972c9d8ee40d7c369f6b"
  },
  "control-and-coordination::rank": {
   "n": 362,
@@ -921,7 +921,7 @@
  },
  "how-do-organisms-reproduce::rows": {
   "n": 503,
-  "sha256": "5c11fdce8565026d58298a6ff78abb7f8a6b07b9308b00cddc66d4e5417d5dbf"
+  "sha256": "fc9f557088637bb9139547add028e9b6d56fa515e71dcbdee44bceb254468504"
  },
  "how-do-organisms-reproduce::rank": {
   "n": 503,
@@ -961,7 +961,7 @@
  },
  "heredity::rows": {
   "n": 302,
-  "sha256": "6c2d643c8415afe09300708dff5c6e657677c56a129f971b7d4da65471331d8b"
+  "sha256": "9dd82dbf9587c2c050022e1196db28f180c900719f9c270a3b1206bfc37b74d6"
  },
  "heredity::rank": {
   "n": 302,
@@ -1001,7 +1001,7 @@
  },
  "our-environment::rows": {
   "n": 358,
-  "sha256": "cbd5d55a03f8037c61479a8f7e29de822b2f2110a7c54fcd14e05aa8a9d6752f"
+  "sha256": "bce9e71008817aa5ce949225b25f5e24be3c9c68e1a291441957677ba31f3c30"
  },
  "our-environment::rank": {
   "n": 358,
@@ -1045,6 +1045,6 @@
  },
  "subject::Science": {
   "n": 5780,
-  "sha256": "3cd44b7618cbd1585ac820cbf383c55133b6edcae6bad2c54045793e4c3d5b41"
+  "sha256": "094edc402b571b8c5d0eaa7e67bbd3a21f6a488d62a281d3a18a657a6a8dcd14"
  }
 }

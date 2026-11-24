@@ -265,28 +265,10 @@ describe("PRICING-PAGES-2 F4 - sales-page surface on the money events", () => {
         ],
         "meta": [
           [
-            "InitiateCheckout",
-            {
-              "currency": "INR",
-              "value": 2262,
-            },
-          ],
-          [
             "Purchase",
             {
               "currency": "INR",
               "value": 2262,
-            },
-          ],
-          [
-            "InitiateCheckout",
-            {
-              "content_ids": [
-                "pack_cbq",
-              ],
-              "content_type": "product",
-              "currency": "INR",
-              "value": 235,
             },
           ],
           [
@@ -415,16 +397,17 @@ describe("pack analytics", () => {
     expect(names()).toEqual(["pack_view", "pack_view", "pack_view"]);
   });
 
-  it("pack_checkout: first-party pack_checkout, GA4 begin_checkout with the sku as item, and one Meta InitiateCheckout (META-PACK-CHECKOUT-1)", () => {
+  it("pack_checkout: first-party pack_checkout and GA4 begin_checkout with the sku as item; META-IC-1: NO Meta event at the tap", () => {
     trackPackCheckout({ sku: "pack_chapter", itemName: "Chapter Pack · Real Numbers", valueInr: 49 });
     expect(names()).toEqual(["pack_checkout"]);
     const begin = gtagCalls.find((c) => c[0] === "event" && c[1] === "begin_checkout");
     expect(begin).toBeTruthy();
     expect((begin![2] as { items: Array<{ item_id: string }> }).items[0].item_id).toBe("pack_chapter");
-    expect(metaCalls).toHaveLength(1);
+    expect(metaCalls).toHaveLength(0);
   });
 
-  it("META-PACK-CHECKOUT-1: Meta InitiateCheckout once per attempt id, value = total incl. GST, eventID = the attempt id; a repeat with the same id sends nothing", () => {
+  it("META-IC-1 kill switch (VITE_META_IC_AT_ORDER_DISABLED=1) - META-PACK-CHECKOUT-1 as on trunk: Meta InitiateCheckout once per attempt id at the TAP, value = total incl. GST, eventID = the attempt id; a repeat with the same id sends nothing", () => {
+    vi.stubEnv("VITE_META_IC_AT_ORDER_DISABLED", "1");
     vi.setSystemTime(new Date("2026-11-13T10:00:00Z")); // after GST-EXCL-1 (7 Nov 2026)
     const d = { sku: "pack_chapter" as const, itemName: "Chapter Pack", valueInr: 49 };
     trackPackCheckout(d, { signedIn: true, attemptId: "lt_attempt_1" });
@@ -436,12 +419,15 @@ describe("pack analytics", () => {
     // the Premium pass tap keeps its own event and is not a pack event
     expect(metaCalls.every((c) => c[1] === "InitiateCheckout")).toBe(true);
     vi.useRealTimers();
+    vi.unstubAllEnvs();
   });
 
-  it("META-PACK-CHECKOUT-1: a call with no attempt id still gets one id of its own (never a bare, id-less Meta event)", () => {
+  it("META-IC-1 kill switch: a call with no attempt id still gets one id of its own (never a bare, id-less Meta event)", () => {
+    vi.stubEnv("VITE_META_IC_AT_ORDER_DISABLED", "1");
     trackPackCheckout({ sku: "pack_mock", itemName: "Mock Pack", valueInr: 99 });
     expect(metaCalls).toHaveLength(1);
     expect((metaCalls[0][3] as { eventID: string }).eventID).toMatch(/^lt_/);
+    vi.unstubAllEnvs();
   });
 
   it("pack_purchase: once per transaction; Meta gets the STANDARD Purchase (META-PURCHASE-UNIFY-1), never PackPurchase; GA4 gets purchase; the Premium `purchase` is NOT logged first-party", () => {

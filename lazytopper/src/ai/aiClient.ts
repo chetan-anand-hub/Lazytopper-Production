@@ -986,6 +986,10 @@ export interface WorksheetQuestionGrade extends GradeV2Fields {
   objective?: boolean;
   /** Present only when couldNotRead is true. */
   note?: string;
+  /** LIVE-FIX-1 (owner ruling 23 Nov 2026, 23:05 IST) - CLIENT-SET on a Chapter Test / Full Mock only: the grader found NO answer
+   *  to this question on the uploaded pages, and the paper counts it as "Not attempted · 0" (like a CBSE board paper) instead of
+   *  "not marked yet". The row is GRADED (0, its whole loss not attempted - never a mistake). Never set by the grader. */
+  notFoundOnPages?: true;
   /** Check & Improve PR-2 per-question topic (client-populated AFTER grading — the
    *  grader NEVER emits these). Resolved by re-running the existing /detect-question
    *  read per question against the topics.ts vocabulary (A2), canonicalised through

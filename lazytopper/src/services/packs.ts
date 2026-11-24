@@ -37,6 +37,7 @@ import {
   type RazorpaySuccess,
 } from "./checkout";
 import { confirmServerPrice, razorpaySheetDescription } from "./priceConfirm";
+import { watchSheetForHang } from "./payReturn";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { isGstBuyerCancelled } from "./gstBuyerOrder";
 
@@ -257,6 +258,32 @@ export interface MyPacks {
   testSeries?: TestSeriesStatus;
   /** TS-UPGRADE-CREDIT-1 - the server's Board Pass upgrade price for a Test Series owner; absent for everyone else. */
   testSeriesUpgrade?: TestSeriesUpgrade;
+  /** TS-FREE-CHECK-1 - a NON-owner's one free test (written answers checked): the server's pin + count; absent when the rule is off. */
+  freeTest?: TestSeriesFreeTest;
+}
+
+/**
+ * TS-FREE-CHECK-1 (owner ruling 23 Nov 2026) - the server's view of a student's ONE free Test Series test (GET /api/packs/mine
+ * `freeTest`, present only for a student WITHOUT the pack while the rule is on). `paperKey` is the paper the SERVER pinned at the
+ * first written check ("TS-CT-M01"), or null when no written check has been taken yet. Display only: the server decides every grade.
+ */
+export interface TestSeriesFreeTest {
+  paperKey: string | null;
+  checksPerPaper: number;
+  used: number;
+  /** TS-RECHECK-1 on the free paper: its latest check was NOT counted (the sheet could not be read). */
+  freeRecheck?: true;
+}
+
+/** The server's `freeTest` object -> a sane value, or null (then the page shows today's MCQ-only free test). PURE. */
+export function readTestSeriesFreeTest(raw: unknown): TestSeriesFreeTest | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const r = raw as { paperKey?: unknown; checksPerPaper?: unknown; used?: unknown; freeRecheck?: unknown };
+  const paperKey = typeof r.paperKey === "string" && /^TS-[A-Z0-9-]{2,40}$/.test(r.paperKey) ? r.paperKey : r.paperKey === null ? null : undefined;
+  if (paperKey === undefined) return null;
+  const per = typeof r.checksPerPaper === "number" && Number.isInteger(r.checksPerPaper) && r.checksPerPaper > 0 ? r.checksPerPaper : TEST_SERIES_CHECKS_PER_PAPER;
+  const used = typeof r.used === "number" && Number.isFinite(r.used) && r.used > 0 ? Math.min(per, Math.floor(r.used)) : 0;
+  return { paperKey, checksPerPaper: per, used: paperKey ? used : 0, ...(paperKey && r.freeRecheck === true ? { freeRecheck: true as const } : {}) };
 }
 
 /**
@@ -314,6 +341,27 @@ export function readTestSeriesStatus(raw: unknown): TestSeriesStatus | null {
 /** TS-RECHECK-1 - the plain note shown when the server did not count a check because the sheet could not be read. */
 export const SHEET_UNREADABLE_NOT_COUNTED_LINE =
   "We couldn't read most of your sheet, so this check wasn't counted. Retake the photo in good light and upload again. This free re-check is given once per paper.";
+
+/**
+ * LIVE-FIX-1 (coordinator ruling 24 Nov 2026) - the server's free re-check covers BOTH a sheet it could not read and answers that
+ * were not on the uploaded pages (TS-RECHECK-1, unchanged). The note names the reason only when the page KNOWS it from the check
+ * it just showed; otherwise one neutral line fits both.
+ */
+// RE-REVIEW SF2: the free re-check has JUST been used (one per paper) - the next check counts, so neither line says "free".
+// NIT: "half or more ... couldn't be found or read" is true in every case TS-RECHECK-1 triggers (exactly half; another question's answer).
+export const ANSWERS_NOT_FOUND_NOT_COUNTED_LINE =
+  "This check wasn't counted — half or more of the answers couldn't be found or read on the pages. Add all your pages and check again. This free re-check is given once per paper.";
+export const CHECK_NOT_COUNTED_NEUTRAL_LINE =
+  "This check wasn't counted — add any missing or unclear pages and check again. This free re-check is given once per paper.";
+
+export type NotCountedReason = "not-found" | "unreadable" | null;
+
+/** The not-counted note for a reason (null / unknown -> the neutral line). PURE. */
+export function checkNotCountedLine(reason: NotCountedReason | undefined): string {
+  if (reason === "not-found") return ANSWERS_NOT_FOUND_NOT_COUNTED_LINE;
+  if (reason === "unreadable") return SHEET_UNREADABLE_NOT_COUNTED_LINE;
+  return CHECK_NOT_COUNTED_NEUTRAL_LINE;
+}
 
 /** True when the server says this paper's latest check was not counted (free re-check). PURE. */
 export function testSeriesRecheckNote(status: TestSeriesStatus | null | undefined, paperKey: string): boolean {
@@ -453,7 +501,7 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     }
     throw new Error(`request failed: ${res.status}`);
   }
-  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown; ownsTestSeries?: unknown; testSeries?: unknown };
+  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown; ownsTestSeries?: unknown; testSeries?: unknown; freeTest?: unknown };
   const packs = Array.isArray(json.packs) ? json.packs.map(readOwned).filter((p): p is OwnedPack => p !== null) : [];
   const licensee: PackLicensee = {
     name: typeof json.licensee?.name === "string" ? json.licensee.name : "",
@@ -469,6 +517,8 @@ export async function fetchMyPacks(): Promise<MyPacks> {
   // TS-PACK-1: only the server's literal `true` unlocks the series; the status is display only.
   const testSeries = readTestSeriesStatus(json.testSeries);
   const testSeriesUpgrade = readTestSeriesUpgrade(json.boardPassCredit);
+  // TS-FREE-CHECK-1: never for an owner (the owner view applies), whatever the server sent.
+  const freeTest = json.ownsTestSeries === true ? null : readTestSeriesFreeTest(json.freeTest);
   return {
     packs,
     licensee,
@@ -477,6 +527,7 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     ...(json.ownsTestSeries === true ? { ownsTestSeries: true } : {}),
     ...(testSeries ? { testSeries } : {}),
     ...(testSeriesUpgrade ? { testSeriesUpgrade } : {}),
+    ...(freeTest ? { freeTest } : {}),
   };
 }
 
@@ -570,6 +621,8 @@ export async function buyPack(
     // GST-EXCL-1 (review G2): the server's price differs from what this device showed -> confirm it before Razorpay opens.
     if (!(await confirmServerPrice(order))) return { status: "dismissed" };
     const success = await new Promise<RazorpaySuccess | null>((resolve) => {
+      // PAY-HANG-1: no status route for a signed-in pack order -> the bar only says to finish or cancel in the UPI app (never a way to pay again).
+      const hang = watchSheetForHang({ order: { orderId: order.orderId }, item: { kind: "pack", sku, ...(target ? { target } : {}) }, onClosed: () => resolve(null) });
       const checkout = new Razorpay({
         key: order.keyId,
         amount: order.amountPaise,
@@ -577,14 +630,23 @@ export async function buyPack(
         order_id: order.orderId,
         name: "LazyTopper",
         description: razorpaySheetDescription(packCheckoutDescription(sku, target, options.chapterName), order),
-        handler: (response) => resolve(response),
-        modal: { ondismiss: () => resolve(null) },
+        handler: (response) => {
+          hang.stop();
+          resolve(response);
+        },
+        modal: {
+          ondismiss: () => {
+            hang.stop();
+            resolve(null);
+          },
+        },
         ...razorpayUpiFirstOption(),
         ...prefillOption(prefill),
       });
       watchPaymentFailed(checkout, () => {
         sawFailure = true;
       });
+      hang.attach(checkout);
       checkout.open();
     });
     if (!success) return sawFailure ? { status: "dismissed", afterFailure: true } : { status: "dismissed" };

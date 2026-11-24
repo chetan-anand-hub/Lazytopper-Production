@@ -169,7 +169,7 @@ const UPGRADE_SHEET_CSS = `
     display: block;
   }
   .lt-upsheet__cta {
-    background: var(--lt-green, #16b96a);
+    background: var(--lt-green-fill, #257e55);
     border: 1px solid var(--lt-green-dark, #0b8f50);
     color: #ffffff;
     margin-bottom: 14px;

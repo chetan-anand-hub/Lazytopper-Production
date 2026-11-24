@@ -224,8 +224,8 @@ describe("Meta — before the library loads", () => {
 });
 
 describe("Meta — named events", () => {
-  it("maps exactly the PR-1 events plus TRACK-2's two checkout events plus MEASURE-1's first_graded plus ENGAGE10-1's engaged_10min plus ENGAGE5-1's engaged_5min plus PACKS-CLIENT-1's pack_purchase plus META-PACK-CHECKOUT-1's pack_checkout", () => {
-    expect(Object.keys(META_EVENTS).sort()).toEqual(["begin_checkout", "engaged_10min", "engaged_5min", "first_graded", "pack_checkout", "pack_purchase", "purchase", "sign_up", "trial_start"]);
+  it("maps exactly the PR-1 events plus TRACK-2's purchase plus MEASURE-1's first_graded plus ENGAGE10-1's engaged_10min plus ENGAGE5-1's engaged_5min plus pack_purchase; META-IC-1: the TAP events begin_checkout / pack_checkout are NOT mapped", () => {
+    expect(Object.keys(META_EVENTS).sort()).toEqual(["engaged_10min", "engaged_5min", "first_graded", "pack_purchase", "purchase", "sign_up", "trial_start"]);
     // META-PURCHASE-UNIFY-1: a pack purchase is the STANDARD Purchase (was the custom PackPurchase, kept as the kill-switch fallback).
     expect(META_EVENTS.pack_purchase).toEqual(["track", "Purchase"]);
     expect(META_PACK_PURCHASE_LEGACY).toEqual(["trackCustom", "PackPurchase"]);
@@ -237,12 +237,13 @@ describe("Meta — named events", () => {
     expect(added()).toEqual([]);
   });
 
-  it("META-PACK-CHECKOUT-1: pack_checkout is never sent bare (no attempt id -> nothing); it travels from trackPackCheckout with its eventID", () => {
+  it("META-IC-1: the Buy TAP events (begin_checkout, pack_checkout) send NOTHING to Meta", () => {
     trackNamedEvent("pack_checkout" as NamedAnalyticsEvent);
+    trackNamedEvent("begin_checkout" as NamedAnalyticsEvent);
     expect(added()).toEqual([]);
   });
 
-  it.each(Object.entries(META_EVENTS).filter(([n]) => n !== "pack_checkout" && n !== "pack_purchase"))("fires %s as one two-argument entry", (name, [method, metaName]) => {
+  it.each(Object.entries(META_EVENTS).filter(([n]) => n !== "pack_purchase"))("fires %s as one two-argument entry", (name, [method, metaName]) => {
     if (name === "sign_up") trackSignUp();
     else if (name === "first_graded") trackFirstGraded("worksheet");
     else trackNamedEvent(name as NamedAnalyticsEvent);

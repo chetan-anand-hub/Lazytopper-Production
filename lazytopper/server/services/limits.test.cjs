@@ -57,7 +57,7 @@ function fakeFirestore({ failTx = false } = {}) {
   return { db, docs };
 }
 
-function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, created = NOW - 30 * DAY, failTx = false, unauth = false, listPacks, seriesOwnerPaper } = {}) {
+function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, created = NOW - 30 * DAY, failTx = false, unauth = false, listPacks, seriesOwnerPaper, seriesFreeTestPaper } = {}) {
   const clock = { now: NOW };
   const f = fakeFirestore({ failTx });
   const counters = {};
@@ -75,6 +75,7 @@ function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, created = NOW - 30 
     verifiedCaller: { resolveVerifiedUid: async () => (unauth ? '' : 'stu-1') },
     ...(listPacks ? { listPacks } : {}),
     ...(seriesOwnerPaper ? { seriesOwnerPaper } : {}),
+    ...(seriesFreeTestPaper ? { seriesFreeTestPaper } : {}),
   });
   return { l, f, clock, counters, creationReads: () => creationReads };
 }
@@ -909,4 +910,51 @@ test('TS-PACK-JOBFIX · DETAIL: a free owner keeps the breakdown on the 2nd seri
   const noId = rig({ tier: 'free', seriesOwnerPaper: seriesPred(true) });
   await claim(noId, 'FM-1');
   assert.equal((await claim(noId, 'FM-2')).body.unlocked, false, 'without the worksheetId nothing changes');
+});
+
+/* ── TS-FREE-CHECK-1 (owner ruling 23 Nov 2026) · the non-owner's ONE free test ───────────────────────────────────────────────── */
+// The predicate stands in for testSeriesChecks.freeTestPaper ("this worksheetId is a sitting of THIS non-owner's pinned free-test
+// paper"), pinned in testSeriesChecks.test.cjs. index.cjs folds testSeriesChecks.freeTestGrade into `seriesOwnerGrade`.
+const freePaperPred = (pinnedPrefix) => async (uid, kind, wid) => uid === 'stu-1' && typeof wid === 'string' && wid.startsWith(pinnedPrefix)
+  && ((kind === 'chapter-test' && wid.startsWith('ct-ts1-')) || (kind === 'full-mock' && wid.startsWith('fm-ts1-')));
+
+test('TS-FREE-CHECK-1 · TRIAL free test: both checks + the free re-check of the free paper are never 409 and spend no trial weekly chapter-test grade', async () => {
+  const r = rig({ tier: 'trial', created: NEW_ACCT });
+  for (let i = 0; i < 3; i += 1) {
+    const g = await seriesGate(r, { idem: `free-${i}`, owner: true /* = ownerSeriesGrade || freeTestGrade */ });
+    assert.deepEqual(g.verdict, {}, `check #${i + 1}`);
+    assert.equal(g.sent, undefined);
+  }
+  assert.equal(r.counters['limits.grade.recorded'], undefined, 'nothing reserved / recorded: the trial chapter-test allowance is untouched');
+  // the trial's own (non-series) chapter-test allowance is still whole afterwards: first free + 1 a week, then 409 - as before
+  assert.deepEqual((await seriesGate(r, { idem: 'plain-1', owner: false })).verdict, {});
+  assert.deepEqual((await seriesGate(r, { idem: 'plain-2', owner: false })).verdict, {});
+  assert.equal((await seriesGate(r, { idem: 'plain-3', owner: false })).verdict.refused, true);
+});
+
+test('TS-FREE-CHECK-1 · BASIC free test: no "first free" grade is spent (no bypass) - the entitlement gate admits it on the free test', async () => {
+  const r = rig({ tier: 'free', created: NEW_ACCT });
+  assert.deepEqual((await seriesGate(r, { surface: 'chapter-test', idem: 'bf-1', owner: true })).verdict, {});
+  // Basic's first free chapter-test grade is still available afterwards (unchanged)
+  assert.deepEqual((await seriesGate(r, { surface: 'chapter-test', idem: 'bf-2', owner: false })).verdict, { bypassEntitlement: true });
+});
+
+test('TS-FREE-CHECK-1 · DETAIL: the pinned free-test paper keeps its breakdown on a re-check; any other paper is locked as before; downloads are NOT widened', async () => {
+  const claim = (r, resultKey, worksheetId) => post(r, 'handleDetailClaim', { kind: 'chapter-test', resultKey, ...(worksheetId ? { worksheetId } : {}) });
+  const r = rig({ tier: 'free', seriesOwnerPaper: seriesPred(false), seriesFreeTestPaper: freePaperPred('ct-ts1-real-numbers--') });
+  assert.equal((await claim(r, 'CT-1', 'ct-ts1-real-numbers--a')).body.unlocked, true);
+  const recheck = await claim(r, 'CT-1b', 'ct-ts1-real-numbers--a');
+  assert.equal(recheck.body.unlocked, true, 'the free paper\'s second check keeps its breakdown');
+  assert.equal(recheck.body.freeTest, true);
+  // the free paper never spent Basic's first-of-the-kind breakdown: the first OTHER result is open, the next is locked (as before)
+  assert.equal((await claim(r, 'CT-2', 'ct-ts1-polynomials--b')).body.unlocked, true, 'first other result of the kind: open (unchanged)');
+  assert.equal((await claim(r, 'CT-3', 'ct-ts1-triangles--c')).body.unlocked, false, 'another paper after that: locked as before');
+  // a wrong kind for the free paper is not the free paper
+  const wrong = await post(r, 'handleDetailClaim', { kind: 'full-mock', resultKey: 'FM-9', worksheetId: 'ct-ts1-real-numbers--a' });
+  assert.notEqual(wrong.body.freeTest, true);
+  // downloads: the free paper is counted exactly like any other paper (first free, then counted)
+  assert.equal((await mint(r, { kind: 'chapter-test', paperKey: 'ct-ts1-real-numbers--a' })).body.free, true);
+  const second = await mint(r, { kind: 'chapter-test', paperKey: 'ct-ts1-real-numbers--c' });
+  assert.notEqual(second.body.testSeries, true);
+  assert.notEqual(second.body.counted, false);
 });

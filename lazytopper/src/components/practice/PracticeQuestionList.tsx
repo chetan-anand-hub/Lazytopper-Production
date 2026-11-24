@@ -241,7 +241,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               to={`/topic-hub/10/${subjectKey}`}
               style={{
                 padding: "10px 16px", borderRadius: 10,
-                background: "hsl(152, 55%, 45%)", border: "1px solid hsl(152, 55%, 45%)",
+                background: "var(--lt-green-fill, #257e55)", border: "1px solid var(--lt-green-fill, #257e55)",
                 color: "#ffffff", fontSize: "0.82rem", fontWeight: 700,
                 textDecoration: "none", display: "block",
               }}

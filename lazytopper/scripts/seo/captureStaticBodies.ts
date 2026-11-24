@@ -239,7 +239,7 @@ export const SUBSTRING_TRAP_WITNESSES: ReadonlyArray<{ path: string; sentence: s
  * (H1 included) to strip rule 2 because its sign-in link sat inside the hero <section>; nothing failed. Now it would.
  */
 export const H1_WITNESSES: ReadonlyArray<{ path: string; h1: string }> = [
-  { path: "/test-series", h1: "CBSE Class 10 Test Series: Maths & Science" },
+  { path: "/test-series", h1: "Write on paper. Snap a photo. Get every step marked like a CBSE examiner — in minutes." },
 ];
 
 /** The <h1> witness failures for one capture (pure; the guard test drives it). */

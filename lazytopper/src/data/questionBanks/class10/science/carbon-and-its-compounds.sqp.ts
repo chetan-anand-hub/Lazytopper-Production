@@ -22,11 +22,11 @@ export const CARBON_COMPOUNDS_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Substitution justified; CH₄ + Cl₂ → CH₃Cl + HCl (sunlight). (b) Brine electrolysis: 2NaCl + 2H₂O → 2NaOH + Cl₂ + H₂. OR: X = ethanoic acid (CH₃COOH), Y = ethanol (C₂H₅OH), Z = ethyl ethanoate (CH₃COOC₂H₅).",
     "solutionSteps": [
-      "(a) Rehmat's observation is correct because in the methane–chlorine reaction in sunlight, hydrogen atoms of methane are substituted (replaced) by chlorine atoms one at a time. Balanced equation (first step): CH₄ + Cl₂ → (sunlight) → CH₃Cl + HCl. Further substitutions yield CH₂Cl₂, CHCl₃, CCl₄ in subsequent steps.",
-      "(b) Chlor-alkali process (electrolysis of brine): 2NaCl(aq) + 2H₂O(l) → (electricity) → 2NaOH(aq) + Cl₂(g) + H₂(g). At anode: 2Cl⁻ → Cl₂ + 2e⁻; at cathode: 2H⁺ + 2e⁻ → H₂; Na⁺ + OH⁻ → NaOH.",
-      "Other products: NaOH (caustic soda) and H₂. Uses of NaOH (any one): degreasing of metals; soap/detergent making; paper making; artificial fibres. Uses of H₂ (any one): fuel; making margarine (hydrogenation); manufacture of ammonia for fertilizers.",
-      "OR (alternative): X = ethanoic acid (CH₃COOH) — has vinegar smell. Y = ethanol (C₂H₅OH) — industrial solvent. Z = ethyl ethanoate (CH₃COOC₂H₅) — sweet-smelling ester, formula C₄H₈O₂.",
-      "OR equations: Esterification (with conc. H₂SO₄): CH₃COOH + C₂H₅OH ⇌ CH₃COOC₂H₅ + H₂O. Saponification (with NaOH): CH₃COOC₂H₅ + NaOH → CH₃COONa + C₂H₅OH (yields sodium salt of X back, plus Y)."
+      "[2 marks] (a) Rehmat's observation is correct because in the methane–chlorine reaction in sunlight, hydrogen atoms of methane are substituted (replaced) by chlorine atoms one at a time. Balanced equation (first step): CH₄ + Cl₂ → (sunlight) → CH₃Cl + HCl. Further substitutions yield CH₂Cl₂, CHCl₃, CCl₄ in subsequent steps.",
+      "[1 mark] (b) Chlor-alkali process (electrolysis of brine): 2NaCl(aq) + 2H₂O(l) → (electricity) → 2NaOH(aq) + Cl₂(g) + H₂(g). At anode: 2Cl⁻ → Cl₂ + 2e⁻; at cathode: 2H⁺ + 2e⁻ → H₂; Na⁺ + OH⁻ → NaOH.",
+      "[2 marks] Other products: NaOH (caustic soda) and H₂. Uses of NaOH (any one): degreasing of metals; soap/detergent making; paper making; artificial fibres. Uses of H₂ (any one): fuel; making margarine (hydrogenation); manufacture of ammonia for fertilizers.",
+      "[3 marks] OR (alternative): X = ethanoic acid (CH₃COOH) — has vinegar smell. Y = ethanol (C₂H₅OH) — industrial solvent. Z = ethyl ethanoate (CH₃COOC₂H₅) — sweet-smelling ester, formula C₄H₈O₂.",
+      "[2 marks] OR equations: Esterification (with conc. H₂SO₄): CH₃COOH + C₂H₅OH ⇌ CH₃COOC₂H₅ + H₂O. Saponification (with NaOH): CH₃COOC₂H₅ + NaOH → CH₃COONa + C₂H₅OH (yields sodium salt of X back, plus Y)."
     ],
     "finalAnswer": "(a) Substitution: CH₄ + Cl₂ → CH₃Cl + HCl. (b) 2NaCl + 2H₂O → 2NaOH + Cl₂ + H₂. OR: X=CH₃COOH, Y=C₂H₅OH, Z=CH₃COOC₂H₅.",
     "isCompetencyBased": true
