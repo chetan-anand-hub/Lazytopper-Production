@@ -284,7 +284,7 @@ export function isInternalDevice(): boolean {
  * carries its codes. Only the name changes: the activity log is still handed nothing but
  * `{ name }`, and the vendors still get exactly `payload` / `params`.
  */
-function send(
+export function send(
   kind: "pageview" | "event",
   payload: Record<string, unknown>,
   params: VendorParams = {},
@@ -300,6 +300,8 @@ function send(
     adminHit = true;
   }
   if (!adminHit) sendToVendors(kind, payload, params);
+  // BUYER-SCORE-1: every page view and event reaches the late buyer score, which keeps only what it counts. Never on /admin.
+  if (!adminHit) noteBuyerScore(kind, payload);
   // ★ STUDENT-ACTIVITY-1 (owner ruling 2026-10-01) — the FIRST-PARTY activity log, and
   // the one place this module deals with a signed-in student. It is NOT a vendor and
   // NOT an identify(): nothing is added to what GA4 or Vercel receive (above, unchanged).
@@ -668,13 +670,15 @@ function sendToMeta(
       ? META_PAGEVIEW
       : typeof name === "string" && Object.prototype.hasOwnProperty.call(META_EVENTS, name)
         ? META_EVENTS[name as keyof typeof META_EVENTS]
-        : name === META_IC_ORDER_NAME
-          ? metaIcAtOrderDisabled()
-            ? undefined
-            : (["track", "InitiateCheckout"] as const)
-          : typeof name === "string" && metaIcAtOrderDisabled() && Object.prototype.hasOwnProperty.call(META_IC_TAP_EVENTS, name)
-            ? META_IC_TAP_EVENTS[name]
-            : undefined;
+        : name === "buyer_tier"
+          ? (["trackCustom", `BuyerTier${(payload.data as { tier: string }).tier === "hot" ? "Hot" : "Warm"}`] as const)
+          : name === META_IC_ORDER_NAME
+            ? metaIcAtOrderDisabled()
+              ? undefined
+              : (["track", "InitiateCheckout"] as const)
+            : typeof name === "string" && metaIcAtOrderDisabled() && Object.prototype.hasOwnProperty.call(META_IC_TAP_EVENTS, name)
+              ? META_IC_TAP_EVENTS[name]
+              : undefined;
   if (!mapped) return;
   // META-PURCHASE-UNIFY-1: under the kill switch a pack purchase is the old custom PackPurchase again.
   // A pack purchase is a sale: it is sent only WITH its order id (trackPackPurchase), never as a bare, value-less Purchase.
@@ -692,6 +696,32 @@ function sendToMeta(
   if (metaLibraryLoaded(fbq)) fbq(...call);
   else holdMetaCall(call);
 }
+
+/**
+ * BUYER-SCORE-1 - the buyer score (buyerScore.ts, its localStorage counters) is NOT imported here: engaged10.ts imports it, so it
+ * arrives in that late chunk (about 2 s after the first page view, on idle) and the entry chunk carries only this small queue
+ * (PERF-3 budget). Notes made before it attaches wait here (50 at most).
+ * Kill switch VITE_BUYER_SCORE_DISABLED=1: buyerScore.ts never attaches, so nothing is counted or fired (the capped queue just waits).
+ */
+type BuyerSink = (kind: "pageview" | "event", payload: Record<string, unknown>) => void;
+const buyerQueue: Parameters<BuyerSink>[] = [];
+let buyerSink: BuyerSink | null = null;
+
+/** BUYER-SCORE-1 - buyerScore.ts (inside engaged10.ts's late chunk) takes the queued sends and every later one. */
+export function attachBuyerSink(sink: BuyerSink): void {
+  buyerSink = sink;
+  for (const q of buyerQueue.splice(0)) sink(...q);
+}
+
+function noteBuyerScore(kind: "pageview" | "event", payload: Record<string, unknown>): void {
+  try {
+    if (buyerSink) buyerSink(kind, payload);
+    else if (buyerQueue.length < 50) buyerQueue.push([kind, payload]);
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
 
 /**
  * ⚠ THE SCRIPT TAG CARRIES `data-disable-auto-track="1"`, AND THAT IS LOAD-BEARING.

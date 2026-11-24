@@ -532,6 +532,34 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       expect(w.fs.writes).toEqual([]);
     });
 
+    it("★ BUYER-SCORE-1: each row carries buyerScore {points, tier} from source + landing + sign-up hour; no source -> null; the switch omits it", async () => {
+      const world = listWorld();
+      world.store["signupSources/stu000"] = {
+        utm_source: "google",
+        utm_medium: "cpc",
+        utm_campaign: "search_pdf_packs",
+        landing: "/packs",
+        gclid: true,
+        fbclid: false,
+      };
+      const w = buildRoutes(world);
+      const r = await w.get("/api/admin/students", "admin-token");
+      const withDoc = r.body.rows.find((x: { uid: string }) => x.uid === "stu000");
+      const without = r.body.rows.find((x: { uid: string }) => x.uid === "stu001");
+      const hour = new Date(withDoc.createdMs + 19_800_000).getUTCHours();
+      const hourPts = hour >= 9 && hour < 13 ? 2 : hour === 6 || hour === 7 || hour === 8 || hour >= 21 ? 1 : 0;
+      const points = 7 + 7 + hourPts;
+      expect(withDoc.buyerScore).toEqual({ points, tier: points >= 12 ? "hot" : "warm" });
+      expect(without.buyerScore).toBeNull();
+      process.env.BUYER_SCORE_ADMIN_DISABLED = "1";
+      try {
+        const off = await buildRoutes(listWorld()).get("/api/admin/students", "admin-token");
+        expect(off.body.rows.every((x: Record<string, unknown>) => !("buyerScore" in x))).toBe(true);
+      } finally {
+        delete process.env.BUYER_SCORE_ADMIN_DISABLED;
+      }
+    });
+
     it("★ SOURCE-1: each row carries the coarse source from signupSources/{uid}; a missing doc is null (an account from before the lane)", async () => {
       const world = listWorld();
       world.store["signupSources/stu000"] = {
