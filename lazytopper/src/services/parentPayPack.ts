@@ -229,6 +229,8 @@ export interface AskParentPackMessageInput {
   lang: ParentPayLang;
   /** "Maths CBQ Pack" (parentPackName). */
   name: string;
+  /** TS-PARENT-FORWARD-1 (review A): the pack's SKU - picks the message (the Test Series has its own), never the name. */
+  sku: PackSku;
   /** The SERVER's price from the mint response, rupees. */
   priceInr: number;
   url: string;
@@ -236,11 +238,11 @@ export interface AskParentPackMessageInput {
 }
 
 /** The child's message to a parent for ONE pack: the pack, its one-time price, the link and how long it works. */
-export function buildAskParentPackMessage({ lang, name, priceInr, url, days }: AskParentPackMessageInput): string {
+export function buildAskParentPackMessage({ lang, name, sku, priceInr, url, days }: AskParentPackMessageInput): string {
   const price = formatInr(priceInr);
-  // TS-PARENT-FORWARD-1 (owner ruling 18 Nov 2026): the Test Series is taken online (its papers can be printed) and is never presented like a PDF pack.
-  // The caller (PaywallActionsView) passes the product's NAME only, so the Test Series is recognised by its own parentPackName.
-  if (name === TEST_SERIES_PARENT_NAME) return buildAskParentSeriesMessage(lang, price, url, days);
+  // TS-PARENT-FORWARD-1 (owner ruling 18 Nov 2026): the Test Series is taken online (its papers can be printed) and is never presented
+  // like a PDF pack. Chosen by SKU (review A), so renaming parentPackName can never send the Test Series the PDF-pack message.
+  if (sku === "test_series") return buildAskParentSeriesMessage(lang, price, url, days);
   if (lang === "hi") {
     return [
       `मम्मी/पापा, क्या आप मुझे LazyTopper पर ${name} दिला देंगे? यह एक बार का ${price} है — मेरी CBSE कक्षा 10 बोर्ड की तैयारी के लिए प्रिंट करने वाली PDF।`,
@@ -257,9 +259,6 @@ export function buildAskParentPackMessage({ lang, name, priceInr, url, days }: A
   ].join("\n\n");
 }
 
-/** The Test Series' name in a parent message ("Test Series Pack"): how buildAskParentPackMessage recognises it. */
-export const TEST_SERIES_PARENT_NAME = parentPackName("test_series", undefined);
-
 /**
  * TS-PARENT-FORWARD-1 - the child's message for the Test Series: the tests (online or printed) and the step-by-step marking, never "PDFs". The price is
  * the SERVER's (the mint's total); the test count is seriesTotals() (never typed). The link / no-password / validity lines are the
@@ -269,7 +268,7 @@ function buildAskParentSeriesMessage(lang: ParentPayLang, price: string, url: st
   const tests = seriesTotals().total;
   if (lang === "hi") {
     return [
-      `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ${price} है, मेरे बोर्ड तक चलेगी: ${tests} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं।`,
+      `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ${price} है और मेरे बोर्ड तक चलेगी: ${tests} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं।`,
       "यह लिंक सिर्फ़ मेरे अकाउंट के लिए है — आपको कोई अकाउंट बनाने या पासवर्ड बताने की ज़रूरत नहीं:",
       url,
       `(यह लिंक ${days} दिन तक चलेगा।)`,
