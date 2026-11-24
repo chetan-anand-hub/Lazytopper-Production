@@ -233,7 +233,7 @@ export function trialHasRunItsCourse(trialStartDate: string | null | undefined, 
  *
  * ★ Fails closed: a `trial` that cannot prove when it began has NOT begun.
  */
-function applyExpiry(status: SubscriptionStatus, opts: StartOptions = {}): SubscriptionStatus {
+export function applyExpiry(status: SubscriptionStatus, opts: StartOptions = {}): SubscriptionStatus {
   if (status.tier === "premium") return applyPassExpiry(status);
   if (status.tier !== "trial") return status;
   const start = trialStartMs(status, opts);
@@ -329,7 +329,7 @@ function saveLocal(uid: string, status: SubscriptionStatus): void {
   } catch {}
 }
 
-function loadLocal(uid: string): SubscriptionStatus | null {
+export function loadLocal(uid: string): SubscriptionStatus | null {
   try {
     const raw = localStorage.getItem(`${STORAGE_KEY}:${uid}`);
     if (!raw) return null;

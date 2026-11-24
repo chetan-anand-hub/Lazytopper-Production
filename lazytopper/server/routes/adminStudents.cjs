@@ -51,6 +51,7 @@
 
 const { deriveEffectiveTier, toMillis } = require('../services/entitlement.cjs');
 const { istDayKey } = require('../services/rateLimiter.cjs');
+const buyerScore = require('../services/buyerScore.cjs'); // BUYER-SCORE-1
 const { effectiveBoardPassEndMs } = require('../services/validityWindow.cjs'); // VALIDITY-FEB27
 const {
   ACTIVITY_COLLECTION,
@@ -673,6 +674,8 @@ function createAdminStudentsRoutes(deps = {}) {
           ...r,
           plan: planOf(subs[r.uid], nowMs),
           source: sources[r.uid] || null,
+          // BUYER-SCORE-1: omitted entirely when BUYER_SCORE_ADMIN_DISABLED=1; null = no source recorded.
+          ...(buyerScore.isDisabled() ? {} : { buyerScore: buyerScore.buyerScoreForRow(sources[r.uid], r.createdMs) }),
           ...(await rowActivity(r)),
           aiCost: {
             source: 'usageLedger',
