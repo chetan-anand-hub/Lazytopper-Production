@@ -123,11 +123,13 @@ describe("/test-series — signed out", () => {
     await mount();
     const t = seriesTotals();
     // TS-HERO-1 (owner, 23 Nov 2026): the hero leads with the step-by-step marking promise, in the H1 and a 3-step row.
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Write on paper. Snap a photo. Get every step marked like a CBSE examiner — in minutes.");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("CBSE Class 10 Test Series · Maths & Science Write on paper. Snap a photo. Get every step marked like a CBSE examiner — in minutes.");
+    // TS-H1-KEYWORD-1 (owner, 24 Nov 2026): the crawled h1 starts with the ad keyword; the eyebrow is uppercased by CSS, not by the text.
+    expect(screen.getByRole("heading", { level: 1 }).textContent?.startsWith("CBSE Class 10 Test Series")).toBe(true);
     const steps = within(screen.getByTestId("ts-hero-steps")).getAllByRole("listitem");
     expect(steps.map((li) => li.textContent)).toEqual(["1Take the test", "2Upload your answer sheet", "3See marks for every step and where you lost them"]);
     // TS-FREE-CHECK-1 (owner ruling 23 Nov 2026): the free test includes written-answer marking (flag on by default) - the hero says so.
-    expect(screen.getByTestId("ts-contents").textContent).toBe(`${t.chapterTests} chapter tests + ${t.fullMocks} full-length board papers · your first test is free — written answers marked too`);
+    expect(screen.getByTestId("ts-contents").textContent).toBe(`${t.chapterTests} chapter tests + ${t.fullMocks} full-length mock tests · your first test is free — written answers marked too`);
     const heroText = document.querySelector(".lt-ts-hero")?.textContent ?? "";
     expect(heroText).not.toMatch(/\bAI\b|answer key|Check & Improve/i);
     expect(screen.getByTestId("ts-rule").textContent).toBe("Your first test is free, written answers included · after that, written answers are checked with the Test Series or the Board Pass");
@@ -472,7 +474,7 @@ describe("/test-series — TS-FREE-CHECK-1 client flag", () => {
       });
       await mount();
       const t = seriesTotals();
-      expect(screen.getByTestId("ts-contents").textContent).toBe(`${t.chapterTests} chapter tests + ${t.fullMocks} full-length board papers · try one test free`);
+      expect(screen.getByTestId("ts-contents").textContent).toBe(`${t.chapterTests} chapter tests + ${t.fullMocks} full-length mock tests · try one test free`);
       expect(screen.getByTestId("ts-rule").textContent).toBe("MCQs marked free · written answers checked with the Test Series or the Board Pass");
       expect(document.body.textContent).not.toMatch(/first test is free|written answers marked too/i);
     } finally {

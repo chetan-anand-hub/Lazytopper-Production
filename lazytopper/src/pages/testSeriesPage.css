@@ -31,6 +31,15 @@
 .lt-ts-hero__eyebrow {
   color: #6ee7a8;
 }
+/* TS-H1-KEYWORD-1: the eyebrow sits inside the h1 (crawlers read "CBSE Class 10 Test Series" first) but looks exactly as the old <p>:
+   body face, normal line height, uppercase via CSS, 10 px under it (the old flex gap). */
+.lt-ts-hero__h1 .lt-ts-hero__eyebrow {
+  display: block;
+  margin: 0 0 10px;
+  font-family: var(--font-body);
+  line-height: normal;
+  text-transform: uppercase;
+}
 /*
  * SPEED-HERO-LCP-1: the hero h1 uses its OWN Fraunces face, font-display: BLOCK (same woff2 as the global swap face and the head preload,
  * so one download). With the global `swap` face the prerendered h1 painted in the fallback, then the app's re-rendered h1 painted in real
