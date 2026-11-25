@@ -685,6 +685,7 @@ function createGradingCore(deps) {
     // chunk saw is never "not found", and any chunk's quoted first line for it counts.
     const paperInventory = new Map(); // printed number → Set of first lines
     let anyInventory = false;
+    const paperUnplaced = []; // GRADE-SECOND-LOOK-1: answers on the pages that a chunk's reply listed under no number
     const gradedIds = [];
     const modelsUsed = [];
     let summary = '';
@@ -717,6 +718,8 @@ function createGradingCore(deps) {
       }
       if (a.inventory) {
         anyInventory = true;
+        const un = a.parsed && Array.isArray(a.parsed.unplacedAnswers) ? a.parsed.unplacedAnswers : [];
+        for (const l of un) if (typeof l === 'string' && l.trim()) paperUnplaced.push(l.trim());
         for (const [n, lines] of a.inventory) {
           if (!paperInventory.has(n)) paperInventory.set(n, new Set());
           for (const l of lines) paperInventory.get(n).add(l);
@@ -779,7 +782,7 @@ function createGradingCore(deps) {
     // rescue replaces a result only when every guard passes; anything else keeps the first reading.
     if (document && !autoDetect && anyInventory && !secondLookLib.secondLookDisabled(deps.env || process.env)) {
       try {
-        await runSecondLook({ questions, results, inventoryById, siblingsById, chunks, ctx, job, callDeadlineAt, normCtx, label, timingSink });
+        await runSecondLook({ questions, results, inventoryById, siblingsById, chunks, ctx, job, callDeadlineAt, normCtx, label, timingSink, unplaced: paperUnplaced });
       } catch (e) {
         console.warn(label + ' second look failed (first reading kept): ' + (e && e.message ? e.message : e));
       }
@@ -804,16 +807,9 @@ function createGradingCore(deps) {
    * nothing. Its usage is metered with the questions it was for (ctx.meters), so a rescued question that is
    * graded is charged like any graded question and an unrescued one is not.
    */
-  async function runSecondLook({ questions, results, inventoryById, siblingsById, chunks, ctx, job, callDeadlineAt, normCtx, label, timingSink }) {
-    const missed = secondLookLib.missedIndices(questions, results);
-    if (missed.length === 0) return;
-    const left = job ? Math.min(job.perCallMs, callDeadlineAt - now()) : callDeadlineAt - now();
-    if (left < secondLookLib.SECOND_LOOK_MIN_MS) {
-      if (timingSink) timingSink.secondLook = { asked: missed.length, rescued: 0, skipped: 1 };
-      return;
-    }
-    const missedQs = missed.map((i) => questions[i]);
-    const chunk = chunks.find((c) => c.questions.includes(missedQs[0])) || chunks[0];
+  async function runSecondLook({ questions, results, inventoryById, siblingsById, chunks, ctx, job, callDeadlineAt, normCtx, label, timingSink, unplaced }) {
+    const candidates0 = secondLookLib.missedIndices(questions, results);
+    if (candidates0.length === 0) return;
     // The answers the first reading GRADED (G4): their quoted first lines go to the prompt, their work to the guard.
     const claimed = [];
     const claimedWorks = [];
@@ -824,20 +820,44 @@ function createGradingCore(deps) {
       const line = inv && Array.isArray(inv.firstLines) ? inv.firstLines.find((l) => String(l || '').trim()) : '';
       if (line) claimed.push({ qNumber: questions[i].qNumber, firstLine: line });
     });
-    const nonce = chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]).concat(claimed.map((c) => c.firstLine)), makeFenceNonce);
-    const outcome = await attemptChunk({
-      model: chunk.model, questions: missedQs, uploadByNumber: new Map(), document: ctx.document, subject: chunk.subject,
-      single: false, autoDetect: null, label, attempt: 1, timeoutMs: Math.min(left, secondLookLib.SECOND_LOOK_MAX_MS),
-      deadlineAt: callDeadlineAt, others: Math.max(0, questions.length - missedQs.length),
-      chunkKey: 'look2:' + missed.map((i) => 'q' + i).join('+'),
-      nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme, meters: ctx.meters,
-      timingSink, secondLook: { claimed },
-    });
-    let rescued = [];
-    if (outcome && outcome.results) {
+    // G0 (cost): a question the first reading did not find is looked for again ONLY when the page holds an
+    // answer it could not place; a question it SAW (a quoted first line, no working) always is. A paper whose
+    // missing questions were simply skipped by the student costs nothing extra.
+    const open = secondLookLib.openUnplaced(unplaced, claimedWorks);
+    const missed = secondLookLib.worthALook(candidates0, results, open);
+    if (missed.length === 0) {
+      if (timingSink) timingSink.secondLook = { asked: 0, rescued: 0, skipped: 0 };
+      return;
+    }
+    const left = job ? Math.min(job.perCallMs, callDeadlineAt - now()) : callDeadlineAt - now();
+    if (left < secondLookLib.SECOND_LOOK_MIN_MS) {
+      if (timingSink) timingSink.secondLook = { asked: missed.length, rescued: 0, skipped: 1 };
+      return;
+    }
+    const nonce = chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]).concat(claimed.map((c) => c.firstLine), open), makeFenceNonce);
+    // One call per routed group (model + subject rules) the missed questions belong to — a mixed Maths + Science paper is
+    // graded under each question's own subject rules, exactly as its first reading was. The calls run in parallel.
+    const groupsOf = new Map();
+    for (const i of missed) {
+      const chunk = chunks.find((c) => c.questions.includes(questions[i])) || chunks[0];
+      const key = chunk.model + '\u0000' + subjectModeOf(chunk.subject);
+      if (!groupsOf.has(key)) groupsOf.set(key, { chunk, ids: [] });
+      groupsOf.get(key).ids.push(i);
+    }
+    const settledLook = await Promise.all([...groupsOf.values()].map(async ({ chunk, ids }) => {
+      const qs = ids.map((i) => questions[i]);
+      const outcome = await attemptChunk({
+        model: chunk.model, questions: qs, uploadByNumber: new Map(), document: ctx.document, subject: chunk.subject,
+        single: false, autoDetect: null, label, attempt: 1, timeoutMs: Math.min(left, secondLookLib.SECOND_LOOK_MAX_MS),
+        deadlineAt: callDeadlineAt, others: Math.max(0, questions.length - qs.length),
+        chunkKey: 'look2:' + ids.map((i) => 'q' + i).join('+'),
+        nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme, meters: ctx.meters,
+        timingSink, secondLook: { claimed, unplaced: open },
+      });
+      if (!outcome || !outcome.results) return [];
       const byNumber = new Map();
       for (const r of outcome.results) if (r && r.qNumber != null) byNumber.set(Number(r.qNumber), r);
-      const candidates = missed.map((i) => {
+      return ids.map((i) => {
         const q = questions[i];
         const n = Number(q.qNumber);
         const raw = byNumber.get(n) || null;
@@ -847,9 +867,11 @@ function createGradingCore(deps) {
         const result = raw && inv ? normaliseQuestionResult(q, structuredClone(raw), normCtx(q, inv, null, siblingsById.get(i) || null)) : null;
         return { index: i, raw, result, firstLines: lines };
       });
-      rescued = secondLookLib.acceptedRescues(candidates, claimedWorks);
-      for (const i of rescued) results[i] = candidates.find((c) => c.index === i).result;
-    }
+    }));
+    const candidates = settledLook.flat();
+    // G4 runs across ALL groups' rescues together: two questions may never take the same answer.
+    const rescued = secondLookLib.acceptedRescues(candidates, claimedWorks);
+    for (const i of rescued) results[i] = candidates.find((c) => c.index === i).result;
     if (timingSink) timingSink.secondLook = { asked: missed.length, rescued: rescued.length, skipped: 0 };
   }
 

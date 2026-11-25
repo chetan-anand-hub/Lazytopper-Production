@@ -641,7 +641,8 @@ test('§6.9 ★★ C1 · ONE schema: both grading endpoints send the SAME object
   await doc.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 1, marks: 1, questionText: 'Q1' }]), {});
   assert.equal(doc.calls[0].genConfig.responseSchema, GRADING_RESPONSE_SCHEMA_INVENTORY);
   assert.deepEqual(GRADING_RESPONSE_SCHEMA_INVENTORY.properties.results, GRADING_RESPONSE_SCHEMA.properties.results, 'one per-question schema');
-  assert.deepEqual(GRADING_RESPONSE_SCHEMA_INVENTORY.propertyOrdering, ['pageInventory', 'results', 'summary'], 'the inventory comes BEFORE any grade');
+  // GRADE-SECOND-LOOK-1: the unplaced answers are part of the inventory, so they too come before any grade (absent under its kill switch).
+  assert.deepEqual(GRADING_RESPONSE_SCHEMA_INVENTORY.propertyOrdering, LOOK2_OFF ? ['pageInventory', 'results', 'summary'] : ['pageInventory', 'unplacedAnswers', 'results', 'summary'], 'the inventory comes BEFORE any grade');
   const detect = buildRoute({ replies: [{ detectedMarks: 3 }] });
   await detect.route.handleDetectQuestion({ question: 'q' }, {});
   assert.equal(detect.calls[0].genConfig.responseSchema, DETECT_RESPONSE_SCHEMA, 'detection keeps its own schema (its own parser)');
@@ -956,9 +957,14 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 //   PREVIOUS c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860
 // GRADER-TYPE-1 probe fix (22 Nov 2026): rule (b) PROOF bullet adds "your correct answer to this part is not proof that you know the reason" (820fa733… → 3c7f7797…).
 // B2: under the kill switch (GRADER_TYPE_1_DISABLED=1) the prompt must be BYTE-IDENTICAL to trunk — pinned by the SHA, not by substrings.
+// GRADE-SECOND-LOOK-1 (owner, 25 Nov 2026): the one-document inventory also asks for "unplacedAnswers" (answers on the
+// pages listed under no question number), the signal for the second look. Rule TEXT + one optional schema field, document
+// transport only. GRADING_SECOND_LOOK_DISABLED=1 restores the previous request BYTE-FOR-BYTE (3c7f7797… / c9c7d082…, below).
+//   PREVIOUS 3c7f7797cf7f76dbeec275515c320bc2dff56b54a0fe46dee522e66d87503fa5 (default) · c9c7d082… (GRADER_TYPE_1_DISABLED=1)
+const LOOK2_OFF = /^(1|true|yes)$/i.test(String(process.env.GRADING_SECOND_LOOK_DISABLED || '').trim());
 const NO_UPLOADS_CONTENTS_SHA256 = process.env.GRADER_TYPE_1_DISABLED === '1'
-  ? 'c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860'
-  : '3c7f7797cf7f76dbeec275515c320bc2dff56b54a0fe46dee522e66d87503fa5';
+  ? (LOOK2_OFF ? 'c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860' : '30cafe67f5b295207dab42af6f5b87669cf74f7553409e4408e5466944b346be')
+  : (LOOK2_OFF ? '3c7f7797cf7f76dbeec275515c320bc2dff56b54a0fe46dee522e66d87503fa5' : 'd5d0008055c1c8b7b04ef835db3d7c3bf10c43a0981238ad5c865859a8d261fb');
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

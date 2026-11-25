@@ -61,6 +61,7 @@ const R = (n, steps, o = {}) => ({ qNumber: n, couldNotRead: false, addressesQue
 const NF = (n) => ({ qNumber: n, couldNotRead: true, note: 'not found on the uploaded pages' });
 const INV = (...e) => e.map(([n, line], i) => ({ page: i + 1, questionsSeen: [{ qNumber: n, firstLine: line }] }));
 const REPLY = (inv, ...results) => ({ pageInventory: inv, results, summary: 'Summary.' });
+const UNPLACED = (reply, lines) => ({ ...reply, unplacedAnswers: lines });
 
 const Q5_LINE = 'tan θ + cot θ = 4√3/3';
 const Q5_WORK = [S(Q5_LINE, { marksAwarded: 0.5 }), S('tan²θ + cot²θ = 16/3 − 2 = 10/3', { marksAwarded: 0.5 })];
@@ -68,8 +69,10 @@ const Q8_LINE = 'sin A = 3/5, sides 3, 4, 5';
 const Q8_WORK = [S(Q8_LINE), S('cos A = 4/5, tan A = 3/4'), S('cosec A = 5/3, sec A = 5/4, cot A = 4/3')];
 const Q6_LINE = '15 cot A = 8 so cot A = 8/15';
 const Q6_WORK = [S(Q6_LINE), S('sin A = 15/17, sec A = 17/8')];
-// First reading: only Q5 found (by its label 2) it could not match Q8's label 1) to Q8).
-const FIRST = REPLY(INV([5, Q5_LINE]), R(5, Q5_WORK), NF(6), NF(7), NF(8));
+// First reading: only Q5 found; it saw the answer labelled 1) (Q8's) but could not place it.
+const FIRST = UNPLACED(REPLY(INV([5, Q5_LINE]), R(5, Q5_WORK), NF(6), NF(7), NF(8)), ['1) ' + Q8_LINE]);
+// The same reading of a student who really SKIPPED Q6–Q8: nothing on the page is unplaced.
+const FIRST_SKIPPED = REPLY(INV([5, Q5_LINE]), R(5, Q5_WORK), NF(6), NF(7), NF(8));
 const marksOf = (body) => body.results.map((r) => (r.couldNotRead ? 'nf' : r.marksAwarded));
 
 /* ══ §L1 · when it runs ══════════════════════════════════════════════════════ */
@@ -84,6 +87,7 @@ test('§L1.1 a one-document paper with questions not found makes ONE second look
   assert.ok(/This request marks ONLY the 3 questions listed below \(Q6, Q7, Q8\)/.test(p), 'only the missing questions are asked for');
   assert.ok(!/ {2}Q5\. \[/.test(p), 'Q5 (graded) is not re-asked');
   assert.ok(p.includes('<<<ALREADY MATCHED ANSWER testnonce>>>\n' + Q5_LINE), 'Q5\'s answer is fenced as already matched');
+  assert.ok(p.includes('<<<UNMATCHED ANSWER testnonce>>>\n1) ' + Q8_LINE), 'the unplaced answer is shown, fenced');
   assert.ok(!h.prompt(0).includes('SECOND LOOK'), 'CONTROL: the first reading carries no second-look text');
   assert.deepEqual(marksOf(body), [1, 'nf', 'nf', 3], 'Q8 rescued (3/3); Q6/Q7 still honestly not found; Q5 untouched');
 });
@@ -94,6 +98,17 @@ test('§L1.2 CONTROL: nothing missing → no second look (cost and time unchange
   const body = (await h.sheet(sheet())).body;
   assert.equal(h.calls.length, 1);
   assert.equal(body.results[2].marksAwarded, 0, 'a blank the student really left is never second-looked');
+});
+
+test('§L1.2b G0 (cost): questions the student simply SKIPPED (nothing unplaced on the page) → no second look', async () => {
+  const h = harness({ replies: [FIRST_SKIPPED, REPLY(INV([8, Q8_LINE]), R(8, Q8_WORK))] });
+  const body = (await h.sheet(sheet())).body;
+  assert.equal(h.calls.length, 1, 'a skipped question costs no extra call');
+  assert.deepEqual(marksOf(body), [1, 'nf', 'nf', 'nf']);
+  // an "unplaced" line that is really part of the graded Q5 answer is not an open answer either
+  const h2 = harness({ replies: [UNPLACED(FIRST_SKIPPED, [Q5_LINE, '  ']), REPLY(INV([8, Q8_LINE]), R(8, Q8_WORK))] });
+  await h2.sheet(sheet());
+  assert.equal(h2.calls.length, 1);
 });
 
 test('§L1.3 CONTROL: typed answers and per-question photos have no page inventory → never a second look', async () => {
@@ -203,5 +218,34 @@ test('§L4.4 every one-document surface reaches it: the same paper through each 
     const body = (await h.sheet(sheet({ headers: { 'x-lazytopper-surface': surface } }))).body;
     assert.equal(h.calls.length, 2, surface);
     assert.deepEqual(marksOf(body), [1, 'nf', 'nf', 3], surface);
+  }
+});
+
+test('§L2.3 the student\'s OWN numbering collides with the paper\'s (answer to Q3 labelled "1)"): the label-matched answer is an answer MISMATCH, and the second look re-matches both by content', async () => {
+  const qs = [
+    { qNumber: 1, marks: 2, topic: 'Polynomials', questionText: 'Find the zeroes of the quadratic polynomial x² − 5x + 6.', textAnswer: '' },
+    { qNumber: 3, marks: 3, topic: 'Arithmetic Progressions', questionText: 'Find the 10th term of the AP 2, 7, 12, …', textAnswer: '' },
+  ];
+  const AP1 = '1) a = 2, d = 7 − 2 = 5';
+  const ZE1 = '2) x² − 5x + 6 = (x − 2)(x − 3)';
+  const apWork = [S(AP1), S('a10 = 2 + 9 × 5 = 47', { marksAwarded: 2 })];
+  const zeWork = [S(ZE1), S('Zeroes are 2 and 3.')];
+  const first = UNPLACED(REPLY(INV([1, AP1]),
+    R(1, [S(AP1, { status: 'incorrect', marksAwarded: 0, marksDeducted: 1 })], { addressesQuestion: 'no', mismatchEvidence: { question: 'zeroes of the quadratic polynomial', work: 'd = 7 − 2 = 5' } }),
+    NF(3)), [ZE1]);
+  const look = REPLY(INV([1, ZE1], [3, AP1]), R(1, zeWork), R(3, apWork));
+  const h = harness({ replies: [first, look] });
+  const body = (await h.sheet({ worksheetId: 'ws', subject: 'Maths', questions: qs, ...DOC, acceptsV2: true })).body;
+  assert.equal(h.calls.length, 2);
+  assert.deepEqual(marksOf(body), [2, 3], 'both correct answers are marked under their own questions');
+  // CONTROL: with the second look off, the first reading stands — Q1 zeroed as "does not address", Q3 not found
+  const old = process.env.GRADING_SECOND_LOOK_DISABLED;
+  process.env.GRADING_SECOND_LOOK_DISABLED = '1';
+  try {
+    const off = (await harness({ replies: [first, look] }).sheet({ worksheetId: 'ws', subject: 'Maths', questions: qs, ...DOC, acceptsV2: true })).body;
+    assert.deepEqual(marksOf(off), [0, 'nf']);
+    assert.equal(off.results[0].answerMismatch, true);
+  } finally {
+    if (old === undefined) delete process.env.GRADING_SECOND_LOOK_DISABLED; else process.env.GRADING_SECOND_LOOK_DISABLED = old;
   }
 });

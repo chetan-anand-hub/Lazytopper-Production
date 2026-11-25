@@ -18,15 +18,19 @@
 //   G4  its first line must NOT be in any answer the first reading already graded for another question
 //       (no double use of one answer), and two rescued questions may not share an answer either;
 //   G5  a printed number that repeats in the paper is never second-looked (the number would be ambiguous).
+//   G0  (cost) a "not found" question is looked for again ONLY when the first reading reported an answer on the
+//       pages it could not place (`unplacedAnswers`); a question the student simply skipped costs nothing.
 // Anything that fails a guard keeps its first-reading result, unchanged.
 
-const { firstLineInWork, stripAnswerLabel } = require('./postprocess.cjs');
+const { gramContainment, stripAnswerLabel } = require('./postprocess.cjs');
 
 /** Reasons the second look may revisit (G1). */
 // couldNotRead: the model itself said "not found on the uploaded pages" (or could not read it) — on one
 // document that is the same miss seen from the model's side (live 25 Nov: Q6/Q7). A timed-out or failed call
 // ('timeout' / 'failed') and a withheld injection are NOT revisited.
-const SECOND_LOOK_REASONS = Object.freeze(['notInInventory', 'firstLineNotInWork', 'couldNotRead']);
+// answerMismatch: on ONE document the answer the model took for this question (by its LABEL) is another question's
+// — the 25 Nov eval: a student numbering a shuffled paper 1), 2), 3)… had 4 of 5 correct answers zeroed this way.
+const SECOND_LOOK_REASONS = Object.freeze(['notInInventory', 'firstLineNotInWork', 'couldNotRead', 'answerMismatch']);
 /** Minimum time that must be left before a second look starts, and its own cap. */
 const SECOND_LOOK_MIN_MS = 20000;
 const SECOND_LOOK_MAX_MS = 60000;
@@ -61,10 +65,13 @@ function workOf(result) {
   return steps.map((s) => String((s && s.studentWork) || '')).concat([String((result && result.studentFinalAnswer) || '')]).join('\n');
 }
 
-/** Is any quotable line of `lines` inside `work`? */
+/** Is any quotable line of `lines` the SAME writing as a line inside `work`? Strict on purpose (>= 80% of the line's
+ *  4-grams, label stripped): postprocess's tolerant first-line test also accepts a 60% word bag, which two DIFFERENT
+ *  answers sharing a few digits can pass — here a false "same answer" would wrongly drop a rescue. */
+const SAME_ANSWER_MIN = 0.8;
 function sharesAnswer(lines, work) {
   if (!String(work || '').trim()) return false;
-  return (Array.isArray(lines) ? lines : []).some((l) => quotable(l) && firstLineInWork(l, work));
+  return (Array.isArray(lines) ? lines : []).some((l) => quotable(l) && gramContainment(stripAnswerLabel(String(l)), work) >= SAME_ANSWER_MIN);
 }
 
 /**
@@ -96,7 +103,32 @@ function acceptedRescues(candidates, claimedWorks) {
   return ok.filter((_, i) => !clash.has(i)).map((c) => c.index);
 }
 
+/** G0: the first reading's unplaced answers that are not part of any answer it graded (quotable lines only). */
+function openUnplaced(unplaced, claimedWorks) {
+  const seen = new Set();
+  const out = [];
+  for (const l of Array.isArray(unplaced) ? unplaced : []) {
+    const line = String(l || '').trim();
+    if (!quotable(line) || seen.has(line)) continue;
+    seen.add(line);
+    if (claimedWorks.some((w) => sharesAnswer([line], w))) continue;
+    out.push(line);
+  }
+  return out.slice(0, 12);
+}
+
+/** G0: which candidates are worth one more call — "no working" (the model SAW the question) and an answer to another
+ *  question (a label pointing at the wrong answer) always; "not found" / couldNotRead only when an answer on the page
+ *  is still unplaced. */
+function worthALook(candidates, results, open) {
+  const anyOpen = Array.isArray(open) && open.length > 0;
+  const strong = new Set(['firstLineNotInWork', 'answerMismatch']);
+  return candidates.filter((i) => results[i] && (strong.has(results[i]._reason) || anyOpen));
+}
+
 module.exports = {
+  openUnplaced,
+  worthALook,
   SECOND_LOOK_REASONS,
   SECOND_LOOK_MIN_MS,
   SECOND_LOOK_MAX_MS,
