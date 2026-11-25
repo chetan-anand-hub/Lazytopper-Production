@@ -167,11 +167,17 @@ check(
   "HUNK D: buildOverlayReturnRecord uses buildCheckImproveSessionRecord (the persist path's own builder)",
   /const buildOverlayReturnRecord[\s\S]*?buildCheckImproveSessionRecord\(\{/.test(page),
 );
+// MARK-ON-PHOTO-1 (25 Nov 2026): a THIRD grade-path call — a question marked on the photo re-writes the SAME
+// paper record (same code) after its one-question grade. Still none from the tutor hand-back.
 const persistCalls = (page.match(/persistCheckImproveSession\(\{/g) || []).length;
 check(
-  "HUNK D: the hand-back does NOT re-persist — persistCheckImproveSession stays at 2 grade-path calls",
-  persistCalls === 2,
-  `found ${persistCalls} persistCheckImproveSession call sites (expected 2)`,
+  "HUNK D: the hand-back does NOT re-persist — persistCheckImproveSession stays at its 3 grade-path calls",
+  persistCalls === 3,
+  `found ${persistCalls} persistCheckImproveSession call sites (expected 3)`,
+);
+check(
+  "HUNK D: the third call is the mark-on-photo grade, inside submitMarkedAnswer",
+  /async function submitMarkedAnswer[\s\S]*?persistCheckImproveSession\(\{[\s\S]*?async function recordCiQuestion/.test(page),
 );
 
 /* ══════════════════════════════════════════════════════════════════════════

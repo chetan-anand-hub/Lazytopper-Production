@@ -1,0 +1,109 @@
+// MARK-ON-PHOTO-1 — the student points to one answer; only that question is graded and slotted back.
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { MarkOnPhotoButton, MarkOnPhotoDialog, MARK_ON_PHOTO_NEED_BOX } from "./MarkOnPhoto";
+import { isMarkableRow, mergeMarkedRow } from "../../services/markOnPhoto";
+import type { DecodedPhoto } from "../../services/preparePhoto";
+import type { WorksheetGradeResponse, WorksheetQuestionGrade } from "../../ai/aiClient";
+
+const decoded = (file: File): DecodedPhoto => ({
+  file, source: {} as CanvasImageSource, geometry: { sourceWidth: 1000, sourceHeight: 1400, orientation: 1 }, fileOrientation: 1, release: vi.fn(),
+});
+const seams = () => ({
+  decode: vi.fn(async (f: File) => decoded(f)),
+  prepare: vi.fn(async () => ({ base64: "Q1JPUA==", mimeType: "image/jpeg" as const })),
+  renderPreview: vi.fn(() => ({ url: "data:image/jpeg;base64,PREVIEW" })),
+});
+const PAGE = { id: "p1", prepared: { base64: "UEFHRQ==", mimeType: "image/jpeg" as const }, thumbUrl: "data:image/jpeg;base64,T" };
+
+describe("MarkOnPhotoDialog", () => {
+  it("a page of the paper must be boxed: 'Use whole photo' on a page never sends the whole page", async () => {
+    const s = seams();
+    const onSubmit = vi.fn();
+    render(<MarkOnPhotoDialog label="Q6" pages={[PAGE]} busy={false} error={null} onSubmit={onSubmit} onClose={() => {}} {...s} />);
+    fireEvent.click(screen.getByTestId("mark-on-photo-page"));
+    const whole = await screen.findByRole("button", { name: "Use whole photo" });
+    fireEvent.click(whole);
+    expect((await screen.findByRole("alert")).textContent).toBe(MARK_ON_PHOTO_NEED_BOX);
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(s.prepare).not.toHaveBeenCalled();
+    expect(screen.getByText(/Drag the box around your answer to Q6/)).toBeTruthy();
+  });
+
+  it("a photo of just this answer may be sent whole", async () => {
+    const s = seams();
+    const onSubmit = vi.fn();
+    render(<MarkOnPhotoDialog label="Q6" pages={[]} busy={false} error={null} onSubmit={onSubmit} onClose={() => {}} {...s} />);
+    expect(screen.getByText(/Choose a photo of just this answer/)).toBeTruthy();
+    const input = screen.getByTestId("mark-on-photo-file") as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [new File([new Uint8Array(10)], "a.jpg", { type: "image/jpeg" })] } });
+    fireEvent.click(await screen.findByRole("button", { name: "Use whole photo" }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ imageBase64: "Q1JPUA==", imageMimeType: "image/jpeg" }));
+  });
+
+  it("shows the host's error and a busy line", () => {
+    render(<MarkOnPhotoDialog label="Q6" pages={[PAGE]} busy={false} error="Marking didn't go through" onSubmit={() => {}} onClose={() => {}} {...seams()} />);
+    expect(screen.getByRole("alert").textContent).toContain("Marking didn't go through");
+  });
+
+  it("the row button never toggles the row it sits on", () => {
+    const outer = vi.fn();
+    const onClick = vi.fn();
+    render(<div onClick={outer}><MarkOnPhotoButton label="Q6" onClick={onClick} /></div>);
+    fireEvent.click(screen.getByTestId("mark-on-photo"));
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(outer).not.toHaveBeenCalled();
+  });
+});
+
+const row = (o: Partial<WorksheetQuestionGrade>): WorksheetQuestionGrade => ({
+  qNumber: 1, couldNotRead: false, totalMarks: 2, marksAwarded: 2, percentage: 100, annotatedSteps: [],
+  mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, teacherNote: "", ...o,
+} as WorksheetQuestionGrade);
+const paper = (results: WorksheetQuestionGrade[]): WorksheetGradeResponse => ({
+  ok: true, results, totalQuestions: results.length, gradedCount: 1, pendingCount: results.length - 1,
+  gradedMarksAwarded: 2, gradedMarksTotal: 2, worksheetTotalMarks: 5, summary: "S",
+});
+
+describe("services/markOnPhoto", () => {
+  const notFound = row({ qNumber: 6, couldNotRead: true, totalMarks: 3, marksAwarded: 0, note: "not found on the uploaded pages", topicSlug: "trigonometry", topicLabel: "Trigonometry", section: "C" } as Partial<WorksheetQuestionGrade>);
+  const mismatch = row({ qNumber: 7, answerMismatch: true, marksAwarded: 0 } as Partial<WorksheetQuestionGrade>);
+
+  it("only not-found / unreadable / wrong-question rows can be marked", () => {
+    expect(isMarkableRow(notFound)).toBe(true);
+    expect(isMarkableRow(mismatch)).toBe(true);
+    expect(isMarkableRow(row({}))).toBe(false);
+    expect(isMarkableRow(row({ notGraded: "timeout", couldNotRead: true } as Partial<WorksheetQuestionGrade>))).toBe(false);
+  });
+
+  it("a graded answer replaces the row; totals are recomputed; the question's chapter and section stay", () => {
+    const base = paper([row({}), notFound]);
+    const out = mergeMarkedRow(base, 1, row({ qNumber: 6, totalMarks: 3, marksAwarded: 2.5 }));
+    expect(out.results[1].marksAwarded).toBe(2.5);
+    expect([out.gradedCount, out.pendingCount, out.gradedMarksAwarded, out.gradedMarksTotal, out.worksheetTotalMarks]).toEqual([2, 0, 4.5, 5, 5]);
+    expect((out.results[1] as unknown as { topicSlug: string; section: string }).topicSlug).toBe("trigonometry");
+    expect((out.results[1] as unknown as { section: string }).section).toBe("C");
+    expect(out.summary).toBe("S");
+  });
+
+  it("CONTROL: an answer that comes back not graded changes nothing", () => {
+    const base = paper([row({}), notFound]);
+    expect(mergeMarkedRow(base, 1, row({ qNumber: 6, couldNotRead: true, marksAwarded: 0 }))).toBe(base);
+    expect(mergeMarkedRow(base, 1, null)).toBe(base);
+    expect(mergeMarkedRow(base, 9, row({}))).toBe(base);
+  });
+});
+
+describe("page wiring (source guard)", () => {
+  const src = readFileSync(join(__dirname, "../../pages/desktop/DesktopCheckImprovePage.tsx"), "utf8");
+  it("the button sits on markable rows of a signed-in paper only", () => {
+    expect(src).toMatch(/!isFreeMode && isMarkableRow\(g\) && \(\s*<MarkOnPhotoButton/);
+  });
+  it("the marked answer is graded ALONE, as its own image, and merged back", () => {
+    expect(src).toMatch(/uploads: \[\{ qNumber: dq\.questionNumber, imageBase64: image\.imageBase64/);
+    expect(src).toMatch(/const merged = mergeMarkedRow\(wsResult, gi, one\)/);
+    expect(src).toMatch(/recordCiQuestion\(merged\.results\[gi\], gi, merged\.results, ciQuestionIds\(ciCode, merged\.results\)/);
+  });
+});

@@ -184,6 +184,8 @@ import { clearAllSavedFreeCheckResults, clearSavedFreeCheckResult, getSavedFreeC
 import { FreeCheckRestoredResult } from "../../components/checkimprove/FreeCheckRestoredResult";
 import { FreeCheckLockedRows, FreeCheckOneQuestionLine } from "../../components/checkimprove/FreeCheckLockedRows";
 import PaperMarksEditor, { isLockedObjective, LockedMarksNote, sendAsObjective } from "../../components/checkimprove/PaperMarksEditor";
+import { MarkOnPhotoButton, MarkOnPhotoDialog } from "../../components/checkimprove/MarkOnPhoto";
+import { isMarkableRow, mergeMarkedRow } from "../../services/markOnPhoto";
 import { finalMarksSummary } from "../../components/results/finalMarksSummary";
 import { showPackLine } from "../../components/limits/packLine";
 import {
@@ -1425,6 +1427,10 @@ const DesktopCheckImprovePageInner: React.FC<{
   }, [user?.uid, funnelOff]);
   // The whole-paper grade result + its session code (CI-{S}-{TOPIC}-{NN}).
   const [wsResult, setWsResult] = useState<WorksheetGradeResponse | null>(null);
+  // MARK-ON-PHOTO-1 — the whole-paper row the student is pointing to, and that one-question grade's state.
+  const [markIndex, setMarkIndex] = useState<number | null>(null);
+  const [markBusy, setMarkBusy] = useState(false);
+  const [markError, setMarkError] = useState<string | null>(null);
   const [ciCode, setCiCode] = useState<string | null>(null);
   // LIMITS-1 PR-2 — the SAME server lock as the scorecard (same kind + key), applied to this page's own
   // per-question detail, so closing the scorecard does not reveal what it withheld. "open" when the flag is off.
@@ -2132,6 +2138,8 @@ const DesktopCheckImprovePageInner: React.FC<{
   }
 
   function resetToInput() {
+    setMarkIndex(null);
+    setMarkError(null);
     setStatus("idle");
     setGradeStage(null);
     setErrorMessage(null);
@@ -2390,6 +2398,76 @@ const DesktopCheckImprovePageInner: React.FC<{
   /** ONE graded C&I paper question → the MI front door + its score twin. Returns whether the
    *  front door took it (the save-status signal). Shared by a finished grade and, J2b (D30-2),
    *  by the FINAL graded rows of an interrupted background grade. */
+  /**
+   * MARK-ON-PHOTO-1 (owner, 25 Nov 2026) — grade ONE question of the paper on screen from the part of the photo the
+   * student pointed to, and slot it back into the same paper. Sent as that question's own answer image (the per-question
+   * upload transport), so the grader is never asked to find a number. A grade that does not come back graded changes
+   * nothing. The paper record is re-written under the SAME code and the question's MI entry keeps its stable id, so
+   * nothing is counted twice.
+   */
+  async function submitMarkedAnswer(image: { imageBase64: string; imageMimeType: string }) {
+    const gi = markIndex;
+    if (gi === null || !wsResult || !confirmed || !ciCode || !detectedQuestions || isFreeMode) return;
+    const row = wsResult.results[gi];
+    const dq = detectedItemForResult(detectedQuestions, wsResult.results, gi);
+    if (!row || !dq) return;
+    setMarkBusy(true);
+    setMarkError(null);
+    try {
+      const q0 = sendAsObjective(dq) ? dq : { ...dq, objective: false };
+      const response = await gradeWorksheet({
+        worksheetId: `ci:${ciCode}:mark:${gi}`,
+        subject: confirmed.subject,
+        questions: [{
+          qNumber: dq.questionNumber,
+          marks: dq.marks,
+          topic: confirmed.topicName || undefined,
+          topicLabel: confirmed.topicName || undefined,
+          questionText: dq.questionText,
+          objective: q0.objective === true,
+          ...detectedKeyFields(dq, false),
+        }],
+        uploads: [{ qNumber: dq.questionNumber, imageBase64: image.imageBase64, imageMimeType: image.imageMimeType }],
+      }, CI_GRADE_CALL);
+      const one = response && response.ok !== false && response.results?.[0] ? withEffectiveCounts(response).results[0] : null;
+      if (!one || !isGradedQuestion(one)) {
+        setMarkError("We still couldn't mark this answer from that part of the photo. Try a tighter box, or a clearer photo of just this answer.");
+        return;
+      }
+      const merged = mergeMarkedRow(wsResult, gi, one);
+      setWsResult(merged);
+      setMarkIndex(null);
+      fairUse.noteGraded();
+      const paperMixed = isMixedPaper(merged.results);
+      const mixLabel = ciPaperMixLabel(merged);
+      const persistOutcome = persistCheckImproveSession({
+        user,
+        code: ciCode,
+        title: mixLabel ? `${mixLabel} · ${ciCode}` : ciName ?? `Answer Checker · ${ciCode}`,
+        subject: toSessionSubject(confirmed.subject),
+        topicSlug: paperMixed ? "" : confirmed.topicSlug,
+        topicSource: paperMixed ? "mixed" : ciTopicSource ?? deriveTopicSource(confirmed.topicSlug, topicTouched),
+        response: merged,
+        path: "multi",
+      });
+      if (persistOutcome === "recorded") void loadCiRecords();
+      try {
+        const filing = { subject: confirmed.subject, topicName: confirmed.topicName, topicSlug: confirmed.topicSlug };
+        await recordCiQuestion(merged.results[gi], gi, merged.results, ciQuestionIds(ciCode, merged.results), ciCode, filing, paperMixed);
+      } catch (e) {
+        console.warn("[check-improve] MI record for a marked answer failed (grade preserved):", e);
+      }
+    } catch (e) {
+      if (await fairUse.handleRefusal(e)) {
+        setMarkIndex(null);
+        return;
+      }
+      setMarkError(e instanceof Error && e.name === "GradingNetworkError" ? e.message : "Marking didn't go through — please try again.");
+    } finally {
+      setMarkBusy(false);
+    }
+  }
+
   async function recordCiQuestion(
     g: WorksheetGradeResponse["results"][number],
     gi: number,
@@ -4291,6 +4369,18 @@ const DesktopCheckImprovePageInner: React.FC<{
           }
         />
 
+        {/* MARK-ON-PHOTO-1 — the student points to one answer; only that question is graded and slotted back. */}
+        {markIndex !== null && ws.results[markIndex] && (
+          <MarkOnPhotoDialog
+            label={`Q${ws.results[markIndex].qNumber}`}
+            pages={answerTray.pages.map((p) => ({ id: p.id, prepared: p.prepared, thumbUrl: p.thumbUrl }))}
+            busy={markBusy}
+            error={markError}
+            onSubmit={(image) => void submitMarkedAnswer(image)}
+            onClose={() => { if (!markBusy) { setMarkIndex(null); setMarkError(null); } }}
+          />
+        )}
+
         {/* C&I PR-1 — the 5th <ResultsScorecard> variant, opened on grade. The
             bespoke graded views below stay byte-intact underneath as "the graded
             sheet" behind the primary action. */}
@@ -4514,6 +4604,10 @@ const DesktopCheckImprovePageInner: React.FC<{
                 </div>
                 {/* PR-2 (B8) — a question that was not graded says so in the owner's words. */}
                 <GradeStateNotice question={g} />
+                {/* MARK-ON-PHOTO-1 — point to the answer instead of re-uploading the paper (signed-in only). */}
+                {!isFreeMode && isMarkableRow(g) && (
+                  <MarkOnPhotoButton label={`Q${g.qNumber}`} disabled={markBusy} onClick={() => { setMarkError(null); setMarkIndex(qi); }} />
+                )}
                 {graded && g.teacherNote && (
                   <p style={{ margin: "10px 0 0", fontSize: 13, color: TEXT_MUTED, lineHeight: 1.55 }}>
                     <EquationRender text={g.teacherNote} />
