@@ -1,4 +1,12 @@
 
+> **2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877 (CLAUDE.md section 10).** Merge SHAs and times [git]; live checks and the eval [coordinator].
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| **Answer Checker multi (whole paper)** | "Mark it on your photo" + mark pass (`#1873`), cap 3 (`#1874`), locate-first (`#1875`) | **merged, live; live PASS** | `[FU-MARK-ON-PHOTO-TRIAL-LIVE]` |
+| **Chapter Test / Full Mock / Worksheet** | "Mark it on your photo" (`#1877`); locate-first (`#1875`) | **merged, live; Chapter Test live PASS (both)** | Full Mock / Worksheet live; Test Series mark |
+| **All one-document grading (server)** | LOCATE-FIRST-1 (`#1875`, `#1876`) | **merged, live** | `[FU-LOCATE-SYNC-SLOW]` |
+
 > **2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871 (CLAUDE.md section 10).** Merge SHAs and times [git]; live checks and the eval [coordinator].
 
 | surface | what moved (PR) | state | owed |

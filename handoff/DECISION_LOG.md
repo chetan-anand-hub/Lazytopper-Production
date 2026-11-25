@@ -1,3 +1,19 @@
+## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted. Rulings 1-5 are the owner's (25/26 Nov, this session) **[owner]**; 6-9 are the cofounder's calls under them **[coordinator]**.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **1. A mark is the same paper** [owner, 21:30, "Same paper, no new slot"] | A question marked on the photo rides the paper's weekly slot (mark pass); fair use still counts one question. | A student rescuing one answer should not lose a whole weekly paper. |
+| **2. Cap at 3** [owner, 22:17] | One question of one paper is marked at most 3 times. | Bounds free re-grades of one question. |
+| **3. Find the reason, then fix the timeouts; check Full Mock too** [owner, 22:17] | Diagnosed by a paired run before any design. | Previous sessions' throughput work had not found the own-numbering cause. |
+| **4. Use the previous sessions' optimised method** [owner, 22:27/22:38] | Coordinator + builder lanes + fresh reviewers + paired evals. | Quality and speed of delivery. |
+| **5. Mark on photo on Chapter Test, Full Mock and Worksheet** [owner, 22:17] | `#1877`. | All surfaces. |
+| **6. Locate by content, thinking 0, fail-open** [coordinator] | One cheap call before grading; hints are verified by the grader; no hints for objective / typed / picked; never in the second look. | 20/20 exact on the probe at 3-6 s; a wrong map must never be repeated by the rescue, and an MCQ cannot be matched by content. |
+| **7. A riding mark is never a background job** [coordinator] | Synchronous only. | The cap's count settles on the response (review C1). |
+| **8. Entry +45 B accepted for `#1877`** [coordinator] | The preload map names the new lazy chunk. | ~6.5 KB gz headroom after `#1865`; no code entered the entry chunk. |
+| **9. Bank-surface marks ride the paper pass** [coordinator] | Same worksheetId + paper pass; Test Series hold/commit like "Upload all pages again". | No new exposure versus a full re-upload with the same pass (review). |
+
 ## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted. Rulings 1-4 are the owner's (25 Nov, this session) **[owner]**; 5-8 are the cofounder's calls under them **[coordinator]**.
