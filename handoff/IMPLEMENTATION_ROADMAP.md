@@ -1,3 +1,10 @@
+## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859 - MERGED
+
+- DONE, /pricing FAQ. `#1858` (`aaffbc9f`) FAQ-WHY-BOTH-1: "How is the Board Pass different from Question Bank + Mocks?" (Board Pass online and marked; Question Bank + Mocks offline, self-checked).
+- DONE, Test Series navigation. `#1859` (`32ba8d0b`) TS-NAV-2: one name per series paper, Back keeps your place, "Open:" for taken papers, "Your mocks · N · M awaiting", dropdown chevrons; kill switch `VITE_TS_NAV2_DISABLED`. Live-checked PASS (iPhone arrows owed).
+- DONE (owner), repo private.
+- NEXT: `[FU-FM-UNCOUNTED-NOTE]`, `[FU-PERF3-HEADROOM]`, `[FU-UI-E2E-PHASE2-PAGES]`, `[FU-UI-E2E-REQUIRED-CHECK]`. OWED: `[FU-1840-FM-LIVE]`. The earlier lists stand.
+
 ## 2026-11-24 (daily; covers 24-25 Nov IST: merges 14:39 IST 24 Nov to 06:22 IST 25 Nov, i.e. 09:09 UTC 24 Nov to 00:52 UTC 25 Nov; written 24 Nov, updated about 23:05 IST 24 Nov and about 06:30 IST 25 Nov) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 - #1854 - #1852 - #1856 - #1855 - #1853 - #1857 - MERGED
 
 - DONE, Test Series SEO. `#1846` (`dacd6ae4`) TS-H1-KEYWORD-1: the /test-series h1 starts with "CBSE Class 10 Test Series"; "mock tests" wording.

@@ -1,3 +1,19 @@
+## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859: parents FAQ wording, Test Series paper navigation (trunk `32ba8d0b`)
+
+**PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1851`. Merge SHAs, titles, times and file lists [git: first-parent trunk log, 2 commits after `047493cb` (#1851)]. What each PR does beyond its commit message, reviews, live checks and rulings: the cofounder addendum `claude/HANDOFF_COFOUNDER_SESSION_2026-11-25_ADDENDUM.md` [coordinator]. Repo visibility read from the GitHub REST API this session [git: `gh api repos/chetan-anand-hub/Lazytopper-Production` -> `private: true`]. Merge table: CURRENT_STATE. Reasons: DECISION_LOG.)*
+
+**How the morning went (IST).**
+- **06:39.** `#1851`, the 24-25 Nov daily docs, merged (`047493cb`).
+- **06:59-07:06.** The owner found the /pricing FAQ "Why both?" unclear; the new question and answer were approved at 07:06.
+- **07:24.** `#1858` FAQ-WHY-BOTH-1 merged (copy only; prerender refreshed).
+- **07:33.** `#1859` TS-NAV-2 merged after an independent review (APPROVE-WITH-NITS).
+- **Before 08:00.** Live check of TS-NAV-2 on freelance.iitian: PASS (CURRENT_STATE). Search Console indexing requested for /pricing (again) and /test-series.
+- **By about 12:15.** The repo is PRIVATE (GitHub REST `private: true`).
+
+**Review nits from `#1859` (new follow-ups).** `[FU-TS-INPROGRESS-LABEL]`, `[FU-TS-BACK-SCROLL-SETTLE]`, `[FU-TS-RETAKE-NAMES]`, `[FU-PAPER-LINE-COPY]`.
+
+**Not recorded before (minted now).** `[FU-UI-E2E-PHASE2-PAGES]` was named in the 25 Nov cofounder handoff but had no board entry.
+
 ## 2026-11-24 (daily; covers 24-25 Nov IST: merges 14:39 IST 24 Nov to 06:22 IST 25 Nov, i.e. 09:09 UTC 24 Nov to 00:52 UTC 25 Nov; written 24 Nov, updated about 23:05 IST 24 Nov and about 06:30 IST 25 Nov) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 - #1854 - #1852 - #1856 - #1855 - #1853 - #1857: /test-series h1 keyword, sameAs directories, admin mistake-type split, schools booklet, Meta InitiateCheckout at order, packs as standard Purchase, buyer score; Test Series owner paper-limit exemption, parent forward, signed-in UI tests, /pricing four slim cards, founding-price wording (trunk `0ae599c7`; was `2d851629` at first writing)
 
 **PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1843`. Covers eight product PRs squash-merged on 24 Nov, 09:09 to 17:25 UTC. Merge SHAs, titles, merge times and file lists [git: first-parent trunk log, 8 commits after `ec9b437d`]. Everything else is from the cofounder session handoff `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` sections 2-4 and the coordinator's messages from this session (https://claude.ai/code/session_01QscBGog9Fe4ZxiPQ6vdGo7), as relayed by the coordinator [coordinator]. The docs builder did not open the handoff doc itself and did not re-read the PR bodies. Merge table: CURRENT_STATE. Reasons for every ruling: DECISION_LOG.)*
