@@ -311,6 +311,12 @@ export interface PassCheckoutViewProps {
   holderAutoOpen?: boolean;
   /** CHECKOUT-WHO-1 - see PassWhoWiring. Undefined = today's flow. */
   who?: PassWhoWiring;
+  /**
+   * PRICING-CTA-UP-1 v1.1 - DISPLAY ONLY: the /pricing card face shows the Pay button alone. Hides the three extras around it (the
+   * WhatsApp opt-in, the GST breakup line, "Buying for someone else?"); every handler, the order call, the events, the Pay label (the
+   * server's credited / upgrade total) and every state line (credit, upgrade, rescue, failure, recovery) are unchanged. Default off.
+   */
+  compact?: boolean;
 }
 
 /**
@@ -344,6 +350,7 @@ export function PassCheckoutView({
   autoStart = false,
   holderAutoOpen = false,
   who,
+  compact = false,
 }: PassCheckoutViewProps) {
   /** CHECKOUT-WHO-1 - the "Who will use it?" sheet is open (only ever with `who`). */
   const [whoOpen, setWhoOpen] = useState(false);
@@ -725,7 +732,7 @@ export function PassCheckoutView({
         </button>
       )}
       {/* WHATSAPP-OPTIN-1: number + tick ABOVE Pay; no extra tap; Pay works with it empty. */}
-      {!activeLabel && <WhatsAppOptInCheckout testIdPrefix="pass-wa" />}
+      {!activeLabel && !compact && <WhatsAppOptInCheckout testIdPrefix="pass-wa" />}
       <button
         type="button"
         ref={boardsPayRef}
@@ -739,7 +746,7 @@ export function PassCheckoutView({
       {busy !== null && slowOpen && <p className="lt-pricing-plan-desc lt-pricing-checkout-note" role="status" data-testid="pass-slow-open">{CHECKOUT_SLOW_COPY}</p>}
       {/* INAPP-PAY-CHOICE-1: in an in-app browser only, an extra "Pay in Chrome / Safari" under Pay (never replaces it). */}
       {inAppChoice && !signedIn && !rescue && busy === null && recovery === null && <InAppPayChoice buy={{ kind: "pass" }} onPayHere={() => void handleBuy("till_boards")} />}
-      {gstBreakdown && !activeLabel && (
+      {gstBreakdown && !activeLabel && !compact && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--bottom" data-testid="pass-checkout-gst">
           {gstBreakdown}
         </p>
@@ -755,7 +762,7 @@ export function PassCheckoutView({
           {busy === "month" ? CHECKOUT_OPENING_COPY : renewMonthLabel(offerOpen)}
         </button>
       )}
-      {who && signedIn && !activeLabel && (
+      {who && signedIn && !activeLabel && !compact && (
         <SomeoneElseLink disabled={busy !== null || recovery !== null} onOpen={() => setWhoOpen(true)} />
       )}
       {creditLine && (
@@ -828,7 +835,7 @@ export function PassCheckoutView({
 }
 
 /** Connected half — identity, the server-written pass, and the purchase. */
-function PassCheckoutConnected() {
+function PassCheckoutConnected({ compact = false }: { compact?: boolean }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading: authLoading } = useAuth();
@@ -942,6 +949,7 @@ function PassCheckoutConnected() {
       tsUpgrade={tsUpgrade}
       autoStart={autoStart}
       holderAutoOpen={holderAuto}
+      compact={compact}
       {...(whoEnabled
         ? {
             who: {
@@ -992,7 +1000,7 @@ function PassCheckoutConnected() {
 }
 
 /** Mounted by PricingPage. Renders nothing — and calls no hook — while payments are dark. */
-export default function PassCheckout() {
+export default function PassCheckout({ compact = false }: { compact?: boolean } = {}) {
   if (!isPaymentsClientEnabled()) return null;
-  return <PassCheckoutConnected />;
+  return <PassCheckoutConnected compact={compact} />;
 }

@@ -87,6 +87,10 @@ import "../papers/papers.css";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import UsageWarning from "../usage/UsageWarning";
 import { useFairUse } from "../usage/useFairUse";
+// FAIRUSE-TS-OWNER-1 (owner 24 Nov 23:11): a Board Pass holder is never shown the trial worksheet wall.
+import { paperWallVerdict, tsOwnerWallExemptDisabled } from "../usage/fairUseGate";
+import { useSubscription } from "../../hooks/useSubscription";
+import { isPaidPremium } from "../../services/subscriptionService";
 import { useScrollTopOnChange } from "../../hooks/useScrollTopOnRouteChange";
 
 /**
@@ -273,6 +277,8 @@ const AUTH_WAIT_MAX_MS = 5000;
 function WorksheetGeneratorInner() {
   const { user, loading: authLoading } = useAuth();
   const fairUse = useFairUse("worksheet", !!user?.uid && !user?.isLocalSession);
+  const { status: subscriptionStatus } = useSubscription();
+  const paidPremium = isPaidPremium(subscriptionStatus);
   const ctx = useSubjectContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -826,8 +832,11 @@ function WorksheetGeneratorInner() {
       setError(blocker ?? "No questions to generate. Change the settings and try again.");
       return;
     }
-    // FAIR-USE-UI-1 (UI3): this week's worksheet already used -> the panel, not the paper.
-    if (fairUse.blockPaperStart()) return;
+    // FAIR-USE-UI-1 (UI3): this week's worksheet already used -> the panel, not the paper. FAIRUSE-TS-OWNER-1: never for a Board
+    // Pass holder, even while the usage view is a stale trial one (just paid); a worksheet is never a series paper, so a Test
+    // Series owner keeps today's trial rule here. The server decides every pass (fairUse.cjs handlePaperPass).
+    const wall = paperWallVerdict({ disabled: tsOwnerWallExemptDisabled(), paidPremium, seriesPaper: false, ownsSeries: false, checking: false, failed: false });
+    if (wall !== "exempt" && fairUse.blockPaperStart()) return;
     setGenerating(true);
     try {
       const questions = candidate;

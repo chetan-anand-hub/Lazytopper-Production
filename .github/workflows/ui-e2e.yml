@@ -142,3 +142,120 @@ jobs:
           path: lazytopper/tests/e2e/__screenshots__
           if-no-files-found: ignore
           retention-days: 7
+
+  # UI-E2E-2 — a SIGNED-IN student, with no real account anywhere (owner approved 24-25 Nov 2026).
+  #
+  # The app is built with tests/e2e/buildEnv.signedIn.json: buildEnv.json plus the ONE switch that
+  # points Firebase Auth + Firestore at Google's local emulator (services/firebaseClient.ts,
+  # services/firestoreSdk.ts). The emulators run on this runner only, under `emulators:exec`, and
+  # are gone when the step ends; the test student is created inside them with a random throwaway
+  # password (tests/e2e/support/signedIn.ts). Our server is never called: every /api request is a
+  # recorded reply or a named 404 (support/network.ts). No secret is used.
+  #
+  # ★ KILL-SWITCH PROOF, BOTH WAYS, IN THIS JOB. The NORMAL build (buildEnv.json) runs first: its
+  # `pnpm run build` ends with scripts/ops/e2e_emulator_absent.mjs, which fails if any emitted
+  # file holds an emulator endpoint (and the PERF-3 entry budget is enforced on it). The emulator
+  # build then runs the same script, which there REQUIRES the endpoints: proof the matcher fires
+  # on a real bundle. That same script fails any Vercel or Railway build that sets the switch.
+  #
+  # ★ NOT A REQUIRED CHECK. Phase 1's `ui-e2e` job above is unchanged.
+  ui-e2e-signed-in:
+    name: ui-e2e-signed-in
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Fetch PR base branch (for the docs-only decision)
+        if: github.event_name == 'pull_request'
+        run: git fetch --no-tags origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
+
+      - name: Classify (docs-only PRs skip the suite)
+        id: cls
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node lazytopper/scripts/ops/ci_docs_lane_acceptance.mjs --classify
+
+      - uses: pnpm/action-setup@v4
+        if: steps.cls.outputs.docs_only != 'true'
+      - uses: actions/setup-node@v4
+        if: steps.cls.outputs.docs_only != 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+      # The emulators are Java processes; firebase-tools 15 needs Java 21. Pinned, as quality-gate does.
+      - name: Set up Java (runtime for the Firebase emulators)
+        if: steps.cls.outputs.docs_only != 'true'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install workspace (frozen lockfile)
+        if: steps.cls.outputs.docs_only != 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Install the headless shell
+        if: steps.cls.outputs.docs_only != 'true'
+        run: pnpm --filter lazytopper exec playwright install --only-shell --no-progress chromium
+
+      - name: Type-check the suite
+        if: steps.cls.outputs.docs_only != 'true'
+        run: pnpm --filter lazytopper run typecheck:e2e
+
+      - name: NORMAL build (buildEnv.json) - the emulator connect must be absent
+        if: steps.cls.outputs.docs_only != 'true'
+        run: |
+          node -e 'for (const [k, v] of Object.entries(require("./lazytopper/tests/e2e/buildEnv.json").env)) console.log(`${k}=${v}`)' > "$RUNNER_TEMP/e2e.env"
+          set -a; . "$RUNNER_TEMP/e2e.env"; set +a
+          pnpm --filter lazytopper run build
+
+      # GITHUB_ACTIONS=false for this ONE build command (set inline: the runner overrides a step
+      # `env:` for GITHUB_* names): the PERF-3 entry budget is a production budget, enforced on the
+      # normal build above; this test-only bundle carries the emulator connect (+~110 B gz).
+      - name: EMULATOR build (buildEnv.signedIn.json) - the emulator connect must be present
+        if: steps.cls.outputs.docs_only != 'true'
+        run: |
+          node -e 'for (const [k, v] of Object.entries(require("./lazytopper/tests/e2e/buildEnv.signedIn.json").env)) console.log(`${k}=${v}`)' > "$RUNNER_TEMP/e2e-signed-in.env"
+          set -a; . "$RUNNER_TEMP/e2e-signed-in.env"; set +a
+          GITHUB_ACTIONS=false pnpm --filter lazytopper run build
+
+      # The repo's firebase.json declares no emulators (and is not edited for a test), so the
+      # emulators get their own config here: the REAL firestore.rules, Auth on 9099, Firestore on
+      # 8080 (the ports services/*.ts connect to), no UI.
+      - name: Run the signed-in suite against the Firebase emulators
+        if: steps.cls.outputs.docs_only != 'true'
+        run: |
+          java -version
+          cat > "$RUNNER_TEMP/firebase.emulators.json" <<JSON
+          {
+            "firestore": { "rules": "$GITHUB_WORKSPACE/firestore.rules" },
+            "emulators": {
+              "auth": { "host": "127.0.0.1", "port": 9099 },
+              "firestore": { "host": "127.0.0.1", "port": 8080 },
+              "ui": { "enabled": false },
+              "singleProjectMode": true
+            }
+          }
+          JSON
+          pnpm exec firebase emulators:exec --config "$RUNNER_TEMP/firebase.emulators.json" \
+            --only auth,firestore --project ui-e2e-hermetic \
+            "pnpm --filter lazytopper exec playwright test --project=e2e-desktop-signed-in"
+
+      - name: Upload the Playwright report (on failure)
+        if: failure() && steps.cls.outputs.docs_only != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-e2e-signed-in-report-${{ github.event.pull_request.number || github.run_id }}
+          path: |
+            lazytopper/playwright-report
+            lazytopper/test-results
+            firebase-debug.log
+            firestore-debug.log
+          retention-days: 14

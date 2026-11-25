@@ -37,7 +37,8 @@ export const COVERED_PAGES: readonly CoveredPage[] = [
     path: "/pricing",
     slug: "pricing",
     // The shortcut bar (pricing-sticky-bar) IS the page's first buy CTA on both viewports: on a phone it always was; since
-    // UI-FIX-1 it also shows on desktop, where the cards' own Pay rows start ~900 px down.
+    // UI-FIX-1 it also shows on desktop. PRICING-CTA-UP-1 v1.1 (24 Nov 2026): the slim card faces put every card's own Pay / Buy
+    // ~870-1020 px down at 1280x800 and 360x740 (just below the first screen), so the bar is still the first one on screen.
     ctaLabel: () => 'sticky "Pay ₹…" (Board Pass)',
     cta: (page) => page.getByTestId("pricing-sticky-bar-go"),
   },

@@ -173,6 +173,9 @@ import { pendingMockRecords } from "../components/fullmock/pendingMocks";
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import UsageWarning from "../components/usage/UsageWarning";
 import { useFairUse } from "../components/usage/useFairUse";
+// FAIRUSE-TS-OWNER-1 - who the trial paper wall is not for (a Board Pass holder; a Test Series owner on a series paper).
+import { paperWallVerdict, tsOwnerWallExemptDisabled } from "../components/usage/fairUseGate";
+import { isPaidPremium } from "../services/subscriptionService";
 import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../ai/gradingTransport";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
 import { isPremiumRequiredRefusal, isTrialLimitRefusal } from "../components/limits/limitsCopy";
@@ -181,7 +184,7 @@ import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesOfferButtons, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
+import { ACCESS_CHECKING_LINE, ACCESS_FAILED_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesOfferButtons, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUploadNotAllowed, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
@@ -277,7 +280,8 @@ export default function FullMockPage() {
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const fairUse = useFairUse("full-mock", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live (see ChapterTestPage).
-  const { isPremium } = useSubscription();
+  const { isPremium, status: subscriptionStatus } = useSubscription();
+  const paidPremium = isPaidPremium(subscriptionStatus);
   // TEST-SERIES-1 (owner ruling 18 Nov 19:31 IST) — written-answer checking and the paper download need the Test Series or the Board Pass here.
   // TS-PACK-1: a signed-in Test Series Pack owner gets through too (ownsTestSeries from /api/packs/mine).
   // MYPACKS-TS-1: three-state (checking / failed / decided); downloads also open for a PDF pack that covers this subject's mocks.
@@ -289,6 +293,24 @@ export default function FullMockPage() {
   const fairUseSeriesOffer =
     onSeriesPaper && !seriesAccess.checking && !seriesAccess.failed && !seriesAccess.canCheck ? <SeriesOfferButtons testIdPrefix="fair-use" only="test-series" showTotal /> : null;
   const seriesDownloadAccess = seriesAccess.canDownload;
+  // FAIRUSE-TS-OWNER-1: the trial paper wall is never drawn for a Board Pass holder, nor for a Test Series owner on a series
+  // paper / focus set (the server mints both without the trial limit). `seriesPaper` is decided by the caller (this page's URL,
+  // or the saved paper's worksheetId on the continue path). Kill switch VITE_FAIRUSE_TS_OWNER_EXEMPT_DISABLED.
+  const wallVerdictFor = useCallback(
+    (seriesPaper: boolean) =>
+      paperWallVerdict({
+        disabled: tsOwnerWallExemptDisabled(),
+        paidPremium,
+        seriesPaper,
+        ownsSeries: seriesAccess.ownsSeries,
+        checking: seriesAccess.checking,
+        failed: seriesAccess.failed,
+      }),
+    [paidPremium, seriesAccess.ownsSeries, seriesAccess.checking, seriesAccess.failed],
+  );
+  // FAIRUSE-TS-OWNER-1: a Test Series owner on a series paper never downloads against the weekly count (limits.cjs), and a Board
+  // Pass holder is not metered - so the LIMITS-1 "first download is free" chip is not theirs to read.
+  const hideDownloadChip = !tsOwnerWallExemptDisabled() && (paidPremium || (onSeriesPaper && seriesAccess.ownsSeries));
   // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
   const boardPassHolder = useBoardPassHolder();
   const [startWall, setStartWall] = useState(false);
@@ -856,11 +878,19 @@ export default function FullMockPage() {
       setStartWall(true);
       return;
     }
-    // FAIR-USE-UI-1 (UI3): this week's mock already used -> the panel, not the paper.
-    // A RESUME is not a start and is never blocked. [FU-FAIRUSE-TS-OWNER-EXEMPT]: a Test Series owner's series paper is still
-    // blocked here on purpose - the fair-use paper-pass mint (server fairUse.cjs handlePaperPass) has no owner exemption, so a
-    // client bypass would let a trial-tier owner write a whole paper and be refused at grade time. Server exemption first.
-    if (fairUse.blockPaperStart()) return;
+    // FAIR-USE-UI-1 (UI3): this week's mock already used -> the panel, not the paper. A RESUME is not a start and is never blocked.
+    // FAIRUSE-TS-OWNER-1 (resolves [FU-FAIRUSE-TS-OWNER-EXEMPT]): the server now mints a trial Test Series owner's series paper and
+    // a Board Pass holder's paper without the trial limit, so neither is walled here; while ownership is unknown the page waits.
+    const wall = wallVerdictFor(onSeriesPaper);
+    if (wall === "wait") {
+      setPaperNotice(ACCESS_CHECKING_LINE);
+      return;
+    }
+    if (wall === "unconfirmed") {
+      setStartWall(true);
+      return;
+    }
+    if (wall !== "exempt" && fairUse.blockPaperStart()) return;
     // CT-RESUME-2: a visit let through as a RESUME of a saved mock was not counted. Starting a NEW
     // mock instead is counted now — or refused when today's papers are used up.
     if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && onSeriesPaper), location.search)) {
@@ -893,7 +923,7 @@ export default function FullMockPage() {
     });
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
-  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, onSeriesPaper, focusActive, freeWritten, seriesState?.durationMs, isSignedIn, records, navigate]);
+  }, [draw, nomen, subject, fairUse.blockPaperStart, wallVerdictFor, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, onSeriesPaper, focusActive, freeWritten, seriesState?.durationMs, isSignedIn, records, navigate]);
 
   const resumeMock = useCallback(() => {
     const s = inProgress ?? findInProgressSession(sessionUid);
@@ -1077,8 +1107,18 @@ export default function FullMockPage() {
         // AWAIT-1: a downloaded paper first takes its Section A picks (then continueFromPicks).
         if (snap && snap.downloaded === true && !snap.objective) {
           // The same fair-use gate as an in-app start (UI3): an exhausted allowance is stopped
-          // BEFORE a client-scored partial record could be written.
-          if (fairUse.blockPaperStart()) return;
+          // BEFORE a client-scored partial record could be written. FAIRUSE-TS-OWNER-1: "series" is the SAVED paper's own id.
+          const wall = wallVerdictFor(seriesPaperKeyOfWorksheetId(snap.paper?.worksheetId) !== null);
+          if (wall === "wait") {
+            setPaperNotice(ACCESS_CHECKING_LINE);
+            return;
+          }
+          if (wall === "unconfirmed") {
+            setPaperNotice(`${ACCESS_FAILED_LINE} - please try again.`);
+            seriesAccess.retry();
+            return;
+          }
+          if (wall !== "exempt" && fairUse.blockPaperStart()) return;
           setReopen(null);
           setPickSnap(snap);
           setPhase("pick");
@@ -1146,7 +1186,7 @@ export default function FullMockPage() {
         });
       }
     },
-    [sessionUid, user, fairUse.blockPaperStart],
+    [sessionUid, user, fairUse.blockPaperStart, wallVerdictFor, seriesAccess.retry],
   );
 
   // ── Re-open a stored mock read-only ──────────────────────────────────────────
@@ -1867,7 +1907,7 @@ export default function FullMockPage() {
                     />
                     )}
 
-                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} /> : null}
+                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} tsOwner={seriesAccess.ownsSeries} /> : null}
 
                     {/* GUIDE-PAGES-1 — reserved for COMPANION-1's optional pre-test "breathe" moment (renders nothing today). */}
                     <PreTestSlot surface="full_mock" />
@@ -1889,7 +1929,7 @@ export default function FullMockPage() {
                       ) : (
                         <DownloadWithPlanLink />
                       )}
-                      {seriesDownloadAccess && <LimitChip />}
+                      {seriesDownloadAccess && !hideDownloadChip && <LimitChip />}
                     </div>
                     {/* TS-THEMES-1: on a focus set the free-test note shows only when its written answers WILL be marked (no "MCQs marked free"
                         line on a paper with no MCQs); otherwise starting it shows the upgrade card below. */}
@@ -2235,7 +2275,7 @@ export default function FullMockPage() {
             {seriesNavOn && seriesBack.to !== TEST_SERIES_NAV_PATH && <SeriesCrumb />}
           </div>
 
-          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} /> : null}
+          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} tsOwner={seriesAccess.ownsSeries} /> : null}
           {paperWall && (seriesAccess.ownsSeries ? (
             <SeriesOwnerNotice onClose={() => setPaperWall(false)} worksheetId={activeMock.paper.worksheetId} status={seriesAccess.status} />
           ) : (

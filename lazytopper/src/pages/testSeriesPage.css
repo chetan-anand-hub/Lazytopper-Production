@@ -687,6 +687,42 @@
   cursor: default;
 }
 
+/* TS-PARENT-FORWARD-1 - "Forward link to parents" under each Test Series Buy: full width, secondary (outlined), never above the Buy.
+   Signed in it is PaywallActions' own button (parentShare.css); signed out it is the sign-in button below, styled to match. */
+.lt-ts .lt-ts-forward {
+  width: 100%;
+  margin-top: 8px;
+}
+.lt-ts .lt-ts-forward .lt-paywall-actions {
+  max-width: none;
+  margin: 0;
+}
+.lt-ts .lt-ts-forward .lt-paywall-parent {
+  min-height: 48px;
+}
+/* Signed out: the box is in the static page (reserved: the 48 px button), filled once the flags are read. */
+.lt-ts .lt-ts-forward--out {
+  min-height: 48px;
+}
+.lt-ts .lt-ts-forward__btn {
+  width: 100%;
+  background: #ffffff;
+  border: 1.5px solid var(--lt-green-deep, #0e7c47);
+  color: var(--lt-green-deep, #0e7c47);
+}
+.lt-ts .lt-ts-forward__btn:hover,
+.lt-ts .lt-ts-forward__btn:focus-visible {
+  background: var(--lt-mint, #eef8f2);
+}
+/* TS-PARENT-FORWARD-2: shown only when the share sheet and the WhatsApp window both failed to open (a tap, so no first-paint shift). */
+.lt-ts .lt-ts-forward__wa {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--lt-green-deep, #0e7c47);
+}
+
 .lt-ts-foot a,
 .lt-ts-foot button {
   display: inline-flex;

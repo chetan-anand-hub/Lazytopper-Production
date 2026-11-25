@@ -419,10 +419,26 @@ function recheckAtMs(kind, reason, facts, startMs) {
  * month pass is NOT quoted to anyone (owner ruling 31 Oct 2026: the monthly price is hidden throughout).
  * Kept under its old export name so callers and the test seam do not move. PURE.
  */
-function foundingPriceLine() {
+function foundingPriceLine(nowMs = Date.now()) {
   // GST-EXCL-1: "₹1,917 + GST" from 00:00 IST 7 Nov 2026 (the shared tag); before it, unchanged.
-  const nowMs = Date.now();
+  // FOUNDING-MSG-PRICE-2 (owner, 25 Nov 2026: "there should be no wrong price from 1st december"): this email is read
+  // later than it is sent, so while the founding offer is open the line carries its own date and the price that follows
+  // it - "₹1,917 + GST (founding price till 30 Nov, then ₹2,499 + GST)" - and is never wrong on 1 Dec. (No server-side
+  // founding-clause helper exists; the wording matches the client's TS-PRICE-2 "founding price till 30 Nov, then ...".)
+  // From the close the price no longer changes: the line is as before. `nowMs` is the SEND time (default: the clock).
+  const after = pricing.displayPlusGst(pricing.TILL_BOARDS_AFTER_FOUNDING_INR, nowMs);
+  if (pricing.foundingOfferOpen(nowMs)) {
+    const founding = pricing.displayPlusGst(pricing.TILL_BOARDS_FOUNDING_INR, nowMs);
+    return `Board Pass: ${founding} (founding price till ${foundingLastDayLabel()}, then ${after}), one payment, valid till ${VALIDITY_LABEL}.`;
+  }
   return `Board Pass: ${pricing.displayPlusGst(pricing.tillBoardsPriceInr(nowMs), nowMs)}, one payment, valid till ${VALIDITY_LABEL}.`;
+}
+
+/** "30 Nov" - the last IST day of the founding offer, from the pricing mirror's close instant (never typed). PURE. */
+function foundingLastDayLabel() {
+  const ist = new Date(pricing.FOUNDING_OFFER_CLOSES_AT_MS - 1 + 330 * 60 * 1000);
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${ist.getUTCDate()} ${MONTHS[ist.getUTCMonth()]}`;
 }
 
 function activityLine(counts) {
@@ -445,7 +461,7 @@ function packsPara(appUrl, campaign) {
  * The email for one kind. PURE. Plain HTML + text, no name, no tracking, an unsubscribe link,
  * no urgency words. `counts` is required for d3.
  */
-function buildNudgeEmail(kind, { counts, appUrl, unsubscribeUrl, chapter }) {
+function buildNudgeEmail(kind, { counts, appUrl, unsubscribeUrl, chapter, nowMs = Date.now() }) {
   const checkUrl = `${appUrl}/check-improve`;
   const practiceUrl = `${appUrl}/practice-hub`;
   const plansUrl = `${appUrl}/pricing`;
@@ -480,7 +496,7 @@ function buildNudgeEmail(kind, { counts, appUrl, unsubscribeUrl, chapter }) {
     subject = 'A note for you and your parents about LazyTopper plans';
     paras.push({ t: 'Hi,' });
     paras.push({ t: 'You have been using LazyTopper to study. If you want to keep going with Premium, here is the price, so you can talk it over at home.' });
-    paras.push({ t: foundingPriceLine() });
+    paras.push({ t: foundingPriceLine(nowMs) });
     paras.push({
       t: 'Plans are on the Plans page. There is a button there to send a link to a parent, so they can look at it when it suits them. Nothing is charged automatically.',
       links: [{ label: 'See plans', url: plansUrl }],
@@ -1079,7 +1095,7 @@ function createNudgeEmailer(deps = {}) {
       }
 
       const unsubscribeUrl = unsubscribeUrlFor(config.appUrl, uid, config.unsubscribeSecret);
-      const message = buildNudgeEmail(kind, { appUrl: config.appUrl, unsubscribeUrl, chapter: comebackChapterFor(uid) });
+      const message = buildNudgeEmail(kind, { appUrl: config.appUrl, unsubscribeUrl, chapter: comebackChapterFor(uid), nowMs });
       const result = fetchImpl
         ? await sendViaResend({
             fetchImpl,
@@ -1956,7 +1972,7 @@ function createNudgeEmailer(deps = {}) {
         }
 
         const unsubscribeUrl = guestEmail.guestUnsubscribeUrlFor(config.appUrl, key, config.unsubscribeSecret);
-        const message = guestEmail.buildGuestAbandonEmail({ product, ...guestPriceArgs(product, nowMs), appUrl: config.appUrl, unsubscribeUrl });
+        const message = guestEmail.buildGuestAbandonEmail({ product, ...guestPriceArgs(product, nowMs), appUrl: config.appUrl, unsubscribeUrl, nowMs });
         let result =
           fetchImpl && message
             ? await sendViaResend({
@@ -2282,7 +2298,7 @@ function createNudgeEmailer(deps = {}) {
         }
 
         const unsubscribeUrl = unsubscribeUrlFor(config.appUrl, uid, config.unsubscribeSecret);
-        const message = buildNudgeEmail(kind, { counts, appUrl: config.appUrl, unsubscribeUrl });
+        const message = buildNudgeEmail(kind, { counts, appUrl: config.appUrl, unsubscribeUrl, nowMs });
         const result = fetchImpl
           ? await sendViaResend({
               fetchImpl,
