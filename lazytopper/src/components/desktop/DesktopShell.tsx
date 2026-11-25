@@ -608,7 +608,7 @@ export function DesktopShell({ children }: DesktopShellProps) {
                       width: 36,
                       height: 36,
                       borderRadius: "50%",
-                      background: "linear-gradient(135deg, hsl(152,55%,45%), hsl(152,60%,38%))",
+                      background: "linear-gradient(135deg, hsl(152,60%,30%), hsl(152,65%,24%))",
                       display: "grid",
                       placeItems: "center",
                       color: "#fff",
