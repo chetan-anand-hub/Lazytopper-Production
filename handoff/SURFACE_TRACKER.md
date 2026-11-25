@@ -1,4 +1,13 @@
 
+> **2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871 (CLAUDE.md section 10).** Merge SHAs and times [git]; live checks and the eval [coordinator].
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| **Answer Checker: "Read the question" (whole paper)** | each question's own chapter (`#1868`) | **merged, live; live PASS** | - |
+| **Answer Checker multi / Worksheet / Chapter Test / Full Mock (one-document upload)** | second look for not-found / no-working / wrong-question answers; summary after a rescue (`#1870`, `#1871`) | **merged, live (Railway); Answer Checker multi live PASS** | `[FU-LOOK2-BANK-LIVE]` |
+| **All six grading surfaces (server telemetry)** | `[grade-timing]` outcomes (`#1869`) | **merged, live** | `[FU-LOOK2-REAL-RATE]` |
+| **Signed-in UI tests (CI)** | Answer Checker, Board Pass Pay unpaid (`#1867`) | **merged** | rest of `[FU-UI-E2E-PHASE2-PAGES]` |
+
 > **2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 (CLAUDE.md section 10).** Merge SHAs, titles, times and file lists [git: first-parent trunk log, 4 commits after `c7e4b44e` (#1861)]. Diagnoses, reviews, measurements and rulings: this cofounder session (owner messages 25 Nov 12:11 and 12:17 IST; independent Opus reviews of #1862 and #1863) [coordinator]. **Grading surfaces: `#1863` reaches the scheme-first cache on Answer Checker single/multi and on Worksheet / Chapter Test / Full Mock for bank rows without steps (one-time regeneration); live verify OWED.** Scope discovered: none.
 
 | surface | what moved (PR) | state | owed |

@@ -1,3 +1,18 @@
+## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted. Rulings 1-4 are the owner's (25 Nov, this session) **[owner]**; 5-8 are the cofounder's calls under them **[coordinator]**.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **1. Show each question's topic at "Read the question"** [owner, 15:55] | Fix it if the reason it was removed is not solid; done in `#1868` with per-question chapters. | The removed line (`#935`) was the first question's chapter shown for the whole paper; per-question chapters keep the B2 ruling and give the student the topic. |
+| **2. Counter + second look + mark on photo, in that order** [owner, 17:51] | All one-document surfaces; answers in any order and all combinations. | A student's answers were dropped at a demo; re-uploading one by one was the pain. |
+| **3. Quality, time and cost guard** [owner, 17:51] | Grading quality must not drop; time and cost must not change drastically. | Live product with paying students. |
+| **4. Eval on the laptop scratch clone with the eval key** [owner, 17:51] | About Rs 600-900 approved; the clone is outside C:\Projects and restored afterwards. | The eval key lives only on the laptop. |
+| **5. Look again only when an answer is unplaced** [coordinator] | The first reading lists `unplacedAnswers`; a not-found question is revisited only when one is open; no-working and wrong-question answers always. | The first eval run showed a skipped question paying about 30 s and Rs 2 for nothing; students skip questions often. |
+| **6. A wrong-question zero is revisited too** [coordinator] | `answerMismatch` is in the second look's reasons; its quoted lines count as unplaced. | The eval's real failure: own numbering colliding with the paper's zeroed 4 of 5 correct answers. |
+| **7. Keep a kill switch, already live** [coordinator; explained to the owner 20:05] | `GRADING_SECOND_LOOK_DISABLED=1` restores the previous grader without a deploy. | An unused off button for a grading change; it does not hold the change back. |
+| **8. "Mark it on your photo" is an ordinary check** [coordinator, pending owner] | No fair-use change in PR-1. | Changing what is free needs the owner's ruling (`[FU-MARK-ON-PHOTO-FAIRUSE]`). |
+
 ## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted. Rulings 1-3 are the owner's (25 Nov 12:17 IST, this session) **[owner]**; 4 is the cofounder's call under the owner's "you do now" **[coordinator]**. No scope discovered.
