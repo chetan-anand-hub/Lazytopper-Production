@@ -177,6 +177,30 @@ export async function recordWorksheetQuestion(
 }
 
 /**
+ * THE record save of a graded worksheet — ONE seam for a fresh grade and a mark on the photo (MARK-ON-PHOTO-2): the record,
+ * the first-graded report, and its per-question payload rewritten whole.
+ */
+function writeWorksheetRecord(
+  user: AuthUser,
+  uid: string,
+  record: ReturnType<typeof buildWorksheetSessionRecord>,
+  code: string,
+  worksheetId: string,
+  response: WorksheetGradeResponse,
+): void {
+  writeSessionRecord(user, record);
+  noteFirstGraded(uid, record, "worksheet"); // MEASURE-1 B — observe only
+  writeSessionPerQuestion(user, {
+    ref: record.perQuestionRef,
+    code,
+    worksheetId,
+    surface: "worksheet",
+    gradedAt: record.gradedAt,
+    response,
+  });
+}
+
+/**
  * Grade an uploaded answer-PDF against a persisted worksheet, persist the result,
  * and feed Mistake Intelligence. The grade call maps the upload Q1…QN to the
  * KNOWN scheme (never blind-segmented); pending (couldNotRead) questions are
@@ -264,17 +288,7 @@ export async function gradeWorksheetAndRecord(
 
     const uid = user?.uid;
     if (uid && !user?.isLocalSession) {
-      const record = buildWorksheetSessionRecord(worksheet, response, nomen, uid);
-      writeSessionRecord(user, record);
-      noteFirstGraded(uid, record, "worksheet"); // MEASURE-1 B — observe only
-      writeSessionPerQuestion(user, {
-        ref: record.perQuestionRef,
-        code: nomen.code,
-        worksheetId: worksheet.worksheetId,
-        surface: "worksheet",
-        gradedAt: record.gradedAt,
-        response,
-      });
+      writeWorksheetRecord(user, uid, buildWorksheetSessionRecord(worksheet, response, nomen, uid), nomen.code, worksheet.worksheetId, response);
     }
   } catch (error) {
     console.warn("[worksheetGradeService] session record write failed", error);
@@ -328,16 +342,7 @@ export async function markWorksheetQuestion(args: {
     sessionName = nomen.name;
     const uid = user?.uid;
     if (uid && !user?.isLocalSession) {
-      const record = buildWorksheetSessionRecord(worksheet, merged, nomen, uid);
-      writeSessionRecord(user, record);
-      writeSessionPerQuestion(user, {
-        ref: record.perQuestionRef,
-        code: nomen.code,
-        worksheetId: worksheet.worksheetId,
-        surface: "worksheet",
-        gradedAt: record.gradedAt,
-        response: merged,
-      });
+      writeWorksheetRecord(user, uid, buildWorksheetSessionRecord(worksheet, merged, nomen, uid), nomen.code, worksheet.worksheetId, merged);
     }
   } catch (error) {
     console.warn("[worksheetGradeService] marked record write failed", error);

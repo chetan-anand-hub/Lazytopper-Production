@@ -287,23 +287,39 @@ export async function gradeFullMockUpload(args: {
     const uid = user?.uid;
     if (uid && !user?.isLocalSession) {
       const record = buildFullMockSessionRecord({ paper, code, subject, response, uid, focus });
-      const written = await writeSessionRecordResolved(user, record);
+      const written = await writeFullRecord(user, uid, record, paper.worksheetId, response);
       savedCode = written.code;
-      noteFirstGraded(uid, written.record, "full_mock"); // MEASURE-1 B — observe only
-      writeSessionPerQuestion(user, {
-        ref: written.record.perQuestionRef,
-        code: written.code,
-        worksheetId: paper.worksheetId,
-        surface: "full-mock",
-        gradedAt: written.record.gradedAt,
-        response,
-      });
     }
   } catch (error) {
     console.warn("[fullMockGradeService] full record write failed", error);
   }
 
   return { ok: true, response, miOutcomes, ...(savedCode ? { savedCode } : {}) };
+}
+
+/**
+ * THE full-record save of a graded Full Mock — ONE seam for a fresh grade and a mark on the photo (MARK-ON-PHOTO-2): the record
+ * (RECORD-SAFE-1: its final code resolved first), the first-graded report on the record AS WRITTEN, and its per-question payload
+ * rewritten whole under the code it landed on.
+ */
+async function writeFullRecord(
+  user: AuthUser,
+  uid: string,
+  record: SessionRecord,
+  worksheetId: string,
+  response: WorksheetGradeResponse,
+): Promise<{ code: string; record: SessionRecord }> {
+  const written = await writeSessionRecordResolved(user, record);
+  noteFirstGraded(uid, written.record, "full_mock"); // MEASURE-1 B — observe only
+  writeSessionPerQuestion(user, {
+    ref: written.record.perQuestionRef,
+    code: written.code,
+    worksheetId,
+    surface: "full-mock",
+    gradedAt: written.record.gradedAt,
+    response,
+  });
+  return written;
 }
 
 /**
@@ -351,17 +367,9 @@ export async function markFullMockQuestion(args: {
       const code = currentCodeForPaper(user, paper.worksheetId, "full-mock", args.code);
       const record = buildFullMockSessionRecord({ paper, code, subject, response: merged, uid, focus });
       savedRecord = record;
-      const written = await writeSessionRecordResolved(user, record);
+      const written = await writeFullRecord(user, uid, record, paper.worksheetId, merged);
       savedCode = written.code;
       savedRecord = written.record;
-      writeSessionPerQuestion(user, {
-        ref: written.record.perQuestionRef,
-        code: written.code,
-        worksheetId: paper.worksheetId,
-        surface: "full-mock",
-        gradedAt: written.record.gradedAt,
-        response: merged,
-      });
     }
   } catch (error) {
     console.warn("[fullMockGradeService] marked record write failed", error);

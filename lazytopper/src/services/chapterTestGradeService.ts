@@ -432,23 +432,39 @@ export async function gradeChapterTestUpload(args: {
     const uid = user?.uid;
     if (uid && !user?.isLocalSession) {
       const record = buildChapterTestSessionRecord({ paper, code, subject, topicKey, response, uid });
-      const written = await writeSessionRecordResolved(user, record);
+      const written = await writeFullRecord(user, uid, record, paper.worksheetId, response);
       savedCode = written.code;
-      noteFirstGraded(uid, written.record, "chapter_test"); // MEASURE-1 B — observe only
-      writeSessionPerQuestion(user, {
-        ref: written.record.perQuestionRef,
-        code: written.code,
-        worksheetId: paper.worksheetId,
-        surface: "chapter-test",
-        gradedAt: written.record.gradedAt,
-        response,
-      });
     }
   } catch (error) {
     console.warn("[chapterTestGradeService] full record write failed", error);
   }
 
   return { ok: true, response, miOutcomes, ...(savedCode ? { savedCode } : {}) };
+}
+
+/**
+ * THE full-record save of a graded Chapter Test — ONE seam for a fresh grade and a mark on the photo (MARK-ON-PHOTO-2): the record
+ * (RECORD-SAFE-1: its final code resolved first), the first-graded report on the record AS WRITTEN, and its per-question payload
+ * rewritten whole under the code it landed on.
+ */
+async function writeFullRecord(
+  user: AuthUser,
+  uid: string,
+  record: SessionRecord,
+  worksheetId: string,
+  response: WorksheetGradeResponse,
+): Promise<{ code: string; record: SessionRecord }> {
+  const written = await writeSessionRecordResolved(user, record);
+  noteFirstGraded(uid, written.record, "chapter_test"); // MEASURE-1 B — observe only
+  writeSessionPerQuestion(user, {
+    ref: written.record.perQuestionRef,
+    code: written.code,
+    worksheetId,
+    surface: "chapter-test",
+    gradedAt: written.record.gradedAt,
+    response,
+  });
+  return written;
 }
 
 export type BankMarkOutcome =
@@ -508,17 +524,9 @@ export async function markChapterTestQuestion(args: {
       const code = currentCodeForPaper(user, paper.worksheetId, "chapter-test", args.code);
       const record = buildChapterTestSessionRecord({ paper, code, subject, topicKey, response: merged, uid });
       savedRecord = record;
-      const written = await writeSessionRecordResolved(user, record);
+      const written = await writeFullRecord(user, uid, record, paper.worksheetId, merged);
       savedCode = written.code;
       savedRecord = written.record;
-      writeSessionPerQuestion(user, {
-        ref: written.record.perQuestionRef,
-        code: written.code,
-        worksheetId: paper.worksheetId,
-        surface: "chapter-test",
-        gradedAt: written.record.gradedAt,
-        response: merged,
-      });
     }
   } catch (error) {
     console.warn("[chapterTestGradeService] marked record write failed", error);
