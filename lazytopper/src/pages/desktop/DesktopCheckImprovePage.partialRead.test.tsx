@@ -33,7 +33,15 @@ vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => H.sub }))
 vi.mock("../../hooks/useFreeCheckReturn", () => ({ useFreeCheckReturn: () => "none" }));
 vi.mock("../../ai/aiClient", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../ai/aiClient")>();
-  return { ...actual, detectQuestion: (...a: unknown[]) => H.detectQuestion(...a) };
+  // CI-READ-TOPICS-1: a whole-paper read now also makes the per-question chapter reads (purpose
+  // "topic"); they answer "no chapter" here so they never consume this file's read mocks.
+  return {
+    ...actual,
+    detectQuestion: (...a: unknown[]) =>
+      (a[0] as { purpose?: string } | undefined)?.purpose === "topic"
+        ? Promise.resolve({ ok: true, detectedTopic: null, detectedSubject: null })
+        : H.detectQuestion(...a),
+  };
 });
 vi.mock("../../services/mistakeIntelligence", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/mistakeIntelligence")>();

@@ -47,11 +47,14 @@ import {
   perQuestionFiling,
   resolveCiQuestionText,
   resolvePerQuestionGradeTopics,
+  questionSetSignature,
   SHOW_DETECTION_META,
   detectedTextForResult,
   detectedItemForResult,
   type ConfirmedDetection,
+  type PerQuestionTopic,
 } from "../../utils/checkImproveDetection";
+import PaperChaptersLine from "../../components/checkimprove/PaperChaptersLine";
 // SCORECARD-MI-1 — every group, label, step state and count on this page comes from the ONE
 // display module (owner rulings 5 Oct 2026).
 import {
@@ -1276,6 +1279,12 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Every question read from the upload. `length > 1` switches the UI to the
   // multi-question grade path (grade ALL via the worksheet structured grader).
   const [detectedQuestions, setDetectedQuestions] = useState<DetectedQuestion[] | null>(null);
+  // CI-READ-TOPICS-1 — each question's OWN chapter, looked up right after a paid whole-paper read
+  // (the same per-question reads the grade used to make afterwards), keyed to the read question SET
+  // (questionSetSignature) so a marks edit keeps it and a new paper drops it. The grade reuses the
+  // lookup for the same set instead of repeating it.
+  const [readTopics, setReadTopics] = useState<{ sig: string; topics: PerQuestionTopic[] | null } | null>(null);
+  const readTopicsRef = useRef<{ sig: string; promise: Promise<PerQuestionTopic[]> } | null>(null);
 
   // SHW-2 type-first move (see ciZeroGraded above). SHW-4: it happens only on a page nobody has
   // started - once the student typed / uploaded a question, a read is running or done (a whole paper
@@ -2048,6 +2057,25 @@ const DesktopCheckImprovePageInner: React.FC<{
       // Multi-question: keep every detected question. A single-item (or absent)
       // array leaves the existing single-question flow exactly as before.
       setDetectedQuestions(readQs && readQs.length > 0 ? readQs : null);
+      // CI-READ-TOPICS-1 — a paid whole-paper read looks up each question's own chapter now, while
+      // the student adds the answer sheet. The free check keeps its fixed request shape (one graded
+      // question; its chapter is read at grade time, as before).
+      if (!freeCallOpts && readQs && readQs.length > 1) {
+        const sig = questionSetSignature(readQs);
+        const promise = resolvePerQuestionGradeTopics(
+          readQs.map((x) => ({ questionNumber: x.questionNumber, questionText: x.questionText })),
+          CANONICAL_TOPIC_VOCAB,
+        );
+        readTopicsRef.current = { sig, promise };
+        setReadTopics({ sig, topics: null });
+        void promise.then(
+          (topics) => { if (readTopicsRef.current?.sig === sig) setReadTopics({ sig, topics }); },
+          () => { if (readTopicsRef.current?.sig === sig) setReadTopics({ sig, topics: [] }); },
+        );
+      } else {
+        readTopicsRef.current = null;
+        setReadTopics(null);
+      }
       // FU-CI-TYPEFIRST-MULTI: a WHOLE PAPER grades from the answer PHOTO, so a type-first default
       // (SHW-2) moves to "Upload image" - never when the student picked a tab or typed an answer.
       if ((d.questions?.length ?? 0) > 1 && tab === "type" && !ciAnswerTouchedRef.current && textAnswer.trim().length === 0) {
@@ -2534,14 +2562,21 @@ const DesktopCheckImprovePageInner: React.FC<{
       // the by-topic lens + counted "N topics" chip for a mixed paper. Best-effort: a
       // detect miss leaves that question's topic empty and NEVER blocks the shown grade.
       try {
-        const perQTopics = await resolvePerQuestionGradeTopics(
-          questionsToGrade.map((q) => ({
-            questionNumber: q.questionNumber,
-            questionText: q.questionText,
-          })),
-          CANONICAL_TOPIC_VOCAB,
-          freeCallOpts,
-        );
+        // CI-READ-TOPICS-1 — reuse the chapters looked up at "Read the question" for this SAME
+        // question set (never for a different paper); otherwise look them up now, as before.
+        const pre = !freeCallOpts && readTopicsRef.current && readTopicsRef.current.sig === questionSetSignature(detectedQuestions)
+          ? readTopicsRef.current.promise
+          : null;
+        const perQTopics = pre
+          ? await pre.catch(() => [] as PerQuestionTopic[])
+          : await resolvePerQuestionGradeTopics(
+            questionsToGrade.map((q) => ({
+              questionNumber: q.questionNumber,
+              questionText: q.questionText,
+            })),
+            CANONICAL_TOPIC_VOCAB,
+            freeCallOpts,
+          );
         const topicByQ = new Map(perQTopics.map((t) => [t.qNumber, t]));
         for (const r of response.results) {
           const t = topicByQ.get(r.qNumber);
@@ -3623,8 +3658,11 @@ const DesktopCheckImprovePageInner: React.FC<{
                     lineHeight: 1.5,
                   }}
                 >
-                  <strong>{detectedQuestions.length} questions detected</strong> · each question&rsquo;s
-                  subject and chapter are read when it is graded
+                  <strong>{detectedQuestions.length} questions detected</strong>
+                  <PaperChaptersLine
+                    questionNumbers={detectedQuestions.map((q) => q.questionNumber)}
+                    topics={readTopics && readTopics.sig === questionSetSignature(detectedQuestions) ? readTopics.topics : undefined}
+                  />
                   {/* GRADE-MARKS-1 — each question's marks, editable before grading; guesses flagged. */}
                   <PaperMarksEditor questions={detectedQuestions} onMarksChange={correctPaperMarks} />
                   <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4 }}>
