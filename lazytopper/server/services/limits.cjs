@@ -890,17 +890,25 @@ function createLimits(deps = {}) {
       if (ridden) emit('limits.grade.mark_on_photo');
       const id = ridden ? ridden.slot : hashKey(`grade|${kind}`, passKey || idemKey || crypto.randomUUID());
       const limit = info.tier === 'free' ? 1 : resolveGradeLimit(kind);
+      // MARK-ON-PHOTO-2: a Chapter Test / Full Mock / Worksheet mark carries the paper's OWN verified paper pass (so `id` above
+      // is that paper's slot id) and names its one question (X-Lazytopper-Mark-Q). It is counted toward the cap of 3 under
+      // `<paper slot id>|<q>` exactly as an Answer Checker mark, and the route refuses a body that is not that one mark.
+      const bankQ = !ridden && reqPath === GRADE_WORKSHEET_PATH && passKey && markPass.BANK_MARK_KINDS.has(kind) ? markPass.bankMarkQOf(req) : null;
+      if (bankQ) {
+        markPass.noteBankMark(req, { paperKey: passKey, slot: id, q: bankQ });
+        emit('limits.grade.mark_on_photo_bank');
+      }
 
       // ONE transaction: read the bucket, decide and RESERVE the slot. Parallel requests (different
       // idempotency keys) serialise on the document, so the cap cannot be passed.
-      const markKey = ridden ? `${ridden.slot}|${ridden.q}` : null;
+      const markKey = ridden ? `${ridden.slot}|${ridden.q}` : bankQ ? `${id}|${bankQ}` : null;
       const r = await reserveGrade(db, uid, { bucket, id, limit, tier: info.tier, createdMs: info.createdMs, nowMs: now(), markKey });
       if (r.kind === 'markCapped') {
         emit('limits.grade.mark_capped');
         sendJson(res, 409, { ok: false, error: markPass.MARK_LIMIT_COPY, code: 'mark_limit', limit: MARK_CAP });
         return { refused: true };
       }
-      if (ridden && (r.kind === 'reused' || r.kind === 'reserved')) {
+      if (markKey && (r.kind === 'reused' || r.kind === 'reserved')) {
         // The count was taken at admission; only a mark that came back GRADED keeps it.
         let done = false;
         const giveBack = () => {

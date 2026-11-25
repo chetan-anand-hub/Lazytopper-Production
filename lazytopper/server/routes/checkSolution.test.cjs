@@ -3929,3 +3929,32 @@ test('MARK-ON-PHOTO-1: a grade that rode a pass but is not that one mark is refu
   assert.equal(good.status(), 200);
   assert.equal(good.calls.length, 1);
 });
+
+test('MARK-ON-PHOTO-2: a Chapter Test / Full Mock / Worksheet mark the limits gate counted is graded only as that one question under the paper\'s own id (sync, never a job)', async () => {
+  const markPass = require('../services/markPass.cjs');
+  const { GRADING_ATTEMPT } = require('../services/fairUse.cjs');
+  const make = (body, headers = {}) => {
+    const req = { subject: 'Maths', acceptsV2: true, headers: { 'x-lazytopper-surface': 'chapter-test', [markPass.MARK_Q_HEADER]: '2', ...headers }, ...body };
+    Object.defineProperty(req, GRADING_ATTEMPT, { value: { uid: 'stu-1', path: '/api/grade-worksheet' } });
+    markPass.noteBankMark(req, { paperKey: 'ct-paper-1', slot: 'slot-1', q: 2 }); // what limits.gradingGate records
+    return req;
+  };
+  for (const body of [
+    { worksheetId: 'ct-paper-1', questions: [Q(1), Q(2)], uploads: [UP(1), UP(2)] }, // the paper again
+    { worksheetId: 'ct-paper-2', questions: [Q(2)], uploads: [UP(2)] }, // another paper
+    { worksheetId: 'ct-paper-1', questions: [Q(3)], uploads: [UP(3)] }, // another question
+    { worksheetId: 'ct-paper-1', questions: [Q(2)], imageBase64: 'JVBERi0x', imageMimeType: 'application/pdf' }, // a document
+  ]) {
+    const h = buildImageRoute({ replies: [WS_OK([1, 2, 3])] });
+    await h.route.handleGradeWorksheet(make(body), {});
+    assert.equal(h.status(), 400, JSON.stringify(Object.keys(body)));
+    assert.equal(h.calls.length, 0, 'refused before any model call');
+  }
+  let submitted = 0;
+  const ok = buildImageRoute({ replies: [WS_OK([2])], depOverrides: { GRADING_JOBS: true, gradingJobs: { submit: async () => { submitted += 1; return { ok: false }; } } } });
+  await ok.route.handleGradeWorksheet(make({ worksheetId: 'ct-paper-1', async: true, questions: [Q(2)], uploads: [UP(2)] }, { prefer: 'respond-async' }), {});
+  assert.equal(ok.status(), 200);
+  assert.equal(ok.calls.length, 1);
+  assert.equal(submitted, 0, 'a mark is never a background job');
+  assert.equal(ok.body().markPass, undefined, 'a bank paper never carries an Answer Checker mark pass');
+});

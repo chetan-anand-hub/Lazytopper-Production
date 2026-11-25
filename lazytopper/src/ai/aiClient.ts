@@ -146,7 +146,8 @@ export interface PaidCallOptions {
   /** MARK-ON-PHOTO-1: the server-signed mark pass of the Answer Checker paper this ONE answer belongs to
    *  (WorksheetGradeResponse.markPass), sent as X-Lazytopper-Mark-Pass so the mark rides that paper's slot. */
   markPass?: string;
-  /** MARK-ON-PHOTO-1: the ONE question number this mark is for (X-Lazytopper-Mark-Q); sent only with markPass. */
+  /** MARK-ON-PHOTO-1: the ONE question number this mark is for (X-Lazytopper-Mark-Q); sent with markPass, or (MARK-ON-PHOTO-2)
+   *  with a bank paper's own paper pass (surface + paperKey) on a Chapter Test / Full Mock / Worksheet mark. */
   markQ?: number;
 }
 
@@ -1084,6 +1085,9 @@ export async function gradeWorksheet(req: {
     ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}),
     ...paperPass,
     ...(opts?.markPass && !opts.freeCheck ? { "X-Lazytopper-Mark-Pass": opts.markPass, "X-Lazytopper-Mark-Q": String(opts.markQ ?? "") } : {}),
+    // MARK-ON-PHOTO-2: a Chapter Test / Full Mock / Worksheet mark has no mark pass - it carries the paper's OWN paper pass
+    // (above) and names its ONE question, so the server counts it toward the cap of 3 for that question of that paper.
+    ...(!opts?.markPass && !opts?.freeCheck && opts?.markQ !== undefined && Object.keys(paperPass).length > 0 ? { "X-Lazytopper-Mark-Q": String(opts.markQ) } : {}),
   };
   // GRADING-JOBS-1 J2: a background job ONLY when the caller opted in — never a free check.
   if (opts?.job && !opts.freeCheck) {
