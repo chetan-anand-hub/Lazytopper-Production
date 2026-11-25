@@ -2,7 +2,7 @@
  * MARK-ON-PHOTO-2 — Worksheet: "Mark it on your photo" on a FRESH grade. After the (stubbed) mark the scorecard's headline
  * score moves, the row on the graded sheet is the marked one, and the action is gone; a restored (cached) grade offers none.
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import type { WorksheetGradeResponse, WorksheetQuestionGrade } from "../../ai/aiClient";
@@ -51,8 +51,24 @@ const resp = (rows: WorksheetQuestionGrade[]): WorksheetGradeResponse => {
     gradedMarksAwarded: graded.reduce((s, r) => s + (r.marksAwarded ?? 0), 0), gradedMarksTotal: graded.reduce((s, r) => s + (r.totalMarks ?? 0), 0), worksheetTotalMarks: 6,
   };
 };
+/** Tap the scorecard's mark button until the (lazy) dialog is up. A cold run can re-mount the scorecard subtree after the button
+ *  was first found (its own lazy parts resolving), and a tap on the detached node does nothing; a re-tap is harmless. */
+async function openMarkDialog(): Promise<HTMLElement> {
+  return waitFor(() => {
+    const open = screen.queryByTestId("stub-mark-submit");
+    if (open) return open;
+    fireEvent.click(screen.getByTestId("sc-mark-on-photo-btn"));
+    return screen.getByTestId("stub-mark-submit");
+  }, { timeout: 45000 });
+}
 const hero = () => (document.querySelector(".lt-sc__big")?.textContent ?? "").replace(/\s+/g, " ").trim();
 const mount = () => render(<MemoryRouter><WorksheetGradePanel ws={WS} /></MemoryRouter>);
+
+// The page opens the dialog with a lazy import(): load the (stubbed) module up front, so a cold run does not spend the wait
+// below transforming it.
+beforeAll(async () => {
+  await import("../checkimprove/MarkOnPhoto");
+});
 
 beforeEach(() => {
   svc.grade.mockReset();
@@ -76,8 +92,8 @@ describe("MARK-ON-PHOTO-2 · Worksheet", () => {
     expect(hero()).toMatch(/^2 \/ 3/);
     expect(await screen.findByTestId("wg-mark-on-photo", {}, { timeout: 15000 })).toBeTruthy(); // the row on the graded sheet offers it too
     svc.mark.mockResolvedValue({ kind: "marked", response: resp([row(1, 3, 2), row(2, 3, 3)]) });
-    fireEvent.click(btn);
-    fireEvent.click(await screen.findByTestId("stub-mark-submit", {}, { timeout: 15000 }));
+    expect(btn).toBeTruthy();
+    fireEvent.click(await openMarkDialog());
     await waitFor(() => expect(hero()).toMatch(/^5 \/ 6/), { timeout: 15000 });
     expect(screen.queryByTestId("sc-mark-on-photo")).toBeNull();
     expect(screen.queryByTestId("wg-mark-on-photo")).toBeNull();

@@ -1,7 +1,7 @@
 // MARK-ON-PHOTO-2 — Full Mock: "Mark it on your photo" on a FRESH result and on a RE-OPENED one. After the (stubbed) mark the
 // scorecard's headline score and the row move; on a re-opened mock the score is the RECORD's (review S1), so the page must swap
 // in the record the mark re-saved — this test is RED when it keeps the stale one.
-import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { buildFullMockSessionRecord, type SessionRecord } from "../services/sessionRecords";
@@ -88,6 +88,16 @@ const resp = (rows: WorksheetQuestionGrade[]): WorksheetGradeResponse => {
     gradedMarksAwarded: graded.reduce((s, r) => s + (r.marksAwarded ?? 0), 0), gradedMarksTotal: graded.reduce((s, r) => s + (r.totalMarks ?? 0), 0), worksheetTotalMarks: 4,
   };
 };
+/** Tap the scorecard's mark button until the (lazy) dialog is up. A cold run can re-mount the scorecard subtree after the button
+ *  was first found (its own lazy parts resolving), and a tap on the detached node does nothing; a re-tap is harmless. */
+async function openMarkDialog(): Promise<HTMLElement> {
+  return waitFor(() => {
+    const open = screen.queryByTestId("stub-mark-submit");
+    if (open) return open;
+    fireEvent.click(screen.getByTestId("sc-mark-on-photo-btn"));
+    return screen.getByTestId("stub-mark-submit");
+  }, { timeout: 45000 });
+}
 const hero = () => (document.querySelector(".lt-sc__big")?.textContent ?? "").replace(/\s+/g, " ").trim();
 const OBJ = { results: [{ qNumber: 1, id: "q-a1", selected: "2", correct: true, awarded: 1, total: 1 }], awarded: 1, total: 1, answeredCount: 1, totalQuestions: 1 };
 const SNAP_PATH = `sessionRecords/student-1/fullMockPapers/${CODE}`;
@@ -101,6 +111,12 @@ function mount(search = "") {
     </MemoryRouter>,
   );
 }
+
+// The page opens the dialog with a lazy import(): load the (stubbed) module up front, so a cold run does not spend the wait
+// below transforming it.
+beforeAll(async () => {
+  await import("../components/checkimprove/MarkOnPhoto");
+});
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -131,12 +147,12 @@ describe("MARK-ON-PHOTO-2 · Full Mock", () => {
     expect(btn.textContent).toBe("Q2");
     expect(hero()).toMatch(/^1 \/ 4/);
     svc.mark.mockResolvedValue({ kind: "marked", response: resp([row(1, 1, 1), row(2, 3, 2)]) });
-    fireEvent.click(btn);
-    fireEvent.click(await screen.findByTestId("stub-mark-submit", {}, { timeout: 15000 }));
+    expect(btn).toBeTruthy();
+    fireEvent.click(await openMarkDialog());
     await waitFor(() => expect(hero()).toMatch(/^3 \/ 4/), { timeout: 15000 });
     expect(screen.queryByTestId("sc-mark-on-photo")).toBeNull();
     expect(svc.mark.mock.calls[0][0]).toMatchObject({ code: CODE, index: 1, paper: { worksheetId: paper.worksheetId } });
-  }, 90000);
+  }, 150000);
 
   it("★★ RE-OPENED: the headline score is the re-saved RECORD's after the mark (review S1)", async () => {
     const before = resp([row(1, 1, 1), notFound(2, 3)]);
@@ -148,9 +164,9 @@ describe("MARK-ON-PHOTO-2 · Full Mock", () => {
     expect(hero()).toMatch(/^1 \//);
     const after = resp([row(1, 1, 1), row(2, 3, 3)]);
     svc.mark.mockResolvedValue({ kind: "marked", response: after, record: savedRecord(after) });
-    fireEvent.click(btn);
-    fireEvent.click(await screen.findByTestId("stub-mark-submit", {}, { timeout: 15000 }));
+    expect(btn).toBeTruthy();
+    fireEvent.click(await openMarkDialog());
     await waitFor(() => expect(hero()).toMatch(/^4 \/ 4/), { timeout: 15000 });
     expect(screen.queryByTestId("sc-not-found-not-attempted")).toBeNull();
-  }, 90000);
+  }, 150000);
 });
