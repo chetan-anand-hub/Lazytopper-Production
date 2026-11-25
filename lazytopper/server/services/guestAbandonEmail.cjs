@@ -174,9 +174,11 @@ function productPageUrl(appUrl, product) {
  * guest unsubscribe link. `currentPriceInr` is the item's price NOW (null -> no price line).
  * GST-EXCL-1: from the GST cut-off the caller passes `currentPriceText` instead - the checkout's own quote as text
  * ("₹1,917 + ₹345 GST (18%) = ₹2,262"); null -> no price line. When it is absent the line is byte-identical to before.
+ * FOUNDING-MSG-PRICE-2: `nowMs` is the send time; while the founding offer is open there is no price line for the Board
+ * Pass or the Test Series Pack (their price changes at the close). A missing `nowMs` falls back to the process clock.
  * @returns {{subject:string, text:string, html:string, links:{page:string}} | null}
  */
-function buildGuestAbandonEmail({ product, currentPriceInr, currentPriceText, appUrl, unsubscribeUrl }) {
+function buildGuestAbandonEmail({ product, currentPriceInr, currentPriceText, appUrl, unsubscribeUrl, nowMs }) {
   const name = abandoned.productName(product);
   if (!name || !unsubscribeUrl) return null;
   const page = productPageUrl(appUrl, product);
@@ -187,7 +189,12 @@ function buildGuestAbandonEmail({ product, currentPriceInr, currentPriceText, ap
     `A checkout for the LazyTopper ${name} was started with this email address, and the payment was not finished. Nothing was charged.`,
     `If you still want it, it is on ${where} whenever you are ready.`,
   ];
-  if (currentPriceText !== undefined) {
+  // FOUNDING-MSG-PRICE-2: while the founding offer is open (at the SEND time `nowMs`), a price that changes at the close
+  // (Board Pass, Test Series Pack) is not named - the email is read later than it is sent. From the close: as before.
+  const hidePrice = abandoned.priceChangesAtClose(product, nowMs);
+  if (hidePrice) {
+    // FOUNDING-MSG-PRICE-2: no price line.
+  } else if (currentPriceText !== undefined) {
     if (typeof currentPriceText === 'string' && currentPriceText) paras.push(`${name}: ${currentPriceText}.`);
   } else if (Number.isFinite(currentPriceInr) && currentPriceInr > 0) paras.push(`${name}: ${rupee(currentPriceInr)}.`);
   paras.push('If this was not you, or you have already sorted it out, you can ignore this email.');

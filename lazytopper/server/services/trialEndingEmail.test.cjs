@@ -715,12 +715,19 @@ test('SELL-1: Board Pass CTA price comes from passPricing at the send time; no f
   assert.equal(pBefore, 1917);
   assert.equal(pAfter, 2499);
   // GST-EXCL-1: both instants are after the 7 Nov 2026 GST cut-off - the CTA names the base "+ GST" (the charge is shown at checkout).
-  assert.ok(open.text.includes('₹1,917 + GST, valid till') && closed.text.includes('₹2,499 + GST, valid till'));
-  assert.ok(open.text.includes(`Get the Board Pass - ₹${pBefore.toLocaleString('en-IN')} + GST, valid till 28 Feb 2027: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending`));
-  assert.ok(closed.text.includes(`₹${pAfter.toLocaleString('en-IN')} + GST, valid till 28 Feb 2027`));
-  // ...and BEFORE the cut-off the email is exactly as it was (all-in prices, no "+ GST").
+  // FOUNDING-MSG-PRICE-2: while the founding offer is open at the send time the button names no amount (the Board Pass
+  // price changes at the close); from the close it names the price, as before.
+  assert.ok(open.text.includes('Get the Board Pass: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending'));
+  assert.ok(!/1,917|2,499/.test(open.text + open.html));
+  assert.ok(open.html.includes('>Get the Board Pass</a>'));
+  assert.ok(closed.text.includes(`Get the Board Pass - ₹${pAfter.toLocaleString('en-IN')} + GST, valid till 28 Feb 2027: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending`));
+  assert.ok(closed.text.includes('₹2,499 + GST, valid till'));
+  // the last founding second and the first post-close instant (pinned)
+  assert.ok(buildTrialEmail({ ...args, nowMs: pp.FOUNDING_OFFER_CLOSES_AT_MS - 1 }).text.includes('Get the Board Pass: '));
+  assert.ok(buildTrialEmail({ ...args, nowMs: pp.FOUNDING_OFFER_CLOSES_AT_MS }).text.includes('Get the Board Pass - ₹2,499 + GST, valid till 28 Feb 2027: '));
+  // ...and BEFORE the GST cut-off the rest of the email is as it was (all-in prices, no "+ GST"); the Board Pass button names no amount.
   const preCut = buildTrialEmail({ ...args, nowMs: Date.parse('2026-11-04T12:00:00+05:30') });
-  assert.ok(preCut.text.includes('Get the Board Pass - ₹1,917, valid till 28 Feb 2027: '));
+  assert.ok(preCut.text.includes('Get the Board Pass: '));
   assert.ok(preCut.text.includes('Prefer printed practice? PDF packs from ₹49: '));
   assert.ok(!/GST/.test(preCut.text + preCut.html));
   assert.ok(!open.text.includes('Founding price') && !open.html.includes('Founding price'));

@@ -277,7 +277,10 @@ function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl, nowMs 
   // Board Pass price at the SEND time, from the server pricing mirror (never a literal).
   const quote = passPricing.tillBoardsQuote(nowMs, passPricing.predictBoardDateIso(nowMs));
   // GST-EXCL-1: "₹1,917 + GST" from 00:00 IST 7 Nov 2026 (the shared tag); before it, byte-identical.
-  const ctaLabel = quote ? `Get the Board Pass - ${passPricing.displayPlusGst(quote.priceInr, nowMs)}, valid till ${VALIDITY_LABEL}` : 'Get the Board Pass';
+  // FOUNDING-MSG-PRICE-2 (owner, 25 Nov 2026): the email is read later than it is sent and the Board Pass price changes at
+  // the founding close (00:00 IST 1 Dec) - while the offer is open at the SEND time the button names no amount.
+  const ctaLabel =
+    quote && !passPricing.foundingOfferOpen(nowMs) ? `Get the Board Pass - ${passPricing.displayPlusGst(quote.priceInr, nowMs)}, valid till ${VALIDITY_LABEL}` : 'Get the Board Pass';
   // PRICE-FIXED-1: no founding/month line - the Board Pass is a fixed price and the month pass is not advertised.
   const foundingLine = null;
   const packsLabel = `Prefer printed practice? PDF packs from ${passPricing.displayPlusGst(CHAPTER_PACK_PRICE_INR, nowMs)}`;
