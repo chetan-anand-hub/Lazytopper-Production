@@ -1,3 +1,13 @@
+## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859
+
+*(The owner items of every block below stand, except where this block narrows them. Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-25.md` and its addendum [coordinator].)* Trunk at writing: **`32ba8d0b`** (`#1859`) [git, re-derived with `git ls-remote origin base/approved-thru-437`]; live `version.json` = `32ba8d0b` [live].
+
+- **Done [git]:** `#1858` FAQ-WHY-BOTH-1 and `#1859` TS-NAV-2 merged; neither changes grading behaviour. **The repo is private** (done; no owner action left for it).
+- **Next product lanes, in order:** `[FU-FM-UNCOUNTED-NOTE]` (Full Mock "This check wasn't counted", copy only), then `[FU-PERF3-HEADROOM]` (free entry-chunk headroom BEFORE any more entry-touching work), then `[FU-UI-E2E-PHASE2-PAGES]` on the `#1856` harness, then propose `ui-e2e` as a required check (`[FU-UI-E2E-REQUIRED-CHECK]`).
+- **Live checks owed:** `[FU-1840-FM-LIVE]` (Full Mock (a) and (d)); TS-NAV-2 picker arrows on a real iPhone (owner's phone); the signed-out parent forward on a real phone (needs a real payment: owner decides).
+- **Owner actions:** Meta Test Events, then remove `META_TEST_EVENT_CODE` (`[FU-META-TEST-EVENT-CODE-REMOVE]`); "Require this computer" on the school-outreach task (`[FU-OUTREACH-TASK-NO-COMPUTER]`); GitHub bill by 30 Nov (`[FU-GITHUB-BILL]`).
+- **Dated:** Thu 26 Nov evening ads review (PDF Packs, Test Series) on Razorpay sales, nothing changed without the owner's words; 1 Dec price switch, re-captures and ad copy (scheduled tasks), and parent messages/emails flipping at 00:00 IST.
+
 ## 2026-11-24 (daily; covers 24-25 Nov IST: merges 14:39 IST 24 Nov to 06:22 IST 25 Nov, i.e. 09:09 UTC 24 Nov to 00:52 UTC 25 Nov; written 24 Nov, updated about 23:05 IST 24 Nov and about 06:30 IST 25 Nov) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 - #1854 - #1852 - #1856 - #1855 - #1853 - #1857
 
 *(The owner items of every block below stand, except where this block narrows them. Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` and the coordinator's messages from this session [coordinator].)* Trunk at writing: **`2d851629`** [git]. **Trunk at the 25 Nov update: `0ae599c7`** [git].

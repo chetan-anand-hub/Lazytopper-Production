@@ -23,6 +23,28 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*(Source: the cofounder addendum and the 25 Nov cofounder handoff section 5 [coordinator]. The board was searched first for each tag; none had an entry. Older entries are left as written (standing rule 3).)*
+
+**Status of existing entries.**
+- `[FU-GITHUB-BILL]`: **still OPEN** (owner, by 30 Nov). The repo is now private (GitHub REST `private: true`), so Actions minutes now count against the plan.
+
+### [FU-UI-E2E-PHASE2-PAGES] (minted)
+OPEN. Named in the 25 Nov cofounder handoff section 5 without a board entry. The signed-in harness shipped in `#1856`; next is signed-in page coverage on it: an Answer Checker check, a Chapter Test upload, a full test, and opening Razorpay unpaid, with recorded `/api` replies (no live grading, no payment). After it is clean, propose making `ui-e2e` a required check (`[FU-UI-E2E-REQUIRED-CHECK]`). [coordinator]
+
+### [FU-TS-INPROGRESS-LABEL] (minted)
+OPEN, small (from the `#1859` review). A series paper started but never saved still says "Start:" in the picker, because there is no record and so no status. [coordinator]
+
+### [FU-TS-BACK-SCROLL-SETTLE] (minted)
+OPEN, small (from the `#1859` review). The back flag is consumed by the next /test-series visit, and the scroll can land early while the hero is still loading. [coordinator]
+
+### [FU-TS-RETAKE-NAMES] (minted)
+OPEN, small (from the `#1859` review). Retakes of one series paper share a name (their codes differ); with `VITE_TS_MORE_DISABLED` set, a one-paper chapter is named "… · Paper 1". [coordinator]
+
+### [FU-PAPER-LINE-COPY] (minted)
+OPEN, copy. `salesPagesCopy.ts:85` `PAPER_LINE` "The same questions, organised to print." — check it against the new FAQ framing (`#1858`: packs are offline practice, self-checked, not marked by LazyTopper). [coordinator; line from the addendum, not re-read by the docs builder]
+
 ## 2026-11-24 (daily; covers 24-25 Nov IST: merges 14:39 IST 24 Nov to 06:22 IST 25 Nov, i.e. 09:09 UTC 24 Nov to 00:52 UTC 25 Nov; written 24 Nov, updated about 23:05 IST 24 Nov and about 06:30 IST 25 Nov) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 - #1854 - #1852 - #1856 - #1855 - #1853 - #1857 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *(Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` and the coordinator's messages from this session [coordinator]. All tags below are minted here: the board was searched first (sameAs, directories, `login_abandon`, `google_redirect_started`, parent pay link, ui-e2e, Phase 2, buyer score, PERF-3 headroom) and none had an entry with the same meaning. `[FU-UI-E2E-REQUIRED-CHECK]` already exists (23 Nov) and is NOT duplicated; see its status line below. Older entries are left as written (standing rule 3).)*
