@@ -17,7 +17,7 @@ import { isCheckoutWarmDisabled } from "../lib/packs/packsMobilePreload";
 import { isPaymentsClientEnabled } from "../services/checkout";
 import { isParentPayClientEnabled } from "../services/parentPay";
 import { ASK_PARENT_LABEL } from "../components/pricing/PaywallActions";
-import { isSelfAttachClientEnabled } from "../services/checkoutWhoFlag";
+import { isCheckoutSelfClientEnabled } from "../services/checkoutWhoFlag";
 import { buildParentSeriesShareMessage } from "../services/parentPayPack";
 import { trackPaywallAction } from "../analytics/analytics";
 import { openWhatsAppLink, type ShareNavigator } from "../components/results/share/shareScore";
@@ -43,6 +43,20 @@ import {
 import { focusSetCount, focusSetProgress, focusSets as allFocusSets, tsFocusSetsDisabled, type FocusSetProgress } from "../lib/testSeries/focusSets";
 import "../components/salesPages/salesPages.css";
 import "./testSeriesPage.css";
+
+/**
+ * TS-PARENT-FORWARD-2 - the pay-first "Who will use it?" gate, read here (not imported from services/checkoutWho, which would pull that
+ * chunk into /test-series up front, nor moved into checkoutWhoFlag, which would grow the entry). MUST equal checkoutWho's
+ * isSelfAttachClientEnabled - a test pins that.
+ */
+export function tsSelfAttachOn(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_CHECKOUT_SELF_ATTACH_DISABLED;
+    return isCheckoutSelfClientEnabled() && !/^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
 
 // TS-ANALYSIS-1 — the Mistake notebook (signed-in only, its own chunk, opened from the progress line).
 const MistakeNotebookSection = lazy(() => import("../components/testAnalysis/MistakeNotebookSection"));
@@ -331,7 +345,7 @@ export default function TestSeriesPage() {
     }
     return (
       <div className="lt-ts-forward lt-ts-forward--out" data-testid={testId}>
-        {inPlace && isSelfAttachClientEnabled() && (
+        {inPlace && tsSelfAttachOn() && (
           <>
             <button type="button" className="lt-ts-btn lt-ts-forward__btn" data-testid={`${testId}-share`} onClick={() => void forwardSignedOut(testId)}>
               {ASK_PARENT_LABEL}

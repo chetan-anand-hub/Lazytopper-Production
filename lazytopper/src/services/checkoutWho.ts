@@ -21,7 +21,7 @@ import { beginPendingCheckout, razorpayHangOption, successFromReceipt } from "./
 import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from "./priceConfirm";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
-import { isSelfAttachClientEnabled } from "./checkoutWhoFlag";
+import { isCheckoutSelfClientEnabled } from "./checkoutWhoFlag";
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
 import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
@@ -90,8 +90,18 @@ export function alreadyCoveredLine(_kind: GuestItem["kind"]): string {
 
 /* ── SELFPAY-ATTACH-1 (owner 12 Nov 2026): pay first, then "who will use it?" - copy follows the approved mock-up ─────── */
 
-// SELFPAY-ATTACH-1: the reader lives in checkoutWhoFlag (import-free) so lazy pages can gate on it without this module.
-export { isSelfAttachClientEnabled } from "./checkoutWhoFlag";
+/**
+ * ON whenever "Buy for yourself" is; VITE_CHECKOUT_SELF_ATTACH_DISABLED=1 restores the previous flow (the order carries no
+ * `attach` marker, so the server delivers at payment as before). The server has its own switch (CHECKOUT_SELF_ATTACH_DISABLED).
+ */
+export function isSelfAttachClientEnabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_CHECKOUT_SELF_ATTACH_DISABLED;
+    return isCheckoutSelfClientEnabled() && !/^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
 
 /** SELFPAY-ATTACH-1: the choose-who endpoint (kept here: this lane may not edit services/guestPay.ts). */
 export const GUEST_ATTACH_ENDPOINT = "/api/pay/guest/attach";

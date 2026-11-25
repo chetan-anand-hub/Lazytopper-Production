@@ -241,6 +241,20 @@ describe("TS-PARENT-FORWARD-2 · signed out: share, never sign-in", () => {
     expect(screen.getByTestId("ts-offer-forward").childElementCount).toBe(0);
   });
 
+  it("the page's own pay-first gate equals checkoutWho's isSelfAttachClientEnabled for every switch combination", async () => {
+    const { tsSelfAttachOn } = await import("./TestSeriesPage");
+    const { isSelfAttachClientEnabled } = await import("../services/checkoutWho");
+    for (const who of ["", "1"]) for (const self of ["", "1"]) for (const attach of ["", "1"]) {
+      vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", who);
+      vi.stubEnv("VITE_CHECKOUT_SELF_DISABLED", self);
+      vi.stubEnv("VITE_CHECKOUT_SELF_ATTACH_DISABLED", attach);
+      expect(tsSelfAttachOn()).toBe(isSelfAttachClientEnabled());
+    }
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
+    vi.stubEnv("VITE_CHECKOUT_SELF_DISABLED", "");
+    vi.stubEnv("VITE_CHECKOUT_SELF_ATTACH_DISABLED", "");
+  });
+
   it("pay-first off (self or attach switch off): the box stays, empty - 'pay, then enter my number' would be untrue", async () => {
     for (const key of ["VITE_CHECKOUT_SELF_DISABLED", "VITE_CHECKOUT_SELF_ATTACH_DISABLED"]) {
       vi.stubEnv(key, "1");
