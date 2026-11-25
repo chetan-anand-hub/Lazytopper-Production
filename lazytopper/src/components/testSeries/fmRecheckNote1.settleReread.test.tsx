@@ -58,10 +58,11 @@ describe("FM-RECHECK-NOTE-1 - the checks-left line catches the server's settle a
   });
 
   it("a read that lands BEFORE the settle shows no note; the re-read after the settle shows it", async () => {
-    // The first read beats the settle: no freeRecheck yet. Every later read sees the settled state.
-    mine.fn.mockResolvedValueOnce(owner()).mockResolvedValue(owner({ freeRecheck: { [FM_KEY]: true } }));
+    // The first read beats the settle: the live hold still counts (server: used = committed + held), no freeRecheck yet.
+    // Every later read sees the settled state: the hold given back as the free re-check.
+    mine.fn.mockResolvedValueOnce(owner({ used: { [FM_KEY]: 1 } })).mockResolvedValue(owner({ freeRecheck: { [FM_KEY]: true } }));
     render(<MemoryRouter><SeriesChecksLeftLine uid="u1" worksheetId={FM_ID} refreshKey="full:false" notCountedReason={null} /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByTestId("series-checks-left").textContent).toBe("Checks left on this paper: 2 of 2"));
+    await waitFor(() => expect(screen.getByTestId("series-checks-left").textContent).toBe("Checks left on this paper: 1 of 2"));
     expect(note()).toBeNull();
 
     await act(async () => {
@@ -97,6 +98,32 @@ describe("FM-RECHECK-NOTE-1 - the checks-left line catches the server's settle a
     await act(async () => {
       await vi.advanceTimersByTimeAsync(15_000);
     });
+    expect(mine.fn).toHaveBeenCalledTimes(2 + SETTLE_REREAD_MS.length);
+  });
+
+  it("a failed background re-read keeps the last good read (never 'couldn't confirm' on a screen that was right)", async () => {
+    mine.fn.mockResolvedValueOnce(owner({ used: { [FM_KEY]: 1 } })).mockRejectedValue(new Error("network"));
+    render(<MemoryRouter><SeriesChecksLeftLine uid="u1" worksheetId={FM_ID} refreshKey="full:false" /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByTestId("series-checks-left").textContent).toBe("Checks left on this paper: 1 of 2"));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    expect(mine.fn.mock.calls.length).toBeGreaterThan(1);
+    expect(screen.getByTestId("series-checks-left").textContent).toBe("Checks left on this paper: 1 of 2");
+  });
+
+  it("a refreshKey change cancels the old re-reads and schedules new ones", async () => {
+    mine.fn.mockResolvedValue(owner());
+    const r = render(<MemoryRouter><SeriesChecksLeftLine uid="u1" worksheetId={FM_ID} refreshKey="partial:true" /></MemoryRouter>);
+    await waitFor(() => expect(mine.fn).toHaveBeenCalledTimes(1));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+    r.rerender(<MemoryRouter><SeriesChecksLeftLine uid="u1" worksheetId={FM_ID} refreshKey="full:false" /></MemoryRouter>);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    // 1 (first key) + 1 (second key) + its re-reads; the first key's re-reads were cancelled.
     expect(mine.fn).toHaveBeenCalledTimes(2 + SETTLE_REREAD_MS.length);
   });
 

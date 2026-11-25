@@ -38,7 +38,7 @@ export const OWNERSHIP_RETRY_DELAY_MS = 700;
  */
 let seq = 0;
 
-async function load(uid: string, force: boolean): Promise<void> {
+async function load(uid: string, force: boolean, background = false): Promise<void> {
   if (!force && (entry?.uid === uid || inflight === uid)) return;
   const mine = ++seq;
   inflight = uid;
@@ -56,6 +56,9 @@ async function load(uid: string, force: boolean): Promise<void> {
       }
     }
     if (mine !== seq) return; // a newer read is in flight (or landed): it writes the entry, never this older one
+    // FM-RECHECK-NOTE-1 (review nit): a failed BACKGROUND re-read keeps the last good read for this student - it must never turn a
+    // confirmed owner into "couldn't confirm" on a screen that was already right.
+    if (!r && background && entry?.uid === uid && !entry.failed) return;
     entry = r ? { uid, owns: r.owns, status: r.status, freeTest: r.freeTest, failed: false } : { uid, owns: false, status: null, freeTest: null, failed: true };
   } finally {
     if (mine === seq) {
@@ -103,7 +106,7 @@ export function useTestSeriesOwnership(
     // with no note. A checks-left reader (one that passes `refreshKey`) re-reads twice more, shortly after; the newest read wins (seq).
     // Display only - the server still decides every check. Kill switch VITE_TS_SETTLE_REREAD_DISABLED.
     if (!uid || refreshKey === undefined || settleRereadDisabled()) return;
-    const timers = SETTLE_REREAD_MS.map((ms) => setTimeout(() => void load(uid, true), ms));
+    const timers = SETTLE_REREAD_MS.map((ms) => setTimeout(() => void load(uid, true, true), ms));
     return () => timers.forEach(clearTimeout);
   }, [uid, refreshKey]);
   const retry = () => {
