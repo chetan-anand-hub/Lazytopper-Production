@@ -206,3 +206,25 @@ describe("F3 · a paper mints ONE server pass and sends it with the grade", () =
     for (const g of f.grades()) expect(g.headers[PAPER_PASS_HEADER]).toBeUndefined();
   });
 });
+
+describe("MARK-ON-PHOTO-2 · a Chapter Test / Full Mock / Worksheet mark rides the paper's own pass and names its one question", () => {
+  it("the paper's own pass + X-Lazytopper-Mark-Q; never an Answer Checker mark pass", async () => {
+    const f = stubFetch({ mint: { status: 200, body: { token: "pass-ct-1" } } });
+    await gradeWorksheet(REQ, { ...CT, markQ: 7 });
+    expect(f.grades()[0].headers[PAPER_PASS_HEADER]).toBe("pass-ct-1");
+    expect(f.grades()[0].headers["X-Lazytopper-Mark-Q"]).toBe("7");
+    expect(f.grades()[0].headers["X-Lazytopper-Mark-Pass"]).toBeUndefined();
+  });
+  it("no paper pass (passes not configured): no mark header either", async () => {
+    const f = stubFetch({ mint: { status: 503, body: { error: "paper_pass_unavailable" } } });
+    await gradeWorksheet(REQ, { ...CT, markQ: 7 });
+    expect(f.grades()[0].headers[PAPER_PASS_HEADER]).toBeUndefined();
+    expect(f.grades()[0].headers["X-Lazytopper-Mark-Q"]).toBeUndefined();
+  });
+  it("CONTROL: a whole-paper grade carries no mark header", async () => {
+    const f = stubFetch({ mint: { status: 200, body: { token: "pass-ct-1" } } });
+    await gradeWorksheet(REQ, CT);
+    expect(f.grades()[0].headers[PAPER_PASS_HEADER]).toBe("pass-ct-1");
+    expect(f.grades()[0].headers["X-Lazytopper-Mark-Q"]).toBeUndefined();
+  });
+});

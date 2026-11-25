@@ -36,6 +36,7 @@ import { saveWorksheetGrade, listStoredWorksheetsLite } from "./worksheetSession
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
 import { isGradedQuestion, v2GradeFields, withEffectiveCounts } from "../lib/mistakeDisplay";
 import { conceptForBankQuestionId } from "./mistakeConcept";
+import { adoptBankMark } from "./markOnPhoto";
 import { recordAttempt } from "./practiceInsights";
 import {
   ensureWorksheetSessionCode,
@@ -93,6 +94,112 @@ function toCheckSolutionResponse(g: WorksheetQuestionGrade): CheckSolutionRespon
   };
 }
 
+/** The ONE question of a worksheet as the grader is sent it — the SAME fields for the whole sheet and for a mark on the photo
+ *  (MARK-ON-PHOTO-2). */
+export function worksheetQuestionInput(q: PersistedWorksheet["questions"][number]) {
+  return {
+    qNumber: q.qNumber,
+    marks: q.marks,
+    topic: q.topicLabel,
+    topicLabel: q.topicLabel,
+    questionText: q.questionText,
+    // Objective signals for the server's deterministic 0/full clamp + honesty guard.
+    // `section` ("A" for MCQ/AR) classifies the question; `answer` is the canonical
+    // bank answer key — the correct OPTION TEXT — and `options` is the option list,
+    // so the server can bridge a letter pick to that text and score the MCQ
+    // deterministically (0 or full, never fractional). All three are declared on
+    // PersistedWorksheetQuestion, so this read is type-checked. This REPLACES the old
+    // `correctOption` cast (`as unknown as`), which asserted a field the canonical /
+    // persisted type never declares and so resolved to `undefined` for every real
+    // bank MCQ — leaving the server's objective guard dead code.
+    section: q.section,
+    answer: q.answer,
+    options: q.options,
+    solutionSteps: q.solutionSteps,
+    finalAnswer: q.finalAnswer,
+  };
+}
+
+/** ONE graded question → the MI front door + its score twin, on its stable id (`ws:<worksheetId>:q<n>`): a re-upload or a mark
+ *  on the photo REPLACES that question's entries. */
+export async function recordWorksheetQuestion(
+  user: AuthUser | null | undefined,
+  worksheetId: string,
+  q: PersistedWorksheet["questions"][number] | undefined,
+  g: WorksheetQuestionGrade,
+): Promise<WorksheetMiOutcome | null> {
+  // PR-2 — not graded (unreadable, option unread, answer does not match its question) feeds
+  // nothing: no MI entry, no attempt, never a 0.
+  if (!isGradedQuestion(g) || !q) return null;
+
+  const csr = toCheckSolutionResponse(g);
+  const questionId = worksheetQuestionId(worksheetId, g.qNumber);
+
+  // Sequential await: recordMistake reads+writes the device-local dedup list, so
+  // grading question-by-question avoids a race on that list (and keeps the
+  // existing front-door dedup the single idempotency layer — we add none).
+  const rec = await recordMistake(user, csr, {
+    subject: q.subject,
+    topic: q.topicLabel,
+    topicKey: q.topicKey,
+    question: q.questionText,
+    questionId,
+    // SCORECARD-MI-1 (D5) — stable identity: a re-upload of this worksheet REPLACES its
+    // entries; it never adds a second one per question.
+    surface: "worksheet",
+    submissionId: worksheetId,
+    // MI-CONCEPT-1 — `questionId` above is the SYNTHETIC attempt id (`ws:…`), which
+    // is not a bank id and cannot resolve. The BANK id is `q.id` on the persisted
+    // question, so resolve here and hand the concept to the front door. Unresolvable
+    // (withheld / deleted) → undefined, and the entry carries no concept.
+    concept: conceptForBankQuestionId(q.id),
+  });
+
+  // Score-twin of the mistake door: every graded answer (full marks included)
+  // is also an attempt, so worksheet scores feed accuracy / Me. H1 (owner ruling
+  // 2026-10-05, re-grade replaces): keyed on the SAME submission identity as the MI entry,
+  // so a re-upload of this worksheet REPLACES the attempt (latest wins), whatever the score.
+  recordAttempt(user, {
+    subject: q.subject,
+    topic: q.topicLabel,
+    topicKey: q.topicKey,
+    question: q.questionText,
+    questionId,
+    marksScored: csr.marksAwarded,
+    marksAvailable: csr.totalMarks,
+    mode: "graded",
+    surface: "worksheet",
+    submissionId: worksheetId,
+    grade: csr,
+  });
+
+  return { qNumber: g.qNumber, mistakeOutcome: rec.outcome, bridged: rec.bridged };
+}
+
+/**
+ * THE record save of a graded worksheet — ONE seam for a fresh grade and a mark on the photo (MARK-ON-PHOTO-2): the record,
+ * the first-graded report, and its per-question payload rewritten whole.
+ */
+function writeWorksheetRecord(
+  user: AuthUser,
+  uid: string,
+  record: ReturnType<typeof buildWorksheetSessionRecord>,
+  code: string,
+  worksheetId: string,
+  response: WorksheetGradeResponse,
+): void {
+  writeSessionRecord(user, record);
+  noteFirstGraded(uid, record, "worksheet"); // MEASURE-1 B — observe only
+  writeSessionPerQuestion(user, {
+    ref: record.perQuestionRef,
+    code,
+    worksheetId,
+    surface: "worksheet",
+    gradedAt: record.gradedAt,
+    response,
+  });
+}
+
 /**
  * Grade an uploaded answer-PDF against a persisted worksheet, persist the result,
  * and feed Mistake Intelligence. The grade call maps the upload Q1…QN to the
@@ -113,83 +220,17 @@ export async function gradeWorksheetAndRecord(
 
   /** ONE graded question → the MI front door + its score twin (the one per-question path). */
   const recordGraded = async (g: WorksheetQuestionGrade): Promise<void> => {
-    // PR-2 — not graded (unreadable, option unread, answer does not match its question) feeds
-    // nothing: no MI entry, no attempt, never a 0.
-    if (!isGradedQuestion(g)) return;
-    const q = qByNumber.get(g.qNumber);
-    if (!q) return;
-
-    const csr = toCheckSolutionResponse(g);
-    const questionId = worksheetQuestionId(worksheet.worksheetId, g.qNumber);
-
-    // Sequential await: recordMistake reads+writes the device-local dedup list, so
-    // grading question-by-question avoids a race on that list (and keeps the
-    // existing front-door dedup the single idempotency layer — we add none).
-    // eslint-disable-next-line no-await-in-loop
-    const rec = await recordMistake(user, csr, {
-      subject: q.subject,
-      topic: q.topicLabel,
-      topicKey: q.topicKey,
-      question: q.questionText,
-      questionId,
-      // SCORECARD-MI-1 (D5) — stable identity: a re-upload of this worksheet REPLACES its
-      // entries; it never adds a second one per question.
-      surface: "worksheet",
-      submissionId: worksheet.worksheetId,
-      // MI-CONCEPT-1 — `questionId` above is the SYNTHETIC attempt id (`ws:…`), which
-      // is not a bank id and cannot resolve. The BANK id is `q.id` on the persisted
-      // question, so resolve here and hand the concept to the front door. Unresolvable
-      // (withheld / deleted) → undefined, and the entry carries no concept.
-      concept: conceptForBankQuestionId(q.id),
-    });
-
-    // Score-twin of the mistake door: every graded answer (full marks included)
-    // is also an attempt, so worksheet scores feed accuracy / Me. H1 (owner ruling
-    // 2026-10-05, re-grade replaces): keyed on the SAME submission identity as the MI entry,
-    // so a re-upload of this worksheet REPLACES the attempt (latest wins), whatever the score.
-    recordAttempt(user, {
-      subject: q.subject,
-      topic: q.topicLabel,
-      topicKey: q.topicKey,
-      question: q.questionText,
-      questionId,
-      marksScored: csr.marksAwarded,
-      marksAvailable: csr.totalMarks,
-      mode: "graded",
-      surface: "worksheet",
-      submissionId: worksheet.worksheetId,
-      grade: csr,
-    });
-
-    miOutcomes.push({ qNumber: g.qNumber, mistakeOutcome: rec.outcome, bridged: rec.bridged });
+    const out = await recordWorksheetQuestion(user, worksheet.worksheetId, qByNumber.get(g.qNumber), g);
+    if (out) miOutcomes.push(out);
   };
+
 
   let rawResponse: WorksheetGradeResponse;
   try {
     rawResponse = await gradeWorksheet({
     worksheetId: worksheet.worksheetId,
     subject: worksheet.subject,
-    questions: worksheet.questions.map((q) => ({
-      qNumber: q.qNumber,
-      marks: q.marks,
-      topic: q.topicLabel,
-      topicLabel: q.topicLabel,
-      questionText: q.questionText,
-      // Objective signals for the server's deterministic 0/full clamp + honesty guard.
-      // `section` ("A" for MCQ/AR) classifies the question; `answer` is the canonical
-      // bank answer key — the correct OPTION TEXT — and `options` is the option list,
-      // so the server can bridge a letter pick to that text and score the MCQ
-      // deterministically (0 or full, never fractional). All three are declared on
-      // PersistedWorksheetQuestion, so this read is type-checked. This REPLACES the old
-      // `correctOption` cast (`as unknown as`), which asserted a field the canonical /
-      // persisted type never declares and so resolved to `undefined` for every real
-      // bank MCQ — leaving the server's objective guard dead code.
-      section: q.section,
-      answer: q.answer,
-      options: q.options,
-      solutionSteps: q.solutionSteps,
-      finalAnswer: q.finalAnswer,
-    })),
+    questions: worksheet.questions.map(worksheetQuestionInput),
     imageBase64: upload.imageBase64,
     imageMimeType: upload.imageMimeType,
   }, {
@@ -247,21 +288,64 @@ export async function gradeWorksheetAndRecord(
 
     const uid = user?.uid;
     if (uid && !user?.isLocalSession) {
-      const record = buildWorksheetSessionRecord(worksheet, response, nomen, uid);
-      writeSessionRecord(user, record);
-      noteFirstGraded(uid, record, "worksheet"); // MEASURE-1 B — observe only
-      writeSessionPerQuestion(user, {
-        ref: record.perQuestionRef,
-        code: nomen.code,
-        worksheetId: worksheet.worksheetId,
-        surface: "worksheet",
-        gradedAt: record.gradedAt,
-        response,
-      });
+      writeWorksheetRecord(user, uid, buildWorksheetSessionRecord(worksheet, response, nomen, uid), nomen.code, worksheet.worksheetId, response);
     }
   } catch (error) {
     console.warn("[worksheetGradeService] session record write failed", error);
   }
 
   return { response, miOutcomes, sessionCode, sessionName };
+}
+
+/**
+ * MARK-ON-PHOTO-2 — "Mark it on your photo" on a Worksheet result: ONE question graded from the ONE image the student pointed
+ * to, with the SAME fields the worksheet sent (worksheetQuestionInput), under the worksheet's OWN id and paper pass (its
+ * fair-use allowance and LIMITS-1 slot) and naming the question (X-Lazytopper-Mark-Q: the cap of 3). Synchronous, never a job.
+ * A graded row replaces the old one, is fed to MI once on its stable id, and the worksheet is re-saved through the SAME save
+ * path as a fresh grade (device cache, the record under the same code, its per-question payload rewritten whole).
+ */
+export async function markWorksheetQuestion(args: {
+  user: AuthUser | null | undefined;
+  worksheet: PersistedWorksheet;
+  response: WorksheetGradeResponse;
+  index: number;
+  image: { imageBase64: string; imageMimeType: string };
+}): Promise<{ kind: "marked"; response: WorksheetGradeResponse; sessionCode?: string; sessionName?: string } | { kind: "unread" }> {
+  const { user, worksheet, response, index, image } = args;
+  const row = response.results[index];
+  const q = row ? worksheet.questions.find((x) => x.qNumber === row.qNumber) : undefined;
+  if (!row || !q) return { kind: "unread" };
+  const reply = await gradeWorksheet(
+    {
+      worksheetId: worksheet.worksheetId,
+      subject: worksheet.subject,
+      questions: [worksheetQuestionInput(q)],
+      uploads: [{ qNumber: q.qNumber, imageBase64: image.imageBase64, imageMimeType: image.imageMimeType }],
+    },
+    { surface: "worksheet", paperKey: worksheet.worksheetId, markQ: q.qNumber },
+  );
+  const adopted = adoptBankMark(response, index, reply);
+  if (!adopted) return { kind: "unread" };
+  // The same lens stamp a fresh grade carries (section / type), so the scorecard reads the marked row like the others.
+  const merged = stampFromPaper(adopted, worksheet.questions, { blueprintFallback: true });
+  saveWorksheetGrade(worksheet.worksheetId, merged);
+  try {
+    await recordWorksheetQuestion(user, worksheet.worksheetId, q, merged.results[index]);
+  } catch (e) {
+    console.warn("[worksheetGradeService] MI record for a marked answer failed (grade preserved)", e);
+  }
+  let sessionCode: string | undefined;
+  let sessionName: string | undefined;
+  try {
+    const nomen = await ensureWorksheetSessionCode(worksheet, user, listStoredWorksheetsLite());
+    sessionCode = nomen.code;
+    sessionName = nomen.name;
+    const uid = user?.uid;
+    if (uid && !user?.isLocalSession) {
+      writeWorksheetRecord(user, uid, buildWorksheetSessionRecord(worksheet, merged, nomen, uid), nomen.code, worksheet.worksheetId, merged);
+    }
+  } catch (error) {
+    console.warn("[worksheetGradeService] marked record write failed", error);
+  }
+  return { kind: "marked", response: merged, ...(sessionCode ? { sessionCode, sessionName } : {}) };
 }

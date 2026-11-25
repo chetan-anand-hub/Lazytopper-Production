@@ -41,14 +41,18 @@ import { conceptForBankQuestionId } from "./mistakeConcept";
 import { recordAttempt } from "./practiceInsights";
 import {
   buildChapterTestResponse,
+  chapterTestQuestionInput,
+  type BankMarkOutcome,
   type ObjectiveScore,
 } from "./chapterTestGradeService";
+import { adoptBankMark } from "./markOnPhoto";
 import {
   buildFullMockSessionRecord,
   writeSessionRecordResolved,
   currentCodeForPaper,
   writeSessionPerQuestion,
   type SessionFocusAggregates,
+  type SessionRecord,
   type SessionSubject,
 } from "./sessionRecords";
 
@@ -146,6 +150,52 @@ export interface FullMockGradeOutcome {
   savedCode?: string;
 }
 
+/** ONE graded question → the MI front door + its score twin on its stable id (`fm:<worksheetId>:q<n>`): a re-upload or a mark
+ *  on the photo REPLACES that question's entries. */
+export async function recordFullMockQuestion(
+  user: AuthUser | null | undefined,
+  worksheetId: string,
+  q: PersistedWorksheetQuestion | undefined,
+  g: WorksheetQuestionGrade,
+): Promise<FullMockMiOutcome | null> {
+  // PR-2 — not graded (unreadable, option unread, answer does not match its question) feeds
+  // nothing: no MI entry, no attempt, never a 0.
+  if (!isGradedQuestion(g) || !q) return null;
+  const csr = toCheckSolutionResponse(g);
+  const questionId = fullMockQuestionId(worksheetId, g.qNumber);
+  // Sequential await (callers loop): recordMistake reads+writes the device-local dedup list.
+  const rec = await recordMistake(user, csr, {
+    subject: q.subject,
+    topic: q.topicLabel,
+    topicKey: q.topicKey,
+    question: q.questionText,
+    questionId,
+    // SCORECARD-MI-1 (D5) — stable identity: a re-upload of this paper REPLACES its entries.
+    surface: "full-mock",
+    submissionId: worksheetId,
+    // MI-CONCEPT-1 — `questionId` above is the SYNTHETIC attempt id (`fm:…`), which
+    // is not a bank id and cannot resolve. The BANK id is `q.id` on the persisted
+    // question, so resolve here and hand the concept to the front door. Unresolvable
+    // (withheld / deleted) → undefined, and the entry carries no concept.
+    concept: conceptForBankQuestionId(q.id),
+  });
+  recordAttempt(user, {
+    subject: q.subject,
+    topic: q.topicLabel,
+    topicKey: q.topicKey,
+    question: q.questionText,
+    questionId,
+    marksScored: csr.marksAwarded,
+    marksAvailable: csr.totalMarks,
+    mode: "graded",
+    // H1 — the same submission identity as the MI entry: a re-upload replaces the attempt.
+    surface: "full-mock",
+    submissionId: worksheetId,
+    grade: csr,
+  });
+  return { qNumber: g.qNumber, mistakeOutcome: rec.outcome, bridged: rec.bridged };
+}
+
 /**
  * Phase 2 — grade the uploaded answer sheet (Sections B–E) against the KNOWN
  * scheme in one structured call, feed each legible result through MI, then
@@ -179,45 +229,8 @@ export async function gradeFullMockUpload(args: {
 
   /** ONE graded question → the MI front door + its score twin (the one per-question path). */
   const recordGraded = async (g: WorksheetQuestionGrade): Promise<void> => {
-    // PR-2 — not graded (unreadable, option unread, answer does not match its question) feeds
-    // nothing: no MI entry, no attempt, never a 0.
-    if (!isGradedQuestion(g)) return;
-    const q = qByNumber.get(g.qNumber);
-    if (!q) return;
-    const csr = toCheckSolutionResponse(g);
-    const questionId = fullMockQuestionId(paper.worksheetId, g.qNumber);
-    // Sequential await: recordMistake reads+writes the device-local dedup list.
-    // eslint-disable-next-line no-await-in-loop
-    const rec = await recordMistake(user, csr, {
-      subject: q.subject,
-      topic: q.topicLabel,
-      topicKey: q.topicKey,
-      question: q.questionText,
-      questionId,
-      // SCORECARD-MI-1 (D5) — stable identity: a re-upload of this paper REPLACES its entries.
-      surface: "full-mock",
-      submissionId: paper.worksheetId,
-      // MI-CONCEPT-1 — `questionId` above is the SYNTHETIC attempt id (`fm:…`), which
-      // is not a bank id and cannot resolve. The BANK id is `q.id` on the persisted
-      // question, so resolve here and hand the concept to the front door. Unresolvable
-      // (withheld / deleted) → undefined, and the entry carries no concept.
-      concept: conceptForBankQuestionId(q.id),
-    });
-    recordAttempt(user, {
-      subject: q.subject,
-      topic: q.topicLabel,
-      topicKey: q.topicKey,
-      question: q.questionText,
-      questionId,
-      marksScored: csr.marksAwarded,
-      marksAvailable: csr.totalMarks,
-      mode: "graded",
-      // H1 — the same submission identity as the MI entry: a re-upload replaces the attempt.
-      surface: "full-mock",
-      submissionId: paper.worksheetId,
-      grade: csr,
-    });
-    miOutcomes.push({ qNumber: g.qNumber, mistakeOutcome: rec.outcome, bridged: rec.bridged });
+    const out = await recordFullMockQuestion(user, paper.worksheetId, qByNumber.get(g.qNumber), g);
+    if (out) miOutcomes.push(out);
   };
 
   let subjectiveResponse: WorksheetGradeResponse;
@@ -225,20 +238,7 @@ export async function gradeFullMockUpload(args: {
     subjectiveResponse = await gradeWorksheet({
     worksheetId: paper.worksheetId,
     subject: paper.subject,
-    questions: subjectiveQuestions.map((q) => ({
-      qNumber: q.qNumber,
-      // TS-PACK-1: the bank id + the exact persisted text below let the server verify a Test Series paper's questions.
-      ...(q.id !== undefined && q.id !== null && String(q.id) ? { questionId: String(q.id) } : {}),
-      marks: q.marks,
-      topic: q.topicLabel,
-      topicLabel: q.topicLabel,
-      questionText: q.questionText,
-      section: q.section,
-      answer: q.answer,
-      options: q.options,
-      solutionSteps: q.solutionSteps,
-      finalAnswer: q.finalAnswer,
-    })),
+    questions: subjectiveQuestions.map(chapterTestQuestionInput),
     imageBase64: upload.imageBase64,
     imageMimeType: upload.imageMimeType,
   }, { surface: "full-mock", paperKey: paper.worksheetId, ...(args.onStage ? { onStage: args.onStage } : {}), ...(args.job ? { job: args.job } : {}) });
@@ -287,21 +287,92 @@ export async function gradeFullMockUpload(args: {
     const uid = user?.uid;
     if (uid && !user?.isLocalSession) {
       const record = buildFullMockSessionRecord({ paper, code, subject, response, uid, focus });
-      const written = await writeSessionRecordResolved(user, record);
+      const written = await writeFullRecord(user, uid, record, paper.worksheetId, response);
       savedCode = written.code;
-      noteFirstGraded(uid, written.record, "full_mock"); // MEASURE-1 B — observe only
-      writeSessionPerQuestion(user, {
-        ref: written.record.perQuestionRef,
-        code: written.code,
-        worksheetId: paper.worksheetId,
-        surface: "full-mock",
-        gradedAt: written.record.gradedAt,
-        response,
-      });
     }
   } catch (error) {
     console.warn("[fullMockGradeService] full record write failed", error);
   }
 
   return { ok: true, response, miOutcomes, ...(savedCode ? { savedCode } : {}) };
+}
+
+/**
+ * THE full-record save of a graded Full Mock — ONE seam for a fresh grade and a mark on the photo (MARK-ON-PHOTO-2): the record
+ * (RECORD-SAFE-1: its final code resolved first), the first-graded report on the record AS WRITTEN, and its per-question payload
+ * rewritten whole under the code it landed on.
+ */
+async function writeFullRecord(
+  user: AuthUser,
+  uid: string,
+  record: SessionRecord,
+  worksheetId: string,
+  response: WorksheetGradeResponse,
+): Promise<{ code: string; record: SessionRecord }> {
+  const written = await writeSessionRecordResolved(user, record);
+  noteFirstGraded(uid, written.record, "full_mock"); // MEASURE-1 B — observe only
+  writeSessionPerQuestion(user, {
+    ref: written.record.perQuestionRef,
+    code: written.code,
+    worksheetId,
+    surface: "full-mock",
+    gradedAt: written.record.gradedAt,
+    response,
+  });
+  return written;
+}
+
+/**
+ * MARK-ON-PHOTO-2 — "Mark it on your photo" on a Full Mock result: the Full Mock twin of chapterTestGradeService
+ * markChapterTestQuestion (one question, the paper's own id + paper pass + X-Lazytopper-Mark-Q, synchronous; MI once on the
+ * stable id; the SAME save path as a fresh grade, keeping the sitting's focus aggregates on the record).
+ */
+export async function markFullMockQuestion(args: {
+  user: AuthUser | null | undefined;
+  paper: PersistedWorksheet;
+  code: string;
+  subject: SessionSubject;
+  response: WorksheetGradeResponse;
+  index: number;
+  image: { imageBase64: string; imageMimeType: string };
+  focus?: SessionFocusAggregates;
+}): Promise<BankMarkOutcome> {
+  const { user, paper, subject, response, index, image, focus } = args;
+  const row = response.results[index];
+  const q = row ? paper.questions.find((x) => x.qNumber === row.qNumber) : undefined;
+  if (!row || !q) return { kind: "unread" };
+  const reply = await gradeWorksheet(
+    {
+      worksheetId: paper.worksheetId,
+      subject: paper.subject,
+      questions: [chapterTestQuestionInput(q)],
+      uploads: [{ qNumber: q.qNumber, imageBase64: image.imageBase64, imageMimeType: image.imageMimeType }],
+    },
+    { surface: "full-mock", paperKey: paper.worksheetId, markQ: q.qNumber },
+  );
+  const merged = adoptBankMark(response, index, reply);
+  if (!merged) return { kind: "unread" };
+  saveWorksheetGrade(paper.worksheetId, merged);
+  try {
+    await recordFullMockQuestion(user, paper.worksheetId, q, merged.results[index]);
+  } catch (e) {
+    console.warn("[fullMockGradeService] MI record for a marked answer failed (grade preserved)", e);
+  }
+  let savedCode: string | undefined;
+  // The record as re-saved (S1): a re-opened scorecard reads its score, types and status from the RECORD, so the page swaps it in.
+  let savedRecord: SessionRecord | undefined;
+  try {
+    const uid = user?.uid;
+    if (uid && !user?.isLocalSession) {
+      const code = currentCodeForPaper(user, paper.worksheetId, "full-mock", args.code);
+      const record = buildFullMockSessionRecord({ paper, code, subject, response: merged, uid, focus });
+      savedRecord = record;
+      const written = await writeFullRecord(user, uid, record, paper.worksheetId, merged);
+      savedCode = written.code;
+      savedRecord = written.record;
+    }
+  } catch (error) {
+    console.warn("[fullMockGradeService] marked record write failed", error);
+  }
+  return { kind: "marked", response: merged, ...(savedCode ? { savedCode } : {}), ...(savedRecord ? { record: savedRecord } : {}) };
 }

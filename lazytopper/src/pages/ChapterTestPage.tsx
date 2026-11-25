@@ -76,8 +76,10 @@ import {
   buildChapterTestResponse,
   writeChapterTestPartialRecord,
   gradeChapterTestUpload,
+  markChapterTestQuestion,
   type ObjectiveScore,
 } from "../services/chapterTestGradeService";
+import { MARK_ON_PHOTO_ACTION, MARK_STILL_UNREAD_COPY, bankMarkableRows, markErrorMessage, uploadedPhotoPages } from "../services/markOnPhoto";
 import {
   saveChapterTestPaper,
   loadChapterTestPaper,
@@ -109,6 +111,7 @@ import { downloadStoredPaperGradedSheet, hasStoredPaperSheet } from "../services
 import {
   chapterTestDeltaLine,
   withGuideTarget,
+  withMarkOnPhoto,
   withPaperTutorAsks,
   withSeriesWorksheet,
   type ScorecardTutorAsk,
@@ -134,6 +137,8 @@ import { useQuestionTimes } from "../components/testAnalysis/questionTimes";
 import { chapterTestSecondsPerMark } from "../components/testAnalysis/testAnalysisModel";
 // TS-ANALYSIS-1 — after-test analysis, its own chunk, mounted at the END of the results body.
 const TestAnalysisPanel = lazy(() => import("../components/testAnalysis/TestAnalysisPanel"));
+// MARK-ON-PHOTO-2 — the "Mark it on your photo" dialog, its own chunk (fetched on the first tap).
+const MarkOnPhotoDialog = lazy(() => import("../components/checkimprove/MarkOnPhoto").then((m) => ({ default: m.MarkOnPhotoDialog })));
 import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadPanel";
 import PreSubmitConfirm from "../components/chaptertest/PreSubmitConfirm";
 import { useBankChapters } from "../data/bankChapters/useBankChapters";
@@ -555,7 +560,19 @@ export default function ChapterTestPage() {
     noPaper?: boolean;
     /** REVIEW NIT4: this paper's saved copy is there, so "Upload all pages again" can open its upload step (else no button). */
     canAddPages?: boolean;
+    /** MARK-ON-PHOTO-2: that saved copy's paper and chapter (only with canAddPages), so a question can be marked on its photo. */
+    paper?: PersistedWorksheet;
+    topicKey?: string;
   } | null>(null);
+
+  // MARK-ON-PHOTO-2 (owner rulings 25 Nov 2026) — "Mark it on your photo" on a fresh result and on a re-opened one that offers
+  // "Upload all pages again". `index` is the row in the result on screen; `where` says which result that is.
+  const [mark, setMark] = useState<{ index: number; where: "fresh" | "reopen" } | null>(null);
+  const [markBusy, setMarkBusy] = useState(false);
+  const [markError, setMarkError] = useState<string | null>(null);
+  // The result a mark belongs to: leaving it (another paper, another phase, the re-open closed) drops a reply still in flight
+  // from the screen (the grade itself is real and is still saved).
+  const markSeq = useRef(0);
 
   // TUTOR-RETURN-SHEET-1 - the restored card's graded-sheet download (the page re-mounted on the
   // tutor trip, so the live paper is gone: the sheet is rebuilt from the stored payload + the
@@ -1290,6 +1307,10 @@ export default function ChapterTestPage() {
       if (notFoundSummary(payload?.response?.results)) {
         const snap = await loadChapterTestPaper(user, record.id);
         canAddPages = Boolean(snap && snap.objective && !needsSectionAPicks(snap));
+        if (canAddPages && snap) {
+          setReopen({ record, response: payload?.response ?? null, canAddPages, paper: snap.paper, topicKey: snap.topicKey });
+          return;
+        }
       }
       setReopen({ record, response: payload?.response ?? null, ...(canAddPages ? { canAddPages } : {}) });
     },
@@ -1298,6 +1319,83 @@ export default function ChapterTestPage() {
   useEffect(() => {
     openStoredRef.current = openStored;
   }, [openStored]);
+
+  // MARK-ON-PHOTO-2 — leaving the result the mark belongs to closes the dialog and drops a reply still in flight from the screen.
+  const reopenId = reopen?.record.id ?? null;
+  useEffect(() => {
+    markSeq.current += 1;
+    setMark(null);
+    setMarkBusy(false);
+    setMarkError(null);
+  }, [phase, resultsPhase, nomen?.code, reopenId]);
+
+  /** The result a mark is made on: the paper, its code and chapter, and the rows on screen; null when it is not there. */
+  const markContext = useCallback(
+    (where: "fresh" | "reopen") => {
+      if (where === "fresh") {
+        return paper && nomen && fullResponse && resultsPhase === "full"
+          ? { paper, code: nomen.code, subject: sessionSubject, topicKey, response: fullResponse }
+          : null;
+      }
+      return reopen && reopen.canAddPages && reopen.paper && reopen.response
+        ? { paper: reopen.paper, code: reopen.record.id, subject: reopen.record.subject, topicKey: reopen.topicKey || topicKey, response: reopen.response }
+        : null;
+    },
+    [paper, nomen, fullResponse, resultsPhase, sessionSubject, topicKey, reopen],
+  );
+
+  const submitMark = useCallback(
+    async (image: { imageBase64: string; imageMimeType: string }) => {
+      const m = mark;
+      const ctx = m ? markContext(m.where) : null;
+      if (!m || !ctx || markBusy) return;
+      const token = ++markSeq.current;
+      const stillShowing = () => markSeq.current === token;
+      setMarkBusy(true);
+      setMarkError(null);
+      fairUse.clearLimit();
+      try {
+        const out = await markChapterTestQuestion({ user, ...ctx, index: m.index, image });
+        if (out.kind === "unread") {
+          if (stillShowing()) setMarkError(MARK_STILL_UNREAD_COPY);
+          return;
+        }
+        fairUse.noteGraded();
+        void loadRecords();
+        // As the fresh grade does: once no answer is missing from the pages and nothing is pending, this paper's saved copy has
+        // done its job (only THIS paper's copy, by identity, under the code it was saved under and the one it now carries).
+        if (out.response.pendingCount === 0 && notFoundSummary(out.response.results) === null) {
+          deleteChapterTestPaper(user, ctx.code, ctx.paper.worksheetId);
+          if (out.savedCode && out.savedCode !== ctx.code) deleteChapterTestPaper(user, out.savedCode, ctx.paper.worksheetId);
+        }
+        if (!stillShowing()) return;
+        if (m.where === "fresh") {
+          setFullResponse(out.response);
+          if (nomen) adoptSavedCode(out.savedCode, nomen);
+        } else {
+          // S1: a re-opened scorecard reads its score, types and status from the RECORD: swap in the one just re-saved.
+          setReopen((r) => (r && r.record.id === ctx.code ? { ...r, ...(out.record ? { record: out.record } : {}), response: out.response } : r));
+        }
+        setMark(null);
+      } catch (e) {
+        if (!stillShowing()) return;
+        // A fair-use limit shows the calm limit panel inside the dialog; anything else reads its own sentence.
+        if (await fairUse.handleRefusal(e)) return;
+        setMarkError(markErrorMessage(e));
+      } finally {
+        if (stillShowing()) setMarkBusy(false);
+      }
+    },
+    [mark, markContext, markBusy, user, nomen, adoptSavedCode, loadRecords, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
+  );
+  const openMark = useCallback(
+    (where: "fresh" | "reopen") => (index: number) => {
+      setMarkError(null);
+      fairUse.clearLimit();
+      setMark({ index, where });
+    },
+    [fairUse.clearLimit],
+  );
 
   // FOLLOWUPS-1 B — "Ask the tutor why I lost this mark" on a SAVED test's scorecard (the QP /
   // C&I hop): the tutor reads the student's OWN record (`from`) and the question (`q` = its bank
@@ -1408,7 +1506,7 @@ export default function ChapterTestPage() {
       {reopen && (
         <ResultsScorecard
           limitKey={{ kind: "chapter-test", resultKey: reopen.record.id, worksheetId: reopen.record.worksheetId }} // LIMITS-1 PR-2 — stored re-open
-          variant={withPaperTutorAsks(withGuideTarget(storedChapterTestScorecardVariant(reopen.record, {
+          variant={withMarkOnPhoto(withPaperTutorAsks(withGuideTarget(storedChapterTestScorecardVariant(reopen.record, {
             gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
               day: "numeric",
               month: "short",
@@ -1442,9 +1540,36 @@ export default function ChapterTestPage() {
                 }
               : undefined,
             onDone: () => setReopen(null),
-          }), ctGuideTarget), reopen.response, ctTutorAskFor(reopen.record, reopen.response))}
+          }), ctGuideTarget), reopen.response, ctTutorAskFor(reopen.record, reopen.response)), reopen.response, markContext("reopen") ? openMark("reopen") : null, markBusy)}
           onClose={() => setReopen(null)}
         />
+      )}
+
+      {/* MARK-ON-PHOTO-2 — point to one answer on the photo; only that question is graded and slotted back into this paper. */}
+      {mark && markContext(mark.where)?.response.results[mark.index] && (
+        <Suspense fallback={null}>
+          <MarkOnPhotoDialog
+            onTop
+            label={`Q${markContext(mark.where)!.response.results[mark.index].qNumber}`}
+            pages={mark.where === "fresh" ? uploadedPhotoPages(lastUploadRef.current) : []}
+            busy={markBusy}
+            error={markError}
+            notice={
+              fairUse.limit ? (
+                <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} tsOwner={seriesAccess.ownsSeries} />
+              ) : !boardPassHolder && seriesPaperKeyOfWorksheetId(markContext(mark.where)!.paper.worksheetId) !== null ? (
+                <p className="lt-mop-sub" data-testid="mark-uses-check">{ADD_PAGES_USES_CHECK_LINE}</p>
+              ) : null
+            }
+            onSubmit={(image) => void submitMark(image)}
+            onClose={() => {
+              if (!markBusy) {
+                setMark(null);
+                setMarkError(null);
+              }
+            }}
+          />
+        </Suspense>
       )}
 
       {/* ─────────────── SETUP ─────────────── */}
@@ -1935,6 +2060,25 @@ export default function ChapterTestPage() {
                 </div>
                 <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} notCountedReason={notCountedReasonOf(fullResponse?.results)} />
                 <NotFoundAddPageLine response={fullResponse} onAddPage={addMissingPage} />
+                {/* MARK-ON-PHOTO-2 — the same action as the scorecard's, for each question that can be pointed to on the photo. */}
+                {bankMarkableRows(fullResponse).length > 0 && (
+                  <p className="lt-ct__nfna" data-testid="ct-mark-on-photo">
+                    <b>{MARK_ON_PHOTO_ACTION}</b> — point to your answer on the photo; only that question is marked.
+                    {bankMarkableRows(fullResponse).map((r) => (
+                      <button
+                        key={r.index}
+                        type="button"
+                        className="lt-ct__nfna-btn"
+                        data-testid="ct-mark-on-photo-btn"
+                        aria-label={`${MARK_ON_PHOTO_ACTION} for Q${r.qNumber}`}
+                        disabled={markBusy}
+                        onClick={() => openMark("fresh")(r.index)}
+                      >
+                        Q{r.qNumber}
+                      </button>
+                    ))}
+                  </p>
+                )}
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
@@ -2050,7 +2194,7 @@ export default function ChapterTestPage() {
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               limitKey={{ kind: "chapter-test", resultKey: nomen.code, worksheetId: paper.worksheetId }} // LIMITS-1 PR-2 — Chapter Test surface
-              variant={withSeriesWorksheet(withPaperTutorAsks(withGuideTarget(chapterTestScorecardVariant({
+              variant={withMarkOnPhoto(withSeriesWorksheet(withPaperTutorAsks(withGuideTarget(chapterTestScorecardVariant({
                 name: nomen.name,
                 code: nomen.code,
                 phase: "full",
@@ -2085,7 +2229,7 @@ export default function ChapterTestPage() {
                     }
                   : {}),
                 onRevisit: () => navigate(topicBackTo),
-              }), ctGuideTarget), fullResponse, liveTutorAskFor), paper.worksheetId)}
+              }), ctGuideTarget), fullResponse, liveTutorAskFor), paper.worksheetId), fullResponse, openMark("fresh"), markBusy)}
               onClose={() => setScorecardOpen(false)}
             />
           )}

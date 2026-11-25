@@ -1059,3 +1059,74 @@ test('MARK-CAP-1 (review C2): parallel marks of one question cannot pass the cap
   await tick();
   assert.equal((await gateOnly('after')).v.refused, true, 'three graded marks: the cap holds');
 });
+
+test('MARK-ON-PHOTO-2: a Chapter Test / Full Mock / Worksheet mark rides the PAPER\'s own pass and slot, and is capped at 3 per question (only graded marks count)', async () => {
+  const markPass = require('./markPass.cjs');
+  const fairUse = require('./fairUse.cjs');
+  const env = { LIMITS_ENFORCE: '1', FAIR_USE_PAPER_SECRET: 's' };
+  const tick = async () => { await new Promise((resolve) => setImmediate(resolve)); await new Promise((resolve) => setImmediate(resolve)); };
+  for (const kind of ['chapter-test', 'full-mock', 'worksheet']) {
+    const r = rig({ tier: 'trial', created: NEW_ACCT, env });
+    const paperKey = `${kind}-paper-1`;
+    const pass = fairUse.encodePaperPass('s', 'stu-1', kind, paperKey, NOW);
+    // EXACTLY server/index.cjs's paperKeyOf: the paper pass verified for this uid and this surface.
+    const opts = {
+      paperKeyOf: (req, surface) => {
+        const p = fairUse.verifyPaperPass(req.headers[fairUse.PAPER_HEADER], { uid: 'stu-1', surface, nowMs: NOW, secret: 's' });
+        return p ? p.paperKey : null;
+      },
+    };
+    const call = async (headers, charged) => {
+      const res = new EventEmitter(); res.statusCode = 200;
+      const req = { headers: { 'x-lazytopper-surface': kind, ...headers } };
+      const verdict = await r.l.gradingGate(req, res, '/api/grade-worksheet', 'stu-1', opts);
+      setChargeableCount(res, charged); res.emit('finish');
+      await tick();
+      return { verdict, req, res };
+    };
+    const held = () => ([...r.f.docs.values()][0].gr[kind] || []).length;
+    // the paper itself: one weekly slot
+    await call({ 'idempotency-key': 'paper', [fairUse.PAPER_HEADER]: pass }, 4);
+    assert.equal(held(), 1, `${kind}: the paper holds one slot`);
+    // a mark of Q7 with the SAME paper pass rides that slot; the route is told which one mark it is
+    const m0 = await call({ 'idempotency-key': 'u', [fairUse.PAPER_HEADER]: pass, [markPass.MARK_Q_HEADER]: '7' }, 0);
+    assert.deepEqual(m0.verdict, {}, `${kind}: an unreadable mark is served`);
+    const seen = markPass.acceptedMarkPassOf(m0.req);
+    assert.equal(seen && seen.bank, true);
+    assert.equal(seen.paperKey, paperKey);
+    assert.equal(seen.q, 7);
+    for (let i = 1; i <= 3; i += 1) {
+      const m = await call({ 'idempotency-key': `m${i}`, [fairUse.PAPER_HEADER]: pass, [markPass.MARK_Q_HEADER]: '7' }, 1);
+      assert.deepEqual(m.verdict, {}, `${kind}: graded mark ${i}`);
+    }
+    assert.equal(held(), 1, `${kind}: every mark rode the paper's one slot`);
+    const fourth = await call({ 'idempotency-key': 'm4', [fairUse.PAPER_HEADER]: pass, [markPass.MARK_Q_HEADER]: '7' }, 1);
+    assert.equal(fourth.verdict.refused, true, `${kind}: the 4th graded mark of Q7 is refused`);
+    assert.equal(fourth.res.sent.status, 409);
+    assert.equal(fourth.res.sent.body.error, markPass.MARK_LIMIT_COPY);
+    assert.equal(fourth.res.sent.body.code, 'mark_limit');
+    const q8 = await call({ 'idempotency-key': 'q8', [fairUse.PAPER_HEADER]: pass, [markPass.MARK_Q_HEADER]: '8' }, 1);
+    assert.deepEqual(q8.verdict, {}, `${kind}: another question of the paper still marks`);
+    assert.equal(r.counters['limits.grade.mark_on_photo_bank'], 6);
+    // CONTROLS: no paper pass -> not a bank mark (no count, nothing for the route); a pass for ANOTHER surface does not verify
+    const bare = await call({ 'idempotency-key': 'bare', [markPass.MARK_Q_HEADER]: '7' }, 1);
+    assert.equal(markPass.acceptedMarkPassOf(bare.req), null);
+    const other = fairUse.encodePaperPass('s', 'stu-1', kind === 'worksheet' ? 'chapter-test' : 'worksheet', paperKey, NOW);
+    const wrong = await call({ 'idempotency-key': 'wrong', [fairUse.PAPER_HEADER]: other, [markPass.MARK_Q_HEADER]: '7' }, 1);
+    assert.equal(markPass.acceptedMarkPassOf(wrong.req), null);
+    // a malformed question number is not a mark
+    const junk = await call({ 'idempotency-key': 'junk', [fairUse.PAPER_HEADER]: pass, [markPass.MARK_Q_HEADER]: '7; drop' }, 1);
+    assert.equal(markPass.acceptedMarkPassOf(junk.req), null);
+  }
+});
+
+test('MARK-ON-PHOTO-2: the Answer Checker mark pass and a bank mark never cross (a bank header on an Answer Checker grade is ignored)', async () => {
+  const markPass = require('./markPass.cjs');
+  const env = { LIMITS_ENFORCE: '1', FAIR_USE_PAPER_SECRET: 's' };
+  const r = rig({ tier: 'trial', created: NEW_ACCT, env });
+  const res = new EventEmitter(); res.statusCode = 200;
+  const req = { headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': 'x', [markPass.MARK_Q_HEADER]: '3' } };
+  await r.l.gradingGate(req, res, '/api/grade-worksheet', 'stu-1', { paperKeyOf: () => 'ci:CI-1' });
+  assert.equal(markPass.acceptedMarkPassOf(req), null);
+  assert.equal(r.counters['limits.grade.mark_on_photo_bank'], undefined);
+});

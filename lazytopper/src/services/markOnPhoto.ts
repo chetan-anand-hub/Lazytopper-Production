@@ -11,8 +11,15 @@
  * paper's totals recomputed the SERVER's way (gradingJobs.ts totalsOf). Never invents a mark: a row that comes back
  * not graded again replaces nothing.
  */
-import type { WorksheetGradeResponse, WorksheetQuestionGrade } from "../ai/aiClient";
-import { gradeStateOf, isGradedQuestion } from "../lib/mistakeDisplay";
+import { MARK_LIMIT_COPY, type WorksheetGradeResponse, type WorksheetQuestionGrade } from "../ai/aiClient";
+import { gradeStateOf, isGradedQuestion, withEffectiveCounts } from "../lib/mistakeDisplay";
+import { isNotFoundNotAttempted } from "../lib/notFoundNotAttempted";
+
+export const MARK_ON_PHOTO_ACTION = "Mark it on your photo";
+/** A mark that came back still not graded: the paper is left exactly as it was. */
+export const MARK_STILL_UNREAD_COPY =
+  "We still couldn't mark this answer from that part of the photo. Try a tighter box, or a clearer photo of just this answer.";
+export const MARK_FAILED_COPY = "Marking didn't go through — please try again.";
 
 /** A row the student may point to: its answer was not found, could not be read, or belongs to another question. */
 export function isMarkableRow(row: WorksheetQuestionGrade | null | undefined): boolean {
@@ -58,4 +65,68 @@ export function mergeMarkedRow(
     gradedMarksTotal: half(done.reduce((s, r) => s + (Number(r.totalMarks) || 0), 0)),
     worksheetTotalMarks: half(results.reduce((s, r) => s + (Number(r.totalMarks) || 0), 0)),
   };
+}
+
+/**
+ * MARK-ON-PHOTO-2 — a row of a Chapter Test / Full Mock / Worksheet the student may point to: one whose answer could not be read
+ * or belongs to another question (isMarkableRow), or one counted "Not attempted · 0" because it was NOT FOUND on the pages
+ * (lib/notFoundNotAttempted). A Chapter Test / Full Mock Section A row is scored in the app and is always graded, so it never
+ * qualifies; a Worksheet's Section A row is graded from the photo and CAN be one — the server still scores it 0 or full on the
+ * answer alone (the objective clamp), so marking it changes nothing about how it is marked.
+ */
+export function isBankMarkableRow(row: WorksheetQuestionGrade | null | undefined): boolean {
+  return isMarkableRow(row) || isNotFoundNotAttempted(row);
+}
+
+/** The markable rows of a bank result, in paper order: their index in `results` and their question number. */
+export function bankMarkableRows(response: WorksheetGradeResponse | null | undefined): Array<{ index: number; qNumber: number }> {
+  if (!response || !Array.isArray(response.results)) return [];
+  return response.results.flatMap((r, index) => (isBankMarkableRow(r) ? [{ index, qNumber: r.qNumber }] : []));
+}
+
+/**
+ * The bank paper with row `index` replaced by the ONE graded row of a mark's reply (`reply.results[0]`), or null when the mark
+ * did not grade it (the paper then stays exactly as it was). The paper's own full marks are kept (a Chapter Test's / Full
+ * Mock's total is the paper's, not a sum the grader returned).
+ */
+export function adoptBankMark(
+  response: WorksheetGradeResponse,
+  index: number,
+  reply: WorksheetGradeResponse | null | undefined,
+): WorksheetGradeResponse | null {
+  const one = reply && reply.ok !== false && Array.isArray(reply.results) && reply.results[0] ? withEffectiveCounts(reply).results[0] : null;
+  if (!one || !isGradedQuestion(one) || !response.results[index] || one.qNumber !== response.results[index].qNumber) return null;
+  const merged = mergeMarkedRow(response, index, one);
+  if (merged === response) return null;
+  return withEffectiveCounts({ ...merged, worksheetTotalMarks: response.worksheetTotalMarks });
+}
+
+/** Errors whose own sentence is written for the student (a paid-access or pass refusal, sign in again, the network, a too-large
+ *  photo, the 4th mark of one question): shown as they are. */
+const OWN_SENTENCE_ERRORS = new Set(["PremiumRequiredError", "FairUseLimitError", "DailyLimitError", "SignInAgainError", "GradingNetworkError", "UploadTooLargeError"]);
+
+/** MARK-ON-PHOTO-2 - what the dialog says when a mark did not go through (after the page's fair-use panel had its turn). A
+ *  refusal reads its own words - never "try again" for something a retry cannot fix. PURE. */
+export function markErrorMessage(e: unknown): string {
+  const err = e as { name?: unknown; message?: unknown } | null;
+  const message = err && typeof err.message === "string" ? err.message : "";
+  if (message && (message === MARK_LIMIT_COPY || (typeof err?.name === "string" && OWN_SENTENCE_ERRORS.has(err.name)))) return message;
+  return MARK_FAILED_COPY;
+}
+
+/**
+ * MARK-ON-PHOTO-2 - the page a Chapter Test / Full Mock sent, as a page the dialog can show (MarkOnPhoto.tsx MarkablePage): only
+ * when the upload was ONE photo (several photos are assembled into one PDF on the device, and a PDF has no page to box). Else
+ * none, and the dialog asks for a photo of just this answer. PURE.
+ */
+export function uploadedPhotoPages(
+  upload: { imageBase64: string; imageMimeType: string } | null | undefined,
+): Array<{ id: string; prepared: { base64: string; mimeType: "image/jpeg" | "image/png" }; thumbUrl: string }> {
+  const mime = upload ? upload.imageMimeType : "";
+  if (!upload || !upload.imageBase64 || (mime !== "image/jpeg" && mime !== "image/png")) return [];
+  return [{
+    id: "uploaded-page",
+    prepared: { base64: upload.imageBase64, mimeType: mime },
+    thumbUrl: `data:${upload.imageMimeType};base64,${upload.imageBase64}`,
+  }];
 }

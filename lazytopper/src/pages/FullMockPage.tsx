@@ -57,7 +57,9 @@ import {
   buildFullMockResponse,
   writeFullMockPartialRecord,
   gradeFullMockUpload,
+  markFullMockQuestion,
 } from "../services/fullMockGradeService";
+import { MARK_ON_PHOTO_ACTION, MARK_STILL_UNREAD_COPY, bankMarkableRows, markErrorMessage, uploadedPhotoPages } from "../services/markOnPhoto";
 import {
   saveFullMockPaperSnapshot,
   fetchFullMockPaperSnapshot,
@@ -121,6 +123,7 @@ import {
   fullMockFocusLine,
   withPaperTutorAsks,
   withGuideTarget,
+  withMarkOnPhoto,
   type ScorecardTutorAsk,
   withSaleMock,
   withSeriesWorksheet,
@@ -166,6 +169,8 @@ import { useQuestionTimes } from "../components/testAnalysis/questionTimes";
 import { FULL_MOCK_SECONDS_PER_MARK } from "../components/testAnalysis/testAnalysisModel";
 // TS-ANALYSIS-1 — after-test analysis, its own chunk, mounted at the END of the results body.
 const TestAnalysisPanel = lazy(() => import("../components/testAnalysis/TestAnalysisPanel"));
+// MARK-ON-PHOTO-2 — the "Mark it on your photo" dialog, its own chunk (fetched on the first tap).
+const MarkOnPhotoDialog = lazy(() => import("../components/checkimprove/MarkOnPhoto").then((m) => ({ default: m.MarkOnPhotoDialog })));
 import FullMockPendingBanner from "../components/fullmock/FullMockPendingBanner";
 import { pendingMockRecords } from "../components/fullmock/pendingMocks";
 // FAIR-USE-UI-1 — the fair-use panel (UI1 at grading, UI3 before the mock starts).
@@ -668,7 +673,18 @@ export default function FullMockPage() {
     noPaper?: boolean;
     /** REVIEW NIT4: this paper's saved copy is there, so "Upload all pages again" can open its upload step (else no button). */
     canAddPages?: boolean;
+    /** MARK-ON-PHOTO-2: that saved copy's paper and the sitting's focus figures (only with canAddPages), so a question can be
+     *  marked on its photo and the record re-saved as it was. */
+    paper?: PersistedWorksheet;
+    focus?: SessionFocusAggregates;
   } | null>(null);
+
+  // MARK-ON-PHOTO-2 (owner rulings 25 Nov 2026) — "Mark it on your photo" on a fresh result and on a re-opened one that offers
+  // "Upload all pages again". `index` is the row in the result on screen; `where` says which result that is.
+  const [mark, setMark] = useState<{ index: number; where: "fresh" | "reopen" } | null>(null);
+  const [markBusy, setMarkBusy] = useState(false);
+  const [markError, setMarkError] = useState<string | null>(null);
+  const markSeq = useRef(0);
 
   // TUTOR-RETURN-SHEET-1 - the restored card's graded-sheet download (the page re-mounted on the
   // tutor trip, so the live paper is gone: the sheet is rebuilt from the stored payload + the
@@ -1211,15 +1227,107 @@ export default function FullMockPage() {
       }
       // REVIEW NIT4: "Upload all pages again" only when this paper's saved copy is there to open (never the no-paper dead end).
       let canAddPages = false;
+      // MARK-ON-PHOTO-2: the saved copy's paper (and the sitting's focus figures, as the record carries them) for a mark.
+      let saved: { paper: PersistedWorksheet; focus?: SessionFocusAggregates } | null = null;
       if (notFoundSummary(response?.results)) {
         const local = loadFullMockSession(sessionUid, record.id);
-        canAddPages = Boolean(local && local.phase === "awaiting-upload" && local.objective)
-          || Boolean((await fetchFullMockPaperSnapshot(user, record.id))?.objective);
+        if (local && local.phase === "awaiting-upload" && local.objective) {
+          canAddPages = true;
+          saved = { paper: local.paper };
+        } else {
+          const snap = await fetchFullMockPaperSnapshot(user, record.id);
+          canAddPages = Boolean(snap?.objective);
+          if (snap && snap.objective) saved = { paper: snap.paper };
+        }
+        if (saved && record.focus) saved.focus = record.focus;
       }
       setPanelOpen(false);
-      setReopen({ record, response, ...(canAddPages ? { canAddPages } : {}) });
+      setReopen({ record, response, ...(canAddPages ? { canAddPages, ...(saved ? saved : {}) } : {}) });
     },
     [user, sessionUid],
+  );
+
+  // MARK-ON-PHOTO-2 — leaving the result the mark belongs to closes the dialog and drops a reply still in flight from the screen.
+  const reopenId = reopen?.record.id ?? null;
+  useEffect(() => {
+    markSeq.current += 1;
+    setMark(null);
+    setMarkBusy(false);
+    setMarkError(null);
+  }, [phase, resultsPhase, activeMock?.code, reopenId]);
+
+  /** The result a mark is made on: the paper, its code, and the rows on screen; null when it is not there. */
+  const markContext = useCallback(
+    (where: "fresh" | "reopen") => {
+      if (where === "fresh") {
+        return activeMock && fullResponse && resultsPhase === "full"
+          ? {
+              paper: activeMock.paper,
+              code: activeMock.code,
+              subject: sessionSubject,
+              response: fullResponse,
+              // AWAIT-1: a mock sat on paper has no measured focus — none is recorded (never zeros), as on its grade.
+              focus: downloadedRef.current ? undefined : focusRef.current,
+            }
+          : null;
+      }
+      return reopen && reopen.canAddPages && reopen.paper && reopen.response
+        ? { paper: reopen.paper, code: reopen.record.id, subject: reopen.record.subject, response: reopen.response, focus: reopen.focus }
+        : null;
+    },
+    [activeMock, fullResponse, resultsPhase, sessionSubject, reopen],
+  );
+
+  const submitMark = useCallback(
+    async (image: { imageBase64: string; imageMimeType: string }) => {
+      const m = mark;
+      const ctx = m ? markContext(m.where) : null;
+      if (!m || !ctx || markBusy) return;
+      const token = ++markSeq.current;
+      const stillShowing = () => markSeq.current === token;
+      setMarkBusy(true);
+      setMarkError(null);
+      fairUse.clearLimit();
+      try {
+        const out = await markFullMockQuestion({ user, ...ctx, index: m.index, image });
+        if (out.kind === "unread") {
+          if (stillShowing()) setMarkError(MARK_STILL_UNREAD_COPY);
+          return;
+        }
+        fairUse.noteGraded();
+        void loadRecords();
+        // As the fresh grade does: once no answer is missing from the pages, this paper's snapshot has done its job (by identity).
+        if (notFoundSummary(out.response.results) === null) {
+          deleteFullMockPaperSnapshot(user, ctx.code, ctx.paper.worksheetId);
+          if (out.savedCode && out.savedCode !== ctx.code) deleteFullMockPaperSnapshot(user, out.savedCode, ctx.paper.worksheetId);
+        }
+        if (!stillShowing()) return;
+        if (m.where === "fresh") {
+          setFullResponse(out.response);
+          if (activeMock) adoptFmCode(out.savedCode, activeMock);
+        } else {
+          // S1: a re-opened scorecard reads its score, types, status and board view from the RECORD: swap in the one just re-saved.
+          setReopen((r) => (r && r.record.id === ctx.code ? { ...r, ...(out.record ? { record: out.record } : {}), response: out.response } : r));
+        }
+        setMark(null);
+      } catch (e) {
+        if (!stillShowing()) return;
+        // A fair-use limit shows the calm limit panel inside the dialog; anything else reads its own sentence.
+        if (await fairUse.handleRefusal(e)) return;
+        setMarkError(markErrorMessage(e));
+      } finally {
+        if (stillShowing()) setMarkBusy(false);
+      }
+    },
+    [mark, markContext, markBusy, user, activeMock, adoptFmCode, loadRecords, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
+  );
+  const openMark = useCallback(
+    (where: "fresh" | "reopen") => (index: number) => {
+      setMarkError(null);
+      fairUse.clearLimit();
+      setMark({ index, where });
+    },
+    [fairUse.clearLimit],
   );
 
   // FOLLOWUPS-1 B — "Ask the tutor why I lost this mark" on a SAVED mock's scorecard (the QP /
@@ -1668,7 +1776,7 @@ export default function FullMockPage() {
       {reopen && (
         <ResultsScorecard
           limitKey={{ kind: "full-mock", resultKey: reopen.record.id, worksheetId: reopen.record.worksheetId }} // LIMITS-1 PR-2 — stored re-open
-          variant={withPaperTutorAsks(storedFullMockScorecardVariant(reopen.record, {
+          variant={withMarkOnPhoto(withPaperTutorAsks(storedFullMockScorecardVariant(reopen.record, {
             gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
               day: "numeric",
               month: "short",
@@ -1705,9 +1813,36 @@ export default function FullMockPage() {
                   startTest();
                 }
               : undefined,
-          }), reopen.response, fmTutorAskFor(reopen.record, reopen.response))}
+          }), reopen.response, fmTutorAskFor(reopen.record, reopen.response)), reopen.response, markContext("reopen") ? openMark("reopen") : null, markBusy)}
           onClose={() => setReopen(null)}
         />
+      )}
+
+      {/* MARK-ON-PHOTO-2 — point to one answer on the photo; only that question is graded and slotted back into this paper. */}
+      {mark && markContext(mark.where)?.response.results[mark.index] && (
+        <Suspense fallback={null}>
+          <MarkOnPhotoDialog
+            onTop
+            label={`Q${markContext(mark.where)!.response.results[mark.index].qNumber}`}
+            pages={mark.where === "fresh" ? uploadedPhotoPages(lastUploadRef.current) : []}
+            busy={markBusy}
+            error={markError}
+            notice={
+              fairUse.limit ? (
+                <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} tsOwner={seriesAccess.ownsSeries} />
+              ) : !boardPassHolder && seriesPaperKeyOfWorksheetId(markContext(mark.where)!.paper.worksheetId) !== null ? (
+                <p className="lt-mop-sub" data-testid="mark-uses-check">{ADD_PAGES_USES_CHECK_LINE}</p>
+              ) : null
+            }
+            onSubmit={(image) => void submitMark(image)}
+            onClose={() => {
+              if (!markBusy) {
+                setMark(null);
+                setMarkError(null);
+              }
+            }}
+          />
+        </Suspense>
       )}
 
       {/* History overlay panel (worksheet pattern — spec §4). */}
@@ -2373,6 +2508,25 @@ export default function FullMockPage() {
                 </div>
                 <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} notCountedReason={notCountedReasonOf(fullResponse?.results)} />
                 <NotFoundAddPageLine response={fullResponse} onAddPage={addMissingPage} />
+                {/* MARK-ON-PHOTO-2 — the same action as the scorecard's, for each question that can be pointed to on the photo. */}
+                {bankMarkableRows(fullResponse).length > 0 && (
+                  <p className="lt-ct__nfna" data-testid="fm-mark-on-photo">
+                    <b>{MARK_ON_PHOTO_ACTION}</b> — point to your answer on the photo; only that question is marked.
+                    {bankMarkableRows(fullResponse).map((r) => (
+                      <button
+                        key={r.index}
+                        type="button"
+                        className="lt-ct__nfna-btn"
+                        data-testid="fm-mark-on-photo-btn"
+                        aria-label={`${MARK_ON_PHOTO_ACTION} for Q${r.qNumber}`}
+                        disabled={markBusy}
+                        onClick={() => openMark("fresh")(r.index)}
+                      >
+                        Q{r.qNumber}
+                      </button>
+                    ))}
+                  </p>
+                )}
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
@@ -2475,7 +2629,7 @@ export default function FullMockPage() {
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               limitKey={{ kind: "full-mock", resultKey: activeMock.code, worksheetId: activeMock.paper.worksheetId }} // LIMITS-1 PR-2 — Full Mock surface
-              variant={withSeriesWorksheet(withSaleMock(withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
+              variant={withMarkOnPhoto(withSeriesWorksheet(withSaleMock(withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
                 name: activeMock.name,
                 code: activeMock.code,
                 phase: "full",
@@ -2511,7 +2665,7 @@ export default function FullMockPage() {
                       },
                     }
                   : {}),
-              }), worstChapterPractice().target), fullResponse, liveTutorAskFor), sessionSubject), activeMock.paper.worksheetId)}
+              }), worstChapterPractice().target), fullResponse, liveTutorAskFor), sessionSubject), activeMock.paper.worksheetId), fullResponse, openMark("fresh"), markBusy)}
               onClose={() => setScorecardOpen(false)}
             />
           )}

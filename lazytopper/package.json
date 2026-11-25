@@ -158,7 +158,7 @@
     "test:server:grade-speed": "node --test server/grading/gradeSpeed.test.cjs",
     "test:server:second-look": "node --test server/grading/secondLook.test.cjs",
     "test:server:locate": "node --test server/grading/locate.test.cjs",
-    "test:server:mark-pass": "node --test server/services/markPass.test.cjs",
+    "test:server:mark-pass": "node --test server/services/markPass.test.cjs server/services/markOnPhotoBank.test.cjs",
     "test:server:scheme-gen": "node --test server/routes/stepSolution.schemeGen.test.cjs",
     "test:server:free-check-one-question": "node --test server/services/freeCheckOneQuestion.test.cjs",
     "test:server:grade-speed-wiring": "node --test server/grading/gradeSpeed.wiring.test.cjs",
