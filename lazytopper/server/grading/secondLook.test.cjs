@@ -209,7 +209,7 @@ test('§L4.3 the [grade-timing] line records asked / rescued, and outcomes AFTER
   sink.secondLook = { asked: 3, rescued: 1, skipped: 0, note: 'Q8 text' };
   const line = gt.formatGradeTimingLine({ route: '/api/grade-worksheet', mode: 'job', surface: 'check-improve', preMs: null, sink, totalMs: 1 });
   const rec = JSON.parse(line.slice('[grade-timing] '.length));
-  assert.deepEqual(rec.secondLook, { asked: 3, rescued: 1, skipped: 0, failed: 0 });
+  assert.deepEqual(rec.secondLook, { asked: 3, rescued: 1, skipped: 0, failed: 0, reassigned: 0 });
 });
 
 test('§L4.4 every one-document surface reaches it: the same paper through each surface header', async () => {
@@ -313,7 +313,7 @@ test('§L5.6 (review #5) on the job path, a row the second look may change is ne
   assert.deepEqual(finalOf(0), [true], 'Q5 graded first time: final at once');
   assert.deepEqual(finalOf(3), [false], 'Q8 not found yet: not final while a second look may rescue it');
   assert.equal(out.results[3].marksAwarded, 3, 'the finished paper carries the rescue');
-  assert.deepEqual(sink.secondLook, { asked: 3, rescued: 1, skipped: 0, failed: 0 }, 'gradeSet fills the telemetry');
+  assert.deepEqual(sink.secondLook, { asked: 3, rescued: 1, skipped: 0, failed: 0, reassigned: 0 }, 'gradeSet fills the telemetry');
   assert.equal(sink.outcomes.graded, 2, 'outcomes are counted AFTER the rescue');
 });
 
@@ -334,7 +334,8 @@ test('§L5.7 (eval 25 Nov) an answer under the WRONG number is still looking for
   assert.equal(h.calls.length, 2);
   const p = h.prompt(1);
   assert.ok(p.includes('SECOND LOOK') && /  Q1\. \[/.test(p) && /  Q5\. \[/.test(p), 'both the mismatched Q1 and the not-found Q5 are looked for');
-  assert.deepEqual(marksOf(body), [0, 3], 'Q5 gets its answer; Q1 keeps its first-reading result (the student skipped it)');
+  assert.deepEqual(marksOf(body), ['nf', 3], 'Q5 gets its answer; Q1 (skipped) now reads "not found", not "does not address"');
+  assert.notEqual(body.results[0].answerMismatch, true, 'no longer "does not address"');
 });
 
 test('§L5.8 (re-review A) SHORT working lines already credited to another question are not credited again', () => {

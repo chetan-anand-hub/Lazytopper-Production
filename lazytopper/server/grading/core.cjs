@@ -887,7 +887,20 @@ function createGradingCore(deps) {
     // G4 runs across ALL groups' rescues together: two questions may never take the same answer.
     const rescued = secondLookLib.acceptedRescues(candidates, claimedWorks, questionTexts);
     for (const i of rescued) results[i] = candidates.find((c) => c.index === i).result;
-    if (timingSink) timingSink.secondLook = { asked: missed.length, rescued: rescued.length, skipped: 0, failed };
+    // An answer the first reading put under the WRONG number, now marked under its real question: the question it was
+    // wrongly put under had no answer of its own on the page, so it reads "not found" (pending, never a 0), not
+    // "does not address the question" (eval 25 Nov: a skipped Q1 whose "1)" was Q5's answer).
+    const rescuedWorks = rescued.map((i) => secondLookLib.workOf(results[i]));
+    let reassigned = 0;
+    results.forEach((r, i) => {
+      if (!r || r._reason !== 'answerMismatch' || rescued.includes(i)) return;
+      const inv = inventoryById.get(i);
+      const lines = inv && Array.isArray(inv.firstLines) ? inv.firstLines : [];
+      if (lines.length === 0 || !rescuedWorks.some((w) => secondLookLib.sharesAnswer(lines, w))) return;
+      results[i] = normaliseQuestionResult(questions[i], { qNumber: questions[i].qNumber, couldNotRead: true, note: 'not found on the uploaded pages' }, normCtx(questions[i], null, null, null));
+      reassigned += 1;
+    });
+    if (timingSink) timingSink.secondLook = { asked: missed.length, rescued: rescued.length, skipped: 0, failed, reassigned };
   }
 
   return { gradeSet, chosenModel, routerMode, lightModel, fallbackState: fallback, timing };
