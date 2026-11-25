@@ -11,13 +11,25 @@
 // the look and feel can be controlled via your existing theme without
 // hardcoded colours.
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import type { QuickAction } from '../../services/commandPaletteConfig';
 import { defaultQuickActions } from '../../services/commandPaletteConfig';
 import { vibeCommandBadgeCopy } from '../microcopy/vibeCommandBadgeCopy';
 // COMPANION-1: App renders this palette on every signed-in route (open or closed), so it hosts
 // the ONE app-wide mount of Byte's late-night note. Renders nothing unless the guide split is live.
-import { CompanionNightDoor } from '../../components/guide/companion/companion';
+// PERF3-HEADROOM-1 (25 Nov 2026): loaded LAZILY - a static import put companion.tsx + companionModel.ts
+// (~24 KB rendered) in the entry chunk every page downloads first, for a note shown only late at night.
+// The door appears a moment after the shell, exactly as before otherwise.
+const CompanionNightDoor = lazy(() =>
+  import('../../components/guide/companion/companion').then((m) => ({ default: m.CompanionNightDoor })),
+);
+function NightDoor() {
+  return (
+    <Suspense fallback={null}>
+      <CompanionNightDoor />
+    </Suspense>
+  );
+}
 
 export interface CommandPaletteProps {
   isOpen: boolean;
@@ -68,11 +80,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
   };
 
   // The night door sits first in both shapes, so opening the palette never remounts it.
-  if (!isOpen) return <><CompanionNightDoor /></>;
+  if (!isOpen) return <><NightDoor /></>;
 
   return (
     <>
-    <CompanionNightDoor />
+    <NightDoor />
     <div className="command-palette-backdrop" onClick={handleClose}>
       <div
         className="command-palette"
