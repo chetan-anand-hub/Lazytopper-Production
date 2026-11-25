@@ -8,17 +8,25 @@
  *
  * Styling is class-based (a scoped <style> block, the PaperMarksEditor convention) — CLAUDE.md §7.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import PhotoCropStep, { type PhotoCropSelection } from "../upload/PhotoCropStep";
 import {
   decodePhoto,
   preparePhoto,
   preparedToFile,
+  type CropFraction,
   type DecodedPhoto,
   type PreparedPhoto,
 } from "../../services/preparePhoto";
 
 export const MARK_ON_PHOTO_ACTION = "Mark it on your photo";
+/** A box on a page of the paper must leave part of the page out: at most 90% of the page's area. */
+export const MAX_BOX_AREA = 0.9;
+export function isAnswerBox(crop: CropFraction | undefined): boolean {
+  if (!crop) return false;
+  return (crop.right - crop.left) * (crop.bottom - crop.top) <= MAX_BOX_AREA;
+}
+
 export const MARK_ON_PHOTO_NEED_BOX = "Drag the corners so the box holds just this answer, then tap “Use this part”.";
 
 const CSS = `
@@ -76,6 +84,8 @@ export interface MarkOnPhotoDialogProps {
   pages: MarkablePage[];
   busy: boolean;
   error: string | null;
+  /** A refusal the host renders in its own words (e.g. the fair-use limit panel); shown above everything else. */
+  notice?: ReactNode;
   /** The chosen answer image, upload-ready. */
   onSubmit: (image: { imageBase64: string; imageMimeType: string }) => void;
   onClose: () => void;
@@ -90,6 +100,7 @@ export function MarkOnPhotoDialog({
   pages,
   busy,
   error,
+  notice,
   onSubmit,
   onClose,
   decode = decodePhoto,
@@ -117,7 +128,7 @@ export function MarkOnPhotoDialog({
 
   async function confirm(sel: PhotoCropSelection) {
     if (!photo) return;
-    if (fromPage && !sel.crop) {
+    if (fromPage && !isAnswerBox(sel.crop)) {
       setLocalError(MARK_ON_PHOTO_NEED_BOX);
       return;
     }
@@ -138,6 +149,7 @@ export function MarkOnPhotoDialog({
     <div className="lt-mop-back" role="dialog" aria-modal="true" aria-label={`${MARK_ON_PHOTO_ACTION} — ${label}`} data-testid="mark-on-photo-dialog">
       <style>{CSS}</style>
       <div className="lt-mop-card">
+        {notice}
         {photo ? (
           <>
             <PhotoCropStep
@@ -146,6 +158,7 @@ export function MarkOnPhotoDialog({
               busy={busy || preparing}
               onConfirm={(sel) => void confirm(sel)}
               onCancel={() => { photo.release(); setPhoto(null); setLocalError(null); }}
+              requireCrop={fromPage}
               {...(renderPreview ? { renderPreview } : {})}
             />
             {busy && <p className="lt-mop-busy" role="status">Marking {label}…</p>}

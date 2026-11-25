@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { MarkOnPhotoButton, MarkOnPhotoDialog, MARK_ON_PHOTO_NEED_BOX } from "./MarkOnPhoto";
+import { MarkOnPhotoButton, MarkOnPhotoDialog, MARK_ON_PHOTO_NEED_BOX, isAnswerBox } from "./MarkOnPhoto";
 import { isMarkableRow, mergeMarkedRow } from "../../services/markOnPhoto";
 import type { DecodedPhoto } from "../../services/preparePhoto";
 import type { WorksheetGradeResponse, WorksheetQuestionGrade } from "../../ai/aiClient";
@@ -19,17 +19,26 @@ const seams = () => ({
 const PAGE = { id: "p1", prepared: { base64: "UEFHRQ==", mimeType: "image/jpeg" as const }, thumbUrl: "data:image/jpeg;base64,T" };
 
 describe("MarkOnPhotoDialog", () => {
-  it("a page of the paper must be boxed: 'Use whole photo' on a page never sends the whole page", async () => {
+  it("a page of the paper must be boxed: no 'Use whole photo' on a page, and the main button is off until a box is drawn", async () => {
     const s = seams();
     const onSubmit = vi.fn();
     render(<MarkOnPhotoDialog label="Q6" pages={[PAGE]} busy={false} error={null} onSubmit={onSubmit} onClose={() => {}} {...s} />);
     fireEvent.click(screen.getByTestId("mark-on-photo-page"));
-    const whole = await screen.findByRole("button", { name: "Use whole photo" });
-    fireEvent.click(whole);
-    expect((await screen.findByRole("alert")).textContent).toBe(MARK_ON_PHOTO_NEED_BOX);
+    expect(await screen.findByText(/Drag the box around your answer to Q6/)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Use whole photo" })).toBeNull();
+    const cta = screen.getByTestId("pcs-confirm") as HTMLButtonElement;
+    expect(cta.textContent).toBe("Use this part");
+    expect(cta.disabled).toBe(true);
+    fireEvent.click(cta);
     expect(onSubmit).not.toHaveBeenCalled();
     expect(s.prepare).not.toHaveBeenCalled();
-    expect(screen.getByText(/Drag the box around your answer to Q6/)).toBeTruthy();
+  });
+
+  it("a box must leave part of the page out (at most 90% of its area)", () => {
+    expect(isAnswerBox(undefined)).toBe(false);
+    expect(isAnswerBox({ left: 0, top: 0, right: 1, bottom: 1 })).toBe(false);
+    expect(isAnswerBox({ left: 0.01, top: 0.01, right: 0.99, bottom: 0.99 })).toBe(false);
+    expect(isAnswerBox({ left: 0.1, top: 0.2, right: 0.9, bottom: 0.6 })).toBe(true);
   });
 
   it("a photo of just this answer may be sent whole", async () => {
@@ -43,8 +52,15 @@ describe("MarkOnPhotoDialog", () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ imageBase64: "Q1JPUA==", imageMimeType: "image/jpeg" }));
   });
 
-  it("shows the host's error and a busy line", () => {
-    render(<MarkOnPhotoDialog label="Q6" pages={[PAGE]} busy={false} error="Marking didn't go through" onSubmit={() => {}} onClose={() => {}} {...seams()} />);
+  it("shows the host's error, its notice, and a busy line while marking", async () => {
+    const { rerender } = render(<MarkOnPhotoDialog label="Q6" pages={[]} busy={false} error={null} notice={<p>LIMIT PANEL</p>} onSubmit={() => {}} onClose={() => {}} {...seams()} />);
+    expect(screen.getByText("LIMIT PANEL")).toBeTruthy();
+    const input = screen.getByTestId("mark-on-photo-file") as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [new File([new Uint8Array(10)], "a.jpg", { type: "image/jpeg" })] } });
+    await screen.findByTestId("pcs-confirm");
+    rerender(<MarkOnPhotoDialog label="Q6" pages={[]} busy={true} error={null} onSubmit={() => {}} onClose={() => {}} {...seams()} />);
+    expect(screen.getByRole("status").textContent).toBe("Marking Q6…");
+    rerender(<MarkOnPhotoDialog label="Q6" pages={[]} busy={false} error="Marking didn't go through" onSubmit={() => {}} onClose={() => {}} {...seams()} />);
     expect(screen.getByRole("alert").textContent).toContain("Marking didn't go through");
   });
 
@@ -85,7 +101,8 @@ describe("services/markOnPhoto", () => {
     expect([out.gradedCount, out.pendingCount, out.gradedMarksAwarded, out.gradedMarksTotal, out.worksheetTotalMarks]).toEqual([2, 0, 4.5, 5, 5]);
     expect((out.results[1] as unknown as { topicSlug: string; section: string }).topicSlug).toBe("trigonometry");
     expect((out.results[1] as unknown as { section: string }).section).toBe("C");
-    expect(out.summary).toBe("S");
+    // the first reading's summary may say this answer was not found: it is dropped (#1871 rule)
+    expect(out.summary).toBe("");
   });
 
   it("CONTROL: an answer that comes back not graded changes nothing", () => {
@@ -105,5 +122,17 @@ describe("page wiring (source guard)", () => {
     expect(src).toMatch(/uploads: \[\{ qNumber: dq\.questionNumber, imageBase64: image\.imageBase64/);
     expect(src).toMatch(/const merged = mergeMarkedRow\(wsResult, gi, one\)/);
     expect(src).toMatch(/recordCiQuestion\(merged\.results\[gi\], gi, merged\.results, ciQuestionIds\(ciCode, merged\.results\)/);
+  });
+  const body = src.slice(src.indexOf("async function submitMarkedAnswer"), src.indexOf("async function recordCiQuestion"));
+  it("the save carries the question texts again, and a paper the student left is never put back on screen", () => {
+    expect(body).toMatch(/noteSessionQuestionTexts\(\s*`ci:\$\{ciCode\}`/);
+    expect(body.indexOf("noteSessionQuestionTexts(")).toBeLessThan(body.indexOf("persistCheckImproveSession("));
+    expect(body).toMatch(/if \(stillShowing\(\)\) \{\s*setWsResult\(merged\)/);
+    expect(src).toMatch(/function resetToInput\(\) \{\s*leaveMarkedPaper\(\);/);
+  });
+  it("a refusal is told in its own words, never as 'try again'", () => {
+    expect(body).toMatch(/if \(await fairUse\.handleRefusal\(e\)\) return;/);
+    expect(body).toMatch(/isPremiumRequiredError\(e\) \|\| isTrialLimitRefusal\(e\)/);
+    expect(src).toMatch(/notice=\{fairUse\.limit \? <FairUseLimitPanel limit=\{fairUse\.limit\} \/> : null\}/);
   });
 });

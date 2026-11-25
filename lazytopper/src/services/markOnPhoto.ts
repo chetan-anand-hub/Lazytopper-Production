@@ -47,6 +47,9 @@ export function mergeMarkedRow(
   const done = results.filter((r) => isGradedQuestion(r));
   return {
     ...response,
+    // The first reading's paper summary can say this answer was not found; it is now marked, so the summary is dropped
+    // (the GRADE-SECOND-LOOK-1b rule, #1871: never a summary that contradicts the rows under it).
+    summary: "",
     results,
     totalQuestions: results.length,
     gradedCount: done.length,

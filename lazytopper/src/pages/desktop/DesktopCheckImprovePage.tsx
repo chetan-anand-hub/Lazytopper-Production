@@ -186,6 +186,7 @@ import { FreeCheckLockedRows, FreeCheckOneQuestionLine } from "../../components/
 import PaperMarksEditor, { isLockedObjective, LockedMarksNote, sendAsObjective } from "../../components/checkimprove/PaperMarksEditor";
 import { MarkOnPhotoButton, MarkOnPhotoDialog } from "../../components/checkimprove/MarkOnPhoto";
 import { isMarkableRow, mergeMarkedRow } from "../../services/markOnPhoto";
+import { isTrialLimitRefusal } from "../../components/limits/limitsCopy";
 import { finalMarksSummary } from "../../components/results/finalMarksSummary";
 import { showPackLine } from "../../components/limits/packLine";
 import {
@@ -1431,6 +1432,14 @@ const DesktopCheckImprovePageInner: React.FC<{
   const [markIndex, setMarkIndex] = useState<number | null>(null);
   const [markBusy, setMarkBusy] = useState(false);
   const [markError, setMarkError] = useState<string | null>(null);
+  // Bumped whenever the paper on screen is cleared, so a mark still in flight never puts it back.
+  const markPaperSeq = useRef(0);
+  const leaveMarkedPaper = () => {
+    markPaperSeq.current += 1;
+    setMarkIndex(null);
+    setMarkError(null);
+    setMarkBusy(false);
+  };
   const [ciCode, setCiCode] = useState<string | null>(null);
   // LIMITS-1 PR-2 — the SAME server lock as the scorecard (same kind + key), applied to this page's own
   // per-question detail, so closing the scorecard does not reveal what it withheld. "open" when the flag is off.
@@ -1867,6 +1876,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     // A NEW question read starts a fresh session — drop the prior multi-question
     // detection, its grade, and its code (the next grade gets a new CI sequence).
     setDetectedQuestions(null);
+    leaveMarkedPaper();
     setWsResult(null);
     setCiCode(null);
     // C&I PR-1: the fresh session also resets its nomenclature + provenance state.
@@ -2138,8 +2148,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   }
 
   function resetToInput() {
-    setMarkIndex(null);
-    setMarkError(null);
+    leaveMarkedPaper();
     setStatus("idle");
     setGradeStage(null);
     setErrorMessage(null);
@@ -2395,9 +2404,6 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Multi-question grade: grade the WHOLE detected paper in one structured call
   // (the surface-agnostic worksheet grader), then fan each legible result through
   // Mistake Intelligence exactly as the worksheet grade loop does.
-  /** ONE graded C&I paper question → the MI front door + its score twin. Returns whether the
-   *  front door took it (the save-status signal). Shared by a finished grade and, J2b (D30-2),
-   *  by the FINAL graded rows of an interrupted background grade. */
   /**
    * MARK-ON-PHOTO-1 (owner, 25 Nov 2026) — grade ONE question of the paper on screen from the part of the photo the
    * student pointed to, and slot it back into the same paper. Sent as that question's own answer image (the per-question
@@ -2413,6 +2419,10 @@ const DesktopCheckImprovePageInner: React.FC<{
     if (!row || !dq) return;
     setMarkBusy(true);
     setMarkError(null);
+    // The paper this mark belongs to: if the student leaves it while the mark is in flight, the reply still saves
+    // (the grade is real) but never puts the old paper back on screen.
+    const paperToken = ++markPaperSeq.current;
+    const stillShowing = () => markPaperSeq.current === paperToken;
     try {
       const q0 = sendAsObjective(dq) ? dq : { ...dq, objective: false };
       const response = await gradeWorksheet({
@@ -2431,15 +2441,23 @@ const DesktopCheckImprovePageInner: React.FC<{
       }, CI_GRADE_CALL);
       const one = response && response.ok !== false && response.results?.[0] ? withEffectiveCounts(response).results[0] : null;
       if (!one || !isGradedQuestion(one)) {
-        setMarkError("We still couldn't mark this answer from that part of the photo. Try a tighter box, or a clearer photo of just this answer.");
+        if (stillShowing()) setMarkError("We still couldn't mark this answer from that part of the photo. Try a tighter box, or a clearer photo of just this answer.");
         return;
       }
       const merged = mergeMarkedRow(wsResult, gi, one);
-      setWsResult(merged);
-      setMarkIndex(null);
       fairUse.noteGraded();
+      if (stillShowing()) {
+        setWsResult(merged);
+        setMarkIndex(null);
+        setReadProps(null); // the "Read on screen" sheet was built from the paper before this mark
+      }
       const paperMixed = isMixedPaper(merged.results);
       const mixLabel = ciPaperMixLabel(merged);
+      // TUTOR-RETURN-SHEET-1 - the payload write replaces the saved copy whole, so the question texts ride it again.
+      noteSessionQuestionTexts(
+        `ci:${ciCode}`,
+        boundedQuestionTexts(merged.results.map((_, i) => detectedTextForResult(detectedQuestions, merged.results, i))),
+      );
       const persistOutcome = persistCheckImproveSession({
         user,
         code: ciCode,
@@ -2451,6 +2469,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         path: "multi",
       });
       if (persistOutcome === "recorded") void loadCiRecords();
+      if (stillShowing() && persistOutcome === "recorded") setCiSaved(true);
       try {
         const filing = { subject: confirmed.subject, topicName: confirmed.topicName, topicSlug: confirmed.topicSlug };
         await recordCiQuestion(merged.results[gi], gi, merged.results, ciQuestionIds(ciCode, merged.results), ciCode, filing, paperMixed);
@@ -2458,16 +2477,28 @@ const DesktopCheckImprovePageInner: React.FC<{
         console.warn("[check-improve] MI record for a marked answer failed (grade preserved):", e);
       }
     } catch (e) {
-      if (await fairUse.handleRefusal(e)) {
-        setMarkIndex(null);
+      if (!stillShowing()) return;
+      // A refusal is told in the dialog, in its own words — never "try again" for something a retry cannot fix.
+      // A fair-use limit shows the calm limit panel inside the dialog (fairUse.limit); a paid-access refusal reads the
+      // server's own plain sentence, as the detection step on this page does.
+      if (await fairUse.handleRefusal(e)) return;
+      if (isPremiumRequiredError(e) || isTrialLimitRefusal(e)) {
+        setMarkError(e instanceof Error && e.message ? e.message : "Marking this answer needs a pass that includes the Answer Checker.");
         return;
       }
-      setMarkError(e instanceof Error && e.name === "GradingNetworkError" ? e.message : "Marking didn't go through — please try again.");
+      if (e instanceof Error && e.name === "SignInAgainError") {
+        setMarkError(e.message);
+        return;
+      }
+      setMarkError(e instanceof Error && (e.name === "GradingNetworkError" || e.name === "UploadTooLargeError") ? e.message : "Marking didn't go through — please try again.");
     } finally {
-      setMarkBusy(false);
+      if (stillShowing()) setMarkBusy(false);
     }
   }
 
+  /** ONE graded C&I paper question → the MI front door + its score twin. Returns whether the
+   *  front door took it (the save-status signal). Shared by a finished grade and, J2b (D30-2),
+   *  by the FINAL graded rows of an interrupted background grade. */
   async function recordCiQuestion(
     g: WorksheetGradeResponse["results"][number],
     gi: number,
@@ -4376,6 +4407,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             pages={answerTray.pages.map((p) => ({ id: p.id, prepared: p.prepared, thumbUrl: p.thumbUrl }))}
             busy={markBusy}
             error={markError}
+            notice={fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
             onSubmit={(image) => void submitMarkedAnswer(image)}
             onClose={() => { if (!markBusy) { setMarkIndex(null); setMarkError(null); } }}
           />
