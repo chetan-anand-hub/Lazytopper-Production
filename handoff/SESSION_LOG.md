@@ -1,6 +1,8 @@
-## 2026-11-24 (daily; UTC day 24 Nov, merges 14:39 to 22:55 IST; written 24 Nov, updated about 23:05 IST) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819: /test-series h1 keyword, sameAs directories, admin mistake-type split, schools booklet, Meta InitiateCheckout at order, packs as standard Purchase, buyer score (trunk `2d851629`)
+## 2026-11-24 (daily; covers 24-25 Nov IST: merges 14:39 IST 24 Nov to 06:22 IST 25 Nov, i.e. 09:09 UTC 24 Nov to 00:52 UTC 25 Nov; written 24 Nov, updated about 23:05 IST 24 Nov and about 06:30 IST 25 Nov) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 - #1854 - #1852 - #1856 - #1855 - #1853 - #1857: /test-series h1 keyword, sameAs directories, admin mistake-type split, schools booklet, Meta InitiateCheckout at order, packs as standard Purchase, buyer score; Test Series owner paper-limit exemption, parent forward, signed-in UI tests, /pricing four slim cards, founding-price wording (trunk `0ae599c7`; was `2d851629` at first writing)
 
 **PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1843`. Covers eight product PRs squash-merged on 24 Nov, 09:09 to 17:25 UTC. Merge SHAs, titles, merge times and file lists [git: first-parent trunk log, 8 commits after `ec9b437d`]. Everything else is from the cofounder session handoff `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` sections 2-4 and the coordinator's messages from this session (https://claude.ai/code/session_01QscBGog9Fe4ZxiPQ6vdGo7), as relayed by the coordinator [coordinator]. The docs builder did not open the handoff doc itself and did not re-read the PR bodies. Merge table: CURRENT_STATE. Reasons for every ruling: DECISION_LOG.)*
+
+**PROVENANCE OF THE 25 NOV UPDATE.** *(Same PR, before merge. Trunk merged into the branch again; six more product PRs, `#1854`, `#1852`, `#1856`, `#1855`, `#1853`, `#1857`, squash-merged 18:29 UTC 24 Nov to 00:52 UTC 25 Nov (23:59 IST 24 Nov to 06:22 IST 25 Nov). Merge SHAs, titles, times and file lists [git: first-parent trunk log, 6 commits after `2d851629`]. Everything else in the 25 Nov paragraphs (what each PR does beyond its title, reviews, the 06:45 IST live checks, owner rulings, follow-ups) is from the coordinator's messages from this session (https://claude.ai/code/session_01QscBGog9Fe4ZxiPQ6vdGo7) [coordinator]. The docs builder did not re-read the PR bodies and did not run the live checks.)*
 
 **How the day went (IST).**
 - **13:24-13:27.** The owner's own Google Ads edits: Target ROAS 15% on Search | PDF Packs, and "Leads from messages" re-added as a goal (later changed back to Purchases only, below).
@@ -15,6 +17,12 @@
 - **22:20.** Owner accepted PRICING-CTA-UP-1 (/pricing price and Buy moved up on every card; an honest sticky-bar price for Test Series owners). He also wants slimmer card faces (USPs only, each card clickable to its page); an independent UX review is running.
 - **22:55.** `#1819` BUYER-SCORE-1 merged, after a fix for the PERF-3 entry budget (below).
 - **Evening.** The cofounder ran the owed `#1840` live checks on a Chapter Test (PASS, below). The `login_abandon` question was settled from the code (below).
+- **23:59 [git].** `#1854` FAIRUSE-TS-OWNER-1: Test Series owners and Board Pass holders are never stopped by the trial weekly paper limit (server pass and client gate; uncached tier read right after payment) [coordinator]. Confirmed live.
+- **25 Nov 00:08 [git].** `#1852` TS-PARENT-FORWARD-1: "Forward link to parents" under each Test Series Buy for a signed-in student.
+- **05:38 [git].** `#1856` UI-E2E-2-SIGNIN: CI-only signed-in Playwright smoke against the Firebase emulators; independent security review APPROVE-WITH-NITS [coordinator].
+- **06:10 [git].** `#1855` TS-PARENT-FORWARD-2 + FOUNDING-MSG-PRICE-1: the signed-out forward shares /test-series with no sign-in; parent messages name no amount while the founding offer is open. Two reviews APPROVE-WITH-NITS [coordinator].
+- **06:22 [git].** `#1853` PRICING-CTA-UP-1 (/pricing four equal-size slim cards, details inside each card; owner approved the screenshots) and, twelve seconds later, `#1857` FOUNDING-MSG-PRICE-2 (server emails dated "founding price till 30 Nov, then ₹2,499 + GST"). Reviews APPROVE-WITH-NITS [coordinator].
+- **About 06:45 [coordinator].** Live checks on lazytopper.com at `0ae599c7` (below).
 
 **Measurement [coordinator].** First reading of `/api/admin/mistake-split`: 1,178 mistake logs from 163 students, 20 Apr to 23 Nov: conceptual 57.2%, presentation 22.7%, calculation 12.9%, silly 7.2%.
 
@@ -41,7 +49,23 @@
 
 **Meta, still to do [coordinator].** The owner and Pallabi run Meta Test Events at the end of tonight's session, else next session; then `META_TEST_EVENT_CODE` must be removed from Railway.
 
-**Grading.** No PR in this window changes grading behaviour (CLAUDE.md section 4a); see SURFACE_TRACKER.
+**25 Nov: what the six later PRs did [coordinator; files git].**
+- **`#1854` FAIRUSE-TS-OWNER-1.** Closes the 23 Nov scope item `[FU-FAIRUSE-TS-OWNER-EXEMPT]`: the server paper pass and the client gate both exempt Test Series owners and Board Pass holders from the trial weekly paper limit. The tier is read uncached right after payment. Follow-ups: `[FU-LIMITS-POSTPAY-CACHE]` (downloads, `limits.cjs` 60 s cache), `[FU-FAIRUSE-ISPREMIUM-CACHE]` (5-min overload cache).
+- **`#1852` / `#1855` parent forward.** Owner ruling "both options": the Test Series keeps Buy AND gets "Forward link to parents". Signed in (`#1852`) and signed out (`#1855`); the signed-out forward shares /test-series through the share sheet or WhatsApp with NO sign-in, because the owner removed sign-in from every pay path earlier to cut friction. The parent pays signed out; "Who will use it?" then puts it on the child's number; the forward is gated on Who + self + attach. Follow-up `[FU-TS-PARENT-HEADING]` (the parent page heading says "Pack" for the Test Series).
+- **Founding-price wording (`#1855`, `#1857`).** Owner, 25 Nov: "there should be no wrong price from 1st december". Parent messages for the Test Series and the Board Pass name no amount while the founding offer is open; server emails say "founding price till 30 Nov, then ₹2,499 + GST"; the concierge `checkout_help` names no amount. Nits: `[FU-FMP2-NITS]`.
+- **`#1853` PRICING-CTA-UP-1.** /pricing has four equal-size slim cards, one Buy each, the details inside each card behind "…and more" (✕ or Esc closes). The 7-day free trial, the parent forward, "Not in the Bundle.", "CBQ Packs are separate." and "Buying for someone else?" sit inside the details. The sticky bar shows an honest upgrade price. Owner approved the screenshots. "Your first test is free, written answers marked too." stays inside the Test Series details (owner, 25 Nov). The black band in a full-page screenshot is the sticky bar, not a layout bug (owner satisfied once explained). Follow-ups: `[FU-PRICING-MUTATIONOBSERVER-SCOPE]`, `[FU-BOARDPASS-PAY-ALIGN]`.
+- **`#1856` UI-E2E-2-SIGNIN.** The signed-in smoke runs only in CI against the Firebase emulators; `VITE_E2E_FIREBASE_EMULATOR` lives only in `tests/e2e/buildEnv.signedIn.json`, and the build refuses it on Vercel. Closes `[FU-UI-E2E-PHASE2-TEST-SIGNIN]`; Phase 2 page coverage is next. Nits: `[FU-UIE2E2-NITS]`.
+
+**Entry budget, 25 Nov [coordinator].** About 16 B left under the 170,627 gz PERF-3 entry budget. A new entry export alias alone added 6 B and failed CI tonight. Any PR touching entry-chunk imports must compare raw entry bytes with trunk on a production-flag build (`[FU-PERF3-HEADROOM]`).
+
+**Live checks, 25 Nov about 06:45 IST [coordinator].** On lazytopper.com at trunk `0ae599c7`, signed in as freelance.iitian (Test Series owner):
+- /pricing: four cards equal height (734 px); Board Pass Pay "₹1,083" with "Upgrade for ₹918 + GST — you've already paid for the Test Series"; the sticky bar "Board Pass upgrade / Pay ₹1,083" sits at the top and hides while Pay is on screen; Pay opened Razorpay, closed unpaid; the Bundle Buy opens its pack pop-up.
+- /cbq-packs already shows the WhatsApp opt-in box inside its buy pop-up (PackDialog `packs-wa`): no change needed; lane CBQ-WA-OPTIN-1 dropped (a page-level box would be wiped by the pop-up's own).
+- Full Mock after `#1854`: no wall, Start works, a one-answer sheet graded, checks stayed 2 of 2. **The "This check wasn't counted" note is missing on Full Mock** (`[FU-FM-UNCOUNTED-NOTE]`, copy only). **`#1840` (a) and (d) on Full Mock still owed** (`[FU-1840-FM-LIVE]`).
+
+**Owner items, 25 Nov [coordinator].** Repo to go PRIVATE after tonight's PRs (the owner types the GitHub code); GitHub shows an overdue bill, pay by 30 Nov, and private repos consume Actions minutes (`[FU-GITHUB-BILL]`). The school-outreach task still has no computer attached (`[FU-OUTREACH-TASK-NO-COMPUTER]`). Meta Test Events still to run, then remove `META_TEST_EVENT_CODE` (`[FU-META-TEST-EVENT-CODE-REMOVE]`).
+
+**Grading.** No PR in this window changes grading behaviour (CLAUDE.md section 4a), including the six added on 25 Nov (`#1854` changes only the paper-limit gate); see SURFACE_TRACKER.
 
 ## 2026-11-23 (daily; UTC day 23 Nov, merges 14:34 IST 23 Nov to 01:26 IST 24 Nov; written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840: in-app Chrome-first pay, marking-scheme fix, Test Series upgrades, step marks, progress display, real-browser checks, live-run fixes (trunk `91624151`)
 

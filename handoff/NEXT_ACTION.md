@@ -1,7 +1,15 @@
-## 2026-11-24 (daily; UTC day 24 Nov, merges 14:39 to 22:55 IST; written 24 Nov, updated about 23:05 IST) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819
+## 2026-11-24 (daily; covers 24-25 Nov IST: merges 14:39 IST 24 Nov to 06:22 IST 25 Nov, i.e. 09:09 UTC 24 Nov to 00:52 UTC 25 Nov; written 24 Nov, updated about 23:05 IST 24 Nov and about 06:30 IST 25 Nov) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 - #1854 - #1852 - #1856 - #1855 - #1853 - #1857
 
-*(The owner items of every block below stand, except where this block narrows them. Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` and the coordinator's messages from this session [coordinator].)* Trunk at writing: **`2d851629`** [git].
+*(The owner items of every block below stand, except where this block narrows them. Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` and the coordinator's messages from this session [coordinator].)* Trunk at writing: **`2d851629`** [git]. **Trunk at the 25 Nov update: `0ae599c7`** [git].
 
+- **25 Nov update, read first [coordinator unless marked]:**
+  - **Done [git]:** six more PRs merged: `#1854` FAIRUSE-TS-OWNER-1, `#1852` TS-PARENT-FORWARD-1, `#1856` UI-E2E-2-SIGNIN, `#1855` TS-PARENT-FORWARD-2 + FOUNDING-MSG-PRICE-1, `#1853` PRICING-CTA-UP-1, `#1857` FOUNDING-MSG-PRICE-2. None changes grading behaviour. The "Lanes in build tonight" below are therefore merged.
+  - **Repo to go PRIVATE** after tonight's PRs; the owner types the GitHub code. **Pay the overdue GitHub bill by 30 Nov**; private repos consume Actions minutes (`[FU-GITHUB-BILL]`).
+  - **Entry budget about 16 B:** a new entry export alias alone added 6 B and failed CI. Any PR touching entry-chunk imports compares raw entry bytes with trunk on a production-flag build (`[FU-PERF3-HEADROOM]`).
+  - **Next small product lanes:** the Full Mock "This check wasn't counted" note (`[FU-FM-UNCOUNTED-NOTE]`, copy only); the parent page heading says "Pack" for the Test Series (`[FU-TS-PARENT-HEADING]`); Phase 2 UI-test page coverage on the new signed-in harness.
+  - **Live check owed:** `#1840` (a) and (d) on a Full Mock (`[FU-1840-FM-LIVE]`).
+  - **Owner actions:** Meta Test Events, then remove `META_TEST_EVENT_CODE` from Railway (`[FU-META-TEST-EVENT-CODE-REMOVE]`); turn on "Require this computer" for the school-outreach task (`[FU-OUTREACH-TASK-NO-COMPUTER]`).
+  - **Do not rebuild:** CBQ-WA-OPTIN-1 is dropped (/cbq-packs already has the WhatsApp box in its buy pop-up). No sign-in before payment in any path (DECISION_LOG 2026-11-24 ruling 10). Until 30 Nov, no new message names a founding amount without its date (ruling 12).
 - **Done [git]:** the eight PRs in CURRENT_STATE merged (`#1846` to `#1850`, then the Meta set `#1811`, `#1816`, `#1819` tonight, as the owner ruled). None changes grading behaviour.
 - **Meta, finish tonight or next session [coordinator]:** the owner and Pallabi run Meta Test Events (one Board Pass order plus one pack order, expecting one deduplicated InitiateCheckout each). **Then remove `META_TEST_EVENT_CODE` from Railway.** Do NOT touch the 6 ad sets on InitiateCheckout. If a pack Purchase must be turned off, flip `VITE_META_PACK_AS_PURCHASE_DISABLED` (Vercel) and `META_PACK_AS_PURCHASE_DISABLED` (Railway) TOGETHER.
 - **Entry budget, 34 B left [coordinator]:** after `#1819` the entry chunk is 170,593 of 170,627 gz. Any PR that adds to the entry chunk needs a budget decision first; measure the production-flag build (`[FU-PERF3-HEADROOM-34B]`).
