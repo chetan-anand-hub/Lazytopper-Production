@@ -33,6 +33,12 @@
 //                    schemeCopy (zeroed: the "working" reproduced the scheme), blank (listed as left blank or
 //                    no answer given), mismatch (answer to another question), unread (model could not read),
 //                    notGraded (its call timed out / failed), other, inv (1 = a page inventory was used) }
+//                  counted AFTER the second look (below), so it is what the student was shown
+//   secondLook     GRADE-SECOND-LOOK-1: present only when a paper had questions to look at again:
+//                  { asked: questions revisited, rescued: questions it graded, skipped: 1 = too little time left,
+//                    failed: second-look calls that timed out / failed / did not parse,
+//                    reassigned: "does not address" questions whose answer was re-matched to its real question }
+//                  (its model call is also an `attempts` row)
 // CONTENT FIREWALL: only numbers and values from the closed sets above are ever written. No uid,
 // email, IP, question text, answer text or model output (the users are minors).
 
@@ -47,7 +53,7 @@ const count = (v) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Ma
 
 /** The sink gradeSet fills (input.timingSink). */
 function createTimingSink() {
-  return { cacheMs: null, cacheHit: null, schemeHash: null, schemeJoined: null, transport: null, marks: null, attempts: [], outcomes: null };
+  return { cacheMs: null, cacheHit: null, schemeHash: null, schemeJoined: null, transport: null, marks: null, attempts: [], outcomes: null, secondLook: null };
 }
 
 /** GRADE-MISS-1 — count a graded set's results by why each landed where it did (the non-enumerable
@@ -125,6 +131,9 @@ function formatGradeTimingLine({ route, surface, status, mode, preMs, sink, tota
     const o = {};
     for (const k of OUTCOME_KEYS) o[k] = count(s.outcomes[k]);
     rec.outcomes = o;
+  }
+  if (s.secondLook && typeof s.secondLook === 'object') {
+    rec.secondLook = { asked: count(s.secondLook.asked), rescued: count(s.secondLook.rescued), skipped: count(s.secondLook.skipped), failed: count(s.secondLook.failed || 0), reassigned: count(s.secondLook.reassigned || 0) };
   }
   return '[grade-timing] ' + JSON.stringify(rec);
 }

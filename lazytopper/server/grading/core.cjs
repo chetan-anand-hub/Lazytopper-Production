@@ -35,6 +35,7 @@ const { buildGradingContents } = require('./prompt.cjs');
 const { chooseNonce } = require('./fence.cjs');
 const { GRADING_RESPONSE_SCHEMA, GRADING_RESPONSE_SCHEMA_AUTODETECT, GRADING_RESPONSE_SCHEMA_INVENTORY } = require('./schema.cjs');
 const { normaliseQuestionResult, inventoryStable } = require('./postprocess.cjs');
+const secondLookLib = require('./secondLook.cjs');
 const timingLib = require('./timing.cjs');
 const gradeTimingLib = require('./gradeTiming.cjs');
 const { isChargeable } = require('./charge.cjs');
@@ -352,7 +353,9 @@ function createGradingCore(deps) {
     // rulebook switches, so every chunk's prompt starts with the same bytes (implicit caching).
     const nonce = c.nonce || chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce);
     const { contents, transport } = buildGradingContents({ questions, uploadByNumber, document, subject, nonce, buildGeminiImagePart, autoDetect, otherQuestionsInDocument: others,
-      paperHasAnyTyped: c.paperHasAnyTyped, paperAnyScheme: c.paperAnyScheme });
+      paperHasAnyTyped: c.paperHasAnyTyped, paperAnyScheme: c.paperAnyScheme,
+      // GRADE-SECOND-LOOK-1: only the second-look call carries it; every other call renders as before.
+      ...(c.secondLook ? { secondLook: c.secondLook } : {}) });
     // GRADE-SPEED-1 S6: the transport for the [grade-timing] line (a closed set, never content).
     if (c.timingSink && typeof c.timingSink === 'object' && typeof transport === 'string') c.timingSink.transport = transport;
     // D23: ONE document for the whole set is the only transport where the server cannot know
@@ -621,6 +624,7 @@ function createGradingCore(deps) {
     // (typed answers, per-question photos) a question's result depends on its own reply only, so it is
     // final at once; on one document it is final only in the stable case (postprocess inventoryStable).
     const inventoryPossible = Boolean(document) && !autoDetect;
+    const secondLookOn = !secondLookLib.secondLookDisabled(process.env);
     const emitRows = (rows) => {
       if (!onPartSettled || rows.length === 0) return;
       try { onPartSettled(rows); } catch { /* a progress hook never affects the grade */ }
@@ -640,9 +644,12 @@ function createGradingCore(deps) {
         const n = Number(q.qNumber);
         const own = a.inventory ? { present: a.inventory.has(n), firstLines: [...(a.inventory.get(n) || [])], partial } : null;
         const unread = !raw || raw.couldNotRead === true || raw.couldNotRead === 'true';
-        const final = !inventoryPossible || unread || inventoryStable(own, raw);
         // A copy of the reply: the final pass below reads the same object.
-        return { index: idOf.get(q), final, result: normaliseQuestionResult(q, raw ? structuredClone(raw) : null, normCtx(q, own, null, siblings)) };
+        const result = normaliseQuestionResult(q, raw ? structuredClone(raw) : null, normCtx(q, own, null, siblings));
+        // GRADE-SECOND-LOOK-1 (review #5): a row the second look may still change is never published as final.
+        const mayLookAgain = inventoryPossible && secondLookOn && secondLookLib.SECOND_LOOK_REASONS.includes(result && result._reason);
+        const final = !mayLookAgain && (!inventoryPossible || unread || inventoryStable(own, raw));
+        return { index: idOf.get(q), final, result };
       });
     };
     if (onPartSettled && deterministic.size > 0) {
@@ -682,6 +689,7 @@ function createGradingCore(deps) {
     // chunk saw is never "not found", and any chunk's quoted first line for it counts.
     const paperInventory = new Map(); // printed number → Set of first lines
     let anyInventory = false;
+    const paperUnplaced = []; // GRADE-SECOND-LOOK-1: answers on the pages that a chunk's reply listed under no number
     const gradedIds = [];
     const modelsUsed = [];
     let summary = '';
@@ -714,6 +722,8 @@ function createGradingCore(deps) {
       }
       if (a.inventory) {
         anyInventory = true;
+        const un = a.parsed && Array.isArray(a.parsed.unplacedAnswers) ? a.parsed.unplacedAnswers : [];
+        for (const l of un) if (typeof l === 'string' && l.trim()) paperUnplaced.push(l.trim());
         for (const [n, lines] of a.inventory) {
           if (!paperInventory.has(n)) paperInventory.set(n, new Set());
           for (const l of lines) paperInventory.get(n).add(l);
@@ -771,6 +781,16 @@ function createGradingCore(deps) {
       notGradedById.has(i) ? null : rawById.get(i) || null,
       normCtx(q, inventoryById.get(i) || null, notGradedById.get(i) || null, siblingsById.get(i) || null),
     ));
+    // GRADE-SECOND-LOOK-1 — ONE extra call on a one-document paper whose first reading left questions
+    // "not found" / "no working": look again for THOSE questions only, by content (secondLook.cjs). A
+    // rescue replaces a result only when every guard passes; anything else keeps the first reading.
+    if (document && !autoDetect && anyInventory && secondLookOn) {
+      try {
+        await runSecondLook({ questions, results, inventoryById, siblingsById, chunks, ctx, job, callDeadlineAt, normCtx, label, timingSink, unplaced: paperUnplaced });
+      } catch (e) {
+        console.warn(label + ' second look failed (first reading kept): ' + (e && e.message ? e.message : e));
+      }
+    }
     // A17 ruling 5 · the premium meter counts graded questions only: each call's usage is written
     // scaled by the chargeable share of the questions IT graded (0 when none was graded). A chunk's
     // failed first attempt and its retries are metered against their own questions the same way.
@@ -783,6 +803,104 @@ function createGradingCore(deps) {
       try { timingSink.outcomes = gradeTimingLib.outcomeCounts(results, { inventory: anyInventory }); } catch { /* telemetry only */ }
     }
     return { ok: true, results, summary, modelUsed, detection, chunkCount: chunks.length };
+  }
+
+  /**
+   * GRADE-SECOND-LOOK-1 — see secondLook.cjs for the why and the guards (G1–G5). Mutates `results` in place,
+   * ONLY at the indices it rescues. Never throws past gradeSet (caught there); a failed or late call changes
+   * nothing. Its usage is metered with the questions it was for (ctx.meters), so a rescued question that is
+   * graded is charged like any graded question and an unrescued one is not.
+   */
+  async function runSecondLook({ questions, results, inventoryById, siblingsById, chunks, ctx, job, callDeadlineAt, normCtx, label, timingSink, unplaced }) {
+    const candidates0 = secondLookLib.missedIndices(questions, results);
+    if (candidates0.length === 0) return;
+    // The answers the first reading GRADED (G4): their quoted first lines go to the prompt, their work to the guard.
+    const claimed = [];
+    const claimedWorks = [];
+    results.forEach((r, i) => {
+      if (!r || r._reason !== 'graded') return;
+      claimedWorks.push(secondLookLib.workOf(r));
+      const inv = inventoryById.get(i);
+      const line = inv && Array.isArray(inv.firstLines) ? inv.firstLines.find((l) => String(l || '').trim()) : '';
+      if (line) claimed.push({ qNumber: questions[i].qNumber, firstLine: line });
+    });
+    // G0 (cost): a question the first reading did not find is looked for again ONLY when the page holds an
+    // answer it could not place; a question it SAW (a quoted first line, no working) always is. A paper whose
+    // missing questions were simply skipped by the student costs nothing extra.
+    const questionTexts = questions.map((q) => q.questionText);
+    // An answer the first reading put under the WRONG number (answerMismatch) is an answer still looking for its
+    // question: its quoted lines count as unplaced (eval 25 Nov: "1)" = Q5's answer under Q1 left Q5 "not found").
+    const mismatchLines = [];
+    results.forEach((r, i) => {
+      if (!r || r._reason !== 'answerMismatch') return;
+      const inv = inventoryById.get(i);
+      for (const l of (inv && Array.isArray(inv.firstLines) ? inv.firstLines : [])) mismatchLines.push(l);
+    });
+    const open = secondLookLib.openUnplaced((Array.isArray(unplaced) ? unplaced : []).concat(mismatchLines), claimedWorks, questionTexts);
+    const missed = secondLookLib.worthALook(candidates0, results, open);
+    if (missed.length === 0) {
+      if (timingSink) timingSink.secondLook = { asked: 0, rescued: 0, skipped: 0 };
+      return;
+    }
+    const left = job ? Math.min(job.perCallMs, callDeadlineAt - now()) : callDeadlineAt - now();
+    if (left < secondLookLib.SECOND_LOOK_MIN_MS) {
+      if (timingSink) timingSink.secondLook = { asked: missed.length, rescued: 0, skipped: 1 };
+      return;
+    }
+    const nonce = chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]).concat(claimed.map((c) => c.firstLine), open), makeFenceNonce);
+    // One call per routed group (model + subject rules) the missed questions belong to — a mixed Maths + Science paper is
+    // graded under each question's own subject rules, exactly as its first reading was. The calls run in parallel.
+    const groupsOf = new Map();
+    for (const i of missed) {
+      const chunk = chunks.find((c) => c.questions.includes(questions[i])) || chunks[0];
+      const key = chunk.model + '\u0000' + subjectModeOf(chunk.subject);
+      if (!groupsOf.has(key)) groupsOf.set(key, { chunk, ids: [] });
+      groupsOf.get(key).ids.push(i);
+    }
+    let failed = 0;
+    const settledLook = await Promise.all([...groupsOf.values()].map(async ({ chunk, ids }) => {
+      const qs = ids.map((i) => questions[i]);
+      const outcome = await attemptChunk({
+        model: chunk.model, questions: qs, uploadByNumber: new Map(), document: ctx.document, subject: chunk.subject,
+        single: false, autoDetect: null, label, attempt: 1, timeoutMs: Math.min(left, secondLookLib.SECOND_LOOK_MAX_MS),
+        deadlineAt: callDeadlineAt, others: Math.max(0, questions.length - qs.length),
+        chunkKey: 'look2:' + ids.map((i) => 'q' + i).join('+'),
+        nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme, meters: ctx.meters,
+        timingSink, secondLook: { claimed, unplaced: open },
+      });
+      if (!outcome || !outcome.results) { failed += 1; return []; }
+      const byNumber = new Map();
+      for (const r of outcome.results) if (r && r.qNumber != null) byNumber.set(Number(r.qNumber), r);
+      return ids.map((i) => {
+        const q = questions[i];
+        const n = Number(q.qNumber);
+        const raw = byNumber.get(n) || null;
+        const lines = outcome.inventory ? [...(outcome.inventory.get(n) || [])] : [];
+        // The strict test (partial: false): its OWN quoted first line must be in its OWN work (G2).
+        const inv = outcome.inventory ? { present: outcome.inventory.has(n), firstLines: lines, partial: false } : null;
+        // Balancing evidence comes from the second look's OWN reply (review #8), never the first reading's.
+        const result = raw && inv ? normaliseQuestionResult(q, structuredClone(raw), normCtx(q, inv, null, siblingStepsOf(byNumber, qs, q))) : null;
+        return { index: i, raw, result, firstLines: lines };
+      });
+    }));
+    const candidates = settledLook.flat();
+    // G4 runs across ALL groups' rescues together: two questions may never take the same answer.
+    const rescued = secondLookLib.acceptedRescues(candidates, claimedWorks, questionTexts);
+    for (const i of rescued) results[i] = candidates.find((c) => c.index === i).result;
+    // An answer the first reading put under the WRONG number, now marked under its real question: the question it was
+    // wrongly put under had no answer of its own on the page, so it reads "not found" (pending, never a 0), not
+    // "does not address the question" (eval 25 Nov: a skipped Q1 whose "1)" was Q5's answer).
+    const rescuedWorks = rescued.map((i) => secondLookLib.workOf(results[i]));
+    let reassigned = 0;
+    results.forEach((r, i) => {
+      if (!r || r._reason !== 'answerMismatch' || rescued.includes(i)) return;
+      const inv = inventoryById.get(i);
+      const lines = inv && Array.isArray(inv.firstLines) ? inv.firstLines : [];
+      if (lines.length === 0 || !rescuedWorks.some((w) => secondLookLib.sharesAnswer(lines, w))) return;
+      results[i] = normaliseQuestionResult(questions[i], { qNumber: questions[i].qNumber, couldNotRead: true, note: 'not found on the uploaded pages' }, normCtx(questions[i], null, null, null));
+      reassigned += 1;
+    });
+    if (timingSink) timingSink.secondLook = { asked: missed.length, rescued: rescued.length, skipped: 0, failed, reassigned };
   }
 
   return { gradeSet, chosenModel, routerMode, lightModel, fallbackState: fallback, timing };

@@ -23,6 +23,8 @@ const { MODEL_STEP_STATUSES, ADDRESSES_VALUES } = require('./rules.cjs');
 
 // B2: GRADER_TYPE_1_DISABLED=1 restores the trunk REQUEST byte-for-byte — the additive omittedAsk field is not asked for either.
 const T1_OFF = process.env.GRADER_TYPE_1_DISABLED === '1';
+// GRADE-SECOND-LOOK-1: GRADING_SECOND_LOOK_DISABLED=1 restores the previous inventory schema (no unplacedAnswers).
+const LOOK2_OFF = /^(1|true|yes)$/i.test(String(process.env.GRADING_SECOND_LOOK_DISABLED || '').trim());
 
 function deepFreeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -175,9 +177,12 @@ function buildResponseSchema(opts = {}) {
           propertyOrdering: ['page', 'questionsSeen'],
         },
       },
+      // GRADE-SECOND-LOOK-1: the first line of every answer on the pages listed under NO question number
+      // (unlabelled, a label that matches no question, or not matched). Optional: absent = [] (nothing unplaced).
+      ...(LOOK2_OFF ? {} : { unplacedAnswers: { type: 'ARRAY', nullable: true, items: { type: 'STRING' } } }),
       ...top.properties,
     };
-    top.propertyOrdering = ['pageInventory', 'results', 'summary'];
+    top.propertyOrdering = LOOK2_OFF ? ['pageInventory', 'results', 'summary'] : ['pageInventory', 'unplacedAnswers', 'results', 'summary'];
     // The ONE requirement past the parse gate, and why: the inventory IS the D23 commitment —
     // emitted before any grade, it is what the presence guard holds the grade to. (A reply
     // without it still parses; the guard then fails open, so nothing is zeroed by its absence.)
