@@ -1031,3 +1031,31 @@ test('MARK-ON-PHOTO-1: one question of one paper is marked on the photo at most 
   assert.deepEqual(await mark(7, 1, 1), {}, 'another question of the same paper still marks');
   assert.equal(([...r.f.docs.values()][0].gr['check-improve'] || []).length, 1, 'still the paper\'s one slot');
 });
+
+test('MARK-CAP-1 (review C2): parallel marks of one question cannot pass the cap; an ungraded or dropped mark gives its count back', async () => {
+  const markPass = require('./markPass.cjs');
+  const { limitsDeferredOf } = require('./limits.cjs');
+  const env = { LIMITS_ENFORCE: '1', FAIR_USE_PAPER_SECRET: 's' };
+  const r = rig({ tier: 'trial', created: NEW_ACCT, env });
+  const tick = async () => { await new Promise((resolve) => setImmediate(resolve)); await new Promise((resolve) => setImmediate(resolve)); };
+  const res0 = new EventEmitter(); res0.statusCode = 200;
+  await r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': 'paper' } }, res0, '/api/grade-worksheet', 'stu-1');
+  const slot = limitsDeferredOf(res0).id;
+  setChargeableCount(res0, 2); res0.emit('finish'); await tick();
+  const token = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-TRIG-03', slot, questions: [{ qNumber: 6, questionText: 'q6' }], nowMs: NOW });
+  const gateOnly = (i) => {
+    const res = new EventEmitter(); res.statusCode = 200;
+    return r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': `p${i}`, [markPass.MARK_PASS_HEADER]: token, [markPass.MARK_Q_HEADER]: '6' } }, res, '/api/grade-worksheet', 'stu-1')
+      .then((v) => ({ v, res }));
+  };
+  // a mark that comes back unreadable gives its count back
+  const u = await gateOnly('u'); setChargeableCount(u.res, 0); u.res.emit('finish'); await tick();
+  // a mark whose connection drops before finishing gives its count back
+  const d = await gateOnly('d'); d.res.writableFinished = false; d.res.emit('close'); await tick();
+  // four marks in flight at once (none finished yet): exactly three are admitted
+  const burst = await Promise.all([1, 2, 3, 4].map(gateOnly));
+  assert.equal(burst.filter((b) => b.v.refused).length, 1, 'the 4th concurrent mark is refused');
+  for (const b of burst.filter((x) => !x.v.refused)) { setChargeableCount(b.res, 1); b.res.emit('finish'); }
+  await tick();
+  assert.equal((await gateOnly('after')).v.refused, true, 'three graded marks: the cap holds');
+});
