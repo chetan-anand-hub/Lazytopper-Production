@@ -48,6 +48,7 @@ const { LIMITS_CONFIG } = require('./limitsConfig.cjs');
 const { chargeableCountOf } = require('../grading/charge.cjs');
 const { PACK_CHAPTERS, PACK_SUBJECTS, ownsChapter, ownsMocks } = require('./packProducts.cjs');
 const { splitByRedownload } = require('./packTerms.cjs');
+const markPass = require('./markPass.cjs');
 
 const USAGE_LEDGER_COLLECTION = 'usageLedger';
 // An object member (not a bare constant) on purpose, like usageLedger.cjs LEDGER_SEGMENTS: this is a
@@ -860,7 +861,12 @@ function createLimits(deps = {}) {
       const bucket = kind === 'quick-practice' ? 'qp' : `gr:${kind}`;
       const passKey = typeof opts.paperKeyOf === 'function' ? opts.paperKeyOf(req, kind) : null;
       const idemKey = String((req.headers && req.headers['idempotency-key']) || '').trim();
-      const id = hashKey(`grade|${kind}`, passKey || idemKey || crypto.randomUUID());
+      // MARK-ON-PHOTO-1 (owner ruling 25 Nov 2026): one answer marked on the photo of an Answer Checker paper re-uses
+      // that paper's slot id (a server-signed mark pass for this uid, services/markPass.cjs): `reused` while the paper's
+      // slot is held, a real slot once it is gone. The route then refuses a body the pass does not allow.
+      const ridden = kind === 'check-improve' && reqPath === GRADE_WORKSHEET_PATH ? markPass.verifiedMarkPassOf(req, uid, env, now()) : null;
+      if (ridden) emit('limits.grade.mark_on_photo');
+      const id = ridden ? ridden.slot : hashKey(`grade|${kind}`, passKey || idemKey || crypto.randomUUID());
       const limit = info.tier === 'free' ? 1 : resolveGradeLimit(kind);
 
       // ONE transaction: read the bucket, decide and RESERVE the slot. Parallel requests (different

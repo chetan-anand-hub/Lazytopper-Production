@@ -50,6 +50,9 @@ export interface PhotoCropStepProps {
   onCancel: () => void;
   /** Test seam: jsdom has no canvas. */
   renderPreview?: (photo: DecodedPhoto, rotation: PhotoRotation) => { url: string };
+  /** MARK-ON-PHOTO-1 (optional, additive): a box must be drawn — no "Use whole photo" anywhere, and the main
+   *  button stays off until the box is smaller than the whole photo. Default false: today's behaviour. */
+  requireCrop?: boolean;
 }
 
 /** Turn a fractional selection a quarter turn clockwise WITH the photo, so a crop the
@@ -68,6 +71,7 @@ export default function PhotoCropStep({
   onConfirm,
   onCancel,
   renderPreview = renderPhotoPreview,
+  requireCrop = false,
 }: PhotoCropStepProps) {
   const [rotation, setRotation] = useState<PhotoRotation>(initialRotation);
   const [crop, setCrop] = useState<CropFraction>(initialCrop ?? FULL_FRAME_CROP);
@@ -241,12 +245,12 @@ export default function PhotoCropStep({
         type="button"
         className="lt-pcs__cta"
         onClick={() => confirm(false)}
-        disabled={busy || !preview}
+        disabled={busy || !preview || (requireCrop && whole)}
         data-testid="pcs-confirm"
       >
-        {busy ? "Preparing…" : whole ? "Use whole photo" : "Use this part"}
+        {busy ? "Preparing…" : whole && !requireCrop ? "Use whole photo" : "Use this part"}
       </button>
-      {!whole && (
+      {!whole && !requireCrop && (
         <button
           type="button"
           className="lt-pcs__ghost"
