@@ -1,3 +1,12 @@
+## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`40c9cfca`** (`#1877`) [git].
+
+- **Live verify owed:** on a TRIAL test account, an Answer Checker paper mark → the weekly count does not move; the 4th graded mark of one question is refused; one Test Series paper mark holds/commits a check (`[FU-MARK-ON-PHOTO-TRIAL-LIVE]`).
+- **Watch from 26 Nov:** `[grade-timing]` `locate.ms` / `ok` (a slow locate on a SYNC grade can add up to ~10 s, `[FU-LOCATE-SYNC-SLOW]`); `outcomes` and `secondLook` (`[FU-LOOK2-REAL-RATE]`).
+- **Owner decision:** a trial paper reopened > 24 h later and marked on the photo mints a new paper pass, as "Upload all pages again" does (`[FU-MARK-ON-PHOTO-REOPEN-PASS]`).
+- **Process:** merge only on an explicit `quality-gate:success` on the PR head; builders run the FULL vitest suite before pushing.
+
 ## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`6d9ab1e8`** (`#1871`) [git].

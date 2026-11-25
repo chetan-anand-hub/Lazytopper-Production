@@ -23,6 +23,32 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Status of existing entries.**
+- `[FU-MARK-ON-PHOTO-BANK]`: **CLOSED by `#1877`.**
+- `[FU-MARK-ON-PHOTO-FAIRUSE]`: **CLOSED** — owner ruling 25 Nov 21:30 "Same paper, no new slot" (`#1873`) and 22:17 "cap it to 3" (`#1874`).
+- `[FU-LOOK2-BANK-LIVE]`: **CLOSED** — Chapter Test live, 25 Nov 23:45 (second look reached the job path; with `#1875` the paper graded without needing it).
+- `[FU-LOOK2-SLOW-PAPERS]`: narrowed — the slow papers were own-numbered sheets; `#1875` removes that cause. Still watch `[grade-timing]`.
+
+### [FU-MARK-ON-PHOTO-TRIAL-LIVE] (minted)
+OPEN, live verify. The slot riding (`#1873`), the 3-mark cap (`#1874`) and a Test Series paper mark (`#1877`) were not checked live: the admin account is premium. On a TRIAL account: mark an unread row → the weekly count does not move; the 4th graded mark of one question is refused with "You've already marked this answer 3 times…". [coordinator]
+
+### [FU-MARK-ON-PHOTO-REOPEN-PASS] (minted)
+OPEN, owner. A trial paper reopened more than 24 h later and marked on the photo mints a new paper pass (spends a fair-use paper; after 7 days also a new weekly slot), exactly like "Upload all pages again". Keep, or tell the student in the dialog. [coordinator, from the `#1877` review]
+
+### [FU-MARK-CAP-SCOPE] (minted)
+OPEN, note. The cap of 3 is not enforced for premium, pre-cohort trials, Test Series owners or with `LIMITS_ENFORCE` off (they could already re-upload whole papers); fail-open under heavy contention like all LIMITS-1; a crash between admission and finish loses one count (fails closed). [coordinator, from the reviews]
+
+### [FU-LOCATE-SYNC-SLOW] (minted)
+OPEN, watch. On a SYNC grade (jobs off or refused) a locate call that times out can add up to ~10 s; read `[grade-timing]` `locate.ms` / `ok`. The locate call is tagged `detect-question` in workload telemetry (a `locate` class needs `geminiClient.cjs`). [coordinator, from the `#1875` review]
+
+### [FU-MARK-ON-PHOTO-BANK-BOXING] (minted)
+OPEN, low. A multi-photo or PDF Chapter Test / Full Mock upload cannot be boxed on its pages (the pages live in `ChapterTestUploadPanel.tsx`); the student picks "a photo of just this answer". [coordinator]
+
+### [FU-FIRST-GRADED-SECOND-DEVICE] (minted)
+OPEN, low (analytics only). A first paper graded on device A and marked on device B fires `first_graded` twice. [coordinator, from the `#1877` review]
+
 ## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **Status of existing entries.**

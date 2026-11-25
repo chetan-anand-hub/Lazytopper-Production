@@ -1,3 +1,16 @@
+## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877 (trunk `40c9cfca`)
+
+**PROVENANCE.** *(Merge SHAs and times [git: REST `merged_at`]. Everything else: this cofounder session [coordinator]; owner messages quoted by time.)*
+
+- **20:05.** Owner: "do it" (mark on photo; live second-surface check; docs).
+- **20:45-21:05.** Chapter Test live check of `#1870`: the own-numbered sheet hit 268 s and lost answers; eval (trunk vs second look) showed the same failure on trunk.
+- **21:30.** Owner: a mark counts as the same paper ("Same paper, no new slot"). Mark-pass design; two review rounds. **21:58** `#1873` merged; live PASS.
+- **22:17.** Owner: cap marks at 3; find and fix the reason for the timeouts; PR-2 for bank surfaces; record that the slot was not checked live. **22:27/22:38** use the optimised method of previous sessions (coordinator + builder lanes + fresh reviewers + paired evals).
+- **22:37** `#1874` merged (cap; review C1/C2 fixed).
+- **22:45-23:20.** Cause found (labels; Rs 13 paired run); locate probe (Rs 2); builder lane LOCATE-FIRST-1; fresh review; eval rounds. **23:23** `#1875` merged (before CI finished — slip); **23:40** `#1876` fixed the red vitest. Live PASS on Chapter Test and Answer Checker multi.
+- **00:18 (26 Nov).** Owner: also write a dispatch message for the next cofounder session.
+- **01:49** `#1877` merged (PR-2; review rounds S1/S2, cold-run flake, firstGraded guard). Live PASS on a reopened Chapter Test.
+
 ## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871 (trunk `6d9ab1e8`)
 
 **PROVENANCE.** *(Third daily docs PR of 25 Nov. Merge SHAs and times [git: REST `merged_at`]. Everything else: this cofounder session [coordinator]; owner messages quoted by time.)*
