@@ -1,4 +1,4 @@
-## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:13 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted. Rulings 1-3 are the owner's (25 Nov 12:17 IST, this session) **[owner]**; 4 is the cofounder's call under the owner's "you do now" **[coordinator]**. No scope discovered.
 

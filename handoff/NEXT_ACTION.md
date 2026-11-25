@@ -1,4 +1,4 @@
-## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:13 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`ec5ba0e7`** (`#1863`) [git, `git fetch origin base/approved-thru-437`]; live `version.json` = `eeac414f` when last read (13:35 IST; `#1863` is server-only, Railway).
 

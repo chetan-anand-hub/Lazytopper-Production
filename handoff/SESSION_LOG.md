@@ -1,11 +1,11 @@
-## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:13 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 (trunk `ec5ba0e7`)
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 (trunk `ec5ba0e7`)
 
 **PROVENANCE.** *(Second daily docs PR of 25 Nov. Merge SHAs, titles, times and file lists [git: first-parent trunk log, 4 commits after `c7e4b44e` (#1861)]. Diagnoses, reviews, measurements and rulings: this cofounder session (owner messages 25 Nov 12:11 and 12:17 IST; independent Opus reviews of #1862 and #1863) [coordinator]. Merge table: CURRENT_STATE. Reasons: DECISION_LOG.)*
 
 - **12:11.** Session start. Repo already private (GitHub REST). Docs PR `#1861` for `#1858`/`#1859` merged 12:52.
 - **12:17.** Owner: urgent demo prep for a coaching institute; items 8 (scheme cache v4, avatar grant) and 9 (free test before Buy) "you do now".
 - **12:20-13:05.** Handwritten demo sheets made and tested live (CURRENT_STATE). The trial account's 5 daily checks were used up; owner told to demo on a Board Pass account or a fresh trial.
-- **12:40.** `[FU-FM-UNCOUNTED-NOTE]` diagnosed from live data as a settle race, not copy; `#1862` built, reviewed, merged 13:13.
+- **12:40.** `[FU-FM-UNCOUNTED-NOTE]` diagnosed from live data as a settle race, not copy; `#1862` built, reviewed, merged 13:16.
 - **13:17 / 13:21 / 13:30.** `#1864`, `#1865`, `#1863` merged (CURRENT_STATE).
 - **Not live-checked yet:** the owner's laptop went offline (demo), so the avatar, the night door and the `#1862` note were not seen live.
 

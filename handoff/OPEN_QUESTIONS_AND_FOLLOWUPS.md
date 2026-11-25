@@ -23,7 +23,7 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
-## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:13 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **Status of existing entries.**
 - `[FU-FM-UNCOUNTED-NOTE]`: **CLOSED by `#1862`** (a settle race, not copy; see CURRENT_STATE). Live verify owed.
