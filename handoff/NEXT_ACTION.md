@@ -1,3 +1,12 @@
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`ec5ba0e7`** (`#1863`) [git, `git fetch origin base/approved-thru-437`]; live `version.json` = `eeac414f` when last read (13:35 IST; `#1863` is server-only, Railway).
+
+- **Live checks owed:** `#1862` (a Full Mock one-answer series sheet shows "This check wasn't counted" within about 8 s); `#1863` (Answer Checker typed question + one structured surface); `#1864` avatar and `#1865` night door on desktop; `[FU-1840-FM-LIVE]`.
+- **Entry chunk headroom is now about 6.5 KB gz** (`#1865`); `[FU-PERF3-HEADROOM]` is closed. Keep measuring raw bytes on a production-flag build.
+- **Next lanes:** `[FU-UI-E2E-PHASE2-PAGES]`; then propose `ui-e2e` as a required check after clean days counted from `#1865` (its failures on 25 Nov were the gz budget, now fixed).
+- **Owner (asked 13:35):** add the Test Series ad lines to the 1 Dec 10:12 ads task? Re-run or inspect the school-outreach run that ended in 4 s at 11:50?
+
 ## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859
 
 *(The owner items of every block below stand, except where this block narrows them. Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-25.md` and its addendum [coordinator].)* Trunk at writing: **`32ba8d0b`** (`#1859`) [git, re-derived with `git ls-remote origin base/approved-thru-437`]; live `version.json` = `32ba8d0b` [live].

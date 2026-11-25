@@ -1,4 +1,13 @@
 
+> **2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 (CLAUDE.md section 10).** Merge SHAs, titles, times and file lists [git: first-parent trunk log, 4 commits after `c7e4b44e` (#1861)]. Diagnoses, reviews, measurements and rulings: this cofounder session (owner messages 25 Nov 12:11 and 12:17 IST; independent Opus reviews of #1862 and #1863) [coordinator]. **Grading surfaces: `#1863` reaches the scheme-first cache on Answer Checker single/multi and on Worksheet / Chapter Test / Full Mock for bank rows without steps (one-time regeneration); live verify OWED.** Scope discovered: none.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| Chapter Test / Full Mock result: checks-left line and not-counted note | re-reads after the server settles the check (`#1862`) | **merged, live (Vercel)** | live: a one-answer series sheet shows the note within about 8 s |
+| Desktop shell avatar | white on deeper green, 5.28:1+ (`#1864`) | **merged, live** | look on desktop |
+| App-wide (entry chunk) / companion night door | door lazy-loaded; entry gz -6.5 KB (`#1865`) | **merged, live** | door seen late at night on a signed-in page |
+| Grading scheme cache (server) | v4 (`#1863`) | **merged (Railway)** | Answer Checker + one structured surface live |
+
 > **2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859 (CLAUDE.md section 10).** Merge SHAs, titles, times and file lists [git: first-parent trunk log, 2 commits after `047493cb` (#1851)]. What each PR does beyond its commit message, reviews, live checks and rulings: the cofounder addendum `claude/HANDOFF_COFOUNDER_SESSION_2026-11-25_ADDENDUM.md` [coordinator]. Repo visibility read from the GitHub REST API this session [git: `gh api repos/chetan-anand-hub/Lazytopper-Production` -> `private: true`]. **Grading surfaces (CLAUDE.md section 4a): none moved** (`#1859` changes only the name given to a new series-paper record on Chapter Test and Full Mock). **Scope discovered: none.**
 
 | surface | what moved (PR) | state | owed |

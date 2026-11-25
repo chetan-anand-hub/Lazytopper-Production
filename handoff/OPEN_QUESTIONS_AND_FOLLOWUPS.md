@@ -23,6 +23,20 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Status of existing entries.**
+- `[FU-FM-UNCOUNTED-NOTE]`: **CLOSED by `#1862`** (a settle race, not copy; see CURRENT_STATE). Live verify owed.
+- `[FU-PERF3-HEADROOM]`: **CLOSED by `#1865`** (entry gz 170,613 -> 164,069).
+- `[FU-DESKTOPSHELL-AVATAR-CONTRAST]`: **CLOSED by `#1864`.**
+- `[FU-SCHEME-CACHE-VERSION]`: **CLOSED by `#1863`.** Live verify owed.
+
+### [FU-SCHEME-V3-ROWS] (minted)
+OPEN, small. After `#1863`, the v3 rows stay in Postgres `step_solutions` as dead weight (nothing deletes them). Consider a one-off cleanup once v4 is warm. Also: committed golden-eval run records and scheme files are keyed by v3 hashes, so replays find no scheme (scheme files are already refused when `stepSolution.cjs` changes unless `--scheme-file-force`). [review of `#1863`]
+
+### [FU-TRIAL-CHECKS-DEMO] (minted)
+OPEN, owner. A trial account has 5 Answer Checker checks a day and no admin bypass (`fairUse.cjs`); a 4-question paper uses 4. For demos, use a Board Pass account. [coordinator, 25 Nov]
+
 ## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *(Source: the cofounder addendum and the 25 Nov cofounder handoff section 5 [coordinator]. The board was searched first for each tag; none had an entry. Older entries are left as written (standing rule 3).)*

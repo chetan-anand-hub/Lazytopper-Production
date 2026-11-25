@@ -1,3 +1,14 @@
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 (trunk `ec5ba0e7`)
+
+**PROVENANCE.** *(Second daily docs PR of 25 Nov. Merge SHAs, titles, times and file lists [git: first-parent trunk log, 4 commits after `c7e4b44e` (#1861)]. Diagnoses, reviews, measurements and rulings: this cofounder session (owner messages 25 Nov 12:11 and 12:17 IST; independent Opus reviews of #1862 and #1863) [coordinator]. Merge table: CURRENT_STATE. Reasons: DECISION_LOG.)*
+
+- **12:11.** Session start. Repo already private (GitHub REST). Docs PR `#1861` for `#1858`/`#1859` merged 12:52.
+- **12:17.** Owner: urgent demo prep for a coaching institute; items 8 (scheme cache v4, avatar grant) and 9 (free test before Buy) "you do now".
+- **12:20-13:05.** Handwritten demo sheets made and tested live (CURRENT_STATE). The trial account's 5 daily checks were used up; owner told to demo on a Board Pass account or a fresh trial.
+- **12:40.** `[FU-FM-UNCOUNTED-NOTE]` diagnosed from live data as a settle race, not copy; `#1862` built, reviewed, merged 13:16.
+- **13:17 / 13:21 / 13:30.** `#1864`, `#1865`, `#1863` merged (CURRENT_STATE).
+- **Not live-checked yet:** the owner's laptop went offline (demo), so the avatar, the night door and the `#1862` note were not seen live.
+
 ## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859: parents FAQ wording, Test Series paper navigation (trunk `32ba8d0b`)
 
 **PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1851`. Merge SHAs, titles, times and file lists [git: first-parent trunk log, 2 commits after `047493cb` (#1851)]. What each PR does beyond its commit message, reviews, live checks and rulings: the cofounder addendum `claude/HANDOFF_COFOUNDER_SESSION_2026-11-25_ADDENDUM.md` [coordinator]. Repo visibility read from the GitHub REST API this session [git: `gh api repos/chetan-anand-hub/Lazytopper-Production` -> `private: true`]. Merge table: CURRENT_STATE. Reasons: DECISION_LOG.)*
