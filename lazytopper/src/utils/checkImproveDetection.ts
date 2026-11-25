@@ -182,6 +182,16 @@ export async function resolvePerQuestionGradeTopics(
   return settled;
 }
 
+/** CI-READ-TOPICS-1 — the identity of a read paper's question SET (numbers + texts, never marks):
+ *  chapters resolved at "Read the question" are reused at grade time only for the SAME set. A
+ *  marks correction keeps the set; a new or re-read paper changes it. Pure. */
+export function questionSetSignature(
+  questions: ReadonlyArray<{ questionNumber: number; questionText: string }> | null | undefined,
+): string {
+  if (!questions || questions.length === 0) return "";
+  return JSON.stringify(questions.map((q) => [q.questionNumber, String(q.questionText || "").trim()]));
+}
+
 /** Count the DISTINCT resolved topics across a per-question set (empty slugs — the
  *  honest unresolved — never count). Powers the "N topics" counted chip + the
  *  by-topic lens gate. */
