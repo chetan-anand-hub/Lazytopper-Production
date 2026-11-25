@@ -39,6 +39,9 @@
 //                    failed: second-look calls that timed out / failed / did not parse,
 //                    reassigned: "does not address" questions whose answer was re-matched to its real question }
 //                  (its model call is also an `attempts` row)
+//   locate         LOCATE-FIRST-1: present only when a one-document paper ran the locate step:
+//                  { ms: its duration, ok: true when a usable map was used (false = fail-open, graded as before),
+//                    n: answers it listed } (its call is NOT an `attempts` row)
 // CONTENT FIREWALL: only numbers and values from the closed sets above are ever written. No uid,
 // email, IP, question text, answer text or model output (the users are minors).
 
@@ -131,6 +134,9 @@ function formatGradeTimingLine({ route, surface, status, mode, preMs, sink, tota
     const o = {};
     for (const k of OUTCOME_KEYS) o[k] = count(s.outcomes[k]);
     rec.outcomes = o;
+  }
+  if (s.locate && typeof s.locate === 'object') {
+    rec.locate = { ms: count(s.locate.ms), ok: s.locate.ok === true, n: count(s.locate.n) };
   }
   if (s.secondLook && typeof s.secondLook === 'object') {
     rec.secondLook = { asked: count(s.secondLook.asked), rescued: count(s.secondLook.rescued), skipped: count(s.secondLook.skipped), failed: count(s.secondLook.failed || 0), reassigned: count(s.secondLook.reassigned || 0) };

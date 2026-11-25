@@ -25,6 +25,10 @@
 // executable rule rather than a sentence in a spec. Tighten the schema past the
 // parser and §6 goes red.
 
+// LOCATE-FIRST-1: this harness stubs the model with a queue of GRADING replies; the locate call (one per one-document
+// paper) would consume one of them. The locate step is tested in locate.test.cjs; here it is switched OFF explicitly,
+// which restores the trunk request byte-for-byte (the kill switch).
+process.env.GRADING_LOCATE_DISABLED = '1';
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
@@ -985,6 +989,49 @@ test('§7.1 ★★ ACCEPTANCE — the batch path with NO `uploads` builds BYTE-I
   const sha = crypto.createHash('sha256').update(JSON.stringify(h.calls[0].contents)).digest('hex');
   assert.equal(sha, NO_UPLOADS_CONTENTS_SHA256,
     'the no-uploads worksheet prompt has changed — see the comment above this constant');
+});
+
+// LOCATE-FIRST-1 (owner, 25 Nov 2026) — the locate step (grading/locate.cjs) on a one-document paper. This harness runs
+// with GRADING_LOCATE_DISABLED=1 (top of file), so §7.1 above IS the kill-switch pin: no locate call, the request is the
+// pinned sha. The two pins below switch it ON: a locate whose reply is unusable FAILS OPEN — the grading request (now the
+// second call) is byte-identical to the same pin; a usable map adds ONE block and moves the sha (positive control).
+const withLocateOn = async (fn) => {
+  const old = process.env.GRADING_LOCATE_DISABLED;
+  delete process.env.GRADING_LOCATE_DISABLED;
+  try { return await fn(); } finally { if (old === undefined) delete process.env.GRADING_LOCATE_DISABLED; else process.env.GRADING_LOCATE_DISABLED = old; }
+};
+const locateShaOf = (call) => crypto.createHash('sha256').update(JSON.stringify(call.contents)).digest('hex');
+
+test('§7.1L ★★ LOCATE-FIRST-1 kill switch: GRADING_LOCATE_DISABLED=1 makes ONE call, byte-identical to the pin', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await h.route.handleGradeWorksheet(PINNED_REQ(), {});
+  assert.equal(h.calls.length, 1, 'no locate call');
+  assert.equal(locateShaOf(h.calls[0]), NO_UPLOADS_CONTENTS_SHA256);
+});
+
+test('§7.1L2 ★★ LOCATE-FIRST-1 fail-open: an unusable locate reply leaves the grading request BYTE-IDENTICAL to the pin', async () => {
+  await withLocateOn(async () => {
+    for (const bad of ['not json', { answers: 'x' }, { answers: [{ page: 1, firstLine: 'x', answersQuestion: 9 }] }, { answers: [] }]) {
+      const h = buildImageRoute({ replies: [bad, WS_OK([1, 2])] });
+      await h.route.handleGradeWorksheet(PINNED_REQ(), {});
+      assert.equal(h.calls.length, 2, 'locate + the grading call');
+      assert.equal(h.calls[0].genConfig.chunkKey, 'locate');
+      assert.equal(locateShaOf(h.calls[1]), NO_UPLOADS_CONTENTS_SHA256, 'fail-open must not move the grading request: ' + JSON.stringify(bad));
+    }
+  });
+});
+
+test('§7.1L3 LOCATE-FIRST-1 positive control: a usable map adds the LOCATED block and moves the sha', async () => {
+  await withLocateOn(async () => {
+    const map = { answers: [{ page: 1, labelAsWritten: '1)', firstLine: '(x - 4)(x + 2) = 0', answersQuestion: 1 }] };
+    const h = buildImageRoute({ replies: [map, WS_OK([1, 2])] });
+    await h.route.handleGradeWorksheet(PINNED_REQ(), {});
+    assert.equal(h.calls.length, 2);
+    assert.notEqual(locateShaOf(h.calls[1]), NO_UPLOADS_CONTENTS_SHA256);
+    const text = h.calls[1].contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+    assert.ok(text.includes('<<<LOCATED ANSWER testnonce>>>\nlabel: 1)\nfirst line: (x - 4)(x + 2) = 0\n'));
+    assert.ok(text.includes('   - Q2 — no answer located beforehand; check every page.'));
+  });
 });
 
 test('§7.2 an ABSENT `uploads` and an EMPTY `uploads: []` build the SAME contents', async () => {

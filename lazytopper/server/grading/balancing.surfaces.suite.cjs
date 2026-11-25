@@ -1,4 +1,7 @@
 'use strict';
+// LOCATE-FIRST-1: a stubbed GRADING-reply harness; the locate step is tested in locate.test.cjs, so it is switched OFF
+// here explicitly (also when this suite is run on its own rather than through core.test.cjs).
+process.env.GRADING_LOCATE_DISABLED = '1';
 // server/grading/balancing.surfaces.suite.cjs — GRADER-BALANCE-1 (owner ruling 5 Nov 2026), proven on EVERY
 // grading surface (CLAUDE.md §4a): the nine surface rows of rulings.surfaces.suite.cjs, each driven with ITS OWN
 // live request shape through the REAL handlers (/api/check-solution and /api/grade-worksheet), only the model

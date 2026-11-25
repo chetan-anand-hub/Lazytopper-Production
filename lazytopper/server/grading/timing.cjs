@@ -107,6 +107,10 @@ const JOB_CHUNK_QUESTIONS = 8;
    above exactly (same request, same timing). Measured: #1009. */
 const JOB_ABORT_RETRY_PER_CALL_MS = 180000;
 const JOB_ABORT_RETRY_WALL_MS = 270000;
+/* LOCATE-FIRST-1 (owner, 25 Nov 2026): the cap of the ONE locate call (locate.cjs) made before grading a one-document
+   paper — measured 2.8–6 s with no thinking (one 20 s outlier in 20 runs). A locate that has not answered by then is
+   abandoned and the paper is graded exactly as before (fail-open). Not env-driven. */
+const LOCATE_TIMEOUT_MS = 15000;
 const JOB_HEARTBEAT_MS = 10000;
 const JOB_STALE_MS = 30000;
 
@@ -213,6 +217,7 @@ module.exports = {
   JOB_ABORT_RETRY_WALL_MS,
   JOB_HEARTBEAT_MS,
   JOB_STALE_MS,
+  LOCATE_TIMEOUT_MS,
   jobTiming,
   normaliseTiming,
   resolveGradingTiming,
