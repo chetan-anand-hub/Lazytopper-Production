@@ -1,3 +1,12 @@
+## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`6d9ab1e8`** (`#1871`) [git].
+
+- **In build (cofounder):** MARK-ON-PHOTO-1 PR-1 (Answer Checker: "Mark it on your photo" on not-found / wrong-question rows; independent review running), then PR-2 for Chapter Test, Full Mock and Worksheet (`[FU-MARK-ON-PHOTO-BANK]`).
+- **Live verify owed:** the second look on one bank surface (`[FU-LOOK2-BANK-LIVE]`); the earlier owed checks stand (`#1862`, `#1863`, `#1864`, `#1865`, `[FU-1840-FM-LIVE]`).
+- **Watch from 26 Nov:** `[grade-timing]` `outcomes` and `secondLook` on real papers (`[FU-LOOK2-REAL-RATE]`).
+- **Owner:** fair use for "Mark it on your photo" stays an ordinary check unless he rules otherwise (`[FU-MARK-ON-PHOTO-FAIRUSE]`).
+
 ## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`ec5ba0e7`** (`#1863`) [git, `git fetch origin base/approved-thru-437`]; live `version.json` = `eeac414f` when last read (13:35 IST; `#1863` is server-only, Railway).

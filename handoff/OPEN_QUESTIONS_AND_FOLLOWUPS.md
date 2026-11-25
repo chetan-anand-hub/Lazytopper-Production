@@ -23,6 +23,26 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Status of existing entries.**
+- `[FU-UI-E2E-PHASE2-PAGES]`: **partly done by `#1867`** (Answer Checker, Board Pass Pay unpaid); Chapter Test upload and full test remain. Still OPEN.
+
+### [FU-LOOK2-BANK-LIVE] (minted)
+OPEN. `#1870` was live-checked on Answer Checker multi only (12/12, 25 Nov). CLAUDE.md section 4a needs one live run on a bank surface through the job path (Chapter Test or Worksheet upload) before it counts as PASS. [coordinator]
+
+### [FU-LOOK2-REAL-RATE] (minted)
+OPEN, measure. From 26 Nov read `[grade-timing]` `outcomes` (`#1869`) and `secondLook` (`#1870`) on real papers: how many answers are not found / matched to the wrong question, and how many the second look rescues. The eval was synthetic handwriting; real photos are the open question (`[FU-NO-REAL-HANDWRITING-EVAL]`). [coordinator]
+
+### [FU-LOOK2-SLOW-PAPERS] (minted)
+OPEN, watch. On a paper that needs the second look, grading takes about 35 s longer (eval median 117 s vs 82 s on the hardest sheets; up to about 150 s with a first-reading timeout). Cap 90 s, starts only with 20 s or more left. If real papers show it often, consider starting the second look before every chunk has settled. [coordinator]
+
+### [FU-MARK-ON-PHOTO-BANK] (minted)
+OPEN, in build. "Mark it on your photo" for Chapter Test, Full Mock and Worksheet result rows (PR-2 after the Answer Checker PR-1). [coordinator]
+
+### [FU-MARK-ON-PHOTO-FAIRUSE] (minted)
+OPEN, owner. A question marked on the photo is an ordinary graded check (a trial uses one of its 5 a day). Making it free changes fair use and needs the owner's ruling. [coordinator, 25 Nov]
+
 ## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **Status of existing entries.**

@@ -1,3 +1,17 @@
+## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871 (trunk `6d9ab1e8`)
+
+**PROVENANCE.** *(Third daily docs PR of 25 Nov. Merge SHAs and times [git: REST `merged_at`]. Everything else: this cofounder session [coordinator]; owner messages quoted by time.)*
+
+- **15:42.** `#1867` (signed-in UI tests) merged.
+- **15:47.** Owner: a coaching-institute student's answer sheet (3 answers) lost 2 questions; "check your questions" showed no topic; no concept-level mistakes on the scorecard.
+- **15:55.** Owner: find out why the read stopped showing topics. Found: `#935` removed a wrong paper-level chapter; `#416` had put per-question chapters after grading. `#1868` merged 17:27; live PASS.
+- **16:00-17:00.** Repro on the admin account (clean images: all answers found). Railway `[grade-timing]` for the demo grade: one call, STOP, 55 s. No concept types were shown because the dropped questions were stored as not attempted.
+- **17:41-17:51.** Owner approved the plan (counter, second look, mark on photo) and added: answers in any order, no drop in quality, no big change in time or cost, all surfaces; approved the laptop eval.
+- **18:12.** `#1869` (counter) merged.
+- **18:15-19:30.** Eval run in two arms; the first result (a skipped question also triggered a look) led to the `unplacedAnswers` signal; the colliding-numbers failure was found; two independent reviews.
+- **19:35.** `#1870` merged; live 12/12 on the admin account. **20:01** `#1871` merged.
+- **20:05.** Owner: "do it" (mark on photo); asked why a kill switch: answered that it is an unused off button, the change is already live.
+
 ## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 (trunk `ec5ba0e7`)
 
 **PROVENANCE.** *(Second daily docs PR of 25 Nov. Merge SHAs, titles, times and file lists [git: first-parent trunk log, 4 commits after `c7e4b44e` (#1861)]. Diagnoses, reviews, measurements and rulings: this cofounder session (owner messages 25 Nov 12:11 and 12:17 IST; independent Opus reviews of #1862 and #1863) [coordinator]. Merge table: CURRENT_STATE. Reasons: DECISION_LOG.)*

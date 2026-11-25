@@ -1,3 +1,11 @@
+## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871 - MERGED
+
+- DONE, UI tests. `#1867` (`7b91e503`) UI-E2E-3: signed-in Answer Checker + Board Pass Pay (unpaid). Part of `[FU-UI-E2E-PHASE2-PAGES]`.
+- DONE, Answer Checker. `#1868` (`5c27aa43`) CI-READ-TOPICS-1: each question's own chapter at "Read the question". Live PASS.
+- DONE, grading telemetry. `#1869` (`182b13cf`) GRADE-MISS-1: dropped-question counts per paper.
+- DONE, grading. `#1870` (`3a06e6a6`) GRADE-SECOND-LOOK-1 + `#1871` (`6d9ab1e8`) summary fix. Answer Checker multi live PASS; bank surface OWED (`[FU-LOOK2-BANK-LIVE]`).
+- NEXT: MARK-ON-PHOTO-1 PR-1 (Answer Checker) and PR-2 (`[FU-MARK-ON-PHOTO-BANK]`).
+
 ## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 - MERGED
 
 - DONE, Test Series display. `#1862` (`2bbdcb41`) FM-RECHECK-NOTE-1 (settle re-read). Closes `[FU-FM-UNCOUNTED-NOTE]`.
