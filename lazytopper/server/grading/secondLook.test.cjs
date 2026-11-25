@@ -359,3 +359,14 @@ test('§L5.9 (re-review B) an answer that opens by restating the given is the st
   const c = [{ index: 3, raw: { addressesQuestion: 'yes' }, result: mk([S('Given: sin A = 3/5'), S('base = 4k, cos A = 4/5')]), firstLines: [qt, 'Given: sin A = 3/5'] }];
   assert.deepEqual(L.acceptedRescues(c, [], [qt]), [3], 'a genuine anchor beside a printed-question line still rescues');
 });
+
+test('§L5.10 (live 25 Nov) after a rescue the paper summary is the second look\'s, never the first reading\'s "no marks" note', async () => {
+  const first = { ...FIRST, summary: 'Answers 6 to 8 were not found, so they cannot be awarded marks.' };
+  const look = { ...REPLY(INV([8, Q8_LINE]), R(8, Q8_WORK), NF(6), NF(7)), summary: 'Good work on Q8 — label each answer with the paper\'s question number.' };
+  const body = (await harness({ replies: [first, look] }).sheet(sheet())).body;
+  assert.equal(body.results[3].marksAwarded, 3);
+  assert.match(String(body.summary || body.overallSummary || ''), /label each answer/);
+  // CONTROL: no rescue → the first reading's summary stands
+  const none = (await harness({ replies: [{ ...FIRST_SKIPPED, summary: 'Keep going.' }] }).sheet(sheet())).body;
+  assert.match(String(none.summary || none.overallSummary || ''), /Keep going/);
+});

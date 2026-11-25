@@ -786,7 +786,11 @@ function createGradingCore(deps) {
     // rescue replaces a result only when every guard passes; anything else keeps the first reading.
     if (document && !autoDetect && anyInventory && secondLookOn) {
       try {
-        await runSecondLook({ questions, results, inventoryById, siblingsById, chunks, ctx, job, callDeadlineAt, normCtx, label, timingSink, unplaced: paperUnplaced });
+        const look = await runSecondLook({ questions, results, inventoryById, siblingsById, chunks, ctx, job, callDeadlineAt, normCtx, label, timingSink, unplaced: paperUnplaced });
+        // The first reading's summary was written about the paper BEFORE the rescue (live 25 Nov: "answers 1 to 4 ... cannot be
+        // awarded marks" above a 12/12 score). After a rescue the second look's own summary is used; if it gave none, the first
+        // summary is dropped rather than shown contradicting the marks.
+        if (look && look.rescued > 0) summary = look.summary || '';
       } catch (e) {
         console.warn(label + ' second look failed (first reading kept): ' + (e && e.message ? e.message : e));
       }
@@ -858,6 +862,7 @@ function createGradingCore(deps) {
       groupsOf.get(key).ids.push(i);
     }
     let failed = 0;
+    let lookSummary = '';
     const settledLook = await Promise.all([...groupsOf.values()].map(async ({ chunk, ids }) => {
       const qs = ids.map((i) => questions[i]);
       const outcome = await attemptChunk({
@@ -869,6 +874,7 @@ function createGradingCore(deps) {
         timingSink, secondLook: { claimed, unplaced: open },
       });
       if (!outcome || !outcome.results) { failed += 1; return []; }
+      if (!lookSummary) lookSummary = String((outcome.parsed && outcome.parsed.summary) || '').trim();
       const byNumber = new Map();
       for (const r of outcome.results) if (r && r.qNumber != null) byNumber.set(Number(r.qNumber), r);
       return ids.map((i) => {
@@ -901,6 +907,7 @@ function createGradingCore(deps) {
       reassigned += 1;
     });
     if (timingSink) timingSink.secondLook = { asked: missed.length, rescued: rescued.length, skipped: 0, failed, reassigned };
+    return { rescued: rescued.length, summary: lookSummary };
   }
 
   return { gradeSet, chosenModel, routerMode, lightModel, fallbackState: fallback, timing };
