@@ -1348,7 +1348,9 @@ function createCheckSolutionRoute(deps) {
    * otherwise (another surface, a free check, no verified uid, no secret, nothing unmarked).
    */
   function markPassField(req, graded, { worksheetId, questions, slot }) {
-    if (!req || !graded || !Array.isArray(graded.results) || !slot) return {};
+    // A paper that graded nothing gives its slot back after this body goes out: it must never hand out a pass a mark
+    // could ride while that slot is still pending (review N-1). Such a paper's marks take a slot as before.
+    if (!req || !graded || !Array.isArray(graded.results) || !slot || chargeableCount(graded.results) === 0) return {};
     const surface = String((req.headers && req.headers['x-lazytopper-surface']) || '').trim().toLowerCase();
     if (surface && surface !== 'check-improve') return {};
     // ONLY the rows the student can mark on the photo (the client's isMarkableRow): unread ones. A blank, an

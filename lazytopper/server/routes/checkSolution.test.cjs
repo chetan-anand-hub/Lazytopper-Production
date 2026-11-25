@@ -3819,8 +3819,8 @@ test('MARK-ON-PHOTO-1: an Answer Checker paper that leaves a question UNREAD car
   const prev = process.env.FAIR_USE_PAPER_SECRET;
   process.env.FAIR_USE_PAPER_SECRET = 'route-secret';
   try {
-    const run = async (worksheetId, surface, { slot = 'slot-1' } = {}) => {
-      const h = buildImageRoute({ replies: [WS_OK([1])] });
+    const run = async (worksheetId, surface, { slot = 'slot-1', reply = WS_OK([1]) } = {}) => {
+      const h = buildImageRoute({ replies: [reply] });
       const req = { worksheetId, subject: 'Maths', acceptsV2: true, questions: [Q(1), Q(2)], uploads: [UP(1), UP(2)], headers: surface ? { 'x-lazytopper-surface': surface } : {} };
       Object.defineProperty(req, GRADING_ATTEMPT, { value: { uid: 'stu-1', path: '/api/grade-worksheet' } });
       await h.route.handleGradeWorksheet(req, slot ? withSlot({}, slot) : {});
@@ -3832,6 +3832,7 @@ test('MARK-ON-PHOTO-1: an Answer Checker paper that leaves a question UNREAD car
     assert.deepEqual([pass.paperKey, pass.slot, pass.items], ['ci:CI-M-TRIG-03', 'slot-1', [[2, markPass.textHash('Q2 text')]]], 'only the unread question, bound to its text');
     assert.equal((await run('ci:CI-M-TRIG-03', 'check-improve', { slot: null })).markPass, undefined, 'no slot held (unmetered / replay): none');
     assert.equal((await run('ws-1', 'worksheet')).markPass, undefined, 'a bank surface: none');
+    assert.equal((await run('ci:CI-M-TRIG-03', 'check-improve', { reply: { results: [], summary: 'x' } })).markPass, undefined, 'a paper that graded nothing: none (its slot is being given back)');
     assert.equal((await run('ci:CI-M-TRIG-03:mark:1', 'check-improve')).markPass, undefined, 'a mark: none');
   } finally {
     if (prev === undefined) delete process.env.FAIR_USE_PAPER_SECRET; else process.env.FAIR_USE_PAPER_SECRET = prev;
