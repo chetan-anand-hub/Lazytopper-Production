@@ -38,7 +38,7 @@ export const OWNERSHIP_RETRY_DELAY_MS = 700;
  */
 let seq = 0;
 
-async function load(uid: string, force: boolean): Promise<void> {
+async function load(uid: string, force: boolean, background = false): Promise<void> {
   if (!force && (entry?.uid === uid || inflight === uid)) return;
   const mine = ++seq;
   inflight = uid;
@@ -56,6 +56,9 @@ async function load(uid: string, force: boolean): Promise<void> {
       }
     }
     if (mine !== seq) return; // a newer read is in flight (or landed): it writes the entry, never this older one
+    // FM-RECHECK-NOTE-1 (review nit): a failed BACKGROUND re-read keeps the last good read for this student - it must never turn a
+    // confirmed owner into "couldn't confirm" on a screen that was already right.
+    if (!r && background && entry?.uid === uid && !entry.failed) return;
     entry = r ? { uid, owns: r.owns, status: r.status, freeTest: r.freeTest, failed: false } : { uid, owns: false, status: null, freeTest: null, failed: true };
   } finally {
     if (mine === seq) {
@@ -66,6 +69,14 @@ async function load(uid: string, force: boolean): Promise<void> {
 }
 
 export type OwnershipPhase = "idle" | "loading" | "ready" | "error";
+
+/** FM-RECHECK-NOTE-1 - when a checks-left reader re-reads after its own read, to catch the server's settle of the check just graded. */
+export const SETTLE_REREAD_MS: readonly number[] = [2500, 8000];
+
+function settleRereadDisabled(): boolean {
+  const v = import.meta.env?.VITE_TS_SETTLE_REREAD_DISABLED;
+  return typeof v === "string" && !["", "0", "false"].includes(v.trim().toLowerCase());
+}
 
 /** `uid` null = do not ask (signed out, a Board Pass holder, the gate switched off). `refreshKey` changing re-reads the counts. */
 export function useTestSeriesOwnership(
@@ -89,6 +100,14 @@ export function useTestSeriesOwnership(
     const force = mounted.current || refreshKey !== undefined;
     mounted.current = true;
     if (uid) void load(uid, force);
+    // FM-RECHECK-NOTE-1 (live, 25 Nov 2026: Full Mock showed no "This check wasn't counted" note although the server HAD given the
+    // free re-check, `freeRecheck: {"TS-FM-M1": true}`). The server settles a check's hold just AFTER the grading job is marked done
+    // (grading/jobs.cjs -> testSeriesChecks.settleDeferred), so the read above can land before the settle and show the old count
+    // with no note. A checks-left reader (one that passes `refreshKey`) re-reads twice more, shortly after; the newest read wins (seq).
+    // Display only - the server still decides every check. Kill switch VITE_TS_SETTLE_REREAD_DISABLED.
+    if (!uid || refreshKey === undefined || settleRereadDisabled()) return;
+    const timers = SETTLE_REREAD_MS.map((ms) => setTimeout(() => void load(uid, true, true), ms));
+    return () => timers.forEach(clearTimeout);
   }, [uid, refreshKey]);
   const retry = () => {
     if (uid) {
