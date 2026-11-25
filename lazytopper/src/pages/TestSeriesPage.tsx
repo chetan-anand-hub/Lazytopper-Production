@@ -17,7 +17,7 @@ import { isCheckoutWarmDisabled } from "../lib/packs/packsMobilePreload";
 import { isPaymentsClientEnabled } from "../services/checkout";
 import { isParentPayClientEnabled } from "../services/parentPay";
 import { ASK_PARENT_LABEL } from "../components/pricing/PaywallActions";
-import { isSelfAttachClientEnabled } from "../services/checkoutWho";
+import { isSelfAttachClientEnabled } from "../services/checkoutWhoFlag";
 import { buildParentSeriesShareMessage } from "../services/parentPayPack";
 import { trackPaywallAction } from "../analytics/analytics";
 import { openWhatsAppLink, type ShareNavigator } from "../components/results/share/shareScore";

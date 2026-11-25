@@ -545,6 +545,7 @@ describe("FOUNDING-MSG-PRICE-1 · while the founding offer is open the message n
     await tap(FORWARD_LABEL);
     const text = screen.getByTestId("parent-share-message").textContent || "";
     expect(text).not.toMatch(/₹/);
+    expect(text).toContain("The Board Pass is one payment for everything till my boards.");
     expect(text).toContain(LINK);
   });
 });

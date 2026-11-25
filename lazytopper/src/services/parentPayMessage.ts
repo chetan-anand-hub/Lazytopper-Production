@@ -122,7 +122,10 @@ export function buildAskParentMessage({ lang, prices, checkedCount, proof, url, 
   // FOUNDING-MSG-PRICE-1 (owner, 25 Nov 2026: "there should be no wrong price from 1st december"): the Board Pass price changes at
   // 00:00 IST 1 Dec and a forwarded message is read later than it is sent (the link lives for days). While the founding offer is
   // open the line is LEFT OUT (the parent's page shows the real total before paying); from the close it is quoted again.
-  const boards = !foundingOfferOpen(now) && typeof prices.till_boards === "number" && prices.till_boards > 0 ? formatInr(prices.till_boards) : null;
+  const quotable = typeof prices.till_boards === "number" && prices.till_boards > 0;
+  const boards = !foundingOfferOpen(now) && quotable ? formatInr(prices.till_boards as number) : null;
+  // Founding open: the line stays (the parent must know WHAT to pay for), without the amount.
+  const boardsNoAmount = foundingOfferOpen(now) && quotable;
 
   if (lang === "hi") {
     const lines = [
@@ -133,6 +136,7 @@ export function buildAskParentMessage({ lang, prices, checkedCount, proof, url, 
     // PRICE-FIXED-1: the message names ONLY the Board Pass; the month price is hidden throughout.
     // PARENT-PACKS-1: the product is named "Board Pass", never "Premium".
     if (boards) lines.push(`Board Pass बोर्ड परीक्षा तक के लिए एक बार ${boards} है।`);
+    else if (boardsNoAmount) lines.push("Board Pass बोर्ड परीक्षा तक सब कुछ के लिए एक बार का भुगतान है।");
     lines.push(
       "क्या आप इसका भुगतान कर देंगे? यह लिंक सिर्फ़ मेरे अकाउंट के लिए है — आपको कोई अकाउंट बनाने या पासवर्ड बताने की ज़रूरत नहीं:",
     );
@@ -148,6 +152,7 @@ export function buildAskParentMessage({ lang, prices, checkedCount, proof, url, 
   else if (n > 0) lines.push(`I've had ${n} ${n === 1 ? "answer" : "answers"} checked on it in the last 30 days.`);
   // PRICE-FIXED-1: the message names ONLY the Board Pass; the month price is hidden throughout.
   if (boards) lines.push(`The Board Pass is ${boards} once for everything till my boards.`);
+  else if (boardsNoAmount) lines.push("The Board Pass is one payment for everything till my boards.");
   lines.push("Could you pay for it? This link is only for my account — you don't need to sign up or share any password:");
   lines.push(url);
   lines.push(`(The link works for ${days} ${days === 1 ? "day" : "days"}.)`);

@@ -500,6 +500,7 @@ describe("FOUNDING-MSG-PRICE-1 - no price that will change is quoted while the f
       const before = buildAskParentMessage({ lang, prices: { month: null, till_boards: 2499 }, checkedCount: 2, url, days: 3, now: BEFORE_FOUNDING });
       expect(before).not.toMatch(/₹/);
       expect(before).toContain(url);
+      expect(before).toContain(lang === "en" ? "The Board Pass is one payment for everything till my boards." : "Board Pass बोर्ड परीक्षा तक सब कुछ के लिए एक बार का भुगतान है।");
       const after = buildAskParentMessage({ lang, prices: { month: null, till_boards: 2499 }, checkedCount: 2, url, days: 3, now: AFTER_FOUNDING });
       expect(after).toContain("₹2,499");
     }

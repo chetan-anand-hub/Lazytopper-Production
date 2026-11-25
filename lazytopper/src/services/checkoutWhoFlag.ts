@@ -81,3 +81,16 @@ export function maskEmail(raw: string | null | undefined): string {
   const at = e.indexOf("@");
   return `${e.slice(0, Math.min(2, at))}••••${e.slice(at)}`;
 }
+
+/**
+ * ON whenever "Buy for yourself" is; VITE_CHECKOUT_SELF_ATTACH_DISABLED=1 restores the previous flow (the order carries no
+ * `attach` marker, so the server delivers at payment as before). The server has its own switch (CHECKOUT_SELF_ATTACH_DISABLED).
+ */
+export function isSelfAttachClientEnabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_CHECKOUT_SELF_ATTACH_DISABLED;
+    return isCheckoutSelfClientEnabled() && !/^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
