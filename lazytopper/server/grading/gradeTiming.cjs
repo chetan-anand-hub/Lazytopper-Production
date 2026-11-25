@@ -27,6 +27,12 @@
 //                  arrived but held no results; its finishReason is the row's finishReason), retryReason (why a retry was made: timeout |
 //                  http_<status> | unparseable | max_tokens; null on a first attempt)
 //   totalMs        handler entry -> response finished
+//   outcomes       GRADE-MISS-1: per-paper result counts, present once a grade produced results:
+//                  { q: questions, graded, notFound (page check: no answer for its number anywhere),
+//                    noWork (listed, but its quoted first line is not in its own working),
+//                    schemeCopy (zeroed: the "working" reproduced the scheme), blank (listed as left blank or
+//                    no answer given), mismatch (answer to another question), unread (model could not read),
+//                    notGraded (its call timed out / failed), other, inv (1 = a page inventory was used) }
 // CONTENT FIREWALL: only numbers and values from the closed sets above are ever written. No uid,
 // email, IP, question text, answer text or model output (the users are minors).
 
@@ -41,8 +47,30 @@ const count = (v) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Ma
 
 /** The sink gradeSet fills (input.timingSink). */
 function createTimingSink() {
-  return { cacheMs: null, cacheHit: null, schemeHash: null, schemeJoined: null, transport: null, marks: null, attempts: [] };
+  return { cacheMs: null, cacheHit: null, schemeHash: null, schemeJoined: null, transport: null, marks: null, attempts: [], outcomes: null };
 }
+
+/** GRADE-MISS-1 — count a graded set's results by why each landed where it did (the non-enumerable
+ *  `_reason` postprocess sets). Numbers only. Telemetry: never read by grading or charging. */
+function outcomeCounts(results, { inventory = false } = {}) {
+  const c = { q: 0, graded: 0, notFound: 0, noWork: 0, schemeCopy: 0, blank: 0, mismatch: 0, unread: 0, notGraded: 0, other: 0, inv: inventory ? 1 : 0 };
+  for (const r of Array.isArray(results) ? results : []) {
+    if (!r || typeof r !== 'object') continue;
+    c.q += 1;
+    const why = r._reason;
+    if (why === 'graded') c.graded += 1;
+    else if (why === 'notInInventory') c.notFound += 1;
+    else if (why === 'firstLineNotInWork') c.noWork += 1;
+    else if (r._schemeCopy === true) c.schemeCopy += 1;
+    else if (why === 'blankInInventory' || why === 'unattempted') c.blank += 1;
+    else if (why === 'answerMismatch') c.mismatch += 1;
+    else if (why === 'timeout' || why === 'failed') c.notGraded += 1;
+    else if (why === 'couldNotRead') c.unread += 1;
+    else c.other += 1;
+  }
+  return c;
+}
+const OUTCOME_KEYS = Object.freeze(['q', 'graded', 'notFound', 'noWork', 'schemeCopy', 'blank', 'mismatch', 'unread', 'notGraded', 'other', 'inv']);
 
 /** retryReason for a retry of `first` (an attemptChunk outcome); null when there was no failure. */
 function retryReasonOf(first) {
@@ -93,6 +121,11 @@ function formatGradeTimingLine({ route, surface, status, mode, preMs, sink, tota
     attempts: (Array.isArray(s.attempts) ? s.attempts : []).slice(0, MAX_ATTEMPT_ROWS),
     totalMs: count(totalMs),
   };
+  if (s.outcomes && typeof s.outcomes === 'object') {
+    const o = {};
+    for (const k of OUTCOME_KEYS) o[k] = count(s.outcomes[k]);
+    rec.outcomes = o;
+  }
   return '[grade-timing] ' + JSON.stringify(rec);
 }
 
@@ -129,4 +162,4 @@ function armGradeTiming({ req, res, route, startedAt, now = () => Date.now(), lo
   return { sink, emit };
 }
 
-module.exports = { TRANSPORTS, createTimingSink, retryReasonOf, attemptRow, formatGradeTimingLine, armGradeTiming, ROUTES, SURFACES };
+module.exports = { TRANSPORTS, createTimingSink, outcomeCounts, OUTCOME_KEYS, retryReasonOf, attemptRow, formatGradeTimingLine, armGradeTiming, ROUTES, SURFACES };

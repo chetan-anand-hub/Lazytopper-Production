@@ -1646,7 +1646,12 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   if (!inventoryConfirms(ctx.inventory, all, raw)) {
     const credited = all.filter((s) => (s.status === 'correct' || s.status === 'partial') && s.marksAwarded > 0 && s.studentWork);
     const copied = credited.filter((s) => copiesScheme(s.studentWork, q));
-    if (copied.length > 0 && copied.length * 2 >= credited.length) return unattempted(R.NO_ANSWER_ON_PAGE_NOTE);
+    if (copied.length > 0 && copied.length * 2 >= credited.length) {
+      const out = unattempted(R.NO_ANSWER_ON_PAGE_NOTE);
+      // GRADE-MISS-1: telemetry only (gradeTiming outcomes) — which zero this was. Never read by grading or charging.
+      Object.defineProperty(out, '_schemeCopy', { value: true });
+      return out;
+    }
   }
 
   // 3 · ANSWER–QUESTION MISMATCH (C3b). Evidence-gated, conservative: the target is ZERO

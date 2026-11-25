@@ -778,6 +778,10 @@ function createGradingCore(deps) {
       const ids = qs.map((q) => idOf.get(q)).filter((id) => id !== undefined);
       settleMeterGroup(meter, ids.length ? ids.filter((id) => isChargeable(results[id])).length / ids.length : 0);
     }
+    // GRADE-MISS-1 — how many questions of this paper the page check dropped, by kind (numbers only).
+    if (timingSink) {
+      try { timingSink.outcomes = gradeTimingLib.outcomeCounts(results, { inventory: anyInventory }); } catch { /* telemetry only */ }
+    }
     return { ok: true, results, summary, modelUsed, detection, chunkCount: chunks.length };
   }
 
