@@ -109,6 +109,27 @@ function verifiedMarkPassOf(req, uid, env, nowMs) {
   return pass;
 }
 
+/**
+ * MARK-ON-PHOTO-2 (owner ruling 25 Nov 22:17, "the same button on Chapter Test, Full Mock and Worksheet"): a bank paper's mark
+ * needs no mark pass — it carries the paper's OWN fair-use paper pass (X-Lazytopper-Paper, verified by the limits gate for this
+ * uid and surface) and names its ONE question in X-Lazytopper-Mark-Q. This reads that number: a positive integer, or null.
+ */
+const BANK_MARK_KINDS = new Set(['chapter-test', 'full-mock', 'worksheet']);
+function bankMarkQOf(req) {
+  const raw = req && req.headers ? req.headers[MARK_Q_HEADER] : undefined;
+  if (typeof raw !== 'string' || !/^\d{1,3}$/.test(raw.trim())) return null;
+  const q = Number(raw.trim());
+  return q > 0 ? q : null;
+}
+
+/** The limits gate counted this request as a bank mark of question `q` of `paperKey` (riding `slot`): remember it for the route. */
+function noteBankMark(req, { paperKey, slot, q }) {
+  if (!req || typeof req !== 'object' || !paperKey || !slot || !Number.isInteger(q)) return null;
+  const mark = { bank: true, paperKey: String(paperKey), slot: String(slot), q, items: [] };
+  Object.defineProperty(req, VERIFIED, { value: mark, configurable: true });
+  return mark;
+}
+
 /** The pass the limits gate accepted for this request (it re-used the paper's slot id), or null. */
 function acceptedMarkPassOf(req) {
   const p = req && typeof req === 'object' ? req[VERIFIED] : undefined;
@@ -121,6 +142,15 @@ function acceptedMarkPassOf(req) {
  */
 function markBodyMismatch(pass, { worksheetId, questions, uploads, imageBase64 }) {
   if (!pass) return null;
+  if (pass.bank === true) {
+    // MARK-ON-PHOTO-2: a bank mark grades under the paper's OWN id (so it rides the paper's fair-use pass and slot).
+    if (String(worksheetId || '') !== pass.paperKey) return 'paper';
+    if (imageBase64) return 'document';
+    if (!Array.isArray(questions) || questions.length !== 1) return 'questions';
+    if (!Array.isArray(uploads) || uploads.length !== 1) return 'uploads';
+    if (questions[0].qNumber !== pass.q || uploads[0].qNumber !== pass.q) return 'number';
+    return null;
+  }
   // `ci:<code>:mark:<row>` — the suffix is the client's row index, informational only.
   const m = /^(ci:[^:]+):mark:\d{1,3}$/.exec(String(worksheetId || ''));
   if (!m || m[1] !== pass.paperKey) return 'paper';
@@ -146,4 +176,7 @@ module.exports = {
   verifiedMarkPassOf,
   acceptedMarkPassOf,
   markBodyMismatch,
+  BANK_MARK_KINDS,
+  bankMarkQOf,
+  noteBankMark,
 };

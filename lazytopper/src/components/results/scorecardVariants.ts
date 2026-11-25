@@ -33,6 +33,7 @@ import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
 import { formatScoreNumber } from "./scoreNumber";
 import { notFoundAddPageLine, notFoundLead, notFoundSummary } from "../../lib/notFoundNotAttempted";
+import { bankMarkableRows } from "../../services/markOnPhoto";
 import type { BoardScoreView } from "../../lib/fullmock/boardEstimate";
 import { awaitingSheetScore, paperGradeStatus, paperMarksScore, type ScoreNotMarked } from "./scoreTotals";
 import {
@@ -378,6 +379,9 @@ export interface ScorecardVariant {
    *  counted "Not attempted · 0" (lib/notFoundNotAttempted), with ONE helper line and the host's add-page action (the existing
    *  re-upload step). Absent/null -> nothing. */
   notFoundNotAttempted?: ScorecardNotFoundNotAttempted | null;
+  /** MARK-ON-PHOTO-2 - Chapter Test / Full Mock / Worksheet: the questions the student may mark on their photo (not found,
+   *  couldn't be read, answered as another question), each a button to the host's dialog. Absent/null -> nothing. */
+  markOnPhoto?: ScorecardMarkOnPhoto | null;
   allPending?: ScorecardAllPending | null;
   /** BATCH-2 · the set scorecard's MCQ/written split. Absent everywhere else. */
   split?: ScorecardSplit | null;
@@ -1498,6 +1502,28 @@ export interface FullMockVariantInput {
   onAddPage?: () => void;
 }
 
+
+/** MARK-ON-PHOTO-2 - the scorecard's "Mark it on your photo" row: one button per markable question. */
+export interface ScorecardMarkOnPhoto {
+  /** One per markable row: its index in the response's results and its label ("Q7"). */
+  items: Array<{ index: number; label: string }>;
+  onMark: (index: number) => void;
+  /** A mark is in flight: the buttons wait. */
+  busy?: boolean;
+}
+
+/** MARK-ON-PHOTO-2 - the variant with its "Mark it on your photo" row for `response`'s markable rows (bankMarkableRows), or the
+ *  variant unchanged when there is none or no handler. PURE. */
+export function withMarkOnPhoto<V extends ScorecardVariant>(
+  variant: V,
+  response: WorksheetGradeResponse | null | undefined,
+  onMark: ((index: number) => void) | null | undefined,
+  busy = false,
+): V {
+  if (!onMark) return variant;
+  const items = bankMarkableRows(response).map((r) => ({ index: r.index, label: `Q${r.qNumber}` }));
+  return items.length > 0 ? { ...variant, markOnPhoto: { items, onMark, ...(busy ? { busy } : {}) } } : variant;
+}
 
 /** LIVE-FIX-1 #5 - the scorecard's block for the questions not found on the uploaded pages: "Not attempted · 0" when the check
  *  was counted, else still "not marked yet" (REVIEW S3), with the one helper line and the upload step. */

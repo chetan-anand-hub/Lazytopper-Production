@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
@@ -12,6 +12,7 @@ import { useDetailLock } from "../results/useDetailLock";
 import {
   singleChapterPracticeTarget,
   withGuideTarget,
+  withMarkOnPhoto,
   withPaperTutorAsks,
   worksheetScorecardVariant,
   type ScorecardTutorAsk,
@@ -54,8 +55,13 @@ import GradingJobRows from "../grading/GradingJobRows";
 import { useGradingJob } from "../grading/useGradingJob";
 import {
   gradeWorksheetAndRecord,
+  markWorksheetQuestion,
   type WorksheetGradeOutcome,
 } from "../../services/worksheetGradeService";
+import { MARK_ON_PHOTO_ACTION, MARK_STILL_UNREAD_COPY, isBankMarkableRow, markErrorMessage } from "../../services/markOnPhoto";
+
+// MARK-ON-PHOTO-2 — the "Mark it on your photo" dialog, its own chunk (fetched on the first tap).
+const MarkOnPhotoDialog = lazy(() => import("../checkimprove/MarkOnPhoto").then((m) => ({ default: m.MarkOnPhotoDialog })));
 import type {
   CheckSolutionAnnotatedStep,
   MistakeType,
@@ -175,7 +181,7 @@ function StepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; object
   );
 }
 
-function QuestionResult({ ws, g }: { ws: PersistedWorksheet; g: WorksheetQuestionGrade }) {
+function QuestionResult({ ws, g, onMark, markBusy }: { ws: PersistedWorksheet; g: WorksheetQuestionGrade; onMark?: () => void; markBusy?: boolean }) {
   const q = ws.questions.find((x) => x.qNumber === g.qNumber);
   // SCORECARD-MI-1 PR-2 (B8 + owner addendum) — not graded: the owner's sentence, no mark.
   if (!isGradedQuestion(g)) {
@@ -191,6 +197,19 @@ function QuestionResult({ ws, g }: { ws: PersistedWorksheet; g: WorksheetQuestio
             ? "Nothing has been marked, scored 0 or saved for it."
             : g.note || "We couldn’t read your answer for this question clearly. Re-scan that page and upload again — it isn’t counted as wrong."}
         </p>
+        {/* MARK-ON-PHOTO-2 — point to this answer on the photo; only this question is marked. */}
+        {onMark && isBankMarkableRow(g) && (
+          <button
+            type="button"
+            className="lt-wg__mop"
+            data-testid="wg-mark-on-photo"
+            aria-label={`${MARK_ON_PHOTO_ACTION} for Q${g.qNumber}`}
+            disabled={markBusy}
+            onClick={onMark}
+          >
+            {MARK_ON_PHOTO_ACTION}
+          </button>
+        )}
       </div>
     );
   }
@@ -309,6 +328,60 @@ export default function WorksheetGradePanel({
   }, [reopen?.nonce, ws.worksheetId]);
 
   const response = outcome?.response ?? null;
+
+  // MARK-ON-PHOTO-2 (owner rulings 25 Nov 2026) — "Mark it on your photo" on a FRESH grade (a restored grade has no pages and
+  // this surface offers no "Upload all pages again" on it). `index` is the row in the result on screen.
+  const [markIndex, setMarkIndex] = useState<number | null>(null);
+  const [markBusy, setMarkBusy] = useState(false);
+  const [markError, setMarkError] = useState<string | null>(null);
+  const markSeq = useRef(0);
+  const canMark = !!response && response.ok && !fromCache;
+  useEffect(() => {
+    // A new grade, a reset or a restore: the dialog closes and a reply still in flight stays off this screen.
+    markSeq.current += 1;
+    setMarkIndex(null);
+    setMarkBusy(false);
+    setMarkError(null);
+  }, [canMark, ws.worksheetId]);
+  const openMark = useCallback((index: number) => {
+    setMarkError(null);
+    setMarkIndex(index);
+  }, []);
+  const submitMark = useCallback(
+    async (image: { imageBase64: string; imageMimeType: string }) => {
+      const index = markIndex;
+      if (index === null || !response || !canMark || markBusy) return;
+      const token = ++markSeq.current;
+      const stillShowing = () => markSeq.current === token;
+      setMarkBusy(true);
+      setMarkError(null);
+      fairUse.clearLimit();
+      try {
+        const out = await markWorksheetQuestion({ user, worksheet: ws, response, index, image });
+        if (out.kind === "unread") {
+          if (stillShowing()) setMarkError(MARK_STILL_UNREAD_COPY);
+          return;
+        }
+        fairUse.noteGraded();
+        if (!stillShowing()) return;
+        setOutcome((prev) => (prev ? {
+          ...prev,
+          response: out.response,
+          ...(out.sessionCode ? { sessionCode: out.sessionCode, sessionName: out.sessionName } : {}),
+        } : prev));
+        setMarkIndex(null);
+      } catch (e) {
+        if (!stillShowing()) return;
+        // A fair-use limit shows the calm limit panel inside the dialog; anything else reads its own sentence.
+        if (await fairUse.handleRefusal(e)) return;
+        setMarkError(markErrorMessage(e));
+      } finally {
+        if (stillShowing()) setMarkBusy(false);
+      }
+    },
+    [markIndex, response, canMark, markBusy, user, ws, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
+  );
+
   const miBanner = useMemo(() => miBannerFrom(outcome), [outcome]);
 
   // Worksheet nomenclature (name + code) for this worksheet (§A7). PR-1 makes the
@@ -625,7 +698,7 @@ export default function WorksheetGradePanel({
         <ResultsScorecard
           askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
           limitKey={{ kind: "worksheet", resultKey: nomen.code }} // LIMITS-1 PR-2 — Worksheet surface
-          variant={withPaperTutorAsks(
+          variant={withMarkOnPhoto(withPaperTutorAsks(
             withGuideTarget(
               worksheetScorecardVariant({
                 name: nomen.name,
@@ -645,9 +718,30 @@ export default function WorksheetGradePanel({
             ),
             response,
             tutorAskFor?.(nomen.code, response),
-          )}
+          ), response, canMark ? openMark : null, markBusy)}
           onClose={() => setScorecardOpen(false)}
         />
+      )}
+
+      {/* MARK-ON-PHOTO-2 — point to one answer on the photo; only that question is graded and slotted back into this worksheet. */}
+      {markIndex !== null && response && response.results[markIndex] && (
+        <Suspense fallback={null}>
+          <MarkOnPhotoDialog
+            onTop
+            label={`Q${response.results[markIndex].qNumber}`}
+            pages={tray.pages.map((p) => ({ id: p.id, prepared: p.prepared, thumbUrl: p.thumbUrl }))}
+            busy={markBusy}
+            error={markError}
+            notice={fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
+            onSubmit={(image) => void submitMark(image)}
+            onClose={() => {
+              if (!markBusy) {
+                setMarkIndex(null);
+                setMarkError(null);
+              }
+            }}
+          />
+        </Suspense>
       )}
 
       {/* ── The graded sheet (behind the popup; revealed on dismiss) ── */}
@@ -755,9 +849,18 @@ export default function WorksheetGradePanel({
                   </button>
                   {open && (
                     <div className="lt-wg__qlist">
-                      {rows.map((g) => (
-                        <QuestionResult key={g.qNumber} ws={ws} g={g} />
-                      ))}
+                      {rows.map((g) => {
+                        const index = response.results.indexOf(g);
+                        return (
+                          <QuestionResult
+                            key={g.qNumber}
+                            ws={ws}
+                            g={g}
+                            markBusy={markBusy}
+                            {...(canMark && index >= 0 ? { onMark: () => openMark(index) } : {})}
+                          />
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -842,6 +945,13 @@ const WG_CSS = `
 .lt-wg__done { font-size: 12px; font-weight: 700; color: hsl(152, 55%, 32%); margin: 0 0 8px; }
 .lt-wg__tip { font-size: 11.5px; color: hsl(220, 12%, 58%); margin: 10px 0 0; line-height: 1.5; }
 .lt-wg__signin { font-size: 11.5px; color: hsl(220, 12%, 58%); margin: 10px 0 0; line-height: 1.5; }
+
+/* MARK-ON-PHOTO-2 — the row's "Mark it on your photo" action (the Answer Checker's button, in this sheet's grammar). */
+.lt-wg__mop {
+  margin-top: 8px; background: none; border: 1px solid var(--wg-green); color: var(--wg-green-fg);
+  border-radius: 8px; padding: 6px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+}
+.lt-wg__mop:disabled { opacity: 0.6; cursor: default; }
 
 .lt-wg__err {
   margin-top: 10px; font-size: 12.5px; border-radius: 9px; padding: 9px 12px;

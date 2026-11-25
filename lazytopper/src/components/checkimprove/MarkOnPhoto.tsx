@@ -19,7 +19,9 @@ import {
   type PreparedPhoto,
 } from "../../services/preparePhoto";
 
-export const MARK_ON_PHOTO_ACTION = "Mark it on your photo";
+import { MARK_ON_PHOTO_ACTION } from "../../services/markOnPhoto";
+
+export { MARK_ON_PHOTO_ACTION };
 /** A box on a page of the paper must leave part of the page out: at most 90% of the page's area. */
 export const MAX_BOX_AREA = 0.9;
 export function isAnswerBox(crop: CropFraction | undefined): boolean {
@@ -35,6 +37,8 @@ const CSS = `
 .lt-mop-btn:disabled { opacity: 0.6; cursor: default; }
 .lt-mop-back { position: fixed; inset: 0; background: rgba(10, 20, 40, 0.55); z-index: 60; display: flex;
   align-items: center; justify-content: center; padding: 16px; }
+/* MARK-ON-PHOTO-2: opened from a results scorecard (itself a full-screen layer), the dialog sits above it. */
+.lt-mop-back--top { z-index: 1100; }
 .lt-mop-card { background: #fff; border-radius: 14px; max-width: 640px; width: 100%; max-height: 92vh; overflow: auto;
   padding: 18px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25); }
 .lt-mop-title { font-size: 16px; font-weight: 700; color: hsl(222, 47%, 14%); margin: 0 0 6px; }
@@ -93,6 +97,8 @@ export interface MarkOnPhotoDialogProps {
   decode?: (file: File) => Promise<DecodedPhoto>;
   prepare?: (photo: DecodedPhoto, sel: PhotoCropSelection) => Promise<Pick<PreparedPhoto, "base64" | "mimeType">>;
   renderPreview?: (photo: DecodedPhoto, rotation: 0 | 90 | 180 | 270) => { url: string };
+  /** MARK-ON-PHOTO-2: draw above a full-screen layer (the results scorecard). Absent -> exactly as before. */
+  onTop?: boolean;
 }
 
 export function MarkOnPhotoDialog({
@@ -106,6 +112,7 @@ export function MarkOnPhotoDialog({
   decode = decodePhoto,
   prepare = (photo, sel) => preparePhoto(photo, { crop: sel.crop, rotation: sel.rotation }),
   renderPreview,
+  onTop,
 }: MarkOnPhotoDialogProps) {
   const [photo, setPhoto] = useState<DecodedPhoto | null>(null);
   // A page of the paper holds other answers too: there the box must be drawn (never the whole page).
@@ -146,7 +153,7 @@ export function MarkOnPhotoDialog({
 
   const shownError = localError || error;
   return (
-    <div className="lt-mop-back" role="dialog" aria-modal="true" aria-label={`${MARK_ON_PHOTO_ACTION} — ${label}`} data-testid="mark-on-photo-dialog">
+    <div className={onTop ? "lt-mop-back lt-mop-back--top" : "lt-mop-back"} role="dialog" aria-modal="true" aria-label={`${MARK_ON_PHOTO_ACTION} — ${label}`} data-testid="mark-on-photo-dialog">
       <style>{CSS}</style>
       <div className="lt-mop-card">
         {notice}

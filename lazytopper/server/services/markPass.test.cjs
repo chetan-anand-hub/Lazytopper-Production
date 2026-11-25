@@ -63,3 +63,26 @@ test('the 4th-mark sentence is the same words the client shows', () => {
   const client = fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'ai', 'aiClient.ts'), 'utf8');
   assert.ok(client.includes(`export const MARK_LIMIT_COPY = ${JSON.stringify(mp.MARK_LIMIT_COPY)};`));
 });
+
+test('MARK-ON-PHOTO-2: a bank mark names one question; the route allows only that one question under the paper\'s OWN id, one photo, no document', () => {
+  assert.equal(mp.bankMarkQOf({ headers: { [mp.MARK_Q_HEADER]: '7' } }), 7);
+  for (const bad of [undefined, '', '0', '-1', '7.5', '1000', '7; x', ' ']) {
+    assert.equal(mp.bankMarkQOf({ headers: bad === undefined ? {} : { [mp.MARK_Q_HEADER]: bad } }), null, `"${bad}" is not a question`);
+  }
+  assert.deepEqual([...mp.BANK_MARK_KINDS].sort(), ['chapter-test', 'full-mock', 'worksheet']);
+  const req = { headers: {} };
+  const pass = mp.noteBankMark(req, { paperKey: 'ct-1-algebra--x', slot: 'slot-9', q: 7 });
+  assert.equal(mp.acceptedMarkPassOf(req), pass);
+  assert.equal(pass.bank, true);
+  const ok = { worksheetId: 'ct-1-algebra--x', questions: [{ qNumber: 7, questionText: 'anything' }], uploads: [{ qNumber: 7 }], imageBase64: '' };
+  assert.equal(mp.markBodyMismatch(pass, ok), null);
+  assert.equal(mp.markBodyMismatch(pass, { ...ok, worksheetId: 'ct-1-algebra--x:mark:0' }), 'paper', 'never another id: the paper pass and slot are bound to the paper id');
+  assert.equal(mp.markBodyMismatch(pass, { ...ok, worksheetId: 'ct-2' }), 'paper');
+  assert.equal(mp.markBodyMismatch(pass, { ...ok, imageBase64: 'JVBER' }), 'document', 'the whole paper again is not a mark');
+  assert.equal(mp.markBodyMismatch(pass, { ...ok, questions: [{ qNumber: 7 }, { qNumber: 8 }] }), 'questions');
+  assert.equal(mp.markBodyMismatch(pass, { ...ok, uploads: [{ qNumber: 7 }, { qNumber: 7 }] }), 'uploads');
+  assert.equal(mp.markBodyMismatch(pass, { ...ok, questions: [{ qNumber: 8 }], uploads: [{ qNumber: 8 }] }), 'number', 'the header named Q7');
+  assert.equal(mp.markBodyMismatch(pass, { ...ok, uploads: [{ qNumber: 8 }] }), 'number');
+  assert.equal(mp.noteBankMark(null, { paperKey: 'p', slot: 's', q: 1 }), null);
+  assert.equal(mp.noteBankMark({}, { paperKey: '', slot: 's', q: 1 }), null);
+});

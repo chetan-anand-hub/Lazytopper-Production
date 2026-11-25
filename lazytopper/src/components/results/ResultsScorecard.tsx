@@ -33,6 +33,7 @@ import PackPromo from "../packs/PackPromoLazy";
 import { ScorecardGuide } from "../guide/lazyGuide";
 import { formatScoreNumber } from "./scoreNumber";
 import { NOT_FOUND_ADD_PAGE_ACTION } from "../../lib/notFoundNotAttempted";
+import { MARK_ON_PHOTO_ACTION } from "../../services/markOnPhoto";
 import { useDetailLock, type DetailLimitKey } from "./useDetailLock";
 import type {
   ScorecardAllPending,
@@ -788,6 +789,28 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                 </div>
               )}
 
+              {/* MARK-ON-PHOTO-2 - Chapter Test / Full Mock / Worksheet: point to an answer on the photo; only that question is marked. */}
+              {variant.markOnPhoto && variant.markOnPhoto.items.length > 0 && (
+                <div className="lt-sc__nfna lt-sc__mop" data-testid="sc-mark-on-photo">
+                  <b>{MARK_ON_PHOTO_ACTION}</b> — point to your answer on the photo; only that question is marked.
+                  <div className="lt-sc__mop-row">
+                    {variant.markOnPhoto.items.map((it) => (
+                      <button
+                        key={it.index}
+                        type="button"
+                        className="lt-sc__nfna-btn lt-sc__mop-btn"
+                        data-testid="sc-mark-on-photo-btn"
+                        aria-label={`${MARK_ON_PHOTO_ACTION} for ${it.label}`}
+                        disabled={variant.markOnPhoto?.busy === true}
+                        onClick={() => variant.markOnPhoto?.onMark(it.index)}
+                      >
+                        {it.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {variant.message && <p className="lt-sc__msg">{variant.message}</p>}
               {variant.note && <p className="lt-sc__note">{variant.note}</p>}
 
@@ -1014,6 +1037,9 @@ const SC_CSS = `
   font-size: 13px; font-weight: 700; cursor: pointer;
 }
 .lt-sc__nfna-btn:hover { border-color: rgba(255, 255, 255, 0.6); }
+.lt-sc__mop-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.lt-sc__mop-btn { display: inline-block; min-width: 56px; }
+.lt-sc__mop-btn:disabled { opacity: 0.6; cursor: default; }
 
 /* Quick-practice honest framing + nudge (navy body). */
 .lt-sc__msg { font-size: 13.5px; color: #e3e9f1; margin: 0 0 10px; line-height: 1.55; font-weight: 600; }
