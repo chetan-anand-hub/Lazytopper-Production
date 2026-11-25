@@ -66,12 +66,14 @@ function buildConciergeEmail(kind, o) {
     paras.push('If it is easier to talk, I am happy to have a free 10-minute call with you and a parent. Just reply to this email.');
   } else {
     subject = 'Did something go wrong at payment?';
-    // PRICE-FIXED-1: a month order is never quoted (its price is hidden); only a Board Pass order names its amount.
+    // PRICE-FIXED-1: a month order is never quoted. FOUNDING-MSG-PRICE-2 (owner, 25 Nov 2026: "there should be no wrong price from
+    // 1st december"): the Board Pass order's amount is no longer quoted either - an order placed at the founding price reaches
+    // this email up to 48 h later, after the price changed; the student sees the real total when they try again.
     const hasPlan = order && order.passType === 'till_boards' && Number.isInteger(order.amountPaise) && order.amountPaise > 0;
     paras.push("I'm Chetan, the founder of LazyTopper.");
     paras.push(
       hasPlan
-        ? `I saw that you started to pay for ${planPhrase(order.passType)} (${rupees(order.amountPaise)}), but it did not go through.`
+        ? `I saw that you started to pay for ${planPhrase(order.passType)}, but it did not go through.`
         : 'I saw that you started to pay for Premium, but it did not go through.'
     );
     paras.push('Did something go wrong at payment, or was it the price? Either answer helps me, and I would like to fix it.');
