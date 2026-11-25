@@ -315,3 +315,6 @@ export function hubBankMore(): string {
 }
 /** The full Test Series feature line (the face bullet is its short form). */
 export const HUB_TS_ANALYSIS_LINE = HUB_TS_TICKS[0].text;
+
+/** Inside the Board Pass details: the compact face Pay hides PassCheckout's own link. Pinned equal to SOMEONE_ELSE_LINK by a test. */
+export const HUB_PASS_SOMEONE_ELSE = "Buying for someone else?";

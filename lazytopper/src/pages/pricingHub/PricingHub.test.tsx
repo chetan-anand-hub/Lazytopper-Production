@@ -1218,6 +1218,25 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
     expect(within(passMore).getByTestId("hub-pass-validity")).toHaveTextContent("valid till 28 Feb 2027");
   });
 
+  it("review nit (a): 'Buying for someone else?' sits INSIDE the Board Pass details (signed in, Who on) and opens /board-pass; never on the face", async () => {
+    const { SOMEONE_ELSE_LINK } = await import("../../components/checkoutWho/SomeoneElseLink");
+    const { HUB_PASS_SOMEONE_ELSE } = await import("./hubCopy");
+    expect(HUB_PASS_SOMEONE_ELSE).toBe(SOMEONE_ELSE_LINK);
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
+    auth.user = { uid: "u1" };
+    await renderAt("/pricing");
+    const { foot, more } = v11("pass");
+    expect(foot.querySelector('[data-testid="hub-pass-someone-else"]')).toBeNull();
+    const link = within(more as HTMLElement).getByTestId("hub-pass-someone-else");
+    expect(link).toHaveTextContent("Buying for someone else?");
+    expect(link.getAttribute("href")).toBe("/board-pass");
+    cleanup();
+    auth.user = null;
+    await renderAt("/pricing");
+    expect(screen.queryByTestId("hub-pass-someone-else")).toBeNull();
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "");
+  });
+
   it("v1.1 Board Pass face: the 1 MINUTE hook, three ticks from the pinned constants (ONLINE questions), the price from config, Pay total", async () => {
     await renderAt("/pricing");
     const { face, foot, more } = v11("pass");

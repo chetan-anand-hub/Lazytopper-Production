@@ -67,6 +67,7 @@ import {
   HUB_BANK_HERO,
   HUB_BANK_PRICE_META,
   HUB_BANK_SEPARATE,
+  HUB_PASS_SOMEONE_ELSE,
   HUB_BANK_TILES,
   HUB_CARD_ID,
   HUB_CARD_ORDER,
@@ -1145,6 +1146,13 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
                 <p className="lt-pp-payline" data-testid="pricing-payline">
                   {payLine({ checkoutWho, guestPay: isGuestPayClientEnabled() })}
                 </p>
+                {/* Review nit (a): the face's compact Pay hides PassCheckout's "Buying for someone else?" - the owner's rule puts every
+                    other CTA inside the card, so it is here, opening /board-pass where that flow lives (signed in, Who on, as there). */}
+                {user && checkoutWho && (
+                  <Link className="lt-ph-more__line lt-else-link" to={withFrom(BOARD_PASS_PAGE_PATH)} data-testid="hub-pass-someone-else">
+                    {HUB_PASS_SOMEONE_ELSE}
+                  </Link>
+                )}
               </>
             )}
           </>
