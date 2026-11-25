@@ -336,3 +336,25 @@ test('§L5.7 (eval 25 Nov) an answer under the WRONG number is still looking for
   assert.ok(p.includes('SECOND LOOK') && /  Q1\. \[/.test(p) && /  Q5\. \[/.test(p), 'both the mismatched Q1 and the not-found Q5 are looked for');
   assert.deepEqual(marksOf(body), [0, 3], 'Q5 gets its answer; Q1 keeps its first-reading result (the student skipped it)');
 });
+
+test('§L5.8 (re-review A) SHORT working lines already credited to another question are not credited again', () => {
+  const claimed = 'sin A = 3/5\ncos A = 4/5\ntan A = 3/4\nsec A = 5/4';
+  const mk = (steps) => { const r = { annotatedSteps: steps }; Object.defineProperty(r, '_reason', { value: 'graded' }); return r; };
+  const dup = [{ index: 5, raw: { addressesQuestion: 'yes' }, result: mk([S('rough: 3,4,5 triangle'), S('cos A = 4/5'), S('tan A = 3/4'), S('sec A = 5/4')]), firstLines: ['rough: 3,4,5 triangle'] }];
+  assert.deepEqual(L.acceptedRescues(dup, [claimed]), []);
+  const latex = [{ index: 5, raw: { addressesQuestion: 'yes' }, result: mk([S('rough: 3,4,5 triangle'), S('\\cos A = \\frac{4}{5}'), S('\\tan A = \\frac{3}{4}')]), firstLines: ['rough: 3,4,5 triangle'] }];
+  assert.deepEqual(L.acceptedRescues(latex, [claimed]), []);
+  // CONTROL: different short working is a real rescue
+  const real = [{ index: 6, raw: { addressesQuestion: 'yes' }, result: mk([S('15 cot A = 8 so cot A = 8/15'), S('sin A = 15/17'), S('sec A = 17/8')]), firstLines: ['15 cot A = 8 so cot A = 8/15'] }];
+  assert.deepEqual(L.acceptedRescues(real, [claimed]), [6]);
+});
+
+test('§L5.9 (re-review B) an answer that opens by restating the given is the student\'s own line, not the printed question', () => {
+  const qt = 'Given sin A = 3/5, find the other trigonometric ratios of the angle A.';
+  assert.equal(L.isPrintedQuestion('Given: sin A = 3/5', [qt]), false);
+  assert.equal(L.isPrintedQuestion(qt, [qt]), true, 'CONTROL: the question copied out is still refused');
+  assert.deepEqual(L.openUnplaced(['Given: sin A = 3/5'], [], [qt]), ['Given: sin A = 3/5']);
+  const mk = (steps) => { const r = { annotatedSteps: steps }; Object.defineProperty(r, '_reason', { value: 'graded' }); return r; };
+  const c = [{ index: 3, raw: { addressesQuestion: 'yes' }, result: mk([S('Given: sin A = 3/5'), S('base = 4k, cos A = 4/5')]), firstLines: [qt, 'Given: sin A = 3/5'] }];
+  assert.deepEqual(L.acceptedRescues(c, [], [qt]), [3], 'a genuine anchor beside a printed-question line still rescues');
+});

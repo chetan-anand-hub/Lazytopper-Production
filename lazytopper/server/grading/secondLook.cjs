@@ -108,14 +108,19 @@ function sharesAnswer(lines, work) {
 function isPrintedQuestion(line, questionTexts) {
   const l = fold(stripAnswerLabel(String(line || '')));
   if (compactText(l).length < PROOF_MIN) return false;
-  return (questionTexts || []).some((t) => String(t || '').trim() && gramContainment(l, fold(t)) >= 0.8);
+  // Both ways (re-review B): the line is inside the question AND covers most of it — an answer that opens by
+  // restating the given ("Given: sin A = 3/5") is the student's own line, not a copy of the printed question.
+  return (questionTexts || []).some((t) => String(t || '').trim() && gramContainment(l, fold(t)) >= 0.8 && gramContainment(fold(t), l) >= 0.6);
 }
 
 /** Do most of `result`'s credited lines come from `work`? (G4b: the same WORKING graded twice, whatever the first line.) */
 function reusesWork(result, work) {
   const lines = creditedLines(result);
   if (lines.length === 0 || !String(work || '').trim()) return false;
-  return lines.filter((l) => sameWriting(l, work)).length * 2 >= lines.length;
+  // Re-review A: working lines are short ("cos A = 4/5" is 8 characters), so each credited line is compared at a
+  // 6-character floor, and the credited working as a whole is compared too.
+  if (lines.filter((l) => sameWriting(l, work, 6)).length * 2 >= lines.length) return true;
+  return gramContainment(fold(lines.join(' ')), fold(work)) >= 0.8;
 }
 
 /** G0: the first reading's unplaced answers that are not part of any answer it graded nor a printed question. */
@@ -157,9 +162,9 @@ function acceptedRescues(candidates, claimedWorks, questionTexts = []) {
     const own = workOf(c.result);
     // G2b: an anchor line that is really in its own work — objective questions included (presence alone is not enough here).
     // Strict (sameWriting), not postprocess's tolerant test: a 60% bag of digits matches a different answer's line.
-    const anchors = (c.firstLines || []).filter((l) => quotable(l) && firstLineInWork(l, own) && sameWriting(l, own, 4));
+    const anchors = (c.firstLines || []).filter((l) => quotable(l) && firstLineInWork(l, own) && sameWriting(l, own, 4)
+      && !isPrintedQuestion(l, questionTexts)); // G3b: the printed question is never an answer
     if (anchors.length === 0) continue;
-    if (anchors.some((l) => isPrintedQuestion(l, questionTexts))) continue; // G3b: the printed question is never an answer
     if (claimedWorks.some((w) => sharesAnswer(anchors, w) || reusesWork(c.result, w))) continue; // G4: an answer already used
     ok.push({ ...c, anchors, own });
   }
