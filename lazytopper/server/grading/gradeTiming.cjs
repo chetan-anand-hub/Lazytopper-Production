@@ -35,7 +35,8 @@
 //                    notGraded (its call timed out / failed), other, inv (1 = a page inventory was used) }
 //                  counted AFTER the second look (below), so it is what the student was shown
 //   secondLook     GRADE-SECOND-LOOK-1: present only when a paper had questions to look at again:
-//                  { asked: questions revisited, rescued: questions it graded, skipped: 1 = too little time left }
+//                  { asked: questions revisited, rescued: questions it graded, skipped: 1 = too little time left,
+//                    failed: second-look calls that timed out / failed / did not parse }
 //                  (its model call is also an `attempts` row)
 // CONTENT FIREWALL: only numbers and values from the closed sets above are ever written. No uid,
 // email, IP, question text, answer text or model output (the users are minors).
@@ -131,7 +132,7 @@ function formatGradeTimingLine({ route, surface, status, mode, preMs, sink, tota
     rec.outcomes = o;
   }
   if (s.secondLook && typeof s.secondLook === 'object') {
-    rec.secondLook = { asked: count(s.secondLook.asked), rescued: count(s.secondLook.rescued), skipped: count(s.secondLook.skipped) };
+    rec.secondLook = { asked: count(s.secondLook.asked), rescued: count(s.secondLook.rescued), skipped: count(s.secondLook.skipped), failed: count(s.secondLook.failed || 0) };
   }
   return '[grade-timing] ' + JSON.stringify(rec);
 }

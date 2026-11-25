@@ -2266,6 +2266,9 @@ module.exports = {
   gramContainment,
   stripAnswerLabel,
   firstLineInWork,
+  // GRADE-SECOND-LOOK-1: the same notation folding firstLineInWork uses, for secondLook.cjs's "same answer" test.
+  delatex,
+  compactText,
   inventoryVerdict,
   inventoryStable,
   markGenuinelyUnattempted,

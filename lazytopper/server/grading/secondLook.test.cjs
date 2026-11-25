@@ -209,7 +209,7 @@ test('§L4.3 the [grade-timing] line records asked / rescued, and outcomes AFTER
   sink.secondLook = { asked: 3, rescued: 1, skipped: 0, note: 'Q8 text' };
   const line = gt.formatGradeTimingLine({ route: '/api/grade-worksheet', mode: 'job', surface: 'check-improve', preMs: null, sink, totalMs: 1 });
   const rec = JSON.parse(line.slice('[grade-timing] '.length));
-  assert.deepEqual(rec.secondLook, { asked: 3, rescued: 1, skipped: 0 });
+  assert.deepEqual(rec.secondLook, { asked: 3, rescued: 1, skipped: 0, failed: 0 });
 });
 
 test('§L4.4 every one-document surface reaches it: the same paper through each surface header', async () => {
@@ -248,4 +248,91 @@ test('§L2.3 the student\'s OWN numbering collides with the paper\'s (answer to 
   } finally {
     if (old === undefined) delete process.env.GRADING_SECOND_LOOK_DISABLED; else process.env.GRADING_SECOND_LOOK_DISABLED = old;
   }
+});
+
+
+/* ══ §L5 · independent review findings (25 Nov) — each with its control ═══════════════════════════════ */
+
+test('§L5.1 (review #1) the SAME answer in LaTeX vs Unicode, or reordered, is the same writing; different answers are not', () => {
+  assert.equal(L.sameWriting('α + β = 5/2, αβ = 3', '\\alpha + \\beta = \\frac{5}{2}, \\alpha\\beta = 3'), true);
+  assert.equal(L.sameWriting('Let the number be x and its square', 'Let x be the number and its square'), true);
+  assert.equal(L.sameWriting('x² − 5x + 6 = (x − 2)(x − 3)', 'a = 2, d = 7 − 2 = 5\na10 = 2 + 9 × 5 = 47'), false, 'CONTROL: different answers');
+  assert.equal(L.sameWriting('Given:', 'Given: AB = 5 cm'), false, '(review #7) a short generic line can never prove "same"');
+});
+
+test('§L5.2 (review #1b) a rescue that GRADES another question\'s working is refused even with an unclaimed first line', () => {
+  const claimedWork = Q5_WORK.map((x) => x.studentWork).join('\n');
+  const res = { annotatedSteps: [S('scribble beside the margin note'), S(Q5_WORK[0].studentWork), S(Q5_WORK[1].studentWork)] };
+  Object.defineProperty(res, '_reason', { value: 'graded' });
+  const cand = [{ index: 1, raw: { addressesQuestion: 'yes' }, result: res, firstLines: ['scribble beside the margin note'] }];
+  assert.deepEqual(L.acceptedRescues(cand, [claimedWork]), []);
+  assert.deepEqual(L.acceptedRescues(cand, ['an unrelated answer about acids and bases']), [1], 'CONTROL: no claimed work reused');
+});
+
+test('§L5.3 (review #2) a label-matched extra line in the inventory does not make two real rescues clash', () => {
+  const AP1 = '1) a = 2, d = 7 − 2 = 5';
+  const ZE1 = '2) x² − 5x + 6 = (x − 2)(x − 3)';
+  const mk = (steps) => { const r = { annotatedSteps: steps }; Object.defineProperty(r, '_reason', { value: 'graded' }); return r; };
+  const q1 = { index: 0, raw: { addressesQuestion: 'yes' }, result: mk([S(ZE1), S('Zeroes are 2 and 3.')]), firstLines: [AP1, ZE1] };
+  const q3 = { index: 1, raw: { addressesQuestion: 'yes' }, result: mk([S(AP1), S('a10 = 2 + 9 × 5 = 47')]), firstLines: [AP1] };
+  assert.deepEqual(L.acceptedRescues([q1, q3], []), [0, 1]);
+});
+
+test('§L5.4 (review #3) the printed question is never an answer, nor an "unplaced" one', () => {
+  const qt = 'Given sin A = 3/5, find the other trigonometric ratios of the angle A.';
+  const mk = (steps) => { const r = { annotatedSteps: steps }; Object.defineProperty(r, '_reason', { value: 'graded' }); return r; };
+  const cand = [{ index: 3, raw: { addressesQuestion: 'yes' }, result: mk([S(qt), S('cos A = 4/5')]), firstLines: [qt] }];
+  assert.deepEqual(L.acceptedRescues(cand, [], [qt]), []);
+  assert.deepEqual(L.openUnplaced([qt, Q8_LINE], [], [qt]), [Q8_LINE]);
+});
+
+test('§L5.5 (review #4) an objective rescue needs an anchor in its own work like any other', () => {
+  const mk = (steps) => { const r = { annotatedSteps: steps }; Object.defineProperty(r, '_reason', { value: 'graded' }); return r; };
+  const loose = [{ index: 0, raw: { addressesQuestion: 'yes' }, result: mk([S('(b)')]), firstLines: ['Ans (b) the value is 10/3'] }];
+  assert.deepEqual(L.acceptedRescues(loose, []), [], 'its quoted line is not in its work');
+  const tied = [{ index: 0, raw: { addressesQuestion: 'yes' }, result: mk([S('Ans (b) the value is 10/3')]), firstLines: ['Ans (b) the value is 10/3'] }];
+  assert.deepEqual(L.acceptedRescues(tied, []), [0]);
+});
+
+test('§L5.6 (review #5) on the job path, a row the second look may change is never published as final', async () => {
+  const rows = [];
+  const route = require('../routes/checkSolution.cjs');
+  const { createGradingCore } = require('./core.cjs');
+  let n = 0;
+  const core = createGradingCore({
+    callGemini: async () => { n += 1; return { text: JSON.stringify(n === 1 ? FIRST : REPLY(INV([8, Q8_LINE]), R(8, Q8_WORK), NF(6), NF(7))), raw: {} }; },
+    GEMINI_MODEL: 'test-model', extractJsonObjectFromText: lenient, buildGeminiImagePart: ({ mimeType, base64 }) => ({ inlineData: { mimeType, data: base64 } }),
+    makeFenceNonce: () => 'testnonce', telemetry: { increment: () => {} },
+  });
+  void route;
+  const gt2 = require('./gradeTiming.cjs');
+  const sink = gt2.createTimingSink();
+  const out = await core.gradeSet({ questions: PAPER(), document: { imageBase64: 'UERG', imageMimeType: 'application/pdf' }, subject: 'Maths', acceptsV2: true,
+    jobTiming: { wallMs: 180000, perCallMs: 120000, chunkQuestions: 8 }, onPartSettled: (r) => rows.push(...r), timingSink: sink });
+  const finalOf = (i) => rows.filter((r) => r.index === i).map((r) => r.final);
+  assert.deepEqual(finalOf(0), [true], 'Q5 graded first time: final at once');
+  assert.deepEqual(finalOf(3), [false], 'Q8 not found yet: not final while a second look may rescue it');
+  assert.equal(out.results[3].marksAwarded, 3, 'the finished paper carries the rescue');
+  assert.deepEqual(sink.secondLook, { asked: 3, rescued: 1, skipped: 0, failed: 0 }, 'gradeSet fills the telemetry');
+  assert.equal(sink.outcomes.graded, 2, 'outcomes are counted AFTER the rescue');
+});
+
+test('§L5.7 (eval 25 Nov) an answer under the WRONG number is still looking for its question: the not-found question is asked too', async () => {
+  const qs = [
+    { qNumber: 1, marks: 2, topic: 'Polynomials', questionText: 'Find the zeroes of the quadratic polynomial x² − 5x + 6.', textAnswer: '' },
+    { qNumber: 5, marks: 3, topic: 'Real Numbers', questionText: 'Find the HCF and LCM of 96 and 404 by the prime factorisation method.', textAnswer: '' },
+  ];
+  const H1 = '1) 96 = 2^5 × 3, 404 = 2^2 × 101';
+  const hcf = [S(H1), S('HCF = 4', { marksAwarded: 1 }), S('LCM = 9696')];
+  // the student numbered Q5's answer "1)" and skipped Q1; nothing is "unplaced" — the line sits under Q1
+  const first = REPLY(INV([1, H1]),
+    R(1, [S(H1, { status: 'incorrect', marksAwarded: 0, marksDeducted: 2 })], { addressesQuestion: 'no', mismatchEvidence: { question: 'zeroes of the quadratic polynomial', work: '404 = 2^2 × 101' } }),
+    NF(5));
+  const look = REPLY(INV([5, H1]), NF(1), R(5, hcf));
+  const h = harness({ replies: [first, look] });
+  const body = (await h.sheet({ worksheetId: 'ws', subject: 'Maths', questions: qs, ...DOC, acceptsV2: true })).body;
+  assert.equal(h.calls.length, 2);
+  const p = h.prompt(1);
+  assert.ok(p.includes('SECOND LOOK') && /  Q1\. \[/.test(p) && /  Q5\. \[/.test(p), 'both the mismatched Q1 and the not-found Q5 are looked for');
+  assert.deepEqual(marksOf(body), [0, 3], 'Q5 gets its answer; Q1 keeps its first-reading result (the student skipped it)');
 });
