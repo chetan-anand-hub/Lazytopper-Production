@@ -1,0 +1,22 @@
+{
+  "_about": "UI-E2E-2: the VITE_* environment the SIGNED-IN ui-e2e build is made with (.github/workflows/ui-e2e.yml, job ui-e2e-signed-in). It is buildEnv.json plus ONE key, VITE_E2E_FIREBASE_EMULATOR=1, which points Firebase Auth and Firestore at the local emulator (services/firebaseClient.ts, services/firestoreSdk.ts). THIS IS THE ONLY FILE IN THE REPO THAT MAY SET THAT KEY (scripts/ops/e2e_emulator_absent.mjs --sources fails otherwise); it is never set in Vercel or Railway. When buildEnv.json changes, change this file the same way (the signed-in job checks they differ only by that key).",
+  "env": {
+    "VITE_FREE_CHECK_ENABLED": "1",
+    "VITE_PAYMENTS_ENABLED": "1",
+    "VITE_PACKS_ENABLED": "1",
+    "VITE_LIMITS_ENABLED": "1",
+    "VITE_GST_STATE_FIELD": "1",
+    "VITE_PAY_AUTO_ACCOUNT_ENABLED": "1",
+    "VITE_CHECKOUT_WHO_ENABLED": "1",
+    "VITE_PARENT_PAY_ENABLED": "1",
+    "VITE_EMAIL_CODE_SIGNIN_ENABLED": "1",
+    "VITE_GUEST_PAY_ENABLED": "1",
+    "VITE_FIREBASE_API_KEY": "ui-e2e-hermetic-not-a-key",
+    "VITE_FIREBASE_AUTH_DOMAIN": "ui-e2e-hermetic.invalid",
+    "VITE_FIREBASE_PROJECT_ID": "ui-e2e-hermetic",
+    "VITE_FIREBASE_APP_ID": "1:000000000000:web:0000000000000000000000",
+    "VITE_FIREBASE_MESSAGING_SENDER_ID": "000000000000",
+    "VITE_FIREBASE_STORAGE_BUCKET": "ui-e2e-hermetic.invalid",
+    "VITE_E2E_FIREBASE_EMULATOR": "1"
+  }
+}

@@ -83,6 +83,21 @@ export default defineConfig({
         viewport: { width: 1280, height: 800 },
       },
     },
+    // UI-E2E-2 — SIGNED-IN pages (tests/e2e/signed-in.*.spec.ts) against a build made with
+    // tests/e2e/buildEnv.signedIn.json, with the Firebase Auth + Firestore emulators running
+    // (tests/e2e/support/signedIn.ts; .github/workflows/ui-e2e.yml job ui-e2e-signed-in).
+    // The name contains "e2e-desktop", so `e2eSelected` above starts the same local server.
+    {
+      name: 'e2e-desktop-signed-in',
+      testDir: 'tests/e2e',
+      testMatch: /signed-in\.[\w-]+\.spec\.ts$/,
+      metadata: { viewport: 'desktop' },
+      use: {
+        ...devices['Desktop Chrome'],
+        ...e2eUse,
+        viewport: { width: 1280, height: 800 },
+      },
+    },
   ],
   webServer:
     e2eSelected && !externalBase
