@@ -978,17 +978,17 @@ test('MARK-ON-PHOTO-1: a mark with a valid pass re-uses the PAPER\'s slot id (fr
   const paper = await call({ 'idempotency-key': 'paper' }, 3);
   assert.equal(held(), 1);
   const token = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-TRIG-03', slot: paper.slot.id, questions: [{ qNumber: 6, questionText: 'q6' }], nowMs: NOW });
-  const a = await call({ 'idempotency-key': 'm1', [markPass.MARK_PASS_HEADER]: token }, 1);
+  const a = await call({ 'idempotency-key': 'm1', [markPass.MARK_PASS_HEADER]: token, [markPass.MARK_Q_HEADER]: '6' }, 1);
   assert.deepEqual(a.verdict, {});
   assert.ok(markPass.acceptedMarkPassOf(a.req), 'the route sees the accepted pass');
   assert.equal(held(), 1, 'the mark rode the paper slot');
   assert.equal(r.counters['limits.grade.mark_on_photo'], 1);
   // CONTROL: a forged pass is ignored and the grade takes a slot exactly as before
-  const b = await call({ 'idempotency-key': 'm2', [markPass.MARK_PASS_HEADER]: token.slice(0, -2) + 'xx' }, 1);
+  const b = await call({ 'idempotency-key': 'm2', [markPass.MARK_PASS_HEADER]: token.slice(0, -2) + 'xx', [markPass.MARK_Q_HEADER]: '6' }, 1);
   assert.equal(markPass.acceptedMarkPassOf(b.req), null);
   assert.equal(held(), 2);
   // a pass never applies to a bank surface
-  const c = await call({ 'x-lazytopper-surface': 'worksheet', 'idempotency-key': 'm3', [markPass.MARK_PASS_HEADER]: token }, 1);
+  const c = await call({ 'x-lazytopper-surface': 'worksheet', 'idempotency-key': 'm3', [markPass.MARK_PASS_HEADER]: token, [markPass.MARK_Q_HEADER]: '6' }, 1);
   assert.equal(markPass.acceptedMarkPassOf(c.req), null);
   // a paper that charged NOTHING gave its slot back: a mark on its pass takes a real slot
   const r2 = rig({ tier: 'trial', created: NEW_ACCT, env });
@@ -999,8 +999,35 @@ test('MARK-ON-PHOTO-1: a mark with a valid pass re-uses the PAPER\'s slot id (fr
   await new Promise((resolve) => setImmediate(resolve)); await new Promise((resolve) => setImmediate(resolve));
   const t0 = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-X-01', slot: slot0, questions: [{ qNumber: 1, questionText: 'q1' }], nowMs: NOW });
   const res1 = new EventEmitter(); res1.statusCode = 200;
-  await r2.l.gradingGate({ headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': 'mk', [markPass.MARK_PASS_HEADER]: t0 } }, res1, '/api/grade-worksheet', 'stu-1');
+  await r2.l.gradingGate({ headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': 'mk', [markPass.MARK_PASS_HEADER]: t0, [markPass.MARK_Q_HEADER]: '1' } }, res1, '/api/grade-worksheet', 'stu-1');
   setChargeableCount(res1, 1); res1.emit('finish');
   await new Promise((resolve) => setImmediate(resolve)); await new Promise((resolve) => setImmediate(resolve));
   assert.equal(([...r2.f.docs.values()][0].gr['check-improve'] || []).length, 1, 'the free paper did not make the mark free');
+});
+
+test('MARK-ON-PHOTO-1: one question of one paper is marked on the photo at most 3 times (owner ruling 25 Nov 22:17); only GRADED marks count', async () => {
+  const markPass = require('./markPass.cjs');
+  const { limitsDeferredOf } = require('./limits.cjs');
+  const env = { LIMITS_ENFORCE: '1', FAIR_USE_PAPER_SECRET: 's' };
+  const r = rig({ tier: 'trial', created: NEW_ACCT, env });
+  const tick = async () => { await new Promise((resolve) => setImmediate(resolve)); await new Promise((resolve) => setImmediate(resolve)); };
+  const res0 = new EventEmitter(); res0.statusCode = 200;
+  await r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': 'paper' } }, res0, '/api/grade-worksheet', 'stu-1');
+  const slot = limitsDeferredOf(res0).id;
+  setChargeableCount(res0, 2); res0.emit('finish'); await tick();
+  const token = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-TRIG-03', slot, questions: [{ qNumber: 6, questionText: 'q6' }, { qNumber: 7, questionText: 'q7' }], nowMs: NOW });
+  const mark = async (q, charged, i) => {
+    const res = new EventEmitter(); res.statusCode = 200;
+    const v = await r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': `m${q}-${i}`, [markPass.MARK_PASS_HEADER]: token, [markPass.MARK_Q_HEADER]: String(q) } }, res, '/api/grade-worksheet', 'stu-1');
+    setChargeableCount(res, charged); res.emit('finish'); await tick();
+    return v;
+  };
+  assert.deepEqual(await mark(6, 0, 0), {}, 'an unreadable mark does not count');
+  for (let i = 1; i <= 3; i += 1) assert.deepEqual(await mark(6, 1, i), {}, `graded mark ${i}`);
+  const fourth = await mark(6, 1, 4);
+  assert.equal(fourth.refused, true, 'the 4th graded mark of Q6 is refused');
+  const sent = r.counters['limits.grade.mark_capped'];
+  assert.equal(sent, 1);
+  assert.deepEqual(await mark(7, 1, 1), {}, 'another question of the same paper still marks');
+  assert.equal(([...r.f.docs.values()][0].gr['check-improve'] || []).length, 1, 'still the paper\'s one slot');
 });

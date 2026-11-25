@@ -131,9 +131,10 @@ describe("page wiring (source guard)", () => {
     expect(src).toMatch(/function resetToInput\(\) \{\s*leaveMarkedPaper\(\);/);
   });
   it("the mark carries the paper's mark pass, so it rides the paper's weekly slot (owner ruling 25 Nov)", () => {
-    expect(body).toMatch(/wsResult\.markPass \? \{ \.\.\.CI_GRADE_CALL, markPass: wsResult\.markPass \} : CI_GRADE_CALL/);
+    expect(body).toMatch(/wsResult\.markPass \? \{ \.\.\.CI_GRADE_CALL, markPass: wsResult\.markPass, markQ: dq\.questionNumber \} : CI_GRADE_CALL/);
     const client = readFileSync(join(__dirname, "../../ai/aiClient.ts"), "utf8");
-    expect(client).toMatch(/opts\?\.markPass && !opts\.freeCheck \? \{ "X-Lazytopper-Mark-Pass": opts\.markPass \}/);
+    expect(client).toMatch(/opts\?\.markPass && !opts\.freeCheck \? \{ "X-Lazytopper-Mark-Pass": opts\.markPass, "X-Lazytopper-Mark-Q": String\(opts\.markQ \?\? ""\) \}/);
+    expect(body).toMatch(/e\.message === MARK_LIMIT_COPY/);
   });
   it("a refusal is told in its own words, never as 'try again'", () => {
     expect(body).toMatch(/if \(await fairUse\.handleRefusal\(e\)\) return;/);

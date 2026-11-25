@@ -17,6 +17,10 @@
 const crypto = require('crypto');
 
 const MARK_PASS_HEADER = 'x-lazytopper-mark-pass';
+/** The question this mark is for (the limits gate never reads the body; the route checks the body matches it). */
+const MARK_Q_HEADER = 'x-lazytopper-mark-q';
+/** Owner ruling 25 Nov 22:17: one question of one paper is marked on the photo at most 3 times. */
+const MARK_LIMIT_COPY = "You've already marked this answer 3 times. To mark it again, check the whole paper again.";
 const MARK_PASS_TTL_MS = 24 * 60 * 60 * 1000;
 const SECRET_ENV = 'FAIR_USE_PAPER_SECRET';
 const VERIFIED = Symbol.for('lazytopper.markPass.verified');
@@ -95,7 +99,10 @@ function verifyMarkPass(token, { env, uid, nowMs = Date.now() }) {
 function verifiedMarkPassOf(req, uid, env, nowMs) {
   const token = req && req.headers ? req.headers[MARK_PASS_HEADER] : undefined;
   if (typeof token !== 'string' || !token) return null;
-  const pass = verifyMarkPass(token, { env, uid, nowMs });
+  const q = Number(req.headers[MARK_Q_HEADER]);
+  const verified = verifyMarkPass(token, { env, uid, nowMs });
+  // A pass rides only for ONE named question it covers (that is what the cap counts).
+  const pass = verified && Number.isInteger(q) && verified.items.some(([n]) => n === q) ? { ...verified, q } : null;
   if (pass && req && typeof req === 'object') {
     Object.defineProperty(req, VERIFIED, { value: pass, configurable: true });
   }
@@ -121,6 +128,7 @@ function markBodyMismatch(pass, { worksheetId, questions, uploads, imageBase64 }
   if (!Array.isArray(questions) || questions.length !== 1) return 'questions';
   if (!Array.isArray(uploads) || uploads.length !== 1) return 'uploads';
   const n = questions[0].qNumber;
+  if (pass.q !== undefined && n !== pass.q) return 'number';
   const h = textHash(questions[0].questionText);
   if (!pass.items.some(([qn, qh]) => qn === n && qh === h) || uploads[0].qNumber !== n) return 'number';
   return null;
@@ -128,6 +136,8 @@ function markBodyMismatch(pass, { worksheetId, questions, uploads, imageBase64 }
 
 module.exports = {
   MARK_PASS_HEADER,
+  MARK_Q_HEADER,
+  MARK_LIMIT_COPY,
   MARK_PASS_TTL_MS,
   isCiPaperKey,
   textHash,

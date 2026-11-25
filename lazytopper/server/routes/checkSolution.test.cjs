@@ -3844,7 +3844,7 @@ test('MARK-ON-PHOTO-1: a grade that rode a pass but is not that one mark is refu
   const env = { FAIR_USE_PAPER_SECRET: 'k' };
   const token = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-TRIG-03', slot: 's1', questions: [Q(2)], nowMs: Date.now() });
   const make = (body, headers = {}) => {
-    const req = { subject: 'Maths', acceptsV2: true, headers: { [markPass.MARK_PASS_HEADER]: token, ...headers }, ...body };
+    const req = { subject: 'Maths', acceptsV2: true, headers: { [markPass.MARK_PASS_HEADER]: token, [markPass.MARK_Q_HEADER]: '2', ...headers }, ...body };
     Object.defineProperty(req, require('../services/fairUse.cjs').GRADING_ATTEMPT, { value: { uid: 'stu-1', path: '/api/grade-worksheet' } });
     markPass.verifiedMarkPassOf(req, 'stu-1', env, Date.now());
     return req;

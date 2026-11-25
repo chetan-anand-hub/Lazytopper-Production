@@ -791,6 +791,7 @@ for (const [label, switchValue, portOffset] of [['switch unset = ON', undefined,
     };
     assert.ok((await allowed('/api/grade-worksheet')).includes('prefer'), 'the submit preflight allows Prefer');
     assert.ok((await allowed('/api/grade-worksheet')).includes('x-lazytopper-mark-pass'), 'MARK-ON-PHOTO-1: and the mark pass header');
+    assert.ok((await allowed('/api/grade-worksheet')).includes('x-lazytopper-mark-q'), 'and the marked question header');
     assert.ok((await allowed('/api/grade-worksheet/jobs/' + '0'.repeat(40))).includes('prefer'), 'and the poll preflight');
     const poll = await fetch(base + '/api/grade-worksheet/jobs/' + '0'.repeat(40));
     assert.equal(poll.status, 401, 'the poll route is mounted (' + label + ') and self-gating');

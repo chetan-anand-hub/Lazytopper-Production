@@ -38,7 +38,9 @@ test('verifies for the same uid inside 24 h; refuses another uid, an old pass, a
 });
 
 test('the route refuses any body the pass does not allow — including a DIFFERENT question under an allowed number', () => {
-  const req = { headers: { [mp.MARK_PASS_HEADER]: issue() } };
+  assert.equal(mp.verifiedMarkPassOf({ headers: { [mp.MARK_PASS_HEADER]: issue() } }, 'stu-1', env, NOW), null, 'no question named: no ride');
+  assert.equal(mp.verifiedMarkPassOf({ headers: { [mp.MARK_PASS_HEADER]: issue(), [mp.MARK_Q_HEADER]: '7' } }, 'stu-1', env, NOW), null, 'a question the pass does not cover: no ride');
+  const req = { headers: { [mp.MARK_PASS_HEADER]: issue(), [mp.MARK_Q_HEADER]: '6' } };
   const pass = mp.verifiedMarkPassOf(req, 'stu-1', env, NOW);
   assert.ok(pass);
   assert.equal(mp.acceptedMarkPassOf(req), pass);
@@ -52,4 +54,12 @@ test('the route refuses any body the pass does not allow — including a DIFFERE
   assert.equal(mp.markBodyMismatch(pass, { ...ok, questions: [QS[0], QS[1]] }), 'questions');
   assert.equal(mp.markBodyMismatch(pass, { ...ok, uploads: [] }), 'uploads');
   assert.equal(mp.markBodyMismatch(pass, { ...ok, questions: [{ qNumber: 7, questionText: QS[0].questionText }], uploads: [{ qNumber: 7 }] }), 'number');
+  assert.equal(mp.markBodyMismatch(pass, { ...ok, questions: [QS[1]], uploads: [{ qNumber: 8 }] }), 'number', 'Q8 is covered, but this ride named Q6');
+});
+
+test('the 4th-mark sentence is the same words the client shows', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const client = fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'ai', 'aiClient.ts'), 'utf8');
+  assert.ok(client.includes(`export const MARK_LIMIT_COPY = ${JSON.stringify(mp.MARK_LIMIT_COPY)};`));
 });

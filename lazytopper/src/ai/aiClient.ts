@@ -146,6 +146,8 @@ export interface PaidCallOptions {
   /** MARK-ON-PHOTO-1: the server-signed mark pass of the Answer Checker paper this ONE answer belongs to
    *  (WorksheetGradeResponse.markPass), sent as X-Lazytopper-Mark-Pass so the mark rides that paper's slot. */
   markPass?: string;
+  /** MARK-ON-PHOTO-1: the ONE question number this mark is for (X-Lazytopper-Mark-Q); sent only with markPass. */
+  markQ?: number;
 }
 
 /**
@@ -213,6 +215,8 @@ const API_BASE = "/api"; // Vite dev proxy or same origin in production
 
 /** The header a paper grade carries its pass in (server/services/fairUse.cjs PAPER_HEADER). */
 export const PAPER_PASS_HEADER = "X-Lazytopper-Paper";
+/** MARK-ON-PHOTO-1 — the server's own sentence for the 4th mark of one question (server/services/markPass.cjs). */
+export const MARK_LIMIT_COPY = "You've already marked this answer 3 times. To mark it again, check the whole paper again.";
 export const PAPER_PASS_ENDPOINT = `${API_BASE}/usage/paper`;
 const PAPER_SURFACES: ReadonlySet<string> = new Set(["chapter-test", "full-mock", "worksheet"]);
 /** The server honours a pass for 24 h; the client re-mints an hour early (a re-mint of the
@@ -1079,7 +1083,7 @@ export async function gradeWorksheet(req: {
   const extra: Record<string, string> = {
     ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}),
     ...paperPass,
-    ...(opts?.markPass && !opts.freeCheck ? { "X-Lazytopper-Mark-Pass": opts.markPass } : {}),
+    ...(opts?.markPass && !opts.freeCheck ? { "X-Lazytopper-Mark-Pass": opts.markPass, "X-Lazytopper-Mark-Q": String(opts.markQ ?? "") } : {}),
   };
   // GRADING-JOBS-1 J2: a background job ONLY when the caller opted in — never a free check.
   if (opts?.job && !opts.freeCheck) {
