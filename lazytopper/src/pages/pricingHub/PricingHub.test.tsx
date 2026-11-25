@@ -1268,7 +1268,7 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
     }
   });
 
-  it("v1.1 CBQ + Question Bank faces: ticks from the pinned constants, 'Not in the Bundle.' / 'CBQ Packs are separate.' on the face, smaller packs in the fold", async () => {
+  it("v1.1 CBQ + Question Bank faces: ticks from the pinned constants, 'Not in the Bundle.' / 'CBQ Packs are separate.' in the details, smaller packs in the fold", async () => {
     await renderAt("/pricing?subject=science&from=for_parents");
     const cbq = v11("cbq");
     expect(cbq.face).toHaveTextContent("Half your board paper is competency-based. Practise every type.");
@@ -1288,7 +1288,9 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
       "✓Full board papers with the marking guide",
       "✓Worked solutions, step by step",
     ]);
-    expect(within(bank.foot as HTMLElement).getByTestId("hub-bank-separate")).toHaveTextContent("CBQ Packs are separate.");
+    // Owner (25 Nov 05:25, "keep them aligned"): off the Bundle face too, so the four Buys line up; kept in its details panel.
+    expect(within(bank.foot as HTMLElement).queryByTestId("hub-bank-separate")).toBeNull();
+    expect(within(bank.more as HTMLElement).getByTestId("hub-bank-separate")).toHaveTextContent("CBQ Packs are separate.");
     // The smaller packs stay reachable from /pricing at every size (no desktop-only class), as links to their /packs pop-ups.
     const m = bank.more as HTMLElement;
     expect(m.querySelector(".lt-ph-panel__title")).toHaveTextContent(`Smaller packs from ₹${PACK_PRICE_INR.pack_chapter} + GST and more`);

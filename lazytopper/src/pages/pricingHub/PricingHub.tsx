@@ -1384,6 +1384,8 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
           key: "bank",
           more: true ? { summary: hubBankMore(), testId: "hub-bank-more", body: (
 <>
+            {/* Owner (25 Nov 05:25, "keep them aligned"): off the face, so all four Buys line up; kept in the card's details. */}
+            <p className="lt-ph-sep" data-testid="hub-bank-separate">{HUB_BANK_SEPARATE}</p>
             {/* The smaller packs, at every size (the phone route to them): links to their /packs pop-ups, never a buy path here. */}
             <div className="lt-ph-more__group" data-testid="hub-bank-rows">
               {hubBankRows(subject).map((r) => (
@@ -1421,7 +1423,6 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
           <div data-testid={BANK_BUY_TESTID}>
             <HubPackBuy api={api} sku="pack_bundle" label={BUNDLE_BUY_LABEL} testId="hub-buy-pack_bundle" ownedLabel="Bundle" />
           </div>
-          <p className="lt-ph-sep" data-testid="hub-bank-separate">{HUB_BANK_SEPARATE}</p>
           {ownsBundle && (
             <Link className="lt-ph-mypacks" to={MY_PACKS_PATH} data-testid="hub-bank-my-packs">
               {HUB_OPEN_MY_PACKS}
