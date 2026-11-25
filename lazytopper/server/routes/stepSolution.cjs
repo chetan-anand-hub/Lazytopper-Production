@@ -27,7 +27,13 @@ function __setPoolForTests(pool) {
 // Increment this when the prompt structure changes to automatically bypass stale cache entries.
 // v3 (CI-CACHE-BANKMATCH-1 PR-1): the key text is normalised (normalizeQuestionForKey); old v2
 // entries simply miss and regenerate under the new key.
-const CACHE_VERSION = 'v3';
+// v4 (SCHEME-CACHE-V4, owner 25 Nov 2026, [FU-SCHEME-CACHE-VERSION]): schemes cached before #1822
+// (SCHEME-GEN-1, 23 Nov: no truncated schemes, prompt rules 13-15) were written by the old prompt and
+// stayed in use on every cache hit. Bumping makes every keyless question regenerate ONCE under the
+// current generator (golden eval for #1822: truncated schemes 73 -> 0; targeted re-check 5 equal,
+// 1 better, 0 worse). Cost: one scheme generation per distinct question, spread over use; the first
+// check of a previously cached question waits for its scheme again (p95 ~9.5 s at #1822).
+const CACHE_VERSION = 'v4';
 
 // CI-CACHE-BANKMATCH-1 PR-1 — the same question typed or photographed with different spacing,
 // width/ligature forms, minus/hyphen or times glyphs, or sentence case hits the same cache entry.
