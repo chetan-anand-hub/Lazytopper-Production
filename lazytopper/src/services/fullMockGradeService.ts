@@ -52,6 +52,7 @@ import {
   currentCodeForPaper,
   writeSessionPerQuestion,
   type SessionFocusAggregates,
+  type SessionRecord,
   type SessionSubject,
 } from "./sessionRecords";
 
@@ -342,13 +343,17 @@ export async function markFullMockQuestion(args: {
     console.warn("[fullMockGradeService] MI record for a marked answer failed (grade preserved)", e);
   }
   let savedCode: string | undefined;
+  // The record as re-saved (S1): a re-opened scorecard reads its score, types and status from the RECORD, so the page swaps it in.
+  let savedRecord: SessionRecord | undefined;
   try {
     const uid = user?.uid;
     if (uid && !user?.isLocalSession) {
       const code = currentCodeForPaper(user, paper.worksheetId, "full-mock", args.code);
       const record = buildFullMockSessionRecord({ paper, code, subject, response: merged, uid, focus });
+      savedRecord = record;
       const written = await writeSessionRecordResolved(user, record);
       savedCode = written.code;
+      savedRecord = written.record;
       writeSessionPerQuestion(user, {
         ref: written.record.perQuestionRef,
         code: written.code,
@@ -361,5 +366,5 @@ export async function markFullMockQuestion(args: {
   } catch (error) {
     console.warn("[fullMockGradeService] marked record write failed", error);
   }
-  return { kind: "marked", response: merged, ...(savedCode ? { savedCode } : {}) };
+  return { kind: "marked", response: merged, ...(savedCode ? { savedCode } : {}), ...(savedRecord ? { record: savedRecord } : {}) };
 }

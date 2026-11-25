@@ -1362,9 +1362,20 @@ export default function ChapterTestPage() {
         }
         fairUse.noteGraded();
         void loadRecords();
+        // As the fresh grade does: once no answer is missing from the pages and nothing is pending, this paper's saved copy has
+        // done its job (only THIS paper's copy, by identity, under the code it was saved under and the one it now carries).
+        if (out.response.pendingCount === 0 && notFoundSummary(out.response.results) === null) {
+          deleteChapterTestPaper(user, ctx.code, ctx.paper.worksheetId);
+          if (out.savedCode && out.savedCode !== ctx.code) deleteChapterTestPaper(user, out.savedCode, ctx.paper.worksheetId);
+        }
         if (!stillShowing()) return;
-        if (m.where === "fresh") setFullResponse(out.response);
-        else setReopen((r) => (r && r.record.id === ctx.code ? { ...r, response: out.response } : r));
+        if (m.where === "fresh") {
+          setFullResponse(out.response);
+          if (nomen) adoptSavedCode(out.savedCode, nomen);
+        } else {
+          // S1: a re-opened scorecard reads its score, types and status from the RECORD: swap in the one just re-saved.
+          setReopen((r) => (r && r.record.id === ctx.code ? { ...r, ...(out.record ? { record: out.record } : {}), response: out.response } : r));
+        }
         setMark(null);
       } catch (e) {
         if (!stillShowing()) return;
@@ -1375,7 +1386,7 @@ export default function ChapterTestPage() {
         if (stillShowing()) setMarkBusy(false);
       }
     },
-    [mark, markContext, markBusy, user, loadRecords, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
+    [mark, markContext, markBusy, user, nomen, adoptSavedCode, loadRecords, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
   );
   const openMark = useCallback(
     (where: "fresh" | "reopen") => (index: number) => {

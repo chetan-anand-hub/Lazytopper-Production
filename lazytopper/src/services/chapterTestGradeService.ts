@@ -51,6 +51,7 @@ import {
   writeSessionRecordResolved,
   currentCodeForPaper,
   writeSessionPerQuestion,
+  type SessionRecord,
   type SessionSubject,
 } from "./sessionRecords";
 
@@ -451,7 +452,7 @@ export async function gradeChapterTestUpload(args: {
 }
 
 export type BankMarkOutcome =
-  | { kind: "marked"; response: WorksheetGradeResponse; savedCode?: string }
+  | { kind: "marked"; response: WorksheetGradeResponse; savedCode?: string; record?: SessionRecord }
   | { kind: "unread" };
 
 /**
@@ -499,13 +500,17 @@ export async function markChapterTestQuestion(args: {
     console.warn("[chapterTestGradeService] MI record for a marked answer failed (grade preserved)", e);
   }
   let savedCode: string | undefined;
+  // The record as re-saved (S1): a re-opened scorecard reads its score, types and status from the RECORD, so the page swaps it in.
+  let savedRecord: SessionRecord | undefined;
   try {
     const uid = user?.uid;
     if (uid && !user?.isLocalSession) {
       const code = currentCodeForPaper(user, paper.worksheetId, "chapter-test", args.code);
       const record = buildChapterTestSessionRecord({ paper, code, subject, topicKey, response: merged, uid });
+      savedRecord = record;
       const written = await writeSessionRecordResolved(user, record);
       savedCode = written.code;
+      savedRecord = written.record;
       writeSessionPerQuestion(user, {
         ref: written.record.perQuestionRef,
         code: written.code,
@@ -518,5 +523,5 @@ export async function markChapterTestQuestion(args: {
   } catch (error) {
     console.warn("[chapterTestGradeService] marked record write failed", error);
   }
-  return { kind: "marked", response: merged, ...(savedCode ? { savedCode } : {}) };
+  return { kind: "marked", response: merged, ...(savedCode ? { savedCode } : {}), ...(savedRecord ? { record: savedRecord } : {}) };
 }

@@ -1296,9 +1296,19 @@ export default function FullMockPage() {
         }
         fairUse.noteGraded();
         void loadRecords();
+        // As the fresh grade does: once no answer is missing from the pages, this paper's snapshot has done its job (by identity).
+        if (notFoundSummary(out.response.results) === null) {
+          deleteFullMockPaperSnapshot(user, ctx.code, ctx.paper.worksheetId);
+          if (out.savedCode && out.savedCode !== ctx.code) deleteFullMockPaperSnapshot(user, out.savedCode, ctx.paper.worksheetId);
+        }
         if (!stillShowing()) return;
-        if (m.where === "fresh") setFullResponse(out.response);
-        else setReopen((r) => (r && r.record.id === ctx.code ? { ...r, response: out.response } : r));
+        if (m.where === "fresh") {
+          setFullResponse(out.response);
+          if (activeMock) adoptFmCode(out.savedCode, activeMock);
+        } else {
+          // S1: a re-opened scorecard reads its score, types, status and board view from the RECORD: swap in the one just re-saved.
+          setReopen((r) => (r && r.record.id === ctx.code ? { ...r, ...(out.record ? { record: out.record } : {}), response: out.response } : r));
+        }
         setMark(null);
       } catch (e) {
         if (!stillShowing()) return;
@@ -1309,7 +1319,7 @@ export default function FullMockPage() {
         if (stillShowing()) setMarkBusy(false);
       }
     },
-    [mark, markContext, markBusy, user, loadRecords, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
+    [mark, markContext, markBusy, user, activeMock, adoptFmCode, loadRecords, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
   );
   const openMark = useCallback(
     (where: "fresh" | "reopen") => (index: number) => {

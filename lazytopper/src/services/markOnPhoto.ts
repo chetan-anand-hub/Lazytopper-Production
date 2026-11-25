@@ -70,7 +70,9 @@ export function mergeMarkedRow(
 /**
  * MARK-ON-PHOTO-2 — a row of a Chapter Test / Full Mock / Worksheet the student may point to: one whose answer could not be read
  * or belongs to another question (isMarkableRow), or one counted "Not attempted · 0" because it was NOT FOUND on the pages
- * (lib/notFoundNotAttempted). An objective (Section A) row is scored in the app and is never one of these.
+ * (lib/notFoundNotAttempted). A Chapter Test / Full Mock Section A row is scored in the app and is always graded, so it never
+ * qualifies; a Worksheet's Section A row is graded from the photo and CAN be one — the server still scores it 0 or full on the
+ * answer alone (the objective clamp), so marking it changes nothing about how it is marked.
  */
 export function isBankMarkableRow(row: WorksheetQuestionGrade | null | undefined): boolean {
   return isMarkableRow(row) || isNotFoundNotAttempted(row);
