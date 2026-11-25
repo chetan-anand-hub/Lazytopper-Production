@@ -826,7 +826,10 @@ test('§P0.11 router mode: each routed group is held to ITS OWN reply\'s invento
       : WITH_INV(INV([1, '(c) TtWW']), R(1, [S({ studentWork: '(c) TtWW' })], { finalAnswerCorrect: true }))),
   });
   const body = (await h.sheet(sheet(qs, DOC))).body;
-  assert.deepEqual(h.calls.map((c) => c.model).sort(), ['light-model', 'strong-model'], 'one call per routed group');
+  // GRADE-SECOND-LOOK-1: the third call is the second look for the missing Q2, on Q2's own (strong) model;
+  // this stub's reply still does not list Q2, so Q2 stays not found.
+  assert.deepEqual(h.calls.map((c) => c.model).sort(), ['light-model', 'strong-model', 'strong-model'], 'one call per routed group, plus one second look');
+  assert.equal(h.calls.filter((c) => JSON.stringify(c).includes('SECOND LOOK')).length, 1, 'exactly one call is the second look');
   assert.deepEqual(body.results.map((r) => r.marksAwarded), [1, 0], 'Q1 listed by its group keeps its mark; Q2 is absent from ITS group\'s inventory');
 });
 
