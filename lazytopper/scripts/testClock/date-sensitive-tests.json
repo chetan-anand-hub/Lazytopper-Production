@@ -731,6 +731,7 @@
     "src/components/testSeries/SeriesChooser.tsUxScore.test.tsx",
     "src/components/testSeries/TestSeriesPaperPicker.tsNav2.test.tsx",
     "src/components/testSeries/WrittenCheckGate.test.tsx",
+    "src/components/testSeries/fmRecheckNote1.settleReread.test.tsx",
     "src/components/testSeries/packDownloadRestore.test.tsx",
     "src/components/testSeries/seriesAccess.mypacks.test.tsx",
     "src/components/testSeries/tsFreeCheck1.test.tsx",
