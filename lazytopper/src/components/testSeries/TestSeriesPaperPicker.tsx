@@ -29,6 +29,13 @@ import { FOCUS_THEMES, loadFocusSetMeta, type FocusSet, type FocusSetMeta, type 
  * TS-THEMES-1: a third segment, "Focus sets" (a BONUS: short papers on one question type, not counted in the series' test count),
  * shown only when the page passes `focusSets` (none under VITE_TS_FOCUS_SETS_DISABLED). Theme (select), then set 1..5 (select, with
  * its marks and minutes once the small pins chunk has loaded), then the same ONE Start link to the set's Full Mock URL.
+ *
+ * TS-NAV-2 (owner, 25 Nov 2026): (1) the picker REMEMBERS the student's choice (subject, type, chapter, paper, full-length n, focus
+ * theme and set) in sessionStorage `lt-ts-picker` - UI state only, nothing about access or progress - and restores it when the student
+ * comes back to /test-series in the same tab session; it scrolls itself into view ONLY when the student is returning from a paper (a
+ * flag written on Start, consumed once). Unreadable / unwritable storage -> today's defaults. (2) The link says "Open: ..." on a paper
+ * the student already started (same href); "Start: ..." otherwise. Kill switch VITE_TS_NAV2_DISABLED (any value but "", "0", "false")
+ * -> no memory, no scroll, always "Start". The select arrows are CSS (testSeriesPage.css) and stay on regardless.
  */
 
 type SeriesType = "chapter" | "full" | "focus";
@@ -55,6 +62,67 @@ export function statusWords(p: SeriesTestProgress | undefined, signedIn: boolean
 }
 
 const SUBJECTS: readonly SeriesSubject[] = ["Maths", "Science"];
+
+/** TS-NAV-2 kill switch (same reading as VITE_TS_NAV_DISABLED). */
+export function tsNav2Disabled(): boolean {
+  const v = import.meta.env?.VITE_TS_NAV2_DISABLED;
+  if (typeof v !== "string") return false;
+  const t = v.trim().toLowerCase();
+  return t !== "" && t !== "0" && t !== "false";
+}
+
+/** TS-NAV-2: the sessionStorage key of the picker's remembered choice (UI state only). */
+export const TS_PICKER_STORAGE_KEY = "lt-ts-picker";
+
+export interface PickerMemory {
+  subject: SeriesSubject;
+  type: SeriesType;
+  chapterKey: string;
+  paper: number;
+  fullN: number;
+  focusTheme: string;
+  focusN: number;
+  /** Set on Start: the next /test-series mount is a return from a paper (scroll the picker into view once). */
+  back?: boolean;
+}
+
+const posInt = (v: unknown, d: number) => (typeof v === "number" && Number.isInteger(v) && v >= 1 && v <= 999 ? v : d);
+
+/** The remembered choice, or null (nothing stored, unreadable, malformed, or the kill switch). Never throws. */
+export function readPickerMemory(): PickerMemory | null {
+  if (tsNav2Disabled()) return null;
+  try {
+    const raw = window.sessionStorage.getItem(TS_PICKER_STORAGE_KEY);
+    if (!raw) return null;
+    const o = JSON.parse(raw) as Record<string, unknown>;
+    if (!o || typeof o !== "object") return null;
+    const subject = SUBJECTS.find((s) => s === o.subject);
+    const type = (["chapter", "full", "focus"] as const).find((t) => t === o.type);
+    if (!subject || !type) return null;
+    return {
+      subject,
+      type,
+      chapterKey: typeof o.chapterKey === "string" ? o.chapterKey.slice(0, 80) : "",
+      paper: posInt(o.paper, 1),
+      fullN: posInt(o.fullN, 1),
+      focusTheme: typeof o.focusTheme === "string" ? o.focusTheme.slice(0, 40) : "",
+      focusN: posInt(o.focusN, 1),
+      back: o.back === true,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Remember the choice; storage errors are ignored (the picker then simply forgets). */
+export function writePickerMemory(m: PickerMemory): void {
+  if (tsNav2Disabled()) return;
+  try {
+    window.sessionStorage.setItem(TS_PICKER_STORAGE_KEY, JSON.stringify(m));
+  } catch {
+    /* private mode / quota: forget */
+  }
+}
 
 type DiffFilter = "all" | PaperDifficultyLabel;
 const FILTERS: ReadonlyArray<{ id: DiffFilter; text: string }> = [{ id: "all", text: "All" }, ...DIFFICULTY_LABELS.map((l) => ({ id: l, text: l }))];
@@ -89,13 +157,16 @@ function MiniProgress({ done, total, show, testId, noun = "tests" }: { done: num
 
 export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progress, mocksPerSubject, focusSets = [], focusProgress = null, focusCount = 0 }: TestSeriesPaperPickerProps) {
   const signedIn = Boolean(progress);
-  const [subject, setSubject] = useState<SeriesSubject>("Maths");
-  const [type, setType] = useState<SeriesType>("chapter");
-  const [chapterKey, setChapterKey] = useState<string>("");
-  const [paper, setPaper] = useState(1);
-  const [fullN, setFullN] = useState(1);
+  // TS-NAV-2: the remembered choice (read once, on mount). A restored choice counts as the student's own: the "next test" seed never overrides it.
+  const [memory] = useState(readPickerMemory);
+  const [subject, setSubject] = useState<SeriesSubject>(memory?.subject ?? "Maths");
+  const [type, setType] = useState<SeriesType>(memory?.type ?? "chapter");
+  const [chapterKey, setChapterKey] = useState<string>(memory?.chapterKey ?? "");
+  const [paper, setPaper] = useState(memory?.paper ?? 1);
+  const [fullN, setFullN] = useState(memory?.fullN ?? 1);
   // The student's own choice always wins: the "next test" suggestion seeds the pickers once, and never after they touched one.
-  const touched = useRef(false);
+  const touched = useRef(memory !== null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const seeded = useRef(false);
   // TS-DIFF-1: the labels arrive after mount (lazy chunk); null = not loaded, killed, or failed -> no chip, no filter.
   const [diff, setDiff] = useState<PaperDifficultyMap | null>(null);
@@ -113,8 +184,23 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
   const labelOf = (code: string): PaperDifficultyLabel | undefined => diff?.[`TS-${code}`]?.label;
   // TS-THEMES-1: the focus-set marks / minutes come from the pins chunk, fetched only when the "Focus sets" segment is opened.
   const hasFocus = focusSets.length > 0;
-  const [focusTheme, setFocusTheme] = useState<FocusThemeId | "">("");
-  const [focusN, setFocusN] = useState(1);
+  const [focusTheme, setFocusTheme] = useState<FocusThemeId | "">((memory?.focusTheme as FocusThemeId | undefined) ?? "");
+  const [focusN, setFocusN] = useState(memory?.focusN ?? 1);
+  // TS-NAV-2: returning from a paper -> bring the picker into view ONCE (after this commit's route-change scroll reset), then drop the flag.
+  useEffect(() => {
+    if (!memory) return undefined;
+    writePickerMemory({ ...memory, back: false });
+    if (!memory.back) return undefined;
+    const t = window.setTimeout(() => rootRef.current?.scrollIntoView?.({ block: "start" }), 0);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const memoryNow = (back: boolean): PickerMemory => ({ subject, type, chapterKey, paper, fullN, focusTheme, focusN, back });
+  // Remember every choice the student made (never the untouched defaults, so a first visit still gets the "next test" seed later).
+  useEffect(() => {
+    if (touched.current) writePickerMemory(memoryNow(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subject, type, chapterKey, paper, fullN, focusTheme, focusN]);
   const [focusMeta, setFocusMeta] = useState<Record<string, FocusSetMeta> | null>(null);
   useEffect(() => {
     if (type !== "focus" || focusMeta || !hasFocus) return undefined;
@@ -127,6 +213,7 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
     };
   }, [type, focusMeta, hasFocus]);
 
+  const shownType: SeriesType = type === "focus" && !hasFocus ? "chapter" : type;
   const groups = useMemo(() => {
     const m = new Map<string, SeriesChapterTest[]>();
     for (const c of chapters) m.set(c.topicKey, [...(m.get(c.topicKey) ?? []), c]);
@@ -168,7 +255,7 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
   const theme = subjectThemes.find((t) => t.id === focusTheme) ?? subjectThemes[0];
   const themeSets = theme ? focusSets.filter((f) => f.subject === subject && f.theme === theme.id) : [];
   const focusTest = themeSets.find((f) => f.n === focusN) ?? themeSets[0];
-  const selected = type === "chapter" ? chapterTest : type === "full" ? fullTest : focusTest;
+  const selected = shownType === "chapter" ? chapterTest : shownType === "full" ? fullTest : focusTest;
   const focusStatus = (code: string): SeriesTestProgress | undefined => focusProgress?.[code];
   const metaWords = (code: string) => {
     const m = focusMeta?.[code];
@@ -186,20 +273,23 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
   const selLabel = selected && selected.kind !== "focus" ? labelOf(selected.code) : undefined;
   const selChip = selected && selected.kind !== "focus" && showsChip(selected.kind, selLabel) ? selLabel : undefined;
   const picked = selected ? statusWords(selected.kind === "focus" ? focusStatus(selected.code) : status(selected.code), signedIn) : "";
+  const selectedStatus = selected ? (selected.kind === "focus" ? focusStatus(selected.code) : status(selected.code))?.status ?? "not-started" : "not-started";
+  // TS-NAV-2: a paper the student already started / attempted / is awaiting says "Open", the same link.
+  const verb = !tsNav2Disabled() && selectedStatus !== "not-started" ? "Open" : "Start";
   const goLabel =
     selected && selected.kind === "chapter"
-      ? `Start: ${selected.label}${group && group.length > 1 ? `, paper ${selected.paper}` : ""}`
+      ? `${verb}: ${selected.label}${group && group.length > 1 ? `, paper ${selected.paper}` : ""}`
       : selected && selected.kind === "focus"
-        ? `Start: ${selected.themeTitle}, set ${selected.n}`
+        ? `${verb}: ${selected.themeTitle}, set ${selected.n}`
         : selected
-          ? `Start: Full-length test ${selected.n}`
+          ? `${verb}: Full-length test ${selected.n}`
           : "Start";
-  const subjectCodes = (type === "chapter" ? chapters : type === "full" ? mocks : focusSets).filter((t) => t.subject === subject).map((t) => t.code);
+  const subjectCodes = (shownType === "chapter" ? chapters : shownType === "full" ? mocks : focusSets).filter((t) => t.subject === subject).map((t) => t.code);
   const doneCount = (codes: string[]) =>
-    type === "focus" ? (focusProgress ? codes.filter((c) => (focusStatus(c)?.status ?? "not-started") !== "not-started").length : 0) : startedCount(codes);
+    shownType === "focus" ? (focusProgress ? codes.filter((c) => (focusStatus(c)?.status ?? "not-started") !== "not-started").length : 0) : startedCount(codes);
 
   return (
-    <div className="lt-ts-pick" data-testid="ts-picker">
+    <div className="lt-ts-pick" data-testid="ts-picker" ref={rootRef}>
       <div className="lt-ts-pick__seg" role="group" aria-label="Subject" data-testid="ts-pick-subject">
         {SUBJECTS.map((s) => (
           <button
@@ -226,7 +316,7 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
         <button
           type="button"
           className="lt-ts-pick__segbtn"
-          aria-pressed={type === "chapter"}
+          aria-pressed={shownType === "chapter"}
           onClick={() => {
             touch();
             setType("chapter");
@@ -238,7 +328,7 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
         <button
           type="button"
           className="lt-ts-pick__segbtn"
-          aria-pressed={type === "full"}
+          aria-pressed={shownType === "full"}
           onClick={() => {
             touch();
             setType("full");
@@ -251,7 +341,7 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
           <button
             type="button"
             className="lt-ts-pick__segbtn"
-            aria-pressed={type === "focus"}
+            aria-pressed={shownType === "focus"}
             onClick={() => {
               touch();
               setType("focus");
@@ -263,7 +353,7 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
         )}
       </div>
 
-      {type === "chapter" ? (
+      {shownType === "chapter" ? (
         <div className="lt-ts-pick__row" data-testid="ts-pick-chapter-row">
           <label className="lt-ts-pick__fld lt-ts-pick__fld--wide">
             <span className="lt-ts-pick__lbl">Chapter</span>
@@ -305,7 +395,7 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
             </label>
           )}
         </div>
-      ) : type === "focus" ? (
+      ) : shownType === "focus" ? (
         <div className="lt-ts-pick__row lt-ts-pick__row--focus" data-testid="ts-pick-focus-row">
           <p className="lt-ts-focus__bonus" data-testid="ts-pick-focus-bonus">
             <span className="lt-ts-focus__tag">Bonus</span>
@@ -413,12 +503,13 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
             to={selected.href}
             data-testid="ts-start"
             data-code={selected.code}
-            data-status={(selected.kind === "focus" ? focusStatus(selected.code) : status(selected.code))?.status ?? "not-started"}
+            data-status={selectedStatus}
+            onClick={() => writePickerMemory(memoryNow(true))}
           >
             {goLabel} →
           </Link>
         )}
-        {diff && type !== "focus" && (
+        {diff && shownType !== "focus" && (
           <p className="lt-ts-diff__note" data-testid="ts-pick-diff-note">
             {selChip && <DifficultyChip label={selChip} testId="ts-pick-diff-chip" />}
             <span>{DIFFICULTY_EXPLAINER}</span>
@@ -427,10 +518,10 @@ export default function TestSeriesPaperPicker({ chapters, mocks, rounds, progres
         <p className="lt-ts-pick__state" data-testid="ts-pick-state">
           {signedIn
             ? picked
-            : `${type === "chapter" ? "Chapter tests" : type === "full" ? `${mocksPerSubject} full-length papers` : `${subjectCodes.length} focus sets`} · ${subject}`}
+            : `${shownType === "chapter" ? "Chapter tests" : shownType === "full" ? `${mocksPerSubject} full-length papers` : `${subjectCodes.length} focus sets`} · ${subject}`}
         </p>
       </div>
-      <MiniProgress done={doneCount(subjectCodes)} total={subjectCodes.length} show={signedIn} testId="ts-pick-progress" noun={type === "focus" ? "sets" : "tests"} />
+      <MiniProgress done={doneCount(subjectCodes)} total={subjectCodes.length} show={signedIn} testId="ts-pick-progress" noun={shownType === "focus" ? "sets" : "tests"} />
     </div>
   );
 }

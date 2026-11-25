@@ -10,7 +10,10 @@ import TestSeriesPaperPicker from "./TestSeriesPaperPicker";
 import { seriesChapterTests, seriesFullMocks, seriesMockRounds } from "../../lib/testSeries/testSeries";
 import { focusSetCount, focusSetProgress, focusSetWorksheetId, focusSets } from "../../lib/testSeries/focusSets";
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  window.sessionStorage.clear(); // TS-NAV-2: the picker remembers its choice per tab session - each test starts fresh
+});
 
 function mount(withFocus: boolean, focusProgress: ReturnType<typeof focusSetProgress> | null = null) {
   render(

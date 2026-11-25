@@ -27,6 +27,7 @@ const pick = (id: string) => screen.getByTestId(id) as HTMLSelectElement;
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
+  window.sessionStorage.clear(); // TS-NAV-2: the picker remembers its choice per tab session - each test starts fresh
 });
 
 describe("TS-DIFF-1 picker", () => {

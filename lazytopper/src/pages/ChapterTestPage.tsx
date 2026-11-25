@@ -252,6 +252,10 @@ export default function ChapterTestPage() {
       ? seriesChapterTestOf(seriesTopicKey, seriesPaperK)
       : null;
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
+  const tsNav2Off = (() => {
+    const v = import.meta.env?.VITE_TS_NAV2_DISABLED;
+    return typeof v === "string" && !["", "0", "false"].includes(v.trim().toLowerCase());
+  })();
   const fairUse = useFairUse("chapter-test", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live, so a student who pays
   // mid-session (or whose cloud status lands after the gate ran) is never refused a new paper.
@@ -346,14 +350,17 @@ export default function ChapterTestPage() {
           attempt: seq + attemptsLogged(log, "chapter-test", scope),
         }),
       });
-      setNomen({ code: nm.code, name: nm.name });
+      // TS-NAV-2 (owner, 25 Nov 2026) - ONE name per paper: a NEW sitting of a series paper is named for the PAPER, in the picker's
+      // words ("Real Numbers · Paper 2"), not the student's personal count ("Real Numbers · Test #3"). The code (CT-M-REAL-03) is
+      // unchanged; a resumed / saved paper keeps the name it was saved with; a non-series test is unchanged. Kill switch VITE_TS_NAV2_DISABLED.
+      setNomen({ code: nm.code, name: seriesTest && !tsNav2Off ? `${seriesTest.label} · Paper ${seriesTest.paper}` : nm.name });
       setRecordsLoading(false);
     })();
     return () => {
       live = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid, topicKey, sessionSubject, mintNonce]);
+  }, [user?.uid, topicKey, sessionSubject, mintNonce, seriesTest?.code]);
 
   // BANK-SPLIT-1 PR-2 (L4): the draw reads this chapter from the per-chapter cache, so it
   // waits until the chapter chunk has loaded (the "Building your test…" state covers it).

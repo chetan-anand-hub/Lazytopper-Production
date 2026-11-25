@@ -112,6 +112,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
+  window.sessionStorage.clear(); // TS-NAV-2: the picker remembers its choice per tab session - each test starts fresh
 });
 
 const pick = (id: string) => screen.getByTestId(id) as HTMLSelectElement;
