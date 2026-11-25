@@ -853,13 +853,6 @@ function createLimits(deps = {}) {
         emit('limits.grade.qp_board_pass_only');
         return none;
       }
-      // MARK-ON-PHOTO-1 (owner ruling 25 Nov 2026): one answer marked on the photo of an Answer Checker paper rides
-      // that paper's slot. Only with a server-signed mark pass for this uid (services/markPass.cjs); the route then
-      // refuses a body the pass does not allow. No reservation, no "first free" bypass: Basic still meets the 402.
-      if (kind === 'check-improve' && reqPath === GRADE_WORKSHEET_PATH && markPass.verifiedMarkPassOf(req, uid, env, now())) {
-        emit('limits.grade.mark_on_photo');
-        return none;
-      }
       const db = ledgerDb();
       if (!db || typeof db.runTransaction !== 'function') {
         emit('limits.fail_open');
@@ -868,7 +861,12 @@ function createLimits(deps = {}) {
       const bucket = kind === 'quick-practice' ? 'qp' : `gr:${kind}`;
       const passKey = typeof opts.paperKeyOf === 'function' ? opts.paperKeyOf(req, kind) : null;
       const idemKey = String((req.headers && req.headers['idempotency-key']) || '').trim();
-      const id = hashKey(`grade|${kind}`, passKey || idemKey || crypto.randomUUID());
+      // MARK-ON-PHOTO-1 (owner ruling 25 Nov 2026): one answer marked on the photo of an Answer Checker paper re-uses
+      // that paper's slot id (a server-signed mark pass for this uid, services/markPass.cjs): `reused` while the paper's
+      // slot is held, a real slot once it is gone. The route then refuses a body the pass does not allow.
+      const ridden = kind === 'check-improve' && reqPath === GRADE_WORKSHEET_PATH ? markPass.verifiedMarkPassOf(req, uid, env, now()) : null;
+      if (ridden) emit('limits.grade.mark_on_photo');
+      const id = ridden ? ridden.slot : hashKey(`grade|${kind}`, passKey || idemKey || crypto.randomUUID());
       const limit = info.tier === 'free' ? 1 : resolveGradeLimit(kind);
 
       // ONE transaction: read the bucket, decide and RESERVE the slot. Parallel requests (different

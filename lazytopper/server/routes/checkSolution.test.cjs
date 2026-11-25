@@ -3810,23 +3810,27 @@ test('§T.6 CONTROL: a good grade is still a 200 with no `retryable` (the 504 pa
 /* ══════════════════════════════════════════════════════════════════════════════
    MARK-ON-PHOTO-1 · the mark pass (owner ruling 25 Nov 2026: a mark rides the paper's slot)
    ══════════════════════════════════════════════════════════════════════════════ */
-test('MARK-ON-PHOTO-1: an Answer Checker paper that leaves a question unmarked carries a mark pass for it; other surfaces never do', async () => {
+const LIMITS_DEFERRED_SYM = Symbol.for('lazytopper.limits.deferred');
+const withSlot = (res, id) => { Object.defineProperty(res, LIMITS_DEFERRED_SYM, { value: { uid: 'stu-1', bucket: 'gr:check-improve', id }, configurable: true }); return res; };
+
+test('MARK-ON-PHOTO-1: an Answer Checker paper that leaves a question UNREAD carries a pass for it and its slot; nothing else does', async () => {
   const markPass = require('../services/markPass.cjs');
   const { GRADING_ATTEMPT } = require('../services/fairUse.cjs');
   const prev = process.env.FAIR_USE_PAPER_SECRET;
   process.env.FAIR_USE_PAPER_SECRET = 'route-secret';
   try {
-    const run = async (worksheetId, surface) => {
+    const run = async (worksheetId, surface, { slot = 'slot-1' } = {}) => {
       const h = buildImageRoute({ replies: [WS_OK([1])] });
       const req = { worksheetId, subject: 'Maths', acceptsV2: true, questions: [Q(1), Q(2)], uploads: [UP(1), UP(2)], headers: surface ? { 'x-lazytopper-surface': surface } : {} };
       Object.defineProperty(req, GRADING_ATTEMPT, { value: { uid: 'stu-1', path: '/api/grade-worksheet' } });
-      await h.route.handleGradeWorksheet(req, {});
+      await h.route.handleGradeWorksheet(req, slot ? withSlot({}, slot) : {});
       return h.body();
     };
     const body = await run('ci:CI-M-TRIG-03', 'check-improve');
     assert.ok(typeof body.markPass === 'string', 'the paper carries a pass');
     const pass = markPass.verifyMarkPass(body.markPass, { env: process.env, uid: 'stu-1', nowMs: Date.now() });
-    assert.deepEqual([pass.paperKey, pass.numbers], ['ci:CI-M-TRIG-03', [2]], 'only the unmarked question');
+    assert.deepEqual([pass.paperKey, pass.slot, pass.items], ['ci:CI-M-TRIG-03', 'slot-1', [[2, markPass.textHash('Q2 text')]]], 'only the unread question, bound to its text');
+    assert.equal((await run('ci:CI-M-TRIG-03', 'check-improve', { slot: null })).markPass, undefined, 'no slot held (unmetered / replay): none');
     assert.equal((await run('ws-1', 'worksheet')).markPass, undefined, 'a bank surface: none');
     assert.equal((await run('ci:CI-M-TRIG-03:mark:1', 'check-improve')).markPass, undefined, 'a mark: none');
   } finally {
@@ -3834,12 +3838,13 @@ test('MARK-ON-PHOTO-1: an Answer Checker paper that leaves a question unmarked c
   }
 });
 
-test('MARK-ON-PHOTO-1: a grade that rode a pass but is not that one mark is refused before any model call', async () => {
+test('MARK-ON-PHOTO-1: a grade that rode a pass but is not that one mark is refused before any model call (sync AND job)', async () => {
   const markPass = require('../services/markPass.cjs');
   const env = { FAIR_USE_PAPER_SECRET: 'k' };
-  const token = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-TRIG-03', numbers: [2], nowMs: Date.now() });
-  const make = (body) => {
-    const req = { subject: 'Maths', acceptsV2: true, headers: { [markPass.MARK_PASS_HEADER]: token }, ...body };
+  const token = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-TRIG-03', slot: 's1', questions: [Q(2)], nowMs: Date.now() });
+  const make = (body, headers = {}) => {
+    const req = { subject: 'Maths', acceptsV2: true, headers: { [markPass.MARK_PASS_HEADER]: token, ...headers }, ...body };
+    Object.defineProperty(req, require('../services/fairUse.cjs').GRADING_ATTEMPT, { value: { uid: 'stu-1', path: '/api/grade-worksheet' } });
     markPass.verifiedMarkPassOf(req, 'stu-1', env, Date.now());
     return req;
   };
@@ -3847,6 +3852,20 @@ test('MARK-ON-PHOTO-1: a grade that rode a pass but is not that one mark is refu
   await bad.route.handleGradeWorksheet(make({ worksheetId: 'ci:CI-M-TRIG-03:mark:1', questions: [Q(1), Q(2)], uploads: [UP(1), UP(2)] }), {});
   assert.equal(bad.status(), 400);
   assert.equal(bad.calls.length, 0);
+  // the same question NUMBER with another question's text is refused too
+  const swapped = buildImageRoute({ replies: [WS_OK([2])] });
+  await swapped.route.handleGradeWorksheet(make({ worksheetId: 'ci:CI-M-TRIG-03:mark:1', questions: [Q(2, { questionText: 'Prove that √2 is irrational.' })], uploads: [UP(2)] }), {});
+  assert.equal(swapped.status(), 400);
+  // the job path is refused before a job is ever submitted
+  let submitted = 0;
+  const job = buildImageRoute({ replies: [WS_OK([1, 2])], depOverrides: { GRADING_JOBS: true, gradingJobs: { submit: async () => { submitted += 1; return { ok: false }; } } } });
+  await job.route.handleGradeWorksheet(make({ worksheetId: 'ci:CI-M-TRIG-03:mark:1', async: true, questions: [Q(1), Q(2)], uploads: [UP(1), UP(2)] }, { prefer: 'respond-async' }), {});
+  assert.equal(job.status(), 400);
+  assert.equal(submitted, 0);
+  // CONTROL: the allowed mark DOES reach the job submit on the same rig (the refusal above is not vacuous)
+  const jobOk = buildImageRoute({ replies: [WS_OK([2])], depOverrides: { GRADING_JOBS: true, gradingJobs: { submit: async () => { submitted += 1; return { ok: false }; } } } });
+  await jobOk.route.handleGradeWorksheet(make({ worksheetId: 'ci:CI-M-TRIG-03:mark:1', async: true, questions: [Q(2)], uploads: [UP(2)] }, { prefer: 'respond-async' }), {});
+  assert.equal(submitted, 1);
   // CONTROL: the one mark the pass allows is graded
   const good = buildImageRoute({ replies: [WS_OK([2])] });
   await good.route.handleGradeWorksheet(make({ worksheetId: 'ci:CI-M-TRIG-03:mark:1', questions: [Q(2)], uploads: [UP(2)] }), {});
