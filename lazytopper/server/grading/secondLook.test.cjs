@@ -8,6 +8,10 @@
 //   §L4 time, kill switch, telemetry, every surface
 // Run: node --test server/grading/secondLook.test.cjs   (from lazytopper/)
 
+// LOCATE-FIRST-1: this harness stubs the model with a queue of GRADING replies; the locate call (one per one-document
+// paper) would consume one of them. The locate step is tested in locate.test.cjs; here it is switched OFF explicitly,
+// which restores the trunk request byte-for-byte (the kill switch).
+process.env.GRADING_LOCATE_DISABLED = '1';
 const test = require('node:test');
 const assert = require('node:assert/strict');
 

@@ -1,4 +1,7 @@
 'use strict';
+// LOCATE-FIRST-1: a stubbed GRADING-reply harness; the locate step is tested in locate.test.cjs, so it is switched OFF
+// here explicitly (also when this suite is run on its own rather than through core.test.cjs).
+process.env.GRADING_LOCATE_DISABLED = '1';
 // server/grading/rulings.surfaces.suite.cjs — A17 OWNER RULINGS 1-5 (GRADING-JOBS-1 J0), proven on
 // EVERY grading surface (the spec's product-wide rule).
 //

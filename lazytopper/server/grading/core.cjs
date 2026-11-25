@@ -36,6 +36,7 @@ const { chooseNonce } = require('./fence.cjs');
 const { GRADING_RESPONSE_SCHEMA, GRADING_RESPONSE_SCHEMA_AUTODETECT, GRADING_RESPONSE_SCHEMA_INVENTORY } = require('./schema.cjs');
 const { normaliseQuestionResult, inventoryStable } = require('./postprocess.cjs');
 const secondLookLib = require('./secondLook.cjs');
+const locateLib = require('./locate.cjs');
 const timingLib = require('./timing.cjs');
 const gradeTimingLib = require('./gradeTiming.cjs');
 const { isChargeable } = require('./charge.cjs');
@@ -77,6 +78,8 @@ const SET_MAX_OUTPUT_TOKENS = 32000;
 // (set), never above the ceiling (the model's own output limit is higher; this is a cost guard).
 const RETRY_MAX_OUTPUT_TOKENS_FACTOR = 1.5;
 const RETRY_MAX_OUTPUT_TOKENS_CEILING = 48000;
+// LOCATE-FIRST-1: the locate call's output cap (a list of answers' first lines, no thinking).
+const LOCATE_MAX_OUTPUT_TOKENS = 8000;
 const FALLBACK_COUNTER = 'grading.model_fallback';
 const THINKING_REJECTED_COUNTER = 'grading.thinking_cap_rejected';
 const PROOF_RE = /\b(prove|proof|show that|hence show|verify that|justify)\b/i;
@@ -354,6 +357,8 @@ function createGradingCore(deps) {
     const nonce = c.nonce || chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce);
     const { contents, transport } = buildGradingContents({ questions, uploadByNumber, document, subject, nonce, buildGeminiImagePart, autoDetect, otherQuestionsInDocument: others,
       paperHasAnyTyped: c.paperHasAnyTyped, paperAnyScheme: c.paperAnyScheme,
+      // LOCATE-FIRST-1: only when the locate step succeeded for this paper; absent, the request is byte-identical.
+      ...(c.located ? { located: c.located } : {}),
       // GRADE-SECOND-LOOK-1: only the second-look call carries it; every other call renders as before.
       ...(c.secondLook ? { secondLook: c.secondLook } : {}) });
     // GRADE-SPEED-1 S6: the transport for the [grade-timing] line (a closed set, never content).
@@ -416,7 +421,7 @@ function createGradingCore(deps) {
       single: ctx.single, autoDetect: ctx.autoDetect, label: ctx.label, attempt, timeoutMs, deadlineAt,
       others: ctx.document ? Math.max(0, ctx.total - qs.length) : 0, chunkKey: keyOf(qs),
       nonce: ctx.nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme, meters: ctx.meters,
-      timingSink: ctx.timingSink, ...(extra || {}),
+      timingSink: ctx.timingSink, located: ctx.located, ...(extra || {}),
     });
     const left0 = ctx.callDeadlineAt - now();
     if (left0 <= 0) return [{ questions: chunk.questions, attempt: { error: deadlineError(0), model: chunk.model, timedOut: true } }];
@@ -467,6 +472,49 @@ function createGradingCore(deps) {
   }
 
   /**
+   * LOCATE-FIRST-1 — the ONE locate call (locate.cjs) for a one-document paper. Never throws, never blocks grading past
+   * its own cap: resolves { ok, map?, n, ms, why? }. Fail-open on everything (error, timeout, unparseable, a number not
+   * in the request, nothing placed). No thinking, temperature 0, the grading model (its counted fallback when that is
+   * active). Its usage is metered with the whole paper's questions. Its nonce comes from crypto (never the injected
+   * test generator), so a fail-open grade draws exactly the nonces it drew before.
+   */
+  async function runLocate({ questions, document, label, meters, callDeadlineAt, capMs }) {
+    const t0 = now();
+    const cap = Math.min(capMs, callDeadlineAt - t0);
+    if (!(cap > 0)) return { ok: false, why: 'noTime', n: 0, ms: 0 };
+    try {
+      const nonce = chooseNonce(questions.map((q) => q.questionText));
+      const contents = locateLib.buildLocateContents({ questions, document, nonce, buildGeminiImagePart });
+      const model = fallback.active && chosenModel !== GRADING_FALLBACK_MODEL ? GRADING_FALLBACK_MODEL : chosenModel;
+      const meter = createMeterGroup();
+      meters.push({ questions, meter });
+      const cfg = {
+        temperature: 0,
+        maxOutputTokens: LOCATE_MAX_OUTPUT_TOKENS,
+        responseMimeType: 'application/json',
+        responseSchema: locateLib.LOCATE_RESPONSE_SCHEMA,
+        thinkingConfig: { thinkingBudget: 0 },
+        // TELEMETRY hints only (never on the wire): a find-the-answers call, closest to the detect workload.
+        workloadClass: 'detect-question',
+        timeoutMs: Math.max(1, Math.floor(cap)),
+        deadlineAt: t0 + cap,
+        chunkKey: 'locate',
+        attempt: 1,
+      };
+      const reply = await withinBudget(runInMeterGroup(meter, () => callGemini(model, contents, cfg)), cap);
+      const parsed = extractJsonObjectFromText(reply && reply.text);
+      const v = locateLib.validateLocate(parsed, questions);
+      if (!v.ok) console.warn(label + ' locate step gave no usable map (' + v.why + ') — grading proceeds as before.');
+      return { ...v, n: v.n || 0, ms: now() - t0 };
+    } catch (err) {
+      const timedOut = timingLib.isTimeoutError(err);
+      console.warn(label + ' locate step ' + (timedOut ? 'timed out' : 'failed (HTTP ' + ((err && (err.status || err.statusCode)) || '?') + ')') +
+        ' after ' + (now() - t0) + ' ms — grading proceeds as before.');
+      return { ok: false, why: timedOut ? 'timeout' : 'error', n: 0, ms: now() - t0 };
+    }
+  }
+
+  /**
    * @param {{
    *   questions: Array<object>, document?: {imageBase64, imageMimeType}|null,
    *   uploads?: Array<{qNumber, imageBase64, imageMimeType}>, subject?: string,
@@ -513,6 +561,20 @@ function createGradingCore(deps) {
     // A17 ruling 5: every model call this request makes, with the questions it is for.
     const meters = [];
     const timingSink = input.timingSink && typeof input.timingSink === 'object' ? input.timingSink : null;
+    // LOCATE-FIRST-1: ONE locate call for ONE uploaded document holding two or more questions' answers (not the
+    // auto-detect single path), started NOW so it runs in parallel with the scheme pre-phase below.
+    // (Transport 'document' only: per-question photos already say which answer is which.)
+    const locateDoc = input.document && String(input.document.imageBase64 || '').trim() ? input.document : null;
+    const anyUpload = (Array.isArray(input.uploads) ? input.uploads : []).some((u) => Number(u && u.qNumber) > 0 && u.imageBase64);
+    // Its cap (review S3): a job keeps LOCATE_TIMEOUT_MS; a SYNCHRONOUS grade never waits for it past the scheme pre-phase
+    // window: min(LOCATE_TIMEOUT_MS, max(time left in that window, LOCATE_SYNC_MIN_MS)). `timing.locateTimeoutMs` and
+    // `timing.locateSyncMinMs` are TEST seams only (gradingTimingOverride); production uses the constants.
+    const locateMaxMs = Number.isFinite(timing.locateTimeoutMs) ? timing.locateTimeoutMs : timingLib.LOCATE_TIMEOUT_MS;
+    const locateSyncMinMs = Number.isFinite(timing.locateSyncMinMs) ? timing.locateSyncMinMs : timingLib.LOCATE_SYNC_MIN_MS;
+    const locateCapMs = job ? locateMaxMs : Math.min(locateMaxMs, Math.max(startedAt + timing.cacheBudgetMs - now(), locateSyncMinMs));
+    const locating = locateDoc && !anyUpload && !autoDetect && questions.length >= 2 && !locateLib.locateDisabled(process.env)
+      ? runLocate({ questions, document: locateDoc, label, meters, callDeadlineAt, capMs: locateCapMs })
+      : null;
     if (timingSink) {
       // GRADE-SPEED-1 S6: closed-set / numeric facts about this request for the [grade-timing] line.
       timingSink.marks = single || questions.length === 1 ? (Number(questions[0] && questions[0].marks) || null) : null;
@@ -657,10 +719,20 @@ function createGradingCore(deps) {
         result: normaliseQuestionResult(questions[id], structuredClone(raw), normCtx(questions[id], null, null)) })));
     }
 
+    // LOCATE-FIRST-1: the located map, or null (fail-open: every grading request is then byte-identical to before).
+    let located = null;
+    if (locating) {
+      const loc = await locating;
+      // Review S2/N1: hints only for questions that can carry one; none left → no block anywhere (byte-identical).
+      if (loc.ok && loc.map instanceof Map) located = locateLib.hintableMap(loc.map, questions);
+      if (timingSink) timingSink.locate = { ms: loc.ms, ok: Boolean(located), n: loc.n || 0 };
+    }
     const ctx = {
       idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length, chunked, meters, job, startedAt, timingSink,
-      // D31: request-level, so all chunks share them (see attemptChunk).
-      nonce: chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce),
+      located,
+      // D31: request-level, so all chunks share them (see attemptChunk). The located labels/first lines are student text
+      // fenced with the same nonce, so it must occur in none of them either (absent a map: the same texts as before).
+      nonce: chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]).concat(located ? locateLib.locatedTexts(located) : []), makeFenceNonce),
       paperHasAnyTyped: questions.some((q) => String((q && q.textAnswer) || '').trim().length > 0),
       paperAnyScheme: questions.some((q) => Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0),
     };
@@ -871,6 +943,7 @@ function createGradingCore(deps) {
         deadlineAt: callDeadlineAt, others: Math.max(0, questions.length - qs.length),
         chunkKey: 'look2:' + ids.map((i) => 'q' + i).join('+'),
         nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme, meters: ctx.meters,
+        // Review S1: the second look never repeats the locate map (it may be what the first reading got wrong).
         timingSink, secondLook: { claimed, unplaced: open },
       });
       if (!outcome || !outcome.results) { failed += 1; return []; }
