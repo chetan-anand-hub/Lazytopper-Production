@@ -277,6 +277,15 @@ export default function FullMockPage() {
   // focusSetOf) or VITE_TEST_SERIES_DISABLED -> the param is ignored and the ordinary fresh mock opens.
   const focusSet = seriesN !== null || import.meta.env?.VITE_TEST_SERIES_DISABLED === "1" ? null : focusSetOf(sp.get(FOCUS_PARAM), subject);
   const onSeriesPaper = seriesN !== null || focusSet !== null;
+  // TS-NAV-2 (owner, 25 Nov 2026) - ONE name per paper: on a series paper the page and the record it saves name the PAPER
+  // ("Maths · Full-Length Test 2"; a focus set "Maths · Long answers · Set 2"), never the student's personal attempt count
+  // ("Maths · Mock #3"). The record CODE (FM-M-03) is unchanged; old records keep their names; a non-series mock is unchanged.
+  // Kill switch VITE_TS_NAV2_DISABLED -> the personal name, as before.
+  const tsNav2Off = (() => {
+    const v = import.meta.env?.VITE_TS_NAV2_DISABLED;
+    return typeof v === "string" && !["", "0", "false"].includes(v.trim().toLowerCase());
+  })();
+  const seriesPaperName = tsNav2Off ? null : seriesN !== null ? `${subject} · Full-Length Test ${seriesN}` : focusSet ? `${subject} · ${focusSet.themeTitle} · Set ${focusSet.n}` : null;
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   const fairUse = useFairUse("full-mock", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live (see ChapterTestPage).
@@ -418,14 +427,14 @@ export default function FullMockPage() {
             m.buildFocusSet(focusSet, {
               worksheetId: focusSetWorksheetId(mintFullMockId(), focusSet),
               code: nomen.code,
-              name: nomen.name,
+              name: seriesPaperName ?? nomen.name,
             }),
           )
         : import("../lib/testSeries/seriesFullMock").then((m) =>
             m.buildSeriesFullMock(subject, seriesN as number, {
               worksheetId: seriesMockWorksheetId(mintFullMockId(), subject, seriesN as number),
               code: nomen.code,
-              name: nomen.name,
+              name: seriesPaperName ?? nomen.name,
             }),
           );
       build
@@ -447,6 +456,9 @@ export default function FullMockPage() {
   const seriesActive = onSeriesPaper && !seriesState?.failed;
   // TS-THEMES-1: the focus set is what is on screen (not its fresh-mock fallback).
   const focusActive = !!focusSet && seriesActive;
+  // TS-NAV-2: the name on screen and on the NEXT record - the paper's name while the series paper is what is drawn (its fresh-mock
+  // fallback keeps the personal name).
+  const paperName = seriesActive && seriesPaperName ? seriesPaperName : nomen?.name;
   const freshDraw: DrawnFullMock | null = useMemo(() => {
     if (!nomen || !bank.ready || seriesActive) return null;
     return drawFullMock({
@@ -902,7 +914,7 @@ export default function FullMockPage() {
     const a: ActiveMock = {
       paper: draw.paper,
       code: nomen.code,
-      name: nomen.name,
+      name: paperName ?? nomen.name,
       startedAt: Date.now(),
       // TS-THEMES-1: a focus set is timed at the Full Mock's pace for ITS marks (80 marks in 3 hours), e.g. 20 marks -> 45 minutes.
       durationMs: focusActive && seriesState?.durationMs ? seriesState.durationMs : FM_DURATION_MS,
@@ -923,7 +935,7 @@ export default function FullMockPage() {
     });
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
-  }, [draw, nomen, subject, fairUse.blockPaperStart, wallVerdictFor, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, onSeriesPaper, focusActive, freeWritten, seriesState?.durationMs, isSignedIn, records, navigate]);
+  }, [draw, nomen, paperName, subject, fairUse.blockPaperStart, wallVerdictFor, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, onSeriesPaper, focusActive, freeWritten, seriesState?.durationMs, isSignedIn, records, navigate]);
 
   const resumeMock = useCallback(() => {
     const s = inProgress ?? findInProgressSession(sessionUid);
@@ -1334,7 +1346,7 @@ export default function FullMockPage() {
   // ── Downloads (the triad — name + code on all three) ─────────────────────────
   const paperForExport = activeMock?.paper ?? draw?.paper ?? null;
   const codeForExport = activeMock?.code ?? nomen?.code;
-  const nameForExport = activeMock?.name ?? nomen?.name;
+  const nameForExport = activeMock?.name ?? paperName;
   // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED). A paper + its solutions share one key.
   const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
   const downloadPaper = useCallback(async () => {
@@ -1743,13 +1755,25 @@ export default function FullMockPage() {
               <div className="lt-fm__headrow">
                 <div>
                   <div className="lt-ct__eyebrow" data-testid={seriesActive ? "fm-series-label" : undefined}>
-                    {focusActive && focusSet ? `${focusSetLabel(focusSet)} · ${subject}` : seriesActive && seriesN ? `${fullMockSeriesLabel(seriesN)} · ${subject}` : `Full mock · ${subject}`}
+                    {focusActive && focusSet
+                      ? `${focusSetLabel(focusSet)} · ${subject}`
+                      : seriesActive && seriesN
+                        ? tsNav2Off
+                          ? `${fullMockSeriesLabel(seriesN)} · ${subject}`
+                          : `Test Series · ${subject}`
+                        : `Full mock · ${subject}`}
                   </div>
-                  <h1 className="lt-ct__fr">{nomen?.name ?? `${subject} · Mock`}</h1>
+                  <h1 className="lt-ct__fr" data-testid="fm-title">{paperName ?? `${subject} · Mock`}</h1>
                 </div>
                 <button type="button" className="lt-fm__hctl" onClick={() => setPanelOpen(true)}>
                   <span>Your mocks</span>
                   <span className="lt-fm__hctl-cnt">· {mockRecords.length}</span>
+                  {/* TS-NAV-2: "Your mocks · 2 · 1 awaiting" - not "· 21 awaiting". */}
+                  {awaitingCount > 0 && !tsNav2Off && (
+                    <span className="lt-fm__hctl-cnt" data-testid="fm-hctl-sep">
+                      {" "}·{" "}
+                    </span>
+                  )}
                   {awaitingCount > 0 && (
                     <span className="lt-fm__hctl-await">{awaitingCount} awaiting</span>
                   )}
