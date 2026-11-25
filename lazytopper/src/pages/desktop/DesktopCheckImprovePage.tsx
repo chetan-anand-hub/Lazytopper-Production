@@ -6,6 +6,7 @@ import {
   checkSolutionImage,
   detectQuestion,
   gradeWorksheet,
+  MARK_LIMIT_COPY,
   type CheckSolutionResponse,
   type CheckSolutionAnnotatedStep,
   type MistakeType,
@@ -2439,7 +2440,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         }],
         uploads: [{ qNumber: dq.questionNumber, imageBase64: image.imageBase64, imageMimeType: image.imageMimeType }],
         // The paper's mark pass (owner ruling 25 Nov): the mark rides this paper's weekly slot, not a new one.
-      }, wsResult.markPass ? { ...CI_GRADE_CALL, markPass: wsResult.markPass } : CI_GRADE_CALL);
+      }, wsResult.markPass ? { ...CI_GRADE_CALL, markPass: wsResult.markPass, markQ: dq.questionNumber } : CI_GRADE_CALL);
       const one = response && response.ok !== false && response.results?.[0] ? withEffectiveCounts(response).results[0] : null;
       if (!one || !isGradedQuestion(one)) {
         if (stillShowing()) setMarkError("We still couldn't mark this answer from that part of the photo. Try a tighter box, or a clearer photo of just this answer.");
@@ -2491,7 +2492,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         setMarkError(e.message);
         return;
       }
-      setMarkError(e instanceof Error && (e.name === "GradingNetworkError" || e.name === "UploadTooLargeError") ? e.message : "Marking didn't go through — please try again.");
+      setMarkError(e instanceof Error && (e.name === "GradingNetworkError" || e.name === "UploadTooLargeError" || e.message === MARK_LIMIT_COPY) ? e.message : "Marking didn't go through — please try again.");
     } finally {
       if (stillShowing()) setMarkBusy(false);
     }

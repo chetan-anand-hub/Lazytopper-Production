@@ -1235,6 +1235,9 @@ function createCheckSolutionRoute(deps) {
     // the job — falls through to the synchronous grade below, unchanged byte for byte.
     if (
       deps.GRADING_JOBS === true && gradingJobs && acceptsV2 && !isStubMode()
+      // MARK-ON-PHOTO-1: a mark that rode a pass is ONE question and is always graded synchronously, so its count
+      // toward the cap of 3 settles on this response (a background job would bypass it).
+      && !riding
       && jobsLib.wantsAsync(req, payload)
     ) {
       const attempt = gradingAttemptOf(req);

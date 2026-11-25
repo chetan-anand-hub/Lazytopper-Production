@@ -3844,7 +3844,7 @@ test('MARK-ON-PHOTO-1: a grade that rode a pass but is not that one mark is refu
   const env = { FAIR_USE_PAPER_SECRET: 'k' };
   const token = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-TRIG-03', slot: 's1', questions: [Q(2)], nowMs: Date.now() });
   const make = (body, headers = {}) => {
-    const req = { subject: 'Maths', acceptsV2: true, headers: { [markPass.MARK_PASS_HEADER]: token, ...headers }, ...body };
+    const req = { subject: 'Maths', acceptsV2: true, headers: { [markPass.MARK_PASS_HEADER]: token, [markPass.MARK_Q_HEADER]: '2', ...headers }, ...body };
     Object.defineProperty(req, require('../services/fairUse.cjs').GRADING_ATTEMPT, { value: { uid: 'stu-1', path: '/api/grade-worksheet' } });
     markPass.verifiedMarkPassOf(req, 'stu-1', env, Date.now());
     return req;
@@ -3863,9 +3863,18 @@ test('MARK-ON-PHOTO-1: a grade that rode a pass but is not that one mark is refu
   await job.route.handleGradeWorksheet(make({ worksheetId: 'ci:CI-M-TRIG-03:mark:1', async: true, questions: [Q(1), Q(2)], uploads: [UP(1), UP(2)] }, { prefer: 'respond-async' }), {});
   assert.equal(job.status(), 400);
   assert.equal(submitted, 0);
-  // CONTROL: the allowed mark DOES reach the job submit on the same rig (the refusal above is not vacuous)
+  // MARK-CAP-1 (review C1): even the allowed mark is NEVER a background job — it grades synchronously, so its count
+  // toward the cap settles on this response
   const jobOk = buildImageRoute({ replies: [WS_OK([2])], depOverrides: { GRADING_JOBS: true, gradingJobs: { submit: async () => { submitted += 1; return { ok: false }; } } } });
   await jobOk.route.handleGradeWorksheet(make({ worksheetId: 'ci:CI-M-TRIG-03:mark:1', async: true, questions: [Q(2)], uploads: [UP(2)] }, { prefer: 'respond-async' }), {});
+  assert.equal(submitted, 0);
+  assert.equal(jobOk.status(), 200);
+  assert.equal(jobOk.calls.length, 1);
+  // CONTROL: the same rig DOES submit an ordinary (non-mark) paper as a job, so the line above is not vacuous
+  const plainReq = { worksheetId: 'ci:CI-M-TRIG-03', subject: 'Maths', acceptsV2: true, async: true, questions: [Q(1), Q(2)], uploads: [UP(1), UP(2)], headers: { prefer: 'respond-async' } };
+  Object.defineProperty(plainReq, require('../services/fairUse.cjs').GRADING_ATTEMPT, { value: { uid: 'stu-1', path: '/api/grade-worksheet' } });
+  const plain = buildImageRoute({ replies: [WS_OK([1, 2])], depOverrides: { GRADING_JOBS: true, gradingJobs: { submit: async () => { submitted += 1; return { ok: false }; } } } });
+  await plain.route.handleGradeWorksheet(plainReq, {});
   assert.equal(submitted, 1);
   // CONTROL: the one mark the pass allows is graded
   const good = buildImageRoute({ replies: [WS_OK([2])] });

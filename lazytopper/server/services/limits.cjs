@@ -298,7 +298,28 @@ function readState(snap) {
     firstFree: { download: ff.download === true, qp: ff.qp === true, grade },
     detail,
     cohortMs: Number.isFinite(d.cohortMs) ? d.cohortMs : null,
+    mk: cleanMarks(d.mk),
   };
+}
+
+/** MARK-ON-PHOTO-1 (owner ruling 25 Nov 22:17): graded marks per `<paper slot>|<question>`, for the cap of 3. */
+const MARK_CAP = 3;
+const MARK_KEEP_MS = 8 * 24 * 60 * 60 * 1000;
+const MARK_MAX_KEYS = 200;
+function cleanMarks(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object') return out;
+  for (const [k, v] of Object.entries(raw)) {
+    if (typeof k !== 'string' || k.length > 80 || !v || typeof v !== 'object') continue;
+    const n = Number(v.n);
+    const at = Number(v.at);
+    if (Number.isInteger(n) && n > 0 && Number.isFinite(at)) out[k] = { n, at };
+  }
+  return out;
+}
+function pruneMarks(mk, nowMs) {
+  const kept = Object.entries(mk || {}).filter(([, v]) => nowMs - v.at <= MARK_KEEP_MS).sort((a, b) => b[1].at - a[1].at).slice(0, MARK_MAX_KEYS);
+  return Object.fromEntries(kept);
 }
 
 /** The ONE document shape every mutation writes back whole (a partial set would drop the rest). */
@@ -312,6 +333,7 @@ function serializeState(state, nowMs, cohortMs) {
     gr,
     firstFree: { download: state.firstFree.download === true, qp: state.firstFree.qp === true, grade: { ...state.firstFree.grade } },
     detail: { ...state.detail },
+    ...(state.mk && Object.keys(state.mk).length ? { mk: pruneMarks(state.mk, nowMs) } : {}),
     updatedMs: nowMs,
   };
 }
@@ -871,7 +893,27 @@ function createLimits(deps = {}) {
 
       // ONE transaction: read the bucket, decide and RESERVE the slot. Parallel requests (different
       // idempotency keys) serialise on the document, so the cap cannot be passed.
-      const r = await reserveGrade(db, uid, { bucket, id, limit, tier: info.tier, createdMs: info.createdMs, nowMs: now() });
+      const markKey = ridden ? `${ridden.slot}|${ridden.q}` : null;
+      const r = await reserveGrade(db, uid, { bucket, id, limit, tier: info.tier, createdMs: info.createdMs, nowMs: now(), markKey });
+      if (r.kind === 'markCapped') {
+        emit('limits.grade.mark_capped');
+        sendJson(res, 409, { ok: false, error: markPass.MARK_LIMIT_COPY, code: 'mark_limit', limit: MARK_CAP });
+        return { refused: true };
+      }
+      if (ridden && (r.kind === 'reused' || r.kind === 'reserved')) {
+        // The count was taken at admission; only a mark that came back GRADED keeps it.
+        let done = false;
+        const giveBack = () => {
+          if (done) return;
+          done = true;
+          releaseMark(db, uid, markKey, info.createdMs).then(() => emit('limits.grade.mark_released'), () => emit('limits.fail_open'));
+        };
+        res.once('finish', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300 && chargeableCountOf(res) !== 0) { done = true; return; }
+          giveBack();
+        });
+        res.once('close', () => { if (!res.writableFinished) giveBack(); });
+      }
       if (r.kind === 'none') return none; // Basic, first free already used: the ordinary 402 follows
       if (r.kind === 'refused') {
         emit('limits.grade.refused');
@@ -909,10 +951,21 @@ function createLimits(deps = {}) {
   }
 
   /** The decision + the reservation in ONE transaction. */
-  function reserveGrade(db, uid, { bucket, id, limit, tier, createdMs, nowMs }) {
+  function reserveGrade(db, uid, { bucket, id, limit, tier, createdMs, nowMs, markKey = null }) {
     return db.runTransaction(async (tx) => {
       const ref = stateRef(db, uid);
       const state = readState(await tx.get(ref));
+      // MARK-ON-PHOTO-1: the same question of the same paper is marked on the photo at most MARK_CAP times.
+      if (markKey && state.mk[markKey] && state.mk[markKey].n >= MARK_CAP && nowMs - state.mk[markKey].at <= MARK_KEEP_MS) {
+        return { kind: 'markCapped' };
+      }
+      // The mark's count is taken HERE, in the same transaction that admits it, so parallel marks serialise on the
+      // document and cannot pass the cap; a mark that comes back ungraded gives it back (releaseMark).
+      const takeMark = () => {
+        if (!markKey) return;
+        const prev = state.mk[markKey];
+        state.mk[markKey] = { n: (prev ? prev.n : 0) + 1, at: nowMs };
+      };
       const all = bucketOf(state, bucket);
       const isStale = (e) => e.p === 1 && nowMs - e.at > RESERVATION_TTL_MS;
       const held = all.filter((e) => !isStale(e));
@@ -928,15 +981,35 @@ function createLimits(deps = {}) {
       } else {
         const d = decideCounted({ metered: true, limit, entries: held, firstFreeUsed: ffUsed, id, nowMs, window: windowOf(bucket) });
         if (d.kind === 'refused') return { kind: 'refused', used: d.used, resetAt: d.resetAt };
-        if (d.kind === 'reused') return { kind: 'reused' };
+        if (d.kind === 'reused') {
+          if (markKey) {
+            takeMark();
+            tx.set(ref, serializeState(state, nowMs, createdMs));
+          }
+          return { kind: 'reused' };
+        }
         entries = d.entries;
         free = d.free;
       }
       const entry = { at: nowMs, id, free, p: 1, ...(bucket === 'qp' ? { g: 1 } : {}) };
       setBucket(state, bucket, entries.concat([entry]).sort((x, y) => x.at - y.at).slice(-MAX_ENTRIES));
       markFirstFree(state, bucket);
+      takeMark();
       tx.set(ref, serializeState(state, nowMs, createdMs));
       return { kind: 'reserved', free };
+    });
+  }
+
+  /** MARK-ON-PHOTO-1: a mark that came back ungraded (or never finished) gives its count back. */
+  function releaseMark(db, uid, markKey, createdMs) {
+    return db.runTransaction(async (tx) => {
+      const ref = stateRef(db, uid);
+      const state = readState(await tx.get(ref));
+      const prev = state.mk[markKey];
+      if (!prev) return;
+      if (prev.n <= 1) delete state.mk[markKey];
+      else state.mk[markKey] = { n: prev.n - 1, at: prev.at };
+      tx.set(ref, serializeState(state, now(), createdMs));
     });
   }
 
