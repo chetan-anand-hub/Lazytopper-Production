@@ -1,3 +1,10 @@
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:13 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 - MERGED
+
+- DONE, Test Series display. `#1862` (`2bbdcb41`) FM-RECHECK-NOTE-1 (settle re-read). Closes `[FU-FM-UNCOUNTED-NOTE]`.
+- DONE, desktop shell. `#1864` (`9eca5db9`) AVATAR-CONTRAST-1. Closes `[FU-DESKTOPSHELL-AVATAR-CONTRAST]`.
+- DONE, speed. `#1865` (`eeac414f`) PERF3-HEADROOM-1 (entry gz -6.5 KB). Closes `[FU-PERF3-HEADROOM]`.
+- DONE, grading cache. `#1863` (`ec5ba0e7`) SCHEME-CACHE-V4. Closes `[FU-SCHEME-CACHE-VERSION]`; live verify owed.
+
 ## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859 - MERGED
 
 - DONE, /pricing FAQ. `#1858` (`aaffbc9f`) FAQ-WHY-BOTH-1: "How is the Board Pass different from Question Bank + Mocks?" (Board Pass online and marked; Question Bank + Mocks offline, self-checked).

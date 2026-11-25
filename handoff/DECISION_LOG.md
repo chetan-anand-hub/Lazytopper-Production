@@ -1,3 +1,15 @@
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:13 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted. Rulings 1-3 are the owner's (25 Nov 12:17 IST, this session) **[owner]**; 4 is the cofounder's call under the owner's "you do now" **[coordinator]**. No scope discovered.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **1. Bump the scheme cache (v4)** [owner] | `CACHE_VERSION` v3 -> v4 (`#1863`). | Schemes cached before `#1822` came from the old prompt (truncated schemes 73 -> 0 in the golden eval after `#1822`); the owner accepted the cost of one regeneration per question. |
+| **2. Scoped grant for one line of `DesktopShell.tsx`** [owner] | The avatar gradient only (`#1864`). | White initials were 2.70:1 on light green; AA needs 4.5:1. |
+| **3. Demo first** [owner] | Demo sheets and a live Answer Checker check took priority over the queue. | A product demo to a coaching institute the same afternoon. |
+| **4. No extra "free test before Buy" build on /test-series** [coordinator] | Item 9 closed without a PR. | The hero already says "your first test is free — written answers marked too" above Buy (read live 25 Nov). |
+| **5. FM note fixed as a settle race, not copy** [coordinator] | `#1862` re-reads instead of changing text. | Live `/api/packs/mine` showed the free re-check WAS given; the read raced the server's settle. |
+
 ## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted here. Both rulings are the owner's, relayed in the cofounder addendum `claude/HANDOFF_COFOUNDER_SESSION_2026-11-25_ADDENDUM.md` **[owner, via coordinator]**. No scope was discovered in this window (SURFACE_TRACKER).
