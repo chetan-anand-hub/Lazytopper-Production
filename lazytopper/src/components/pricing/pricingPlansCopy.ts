@@ -234,9 +234,14 @@ export const PROOF_TITLE = "See the Answer Checker at work";
 export const FAQ_TITLE = "Questions parents ask";
 export const FAQ_MORE_SUMMARY = "More questions";
 
+/**
+ * FAQ-WHY-BOTH-1 (owner, 25 Nov 2026): the question must say WHICH two products differ, and the answer must say the Question Bank
+ * + Mocks pack is offline practice that LazyTopper does NOT mark - the student checks it against the worked solutions and the
+ * marking scheme. (No "answer key" in new copy - the 19 Nov ads ruling.)
+ */
 export const FAQ_WHY_BOTH = {
-  q: "Why both?",
-  a: `They do different jobs. The ${BOARD_PASS_NAME} marks your child's written answers like a CBSE examiner. Packs are the same questions organised to print, for practice away from the screen.`,
+  q: `How is the ${BOARD_PASS_NAME} different from Question Bank + Mocks?`,
+  a: `The ${BOARD_PASS_NAME} is online: your child writes answers on paper, uploads a photo, and LazyTopper marks every step like a CBSE examiner. Question Bank + Mocks is for offline practice: printable questions and full papers with worked solutions and the marking scheme. LazyTopper does not mark these; your child checks their own answers.`,
 } as const;
 export const FAQ_SUBSCRIPTION = { q: "Is it a subscription?", a: "No. You pay once. Nothing renews." } as const;
 export const FAQ_PAY_FOR_CHILD_Q = "Can I pay for my child?";
