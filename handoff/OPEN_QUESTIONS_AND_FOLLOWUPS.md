@@ -23,6 +23,84 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-24 (daily; covers 24-25 Nov IST: merges 14:39 IST 24 Nov to 06:22 IST 25 Nov, i.e. 09:09 UTC 24 Nov to 00:52 UTC 25 Nov; written 24 Nov, updated about 23:05 IST 24 Nov and about 06:30 IST 25 Nov) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 - #1854 - #1852 - #1856 - #1855 - #1853 - #1857 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*(Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` and the coordinator's messages from this session [coordinator]. All tags below are minted here: the board was searched first (sameAs, directories, `login_abandon`, `google_redirect_started`, parent pay link, ui-e2e, Phase 2, buyer score, PERF-3 headroom) and none had an entry with the same meaning. `[FU-UI-E2E-REQUIRED-CHECK]` already exists (23 Nov) and is NOT duplicated; see its status line below. Older entries are left as written (standing rule 3).)*
+
+**Status of existing entries.**
+- `[FU-UI-E2E-REQUIRED-CHECK]` (23 Nov entry stays as written): **still OPEN.** Make `ui-e2e` a required check after a few clean days. Nothing changed on 24 Nov.
+- `#1840` LIVE-FIX-1 live verify (23 Nov, NEXT_ACTION and SURFACE_TRACKER): **Chapter Test surface PASSED** on 24 Nov (checks (a)-(d), Real Numbers Chapter Test 1, freelance.iitian). **Full Mock surface still OWED**, so `#1840` stays PARTIAL there.
+
+### [FU-TS-CHECKOUT-BOTH-OPTIONS] (minted)
+OPEN, IN BUILD as lane TS-PARENT-FORWARD-1; money path. The Test Series checkout keeps Buy and adds "Forward link to parents" (owner ruling, 24 Nov about 21:35 IST; DECISION_LOG 2026-11-24 ruling 2). Evidence: 9 Test Series checkouts in about 15 h with 0 payment attempts, mostly students at night who cannot pay themselves. The lane's pre-flight found the parent message and landing called the Test Series "printable PDFs"; corrected to "board-pattern tests I can take online or print", because series owners can download and print papers (18 Nov ruling). Needs an independent review and a kill switch. Related, not the same: `[FU-TS-UPGRADE-PARENT-GUEST]` (no Test Series upgrade credit on parent pay-link and guest Board Pass checkouts). [coordinator]
+
+### [FU-SAMEAS-MORE-DIRECTORIES] (minted)
+OPEN, small. `#1847` added Crunchbase and Wellfound to the Organization `sameAs` (10 URLs, pinned in `socialProfiles.guard.test.tsx`). Add, each only once its listing is live: F6S (after its approval), Tracxn, and Product Hunt (after the launch). Each addition must update `config/socialProfiles.ts`, `index.html` and the guard test together. [coordinator]
+
+### [FU-LOGIN-ABANDON-REDIRECT-STEP] (minted)
+**CLOSED, not a bug.** The question was whether `login_abandon` events at the `google_redirect_started` step are a measurement bug. They are not: `lazytopper/src/utils/loginAbandon.ts` (header comment, about lines 37-40, and `EXPECTED_UNLOAD` at line 60) records the Google redirect and the Chrome hand-off with `leave: "expected"`, because those steps unload the page on purpose; a real abandonment is `leave: "abandon"`. Count drop-off with `leave: "abandon"` only. Events came from `#1601` LOGIN-FIX-2. [coordinator; code read at trunk `2d851629`, git]
+
+### [FU-UI-E2E-PHASE2-TEST-SIGNIN] (minted)
+OPEN, spec written, **waiting for the owner's OK.** UI tests Phase 2 (signed-in real-browser checks) needs a sign-in that works only in the test build: the spec uses the Firebase emulator in the CI build, with no server change. Auth path: independent review before merge. Phase 1 is `#1838` (six signed-out pages). [coordinator]
+
+### [FU-BUYERSCORE-LAZY-TEST] (minted)
+OPEN, review nits on `#1819` BUYER-SCORE-1 (APPROVE-WITH-NITS): (1) lazy-load test 2 is misnamed and near-vacuous; (2) no test pins the about 2 s late load of the score; (3) the kill-switch regex lost its `.trim()`; (4) `engaged10` now depends on the buyerScore chunks; (5) stacked JSDoc blocks. [coordinator]
+
+### [FU-PERF3-HEADROOM-34B] (minted)
+OPEN, budget decision needed. After `#1819` the PERF-3 entry chunk is 170,593 of the 170,627 gz budget: **34 B left**. The next PR that adds any byte to the entry chunk needs a budget decision (raise the budget with a reason, or move code out of the entry). `#1819` was first 217 B over (170,844) in the production-flag build while the local non-flag build hid it, so measure the production-flag build. [coordinator]
+
+### [FU-OUTREACH-TASK-NO-COMPUTER] (minted)
+OPEN, owner action. The school-outreach scheduled task has no computer attached: the owner's 22:08 IST manual run on 24 Nov ended in about 1.5 min without touching the tracker. The owner will fix it himself (desktop app, "Require this computer") before the next run, 25 Nov 11:37 IST. Check after that run that the tracker moved. [coordinator]
+
+### [FU-META-TEST-EVENT-CODE-REMOVE] (minted)
+OPEN, after Meta Test Events. The owner and Pallabi run Meta Test Events (one Board Pass order plus one pack order, one deduplicated InitiateCheckout each) at the end of the 24 Nov session, else the next session. Then remove `META_TEST_EVENT_CODE` from Railway (it is only for the test run). [coordinator]
+
+### 25 NOV UPDATE (same PR, before merge; `#1854`, `#1852`, `#1856`, `#1855`, `#1853`, `#1857`)
+*(Source: the coordinator's messages from this session (https://claude.ai/code/session_01QscBGog9Fe4ZxiPQ6vdGo7) [coordinator]; PR numbers and SHAs [git]. The board was searched for every tag below before minting (`grep -c` = 0 for each new ID, and for "MutationObserver" in this sense). Where the coordinator proposed an ID whose meaning already has an entry minted earlier in this same section, the existing entry is updated instead of minting a duplicate, as named in each status line. Older dated entries are left as written (standing rule 3).)*
+
+**Status of existing entries.**
+- `[FU-FAIRUSE-TS-OWNER-EXEMPT]` (23 Nov entry stays as written): **CLOSED by `#1854`** (`e634c25c`) FAIRUSE-TS-OWNER-1: the server paper pass and the client gate exempt Test Series owners and Board Pass holders from the trial weekly paper limit; the tier is read uncached right after payment. Confirmed live on Full Mock (no wall, Start works) [coordinator]. Remaining caches: `[FU-LIMITS-POSTPAY-CACHE]`, `[FU-FAIRUSE-ISPREMIUM-CACHE]`.
+- `[FU-TS-CHECKOUT-BOTH-OPTIONS]` (above): **CLOSED by `#1852`** (signed in) **and `#1855`** (signed out, no sign-in). Remaining copy nit: `[FU-TS-PARENT-HEADING]`. `[FU-TS-UPGRADE-PARENT-GUEST]` is unchanged and still OPEN.
+- `[FU-UI-E2E-PHASE2-TEST-SIGNIN]` (above): **CLOSED by `#1856`** (`714e4325`) UI-E2E-2-SIGNIN (CI-only signed-in smoke on the Firebase emulators; independent security review APPROVE-WITH-NITS). The next step is Phase 2 page coverage on this harness. Nits: `[FU-UIE2E2-NITS]`.
+- `[FU-PERF3-HEADROOM-34B]` (above): **SUPERSEDED by `[FU-PERF3-HEADROOM]`** (the headroom is no longer 34 B).
+- `[FU-OUTREACH-TASK-NO-COMPUTER]` (above): **still OPEN.** The coordinator's proposed ID FU-OUTREACH-COMPUTER (not a board tag) has the same meaning and is NOT minted (standing rule 2: the first writer records it). The 24 Nov 22:08 run did nothing; the owner toggles "Require this computer".
+- `[FU-META-TEST-EVENT-CODE-REMOVE]` (above): **still OPEN.** The proposed ID FU-META-TEST-EVENTS (not a board tag) has the same meaning and is NOT minted: the owner and Pallabi run Meta Test Events, then remove `META_TEST_EVENT_CODE` from Railway.
+- `[FU-BUYERSCORE-LAZY-TEST]` (above): **still OPEN**, unchanged; already minted, not duplicated.
+- `[FU-UI-E2E-REQUIRED-CHECK]` (23 Nov): still OPEN, unchanged.
+
+### [FU-PERF3-HEADROOM] (minted)
+OPEN, standing budget rule. The PERF-3 entry chunk is about **16 B** under the 170,627 gz budget after tonight's merges. A new entry export alias alone added 6 B and failed CI tonight. **Any PR touching entry-chunk imports must compare raw entry bytes with trunk on a production-flag build** (the local non-flag build has hidden overruns before: `#1819`, 217 B). Next addition needs a budget decision (raise with a reason, or move code out of the entry). Supersedes `[FU-PERF3-HEADROOM-34B]`. [coordinator]
+
+### [FU-FM-UNCOUNTED-NOTE] (minted)
+OPEN, copy only. On Full Mock, after `#1854`, a one-answer sheet was graded and checks stayed 2 of 2 (correct), but the "This check wasn't counted" note that Chapter Test shows is missing on Full Mock (live check 25 Nov about 06:45 IST, freelance.iitian, trunk `0ae599c7`). Not a grading change: marks and counting are right; only the note is absent. [coordinator]
+
+### [FU-1840-FM-LIVE] (minted)
+OPEN, live check owed. `#1840` LIVE-FIX-1 checks (a) (fully graded with not-attempted rows) and (d) (checks left go down) are still owed on a **Full Mock**; the Chapter Test surface PASSED on 24 Nov, and (b) on Full Mock was seen on 25 Nov apart from the missing note (`[FU-FM-UNCOUNTED-NOTE]`). Until (a) and (d) pass, `#1840` stays PARTIAL on Full Mock. [coordinator]
+
+### [FU-LIMITS-POSTPAY-CACHE] (minted)
+OPEN, entitlement. `limits.cjs` caches the trial tier for 60 s, so a download right after payment can still see the trial tier. `#1854` reads the tier uncached for the paper pass only. [coordinator]
+
+### [FU-FAIRUSE-ISPREMIUM-CACHE] (minted)
+OPEN, entitlement. The fair-use overload path keeps a 5-minute cache of premium status, so a fresh payment may not be seen there for up to 5 minutes. Recorded with `#1854`. [coordinator]
+
+### [FU-TS-PARENT-HEADING] (minted)
+OPEN, copy. The parent pay page heading says "Pack" when the item is the Test Series (after `#1852` / `#1855`). [coordinator]
+
+### [FU-UIE2E2-NITS] (minted)
+OPEN, review nits on `#1856` UI-E2E-2-SIGNIN (security review APPROVE-WITH-NITS): (1) `tests/e2e/buildEnv.signedIn.json` cites a nonexistent `--sources` flag; (2) `scripts/ops/e2e_emulator_absent.mjs` says it runs in the Railway image, but `Dockerfile:49` builds the backend only; (3) the `demo-` project id (relayed as a nit without further detail). [coordinator]
+
+### [FU-FMP2-NITS] (minted)
+OPEN, review nits on `#1857` FOUNDING-MSG-PRICE-2 (APPROVE-WITH-NITS): (1) `abandonedCheckout.cjs` hardcodes `'test_series'` as the only founding-priced pack; (2) an empty if-branch in `guestAbandonEmail.cjs`; (3) `rupees()` is now unused in `nudgeConciergeTemplates.cjs`; (4) **Test Series abandoned-checkout emails are null** because `packDisplayName` lacks `test_series`, so no abandoned-checkout email goes out for the Test Series. Item 4 is a real gap, not only style. [coordinator]
+
+### [FU-PRICING-MUTATIONOBSERVER-SCOPE] (minted)
+OPEN, review nit on `#1853` PRICING-CTA-UP-1 (reviews APPROVE-WITH-NITS): the scope of the MutationObserver added on /pricing. The coordinator relayed only the ID; take the detail from the `#1853` review before building. [coordinator]
+
+### [FU-BOARDPASS-PAY-ALIGN] (minted)
+OPEN, cosmetic, partly by design. Signed out, the Board Pass Pay button sits 8 px above the others because its label wraps to two lines. For a Test Series owner the upgrade line ("Upgrade for ₹918 + GST — you've already paid for the Test Series") pushes it about 58 px up: that is by design. Owner ruling: Buys aligned (DECISION_LOG 2026-11-24 ruling 11). [coordinator]
+
+### [FU-GITHUB-BILL] (minted)
+OPEN, owner action, uptime risk. GitHub shows an overdue bill; pay by 30 Nov. The repo goes PRIVATE after tonight's PRs, and private repos consume Actions minutes, so an unpaid bill can stop CI. [coordinator]
+
 ## 2026-11-23 (daily; UTC day 23 Nov, written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 *(Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-23.md` section 6 [coordinator]. Tags the handoff gave are used as written; a tag marked "minted" had none in the handoff and was named here so it has its own heading (standing rule 1). Older entries are left as written (standing rule 3); the corrections are here.)*

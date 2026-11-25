@@ -1,3 +1,23 @@
+## 2026-11-24 (daily; covers 24-25 Nov IST: merges 14:39 IST 24 Nov to 06:22 IST 25 Nov, i.e. 09:09 UTC 24 Nov to 00:52 UTC 25 Nov; written 24 Nov, updated about 23:05 IST 24 Nov and about 06:30 IST 25 Nov) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 - #1854 - #1852 - #1856 - #1855 - #1853 - #1857 - MERGED
+
+- DONE, Test Series SEO. `#1846` (`dacd6ae4`) TS-H1-KEYWORD-1: the /test-series h1 starts with "CBSE Class 10 Test Series"; "mock tests" wording.
+- DONE, structured data. `#1847` (`27ff3d02`) SAMEAS-DIRECTORIES-1: Crunchbase and Wellfound in the Organization `sameAs` (10 URLs pinned). More directories later: `[FU-SAMEAS-MORE-DIRECTORIES]`.
+- DONE, admin measurement. `#1848` (`4f02d397`) MISTAKE-SPLIT-1: read-only GET `/api/admin/mistake-split` (first reading: conceptual 57.2%, presentation 22.7%, calculation 12.9%, silly 7.2%; 1,178 logs, 163 students).
+- DONE, schools. `#1849` (`3da53c09`) SCHOOLS-BOOKLET-1 hosts the schools booklet PDF; `#1850` (`5783881e`) SCHOOLS-BOOKLET-2 gives it a new cover.
+- DONE, Meta measurement. `#1811` (`96fc6d4b`) META-IC-1 (InitiateCheckout only at Razorpay order creation, browser + CAPI, one `event_id`); `#1816` (`581fdea3`) META-PURCHASE-UNIFY-1 (a paid pack is a standard Purchase, GST-inclusive value); `#1819` (`2d851629`) BUYER-SCORE-1 (GA4 `buyer_tier`, Meta BuyerTierWarm/Hot, admin "Buyer score"). OWED: Meta Test Events, then remove `META_TEST_EVENT_CODE` from Railway.
+- DONE (Chapter Test surface), `#1840` LIVE-FIX-1 live check (a)-(d) PASS on Real Numbers Chapter Test 1. Full Mock surface still OWED, so PARTIAL.
+- (24 Nov) IN BUILD, **now MERGED (below):** TS-PARENT-FORWARD-1 (Test Series "Forward link to parents" next to Buy, `[FU-TS-CHECKOUT-BOTH-OPTIONS]`); PRICING-CTA-UP-1 (/pricing price and Buy up on every card, honest sticky-bar price for Test Series owners). Slimmer /pricing card faces wait on an independent UX review.
+- SPEC WRITTEN, waiting for the owner's OK: UI-E2E Phase 2 test-only sign-in (`[FU-UI-E2E-PHASE2-TEST-SIGNIN]`). **Update 25 Nov: shipped as `#1856`.**
+- BUDGET: PERF-3 entry chunk has 34 B left (`[FU-PERF3-HEADROOM-34B]`). **Update 25 Nov: about 16 B left (`[FU-PERF3-HEADROOM]`).**
+- OWED: `#1840` on a Full Mock; STEPMARK-3; `#1822` second surface; board estimate. `#1833` stays a draft. The earlier lists stand.
+- DONE (25 Nov), fair use. `#1854` (`e634c25c`) FAIRUSE-TS-OWNER-1: Test Series owners and Board Pass holders exempt from the trial weekly paper limit (server and client); confirmed live. Closes `[FU-FAIRUSE-TS-OWNER-EXEMPT]`; the Test Series Scope leaves Settling.
+- DONE (25 Nov), parent forward. `#1852` (`33032a3a`) TS-PARENT-FORWARD-1 (signed in) and `#1855` (`dc17fffc`) TS-PARENT-FORWARD-2 + FOUNDING-MSG-PRICE-1 (signed out, no sign-in; parent messages name no amount during the founding offer). Closes `[FU-TS-CHECKOUT-BOTH-OPTIONS]`.
+- DONE (25 Nov), /pricing. `#1853` (`b085695a`) PRICING-CTA-UP-1: four equal-size slim cards, one Buy each, details inside; honest sticky-bar upgrade price. Live-checked 25 Nov 06:45 IST.
+- DONE (25 Nov), emails. `#1857` (`0ae599c7`) FOUNDING-MSG-PRICE-2: server emails dated "founding price till 30 Nov, then ₹2,499 + GST".
+- DONE (25 Nov), UI tests Phase 2 sign-in. `#1856` (`714e4325`) UI-E2E-2-SIGNIN (CI-only, Firebase emulators). NEXT: Phase 2 page coverage.
+- DROPPED: CBQ-WA-OPTIN-1 (/cbq-packs already has the box in its buy pop-up).
+- OWED (25 Nov): `[FU-FM-UNCOUNTED-NOTE]` (copy), `[FU-1840-FM-LIVE]` (Full Mock (a)/(d)).
+
 ## 2026-11-23 (daily; UTC day 23 Nov, written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840 - MERGED
 
 - DONE, Test Series. `#1830` (`b8ff26c4`) TS-HERO-1 (hero line "written answers marked step by step in minutes"; Buy above the fold on phones). `#1831` (`02e8aef0`) TS-DIFF-1 (Easier / Standard / Harder). `#1832` (`fad42a83`) TS-BOARDSCORE-1 (scorecards out of full marks, trend, board estimate). `#1836` (`19720249`) TS-FREE-CHECK-1 (the free test includes written marking). `#1837` (`0756d13f`) TS-THEMES-1 (30 focus sets).
