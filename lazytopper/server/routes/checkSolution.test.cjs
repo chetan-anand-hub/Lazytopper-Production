@@ -3806,3 +3806,50 @@ test('§T.6 CONTROL: a good grade is still a 200 with no `retryable` (the 504 pa
   assert.equal(h.status(), 200);
   assert.equal('retryable' in h.body(), false);
 });
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   MARK-ON-PHOTO-1 · the mark pass (owner ruling 25 Nov 2026: a mark rides the paper's slot)
+   ══════════════════════════════════════════════════════════════════════════════ */
+test('MARK-ON-PHOTO-1: an Answer Checker paper that leaves a question unmarked carries a mark pass for it; other surfaces never do', async () => {
+  const markPass = require('../services/markPass.cjs');
+  const { GRADING_ATTEMPT } = require('../services/fairUse.cjs');
+  const prev = process.env.FAIR_USE_PAPER_SECRET;
+  process.env.FAIR_USE_PAPER_SECRET = 'route-secret';
+  try {
+    const run = async (worksheetId, surface) => {
+      const h = buildImageRoute({ replies: [WS_OK([1])] });
+      const req = { worksheetId, subject: 'Maths', acceptsV2: true, questions: [Q(1), Q(2)], uploads: [UP(1), UP(2)], headers: surface ? { 'x-lazytopper-surface': surface } : {} };
+      Object.defineProperty(req, GRADING_ATTEMPT, { value: { uid: 'stu-1', path: '/api/grade-worksheet' } });
+      await h.route.handleGradeWorksheet(req, {});
+      return h.body();
+    };
+    const body = await run('ci:CI-M-TRIG-03', 'check-improve');
+    assert.ok(typeof body.markPass === 'string', 'the paper carries a pass');
+    const pass = markPass.verifyMarkPass(body.markPass, { env: process.env, uid: 'stu-1', nowMs: Date.now() });
+    assert.deepEqual([pass.paperKey, pass.numbers], ['ci:CI-M-TRIG-03', [2]], 'only the unmarked question');
+    assert.equal((await run('ws-1', 'worksheet')).markPass, undefined, 'a bank surface: none');
+    assert.equal((await run('ci:CI-M-TRIG-03:mark:1', 'check-improve')).markPass, undefined, 'a mark: none');
+  } finally {
+    if (prev === undefined) delete process.env.FAIR_USE_PAPER_SECRET; else process.env.FAIR_USE_PAPER_SECRET = prev;
+  }
+});
+
+test('MARK-ON-PHOTO-1: a grade that rode a pass but is not that one mark is refused before any model call', async () => {
+  const markPass = require('../services/markPass.cjs');
+  const env = { FAIR_USE_PAPER_SECRET: 'k' };
+  const token = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-TRIG-03', numbers: [2], nowMs: Date.now() });
+  const make = (body) => {
+    const req = { subject: 'Maths', acceptsV2: true, headers: { [markPass.MARK_PASS_HEADER]: token }, ...body };
+    markPass.verifiedMarkPassOf(req, 'stu-1', env, Date.now());
+    return req;
+  };
+  const bad = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await bad.route.handleGradeWorksheet(make({ worksheetId: 'ci:CI-M-TRIG-03:mark:1', questions: [Q(1), Q(2)], uploads: [UP(1), UP(2)] }), {});
+  assert.equal(bad.status(), 400);
+  assert.equal(bad.calls.length, 0);
+  // CONTROL: the one mark the pass allows is graded
+  const good = buildImageRoute({ replies: [WS_OK([2])] });
+  await good.route.handleGradeWorksheet(make({ worksheetId: 'ci:CI-M-TRIG-03:mark:1', questions: [Q(2)], uploads: [UP(2)] }), {});
+  assert.equal(good.status(), 200);
+  assert.equal(good.calls.length, 1);
+});

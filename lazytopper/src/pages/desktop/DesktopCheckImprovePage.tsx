@@ -2438,7 +2438,8 @@ const DesktopCheckImprovePageInner: React.FC<{
           ...detectedKeyFields(dq, false),
         }],
         uploads: [{ qNumber: dq.questionNumber, imageBase64: image.imageBase64, imageMimeType: image.imageMimeType }],
-      }, CI_GRADE_CALL);
+        // The paper's mark pass (owner ruling 25 Nov): the mark rides this paper's weekly slot, not a new one.
+      }, wsResult.markPass ? { ...CI_GRADE_CALL, markPass: wsResult.markPass } : CI_GRADE_CALL);
       const one = response && response.ok !== false && response.results?.[0] ? withEffectiveCounts(response).results[0] : null;
       if (!one || !isGradedQuestion(one)) {
         if (stillShowing()) setMarkError("We still couldn't mark this answer from that part of the photo. Try a tighter box, or a clearer photo of just this answer.");

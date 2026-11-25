@@ -27,6 +27,7 @@ const { createMeterGroup, runInMeterGroup, currentUid } = require('../services/u
 // PR-3 (C9): what a grade CHARGES — the chargeable-question count, recorded on `res` before
 // every 2xx grading response (fair use commits exactly that; see grading/charge.cjs).
 const { chargeableCount, isChargeable, setChargeableCount, unreadableSummary, setUnreadableSummary } = require('../grading/charge.cjs');
+const markPassLib = require('../services/markPass.cjs');
 // PR-3 (C10): detection's rules + post-processing, and the typed-PDF text layer (no new deps).
 const D = require('../grading/detect.cjs');
 // UPLOAD-READ-1 PR-B (D138): the ONE file ceiling and the largest body that reaches the app (see mentorImageSupport.cjs).
@@ -1217,6 +1218,13 @@ function createCheckSolutionRoute(deps) {
       }
     }
 
+    // MARK-ON-PHOTO-1: a grade the limits gate let ride a paper's slot (a verified mark pass) must be exactly the one
+    // mark that pass allows; anything else is refused before any model call.
+    const riding = markPassLib.acceptedMarkPassOf(req);
+    if (riding && markPassLib.markBodyMismatch(riding, { worksheetId, questions, uploads, imageBase64 })) {
+      return sendJson(res, 400, { ok: false, error: 'This answer does not belong to the paper it was marked from. Please check the whole paper again.' });
+    }
+
     // ── GRADING-JOBS-1 J1 (owner ruling 7) · A BACKGROUND JOB, when — and only when — every
     // condition holds (controller decision D9): the client asked (`Prefer: respond-async`, or body
     // `async: true`); the switch GRADING_JOBS is on; the request was CLAIMED by idempotency (so it
@@ -1246,7 +1254,7 @@ function createCheckSolutionRoute(deps) {
             // 0-call job case replays stored replies, so it grades with the synchronous chunk plan.
             jobTiming: typeof deps.jobTimingFor === 'function' ? deps.jobTimingFor(questions.length) : timingLib.jobTiming(),
           })),
-          finish: (graded) => jobOutcome(graded, { worksheetId, acceptsV2 }),
+          finish: (graded) => jobOutcome(graded, { worksheetId, acceptsV2, req }),
         });
         if (job.ok) {
           // D12 · THE 202 CHARGES NOTHING: a chargeable count of 0 makes the fair-use `finish` hooks
@@ -1283,7 +1291,7 @@ function createCheckSolutionRoute(deps) {
       setChargeableCount(res, chargeableCount(graded.results));
       setUnreadableSummary(res, unreadableSummary(graded.results)); // TS-RECHECK-1
       // FREECHECK-ONEQ-1: an admitted free check was cut to its first question upstream (index.cjs); say so.
-      return sendJson(res, 200, { ...buildWorksheetBody(graded, { worksheetId, acceptsV2 }), ...freeCheckOneQuestion.fieldFor(payload) });
+      return sendJson(res, 200, { ...buildWorksheetBody(graded, { worksheetId, acceptsV2 }), ...freeCheckOneQuestion.fieldFor(payload), ...markPassField(req, graded, worksheetId) });
     } catch (err) {
       console.error('[grade-worksheet]', err);
       return sendGradeFailure(sendJson, req, res, err, { ok: false, error: 'Failed to grade the worksheet. Please try again.' });
@@ -1333,7 +1341,26 @@ function createCheckSolutionRoute(deps) {
    * the model (the done poll's X-Grading-Model). A job whose grading threw has the synchronous 500's
    * copy as its final body, charged nothing.
    */
-  function jobOutcome(graded, { worksheetId, acceptsV2 }) {
+  /**
+   * MARK-ON-PHOTO-1: an Answer Checker whole paper (`ci:<code>`) that left questions unmarked carries a server-signed
+   * mark pass for them (services/markPass.cjs), so marking one on the photo later rides this paper's slot. Absent
+   * otherwise (another surface, a free check, no verified uid, no secret, nothing unmarked).
+   */
+  function markPassField(req, graded, worksheetId) {
+    if (!req || !graded || !Array.isArray(graded.results)) return {};
+    const surface = String((req.headers && req.headers['x-lazytopper-surface']) || '').trim().toLowerCase();
+    if (surface && surface !== 'check-improve') return {};
+    const attempt = gradingAttemptOf(req);
+    const token = markPassLib.issueMarkPass({
+      env: process.env,
+      uid: attempt && attempt.uid,
+      worksheetId,
+      numbers: graded.results.filter((r) => !isChargeable(r)).map((r) => r && r.qNumber),
+    });
+    return token ? { markPass: token } : {};
+  }
+
+  function jobOutcome(graded, { worksheetId, acceptsV2, req = null }) {
     const asBytes = (body) => JSON.stringify(redactErrorDetails(body));
     if (!graded || graded.error || graded.gradingUnavailable) {
       if (graded && graded.error) console.error('[grade-worksheet job]', graded.error);
@@ -1341,7 +1368,7 @@ function createCheckSolutionRoute(deps) {
     }
     if (!graded.ok) return { body: asBytes(WORKSHEET_NOT_GRADED_BODY), graded: 0, model: graded.modelUsed || null };
     return {
-      body: asBytes(buildWorksheetBody(graded, { worksheetId, acceptsV2 })),
+      body: asBytes({ ...buildWorksheetBody(graded, { worksheetId, acceptsV2 }), ...markPassField(req, graded, worksheetId) }),
       graded: chargeableCount(graded.results),
       ...unreadableSummary(graded.results), // TS-RECHECK-1: { unreadable, total }
       model: graded.modelUsed || null,

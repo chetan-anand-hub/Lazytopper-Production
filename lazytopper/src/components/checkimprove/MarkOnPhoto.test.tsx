@@ -130,6 +130,11 @@ describe("page wiring (source guard)", () => {
     expect(body).toMatch(/if \(stillShowing\(\)\) \{\s*setWsResult\(merged\)/);
     expect(src).toMatch(/function resetToInput\(\) \{\s*leaveMarkedPaper\(\);/);
   });
+  it("the mark carries the paper's mark pass, so it rides the paper's weekly slot (owner ruling 25 Nov)", () => {
+    expect(body).toMatch(/wsResult\.markPass \? \{ \.\.\.CI_GRADE_CALL, markPass: wsResult\.markPass \} : CI_GRADE_CALL/);
+    const client = readFileSync(join(__dirname, "../../ai/aiClient.ts"), "utf8");
+    expect(client).toMatch(/opts\?\.markPass && !opts\.freeCheck \? \{ "X-Lazytopper-Mark-Pass": opts\.markPass \}/);
+  });
   it("a refusal is told in its own words, never as 'try again'", () => {
     expect(body).toMatch(/if \(await fairUse\.handleRefusal\(e\)\) return;/);
     expect(body).toMatch(/isPremiumRequiredError\(e\) \|\| isTrialLimitRefusal\(e\)/);

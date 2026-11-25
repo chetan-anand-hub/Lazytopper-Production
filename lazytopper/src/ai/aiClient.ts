@@ -143,6 +143,9 @@ export interface PaidCallOptions {
    *  paper, Worksheets, Chapter Test, Full Mock, Quick Practice batch > 1). Ignored on a free
    *  check and by every other endpoint. Omitted, the request is byte-identical to before. */
   job?: GradingJobOptions;
+  /** MARK-ON-PHOTO-1: the server-signed mark pass of the Answer Checker paper this ONE answer belongs to
+   *  (WorksheetGradeResponse.markPass), sent as X-Lazytopper-Mark-Pass so the mark rides that paper's slot. */
+  markPass?: string;
 }
 
 /**
@@ -1032,6 +1035,9 @@ export interface WorksheetGradeResponse {
   /** FREECHECK-ONEQ-1: present ONLY when an admitted signed-out free check carried more questions than it was
    *  allowed to grade; the server marked `graded` of the `total` it received. */
   freeCheckGradedOf?: { graded: number; total: number };
+  /** MARK-ON-PHOTO-1: present on an Answer Checker whole paper that left questions unmarked — the server-signed
+   *  pass a later "Mark it on your photo" of one of them carries (24 h). Opaque to the client. */
+  markPass?: string;
 }
 
 /** BATCH-1 (additive, absent by default) — ONE answer photo for ONE question, for a
@@ -1070,7 +1076,11 @@ export async function gradeWorksheet(req: {
   // FAIR-USE-2 (F3): a paper (surface + paperKey) carries its server-issued pass. No pass
   // (signed out, passes not configured, mint failed) -> sent without one, graded as before.
   const paperPass = await paperPassHeaders(identity, opts);
-  const extra: Record<string, string> = { ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}), ...paperPass };
+  const extra: Record<string, string> = {
+    ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}),
+    ...paperPass,
+    ...(opts?.markPass && !opts.freeCheck ? { "X-Lazytopper-Mark-Pass": opts.markPass } : {}),
+  };
   // GRADING-JOBS-1 J2: a background job ONLY when the caller opted in — never a free check.
   if (opts?.job && !opts.freeCheck) {
     const { gradeWorksheetJob, PREFER_HEADER, PREFER_ASYNC_VALUE } = await import("./gradingJobs");

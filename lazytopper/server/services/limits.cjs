@@ -48,6 +48,7 @@ const { LIMITS_CONFIG } = require('./limitsConfig.cjs');
 const { chargeableCountOf } = require('../grading/charge.cjs');
 const { PACK_CHAPTERS, PACK_SUBJECTS, ownsChapter, ownsMocks } = require('./packProducts.cjs');
 const { splitByRedownload } = require('./packTerms.cjs');
+const markPass = require('./markPass.cjs');
 
 const USAGE_LEDGER_COLLECTION = 'usageLedger';
 // An object member (not a bare constant) on purpose, like usageLedger.cjs LEDGER_SEGMENTS: this is a
@@ -850,6 +851,13 @@ function createLimits(deps = {}) {
       // not metered). The signed-out free check never reaches this gate (no uid). GATE_QP_DISABLED=1 restores today's allowance.
       if (kind === 'quick-practice' && info.tier === 'free' && LIMITS_CONFIG.basic.quickPracticeWrittenGradedPerDay < 1 && !gateQpDisabled(env)) {
         emit('limits.grade.qp_board_pass_only');
+        return none;
+      }
+      // MARK-ON-PHOTO-1 (owner ruling 25 Nov 2026): one answer marked on the photo of an Answer Checker paper rides
+      // that paper's slot. Only with a server-signed mark pass for this uid (services/markPass.cjs); the route then
+      // refuses a body the pass does not allow. No reservation, no "first free" bypass: Basic still meets the 402.
+      if (kind === 'check-improve' && reqPath === GRADE_WORKSHEET_PATH && markPass.verifiedMarkPassOf(req, uid, env, now())) {
+        emit('limits.grade.mark_on_photo');
         return none;
       }
       const db = ledgerDb();
