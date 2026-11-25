@@ -17,7 +17,7 @@ import { isCheckoutWarmDisabled } from "../lib/packs/packsMobilePreload";
 import { isPaymentsClientEnabled } from "../services/checkout";
 import { isParentPayClientEnabled } from "../services/parentPay";
 import { ASK_PARENT_LABEL } from "../components/pricing/PaywallActions";
-import { isCheckoutSelfClientEnabled } from "../services/checkoutWhoFlag";
+import { isCheckoutWhoClientEnabled } from "../services/checkoutWhoFlag";
 import { buildParentSeriesShareMessage } from "../services/parentPayPack";
 import { trackPaywallAction } from "../analytics/analytics";
 import { openWhatsAppLink, type ShareNavigator } from "../components/results/share/shareScore";
@@ -50,9 +50,11 @@ import "./testSeriesPage.css";
  * isSelfAttachClientEnabled - a test pins that.
  */
 export function tsSelfAttachOn(): boolean {
+  // Only isCheckoutWhoClientEnabled is borrowed from the entry chunk (it was already); the two kill switches are read here, so the
+  // entry gains no new export (PERF-3 headroom is a few bytes).
+  const off = (raw: unknown) => /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
   try {
-    const raw: unknown = import.meta.env.VITE_CHECKOUT_SELF_ATTACH_DISABLED;
-    return isCheckoutSelfClientEnabled() && !/^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+    return isCheckoutWhoClientEnabled() && !off(import.meta.env.VITE_CHECKOUT_SELF_DISABLED) && !off(import.meta.env.VITE_CHECKOUT_SELF_ATTACH_DISABLED);
   } catch {
     return false;
   }
