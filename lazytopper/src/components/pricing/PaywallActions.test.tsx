@@ -6,7 +6,7 @@
  * PNG FILE through the share sheet, else on screen with Download QR + wa.me; Forward goes out as
  * TEXT, else wa.me + Copy link; one link per tap-session; analytics carries action + surface only.
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { readdirSync, readFileSync } from "node:fs";
@@ -35,6 +35,16 @@ import {
 } from "./PaywallActionsView";
 import * as analytics from "../../analytics/analytics";
 import type { MintedParentLink } from "../../services/parentPay";
+
+/** FOUNDING-MSG-PRICE-1: a price that changes on 1 Dec is quoted only after the founding close; these tests read the quoted text. */
+function atClock(iso: string) {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date(iso));
+  onTestFinished(() => {
+    vi.useRealTimers();
+  });
+}
+const AFTER_FOUNDING_ISO = "2026-12-02T10:00:00+05:30";
 
 const track = analytics.trackPaywallAction as unknown as ReturnType<typeof vi.fn>;
 const TOKEN = "T".repeat(43);
@@ -195,6 +205,7 @@ describe("Pay", () => {
 
 describe("Share QR code", () => {
   it("phones: the QR goes out as a PNG FILE with the message through the share sheet", async () => {
+    atClock(AFTER_FOUNDING_ISO);
     const share = vi.fn(async () => undefined);
     const canShare = vi.fn(() => true);
     const d = deps({ nav: { share, canShare } });
@@ -470,6 +481,7 @@ describe("PARENT-PACKS-1 · a pack link", () => {
   });
 
   it("TS-PARENT-FORWARD-1 review A: a Test Series link's message is chosen by the product's SKU (en + hi), never PDFs", async () => {
+    atClock(AFTER_FOUNDING_ISO);
     const TS = { kind: "pack" as const, sku: "test_series" as const, name: "Test Series Pack" };
     const TS_MINTED: MintedParentLink = { ...MINTED, prices: { month: null, till_boards: null }, pack: { sku: "test_series", target: "all", priceInr: 999, totalInr: 1179, gstInr: 180 } };
     render(
@@ -498,6 +510,7 @@ describe("PARENT-PACKS-1 · a pack link", () => {
   });
 
   it("the Board Pass link's QR and message say Board Pass, not Premium", async () => {
+    atClock(AFTER_FOUNDING_ISO);
     expect(QR_ALT).toBe("QR code: your parents scan it to pay for your Board Pass");
     view(deps());
     await tap(FORWARD_LABEL);
@@ -522,5 +535,17 @@ describe("PARENT-PACKS-1 review L2 · a pack link is reused for the same child +
     await mintPackLinkOnce("u1", P, mint, NOW + 49 * 3600e3);
     expect(mint).toHaveBeenCalledTimes(4);
     resetPackLinkCacheForTests();
+  });
+});
+
+describe("FOUNDING-MSG-PRICE-1 · while the founding offer is open the message names no amount that changes on 1 Dec", () => {
+  it("Board Pass: no price line before the close; the link and the rest are unchanged", async () => {
+    atClock("2026-11-25T10:00:00+05:30");
+    view(deps());
+    await tap(FORWARD_LABEL);
+    const text = screen.getByTestId("parent-share-message").textContent || "";
+    expect(text).not.toMatch(/₹/);
+    expect(text).toContain("The Board Pass is one payment for everything till my boards.");
+    expect(text).toContain(LINK);
   });
 });

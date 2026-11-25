@@ -18,7 +18,7 @@ import {
 } from "./parentPay";
 import type { RazorpayConstructor, RazorpaySuccess } from "./checkout";
 import { buildAskParentMessage, parentProofFrom, parentProofLine } from "./parentPayMessage";
-import { buildAskParentPackMessage, buyPackAsParent, createParentPackOrder, mintParentPackLink, parentPackName, parentSeriesTestCount, verifyParentPackPayment, viewParentLinkWithPack, withValidPack } from "./parentPayPack";
+import { buildAskParentPackMessage, buyPackAsParent, createParentPackOrder, mintParentPackLink, buildParentSeriesShareMessage, parentPackName, parentSeriesTestCount, verifyParentPackPayment, viewParentLinkWithPack, withValidPack } from "./parentPayPack";
 import { seriesTotals } from "../lib/testSeries/testSeries";
 
 /** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
@@ -38,6 +38,10 @@ afterEach(() => {
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
 });
+
+/** FOUNDING-MSG-PRICE-1: the price-quoting text is the post-founding message; before the close no amount is named (tests below). */
+const AFTER_FOUNDING = Date.parse("2026-12-02T10:00:00+05:30");
+const BEFORE_FOUNDING = Date.parse("2026-11-25T10:00:00+05:30");
 
 describe("the switch", () => {
   it("is on only when BOTH VITE_PAYMENTS_ENABLED and VITE_PARENT_PAY_ENABLED are on", () => {
@@ -114,7 +118,7 @@ describe("the link", () => {
 });
 
 describe("the message — honest by construction", () => {
-  const base = { prices: { month: 777, till_boards: 3108 }, url: `https://www.lazytopper.com/pricing#pp=${TOKEN}`, days: 3 };
+  const base = { prices: { month: 777, till_boards: 3108 }, url: `https://www.lazytopper.com/pricing#pp=${TOKEN}`, days: 3, now: AFTER_FOUNDING };
 
   it("quotes the prices it is GIVEN (the server's), and the link", () => {
     const text = buildAskParentMessage({ ...base, lang: "en", checkedCount: 12 });
@@ -215,7 +219,7 @@ describe("the parent's purchase", () => {
 });
 
 describe("TRIAL-SELL-1 - the parent's proof line, from real graded results only", () => {
-  const base = { prices: { month: null, till_boards: 1917 }, url: `https://www.lazytopper.com/pricing#pp=${TOKEN}`, days: 3 };
+  const base = { prices: { month: null, till_boards: 1917 }, url: `https://www.lazytopper.com/pricing#pp=${TOKEN}`, days: 3, now: AFTER_FOUNDING };
 
   it("projects the 30-day totals: marks lost to not-attempted work are left out; the group is named only above Me's gate", () => {
     expect(
@@ -279,12 +283,12 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
 
   it("the Board Pass message says 'Board Pass', never 'Premium' (en + hi)", () => {
     for (const lang of ["en", "hi"] as const) {
-      const text = buildAskParentMessage({ lang, prices: { month: 599, till_boards: 1917 }, checkedCount: 3, url, days: 3 });
+      const text = buildAskParentMessage({ lang, prices: { month: 599, till_boards: 1917 }, checkedCount: 3, url, days: 3, now: AFTER_FOUNDING });
       expect(text).toContain("Board Pass");
       expect(text).toContain("₹1,917");
       expect(text).not.toMatch(/premium/i);
     }
-    expect(buildAskParentMessage({ lang: "en", prices: { month: null, till_boards: 1917 }, checkedCount: null, url, days: 3 })).toContain(
+    expect(buildAskParentMessage({ lang: "en", prices: { month: null, till_boards: 1917 }, checkedCount: null, url, days: 3, now: AFTER_FOUNDING })).toContain(
       "The Board Pass is ₹1,917 once for everything till my boards.",
     );
   });
@@ -309,7 +313,7 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
 
   it("TS-PARENT-FORWARD-1: the Test Series message (en) - the tests and the marking at the SERVER's total, never PDFs", () => {
     const n = seriesTotals().total;
-    const text = buildAskParentPackMessage({ lang: "en", name: parentPackName("test_series", undefined), sku: "test_series", priceInr: 1179, url, days: 3 });
+    const text = buildAskParentPackMessage({ lang: "en", name: parentPackName("test_series", undefined), sku: "test_series", priceInr: 1179, url, days: 3, now: AFTER_FOUNDING });
     expect(text).toBe(
       [
         `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? It's ₹1,179, one time, valid till my boards: ${n} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner.`,
@@ -323,7 +327,7 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
 
   it("TS-PARENT-FORWARD-1: the Test Series message (hi) carries the same facts, no PDF", () => {
     const n = seriesTotals().total;
-    const text = buildAskParentPackMessage({ lang: "hi", name: parentPackName("test_series", undefined), sku: "test_series", priceInr: 1769, url, days: 1 });
+    const text = buildAskParentPackMessage({ lang: "hi", name: parentPackName("test_series", undefined), sku: "test_series", priceInr: 1769, url, days: 1, now: AFTER_FOUNDING });
     expect(text).toBe(
       [
         `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ₹1,769 है और मेरे बोर्ड तक चलेगी: ${n} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं।`,
@@ -347,11 +351,26 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
     vi.resetModules();
   });
 
+  it("TS-PARENT-FORWARD-2: the signed-out share message (en + hi) - the same opening line, then 'pay here, then my number' + the page link; no account link", () => {
+    const n = parentSeriesTestCount();
+    const page = "https://www.lazytopper.com/test-series?utm_source=parent_share&utm_medium=whatsapp&utm_campaign=test_series_forward";
+    expect(buildParentSeriesShareMessage({ lang: "en", price: "₹1,179", url: page, now: AFTER_FOUNDING })).toBe(
+      `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? It's ₹1,179, one time, valid till my boards: ${n} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner. Pay here, then enter my number so it opens on my account: ${page}`,
+    );
+    expect(buildParentSeriesShareMessage({ lang: "hi", price: "₹1,179", url: page, now: AFTER_FOUNDING })).toBe(
+      `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ₹1,179 है और मेरे बोर्ड तक चलेगी: ${n} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं। यहाँ भुगतान करें, फिर मेरा नंबर डालें ताकि यह मेरे अकाउंट पर खुल जाए: ${page}`,
+    );
+    for (const lang of ["en", "hi"] as const) {
+      const text = buildParentSeriesShareMessage({ lang, price: "₹1,179", url: page, now: AFTER_FOUNDING });
+      expect(text).not.toMatch(/PDF|sign in|password|लिंक सिर्फ़/i);
+    }
+  });
+
   it("TS-PARENT-FORWARD-1 review A: the message is chosen by SKU, never by the name (a renamed Test Series still gets its own text)", () => {
-    const renamed = buildAskParentPackMessage({ lang: "en", name: "Pre-Boards Test Series", sku: "test_series", priceInr: 1179, url, days: 3 });
+    const renamed = buildAskParentPackMessage({ lang: "en", name: "Pre-Boards Test Series", sku: "test_series", priceInr: 1179, url, days: 3, now: AFTER_FOUNDING });
     expect(renamed).toContain("can you get me the Test Series on LazyTopper? It's ₹1,179, one time, valid till my boards");
     expect(renamed).not.toMatch(/PDF/);
-    expect(buildAskParentPackMessage({ lang: "hi", name: "Pre-Boards Test Series", sku: "test_series", priceInr: 1179, url, days: 3 })).toContain(
+    expect(buildAskParentPackMessage({ lang: "hi", name: "Pre-Boards Test Series", sku: "test_series", priceInr: 1179, url, days: 3, now: AFTER_FOUNDING })).toContain(
       "LazyTopper पर Test Series दिला देंगे? यह एक बार का ₹1,179 है और मेरे बोर्ड तक चलेगी:",
     );
     // A pack that merely carries the Test Series' display name is still a PDF pack.
@@ -469,5 +488,44 @@ describe("PARENT-PACKS-1 · the parent page keeps a server pack only when it is 
     expect(withValidPack({ ...base, pack: { sku: "pack_cbq", target: "maths", priceInr: 199 } }).pack).toEqual({ sku: "pack_cbq", target: "maths", priceInr: 199 });
     expect(withValidPack({ ...base, pack: { sku: "evil", target: "maths", priceInr: 1 } as never }).pack).toBeUndefined();
     expect(withValidPack({ ...base, pack: { sku: "pack_cbq", target: "maths", priceInr: 0 } }).pack).toBeUndefined();
+  });
+});
+
+describe("FOUNDING-MSG-PRICE-1 - no price that will change is quoted while the founding offer is open (owner, 25 Nov 2026)", () => {
+  const url = "https://www.lazytopper.com/pricing#pp=x";
+  const page = "https://www.lazytopper.com/test-series?utm_source=parent_share";
+
+  it("Board Pass: before 1 Dec the price line is left out; from 1 Dec it is quoted", () => {
+    for (const lang of ["en", "hi"] as const) {
+      const before = buildAskParentMessage({ lang, prices: { month: null, till_boards: 2499 }, checkedCount: 2, url, days: 3, now: BEFORE_FOUNDING });
+      expect(before).not.toMatch(/₹/);
+      expect(before).toContain(url);
+      expect(before).toContain(lang === "en" ? "The Board Pass is one payment for everything till my boards." : "Board Pass बोर्ड परीक्षा तक सब कुछ के लिए एक बार का भुगतान है।");
+      const after = buildAskParentMessage({ lang, prices: { month: null, till_boards: 2499 }, checkedCount: 2, url, days: 3, now: AFTER_FOUNDING });
+      expect(after).toContain("₹2,499");
+    }
+  });
+
+  it("Test Series (per-account link and signed-out share): before 1 Dec 'a one-time payment', no amount; from 1 Dec the amount", () => {
+    const linkBefore = buildAskParentPackMessage({ lang: "en", name: "Test Series", sku: "test_series", priceInr: 1179, url, days: 3, now: BEFORE_FOUNDING });
+    expect(linkBefore).not.toMatch(/₹/);
+    expect(linkBefore).toContain("It's a one-time payment, valid till my boards:");
+    const shareBefore = buildParentSeriesShareMessage({ lang: "en", price: "₹1,179", url: page, now: BEFORE_FOUNDING });
+    expect(shareBefore).not.toMatch(/₹/);
+    expect(shareBefore).toContain("It's a one-time payment, valid till my boards:");
+    const hiBefore = buildParentSeriesShareMessage({ lang: "hi", price: "₹1,179", url: page, now: BEFORE_FOUNDING });
+    expect(hiBefore).not.toMatch(/₹/);
+    expect(hiBefore).toContain("यह एक बार का भुगतान है");
+    expect(buildParentSeriesShareMessage({ lang: "en", price: "₹1,769", url: page, now: AFTER_FOUNDING })).toContain("It's ₹1,769, one time");
+  });
+
+  it("the boundary is the founding close itself (00:00 IST 1 Dec), the same instant the price changes", () => {
+    const close = Date.parse("2026-12-01T00:00:00+05:30");
+    expect(buildParentSeriesShareMessage({ lang: "en", price: "₹1,179", url: page, now: close - 1 })).not.toMatch(/₹/);
+    expect(buildParentSeriesShareMessage({ lang: "en", price: "₹1,769", url: page, now: close })).toContain("₹1,769");
+  });
+
+  it("packs whose price never changes still name it (no founding price)", () => {
+    expect(buildAskParentPackMessage({ lang: "en", name: "Maths CBQ Pack", sku: "pack_cbq", priceInr: 235, url, days: 3, now: BEFORE_FOUNDING })).toContain("₹235");
   });
 });
