@@ -225,7 +225,7 @@ test('§F4.2 ★ job path: every CHUNK carries the block for ITS OWN questions o
   assert.ok(g.some((c) => c.genConfig.attempt === 2 && /^q\d+$/.test(c.genConfig.chunkKey)), 'the split retry ran');
 });
 
-test('§F4.3 the second look carries the block too (for the questions it re-asks)', async () => {
+test('§F4.3 (review S1) the second look does NOT carry the block — it never repeats a possibly-wrong map', async () => {
   const m = stubModel({ locate: MAP, grade: (call, calls) => {
     const nums = [...textOf(call).matchAll(/^ {2}Q(\d+)\. \[/gm)].map((x) => Number(x[1]));
     if (/^look2:/.test(call.genConfig.chunkKey)) return gradeAll(call);
@@ -242,9 +242,72 @@ test('§F4.3 the second look carries the block too (for the questions it re-asks
   const look = m.calls.find((c) => /^look2:/.test(c.genConfig.chunkKey || ''));
   assert.ok(look, 'a second look ran');
   const t = textOf(look);
-  assert.ok(t.includes('SECOND LOOK') && t.includes('LOCATED BEFOREHAND'));
-  assert.ok(t.includes('Q10 — located beforehand'));
-  assert.ok(!t.includes('Q7 — '), 'only the re-asked questions get hint lines');
+  assert.ok(t.includes('SECOND LOOK'));
+  assert.ok(!t.includes('LOCATED BEFOREHAND') && !t.includes('LOCATED ANSWER'), 'no located block on the second look');
+  assert.ok(textOf(m.calls.find((c) => !isLocate(c) && c !== look)).includes('LOCATED BEFOREHAND'), 'CONTROL: the first reading had it');
+});
+
+test('§F4.6 (review S2/N1) no hint line for an objective question or one answered by typed text / a picked option', async () => {
+  const qs = [
+    { ...Q(1, 'Which is irrational?'), marks: 1, options: ['2', 'root 2'], correctOption: 'b' },
+    { ...Q(2, 'Assertion-Reason item'), marks: 1, section: 'A' },
+    { ...Q(3, 'Flagged objective'), marks: 1, objective: true },
+    { ...Q(4, 'Typed one'), textAnswer: 'typed work' },
+    { ...Q(5, 'Picked one'), pickedOption: 'a' },
+    Q(6, 'Find the zeroes of x² − 5x + 6.'),
+  ];
+  for (const q of qs.slice(0, 5)) assert.equal(L.hintable(q), false, 'Q' + q.qNumber);
+  assert.equal(L.hintable(qs[5]), true);
+  const all = { answers: qs.map((q) => ({ page: 1, labelAsWritten: q.qNumber + ')', firstLine: 'line for ' + q.qNumber, answersQuestion: q.qNumber })) };
+  const m = stubModel({ locate: all, grade: gradeAll });
+  await core(m).gradeSet({ questions: qs, document: DOC, subject: 'Maths', single: false, label: '[t]' });
+  const t = textOf(m.calls.find((c) => !isLocate(c)));
+  assert.ok(t.includes('Q6 — located beforehand') && t.includes('first line: line for 6'));
+  for (const n of [1, 2, 3, 4, 5]) {
+    assert.ok(!t.includes('Q' + n + ' — '), 'no line at all for Q' + n);
+    assert.ok(!t.includes('line for ' + n), 'its located line is never quoted: Q' + n);
+  }
+  // a map that locates ONLY such questions → no block anywhere: byte-identical to the kill switch
+  const only = { answers: all.answers.slice(0, 5) };
+  const m2 = stubModel({ locate: only, grade: gradeAll });
+  await core(m2).gradeSet({ questions: qs, document: DOC, subject: 'Maths', single: false, label: '[t]' });
+  process.env.GRADING_LOCATE_DISABLED = '1';
+  const m3 = stubModel({ locate: only, grade: gradeAll });
+  try { await core(m3).gradeSet({ questions: qs, document: DOC, subject: 'Maths', single: false, label: '[t]' }); } finally { delete process.env.GRADING_LOCATE_DISABLED; }
+  assert.equal(JSON.stringify(m2.calls.find((c) => !isLocate(c)).contents), JSON.stringify(m3.calls[0].contents));
+});
+
+/* ══ §F6 · review S3: the locate call never delays a synchronous grade past the scheme pre-phase ══════════════ */
+
+test('§F6.1 sync: the locate call starts BEFORE the scheme hooks settle, and grading starts no later than max(pre-phase end, locate cap)', async () => {
+  const events = [];
+  const t0 = Date.now();
+  const m = stubModel({ locate: 'hang', grade: (call) => { events.push(['grade', Date.now() - t0]); return gradeAll(call); } });
+  const origCall = m.callGemini;
+  m.callGemini = (model, contents, cfg) => { if (cfg.chunkKey === 'locate') events.push(['locate', Date.now() - t0]); return origCall(model, contents, cfg); };
+  const solutionCache = { getOrCreateModelSolution: () => new Promise((res) => setTimeout(() => { events.push(['hook', Date.now() - t0]); res({ schemeSteps: ['Step [1]'], fromCache: true }); }, 150)) };
+  const c = core(m, { solutionCache, gradingTimingOverride: { cacheBudgetMs: 300, locateSyncMinMs: 200 } });
+  await c.gradeSet({ questions: PAPER(), document: DOC, subject: 'Maths', single: false, label: '[t]', startedAt: t0 });
+  const at = (k) => events.find((e) => e[0] === k)[1];
+  assert.ok(at('locate') < at('hook'), 'locate started before the pre-phase hooks settled: ' + JSON.stringify(events));
+  // locate cap = min(15000, max(300 − elapsed, 200)) ≤ 300 ms from start; pre-phase ends by ~150 ms
+  assert.ok(at('grade') <= 300 + 150, 'grading started no later than max(pre-phase end, locate cap) (+ slack): ' + at('grade'));
+  const locCall = m.calls.find(isLocate);
+  assert.ok(locCall.genConfig.timeoutMs <= 300, 'sync cap is the pre-phase window, not 15 s: ' + locCall.genConfig.timeoutMs);
+});
+
+test('§F6.2 the cap: sync = min(15 s, max(pre-phase window left, 6 s)); a job keeps 15 s', async () => {
+  assert.equal(timingLib.LOCATE_SYNC_MIN_MS, 6000);
+  const sync = stubModel({ locate: MAP, grade: gradeAll });
+  await run(core(sync));
+  const sc = sync.calls.find(isLocate).genConfig.timeoutMs;
+  assert.ok(sc <= timingLib.DEFAULT_GRADING_CACHE_BUDGET_MS && sc >= timingLib.DEFAULT_GRADING_CACHE_BUDGET_MS - 1000, 'sync: the 10 s pre-phase window: ' + sc);
+  const late = stubModel({ locate: MAP, grade: gradeAll });
+  await run(core(late), { startedAt: Date.now() - 9500 });
+  assert.ok(late.calls.find(isLocate).genConfig.timeoutMs >= 5900, 'sync: never below 6 s');
+  const job = stubModel({ locate: MAP, grade: gradeAll });
+  await run(core(job), { jobTiming: timingLib.jobTiming() });
+  assert.ok(job.calls.find(isLocate).genConfig.timeoutMs >= 14900, 'job: 15 s');
 });
 
 test('§F4.4 sync route path (/api/grade-worksheet): the same block reaches the grading call through the real adapter', async () => {

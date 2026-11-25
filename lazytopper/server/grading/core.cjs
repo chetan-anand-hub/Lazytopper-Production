@@ -478,10 +478,9 @@ function createGradingCore(deps) {
    * active). Its usage is metered with the whole paper's questions. Its nonce comes from crypto (never the injected
    * test generator), so a fail-open grade draws exactly the nonces it drew before.
    */
-  async function runLocate({ questions, document, label, meters, callDeadlineAt }) {
+  async function runLocate({ questions, document, label, meters, callDeadlineAt, capMs }) {
     const t0 = now();
-    // `timing.locateTimeoutMs` is a TEST seam only (gradingTimingOverride); production uses the constant.
-    const cap = Math.min(Number.isFinite(timing.locateTimeoutMs) ? timing.locateTimeoutMs : timingLib.LOCATE_TIMEOUT_MS, callDeadlineAt - t0);
+    const cap = Math.min(capMs, callDeadlineAt - t0);
     if (!(cap > 0)) return { ok: false, why: 'noTime', n: 0, ms: 0 };
     try {
       const nonce = chooseNonce(questions.map((q) => q.questionText));
@@ -567,8 +566,14 @@ function createGradingCore(deps) {
     // (Transport 'document' only: per-question photos already say which answer is which.)
     const locateDoc = input.document && String(input.document.imageBase64 || '').trim() ? input.document : null;
     const anyUpload = (Array.isArray(input.uploads) ? input.uploads : []).some((u) => Number(u && u.qNumber) > 0 && u.imageBase64);
+    // Its cap (review S3): a job keeps LOCATE_TIMEOUT_MS; a SYNCHRONOUS grade never waits for it past the scheme pre-phase
+    // window: min(LOCATE_TIMEOUT_MS, max(time left in that window, LOCATE_SYNC_MIN_MS)). `timing.locateTimeoutMs` and
+    // `timing.locateSyncMinMs` are TEST seams only (gradingTimingOverride); production uses the constants.
+    const locateMaxMs = Number.isFinite(timing.locateTimeoutMs) ? timing.locateTimeoutMs : timingLib.LOCATE_TIMEOUT_MS;
+    const locateSyncMinMs = Number.isFinite(timing.locateSyncMinMs) ? timing.locateSyncMinMs : timingLib.LOCATE_SYNC_MIN_MS;
+    const locateCapMs = job ? locateMaxMs : Math.min(locateMaxMs, Math.max(startedAt + timing.cacheBudgetMs - now(), locateSyncMinMs));
     const locating = locateDoc && !anyUpload && !autoDetect && questions.length >= 2 && !locateLib.locateDisabled(process.env)
-      ? runLocate({ questions, document: locateDoc, label, meters, callDeadlineAt })
+      ? runLocate({ questions, document: locateDoc, label, meters, callDeadlineAt, capMs: locateCapMs })
       : null;
     if (timingSink) {
       // GRADE-SPEED-1 S6: closed-set / numeric facts about this request for the [grade-timing] line.
@@ -718,7 +723,8 @@ function createGradingCore(deps) {
     let located = null;
     if (locating) {
       const loc = await locating;
-      if (loc.ok && loc.map instanceof Map) located = loc.map;
+      // Review S2/N1: hints only for questions that can carry one; none left → no block anywhere (byte-identical).
+      if (loc.ok && loc.map instanceof Map) located = locateLib.hintableMap(loc.map, questions);
       if (timingSink) timingSink.locate = { ms: loc.ms, ok: Boolean(located), n: loc.n || 0 };
     }
     const ctx = {
@@ -917,8 +923,7 @@ function createGradingCore(deps) {
       if (timingSink) timingSink.secondLook = { asked: missed.length, rescued: 0, skipped: 1 };
       return;
     }
-    const nonce = chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]).concat(claimed.map((c) => c.firstLine), open,
-      ctx.located ? locateLib.locatedTexts(ctx.located) : []), makeFenceNonce);
+    const nonce = chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]).concat(claimed.map((c) => c.firstLine), open), makeFenceNonce);
     // One call per routed group (model + subject rules) the missed questions belong to — a mixed Maths + Science paper is
     // graded under each question's own subject rules, exactly as its first reading was. The calls run in parallel.
     const groupsOf = new Map();
@@ -938,7 +943,8 @@ function createGradingCore(deps) {
         deadlineAt: callDeadlineAt, others: Math.max(0, questions.length - qs.length),
         chunkKey: 'look2:' + ids.map((i) => 'q' + i).join('+'),
         nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme, meters: ctx.meters,
-        timingSink, secondLook: { claimed, unplaced: open }, located: ctx.located,
+        // Review S1: the second look never repeats the locate map (it may be what the first reading got wrong).
+        timingSink, secondLook: { claimed, unplaced: open },
       });
       if (!outcome || !outcome.results) { failed += 1; return []; }
       if (!lookSummary) lookSummary = String((outcome.parsed && outcome.parsed.summary) || '').trim();

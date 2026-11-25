@@ -18,6 +18,7 @@
 // Kill switch: GRADING_LOCATE_DISABLED=1 (or true/yes) → no locate call at all.
 
 const { fence, fencedNotInstructionsPrompt } = require('./fence.cjs');
+const { isObjective } = require('../routes/objectiveScoring.cjs');
 
 const QUESTION_FENCE = 'QUESTION';
 const INDENT = '     ';
@@ -30,6 +31,37 @@ const MAX_PLACES_PER_QUESTION = 3;
 /** Kill switch, read per grade. */
 function locateDisabled(env = process.env) {
   return /^(1|true|yes)$/i.test(String((env && env.GRADING_LOCATE_DISABLED) || '').trim());
+}
+
+/**
+ * Review S2/N1: may question `q` carry a located hint line? NOT an objective question (an MCQ / A-R answer such as
+ * "1) b" cannot be matched by content: q.objective, an objective qType/section, Section A, printed options or an
+ * option key) and NOT a question already answered by typed text or a picked option. Such a question renders exactly
+ * as without the block (no line at all).
+ */
+function hintable(q) {
+  if (!q) return false;
+  if (q.objective === true || isObjective(q)) return false;
+  if (String(q.section || '').trim().toUpperCase() === 'A') return false;
+  if (Array.isArray(q.options) && q.options.length > 0) return false;
+  if (q.correctOption != null && String(q.correctOption).trim()) return false;
+  if (String(q.textAnswer || '').trim() || String(q.pickedOption || '').trim()) return false;
+  return true;
+}
+
+/** The map restricted to hintable questions (a question number shared with a non-hintable question gets none).
+ *  null when no hintable question has a located place — the paper is then graded byte-identically to before. */
+function hintableMap(map, questions) {
+  if (!(map instanceof Map)) return null;
+  const blocked = new Set(questions.filter((q) => !hintable(q)).map((q) => Number(q.qNumber)));
+  const out = new Map();
+  let placed = 0;
+  for (const [n, places] of map) {
+    if (blocked.has(n)) continue;
+    out.set(n, places);
+    if (Array.isArray(places) && places.length > 0) placed += 1;
+  }
+  return placed > 0 ? out : null;
 }
 
 /** The response schema of the locate call (constrained decoding). Small on purpose. */
@@ -127,6 +159,8 @@ function locatedTexts(map) {
 
 module.exports = {
   locateDisabled,
+  hintable,
+  hintableMap,
   LOCATE_RESPONSE_SCHEMA,
   buildLocateContents,
   validateLocate,

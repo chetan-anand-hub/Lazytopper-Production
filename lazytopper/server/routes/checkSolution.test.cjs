@@ -1030,7 +1030,7 @@ test('§7.1L3 LOCATE-FIRST-1 positive control: a usable map adds the LOCATED blo
     assert.notEqual(locateShaOf(h.calls[1]), NO_UPLOADS_CONTENTS_SHA256);
     const text = h.calls[1].contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
     assert.ok(text.includes('<<<LOCATED ANSWER testnonce>>>\nlabel: 1)\nfirst line: (x - 4)(x + 2) = 0\n'));
-    assert.ok(text.includes('   - Q2 — no answer located beforehand; check every page.'));
+    assert.ok(!text.includes('Q2 — '), 'review S2: Q2 is an MCQ — no hint line at all');
   });
 });
 
