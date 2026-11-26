@@ -8,8 +8,13 @@
  *
  *   Pass  -> the EXISTING CHECKOUT-1 action (PaywallActions, `askOnly`): the same server-minted parent link, the
  *            same `ask_parent_pay` event, the same share sheet / WhatsApp behaviour. Nothing new on the server.
- *   Pack  -> the parent-pay link only carries a Premium pass, so a pack cannot ride it. The closest honest option:
- *            share the packs page link with a plain WhatsApp text. No order, link token or payment is created.
+ *   Pack  -> PAY-RESCUE-1 shipped before the parent-pay link could carry a pack, so it shared the packs page with a plain
+ *            WhatsApp text (no order, link token or payment). Since PARENT-PACKS-1 a link CAN carry one pack (and the Test Series),
+ *            and PARENT-PAY-FIRST-1 uses it: when the host passes `product`, the pack hand-off is the same minted link. Without
+ *            `product` (or with VITE_PARENT_PAY_FIRST_DISABLED=1) the plain page share below is what runs, as before.
+ *
+ * PARENT-PAY-FIRST-1 (owner 26 Nov 2026): the parent hand-off is the FIRST and primary action ("Send to Mummy/Papa on WhatsApp"), then
+ * "Show QR for parent to scan", then "Try again". The signed-out half (no account to bind a link to) is ./ParentForwardGuest.
  *
  * Nothing here decides money or access. It renders only after the caller saw a `dismissed` outcome.
  */
@@ -18,7 +23,9 @@ import { trackNamedEvent, trackOnboardingEvent, trackPaywallAction } from "../..
 import { currentInAppPay, type InAppBuyTarget } from "../../utils/inAppPay";
 import { InAppPayActions, INAPP_RESCUE_HEADING, inAppRescueLine, type InAppPayDetected } from "./InAppPayRescue";
 import { isParentPayClientEnabled } from "../../services/parentPay";
+import type { ParentPayPackProduct } from "../../services/parentPayPack";
 import PaywallActions from "../pricing/PaywallActions";
+import { PARENT_FORWARD_LABEL, PARENT_FORWARD_QR_LABEL, isParentPayFirstDisabled, trackParentForward } from "./parentForward";
 import { openWhatsAppLink, type ShareNavigator } from "../results/share/shareScore";
 import "./payRescue.css";
 
@@ -56,6 +63,8 @@ export interface PayRescueCardProps {
   /** Test seams (in-app): the detected app/platform and this page's URL. Default: read from the browser. */
   inApp?: InAppPayDetected | null;
   href?: string;
+  /** PARENT-PAY-FIRST-1 - pack only: the pack (or Test Series) the minted parent link carries. Absent: the plain page share. */
+  product?: ParentPayPackProduct;
   /** Test seam (pack hand-off). */
   nav?: ShareNavigator;
   origin?: string;
@@ -66,15 +75,19 @@ function errorName(e: unknown): string {
   return e && typeof e === "object" && "name" in e ? String((e as { name: unknown }).name) : "";
 }
 
-function PayRescueBody({ kind, onRetry, onClose, packLabel, nav, origin, openWindow, buy, inApp, href }: PayRescueCardProps) {
+function PayRescueBody({ kind, onRetry, onClose, packLabel, nav, origin, openWindow, buy, inApp, href, product }: PayRescueCardProps) {
   const ref = useRef<HTMLElement | null>(null);
   const shown = useRef(false);
   const [notice, setNotice] = useState<string | null>(null);
+  // PARENT-PAY-FIRST-1: the minted-link hand-off leads (forward, then QR). Off -> exactly the card as before.
+  const parentFirst = !isParentPayFirstDisabled() && isParentPayClientEnabled() && (kind === "pass" || Boolean(product));
+  const forwardProduct = kind === "pass" ? "board_pass" : product?.sku === "test_series" ? "test_series" : "pack";
 
   useEffect(() => {
     if (shown.current) return;
     shown.current = true;
     trackNamedEvent("pay_rescue_shown");
+    if (parentFirst) trackParentForward("shown", true, forwardProduct);
     if (inApp) trackOnboardingEvent("inapp_pay_rescue_shown", { app: inApp.app });
     // Bring it into view above the bottom nav (`scroll-margin-bottom` in payRescue.css).
     try {
@@ -114,7 +127,20 @@ function PayRescueBody({ kind, onRetry, onClose, packLabel, nav, origin, openWin
       </p>
       <div className="lt-pay-rescue__actions">
         {inApp && <InAppPayActions inApp={inApp} buy={buy} href={href} setNotice={setNotice} />}
-        {kind === "pass" && !isParentPayClientEnabled() ? null : kind === "pass" ? (
+        {parentFirst ? (
+          <PaywallActions
+            surface="pay_rescue"
+            parentFirst
+            product={kind === "pack" ? product : undefined}
+            forwardLabel={PARENT_FORWARD_LABEL}
+            qrLabel={PARENT_FORWARD_QR_LABEL}
+            onAsk={() => {
+              trackNamedEvent("pay_rescue_parent");
+              trackParentForward("clicked", true, forwardProduct);
+            }}
+            onQr={() => trackParentForward("qr_shown", true, forwardProduct)}
+          />
+        ) : kind === "pass" && !isParentPayClientEnabled() ? null : kind === "pass" ? (
           <PaywallActions surface="pay_rescue" askOnly onAsk={() => trackNamedEvent("pay_rescue_parent")} />
         ) : (
           <button

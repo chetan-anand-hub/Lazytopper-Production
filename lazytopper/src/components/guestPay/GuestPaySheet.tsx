@@ -11,6 +11,7 @@
  * The number never goes into a URL, storage or an analytics event.
  */
 import InAppPayRescue, { buyTargetFromItem } from "../payRescue/InAppPayRescue";
+import ParentForwardGuest from "../payRescue/ParentForwardGuest";
 import PayReturnHint from "../payReturn/PayReturnHint";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -214,6 +215,8 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
         {error && <p className="lt-gps__error" role="alert">{error}</p>}
         {step.name === "phone" && step.closed && <p className="lt-gps__fine" role="status">Payment window closed. Tap Continue to try again.</p>}
         {step.name === "phone" && step.closed && <InAppPayRescue buy={buyTargetFromItem(item)} />}
+        {/* PARENT-PAY-FIRST-1: number-first guest sheet - the parent opens the page, enters the child's number, then pays. */}
+        {step.name === "phone" && step.closed && <ParentForwardGuest item={{ kind: item.kind, sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), label: item.label }} flow="number" />}
         <PayReturnHint />
         <button type="submit" className="lt-gps__primary" disabled={busy || !valid} data-testid="guest-pay-continue">
           {busy ? CHECKOUT_OPENING_COPY : "Continue"}
