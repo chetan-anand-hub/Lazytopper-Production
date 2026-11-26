@@ -3,6 +3,7 @@
  * PAGE adds: the copy (owner words, the bank claims, prices from config), the states (signed out, Basic, Board Pass owner, month pass,
  * payments dark), `?buy=board_pass` reaching the same checkout and leaving the URL, the nav links, and the banned words.
  */
+import { fairUseFaq } from "../components/salesPages/salesPagesCopy";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
@@ -174,6 +175,8 @@ describe("PRICING-PAGES-1 /board-pass - signed out (what the prerender captures)
     expect(faq.querySelectorAll("details").length).toBeGreaterThanOrEqual(2);
     expect(faq.textContent).toContain("Is it a subscription?");
     expect(faq.textContent).toContain("What's free on Basic?");
+    // TS-FAIRUSE-1: the fair-use FAQ, from the one shared constant (the same words as /test-series).
+    expect(faq.textContent).toContain(`${fairUseFaq().q}${fairUseFaq().a}`);
   });
 
   it("the trial action carries the intent to sign-in and returns here; nothing starts on mount", async () => {

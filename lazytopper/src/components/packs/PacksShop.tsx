@@ -997,6 +997,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             kind="pack"
             buy={{ kind: "pack", sku, ...(target ? { target } : {}) }}
             packLabel={packDescription(sku, target, target ? chapterLabel(target) : undefined)}
+            product={{ kind: "pack", sku, ...(target ? { target } : {}), name: parentPackName(sku, target, sku === "pack_chapter" && target ? chapterLabel(target) : undefined) }}
             onRetry={() => void handleBuy(sku, target)}
             onClose={() => setBuy({ key: "", phase: "idle" })}
           />
@@ -1332,6 +1333,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             kind="pack"
             buy={{ kind: "pack", sku }}
             packLabel={packDescription(sku, undefined, undefined)}
+            product={{ kind: "pack", sku, name: parentPackName(sku, undefined, undefined) }}
             onRetry={() => void handleBuy(sku, undefined)}
             onClose={() => setBuy({ key: "", phase: "idle" })}
           />

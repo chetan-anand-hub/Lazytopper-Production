@@ -20,6 +20,8 @@
 import { useEffect, useState } from "react";
 import { fetchUsageMe, type UsageSnapshot } from "../../services/usageClient";
 import { formatResetDateIst, formatResetIst } from "./fairUseGate";
+// TOPUP-GO-1: "Buy extra usage" for a Board Pass holder (the server's tier); renders nothing while VITE_TOPUP_ENABLED is off.
+import TopupAction from "../topup/TopupAction";
 
 /** The daily safety ceiling shows only from this share of it (FAIRUSE-MONTHLY-1). */
 export const DAILY_HEAVY_PCT = 75;
@@ -139,6 +141,7 @@ export function UsageCardView({
           We can&rsquo;t show your limits right now. Nothing is wrong with your account.
         </p>
       )}
+      <TopupAction where="menu" wrapperClassName="lt-usage__actions" />
     </section>
   );
 }

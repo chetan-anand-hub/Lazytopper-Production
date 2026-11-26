@@ -43,6 +43,8 @@ beforeEach(() => {
   mint.mockResolvedValue({ token: TOKEN, expiresAt: new Date(Date.now() + 72 * 3600e3).toISOString(), prices: { month: null, till_boards: 1917 } });
   vi.stubEnv("VITE_PAYMENTS_ENABLED", "true");
   vi.stubEnv("VITE_PARENT_PAY_ENABLED", "true");
+  // PARENT-PAY-FIRST-1: this file pins the card as it was BEFORE that lane (its kill switch on); PayRescueCard.parentFirst.test.tsx pins the new one.
+  vi.stubEnv("VITE_PARENT_PAY_FIRST_DISABLED", "1");
 });
 afterEach(() => {
   cleanup();

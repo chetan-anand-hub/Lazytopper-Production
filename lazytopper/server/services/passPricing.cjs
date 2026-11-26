@@ -278,11 +278,16 @@ function endOfIstDayMs(iso) {
 
 /* ── TOPUP-1 · extra-usage packs (the SERVER's price table; the client never sends an amount) ──────────
    A pack is a one-time payment that adds AI-usage CREDIT, spent only after the plan's own window is at cap.
-   `priceInr` is what the student pays (GST included). `creditInr` is the BASE credit in rupees of AI COST (a launch bonus is added by topupCreditFor).
-   THE ARITHMETIC (OWNER DECISION 22 Oct 2026 - supersedes the 10 Oct 20 / 65 figures):
+   `priceInr` is the BASE price (TOPUP-GO-1, 26 Nov 2026: like every other product it is shown "₹X + GST"; the charge is
+   tableQuote(priceInr) = base + 18% GST from the 7 Nov 2026 cut-off: 49 -> 58, 149 -> 176). The code has priced it this way since
+   GST-EXCL-1; this comment used to say "GST included", which the 7 Nov ruling superseded. `creditInr` is the BASE credit in rupees
+   of AI COST (a launch bonus is added by topupCreditFor).
+   THE ARITHMETIC (OWNER DECISION 22 Oct 2026 - supersedes the 10 Oct 20 / 65 figures; written when the price was GST-inclusive):
      49  incl. 18% GST -> 49 / 1.18  = 41.53 net;  less the Razorpay fee (~2% + 18% GST ~ 2.4%) ~ 40.5
                                                                               ->  credit 25  (~62% of net)
      149 incl. 18% GST -> 149 / 1.18 = 126.27 net; less the fee ~ 123.3     ->  credit 80  (~65% of net)
+   Since 7 Nov the net is the base itself (49 / 149). OWNER RULING 26 Nov 2026 (TOPUP-GO-1) raised the credit to 35 / 110
+   (~71% / ~74% of the base, before the Razorpay fee); it supersedes the 25 / 80 above. Prices are unchanged.
    Credit is held in MICRO-INR (1 rupee = 1,000,000), the unit usageLedger.cjs already meters in.
    ★ The student NEVER sees the credit in rupees - only "about N answer checks / Tutor messages ..."
      (topupBreakdownFor / usageCredit.creditView). The rupee figure is server-internal.
@@ -291,8 +296,8 @@ function endOfIstDayMs(iso) {
      "about N" figures are therefore computed at the VIEW instant (activityCostMicroInr), never stored. */
 const MICRO_INR_PER_INR = 1_000_000;
 const TOPUP_PRODUCTS = Object.freeze({
-  topup_49: Object.freeze({ priceInr: 49, creditInr: 25 }),
-  topup_149: Object.freeze({ priceInr: 149, creditInr: 80 }),
+  topup_49: Object.freeze({ priceInr: 49, creditInr: 35 }),
+  topup_149: Object.freeze({ priceInr: 149, creditInr: 110 }),
 });
 
 /**
@@ -301,7 +306,7 @@ const TOPUP_PRODUCTS = Object.freeze({
  * (around December) as a one-constant change in a later small PR - never an env var set by an agent.
  * `TOPUP_BONUS_ENDS_ISO` is an optional last day (IST, "YYYY-MM-DD") after which the bonus stops by itself.
  * It is NOT tied to the founding offer: the founding price is a different thing and is untouched here.
- * When on (e.g. +25%): 49 -> 25 + 6, 149 -> 80 + 20 (the bonus is floored to a whole rupee), recorded
+ * When on (e.g. +25%): 49 -> 35 + 8, 149 -> 110 + 27 (the bonus is floored to a whole rupee), recorded
  * SEPARATELY from the base. Owner 22 Oct 2026: NO bonus at launch - the percent stays 0.
  */
 const TOPUP_BONUS_PERCENT = 0;
