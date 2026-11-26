@@ -257,3 +257,37 @@ describe("TS-FREE-PICKER · one time-up lock (source pin)", () => {
     expect(ctPick).toContain("if (timeUpLockedRef.current) return;");
   });
 });
+
+// TS-SAMPLE-OPEN (owner ruling 26 Nov 2026, 22:08 IST): behind the real daily paper gate, OPENING a sample's start screen signed out is
+// not the day's free paper - pressing Start is. The start screen shows no question; Start counts it; another paper then walls.
+describe("TS-SAMPLE-OPEN · Full Mock behind the daily paper gate", () => {
+  const views = () => {
+    const k = Object.keys(window.localStorage).find((x) => x.startsWith("lazytopper.dailyMockViews:"));
+    return k ? (JSON.parse(window.localStorage.getItem(k) as string) as { count: number }).count : 0;
+  };
+  async function gated(url: string) {
+    const { MockViewGate } = await import("../components/auth/MockViewGate");
+    return render(
+      <MemoryRouter initialEntries={[url]}>
+        <Routes>
+          <Route path="/full-mock/:grade/:subject" element={<MockViewGate><FullMockPage /></MockViewGate>} />
+          <Route path="/login" element={<LoginProbe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+  it("open FM-S1 (no question on screen, nothing counted) -> Start counts it -> FM-M1 then walls at open", async () => {
+    await gated("/full-mock/10/Science?paper=1");
+    expect(await screen.findByTestId("ts-signed-out-note", {}, { timeout: 60000 })).toBeTruthy();
+    expect(document.querySelector(".lt-ct__opt")).toBeNull();
+    expect(views()).toBe(0);
+    fireEvent.click(await screen.findByRole("button", { name: /Start the mock/ }));
+    await waitFor(() => expect(document.querySelector(".lt-ct__opt")).not.toBeNull(), { timeout: 30000 });
+    expect(views()).toBe(1);
+    expect(screen.queryByTestId("login-page")).toBeNull();
+    cleanup();
+    await gated("/full-mock/10/Maths?paper=1");
+    expect(await screen.findByText(/opened your free paper for today/)).toBeTruthy();
+    expect(views()).toBe(1);
+  }, 120000);
+});
