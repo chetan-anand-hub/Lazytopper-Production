@@ -318,9 +318,12 @@ function buildAskParentSeriesMessage(lang: ParentPayLang, price: string | null, 
 /**
  * TS-PARENT-FORWARD-2 (owner, 25 Nov 2026: no sign-in in any pay path) - a SIGNED-OUT student's message to a parent. No per-account
  * link exists without an account, so it sends the public /test-series page: the parent pays there signed out (pay-first) and, after
- * paying, "Who will use it?" puts the series on the child's number. `price` is the Buy's own total (packPayLabel), never typed.
+ * paying, "Who will use it?" puts the series on the child's number.
+ * TS-PAYPATH-1 (owner rule: no forwarded message may carry a price that is wrong after 1 Dec): this message is a non-expiring PAGE
+ * link, read days after it is sent, so it NEVER names an amount - before or after the founding close ("a one-time payment"; the page
+ * shows the live price), exactly as PARENT-PAY-FIRST-1's guest message. `price` / `now` are accepted for old callers and ignored.
  */
-export function buildParentSeriesShareMessage({ lang, price, url, now = Date.now() }: { lang: ParentPayLang; price: string; url: string; now?: Date | number }): string {
+export function buildParentSeriesShareMessage({ lang, url }: { lang: ParentPayLang; price?: string; url: string; now?: Date | number }): string {
   const pay = lang === "hi" ? "यहाँ भुगतान करें, फिर मेरा नंबर डालें ताकि यह मेरे अकाउंट पर खुल जाए:" : "Pay here, then enter my number so it opens on my account:";
-  return `${seriesAskLine(lang, seriesQuotedPrice(price, now))} ${pay} ${url}`;
+  return `${seriesAskLine(lang, null)} ${pay} ${url}`;
 }
