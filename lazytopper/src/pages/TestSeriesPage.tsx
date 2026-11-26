@@ -41,6 +41,8 @@ import {
   type SeriesSubject,
 } from "../lib/testSeries/testSeries";
 import { focusSetCount, focusSetProgress, focusSets as allFocusSets, tsFocusSetsDisabled, type FocusSetProgress } from "../lib/testSeries/focusSets";
+import SalesFaq from "../components/salesPages/SalesFaq";
+import { fairUseFaq } from "../components/salesPages/salesPagesCopy";
 import "../components/salesPages/salesPages.css";
 import "./testSeriesPage.css";
 
@@ -605,6 +607,10 @@ export default function TestSeriesPage() {
                   </ul>
                 </div>
               </section>
+
+              <div className="lt-sp__w lt-ts-sec">
+                <SalesFaq items={[fairUseFaq()]} headingId="ts-faq-h" testId="ts-faq" />
+              </div>
 
               {schedule && (
                 <section className="lt-sp__w lt-ts-sec" aria-labelledby="ts-cal-h">
