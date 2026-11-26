@@ -100,7 +100,6 @@ import {
   HUB_TAB_NAME,
   HUB_TABS_CAPTION,
   HUB_TABS_LABEL,
-  HUB_GROUPS,
   HUB_TS_DETAILS_PATH,
   HUB_TS_BUY,
   HUB_TS_CHECKS_LINE,
@@ -1481,12 +1480,6 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
               return (
                 <>
                   <div className="lt-ph-tabs" role="group" aria-label={HUB_TABS_LABEL} data-testid="hub-tabs">
-                    {/* PRICING-4CARD-1: the online pair, then the paper pair - each pair under its own small label. */}
-                    {HUB_GROUPS.map((g) => (
-                      <span key={g.key} className={`lt-ph-tabgroup lt-ph-tabgroup--${g.key}`} aria-hidden="true" data-testid={`hub-tabgroup-${g.key}`}>
-                        {g.label}
-                      </span>
-                    ))}
                     {HUB_CARD_ORDER.map((key, i) => (
                       <button
                         key={key}
@@ -1505,16 +1498,9 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
                   <p className="lt-ph-caption">{HUB_TABS_CAPTION}</p>
 
                   <div className={ctaUp ? "lt-ph-cards lt-ph-cards--up" : "lt-ph-cards"} ref={trackRef} data-testid="hub-cards" data-cta-up={ctaUp ? "1" : undefined}>
-                    {/* Group labels + the desktop divider: grid items placed by CSS (hidden on phones, where the tabs carry the groups). */}
-                    {HUB_GROUPS.map((g) => (
-                      <p key={g.key} className={`lt-ph-group lt-ph-group--${g.key}`} data-testid={`hub-group-${g.key}`}>
-                        {g.label}
-                      </p>
-                    ))}
-                    <span className="lt-ph-divider" aria-hidden="true" />
                     {ctaUp ? passFace : passCard}
-                    {ctaUp ? tsFace(api) : tsCard(api)}
                     {ctaUp ? cbqFace(api) : cbqCard(api)}
+                    {ctaUp ? tsFace(api) : tsCard(api)}
                     {ctaUp ? bankFace(api) : bankCard(api)}
                   </div>
                   <div className="lt-ph-pager" aria-hidden="true" data-testid="hub-pager">
