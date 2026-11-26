@@ -120,6 +120,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
 });
@@ -195,6 +196,79 @@ describe("TS-FREE-SIGNEDOUT · Chapter Test series paper", () => {
     expect(await screen.findByTestId("series-start-wall")).toBeTruthy();
     expect(document.querySelector(".lt-ct__exit")).toBeNull();
     expect(spies.partial).toBe(0);
+  }, 120000);
+
+  it("review nit 1: a kept attempt whose time ran out comes back LOCKED at its submit step - the clock is not switched off, no answer edits, no auto-submit; submit marks it", async () => {
+    mount();
+    const picked = await startAndPickFirst();
+    expect(picked).not.toBe("");
+    await submit();
+    fireEvent.click(await screen.findByTestId("ts-sign-in-to-mark-go"));
+    await screen.findByTestId("login-page");
+    cleanup();
+    // the sign-in took longer than the paper's time limit (the clock was on)
+    const kept = JSON.parse(window.sessionStorage.getItem(SIGNED_OUT_ATTEMPT_KEY) as string);
+    expect(kept.timerEnabled).toBe(true);
+    window.sessionStorage.setItem(SIGNED_OUT_ATTEMPT_KEY, JSON.stringify({ ...kept, elapsedMs: 10 * 60 * 60 * 1000 }));
+
+    auth.user = SIGNED_IN;
+    resetTestSeriesOwnershipForTests();
+    resetOwnedPacksCache();
+    mount();
+    expect(await screen.findByTestId("ts-signed-out-restored", {}, { timeout: 60000 })).toBeTruthy();
+    fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }));
+    expect(await screen.findByTestId("ts-time-up-submit", {}, { timeout: 30000 })).toBeTruthy();
+    // locked: no option, flag, navigator or "keep working" on screen - nothing can be changed past time
+    expect(document.querySelector(".lt-ct__opt")).toBeNull();
+    expect(document.querySelector(".lt-ct__exit")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Keep working/ })).toBeNull();
+    // the autosave of the sitting keeps the clock ON (the old fix switched it off) and nothing is submitted behind the student's back
+    await new Promise((r) => setTimeout(r, 2500));
+    expect(spies.partial).toBe(0);
+    expect(loadLocalSessionRecords(SIGNED_IN.uid)).toHaveLength(0);
+    const progress = Object.keys(window.sessionStorage)
+      .filter((k) => k.startsWith("lazytopper.ct.progress."))
+      .map((k) => JSON.parse(window.sessionStorage.getItem(k) as string) as { timerEnabled?: boolean; answers?: Record<string, string> });
+    expect(progress).toHaveLength(1);
+    expect(progress[0].timerEnabled).toBe(true);
+    expect(progress[0].answers).toEqual(kept.answers);
+    // the student taps submit: the EXISTING signed-in submit runs, once
+    fireEvent.click(screen.getByTestId("ts-time-up-submit-go"));
+    await waitFor(() => {
+      const rec = loadLocalSessionRecords(SIGNED_IN.uid).filter((r) => r.surface === "chapter-test");
+      expect(rec).toHaveLength(1);
+      expect(rec[0].status).toBe("partial");
+    });
+    expect(spies.partial).toBe(1);
+    expect(screen.queryByTestId("ts-time-up-submit")).toBeNull();
+  }, 120000);
+
+  it("review nit 2: signing OUT mid-sitting (the autosave-restore effect re-runs) keeps the answers - none lost, none duplicated, no crash", async () => {
+    auth.user = SIGNED_IN;
+    const page = mount();
+    const picked = await startAndPickFirst();
+    expect(picked).not.toBe("");
+    const before = Object.keys(window.sessionStorage).filter((k) => k.startsWith("lazytopper.ct.progress."));
+    expect(before).toHaveLength(1);
+    const answersBefore = (JSON.parse(window.sessionStorage.getItem(before[0]) as string) as { answers: Record<string, string> }).answers;
+    expect(Object.keys(answersBefore)).toHaveLength(1);
+    const questionsBefore = document.querySelectorAll(".lt-ct__seg").length;
+    // sign out in another tab, mid-sitting
+    auth.user = null;
+    page.rerender();
+    await new Promise((r) => setTimeout(r, 1500));
+    // still on the same paper, the same question, the same single answer picked
+    expect(document.querySelector(".lt-ct__opt")).not.toBeNull();
+    expect(document.querySelectorAll(".lt-ct__seg").length).toBe(questionsBefore);
+    expect(document.querySelectorAll(".lt-ct__opt--sel")).toHaveLength(1);
+    expect(selected()).toBe(picked);
+    // one autosave of the sitting, carrying exactly the answers it had (nothing dropped, nothing doubled)
+    const after = Object.keys(window.sessionStorage).filter((k) => k.startsWith("lazytopper.ct.progress."));
+    expect(after).toHaveLength(1);
+    expect((JSON.parse(window.sessionStorage.getItem(after[0]) as string) as { answers: Record<string, string> }).answers).toEqual(answersBefore);
+    // and it was not turned into a kept signed-out attempt (it was started signed in)
+    expect(window.sessionStorage.getItem(SIGNED_OUT_ATTEMPT_KEY)).toBeNull();
+    expect(screen.queryByTestId("ts-sign-in-to-mark")).toBeNull();
   }, 120000);
 
   it("owner decision: a NON-sample Test Series paper signed out keeps sign-in first (CT-M02, and a paper 2 of the sample chapter)", async () => {

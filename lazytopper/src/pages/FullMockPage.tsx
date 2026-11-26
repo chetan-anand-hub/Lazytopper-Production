@@ -163,6 +163,7 @@ import { ADD_PAGES_UPLOAD_BANNER, ADD_PAGES_USES_CHECK_LINE, notCountedReasonOf,
 import { FM_CSS } from "../components/fullmock/fullMockStyles";
 // TS-FREE-SIGNEDOUT — a signed-out visitor sits a Test Series paper; sign-in is asked for only to get it marked.
 import SignInToMarkCard from "../components/testSeries/SignInToMarkCard";
+import TimeUpSubmitCard from "../components/testSeries/TimeUpSubmitCard";
 import {
   SIGNED_OUT_ATTEMPT_RESTORED_LINE,
   SIGNED_OUT_TAKING_NOTE,
@@ -541,6 +542,9 @@ export default function FullMockPage() {
   const signedOutLatch = useRef(false);
   // review nit (a): a kept sitting whose time had run out opens at its submit step - the clock does not auto-submit it.
   const noAutoSubmitRef = useRef(false);
+  // review nit 1 (PR #1897): ...and its answers are LOCKED - the time-up card stands in place of the paper (no option, flag or
+  // question is rendered), so nothing can be changed past time; the student taps submit to get it marked.
+  const [timeUpLocked, setTimeUpLocked] = useState(false);
   const signedOutRestoreDone = useRef(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
@@ -980,8 +984,8 @@ export default function FullMockPage() {
   // Auto-submit when the wall clock runs out — like the board hall, once.
   useEffect(() => {
     if (phase !== "taking" || !activeMock) return;
-    if (remaining <= 0 && !submittedRef.current && !noAutoSubmitRef.current) finishToPartial();
-  }, [phase, activeMock, remaining, finishToPartial]);
+    if (remaining <= 0 && !submittedRef.current && !noAutoSubmitRef.current && !timeUpLocked) finishToPartial();
+  }, [phase, activeMock, remaining, finishToPartial, timeUpLocked]);
 
   // Guarded exit (§8a): confirm before the tab closes mid-test. Answers + timer
   // are saved, but a silent loss of the sitting flow deserves a stop.
@@ -1019,6 +1023,7 @@ export default function FullMockPage() {
       submittedRef.current = false;
       downloadedRef.current = false;
       noAutoSubmitRef.current = false;
+      setTimeUpLocked(false);
       const so: ActiveMock = {
         paper: draw.paper,
         code: nomen.code,
@@ -1107,7 +1112,9 @@ export default function FullMockPage() {
     signedOutLatch.current = false;
     // review nit (a): the kept time had already run out - the paper opens at its submit step, not an instant auto-submit.
     noAutoSubmitRef.current = !!kept && remainingMs(a, Date.now()) <= 0;
-    if (noAutoSubmitRef.current) setShowConfirm(true);
+    // review nit 1: answers locked, no "keep working" - the time-up card (not the dismissible confirm) is the only way on.
+    setTimeUpLocked(noAutoSubmitRef.current);
+    setShowConfirm(false);
     if (signedOutKept) {
       clearSignedOutAttempt();
       setSignedOutKept(null);
@@ -1128,6 +1135,7 @@ export default function FullMockPage() {
     if (!s) return;
     signedOutLatch.current = false;
     noAutoSubmitRef.current = false;
+    setTimeUpLocked(false);
     setPanelOpen(false);
     downloadedRef.current = false;
     const a: ActiveMock = {
@@ -1159,6 +1167,8 @@ export default function FullMockPage() {
   }, [inProgress, sessionUid, doSubmit, subject]);
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {
+    // review nit 1: past time on a kept attempt, the answers are locked (belt and braces - the paper is not rendered then).
+    if (noAutoSubmitRef.current) return;
     setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
   }, []);
   const toggleFlag = useCallback((qNumber: number) => {
@@ -2398,7 +2408,14 @@ export default function FullMockPage() {
           <SignInToMarkCard onSignIn={goSignInToMark} onBack={signInAsk.timeUp ? null : backToPaperSignedOut} />
         </div>
       )}
-      {phase === "taking" && !signInAsk && activeMock && currentQuestion && (
+      {/* review nit 1: a kept attempt back after sign-in with its time run out - answers locked; the student taps submit. */}
+      {phase === "taking" && !signInAsk && timeUpLocked && activeMock && (
+        <div className="lt-ct__fs">
+          {/* the lock stays on through submit (it leaves "taking" for the results); every Start / resume resets it */}
+          <TimeUpSubmitCard onSubmit={finishToPartial} />
+        </div>
+      )}
+      {phase === "taking" && !signInAsk && !timeUpLocked && activeMock && currentQuestion && (
         <div className="lt-ct__fs">
           <div className="lt-ct__fsbar">
             <div className="lt-ct__fsbar-l">

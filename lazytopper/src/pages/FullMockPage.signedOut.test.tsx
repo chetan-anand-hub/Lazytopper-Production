@@ -95,6 +95,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
 });
@@ -164,6 +165,58 @@ describe("TS-FREE-SIGNEDOUT · Full Mock series paper", () => {
     await waitFor(() => expect(document.querySelector(".lt-ct__opt")).not.toBeNull(), { timeout: 30000 });
     expect(selected()).toBe(picked);
     expect(spies.partial).toBe(0);
+  }, 150000);
+
+  it("review nit 1: a kept attempt whose time ran out comes back LOCKED at its submit step - no answer edits, no auto-submit; submit marks it", async () => {
+    mount();
+    fireEvent.click(await screen.findByRole("button", { name: /Start the mock/ }, { timeout: 60000 }));
+    await waitFor(() => expect(document.querySelector(".lt-ct__opt")).not.toBeNull(), { timeout: 30000 });
+    fireEvent.click(document.querySelectorAll<HTMLButtonElement>(".lt-ct__opt")[0]);
+    const picked = selected();
+    expect(picked).not.toBe("");
+    fireEvent.click(document.querySelector(".lt-ct__exit") as HTMLElement);
+    fireEvent.click(await screen.findByRole("button", { name: /Submit now/ }));
+    fireEvent.click(await screen.findByTestId("ts-sign-in-to-mark-go"));
+    await screen.findByTestId("login-page");
+    cleanup();
+    // the sign-in took longer than the paper's time: the kept attempt has used more than the 3 hours
+    const kept = JSON.parse(window.sessionStorage.getItem(SIGNED_OUT_ATTEMPT_KEY) as string);
+    window.sessionStorage.setItem(SIGNED_OUT_ATTEMPT_KEY, JSON.stringify({ ...kept, elapsedMs: 4 * 60 * 60 * 1000 }));
+
+    auth.user = SIGNED_IN;
+    resetTestSeriesOwnershipForTests();
+    resetOwnedPacksCache();
+    mount();
+    expect(await screen.findByTestId("ts-signed-out-restored", {}, { timeout: 60000 })).toBeTruthy();
+    const start = await screen.findByRole("button", { name: /Start the mock/ });
+    await waitFor(() => expect(screen.queryByText(/Checking your access/)).toBeNull());
+    fireEvent.click(start);
+    expect(await screen.findByTestId("ts-time-up-submit", {}, { timeout: 30000 })).toBeTruthy();
+    // locked: no option, flag, navigator or "keep working" is on screen, so no answer can be changed past time
+    expect(document.querySelector(".lt-ct__opt")).toBeNull();
+    expect(document.querySelector(".lt-ct__exit")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Keep working/ })).toBeNull();
+    // and nothing is submitted behind the student's back while the (expired) clock ticks on
+    await new Promise((r) => setTimeout(r, 2500));
+    expect(spies.partial).toBe(0);
+    expect(loadLocalSessionRecords(SIGNED_IN.uid)).toHaveLength(0);
+    expect(screen.getByTestId("ts-time-up-submit")).toBeTruthy();
+    // the student taps submit: the EXISTING signed-in submit runs, once, with the kept answer
+    fireEvent.click(screen.getByTestId("ts-time-up-submit-go"));
+    await waitFor(() => {
+      const rec = loadLocalSessionRecords(SIGNED_IN.uid).filter((r) => r.surface === "full-mock");
+      expect(rec).toHaveLength(1);
+      expect(rec[0].status).toBe("partial");
+    });
+    expect(spies.partial).toBe(1);
+    // the kept answer is the one marked (the device copy of the submitted sitting carries exactly the kept answers)
+    const submitted = Object.keys(window.localStorage)
+      .filter((k) => k.startsWith(`lazytopper.fm.session.v1.${SIGNED_IN.uid}.`))
+      .map((k) => JSON.parse(window.localStorage.getItem(k) as string) as { answers?: Record<string, string>; phase?: string });
+    expect(submitted).toHaveLength(1);
+    expect(submitted[0].answers).toEqual(kept.answers);
+    expect(Object.keys(kept.answers)).toHaveLength(1);
+    expect(screen.queryByTestId("ts-time-up-submit")).toBeNull();
   }, 150000);
 
   it("owner decision: a non-sample paper (Full-Length Test 2) and a focus set signed out keep sign-in first", async () => {

@@ -166,6 +166,7 @@ import { tsPinDisabledFor } from "../lib/testSeries/tsPinFlag";
 import { useDerivedWrittenGraded } from "../hooks/useDerivedWrittenGraded";
 // TS-FREE-SIGNEDOUT — a signed-out visitor sits a Test Series paper; sign-in is asked for only to get it marked.
 import SignInToMarkCard from "../components/testSeries/SignInToMarkCard";
+import TimeUpSubmitCard from "../components/testSeries/TimeUpSubmitCard";
 import {
   SIGNED_OUT_ATTEMPT_KEPT_LINE,
   SIGNED_OUT_ATTEMPT_RESTORED_LINE,
@@ -501,6 +502,11 @@ export default function ChapterTestPage() {
   // state, so an account that appears mid-sitting (a sign-in in another tab) can never submit a paper its start rules never ran for.
   const signedOutLatch = useRef(false);
   const signedOutRestoreDone = useRef(false);
+  // review nit 1 (PR #1897): a kept attempt back after sign-in with its time already run out - the answers are LOCKED (the time-up card
+  // stands in place of the paper; the clock neither runs on nor auto-submits) and the student taps submit to get it marked.
+  const [timeUpLocked, setTimeUpLocked] = useState(false);
+  const timeUpLockedRef = useRef(false);
+  timeUpLockedRef.current = timeUpLocked;
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── Results state (two-phase) ────────────────────────────────────────────────
@@ -921,7 +927,7 @@ export default function ChapterTestPage() {
 
   // Timer.
   useEffect(() => {
-    if (phase !== "taking" || signInAsk) return;
+    if (phase !== "taking" || signInAsk || timeUpLocked) return;
     timerRef.current = setInterval(() => {
       setElapsed((e) => {
         const next = e + 1;
@@ -937,7 +943,7 @@ export default function ChapterTestPage() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, timerEnabled, timeLimitSeconds, signInAsk]);
+  }, [phase, timerEnabled, timeLimitSeconds, signInAsk, timeUpLocked]);
 
   // TS-FREE-SIGNEDOUT: back from sign-in - the attempt kept for THIS paper (same question ids) goes back on it, once. Nothing starts:
   // Start runs the signed-in start rules unchanged (one free test, fair use, the server's free-test state), and a refused start shows
@@ -1003,6 +1009,7 @@ export default function ChapterTestPage() {
       }
       setStarting(false);
       signedOutLatch.current = true;
+      setTimeUpLocked(false);
       setSignedOutRestored(false);
       // review nit (a): the kept time had already run out -> straight to the sign-in card (nothing is marked signed out)
       setSignInAsk(signedOutRestored && timerEnabled && elapsed >= timeLimitSeconds ? { timeUp: true } : null);
@@ -1051,13 +1058,15 @@ export default function ChapterTestPage() {
     markServed(paper);
     // TS-FREE-SIGNEDOUT: the kept signed-out attempt is now this sitting (the in-tab autosave takes over).
     signedOutLatch.current = false;
+    setTimeUpLocked(false);
     if (signedOutRestored) {
       clearSignedOutAttempt();
       setSignedOutRestored(false);
-      // review nit (a): the kept time had already run out - the paper opens at its submit step (no instant auto-submit).
+      // review nit 1: the kept time had already run out - the answers are locked and the paper opens at its submit step (the time-up
+      // card); no instant auto-submit, and the clock is NOT switched off (that let answers be changed past time).
       if (timerEnabled && elapsed >= timeLimitSeconds) {
-        setTimerEnabled(false);
-        setShowConfirm(true);
+        setShowConfirm(false);
+        setTimeUpLocked(true);
       }
     }
     setPhase("taking");
@@ -1078,6 +1087,7 @@ export default function ChapterTestPage() {
     setStarting(false);
     // TS-FREE-SIGNEDOUT: a signed-out reload of a signed-out sitting stays signed out (latched); time already up -> the sign-in card.
     signedOutLatch.current = signedOutSitting;
+    setTimeUpLocked(false);
     if (signedOutSitting && timerEnabled && elapsed >= timeLimitSeconds) {
       saveSignedOutAttempt({
         surface: "chapter-test",
@@ -1116,6 +1126,8 @@ export default function ChapterTestPage() {
   }, [progressKey, location.pathname, user?.uid, isPremium]);
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {
+    // review nit 1: past time on a kept attempt, the answers are locked (belt and braces - the paper is not rendered then).
+    if (timeUpLockedRef.current) return;
     setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
   }, []);
   const toggleFlag = useCallback((qNumber: number) => {
@@ -2038,7 +2050,13 @@ export default function ChapterTestPage() {
           <SignInToMarkCard onSignIn={goSignInToMark} onBack={signInAsk.timeUp ? null : () => setSignInAsk(null)} />
         </div>
       )}
-      {phase === "taking" && !signInAsk && paper && currentQuestion && (
+      {/* review nit 1: a kept attempt back after sign-in with its time run out - answers locked; the student taps submit. */}
+      {phase === "taking" && !signInAsk && timeUpLocked && paper && (
+        <div className="lt-ct__fs">
+          <TimeUpSubmitCard onSubmit={() => finishRef.current()} />
+        </div>
+      )}
+      {phase === "taking" && !signInAsk && !timeUpLocked && paper && currentQuestion && (
         <div className="lt-ct__fs">
           <div className="lt-ct__fsbar">
             <div className="lt-ct__fsbar-l">

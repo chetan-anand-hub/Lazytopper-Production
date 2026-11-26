@@ -27,6 +27,10 @@ export const BACK_TO_PAPER_BUTTON = "Back to my paper";
 /** Signed out, back on the paper after a reload: the kept answers are still here. */
 export const SIGNED_OUT_ATTEMPT_KEPT_LINE = "Your answers on this paper are still here. Start to carry on.";
 export const SIGNED_OUT_ATTEMPT_RESTORED_LINE = "Your answers from before you signed in are back on this paper. Start, check them, then submit to get them marked.";
+/** Review nit 1: back after sign-in with the kept attempt's time already run out - the answers are locked; the student submits. */
+export const TIME_UP_TITLE = "Time is up on this paper";
+export const TIME_UP_LINE = "Your answers are kept as they were and can no longer be changed. Submit them to get them marked.";
+export const TIME_UP_BUTTON = "Submit my answers";
 /** Shown on the taking screen while signed out: honest about what happens at submit. */
 export const SIGNED_OUT_TAKING_NOTE = "You're not signed in — you can sit this paper now. To get it marked, you'll sign in when you submit.";
 
