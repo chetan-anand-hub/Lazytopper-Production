@@ -372,25 +372,25 @@ const { aboutCountFor, creditEstimateMicroInr: estimateAt } = require('./passPri
 test('PRICES ★★ the "about N" breakdown uses the model price IN FORCE at view time: grading rows halve from 2027-01-01, Tutor rows do not', () => {
   const before = Object.fromEntries(topupBreakdownFor('topup_49', IST_2027_01_01_MS - 1).rows.map((r) => [r.activity, r.about]));
   const after = Object.fromEntries(topupBreakdownFor('topup_49', IST_2027_01_01_MS).rows.map((r) => [r.activity, r.about]));
-  // ₹25 of credit (never shown): 25 / 2.05 = 12 checks; at double the grading price 25 / 4.10 = 6.
-  assert.equal(before.answer_check, 12);
-  assert.equal(after.answer_check, 6);
-  assert.equal(before.full_mock_grading, 5);
-  assert.equal(after.full_mock_grading, 2);
-  assert.equal(before.chapter_test_grading, 15);
-  assert.equal(after.chapter_test_grading, 7);
+  // ₹35 of credit (never shown; owner 26 Nov): 35 / 2.05 = 17 checks; at double the grading price 35 / 4.10 = 8.
+  assert.equal(before.answer_check, 17);
+  assert.equal(after.answer_check, 8);
+  assert.equal(before.full_mock_grading, 8);
+  assert.equal(after.full_mock_grading, 4);
+  assert.equal(before.chapter_test_grading, 21);
+  assert.equal(after.chapter_test_grading, 10);
   // The Tutor / detection / More-like-this run gemini-2.5-flash, whose price does not change.
-  assert.equal(before.tutor_message, 70);
-  assert.equal(after.tutor_message, 70);
+  assert.equal(before.tutor_message, 98);
+  assert.equal(after.tutor_message, 98);
   assert.equal(after.question_detection, before.question_detection);
-  // ₹149 pack: 80 / 2.05 = 39 checks -> 19.
+  // ₹149 pack: 110 / 2.05 = 53 checks -> 26.
   const big = (at) => topupBreakdownFor('topup_149', at).rows.find((r) => r.activity === 'answer_check').about;
-  assert.equal(big(IST_2027_01_01_MS - 1), 39);
-  assert.equal(big(IST_2027_01_01_MS), 19);
+  assert.equal(big(IST_2027_01_01_MS - 1), 53);
+  assert.equal(big(IST_2027_01_01_MS), 26);
   // The admission estimate (what is held) follows the same price.
   assert.equal(estimateAt('answer_check', 1, IST_2027_01_01_MS), 2 * estimateAt('answer_check', 1, IST_2027_01_01_MS - 1));
   assert.equal(estimateAt('papers', 10, IST_2027_01_01_MS), 2 * estimateAt('papers', 10, IST_2027_01_01_MS - 1));
-  assert.equal(aboutCountFor(25 * INR, 'answer_check', IST_2027_01_01_MS), 6);
+  assert.equal(aboutCountFor(35 * INR, 'answer_check', IST_2027_01_01_MS), 8);
 });
 
 test('PRICES ★ paper rows are flagged as ESTIMATES (D97); measured rows are not', () => {
