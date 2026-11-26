@@ -48,6 +48,10 @@ export interface PaywallActionsLiveProps {
   product?: ParentPayPackProduct;
   /** PARENT-PACKS-1 - only "Forward link to parents" (no QR button), as a secondary button: for a tight card (/pricing CBQ). */
   noQr?: boolean;
+  /** PARENT-PAY-FIRST-1 - the closed-sheet rescue: forward first (primary), then the QR button, no Pay. */
+  parentFirst?: boolean;
+  /** PARENT-PAY-FIRST-1 - fires with each fresh tap on the QR button. */
+  onQr?: () => void;
 }
 
 export interface PaywallActionsProps extends Omit<PaywallActionsLiveProps, "showParent"> {
@@ -85,7 +89,7 @@ export function trackPricingPayTap(e: { target: EventTarget | null }): void {
 }
 
 /** The three paywall actions, or the surface's own control while payments are dark. */
-export default function PaywallActions({ surface, onPay, payTo, askOnly, onAsk, forwardLabel, qrLabel, product, noQr, fallback = null }: PaywallActionsProps) {
+export default function PaywallActions({ surface, onPay, payTo, askOnly, onAsk, forwardLabel, qrLabel, product, noQr, parentFirst, onQr, fallback = null }: PaywallActionsProps) {
   if (!isPaymentsClientEnabled()) return <>{fallback}</>;
   return (
     <Suspense fallback={fallback}>
@@ -100,6 +104,8 @@ export default function PaywallActions({ surface, onPay, payTo, askOnly, onAsk, 
         qrLabel={qrLabel}
         product={product}
         noQr={noQr}
+        parentFirst={parentFirst}
+        onQr={onQr}
         fallback={fallback}
       />
     </Suspense>
