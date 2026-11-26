@@ -2506,3 +2506,65 @@ test('TS-OWNER · wired to the REAL testSeriesChecks.ownerSeriesPaper (manifest 
   const nonOwner = rig({ env: PASS_ENV, days: SPENT(), seriesOwnerPaper });
   assert.equal((await mint(nonOwner, { surface: 'full-mock', paperKey: 'fm-ts1-m2--fm-x' })).status, 409);
 });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TS-FAIRUSE-1 · a Test Series owner (tier "free") is held to the Premium cost windows
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const TSF_BODY = (paperKey) => ({ worksheetId: paperKey, questions: questions(2) });
+const tsfRun = (r, paperKey = SERIES_CT) => run(r, { path: GRADE_WORKSHEET_PATH, surface: 'chapter-test', body: TSF_BODY(paperKey) });
+
+test('TS-FAIRUSE · a free-tier Test Series owner at the DAY cost window gets the Premium 429 on a series paper, with resetAt', async () => {
+  const r = rig({ tier: 'free', days: { [TODAY]: { costMicroInr: 38 * INR } }, seriesOwnerPaper: ownerOf(true) });
+  const out = await tsfRun(r);
+  assert.deepEqual(out.res.sent, { status: 429, body: { error: 'usage_limit', window: 'day', resetAt: NEXT_IST_MIDNIGHT } });
+  assert.equal(r.telemetry.count('fair_use.ts_owner_capped'), 1);
+  const full = rig({ tier: 'free', days: { [TODAY]: { costMicroInr: 38 * INR } }, seriesOwnerPaper: ownerOf(true) });
+  assert.equal((await tsfRun(full, SERIES_FM)).res.sent.status, 429, 'a full-length test paper is capped too');
+});
+
+test('TS-FAIRUSE · under the cap a Test Series owner is served; the 30-day window applies when FAIR_USE_PREMIUM_30DAY_INR is set', async () => {
+  const under = rig({ tier: 'free', days: { [TODAY]: { costMicroInr: 37.99 * INR } }, seriesOwnerPaper: ownerOf(true) });
+  assert.equal((await tsfRun(under)).answered, false);
+  const env = { FAIR_USE_ENFORCE: '1', FAIR_USE_PREMIUM_30DAY_INR: '900', FAIR_USE_PREMIUM_DAY_INR: '150' };
+  const spent = { [dayOf(10)]: { costMicroInr: 450 * INR }, [dayOf(20)]: { costMicroInr: 450 * INR } };
+  const capped = rig({ tier: 'free', env, days: spent, seriesOwnerPaper: ownerOf(true) });
+  const out = await tsfRun(capped);
+  assert.equal(out.res.sent.status, 429);
+  assert.equal(out.res.sent.body.window, 'thirtyDay');
+});
+
+test('TS-FAIRUSE · NOT applied to a non-owner, a non-series paper, or a trial / Premium tier (their rules are unchanged)', async () => {
+  const days = { [TODAY]: { costMicroInr: 500 * INR } };
+  assert.equal((await tsfRun(rig({ tier: 'free', days, seriesOwnerPaper: ownerOf(false) }))).answered, false, 'non-owner: uncapped as before');
+  assert.equal((await tsfRun(rig({ tier: 'free', days, seriesOwnerPaper: ownerOf(true) }), 'ws-plain-1')).answered, false, 'non-series paper');
+  assert.equal((await tsfRun(rig({ tier: 'free', days }))).answered, false, 'no owner dep: today\'s behaviour');
+  const trialOwner = rig({ tier: 'trial', days, seriesOwnerPaper: ownerOf(true) });
+  const out = await tsfRun(trialOwner);
+  assert.equal(trialOwner.telemetry.count('fair_use.ts_owner_capped'), 0, 'a trial owner is never routed through the premium branch');
+  assert.notEqual(out.res.sent && out.res.sent.body && out.res.sent.body.error, 'usage_limit');
+  const bp = rig({ tier: 'premium', days, seriesOwnerPaper: ownerOf(true) });
+  assert.equal((await tsfRun(bp)).res.sent.status, 429, 'Board Pass keeps its own cap');
+});
+
+test('TS-FAIRUSE · kill switch TS_FAIRUSE_CAP_DISABLED -> trunk behaviour, owner uncapped and the ownership dep never asked', async () => {
+  const days = { [TODAY]: { costMicroInr: 500 * INR } };
+  for (const v of ['1', 'true', 'on', 'yes']) {
+    const owner = ownerOf(true);
+    const r = rig({ tier: 'free', env: { FAIR_USE_ENFORCE: '1', TS_FAIRUSE_CAP_DISABLED: v }, days, seriesOwnerPaper: owner });
+    const out = await tsfRun(r);
+    assert.equal(out.answered, false, v);
+    assert.equal(owner.calls.length, 0, v);
+    assert.equal(r.telemetry.count('fair_use.ts_owner_capped'), 0, v);
+  }
+});
+
+test('TS-FAIRUSE · dark (FAIR_USE_ENFORCE unset) serves and only counts would_refuse; a throwing owner read leaves the owner uncapped', async () => {
+  const days = { [TODAY]: { costMicroInr: 500 * INR } };
+  const dark = rig({ tier: 'free', env: {}, days, seriesOwnerPaper: ownerOf(true) });
+  assert.equal((await tsfRun(dark)).answered, false);
+  assert.equal(dark.telemetry.count('fair_use.ts_owner_capped'), 1);
+  assert.ok(['premium_five_hour', 'premium_day', 'premium_week'].some((k) => dark.telemetry.count(`fair_use.would_refuse.${k}`) === 1));
+  const broken = rig({ tier: 'free', days, seriesOwnerPaper: async () => { throw new Error('down'); } });
+  assert.equal((await tsfRun(broken)).answered, false);
+});

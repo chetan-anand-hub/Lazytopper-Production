@@ -44,6 +44,7 @@ import { useDesktopLayout } from "../components/salesPages/useDesktopLayout";
 import {
   BP_EYEBROW,
   BP_FAQ_BASIC,
+  fairUseFaq,
   BP_H1,
   BP_MINUTE_LINE,
   BP_MINUTE_STRONG,
@@ -306,7 +307,7 @@ export default function BoardPassPage() {
   else trialAction = trialState("You've used your free trial.", false);
 
   const payForChild = paymentsOn && (checkoutWho || isParentPayClientEnabled()) ? payForChildAnswer(checkoutWho) : null;
-  const faq: SalesFaqItem[] = [FAQ_SUBSCRIPTION, ...(payForChild ? [{ q: FAQ_PAY_FOR_CHILD_Q, a: payForChild }] : []), BP_FAQ_BASIC];
+  const faq: SalesFaqItem[] = [FAQ_SUBSCRIPTION, ...(payForChild ? [{ q: FAQ_PAY_FOR_CHILD_Q, a: payForChild }] : []), BP_FAQ_BASIC, fairUseFaq()];
 
   const video = <PricingProof />;
 
