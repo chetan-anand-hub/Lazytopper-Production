@@ -13,6 +13,18 @@ import { currentInAppPayChoice, inAppChoiceChromeIntent, type InAppBuyTarget } f
 export const INAPP_PAY_FIRST_NOTE = "Opens Chrome — UPI apps work there";
 export const INAPP_PAY_FIRST_HERE_LABEL = "Pay here instead";
 export const INAPP_PAY_FIRST_STUCK_MS = 2500;
+/** INAPP-STUCK-1: the line under the primary "Copy payment link" once Chrome did not open. */
+export const INAPP_STUCK_COPY_NOTE = "Open Chrome, paste the link, and pay there.";
+
+/** INAPP-STUCK-1 kill switch: VITE_INAPP_STUCK_COPY_DISABLED=1 restores the previous behaviour exactly. */
+export function isInAppStuckCopyDisabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_INAPP_STUCK_COPY_DISABLED;
+    return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
 
 export function isInAppPayFirstDisabled(): boolean {
   try {
@@ -26,6 +38,8 @@ export function isInAppPayFirstDisabled(): boolean {
 let bypass = false; // "Pay here instead" was chosen on this page view
 let stuck = false; // a hop did not leave the page
 let hopping = false; // a hop is in flight (a double tap makes ONE hop, one event, one timer)
+let chromeTapStuck = false; // INAPP-STUCK-1: a "Pay in Chrome" tap left the page visible for 2.5 s
+let stuckEventSent = false; // INAPP-STUCK-1: `inapp_pay_open_external_stuck` fires once per stuck detection
 const listeners = new Set<() => void>();
 function notify(): void {
   listeners.forEach((l) => l());
@@ -36,6 +50,8 @@ export function resetInAppPayFirst(): void {
   bypass = false;
   stuck = false;
   hopping = false;
+  chromeTapStuck = false;
+  stuckEventSent = false;
   notify();
 }
 
@@ -66,6 +82,30 @@ export function inAppPayFirstStuck(): boolean {
   return stuck;
 }
 
+/** INAPP-STUCK-1: true once Chrome failed to open (the hop or a "Pay in Chrome" tap stayed visible 2.5 s): Android shows "Copy payment link" first. */
+export function inAppStuckCopyActive(): boolean {
+  return !isInAppStuckCopyDisabled() && (stuck || chromeTapStuck);
+}
+
+function reportStuck(surface: string): void {
+  if (isInAppStuckCopyDisabled() || stuckEventSent) return;
+  stuckEventSent = true;
+  const d = currentInAppPayChoice();
+  if (d) trackOnboardingEvent("inapp_pay_open_external_stuck", { app: d.app, platform: d.platform, surface });
+}
+
+/** INAPP-STUCK-1: call on a "Pay in Chrome" tap. If the page is still visible after 2.5 s, Chrome did not open: show the copy-link action. */
+export function inAppWatchChromeTap(surface: string): void {
+  if (isInAppStuckCopyDisabled() || typeof window === "undefined") return;
+  window.setTimeout(() => {
+    if (typeof document === "undefined" || document.visibilityState !== "visible") return;
+    const wasActive = inAppStuckCopyActive();
+    chromeTapStuck = true;
+    reportStuck(surface);
+    if (!wasActive) notify();
+  }, INAPP_PAY_FIRST_STUCK_MS);
+}
+
 /**
  * The Buy-tap hook. Returns true when it navigated to Chrome (the caller must stop: no order, no checkout event); false = carry on
  * exactly as today. `buy` absent = the page itself (/for-parents).
@@ -83,6 +123,7 @@ export function inAppPayFirstHop(opts: { signedIn: boolean; surface: string; sku
       hopping = false;
       if (typeof document !== "undefined" && document.visibilityState === "visible") {
         stuck = true;
+        reportStuck(opts.surface);
         notify();
       }
     }, INAPP_PAY_FIRST_STUCK_MS);

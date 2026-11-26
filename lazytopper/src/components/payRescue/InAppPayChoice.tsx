@@ -19,7 +19,7 @@ import {
   inAppSafariUrl,
   type InAppBuyTarget,
 } from "../../utils/inAppPay";
-import { INAPP_PAY_FIRST_HERE_LABEL, INAPP_PAY_FIRST_NOTE, inAppPayFirstActive, inAppPayFirstPayHere, subscribeInAppPayFirst } from "../../utils/inAppPayFirst";
+import { INAPP_PAY_FIRST_HERE_LABEL, INAPP_PAY_FIRST_NOTE, INAPP_STUCK_COPY_NOTE, inAppPayFirstActive, inAppPayFirstPayHere, inAppStuckCopyActive, inAppWatchChromeTap, subscribeInAppPayFirst } from "../../utils/inAppPayFirst";
 import type { InAppPayDetected } from "./InAppPayRescue";
 import "./payRescue.css";
 
@@ -66,6 +66,8 @@ export default function InAppPayChoice({ buy, surface, inApp, href, userAgent, s
   const shown = useRef(false);
   // INAPP-PAY-FIRST-1: while the Buy tap hops to Chrome (Instagram / Facebook on Android, signed out), this slot is the short note + "Pay here instead".
   const payFirst = useSyncExternalStore(subscribeInAppPayFirst, () => inAppPayFirstActive(false), () => false);
+  // INAPP-STUCK-1: Chrome did not open -> on Android "Copy payment link" becomes the primary action.
+  const stuckCopy = useSyncExternalStore(subscribeInAppPayFirst, inAppStuckCopyActive, () => false);
   const where = surface ?? (typeof window !== "undefined" ? inAppChoiceSurface(window.location.pathname) : "other");
   // INAPP-PAY-FIRST-1b: while the pay-first note is what shows, this is not a "choice shown" (keeps the PAY-CHOICE-1 funnel honest); it fires when the choice really appears.
   const noteShowing = payFirst && !!onPayHere;
@@ -103,6 +105,7 @@ export default function InAppPayChoice({ buy, surface, inApp, href, userAgent, s
   const ios = detected.platform === "ios";
   const httpsLink = inAppChoiceUrl(pageHref, buy, source());
   const chromeHref = android ? inAppChoiceChromeIntent(pageHref, buy, source()) : null;
+  const stuckAndroid = android && stuckCopy && !!httpsLink;
   const safariHref = ios && iosSafariSupported(ua) && httpsLink ? inAppSafariUrl(httpsLink) : null;
   const event = { app: detected.app, platform: detected.platform, surface: where } as const;
 
@@ -121,14 +124,33 @@ export default function InAppPayChoice({ buy, surface, inApp, href, userAgent, s
   }
 
   if (!chromeHref && !safariHref && !httpsLink) return null;
+  const copyButton = (primary: boolean) => (
+    <button
+      type="button"
+      className={primary ? "lt-pay-choice__btn lt-pay-choice__btn--primary" : "lt-pay-choice__btn"}
+      data-testid="inapp-pay-choice-copy"
+      onClick={() => void copyLink()}
+    >
+      {INAPP_CHOICE_COPY_LABEL}
+    </button>
+  );
   return (
     <div className="lt-pay-choice" data-testid="inapp-pay-choice">
+      {stuckAndroid && copyButton(true)}
+      {stuckAndroid && (
+        <p className="lt-pay-choice__note" data-testid="inapp-pay-choice-stuck-note">
+          {INAPP_STUCK_COPY_NOTE}
+        </p>
+      )}
       {chromeHref && (
         <a
           className="lt-pay-choice__btn"
           data-testid="inapp-pay-choice-chrome"
           href={chromeHref}
-          onClick={() => trackOnboardingEvent("inapp_pay_open_external", event)}
+          onClick={() => {
+            trackOnboardingEvent("inapp_pay_open_external", event);
+            inAppWatchChromeTap(where);
+          }}
         >
           {INAPP_CHOICE_CHROME_LABEL}
         </a>
@@ -143,11 +165,7 @@ export default function InAppPayChoice({ buy, surface, inApp, href, userAgent, s
           {INAPP_CHOICE_SAFARI_LABEL}
         </a>
       )}
-      {!android && httpsLink && (
-        <button type="button" className="lt-pay-choice__btn" data-testid="inapp-pay-choice-copy" onClick={() => void copyLink()}>
-          {INAPP_CHOICE_COPY_LABEL}
-        </button>
-      )}
+      {!android && httpsLink && copyButton(false)}
       {notice && (
         <p className="lt-pay-choice__note" role="status" data-testid="inapp-pay-choice-notice">
           {notice}
