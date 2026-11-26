@@ -59,7 +59,7 @@ describe("one source", () => {
 
   it("the lock list is exactly Pricing's INCLUDED rows, in order", () => {
     expect(BASIC_FREE_LABELS).toEqual(FREE_FEATURES.filter((f) => f.included).map((f) => f.label));
-    expect(BASIC_FREE_LABELS).toHaveLength(5);
+    expect(BASIC_FREE_LABELS).toHaveLength(6); // GUEST-WALL: + "Your first test is free, marking included."
   });
 });
 

@@ -22,11 +22,13 @@ vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => ({}) }));
 // ★ MockViewGate FIRST — the evaluation order that exposed the cycle.
 import { MockViewGate } from "../auth/MockViewGate";
 import { BasicFreeList, BASIC_FREE_LABELS, FREE_FEATURES } from "./BasicFreeList";
-import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
+import { ANON_DAILY_MOCK_LIMIT, FIRST_TEST_FREE_LINE, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
+import { FREE_TESTS_ALLOWED } from "../../lib/testSeries/seriesAccess";
 
 const read = (rel: string) => readFileSync(resolve(process.cwd(), rel), "utf8");
-// D114 (12 Oct 2026): the row says what the limit is, an OPEN/DOWNLOAD allowance, not checked mocks.
-const ROW = "Open or download 3 chapter tests or mocks a day (1 when signed out) — written answers not checked"; // D117
+// GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST) retires D114's "Open or download ... — written answers not checked": opens only.
+const ROW = "Open 3 chapter tests or mocks a day (1 when signed out)";
+const FIRST = "Your first test is free, marking included.";
 
 afterEach(() => cleanup());
 
@@ -39,19 +41,29 @@ describe("F2 — the mock-papers row, with MockViewGate loaded first", () => {
     const { getByTestId } = render(<BasicFreeList />);
     const text = getByTestId("basic-free-list").textContent || "";
     expect(text).toContain(ROW);
+    expect(text).toContain(FIRST);
     expect(text).not.toMatch(/undefined/);
+    // GUEST-WALL: the rendered list states no download and no written-answer checking as a Basic allowance.
+    expect(text).not.toMatch(/download|not checked|checking|answer check/i);
   });
 
   it("the row is included, and the lock list carries it", () => {
-    const row = FREE_FEATURES.find((f) => f.label.startsWith("Open or download"));
+    const row = FREE_FEATURES.find((f) => f.label.startsWith("Open "));
     expect(row).toEqual({ label: ROW, included: true });
     expect(BASIC_FREE_LABELS).toContain(ROW);
+    expect(BASIC_FREE_LABELS).toContain(FIRST);
+    expect(FREE_FEATURES.some((f) => /download/i.test(f.label))).toBe(false);
     expect(FREE_FEATURES.some((f) => /Full mocks and predicted-question execution/.test(f.label))).toBe(false);
   });
 
   it("the numbers are the gate's own limits", () => {
     expect(ANON_DAILY_MOCK_LIMIT).toBe(1);
     expect(SIGNED_IN_DAILY_MOCK_LIMIT).toBe(3);
+  });
+
+  it("GUEST-WALL: 'Your first test is free' is true only while FREE_TESTS_ALLOWED is 1 (a change here needs a copy review)", () => {
+    expect(FIRST_TEST_FREE_LINE).toBe(FIRST);
+    expect(FREE_TESTS_ALLOWED).toBe(1);
   });
 });
 
@@ -62,7 +74,7 @@ describe("F2 — one source, no literal, no cycle", () => {
 
   it("MockViewGate IMPORTS the limits and does not declare them", () => {
     const src = read("src/components/auth/MockViewGate.tsx");
-    expect(src).toMatch(/import \{ ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT \} from "\.\.\/\.\.\/config\/mockViewLimits";/);
+    expect(src).toMatch(/import \{ ANON_DAILY_MOCK_LIMIT, [A-Z_, ]*SIGNED_IN_DAILY_MOCK_LIMIT \} from "\.\.\/\.\.\/config\/mockViewLimits";/);
     expect(src).not.toMatch(/\b(const|let|var)\s+(ANON|SIGNED_IN)_DAILY_MOCK_LIMIT\b/);
   });
 
@@ -70,8 +82,11 @@ describe("F2 — one source, no literal, no cycle", () => {
     const src = read("src/components/pricing/BasicFreeList.tsx");
     expect(src).toMatch(/from "\.\.\/\.\.\/config\/mockViewLimits";/);
     expect(src).not.toMatch(/from "\.\.\/auth\//);
-    const at = src.indexOf("Open or download");
-    const line = src.slice(at, src.indexOf("\n", at));
+    expect(src).toMatch(/\{ label: BASIC_PAPERS_ROW, included: true \}/);
+    // the row's one source (import-free mockViewLimits.ts) interpolates the constants
+    const cfg = read("src/config/mockViewLimits.ts");
+    const at = cfg.indexOf("export const BASIC_PAPERS_ROW");
+    const line = cfg.slice(at, cfg.indexOf("\n", at));
     expect(line).toContain("${ANON_DAILY_MOCK_LIMIT}");
     expect(line).toContain("${SIGNED_IN_DAILY_MOCK_LIMIT}");
     expect(line).not.toMatch(/\b[13]\b/);

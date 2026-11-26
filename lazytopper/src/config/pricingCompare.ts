@@ -27,12 +27,9 @@
  */
 import { VALIDITY_SHORT } from "./validity";
 import { boardPassPriceDisplay, PRICE_FREE_DISPLAY } from "./pricing";
-import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "./mockViewLimits";
+import { ANON_DAILY_MOCK_LIMIT, BASIC_PAPERS_ROW, FIRST_TEST_FREE_LINE, SIGNED_IN_DAILY_MOCK_LIMIT } from "./mockViewLimits";
 import {
   BASIC_RESULT_LINE,
-  basicDownloadCell,
-  basicDownloadLine,
-  basicQuickPracticeCell,
   basicQuickPracticeLine,
   limitsCopyOn,
   trialLimitsSentence,
@@ -113,22 +110,18 @@ export interface PlanItem {
 
 export const BASIC_INCLUDES_HEAD = "Basic includes:";
 
-/** The "papers" row: today's wording, or (limits on) opens and the weekly download, separately. */
-function papersLabel(limitsOn: boolean): string {
-  return limitsOn
-    ? `Open ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out); ${basicDownloadLine().replace(/^Download/, "download")}`
-    : `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out)`;
-}
+/**
+ * The "papers" row. GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST): opens only, with the limits on or off - no Basic download
+ * and no written-answer check is stated as an allowance. The one free test (marking included) follows it.
+ */
 
 export function basicIncludes(limitsOn: boolean): readonly PlanItem[] {
   return [
   { id: "trends", label: "Exam Trends — chapters ranked from ten years of papers" },
   { id: "notes", label: "Notes, formulae, NCERT books and solutions" },
   { id: "practice", label: "Practice sets and worksheet generation" },
-  {
-    id: "papers",
-    label: papersLabel(limitsOn),
-  },
+  { id: "papers", label: BASIC_PAPERS_ROW },
+  { id: "first-test", label: FIRST_TEST_FREE_LINE },
   ...(limitsOn
     ? [
         { id: "qp-graded", label: basicQuickPracticeLine() },
@@ -146,8 +139,6 @@ export function basicIncludes(limitsOn: boolean): readonly PlanItem[] {
 }
 
 export const BASIC_INCLUDES: readonly PlanItem[] = basicIncludes(limitsCopyOn());
-
-export const BASIC_FOOTNOTE = "Written answers on tests and mocks are not checked on Basic.";
 
 /**
  * PRICING-1 — what Basic does NOT include, stated plainly on the Basic card. Every line is
@@ -261,22 +252,15 @@ export function compareSections({ freeCheck, limitsOn = limitsCopyOn() }: { free
     {
       title: "Tests & papers",
       rows: [
-        limitsOn
-          ? {
-              label: "Open chapter tests and full mocks",
-              basic: text(`${SIGNED_IN_DAILY_MOCK_LIMIT} a day (${ANON_DAILY_MOCK_LIMIT} signed out)`),
-              premium: yesNote("Unlimited"),
-            }
-          : {
-              label: "Open or download chapter tests and full mocks",
-              basic: text(`${SIGNED_IN_DAILY_MOCK_LIMIT} a day (${ANON_DAILY_MOCK_LIMIT} signed out)`),
-              premium: yesNote("Unlimited"),
-            },
+        // GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST): Basic's download and written-answer cells are "not included" (a dash).
+        {
+          label: "Open chapter tests and full mocks",
+          basic: text(`${SIGNED_IN_DAILY_MOCK_LIMIT} a day (${ANON_DAILY_MOCK_LIMIT} signed out)`),
+          premium: yesNote("Unlimited"),
+        },
+        { label: "Download papers", basic: NO, premium: yesNote("Included") },
         ...(limitsOn
-          ? [
-              { label: "Download papers", basic: text(basicDownloadCell()), premium: yesNote("Included") },
-              { label: "Written practice answers marked (Quick Practice)", basic: text(basicQuickPracticeCell()), premium: yesNote("Included") },
-            ]
+          ? [{ label: "Written practice answers marked (Quick Practice)", basic: NO, premium: yesNote("Included") }]
           : []),
         {
           label: "Chapter tests, mocks and worksheets graded",

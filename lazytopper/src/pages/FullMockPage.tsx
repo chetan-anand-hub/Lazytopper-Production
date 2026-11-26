@@ -88,6 +88,7 @@ import {
 } from "../components/fullmock/fullMockBlueprint";
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
+import { GuestPaperSignInLink, paperLimitLineFor } from "../components/auth/GuestPaperSignIn";
 import { useSubscription } from "../hooks/useSubscription";
 import { useLimitedDownload } from "../hooks/useLimitedDownload";
 import LimitChip from "../components/limits/LimitChip";
@@ -1959,7 +1960,12 @@ export default function FullMockPage() {
       {tutorWall && <TutorBoardPassWall onClose={() => setTutorWall(false)} />}
       {paperNotice && (
         <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="paper-notice">
-          {paperNotice}
+          {paperLimitLineFor(paperNotice, isSignedIn)}
+          {paperNotice === NEW_PAPER_LIMIT_LINE && !isSignedIn && (
+            <div>
+              <GuestPaperSignInLink pathname={location.pathname} search={location.search} />
+            </div>
+          )}
         </div>
       )}
 
