@@ -23,6 +23,7 @@ import { orderSourceFields } from "../analytics/visitSource";
 import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 import { beginPendingCheckout, razorpayHangOption, successFromReceipt } from "./payReturn";
+import { dedupeInFlight } from "./orderInFlight";
 
 export const GUEST_ORDER_ENDPOINT = "/api/pay/guest/order";
 export const GUEST_VERIFY_ENDPOINT = "/api/pay/guest/verify";
@@ -194,7 +195,12 @@ const DEFAULT_DEPS: GuestBuyDeps = {
 /**
  * Order (server-priced) -> Razorpay with the number prefilled and READ-ONLY -> server verify. Never throws.
  */
-export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestBuyDeps = DEFAULT_DEPS): Promise<GuestBuyOutcome> {
+export function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestBuyDeps = DEFAULT_DEPS): Promise<GuestBuyOutcome> {
+  // ORDER-DEDUP-1: same product + same number while pending -> one order.
+  return dedupeInFlight(`guest|${item.kind}|${item.sku}|${item.kind === "pack" ? item.target ?? "" : ""}|${normaliseIndianMobile(rawPhone) ?? rawPhone}`, () => buyAsGuestOnce(item, rawPhone, deps));
+}
+
+async function buyAsGuestOnce(item: GuestItem, rawPhone: string, deps: GuestBuyDeps): Promise<GuestBuyOutcome> {
   const phone = normaliseIndianMobile(rawPhone);
   if (!phone) return { status: "invalid_phone" };
   const phoneMasked = maskIndianMobile(phone);

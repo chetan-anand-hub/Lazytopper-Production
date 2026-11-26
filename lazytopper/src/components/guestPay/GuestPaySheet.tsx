@@ -111,6 +111,7 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
   const panelRef = useRef<HTMLDivElement | null>(null);
   const inApp = inAppBrowser(userAgent ?? readUserAgent()) !== null;
   const shown = useRef(false);
+  const payingRef = useRef(false); // ORDER-DEDUP-1: synchronous in-flight flag
 
   useEffect(() => {
     if (shown.current) return;
@@ -133,14 +134,20 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
   const valid = normaliseIndianMobile(digits) !== null && digits.length === 10;
 
   async function pay() {
-    if (!valid || step.name === "busy") {
+    if (!valid || step.name === "busy" || payingRef.current) {
       if (!valid) setStep({ name: "phone", error: GUEST_PAY_BAD_NUMBER });
       return;
     }
+    payingRef.current = true;
     trackNamedEvent("guest_pay_start");
     setStep({ name: "busy" });
     const attemptId = newCheckoutAttemptId();
-    const outcome = await buy(item, digits);
+    let outcome: Awaited<ReturnType<typeof buy>>;
+    try {
+      outcome = await buy(item, digits);
+    } finally {
+      payingRef.current = false;
+    }
     if (outcome.status === "paid") {
       trackNamedEvent("guest_pay_paid");
       // BUY-PATH-1: the sale itself, only once the SERVER verified it (an unconfirmed success is recorded by the webhook,
@@ -218,7 +225,7 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
         {/* PARENT-PAY-FIRST-1: number-first guest sheet - the parent opens the page, enters the child's number, then pays. */}
         {step.name === "phone" && step.closed && <ParentForwardGuest item={{ kind: item.kind, sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), label: item.label }} flow="number" />}
         <PayReturnHint />
-        <button type="submit" className="lt-gps__primary" disabled={busy || !valid} data-testid="guest-pay-continue">
+        <button type="submit" className="lt-gps__primary" disabled={busy || !valid} aria-busy={busy} data-testid="guest-pay-continue">
           {busy ? CHECKOUT_OPENING_COPY : "Continue"}
         </button>
         {busy && slowOpen && <p className="lt-gps__fine" role="status" data-testid="guest-pay-slow-open">{CHECKOUT_SLOW_COPY}</p>}

@@ -316,6 +316,24 @@ describe("CHECKOUT-SELF-2 - signed out opens at \"Buy for yourself\"", () => {
     expect(screen.getByTestId("who-paid-whatsapp").getAttribute("href")).toMatch(/^https:\/\/wa\.me\//);
   });
 
+  it("ORDER-DEDUP-1: two rapid Pay taps call buySelf once; the button is aria-busy and disabled; after a failure it re-enables and a retry buys again", async () => {
+    let finish!: (o: SelfBuyOutcome) => void;
+    const buySelf = vi.fn(() => new Promise<SelfBuyOutcome>((r) => (finish = r)));
+    mount({ item: CBQ_GST, selfFirst: true, buySelf });
+    const btn = screen.getByTestId("who-pay-self-out");
+    fireEvent.click(btn);
+    fireEvent.click(btn);
+    expect(buySelf).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("who-pay-self-out").getAttribute("aria-busy")).toBe("true");
+    expect((screen.getByTestId("who-pay-self-out") as HTMLButtonElement).disabled).toBe(true);
+    finish({ status: "failed" });
+    await screen.findByRole("alert");
+    const again = screen.getByTestId("who-pay-self-out") as HTMLButtonElement;
+    expect(again.disabled).toBe(false);
+    fireEvent.click(again);
+    expect(buySelf).toHaveBeenCalledTimes(2);
+  });
+
   it("dismissed / failed return to the same screen, nothing charged claimed", async () => {
     const buySelf = vi.fn(async (): Promise<SelfBuyOutcome> => ({ status: "dismissed" }));
     mount({ item: CBQ_GST, selfFirst: true, buySelf });
