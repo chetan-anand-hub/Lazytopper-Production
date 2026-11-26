@@ -39,6 +39,23 @@ const FIELDS = Object.freeze([
   'unpricedCalls',
 ]);
 
+const WRITE_FAILED_WARN_INTERVAL_MS = 60_000;
+// Module-level (per process) warn state. Reset only by _resetWarnStateForTests.
+let lastWriteFailedWarnAt = 0;
+let unavailableWarned = false;
+
+function _resetWarnStateForTests() {
+  lastWriteFailedWarnAt = 0;
+  unavailableWarned = false;
+}
+
+/** Error code/message only, never request data. */
+function errorSummary(err) {
+  const code = err && (err.code || err.name);
+  const msg = err && typeof err.message === 'string' ? err.message.slice(0, 200) : '';
+  return String(code ? `${code}${msg ? ': ' + msg : ''}` : msg || 'unknown');
+}
+
 function defaultResolveFirestore() {
   try {
     const admin = require('firebase-admin');
@@ -86,6 +103,7 @@ function createAiCostDaily(deps = {}) {
   const now = deps.now || Date.now;
   const env = deps.env || process.env;
   const pending = new Set();
+  const counters = { writeFailed: 0, unavailable: 0 };
 
   function disabled() {
     return String((deps.env || process.env)[AI_COST_DAILY_DISABLED_ENV] || '').trim() === '1';
@@ -100,7 +118,14 @@ function createAiCostDaily(deps = {}) {
     try {
       if (disabled()) return null;
       const fs = resolveFirestore();
-      if (!fs || !fs.db || !fs.FieldValue) return null;
+      if (!fs || !fs.db || !fs.FieldValue) {
+        counters.unavailable += 1;
+        if (!unavailableWarned) {
+          unavailableWarned = true;
+          try { console.warn('[aiCostDaily] firestore unavailable, cost ledger not written'); } catch { /* never throw */ }
+        }
+        return null;
+      }
       const nowMs = now();
       const inc = buildDailyIncrement(record, usageKnown !== false, { nowMs, env });
       const data = {};
@@ -112,7 +137,16 @@ function createAiCostDaily(deps = {}) {
       data.byWorkload = { [label(record && record.workloadClass)]: { [label(record && record.callClass)]: bucket } };
       const p = Promise.resolve()
         .then(() => fs.db.collection(AI_COST_DAILY_COLLECTION).doc(istDayKey(nowMs)).set(data, { merge: true }))
-        .catch(() => {})
+        .catch((err) => {
+          counters.writeFailed += 1;
+          try {
+            const t = Date.now();
+            if (t - lastWriteFailedWarnAt >= WRITE_FAILED_WARN_INTERVAL_MS) {
+              lastWriteFailedWarnAt = t;
+              console.warn('[aiCostDaily] write failed', errorSummary(err));
+            }
+          } catch { /* never throw */ }
+        })
         .then(() => { pending.delete(p); });
       pending.add(p);
       return p;
@@ -121,11 +155,12 @@ function createAiCostDaily(deps = {}) {
     }
   }
 
-  return { recordCall, pendingWrites: () => [...pending] };
+  return { recordCall, pendingWrites: () => [...pending], stats: () => ({ ...counters }) };
 }
 
 module.exports = {
   createAiCostDaily,
+  _resetWarnStateForTests,
   buildDailyIncrement,
   AI_COST_DAILY_COLLECTION,
   AI_COST_DAILY_DISABLED_ENV,
