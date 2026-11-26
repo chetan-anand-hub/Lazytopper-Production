@@ -171,6 +171,7 @@ import {
   SIGNED_OUT_ATTEMPT_KEPT_LINE,
   SIGNED_OUT_ATTEMPT_RESTORED_LINE,
   SIGNED_OUT_TAKING_NOTE,
+  TIME_UP_TITLE,
   clearSignedOutAttempt,
   paperQuestionIds,
   readSignedOutAttempt,
@@ -1888,6 +1889,12 @@ export default function ChapterTestPage() {
                       <div className="lt-ct__toggle-lab">
                         <b>⏱ Timed (board practice)</b>
                         <p>{Math.round(timeLimitSeconds / 60)}-min countdown. Turn off to practise without the clock.</p>
+                        {/* #1898 review nit: why the switch is locked */}
+                        {keptTimeUp && (
+                          <p className="lt-ct__toggle-why" data-testid="ct-timer-locked">
+                            {TIME_UP_TITLE}. The clock stays on.
+                          </p>
+                        )}
                       </div>
                       <button
                         type="button"

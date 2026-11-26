@@ -42,17 +42,38 @@ function LocProbe() {
   const l = useLocation();
   return <p data-testid="loc">{l.pathname + l.search}</p>;
 }
+const tree = () => (
+  <MemoryRouter initialEntries={["/test-series"]}>
+    <Routes>
+      <Route path="/test-series" element={<TestSeriesPage />} />
+      <Route path="*" element={<LocProbe />} />
+    </Routes>
+  </MemoryRouter>
+);
 async function mount() {
+  let r: ReturnType<typeof render> | null = null;
   await act(async () => {
-    render(
-      <MemoryRouter initialEntries={["/test-series"]}>
-        <Routes>
-          <Route path="/test-series" element={<TestSeriesPage />} />
-          <Route path="*" element={<LocProbe />} />
-        </Routes>
-      </MemoryRouter>,
-    );
+    r = render(tree());
   });
+  return {
+    rerender: async () => {
+      await act(async () => {
+        r?.rerender(tree());
+      });
+    },
+  };
+}
+/** Shown = the reveal marker sits right before the slot (CSS: `.lt-ts-free-on + .lt-ts-hero__free { visibility: visible }`). */
+function shownState(): { present: boolean; revealed: boolean; ariaHidden: string | null; inert: boolean; tabIndexes: Array<string | null> } {
+  const slot = screen.queryByTestId("ts-free-slot");
+  if (!slot) return { present: false, revealed: false, ariaHidden: null, inert: false, tabIndexes: [] };
+  return {
+    present: true,
+    revealed: slot.previousElementSibling?.classList.contains("lt-ts-free-on") ?? false,
+    ariaHidden: slot.getAttribute("aria-hidden"),
+    inert: slot.hasAttribute("inert"),
+    tabIndexes: Array.from(slot.querySelectorAll("a")).map((a) => a.getAttribute("tabindex")),
+  };
 }
 
 let track: ReturnType<typeof vi.spyOn>;
@@ -118,6 +139,13 @@ describe("TS-FREE-PICKER · signed out", () => {
     expect(screen.getByTestId("loc").textContent).toBe("/full-mock/10/Science?paper=1");
   });
 
+  it("#1898 nit: the kill switch accepts only \"1\" (like the other TS_* switches)", () => {
+    vi.stubEnv("VITE_TS_FREE_PICKER_DISABLED", "true");
+    expect(tsFreePickerOn()).toBe(true);
+    vi.stubEnv("VITE_TS_FREE_PICKER_DISABLED", "1");
+    expect(tsFreePickerOn()).toBe(false);
+  });
+
   it("VITE_TS_FREE_PICKER_DISABLED=1 -> no picker (the page as before)", async () => {
     vi.stubEnv("VITE_TS_FREE_PICKER_DISABLED", "1");
     expect(tsFreePickerOn()).toBe(false);
@@ -144,5 +172,47 @@ describe("TS-FREE-PICKER · signed in", () => {
     await mount();
     expect(screen.queryByTestId("ts-free-picker")).toBeNull();
     expect(document.querySelectorAll("a.lt-ts-free__pick")).toHaveLength(0);
+  });
+});
+
+describe("TS-FREE-PICKER · #1898 review blocker: never shown while auth is loading", () => {
+  it("the CSS hides the slot by default (space kept) and only the reveal marker shows it", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    const css = readFileSync(resolve(__dirname, "testSeriesPage.css"), "utf8").replace(/\s+/g, " ");
+    expect(css).toContain(".lt-ts .lt-ts-hero__free { visibility: hidden; }");
+    expect(css).toContain(".lt-ts .lt-ts-free-on + .lt-ts-hero__free { visibility: visible; }");
+    expect(css).not.toMatch(/lt-ts-hero__free\s*\{[^}]*display:\s*none/);
+  });
+
+  it("auth loading: the box is in the DOM (space reserved) but hidden - aria-hidden, inert, links out of the tab order; a tap sends nothing", async () => {
+    mockAuth.loading = true;
+    await mount();
+    expect(shownState()).toEqual({ present: true, revealed: false, ariaHidden: "true", inert: true, tabIndexes: ["-1", "-1", "-1", "-1"] });
+    // the reveal marker is a clock-stripped node: the static capture can never carry it
+    expect(document.querySelector(".lt-ts-free-on")).toBeNull();
+    await act(async () => void fireEvent.click(screen.getByTestId("ts-free-pick-CT-M01")));
+    expect(track.mock.calls.filter((c) => c[0] === "ts_free_sample_pick")).toEqual([]);
+    expect(screen.queryByTestId("loc")).toBeNull();
+  });
+
+  it("loading -> signed out: revealed (marker before it, no aria-hidden / inert, links focusable)", async () => {
+    mockAuth.loading = true;
+    const page = await mount();
+    mockAuth.loading = false;
+    await page.rerender();
+    expect(shownState()).toEqual({ present: true, revealed: true, ariaHidden: null, inert: false, tabIndexes: [null, null, null, null] });
+    expect(document.querySelector(".lt-ts-free-on")?.hasAttribute("data-lt-clock")).toBe(true);
+  });
+
+  it("loading -> signed in: the block is gone (never shown to a student with an account)", async () => {
+    mockAuth.loading = true;
+    const page = await mount();
+    expect(shownState().revealed).toBe(false);
+    mockAuth.user = { uid: "paying-student" };
+    mockAuth.loading = false;
+    await page.rerender();
+    expect(shownState().present).toBe(false);
+    expect(document.querySelector(".lt-ts-free-on")).toBeNull();
   });
 });

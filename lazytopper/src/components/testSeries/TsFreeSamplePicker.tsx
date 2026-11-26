@@ -26,14 +26,11 @@ export const TS_FREE_PICKER_TITLE = "Take 1 test free";
 export const TS_FREE_PICKER_LINE = "Start now, no sign-in needed. Sign in when you submit to get it marked.";
 export const TS_FREE_PICKER_SURFACE = "ts_hero";
 
-function flagOn(raw: unknown): boolean {
-  return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
-}
-
 /** Is the picker on? Off under its own kill switch, and whenever the sample papers would not open signed out. */
 export function tsFreePickerOn(): boolean {
   try {
-    if (flagOn(import.meta.env.VITE_TS_FREE_PICKER_DISABLED)) return false;
+    // Only "1" turns the kill switch on, like the other TS_* switches (VITE_TS_FREE_SIGNEDOUT_DISABLED, VITE_TS_PARENT_FORWARD_DISABLED).
+    if (import.meta.env?.VITE_TS_FREE_PICKER_DISABLED === "1") return false;
     if (import.meta.env.VITE_TEST_SERIES_DISABLED === "1") return false;
   } catch {
     return false;
@@ -56,7 +53,8 @@ export function freeSamplePicks(): Array<{ code: string; href: string; title: st
     }));
 }
 
-export default function TsFreeSamplePicker() {
+/** `hidden`: the box is on the page but not shown yet (auth still loading) - its links leave the tab order and a tap sends nothing. */
+export default function TsFreeSamplePicker({ hidden = false }: { hidden?: boolean }) {
   const picks = freeSamplePicks();
   return (
     <div className="lt-ts-free" data-testid="ts-free-picker">
@@ -72,7 +70,13 @@ export default function TsFreeSamplePicker() {
               to={p.href}
               data-testid={`ts-free-pick-${p.code}`}
               data-code={p.code}
-              onClick={() => {
+              tabIndex={hidden ? -1 : undefined}
+              onClick={(e) => {
+                // never a signed-out pick from a box that is not shown (auth loading): no event, no navigation
+                if (hidden) {
+                  e.preventDefault();
+                  return;
+                }
                 try {
                   trackOnboardingEvent("ts_free_sample_pick", { code: p.code, surface: TS_FREE_PICKER_SURFACE });
                 } catch {

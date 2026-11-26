@@ -769,6 +769,14 @@
 
 /* TS-HERO-1 (owner, 23 Nov 2026): on a phone the Buy button must sit above the bottom nav on the first screen (360 x 740). CSS only, same
    markup: tighter hero padding and step rows, the offer card's "Pre-boards" tag hidden, the "₹6 per test" badge inline with the name row. */
+/* TS-FREE-PICKER review blocker (#1898): the box is hidden (space kept) until the page knows the visitor is signed out - the
+   `lt-ts-free-on` marker (rendered then, and stripped from the static capture) sits just before it and reveals it. */
+.lt-ts .lt-ts-hero__free {
+  visibility: hidden;
+}
+.lt-ts .lt-ts-free-on + .lt-ts-hero__free {
+  visibility: visible;
+}
 /* TS-FREE-PICKER - signed out only: "Take 1 test free", the four sample papers (2 x 2: chapter tests, then full papers). A quiet
    outlined box on the navy hero (the Buy and "Ask Mummy/Papa to pay" stay the filled actions). 44 px+ tap targets. */
 .lt-ts .lt-ts-free {

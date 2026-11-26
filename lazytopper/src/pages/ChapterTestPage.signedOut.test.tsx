@@ -261,6 +261,8 @@ describe("TS-FREE-SIGNEDOUT · Chapter Test series paper", () => {
     // (1) the restored start screen: the clock cannot be switched off to reopen a past-time paper
     const toggle = screen.getByTestId("ct-timer-toggle") as HTMLButtonElement;
     expect(toggle.disabled).toBe(true);
+    // #1898 nit: the reason is on screen
+    expect(screen.getByTestId("ct-timer-locked").textContent).toBe("Time is up on this paper. The clock stays on.");
     fireEvent.click(toggle);
     expect(toggle.getAttribute("aria-pressed")).toBe("true");
     fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }));
@@ -294,6 +296,7 @@ describe("TS-FREE-SIGNEDOUT · Chapter Test series paper", () => {
     mount();
     const resume = await screen.findByRole("button", { name: /Resume your test/ }, { timeout: 60000 });
     expect((screen.getByTestId("ct-timer-toggle") as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.queryByTestId("ct-timer-locked")).toBeNull();
     fireEvent.click(resume);
     await waitFor(() => expect(document.querySelector(".lt-ct__opt")).not.toBeNull(), { timeout: 30000 });
     expect(screen.queryByTestId("ts-time-up-submit")).toBeNull();

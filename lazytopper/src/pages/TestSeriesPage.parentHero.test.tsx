@@ -153,6 +153,20 @@ describe("TS-PAYPATH-1 · signed out", () => {
     expect(screen.getByTestId("loc").textContent).toBe(TEST_SERIES_BUY_FROM_PATH);
   });
 
+  it("#1898 nit: a ctrl / cmd / shift / middle click on the fallback Buy is the browser's (open in a new tab) - never intercepted", async () => {
+    shop.on = false;
+    await mount();
+    const buy = hero().getByTestId("ts-hero-buy");
+    for (const init of [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }]) {
+      const ev = new MouseEvent("click", { bubbles: true, cancelable: true, button: 0, ...init });
+      await act(async () => void buy.dispatchEvent(ev));
+      expect(screen.queryByTestId("loc")).toBeNull();
+    }
+    const middle = new MouseEvent("click", { bubbles: true, cancelable: true, button: 1 });
+    await act(async () => void buy.dispatchEvent(middle));
+    expect(screen.queryByTestId("loc")).toBeNull();
+  });
+
   it("#1896 nit: the Test Series not offered (VITE_TS_PACK_DISABLED=1) -> the Buy is the previous /packs link, never the self link", async () => {
     vi.stubEnv("VITE_TS_PACK_DISABLED", "1");
     shop.on = false;

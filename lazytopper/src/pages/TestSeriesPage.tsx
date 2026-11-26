@@ -273,6 +273,8 @@ export default function TestSeriesPage() {
   const [shareFallback, setShareFallback] = useState<{ testId: string; href: string } | null>(null);
   const parentHeroOn = !tsParentHeroDisabled();
   const freePickerOn = tsFreePickerOn();
+  // Review blocker (#1898): shown only once auth has RESOLVED to signed out (PricingPage's showFreeCheck rule), never while it loads.
+  const freePickerShown = !authLoading && !signedIn;
   // TS-PAYPATH-1: the signed-out hero's parent panel, opened by "Ask Mummy/Papa to pay" (a tap: no first-paint shift).
   const [parentPanel, setParentPanel] = useState(false);
 
@@ -371,6 +373,8 @@ export default function TestSeriesPage() {
         to={parentHeroOn && isTestSeriesPackOffered() ? TS_SELF_BUY_PATH : TEST_SERIES_BUY_FROM_PATH}
         data-testid={testId}
         onClick={(e) => {
+          // #1898 review nit: a modified or middle click (open in a new tab / window) is the browser's, never intercepted.
+          if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
           // TS-FREE-PICKER (#1896 review nit): the static file's Buy is this page's `?buy=test_series` (the capture is built with packs
           // off, so the href must stay that for a tap before hydration - a production build has packs on and opens the checkout in
           // place). Once the page is LIVE, that self link is used only when the shop can sell here (packs on and the series offered);
@@ -631,10 +635,17 @@ export default function TestSeriesPage() {
                   </div>
                   {/* TS-FREE-PICKER: signed out only - "Take 1 test free", the four sample papers that open without sign-in. After the
                       Buy / Ask Mummy/Papa box on a phone (never pushes them down); under the headline column on desktop (CSS grid area
-                      "free"). In the static file too: the page is captured signed out. */}
+                      "free").
+                      ★ Review blocker (#1898): while auth is still loading `user` is null, so a paying student would have been told "no
+                      sign-in needed". The box is IN the DOM (space reserved: no shift when it shows) but INVISIBLE - `visibility: hidden`
+                      by default in CSS - until auth has resolved to signed out; then the `lt-ts-free-on` marker just before it reveals it
+                      (an adjacent-sibling rule). Signed in, the whole block goes. The marker carries `data-lt-clock`, so the prerender
+                      capture strips it: the STATIC file always has the box hidden, whoever opens it. While hidden it is also aria-hidden
+                      and inert, its links leave the tab order, and a tap sends nothing. */}
+                  {!signedIn && freePickerOn && freePickerShown && <span className="lt-ts-free-on" data-lt-clock="" hidden />}
                   {!signedIn && freePickerOn && (
-                    <div className="lt-ts-hero__free">
-                      <TsFreeSamplePicker />
+                    <div className="lt-ts-hero__free" data-testid="ts-free-slot" aria-hidden={freePickerShown ? undefined : true} inert={!freePickerShown}>
+                      <TsFreeSamplePicker hidden={!freePickerShown} />
                     </div>
                   )}
                   <div className="lt-ts-hero__more">
