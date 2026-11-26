@@ -10,7 +10,7 @@
  * COUNT only — their cost is unknown and is not in the rupee figure. Day boundaries are IST.
  */
 import { useState } from "react";
-import { fetchAdmin, formatDayKey, formatIstDateTime, type Refusal } from "./studentsAdminModel";
+import { fetchAdmin, formatDayKey, formatIstDateTime, istDayKeyOf, type Refusal } from "./studentsAdminModel";
 
 export const TRUE_AI_COST_URL = "/api/admin/ai-cost-daily?days=31";
 
@@ -61,12 +61,13 @@ export function sumWindow(days: CostDay[], include: (day: string) => boolean): C
 }
 
 export function windowsFor(data: TrueAiCostResponse): { today: CostWindow; week: CostWindow; month: CostWindow } {
-  const sorted = [...data.days].map((d) => d.day).sort();
-  const weekKeys = new Set(sorted.slice(-7));
+  // By CALENDAR date key, never by entry position: the 7-day window starts at the IST key of (today - 6 days).
+  const todayMs = Date.parse(`${data.todayKey}T12:00:00.000+05:30`);
+  const weekStart = istDayKeyOf(todayMs - 6 * 86400000);
   const monthPrefix = data.todayKey.slice(0, 7);
   return {
     today: sumWindow(data.days, (d) => d === data.todayKey),
-    week: sumWindow(data.days, (d) => weekKeys.has(d)),
+    week: sumWindow(data.days, (d) => d >= weekStart && d <= data.todayKey),
     month: sumWindow(data.days, (d) => d.startsWith(monthPrefix)),
   };
 }
@@ -83,7 +84,7 @@ function Body({ data }: { data: TrueAiCostResponse }) {
   const workloads = [...new Set(rows.flatMap((r) => Object.keys(r.win.byWorkload)))].sort(
     (a, b) => (w.month.byWorkload[b]?.costInr || 0) - (w.month.byWorkload[a]?.costInr || 0),
   );
-  const none = w.month.recordedDays === 0;
+  const none = !data.days.some((d) => d.recorded);
   return (
     <>
       <p className="sa-muted gh-note">
@@ -93,7 +94,7 @@ function Body({ data }: { data: TrueAiCostResponse }) {
       </p>
       {none ? (
         <p className="sa-empty" data-testid="tc-empty">
-          No data yet: the ledger has no recorded day this month.
+          No data yet: the ledger has no recorded day in this range.
         </p>
       ) : (
         <div className="sa-table-wrap">
@@ -115,7 +116,13 @@ function Body({ data }: { data: TrueAiCostResponse }) {
                 </td>
                 {rows.map((r) => (
                   <td key={r.key} data-label={r.label}>
-                    <strong>{rupees(r.win.costInr)}</strong> <span className="sa-muted">({r.win.calls} calls)</span>
+                    {r.win.recordedDays === 0 ? (
+                      <span className="sa-muted">No record yet</span>
+                    ) : (
+                      <>
+                        <strong>{rupees(r.win.costInr)}</strong> <span className="sa-muted">({r.win.calls} calls)</span>
+                      </>
+                    )}
                   </td>
                 ))}
               </tr>
