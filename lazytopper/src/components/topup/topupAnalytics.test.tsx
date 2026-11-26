@@ -9,6 +9,7 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 
 const analytics = vi.hoisted(() => ({ trackOnboardingEvent: vi.fn() }));
 vi.mock("../../analytics/analytics", () => analytics);
+vi.mock("../../services/firebaseClient", () => ({ authClient: { currentUser: { uid: "u1", getIdToken: async () => "t" } }, firestoreDb: null, app: null }));
 
 import TopupSheet from "./TopupSheet";
 import type { TopupBuyDeps } from "./topupBuy";

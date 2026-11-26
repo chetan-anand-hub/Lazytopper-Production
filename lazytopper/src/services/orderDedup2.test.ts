@@ -7,11 +7,17 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const auth = vi.hoisted(() => ({ currentUser: { uid: "u1", getIdToken: async () => "id-token" } as { uid: string; getIdToken: () => Promise<string> } | null }));
 vi.mock("./firebaseClient", () => ({
-  authClient: { currentUser: { getIdToken: async () => "id-token" } },
+  get authClient() {
+    return auth;
+  },
   firestoreDb: null,
   app: null,
 }));
+
+/** The key is read after one shared import promise: let those `.then`s run (real setTimeout; only `performance` is ever faked). */
+const flush = () => new Promise<void>((r) => setTimeout(r, 0));
 
 import { buyPass, type BuyDeps, type RazorpayConstructor } from "./checkout";
 import { buyPack, type PackBuyDeps } from "./packs";
@@ -104,7 +110,7 @@ describe.each(PATHS)("ORDER-DEDUP-2 · $name", ({ run }) => {
     const { call } = run(createOrder, rz.ctor);
     const a = call();
     const b = call();
-    expect(b).toBe(a);
+    await flush();
     expect(createOrder).toHaveBeenCalledTimes(1);
     gate.resolve(ORDER);
     expect((await a).status).toBe("dismissed");
@@ -117,28 +123,33 @@ describe.each(PATHS)("ORDER-DEDUP-2 · $name", ({ run }) => {
     const { call } = run(createOrder, rz.ctor);
     const a = call();
     await vi.waitFor(() => expect(rz.opened.length).toBe(1));
-    expect(call()).toBe(a);
+    const b = call();
+    await flush();
     expect(createOrder).toHaveBeenCalledTimes(1);
     rz.close();
     expect((await a).status).toBe("dismissed");
+    expect((await b).status).toBe("dismissed");
     const c = call();
-    expect(c).not.toBe(a);
+    await flush();
     expect(createOrder).toHaveBeenCalledTimes(2);
     await vi.waitFor(() => expect(rz.opened.length).toBe(1));
     rz.close();
     await c;
   });
 
-  it("after the 90 s ceiling a fresh tap creates a fresh order (a hung request never leaves a dead Pay)", () => {
+  it("after the 90 s ceiling a fresh tap creates a fresh order (a hung request never leaves a dead Pay)", async () => {
     vi.useFakeTimers({ toFake: ["performance"] });
     const createOrder = vi.fn(() => new Promise<typeof ORDER>(() => undefined));
     const { call } = run(createOrder, razorpay("dismiss").ctor);
     void call();
+    await flush();
     vi.advanceTimersByTime(ORDER_IN_FLIGHT_MAX_MS - 1);
     void call();
+    await flush();
     expect(createOrder).toHaveBeenCalledTimes(1);
     vi.advanceTimersByTime(2);
     void call();
+    await flush();
     expect(createOrder).toHaveBeenCalledTimes(2);
   });
 
@@ -148,6 +159,21 @@ describe.each(PATHS)("ORDER-DEDUP-2 · $name", ({ run }) => {
     expect((await call()).status).toBe("paid");
     expect((await call()).status).toBe("paid");
     expect(createOrder).toHaveBeenCalledTimes(2);
+  });
+
+  it("a different signed-in student is a different buyer: never handed the first student's order", async () => {
+    const createOrder = vi.fn(() => new Promise<typeof ORDER>(() => undefined));
+    const { call } = run(createOrder, razorpay("dismiss").ctor);
+    void call();
+    await flush();
+    auth.currentUser = { uid: "u2", getIdToken: async () => "id-token" };
+    try {
+      void call();
+      await flush();
+      expect(createOrder).toHaveBeenCalledTimes(2);
+    } finally {
+      auth.currentUser = { uid: "u1", getIdToken: async () => "id-token" };
+    }
   });
 
   it("kill switch VITE_ORDER_DEDUP2_DISABLED=1 -> today's behaviour (each call its own order)", () => {
@@ -163,7 +189,7 @@ describe.each(PATHS)("ORDER-DEDUP-2 · $name", ({ run }) => {
 });
 
 describe("ORDER-DEDUP-2 · keys", () => {
-  it("a different pack / chapter / pass type is its own order, never reused", () => {
+  it("a different pack / chapter / pass type is its own order, never reused", async () => {
     const createOrder = vi.fn(() => new Promise<typeof ORDER>(() => undefined));
     const rz = razorpay("dismiss").ctor;
     const packDeps = { createOrder, loadScript: async () => rz, verify: vi.fn() } as unknown as PackBuyDeps;
@@ -173,6 +199,24 @@ describe("ORDER-DEDUP-2 · keys", () => {
     const passDeps = { createOrder, loadScript: async () => rz, verify: vi.fn() } as unknown as BuyDeps;
     void buyPass("till_boards", passDeps);
     void buyPass("month", passDeps);
+    await flush();
     expect(createOrder).toHaveBeenCalledTimes(5);
+  });
+});
+
+describe("ORDER-DEDUP-2 · the production path (the ONE default deps object, no injected deps)", () => {
+  it.each([
+    ["buyPass", () => buyPass("till_boards")],
+    ["buyPack", () => buyPack("pack_chapter", "triangles", { chapterName: "Triangles" })],
+    ["buyTopup", () => buyTopup("topup_49")],
+  ] as const)("%s: two callers sharing the default deps -> ONE buy (the same outcome object), one create-order request", async (_name, call) => {
+    // The default createOrder posts the order; the server refuses it (500) so the buy settles as "failed" without Razorpay.
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response("{}", { status: 500 }));
+    const a = call();
+    const b = call();
+    const [outA, outB] = await Promise.all([a, b]);
+    expect(outA.status).toBe("failed");
+    expect(outB).toBe(outA); // one shared buy, not two equal-looking ones
+    expect(fetchSpy.mock.calls.filter(([u]) => /\/api\/pay\/order/.test(String(u))).length).toBe(1);
   });
 });
