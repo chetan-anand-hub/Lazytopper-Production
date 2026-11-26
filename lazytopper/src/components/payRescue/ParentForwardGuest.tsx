@@ -21,7 +21,6 @@ import {
   forwardProductOf,
   isParentPayFirstDisabled,
   parentForwardUrl,
-  quotablePrice,
   trackParentForward,
   type ParentForwardItem,
 } from "./parentForward";
@@ -33,7 +32,6 @@ export interface ParentForwardGuestProps {
   flow: "attach" | "number";
   /** Test seams. */
   origin?: string;
-  now?: number;
   makeQr?: (url: string) => Promise<string>;
   openWindow?: (url: string, target: string) => { opener: unknown } | null | undefined;
 }
@@ -43,7 +41,7 @@ async function defaultQr(url: string): Promise<string> {
   return generateQRDataUrl(url, 220);
 }
 
-export default function ParentForwardGuest({ item, flow, origin, now, makeQr = defaultQr, openWindow }: ParentForwardGuestProps) {
+export default function ParentForwardGuest({ item, flow, origin, makeQr = defaultQr, openWindow }: ParentForwardGuestProps) {
   const product = forwardProductOf(item);
   const [qr, setQr] = useState<string | null>(null);
   const [qrFailed, setQrFailed] = useState(false);
@@ -63,7 +61,7 @@ export default function ParentForwardGuest({ item, flow, origin, now, makeQr = d
     const base = String(import.meta.env.BASE_URL || "/");
     const where = origin ?? (typeof window !== "undefined" ? window.location.origin : "");
     const url = parentForwardUrl(item, where, base);
-    return buildParentForwardMessage({ name: item.label, price: quotablePrice(item, now), url, flow });
+    return buildParentForwardMessage({ name: item.label, url, flow });
   }
 
   function send() {

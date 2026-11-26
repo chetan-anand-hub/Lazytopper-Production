@@ -11,15 +11,12 @@
  *                 the purchase on the child's number. The page URL is tagged utm_source=parent_forward so it can be measured.
  *                 Copy never promises a single-use link to a guest: it is only a page.
  *
- * Nothing here touches an order, a price the server charges, or access. The figure in the message is read from config at the
- * moment of sending, and is left out when it would change inside the next 72 hours (so no message quotes a price that is
- * wrong after the 1 Dec switch).
+ * Nothing here touches an order, a price the server charges, or access. The guest message NEVER quotes a rupee figure (a page link
+ * outlives any price): it says "one-time payment" and the page shows the live price.
  *
  * Kill switch: VITE_PARENT_PAY_FIRST_DISABLED=1 -> every surface exactly as before this lane.
  */
 import { trackOnboardingEvent } from "../../analytics/analytics";
-import { boardPassPriceDisplay } from "../../config/pricing";
-import { packPriceLabel, type PackSku } from "../../services/packs";
 import { inAppRescueUrl } from "../../utils/inAppPay";
 
 declare module "../../analytics/analytics" {
@@ -29,8 +26,6 @@ declare module "../../analytics/analytics" {
     parent_forward_qr_shown: { signed_in: "true" | "false"; product: string };
   }
 }
-
-const KNOWN_PACK_SKUS: readonly PackSku[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq", "test_series"];
 
 export const PARENT_FORWARD_LABEL = "Send to Mummy/Papa on WhatsApp";
 export const PARENT_FORWARD_QR_LABEL = "Show QR for parent to scan";
@@ -44,8 +39,6 @@ export const PARENT_FORWARD_QR_FAILED = "Couldn't draw the QR. Send it on WhatsA
 
 /** Where a guest's parent lands, tagged for measurement. */
 export const PARENT_FORWARD_UTM = "utm_source=parent_forward&utm_medium=whatsapp&utm_campaign=pay_rescue";
-/** A message sent now must not quote a price that is different when the parent pays. */
-export const PARENT_FORWARD_QUOTE_HORIZON_MS = 72 * 60 * 60 * 1000;
 
 export function isParentPayFirstDisabled(): boolean {
   try {
@@ -70,25 +63,6 @@ export function forwardProductOf(item: ParentForwardItem): ParentForwardProduct 
   return item.sku === "test_series" ? "test_series" : "pack";
 }
 
-/** The price TAG ("₹X + GST") from config at `now`, or null when it is not a known product. */
-function tagAt(item: ParentForwardItem, now: number): string | null {
-  try {
-    if (item.kind === "pass") return boardPassPriceDisplay(now);
-    const sku = KNOWN_PACK_SKUS.find((n) => n === item.sku);
-    return sku ? packPriceLabel(sku, now) : null;
-  } catch {
-    return null;
-  }
-}
-
-/** The price to quote in a message sent now: config's tag now, and only when it is the same for the next 72 hours. */
-export function quotablePrice(item: ParentForwardItem, now: number = Date.now()): string | null {
-  const here = tagAt(item, now);
-  if (!here) return null;
-  const later = tagAt(item, now + PARENT_FORWARD_QUOTE_HORIZON_MS);
-  return later === here ? here : null;
-}
-
 /** The page URL a guest's parent opens (this site; the same product; tagged). */
 export function parentForwardUrl(item: ParentForwardItem, origin: string, base = "/"): string {
   const b = base.replace(/\/+$/, "");
@@ -104,8 +78,10 @@ export function parentForwardUrl(item: ParentForwardItem, origin: string, base =
  * The guest's message. `flow: "attach"` - the parent pays, then enters the child's number (CheckoutSheet's pay-first). `"number"` - the
  * older number-first guest sheet: the parent enters the child's number, then pays. No promise of a single-use link.
  */
-export function buildParentForwardMessage({ name, price, url, flow }: { name: string; price: string | null; url: string; flow: "attach" | "number" }): string {
-  const cost = price ? `It's ${price}, one time.` : "It's a one-time payment.";
+export function buildParentForwardMessage({ name, url, flow }: { name: string; url: string; flow: "attach" | "number" }): string {
+  // Never a rupee figure: the message is a non-expiring page link, forwarded and read days later (possibly after the 1 Dec price
+  // switch). The page the parent opens shows the live price.
+  const cost = "It's a one-time payment; the page shows the price.";
   const how =
     flow === "number"
       ? "Open this, enter my mobile number when it asks, and pay with your UPI or card:"

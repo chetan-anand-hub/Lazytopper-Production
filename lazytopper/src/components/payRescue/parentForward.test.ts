@@ -1,13 +1,10 @@
-/** PARENT-PAY-FIRST-1 - the guest message, URL, price quoting and kill switch. The figure always comes from config. */
+/** PARENT-PAY-FIRST-1 - the guest message (never a price), URL and kill switch. */
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { boardPassPriceDisplay } from "../../config/pricing";
-import { packPriceLabel } from "../../services/packs";
 import {
   buildParentForwardMessage,
   forwardProductOf,
   isParentPayFirstDisabled,
   parentForwardUrl,
-  quotablePrice,
 } from "./parentForward";
 
 afterEach(() => vi.unstubAllEnvs());
@@ -26,25 +23,6 @@ describe("kill switch", () => {
     }
     vi.stubEnv("VITE_PARENT_PAY_FIRST_DISABLED", "0");
     expect(isParentPayFirstDisabled()).toBe(false);
-  });
-});
-
-describe("quotablePrice reads config and never quotes a price that changes inside 72 hours", () => {
-  it("quotes config's tag when nothing changes for 72 h (after 1 Dec, and early in November)", () => {
-    const dec = T("2026-12-05T10:00:00+05:30");
-    expect(quotablePrice(PASS, dec)).toBe(boardPassPriceDisplay(dec));
-    expect(quotablePrice(PASS, dec)).toContain("+ GST");
-    expect(quotablePrice(TS, dec)).toBe(packPriceLabel("test_series", dec));
-    expect(quotablePrice(PACK, dec)).toBe(packPriceLabel("pack_chapter", dec));
-    const nov = T("2026-11-10T10:00:00+05:30");
-    expect(quotablePrice(PASS, nov)).toBe(boardPassPriceDisplay(nov));
-  });
-  it("leaves the figure out when the price switches before the parent can pay (29-30 Nov)", () => {
-    expect(quotablePrice(PASS, T("2026-11-29T22:00:00+05:30"))).toBeNull();
-    expect(quotablePrice(TS, T("2026-11-29T22:00:00+05:30"))).toBeNull();
-  });
-  it("is null for an unknown pack sku", () => {
-    expect(quotablePrice({ kind: "pack", sku: "pack_nope", label: "x" }, T("2026-12-05T10:00:00+05:30"))).toBeNull();
   });
 });
 
@@ -67,18 +45,34 @@ describe("parentForwardUrl", () => {
   });
 });
 
-describe("buildParentForwardMessage", () => {
+describe("buildParentForwardMessage - the guest message never quotes a price", () => {
   const url = "https://x.test/pricing?utm_source=parent_forward";
-  it("names the product and price, never promises a single-use link, never says AI / answer key", () => {
+  it("names the product, carries the link, never a rupee figure / digits-price, never a single-use promise, never AI / answer key", () => {
     for (const flow of ["attach", "number"] as const) {
-      const m = buildParentForwardMessage({ name: "Board Pass", price: "₹2,499 + GST", url, flow });
-      expect(m).toContain("Board Pass");
-      expect(m).toContain("₹2,499 + GST");
-      expect(m).toContain(url);
-      expect(m).not.toMatch(/single|once|expires|days|\bAI\b|answer key/i);
+      for (const item of [PASS, PACK, TS]) {
+        const m = buildParentForwardMessage({ name: item.label, url, flow });
+        expect(m).toContain(item.label);
+        expect(m).toContain(url);
+        expect(m).toContain("one-time payment");
+        expect(m.replace(url, "")).not.toMatch(/₹|Rs\.?|INR|\d/);
+        expect(m).not.toMatch(/single|once|expires|days|\bAI\b|answer key/i);
+      }
     }
-    expect(buildParentForwardMessage({ name: "x", price: null, url, flow: "attach" })).toContain("one-time payment");
-    expect(buildParentForwardMessage({ name: "x", price: null, url, flow: "attach" })).toMatch(/enter my mobile number/);
+    expect(buildParentForwardMessage({ name: "x", url, flow: "attach" })).toMatch(/enter my mobile number/);
+  });
+  it("the sent text has no price on 26 Nov, 29 Nov, 1 Dec or in 2027 (the message does not depend on the clock)", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      for (const iso of ["2026-11-26T10:00:00+05:30", "2026-11-29T22:00:00+05:30", "2026-12-01T00:30:00+05:30", "2027-01-15T10:00:00+05:30"]) {
+        vi.setSystemTime(new Date(iso));
+        for (const item of [PASS, PACK, TS]) {
+          const text = buildParentForwardMessage({ name: item.label, url: parentForwardUrl(item, "https://www.lazytopper.com"), flow: "attach" });
+          expect(text.replace(/https?:\/\/\S+/, "")).not.toMatch(/₹|\d/);
+        }
+      }
+    } finally {
+      vi.useRealTimers();
+    }
   });
   it("forwardProductOf", () => {
     expect([forwardProductOf(PASS), forwardProductOf(PACK), forwardProductOf(TS)]).toEqual(["board_pass", "pack", "test_series"]);
