@@ -1,11 +1,11 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
 import { getSessionRecordsFromCloud } from "../services/sessionRecords";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import { boardPassPriceDisplay, FOUNDING_OFFER_LAST_DAY_LABEL, foundingOfferOpen } from "../config/pricing";
-import { isTestSeriesPackOffered, packPayLabel, packPriceLabel, testSeriesFoundingClause, testSeriesPriceLine, TEST_SERIES_CHECKS_PER_PAPER } from "../services/packs";
+import { isPacksClientEnabled, isTestSeriesPackOffered, packPayLabel, packPriceLabel, testSeriesFoundingClause, testSeriesPriceLine, TEST_SERIES_CHECKS_PER_PAPER } from "../services/packs";
 import { isPaidPremium } from "../services/subscriptionService";
 import { useTestSeriesOwnership } from "../components/testSeries/testSeriesOwnership";
 import { freeWrittenCheckDisabled } from "../lib/testSeries/seriesAccess";
@@ -25,6 +25,7 @@ import { whatsAppShareUrl } from "../components/results/share/shareCardModel";
 import PayReturnResume from "../components/payReturn/PayReturnResume";
 import { isParentPayFirstDisabled, trackParentForward } from "../components/payRescue/parentForward";
 import TestSeriesPaperPicker from "../components/testSeries/TestSeriesPaperPicker";
+import TsFreeSamplePicker, { tsFreePickerOn } from "../components/testSeries/TsFreeSamplePicker";
 import { TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_VALIDITY_LONG, TEST_SERIES_WRITTEN_SECTIONS } from "../lib/packs/packLabels";
 import {
   TEST_SERIES_BUY_FROM_PATH,
@@ -236,6 +237,7 @@ function MockTrend({ load }: { load: Load }) {
 
 export default function TestSeriesPage() {
   const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const subscription = useSubscription();
   const signedIn = Boolean(user?.uid) && !user?.isLocalSession;
   const totals = useMemo(() => seriesTotals(), []);
@@ -270,6 +272,7 @@ export default function TestSeriesPage() {
   // TS-PARENT-FORWARD-2: the wa.me link to show when neither the share sheet nor a WhatsApp window could open (a popup blocker).
   const [shareFallback, setShareFallback] = useState<{ testId: string; href: string } | null>(null);
   const parentHeroOn = !tsParentHeroDisabled();
+  const freePickerOn = tsFreePickerOn();
   // TS-PAYPATH-1: the signed-out hero's parent panel, opened by "Ask Mummy/Papa to pay" (a tap: no first-paint shift).
   const [parentPanel, setParentPanel] = useState(false);
 
@@ -363,7 +366,21 @@ export default function TestSeriesPage() {
         showStatus: (buyFrom ?? "ts-hero-buy") === testId,
       })
     ) : (
-      <Link className={className} to={parentHeroOn ? TS_SELF_BUY_PATH : TEST_SERIES_BUY_FROM_PATH} data-testid={testId}>
+      <Link
+        className={className}
+        to={parentHeroOn && isTestSeriesPackOffered() ? TS_SELF_BUY_PATH : TEST_SERIES_BUY_FROM_PATH}
+        data-testid={testId}
+        onClick={(e) => {
+          // TS-FREE-PICKER (#1896 review nit): the static file's Buy is this page's `?buy=test_series` (the capture is built with packs
+          // off, so the href must stay that for a tap before hydration - a production build has packs on and opens the checkout in
+          // place). Once the page is LIVE, that self link is used only when the shop can sell here (packs on and the series offered);
+          // otherwise the tap goes to the previous /packs fallback instead of reloading this page to do nothing.
+          if (parentHeroOn && !(isPacksClientEnabled() && isTestSeriesPackOffered())) {
+            e.preventDefault();
+            navigate(TEST_SERIES_BUY_FROM_PATH);
+          }
+        }}
+      >
         {buyLabel}
       </Link>
     );
@@ -406,7 +423,13 @@ export default function TestSeriesPage() {
                 className="lt-ts-btn lt-ts-forward__btn lt-ts-forward__btn--hero"
                 aria-expanded={parentPanel}
                 data-testid="ts-hero-parent"
-                onClick={() => setParentPanel((v) => !v)}
+                onClick={() => {
+                  // #1896 review nit: the tap that OPENS the panel counts as the page's "ask" (paywall_action {ask, test_series}), as the
+                  // old signed-out forward did; closing it is not a second ask. The panel's own parent_forward_* events (surface ts_hero)
+                  // are separate names, so nothing is counted twice.
+                  if (!parentPanel) trackPaywallAction("ask", "test_series");
+                  setParentPanel((v) => !v);
+                }}
               >
                 {TS_PARENT_HERO_LABEL}
               </button>
@@ -606,6 +629,14 @@ export default function TestSeriesPage() {
                       )}
                     </div>
                   </div>
+                  {/* TS-FREE-PICKER: signed out only - "Take 1 test free", the four sample papers that open without sign-in. After the
+                      Buy / Ask Mummy/Papa box on a phone (never pushes them down); under the headline column on desktop (CSS grid area
+                      "free"). In the static file too: the page is captured signed out. */}
+                  {!signedIn && freePickerOn && (
+                    <div className="lt-ts-hero__free">
+                      <TsFreeSamplePicker />
+                    </div>
+                  )}
                   <div className="lt-ts-hero__more">
                     <TestSeriesExaminerLine testId="ts-hero-examiner" />
                     <p className="lt-ts-hero__rule" data-testid="ts-rule">

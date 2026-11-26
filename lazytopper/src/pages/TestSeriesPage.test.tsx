@@ -139,7 +139,9 @@ describe("/test-series — signed out", () => {
     // TS-UX-PAGE-1: no 180-link grid. One Start link; chapter / paper selects; nothing per test in the DOM but options.
     expect(screen.queryAllByTestId(/^ts-test-/)).toHaveLength(0);
     expect(screen.getAllByTestId("ts-start")).toHaveLength(1);
-    expect(document.querySelectorAll('.lt-ts a[href*="series=1"]').length).toBeLessThanOrEqual(1);
+    // TS-FREE-PICKER: the signed-out hero's "Take 1 test free" adds exactly the 4 sample links (2 of them chapter tests); still no grid.
+    expect(document.querySelectorAll('.lt-ts a[href*="series=1"]:not(.lt-ts-free__pick)').length).toBeLessThanOrEqual(1);
+    expect(document.querySelectorAll(".lt-ts a.lt-ts-free__pick")).toHaveLength(4);
     const chapterOptions = within(pick("ts-pick-chapter")).getAllByRole("option");
     expect(chapterOptions).toHaveLength(seriesChapterTests().filter((c) => c.subject === "Maths" && c.paper === 1).length);
     expect(within(pick("ts-pick-paper")).getAllByRole("option")).toHaveLength(t.papersPerChapter);

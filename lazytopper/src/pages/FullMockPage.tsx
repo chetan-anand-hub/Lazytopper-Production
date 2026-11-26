@@ -545,6 +545,9 @@ export default function FullMockPage() {
   // review nit 1 (PR #1897): ...and its answers are LOCKED - the time-up card stands in place of the paper (no option, flag or
   // question is rendered), so nothing can be changed past time; the student taps submit to get it marked.
   const [timeUpLocked, setTimeUpLocked] = useState(false);
+  // TS-FREE-PICKER (review nit, #1897): the lock as a ref, the one thing pickOption reads (as on the Chapter Test page).
+  const timeUpLockedRef = useRef(false);
+  timeUpLockedRef.current = timeUpLocked;
   const signedOutRestoreDone = useRef(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
@@ -895,6 +898,10 @@ export default function FullMockPage() {
       });
       focusRef.current = focus;
       setObjective(obj);
+      // TS-FREE-PICKER (review nit, #1897): submitted - the time-up lock has done its job; the next sitting starts unlocked.
+      noAutoSubmitRef.current = false;
+      timeUpLockedRef.current = false;
+      setTimeUpLocked(false);
       setResultsPhase("partial");
       setScorecardOpen(true);
       setPhase("results");
@@ -1168,7 +1175,9 @@ export default function FullMockPage() {
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {
     // review nit 1: past time on a kept attempt, the answers are locked (belt and braces - the paper is not rendered then).
-    if (noAutoSubmitRef.current) return;
+    // TS-FREE-PICKER: reads the LOCK (timeUpLockedRef), as the Chapter Test page does - not noAutoSubmitRef, which only stops the
+    // clock's auto-submit.
+    if (timeUpLockedRef.current) return;
     setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
   }, []);
   const toggleFlag = useCallback((qNumber: number) => {
@@ -2411,7 +2420,7 @@ export default function FullMockPage() {
       {/* review nit 1: a kept attempt back after sign-in with its time run out - answers locked; the student taps submit. */}
       {phase === "taking" && !signInAsk && timeUpLocked && activeMock && (
         <div className="lt-ct__fs">
-          {/* the lock stays on through submit (it leaves "taking" for the results); every Start / resume resets it */}
+          {/* the lock is cleared by the submit itself (doSubmit, as it leaves "taking" for the results); every Start / resume resets it too */}
           <TimeUpSubmitCard onSubmit={finishToPartial} />
         </div>
       )}
