@@ -45,12 +45,12 @@ export const HUB_EYEBROW = "CBSE CLASS 10 · BOARDS 2027";
 export const TEST_SERIES_CARD_NAME = "Test Series";
 
 /**
- * The four cards, in the owner's order (PRICING-4CARD-1, owner 18 Nov 2026 22:02 IST: "4 cards, Test Series second"): the ONLINE pair
- * (Board Pass, Test Series), then the ON PAPER pair (CBQ Packs, Question Bank + Mocks). `id` is the card's element id - the three
+ * The four cards, in the owner's order (CBQ-PRICING-2ND, 26 Nov 2026: CBQ Packs back to 2nd, the best seller; Test Series was 2nd under
+ * PRICING-4CARD-1): Board Pass, CBQ Packs, Test Series, Question Bank + Mocks. `id` is the card's element id - the three
  * legacy ids are kept (inbound links use them); the Test Series card is `#test-series`.
  */
 export type HubCardKey = "pass" | "ts" | "cbq" | "bank";
-export const HUB_CARD_ORDER: readonly HubCardKey[] = ["pass", "ts", "cbq", "bank"];
+export const HUB_CARD_ORDER: readonly HubCardKey[] = ["pass", "cbq", "ts", "bank"];
 export const HUB_CARD_ID: Readonly<Record<HubCardKey, string>> = { pass: "lt-premium-card", ts: "test-series", cbq: "cbq", bank: "packs" };
 export const HUB_CARD_NAME: Readonly<Record<HubCardKey, string>> = {
   pass: BOARD_PASS_NAME,
@@ -61,12 +61,9 @@ export const HUB_CARD_NAME: Readonly<Record<HubCardKey, string>> = {
 /** The phone tabs' short names (two words each, so a tab may wrap to two lines at 320 px and never cuts a word). */
 export const HUB_TAB_NAME: Readonly<Record<HubCardKey, string>> = { pass: BOARD_PASS_NAME, ts: TEST_SERIES_CARD_NAME, cbq: CBQ_PACKS_NAME, bank: "Question Bank" };
 
-/** The two groups the cards fall into, shown as labels (tabs on phones, above each pair on tablet and desktop). */
+/** CBQ-PRICING-2ND: the Online / On paper group labels are retired - CBQ is 2nd, so the pairs no longer sit together (each card's own tag still says ONLINE / ON PAPER). */
 export type HubGroupKey = "online" | "paper";
-export const HUB_GROUPS: ReadonlyArray<{ key: HubGroupKey; label: string; cards: readonly HubCardKey[] }> = [
-  { key: "online", label: "Online", cards: ["pass", "ts"] },
-  { key: "paper", label: "On paper", cards: ["cbq", "bank"] },
-];
+export const HUB_GROUPS: ReadonlyArray<{ key: HubGroupKey; label: string; cards: readonly HubCardKey[] }> = [];
 
 /** The tab's price: the bare base figure (the caption says "+ GST"). The Board Pass figure follows the date: read after mount. */
 export function hubTabPrice(key: HubCardKey, now: Date | number = Date.now()): string {

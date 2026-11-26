@@ -208,7 +208,7 @@ describe("the page, top to bottom (§2)", () => {
     const body = document.body.textContent ?? "";
     for (const gone of ["Pick where you want to start", "Three ways to prepare", "take them together", "take one"]) expect(body).not.toContain(gone);
     const cards = Array.from(screen.getByTestId("hub-cards").querySelectorAll(":scope > [data-card]")).map((c) => c.id);
-    expect(cards).toEqual(["lt-premium-card", "test-series", "cbq", "packs"]);
+    expect(cards).toEqual(["lt-premium-card", "cbq", "test-series", "packs"]);
   });
 
   it("Board Pass card: 1 MINUTE hero, the pinned bank claims, tutor, ticks, price from config, Pay, payline, trial, details link", async () => {
@@ -666,14 +666,12 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
 
   it("the online pair, then the paper pair: card order, group labels on the tabs and in the grid, tags", async () => {
     await renderAt("/pricing");
-    expect(HUB_CARD_ORDER).toEqual(["pass", "ts", "cbq", "bank"]);
-    expect(HUB_GROUPS.map((g) => [g.label, g.cards])).toEqual([["Online", ["pass", "ts"]], ["On paper", ["cbq", "bank"]]]);
+    expect(HUB_CARD_ORDER).toEqual(["pass", "cbq", "ts", "bank"]);
+    expect(HUB_GROUPS).toEqual([]);
     const track = screen.getByTestId("hub-cards");
-    expect(Array.from(track.querySelectorAll(":scope > [data-card]")).map((c) => (c as HTMLElement).dataset.card)).toEqual(["pass", "ts", "cbq", "bank"]);
-    expect(screen.getByTestId("hub-group-online")).toHaveTextContent("Online");
-    expect(screen.getByTestId("hub-group-paper")).toHaveTextContent("On paper");
-    expect(screen.getByTestId("hub-tabgroup-online")).toHaveTextContent("Online");
-    expect(screen.getByTestId("hub-tabgroup-paper")).toHaveTextContent("On paper");
+    expect(Array.from(track.querySelectorAll(":scope > [data-card]")).map((c) => (c as HTMLElement).dataset.card)).toEqual(["pass", "cbq", "ts", "bank"]);
+    expect(screen.queryByTestId("hub-group-online")).toBeNull();
+    expect(screen.queryByTestId("hub-tabgroup-paper")).toBeNull();
     expect(card("pass")).toHaveTextContent("ONLINE · EVERYTHING CHECKED");
     expect(card("ts")).toHaveTextContent("ONLINE · TESTS CHECKED");
     expect(card("cbq")).toHaveTextContent("ON PAPER");
@@ -686,8 +684,8 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
 
   it("the layout CSS: phones a carousel with a peek, 768-1279 px a 2x2 grid, 1280 px four across with a divider", () => {
     expect(HUB_CSS).toContain("flex: 0 0 min(340px, calc(100% - 36px));");
-    expect(HUB_CSS).toMatch(/@media \(min-width: 768px\) \{[\s\S]*?grid-template-areas:\s*"go go"\s*"c1 c2"\s*"gp gp"\s*"c3 c4";/);
-    expect(HUB_CSS).toMatch(/@media \(min-width: 1280px\) \{[\s\S]*?grid-template-areas:\s*"go go \. gp gp"\s*"c1 c2 dv c3 c4";/);
+    expect(HUB_CSS).toMatch(/@media \(min-width: 768px\) \{[\s\S]*?grid-template-areas:\s*"c1 c2"\s*"c3 c4";/);
+    expect(HUB_CSS).toMatch(/@media \(min-width: 1280px\) \{[\s\S]*?grid-template-areas:\s*"c1 c2 c3 c4";/);
     expect(HUB_CSS).toMatch(/align-items: stretch;/);
   });
 
