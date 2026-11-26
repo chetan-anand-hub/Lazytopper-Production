@@ -62,6 +62,49 @@ export const SIGNED_OUT_SAMPLES: ReadonlyArray<{ code: (typeof SIGNED_OUT_SAMPLE
   { code: "FM-S1", subject: "Science", kind: "mock", label: "Science · Full-Length Test 1", href: "/full-mock/10/Science?paper=1" },
 ];
 
+/**
+ * TS-SAMPLE-OPEN (owner ruling 26 Nov 2026, 22:08 IST) - signed out, OPENING one of the four samples (its start screen: counts,
+ * sections and timing, no question text) does not spend the day's free paper; pressing Start does (the pages' signed-out Start calls
+ * `claimNewPaperView`). Kill switch VITE_TS_SAMPLE_OPEN_FREE_DISABLED=1 (only "1"): opening counts again, as before.
+ */
+export function tsSampleOpenFreeDisabled(): boolean {
+  return import.meta.env?.VITE_TS_SAMPLE_OPEN_FREE_DISABLED === "1";
+}
+
+/**
+ * The sample code a paper route opens (pathname + search, as the pages read them), else null. Strict on purpose: only the exact
+ * sample URL shapes the pages treat as a signed-out sample (chapter: `?series=1` with no / an empty / a "1" `paper`; full-length:
+ * `?paper=1`). Anything else - another paper, a focus set, an odd spelling - is not a sample here and is counted at open as before.
+ */
+export function signedOutSampleForRoute(pathname: string, search = ""): (typeof SIGNED_OUT_SAMPLE_CODES)[number] | null {
+  const path = String(pathname || "").trim().toLowerCase().replace(/\/+$/, "");
+  let sp: URLSearchParams;
+  try {
+    sp = new URLSearchParams(String(search || ""));
+  } catch {
+    return null;
+  }
+  for (const s of SIGNED_OUT_SAMPLES) {
+    if (s.href.split("?")[0].toLowerCase() !== path) continue;
+    if (s.kind === "chapter") {
+      const paper = sp.get("paper");
+      if (sp.get("series") === "1" && (paper === null || paper === "" || paper === "1")) return s.code;
+    } else if (sp.get("paper") === "1") {
+      return s.code;
+    }
+  }
+  return null;
+}
+
+/**
+ * MockViewGate: may a SIGNED-OUT visitor open this route's start screen without it counting as the day's paper? Only for a sample,
+ * and only while the pages run the signed-out sample flow (Test Series on, signed-out sitting on) - that flow is what counts at Start.
+ */
+export function sampleOpensUncounted(pathname: string, search = ""): boolean {
+  if (tsSampleOpenFreeDisabled() || tsFreeSignedOutDisabled() || import.meta.env?.VITE_TEST_SERIES_DISABLED === "1") return false;
+  return signedOutSampleForRoute(pathname, search) !== null;
+}
+
 export type SignedOutSurface = "chapter-test" | "full-mock";
 
 export interface SignedOutAttempt {

@@ -5,6 +5,7 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 import { isResumingSavedPaper, paperRouteKey } from "../../lib/papers/resumablePaper";
 import { isKnownTestSeriesOwner, readTestSeriesOwner } from "./paperCapOwner";
+import { sampleOpensUncounted, signedOutSampleForRoute } from "../../lib/testSeries/signedOutAttempt";
 
 /**
  * Per-DAY paper views (AUTH-GATE-MOVE-1). This gate used to allow 1 per WEEK while the
@@ -154,6 +155,14 @@ function dailyLimitFor(signedIn: boolean): number {
   return signedIn ? SIGNED_IN_DAILY_MOCK_LIMIT : ANON_DAILY_MOCK_LIMIT;
 }
 
+/**
+ * TS-SAMPLE-OPEN: what a sample's uncounted pass is tied to - the paper (its route key, so a one-shot `?review=` rewrite is the same
+ * paper) AND the sample it is (CT-M01's route key is shared with the non-series Real Numbers test, which is not a sample).
+ */
+function samplePassKey(pathname: string, search: string): string {
+  return `${paperRouteKey(pathname, search)}|${signedOutSampleForRoute(pathname, search) ?? "-"}`;
+}
+
 /** PACK-LINKS-1: the ask on the cap walls, in its own lazy chunk (the gate is eager; the Board Pass quote and pack link are not). */
 const PaperCapAskLazy = lazy(() => import("./PaperCapAsk"));
 function PaperCapAsk({ returnTo }: { returnTo: string }) {
@@ -173,6 +182,14 @@ export function MockViewGate({ children }: { children: ReactNode }) {
   const incrementedRef = useRef(false);
   // TS-DAILY-CAP-1: this mount was let through at the limit as a Test Series Pack owner (not counted).
   const ownerPassRef = useRef(false);
+  /**
+   * TS-SAMPLE-OPEN: the route a signed-out visitor was let onto UNCOUNTED as a sample's start screen (Start counts it, via
+   * `claimNewPaperView`). If the route then moves on without a remount (same <Route>, e.g. one chapter test to another), the new
+   * route is judged afresh: the sample's free open never carries over to another paper.
+   */
+  const [samplePassRoute, setSamplePassRoute] = useState<string | null>(null);
+  const routeKeyNow = samplePassKey(location.pathname, location.search);
+  const sampleRouteMoved = samplePassRoute !== null && samplePassRoute !== routeKeyNow;
 
   const uid = user?.uid || null;
 
@@ -196,6 +213,13 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     if (incrementedRef.current || ownerPassRef.current) {
       setReady(true);
       return;
+    }
+    if (samplePassRoute !== null) {
+      if (samplePassRoute === samplePassKey(location.pathname, location.search)) {
+        setReady(true);
+        return;
+      }
+      setSamplePassRoute(null);
     }
     /**
      * CT-RESUME-2 — COUNT ONLY NEW PAPERS. A reload of a Chapter Test / Full Mock the student is
@@ -224,6 +248,21 @@ export function MockViewGate({ children }: { children: ReactNode }) {
       if (marked.includes(route)) writeUncounted(marked.filter((r) => r !== route));
     }
     const views = getDailyMockViews(uid);
+    /**
+     * TS-SAMPLE-OPEN (owner ruling 26 Nov 2026, 22:08 IST) - SIGNED OUT, OPENING ONE OF THE FOUR SAMPLES IS NOT THE DAY'S PAPER.
+     * Its start screen shows the paper's shape (counts, sections, timing), never a question. The route is marked uncounted, exactly
+     * as a resume is, so the page's Start (`claimNewPaperView`) counts it then - or refuses it once today's free paper is spent.
+     * Only under the limit: once a paper has been counted today, opening a sample walls as before. Signed in: unchanged.
+     * Kill switch VITE_TS_SAMPLE_OPEN_FREE_DISABLED=1.
+     */
+    if (!user && views < dailyLimitFor(false) && sampleOpensUncounted(location.pathname, location.search)) {
+      const route = paperRouteKey(location.pathname, location.search);
+      const marked = readUncounted();
+      if (!marked.includes(route)) writeUncounted([...marked, route]);
+      setSamplePassRoute(samplePassKey(location.pathname, location.search));
+      setReady(true);
+      return;
+    }
     if (views >= dailyLimitFor(!!user)) {
       /**
        * TS-DAILY-CAP-1 — A TEST SERIES PACK OWNER IS NEVER CAPPED. Only here, with the allowance already spent and a
@@ -251,7 +290,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
       setReady(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the route is read once per gate mount
-  }, [loading, user, isPremium, uid]);
+  }, [loading, user, isPremium, uid, sampleRouteMoved]);
 
   if (loading || !ready) {
     return (

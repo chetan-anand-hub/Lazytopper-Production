@@ -362,3 +362,43 @@ describe("TS-FREE-SIGNEDOUT · Chapter Test series paper", () => {
     expect(screen.queryByTestId("ts-signed-out-note")).toBeNull();
   }, 90000);
 });
+
+// TS-SAMPLE-OPEN (owner ruling 26 Nov 2026, 22:08 IST): the live report - open CT-M01, go back, open FM-S1. Behind the real daily paper
+// gate, OPENING a sample signed out is not the day's free paper; pressing Start is. The start screen shows no question.
+describe("TS-SAMPLE-OPEN · Chapter Test behind the daily paper gate", () => {
+  const views = () => {
+    const k = Object.keys(window.localStorage).find((x) => x.startsWith("lazytopper.dailyMockViews:"));
+    return k ? (JSON.parse(window.localStorage.getItem(k) as string) as { count: number }).count : 0;
+  };
+  async function gated(url: string) {
+    const { MockViewGate } = await import("../components/auth/MockViewGate");
+    return render(
+      <MemoryRouter initialEntries={[url]}>
+        <Routes>
+          <Route path="/chapter-test/:grade/:subject/:topicKey" element={<MockViewGate><ChapterTestPage /></MockViewGate>} />
+          <Route path="/full-mock/:grade/:subject" element={<MockViewGate><p data-testid="fm-paper">full mock</p></MockViewGate>} />
+          <Route path="/login" element={<LoginProbe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+  it("open CT-M01 then FM-S1: no wall; Start CT-M01 counts it; FM-S1 then walls", async () => {
+    await gated("/chapter-test/10/Maths/real-numbers?series=1");
+    expect(await screen.findByTestId("ts-signed-out-note", {}, { timeout: 60000 })).toBeTruthy();
+    expect(document.querySelector(".lt-ct__opt")).toBeNull();
+    expect(views()).toBe(0);
+    cleanup();
+    await gated("/full-mock/10/Science?paper=1");
+    expect(await screen.findByTestId("fm-paper")).toBeTruthy();
+    expect(views()).toBe(0);
+    cleanup();
+    await gated("/chapter-test/10/Maths/real-numbers?series=1");
+    fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 }));
+    await waitFor(() => expect(document.querySelector(".lt-ct__opt")).not.toBeNull(), { timeout: 30000 });
+    expect(views()).toBe(1);
+    cleanup();
+    await gated("/full-mock/10/Science?paper=1");
+    expect(await screen.findByText(/opened your free paper for today/)).toBeTruthy();
+    expect(screen.queryByTestId("fm-paper")).toBeNull();
+  }, 150000);
+});
