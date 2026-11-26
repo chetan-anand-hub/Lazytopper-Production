@@ -157,8 +157,8 @@
 }
 
 .lt-pay-choice__btn--primary {
-  background: var(--lt-green, #1f9d55);
-  border-color: var(--lt-green, #1f9d55);
+  background: var(--lt-green-fill, #257e55);
+  border-color: var(--lt-green-fill, #257e55);
   color: #fff;
   text-decoration: none;
 }
