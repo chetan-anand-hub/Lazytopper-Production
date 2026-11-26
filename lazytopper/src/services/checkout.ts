@@ -26,6 +26,7 @@ import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gst
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
 import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
+import { dedupeSignedInBuy } from "./orderInFlight";
 // CHECKOUT-FAST-1: checkoutTiming.ts and packsMobilePreload.ts are loaded with dynamic import() - they stay OUT of the entry chunk (PERF-3 budget).
 
 /** The two passes the server sells (server/services/passGrant.cjs PASS_TYPES). */
@@ -487,7 +488,12 @@ const DEFAULT_DEPS: BuyDeps = {
  * `dismissed`; a verify error AFTER Razorpay's signed success is `pending` (PAY-RECOVER-1).
  */
 /** `opts.postPay`: the host mounts the paid-screen GST block (PaidSheet with an order id), so no state step comes before Razorpay. */
-export async function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, opts: { postPay?: boolean } = {}): Promise<BuyOutcome> {
+export function buyPass(passType: PassType, deps: BuyDeps = DEFAULT_DEPS, opts: { postPay?: boolean } = {}): Promise<BuyOutcome> {
+  // ORDER-DEDUP-2: a second call for the same pass while this buy is pending (create-order in flight / Razorpay open) shares it: one order.
+  return dedupeSignedInBuy(`pass|${passType}|${opts.postPay ? "post" : "pre"}`, deps, () => buyPassOnce(passType, deps, opts));
+}
+
+async function buyPassOnce(passType: PassType, deps: BuyDeps, opts: { postPay?: boolean }): Promise<BuyOutcome> {
   try {
     const [order, Razorpay, prefill] = await Promise.all([
       opts.postPay ? deps.createOrder(passType, opts) : deps.createOrder(passType),
