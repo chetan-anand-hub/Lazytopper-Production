@@ -171,6 +171,7 @@ import {
   SIGNED_OUT_ATTEMPT_KEPT_LINE,
   SIGNED_OUT_ATTEMPT_RESTORED_LINE,
   SIGNED_OUT_TAKING_NOTE,
+  TIME_UP_TITLE,
   clearSignedOutAttempt,
   paperQuestionIds,
   readSignedOutAttempt,
@@ -661,6 +662,9 @@ export default function ChapterTestPage() {
     };
   }, [restoredPaper, bank.ready, draw]);
   const timeLimitSeconds = useMemo(() => Math.max(15, Math.round((paper?.totalMarks ?? 40) * 1.2)) * 60, [paper]);
+  // TS-FREE-PICKER (review nit, #1897): a kept or saved sitting is back on the start screen with its time ALREADY run out. The "Timed"
+  // switch is locked on then - switching the clock off there would reopen a past-time paper editable.
+  const keptTimeUp = (signedOutRestored || !!restoredPaper) && timerEnabled && elapsed >= timeLimitSeconds;
   // TS-MORE-1: a series paper 2..5 saves under its STABLE paper code (ts.CT-M01-3), never the chapter's attempt counter: that counter
   // moves on whenever any other sitting is saved, which would strand (and the cleanup below would delete) a paper in progress. Paper 1
   // and non-series sittings keep exactly today's key (the attempt code), so sittings already in progress still resume.
@@ -863,6 +867,8 @@ export default function ChapterTestPage() {
         /* best-effort */
       }
     }
+    // TS-FREE-PICKER (review nit, #1897): submitted - the time-up lock has done its job; the next sitting starts unlocked.
+    setTimeUpLocked(false);
     setResultsPhase("partial");
     setScorecardOpen(true);
     setPhase("results");
@@ -1088,6 +1094,13 @@ export default function ChapterTestPage() {
     // TS-FREE-SIGNEDOUT: a signed-out reload of a signed-out sitting stays signed out (latched); time already up -> the sign-in card.
     signedOutLatch.current = signedOutSitting;
     setTimeUpLocked(false);
+    // TS-FREE-PICKER (review nit, #1897): signed in, a saved sitting whose time had already run out (a reload on the time-up card, or
+    // a timed paper left past its time) opens straight into the time-up lock - the answers as saved, submit only. It used to open
+    // the paper editable until the clock's next tick auto-submitted it (~1 s).
+    if (!signedOutSitting && timerEnabled && elapsed >= timeLimitSeconds) {
+      setShowConfirm(false);
+      setTimeUpLocked(true);
+    }
     if (signedOutSitting && timerEnabled && elapsed >= timeLimitSeconds) {
       saveSignedOutAttempt({
         surface: "chapter-test",
@@ -1876,13 +1889,23 @@ export default function ChapterTestPage() {
                       <div className="lt-ct__toggle-lab">
                         <b>⏱ Timed (board practice)</b>
                         <p>{Math.round(timeLimitSeconds / 60)}-min countdown. Turn off to practise without the clock.</p>
+                        {/* #1898 review nit: why the switch is locked */}
+                        {keptTimeUp && (
+                          <p className="lt-ct__toggle-why" data-testid="ct-timer-locked">
+                            {TIME_UP_TITLE}. The clock stays on.
+                          </p>
+                        )}
                       </div>
                       <button
                         type="button"
                         className={`lt-ct__tg${timerEnabled ? "" : " lt-ct__tg--off"}`}
                         aria-pressed={timerEnabled}
                         aria-label="Toggle timer"
-                        onClick={() => setTimerEnabled((p) => !p)}
+                        data-testid="ct-timer-toggle"
+                        disabled={keptTimeUp}
+                        onClick={() => {
+                          if (!keptTimeUp) setTimerEnabled((p) => !p);
+                        }}
                       />
                     </div>
 

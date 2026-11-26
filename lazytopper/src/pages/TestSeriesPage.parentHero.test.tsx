@@ -5,7 +5,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 vi.hoisted(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
@@ -58,16 +58,22 @@ vi.mock("../components/pricing/PaywallActions", async (orig) => {
 vi.mock("../services/referralService", () => ({ generateQRDataUrl: vi.fn(async () => "data:image/png;base64,AAAA") }));
 
 import TestSeriesPage, { TS_PARENT_HERO_LABEL, TS_SELF_BUY_PATH } from "./TestSeriesPage";
+import { TEST_SERIES_BUY_FROM_PATH } from "../lib/testSeries/testSeries";
 import * as analytics from "../analytics/analytics";
 import { packPayLabel } from "../services/packs";
 import { PARENT_FORWARD_LABEL, PARENT_FORWARD_QR_LABEL } from "../components/payRescue/parentForward";
 
+function LocProbe() {
+  const l = useLocation();
+  return <p data-testid="loc">{l.pathname + l.search}</p>;
+}
 async function mount() {
   await act(async () => {
     render(
       <MemoryRouter initialEntries={["/test-series"]}>
         <Routes>
           <Route path="/test-series" element={<TestSeriesPage />} />
+          <Route path="*" element={<LocProbe />} />
         </Routes>
       </MemoryRouter>,
     );
@@ -136,6 +142,61 @@ describe("TS-PAYPATH-1 · signed out", () => {
     expect(screen.getByTestId("ts-cta-buy").getAttribute("href")).toBe(TS_SELF_BUY_PATH);
     expect(screen.getByTestId("ts-hero-forward").className).toContain("lt-ts-forward--out");
     expect(screen.getByTestId("ts-hero-forward").childElementCount).toBe(0);
+  });
+
+  it("#1896 nit: LIVE with packs off, the fallback Buy (href still this page's ?buy=) goes to the /packs fallback instead of reloading here", async () => {
+    shop.on = false;
+    await mount();
+    const buy = hero().getByTestId("ts-hero-buy");
+    expect(buy.getAttribute("href")).toBe(TS_SELF_BUY_PATH);
+    await act(async () => void fireEvent.click(buy));
+    expect(screen.getByTestId("loc").textContent).toBe(TEST_SERIES_BUY_FROM_PATH);
+  });
+
+  it("#1898 nit: a ctrl / cmd / shift / middle click on the fallback Buy is the browser's (open in a new tab) - never intercepted", async () => {
+    shop.on = false;
+    await mount();
+    const buy = hero().getByTestId("ts-hero-buy");
+    for (const init of [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }]) {
+      const ev = new MouseEvent("click", { bubbles: true, cancelable: true, button: 0, ...init });
+      await act(async () => void buy.dispatchEvent(ev));
+      expect(screen.queryByTestId("loc")).toBeNull();
+    }
+    const middle = new MouseEvent("click", { bubbles: true, cancelable: true, button: 1 });
+    await act(async () => void buy.dispatchEvent(middle));
+    expect(screen.queryByTestId("loc")).toBeNull();
+  });
+
+  it("#1896 nit: the Test Series not offered (VITE_TS_PACK_DISABLED=1) -> the Buy is the previous /packs link, never the self link", async () => {
+    vi.stubEnv("VITE_TS_PACK_DISABLED", "1");
+    shop.on = false;
+    await mount();
+    expect(hero().getByTestId("ts-hero-buy").getAttribute("href")).toBe(TEST_SERIES_BUY_FROM_PATH);
+  });
+
+  it("CONTROL: packs on and the series offered -> the in-place Buy (a button, no link, no navigation)", async () => {
+    await mount();
+    const buy = hero().getByTestId("ts-hero-buy");
+    expect(buy.tagName).toBe("BUTTON");
+    expect(buy.getAttribute("href")).toBeNull();
+  });
+
+  it("#1896 nit: the hero's signed-out 'Ask Mummy/Papa to pay' sends paywall_action {ask, test_series} once per opening tap, never on close", async () => {
+    const pay = vi.spyOn(analytics, "trackPaywallAction");
+    await mount();
+    const ask = hero().getByTestId("ts-hero-parent");
+    await act(async () => void fireEvent.click(ask));
+    expect(pay).toHaveBeenCalledTimes(1);
+    expect(pay).toHaveBeenCalledWith("ask", "test_series");
+    await screen.findByTestId("parent-forward");
+    expect(track).toHaveBeenCalledWith("parent_forward_shown", { signed_in: "false", product: "test_series", surface: "ts_hero" });
+    // the panel's WhatsApp tap is parent_forward_clicked only - no second paywall_action
+    await act(async () => void fireEvent.click(within(screen.getByTestId("parent-forward")).getByText(PARENT_FORWARD_LABEL)));
+    expect(pay).toHaveBeenCalledTimes(1);
+    await act(async () => void fireEvent.click(ask)); // close
+    expect(pay).toHaveBeenCalledTimes(1);
+    await act(async () => void fireEvent.click(ask)); // open again: a new ask
+    expect(pay).toHaveBeenCalledTimes(2);
   });
 
   it("the plan card's 'Forward link to parents' message names the Test Series but never an amount (before and after 1 Dec)", async () => {

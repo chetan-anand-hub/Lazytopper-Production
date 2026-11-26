@@ -71,6 +71,8 @@ export const CT_CSS = `
 .lt-ct__toggle-lab p { font-size: 12px; color: var(--ct-ink-2); margin: 2px 0 0; }
 .lt-ct__tg { width: 44px; height: 25px; border-radius: 20px; background: var(--ct-green); position: relative; cursor: pointer; flex: none; border: 0; padding: 0; }
 .lt-ct__tg--off { background: #cbd3dd; }
+.lt-ct__tg:disabled { opacity: .6; cursor: not-allowed; }
+.lt-ct__toggle-lab p.lt-ct__toggle-why { color: var(--ct-ink); font-weight: 600; }
 .lt-ct__tg::after { content: ""; position: absolute; top: 3px; left: 22px; width: 19px; height: 19px; border-radius: 50%; background: #fff; transition: .15s; }
 .lt-ct__tg--off::after { left: 3px; }
 

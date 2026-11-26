@@ -235,3 +235,25 @@ describe("TS-FREE-SIGNEDOUT · Full Mock series paper", () => {
     expect((await screen.findByTestId("login-page")).textContent).toBe(URL_);
   }, 90000);
 });
+
+// TS-FREE-PICKER (#1897 review nit): ONE lock on both paper pages. The Full Mock's answer pick reads the time-up LOCK (as the Chapter
+// Test page does), not noAutoSubmitRef (which only stops the clock's auto-submit), and the submit itself clears the lock. Neither is
+// observable from the screen today (the paper is not rendered while locked, and the lock is set exactly when noAutoSubmitRef is), so
+// the source is pinned; the behaviour itself is covered by "review nit 1" above.
+describe("TS-FREE-PICKER · one time-up lock (source pin)", () => {
+  it("pickOption reads timeUpLockedRef; doSubmit clears the lock as it leaves for the results", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    const src = readFileSync(resolve(__dirname, "FullMockPage.tsx"), "utf8");
+    const pick = src.slice(src.indexOf("const pickOption = useCallback"), src.indexOf("const toggleFlag = useCallback"));
+    expect(pick).toContain("if (timeUpLockedRef.current) return;");
+    expect(pick).not.toContain("if (noAutoSubmitRef.current) return;");
+    const submit = src.slice(src.indexOf("const doSubmit = useCallback"), src.indexOf("const bounceRef = useRef"));
+    const clear = submit.indexOf("setTimeUpLocked(false)");
+    expect(clear).toBeGreaterThan(-1);
+    expect(clear).toBeLessThan(submit.indexOf('setPhase("results")'));
+    const ct = readFileSync(resolve(__dirname, "ChapterTestPage.tsx"), "utf8");
+    const ctPick = ct.slice(ct.indexOf("const pickOption = useCallback"), ct.indexOf("const toggleFlag = useCallback"));
+    expect(ctPick).toContain("if (timeUpLockedRef.current) return;");
+  });
+});

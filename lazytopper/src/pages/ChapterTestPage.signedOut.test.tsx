@@ -243,6 +243,65 @@ describe("TS-FREE-SIGNEDOUT · Chapter Test series paper", () => {
     expect(screen.queryByTestId("ts-time-up-submit")).toBeNull();
   }, 120000);
 
+  it("TS-FREE-PICKER (#1897 nit): an expired kept attempt - the Timed switch is locked on the start screen; a reload on the time-up card resumes LOCKED (never editable), then submit marks it", async () => {
+    mount();
+    expect(await startAndPickFirst()).not.toBe("");
+    await submit();
+    fireEvent.click(await screen.findByTestId("ts-sign-in-to-mark-go"));
+    await screen.findByTestId("login-page");
+    cleanup();
+    const kept = JSON.parse(window.sessionStorage.getItem(SIGNED_OUT_ATTEMPT_KEY) as string);
+    window.sessionStorage.setItem(SIGNED_OUT_ATTEMPT_KEY, JSON.stringify({ ...kept, elapsedMs: 10 * 60 * 60 * 1000 }));
+
+    auth.user = SIGNED_IN;
+    resetTestSeriesOwnershipForTests();
+    resetOwnedPacksCache();
+    mount();
+    expect(await screen.findByTestId("ts-signed-out-restored", {}, { timeout: 60000 })).toBeTruthy();
+    // (1) the restored start screen: the clock cannot be switched off to reopen a past-time paper
+    const toggle = screen.getByTestId("ct-timer-toggle") as HTMLButtonElement;
+    expect(toggle.disabled).toBe(true);
+    // #1898 nit: the reason is on screen
+    expect(screen.getByTestId("ct-timer-locked").textContent).toBe("Time is up on this paper. The clock stays on.");
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-pressed")).toBe("true");
+    fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }));
+    expect(await screen.findByTestId("ts-time-up-submit", {}, { timeout: 30000 })).toBeTruthy();
+    expect(document.querySelector(".lt-ct__opt")).toBeNull();
+
+    // (2) a reload on the time-up card: the saved sitting comes back as "Resume your test", the switch still locked
+    cleanup();
+    mount();
+    const resume = await screen.findByRole("button", { name: /Resume your test/ }, { timeout: 60000 });
+    expect((screen.getByTestId("ct-timer-toggle") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(resume);
+    // straight into the lock: the paper (options, navigator) is never rendered, nothing is auto-submitted
+    expect(await screen.findByTestId("ts-time-up-submit", {}, { timeout: 30000 })).toBeTruthy();
+    expect(document.querySelector(".lt-ct__opt")).toBeNull();
+    expect(document.querySelector(".lt-ct__exit")).toBeNull();
+    await new Promise((r) => setTimeout(r, 1500));
+    expect(document.querySelector(".lt-ct__opt")).toBeNull();
+    expect(spies.partial).toBe(0);
+    fireEvent.click(screen.getByTestId("ts-time-up-submit-go"));
+    await waitFor(() => expect(loadLocalSessionRecords(SIGNED_IN.uid).filter((r) => r.surface === "chapter-test")).toHaveLength(1));
+    expect(spies.partial).toBe(1);
+    expect(screen.queryByTestId("ts-time-up-submit")).toBeNull();
+  }, 180000);
+
+  it("CONTROL: a saved sitting with time LEFT resumes editable and its Timed switch is free", async () => {
+    auth.user = SIGNED_IN;
+    mount();
+    expect(await startAndPickFirst()).not.toBe("");
+    cleanup();
+    mount();
+    const resume = await screen.findByRole("button", { name: /Resume your test/ }, { timeout: 60000 });
+    expect((screen.getByTestId("ct-timer-toggle") as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.queryByTestId("ct-timer-locked")).toBeNull();
+    fireEvent.click(resume);
+    await waitFor(() => expect(document.querySelector(".lt-ct__opt")).not.toBeNull(), { timeout: 30000 });
+    expect(screen.queryByTestId("ts-time-up-submit")).toBeNull();
+  }, 120000);
+
   it("review nit 2: signing OUT mid-sitting (the autosave-restore effect re-runs) keeps the answers - none lost, none duplicated, no crash", async () => {
     auth.user = SIGNED_IN;
     const page = mount();
