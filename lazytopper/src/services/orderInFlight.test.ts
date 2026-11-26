@@ -5,7 +5,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { buyAsGuest, type GuestBuyDeps, type GuestItem } from "./guestPay";
 import { buyForSelf, type SelfBuyDeps } from "./checkoutWho";
-import { resetOrderInFlight } from "./orderInFlight";
+import { ORDER_IN_FLIGHT_MAX_MS, dedupeInFlight, resetOrderInFlight } from "./orderInFlight";
 
 const PASS: GuestItem = { kind: "pass", sku: "till_boards", label: "Board Pass", description: "d" };
 const PACK: GuestItem = { kind: "pack", sku: "pack_mock", target: "maths", label: "Mock Pack", description: "d" };
@@ -67,5 +67,30 @@ describe("ORDER-DEDUP-1 · buyForSelf", () => {
     expect((await a).status).toBe("failed");
     void buyForSelf(PASS, deps);
     expect(createOrder).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe("ORDER-DEDUP-1 · every path settles", () => {
+  it("an entry older than the ceiling is never reused: a fresh tap starts a new order", () => {
+    vi.useFakeTimers();
+    try {
+      const start = vi.fn(() => new Promise<never>(() => undefined)); // a hung request
+      void dedupeInFlight("k", start);
+      vi.advanceTimersByTime(ORDER_IN_FLIGHT_MAX_MS - 1);
+      void dedupeInFlight("k", start);
+      expect(start).toHaveBeenCalledTimes(1);
+      vi.advanceTimersByTime(2);
+      void dedupeInFlight("k", start);
+      expect(start).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("a synchronous throw rejects the caller and never occupies the key", async () => {
+    const boom = vi.fn((): Promise<never> => { throw new Error("sync"); });
+    await expect(dedupeInFlight("s", boom)).rejects.toThrow("sync");
+    await expect(dedupeInFlight("s", boom)).rejects.toThrow("sync");
+    expect(boom).toHaveBeenCalledTimes(2);
   });
 });

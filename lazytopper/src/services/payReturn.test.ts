@@ -22,6 +22,7 @@ import {
 } from "./payReturn";
 import { readReceiptProof } from "./paidReceiptProof";
 import { buyAsGuest, type GuestBuyDeps, type GuestItem } from "./guestPay";
+import { __resetOrderInFlightForTests } from "./orderInFlight";
 import { buyForRecipient, buyForSelf, type SelfBuyDeps, type WhoBuyDeps } from "./checkoutWho";
 
 const PROOF = "AbCdEfGhIjKlMnOpQrStUvWxYz012345";
@@ -36,6 +37,7 @@ beforeEach(() => {
   resetPayReturnForTests();
 });
 afterEach(() => {
+  __resetOrderInFlightForTests(); // ORDER-DEDUP-1: the never-settling buys below must not leak into the next test
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
 });
