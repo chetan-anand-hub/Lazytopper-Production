@@ -3,6 +3,7 @@
  * ?buy= link) the recipient box; signed in "For: you" and ONE tap into the unchanged buyPack. Flag OFF: the old flows exactly.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { __resetOrderInFlightForTests } from "../../services/orderInFlight"; // ORDER-DEDUP-1: an open (never-awaited) buy must not leak into the next test
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
@@ -75,6 +76,7 @@ function shop(url = "/packs") {
   );
 }
 
+afterEach(() => __resetOrderInFlightForTests());
 beforeEach(() => {
   auth.user = null;
   flags.guest = true;

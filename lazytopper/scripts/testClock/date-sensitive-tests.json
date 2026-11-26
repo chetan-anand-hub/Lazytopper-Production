@@ -1096,6 +1096,7 @@
     "src/services/mistakePick.test.ts",
     "src/services/mistakeRetry.test.ts",
     "src/services/oldRecords.compat.test.tsx",
+    "src/services/orderInFlight.test.ts",
     "src/services/orderSource.test.ts",
     "src/services/packs.test.ts",
     "src/services/packs.tsPrice.test.ts",

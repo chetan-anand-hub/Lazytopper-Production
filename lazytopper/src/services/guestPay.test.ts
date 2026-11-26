@@ -3,6 +3,7 @@
  * Razorpay opened with the number prefilled READ-ONLY, honest outcomes, and the claim once per session.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { __resetOrderInFlightForTests } from "./orderInFlight"; // ORDER-DEDUP-1: an open (never-awaited) buy must not leak into the next test
 import {
   GUEST_CLAIMED_EVENT,
   buyAsGuest,
@@ -181,6 +182,7 @@ function deps(over: Partial<GuestBuyDeps> & { outcome?: "success" | "dismiss" } 
 // The claim path lazily mounts PackReadyToast; a unit test of guestPay must not render it (a late render after the
 // test's DOM is torn down raised "window is not defined" and failed random CI shards).
 vi.mock("../components/packs/PackReadyToast", () => ({ showPackReadyToast: vi.fn(), closePackReadyToastForTests: vi.fn() }));
+afterEach(() => __resetOrderInFlightForTests());
 beforeEach(() => resetGuestClaimSessionForTests());
 afterEach(() => vi.unstubAllEnvs());
 

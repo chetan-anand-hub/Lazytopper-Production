@@ -25,6 +25,7 @@ import { isCheckoutSelfClientEnabled } from "./checkoutWhoFlag";
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
 import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
+import { dedupeInFlight } from "./orderInFlight";
 
 export { isCheckoutWhoClientEnabled, isPayAutoAccountClientEnabled, isCheckoutSelfClientEnabled } from "./checkoutWhoFlag";
 
@@ -522,7 +523,12 @@ function gstProofOf(success: RazorpaySuccess): { gstProof?: AttachProof } {
 }
 
 /** Order (server-priced) -> Razorpay -> server verify. Never throws. */
-export async function buyForRecipient(item: GuestItem, recipient: Recipient, signedIn: boolean, deps: WhoBuyDeps = DEFAULT_DEPS): Promise<WhoBuyOutcome> {
+export function buyForRecipient(item: GuestItem, recipient: Recipient, signedIn: boolean, deps: WhoBuyDeps = DEFAULT_DEPS): Promise<WhoBuyOutcome> {
+  // ORDER-DEDUP-1: same product + same buyer + same recipient while pending -> one order.
+  return dedupeInFlight(`who|${signedIn ? "in" : "out"}|${item.kind}|${item.sku}|${item.kind === "pack" ? item.target ?? "" : ""}|${recipient.phone ?? ""}|${recipient.email ?? ""}`, () => buyForRecipientOnce(item, recipient, signedIn, deps));
+}
+
+async function buyForRecipientOnce(item: GuestItem, recipient: Recipient, signedIn: boolean, deps: WhoBuyDeps): Promise<WhoBuyOutcome> {
   let pending: ReturnType<typeof beginPendingCheckout> | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item, recipient, signedIn), deps.loadScript()]);
@@ -625,7 +631,12 @@ export function readSelfContact(raw: unknown): Recipient | null {
 const SELF_DEPS: SelfBuyDeps = { createOrder: createSelfOrder, loadScript: () => loadCheckoutScript(), verify: verifySelfPayment };
 
 /** Order (server-priced, no identifier) -> Razorpay (no prefill: it asks the buyer) -> server verify -> the contact it read. Never throws. */
-export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS): Promise<SelfBuyOutcome> {
+export function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS): Promise<SelfBuyOutcome> {
+  // ORDER-DEDUP-1: a second tap while this buy is pending shares it (one order); a different product is a different key.
+  return dedupeInFlight(`self|${item.kind}|${item.sku}|${item.kind === "pack" ? item.target ?? "" : ""}`, () => buyForSelfOnce(item, deps));
+}
+
+async function buyForSelfOnce(item: GuestItem, deps: SelfBuyDeps): Promise<SelfBuyOutcome> {
   let pending: ReturnType<typeof beginPendingCheckout> | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item), deps.loadScript()]);
