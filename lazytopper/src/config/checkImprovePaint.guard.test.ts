@@ -735,6 +735,8 @@ describe("SPEED-CI-3 — in-app browsers get the door; a web view without storag
     // Login (sign-in in-app note / Chrome handoff / phone-first door), the guest pay sheet, sign-in telemetry and the in-app pay rescue (post-checkout only).
     // None renders on the Answer Checker's first frame. A new reader must be checked against /check-improve's parity.
     expect(readers.sort()).toEqual([
+      // QUICK-LEAVE-1: reads the UA once into a first-party metrics beacon (inApp / device booleans); renders nothing, so the first frame is unaffected.
+      "analytics/quickLeave.ts",
       "components/auth/inAppSigninCopy.ts",
       "components/guestPay/GuestPaySheet.tsx",
       // INAPP-PAY-CHOICE-1: the up-front "Pay in Chrome / Safari" option. Rendered only by PacksShop, PassCheckout, /cbq-packs and

@@ -1154,7 +1154,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
 // record with `byUid` in place of `adminUid`, reason "buyer move". UIDS ONLY - no phone, no email, no name - so it holds no student content,
 // and it is an accounting provenance record (who moved which paid order, when), kept like the order itself. Written only by
 // server/services/adminMovePurchase.cjs and server/services/moveToOther.cjs; no client rule.
-export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily", "nudgeEmailDaily", "opsReports", "gstInvoiceCounters", "gstInvoiceEmailDaily", "adminMoves"]);
+// QUICK-LEAVE-1: `visitDaily/{IST yyyy-mm-dd}` holds anonymous visit COUNTERS only ({ counts: { "source|path|engaged|inApp": n } }): no uid,
+// no IP, no user agent, nothing per visitor. Written only by server/routes/visitMetrics.cjs; read by server/routes/adminVisitQuality.cjs.
+export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily", "nudgeEmailDaily", "opsReports", "gstInvoiceCounters", "gstInvoiceEmailDaily", "adminMoves", "visitDaily"]);
 
 /** ★ Locations no browser can erase — the proof that erasure needs a server path. */
 export function adminOnlyLocations(): readonly StudentDataLocation[] {

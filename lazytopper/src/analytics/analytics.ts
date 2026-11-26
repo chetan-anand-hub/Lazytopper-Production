@@ -3,6 +3,7 @@ import { recordActivity } from "../services/activityClient";
 import { rememberVisitSourceOnce } from "./visitSource";
 import { writeFbcCookieOnce } from "./metaClickId";
 import { startEngagedVisitWatch, type EngagedVisitTrigger } from "./engagedVisit";
+import { startQuickLeaveWatch, quickLeaveEngaged } from "./quickLeave";
 import { currentInAppPay } from "../utils/inAppPay";
 import { metaIcAtOrderDisabled } from "./metaIcFlag";
 
@@ -751,6 +752,9 @@ export function trackPageview(path: string): void {
   // Not in an automated context: the prerender capture must not even be watched.
   try {
     if (analyticsEnabled()) {
+      // QUICK-LEAVE-1: record this visit's landing + source once, so a leave without engaging can be counted (first-party only).
+      const landing = normalisePath(routerPathOf(window.location.pathname));
+      startQuickLeaveWatch(landing, ADMIN_PATH.test(routerPathOf(window.location.pathname)), isInternalDevice());
       startEngagedVisitWatch(trackEngagedVisit);
       startEngaged10();
     }
@@ -783,6 +787,7 @@ export function trackEngagedVisit(trigger: EngagedVisitTrigger): boolean {
     if (ADMIN_PATH.test(routerPath)) return false;
     const data = { trigger, path: normalisePath(routerPath) };
     send("event", { name: "engaged_visit", data }, { ga4: data });
+    quickLeaveEngaged(); // QUICK-LEAVE-1: the same engaged rule, reported once to our own server
     return true;
   } catch {
     return false;
