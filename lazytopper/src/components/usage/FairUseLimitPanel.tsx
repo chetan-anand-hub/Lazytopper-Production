@@ -161,7 +161,7 @@ export default function FairUseLimitPanel({
         <div className="lt-usage__eyebrow">Fair use</div>
         {lead}
         <LimitByte limit={limit} when={when} />
-        {limit.tier === "premium" ? <TopupAction where="limit" wrapperClassName="lt-usage__actions" onToppedUp={onDismiss} /> : null}
+        {limit.tier === "premium" ? <TopupAction where="limit" wrapperClassName="lt-usage__actions" onToppedUp={onDismiss} requireSnapshotPremium /> : null}
         {copy.showPlans ? (
           <p className="lt-usage__body" data-testid="fair-use-board-pass">
             {boardPassLine(tsOwner)}

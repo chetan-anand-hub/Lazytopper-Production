@@ -10,6 +10,7 @@ import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import { UsageCardView } from "../usage/UsageCard";
 import UsageWarning from "../usage/UsageWarning";
 import { parseUsageMe } from "../../services/usageClient";
+import * as usageClient from "../../services/usageClient";
 import type { LimitState } from "../usage/fairUseGate";
 import type { TopupBuyDeps } from "./topupBuy";
 import { TOPUP_PACKS, topupLines, topupLineText } from "../../config/topup";
@@ -22,6 +23,7 @@ beforeEach(() => {
   vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
 });
 afterEach(() => {
+  vi.restoreAllMocks();
   cleanup();
   vi.unstubAllEnvs();
   vi.useRealTimers();
@@ -100,8 +102,9 @@ describe("TopupAction + hosts", () => {
 
   it("switch ON: a PREMIUM refusal shows 'Top up to keep going', which opens the sheet", async () => {
     on();
+    vi.spyOn(usageClient, "fetchUsageMe").mockResolvedValue(premiumCard());
     render(<MemoryRouter><FairUseLimitPanel limit={PREMIUM_LIMIT} /></MemoryRouter>);
-    const btn = screen.getByTestId("topup-open-limit");
+    const btn = await screen.findByTestId("topup-open-limit");
     expect(btn.textContent).toBe("Top up to keep going");
     fireEvent.click(btn);
     await waitFor(() => expect(screen.getByTestId("topup-sheet")).toBeTruthy());
@@ -153,5 +156,31 @@ describe("TOPUP-GO-1 the existing 90% usage banner", () => {
     const { container } = bar(92);
     expect(container.querySelector('[data-testid^="topup-"]')).toBeNull();
     expect(container.querySelectorAll("button").length).toBe(2); // the See-usage button and the dismiss x, as before
+  });
+});
+
+describe("TOPUP-GO-1 the limit action follows the REAL subscription tier, not the 429's mapped tier", () => {
+  const freeTsOwner = () => parseUsageMe({ enforced: true, tier: "free", trial: null, premium: null });
+  it("★ a Test-Series-only (free-tier) owner at a 429 limit sees NO top-up action", async () => {
+    on();
+    const spy = vi.spyOn(usageClient, "fetchUsageMe").mockResolvedValue(freeTsOwner());
+    render(<MemoryRouter><FairUseLimitPanel limit={PREMIUM_LIMIT} tsOwner /></MemoryRouter>);
+    await waitFor(() => expect(spy).toHaveBeenCalled());
+    await Promise.resolve();
+    expect(screen.queryByTestId("topup-open-limit")).toBeNull();
+  });
+  it("a Board Pass owner sees it, with or without the Test Series", async () => {
+    on();
+    vi.spyOn(usageClient, "fetchUsageMe").mockResolvedValue(premiumCard());
+    const a = render(<MemoryRouter><FairUseLimitPanel limit={PREMIUM_LIMIT} /></MemoryRouter>);
+    expect(await screen.findByTestId("topup-open-limit")).toBeTruthy();
+    a.unmount();
+    render(<MemoryRouter><FairUseLimitPanel limit={PREMIUM_LIMIT} tsOwner /></MemoryRouter>);
+    expect(await screen.findByTestId("topup-open-limit")).toBeTruthy();
+  });
+  it("★★ switch OFF: the usage endpoint is not even read", () => {
+    const spy = vi.spyOn(usageClient, "fetchUsageMe").mockResolvedValue(premiumCard());
+    render(<MemoryRouter><FairUseLimitPanel limit={PREMIUM_LIMIT} /></MemoryRouter>);
+    expect(spy).not.toHaveBeenCalled();
   });
 });

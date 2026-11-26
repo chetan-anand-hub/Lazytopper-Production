@@ -6,7 +6,8 @@
  * ★ The host must pass this only for a student the SERVER called Premium (a refusal's `tier`, the usage snapshot's `tier`); a trial or
  *   free student never sees it and the server would answer 403 anyway.
  */
-import { lazy, Suspense, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { fetchUsageMe } from "../../services/usageClient";
 import { importWithRetry } from "../../lib/lazyWithRetry";
 import { isTopupClientEnabled, TOPUP_ACTION_LIMIT, TOPUP_ACTION_MENU, TOPUP_ACTION_WARN } from "../../config/topup";
 import type { TopupSheetProps } from "./TopupSheet";
@@ -24,12 +25,31 @@ export interface TopupActionProps {
   /** When given, the button sits in a div of this class - drawn only while top-ups are on, so a dark host gains no node. */
   wrapperClassName?: string;
   onToppedUp?: () => void;
+  /**
+   * The host only knows the refusal's MAPPED tier (a 429 usage_limit reads "premium" even for a free Test Series owner), but the server
+   * sells a top-up only to a real Board Pass subscription (403 otherwise). With this on, the button shows only once /api/usage/me
+   * (the source UsageCard and UsageWarning use) says tier "premium". Reads nothing while the switch is off.
+   */
+  requireSnapshotPremium?: boolean;
 }
 
-export default function TopupAction({ where, className = "lt-usage__btn", wrapperClassName, onToppedUp }: TopupActionProps) {
+export default function TopupAction({ where, className = "lt-usage__btn", wrapperClassName, onToppedUp, requireSnapshotPremium = false }: TopupActionProps) {
   const [open, setOpen] = useState(false);
   const paid = useRef(false);
-  if (!isTopupClientEnabled()) return null;
+  const enabled = isTopupClientEnabled();
+  const [realPremium, setRealPremium] = useState(false);
+  useEffect(() => {
+    if (!enabled || !requireSnapshotPremium) return;
+    let cancelled = false;
+    void fetchUsageMe().then((snap) => {
+      if (!cancelled) setRealPremium(Boolean(snap && snap.enforced === true && snap.tier === "premium"));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled, requireSnapshotPremium]);
+  if (!enabled) return null;
+  if (requireSnapshotPremium && !realPremium) return null;
   const body = (
     <>
       <button type="button" className={className} onClick={() => setOpen(true)} aria-haspopup="dialog" data-testid={`topup-open-${where}`}>
