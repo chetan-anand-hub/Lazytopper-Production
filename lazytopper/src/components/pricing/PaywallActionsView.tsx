@@ -259,6 +259,13 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
         setPanel(null);
         return;
       }
+      if (parentFirst) {
+        // PARENT-WA-DIRECT-1 (owner 26 Nov 2026): the closed-sheet rescue's "Send to Mummy/Papa on WhatsApp" opens WhatsApp itself
+        // (wa.me, the same text and link), never the device share sheet. A blocked popup opens the panel: its "Send on WhatsApp" link
+        // and "Copy link" are the fallback. Every other caller of this action keeps the share-sheet-first path below.
+        setPanel(openWhatsAppLink(messageOf(s, lang), deps.openWindow) ? null : { kind: "forward", retryNative: false });
+        return;
+      }
       const result = await shareTextNative(s);
       setPanel(result === "done" ? null : { kind: "forward", retryNative: result === "needs-tap" });
     } finally {

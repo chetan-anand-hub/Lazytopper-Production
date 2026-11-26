@@ -55,10 +55,43 @@ describe("PARENT-PAY-FIRST-1 · signed-in card", () => {
     expect(onboarding).toHaveBeenCalledWith("parent_forward_shown", { signed_in: "true", product: "board_pass" });
     const share = vi.fn(async () => undefined);
     Object.defineProperty(window.navigator, "share", { configurable: true, value: share });
+    const open = vi.spyOn(window, "open").mockReturnValue({ opener: null } as unknown as Window);
     fireEvent.click(fwd);
-    await waitFor(() => expect(share).toHaveBeenCalled());
+    await waitFor(() => expect(open).toHaveBeenCalledTimes(1));
+    // PARENT-WA-DIRECT-1: wa.me directly with the minted link; the device share sheet is NOT used on this button
+    const url = String(open.mock.calls[0][0]);
+    expect(url.startsWith("https://wa.me/?text=")).toBe(true);
+    expect(decodeURIComponent(url)).toContain(`#pp=${TOKEN}`);
+    expect(share).not.toHaveBeenCalled();
     expect(onboarding).toHaveBeenCalledWith("parent_forward_clicked", { signed_in: "true", product: "board_pass" });
     expect(mint).toHaveBeenCalledTimes(1);
+    open.mockRestore();
+    Object.defineProperty(window.navigator, "share", { configurable: true, value: undefined });
+  });
+
+  it("a blocked popup falls back to the panel with a real WhatsApp link and Copy link (no share sheet)", async () => {
+    const share = vi.fn(async () => undefined);
+    Object.defineProperty(window.navigator, "share", { configurable: true, value: share });
+    const open = vi.spyOn(window, "open").mockReturnValue(null);
+    renderCard(<PayRescueCard kind="pass" onRetry={noop} onClose={noop} />);
+    fireEvent.click(await screen.findByTestId("paywall-forward"));
+    expect(await screen.findByTestId("parent-share-whatsapp")).toBeTruthy();
+    expect(screen.getByText("Copy link")).toBeTruthy();
+    expect(share).not.toHaveBeenCalled();
+    open.mockRestore();
+    Object.defineProperty(window.navigator, "share", { configurable: true, value: undefined });
+  });
+
+  it("kill switch: Forward link to parents still goes through the share sheet first, as before", async () => {
+    vi.stubEnv("VITE_PARENT_PAY_FIRST_DISABLED", "1");
+    const share = vi.fn(async () => undefined);
+    Object.defineProperty(window.navigator, "share", { configurable: true, value: share });
+    const open = vi.spyOn(window, "open").mockReturnValue({ opener: null } as unknown as Window);
+    renderCard(<PayRescueCard kind="pass" onRetry={noop} onClose={noop} />);
+    fireEvent.click(await screen.findByTestId("paywall-forward"));
+    await waitFor(() => expect(share).toHaveBeenCalledTimes(1));
+    expect(open).not.toHaveBeenCalled();
+    open.mockRestore();
     Object.defineProperty(window.navigator, "share", { configurable: true, value: undefined });
   });
 
