@@ -156,6 +156,13 @@
   cursor: pointer;
 }
 
+.lt-pay-choice__btn--primary {
+  background: var(--lt-green-fill, #257e55);
+  border-color: var(--lt-green-fill, #257e55);
+  color: #fff;
+  text-decoration: none;
+}
+
 .lt-pay-choice__note {
   margin: 0;
   font-size: 0.85rem;

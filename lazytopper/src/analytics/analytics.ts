@@ -2331,6 +2331,8 @@ export interface OnboardingEventParams {
   inapp_pay_open_external: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
   /** INAPP-PAY-FIRST-1: a signed-out Buy tap in Instagram / Facebook on Android went straight to Chrome (no order made). */
   inapp_pay_first_hop: { surface: string; sku: string };
+  /** INAPP-STUCK-1: Chrome did not open (the hop or a "Pay in Chrome" tap left the page visible for 2.5 s); once per stuck detection. */
+  inapp_pay_open_external_stuck: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
   inapp_pay_copy_link: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
 }
 
