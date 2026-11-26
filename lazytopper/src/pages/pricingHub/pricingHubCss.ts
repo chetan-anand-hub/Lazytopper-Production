@@ -64,7 +64,7 @@ export const HUB_CSS = `
   /* ── Tabs (phones) ─────────────────────────────────────────────────────── */
   .lt-ph-tabs {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 2px minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     column-gap: 6px;
     row-gap: 4px;
     margin: 14px 0 0;
@@ -89,10 +89,6 @@ export const HUB_CSS = `
     grid-column: 4 / 6;
     color: var(--ph-amber-ink);
   }
-  .lt-ph-tab--pass { grid-row: 2; grid-column: 1; }
-  .lt-ph-tab--ts { grid-row: 2; grid-column: 2; }
-  .lt-ph-tab--cbq { grid-row: 2; grid-column: 4; }
-  .lt-ph-tab--bank { grid-row: 2; grid-column: 5; }
   .lt-ph-tab {
     appearance: none;
     cursor: pointer;
@@ -976,9 +972,7 @@ export const HUB_CSS = `
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       grid-template-areas:
-        "go go"
         "c1 c2"
-        "gp gp"
         "c3 c4";
       align-items: stretch;
       column-gap: 18px;
@@ -995,8 +989,8 @@ export const HUB_CSS = `
       margin-right: 0;
     }
     .lt-ph-card--pass { grid-area: c1; }
-    .lt-ph-card--ts { grid-area: c2; }
-    .lt-ph-card--cbq { grid-area: c3; }
+    .lt-ph-card--cbq { grid-area: c2; }
+    .lt-ph-card--ts { grid-area: c3; }
     .lt-ph-card--bank { grid-area: c4; }
     .lt-ph-group {
       display: flex;
@@ -1042,10 +1036,8 @@ export const HUB_CSS = `
       max-width: 1320px;
     }
     .lt-ph-cards {
-      grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr) 1px minmax(0, 1fr) minmax(0, 1fr);
-      grid-template-areas:
-        "go go . gp gp"
-        "c1 c2 dv c3 c4";
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-areas: "c1 c2 c3 c4";
       column-gap: 16px;
     }
     .lt-ph-group--paper {

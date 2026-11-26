@@ -21,9 +21,9 @@ import { inAppRescueUrl } from "../../utils/inAppPay";
 
 declare module "../../analytics/analytics" {
   interface OnboardingEventParams {
-    parent_forward_shown: { signed_in: "true" | "false"; product: string };
-    parent_forward_clicked: { signed_in: "true" | "false"; product: string };
-    parent_forward_qr_shown: { signed_in: "true" | "false"; product: string };
+    parent_forward_shown: { signed_in: "true" | "false"; product: string; surface?: string };
+    parent_forward_clicked: { signed_in: "true" | "false"; product: string; surface?: string };
+    parent_forward_qr_shown: { signed_in: "true" | "false"; product: string; surface?: string };
   }
 }
 
@@ -90,8 +90,9 @@ export function buildParentForwardMessage({ name, url, flow }: { name: string; u
 }
 
 type Which = "shown" | "clicked" | "qr_shown";
-export function trackParentForward(which: Which, signedIn: boolean, product: string): void {
-  const data = { signed_in: signedIn ? ("true" as const) : ("false" as const), product };
+/** `surface` (TS-PAYPATH-1): where the forward was offered ("ts_hero"); absent -> the event exactly as before (the closed-sheet rescue). */
+export function trackParentForward(which: Which, signedIn: boolean, product: string, surface?: string): void {
+  const data = { signed_in: signedIn ? ("true" as const) : ("false" as const), product, ...(surface ? { surface } : {}) };
   try {
     if (which === "shown") trackOnboardingEvent("parent_forward_shown", data);
     else if (which === "clicked") trackOnboardingEvent("parent_forward_clicked", data);

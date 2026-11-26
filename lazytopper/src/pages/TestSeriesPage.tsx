@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
@@ -23,6 +23,7 @@ import { trackPaywallAction } from "../analytics/analytics";
 import { openWhatsAppLink, type ShareNavigator } from "../components/results/share/shareScore";
 import { whatsAppShareUrl } from "../components/results/share/shareCardModel";
 import PayReturnResume from "../components/payReturn/PayReturnResume";
+import { isParentPayFirstDisabled, trackParentForward } from "../components/payRescue/parentForward";
 import TestSeriesPaperPicker from "../components/testSeries/TestSeriesPaperPicker";
 import { TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_VALIDITY_LONG, TEST_SERIES_WRITTEN_SECTIONS } from "../lib/packs/packLabels";
 import {
@@ -60,6 +61,18 @@ export function tsSelfAttachOn(): boolean {
   } catch {
     return false;
   }
+}
+
+// TS-PAYPATH-1 — the signed-out parent forward (WhatsApp + QR, PARENT-PAY-FIRST-1's own panel): its own chunk, fetched on the tap only.
+const ParentForwardGuest = lazy(() => import("../components/payRescue/ParentForwardGuest"));
+
+/** TS-PAYPATH-1: once the panel's chunk has drawn it, bring its WhatsApp + QR buttons onto a phone's screen (they open below the fold). */
+function RevealPanel() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    ref.current?.parentElement?.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
+  }, []);
+  return <span ref={ref} hidden />;
 }
 
 // TS-ANALYSIS-1 — the Mistake notebook (signed-in only, its own chunk, opened from the progress line).
@@ -118,6 +131,31 @@ export function tsParentForwardDisabled(): boolean {
 /** The page the parent opens: this one, tagged as a parent share (the admin Students list reads `utm_source=parent_share`). */
 export const TS_PARENT_SHARE_PATH = `${TEST_SERIES_PATH}?utm_source=parent_share&utm_medium=whatsapp&utm_campaign=test_series_forward`;
 export const TS_PARENT_SHARE_FALLBACK = "Send it on WhatsApp";
+
+/**
+ * TS-PAYPATH-1 (24-26 Nov 2026: 22 Test Series checkouts, 0 payment attempts; 21 signed out, mostly a student who cannot pay). The
+ * hero's parent action is an EQUAL action beside Buy, not a secondary link: "Ask Mummy/Papa to pay".
+ *   Signed out -> opens PARENT-PAY-FIRST-1's own panel (ParentForwardGuest: WhatsApp first, then a QR the parent scans). Its message
+ *                 names NO rupee figure (a page link outlives the 1 Dec price switch); the parent pays signed out, then "Who will use
+ *                 it?" puts the series on the child's number.
+ *   Signed in  -> the shop's per-account parent link in its parent-first layout (WhatsApp straight away, then the QR).
+ * Events: parent_forward_clicked / parent_forward_qr_shown (+ _shown on the panel) with `surface: "ts_hero"`.
+ * Also: the prerendered (static) Buy - the /packs fallback link, since the capture is built with packs off - points at THIS page's
+ * own `?buy=test_series` (PacksShop's in-place resume opens the checkout here), so a tap before hydration never leaves the page.
+ * VITE_TS_PARENT_HERO_DISABLED=1 -> today's hero exactly (the "Forward link to parents" button, the /packs fallback link).
+ */
+export function tsParentHeroDisabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_TS_PARENT_HERO_DISABLED;
+    return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
+export const TS_PARENT_HERO_LABEL = "Ask Mummy/Papa to pay";
+export const TS_PARENT_HERO_SURFACE = "ts_hero";
+/** The pre-hydration Buy: this page, with the in-place resume PacksShop honours (readBuyResume). Never /packs. */
+export const TS_SELF_BUY_PATH = `${TEST_SERIES_PATH}?buy=test_series`;
 
 function shareErrorName(e: unknown): string {
   return e && typeof e === "object" && "name" in e ? String((e as { name: unknown }).name) : "";
@@ -231,6 +269,9 @@ export default function TestSeriesPage() {
   const forwardOn = !tsParentForwardDisabled();
   // TS-PARENT-FORWARD-2: the wa.me link to show when neither the share sheet nor a WhatsApp window could open (a popup blocker).
   const [shareFallback, setShareFallback] = useState<{ testId: string; href: string } | null>(null);
+  const parentHeroOn = !tsParentHeroDisabled();
+  // TS-PAYPATH-1: the signed-out hero's parent panel, opened by "Ask Mummy/Papa to pay" (a tap: no first-paint shift).
+  const [parentPanel, setParentPanel] = useState(false);
 
   // CHECKOUT-FAST-1: the Buy opens the checkout sheet / Razorpay. On INTENT only (the first touch, or the Buy scrolling into view; never on idle) fetch the
   // sheet chunk, open Razorpay's connections and load checkout.js - never at first paint, no order. VITE_CHECKOUT_WARM_DISABLED=1 = today's on-tap load.
@@ -284,7 +325,7 @@ export default function TestSeriesPage() {
   async function forwardSignedOut(testId: string) {
     trackPaywallAction("ask", "test_series");
     setShareFallback(null);
-    const text = buildParentSeriesShareMessage({ lang: "en", price: packPayLabel("test_series"), url: `${window.location.origin}${TS_PARENT_SHARE_PATH}` });
+    const text = buildParentSeriesShareMessage({ lang: "en", url: `${window.location.origin}${TS_PARENT_SHARE_PATH}` });
     const nav = (typeof navigator !== "undefined" ? navigator : undefined) as ShareNavigator | undefined;
     if (nav && typeof nav.share === "function") {
       try {
@@ -322,7 +363,7 @@ export default function TestSeriesPage() {
         showStatus: (buyFrom ?? "ts-hero-buy") === testId,
       })
     ) : (
-      <Link className={className} to={TEST_SERIES_BUY_FROM_PATH} data-testid={testId}>
+      <Link className={className} to={parentHeroOn ? TS_SELF_BUY_PATH : TEST_SERIES_BUY_FROM_PATH} data-testid={testId}>
         {buyLabel}
       </Link>
     );
@@ -340,6 +381,48 @@ export default function TestSeriesPage() {
     if (!forwardOn) return null;
     const inPlace = Boolean(api.buyEnabled && api.buyButton) && isTestSeriesPackOffered() && isPaymentsClientEnabled();
     const testId = hero ? "ts-hero-forward" : "ts-offer-forward";
+    // TS-PAYPATH-1: the hero's equal-weight parent action (see tsParentHeroDisabled). The plan card below keeps today's button.
+    if (hero && parentHeroOn) {
+      if (signedIn) {
+        return inPlace && isParentPayClientEnabled() ? (
+          <div className="lt-ts-forward lt-ts-forward--hero" data-testid={testId}>
+            {api.parentAsk("test_series", undefined, {
+              surface: "test_series",
+              parentFirst: true,
+              forwardLabel: TS_PARENT_HERO_LABEL,
+              onAsk: () => trackParentForward("clicked", true, "test_series", TS_PARENT_HERO_SURFACE),
+              onQr: () => trackParentForward("qr_shown", true, "test_series", TS_PARENT_HERO_SURFACE),
+            })}
+          </div>
+        ) : null;
+      }
+      const guestOn = inPlace && tsSelfAttachOn() && !isParentPayFirstDisabled();
+      return (
+        <div className="lt-ts-forward lt-ts-forward--out lt-ts-forward--hero" data-testid={testId}>
+          {guestOn && (
+            <>
+              <button
+                type="button"
+                className="lt-ts-btn lt-ts-forward__btn lt-ts-forward__btn--hero"
+                aria-expanded={parentPanel}
+                data-testid="ts-hero-parent"
+                onClick={() => setParentPanel((v) => !v)}
+              >
+                {TS_PARENT_HERO_LABEL}
+              </button>
+              {parentPanel && (
+                <div className="lt-ts-forward__panel" data-testid="ts-hero-parent-panel">
+                  <Suspense fallback={null}>
+                    <ParentForwardGuest item={{ kind: "pack", sku: "test_series", label: "Test Series" }} flow="attach" surface={TS_PARENT_HERO_SURFACE} />
+                    <RevealPanel />
+                  </Suspense>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      );
+    }
     if (signedIn) {
       return inPlace && isParentPayClientEnabled() ? (
         <div className="lt-ts-forward" data-testid={testId}>

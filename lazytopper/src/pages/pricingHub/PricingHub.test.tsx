@@ -208,7 +208,7 @@ describe("the page, top to bottom (§2)", () => {
     const body = document.body.textContent ?? "";
     for (const gone of ["Pick where you want to start", "Three ways to prepare", "take them together", "take one"]) expect(body).not.toContain(gone);
     const cards = Array.from(screen.getByTestId("hub-cards").querySelectorAll(":scope > [data-card]")).map((c) => c.id);
-    expect(cards).toEqual(["lt-premium-card", "test-series", "cbq", "packs"]);
+    expect(cards).toEqual(["lt-premium-card", "cbq", "test-series", "packs"]);
   });
 
   it("Board Pass card: 1 MINUTE hero, the pinned bank claims, tutor, ticks, price from config, Pay, payline, trial, details link", async () => {
@@ -266,23 +266,23 @@ describe("the page, top to bottom (§2)", () => {
     expect(within(c).getByTestId("hub-bank-details")).toHaveAttribute("href", "/packs");
   });
 
-  it("tabs: four real buttons with aria-pressed; caption; pager '1 of 4 · next: Test Series'; a tab tap selects its card", async () => {
+  it("tabs: four real buttons with aria-pressed; caption; pager '1 of 4 · next: CBQ Packs'; a tab tap selects its card", async () => {
     await renderAt("/pricing");
     const tabs = within(screen.getByTestId("hub-tabs")).getAllByRole("button");
     expect(tabs.map((t) => t.textContent)).toEqual([
       `Board Pass${hubTabPrice("pass")}`,
-      `Test Series${hubTabPrice("ts")}`,
       `CBQ Packs${hubTabPrice("cbq")}`,
+      `Test Series${hubTabPrice("ts")}`,
       `Question Bank${hubTabPrice("bank")}`,
     ]);
     expect(hubTabPrice("cbq")).toBe("₹199");
     expect(hubTabPrice("ts")).toBe(`₹${TEST_SERIES_PRICE_INR}`);
     expect(tabs.map((t) => t.getAttribute("aria-pressed"))).toEqual(["true", "false", "false", "false"]);
-    expect(tabs.map((t) => t.getAttribute("aria-controls"))).toEqual(["lt-premium-card", "test-series", "cbq", "packs"]);
+    expect(tabs.map((t) => t.getAttribute("aria-controls"))).toEqual(["lt-premium-card", "cbq", "test-series", "packs"]);
     expect(screen.getByText("4 options · tap or swipe · all prices + GST")).toBeInTheDocument();
-    expect(screen.getByTestId("hub-position")).toHaveTextContent("1 of 4 · next: Test Series");
+    expect(screen.getByTestId("hub-position")).toHaveTextContent("1 of 4 · next: CBQ Packs");
     fireEvent.click(tabs[1]);
-    expect(screen.getByTestId("hub-position")).toHaveTextContent("2 of 4 · next: CBQ Packs");
+    expect(screen.getByTestId("hub-position")).toHaveTextContent("2 of 4 · next: Test Series");
     fireEvent.click(tabs[3]);
     expect(tabs.map((t) => t.getAttribute("aria-pressed"))).toEqual(["false", "false", "false", "true"]);
     expect(screen.getByTestId("hub-position")).toHaveTextContent("4 of 4 · next: Board Pass");
@@ -441,8 +441,8 @@ describe("§0a.3 account states", () => {
 
 describe("§0a.4 inbound links", () => {
   it("#cbq / #packs / #lt-premium-card select their card (and the tab); the pure helpers agree", async () => {
-    expect([cardForHash("#cbq"), cardForHash("#packs"), cardForHash("#lt-premium-card"), cardForHash(""), cardForHash("#pricing-video")]).toEqual([2, 3, 0, 0, 0]);
-    expect(cardForHash("#test-series")).toBe(1);
+    expect([cardForHash("#cbq"), cardForHash("#packs"), cardForHash("#lt-premium-card"), cardForHash(""), cardForHash("#pricing-video")]).toEqual([1, 3, 0, 0, 0]);
+    expect(cardForHash("#test-series")).toBe(2);
     await renderAt("/pricing#cbq");
     expect(screen.getByTestId("hub-tab-cbq")).toHaveAttribute("aria-pressed", "true");
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
@@ -666,14 +666,12 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
 
   it("the online pair, then the paper pair: card order, group labels on the tabs and in the grid, tags", async () => {
     await renderAt("/pricing");
-    expect(HUB_CARD_ORDER).toEqual(["pass", "ts", "cbq", "bank"]);
-    expect(HUB_GROUPS.map((g) => [g.label, g.cards])).toEqual([["Online", ["pass", "ts"]], ["On paper", ["cbq", "bank"]]]);
+    expect(HUB_CARD_ORDER).toEqual(["pass", "cbq", "ts", "bank"]);
+    expect(HUB_GROUPS).toEqual([]);
     const track = screen.getByTestId("hub-cards");
-    expect(Array.from(track.querySelectorAll(":scope > [data-card]")).map((c) => (c as HTMLElement).dataset.card)).toEqual(["pass", "ts", "cbq", "bank"]);
-    expect(screen.getByTestId("hub-group-online")).toHaveTextContent("Online");
-    expect(screen.getByTestId("hub-group-paper")).toHaveTextContent("On paper");
-    expect(screen.getByTestId("hub-tabgroup-online")).toHaveTextContent("Online");
-    expect(screen.getByTestId("hub-tabgroup-paper")).toHaveTextContent("On paper");
+    expect(Array.from(track.querySelectorAll(":scope > [data-card]")).map((c) => (c as HTMLElement).dataset.card)).toEqual(["pass", "cbq", "ts", "bank"]);
+    expect(screen.queryByTestId("hub-group-online")).toBeNull();
+    expect(screen.queryByTestId("hub-tabgroup-paper")).toBeNull();
     expect(card("pass")).toHaveTextContent("ONLINE · EVERYTHING CHECKED");
     expect(card("ts")).toHaveTextContent("ONLINE · TESTS CHECKED");
     expect(card("cbq")).toHaveTextContent("ON PAPER");
@@ -686,8 +684,8 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
 
   it("the layout CSS: phones a carousel with a peek, 768-1279 px a 2x2 grid, 1280 px four across with a divider", () => {
     expect(HUB_CSS).toContain("flex: 0 0 min(340px, calc(100% - 36px));");
-    expect(HUB_CSS).toMatch(/@media \(min-width: 768px\) \{[\s\S]*?grid-template-areas:\s*"go go"\s*"c1 c2"\s*"gp gp"\s*"c3 c4";/);
-    expect(HUB_CSS).toMatch(/@media \(min-width: 1280px\) \{[\s\S]*?grid-template-areas:\s*"go go \. gp gp"\s*"c1 c2 dv c3 c4";/);
+    expect(HUB_CSS).toMatch(/@media \(min-width: 768px\) \{[\s\S]*?grid-template-areas:\s*"c1 c2"\s*"c3 c4";/);
+    expect(HUB_CSS).toMatch(/@media \(min-width: 1280px\) \{[\s\S]*?grid-template-areas:\s*"c1 c2 c3 c4";/);
     expect(HUB_CSS).toMatch(/align-items: stretch;/);
   });
 
@@ -940,8 +938,8 @@ describe("PRICING-HUB-2 H1 - the two 10,000+ claims read as two different things
 
 describe("PRICING-HUB-2 H2 - Back restores the card the visitor left", () => {
   it("pure: a card-naming hash wins, then the saved card of this history entry, then the Board Pass", () => {
-    expect([hashCard(""), hashCard("#cbq"), hashCard("#packs"), hashCard("#lt-premium-card"), hashCard("#pricing-video")]).toEqual([null, 2, 3, 0, null]);
-    expect(hashCard("#test-series")).toBe(1);
+    expect([hashCard(""), hashCard("#cbq"), hashCard("#packs"), hashCard("#lt-premium-card"), hashCard("#pricing-video")]).toEqual([null, 1, 3, 0, null]);
+    expect(hashCard("#test-series")).toBe(2);
     expect(savedCard({ [HUB_CARD_STATE_KEY]: 2, idx: 3 })).toBe(2);
     expect([savedCard(null), savedCard({}), savedCard({ [HUB_CARD_STATE_KEY]: 7 }), savedCard({ [HUB_CARD_STATE_KEY]: "1" })]).toEqual([null, null, null, null]);
     expect(initialCard("", { [HUB_CARD_STATE_KEY]: 1 })).toBe(1);
@@ -1119,8 +1117,8 @@ describe("pure helpers", () => {
   });
   it("hubPositionLine names the next card and wraps", () => {
     expect([0, 1, 2, 3].map(hubPositionLine)).toEqual([
-      "1 of 4 · next: Test Series",
-      "2 of 4 · next: CBQ Packs",
+      "1 of 4 · next: CBQ Packs",
+      "2 of 4 · next: Test Series",
       "3 of 4 · next: Question Bank",
       "4 of 4 · next: Board Pass",
     ]);
