@@ -18,6 +18,7 @@
  */
 import { VALIDITY_SHORT } from "../../config/validity";
 import InAppPayRescue, { buyTargetFromItem } from "../payRescue/InAppPayRescue";
+import ParentForwardGuest from "../payRescue/ParentForwardGuest";
 import PayReturnHint from "../payReturn/PayReturnHint";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -348,6 +349,10 @@ export default function CheckoutSheet({
         {selfError && <p className="lt-gps__error" role="alert">{selfError}</p>}
         {step.name === "selfOut" && step.closed && <p className="lt-gps__fine" role="status">{WHO_CLOSED}</p>}
         {step.name === "selfOut" && step.closed && <InAppPayRescue buy={buyTargetFromItem(item)} />}
+        {/* PARENT-PAY-FIRST-1: signed out, pay-first (the parent pays, then enters the child's number): the closed sheet leads with "Send to Mummy/Papa". */}
+        {step.name === "selfOut" && (step.closed || step.error) && !signedIn && showAttach && audience !== "parent" && (
+          <ParentForwardGuest item={{ kind: item.kind, sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), label: item.label }} flow="attach" />
+        )}
         {/* PAY-RETURN-1: one line, in-app browsers only. */}
         <PayReturnHint />
         <button type="button" className="lt-gps__primary" disabled={busy} data-testid="who-pay-self-out" onClick={() => void paySelf()}>

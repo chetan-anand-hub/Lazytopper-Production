@@ -208,3 +208,26 @@ describe("BUY-PATH-1 · a pay-by-phone sale is a purchase in the funnel", () => 
     expect(allArgs()).not.toMatch(/9876543948|98•••••948/);
   });
 });
+
+describe("PARENT-PAY-FIRST-1 · GuestPaySheet closed sheet", () => {
+  async function closeIt() {
+    sheet({ buy: vi.fn(async (): Promise<GuestBuyOutcome> => ({ status: "dismissed" })) });
+    fireEvent.click(screen.getByTestId("guest-pay-phone"));
+    fireEvent.change(screen.getByTestId("guest-pay-input"), { target: { value: "9876543948" } });
+    fireEvent.click(screen.getByTestId("guest-pay-continue"));
+  }
+  it("a dismissed payment shows the parent hand-off (WhatsApp, then QR); Continue stays as the retry", async () => {
+    await closeIt();
+    expect(await screen.findByTestId("parent-forward")).toBeTruthy();
+    expect(screen.getByTestId("parent-forward-send")).toBeTruthy();
+    expect(screen.getByTestId("parent-forward-qr")).toBeTruthy();
+    expect(screen.getByTestId("guest-pay-continue")).toBeTruthy();
+  });
+  it("kill switch: the sheet is as before", async () => {
+    vi.stubEnv("VITE_PARENT_PAY_FIRST_DISABLED", "1");
+    await closeIt();
+    await screen.findByText("Payment window closed. Tap Continue to try again.");
+    expect(screen.queryByTestId("parent-forward")).toBeNull();
+    vi.unstubAllEnvs();
+  });
+});

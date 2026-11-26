@@ -41,7 +41,9 @@ import { isParentPayClientEnabled, readParentPayToken } from "../services/parent
 import {
   COMPARE_BASIC_HEADER,
   COMPARE_FEATURE_HEADER,
+  FAIR_USE_RESETS,
   FAIR_USE_TITLE,
+  tsFairUseSentence,
   compareSections,
   fairUseCopy,
   type CompareCell,
@@ -148,7 +150,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Are there any usage limits?",
-    a: `Basic has daily limits on opening tests and mocks. The ${BOARD_PASS_NAME} has generous fair use: your usage bars show what is left and when it resets. The 7-day trial has daily and weekly limits, listed under "${BASIC_COMPARE_SUMMARY}".`,
+    a: `Basic has daily limits on opening tests and mocks. The ${BOARD_PASS_NAME} has generous fair use: your usage bars show what is left and reset ${FAIR_USE_RESETS}.${tsFairUseSentence()} The 7-day trial has daily and weekly limits, listed under "${BASIC_COMPARE_SUMMARY}".`,
   },
   {
     q: "What happens after the trial ends?",

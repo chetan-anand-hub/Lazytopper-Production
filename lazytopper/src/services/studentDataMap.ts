@@ -1156,7 +1156,10 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
 // server/services/adminMovePurchase.cjs and server/services/moveToOther.cjs; no client rule.
 // QUICK-LEAVE-1: `visitDaily/{IST yyyy-mm-dd}` holds anonymous visit COUNTERS only ({ counts: { "source|path|engaged|inApp": n } }): no uid,
 // no IP, no user agent, nothing per visitor. Written only by server/routes/visitMetrics.cjs; read by server/routes/adminVisitQuality.cjs.
-export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily", "nudgeEmailDaily", "opsReports", "gstInvoiceCounters", "gstInvoiceEmailDaily", "adminMoves", "visitDaily"]);
+// COST-TRUTH-1: `aiCostDaily/{IST day}` holds ONLY global per-day totals of Gemini calls (counts, token sums, micro-INR cost) split by
+// workload and call class - no uid, no student, nothing joinable to one. Written only by server/services/aiCostDaily.cjs through the Admin SDK;
+// no client rule matches it, so browsers are denied by the catch-all.
+export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily", "trialEmailDaily", "nudgeEmailDaily", "opsReports", "gstInvoiceCounters", "gstInvoiceEmailDaily", "adminMoves", "aiCostDaily", "visitDaily"]);
 
 /** ★ Locations no browser can erase — the proof that erasure needs a server path. */
 export function adminOnlyLocations(): readonly StudentDataLocation[] {

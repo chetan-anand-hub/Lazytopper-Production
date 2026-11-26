@@ -306,3 +306,17 @@ describe("PRICING-1 · what Basic does not include is stated, and it is TRUE tod
     expect(BASIC_LIMITS_HEAD).toBe("Not on Basic:");
   });
 });
+
+describe("TS-FAIRUSE-1 - /pricing fair-use copy matches production (per day and per 30 days)", () => {
+  it("the box, the table row and the FAQ say day + 30 days, never 5 hours / week; the Test Series clause follows the flag", async () => {
+    const { fairUseCopy, compareSections, FAIR_USE_RESETS, tsFairUseSentence } = await import("./pricingCompare");
+    expect(FAIR_USE_RESETS).toBe("every day and every 30 days");
+    expect(fairUseCopy()).toContain("resets — every day and every 30 days.");
+    expect(fairUseCopy()).not.toMatch(/5 hours|every week/);
+    expect(fairUseCopy()).toContain("The Test Series has the same fair use.");
+    const row = JSON.stringify(compareSections({ freeCheck: false }));
+    expect(row).toContain("Usage bars · reset every day and every 30 days");
+    expect(row).not.toMatch(/5 hours|day and week/);
+    expect(tsFairUseSentence(false)).toBe("");
+  });
+});
