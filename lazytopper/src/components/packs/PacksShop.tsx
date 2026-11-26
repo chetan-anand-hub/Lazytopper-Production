@@ -298,6 +298,11 @@ interface BuyState {
 export interface ParentAskOpts {
   noQr?: boolean;
   surface?: Extract<PaywallSurface, "pricing" | "test_series">;
+  /** TS-PAYPATH-1 (additive, PaywallActions' own props): the parent-first layout (WhatsApp first, then QR), its label and tap hooks. */
+  parentFirst?: boolean;
+  forwardLabel?: string;
+  onAsk?: () => void;
+  onQr?: () => void;
 }
 
 export interface PacksShopApi {
@@ -926,6 +931,10 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         surface={opts.surface ?? "pricing"}
         product={{ kind: "pack", sku, ...(t ? { target: t } : {}), name }}
         noQr={opts.noQr}
+        {...(opts.parentFirst ? { parentFirst: true } : {})}
+        {...(opts.forwardLabel ? { forwardLabel: opts.forwardLabel } : {})}
+        {...(opts.onAsk ? { onAsk: opts.onAsk } : {})}
+        {...(opts.onQr ? { onQr: opts.onQr } : {})}
       />
     );
   }

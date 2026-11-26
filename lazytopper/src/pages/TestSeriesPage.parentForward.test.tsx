@@ -120,6 +120,8 @@ beforeEach(() => {
   vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
   vi.stubEnv("VITE_PARENT_PAY_ENABLED", "1");
   vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
+  // TS-PAYPATH-1: this file pins the hero as before that lane (its kill switch); TestSeriesPage.parentHero.test.tsx pins the new hero.
+  vi.stubEnv("VITE_TS_PARENT_HERO_DISABLED", "1");
 });
 afterEach(() => {
   cleanup();

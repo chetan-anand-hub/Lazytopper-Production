@@ -328,11 +328,11 @@ describe("/test-series — TS-UX-PAGE-1 buy in place", () => {
     await act(async () => void (await Promise.resolve()));
     expect((await screen.findByTestId("paid-probe")).textContent).toBe("test_series");
   });
-  it("packs dark: the Buy is a link to /packs?buy=test_series&from=test-series that still shows the total", async () => {
+  it("packs dark (the prerendered page): the Buy is a link to THIS page's ?buy=test_series (TS-PAYPATH-1), never /packs, with the total", async () => {
     shop.on = false;
     await mount();
     const b = screen.getByTestId("ts-hero-buy");
-    expect(b.getAttribute("href")).toBe("/packs?buy=test_series&from=test-series");
+    expect(b.getAttribute("href")).toBe("/test-series?buy=test_series");
     expect(b.textContent).toBe(`Get the Test Series · ${packPayLabel("test_series")}`);
   });
   it("no pack_view is sent by this page (events unchanged)", async () => {

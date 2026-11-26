@@ -729,6 +729,28 @@
 .lt-ts .lt-ts-forward__btn:focus-visible {
   background: var(--lt-mint, #eef8f2);
 }
+/* TS-PAYPATH-1: the hero's "Ask Mummy/Papa to pay" - an EQUAL action to Buy (same size, filled), not a secondary link. Same 48 px box as
+   the reserved signed-out slot, so its arrival moves nothing. Signed in it is PaywallActions' parent-first button, styled the same. */
+.lt-ts .lt-ts-forward__btn--hero,
+.lt-ts .lt-ts-forward--hero .lt-paywall-parent--primary {
+  width: 100%;
+  min-height: 48px;
+  background: var(--lt-green-fill, #257e55);
+  border: 1.5px solid var(--lt-green-fill, #257e55);
+  color: #ffffff;
+  font-weight: 700;
+}
+.lt-ts .lt-ts-forward__btn--hero:hover,
+.lt-ts .lt-ts-forward__btn--hero:focus-visible {
+  background: #1f6b48;
+  color: #ffffff;
+}
+.lt-ts .lt-ts-forward__panel {
+  margin-top: 8px;
+}
+.lt-ts .lt-ts-forward__panel .lt-pf {
+  margin: 0;
+}
 /* TS-PARENT-FORWARD-2: shown only when the share sheet and the WhatsApp window both failed to open (a tap, so no first-paint shift). */
 .lt-ts .lt-ts-forward__wa {
   display: inline-block;

@@ -30,6 +30,8 @@ export interface ParentForwardGuestProps {
   item: ParentForwardItem;
   /** "attach": the parent pays, then enters the child's number (CheckoutSheet). "number": number first (GuestPaySheet). */
   flow: "attach" | "number";
+  /** TS-PAYPATH-1: rides on the three events (e.g. "ts_hero"); absent -> the events exactly as before. */
+  surface?: string;
   /** Test seams. */
   origin?: string;
   makeQr?: (url: string) => Promise<string>;
@@ -41,7 +43,7 @@ async function defaultQr(url: string): Promise<string> {
   return generateQRDataUrl(url, 220);
 }
 
-export default function ParentForwardGuest({ item, flow, origin, makeQr = defaultQr, openWindow }: ParentForwardGuestProps) {
+export default function ParentForwardGuest({ item, flow, surface, origin, makeQr = defaultQr, openWindow }: ParentForwardGuestProps) {
   const product = forwardProductOf(item);
   const [qr, setQr] = useState<string | null>(null);
   const [qrFailed, setQrFailed] = useState(false);
@@ -52,8 +54,8 @@ export default function ParentForwardGuest({ item, flow, origin, makeQr = defaul
   useEffect(() => {
     if (off || shown.current) return;
     shown.current = true;
-    trackParentForward("shown", false, product);
-  }, [off, product]);
+    trackParentForward("shown", false, product, surface);
+  }, [off, product, surface]);
 
   if (off) return null;
 
@@ -65,7 +67,7 @@ export default function ParentForwardGuest({ item, flow, origin, makeQr = defaul
   }
 
   function send() {
-    trackParentForward("clicked", false, product);
+    trackParentForward("clicked", false, product, surface);
     const text = message();
     const open = openWindow ?? ((u: string, t: string) => window.open(u, t));
     setWaHref(openWhatsAppLink(text, open) ? null : whatsAppShareUrl(text));
@@ -78,7 +80,7 @@ export default function ParentForwardGuest({ item, flow, origin, makeQr = defaul
     }
     const base = String(import.meta.env.BASE_URL || "/");
     const where = origin ?? (typeof window !== "undefined" ? window.location.origin : "");
-    trackParentForward("qr_shown", false, product);
+    trackParentForward("qr_shown", false, product, surface);
     try {
       setQr(await makeQr(parentForwardUrl(item, where, base)));
       setQrFailed(false);
