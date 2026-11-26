@@ -586,6 +586,8 @@ describe("GRADE-SPEED-1 · prepare parity with buildSingleGradeRequest (subject,
 
 describe("GRADE-SPEED-1 · the per-question topic re-detect is marked purpose:\"topic\" (server never prepares for it)", () => {
   it("resolvePerQuestionGradeTopics sends purpose topic on every call; the ordinary detectQuestion call does not", async () => {
+    // TOPIC-BATCH-1: this pins the per-question path, which the kill switch restores (the batched path is pinned below).
+    vi.stubEnv("VITE_TOPIC_BATCH_DISABLED", "1");
     const { resolvePerQuestionGradeTopics } = await import("../utils/checkImproveDetection");
     const { detectQuestion } = await import("./aiClient");
     const bodies: Array<Record<string, unknown>> = [];
@@ -596,6 +598,23 @@ describe("GRADE-SPEED-1 · the per-question topic re-detect is marked purpose:\"
     await resolvePerQuestionGradeTopics([{ questionNumber: 1, questionText: "Q one" }, { questionNumber: 2, questionText: "Q two" }], []);
     await detectQuestion({ question: "Q one", topicVocabulary: [] });
     expect(bodies.map((b) => b.purpose)).toEqual(["topic", "topic", undefined]);
+    vi.unstubAllEnvs();
+  });
+
+  it("TOPIC-BATCH-1: by default ONE purpose topics call carries every question; a reply covering all of them needs no per-question call", async () => {
+    const { resolvePerQuestionGradeTopics } = await import("../utils/checkImproveDetection");
+    const bodies: Array<Record<string, unknown>> = [];
+    vi.stubGlobal("fetch", vi.fn(async (_u: string, init: { body: string }) => {
+      bodies.push(JSON.parse(init.body));
+      return { ok: true, status: 200, text: async () => JSON.stringify({ ok: true, topics: [
+        { questionNumber: 1, detectedTopic: null, detectedSubject: "Maths" },
+        { questionNumber: 2, detectedTopic: null, detectedSubject: "Science" },
+      ] }) };
+    }));
+    const out = await resolvePerQuestionGradeTopics([{ questionNumber: 1, questionText: "Q one" }, { questionNumber: 2, questionText: "Q two" }], []);
+    expect(bodies.map((b) => b.purpose)).toEqual(["topics"]);
+    expect(bodies[0].questions).toEqual([{ questionNumber: 1, questionText: "Q one" }, { questionNumber: 2, questionText: "Q two" }]);
+    expect(out.map((o) => o.subject)).toEqual(["Maths", "Science"]);
   });
 });
 
