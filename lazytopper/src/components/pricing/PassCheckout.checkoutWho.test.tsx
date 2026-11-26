@@ -1,4 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
+import { __resetOrderInFlightForTests } from "../../services/orderInFlight"; // ORDER-DEDUP-1: an open (never-awaited) buy must not leak into the next test
 import { render, cleanup, waitFor, fireEvent, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
@@ -84,6 +85,7 @@ beforeEach(() => {
   checkout.buyPass.mockResolvedValue({ status: "paid", passEnd: "2027-03-31T18:29:59.000Z", amountInr: 1917, paymentId: "pay_1" });
 });
 afterEach(() => {
+  __resetOrderInFlightForTests();
   cleanup();
   vi.useRealTimers();
 });

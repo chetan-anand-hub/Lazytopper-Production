@@ -3,6 +3,7 @@
  * handler leads to) - never the "closed / pay again" step or a rescue card.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { __resetOrderInFlightForTests } from "../../services/orderInFlight"; // ORDER-DEDUP-1: an open (never-awaited) buy must not leak into the next test
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 
 const analytics = vi.hoisted(() => ({ trackNamedEvent: vi.fn(), trackPurchase: vi.fn(), newCheckoutAttemptId: vi.fn(() => "lt_attempt"), trackOnboardingEvent: vi.fn() }));
@@ -58,6 +59,7 @@ beforeEach(() => {
   vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response(JSON.stringify({ ok: true, status: "paid_unclaimed", receipt: RECEIPT }), { status: 200 }));
 });
 afterEach(() => {
+  __resetOrderInFlightForTests();
   cleanup();
   visibility("visible");
   document.body.innerHTML = "";

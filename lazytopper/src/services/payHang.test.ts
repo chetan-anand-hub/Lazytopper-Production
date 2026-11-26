@@ -4,6 +4,7 @@
  * closes the sheet eventually and that close checks the order; every entry point passes the timeout; the kill switch removes all of it.
  */
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
+import { __resetOrderInFlightForTests } from "./orderInFlight"; // ORDER-DEDUP-1: an open (never-awaited) buy must not leak into the next test
 import {
   HANG_ARM_MS,
   HANG_CHECK_COOLDOWN_MS,
@@ -100,6 +101,7 @@ beforeEach(() => {
   fetchSpy = vi.spyOn(globalThis, "fetch");
 });
 afterEach(() => {
+  __resetOrderInFlightForTests();
   offs.splice(0).forEach((f) => f());
   visibility("visible");
   document.body.innerHTML = "";
