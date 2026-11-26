@@ -1,3 +1,9 @@
+## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890 - MERGED
+
+- DONE, payments. `#1890` (`9b221f79`) ORDER-DEDUP-1 (one order per Pay tap on guest / pay-first checkout). Live verify owed.
+- DONE (owner), top-up go-live: Railway and Vercel flags on, redeployed; `#1884` is live.
+- NEXT: `[FU-ORDER-DEDUP-SIGNED-IN]`, `[FU-AICOST-SILENT-CATCH]`, `[FU-TOPUP-NO-ANALYTICS]`; the owed live verifies.
+
 ## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889 - MERGED
 
 - DONE, UI tests. `#1879` (`e24f707e`) UI-E2E-4: signed-in Chapter Test + Full Mock upload and grade. Part of `[FU-UI-E2E-PHASE2-PAGES]`.

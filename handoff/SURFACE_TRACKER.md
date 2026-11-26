@@ -1,3 +1,13 @@
+> **2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890 (CLAUDE.md section 10).** Merge SHA and time [git]; go-live, owner test and live reads [owner; coordinator]. Scope discovered: none. Grading surfaces: none moved (`#1890` is checkout order creation only).
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| **Checkout (guest / pay-first)** | one order per Pay tap, 90 s reuse ceiling (`#1890`) | **merged, live (Vercel)** | live: signed-out double-tap Pay -> one unpaid order; dismiss, Pay again -> fresh sheet |
+| **Checkout (signed-in: PassCheckout, PacksShop, topupBuy)** | not covered by `#1890` | **unchanged** | `[FU-ORDER-DEDUP-SIGNED-IN]` |
+| **Student top-up** | flags on and redeployed (owner, about 17:45 IST); supersedes "redeploy pending" | **live** | live top-up; `[FU-TOPUP-NO-ANALYTICS]`, `[FU-TOPUP-PARENT-LINK]`, `[FU-TOPUP-TUTOR-ENTRY]` |
+| **Android in-app pay rescue** | `#1889` owner test: Chrome hop worked, Copy payment link not shown (correct) | **live** | stuck path on a real device |
+| **Admin** | Visit quality card live; True AI cost card `recorded:false` 24-26 Nov | **live** | `[FU-AICOST-SILENT-CATCH]` |
+
 > **2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889 (CLAUDE.md section 10).** Merge SHAs and times [git]; live data and the eval [coordinator]. Scope discovered: none. Grading surfaces: none moved (`#1883` changes chapter tagging only, not marks or prompts).
 
 | surface | what moved (PR) | state | owed |

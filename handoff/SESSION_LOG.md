@@ -1,3 +1,13 @@
+## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890 (trunk `9b221f79`)
+
+**PROVENANCE.** *(Merge SHA and time [git: REST `pulls/1890`]. Everything else: this cofounder session [coordinator]; owner messages quoted by time.)*
+
+- **About 17:40-17:45 IST.** Owner: Railway `TOPUP_ENABLED=1` and Vercel `VITE_TOPUP_ENABLED=1` set, production redeployed; student top-up (`#1884`) is live.
+- **17:50.** Owner test of `#1889` inside the Facebook app on his Android phone: the Chrome hop worked, so Copy payment link correctly did not show; the stuck path is unverified on a real device.
+- **17:52.** `#1890` (ORDER-DEDUP-1) merged after the test-only fix (module-level state reset in 7 test files; 90 s reuse ceiling); green quality-gate.
+- **About 18:15.** Coordinator live reads: Razorpay 0 customer attempts since `#1889` (only the owner's 17:49 test); Visit quality card live (96 visits, 26% quick-leave); True AI cost card `recorded:false` for 24-26 Nov (no defect found; silent `.catch`); top-ups emit no analytics event.
+- **18:11.** Owner asked whether the Pricing nav was removed. Finding: no; `#1577` NAV-PRICING-1 still renders and is hidden for Board Pass holders by design; the owner's admin account is a holder (DECISION_LOG).
+
 ## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889 (trunk `661301f2`)
 
 **PROVENANCE.** *(Merge SHAs and times [git: REST `merged_at`]. Everything else: this cofounder session [coordinator]; owner rulings by day.)*
