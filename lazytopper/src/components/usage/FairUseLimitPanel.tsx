@@ -33,6 +33,8 @@ import { PACK_LINE_HREF, PACK_LINE_TEXT, showPackLine } from "../limits/packLine
 // GUIDE-PAGES-1 M7 — Byte explains the limit from this panel's own data (display only; words
 // render with the panel, only his drawing is lazy; nothing with "Hide mascots"). The actions are unchanged.
 import { LimitByte } from "../guide/pages/pageGuides";
+// TOPUP-GO-1: a Board Pass holder (the server's tier) at a cap can buy extra usage; renders nothing while VITE_TOPUP_ENABLED is off.
+import TopupAction from "../topup/TopupAction";
 import "./usage.css";
 
 export const PLANS_PATH = "/pricing";
@@ -159,6 +161,7 @@ export default function FairUseLimitPanel({
         <div className="lt-usage__eyebrow">Fair use</div>
         {lead}
         <LimitByte limit={limit} when={when} />
+        {limit.tier === "premium" ? <TopupAction where="limit" wrapperClassName="lt-usage__actions" onToppedUp={onDismiss} /> : null}
         {copy.showPlans ? (
           <p className="lt-usage__body" data-testid="fair-use-board-pass">
             {boardPassLine(tsOwner)}

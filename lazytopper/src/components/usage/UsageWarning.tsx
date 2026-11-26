@@ -27,6 +27,8 @@ import {
   type UsageWarningScope,
   type UsageWarningState,
 } from "./usageWarningLogic";
+// TOPUP-GO-1: on the 90% warning a Board Pass holder (the server's tier) gets a secondary "Add extra usage"; nothing while the switch is off.
+import TopupAction from "../topup/TopupAction";
 import "./usage.css";
 
 function readDismissed(key: string): boolean {
@@ -117,6 +119,7 @@ export default function UsageWarning({ scope, snapshot, selfRead = false, refres
           {link.label}
         </button>
       )}
+      {warning.tier === "premium" && warning.level === 90 ? <TopupAction where="warn" className="lt-usage-warn__link" /> : null}
       <button
         type="button"
         className="lt-usage-warn__close"
