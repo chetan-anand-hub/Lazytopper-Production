@@ -161,6 +161,19 @@ import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
 import NotFoundAddPageLine from "../components/chaptertest/NotFoundAddPageLine";
 import { ADD_PAGES_UPLOAD_BANNER, ADD_PAGES_USES_CHECK_LINE, notCountedReasonOf, notFoundSummary } from "../lib/notFoundNotAttempted";
 import { FM_CSS } from "../components/fullmock/fullMockStyles";
+// TS-FREE-SIGNEDOUT — a signed-out visitor sits a Test Series paper; sign-in is asked for only to get it marked.
+import SignInToMarkCard from "../components/testSeries/SignInToMarkCard";
+import {
+  SIGNED_OUT_ATTEMPT_RESTORED_LINE,
+  SIGNED_OUT_TAKING_NOTE,
+  clearSignedOutAttempt,
+  paperQuestionIds,
+  readSignedOutAttempt,
+  saveSignedOutAttempt,
+  signInToMarkPath,
+  tsFreeSignedOutDisabled,
+  type SignedOutAttempt,
+} from "../lib/testSeries/signedOutAttempt";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
 import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadPanel";
 import PreSubmitConfirm from "../components/chaptertest/PreSubmitConfirm";
@@ -292,6 +305,10 @@ export default function FullMockPage() {
   })();
   const seriesPaperName = tsNav2Off ? null : seriesN !== null ? `${subject} · Full-Length Test ${seriesN}` : focusSet ? `${subject} · ${focusSet.themeTitle} · Set ${focusSet.n}` : null;
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
+  // TS-FREE-SIGNEDOUT (owner ruling 26 Nov 2026, 19:23 IST): a SIGNED-OUT visitor may open and sit a Test Series paper (a full-length
+  // test or a focus set); the account is asked for only at "get my answers marked". Nothing is marked, written or recorded signed out.
+  // Kill switch VITE_TS_FREE_SIGNEDOUT_DISABLED.
+  const signedOutSitting = !isSignedIn && onSeriesPaper && !tsFreeSignedOutDisabled();
   const fairUse = useFairUse("full-mock", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live (see ChapterTestPage).
   const { isPremium, status: subscriptionStatus } = useSubscription();
@@ -510,6 +527,10 @@ export default function FullMockPage() {
   const [flags, setFlags] = useState<Set<number>>(new Set());
   const [currentQNumber, setCurrentQNumber] = useState(1);
   const [focusSeed, setFocusSeed] = useState<SessionFocusAggregates>(EMPTY_FOCUS);
+  // TS-FREE-SIGNEDOUT: the signed-out visitor submitted (or the clock ran out) - the sign-in card in place of the paper.
+  const [signInAsk, setSignInAsk] = useState<{ timeUp: boolean } | null>(null);
+  // TS-FREE-SIGNEDOUT: the kept signed-out attempt for this paper, back after sign-in (used, then cleared, when the paper starts).
+  const [signedOutKept, setSignedOutKept] = useState<SignedOutAttempt | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [nowTick, setNowTick] = useState(() => Date.now());
@@ -763,6 +784,21 @@ export default function FullMockPage() {
     (a: ActiveMock, currentAnswers: Record<number, string>, focus: SessionFocusAggregates) => {
       if (submittedRef.current) return;
       submittedRef.current = true;
+      // TS-FREE-SIGNEDOUT: signed out, a submit marks NOTHING and writes nothing - the attempt is kept in this tab and the visitor is
+      // asked to sign in to get it marked (the signed-in submit below then runs unchanged).
+      if (signedOutSitting) {
+        saveSignedOutAttempt({
+          surface: "full-mock",
+          path: location.pathname + location.search,
+          ids: paperQuestionIds(a.paper),
+          answers: currentAnswers,
+          flags: [...flagsRef.current],
+          currentQNumber: currentQRef.current,
+          elapsedMs: Math.max(0, Math.min(a.durationMs, Date.now() - a.startedAt)),
+        });
+        setSignInAsk({ timeUp: remainingMs(a, Date.now()) <= 0 });
+        return;
+      }
       const objQs = fullMockObjectiveQuestions(a.paper);
       const subjQs = fullMockSubjectiveQuestions(a.paper);
       const obj = scoreObjectiveSection(objQs, currentAnswers);
@@ -848,8 +884,36 @@ export default function FullMockPage() {
         }
       });
     },
-    [user, sessionSubject, sessionUid, subject, grade, loadRecords, moveFmPaper],
+    [user, sessionSubject, sessionUid, subject, grade, loadRecords, moveFmPaper, signedOutSitting, location.pathname, location.search],
   );
+
+  /** TS-FREE-SIGNEDOUT: back to the paper from the sign-in card (the clock never paused - the exam-hall rule). */
+  const backToPaperSignedOut = useCallback(() => {
+    submittedRef.current = false;
+    setSignInAsk(null);
+  }, []);
+  /** TS-FREE-SIGNEDOUT: "Sign in to get my answers marked" - the kept attempt goes with the visitor; this device's signed-out autosave
+   *  of the sitting is dropped (nothing of it stays on the device). */
+  const goSignInToMark = useCallback(() => {
+    const a = activeRef.current;
+    // the sitting ends here on this device: no later autosave (focus flush on unmount) may write it back
+    phaseRef.current = "setup";
+    activeRef.current = null;
+    if (a) clearFullMockSession(sessionUid, a.code);
+    navigate(signInToMarkPath(location.pathname, location.search));
+  }, [sessionUid, navigate, location.pathname, location.search]);
+
+  // TS-FREE-SIGNEDOUT: back from sign-in - the attempt kept for THIS paper (same question ids) is held for Start, once. Nothing starts
+  // here: Start runs the signed-in start rules unchanged (one free test, the focus-set rule, fair use), and a refused start shows the
+  // existing wall. A saved sitting of the account's own (inProgress) wins.
+  const signedOutRestoreDone = useRef(false);
+  useEffect(() => {
+    if (!isSignedIn || !onSeriesPaper || tsFreeSignedOutDisabled() || signedOutRestoreDone.current || inProgress || phase !== "setup" || !draw) return;
+    const kept = readSignedOutAttempt("full-mock", paperQuestionIds(draw.paper));
+    if (!kept) return;
+    signedOutRestoreDone.current = true;
+    setSignedOutKept(kept);
+  }, [isSignedIn, onSeriesPaper, inProgress, phase, draw]);
 
   const finishToPartial = useCallback(() => {
     const a = activeRef.current;
@@ -885,6 +949,36 @@ export default function FullMockPage() {
     const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records) });
     if (startDecision === "upgrade" && seriesAccess.checking) {
       setPaperNotice(ACCESS_CHECKING_LINE);
+      return;
+    }
+    if (startDecision === "sign-in" && signedOutSitting) {
+      // TS-FREE-SIGNEDOUT: the paper opens signed out - no fair-use read, no ownership read, nothing served or recorded. The day's
+      // paper view is the device's own count (MockViewGate), as for any signed-out paper.
+      if (!claimNewPaperView(location.pathname, null, false, location.search)) {
+        setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
+        return;
+      }
+      submittedRef.current = false;
+      downloadedRef.current = false;
+      const so: ActiveMock = {
+        paper: draw.paper,
+        code: nomen.code,
+        name: paperName ?? nomen.name,
+        startedAt: Date.now(),
+        durationMs: focusActive && seriesState?.durationMs ? seriesState.durationMs : FM_DURATION_MS,
+        pyqCount: draw.pyqCount,
+        freshCount: draw.freshCount,
+      };
+      setActiveMock(so);
+      activeRef.current = so;
+      setAnswers({});
+      setFlags(new Set());
+      setCurrentQNumber(1);
+      setFocusSeed({ ...EMPTY_FOCUS });
+      focusRef.current = { ...EMPTY_FOCUS };
+      setSignInAsk(null);
+      setPhase("taking");
+      trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code, signedOut: true });
       return;
     }
     if (startDecision === "sign-in") {
@@ -927,11 +1021,14 @@ export default function FullMockPage() {
     }
     submittedRef.current = false;
     downloadedRef.current = false;
+    // TS-FREE-SIGNEDOUT: the attempt kept from before sign-in (this paper's ids) becomes this sitting - its answers, and the time it
+    // had already used (the clock is not reset by signing in).
+    const kept = signedOutKept && signedOutKept.ids.join("|") === paperQuestionIds(draw.paper).join("|") ? signedOutKept : null;
     const a: ActiveMock = {
       paper: draw.paper,
       code: nomen.code,
       name: paperName ?? nomen.name,
-      startedAt: Date.now(),
+      startedAt: Date.now() - (kept ? kept.elapsedMs : 0),
       // TS-THEMES-1: a focus set is timed at the Full Mock's pace for ITS marks (80 marks in 3 hours), e.g. 20 marks -> 45 minutes.
       durationMs: focusActive && seriesState?.durationMs ? seriesState.durationMs : FM_DURATION_MS,
       pyqCount: draw.pyqCount,
@@ -939,9 +1036,14 @@ export default function FullMockPage() {
     };
     setActiveMock(a);
     activeRef.current = a;
-    setAnswers({});
-    setFlags(new Set());
-    setCurrentQNumber(1);
+    setAnswers(kept ? kept.answers : {});
+    answersRef.current = kept ? kept.answers : {};
+    setFlags(new Set(kept ? kept.flags : []));
+    setCurrentQNumber(kept && draw.paper.questions.some((q) => q.qNumber === kept.currentQNumber) ? kept.currentQNumber : 1);
+    if (signedOutKept) {
+      clearSignedOutAttempt();
+      setSignedOutKept(null);
+    }
     setFocusSeed({ ...EMPTY_FOCUS });
     focusRef.current = { ...EMPTY_FOCUS };
     recordServed(servedOwnerId, {
@@ -951,7 +1053,7 @@ export default function FullMockPage() {
     });
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
-  }, [draw, nomen, paperName, subject, fairUse.blockPaperStart, wallVerdictFor, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, onSeriesPaper, focusActive, freeWritten, seriesState?.durationMs, isSignedIn, records, navigate]);
+  }, [draw, nomen, paperName, subject, fairUse.blockPaperStart, wallVerdictFor, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, onSeriesPaper, focusActive, freeWritten, seriesState?.durationMs, isSignedIn, records, navigate, signedOutSitting, signedOutKept]);
 
   const resumeMock = useCallback(() => {
     const s = inProgress ?? findInProgressSession(sessionUid);
@@ -2093,6 +2195,16 @@ export default function FullMockPage() {
                     {/* TS-THEMES-1: on a focus set the free-test note shows only when its written answers WILL be marked (no "MCQs marked free"
                         line on a paper with no MCQs); otherwise starting it shows the upgrade card below. */}
                     {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && (!focusActive || freeWritten) && <FreeTestNote written={freeWritten} />}
+                    {signedOutSitting && (
+                      <p className="lt-wcg__line" data-testid="ts-signed-out-note">
+                        {SIGNED_OUT_TAKING_NOTE}
+                      </p>
+                    )}
+                    {signedOutKept && (
+                      <p className="lt-wcg__line" role="status" data-testid="ts-signed-out-restored">
+                        {SIGNED_OUT_ATTEMPT_RESTORED_LINE}
+                      </p>
+                    )}
                     {startWall && !seriesPaperAccess && focusActive && !freeWritten && !seriesAccess.checking && !seriesAccess.failed && (
                       <p className="lt-wcg__line" data-testid="fm-focus-free-unavailable">
                         A focus set has only written answers, and written marking for a free test is not available on it right now.
@@ -2210,7 +2322,13 @@ export default function FullMockPage() {
       )}
 
       {/* ─────────────── TAKING (full screen, always timed) ─────────────── */}
-      {phase === "taking" && activeMock && currentQuestion && (
+      {/* TS-FREE-SIGNEDOUT: a signed-out submit - sign in to get the kept answers marked (nothing is marked here). */}
+      {phase === "taking" && signInAsk && (
+        <div className="lt-ct__fs">
+          <SignInToMarkCard onSignIn={goSignInToMark} onBack={signInAsk.timeUp ? null : backToPaperSignedOut} />
+        </div>
+      )}
+      {phase === "taking" && !signInAsk && activeMock && currentQuestion && (
         <div className="lt-ct__fs">
           <div className="lt-ct__fsbar">
             <div className="lt-ct__fsbar-l">
