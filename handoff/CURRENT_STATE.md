@@ -1,3 +1,21 @@
+## [CURRENT - 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890: ORDER-DEDUP-1, one Razorpay order per Pay tap on guest / pay-first checkout; student top-up is LIVE] `#1890`
+
+*(Second daily docs PR of 26 Nov under CLAUDE.md section 10, after `#1891`'s block. Trunk at writing: **`9b221f79`** (`#1890`) [git: `git ls-remote origin base/approved-thru-437`]. Merge SHA, title and time [git: REST `pulls/1890` `merge_commit_sha`, `merged_at` = 12:22:13 UTC]. Owner go-live, owner test and live reads: this cofounder session and the owner's messages of 26 Nov [owner; coordinator].)*
+
+| PR | merge SHA | merged (IST, 26 Nov) | what it changed |
+|---|---|---|---|
+| `#1890` | `9b221f79` | 17:52 | ORDER-DEDUP-1. One Razorpay order per Pay tap on guest / pay-first checkout: a second tap while an order is in flight reuses it, with a 90 s ceiling on reuse (after that a fresh order is made). Module-level state is reset in 7 test files (the leak that turned CI red was test-only, not a product defect). Green quality-gate at merge [git; coordinator]. Not covered: signed-in `PassCheckout.tsx`, `PacksShop.tsx`, `topupBuy.ts` (`[FU-ORDER-DEDUP-SIGNED-IN]`). |
+
+**Student top-up is LIVE (supersedes the "redeploy pending" line of the block below) [owner].** The owner set Railway `TOPUP_ENABLED=1` and Vercel `VITE_TOPUP_ENABLED=1` and did the production redeploy, 26 Nov about 17:40-17:45 IST. The `#1884` sheet (Rs 49 / Rs 149 + GST for 35 / 110 credits) can now be shown to students. A live top-up on a test account is still owed.
+
+**Owner test of `#1889` (17:50 IST) [owner].** Inside the Facebook app on his Android phone the hop to Chrome worked, so "Copy payment link" correctly did NOT appear. The stuck path (hop fails, Copy payment link leads) is therefore still unverified on a real device.
+
+**Live reads, 26 Nov about 18:15 IST [coordinator].** Razorpay: 0 customer payment attempts since `#1889` went live (only the owner's 17:49 test). Admin Visit quality card is live: 96 visits since about 16:00, 26% quick-leave (google_ads 25%, meta 40%). Admin True AI cost card shows `recorded:false` for 24-26 Nov; no code defect found, most likely no Gemini call since the deploy, and the write's `.catch` is silent (`[FU-AICOST-SILENT-CATCH]`). Top-ups emit NO analytics event (`[FU-TOPUP-NO-ANALYTICS]`).
+
+**Live verify owed for `#1890` (owner/coordinator):** signed out, double-tap Pay -> exactly ONE order in the unpaid orders list; dismiss the sheet, tap Pay again -> a fresh sheet opens.
+
+**Grading surface check (CLAUDE.md section 4a).** `#1890` changes none: it touches checkout order creation only, no marks, mistake types, prompts or the objective clamp.
+
 ## [CURRENT - 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889: fair use for Test Series owners; the true AI cost ledger; the student top-up sheet; parent-first pay rescue; quick-leave admin card; one batched chapter-tagging call per paper; Android in-app stuck-payment rescue] `#1879` `#1881` `#1882` `#1884` `#1885` `#1886` `#1887` `#1883` `#1888` `#1889`
 
 *(Daily docs PR of 26 Nov under CLAUDE.md section 10, after `#1877`'s block. Trunk at writing: **`661301f2`** (`#1889`) [git: `git rev-parse origin/base/approved-thru-437`]. Merge SHAs, titles and times [git: REST `pulls/<N>` `merge_commit_sha`, `merged_at`]. Diagnoses, evals, reviews, live data and rulings: this cofounder session and the owner's messages of 26 Nov [coordinator]. OPEN at writing: `#1890` ORDER-DEDUP-1, CI red, being fixed.)*

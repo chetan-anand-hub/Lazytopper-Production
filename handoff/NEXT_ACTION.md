@@ -1,3 +1,14 @@
+## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`9b221f79`** (`#1890`) [git: `git ls-remote origin base/approved-thru-437`].
+
+- **Done (owner):** the Vercel redeploy for `VITE_TOPUP_ENABLED=1` is done (with Railway `TOPUP_ENABLED=1`), so the top-up sheet is live. This removes the "finish Vercel verification / pending redeploy" item of the block below. Still owed: a live top-up on a test account (`#1884`).
+- **Live verify owed (owner):** `#1890` (signed out, double-tap Pay -> one order in unpaid orders; dismiss, Pay again -> a fresh sheet). `#1889` on an Android Facebook/Instagram browser where the Chrome hop FAILS (the owner's 17:50 test hopped fine, so Copy payment link did not show). The earlier owed checks of the block below stand.
+- **Next product lanes (cofounder):** `[FU-ORDER-DEDUP-SIGNED-IN]` (same double-tap pattern in `PassCheckout.tsx`, `PacksShop.tsx`, `topupBuy.ts`); `[FU-AICOST-SILENT-CATCH]` (error log or counter in the `aiCostDaily.cjs` `.catch`); `[FU-TOPUP-NO-ANALYTICS]` (a top-up event).
+- **Watch:** Razorpay customer attempts (0 since `#1889` went live, 18:15 IST read); Visit quality card (26% quick-leave; meta 40%).
+- **Unchanged:** set `LT_USD_INR` on Railway if Rs 88 is not the rate to use; review the PIN test campaign on 30 Nov; 1 Dec price switch and the earlier dated checks stand.
+- **Process:** merge only on an explicit `quality-gate:success` on the PR head; builders run the FULL vitest suite before pushing.
+
 ## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`661301f2`** (`#1889`) [git]. Open: `#1890` ORDER-DEDUP-1 (CI red: the PAY-HANG-1 tests; being fixed).

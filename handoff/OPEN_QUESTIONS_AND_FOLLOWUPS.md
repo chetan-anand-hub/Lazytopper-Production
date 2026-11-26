@@ -23,6 +23,25 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Status of existing entries.** `#1890` ORDER-DEDUP-1 is merged (the "open" line of the block below is superseded). `[FU-ORDER-DEDUP-SIGNED-IN]` stays OPEN (not covered by `#1890`). `[FU-26NOV-LIVE-VERIFIES]` stays OPEN; the Vercel redeploy it waits on for `#1884` is done.
+
+### [FU-ORDER-DEDUP-SIGNED-IN] (still OPEN; scope pinned)
+`#1890` covers guest / pay-first checkout only. The same double-tap pattern is present in `PassCheckout.tsx`, `PacksShop.tsx` and `topupBuy.ts` (signed-in buyers), not covered. [coordinator]
+
+### [FU-ORDER-DEDUP-LIVE] (minted)
+OPEN, live verify owed for `#1890`: signed out, double-tap Pay -> one order in the unpaid orders list; dismiss the sheet, tap Pay again -> a fresh sheet. [coordinator]
+
+### [FU-AICOST-SILENT-CATCH] (minted)
+OPEN. The admin True AI cost card shows `recorded:false` for 24-26 Nov. No code defect was found; likely no Gemini call since the deploy, but the write's `.catch` in `aiCostDaily.cjs` is silent, so a failure would be invisible. Add an error log or counter there. [coordinator, live read 26 Nov about 18:15 IST]
+
+### [FU-TOPUP-NO-ANALYTICS] (minted)
+OPEN. A top-up purchase emits NO analytics event, so top-up funnel and revenue cannot be measured. [coordinator]
+
+### [FU-INAPP-STUCK-REAL-DEVICE] (minted)
+OPEN. The owner's 17:50 IST test inside the Facebook app on his Android phone hopped to Chrome, so Copy payment link correctly did not show. The stuck path (hop fails, Copy payment link leads) is unverified on a real device; see also `[FU-INAPP-INTENT-NO-PACKAGE]`. [owner]
+
 ## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **Status of existing entries.** None closed by these PRs. `#1890` ORDER-DEDUP-1 is open (CI red).

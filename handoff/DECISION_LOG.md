@@ -1,3 +1,14 @@
+## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890: DECISIONS AND FINDINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted. Ruling 1 is the owner's (26 Nov) **[owner]**; 2-4 are the cofounder's calls and findings **[coordinator]**.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **1. Top-up goes live** [owner, 26 Nov about 17:40-17:45 IST] | Railway `TOPUP_ENABLED=1`, Vercel `VITE_TOPUP_ENABLED=1`, production redeploy done. | Students who hit the fair-use cap can buy more now; supersedes "redeploy pending" in the earlier 26 Nov block. |
+| **2. One order per Pay tap, 90 s reuse ceiling** [coordinator] | `#1890`: a second tap reuses the in-flight order for at most 90 s; module-level state reset in 7 test files. | Double taps made duplicate unpaid orders; the 90 s ceiling stops a stale order being reused forever; the CI leak was test-only. |
+| **3. Signed-in checkout not covered in `#1890`** [coordinator] | Recorded as `[FU-ORDER-DEDUP-SIGNED-IN]` (`PassCheckout.tsx`, `PacksShop.tsx`, `topupBuy.ts`). | Keep `#1890` to one stage (CLAUDE.md section 8). |
+| **4. FINDING: the Pricing nav is NOT removed; no change** [coordinator, owner question 26 Nov 18:11] | `#1577` NAV-PRICING-1 still renders (`App.tsx` bottom bar, `DesktopShell.tsx` panel) and is hidden for Board Pass holders by design; the owner's admin account is a holder. | The owner did not see it on his own account; it is the designed holder behaviour, not a regression. |
+
 ## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted. Rulings 1-3 are the owner's (26 Nov) **[owner]**; 4-12 are the cofounder's calls under them **[coordinator]**.
