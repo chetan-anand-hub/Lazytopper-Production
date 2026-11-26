@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { createAiCostDaily, buildDailyIncrement, AI_COST_DAILY_COLLECTION } = require('./aiCostDaily.cjs');
+const { createAiCostDaily, buildDailyIncrement, AI_COST_DAILY_COLLECTION, _resetWarnStateForTests } = require('./aiCostDaily.cjs');
 const { createGeminiClient } = require('./geminiClient.cjs');
 const { createAdminAiCostDailyRoutes, summariseDay } = require('../routes/adminAiCostDaily.cjs');
 const { createAdminTelemetryRoutes } = require('../routes/adminTelemetry.cjs');
@@ -241,4 +241,49 @@ test('summariseDay tolerates junk', () => {
 test('source pins: index.cjs mounts the route; firestore.rules and usageLedger are untouched by this lane', () => {
   const idx = fs.readFileSync(path.join(__dirname, '..', 'index.cjs'), 'utf8');
   assert.match(idx, /reqPath === '\/api\/admin\/ai-cost-daily'.*requireAdmin: adminTelemetryRoutes\.requireFirebaseAdmin/);
+});
+
+// AICOST-LOG-1 — failed writes and an unavailable Firestore are counted and warned, never thrown.
+test.afterEach(() => { _resetWarnStateForTests(); });
+
+function captureWarn() {
+  const orig = console.warn;
+  const calls = [];
+  console.warn = (...a) => { calls.push(a); };
+  return { calls, restore: () => { console.warn = orig; } };
+}
+
+test('a rejecting set() is counted and warned once within 60 s, without throwing', async () => {
+  const failingDb = { collection: () => ({ doc: () => ({ set: async () => { const e = new Error('boom'); e.code = 'permission-denied'; throw e; } }) }) };
+  const l = ledgerWith(failingDb);
+  const cap = captureWarn();
+  try {
+    await l.recordCall(REC, true);
+    await l.recordCall(REC, true);
+    await l.recordCall(REC, false);
+  } finally { cap.restore(); }
+  assert.deepEqual(l.stats(), { writeFailed: 3, unavailable: 0 });
+  assert.equal(cap.calls.length, 1);
+  assert.equal(cap.calls[0][0], '[aiCostDaily] write failed');
+  assert.match(cap.calls[0][1], /permission-denied/);
+  assert.equal(cap.calls[0].length, 2);
+});
+
+test('a null Firestore resolver counts unavailable, warns once, and returns null', () => {
+  const l = createAiCostDaily({ resolveFirestore: () => null, now: () => 0, env: {} });
+  const cap = captureWarn();
+  let r1, r2;
+  try { r1 = l.recordCall(REC, true); r2 = l.recordCall(REC, true); } finally { cap.restore(); }
+  assert.equal(r1, null);
+  assert.equal(r2, null);
+  assert.deepEqual(l.stats(), { writeFailed: 0, unavailable: 2 });
+  assert.equal(cap.calls.length, 1);
+});
+
+test('the kill switch counts nothing and warns nothing', () => {
+  const l = createAiCostDaily({ resolveFirestore: () => null, env: { AI_COST_DAILY_DISABLED: '1' } });
+  const cap = captureWarn();
+  try { l.recordCall(REC, true); } finally { cap.restore(); }
+  assert.deepEqual(l.stats(), { writeFailed: 0, unavailable: 0 });
+  assert.equal(cap.calls.length, 0);
 });
