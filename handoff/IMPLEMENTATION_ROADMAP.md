@@ -1,3 +1,13 @@
+## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889 - MERGED
+
+- DONE, UI tests. `#1879` (`e24f707e`) UI-E2E-4: signed-in Chapter Test + Full Mock upload and grade. Part of `[FU-UI-E2E-PHASE2-PAGES]`.
+- DONE, fair use. `#1881` (`acef94ab`) TS-FAIRUSE-1 + `#1886` (`425e02f7`) prerender refresh.
+- DONE, admin. `#1882` (`07ce9855`) COST-TRUTH-1 (AI cost ledger); `#1887` (`cc51b26e`) QUICK-LEAVE-1 (quick-leave card).
+- DONE, payments. `#1884` (`735f9985`) TOPUP-GO-1 (Vercel flag pending); `#1885` (`25e6bebc`) PARENT-PAY-FIRST-1; `#1888` (`b9ba0b12`) PARENT-WA-DIRECT-1; `#1889` (`661301f2`) INAPP-STUCK-1.
+- DONE, Answer Checker multi-question. `#1883` (`d49d3066`) TOPIC-BATCH-1 (one batched detect call per paper).
+- IN FLIGHT: `#1890` ORDER-DEDUP-1 (CI red).
+- NEXT: Vercel redeploy for top-up; the owed live verifies; `[FU-ORDER-DEDUP-SIGNED-IN]`.
+
 ## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877 - MERGED
 
 - DONE, Answer Checker. `#1873` (`8797dcc0`) MARK-ON-PHOTO-1 PR-1 + mark pass. Live PASS (admin).

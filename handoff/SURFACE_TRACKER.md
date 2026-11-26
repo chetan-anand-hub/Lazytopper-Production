@@ -1,3 +1,14 @@
+> **2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889 (CLAUDE.md section 10).** Merge SHAs and times [git]; live data and the eval [coordinator]. Scope discovered: none. Grading surfaces: none moved (`#1883` changes chapter tagging only, not marks or prompts).
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| **Answer Checker multi-question (whole paper): chapter tags** | one batched detect call per paper (`#1883`); parity 69/69 on `gemini-3.8-flash` | **merged, live (Railway)** | `[FU-1883-PROD-MODEL-PARITY]`; live: a trial paper gets complete tags |
+| **Checkout / pay rescue (guest and signed-in)** | parent-first WhatsApp + QR (`#1885`); signed-in direct WhatsApp (`#1888`); Android FB/IG stuck rescue (`#1889`) | **merged, live (Vercel)** | owner live-verify of all three; Android Facebook browser for `#1889`; `#1890` in flight |
+| **Student top-up** | sheet, Rs 49 / Rs 149 + GST, 35 / 110 credits (`#1884`) | **merged; Railway flag on, Vercel flag saved, redeploy pending** | live top-up; `[FU-TOPUP-PARENT-LINK]`, `[FU-TOPUP-TUTOR-ENTRY]` |
+| **Fair use (Test Series owners) / FAQ** | same cap; FAQ on /board-pass and /test-series (`#1881`, `#1886`) | **merged, live** | `[FU-1881-NITS]` |
+| **Admin** | AI cost card (`#1882`); quick-leave card (`#1887`) | **merged, live** | live look at both; `[FU-COST-LT_USD_INR]` |
+| **Signed-in UI tests (CI)** | Chapter Test + Full Mock (`#1879`) | **merged** | rest of `[FU-UI-E2E-PHASE2-PAGES]` |
+
 
 > **2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877 (CLAUDE.md section 10).** Merge SHAs and times [git]; live checks and the eval [coordinator].
 
