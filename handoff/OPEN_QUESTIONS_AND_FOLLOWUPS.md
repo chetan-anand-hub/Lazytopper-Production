@@ -23,6 +23,34 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Status of existing entries.** None closed by these PRs. `#1890` ORDER-DEDUP-1 is open (CI red).
+
+### [FU-1883-PROD-MODEL-PARITY] (minted)
+OPEN. The `#1883` parity eval (69/69) ran on `gemini-3.8-flash`, because the Eval key gets 404 for `gemini-2.5-flash`. Production still runs `gemini-2.5-flash` (`/api/health`). Re-run the parity on `gemini-2.5-flash` if a key can reach it, or when production moves to 3.8. [coordinator]
+
+### [FU-TOPUP-PARENT-LINK] (minted)
+OPEN, not built in `#1884`: buying a top-up through the parent link. [coordinator]
+
+### [FU-TOPUP-TUTOR-ENTRY] (minted)
+OPEN, not built in `#1884`: a top-up entry point in the tutor error view. [coordinator]
+
+### [FU-1881-NITS] (minted)
+OPEN, review nits of `#1881`: `fairUseFaq.test.ts:16` has a vacuous regex `/\bAI\\b/`; "pass" wording on /test-series; Test Series owners see no usage bars; stale docstring at `fairUse.cjs:1061`. [coordinator]
+
+### [FU-ORDER-DEDUP-SIGNED-IN] (minted)
+OPEN. `#1890` fixes one order per Pay tap on guest/pay-first checkout. `PassCheckout`, `PacksShop` and `topupBuy` have the same pattern for signed-in buyers. [coordinator]
+
+### [FU-INAPP-INTENT-NO-PACKAGE] (minted)
+OPEN. Try `intent://` without `package=` on a real Android device (Facebook/Instagram in-app browser), as a possible way to make the Chrome hop work. [coordinator]
+
+### [FU-COST-LT_USD_INR] (minted)
+OPEN, owner action. `LT_USD_INR` is unset on Railway, so the cost ledger uses the Rs 88 default. Set it to the rate to use. [coordinator]
+
+### [FU-26NOV-LIVE-VERIFIES] (minted)
+OPEN, live verifies owed: `#1882` (admin cost card), `#1884` (top-up sheet; needs the Vercel redeploy first), `#1885` (parent-first WhatsApp + QR; no rupee figure in the message), `#1887` (admin quick-leave card), `#1888` (signed-in direct WhatsApp), `#1889` (Android Facebook/Instagram: Copy payment link leads once stuck). [coordinator]
+
 ## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **Status of existing entries.**

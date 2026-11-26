@@ -1,3 +1,17 @@
+## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889 (trunk `661301f2`)
+
+**PROVENANCE.** *(Merge SHAs and times [git: REST `merged_at`]. Everything else: this cofounder session [coordinator]; owner rulings by day.)*
+
+- **07:32 IST.** `#1879` (UI-E2E-4) merged.
+- **13:18-14:29.** `#1881` (TS-FAIRUSE-1) merged 13:18; `#1882` (COST-TRUTH-1) merged 14:29.
+- **15:14-15:49.** `#1884` (TOPUP-GO-1: Rs 49 / Rs 149 + GST for 35 / 110 credits, owner ruling) 15:14; `#1885` (PARENT-PAY-FIRST-1) 15:31 after a review blocker (no rupee figure in the guest message); `#1886` (prerender refresh after `#1881`) 15:49.
+- **16:01.** `#1887` (QUICK-LEAVE-1) merged.
+- **Parity eval.** TOPIC-BATCH-1 evaluated on the owner's laptop eval checkout: 69/69 topic and subject agreement, prompt tokens -92.5%; run on `gemini-3.8-flash` because the Eval key gets 404 for `gemini-2.5-flash`. **17:13** `#1883` and `#1888` (PARENT-WA-DIRECT-1) merged.
+- **17:30.** `#1889` (INAPP-STUCK-1) merged, from the 26 Nov live data (65 `inapp_pay_open_external` events from 5 visitors, zero Razorpay attempts, 14 guest orders).
+- **About 17:45.** Railway `TOPUP_ENABLED=1` set; Vercel `VITE_TOPUP_ENABLED=1` saved, redeploy waiting on the owner's Vercel email-code verification.
+- **Ads.** PIN test campaign "Search | PDF Packs #2" created and funded from PDF Packs; 39 PINs excluded from the three main campaigns; review 30 Nov.
+- **Open at writing.** `#1890` ORDER-DEDUP-1 (CI red, PAY-HANG-1 tests).
+
 ## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877 (trunk `40c9cfca`)
 
 **PROVENANCE.** *(Merge SHAs and times [git: REST `merged_at`]. Everything else: this cofounder session [coordinator]; owner messages quoted by time.)*

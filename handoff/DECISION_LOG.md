@@ -1,3 +1,22 @@
+## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted. Rulings 1-3 are the owner's (26 Nov) **[owner]**; 4-12 are the cofounder's calls under them **[coordinator]**.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **1. Top-up credit 35 / 110 for Rs 49 / Rs 149 + GST** [owner, 26 Nov] | `#1884`; Railway `TOPUP_ENABLED=1` set about 17:45 IST; Vercel `VITE_TOPUP_ENABLED=1` saved, redeploy pending. | A student who hits the fair-use cap can buy more without waiting for the week. |
+| **2. No price may be wrong after 1 Dec** [owner] | The guest WhatsApp message in `#1885` never quotes a rupee figure. | The price switches on 1 Dec; a message already sent cannot be corrected. |
+| **3. Move Rs 2,000/day into a PIN test campaign** [owner] | "Search | PDF Packs #2" (24551143193), funded from PDF Packs (now Rs 7,750); 39 Delhi-NCR PINs excluded from the three main campaigns; review 30 Nov. | Test whether PINs near CBSE Class 10 schools buy better; total daily spend unchanged and no PIN is double-bid. |
+| **4. Gate the top-up action on the real subscription tier** [coordinator, review fix] | Use the tier from `/api/usage/me`, not the 429's mapped tier. | Test-Series-only owners would otherwise get a button that cannot work. |
+| **5. Not building top-up via the parent link or in the tutor error view** [coordinator] | Recorded as `[FU-TOPUP-PARENT-LINK]`, `[FU-TOPUP-TUTOR-ENTRY]`. | Keep `#1884` to one stage (CLAUDE.md section 8). |
+| **6. Parity eval on `gemini-3.8-flash`** [coordinator] | `#1883` merged on 69/69 agreement; production-model parity left open (`[FU-1883-PROD-MODEL-PARITY]`). | The Eval key gets 404 for `gemini-2.5-flash` ("no longer available to new users"); production still runs it per `/api/health`. The task is a tag match against golden truth, and the prompt cut is -92.5%. |
+| **7. One detect call per paper** [coordinator] | `#1883`. | A whole paper then costs one call of `trialDetectPerDay=10`, so trial students get complete tags. |
+| **8. Cost ledger keyed by IST day; history starts at deploy** [coordinator] | `aiCostDaily/{IST day}`; `LT_USD_INR` default Rs 88; `callGeminiStream` not instrumented. | One reading per day in the owner's day; the stream path needs its own lane. |
+| **9. Quick-leave paths bounded by a 48-prefix allow-list** [coordinator] | `visitDaily/{IST day}`; all 194 prerendered pages map to their own row; IP via `clientIp(resolveTrustedHops)`. | Free-form paths would let anyone create unbounded rows. |
+| **10. Copy payment link leads once the Chrome hop is stuck** [coordinator] | `#1889`; kill switch `VITE_INAPP_STUCK_COPY_DISABLED`. | Live data: 65 `inapp_pay_open_external` events from 5 visitors, zero Razorpay attempts on 26 Nov; Android FB/IG ignores `intent://`. |
+| **11. Signed-in WhatsApp opens directly** [coordinator] | `#1888`. | One tap less on a path where students drop off. |
+| **12. One daily docs PR** [owner, 19 Oct rule] | This block records `#1879`-`#1889` together; `#1890` is recorded when it merges. | CLAUDE.md section 10: one CI run, no blocking of product PRs. |
+
 ## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted. Rulings 1-5 are the owner's (25/26 Nov, this session) **[owner]**; 6-9 are the cofounder's calls under them **[coordinator]**.

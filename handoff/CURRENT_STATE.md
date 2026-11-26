@@ -1,3 +1,32 @@
+## [CURRENT - 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889: fair use for Test Series owners; the true AI cost ledger; the student top-up sheet; parent-first pay rescue; quick-leave admin card; one batched chapter-tagging call per paper; Android in-app stuck-payment rescue] `#1879` `#1881` `#1882` `#1884` `#1885` `#1886` `#1887` `#1883` `#1888` `#1889`
+
+*(Daily docs PR of 26 Nov under CLAUDE.md section 10, after `#1877`'s block. Trunk at writing: **`661301f2`** (`#1889`) [git: `git rev-parse origin/base/approved-thru-437`]. Merge SHAs, titles and times [git: REST `pulls/<N>` `merge_commit_sha`, `merged_at`]. Diagnoses, evals, reviews, live data and rulings: this cofounder session and the owner's messages of 26 Nov [coordinator]. OPEN at writing: `#1890` ORDER-DEDUP-1, CI red, being fixed.)*
+
+| PR | merge SHA | merged (IST, 26 Nov) | what it changed |
+|---|---|---|---|
+| `#1879` | `e24f707e` | 07:32 | UI-E2E-4: signed-in Chapter Test and Full Mock upload-and-grade UI tests with recorded replies (test-only; 4 files). |
+| `#1881` | `acef94ab` | 13:18 | TS-FAIRUSE-1. Test Series owners are under the same fair-use cap as Board Pass owners; a fair-use FAQ on /board-pass and /test-series [git]. |
+| `#1882` | `07ce9855` | 14:29 | COST-TRUTH-1. A true daily AI cost ledger, `aiCostDaily/{IST day}`, and an admin card. `LT_USD_INR` is unset on Railway, so the Rs 88 default applies; history starts at deploy; `callGeminiStream` is not instrumented [git; coordinator]. |
+| `#1884` | `735f9985` | 15:14 | TOPUP-GO-1. Student top-up sheet: Rs 49 / Rs 149 + GST for 35 / 110 credits (owner ruling 26 Nov). Review fix: the top-up action is gated on the REAL subscription tier from `/api/usage/me`, not the tier mapped from a 429, so a Test-Series-only owner never gets a dead button. Not built: top-up via the parent link; an entry point in the tutor error view. |
+| `#1885` | `25e6bebc` | 15:31 | PARENT-PAY-FIRST-1. After a closed checkout, lead with "Send to Mummy/Papa on WhatsApp" + QR. Review blocker fixed: the guest WhatsApp message never quotes a rupee figure (owner rule: no price may be wrong after 1 Dec) [git; coordinator]. |
+| `#1886` | `425e02f7` | 15:49 | SEO: refreshed the prerendered pricing / board-pass / test-series pages after `#1881` (8 files, generated). |
+| `#1887` | `cc51b26e` | 16:01 | QUICK-LEAVE-1. Quick-leave rate by source and landing page, `visitDaily/{IST day}`, admin card. Paths are bounded by a 48-prefix allow-list (all 194 prerendered pages map to their own row); the IP is read with `clientIp(resolveTrustedHops)` from `emailCode.cjs` [git; coordinator]. |
+| `#1883` | `d49d3066` | 17:13 | TOPIC-BATCH-1. A paper's chapters are tagged in ONE batched detect call. Effect: a whole paper is one call against `trialDetectPerDay=10`, so trial students get complete tags. Parity eval (below). |
+| `#1888` | `b9ba0b12` | 17:13 | PARENT-WA-DIRECT-1. For a signed-in student, "Send to Mummy/Papa" opens WhatsApp directly (2 files). |
+| `#1889` | `661301f2` | 17:30 | INAPP-STUCK-1. Android Facebook/Instagram in-app browser: when the hop to Chrome fails, "Copy payment link" becomes the primary action. Kill switch `VITE_INAPP_STUCK_COPY_DISABLED`. |
+
+**Parity eval for `#1883` (run 26 Nov on the owner's laptop eval checkout, `C:\Users\Chetan\lt-eval`, restored after) [coordinator].** 4 papers, 69 questions, including a paper that starts at Q3: topic agreement 69/69, subject 69/69, all equal to golden truth; prompt tokens 134,517 -> 10,049 (-92.5%). CAVEAT: the run used `gemini-3.8-flash` because the Eval key gets 404 for `gemini-2.5-flash` ("no longer available to new users"); production still runs `gemini-2.5-flash` per `/api/health`. The parity on the production model is not measured (`[FU-1883-PROD-MODEL-PARITY]`).
+
+**Live data behind `#1889` (26 Nov) [coordinator].** `inapp_pay_open_external` 65 events from 5 visitors; Razorpay zero attempts on 26 Nov; 14 guest orders created. Android Facebook/Instagram ignores `intent://`; the fix makes Copy payment link primary once the hop is stuck. Needs the owner's live check on an Android Facebook browser.
+
+**Top-up go-live state [owner; coordinator].** Railway `TOPUP_ENABLED=1` set 26 Nov about 17:45 IST. Vercel `VITE_TOPUP_ENABLED=1` is saved; the redeploy is pending the owner's Vercel email-code verification. Until that redeploy the sheet is not shown to students.
+
+**Ads (Google Ads 488-270-0343) [owner; coordinator].** PIN test campaign "Search | PDF Packs #2" (24551143193), Rs 2,000/day, funded from PDF Packs (now Rs 7,750). 39 Delhi-NCR PINs near CBSE Class 10 schools; it carries the PDF Packs, 3 Test Series and Board Pass ad groups; the 39 PINs are excluded from the main PDF Packs, Board Pass (24517842133) and Test Series (24522617720) campaigns. Total daily spend unchanged. Review 30 Nov.
+
+**Grading surface check (CLAUDE.md section 4a).** None of these PRs changes grading behaviour or a prompt. `#1883` changes only the chapter-DETECT call (tagging), not marks, mistake types or the objective clamp.
+
+**Live verify owed:** `#1882`, `#1884`, `#1885`, `#1887`, `#1888`, `#1889` (see NEXT_ACTION and the follow-ups).
+
 ## [CURRENT - 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877: "Mark it on your photo" on all four paper surfaces; the 3-mark cap; LOCATE-FIRST-1 (own-numbered papers no longer time out)] `#1873` `#1874` `#1875` `#1876` `#1877`
 
 *(Fourth daily docs PR of 25 Nov under CLAUDE.md section 10, after `#1872`. Trunk at writing: **`40c9cfca`** (`#1877`) [git]. Merge SHAs and times [git: REST `merged_at`]. Diagnoses, evals, reviews, live checks and rulings: this cofounder session (owner messages 25 Nov 20:05, 21:30, 22:17, 22:27, 22:38, 22:49; 26 Nov 00:18 IST) [coordinator].)*

@@ -1,3 +1,15 @@
+## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`661301f2`** (`#1889`) [git]. Open: `#1890` ORDER-DEDUP-1 (CI red: the PAY-HANG-1 tests; being fixed).
+
+- **Owner, now:** finish the Vercel email-code verification so the pending redeploy of `VITE_TOPUP_ENABLED=1` can go out (Railway `TOPUP_ENABLED=1` is already set); then a live top-up on a test account (`#1884`).
+- **Live verify owed (owner):** `#1889` on an Android Facebook/Instagram browser (does Copy payment link lead once the hop is stuck?); `#1885` and `#1888` (parent WhatsApp flow, guest and signed-in); `#1884` (top-up sheet, a TS-only owner sees no dead button); `#1882` (admin cost card shows today's row); `#1887` (admin quick-leave card shows rows).
+- **Merge `#1890`** only on an explicit `quality-gate:success` on the PR head, after the PAY-HANG-1 test fix.
+- **Set `LT_USD_INR` on Railway** if the Rs 88 default is not the rate to use (`[FU-COST-LT_USD_INR]`).
+- **Ads:** review the PIN test campaign "Search | PDF Packs #2" on 30 Nov.
+- **Dated:** 1 Dec price switch and the earlier dated checks stand.
+- **Process:** merge only on an explicit `quality-gate:success` on the PR head; builders run the FULL vitest suite before pushing.
+
 ## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`40c9cfca`** (`#1877`) [git].
