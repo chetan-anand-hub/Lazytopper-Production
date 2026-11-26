@@ -65,6 +65,19 @@ function count(n: number, one: string, many: string): string {
 
 export const FAIR_USE_TITLE = "Fair use, shown not hidden";
 
+/**
+ * TS-FAIRUSE-1 (owner / coordinator 26 Nov 2026): production meters the Board Pass per DAY and per 30 DAYS (the 5-hour and week windows are
+ * off), and the Test Series owner is held to the same windows. The Test Series clause shows while the server cap is on; it mirrors the
+ * server kill switch TS_FAIRUSE_CAP_DISABLED, so set VITE_TS_FAIRUSE_CAP_DISABLED=1 together with it (default: on).
+ */
+export const FAIR_USE_RESETS = "every day and every 30 days";
+export function tsFairUseCapOn(): boolean {
+  return !/^(1|true|on|yes)$/i.test(String(import.meta.env?.VITE_TS_FAIRUSE_CAP_DISABLED ?? "").trim());
+}
+export function tsFairUseSentence(on: boolean = tsFairUseCapOn()): string {
+  return on ? " The Test Series has the same fair use." : "";
+}
+
 /** The fair-use box sentence, composed from the allowances (a parameter so a test can feed a fixture). */
 export function fairUseCopy(limits: TrialFairUse = TRIAL_FAIR_USE, limitsOn: boolean = limitsCopyOn()): string {
   if (limitsOn) {
@@ -72,13 +85,13 @@ export function fairUseCopy(limits: TrialFairUse = TRIAL_FAIR_USE, limitsOn: boo
     // tutor allowance is still the fair-use one. Same sentences, real numbers.
     return (
       "Premium has generous fair-use limits so the service stays fast for everyone. " +
-      "Your usage bars show what is left and when each one resets — every 5 hours, every day and every week. " +
+      `Your usage bars show what is left and when each one resets — ${FAIR_USE_RESETS}.${tsFairUseSentence()} ` +
       `The 7-day trial includes ${trialLimitsSentence()}; and each day, ${count(limits.tutorMessagesPerDay, "tutor message", "tutor messages")}.`
     );
   }
   return (
     "Premium has generous fair-use limits so the service stays fast for everyone. " +
-    "Your usage bars show what is left and when each one resets — every 5 hours, every day and every week. " +
+    `Your usage bars show what is left and when each one resets — ${FAIR_USE_RESETS}.${tsFairUseSentence()} ` +
     `The 7-day trial includes, each day: ${count(limits.checksPerDay, "answer check", "answer checks")}, ` +
     `${count(limits.chapterTestsPerDay, "chapter test", "chapter tests")} and ` +
     `${count(limits.tutorMessagesPerDay, "tutor message", "tutor messages")}; and each week: ` +
@@ -302,7 +315,7 @@ export function compareSections({ freeCheck, limitsOn = limitsCopyOn() }: { free
         {
           label: "Fair use",
           basic: NO,
-          premium: text("Usage bars · reset every 5 hours, day and week"),
+          premium: text(`Usage bars · reset ${FAIR_USE_RESETS}${tsFairUseCapOn() ? " · same for the Test Series" : ""}`),
         },
       ],
     },

@@ -4,6 +4,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { fairUseFaq } from "../components/salesPages/salesPagesCopy";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 vi.hoisted(() => {
@@ -218,6 +219,8 @@ describe("/test-series — signed out", () => {
     expect(within(screen.getByTestId("ts-offers")).getAllByText(/^(Test Series|Board Pass)$/)).toHaveLength(2);
     expect(screen.getByTestId("ts-how").textContent).toContain("The Test Series checks every written answer step by step");
     expect(screen.getByTestId("ts-how").textContent).toContain("Sections B–D (B–E in full-length tests)");
+    // TS-FAIRUSE-1: the fair-use FAQ is inside the page, from the one shared constant.
+    expect(screen.getByTestId("ts-faq").textContent).toContain(`${fairUseFaq().q}${fairUseFaq().a}`);
   });
   it("from 1 Dec the Test Series is ₹1,499 + GST and the button follows the total (no hardcoded price); the founding line is gone", async () => {
     vi.setSystemTime(new Date("2026-12-01T00:05:00+05:30"));
