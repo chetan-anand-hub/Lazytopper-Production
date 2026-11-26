@@ -537,6 +537,57 @@ function createGeminiClient(cfg) {
   }
 
 
+  /* COST-TRUTH-1 · the GLOBAL daily cost ledger (aiCostDaily.cjs). Same injection shape as the
+     usage ledger: `cfg.aiCostDaily` wins (tests), else required LAZILY inside a try/catch. One
+     fire-and-forget write per Gemini call, independent of uid and of the meter fraction; never
+     awaited, never throws. AI_COST_DAILY_DISABLED=1 turns it off (the module checks it). */
+  let aiCostDaily = cfg && cfg.aiCostDaily ? cfg.aiCostDaily : undefined;
+  let aiCostDailyResolved = aiCostDaily !== undefined;
+
+  function recordDailyCost(record, usageKnown) {
+    try {
+      if (!aiCostDailyResolved) {
+        aiCostDailyResolved = true;
+        try {
+          aiCostDaily = require('./aiCostDaily.cjs').createAiCostDaily();
+        } catch {
+          aiCostDaily = null;
+        }
+      }
+      if (aiCostDaily && typeof aiCostDaily.recordCall === 'function') {
+        aiCostDaily.recordCall(record, usageKnown);
+      }
+    } catch {
+      /* A cost-ledger failure must NEVER fail a Gemini call. */
+    }
+  }
+
+  /** A failed/aborted call. If the error body still carries usageMetadata the call is costed from it;
+   *  otherwise it is COUNT ONLY (billed-unknown). A call never sent (grading deadline) is not counted. */
+  function recordDailyCostFailure(err, model, config, callerStack) {
+    try {
+      if (err && err.gradingDeadline) return;
+      let usage = null;
+      if (err && typeof err.body === 'string' && err.body.indexOf('usageMetadata') !== -1) {
+        try {
+          const parsed = JSON.parse(err.body);
+          if (parsed && parsed.usageMetadata && typeof parsed.usageMetadata === 'object') usage = parsed.usageMetadata;
+        } catch {
+          /* body is not JSON: count only */
+        }
+      }
+      const record = buildTokenTelemetryRecord({
+        usageMetadata: usage || undefined,
+        model,
+        callClass: classifyCall(config, callerStack),
+        workloadClass: classifyWorkload(config, callerStack),
+      });
+      recordDailyCost(record, Boolean(usage));
+    } catch {
+      /* never fail a call */
+    }
+  }
+
   /**
    * Emit one token-usage record.
    *
@@ -973,7 +1024,12 @@ function createGeminiClient(cfg) {
       return { response, rawText, usedFallback: false };
     };
 
-    let { response, rawText, usedFallback } = await runWithFallback(true);
+    // COST-TRUTH-1: any failure from here to a parsed reply is recorded ONCE (count-only unless the error
+    // body carries usageMetadata) and re-thrown untouched. Inline, not a wrapper function, so the caller
+    // stack captured above (which classifies the call) is unchanged.
+    let response, rawText, usedFallback, data;
+    try {
+    ({ response, rawText, usedFallback } = await runWithFallback(true));
 
     if (
       !response.ok &&
@@ -1023,7 +1079,11 @@ function createGeminiClient(cfg) {
       throw err;
     }
 
-    const data = JSON.parse(rawText || '{}');
+    data = JSON.parse(rawText || '{}');
+    } catch (costErr) {
+      recordDailyCostFailure(costErr, model, config, telemetryCallerStack);
+      throw costErr;
+    }
 
     const parts =
       data &&
@@ -1095,6 +1155,8 @@ function createGeminiClient(cfg) {
     emitTokenTelemetry(tokenRecord);
     // METER-1 (M3): the SAME firewalled record, handed to the ledger. NOT awaited.
     recordLedgerUsage(tokenRecord);
+    // COST-TRUTH-1: the same record into the global daily cost ledger (every call with usage, any uid).
+    recordDailyCost(tokenRecord, true);
 
     // TUTOR-FIX-1: ADDITIVE — the candidate's finish reason ('STOP', 'MAX_TOKENS', …) or null,
     // so a caller can tell a complete reply from one the token budget cut off.
