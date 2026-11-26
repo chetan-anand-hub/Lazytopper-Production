@@ -116,6 +116,22 @@ export function hasResumableFullMock(uid: string | null | undefined, subjectPara
   return false;
 }
 
+/** lib/testSeries/signedOutAttempt.ts's key (mirrored: this file imports nothing). */
+const SIGNED_OUT_ATTEMPT_KEY = "lazytopper.ts.signedOutAttempt.v1";
+
+/** TS-FREE-SIGNEDOUT: this tab keeps a signed-out sitting (Chapter Test / Full Mock) taken on exactly this route. */
+function hasSignedOutAttempt(surface: "chapter-test" | "full-mock", pathname: string, search: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const a = JSON.parse(window.sessionStorage.getItem(SIGNED_OUT_ATTEMPT_KEY) || "null") as { surface?: unknown; path?: unknown } | null;
+    if (!a || a.surface !== surface || typeof a.path !== "string") return false;
+    const [p, q = ""] = a.path.split("?");
+    return paperRouteKey(p, q ? `?${q}` : "") === paperRouteKey(pathname, search);
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Is the paper behind this route a RESUME of a saved in-progress paper (not a new paper)?
  * Only the two in-progress surfaces qualify; every other gated route (e.g. /mock-paper/...)
@@ -123,8 +139,15 @@ export function hasResumableFullMock(uid: string | null | undefined, subjectPara
  */
 export function isResumingSavedPaper(pathname: string, uid: string | null | undefined, search = ""): boolean {
   const parts = paperRouteKey(pathname).split("/").filter(Boolean);
-  if (parts[0] === "chapter-test" && parts.length >= 4) return hasResumableChapterTest(pathname, search);
+  if (parts[0] === "chapter-test" && parts.length >= 4) {
+    // TS-FREE-SIGNEDOUT: a signed-out visitor's kept sitting of THIS paper (e.g. back from the sign-in page without signing in).
+    if (!uid && hasSignedOutAttempt("chapter-test", pathname, search)) return true;
+    return hasResumableChapterTest(pathname, search);
+  }
   if (parts[0] === "full-mock" && parts.length >= 3) {
+    // TS-FREE-SIGNEDOUT: a signed-out visitor's sitting of THIS paper is kept in this tab only (never on the device) - a reload of it
+    // is a resume too, never a new paper.
+    if (!uid && hasSignedOutAttempt("full-mock", pathname, search)) return true;
     // TS-MORE-1: the daily-cap check keeps TODAY's rule for full mocks: any saved sitting of this subject is a resume (a free student at
     // the cap is let through to their saved paper, whichever paper number the URL names). `search` is deliberately not passed;
     // hasResumableFullMock(uid, subject, search) is the per-paper match, for deciding WHICH sitting belongs to a paper.

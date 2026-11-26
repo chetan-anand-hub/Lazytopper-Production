@@ -9,6 +9,9 @@
  * shown. The attempt is matched back to the paper by its QUESTION IDS (a series paper is fixed - the same ids for every student), so
  * answers can never land on another paper's rows.
  *
+ * The sitting is LATCHED at Start: if an account appears mid-sitting (a sign-in in another tab), the page goes back to its start screen
+ * with the answers kept, so the signed-in start rules run before anything is marked.
+ *
  * Kill switch: VITE_TS_FREE_SIGNEDOUT_DISABLED=1 restores today's sign-in-first redirect on Start.
  */
 
@@ -21,6 +24,8 @@ export const SIGN_IN_TO_MARK_LINE =
   "Your answers are kept in this tab. Sign in (free) and this paper opens again with your answers on it — then submit to get them marked.";
 export const SIGN_IN_TO_MARK_BUTTON = "Sign in to get my answers marked";
 export const BACK_TO_PAPER_BUTTON = "Back to my paper";
+/** Signed out, back on the paper after a reload: the kept answers are still here. */
+export const SIGNED_OUT_ATTEMPT_KEPT_LINE = "Your answers on this paper are still here. Start to carry on.";
 export const SIGNED_OUT_ATTEMPT_RESTORED_LINE = "Your answers from before you signed in are back on this paper. Start, check them, then submit to get them marked.";
 /** Shown on the taking screen while signed out: honest about what happens at submit. */
 export const SIGNED_OUT_TAKING_NOTE = "You're not signed in — you can sit this paper now. To get it marked, you'll sign in when you submit.";
@@ -28,6 +33,30 @@ export const SIGNED_OUT_TAKING_NOTE = "You're not signed in — you can sit this
 export function tsFreeSignedOutDisabled(): boolean {
   return import.meta.env?.VITE_TS_FREE_SIGNEDOUT_DISABLED === "1";
 }
+
+/**
+ * Owner decision (26 Nov 2026, ~20:10 IST): signed out, ONLY this fixed sample set opens - 1 chapter test + 1 full-length test PER
+ * SUBJECT (4 papers). Every other Test Series paper and every focus set keeps today's sign-in-first path. Keyed by the stable series
+ * paper codes (lib/testSeries/testSeries.ts): the first chapter test and the first full-length test of each subject.
+ *   CT-M01  Maths   · Real Numbers                     /chapter-test/10/Maths/real-numbers?series=1
+ *   CT-S01  Science · Chemical Reactions & Equations   /chapter-test/10/Science/chemical-reactions-and-equations?series=1
+ *   FM-M1   Maths   · Full-Length Test 1               /full-mock/10/Maths?paper=1
+ *   FM-S1   Science · Full-Length Test 1               /full-mock/10/Science?paper=1
+ */
+export const SIGNED_OUT_SAMPLE_CODES = ["CT-M01", "CT-S01", "FM-M1", "FM-S1"] as const;
+
+/** Is this series paper code one of the signed-out samples? (A focus set's code, a paper 2..5's "CT-M01-2", null: no.) */
+export function isSignedOutSample(code: string | null | undefined): boolean {
+  return !!code && (SIGNED_OUT_SAMPLE_CODES as readonly string[]).includes(code);
+}
+
+/** The four samples with their links, for a "Take 1 test free" picker shown to signed-out visitors (e.g. on /test-series). */
+export const SIGNED_OUT_SAMPLES: ReadonlyArray<{ code: (typeof SIGNED_OUT_SAMPLE_CODES)[number]; subject: "Maths" | "Science"; kind: "chapter" | "mock"; label: string; href: string }> = [
+  { code: "CT-M01", subject: "Maths", kind: "chapter", label: "Maths · Chapter Test · Real Numbers", href: "/chapter-test/10/Maths/real-numbers?series=1" },
+  { code: "FM-M1", subject: "Maths", kind: "mock", label: "Maths · Full-Length Test 1", href: "/full-mock/10/Maths?paper=1" },
+  { code: "CT-S01", subject: "Science", kind: "chapter", label: "Science · Chapter Test · Chemical Reactions & Equations", href: "/chapter-test/10/Science/chemical-reactions-and-equations?series=1" },
+  { code: "FM-S1", subject: "Science", kind: "mock", label: "Science · Full-Length Test 1", href: "/full-mock/10/Science?paper=1" },
+];
 
 export type SignedOutSurface = "chapter-test" | "full-mock";
 

@@ -76,15 +76,19 @@ function LoginProbe() {
   const loc = useLocation();
   return <p data-testid="login-page">{new URLSearchParams(loc.search).get("redirect")}</p>;
 }
-function mount(url = SERIES_URL) {
-  render(
+function tree(url: string) {
+  return (
     <MemoryRouter initialEntries={[url]}>
       <Routes>
         <Route path="/chapter-test/:grade/:subject/:topicKey" element={<ChapterTestPage />} />
         <Route path="/login" element={<LoginProbe />} />
       </Routes>
-    </MemoryRouter>,
+    </MemoryRouter>
   );
+}
+function mount(url = SERIES_URL) {
+  const r = render(tree(url));
+  return { rerender: () => r.rerender(tree(url)) };
 }
 const fetchSpy = vi.fn(async (_u: unknown, _init?: RequestInit) => new Response(JSON.stringify({ enforced: false }), { status: 200 }));
 const selected = () => (document.querySelector(".lt-ct__opt--sel")?.textContent ?? "").trim();
@@ -171,6 +175,44 @@ describe("TS-FREE-SIGNEDOUT · Chapter Test series paper", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 }));
     expect(await screen.findByTestId("series-start-wall")).toBeTruthy();
     expect(document.querySelector(".lt-ct__exit")).toBeNull();
+  }, 90000);
+
+  it("review blocker: an account appearing MID-SITTING (sign-in in another tab) never submits the signed-out sitting - back to Start, answers kept, start rules run", async () => {
+    const page = mount();
+    const picked = await startAndPickFirst();
+    auth.user = SIGNED_IN;
+    prior.list = [{ id: "FM-M-01", worksheetId: "fm-old", surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: Date.parse("2026-11-19T00:00:00Z") }];
+    page.rerender();
+    // the paper closes: back on the start screen, nothing written
+    await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 });
+    expect(document.querySelector(".lt-ct__exit")).toBeNull();
+    expect(spies.partial).toBe(0);
+    expect(loadLocalSessionRecords(SIGNED_IN.uid)).toHaveLength(0);
+    expect(await screen.findByTestId("ts-signed-out-restored", {}, { timeout: 30000 })).toBeTruthy();
+    expect(picked).not.toBe("");
+    // this account has used its free test: Start shows the existing wall, never the paper
+    fireEvent.click(screen.getByRole("button", { name: /Start the test/ }));
+    expect(await screen.findByTestId("series-start-wall")).toBeTruthy();
+    expect(document.querySelector(".lt-ct__exit")).toBeNull();
+    expect(spies.partial).toBe(0);
+  }, 120000);
+
+  it("owner decision: a NON-sample Test Series paper signed out keeps sign-in first (CT-M02, and a paper 2 of the sample chapter)", async () => {
+    for (const url of ["/chapter-test/10/maths/polynomials?series=1", "/chapter-test/10/maths/real-numbers?series=1&paper=2"]) {
+      mount(url);
+      expect(screen.queryByTestId("ts-signed-out-note")).toBeNull();
+      fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 }));
+      expect((await screen.findByTestId("login-page")).textContent).toBe(url);
+      cleanup();
+    }
+  }, 120000);
+
+  it("owner decision: the Science sample (CT-S01) opens signed out", async () => {
+    mount("/chapter-test/10/science/chemical-reactions-and-equations?series=1");
+    expect(await screen.findByTestId("ts-signed-out-note", {}, { timeout: 60000 })).toBeTruthy();
+    fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }));
+    await waitFor(() => expect(document.querySelector(".lt-ct__exit")).not.toBeNull(), { timeout: 30000 });
+    expect(screen.queryByTestId("login-page")).toBeNull();
   }, 90000);
 
   it("a non-series chapter test signed out still signs in first (scope: Test Series papers only)", async () => {

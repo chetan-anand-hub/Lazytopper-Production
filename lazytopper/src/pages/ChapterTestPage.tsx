@@ -167,6 +167,7 @@ import { useDerivedWrittenGraded } from "../hooks/useDerivedWrittenGraded";
 // TS-FREE-SIGNEDOUT — a signed-out visitor sits a Test Series paper; sign-in is asked for only to get it marked.
 import SignInToMarkCard from "../components/testSeries/SignInToMarkCard";
 import {
+  SIGNED_OUT_ATTEMPT_KEPT_LINE,
   SIGNED_OUT_ATTEMPT_RESTORED_LINE,
   SIGNED_OUT_TAKING_NOTE,
   clearSignedOutAttempt,
@@ -174,6 +175,7 @@ import {
   readSignedOutAttempt,
   saveSignedOutAttempt,
   signInToMarkPath,
+  isSignedOutSample,
   tsFreeSignedOutDisabled,
 } from "../lib/testSeries/signedOutAttempt";
 
@@ -271,7 +273,8 @@ export default function ChapterTestPage() {
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
   // TS-FREE-SIGNEDOUT (owner ruling 26 Nov 2026, 19:23 IST): a SIGNED-OUT visitor may open and sit a Test Series paper; the account is
   // asked for only at "get my answers marked". Nothing is marked, written or recorded signed out. Kill switch VITE_TS_FREE_SIGNEDOUT_DISABLED.
-  const signedOutSitting = !isSignedIn && !!seriesTest && !tsFreeSignedOutDisabled();
+  // Owner decision (26 Nov ~20:10 IST): only the fixed signed-out SAMPLE papers (SIGNED_OUT_SAMPLE_CODES) open signed out.
+  const signedOutSitting = !isSignedIn && !!seriesTest && isSignedOutSample(seriesTest.code) && !tsFreeSignedOutDisabled();
   const tsNav2Off = (() => {
     const v = import.meta.env?.VITE_TS_NAV2_DISABLED;
     return typeof v === "string" && !["", "0", "false"].includes(v.trim().toLowerCase());
@@ -494,6 +497,10 @@ export default function ChapterTestPage() {
   const [signInAsk, setSignInAsk] = useState<{ timeUp: boolean } | null>(null);
   // TS-FREE-SIGNEDOUT: the kept signed-out attempt was put back on this paper after sign-in (cleared when the paper starts).
   const [signedOutRestored, setSignedOutRestored] = useState(false);
+  // TS-FREE-SIGNEDOUT (review blocker): THIS sitting was started signed out - latched at Start, never re-derived from the live auth
+  // state, so an account that appears mid-sitting (a sign-in in another tab) can never submit a paper its start rules never ran for.
+  const signedOutLatch = useRef(false);
+  const signedOutRestoreDone = useRef(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── Results state (two-phase) ────────────────────────────────────────────────
@@ -657,6 +664,23 @@ export default function ChapterTestPage() {
       : `lazytopper.ct.progress.${nomen.code}`
     : null;
 
+  /** TS-FREE-SIGNEDOUT: a saved signed-out sitting (its in-tab autosave) -> the kept signed-out attempt, unless one is already kept. */
+  const keepSignedOutSitting = (saved: unknown) => {
+    const v = saved as { paper?: { questions?: Array<{ id?: unknown }> }; answers?: Record<number, string>; flags?: number[]; elapsed?: number; currentQNumber?: number; timerEnabled?: boolean } | null;
+    const ids = paperQuestionIds(v?.paper && Array.isArray(v.paper.questions) ? { questions: v.paper.questions } : null);
+    if (!ids.length || readSignedOutAttempt("chapter-test", ids)) return;
+    saveSignedOutAttempt({
+      surface: "chapter-test",
+      path: location.pathname + location.search,
+      ids,
+      answers: v?.answers ?? {},
+      flags: Array.isArray(v?.flags) ? v.flags : [],
+      currentQNumber: Number(v?.currentQNumber) || 1,
+      elapsedMs: (Number(v?.elapsed) || 0) * 1000,
+      ...(typeof v?.timerEnabled === "boolean" ? { timerEnabled: v.timerEnabled } : {}),
+    });
+  };
+
   // Autosave restore (honest "✓ saved") — CT-RELOAD-1. A reload mid-test used to land on the
   // setup screen with a NEW draw and then restore the saved answers (keyed by question NUMBER)
   // onto it, so answers landed on the wrong questions. The in-progress attempt now saves ITS
@@ -678,8 +702,10 @@ export default function ChapterTestPage() {
         const key = window.sessionStorage.key(i);
         if (!key || key === progressKey || !key.startsWith(CT_PROGRESS_PREFIX)) continue;
         try {
-          const other = JSON.parse(window.sessionStorage.getItem(key) || "null") as { route?: unknown } | null;
+          const other = JSON.parse(window.sessionStorage.getItem(key) || "null") as { route?: unknown; signedOut?: unknown } | null;
           if (other && typeof other.route === "string" && paperRouteKey(other.route) === route) {
+            // TS-FREE-SIGNEDOUT: a signed-out sitting of this paper is KEPT (as the signed-out attempt), never thrown away here.
+            if (isSignedIn && other.signedOut === true) keepSignedOutSitting(other);
             window.sessionStorage.removeItem(key);
           }
         } catch {
@@ -701,6 +727,13 @@ export default function ChapterTestPage() {
         window.sessionStorage.removeItem(progressKey);
         return;
       }
+      // TS-FREE-SIGNEDOUT (review blocker): signed in, a sitting started SIGNED OUT is never resumed around the start rules - it becomes
+      // the kept signed-out attempt (put back on the paper below), and Start then runs the signed-in rules.
+      if (isSignedIn && (saved as { signedOut?: unknown }).signedOut === true) {
+        keepSignedOutSitting(saved);
+        window.sessionStorage.removeItem(progressKey);
+        return;
+      }
       setRestoredPaper(sp);
       setAnswers(saved.answers ?? {});
       setFlags(new Set(Array.isArray(saved.flags) ? saved.flags : []));
@@ -711,7 +744,8 @@ export default function ChapterTestPage() {
     } catch {
       /* best-effort */
     }
-  }, [progressKey, location.pathname, location.search, seriesTest?.code]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [progressKey, location.pathname, location.search, seriesTest?.code, isSignedIn]);
 
   // Autosave write while taking — the paper rides along so a reload restores THIS paper.
   useEffect(() => {
@@ -721,7 +755,8 @@ export default function ChapterTestPage() {
         progressKey,
         // CT-RESUME-2: `route` lets the daily paper gate (MockViewGate) recognise a reload of THIS
         // chapter's saved paper as a resume — not a new paper (lib/papers/resumablePaper).
-        JSON.stringify({ answers, flags: [...flags], elapsed, currentQNumber, timerEnabled, paper, route: paperRouteKey(location.pathname, location.search) }),
+        // TS-FREE-SIGNEDOUT: `signedOut` marks a sitting started signed out (a signed-in page converts it, never resumes it).
+        JSON.stringify({ answers, flags: [...flags], elapsed, currentQNumber, timerEnabled, paper, route: paperRouteKey(location.pathname, location.search), ...(signedOutLatch.current ? { signedOut: true } : {}) }),
       );
     } catch {
       /* quota — best-effort */
@@ -762,7 +797,12 @@ export default function ChapterTestPage() {
     if (timerRef.current) clearInterval(timerRef.current);
     // TS-FREE-SIGNEDOUT: signed out, a submit marks NOTHING and writes nothing - the attempt is kept in this tab and the visitor is
     // asked to sign in to get it marked (the signed-in submit below then runs unchanged).
-    if (signedOutSitting) {
+    if (signedOutLatch.current) {
+      // An account appeared mid-sitting: back to the start screen with the answers kept (the signed-in start rules run first).
+      if (isSignedIn) {
+        bounceRef.current();
+        return;
+      }
       saveSignedOutAttempt({
         surface: "chapter-test",
         path: location.pathname + location.search,
@@ -821,7 +861,42 @@ export default function ChapterTestPage() {
     setScorecardOpen(true);
     setPhase("results");
     void loadRecords();
-  }, [paper, nomen, objectiveQs, subjectiveQs, answers, user, sessionSubject, subject, topicKey, progressKey, loadRecords, moveCtPaper, signedOutSitting, location.pathname, location.search, flags, currentQNumber, elapsed, timerEnabled, timeLimitSeconds]);
+  }, [paper, nomen, objectiveQs, subjectiveQs, answers, user, sessionSubject, subject, topicKey, progressKey, loadRecords, moveCtPaper, isSignedIn, location.pathname, location.search, flags, currentQNumber, elapsed, timerEnabled, timeLimitSeconds]);
+
+  /** TS-FREE-SIGNEDOUT (review blocker): the signed-out sitting ends when an account appears - its answers are kept for this paper
+   *  and the page returns to its start screen, where Start runs the signed-in rules (one free test, fair use) before anything is marked. */
+  const bounceRef = useRef<() => void>(() => {});
+  bounceRef.current = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (paper) {
+      saveSignedOutAttempt({
+        surface: "chapter-test",
+        path: location.pathname + location.search,
+        ids: paperQuestionIds(paper),
+        answers,
+        flags: [...flags],
+        currentQNumber,
+        elapsedMs: elapsed * 1000,
+        timerEnabled,
+      });
+    }
+    if (progressKey && typeof window !== "undefined") {
+      try {
+        window.sessionStorage.removeItem(progressKey);
+      } catch {
+        /* best-effort */
+      }
+    }
+    signedOutLatch.current = false;
+    signedOutRestoreDone.current = false;
+    setSignInAsk(null);
+    setShowConfirm(false);
+    setRestoredPaper(null);
+    setPhase("setup");
+  };
+  useEffect(() => {
+    if (isSignedIn && signedOutLatch.current && phase === "taking") bounceRef.current();
+  }, [isSignedIn, phase]);
 
   /** TS-FREE-SIGNEDOUT: "Sign in to get my answers marked" - the kept attempt goes with the visitor; the in-tab autosave of this signed-out
    *  sitting is dropped so the signed-in page never resumes it around its own start rules. */
@@ -867,9 +942,8 @@ export default function ChapterTestPage() {
   // TS-FREE-SIGNEDOUT: back from sign-in - the attempt kept for THIS paper (same question ids) goes back on it, once. Nothing starts:
   // Start runs the signed-in start rules unchanged (one free test, fair use, the server's free-test state), and a refused start shows
   // the existing wall. An account's own saved sitting (restoredPaper) wins.
-  const signedOutRestoreDone = useRef(false);
   useEffect(() => {
-    if (!isSignedIn || !seriesTest || tsFreeSignedOutDisabled() || signedOutRestoreDone.current || restoredPaper || phase !== "setup" || !draw) return;
+    if (!(isSignedIn ? !!seriesTest : signedOutSitting) || tsFreeSignedOutDisabled() || signedOutRestoreDone.current || restoredPaper || phase !== "setup" || !draw) return;
     const kept = readSignedOutAttempt("chapter-test", paperQuestionIds(draw.paper));
     if (!kept) return;
     signedOutRestoreDone.current = true;
@@ -878,7 +952,7 @@ export default function ChapterTestPage() {
     setElapsed(Math.round(kept.elapsedMs / 1000));
     if (typeof kept.timerEnabled === "boolean") setTimerEnabled(kept.timerEnabled);
     setSignedOutRestored(true);
-  }, [isSignedIn, seriesTest, restoredPaper, phase, draw]);
+  }, [isSignedIn, seriesTest, signedOutSitting, restoredPaper, phase, draw]);
 
   // CT-KATEX-2 (LOW-END-1 L6/R6): the start screen shows no maths, so KaTeX is fetched on
   // the student's FIRST INTERACTION with it (pointerdown / touchstart / keydown / scroll —
@@ -916,8 +990,8 @@ export default function ChapterTestPage() {
     }
     if (startDecision === "sign-in" && signedOutSitting) {
       // TS-FREE-SIGNEDOUT: the paper opens signed out - no fair-use read, no ownership read, nothing served or recorded. The
-      // day's paper view is the device's own count (MockViewGate), as for any signed-out paper.
-      if (!claimNewPaperView(location.pathname, null, false, location.search)) {
+      // day's paper view is the device's own count (MockViewGate), as for any signed-out paper; a kept sitting is a resume.
+      if (!signedOutRestored && !claimNewPaperView(location.pathname, null, false, location.search)) {
         setLimitNotice(NEW_PAPER_LIMIT_LINE);
         return;
       }
@@ -928,7 +1002,10 @@ export default function ChapterTestPage() {
         /* MathText fetches it again when a question needs it */
       }
       setStarting(false);
-      setSignInAsk(null);
+      signedOutLatch.current = true;
+      setSignedOutRestored(false);
+      // review nit (a): the kept time had already run out -> straight to the sign-in card (nothing is marked signed out)
+      setSignInAsk(signedOutRestored && timerEnabled && elapsed >= timeLimitSeconds ? { timeUp: true } : null);
       setPhase("taking");
       setCurrentQNumber(1);
       trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject, signedOut: true });
@@ -973,14 +1050,20 @@ export default function ChapterTestPage() {
     setStarting(false);
     markServed(paper);
     // TS-FREE-SIGNEDOUT: the kept signed-out attempt is now this sitting (the in-tab autosave takes over).
+    signedOutLatch.current = false;
     if (signedOutRestored) {
       clearSignedOutAttempt();
       setSignedOutRestored(false);
+      // review nit (a): the kept time had already run out - the paper opens at its submit step (no instant auto-submit).
+      if (timerEnabled && elapsed >= timeLimitSeconds) {
+        setTimerEnabled(false);
+        setShowConfirm(true);
+      }
     }
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
-  }, [topicKey, subject, fairUse.blockPaperStart, wallVerdictFor, markServed, paper, location.pathname, location.search, user?.uid, isPremium, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, seriesTest, isSignedIn, records, navigate, signedOutSitting, signedOutRestored]);
+  }, [topicKey, subject, fairUse.blockPaperStart, wallVerdictFor, markServed, paper, location.pathname, location.search, user?.uid, isPremium, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, seriesTest, isSignedIn, records, navigate, signedOutSitting, signedOutRestored, timerEnabled, elapsed, timeLimitSeconds]);
 
   // CT-RELOAD-1 — continue the restored paper where it was left. A resume, not a new start:
   // never re-counted against the fair-use allowance.
@@ -993,8 +1076,23 @@ export default function ChapterTestPage() {
       /* MathText fetches it again when a question needs it */
     }
     setStarting(false);
+    // TS-FREE-SIGNEDOUT: a signed-out reload of a signed-out sitting stays signed out (latched); time already up -> the sign-in card.
+    signedOutLatch.current = signedOutSitting;
+    if (signedOutSitting && timerEnabled && elapsed >= timeLimitSeconds) {
+      saveSignedOutAttempt({
+        surface: "chapter-test",
+        path: location.pathname + location.search,
+        ids: paperQuestionIds(restoredPaper),
+        answers,
+        flags: [...flags],
+        currentQNumber,
+        elapsedMs: elapsed * 1000,
+        timerEnabled,
+      });
+      setSignInAsk({ timeUp: true });
+    }
     setPhase("taking");
-  }, [restoredPaper]);
+  }, [restoredPaper, signedOutSitting, timerEnabled, elapsed, timeLimitSeconds, location.pathname, location.search, answers, flags, currentQNumber]);
   /** Drop the restored attempt (unsubmitted, nothing graded) and show this visit's fresh draw. */
   const discardRestored = useCallback(() => {
     // CT-RESUME-2: this visit was let through as a RESUME (not counted). A new paper instead is
@@ -1826,7 +1924,7 @@ export default function ChapterTestPage() {
                     )}
                     {signedOutRestored && (
                       <p className="lt-wcg__line" role="status" data-testid="ts-signed-out-restored">
-                        {SIGNED_OUT_ATTEMPT_RESTORED_LINE}
+                        {isSignedIn ? SIGNED_OUT_ATTEMPT_RESTORED_LINE : SIGNED_OUT_ATTEMPT_KEPT_LINE}
                       </p>
                     )}
                     {startWall && !seriesPaperAccess && (seriesAccess.failed ? <AccessFailed onRetry={seriesAccess.retry} /> : seriesAccess.checking ? <AccessChecking /> : <SeriesStartWall />)}

@@ -65,15 +65,19 @@ function LoginProbe() {
   const loc = useLocation();
   return <p data-testid="login-page">{new URLSearchParams(loc.search).get("redirect")}</p>;
 }
-function mount() {
-  render(
-    <MemoryRouter initialEntries={[URL_]}>
+function tree(url: string) {
+  return (
+    <MemoryRouter initialEntries={[url]}>
       <Routes>
         <Route path="/full-mock/:grade/:subject" element={<FullMockPage />} />
         <Route path="/login" element={<LoginProbe />} />
       </Routes>
-    </MemoryRouter>,
+    </MemoryRouter>
   );
+}
+function mount(url = URL_) {
+  const r = render(tree(url));
+  return { rerender: () => r.rerender(tree(url)) };
 }
 const fetchSpy = vi.fn(async (_u: unknown, _init?: RequestInit) => new Response(JSON.stringify({ enforced: false }), { status: 200 }));
 const selected = () => (document.querySelector(".lt-ct__opt--sel")?.textContent ?? "").trim();
@@ -117,7 +121,7 @@ describe("TS-FREE-SIGNEDOUT · Full Mock series paper", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Submit now/ }));
     fireEvent.click(await screen.findByTestId("ts-sign-in-to-mark-go"));
     expect((await screen.findByTestId("login-page")).textContent).toBe(URL_);
-    expect(localFmSessions()).toHaveLength(0); // the signed-out device autosave is dropped
+    expect(localFmSessions()).toHaveLength(0); // a signed-out sitting never writes the device autosave
     expect(window.sessionStorage.getItem(SIGNED_OUT_ATTEMPT_KEY)).not.toBeNull();
     cleanup();
 
@@ -140,6 +144,35 @@ describe("TS-FREE-SIGNEDOUT · Full Mock series paper", () => {
       expect(rec[0].status).toBe("partial");
     });
     expect(spies.partial).toBe(1);
+  }, 150000);
+
+  it("review blocker: an account appearing MID-SITTING never submits it - back to Start with the answers kept; nothing written", async () => {
+    const page = mount();
+    fireEvent.click(await screen.findByRole("button", { name: /Start the mock/ }, { timeout: 60000 }));
+    await waitFor(() => expect(document.querySelector(".lt-ct__opt")).not.toBeNull(), { timeout: 30000 });
+    fireEvent.click(document.querySelectorAll<HTMLButtonElement>(".lt-ct__opt")[0]);
+    const picked = selected();
+    expect(localFmSessions()).toHaveLength(0);
+    auth.user = SIGNED_IN;
+    page.rerender();
+    await screen.findByRole("button", { name: /Start the mock/ }, { timeout: 60000 });
+    expect(document.querySelector(".lt-ct__exit")).toBeNull();
+    expect(spies.partial).toBe(0);
+    expect(await screen.findByTestId("ts-signed-out-restored", {}, { timeout: 30000 })).toBeTruthy();
+    await waitFor(() => expect(screen.queryByText(/Checking your access/)).toBeNull());
+    fireEvent.click(screen.getByRole("button", { name: /Start the mock/ }));
+    await waitFor(() => expect(document.querySelector(".lt-ct__opt")).not.toBeNull(), { timeout: 30000 });
+    expect(selected()).toBe(picked);
+    expect(spies.partial).toBe(0);
+  }, 150000);
+
+  it("owner decision: a non-sample paper (Full-Length Test 2) and a focus set signed out keep sign-in first", async () => {
+    for (const url of ["/full-mock/10/maths?paper=2", "/full-mock/10/maths?focus=FS-M-LA-1"]) {
+      mount(url);
+      fireEvent.click(await screen.findByRole("button", { name: /Start/ }, { timeout: 60000 }));
+      expect((await screen.findByTestId("login-page")).textContent).toBe(url);
+      cleanup();
+    }
   }, 150000);
 
   it("kill switch VITE_TS_FREE_SIGNEDOUT_DISABLED=1: today's sign-in-first redirect", async () => {
