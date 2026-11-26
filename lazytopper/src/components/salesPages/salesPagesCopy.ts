@@ -100,6 +100,18 @@ export const BP_FAQ_BASIC = {
   a: `Basic is free forever: study, practise and open papers without paying. Checked answers, your personal tutor and Mistake Intelligence come with the ${BOARD_PASS_NAME}.`,
 } as const;
 
+/**
+ * TS-FAIRUSE-1 (owner ruling 26 Nov 2026): the fair-use explanation, INSIDE /board-pass and /test-series (their FAQ / details), never on a
+ * /pricing face card. ONE constant, so both pages say the same words. Calm, no rupee amounts. The "extra usage" sentence appears only
+ * when top-ups are on (VITE_TOPUP_LIVE=1, default hidden; TOPUP-GO-1 owns the purchase).
+ */
+export const FAIR_USE_FAQ_Q = "Is there a usage limit?";
+const FAIR_USE_FAQ_BASE = "Fair use: your pass covers heavy daily practice, for example a full mock marked every day. If you go far beyond that in a short time, marking pauses until your usage resets, and then carries on.";
+const FAIR_USE_FAQ_TOPUP = " You can also add extra usage.";
+export function fairUseFaq(topupsOn: boolean = import.meta.env?.VITE_TOPUP_LIVE === "1"): { q: string; a: string } {
+  return { q: FAIR_USE_FAQ_Q, a: topupsOn ? `${FAIR_USE_FAQ_BASE}${FAIR_USE_FAQ_TOPUP}` : FAIR_USE_FAQ_BASE };
+}
+
 /* ── /cbq-packs ──────────────────────────────────────────────────────────── */
 
 export const CBQ_EYEBROW = "CBQ PACKS · CBSE CLASS 10 · BOARDS 2027";

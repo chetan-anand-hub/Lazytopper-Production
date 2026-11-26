@@ -359,6 +359,15 @@ function tsOwnerExemptDisabled(env) {
   return /^(1|true|on|yes)$/i.test(String((env && env[TS_OWNER_EXEMPT_DISABLED_ENV]) || '').trim());
 }
 
+/**
+ * TS-FAIRUSE-1 kill switch: TS_FAIRUSE_CAP_DISABLED (1 / true / on / yes) -> a Test Series owner (tier "free" on the entitlement gate)
+ * is NOT held to the Premium cost windows - trunk behaviour, byte for byte. PURE.
+ */
+const TS_FAIRUSE_CAP_DISABLED_ENV = 'TS_FAIRUSE_CAP_DISABLED';
+function tsFairUseCapDisabled(env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env[TS_FAIRUSE_CAP_DISABLED_ENV]) || '').trim());
+}
+
 /* ── Paper-pass crypto (F1 / F2) ───────────────────────────────────────────── */
 
 /** The pass secret from `env`, or '' (the dark / unconfigured state). */
@@ -1140,6 +1149,27 @@ function createFairUse(deps = {}) {
     }
   }
 
+  /**
+   * TS-FAIRUSE-1: is this grade-worksheet request a live Test Series owner's grade of a series paper? Reads the body through the
+   * shared pre-read (never twice) and asks testSeriesChecks.ownerSeriesPaper for each paper kind. False on any doubt.
+   */
+  async function tsOwnerOnSeriesPaper(uid, req) {
+    try {
+      const pending = req[BODY_KEY] || readJson(req, GRADE_WORKSHEET_MAX_BYTES);
+      pending.catch(() => {});
+      req[BODY_KEY] = pending;
+      const body = await pending;
+      const paperKey = body && typeof body === 'object' ? String(body.worksheetId || '').trim() : '';
+      if (!paperKey) return false;
+      for (const surface of [SURFACES.CHAPTER_TEST, SURFACES.FULL_MOCK]) {
+        if ((await seriesOwnerPaper(uid, surface, paperKey)) === true) return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
   async function readTier(uid, req) {
     try {
       const tier = await tierOf(uid, req);
@@ -1239,7 +1269,18 @@ function createFairUse(deps = {}) {
     const uid = typeof verifiedUid === 'string' ? verifiedUid.trim() : '';
     if (!uid) return false;
 
-    const tier = await tierFor(uid, req);
+    let tier = await tierFor(uid, req);
+    // TS-FAIRUSE-1 (owner ruling 26 Nov 2026): a live Test Series owner who is neither trial nor Premium (tier "free" on the gate)
+    // is held to the SAME 30-day + day cost windows as a Board Pass holder on a series paper. Their 2 checks per paper are
+    // unchanged; this is an additional ceiling. Any doubt (no dep, kill switch, unread body, not an owner) -> uncapped, as before.
+    let tsOwnerCapped = false;
+    if (tier === 'free' && !tsFairUseCapDisabled(env) && seriesOwnerPaper && reqPath === GRADE_WORKSHEET_PATH) {
+      tsOwnerCapped = await tsOwnerOnSeriesPaper(uid, req);
+      if (tsOwnerCapped) {
+        tier = 'premium';
+        emit('fair_use.ts_owner_capped');
+      }
+    }
     if (tier !== 'trial' && tier !== 'premium') {
       if (tier === null) emit('fair_use.tier_unknown');
       return false;
@@ -2023,6 +2064,8 @@ module.exports = {
   isEnforced,
   tsOwnerExemptDisabled,
   TS_OWNER_EXEMPT_DISABLED_ENV,
+  TS_FAIRUSE_CAP_DISABLED_ENV,
+  tsFairUseCapDisabled,
   bpFreshTierDisabled,
   BP_FRESH_TIER_DISABLED_ENV,
   trialState,
