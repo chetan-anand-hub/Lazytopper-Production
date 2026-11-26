@@ -21,6 +21,7 @@ import TrueAiCostCard from "./TrueAiCostCard";
 import KeyDisputesCard from "./KeyDisputesCard";
 import PurchasesCard from "./PurchasesCard";
 import UnpaidOrdersCard from "./UnpaidOrdersCard";
+import VisitQualityCard from "./VisitQualityCard";
 import MergeAccountsCard from "./MergeAccountsCard";
 import GstInvoicesCard from "./GstInvoicesCard";
 import AiCostSummaryCard, { useAiCostSummary } from "./AiCostSummaryCard";
@@ -404,6 +405,9 @@ export default function StudentsAdminPage() {
 
           {/* UNPAID-ORDERS-LIST-1: ordered-not-paid list (24 h / 7 days), read-only; contact masked unless consent; hidden when the server switch is off. */}
           {list.status === "ok" && <UnpaidOrdersCard getToken={stableGetToken} />}
+
+          {/* QUICK-LEAVE-1: left-without-engaging rate by source x landing page, counts only, loads on request. */}
+          {list.status === "ok" && <VisitQualityCard getToken={stableGetToken} />}
 
           {/* ADMIN-MERGE-REAL-1: merge two real accounts (keep one, remove the other). Collapsed; typed confirmation; the server decides. */}
           {list.status === "ok" && <MergeAccountsCard getToken={stableGetToken} />}
