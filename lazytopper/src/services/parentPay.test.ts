@@ -355,14 +355,16 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
     const n = parentSeriesTestCount();
     const page = "https://www.lazytopper.com/test-series?utm_source=parent_share&utm_medium=whatsapp&utm_campaign=test_series_forward";
     expect(buildParentSeriesShareMessage({ lang: "en", price: "₹1,179", url: page, now: AFTER_FOUNDING })).toBe(
-      `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? It's ₹1,179, one time, valid till my boards: ${n} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner. Pay here, then enter my number so it opens on my account: ${page}`,
+      `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? It's a one-time payment, valid till my boards: ${n} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner. Pay here, then enter my number so it opens on my account: ${page}`,
     );
     expect(buildParentSeriesShareMessage({ lang: "hi", price: "₹1,179", url: page, now: AFTER_FOUNDING })).toBe(
-      `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ₹1,179 है और मेरे बोर्ड तक चलेगी: ${n} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं। यहाँ भुगतान करें, फिर मेरा नंबर डालें ताकि यह मेरे अकाउंट पर खुल जाए: ${page}`,
+      `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का भुगतान है और मेरे बोर्ड तक चलेगी: ${n} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं। यहाँ भुगतान करें, फिर मेरा नंबर डालें ताकि यह मेरे अकाउंट पर खुल जाए: ${page}`,
     );
     for (const lang of ["en", "hi"] as const) {
       const text = buildParentSeriesShareMessage({ lang, price: "₹1,179", url: page, now: AFTER_FOUNDING });
       expect(text).not.toMatch(/PDF|sign in|password|लिंक सिर्फ़/i);
+      // TS-PAYPATH-1: a page link outlives any price - never an amount, even after the founding close.
+      expect(text).not.toMatch(/₹|\bRs\.?\s*\d|\d[\d,]*\s*\+\s*GST/);
     }
   });
 
@@ -516,13 +518,14 @@ describe("FOUNDING-MSG-PRICE-1 - no price that will change is quoted while the f
     const hiBefore = buildParentSeriesShareMessage({ lang: "hi", price: "₹1,179", url: page, now: BEFORE_FOUNDING });
     expect(hiBefore).not.toMatch(/₹/);
     expect(hiBefore).toContain("यह एक बार का भुगतान है");
-    expect(buildParentSeriesShareMessage({ lang: "en", price: "₹1,769", url: page, now: AFTER_FOUNDING })).toContain("It's ₹1,769, one time");
+    // TS-PAYPATH-1: the signed-out share (a page link) names no amount after the close either; the per-account link (72 h) still does.
+    expect(buildParentSeriesShareMessage({ lang: "en", price: "₹1,769", url: page, now: AFTER_FOUNDING })).not.toMatch(/₹/);
   });
 
   it("the boundary is the founding close itself (00:00 IST 1 Dec), the same instant the price changes", () => {
     const close = Date.parse("2026-12-01T00:00:00+05:30");
     expect(buildParentSeriesShareMessage({ lang: "en", price: "₹1,179", url: page, now: close - 1 })).not.toMatch(/₹/);
-    expect(buildParentSeriesShareMessage({ lang: "en", price: "₹1,769", url: page, now: close })).toContain("₹1,769");
+    expect(buildParentSeriesShareMessage({ lang: "en", price: "₹1,769", url: page, now: close })).not.toMatch(/₹/);
   });
 
   it("packs whose price never changes still name it (no founding price)", () => {

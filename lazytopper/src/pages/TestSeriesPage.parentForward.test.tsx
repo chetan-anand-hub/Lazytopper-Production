@@ -155,7 +155,7 @@ describe("TS-PARENT-FORWARD-1 · signed in, not an owner", () => {
 });
 
 const shareText = () =>
-  buildParentSeriesShareMessage({ lang: "en", price: packPayLabel("test_series"), url: `${window.location.origin}${TS_PARENT_SHARE_PATH}` });
+  buildParentSeriesShareMessage({ lang: "en", url: `${window.location.origin}${TS_PARENT_SHARE_PATH}` });
 
 describe("TS-PARENT-FORWARD-2 · signed out: share, never sign-in", () => {
   let shareFn: ReturnType<typeof vi.fn> | null = null;

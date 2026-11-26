@@ -138,6 +138,27 @@ describe("TS-PAYPATH-1 · signed out", () => {
     expect(screen.getByTestId("ts-hero-forward").childElementCount).toBe(0);
   });
 
+  it("the plan card's 'Forward link to parents' message names the Test Series but never an amount (before and after 1 Dec)", async () => {
+    await mount();
+    await act(async () => void fireEvent.click(screen.getByTestId("ts-offer-forward-share")));
+    const url = String(open.mock.calls.at(-1)?.[0] ?? "");
+    const text = decodeURIComponent(url.slice(url.indexOf("text=") + 5));
+    expect(text).toContain("Test Series");
+    expect(text).toContain("one-time payment");
+    expect(text).not.toMatch(/₹|\bRs\.?\s*\d|\d[\d,]*\s*\+\s*GST/);
+    cleanup();
+    open.mockClear();
+    vi.setSystemTime(new Date("2026-12-02T10:00:00+05:30"));
+    try {
+      await mount();
+      await act(async () => void fireEvent.click(screen.getByTestId("ts-offer-forward-share")));
+      const after = String(open.mock.calls.at(-1)?.[0] ?? "");
+      expect(decodeURIComponent(after.slice(after.indexOf("text=") + 5))).not.toMatch(/₹|\bRs\.?\s*\d|\d[\d,]*\s*\+\s*GST/);
+    } finally {
+      vi.setSystemTime(new Date("2026-11-26T21:00:00+05:30"));
+    }
+  });
+
   it("VITE_TS_PARENT_HERO_DISABLED=1 restores today's hero: 'Forward link to parents' and the /packs fallback link", async () => {
     vi.stubEnv("VITE_TS_PARENT_HERO_DISABLED", "1");
     await mount();

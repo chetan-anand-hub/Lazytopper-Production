@@ -325,7 +325,7 @@ export default function TestSeriesPage() {
   async function forwardSignedOut(testId: string) {
     trackPaywallAction("ask", "test_series");
     setShareFallback(null);
-    const text = buildParentSeriesShareMessage({ lang: "en", price: packPayLabel("test_series"), url: `${window.location.origin}${TS_PARENT_SHARE_PATH}` });
+    const text = buildParentSeriesShareMessage({ lang: "en", url: `${window.location.origin}${TS_PARENT_SHARE_PATH}` });
     const nav = (typeof navigator !== "undefined" ? navigator : undefined) as ShareNavigator | undefined;
     if (nav && typeof nav.share === "function") {
       try {
