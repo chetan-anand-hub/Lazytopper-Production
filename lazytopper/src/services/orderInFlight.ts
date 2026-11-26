@@ -27,6 +27,52 @@ export function dedupeInFlight<T>(key: string, start: () => Promise<T>): Promise
   return p;
 }
 
+/**
+ * ORDER-DEDUP-2 - client kill switch for the SIGNED-IN paths only (Board Pass `buyPass`, packs `buyPack`, top-ups `buyTopup`):
+ * VITE_ORDER_DEDUP2_DISABLED=1 restores the pre-ORDER-DEDUP-2 behaviour there (every call starts its own order). The guest /
+ * pay-first paths of ORDER-DEDUP-1 are not affected.
+ * BUILD-TIME: like every VITE_* value it is baked into the bundle by Vite, so flipping it needs a rebuild + redeploy (Vercel env
+ * change, then redeploy); it does nothing to a bundle already served.
+ */
+export function isOrderDedup2Enabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_ORDER_DEDUP2_DISABLED;
+    return !/^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return true;
+  }
+}
+
+/** A stable small number per deps object: production always passes the one default deps object, so its key never changes;
+ *  a test's own injected deps get their own key (no buy leaks between tests through a shared key). */
+const depsIds = new WeakMap<object, number>();
+let nextDepsId = 1;
+function depsId(deps: object): number {
+  let id = depsIds.get(deps);
+  if (id === undefined) {
+    id = nextDepsId++;
+    depsIds.set(deps, id);
+  }
+  return id;
+}
+
+/**
+ * The signed-in buyer for the key (ORDER-DEDUP-1's keys carry the buyer too), read the way the buy bodies already read it
+ * (`authHeaders`: the lazily imported firebaseClient's `currentUser`) - a property read, no new auth call. ONE shared import
+ * promise, so two taps' `.then`s run in tap order and the second always sees the first one's entry. Never throws.
+ */
+let uidSource: Promise<{ authClient?: { currentUser?: { uid?: string } | null } | null }> | null = null;
+function signedInUid(): Promise<string> {
+  uidSource ??= import("./firebaseClient").catch(() => ({ authClient: null }));
+  return uidSource.then((m) => m.authClient?.currentUser?.uid || "anon").catch(() => "anon");
+}
+
+/** ORDER-DEDUP-2 - the signed-in paths: the SAME mechanism as ORDER-DEDUP-1 (`dedupeInFlight`), behind its own kill switch. */
+export function dedupeSignedInBuy<T>(key: string, deps: object, start: () => Promise<T>): Promise<T> {
+  if (!isOrderDedup2Enabled()) return start();
+  return signedInUid().then((uid) => dedupeInFlight(`in|${uid}|${key}|d${depsId(deps)}`, start));
+}
+
 /** Test seam. */
 export function __resetOrderInFlightForTests(): void {
   pending.clear();

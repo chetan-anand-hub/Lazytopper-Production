@@ -30,6 +30,7 @@ import { confirmServerPrice, razorpaySheetDescription } from "../../services/pri
 import { isGstBuyerCancelled } from "../../services/gstBuyerOrder";
 import { razorpayUpiFirstOption } from "../../services/razorpayDisplay";
 import { invalidateUsage } from "../../services/usageClient";
+import { dedupeSignedInBuy } from "../../services/orderInFlight";
 import type { TopupKey } from "../../config/topup";
 
 export type TopupOutcome =
@@ -92,7 +93,12 @@ export const TOPUP_CHECKOUT_DESCRIPTION = "Extra usage for your Board Pass, vali
 const STATUS_TRIES = 3;
 const STATUS_GAP_MS = 2500;
 
-export async function buyTopup(key: TopupKey, deps: TopupBuyDeps = DEFAULT_DEPS): Promise<TopupOutcome> {
+export function buyTopup(key: TopupKey, deps: TopupBuyDeps = DEFAULT_DEPS): Promise<TopupOutcome> {
+  // ORDER-DEDUP-2: a second tap on the same top-up while this buy is pending shares it: one order.
+  return dedupeSignedInBuy(`topup|${key}`, deps, () => buyTopupOnce(key, deps));
+}
+
+async function buyTopupOnce(key: TopupKey, deps: TopupBuyDeps): Promise<TopupOutcome> {
   try {
     const [order, Razorpay, prefill] = await Promise.all([
       deps.createOrder(key),

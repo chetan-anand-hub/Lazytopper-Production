@@ -58,6 +58,7 @@ export default function TopupAction({ where, className = "lt-usage__btn", wrappe
       {open ? (
         <Suspense fallback={null}>
           <TopupSheetLazy
+            surface={where}
             onClose={() => {
               setOpen(false);
               // The host hears about a paid top-up when the student closes the sheet, so "Done" is read before the host re-renders.

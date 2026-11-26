@@ -22,7 +22,20 @@ import {
   type TopupKey,
 } from "../../config/topup";
 import { buyTopup, type TopupBuyDeps, type TopupOutcome } from "./topupBuy";
+import { trackOnboardingEvent } from "../../analytics/analytics";
 import "./topup.css";
+
+/** FU-TOPUP-NO-ANALYTICS (ORDER-DEDUP-2): the top-up funnel. Closed-set slugs only - the pack key, where the sheet opened, why it
+ *  ended - never an amount, an order id or anything about the student. `pack: "both"` = the sheet itself (it lists both packs). */
+export type TopupSurface = "limit" | "menu" | "warn";
+declare module "../../analytics/analytics" {
+  interface OnboardingEventParams {
+    topup_sheet_shown: { pack: "both"; surface: TopupSurface | "other" };
+    topup_buy_tap: { pack: TopupKey };
+    topup_paid: { pack: TopupKey };
+    topup_failed: { pack: TopupKey; reason: "closed" | "error" };
+  }
+}
 
 export interface TopupSheetProps {
   onClose: () => void;
@@ -32,15 +45,25 @@ export interface TopupSheetProps {
   buyDeps?: TopupBuyDeps;
   /** Test seam: the clock the price is computed at. */
   nowMs?: number;
+  /** Where the sheet was opened from (analytics only). */
+  surface?: TopupSurface;
 }
 
 type Phase = { kind: "idle" } | { kind: "busy"; key: TopupKey } | { kind: "paid" } | { kind: "pending" } | { kind: "failed" };
 
-export default function TopupSheet({ onClose, onToppedUp, buyDeps, nowMs }: TopupSheetProps) {
+export default function TopupSheet({ onClose, onToppedUp, buyDeps, nowMs, surface }: TopupSheetProps) {
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
   const headingId = useId();
   const ref = useRef<HTMLDivElement | null>(null);
   const busy = phase.kind === "busy";
+  const shownSent = useRef(false);
+  const payingRef = useRef(false); // ORDER-DEDUP-2: synchronous in-flight flag (the `busy` closure only updates after a re-render)
+
+  useEffect(() => {
+    if (shownSent.current) return;
+    shownSent.current = true;
+    trackOnboardingEvent("topup_sheet_shown", { pack: "both", surface: surface ?? "other" });
+  }, [surface]);
 
   useEffect(() => {
     const before = document.activeElement as HTMLElement | null;
@@ -51,17 +74,28 @@ export default function TopupSheet({ onClose, onToppedUp, buyDeps, nowMs }: Topu
   }, []);
 
   const pay = async (key: TopupKey) => {
-    if (busy) return;
+    if (busy || payingRef.current) return;
+    payingRef.current = true;
+    trackOnboardingEvent("topup_buy_tap", { pack: key });
     setPhase({ kind: "busy", key });
-    const outcome: TopupOutcome = await buyTopup(key, buyDeps);
+    let outcome: TopupOutcome;
+    try {
+      outcome = await buyTopup(key, buyDeps);
+    } finally {
+      payingRef.current = false;
+    }
     if (outcome.status === "paid") {
+      trackOnboardingEvent("topup_paid", { pack: key });
       setPhase({ kind: "paid" });
       onToppedUp?.();
     } else if (outcome.status === "pending") {
+      // Razorpay signed a success the server has not confirmed yet: neither paid nor failed, so no outcome event.
       setPhase({ kind: "pending" });
     } else if (outcome.status === "failed") {
+      trackOnboardingEvent("topup_failed", { pack: key, reason: "error" });
       setPhase({ kind: "failed" });
     } else {
+      trackOnboardingEvent("topup_failed", { pack: key, reason: "closed" });
       setPhase({ kind: "idle" });
     }
   };

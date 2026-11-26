@@ -40,6 +40,7 @@ import { confirmServerPrice, razorpaySheetDescription } from "./priceConfirm";
 import { watchSheetForHang } from "./payReturn";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { isGstBuyerCancelled } from "./gstBuyerOrder";
+import { dedupeSignedInBuy } from "./orderInFlight";
 
 /* ── catalogue ──────────────────────────────────────────────────────────────── */
 
@@ -603,12 +604,22 @@ const DEFAULT_BUY_DEPS: PackBuyDeps = {
  * order -> Razorpay's checkout -> server verify. Never throws. The amount charged is the SERVER order's.
  * `chapterName` only words the Razorpay sheet's description.
  */
-export async function buyPack(
+export function buyPack(
   sku: PackSku,
   target?: string,
   options: { chapterName?: string; deps?: PackBuyDeps; /** the host mounts the paid-screen GST block (PaidSheet with an order id) */ postPay?: boolean } = {},
 ): Promise<PackBuyOutcome> {
   const deps = options.deps ?? DEFAULT_BUY_DEPS;
+  // ORDER-DEDUP-2: same pack + same chapter while this buy is pending -> one order (a different pack / chapter is its own order).
+  return dedupeSignedInBuy(`pack|${sku}|${target ?? ""}|${options.postPay ? "post" : "pre"}`, deps, () => buyPackOnce(sku, target, options, deps));
+}
+
+async function buyPackOnce(
+  sku: PackSku,
+  target: string | undefined,
+  options: { chapterName?: string; postPay?: boolean },
+  deps: PackBuyDeps,
+): Promise<PackBuyOutcome> {
   if (!isValidPackTarget(sku, target)) return { status: "failed" };
   try {
     const sendTarget = sku === "pack_bundle" || sku === "test_series" ? undefined : target;
