@@ -3,7 +3,8 @@
  * 25 Oct 2026 07:58 IST). Tune here; no logic changes. The client mirror is
  * src/config/limitsConfig.ts and `limitsConfig.parity.test.ts` fails if they differ.
  * All counts are per rolling 7 days unless the key says `PerDay` (IST calendar day).
- * The FIRST of each kind is free and uncounted (`firstFree`).
+ * The FIRST of each kind is free and uncounted (`firstFree`) - except a Basic chapter-test / full-mock GRADE
+ * (BASIC-CTFM-FREE-1, owner ruling 26 Nov 2026: limits.cjs; Basic's one free marked test is the Test Series free test).
  * PR-1 enforces the two `downloadsPerWeek` numbers; the rest are used by PR-2 and are
  * listed now so the owner has one place to read.
  */

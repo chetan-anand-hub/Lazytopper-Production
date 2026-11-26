@@ -16,7 +16,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { EventEmitter } = require('node:events');
 const { setChargeableCount } = require('../grading/charge.cjs');
-const { createLimits, parseCover, limitsDeferredOf, decideDownload, decideCounted, istDayStartMs, entryId, TRIAL_COHORT_START_MS, WINDOW_MS } = require('./limits.cjs');
+const { createLimits, parseCover, limitsDeferredOf, decideDownload, decideCounted, istDayStartMs, entryId, TRIAL_COHORT_START_MS, WINDOW_MS, basicCtFmFirstFreeRestored } = require('./limits.cjs');
 
 const DAY = 86400000;
 const NOW = Date.UTC(2026, 10, 2, 6, 0, 0); // 2 Nov 2026 11:30 IST
@@ -382,8 +382,11 @@ test('GRADE · Basic: the first grade of each kind bypasses the 402 once, a fail
   assert.equal(first.verdict.bypassEntitlement, true, 'the 500 above spent nothing');
   const second = await gate(r, { surface: 'worksheet' });
   assert.deepEqual(second.verdict, {}, 'now the ordinary 402 follows');
+  // BASIC-CTFM-FREE-1 (owner ruling 26 Nov 2026): chapter tests and full mocks have NO Basic first free (the free Test Series test is it)
   const other = await gate(r, { surface: 'chapter-test' });
-  assert.equal(other.verdict.bypassEntitlement, true, 'each kind has its own first free');
+  assert.deepEqual(other.verdict, {}, 'no first free chapter-test grade for Basic');
+  const old = rig({ env: { LIMITS_ENFORCE: '1', BASIC_CTFM_FIRST_FREE_RESTORE: '1' } });
+  assert.equal((await gate(old, { surface: 'chapter-test' })).verdict.bypassEntitlement, true, 'kill switch: each kind has its own first free, as before');
   const ci = await gate(r, { path: '/api/check-solution' });
   assert.equal(ci.verdict.bypassEntitlement, true);
   assert.deepEqual((await gate(r, { path: '/api/check-solution' })).verdict, {});
@@ -439,10 +442,10 @@ test('GATE-QP-1 · kill switch GATE_QP_DISABLED=1 restores Basic\'s first free g
 test('GATE-QP-1 · every OTHER Basic allowance is exactly as before (check-improve, worksheet, chapter-test, full-mock first-free)', async () => {
   const r = rig();
   assert.equal((await gate(r, { path: '/api/check-solution' })).verdict.bypassEntitlement, true);
-  for (const surface of ['worksheet', 'chapter-test', 'full-mock']) {
-    assert.equal((await gate(r, { surface })).verdict.bypassEntitlement, true, surface);
-    assert.deepEqual((await gate(r, { surface })).verdict, {}, `${surface} then the 402`);
-  }
+  assert.equal((await gate(r, { surface: 'worksheet' })).verdict.bypassEntitlement, true, 'worksheet');
+  assert.deepEqual((await gate(r, { surface: 'worksheet' })).verdict, {}, 'worksheet then the 402');
+  // BASIC-CTFM-FREE-1: chapter-test / full-mock no longer have a Basic first free
+  for (const surface of ['chapter-test', 'full-mock']) assert.deepEqual((await gate(r, { surface })).verdict, {}, surface);
   // Quick Practice per-question checks arrive on /api/check-solution and stay metered as Check & Improve.
   assert.deepEqual((await gate(r, { path: '/api/check-solution', surface: 'quick-practice' })).verdict, {});
 });
@@ -512,7 +515,7 @@ test('GRADE · RESERVE: Basic first free is claimed by ONE of N parallel request
   const r = rig();
   const calls = await Promise.all(Array.from({ length: 6 }, async (_, i) => {
     const res = new EventEmitter(); res.statusCode = 200;
-    return r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'full-mock', 'idempotency-key': `b${i}` } }, res, '/api/grade-worksheet', 'stu-1');
+    return r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'worksheet', 'idempotency-key': `b${i}` } }, res, '/api/grade-worksheet', 'stu-1');
   }));
   assert.equal(calls.filter((v) => v.bypassEntitlement).length, 1);
 });
@@ -874,7 +877,10 @@ test('TS-PACK-JOBFIX · FREE OWNER: a series grade is not "first free" (no bypas
   const owner = rig({ tier: 'free', created: NEW_ACCT });
   for (let i = 0; i < 3; i += 1) assert.deepEqual((await seriesGate(owner, { surface: 'full-mock', idem: `fo-${i}`, owner: true })).verdict, {});
   const non = rig({ tier: 'free', created: NEW_ACCT });
-  assert.deepEqual((await seriesGate(non, { surface: 'full-mock', idem: 'fn-1', owner: false })).verdict, { bypassEntitlement: true });
+  // BASIC-CTFM-FREE-1: a non-owner's full-mock grade no longer has a first free (the ordinary 402); the kill switch restores it
+  assert.deepEqual((await seriesGate(non, { surface: 'full-mock', idem: 'fn-1', owner: false })).verdict, {});
+  const old = rig({ tier: 'free', created: NEW_ACCT, env: { LIMITS_ENFORCE: '1', BASIC_CTFM_FIRST_FREE_RESTORE: '1' } });
+  assert.deepEqual((await seriesGate(old, { surface: 'full-mock', idem: 'fn-1', owner: false })).verdict, { bypassEntitlement: true });
 });
 
 test('TS-PACK-JOBFIX · DOWNLOADS: an owner downloads 5 series papers uncounted; a non-series paper and a non-owner are counted as before', async () => {
@@ -935,8 +941,8 @@ test('TS-FREE-CHECK-1 · TRIAL free test: both checks + the free re-check of the
 test('TS-FREE-CHECK-1 · BASIC free test: no "first free" grade is spent (no bypass) - the entitlement gate admits it on the free test', async () => {
   const r = rig({ tier: 'free', created: NEW_ACCT });
   assert.deepEqual((await seriesGate(r, { surface: 'chapter-test', idem: 'bf-1', owner: true })).verdict, {});
-  // Basic's first free chapter-test grade is still available afterwards (unchanged)
-  assert.deepEqual((await seriesGate(r, { surface: 'chapter-test', idem: 'bf-2', owner: false })).verdict, { bypassEntitlement: true });
+  // BASIC-CTFM-FREE-1 (owner ruling 26 Nov 2026): the free test is Basic's ONE free marked test - no other chapter-test grade is free
+  assert.deepEqual((await seriesGate(r, { surface: 'chapter-test', idem: 'bf-2', owner: false })).verdict, {});
 });
 
 test('TS-FREE-CHECK-1 · DETAIL: the pinned free-test paper keeps its breakdown on a re-check; any other paper is locked as before; downloads are NOT widened', async () => {
@@ -1129,4 +1135,80 @@ test('MARK-ON-PHOTO-2: the Answer Checker mark pass and a bank mark never cross 
   await r.l.gradingGate(req, res, '/api/grade-worksheet', 'stu-1', { paperKeyOf: () => 'ci:CI-1' });
   assert.equal(markPass.acceptedMarkPassOf(req), null);
   assert.equal(r.counters['limits.grade.mark_on_photo_bank'], undefined);
+});
+
+
+/* ── BASIC-CTFM-FREE-1 (owner ruling 26 Nov 2026, 23:00 IST; FU-BASIC-SERVER-FIRST-FREE) ─────────────────────────────────────
+ * A Basic account's ONE free marked test is the Test Series free test. The server's separate first-free chapter-test / full-mock
+ * grade is gone. Per tier: Basic CT/FM -> no bypass, nothing written; the free test -> still exempt (seriesOwnerGrade); Basic
+ * Answer Checker / worksheet first free -> unchanged; trial -> weekly caps unchanged; premium -> not metered; kill switch only "1". */
+
+test('BASIC-CTFM-FREE-1 · Basic chapter-test / full-mock grades: no bypass, no reservation, nothing written (the ordinary 402 follows)', async () => {
+  const r = rig();
+  for (const surface of ['chapter-test', 'full-mock']) {
+    for (let i = 0; i < 2; i += 1) {
+      const g = await gate(r, { surface, idem: `${surface}-${i}` });
+      assert.deepEqual(g.verdict, {}, surface);
+      assert.equal(g.sent, undefined, 'the limits gate itself refuses nothing');
+    }
+  }
+  assert.equal(r.f.docs.size, 0, 'nothing reserved or written');
+  assert.equal(r.counters['limits.grade.basic_ctfm_no_first_free'], 4);
+});
+
+test('BASIC-CTFM-FREE-1 · the free Test Series test is still exempt before the rule (no slot, no 402 from here)', async () => {
+  const r = rig();
+  for (const surface of ['chapter-test', 'full-mock']) {
+    assert.deepEqual((await seriesGate(r, { surface, idem: `ft-${surface}`, owner: true })).verdict, {});
+  }
+  assert.equal(r.f.docs.size, 0);
+  assert.equal(r.counters['limits.grade.test_series'], 2);
+  assert.equal(r.counters['limits.grade.basic_ctfm_no_first_free'] || 0, 0, 'the free test never reaches the new rule');
+});
+
+test('BASIC-CTFM-FREE-1 · Basic Answer Checker and worksheet first free: unchanged', async () => {
+  const r = rig();
+  assert.equal((await gate(r, { path: '/api/check-solution' })).verdict.bypassEntitlement, true);
+  assert.equal((await gate(r, { surface: 'worksheet' })).verdict.bypassEntitlement, true);
+  assert.deepEqual((await gate(r, { surface: 'worksheet' })).verdict, {});
+});
+
+test('BASIC-CTFM-FREE-1 · trial: chapter-test / full-mock weekly caps unchanged (first reserves, cap then 409)', async () => {
+  const r = rig({ tier: 'trial', created: NEW_ACCT });
+  const a = await gate(r, { surface: 'chapter-test', idem: 't1', charged: 3 });
+  assert.equal(a.sent, undefined);
+  const doc = [...r.f.docs.values()][0];
+  assert.ok((doc.gr['chapter-test'] || []).length >= 1, 'the trial grade is recorded as before');
+  assert.equal(r.counters['limits.grade.basic_ctfm_no_first_free'] || 0, 0);
+});
+
+test('BASIC-CTFM-FREE-1 · premium is never metered', async () => {
+  const r = rig({ tier: 'premium' });
+  assert.deepEqual((await gate(r, { surface: 'chapter-test' })).verdict, {});
+  assert.equal(r.f.docs.size, 0);
+  assert.equal(r.counters['limits.grade.basic_ctfm_no_first_free'] || 0, 0);
+});
+
+test('BASIC-CTFM-FREE-1 · kill switch BASIC_CTFM_FIRST_FREE_RESTORE accepts ONLY "1"', async () => {
+  assert.equal(basicCtFmFirstFreeRestored({ BASIC_CTFM_FIRST_FREE_RESTORE: '1' }), true);
+  for (const v of ['true', 'on', 'yes', '0', '', ' 2']) assert.equal(basicCtFmFirstFreeRestored({ BASIC_CTFM_FIRST_FREE_RESTORE: v }), false, v);
+  const on = rig({ env: { LIMITS_ENFORCE: '1', BASIC_CTFM_FIRST_FREE_RESTORE: 'true' } });
+  assert.deepEqual((await gate(on, { surface: 'full-mock' })).verdict, {}, '"true" does not restore');
+  const old = rig({ env: { LIMITS_ENFORCE: '1', BASIC_CTFM_FIRST_FREE_RESTORE: '1' } });
+  assert.equal((await gate(old, { surface: 'full-mock' })).verdict.bypassEntitlement, true);
+  assert.deepEqual((await gate(old, { surface: 'full-mock' })).verdict, {}, 'then the 402, as before');
+});
+
+test('BASIC-CTFM-FREE-1 · GET /api/usage/limits never reports a Basic first free for chapter-test / full-mock (My Packs "free mark left")', async () => {
+  const me = async (r) => {
+    const res = {};
+    await r.l.handleLimitsMe({ headers: {} }, res);
+    return res.sent.body;
+  };
+  const b = await me(rig());
+  assert.equal(b.grade['chapter-test'].firstFreeAvailable, false);
+  assert.equal(b.grade['full-mock'].firstFreeAvailable, false);
+  assert.equal(b.grade.worksheet.firstFreeAvailable, true, 'worksheet unchanged');
+  const old = await me(rig({ env: { LIMITS_ENFORCE: '1', BASIC_CTFM_FIRST_FREE_RESTORE: '1' } }));
+  assert.equal(old.grade['chapter-test'].firstFreeAvailable, true, 'kill switch: as before');
 });

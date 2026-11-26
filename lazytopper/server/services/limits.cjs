@@ -149,6 +149,16 @@ function gateQpDisabled(env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.GATE_QP_DISABLED) || '').trim());
 }
 
+/**
+ * BASIC-CTFM-FREE-1 (owner ruling 26 Nov 2026, 23:00 IST; FU-BASIC-SERVER-FIRST-FREE): a Basic account's ONE free marked test is the
+ * Test Series free test (testSeriesChecks: pinned at the first written check, 2 checks a paper) - there is no separate first-free
+ * chapter-test / full-mock grade. Kill switch BASIC_CTFM_FIRST_FREE_RESTORE=1 (ONLY "1") restores that old first-free grade.
+ */
+function basicCtFmFirstFreeRestored(env) {
+  return String((env && env.BASIC_CTFM_FIRST_FREE_RESTORE) || '').trim() === '1';
+}
+const BASIC_NO_FIRST_FREE_KINDS = new Set(['chapter-test', 'full-mock']);
+
 function isEnforced(env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.LIMITS_ENFORCE) || '').trim());
 }
@@ -875,6 +885,14 @@ function createLimits(deps = {}) {
         emit('limits.grade.qp_board_pass_only');
         return none;
       }
+      // BASIC-CTFM-FREE-1 (owner ruling 26 Nov 2026, 23:00 IST): a Basic (tier free) chapter-test / full-mock grade gets NO first-free
+      // bypass and no reservation: the entitlement gate answers its ordinary 402. The ONE free marked test is the Test Series free
+      // test, already let through above (seriesOwnerGrade -> testSeriesChecks.freeTestGrade) and capped by its own 2-per-paper rule.
+      // Trial (metered weekly caps), premium (not metered), Answer Checker and worksheet first-free: unchanged.
+      if (BASIC_NO_FIRST_FREE_KINDS.has(kind) && info.tier === 'free' && !basicCtFmFirstFreeRestored(env)) {
+        emit('limits.grade.basic_ctfm_no_first_free');
+        return none;
+      }
       const db = ledgerDb();
       if (!db || typeof db.runTransaction !== 'function') {
         emit('limits.fail_open');
@@ -1084,8 +1102,10 @@ function createLimits(deps = {}) {
     const qpLimit = info.tier === 'free' ? LIMITS_CONFIG.basic.quickPracticeGradedPerDay : LIMITS_CONFIG.trial.quickPracticeGradedPerDay;
     const grade = {};
     for (const kind of GR_BUCKET_KINDS) {
+      // BASIC-CTFM-FREE-1: no Basic first-free chapter-test / full-mock grade, so none is reported (My Packs' "free mark left").
+      const noFirstFree = BASIC_NO_FIRST_FREE_KINDS.has(kind) && !basicCtFmFirstFreeRestored(env);
       grade[kind] = info.tier === 'free'
-        ? { limit: 0, used: 0, remaining: 0, firstFreeAvailable: !firstFreeOf(state, `gr:${kind}`), resetAt: null }
+        ? { limit: 0, used: 0, remaining: 0, firstFreeAvailable: !noFirstFree && !firstFreeOf(state, `gr:${kind}`), resetAt: null }
         : counter(`gr:${kind}`, resolveGradeLimit(kind));
     }
     return {
@@ -1148,6 +1168,7 @@ module.exports = {
   entryId,
   isEnforced,
   gateQpDisabled,
+  basicCtFmFirstFreeRestored,
   resolveLimits,
   USAGE_LIMITS_PATH,
   USAGE_LIMITS_DOWNLOAD_PATH,
