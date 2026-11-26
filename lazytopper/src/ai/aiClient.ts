@@ -865,6 +865,8 @@ export interface DetectQuestionResponse {
    *  questions before the cut (absent on a complete read). `readCount` is how many. */
   partial?: boolean;
   readCount?: number;
+  /** TOPIC-BATCH-1 — purpose "topics" only: one entry per question the server tagged (absent entries = not tagged). */
+  topics?: Array<{ questionNumber: number; detectedSubject?: "Maths" | "Science" | null; detectedTopic?: string | null }>;
   error?: string;
 }
 
@@ -879,7 +881,9 @@ export async function detectQuestion(req: {
   sectionMarks?: boolean;
   /** GRADE-SPEED-1 — "topic": a per-question TOPIC-ONLY re-detect of an already-read paper (resolvePerQuestionGradeTopics).
    *  The server never prepares a grading scheme for it. Absent = the ordinary question-reading detect. */
-  purpose?: "topic";
+  purpose?: "topic" | "topics";
+  /** TOPIC-BATCH-1 — with purpose "topics": the already-read questions to tag in ONE call. */
+  questions?: Array<{ questionNumber: number; questionText: string }>;
 }, opts?: PaidCallOptions): Promise<DetectQuestionResponse> {
   const res = await sendWithTokenRefresh(
     opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),

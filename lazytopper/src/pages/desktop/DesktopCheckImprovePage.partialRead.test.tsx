@@ -37,10 +37,13 @@ vi.mock("../../ai/aiClient", async (importOriginal) => {
   // "topic"); they answer "no chapter" here so they never consume this file's read mocks.
   return {
     ...actual,
-    detectQuestion: (...a: unknown[]) =>
-      (a[0] as { purpose?: string } | undefined)?.purpose === "topic"
-        ? Promise.resolve({ ok: true, detectedTopic: null, detectedSubject: null })
-        : H.detectQuestion(...a),
+    // TOPIC-BATCH-1: the batched read (purpose "topics") is answered the same way - no chapters.
+    detectQuestion: (...a: unknown[]) => {
+      const purpose = (a[0] as { purpose?: string } | undefined)?.purpose;
+      if (purpose === "topic") return Promise.resolve({ ok: true, detectedTopic: null, detectedSubject: null });
+      if (purpose === "topics") return Promise.resolve({ ok: true, topics: [] });
+      return H.detectQuestion(...a);
+    },
   };
 });
 vi.mock("../../services/mistakeIntelligence", async (importOriginal) => {
