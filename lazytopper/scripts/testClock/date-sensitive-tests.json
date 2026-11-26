@@ -635,6 +635,7 @@
     "src/components/parents/ParentReturnLink.destinations.test.tsx",
     "src/components/passOwnerOffers/PassOwnerOffer.test.tsx",
     "src/components/passOwnerOffers/passOwnerOffersModel.test.ts",
+    "src/components/payRescue/InAppPayChoice.stuck.test.tsx",
     "src/components/payRescue/PayRescueCard.parentFirst.test.tsx",
     "src/components/payRescue/PayRescueCard.test.tsx",
     "src/components/payRescue/parentForward.test.ts",
