@@ -129,6 +129,79 @@ export interface PerQuestionTopic {
   subject: DesktopSubject | "";
 }
 
+/** TOPIC-BATCH-1 — VITE_TOPIC_BATCH_DISABLED=1 (any value but "", "0", "false") restores the one-call-per-question path. */
+function topicBatchDisabled(): boolean {
+  const v = import.meta.env?.VITE_TOPIC_BATCH_DISABLED;
+  return typeof v === "string" && !["", "0", "false"].includes(v.trim().toLowerCase());
+}
+
+/** One question's resolved topic from the model's two answers — the SAME guard + resolver + W4 subject rule for the
+ *  single read and the batched read. */
+function perQuestionTopicFrom(
+  qNumber: number,
+  text: string,
+  detectedTopic: string | null | undefined,
+  detectedSubject: string | null | undefined,
+): PerQuestionTopic {
+  const guarded = guardedDetection(detectedTopic ?? null, detectedSubject ?? null, text);
+  const { topicSlug, topicName, subject } = resolveDetectedGradeTopic(guarded);
+  // The subject is KNOWN when the topic resolved (it comes from topics.ts). When it did
+  // not, only a subject this question's own detect NAMED is kept (W4) — never the
+  // resolver's "Maths" fallback — so an unresolved question stays honestly unknown
+  // unless the detector said which subject it is.
+  const named: DesktopSubject | "" =
+    guarded.detectedSubject === "Science" || guarded.detectedSubject === "Maths" ? guarded.detectedSubject : "";
+  return { qNumber, topicSlug, topicName, subject: topicSlug ? subject : named };
+}
+
+/**
+ * TOPIC-BATCH-1 — ONE `purpose:"topics"` call tags every question of the paper (a 38-question paper was 38 calls,
+ * each re-sending the prompt and the 26-topic vocabulary). The output shape, the guard, the resolver and the subject
+ * rule are exactly the per-question path's. ANY failure, a malformed reply, or a question the reply does not cover
+ * falls back to the per-question read FOR THAT QUESTION ONLY — a chapter is never guessed. A paper with a repeated
+ * question number is not batched (the reply could not be matched back unambiguously).
+ */
+export async function resolvePerQuestionGradeTopics(
+  questions: Array<{ questionNumber: number; questionText: string }>,
+  topicVocabulary: CheckSolutionTopicVocab[],
+  callOpts?: PaidCallOptions,
+): Promise<PerQuestionTopic[]> {
+  if (topicBatchDisabled()) return resolvePerQuestionGradeTopicsOneByOne(questions, topicVocabulary, callOpts);
+  const asked = questions
+    .map((q) => ({ questionNumber: q.questionNumber, questionText: String(q.questionText || "").trim() }))
+    .filter((q) => q.questionText);
+  const numbers = new Set(asked.map((q) => q.questionNumber));
+  // Fewer than two readable questions, or a repeated number: nothing to batch.
+  if (asked.length < 2 || numbers.size !== asked.length) {
+    return resolvePerQuestionGradeTopicsOneByOne(questions, topicVocabulary, callOpts);
+  }
+  const answers = new Map<number, { detectedTopic: string | null; detectedSubject: string | null }>();
+  try {
+    const req = { questions: asked, topicVocabulary, purpose: "topics" as const };
+    const d = callOpts ? await detectQuestion(req, callOpts) : await detectQuestion(req);
+    if (d && d.ok !== false && Array.isArray(d.topics)) {
+      for (const t of d.topics) {
+        const n = Number(t?.questionNumber);
+        if (!numbers.has(n) || answers.has(n)) continue;
+        answers.set(n, { detectedTopic: t.detectedTopic ?? null, detectedSubject: t.detectedSubject ?? null });
+      }
+    }
+  } catch (error) {
+    console.warn("[checkImproveDetection] batched topic detect failed — reading per question", error);
+  }
+  const missing = questions.filter((q) => String(q.questionText || "").trim() && !answers.has(q.questionNumber));
+  const filled = missing.length
+    ? new Map((await resolvePerQuestionGradeTopicsOneByOne(missing, topicVocabulary, callOpts)).map((t) => [t.qNumber, t]))
+    : new Map<number, PerQuestionTopic>();
+  return questions.map((q) => {
+    const text = String(q.questionText || "").trim();
+    if (!text) return { qNumber: q.questionNumber, topicSlug: "", topicName: "", subject: "" };
+    const a = answers.get(q.questionNumber);
+    if (a) return perQuestionTopicFrom(q.questionNumber, text, a.detectedTopic, a.detectedSubject);
+    return filled.get(q.questionNumber) ?? { qNumber: q.questionNumber, topicSlug: "", topicName: "", subject: "" };
+  });
+}
+
 /**
  * Resolve a per-QUESTION topic for each question of a (multi-question) C&I upload —
  * item A, route A2 (owner-ratified 2026-07-13): re-run the EXISTING `/detect-question`
@@ -151,7 +224,7 @@ export interface PerQuestionTopic {
  * visitor's free check sends the marker + its own fresh limited-use App Check token on
  * each of the N calls (OR-13 item 4). Omitted, each call is byte-identical to before.
  */
-export async function resolvePerQuestionGradeTopics(
+async function resolvePerQuestionGradeTopicsOneByOne(
   questions: Array<{ questionNumber: number; questionText: string }>,
   topicVocabulary: CheckSolutionTopicVocab[],
   callOpts?: PaidCallOptions,

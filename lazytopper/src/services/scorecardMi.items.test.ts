@@ -93,7 +93,28 @@ describe("B2 / D7 / GA-16 — each question under ITS OWN subject and chapter", 
   it("W4 — an UNRESOLVED question on a mixed paper takes the subject ITS OWN detect named, never the paper's", () => {
     expect(perQuestionFiling({ topicSlug: "", topicSubject: "Science" }, paper, true)).toEqual({ subject: "Science", topicName: "", topicSlug: "" });
   });
+  it("W4 · TOPIC-BATCH-1 — the BATCHED detect keeps a NAMED subject when no chapter resolves, and invents none (same rule)", async () => {
+    detectQuestionMock.mockReset();
+    detectQuestionMock.mockResolvedValueOnce({
+      ok: true,
+      topics: [
+        { questionNumber: 1, detectedTopic: "something no chapter matches", detectedSubject: "Science" },
+        { questionNumber: 2, detectedTopic: null, detectedSubject: null },
+      ],
+    });
+    const out = await resolvePerQuestionGradeTopics(
+      [
+        { questionNumber: 1, questionText: "Why does a ray of light bend?" },
+        { questionNumber: 2, questionText: "An unreadable fragment" },
+      ],
+      [],
+    );
+    expect(detectQuestionMock).toHaveBeenCalledTimes(1);
+    expect(out[0]).toEqual({ qNumber: 1, topicSlug: "", topicName: "", subject: "Science" });
+    expect(out[1]).toEqual({ qNumber: 2, topicSlug: "", topicName: "", subject: "" });
+  });
   it("W4 — the per-question detect keeps a NAMED subject when no chapter resolves, and invents none", async () => {
+    vi.stubEnv("VITE_TOPIC_BATCH_DISABLED", "1"); // the per-question path (the kill switch restores it)
     detectQuestionMock.mockReset();
     detectQuestionMock
       .mockResolvedValueOnce({ ok: true, detectedTopic: "something no chapter matches", detectedSubject: "Science" })
@@ -108,6 +129,7 @@ describe("B2 / D7 / GA-16 — each question under ITS OWN subject and chapter", 
     expect(out[0]).toEqual({ qNumber: 1, topicSlug: "", topicName: "", subject: "Science" });
     // CONTROL — no subject named → still unknown (never the resolver's "Maths" fallback).
     expect(out[1]).toEqual({ qNumber: 2, topicSlug: "", topicName: "", subject: "" });
+    vi.unstubAllEnvs();
   });
   it("CONTROL — on a single-topic paper an unresolved question inherits the paper's topic", () => {
     expect(perQuestionFiling({ topicSlug: null }, paper, false)).toEqual(paper);
