@@ -266,23 +266,23 @@ describe("the page, top to bottom (§2)", () => {
     expect(within(c).getByTestId("hub-bank-details")).toHaveAttribute("href", "/packs");
   });
 
-  it("tabs: four real buttons with aria-pressed; caption; pager '1 of 4 · next: Test Series'; a tab tap selects its card", async () => {
+  it("tabs: four real buttons with aria-pressed; caption; pager '1 of 4 · next: CBQ Packs'; a tab tap selects its card", async () => {
     await renderAt("/pricing");
     const tabs = within(screen.getByTestId("hub-tabs")).getAllByRole("button");
     expect(tabs.map((t) => t.textContent)).toEqual([
       `Board Pass${hubTabPrice("pass")}`,
-      `Test Series${hubTabPrice("ts")}`,
       `CBQ Packs${hubTabPrice("cbq")}`,
+      `Test Series${hubTabPrice("ts")}`,
       `Question Bank${hubTabPrice("bank")}`,
     ]);
     expect(hubTabPrice("cbq")).toBe("₹199");
     expect(hubTabPrice("ts")).toBe(`₹${TEST_SERIES_PRICE_INR}`);
     expect(tabs.map((t) => t.getAttribute("aria-pressed"))).toEqual(["true", "false", "false", "false"]);
-    expect(tabs.map((t) => t.getAttribute("aria-controls"))).toEqual(["lt-premium-card", "test-series", "cbq", "packs"]);
+    expect(tabs.map((t) => t.getAttribute("aria-controls"))).toEqual(["lt-premium-card", "cbq", "test-series", "packs"]);
     expect(screen.getByText("4 options · tap or swipe · all prices + GST")).toBeInTheDocument();
-    expect(screen.getByTestId("hub-position")).toHaveTextContent("1 of 4 · next: Test Series");
+    expect(screen.getByTestId("hub-position")).toHaveTextContent("1 of 4 · next: CBQ Packs");
     fireEvent.click(tabs[1]);
-    expect(screen.getByTestId("hub-position")).toHaveTextContent("2 of 4 · next: CBQ Packs");
+    expect(screen.getByTestId("hub-position")).toHaveTextContent("2 of 4 · next: Test Series");
     fireEvent.click(tabs[3]);
     expect(tabs.map((t) => t.getAttribute("aria-pressed"))).toEqual(["false", "false", "false", "true"]);
     expect(screen.getByTestId("hub-position")).toHaveTextContent("4 of 4 · next: Board Pass");
@@ -441,8 +441,8 @@ describe("§0a.3 account states", () => {
 
 describe("§0a.4 inbound links", () => {
   it("#cbq / #packs / #lt-premium-card select their card (and the tab); the pure helpers agree", async () => {
-    expect([cardForHash("#cbq"), cardForHash("#packs"), cardForHash("#lt-premium-card"), cardForHash(""), cardForHash("#pricing-video")]).toEqual([2, 3, 0, 0, 0]);
-    expect(cardForHash("#test-series")).toBe(1);
+    expect([cardForHash("#cbq"), cardForHash("#packs"), cardForHash("#lt-premium-card"), cardForHash(""), cardForHash("#pricing-video")]).toEqual([1, 3, 0, 0, 0]);
+    expect(cardForHash("#test-series")).toBe(2);
     await renderAt("/pricing#cbq");
     expect(screen.getByTestId("hub-tab-cbq")).toHaveAttribute("aria-pressed", "true");
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
@@ -938,8 +938,8 @@ describe("PRICING-HUB-2 H1 - the two 10,000+ claims read as two different things
 
 describe("PRICING-HUB-2 H2 - Back restores the card the visitor left", () => {
   it("pure: a card-naming hash wins, then the saved card of this history entry, then the Board Pass", () => {
-    expect([hashCard(""), hashCard("#cbq"), hashCard("#packs"), hashCard("#lt-premium-card"), hashCard("#pricing-video")]).toEqual([null, 2, 3, 0, null]);
-    expect(hashCard("#test-series")).toBe(1);
+    expect([hashCard(""), hashCard("#cbq"), hashCard("#packs"), hashCard("#lt-premium-card"), hashCard("#pricing-video")]).toEqual([null, 1, 3, 0, null]);
+    expect(hashCard("#test-series")).toBe(2);
     expect(savedCard({ [HUB_CARD_STATE_KEY]: 2, idx: 3 })).toBe(2);
     expect([savedCard(null), savedCard({}), savedCard({ [HUB_CARD_STATE_KEY]: 7 }), savedCard({ [HUB_CARD_STATE_KEY]: "1" })]).toEqual([null, null, null, null]);
     expect(initialCard("", { [HUB_CARD_STATE_KEY]: 1 })).toBe(1);
@@ -1117,8 +1117,8 @@ describe("pure helpers", () => {
   });
   it("hubPositionLine names the next card and wraps", () => {
     expect([0, 1, 2, 3].map(hubPositionLine)).toEqual([
-      "1 of 4 · next: Test Series",
-      "2 of 4 · next: CBQ Packs",
+      "1 of 4 · next: CBQ Packs",
+      "2 of 4 · next: Test Series",
       "3 of 4 · next: Question Bank",
       "4 of 4 · next: Board Pass",
     ]);
