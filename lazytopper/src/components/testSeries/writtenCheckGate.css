@@ -115,3 +115,24 @@
   font-weight: 600;
   color: #0e7c47;
 }
+
+/* TS-FREE-SIGNEDOUT - the signed-out "sign in to get your answers marked" card (in place of the paper, mobile-first). */
+.lt-wcg--signin {
+  max-width: 520px;
+  margin: 24px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lt-wcg__sub {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #3d4a5f;
+}
+.lt-wcg__btn--block {
+  width: 100%;
+  border: 0;
+  font-size: 1rem;
+  cursor: pointer;
+}
