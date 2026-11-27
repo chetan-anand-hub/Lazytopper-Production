@@ -26,6 +26,8 @@ export const KNOWN_UNRECORDED_API = new Set([
   "POST /api/pay/guest/claim",
   "GET /api/usage/me",
   "POST /api/usage/paper",
+  // FREE-TS-WEEKLY: a signed-in free / trial account's Test Series paper open is counted by this POST (fails open, nothing to record).
+  "POST /api/usage/limits/open",
 ]);
 
 const fmt = (n: number) => String(Math.round(n * 2) / 2);

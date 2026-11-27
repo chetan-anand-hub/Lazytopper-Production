@@ -125,7 +125,7 @@
     "test:server:usage-ledger": "node --test server/services/usageLedger.test.cjs",
     "test:server:ai-cost-daily": "node --test server/services/aiCostDaily.test.cjs",
     "test:server:fair-use": "node --test server/services/fairUse.test.cjs",
-    "test:server:limits": "node --test server/services/limits.test.cjs",
+    "test:server:limits": "node --test server/services/limits.test.cjs server/services/limits.freeTsWeekly.test.cjs",
     "test:server:fair-use-all-ai": "node --test server/services/fairUse.allAi.test.cjs",
     "test:server:fair-use-30day": "node --test server/services/fairUse.thirtyDay.test.cjs",
     "test:server:fair-use-monthly": "node --test server/services/fairUse.monthly.test.cjs",
