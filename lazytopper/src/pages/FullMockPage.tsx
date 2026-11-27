@@ -2289,7 +2289,7 @@ export default function FullMockPage() {
                     </div>
                     {/* TS-THEMES-1: on a focus set the free-test note shows only when its written answers WILL be marked (no "MCQs marked free"
                         line on a paper with no MCQs); otherwise starting it shows the upgrade card below. */}
-                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && (!focusActive || freeWritten) && <FreeTestNote written={freeWritten} />}
+                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && freeTestPaperKey !== null && countTestsTaken(records) < FREE_TESTS_ALLOWED && (!focusActive || freeWritten) && <FreeTestNote written={freeWritten} />}
                     {signedOutSitting && (
                       <p className="lt-wcg__line" data-testid="ts-signed-out-note">
                         {SIGNED_OUT_TAKING_NOTE}

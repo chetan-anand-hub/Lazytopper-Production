@@ -1952,7 +1952,7 @@ export default function ChapterTestPage() {
                       )}
                       {seriesDownloadAccess && !hideDownloadChip && <LimitChip />}
                     </div>
-                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote written={freeWritten} />}
+                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && freeTestPaperKey !== null && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote written={freeWritten} />}
                     {signedOutSitting && (
                       <p className="lt-wcg__line" data-testid="ts-signed-out-note">
                         {SIGNED_OUT_TAKING_NOTE}
