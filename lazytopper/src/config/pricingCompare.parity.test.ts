@@ -22,7 +22,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { BASIC_INCLUDES, TRIAL_FAIR_USE, compareSections, fairUseCopy, type TrialFairUse } from "./pricingCompare";
-import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "./mockViewLimits";
+import { BASIC_PAPERS_COMPARE_CELL, BASIC_PAPERS_ROW } from "./mockViewLimits";
 
 const require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -88,33 +88,31 @@ describe("L7 · Basic's paper-open numbers come from mockViewLimits.ts by import
   const source = readFileSync(resolve(process.cwd(), "src/config/pricingCompare.ts"), "utf8");
 
   it("pricingCompare.ts imports both limits from ./mockViewLimits", () => {
-    expect(source).toMatch(
-      /import \{ ANON_DAILY_MOCK_LIMIT, [A-Z_, ]*SIGNED_IN_DAILY_MOCK_LIMIT \} from "\.\/mockViewLimits";/,
-    );
+    // FREE-TS-WEEKLY: the compare table imports the row and the cell, ONE source (never retyped)
+    expect(source).toMatch(/import \{[^}]*BASIC_PAPERS_COMPARE_CELL[^}]*\} from "\.\/mockViewLimits";/);
   });
 
   it("every 'a day' string interpolates the constants — no digit is typed beside it", () => {
     // GUEST-WALL: the Basic card's papers row now lives in mockViewLimits.ts (BASIC_PAPERS_ROW) beside the constants it states.
     const cfg = readFileSync(resolve(process.cwd(), "src/config/mockViewLimits.ts"), "utf8");
-    const lines = `${source}\n${cfg}`.split(/\r?\n/).filter((l) => /a day/.test(l) && !/^\s*(\/\/|\/?\*)/.test(l));
+    const lines = `${source}\n${cfg}`.split(/\r?\n/).filter((l) => /(a day|a week)/.test(l) && !/^\s*(\/\/|\/?\*)/.test(l) && /\$\{(ANON|SIGNED_IN|FREE_TS_WEEKLY)/.test(l));
     expect(lines.length).toBeGreaterThanOrEqual(2);
     for (const line of lines) {
-      expect(line).toContain("${SIGNED_IN_DAILY_MOCK_LIMIT}");
-      expect(line).toContain("${ANON_DAILY_MOCK_LIMIT}");
+      expect(line).toMatch(/\$\{(SIGNED_IN_DAILY_MOCK_LIMIT|FREE_TS_WEEKLY_SIGNED_IN)\}/);
+      if (/signed out/.test(line)) expect(line).toMatch(/\$\{(ANON_DAILY_MOCK_LIMIT|FREE_TS_WEEKLY_SIGNED_OUT)\}/);
       expect(line.replace(/\$\{[A-Z_]+\}/g, "")).not.toMatch(/\d/);
     }
   });
 
   it("and the rendered values are the enforced ones", () => {
-    expect(BASIC_INCLUDES.find((i) => i.id === "papers")?.label).toBe(
-      `Open ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out)`,
-    );
+    expect(BASIC_INCLUDES.find((i) => i.id === "papers")?.label).toBe(BASIC_PAPERS_ROW);
+    expect(BASIC_PAPERS_ROW).toBe("Open 3 Test Series papers a week (1 when signed out)");
     const row = compareSections({ freeCheck: false })
       .flatMap((s) => s.rows)
       .find((r) => r.label === "Open chapter tests and full mocks");
     expect(row?.basic).toEqual({
       kind: "text",
-      text: `${SIGNED_IN_DAILY_MOCK_LIMIT} a day (${ANON_DAILY_MOCK_LIMIT} signed out)`,
+      text: BASIC_PAPERS_COMPARE_CELL,
     });
   });
 });

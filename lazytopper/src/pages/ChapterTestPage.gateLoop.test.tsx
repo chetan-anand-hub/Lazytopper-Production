@@ -8,6 +8,8 @@
 // the fresh draw is refused, right under the button, and the count stays 3.
 
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
+// FREE-TS-WEEKLY: this file pins TODAY's daily gate / copy, which the kill switch VITE_FREE_TS_WEEKLY_DISABLED=1 restores exactly.
+vi.hoisted(() => vi.stubEnv("VITE_FREE_TS_WEEKLY_DISABLED", "1"));
 import { render, screen, cleanup, fireEvent, waitFor, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import "../test/preloadBankChapters";
@@ -176,4 +178,9 @@ describe("CT-RESUME-2 HOLD 1 · open → download → start → reload is NOT a 
     expect(viewsToday()).toBe(3); // the new paper is counted once, when it starts
     expect(screen.queryByTestId("ct-limit-notice")).toBeNull();
   });
+});
+
+
+beforeEach(() => {
+  vi.stubEnv("VITE_FREE_TS_WEEKLY_DISABLED", "1");
 });

@@ -233,6 +233,7 @@ const {
   USAGE_LIMITS_DOWNLOAD_PATH,
   USAGE_LIMITS_QP_PATH,
   USAGE_LIMITS_DETAIL_PATH,
+  USAGE_LIMITS_OPEN_PATH,
 } = require('./services/limits.cjs');
 const { createFairUse, cachedReadJson, USAGE_ME_PATH, USAGE_PAPER_PATH, createGradingIdempotency, GRADING_IN_PROGRESS_BODY } = require('./services/fairUse.cjs');
 const fairUseModule = require('./services/fairUse.cjs');
@@ -405,6 +406,9 @@ const limits = createLimits({
   adminFirestore, telemetry, sendJson, verifiedCaller, readJson,
   seriesOwnerPaper: (uid, kind, worksheetId) => testSeriesChecks.ownerSeriesPaper(uid, kind, worksheetId),
   seriesFreeTestPaper: (uid, kind, worksheetId) => testSeriesChecks.freeTestPaper(uid, kind, worksheetId),
+  // FREE-TS-WEEKLY: weekly Test Series opens + view-only downloads for Basic / trial.
+  isSeriesPaperId: (kind, worksheetId) => testSeriesChecks.isSeriesPaperId(kind, worksheetId),
+  ownsSeriesPack: (uid) => testSeriesChecks.ownsActive(uid),
 });
 // LOW-END-1 R4: a retried grade (same verified uid + Idempotency-Key, 24 h) is answered
 // from its stored result — never graded or charged twice. See fairUse.cjs.
@@ -763,6 +767,7 @@ async function handleRequest(req, res) {
       reqPath === USAGE_LIMITS_DOWNLOAD_PATH ||
       reqPath === USAGE_LIMITS_QP_PATH ||
       reqPath === USAGE_LIMITS_DETAIL_PATH ||
+      reqPath === USAGE_LIMITS_OPEN_PATH ||
       // GRADING-JOBS-1 J1: the job poll — a credentialed GET, preflighted like the export.
       JOB_POLL_PATH_RE.test(reqPath) ||
       /^\/api\/qr-upload\/pickup\/[^/]+$/.test(reqPath) ||
@@ -951,6 +956,10 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'POST' && reqPath === USAGE_LIMITS_DETAIL_PATH) {
     return limits.handleDetailClaim(req, res);
+  }
+  // FREE-TS-WEEKLY: the weekly Test Series open count for Basic / trial (a no-op when FREE_TS_WEEKLY_DISABLED=1).
+  if (req.method === 'POST' && reqPath === USAGE_LIMITS_OPEN_PATH) {
+    return limits.handleOpenMint(req, res);
   }
 
   const SHARE_SECRET = process.env.SESSION_SECRET;

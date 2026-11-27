@@ -83,7 +83,7 @@ export const MOCK_TEST_FAQ: readonly FaqItem[] = [
   {
     question: "Can I take a Class 10 mock test free on LazyTopper?",
     answer:
-      "Yes. Chapter tests and full mocks can be opened free within a daily limit, with no payment. Your first test is free, marking included.",
+      "Yes. A few Test Series papers open free each week, with no payment. Your first test is free, marking included.",
   },
   {
     question: "Can I print the mock papers?",

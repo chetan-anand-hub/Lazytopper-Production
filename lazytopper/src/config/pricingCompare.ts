@@ -27,7 +27,7 @@
  */
 import { VALIDITY_SHORT } from "./validity";
 import { boardPassPriceDisplay, PRICE_FREE_DISPLAY } from "./pricing";
-import { ANON_DAILY_MOCK_LIMIT, BASIC_PAPERS_ROW, FIRST_TEST_FREE_LINE, SIGNED_IN_DAILY_MOCK_LIMIT } from "./mockViewLimits";
+import { BASIC_PAPERS_COMPARE_CELL, BASIC_PAPERS_ROW, FIRST_TEST_FREE_LINE } from "./mockViewLimits";
 import {
   BASIC_RESULT_LINE,
   basicQuickPracticeLine,
@@ -255,7 +255,7 @@ export function compareSections({ freeCheck, limitsOn = limitsCopyOn() }: { free
         // GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST): Basic's download and written-answer cells are "not included" (a dash).
         {
           label: "Open chapter tests and full mocks",
-          basic: text(`${SIGNED_IN_DAILY_MOCK_LIMIT} a day (${ANON_DAILY_MOCK_LIMIT} signed out)`),
+          basic: text(BASIC_PAPERS_COMPARE_CELL),
           premium: yesNote("Unlimited"),
         },
         { label: "Download papers", basic: NO, premium: yesNote("Included") },

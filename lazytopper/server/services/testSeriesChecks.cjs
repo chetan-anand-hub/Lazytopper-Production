@@ -684,6 +684,22 @@ function createTestSeriesChecks(deps = {}) {
    * full-mock). LIMITS-1 then neither meters nor locks it: the pack's own 2-per-paper rule is the only cap. Never throws; any
    * doubt (no manifest, unreadable pack) is false - the ordinary limits apply.
    */
+  /**
+   * FREE-TS-WEEKLY - is this worksheetId a Test Series paper of this kind (manifest prefix match, kind must agree)? PURE; false on any
+   * doubt or when the series rule is switched off (TS_CHECKS_DISABLED). Grades nothing.
+   */
+  function isSeriesPaperId(kind, worksheetId) {
+    try {
+      if (testSeriesChecksDisabled(env) || manifest.count === 0) return false;
+      const paper = seriesPaperOf({ worksheetId }, manifest, paperOpts(env));
+      if (!paper) return false;
+      const paperKind = paper.prefix.startsWith('ct-') ? 'chapter-test' : paper.prefix.startsWith('fm-') ? 'full-mock' : '';
+      return kind === paperKind;
+    } catch {
+      return false;
+    }
+  }
+
   async function ownerSeriesPaper(uid, kind, worksheetId) {
     try {
       // The kill switch turns the exemption off too: with TS_CHECKS_DISABLED every paper is metered exactly as before.
@@ -735,7 +751,7 @@ function createTestSeriesChecks(deps = {}) {
   }
 
   return {
-    decide, ownsActive, ownerSeriesPaper, ownerSeriesGrade, status, hold, settleHold, settleDeferred, manifest,
+    decide, ownsActive, isSeriesPaperId, ownerSeriesPaper, ownerSeriesGrade, status, hold, settleHold, settleDeferred, manifest,
     // TS-FREE-CHECK-1
     freeTestOn, freeTestGrade, freeTestPaper, freeTestStatus,
   };

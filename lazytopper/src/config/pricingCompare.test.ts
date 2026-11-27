@@ -35,7 +35,7 @@ describe("L4 · the Basic card", () => {
       "Exam Trends — chapters ranked from ten years of papers",
       "Notes, formulae, NCERT books and solutions",
       "Practice sets and worksheet generation",
-      "Open 3 chapter tests or mocks a day (1 when signed out)",
+      "Open 3 Test Series papers a week (1 when signed out)",
       "Your first test is free, marking included.",
       "Your first answer check free",
       "Basic topic insights",

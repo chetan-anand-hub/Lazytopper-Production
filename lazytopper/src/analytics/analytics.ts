@@ -983,6 +983,9 @@ export type NamedAnalyticsEvent =
   | "trial_end_screen_parent"
   | "trial_end_screen_basic"
   | "scorecard_upgrade_shown"
+  // FREE-TS-WEEKLY - the view-only download paywall on a Test Series paper (shown / a tap on a pay button). Names only for the first-party log.
+  | "download_paywall_shown"
+  | "download_paywall_pay_tap"
   | "scorecard_upgrade_click"
   // FEEDBACK-1 — the "help us improve" prompt, FIRST-PARTY names only (moment and reason are
   // inside the name because the activity store keeps names only). Sent by trackFeedbackEvent,
@@ -1959,6 +1962,23 @@ export function trackPaywallAction(action: PaywallAction, surface: PaywallSurfac
     send("event", { name: "paywall_action", data }, { ga4: data }, PAYWALL_ACTIVITY_NAME[action]);
     // ASK-FIX-1 — the trial-ended screen also counts its own taps under its own names.
     if (surface === "trial_end") trackNamedEvent(action === "pay" ? "trial_end_screen_pay" : "trial_end_screen_parent");
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/**
+ * FREE-TS-WEEKLY (owner addition 27 Nov 2026, 13:19 IST) - `download_paywall_shown` / `download_paywall_pay_tap`: a Basic / trial / signed-out
+ * student tapped Download on a Test Series paper (or its solutions) and was shown the Test Series + Board Pass offer; and a tap on one of
+ * its pay buttons. The vendors (Vercel Web Analytics via `window.va`, GA4) get `{ paper, plan, signed_in }` - the series paper CODE
+ * ("CT-M01"), the plan tapped ("none" on shown), never an id, a uid or a price. The first-party log keeps the bare name.
+ */
+export type DownloadPaywallPlan = "none" | "test_series" | "board_pass";
+export function trackDownloadPaywall(outcome: "shown" | "pay_tap", paper: string, plan: DownloadPaywallPlan, signedIn: boolean): void {
+  try {
+    const name = outcome === "shown" ? "download_paywall_shown" : "download_paywall_pay_tap";
+    const data = { paper: String(paper || "").slice(0, 24), plan, signed_in: signedIn };
+    send("event", { name, data }, { ga4: data }, name);
   } catch {
     /* analytics must never break the page */
   }

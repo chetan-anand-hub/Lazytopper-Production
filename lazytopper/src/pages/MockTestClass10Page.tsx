@@ -80,8 +80,8 @@ export default function MockTestClass10Page() {
         <h2 id="mock-free">Take a Class 10 mock test free online</h2>
         <p>
           Start a full mock for either subject, or a chapter test when you want to check one chapter before the next.
-          On the free Basic plan you can open chapter tests and full mocks every day within a daily limit,
-          and the limit is higher once you sign in.
+          On the free Basic plan you can open a few Test Series papers every week,
+          and the allowance is higher once you sign in.
         </p>
         <div className="lt-seol__actions">
           <Link className="lt-seol__btn" to="/full-mock/10/Maths" data-testid="mock-free-maths">

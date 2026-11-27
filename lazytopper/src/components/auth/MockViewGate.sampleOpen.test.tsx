@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+// FREE-TS-WEEKLY: this file pins TODAY's daily gate / copy, which the kill switch VITE_FREE_TS_WEEKLY_DISABLED=1 restores exactly.
+vi.hoisted(() => vi.stubEnv("VITE_FREE_TS_WEEKLY_DISABLED", "1"));
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
 
@@ -237,4 +239,9 @@ describe("TS-SAMPLE-OPEN · everything else unchanged", () => {
       expect(sampleOpensUncounted(...CT_M01)).toBe(true);
     }
   });
+});
+
+
+beforeEach(() => {
+  vi.stubEnv("VITE_FREE_TS_WEEKLY_DISABLED", "1");
 });
