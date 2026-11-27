@@ -411,18 +411,19 @@ describe("graded pack papers are pinned to their code", () => {
 });
 
 describe("re-coded graded papers", () => {
-  it("exactly the three papers whose questions changed print a -V2 code; every other code is unchanged", () => {
-    expect([...REVISED_PACK_PAPER_CODES.entries()]).toEqual([
-      ["PK-M-PO-WS", "PK-M-PO-WS-V2"],
-      ["PK-S-FULL-M5", "PK-S-FULL-M5-V2"],
-      ["PK-S-MEOE-WS", "PK-S-MEOE-WS-V2"],
-    ]);
+  it("exactly the papers whose questions changed print a -V2 code (3 PACK-SYLLABUS-1 + 20 CBQ-PACK-HOLDS); every other code is unchanged", () => {
+    const syllabus = ["PK-M-PO-WS", "PK-S-FULL-M5", "PK-S-MEOE-WS"];
+    const holds = ["PK-M-FULL-M8", "PK-S-CRAE-CT2", "PK-S-ABAS-CT2", "PK-S-MANM-CT1", "PK-S-MANM-WS", "PK-S-ELE-CT2", "PK-M-SV-CBQ2", "PK-M-SV-CBQ3", "PK-M-SV-CBQ4", "PK-M-SV-CBQ5", "PK-M-SV-CBQ6", "PK-M-SV-CBQ7", "PK-M-SV-CBQ8", "PK-S-CRAE-CBQ2", "PK-S-ABAS-CBQ1", "PK-S-ABAS-CBQ4", "PK-S-MANM-CBQ1", "PK-S-MANM-CBQ2", "PK-S-MANM-CBQ3", "PK-S-ELE-CBQ3"];
+    expect([...REVISED_PACK_PAPER_CODES.keys()]).toEqual([...syllabus, ...holds]);
+    for (const [old, now] of REVISED_PACK_PAPER_CODES) expect(now).toBe(`${old}-V2`);
     expect(packPaperCode({ kind: "ws", chapter: "polynomials" })).toBe("PK-M-PO-WS-V2");
     expect(packPaperCode({ kind: "mock", subject: "science", n: 5 })).toBe("PK-S-FULL-M5-V2");
     expect(packPaperCode({ kind: "ws", chapter: "magnetic-effects-of-electric-current" })).toBe("PK-S-MEOE-WS-V2");
     expect(packPaperCode({ kind: "ws", chapter: "triangles" })).toBe("PK-M-TRI-WS");
     expect(packPaperCode({ kind: "ct1", chapter: "polynomials" })).toBe("PK-M-PO-CT1");
     expect(packPaperCode({ kind: "mock", subject: "science", n: 4 })).toBe("PK-S-FULL-M4");
+    expect(packPaperCode({ kind: "mock", subject: "maths", n: 8 })).toBe("PK-M-FULL-M8-V2");
+    expect(packPaperCode({ kind: "cbq", chapter: "surface-areas-and-volumes", set: 1 })).toBe("PK-M-SV-CBQ1");
   });
 
   it("a -V2 code is shaped like every other pack code, so every consumer that treats a code as an opaque id takes it", () => {
@@ -431,7 +432,7 @@ describe("re-coded graded papers", () => {
       expect(code.startsWith("PK-")).toBe(true);
       expect(code).not.toMatch(/^(WS|CT|FM)-/);
     }
-    expect(new Set([...REVISED_PACK_PAPER_CODES.values()]).size).toBe(3);
+    expect(new Set([...REVISED_PACK_PAPER_CODES.values()]).size).toBe(REVISED_PACK_PAPER_CODES.size);
     for (const old of REVISED_PACK_PAPER_CODES.keys()) expect(REVISED_PACK_PAPER_CODES.has(`${old}-V2`)).toBe(false);
   });
 });

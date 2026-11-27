@@ -24,7 +24,7 @@ import { isUsableSpec } from "../testSeries/pinnedSpec";
 import { loadRawBankRowsById } from "../testSeries/rawBankRows";
 import type { SeriesPinnedSpec } from "../testSeries/paperManifest";
 import { DRAW_STAMP, drawPackChapterTests, drawPackMocks } from "./packDraws";
-import { bankSubjectName, bankSubjectOf, chapterName, drawPackWorksheetRowsSafe, hashSeed } from "./packContent";
+import { PACK_LEDGER_HELD_IDS, bankSubjectName, bankSubjectOf, chapterName, drawPackWorksheetRowsSafe, hashSeed } from "./packContent";
 import { packPaperCode } from "./packPaperCode";
 import { MOCKS_PER_SUBJECT } from "./packLabels";
 import pins from "./packPaperIds.json";
@@ -42,7 +42,12 @@ export function packPinDisabled(): boolean {
 export const allPackPins = (): PackPaperIds => ALL;
 export function packPinSpec(key: string): SeriesPinnedSpec | null {
   const s = ALL[key];
-  return isUsableSpec(s) ? s : null;
+  if (!isUsableSpec(s)) return null;
+  // CBQ-PACK-HOLDS: a ledger-held id stays in the pin file but is dropped here (with its section letter), so no pack paper prints it.
+  if (!s.ids.some((id) => PACK_LEDGER_HELD_IDS.has(id))) return s;
+  const keep = s.ids.map((id) => !PACK_LEDGER_HELD_IDS.has(id));
+  const out = { ids: s.ids.filter((_, i) => keep[i]), sections: [...s.sections].filter((_, i) => keep[i]).join("") };
+  return isUsableSpec(out) ? out : null;
 }
 
 /** Chapter Test 1 / 2 papers of a chapter: pinned (a test with no pin is not built); the seeded draw only under the kill switch. */

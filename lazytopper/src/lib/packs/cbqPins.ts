@@ -16,7 +16,7 @@ import type { CanonicalQuestion } from "../../data/predictionTypes";
 import { selectBankQuestions } from "../../data/bankQuery";
 import { loadRawBankRowsById } from "../testSeries/rawBankRows";
 import { cbqSets } from "./cbqSets";
-import { bankSubjectOf, cbqPackRows } from "./packContent";
+import { PACK_LEDGER_HELD_IDS, bankSubjectOf, cbqPackRows } from "./packContent";
 import pins from "./packCbqSetIds.json";
 
 export interface CbqChapterPins {
@@ -73,7 +73,8 @@ export async function cbqSetsFor(slug: string): Promise<CbqSetsFor> {
   const pin = ALL[slug];
   if (!pin || pin.sets.length === 0) return { sets: [], partKs: [], total: 0 };
   const byId = new Map<string, CanonicalQuestion>(eligible.map((q) => [String(q.id), q]));
-  const wanted = new Set(pin.sets.flat());
+  // CBQ-PACK-HOLDS: a ledger-held row stays in the pin file (a sold set keeps its code and its other questions) but is never resolved, so never printed.
+  const wanted = new Set(pin.sets.flat().filter((id) => !PACK_LEDGER_HELD_IDS.has(id)));
   const needMore = [...wanted].filter((id) => !byId.has(id));
   if (needMore.length) {
     for (const q of selectBankQuestions({ subject: bankSubjectOf(slug), topicKeys: [slug] })) if (wanted.has(String(q.id)) && !byId.has(String(q.id))) byId.set(String(q.id), q);
@@ -81,7 +82,7 @@ export async function cbqSetsFor(slug: string): Promise<CbqSetsFor> {
     if (still.length) for (const [id, q] of await loadRawBankRowsById(still)) byId.set(id, q);
   }
   const sets = pin.sets
-    .map((ids, i) => ({ k: i + 1, rows: ids.flatMap((id) => (byId.has(id) ? [byId.get(id) as CanonicalQuestion] : [])) }))
+    .map((ids, i) => ({ k: i + 1, rows: ids.flatMap((id) => (!PACK_LEDGER_HELD_IDS.has(id) && byId.has(id) ? [byId.get(id) as CanonicalQuestion] : [])) }))
     .filter((s) => s.rows.length > 0);
   let at = 0;
   const partKs = pin.parts

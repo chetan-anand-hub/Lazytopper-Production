@@ -93,9 +93,41 @@ export function isSyllabusExcludedFromPacks(q: { id: string }): boolean {
   return PACK_SYLLABUS_EXCLUDED.has(q.id);
 }
 
-/** True when the row is left out of packs: it needs a supplied figure and none is bound to it, or it is a syllabus exclusion. */
+/**
+ * CBQ-PACK-HOLDS (cofounder ruling 27 Nov 2026: a question the solution ledgers HOLD is not sold). Rows whose ledger status is "hold"
+ * and that sat in a sold pack: 7 Maths rows held by SOLUTIONS-3 ruling 3 (solutions2Ledger.ts: conversion of solids / single solid,
+ * deleted for 2026-27) and 7 Science rows held on quality (solutionsSciLedger.ts: off-book content, or a wrong equation:
+ * CHEM-EXMPLR-1-LONG-006 shows the concentrated-acid equation for a dilute-acid question). An explicit list, NOT derived from the
+ * ledgers at runtime: the ledgers are ~300 KB of notes that must not ride in the pack code's bundle, and the ledgers hold hundreds of
+ * other rows that are not in this lane's ruling. packLedgerHolds.guard.test.ts reads the ledgers and fails if any of these 14 stops
+ * being "hold", and reports any ledger-held row that is still sold in a pack so the next one is added here deliberately.
+ * The rows stay served elsewhere; no pack (Chapter / Subject / Bundle / Mock / CBQ) sells or prints them.
+ */
+export const PACK_LEDGER_HELD_IDS: ReadonlySet<string> = new Set([
+  "SAV-N-EXEM2-12-LA-002",
+  "SAV-N-EXEM2-12-LA-003",
+  "SAV-N-EXEM2-12-LA-004",
+  "SAV-N-EXEM2-12-LA-006",
+  "SAV-N-EXEM2-12-LA-007",
+  "SAV-N-EXEM2-12-LA-012",
+  "SAV-N-EXEM2-12-LA-013",
+  "METAL-NCERT-3-VSA-014",
+  "METAL-NCERT-3-SA-008",
+  "METAL-NCERT-3-VSA-015",
+  "ACID-EXMPLR-2-MCQ-003",
+  "ACID-EXMPLR-2-SA-007",
+  "ELEC-EXMPLR-11-LA-003",
+  "CHEM-EXMPLR-1-LONG-006",
+]);
+
+/** True when the row is held by a solution ledger and so is never sold in any pack (see PACK_LEDGER_HELD_IDS). */
+export function isLedgerHeldFromPacks(q: { id: string }): boolean {
+  return PACK_LEDGER_HELD_IDS.has(String(q.id));
+}
+
+/** True when the row is left out of packs: it needs a supplied figure and none is bound to it, it is a syllabus exclusion, or a ledger holds it. */
 export function isExcludedFromPacks(q: CanonicalQuestion): boolean {
-  return needsMissingFigure(q) || isSyllabusExcludedFromPacks(q);
+  return needsMissingFigure(q) || isSyllabusExcludedFromPacks(q) || isLedgerHeldFromPacks(q);
 }
 
 const sectionRank = (s: string): number => {
@@ -317,7 +349,7 @@ export function drawPackWorksheetRows(rows: readonly CanonicalQuestion[], seed: 
  * other question stays where it was. A worksheet that holds no excluded row is unchanged.
  */
 export function drawPackWorksheetRowsSafe(drawRows: readonly CanonicalQuestion[], seed: number): CanonicalQuestion[] {
-  return drawPackWorksheetRows(drawRows, seed, isSyllabusExcludedFromPacks);
+  return drawPackWorksheetRows(drawRows, seed, (q) => isSyllabusExcludedFromPacks(q) || isLedgerHeldFromPacks(q));
 }
 
 /** The exact number of questions in a chapter pack (page copy). The chapter must be loaded. */

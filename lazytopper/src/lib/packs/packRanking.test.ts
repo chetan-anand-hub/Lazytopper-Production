@@ -109,7 +109,7 @@ describe("mock packs: 8 papers per subject, little overlap", () => {
       await loadSubjectBank(subject);
       const papers = drawPackMocks(subject);
       expect(papers.map((p) => p.n), subject).toEqual(Array.from({ length: MOCKS_PER_SUBJECT }, (_, i) => i + 1));
-      expect(packPaperCode({ kind: "mock", subject, n: 8 })).toBe(`PK-${subject === "maths" ? "M" : "S"}-FULL-M8`);
+      expect(packPaperCode({ kind: "mock", subject, n: 8 }).replace(/-V2$/, "")).toBe(`PK-${subject === "maths" ? "M" : "S"}-FULL-M8`); // maths M8 is -V2 since CBQ-PACK-HOLDS
       const sets = papers.map((p) => new Set(p.drawn.paper.questions.map((x) => x.id)));
       const sizes = sets.map((s) => s.size);
       let maxOverlap = 0;

@@ -53,6 +53,9 @@ const ACKNOWLEDGED_DRAW_DRIFT: readonly string[] = [
   ...["electricity", "magnetic-effects-of-electric-current", "control-and-coordination", "how-do-organisms-reproduce"].flatMap((s) => [`ct1:${s}`, `ct2:${s}`]),
   "mock:science:2", "mock:science:4", "mock:science:8",
   "mock:maths:2", "mock:maths:3",
+  // CBQ-PACK-HOLDS (27 Nov 2026): a ledger-held id is dropped from the pinned paper at resolution (packPins.packPinSpec), so the pinned paper no longer
+  // equals the seeded draw (which still walks the full list). Its pin file entry is untouched; the other keys that held one are acknowledged above.
+  "ct1:metals-and-non-metals",
 ];
 const ack = (k: string) => ACKNOWLEDGED_DRAW_DRIFT.includes(k);
 const FILE = resolve(__dirname, "packPaperIds.json");
@@ -110,7 +113,19 @@ describe("PACK-PIN-1 pins file", () => {
   it("Series Full-Length Tests 1-8 are the pack's Mocks 1-8 (same ids, order, sections)", () => {
     const series = allPinnedSpecs();
     for (const [subject, letter] of [["maths", "M"], ["science", "S"]] as const) {
-      for (let n = 1; n <= 8; n += 1) expect(allPackPins()[`mock:${subject}:${n}`], `${subject} ${n}`).toEqual(series[`TS-FM-${letter}${n}`]);
+      for (let n = 1; n <= 8; n += 1) {
+        const pack = allPackPins()[`mock:${subject}:${n}`];
+        if (subject === "maths" && n === 8) {
+          // CBQ-PACK-HOLDS (owner decision 27 Nov 2026): the pack's Mock 8 swaps the ledger-held SAV-N-EXEM2-12-LA-013 (Section D, 5 marks) for SAV-N-EXEM2-12-LA-009
+          // (same chapter, section and marks; ledger "publish") so it stays 80 marks. Test Series FM-M8 is a separate product and is unchanged. Everything else is identical.
+          const ts = series["TS-FM-M8"];
+          expect(pack.sections).toBe(ts.sections);
+          expect(pack.ids.map((id) => (id === "SAV-N-EXEM2-12-LA-009" ? "SAV-N-EXEM2-12-LA-013" : id))).toEqual(ts.ids);
+          expect(pack.ids).not.toContain("SAV-N-EXEM2-12-LA-013");
+          continue;
+        }
+        expect(pack, `${subject} ${n}`).toEqual(series[`TS-FM-${letter}${n}`]);
+      }
     }
   });
 });
@@ -186,12 +201,16 @@ describe("PACK-PIN-1 provenance and the kill switch", () => {
   it("pinned Chapter Test carries the same provenance as the draw (withProvenance over the chapter rows)", async () => {
     // STEPMARK-2: first chapter whose seeded draw did not move. STEPMARK-3 (#1834): only Chapter Test 1 is compared below
     // ([pinned] / [drawn] take paper 1), and after STEPMARK-3 every chapter has an acknowledged ct2 drift, so the guard asks for ct1 only.
-    const slug = PACK_CHAPTER_SLUGS.find((x) => !ack(`ct1:${x}`))!;
+    // CBQ-PACK-HOLDS: ct1:metals-and-non-metals is now acknowledged too (its pin holds a ledger-held id that the pinned paper drops), so the fallback
+    // is that chapter, compared with the draw restricted to the pinned paper's ids (the only difference between them is the dropped row).
+    const slug = PACK_CHAPTER_SLUGS.find((x) => !ack(`ct1:${x}`)) ?? "metals-and-non-metals";
     const rows = chapterPackRows(slug);
     const drawRows = chapterPackDrawRows(slug);
     const [pinned] = await packChapterTestPapers(slug, drawRows);
     const [drawn] = drawPackChapterTests(slug, drawRows);
-    expect(JSON.stringify(withProvenance(pinned.paper.questions, rows))).toBe(JSON.stringify(withProvenance(drawn.drawn.paper.questions, rows)));
+    const keep = new Set(pinned.paper.questions.map((q) => String(q.id)));
+    const drawnQs = drawn.drawn.paper.questions.filter((q) => keep.has(String(q.id))).map((q, i) => ({ ...q, qNumber: i + 1 }));
+    expect(JSON.stringify(withProvenance(pinned.paper.questions, rows))).toBe(JSON.stringify(withProvenance(drawnQs, rows)));
   });
   it("VITE_PACK_PIN_DISABLED returns the seeded draws", async () => {
     vi.stubEnv("VITE_PACK_PIN_DISABLED", "1");

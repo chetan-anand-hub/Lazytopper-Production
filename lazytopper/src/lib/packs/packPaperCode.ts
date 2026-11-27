@@ -18,7 +18,7 @@ export type PackPaperCodeInput =
 const letter = (s: PackSubject | null): "M" | "S" => (s === "science" ? "S" : "M");
 
 /**
- * PACK-SYLLABUS-1 (owner ruling 5 Nov 2026): the three graded papers whose questions changed when syllabus-excluded rows left them.
+ * PACK-SYLLABUS-1 (owner ruling 5 Nov 2026): the graded papers whose questions changed when syllabus-excluded rows left them (three here; CBQ-PACK-HOLDS adds 20 below).
  * registerPackPaper stores each student's own snapshot under the printed code at download, so a student holding the OLD PDF keeps
  * grading against that saved copy under the OLD code, and a re-download of the corrected paper must not overwrite it. Each of these
  * therefore prints `<old code>-V2` (same characters as every other pack code, so every consumer that treats a code as an opaque
@@ -28,6 +28,28 @@ export const REVISED_PACK_PAPER_CODES: ReadonlyMap<string, string> = new Map([
   ["PK-M-PO-WS", "PK-M-PO-WS-V2"],
   ["PK-S-FULL-M5", "PK-S-FULL-M5-V2"],
   ["PK-S-MEOE-WS", "PK-S-MEOE-WS-V2"],
+  // CBQ-PACK-HOLDS (cofounder ruling 27 Nov 2026): 14 ledger-held rows left the packs (PACK_LEDGER_HELD_IDS). Each paper or CBQ set that held
+  // one drops a question, which renumbers the questions after it, so a student grading the OLD PDF must keep its saved copy under the OLD code.
+  ["PK-M-FULL-M8", "PK-M-FULL-M8-V2"],
+  ["PK-S-CRAE-CT2", "PK-S-CRAE-CT2-V2"],
+  ["PK-S-ABAS-CT2", "PK-S-ABAS-CT2-V2"],
+  ["PK-S-MANM-CT1", "PK-S-MANM-CT1-V2"],
+  ["PK-S-MANM-WS", "PK-S-MANM-WS-V2"],
+  ["PK-S-ELE-CT2", "PK-S-ELE-CT2-V2"],
+  ["PK-M-SV-CBQ2", "PK-M-SV-CBQ2-V2"],
+  ["PK-M-SV-CBQ3", "PK-M-SV-CBQ3-V2"],
+  ["PK-M-SV-CBQ4", "PK-M-SV-CBQ4-V2"],
+  ["PK-M-SV-CBQ5", "PK-M-SV-CBQ5-V2"],
+  ["PK-M-SV-CBQ6", "PK-M-SV-CBQ6-V2"],
+  ["PK-M-SV-CBQ7", "PK-M-SV-CBQ7-V2"],
+  ["PK-M-SV-CBQ8", "PK-M-SV-CBQ8-V2"],
+  ["PK-S-CRAE-CBQ2", "PK-S-CRAE-CBQ2-V2"],
+  ["PK-S-ABAS-CBQ1", "PK-S-ABAS-CBQ1-V2"],
+  ["PK-S-ABAS-CBQ4", "PK-S-ABAS-CBQ4-V2"],
+  ["PK-S-MANM-CBQ1", "PK-S-MANM-CBQ1-V2"],
+  ["PK-S-MANM-CBQ2", "PK-S-MANM-CBQ2-V2"],
+  ["PK-S-MANM-CBQ3", "PK-S-MANM-CBQ3-V2"],
+  ["PK-S-ELE-CBQ3", "PK-S-ELE-CBQ3-V2"],
 ]);
 
 export function packPaperCode(input: PackPaperCodeInput): string {
