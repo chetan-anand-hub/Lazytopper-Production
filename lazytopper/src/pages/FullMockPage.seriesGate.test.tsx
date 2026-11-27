@@ -103,7 +103,7 @@ import { awaitingPaperResponse } from "../components/papers/paperDownloadRecord"
 import { __resetUsageClientForTests } from "../services/usageClient";
 import { resetTestSeriesOwnershipForTests } from "../components/testSeries/testSeriesOwnership";
 import { resetOwnedPacksCache } from "../components/packs/useOwnedPacks";
-import { seriesMockWorksheetId } from "../lib/testSeries/testSeries";
+import { seriesMockWorksheetId, seriesChapterWorksheetId } from "../lib/testSeries/testSeries";
 
 const CODE = "FM-M-02";
 const paper: PersistedWorksheet = {
@@ -199,7 +199,7 @@ describe.each(["free", "trial", "premium"] as const)("Full Mock · %s account", 
 
   it(`with one test already taken: ${entitled ? "starts a new mock" : "the upgrade wall, no new paper"}`, async () => {
     sub.tier = tier;
-    records.list = [{ ...pendingRecord(), id: "CT-M-RN-01", surface: "chapter-test", worksheetId: "ct-old" }];
+    records.list = [{ ...pendingRecord(), id: "CT-M-RN-01", surface: "chapter-test", worksheetId: seriesChapterWorksheetId("ct-old", "real-numbers", 1) }];
     mount();
     fireEvent.click(await screen.findByRole("button", { name: /Start the mock/ }, { timeout: 60000 }));
     if (entitled) {
@@ -217,7 +217,7 @@ describe.each(["free", "trial", "premium"] as const)("Full Mock · %s account", 
 describe("LIVE-FIX-1 · the one-free-test wall comes before the weekly fair-use limit", () => {
   it("trial, one test taken, this week's mock used -> 'You've used your 1 free test' with the Test Series AND the Board Pass (totals on the buttons); no weekly-limit panel", async () => {
     sub.tier = "trial";
-    records.list = [{ ...pendingRecord(), id: "FM-M-01", worksheetId: "fm-old" }];
+    records.list = [{ ...pendingRecord(), id: "FM-M-01", worksheetId: seriesMockWorksheetId("fm-old", "Maths", 1) }];
     const resetAt = "2026-11-29T18:30:00.000Z";
     vi.stubGlobal("fetch", vi.fn(async (url: string) =>
       String(url).includes("/api/usage/me")

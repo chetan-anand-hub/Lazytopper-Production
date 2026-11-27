@@ -2,7 +2,7 @@ import { lazy, Suspense, useState, useEffect, useRef, type ReactNode } from "rea
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
-import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
+import { ANON_DAILY_MOCK_LIMIT, FIRST_TEST_FREE_LINE, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 import { isResumingSavedPaper, paperRouteKey } from "../../lib/papers/resumablePaper";
 import { isKnownTestSeriesOwner, readTestSeriesOwner } from "./paperCapOwner";
 import { sampleOpensUncounted, signedOutSampleForRoute } from "../../lib/testSeries/signedOutAttempt";
@@ -146,6 +146,25 @@ export function claimNewPaperView(pathname: string, uid: string | null, uncapped
 /** The line a page shows when `claimNewPaperView` refuses a new paper. */
 export const NEW_PAPER_LIMIT_LINE =
   "You've opened today's papers already — a new paper opens again tomorrow.";
+/**
+ * GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST): the same refusal, SIGNED OUT. A visitor who has used today's free paper is
+ * told how to get more - with a Sign in link (`paperSignInPath`, the wall's own builder) - instead of a dead end. The pages show
+ * it in place of NEW_PAPER_LIMIT_LINE while signed out; signed in, NEW_PAPER_LIMIT_LINE is unchanged.
+ */
+export const GUEST_PAPER_LIMIT_LINE = `You've used today's free paper. Sign in (free) for ${SIGNED_IN_DAILY_MOCK_LIMIT} a day.`;
+/** GUEST-WALL: the signed-out wall's line (owner ruling 26 Nov 2026, 22:43 IST). */
+export const SIGNED_OUT_WALL_LINE = `Sign in to open ${SIGNED_IN_DAILY_MOCK_LIMIT} papers a day. ${FIRST_TEST_FREE_LINE}`;
+
+/**
+ * /login with a same-site return to this paper - the ONE builder for the signed-out wall and the pages' guest refusal. A path
+ * that is not same-site (`//host`, no leading slash) is never sent as the redirect (the login page validates it again).
+ */
+export function paperSignInPath(pathname: string, search: string): string {
+  const path = `${pathname}${search}`;
+  const safe = path.startsWith("/") && !path.startsWith("//") ? path : "/";
+  return `/login?reason=login&redirect=${encodeURIComponent(safe)}`;
+}
+
 /** The same refusal while a saved, unfinished paper is on offer (it can still be resumed). */
 export const NEW_PAPER_LIMIT_SAVED_LINE =
   "You've opened today's papers already — your saved test is still here to finish.";
@@ -183,19 +202,38 @@ export function MockViewGate({ children }: { children: ReactNode }) {
   // TS-DAILY-CAP-1: this mount was let through at the limit as a Test Series Pack owner (not counted).
   const ownerPassRef = useRef(false);
   /**
-   * TS-SAMPLE-OPEN: the route a signed-out visitor was let onto UNCOUNTED as a sample's start screen (Start counts it, via
-   * `claimNewPaperView`). If the route then moves on without a remount (same <Route>, e.g. one chapter test to another), the new
-   * route is judged afresh: the sample's free open never carries over to another paper.
+   * TS-SAMPLE-OPEN: this paper was let through UNCOUNTED as a signed-out sample's start screen (Start counts it, via
+   * `claimNewPaperView`).
    */
-  const [samplePassRoute, setSamplePassRoute] = useState<string | null>(null);
+  const samplePassRef = useRef(false);
+  /**
+   * GUEST-WALL (re-judge gap flagged in review of #1899): the paper the passes above were decided FOR. A COUNTED, owner or sample
+   * pass belongs to ONE paper. When the route moves to a different paper without a remount (same <Route>, e.g. one chapter test to
+   * another by in-app navigation), every pass is dropped and the new paper is judged exactly as a fresh mount would judge it -
+   * counted, walled, a resume or a sample. The SAME paper (a `?review=` / `?upload=` rewrite: same paper key) is never re-judged,
+   * so it is never counted twice. The key is the sample pass key: the paper's route key AND which sample (if any) it is, because
+   * CT-M01 shares its route key with the non-series Real Numbers test.
+   */
   const routeKeyNow = samplePassKey(location.pathname, location.search);
-  const sampleRouteMoved = samplePassRoute !== null && samplePassRoute !== routeKeyNow;
+  const judgedKeyRef = useRef<string | null>(null);
+  /** The paper the current decision (`ready` / `limitReached`) was made for; until it matches the route, nothing paints. */
+  const [judgedKey, setJudgedKey] = useState<string | null>(null);
 
   const uid = user?.uid || null;
 
   useEffect(() => {
     if (loading) return;
+    const key = routeKeyNow;
+    if (judgedKeyRef.current !== key) {
+      // A different paper (or the first judgement): nothing decided for another paper carries over.
+      incrementedRef.current = false;
+      ownerPassRef.current = false;
+      samplePassRef.current = false;
+      setLimitReached(false);
+    }
+    judgedKeyRef.current = key;
     if (user && isPremium) {
+      setJudgedKey(key);
       setReady(true);
       return;
     }
@@ -210,16 +248,10 @@ export function MockViewGate({ children }: { children: ReactNode }) {
      * and its allowance untestable. The trial-ended panel is not gone: it now renders
      * when such a student has SPENT the 3, which is the honest moment to show it.
      */
-    if (incrementedRef.current || ownerPassRef.current) {
+    if (incrementedRef.current || ownerPassRef.current || samplePassRef.current) {
+      setJudgedKey(key);
       setReady(true);
       return;
-    }
-    if (samplePassRoute !== null) {
-      if (samplePassRoute === samplePassKey(location.pathname, location.search)) {
-        setReady(true);
-        return;
-      }
-      setSamplePassRoute(null);
     }
     /**
      * CT-RESUME-2 — COUNT ONLY NEW PAPERS. A reload of a Chapter Test / Full Mock the student is
@@ -237,6 +269,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
       // TS-DAILY-CAP-1: a resume at the limit never waits (resumes are never blocked), but if the student sets the saved
       // paper aside for a new one, `claimNewPaperView` must already know whether they own the Test Series — warm it now.
       if (user && uid && getDailyMockViews(uid) >= dailyLimitFor(true)) void readTestSeriesOwner(uid);
+      setJudgedKey(key);
       setReady(true);
       return;
     }
@@ -259,7 +292,8 @@ export function MockViewGate({ children }: { children: ReactNode }) {
       const route = paperRouteKey(location.pathname, location.search);
       const marked = readUncounted();
       if (!marked.includes(route)) writeUncounted([...marked, route]);
-      setSamplePassRoute(samplePassKey(location.pathname, location.search));
+      samplePassRef.current = true;
+      setJudgedKey(key);
       setReady(true);
       return;
     }
@@ -276,6 +310,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           if (cancelled) return;
           if (owns) ownerPassRef.current = true;
           else setLimitReached(true);
+          setJudgedKey(key);
           setReady(true);
         });
         return () => {
@@ -283,16 +318,20 @@ export function MockViewGate({ children }: { children: ReactNode }) {
         };
       }
       setLimitReached(true);
+      setJudgedKey(key);
       setReady(true);
     } else {
       incrementDailyMockViews(uid);
       incrementedRef.current = true;
+      setJudgedKey(key);
       setReady(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- the route is read once per gate mount
-  }, [loading, user, isPremium, uid, sampleRouteMoved]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the route is read through its paper key (routeKeyNow)
+  }, [loading, user, isPremium, uid, routeKeyNow]);
 
-  if (loading || !ready) {
+  // GUEST-WALL render guard: while a different paper is being judged, the existing loading card - never a frame of the new
+  // paper's page (or the old paper's wall) before its decision. Premium is never judged per paper, so it never waits here.
+  if (loading || !ready || (judgedKey !== routeKeyNow && !(user && isPremium))) {
     return (
       <div className="lt-page">
         <div className="card">
@@ -345,11 +384,10 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           Sign in to View More
         </h2>
         <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
-          You&rsquo;ve opened your free paper for today. Sign in for {SIGNED_IN_DAILY_MOCK_LIMIT} a
-          day — and a new account can start a free 7-day trial.
+          {SIGNED_OUT_WALL_LINE}
         </p>
         <Link
-          to={`/login?reason=login&redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`}
+          to={paperSignInPath(location.pathname, location.search)}
           style={{
             display: "inline-block", textDecoration: "none",
             border: "none", borderBottom: "4px solid #46a302", borderRadius: 16,

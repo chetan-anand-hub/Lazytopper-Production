@@ -21,6 +21,8 @@ import {
   FREE_TEST_NOTE,
   FREE_TEST_NOTE_MCQ_ONLY,
   SERIES_RULES_START_MS,
+  countTestsTaken,
+  seriesStartDecision,
   firstCountedTestWorksheetId,
   freeTestNote,
   freeTestWrittenAllowed,
@@ -94,6 +96,22 @@ describe("which paper is the free test (pure)", () => {
     expect(freeTestWrittenAllowed({ disabled: true, paperKey: CT_KEY, server: { paperKey: CT_KEY }, testsTaken: 0, firstTestPaperKey: null })).toBe(false);
   });
 
+  it("FREE-TEST-SERIES-ONLY: a non-series chapter test / full mock does not use up the free Test Series test", () => {
+    const plainCt = rec("ct-plain-1", AFTER, "chapter-test"); // ordinary chapter test - no series key
+    const plainFm = rec("fm-plain-1", AFTER + 1, "full-mock");
+    expect(seriesPaperKeyOfWorksheetId(plainCt.worksheetId)).toBeNull();
+    expect(countTestsTaken([plainCt, plainFm])).toBe(0);
+    expect(firstCountedTestWorksheetId([plainCt, plainFm])).toBeNull();
+    // the series paper is still "start" and its written answers are still offered for marking (once)
+    expect(seriesStartDecision({ entitled: false, signedIn: true, testsTaken: countTestsTaken([plainCt, plainFm]) })).toBe("start");
+    expect(freeTestWrittenAllowed({ disabled: false, paperKey: CT_KEY, server: { paperKey: null }, testsTaken: countTestsTaken([plainCt]), firstTestPaperKey: null })).toBe(true);
+    // series free test used -> a second series paper is "upgrade" and not offered
+    const used = [plainCt, rec(CT_ID, AFTER + 5)];
+    expect(countTestsTaken(used)).toBe(1);
+    expect(firstCountedTestWorksheetId(used)).toBe(CT_ID);
+    expect(seriesStartDecision({ entitled: false, signedIn: true, testsTaken: countTestsTaken(used) })).toBe("upgrade");
+    expect(freeTestWrittenAllowed({ disabled: false, paperKey: FM_KEY, server: { paperKey: null }, testsTaken: 1, firstTestPaperKey: CT_KEY })).toBe(false);
+  });
   it("firstCountedTestWorksheetId: the earliest chapter-test / full-mock record after the rules started", () => {
     expect(firstCountedTestWorksheetId([])).toBeNull();
     expect(firstCountedTestWorksheetId([rec(FM_ID, AFTER + 10, "full-mock"), rec(CT_ID, AFTER + 5), rec("ws-1", AFTER, "worksheet")])).toBe(CT_ID);

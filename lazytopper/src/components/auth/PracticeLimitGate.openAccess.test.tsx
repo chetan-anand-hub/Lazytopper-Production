@@ -256,7 +256,7 @@ describe("OR-P3 — no 'unlimited' claim in student-facing copy", () => {
       .flatMap((s) => s.rows)
       .filter((r) => JSON.stringify([r.basic, r.premium]).match(UNLIMITED))
       .map((r) => r.label);
-    expect(unlimitedRows).toEqual(["Open or download chapter tests and full mocks"]);
+    expect(unlimitedRows).toEqual(["Open chapter tests and full mocks"]); // GUEST-WALL: the row opens only
   });
 
   it("COPY-FIXES-2 — bare 'Unlimited' is allowed only on an Open... row; the old download / graded-QP cells fail", () => {
@@ -267,7 +267,9 @@ describe("OR-P3 — no 'unlimited' claim in student-facing copy", () => {
     const oldGraded = '{ label: "Written practice answers marked (Quick Practice)", basic: text(x), premium: yesNote("Unlimited") },';
     expect(bareUnlimitedOffOpenRows(oldDownload)).toHaveLength(1);
     expect(bareUnlimitedOffOpenRows(oldGraded)).toHaveLength(1);
-    expect(bareUnlimitedOffOpenRows(compareSource.replace('yesNote("Included") },\n              { label: "Written practice', 'yesNote("Unlimited") },\n              { label: "Written practice'))).toHaveLength(1);
+    const live = '{ label: "Download papers", basic: NO, premium: yesNote("Included") }';
+    expect(compareSource).toContain(live); // CONTROL: the mutation below really edits the file's row
+    expect(bareUnlimitedOffOpenRows(compareSource.replace(live, live.replace("Included", "Unlimited")))).toHaveLength(1);
   });
 
   it("CONTROL — the scan reaches the files OR-P3 reworded", () => {

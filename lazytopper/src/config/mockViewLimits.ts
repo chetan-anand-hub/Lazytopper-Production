@@ -17,3 +17,15 @@
 export const ANON_DAILY_MOCK_LIMIT = 1;
 /** Signed-in, non-premium — including a student whose 7-day trial has ended. */
 export const SIGNED_IN_DAILY_MOCK_LIMIT = 3;
+
+/**
+ * GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST: "remove the download or checking option from basic plan") — the Basic
+ * plan's papers row, ONE source: opens only. No download and no written-answer checking is stated as a Basic allowance.
+ */
+export const BASIC_PAPERS_ROW = `Open ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out)`;
+/**
+ * GUEST-WALL — the one free test (lib/testSeries/seriesAccess FREE_TESTS_ALLOWED = 1, owner ruling 23 Nov 2026: its written
+ * answers are marked). Kept here, import-free, for the Basic list and the signed-out paper wall; the "first" in it is pinned to
+ * FREE_TESTS_ALLOWED by BasicFreeList.mockLimits.test.tsx.
+ */
+export const FIRST_TEST_FREE_LINE = "Your first test is free, marking included.";

@@ -11,15 +11,9 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { LIMITS_CONFIG as C } from "./limitsConfig";
-import {
-  BASIC_RESULT_LINE,
-  basicDownloadCell,
-  basicDownloadLine,
-  basicQuickPracticeCell,
-  basicQuickPracticeLine,
-  limitsCopyOn,
-  trialLimitsSentence,
-} from "./limitsPlanCopy";
+import * as planCopy from "./limitsPlanCopy";
+import { BASIC_RESULT_LINE, basicQuickPracticeLine, limitsCopyOn, trialLimitsSentence } from "./limitsPlanCopy";
+import { BASIC_PAPERS_ROW, FIRST_TEST_FREE_LINE } from "./mockViewLimits";
 import { basicIncludes, basicLimits, compareSections, fairUseCopy } from "./pricingCompare";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -27,12 +21,11 @@ afterEach(() => vi.unstubAllEnvs());
 
 describe("the lines are built from limitsConfig", () => {
   it("Basic and trial numbers", () => {
-    expect(basicDownloadLine()).toBe(`Download ${C.basic.downloadsPerWeek} paper a week — your first is free`);
+    // GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST): no Basic download line or cell is exported any more.
+    for (const k of ["basicDownloadLine", "basicDownloadCell", "basicPapersRow", "basicQuickPracticeCell"]) expect(k in planCopy).toBe(false);
     // GATE-QP-1 (19 Nov 2026): Basic's graded (written) Quick Practice allowance is 0 -> no number, a plain Board Pass line.
     expect(C.basic.quickPracticeWrittenGradedPerDay).toBe(0);
     expect(basicQuickPracticeLine()).toBe("Quick Practice questions are scored as you tap; marking your written practice answers comes with the Board Pass");
-    expect(basicDownloadCell()).toBe(`${C.basic.downloadsPerWeek} a week (first free)`);
-    expect(basicQuickPracticeCell()).toBe("Board Pass only");
     const t = trialLimitsSentence();
     for (const v of [C.trial.checkImprovePerWeek, C.trial.quickPracticeGradedPerDay, C.trial.downloadsPerWeek, C.trial.worksheetGradedPerWeek, C.trial.chapterTestGradedPerWeek, C.trial.fullMockGradedPerWeek]) {
       expect(t).toContain(String(v));
@@ -44,7 +37,7 @@ describe("the lines are built from limitsConfig", () => {
     expect(src.match(/["'`][^"'`\n]*\d[^"'`\n]*["'`]/g) || []).toEqual([]);
   });
   it("no rupee, countdown or seat count", () => {
-    const all = [basicDownloadLine(), basicQuickPracticeLine(), BASIC_RESULT_LINE, trialLimitsSentence()].join(" ");
+    const all = [basicQuickPracticeLine(), BASIC_RESULT_LINE, trialLimitsSentence()].join(" ");
     expect(all).not.toMatch(/₹|seat|hurry|expires|Gemini|Google/i);
   });
 });
@@ -52,7 +45,10 @@ describe("the lines are built from limitsConfig", () => {
 describe("flag ON: /pricing says the real limits and drops the claim that is no longer true", () => {
   it("includes, not-on-Basic and compare rows", () => {
     const labels = basicIncludes(true).map((i) => i.label).join(" | ");
-    expect(labels).toContain(basicDownloadLine().replace(/^Download/, "download"));
+    // GUEST-WALL: opens only - no Basic download - and the one free test.
+    expect(labels).toContain(BASIC_PAPERS_ROW);
+    expect(labels).toContain(FIRST_TEST_FREE_LINE);
+    expect(labels).not.toMatch(/download/i);
     expect(labels).toContain(basicQuickPracticeLine());
     expect(labels).not.toMatch(/first (graded|of each)/i);
     expect(labels).toContain(BASIC_RESULT_LINE);
@@ -61,9 +57,10 @@ describe("flag ON: /pricing says the real limits and drops the claim that is no 
     expect(lim).not.toContain("No Mistake Intelligence — why you lose marks");
     expect(lim).not.toBe(basicLimits({ freeCheck: false, limitsOn: false }).map((i) => i.label).join(" | "));
     const rows = compareSections({ freeCheck: false, limitsOn: true }).flatMap((s) => s.rows);
+    // GUEST-WALL: Basic's download and written-answer cells are "not included" (a dash).
     const dl = rows.find((r) => r.label === "Download papers");
-    expect(dl?.basic).toEqual({ kind: "text", text: basicDownloadCell() });
-    expect(rows.find((r) => r.label === "Written practice answers marked (Quick Practice)")?.basic).toEqual({ kind: "text", text: basicQuickPracticeCell() });
+    expect(dl?.basic).toEqual({ kind: "no" });
+    expect(rows.find((r) => r.label === "Written practice answers marked (Quick Practice)")?.basic).toEqual({ kind: "no" });
     expect(rows.find((r) => r.label === "Open or download chapter tests and full mocks")).toBeUndefined();
     expect(rows.find((r) => r.label === "Chapter tests, mocks and worksheets graded")?.basic).toEqual({ kind: "no" });
   });
@@ -77,8 +74,12 @@ describe("flag ON: /pricing says the real limits and drops the claim that is no 
 describe("flag OFF: /pricing is exactly what it was (the limits are not enforced, so no new claim)", () => {
   it("wording unchanged", () => {
     const labels = basicIncludes(false).map((i) => i.label).join(" | ");
-    expect(labels).toMatch(/Open or download \d+ chapter tests or mocks a day/);
-    expect(compareSections({ freeCheck: false, limitsOn: false }).flatMap((s) => s.rows).some((r) => r.label === "Download papers")).toBe(false);
+    // GUEST-WALL: the papers row is the same with the flag off - opens only.
+    expect(labels).toContain(BASIC_PAPERS_ROW);
+    expect(labels).not.toMatch(/Open or download/);
+    // GUEST-WALL: "Download papers" shows in both states, a dash on Basic (owner: downloads are not a Basic allowance).
+    expect(compareSections({ freeCheck: false, limitsOn: false }).flatMap((s) => s.rows).find((r) => r.label === "Download papers")?.basic).toEqual({ kind: "no" });
+    expect(compareSections({ freeCheck: false, limitsOn: false }).flatMap((s) => s.rows).some((r) => r.label === "Written practice answers marked (Quick Practice)")).toBe(false);
     expect(fairUseCopy(undefined, false)).not.toContain(trialLimitsSentence());
     expect(limitsCopyOn()).toBe(false);
   });
@@ -87,7 +88,7 @@ describe("flag OFF: /pricing is exactly what it was (the limits are not enforced
     vi.stubEnv("VITE_LIMITS_ENABLED", "1");
     const mod = await import("./pricingCompare");
     expect(mod.BASIC_INCLUDES.some((i) => i.id === "qp-graded")).toBe(true);
-    expect(mod.compareSections({ freeCheck: false }).flatMap((s) => s.rows).some((r) => r.label === "Download papers")).toBe(true);
+    expect(mod.compareSections({ freeCheck: false }).flatMap((s) => s.rows).some((r) => r.label === "Written practice answers marked (Quick Practice)")).toBe(true);
     vi.resetModules();
     vi.stubEnv("VITE_LIMITS_ENABLED", "");
     const off = await import("./pricingCompare");
@@ -98,7 +99,9 @@ describe("flag OFF: /pricing is exactly what it was (the limits are not enforced
 describe("public/llms.txt states the same limits (a static file, kept in step by this test)", () => {
   const llms = readFileSync(path.join(here, "..", "..", "public", "llms.txt"), "utf8");
   it("every line is the config-built one", () => {
-    expect(llms).toContain(basicDownloadLine());
+    // GUEST-WALL: the Basic block states opens and the first free test, never a Basic download.
+    expect(llms).toContain(`  - ${BASIC_PAPERS_ROW}\n  - ${FIRST_TEST_FREE_LINE}`);
+    expect(llms).not.toMatch(/Download \d+ papers? a week/);
     expect(llms).toContain(basicQuickPracticeLine());
     expect(llms).not.toMatch(/first graded|first of each kind/i);
     // GST-EXCL-1 review G6: llms.txt never says "Premium" - it carries the line exactly as /pricing renders it
@@ -123,7 +126,7 @@ describe("BASIC-COPY-1: 'first of each graded kind free' is a TRIAL rule, never 
         ...basicIncludes(on).map((i) => i.label),
         ...basicLimits({ freeCheck: true, limitsOn: on }).map((i) => i.label),
         ...compareSections({ freeCheck: true, limitsOn: on }).flatMap((s) => s.rows.map((r) => JSON.stringify(r.basic))),
-        basicDownloadLine(), basicQuickPracticeLine(), basicDownloadCell(), basicQuickPracticeCell(), BASIC_RESULT_LINE,
+        basicQuickPracticeLine(), BASIC_RESULT_LINE,
       ];
       for (const t of strings) expect(t).not.toMatch(FIRST);
     }

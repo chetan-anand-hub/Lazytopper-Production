@@ -66,7 +66,7 @@ function viewsToday(): number {
   }
   return 0;
 }
-const WALL = "You’ve opened your free paper for today";
+const WALL = "Sign in to open 3 papers a day. Your first test is free, marking included.";
 
 beforeEach(() => {
   localStorage.clear();

@@ -63,6 +63,7 @@ vi.mock("../services/chapterTestPaperStore", async (importOriginal) => {
   };
 });
 
+import { seriesMockWorksheetId } from "../lib/testSeries/testSeries";
 import ChapterTestPage from "./ChapterTestPage";
 import { loadLocalSessionRecords } from "../services/sessionRecords";
 import { resetTestSeriesOwnershipForTests } from "../components/testSeries/testSeriesOwnership";
@@ -171,7 +172,7 @@ describe("TS-FREE-SIGNEDOUT · Chapter Test series paper", () => {
       JSON.stringify({ v: 1, surface: "chapter-test", path: SERIES_URL, ids: ["x"], answers: {}, flags: [], currentQNumber: 1, elapsedMs: 0, savedAt: Date.now() }),
     );
     auth.user = SIGNED_IN;
-    prior.list = [{ id: "FM-M-01", worksheetId: "fm-old", surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: Date.parse("2026-11-19T00:00:00Z") }];
+    prior.list = [{ id: "FM-M-01", worksheetId: seriesMockWorksheetId("fm-old", "Maths", 1), surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: Date.parse("2026-11-19T00:00:00Z") }];
     mount();
     fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 }));
     expect(await screen.findByTestId("series-start-wall")).toBeTruthy();
@@ -182,7 +183,7 @@ describe("TS-FREE-SIGNEDOUT · Chapter Test series paper", () => {
     const page = mount();
     const picked = await startAndPickFirst();
     auth.user = SIGNED_IN;
-    prior.list = [{ id: "FM-M-01", worksheetId: "fm-old", surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: Date.parse("2026-11-19T00:00:00Z") }];
+    prior.list = [{ id: "FM-M-01", worksheetId: seriesMockWorksheetId("fm-old", "Maths", 1), surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: Date.parse("2026-11-19T00:00:00Z") }];
     page.rerender();
     // the paper closes: back on the start screen, nothing written
     await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 });
@@ -398,7 +399,42 @@ describe("TS-SAMPLE-OPEN · Chapter Test behind the daily paper gate", () => {
     expect(views()).toBe(1);
     cleanup();
     await gated("/full-mock/10/Science?paper=1");
-    expect(await screen.findByText(/opened your free paper for today/)).toBeTruthy();
+    expect(await screen.findByText(/Sign in to open 3 papers a day\. Your first test is free, marking included\./)).toBeTruthy();
     expect(screen.queryByTestId("fm-paper")).toBeNull();
   }, 150000);
+});
+
+// GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST): signed out, a Start that claimNewPaperView refuses (today's free paper already
+// used - e.g. a second tab's Start) is not a dead end: the guest line and a Sign in link back to THIS paper (the wall's own builder).
+describe("GUEST-WALL · Chapter Test signed-out refusal", () => {
+  /** The local day stamp MockViewGate counts under (the test reads the clock: registered in date-sensitive-tests.json). */
+  const day = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${`${d.getMonth() + 1}`.padStart(2, "0")}-${`${d.getDate()}`.padStart(2, "0")}`;
+  };
+  it("open CT-M01's start screen, today's free paper is then used elsewhere, Start -> the guest line + Sign in to this paper", async () => {
+    const { MockViewGate, GUEST_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_LINE } = await import("../components/auth/MockViewGate");
+    const url = "/chapter-test/10/Maths/real-numbers?series=1";
+    render(
+      <MemoryRouter initialEntries={[url]}>
+        <Routes>
+          <Route path="/chapter-test/:grade/:subject/:topicKey" element={<MockViewGate><ChapterTestPage /></MockViewGate>} />
+          <Route path="/login" element={<LoginProbe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    expect(await screen.findByTestId("ts-signed-out-note", {}, { timeout: 60000 })).toBeTruthy();
+    const guest = window.sessionStorage.getItem("lazytopper.guestSessionId");
+    expect(guest).toBeTruthy();
+    window.localStorage.setItem(`lazytopper.dailyMockViews:${guest}`, JSON.stringify({ day: day(), count: 1 }));
+    fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }));
+    const notice = await screen.findByTestId("ct-limit-notice");
+    expect(notice.textContent).toContain(GUEST_PAPER_LIMIT_LINE);
+    expect(notice.textContent).not.toContain(NEW_PAPER_LIMIT_LINE);
+    const link = screen.getByTestId("guest-paper-sign-in");
+    expect(link.getAttribute("href")).toBe(`/login?reason=login&redirect=${encodeURIComponent(url)}`);
+    expect(document.querySelector(".lt-ct__opt")).toBeNull();
+    fireEvent.click(link);
+    expect((await screen.findByTestId("login-page")).textContent).toBe(url);
+  }, 120000);
 });

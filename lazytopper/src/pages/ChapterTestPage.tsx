@@ -58,6 +58,7 @@ import {
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import { CT_PROGRESS_PREFIX, paperRouteKey } from "../lib/papers/resumablePaper";
 import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
+import { GuestPaperSignInLink, paperLimitLineFor } from "../components/auth/GuestPaperSignIn";
 import { useSubscription } from "../hooks/useSubscription";
 import { useLimitedDownload } from "../hooks/useLimitedDownload";
 import LimitChip from "../components/limits/LimitChip";
@@ -1951,7 +1952,7 @@ export default function ChapterTestPage() {
                       )}
                       {seriesDownloadAccess && !hideDownloadChip && <LimitChip />}
                     </div>
-                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote written={freeWritten} />}
+                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && freeTestPaperKey !== null && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote written={freeWritten} />}
                     {signedOutSitting && (
                       <p className="lt-wcg__line" data-testid="ts-signed-out-note">
                         {SIGNED_OUT_TAKING_NOTE}
@@ -1966,8 +1967,11 @@ export default function ChapterTestPage() {
                     {limitNotice && (
                       <div className="lt-ct__honest" role="alert" data-testid="ct-limit-notice">
                         <span>·</span>
-                        <span>{limitNotice}</span>
+                        <span>{paperLimitLineFor(limitNotice, isSignedIn)}</span>
                       </div>
+                    )}
+                    {limitNotice === NEW_PAPER_LIMIT_LINE && !isSignedIn && (
+                      <GuestPaperSignInLink pathname={location.pathname} search={location.search} />
                     )}
 
                     {downloadedNote && (

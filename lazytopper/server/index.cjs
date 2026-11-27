@@ -887,7 +887,8 @@ async function handleRequest(req, res) {
     // byte-identical, so every non-free-check caller is decided exactly as before.
     // LIMITS-1 PR-2: the per-kind graded limits. A no-op unless LIMITS_ENFORCE=1. It may refuse a
     // trial student over a kind's weekly cap (409), or let a Basic student's first free grade of a
-    // kind past the 402 ONCE. Everyone else is decided exactly as before.
+    // kind past the 402 ONCE (BASIC-CTFM-FREE-1, 26 Nov 2026: not chapter-test / full-mock - Basic's one free
+    // marked test is the Test Series free test). Everyone else is decided exactly as before.
     const limitsVerdict = freeCheckAdmitted || !verifiedUid
       ? {}
       : await limits.gradingGate(req, res, reqPath, verifiedUid, {

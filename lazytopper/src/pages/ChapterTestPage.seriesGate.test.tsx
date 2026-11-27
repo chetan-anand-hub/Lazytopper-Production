@@ -5,7 +5,7 @@ import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { packPriceLabel } from "../services/packs";
-import { seriesTotals } from "../lib/testSeries/testSeries";
+import { seriesTotals, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
 
 const sub = vi.hoisted(() => ({ tier: "free" as "free" | "trial" | "premium" }));
 vi.mock("../hooks/useSubscription", () => ({
@@ -129,7 +129,7 @@ describe.each(["free", "trial", "premium"] as const)("Chapter Test · %s account
 
   it(`with one test already taken: ${entitled ? "starts another" : "the upgrade wall, no new paper"}`, async () => {
     sub.tier = tier;
-    prior.list = [{ id: "FM-M-01", worksheetId: "fm-old", surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: Date.parse("2026-11-19T00:00:00Z") }];
+    prior.list = [{ id: "FM-M-01", worksheetId: seriesMockWorksheetId("fm-old", "Maths", 1), surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: Date.parse("2026-11-19T00:00:00Z") }];
     mount();
     fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 }));
     if (entitled) {

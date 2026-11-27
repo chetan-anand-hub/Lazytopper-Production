@@ -88,6 +88,7 @@ import {
 } from "../components/fullmock/fullMockBlueprint";
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
+import { GuestPaperSignInLink, paperLimitLineFor } from "../components/auth/GuestPaperSignIn";
 import { useSubscription } from "../hooks/useSubscription";
 import { useLimitedDownload } from "../hooks/useLimitedDownload";
 import LimitChip from "../components/limits/LimitChip";
@@ -1959,7 +1960,12 @@ export default function FullMockPage() {
       {tutorWall && <TutorBoardPassWall onClose={() => setTutorWall(false)} />}
       {paperNotice && (
         <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="paper-notice">
-          {paperNotice}
+          {paperLimitLineFor(paperNotice, isSignedIn)}
+          {paperNotice === NEW_PAPER_LIMIT_LINE && !isSignedIn && (
+            <div>
+              <GuestPaperSignInLink pathname={location.pathname} search={location.search} />
+            </div>
+          )}
         </div>
       )}
 
@@ -2283,7 +2289,7 @@ export default function FullMockPage() {
                     </div>
                     {/* TS-THEMES-1: on a focus set the free-test note shows only when its written answers WILL be marked (no "MCQs marked free"
                         line on a paper with no MCQs); otherwise starting it shows the upgrade card below. */}
-                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && (!focusActive || freeWritten) && <FreeTestNote written={freeWritten} />}
+                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && freeTestPaperKey !== null && countTestsTaken(records) < FREE_TESTS_ALLOWED && (!focusActive || freeWritten) && <FreeTestNote written={freeWritten} />}
                     {signedOutSitting && (
                       <p className="lt-wcg__line" data-testid="ts-signed-out-note">
                         {SIGNED_OUT_TAKING_NOTE}

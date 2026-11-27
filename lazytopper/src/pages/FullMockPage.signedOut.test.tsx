@@ -287,7 +287,43 @@ describe("TS-SAMPLE-OPEN · Full Mock behind the daily paper gate", () => {
     expect(screen.queryByTestId("login-page")).toBeNull();
     cleanup();
     await gated("/full-mock/10/Maths?paper=1");
-    expect(await screen.findByText(/opened your free paper for today/)).toBeTruthy();
+    expect(await screen.findByText(/Sign in to open 3 papers a day\. Your first test is free, marking included\./)).toBeTruthy();
     expect(views()).toBe(1);
+  }, 120000);
+});
+
+// GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST): signed out, a Start that claimNewPaperView refuses (today's free paper already
+// used - e.g. a second tab's Start) is not a dead end: the guest line and a Sign in link back to THIS paper (the wall's own builder).
+describe("GUEST-WALL · Full Mock signed-out refusal", () => {
+  /** The local day stamp MockViewGate counts under (the test reads the clock: registered in date-sensitive-tests.json). */
+  const day = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${`${d.getMonth() + 1}`.padStart(2, "0")}-${`${d.getDate()}`.padStart(2, "0")}`;
+  };
+  it("open FM-S1's start screen, today's free paper is then used elsewhere, Start -> the guest line + Sign in to this paper", async () => {
+    const { MockViewGate, GUEST_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_LINE } = await import("../components/auth/MockViewGate");
+    render(
+      <MemoryRouter initialEntries={["/full-mock/10/Science?paper=1"]}>
+        <Routes>
+          <Route path="/full-mock/:grade/:subject" element={<MockViewGate><FullMockPage /></MockViewGate>} />
+          <Route path="/login" element={<LoginProbe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    expect(await screen.findByTestId("ts-signed-out-note", {}, { timeout: 60000 })).toBeTruthy();
+    // another tab's Start spent today's free paper
+    const guest = window.sessionStorage.getItem("lazytopper.guestSessionId");
+    expect(guest).toBeTruthy();
+    window.localStorage.setItem(`lazytopper.dailyMockViews:${guest}`, JSON.stringify({ day: day(), count: 1 }));
+    fireEvent.click(await screen.findByRole("button", { name: /Start the mock/ }));
+    const notice = await screen.findByTestId("paper-notice");
+    expect(GUEST_PAPER_LIMIT_LINE).toBe("You've used today's free paper. Sign in (free) for 3 a day.");
+    expect(notice.textContent).toContain(GUEST_PAPER_LIMIT_LINE);
+    expect(notice.textContent).not.toContain(NEW_PAPER_LIMIT_LINE);
+    const link = screen.getByTestId("guest-paper-sign-in");
+    expect(link.getAttribute("href")).toBe(`/login?reason=login&redirect=${encodeURIComponent("/full-mock/10/Science?paper=1")}`);
+    expect(document.querySelector(".lt-ct__opt")).toBeNull();
+    fireEvent.click(link);
+    expect((await screen.findByTestId("login-page")).textContent).toBe("/full-mock/10/Science?paper=1");
   }, 120000);
 });

@@ -1,7 +1,6 @@
 import { VALIDITY_SHORT } from "../../config/validity";
-import { useEffect, useState } from "react";
 import { boardPassPriceDisplay, boardPassPriceLine } from "../../config/pricing";
-import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
+import { BASIC_PAPERS_ROW, FIRST_TEST_FREE_LINE } from "../../config/mockViewLimits";
 
 /**
  * TRIAL-ON-SIGNUP-1 · T4 — the Basic (free) plan's feature list, ONE source.
@@ -67,12 +66,11 @@ export const FREE_FEATURES = [
   { label: "Deep Mistake Intelligence", included: false },
   // FRICTION-FIX-1 · F2 (P7) — mock papers ARE free, within MockViewGate's daily limits,
   // which are imported (config/mockViewLimits.ts), never typed here.
-  // D114 (owner ruling, 12 Oct 2026): wording only. The limit is a per-day OPEN/DOWNLOAD
-  // allowance for chapter tests AND full mocks; the answers are not checked on Basic.
-  {
-    label: `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out) — written answers not checked`,
-    included: true,
-  },
+  // GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST): "remove the download or checking option from basic plan". The row
+  // states OPENS only (D114's "open or download ... written answers not checked" is retired), and the one free test - its
+  // written answers marked (FREE_TESTS_ALLOWED = 1, owner ruling 23 Nov 2026) - is its own row.
+  { label: BASIC_PAPERS_ROW, included: true },
+  { label: FIRST_TEST_FREE_LINE, included: true },
   { label: "Richer Me / Progress recommendations", included: false },
 ];
 
@@ -126,16 +124,12 @@ const BASIC_FREE_CSS = `
 }
 `;
 
-/** "Free on Basic:" + the included Basic rows, for every Premium lock. */
-// LIMITS-1 PR-2 — with the limits ON, the "papers" row states the real weekly download (numbers from
-// limitsConfig). That copy is a LAZY chunk, so the entry carries none of it whichever way the flag is
-// set (PERF-3). Same case-insensitive parsing as every other reader of the flag.
-
+/**
+ * "Free on Basic:" + the included Basic rows, for every Premium lock. GUEST-WALL: the rows are the same with the limits on or
+ * off - LIMITS-1 PR-2's limits-on papers row (a weekly download) is retired with the owner's 26 Nov ruling, so this list no
+ * longer loads limitsPlanCopy at all.
+ */
 export function BasicFreeList() {
-  const [papers, setPapers] = useState("");
-  useEffect(() => {
-    /^(1|true|on|yes)$/i.test(import.meta.env.VITE_LIMITS_ENABLED) && import("../../config/limitsPlanCopy").then(m => setPapers(m.basicPapersRow()));
-  }, []);
   return (
     <div className="lt-basic-free" data-testid="basic-free-list">
       <style>{BASIC_FREE_CSS}</style>
@@ -144,7 +138,7 @@ export function BasicFreeList() {
         {BASIC_FREE_LABELS.map(label => (
           <li key={label} className="lt-basic-free__item">
             <span className="lt-basic-free__tick" aria-hidden="true">✓</span>
-            {papers && label.startsWith("Open or") ? papers : label}
+            {label}
           </li>
         ))}
       </ul>

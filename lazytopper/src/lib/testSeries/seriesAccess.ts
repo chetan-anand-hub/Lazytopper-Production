@@ -1,3 +1,4 @@
+import { seriesPaperKeyOfWorksheetId } from "./testSeries";
 /**
  * TEST-SERIES-1 — who may have Chapter Test / Full Mock WRITTEN answers (Sections B–E) checked, and download / print the papers
  * (owner rulings 18 Nov 2026, 19:31 + 19:38 IST): a Board Pass holder (PAID premium) OR an owner of the `test_series` pack.
@@ -55,10 +56,20 @@ export function scorecardUploadNotAllowed(a: { canCheck: boolean; createdMs: num
   return !(a.canCheck || isBeforeSeriesRules(a.createdMs)) && !a.checking && !a.failed;
 }
 
-export function countTestsTaken(records: ReadonlyArray<{ surface: string; gradedAt?: number }>): number {
-  return records.filter(
-    (r) => (r.surface === "chapter-test" || r.surface === "full-mock") && !isBeforeSeriesRules(typeof r.gradedAt === "number" ? r.gradedAt : null),
-  ).length;
+/**
+ * FREE-TEST-SERIES-ONLY (owner ruling 26 Nov 2026, 23:43 IST): a Basic account's ONE free test must be a TEST SERIES paper, so only a
+ * sitting of a series paper (chapter test / full mock / focus set with a series key) after the rules started counts against it. An
+ * ordinary (non-series) chapter test or full mock no longer uses it up. The server already marks the free series test on its own
+ * (testSeriesChecks.freeTestGrade); this only decides what the client SHOWS and lets START. PURE.
+ */
+function isCountedFreeTestRecord(r: { surface: string; gradedAt?: number; worksheetId?: string }): boolean {
+  if (r.surface !== "chapter-test" && r.surface !== "full-mock") return false;
+  if (isBeforeSeriesRules(typeof r.gradedAt === "number" && Number.isFinite(r.gradedAt) ? r.gradedAt : null)) return false;
+  return seriesPaperKeyOfWorksheetId(r.worksheetId) !== null;
+}
+
+export function countTestsTaken(records: ReadonlyArray<{ surface: string; gradedAt?: number; worksheetId?: string }>): number {
+  return records.filter(isCountedFreeTestRecord).length;
 }
 
 /**
@@ -85,15 +96,14 @@ export function freeTestNote(written: boolean): string {
 }
 
 /**
- * The worksheetId of the account's FIRST counted test (the one FREE_TESTS_ALLOWED spends): the earliest chapter-test / full-mock
- * record after the rules started, by `gradedAt`. null when none is counted yet. PURE.
+ * The worksheetId of the account's FIRST counted test (the one FREE_TESTS_ALLOWED spends): the earliest SERIES-paper chapter-test /
+ * full-mock record after the rules started, by `gradedAt`. null when none is counted yet. PURE.
  */
 export function firstCountedTestWorksheetId(records: ReadonlyArray<{ surface: string; gradedAt?: number; worksheetId?: string }>): string | null {
   let best: { at: number; id: string } | null = null;
   for (const r of records) {
-    if (r.surface !== "chapter-test" && r.surface !== "full-mock") continue;
+    if (!isCountedFreeTestRecord(r)) continue;
     const at = typeof r.gradedAt === "number" && Number.isFinite(r.gradedAt) ? r.gradedAt : null;
-    if (isBeforeSeriesRules(at)) continue;
     const key = at ?? Number.POSITIVE_INFINITY;
     if (!best || key < best.at) best = { at: key, id: typeof r.worksheetId === "string" ? r.worksheetId : "" };
   }

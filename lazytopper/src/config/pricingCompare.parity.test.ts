@@ -89,12 +89,14 @@ describe("L7 · Basic's paper-open numbers come from mockViewLimits.ts by import
 
   it("pricingCompare.ts imports both limits from ./mockViewLimits", () => {
     expect(source).toMatch(
-      /import \{ ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT \} from "\.\/mockViewLimits";/,
+      /import \{ ANON_DAILY_MOCK_LIMIT, [A-Z_, ]*SIGNED_IN_DAILY_MOCK_LIMIT \} from "\.\/mockViewLimits";/,
     );
   });
 
   it("every 'a day' string interpolates the constants — no digit is typed beside it", () => {
-    const lines = source.split(/\r?\n/).filter((l) => /a day/.test(l) && !/^\s*(\/\/|\*)/.test(l));
+    // GUEST-WALL: the Basic card's papers row now lives in mockViewLimits.ts (BASIC_PAPERS_ROW) beside the constants it states.
+    const cfg = readFileSync(resolve(process.cwd(), "src/config/mockViewLimits.ts"), "utf8");
+    const lines = `${source}\n${cfg}`.split(/\r?\n/).filter((l) => /a day/.test(l) && !/^\s*(\/\/|\/?\*)/.test(l));
     expect(lines.length).toBeGreaterThanOrEqual(2);
     for (const line of lines) {
       expect(line).toContain("${SIGNED_IN_DAILY_MOCK_LIMIT}");
@@ -105,11 +107,11 @@ describe("L7 · Basic's paper-open numbers come from mockViewLimits.ts by import
 
   it("and the rendered values are the enforced ones", () => {
     expect(BASIC_INCLUDES.find((i) => i.id === "papers")?.label).toBe(
-      `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out)`,
+      `Open ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out)`,
     );
     const row = compareSections({ freeCheck: false })
       .flatMap((s) => s.rows)
-      .find((r) => r.label === "Open or download chapter tests and full mocks");
+      .find((r) => r.label === "Open chapter tests and full mocks");
     expect(row?.basic).toEqual({
       kind: "text",
       text: `${SIGNED_IN_DAILY_MOCK_LIMIT} a day (${ANON_DAILY_MOCK_LIMIT} signed out)`,

@@ -145,6 +145,9 @@ describe("CT-RESUME-2 HOLD 1 · open → download → start → reload is NOT a 
     fireEvent.click(start2);
     const notice = await screen.findByTestId("ct-limit-notice");
     expect(notice.textContent).toContain("You've opened today's papers already — a new paper opens again tomorrow.");
+    // GUEST-WALL: signed in, the line is unchanged and no guest Sign in link is drawn.
+    expect(notice.textContent).not.toContain("Sign in (free)");
+    expect(screen.queryByTestId("guest-paper-sign-in")).toBeNull();
     expect(inTest()).toBe(false);
     expect(viewsToday()).toBe(3);
 

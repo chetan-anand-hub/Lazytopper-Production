@@ -600,10 +600,12 @@ describe("round 2", () => {
     expect(HUB_CSS).toMatch(/body:has\(\.lt-ph\) \.lt-wa-fab \{\s*width: 44px;\s*height: 44px;\s*right: 4px;/);
   });
 
-  it("R4: the Basic line is the legacy one - 'limited practice' with the limits on", async () => {
+  it("R4 / GUEST-WALL: the Basic line, limits on, states no download and no checking (owner ruling 26 Nov 2026)", async () => {
     vi.stubEnv("VITE_LIMITS_ENABLED", "1");
     await renderAt("/pricing");
-    expect(screen.getByTestId("pricing-basic-line")).toHaveTextContent("Basic: free forever, with notes, NCERT solutions and limited practice (1 download a week; marking your written practice answers comes with the Board Pass)");
+    const line = screen.getByTestId("pricing-basic-line");
+    expect(line).toHaveTextContent("Basic: free forever, with notes, NCERT solutions and practice sets");
+    expect(line.textContent).not.toMatch(/download|marking|limited/i);
   });
 });
 
