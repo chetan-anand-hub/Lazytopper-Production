@@ -49,11 +49,11 @@ describe("packPaperCode", () => {
     expect(packPaperCode({ kind: "mock", subject: "science", n: 3 })).toBe("PK-S-FULL-M3");
   });
 
-  it("only the three corrected graded papers carry a -V2 suffix", () => {
+  it("only the corrected graded papers carry a -V2 suffix (3 PACK-SYLLABUS-1 + 6 CBQ-PACK-HOLDS; the 14 CBQ sets are in packSyllabus.guard.test.ts)", () => {
     const v2: string[] = [];
     for (const slug of PACK_CHAPTER_SLUGS) for (const kind of ["ct1", "ct2", "ws"] as const) if (packPaperCode({ kind, chapter: slug }).endsWith("-V2")) v2.push(packPaperCode({ kind, chapter: slug }));
     for (const subject of ["maths", "science"] as const) for (let n = 1; n <= 8; n += 1) if (packPaperCode({ kind: "mock", subject, n }).endsWith("-V2")) v2.push(packPaperCode({ kind: "mock", subject, n }));
-    expect(v2.sort()).toEqual(["PK-M-PO-WS-V2", "PK-S-FULL-M5-V2", "PK-S-MEOE-WS-V2"]);
+    expect(v2.sort()).toEqual(["PK-M-FULL-M8-V2", "PK-M-PO-WS-V2", "PK-S-ABAS-CT2-V2", "PK-S-CRAE-CT2-V2", "PK-S-ELE-CT2-V2", "PK-S-FULL-M5-V2", "PK-S-MANM-CT1-V2", "PK-S-MANM-WS-V2", "PK-S-MEOE-WS-V2"]);
   });
 });
 
@@ -200,7 +200,7 @@ describe("CBQ Pack sets carry a pack code and wait on Home like every pack paper
     for (const slug of PACK_CHAPTER_SLUGS) {
       for (const part of [1, 2, 3]) {
         const c = packPaperCode({ kind: "cbq", chapter: slug, set: part });
-        expect(c).toMatch(/^PK-[MS]-[A-Z0-9]+-CBQ[123]$/);
+        expect(c).toMatch(/^PK-[MS]-[A-Z0-9]+-CBQ[123](-V2)?$/);
         codes.add(c);
       }
       for (const kind of ["ct1", "ct2", "ws"] as const) expect(codes.has(packPaperCode({ kind, chapter: slug }))).toBe(false);
@@ -262,7 +262,7 @@ describe("CBQ Pack sets carry a pack code and wait on Home like every pack paper
       expect(qDocs.length).toBeGreaterThan(0);
       for (const f of qDocs) {
         for (const c of f.codes!) {
-          expect(c, f.id).toMatch(/^PK-[MS]-[A-Z0-9]+-CBQ\d+$/);
+          expect(c, f.id).toMatch(/^PK-[MS]-[A-Z0-9]+-CBQ\d+(-V2)?$/);
           expect(seen.has(c), c).toBe(false);
           seen.add(c);
         }
