@@ -215,7 +215,7 @@ const PaperSeriesOnlyWallLazy = lazy(() => import("./PaperSeriesOnlyWall"));
 
 export function MockViewGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
-  const { isPremium, isTrialExpired, status } = useSubscription();
+  const { isPremium, isTrialExpired, status, hydrated, cloudConfirmed } = useSubscription();
   const paid = isPaidPremium(status);
   const location = useLocation();
   const [limitReached, setLimitReached] = useState(false);
@@ -252,6 +252,13 @@ export function MockViewGate({ children }: { children: ReactNode }) {
   const weeklyApplies = !freeTsWeeklyDisabled() && !paid && paperSurfaceOfRoute(location.pathname) !== null;
   /** Premium-equivalent for this gate: a paid holder always; a trial only where the weekly rule does not apply. */
   const bypassGate = !!user && isPremium && (paid || !weeklyApplies);
+  /**
+   * A signed-in student is not judged as Basic / trial until THEIR subscription is cloud-reconciled (a Board Pass holder on a fresh device
+   * reads as free until then). Until it has resolved the loading card shows; if the cloud read FAILED (hydrated, not confirmed) the gate
+   * fails OPEN: no wall, no recorded open.
+   */
+  const awaitingSubscription = weeklyApplies && !!user && !hydrated;
+  const subscriptionUnconfirmed = weeklyApplies && !!user && hydrated && !cloudConfirmed;
 
   useEffect(() => {
     if (loading) return;
@@ -266,6 +273,12 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     }
     judgedKeyRef.current = key;
     if (bypassGate) {
+      setJudgedKey(key);
+      setReady(true);
+      return;
+    }
+    if (awaitingSubscription) return;
+    if (subscriptionUnconfirmed) {
       setJudgedKey(key);
       setReady(true);
       return;
@@ -445,11 +458,11 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     judge(undefined);
     return cleanup;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the route is read through its paper key (routeKeyNow)
-  }, [loading, user, isPremium, paid, uid, routeKeyNow]);
+  }, [loading, user, isPremium, paid, hydrated, cloudConfirmed, uid, routeKeyNow]);
 
   // GUEST-WALL render guard: while a different paper is being judged, the existing loading card - never a frame of the new
   // paper's page (or the old paper's wall) before its decision. Premium is never judged per paper, so it never waits here.
-  if (loading || !ready || (judgedKey !== routeKeyNow && !bypassGate)) {
+  if (loading || awaitingSubscription || !ready || (judgedKey !== routeKeyNow && !bypassGate)) {
     return (
       <div className="lt-page">
         <div className="card">
@@ -459,7 +472,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     );
   }
 
-  if (bypassGate) {
+  if (bypassGate || subscriptionUnconfirmed) {
     return <>{children}</>;
   }
 

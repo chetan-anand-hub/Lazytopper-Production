@@ -10,6 +10,8 @@ import { MemoryRouter } from "react-router-dom";
 type TestUser = { uid: string } | null;
 let currentUser: TestUser = null;
 let tier: "free" | "trial" | "premium" = "free";
+let hydrated = true;
+let cloudConfirmed = true;
 let ownerState: "owner" | "not-owner" | "unknown" = "not-owner";
 let resuming = false;
 const mintOpen = vi.fn(async (_k: string) => ({ refused: false, resetAt: null as string | null }));
@@ -23,6 +25,8 @@ vi.mock("../../hooks/useSubscription", () => ({
     isTrialExpired: false,
     daysLeftInTrial: 0,
     status: { tier },
+    hydrated,
+    cloudConfirmed,
   }),
 }));
 vi.mock("./paperCapOwner", () => ({
@@ -73,6 +77,8 @@ beforeEach(() => {
   sessionStorage.clear();
   currentUser = null;
   tier = "free";
+  hydrated = true;
+  cloudConfirmed = true;
   ownerState = "not-owner";
   resuming = false;
   mintOpen.mockClear();
@@ -167,6 +173,38 @@ describe("FREE-TS-WEEKLY - trial and Board Pass", () => {
     expect((await visit(ORDINARY)).rendered).toBe(true);
     for (let k = 1; k <= 6; k += 1) expect((await visit(CT(k))).rendered).toBe(true);
     expect(localStorage.getItem(`${STORE}:u2`)).toBeNull();
+    expect(mintOpen).not.toHaveBeenCalled();
+  });
+});
+
+describe("FREE-TS-WEEKLY - a signed-in student is not judged before the subscription is cloud-confirmed", () => {
+  beforeEach(() => {
+    currentUser = { uid: "u9" };
+  });
+
+  it("a Board Pass holder on a fresh device (status still the free default, not hydrated) sees the loading card, never the wall, and records no open", async () => {
+    hydrated = false;
+    const { MockViewGate } = await load();
+    const view = render(
+      <MemoryRouter initialEntries={[ORDINARY]}>
+        <MockViewGate>
+          <div>{PAPER}</div>
+        </MockViewGate>
+      </MemoryRouter>,
+    );
+    await new Promise((r) => setTimeout(r, 50));
+    expect(document.body.textContent).toContain("Loading...");
+    expect(document.body.textContent).not.toContain("Test Series");
+    view.unmount();
+    expect(localStorage.getItem(`${STORE}:u9`)).toBeNull();
+    expect(mintOpen).not.toHaveBeenCalled();
+  });
+
+  it("hydrated and the cloud read FAILED: fails OPEN - the paper opens (series or ordinary), no wall, no recorded open", async () => {
+    cloudConfirmed = false;
+    expect((await visit(ORDINARY)).rendered).toBe(true);
+    for (let k = 1; k <= 5; k += 1) expect((await visit(CT(k))).rendered).toBe(true);
+    expect(localStorage.getItem(`${STORE}:u9`)).toBeNull();
     expect(mintOpen).not.toHaveBeenCalled();
   });
 });

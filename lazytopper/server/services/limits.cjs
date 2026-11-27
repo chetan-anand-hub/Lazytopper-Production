@@ -577,6 +577,10 @@ function createLimits(deps = {}) {
 
   /** Never throws: any failure (no Firestore, a read error, a slow read) is "not owned". */
   async function ownsCover(uid, kind, cover) {
+    return (await ownsCoverState(uid, kind, cover)) === true;
+  }
+  /** FREE-TS-WEEKLY: the same read, three-state - true / false, or null when the read failed or timed out (unknown, never "not owned"). */
+  async function ownsCoverState(uid, kind, cover) {
     let timer = null;
     try {
       const packs = await Promise.race([
@@ -587,7 +591,7 @@ function createLimits(deps = {}) {
       return coverIsOwned(kind, cover, splitByRedownload(packs, now()).open);
     } catch {
       emit('limits.download.pack_read_failed');
-      return false;
+      return null;
     } finally {
       if (timer) clearTimeout(timer);
     }
@@ -653,13 +657,26 @@ function createLimits(deps = {}) {
         seriesId = false;
       }
       if (seriesId && !(await isSeriesOwnerPaper(uid, kind, paperKey))) {
+        // Refuse ONLY on a definitive "not an owner": an unreadable / timed-out series-ownership or pack read SERVES (an owner is never
+        // refused on a blip), the same fail-open rule as the open mint.
+        let owns = null;
+        if (ownsSeriesPack) {
+          try {
+            owns = await ownsSeriesPack(uid);
+          } catch {
+            owns = null;
+          }
+        }
         const cover = parseCover(body.cover);
-        if (!(cover && (await ownsCover(uid, kind, cover)))) {
+        const covered = cover ? await ownsCoverState(uid, kind, cover) : false;
+        if (owns === false && covered === false) {
           if (enforced) {
             emit('limits.download.view_only');
             return sendJson(res, 409, { error: 'download_view_only', tier: plan.tier, window: 'view_only', limit: 0, used: 0, remaining: 0, resetAt: null });
           }
           emit('limits.download.would_view_only');
+        } else if (owns === null || covered === null) {
+          emit('limits.download.view_only_unknown');
         }
       }
     }

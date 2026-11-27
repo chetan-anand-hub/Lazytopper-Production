@@ -52,7 +52,7 @@ function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, owns = false, ownsF
     verifiedCaller: { resolveVerifiedUid: async () => 'stu-1' },
     isSeriesPaperId: (kind, id) => kind === 'chapter-test' && id === SERIES_ID,
     ownsSeriesPack: ownsFn || (async () => owns),
-    ...(listPacks ? { listPacks } : {}),
+    listPacks: listPacks || (async () => []),
     ...(seriesOwnerPaper ? { seriesOwnerPaper } : {}),
   });
   return { l, f, clock, counters };
@@ -192,4 +192,20 @@ test('download: kill switch FREE_TS_WEEKLY_DISABLED=1 restores today\'s metering
 test('parity: the server weekly limit equals the client constant (src/config/mockViewLimits.ts)', () => {
   const src = require('node:fs').readFileSync(require('node:path').join(__dirname, '../../src/config/mockViewLimits.ts'), 'utf8');
   assert.equal(Number(/FREE_TS_WEEKLY_SIGNED_IN = (\d+)/.exec(src)[1]), FREE_TS_OPENS_PER_WEEK);
+});
+
+test('download: series ownership UNREADABLE serves (an owner is never refused on a blip)', async () => {
+  for (const ownsFn of [async () => null, async () => { throw new Error('down'); }]) {
+    const r = rig({ ownsFn });
+    const a = await dl(r, { kind: 'chapter-test', paperKey: SERIES_ID, cover: { chapters: ['real-numbers'] } });
+    assert.equal(a.status, 200);
+    assert.equal(r.counters['limits.download.view_only_unknown'], 1);
+  }
+});
+
+test('download: cover (PDF pack) ownership read failing or timing out serves', async () => {
+  const bad = rig({ listPacks: async () => { throw new Error('down'); } });
+  assert.equal((await dl(bad, { kind: 'chapter-test', paperKey: SERIES_ID, cover: { chapters: ['real-numbers'] } })).status, 200);
+  const slow = rig({ listPacks: () => new Promise(() => {}) });
+  assert.equal((await dl(slow, { kind: 'chapter-test', paperKey: SERIES_ID, cover: { chapters: ['real-numbers'] } })).status, 200);
 });
