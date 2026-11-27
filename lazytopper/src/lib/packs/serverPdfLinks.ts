@@ -14,6 +14,8 @@ import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 
 export const PACK_FILE_LINK_ENDPOINT = "/api/packs/file-link";
 export const PACK_ZIP_LINK_ENDPOINT = "/api/packs/zip-link";
+/** BONUS-BOOK-1: the CBQ Pack's complete book (one pre-built PDF per subject; same entitlement check as every pack file). */
+export const PACK_BONUS_LINK_ENDPOINT = "/api/packs/bonus-link";
 /** GUEST-ZIP-1: the signed-out buyer's whole-pack ZIP; proof = the receipt's (order id, payment id, Razorpay signature), no sign-in. */
 export const GUEST_ZIP_LINK_ENDPOINT = "/api/pay/guest/zip-link";
 /** How long the browser waits for a link before it builds the file itself. */
@@ -133,4 +135,9 @@ export function requestZipLink(packId: string, group: string, deps: LinkDeps = {
 /** GUEST-ZIP-1: ONE ZIP of the whole pack for a signed-out buyer. The pack, licensee and files all come from the stored order on the server. */
 export function requestGuestZipLink(proof: { orderId: string; paymentId: string; signature: string }, deps: LinkDeps = {}): Promise<LinkResult<ServerZipLink>> {
   return post(GUEST_ZIP_LINK_ENDPOINT, { orderId: proof.orderId, paymentId: proof.paymentId, signature: proof.signature }, readZip, { timeoutMs: SERVER_ZIP_TIMEOUT_MS, headers: async () => ({}), ...deps });
+}
+
+/** BONUS-BOOK-1: a signed link to the complete book of an owned CBQ Pack (`pack_cbq:<subject>`). No papers are printed in it. */
+export function requestBonusLink(packId: string, deps: LinkDeps = {}): Promise<LinkResult<ServerFileLink>> {
+  return post(PACK_BONUS_LINK_ENDPOINT, { packId }, readLink, deps);
 }

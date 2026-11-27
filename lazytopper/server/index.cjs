@@ -205,7 +205,7 @@ const { runWithRequestContext, bindRequestUid } = require('./services/usageLedge
 // RAZORPAY-1: a student buys a pass. DARK unless the server env PAYMENTS_ENABLED is on —
 // off, all three routes answer this file's own 404. Keys only from env; see the module.
 const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH, PAY_STATUS_PATH } = require('./routes/payments.cjs');
-const { createPackRoutes, PACKS_MINE_PATH, PACKS_FILE_LINK_PATH, PACKS_ZIP_LINK_PATH } = require('./routes/packs.cjs'); // PACKS-SERVER-1
+const { createPackRoutes, PACKS_MINE_PATH, PACKS_FILE_LINK_PATH, PACKS_ZIP_LINK_PATH, PACKS_BONUS_LINK_PATH } = require('./routes/packs.cjs'); // PACKS-SERVER-1
 const { createPackPdfService } = require('./services/packPdfService.cjs'); // SERVER-PDF-1 PR-B
 const { createFreeResourceRoutes, FREE_LIST_PATH, FREE_LINK_PATH } = require('./routes/freeResources.cjs'); // FREE-RES-1
 const { __internals: { resolveBucketName } } = require('./services/qrUploadChannel.cjs');
@@ -750,6 +750,8 @@ async function handleRequest(req, res) {
       // SERVER-PDF-1 PR-B: credentialed POSTs - without these entries the preflight fails and the link never leaves the browser.
       reqPath === PACKS_FILE_LINK_PATH ||
       reqPath === PACKS_ZIP_LINK_PATH ||
+      // BONUS-BOOK-1: the CBQ Pack's complete-book link, a credentialed POST.
+      reqPath === PACKS_BONUS_LINK_PATH ||
       // FREE-RES-1: the credentialed POST for a free download link, preflighted for the same reason.
       reqPath === FREE_LINK_PATH ||
       // GST-INVOICE-1: credentialed GETs, preflighted for the same reason.
@@ -1018,6 +1020,7 @@ async function handleRequest(req, res) {
   if (req.method === 'GET' && reqPath === PACKS_MINE_PATH) return packRoutes.handleMine(req, res); // PACKS-SERVER-1
   if (req.method === 'POST' && reqPath === PACKS_FILE_LINK_PATH) return packRoutes.handleFileLink(req, res); // SERVER-PDF-1 PR-B: one stamped file, 15-minute link (404 while PACK_SERVER_PDF_DISABLED)
   if (req.method === 'POST' && reqPath === PACKS_ZIP_LINK_PATH) return packRoutes.handleZipLink(req, res); // SERVER-PDF-1 PR-B: one group as a ZIP
+  if (req.method === 'POST' && reqPath === PACKS_BONUS_LINK_PATH) return packRoutes.handleBonusLink(req, res); // BONUS-BOOK-1: CBQ Pack complete book (hidden until uploaded)
   if (req.method === 'GET' && reqPath === FREE_LIST_PATH) return freeResourceRoutes.handleList(req, res); // FREE-RES-1: public list, no storage paths
   if (req.method === 'POST' && reqPath === FREE_LINK_PATH) return freeResourceRoutes.handleLink(req, res); // FREE-RES-1: signed-in only, 15-minute signed link
   // GST-INVOICE-1 - read-only. checkout-context is behind PAYMENTS_ENABLED, the invoice list behind GST_INVOICE_ENABLED;

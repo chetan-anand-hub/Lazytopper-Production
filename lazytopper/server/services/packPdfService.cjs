@@ -394,7 +394,52 @@ function createPackPdfService(deps = {}) {
     }
   }
 
-  return { getManifest, fileLink, zipLink, recordDownloads, _planFile: planFile };
+  // ---- BONUS-BOOK-1: the CBQ Pack's bonus "complete book" (one pre-built PDF per subject, uploaded by the owner) ----
+  // Not stamped and not in the manifest: a fixed object under packs/bonus/. Until that object exists the row stays hidden
+  // (bonusBooksPresent says no) and a link request is not_ready. The ROUTE checks the entitlement (pack_cbq:<subject>, open window).
+  const bonusSeen = new Map(); // subject -> {at, present}
+  async function bonusPresent(subject) {
+    const path = BONUS_BOOK_PATHS[subject];
+    if (!path) return false;
+    const t = now();
+    const c = bonusSeen.get(subject);
+    if (c && t - c.at < MANIFEST_TTL_MS) return c.present;
+    let present = false;
+    try {
+      [present] = await theBucket().file(path).exists();
+      present = Boolean(present);
+    } catch {
+      present = false;
+    }
+    bonusSeen.set(subject, { at: t, present });
+    return present;
+  }
+  /** The subjects (of `subjects`) whose bonus book is uploaded. Never throws: an unreadable bucket is "none". */
+  async function bonusBooksPresent(subjects) {
+    const out = [];
+    for (const s of subjects) if (await bonusPresent(s)) out.push(s);
+    return out;
+  }
+  /** A 15-minute signed link to one subject's bonus book. Throws not_ready while it is not uploaded. */
+  async function bonusLink({ subject }) {
+    const path = BONUS_BOOK_PATHS[subject];
+    if (!path) {
+      const e = new Error('unknown_file');
+      e.code = 'unknown_file';
+      throw e;
+    }
+    bonusSeen.delete(subject);
+    if (!(await bonusPresent(subject))) throw new NotReady(`missing ${path}`);
+    const filename = BONUS_BOOK_FILENAMES[subject];
+    const signed = await sign(path, filename, 'application/pdf');
+    return { ...signed, filename, papers: [] };
+  }
+
+  return { getManifest, fileLink, zipLink, recordDownloads, bonusBooksPresent, bonusLink, _planFile: planFile };
 }
 
-module.exports = { createPackPdfService, ZIP_ALL_GROUP, NotReady, templateIdForPackFile, fileIdFor, LINK_TTL_MS, CURRENT_PATH };
+/** BONUS-BOOK-1: where the owner uploads each subject's complete book (private bucket, same rules as the rest of packs/). */
+const BONUS_BOOK_PATHS = Object.freeze({ maths: 'packs/bonus/cbq-maths-complete-book.pdf', science: 'packs/bonus/cbq-science-complete-book.pdf' });
+const BONUS_BOOK_FILENAMES = Object.freeze({ maths: 'LazyTopper-CBQ-Maths-Complete-Book.pdf', science: 'LazyTopper-CBQ-Science-Complete-Book.pdf' });
+
+module.exports = { createPackPdfService, ZIP_ALL_GROUP, NotReady, templateIdForPackFile, fileIdFor, LINK_TTL_MS, CURRENT_PATH, BONUS_BOOK_PATHS, BONUS_BOOK_FILENAMES };

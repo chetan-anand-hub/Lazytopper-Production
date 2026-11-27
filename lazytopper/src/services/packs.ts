@@ -261,6 +261,14 @@ export interface MyPacks {
   testSeriesUpgrade?: TestSeriesUpgrade;
   /** TS-FREE-CHECK-1 - a NON-owner's one free test (written answers checked): the server's pin + count; absent when the rule is off. */
   freeTest?: TestSeriesFreeTest;
+  /** BONUS-BOOK-1 - the owned CBQ Packs (`pack_cbq:<subject>`) whose complete-book bonus PDF the server can hand out; absent until uploaded. */
+  bonusBooks?: string[];
+}
+
+/** BONUS-BOOK-1 - the server's `bonusBooks` -> only CBQ Pack ids, or an empty list. PURE. */
+export function readBonusBooks(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return [...new Set(raw.filter((v): v is string => typeof v === "string" && /^pack_cbq:(maths|science)$/.test(v)))];
 }
 
 /**
@@ -502,7 +510,7 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     }
     throw new Error(`request failed: ${res.status}`);
   }
-  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown; ownsTestSeries?: unknown; testSeries?: unknown; freeTest?: unknown };
+  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown; ownsTestSeries?: unknown; testSeries?: unknown; freeTest?: unknown; bonusBooks?: unknown };
   const packs = Array.isArray(json.packs) ? json.packs.map(readOwned).filter((p): p is OwnedPack => p !== null) : [];
   const licensee: PackLicensee = {
     name: typeof json.licensee?.name === "string" ? json.licensee.name : "",
@@ -520,6 +528,8 @@ export async function fetchMyPacks(): Promise<MyPacks> {
   const testSeriesUpgrade = readTestSeriesUpgrade(json.boardPassCredit);
   // TS-FREE-CHECK-1: never for an owner (the owner view applies), whatever the server sent.
   const freeTest = json.ownsTestSeries === true ? null : readTestSeriesFreeTest(json.freeTest);
+  // BONUS-BOOK-1: only for a CBQ Pack this response also lists as owned.
+  const bonusBooks = readBonusBooks(json.bonusBooks).filter((id) => packs.some((p) => p.packId === id));
   return {
     packs,
     licensee,
@@ -529,6 +539,7 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     ...(testSeries ? { testSeries } : {}),
     ...(testSeriesUpgrade ? { testSeriesUpgrade } : {}),
     ...(freeTest ? { freeTest } : {}),
+    ...(bonusBooks.length > 0 ? { bonusBooks } : {}),
   };
 }
 

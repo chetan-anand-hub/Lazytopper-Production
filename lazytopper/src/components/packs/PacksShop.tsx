@@ -1581,6 +1581,41 @@ function OwnedTestSeriesRow({ pack, mine, when, tidy }: { pack: OwnedPack; mine:
   );
 }
 
+/**
+ * BONUS-BOOK-1 (owner 27 Nov 2026) - a CBQ Pack buyer's bonus: the complete subject book as ONE PDF. Shown only when the server listed
+ * this pack in `bonusBooks` (it is uploaded and the pack is owned and open); the server checks the same entitlement again on the tap.
+ * A server-only file (no browser build): a refusal says so and offers Retry; a switched-off route hides the row.
+ */
+function BonusBookRow({ packId }: { packId: string }) {
+  const [phase, setPhase] = useState<"idle" | "busy" | "saved" | "failed" | "off">("idle");
+  async function get() {
+    if (phase === "busy") return;
+    setPhase("busy");
+    try {
+      const { downloadBonusBookFromServer } = await import("../../lib/packs/serverPdfDownload");
+      const res = await downloadBonusBookFromServer({ packId });
+      if (res.ok) setPhase("saved");
+      else setPhase(res.reason === "disabled" || res.reason === "unavailable" ? "off" : "failed");
+    } catch (err) {
+      if (!recoverFromChunkError(err)) setPhase("failed");
+    }
+  }
+  if (phase === "off") return null;
+  return (
+    <div className="lt-packs__grp" data-testid="bonus-book-row">
+      <ul className="lt-packs__files">
+        <li>
+          <span>Bonus: complete book (PDF)</span>
+          <button type="button" className="lt-packs__btn lt-packs__btn--small" disabled={phase === "busy"} aria-label="Download the bonus complete book (PDF)" data-testid="bonus-book-download" onClick={() => void get()}>
+            {phase === "busy" ? "Preparing PDF\u2026" : phase === "failed" ? "Retry" : phase === "saved" ? "Saved \u2713" : "Download"}
+          </button>
+          {phase === "failed" && <span className="lt-packs__note lt-packs__note--bad" role="alert">That didn&rsquo;t work. Try again.</span>}
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack; mine: MyPacks; openRequest?: number; tidy?: TidyRow }) {
   const { user } = useAuth();
   const [state, setState] = useState<FilesState>({ phase: "closed" });
@@ -1731,6 +1766,7 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
   }
   const filesBody = (
     <>
+      {pack.sku === "pack_cbq" && mine.bonusBooks?.includes(pack.packId) && <BonusBookRow packId={pack.packId} />}
       {state.phase === "error" && (
         <p className="lt-packs__note lt-packs__note--bad" role="alert">
           We couldn&rsquo;t prepare these files. <button type="button" className="lt-packs__link" onClick={() => void open()}>Retry</button>

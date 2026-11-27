@@ -644,3 +644,63 @@ test('rate limit: a full table evicts the oldest buyers only; everyone else keep
   for (let i = 0; i < 6; i += 1) await h.link({ packId: CH, fileId: CT1 }, `other${i}`);
   assert.equal((await h.link({ packId: CH, fileId: CT1 })).status, 429);
 });
+
+// ---- BONUS-BOOK-1: the CBQ Pack's complete-book bonus PDF ------------------------------------------------------------------
+const CBQ_M = 'pack_cbq:maths';
+const BONUS_M = 'packs/bonus/cbq-maths-complete-book.pdf';
+async function bonusHarness(opts = {}, upload = true) {
+  const h = await harness(opts);
+  if (upload) h.objects.set(BONUS_M, { bytes: Buffer.from('%PDF-1.4 book'), metadata: {} });
+  return { ...h, bonus: (b, uid) => h.call('handleBonusLink', b, uid), mine: (uid) => h.call('handleMine', {}, uid) };
+}
+
+test('bonus-link: a Maths CBQ Pack owner gets a signed link to the uploaded Maths book (one download recorded)', async () => {
+  const h = await bonusHarness({ owned: [['u1', CBQ_M]] });
+  const r = await h.bonus({ packId: CBQ_M });
+  assert.equal(r.status, 200);
+  assert.equal(r.body.ok, true);
+  assert.equal(r.body.filename, 'LazyTopper-CBQ-Maths-Complete-Book.pdf');
+  assert.deepEqual(r.body.papers, []);
+  assert.equal(h.signed.length, 1);
+  assert.equal(h.signed[0].path, BONUS_M);
+  assert.ok(h.events.includes('packs.bonus_link.issued'));
+  const feed = [...h.firestore.docs].filter(([k]) => k.includes('/activityDays/')).map(([, v]) => v.events && v.events.pack_download);
+  assert.deepEqual(feed, [1]); // one pack_download feed entry, like any pack file
+  assert.equal(h.writes.length, 0); // nothing stamped or written to the bucket
+});
+
+test('bonus-link: same entitlement as every pack file - not owned 403, signed out 401, other subject 403, non-CBQ pack 404, window ended 403', async () => {
+  const h = await bonusHarness({ owned: [['u2', CBQ_M], ['u1', 'pack_subject:maths'], ['u1', 'pack_bundle:all']] });
+  assert.equal((await h.bonus({ packId: CBQ_M })).body.error, 'not_owned');
+  assert.equal((await h.bonus({ packId: CBQ_M }, '')).status, 401);
+  assert.equal((await h.bonus({ packId: 'pack_cbq:science' })).status, 403);
+  assert.equal((await h.bonus({ packId: 'pack_subject:maths' })).status, 404);
+  assert.equal((await h.bonus({ packId: 'pack_bundle:all' })).status, 404);
+  assert.equal((await h.bonus({ packId: 42 })).status, 400);
+  assert.equal(h.signed.length, 0);
+  const late = await bonusHarness({ owned: [['u1', CBQ_M]], now: Date.parse('2027-06-02T12:00:00+05:30') });
+  assert.equal((await late.bonus({ packId: CBQ_M })).body.error, 'redownload_ended');
+  assert.equal(late.signed.length, 0);
+});
+
+test('bonus-link: not uploaded yet -> 503 not_ready and nothing signed; kill switches -> 404', async () => {
+  const h = await bonusHarness({ owned: [['u1', CBQ_M]] }, false);
+  assert.equal((await h.bonus({ packId: CBQ_M })).status, 503);
+  assert.equal(h.signed.length, 0);
+  for (const env of [{ BONUS_BOOK_DISABLED: '1' }, { PACK_SERVER_PDF_DISABLED: 'true' }]) {
+    const off = await bonusHarness({ owned: [['u1', CBQ_M]], env });
+    assert.equal((await off.bonus({ packId: CBQ_M })).status, 404);
+    assert.equal(off.signed.length, 0);
+  }
+});
+
+test('/mine bonusBooks: listed only for an owned CBQ Pack whose book is uploaded; absent otherwise (row hidden)', async () => {
+  const yes = await bonusHarness({ owned: [['u1', CBQ_M], ['u1', 'pack_cbq:science']] });
+  assert.deepEqual((await yes.mine()).body.bonusBooks, [CBQ_M]); // the Science book is not uploaded
+  const notUp = await bonusHarness({ owned: [['u1', CBQ_M]] }, false);
+  assert.equal('bonusBooks' in (await notUp.mine()).body, false);
+  const nonCbq = await bonusHarness({ owned: [['u1', 'pack_subject:maths']] });
+  assert.equal('bonusBooks' in (await nonCbq.mine()).body, false);
+  const off = await bonusHarness({ owned: [['u1', CBQ_M]], env: { BONUS_BOOK_DISABLED: 'on' } });
+  assert.equal('bonusBooks' in (await off.mine()).body, false);
+});
