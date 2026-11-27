@@ -63,6 +63,22 @@ describe("CBQ-PACK-HOLDS", () => {
     for (const s of PACK_SUBJECTS) for (const { paper } of await packMockPapers(s)) for (const q of paper.questions) expect(PACK_LEDGER_HELD_IDS.has(q.id), `mock ${q.id}`).toBe(false);
   }, 120_000);
 
+  it("Maths Mock 8 keeps its full 80-mark pattern: the held SAV-LA-013 was swapped, in place, for the clean 5-mark SAV-N-EXEM2-12-LA-009", async () => {
+    const spec = packPinSpec("mock:maths:8")!;
+    const at = spec.ids.indexOf("SAV-N-EXEM2-12-LA-009");
+    expect(at).toBeGreaterThanOrEqual(0);
+    expect(spec.sections[at]).toBe("D");
+    expect(spec.ids).toHaveLength(spec.sections.length);
+    const [m8] = (await packMockPapers("maths")).filter((m) => m.n === 8);
+    const qs = m8.paper.questions;
+    expect(qs).toHaveLength(spec.ids.length); // nothing dropped
+    expect(qs.reduce((a, q) => a + Number(q.marks), 0)).toBe(80);
+    const sec = (l: string) => qs.filter((q) => String(q.section).toUpperCase() === l).length;
+    expect([sec("A"), sec("B"), sec("C"), sec("D"), sec("E")]).toEqual([20, 5, 6, 4, 3]);
+    for (const q of qs) expect(PACK_LEDGER_HELD_IDS.has(q.id)).toBe(false);
+    expect(heldBy("SAV-N-EXEM2-12-LA-009")).toBe(false);
+  }, 60_000);
+
   it("REPORT: ledger-held rows that are still sold in a CBQ pack set other than the 14 (informational, must stay empty for CBQ)", () => {
     const stillSold: string[] = [];
     for (const slug of PACK_CHAPTER_SLUGS) for (const q of cbqPackRows(slug)) if (heldBy(q.id)) stillSold.push(q.id);

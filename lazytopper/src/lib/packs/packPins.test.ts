@@ -113,7 +113,19 @@ describe("PACK-PIN-1 pins file", () => {
   it("Series Full-Length Tests 1-8 are the pack's Mocks 1-8 (same ids, order, sections)", () => {
     const series = allPinnedSpecs();
     for (const [subject, letter] of [["maths", "M"], ["science", "S"]] as const) {
-      for (let n = 1; n <= 8; n += 1) expect(allPackPins()[`mock:${subject}:${n}`], `${subject} ${n}`).toEqual(series[`TS-FM-${letter}${n}`]);
+      for (let n = 1; n <= 8; n += 1) {
+        const pack = allPackPins()[`mock:${subject}:${n}`];
+        if (subject === "maths" && n === 8) {
+          // CBQ-PACK-HOLDS (owner decision 27 Nov 2026): the pack's Mock 8 swaps the ledger-held SAV-N-EXEM2-12-LA-013 (Section D, 5 marks) for SAV-N-EXEM2-12-LA-009
+          // (same chapter, section and marks; ledger "publish") so it stays 80 marks. Test Series FM-M8 is a separate product and is unchanged. Everything else is identical.
+          const ts = series["TS-FM-M8"];
+          expect(pack.sections).toBe(ts.sections);
+          expect(pack.ids.map((id) => (id === "SAV-N-EXEM2-12-LA-009" ? "SAV-N-EXEM2-12-LA-013" : id))).toEqual(ts.ids);
+          expect(pack.ids).not.toContain("SAV-N-EXEM2-12-LA-013");
+          continue;
+        }
+        expect(pack, `${subject} ${n}`).toEqual(series[`TS-FM-${letter}${n}`]);
+      }
     }
   });
 });
