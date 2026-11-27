@@ -2,6 +2,8 @@
 // signing in; "get my answers marked" asks for sign-in (return path to the same paper), and the attempt is back on the paper after
 // sign-in, where the EXISTING signed-in flow (start rules, the partial record, the free test) runs unchanged.
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
+// FREE-TS-WEEKLY: this file pins TODAY's daily gate / copy, which the kill switch VITE_FREE_TS_WEEKLY_DISABLED=1 restores exactly.
+vi.hoisted(() => vi.stubEnv("VITE_FREE_TS_WEEKLY_DISABLED", "1"));
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
@@ -437,4 +439,9 @@ describe("GUEST-WALL · Chapter Test signed-out refusal", () => {
     fireEvent.click(link);
     expect((await screen.findByTestId("login-page")).textContent).toBe(url);
   }, 120000);
+});
+
+
+beforeEach(() => {
+  vi.stubEnv("VITE_FREE_TS_WEEKLY_DISABLED", "1");
 });

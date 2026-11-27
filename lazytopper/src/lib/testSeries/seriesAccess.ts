@@ -134,8 +134,11 @@ export function freeTestWrittenAllowed(args: {
 export type SeriesStartDecision = "start" | "sign-in" | "upgrade";
 
 /** May this account START a new Chapter Test / Full Mock? (A resume of a paper already started is never asked.) */
-export function seriesStartDecision(args: { entitled: boolean; signedIn: boolean; testsTaken: number }): SeriesStartDecision {
+export function seriesStartDecision(args: { entitled: boolean; signedIn: boolean; testsTaken: number; weeklyOpens?: boolean }): SeriesStartDecision {
   if (args.entitled) return "start";
   if (!args.signedIn) return "sign-in";
+  // FREE-TS-WEEKLY (owner ruling 27 Nov 2026): a signed-in free / trial account may OPEN 3 Test Series papers a week (MockViewGate and the
+  // server count them); the one-free-test limit now governs only the written-answer MARKING (the server's free-test pin), not the start.
+  if (args.weeklyOpens) return "start";
   return args.testsTaken < FREE_TESTS_ALLOWED ? "start" : "upgrade";
 }

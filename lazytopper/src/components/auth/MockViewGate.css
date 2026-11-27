@@ -4,3 +4,7 @@
 .lt-mvg-detail { margin: 0; color: var(--text-muted); font-size: 0.85rem; line-height: 1.4; }
 .lt-mvg-month { color: var(--text); font-size: 0.9rem; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; min-height: 44px; display: inline-flex; align-items: center; }
 .lt-mvg-ask .lt-limit-pack { width: 100%; }
+
+/* FREE-TS-WEEKLY: PaperSeriesOnlyWall */
+.lt-pso { text-align: center; padding-top: 60px; }
+.lt-pso__h { font-weight: 900; font-size: 1.3rem; margin-bottom: 8px; }

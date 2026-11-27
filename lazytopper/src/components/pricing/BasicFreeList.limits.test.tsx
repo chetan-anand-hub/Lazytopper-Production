@@ -23,7 +23,7 @@ async function mount(flag: string) {
   render(<BasicFreeList />);
 }
 
-const ROW = "Open 3 chapter tests or mocks a day (1 when signed out)";
+const ROW = "Open 3 Test Series papers a week (1 when signed out)";
 const FIRST = "Your first test is free, marking included.";
 
 describe("BasicFreeList papers row (GUEST-WALL)", () => {

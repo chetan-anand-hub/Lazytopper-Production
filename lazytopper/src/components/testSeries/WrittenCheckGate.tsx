@@ -22,6 +22,8 @@ import { tagWhenSeriesPaper } from "../../lib/testSeries/seriesNav";
 import { useSubscription } from "../../hooks/useSubscription";
 import { isPaidPremium } from "../../services/subscriptionService";
 import { boardPassPayDisplay, boardPassPriceDisplay } from "../../config/pricing";
+import { trackDownloadPaywall, type DownloadPaywallPlan } from "../../analytics/analytics";
+import { freeTsWeeklyDisabled } from "../../config/mockViewLimits";
 import {
   FREE_TESTS_ALLOWED,
   canCheckSeriesPapers,
@@ -365,8 +367,11 @@ export function SeriesOfferButtons({
   testIdPrefix,
   only,
   showTotal = false,
+  onTap,
 }: {
   testIdPrefix: string;
+  /** FREE-TS-WEEKLY: called with the plan whose button was tapped (the download paywall's pay-tap event). The link still navigates. */
+  onTap?: (plan: Exclude<DownloadPaywallPlan, "none">) => void;
   /** "board-pass": the tutor / no-checks walls offer the Board Pass ONLY (the Test Series has no tutor). "test-series": a wall that
    *  already carries its own Board Pass offer (the fair-use panel) adds the Test Series beside it. */
   only?: "board-pass" | "test-series";
@@ -383,14 +388,14 @@ export function SeriesOfferButtons({
   return (
     <div className={only === "test-series" ? "lt-wcg__offers lt-wcg__offers--one" : "lt-wcg__offers"}>
       {only !== "board-pass" && (
-      <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(TEST_SERIES_BUY_PATH, pathname, search)} data-testid={`${testIdPrefix}-ts`}>
+      <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(TEST_SERIES_BUY_PATH, pathname, search)} data-testid={`${testIdPrefix}-ts`} onClick={onTap ? () => onTap("test_series") : undefined}>
         <span className="lt-wcg__main">Test Series</span>
         <span className="lt-wcg__price">{testSeriesPriceLine()} · all {seriesTotals().total} tests</span>
         {showTotal && <span className="lt-wcg__pay" data-testid={`${testIdPrefix}-ts-pay`}>Pay {packPayLabel("test_series")}</span>}
       </Link>
       )}
       {only !== "test-series" && (
-      <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(BOARD_PASS_PATH, pathname, search)} data-testid={`${testIdPrefix}-bp`}>
+      <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(BOARD_PASS_PATH, pathname, search)} data-testid={`${testIdPrefix}-bp`} onClick={onTap ? () => onTap("board_pass") : undefined}>
         <span className="lt-wcg__main">Board Pass</span>
         <span className="lt-wcg__price">{bpPrice ? `${bpPrice} · everything + tutor` : "everything + tutor"}</span>
         {showTotal && <span className="lt-wcg__pay" data-testid={`${testIdPrefix}-bp-pay`}>{bpPay ? `Pay ${bpPay}` : "\u00a0"}</span>}
@@ -457,9 +462,47 @@ export function SeriesStartWall() {
   );
 }
 
-/** In place of the paper's Download button. */
-export function DownloadWithPlanLink() {
+/**
+ * FREE-TS-WEEKLY (owner addition 27 Nov 2026, 13:19 IST): a Test Series paper is VIEW-ONLY for Basic / trial / signed-out. Tapping
+ * Download (on the paper or its solutions) never hides or fails silently: it opens this card - the Test Series and the Board Pass,
+ * each button naming the total charged ("Pay ₹X", GST included; prices from config/pricing.ts and services/packs.ts, none typed here).
+ * Both buttons go to the existing buy pages (pay-first checkout when signed out). Tracked: shown, and a tap on a pay button.
+ */
+export const DOWNLOAD_PAYWALL_LINE = "Downloading and printing Test Series papers and their solutions comes with the Test Series or the Board Pass.";
+export function DownloadPaywall({ paperCode, signedIn, onClose }: { paperCode: string; signedIn: boolean; onClose: () => void }) {
+  useEffect(() => {
+    trackDownloadPaywall("shown", paperCode, "none", signedIn);
+  }, [paperCode, signedIn]);
+  return (
+    <div className="lt-wcg-tutor" role="dialog" aria-modal="true" aria-labelledby="lt-wcg-dlpw-h" data-testid="download-paywall">
+      <div className="lt-wcg-tutor__card">
+        <p id="lt-wcg-dlpw-h" className="lt-wcg__line">
+          {DOWNLOAD_PAYWALL_LINE}
+        </p>
+        <SeriesOfferButtons testIdPrefix="download-paywall" showTotal onTap={(plan) => trackDownloadPaywall("pay_tap", paperCode, plan, signedIn)} />
+        <button type="button" className="lt-wcg-tutor__close" onClick={onClose} data-testid="download-paywall-close">
+          Not now
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** FREE-TS-WEEKLY: is the view-only download paywall on (kill switch VITE_FREE_TS_WEEKLY_DISABLED=1 turns it off)? */
+export function downloadPaywallOn(): boolean {
+  return !freeTsWeeklyDisabled();
+}
+
+/** In place of the paper's Download button. With `onPaywall` (a Test Series paper, FREE-TS-WEEKLY) it is a button that opens the paywall card. */
+export function DownloadWithPlanLink({ onPaywall }: { onPaywall?: () => void } = {}) {
   const { pathname, search } = useLocation();
+  if (onPaywall) {
+    return (
+      <button type="button" className="lt-wcg__dl" onClick={onPaywall} data-testid="download-with-plan">
+        {DOWNLOAD_WITH_PLAN} →
+      </button>
+    );
+  }
   return (
     <Link className="lt-wcg__dl" to={tagWhenSeriesPaper(TEST_SERIES_BUY_PATH, pathname, search)} data-testid="download-with-plan">
       {DOWNLOAD_WITH_PLAN} →

@@ -60,6 +60,7 @@ const USAGE_LIMITS_PATH = '/api/usage/limits';
 const USAGE_LIMITS_DOWNLOAD_PATH = '/api/usage/limits/download';
 const USAGE_LIMITS_QP_PATH = '/api/usage/limits/qp';
 const USAGE_LIMITS_DETAIL_PATH = '/api/usage/limits/detail';
+const USAGE_LIMITS_OPEN_PATH = '/api/usage/limits/open';
 const CHECK_SOLUTION_PATH = '/api/check-solution';
 const GRADE_WORKSHEET_PATH = '/api/grade-worksheet';
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
@@ -158,6 +159,19 @@ function basicCtFmFirstFreeRestored(env) {
   return String((env && env.BASIC_CTFM_FIRST_FREE_RESTORE) || '').trim() === '1';
 }
 const BASIC_NO_FIRST_FREE_KINDS = new Set(['chapter-test', 'full-mock']);
+
+/**
+ * FREE-TS-WEEKLY (owner ruling 27 Nov 2026, 13:14 IST): Basic and trial accounts open ONLY Test Series papers, FREE_TS_OPENS_PER_WEEK a
+ * rolling 7 days (the same window as the weekly download / grade limits), counted per paper (the `ts` bucket; re-opening the same
+ * paper inside the window spends nothing). Board Pass holders (tier premium) and Test Series owners are never counted. The same ruling
+ * makes a Test Series paper VIEW-ONLY for Basic / trial: the download mint refuses it (a covering PDF pack owner is unchanged).
+ * Kill switch FREE_TS_WEEKLY_DISABLED=1 (ONLY "1"): the open mint serves without counting and the download mint is as before.
+ * Refusals only with LIMITS_ENFORCE on; otherwise the honest count moves and `limits.open.would_refuse` is counted.
+ */
+const FREE_TS_OPENS_PER_WEEK = 3;
+function freeTsWeeklyDisabled(env) {
+  return String((env && env.FREE_TS_WEEKLY_DISABLED) || '').trim() === '1';
+}
 
 function isEnforced(env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.LIMITS_ENFORCE) || '').trim());
@@ -304,6 +318,7 @@ function readState(snap) {
   return {
     dl: cleanEntries(d.dl),
     qp: cleanEntries(d.qp),
+    ts: cleanEntries(d.ts),
     gr,
     firstFree: { download: ff.download === true, qp: ff.qp === true, grade },
     detail,
@@ -340,6 +355,7 @@ function serializeState(state, nowMs, cohortMs) {
     cohortMs: cohortMs !== undefined && cohortMs !== null ? cohortMs : state.cohortMs,
     dl: state.dl,
     qp: state.qp,
+    ...(state.ts && state.ts.length ? { ts: state.ts } : {}),
     gr,
     firstFree: { download: state.firstFree.download === true, qp: state.firstFree.qp === true, grade: { ...state.firstFree.grade } },
     detail: { ...state.detail },
@@ -352,26 +368,31 @@ function serializeState(state, nowMs, cohortMs) {
 function bucketOf(state, bucket) {
   if (bucket === 'dl') return state.dl;
   if (bucket === 'qp') return state.qp;
+  if (bucket === 'ts') return state.ts || [];
   return state.gr[bucket.slice(3)] || [];
 }
 function setBucket(state, bucket, list) {
   if (bucket === 'dl') state.dl = list;
   else if (bucket === 'qp') state.qp = list;
+  else if (bucket === 'ts') state.ts = list;
   else state.gr[bucket.slice(3)] = list;
 }
 function firstFreeOf(state, bucket) {
   if (bucket === 'dl') return state.firstFree.download === true;
   if (bucket === 'qp') return state.firstFree.qp === true;
+  if (bucket === 'ts') return true; // no first-free open: every distinct paper counts
   return state.firstFree.grade[bucket.slice(3)] === true;
 }
 function markFirstFree(state, bucket) {
   if (bucket === 'dl') state.firstFree.download = true;
   else if (bucket === 'qp') state.firstFree.qp = true;
+  else if (bucket === 'ts') { /* no first-free flag for opens */ }
   else state.firstFree.grade[bucket.slice(3)] = true;
 }
 function unmarkFirstFree(state, bucket) {
   if (bucket === 'dl') state.firstFree.download = false;
   else if (bucket === 'qp') state.firstFree.qp = false;
+  else if (bucket === 'ts') { /* nothing to undo */ }
   else delete state.firstFree.grade[bucket.slice(3)];
 }
 function windowOf(bucket) {
@@ -444,6 +465,12 @@ function createLimits(deps = {}) {
       return false;
     }
   }
+  /**
+   * FREE-TS-WEEKLY: (kind, worksheetId) -> boolean, true when the id is a Test Series paper of that kind (testSeriesChecks.isSeriesPaperId);
+   * (uid) -> true/false/null, a live Test Series Pack owner (testSeriesChecks.ownsActive; null = unreadable). Absent -> no weekly rule.
+   */
+  const isSeriesPaperId = typeof deps.isSeriesPaperId === 'function' ? deps.isSeriesPaperId : null;
+  const ownsSeriesPack = typeof deps.ownsSeriesPack === 'function' ? deps.ownsSeriesPack : null;
   const resolveFirestore = typeof deps.resolveFirestore === 'function' ? deps.resolveFirestore : defaultResolveFirestore;
   const getCreationMs = typeof deps.getCreationMs === 'function' ? deps.getCreationMs : defaultGetCreationMs;
 
@@ -550,6 +577,10 @@ function createLimits(deps = {}) {
 
   /** Never throws: any failure (no Firestore, a read error, a slow read) is "not owned". */
   async function ownsCover(uid, kind, cover) {
+    return (await ownsCoverState(uid, kind, cover)) === true;
+  }
+  /** FREE-TS-WEEKLY: the same read, three-state - true / false, or null when the read failed or timed out (unknown, never "not owned"). */
+  async function ownsCoverState(uid, kind, cover) {
     let timer = null;
     try {
       const packs = await Promise.race([
@@ -560,7 +591,7 @@ function createLimits(deps = {}) {
       return coverIsOwned(kind, cover, splitByRedownload(packs, now()).open);
     } catch {
       emit('limits.download.pack_read_failed');
-      return false;
+      return null;
     } finally {
       if (timer) clearTimeout(timer);
     }
@@ -616,6 +647,39 @@ function createLimits(deps = {}) {
     const enforced = isEnforced(env);
     const plan = await planFor(uid, req);
     if (!plan) return failOpen(res, null, enforced);
+    // FREE-TS-WEEKLY: a Test Series paper is VIEW-ONLY for Basic and trial (any trial, metered or not). A Board Pass holder (tier
+    // premium), a Test Series owner and an owner of a PDF pack covering the paper are unchanged. Never a 500: any doubt serves.
+    if (plan.tier !== 'premium' && !freeTsWeeklyDisabled(env) && isSeriesPaperId && (kind === 'chapter-test' || kind === 'full-mock')) {
+      let seriesId = false;
+      try {
+        seriesId = isSeriesPaperId(kind, paperKey) === true;
+      } catch {
+        seriesId = false;
+      }
+      if (seriesId && !(await isSeriesOwnerPaper(uid, kind, paperKey))) {
+        // Refuse ONLY on a definitive "not an owner": an unreadable / timed-out series-ownership or pack read SERVES (an owner is never
+        // refused on a blip), the same fail-open rule as the open mint.
+        let owns = null;
+        if (ownsSeriesPack) {
+          try {
+            owns = await ownsSeriesPack(uid);
+          } catch {
+            owns = null;
+          }
+        }
+        const cover = parseCover(body.cover);
+        const covered = cover ? await ownsCoverState(uid, kind, cover) : false;
+        if (owns === false && covered === false) {
+          if (enforced) {
+            emit('limits.download.view_only');
+            return sendJson(res, 409, { error: 'download_view_only', tier: plan.tier, window: 'view_only', limit: 0, used: 0, remaining: 0, resetAt: null });
+          }
+          emit('limits.download.would_view_only');
+        } else if (owns === null || covered === null) {
+          emit('limits.download.view_only_unknown');
+        }
+      }
+    }
     if (!plan.metered) {
       emit('limits.download.unmetered');
       return sendJson(res, 200, {
@@ -729,6 +793,68 @@ function createLimits(deps = {}) {
       tx.set(ref, serializeState(state, nowMs, createdMs));
       return { decision, wrote: true };
     });
+  }
+
+
+  /**
+   * POST /api/usage/limits/open { paperKey } - FREE-TS-WEEKLY: one Test Series paper OPEN for a Basic / trial account.
+   *   200 { ok, counted, reused, enforced, limit, used, remaining, resetAt }  (premium / Test Series owner: unmetered, nothing written)
+   *   409 { error: "open_limit", window: "7d", limit, used, resetAt }          (LIMITS_ENFORCE only)
+   *   401 sign_in_required - 400 invalid_limits_request. FAILS OPEN on any doubt (unknown tier, unreadable ledger / packs).
+   * The paperKey is the series paper (its manifest key, "TS-CT-M01"); opening the same paper again inside the rolling week is a reuse.
+   */
+  async function handleOpenMint(req, res) {
+    const uid = await verifiedUidOf(req);
+    if (!uid) return sendJson(res, 401, { error: 'sign_in_required' });
+    let body;
+    try {
+      body = await readJson(req, MINT_MAX_BYTES);
+    } catch {
+      return sendJson(res, 400, { error: 'invalid_limits_request' });
+    }
+    const paperKey = body && typeof body === 'object' && typeof body.paperKey === 'string' ? body.paperKey.trim() : '';
+    if (!paperKey || paperKey.length > PAPER_KEY_MAX) return sendJson(res, 400, { error: 'invalid_limits_request' });
+
+    const enforced = isEnforced(env);
+    const off = { ok: true, counted: false, reused: false, enforced, limit: null, used: null, remaining: null, resetAt: null };
+    if (freeTsWeeklyDisabled(env)) return sendJson(res, 200, { ...off, disabled: true });
+    const tier = await tierFor(uid, req);
+    if (tier === 'premium') {
+      emit('limits.open.unmetered');
+      return sendJson(res, 200, off);
+    }
+    if (tier !== 'free' && tier !== 'trial') return failOpen(res, null, enforced);
+    // A Test Series owner is never capped. Unreadable ownership fails open (an owner is never walled by a blip).
+    let owns = null;
+    if (ownsSeriesPack) {
+      try {
+        owns = await ownsSeriesPack(uid);
+      } catch {
+        owns = null;
+      }
+    }
+    if (owns === true) {
+      emit('limits.open.test_series_owner');
+      return sendJson(res, 200, off);
+    }
+    if (owns === null) return failOpen(res, null, enforced);
+    const plan = { tier, limit: FREE_TS_OPENS_PER_WEEK };
+    const db = ledgerDb();
+    if (!db || typeof db.runTransaction !== 'function') return failOpen(res, plan, enforced);
+    let outcome;
+    try {
+      outcome = await spendIn(db, uid, { bucket: 'ts', id: hashKey('ts', paperKey), limit: FREE_TS_OPENS_PER_WEEK, createdMs: undefined, enforced, nowMs: now() });
+    } catch {
+      return failOpen(res, plan, enforced);
+    }
+    const { decision } = outcome;
+    if (decision.kind === 'refused' && enforced) {
+      emit('limits.open.refused');
+      return sendJson(res, 409, { error: 'open_limit', tier, window: '7d', limit: FREE_TS_OPENS_PER_WEEK, used: decision.used, remaining: 0, resetAt: decision.resetAt });
+    }
+    if (decision.kind === 'refused') emit('limits.open.would_refuse');
+    emit(decision.kind === 'reused' ? 'limits.open.reused' : 'limits.open.counted');
+    return sendOk(res, plan, decision.kind === 'refused' ? { ...decision, counted: true } : decision, enforced, decision.kind === 'reused');
   }
 
   /** POST /api/usage/limits/qp { paperKey } — one graded Quick Practice set. */
@@ -1156,7 +1282,7 @@ function createLimits(deps = {}) {
     }
   }
 
-  return { handleDownloadMint, handleLimitsMe, handleQpMint, handleDetailClaim, gradingGate, settleDeferred };
+  return { handleDownloadMint, handleOpenMint, handleLimitsMe, handleQpMint, handleDetailClaim, gradingGate, settleDeferred };
 }
 
 module.exports = {
@@ -1174,6 +1300,9 @@ module.exports = {
   USAGE_LIMITS_DOWNLOAD_PATH,
   USAGE_LIMITS_QP_PATH,
   USAGE_LIMITS_DETAIL_PATH,
+  USAGE_LIMITS_OPEN_PATH,
+  FREE_TS_OPENS_PER_WEEK,
+  freeTsWeeklyDisabled,
   decideCounted,
   istDayStartMs,
   TRIAL_COHORT_START_MS,

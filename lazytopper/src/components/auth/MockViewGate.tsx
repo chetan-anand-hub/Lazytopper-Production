@@ -6,6 +6,10 @@ import { ANON_DAILY_MOCK_LIMIT, FIRST_TEST_FREE_LINE, SIGNED_IN_DAILY_MOCK_LIMIT
 import { isResumingSavedPaper, paperRouteKey } from "../../lib/papers/resumablePaper";
 import { isKnownTestSeriesOwner, readTestSeriesOwner } from "./paperCapOwner";
 import { sampleOpensUncounted, signedOutSampleForRoute } from "../../lib/testSeries/signedOutAttempt";
+import { isPaidPremium } from "../../services/subscriptionService";
+import { FREE_TS_GUEST_LIMIT_LINE, FREE_TS_WALL_LINE, FREE_TS_WEEKLY_SIGNED_IN, freeTsWeeklyDisabled } from "../../config/mockViewLimits";
+import { freeTsWeeklyMayOpen, freeTsWeeklyRecord, paperSurfaceOfRoute, recalledSeriesRoute, rememberSeriesRoute } from "../../lib/testSeries/freeTsWeeklyStore";
+import { readTestSeriesOwnerState } from "./paperCapOwner";
 
 /**
  * Per-DAY paper views (AUTH-GATE-MOVE-1). This gate used to allow 1 per WEEK while the
@@ -137,6 +141,14 @@ export function claimNewPaperView(pathname: string, uid: string | null, uncapped
     writeUncounted(marked.filter((r) => r !== route));
     return true;
   }
+  // FREE-TS-WEEKLY: a Test Series paper the gate classified is counted against the WEEK (one open per paper), not the day.
+  const seriesKey = freeTsWeeklyDisabled() ? undefined : recalledSeriesRoute(pathname, search);
+  if (typeof seriesKey === "string") {
+    if (!freeTsWeeklyMayOpen(uid, seriesKey)) return false;
+    freeTsWeeklyRecord(uid, seriesKey);
+    writeUncounted(marked.filter((r) => r !== route));
+    return true;
+  }
   if (getDailyMockViews(uid) >= dailyLimitFor(!!uid)) return false;
   incrementDailyMockViews(uid);
   writeUncounted(marked.filter((r) => r !== route));
@@ -144,16 +156,21 @@ export function claimNewPaperView(pathname: string, uid: string | null, uncapped
 }
 
 /** The line a page shows when `claimNewPaperView` refuses a new paper. */
-export const NEW_PAPER_LIMIT_LINE =
-  "You've opened today's papers already — a new paper opens again tomorrow.";
+export const NEW_PAPER_LIMIT_LINE = freeTsWeeklyDisabled()
+  ? "You've opened today's papers already — a new paper opens again tomorrow."
+  : "You've opened this week's free Test Series papers already — more open when your week resets.";
 /**
  * GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST): the same refusal, SIGNED OUT. A visitor who has used today's free paper is
  * told how to get more - with a Sign in link (`paperSignInPath`, the wall's own builder) - instead of a dead end. The pages show
  * it in place of NEW_PAPER_LIMIT_LINE while signed out; signed in, NEW_PAPER_LIMIT_LINE is unchanged.
  */
-export const GUEST_PAPER_LIMIT_LINE = `You've used today's free paper. Sign in (free) for ${SIGNED_IN_DAILY_MOCK_LIMIT} a day.`;
+export const GUEST_PAPER_LIMIT_LINE = freeTsWeeklyDisabled()
+  ? `You've used today's free paper. Sign in (free) for ${SIGNED_IN_DAILY_MOCK_LIMIT} a day.`
+  : FREE_TS_GUEST_LIMIT_LINE; // FREE-TS-WEEKLY (owner ruling 27 Nov 2026, 13:14 IST)
 /** GUEST-WALL: the signed-out wall's line (owner ruling 26 Nov 2026, 22:43 IST). */
-export const SIGNED_OUT_WALL_LINE = `Sign in to open ${SIGNED_IN_DAILY_MOCK_LIMIT} papers a day. ${FIRST_TEST_FREE_LINE}`;
+export const SIGNED_OUT_WALL_LINE = freeTsWeeklyDisabled()
+  ? `Sign in to open ${SIGNED_IN_DAILY_MOCK_LIMIT} papers a day. ${FIRST_TEST_FREE_LINE}`
+  : FREE_TS_WALL_LINE; // FREE-TS-WEEKLY (owner ruling 27 Nov 2026, 13:14 IST)
 
 /**
  * /login with a same-site return to this paper - the ONE builder for the signed-out wall and the pages' guest refusal. A path
@@ -166,8 +183,9 @@ export function paperSignInPath(pathname: string, search: string): string {
 }
 
 /** The same refusal while a saved, unfinished paper is on offer (it can still be resumed). */
-export const NEW_PAPER_LIMIT_SAVED_LINE =
-  "You've opened today's papers already — your saved test is still here to finish.";
+export const NEW_PAPER_LIMIT_SAVED_LINE = freeTsWeeklyDisabled()
+  ? "You've opened today's papers already — your saved test is still here to finish."
+  : "You've opened this week's free Test Series papers already — your saved test is still here to finish.";
 
 /** Premium is unlimited and never reaches this. */
 function dailyLimitFor(signedIn: boolean): number {
@@ -192,11 +210,17 @@ function PaperCapAsk({ returnTo }: { returnTo: string }) {
   );
 }
 
+/** FREE-TS-WEEKLY: the wall for an ordinary (non-series) paper on a Basic / trial account - lazy, like PaperCapAsk. */
+const PaperSeriesOnlyWallLazy = lazy(() => import("./PaperSeriesOnlyWall"));
+
 export function MockViewGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
-  const { isPremium, isTrialExpired } = useSubscription();
+  const { isPremium, isTrialExpired, status, hydrated, cloudConfirmed } = useSubscription();
+  const paid = isPaidPremium(status);
   const location = useLocation();
   const [limitReached, setLimitReached] = useState(false);
+  // FREE-TS-WEEKLY: an ordinary paper on a Basic / trial account (the upgrade wall).
+  const [seriesOnlyWall, setSeriesOnlyWall] = useState(false);
   const [ready, setReady] = useState(false);
   const incrementedRef = useRef(false);
   // TS-DAILY-CAP-1: this mount was let through at the limit as a Test Series Pack owner (not counted).
@@ -220,6 +244,21 @@ export function MockViewGate({ children }: { children: ReactNode }) {
   const [judgedKey, setJudgedKey] = useState<string | null>(null);
 
   const uid = user?.uid || null;
+  /**
+   * FREE-TS-WEEKLY (owner ruling 27 Nov 2026, 13:14 IST): on a Chapter Test / Full Mock route, anyone who is not a PAID Board Pass holder
+   * (Basic, a trial - which `isPremium` counts as premium - and a signed-out visitor) is judged by the weekly Test Series rule.
+   * Kill switch VITE_FREE_TS_WEEKLY_DISABLED=1: `weeklyApplies` is false and every branch below is exactly today's.
+   */
+  const weeklyApplies = !freeTsWeeklyDisabled() && !paid && paperSurfaceOfRoute(location.pathname) !== null;
+  /** Premium-equivalent for this gate: a paid holder always; a trial only where the weekly rule does not apply. */
+  const bypassGate = !!user && isPremium && (paid || !weeklyApplies);
+  /**
+   * A signed-in student is not judged as Basic / trial until THEIR subscription is cloud-reconciled (a Board Pass holder on a fresh device
+   * reads as free until then). Until it has resolved the loading card shows; if the cloud read FAILED (hydrated, not confirmed) the gate
+   * fails OPEN: no wall, no recorded open.
+   */
+  const awaitingSubscription = weeklyApplies && !!user && !hydrated;
+  const subscriptionUnconfirmed = weeklyApplies && !!user && hydrated && !cloudConfirmed;
 
   useEffect(() => {
     if (loading) return;
@@ -230,108 +269,200 @@ export function MockViewGate({ children }: { children: ReactNode }) {
       ownerPassRef.current = false;
       samplePassRef.current = false;
       setLimitReached(false);
+      setSeriesOnlyWall(false);
     }
     judgedKeyRef.current = key;
-    if (user && isPremium) {
+    if (bypassGate) {
       setJudgedKey(key);
       setReady(true);
       return;
     }
-    /**
-     * ★ A TRIAL-EXPIRED STUDENT IS COUNTED, NOT WALLED (AUTH-GATE-MOVE-1).
-     *
-     * This branch used to return early with no allowance at all, so a student whose
-     * 7-day trial had ended got ZERO papers a day. Under the owner's tier table a
-     * signed-in free student gets 3/day, and — because a new account's trial makes it
-     * premium until it lapses — trial-expired IS how a student becomes signed-in free.
-     * Returning early here would have left the entire signed-in free tier unreachable
-     * and its allowance untestable. The trial-ended panel is not gone: it now renders
-     * when such a student has SPENT the 3, which is the honest moment to show it.
-     */
-    if (incrementedRef.current || ownerPassRef.current || samplePassRef.current) {
+    if (awaitingSubscription) return;
+    if (subscriptionUnconfirmed) {
       setJudgedKey(key);
       setReady(true);
       return;
     }
-    /**
-     * CT-RESUME-2 — COUNT ONLY NEW PAPERS. A reload of a Chapter Test / Full Mock the student is
-     * part-way through is a RESUME of a paper already counted when it was opened, not a new
-     * paper: it neither spends an allowance nor is blocked (a student on their last paper of
-     * the day can always get back to it). Decided from the SAME saved in-progress state the
-     * page resumes from (lib/papers/resumablePaper). A genuinely new paper has none and is
-     * counted below exactly as before; server metering (the paper pass minted at grading) is
-     * untouched.
-     */
-    if (isResumingSavedPaper(location.pathname, uid, location.search)) {
-      const route = paperRouteKey(location.pathname, location.search);
-      const marked = readUncounted();
-      if (!marked.includes(route)) writeUncounted([...marked, route]);
-      // TS-DAILY-CAP-1: a resume at the limit never waits (resumes are never blocked), but if the student sets the saved
-      // paper aside for a new one, `claimNewPaperView` must already know whether they own the Test Series — warm it now.
-      if (user && uid && getDailyMockViews(uid) >= dailyLimitFor(true)) void readTestSeriesOwner(uid);
-      setJudgedKey(key);
-      setReady(true);
-      return;
-    }
-    // Not a resume: any earlier "uncounted" mark for this route (a resume visit earlier in this
-    // tab) is stale — this visit is judged and counted here, so the page must never count it again.
-    {
-      const route = paperRouteKey(location.pathname, location.search);
-      const marked = readUncounted();
-      if (marked.includes(route)) writeUncounted(marked.filter((r) => r !== route));
-    }
-    const views = getDailyMockViews(uid);
-    /**
-     * TS-SAMPLE-OPEN (owner ruling 26 Nov 2026, 22:08 IST) - SIGNED OUT, OPENING ONE OF THE FOUR SAMPLES IS NOT THE DAY'S PAPER.
-     * Its start screen shows the paper's shape (counts, sections, timing), never a question. The route is marked uncounted, exactly
-     * as a resume is, so the page's Start (`claimNewPaperView`) counts it then - or refuses it once today's free paper is spent.
-     * Only under the limit: once a paper has been counted today, opening a sample walls as before. Signed in: unchanged.
-     * Kill switch VITE_TS_SAMPLE_OPEN_FREE_DISABLED=1.
-     */
-    if (!user && views < dailyLimitFor(false) && sampleOpensUncounted(location.pathname, location.search)) {
-      const route = paperRouteKey(location.pathname, location.search);
-      const marked = readUncounted();
-      if (!marked.includes(route)) writeUncounted([...marked, route]);
-      samplePassRef.current = true;
-      setJudgedKey(key);
-      setReady(true);
-      return;
-    }
-    if (views >= dailyLimitFor(!!user)) {
+    let cleanup: (() => void) | undefined;
+    const judge = (seriesKey: string | null | undefined) => {
       /**
-       * TS-DAILY-CAP-1 — A TEST SERIES PACK OWNER IS NEVER CAPPED. Only here, with the allowance already spent and a
-       * signed-in student, is ownership asked (GET /api/packs/mine, lazily). Until it answers the gate stays on its own
-       * neutral loading card (`ready` false) — no wall flash. Owner → the paper opens and is NOT counted. Not an owner,
-       * or the read failed → the existing wall, exactly as before. Anonymous and under-the-limit paths are untouched.
+       * ★ A TRIAL-EXPIRED STUDENT IS COUNTED, NOT WALLED (AUTH-GATE-MOVE-1).
+       *
+       * This branch used to return early with no allowance at all, so a student whose
+       * 7-day trial had ended got ZERO papers a day. Under the owner's tier table a
+       * signed-in free student gets 3/day, and — because a new account's trial makes it
+       * premium until it lapses — trial-expired IS how a student becomes signed-in free.
+       * Returning early here would have left the entire signed-in free tier unreachable
+       * and its allowance untestable. The trial-ended panel is not gone: it now renders
+       * when such a student has SPENT the 3, which is the honest moment to show it.
        */
-      if (user && uid) {
-        let cancelled = false;
-        void readTestSeriesOwner(uid).then((owns) => {
-          if (cancelled) return;
-          if (owns) ownerPassRef.current = true;
-          else setLimitReached(true);
-          setJudgedKey(key);
-          setReady(true);
-        });
-        return () => {
-          cancelled = true;
-        };
+      if (incrementedRef.current || ownerPassRef.current || samplePassRef.current) {
+        setJudgedKey(key);
+        setReady(true);
+        return;
       }
-      setLimitReached(true);
-      setJudgedKey(key);
-      setReady(true);
-    } else {
-      incrementDailyMockViews(uid);
-      incrementedRef.current = true;
-      setJudgedKey(key);
-      setReady(true);
+      /**
+       * CT-RESUME-2 — COUNT ONLY NEW PAPERS. A reload of a Chapter Test / Full Mock the student is
+       * part-way through is a RESUME of a paper already counted when it was opened, not a new
+       * paper: it neither spends an allowance nor is blocked (a student on their last paper of
+       * the day can always get back to it). Decided from the SAME saved in-progress state the
+       * page resumes from (lib/papers/resumablePaper). A genuinely new paper has none and is
+       * counted below exactly as before; server metering (the paper pass minted at grading) is
+       * untouched.
+       */
+      if (isResumingSavedPaper(location.pathname, uid, location.search)) {
+        const route = paperRouteKey(location.pathname, location.search);
+        const marked = readUncounted();
+        if (!marked.includes(route)) writeUncounted([...marked, route]);
+        // TS-DAILY-CAP-1: a resume at the limit never waits (resumes are never blocked), but if the student sets the saved
+        // paper aside for a new one, `claimNewPaperView` must already know whether they own the Test Series — warm it now.
+        if (user && uid && (weeklyApplies || getDailyMockViews(uid) >= dailyLimitFor(true))) void readTestSeriesOwner(uid);
+        setJudgedKey(key);
+        setReady(true);
+        return;
+      }
+      // Not a resume: any earlier "uncounted" mark for this route (a resume visit earlier in this
+      // tab) is stale — this visit is judged and counted here, so the page must never count it again.
+      {
+        const route = paperRouteKey(location.pathname, location.search);
+        const marked = readUncounted();
+        if (marked.includes(route)) writeUncounted(marked.filter((r) => r !== route));
+      }
+      /**
+       * FREE-TS-WEEKLY - Basic / trial / signed out on a Chapter Test or Full Mock. `seriesKey` is the Test Series paper this route opens
+       * (the SAME reading the pages make of their URL), null for an ordinary paper, undefined when the rule is not in play.
+       *   signed out + series   : at most 1 paper a WEEK. A paper's start screen is not an open (the page's Start counts it via
+       *                           `claimNewPaperView`, or - a non-sample - sends the visitor to sign in); with the week spent, the wall.
+       *   signed out + ordinary : today's daily flow, untouched (the indexed chapter pages must still render for a crawler).
+       *   signed in  + series   : 3 papers a WEEK, one open per paper, counted here and on the server (POST /api/usage/limits/open,
+       *                           which also survives cleared storage). A Test Series owner is never counted; an unreadable ownership
+       *                           or server read fails OPEN.
+       *   signed in  + ordinary : the upgrade wall (Board Pass + Test Series); an owner or an unreadable read passes.
+       */
+      if (seriesKey !== undefined) {
+        if (!user) {
+          if (seriesKey !== null) {
+            if (!freeTsWeeklyMayOpen(null, seriesKey)) {
+              setLimitReached(true);
+              setJudgedKey(key);
+              setReady(true);
+              return;
+            }
+            const sample = signedOutSampleForRoute(location.pathname, location.search) !== null;
+            if (sample && !sampleOpensUncounted(location.pathname, location.search)) {
+              // The sample's "opening is free" switch is off: counted at open, as before.
+              freeTsWeeklyRecord(null, seriesKey);
+              incrementedRef.current = true;
+            } else {
+              const route = paperRouteKey(location.pathname, location.search);
+              const marked = readUncounted();
+              if (!marked.includes(route)) writeUncounted([...marked, route]);
+              samplePassRef.current = true;
+            }
+            setJudgedKey(key);
+            setReady(true);
+            return;
+          }
+          // an ordinary paper, signed out: falls through to the daily flow below
+        } else {
+          let cancelled = false;
+          void (async () => {
+            const owner = await readTestSeriesOwnerState(user.uid);
+            if (cancelled) return;
+            if (owner === "owner") ownerPassRef.current = true;
+            else if (owner === "not-owner") {
+              if (seriesKey === null) setSeriesOnlyWall(true);
+              else if (!freeTsWeeklyMayOpen(uid, seriesKey)) setLimitReached(true);
+              else {
+                const { mintOpen } = await import("../../services/limitsClient");
+                const r = await mintOpen(seriesKey);
+                if (cancelled) return;
+                if (r.refused) setLimitReached(true);
+                else {
+                  freeTsWeeklyRecord(uid, seriesKey);
+                  incrementedRef.current = true;
+                }
+              }
+            }
+            setJudgedKey(key);
+            setReady(true);
+          })();
+          cleanup = () => {
+            cancelled = true;
+          };
+          return;
+        }
+      }
+      const views = getDailyMockViews(uid);
+      /**
+       * TS-SAMPLE-OPEN (owner ruling 26 Nov 2026, 22:08 IST) - SIGNED OUT, OPENING ONE OF THE FOUR SAMPLES IS NOT THE DAY'S PAPER.
+       * Its start screen shows the paper's shape (counts, sections, timing), never a question. The route is marked uncounted, exactly
+       * as a resume is, so the page's Start (`claimNewPaperView`) counts it then - or refuses it once today's free paper is spent.
+       * Only under the limit: once a paper has been counted today, opening a sample walls as before. Signed in: unchanged.
+       * Kill switch VITE_TS_SAMPLE_OPEN_FREE_DISABLED=1.
+       */
+      if (!user && views < dailyLimitFor(false) && sampleOpensUncounted(location.pathname, location.search)) {
+        const route = paperRouteKey(location.pathname, location.search);
+        const marked = readUncounted();
+        if (!marked.includes(route)) writeUncounted([...marked, route]);
+        samplePassRef.current = true;
+        setJudgedKey(key);
+        setReady(true);
+        return;
+      }
+      if (views >= dailyLimitFor(!!user)) {
+        /**
+         * TS-DAILY-CAP-1 — A TEST SERIES PACK OWNER IS NEVER CAPPED. Only here, with the allowance already spent and a
+         * signed-in student, is ownership asked (GET /api/packs/mine, lazily). Until it answers the gate stays on its own
+         * neutral loading card (`ready` false) — no wall flash. Owner → the paper opens and is NOT counted. Not an owner,
+         * or the read failed → the existing wall, exactly as before. Anonymous and under-the-limit paths are untouched.
+         */
+        if (user && uid) {
+          let cancelled = false;
+          void readTestSeriesOwner(uid).then((owns) => {
+            if (cancelled) return;
+            if (owns) ownerPassRef.current = true;
+            else setLimitReached(true);
+            setJudgedKey(key);
+            setReady(true);
+          });
+          cleanup = () => {
+            cancelled = true;
+          };
+          return;
+        }
+        setLimitReached(true);
+        setJudgedKey(key);
+        setReady(true);
+      } else {
+        incrementDailyMockViews(uid);
+        incrementedRef.current = true;
+        setJudgedKey(key);
+        setReady(true);
+      }
+    };
+    if (weeklyApplies) {
+      // The series tables are heavy and MockViewGate is eager: classify the route lazily, only where the weekly rule can apply.
+      let dead = false;
+      void import("../../lib/testSeries/freeTsWeekly").then(({ seriesPaperKeyOfRoute }) => {
+        if (dead) return;
+        const k = seriesPaperKeyOfRoute(location.pathname, location.search);
+        rememberSeriesRoute(location.pathname, location.search, k);
+        judge(k);
+      });
+      return () => {
+        dead = true;
+        if (cleanup) cleanup();
+      };
     }
+    judge(undefined);
+    return cleanup;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the route is read through its paper key (routeKeyNow)
-  }, [loading, user, isPremium, uid, routeKeyNow]);
+  }, [loading, user, isPremium, paid, hydrated, cloudConfirmed, uid, routeKeyNow]);
 
   // GUEST-WALL render guard: while a different paper is being judged, the existing loading card - never a frame of the new
   // paper's page (or the old paper's wall) before its decision. Premium is never judged per paper, so it never waits here.
-  if (loading || !ready || (judgedKey !== routeKeyNow && !(user && isPremium))) {
+  if (loading || awaitingSubscription || !ready || (judgedKey !== routeKeyNow && !bypassGate)) {
     return (
       <div className="lt-page">
         <div className="card">
@@ -341,8 +472,17 @@ export function MockViewGate({ children }: { children: ReactNode }) {
     );
   }
 
-  if (user && isPremium) {
+  if (bypassGate || subscriptionUnconfirmed) {
     return <>{children}</>;
+  }
+
+  // FREE-TS-WEEKLY: an ordinary (non-series) paper on a Basic / trial account - the existing upgrade wall (Board Pass + Test Series).
+  if (user && seriesOnlyWall) {
+    return (
+      <Suspense fallback={null}>
+        <PaperSeriesOnlyWallLazy />
+      </Suspense>
+    );
   }
 
   if (user && isTrialExpired && limitReached) {
@@ -353,7 +493,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           Your Free Trial Has Ended
         </h2>
         <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 6, lineHeight: 1.5 }}>
-          You&rsquo;ve used your {SIGNED_IN_DAILY_MOCK_LIMIT} papers for today.
+          {weeklyApplies ? `You\u2019ve opened your ${FREE_TS_WEEKLY_SIGNED_IN} Test Series papers for this week.` : <>You&rsquo;ve used your {SIGNED_IN_DAILY_MOCK_LIMIT} papers for today.</>}
         </p>
         <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: 6, lineHeight: 1.6 }}>
           Upgrade now to keep access to:
@@ -410,7 +550,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           Mock Paper Limit Reached
         </h2>
         <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 8, lineHeight: 1.5 }}>
-          Free accounts open {SIGNED_IN_DAILY_MOCK_LIMIT} papers a day.
+          {weeklyApplies ? `Free accounts open ${FREE_TS_WEEKLY_SIGNED_IN} Test Series papers a week.` : <>Free accounts open {SIGNED_IN_DAILY_MOCK_LIMIT} papers a day.</>}
         </p>
         <PaperCapAsk returnTo={`${location.pathname}${location.search}`} />
       </div>

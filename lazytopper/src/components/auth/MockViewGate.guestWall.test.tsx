@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+// FREE-TS-WEEKLY: this file pins TODAY's daily gate / copy, which the kill switch VITE_FREE_TS_WEEKLY_DISABLED=1 restores exactly.
+vi.hoisted(() => vi.stubEnv("VITE_FREE_TS_WEEKLY_DISABLED", "1"));
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
@@ -211,4 +213,9 @@ describe("GUEST-WALL 4 · a different paper on the same <Route> is judged like a
     mountOnRoute(CT_M01, []);
     expect(onScreen()).toBe(true);
   });
+});
+
+
+beforeEach(() => {
+  vi.stubEnv("VITE_FREE_TS_WEEKLY_DISABLED", "1");
 });

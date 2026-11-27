@@ -37,7 +37,7 @@ Key facts:
 - Free without an account: chapter notes, chapter pages, Exam Trends, the CBSE Class 10 papers page and the practice hub.
 - Signing up starts a 7-day free trial with no card needed; after it the student keeps the free Basic plan or gets the Board Pass.
 - Basic plan limits (the free plan):
-  - Open 3 chapter tests or mocks a day (1 when signed out)
+  - Open 3 Test Series papers a week (1 when signed out)
   - Your first test is free, marking included.
   - Quick Practice questions are scored as you tap; marking your written practice answers comes with the Board Pass
   - Every result shows your score and your Mistake Intelligence summary; the answer-by-answer breakdown comes with the Board Pass

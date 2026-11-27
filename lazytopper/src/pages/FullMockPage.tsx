@@ -87,6 +87,7 @@ import {
   type FMSubject,
 } from "../components/fullmock/fullMockBlueprint";
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
+import { freeTsWeeklyDisabled } from "../config/mockViewLimits";
 import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
 import { GuestPaperSignInLink, paperLimitLineFor } from "../components/auth/GuestPaperSignIn";
 import { useSubscription } from "../hooks/useSubscription";
@@ -206,7 +207,7 @@ import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { ACCESS_CHECKING_LINE, ACCESS_FAILED_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesOfferButtons, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
+import { ACCESS_CHECKING_LINE, ACCESS_FAILED_LINE, AccessChecking, AccessFailed, DownloadPaywall, DownloadWithPlanLink, downloadPaywallOn, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesOfferButtons, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUploadNotAllowed, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
@@ -331,6 +332,11 @@ export default function FullMockPage() {
   const fairUseSeriesOffer =
     onSeriesPaper && !seriesAccess.checking && !seriesAccess.failed && !seriesAccess.canCheck ? <SeriesOfferButtons testIdPrefix="fair-use" only="test-series" showTotal /> : null;
   const seriesDownloadAccess = seriesAccess.canDownload;
+  // FREE-TS-WEEKLY (owner addition 27 Nov 13:19 IST): see ChapterTestPage - the same view-only paywall on a series full-length test / focus set.
+  const [dlPaywall, setDlPaywall] = useState(false);
+  const dlPaywallOn = downloadPaywallOn() && onSeriesPaper && !seriesDownloadAccess && !seriesAccess.checking;
+  const dlPaywallCode = focusSet ? focusSet.code : seriesN !== null ? `FM-${subject === "Science" ? "S" : "M"}${seriesN}` : "";
+  const openDlPaywall = useCallback(() => setDlPaywall(true), []);
   // FAIRUSE-TS-OWNER-1: the trial paper wall is never drawn for a Board Pass holder, nor for a Test Series owner on a series
   // paper / focus set (the server mints both without the trial limit). `seriesPaper` is decided by the caller (this page's URL,
   // or the saved paper's worksheetId on the continue path). Kill switch VITE_FAIRUSE_TS_OWNER_EXEMPT_DISABLED.
@@ -1014,7 +1020,7 @@ export default function FullMockPage() {
     // LIVE-FIX-1 (live run 23 Nov 2026): decided BEFORE the weekly fair-use check. A trial account that has used its one free
     // test is told THAT ("You've used your 1 free test") with the Test Series AND the Board Pass - not the weekly mock limit
     // with the Board Pass alone (the week resetting would not let it start anyway). Entitled accounts decide "start" here.
-    const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records) });
+    const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records), weeklyOpens: !freeTsWeeklyDisabled() && onSeriesPaper });
     if (startDecision === "upgrade" && seriesAccess.checking) {
       setPaperNotice(ACCESS_CHECKING_LINE);
       return;
@@ -1816,7 +1822,7 @@ export default function FullMockPage() {
     [pickSnap, user, sessionSubject, sessionUid, loadRecords, openStored, openPendingUpload],
   );
   const downloadSolution = useCallback(async () => {
-    if (!paperForExport || downloading) return;
+    if (!paperForExport || downloading || !seriesDownloadAccess) return;
     setDownloading(true);
     if (!(await guardDownload("full-mock", paperForExport.worksheetId, { subject: sessionSubject }))) {
       setDownloading(false);
@@ -1829,7 +1835,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, downloading, guardDownload]);
+  }, [paperForExport, codeForExport, downloading, guardDownload, seriesDownloadAccess]);
   // LIMITS-1 PR-2 — the graded sheet is the per-answer detail: the SAME server lock as the scorecard
   // (same kind + key) decides whether this page may print it. "open" when the flag is off.
   const gradedSheetOpen =
@@ -1957,6 +1963,7 @@ export default function FullMockPage() {
       <style>{FM_CSS}</style>
       <UsageWarning scope="full-mock" snapshot={fairUse.snapshot} />
       {downloadWall}
+      {dlPaywall && dlPaywallOn && <DownloadPaywall paperCode={dlPaywallCode} signedIn={isSignedIn} onClose={() => setDlPaywall(false)} />}
       {tutorWall && <TutorBoardPassWall onClose={() => setTutorWall(false)} />}
       {paperNotice && (
         <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="paper-notice">
@@ -2283,7 +2290,7 @@ export default function FullMockPage() {
                       ) : seriesAccess.checking ? (
                         <AccessChecking />
                       ) : (
-                        <DownloadWithPlanLink />
+                        <DownloadWithPlanLink onPaywall={dlPaywallOn ? openDlPaywall : undefined} />
                       )}
                       {seriesDownloadAccess && !hideDownloadChip && <LimitChip />}
                     </div>
@@ -2775,6 +2782,11 @@ export default function FullMockPage() {
                     ⤓ Solution key
                   </button>
                   )}
+                  {!seriesDownloadAccess && dlPaywallOn && (
+                  <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={openDlPaywall} data-testid="solution-key-paywall">
+                    ⤓ Solution key
+                  </button>
+                  )}
                 </div>
                 <div className="lt-ct__honest">
                   <span>·</span>
@@ -2884,7 +2896,9 @@ export default function FullMockPage() {
                         void downloadSolution();
                       },
                     }
-                  : {}),
+                  : dlPaywallOn
+                    ? { onDownloadSolution: openDlPaywall }
+                    : {}),
               }), worstChapterPractice().target), fullResponse, liveTutorAskFor), sessionSubject), activeMock.paper.worksheetId), fullResponse, openMark("fresh"), markBusy)}
               onClose={() => setScorecardOpen(false)}
             />
