@@ -8,7 +8,7 @@
  */
 import type { AuthUser } from "../../context/AuthContext";
 import { registerPackPaper } from "./packPaperRecord";
-import { requestFileLink, requestGuestZipLink, requestZipLink, type LinkDeps, type LinkResult, type ServerFileLink, type ServerLinkFailure, type ServerPaper, type ServerZipLink } from "./serverPdfLinks";
+import { requestBonusLink, requestFileLink, requestGuestZipLink, requestZipLink, type LinkDeps, type LinkResult, type ServerFileLink, type ServerLinkFailure, type ServerPaper, type ServerZipLink } from "./serverPdfLinks";
 
 export interface ServerDownloadDeps extends LinkDeps {
   /** Test seam: replaces the anchor click that starts the browser download. */
@@ -71,4 +71,9 @@ export async function downloadZipFromServer(args: { packId: string; groupId: str
 /** GUEST-ZIP-1: the whole pack as one ZIP for a signed-out buyer (the receipt proof is the credential). `{ok:false}` means nothing was downloaded. */
 export async function downloadGuestZipFromServer(args: { proof: { orderId: string; paymentId: string; signature: string }; expectCodes?: readonly string[] }, deps: ServerDownloadDeps = {}): Promise<Done> {
   return finish(await requestGuestZipLink(args.proof, deps), null, deps, args.expectCodes);
+}
+
+/** BONUS-BOOK-1: the CBQ Pack's complete book. `{ok:false}` means nothing was downloaded (the row offers Retry; there is no browser build). */
+export async function downloadBonusBookFromServer(args: { packId: string }, deps: ServerDownloadDeps = {}): Promise<Done> {
+  return finish(await requestBonusLink(args.packId, deps), null, deps);
 }

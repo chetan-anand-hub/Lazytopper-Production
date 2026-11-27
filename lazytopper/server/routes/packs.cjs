@@ -32,6 +32,17 @@ const ZIPS_PER_HOUR = 30;
 function isServerPdfDisabled(env = process.env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.PACK_SERVER_PDF_DISABLED) || '').trim());
 }
+// BONUS-BOOK-1: the CBQ Pack's bonus complete book (one pre-built PDF per subject), as a 15-minute signed link. POST, credentialed.
+const PACKS_BONUS_LINK_PATH = '/api/packs/bonus-link';
+/** Kill switch: BONUS_BOOK_DISABLED=1 -> no row in /mine and the link route answers 404. The row is also hidden until the file is uploaded. */
+function isBonusBookDisabled(env = process.env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env.BONUS_BOOK_DISABLED) || '').trim());
+}
+/** `pack_cbq:maths` -> 'maths', `pack_cbq:science` -> 'science'; anything else (no bundle or Subject Pack includes CBQs) -> null. */
+function bonusSubjectOf(packId) {
+  const m = /^pack_cbq:(maths|science)$/.exec(String(packId));
+  return m ? m[1] : null;
+}
 /** The subscription document the Board Pass quote is read from (same collection passGrant writes). */
 const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 
@@ -185,6 +196,14 @@ function createPackRoutes(deps = {}) {
         freeTest = undefined;
       }
     }
+    // BONUS-BOOK-1: the packIds of the open CBQ Packs whose subject's complete book is uploaded (packs/bonus/). Absent otherwise, so
+    // the "Bonus: complete book (PDF)" row stays hidden until the owner uploads the file. Never fails the response.
+    let bonusBooks = [];
+    try {
+      bonusBooks = await bonusBookPackIds(packs);
+    } catch {
+      bonusBooks = [];
+    }
     return sendJson(res, 200, {
       packs,
       licensee,
@@ -194,6 +213,7 @@ function createPackRoutes(deps = {}) {
       ...(ownsTestSeries ? { ownsTestSeries: true } : {}),
       ...(testSeries ? { testSeries } : {}),
       ...(freeTest ? { freeTest } : {}),
+      ...(bonusBooks.length > 0 ? { bonusBooks } : {}),
     });
   }
 
@@ -268,6 +288,41 @@ function createPackRoutes(deps = {}) {
 
   const contactOf = (l) => l.email || l.phone || '';
 
+  /** BONUS-BOOK-1: the open `pack_cbq:<subject>` packs whose bonus book exists. Off while BONUS_BOOK_DISABLED or the server PDFs are off. */
+  async function bonusBookPackIds(openPacks) {
+    if (isBonusBookDisabled(env) || isServerPdfDisabled(env) || !packPdf || typeof packPdf.bonusBooksPresent !== 'function') return [];
+    const cbq = openPacks.filter((p) => p && p.sku === 'pack_cbq' && typeof p.packId === 'string' && bonusSubjectOf(p.packId));
+    if (cbq.length === 0) return [];
+    const present = new Set(await packPdf.bonusBooksPresent([...new Set(cbq.map((p) => bonusSubjectOf(p.packId)))]));
+    return cbq.filter((p) => present.has(bonusSubjectOf(p.packId))).map((p) => p.packId);
+  }
+
+  /**
+   * BONUS-BOOK-1: POST /api/packs/bonus-link {packId} -> a 15-minute signed link to that CBQ Pack's complete book. The SAME entitlement as
+   * every other pack file: verified uid, the pack owned and inside its re-download window (ownsOpen), and only a `pack_cbq:<subject>` pack.
+   */
+  async function handleBonusLink(req, res) {
+    if (isBonusBookDisabled(env) || isServerPdfDisabled(env) || !packPdf || typeof packPdf.bonusLink !== 'function') return unavailable(res);
+    const buyer = await resolveBuyer(req, res, 'bonus_link');
+    if (!buyer) return undefined;
+    const body = await readBody(req, res);
+    if (!body) return undefined;
+    const { packId } = body;
+    if (typeof packId !== 'string' || !ID_PATTERN.test(packId)) return sendJson(res, 400, { ok: false, error: 'bad_request' });
+    const subject = bonusSubjectOf(packId);
+    if (!subject) return sendJson(res, 404, { ok: false, error: 'unknown_file' });
+    if (!ownsOpen(res, buyer, packId)) return undefined;
+    if (limited(`b:${buyer.uid}`, LINKS_PER_HOUR)) return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
+    try {
+      const link = await packPdf.bonusLink({ uid: buyer.uid, subject });
+      await packPdf.recordDownloads(buyer.uid, 1);
+      emit('packs.bonus_link.issued');
+      return sendJson(res, 200, { ok: true, ...link });
+    } catch (e) {
+      return failure(res, e, 'bonus_link');
+    }
+  }
+
   async function handleFileLink(req, res) {
     if (isServerPdfDisabled(env) || !packPdf) return unavailable(res);
     const buyer = await resolveBuyer(req, res, 'file_link');
@@ -326,7 +381,7 @@ function createPackRoutes(deps = {}) {
     }
   }
 
-  return { handleMine, handleFileLink, handleZipLink };
+  return { handleMine, handleFileLink, handleZipLink, handleBonusLink };
 }
 
-module.exports = { createPackRoutes, PACKS_MINE_PATH, PACKS_FILE_LINK_PATH, PACKS_ZIP_LINK_PATH, isServerPdfDisabled };
+module.exports = { createPackRoutes, PACKS_MINE_PATH, PACKS_FILE_LINK_PATH, PACKS_ZIP_LINK_PATH, PACKS_BONUS_LINK_PATH, isServerPdfDisabled, isBonusBookDisabled, bonusSubjectOf };
