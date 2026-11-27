@@ -24,7 +24,7 @@ import {
   isBeforeSeriesRules,
   seriesStartDecision,
 } from "../../lib/testSeries/seriesAccess";
-import { seriesChapterWorksheetId, seriesPaperKeyOfWorksheetId } from "../../lib/testSeries/testSeries";
+import { seriesChapterWorksheetId, seriesMockWorksheetId, seriesPaperKeyOfWorksheetId } from "../../lib/testSeries/testSeries";
 import { resetOwnedPacksCache } from "../packs/useOwnedPacks";
 import { resetTestSeriesOwnershipForTests } from "./testSeriesOwnership";
 import {
@@ -191,7 +191,7 @@ describe("P1-7/8 · the one free test counts only from the release; older papers
   const after = SERIES_RULES_START_MS + 60_000;
   it("a chapter test sat before the release does not use the free test; one after does", () => {
     expect(countTestsTaken([{ surface: "chapter-test", gradedAt: before }])).toBe(0);
-    expect(countTestsTaken([{ surface: "full-mock", gradedAt: after }])).toBe(1);
+    expect(countTestsTaken([{ surface: "full-mock", gradedAt: after, worksheetId: seriesMockWorksheetId("fm-x", "Maths", 3) }])).toBe(1);
     expect(countTestsTaken([{ surface: "worksheet", gradedAt: after }])).toBe(0);
     expect(seriesStartDecision({ entitled: false, signedIn: true, testsTaken: countTestsTaken([{ surface: "chapter-test", gradedAt: before }]) })).toBe("start");
     expect(seriesStartDecision({ entitled: false, signedIn: true, testsTaken: 1 })).toBe("upgrade");

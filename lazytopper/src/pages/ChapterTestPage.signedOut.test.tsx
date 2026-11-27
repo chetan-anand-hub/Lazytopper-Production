@@ -63,6 +63,7 @@ vi.mock("../services/chapterTestPaperStore", async (importOriginal) => {
   };
 });
 
+import { seriesMockWorksheetId } from "../lib/testSeries/testSeries";
 import ChapterTestPage from "./ChapterTestPage";
 import { loadLocalSessionRecords } from "../services/sessionRecords";
 import { resetTestSeriesOwnershipForTests } from "../components/testSeries/testSeriesOwnership";
@@ -171,7 +172,7 @@ describe("TS-FREE-SIGNEDOUT · Chapter Test series paper", () => {
       JSON.stringify({ v: 1, surface: "chapter-test", path: SERIES_URL, ids: ["x"], answers: {}, flags: [], currentQNumber: 1, elapsedMs: 0, savedAt: Date.now() }),
     );
     auth.user = SIGNED_IN;
-    prior.list = [{ id: "FM-M-01", worksheetId: "fm-old", surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: Date.parse("2026-11-19T00:00:00Z") }];
+    prior.list = [{ id: "FM-M-01", worksheetId: seriesMockWorksheetId("fm-old", "Maths", 1), surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: Date.parse("2026-11-19T00:00:00Z") }];
     mount();
     fireEvent.click(await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 }));
     expect(await screen.findByTestId("series-start-wall")).toBeTruthy();
@@ -182,7 +183,7 @@ describe("TS-FREE-SIGNEDOUT · Chapter Test series paper", () => {
     const page = mount();
     const picked = await startAndPickFirst();
     auth.user = SIGNED_IN;
-    prior.list = [{ id: "FM-M-01", worksheetId: "fm-old", surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: Date.parse("2026-11-19T00:00:00Z") }];
+    prior.list = [{ id: "FM-M-01", worksheetId: seriesMockWorksheetId("fm-old", "Maths", 1), surface: "full-mock", status: "partial", subject: "maths", topicKeys: [], questionIds: [], marksAwarded: 1, marksTotal: 20, gradedAt: Date.parse("2026-11-19T00:00:00Z") }];
     page.rerender();
     // the paper closes: back on the start screen, nothing written
     await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 });

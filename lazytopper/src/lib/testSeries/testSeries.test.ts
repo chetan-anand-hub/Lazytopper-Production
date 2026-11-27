@@ -235,8 +235,9 @@ describe("access — Board Pass or Test Series; one test for everyone else", () 
   });
   it("one test in total for free / trial; sign in first when signed out; unlimited when entitled", () => {
     expect(FREE_TESTS_ALLOWED).toBe(1);
+    // FREE-TEST-SERIES-ONLY (26 Nov 2026): only SERIES papers count; a non-series sitting (no series worksheetId) does not.
     const recs = [{ surface: "worksheet" }, { surface: "chapter-test" }, { surface: "full-mock" }, { surface: "check-improve" }];
-    expect(countTestsTaken(recs)).toBe(2);
+    expect(countTestsTaken(recs)).toBe(0);
     expect(seriesStartDecision({ entitled: false, signedIn: true, testsTaken: 0 })).toBe("start");
     expect(seriesStartDecision({ entitled: false, signedIn: true, testsTaken: 1 })).toBe("upgrade");
     expect(seriesStartDecision({ entitled: false, signedIn: false, testsTaken: 0 })).toBe("sign-in");
