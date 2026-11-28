@@ -21,6 +21,7 @@ import { canonicalFor, canonicalPathFor } from "../config/canonicalUrl";
 import { sitemapPaths } from "../config/sitemapUrls";
 import { MOCKS_PER_SUBJECT } from "../lib/packs/packLabels";
 import { packPriceLabel } from "../services/packs";
+import { packsAnswerJsonLd } from "../components/seo/packsProductLd";
 import { STATIC_PAGE_HEADS, headForPath, pageJsonLd, routeChunkModulesFor } from "../../scripts/seo/writeStaticHeads";
 
 /**
@@ -28,7 +29,7 @@ import { STATIC_PAGE_HEADS, headForPath, pageJsonLd, routeChunkModulesFor } from
  * Pins: advertised + self-canonical + headed (title <= 60, description <= 155, number-free) + chunk-routed; one h1; 800-1,500 words; the FAQ
  * is the FAQPage JSON-LD; every paper row is the real pinned paper's figures (samplePaperFacts.json, itself guarded against the bank); prices
  * come from the pack helpers; the owner's banned words ("free", "answer key", "solutions", "app") never appear; every internal link exists.
- * NOT asserted here: the `<Route path="/sample-paper-class-10">` in App.tsx (a globally forbidden file for this lane): see the lane report.
+ * The route in App.tsx is asserted below (owner OK for those two lines, 28 Nov 2026 23:56 IST).
  */
 const LAZYTOPPER = process.cwd();
 const FACTS = facts as Record<string, { marks: number; cbqMarks: number; difficulty: string }>;
@@ -82,6 +83,22 @@ describe("SEO-SELL-3 - head, canonical, sitemap, chunk", () => {
       { "@type": "ListItem", position: 2, name: "Class 10 Sample Paper", item: "https://www.lazytopper.com/sample-paper-class-10" },
     ]);
     expect(pageJsonLd(SAMPLE_PAPER_PATH, "", true)).toEqual(crumb);
+  });
+});
+
+describe("SEO-SELL-3 - route and structured data", () => {
+  it("App.tsx lazy-loads the page and routes /sample-paper-class-10 to it", () => {
+    const app = readFileSync(resolve(LAZYTOPPER, "src/App.tsx"), "utf8");
+    expect(app).toContain('const SamplePaperClass10Page = lazy(() => import("./pages/SamplePaperClass10Page"));');
+    expect(app).toContain('<Route path="/sample-paper-class-10" element={withRouteSuspense(<SamplePaperClass10Page />)} />');
+  });
+  it("carries Product/Offer for the two printable packs the body prices, GST exclusive, no returns", () => {
+    const ld = packsAnswerJsonLd(SAMPLE_PAPER_PATH, "") as { "@graph": Array<Record<string, any>> };
+    expect(ld["@graph"].map((n) => n["@type"])).toEqual(["Product", "Product"]);
+    for (const n of ld["@graph"]) {
+      expect(n.offers.priceCurrency).toBe("INR");
+      expect(n.offers.priceSpecification.valueAddedTaxIncluded).toBe(false);
+    }
   });
 });
 

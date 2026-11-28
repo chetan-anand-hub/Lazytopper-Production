@@ -7,7 +7,7 @@
 //   base prices are mirrored below and packsProductLd.guard.test.ts pins each EQUAL to PACK_PRICE_INR: a price change turns CI red.
 // ★ Prices are the BASE price, GST EXCLUSIVE ("₹X + GST"), so `valueAddedTaxIncluded` is false.
 import { SITE_ORIGIN, canonicalFor } from "../../config/canonicalUrl";
-import { MOCK_TEST_PATH, QUESTION_BANK_PATH } from "../seoPages/seoPages";
+import { MOCK_TEST_PATH, QUESTION_BANK_PATH, SAMPLE_PAPER_PATH } from "../seoPages/seoPages";
 import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, BUNDLE_NAME, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
 
 export const PACKS_LD_PRICE_INR = {
@@ -115,6 +115,8 @@ const CRUMBS: Readonly<Record<string, string>> = {
 const LANDING_SKUS: Readonly<Record<string, readonly LdProduct["sku"][]>> = {
   [MOCK_TEST_PATH]: ["pack_mock", "pack_bundle"],
   [QUESTION_BANK_PATH]: ["pack_chapter", "pack_subject", "pack_bundle"],
+  // SEO-SELL-3: the sample-paper landing. Its Test Series Pack has no Product node (none exists for it), so only the two printable packs.
+  [SAMPLE_PAPER_PATH]: ["pack_mock", "pack_bundle"],
 };
 
 /** Product (+ Breadcrumb) JSON-LD for a path of this lane, else null. */
