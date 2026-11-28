@@ -286,9 +286,9 @@ export default function DesktopHome() {
   const { user, mistakeLogsHydrated } = useAuth();
   // START-HERE-1 — asked ONCE: the card at the top, and the older FirstSession card stands down
   // while it is up (two start cards for the same student is noise).
-  const startHere = useStartHere(user?.uid ?? null);
-  // FEEDBACK-1 — once per trial end, the gentle "help us improve" prompt (never blocks).
   const sub = useSubscription();
+  const startHere = useStartHere(user?.uid ?? null, sub?.status ?? null);
+  // FEEDBACK-1 — once per trial end, the gentle "help us improve" prompt (never blocks).
   useTrialEndFeedback({
     uid: user?.uid,
     hydrated: sub?.hydrated,

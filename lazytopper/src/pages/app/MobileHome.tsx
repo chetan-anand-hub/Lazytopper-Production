@@ -434,8 +434,8 @@ export default function MobileHome() {
   const { user, mistakeLogsHydrated } = useAuth();
   // START-HERE-1 — asked ONCE: the card at the top, and the older FirstSession card stands down
   // while it is up (two start cards for the same student is noise).
-  const startHere = useStartHere(user?.uid ?? null);
   const { isTrialActive, isPremium, isTrialExpired, hydrated, status: subStatus } = useSubscription();
+  const startHere = useStartHere(user?.uid ?? null, subStatus ?? null);
   // FEEDBACK-1 — once per trial end, the gentle "help us improve" prompt (never blocks).
   useTrialEndFeedback({
     uid: user?.uid,

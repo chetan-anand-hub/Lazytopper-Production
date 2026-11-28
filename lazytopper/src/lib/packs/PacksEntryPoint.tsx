@@ -4,6 +4,7 @@ import MyPacksMenuRow from "./MyPacksMenuRow";
 import YourPacksHomeCard from "./YourPacksHomeCard";
 import PacksFooterLink from "./PacksFooterLink";
 import PacksNoteCard from "./PacksNoteCard";
+import PacksCbqCard from "./PacksCbqCard";
 import PacksSettingsRow from "./PacksSettingsRow";
 import { usePaidPremium } from "./usePaidPremium";
 import PacksWallButton from "./PacksWallButton";
@@ -22,9 +23,11 @@ export type PacksEntryProps =
       /** SEO-SELL-1: "Maths" | "Science" (for the CBQ line of the top card). */
       subject?: string | null;
       /** SEO-SELL-1: which page family and where on it; the defaults are the original notes end card. */
-      surface?: "notes" | "ncert";
+      surface?: "notes" | "ncert" | "freemcq" | "iqotd";
       position?: "top" | "end";
     }
+  /** SEO-SELL-2: the subject CBQ Pack card (+ Board Pass link on the Important Questions page) at the end of a page with no chapter pack. */
+  | { kind: "cbq-card"; subject: string | null | undefined; surface: "iqotd" | "hpq"; boardPass?: boolean }
   | { kind: "settings-row"; uid: string; headingId: string; onClose: () => void };
 
 export default function PacksEntryPoint(props: PacksEntryProps) {
@@ -46,6 +49,8 @@ export default function PacksEntryPoint(props: PacksEntryProps) {
       return <PacksWallButton chapter={props.chapter} light={props.light} />;
     case "note-card":
       return <PacksNoteCard topicKey={props.topicKey} title={props.title} subject={props.subject} surface={props.surface} position={props.position} />;
+    case "cbq-card":
+      return <PacksCbqCard subject={props.subject} surface={props.surface} boardPass={props.boardPass} />;
     case "settings-row":
       return <PacksSettingsRow uid={props.uid} headingId={props.headingId} onClose={props.onClose} />;
   }
