@@ -13,7 +13,7 @@
 // light, green hsl(152,55%,45%), Fraunces + Inter. Two-panel scaffold; the
 // explanation panel stays a CLOSED Stage-3 placeholder.
 
-import { Fragment, useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 // TUTOR-FIX-2 (S-C) — chapter-first cold entry, the deterministic offer rule, typed errors.
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
@@ -40,6 +40,8 @@ import { useTutorSession } from "./useTutorSession";
 // TUTOR-IMAGE-1 - attach a photo of a question/page: Answer Checker's own upload step (crop, upright, compress, guard).
 import PageTray, { usePageTray, type TrayPayload } from "../../components/upload/PageTray";
 import { checkUploadFile } from "../../services/uploadLimits";
+// TUTOR-PASTE-1: the crop dialog names what the TUTOR wants (Answer Checker keeps its own default line).
+const TUTOR_CROP_COPY = "Drag the corners to just the question you want explained — or use the whole photo.";
 import { TUTOR_IMAGE_ONLY_TEXT, isTutorImageDisabled } from "../../ai/tutorImage";
 import TutorCheckImproveOverlay from "./TutorCheckImproveOverlay";
 import TutorQuickPracticeOverlay from "./TutorQuickPracticeOverlay";
@@ -319,6 +321,31 @@ function TutorSession() {
     },
     onError: setPhotoError,
   });
+  // TUTOR-PASTE-1: a pasted clipboard IMAGE goes through the same tray as the camera button (crop, upright,
+  // compress, guard; one photo, a second paste replaces the first). Text paste is never intercepted: with no
+  // image file on the clipboard we return without preventDefault.
+  const onComposerPaste = (e: ClipboardEvent<HTMLFormElement>) => {
+    if (!imageEnabled || status === "sending" || photoTray.busy) return;
+    const cd = e.clipboardData;
+    const fromFiles = cd?.files ? Array.from(cd.files) : [];
+    let img = fromFiles.find((f) => f.type.startsWith("image/"));
+    if (!img && cd?.items) {
+      // Android keyboards (Gboard, Samsung) can expose a pasted image only as a clipboard item.
+      for (const it of Array.from(cd.items)) {
+        if (it.kind === "file" && it.type.startsWith("image/")) {
+          const f = it.getAsFile();
+          if (f) {
+            img = f;
+            break;
+          }
+        }
+      }
+    }
+    if (!img) return;
+    e.preventDefault();
+    setPhotoError(null);
+    photoTray.addFiles([img], { replace: true });
+  };
   // TUTOR-INPUT-1: the composer grows with the text (1 line -> ~6 lines, then scrolls).
   useEffect(() => {
     const el = composerRef.current;
@@ -769,7 +796,7 @@ function TutorSession() {
             </div>
           )}
 
-          <form className="lt-tutor__composer" onSubmit={onSubmit}>
+          <form className="lt-tutor__composer" onSubmit={onSubmit} onPaste={onComposerPaste}>
             {/* TUTOR-FIX-2 T11 — the two round trips, PERMANENT, next to the composer at every
                 width: they open the overlays directly, never waiting on the model's wording. */}
             <div className="lt-tutor__tools" role="group" aria-label="Your work">
@@ -792,7 +819,7 @@ function TutorSession() {
                 Practise this chapter
               </button>
             </div>
-            {imageEnabled && <PageTray tray={photoTray} disabled={status === "sending"} />}
+            {imageEnabled && <PageTray tray={photoTray} disabled={status === "sending"} cropCopy={TUTOR_CROP_COPY} />}
             {imageEnabled && photo && photoTray.pages.length === 0 && (
               <div className="lt-tutor__prev" data-testid="tutor-photo-preview">
                 <img
@@ -819,6 +846,11 @@ function TutorSession() {
             {imageEnabled && photoError && (
               <p className="lt-tutor__photoerr" role="alert" data-testid="tutor-photo-error">
                 {photoError}
+              </p>
+            )}
+            {imageEnabled && !photo && photoTray.pages.length === 0 && (
+              <p className="lt-tutor__phint" data-testid="tutor-paste-hint">
+                Photo or paste a screenshot
               </p>
             )}
             <div className="lt-tutor__cbar">
@@ -1039,6 +1071,7 @@ const TUTOR_CSS = `
 .lt-tutor__previmg { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; }
 .lt-tutor__prevname { flex: 1; font-size: 13px; color: var(--lt-ink); }
 .lt-tutor__prevdel { flex: none; width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--lt-line); background: #fff; font-size: 18px; line-height: 1; cursor: pointer; color: var(--lt-ink); }
+.lt-tutor__phint { margin: 0 0 4px 2px; font-size: 12px; line-height: 1.3; color: var(--lt-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lt-tutor__photoerr { margin: 0 0 6px; font-size: 13px; line-height: 1.4; color: #b42318; font-weight: 600; }
 .lt-tutor__s span {
   display: block;
