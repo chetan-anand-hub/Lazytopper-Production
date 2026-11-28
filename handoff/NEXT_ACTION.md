@@ -1,3 +1,16 @@
+## 2026-11-26/28 (daily; covers IST merges 26 Nov 18:17 to 28 Nov 15:36, i.e. 12:47 UTC 26 Nov to 10:06 UTC 28 Nov; written 28 Nov afternoon IST) - #1892 - #1893 - #1894 - #1895 - #1896 - #1897 - #1898 - #1899 - #1900 - #1903 - #1904 - #1905 - #1913 - #1908 - #1909 - #1911 - #1910 - #1912 - #1914 - #1915 - #1916 - #1917
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`3dc6782c`** (`#1917`) [git: `git ls-remote origin base/approved-thru-437`].
+
+- **Owner, FIRST: set the GitHub repo back to PRIVATE** (made public 28 Nov 12:22 IST so PRs could merge) [owner].
+- **Owner decisions pending [owner]:** (1) Google Ads budget (funds run out about 29 Nov; PDF Packs bidding changed repeatedly 24-26 Nov, budget moved to non-selling campaigns); (2) the Meta / Instagram in-app payment fix (proposed, NOT started; in-app checkout 0 paid) `[FU-META-INAPP-CHECKOUT]`; (3) the 142-row objective bank cleanup (optional; needs authorisation for `src/data/**`) `[FU-OBJ-STEPMARK-BANK-142]`; (4) upload the two bonus-book PDFs (`packs/bonus/cbq-maths-complete-book.pdf`, `packs/bonus/cbq-science-complete-book.pdf`, bucket `lazzyy-topper.firebasestorage.app`) or the `#1905` row stays hidden; (5) crash-course 1 Dec CBQ / PDF pack prices; (6) the ledger-hold rulings (Test Series 18 papers; 436 hold rows) `[FU-LEDGER-HOLD-RULINGS]`; (7) the PIN campaign 24551143193 inside the 1 Dec ads task.
+- **Owner to-dos [owner]:** Resend paid plan before 29 Nov; GitHub bill by 30 Nov; Vercel 2FA; AI Studio backup payment; GoDaddy auto-renew.
+- **Live verify owed (owner / coordinator):** a real downloaded pack answer key after the `#1916` re-render (check: Chemical Reactions Section A key shows options, one "1 mark" chip, one-line header; a 3-mark Maths key still shows step chips); `#1903` and `#1900` in a FRESH browser (signed out wall; free account's 3-a-week and the Download paywall card); `#1905` after the upload; `#1894` double tap on signed-in Board Pass, a pack and a top-up (exactly one order each; `topup_*` events appear in Vercel); `#1896`-`#1899` signed out on a phone (Take 1 test free, sit, submit, sign in, marked). See `[FU-26-28NOV-LIVE-VERIFIES]`.
+- **In progress (cofounder):** `#1833` single-question grading as a job, refreshed onto trunk, flag `GRADING_SINGLE_JOBS` default OFF; do not merge or switch on without a live check on Answer Checker single AND a second surface (CLAUDE.md section 4a).
+- **Watch:** `[grade-timing]` single-check p90 / max and any 504 at about 108 s (the case for `#1833`); Razorpay attempts; the admin AI cost card now that `#1893` logs a failed write.
+- **Unchanged:** 1 Dec price switch and the earlier dated checks stand; review the PIN test campaign 30 Nov.
+- **Process:** merge only on an explicit `quality-gate:success` on the PR head; a builder runs the full vitest suite before pushing; `typecheck:test` now has a 6 GB heap (`#1913`).
+
 ## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`9b221f79`** (`#1890`) [git: `git ls-remote origin base/approved-thru-437`].

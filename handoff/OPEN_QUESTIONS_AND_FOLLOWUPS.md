@@ -23,6 +23,60 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-26/28 (daily; covers IST merges 26 Nov 18:17 to 28 Nov 15:36, i.e. 12:47 UTC 26 Nov to 10:06 UTC 28 Nov; written 28 Nov afternoon IST) - #1892 to #1917 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Status of existing entries.**
+- `[FU-ORDER-DEDUP-SIGNED-IN]`: **CLOSED by `#1894`** (signed-in Board Pass, packs, top-up; kill switch `VITE_ORDER_DEDUP2_DISABLED=1`). The server-side gap is minted below.
+- `[FU-TOPUP-NO-ANALYTICS]`: **CLOSED by `#1894`** (`topup_sheet_shown`, `topup_buy_tap`, `topup_paid`, `topup_failed`). Check the events appear in Vercel (live verify below).
+- `[FU-AICOST-SILENT-CATCH]`: **CLOSED by `#1893`** (failed writes are counted and logged, `stats()`).
+- `[FU-ORDER-DEDUP-LIVE]`: stays OPEN, now for `#1890` and `#1894` together.
+- `[FU-26NOV-LIVE-VERIFIES]`: stays OPEN (items unchanged).
+
+### [FU-26-28NOV-LIVE-VERIFIES] (minted)
+OPEN, live verifies owed [coordinator]: (1) a real downloaded pack answer key after the `#1916` re-render (options listed, correct one ticked, one "1 mark" chip, header on one line; a 3-mark Maths key still shows step chips); (2) `#1903` and `#1900` in a fresh browser (signed-out wall copy; a free account's 3-a-week open and the Download paywall card; the guest refusal plus Sign in round trip); (3) `#1905` after the owner uploads the bonus books; (4) `#1894`: double tap on signed-in Board Pass, a pack and a top-up gives exactly one order each, and the `topup_*` events show in Vercel; (5) `#1896`-`#1899` signed out on a phone: Take 1 test free, sit, submit, sign in, marked, then the CT-M01 -> FM-S1 -> Start -> CT-M01 sequence; (6) `#1900` commit 2: a Basic chapter-test / full-mock grade gets the 402 where `LIMITS_ENFORCE=1` and the Test Series free test still works; (7) `#1909`/`#1910`/`#1912`/`#1915`/`#1911`/`#1908` were live-verified 28 Nov [coordinator; account type not recorded], and not on a trial account.
+
+### [FU-AC-SOLUTION-PAPER-LIVE] (minted)
+OPEN. `#1910` reaches the Answer Checker whole-paper path (`ci:` worksheetId, `checkSolution.cjs:1384` and `:1410`) as well as single, but only the single path is recorded as live-verified. CLAUDE.md section 4a: a lane that verifies one surface is PARTIAL. Run one `ci:` paper with a wrong written answer and confirm the card and the unchanged marks. [coordinator]
+
+### [FU-AC-STEP-OUTCOMES] (minted)
+OPEN, needs an owner-approved grading-prompt PR. The Answer Checker full solution shows no per-step tick because the grader's annotated steps carry no index tying them to a solution step (`CheckSolutionAnnotatedStep`, `aiClient.ts`). Enabling it means giving the grader the solution steps with ids and returning `schemeStepIndex` per annotated step; it touches BOTH grading prompt paths (CLAUDE.md section 4a). Also not done: the printed / downloaded graded solution does not carry the card. [coordinator, from the `#1910` PR]
+
+### [FU-OBJ-STEPMARK-BANK-142] (minted)
+OPEN, owner decision (optional). 142 objective bank rows (marks === 1 or options present) still carry a leading `[0.5 mark]` step; `#1916` hides it in every renderer, but the data is not changed because `lazytopper/src/data/**` is gated. Files with hits include the `polynomials` / `quadraticEquations` / `pairOfLinearEquations` `.expand.extract.ts` Maths files and several Science `.cbq.ltgen.ts` / `additionalPQ.ts` files (full per-file list in the `#1916` PR body). Cleaning needs the owner's explicit authorisation. [owner 13:15-13:23 IST 28 Nov; coordinator]
+
+### [FU-GRADING-SINGLE-JOBS-1833] (minted)
+IN PROGRESS. `#1833` (single-question grading as a job) was parked 23 Nov as a safety net. Railway `[grade-timing]` since 23 Nov 13:00 UTC: 27 single checks, 2 x 504 at 108 s (27 Nov 07:16 and 07:18 UTC, one student retrying), p90 88.5 s, max 108 s against a 110 s sync deadline. Being refreshed onto trunk; flag `GRADING_SINGLE_JOBS` default OFF; not merged. Live check must name Answer Checker single and one more surface (section 4a). [coordinator, 28 Nov 15:22 IST]
+
+### [FU-META-INAPP-CHECKOUT] (minted)
+OPEN, owner decision. Meta / Instagram in-app browser checkout: 0 paid. A fix is proposed, NOT started. `#1889` (Android Copy payment link) and `#1896` / `#1897` / `#1898` (Test Series path) are the work so far. [coordinator, 28 Nov ads diagnosis]
+
+### [FU-ADS-BUDGET-29NOV] (minted)
+OPEN, owner decision. Google Ads funds run out about 29 Nov. PDF Packs bidding was changed repeatedly 24-26 Nov and budget moved to non-selling campaigns; the PIN campaign 24551143193 sits inside the 1 Dec ads task. [owner; coordinator]
+
+### [FU-LEDGER-HOLD-RULINGS] (minted)
+OPEN, owner rulings. After `#1904` (14 ledger-held rows removed from the CBQ packs), the Test Series still holds some of those ids in `seriesPaperIds.json` / `focusSetIds.json` (18 papers named for the owner), and 436 hold rows remain in the ledgers. Rule needed: do they stay in the Test Series, and are the other holds sold anywhere. [coordinator, `#1904`]
+
+### [FU-BONUS-BOOK-UPLOAD] (minted)
+OPEN, owner action. Upload `LazyTopper_CBQ_Maths_Complete_Book.pdf` (728 pages, sha256 `dd08a7f8...5c626d38`) to `packs/bonus/cbq-maths-complete-book.pdf` and `LazyTopper_CBQ_Science_Complete_Book.pdf` (1144 pages, `18fd544d...bfeeebd`) to `packs/bonus/cbq-science-complete-book.pdf` in bucket `lazzyy-topper.firebasestorage.app`, Content-Type `application/pdf`. The "Bonus: complete book (PDF)" row appears within about 60 s. Then live-verify on desktop and mobile with a CBQ Pack owner. [`#1905`]
+
+### [FU-ORDER-DEDUP-SERVER-REUSE] (minted)
+OPEN, low. `#1894` guards the three signed-in paths in the client service only; the server reuses an open order for Board Pass terms (`reusableOpenPassOrder`, a Firestore scan that two concurrent requests can both miss) and not at all for packs and top-ups (`payments.cjs` reuse is `!isPack && !isTopup`). Two tabs or devices can still make two orders. [`#1894` PR findings]
+
+### [FU-PACK-LOSSY-SIZE] (minted)
+OPEN, owner decision, default is NO. `#1914` ships only lossless Flate (`TEMPLATE_SIZE_TUNING = true`); the lossy options (`TEMPLATE_LOSSY_TUNING`, resample to 1.56x and JPEG q 0.85 / 0.62, -35% to -68%) stay OFF after the owner's "don't fix the download issue at the cost of quality". The real size fix is vector text (rebuilding the worksheet renderer, a large project). [owner; coordinator]
+
+### [FU-PACK-ZIP-SIZE-ON-BUTTON] (minted)
+OPEN, low. The ZIP button cannot show the download size: the template manifest holds `bytes` per file but the client does not receive them; the server would have to expose a per-group byte sum. [`#1914`]
+
+### [FU-ZIP-JOB-PER-INSTANCE] (minted)
+OPEN, low. The async ZIP job map is per Railway instance; a poll landing on another instance starts that instance's own idempotent build of the same object (extra work, not wrong). The cause of the original failure was read from code and inferred, not measured on Railway. [`#1914`]
+
+### [FU-TS-FREE-ATTEMPT-PER-TAB] (minted)
+OPEN, low. The signed-out Test Series attempt is kept in sessionStorage per tab, so a sign-in that finishes in another tab (an email link) returns the paper without the answers. [`#1897`]
+
+### [FU-BASIC-DOWNLOAD-CAP-HELD] (minted)
+HELD, superseded. The 26 Nov 22:57 ruling "Basic may download 3 papers a week" was not built (Basic cannot download chapter tests or full mocks at all, a client gate); the 27 Nov 13:19 ruling made downloads view-only for free / trial (`#1903`). Revisit only if the owner wants a free download allowance back. [owner; `#1900`, `#1903`]
+
 ## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **Status of existing entries.** `#1890` ORDER-DEDUP-1 is merged (the "open" line of the block below is superseded). `[FU-ORDER-DEDUP-SIGNED-IN]` stays OPEN (not covered by `#1890`). `[FU-26NOV-LIVE-VERIFIES]` stays OPEN; the Vercel redeploy it waits on for `#1884` is done.

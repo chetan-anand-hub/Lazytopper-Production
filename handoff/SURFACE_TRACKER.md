@@ -1,3 +1,20 @@
+> **2026-11-26/28 (daily; covers IST merges 26 Nov 18:17 to 28 Nov 15:36, i.e. 12:47 UTC 26 Nov to 10:06 UTC 28 Nov; written 28 Nov afternoon IST) - #1892 to #1917 (CLAUDE.md section 10).** Merge SHAs and times [git]; live checks, the ads read and the customer case [coordinator; owner]. Scope discovered: none. **Grading surfaces moved: `#1910` adds a display-only `modelSolution` on Answer Checker single and Answer Checker whole paper (`ci:` worksheetId) only; `#1909` is a UI gate; `#1916` is display only. No grading prompt, mark, mistake type or objective clamp changed on any of the six surfaces. `#1900` commit 2 changes the Basic 402 gate on Chapter Test / Full Mock grades.**
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| **Answer Checker (single)** | typed answer of any length; Grade reads the question first (`#1909`); full step-marked solution on the result (`#1910`); line breaks kept (`#1917`) | **merged, live; live PASS** | - |
+| **Answer Checker (multi / whole paper)** | `#1910` card via `isAnswerCheckerPaper(worksheetId)`; `#1909` only adds a "upload a photo" message for a typed answer | **merged, live; NOT separately live-verified** | `[FU-AC-SOLUTION-PAPER-LIVE]` |
+| **Worksheet / Chapter Test / Full Mock / Quick Practice (grading)** | no grading change; `#1916` hides step marks on objective rows in results; `#1900` commit 2 removes the Basic first-free bypass of the 402 on Chapter Test / Full Mock grades | **merged, live** | live check of the Basic 402 where `LIMITS_ENFORCE=1` |
+| **Chapter Test / Full Mock (access)** | signed-out samples open without sign-in and Start is the day's free paper (`#1897`, `#1899`); signed-out wall copy and guest refusal (`#1900`); free / trial open only Test Series papers, 3 a week, view-only downloads (`#1903`) | **merged, live** | fresh-browser live check (`[FU-26-28NOV-LIVE-VERIFIES]`) |
+| **Test Series page (/test-series)** | Ask Mummy/Papa under Buy (`#1896`); "Take 1 test free" picker (`#1898`) | **merged, live** | signed-out phone check |
+| **Pricing / plan copy** | CBQ Packs 2nd card (`#1895`); Basic copy states no download and no written-answer checking (`#1900`, `#1903`) | **merged, live** | prerender re-capture watch |
+| **Checkout (signed-in Board Pass, packs, top-up)** | one order per tap (`#1894`); top-up events | **merged, live (Vercel)** | live double tap; `[FU-ORDER-DEDUP-SERVER-REUSE]` |
+| **Packs (CBQ, PDF packs, downloads)** | 14 held rows removed, 20 `-V2` codes (`#1904`); bonus book row (`#1905`); async ZIP build + guest ZIP per chapter (`#1914`); objective answer keys (`#1916`) | **merged, live; bonus row hidden until upload; pack-templates re-rendered at `412ad315`** | `[FU-BONUS-BOOK-UPLOAD]`; a real downloaded key |
+| **Tutor** | syllabus by method (`#1908`); composer and bubble (`#1911`); photo (`#1912`); paste (`#1915`); bullets (`#1917`) | **merged, live; live PASS** | trial-account check |
+| **Objective-question display (all result surfaces, notes, daily question, CBQ samples, HPQ, answer keys)** | no step marks (`#1916`) | **merged, live** | `[FU-OBJ-STEPMARK-BANK-142]` (data) |
+| **Admin / ops** | AI cost write failures logged (`#1893`); `typecheck:test` 6 GB heap (`#1913`) | **merged** | - |
+| **Single-question grading as a job (`#1833`)** | refreshed onto trunk; flag default OFF | **in progress, not merged** | `[FU-GRADING-SINGLE-JOBS-1833]` |
+
 > **2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890 (CLAUDE.md section 10).** Merge SHA and time [git]; go-live, owner test and live reads [owner; coordinator]. Scope discovered: none. Grading surfaces: none moved (`#1890` is checkout order creation only).
 
 | surface | what moved (PR) | state | owed |

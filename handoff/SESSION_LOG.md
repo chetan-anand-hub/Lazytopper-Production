@@ -1,3 +1,22 @@
+## 2026-11-26/28 (daily; covers IST merges 26 Nov 18:17 to 28 Nov 15:36, i.e. 12:47 UTC 26 Nov to 10:06 UTC 28 Nov; written 28 Nov afternoon IST) - #1892 - #1893 - #1894 - #1895 - #1896 - #1897 - #1898 - #1899 - #1900 - #1903 - #1904 - #1905 - #1913 - #1908 - #1909 - #1911 - #1910 - #1912 - #1914 - #1915 - #1916 - #1917 (trunk `3dc6782c`)
+
+**PROVENANCE.** *(Merge SHAs and times [git: REST `pulls/<N>` `merged_at`; IST = UTC + 5:30]. Everything else: this cofounder session [coordinator]; owner messages quoted by IST time.)*
+
+- **26 Nov 18:17-19:50.** `#1892` (docs for `#1890`) merged 18:17; `#1893` (AICOST-LOG-1) 18:27; `#1894` (ORDER-DEDUP-2 + top-up analytics) 18:45; `#1895` (CBQ-PRICING-2ND) 19:50.
+- **26 Nov 19:23.** Owner ruling: a signed-out visitor opens and sits the free Test Series paper without signing in; the account is asked for only to get the answers marked (22 Test Series checkouts, 0 sales). `#1896` (TS-PAYPATH-1) merged 20:15, `#1897` (TS-FREE-SIGNEDOUT) 20:40, `#1898` (TS-FREE-PICKER) 21:57.
+- **26 Nov 22:00-22:38.** Seen live: opening CT-M01 then FM-S1 signed out walled the second ("You've opened your free paper for today"). Owner ruling 22:08; `#1899` (TS-SAMPLE-OPEN) merged 22:38.
+- **26 Nov 22:43 and 23:00.** Owner rulings on the signed-out wall copy, Basic plan copy (no download, no written-answer checking), the guest dead end, and the Basic chapter-test / full-mock first-free; built as `#1900`, merged 27 Nov 12:56. The "Basic may download 3 papers a week" ruling of 26 Nov 22:57 was held, then superseded by the 27 Nov 13:14-13:19 ruling (view-only downloads).
+- **27 Nov 13:14 / 13:19.** Owner: free and trial open only Test Series papers, 3 a week; downloads are view-only with a paywall card. `#1903` (FREE-TS-WEEKLY) merged 20:09.
+- **27 Nov 23:28.** `#1904` (CBQ-PACK-HOLDS: 14 ledger-held rows never sold; 20 `-V2` codes). **23:07** owner approved the bonus book; `#1905` (BONUS-BOOK-1) merged 28 Nov 00:13. Kindle books submitted to KDP, "In review", Rs 249, DRM on, not Select [owner].
+- **28 Nov 09:19.** Session start. Ads diagnosis (no code): PDF Packs bidding changed repeatedly 24-26 Nov, budget moved to non-selling campaigns, Meta / Instagram in-app checkout 0 paid; ads running, funds run out about 29 Nov.
+- **10:48.** Owner asks: Answer Checker typed answers not grading (`#1909`); the full correct solution with CBSE step marks when wrong (`#1910`); tutor image upload (`#1912`); the tutor teaching Class-10-pertinent off-syllabus topics on insistence, after it refused the polygon AP question (`#1908`); the tutor input cutting text (`#1911`). `#1913` (CI heap) merged 12:22 to unblock `#1908`; `#1908`, `#1909`, `#1911` merged 12:32, `#1910` 12:47, `#1912` 13:03. All live-verified.
+- **11:56-12:40.** A bundle customer could not download the Science ZIP on mobile (server ZIP build over the client's 90 s timeout). `#1914` (async ZIP build) live-verified on Life Processes; the customer got WhatsApp-ready Science PDFs and a gift Science PYQ set per chapter (13 PDFs, 334 questions).
+- **12:22.** Owner made the repo public so PRs could merge; it must go private at session end.
+- **12:29 and 13:19.** Owner on the pack PDF size: no quality loss ("don't fix the download issue at the cost of quality"). The lossy shrink was cancelled; `TEMPLATE_LOSSY_TUNING = false`. `#1914` merged 13:20 (its title is stale).
+- **13:15-13:23.** Owner: objective questions never carry step marks -> `#1916` merged 14:26 (display only). 142 bank rows still carry a leading `[0.5 mark]` step: `[FU-OBJ-STEPMARK-BANK-142]`.
+- **13:39-13:44.** Owner: tutor screenshot paste, mobile first, no quality drop -> `#1915` merged 13:58 (client only; verified at 375 px).
+- **15:22.** Owner: finish pending items; investigate `#1833`. Finding: parked 23 Nov as a safety net; Railway shows 2 x 504 at 108 s and p90 88.5 s, so it is now needed; being refreshed onto trunk, flag `GRADING_SINGLE_JOBS` default OFF (in progress). `#1917` (TUTOR-BULLETS-1) merged 15:36.
+
 ## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890 (trunk `9b221f79`)
 
 **PROVENANCE.** *(Merge SHA and time [git: REST `pulls/1890`]. Everything else: this cofounder session [coordinator]; owner messages quoted by time.)*

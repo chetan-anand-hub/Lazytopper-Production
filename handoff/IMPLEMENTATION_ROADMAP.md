@@ -1,3 +1,16 @@
+## 2026-11-26/28 (daily; covers IST merges 26 Nov 18:17 to 28 Nov 15:36, i.e. 12:47 UTC 26 Nov to 10:06 UTC 28 Nov; written 28 Nov afternoon IST) - #1892 - #1893 - #1894 - #1895 - #1896 - #1897 - #1898 - #1899 - #1900 - #1903 - #1904 - #1905 - #1913 - #1908 - #1909 - #1911 - #1910 - #1912 - #1914 - #1915 - #1916 - #1917 - MERGED
+
+- DONE, payments. `#1894` (`2e9bd5a3`) ORDER-DEDUP-2 (signed-in Board Pass, packs, top-up) + top-up analytics; closes `[FU-ORDER-DEDUP-SIGNED-IN]`, `[FU-TOPUP-NO-ANALYTICS]`. `#1893` (`f6d44a82`) AICOST-LOG-1; closes `[FU-AICOST-SILENT-CATCH]`. Live verify owed.
+- DONE, Test Series free path. `#1896` (`865ad18f`) TS-PAYPATH-1, `#1897` (`7ec1303a`) TS-FREE-SIGNEDOUT, `#1898` (`4b0e1a9c`) TS-FREE-PICKER, `#1899` (`351b1929`) TS-SAMPLE-OPEN. Live verify owed.
+- DONE, free / Basic rules. `#1900` (`5fb91260`) GUEST-WALL + BASIC-CTFM-FREE-1; `#1903` (`5bad6a5b`) FREE-TS-WEEKLY. Fresh-browser live check owed.
+- DONE, pricing page. `#1895` (`29ed9e34`) CBQ Packs back to the 2nd card.
+- DONE, packs. `#1904` (`56eb66c8`) CBQ-PACK-HOLDS (14 rows, 20 `-V2` codes); `#1905` (`e36c3205`) BONUS-BOOK-1 (hidden until the owner uploads the two PDFs); `#1914` (`112f3b48`) async pack ZIP build + guest ZIP per chapter (lossy shrink NOT shipped); `#1916` (`412ad315`) OBJ-NO-STEPMARK-1 (display; pack re-render run 46128118358).
+- DONE, Answer Checker. `#1909` (`75ca91ad`) AC-TYPED-1; `#1910` (`540769fc`) AC-SOLUTION-1 (full solution on the result). Live PASS on Answer Checker single.
+- DONE, tutor. `#1908` (`55a4f778`) syllabus by method; `#1911` (`60b1ffb5`) input; `#1912` (`4f675ecc`) photo; `#1915` (`468e30d1`) paste; `#1917` (`3dc6782c`) bullets. Live PASS.
+- DONE, CI. `#1913` (`8326a09c`) `typecheck:test` 6 GB heap. Docs: `#1892` (`3aa198e0`).
+- IN PROGRESS: `#1833` single-question grading as a job, refreshed onto trunk, `GRADING_SINGLE_JOBS` default OFF.
+- NEXT: owner decisions (ads budget, Meta / Instagram in-app payment fix, 142-row cleanup, bonus-book upload, crash-course prices, ledger holds); the owed live verifies; set the repo back to private.
+
 ## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890 - MERGED
 
 - DONE, payments. `#1890` (`9b221f79`) ORDER-DEDUP-1 (one order per Pay tap on guest / pay-first checkout). Live verify owed.
