@@ -1,3 +1,15 @@
+> **2026-11-28/29 (daily; covers IST merges 28 Nov 15:57 to 29 Nov 00:34, i.e. 10:27 to 19:04 UTC 28 Nov; written 29 Nov early morning IST) - #1833 - #1920 - #1919 - #1921 - #1922 - #1924 - #1923 - #1925 - #1927 - #1926 - #1929 (CLAUDE.md section 10).** Merge SHAs and times [git]; rulings [owner]. Scope discovered: none. **Grading surfaces moved: none in behaviour.** `#1833` changes only the transport of the Answer Checker single-question call (job path behind `GRADING_SINGLE_JOBS`, default OFF; `server/prompts` untouched; no mark, mistake type or clamp change); it reaches Answer Checker single only and is PARTIAL until a live check names Answer Checker single and a second surface.
+
+| surface | what moved (PR) | state | owed |
+|---|---|---|---|
+| **Answer Checker (single)** | job path for the check (`#1833`) | **merged; flag OFF, so behaviour unchanged** | live check typed + photo with the flag on; a second surface (4a) |
+| **Pricing / plan copy; Board Pass / Test Series offer** | no 1 Dec switch, no deadline copy (`#1921`); 3-day trial wording (`#1925`) | **merged, live (trial length from 00:00 IST 30 Nov)** | new-account check after the cutover; prerender drift watch |
+| **Checkout / packs buttons** | base + GST (total) labels (`#1926`); in-app guard and order browser class (`#1919`); guest `payment.failed` note (`#1920`) | **merged, live** | live checks (`[FU-28-29NOV-LIVE-VERIFIES]`) |
+| **Notes / NCERT / MCQ / QOTD / HPQ / sample-paper pages** | pack cards and Exam practice strip (`#1922`, `#1924`); /sample-paper-class-10 (`#1929`) | **merged, live** | CLS at 360 px; Search Console re-index |
+| **Home / public footer / /practice-hub (signed out)** | Exam practice block and footer group (`#1927`); pass-holder Start-here card (`#1923`) | **merged, live; passstart email flag OFF** | live check of the card |
+| **Trial** | new trials 3 days from the 30 Nov cutover (`#1925`) | **merged, live** | `[FU-TRIAL-3DAY-REVIEW-NITS]` |
+
+
 > **2026-11-26/28 (daily; covers IST merges 26 Nov 18:17 to 28 Nov 15:36, i.e. 12:47 UTC 26 Nov to 10:06 UTC 28 Nov; written 28 Nov afternoon IST) - #1892 to #1917 (CLAUDE.md section 10).** Merge SHAs and times [git]; live checks, the ads read and the customer case [coordinator; owner]. Scope discovered: none. **Grading surfaces moved: `#1910` adds a display-only `modelSolution` on Answer Checker single and Answer Checker whole paper (`ci:` worksheetId) only; `#1909` is a UI gate; `#1916` is display only. No grading prompt, mark, mistake type or objective clamp changed on any of the six surfaces. `#1900` commit 2 changes the Basic 402 gate on Chapter Test / Full Mock grades.**
 
 | surface | what moved (PR) | state | owed |

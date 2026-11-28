@@ -1,3 +1,18 @@
+## 2026-11-28/29 (daily; covers IST merges 28 Nov 15:57 to 29 Nov 00:34, i.e. 10:27 to 19:04 UTC 28 Nov; written 29 Nov early morning IST) - #1833 - #1920 - #1919 - #1921 - #1922 - #1924 - #1923 - #1925 - #1927 - #1926 - #1929 (trunk `cfa18a88`)
+
+**PROVENANCE.** *(Merge SHAs and times [git: REST `pulls/<N>` `merged_at`; IST = UTC + 5:30]. Everything else: this cofounder session [coordinator]; owner messages quoted by IST time.)*
+
+- **28 Nov 15:22.** Owner: complete `#1833` if it is necessary. The `[grade-timing]` read (2 x 504 at 108 s, p90 88.5 s) made it so; refreshed onto trunk `412ad315`; `#1833` merged 15:57 with `GRADING_SINGLE_JOBS` default OFF.
+- **28 Nov 18:07-18:25.** `#1920` (PAY-FAIL-1A, guest `payment.failed` recorded) and `#1919` (INAPP-GAP-1, order browser class and the in-app copy-link guard) merged.
+- **28 Nov 18:44.** Owner: "we are not changing the price on 1st December." `#1921` (PRICE-HOLD-1) merged 19:48: no price switch, no deadline copy, the founding offer has no close.
+- **28 Nov 20:14-21:24.** SEO-SELL lane: `#1922` (SEO-SELL-1, notes and NCERT pages), `#1924` (SEO-SELL-2, MCQ / QOTD / Important Questions pages, landing Product JSON-LD), and `#1923` (PASS-START-1; the email flag stays OFF).
+- **28 Nov 20:50, 22:39.** Owner authorised the `Welcome.tsx` edit for the Exam practice block only; `#1927` (HOME-LINKS-1) merged 23:45.
+- **28 Nov 21:18.** Owner: the trial is 3 days, not 7 (30-day data: of 9 Board Pass buyers with a trial, 5 paid in the first hour, 2 on day 1-2, 1 on day 6). `#1925` (TRIAL-3DAY-1) merged 22:41; cutover 00:00 IST 30 Nov, running trials keep 7 days.
+- **28 Nov 23:56.** Owner OK for the 2 `App.tsx` lines; `#1926` (SEO-SELL-3 B, "+ GST (total)" button labels) merged 29 Nov 00:33 and `#1929` (SEO-SELL-3 A, /sample-paper-class-10) 00:34.
+- **Crash Course 2027, Google Ads.** Rulings recorded in `DECISION_LOG.md`; `#1928` (CC27-SITE-1) is open and waits for reviewed content and the owner's upload.
+- **Not verified live in this window:** every PR above (see `[FU-28-29NOV-LIVE-VERIFIES]`).
+
+
 ## 2026-11-26/28 (daily; covers IST merges 26 Nov 18:17 to 28 Nov 15:36, i.e. 12:47 UTC 26 Nov to 10:06 UTC 28 Nov; written 28 Nov afternoon IST) - #1892 - #1893 - #1894 - #1895 - #1896 - #1897 - #1898 - #1899 - #1900 - #1903 - #1904 - #1905 - #1913 - #1908 - #1909 - #1911 - #1910 - #1912 - #1914 - #1915 - #1916 - #1917 (trunk `3dc6782c`)
 
 **PROVENANCE.** *(Merge SHAs and times [git: REST `pulls/<N>` `merged_at`; IST = UTC + 5:30]. Everything else: this cofounder session [coordinator]; owner messages quoted by IST time.)*

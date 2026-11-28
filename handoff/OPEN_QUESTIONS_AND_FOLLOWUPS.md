@@ -23,6 +23,43 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-28/29 (daily; covers IST merges 28 Nov 15:57 to 29 Nov 00:34, i.e. 10:27 to 19:04 UTC 28 Nov; written 29 Nov early morning IST) - #1833 - #1920 - #1919 - #1921 - #1922 - #1924 - #1923 - #1925 - #1927 - #1926 - #1929 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Status of existing entries.** The 1 Dec price-switch items (the 1 Dec 00:00 IST switch list, the "till 30 Nov" ad text of the dated entry above, the static-paint shell gate) are CANCELLED or moot by `#1921`; the owner disables the two 1 Dec scheduled tasks. `[FU-GRADING-SINGLE-JOBS-1833]`: `#1833` is MERGED (flag OFF); it stays OPEN for the live check and the Quick Practice job path (N1, N4).
+
+### [FU-28-29NOV-LIVE-VERIFIES] (minted)
+OPEN [coordinator]: (1) `#1925`: sign up a new account after 00:00 IST 30 Nov, 3 days left and "day 1 of 3"; an existing trial keeps its old end date; a trial-ending email dry run; (2) `#1919`: Facebook Android Test Series Buy hops, an iPhone FB / IG in-app browser shows the guard, Chrome unchanged, the admin unpaid row shows the Browser chip; (3) `#1923`: the Home card for a fresh Board Pass holder; (4) `#1926`: /packs (signed out and in) Buy buttons open checkout at the same total, /cbq-class-10 buttons wrap at 360 px; (5) `#1929`: /sample-paper-class-10 renders signed out, Take online links open the right paper, Buy links reach checkout; (6) `#1922` / `#1924`: CLS 0 at 360 px and card order; (7) `#1921`: prerendered /pricing and /for-parents match (drift); (8) `#1833`: see `[FU-GRADING-SINGLE-JOBS-1833]`.
+
+### [FU-CC27-SITE-1928] (minted)
+OPEN. `#1928` CC27-SITE-1 is green with review fixes applied. It waits for the final reviewed content and the owner's upload of 29 files to `packs/bonus/cc27/`. The independent page-by-page review (Maths, Biology, Chemistry + Physics) is in progress; nothing goes public before it passes. N6: rate-limit before the 403 / 404 on the download route. [coordinator; owner]
+
+### [FU-PASSSTART-EMAIL-FLAG] (minted)
+OPEN, owner. `PASS_START_EMAIL_ENABLED` is OFF (`#1923`). Turn on only after the Home card is seen live and one email dry run is read. [coordinator]
+
+### [FU-TRIAL-3DAY-REVIEW-NITS] (minted)
+OPEN, review nits of `#1925` [coordinator]: N1 the server uses the clamped start where the client uses the raw start; N2 comments still say "free week"; N3 CLAUDE.md section 5 still says "7-day trial" and the `agentsMd.guard` test pins it, so it needs an owner-approved docs change (also `[FU-TRIAL-3DAY-CLAUDEMD]`); N4 the comeback nudge falls on day 3 of a 3-day trial; N5 the cutover must be at or after the production deploy time (lower the constant in both files if the deploy was earlier).
+
+### [FU-TRIAL-3DAY-CLAUDEMD] (minted)
+OPEN, owner. CLAUDE.md section 5 "7-day trial" is stale after `#1925`; changing it also needs the `agentsMd.guard` pin updated. [coordinator]
+
+### [FU-GA4-UNASSIGNED-PURCHASES] (minted)
+OPEN. GA4 shows purchases as "Unassigned"; send `client_id` / `session_id` with the purchase event so they attribute. [coordinator]
+
+### [FU-PRACTICE-UI-E2E] (minted)
+OPEN. Practice ui-e2e is not written (part of `[FU-UI-E2E-PHASE2-PAGES]`). [coordinator]
+
+### [FU-PAY-FAIL-1B] (minted)
+OPEN. The "payment didn't go through" screen for a failed Razorpay payment (the client half; `#1920` is the server half for guests). [coordinator]
+
+### [FU-QUICK-PRACTICE-JOB-PATH] (minted)
+OPEN. `#1833` review notes N1 and N4: Quick Practice still grades a single question synchronously; decide whether it joins the job path. [coordinator]
+
+### [FU-KINDLE-BADGES] (minted)
+OPEN. Kindle badges on the site once the books are live on Amazon. [owner]
+
+### [FU-OWNER-TODOS-29NOV] (minted)
+OPEN, owner: disable the two 1 Dec scheduled tasks; set the repo back to private; Resend paid plan; Vercel 2FA; AI Studio backup card; GoDaddy auto-renew. [owner]
+
 ## 2026-11-26/28 (daily; covers IST merges 26 Nov 18:17 to 28 Nov 15:36, i.e. 12:47 UTC 26 Nov to 10:06 UTC 28 Nov; written 28 Nov afternoon IST) - #1892 to #1917 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **Status of existing entries.**
