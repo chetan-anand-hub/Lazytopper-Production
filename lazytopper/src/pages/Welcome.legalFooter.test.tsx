@@ -249,14 +249,13 @@ describe("every slug the landing's legal links point at renders real policy cont
       "/for-parents", // PARENTS-1 — the fourth internal page link, before the social row
       ...hrefs,
       "/contact", // CONTACT-INDEX-1 — the contact page, right after the legal links, before the social row
-      // HOME-LINKS-1 — the compact "Exam practice" group (five links), after Contact, before the social row.
+      // ORG-SAMEAS-1 — the fourth kind of link: our own profiles, external, in config order.
+      ...FOOTER_SOCIAL.map((s) => s.href),
+      // HOME-LINKS-1 - the compact "Exam practice" group, last row.
       "/question-bank-class-10",
       "/mock-test-class-10",
       "/cbq-packs",
       "/test-series",
-      "/packs",
-      // ORG-SAMEAS-1 — the fourth kind of link: our own profiles, external, in config order.
-      ...FOOTER_SOCIAL.map((s) => s.href),
     ]);
     expect(allHrefs.find((h) => h.startsWith("/cbse/class-10"))).toContain("returnTo=");
   });

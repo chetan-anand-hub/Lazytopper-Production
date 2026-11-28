@@ -73,10 +73,12 @@ describe("HOME-LINKS-1 - homepage", () => {
 });
 
 describe("HOME-LINKS-1 - public footer", () => {
-  it("carries the same five links in one compact 'Exam practice' group", () => {
+  it("carries the four exam-practice links in one compact group on the last row (PDF packs stays the gated PacksEntry link, never a static /packs anchor)", () => {
     render(<MemoryRouter><PublicLegalFooter /></MemoryRouter>);
     const group = screen.getByTestId("footer-exam-practice");
-    expect(pairs(group)).toEqual(FIVE);
+    expect(pairs(group)).toEqual(FIVE.slice(0, 4));
+    expect(document.querySelector('footer a[href="/packs"]')).toBeNull();
+    expect(group.nextElementSibling).toBeNull();
     expect(group.closest("footer")).not.toBeNull();
   });
   it("from /for-parents the in-app links keep the parent return flag", () => {
