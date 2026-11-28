@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import Cc27Chip from "../../components/crashCourse/Cc27Chip";
 import RestoredPurchaseCard from "../../components/checkoutWho/RestoredPurchaseCard";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import BoardsCountdownStrip from "../../components/urgency/BoardsCountdownStrip";
@@ -651,6 +652,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
       <div className="lt-ph-face">
         {opts.top}
         <h2 className="lt-ph-name">{opts.name}</h2>
+        <Cc27Chip product={opts.key} />
         {opts.hook}
         <Ticks items={opts.bullets.map((text, i) => ({ id: String(i), text }))} label={`What the ${opts.name} gives`} />
         {/* The ONE link of the face: "Details ›" (named "<Product> details"), stretched over the whole top area; the h2 keeps the name. */}
@@ -822,6 +824,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
             <span className="lt-ph-chip">{START_HERE_BADGE}</span>
           </div>
           <h2 className="lt-ph-name">{BOARD_PASS_NAME}</h2>
+          <Cc27Chip product="pass" />
           <div className="lt-ph-minute" data-testid="hub-pass-minute">
             <span className="lt-ph-minute__fig" aria-hidden="true">
               <span className="lt-ph-minute__num">{HUB_PASS_MINUTE_FIGURE}</span>
@@ -908,6 +911,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
             <span className="lt-ph-chip lt-ph-chip--new">{HUB_TS_NEW}</span>
           </div>
           <h2 className="lt-ph-name">{TEST_SERIES_CARD_NAME}</h2>
+          <Cc27Chip product="ts" />
           <p className="lt-ph-hero lt-ph-ts-head" data-testid="hub-ts-headline">
             <strong>{tsHead.chapter}</strong> + <strong>{tsHead.full}</strong>
             {tsHead.rest}
@@ -1005,6 +1009,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
               <p className="lt-ph-tag">{HUB_CBQ_TAG}</p>
             </div>
             <h2 className="lt-ph-name">{CBQ_PACKS_NAME}</h2>
+          <Cc27Chip product="cbq" />
             <p className="lt-ph-hero">{HUB_CBQ_HERO}</p>
           </>,
           <>
@@ -1074,6 +1079,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
               <p className="lt-ph-tag" data-testid="hub-bank-tag">{hubBankTag()}</p>
             </div>
             <h2 className="lt-ph-name">{QUESTION_BANK_NAME}</h2>
+          <Cc27Chip product="bank" />
             <p className="lt-ph-hero">{HUB_BANK_HERO}</p>
           </>,
           <>

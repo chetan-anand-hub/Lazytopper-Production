@@ -64,6 +64,8 @@ function createGate(slots) {
   };
 }
 
+const { CC27_FILES } = require('./cc27Bonus.cjs');
+
 function createPackPdfService(deps = {}) {
   const { bucket, now = () => Date.now(), telemetry, firestore, firestoreApi, fontsLoader = loadFonts, zipAsyncGraceMs = ZIP_ASYNC_GRACE_MS } = deps;
 
@@ -518,7 +520,44 @@ function createPackPdfService(deps = {}) {
     return { ...signed, filename, papers: [] };
   }
 
-  return { getManifest, fileLink, zipLink, zipJobPending, recordDownloads, bonusBooksPresent, bonusLink, _planFile: planFile };
+  // ---- CC27-SITE-1: Crash Course 2027 bonus objects (packs/bonus/cc27/), same shape as the BONUS-BOOK-1 helpers above ----
+  const cc27Seen = new Map(); // fileKey -> {at, present}
+  async function cc27Present(fileKey) {
+    const meta = CC27_FILES[fileKey];
+    if (!meta) return false;
+    const t = now();
+    const c = cc27Seen.get(fileKey);
+    if (c && t - c.at < MANIFEST_TTL_MS) return c.present;
+    let present = false;
+    try {
+      [present] = await theBucket().file(meta.path).exists();
+      present = Boolean(present);
+    } catch {
+      present = false;
+    }
+    cc27Seen.set(fileKey, { at: t, present });
+    return present;
+  }
+  /** The file keys (of `keys`) whose object is uploaded. Never throws: an unreadable bucket is "none". */
+  async function cc27FilesPresent(keys) {
+    const flags = await Promise.all(keys.map((k) => cc27Present(k)));
+    return keys.filter((_, i) => flags[i]);
+  }
+  /** A 15-minute signed link to one Crash Course file. Throws not_ready while it is not uploaded. */
+  async function cc27Link({ fileKey }) {
+    const meta = CC27_FILES[fileKey];
+    if (!meta) {
+      const e = new Error('unknown_file');
+      e.code = 'unknown_file';
+      throw e;
+    }
+    cc27Seen.delete(fileKey);
+    if (!(await cc27Present(fileKey))) throw new NotReady(`missing ${meta.path}`);
+    const signed = await sign(meta.path, meta.filename, 'application/pdf');
+    return { ...signed, filename: meta.filename, papers: [] };
+  }
+
+  return { getManifest, fileLink, zipLink, zipJobPending, recordDownloads, bonusBooksPresent, bonusLink, cc27FilesPresent, cc27Link, _planFile: planFile };
 }
 
 /** BONUS-BOOK-1: where the owner uploads each subject's complete book (private bucket, same rules as the rest of packs/). */

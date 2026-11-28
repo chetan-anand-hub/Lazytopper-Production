@@ -78,6 +78,7 @@ const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
 const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
 // SEO-PAGES-1 - three public search-landing pages (mock test, question bank, marking scheme).
 const MockTestClass10Page = lazy(() => import("./pages/MockTestClass10Page"));
+const CrashCourse2027Page = lazy(() => import("./pages/CrashCourse2027Page"));
 const QuestionBankClass10Page = lazy(() => import("./pages/QuestionBankClass10Page"));
 const MarkingSchemeClass10Page = lazy(() => import("./pages/MarkingSchemeClass10Page"));
 const ForParentsPage = lazy(() => import("./pages/ForParentsPage"));
@@ -1159,6 +1160,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route path="/cbse/class-10" element={withRouteSuspense(<Cbse2027Page />)} />
           <Route path="/check-your-answer" element={withRouteSuspense(<CheckYourAnswerPage />)} />
           <Route path="/mock-test-class-10" element={withRouteSuspense(<MockTestClass10Page />)} />
+          <Route path="/class-10-crash-course-2027" element={withRouteSuspense(<CrashCourse2027Page />)} />
           <Route path="/question-bank-class-10" element={withRouteSuspense(<QuestionBankClass10Page />)} />
           <Route path="/cbse-marking-scheme-class-10" element={withRouteSuspense(<MarkingSchemeClass10Page />)} />
           <Route path="/for-parents" element={withRouteSuspense(<ForParentsPage />)} />

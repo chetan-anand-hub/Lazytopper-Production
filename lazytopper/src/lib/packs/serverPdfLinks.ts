@@ -16,6 +16,8 @@ export const PACK_FILE_LINK_ENDPOINT = "/api/packs/file-link";
 export const PACK_ZIP_LINK_ENDPOINT = "/api/packs/zip-link";
 /** BONUS-BOOK-1: the CBQ Pack's complete book (one pre-built PDF per subject; same entitlement check as every pack file). */
 export const PACK_BONUS_LINK_ENDPOINT = "/api/packs/bonus-link";
+/** CC27-SITE-1: one Crash Course 2027 file (a book or a chapter sheet), same entitlement ladder as the server's cc27Bonus. */
+export const PACK_CC27_LINK_ENDPOINT = "/api/packs/cc27-link";
 /** GUEST-ZIP-1: the signed-out buyer's whole-pack ZIP; proof = the receipt's (order id, payment id, Razorpay signature), no sign-in. */
 export const GUEST_ZIP_LINK_ENDPOINT = "/api/pay/guest/zip-link";
 /** How long the browser waits for a link before it builds the file itself. */
@@ -179,6 +181,11 @@ export function requestZipLink(packId: string, group: string, deps: LinkDeps = {
 export function requestGuestZipLink(proof: { orderId: string; paymentId: string; signature: string }, deps: LinkDeps = {}, groupId?: string): Promise<LinkResult<ServerZipLink>> {
   // PACK-PDF-SIZE-1: `groupId` asks for ONE chapter's ZIP (the same per-group ZIP a signed-in buyer gets); omitted = the whole pack (legacy).
   return postZipPolling(GUEST_ZIP_LINK_ENDPOINT, { orderId: proof.orderId, paymentId: proof.paymentId, signature: proof.signature, ...(groupId ? { group: groupId } : {}) }, { timeoutMs: SERVER_ZIP_TIMEOUT_MS, headers: async () => ({}), ...deps });
+}
+
+/** CC27-SITE-1: a signed link to one Crash Course 2027 file the server's ladder entitles this account to. */
+export function requestCc27Link(fileKey: string, deps: LinkDeps = {}): Promise<LinkResult<ServerFileLink>> {
+  return post(PACK_CC27_LINK_ENDPOINT, { fileKey }, readLink, deps);
 }
 
 /** BONUS-BOOK-1: a signed link to the complete book of an owned CBQ Pack (`pack_cbq:<subject>`). No papers are printed in it. */

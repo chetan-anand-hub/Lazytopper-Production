@@ -1,4 +1,6 @@
 import WelcomeBannerGate from "../components/welcome/WelcomeBannerGate";
+import Cc27DetailBlock from "../components/crashCourse/Cc27DetailBlock";
+import Cc27Chip from "../components/crashCourse/Cc27Chip";
 import { Suspense, lazy, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -156,6 +158,7 @@ function PacksPageBody() {
             <div className="lt-packs__w lt-pk__strip"><BoardsCountdownStrip /></div>
             <PartPacks api={api} subject={subject} onSubject={setSubject} />
             {isTestSeriesPackOffered() && <TestSeriesCard api={api} />}
+            <div className="lt-packs__w"><Cc27DetailBlock product="packs" /></div>
             {/* v1.2 L3: two compact one-line link rows. The longer sentences ride in the links' accessible names and titles, and the
                 CBQ one is also the FAQ "What are CBQ Packs?" answer. */}
             <section className="lt-packs__w lt-pk__links" aria-label="More from LazyTopper">
@@ -386,6 +389,7 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
     <section className="lt-pk-part lt-pk-ts" aria-labelledby="packs-ts-h" data-testid="packs-test-series">
       <div className="lt-packs__w">
         <h2 id="packs-ts-h" className="lt-pk-part__h">{TEST_SERIES_HEADING}</h2>
+        <Cc27Chip product="ts" />
         <div className="lt-pk-rows">
           <div className="lt-pk-row" data-testid="packs-row-test-series">
             <details className="lt-pk-row__d">
@@ -466,6 +470,7 @@ function PartPacks({ api, subject, onSubject }: { api: PacksShopApi; subject: Pa
     <section className="lt-pk-part" aria-labelledby="packs-more-h">
       <div className="lt-packs__w">
         <h2 id="packs-more-h" className="lt-pk-part__h">{PACKS_PART_HEADING}</h2>
+        <Cc27Chip product="bank" />
         <div className="lt-pk-part__switch" data-lt-radio-replay="">
           <SubjectSwitch value={subject} onChange={onSubject} label="Subject for the packs below" testPrefix="packs-subject" />
         </div>
