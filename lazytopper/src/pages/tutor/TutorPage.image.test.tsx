@@ -30,6 +30,11 @@ vi.mock("./useTutorSession", () => ({
     dismissPending: () => {},
   }),
 }));
+// The price tag reads the clock (GST-EXCL-1); this file is about the composer, so pin it and keep the CI clock manifest untouched.
+vi.mock("../../lib/packs/packEntry", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../lib/packs/packEntry")>()),
+  chapterPackPriceTag: () => "\u20b949",
+}));
 vi.mock("../../context/AuthContext", () => ({ useAuth: () => ({ user: null }) }));
 import TutorPage from "./TutorPage";
 
