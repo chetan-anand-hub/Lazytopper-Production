@@ -7,6 +7,7 @@
 //   base prices are mirrored below and packsProductLd.guard.test.ts pins each EQUAL to PACK_PRICE_INR: a price change turns CI red.
 // ★ Prices are the BASE price, GST EXCLUSIVE ("₹X + GST"), so `valueAddedTaxIncluded` is false.
 import { SITE_ORIGIN, canonicalFor } from "../../config/canonicalUrl";
+import { MOCK_TEST_PATH, QUESTION_BANK_PATH } from "../seoPages/seoPages";
 import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, BUNDLE_NAME, CBQ_SUBJECT_CLAIM, MOCKS_PER_SUBJECT } from "../../lib/packs/packLabels";
 
 export const PACKS_LD_PRICE_INR = {
@@ -107,8 +108,26 @@ const CRUMBS: Readonly<Record<string, string>> = {
   "/highly-probable/10/Science": "Class 10 Science Important Questions",
 };
 
+/**
+ * SEO-SELL-2: the two landing pages that sell packs carry Product / Offer for exactly the packs their body prices (SeoPriceLine). Product
+ * nodes only: their BreadcrumbList already comes from seoPageJsonLd. Prices are PACKS_LD_PRICE_INR (pinned to PACK_PRICE_INR), GST exclusive.
+ */
+const LANDING_SKUS: Readonly<Record<string, readonly LdProduct["sku"][]>> = {
+  [MOCK_TEST_PATH]: ["pack_mock", "pack_bundle"],
+  [QUESTION_BANK_PATH]: ["pack_chapter", "pack_subject", "pack_bundle"],
+};
+
 /** Product (+ Breadcrumb) JSON-LD for a path of this lane, else null. */
 export function packsAnswerJsonLd(path: string, basename: string): Record<string, unknown> | null {
+  const landing = LANDING_SKUS[path];
+  if (landing) {
+    const home = canonicalFor("/", basename);
+    const url = canonicalFor(path, basename);
+    return {
+      "@context": "https://schema.org",
+      "@graph": landing.map((sku) => productLd(PACKS_PRODUCTS.find((p) => p.sku === sku)!, url, home)),
+    };
+  }
   const crumb = CRUMBS[path];
   if (!crumb) return null;
   const home = canonicalFor("/", basename);
