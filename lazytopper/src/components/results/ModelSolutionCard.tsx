@@ -46,7 +46,7 @@ const CSS = `
 .lt-msol__step { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; font-size: 13.5px; line-height: 1.5; min-width: 0; }
 .lt-msol__txt { min-width: 0; overflow-wrap: anywhere; }
 .lt-msol__desc { font-weight: 600; }
-.lt-msol__work { margin-top: 2px; overflow-x: auto; max-width: 100%; }
+.lt-msol__work { margin-top: 2px; overflow-x: auto; max-width: 100%; white-space: pre-line; }
 .lt-msol__mk { white-space: nowrap; font-weight: 700; color: #0b6b3a; }
 .lt-msol__total { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid #e3e9f1; font-weight: 700; font-size: 14px; }
 `;
