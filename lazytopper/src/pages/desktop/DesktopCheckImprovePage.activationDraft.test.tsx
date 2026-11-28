@@ -143,7 +143,7 @@ function returnSignedInAs(user: Record<string, unknown>) {
   cleanup();
   H.auth = { user, loading: false };
   H.activeUid = user.uid as string;
-  H.sub.isPremium = true; // a new account's 7-day trial started at sign-up: Check & Improve is open
+  H.sub.isPremium = true; // a new account's 3-day trial started at sign-up: Check & Improve is open
   return renderPage();
 }
 

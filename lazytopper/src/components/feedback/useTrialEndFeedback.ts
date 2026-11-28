@@ -12,7 +12,7 @@
  *     moves) — it is the "once per trial end" key;
  *   - TRIAL-CLOCK-1: that start is at least TRIAL_DAYS in the past. `tier === "free"` alone
  *     is not evidence a week passed: a phone whose clock runs slow read a day-1 server start
- *     as "in the future", failed it closed, and showed a student "Your free week is over".
+ *     as "in the future", failed it closed, and showed a student "Your free trial is over".
  * The once-per-moment rule itself lives in feedbackPromptModel.ts (claimFeedbackMoment).
  *
  * It reads trial state and never writes it: no trial is started, ended or changed here.

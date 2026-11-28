@@ -417,7 +417,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }),
         // Hydrate subscription status into the local cache on login. Do NOT activate a
         // trial here — this unconditional activateTrial(uid) silently started every
-        // student's 7-day trial on login, before they did anything. Trial activation is
+        // student's 3-day trial on login, before they did anything. Trial activation is
         // user-initiated only (useSubscription.startTrial). The read stays; the write
         // goes. [FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]
         hydrateSubscriptionFromCloud(uid),
@@ -497,7 +497,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // trackSignUpIfNew, wrapped, so it can never throw out of a login. See analytics.ts.
     trackSignUpIfNew(credential);
     sendVisitSourceIfNewUser(credential); // SOURCE-1: this visit's source, once, to our server
-    // TRIAL-ON-SIGNUP-1 — a NEW account's 7-day trial starts here, once (same isNewUser
+    // TRIAL-ON-SIGNUP-1 — a NEW account's 3-day trial starts here, once (same isNewUser
     // gate, inside the helper). Synchronous and before any await: see newAccountTrial.ts.
     startTrialIfNewAccount(credential);
     // LOGIN-HOME-1 (owner, 24 Oct 2026; was ACTIVATION-2 C) — a NEW account with no explicit redirect lands on Home.

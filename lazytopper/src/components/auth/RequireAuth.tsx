@@ -18,7 +18,7 @@ import PackOwnerSlot from "../packOwner/PackOwnerSlot";
 export const TUTOR_GATE_LABEL = "Ask the tutor";
 
 /** START-HERE-1 — the lock line for a student who came from a scorecard's tutor button. */
-export const SCORECARD_LOCK_COPY = "Your free week has ended — upgrade to ask the tutor why you lost this mark.";
+export const SCORECARD_LOCK_COPY = "Your free trial has ended — upgrade to ask the tutor why you lost this mark.";
 /** FOLLOWUPS-1 A3 — the same lock line for a student whose PAID pass has ended (not the trial). */
 export const SCORECARD_LOCK_COPY_PAID = "Your Premium pass has ended — renew to ask the tutor why you lost this mark.";
 
@@ -112,7 +112,7 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
     // Within !isPremium the tier is always "free" (isPremium covers premium AND trial),
     // so isTrialExpired is the whole discriminator: a never-trialled user (trialStartDate
     // null) sees the trial CTA; an EXPIRED-trial user (trialStartDate set, tier free) must
-    // NOT — otherwise they restart the 7-day trial forever, so they get the plans path only.
+    // NOT — otherwise they restart the 3-day trial forever, so they get the plans path only.
     const neverTrialled = !isTrialExpired;
     // PAYWALL-PAY-1 — "Pay" goes where the old plans path went: /pricing's Pay buttons.
     // PACK-OWNER-GATES-1 - only the tutor gate, only the server's own count (seeded by useCbqTutorAllowance).
@@ -166,7 +166,7 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
                     trackNamedEvent("trial_start");
                   }}
                 >
-                  Start my free 7-day trial
+                  Start my free 3-day trial
                 </button>
                 <p className="lt-lock__trial-note">{TRIAL_WORDING.shortFragment}</p>
                 {/* PAYWALL-PAY-1 — Pay, Share QR code, Forward link to parents. Payments dark: "See plans instead". */}

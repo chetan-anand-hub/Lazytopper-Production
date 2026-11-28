@@ -34,7 +34,7 @@
 //   M3  drop the skew tolerance (`ms > Date.now()` -> null)    -> test 2 red
 //   M4  repair from a client-shaped (string) start too         -> test 4c red
 
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
 vi.mock("./firebaseClient", () => ({ firestoreDb: { __fakeDb: true } }));
 
@@ -50,7 +50,8 @@ vi.mock("firebase/firestore", () => ({
 }));
 
 import {
-  TRIAL_DAYS,
+  LEGACY_TRIAL_DAYS,
+  TRIAL_3DAY_CUTOVER_MS,
   activateTrial,
   hydrateSubscriptionFromCloud,
   isPremiumAccess,
@@ -94,7 +95,14 @@ const readCache = (): Record<string, unknown> | null => {
 };
 const cloudWrites = () => setDocMock.mock.calls.map((c) => c[1] as Record<string, unknown>);
 
+// TRIAL-3DAY-1: every case below measures a LEGACY 7-day trial from "now", so the clock is pinned 30 days BEFORE the
+// cutover (the new 3-day length is covered by subscriptionService.trial3day.test.ts). Only Date is faked.
+const PRE_CUTOVER_NOW = TRIAL_3DAY_CUTOVER_MS - 30 * 24 * 60 * 60 * 1000;
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"], now: PRE_CUTOVER_NOW });
+afterEach(() => {
+  vi.useRealTimers();
+});
   localStorage.clear();
   getDocMock.mockReset();
   setDocMock.mockReset();
@@ -149,7 +157,7 @@ it("2b  but a start far beyond any plausible skew is still refused", async () =>
 // ===========================================================================
 it("3  an elapsed trial still downgrades to free", async () => {
   getDocMock.mockResolvedValue(
-    found({ tier: "trial", plan: "trial_7day", trialStartDate: stamp(Date.now() - (TRIAL_DAYS + 1) * DAY) }),
+    found({ tier: "trial", plan: "trial_7day", trialStartDate: stamp(Date.now() - (LEGACY_TRIAL_DAYS + 1) * DAY) }),
   );
 
   const resolved = await hydrateSubscriptionFromCloud(UID);
@@ -185,7 +193,7 @@ it("4b  a free tier over an ELAPSED server-set start stays free", async () => {
     found({
       tier: "free",
       plan: "trial_7day",
-      trialStartDate: stamp(Date.now() - (TRIAL_DAYS + 3) * DAY),
+      trialStartDate: stamp(Date.now() - (LEGACY_TRIAL_DAYS + 3) * DAY),
       premiumSince: null,
     }),
   );

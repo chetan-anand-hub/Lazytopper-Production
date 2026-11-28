@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, waitFor, act, cleanup } from "@testing-library/react";
 
-// [FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT] — a student's 7-day trial must start ONLY when
+// [FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT] — a student's 3-day trial must start ONLY when
 // they choose to (startTrial), never silently on mount. The bug auto-called
 // activateTrial(uid) inside the cloud-hydration .then() for any signed-in user with no
 // trial record, burning trial days the moment any page mounted this hook.
@@ -40,18 +40,24 @@ const FREE: SubscriptionStatus = { tier: "free", plan: "none", trialStartDate: n
 // the defect SEC-2 removed. A trial with `daysLeft` remaining is one that started
 // (TRIAL_DAYS - daysLeft) days ago.
 function activeTrial(daysLeft: number): SubscriptionStatus {
-  const startedAgo = (svc.TRIAL_DAYS - daysLeft) * DAY;
+  // TRIAL-3DAY-1: the clock is pinned BEFORE the cutover below, so these are legacy 7-day trials.
+  const startedAgo = (svc.LEGACY_TRIAL_DAYS - daysLeft) * DAY;
   return { tier: "trial", plan: "trial_7day", trialStartDate: new Date(Date.now() - startedAgo).toISOString(), trialEndDate: null, premiumSince: null };
 }
-const EXPIRED: SubscriptionStatus = { tier: "free", plan: "none", trialStartDate: new Date(Date.now() - 10 * DAY).toISOString(), trialEndDate: new Date(Date.now() - 3 * DAY).toISOString(), premiumSince: null };
+const expired = (): SubscriptionStatus => ({ tier: "free", plan: "none", trialStartDate: new Date(Date.now() - 10 * DAY).toISOString(), trialEndDate: new Date(Date.now() - 3 * DAY).toISOString(), premiumSince: null });
 const PREMIUM: SubscriptionStatus = { tier: "premium", plan: "premium_monthly", trialStartDate: null, trialEndDate: null, premiumSince: new Date().toISOString() };
 
 beforeEach(() => {
+  // Pin only Date (timers stay real for waitFor): 30 days before the TRIAL-3DAY-1 cutover.
+  vi.useFakeTimers({ toFake: ["Date"], now: svc.TRIAL_3DAY_CUTOVER_MS - 30 * DAY });
   localStorage.clear();
   hydrate.mockReset();
   activateSpy.mockClear(); // clear call records but KEEP the real-wrapping impl
 });
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe("useSubscription — trial activation is user-initiated only", () => {
   it("FRESH user: mounting does NOT auto-activate a trial (stays free, not expired)", async () => {
@@ -87,7 +93,7 @@ describe("useSubscription — trial activation is user-initiated only", () => {
   });
 
   it("EXPIRED trial: reads as expired (free tier + trialStartDate set), not re-activated", async () => {
-    hydrate.mockResolvedValue(EXPIRED);
+    hydrate.mockResolvedValue(expired());
     const { result } = renderHook(() => useSubscription());
     await waitFor(() => expect(result.current.isTrialExpired).toBe(true));
     expect(result.current.isTrialActive).toBe(false);

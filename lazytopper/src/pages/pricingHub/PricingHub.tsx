@@ -567,7 +567,7 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
   if (!user || (!subscription.hydrated && !trialStartedHere)) trialAction = startTrialButton;
   else if (trialStartedHere) {
     const endsOn = parts.trialEndsOn(subscription.status.trialStartDate);
-    trialAction = trialState(endsOn ? `Your 7-day trial has started. It ends on ${endsOn}.` : "Your 7-day trial has started.", true);
+    trialAction = trialState(endsOn ? `Your 3-day trial has started. It ends on ${endsOn}.` : "Your 3-day trial has started.", true);
   } else if (subscription.status.tier === "premium") trialAction = null;
   else if (subscription.isTrialActive) {
     const n = subscription.daysLeftInTrial;

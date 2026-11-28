@@ -4,15 +4,15 @@ import { buyHrefFor } from "../packs/offersModel";
 
 /**
  * CBQ-SEO-1 — the two calls to action the public CBQ pages share, always in this order:
- * Premium (step marking, 7-day trial, no card), then the subject's CBQ Pack.
+ * Premium (step marking, 3-day trial, no card), then the subject's CBQ Pack.
  * BYTE-CBQ-1: the Premium button goes to /pricing; the pack buttons go straight to one-tap checkout
  * (`/packs?buy=pack_cbq&t=<subject>`, the OFFERS-V2 link PacksShop reads), not to the /pricing#cbq anchor.
  * Nothing on these pages grants anything; the server prices and verifies the order.
- * The trial wording is the site's own ("Try Premium free for 7 days — no card needed.",
+ * The trial wording is the site's own ("Try Premium free for 3 days — no card needed.",
  * BasicFreeList / PREMIUM_FOOTNOTE).
  */
 export const CBQ_PREMIUM_HEADING = "Practise CBQs with step marking";
-export const CBQ_PREMIUM_BUTTON = "Try Premium free for 7 days";
+export const CBQ_PREMIUM_BUTTON = "Try Premium free for 3 days";
 export const CBQ_PREMIUM_NOTE = "No card needed. Write your answer, take a photo, and see the marks for each step.";
 export const CBQ_PRICING_TO = "/pricing";
 

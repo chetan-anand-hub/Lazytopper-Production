@@ -24,7 +24,10 @@ const {
   createEntitlementGate,
   deriveEffectiveTier,
   isEntitled,
-  TRIAL_MS,
+  TRIAL_DAYS,
+  LEGACY_TRIAL_DAYS,
+  TRIAL_3DAY_CUTOVER_MS,
+  trialDaysForStart,
   CLOCK_SKEW_TOLERANCE_MS,
   ALLOW_EVENT,
   DENY_EVENT,
@@ -59,6 +62,8 @@ const UID_HEADER = /export const UID_HEADER = "([^"]+)"/
 
 const INDEX_CJS = path.resolve(__dirname, '..', 'index.cjs');
 const NOW = Date.UTC(2026, 7, 3, 12, 0, 0);
+// NOW is BEFORE the TRIAL-3DAY-1 cutover, so a trial started here is a legacy 7-day trial.
+const LEGACY_MS = 7 * 86400000;
 
 /* ── harness ──────────────────────────────────────────────────────────────── */
 
@@ -161,7 +166,7 @@ test('§1 a trial inside its window is trial', () => {
 });
 
 test('§1 ★ a stored trial whose window ELAPSED is free — this is the day-7 hole', () => {
-  const raw = { tier: 'trial', plan: 'trial_7day', trialStartDate: stamp(NOW - TRIAL_MS - 1000) };
+  const raw = { tier: 'trial', plan: 'trial_7day', trialStartDate: stamp(NOW - LEGACY_MS - 1000) };
   const out = deriveEffectiveTier(raw, NOW);
   assert.equal(out.tier, 'free', 'reading the raw tier field here re-opens the entire P0');
   assert.equal(isEntitled(out.tier), false);
@@ -195,7 +200,7 @@ test('§1 ★ the repair requires a SERVER-PINNED start — an ISO string never 
 });
 
 test('§1 the repair does not resurrect an elapsed trial', () => {
-  const raw = { tier: 'free', plan: 'trial_7day', trialStartDate: stamp(NOW - TRIAL_MS - 1) };
+  const raw = { tier: 'free', plan: 'trial_7day', trialStartDate: stamp(NOW - LEGACY_MS - 1) };
   assert.equal(deriveEffectiveTier(raw, NOW).tier, 'free');
 });
 
@@ -354,12 +359,12 @@ for (const p of GATED) {
 }
 
 test('A3 · the 402 carries the derived trialEndedAt when a trial has elapsed', async () => {
-  const start = NOW - TRIAL_MS - 1000;
+  const start = NOW - LEGACY_MS - 1000;
   const { gate } = gateFor({ tier: 'trial', plan: 'trial_7day', trialStartDate: stamp(start) });
   const res = resStub();
   await gate.applyToRequest(reqStub(), res, '/api/check-solution', 'u1');
   assert.equal(res.last().status, 402);
-  assert.equal(res.last().body.trialEndedAt, new Date(start + TRIAL_MS).toISOString());
+  assert.equal(res.last().body.trialEndedAt, new Date(start + LEGACY_MS).toISOString());
 });
 
 test('§3D ★ the 402 message is plain English — no underscore, no error code, no fault', async () => {
@@ -2101,4 +2106,38 @@ test('AAM1 · premiumRequiredBody IS the gated routes\' 402 body (one builder, s
   assert.deepEqual(ENT.premiumRequiredBody(ENT.AI_TIER_GATED_ROUTES['/api/detect-question'], null), {
     error: 'premium_required', feature: 'detect-question', tier: 'free', message: ENT.AI_TIER_GATED_ROUTES['/api/detect-question'].message,
   });
+});
+
+// ── TRIAL-3DAY-1 (owner ruling 28 Nov 2026) ─────────────────────────────────────────────
+test('TRIAL-3DAY-1: the constants - new trials 3 days, legacy 7, cutover 00:00 IST 30 Nov 2026', () => {
+  assert.equal(TRIAL_DAYS, 3);
+  assert.equal(LEGACY_TRIAL_DAYS, 7);
+  assert.equal(TRIAL_3DAY_CUTOVER_MS, Date.parse('2026-11-30T00:00:00+05:30'));
+  assert.equal(trialDaysForStart(TRIAL_3DAY_CUTOVER_MS - 1), 7);
+  assert.equal(trialDaysForStart(TRIAL_3DAY_CUTOVER_MS), 3);
+});
+
+test('TRIAL-3DAY-1: a trial started at/after the cutover ends after exactly 3 days', () => {
+  const DAYMS = 86400000;
+  const start = TRIAL_3DAY_CUTOVER_MS + 5 * 3600000;
+  const raw = { tier: 'trial', plan: 'trial_7day', trialStartDate: stamp(start) };
+  const live = deriveEffectiveTier(raw, start + 3 * DAYMS - 1000);
+  assert.equal(live.tier, 'trial');
+  assert.equal(live.trialEndsAtMs, start + 3 * DAYMS);
+  assert.equal(deriveEffectiveTier(raw, start + 3 * DAYMS + 1000).tier, 'free', 'day 3 is the last: it is free after');
+  // The interrupted-trial repair uses the same length.
+  const interrupted = { tier: 'free', plan: 'trial_7day', trialStartDate: stamp(start) };
+  assert.equal(deriveEffectiveTier(interrupted, start + 2 * DAYMS).tier, 'trial');
+  assert.equal(deriveEffectiveTier(interrupted, start + 4 * DAYMS).tier, 'free', 'not resurrected on day 4');
+});
+
+test('TRIAL-3DAY-1: a trial that started BEFORE the cutover keeps its full 7 days (never shortened), even read after the cutover', () => {
+  const DAYMS = 86400000;
+  const start = TRIAL_3DAY_CUTOVER_MS - 2 * DAYMS; // 2 days before the cutover
+  const raw = { tier: 'trial', plan: 'trial_7day', trialStartDate: stamp(start) };
+  // Read 4 days in (after the cutover, and past what a 3-day trial would allow): still a trial.
+  const out = deriveEffectiveTier(raw, start + 4 * DAYMS);
+  assert.equal(out.tier, 'trial');
+  assert.equal(out.trialEndsAtMs, start + 7 * DAYMS);
+  assert.equal(deriveEffectiveTier(raw, start + 7 * DAYMS + 1000).tier, 'free');
 });

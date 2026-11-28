@@ -34,7 +34,7 @@ const SECTIONS: Array<[string, string]> = [
   ],
   [
     "Free Trial",
-    "LazyTopper offers a 7-day free trial of Premium features. No payment is required during the trial.",
+    "LazyTopper offers a 3-day free trial of Premium features. No payment is required during the trial.",
   ],
   [
     // OR-P6 (owner, 2026-09-26): one-time passes only, no auto-renew.
@@ -241,7 +241,7 @@ describe("OR-P4 — WHERE ELSE: no retired refund term on any student-facing sur
 const HEAD_TITLE = "Cancellation Policy | LazyTopper";
 // OR-P7 (owner, 2026-09-26): passes, not "a monthly plan" you cancel.
 const HEAD_DESCRIPTION =
-  "LazyTopper's cancellation policy — the 7-day free trial, month and till-boards passes. All payments are final; LazyTopper does not give refunds.";
+  "LazyTopper's cancellation policy — the 3-day free trial, month and till-boards passes. All payments are final; LazyTopper does not give refunds.";
 const TAB_LABEL = "Cancellation Policy";
 
 /** Decode exactly what `escapeAttr` / `escapeText` encode, ampersand LAST. */
@@ -271,7 +271,7 @@ describe("OR-P5 — the /legal/refund head and the refund tab label", () => {
     }
     // CONTROL — the pattern does match the description the head used to ship.
     expect(
-      "The LazyTopper refund policy — the 7-day free trial, the 7-day refund window, how to request one",
+      "The LazyTopper refund policy — the 3-day free trial, the 7-day refund window, how to request one",
     ).toMatch(/refund\s+window/i);
   });
 

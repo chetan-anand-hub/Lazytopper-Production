@@ -6,7 +6,7 @@ import BoardsCountdownStrip from "../components/urgency/BoardsCountdownStrip";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
-import { TRIAL_DAYS } from "../services/subscriptionService";
+import { trialDaysForStart } from "../services/subscriptionService";
 import { trackNamedEvent } from "../analytics/analytics";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
@@ -143,7 +143,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Are there any usage limits?",
-    a: `${freeTsWeeklyDisabled() ? "Basic has daily limits on opening tests and mocks." : "Basic opens Test Series papers on a weekly allowance."} The ${BOARD_PASS_NAME} has generous fair use: your usage bars show what is left and reset ${FAIR_USE_RESETS}.${tsFairUseSentence()} The 7-day trial has daily and weekly limits, listed under "${BASIC_COMPARE_SUMMARY}".`,
+    a: `${freeTsWeeklyDisabled() ? "Basic has daily limits on opening tests and mocks." : "Basic opens Test Series papers on a weekly allowance."} The ${BOARD_PASS_NAME} has generous fair use: your usage bars show what is left and reset ${FAIR_USE_RESETS}.${tsFairUseSentence()} The 3-day trial has daily and weekly limits, listed under "${BASIC_COMPARE_SUMMARY}".`,
   },
   {
     q: "What happens after the trial ends?",
@@ -276,12 +276,12 @@ export function TillBoardsOffer() {
 }
 
 /**
- * "<d Month yyyy>" — the trial's end, DERIVED from the stored start plus TRIAL_DAYS (the end is never stored). Read at render.
+ * "<d Month yyyy>" — the trial's end, DERIVED from the stored start plus the trial's length (trialDaysForStart) (the end is never stored). Read at render.
  */
 function trialEndsOn(trialStartDate: string | null): string | null {
   const startMs = trialStartDate ? new Date(trialStartDate).getTime() : NaN;
   if (!Number.isFinite(startMs)) return null;
-  return new Date(startMs + TRIAL_DAYS * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", {
+  return new Date(startMs + trialDaysForStart(startMs) * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -482,7 +482,7 @@ function PricingPlansPage() {
   } else if (trialStartedHere) {
     const endsOn = trialEndsOn(subscription.status.trialStartDate);
     premiumTrialAction = trialState(
-      endsOn ? `Your 7-day trial has started. It ends on ${endsOn}.` : "Your 7-day trial has started.",
+      endsOn ? `Your 3-day trial has started. It ends on ${endsOn}.` : "Your 3-day trial has started.",
       true,
     );
   } else if (subscription.status.tier === "premium") {

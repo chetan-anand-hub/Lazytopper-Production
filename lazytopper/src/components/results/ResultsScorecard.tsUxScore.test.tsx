@@ -141,7 +141,7 @@ describe("TS-UX-SCORE-1 - Test Series owner's one upsell line", () => {
     expect(q.get("returnTo")).toBe(PAPER);
     expect(screen.queryByTestId("scorecard-upgrade-line")).toBeNull();
     expect(screen.queryByTestId("scorecard-trial-lead")).toBeNull();
-    expect(document.body.textContent).not.toMatch(/PDF packs|Chapter Pack|Mock Pack|free 7-day trial/i);
+    expect(document.body.textContent).not.toMatch(/PDF packs|Chapter Pack|Mock Pack|free 3-day trial/i);
   });
 
   it("non-owner on a series paper keeps today's upsell", async () => {

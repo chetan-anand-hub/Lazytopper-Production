@@ -277,14 +277,14 @@ describe("OFFERS-V2: no offer flash before the status is known", () => {
 
 describe("ASK-COPY-1: the trial leads where the student can still start it (never on mount)", () => {
   const v = variantFor("worksheet", marks(6, 10));
-  it("an account that never had a trial sees 'Start your free 7-day trial' ABOVE the Board Pass card (once the cloud has answered)", () => {
+  it("an account that never had a trial sees 'Start your free 3-day trial' ABOVE the Board Pass card (once the cloud has answered)", () => {
     auth.trialStart = null;
     render(<MemoryRouter><ResultsScorecard variant={v} onClose={() => {}} /></MemoryRouter>);
     expect(screen.queryByTestId("offers-block")).toBeNull(); // unknown yet: nothing
     act(() => auth.listeners.forEach((l) => l("u1", { tier: "free", trialStartDate: null })));
     const lead = screen.getByTestId("scorecard-trial-lead");
     const card = screen.getByTestId("offers-board-pass");
-    expect(lead).toHaveTextContent("Start your free 7-day trial");
+    expect(lead).toHaveTextContent("Start your free 3-day trial");
     expect(lead.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("offers-headline").compareDocumentPosition(lead) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

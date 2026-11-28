@@ -125,7 +125,7 @@ export function PrintBridgeMarkPage({ data, links }: BridgePageProps) {
 
       {data.boardPassCard && (
         <div className="lt-br__pass" data-testid="print-bridge-pass">
-          <span className="lt-br__passh">Free and 7-day free trial accounts can take one test with its MCQs marked free. Written answers are checked with the Test Series or the Board Pass.</span>
+          <span className="lt-br__passh">Free and 3-day free trial accounts can take one test with its MCQs marked free. Written answers are checked with the Test Series or the Board Pass.</span>
           <span className="lt-br__passb">
             This pack gives you every question at once. <b>Board Pass</b> marks every paper you write, valid till 28 Feb 2027 — with CBSE examiner style marking, practice aimed at the topics where you lose marks, and your personal tutor for any doubt.
           </span>

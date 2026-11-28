@@ -369,7 +369,7 @@ describe("validateCaptures refuses to let a bad capture reach disk", () => {
   /**
    * ⚠ NO BARE TOKENS IN THE TEXT BAN LIST. Banning "sign in" outright failed the
    * build on two CORRECT pages — `/pricing`'s invariant copy ("Browse first. Sign in
-   * for a 7-day trial.", which `PricingPage` shows signed-in too) and the words
+   * for a 3-day trial.", which `PricingPage` shows signed-in too) and the words
    * "de(sign in)to" on a chapter page. The bare login labels are caught structurally
    * instead. This asserts the list never regresses to a bare token.
    */
@@ -384,7 +384,7 @@ describe("validateCaptures refuses to let a bad capture reach disk", () => {
     const failures = validateCaptures([
       capture(
         "/pricing",
-        "Browse first. Sign in for a 7-day trial. Choose Premium when you need checked answers.",
+        "Browse first. Sign in for a 3-day trial. Choose Premium when you need checked answers.",
       ),
     ]);
     expect(failures).toEqual([]);

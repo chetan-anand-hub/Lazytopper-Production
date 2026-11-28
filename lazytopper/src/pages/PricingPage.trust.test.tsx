@@ -53,13 +53,13 @@ describe("TRUST-1 - /pricing", () => {
   it("payments on: the trial is a small text link (not primary) with the owner's label", () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     renderPage();
-    const trial = screen.getByRole("button", { name: "Try the Board Pass free for 7 days" });
+    const trial = screen.getByRole("button", { name: "Try the Board Pass free for 3 days" });
     expect(trial.className).toBe("lt-pp-trial");
   });
 
   it("payments off: there is no Pay, so the trial stays the primary action", () => {
     renderPage();
-    const trial = screen.getByRole("button", { name: "Try the Board Pass free for 7 days" });
+    const trial = screen.getByRole("button", { name: "Try the Board Pass free for 3 days" });
     expect(trial.className).toContain("lt-pricing-cta--primary");
   });
 

@@ -10,7 +10,8 @@ import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
 import { isPaymentsClientEnabled } from "../../services/checkout";
 import { predictCbseExamDate } from "../../services/cbseExamDate";
 import { notePaidLanding, trialAskRouteAllowed } from "./trialAskRoutes";
-import { TRIAL_BANNER_FIRST_DAY, TRIAL_BAR_FIRST_DAY, istDayKeyOf, trialBannerTiming } from "./trialEndBannerModel";
+import { LEGACY_TRIAL_DAYS } from "../../services/subscriptionService";
+import { istDayKeyOf, trialBannerFirstDay, trialBannerTiming } from "./trialEndBannerModel";
 
 /**
  * TrialCountdownBar — ASK-FIX-1. ONE line, from trial day 4 to the end, on every main page:
@@ -46,16 +47,15 @@ function writeHidden(uid: string, dayKey: string): void {
 /** The bar's words, from the real days left. */
 export function trialCountdownText(daysLeft: number, planLine: string): string {
   const head =
-    daysLeft <= 0 ? "Last day of your free week" : `${daysLeft} ${daysLeft === 1 ? "day" : "days"} left of your free week`;
+    daysLeft <= 0 ? "Last day of your free trial" : `${daysLeft} ${daysLeft === 1 ? "day" : "days"} left of your free trial`;
   return `${head} · ${planLine}`;
 }
 
 /**
- * Routes where the bar stays quiet: from trial day 5 Home shows the richer strip instead (day 4
- * has no Home strip, so the bar shows there), and /pricing is the offer itself.
+ * Routes where the bar stays quiet: from the banner's first day (5 on a 7-day trial, 3 on a 3-day one) Home shows the richer strip instead (the day before has no Home strip, so the bar shows there), and /pricing is the offer itself.
  */
-export function trialCountdownRouteAllowed(pathname: string, dayOfTrial: number): boolean {
-  if ((pathname === "/" || pathname === "/browse") && dayOfTrial >= TRIAL_BANNER_FIRST_DAY) return false;
+export function trialCountdownRouteAllowed(pathname: string, dayOfTrial: number, trialDays: number = LEGACY_TRIAL_DAYS): boolean {
+  if ((pathname === "/" || pathname === "/browse") && dayOfTrial >= trialBannerFirstDay(trialDays)) return false;
   return trialAskRouteAllowed(pathname);
 }
 
@@ -85,7 +85,7 @@ export default function TrialCountdownBar() {
   const uid = user && !user.isLocalSession ? user.uid : null;
   const eligible = Boolean(uid) && sub.hydrated && sub.isTrialActive && sub.status?.tier === "trial";
   const nowMs = eligible ? Date.now() : 0;
-  const timing = eligible ? trialBannerTiming(sub.status?.trialStartDate, nowMs, TRIAL_BAR_FIRST_DAY) : null;
+  const timing = eligible ? trialBannerTiming(sub.status?.trialStartDate, nowMs, "bar") : null;
   const dayKey = timing ? istDayKeyOf(nowMs) : "";
   const [hiddenDay, setHiddenDay] = useState<string | null>(() => (uid ? readHidden(uid) : null));
 
@@ -93,7 +93,7 @@ export default function TrialCountdownBar() {
     setHiddenDay(uid ? readHidden(uid) : null);
   }, [uid]);
 
-  const visible = Boolean(uid && timing && hiddenDay !== dayKey && trialCountdownRouteAllowed(pathname, timing.dayOfTrial));
+  const visible = Boolean(uid && timing && hiddenDay !== dayKey && trialCountdownRouteAllowed(pathname, timing.dayOfTrial, timing.trialDays));
   useEffect(() => {
     if (visible && dayKey) trackTrialBannerShown(dayKey);
   }, [visible, dayKey]);
@@ -102,7 +102,7 @@ export default function TrialCountdownBar() {
   const text = trialCountdownText(timing.daysLeft, premiumShortLine(premiumOffer(new Date(nowMs), predictCbseExamDate("10"))));
 
   return (
-    <div className="lt-tcb" data-testid="trial-countdown-bar" role="region" aria-label="Your free week">
+    <div className="lt-tcb" data-testid="trial-countdown-bar" role="region" aria-label="Your free trial">
       <style>{BAR_CSS}</style>
       <Link to={isPaymentsClientEnabled() ? `${BOARD_PASS_BUY_PATH}&source=trial-bar` : "/pricing?source=trial-bar"} className="lt-tcb__link" onClick={() => trackTrialBannerClick("plans")}>
         <span>{text}</span>

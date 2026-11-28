@@ -248,7 +248,7 @@ describe("the after-trial line", () => {
     // TRIAL-ON-SIGNUP-1b (owner addendum, wave B-6): the shared general line, word for word; PRICE-FIXED-1:
     // it names the Board Pass, its figure imported from config/pricing, never typed.
     expect(flat(panel)).toBe(
-      `Try Premium free for 7 days — no card needed. After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`,
+      `Try Premium free for 3 days — no card needed. After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`,
     );
     expect(flat(panel).toLowerCase()).not.toContain("then paid");
     expect(flat(panel).toLowerCase()).not.toContain("upgrade anytime");
@@ -389,7 +389,7 @@ describe("OfferStrip lead line", () => {
   it("no buy intent: the trial line, without the word 'full', in both variants", () => {
     loginWith(null);
     expect(screen.getByTestId("lt-offer-lead").textContent).toBe(TRIAL_LEAD);
-    expect(TRIAL_LEAD).toBe("7-day trial, then free Basic");
+    expect(TRIAL_LEAD).toBe("3-day trial, then free Basic");
     cleanup();
     loginWith("/dashboard", "mobile");
     expect(screen.getByTestId("lt-offer-lead").textContent).toBe(TRIAL_LEAD);

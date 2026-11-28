@@ -240,7 +240,7 @@ export function UpgradeSheet({ featureLabel, trialEndedAt, pack, offers, onClose
   // week; everyone else keeps the true "<feature> is a Premium feature".
   const onTrial = Boolean(uid) && subscription?.tier === "trial";
   const shownLabel = studentFeatureLabel(featureLabel);
-  const title = onTrial ? `Keep ${lowerFirst(shownLabel)} after your free week` : `${shownLabel} is a Premium feature`;
+  const title = onTrial ? `Keep ${lowerFirst(shownLabel)} after your free trial` : `${shownLabel} is a Premium feature`;
   // [FU-TRIAL-CTA-ON-ASK] - a signed-out visitor, or an account that never had a trial. The record
   // must be known (hydrated) for an account; the server still decides.
   const trialEligible = !uid || isTrialEligible(hydrated, subscription);

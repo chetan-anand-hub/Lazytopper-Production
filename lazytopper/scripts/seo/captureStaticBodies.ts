@@ -197,7 +197,7 @@ const ERROR_BOUNDARY_MARKERS = [
  * "sign in". An earlier draft of this list banned the bare phrase and FAILED THE
  * BUILD on two pages, both of them correct:
  *
- *   /pricing                             "Browse first. Sign in for a 7-day trial."
+ *   /pricing                             "Browse first. Sign in for a 3-day trial."
  *                                        — invariant copy. `PricingPage` never calls
  *                                        `useAuth`; a signed-in student reads exactly
  *                                        this. It is content, not chrome.

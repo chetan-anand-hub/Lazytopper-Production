@@ -30,7 +30,7 @@ import { BASIC_PAPERS_ROW, FIRST_TEST_FREE_LINE } from "../../config/mockViewLim
  * import-free), so homeDestinations (whose import graph must stay firebase-free) and
  * freeCheckClient (node-safe) can both import it. Never import a component from here.
  */
-const TRIAL_TRY_LINE = "Try Premium free for 7 days — no card needed.";
+const TRIAL_TRY_LINE = "Try Premium free for 3 days — no card needed.";
 /** PRICING-1: built at ACCESS time (the price follows the founding offer's date), never at module load. */
 const trialAfterLine = () => `After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`;
 

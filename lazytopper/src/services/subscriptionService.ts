@@ -65,10 +65,43 @@ const STORAGE_KEY = "lazytopper.subscription.v1";
  * and it belongs beside the only code that derives an expiry from it. Its security
  * property is simply that it is a CONSTANT IN CODE rather than a stored, writable field.
  */
-export const TRIAL_DAYS = 7;
+export const TRIAL_DAYS = 3;
+
+/**
+ * TRIAL-3DAY-1 (owner ruling 28 Nov 2026: "I agreed for 3 days free trial, not 7 days").
+ *
+ * The trial END is DERIVED from the server-pinned start and is never stored, so lowering
+ * TRIAL_DAYS alone would SHORTEN every trial already running. It must not: a student who was
+ * given 7 days keeps 7 days. So the length depends on WHEN the trial started:
+ *   - a start BEFORE `TRIAL_3DAY_CUTOVER_MS`  -> LEGACY_TRIAL_DAYS (7), exactly as before;
+ *   - a start AT/AFTER it                     -> TRIAL_DAYS (3).
+ * The cutover is a constant in code (never a stored field) and is mirrored by
+ * server/services/entitlement.cjs; a parity test pins the two together.
+ *
+ * ⚠ The cutover must be at or AFTER the moment this change is live in production: a trial
+ * that started on the old code but at/after the cutover would be read as 3 days.
+ */
+export const LEGACY_TRIAL_DAYS = 7;
+export const TRIAL_3DAY_CUTOVER_MS = Date.parse("2026-11-30T00:00:00+05:30");
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const TRIAL_MS = TRIAL_DAYS * DAY_MS;
+
+/** The length, in days, of the trial that started at `startMs` (epoch ms). */
+export function trialDaysForStart(startMs: number): number {
+  return startMs < TRIAL_3DAY_CUTOVER_MS ? LEGACY_TRIAL_DAYS : TRIAL_DAYS;
+}
+
+/** The length, in days, of the trial that started at the ISO instant `startIso`; TRIAL_DAYS if unreadable. */
+export function trialDaysForStartIso(startIso: string | null | undefined): number {
+  if (!startIso) return TRIAL_DAYS;
+  const ms = new Date(startIso).getTime();
+  return Number.isFinite(ms) ? trialDaysForStart(ms) : TRIAL_DAYS;
+}
+
+/** The trial's length in ms for the (raw, unclamped) start on `status`. */
+function trialMsOf(status: SubscriptionStatus): number {
+  return trialDaysForStartIso(status.trialStartDate) * DAY_MS;
+}
 const FIRESTORE_COLLECTION = "subscriptions";
 
 /**
@@ -146,7 +179,7 @@ const CLOCK_SKEW_TOLERANCE_MS = 5 * 60 * 1000;
  * as "in the future" (beyond CLOCK_SKEW_TOLERANCE_MS), failed it closed to FREE, showed the
  * trial-ended screen, locked every client Premium gate — and hydration wrote `tier:"free"`
  * back to Firestore. The server (entitlement.cjs deriveEffectiveTier) still said
- * "Trial · 7 days left".
+ * "Trial · 3 days left".
  *
  * ★ WHY THIS IS NOT A GRANT. It applies ONLY to a start that arrived from the CLOUD as a
  * Firestore Timestamp (`startIsServerPinned`) — firestore.rules pin that field to
@@ -179,7 +212,7 @@ function aheadLimitMs(opts: StartOptions): number {
  *
  * ★ Within the limit the value is CLAMPED to now rather than trusted forward. The
  * clamp is what keeps the tolerance from being a grant: a start that is ahead of the
- * device can never extend the window past `now + TRIAL_MS`, so the loosened bound buys
+ * device can never extend the window past `now + the trial length`, so the loosened bound buys
  * a forger exactly zero extra time while a skewed clock costs a real student nothing.
  */
 function trialStartMs(status: SubscriptionStatus, opts: StartOptions = {}): number | null {
@@ -220,12 +253,12 @@ function clampPinnedStartToDevice(status: SubscriptionStatus, serverPinned: bool
 /**
  * TRIAL-CLOCK-1 — has the trial run its full TRIAL_DAYS by this device's clock? The
  * trial-ended screen and the trial-end feedback card ask this, on top of `tier === "free"`:
- * a start that is in the future or unreadable is NOT evidence that a week has passed.
+ * a start that is in the future or unreadable is NOT evidence that the trial has run its course.
  */
 export function trialHasRunItsCourse(trialStartDate: string | null | undefined, now: number = Date.now()): boolean {
   if (!trialStartDate) return false;
   const ms = new Date(trialStartDate).getTime();
-  return Number.isFinite(ms) && ms + TRIAL_MS <= now;
+  return Number.isFinite(ms) && ms + trialDaysForStart(ms) * DAY_MS <= now;
 }
 
 /**
@@ -238,7 +271,7 @@ export function applyExpiry(status: SubscriptionStatus, opts: StartOptions = {})
   if (status.tier !== "trial") return status;
   const start = trialStartMs(status, opts);
   if (start === null) return { ...status, tier: "free" };
-  if (start + TRIAL_MS < Date.now()) return { ...status, tier: "free" };
+  if (start + trialMsOf(status) < Date.now()) return { ...status, tier: "free" };
   return status;
 }
 
@@ -319,7 +352,7 @@ function repairInterruptedTrial(
   if (status.premiumSince) return status;
   const start = trialStartMs(status, { serverPinned: true });
   if (start === null) return status;
-  if (start + TRIAL_MS < Date.now()) return status;
+  if (start + trialMsOf(status) < Date.now()) return status;
   return { ...status, tier: "trial" };
 }
 
@@ -761,7 +794,7 @@ export function activatePremium(uid: string): SubscriptionStatus {
 export function getDaysLeftInTrial(status: SubscriptionStatus): number {
   const start = trialStartMs(status);
   if (start === null) return 0;
-  const diff = start + TRIAL_MS - Date.now();
+  const diff = start + trialMsOf(status) - Date.now();
   return Math.max(0, Math.ceil(diff / DAY_MS));
 }
 

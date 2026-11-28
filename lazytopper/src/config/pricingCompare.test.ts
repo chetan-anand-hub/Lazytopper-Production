@@ -62,7 +62,7 @@ describe("L4 · the Premium card", () => {
       "Progress that tells you what to fix next",
     ]);
     expect(PREMIUM_PLUS.some((i) => i.onlyWithFreeCheck)).toBe(false);
-    expect(PREMIUM_FOOTNOTE).toBe("Not sure yet? Sign in and Premium is free for 7 days — no card needed.");
+    expect(PREMIUM_FOOTNOTE).toBe("Not sure yet? Sign in and Premium is free for 3 days — no card needed.");
   });
 });
 
