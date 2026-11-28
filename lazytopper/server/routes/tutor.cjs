@@ -64,6 +64,10 @@ function coalesceTurns(turns) {
 
 // TUTOR-IMAGE-1: the student's photo is read by the model on the LATEST turn only; earlier turns keep this text.
 const IMAGE_HISTORY_PLACEHOLDER = '[student attached an image]';
+// The latest turn says it carried a photo but none arrived (e.g. a reload after a failed image send): never answer a phantom image.
+const IMAGE_MISSING_NOTE =
+  `\n${IMAGE_HISTORY_PLACEHOLDER}\n\n[System note: the student's message refers to an attached photo, but no photo reached you. ` +
+  `You cannot see it. Do not answer as if you can. Ask the student to attach the photo again, and answer only what their text alone supports.]`;
 // The per-turn instruction (here, not in the system prompt): read it, ask which question, be honest when unreadable.
 const IMAGE_TURN_NOTE =
   `\n\n[System note: the student attached a photo to this message. Read the photo first. ` +
@@ -1011,6 +1015,11 @@ function createTutorRoute(deps) {
     }
 
     // TUTOR-IMAGE-1: the one image goes on the latest turn as an inline part, with the per-turn reading note.
+    const lastRaw = rawKept[rawKept.length - 1];
+    if (!turnImage && lastRaw && lastRaw.hasImage === true) {
+      convo[convo.length - 1].parts[0].text += IMAGE_MISSING_NOTE;
+      telemetry.increment('tutor.image_missing');
+    }
     if (turnImage) {
       const lastParts = convo[convo.length - 1].parts;
       lastParts[0].text += IMAGE_TURN_NOTE;

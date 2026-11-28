@@ -391,7 +391,7 @@ export async function callTutor(req: TutorRequest): Promise<TutorReply> {
     if (limitError) throw limitError;
     // Every other failure: the server's student-facing `message` first, the machine
     // `error` code only when there is no message.
-    throw new Error(details.message || details.error || "The tutor request failed.");
+    throw Object.assign(new Error(details.message || details.error || "The tutor request failed."), { code: details.error });
   }
 
   let parsed: TutorReply;

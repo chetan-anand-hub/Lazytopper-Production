@@ -299,8 +299,7 @@ function TutorSession() {
   }, [arrivalDecided, messages, concept, pending]);
   const send = (text: string, image?: TutorTurn["image"]) => {
     studentSentRef.current = true;
-    if (image) sendToTutor(text, image);
-    else sendToTutor(text);
+    return image ? sendToTutor(text, image) : sendToTutor(text);
   };
   const composerRef = useRef<HTMLTextAreaElement | null>(null);
   // TUTOR-IMAGE-1: one photo per message, held until Send. A PDF is refused here (the tutor reads photos).
@@ -473,15 +472,17 @@ function TutorSession() {
     e.preventDefault();
     const text = draft.trim();
     if ((!text && !photo) || status === "sending") return;
-    setDraft("");
+    // Clear the draft and the photo only once the message was accepted (never a silent drop).
     if (photo && (photo.imageMimeType === "image/jpeg" || photo.imageMimeType === "image/png")) {
       const image = { imageBase64: photo.imageBase64, imageMimeType: photo.imageMimeType };
+      if (send(text || TUTOR_IMAGE_ONLY_TEXT, image) === false) return;
+      setDraft("");
       photoTray.clear();
       setPhoto(null);
-      send(text || TUTOR_IMAGE_ONLY_TEXT, image);
       return;
     }
-    send(text);
+    if (send(text) === false) return;
+    setDraft("");
   };
 
   // TUTOR-FIX-2 T4.3 — at phone width the diagram is a BOTTOM SHEET docked ABOVE the composer
@@ -842,7 +843,7 @@ function TutorSession() {
                     ref={photoInputRef}
                     className="lt-tutor__file"
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png"
                     data-testid="tutor-attach-input"
                     onChange={(e) => {
                       const files = e.target.files ? Array.from(e.target.files) : [];

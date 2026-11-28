@@ -135,4 +135,20 @@ describe("TUTOR-IMAGE-1 composer", () => {
     mount();
     expect(screen.getByTestId("tutor-attach")).toBeTruthy();
   });
+
+  it("a message the session does not accept keeps the photo and the draft (no silent drop)", async () => {
+    mount();
+    await attach(jpeg());
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "still here" } });
+    H.send.mockReturnValueOnce(false);
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    expect(H.send).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("tutor-photo-preview")).toBeTruthy();
+    expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe("still here");
+  });
+
+  it("the picker takes JPG and PNG only, like Answer Checker", () => {
+    mount();
+    expect(screen.getByTestId("tutor-attach-input").getAttribute("accept")).toBe("image/jpeg,image/png");
+  });
 });

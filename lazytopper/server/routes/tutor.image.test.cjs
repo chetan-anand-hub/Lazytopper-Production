@@ -128,3 +128,55 @@ test('coalesceTurns keeps an inline part with its turn', () => {
   assert.equal(out[0].parts[0].text, 'a\n\nb');
   assert.equal(out[0].parts.length, 2);
 });
+
+test('a latest turn flagged hasImage with NO bytes (reload after a failed send): placeholder + "ask them to attach it again", no image part', async () => {
+  const h = harness();
+  const res = await h.ask([{ role: 'user', content: 'Check this', hasImage: true }]);
+  assert.equal(res.status, 200);
+  assert.equal(imgParts(h.calls[0].contents).length, 0);
+  const last = h.calls[0].contents[h.calls[0].contents.length - 1];
+  assert.ok(last.parts[0].text.includes(IMAGE_HISTORY_PLACEHOLDER));
+  assert.match(last.parts[0].text, /no photo reached you/);
+  assert.match(last.parts[0].text, /attach the photo again/);
+  assert.ok(h.counters.includes('tutor.image_missing'));
+});
+
+test('one image request moves the trial tutor counter by exactly 1, counted on the 2xx', async () => {
+  const { createFairUse } = require('../services/fairUse.cjs');
+  const { EventEmitter } = require('node:events');
+  const writes = [];
+  const NOW = Date.UTC(2026, 8, 27, 6, 0, 0);
+  const gate = createFairUse({
+    tierOf: async () => 'trial',
+    ledger: {
+      async readDays(uid, keys) { return new Map(keys.map((k) => [k, {}])); },
+      recordTrialUse(uid, counts) { writes.push(counts); return Promise.resolve(true); },
+    },
+    telemetry: { increment() {} },
+    env: {},
+    now: () => NOW,
+    readJson: async () => ({}),
+    resolveFirestore: () => ({ db: { collection: () => ({ doc: () => ({ collection: () => ({ doc: () => ({ set: async (d) => { writes.push(JSON.parse(JSON.stringify(d))); } }) }) }) }) }, FieldValue: { increment: (n) => ({ increment: n }) } }),
+    sendJson: () => {},
+    verifiedCaller: { resolveVerifiedUid: async () => 'stu-1' },
+  });
+  const calls = [];
+  const route = createTutorRoute({
+    sendJson: (res, status, body) => { res.statusCode = status; res.body = body; },
+    readJson: async (r) => r.body,
+    callGemini: async () => { calls.push(1); return { text: 'ok', finishReason: 'STOP' }; },
+    GEMINI_TUTOR_MODEL: 'm', GEMINI_MODEL: 'm', ACTIVE_PROVIDER: 'gemini', isStubMode: () => false,
+  });
+  const req = { headers: {}, body: { subject: 'maths', topicKey: 'real-numbers', topicLabel: 'Real Numbers', messages: [{ role: 'user', content: 'x', image: { imageBase64: PNG, imageMimeType: 'image/png' } }] } };
+  const res = new EventEmitter();
+  res.statusCode = 0;
+  const answered = await gate.applyToRequest(req, res, '/api/tutor', 'stu-1');
+  assert.ok(!answered);
+  await route.handleTutorRequest(req, res);
+  res.emit('finish');
+  await new Promise((r) => setImmediate(r));
+  assert.equal(res.statusCode, 200);
+  assert.equal(calls.length, 1);
+  const inc = writes.flatMap((w) => Object.entries(w)).map(([k, v]) => [k, v && typeof v === 'object' ? v.increment : v]);
+  assert.deepEqual(inc, [['trialTutor', 1]]);
+});
