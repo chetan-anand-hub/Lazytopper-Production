@@ -503,6 +503,7 @@ export const INLINE_ROUTE_CSS: Readonly<Record<string, readonly string[]>> = {
   MockTestClass10Page: ["SeoLandingShell", "faqContent"],
   QuestionBankClass10Page: ["SeoLandingShell", "faqContent"],
   MarkingSchemeClass10Page: ["SeoLandingShell", "faqContent"],
+  SamplePaperClass10Page: ["SeoLandingShell", "faqContent"],
   ForParentsPage: OWN_ONLY,
   NcertBooksPage: OWN_ONLY,
   SolutionsPage: OWN_ONLY,

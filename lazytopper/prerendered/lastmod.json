@@ -120,8 +120,8 @@
     "lastmod": "2026-11-28"
   },
   "/cbse-marking-scheme-class-10": {
-    "sha256": "925b6d7f6f26d7f9bb68072617f440918a659f4508bc6e783c3527cac1f67d19",
-    "lastmod": "2026-11-28"
+    "sha256": "39a8562aed44ad364264baf7af8d31c538320545a3ff6719c22d3abeeb6f80fc",
+    "lastmod": "2026-11-29"
   },
   "/cbse/class-10": {
     "sha256": "f5d8cb2b2f49026e076c33ae0e4ab46b938d97761e3fd0e404787cb3d0f23af9",
@@ -324,8 +324,8 @@
     "lastmod": "2026-11-05"
   },
   "/mock-test-class-10": {
-    "sha256": "bd413cde9ea0e6ec3e2c6f0221cc69b542bd5ba151ef74b3402ee251df51ee25",
-    "lastmod": "2026-11-28"
+    "sha256": "700417b3f4687d06286e7d63e1d1fce46286bc011c4f56e672a4c6e617943149",
+    "lastmod": "2026-11-29"
   },
   "/ncert-class-10": {
     "sha256": "a09ee468c9b5ced68b616993156bf2e1bd42cbcc0ed093112b09c9b83802d72c",
@@ -652,8 +652,12 @@
     "lastmod": "2026-11-28"
   },
   "/question-bank-class-10": {
-    "sha256": "4d201e6af42fcbe392600bf3132dc7159b73a69b80e582abe3198be45b9d2e1a",
-    "lastmod": "2026-11-28"
+    "sha256": "0e00cd11c8a7c0cf5a06f4c9edf0f671c1eeaaf95bb9dd64f878c5094c6571ae",
+    "lastmod": "2026-11-29"
+  },
+  "/sample-paper-class-10": {
+    "sha256": "1a2d8279db819362877e48167d1d41210ed258b0993f631b6a2780369fa65ad9",
+    "lastmod": "2026-11-29"
   },
   "/test-series": {
     "sha256": "1bb8e044c6b252b6f3f69021e17aa154aea00bc1cee4840485814870f1bb8365",

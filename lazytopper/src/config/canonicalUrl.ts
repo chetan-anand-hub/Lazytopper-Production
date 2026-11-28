@@ -123,6 +123,8 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   "/mock-test-class-10",
   "/question-bank-class-10",
   "/cbse-marking-scheme-class-10",
+  // SEO-SELL-3 (owner, 28 Nov 2026) - the sample-paper landing ("class 10 maths sample paper"): public, indexable.
+  "/sample-paper-class-10",
 ];
 
 /**

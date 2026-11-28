@@ -184,6 +184,7 @@ describe("LOW-END-3 (d): a route's own CSS is inlined into its prerendered page"
         "MockTestClass10Page",
         "QuestionBankClass10Page",
         "MarkingSchemeClass10Page",
+        "SamplePaperClass10Page", // SEO-SELL-3: the sample-paper landing shares the same sheet
         "ForParentsPage",
         "NcertBooksPage",
         "SolutionsPage",
