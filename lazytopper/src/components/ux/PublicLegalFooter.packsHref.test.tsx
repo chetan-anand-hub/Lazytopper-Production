@@ -6,7 +6,8 @@ import { Suspense } from "react";
 vi.mock("../../services/firebaseClient", () => ({ authClient: null }));
 
 vi.mock("../../lib/packs/packEntryLazy", () => ({
-  PacksEntry: ({ href }: { href: string }) => <a data-testid="footer-packs" href={href}>PDF packs</a>,
+  // Only the footer entry renders a link (SEO-SELL-1: the NCERT page now also mounts note-card entries, which are not this link).
+  PacksEntry: ({ kind, href }: { kind: string; href: string }) => (kind === "footer-link" ? <a data-testid="footer-packs" href={href}>PDF packs</a> : null),
   isPacksEntryEnabled: () => true,
 }));
 

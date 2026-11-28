@@ -25,10 +25,7 @@ import { ensureBankChapters } from "../../data/bankChapters/loader";
 import PacksNoteCard, { cbqPacksSubjectHref } from "./PacksNoteCard";
 import ExamPracticeStrip, { EXAM_PRACTICE_LINKS } from "../../components/seoPages/ExamPracticeStrip";
 import { MOCK_TEST_PATH, QUESTION_BANK_PATH, SEO_PAGE_SPECS, SEO_PAGE_TITLE_CAP, SEO_PAGE_DESCRIPTION_CAP } from "../../components/seoPages/seoPages";
-import { notesTitle, NOTES_TITLE_VISIBLE_CAP, ncertFileCode } from "../../../scripts/seo/writeStaticHeads";
-import { allDesktopTopics } from "../desktop/topics";
 import { displayPlusGst } from "../../config/pricing";
-import { ACTIVITY_TOPIC_SLUGS } from "../../services/activityPages";
 
 await ensureAllNoteSpecs();
 const track = analytics.sendAnalyticsHit as unknown as ReturnType<typeof vi.fn>;
@@ -164,21 +161,7 @@ describe("ExamPracticeStrip", () => {
   });
 });
 
-describe("heads", () => {
-  it("every notes title is <= 60 visible characters, keeps its NCERT code, and the Important Questions form is used when it fits", () => {
-    let withIq = 0;
-    for (const t of allDesktopTopics()) {
-      if (!(ACTIVITY_TOPIC_SLUGS as readonly string[]).includes(t.slug)) continue;
-      const code = ncertFileCode(t.slug);
-      const title = notesTitle(t.name, code);
-      const visible = title.replace(/ \| LazyTopper$/, "");
-      expect(visible.length, t.slug).toBeLessThanOrEqual(NOTES_TITLE_VISIBLE_CAP);
-      expect(title, t.slug).toContain(`(${code})`);
-      if (title.includes("2027 Important Questions")) withIq++;
-      else expect(title).toContain("PDF");
-    }
-    expect(withIq).toBeGreaterThan(10);
-  });
+describe("landing heads", () => {
   it("landing heads: Sample Paper 2026-27 on the mock page; chapter-wise / CBSE pattern / step-marked worked solutions on the question bank; caps held", () => {
     const mock = SEO_PAGE_SPECS[MOCK_TEST_PATH];
     const qb = SEO_PAGE_SPECS[QUESTION_BANK_PATH];

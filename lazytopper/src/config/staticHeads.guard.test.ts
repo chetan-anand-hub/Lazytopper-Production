@@ -475,11 +475,7 @@ describe("static heads — the writer refuses to no-op silently", () => {
       // chapter (pinnedFileCode), never from the writer's resolver.
       // NOTES-TITLE-NCERT-1 — "<chapter> [Class 10 ]Notes + [NCERT ]PDF (code) | LazyTopper".
       expect(head?.title.startsWith(`${topic?.name} `), `${path} title: ${head?.title}`).toBe(true);
-      // SEO-SELL-1 — "... PDF (code)" or "... + 2027 Important Questions (code)": the code stays, the title ends with it.
-      expect(
-        / (PDF|2027 Important Questions) \(/.test(head?.title ?? "") && head?.title.endsWith(`(${pinnedFileCode(slug)}) | LazyTopper`),
-        `${path} title: ${head?.title}`,
-      ).toBe(true);
+      expect(head?.title.endsWith(` PDF (${pinnedFileCode(slug)}) | LazyTopper`), `${path} title: ${head?.title}`).toBe(true);
       expect((head?.title.length ?? 0) - " | LazyTopper".length, `${path} title over 60`).toBeLessThanOrEqual(60);
       // The description names the chapter number and code, rebuilt from the pin (not from the writer).
       expect(head?.description).toBe(
@@ -601,7 +597,7 @@ describe("SEO-4 S2 — every notes page title and description names its NCERT ch
     const head = headForPath("/notes/trigonometry");
     expect(head?.description.includes(" Ch 9 ")).toBe(false);
     expect(head?.description.startsWith("Read NCERT Class 10 Maths Ch 8 (jemh108) online, then Trigonometry notes")).toBe(true);
-    expect(head?.title).toBe("Trigonometry Notes + 2027 Important Questions (jemh108) | LazyTopper");
+    expect(head?.title).toBe("Trigonometry Class 10 Notes + NCERT PDF (jemh108) | LazyTopper");
   });
 
   it("ncertLabel throws for a slug with no spec, rather than dropping the chapter", () => {

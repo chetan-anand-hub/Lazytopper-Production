@@ -66,8 +66,6 @@ const TITLE_SUFFIX = " | LazyTopper";
  */
 function expectedNotesTitle(name: string, code: string): string {
   const ladder = [
-    `${name} Class 10 Notes + 2027 Important Questions (${code})`,
-    `${name} Notes + 2027 Important Questions (${code})`,
     `${name} Class 10 Notes + NCERT PDF (${code})`,
     `${name} Notes + NCERT PDF (${code})`,
     `${name} Notes + PDF (${code})`,
@@ -129,10 +127,8 @@ describe("SEO-NOTES-LINK-2 — notes titles carry the NCERT file code", () => {
     expect(headForPath("/notes/areas-related-to-circles")!.title).toBe(
       "Areas Related to Circles Notes + NCERT PDF (jemh111) | LazyTopper",
     );
-    // SEO-SELL-1 — the "+ 2027 Important Questions" forms lead when they fit 60 characters.
-    expect(headForPath("/notes/electricity")!.title).toBe("Electricity Notes + 2027 Important Questions (jesc111) | LazyTopper");
-    expect(headForPath("/notes/real-numbers")!.title).toBe("Real Numbers Notes + 2027 Important Questions (jemh101) | LazyTopper");
-    expect(headForPath("/notes/circles")!.title).toBe("Circles Class 10 Notes + 2027 Important Questions (jemh110) | LazyTopper");
+    expect(headForPath("/notes/electricity")!.title).toBe("Electricity Class 10 Notes + NCERT PDF (jesc111) | LazyTopper");
+    expect(headForPath("/notes/real-numbers")!.title).toBe("Real Numbers Class 10 Notes + NCERT PDF (jemh101) | LazyTopper");
     expect(headForPath("/notes/electricity")!.description).toBe(
       "Read NCERT Class 10 Science Ch 11 (jesc111) online, then Electricity notes, formulas and board questions — free.",
     );
@@ -145,13 +141,7 @@ describe("SEO-NOTES-LINK-2 — notes titles carry the NCERT file code", () => {
   });
 
   it("CONTROL — the title ladder drops \" Class 10\", then \"NCERT \", and throws past that", () => {
-    // SEO-SELL-1: the two "+ 2027 Important Questions" forms come first.
-    expect(notesTitle("Circles", "jemh110")).toBe("Circles Class 10 Notes + 2027 Important Questions (jemh110) | LazyTopper");
-    expect(notesTitle("Real Numbers", "jemh101")).toBe("Real Numbers Notes + 2027 Important Questions (jemh101) | LazyTopper");
-    const m = "x".repeat(17); // 17 + " Notes + 2027 Important Questions (jemh101)" (43) = 60: still the Important Questions form
-    expect(notesTitle(m, "jemh101")).toBe(`${m} Notes + 2027 Important Questions (jemh101) | LazyTopper`);
-    const n19 = "x".repeat(18); // 61 -> falls back to the NOTES-TITLE-NCERT-1 ladder: 18 + " Class 10 Notes + NCERT PDF (jemh101)" (37) = 55
-    expect(notesTitle(n19, "jemh101")).toBe(`${n19} Class 10 Notes + NCERT PDF (jemh101) | LazyTopper`);
+    expect(notesTitle("Real Numbers", "jemh101")).toBe("Real Numbers Class 10 Notes + NCERT PDF (jemh101) | LazyTopper");
     const n32 = "x".repeat(32); // 32 + " Notes + NCERT PDF (jemh101)" (28) = 60: step 2
     expect(notesTitle(n32, "jemh101")).toBe(`${n32} Notes + NCERT PDF (jemh101) | LazyTopper`);
     const n33 = "x".repeat(33); // 61 at step 2, 55 at step 3
