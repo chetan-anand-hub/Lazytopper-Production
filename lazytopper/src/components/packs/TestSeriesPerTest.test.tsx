@@ -10,7 +10,7 @@ afterEach(() => {
 });
 
 describe("TS-MORE-1 per-test badge", () => {
-  it("shows the per-test price in a clock slot, no GST in the line; the price moves from 6 to 8 on 1 Dec", async () => {
+  it("shows the per-test price in a clock slot, no GST in the line; the price STAYS 6 on and after 1 Dec (PRICE-HOLD-1: no switch)", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-11-19T10:00:00+05:30"));
     render(<TestSeriesPerTest />);
@@ -23,7 +23,7 @@ describe("TS-MORE-1 per-test badge", () => {
     vi.setSystemTime(new Date("2026-12-01T10:00:00+05:30"));
     render(<TestSeriesPerTest />);
     await act(async () => {});
-    expect(screen.getByTestId("ts-per-test").textContent).toBe("₹8 per test");
+    expect(screen.getByTestId("ts-per-test").textContent).toBe("₹6 per test");
   });
   it("the examiner line is the owner's words, verbatim, with none of the banned words", () => {
     render(<TestSeriesExaminerLine />);

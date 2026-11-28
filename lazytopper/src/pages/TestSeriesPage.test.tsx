@@ -195,7 +195,7 @@ describe("/test-series — signed out", () => {
     const urgency = screen.getByTestId("ts-urgency");
     expect(urgency.closest("header")).toBeNull();
     expect(screen.getByTestId("ts-offers").parentElement?.contains(urgency)).toBe(true);
-    expect(urgency.textContent).toBe("Founding season: the Board Pass is ₹1,917 + GST till 30 November");
+    expect(urgency.textContent).toBe(""); // PRICE-HOLD-1: no deadline copy
     expect(screen.queryByTestId("ts-urgency-ts")).toBeNull();
   });
   it("the calendar is marked at today's row; Test Series and Board Pass plan cards, each with its own Buy; no PDF-pack upsell", async () => {
@@ -204,7 +204,8 @@ describe("/test-series — signed out", () => {
     expect(screen.getAllByTestId("ts-cal-now")).toHaveLength(1);
     const ts = screen.getByTestId("ts-offer-ts");
     expect(within(ts).getByTestId("till-boards-figures").textContent).toBe(testSeriesPriceLine());
-    expect(ts.textContent).toContain("₹999 + GST · founding price till 30 Nov, then ₹1,499 + GST");
+    expect(ts.textContent).toContain("₹999 + GST");
+    expect(ts.textContent).not.toMatch(/30 Nov|1,499|then ₹/);
     expect(ts.textContent).toContain("2 checks per paper");
     expect(ts.textContent).toContain("Sections B–D (B–E in full-length tests)");
     expect(within(ts).getByTestId("ts-cta-buy").textContent).toBe("Get the Test Series · ₹1,179");
@@ -224,15 +225,13 @@ describe("/test-series — signed out", () => {
     // TS-FAIRUSE-1: the fair-use FAQ is inside the page, from the one shared constant.
     expect(screen.getByTestId("ts-faq").textContent).toContain(`${fairUseFaq().q}${fairUseFaq().a}`);
   });
-  it("from 1 Dec the Test Series is ₹1,499 + GST and the button follows the total (no hardcoded price); the founding line is gone", async () => {
-    vi.setSystemTime(new Date("2026-12-01T00:05:00+05:30"));
+  it.each(["2026-12-01T00:00:01+05:30", "2027-02-01T10:00:00+05:30"])("PRICE-HOLD-1 at %s: Board Pass ₹1,917 and Test Series ₹999 + GST still, button follows the total, no deadline copy", async when => {
+    vi.setSystemTime(new Date(when));
     await mount();
-    expect(screen.getByTestId("ts-offer-bp").textContent).toContain("₹2,499 + GST");
-    expect(screen.getByTestId("ts-offer-ts").textContent).toContain("₹1,499 + GST");
-    expect(screen.getByTestId("ts-offer-ts").textContent).not.toContain("founding");
-    expect(screen.getByTestId("ts-offer-ts").textContent).toContain(TEST_SERIES_VALIDITY);
-    expect(screen.getByTestId("ts-hero-buy").textContent).toBe(`Get the Test Series · ${packPayLabel("test_series")}`);
-    expect(screen.getByTestId("ts-hero-buy").textContent).not.toContain("1,179");
+    expect(screen.getByTestId("ts-offer-bp").textContent).toContain("₹1,917 + GST");
+    expect(screen.getByTestId("ts-offer-ts").textContent).toContain("₹999 + GST");
+    expect(document.body.textContent).not.toMatch(/2,499|1,499|30 Nov|1 Dec/);
+    expect(screen.getByTestId("ts-hero-buy").textContent).toBe("Get the Test Series · ₹1,179");
     expect(screen.getByTestId("ts-urgency").textContent).toBe("");
   });
   it("carries none of the banned words, and never calls the series free", async () => {

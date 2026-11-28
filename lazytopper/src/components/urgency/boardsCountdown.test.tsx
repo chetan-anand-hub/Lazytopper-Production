@@ -40,10 +40,10 @@ describe("URGENCY-1 boards countdown copy (IST boundaries)", () => {
     else expect(el).toBeNull();
   });
 
-  it("founding-price line: shown at 30 Nov 23:59 IST, gone at 1 Dec 00:00 IST, figures from the price source", () => {
-    expect(boardPassFoundingPriceLine(ist("2026-11-30T23:59:00"))).toBe("Founding price ends 30 Nov \u00b7 \u20b91,917 + GST, then \u20b92,499 + GST");
-    expect(boardPassFoundingPriceLine(ist("2026-12-01T00:00:00"))).toBeNull();
-    expect(boardPassFoundingPriceLine(ist("2026-11-11T09:00:00"))).not.toBeNull();
+  it("PRICE-HOLD-1: the founding-price line (with its 'ends 30 Nov ... then 2,499') no longer exists on any date", () => {
+    for (const iso of ["2026-11-11T09:00:00", "2026-11-30T23:59:00", "2026-12-01T00:00:00", "2027-01-10T09:00:00"]) {
+      expect(boardPassFoundingPriceLine(ist(iso)), iso).toBeNull();
+    }
   });
 
   it("v2 parts: phase line per phase, 1 DAY label, null from 16 Feb", () => {

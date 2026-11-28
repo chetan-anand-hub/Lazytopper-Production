@@ -3523,22 +3523,19 @@ test('SERVER-EVENTS-1 · a guest pack: ONE Meta Purchase (META-PURCHASE-UNIFY-1;
   assert.equal(ev.user_data.external_id, undefined, 'a guest has no account id');
 });
 
-test('TS-PRICE-2 · a guest Test Series order is charged 999 + GST before 00:00 IST 1 Dec 2026 and 1,499 + GST from it (the server clock decides)', async (t) => {
+test('PRICE-HOLD-1 · a guest Test Series order is charged 999 + GST before 00:00 IST 1 Dec 2026, at it, and after it (no switch; the server clock changes nothing)', async (t) => {
   const CUT = Date.parse('2026-12-01T00:00:00+05:30');
-  const early = await startRoutes({ nowMs: CUT - 1 });
-  t.after(early.close);
-  const a = await guestOrder(early, { sku: 'test_series', phone: PHONE, amountPaise: 100, price: 1 });
-  assert.equal(a.status, 200, a.text);
-  assert.equal(a.json.amountPaise, 117900);
-  const late = await startRoutes({ nowMs: CUT });
-  t.after(late.close);
-  const b = await guestOrder(late, { sku: 'test_series', phone: PHONE, amountPaise: 100, price: 1 });
-  assert.equal(b.status, 200, b.text);
-  assert.equal(b.json.amountPaise, 176900);
-  assert.equal(late.rzp.calls.filter((c) => c.url.endsWith('/orders') && c.method === 'POST').pop().body.amount, 176900);
+  for (const nowMs of [CUT - 1, CUT, CUT + 90 * 86400000]) {
+    const srv = await startRoutes({ nowMs });
+    t.after(srv.close);
+    const a = await guestOrder(srv, { sku: 'test_series', phone: PHONE, amountPaise: 100, price: 1 });
+    assert.equal(a.status, 200, a.text);
+    assert.equal(a.json.amountPaise, 117900, String(nowMs));
+    assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/orders') && c.method === 'POST').pop().body.amount, 117900);
+  }
 });
 
-test('TS-PRICE-2 · guest: a 999 founding Test Series order only AUTHORIZED 24 h+ after the cut-off is refused (order_expired, not captured); +10 s is granted', async (t) => {
+test('PRICE-HOLD-1 · guest: a 999 Test Series order only AUTHORIZED 25 h after 1 Dec is captured and granted (no close, no order_expired)', async (t) => {
   const CUT = Date.parse('2026-12-01T00:00:00+05:30');
   const db = memoryFirestore();
   const rzp = fakeRazorpay();
@@ -3547,16 +3544,11 @@ test('TS-PRICE-2 · guest: a 999 founding Test Series order only AUTHORIZED 24 h
   const o = await guestOrder(early, { sku: 'test_series', phone: PHONE });
   assert.equal(o.json.amountPaise, 117900);
   const p = rzp.pay(o.json.orderId, { status: 'authorized' });
-  const stale = await startRoutes({ db, rzp, nowMs: CUT + 25 * 3600 * 1000 });
-  t.after(stale.close);
-  const r = await guestVerify(stale, o.json.orderId, p.id);
-  assert.equal(r.status, 400, r.text);
-  assert.equal(r.json.reason, 'order_expired');
-  assert.equal(rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0);
-  const ok = await startRoutes({ db, rzp, nowMs: CUT + 10000 });
-  t.after(ok.close);
-  const v = await guestVerify(ok, o.json.orderId, p.id);
-  assert.equal(v.status, 200, v.text);
+  const late = await startRoutes({ db, rzp, nowMs: CUT + 25 * 3600 * 1000 });
+  t.after(late.close);
+  const r = await guestVerify(late, o.json.orderId, p.id);
+  assert.equal(r.status, 200, r.text);
+  assert.notEqual(r.json.reason, 'order_expired');
 });
 
 /* ══ PR · PAY-RETURN-1 — a buyer back from the UPI app on a reset page (no verify ran) asks the server what became of the order ══

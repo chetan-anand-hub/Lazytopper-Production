@@ -456,7 +456,7 @@ describe("OR-P6 — no '/month' anywhere a student reads a price", () => {
     expect(pricing.PERIOD_MONTHLY_LABEL).toBe("for a month");
     expect(monthlyInline(true)).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)} for a month`);
     expect(SLASH_MONTH.test(monthlyInline(false))).toBe(false);
-    expect(strings.map(([n]) => n)).toEqual(expect.arrayContaining(["PERIOD_MONTHLY_LABEL", "FOUNDING_OFFER_UNTIL_COPY"]));
+    expect(strings.map(([n]) => n)).toEqual(expect.arrayContaining(["PERIOD_MONTHLY_LABEL"]));
   });
 
   it("PRICE-FIXED-1: the gates name only the Board Pass - no month price, no 'for {monthlyInline(' grammar", () => {
@@ -494,18 +494,20 @@ describe("OR-P6 — no '/month' anywhere a student reads a price", () => {
  * instant, the boolean-ness (never a seat count), and that the upgrade-prompt price follows it.
  */
 describe("PRICING-1 — the founding offer is date-driven", () => {
-  it("is open through 23:59:59 IST on 30 Nov 2026 and closed from 00:00:00 IST on 1 Dec", async () => {
+  it("PRICE-HOLD-1: is open at EVERY finite instant - 30 Nov 23:59:59 IST, 1 Dec 00:00:00 IST, 2027 - and has no closing instant or date", async () => {
     const m = await import("./pricing");
     expect(m.foundingOfferOpen(new Date("2026-10-25T06:30:00Z"))).toBe(true);
     expect(m.foundingOfferOpen(new Date("2026-11-30T23:59:59+05:30"))).toBe(true);
-    expect(m.foundingOfferOpen(new Date("2026-11-30T23:59:59.999+05:30"))).toBe(true);
-    expect(m.foundingOfferOpen(new Date("2026-12-01T00:00:00+05:30"))).toBe(false);
-    expect(m.foundingOfferOpen(new Date("2027-01-01T00:00:00+05:30"))).toBe(false);
-    // IST, not UTC: 18:30Z on 30 Nov is already 1 Dec in India.
-    expect(m.foundingOfferOpen(new Date("2026-11-30T18:29:59Z"))).toBe(true);
-    expect(m.foundingOfferOpen(new Date("2026-11-30T18:30:00Z"))).toBe(false);
-    expect(m.FOUNDING_OFFER_CLOSES_AT_ISO).toBe("2026-12-01T00:00:00+05:30");
-    expect(m.FOUNDING_OFFER_LAST_DAY_LABEL).toBe("30 November");
+    expect(m.foundingOfferOpen(new Date("2026-12-01T00:00:00+05:30"))).toBe(true);
+    expect(m.foundingOfferOpen(new Date("2026-12-01T00:00:01+05:30"))).toBe(true);
+    expect(m.foundingOfferOpen(new Date("2027-01-01T00:00:00+05:30"))).toBe(true);
+    expect(m.foundingOfferOpen(new Date("2030-01-01T00:00:00+05:30"))).toBe(true);
+    // a non-finite instant is never "open" (unchanged guard)
+    expect(m.foundingOfferOpen(Number.NaN)).toBe(false);
+    expect(m.FOUNDING_OFFER_CLOSES_AT_ISO).toBeNull();
+    expect(m.FOUNDING_OFFER_CLOSES_AT_MS).toBe(Number.POSITIVE_INFINITY);
+    expect(m.FOUNDING_OFFER_LAST_DAY_LABEL).toBeNull();
+    expect(m.FOUNDING_OFFER_LIST_FROM_LABEL).toBeNull();
   });
 
   it("stays a BOOLEAN — never a seat count; the frozen constant is gone", async () => {
@@ -528,33 +530,32 @@ describe("PRICING-1 — the founding offer is date-driven", () => {
     expect(hits, `a frozen founding constant is read by: ${hits.join(", ")} — use foundingOfferOpen(Date.now()) / foundingRateApplies`).toEqual([]);
   });
 
-  it("the end-date copy is plain words: the real date, the list price, no timer", async () => {
-    const m = await import("./pricing");
-    expect(m.FOUNDING_OFFER_UNTIL_COPY).toBe(
-      `Founding price until 30 November. From 1 December, Premium is ${m.PRICE_MONTHLY_LIST_DISPLAY} for a month.`,
-    );
-    expect(m.FOUNDING_OFFER_UNTIL_COPY).not.toMatch(/countdown|left|hurry|only|last chance|\d+ (days|hours)/i);
+  it("PRICE-HOLD-1: no end-date copy exists - the 'until' constant is gone and no deadline / countdown helper renders anything, on any date", async () => {
+    const m = (await import("./pricing")) as Record<string, unknown>;
+    expect("FOUNDING_OFFER_UNTIL_COPY" in m).toBe(false);
+    for (const iso of ["2026-11-20T12:00:00+05:30", "2026-11-30T23:59:59+05:30", "2026-12-01T00:00:00+05:30", "2027-02-01T00:00:00+05:30"]) {
+      const now = new Date(iso);
+      expect((m.boardPassDeadlineLine as (d: Date) => unknown)(now), iso).toBeNull();
+      expect((m.boardPassFoundingPriceLine as (d: Date) => unknown)(now), iso).toBeNull();
+      expect((m.boardPassFoundingCountdownLine as (d: Date) => unknown)(now), iso).toBeNull();
+      expect((m.foundingDaysLeft as (d: Date) => unknown)(now), iso).toBeNull();
+      expect((m.boardPassFromLine as (d: Date) => unknown)(now), iso).toBe("One payment, no renewals");
+    }
   });
 
-  it("the upgrade-prompt price (monthlyInline) follows the offer's DATE and a founder's own rate — no module-load clock read", async () => {
+  it("the monthly upgrade-prompt price (monthlyInline) stays the founding rate on every date (no 1 Dec switch) and a founder keeps it", async () => {
     const m = await import("./pricing");
     const open = new Date("2026-10-25T06:30:00Z");
-    const closed = new Date("2026-12-01T00:00:00+05:30");
+    const afterOldClose = new Date("2026-12-01T00:00:00+05:30");
     expect(m.monthlyInline(m.foundingRateApplies(open, false))).toBe(`${m.PRICE_MONTHLY_FOUNDING_DISPLAY} for a month`);
-    expect(m.monthlyInline(m.foundingRateApplies(closed, false))).toBe(`${m.PRICE_MONTHLY_LIST_DISPLAY} for a month`);
-    // A founder keeps the founding rate after the close; a non-founder does not.
-    expect(m.monthlyInline(m.foundingRateApplies(closed, true))).toBe(`${m.PRICE_MONTHLY_FOUNDING_DISPLAY} for a month`);
-    expect(m.monthlyInline(m.foundingRateApplies(closed, undefined))).toBe(`${m.PRICE_MONTHLY_LIST_DISPLAY} for a month`);
+    expect(m.monthlyInline(m.foundingRateApplies(afterOldClose, false))).toBe(`${m.PRICE_MONTHLY_FOUNDING_DISPLAY} for a month`);
+    expect(m.monthlyInline(m.foundingRateApplies(afterOldClose, true))).toBe(`${m.PRICE_MONTHLY_FOUNDING_DISPLAY} for a month`);
+    expect(m.monthlyInline(m.foundingRateApplies(afterOldClose, undefined))).toBe(`${m.PRICE_MONTHLY_FOUNDING_DISPLAY} for a month`);
   });
 
-  it("the founding last-day and list-from labels are DERIVED from the closing instant (they cannot drift)", async () => {
-    const m = await import("./pricing");
-    expect(m.FOUNDING_OFFER_CLOSES_AT_ISO).toBe("2026-12-01T00:00:00+05:30");
-    expect(m.FOUNDING_OFFER_LAST_DAY_LABEL).toBe("30 November");
-    expect(m.FOUNDING_OFFER_LIST_FROM_LABEL).toBe("1 December");
-    // The source holds no second typed copy of either date.
+  it("PRICE-HOLD-1: the source types no closing date (no \"30 November\" / \"1 December\" / 2026-12-01 literal outside comments)", () => {
     const src = readFileSync(resolve(process.cwd(), "src/config/pricing.ts"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
-    expect(src).not.toMatch(/["`']30 November["`']|["`']1 December["`']/);
+    expect(src).not.toMatch(/["`']30 November["`']|["`']1 December["`']|2026-12-01/);
   });
 
   it("no module in config/pricing.ts reads the clock when it loads (a clock read at import made ~90 test files date-sensitive)", () => {

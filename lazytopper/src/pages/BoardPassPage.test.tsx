@@ -111,31 +111,27 @@ describe("PRICING-PAGES-1 /board-pass - signed out (what the prerender captures)
     expect(screen.getByTestId("bp-tutor").textContent).toContain("Your personal tutor");
   });
 
-  it("BP-PREBOARDS-1: the pre-boards line leads the hero; the founding countdown shows before the deadline and renders nothing after it", async () => {
+  it("BP-PREBOARDS-1 / PRICE-HOLD-1: the pre-boards line leads the hero; NO founding countdown (or its empty slot) renders on any date", async () => {
     await mount();
     expect(screen.getByTestId("bp-preboards").textContent).toBe(BP_PREBOARDS_LINE);
     expect(BP_PREBOARDS_LINE).toBe("Your pre-boards package \u2014 full board mocks, CBSE step marking, important questions and a personal tutor, valid till 28 Feb 2027.");
-    // 11 Nov 2026 10:00 IST -> 19 days to the last day (30 Nov)
-    expect(screen.getByTestId("boards-countdown").textContent).toBe("Founding price ends in 19 days (30 Nov) \u00b7 then \u20b92,499 + GST");
-    cleanup();
-    vi.setSystemTime(new Date("2026-11-30T10:00:00+05:30"));
-    await mount();
-    expect(screen.getByTestId("boards-countdown").textContent).toContain("ends today (30 Nov)");
-    cleanup();
-    vi.setSystemTime(new Date("2026-12-01T00:00:00+05:30"));
-    await mount();
-    expect(screen.getByTestId("bp-preboards")).toBeTruthy(); // the line is not date-driven
-    expect(screen.queryByTestId("boards-countdown")).toBeNull();
-    expect(screen.queryByTestId("bp-countdown-slot")).toBeNull();
+    for (const iso of ["2026-11-11T10:00:00+05:30", "2026-11-30T10:00:00+05:30", "2026-12-01T00:00:00+05:30"]) {
+      cleanup();
+      vi.setSystemTime(new Date(iso));
+      await mount();
+      expect(screen.getByTestId("bp-preboards")).toBeTruthy(); // the line is not date-driven
+      expect(screen.queryByTestId("boards-countdown"), iso).toBeNull();
+      expect(screen.queryByTestId("bp-countdown-slot"), iso).toBeNull();
+    }
     vi.setSystemTime(new Date("2026-11-11T10:00:00+05:30"));
   });
 
-  it("the price is the config's (+ GST, once, till your boards, founding line); the Pay is PassCheckout's own button and label", async () => {
+  it("the price is the config's (+ GST, once, till your boards, NO deadline line); the Pay is PassCheckout's own button and label", async () => {
     await mount();
     const figures = screen.getByTestId("bp-price");
     expect(figures.textContent).toContain("₹1,917 + GST");
     expect(figures.textContent).toContain("once");
-    expect(screen.getByTestId("bp-price-deadline").textContent).toMatch(/^Founding price/);
+    expect(screen.queryByTestId("bp-price-deadline")).toBeNull(); // PRICE-HOLD-1: no deadline line
     const pays = screen.getAllByRole("button", { name: tillBoardsButtonLabel() });
     expect(pays.length).toBe(2); // the hero Pay (PassCheckout) and the second Pay that clicks it
     expect(screen.getByTestId("bp-pay-hero").querySelector(".lt-pricing-pay--boards")).toBeTruthy();

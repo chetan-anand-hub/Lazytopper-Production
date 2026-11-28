@@ -141,12 +141,12 @@ describe("TS-MORE-1 — chapter papers 2..5 and the kill switch", () => {
     expect(copy.testSeriesPerTestLine()).toBeNull();
     expect(copy.testSeriesExaminerLine()).toBeNull();
   });
-  it("the per-test line is round(base price / total): 6 now, 8 from 1 Dec; the examiner line is verbatim", async () => {
+  it("the per-test line is round(base price / total): 6 now AND 6 after 1 Dec (PRICE-HOLD-1: no switch); the examiner line is verbatim", async () => {
     const { testSeriesPerTestInr, testSeriesPerTestLine, testSeriesExaminerLine } = await import("./seriesPerTest");
     expect(testSeriesPerTestInr(Date.parse("2026-11-19T06:30:00Z"))).toBe(6);
-    expect(testSeriesPerTestInr(Date.parse("2026-12-01T06:30:00Z"))).toBe(8);
+    expect(testSeriesPerTestInr(Date.parse("2026-12-01T06:30:00Z"))).toBe(6);
     expect(testSeriesPerTestLine(Date.parse("2026-11-19T06:30:00Z"))).toBe("\u20b96 per test");
-    expect(testSeriesPerTestLine(Date.parse("2026-12-01T06:30:00Z"))).toBe("\u20b98 per test");
+    expect(testSeriesPerTestLine(Date.parse("2026-12-01T06:30:00Z"))).toBe("\u20b96 per test");
     expect(testSeriesPerTestLine(Date.parse("2026-11-19T06:30:00Z"))).not.toMatch(/GST/);
     expect(testSeriesExaminerLine()).toBe("Your written answers marked step by step like a CBSE examiner, by CBSE's step-marking rules.");
   });

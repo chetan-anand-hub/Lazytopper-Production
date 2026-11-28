@@ -31,22 +31,22 @@ describe("PARENTS-V2-1 - the price card's figures come from config (never typed 
     expect(m.boardPassPayDisplay).toBe("₹1,917");
   });
 
-  it("the card today: '₹1,917 + GST', Pay ₹2,262, the founding line, 'valid till 28 Feb 2027'", () => {
+  it("the card today: '₹1,917 + GST', Pay ₹2,262, NO deadline line, 'valid till 28 Feb 2027'", () => {
     const c = parentCardModel(GST, BOARDS)!;
     expect(c.tag).toBe("₹1,917 + GST");
     expect(c.pay).toBe("₹2,262");
-    expect(c.deadline).toBe("Founding price ends 30 Nov · ₹1,917 + GST, then ₹2,499 + GST");
+    expect(c.deadline).toBeNull(); // PRICE-HOLD-1: no deadline line
     expect(c.once).toBe("One payment, valid till 28 Feb 2027 \u2014 covers your Maths (17 Feb) and Science (22 Feb) boards. No auto-debit.");
     expect(c.until).toBe("valid till 28 Feb 2027");
   });
 
-  it("★ the card switches itself on 1 Dec: ₹2,499 + GST, Pay ₹2,949, and the founding line is gone", () => {
-    const c = parentCardModel(CLOSED, BOARDS)!;
-    expect(c.tag).toBe("₹2,499 + GST");
-    expect(c.pay).toBe("₹2,949");
-    expect(c.deadline).toBeNull();
-    expect(parentCardModel(new Date("2026-11-30T23:59:59+05:30"), BOARDS)!.pay).toBe("₹2,262");
-    expect(parentCardModel(new Date("2026-12-01T00:00:00+05:30"), BOARDS)!.pay).toBe("₹2,949");
+  it("★ PRICE-HOLD-1: the card does NOT change on 1 Dec - ₹1,917 + GST, Pay ₹2,262, no founding/deadline line - on any later date", () => {
+    for (const d of [CLOSED, new Date("2026-11-30T23:59:59+05:30"), new Date("2026-12-01T00:00:00+05:30"), new Date("2027-02-01T10:00:00+05:30")]) {
+      const c = parentCardModel(d, BOARDS)!;
+      expect(c.tag).toBe("₹1,917 + GST");
+      expect(c.pay).toBe("₹2,262");
+      expect(c.deadline).toBeNull();
+    }
   });
 
   it("hides the per-day line when the board date is unusable or past; no card for a bad date", () => {
@@ -85,7 +85,7 @@ describe("PARENTS-V2-1 - the price card's figures come from config (never typed 
     expect(first.hero).toEqual(["Pay for my child · ₹2,262"]);
     expect(first.second).toEqual(["Pay for my child · ₹2,262"]);
     expect(first.amt).toEqual(["₹1,917 + GST"]);
-    expect(first.deadline[0]).toContain("Founding price ends 30 Nov");
+    expect(first.deadline[0]).toBe(""); // PRICE-HOLD-1: the line is empty (CSS collapses it)
   });
 
   it("after mount: the Pay is a real button with the total; WhatsApp is only the secondary link", async () => {

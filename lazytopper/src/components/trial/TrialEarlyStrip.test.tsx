@@ -33,7 +33,6 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 import TrialEarlyStrip, { TRIAL_STRIP_HIDDEN_KEY_PREFIX } from "./TrialEarlyStrip";
 import { trialEarlyStripDay, trialEarlyStripDayText, trialEarlyStripOfferText, TRIAL_STRIP_LAST_DAY } from "./trialEarlyStripModel";
 import { TRIAL_BAR_FIRST_DAY, trialBannerTiming } from "./trialEndBannerModel";
-import { FOUNDING_OFFER_CLOSES_AT_MS } from "../../config/pricing";
 import * as svc from "../../services/subscriptionService";
 import * as analytics from "../../analytics/analytics";
 import type { SubscriptionStatus } from "../../services/subscriptionService";
@@ -97,14 +96,14 @@ describe("trialEarlyStripModel", () => {
     expect(trialEarlyStripDay(new Date(now + 2 * 24 * HOUR).toISOString(), now)).toBeNull();
   });
 
-  it("the copy: real day, config price, founding note only while the offer is open", () => {
+  it("the copy: real day, config price, no deadline note on any date (PRICE-HOLD-1)", () => {
     expect(trialEarlyStripDayText(2)).toBe("Trial: day 2 of 7");
-    expect(trialEarlyStripOfferText(ist(2026, 11, 3, 12))).toBe("Board Pass ₹1,917 · valid till 28 Feb 2027 (founding offer till 30 November)");
-    expect(trialEarlyStripOfferText(FOUNDING_OFFER_CLOSES_AT_MS - 1)).toContain("₹1,917");
-    expect(trialEarlyStripOfferText(FOUNDING_OFFER_CLOSES_AT_MS)).toBe("Board Pass ₹2,499 + GST · valid till 28 Feb 2027"); // GST-EXCL-1
+    expect(trialEarlyStripOfferText(ist(2026, 11, 3, 12))).toBe("Board Pass ₹1,917 · valid till 28 Feb 2027");
+    expect(trialEarlyStripOfferText(Date.parse("2026-11-30T23:59:59+05:30"))).toContain("₹1,917");
+    expect(trialEarlyStripOfferText(Date.parse("2026-12-01T00:00:00+05:30"))).toBe("Board Pass ₹1,917 + GST · valid till 28 Feb 2027"); // GST-EXCL-1; PRICE-HOLD-1: no switch, no deadline note
     // GST-EXCL-1: 6 Nov (before the 00:00 IST 7 Nov cut-off) is today's copy; 7 Nov reads "+ GST".
-    expect(trialEarlyStripOfferText(ist(2026, 11, 6, 12))).toBe("Board Pass ₹1,917 · valid till 28 Feb 2027 (founding offer till 30 November)");
-    expect(trialEarlyStripOfferText(ist(2026, 11, 7, 12))).toBe("Board Pass ₹1,917 + GST · valid till 28 Feb 2027 (founding offer till 30 November)");
+    expect(trialEarlyStripOfferText(ist(2026, 11, 6, 12))).toBe("Board Pass ₹1,917 · valid till 28 Feb 2027");
+    expect(trialEarlyStripOfferText(ist(2026, 11, 7, 12))).toBe("Board Pass ₹1,917 + GST · valid till 28 Feb 2027");
   });
 });
 
@@ -113,7 +112,7 @@ describe("TrialEarlyStrip", () => {
     renderAt("/practice");
     const strip = await screen.findByTestId("trial-early-strip");
     expect(strip.textContent).toContain("Trial: day 2 of 7");
-    expect(strip.textContent).toContain("Board Pass ₹1,917 · valid till 28 Feb 2027 (founding offer till 30 November)");
+    expect(strip.textContent).toContain("Board Pass ₹1,917 · valid till 28 Feb 2027");
     const pay = screen.getByTestId("trial-early-strip-pay");
     expect(pay.getAttribute("href")).toBe("/pricing?buy=board_pass");
     const ask = screen.getByTestId("ask-stub");

@@ -406,7 +406,7 @@ test('founding is dark until payments + parent pay are on, and in-window it send
   assert.equal(r.byKind.founding, 1);
   // GST-EXCL-1: NOW_NOV is after the 7 Nov GST cut-off - the price is the base "+ GST" tag.
   // FOUNDING-MSG-PRICE-2: the line carries its own date and the price that follows it, so it is never wrong on 1 Dec.
-  assert.match(live.calls[0].body.text, /Board Pass: ₹1,917 \+ GST \(founding price till 30 Nov, then ₹2,499 \+ GST\), one payment, valid till 28 Feb 2027\./);
+  assert.match(live.calls[0].body.text, /Board Pass: ₹1,917 \+ GST, one payment, valid till 28 Feb 2027\./);
   assert.doesNotMatch(live.calls[0].body.text, /599|999/);
   assert.match(live.calls[0].body.text, /\/pricing/);
   assert.equal(live.db.docs.get('nudgeEmails/u1').founding.status, 'sent');
@@ -569,17 +569,22 @@ test('the price line is read from the pricing mirror', (t) => {
   assert.ok(!line.includes(String(p.PRICE_MONTHLY_FOUNDING_INR)) && !line.includes(String(p.PRICE_MONTHLY_LIST_INR)), 'a month price in the email');
 });
 
-test('FOUNDING-MSG-PRICE-2 · foundingPriceLine(nowMs): dated while the founding offer is open, the plain price from the close (pinned clocks)', () => {
+test('PRICE-HOLD-1 · foundingPriceLine(nowMs): the price has no end, so the line never carries a date or a "then" price - before AND after 1 Dec (pinned clocks)', () => {
   const p = require('./passPricing.cjs');
-  // before the close (last founding second, and before the 7 Nov GST cut-off): the date and the next price are on the line
-  assert.equal(foundingPriceLine(p.FOUNDING_OFFER_CLOSES_AT_MS - 1), 'Board Pass: ₹1,917 + GST (founding price till 30 Nov, then ₹2,499 + GST), one payment, valid till 28 Feb 2027.');
-  assert.equal(foundingPriceLine(Date.parse('2026-11-05T12:00:00+05:30')), 'Board Pass: ₹1,917 (founding price till 30 Nov, then ₹2,499), one payment, valid till 28 Feb 2027.');
-  // from the close the price no longer changes: the line is as before
-  assert.equal(foundingPriceLine(p.FOUNDING_OFFER_CLOSES_AT_MS), 'Board Pass: ₹2,499 + GST, one payment, valid till 28 Feb 2027.');
-  // the email itself reads the SEND time it is handed, never the process clock
+  const D1 = Date.parse('2026-12-01T00:00:00+05:30');
+  const HOLD = 'Board Pass: ₹1,917 + GST, one payment, valid till 28 Feb 2027.';
+  assert.equal(foundingPriceLine(D1 - 1), HOLD);
+  assert.equal(foundingPriceLine(D1), HOLD);
+  assert.equal(foundingPriceLine(Date.parse('2027-02-01T12:00:00+05:30')), HOLD);
+  assert.equal(foundingPriceLine(Date.parse('2026-11-05T12:00:00+05:30')), 'Board Pass: ₹1,917, one payment, valid till 28 Feb 2027.');
+  // the email itself reads the SEND time it is handed, never the process clock, and never names a deadline or 2,499
   const o = { appUrl: 'https://www.lazytopper.com', unsubscribeUrl: 'https://x/u' };
-  assert.match(buildNudgeEmail('founding', { ...o, nowMs: p.FOUNDING_OFFER_CLOSES_AT_MS - 1 }).text, /founding price till 30 Nov, then ₹2,499 \+ GST/);
-  assert.match(buildNudgeEmail('founding', { ...o, nowMs: p.FOUNDING_OFFER_CLOSES_AT_MS }).text, /\nBoard Pass: ₹2,499 \+ GST, one payment/);
+  for (const nowMs of [D1 - 1, D1, Date.parse('2027-02-01T12:00:00+05:30')]) {
+    const t = buildNudgeEmail('founding', { ...o, nowMs }).text;
+    assert.match(t, /\nBoard Pass: ₹1,917 \+ GST, one payment/);
+    assert.doesNotMatch(t, /2,499|\bthen\b|ends|30 Nov|1 Dec/i);
+  }
+  assert.equal(p.FOUNDING_OFFER_CLOSES_AT_MS, Infinity);
 });
 
 test('schedule() when enabled arms one first run and one interval, both unref()d; off arms nothing', () => {

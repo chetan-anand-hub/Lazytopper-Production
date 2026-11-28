@@ -108,7 +108,7 @@ export function packBaseInr(sku: PackSku, now: Date | number = Date.now()): numb
  * No crossed-out price, no saving claim.
  */
 export function testSeriesFoundingClause(now: Date | number = Date.now()): string | null {
-  if (!foundingOfferOpen(now)) return null;
+  if (!foundingOfferOpen(now) || FOUNDING_OFFER_LAST_DAY_LABEL === null) return null; // PRICE-HOLD-1: no deadline, no clause
   const [day = "", month = ""] = FOUNDING_OFFER_LAST_DAY_LABEL.split(" ");
   return `founding price till ${day} ${month.slice(0, 3)}, then ${displayPlusGst(TEST_SERIES_LIST_INR, now)}`;
 }

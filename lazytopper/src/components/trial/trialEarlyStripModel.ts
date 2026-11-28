@@ -33,6 +33,7 @@ export function trialEarlyStripDayText(day: number): string {
 /** "Board Pass ₹1,917 · valid till 28 Feb 2027 (founding offer till 30 November)" - the note only while the offer is open. */
 export function trialEarlyStripOfferText(nowMs: number): string {
   const price = boardPassPriceDisplay(nowMs);
-  const note = foundingOfferOpen(nowMs) ? ` (founding offer till ${FOUNDING_OFFER_LAST_DAY_LABEL})` : "";
+  // PRICE-HOLD-1: no end date exists, so no "till <date>" note (only if a date is ever ruled again).
+  const note = foundingOfferOpen(nowMs) && FOUNDING_OFFER_LAST_DAY_LABEL !== null ? ` (founding offer till ${FOUNDING_OFFER_LAST_DAY_LABEL})` : "";
   return `Board Pass ${price} \u00b7 ${VALIDITY_SHORT}${note}`;
 }

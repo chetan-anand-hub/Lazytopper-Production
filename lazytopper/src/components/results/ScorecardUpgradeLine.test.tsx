@@ -212,17 +212,18 @@ describe("the shell renders the block on every grading surface (one call site: R
     expect(screen.getByTestId("offers-block").querySelector("s, del, strike")).toBeNull();
   });
 
-  it("the later price line comes from the pricing module while the founding offer is open (pinned clock), and says no date once it is closed", () => {
+  it("PRICE-HOLD-1: no 'from 1 Dec' later-price line exists: the Pay-button sub-line is the plain 'One payment, no renewals' before AND after 1 Dec, and the founding label (no date) stays", () => {
     vi.useFakeTimers({ now: new Date("2026-11-10T06:30:00.000Z"), toFake: ["Date"] });
     try {
       render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
-      expect(screen.getByTestId("offers-from-line")).toHaveTextContent("One payment · ₹2,499 + GST from 1 Dec"); // GST-EXCL-1: 10 Nov is after the GST cut-off
+      expect(screen.getByTestId("offers-from-line")).toHaveTextContent("One payment, no renewals");
       expect(screen.getByTestId("offers-founding")).toHaveTextContent("Founding member offer");
       cleanup();
       vi.setSystemTime(new Date("2026-12-02T06:30:00.000Z"));
       render(<MemoryRouter><ResultsScorecard variant={variantFor("worksheet", marks(6, 10))} onClose={() => {}} /></MemoryRouter>);
       expect(screen.getByTestId("offers-from-line")).toHaveTextContent("One payment, no renewals");
-      expect(screen.queryByTestId("offers-founding")).toBeNull();
+      expect(screen.getByTestId("offers-founding")).toHaveTextContent("Founding member offer");
+      expect(screen.getByTestId("offers-block").textContent ?? "").not.toMatch(/2,499|from 1 Dec|ends/);
     } finally {
       vi.useRealTimers();
     }

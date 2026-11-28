@@ -56,7 +56,7 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("BrowseVisitorCard", () => {
-  it("renders for a signed-out visitor: IITian line, price from config, deadline, two buttons, about link", async () => {
+  it("renders for a signed-out visitor: IITian line, price from config, NO deadline, two buttons, about link", async () => {
     mount();
     const card = await screen.findByTestId("browse-visitor-card");
     expect(card.textContent).toContain("Made by an IITian (IIT Kanpur)");
@@ -65,9 +65,7 @@ describe("BrowseVisitorCard", () => {
     // GST-EXCL-1: 10 Nov is after the 00:00 IST 7 Nov GST cut-off - the price TAG reads "+ GST" (the total is at checkout).
     expect(boardPassPriceDisplay()).toBe("₹1,917 + GST");
     expect(screen.getByTestId("browse-visitor-card-price").textContent).toContain("Board Pass ₹1,917 + GST");
-    expect(screen.getByTestId("browse-visitor-card-deadline").textContent).toBe(
-      `${FOUNDING_OFFER_BADGE} ends 30 November. From 1 December: ₹2,499 + GST.`,
-    );
+    expect(screen.queryByTestId("browse-visitor-card-deadline")).toBeNull(); // PRICE-HOLD-1: no deadline line
     expect(screen.getByTestId("browse-visitor-card-signup").textContent).toBe("Sign up free");
     expect(screen.getByTestId("browse-visitor-card-pricing").textContent).toBe("See pricing");
     // Owner ruling 6 Nov 2026: the "What is LazyTopper?" link (to the landing page) is gone.
@@ -170,13 +168,13 @@ describe("BrowseVisitorCard", () => {
     }
   });
 
-  it("after the founding deadline it shows the then-current price with no founding wording or deadline line", async () => {
+  it("PRICE-HOLD-1: after the old 1 Dec switch the card shows the SAME price, with no deadline line (no switch)", async () => {
     vi.setSystemTime(new Date("2026-12-02T10:00:00+05:30"));
     mount();
     const card = await screen.findByTestId("browse-visitor-card");
-    expect(screen.getByTestId("browse-visitor-card-price").textContent).toContain("Board Pass ₹2,499 + GST"); // GST-EXCL-1
+    expect(screen.getByTestId("browse-visitor-card-price").textContent).toContain("Board Pass ₹1,917 + GST");
     expect(screen.queryByTestId("browse-visitor-card-deadline")).toBeNull();
-    expect(card.textContent).not.toMatch(/founding/i);
+    expect(card.textContent).not.toMatch(/2,499|ends|then/i);
     expect(card.textContent).toContain("Made by an IITian (IIT Kanpur)");
   });
 });
@@ -209,7 +207,7 @@ describe("BrowseVisitorCard analytics", () => {
     mount();
     await screen.findByTestId("browse-visitor-card");
     expect(screen.getByTestId("browse-visitor-card-price").textContent).toBe("Board Pass ₹1,917 · one payment, valid till 28 Feb 2027");
-    expect(screen.getByTestId("browse-visitor-card-deadline").textContent).toBe(`${FOUNDING_OFFER_BADGE} ends 30 November. From 1 December: ₹2,499.`);
+    expect(screen.queryByTestId("browse-visitor-card-deadline")).toBeNull();
     expect(screen.getByTestId("browse-visitor-card").textContent).not.toMatch(/GST/);
     cleanup();
     resetBrowseCardForTests();
@@ -217,6 +215,6 @@ describe("BrowseVisitorCard analytics", () => {
     mount();
     await screen.findByTestId("browse-visitor-card");
     expect(screen.getByTestId("browse-visitor-card-price").textContent).toBe("Board Pass ₹1,917 + GST · one payment, valid till 28 Feb 2027");
-    expect(screen.getByTestId("browse-visitor-card-deadline").textContent).toBe(`${FOUNDING_OFFER_BADGE} ends 30 November. From 1 December: ₹2,499 + GST.`);
+    expect(screen.queryByTestId("browse-visitor-card-deadline")).toBeNull();
   });
 });
