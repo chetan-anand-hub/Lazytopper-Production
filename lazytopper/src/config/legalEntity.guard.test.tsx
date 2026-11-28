@@ -56,6 +56,7 @@ const P8_PAGES = [
   "mock-test-class-10.html",
   "question-bank-class-10.html",
   "cbse-marking-scheme-class-10.html",
+  "class-10-crash-course-2027.html", // CC27-SITE-1 - the Crash Course landing renders the public footer
   // SOLUTIONS-1/2: every published solutions page carries the public footer (derived, not hand-listed).
   ...solutionsPaths().map((p) => `${p.slice(1)}.html`),
   // CBQ-SEO-1: the CBQ hub and its chapter pages render the public footer (derived from the chapter registry, not hand-listed).
