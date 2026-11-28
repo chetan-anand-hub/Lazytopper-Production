@@ -28,4 +28,9 @@ describe("ORDER-SOURCE-1 abandoned row", () => {
     expect(screen.getByTestId("pu-ua-ab-s3").textContent).toBe("Browser: inapp_facebook · hop: none");
     expect(screen.queryByTestId("pu-ua-ab-s4")).toBeNull();
   });
+
+  it("INAPP-GAP-1 N2: a row with only ua/hop reads 'No source recorded', never 'Direct'", () => {
+    render(<AbandonedList abandoned={{ items: [{ ...base, orderId: "s5", source: { ua: "desktop", hop: "none" } }] }} />);
+    expect(screen.getByTestId("pu-source-ab-s5").querySelector(".pu-source-main")?.textContent).toBe("Source: No source recorded");
+  });
 });

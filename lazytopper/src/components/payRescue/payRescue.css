@@ -262,7 +262,7 @@
 .lt-pay-guard {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 1100; /* above .lt-pkd (the pack pop-up, 1000): pinned by inAppPayGuard.test.tsx */
   display: flex;
   align-items: flex-end;
   justify-content: center;

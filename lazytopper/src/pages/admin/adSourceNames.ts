@@ -109,6 +109,8 @@ const PAID_MEDIUMS: ReadonlySet<string> = new Set(["paid", "cpc", "demandgen"]);
  */
 export function sourceHead(source: AdSourceFields | null | undefined): string {
   if (!source) return "No source recorded";
+  // INAPP-GAP-1: an order that carries only the browser class / hop has no visit source: never "Direct".
+  if ((source.ua || source.hop) && !Object.entries(source).some(([k, v]) => k !== "ua" && k !== "hop" && v)) return "No source recorded";
   const src = (source.utm_source ?? "").toLowerCase();
   const medium = (source.utm_medium ?? "").toLowerCase();
   const platform = own(SOURCE_PLATFORM, src);

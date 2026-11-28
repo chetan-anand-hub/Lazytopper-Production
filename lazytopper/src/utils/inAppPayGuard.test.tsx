@@ -3,7 +3,9 @@
  * Android hop), the order's browser class + hop state, and the kill switch. Normal browsers / signed-in buyers are untouched.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo: vi.fn() }));
@@ -16,7 +18,6 @@ vi.mock("../services/packs", async (orig) => {
   return { ...actual, isPacksClientEnabled: () => true, fetchMyPacks: vi.fn(async () => ({ packs: [], licensee: { name: "A", email: "a@b.in" }, boardPassCredit: null })), buyPack: packs.buyPack, checkPackOrder: vi.fn() };
 });
 vi.mock("../lib/packs/packContent", () => ({ loadChapter: async () => undefined, countChapterQuestions: () => 100, countCbqPackQuestions: () => 50 }));
-vi.mock("../pages/PackDialog", () => ({ default: () => null }));
 vi.mock("../services/checkoutWhoFlag", async (orig) => ({ ...(await orig<typeof import("../services/checkoutWhoFlag")>()), isCheckoutWhoClientEnabled: () => true }));
 vi.mock("../services/checkout", async (orig) => ({ ...(await orig<typeof import("../services/checkout")>()), isPaymentsClientEnabled: () => true, authHeaders: async () => ({ Authorization: "Bearer t" }) }));
 const onboarding = vi.hoisted(() => vi.fn());
@@ -141,7 +142,7 @@ describe("INAPP-GAP-1 · Test Series Buy", () => {
     expect(events("inapp_pay_guard_shown")).toHaveLength(1);
   });
 
-  it("Android Instagram: the hop runs, no guard; an explicit 'Pay here instead' never shows the guard", () => {
+  it("Android Instagram: the hop runs and the guard does not show", () => {
     setUa(UA.igAndroid);
     shop();
     fireEvent.click(screen.getByTestId("ts-buy"));
@@ -150,13 +151,15 @@ describe("INAPP-GAP-1 · Test Series Buy", () => {
     expect(events("inapp_pay_guard_shown")).toHaveLength(0);
   });
 
-  it("Android Instagram 'Pay here instead' (explicit bypass) -> no guard", () => {
+  it("Android Instagram 'Pay here instead' (explicit bypass) -> tapping Buy again shows no guard", () => {
     setUa(UA.igAndroid);
     shop();
     fireEvent.click(screen.getByTestId("inapp-pay-first-here"));
+    fireEvent.click(screen.getByTestId("ts-buy"));
     expect(screen.queryByTestId("inapp-pay-guard")).toBeNull();
     expect(events("inapp_pay_guard_shown")).toHaveLength(0);
     expect(inAppHopState()).toBe("bypass");
+    expect(loc.href.startsWith("intent://")).toBe(false);
   });
 
   it("Android Instagram, hop stuck -> the guard shows", () => {
@@ -190,6 +193,78 @@ describe("INAPP-GAP-1 · Test Series Buy", () => {
   });
 });
 
+describe("INAPP-GAP-1 · over the pack pop-up (B1) and keyboard / focus (N6)", () => {
+  const cssZ = (file: string, selector: string): number => {
+    const css = readFileSync(resolve(__dirname, file), "utf8");
+    const re = new RegExp(`${selector.replace(/[.]/g, "\\.")}\\s*\\{([^}]*)\\}`, "g");
+    for (const m of css.matchAll(re)) {
+      const z = /z-index:\s*(\d+)/.exec(m[1]);
+      if (z) return Number(z[1]);
+    }
+    throw new Error(`no z-index for ${selector} in ${file}`);
+  };
+
+  it("the guard's z-index is above the pack pop-up's (an inequality, not a number)", () => {
+    expect(cssZ("../components/payRescue/payRescue.css", ".lt-pay-guard")).toBeGreaterThan(cssZ("../pages/packsDialog.css", ".lt-pkd"));
+  });
+
+  it("Buy inside the OPEN pack pop-up (iPhone Facebook): the guard is portalled to body, on top; 'Pay here anyway' reaches checkout once", async () => {
+    setUa(UA.fbIos);
+    const path = "/test-series?utm_source=facebook";
+    fakeLocation(path);
+    const view = render(
+      <MemoryRouter initialEntries={[path]}>
+        <PacksShop embedded hideMyPacks skipView returnPath="/test-series">
+          {(api) => (
+            <div>
+              <button type="button" data-testid="open-pop" onClick={() => api.openPack("test_series")}>open</button>
+            </div>
+          )}
+        </PacksShop>
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByTestId("open-pop"));
+    const dialog = await screen.findByTestId("pack-dialog");
+    const buy = await waitFor(() => {
+      const b = dialog.querySelector('[data-testid="tile-buy-test_series"], .lt-pkd__foot button') as HTMLElement | null;
+      if (!b) throw new Error("no buy yet");
+      return b;
+    });
+    fireEvent.click(buy);
+    const guard = screen.getByTestId("inapp-pay-guard");
+    expect(guard.parentElement).toBe(document.body); // portalled: not inside the shop's tree, so no stacking-context surprise
+    expect(view.container.contains(guard)).toBe(false);
+    expect(checkoutHits()).toHaveLength(0);
+    fireEvent.click(screen.getByTestId("inapp-pay-guard-here"));
+    expect(screen.queryByTestId("inapp-pay-guard")).toBeNull();
+    expect(checkoutHits()).toHaveLength(1);
+  });
+
+  it("focus moves into the sheet, Escape = 'Not now' (no checkout) and focus returns to the Buy", () => {
+    setUa(UA.fbIos);
+    shop();
+    const buy = screen.getByTestId("ts-buy");
+    buy.focus();
+    fireEvent.click(buy);
+    const guard = screen.getByTestId("inapp-pay-guard");
+    expect(guard.contains(document.activeElement)).toBe(true);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByTestId("inapp-pay-guard")).toBeNull();
+    expect(document.activeElement).toBe(buy);
+    expect(checkoutHits()).toHaveLength(0);
+    expect(events("inapp_pay_guard_payhere")).toHaveLength(0);
+  });
+
+  it("a second host takes over when the first (leader) unmounts", () => {
+    setUa(UA.fbIos);
+    const a = render(<MemoryRouter><PacksShop embedded hideMyPacks skipView>{() => null}</PacksShop></MemoryRouter>);
+    render(<MemoryRouter><PacksShop embedded hideMyPacks skipView>{(api) => <button type="button" data-testid="b2" onClick={() => api.buyNow("test_series")}>b</button>}</PacksShop></MemoryRouter>);
+    a.unmount();
+    fireEvent.click(screen.getByTestId("b2"));
+    expect(screen.getAllByTestId("inapp-pay-guard")).toHaveLength(1);
+  });
+});
+
 describe("INAPP-GAP-1 · order source carries the browser class", () => {
   it("ua is the coarse UaClass label only, hop the 4-value state; no raw user agent", () => {
     setUa(UA.fbIos);
@@ -200,5 +275,19 @@ describe("INAPP-GAP-1 · order source carries the browser class", () => {
     expect(JSON.stringify(s)).not.toContain("Mozilla");
     fakeLocation("/packs?via=inapp");
     expect(orderSourceForCheckout()?.hop).toBe("hopped");
+  });
+});
+
+describe("INAPP-GAP-1 · N3 storage failure", () => {
+  it("sessionStorage throwing still yields { ua, hop }", () => {
+    setUa(UA.fbIos);
+    const spy = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    try {
+      expect(orderSourceForCheckout()).toEqual({ ua: "inapp_facebook", hop: "none" });
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

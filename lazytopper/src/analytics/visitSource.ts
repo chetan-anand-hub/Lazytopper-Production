@@ -471,16 +471,16 @@ function isOrderSourceClientDisabled(): boolean {
  */
 export function orderSourceForCheckout(): OrderSource | undefined {
   if (isOrderSourceClientDisabled()) return undefined;
+  // INAPP-GAP-1: which browser class the order is created in + the hop state, even when no visit source was kept (or storage throws).
+  const ua = currentUaClass();
+  let hop: OrderHop = "none";
   try {
-    // INAPP-GAP-1: which browser class the order is created in + the hop state, even when no visit source was kept.
-    const ua = currentUaClass();
-    let hop: OrderHop = "none";
-    try {
-      hop = hopProvider();
-    } catch {
-      /* none */
-    }
-    const browser: OrderSource = { ...(ua ? { ua } : {}), hop };
+    hop = hopProvider();
+  } catch {
+    /* none */
+  }
+  const browser: OrderSource = { ...(ua ? { ua } : {}), hop };
+  try {
     let v: VisitSource | null = null;
     for (const key of [ORDER_SOURCE_KEY, VISIT_SOURCE_KEY]) {
       v = sanitiseStored(parseStored(window.sessionStorage.getItem(key)));
@@ -498,7 +498,7 @@ export function orderSourceForCheckout(): OrderSource | undefined {
     if (v.wbraid) out.wbraid = true;
     return out;
   } catch {
-    return undefined;
+    return browser;
   }
 }
 
