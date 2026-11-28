@@ -22,6 +22,8 @@ const HOUR_MS = 60 * 60 * 1000;
 const PASS_START_MIN_AGE_MS = 24 * HOUR_MS;
 const PASS_START_MAX_AGE_MS = 72 * HOUR_MS;
 const CAP_PASS_START = 500;
+/** At most this many pass-start emails per run (hourly), so they can never use up the shared daily cap. */
+const PER_RUN_CAP = 10;
 const KIND = 'passstart';
 const METRIC = 'pass_start';
 
@@ -73,6 +75,7 @@ module.exports = {
   PASS_START_MIN_AGE_MS,
   PASS_START_MAX_AGE_MS,
   CAP_PASS_START,
+  PER_RUN_CAP,
   KIND,
   METRIC,
   passStartEmailEnabled,

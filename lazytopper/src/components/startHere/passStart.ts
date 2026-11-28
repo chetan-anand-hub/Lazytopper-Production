@@ -25,7 +25,11 @@ export function isPassStartDisabled(): boolean {
   }
 }
 
-/** A PAID pass that has not ended: premium with a readable, future `passEnd`. A legacy premium with no passEnd is not a pass. PURE. */
+/**
+ * A PAID pass that has not ended: premium with a readable, future `passEnd`. A legacy premium with no passEnd is not a pass. PURE.
+ * Known mismatch with the server (nudgeEmail runPassStart also requires passType month|till_boards): the client status carries no
+ * passType, so an admin-set premium that has a passEnd but no passType would see the card but get no email. Harmless; documented.
+ */
 export function isActivePassHolder(status: SubscriptionStatus | null | undefined, nowMs?: number): boolean {
   if (!status || status.tier !== "premium" || typeof status.passEnd !== "string") return false;
   const end = Date.parse(status.passEnd);
@@ -96,6 +100,8 @@ export function usePracticeSeen(uid: string | null | undefined, enabled: boolean
 export interface PassStartState {
   /** The pass-holder variant is the card for this account (visible unless dismissed). */
   variant: boolean;
+  /** The account is a holder with no graded work but the practice read has not answered yet: show nothing until it does. */
+  pending: boolean;
   dismissed: boolean;
   dismiss: () => void;
 }
@@ -109,6 +115,7 @@ export function usePassStart(uid: string | null | undefined, status: Subscriptio
   const dismissed = !!uid && (dismissedFor === uid || isPassStartDismissed(uid));
   return {
     variant: holder && graded === "none" && seen === "none",
+    pending: holder && graded === "none" && seen === "loading",
     dismissed,
     dismiss: () => {
       if (uid) {

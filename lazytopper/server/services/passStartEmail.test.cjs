@@ -283,3 +283,38 @@ test('only the student is emailed: no payer address is read or used', async () =
   assert.deepEqual(s.calls[0].body.to, ['one@gmail.com']);
   assert.equal(s.db.queries.filter((q) => q.path === 'payOrders').length, 0);
 });
+
+test('N1: activity is an existence check (limit 1), not a full read of every record', async () => {
+  const s = setup();
+  grant(s.db, 'u1', 30);
+  for (let i = 0; i < 5; i += 1) s.db.docs.set(`sessionRecords/u1/records/r${i}`, { gradedAt: NOW - HOUR });
+  const r = await s.run();
+  assert.equal(r.sent, 0);
+  assert.equal(r.skipped['already-active'], 1);
+  assert.equal(s.db.queries.filter((q) => q.path === 'sessionRecords/u1/records' && q.filters.some((f) => f.startsWith('gradedAt'))).length, 0);
+});
+
+test('N2: an already-active holder gets a marker on the passstart slot only, and is not re-read next hour', async () => {
+  const s = setup();
+  grant(s.db, 'u1', 30);
+  s.db.docs.set('practiceInsights/u1/attempts/a1', { timestamp: NOW - HOUR });
+  await s.run();
+  const row = s.db.docs.get('nudgeEmails/u1');
+  assert.equal(row.passstart.status, 'skipped');
+  assert.equal(row.skip, undefined); // the account-wide skip marker is untouched
+  assert.equal(row.lastClaimMs, undefined);
+  const before = s.db.queries.filter((q) => q.path === 'practiceInsights/u1/attempts').length;
+  s.clock.now = NOW + HOUR;
+  await s.run();
+  assert.equal(s.db.queries.filter((q) => q.path === 'practiceInsights/u1/attempts').length, before);
+});
+
+test('N3: at most PER_RUN_CAP (10) pass-start emails per run, well under the daily cap', async () => {
+  const users = {};
+  for (let i = 0; i < 15; i += 1) users[`p${i}`] = gUser(`p${i}@gmail.com`);
+  const s = setup({ users, env: { ...ENV_ON, NUDGE_EMAIL_DAILY_CAP: '30' } });
+  for (let i = 0; i < 15; i += 1) grant(s.db, `p${i}`, 30 + i * 0.1);
+  const r = await s.run();
+  assert.equal(P.PER_RUN_CAP, 10);
+  assert.equal(r.sent, 10);
+});

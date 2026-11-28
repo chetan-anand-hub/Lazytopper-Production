@@ -169,4 +169,32 @@ describe("PASS-START-1 pass-holder card", () => {
       vi.unstubAllEnvs();
     }
   });
+
+  it("B1: while the practice read is unresolved NO card and NO takeover shows (not the generic one either)", async () => {
+    cloudAttempt.mockReturnValue(new Promise(() => undefined));
+    await mount("u1", status());
+    expect(screen.queryByTestId("start-here-card")).toBeNull();
+    expect(screen.queryByTestId("pass-start-card")).toBeNull();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(onboarding).not.toHaveBeenCalled();
+  });
+
+  it("B2 (control arm): exactly ONE shown event for a holder, tagged variant pass; no guide events", async () => {
+    __setGuideAbForTests(true, "control");
+    await mount("u1", status());
+    expect(screen.getByTestId("pass-start-card")).toBeTruthy();
+    const shown = onboarding.mock.calls.filter((c) => c[0] === "start_here_shown");
+    expect(shown).toEqual([["start_here_shown", { surface: "home", variant: "pass" }]]);
+    expect(onboarding.mock.calls.filter((c) => c[0] === "guide_shown")).toHaveLength(0);
+    expect(assigned).not.toHaveBeenCalled();
+  });
+
+  it("B2 (guide arm): a holder logs no guide_shown, assigns no variant and spends no Byte budget", async () => {
+    __setGuideAbForTests(true, "guide");
+    await mount("u1", status());
+    expect(screen.getByTestId("pass-start-card")).toBeTruthy();
+    expect(onboarding.mock.calls.filter((c) => c[0] === "guide_shown")).toHaveLength(0);
+    expect(onboarding.mock.calls.filter((c) => c[0] === "start_here_shown")).toHaveLength(1);
+    expect(assigned).not.toHaveBeenCalled();
+  });
 });

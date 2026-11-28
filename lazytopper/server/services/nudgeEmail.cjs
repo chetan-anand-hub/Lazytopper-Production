@@ -579,6 +579,15 @@ function createNudgeEmailer(deps = {}) {
       return null;
     }
   }
+  /** PASS-START-1: does ONE graded session record exist (limit(1), not a full read)? null = unreadable. */
+  async function hasAnyRecord(uid) {
+    try {
+      const snap = await adminFirestore.collection(SESSION_RECORDS_COLLECTION).doc(uid).collection(SESSION_RECORDS_SEGMENTS.records).limit(1).get();
+      return snap.docs.length > 0;
+    } catch {
+      return null;
+    }
+  }
   /** REACTIVATE-1: has the student tapped any practice card? (writes no session record). null = unreadable. */
   async function hasPracticeAttempts(uid) {
     try {
@@ -1755,6 +1764,11 @@ function createNudgeEmailer(deps = {}) {
         return false;
       }
       for (const d of docs) {
+        // N3: its own small per-run cap, so it can never use up the shared daily cap.
+        if (own.sent + own.wouldSend >= passStartEmail.PER_RUN_CAP) {
+          skip('run-cap');
+          break;
+        }
         const uid = d.id;
         const sub = d.data() || {};
         own.candidates += 1;
@@ -1799,22 +1813,23 @@ function createNudgeEmailer(deps = {}) {
           continue;
         }
         // Activity: any graded record, or any practice attempt, ends it. An unreadable answer skips (never email blind).
-        const records = await readRecords(uid, 0);
-        if (records === null) {
+        const graded = await hasAnyRecord(uid);
+        const attempted = graded === true ? true : await hasPracticeAttempts(uid);
+        if (graded === null || attempted === null) {
           skip('activity-unavailable');
           continue;
         }
-        if (records.length > 0) {
+        if (graded || attempted) {
+          // N2: activity never un-happens, so this holder is done for good. A marker on THIS kind's own ledger slot (never the
+          // account-wide skip marker, which would silence every other nudge) stops the hourly re-reads; nothing is claimed or sent.
           skip('already-active');
-          continue;
-        }
-        const attempted = await hasPracticeAttempts(uid);
-        if (attempted === null) {
-          skip('activity-unavailable');
-          continue;
-        }
-        if (attempted) {
-          skip('already-active');
+          if (config.mode === 'send') {
+            try {
+              await adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid).set({ [kind]: { status: 'skipped', reason: 'already-active', skippedAt: serverTimestamp() } }, { merge: true });
+            } catch {
+              /* a missing marker only costs a re-read next hour */
+            }
+          }
           continue;
         }
 

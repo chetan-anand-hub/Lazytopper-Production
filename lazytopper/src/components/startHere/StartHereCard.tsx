@@ -250,6 +250,10 @@ export function useStartHere(uid?: string | null, subscription?: SubscriptionSta
 
   // PASS-START-1: for an active Board Pass holder with no activity the card is the pass variant (never two cards). Others: unchanged.
   const pass = usePassStart(uid, subscription, graded);
+  // B1: a holder whose practice read has not answered yet shows NO card (not the generic one, not the takeover) until it does.
+  if (pass.pending) {
+    return { visible: false, dismiss: () => undefined, eligible: false, uid: uid ?? null, momentsConfirmed: false, reason: null };
+  }
   if (pass.variant && uid) {
     return {
       visible: !pass.dismissed,
@@ -376,8 +380,19 @@ function quickRenderer(testIdPrefix: string, returnTo: string, onNotNow: () => v
   return QuickStartHere;
 }
 
-/** The card, given an eligibility read the caller already made (Home). */
-export function StartHereView({
+/**
+ * The card, given an eligibility read the caller already made (Home).
+ * PASS-START-1: the pass-holder card is chosen BEFORE any generic-card hook runs, so it never spends Byte's budget, never
+ * fires the generic / guide shown events and never assigns the A/B arm (it is a separate component, not an early return).
+ */
+export function StartHereView(props: Omit<StartHereCardProps, "uid" | "focus" | "inProgress"> & { state: StartHereState }) {
+  if (props.state.passStart) {
+    return props.state.visible ? <PassStartCard returnTo={props.returnTo} spaced={props.spaced ?? false} onNotNow={() => props.state.dismiss()} /> : null;
+  }
+  return <StartHereGenericView {...props} />;
+}
+
+function StartHereGenericView({
   surface,
   returnTo,
   spaced = false,
@@ -407,11 +422,6 @@ export function StartHereView({
   useEffect(() => {
     if (visible && surface === "home") reportFirstActionShown("home", state.reason ?? null);
   }, [visible, surface, state.reason]);
-
-  // PASS-START-1: the pass-holder card stands in for the generic card and for Byte's inline arm (one card, never two).
-  if (state.passStart) {
-    return visible ? <PassStartCard returnTo={returnTo} spaced={spaced} onNotNow={() => state.dismiss()} /> : null;
-  }
 
   if (arm === "guide" && !mascotsHidden && (byteAllowed || !visible)) {
     return (
@@ -459,7 +469,7 @@ function PassStartCard({ returnTo, spaced, onNotNow }: { returnTo: string; space
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    trackOnboardingEvent("start_here_shown", { surface: "home" });
+    trackOnboardingEvent("start_here_shown", { surface: "home", variant: "pass" });
   }, []);
   const start = async () => {
     if (busy) return;
