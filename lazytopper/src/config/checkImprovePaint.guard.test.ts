@@ -737,6 +737,8 @@ describe("SPEED-CI-3 — in-app browsers get the door; a web view without storag
     expect(readers.sort()).toEqual([
       // QUICK-LEAVE-1: reads the UA once into a first-party metrics beacon (inApp / device booleans); renders nothing, so the first frame is unaffected.
       "analytics/quickLeave.ts",
+      // INAPP-GAP-1: read once when an order-create body is built (coarse UaClass label for `source.ua`); nothing renders from it.
+      "analytics/visitSource.ts",
       "components/auth/inAppSigninCopy.ts",
       "components/guestPay/GuestPaySheet.tsx",
       // INAPP-PAY-CHOICE-1: the up-front "Pay in Chrome / Safari" option. Rendered only by PacksShop, PassCheckout, /cbq-packs and
