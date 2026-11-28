@@ -151,8 +151,8 @@ describe("SeriesChooser — full-length", () => {
 describe("SeriesChooser — price line (TS-PRICE-2 helpers, in a clock slot)", () => {
   afterEach(() => vi.useRealTimers());
   it.each([
-    ["2026-11-19T10:00:00+05:30", /^₹999 \+ GST · founding price till 30 Nov, then ₹1,499 \+ GST$/],
-    ["2026-12-02T10:00:00+05:30", /^₹1,499 \+ GST$/],
+    ["2026-11-19T10:00:00+05:30", /^₹999 \+ GST$/], // PRICE-HOLD-1: no deadline clause
+    ["2026-12-02T10:00:00+05:30", /^₹999 \+ GST$/], // PRICE-HOLD-1: 999 after 1 Dec too
   ])("at %s", async (iso, re) => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date(iso));

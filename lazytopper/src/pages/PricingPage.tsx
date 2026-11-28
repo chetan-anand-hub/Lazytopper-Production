@@ -18,12 +18,9 @@ import {
 import {
   boardPassFoundingPriceLine,
   FOUNDING_PRICE_LEAD,
-  formatInr,
   boardPassFoundingLabel,
   boardPassPriceDisplay,
   FOUNDING_LOCK_COPY,
-  FOUNDING_OFFER_LIST_FROM_LABEL,
-  TILL_BOARDS_AFTER_FOUNDING_INR,
   foundingRateApplies,
   PERIOD_MONTHLY_LABEL,
   PRICE_MONTHLY_FOUNDING_INR,
@@ -143,11 +140,6 @@ const FAQ_ITEMS = [
     // marks; never names the provider (24 Oct rule).
     q: "How is my answer marked?",
     a: "Our marking follows the CBSE step-marking scheme: each step earns its marks, units and keywords count, and an error carried forward is not punished twice. It uses an AI language model set up to mark the way a CBSE examiner would, and every mark comes with the reason.",
-  },
-  {
-    // PRICE-FIXED-1 (owner, 21:12 IST 31 Oct 2026): both figures imported from the pricing config (never typed); true on every date.
-    q: "What happens when the founding offer ends?",
-    a: `From ${FOUNDING_OFFER_LIST_FROM_LABEL} the Board Pass is ${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)} + GST. A pass you have already bought is never re-priced.`,
   },
   {
     q: "Are there any usage limits?",

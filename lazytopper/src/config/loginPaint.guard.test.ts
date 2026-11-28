@@ -183,9 +183,10 @@ describe("decideLoginPaint", () => {
 
   it("clockWindowAt brackets now between the pricing instants", () => {
     const instants = pricingInstants();
-    expect(instants.length).toBeGreaterThanOrEqual(3);
+    // PRICE-HOLD-1: the founding-offer close is no longer a finite instant, so fewer pricing instants remain.
+    expect(instants.length).toBeGreaterThanOrEqual(2);
     const t = instants[1];
-    expect(clockWindowAt(t, instants)).toEqual({ from: t, until: instants[2] });
+    expect(clockWindowAt(t, instants)).toEqual({ from: t, until: Number.MAX_SAFE_INTEGER });
     expect(clockWindowAt(t - 1, instants)).toEqual({ from: instants[0], until: t });
     expect(clockWindowAt(instants[instants.length - 1] + 1, instants).until).toBe(Number.MAX_SAFE_INTEGER);
   });

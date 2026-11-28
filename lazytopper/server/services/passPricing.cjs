@@ -32,8 +32,12 @@ const PRICE_MONTHLY_FOUNDING_INR = 599;
  * founding offer is CLOSED — 00:00 on 1 Dec 2026 IST. The SERVER decides what is charged,
  * so it evaluates this against its OWN clock (`foundingOfferOpen(nowMs)`), per request.
  */
-const FOUNDING_OFFER_CLOSES_AT_ISO = '2026-12-01T00:00:00+05:30';
-const FOUNDING_OFFER_CLOSES_AT_MS = Date.parse(FOUNDING_OFFER_CLOSES_AT_ISO);
+// PRICE-HOLD-1 (owner ruling 28 Nov 2026 18:44 IST: "we are not changing the price on 1st December"): the founding offer
+// has NO END. No closing instant exists and none is invented: the ISO string is null and the instant is Infinity, so
+// foundingOfferOpen() is true for every finite time and tillBoardsPriceInr() stays 1917 (charged 2262). Mirrors pricing.ts;
+// passPricing.parity.test.ts proves the two agree. To restore a deadline the owner must rule a NEW date, here AND in pricing.ts.
+const FOUNDING_OFFER_CLOSES_AT_ISO = null;
+const FOUNDING_OFFER_CLOSES_AT_MS = Number.POSITIVE_INFINITY;
 
 /** Mirror of pricing.ts foundingOfferOpen(now). PURE: the instant is an argument. */
 function foundingOfferOpen(now) {

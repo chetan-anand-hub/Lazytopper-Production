@@ -154,7 +154,8 @@ function shortDate(label: string): string {
  * Every figure and date comes from config/pricing.ts; the clock is an argument (never read here).
  */
 export function trialEndFoundingLine(nowMs: number): string | null {
-  if (!foundingOfferOpen(nowMs)) return null;
+  // PRICE-HOLD-1: no deadline exists, so no "till <date> - then" line.
+  if (!foundingOfferOpen(nowMs) || FOUNDING_OFFER_LAST_DAY_LABEL === null || FOUNDING_OFFER_LIST_FROM_LABEL === null) return null;
   // GST-EXCL-1: "Founding price ₹1,917 + GST till 30 Nov — ₹2,499 + GST from 1 Dec" from 00:00 IST 7 Nov 2026.
   return `Founding price ${displayPlusGst(TILL_BOARDS_FOUNDING_INR, nowMs)} till ${shortDate(FOUNDING_OFFER_LAST_DAY_LABEL)} \u2014 ${displayPlusGst(TILL_BOARDS_AFTER_FOUNDING_INR, nowMs)} from ${shortDate(FOUNDING_OFFER_LIST_FROM_LABEL)}`;
 }
@@ -165,7 +166,7 @@ export function trialEndFoundingLine(nowMs: number): string | null {
  * only when the screen renders.
  */
 export function foundingDaysLeft(nowMs: number): number | null {
-  if (!foundingOfferOpen(nowMs)) return null;
+  if (!foundingOfferOpen(nowMs) || !Number.isFinite(FOUNDING_OFFER_CLOSES_AT_MS)) return null; // PRICE-HOLD-1: no deadline, no days left
   return Math.max(1, Math.ceil((FOUNDING_OFFER_CLOSES_AT_MS - nowMs) / DAY_MS));
 }
 

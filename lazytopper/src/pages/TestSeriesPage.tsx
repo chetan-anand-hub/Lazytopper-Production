@@ -260,7 +260,7 @@ export default function TestSeriesPage() {
       // TS-PRICE-2: while the founding offer is open the card says "₹999 + GST · founding price till 30 Nov, then ₹1,499 + GST"; after it "₹1,499 + GST".
       ts: testSeriesFoundingClause(now) ? testSeriesPriceLine(now) : packPriceLabel("test_series", now),
       bp: boardPassPriceDisplay(now),
-      founding: foundingOfferOpen(now) ? `Founding season: the Board Pass is ${boardPassPriceDisplay(now)} till ${FOUNDING_OFFER_LAST_DAY_LABEL}` : null,
+      founding: foundingOfferOpen(now) && FOUNDING_OFFER_LAST_DAY_LABEL !== null ? `Founding season: the Board Pass is ${boardPassPriceDisplay(now)} till ${FOUNDING_OFFER_LAST_DAY_LABEL}` : null,
     });
   }, [schedule]);
 

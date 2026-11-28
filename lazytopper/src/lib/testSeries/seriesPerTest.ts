@@ -1,9 +1,9 @@
 /**
  * TS-MORE-1 (owner, 19 Nov 2026) - the Test Series' marketing lines that come from the price and the paper count:
- *   "₹6 per test"  = round(base price / total tests): 999 / 180 = 5.55 -> 6 now; 1,499 / 180 = 8.33 -> 8 from 1 Dec 2026.
+ *   "₹6 per test"  = round(base price / total tests): 999 / 180 = 5.55 -> 6, on every date (PRICE-HOLD-1: the 1 Dec 1,499 / "8 per test" switch was cancelled).
  * The BASE price (what packBaseInr gives), so the line carries no "+ GST". The total is `seriesTotals().total` (180), never typed.
  * Copy only: the server prices every order. Read the line AFTER MOUNT inside a clock slot (components/packs/TestSeriesPerTest.tsx),
- * so a prerendered page never freezes the build machine's clock as a figure that goes false on 1 Dec.
+ * so a prerendered page never freezes the build machine's clock into a figure.
  */
 import { packBaseInr } from "../../services/packs";
 import { seriesTotals, tsMoreDisabled } from "./testSeries";

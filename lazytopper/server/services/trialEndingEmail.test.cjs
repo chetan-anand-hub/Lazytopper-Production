@@ -711,20 +711,16 @@ test('SELL-1: Board Pass CTA price comes from passPricing at the send time; no f
   const closed = buildTrialEmail({ ...args, nowMs: after });
   const pBefore = pp.tillBoardsQuote(before, pp.predictBoardDateIso(before)).priceInr;
   const pAfter = pp.tillBoardsQuote(after, pp.predictBoardDateIso(after)).priceInr;
-  // PRICE-FIXED-1: the Board Pass is ₹1,917 until the founding deadline and ₹2,499 from it; no founding / month line is sent.
+  // PRICE-HOLD-1: the Board Pass stays ₹1,917 on every date (no 1 Dec switch); the button never names an amount or a deadline.
   assert.equal(pBefore, 1917);
-  assert.equal(pAfter, 2499);
-  // GST-EXCL-1: both instants are after the 7 Nov 2026 GST cut-off - the CTA names the base "+ GST" (the charge is shown at checkout).
-  // FOUNDING-MSG-PRICE-2: while the founding offer is open at the send time the button names no amount (the Board Pass
-  // price changes at the close); from the close it names the price, as before.
-  assert.ok(open.text.includes('Get the Board Pass: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending'));
-  assert.ok(!/1,917|2,499/.test(open.text + open.html));
-  assert.ok(open.html.includes('>Get the Board Pass</a>'));
-  assert.ok(closed.text.includes(`Get the Board Pass - ₹${pAfter.toLocaleString('en-IN')} + GST, valid till 28 Feb 2027: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending`));
-  assert.ok(closed.text.includes('₹2,499 + GST, valid till'));
-  // the last founding second and the first post-close instant (pinned)
-  assert.ok(buildTrialEmail({ ...args, nowMs: pp.FOUNDING_OFFER_CLOSES_AT_MS - 1 }).text.includes('Get the Board Pass: '));
-  assert.ok(buildTrialEmail({ ...args, nowMs: pp.FOUNDING_OFFER_CLOSES_AT_MS }).text.includes('Get the Board Pass - ₹2,499 + GST, valid till 28 Feb 2027: '));
+  assert.equal(pAfter, 1917);
+  const btn = 'Get the Board Pass: https://www.lazytopper.com/pricing?utm_source=email&utm_medium=email&utm_campaign=trial_ending';
+  for (const e of [open, closed]) {
+    assert.ok(e.text.includes(btn));
+    assert.ok(!/1,917|2,499|30 Nov|1 Dec/.test(e.text + e.html));
+    assert.ok(e.html.includes('>Get the Board Pass</a>'));
+  }
+  assert.ok(buildTrialEmail({ ...args, nowMs: Date.parse('2026-12-01T00:00:00+05:30') }).text.includes(btn));
   // ...and BEFORE the GST cut-off the rest of the email is as it was (all-in prices, no "+ GST"); the Board Pass button names no amount.
   const preCut = buildTrialEmail({ ...args, nowMs: Date.parse('2026-11-04T12:00:00+05:30') });
   assert.ok(preCut.text.includes('Get the Board Pass: '));

@@ -150,7 +150,8 @@ describe("PAID-XSELL-1 - prices, copy and links", () => {
     const [ts, , cbq] = pickPaidCrossSell(base({ bought: "pdf" }));
     // TS-PRICE-2 (edited expectation): the Test Series suggestion carries the founding line while the offer is open.
     expect(ts.price).toBe(testSeriesPriceLine(NOW));
-    expect(ts.price).toBe(`${packPriceLabel("test_series", NOW)} \u00b7 ${testSeriesFoundingClause(NOW)}`);
+    expect(testSeriesFoundingClause(NOW)).toBeNull(); // PRICE-HOLD-1: no deadline clause
+    expect(ts.price).toBe(packPriceLabel("test_series", NOW));
     expect(ts.href).toBe("/packs?buy=test_series");
     expect(ts.cta).toBe(`Add the Test Series — ${packPayLabel("test_series", NOW)}`);
     expect(testSeriesXsellBenefit()).toBe(`Get your written answers checked step by step, 2 checks per paper, ${seriesTotals().total} board-pattern tests`);

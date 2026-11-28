@@ -3,7 +3,6 @@ import { HEAD_CBQ_PACK_PRICE_INR, HEAD_NOW, STATIC_PAGE_HEADS, salesPageHeads } 
 import { PACK_PRICE_INR } from "../services/packs";
 import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM } from "../lib/packs/packLabels";
 import { BP_MINUTE_TILE } from "../components/salesPages/salesPagesCopy";
-import { FOUNDING_OFFER_CLOSES_AT_MS } from "./pricing";
 
 /**
  * PRICING-PAGES-2 F5 + R2 - the /board-pass and /cbq-packs heads carry the price and the claims, generated at build from the pinned
@@ -11,15 +10,17 @@ import { FOUNDING_OFFER_CLOSES_AT_MS } from "./pricing";
  */
 describe("PRICING-PAGES-2 F5 - sales page heads", () => {
   const before = salesPageHeads(Date.parse("2026-11-30T23:59:59+05:30"));
-  const after = salesPageHeads(FOUNDING_OFFER_CLOSES_AT_MS);
+  // PRICE-HOLD-1: the retired 1 Dec switch instant - the head must be IDENTICAL on both sides of it.
+  const after = salesPageHeads(Date.parse("2026-12-01T00:00:00+05:30"));
 
   it("the mirrored CBQ price is the pack config's", () => {
     expect(HEAD_CBQ_PACK_PRICE_INR).toBe(PACK_PRICE_INR.pack_cbq);
   });
 
-  it("/board-pass description: ₹1,917 + GST until 30 Nov IST, ₹2,499 + GST from 1 Dec IST; the claims from the constants", () => {
+  it("/board-pass description: ₹1,917 + GST before AND after 1 Dec IST (PRICE-HOLD-1: no switch); the claims from the constants", () => {
     expect(before["/board-pass"].description).toContain("Board Pass ₹1,917 + GST once");
-    expect(after["/board-pass"].description).toContain("Board Pass ₹2,499 + GST once");
+    expect(after["/board-pass"].description).toContain("Board Pass ₹1,917 + GST once");
+    expect(after["/board-pass"]).toEqual(before["/board-pass"]);
     for (const h of [before, after]) {
       const d = h["/board-pass"].description;
       expect(d).toContain(`${BANK_QUESTIONS_CLAIM} questions`);

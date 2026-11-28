@@ -47,12 +47,14 @@ import * as P from "./pricing";
 import * as K from "../services/packs";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 
+/** PRICE-HOLD-1: the RETIRED 1 Dec 2026 00:00 IST switch instant - kept only as a test probe: nothing changes at it. */
+const OLD_SWITCH_MS = Date.parse("2026-12-01T00:00:00+05:30");
 const require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const server = require("../../server/services/passPricing.cjs") as {
   PRICE_MONTHLY_FOUNDING_INR: number;
   PRICE_MONTHLY_LIST_INR: number;
-  FOUNDING_OFFER_CLOSES_AT_ISO: string;
+  FOUNDING_OFFER_CLOSES_AT_ISO: string | null;
   FOUNDING_OFFER_CLOSES_AT_MS: number;
   foundingOfferOpen: (now: Date | number) => boolean;
   TILL_BOARDS_FOUNDING_INR: number;
@@ -114,6 +116,11 @@ describe("P16 — server pass pricing mirrors pricing.ts exactly", () => {
     expect(server.TILL_BOARDS_AFTER_FOUNDING_INR).toBe(TILL_BOARDS_AFTER_FOUNDING_INR);
     expect(TILL_BOARDS_FOUNDING_INR).toBe(1917);
     expect(TILL_BOARDS_AFTER_FOUNDING_INR).toBe(2499);
+    // PRICE-HOLD-1: both sides agree there is NO closing instant.
+    expect(FOUNDING_OFFER_CLOSES_AT_ISO).toBeNull();
+    expect(server.FOUNDING_OFFER_CLOSES_AT_ISO).toBeNull();
+    expect(FOUNDING_OFFER_CLOSES_AT_MS).toBe(Number.POSITIVE_INFINITY);
+    expect(server.FOUNDING_OFFER_CLOSES_AT_MS).toBe(Number.POSITIVE_INFINITY);
   });
 
   // PRICE-FIXED-1 - the month pass is retired for new buyers at 00:00 IST on 1 Nov 2026, on BOTH sides.
@@ -132,42 +139,37 @@ describe("P16 — server pass pricing mirrors pricing.ts exactly", () => {
     expect(monthPassAvailable(MONTH_PASS_RETIRED_AT_MS, true)).toBe(true);
   });
 
-  // PRICING-1 — the founding offer closes at 00:00 IST on 1 Dec 2026 (owner: "december will
-  // start with 999/month"). Client and server must flip at the SAME instant.
-  it("PRICING-1 · the founding offer: open at 23:59:59 IST on 30 Nov 2026, closed at 00:00:00 IST on 1 Dec, on BOTH sides", () => {
+  // PRICE-HOLD-1 (owner, 28 Nov 2026): the founding offer NEVER closes. Client and server must agree at every instant.
+  it("PRICE-HOLD-1 · the founding offer is open at 23:59:59 IST on 30 Nov 2026 AND at 00:00:00 IST on 1 Dec AND later, on BOTH sides", () => {
     const lastSecond = new Date("2026-11-30T23:59:59+05:30");
     const firstSecond = new Date("2026-12-01T00:00:00+05:30");
     const justBefore = new Date(firstSecond.getTime() - 1);
-    expect(foundingOfferOpen(lastSecond)).toBe(true);
-    expect(foundingOfferOpen(justBefore)).toBe(true);
-    expect(foundingOfferOpen(firstSecond)).toBe(false);
-    expect(server.foundingOfferOpen(lastSecond)).toBe(true);
-    expect(server.foundingOfferOpen(justBefore)).toBe(true);
-    expect(server.foundingOfferOpen(firstSecond)).toBe(false);
-    // Whole-millisecond agreement across the boundary and a spread either side.
+    for (const d of [lastSecond, justBefore, firstSecond, new Date("2027-02-01T00:00:00+05:30"), new Date("2030-01-01T00:00:00+05:30")]) {
+      expect(foundingOfferOpen(d)).toBe(true);
+      expect(server.foundingOfferOpen(d)).toBe(true);
+    }
+    // Whole-millisecond agreement across the old boundary and a spread either side.
     for (const offsetMs of [-86_400_000, -1000, -1, 0, 1, 1000, 86_400_000]) {
-      const at = FOUNDING_OFFER_CLOSES_AT_MS + offsetMs;
+      const at = OLD_SWITCH_MS + offsetMs;
       expect(server.foundingOfferOpen(at), `offset ${offsetMs}`).toBe(foundingOfferOpen(at));
+      expect(foundingOfferOpen(at), `offset ${offsetMs}`).toBe(true);
     }
     expect(foundingOfferOpen(Number.NaN)).toBe(false);
     expect(server.foundingOfferOpen(Number.NaN)).toBe(false);
   });
 
-  it("PRICING-1 · the default offer in tillBoardsQuote follows the instant it is given, on both sides", () => {
+  it("PRICE-HOLD-1 · the default offer in tillBoardsQuote is the founding price at every instant, on both sides", () => {
     const board = "2027-02-17";
-    const before = new Date("2026-11-30T23:59:59+05:30");
-    const after = new Date("2026-12-01T00:00:00+05:30");
-    for (const now of [before, after]) {
+    for (const now of [new Date("2026-11-30T23:59:59+05:30"), new Date("2026-12-01T00:00:00+05:30"), new Date("2027-02-01T00:00:00+05:30")]) {
       const c = tillBoardsQuote(now, board)!;
       const m = server.tillBoardsQuote(now, board)!;
       expect({ monthsLeft: m.monthsLeft, priceInr: m.priceInr }).toEqual({ monthsLeft: c.monthsLeft, priceInr: c.priceInr });
-      // PRICE-FIXED-1: the Board Pass is 1917 until the founding deadline and 2499 from it, on BOTH sides.
-      expect(c.priceInr).toBe(foundingOfferOpen(now) ? TILL_BOARDS_FOUNDING_INR : TILL_BOARDS_AFTER_FOUNDING_INR);
+      expect(c.priceInr).toBe(TILL_BOARDS_FOUNDING_INR);
       expect(server.tillBoardsPriceInr(now)).toBe(tillBoardsPriceInr(now));
+      expect(tillBoardsPriceInr(now)).toBe(1917);
+      // The server still reports the legacy monthly rate (month orders are priced by it); the CLIENT quote has none.
+      expect(m.monthlyInr).toBe(PRICE_MONTHLY_FOUNDING_INR);
     }
-    // The server still reports the legacy monthly rate (month orders are priced by it); the CLIENT quote has none.
-    expect(server.tillBoardsQuote(before, board)!.monthlyInr).toBe(PRICE_MONTHLY_FOUNDING_INR);
-    expect(server.tillBoardsQuote(after, board)!.monthlyInr).toBe(PRICE_MONTHLY_LIST_INR);
   });
 
   it(`covers at least 12 dated cases (has ${DATES.length})`, () => {
@@ -238,7 +240,7 @@ const serverTopups = (require("../../server/services/passPricing.cjs") as { TOPU
 
 describe("GST-EXCL-1 — the GST rule is ONE rule, server and client, for the Board Pass, every pack and top-ups", () => {
   const CUT = GST_EXCLUSIVE_FROM_MS;
-  const INSTANTS: number[] = [CUT - 86_400_000, CUT - 1, CUT, CUT + 1, +istNoon("2026-11-30"), FOUNDING_OFFER_CLOSES_AT_MS - 1, FOUNDING_OFFER_CLOSES_AT_MS, +istNoon("2027-02-01")];
+  const INSTANTS: number[] = [CUT - 86_400_000, CUT - 1, CUT, CUT + 1, +istNoon("2026-11-30"), OLD_SWITCH_MS - 1, OLD_SWITCH_MS, +istNoon("2027-02-01")];
   const BASES = [
     TILL_BOARDS_FOUNDING_INR,
     TILL_BOARDS_AFTER_FOUNDING_INR,
@@ -279,7 +281,7 @@ describe("GST-EXCL-1 — the GST rule is ONE rule, server and client, for the Bo
     expect([1917, 2499, 49, 99, 199, 299].map((b) => priceWithGst(b, CUT))).toEqual([2262, 2949, 58, 117, 235, 353]);
     expect(boardPassTotalInr(CUT - 1)).toBe(1917);
     expect(boardPassTotalInr(CUT)).toBe(2262);
-    expect(boardPassTotalInr(FOUNDING_OFFER_CLOSES_AT_MS)).toBe(2949);
+    expect(boardPassTotalInr(OLD_SWITCH_MS)).toBe(2262); // PRICE-HOLD-1: nothing changes at 1 Dec
     expect(boardPassGstBreakdown(CUT)).toBe("₹1,917 + ₹345 GST (18%) = ₹2,262");
     expect(boardPassGstBreakdown(CUT - 1)).toBeNull();
   });
@@ -314,8 +316,8 @@ describe("GST-EXCL-1 · 1 ms before 00:00 IST 7 Nov every amount and string equa
     expect(P.boardPassPriceDisplay(BEFORE)).toBe("₹1,917");
     expect(P.boardPassPayDisplay(BEFORE)).toBe("₹1,917");
     expect(P.boardPassPriceLine(BEFORE)).toBe("₹1,917 \u2014 one payment, valid till 28 Feb 2027");
-    expect(P.boardPassDeadlineLine(BEFORE)).toBe("Founding member offer ends 30 November. From 1 December: ₹2,499.");
-    expect(P.boardPassFromLine(BEFORE)).toBe("One payment \u00b7 ₹2,499 from 1 Dec");
+    expect(P.boardPassDeadlineLine(BEFORE)).toBeNull(); // PRICE-HOLD-1: no deadline copy
+    expect(P.boardPassFromLine(BEFORE)).toBe("One payment, no renewals");
     expect(P.boardPassFoundingLabel(BEFORE)).toBe("Founding member offer");
     expect(boardPassGstBreakdown(BEFORE)).toBeNull();
     const trunkPack: Record<string, string> = { pack_chapter: "₹49", pack_mock: "₹99", pack_subject: "₹199", pack_bundle: "₹299", pack_cbq: "₹199" };
@@ -334,7 +336,7 @@ describe("GST-EXCL-1 · 1 ms before 00:00 IST 7 Nov every amount and string equa
     expect(P.boardPassPriceDisplay(CUT)).toBe("₹1,917 + GST");
     expect(P.boardPassPayDisplay(CUT)).toBe("₹2,262");
     expect(P.boardPassPriceLine(CUT)).toBe("₹1,917 + GST \u2014 one payment, valid till 28 Feb 2027");
-    expect(P.boardPassDeadlineLine(CUT)).toBe("Founding member offer ends 30 November. From 1 December: ₹2,499 + GST.");
+    expect(P.boardPassDeadlineLine(CUT)).toBeNull(); // PRICE-HOLD-1: no deadline copy
     expect(boardPassGstBreakdown(CUT)).toBe("₹1,917 + ₹345 GST (18%) = ₹2,262");
     const after: Record<string, [string, string, string]> = {
       pack_chapter: ["₹49 + GST", "₹58", "₹49 + ₹9 GST (18%) = ₹58"],
@@ -371,7 +373,7 @@ describe("GST-EXCL-1 · the month pass is + GST from 00:00 IST 7 Nov too (owner:
     expect(P.displayPlusGst(PRICE_MONTHLY_FOUNDING_INR, CUT)).toBe("₹599 + GST");
     expect(P.payDisplay(PRICE_MONTHLY_LIST_INR, CUT)).toBe("₹1,179");
     // server = client on both sides of both switches, for both month prices
-    for (const now of [CUT - 1, CUT, FOUNDING_OFFER_CLOSES_AT_MS - 1, FOUNDING_OFFER_CLOSES_AT_MS]) {
+    for (const now of [CUT - 1, CUT, OLD_SWITCH_MS - 1, OLD_SWITCH_MS]) {
       const q = routes.quotePass({ passType: "month", plan: "pass_month" }, "month", now);
       const base = foundingOfferOpen(now) ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR;
       expect(q.pricePaidInr).toBe(priceWithGst(base, now));

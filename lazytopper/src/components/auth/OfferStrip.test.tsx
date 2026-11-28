@@ -107,19 +107,20 @@ function flat(el: Element | null | undefined): string {
 // ---------------------------------------------------------------------------
 
 describe("the Board Pass line (the same on every date)", () => {
-  for (const [label, open] of [["before the old founding close", true], ["after the old founding close", false]] as const) {
+  for (const [label, open] of [["before the old 1 Dec switch", true], ["after the old 1 Dec switch (PRICE-HOLD-1: no switch)", false]] as const) {
     it(`${label}: the Board Pass fixed price, no month price, no founding badge, nothing struck`, async () => {
       const strip = await renderStrip(open);
       const text = flat(strip);
       expect(flat(strip.querySelector(".lt-offer-strip-body"))).toBe(
         // GST-EXCL-1: the closed case is after the 7 Nov 2026 GST cut-off - the tag reads "+ GST".
-        `Board Pass: ${open ? "₹1,917" : "₹2,499 + GST"} \u2014 one payment, valid till 28 Feb 2027. Upgrade whenever you like.`,
+        `Board Pass: ${open ? "₹1,917" : "₹1,917 + GST"} \u2014 one payment, valid till 28 Feb 2027. Upgrade whenever you like.`,
       );
       expect([...new Set(text.match(/₹[\d,]+/g))]).toEqual([boardPassPriceDisplay().replace(" + GST", "")]);
       expect(text).not.toMatch(/599|999|for a month|locked|20%|save/i);
       // The Founding member offer label shows before the deadline only (owner, 21:20 IST 31 Oct 2026).
-      if (open) expect(screen.getByTestId("lt-offer-founding-label")).toHaveTextContent("Founding member offer");
-      else expect(screen.queryByTestId("lt-offer-founding-label")).toBeNull();
+      // PRICE-HOLD-1: the label carries NO date and stays on every date.
+      expect(screen.getByTestId("lt-offer-founding-label")).toHaveTextContent("Founding member offer");
+      expect(text).not.toMatch(/30 Nov|1 Dec|2,499|\bends\b|then \u20b9/i);
       expect(screen.queryByTestId("lt-offer-founding-badge")).toBeNull();
       expect(strip.querySelector("s"), "nothing is struck").toBeNull();
       expect(strip.querySelector(".lt-offer-strip-note")).toBeNull();

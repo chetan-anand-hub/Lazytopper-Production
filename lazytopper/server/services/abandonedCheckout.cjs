@@ -359,7 +359,7 @@ function orderPriceText(order, nowMs, finishQuote) {
  */
 function priceChangesAtClose(product, nowMs) {
   if (!product || (product.kind !== BOARD_PASS && product.sku !== 'test_series')) return false;
-  return pricing.foundingOfferOpen(Number.isFinite(nowMs) ? nowMs : Date.now());
+  return pricing.foundingOfferOpen(Number.isFinite(nowMs) ? nowMs : Date.now()); // PRICE-HOLD-1: the offer never closes, so the amount-free wording stays
 }
 
 /** The price line, from the order's own amount; null (no line) when the order has no usable amount. PURE. */

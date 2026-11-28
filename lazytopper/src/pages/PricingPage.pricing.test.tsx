@@ -263,26 +263,17 @@ describe("PRICING-B-1 — the Board Pass card", () => {
     expect(flat(figures)).not.toMatch(/save|%/i);
   });
 
-  it("before the deadline (23:59:59 IST 30 Nov): the one founding line, offer name in bold", () => {
-    pinToday("2026-11-30T23:59:59+05:30");
-    const { container } = render(<TillBoardsOffer />);
-    const figures = container.querySelector('[data-testid="till-boards-figures"]');
-    // GST-EXCL-1: 30 Nov is after the 7 Nov GST cut-off - every tag says "+ GST" (the total is at checkout).
-    expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹1,917 + GST");
-    const line = figures?.querySelector('[data-testid="till-boards-deadline"]');
-    expect(flat(line)).toBe("Founding price ends 30 Nov · ₹1,917 + GST, then ₹2,499 + GST");
-    expect(flat(line?.querySelector("strong"))).toBe("Founding price");
-    expect(flat(figures)).not.toMatch(/save|20%|shrink|off\b/i);
-  });
-
-  it("from the deadline (00:00:00 IST 1 Dec): ₹2,499 and the founding line is GONE", () => {
-    pinToday("2026-12-01T00:00:00+05:30");
-    const { container } = render(<TillBoardsOffer />);
-    const figures = container.querySelector('[data-testid="till-boards-figures"]');
-    expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹2,499 + GST");
-    expect(figures?.querySelector('[data-testid="till-boards-deadline"]')).toBeNull();
-    expect(flat(figures)).not.toMatch(/founding|1 December/i);
-  });
+  it.each(["2026-11-30T23:59:59+05:30", "2026-12-01T00:00:01+05:30", "2027-02-01T10:00:00+05:30"])(
+    "PRICE-HOLD-1 at %s: ₹1,917 + GST, no deadline line, no ₹2,499",
+    when => {
+      pinToday(when);
+      const { container } = render(<TillBoardsOffer />);
+      const figures = container.querySelector('[data-testid="till-boards-figures"]');
+      expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹1,917 + GST");
+      expect(figures?.querySelector('[data-testid="till-boards-deadline"]')).toBeNull();
+      expect(flat(figures)).not.toMatch(/2,499|ends|1 December|30 Nov|save|20%|shrink|off\b/i);
+    },
+  );
 
   it("the FIRST render carries NO clock-derived figure (renderToStaticMarkup runs no effects)", () => {
     pinToday(SEPT_26_IST);
@@ -316,7 +307,7 @@ describe("PRICING-B-1 — the Board Pass figures never reach the static page (th
     pinToday(SEPT_26_IST);
     const { container } = renderPricing();
     expect(countResidualAuthNodes(container)).toBeGreaterThan(0);
-    expect(container.querySelector('[data-testid="till-boards-deadline"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="till-boards-deadline"]')).toBeNull(); // PRICE-HOLD-1: no deadline node exists
     stripAuthChrome(container);
     expect(countResidualAuthNodes(container)).toBe(0);
     const text = flat(container.querySelector(".lt-pricing-inner"));
@@ -367,7 +358,8 @@ describe("PRICE-FIXED-1 — everyone who is NOT a month buyer sees the Board Pas
       expect(page).not.toMatch(/599|999|for a month/);
       expect(container.querySelector(".lt-pricing-month")).toBeNull();
       expect(container.querySelector(".lt-pricing-founding-note")).toBeNull();
-      expect(page).toContain(new Date(iso).getTime() < Date.parse("2026-12-01T00:00:00+05:30") ? "₹1,917" : "₹2,499");
+      expect(page).toContain("₹1,917"); // PRICE-HOLD-1: no switch on 1 Dec
+      expect(page).not.toContain("₹2,499");
     },
   );
 });
@@ -454,7 +446,6 @@ describe("PRICING-B-1 — Questions parents ask", () => {
       "Is Basic really free?",
       "What is the Board Pass?",
       "How is my answer marked?",
-      "What happens when the founding offer ends?",
       "Are there any usage limits?",
       "What happens after the trial ends?",
       "Can I pay here?",
@@ -462,12 +453,12 @@ describe("PRICING-B-1 — Questions parents ask", () => {
     ]);
   });
 
-  it("the founding-offer answer: from 1 December ₹2,499, and a bought pass is never re-priced; no other figure in the FAQ", () => {
+  it("PRICE-HOLD-1: no FAQ about a price change; no ₹2,499 or 1 December anywhere in the FAQ", () => {
     pinToday(SEPT_26_IST);
     const { inner } = renderPricing();
     const faq = flat(inner.querySelector('[data-testid="pricing-faq"]'));
-    expect(faq).toContain("From 1 December the Board Pass is ₹2,499 + GST. A pass you have already bought is never re-priced."); // GST-EXCL-1
-    expect(rupeeAmounts(faq)).toEqual(["₹2,499"]);
+    expect(faq).not.toMatch(/2,499|1 December|founding offer ends|re-priced/i);
+    expect(rupeeAmounts(faq)).toEqual([]);
     expect(faq).not.toMatch(/599|999|for a month|20%|shrink|monthly/i);
     expect(faq).not.toMatch(/\bfirst\s+\d+\s+students\b/i);
   });
@@ -577,7 +568,7 @@ describe("PRICING-B-1 — contrast (WCAG AA)", () => {
   it("CONTROL — offer CLOSED keeps the page rendering at the list month price for a month buyer", () => {
     pinToday("2026-12-01T00:00:00+05:30");
     const { pass } = renderPricing();
-    expect(flat(pass.querySelector(".lt-pricing-amount"))).toBe(`${PRICE_MONTHLY_LIST_DISPLAY} + GST`); // GST-EXCL-1: 1 Dec is after 7 Nov
-    expect(pass.querySelector(".lt-pricing-founding-note")).toBeNull();
+    // PRICE-HOLD-1: the founding offer never closes, so the month price stays at its founding figure on 1 Dec too.
+    expect(flat(pass.querySelector(".lt-pricing-amount"))).toBe("₹599 + GST");
   });
 });

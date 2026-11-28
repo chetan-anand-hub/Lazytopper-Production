@@ -1407,21 +1407,21 @@ test('PRICING-1 · an order made at 23:59:59 IST on 30 Nov and PAID at 00:00:01 
   assert.equal(srv.db.read(`subscriptions/u1/payments/${p.id}`).pricePaidInr, 707);
 });
 
-test('PRICING-1 · an order made after the close is charged and recorded at the list price (999, not founding)', async (t) => {
+test('PRICE-HOLD-1 · an order made on/after 1 Dec is STILL charged and recorded at the founding rate (no switch: 599 + GST, foundingMember)', async (t) => {
   const srv = await startRoutes({ db: PRIOR_MONTH_BUYER(), now: () => AFTER_CLOSE, calendarOffer: true });
   t.after(srv.close);
   const created = await createOrder(srv);
-  assert.equal(created.amountPaise, 117900);
+  assert.equal(created.amountPaise, 70700);
   const p = srv.rzp.pay(created.orderId);
   const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
   assert.equal(r.status, 200, JSON.stringify(r.json));
   const stored = srv.db.read('subscriptions/u1');
-  assert.equal(stored.pricePaidInr, 1179);
-  assert.equal(stored.offerKey, 'regular');
-  assert.equal(stored.foundingMember, false);
+  assert.equal(stored.pricePaidInr, 707);
+  assert.equal(stored.offerKey, 'founding');
+  assert.equal(stored.foundingMember, true);
 });
 
-test('PRICING-1 · a founding order whose payment is only AUTHORIZED 24 h+ after the close is NOT captured and NOT granted (the authorization lapses, no money taken)', async (t) => {
+test('PRICE-HOLD-1 · no founding order goes stale: an AUTHORIZED payment 24 h+ after 1 Dec is captured and granted at its own price (there is no close)', async (t) => {
   let clock = LAST_SECOND;
   const srv = await startRoutes({ db: PRIOR_MONTH_BUYER(), now: () => clock, calendarOffer: true });
   t.after(srv.close);
@@ -1429,14 +1429,9 @@ test('PRICING-1 · a founding order whose payment is only AUTHORIZED 24 h+ after
   clock = PAST_GRACE;
   const p = srv.rzp.pay(created.orderId, { status: 'authorized' });
   const r = await request(srv.port, PAY_VERIFY_PATH, { body: { orderId: created.orderId, paymentId: p.id, signature: checkoutSig(created.orderId, p.id) }, headers: asUid('u1') });
-  assert.equal(r.status, 400, JSON.stringify(r.json));
-  assert.equal(r.json.reason, 'order_expired');
-  assert.equal(srv.rzp.calls.filter((c) => c.url.includes('/capture')).length, 0, 'a stale founding order was captured');
-  assert.equal(srv.db.read('subscriptions/u1'), undefined, 'a pass was granted for a refused order');
-  // The status path refuses the same way and also captures nothing.
-  const st = await askStatus(srv, created.orderId);
-  assert.equal(st.json.reason, 'order_expired');
-  assert.equal(srv.rzp.calls.filter((c) => c.url.includes('/capture')).length, 0);
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.notEqual(r.json.reason, 'order_expired');
+  assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 707);
 });
 
 test('PRICING-1 · within the 24 h grace an authorized founding order is still captured and granted at 599', async (t) => {
@@ -1466,7 +1461,7 @@ test('PRICING-1 · money already CAPTURED is never stranded: a stale founding or
   assert.equal(stored.foundingMember, true);
 });
 
-test('PRICING-1 · status: a stale AUTHORIZED item does not hide a CAPTURED one later on the same order — it confirms; expired only when nothing else is confirmed', async (t) => {
+test('PRICE-HOLD-1 · status: an AUTHORIZED item 24 h+ after 1 Dec is not "expired" (no close); a CAPTURED one on the same order still confirms at the order price', async (t) => {
   let clock = LAST_SECOND;
   const srv = await startRoutes({ db: PRIOR_MONTH_BUYER(), now: () => clock, calendarOffer: true });
   t.after(srv.close);
@@ -1476,8 +1471,8 @@ test('PRICING-1 · status: a stale AUTHORIZED item does not hide a CAPTURED one 
   srv.rzp.pay(created.orderId, { id: 'pay_later_captured' });
   const st = await askStatus(srv, created.orderId);
   assert.equal(st.status, 200, JSON.stringify(st.json));
+  assert.notEqual(st.json.reason, 'order_expired');
   assert.equal(srv.db.read('subscriptions/u1').pricePaidInr, 707, 'granted at the order price (599 + GST, ordered after 7 Nov)');
-  assert.equal(srv.rzp.calls.filter((c) => c.url.includes('/capture')).length, 0, 'the stale authorization was never captured');
 });
 
 test('PRICING-1 · an EXISTING founder is never refused: a late authorized founding order is captured and granted', async (t) => {
@@ -1511,18 +1506,18 @@ test('PRICE-FIXED-1 · the retirement instant is exactly 2026-11-01T00:00:00+05:
   assert.equal(pricing.monthPassAvailable(RETIRE_AT, false), false);
 });
 
-test('PRICE-FIXED-1 · till_boards is 1917 until the founding deadline and 2499 from it: 31 Oct, 30 Nov 23:59:59 IST -> 1917; 1 Dec 00:00:00 IST, 2 Dec, 1 Feb -> 2499 (the SERVER clock decides)', async (t) => {
-  // GST-EXCL-1: from 00:00 IST 7 Nov 2026 the order is the base + 18% GST (1917 -> 2262, 2499 -> 2949); the founding ->
-  // regular switch at 1 Dec still happens, now on the GST-inclusive total.
+test('PRICE-HOLD-1 · till_boards is 1917 on EVERY date: 1917 before 7 Nov, 2262 charged from it, and STILL 2262 at 1 Dec 00:00 IST, 2 Dec and 1 Feb (the SERVER clock decides; no switch)', async (t) => {
+  // GST-EXCL-1: from 00:00 IST 7 Nov 2026 the order is the base + 18% GST (1917 -> 2262). PRICE-HOLD-1: nothing changes at 1 Dec.
   const cases = [
     [Date.parse('2026-10-31T10:00:00+05:30'), 191700],
     [Date.parse('2026-11-06T23:59:59.999+05:30'), 191700],
     [Date.parse('2026-11-07T00:00:00+05:30'), 226200],
     [Date.parse('2026-11-15T10:00:00+05:30'), 226200],
     [Date.parse('2026-11-30T23:59:59+05:30'), 226200],
-    [Date.parse('2026-12-01T00:00:00+05:30'), 294900],
-    [Date.parse('2026-12-02T10:00:00+05:30'), 294900],
-    [Date.parse('2027-02-01T10:00:00+05:30'), 294900],
+    [Date.parse('2026-12-01T00:00:00+05:30'), 226200],
+    [Date.parse('2026-12-01T00:00:01+05:30'), 226200],
+    [Date.parse('2026-12-02T10:00:00+05:30'), 226200],
+    [Date.parse('2027-02-01T10:00:00+05:30'), 226200],
   ];
   for (const [nowMs, paise] of cases) {
     const label = new Date(nowMs).toISOString();
@@ -1536,11 +1531,13 @@ test('PRICE-FIXED-1 · till_boards is 1917 until the founding deadline and 2499 
   }
 });
 
-test('PRICE-FIXED-1 · the two Board Pass constants: 1917 founding, 2499 after (one constant each, server-decided)', () => {
+test('PRICE-HOLD-1 · the Board Pass price is ONE figure on every date: 1917 (the 2499 constant is retained but unreachable; there is no closing instant)', () => {
   assert.equal(pricing.TILL_BOARDS_FOUNDING_INR, 1917);
   assert.equal(pricing.TILL_BOARDS_AFTER_FOUNDING_INR, 2499);
-  assert.equal(pricing.tillBoardsPriceInr(pricing.FOUNDING_OFFER_CLOSES_AT_MS - 1), 1917);
-  assert.equal(pricing.tillBoardsPriceInr(pricing.FOUNDING_OFFER_CLOSES_AT_MS), 2499);
+  assert.equal(pricing.FOUNDING_OFFER_CLOSES_AT_MS, Infinity);
+  for (const iso of ['2026-11-30T23:59:59+05:30', '2026-12-01T00:00:00+05:30', '2026-12-02T00:00:00+05:30', '2027-02-01T00:00:00+05:30', '2030-01-01T00:00:00+05:30']) {
+    assert.equal(pricing.tillBoardsPriceInr(Date.parse(iso)), 1917, iso);
+  }
 });
 
 test('PRICE-FIXED-1 · month order BEFORE the instant (23:59:59 IST 31 Oct) is still accepted for a never-month uid', async (t) => {
@@ -1781,12 +1778,12 @@ test('EXISTING-BUYERS (2) · a month buyer keeps the month option on every date,
   }
 });
 
-test('EXISTING-BUYERS (2) · a month buyer who was NOT a founder keeps the list price logic (999 after 1 Dec) - the price rule itself is untouched', async (t) => {
+test('EXISTING-BUYERS (2) · PRICE-HOLD-1: a month buyer who was NOT a founder pays the same founding month price on 10 Dec as on 10 Nov (no 1 Dec switch)', async (t) => {
   const seed = monthBuyerSeed();
   seed['subscriptions/mb1'] = { ...seed['subscriptions/mb1'], foundingMember: false, offerKey: 'regular', pricePaidInr: 999 };
   const srv = await startRoutes({ db: memoryFirestore(seed), now: () => istNoon('2026-12-10'), calendarOffer: true });
   t.after(srv.close);
-  assert.equal((await createOrder(srv, 'mb1', 'month')).amountPaise, 117900);
+  assert.equal((await createOrder(srv, 'mb1', 'month')).amountPaise, 70700);
 });
 
 test('EXISTING-BUYERS (3) · admin grants are not gated: the owner can still grant a month or Board Pass to any uid after the instant, at the existing prices', async () => {
@@ -1796,7 +1793,7 @@ test('EXISTING-BUYERS (3) · admin grants are not gated: the owner can still gra
   assert.equal(db.read('subscriptions/newcomer').pricePaidInr, 599, 'month grant price (founding open on 10 Nov)');
   const boards = await grantPass({ uid: 'newcomer2', passType: 'till_boards', paymentRef: 'admin_t1', now: istNoon('2026-12-10') }, { firestore: db });
   assert.equal(boards.replayed, false);
-  assert.equal(db.read('subscriptions/newcomer2').pricePaidInr, 2499, 'Board Pass grant price on 10 Dec (after the founding deadline)');
+  assert.equal(db.read('subscriptions/newcomer2').pricePaidInr, 1917, 'Board Pass grant price on 10 Dec (PRICE-HOLD-1: no founding deadline, still 1917)');
   // ...and the route-level gate lives ONLY in the order routes, not in the grant path.
   const grantSrc = fs.readFileSync(path.join(__dirname, '..', 'services', 'passGrant.cjs'), 'utf8');
   const grantFn = grantSrc.slice(grantSrc.indexOf('async function grantPass('), grantSrc.indexOf('PRICE-FIXED-1 - has this account EVER'));
@@ -2199,12 +2196,12 @@ test('REUSE · different terms make a FRESH order: another pass type, another GS
   assert.equal(orderPosts(srv), 5);
 });
 
-test('REUSE · a price change between the two asks (the 1 Dec founding close) makes a fresh order at the NEW price', async (t) => {
-  let clock = Date.parse('2026-11-30T23:55:00+05:30');
+test('REUSE · a price change between the two asks (the 7 Nov GST cut-off; PRICE-HOLD-1 retired the 1 Dec price change) makes a fresh order at the NEW amount', async (t) => {
+  let clock = Date.parse('2026-11-06T23:55:00+05:30');
   const srv = await startRoutes({ now: () => clock, calendarOffer: true });
   t.after(srv.close);
   const a = await createOrder(srv, 'u1', 'till_boards');
-  clock = Date.parse('2026-12-01T00:05:00+05:30'); // 10 minutes later, inside the window
+  clock = Date.parse('2026-11-07T00:05:00+05:30'); // 10 minutes later, inside the window
   const b = await createOrder(srv, 'u1', 'till_boards');
   assert.notEqual(b.orderId, a.orderId);
   assert.notEqual(b.amountPaise, a.amountPaise);

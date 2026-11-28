@@ -280,24 +280,22 @@ test('price (pure): from the order amount only; no usable amount -> no price lin
   assert.equal(A.priceLine(bp, { amountPaise: 191700 }, PRE), NO_AMOUNT);
   assert.equal(A.priceLine(bp, { amountPaise: 226200, baseInr: 1917, gstInr: 345, totalInr: 2262 }, POST), NO_AMOUNT);
   assert.equal(A.priceLine(bp, { amountPaise: 221300, baseInr: 1917, gstInr: 345, totalInr: 2262, packCreditInr: 49 }, POST), NO_AMOUNT);
-  // From the close: GST-EXCL-1 as before - the line states the finish-paying quote; a credited quote names its credit.
+  // PRICE-HOLD-1: there is no close, so a post-1-Dec clock (CLOSED) behaves like any other founding-offer date: no amount is named,
+  // whatever the order stored and whatever the finish-paying quote says (the quote itself stays 1917 + GST).
   const { quotePass } = require('../routes/payments.cjs');
   const closedQuote = quotePass({}, 'till_boards', CLOSED);
-  assert.equal(closedQuote.amountPaise, 294900);
+  assert.equal(closedQuote.amountPaise, 226200);
   assert.equal(
     A.priceLine(bp, { amountPaise: 226200, baseInr: 1917, gstInr: 345, totalInr: 2262 }, CLOSED, { amountPaise: closedQuote.amountPaise, gst: closedQuote.gst, packCreditInr: 0 }),
-    'Board Pass: ₹2,499 + ₹450 GST (18%) = ₹2,949, one payment, valid till 28 Feb 2027.',
+    NO_AMOUNT,
   );
-  assert.equal(
-    A.priceLine(bp, { amountPaise: 191700 }, CLOSED, { amountPaise: closedQuote.amountPaise - 4900, gst: closedQuote.gst, packCreditInr: 49 }),
-    'Board Pass: ₹2,499 + ₹450 GST (18%) = ₹2,949, less pack credit ₹49: ₹2,900, one payment, valid till 28 Feb 2027.',
-  );
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, CLOSED, { amountPaise: closedQuote.amountPaise - 4900, gst: closedQuote.gst, packCreditInr: 49 }), NO_AMOUNT);
   // A fixed-price pack is untouched by the founding offer: its own amount before the GST cut-off, its breakup from it.
   const pk = A.productOf({ passType: 'pack_chapter', packTarget: 'triangles' });
   assert.equal(A.priceLine(pk, { amountPaise: 4900 }, PRE), '₹49, one-time payment. It never renews.');
   assert.equal(A.priceLine(pk, { amountPaise: 5800, baseInr: 49, gstInr: 9, totalInr: 58 }, POST), '₹49 + ₹9 GST (18%) = ₹58, one-time payment. It never renews.');
-  assert.equal(A.priceLine(bp, { amountPaise: 0 }, CLOSED), null);
-  assert.equal(A.priceLine(bp, {}, CLOSED), null);
+  assert.equal(A.priceLine(bp, { amountPaise: 0 }, CLOSED), NO_AMOUNT);
+  assert.equal(A.priceLine(bp, {}, CLOSED), NO_AMOUNT);
   assert.equal(A.hadFailedAttempt({ lastFailure: { code: 'x' } }), true);
   assert.equal(A.hadFailedAttempt({}), false);
 });
@@ -570,13 +568,13 @@ test('GST-EXCL-1 G3 · a credited Board Pass emailed after the cut-off states th
   assert.equal(require('../routes/payments.cjs').quotePass({}, 'till_boards', NOW).amountPaise, q.amountPaise, 'the same quote the order route uses');
   // The abandoned order itself was a pre-cut-off credited order of 1868: the email must NOT restate it - it states the quote.
   const line = A.priceLine(bp, { amountPaise: 186800, packCreditInr: 49 }, NOW, q);
-  assert.equal(line, 'Board Pass: ₹2,499 + ₹450 GST (18%) = ₹2,949, one payment, valid till 28 Feb 2027.');
+  assert.equal(line, 'The Board Pass is one payment, valid till 28 Feb 2027.', 'PRICE-HOLD-1: no amount is named while the (endless) founding offer is open');
   // A pack: the table quote.
   const pk = A.productOf({ passType: 'pack_mock', packTarget: 'maths' });
   const pq = await A.finishPayingQuote(db, 'u1', pk, NOW);
   assert.equal(A.priceLine(pk, { amountPaise: 9900 }, NOW, pq), '₹99 + ₹18 GST (18%) = ₹117, one-time payment. It never renews.');
-  // An unreadable quote after the cut-off: no price line at all (never a guess).
-  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, NOW, null), null);
+  // An unreadable quote: the amount-free line (PRICE-HOLD-1: never a guess, never a figure).
+  assert.equal(A.priceLine(bp, { amountPaise: 191700 }, NOW, null), 'The Board Pass is one payment, valid till 28 Feb 2027.');
   // Before the GST cut-off (and inside the founding offer) the Board Pass line names no amount (the quote is not consulted).
   assert.equal(A.priceLine(bp, { amountPaise: 191700 }, FOUNDING - 86400000, null), 'The Board Pass is one payment, valid till 28 Feb 2027.');
 });
@@ -599,15 +597,16 @@ test('TS-UPGRADE-CREDIT-1 · a Test Series owner\'s "Finish paying" email states
   assert.equal(A.priceLine(bp, abandonedOrder, FOUNDING, q), 'The Board Pass is one payment, valid till 28 Feb 2027.');
   assert.equal(A.priceLine(bp, abandonedOrder, Date.parse('2026-11-06T12:00:00+05:30')), 'The Board Pass is one payment, valid till 28 Feb 2027.');
   const qa = await A.finishPayingQuote(db, 'ts1', bp, AFTER);
-  assert.equal(A.priceLine(bp, abandonedOrder, AFTER, qa), 'Board Pass: ₹1,500 + ₹270 GST (18%) = ₹1,770, one payment, valid till 28 Feb 2027.');
+  assert.equal(qa.amountPaise, 108300, 'PRICE-HOLD-1: the upgrade quote is the same after 1 Dec (918 + 165 = 1083)');
+  assert.equal(A.priceLine(bp, abandonedOrder, AFTER, qa), 'The Board Pass is one payment, valid till 28 Feb 2027.');
   // Everyone else is byte-identical: no Test Series, or one already credited -> the full price, exactly as before.
   for (const uid of ['plain', 'spent']) {
     const qp = await A.finishPayingQuote(db, uid, bp, FOUNDING);
     assert.equal(qp.amountPaise, 226200, uid);
     // FOUNDING-MSG-PRICE-2: the email line is pinned to the post-close clock (AFTER).
     const qpa = await A.finishPayingQuote(db, uid, bp, AFTER);
-    assert.equal(qpa.amountPaise, 294900, uid);
-    assert.equal(A.priceLine(bp, { amountPaise: 226200, baseInr: 1917, gstInr: 345, totalInr: 2262 }, AFTER, qpa), 'Board Pass: ₹2,499 + ₹450 GST (18%) = ₹2,949, one payment, valid till 28 Feb 2027.', uid);
+    assert.equal(qpa.amountPaise, 226200, uid);
+    assert.equal(A.priceLine(bp, { amountPaise: 226200, baseInr: 1917, gstInr: 345, totalInr: 2262 }, AFTER, qpa), 'The Board Pass is one payment, valid till 28 Feb 2027.', uid);
   }
   // Kill switch: the email follows the order route (full price).
   const prev = process.env.TS_UPGRADE_CREDIT_DISABLED;
@@ -693,9 +692,9 @@ test('GST-EXCL-1 x GUEST-ABANDON-1: the guest email states the price a new signe
   await closed.run();
   assert.equal(closed.calls.length, 1);
   const quote = require('../routes/payments.cjs').quotePass({}, 'till_boards', closed.clock.now);
-  assert.equal(quote.amountPaise, 294900);
-  assert.match(closed.calls[0].body.text, /\nBoard Pass: ₹2,499 \+ ₹450 GST \(18%\) = ₹2,949\.\n/);
-  assert.match(closed.calls[0].body.html, /Board Pass: ₹2,499 \+ ₹450 GST \(18%\) = ₹2,949\./);
+  assert.equal(quote.amountPaise, 226200);
+  // PRICE-HOLD-1: no close exists, so a post-1-Dec email carries no Board Pass price line either.
+  assert.doesNotMatch(closed.calls[0].body.text + closed.calls[0].body.html, /₹|GST|Board Pass: /);
   // A pack: tableQuote (₹99 -> ₹117).
   const pk = setup({ env: ENV_GUEST, now: at('2026-11-07T10:00:00+05:30') });
   gOrder(pk.db, pk.clock.now, { passType: 'pack_mock', packTarget: 'maths', amountPaise: 9900, guestEmail: 'pk@gmail.com' });
@@ -706,7 +705,8 @@ test('GST-EXCL-1 x GUEST-ABANDON-1: the guest email states the price a new signe
   // FOUNDING-MSG-PRICE-2: the builder is pinned to a post-close send time (it hides a changing price before the close).
   const P = { key: 'board_pass', kind: 'board_pass' };
   const base = { product: P, appUrl: 'https://x', unsubscribeUrl: 'https://x/u', nowMs: at('2026-12-02T10:00:00+05:30') };
-  assert.match(G.buildGuestAbandonEmail({ ...base, currentPriceInr: 2499 }).text, /Board Pass: ₹2,499\./);
+  // PRICE-HOLD-1: the builder's "post-close" branch is unreachable for the real clock; a pinned post-1-Dec send time still prints no Board Pass price.
+  assert.doesNotMatch(G.buildGuestAbandonEmail({ ...base, currentPriceInr: 1917 }).text, /₹/);
   assert.doesNotMatch(G.buildGuestAbandonEmail({ ...base, currentPriceInr: 2499, currentPriceText: null }).text, /₹/);
 });
 
@@ -864,19 +864,16 @@ test('TS-PACK-1: an abandoned Test Series order is followed up with its own line
   }
 });
 
-test('TS-PRICE-2 · "Finish paying" for a Test Series order quotes 999 + GST before the cut-off and 1,499 + GST from it (an order created at 999 is not re-quoted at 999 after 1 Dec)', async () => {
+test('PRICE-HOLD-1 · "Finish paying" for a Test Series order quotes 999 + GST before 1 Dec AND from it (no switch); the email line names no amount', async () => {
   const CUT = Date.parse('2026-12-01T00:00:00+05:30');
   const ts = A.productOf({ passType: 'test_series', packTarget: 'all' });
   const db = tinyDb({});
   const before = await A.finishPayingQuote(db, 'u1', ts, CUT - 1);
   assert.equal(before.amountPaise, 117900);
-  // FOUNDING-MSG-PRICE-2: one instant before the close the Test Series price (999 -> 1,499) is not named in the email.
   assert.equal(A.priceLine(ts, { amountPaise: 117900, baseInr: 999, gstInr: 180 }, CUT - 1, before), 'A one-time payment. It never renews.');
   const at = await A.finishPayingQuote(db, 'u1', ts, CUT);
-  assert.equal(at.amountPaise, 176900);
-  // the abandoned order itself was made at 999 (Nov), the email goes out in Dec: it states what checkout will charge NOW
-  const line = A.priceLine(ts, { amountPaise: 117900, baseInr: 999, gstInr: 180 }, CUT + 3600000, at);
-  assert.equal(line, '₹1,499 + ₹270 GST (18%) = ₹1,769, one-time payment. It never renews.');
+  assert.equal(at.amountPaise, 117900);
+  assert.equal(A.priceLine(ts, { amountPaise: 117900, baseInr: 999, gstInr: 180 }, CUT + 3600000, at), 'A one-time payment. It never renews.');
 });
 
 // ── FOUNDING-MSG-PRICE-2 (owner, 25 Nov 2026): no message sent while the founding offer is open names a price that changes
@@ -896,8 +893,9 @@ test('FOUNDING-MSG-PRICE-2 · priceChangesAtClose: Board Pass and Test Series wh
   ];
   assert.equal(A.priceChangesAtClose(bp, FMP_OPEN), true);
   assert.equal(A.priceChangesAtClose(ts, FMP_OPEN), true);
-  assert.equal(A.priceChangesAtClose(bp, FMP_CLOSED), false);
-  assert.equal(A.priceChangesAtClose(ts, FMP_CLOSED), false);
+  // PRICE-HOLD-1: the offer never closes, so the amount-free wording applies at the old close instant and later too.
+  assert.equal(A.priceChangesAtClose(bp, FMP_CLOSED), true);
+  assert.equal(A.priceChangesAtClose(ts, FMP_CLOSED), true);
   for (const p of fixed) {
     assert.equal(A.priceChangesAtClose(p, FMP_OPEN), false, p.key);
     assert.equal(A.priceChangesAtClose(p, FMP_CLOSED), false, p.key);
@@ -921,19 +919,19 @@ test('FOUNDING-MSG-PRICE-2 · abandoned-checkout email + parent WhatsApp text: n
   assert.equal(ask(bpOpen), 'Hi, I want to get the LazyTopper Board Pass for my board exam prep (one payment, valid till 28 Feb 2027). Can you help me pay for it? https://www.lazytopper.com/pricing');
   assert.match(bpOpen.text, /\nThe Board Pass is one payment, valid till 28 Feb 2027\.\n/);
   assert.doesNotMatch(decodedText(bpOpen) + bpOpen.html, /₹/);
-  // Board Pass, from the close
+  // Board Pass, from the old close instant (PRICE-HOLD-1: still no amount - nothing changed at 1 Dec)
   const qc = quotePass({}, 'till_boards', FMP_CLOSED);
+  assert.equal(qc.amountPaise, 226200);
   const bpClosed = A.buildAbandonedCheckoutEmail(args(bp, FMP_CLOSED, { amountPaise: qc.amountPaise, gst: qc.gst, packCreditInr: 0 }));
-  assert.equal(ask(bpClosed), 'Hi, I want to get the LazyTopper Board Pass for my board exam prep (₹2,499 + ₹450 GST (18%) = ₹2,949, one payment, valid till 28 Feb 2027). Can you help me pay for it? https://www.lazytopper.com/pricing');
-  assert.match(bpClosed.text, /\nBoard Pass: ₹2,499 \+ ₹450 GST \(18%\) = ₹2,949, one payment, valid till 28 Feb 2027\.\n/);
-  assert.doesNotMatch(decodedText(bpClosed), /1,917/);
+  assert.equal(ask(bpClosed), 'Hi, I want to get the LazyTopper Board Pass for my board exam prep (one payment, valid till 28 Feb 2027). Can you help me pay for it? https://www.lazytopper.com/pricing');
+  assert.match(bpClosed.text, /\nThe Board Pass is one payment, valid till 28 Feb 2027\.\n/);
+  assert.doesNotMatch(decodedText(bpClosed) + bpClosed.html, /₹/);
 
-  // Test Series (the builders return no email for it today - packDisplayName has no Test Series name - so its line is
-  // held at the price-line level): no amount before the close, the quote from it.
+  // Test Series: no amount at either instant.
   const tqo = tableQuote(999, FMP_OPEN);
   assert.equal(A.priceLine(ts, { amountPaise: 117900, baseInr: 999, gstInr: 180 }, FMP_OPEN, { amountPaise: tqo.amountPaise, gst: tqo.gst, packCreditInr: 0 }), 'A one-time payment. It never renews.');
-  const tq = tableQuote(1499, FMP_CLOSED);
-  assert.equal(A.priceLine(ts, { amountPaise: 117900, baseInr: 999, gstInr: 180 }, FMP_CLOSED, { amountPaise: tq.amountPaise, gst: tq.gst, packCreditInr: 0 }), '₹1,499 + ₹270 GST (18%) = ₹1,769, one-time payment. It never renews.');
+  const tq = tableQuote(999, FMP_CLOSED);
+  assert.equal(A.priceLine(ts, { amountPaise: 117900, baseInr: 999, gstInr: 180 }, FMP_CLOSED, { amountPaise: tq.amountPaise, gst: tq.gst, packCreditInr: 0 }), 'A one-time payment. It never renews.');
 
   // A fixed-price pack keeps its price on both sides of the close.
   const pk = A.productOf({ passType: 'pack_mock', packTarget: 'maths' });
@@ -945,26 +943,25 @@ test('FOUNDING-MSG-PRICE-2 · abandoned-checkout email + parent WhatsApp text: n
   }
 });
 
-test('FOUNDING-MSG-PRICE-2 · a signed-in Board Pass checkout emailed by the runner after the close quotes ₹2,499 + GST', async () => {
+test('PRICE-HOLD-1 · a signed-in Board Pass checkout emailed by the runner after 1 Dec names no amount and never 2,499', async () => {
   const s = setup({ now: Date.parse('2026-12-02T10:00:00+05:30') });
   order(s.db, 'u1', 0, { createdAt: new Date(s.clock.now - 3 * HOUR) });
   await s.run();
   assert.equal(s.calls.length, 1);
   const t = s.calls[0].body.text.replace(/https:\/\/wa\.me\/\?text=\S+/g, (u) => decodeURIComponent(u));
-  assert.match(t, /\nBoard Pass: ₹2,499 \+ ₹450 GST \(18%\) = ₹2,949, one payment, valid till 28 Feb 2027\.\n/);
-  assert.match(t, /\(₹2,499 \+ ₹450 GST \(18%\) = ₹2,949, one payment, valid till 28 Feb 2027\)\. Can you help me pay for it\?/);
-  assert.doesNotMatch(t, /1,917/);
+  assert.match(t, /\nThe Board Pass is one payment, valid till 28 Feb 2027\.\n/);
+  assert.doesNotMatch(t, /2,499|2,949|1,917/);
 });
 
-test('FOUNDING-MSG-PRICE-2 · guest-abandon email: no Board Pass price line before the close; the price from it; fixed packs untouched', () => {
+test('PRICE-HOLD-1 · guest-abandon email: no Board Pass price line on either side of 1 Dec; fixed packs untouched', () => {
   const base = { appUrl: 'https://x', unsubscribeUrl: 'https://x/u' };
   const bp = { key: 'board_pass', kind: 'board_pass' };
   const pk = A.productOf({ passType: 'pack_mock', packTarget: 'maths' });
   // before the close: even a price handed in is not printed
   assert.doesNotMatch(G.buildGuestAbandonEmail({ ...base, product: bp, currentPriceText: '₹1,917 + ₹345 GST (18%) = ₹2,262', nowMs: FMP_OPEN }).text, /₹/);
   assert.doesNotMatch(G.buildGuestAbandonEmail({ ...base, product: bp, currentPriceInr: 1917, nowMs: FMP_OPEN }).text, /₹/);
-  // from the close
-  assert.match(G.buildGuestAbandonEmail({ ...base, product: bp, currentPriceText: '₹2,499 + ₹450 GST (18%) = ₹2,949', nowMs: FMP_CLOSED }).text, /\nBoard Pass: ₹2,499 \+ ₹450 GST \(18%\) = ₹2,949\.\n/);
+  // from the old close instant (PRICE-HOLD-1: no close exists - still no price line)
+  assert.doesNotMatch(G.buildGuestAbandonEmail({ ...base, product: bp, currentPriceText: '₹1,917 + ₹345 GST (18%) = ₹2,262', nowMs: FMP_CLOSED }).text, /₹/);
   // a fixed-price pack: the price on both sides
   for (const t of [FMP_OPEN, FMP_CLOSED]) {
     assert.match(G.buildGuestAbandonEmail({ ...base, product: pk, currentPriceText: '₹99 + ₹18 GST (18%) = ₹117', nowMs: t }).text, /: ₹99 \+ ₹18 GST \(18%\) = ₹117\.\n/);

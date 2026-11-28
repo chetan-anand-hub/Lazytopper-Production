@@ -1209,30 +1209,19 @@ test('TS-PACK-1 · /api/packs/mine: ownsTestSeries only for a live owner (absent
 /* ── TS-PRICE-2 · the Test Series base is 999 until 00:00 IST 1 Dec 2026 (the Board Pass founding cut-off), 1,499 from it ───── */
 const TS_CUTOFF = Date.parse('2026-12-01T00:00:00+05:30');
 
-test('TS-PRICE-2 · the SERVER charges 999 + GST one millisecond before the cut-off and 1,499 + GST exactly at it (Razorpay amount, stored order, response)', async (t) => {
-  const before = await start({ nowMs: TS_CUTOFF - 1 });
-  t.after(before.close);
-  const b = await order(before, 'tsb', 'test_series', { amount: 1, amountPaise: 100, priceInr: 1 });
-  assert.equal(b.status, 200, b.text);
-  assert.equal(b.json.amountPaise, 117900);
-  assert.deepEqual(b.json.gst, { baseInr: 999, gstInr: 180, totalInr: 1179 });
-  assert.equal(before.rzp.calls.find((x) => x.url.endsWith('/orders') && x.method === 'POST').body.amount, 117900);
-  assert.equal(before.db.read(`payOrders/${b.json.orderId}`).baseInr, 999);
-
-  const at = await start({ nowMs: TS_CUTOFF });
-  t.after(at.close);
-  const a = await order(at, 'tsa', 'test_series', { amount: 1, amountPaise: 100, priceInr: 1 });
-  assert.equal(a.status, 200, a.text);
-  assert.equal(a.json.amountPaise, 176900, '1499 + 270 GST');
-  assert.deepEqual(a.json.gst, { baseInr: 1499, gstInr: 270, totalInr: 1769 });
-  assert.equal(at.rzp.calls.find((x) => x.url.endsWith('/orders') && x.method === 'POST').body.amount, 176900, 'Razorpay is asked for 1,769');
-  const stored = at.db.read(`payOrders/${a.json.orderId}`);
-  assert.equal(stored.baseInr, 1499);
-  assert.equal(stored.amountPaise, 176900);
-  // a far-later instant is still 1,499
-  const later = await start({ nowMs: TS_CUTOFF + 90 * 86400000 });
-  t.after(later.close);
-  assert.equal((await order(later, 'tsl', 'test_series')).json.amountPaise, 176900);
+test('PRICE-HOLD-1 · the SERVER charges 999 + GST one millisecond before 1 Dec AND exactly at it AND months later (no switch; Razorpay amount, stored order, response)', async (t) => {
+  for (const [label, nowMs] of [['-1ms', TS_CUTOFF - 1], ['at', TS_CUTOFF], ['+90d', TS_CUTOFF + 90 * 86400000]]) {
+    const srv = await start({ nowMs });
+    t.after(srv.close);
+    const b = await order(srv, `ts_${label}`, 'test_series', { amount: 1, amountPaise: 100, priceInr: 1 });
+    assert.equal(b.status, 200, b.text);
+    assert.equal(b.json.amountPaise, 117900, label);
+    assert.deepEqual(b.json.gst, { baseInr: 999, gstInr: 180, totalInr: 1179 }, label);
+    assert.equal(srv.rzp.calls.find((x) => x.url.endsWith('/orders') && x.method === 'POST').body.amount, 117900, label);
+    const stored = srv.db.read(`payOrders/${b.json.orderId}`);
+    assert.equal(stored.baseInr, 999, label);
+    assert.equal(stored.amountPaise, 117900, label);
+  }
 });
 
 test('TS-PRICE-2 · the other packs keep their one price across the cut-off', async (t) => {
@@ -1244,7 +1233,7 @@ test('TS-PRICE-2 · the other packs keep their one price across the cut-off', as
   }
 });
 
-test('TS-PRICE-2 · an order made at 999 and PAID after the cut-off still grants (verify), and one made at 1,499 grants too; a wrong amount is still refused', async (t) => {
+test('PRICE-HOLD-1 · an order made at 999 and PAID after 1 Dec grants (verify) at 1179; a stored order whose base is neither accepted Test Series price is still refused', async (t) => {
   const db = memoryFirestore();
   const rzp = fakeRazorpay();
   const early = await start({ db, rzp, nowMs: TS_CUTOFF - 5000, licensees: { late1: { name: 'A', email: 'a@example.com' } } });
@@ -1259,21 +1248,12 @@ test('TS-PRICE-2 · an order made at 999 and PAID after the cut-off still grants
   assert.equal(v.json.packId, 'test_series:all');
   assert.equal(db.read('packEntitlements/late1/packs/test_series:all').pricePaidInr, 1179, 'records what was actually paid');
 
-  const full = await start({ db, rzp, nowMs: TS_CUTOFF + 9000, licensees: { n2: { name: 'B', email: 'b@example.com' } } });
-  t.after(full.close);
-  const o2 = await order(full, 'n2', 'test_series');
-  assert.equal(o2.json.amountPaise, 176900);
-  const p2 = rzp.pay(o2.json.orderId);
-  const v2 = await verify(full, 'n2', o2.json.orderId, p2.id);
-  assert.equal(v2.status, 200, v2.text);
-  assert.equal(db.read('packEntitlements/n2/packs/test_series:all').pricePaidInr, 1769);
-
   // a stored order whose base is neither Test Series price is refused by the grant
   db.docs.set('payOrders/order_BAD', { data: { uid: 'n3', passType: 'test_series', packTarget: 'all', amountPaise: 123400, baseInr: 1045, gstInr: 189, totalInr: 1234, gstRate: 0.18, status: 'created' }, version: 1 });
   await assert.rejects(grantPack({ db, uid: 'n3', order: { orderId: 'order_BAD' }, paymentRef: 'pay_BAD', nowMs: TS_CUTOFF + 10000 }), PackGrantInputError);
 });
 
-test('TS-PRICE-2 · a Test Series order made at the 999 founding price and only AUTHORIZED 24 h+ after the cut-off is refused before capture (order_expired); a payment at +10 s is granted', async (t) => {
+test('PRICE-HOLD-1 · no Test Series order goes stale: an order made at 999 and only AUTHORIZED 25 h after 1 Dec is captured and granted (no close, no order_expired)', async (t) => {
   const db = memoryFirestore();
   const rzp = fakeRazorpay();
   const early = await start({ db, rzp, nowMs: TS_CUTOFF - 5000 });
@@ -1281,39 +1261,28 @@ test('TS-PRICE-2 · a Test Series order made at the 999 founding price and only 
   const o = await order(early, 'st1', 'test_series');
   assert.equal(o.json.amountPaise, 117900);
   const auth = rzp.pay(o.json.orderId, { id: 'pay_auth_late', status: 'authorized' });
-  const stale = await start({ db, rzp, nowMs: TS_CUTOFF + 25 * 3600 * 1000 });
-  t.after(stale.close);
-  const r = await verify(stale, 'st1', o.json.orderId, auth.id);
-  assert.equal(r.status, 400, r.text);
-  assert.equal(r.json.reason, 'order_expired');
-  assert.equal(rzp.calls.filter((c) => c.url.includes('/capture')).length, 0, 'a stale founding Test Series order was captured');
-  assert.equal(db.read('packEntitlements/st1/packs/test_series:all'), undefined);
-  // inside the grace window (+10 s) the same kind of order is granted
-  const o2 = await order(early, 'st2', 'test_series');
-  const p2 = rzp.pay(o2.json.orderId, { id: 'pay_auth_ok', status: 'authorized' });
-  const soon = await start({ db, rzp, nowMs: TS_CUTOFF + 10000 });
-  t.after(soon.close);
-  const v2 = await verify(soon, 'st2', o2.json.orderId, p2.id);
-  assert.equal(v2.status, 200, v2.text);
-  assert.ok(db.read('packEntitlements/st2/packs/test_series:all'));
+  const late = await start({ db, rzp, nowMs: TS_CUTOFF + 25 * 3600 * 1000 });
+  t.after(late.close);
+  const r = await verify(late, 'st1', o.json.orderId, auth.id);
+  assert.equal(r.status, 200, r.text);
+  assert.notEqual(r.json.reason, 'order_expired');
+  assert.ok(db.read('packEntitlements/st1/packs/test_series:all'));
 });
 
-test('TS-PRICE-2 · a Board Pass FOUNDING MEMBER gets no exemption: their stale 999 Test Series order (made -5 s, authorized +25 h) is still refused and not captured', async (t) => {
+test('PRICE-HOLD-1 · a Board Pass founding member is treated like anyone: a 999 Test Series order authorized 25 h after 1 Dec is granted (no stale-order rule exists)', async (t) => {
   const db = memoryFirestore({ 'subscriptions/fm1': { foundingMember: true, tier: 'premium' } });
   const rzp = fakeRazorpay();
   const early = await start({ db, rzp, nowMs: TS_CUTOFF - 5000 });
   t.after(early.close);
   const o = await order(early, 'fm1', 'test_series');
   const p = rzp.pay(o.json.orderId, { id: 'pay_fm', status: 'authorized' });
-  const stale = await start({ db, rzp, nowMs: TS_CUTOFF + 25 * 3600 * 1000 });
-  t.after(stale.close);
-  const r = await verify(stale, 'fm1', o.json.orderId, p.id);
-  assert.equal(r.status, 400, r.text);
-  assert.equal(r.json.reason, 'order_expired');
-  assert.equal(rzp.calls.filter((c) => c.url.includes('/capture')).length, 0);
+  const late = await start({ db, rzp, nowMs: TS_CUTOFF + 25 * 3600 * 1000 });
+  t.after(late.close);
+  const r = await verify(late, 'fm1', o.json.orderId, p.id);
+  assert.equal(r.status, 200, r.text);
+  assert.notEqual(r.json.reason, 'order_expired');
 });
 
-/* ── TS-FREE-CHECK-1 · /api/packs/mine carries a NON-owner's free-test state (read only) ──────────────────────────────────── */
 test('TS-FREE-CHECK-1 · /api/packs/mine: `freeTest` for a non-owner only; absent for an owner, when the rule is off (null), or on a read failure', async (t) => {
   const db = memoryFirestore();
   db.docs.set('packEntitlements/m1/packs/test_series:all', { data: { packId: 'test_series:all', sku: 'test_series', target: 'all', pricePaidInr: 1179, paidAt: TS_AFTER_GST, orderId: 'o', paymentRef: 'p', creditedToPass: false }, version: 1 });

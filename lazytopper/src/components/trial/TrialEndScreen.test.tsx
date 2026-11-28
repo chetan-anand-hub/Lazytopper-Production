@@ -130,13 +130,13 @@ describe("TrialEndScreen", () => {
     expect(screen.queryByTestId("trial-end-screen-activity")).toBeNull();
   });
 
-  it("TRIAL-END-OFFER-1: sells the Board Pass - founding line, whole days left, the shared star features, packs line, no 'Premium'", async () => {
+  it("TRIAL-END-OFFER-1: sells the Board Pass - no deadline line (PRICE-HOLD-1), the shared star features, packs line, no 'Premium'", async () => {
     hydrate.mockResolvedValue(status("free"));
     renderAt("/browse");
     await screen.findByTestId("trial-end-screen");
-    // 9 Jun 2026 (the test clock) is inside the founding window: 30 Nov is a long way off, so the count is a plain integer.
-    expect(screen.getByTestId("trial-end-screen-deadline")).toHaveTextContent("Founding price ₹1,917 till 30 Nov — ₹2,499 from 1 Dec");
-    expect(screen.getByTestId("trial-end-screen-days")).toHaveTextContent(/^\d+ days left at this price$/);
+    // PRICE-HOLD-1: the price has no end date, so neither the deadline line nor a days-left count renders.
+    expect(screen.queryByTestId("trial-end-screen-deadline")).toBeNull();
+    expect(screen.queryByTestId("trial-end-screen-days")).toBeNull();
     const ticks = screen.getByTestId("trial-end-screen-ticks");
     expect(ticks).toHaveTextContent("Answer Checker");
     expect(ticks).toHaveTextContent("Mistake Intelligence");
@@ -152,23 +152,15 @@ describe("TrialEndScreen", () => {
     expect(controls[controls.length - 1]).toBe(screen.getByTestId("trial-end-screen-basic"));
   });
 
-  it("TRIAL-END-OFFER-1: after the founding deadline the founding line and the day count are gone; the current price stays", async () => {
-    vi.setSystemTime(ist(2026, 12, 2, 12));
+  it.each([["after the old 1 Dec switch", ist(2026, 12, 2, 12)], ["on 30 November", ist(2026, 11, 30, 20)]])("PRICE-HOLD-1: %s there is no deadline line and no day count, and the price is the SAME (1,917)", async (_label, when) => {
+    vi.setSystemTime(when);
     hydrate.mockResolvedValue(status("free"));
     renderAt("/browse");
     await screen.findByTestId("trial-end-screen");
     expect(screen.queryByTestId("trial-end-screen-deadline")).toBeNull();
     expect(screen.queryByTestId("trial-end-screen-days")).toBeNull();
-    expect(screen.queryByTestId("trial-end-screen-founding-label")).toBeNull();
-    expect(screen.getByTestId("trial-end-screen-lead")).toHaveTextContent("₹2,499");
-  });
-
-  it("TRIAL-END-OFFER-1: on 30 November it says 1 day left", async () => {
-    vi.setSystemTime(ist(2026, 11, 30, 20));
-    hydrate.mockResolvedValue(status("free"));
-    renderAt("/browse");
-    await screen.findByTestId("trial-end-screen");
-    expect(screen.getByTestId("trial-end-screen-days")).toHaveTextContent("1 day left at this price");
+    expect(screen.getByTestId("trial-end-screen-lead")).toHaveTextContent("₹1,917");
+    expect(screen.getByTestId("trial-end-screen-lead")).not.toHaveTextContent("2,499");
   });
 
   it("Continue with Basic closes it, counts it, and asks the feedback card to follow", async () => {

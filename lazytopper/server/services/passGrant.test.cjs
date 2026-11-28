@@ -146,32 +146,21 @@ test('R6 · grant MONTH at REGULAR: ₹999, regular, foundingMember false', asyn
 // (the production path: payments.cjs / parentPay.cjs pass none), the server decides from the
 // `now` it is given. 23:59:59 IST on 30 Nov charges the founding rate; 00:00:00 IST on 1 Dec the
 // list rate. A member who already holds the founding rate keeps it after the close.
-test('PRICING-1 · default offer: ₹599 at 23:59:59 IST on 30 Nov 2026, ₹999 from 00:00:00 IST on 1 Dec', async () => {
+test('PRICE-HOLD-1 · default offer: founding at 23:59:59 IST 30 Nov AND from 00:00:00 IST 1 Dec AND in Feb 2027 (no switch)', async () => {
   const lastSecond = new Date('2026-11-30T23:59:59+05:30').getTime();
   const firstSecond = new Date('2026-12-01T00:00:00+05:30').getTime();
-  for (const passType of ['month', 'till_boards']) {
-    const open = computeGrant({}, { passType, paymentRef: 'p_open', nowMs: lastSecond });
-    const closed = computeGrant({}, { passType, paymentRef: 'p_closed', nowMs: firstSecond });
-    assert.equal(open.fields.offerKey, 'founding', passType);
-    assert.equal(closed.fields.offerKey, 'regular', passType);
-    // PRICE-FIXED-1: both passes cost more after the close (Board Pass 1917 -> 2499, month 599 -> 999).
-    assert.ok(open.fields.pricePaidInr < closed.fields.pricePaidInr, `${passType}: after the close must cost more than founding`);
-    if (passType === 'till_boards') {
-      assert.equal(open.fields.pricePaidInr, 1917);
-      assert.equal(closed.fields.pricePaidInr, 2499);
-    }
+  const feb = new Date('2027-02-01T12:00:00+05:30').getTime();
+  for (const nowMs of [lastSecond, firstSecond, feb]) {
+    const g = computeGrant({}, { passType: 'till_boards', paymentRef: `p_${nowMs}`, nowMs });
+    assert.equal(g.fields.offerKey, 'founding', String(nowMs));
+    assert.equal(g.fields.pricePaidInr, 1917, String(nowMs));
   }
-  assert.equal(computeGrant({}, { passType: 'month', paymentRef: 'a', nowMs: lastSecond }).fields.pricePaidInr, 599);
-  assert.equal(computeGrant({}, { passType: 'month', paymentRef: 'b', nowMs: firstSecond }).fields.pricePaidInr, 999);
-  // Sticky: a founder who comes back after the close still pays the founding rate.
-  const founder = computeGrant({ foundingMember: true }, { passType: 'month', paymentRef: 'c', nowMs: firstSecond });
-  assert.equal(founder.fields.pricePaidInr, 599);
-  assert.equal(founder.fields.offerKey, 'founding');
+  assert.equal(computeGrant({}, { passType: 'month', paymentRef: 'b', nowMs: firstSecond }).fields.pricePaidInr, 599);
   // And grantPass (the write path) takes the same default.
   const db = memoryFirestore();
-  await grantPass({ uid: 'u9', passType: 'month', paymentRef: 'pay_9', now: firstSecond }, { firestore: db });
-  assert.equal(db.read(KEY('u9')).pricePaidInr, 999);
-  assert.equal(db.read(KEY('u9')).foundingMember, false);
+  await grantPass({ uid: 'u9', passType: 'till_boards', paymentRef: 'pay_9', now: firstSecond }, { firestore: db });
+  assert.equal(db.read(KEY('u9')).pricePaidInr, 1917);
+  assert.equal(db.read(KEY('u9')).foundingMember, true);
 });
 
 test('PRICING-1 · grantPass records the ORDER\'s offer and amount: created 23:59:59 IST 30 Nov, paid 00:00:01 IST 1 Dec -> founding, 599', async () => {
@@ -184,11 +173,11 @@ test('PRICING-1 · grantPass records the ORDER\'s offer and amount: created 23:5
   assert.equal(stored.offerKey, 'founding');
   assert.equal(stored.foundingMember, true);
   assert.equal(db.read(PAY_KEY('u1', 'pay_1')).pricePaidInr, 599);
-  // CONTROL: the same payment time with NO order falls to the calendar -> list price.
+  // CONTROL (PRICE-HOLD-1): the same payment time with NO order falls to the calendar -> still founding (no deadline).
   const db2 = memoryFirestore();
   await grantPass({ uid: 'u2', passType: 'month', paymentRef: 'pay_2', now: paidAt }, { firestore: db2 });
-  assert.equal(db2.read(KEY('u2')).pricePaidInr, 999);
-  assert.equal(db2.read(KEY('u2')).foundingMember, false);
+  assert.equal(db2.read(KEY('u2')).pricePaidInr, 599);
+  assert.equal(db2.read(KEY('u2')).foundingMember, true);
 });
 
 test('PRICING-1 · a till-boards order records the amount it CHARGED even if the table has moved since', async () => {
@@ -198,14 +187,16 @@ test('PRICING-1 · a till-boards order records the amount it CHARGED even if the
   assert.equal(db.read(KEY('u1')).offerKey, 'founding');
 });
 
-test('PRICING-1 · isStaleFoundingOrder: only a founding order made BEFORE the close and paid 24 h+ after it', () => {
+test('PRICE-HOLD-1 · isStaleFoundingOrder: never stale - the founding offer has no close, so no order outlives it', () => {
   const { isStaleFoundingOrder } = require('./passGrant.cjs');
   const before = new Date('2026-11-30T23:59:59+05:30');
   const after = new Date('2026-12-01T00:00:01+05:30');
   const at = (iso) => Date.parse(iso);
-  assert.equal(isStaleFoundingOrder({ offerKey: 'founding', createdAt: before }, at('2026-12-01T23:59:59+05:30')), false, 'inside the grace');
-  assert.equal(isStaleFoundingOrder({ offerKey: 'founding', createdAt: before }, at('2026-12-02T00:00:00+05:30')), true, 'grace over');
-  assert.equal(isStaleFoundingOrder({ offerKey: 'founding', createdAt: after }, at('2026-12-09T00:00:00+05:30')), false, 'a founder re-buying after the close');
+  for (const when of ['2026-12-01T23:59:59+05:30', '2026-12-02T00:00:00+05:30', '2026-12-09T00:00:00+05:30', '2027-02-01T00:00:00+05:30']) {
+    assert.equal(isStaleFoundingOrder({ offerKey: 'founding', createdAt: before }, at(when)), false, when);
+    assert.equal(isStaleFoundingOrder({ offerKey: 'founding', createdAt: after }, at(when)), false, when);
+    assert.equal(isStaleFoundingOrder({ passType: 'test_series', baseInr: 999, createdAt: before }, at(when)), false, when);
+  }
   assert.equal(isStaleFoundingOrder({ offerKey: 'regular', createdAt: before }, at('2026-12-09T00:00:00+05:30')), false);
   assert.equal(isStaleFoundingOrder({ offerKey: 'founding' }, at('2026-12-09T00:00:00+05:30')), false, 'no createdAt: never refuse a payment on a guess');
   assert.equal(isStaleFoundingOrder(null, at('2026-12-09T00:00:00+05:30')), false);

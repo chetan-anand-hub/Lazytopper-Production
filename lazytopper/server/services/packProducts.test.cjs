@@ -188,19 +188,19 @@ test('TS-PACK-1 source pin: EVERY order-creating route asks isPackOnSale (so TS_
 });
 
 /* ── TS-PRICE-2 · the Test Series base is time-dependent: 999 founding, 1,499 from the Board Pass founding cut-off ─────────── */
-test('TS-PRICE-2 · packBaseInrAt: 999 up to the last millisecond before 00:00 IST 1 Dec 2026, 1,499 from that instant; other packs unchanged', () => {
+test('PRICE-HOLD-1 · packBaseInrAt: the Test Series stays 999 forever (no 1 Dec switch); other packs unchanged', () => {
   const { packBaseInrAt, packAcceptedBasesInr, TEST_SERIES_FOUNDING_INR, TEST_SERIES_LIST_INR, PACK_PRODUCTS } = require('./packProducts.cjs');
   const { FOUNDING_OFFER_CLOSES_AT_MS } = require('./passPricing.cjs');
-  assert.equal(FOUNDING_OFFER_CLOSES_AT_MS, Date.parse('2026-12-01T00:00:00+05:30'), 'the SAME constant the Board Pass founding offer uses');
-  assert.equal(packBaseInrAt('test_series', FOUNDING_OFFER_CLOSES_AT_MS - 1), 999);
-  assert.equal(packBaseInrAt('test_series', FOUNDING_OFFER_CLOSES_AT_MS), 1499);
-  assert.equal(packBaseInrAt('test_series', FOUNDING_OFFER_CLOSES_AT_MS + 365 * 86400000), 1499);
-  assert.equal(packBaseInrAt('test_series', Date.parse('2026-11-19T08:23:00+05:30')), 999);
+  assert.equal(FOUNDING_OFFER_CLOSES_AT_MS, Infinity, 'the SAME (non-)deadline the Board Pass founding offer uses: none');
+  const D1 = Date.parse('2026-12-01T00:00:00+05:30');
+  for (const t of [Date.parse('2026-11-19T08:23:00+05:30'), D1 - 1, D1, Date.parse('2026-12-01T00:00:01+05:30'), Date.parse('2027-02-01T12:00:00+05:30'), D1 + 365 * 86400000]) {
+    assert.equal(packBaseInrAt('test_series', t), 999, new Date(t).toISOString());
+  }
   assert.equal(TEST_SERIES_FOUNDING_INR, 999);
   assert.equal(TEST_SERIES_LIST_INR, 1499);
   for (const sku of ['pack_chapter', 'pack_mock', 'pack_subject', 'pack_bundle', 'pack_cbq']) {
-    assert.equal(packBaseInrAt(sku, FOUNDING_OFFER_CLOSES_AT_MS - 1), PACK_PRODUCTS[sku].priceInr);
-    assert.equal(packBaseInrAt(sku, FOUNDING_OFFER_CLOSES_AT_MS), PACK_PRODUCTS[sku].priceInr);
+    assert.equal(packBaseInrAt(sku, D1 - 1), PACK_PRODUCTS[sku].priceInr);
+    assert.equal(packBaseInrAt(sku, D1), PACK_PRODUCTS[sku].priceInr);
     assert.deepEqual(packAcceptedBasesInr(sku), [PACK_PRODUCTS[sku].priceInr]);
   }
   assert.deepEqual(packAcceptedBasesInr('test_series'), [999, 1499]);

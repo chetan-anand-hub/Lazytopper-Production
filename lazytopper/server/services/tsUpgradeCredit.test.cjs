@@ -17,7 +17,7 @@ const {
 const { withGstInr, chargeFor, tillBoardsPriceInr, FOUNDING_OFFER_CLOSES_AT_MS } = require('./passPricing.cjs');
 
 const FOUNDING = Date.parse('2026-11-20T12:00:00+05:30');
-const AFTER = FOUNDING_OFFER_CLOSES_AT_MS; // 1 Dec 2026 00:00 IST, exactly
+const AFTER = Date.parse('2026-12-01T00:00:00+05:30'); // PRICE-HOLD-1: the old 1 Dec switch instant - no longer a switch
 
 const PACK = Object.freeze({
   packId: 'test_series:all', sku: 'test_series', target: 'all', pricePaidInr: 1179, paidAt: FOUNDING - 1000,
@@ -51,15 +51,16 @@ test('MONEY TABLE · founding: 1917 - 999 = 918 -> 918 + 165 = 1083; 1179 + 1083
   assert.deepEqual(fields, { tsUpgradeCreditInr: 999, tsUpgradeFullBaseInr: 1917, tsUpgradeCreditPackId: 'test_series:all', tsUpgradeCreditOrderId: 'order_TS1' });
 });
 
-test('MONEY TABLE · after founding (1 Dec 00:00 IST exactly): 2499 - 999 = 1500 -> 1500 + 270 = 1770; 1179 + 1770 = 2949', () => {
-  const base = boardQuote(AFTER);
-  assert.equal(base.gst.baseInr, 2499);
-  const { quote } = applyTsCreditToQuote(base, credit, AFTER);
-  assert.deepEqual(quote.gst, { baseInr: 1500, gstInr: 270, totalInr: 1770, gstRate: 0.18 });
-  assert.equal(quote.amountPaise, 177000);
-  assert.equal(1179 + 1770, base.pricePaidInr);
-  // one millisecond earlier is still the founding price
-  assert.equal(applyTsCreditToQuote(boardQuote(AFTER - 1), credit, AFTER - 1).quote.amountPaise, 108300);
+test('PRICE-HOLD-1 · MONEY TABLE · no 1 Dec switch: the Board Pass is 1917 at 1 Dec 00:00 IST too, so the same 999 credit gives 918 -> 1083', () => {
+  for (const t of [AFTER - 1, AFTER, AFTER + 86400000, Date.parse('2027-02-01T12:00:00+05:30')]) {
+    const base = boardQuote(t);
+    assert.equal(base.gst.baseInr, 1917, String(t));
+    assert.equal(base.amountPaise, 226200, String(t));
+    const { quote } = applyTsCreditToQuote(base, credit, t);
+    assert.deepEqual(quote.gst, { baseInr: 918, gstInr: 165, totalInr: 1083, gstRate: 0.18 });
+    assert.equal(quote.amountPaise, 108300);
+    assert.equal(1179 + quote.pricePaidInr, 2262);
+  }
 });
 
 test('applyTsCreditToQuote never applies to a quote it cannot trust: no credit, no GST breakup, a quote already discounted, pre-GST', () => {
@@ -182,21 +183,22 @@ test('TS-PRICE-2 · a 1,499 buyer\'s record is creditable (base 1499 proved from
   assert.equal(tsCreditRefusal('u1', { ...PACK }, 'order_TS1', { ...ORDER_1499 }), 'amount_mismatch', 'the entitlement must record what the order charged');
 });
 
-test('MONEY TABLE · founding buyer (paid 999) upgrading after 1 Dec: 2499 - 999 = 1500 -> 1500 + 270 = 1770 (NOT reduced by today\'s 1,499 list price)', () => {
+test('PRICE-HOLD-1 · MONEY TABLE · founding buyer (paid 999) upgrading after 1 Dec: 1917 - 999 = 918 -> 918 + 165 = 1083 (same as before 1 Dec)', () => {
   const base = boardQuote(AFTER);
   const { quote, fields } = applyTsCreditToQuote(base, { creditBaseInr: 999, packId: 'test_series:all', orderId: 'order_TS1' }, AFTER);
-  assert.deepEqual(quote.gst, { baseInr: 1500, gstInr: 270, totalInr: 1770, gstRate: 0.18 });
+  assert.deepEqual(quote.gst, { baseInr: 918, gstInr: 165, totalInr: 1083, gstRate: 0.18 });
   assert.equal(fields.tsUpgradeCreditInr, 999);
+  assert.equal(fields.tsUpgradeFullBaseInr, 1917);
 });
 
-test('MONEY TABLE · 1,499 buyer (paid 1499) upgrading after 1 Dec: 2499 - 1499 = 1000 -> 1000 + 180 = 1180; 1769 + 1180 = 2949 = the Board Pass all-in', () => {
+test('PRICE-HOLD-1 · MONEY TABLE · a legacy 1,499 order (code path kept, unreachable for new orders) still credits ITS OWN base: 1917 - 1499 = 418', () => {
   const base = boardQuote(AFTER + 86400000);
-  assert.equal(base.amountPaise, 294900);
+  assert.equal(base.amountPaise, 226200);
   const { quote, fields } = applyTsCreditToQuote(base, { creditBaseInr: 1499, packId: 'test_series:all', orderId: 'order_TS1' }, AFTER + 86400000);
-  assert.deepEqual(quote.gst, { baseInr: 1000, gstInr: 180, totalInr: 1180, gstRate: 0.18 });
-  assert.equal(quote.amountPaise, 118000);
-  assert.equal(1769 + quote.pricePaidInr, 2949);
-  assert.deepEqual(fields, { tsUpgradeCreditInr: 1499, tsUpgradeFullBaseInr: 2499, tsUpgradeCreditPackId: 'test_series:all', tsUpgradeCreditOrderId: 'order_TS1' });
+  assert.equal(quote.gst.baseInr, 418);
+  assert.equal(quote.gst.totalInr, withGstInr(418));
+  assert.equal(quote.amountPaise, withGstInr(418) * 100);
+  assert.deepEqual(fields, { tsUpgradeCreditInr: 1499, tsUpgradeFullBaseInr: 1917, tsUpgradeCreditPackId: 'test_series:all', tsUpgradeCreditOrderId: 'order_TS1' });
 });
 
 test('TS-PRICE-2 · testSeriesUpgradeCreditFor reads the PAID ORDER\'s base: 999 for a founding buyer, 1,499 for a later one', async () => {
