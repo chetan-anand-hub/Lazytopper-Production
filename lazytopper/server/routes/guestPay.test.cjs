@@ -2957,6 +2957,21 @@ test('GUEST-ZIP · PACK-PDF-SIZE-1: async=true is passed to the service; a "buil
   assert.equal(packPdf.calls[1].async, false);
 });
 
+test('GUEST-ZIP · PACK-PDF-SIZE-1: polls for a ZIP already being built are free (per-client 120/day, per-order 60/h); the receipt and a fresh ZIP still work after', async (t) => {
+  const { srv, packPdf } = await zipRoutes(t);
+  let pending = false;
+  packPdf.zipJobPending = () => pending;
+  packPdf.zipLink = async (args) => { packPdf.calls.push(args); return args.async ? { status: 'building', done: 1, total: 30 } : { url: 'https://storage.example/z.zip', expiresAtMs: NOW + 900000, filename: 'z.zip', files: [], papers: [] }; };
+  const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  assert.equal((await zipLink(srv, paid, { group: 'real-numbers', async: true })).status, 202);
+  pending = true;
+  for (let i = 0; i < 150; i += 1) assert.equal((await zipLink(srv, paid, { group: 'real-numbers', async: true })).status, 202, `poll ${i}`);
+  pending = false;
+  assert.equal((await zipLink(srv, paid, { group: 'polynomials' })).status, 200, 'not rate limited after 150 polls');
+  const rc = await request(srv.port, GUEST_RECEIPT_PATH, { body: { orderId: paid.orderId, paymentId: paid.paymentId, signature: checkoutSig(paid.orderId, paid.paymentId) } });
+  assert.notEqual(rc.status, 429, 'the receipt still works');
+});
+
 test('GUEST-ZIP · a wrong signature, another payment id, an unpaid order, a signed-in caller, a Board Pass order: refused, no ZIP made', async (t) => {
   const { srv, packPdf } = await zipRoutes(t);
   const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });

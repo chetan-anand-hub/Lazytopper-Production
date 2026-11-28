@@ -65,7 +65,7 @@ function createGate(slots) {
 }
 
 function createPackPdfService(deps = {}) {
-  const { bucket, now = () => Date.now(), telemetry, firestore, firestoreApi, fontsLoader = loadFonts } = deps;
+  const { bucket, now = () => Date.now(), telemetry, firestore, firestoreApi, fontsLoader = loadFonts, zipAsyncGraceMs = ZIP_ASYNC_GRACE_MS } = deps;
 
   function emit(event) {
     try {
@@ -289,6 +289,16 @@ function createPackPdfService(deps = {}) {
    * another instance starts that instance's own (idempotent) build of the same object.
    */
   const zipJobs = new Map();
+  const ZIP_JOBS_PER_UID = 2;
+  const ZIP_FAILED_KEEP_MS = 30 * 1000;
+  const jobUid = (key) => key.slice(0, key.indexOf('|'));
+  /** True while a background build for this buyer + group is running: a poll for it is not a new request (the routes do not charge it). */
+  function zipJobPending(uid, groupId) {
+    for (const [key, job] of zipJobs) {
+      if (job.state === 'building' && jobUid(key) === uid && key.endsWith(`|${groupId}`)) return true;
+    }
+    return false;
+  }
   async function zipLinkAsync(args) {
     const key = `${args.uid}|${args.packId}|${args.groupId}`;
     let job = zipJobs.get(key);
@@ -298,30 +308,44 @@ function createPackPdfService(deps = {}) {
     }
     if (job && job.state === 'failed') {
       zipJobs.delete(key);
-      throw job.error;
+      // a stale failure is not returned to a fresh click: only a failure from the last 30 s is (the poll that was waiting for it)
+      if (now() - job.finishedAt <= ZIP_FAILED_KEEP_MS) throw job.error;
+      job = undefined;
     }
     if (!job) {
+      let live = 0;
+      for (const [k, j] of zipJobs) if (j.state === 'building' && jobUid(k) === args.uid) live += 1;
+      if (live >= ZIP_JOBS_PER_UID) {
+        const e = new Error('busy');
+        e.code = 'busy';
+        throw e;
+      }
       job = { state: 'building', done: 0, total: 0, startedAt: now() };
       zipJobs.set(key, job);
       const mine = job;
+      const finished = () => {
+        mine.finishedAt = now();
+        // a finished/failed job nobody collects is dropped later; a BUILDING job is never dropped from the map
+        const t = setTimeout(() => {
+          if (zipJobs.get(key) === mine) zipJobs.delete(key);
+        }, ZIP_JOB_KEEP_MS);
+        if (t && t.unref) t.unref();
+      };
       mine.promise = zipLinkInner({ ...args, progress: mine }).then(
         (r) => {
           mine.state = 'done';
           mine.result = r;
+          finished();
         },
         (e) => {
           mine.state = 'failed';
           mine.error = e;
+          finished();
         },
       );
-      // abandoned jobs (nobody polls again) are dropped after a while
-      const t = setTimeout(() => {
-        if (zipJobs.get(key) === mine) zipJobs.delete(key);
-      }, ZIP_JOB_KEEP_MS);
-      if (t && t.unref) t.unref();
     }
     await Promise.race([job.promise, new Promise((resolve) => {
-      const t = setTimeout(resolve, ZIP_ASYNC_GRACE_MS);
+      const t = setTimeout(resolve, zipAsyncGraceMs);
       if (t && t.unref) t.unref();
     })]);
     if (job.state === 'done') {
@@ -494,7 +518,7 @@ function createPackPdfService(deps = {}) {
     return { ...signed, filename, papers: [] };
   }
 
-  return { getManifest, fileLink, zipLink, recordDownloads, bonusBooksPresent, bonusLink, _planFile: planFile };
+  return { getManifest, fileLink, zipLink, zipJobPending, recordDownloads, bonusBooksPresent, bonusLink, _planFile: planFile };
 }
 
 /** BONUS-BOOK-1: where the owner uploads each subject's complete book (private bucket, same rules as the rest of packs/). */

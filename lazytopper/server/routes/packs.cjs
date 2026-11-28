@@ -362,7 +362,9 @@ function createPackRoutes(deps = {}) {
     const { packId, group } = body;
     if (typeof packId !== 'string' || typeof group !== 'string' || !ID_PATTERN.test(packId) || !ID_PATTERN.test(group)) return sendJson(res, 400, { ok: false, error: 'bad_request' });
     if (!ownsOpen(res, buyer, packId)) return undefined;
-    if (limited(`z:${buyer.uid}`, ZIPS_PER_HOUR)) return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
+    // PACK-PDF-SIZE-1: a poll for a ZIP that is ALREADY being built is not a new request: it is not charged to the hourly cap.
+    const polling = body.async === true && typeof packPdf.zipJobPending === 'function' && packPdf.zipJobPending(buyer.uid, group);
+    if (!polling && limited(`z:${buyer.uid}`, ZIPS_PER_HOUR)) return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
     try {
       const link = await packPdf.zipLink({
         uid: buyer.uid,

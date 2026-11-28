@@ -163,7 +163,7 @@ async function harness({ owned = [], env = {}, now = NOW, subscription, noManife
   const firestore = fakeFirestore(Object.fromEntries([...owned.map((o) => entitlement(...o)), ...(subscription ? [['subscriptions/u1', subscription]] : [])]));
   const events = [];
   const clock = { now };
-  const service = createPackPdfService({ bucket: noBucket ? () => null : w.bucket, now: () => clock.now, telemetry: { increment: (e) => events.push(e) }, firestore, firestoreApi });
+  const service = createPackPdfService({ bucket: noBucket ? () => null : w.bucket, now: () => clock.now, telemetry: { increment: (e) => events.push(e) }, firestore, firestoreApi, zipAsyncGraceMs: 20 });
   const routes = createPackRoutes({
     sendJson: (res, status, body) => { res.status = status; res.body = body; },
     verifiedCaller: { resolveVerifiedUid: async (req) => req.uid || '' },
@@ -364,6 +364,19 @@ test('zip-link PACK-PDF-SIZE-1: async=true answers 202 building at once while th
   assert.equal(zips.length, 1);
   // a non-async request is exactly as before
   assert.equal((await h.zip({ packId: 'pack_subject:maths', group: 'real-numbers' })).status, 200);
+});
+
+test('zip-link PACK-PDF-SIZE-1: polls for a ZIP already being built are NOT charged to the hourly cap; at most 2 live builds per buyer', async () => {
+  const h = await harness({ owned: [['u1', 'pack_subject:maths']] });
+  h.delay.ms = 4000; // the build stays in flight for the whole test
+  const a = { packId: 'pack_subject:maths', group: 'real-numbers', async: true };
+  assert.equal((await h.zip(a)).status, 202);
+  for (let i = 0; i < 45; i += 1) assert.equal((await h.zip(a)).status, 202, `poll ${i} is free (cap is 30/h)`);
+  assert.equal((await h.zip({ packId: 'pack_subject:maths', group: 'polynomials', async: true })).status, 202, 'second live build');
+  const third = await h.zip({ packId: 'pack_subject:maths', group: '__all__', async: true });
+  assert.equal(third.status, 429, 'a third live build for the same buyer is busy');
+  assert.equal(third.body.error, 'too_many_requests');
+  h.delay.ms = 0;
 });
 
 test('zip-link GUEST-ZIP-1: the internal "__all__" group is EVERY file of the pack in one ZIP, named for the pack; a real group is unchanged', async () => {

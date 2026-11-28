@@ -502,13 +502,14 @@ function createGuestPayRoutes(deps = {}) {
   }
 
   /** Dark check FIRST, then the per-client limiter (signed out by construction), then the store. */
-  function admitGuestCall(req, res, scope, reqPath, alsoOn = false) {
+  function admitGuestCall(req, res, scope, reqPath, alsoOn = false, uncounted = false) {
     // CHECKOUT-WHO-1: either switch opens order / verify; with CHECKOUT_WHO off this is exactly the old check.
     if (!isGuestPayEnabled(env) && !isCheckoutWhoEnabled(env) && !alsoOn) {
       sendJson(res, 404, NOT_FOUND_BODY);
       return false;
     }
-    const verdict = limiters.client.check(req, reqPath, '', { signedOut: true });
+    // PACK-PDF-SIZE-1: `uncounted` = a poll for a ZIP already being built (see handleZipLink): the per-client daily budget is not spent.
+    const verdict = uncounted ? { allowed: true } : limiters.client.check(req, reqPath, '', { signedOut: true });
     if (!verdict.allowed) {
       emit(`payments.guest.${scope}.rate_limited`);
       sendJson(res, 429, { ok: false, error: 'Too many attempts. Please try again tomorrow.' });
@@ -1846,10 +1847,17 @@ function createGuestPayRoutes(deps = {}) {
   async function handleZipLink(req, res) {
     if (!isCheckoutWhoEnabled(env) && !isGuestPayEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
     if (isServerPdfDisabled(env) || !packPdf || typeof packPdf.zipLink !== 'function') return sendJson(res, 404, NOT_FOUND_BODY);
-    if (!admitGuestCall(req, res, 'zip_link', GUEST_ZIP_LINK_PATH)) return undefined;
+    // PACK-PDF-SIZE-1: the body is read first so a poll for a ZIP that is ALREADY being built (async + a live job for this order and
+    // group) is charged to NEITHER the per-client daily budget nor the per-order hourly cap. Every other check below still runs.
+    const bodyFirst = isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) ? await readJsonBody(req, res) : null;
+    if ((isGuestPayEnabled(env) || isCheckoutWhoEnabled(env)) && !bodyFirst) return undefined;
+    const pollOrderId = bodyFirst && typeof bodyFirst.orderId === 'string' ? bodyFirst.orderId.trim() : '';
+    const pollGroup = bodyFirst && typeof bodyFirst.group === 'string' ? bodyFirst.group.trim() : ZIP_ALL_GROUP;
+    const polling = Boolean(bodyFirst && bodyFirst.async === true && ID_PATTERN.test(pollOrderId) && typeof packPdf.zipJobPending === 'function' && packPdf.zipJobPending(`guest_${pollOrderId}`, pollGroup || ZIP_ALL_GROUP));
+    if (!admitGuestCall(req, res, 'zip_link', GUEST_ZIP_LINK_PATH, false, polling)) return undefined;
     const keys = readKeys();
     if (!keys.keyId || !keys.keySecret) return unavailable(res);
-    const body = await readJsonBody(req, res);
+    const body = bodyFirst;
     if (!body) return undefined;
     const orderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
     const paymentId = typeof body.paymentId === 'string' ? body.paymentId.trim() : '';
@@ -1891,7 +1899,7 @@ function createGuestPayRoutes(deps = {}) {
     const contact = emailMasked && (!phoneMasked || order.recipientFirst === 'email') ? emailMasked : phoneMasked;
     if (!contact) return reject(res, 'zip_link', 'no_contact');
     const packId = packIdFor(sku, target);
-    if (zipLimited(`z:guest_${orderId}`, GUEST_ZIPS_PER_HOUR)) return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
+    if (!polling && zipLimited(`z:guest_${orderId}`, GUEST_ZIPS_PER_HOUR)) return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
     try {
       const link = await packPdf.zipLink({
         uid: `guest_${orderId}`,
