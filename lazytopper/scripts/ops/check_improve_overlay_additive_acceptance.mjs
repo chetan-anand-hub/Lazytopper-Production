@@ -85,14 +85,22 @@ check(
   /const \[question, setQuestion\] = useState<string>\(""\)/.test(page),
 );
 
-// GUARD 2 — detection still fires ONLY on the button, never auto (not on mount/open/seed).
+// GUARD 2 - detection fires ONLY on a student tap, never auto (not on mount/open/seed).
+// AC-TYPED-1 (owner-approved, 28 Nov 2026): tapping "Grade my answer" on a question that was not read yet runs the
+// same read first. So handleReadQuestion has exactly three refs: its definition, the "Read the question" onClick, and
+// the ONE call inside the Grade tap handler (handleGradeTap) - and no other call anywhere (no effect, no mount).
 const readQuestionRefs = (page.match(/handleReadQuestion\b/g) || []).length;
+const readQuestionCalls = page
+  .replace(/function handleReadQuestion/g, "")
+  .match(/handleReadQuestion\(\)/g) || [];
+const gradeTapBody = (page.match(/function handleGradeTap\(\) \{[\s\S]*?\n  \}\n/) || [""])[0];
 check(
-  "GUARD 2: handleReadQuestion is only DEFINED + bound to onClick (no auto-fire)",
-  readQuestionRefs === 2 &&
+  "GUARD 2: handleReadQuestion is DEFINED + bound to onClick + called only from the Grade tap handler (no auto-fire)",
+  readQuestionRefs === 3 &&
     /onClick=\{handleReadQuestion\}/.test(page) &&
-    !/handleReadQuestion\(\)/.test(page.replace(/function handleReadQuestion/g, "")),
-  `found ${readQuestionRefs} refs to handleReadQuestion (expected exactly 2: def + onClick)`,
+    readQuestionCalls.length === 1 &&
+    /void handleReadQuestion\(\)/.test(gradeTapBody),
+  `found ${readQuestionRefs} refs / ${readQuestionCalls.length} calls to handleReadQuestion (expected 3 refs: def + onClick + the Grade-tap call; 1 call, inside handleGradeTap)`,
 );
 
 // GUARD 6 — the overlay prop is genuinely OPTIONAL: a bare <DesktopCheckImprovePage /> must

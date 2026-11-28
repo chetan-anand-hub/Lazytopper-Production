@@ -165,6 +165,7 @@ import {
   isUnreadAllPending,
   usePublicMomentAudience,
 } from "../../components/guide/moments/moments";
+import { gradeHint, isAcTypedAutoreadDisabled, typedAnswerCounts } from "./acTypedGate";
 import {
   FREE_CHECK_COPY,
   FREE_CHECK_SIGNIN_PATH,
@@ -1761,7 +1762,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   // GRADE-MARKS-1 (§13) — the single question is a detect-objective one: its marks chip is locked at 1.
   const singleObjectiveLocked = !isMultiQuestion && Boolean(detectedQuestions?.[0] && isLockedObjective(detectedQuestions[0]));
   const hasAnswer =
-    tab === "upload" ? Boolean(imageBase64) : textAnswer.trim().length >= 10;
+    tab === "upload" ? Boolean(imageBase64) : typedAnswerCounts(textAnswer);
   // SCORECARD-MI-1 (B1/D6) — what a single-question grade will send as the question: the typed
   // text, else the text read from the photo / PDF / QR upload. Empty → the student is asked to
   // type the question (the grader is never handed the chapter name instead of the question).
@@ -1769,10 +1770,33 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Grade only after the question has been read + confirmed AND an answer exists.
   // Multi-question grading REQUIRES an uploaded answer sheet (image or PDF) — the
   // whole-paper grader reads the answers from that one upload.
-  const canGrade =
+  const canGradeConfirmed =
     Boolean(confirmed) &&
     (isMultiQuestion ? Boolean(imageBase64) : hasAnswer && singleQuestionText.length > 0) &&
     status !== "loading";
+  // AC-TYPED-1: an unread question no longer blocks Grade - the tap reads it first (see handleGradeTap).
+  const canGradeUnread =
+    !isAcTypedAutoreadDisabled() &&
+    !confirmed &&
+    hasQuestion &&
+    (tab === "upload" ? Boolean(imageBase64) : typedAnswerCounts(textAnswer)) &&
+    !detecting &&
+    status !== "loading";
+  const canGrade = canGradeConfirmed;
+  const gradeEnabled = canGradeConfirmed || canGradeUnread;
+  const [gradeAfterRead, setGradeAfterRead] = useState(false);
+  const gradeHintText = gradeEnabled
+    ? null
+    : gradeHint({
+        confirmed: Boolean(confirmed),
+        hasQuestion,
+        hasAnswer,
+        isMultiQuestion,
+        questionCount: detectedQuestions?.length ?? 0,
+        hasAnswerPhoto: Boolean(imageBase64),
+        hasTypedAnswer: textAnswer.trim().length > 0,
+        singleQuestionTextMissing: !singleQuestionText,
+      });
 
   // UPLOAD-2 — the shared upload step for the ANSWER. A photo is cropped (optional),
   // turned upright and compressed BEFORE the guard, so a phone photo never meets a size
@@ -2894,6 +2918,24 @@ const DesktopCheckImprovePageInner: React.FC<{
     void gradeMultiQuestion(ciLastLimitRef.current, { resume: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ciResumePending, confirmed, detectedQuestions, ciCode]);
+
+  // AC-TYPED-1: tapping Grade with the question not yet read runs the SAME read as "Read the question",
+  // takes what it detected as confirmed, then grades (effect below). A failed read never grades.
+  function handleGradeTap() {
+    if (canGradeUnread) {
+      setGradeAfterRead(true);
+      void handleReadQuestion();
+      return;
+    }
+    void handleGrade();
+  }
+  useEffect(() => {
+    if (!gradeAfterRead || detecting) return;
+    setGradeAfterRead(false);
+    if (confirmed && canGrade) void handleGrade();
+    // handleGrade is a fresh closure each render; re-run only when the read settles.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gradeAfterRead, detecting, confirmed]);
 
   async function handleGrade() {
     if (!canGrade || !confirmed) return;
@@ -4237,25 +4279,21 @@ const DesktopCheckImprovePageInner: React.FC<{
             />
           )}
 
-          {!canGrade && status !== "loading" && (
-            <span style={{ fontSize: 12, color: TEXT_MUTED }}>
-              {!confirmed
-                ? "Read the question first (step 1)"
-                : !isMultiQuestion && !singleQuestionText
-                  ? "We couldn't read the question's text — type it in step 1 so it can be marked against the right question"
-                  : "Add an answer (image or text) to continue"}
+          {gradeHintText && status !== "loading" && (
+            <span role="status" style={{ fontSize: 13, color: "hsl(220, 25%, 25%)", lineHeight: 1.45, fontWeight: 600 }}>
+              {gradeHintText}
             </span>
           )}
           <button
             type="button"
-            onClick={handleGrade}
-            disabled={!canGrade}
+            onClick={handleGradeTap}
+            disabled={!gradeEnabled}
             style={{
               ...buttonAccent,
-              background: canGrade ? PRIMARY_GREEN : "hsl(220, 18%, 85%)",
-              border: `1px solid ${canGrade ? PRIMARY_GREEN : "hsl(220, 18%, 85%)"}`,
-              cursor: canGrade ? "pointer" : "not-allowed",
-              opacity: canGrade ? 1 : 0.85,
+              background: gradeEnabled ? PRIMARY_GREEN : "hsl(220, 18%, 85%)",
+              border: `1px solid ${gradeEnabled ? PRIMARY_GREEN : "hsl(220, 18%, 85%)"}`,
+              cursor: gradeEnabled ? "pointer" : "not-allowed",
+              opacity: gradeEnabled ? 1 : 0.85,
               paddingLeft: 18,
               paddingRight: 18,
             }}

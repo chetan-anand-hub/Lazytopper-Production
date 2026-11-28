@@ -30,7 +30,7 @@
     "gen:sitemap": "tsx scripts/generateSitemap.ts",
     "gen:test-series-manifest": "node scripts/testSeries/writePaperManifest.mjs",
     "gen:bank-chapters": "tsx scripts/generateBankChapters.ts",
-    "typecheck:test": "tsc -p tsconfig.test.json --noEmit",
+    "typecheck:test": "node --max-old-space-size=6144 ./node_modules/typescript/bin/tsc -p tsconfig.test.json --noEmit",
     "typecheck:e2e": "tsc -p tests/e2e/tsconfig.json",
     "test:e2e": "playwright test --project=e2e-mobile --project=e2e-desktop",
     "test:e2e:update": "playwright test --project=e2e-mobile --project=e2e-desktop --update-snapshots",
