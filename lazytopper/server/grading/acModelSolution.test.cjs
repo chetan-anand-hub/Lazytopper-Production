@@ -50,7 +50,7 @@ const STEPS = [
 ];
 const REPLY = { results: [{ qNumber: 1, couldNotRead: false, addressesQuestion: 'yes', annotatedSteps: STEPS, teacherNote: 'Note.' }], summary: 'S.' };
 
-async function grade(solutionCache, paper = false) {
+async function grade(solutionCache, paper = false, wsId = 'ci:CI-1', timing = null) {
   let captured = null; const prompts = [];
   const route = createCheckSolutionRoute({
     sendJson: (_r, status, body) => { captured = { status, body }; },
@@ -60,9 +60,10 @@ async function grade(solutionCache, paper = false) {
     extractJsonObjectFromText: (t) => { try { return JSON.parse(t); } catch { return null; } },
     buildGeminiImagePart: () => ({}), validateMentorImagePayload: () => ({ ok: true }),
     makeFenceNonce: () => 'n', telemetry: { increment() {} }, solutionCache,
+    ...(timing ? { gradingTimingOverride: timing } : {}),
   });
   if (paper) {
-    await route.handleGradeWorksheet({ worksheetId: 'ws', subject: 'Maths', acceptsV2: true, questions: [{ qNumber: 1, marks: 3, topic: 'Quadratic Equations', topicLabel: 'Quadratic Equations', questionText: FIELDS.question, textAnswer: 'x = 1, 6' }] }, { setHeader() {} });
+    await route.handleGradeWorksheet({ worksheetId: wsId, subject: 'Maths', acceptsV2: true, questions: [{ qNumber: 1, marks: 3, topic: 'Quadratic Equations', topicLabel: 'Quadratic Equations', questionText: FIELDS.question, textAnswer: 'x = 1, 6' }] }, { setHeader() {} });
     return { body: captured.body.results[0], prompt: prompts[0] };
   }
   await route.handleCheckSolution({ question: FIELDS.question, marks: 3, subject: 'Maths', topic: 'Quadratic Equations', textAnswer: 'x = 1, 6', acceptsV2: true }, { setHeader() {} });
@@ -99,4 +100,28 @@ test('paper grade: the same field per question, same grade with and without it',
   const { modelSolution, ...rest } = a.body;
   assert.deepEqual(rest, b.body);
   assert.equal(a.prompt, b.prompt);
+});
+
+test('other surfaces (Worksheet / Chapter Test / Full Mock / Quick Practice ids) are unchanged: no modelSolution', async () => {
+  for (const id of ['ws-1', 'ct:abc', 'fm:abc', 'qp:abc']) {
+    const r = await grade(withSteps, true, id);
+    assert.equal(r.body.modelSolution, undefined, id);
+  }
+  assert.ok((await grade(withSteps, true, 'ci:X')).body.modelSolution, 'control: the Answer Checker paper has it');
+});
+
+test('a scheme that arrives AFTER the time budget never reaches the card', async () => {
+  const late = { getOrCreateModelSolution: () => new Promise((res) => setTimeout(() => res({ schemeSteps: ['Formula: x [1 mark]'], solutionSteps: EXPECTED, fromCache: false, hash: 'abcdef012345' }), 400)) };
+  const a = await grade(late, false, 'x', { cacheBudgetMs: 20 });
+  assert.equal(a.body.modelSolution, undefined);
+  assert.ok(a.body.marksAwarded >= 0);
+  assert.ok((await grade(late)).body.modelSolution, 'control: the same slow scheme within the default budget does reach the card');
+});
+
+test('kill switch accepts 1/true/yes/on in any case', async () => {
+  for (const v of ['1', 'true', 'YES', 'On']) {
+    process.env.AC_MODEL_SOLUTION_DISABLED = v;
+    try { assert.equal((await grade(withSteps)).body.modelSolution, undefined, v); } finally { delete process.env.AC_MODEL_SOLUTION_DISABLED; }
+  }
+  assert.ok((await grade(withSteps)).body.modelSolution, 'control: unset -> present');
 });

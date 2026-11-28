@@ -584,6 +584,7 @@ function createGradingCore(deps) {
       if (keyless.length === 0 && timingSink) timingSink.cacheHit = true; // S6: no scheme was needed
       if (keyless.length > 0) {
         const arrived = new Map();
+        const arrivedSolutions = new Map(); // AC-SOLUTION-1: display-only structured steps, keyed like `arrived`
         const generated = new Set(); // S6: a scheme that had to be generated (not read from the cache)
         const hooks = Promise.all(keyless.map(async (q) => {
           try {
@@ -594,9 +595,7 @@ function createGradingCore(deps) {
               arrived.set(q, cached.schemeSteps);
               // AC-SOLUTION-1 · DISPLAY ONLY: keep the structured steps beside (never instead of) the prompt strings.
               // Non-enumerable: invisible to the prompt, logs and any spread of `q`; read back only at the end of gradeSet.
-              if (Array.isArray(cached.solutionSteps) && cached.solutionSteps.length > 0) {
-                Object.defineProperty(q, '_modelSolutionSteps', { value: cached.solutionSteps, configurable: true });
-              }
+              if (Array.isArray(cached.solutionSteps) && cached.solutionSteps.length > 0) arrivedSolutions.set(q, cached.solutionSteps);
               if (cached.fromCache !== true) generated.add(q);
               // GRADE-SPEED-1b: which stored scheme (first 8 hex of its question hash, never text) and whether this grade
               // WAITED for an in-flight generation (e.g. the early prepare still running) rather than reading a stored one.
@@ -622,6 +621,8 @@ function createGradingCore(deps) {
         // Only what arrived IN TIME is used — a late scheme can never change a prompt mid-grade.
         for (const [q, steps] of [...arrived]) {
           q.solutionSteps = steps;
+          // AC-SOLUTION-1: only a scheme that actually went into the prompt (arrived in time) may reach the card.
+          if (arrivedSolutions.has(q)) Object.defineProperty(q, '_modelSolutionSteps', { value: arrivedSolutions.get(q), configurable: true });
           // HOTFIX-1: a MODEL-GENERATED solution guides the grade, but it is never the STORED
           // marking scheme the scheme-copy check compares against (postprocess.cjs
           // copiesScheme). A correct textbook-worded answer matches a generated solution by
@@ -884,7 +885,7 @@ function createGradingCore(deps) {
       try { timingSink.outcomes = gradeTimingLib.outcomeCounts(results, { inventory: anyInventory }); } catch { /* telemetry only */ }
     }
     // AC-SOLUTION-1 · DISPLAY ONLY — attached after every grade/rescue step, so nothing the grader decided can depend on it.
-    if (process.env.AC_MODEL_SOLUTION_DISABLED !== '1') {
+    if (input.modelSolution === true && !/^(1|true|yes|on)$/i.test(String(process.env.AC_MODEL_SOLUTION_DISABLED || '').trim())) {
       questions.forEach((q, i) => {
         const steps = q && q._modelSolutionSteps;
         if (results[i] && Array.isArray(steps) && steps.length > 0) {
