@@ -6,7 +6,7 @@ vi.mock("./packPaperRecord", async (orig) => ({ ...(await orig<typeof import("./
 
 import { buildPackFiles, type BuildContext } from "./buildPackFiles";
 import { downloadFileFromServer, downloadGuestZipFromServer, downloadZipFromServer } from "./serverPdfDownload";
-import { GUEST_ZIP_LINK_ENDPOINT, isServerPdfDisabled, requestFileLink, requestGuestZipLink, requestZipLink, SERVER_LINK_TIMEOUT_MS, SERVER_ZIP_TIMEOUT_MS } from "./serverPdfLinks";
+import { GUEST_ZIP_LINK_ENDPOINT, isServerPdfDisabled, requestFileLink, requestGuestZipLink, requestZipLink, SERVER_LINK_TIMEOUT_MS, ZIP_BUILD_MAX_MS, ZIP_POLL_MS, SERVER_ZIP_TIMEOUT_MS } from "./serverPdfLinks";
 import { groupIdForTemplateId, planUnit, templateIdForPackFile } from "./packTemplatePlan";
 import type { OwnedPack } from "../../services/packs";
 
@@ -309,10 +309,27 @@ describe("GUEST-ZIP-1 - the signed-out whole-pack ZIP", () => {
   const proof = { orderId: "order_1", paymentId: "pay_1", signature: "ab".repeat(32) };
   const zipBody = () => okBody({ filename: "lazytopper-pack-cbq-maths.zip", files: [{ fileId: "f1", filename: "a.pdf", label: "A", codes: ["PK-M-RN-CT1"] }] });
 
+  it("PACK-PDF-SIZE-1: a 202 'building' is polled (progress reported) until the link arrives; gives up after 5 min with 'timeout'", async () => {
+    const answers = [resp(202, { ok: true, status: "building", done: 3, total: 30 }), resp(202, { ok: true, status: "building", done: 20, total: 30 }), resp(200, zipBody())];
+    const f = vi.fn(async () => answers.shift() as never);
+    const seen: Array<[number, number]> = [];
+    const sleeps: number[] = [];
+    const r = await requestGuestZipLink(proof, { fetchImpl: f as never, onProgress: (d, t) => seen.push([d, t]), sleep: async (ms) => void sleeps.push(ms) }, "real-numbers");
+    expect(r.ok).toBe(true);
+    expect(f).toHaveBeenCalledTimes(3);
+    expect(seen).toEqual([[3, 30], [20, 30]]);
+    expect(sleeps).toEqual([ZIP_POLL_MS, ZIP_POLL_MS]);
+    let t = 0;
+    const never = vi.fn(async () => resp(202, { ok: true, status: "building", done: 1, total: 30 }) as never);
+    const late = await requestGuestZipLink(proof, { fetchImpl: never as never, sleep: async (ms) => void (t += ms), now: () => t }, "real-numbers");
+    expect(late).toEqual({ ok: false, reason: "timeout" });
+    expect(t).toBeGreaterThanOrEqual(ZIP_BUILD_MAX_MS);
+  });
+
   it("PACK-PDF-SIZE-1: a group id is sent as `group`; without one the body is exactly the proof (legacy)", async () => {
     const f = vi.fn(async () => resp(200, zipBody()));
     await requestGuestZipLink(proof, { fetchImpl: f as never }, "real-numbers");
-    expect(JSON.parse(String((f.mock.calls[0] as unknown as [string, RequestInit])[1].body))).toEqual({ ...proof, group: "real-numbers" });
+    expect(JSON.parse(String((f.mock.calls[0] as unknown as [string, RequestInit])[1].body))).toEqual({ ...proof, group: "real-numbers", async: true });
     await downloadGuestZipFromServer({ proof, groupId: "polynomials" }, { fetchImpl: f as never, startDownload: vi.fn(), nowIso: () => NOW });
     expect(JSON.parse(String((f.mock.calls[1] as unknown as [string, RequestInit])[1].body)).group).toBe("polynomials");
   });
@@ -323,7 +340,7 @@ describe("GUEST-ZIP-1 - the signed-out whole-pack ZIP", () => {
     expect(r.ok).toBe(true);
     const [url, init] = f.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe(GUEST_ZIP_LINK_ENDPOINT);
-    expect(JSON.parse(String(init.body))).toEqual(proof);
+    expect(JSON.parse(String(init.body))).toEqual({ ...proof, async: true });
     expect((init.headers as Record<string, string>).Authorization).toBeUndefined();
     expect(SERVER_ZIP_TIMEOUT_MS).toBeGreaterThan(SERVER_LINK_TIMEOUT_MS);
   });

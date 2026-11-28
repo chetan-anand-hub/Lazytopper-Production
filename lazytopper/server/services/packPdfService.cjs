@@ -23,6 +23,9 @@ const CURRENT_PATH = 'packs/current.json';
 const LINK_TTL_MS = 15 * 60 * 1000;
 const MANIFEST_TTL_MS = 60 * 1000;
 const ZIP_STAMP_CONCURRENCY = 3;
+/** PACK-PDF-SIZE-1: how long an async ZIP request waits for a quick (cached) answer, and how long a finished/abandoned job is remembered. */
+const ZIP_ASYNC_GRACE_MS = 1500;
+const ZIP_JOB_KEEP_MS = 15 * 60 * 1000;
 /** GUEST-ZIP-1: the internal group id that means "every file of the pack, as ONE ZIP" (a signed-out buyer has no chapter groups to pick). Never a real group id. */
 const ZIP_ALL_GROUP = '__all__';
 /** Process-wide bounds on the heavy work (pdf-lib holds a whole template in memory): stamps at once, ZIP builds at once, requests per buyer at once. */
@@ -275,9 +278,63 @@ function createPackPdfService(deps = {}) {
 
   /** A group of files as one store-only ZIP (stamped 3 at a time), kept and signed. */
   async function zipLink(args) {
+    if (args.async === true) return perUid(args.uid, () => zipLinkAsync(args));
     return perUid(args.uid, () => zipLinkInner(args));
   }
-  async function zipLinkInner({ uid, buyer, owned, packId, groupId, boardPass }) {
+  /**
+   * PACK-PDF-SIZE-1: a cold chapter ZIP (~30 stamped files, ~200 MB) can take longer than a phone is willing to wait on one request.
+   * With `async: true` the build runs DETACHED (cached under stamped/<uid>/<contentHash>/zip/ as before) and this answers at once:
+   * the finished link when the ZIP is already built (or finishes within ZIP_ASYNC_GRACE_MS), else { status: 'building', done, total }.
+   * The client polls the same call; a finished job is dropped and the next call is a cache hit. Per instance: a poll that lands on
+   * another instance starts that instance's own (idempotent) build of the same object.
+   */
+  const zipJobs = new Map();
+  async function zipLinkAsync(args) {
+    const key = `${args.uid}|${args.packId}|${args.groupId}`;
+    let job = zipJobs.get(key);
+    if (job && job.state === 'done') {
+      zipJobs.delete(key);
+      return zipLinkInner({ ...args, progress: null });
+    }
+    if (job && job.state === 'failed') {
+      zipJobs.delete(key);
+      throw job.error;
+    }
+    if (!job) {
+      job = { state: 'building', done: 0, total: 0, startedAt: now() };
+      zipJobs.set(key, job);
+      const mine = job;
+      mine.promise = zipLinkInner({ ...args, progress: mine }).then(
+        (r) => {
+          mine.state = 'done';
+          mine.result = r;
+        },
+        (e) => {
+          mine.state = 'failed';
+          mine.error = e;
+        },
+      );
+      // abandoned jobs (nobody polls again) are dropped after a while
+      const t = setTimeout(() => {
+        if (zipJobs.get(key) === mine) zipJobs.delete(key);
+      }, ZIP_JOB_KEEP_MS);
+      if (t && t.unref) t.unref();
+    }
+    await Promise.race([job.promise, new Promise((resolve) => {
+      const t = setTimeout(resolve, ZIP_ASYNC_GRACE_MS);
+      if (t && t.unref) t.unref();
+    })]);
+    if (job.state === 'done') {
+      zipJobs.delete(key);
+      return job.result;
+    }
+    if (job.state === 'failed') {
+      zipJobs.delete(key);
+      throw job.error;
+    }
+    return { status: 'building', done: job.done, total: job.total };
+  }
+  async function zipLinkInner({ uid, buyer, owned, packId, groupId, boardPass, progress }) {
     const manifest = await getManifest();
     const pack = manifest.packs[packId];
     const group = pack && (groupId === ZIP_ALL_GROUP ? { groupId: ZIP_ALL_GROUP, group: packId, files: pack.files } : pack.groups.find((g) => g.groupId === groupId));
@@ -287,6 +344,7 @@ function createPackPdfService(deps = {}) {
       throw e;
     }
     const plans = group.files.map((templateId) => planFile({ manifest, uid, buyer, owned, packId, templateId, boardPass }));
+    if (progress) progress.total = plans.length;
     const zipKey = sha256Hex(JSON.stringify(plans.map((p) => p.stampKey)));
     const zipName = `lazytopper-${slug(group.group || group.groupId)}.zip`;
     const zipPath = `stamped/${uid}/${manifest.contentHash}/zip/${safeName(`${packId}|${group.groupId}`)}.zip`;
@@ -337,6 +395,7 @@ function createPackPdfService(deps = {}) {
                 for (let n = 2; used.has(name); n += 1) name = plans[i].file.filename.replace(/(\.[^.]*)?$/, ` (${n})$1`);
                 used.add(name);
                 archive.append(r.bytes, { name, store: true });
+                if (progress) progress.done = i + 1;
               }
               await archive.finalize();
             })().catch(fail);

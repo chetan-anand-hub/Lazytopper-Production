@@ -371,7 +371,10 @@ function createPackRoutes(deps = {}) {
         packId,
         groupId: group,
         boardPass: await paidBoardPass(buyer.uid),
+        async: body.async === true,
       });
+      // PACK-PDF-SIZE-1: still being built - nothing was handed out, nothing is recorded; the client asks again.
+      if (link && link.status === 'building') return sendJson(res, 202, { ok: true, ...link });
       // One entry per file in the ZIP: the same count the student would have made downloading them one by one.
       await packPdf.recordDownloads(buyer.uid, link.files.length);
       emit('packs.zip_link.issued');

@@ -2944,6 +2944,19 @@ test('GUEST-ZIP · PACK-PDF-SIZE-1: a `group` asks for ONE chapter ZIP (same pro
   assert.equal((await zipLink(missing.srv, paid2, { group: 'nope' })).status, 404);
 });
 
+test('GUEST-ZIP · PACK-PDF-SIZE-1: async=true is passed to the service; a "building" answer is a 202 (no link, nothing emitted as issued); without async it is not passed', async (t) => {
+  const { srv, packPdf } = await zipRoutes(t);
+  packPdf.zipLink = async (args) => { packPdf.calls.push(args); return args.async ? { status: 'building', done: 4, total: 30 } : { url: 'https://storage.example/z.zip', expiresAtMs: NOW + 900000, filename: 'z.zip', files: [], papers: [] }; };
+  const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  const r = await zipLink(srv, paid, { group: 'real-numbers', async: true });
+  assert.equal(r.status, 202, r.text);
+  assert.deepEqual(r.json, { ok: true, status: 'building', done: 4, total: 30 });
+  assert.equal(packPdf.calls[0].async, true);
+  const plain = await zipLink(srv, paid, { group: 'real-numbers' });
+  assert.equal(plain.status, 200);
+  assert.equal(packPdf.calls[1].async, false);
+});
+
 test('GUEST-ZIP · a wrong signature, another payment id, an unpaid order, a signed-in caller, a Board Pass order: refused, no ZIP made', async (t) => {
   const { srv, packPdf } = await zipRoutes(t);
   const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });

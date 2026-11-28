@@ -183,7 +183,7 @@ describe("GUEST-ZIP-1 - Download all (ZIP)", () => {
     expect(btn.textContent).toBe("Download all (ZIP)");
     fireEvent.click(btn);
     await waitFor(() => expect(screen.getByTestId("receipt-zip").textContent).toBe("Saved ✓"));
-    expect(zip.download).toHaveBeenCalledWith({ proof: PROOF, expectCodes: ["C1", "C2"] });
+    expect(zip.download).toHaveBeenCalledWith({ proof: PROOF, expectCodes: ["C1", "C2"] }, expect.objectContaining({ onProgress: expect.any(Function) }));
   });
 
   it("a failed ZIP is quiet: 'Try again' + a line, and every single-file Download is still there and works", async () => {
@@ -251,7 +251,7 @@ describe("GUEST-ZIP-1 - Download all (ZIP)", () => {
       fireEvent.click(rows[1]);
       await waitFor(() => expect(screen.getAllByTestId("receipt-zip-group")[1].textContent).toBe("Saved \u2713"));
       expect(zip.download).toHaveBeenCalledTimes(1);
-      expect(zip.download).toHaveBeenCalledWith({ proof: PROOF, expectCodes: ["C3", "C4"], groupId: "polynomials" });
+      expect(zip.download).toHaveBeenCalledWith({ proof: PROOF, expectCodes: ["C3", "C4"], groupId: "polynomials" }, expect.objectContaining({ onProgress: expect.any(Function) }));
       expect(screen.getAllByTestId("receipt-zip-group")[0].textContent).toBe("Download");
     });
 

@@ -64,6 +64,7 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
   const [zipOff, setZipOff] = useState<boolean>(() => isServerPdfDisabled());
   // PACK-PDF-SIZE-1: a multi-chapter pack (the bundle ~2.5 GB) is offered as one ZIP PER CHAPTER, each its own "Download" row.
   const [zipGroupBusy, setZipGroupBusy] = useState<string | null>(null);
+  const [zipProgress, setZipProgress] = useState<string | null>(null);
   const [zipGroupFailed, setZipGroupFailed] = useState<string | null>(null);
   const [zipGroupSaved, setZipGroupSaved] = useState<ReadonlySet<string>>(() => new Set());
   const alive = useRef(true);
@@ -143,7 +144,7 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
     try {
       const { downloadGuestZipFromServer } = await import("../../lib/packs/serverPdfDownload");
       const expectCodes = [...new Set(groups.flatMap((g) => g.files.flatMap((f) => f.codes ?? (f.code ? [f.code] : []))))];
-      const res = await downloadGuestZipFromServer({ proof, expectCodes, ...(groupId ? { groupId } : {}) });
+      const res = await downloadGuestZipFromServer({ proof, expectCodes, ...(groupId ? { groupId } : {}) }, { onProgress: (d, t) => { if (alive.current) setZipProgress(t > 0 ? `Preparing\u2026 (${d} of ${t} files)` : null); } });
       if (!alive.current) return;
       if (res.ok) {
         if (groupId) setZipGroupSaved((prev) => new Set(prev).add(groupId));
@@ -161,6 +162,7 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
       if (alive.current) {
         setZipBusy(false);
         setZipGroupBusy(null);
+        setZipProgress(null);
       }
     }
   }
@@ -236,7 +238,7 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
           onClick={() => void downloadZip(files.groups)}
           data-testid="receipt-zip"
         >
-          {zipBusy ? "Preparing ZIP\u2026" : zipFailed ? "Try again" : zipSaved ? "Saved \u2713" : "Download all (ZIP)"}
+          {zipBusy ? zipProgress ?? "Preparing ZIP\u2026" : zipFailed ? "Try again" : zipSaved ? "Saved \u2713" : "Download all (ZIP)"}
         </button>
         {zipFailed && <span className="lt-rcpt__bad" role="alert">That didn&rsquo;t work. Try again, or download the files one by one.</span>}
       </div>
@@ -253,7 +255,7 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
           <li className="lt-rcpt__zip" data-testid="receipt-zip-group-row">
             <span>All {g.files.length} files of this chapter (ZIP)</span>
             <button type="button" className="lt-rcpt__btn lt-rcpt__btn--small" disabled={zipBusy || zipGroupBusy !== null || busyId !== null} onClick={() => void downloadZip([g], zipGroupId)} data-testid="receipt-zip-group">
-              {zipGroupBusy === zipGroupId ? "Preparing ZIP\u2026" : zipGroupFailed === zipGroupId ? "Try again" : zipGroupSaved.has(zipGroupId) ? "Saved \u2713" : "Download"}
+              {zipGroupBusy === zipGroupId ? zipProgress ?? "Preparing ZIP\u2026" : zipGroupFailed === zipGroupId ? "Try again" : zipGroupSaved.has(zipGroupId) ? "Saved \u2713" : "Download"}
             </button>
             {zipGroupFailed === zipGroupId && <span className="lt-rcpt__bad" role="alert">That didn&rsquo;t work. Try again, or download the files one by one.</span>}
           </li>

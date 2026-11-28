@@ -1900,7 +1900,9 @@ function createGuestPayRoutes(deps = {}) {
         packId,
         groupId,
         boardPass: null,
+        async: body.async === true,
       });
+      if (link && link.status === 'building') return sendJson(res, 202, { ok: true, ...link });
       emit('payments.guest.zip_link.issued');
       return sendJson(res, 200, { ok: true, ...link });
     } catch (e) {

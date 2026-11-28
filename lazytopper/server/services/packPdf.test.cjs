@@ -340,6 +340,32 @@ test('zip-link: one group = one store-only ZIP of that group\'s stamped files, s
   assert.equal((await h.zip({ packId: CH, group: 'real-numbers' })).body.error, 'not_owned');
 });
 
+test('zip-link PACK-PDF-SIZE-1: async=true answers 202 building at once while the build runs detached; polling then gets the link (cache hit, no second build)', async () => {
+  const h = await harness({ owned: [['u1', 'pack_subject:maths']] });
+  h.delay.ms = 2000; // every bucket read is slow: the build outlasts the 1.5 s grace
+  const t0 = Date.now();
+  const first = await h.zip({ packId: 'pack_subject:maths', group: 'real-numbers', async: true });
+  assert.ok(Date.now() - t0 < 2500, 'answers before the build finishes');
+  assert.equal(first.status, 202, JSON.stringify(first.body));
+  assert.equal(first.body.status, 'building');
+  assert.equal(typeof first.body.total, 'number'); assert.equal(typeof first.body.done, 'number');
+  assert.equal(h.signed.length, 0, 'no link yet');
+  h.delay.ms = 0;
+  let r;
+  for (let i = 0; i < 40; i += 1) {
+    r = await h.zip({ packId: 'pack_subject:maths', group: 'real-numbers', async: true });
+    if (r.status === 200) break;
+    assert.equal(r.status, 202);
+    await new Promise((res) => setTimeout(res, 100));
+  }
+  assert.equal(r.status, 200, JSON.stringify(r.body));
+  assert.equal(r.body.files.length, 3);
+  const zips = [...h.objects.keys()].filter((k) => k.includes('/zip/'));
+  assert.equal(zips.length, 1);
+  // a non-async request is exactly as before
+  assert.equal((await h.zip({ packId: 'pack_subject:maths', group: 'real-numbers' })).status, 200);
+});
+
 test('zip-link GUEST-ZIP-1: the internal "__all__" group is EVERY file of the pack in one ZIP, named for the pack; a real group is unchanged', async () => {
   const h = await harness({ owned: [['u1', 'pack_subject:maths']] });
   const r = await h.zip({ packId: 'pack_subject:maths', group: '__all__' });
