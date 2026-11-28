@@ -592,6 +592,11 @@ function createGradingCore(deps) {
             const cached = await runInMeterGroup(meter, () => solutionCache.getOrCreateModelSolution(schemeFieldsOf(q, input.subject)));
             if (cached && Array.isArray(cached.schemeSteps) && cached.schemeSteps.length > 0) {
               arrived.set(q, cached.schemeSteps);
+              // AC-SOLUTION-1 · DISPLAY ONLY: keep the structured steps beside (never instead of) the prompt strings.
+              // Non-enumerable: invisible to the prompt, logs and any spread of `q`; read back only at the end of gradeSet.
+              if (Array.isArray(cached.solutionSteps) && cached.solutionSteps.length > 0) {
+                Object.defineProperty(q, '_modelSolutionSteps', { value: cached.solutionSteps, configurable: true });
+              }
               if (cached.fromCache !== true) generated.add(q);
               // GRADE-SPEED-1b: which stored scheme (first 8 hex of its question hash, never text) and whether this grade
               // WAITED for an in-flight generation (e.g. the early prepare still running) rather than reading a stored one.
@@ -877,6 +882,16 @@ function createGradingCore(deps) {
     // GRADE-MISS-1 — how many questions of this paper the page check dropped, by kind (numbers only).
     if (timingSink) {
       try { timingSink.outcomes = gradeTimingLib.outcomeCounts(results, { inventory: anyInventory }); } catch { /* telemetry only */ }
+    }
+    // AC-SOLUTION-1 · DISPLAY ONLY — attached after every grade/rescue step, so nothing the grader decided can depend on it.
+    if (process.env.AC_MODEL_SOLUTION_DISABLED !== '1') {
+      questions.forEach((q, i) => {
+        const steps = q && q._modelSolutionSteps;
+        if (results[i] && Array.isArray(steps) && steps.length > 0) {
+          const totalMarks = Math.round(steps.reduce((t, x) => t + (Number(x.marks) || 0), 0) * 2) / 2;
+          results[i].modelSolution = { steps: steps.map((x) => ({ description: x.description, working: x.working, marks: x.marks })), totalMarks };
+        }
+      });
     }
     return { ok: true, results, summary, modelUsed, detection, chunkCount: chunks.length };
   }

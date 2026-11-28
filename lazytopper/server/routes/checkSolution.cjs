@@ -624,6 +624,8 @@ function createCheckSolutionRoute(deps) {
         model: graded.modelUsed,
         // MCQ-KEY-TRUST-1 · admin observability only; present only when true.
         ...(r.derivedKeyDisagreed === true ? { derivedKeyDisagreed: true } : {}),
+        // AC-SOLUTION-1 · display only; present only when the server already had the solution (kill switch in core).
+        ...(r.modelSolution ? { modelSolution: r.modelSolution } : {}),
       };
       if (acceptsV2) {
         Object.assign(body, {
