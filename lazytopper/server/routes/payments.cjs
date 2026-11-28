@@ -1145,21 +1145,27 @@ function createPaymentRoutes(deps = {}) {
       atMs: now(),
     };
     let wrote = false;
+    let wroteGuest = false;
     try {
       const ref = adminFirestore.collection(PAY_ORDERS_COLLECTION).doc(orderId);
       await adminFirestore.runTransaction(async (tx) => {
         const snap = await tx.get(ref);
         const order = snap && snap.exists ? snap.data() || {} : null;
-        if (!order || order.status !== 'created' || order.uid === ERASED_UID || typeof order.uid !== 'string' || !order.uid) return;
+        if (!order || order.status !== 'created' || order.uid === ERASED_UID) return;
+        // PAY-FAIL-1A: a signed-in order (non-empty string uid) OR a signed-out GUEST order (uid is literally null, guestPay.cjs).
+        // Anything else (undefined, number, empty string) stays skipped.
+        const isGuest = order.uid === null;
+        if (!isGuest && (typeof order.uid !== 'string' || !order.uid)) return;
         tx.set(ref, { lastFailure }, { merge: true });
         wrote = true;
+        wroteGuest = isGuest;
       });
     } catch (e) {
       emit('payments.webhook.store_write_failed');
       console.error('[pay/webhook] failure note write failed:', e && e.message);
       return sendJson(res, 500, { ok: false, error: 'Could not record the failure.' });
     }
-    emit(wrote ? 'payments.webhook.failure_recorded' : 'payments.webhook.ignored');
+    emit(wrote ? (wroteGuest ? 'payments.webhook.failure_recorded_guest' : 'payments.webhook.failure_recorded') : 'payments.webhook.ignored');
     return sendJson(res, 200, wrote ? { ok: true } : { ok: true, ignored: true });
   }
 
