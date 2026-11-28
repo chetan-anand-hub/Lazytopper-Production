@@ -92,6 +92,25 @@ async function openFiles() {
 }
 
 describe("SERVER-PDF-1 PR-C - Download all (ZIP) per group in My packs", () => {
+  it("PACK-PDF-SIZE-1: on a touch phone the ZIP row comes AFTER the paper rows with a one-line hint; on desktop it comes first, no hint", async () => {
+    const mm = vi.fn((q: string) => ({ matches: q.includes("coarse"), media: q, addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn() }));
+    vi.stubGlobal("matchMedia", mm);
+    window.matchMedia = mm as never;
+    const touch = await openFiles();
+    const row = touch[0].closest("[data-testid=zip-row]") as HTMLElement;
+    expect(row.textContent).toMatch(/On a phone, download one paper at a time/);
+    const grp = row.parentElement as HTMLElement;
+    expect(grp.lastElementChild).toBe(row);
+    cleanup();
+    const desk = vi.fn((q: string) => ({ matches: false, media: q, addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn() }));
+    window.matchMedia = desk as never;
+    const none = await openFiles();
+    const row2 = none[0].closest("[data-testid=zip-row]") as HTMLElement;
+    expect(screen.queryByTestId("zip-phone-hint")).toBeNull();
+    expect((row2.parentElement as HTMLElement).querySelector("h4, [data-testid=zip-row]")).toBeTruthy();
+    expect((row2.parentElement as HTMLElement).lastElementChild).not.toBe(row2);
+  });
+
   it("asks buildPackFiles for the server link path", async () => {
     await openFiles();
     expect(builder.buildPackFiles.mock.calls[0][1]).toMatchObject({ serverLinks: true });

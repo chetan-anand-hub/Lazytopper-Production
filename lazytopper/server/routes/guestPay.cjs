@@ -127,7 +127,7 @@ const GUEST_PROOF_CLAIM_PATH = '/api/pay/guest/claim-with-proof';
 const VIA_PUT_ON_ACCOUNT = 'put_on_account';
 /** PAID-SHOWS-1: how long after the payment time (guestPaidAt; paidAt only if absent) the signed-out receipt is answered. */
 /** GUEST-ZIP-1: ZIPs per guest order per hour (parity with packs.cjs ZIPS_PER_HOUR). */
-const GUEST_ZIPS_PER_HOUR = 30;
+const GUEST_ZIPS_PER_HOUR = 60; // PACK-PDF-SIZE-1: one ZIP per chapter (a bundle has ~30 chapters) plus retries
 /** The stored `payer` of an order made through a parent-pay link (routes/parentPay.cjs PARENT_PAYER). */
 const PARENT_PAYER_TYPE = 'parent';
 const RECEIPT_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -173,6 +173,8 @@ const RAZORPAY_TIMEOUT_MS = 15000;
 const CURRENCY = 'INR';
 const MAX_JSON_BYTES = 16 * 1024;
 const ID_PATTERN = /^[A-Za-z0-9_]{1,64}$/;
+/** PACK-PDF-SIZE-1: a pack group id is a slug (real-numbers, chemical-reactions-and-equations). */
+const GROUP_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,99}$/i;
 const HEX_PATTERN = /^[a-fA-F0-9]{1,256}$/;
 const NOT_FOUND_BODY = Object.freeze({ error: 'Not Found' });
 const ERASED_UID = 'erased';
@@ -500,13 +502,14 @@ function createGuestPayRoutes(deps = {}) {
   }
 
   /** Dark check FIRST, then the per-client limiter (signed out by construction), then the store. */
-  function admitGuestCall(req, res, scope, reqPath, alsoOn = false) {
+  function admitGuestCall(req, res, scope, reqPath, alsoOn = false, uncounted = false) {
     // CHECKOUT-WHO-1: either switch opens order / verify; with CHECKOUT_WHO off this is exactly the old check.
     if (!isGuestPayEnabled(env) && !isCheckoutWhoEnabled(env) && !alsoOn) {
       sendJson(res, 404, NOT_FOUND_BODY);
       return false;
     }
-    const verdict = limiters.client.check(req, reqPath, '', { signedOut: true });
+    // PACK-PDF-SIZE-1: `uncounted` = a poll for a ZIP already being built (see handleZipLink): the per-client daily budget is not spent.
+    const verdict = uncounted ? { allowed: true } : limiters.client.check(req, reqPath, '', { signedOut: true });
     if (!verdict.allowed) {
       emit(`payments.guest.${scope}.rate_limited`);
       sendJson(res, 429, { ok: false, error: 'Too many attempts. Please try again tomorrow.' });
@@ -1844,15 +1847,30 @@ function createGuestPayRoutes(deps = {}) {
   async function handleZipLink(req, res) {
     if (!isCheckoutWhoEnabled(env) && !isGuestPayEnabled(env)) return sendJson(res, 404, NOT_FOUND_BODY);
     if (isServerPdfDisabled(env) || !packPdf || typeof packPdf.zipLink !== 'function') return sendJson(res, 404, NOT_FOUND_BODY);
-    if (!admitGuestCall(req, res, 'zip_link', GUEST_ZIP_LINK_PATH)) return undefined;
+    // PACK-PDF-SIZE-1: the body is read first so a poll for a ZIP that is ALREADY being built (async + a live job for this order and
+    // group) is charged to NEITHER the per-client daily budget nor the per-order hourly cap. Every other check below still runs.
+    const bodyFirst = isGuestPayEnabled(env) || isCheckoutWhoEnabled(env) ? await readJsonBody(req, res) : null;
+    if ((isGuestPayEnabled(env) || isCheckoutWhoEnabled(env)) && !bodyFirst) return undefined;
+    const pollOrderId = bodyFirst && typeof bodyFirst.orderId === 'string' ? bodyFirst.orderId.trim() : '';
+    const pollGroup = bodyFirst && typeof bodyFirst.group === 'string' ? bodyFirst.group.trim() : ZIP_ALL_GROUP;
+    const polling = Boolean(bodyFirst && bodyFirst.async === true && ID_PATTERN.test(pollOrderId) && typeof packPdf.zipJobPending === 'function' && packPdf.zipJobPending(`guest_${pollOrderId}`, pollGroup || ZIP_ALL_GROUP));
+    if (!admitGuestCall(req, res, 'zip_link', GUEST_ZIP_LINK_PATH, false, polling)) return undefined;
     const keys = readKeys();
     if (!keys.keyId || !keys.keySecret) return unavailable(res);
-    const body = await readJsonBody(req, res);
+    const body = bodyFirst;
     if (!body) return undefined;
     const orderId = typeof body.orderId === 'string' ? body.orderId.trim() : '';
     const paymentId = typeof body.paymentId === 'string' ? body.paymentId.trim() : '';
     const signature = typeof body.signature === 'string' ? body.signature.trim() : '';
     if (!ID_PATTERN.test(orderId) || !ID_PATTERN.test(paymentId) || !HEX_PATTERN.test(signature)) return reject(res, 'zip_link', 'malformed');
+    // PACK-PDF-SIZE-1: optional `group` = one chapter/group of the pack (the same ZIP a signed-in buyer gets). Absent = the legacy
+    // whole-pack ZIP (old tabs keep working). The id is only ever looked up in the pack's own manifest groups: an unknown id is a 404.
+    let groupId = ZIP_ALL_GROUP;
+    if (body.group !== undefined && body.group !== null) {
+      const g = typeof body.group === 'string' ? body.group.trim() : '';
+      if (!g || g === ZIP_ALL_GROUP || !GROUP_ID_PATTERN.test(g)) return reject(res, 'zip_link', 'malformed');
+      groupId = g;
+    }
     if (await payerUidOf(req)) return reject(res, 'zip_link', 'requires_signed_out', 409);
     if (!isCheckoutSignatureValid({ orderId, paymentId, signature, keySecret: keys.keySecret })) return reject(res, 'zip_link', 'bad_signature');
     let order;
@@ -1881,16 +1899,18 @@ function createGuestPayRoutes(deps = {}) {
     const contact = emailMasked && (!phoneMasked || order.recipientFirst === 'email') ? emailMasked : phoneMasked;
     if (!contact) return reject(res, 'zip_link', 'no_contact');
     const packId = packIdFor(sku, target);
-    if (zipLimited(`z:guest_${orderId}`, GUEST_ZIPS_PER_HOUR)) return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
+    if (!polling && zipLimited(`z:guest_${orderId}`, GUEST_ZIPS_PER_HOUR)) return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
     try {
       const link = await packPdf.zipLink({
         uid: `guest_${orderId}`,
         buyer: { name: '', contact },
         owned: [{ packId, sku, target, pricePaidInr: 0, paidAt: paidMs, orderId }],
         packId,
-        groupId: ZIP_ALL_GROUP,
+        groupId,
         boardPass: null,
+        async: body.async === true,
       });
+      if (link && link.status === 'building') return sendJson(res, 202, { ok: true, ...link });
       emit('payments.guest.zip_link.issued');
       return sendJson(res, 200, { ok: true, ...link });
     } catch (e) {

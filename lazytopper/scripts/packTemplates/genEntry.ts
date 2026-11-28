@@ -137,9 +137,9 @@ window.__renderBridge = async (data) => {
     import("jspdf"),
     import("../../src/components/worksheet/worksheetPdfExport"),
   ]);
-  const pages = await mod.renderBridgePages(data, html2canvas, 30000);
+  const pages = await mod.renderBridgePages(data, html2canvas, 30000, true);
   if (pages.length !== mod.TEMPLATE_BRIDGE_PAGES) throw new Error("bridge_pages_missing");
-  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const pdf = new jsPDF(mod.pdfCtorOptions(true));
   pages.forEach((p, i) => {
     if (i > 0) pdf.addPage();
     pdf.addImage(p.jpeg, "JPEG", 0, 0, 210, 297);

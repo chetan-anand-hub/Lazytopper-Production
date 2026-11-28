@@ -362,7 +362,9 @@ function createPackRoutes(deps = {}) {
     const { packId, group } = body;
     if (typeof packId !== 'string' || typeof group !== 'string' || !ID_PATTERN.test(packId) || !ID_PATTERN.test(group)) return sendJson(res, 400, { ok: false, error: 'bad_request' });
     if (!ownsOpen(res, buyer, packId)) return undefined;
-    if (limited(`z:${buyer.uid}`, ZIPS_PER_HOUR)) return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
+    // PACK-PDF-SIZE-1: a poll for a ZIP that is ALREADY being built is not a new request: it is not charged to the hourly cap.
+    const polling = body.async === true && typeof packPdf.zipJobPending === 'function' && packPdf.zipJobPending(buyer.uid, group);
+    if (!polling && limited(`z:${buyer.uid}`, ZIPS_PER_HOUR)) return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
     try {
       const link = await packPdf.zipLink({
         uid: buyer.uid,
@@ -371,7 +373,10 @@ function createPackRoutes(deps = {}) {
         packId,
         groupId: group,
         boardPass: await paidBoardPass(buyer.uid),
+        async: body.async === true,
       });
+      // PACK-PDF-SIZE-1: still being built - nothing was handed out, nothing is recorded; the client asks again.
+      if (link && link.status === 'building') return sendJson(res, 202, { ok: true, ...link });
       // One entry per file in the ZIP: the same count the student would have made downloading them one by one.
       await packPdf.recordDownloads(buyer.uid, link.files.length);
       emit('packs.zip_link.issued');
