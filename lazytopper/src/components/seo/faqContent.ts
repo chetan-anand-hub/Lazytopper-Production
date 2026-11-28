@@ -82,12 +82,12 @@ export const CRASH_COURSE_FAQ: readonly FaqItem[] = [
   {
     question: "Can I buy the Crash Course on its own?",
     answer:
-      "No. It is a bonus included free with the Board Pass, the Pre-Boards Test Series, the Maths + Science Bundle, a Subject Pack, a CBQ Pack or a Chapter Pack. A Chapter Pack includes that chapter's sheet.",
+      "No. It is a bonus included free with the Board Pass, the Pre-Boards Test Series, the Maths + Science Bundle, a Subject Pack, a CBQ Pack or a Chapter Pack. A Chapter Pack includes that chapter's sheet(s).",
   },
   {
     question: "Which Crash Course files come with which purchase?",
     answer:
-      "The Board Pass, the Test Series Pack and the Maths + Science Bundle include both subject books and every chapter sheet. A Subject Pack includes that subject's book and its chapter sheets. A CBQ Pack includes the book for its subject. A Chapter Pack includes that chapter's sheet.",
+      "The Board Pass, the Test Series Pack and the Maths + Science Bundle include both subject books and every chapter sheet. A Subject Pack includes that subject's book and its chapter sheets. A CBQ Pack includes the book for its subject. A Chapter Pack includes that chapter's sheet(s).",
   },
   {
     question: "Does the Crash Course cover the 2026-27 syllabus?",

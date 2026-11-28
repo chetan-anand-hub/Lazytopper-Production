@@ -27,7 +27,7 @@ export const CC27_CHIP_SCOPE: Readonly<Record<Cc27Product, string>> = {
   cbq: "for your subject",
   subject: "for your subject",
   chapter: "chapter sheet",
-  bank: "in the Bundle, Subject and Chapter Packs",
+  bank: "in Bundle, Subject & Chapter Packs",
 };
 
 /** What is inside (the detail block). */
@@ -45,7 +45,7 @@ export const CC27_INCLUDED: Readonly<Record<Cc27Product, string>> = {
   bundle: "Included free with the Maths + Science Bundle: both books and every chapter sheet.",
   subject: "Included free with a Subject Pack: that subject's book and its chapter sheets.",
   cbq: "Included free with a CBQ Pack: the book for your subject.",
-  chapter: "Included free with a Chapter Pack: that chapter's sheet.",
+  chapter: "Included free with a Chapter Pack: that chapter's sheet(s).",
   bank: "Included free with the Bundle, a Subject Pack or a Chapter Pack.",
 };
 

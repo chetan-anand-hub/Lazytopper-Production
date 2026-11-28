@@ -804,3 +804,19 @@ test('cc27: object missing -> row hidden and link 503 not_ready; kill switches -
   const partial = await ccHarness({ owned: [['u1', 'pack_bundle:all']] }, ['book:maths']);
   assert.deepEqual((await partial.mine()).body.cc27, ['book:maths']);
 });
+
+test('cc27-link: a trial, an expired pass and malformed keys are refused (403 / 404)', async () => {
+  const trial = await ccHarness({ subscription: { tier: 'trial', trialStartDate: new Date(NOW - 86400000) } });
+  assert.equal((await trial.link('book:maths')).status, 403);
+  const expired = await ccHarness({ subscription: { tier: 'premium', passType: 'till_boards', passEnd: new Date(NOW - 86400000) } });
+  assert.equal((await expired.link('book:maths')).status, 403);
+  const h = await ccHarness({ subscription: BP });
+  for (const k of ['../files/x', 'BOOK:maths', '__proto__']) {
+    const r = await h.link(k);
+    assert.ok(r.status === 404 || r.status === 400, `${k} -> ${r.status}`);
+    assert.equal(h.signed.length, 0);
+  }
+  assert.equal((await h.link('BOOK:maths')).status, 404);
+  assert.equal((await h.link('__proto__')).status, 404);
+  assert.equal((await h.link('book:maths')).status, 200);
+});

@@ -21,7 +21,7 @@ export default function CrashCourse2027Page() {
       path={CRASH_COURSE_PATH}
       testId="crash-course-page"
       eyebrow="CBSE Class 10 · Maths and Science · 2026-27"
-      sub="A last-stretch revision set for the 2027 boards: one page per chapter, the most-asked board questions with marking schemes, and a 75-day plan. Included free with the Board Pass, the Test Series and the packs."
+      sub="A last-stretch revision set for the 2027 boards: one page per chapter, the most-asked board questions with marking schemes, and a 75-day plan. Included free with the Board Pass, the Test Series, the Bundle, Subject, CBQ and Chapter Packs."
       cta={{ to: "#cc27-sample", label: "Try a sample", testId: "cc27-cta-hero" }}
       faq={CRASH_COURSE_FAQ}
       heroBuy={
@@ -84,7 +84,7 @@ export default function CrashCourse2027Page() {
               <tr><td>{BUNDLE_NAME}</td><td>Maths and Science books, every chapter sheet</td></tr>
               <tr><td>Subject Pack</td><td>That subject&rsquo;s book and its chapter sheets</td></tr>
               <tr><td>CBQ Pack</td><td>That subject&rsquo;s book</td></tr>
-              <tr><td>Chapter Pack</td><td>That chapter&rsquo;s sheet</td></tr>
+              <tr><td>Chapter Pack</td><td>That chapter&rsquo;s sheet(s)</td></tr>
             </tbody>
           </table>
         </div>
@@ -105,7 +105,7 @@ export default function CrashCourse2027Page() {
       </section>
 
       <section aria-labelledby="cc27-sample-h" id="cc27-sample">
-        <h2 id="cc27-sample-h">Free sample</h2>
+        <h2 id="cc27-sample-h">Try a sample</h2>
         <p>See the style before you decide. Download the Start Here guide and one full chapter sheet (Maths, Triangles).</p>
         <div className="lt-seol__actions">
           <a className="lt-seol__btn" href={CC27_SAMPLE_START_HERE} download data-testid="cc27-sample-start">
