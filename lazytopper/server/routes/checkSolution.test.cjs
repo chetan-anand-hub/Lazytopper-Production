@@ -2947,6 +2947,9 @@ test('§23.6 ★ (D141 F2) the phone upload checks its slot BEFORE it reads the 
 // branch, the job runner, the poll route and the deferred fair-use commit (grading/jobs.suite.cjs:
 // a *.suite.cjs run from here, so it is part of test:server:check-solution in CI).
 require('../grading/jobs.suite.cjs');
+// GRADE-SINGLE-JOB-1: a one-question Answer Checker check on /api/check-solution as a background job
+// (identity of the model request on both paths, charging once, replay, timeout re-split, drain, lanes).
+require('../grading/singleJobs.suite.cjs');
 
 /* ══════════════════════════════════════════════════════════════════════════════
    §MKT · MCQ-KEY-TRUST-1 — A KEY THE DETECT STEP GUESSED NEVER OVERRIDES THE GRADER

@@ -31,7 +31,8 @@ import type {
   WorksheetGradeUpload,
   WorksheetQuestionGrade,
 } from "./aiClient";
-import { GradingNetworkError, newIdempotencyKey } from "./gradingTransport";
+import { GradingNetworkError, GRADING_SLOW_STAGE_MS, newIdempotencyKey } from "./gradingTransport";
+import type { GradingStageListener } from "./gradingTransport";
 import { isGradedQuestion } from "../lib/mistakeDisplay";
 
 /* ── the wire (contract §2, §3) ──────────────────────────────────────────── */
@@ -255,8 +256,10 @@ function stripRow(row: GradingJobRow): WorksheetQuestionGrade {
   return rest as WorksheetQuestionGrade;
 }
 
-type Settled =
-  | { kind: "final"; body: WorksheetGradeResponse }
+/** How one grade settled. `R` is the final body's type: a paper's WorksheetGradeResponse (the default — every
+ *  paper call site), or a one-question check's body (GRADE-SINGLE-JOB-1, gradeSingleJob). Types only. */
+type Settled<R = WorksheetGradeResponse> =
+  | { kind: "final"; body: R }
   | { kind: "interrupted"; rows: GradingJobRow[] };
 
 class JobGone extends Error {
@@ -293,11 +296,11 @@ function rowsOf(body: Record<string, unknown>): GradingJobRow[] {
 
 /** §3 — poll ONE job until it ends. Throws JobGone on a 404; GradingNetworkError when the
  *  poll cannot get through (the job stays stored, so a retry resumes it). */
-async function pollJob(
+async function pollJob<R = WorksheetGradeResponse>(
   rec: StoredGradingJob,
   deps: GradingJobDeps,
   onProgress: ((p: GradingJobProgress) => void) | undefined,
-): Promise<Settled> {
+): Promise<Settled<R>> {
   const started = nowImpl();
   let failures = 0;
   for (;;) {
@@ -322,7 +325,7 @@ async function pollJob(
         if (state === "done") {
           const final = body.final;
           if (!final || typeof final !== "object") throw new JobGone();
-          return { kind: "final", body: final as WorksheetGradeResponse };
+          return { kind: "final", body: final as R };
         }
         if (state === "interrupted") return { kind: "interrupted", rows };
         const wait = Number(body.pollAfterMs);
@@ -344,12 +347,12 @@ async function pollJob(
 }
 
 /** Submit (opt-in) or resume ONE grade; returns how it settled. */
-async function runOnce(
-  body: WorksheetGradeRequestBody,
+async function runOnce<B = WorksheetGradeRequestBody, R = WorksheetGradeResponse>(
+  body: B,
   job: GradingJobOptions,
   deps: GradingJobDeps,
   onProgress: ((p: GradingJobProgress) => void) | undefined,
-): Promise<Settled> {
+): Promise<Settled<R>> {
   let rec = resumableJob(job.store, job.paperKey);
   // N4: a kept job (e.g. after a network give-up) is resumed by a new grade ONLY when that grade
   // sends the SAME content. A re-upload (a new photo) drops it and is graded as a new submit.
@@ -367,13 +370,13 @@ async function runOnce(
     const idempotencyKey = newIdempotencyKey();
     const res = await deps.submit(body, { idempotencyKey, preferAsync: true });
     // §1: a 200 (or any non-202) is TODAY'S answer — today's parse, today's throws.
-    if (res.status !== 202) return { kind: "final", body: await deps.parse<WorksheetGradeResponse>(res) };
+    if (res.status !== 202) return { kind: "final", body: await deps.parse<R>(res) };
     const accepted = safeJson(await res.text());
     const jobId = accepted && typeof accepted.jobId === "string" ? accepted.jobId : "";
     const pollPath = jobId ? safePollPath(accepted?.pollPath, jobId) : "";
     if (!jobId) {
       // A 202 we cannot read: grade synchronously instead (owner rule), NEW key (§3).
-      return syncFallback(body, deps);
+      return syncFallback<B, R>(body, deps);
     }
     rec = {
       v: 1,
@@ -391,7 +394,7 @@ async function runOnce(
   }
   deps.onStage?.({ kind: "grading" });
   try {
-    const settled = await pollJob(rec, deps, onProgress);
+    const settled = await pollJob<R>(rec, deps, onProgress);
     job.store.clear();
     return settled;
   } catch (err) {
@@ -399,7 +402,7 @@ async function runOnce(
     job.store.clear();
     if (job.resumeOnly) throw new GradingJobGoneError();
     // §3 404 mid-poll: the job is gone. Owner rule: today's synchronous path, NEW key.
-    return syncFallback(body, deps);
+    return syncFallback<B, R>(body, deps);
   }
 }
 
@@ -423,9 +426,9 @@ function firstUploadPerQNumber(uploads: WorksheetGradeUpload[]): WorksheetGradeU
   });
 }
 
-async function syncFallback(body: WorksheetGradeRequestBody, deps: GradingJobDeps): Promise<Settled> {
+async function syncFallback<B = WorksheetGradeRequestBody, R = WorksheetGradeResponse>(body: B, deps: GradingJobDeps): Promise<Settled<R>> {
   const res = await deps.submit(body, { idempotencyKey: newIdempotencyKey(), preferAsync: false });
-  return { kind: "final", body: await deps.parse<WorksheetGradeResponse>(res) };
+  return { kind: "final", body: await deps.parse<R>(res) };
 }
 
 /** Totals the server's way (buildWorksheetBody), from FINAL rows only. */
@@ -507,4 +510,78 @@ export async function gradeWorksheetJob(
     if (r) results.push(r);
   }
   return totalsOf(req.worksheetId, results);
+}
+
+/* ── GRADE-SINGLE-JOB-1 · a ONE-question Answer Checker check as a background job ─────────────────────── */
+
+/** The `paperKey` a one-question check's job is stored under (a check has no paper; the body hash decides). */
+export const SINGLE_JOB_PAPER_KEY = "answer-checker-single";
+/** The student's sentence when a redeploy interrupted the check before it was marked (never charged). */
+export const SINGLE_JOB_INTERRUPTED_MESSAGE =
+  "This check was interrupted before your answer was marked — you have not been charged. Please check it again.";
+/** The rare case the check was marked just as it was interrupted: no result to show, and no charge claim made. */
+export const SINGLE_JOB_INTERRUPTED_LATE_MESSAGE = "This check was interrupted as it finished. Please check your answer again.";
+
+const memorySlots = new Map<string, StoredGradingJob>();
+
+/**
+ * An IN-MEMORY job store (this tab, until a reload). A one-question check keeps its job here so that a
+ * poll that gave up (connection) is RESUMED — never re-submitted, never charged twice — when the student
+ * presses Check again on the SAME answer (runOnce's body hash); a different answer starts a new check.
+ * Nothing is written to sessionStorage: after a reload the page no longer holds the answer.
+ */
+export function memoryJobStore(slot: string): GradingJobStore {
+  return {
+    read: () => memorySlots.get(slot) ?? null,
+    write: (rec) => {
+      memorySlots.set(slot, rec);
+    },
+    clear: () => {
+      memorySlots.delete(slot);
+    },
+  };
+}
+
+/**
+ * GRADE-SINGLE-JOB-1 — grade ONE question (POST /api/check-solution) through the job contract: submit with
+ * `Prefer: respond-async`; a 200 (the server switch GRADING_SINGLE_JOBS off, or a request it would not make a
+ * job) is today's answer, handled by today's parse; a 202 is polled to `done`, whose `final` IS the body the
+ * synchronous 200 would have carried (byte-identical, server singleReplyOf) and is returned as it.
+ *
+ * Stages (the same words the synchronous check shows): "Grading…" while the job runs, then — 30 s after it
+ * started, as on the synchronous path (GRADING_SLOW_STAGE_MS) — "Taking a little longer than usual — still
+ * checking…", then "Done" when the result arrives. Nothing here names a time.
+ */
+export async function gradeSingleJob<R>(
+  body: unknown,
+  deps: Omit<GradingJobDeps, "onStage">,
+  opts: { store?: GradingJobStore; onStage?: GradingStageListener } = {},
+): Promise<R> {
+  const store = opts.store ?? memoryJobStore("check-solution");
+  const onStage = opts.onStage;
+  let slowTimer: ReturnType<typeof setTimeout> | null = null;
+  const runDeps: GradingJobDeps = {
+    ...deps,
+    ...(onStage
+      ? {
+          onStage: (stage: { kind: "grading" }) => {
+            onStage(stage);
+            if (slowTimer === null) {
+              slowTimer = setTimeout(() => onStage({ kind: "retrying", attempt: 0, reason: "slow" }), GRADING_SLOW_STAGE_MS);
+            }
+          },
+        }
+      : {}),
+  };
+  try {
+    const settled = await runOnce<unknown, R>(body, { store, paperKey: SINGLE_JOB_PAPER_KEY }, runDeps, undefined);
+    if (settled.kind === "interrupted") {
+      const marked = settled.rows.length > 0 && settled.rows.every((r) => !isInterruptedRow(r));
+      return { ok: false, error: marked ? SINGLE_JOB_INTERRUPTED_LATE_MESSAGE : SINGLE_JOB_INTERRUPTED_MESSAGE } as R;
+    }
+    onStage?.({ kind: "done" });
+    return settled.body;
+  } finally {
+    if (slowTimer !== null) clearTimeout(slowTimer);
+  }
 }

@@ -966,6 +966,9 @@ type FreeCheckInnerMode = (
 const FREE_CHECK_CALL: PaidCallOptions = { freeCheck: true };
 // FAIR-USE-2 (F3): a signed-in C&I grade names its true surface (counted per question).
 const CI_GRADE_CALL: PaidCallOptions = { surface: "check-improve" };
+// GRADE-SINGLE-JOB-1: the signed-in ONE-question check asks for a background job (the server decides, switch
+// GRADING_SINGLE_JOBS); the result, the stages and every screen are the same as the synchronous check.
+const CI_SINGLE_GRADE_CALL: PaidCallOptions = { ...CI_GRADE_CALL, singleJob: true };
 
 /** GRADING-JOBS-1 J2 — what a C&I paper's background grade stores beside its job (text only,
  *  never the answer image) so a reload can restore the session and resume the poll. */
@@ -2987,7 +2990,7 @@ const DesktopCheckImprovePageInner: React.FC<{
           : detectedQuestions?.[0],
         freeCall: Boolean(freeCallOpts),
         answerPart,
-      }), { ...(freeCallOpts ?? CI_GRADE_CALL), onStage: setGradeStage });
+      }), { ...(freeCallOpts ?? CI_SINGLE_GRADE_CALL), onStage: setGradeStage });
       if (!graded || graded.ok === false) {
         setErrorMessage(
           graded?.error
