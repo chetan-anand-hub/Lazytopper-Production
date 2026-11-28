@@ -121,6 +121,7 @@ const ROUTES: Record<string, Array<[string, string | null]>> = {
   "/mock-test-class-10": [["/mock-test-class-10", null]],
   "/question-bank-class-10": [["/question-bank-class-10", null]],
   "/cbse-marking-scheme-class-10": [["/cbse-marking-scheme-class-10", null]],
+  "/class-10-crash-course-2027": [["/class-10-crash-course-2027", null]], // CC27-SITE-1 - public landing, no page name
   "/test-series": [["/test-series", null]], // TEST-SERIES-1 — public sales page, like /for-parents: not an activity page
   "/for-parents": [["/for-parents", null]], // PARENTS-1 — public, like the guide: not an activity page
   "/contact": [["/contact", null]], // WA-CONTACT-1 — public contact page: not an activity page

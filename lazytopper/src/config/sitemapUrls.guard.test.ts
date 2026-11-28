@@ -289,7 +289,7 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     // SOLUTIONS-SCI-2: + 9 more Science NCERT pages (all chapters but Heredity, below the 5-row floor).
     // SOLUTIONS-SCI-3: + 11 Science Exemplar pages (all but Magnetic Effects, Our Environment).
     expect(solutionsPaths().length, "published solutions pages").toBe(51);
-    expect(paths.length, "the owner-ruled advertised count").toBe(99 + solutionsPaths().length + 1 + dailyQuestionSlugs().length + 1 + freeMcqSlugs().length + 1); // TEST-SERIES-1: + /test-series; // SEO-MCQ-1: + the free-MCQ hub + one page per bank; SEO-DAILY-1: + the hub + one page per registry question; 67 + the 27 CBQ-SEO-1 pages (hub + 26 chapters) + 2 PRICING-PAGES-1 + 3 SEO-PAGES-1
+    expect(paths.length, "the owner-ruled advertised count").toBe(99 + solutionsPaths().length + 1 + dailyQuestionSlugs().length + 1 + freeMcqSlugs().length + 1 + 1); // CC27-SITE-1: + the Crash Course landing; // TEST-SERIES-1: + /test-series; // SEO-MCQ-1: + the free-MCQ hub + one page per bank; SEO-DAILY-1: + the hub + one page per registry question; 67 + the 27 CBQ-SEO-1 pages (hub + 26 chapters) + 2 PRICING-PAGES-1 + 3 SEO-PAGES-1
     expect(dailyQuestionSlugs().length, "SEO-DAILY-1 + SEO-DAILY-2 registry").toBe(11);
     expect(freeMcqSlugs().length, "SEO-MCQ-1 registry").toBe(27);
     expect(paths.length).toBe(192); // CC27-SITE-1: + /class-10-crash-course-2027. TEST-SERIES-1: + /test-series. 155 + the SEO-MCQ-1 hub + 27 chapter pages + the 7 SEO-DAILY-2 question pages (#9-#15)
