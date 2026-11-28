@@ -36,6 +36,8 @@ import { HUB_CARD_SHORT, chooserRequested, chooserTabFromParams, hubCardLine, hu
 import StartHereCardBase from "../../components/startHere/StartHereCard";
 import PracticeHubSegRowBase from "../../components/practice/PracticeHubSegRow";
 import PackPromoBase from "../../components/packs/PackPromoLazy";
+import ExamPracticeStrip from "../../components/seoPages/ExamPracticeStrip";
+import { firePackEntryClick } from "../../lib/packs/packEntry";
 import LandingOfferBase from "../../components/packs/LandingOfferLazy";
 import SurfaceHistoryBase from "../../components/results/SurfaceHistory";
 import { buildQuickPracticeReviewHref } from "../tutor/tutorRoundTrip";
@@ -3269,6 +3271,9 @@ export default function DesktopPracticePage() {
             {isDesktop ? <MistakeTrendCard trend={mistakeTrend} /> : null}
           </aside>
         </div>
+
+        {/* HOME-LINKS-1 (owner OK, 28 Nov 2026) - signed-out visitors only: plain links to the pages that sell exam practice. */}
+        {!isSignedIn ? <ExamPracticeStrip includePacks testId="practicehub-exam-practice" onLinkClick={() => firePackEntryClick("practicehub_strip")} /> : null}
 
         {/* Inline keyframes + responsive grid rules — no global Tailwind */}
         <style>{`

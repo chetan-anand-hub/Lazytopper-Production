@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { sendAnalyticsHit } from "../analytics/analytics";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
+import ExamPracticeStrip from "../components/seoPages/ExamPracticeStrip";
 import { BOARD_PASS_NAME, boardPassFoundingLabel, boardPassPriceLine, PRICE_FREE_DISPLAY } from "../config/pricing";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 
@@ -824,6 +825,10 @@ export default function Welcome() {
             </Link>
           </div>
         </section>
+
+        {/* HOME-LINKS-1 (owner OK, 28 Nov 2026) - plain internal links to the pages that sell exam practice, low on the page,
+            outside every <section> (stripAuthChrome removes a login link's enclosing section). Prerendered. */}
+        <ExamPracticeStrip includePacks testId="home-exam-practice" />
 
         <div className="lt-landing-fineprint">
           <p className="lt-landing-fn">
