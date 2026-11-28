@@ -15,6 +15,7 @@
 // computed here.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toStoredTurns, toWireTurns } from "../../ai/tutorImage";
 import { callTutor, type TutorBrief, type TutorTurn, type TutorReturnedWork, type TutorAnchorQuestion } from "../../ai/tutorClient";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import { assembleTutorBrief } from "./tutorContextBrief";
@@ -111,7 +112,7 @@ export interface UseTutorSession {
   pending: TutorPendingMarker | null;
   /** A one-shot quick-reply offered after a reframed return-opener. */
   returnFollow: TutorFork | null;
-  send: (text: string) => void;
+  send: (text: string, image?: TutorTurn["image"]) => void;
   retry: () => void;
   /** Open Check & Improve as an in-tree overlay over the tutor (build v1.1). The
    *  check-improve leg NO LONGER navigates/polls; closing the panel IS the return. */
@@ -307,7 +308,7 @@ export function useTutorSession({
         topicLabel,
         subject,
         updatedAt: Date.now(),
-        messages: msgs,
+        messages: toStoredTurns(msgs),
         coverage: coverageRef.current,
         pending: nextPending,
       };
@@ -699,7 +700,7 @@ export function useTutorSession({
           subject,
           concept,
           // Only real dialogue turns go to the model — skip the away-cue/return markers.
-          messages: convo.filter((m) => m.kind !== "away-cue"),
+          messages: toWireTurns(convo.filter((m) => m.kind !== "away-cue")),
           brief: briefRef.current,
           language,
           demoQuestion,
@@ -752,7 +753,7 @@ export function useTutorSession({
   );
 
   const send = useCallback(
-    (text: string) => {
+    (text: string, image?: TutorTurn["image"]) => {
       const clean = text.trim();
       if (!clean || sendingRef.current) return;
       setReturnFollow(null);
@@ -763,7 +764,7 @@ export function useTutorSession({
       if (concept && !coverageRef.current.worked.includes(concept)) {
         coverageRef.current = { ...coverageRef.current, worked: [...coverageRef.current.worked, concept] };
       }
-      const next: TutorTurn[] = [...messages, { role: "user", content: clean }];
+      const next: TutorTurn[] = [...messages, { role: "user", content: clean, ...(image ? { image } : {}) }];
       trackFirstTutorMessage(messages, { uid, topicKey, subject });
       setMessages(next);
       persist(next, null);
