@@ -1628,6 +1628,8 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
   // SERVER-PDF-1 PR-C: "Download all (ZIP)" per group. A ZIP only ever comes from the server, so when the server cannot make one
   // (kill switch, not ready) the button is simply not shown and each file keeps its own button.
   const [zipBusy, setZipBusy] = useState<string | null>(null);
+  // PACK-PDF-SIZE-1: "Preparing... (n of N files)" while the server builds a big ZIP in the background.
+  const [zipProgress, setZipProgress] = useState<string | null>(null);
   const [zipFailed, setZipFailed] = useState<string | null>(null);
   const [zipSaved, setZipSaved] = useState<ReadonlySet<string>>(() => new Set());
   const [zipOff, setZipOff] = useState<boolean>(() => isServerPdfDisabled());
@@ -1700,9 +1702,10 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
     if (zipBusy || busyId || !groupId) return;
     setZipBusy(groupId);
     setZipFailed(null);
+    setZipProgress(null);
     try {
       const { downloadZipFromServer } = await import("../../lib/packs/serverPdfDownload");
-      const res = await downloadZipFromServer({ packId: pack.packId, groupId, user, expectCodes: [...new Set(g.files.flatMap((f) => f.codes ?? (f.code ? [f.code] : [])))] });
+      const res = await downloadZipFromServer({ packId: pack.packId, groupId, user, expectCodes: [...new Set(g.files.flatMap((f) => f.codes ?? (f.code ? [f.code] : [])))] }, { onProgress: (d, t) => setZipProgress(t > 0 ? `Preparing\u2026 (${d} of ${t} files)` : null) });
       if (res.ok) setZipSaved((prev) => new Set(prev).add(groupId));
       else if (res.reason === "disabled" || res.reason === "unavailable") setZipOff(true);
       else setZipFailed(groupId);
@@ -1710,8 +1713,11 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
       if (!recoverFromChunkError(err)) setZipFailed(groupId);
     } finally {
       setZipBusy(null);
+      setZipProgress(null);
     }
   }
+  // PACK-PDF-SIZE-1: on a touch phone the chapter ZIP is large - the paper rows come first, the ZIP last, with a one-line hint.
+  const coarsePointer = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(pointer: coarse)").matches;
   /** One "Download all (ZIP)" row for a group of two or more files (a one-file group has nothing to zip). */
   function zipRow(g: { group: string; files: Array<{ packId?: string; groupId?: string }> }): ReactNode {
     const groupId = g.files[0]?.groupId;
@@ -1726,9 +1732,10 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
           data-testid="zip-download"
           onClick={() => void downloadZip(g)}
         >
-          {zipBusy === groupId ? "Preparing ZIP\u2026" : zipFailed === groupId ? "Retry" : zipSaved.has(groupId) ? "Saved \u2713" : "Download all (ZIP)"}
+          {zipBusy === groupId ? zipProgress ?? "Preparing ZIP\u2026" : zipFailed === groupId ? "Retry" : zipSaved.has(groupId) ? "Saved \u2713" : "Download all (ZIP)"}
         </button>
         {zipFailed === groupId && <span className="lt-packs__note lt-packs__note--bad" role="alert">That didn&rsquo;t work. Try again.</span>}
+        {coarsePointer && <span className="lt-packs__note" data-testid="zip-phone-hint">On a phone, download one paper at a time &mdash; the full ZIP is large.</span>}
       </div>
     );
   }
@@ -1781,7 +1788,7 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
             g.files.length > 0 && g.files.every((f) => f.codes && f.codes.length > 0) ? (
               <div key={g.group} className="lt-packs__grp" data-testid="cbq-chapter-row">
                 {!tidy && <h4>{g.group}</h4>}
-                {zipRow(g)}
+                {!coarsePointer && zipRow(g)}
                 {(["questions", "answers"] as const).map((mode) => {
                   const parts = g.files.filter((f) => f.id.endsWith(`-${mode}`));
                   if (parts.length === 0) return null;
@@ -1815,11 +1822,12 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
                     </div>
                   );
                 })}
+                {coarsePointer && zipRow(g)}
               </div>
             ) : (
             <div key={g.group} className="lt-packs__grp">
               {!tidy && <h4>{g.group}</h4>}
-              {zipRow(g)}
+              {!coarsePointer && zipRow(g)}
               <ul className="lt-packs__files">
                 {g.files.map((f) => (
                   <li key={f.id}>
@@ -1836,6 +1844,7 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
                   </li>
                 ))}
               </ul>
+              {coarsePointer && zipRow(g)}
             </div>
             ),
           ))
