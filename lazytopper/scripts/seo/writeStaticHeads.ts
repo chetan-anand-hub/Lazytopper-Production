@@ -452,7 +452,8 @@ export const NOTES_TITLE_VISIBLE_CAP = 60;
 /**
  * NOTES-TITLE-NCERT-1 — "<chapter> Class 10 Notes + NCERT PDF (<code>) | LazyTopper".
  * When the part before " | LazyTopper" is over NOTES_TITLE_VISIBLE_CAP, it is shortened
- * deterministically, first form that fits wins:
+ * deterministically, first form that fits wins (SEO-SELL-1 puts the two "+ 2027 Important Questions" forms first):
+ *   0. `<chapter> Class 10 Notes + 2027 Important Questions (<code>)`, then `<chapter> Notes + 2027 Important Questions (<code>)`
  *   1. `<chapter> Class 10 Notes + NCERT PDF (<code>)`
  *   2. `<chapter> Notes + NCERT PDF (<code>)`          — drop " Class 10"
  *   3. `<chapter> Notes + PDF (<code>)`                — then drop "NCERT " (the code stays)
@@ -461,6 +462,10 @@ export const NOTES_TITLE_VISIBLE_CAP = 60;
  */
 export function notesTitle(chapterName: string, code: string): string {
   const ladder = [
+    // SEO-SELL-1 (owner "go ahead" 28 Nov 2026): the buyer phrase leads when it fits 60 characters, code kept. It REPLACES "NCERT PDF"
+    // (both cannot fit); a chapter whose name is too long for it keeps the NOTES-TITLE-NCERT-1 forms below, unchanged.
+    `${chapterName} Class 10 Notes + 2027 Important Questions (${code})`,
+    `${chapterName} Notes + 2027 Important Questions (${code})`,
     `${chapterName} Class 10 Notes + NCERT PDF (${code})`,
     `${chapterName} Notes + NCERT PDF (${code})`,
     `${chapterName} Notes + PDF (${code})`,

@@ -45,9 +45,10 @@ export const SEO_PAGE_SPECS: Readonly<Record<string, SeoPageSpec>> = {
     path: MOCK_TEST_PATH,
     crumb: "Class 10 Mock Test",
     h1: "CBSE Class 10 Mock Test 2027 (Maths & Science)",
-    title: "CBSE Class 10 Mock Test 2027: Maths & Science | LazyTopper",
+    // SEO-SELL-1: "Sample Paper 2026-27" is the searched phrase; no "free" on a page that sells (meta only, the body is unchanged).
+    title: "Class 10 Mock Test 2027 & Sample Paper 2026-27 | LazyTopper",
     description:
-      "Practise a full board-pattern CBSE Class 10 mock test for 2027, Maths and Science, free online, or print eight mock papers with a marking guide.",
+      "CBSE Class 10 sample paper 2026-27 and mock test for Maths and Science: full board-pattern papers, eight mock papers per subject with a marking guide.",
     linkLabel: "Class 10 mock tests",
   },
   [QUESTION_BANK_PATH]: {
@@ -55,8 +56,9 @@ export const SEO_PAGE_SPECS: Readonly<Record<string, SeoPageSpec>> = {
     crumb: "Class 10 Question Bank",
     h1: "CBSE Class 10 Question Bank 2027 — chapter-wise Maths & Science",
     title: "CBSE Class 10 Question Bank 2027: Chapter-wise | LazyTopper",
+    // SEO-SELL-1: chapter-wise, CBSE pattern, step-marked worked solutions; no "free" on a page that sells (meta only).
     description:
-      "CBSE Class 10 question bank for 2027, chapter-wise for Maths and Science: notes, CBQs and NCERT solutions for each chapter, free practice, printable packs.",
+      "CBSE Class 10 question bank 2027, chapter-wise for Maths and Science: CBSE pattern, step-marked worked solutions, CBQs and printable packs.",
     linkLabel: "Class 10 question bank",
   },
   [MARKING_SCHEME_PATH]: {

@@ -21,7 +21,8 @@ const PacksEntryPoint = lazy(() => import("./PacksEntryPoint"));
  */
 export function PacksEntry(props: PacksEntryProps) {
   return isPacksEntryEnabled() ? (
-    <Suspense fallback={null}>
+    // SEO-SELL-1: the TOP card reserves its height while the chunk loads (CLS 0); every other entry reserves nothing.
+    <Suspense fallback={props.kind === "note-card" && props.position === "top" ? <div className="lt-note__pack--ph" aria-hidden="true" /> : null}>
       <PacksEntryPoint {...props} />
     </Suspense>
   ) : null;
