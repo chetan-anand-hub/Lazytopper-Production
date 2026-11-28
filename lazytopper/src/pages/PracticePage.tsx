@@ -5063,7 +5063,7 @@ const packTopicKey = useMemo(() => {
             <style>{QP_SIGNIN_CSS}</style>
             <h3 className="lt-qp-signin__t">Want to keep going?</h3>
             <p className="lt-qp-signin__p">
-              Sign in free: your practice from now on is saved, and the 7-day trial marks your
+              Sign in free: your practice from now on is saved, and the 3-day trial marks your
               written answers the way a CBSE examiner does.
             </p>
             <Link
@@ -5263,7 +5263,7 @@ const packTopicKey = useMemo(() => {
     <p className="lt-qp-signin__p">
       Everything you scored on the multiple-choice questions is yours already and stays on
       screen. CBSE examiner style marking of your written working needs an account — and a
-      new one can start a free 7-day trial with every Premium feature on.
+      new one can start a free 3-day trial with every Premium feature on.
     </p>
     <Link
       className="lt-qp-signin__cta"

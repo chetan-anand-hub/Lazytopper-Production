@@ -4,7 +4,7 @@
 // PR #1238). Owner-approved 18 Oct 2026.
 //
 // ★★ HOW THE EXTENSION IS STORED — AND WHY IT IS A PASS END, NOT A LONGER TRIAL.
-// The trial END is never stored: every reader derives it from `trialStartDate + 7 days`
+// The trial END is never stored: every reader derives it from `trialStartDate` + the trial length (3 days; 7 for a trial begun before the TRIAL-3DAY-1 cutover)
 // (client subscriptionService.applyExpiry, server entitlement.deriveEffectiveTier, the
 // admin Students page through deriveEffectiveTier, PricingPage / Check & Improve labels,
 // and the trial-ending banner + email in #1242). Two ways to make a trial "longer" were
@@ -120,7 +120,7 @@ function validateExtensionInput(input) {
  * The CURRENT END is read through entitlement.deriveEffectiveTier — the same function
  * the server gate and the admin page use — so "current end" here is exactly the end
  * those readers would report:
- *   trial end = server-pinned trialStartDate + 7 days (the trial may already be over);
+ *   trial end = server-pinned trialStartDate + the trial length, 3 days (7 before the TRIAL-3DAY-1 cutover) (the trial may already be over);
  *   pass end  = `passEnd`, consulted only on a stored premium record (as the gate does).
  */
 function computeExtension(stored, { days, nowMs }) {

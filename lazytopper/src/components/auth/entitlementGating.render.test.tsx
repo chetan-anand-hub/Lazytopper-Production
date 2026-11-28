@@ -61,7 +61,7 @@ describe("RequirePremium — provider-agnostic, and the overlay survives the wra
 
     const text = await renderGate();
     expect(text).not.toContain("gated content");
-    expect(text).toMatch(/Start my free 7-day trial/i);
+    expect(text).toMatch(/Start my free 3-day trial/i);
   });
 
   // An EXPIRED-trial user must NOT be offered the trial again, or they restart it
@@ -72,6 +72,6 @@ describe("RequirePremium — provider-agnostic, and the overlay survives the wra
 
     const text = await renderGate();
     expect(text).not.toContain("gated content");
-    expect(text).not.toMatch(/Start my free 7-day trial/i);
+    expect(text).not.toMatch(/Start my free 3-day trial/i);
   });
 });

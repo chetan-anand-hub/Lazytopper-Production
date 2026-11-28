@@ -298,7 +298,7 @@ describe("PRICING-B-1 — the Board Pass card", () => {
     expect(paper?.getAttribute("href")).toBe("#packs");
     expect(flat(paper)).toBe("Every question is here online. Prefer paper too? CBQ Packs and the Bundle put them in print ↓");
     expect(flat(paper?.querySelector("strong"))).toBe("Prefer paper too?");
-    expect(flat(pass.querySelector('[data-testid="pricing-trial"]'))).toBe("Try the Board Pass free for 7 days");
+    expect(flat(pass.querySelector('[data-testid="pricing-trial"]'))).toBe("Try the Board Pass free for 3 days");
   });
 });
 

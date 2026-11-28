@@ -236,7 +236,7 @@ describe("START-HERE-1 · Ask the tutor why I lost this mark (Quick Practice sco
       fireEvent.click(buttons[0]);
       const prompt = await screen.findByTestId("tutor-signup-prompt");
       expect(prompt.textContent).toContain(
-        "Sign up free to ask the tutor why you lost this mark - your 7-day trial starts when you sign up.",
+        "Sign up free to ask the tutor why you lost this mark - your 3-day trial starts when you sign up.",
       );
       expect(lastLocation).toBe(before);
       expect(fetchSpy).not.toHaveBeenCalled();

@@ -196,7 +196,7 @@ describe("FREECHECK-ONEQ-1 - signed out, a page with several questions", () => {
     await readQuestion();
     await uploadAnswerSheet(container);
     expect(screen.getByTestId("free-check-oneq-line").textContent).toBe(
-      "Your free check marks question 1. Sign up for a 7-day free trial to mark the whole page.",
+      "Your free check marks question 1. Sign up for a 3-day free trial to mark the whole page.",
     );
   });
 
@@ -220,7 +220,7 @@ describe("FREECHECK-ONEQ-1 - signed out, a page with several questions", () => {
       "Q3Q-C third questionLocked",
     ]);
     expect(screen.getByTestId("free-check-locked-line").textContent).toBe(
-      "Start your 7-day free trial to get marks for questions 2\u20133.",
+      "Start your 3-day free trial to get marks for questions 2\u20133.",
     );
     expect(screen.getByTestId("free-check-locked-signup").getAttribute("href")).toBe("/login?redirect=%2Fcheck-improve");
     expect(locked.textContent).not.toMatch(/\bAI\b|answer key/i);
@@ -297,7 +297,7 @@ describe("FREECHECK-ONEQ-1 - which question is 'the first'", () => {
     await waitFor(() => expect(H.gradeWorksheet).toHaveBeenCalledTimes(1));
     expect((H.gradeWorksheet.mock.calls[0][0].questions as Array<{ qNumber: number }>).map((q) => q.qNumber)).toEqual([5]);
     await screen.findByTestId("free-check-locked");
-    expect(screen.getByTestId("free-check-locked-line").textContent).toBe("Start your 7-day free trial to get marks for questions 6\u20138.");
+    expect(screen.getByTestId("free-check-locked-line").textContent).toBe("Start your 3-day free trial to get marks for questions 6\u20138.");
     expect(screen.getAllByTestId("free-check-locked-row")).toHaveLength(3);
   });
 

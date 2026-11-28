@@ -126,12 +126,12 @@ describe("lock screen (RequirePremium)", () => {
     expectNone();
   });
 
-  it("never trialled: 'Start my free 7-day trial' stays FIRST, the three follow", async () => {
+  it("never trialled: 'Start my free 3-day trial' stays FIRST, the three follow", async () => {
     flags(true);
     sub.value = NEVER_TRIALLED;
     at(gate);
     await expectThree();
-    const trial = screen.getByRole("button", { name: "Start my free 7-day trial" });
+    const trial = screen.getByRole("button", { name: "Start my free 3-day trial" });
     const pay = screen.getByTestId("paywall-pay");
     expect(trial.compareDocumentPosition(pay) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.queryByText("See plans instead")).toBeNull();
@@ -225,7 +225,7 @@ describe("usage / limit panel (FairUseLimitPanel)", () => {
   });
 });
 
-const TUTOR_PREMIUM = { kind: "premium" as const, message: "Your free week has ended." };
+const TUTOR_PREMIUM = { kind: "premium" as const, message: "Your free trial has ended." };
 const TUTOR_BUSY_PLANS = { kind: "busy" as const, resetAt: null, message: "busy", plans: true };
 const PAPER_CUT = { graded: 2, total: 4, notGradedIndices: [2, 3] };
 const tutor = (state: typeof TUTOR_PREMIUM | typeof TUTOR_BUSY_PLANS) => (

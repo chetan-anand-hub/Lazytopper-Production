@@ -1,6 +1,7 @@
 /**
  * trialEndingEmail.cjs — TRIAL-END-1 (owner ruling 18 Oct 2026): ONE honest service email,
- * ~24-48 h before a student's 7-day Premium trial ends.
+ * ~24-48 h before a student's Premium trial ends (3 days since TRIAL-3DAY-1; trials that began
+ * before the 3-day cutover keep their 7 days).
  *
  * Until now the server sent no email at all, so a trial ended silently. This module is the
  * smallest safe sender:
@@ -22,16 +23,17 @@
  *     a skip marker so they are not looked up every hour (unverified: re-checked after 6 h).
  *
  *   ★ TRANSACTIONAL, NOT MARKETING (DPDP Act 2023 — many students are minors). It is a notice
- *     about the student's OWN trial: when it ends (the real derived end, start + TRIAL_DAYS),
+ *     about the student's OWN trial: when it ends (the real derived end, start + that trial's length),
  *     what they actually did (real graded session records — zero said as zero), that nothing is
  *     charged automatically, a link back and an unsubscribe link. No name, no tracking pixel, no
  *     link tracking, no urgency copy. Only accounts that signed in with an email (Google, or
  *     email + password) are considered; phone-only accounts are never emailed.
  *
  *   ★ WHO IS IN THE WINDOW. `subscriptions/{uid}.trialStartDate` is a server-pinned Timestamp
- *     (firestore.rules pin it to request.time). The trial ends at start + 7 d, so "ends 24-48 h
- *     from now" is exactly "started between now - 6 d and now - 5 d": one single-field range
- *     query (no composite index), then entitlement.deriveEffectiveTier on each row — the same
+ *     (firestore.rules pin it to request.time). A legacy trial ends at start + 7 d, so "ends 24-48 h
+ *     from now" is "started between now - 6 d and now - 5 d"; a 3-day trial (start at/after the
+ *     cutover) is "started between now - 2 d and now - 1 d" - day 2 of 3, never day 1. One
+ *     single-field range query (no composite index) spans both, then entitlement.deriveEffectiveTier on each row — the same
  *     derivation the entitlement gate uses — so premium, pass-holders and ended trials are
  *     skipped. Run hourly, every trial passes through the window during ~24 runs.
  *
@@ -44,7 +46,15 @@ const { VALIDITY_LABEL } = require('./validityWindow.cjs'); // VALIDITY-FEB27
 const passPricing = require('./passPricing.cjs');
 // GST-EXCL-1: the Chapter Pack price for the packs line, from the server table (never typed).
 const CHAPTER_PACK_PRICE_INR = require('./packProducts.cjs').PACK_PRODUCTS.pack_chapter.priceInr;
-const { deriveEffectiveTier, isServerPinnedStart, TRIAL_MS } = require('./entitlement.cjs');
+const {
+  deriveEffectiveTier,
+  isServerPinnedStart,
+  TRIAL_DAYS,
+  LEGACY_TRIAL_DAYS,
+  TRIAL_3DAY_CUTOVER_MS,
+  trialMsForStart,
+  trialStartMs: entitlementTrialStartMs,
+} = require('./entitlement.cjs');
 const { isSuppressedTx } = require('./emailSuppression.cjs'); // GUEST-ABANDON-1 review D1
 
 const TRIAL_EMAILS_COLLECTION = 'trialEmails';
@@ -59,7 +69,7 @@ const TRIAL_EMAIL_DAILY_COLLECTION = 'trialEmailDaily';
 const NUDGE_LEDGER_COLLECTION = 'nudgeEmails';
 /** At most ONE email a day from LazyTopper to a student, across the trial and nudge emailers. */
 const ONE_A_DAY_MS = 24 * 60 * 60 * 1000;
-/** Review finding 4 — skip reasons that cannot change during a 7-day trial: never looked up again. */
+/** Review finding 4 — skip reasons that cannot change during a trial: never looked up again. */
 const PERMANENT_SKIP_REASONS = new Set(['no-email', 'not-an-email-sign-in']);
 /** An unverified address may be verified later: re-checked at most this often. */
 const UNVERIFIED_RECHECK_MS = 6 * 60 * 60 * 1000;
@@ -178,9 +188,25 @@ function formatIstDate(ms) {
   return `${DAYS[ist.getUTCDay()]} ${ist.getUTCDate()} ${MONTHS[ist.getUTCMonth()]}`;
 }
 
-/** The trialStartDate range whose trials end 24-48 h after `nowMs`: [lo, hi). */
+/**
+ * The trialStartDate range whose trials end 24-48 h after `nowMs`: [lo, hi). TRIAL-3DAY-1: two trial
+ * lengths exist (7 days before the cutover, 3 after), so the range is the union of the two - the
+ * legacy part only while it can still contain a start (it is capped at the cutover), the 3-day part
+ * only from the cutover. After the last legacy trial has ended it is exactly the 3-day range.
+ * `decideCandidate` then judges each row precisely.
+ */
 function startRangeFor(nowMs) {
-  return { loMs: nowMs + WINDOW_MIN_MS - TRIAL_MS, hiMs: nowMs + WINDOW_MAX_MS - TRIAL_MS };
+  const legacyMs = LEGACY_TRIAL_DAYS * DAY_MS;
+  const newMs = TRIAL_DAYS * DAY_MS;
+  const legacy = { loMs: nowMs + WINDOW_MIN_MS - legacyMs, hiMs: Math.min(nowMs + WINDOW_MAX_MS - legacyMs, TRIAL_3DAY_CUTOVER_MS) };
+  const fresh = { loMs: Math.max(nowMs + WINDOW_MIN_MS - newMs, TRIAL_3DAY_CUTOVER_MS), hiMs: nowMs + WINDOW_MAX_MS - newMs };
+  const legacyLive = legacy.loMs < legacy.hiMs;
+  const freshLive = fresh.loMs < fresh.hiMs;
+  if (legacyLive && freshLive) return { loMs: legacy.loMs, hiMs: fresh.hiMs };
+  if (legacyLive) return legacy;
+  if (freshLive) return fresh;
+  // Neither length can have a trial ending in the window: an empty range, not an error.
+  return { loMs: nowMs, hiMs: nowMs };
 }
 
 /**
@@ -195,7 +221,9 @@ function decideCandidate(raw, nowMs) {
   if (tier !== 'trial' || trialEndsAtMs === null) return { ok: false, reason: `tier-${tier}` };
   const left = trialEndsAtMs - nowMs;
   if (left < WINDOW_MIN_MS || left >= WINDOW_MAX_MS) return { ok: false, reason: 'outside-window' };
-  return { ok: true, trialStartMs: trialEndsAtMs - TRIAL_MS, trialEndsAtMs };
+  // The start decides the length (TRIAL-3DAY-1): the end above was derived from it, so recover both from the same start.
+  const startMs = entitlementTrialStartMs(doc.trialStartDate, nowMs);
+  return { ok: true, trialStartMs: startMs, trialEndsAtMs, trialDays: Math.round((trialEndsAtMs - startMs) / DAY_MS) };
 }
 
 const EMAIL_PROVIDERS = new Set(['google.com', 'password']);
@@ -267,7 +295,7 @@ function escapeHtml(s) {
  * The email. PURE. `counts` may be null (the records read failed): the activity line is then
  * left OUT rather than replaced by an invented zero.
  */
-function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl, nowMs = Date.now() }) {
+function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl, nowMs = Date.now(), trialDays = TRIAL_DAYS }) {
   const when = `${formatIstDate(trialEndsAtMs)} at ${formatIstTime(trialEndsAtMs)} (IST)`;
   const subject = `Your LazyTopper trial ends on ${formatIstDate(trialEndsAtMs)}`;
   const activity = counts ? trialActivityLine(counts) : null;
@@ -288,7 +316,7 @@ function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl, nowMs 
   const lines = [
     'Hi,',
     '',
-    `This is a service note about your LazyTopper account: your 7-day Premium trial ends on ${when}.`,
+    `This is a service note about your LazyTopper account: your ${trialDays}-day Premium trial ends on ${when}.`,
     '',
   ];
   if (activity) {
@@ -317,7 +345,7 @@ function buildTrialEmail({ trialEndsAtMs, counts, appUrl, unsubscribeUrl, nowMs 
     '<!doctype html><html><body style="margin:0;padding:24px;background:#f4f7fb;font-family:Arial,Helvetica,sans-serif">',
     '<div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:12px;padding:24px">',
     p('Hi,'),
-    p(`This is a service note about your LazyTopper account: your 7-day Premium trial ends on <strong>${escapeHtml(when)}</strong>.`),
+    p(`This is a service note about your LazyTopper account: your ${trialDays}-day Premium trial ends on <strong>${escapeHtml(when)}</strong>.`),
     activity ? p(escapeHtml(activity.text) + (activity.zero ? ` ${a(checkUrl, 'Check an answer')}` : '')) : '',
     p("After it ends, the free features stay free. Premium features need a pass. Nothing is charged automatically - you don't need to do anything."),
     p(a(plansUrl, ctaLabel) + (foundingLine ? ` ${escapeHtml(foundingLine)}` : '')),
@@ -653,7 +681,7 @@ function createTrialEndingEmailer(deps = {}) {
         }
 
         const unsubscribeUrl = unsubscribeUrlFor(config.appUrl, uid, config.unsubscribeSecret);
-        const message = buildTrialEmail({ trialEndsAtMs: decision.trialEndsAtMs, counts, appUrl: config.appUrl, unsubscribeUrl, nowMs });
+        const message = buildTrialEmail({ trialEndsAtMs: decision.trialEndsAtMs, trialDays: decision.trialDays, counts, appUrl: config.appUrl, unsubscribeUrl, nowMs });
         const result = fetchImpl
           ? await sendViaResend({
               fetchImpl,

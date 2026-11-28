@@ -1,7 +1,7 @@
 /**
  * TRIAL-CTA-1 · T1 — the sign-in door honours the trial intent ONCE.
  *
- * `reason=start-trial` (Pricing's signed-out "Start 7-day trial", the mobile Home chip)
+ * `reason=start-trial` (Pricing's signed-out "Start 3-day trial", the mobile Home chip)
  * used to be read for a back-link label and then dropped: the student came back with
  * no trial. The door now calls the one existing API, useSubscription().startTrial(),
  * right after a successful sign-in — once, and only for an account the EXISTING rule

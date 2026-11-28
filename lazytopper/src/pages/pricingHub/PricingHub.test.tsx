@@ -331,7 +331,7 @@ describe("§0a.3 account states", () => {
     fireEvent.click(screen.getByTestId("pricing-trial"));
     expect(sub.value.startTrial).toHaveBeenCalledTimes(1);
     expect(analytics.named).toHaveBeenCalledWith("trial_start");
-    expect(screen.getByTestId("pricing-trial-state")).toHaveTextContent("Your 7-day trial has started");
+    expect(screen.getByTestId("pricing-trial-state")).toHaveTextContent("Your 3-day trial has started");
   });
 
   it("trial active / trial used: the state line, no trial button", async () => {
@@ -1213,7 +1213,7 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
     expect(passFoot.querySelector("input")).toBeNull();
     // ... they sit in its fold instead (the trial: owner 24 Nov, "inside the card after the click, in details").
     const passMore = v11("pass").more as HTMLElement;
-    expect(within(passMore).getByTestId("pricing-trial")).toHaveTextContent("Try the Board Pass free for 7 days");
+    expect(within(passMore).getByTestId("pricing-trial")).toHaveTextContent("Try the Board Pass free for 3 days");
     expect(within(passMore).getByTestId("pricing-payline")).toBeInTheDocument();
     expect(within(passMore).getByTestId("hub-pass-validity")).toHaveTextContent("valid till 28 Feb 2027");
   });

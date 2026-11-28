@@ -95,6 +95,6 @@ describe("OR-9 — the door does not promise a trial it does not start", () => {
     const u = userEvent.setup({ delay: null });
     await u.click(screen.getByRole("button", { name: /Continue with email/ }));
     expect(screen.getByText("We'll create your account.")).toBeTruthy();
-    expect(document.body.textContent ?? "").not.toMatch(/start your 7-day trial/i);
+    expect(document.body.textContent ?? "").not.toMatch(/start your 3-day trial/i);
   });
 });

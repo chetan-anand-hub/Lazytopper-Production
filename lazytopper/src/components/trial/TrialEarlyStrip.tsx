@@ -6,6 +6,7 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { trackPaywallAction, type PaywallSurface } from "../../analytics/analytics";
 import { isPaymentsClientEnabled } from "../../services/checkout";
+import { trialDaysForStartIso } from "../../services/subscriptionService";
 import PaywallActions, { PAY_LABEL } from "../pricing/PaywallActions";
 import { BOARD_PASS_BUY_PATH } from "../pricing/boardPassBuy";
 import { notePaidLanding, trialAskRouteAllowed } from "./trialAskRoutes";
@@ -70,7 +71,7 @@ export default function TrialEarlyStrip() {
   return (
     <div className="lt-tes" data-testid="trial-early-strip" role="region" aria-label="Your free trial">
       <p className="lt-tes__text">
-        <span>{trialEarlyStripDayText(day)}</span>
+        <span>{trialEarlyStripDayText(day, trialDaysForStartIso(sub.status?.trialStartDate))}</span>
         <span className="lt-tes__sep" aria-hidden="true">
           ·
         </span>

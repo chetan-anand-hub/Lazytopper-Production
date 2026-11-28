@@ -181,7 +181,7 @@ describe("FreeCheckRestoredResult — FREECHECK-ONEQ-1: 1 graded + the rest lock
     ]);
     const line = screen.getByTestId("free-check-restored-locked-line").textContent ?? "";
     expect(line).toContain("Questions 2–5 are not marked yet");
-    expect(line).toContain("7-day free trial");
+    expect(line).toContain("3-day free trial");
     expect(line).not.toMatch(/\bAI\b|answer key/i);
     expect(screen.getAllByText("1/2 marks").length).toBeGreaterThan(0);
   });

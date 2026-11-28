@@ -83,13 +83,13 @@ export function fairUseCopy(limits: TrialFairUse = TRIAL_FAIR_USE, limitsOn: boo
     return (
       "Premium has generous fair-use limits so the service stays fast for everyone. " +
       `Your usage bars show what is left and when each one resets — ${FAIR_USE_RESETS}.${tsFairUseSentence()} ` +
-      `The 7-day trial includes ${trialLimitsSentence()}; and each day, ${count(limits.tutorMessagesPerDay, "tutor message", "tutor messages")}.`
+      `The 3-day trial includes ${trialLimitsSentence()}; and each day, ${count(limits.tutorMessagesPerDay, "tutor message", "tutor messages")}.`
     );
   }
   return (
     "Premium has generous fair-use limits so the service stays fast for everyone. " +
     `Your usage bars show what is left and when each one resets — ${FAIR_USE_RESETS}.${tsFairUseSentence()} ` +
-    `The 7-day trial includes, each day: ${count(limits.checksPerDay, "answer check", "answer checks")}, ` +
+    `The 3-day trial includes, each day: ${count(limits.checksPerDay, "answer check", "answer checks")}, ` +
     `${count(limits.chapterTestsPerDay, "chapter test", "chapter tests")} and ` +
     `${count(limits.tutorMessagesPerDay, "tutor message", "tutor messages")}; and each week: ` +
     `${count(limits.mocksPerWeek, "full mock", "full mocks")} and ` +
@@ -188,7 +188,7 @@ export const PREMIUM_PLUS: readonly PlanItem[] = [
   { id: "progress", label: "Progress that tells you what to fix next" },
 ];
 
-export const PREMIUM_FOOTNOTE = "Not sure yet? Sign in and Premium is free for 7 days — no card needed.";
+export const PREMIUM_FOOTNOTE = "Not sure yet? Sign in and Premium is free for 3 days — no card needed.";
 
 /* ── The "Compare plans" table ────────────────────────────────────────────────── */
 

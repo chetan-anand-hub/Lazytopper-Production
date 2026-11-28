@@ -235,7 +235,7 @@ export default function UpgradeModalSheet({
           marginTop: 10,
         }}>
           {tier === "free" && !isTrialExpired
-            ? "Your 7-day trial starts when you sign in. No credit card is required."
+            ? "Your 3-day trial starts when you sign in. No credit card is required."
             : "Payment is not completed inside this modal."}
         </p>
       </div>
