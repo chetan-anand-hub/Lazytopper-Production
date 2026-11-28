@@ -100,8 +100,8 @@ describe("TrialEndScreen", () => {
     hydrate.mockResolvedValue(status("free"));
     readRecords.mockResolvedValue([rec("a", "check-improve", START + HOUR), rec("old", "worksheet", START - HOUR)]);
     renderAt("/check-improve");
-    expect(await screen.findByRole("heading", { name: "Your free week is over" })).toBeInTheDocument();
-    expect(screen.getByTestId("trial-end-screen-activity")).toHaveTextContent("In your free week: 1 answer checked.");
+    expect(await screen.findByRole("heading", { name: "Your free trial is over" })).toBeInTheDocument();
+    expect(screen.getByTestId("trial-end-screen-activity")).toHaveTextContent("In your free trial: 1 answer checked.");
     const lead = screen.getByTestId("trial-end-screen-lead");
     expect(lead).toHaveTextContent("Board Pass");
     expect(lead).toHaveTextContent("₹1,917");
@@ -255,7 +255,7 @@ describe("TrialEndScreen", () => {
 
   // TRIAL-CLOCK-1 — the live defect: a day-1 student on a phone whose clock runs slow. The
   // record the client held was tier "free" over a server start "in the future"; tier alone
-  // must never put "Your free week is over" in front of them.
+  // must never put "Your free trial is over" in front of them.
   it.each([
     ["a day behind", 24 * HOUR],
     ["18 hours behind", 18 * HOUR],
@@ -301,9 +301,9 @@ describe("TrialEndScreen", () => {
 
 describe("TrialCountdownBar", () => {
   it("wording uses the real days left", () => {
-    expect(trialCountdownText(3, "Board Pass X till boards")).toBe("3 days left of your free week · Board Pass X till boards");
-    expect(trialCountdownText(1, "P")).toBe("1 day left of your free week · P");
-    expect(trialCountdownText(0, "P")).toBe("Last day of your free week · P");
+    expect(trialCountdownText(3, "Board Pass X till boards")).toBe("3 days left of your free trial · Board Pass X till boards");
+    expect(trialCountdownText(1, "P")).toBe("1 day left of your free trial · P");
+    expect(trialCountdownText(0, "P")).toBe("Last day of your free trial · P");
   });
 
   it("from day 4, on a non-Home page, without waiting for any activity read; links to /pricing", async () => {
@@ -312,7 +312,7 @@ describe("TrialCountdownBar", () => {
     readRecords.mockReturnValue(new Promise(() => {})); // never resolves: must not matter
     renderAt("/practice", <TrialCountdownBar />);
     const bar = await screen.findByTestId("trial-countdown-bar");
-    expect(bar).toHaveTextContent(/4 days left of your free week · Board Pass ₹1,917 · valid till 28 Feb 2027/);
+    expect(bar).toHaveTextContent(/4 days left of your free trial · Board Pass ₹1,917 · valid till 28 Feb 2027/);
     expect(screen.getByRole("link")).toHaveAttribute("href", "/pricing?source=trial-bar");
     // FLAKY-1: "shown" is a passive effect of the paint findByTestId just saw; wait for it rather than race it.
     await waitFor(() => expect(trackShown).toHaveBeenCalled());

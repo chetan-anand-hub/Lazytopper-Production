@@ -1,5 +1,5 @@
 /**
- * ASK-FIX-1 — the PURE half of the trial-ended screen ("Your free week is over").
+ * ASK-FIX-1 — the PURE half of the trial-ended screen ("Your free trial is over").
  *
  * WHY THIS EXISTS. Until now the only thing a student whose trial had ended ever got was the
  * why-not-upgrading feedback card, mounted on Home only (`useTrialEndFeedback`), behind
@@ -40,7 +40,7 @@ export function trialEndScreenPathAllowed(pathname: string): boolean {
 
 export interface TrialEndScreenInput extends TrialEndFeedbackInput {
   pathname: string;
-  /** The subscription's plan. Only a plan that was the 7-day TRIAL has "a free week" to end. */
+  /** The subscription's plan. Only a plan that was the 3-day TRIAL has "a free week" to end. */
   plan?: string | null;
   premiumSince?: string | null;
   passEnd?: string | null;
@@ -138,7 +138,7 @@ export function trialEndActivityLine(counts: TrialActivityCounts | null): string
   if (counts.tests > 0) parts.push(plural(counts.tests, "test taken", "tests taken"));
   if (counts.practiceSets > 0) parts.push(plural(counts.practiceSets, "practice set finished", "practice sets finished"));
   if (parts.length === 0) return null;
-  return `In your free week: ${parts.join(", ")}.`;
+  return `In your free trial: ${parts.join(", ")}.`;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;

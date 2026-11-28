@@ -506,12 +506,12 @@ function SignInToCheckCta() {
       >
         <span className="lt-sc-lock__icon" aria-hidden="true">🔑</span>
         <span>Sign in to check your answer</span>
-        <span className="lt-sc-lock__badge">7-day trial</span>
+        <span className="lt-sc-lock__badge">3-day trial</span>
       </Link>
       <p className="lt-sc-lock__note">
         Reading the question, the steps and the stored solution stays free and needs no
         account. CBSE examiner style marking of your working needs one — and a new account
-        can start a free 7-day trial with every Premium feature on.
+        can start a free 3-day trial with every Premium feature on.
       </p>
     </div>
   );
@@ -555,7 +555,7 @@ export function SolutionChecker({
    * assume this paywall is watertight.)
    *
    * The two non-premium states are therefore DIFFERENT and get different CTAs:
-   *   · signed out      → an OFFER. Sign in, then a free 7-day Premium trial is one click
+   *   · signed out      → an OFFER. Sign in, then a free 3-day Premium trial is one click
    *     away. ⚠ IT IS NOT AUTOMATIC, and the copy must not say it is. `defaultStatus()`
    *     gives a new account `tier: "free", trialStartDate: null`, so a fresh signup is
    *     SIGNED-IN FREE, not trial. The only caller of `startTrial()` is the button inside
@@ -1203,7 +1203,7 @@ export function SolutionChecker({
       {/* ── The signed-out CTA (AUTH-GATE-MOVE-1) ──────────────────
           Grading is where LazyTopper spends money, so this is the product's main
           conversion hook and the ONE wall this lane keeps. It is an offer, not a
-          refusal: signing in puts a free 7-day Premium trial one click away, so the
+          refusal: signing in puts a free 3-day Premium trial one click away, so the
           student who takes it can actually get the answer marked. (One CLICK away, not
           automatic — see the derivation above `signedOut`.)
 

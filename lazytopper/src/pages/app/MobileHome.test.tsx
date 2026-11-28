@@ -84,11 +84,11 @@ function mobileHomeCss(): string {
 }
 
 describe("MobileHome (mobile /browse layout — Home redesign PR-A)", () => {
-  it("BROWSE-SUBTITLE (owner, 7 Nov 2026): the signed-out subtitle invites sign-in for the 7-day free trial", () => {
+  it("BROWSE-SUBTITLE (owner, 7 Nov 2026): the signed-out subtitle invites sign-in for the 3-day free trial", () => {
     setMatchMediaMatches(false);
     renderMobileHome();
     expect(screen.getByText("What do you want to do?")).toBeTruthy(); // signed out (the default here)
-    expect(screen.getByText("Sign in to explore everything for free (7 days).")).toBeTruthy();
+    expect(screen.getByText("Sign in to explore everything for free (3 days).")).toBeTruthy();
     expect(screen.queryByText("Explore everything free. Sign in only when you want to save.")).toBeNull();
     // the signed-in variant is untouched
     cleanup();
@@ -169,7 +169,7 @@ describe("MobileHome (mobile /browse layout — Home redesign PR-A)", () => {
     expect(picker).toBeInTheDocument();
     // Signed out — the footer must promise the return trip, not premium.
     expect(screen.getByTestId("tutor-picker-gate-note")).toHaveTextContent(
-      /Sign up free — 7 days of the tutor and step marking/i,
+      /Sign up free — 3 days of the tutor and step marking/i,
     );
   });
 

@@ -4,8 +4,9 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
 import TrialAsk from "../trial/TrialAsk";
 import { boardPassCtaLabel } from "../pricing/boardPassOffer";
+import { trialDaysForStartIso } from "../../services/subscriptionService";
+import { trialBarFirstDay } from "../trial/trialEndBannerModel";
 
-const TRIAL_DAYS = 7;
 
 /**
  * ASK-FIX-1 — the app-wide trial slot (App.tsx mounts this on every non-desktop main page). It now
@@ -23,7 +24,7 @@ export function TrialBanner() {
 
 function LegacyTrialBanner() {
   const { user } = useAuth();
-  const { isTrialExpired, daysLeftInTrial, tier } = useSubscription();
+  const { isTrialExpired, daysLeftInTrial, tier, status } = useSubscription();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -33,10 +34,12 @@ function LegacyTrialBanner() {
   if (!isTrialActive && !isTrialExpired) return null;
   if (dismissed && !isTrialExpired && daysLeftInTrial > 2) return null;
 
-  const currentDay = isTrialActive ? TRIAL_DAYS - daysLeftInTrial + 1 : TRIAL_DAYS;
-  // ASK-FIX-1 - from trial day 4 the countdown bar speaks (it has the Board Pass and a real link).
-  if (isTrialActive && currentDay >= 4) return null;
-  const progress = currentDay / TRIAL_DAYS;
+  // TRIAL-3DAY-1: THIS trial's length (7 for a trial that began before the cutover, else 3).
+  const trialLen = trialDaysForStartIso(status?.trialStartDate);
+  const currentDay = isTrialActive ? trialLen - daysLeftInTrial + 1 : trialLen;
+  // ASK-FIX-1 - from the bar's first day (trial day 4 of 7, day 2 of 3) the countdown bar speaks (it has the Board Pass and a real link).
+  if (isTrialActive && currentDay >= trialBarFirstDay(trialLen)) return null;
+  const progress = currentDay / trialLen;
 
   if (isTrialExpired) {
     return (
@@ -102,7 +105,7 @@ function LegacyTrialBanner() {
     message = "1 day left!";
     subMessage = "Choose a plan before trial access ends";
   } else {
-    message = `Day ${currentDay} of ${TRIAL_DAYS} — Free Trial`;
+    message = `Day ${currentDay} of ${trialLen} — Free Trial`;
   }
 
   return (

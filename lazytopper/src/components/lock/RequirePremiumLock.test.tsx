@@ -139,7 +139,7 @@ describe("LOCK-SELL-1 - the lock sells the Board Pass (feature x trial x pack ow
             else expect(screen.queryByTestId("lock-founding-badge")).toBeNull();
 
             // The trial button only where it showed before (trial-eligible), explicit tap only.
-            const trialBtn = screen.queryByRole("button", { name: "Start my free 7-day trial" });
+            const trialBtn = screen.queryByRole("button", { name: "Start my free 3-day trial" });
             if (trial === "trial-eligible") expect(trialBtn).not.toBeNull();
             else expect(trialBtn).toBeNull();
 

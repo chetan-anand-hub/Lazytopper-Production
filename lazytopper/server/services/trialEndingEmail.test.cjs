@@ -151,7 +151,7 @@ const SEND_ENV = {
   TRIAL_EMAIL_FROM: 'LazyTopper <hello@lazytopper.com>',
   TRIAL_EMAIL_UNSUBSCRIBE_SECRET: SECRET,
 };
-function setup({ env = SEND_ENV, users = { u1: googleUser('asha@example.com') }, subs = { u1: trialDoc(NOW - 5.5 * DAY) }, fetchImpl, db, now = () => NOW } = {}) {
+function setup({ env = SEND_ENV, users = { u1: googleUser('asha@example.com') }, subs = { u1: trialDoc(NOW - 1.5 * DAY) }, fetchImpl, db, now = () => NOW } = {}) {
   const theDb = db || makeDb();
   for (const [uid, d] of Object.entries(subs)) theDb.docs.set(`subscriptions/${uid}`, d);
   const logs = [];
@@ -274,7 +274,7 @@ test('two instances running at the same moment send exactly ONE email (the creat
 test('telemetry counts trial_email_sent', async () => {
   const db = makeDb();
   const telemetry = { counts: {}, increment(n) { this.counts[n] = (this.counts[n] || 0) + 1; } };
-  db.docs.set('subscriptions/u1', trialDoc(NOW - 5.5 * DAY));
+  db.docs.set('subscriptions/u1', trialDoc(NOW - 1.5 * DAY));
   const emailer = createTrialEndingEmailer({
     env: SEND_ENV, adminFirestore: db, firebaseAdmin: makeAdmin({ u1: googleUser('a@b.co') }),
     fetchImpl: okFetch([]), now: () => NOW, log: () => {}, telemetry,
@@ -310,7 +310,7 @@ test('every send carries a stable provider Idempotency-Key and the List-Unsubscr
   const s = setup();
   await s.emailer.runOnce();
   const { init, body } = s.fetchCalls[0];
-  assert.equal(init.headers['Idempotency-Key'], `trial-ending-u1-${NOW - 5.5 * DAY}`);
+  assert.equal(init.headers['Idempotency-Key'], `trial-ending-u1-${NOW - 1.5 * DAY}`);
   assert.equal(init.headers.Authorization, 'Bearer re_test_key');
   assert.match(body.headers['List-Unsubscribe'], new RegExp(`^<https://www\\.lazytopper\\.com${TRIAL_EMAIL_UNSUBSCRIBE_PATH.replace(/\//g, '\\/')}\\?t=`));
   assert.equal(body.headers['List-Unsubscribe-Post'], 'List-Unsubscribe=One-Click');
@@ -322,7 +322,7 @@ test('the daily cap holds sends (unclaimed, so a later day can still send)', asy
   const subs = {};
   for (let i = 0; i < 3; i += 1) {
     users[`u${i}`] = googleUser(`s${i}@example.com`);
-    subs[`u${i}`] = trialDoc(NOW - 5.5 * DAY + i * 1000);
+    subs[`u${i}`] = trialDoc(NOW - 1.5 * DAY + i * 1000);
   }
   const s = setup({ env: { ...SEND_ENV, TRIAL_EMAIL_DAILY_CAP: '2' }, users, subs });
   const r = await s.emailer.runOnce();
@@ -334,18 +334,71 @@ test('the daily cap holds sends (unclaimed, so a later day can still send)', asy
 // ── Who is in the window, and who may be emailed ────────────────────────────────────────
 
 test('window: only trials ending 24-48 h from now; premium, pass, ended and client-written starts are skipped', () => {
-  assert.equal(decideCandidate(trialDoc(NOW - 5.5 * DAY), NOW).ok, true); // ends in 36 h
-  assert.equal(decideCandidate(trialDoc(NOW - 5 * DAY), NOW).reason, 'outside-window'); // ends in exactly 48 h
-  assert.equal(decideCandidate(trialDoc(NOW - 6 * DAY), NOW).ok, true); // ends in exactly 24 h
-  assert.equal(decideCandidate(trialDoc(NOW - 4 * DAY), NOW).reason, 'outside-window'); // ends in 72 h
-  assert.equal(decideCandidate(trialDoc(NOW - 6.5 * DAY), NOW).reason, 'outside-window'); // ends in 12 h
-  assert.equal(decideCandidate(trialDoc(NOW - 5.5 * DAY, { tier: 'premium', plan: 'pass_month', passEnd: ts(NOW + 20 * DAY) }), NOW).reason, 'tier-premium');
-  assert.equal(decideCandidate({ tier: 'trial', plan: 'trial_7day', trialStartDate: new Date(NOW - 5.5 * DAY).toISOString() }, NOW).reason, 'start-not-server-pinned');
+  assert.equal(decideCandidate(trialDoc(NOW - 1.5 * DAY), NOW).ok, true); // ends in 36 h
+  assert.equal(decideCandidate(trialDoc(NOW - 1 * DAY), NOW).reason, 'outside-window'); // ends in exactly 48 h
+  assert.equal(decideCandidate(trialDoc(NOW - 2 * DAY), NOW).ok, true); // ends in exactly 24 h
+  assert.equal(decideCandidate(trialDoc(NOW - 0 * DAY), NOW).reason, 'outside-window'); // ends in 72 h: NEVER on day 0 of a 3-day trial
+  assert.equal(decideCandidate(trialDoc(NOW - 2.5 * DAY), NOW).reason, 'outside-window'); // ends in 12 h
+  assert.equal(decideCandidate(trialDoc(NOW - 1.5 * DAY, { tier: 'premium', plan: 'pass_month', passEnd: ts(NOW + 20 * DAY) }), NOW).reason, 'tier-premium');
+  assert.equal(decideCandidate({ tier: 'trial', plan: 'trial_7day', trialStartDate: new Date(NOW - 1.5 * DAY).toISOString() }, NOW).reason, 'start-not-server-pinned');
   // The interrupted-trial shape the entitlement gate repairs is a running trial too.
-  assert.equal(decideCandidate({ tier: 'free', plan: 'trial_7day', trialStartDate: ts(NOW - 5.5 * DAY) }, NOW).ok, true);
+  assert.equal(decideCandidate({ tier: 'free', plan: 'trial_7day', trialStartDate: ts(NOW - 1.5 * DAY) }, NOW).ok, true);
   const { loMs, hiMs } = startRangeFor(NOW);
   assert.equal(hiMs - loMs, DAY);
-  assert.equal(loMs, NOW - 6 * DAY);
+  assert.equal(loMs, NOW - 2 * DAY); // 2030: no legacy trial can still be running - the range is the 3-day one alone
+});
+
+// ── TRIAL-3DAY-1 (owner ruling 28 Nov 2026): 3-day trials; a trial already running keeps its 7 days ──
+test('TRIAL-3DAY-1: a trial started BEFORE the cutover keeps its 7 days; one started at/after it gets 3', () => {
+  const { TRIAL_3DAY_CUTOVER_MS } = require('./entitlement.cjs');
+  const before = TRIAL_3DAY_CUTOVER_MS - 3 * DAY; // started well before the cutover: legacy
+  const legacyNow = before + 5.5 * DAY; // 36 h before its 7-day end
+  const legacy = decideCandidate(trialDoc(before), legacyNow);
+  assert.equal(legacy.ok, true);
+  assert.equal(legacy.trialEndsAtMs, before + 7 * DAY);
+  assert.equal(legacy.trialDays, 7);
+  // At 1.5 days into the same legacy trial the 3-day rule would have called it "ending" - it must NOT.
+  assert.equal(decideCandidate(trialDoc(before), before + 1.5 * DAY).reason, 'outside-window');
+  const fresh = decideCandidate(trialDoc(TRIAL_3DAY_CUTOVER_MS + HOUR), TRIAL_3DAY_CUTOVER_MS + HOUR + 1.5 * DAY);
+  assert.equal(fresh.ok, true);
+  assert.equal(fresh.trialEndsAtMs, TRIAL_3DAY_CUTOVER_MS + HOUR + 3 * DAY);
+  assert.equal(fresh.trialDays, 3);
+});
+
+test('TRIAL-3DAY-1: the window query spans both trial lengths while legacy trials can still end, and is the 3-day range alone afterwards', () => {
+  const { TRIAL_3DAY_CUTOVER_MS } = require('./entitlement.cjs');
+  // Before the cutover only legacy trials exist.
+  const early = startRangeFor(TRIAL_3DAY_CUTOVER_MS - 2 * DAY);
+  assert.equal(early.loMs, TRIAL_3DAY_CUTOVER_MS - 2 * DAY + 24 * HOUR - 7 * DAY);
+  assert.ok(early.hiMs <= TRIAL_3DAY_CUTOVER_MS, 'the legacy part never reaches a post-cutover start');
+  // 3 days after the cutover both lengths can end inside the window.
+  const mid = TRIAL_3DAY_CUTOVER_MS + 3 * DAY;
+  const both = startRangeFor(mid);
+  assert.equal(both.loMs, mid + 24 * HOUR - 7 * DAY);
+  assert.equal(both.hiMs, mid + 48 * HOUR - 3 * DAY);
+  // 7 days after, the last legacy trial has ended.
+  const late = TRIAL_3DAY_CUTOVER_MS + 8 * DAY;
+  assert.deepEqual(startRangeFor(late), { loMs: late + 24 * HOUR - 3 * DAY, hiMs: late + 48 * HOUR - 3 * DAY });
+});
+
+test('TRIAL-3DAY-1: the 3-day trial email names a 3-day trial and fires on day 2 of 3, never on day 0 or 1; a legacy trial still says 7', async () => {
+  // NOW is 2030: every trial started here is a 3-day trial. 1.5 days in = 36 h left -> in the 24-48 h window.
+  const s = setup({});
+  await s.emailer.runOnce();
+  const { body } = s.fetchCalls[0];
+  assert.ok(body.text.includes('your 3-day Premium trial ends on'));
+  assert.ok(body.html.includes('your 3-day Premium trial ends on'));
+  assert.ok(!/7-day/.test(body.text) && !/7-day/.test(body.html));
+  // Day 0 (just started) and day 1 (exactly 48 h left is outside) are never emailed.
+  for (const ageDays of [0, 0.5, 1]) {
+    const d = setup({ subs: { u1: trialDoc(NOW - ageDays * DAY) } });
+    const r = await d.emailer.runOnce();
+    assert.equal(r.sent, 0, `a 3-day trial ${ageDays} days old is not emailed`);
+  }
+  // The pure builder: a legacy trial still reads "7-day".
+  const { buildTrialEmail } = require('./trialEndingEmail.cjs');
+  const legacy = buildTrialEmail({ trialEndsAtMs: NOW + 36 * HOUR, trialDays: 7, counts: null, appUrl: 'https://www.lazytopper.com', unsubscribeUrl: 'https://x/u', nowMs: NOW });
+  assert.ok(legacy.text.includes('your 7-day Premium trial ends on'));
 });
 
 test('only email sign-ins: Google or email+password; never phone-only, disabled or Google-unverified', () => {
@@ -368,7 +421,7 @@ test('runOnce skips opted-out students and phone-only accounts', async () => {
   const s = setup({
     db,
     users: { u1: googleUser('a@b.co'), u2: { phoneNumber: '+91', providerData: [{ providerId: 'phone' }] } },
-    subs: { u1: trialDoc(NOW - 5.5 * DAY), u2: trialDoc(NOW - 5.5 * DAY) },
+    subs: { u1: trialDoc(NOW - 1.5 * DAY), u2: trialDoc(NOW - 1.5 * DAY) },
   });
   const r = await s.emailer.runOnce();
   assert.equal(r.sent, 0);
@@ -381,7 +434,7 @@ test('runOnce skips opted-out students and phone-only accounts', async () => {
 
 test('content: the real end in IST, real counts, no name, no auto-charge, plans + unsubscribe links', async () => {
   const db = makeDb();
-  const start = NOW - 5.5 * DAY;
+  const start = NOW - 1.5 * DAY;
   db.docs.set('sessionRecords/u1/records/ci-1', { id: 'ci-1', surface: 'check-improve', status: 'graded', gradedAt: start + HOUR });
   db.docs.set('sessionRecords/u1/records/ci-2', { id: 'ci-2', surface: 'check-improve', status: 'graded', gradedAt: start + 2 * HOUR });
   db.docs.set('sessionRecords/u1/records/ws-1', { id: 'ws-1', surface: 'worksheet', status: 'pending-upload', gradedAt: start + 3 * HOUR });
@@ -389,7 +442,7 @@ test('content: the real end in IST, real counts, no name, no auto-charge, plans 
   const s = setup({ db, users: { u1: { ...googleUser('asha@example.com'), displayName: 'Asha Kumari' } } });
   await s.emailer.runOnce();
   const { body } = s.fetchCalls[0];
-  const endMs = start + 7 * DAY;
+  const endMs = start + 3 * DAY; // TRIAL-3DAY-1: a trial started at/after the cutover lasts 3 days
   assert.equal(body.subject, `Your LazyTopper trial ends on ${formatIstDate(endMs)}`);
   assert.ok(body.text.includes(`ends on ${formatIstDate(endMs)} at ${formatIstTime(endMs)} (IST)`));
   assert.ok(body.text.includes('In your trial so far: 2 answer checks.'));
@@ -479,7 +532,7 @@ function manyStudents(n, prefix = 's') {
   const subs = {};
   for (let i = 0; i < n; i += 1) {
     users[`${prefix}${i}`] = googleUser(`${prefix}${i}@example.com`);
-    subs[`${prefix}${i}`] = trialDoc(NOW - 5.5 * DAY + i * 1000);
+    subs[`${prefix}${i}`] = trialDoc(NOW - 1.5 * DAY + i * 1000);
   }
   return { users, subs };
 }
@@ -513,7 +566,7 @@ test('FINDING 1: the cap is per IST day — the next IST day sends again', async
   const s = setup({ db, env });
   assert.equal((await s.emailer.runOnce()).sent, 0);
   // The same clock time one day later is the next IST day (+24 h keeps it inside the 08:00-21:00 send window).
-  const next = setup({ db, env, subs: { u2: trialDoc(NOW + 24 * HOUR - 5.5 * DAY) }, users: { u2: googleUser('b@example.com') }, now: () => NOW + 24 * HOUR });
+  const next = setup({ db, env, subs: { u2: trialDoc(NOW + 24 * HOUR - 1.5 * DAY) }, users: { u2: googleUser('b@example.com') }, now: () => NOW + 24 * HOUR });
   assert.notEqual(istDayKeyOf(NOW + 24 * HOUR), istDayKeyOf(NOW));
   assert.equal((await next.emailer.runOnce()).sent, 1);
 });
@@ -526,7 +579,7 @@ test('FINDING 2: an unverified email+password account is never emailed (Google u
       ph: { phoneNumber: '+911234567890', providerData: [{ providerId: 'phone' }] },
       ok: { email: 'ok@example.com', emailVerified: true, disabled: false, providerData: [{ providerId: 'password' }] },
     },
-    subs: { pw: trialDoc(NOW - 5.5 * DAY), gg: trialDoc(NOW - 5.5 * DAY), ph: trialDoc(NOW - 5.5 * DAY), ok: trialDoc(NOW - 5.5 * DAY) },
+    subs: { pw: trialDoc(NOW - 1.5 * DAY), gg: trialDoc(NOW - 1.5 * DAY), ph: trialDoc(NOW - 1.5 * DAY), ok: trialDoc(NOW - 1.5 * DAY) },
   });
   const r = await s.emailer.runOnce();
   assert.equal(r.sent, 1);
@@ -568,7 +621,7 @@ test('FINDING 3: a released claim gives its daily slot back', async () => {
 test('FINDING 4: phone-only / no-email accounts get a skip marker and are not looked up again', async () => {
   const db = makeDb();
   const users = { ph: { phoneNumber: '+911234567890', providerData: [{ providerId: 'phone' }] } };
-  const s = setup({ db, users, subs: { ph: trialDoc(NOW - 5.5 * DAY) } });
+  const s = setup({ db, users, subs: { ph: trialDoc(NOW - 1.5 * DAY) } });
   await s.emailer.runOnce();
   const marker = db.docs.get(`${TRIAL_EMAILS_COLLECTION}/ph`);
   assert.equal(marker.status, 'skipped');
@@ -584,7 +637,7 @@ test('FINDING 4: an unverified address is re-checked after 6 h and emailed once 
   const db = makeDb();
   const users = { pw: { email: 'p@example.com', emailVerified: false, disabled: false, providerData: [{ providerId: 'password' }] } };
   let nowMs = NOW;
-  const s = setup({ db, users, subs: { pw: trialDoc(NOW - 5.2 * DAY) }, now: () => nowMs });
+  const s = setup({ db, users, subs: { pw: trialDoc(NOW - 1.2 * DAY) }, now: () => nowMs });
   await s.emailer.runOnce();
   assert.equal(db.docs.get(`${TRIAL_EMAILS_COLLECTION}/pw`).reason, 'email-unverified');
   nowMs = NOW + HOUR;
@@ -597,7 +650,7 @@ test('FINDING 4: an unverified address is re-checked after 6 h and emailed once 
   assert.equal(r.sent, 1);
   assert.equal(db.docs.get(`${TRIAL_EMAILS_COLLECTION}/pw`).status, 'sent');
 
-  const dry = setup({ env: { TRIAL_EMAIL_ENABLED: '1' }, users: { ph: { phoneNumber: '+91', providerData: [{ providerId: 'phone' }] } }, subs: { ph: trialDoc(NOW - 5.5 * DAY) } });
+  const dry = setup({ env: { TRIAL_EMAIL_ENABLED: '1' }, users: { ph: { phoneNumber: '+91', providerData: [{ providerId: 'phone' }] } }, subs: { ph: trialDoc(NOW - 1.5 * DAY) } });
   await dry.emailer.runOnce();
   assert.equal(dry.db.docs.has(`${TRIAL_EMAILS_COLLECTION}/ph`), false, 'a dry run writes nothing, markers included');
 });
@@ -605,7 +658,7 @@ test('FINDING 4: an unverified address is re-checked after 6 h and emailed once 
 // ── ADMIN-EXTEND-1 (#1249): an extension is premium, never "your trial ends" ─────────────
 
 test('ADMIN-EXTEND-1: a pass_extension account (trial start kept, in the window) is never emailed — running or ended', async () => {
-  const start = NOW - 5.5 * DAY; // the kept trial start sits inside the 24-48 h window
+  const start = NOW - 1.5 * DAY; // the kept trial start sits inside the 24-48 h window
   const running = { tier: 'premium', plan: 'pass_extension', trialStartDate: ts(start), premiumSince: null, passEnd: ts(NOW + 5 * DAY) };
   const ended = { tier: 'premium', plan: 'pass_extension', trialStartDate: ts(start), premiumSince: null, passEnd: ts(NOW - HOUR) };
   assert.equal(decideCandidate(running, NOW).reason, 'tier-premium');
@@ -626,7 +679,7 @@ test('ADMIN-EXTEND-1: a pass_extension account (trial start kept, in the window)
 test('RE-REVIEW: a skip marker is MERGED — an opt-out recorded while the account was being looked up survives', async () => {
   const db = makeDb();
   const users = { ph: { phoneNumber: '+911234567890', providerData: [{ providerId: 'phone' }] } };
-  const s = setup({ db, users, subs: { ph: trialDoc(NOW - 5.5 * DAY) } });
+  const s = setup({ db, users, subs: { ph: trialDoc(NOW - 1.5 * DAY) } });
   // The opt-out lands between the job's ledger read and its marker write (during the Auth lookup).
   const admin = makeAdmin(users);
   const realAuth = admin.auth;
@@ -742,7 +795,7 @@ test('SELL-1: Board Pass CTA price comes from passPricing at the send time; no f
 // ── EMAIL-SEND-WINDOW-1: the trial-ending batch only goes out 08:00-21:00 IST ────────────────────
 test('send window: out-of-window send-mode run sends nothing and writes nothing; in-window sends', async () => {
   const lateNight = NOW + 15 * HOUR; // 01:00 IST
-  const out = setup({ now: () => lateNight, subs: { u1: trialDoc(lateNight - 5.5 * DAY) } });
+  const out = setup({ now: () => lateNight, subs: { u1: trialDoc(lateNight - 1.5 * DAY) } });
   const before = out.db.docs.size;
   const r = await out.emailer.runOnce();
   assert.equal(r.ran, false);
@@ -758,7 +811,7 @@ test('send window: out-of-window send-mode run sends nothing and writes nothing;
 
 test('send window: trial dry run outside the window still reports, writes nothing', async () => {
   const lateNight = NOW + 15 * HOUR;
-  const s = setup({ env: { TRIAL_EMAIL_ENABLED: '1' }, now: () => lateNight, subs: { u1: trialDoc(lateNight - 5.5 * DAY) } });
+  const s = setup({ env: { TRIAL_EMAIL_ENABLED: '1' }, now: () => lateNight, subs: { u1: trialDoc(lateNight - 1.5 * DAY) } });
   const r = await s.emailer.runOnce();
   assert.equal(r.outsideWindow, true);
   assert.equal(r.wouldSend, 1);

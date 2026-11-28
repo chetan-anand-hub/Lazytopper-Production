@@ -197,7 +197,7 @@ describe("F3 — login → pricing → login keeps the redirect", () => {
     window.sessionStorage.removeItem(FREE_CHECK_SIGNIN_INTENT_KEY);
 
     renderRoundTrip("/pricing?source=login&redirect=%2Fcheck-improve");
-    await u.click(screen.getByRole("button", { name: "Try the Board Pass free for 7 days" }));
+    await u.click(screen.getByRole("button", { name: "Try the Board Pass free for 3 days" }));
     const door = await screen.findByTestId("login-door");
     expect(door.textContent).toContain("redirect=/check-improve");
     expect(door.textContent).toContain("reason=start-trial");
@@ -218,7 +218,7 @@ describe("F3 — login → pricing → login keeps the redirect", () => {
     // And the trial button keeps its own /pricing return.
     cleanup();
     renderRoundTrip("/pricing?source=login");
-    await u.click(screen.getByRole("button", { name: "Try the Board Pass free for 7 days" }));
+    await u.click(screen.getByRole("button", { name: "Try the Board Pass free for 3 days" }));
     expect((await screen.findByTestId("login-door")).textContent).toContain("redirect=/pricing");
   });
 

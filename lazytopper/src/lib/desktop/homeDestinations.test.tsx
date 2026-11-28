@@ -178,16 +178,16 @@ describe("TutorPickerModal — the rendered pop-card", () => {
   it("shows the state-dependent gate note with frozen trial framing", () => {
     renderPicker(false);
     expect(screen.getByTestId("tutor-picker-gate-note")).toHaveTextContent(
-      /Sign up free — 7 days of the tutor and step marking\..*straight back to this chapter/i,
+      /Sign up free — 3 days of the tutor and step marking\..*straight back to this chapter/i,
     );
     cleanup();
 
     renderPicker(true);
     const note = screen.getByTestId("tutor-picker-gate-note");
-    expect(note).toHaveTextContent(/7-day trial — then free Basic/i);
+    expect(note).toHaveTextContent(/3-day trial — then free Basic/i);
     // TRIAL-ON-SIGNUP-1b (owner addendum): the short fragment, CHECKOUT-1: the monthly price.
     expect(note.textContent).toBe(
-      `Premium · part of the 7-day trial — then free Basic, or the Board Pass ${boardPassPriceDisplay()}, valid till 28 Feb 2027.`,
+      `Premium · part of the 3-day trial — then free Basic, or the Board Pass ${boardPassPriceDisplay()}, valid till 28 Feb 2027.`,
     );
     expect(note.textContent).not.toMatch(/upgrade anytime/i);
     // Trial framing is frozen — never "then paid".
@@ -196,7 +196,7 @@ describe("TutorPickerModal — the rendered pop-card", () => {
 
   it("tutorGateNote never promises anything but the frozen framing", () => {
     expect(tutorGateNote(true)).not.toMatch(/then paid/i);
-    expect(tutorGateNote(false)).toMatch(/Sign up free — 7 days of the tutor and step marking/);
+    expect(tutorGateNote(false)).toMatch(/Sign up free — 3 days of the tutor and step marking/);
   });
 
   it("renders nothing when closed", () => {
@@ -250,7 +250,7 @@ describe("PRIMARY_CARDS — SPEC §2 inventory", () => {
 describe("ASK-COPY-1: the signed-out tutor gate leads with the free week", () => {
   it("says 'Sign up free', never 'Log in to open your tutor', and still promises the return trip", () => {
     expect(tutorGateNote(false)).toBe(
-      "Sign up free — 7 days of the tutor and step marking. We'll bring you straight back to this chapter.",
+      "Sign up free — 3 days of the tutor and step marking. We'll bring you straight back to this chapter.",
     );
     expect(tutorGateNote(false)).not.toMatch(/Log in to open your tutor/);
   });

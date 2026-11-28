@@ -109,7 +109,7 @@ describe("public/llms.txt states the same limits (a static file, kept in step by
     // GST-EXCL-1 refresh (review, 6 Nov): llms.txt reads the line grammatically - "... comes with the Board Pass".
     expect(llms).toContain(BASIC_RESULT_LINE.replace(/\bis Premium\b/, "comes with the Board Pass"));
     expect(llms).not.toMatch(/breakdown is Board Pass/);
-    expect(llms).toContain(`The 7-day trial includes ${trialLimitsSentence()}.`);
+    expect(llms).toContain(`The 3-day trial includes ${trialLimitsSentence()}.`);
   });
 });
 

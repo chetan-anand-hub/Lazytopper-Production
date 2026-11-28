@@ -1,5 +1,5 @@
 /**
- * TRIAL-ON-SIGNUP-1 · T1 / T3 / T5 / D6 — a NEW account's 7-day trial starts AT SIGN-UP,
+ * TRIAL-ON-SIGNUP-1 · T1 / T3 / T5 / D6 — a NEW account's 3-day trial starts AT SIGN-UP,
  * ONCE, on every new-account door; logins, reloads, auth re-emits and phone LINKING never
  * start one; `activateTrial`'s own guards stay the final word; `trial_start` fires only
  * when a trial actually started.

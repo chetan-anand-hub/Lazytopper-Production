@@ -19,8 +19,8 @@ import { isPackChapterSlug } from "../../lib/packs/packEntry";
 import ExamPracticeStrip from "../../components/seoPages/ExamPracticeStrip";
 import "./dailyQuestion.css";
 
-/** The hero call to action: the Answer Checker, with the 7-day free trial. */
-export const DAILY_CTA_LABEL = "Check your own answer — Answer Checker (7-day free trial)";
+/** The hero call to action: the Answer Checker, with the 3-day free trial. */
+export const DAILY_CTA_LABEL = "Check your own answer — Answer Checker (3-day free trial)";
 export const DAILY_CTA_TO = "/check-improve";
 
 /**

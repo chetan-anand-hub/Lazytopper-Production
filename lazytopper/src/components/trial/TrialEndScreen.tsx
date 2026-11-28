@@ -28,7 +28,7 @@ import {
 import { notePaidLanding } from "./trialAskRoutes";
 
 /**
- * TrialEndScreen — ASK-FIX-1, reworked by TRIAL-END-OFFER-1. "Your free week is over": on the first visit after the 7-day trial
+ * TrialEndScreen — ASK-FIX-1, reworked by TRIAL-END-OFFER-1. "Your free trial is over": on the first visit after the 3-day trial
  * has ended, a full-screen sheet on a phone / a centred card on desktop. In order: what the student really did (only when there is
  * something real to say), the Board Pass with its founding price, the real deadline and whole days left, the Board Pass star
  * features (the LOCK-SELL-1 list), "Get the Board Pass" (one tap to the existing checkout), "Forward link to parents", a quiet PDF-pack
@@ -157,7 +157,7 @@ export function TrialEndScreenView({ offer, activityLine, foundingLine = null, d
     <div className="lt-tes__scrim" data-testid="trial-end-screen">
       <style>{SCREEN_CSS}</style>
       <div className="lt-tes" role="dialog" aria-modal="true" aria-labelledby="lt-tes-title" tabIndex={-1} ref={ref}>
-        <h1 className="lt-tes__title" id="lt-tes-title">Your free week is over</h1>
+        <h1 className="lt-tes__title" id="lt-tes-title">Your free trial is over</h1>
         {activityLine ? (
           <p className="lt-tes__did" data-testid="trial-end-screen-activity">{activityLine}</p>
         ) : null}

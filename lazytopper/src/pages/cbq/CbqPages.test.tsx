@@ -54,7 +54,7 @@ describe("CBQ-SEO-1 hub page", () => {
     const pack = screen.getByTestId("cbq-cta-pack");
     expect(before(premium, pack)).toBe(true);
     expect(before(pack, screen.getByTestId("cbq-practice-link")), "R1: Premium, then pack, then the free card").toBe(true);
-    expect(premium.textContent).toContain("7 days");
+    expect(premium.textContent).toContain("3 days");
     expect(premium.textContent).toContain("No card needed");
     expect(screen.getByTestId("cbq-cta-premium-link").getAttribute("href")).toBe("/pricing");
     expect(pack.textContent).toContain(`Maths CBQ Pack`);

@@ -52,7 +52,7 @@ describe("RequirePremium — the scorecard lock line (START-HERE-1)", () => {
     hydrate.mockResolvedValue(EXPIRED);
     gate("/tutor/10/Maths/real-numbers?source=scorecard&from=QP-1&q=q-b");
     await screen.findByText(SCORECARD_LOCK_COPY);
-    expect(SCORECARD_LOCK_COPY).toBe("Your free week has ended — upgrade to ask the tutor why you lost this mark.");
+    expect(SCORECARD_LOCK_COPY).toBe("Your free trial has ended — upgrade to ask the tutor why you lost this mark.");
     expect(screen.getByTestId("lock-sub").textContent).toBe(SCORECARD_LOCK_COPY);
     fireEvent.click(screen.getByText("Unlock Full Access"));
     expect(screen.getByText("PLANS_MODAL")).toBeInTheDocument();
@@ -61,7 +61,7 @@ describe("RequirePremium — the scorecard lock line (START-HERE-1)", () => {
   it("★ CONTROL: an expired trial arriving any other way keeps the ordinary line, byte for byte", async () => {
     hydrate.mockResolvedValue(EXPIRED);
     gate("/tutor/10/Maths/real-numbers?source=practice");
-    await waitFor(() => expect(screen.queryByText("Start my free 7-day trial")).toBeNull());
+    await waitFor(() => expect(screen.queryByText("Start my free 3-day trial")).toBeNull());
     // CBQ-TUTOR-GATE-1: the tutor gate now reads the pack allowance first, so the lock arrives a tick later.
     expect(await screen.findByText("Your personal tutor comes with the Board Pass")).toBeInTheDocument();
     expect(screen.queryByText(SCORECARD_LOCK_COPY)).toBeNull();
@@ -70,7 +70,7 @@ describe("RequirePremium — the scorecard lock line (START-HERE-1)", () => {
   it("★ a never-trialled student is never told their free week ended, even from a scorecard (they still get the trial offer)", async () => {
     hydrate.mockResolvedValue(FREE);
     gate("/tutor/10/Maths/real-numbers?source=scorecard");
-    await screen.findByText("Start my free 7-day trial");
+    await screen.findByText("Start my free 3-day trial");
     expect(screen.queryByText(SCORECARD_LOCK_COPY)).toBeNull();
     expect(screen.getByText("Your personal tutor comes with the Board Pass")).toBeInTheDocument();
   });
@@ -95,7 +95,7 @@ describe("RequirePremium — scorecard lock line, trial vs paid pass (FOLLOWUPS-
     expect(SCORECARD_LOCK_COPY_PAID).toBe("Your Premium pass has ended — renew to ask the tutor why you lost this mark.");
     expect(screen.queryByText(SCORECARD_LOCK_COPY)).toBeNull();
     expect(screen.queryByText("UNLOCKED_CHILD")).toBeNull();
-    expect(screen.queryByText("Start my free 7-day trial")).toBeNull();
+    expect(screen.queryByText("Start my free 3-day trial")).toBeNull();
     fireEvent.click(screen.getByText("Unlock Full Access"));
     expect(screen.getByText("PLANS_MODAL")).toBeInTheDocument();
   });
@@ -118,7 +118,7 @@ describe("RequirePremium — scorecard lock line, trial vs paid pass (FOLLOWUPS-
   it("★ never-trialled from a scorecard: unchanged (trial offer, ordinary line, neither lock line)", async () => {
     hydrate.mockResolvedValue(FREE);
     gate("/tutor/10/Maths/real-numbers?source=scorecard");
-    await screen.findByText("Start my free 7-day trial");
+    await screen.findByText("Start my free 3-day trial");
     expect(screen.queryByText(SCORECARD_LOCK_COPY_PAID)).toBeNull();
     expect(screen.queryByText(SCORECARD_LOCK_COPY)).toBeNull();
   });

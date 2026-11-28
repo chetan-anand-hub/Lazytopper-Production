@@ -172,7 +172,7 @@ describe("BRIDGE-PDF-1 - the approved copy, verbatim", () => {
     expect(t).toContain("it is printed on every paper, e.g. PK-S-LIGHT-CT1. Or photograph the QR at the bottom of the paper.");
     expect(t).toContain("with the email or phone number you bought with, and tap the paper.");
     expect(t).toContain("This paper (PK-M-RN-CT1) was written by our team with six deliberate mistakes");
-    expect(t).toContain("Free and 7-day free trial accounts can take one test with its MCQs marked free. Written answers are checked with the Test Series or the Board Pass.");
+    expect(t).toContain("Free and 3-day free trial accounts can take one test with its MCQs marked free. Written answers are checked with the Test Series or the Board Pass.");
     expect(t).not.toContain("first paper of each kind");
     expect(t).toContain("Board Pass marks every paper you write, valid till 28 Feb 2027");
     expect(t).not.toMatch(/\bAI\b/);

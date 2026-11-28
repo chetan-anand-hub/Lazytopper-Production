@@ -17,8 +17,8 @@ import { PacksEntry } from "../../lib/packs/packEntryLazy";
 import ExamPracticeStrip from "../../components/seoPages/ExamPracticeStrip";
 import "./freeMcq.css";
 
-/** The secondary call to action: the Answer Checker, with the 7-day free trial. */
-export const FREE_MCQ_CHECKER_LABEL = "Check your written answers — Answer Checker (7-day free trial)";
+/** The secondary call to action: the Answer Checker, with the 3-day free trial. */
+export const FREE_MCQ_CHECKER_LABEL = "Check your written answers — Answer Checker (3-day free trial)";
 export const FREE_MCQ_CHECKER_TO = "/check-improve";
 
 export function freeMcqDownloadLabel(chapter: string): string {
