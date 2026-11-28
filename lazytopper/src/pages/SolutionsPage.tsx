@@ -6,6 +6,8 @@ import { trackNamedEvent, type NamedAnalyticsEvent } from "../analytics/analytic
 import { MathText } from "../components/question/MathText";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { pricingPacksHref } from "../lib/packs/packLinks";
+import { PacksEntry } from "../lib/packs/packEntryLazy";
+import ExamPracticeStrip from "../components/seoPages/ExamPracticeStrip";
 import {
   NCERT_HUB_PATH,
   ncertCode,
@@ -404,6 +406,9 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
           {hasBook(ch, sibling) ? <Link to={solutionsPath(sibling, ch.slug)}>{BOOK_NAME[sibling]}</Link> : null}
         </nav>
 
+        {/* SEO-SELL-1 — the Chapter Pack card at the top (lazy, height reserved; flag off or not a pack chapter: nothing). */}
+        <PacksEntry kind="note-card" topicKey={bank} title={ch.title} subject={ch.subject} surface="ncert" position="top" />
+
         <p className="lt-ncs__count">
           {rows.length} {book === "ncert" ? "NCERT textbook" : "NCERT Exemplar"} questions from Chapter{" "}
           {bookChapterNo(ch, book)}
@@ -451,6 +456,10 @@ function ChapterSolutions({ book, ch }: { book: SolutionsBook; ch: SolutionsChap
           </p>
           <CheckLink className="lt-ncs__ctabtn">Check my answer</CheckLink>
         </section>
+
+        <PacksEntry kind="note-card" topicKey={bank} title={ch.title} subject={ch.subject} surface="ncert" position="end" />
+
+        <ExamPracticeStrip />
 
         <p className="lt-ncs__fine">
           Questions from the NCERT Class 10 {ch.subject === "Maths" ? "Mathematics" : ch.subject}{" "}

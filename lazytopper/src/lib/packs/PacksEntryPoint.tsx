@@ -15,7 +15,16 @@ export type PacksEntryProps =
   | { kind: "me-card"; uid: string }
   | { kind: "home-card"; uid: string }
   | { kind: "wall"; chapter: string | null; light?: boolean }
-  | { kind: "note-card"; topicKey: string; title: string }
+  | {
+      kind: "note-card";
+      topicKey: string;
+      title: string;
+      /** SEO-SELL-1: "Maths" | "Science" (for the CBQ line of the top card). */
+      subject?: string | null;
+      /** SEO-SELL-1: which page family and where on it; the defaults are the original notes end card. */
+      surface?: "notes" | "ncert";
+      position?: "top" | "end";
+    }
   | { kind: "settings-row"; uid: string; headingId: string; onClose: () => void };
 
 export default function PacksEntryPoint(props: PacksEntryProps) {
@@ -36,7 +45,7 @@ export default function PacksEntryPoint(props: PacksEntryProps) {
     case "wall":
       return <PacksWallButton chapter={props.chapter} light={props.light} />;
     case "note-card":
-      return <PacksNoteCard topicKey={props.topicKey} title={props.title} />;
+      return <PacksNoteCard topicKey={props.topicKey} title={props.title} subject={props.subject} surface={props.surface} position={props.position} />;
     case "settings-row":
       return <PacksSettingsRow uid={props.uid} headingId={props.headingId} onClose={props.onClose} />;
   }

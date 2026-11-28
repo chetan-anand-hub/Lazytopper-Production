@@ -33,6 +33,7 @@ import { BOARD_QUESTIONS } from "../../lib/boardQuestions/boardQuestions";
 import { ncertPdfHref, ncertPdfLinkText, tryNcertFileCode } from "../../lib/ncertFileCode";
 import { ncertHubChapterPath, ncertHubLinkLabel, ncertReadPath, ncertRowsForSlug } from "../../config/ncertBooks";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
+import ExamPracticeStrip from "../seoPages/ExamPracticeStrip";
 import { cbqChapterPath, cbqTopicBySlug } from "../cbq/cbqSeo";
 import { subscriptFormulas } from "../../lib/chemSubscript";
 import {
@@ -480,12 +481,8 @@ const NOTE_CSS = `
   cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--lt-note-green-deep);
   padding: 8px 0; list-style-position: inside;
 }
-.lt-note__pack { margin: 20px 0 0; padding: 16px; border: 1px solid #cfe6d9; border-radius: 14px; background: #eef8f2; text-align: left; }
-.lt-note__pack-title { margin: 0 0 4px; font-family: var(--font-display); font-size: 17px; line-height: 1.3; font-weight: 700; color: var(--lt-note-navy, #0b1f3a); }
-.lt-note__pack-sub { margin: 0 0 12px; font-size: 14px; line-height: 1.4; color: #2a3b52; }
-.lt-note__pack-btn { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 48px; padding: 12px 20px; border: 2px solid hsl(152, 55%, 32%); border-radius: 10px; background: #fff; color: hsl(152, 60%, 20%); font-size: 16px; font-weight: 700; text-decoration: none; }
-.lt-note__pack-btn:hover, .lt-note__pack-btn:focus-visible { background: hsl(152, 55%, 94%); }
-@media (max-width: 560px) { .lt-note__pack-btn { width: 100%; } }
+.lt-note__pack--ph { margin: 14px 0; min-height: 188px; box-sizing: border-box; }
+@media (max-width: 560px) { .lt-note__pack--ph { min-height: 232px; } }
 .lt-note__footnote {
   text-align: center; font-size: 12px; color: var(--lt-note-ink-faint);
   font-style: italic; margin: 16px 0 2px;
@@ -1615,6 +1612,16 @@ export function Note({ spec, initialTab }: NoteProps) {
             </section>
           )}
 
+          {/* SEO-SELL-1 — compact Chapter Pack card near the top (lazy, height reserved; flag off: nothing). */}
+          <PacksEntry
+            kind="note-card"
+            topicKey={meta.topic_key}
+            title={meta.title}
+            subject={meta.subject === "maths" ? "Maths" : "Science"}
+            surface="notes"
+            position="top"
+          />
+
           <FormulaeCard items={spec.formula_strip} />
           {hasTricks(spec) && (
             <p className="lt-note__tricks-link">
@@ -1901,7 +1908,10 @@ export function Note({ spec, initialTab }: NoteProps) {
       )}
 
       {/* PACKS-ENTRY-1 (b) — the Chapter Pack card at the end of the note (lazy; flag off: nothing). */}
-      <PacksEntry kind="note-card" topicKey={meta.topic_key} title={meta.title} />
+      <PacksEntry kind="note-card" topicKey={meta.topic_key} title={meta.title} surface="notes" position="end" />
+
+      {/* SEO-SELL-1 — plain internal links to the pages that sell exam practice. */}
+      <ExamPracticeStrip />
 
       <p className="lt-note__footnote">
         <NoteRichText text={meta.title} /> · spec-rendered note · <NoteRichText text={meta.source_edition} />

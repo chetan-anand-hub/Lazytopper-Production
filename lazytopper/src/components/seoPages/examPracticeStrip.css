@@ -1,0 +1,3 @@
+.lt-eps { display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; margin: 16px 0; font-size: 14px; line-height: 1.4; }
+.lt-eps__lead { font-weight: 700; color: #2a3b52; }
+.lt-eps__link { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; color: hsl(152, 60%, 20%); text-decoration: underline; }

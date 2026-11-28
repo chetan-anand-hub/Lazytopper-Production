@@ -127,7 +127,7 @@ describe("(b) notes", () => {
         <Note spec={getNoteSpecForTopic(slug)!} />
       </MemoryRouter>,
     );
-  it("flag on: a card after the note content and before the footnote, for every chapter note; trigonometry names both chapters; click fires notes", async () => {
+  it("flag on: a card after the note content and before the footnote, for every chapter note; trigonometry names both chapters; click fires notes_end (SEO-SELL-1: the top card has its own testid)", async () => {
     FLAG_ON();
     for (const slug of ACTIVITY_TOPIC_SLUGS) {
       if (!getNoteSpecForTopic(slug)) continue;
@@ -148,7 +148,7 @@ describe("(b) notes", () => {
     const card = await screen.findByTestId("note-pack-link", {}, { timeout: 8000 });
     expect(card.textContent).toContain("Practise every Triangles question on paper");
     fireEvent.click(card.querySelector("a")!);
-    expect(track).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "notes" } });
+    expect(track).toHaveBeenCalledWith("event", { name: "pack_entry_click", data: { from: "notes_end" } });
   });
   it("flag off: nothing in the markup, and the server render (prerender) is unchanged", async () => {
     FLAG_OFF();
