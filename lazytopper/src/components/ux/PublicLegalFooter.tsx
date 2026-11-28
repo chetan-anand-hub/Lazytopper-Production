@@ -3,6 +3,7 @@ import { FOOTER_SOCIAL } from "../../config/socialProfiles";
 import { LEGAL_ENTITY_NAME } from "../../config/legalEntity";
 import { withParentFlag } from "../../lib/parentReturn";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
+import { EXAM_PRACTICE_LINKS_WITH_PACKS } from "../seoPages/ExamPracticeStrip";
 
 /**
  * PublicLegalFooter — a slim, persistent legal row for the SIGNED-OUT public
@@ -80,6 +81,15 @@ const FOOTER_CSS = `
     color: hsl(222, 47%, 24%);
     text-decoration: underline;
   }
+  .lt-public-legal__practice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    flex-basis: 100%;
+    gap: 2px 14px;
+  }
+  .lt-public-legal__practice-lead { font-weight: 700; }
   @media (max-width: 389px) {
     .lt-public-legal {
       gap: 4px 12px;
@@ -138,6 +148,16 @@ export default function PublicLegalFooter({ className, fromParents = false, pack
       {/* ORG-SAMEAS-1 — our own profiles, the same URLs the Organization `sameAs` declares
           (config/socialProfiles.ts is the one list). `rel="me"` says these are ours; there
           is deliberately no `nofollow` and no UTM tag on an identity link. */}
+      {/* HOME-LINKS-1 (owner OK, 28 Nov 2026) - the same five exam-practice links as the homepage block, one compact group on its
+          own row below the legal row (a router <Link>: every target is an SPA route). */}
+      <nav className="lt-public-legal__practice" aria-label="Exam practice" data-testid="footer-exam-practice">
+        <span className="lt-public-legal__practice-lead">Exam practice:</span>
+        {EXAM_PRACTICE_LINKS_WITH_PACKS.map((l) => (
+          <Link key={l.to} to={to(l.to)}>
+            {l.label}
+          </Link>
+        ))}
+      </nav>
       {FOOTER_SOCIAL.map(({ label, href }) => (
         <a key={href} href={href} target="_blank" rel="me noopener">
           {label}

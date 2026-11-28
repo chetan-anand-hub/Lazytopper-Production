@@ -178,6 +178,11 @@ describe("the footer links to Exam Trends (the chapter index) on every public su
       "For parents", // PARENTS-1
       ...FOOTER_LINKS.map(([label]) => label),
       "Contact", // CONTACT-INDEX-1
+      "Class 10 question bank", // HOME-LINKS-1 - the compact "Exam practice" group
+      "Class 10 mock test papers",
+      "Class 10 CBQs 2027",
+      "Pre-boards test series",
+      "PDF packs",
       ...FOOTER_SOCIAL.map((s) => s.label), // ORG-SAMEAS-1
     ]);
   });
@@ -231,6 +236,12 @@ describe("every slug a legal link points at renders real policy content", () => 
       "/for-parents", // PARENTS-1 — the fourth internal page link, before the social row
       ...hrefs,
       "/contact", // CONTACT-INDEX-1 — the contact page, right after the legal links, before the social row
+      // HOME-LINKS-1 - the compact "Exam practice" group, after Contact, before the social row.
+      "/question-bank-class-10",
+      "/mock-test-class-10",
+      "/cbq-packs",
+      "/test-series",
+      "/packs",
       // ORG-SAMEAS-1 — the fourth kind of link: our own profiles, external, in config order.
       ...FOOTER_SOCIAL.map((s) => s.href),
     ]);
