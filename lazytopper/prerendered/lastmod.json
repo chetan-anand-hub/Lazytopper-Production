@@ -4,7 +4,7 @@
     "lastmod": "2026-11-28"
   },
   "/board-pass": {
-    "sha256": "8e23b96a9f867242fa44e571e02db64ec90c747e6006ae9a77fae32b61dc54d1",
+    "sha256": "8bd9414dbeaa859c2f227de48a83fd85223c22562023e83c4e4b176f4488552c",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10": {
@@ -116,7 +116,7 @@
     "lastmod": "2026-11-28"
   },
   "/cbq-packs": {
-    "sha256": "6dd8828c251b1dbdf269c682c7a85521920d563ae008f712411235e9ba3a1173",
+    "sha256": "d18dbdea051da1ed58c17b1de4d4a9e026b5ac5efd456a25eab0c977b02ab1e0",
     "lastmod": "2026-11-28"
   },
   "/cbse-marking-scheme-class-10": {
@@ -129,6 +129,10 @@
   },
   "/check-your-answer": {
     "sha256": "3a8bb1902a75f47dfd3d5f723003c2961d969502db6222357fc5c5649580658a",
+    "lastmod": "2026-11-28"
+  },
+  "/class-10-crash-course-2027": {
+    "sha256": "34f8e55a9ca85070b07f506c0e5705c887212d8d3b16e2c80b1d0161ae091815",
     "lastmod": "2026-11-28"
   },
   "/contact": {
@@ -640,7 +644,7 @@
     "lastmod": "2026-11-28"
   },
   "/packs": {
-    "sha256": "fc7946497e81f43194e8ef65601c6298c1ce5df9e1c02a0ce60172956f9683e0",
+    "sha256": "399864917d5fab241ade96f4aaa0e9a70ec31f6e764fe5bd43cff5587702c634",
     "lastmod": "2026-11-28"
   },
   "/practice-hub": {
@@ -648,7 +652,7 @@
     "lastmod": "2026-11-28"
   },
   "/pricing": {
-    "sha256": "69d30edc8fc57b4063e0296d400fd70652073b64482f327d04a17eb10503b960",
+    "sha256": "762b6c396480361f9c47fc7ae545181f7c495189c2cfff74c9bf100e48fb062d",
     "lastmod": "2026-11-28"
   },
   "/question-bank-class-10": {
@@ -656,7 +660,7 @@
     "lastmod": "2026-11-28"
   },
   "/test-series": {
-    "sha256": "452df1addfd93012f0d2dcfbfdb1aaed2a3e4683e687e0d635116f2bf4036874",
+    "sha256": "dcb4b74a1db432d52f3d02cfc6a8203ec53f6633055e82dcfbf3314ce2fd44b0",
     "lastmod": "2026-11-28"
   },
   "/topic-hub/acids-bases-and-salts": {
