@@ -625,6 +625,39 @@ test('PAY-RESCUE-1 · payment.failed for an unknown, paid or erased order is ack
   assert.equal(db.read('payOrders/order_E').lastFailure, undefined);
 });
 
+test('PAY-FAIL-1A · payment.failed on a GUEST order (uid null) records lastFailure; paid / erased / odd-uid orders are ignored; signed-in unchanged', async (t) => {
+  const base = { passType: 'month', amountPaise: 59900 };
+  const db = memoryFirestore({
+    'payOrders/order_G': { ...base, uid: null, payer: 'guest', status: 'created' },
+    'payOrders/order_GP': { ...base, uid: null, payer: 'guest', status: 'paid_unclaimed' },
+    'payOrders/order_GE': { ...base, uid: 'erased', payer: 'guest', status: 'created' },
+    'payOrders/order_GU': { ...base, payer: 'guest', status: 'created' },
+    'payOrders/order_GN': { ...base, uid: 7, status: 'created' },
+    'payOrders/order_GS': { ...base, uid: '', status: 'created' },
+    'payOrders/order_S': { ...base, uid: 'u1', status: 'created' },
+  });
+  const srv = await startRoutes({ db });
+  t.after(srv.close);
+  const g = await sendWebhook(srv, webhookBody(failedPayment('order_G'), 'payment.failed'));
+  assert.equal(g.status, 200, g.text);
+  assert.deepEqual(g.json, { ok: true });
+  assert.deepEqual(db.read('payOrders/order_G').lastFailure, { code: 'BAD_REQUEST_ERROR', reason: 'payment_timeout', source: 'customer', step: 'payment_authorization', atMs: NOW });
+  const { lastFailure, ...rest } = db.read('payOrders/order_G');
+  assert.deepEqual(rest, { ...base, uid: null, payer: 'guest', status: 'created' }, 'nothing else changes');
+  assert.ok(srv.events.includes('payments.webhook.failure_recorded_guest'));
+  assert.equal([...db.docs.keys()].filter((k) => !k.startsWith('payOrders/')).length, 0, 'no grant');
+  for (const id of ['order_GP', 'order_GE', 'order_GU', 'order_GN', 'order_GS']) {
+    const r = await sendWebhook(srv, webhookBody(failedPayment(id), 'payment.failed'));
+    assert.equal(r.status, 200, id);
+    assert.equal(r.json.ignored, true, id);
+    assert.equal(db.read(`payOrders/${id}`).lastFailure, undefined, id);
+  }
+  const s = await sendWebhook(srv, webhookBody(failedPayment('order_S'), 'payment.failed'));
+  assert.deepEqual(s.json, { ok: true });
+  assert.ok(db.read('payOrders/order_S').lastFailure);
+  assert.ok(srv.events.includes('payments.webhook.failure_recorded'));
+});
+
 test('PAY-RESCUE-1 · payment.failed with a missing / odd payment or order id is acknowledged 200 ignored (not 4xx), captured path unchanged', async (t) => {
   const srv = await startRoutes();
   t.after(srv.close);
