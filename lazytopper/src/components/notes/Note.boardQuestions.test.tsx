@@ -8,6 +8,7 @@
  * load — and assert the step-marked solution text is present anyway.
  */
 
+import { displaySteps } from "../../lib/marks/objectiveSteps";
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup, within, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
@@ -74,7 +75,8 @@ describe("a crawler can read the questions WITH THE TAB INACTIVE", () => {
     const body = container.textContent || "";
     for (const q of expected.questions) {
       expect(body, q.id + " question text").toContain(q.questionText);
-      for (const step of q.solutionSteps) {
+      // OBJ-NO-STEPMARK-1: an objective row's steps render without their "[N mark]" prefixes; written rows keep them.
+      for (const step of displaySteps(q, q.solutionSteps)) {
         expect(body, q.id + " solution step").toContain(step);
       }
     }

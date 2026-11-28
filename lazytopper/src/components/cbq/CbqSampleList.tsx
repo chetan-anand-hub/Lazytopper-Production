@@ -1,3 +1,4 @@
+import { displaySteps } from "../../lib/marks/objectiveSteps";
 import type { CanonicalQuestion } from "../../data/predictionTypes";
 import { MathText } from "../question/MathText";
 import "../question/katexEager";
@@ -10,7 +11,7 @@ import type { CbqSamplesState } from "./useCbqSamples";
  * native <details>, so the solution is in the page's HTML for a crawler and needs no script to open.
  */
 function Sample({ q, index }: { q: CanonicalQuestion; index: number }) {
-  const steps = (q.solutionSteps ?? []).filter(Boolean);
+  const steps = displaySteps(q, (q.solutionSteps ?? []).filter(Boolean));
   const marks = Number(q.marks) || 0;
   return (
     <li className="lt-cbqs__q" data-testid={`cbq-sample-${q.id}`}>

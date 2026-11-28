@@ -4,6 +4,7 @@ import { PRINT_FIGURE_CSS, PrintQuestionFigures, type RenderSolutionFigure } fro
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 import { BRAND_MARK_SRC } from "../../config/brandMark";
 import { STAMP_ATTR } from "./pdfTemplateMarks";
+import { isObjectiveSteps, stripStepMarks } from "../../lib/marks/objectiveSteps";
 
 const BRAND_WORDMARK_SRC = BRAND_MARK_SRC.replace(/[^/]+$/, "lazytopper-wordmark.png"); // public/brand/ - the owner's script wordmark
 
@@ -320,15 +321,33 @@ function QuestionBlock({ q }: { q: PersistedWorksheetQuestion }) {
   );
 }
 
+/** Index of the option an answer names: a leading "(d)" / "d)" letter, else the option whose text the answer contains; -1 when unknown. */
+export function correctOptionIndex(answer: string, options: readonly string[]): number {
+  const a = String(answer ?? "").trim();
+  const m = /^\(?([a-e])\)?(?:[\s.:]|$)/i.exec(a);
+  if (m) {
+    const i = m[1].toLowerCase().charCodeAt(0) - 97;
+    if (i < options.length) return i;
+  }
+  const norm = (x: string) => x.replace(/^\s*\(?[a-e]\)\s*/i, "").trim().toLowerCase();
+  const na = norm(a);
+  return na ? options.findIndex((o) => norm(o) === na) : -1;
+}
+
 function AnswerBlock({ q, section, renderSolutionFigure }: { q: PersistedWorksheetQuestion; section: string; renderSolutionFigure?: RenderSolutionFigure }) {
   const marks = Number(q.marks) || 1;
   const steps = Array.isArray(q.solutionSteps) ? q.solutionSteps.filter(Boolean) : [];
   const finalAns = q.finalAnswer || q.answer || "";
   const stepMarks = perStepMarks(marks, steps.length);
   const isObjective = Array.isArray(q.options) && q.options.length > 0;
+  // OBJ-NO-STEPMARK-1: an objective question (MCQ / A-R / 1 mark) is 0 or full on the answer alone - ONE chip, no step marks.
+  const objectiveKey = isObjectiveSteps(q);
   // An objective question shows its answer at the right of the heading (as in the mock-up); everything else shows
   // its marks there and the "Answer:" line under the steps.
   const answerInHead = isObjective && Boolean(finalAns);
+  // Options listed compactly on the key so "(d)" means something; the correct one is marked.
+  const keyOptions = isObjective ? stripOptionLabels(q.options!) : [];
+  const correctIdx = correctOptionIndex(finalAns, keyOptions);
   return (
     <div className="lt-wsp__sol">
       <div className="lt-wsp__solhead">
@@ -336,15 +355,38 @@ function AnswerBlock({ q, section, renderSolutionFigure }: { q: PersistedWorkshe
           Q{q.qNumber}
           {section ? ` \u00b7 Section ${section}` : ""}
         </span>
-        {answerInHead ? (
-          <span className="lt-wsp__solmk">
-            Answer: <MathText text={stripSourceTag(finalAns)} />
-          </span>
-        ) : (
-          <span className="lt-wsp__solmk">{markLabel(marks)}</span>
-        )}
+        <span className="lt-wsp__solmk">{markLabel(marks)}</span>
       </div>
-      {steps.length > 0 && (
+      {answerInHead ? (
+        <div className="lt-wsp__ansline" data-testid="key-answer-line">
+          Answer: <MathText text={stripSourceTag(finalAns)} />
+        </div>
+      ) : null}
+      {keyOptions.length > 0 && (
+        <ol className="lt-wsp__keyopts" data-testid="key-options">
+          {keyOptions.map((opt, oi) => (
+            <li key={oi} className={oi === correctIdx ? "lt-wsp__keyopt lt-wsp__keyopt--ok" : "lt-wsp__keyopt"} {...(oi === correctIdx ? { "data-correct": "true" } : {})}>
+              <span className="lt-wsp__optl">({OPTION_LETTERS[oi] ?? oi + 1})</span> <MathText text={opt} />
+              {oi === correctIdx ? <span className="lt-wsp__tick" aria-label="correct answer"> {"\u2713"}</span> : null}
+            </li>
+          ))}
+        </ol>
+      )}
+      {steps.length > 0 && objectiveKey && (
+        <div className="lt-wsp__steps">
+          <div className="lt-wsp__step">
+            {marks === 1 ? <span className="lt-wsp__chip">{markLabel(1)}</span> : <span className="lt-wsp__chip lt-wsp__chip--none" />}
+            <span className="lt-wsp__steptext">
+              {steps.map((s, si) => (
+                <div key={si} className="lt-wsp__expl">
+                  <MathText text={stripSourceTag(stripStepMarks(s))} />
+                </div>
+              ))}
+            </span>
+          </div>
+        </div>
+      )}
+      {steps.length > 0 && !objectiveKey && (
         <div className="lt-wsp__steps">
           {steps.map((s, si) => {
             const lead = LEADING_MARK.exec(s);
@@ -352,15 +394,10 @@ function AnswerBlock({ q, section, renderSolutionFigure }: { q: PersistedWorkshe
             const authored = lead ?? trail;
             const body = stripSourceTag(lead ? s.slice(lead[0].length) : trail ? s.slice(0, trail.index) : s);
             const hasOwnMark = /\[\s*[\d\u00bd]/.test(s);
-            // CBSE: an objective (MCQ / 1-mark) question is 0 or FULL on the answer alone - its steps explain, they are
-            // not marked one by one - so a split chip appears only when the authored step carries its own mark, or when
-            // the question is a single step. A step that works out to 0 marks gets no chip.
-            const splitOk = !isObjective && marks > 1 ? true : steps.length === 1;
+            // A step that works out to 0 marks gets no chip.
+            const splitOk = marks > 1 ? true : steps.length === 1;
             const share = stepMarks[si];
-            // PACKS-UX-1: a 1-mark objective row whose steps carry no prefix shows ONE "1 mark" chip for the whole solution
-            // (CBSE: 0 or 1 on the answer), on its first step.
-            const wholeChip = marks === 1 && (isObjective || section === "A") && !steps.some((x) => /\[\s*[\d\u00bd]/.test(x));
-            const chip = wholeChip ? (si === 0 ? markLabel(1) : "") : authored ? markLabel(parseMarkValue(authored[1])) : hasOwnMark || !splitOk || !(share > 0) ? "" : markLabel(share);
+            const chip = authored ? markLabel(parseMarkValue(authored[1])) : hasOwnMark || !splitOk || !(share > 0) ? "" : markLabel(share);
             return (
               <div key={si} className="lt-wsp__step">
                 {chip ? <span className="lt-wsp__chip">{chip}</span> : <span className="lt-wsp__chip lt-wsp__chip--none" />}
@@ -460,7 +497,12 @@ const PRINT_CSS = `
 .lt-wsp__sol { margin-bottom: 22px; padding-bottom: 20px; border-bottom: 1px solid var(--p-line2); font-size: 16px; }
 .lt-wsp__solhead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 600; margin-bottom: 9px; }
 .lt-wsp__sqn { color: var(--p-ink); }
-.lt-wsp__solmk { color: var(--p-ink); text-align: right; }
+.lt-wsp__sqn { white-space: nowrap; }
+.lt-wsp__solmk { color: var(--p-ink); text-align: right; white-space: nowrap; }
+.lt-wsp__ansline { font-weight: 600; color: var(--p-ink); margin: 0 0 9px; text-align: left; }
+.lt-wsp__keyopts { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 3px 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); font-size: 15px; }
+.lt-wsp__keyopt--ok { font-weight: 700; color: var(--p-chip-fg); background: var(--p-chip-bg); border-radius: 5px; padding: 0 6px; }
+.lt-wsp__expl + .lt-wsp__expl { margin-top: 3px; }
 .lt-wsp__steps { display: flex; flex-direction: column; gap: 9px; }
 .lt-wsp__step { display: flex; gap: 12px; align-items: flex-start; }
 .lt-wsp__chip { flex-shrink: 0; width: 86px; box-sizing: border-box; text-align: center; padding: 1px 8px; border-radius: 6px;

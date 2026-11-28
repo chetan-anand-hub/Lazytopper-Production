@@ -160,7 +160,7 @@ function QuestionCard({
   const anchor = anchorOf(q.id);
   const options = Array.isArray(q.options) ? q.options : null;
   const rawSteps = Array.isArray(q.solutionSteps) ? q.solutionSteps : [];
-  const steps = science && isObjectiveRow(q) ? rawSteps.map((s) => stripStepMark(String(s))) : rawSteps;
+  const steps = isObjectiveRow(q) ? rawSteps.map((s) => stripStepMark(String(s))) : rawSteps;
   const offerHint = steps.length > 0 && !(science && hintRevealsAnswer(q));
   const key = String(q.finalAnswer ?? q.answer ?? "");
   const correct = options ? correctOptionIndex(String(q.answer ?? ""), options) : null;

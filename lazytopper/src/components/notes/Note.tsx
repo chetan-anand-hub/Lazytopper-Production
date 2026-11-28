@@ -1,3 +1,4 @@
+import { displaySteps } from "../../lib/marks/objectiveSteps";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link, useHref, useLocation } from "react-router-dom";
 import type {
@@ -1427,7 +1428,7 @@ function BoardQuestionsPanel({ topicKey, title }: { topicKey: string; title: str
 
           <div className="lt-note__bq-sol-label">Step-marked solution</div>
           <ol className="lt-note__bq-steps">
-            {q.solutionSteps.map((step, i) => (
+            {displaySteps(q, q.solutionSteps).map((step, i) => (
               <li key={i}>{step}</li>
             ))}
           </ol>
