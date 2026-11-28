@@ -48,6 +48,11 @@ export interface TutorTurn {
   figure?: string;
   /** TUTOR-FIX-1 — present (true) on a tutor turn the model stopped at its token limit. */
   truncated?: true;
+  /** TUTOR-IMAGE-1 - on a STUDENT turn: the photo they attached. In memory only (never stored); it goes to
+   *  the server on the latest turn and is dropped from every earlier turn (see ai/tutorImage.ts). */
+  image?: { imageBase64: string; imageMimeType: "image/jpeg" | "image/png" };
+  /** TUTOR-IMAGE-1 - on a student turn that carried a photo; the flag is all that is stored. */
+  hasImage?: true;
 }
 
 /** Stage 3 — a concept in the current topic that has a curated diagram. Sent to the server
@@ -386,7 +391,7 @@ export async function callTutor(req: TutorRequest): Promise<TutorReply> {
     if (limitError) throw limitError;
     // Every other failure: the server's student-facing `message` first, the machine
     // `error` code only when there is no message.
-    throw new Error(details.message || details.error || "The tutor request failed.");
+    throw Object.assign(new Error(details.message || details.error || "The tutor request failed."), { code: details.error });
   }
 
   let parsed: TutorReply;

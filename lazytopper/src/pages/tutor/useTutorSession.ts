@@ -15,6 +15,7 @@
 // computed here.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toStoredTurns, toWireTurns } from "../../ai/tutorImage";
 import { callTutor, type TutorBrief, type TutorTurn, type TutorReturnedWork, type TutorAnchorQuestion } from "../../ai/tutorClient";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import { assembleTutorBrief } from "./tutorContextBrief";
@@ -111,7 +112,8 @@ export interface UseTutorSession {
   pending: TutorPendingMarker | null;
   /** A one-shot quick-reply offered after a reframed return-opener. */
   returnFollow: TutorFork | null;
-  send: (text: string) => void;
+  /** false when the message was NOT accepted (a turn is already in flight, or the text is empty). */
+  send: (text: string, image?: TutorTurn["image"]) => boolean;
   retry: () => void;
   /** Open Check & Improve as an in-tree overlay over the tutor (build v1.1). The
    *  check-improve leg NO LONGER navigates/polls; closing the panel IS the return. */
@@ -307,7 +309,7 @@ export function useTutorSession({
         topicLabel,
         subject,
         updatedAt: Date.now(),
-        messages: msgs,
+        messages: toStoredTurns(msgs),
         coverage: coverageRef.current,
         pending: nextPending,
       };
@@ -699,7 +701,7 @@ export function useTutorSession({
           subject,
           concept,
           // Only real dialogue turns go to the model — skip the away-cue/return markers.
-          messages: convo.filter((m) => m.kind !== "away-cue"),
+          messages: toWireTurns(convo.filter((m) => m.kind !== "away-cue")),
           brief: briefRef.current,
           language,
           demoQuestion,
@@ -743,6 +745,19 @@ export function useTutorSession({
         setError(e instanceof Error ? e.message : "The tutor is unavailable right now.");
         // TUTOR-FIX-2 T7: keep the TYPE of the failure, not just its sentence.
         setErrorState(classifyTutorError(e));
+        // TUTOR-IMAGE-1: a refused photo must not be resent by Retry - keep the turn, drop the bytes.
+        const code = (e as { code?: unknown } | null)?.code;
+        if (code === "invalid_image" || code === "tutor_image_disabled") {
+          setMessages((prev) => {
+            const li = prev.length - 1;
+            if (li < 0 || !prev[li].image) return prev;
+            const { image: _drop, ...rest } = prev[li];
+            void _drop;
+            const next = [...prev.slice(0, li), { ...rest, hasImage: true as const }];
+            persist(next, pendingRef.current);
+            return next;
+          });
+        }
         setStatus("error");
       } finally {
         sendingRef.current = false;
@@ -752,9 +767,9 @@ export function useTutorSession({
   );
 
   const send = useCallback(
-    (text: string) => {
+    (text: string, image?: TutorTurn["image"]) => {
       const clean = text.trim();
-      if (!clean || sendingRef.current) return;
+      if (!clean || sendingRef.current) return false;
       setReturnFollow(null);
       // Fix 2: re-engaging IS the return signal — sending any new message clears a pending
       // holding marker (the banner never blocks a student who is back and typing).
@@ -763,12 +778,13 @@ export function useTutorSession({
       if (concept && !coverageRef.current.worked.includes(concept)) {
         coverageRef.current = { ...coverageRef.current, worked: [...coverageRef.current.worked, concept] };
       }
-      const next: TutorTurn[] = [...messages, { role: "user", content: clean }];
+      const next: TutorTurn[] = [...messages, { role: "user", content: clean, ...(image ? { image } : {}) }];
       trackFirstTutorMessage(messages, { uid, topicKey, subject });
       setMessages(next);
       persist(next, null);
       // The doubt is recorded as Tutor activity in runModel, only after a successful reply.
       void runModel(next);
+      return true;
     },
     [messages, runModel, concept, persist, updatePending, uid, topicKey, subject],
   );

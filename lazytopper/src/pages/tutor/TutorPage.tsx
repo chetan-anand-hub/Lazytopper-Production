@@ -37,6 +37,10 @@ import TutorCheckCard, { TutorNextFix } from "../../components/tutorSticky/Tutor
 import "../../components/question/katexEager";
 import NcertPageModal, { type NcertPageRef } from "../../components/notes/NcertPageModal";
 import { useTutorSession } from "./useTutorSession";
+// TUTOR-IMAGE-1 - attach a photo of a question/page: Answer Checker's own upload step (crop, upright, compress, guard).
+import PageTray, { usePageTray, type TrayPayload } from "../../components/upload/PageTray";
+import { checkUploadFile } from "../../services/uploadLimits";
+import { TUTOR_IMAGE_ONLY_TEXT, isTutorImageDisabled } from "../../ai/tutorImage";
 import TutorCheckImproveOverlay from "./TutorCheckImproveOverlay";
 import TutorQuickPracticeOverlay from "./TutorQuickPracticeOverlay";
 import { safeInternalReturnTo } from "./tutorPath";
@@ -293,11 +297,28 @@ function TutorSession() {
     setArrivalDecided(true);
     setArrivalIdx(arrivalDividerIndex({ concept, messages, pending }));
   }, [arrivalDecided, messages, concept, pending]);
-  const send = (text: string) => {
+  const send = (text: string, image?: TutorTurn["image"]) => {
     studentSentRef.current = true;
-    sendToTutor(text);
+    return image ? sendToTutor(text, image) : sendToTutor(text);
   };
   const composerRef = useRef<HTMLTextAreaElement | null>(null);
+  // TUTOR-IMAGE-1: one photo per message, held until Send. A PDF is refused here (the tutor reads photos).
+  const imageEnabled = !isTutorImageDisabled();
+  const [photo, setPhoto] = useState<TrayPayload | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
+  const photoTray = usePageTray({
+    allowMultiPage: false,
+    check: (file) =>
+      file.type === "application/pdf"
+        ? { ok: false, message: "Please attach a photo (JPG or PNG), not a PDF." }
+        : checkUploadFile(file, "question"),
+    onPayload: (p) => {
+      setPhoto(p);
+      if (p) setPhotoError(null);
+    },
+    onError: setPhotoError,
+  });
   // TUTOR-INPUT-1: the composer grows with the text (1 line -> ~6 lines, then scrolls).
   useEffect(() => {
     const el = composerRef.current;
@@ -450,9 +471,18 @@ function TutorSession() {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const text = draft.trim();
-    if (!text || status === "sending") return;
+    if ((!text && !photo) || status === "sending") return;
+    // Clear the draft and the photo only once the message was accepted (never a silent drop).
+    if (photo && (photo.imageMimeType === "image/jpeg" || photo.imageMimeType === "image/png")) {
+      const image = { imageBase64: photo.imageBase64, imageMimeType: photo.imageMimeType };
+      if (send(text || TUTOR_IMAGE_ONLY_TEXT, image) === false) return;
+      setDraft("");
+      photoTray.clear();
+      setPhoto(null);
+      return;
+    }
+    if (send(text) === false) return;
     setDraft("");
-    send(text);
   };
 
   // TUTOR-FIX-2 T4.3 — at phone width the diagram is a BOTTOM SHEET docked ABOVE the composer
@@ -485,6 +515,15 @@ function TutorSession() {
         return (
           <div key={i} className="lt-tutor__s">
             <span>
+              {m.image ? (
+                <img
+                  className="lt-tutor__simg"
+                  src={`data:${m.image.imageMimeType};base64,${m.image.imageBase64}`}
+                  alt="The photo you attached"
+                />
+              ) : m.hasImage ? (
+                <em className="lt-tutor__simgnote">Photo attached</em>
+              ) : null}
               <MathText text={m.content.trim()} />
             </span>
           </div>
@@ -753,7 +792,68 @@ function TutorSession() {
                 Practise this chapter
               </button>
             </div>
+            {imageEnabled && <PageTray tray={photoTray} disabled={status === "sending"} />}
+            {imageEnabled && photo && photoTray.pages.length === 0 && (
+              <div className="lt-tutor__prev" data-testid="tutor-photo-preview">
+                <img
+                  src={`data:${photo.imageMimeType};base64,${photo.imageBase64}`}
+                  alt="The photo you are sending"
+                  className="lt-tutor__previmg"
+                />
+                <span className="lt-tutor__prevname">Photo ready to send</span>
+                <button
+                  type="button"
+                  className="lt-tutor__prevdel"
+                  data-testid="tutor-photo-remove"
+                  aria-label="Remove the photo"
+                  onClick={() => {
+                    photoTray.clear();
+                    setPhoto(null);
+                  }}
+                  disabled={status === "sending"}
+                >
+                  &times;
+                </button>
+              </div>
+            )}
+            {imageEnabled && photoError && (
+              <p className="lt-tutor__photoerr" role="alert" data-testid="tutor-photo-error">
+                {photoError}
+              </p>
+            )}
             <div className="lt-tutor__cbar">
+              {imageEnabled && (
+                <>
+                  <button
+                    type="button"
+                    className="lt-tutor__attach"
+                    data-testid="tutor-attach"
+                    aria-label="Attach a photo of a question or page"
+                    title="Attach a photo"
+                    disabled={status === "sending" || photoTray.busy || Boolean(photo)}
+                    onClick={() => photoInputRef.current?.click()}
+                  >
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
+                      <circle cx="12" cy="12.5" r="3.5" />
+                    </svg>
+                  </button>
+                  {/* No `capture`, never `multiple`: a phone offers Camera or Gallery, a desktop its file picker. */}
+                  <input
+                    ref={photoInputRef}
+                    className="lt-tutor__file"
+                    type="file"
+                    accept="image/jpeg,image/png"
+                    data-testid="tutor-attach-input"
+                    onChange={(e) => {
+                      const files = e.target.files ? Array.from(e.target.files) : [];
+                      e.target.value = "";
+                      setPhotoError(null);
+                      photoTray.addFiles(files.slice(0, 1), { replace: true });
+                    }}
+                  />
+                </>
+              )}
               <textarea
                 ref={composerRef}
                 className="lt-tutor__input"
@@ -770,7 +870,7 @@ function TutorSession() {
                 type="submit"
                 className="lt-tutor__send"
                 aria-label="Send"
-                disabled={status === "sending" || !draft.trim()}
+                disabled={status === "sending" || (!draft.trim() && !photo)}
               >
                 <span aria-hidden="true">&uarr;</span>
               </button>
@@ -926,6 +1026,20 @@ const TUTOR_CSS = `
   max-width: 96%;
 }
 .lt-tutor__s { display: flex; justify-content: flex-end; margin: 0 0 15px; }
+.lt-tutor__simg { display: block; max-width: 100%; max-height: 180px; border-radius: 10px; margin: 0 0 6px; object-fit: contain; background: rgba(255,255,255,0.15); }
+.lt-tutor__simgnote { display: block; font-size: 12.5px; opacity: 0.9; margin: 0 0 4px; }
+.lt-tutor__attach {
+  flex: none; width: 34px; height: 34px; border-radius: 10px; border: none; background: transparent;
+  color: var(--lt-ink); display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.lt-tutor__attach:disabled { opacity: 0.4; cursor: default; }
+.lt-tutor__file { display: none; }
+.lt-tutor__attach { margin-left: -8px; }
+.lt-tutor__prev { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; padding: 6px; border: 1px solid var(--lt-line); border-radius: 12px; background: #fff; }
+.lt-tutor__previmg { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; }
+.lt-tutor__prevname { flex: 1; font-size: 13px; color: var(--lt-ink); }
+.lt-tutor__prevdel { flex: none; width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--lt-line); background: #fff; font-size: 18px; line-height: 1; cursor: pointer; color: var(--lt-ink); }
+.lt-tutor__photoerr { margin: 0 0 6px; font-size: 13px; line-height: 1.4; color: #b42318; font-weight: 600; }
 .lt-tutor__s span {
   display: block;
   width: fit-content;
