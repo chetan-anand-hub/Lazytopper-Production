@@ -13,7 +13,7 @@
 // light, green hsl(152,55%,45%), Fraunces + Inter. Two-panel scaffold; the
 // explanation panel stays a CLOSED Stage-3 placeholder.
 
-import { Fragment, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 // TUTOR-FIX-2 (S-C) — chapter-first cold entry, the deterministic offer rule, typed errors.
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
@@ -297,7 +297,28 @@ function TutorSession() {
     studentSentRef.current = true;
     sendToTutor(text);
   };
-  const composerRef = useRef<HTMLInputElement | null>(null);
+  const composerRef = useRef<HTMLTextAreaElement | null>(null);
+  // TUTOR-INPUT-1: the composer grows with the text (1 line -> ~6 lines, then scrolls).
+  useEffect(() => {
+    const el = composerRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 144)}px`;
+  }, [draft]);
+  // Enter sends only with a mouse/keyboard (fine pointer); on touch it is a newline and Send sends.
+  // Shift+Enter is always a newline.
+  const onComposerKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
+    let fine = false;
+    try {
+      fine = typeof window.matchMedia === "function" && window.matchMedia("(pointer: fine)").matches;
+    } catch {
+      fine = false;
+    }
+    if (!fine) return;
+    e.preventDefault();
+    e.currentTarget.form?.requestSubmit();
+  };
 
   // ── TUTOR-STICKY-1 — every explanation ends in a one-tap check ─────────────────────────────────────────
   // A LIVE reply (the status went sending -> idle) is followed by ONE similar objective bank question, graded
@@ -464,7 +485,7 @@ function TutorSession() {
         return (
           <div key={i} className="lt-tutor__s">
             <span>
-              <MathText text={m.content} />
+              <MathText text={m.content.trim()} />
             </span>
           </div>
         );
@@ -733,12 +754,14 @@ function TutorSession() {
               </button>
             </div>
             <div className="lt-tutor__cbar">
-              <input
+              <textarea
                 ref={composerRef}
                 className="lt-tutor__input"
+                rows={1}
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder={`Ask about ${topicLabel.toLowerCase()} in English, Hindi, or Hinglish...`}
+                onKeyDown={onComposerKeyDown}
+                placeholder="Ask a doubt — English, Hindi or Hinglish"
                 aria-label={`Ask about ${topicLabel}`}
                 disabled={status === "sending"}
                 autoComplete="off"
@@ -904,6 +927,8 @@ const TUTOR_CSS = `
 }
 .lt-tutor__s { display: flex; justify-content: flex-end; margin: 0 0 15px; }
 .lt-tutor__s span {
+  display: block;
+  width: fit-content;
   background: var(--lt-green);
   color: #fff;
   font-size: 14.5px;
@@ -1077,7 +1102,7 @@ const TUTOR_CSS = `
 }
 .lt-tutor__cbar {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 9px;
   background: var(--lt-bg);
   border: 1px solid var(--lt-line);
@@ -1091,8 +1116,14 @@ const TUTOR_CSS = `
   background: transparent;
   font-family: var(--font-body, "Inter", system-ui, sans-serif);
   font-size: 14px;
+  line-height: 1.45;
   color: var(--lt-ink);
   outline: none;
+  resize: none;
+  min-height: 22px;
+  max-height: 144px;
+  overflow-y: auto;
+  padding: 6px 0;
 }
 .lt-tutor__input::placeholder { color: var(--lt-faint); }
 .lt-tutor__send {
