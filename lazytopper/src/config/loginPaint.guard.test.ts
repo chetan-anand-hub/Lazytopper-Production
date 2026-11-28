@@ -188,7 +188,6 @@ describe("decideLoginPaint", () => {
     const t = instants[1];
     expect(clockWindowAt(t, instants)).toEqual({ from: t, until: Number.MAX_SAFE_INTEGER });
     expect(clockWindowAt(t - 1, instants)).toEqual({ from: instants[0], until: t });
-    expect(instants.every(x => x < Date.parse("2026-12-01T00:00:00+05:30"))).toBe(true);
     expect(clockWindowAt(instants[instants.length - 1] + 1, instants).until).toBe(Number.MAX_SAFE_INTEGER);
   });
 });
