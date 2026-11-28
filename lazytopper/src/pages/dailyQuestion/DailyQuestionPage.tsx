@@ -1,3 +1,4 @@
+import { displaySteps } from "../../lib/marks/objectiveSteps";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { MathText } from "../../components/question/MathText";
 import "../../components/question/katexEager";
@@ -32,7 +33,7 @@ export default function DailyQuestionPage() {
   const chapter = dailyChapterName(entry);
   const { prev, next } = dailyNeighbours(entry.slug);
   const row = state.status === "ready" ? state.row : null;
-  const steps = (row?.solutionSteps ?? []).filter(Boolean);
+  const steps = displaySteps(row, (row?.solutionSteps ?? []).filter(Boolean));
   return (
     <main className="lt-dq" data-testid="daily-question-page">
       <header className="lt-dq__hero">

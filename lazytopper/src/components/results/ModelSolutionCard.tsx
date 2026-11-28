@@ -13,6 +13,7 @@
  * itself marked as not fully correct, in the grader's own words.
  */
 import { MathText } from "../question/MathText";
+import { isObjectiveSteps } from "../../lib/marks/objectiveSteps";
 import { isGradedQuestion, marksWithUnit, type GradedQuestionLike } from "../../lib/mistakeDisplay";
 
 export interface ModelSolutionStep {
@@ -70,6 +71,11 @@ export function ModelSolutionCard({
   const steps = cleanSteps(modelSolution);
   if (steps.length === 0) return null;
   const total = Number(modelSolution?.totalMarks) || steps.reduce((t, s) => t + (Number(s.marks) || 0), 0);
+  // OBJ-NO-STEPMARK-1: an objective question (MCQ / A-R / 1 mark) is 0 or FULL on the answer alone, so its model
+  // solution shows the explanation and ONE total - never "[0.5 mark]" beside a step. Display only.
+  const objective =
+    question.objective === true ||
+    isObjectiveSteps({ format: question.format, marks: Number(question.totalMarks) || total });
   const lost = isGradedQuestion(question) && (Number(question.marksAwarded) || 0) < (Number(question.totalMarks) || 0);
   const lostSteps = lost
     ? (answerSteps ?? []).filter((s) => s && s.status && s.status !== "correct" && s.status !== "withdrawn")
@@ -100,7 +106,7 @@ export function ModelSolutionCard({
                 {s.description ? <div className="lt-msol__desc"><MathText text={String(s.description)} /></div> : null}
                 {s.working ? <div className="lt-msol__work"><MathText text={String(s.working)} /></div> : null}
               </div>
-              <span className="lt-msol__mk">[{marksWithUnit(Number(s.marks) || 0)}]</span>
+              {objective ? null : <span className="lt-msol__mk">[{marksWithUnit(Number(s.marks) || 0)}]</span>}
             </li>
           ))}
         </ol>

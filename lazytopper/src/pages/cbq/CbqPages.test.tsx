@@ -95,7 +95,10 @@ describe("CBQ-SEO-1 chapter page (real bank)", () => {
       expect(details!.hasAttribute("open")).toBe(false);
       expect(details!.querySelector("summary")!.textContent).toBe("Show step-by-step explanation");
       expect(details!.querySelectorAll("ol > li").length).toBeGreaterThan(0);
-      expect(li.textContent).toMatch(/\[\d+(\.\d+)? marks?\]|\[\d½? ?marks?\]|\[½ ?mark\]/);
+      // OBJ-NO-STEPMARK-1: a 1-mark objective sample shows plain steps (no prefixes); a written sample keeps its step marks.
+      const stepMarkRe = /\[\d+(\.\d+)? marks?\]|\[\d½? ?marks?\]|\[½ ?mark\]/;
+      if (li.querySelector(".lt-cbqs__chip--marks")?.textContent === "1 mark") expect(details!.textContent).not.toMatch(stepMarkRe);
+      else expect(li.textContent).toMatch(stepMarkRe);
     }
     const practice = screen.getByTestId("cbq-practice-link");
     expect(practice.getAttribute("href")).toBe(CBQ_PRACTICE_TO);

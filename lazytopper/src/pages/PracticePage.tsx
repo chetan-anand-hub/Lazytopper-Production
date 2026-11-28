@@ -1,5 +1,6 @@
 // src/pages/PracticePage.tsx
 /* eslint-disable react-hooks/exhaustive-deps */
+import { stripStepMarks } from "../lib/marks/objectiveSteps";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -5021,7 +5022,7 @@ const packTopicKey = useMemo(() => {
             label: `Question ${i + 1}`,
             yourAnswer,
             correctAnswer: correct >= 0 && opts[correct] ? opts[correct] : null,
-            steps: (Array.isArray(q.solutionSteps) ? q.solutionSteps : []).map(String).filter((s) => s.trim()),
+            steps: (Array.isArray(q.solutionSteps) ? q.solutionSteps : []).map((s) => stripStepMarks(String(s))).filter((s) => s.trim()),
             tutorAsk: tutorAskFor(q, { qNumber: i + 1, pick: yourAnswer }),
           }];
         }),
@@ -5125,7 +5126,7 @@ const packTopicKey = useMemo(() => {
       label: `Question ${r.qNumber}`,
       yourAnswer: storedPickedOption(r),
       correctAnswer: correct >= 0 && opts[correct] ? opts[correct] : null,
-      steps: (Array.isArray(row?.solutionSteps) ? row!.solutionSteps! : []).map(String).filter((t) => t.trim()),
+      steps: (Array.isArray(row?.solutionSteps) ? row!.solutionSteps! : []).map((t) => stripStepMarks(String(t))).filter((t) => t.trim()),
       tutorAsk: qid
         ? {
             onAsk: () => {

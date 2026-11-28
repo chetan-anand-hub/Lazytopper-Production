@@ -1,3 +1,4 @@
+import { stripStepMarks } from "../../lib/marks/objectiveSteps";
 import { lazy, Suspense, useEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { CheckSolutionAnnotatedStep } from "../../ai/aiClient";
@@ -490,7 +491,7 @@ function WrongAnswersBlock({ answers }: { answers: ScorecardWrongAnswer[] }) {
               <ol className="lt-sc__wr-steps">
                 {a.steps.map((s, i) => (
                   <li key={i}>
-                    <MathText text={s} />
+                    <MathText text={stripStepMarks(s)} />
                   </li>
                 ))}
               </ol>
