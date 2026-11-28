@@ -66,7 +66,7 @@ describe("TUTOR-UX-1 (B) concept arrival", () => {
     const chip = screen.getByRole("button", { name: "Explain Mirror formula simply" });
     expect(screen.getByRole("button", { name: "Where am I losing marks here?" })).toBeTruthy();
     fireEvent.click(chip);
-    expect((screen.getByRole("textbox") as HTMLInputElement).value).toBe("Explain Mirror formula simply");
+    expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe("Explain Mirror formula simply");
     expect(H.send).not.toHaveBeenCalled();
   });
 
