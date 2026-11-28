@@ -49,12 +49,12 @@ describe("SEO-DAILY-1 question page", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("(3 marks)");
   });
 
-  it("one hero CTA to /check-improve with the 7-day free trial wording; notes, CBQ and hub links; prev / next; the closing line; no price", async () => {
+  it("one hero CTA to /check-improve with the 3-day free trial wording; notes, CBQ and hub links; prev / next; the closing line; no price", async () => {
     mountQuestion(SLUG_PRIME);
     await screen.findByText(/A die is thrown once/);
     const cta = screen.getByTestId("daily-cta");
     expect(cta.textContent).toBe(DAILY_CTA_LABEL);
-    expect(cta.textContent).toBe("Check your own answer — Answer Checker (7-day free trial)");
+    expect(cta.textContent).toBe("Check your own answer — Answer Checker (3-day free trial)");
     expect(cta.getAttribute("href")).toBe("/check-improve");
     expect(screen.getAllByTestId("daily-cta")).toHaveLength(1);
     expect(screen.getByTestId("daily-notes-link").getAttribute("href")).toBe("/notes/probability");

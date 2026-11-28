@@ -90,9 +90,29 @@ const { resolveCaller } = require('./rateLimiter.cjs');
 // VALIDITY-FEB27: the read-time rule that reads a 2026-27 `till_boards` pass as valid to 28 Feb 2027 (never lowers an end).
 const { effectiveBoardPassEndMs } = require('./validityWindow.cjs');
 
-/** Mirror of subscriptionService.TRIAL_DAYS. A constant in code, never a stored field. */
-const TRIAL_DAYS = 7;
+/**
+ * Mirror of subscriptionService.TRIAL_DAYS. A constant in code, never a stored field.
+ *
+ * TRIAL-3DAY-1 (owner ruling 28 Nov 2026): NEW trials last 3 days. The trial END is derived from the
+ * server-pinned start (never stored), so lowering the constant alone would SHORTEN every running trial.
+ * The length therefore depends on when the trial STARTED: a start before TRIAL_3DAY_CUTOVER_MS keeps
+ * LEGACY_TRIAL_DAYS (7), exactly as before; a start at/after it gets TRIAL_DAYS (3). Mirror of
+ * subscriptionService.trialDaysForStart (a parity test pins both). The cutover must be at/after the
+ * moment this code is live in production.
+ */
+const TRIAL_DAYS = 3;
+const LEGACY_TRIAL_DAYS = 7;
+const TRIAL_3DAY_CUTOVER_MS = Date.parse('2026-11-30T00:00:00+05:30');
 const DAY_MS = 24 * 60 * 60 * 1000;
+/** The length in days of the trial that started at `startMs`. */
+function trialDaysForStart(startMs) {
+  return startMs < TRIAL_3DAY_CUTOVER_MS ? LEGACY_TRIAL_DAYS : TRIAL_DAYS;
+}
+/** The length in ms of the trial that started at `startMs`. */
+function trialMsForStart(startMs) {
+  return trialDaysForStart(startMs) * DAY_MS;
+}
+/** The length in ms of a NEW trial (the current constant). Kept for callers that need the current length only. */
 const TRIAL_MS = TRIAL_DAYS * DAY_MS;
 
 /**
@@ -391,7 +411,7 @@ function deriveEffectiveTier(raw, nowMs) {
 
   const startPinned = isServerPinnedStart(startRaw);
   const start = trialStartMs(startRaw, nowMs);
-  const trialEndsAtMs = start === null ? null : start + TRIAL_MS;
+  const trialEndsAtMs = start === null ? null : start + trialMsForStart(start);
 
   let tier = storedTier;
 
@@ -424,14 +444,14 @@ function deriveEffectiveTier(raw, nowMs) {
     plan === 'trial_7day' &&
     !premiumSince &&
     start !== null &&
-    start + TRIAL_MS >= nowMs
+    trialEndsAtMs >= nowMs
   ) {
     tier = 'trial';
   }
 
   // applyExpiry — SECOND. A `trial` that cannot prove when it began has not begun.
   if (tier === 'trial') {
-    if (start === null || start + TRIAL_MS < nowMs) tier = 'free';
+    if (start === null || trialEndsAtMs < nowMs) tier = 'free';
   }
 
   // Pass expiry (STORED-RATE-1 R5) — mirror of subscriptionService.applyExpiry's
@@ -1014,6 +1034,10 @@ module.exports = {
   STEP_SOLUTION_FEATURE,
   TRIAL_DAYS,
   TRIAL_MS,
+  LEGACY_TRIAL_DAYS,
+  TRIAL_3DAY_CUTOVER_MS,
+  trialDaysForStart,
+  trialMsForStart,
   CLOCK_SKEW_TOLERANCE_MS,
   ALLOW_EVENT,
   DENY_EVENT,

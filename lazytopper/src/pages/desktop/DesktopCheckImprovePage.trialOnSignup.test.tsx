@@ -8,7 +8,7 @@
  *   T4  every lock a signed-in Basic student meets here (P10) lists "Free on Basic:" + the
  *       Pricing Basic rows.
  *
- * Dates: the label is derived from the fixture's stored START only (start + TRIAL_DAYS),
+ * Dates: the label is derived from the fixture's stored START only (start + that trial length: 7 before the 30 Nov 2026 cutover, 3 after),
  * never from today, so this file passes at any clock (both CI LT_TEST_CLOCK instants).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
@@ -68,7 +68,7 @@ import { boardPassPriceLine } from "../../config/pricing";
 const NEW_USER = { uid: "u-new", email: "n@example.com", phoneNumber: null, displayName: "N" };
 const OLD_USER = { uid: "u-old", email: "o@example.com", phoneNumber: null, displayName: "O" };
 
-/** A stored trial start; its label is start + 7 days, "8 October 2026" style. */
+/** A stored trial start BEFORE the TRIAL-3DAY-1 cutover (a legacy 7-day trial); its label is start + 7 days, "8 October 2026" style. */
 const STORED_START = "2026-10-01T10:00:00.000Z";
 const EXPECTED_END = "8 October 2026";
 
@@ -132,7 +132,7 @@ describe("T2 — a NEW account: the confirmation replaces the offer", () => {
   it("shows the owner copy word for word with the trial's REAL end date, and starts nothing", async () => {
     const { container } = renderPage();
     const box = screen.getByTestId("free-check-trial-confirmation");
-    expect(screen.getByRole("heading", { name: "Your 7-day trial is on ✅" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Your 3-day trial is on ✅" })).toBeInTheDocument();
     expect(box.textContent).toContain(
       // TRIAL-ON-SIGNUP-1b (owner addendum, wave B-6), word for word; price = monthlyInline().
       `Ends ${EXPECTED_END}. No card, nothing to cancel. After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`,
@@ -195,14 +195,14 @@ describe("T2 — a NEW account: the confirmation replaces the offer", () => {
   it("the date follows the STORED start, not today (a different start → a different end)", () => {
     asActiveTrial("2026-12-28T04:00:00.000Z");
     renderPage();
-    expect(screen.getByTestId("free-check-trial-confirmation").textContent).toContain("Ends 4 January 2027.");
+    expect(screen.getByTestId("free-check-trial-confirmation").textContent).toContain("Ends 31 December 2026.");
   });
 
   it("'Check my next answer' → Check & Improve, fresh (the page, not the confirmation)", async () => {
     const { container } = renderPage();
     fireEvent.click(screen.getByRole("button", { name: "Check my next answer" }));
     await waitFor(() => expect(screen.getByRole("button", { name: /Read the question/ })).toBeInTheDocument());
-    expect(container.textContent).not.toContain("Your 7-day trial is on");
+    expect(container.textContent).not.toContain("Your 3-day trial is on");
     expect(H.sub.startTrial).not.toHaveBeenCalled();
     // F5 — continuing forgets the sign-up marker (display-only: nothing was started above)
     expect(H.startedAtSignUp.size).toBe(0);

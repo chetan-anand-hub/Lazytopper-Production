@@ -30,9 +30,9 @@ describe("TRIAL_WORDING - PRICE-FIXED-1: the after-trial wording names the Board
   });
 
   it("the general line, the after line, the short fragment and the link label", () => {
-    expect(TRIAL_WORDING.tryLine).toBe("Try Premium free for 7 days — no card needed.");
+    expect(TRIAL_WORDING.tryLine).toBe("Try Premium free for 3 days — no card needed.");
     expect(TRIAL_WORDING.afterLine).toBe(AFTER);
-    expect(TRIAL_WORDING.generalLine).toBe(`Try Premium free for 7 days — no card needed. ${AFTER}`);
+    expect(TRIAL_WORDING.generalLine).toBe(`Try Premium free for 3 days — no card needed. ${AFTER}`);
     expect(TRIAL_WORDING.shortFragment).toBe(SHORT);
     expect(TRIAL_WORDING.seePlans).toBe("See plans →");
   });
@@ -40,13 +40,13 @@ describe("TRIAL_WORDING - PRICE-FIXED-1: the after-trial wording names the Board
   it("every surface builds its line from the shared constant (the imported price reaches each one)", () => {
     expect(FREE_CHECK_COPY.usedTrial).toBe(TRIAL_WORDING.generalLine);
     expect(FREE_CHECK_COPY.offerBody("8 October 2026")).toBe(
-      `Try Premium free for 7 days — no card needed. Ends 8 October 2026. ${AFTER}`,
+      `Try Premium free for 3 days — no card needed. Ends 8 October 2026. ${AFTER}`,
     );
     expect(`${FREE_CHECK_COPY.confirmTitle} ${FREE_CHECK_COPY.confirmBody("8 October 2026")}`).toBe(
-      `Your 7-day trial is on ✅ Ends 8 October 2026. No card, nothing to cancel. ${AFTER}`,
+      `Your 3-day trial is on ✅ Ends 8 October 2026. No card, nothing to cancel. ${AFTER}`,
     );
     expect(`${AFTER_TRIAL_LEAD}${afterTrialRest()}`).toBe(TRIAL_WORDING.generalLine);
-    expect(tutorGateNote(true)).toBe(`Premium · part of the 7-day trial — ${SHORT}`);
+    expect(tutorGateNote(true)).toBe(`Premium · part of the 3-day trial — ${SHORT}`);
   });
 
   it("the shared constant's source types no price, no slash-month, and never says 'upgrade anytime'", () => {

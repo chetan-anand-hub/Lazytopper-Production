@@ -12,7 +12,7 @@
 //            defect was never that a trial grants premium (it does, by design, for 7
 //            days); it was that the trial's LENGTH was a client-supplied string that
 //            `applyExpiry` trusted. The end is now DERIVED from a server-pinned start
-//            plus the TRIAL_DAYS constant, and the stored field is not read at all.
+//            plus the LEGACY_TRIAL_DAYS constant, and the stored field is not read at all.
 //
 // ★ MUTATIONS — every one of these was run and shown RED before this file was committed:
 //   M1  collapse `absent` and `error` into one branch      -> test 1 or 2 red
@@ -42,7 +42,8 @@ vi.mock("firebase/firestore", () => ({
 }));
 
 import {
-  TRIAL_DAYS,
+  LEGACY_TRIAL_DAYS,
+  TRIAL_3DAY_CUTOVER_MS,
   activateTrial,
   getDaysLeftInTrial,
   hydrateSubscriptionFromCloud,
@@ -69,7 +70,14 @@ function readCache(): Record<string, unknown> | null {
 const found = (data: Record<string, unknown>) => ({ exists: () => true, data: () => data });
 const absent = { exists: () => false, data: () => undefined };
 
+// TRIAL-3DAY-1: every case below measures a LEGACY 7-day trial from "now", so the clock is pinned 30 days BEFORE the
+// cutover (the new 3-day length is covered by subscriptionService.trial3day.test.ts). Only Date is faked.
+const PRE_CUTOVER_NOW = TRIAL_3DAY_CUTOVER_MS - 30 * 24 * 60 * 60 * 1000;
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"], now: PRE_CUTOVER_NOW });
+afterEach(() => {
+  vi.useRealTimers();
+});
   localStorage.clear();
   getDocMock.mockReset();
   setDocMock.mockReset();
@@ -145,7 +153,7 @@ describe("4  a trial with no provable start is EXPIRED, not valid", () => {
 });
 
 // ===========================================================================
-// 5 — The window itself, derived from start + TRIAL_DAYS.
+// 5 — The window itself, derived from start + LEGACY_TRIAL_DAYS.
 // ===========================================================================
 describe("5  the derived trial window", () => {
   it("5a within the window -> active", async () => {
@@ -153,11 +161,11 @@ describe("5  the derived trial window", () => {
     const resolved = await hydrateSubscriptionFromCloud(UID);
     expect(resolved.tier).toBe("trial");
     expect(isPremiumAccess(resolved)).toBe(true);
-    expect(getDaysLeftInTrial(resolved)).toBe(TRIAL_DAYS - 2);
+    expect(getDaysLeftInTrial(resolved)).toBe(LEGACY_TRIAL_DAYS - 2);
   });
 
   it("5b past the window -> free", async () => {
-    getDocMock.mockResolvedValue(found({ tier: "trial", plan: "trial_7day", trialStartDate: iso(Date.now() - (TRIAL_DAYS + 1) * DAY) }));
+    getDocMock.mockResolvedValue(found({ tier: "trial", plan: "trial_7day", trialStartDate: iso(Date.now() - (LEGACY_TRIAL_DAYS + 1) * DAY) }));
     const resolved = await hydrateSubscriptionFromCloud(UID);
     expect(resolved.tier).toBe("free");
     expect(getDaysLeftInTrial(resolved)).toBe(0);

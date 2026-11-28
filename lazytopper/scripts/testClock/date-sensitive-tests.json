@@ -1190,6 +1190,7 @@
     "src/services/subscriptionService.cloudConfirmed.test.ts",
     "src/services/subscriptionService.entitlement.test.ts",
     "src/services/subscriptionService.payPhoneRace.test.ts",
+    "src/services/subscriptionService.trial3day.test.ts",
     "src/services/subscriptionService.trialActivation.test.ts",
     "src/services/subscriptionService.trialSave.test.ts",
     "src/services/tutorActivity.secondDevice.test.tsx",

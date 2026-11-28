@@ -331,6 +331,12 @@ const ENDPOINTS = [
 
 /** Two pinned instants: an IST afternoon, and one minute before IST midnight. */
 const INSTANTS = [Date.parse("2026-11-20T09:30:00.000Z"), Date.parse("2026-12-14T18:29:00.000Z")];
+/**
+ * TRIAL-3DAY-1: a trial that started before this instant lasts 7 days, one that started at/after it 3 (mirror of
+ * entitlement.cjs TRIAL_3DAY_CUTOVER_MS). The first INSTANT is before it (legacy trials), the second after (3-day trials),
+ * so the same fixtures prove the admin plan/daysLeft/timeline are right for BOTH lengths.
+ */
+const TRIAL_CUTOVER_MS = Date.parse("2026-11-30T00:00:00+05:30");
 
 describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
   function smallWorld(): World {
@@ -418,7 +424,7 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       users.reverse();
       users.push(user("veteran0001", Date.parse("2026-06-01T05:00:00Z"), { providerData: [{ providerId: "google.com" }] }));
       const store: Record<string, Data> = {
-        // stu000: trial started 2 days ago (server-pinned) -> trial, 5 days left
+        // stu000: trial started 2 days ago (server-pinned) -> trial; 5 days left on a legacy 7-day trial, 1 on a 3-day one
         "subscriptions/stu000": { tier: "trial", plan: "trial_7day", trialStartDate: ts(NOW - 2 * DAY) },
         // stu001: premium pass until NOW + 30 d
         "subscriptions/stu001": { tier: "premium", plan: "pass_month", passEnd: ts(NOW + 30 * DAY) },
@@ -469,7 +475,7 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       const w = buildRoutes(listWorld());
       const all = await w.get("/api/admin/students", "admin-token");
       const byUid = Object.fromEntries(all.body.rows.map((r: { uid: string }) => [r.uid, r]));
-      expect(byUid.stu000.plan).toMatchObject({ kind: "trial", daysLeft: 5 });
+      expect(byUid.stu000.plan).toMatchObject({ kind: "trial", daysLeft: NOW >= TRIAL_CUTOVER_MS ? 1 : 5 });
       expect(byUid.stu001.plan).toEqual({ kind: "premium", premiumUntilMs: Math.floor((NOW + 30 * DAY) / 1000) * 1000 });
       expect(byUid.stu002.plan).toEqual({ kind: "basic" }); // expired trial is Basic, never "trial"
       expect(byUid.stu003.plan).toEqual({ kind: "basic" }); // no document
@@ -728,8 +734,12 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       const d2 = mod.addIstDays(d1, 1);
       const d3 = mod.addIstDays(d1, 2);
       const tl = r.body.timeline as Array<Record<string, unknown> & { day: string; dayNumber: number }>;
-      expect(tl.map((d) => d.day)).toEqual([d1, d2, d3]);
-      expect(tl.map((d) => d.dayNumber)).toEqual([1, 2, 3]);
+      // TRIAL-3DAY-1: after the cutover this trial (started 5 days ago) was a 3-day trial and ENDED on day 4: one more timeline day.
+      const threeDay = NOW >= TRIAL_CUTOVER_MS;
+      const d4 = mod.addIstDays(d1, 3);
+      expect(tl.map((d) => d.day)).toEqual(threeDay ? [d1, d2, d3, d4] : [d1, d2, d3]);
+      expect(tl.map((d) => d.dayNumber)).toEqual(threeDay ? [1, 2, 3, 4] : [1, 2, 3]);
+      if (threeDay) expect((tl[3] as unknown as { plan: { kind: string }[] }).plan.map((p) => p.kind)).toEqual(["trial-ended"]);
 
       const day1 = tl[0] as unknown as { plan: { kind: string }[] };
       expect(day1.plan.map((p) => p.kind)).toEqual(["signed-up", "trial-started"]);
@@ -757,7 +767,7 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       expect(day3.mocks).toEqual([{ subject: "Maths", totalMarks: 52, maxMarks: 80, percent: 65, atMs: mod.istDayStartMs(d3) + 18 * 3600_000 }]);
       expect(day3.plan).toEqual([{ kind: "payment", atMs: mod.istDayStartMs(d3) + 19 * 3600_000, passType: "month", pricePaidInr: 299 }]);
 
-      expect(r.body.student.plan).toMatchObject({ kind: "trial" });
+      expect(r.body.student.plan).toMatchObject({ kind: threeDay ? "basic" : "trial" });
       expect(r.body.reads.activityLog).toBe("complete");
     });
 

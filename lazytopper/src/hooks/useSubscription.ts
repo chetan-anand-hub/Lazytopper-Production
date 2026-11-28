@@ -125,7 +125,7 @@ export function useSubscription(): UseSubscriptionResult {
     hydrateSubscriptionFromCloud(uid).then((cloud) => {
       // READ the cloud status only — never activate a trial here. Trial activation is
       // user-initiated (startTrial) exclusively; auto-activating on hydration silently
-      // burned a student's 7-day trial the moment any page mounted this hook, before
+      // burned a student's 3-day trial the moment any page mounted this hook, before
       // they did anything. hydrateSubscriptionFromCloud already returns the correct
       // status for every case: premium / active-trial / expired-trial resolve to the
       // cloud record, and a fresh user resolves to a free defaultStatus().

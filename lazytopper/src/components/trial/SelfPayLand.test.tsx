@@ -100,14 +100,14 @@ describe("SELF-PAY-LAND-1 interstitial suppression", () => {
   it("existing account with an EXPIRED trial: ordinary /packs visit shows the screen (rules unchanged) ...", async () => {
     hydrate.mockResolvedValue(expired);
     renderAt("/packs#my-packs");
-    expect(await screen.findByRole("heading", { name: "Your free week is over" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Your free trial is over" })).toBeInTheDocument();
   });
   it("... but the paid landing /packs?from=pay#my-packs shows no screen and no countdown bar", async () => {
     hydrate.mockResolvedValue(expired);
     renderAt("/packs?from=pay#my-packs");
     await settle();
     expect(screen.queryByTestId("trial-end-screen")).toBeNull();
-    expect(screen.queryByRole("heading", { name: "Your free week is over" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Your free trial is over" })).toBeNull();
     expect(readRecords).not.toHaveBeenCalled();
   });
   it("brand-new account with no trial on record: nothing shows either way", async () => {

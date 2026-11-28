@@ -13,21 +13,22 @@
 import { VALIDITY_SHORT } from "../../config/validity";
 import { TRIAL_DAYS } from "../../services/subscriptionService";
 import { boardPassPriceDisplay, foundingOfferOpen, FOUNDING_OFFER_LAST_DAY_LABEL } from "../../config/pricing";
-import { TRIAL_BAR_FIRST_DAY, trialBannerTiming } from "./trialEndBannerModel";
+import { TRIAL_BAR_FIRST_DAY, trialBannerTiming, trialBarFirstDay } from "./trialEndBannerModel";
 
-/** The strip shows on trial days 1 .. (TRIAL_BAR_FIRST_DAY - 1); the countdown bar takes over after. */
+/** The strip shows on trial days 1 .. (the bar's first day - 1); the countdown bar takes over after. Legacy 7-day trial: days 1-3; a 3-day trial (TRIAL-3DAY-1): day 1. */
 export const TRIAL_STRIP_LAST_DAY = TRIAL_BAR_FIRST_DAY - 1;
 
 /** The 1-based IST trial day when the strip applies, else null (no / future / ended trial, or day 4+). */
 export function trialEarlyStripDay(trialStartIso: string | null | undefined, nowMs: number): number | null {
   const timing = trialBannerTiming(trialStartIso, nowMs, 1);
   if (!timing) return null;
-  return timing.dayOfTrial >= 1 && timing.dayOfTrial <= TRIAL_STRIP_LAST_DAY ? timing.dayOfTrial : null;
+  const lastDay = trialBarFirstDay(timing.trialDays) - 1;
+  return timing.dayOfTrial >= 1 && timing.dayOfTrial <= lastDay ? timing.dayOfTrial : null;
 }
 
-/** "Trial: day 2 of 7" */
-export function trialEarlyStripDayText(day: number): string {
-  return `Trial: day ${day} of ${TRIAL_DAYS}`;
+/** "Trial: day 2 of 7" (a legacy trial) / "Trial: day 1 of 3". `trialDays` defaults to the current length. */
+export function trialEarlyStripDayText(day: number, trialDays: number = TRIAL_DAYS): string {
+  return `Trial: day ${day} of ${trialDays}`;
 }
 
 /** "Board Pass ₹1,917 · valid till 28 Feb 2027 (founding offer till 30 November)" - the note only while the offer is open. */

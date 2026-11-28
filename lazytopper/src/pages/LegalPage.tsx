@@ -321,7 +321,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <h2>All payments are final</h2>
         <p>All payments are final. LazyTopper does not give refunds. Please use the free trial to decide before you pay.</p>
         <h2>Free Trial</h2>
-        <p>LazyTopper offers a 7-day free trial of Premium features. No payment is required during the trial.</p>
+        <p>LazyTopper offers a 3-day free trial of Premium features. No payment is required during the trial.</p>
         <h2>Month Pass</h2>
         <p>A Month Pass bought before 1 Nov 2026 gives you Premium for one month from the day you paid. It does not renew automatically. No refund.</p>
         <h2>Board Pass</h2>

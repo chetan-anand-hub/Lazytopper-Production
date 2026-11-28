@@ -206,7 +206,7 @@ describe("Welcome — the price is read from the pricing config, never typed", (
 describe("Welcome — no trial is promised anywhere", () => {
   // ⚠ §2.4. `startTrial()` has exactly one production caller, a button inside the
   // premium gate (RequireAuth.tsx:74). A new account is signed-in FREE, not trial.
-  // "Free to start" is true; "free for 7 days" beside a sign-up button would be a
+  // "Free to start" is true; "free for 3 days" beside a sign-up button would be a
   // promise the product does not keep — the fake-trial-activation the doctrine
   // forbids, told the other way round.
   it("renders no 7-day / trial promise in any CTA subtext", () => {

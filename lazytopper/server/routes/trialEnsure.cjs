@@ -1,7 +1,7 @@
 /**
  * trialEnsure.cjs — POST /api/trial/ensure-signup (TRIAL-SAVE-1)
  *
- * A NEW account's 7-day trial is started by the browser at sign-up (activateTrial ->
+ * A NEW account's 3-day trial is started by the browser at sign-up (activateTrial ->
  * subscriptionService.saveCloud). That write can fail (flaky network, a rules/App-Check
  * hiccup) and the browser swallowed the failure: the next load read "no document", wrote the
  * free default over the local trial and the student sat on Basic with no trial and no retry.

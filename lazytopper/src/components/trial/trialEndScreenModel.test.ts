@@ -72,9 +72,9 @@ describe("seen + feedback deferral", () => {
 describe("trialEndActivityLine", () => {
   it("real counts, plural-aware; nothing real to say (zero or unreadable) means NO line", () => {
     expect(trialEndActivityLine({ checks: 3, tests: 1, practiceSets: 2 })).toBe(
-      "In your free week: 3 answers checked, 1 test taken, 2 practice sets finished.",
+      "In your free trial: 3 answers checked, 1 test taken, 2 practice sets finished.",
     );
-    expect(trialEndActivityLine({ checks: 1, tests: 0, practiceSets: 0 })).toBe("In your free week: 1 answer checked.");
+    expect(trialEndActivityLine({ checks: 1, tests: 0, practiceSets: 0 })).toBe("In your free trial: 1 answer checked.");
     expect(trialEndActivityLine({ checks: 0, tests: 0, practiceSets: 0 })).toBeNull();
     expect(trialEndActivityLine(null)).toBeNull();
   });

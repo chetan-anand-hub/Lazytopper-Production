@@ -88,7 +88,7 @@ export function deriveAccountStatus({
         daysLeftInTrial <= 1
           ? "Trial ends today"
           : `Trial active - ${daysLeftInTrial} days left`,
-      detail: "Your 7-day trial is tied to this account.",
+      detail: "Your 3-day trial is tied to this account.",
       color: urgent ? "hsl(32, 95%, 38%)" : "hsl(152, 55%, 30%)",
       bg: urgent ? "hsla(32,95%,50%,0.12)" : "hsla(152,55%,45%,0.12)",
       border: urgent ? "hsla(32,95%,50%,0.28)" : "hsla(152,55%,45%,0.25)",

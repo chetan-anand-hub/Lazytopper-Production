@@ -1,7 +1,7 @@
 /**
  * trialCta — ASK-COPY-1. The trial-first lead on the "make the ask" surfaces (the tutor card, the
  * upgrade sheet, the scorecard upgrade line). Owner ruling 25 Oct 2026 [FU-TRIAL-CTA-ON-ASK]:
- * where the student can still start the free week, "Start your free 7-day trial" leads and the
+ * where the student can still start the free week, "Start your free 3-day trial" leads and the
  * Board Pass is second. Never a second trial: eligibility is the one /pricing uses (`trialEligible`
  * in PricingPage.tsx) and the server still decides - a refused write never extends anything.
  *
@@ -12,10 +12,10 @@ import { useAuth } from "../../context/AuthContext";
 import { trackNamedEvent } from "../../analytics/analytics";
 import { activateTrial, type SubscriptionStatus } from "../../services/subscriptionService";
 
-export const START_TRIAL_LABEL = "Start your free 7-day trial";
-export const TRIAL_STARTED_LINE = "Your 7-day trial has started.";
+export const START_TRIAL_LABEL = "Start your free 3-day trial";
+export const TRIAL_STARTED_LINE = "Your 3-day trial has started.";
 /** The signed-out tutor gate note (replaces "Log in to open your tutor"). */
-export const SIGNUP_TUTOR_LEAD = "Sign up free — 7 days of the tutor and step marking.";
+export const SIGNUP_TUTOR_LEAD = "Sign up free — 3 days of the tutor and step marking.";
 
 /**
  * Same rule as PricingPage's `trialEligible`: the record is KNOWN (hydrated - an empty cache on a

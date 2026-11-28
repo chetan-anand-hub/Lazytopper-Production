@@ -2,7 +2,7 @@
  * freeCheckOneQuestion.cjs - FREECHECK-ONEQ-1: a signed-out FREE CHECK grades ONE question.
  *
  * Owner ruling (21 Nov 2026): the free Answer Checker upload marks only the FIRST question of the
- * page; the rest are shown to the visitor ungraded (the 7-day free trial covers them). Before this,
+ * page; the rest are shown to the visitor ungraded (the 3-day free trial covers them). Before this,
  * a multi-question upload on /api/grade-worksheet graded every question for free.
  *
  * WHERE: index.cjs calls `apply` ONLY for an ADMITTED free check (freeCheckGate.admit passed) on

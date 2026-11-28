@@ -30,7 +30,7 @@ describe("BoardPassLine and the label helpers", () => {
   it("the Premium lock shows the Board Pass price, says 'Try the Board Pass free', and not 'everything'", async () => {
     render(<MemoryRouter><RequirePremium featureLabel="Tutor"><div>in</div></RequirePremium></MemoryRouter>);
     expect(await screen.findByTestId("lock-amount")).toHaveTextContent(boardPassPriceNow()!);
-    expect(screen.getByText(/Try the Board Pass free for 7 days/)).toBeInTheDocument();
+    expect(screen.getByText(/Try the Board Pass free for 3 days/)).toBeInTheDocument();
     expect(screen.queryByText(/Try everything free/)).toBeNull();
   });
   it("the upgrade modal shows it", async () => {

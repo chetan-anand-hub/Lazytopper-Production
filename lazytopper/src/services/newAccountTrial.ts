@@ -3,7 +3,7 @@ import { activateTrial, loadSubscription } from "./subscriptionService";
 import { trackNamedEvent } from "../analytics/analytics";
 
 /**
- * TRIAL-ON-SIGNUP-1 — owner ruling (Option A, 2026-09-30): a BRAND-NEW account's 7-day
+ * TRIAL-ON-SIGNUP-1 — owner ruling (Option A, 2026-09-30): a BRAND-NEW account's 3-day
  * trial starts AT SIGN-UP, ONCE. Existing accounts and logins never start one.
  *
  * This module only CALLS the existing `activateTrial(uid)`. Its own guards (premium, or a
