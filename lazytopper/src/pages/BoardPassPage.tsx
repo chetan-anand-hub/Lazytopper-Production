@@ -1,4 +1,7 @@
 import { VALIDITY_LONG } from "../config/validity";
+import Cc27DetailBlock from "../components/crashCourse/Cc27DetailBlock";
+import Cc27HolderSection from "../components/crashCourse/Cc27HolderSection";
+import Cc27Chip from "../components/crashCourse/Cc27Chip";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import RestoredPurchaseCard from "../components/checkoutWho/RestoredPurchaseCard";
 import { Link, useNavigate } from "react-router-dom";
@@ -323,6 +326,7 @@ export default function BoardPassPage() {
               <FoundingCountdown />
               <p className="lt-sp-eyebrow lt-bp-hero__eyebrow">{BP_EYEBROW}</p>
               <h1 id="bp-h1" className="lt-bp-hero__h1">{BP_H1}</h1>
+              <Cc27Chip product="pass" />
               <div className="lt-bp-minute">
                 <span className="lt-bp-minute__tile">{BP_MINUTE_TILE}</span>
                 <p className="lt-bp-minute__text">
@@ -383,6 +387,10 @@ export default function BoardPassPage() {
             {video}
           </section>
         )}
+
+        {/* CC27-SITE-1: the bonus. Holders get the download rows; everyone else reads what is inside. */}
+        <div className="lt-sp__w"><Cc27HolderSection holder="pass" /></div>
+        <div className="lt-sp__w"><Cc27DetailBlock product="pass" /></div>
 
         <section className="lt-sp__w" aria-labelledby="bp-what-h">
           <h2 id="bp-what-h" className="lt-sp-h2">{BP_WHAT_TITLE}</h2>

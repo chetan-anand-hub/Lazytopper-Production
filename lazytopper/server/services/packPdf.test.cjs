@@ -743,3 +743,80 @@ test('/mine bonusBooks: listed only for an owned CBQ Pack whose book is uploaded
   const off = await bonusHarness({ owned: [['u1', CBQ_M]], env: { BONUS_BOOK_DISABLED: 'on' } });
   assert.equal('bonusBooks' in (await off.mine()).body, false);
 });
+
+// ---- CC27-SITE-1: the Crash Course 2027 bonus ladder ------------------------------------------------------------------------
+const CC = 'packs/bonus/cc27/';
+const BP = { tier: 'premium', passType: 'till_boards', passEnd: new Date(NOW + 90 * 86400000) };
+async function ccHarness(opts = {}, uploaded = 'all') {
+  const h = await harness(opts);
+  const { CC27_FILES } = require('./cc27Bonus.cjs');
+  for (const [k, m] of Object.entries(CC27_FILES)) if (uploaded === 'all' || uploaded.includes(k)) h.objects.set(m.path, { bytes: Buffer.from('%PDF-1.4 cc27'), metadata: {} });
+  return { ...h, link: (fileKey, uid) => h.call('handleCc27Link', { fileKey }, uid), mine: (uid) => h.call('handleMine', {}, uid) };
+}
+const keysOf = async (o) => (await (await ccHarness(o)).mine()).body.cc27 || [];
+
+test('cc27 ladder: Board Pass and Test Series get both books and every chapter file (even with no pack)', async () => {
+  for (const o of [{ subscription: BP }, { owned: [['u1', 'test_series:all']] }, { owned: [['u1', 'pack_bundle:all']] }]) {
+    const k = await keysOf(o);
+    assert.ok(k.includes('book:maths') && k.includes('book:science'));
+    assert.equal(k.length, 2 + 27, 'both books + 27 chapter files (trigonometry is two)');
+  }
+});
+
+test('cc27 ladder: Subject pack = its book + its chapters; CBQ pack = its book only; Chapter pack = only that chapter; Mock pack / nothing = none', async () => {
+  const subj = await keysOf({ owned: [['u1', 'pack_subject:science']] });
+  assert.ok(subj.includes('book:science') && !subj.includes('book:maths') && subj.every((k) => k === 'book:science' || k.startsWith('ch:science-')));
+  assert.equal(subj.length, 1 + 13);
+  assert.deepEqual(await keysOf({ owned: [['u1', 'pack_cbq:maths']] }), ['book:maths']);
+  assert.deepEqual(await keysOf({ owned: [['u1', 'pack_chapter:triangles']] }), ['ch:maths-triangles']);
+  assert.deepEqual((await keysOf({ owned: [['u1', 'pack_chapter:trigonometry']] })).sort(), ['ch:maths-trigonometry-applications', 'ch:maths-trigonometry-intro']);
+  assert.equal((await keysOf({ owned: [['u1', 'pack_chapter:arithmetic-progression']] }))[0], 'ch:maths-arithmetic-progression');
+  assert.deepEqual(await keysOf({ owned: [['u1', 'pack_mock:maths']] }), []);
+  assert.deepEqual(await keysOf({}), []);
+  assert.deepEqual(await keysOf({ subscription: { tier: 'free', passEnd: new Date(NOW + 86400000) } }), [], 'a stray passEnd is not a Board Pass');
+});
+
+test('cc27-link: entitled -> signed link to the fixed object (one download recorded); not entitled 403; unknown 404; bad body 400; 401', async () => {
+  const h = await ccHarness({ owned: [['u1', 'pack_chapter:triangles']] });
+  const ok = await h.link('ch:maths-triangles');
+  assert.equal(ok.status, 200);
+  assert.equal(h.signed[0].path, `${CC}cc27-maths-triangles.pdf`);
+  assert.equal((await h.link('book:maths')).body.error, 'not_owned');
+  assert.equal((await h.link('ch:maths-circles')).status, 403);
+  assert.equal((await h.link('ch:maths-nope')).status, 404);
+  assert.equal((await h.link(42)).status, 400);
+  assert.equal((await h.link('ch:maths-triangles', '')).status, 401);
+  assert.equal((await h.link('book:maths', 'someone-else')).status, 403);
+  const late = await ccHarness({ owned: [['u1', 'pack_chapter:triangles']], now: Date.parse('2027-06-02T12:00:00+05:30') });
+  assert.equal((await late.link('ch:maths-triangles')).status, 403);
+});
+
+test('cc27: object missing -> row hidden and link 503 not_ready; kill switches -> no rows and 404', async () => {
+  const h = await ccHarness({ owned: [['u1', 'pack_cbq:maths']] }, []);
+  assert.equal('cc27' in (await h.mine()).body, false);
+  assert.equal((await h.link('book:maths')).status, 503);
+  assert.equal(h.signed.length, 0);
+  for (const env of [{ CC27_BONUS_DISABLED: '1' }, { PACK_SERVER_PDF_DISABLED: 'true' }]) {
+    const off = await ccHarness({ owned: [['u1', 'pack_cbq:maths']], env });
+    assert.equal('cc27' in (await off.mine()).body, false);
+    assert.equal((await off.link('book:maths')).status, 404);
+  }
+  const partial = await ccHarness({ owned: [['u1', 'pack_bundle:all']] }, ['book:maths']);
+  assert.deepEqual((await partial.mine()).body.cc27, ['book:maths']);
+});
+
+test('cc27-link: a trial, an expired pass and malformed keys are refused (403 / 404)', async () => {
+  const trial = await ccHarness({ subscription: { tier: 'trial', trialStartDate: new Date(NOW - 86400000) } });
+  assert.equal((await trial.link('book:maths')).status, 403);
+  const expired = await ccHarness({ subscription: { tier: 'premium', passType: 'till_boards', passEnd: new Date(NOW - 86400000) } });
+  assert.equal((await expired.link('book:maths')).status, 403);
+  const h = await ccHarness({ subscription: BP });
+  for (const k of ['../files/x', 'BOOK:maths', '__proto__']) {
+    const r = await h.link(k);
+    assert.ok(r.status === 404 || r.status === 400, `${k} -> ${r.status}`);
+    assert.equal(h.signed.length, 0);
+  }
+  assert.equal((await h.link('BOOK:maths')).status, 404);
+  assert.equal((await h.link('__proto__')).status, 404);
+  assert.equal((await h.link('book:maths')).status, 200);
+});

@@ -15,6 +15,7 @@
  * Kept light on purpose: this module is imported by the pricing page's packs strip. The bank, jsPDF and
  * the PDF exporter live in src/lib/packs/** and are reached only through dynamic imports.
  */
+import { isCc27ClientEnabled, isCc27FileKey } from "../config/crashCourse";
 import { BUNDLE_CHAPTERS, BUNDLE_MOCKS } from "../lib/packs/packLabels";
 import { FOUNDING_OFFER_LAST_DAY_LABEL, boardPassGstExclusive, buyDisplay, displayPlusGst, foundingOfferOpen, gstBreakdownFor, payDisplay, priceWithGst } from "../config/pricing";
 import { ACTIVITY_TOPIC_SLUGS } from "./activityPages";
@@ -271,6 +272,8 @@ export interface MyPacks {
   freeTest?: TestSeriesFreeTest;
   /** BONUS-BOOK-1 - the owned CBQ Packs (`pack_cbq:<subject>`) whose complete-book bonus PDF the server can hand out; absent until uploaded. */
   bonusBooks?: string[];
+  /** CC27-SITE-1 - the Crash Course 2027 file keys (`book:<subject>`, `ch:<subject>-<chapter>`) the SERVER says this account may download and that are uploaded; absent otherwise. */
+  cc27?: string[];
 }
 
 /** BONUS-BOOK-1 - the server's `bonusBooks` -> only CBQ Pack ids, or an empty list. PURE. */
@@ -518,7 +521,7 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     }
     throw new Error(`request failed: ${res.status}`);
   }
-  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown; ownsTestSeries?: unknown; testSeries?: unknown; freeTest?: unknown; bonusBooks?: unknown };
+  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown; ownsTestSeries?: unknown; testSeries?: unknown; freeTest?: unknown; bonusBooks?: unknown; cc27?: unknown };
   const packs = Array.isArray(json.packs) ? json.packs.map(readOwned).filter((p): p is OwnedPack => p !== null) : [];
   const licensee: PackLicensee = {
     name: typeof json.licensee?.name === "string" ? json.licensee.name : "",
@@ -538,6 +541,8 @@ export async function fetchMyPacks(): Promise<MyPacks> {
   const freeTest = json.ownsTestSeries === true ? null : readTestSeriesFreeTest(json.freeTest);
   // BONUS-BOOK-1: only for a CBQ Pack this response also lists as owned.
   const bonusBooks = readBonusBooks(json.bonusBooks).filter((id) => packs.some((p) => p.packId === id));
+  // CC27-SITE-1: only well-formed file keys, and nothing at all while the client kill switch is on.
+  const cc27 = isCc27ClientEnabled() && Array.isArray(json.cc27) ? [...new Set(json.cc27.filter(isCc27FileKey))] : [];
   return {
     packs,
     licensee,
@@ -548,6 +553,7 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     ...(testSeriesUpgrade ? { testSeriesUpgrade } : {}),
     ...(freeTest ? { freeTest } : {}),
     ...(bonusBooks.length > 0 ? { bonusBooks } : {}),
+    ...(cc27.length > 0 ? { cc27 } : {}),
   };
 }
 

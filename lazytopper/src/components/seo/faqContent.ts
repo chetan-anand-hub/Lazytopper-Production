@@ -72,6 +72,35 @@ export const CBQ_HUB_FAQ: readonly FaqItem[] = [
   },
 ];
 
+// CC27-SITE-1 - the Crash Course 2027 landing FAQ. Number-free (no price) and "free" appears only as "included free with".
+export const CRASH_COURSE_FAQ: readonly FaqItem[] = [
+  {
+    question: "What is the Class 10 Crash Course 2027?",
+    answer:
+      "A revision set for CBSE Class 10 Maths and Science: a 1-page revision sheet for every chapter, NCERT diagrams, the most-asked board questions with marking schemes, and a 75-day plan to the boards. It is made by an IITian from IIT Kanpur.",
+  },
+  {
+    question: "Can I buy the Crash Course on its own?",
+    answer:
+      "No. It is a bonus included free with the Board Pass, the Pre-Boards Test Series, the Maths + Science Bundle, a Subject Pack, a CBQ Pack or a Chapter Pack. A Chapter Pack includes that chapter's sheet(s).",
+  },
+  {
+    question: "Which Crash Course files come with which purchase?",
+    answer:
+      "The Board Pass, the Test Series Pack and the Maths + Science Bundle include both subject books and every chapter sheet. A Subject Pack includes that subject's book and its chapter sheets. A CBQ Pack includes the book for its subject. A Chapter Pack includes that chapter's sheet(s).",
+  },
+  {
+    question: "Does the Crash Course cover the 2026-27 syllabus?",
+    answer:
+      "Yes. It follows the CBSE 2026-27 Class 10 Maths and Science syllabus. Topics removed from that syllabus are not in it.",
+  },
+  {
+    question: "Can I try a sample before buying?",
+    answer:
+      "Yes. The Start Here guide and one full chapter sheet (Triangles) can be downloaded from this page.",
+  },
+];
+
 // SEO-PAGES-1 — the FAQ on the three search-landing pages (src/components/seoPages/seoPages.ts). Number-free like the
 // rest of this file: the pack prices are shown on the page from the pack helpers, never typed here.
 export const MOCK_TEST_FAQ: readonly FaqItem[] = [
@@ -306,6 +335,7 @@ export function faqItemsForPath(path: string): readonly FaqItem[] | null {
   if (path === "/question-bank-class-10") return QUESTION_BANK_FAQ;
   if (path === "/sample-paper-class-10") return SAMPLE_PAPER_FAQ;
   if (path === "/cbse-marking-scheme-class-10") return MARKING_SCHEME_FAQ;
+  if (path === "/class-10-crash-course-2027") return CRASH_COURSE_FAQ; // CC27-SITE-1
   // SEO-LLM-2 — the pack pages and the two important-questions pages.
   if (path === "/packs") return PACKS_ANSWER_FAQ;
   if (path === "/cbq-packs") return CBQ_PACKS_ANSWER_FAQ;

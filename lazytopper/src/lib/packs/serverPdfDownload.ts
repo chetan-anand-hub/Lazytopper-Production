@@ -8,7 +8,7 @@
  */
 import type { AuthUser } from "../../context/AuthContext";
 import { registerPackPaper } from "./packPaperRecord";
-import { requestBonusLink, requestFileLink, requestGuestZipLink, requestZipLink, type LinkDeps, type LinkResult, type ServerFileLink, type ServerLinkFailure, type ServerPaper, type ServerZipLink } from "./serverPdfLinks";
+import { requestBonusLink, requestCc27Link, requestFileLink, requestGuestZipLink, requestZipLink, type LinkDeps, type LinkResult, type ServerFileLink, type ServerLinkFailure, type ServerPaper, type ServerZipLink } from "./serverPdfLinks";
 
 export interface ServerDownloadDeps extends LinkDeps {
   /** Test seam: replaces the anchor click that starts the browser download. */
@@ -71,6 +71,11 @@ export async function downloadZipFromServer(args: { packId: string; groupId: str
 /** GUEST-ZIP-1: the whole pack as one ZIP for a signed-out buyer (the receipt proof is the credential). `{ok:false}` means nothing was downloaded. */
 export async function downloadGuestZipFromServer(args: { proof: { orderId: string; paymentId: string; signature: string }; groupId?: string; expectCodes?: readonly string[] }, deps: ServerDownloadDeps = {}): Promise<Done> {
   return finish(await requestGuestZipLink(args.proof, deps, args.groupId), null, deps, args.expectCodes);
+}
+
+/** CC27-SITE-1: one Crash Course 2027 file. `{ok:false}` means nothing was downloaded (the row offers Retry; there is no browser build). */
+export async function downloadCc27FromServer(args: { fileKey: string }, deps: ServerDownloadDeps = {}): Promise<Done> {
+  return finish(await requestCc27Link(args.fileKey, deps), null, deps);
 }
 
 /** BONUS-BOOK-1: the CBQ Pack's complete book. `{ok:false}` means nothing was downloaded (the row offers Retry; there is no browser build). */

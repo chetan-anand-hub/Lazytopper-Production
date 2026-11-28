@@ -1,4 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import Cc27DetailBlock from "../components/crashCourse/Cc27DetailBlock";
+import Cc27HolderSection from "../components/crashCourse/Cc27HolderSection";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
@@ -715,6 +717,10 @@ export default function TestSeriesPage() {
                   </>
                 )}
               </section>
+
+              {/* CC27-SITE-1: the bonus. Holders get the download rows; everyone else reads what is inside. */}
+              <div className="lt-sp__w"><Cc27HolderSection holder="series" /></div>
+              <div className="lt-sp__w"><Cc27DetailBlock product="ts" /></div>
 
               <section className="lt-sp__w lt-ts-sec" aria-labelledby="ts-how-h">
                 <div className="lt-ts-how" data-testid="ts-how">

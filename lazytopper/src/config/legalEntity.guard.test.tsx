@@ -56,6 +56,7 @@ const P8_PAGES = [
   "mock-test-class-10.html",
   "question-bank-class-10.html",
   "cbse-marking-scheme-class-10.html",
+  "class-10-crash-course-2027.html", // CC27-SITE-1 - the Crash Course landing renders the public footer
   "sample-paper-class-10.html", // SEO-SELL-3 - the sample-paper landing
   // SOLUTIONS-1/2: every published solutions page carries the public footer (derived, not hand-listed).
   ...solutionsPaths().map((p) => `${p.slice(1)}.html`),

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import Cc27DetailBlock from "../components/crashCourse/Cc27DetailBlock";
+import Cc27Chip from "../components/crashCourse/Cc27Chip";
 import RestoredPurchaseCard from "../components/checkoutWho/RestoredPurchaseCard";
 import { currentSalesPageSurface, setSalesPageSurface } from "../analytics/analytics";
 import { preloadBuyChunks, warmPacksCheckout } from "../components/packs/PacksShop";
@@ -72,6 +74,7 @@ export default function CbqPacksPage() {
           {(api) => <CbqCatalogue api={api} subject={subject} onSubject={setSubject} />}
         </PacksShop>
         <div className="lt-sp__w">
+          <Cc27DetailBlock product="cbq" />
           {/* SEO-LLM-2: always-visible quick answers (the FAQPage JSON-LD in the head is these same items). */}
           <SeoFaq headingId="cq-answers-h" heading="CBQ practice for Class 10: quick answers" items={CBQ_PACKS_ANSWER_FAQ} />
           <SalesFaq items={CBQ_FAQ} headingId="cq-faq-h" testId="cq-faq" />
@@ -96,6 +99,7 @@ function CbqCatalogue({ api, subject, onSubject }: { api: PacksShopApi; subject:
         <div className="lt-sp__w">
           <p className="lt-sp-eyebrow lt-cq-hero__eyebrow">{CBQ_EYEBROW}</p>
           <h1 id="cq-h1" className="lt-cq-hero__h1">{CBQ_H1}</h1>
+          <Cc27Chip product="cbq" />
           <p className="lt-cq-hero__lede">{CBQ_LEDE}</p>
           <div className="lt-cq-tiles">
             {CBQ_TILES.map((t) => (

@@ -117,6 +117,10 @@
       "destination": "/__shell.html"
     },
     {
+      "source": "/:path(class-10-crash-course-2027/?)",
+      "destination": "/__shell.html"
+    },
+    {
       "source": "/:path(question-bank-class-10/?)",
       "destination": "/__shell.html"
     },

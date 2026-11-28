@@ -18,6 +18,8 @@ import { SOLUTIONS_PAGES, solutionsPath } from "../../config/solutionsPages";
 export const MOCK_TEST_PATH = "/mock-test-class-10";
 export const QUESTION_BANK_PATH = "/question-bank-class-10";
 export const MARKING_SCHEME_PATH = "/cbse-marking-scheme-class-10";
+/** CC27-SITE-1: the Crash Course 2027 landing. It shares the shell, head and breadcrumb model but is NOT one of the three cross-linked pages. */
+export const CRASH_COURSE_PATH = "/class-10-crash-course-2027";
 /**
  * SEO-SELL-3 (owner, 28 Nov 2026): the sample-paper search landing, "class 10 maths sample paper". It has a spec (so its head, breadcrumb
  * and prerender come from this model like the three above) but is NOT in SEO_PAGES_PATHS: that list is the three pages' own cross-link
@@ -84,6 +86,16 @@ export const SEO_PAGE_SPECS: Readonly<Record<string, SeoPageSpec>> = {
     description:
       "How CBSE Class 10 marking works for 2027: marks by section, step marking, error carried forward, units and diagrams, with the official source.",
     linkLabel: "CBSE marking scheme",
+  },
+  // CC27-SITE-1: no price, no "free" in the head (a bonus inside paid products).
+  [CRASH_COURSE_PATH]: {
+    path: CRASH_COURSE_PATH,
+    crumb: "Class 10 Crash Course 2027",
+    h1: "Class 10 Crash Course 2027 — PYQs & Important Questions",
+    title: "Class 10 Crash Course 2027: PYQs & Important Questions",
+    description:
+      "Class 10 Crash Course 2027 for CBSE Maths and Science: 1-page chapter revision, NCERT diagrams, most-asked board questions and a 75-day plan.",
+    linkLabel: "Class 10 Crash Course 2027",
   },
 };
 

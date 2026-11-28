@@ -63,6 +63,7 @@ export const ROUTE_PARENTS: ReadonlyArray<readonly [string, RouteNavEntry]> = [
   ["/cbq-class-10", { parent: "/" }],
   // SEO-PAGES-1: the three search-landing pages hang off Home, like the other public guides.
   ["/mock-test-class-10", { parent: "/" }],
+  ["/class-10-crash-course-2027", { parent: "/" }], // CC27-SITE-1
   ["/question-bank-class-10", { parent: "/" }],
   ["/cbse-marking-scheme-class-10", { parent: "/" }],
   ["/sample-paper-class-10", { parent: "/" }],

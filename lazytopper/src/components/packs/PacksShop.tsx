@@ -1,4 +1,5 @@
 import { Suspense, lazy, type MutableRefObject, type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import Cc27Rows from "../crashCourse/Cc27Rows";
 import { resetOwnedPacksCache } from "./useOwnedPacks";
 import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -1107,6 +1108,8 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
 
   const mineSections = (
     <>
+      {/* CC27-SITE-1: the Crash Course 2027 bonus, first in My packs, for ANY entitled account (a Board Pass or Test Series holder may own no pack). */}
+      {!hideMyPacks && Boolean(user) && Boolean(mine?.cc27?.length) && <div className="lt-packs__w"><Cc27Rows keys={mine?.cc27} /></div>}
       {signedOutMine && (
         <section className="lt-packs__mine lt-packs__mine--note" id="my-packs" ref={myPacksRef} aria-labelledby="packs-mine-h" data-testid="packs-mine-signedout">
           <div className="lt-packs__w">

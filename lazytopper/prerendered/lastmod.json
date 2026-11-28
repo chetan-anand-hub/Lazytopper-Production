@@ -4,8 +4,8 @@
     "lastmod": "2026-11-28"
   },
   "/board-pass": {
-    "sha256": "8e23b96a9f867242fa44e571e02db64ec90c747e6006ae9a77fae32b61dc54d1",
-    "lastmod": "2026-11-28"
+    "sha256": "8bd9414dbeaa859c2f227de48a83fd85223c22562023e83c4e4b176f4488552c",
+    "lastmod": "2026-11-29"
   },
   "/cbq-class-10": {
     "sha256": "cf510590b3a4f9e38da6670f5e77d8126113d010e5cbf38f67dc8829ef70ddad",
@@ -116,8 +116,8 @@
     "lastmod": "2026-11-28"
   },
   "/cbq-packs": {
-    "sha256": "6dd8828c251b1dbdf269c682c7a85521920d563ae008f712411235e9ba3a1173",
-    "lastmod": "2026-11-28"
+    "sha256": "d18dbdea051da1ed58c17b1de4d4a9e026b5ac5efd456a25eab0c977b02ab1e0",
+    "lastmod": "2026-11-29"
   },
   "/cbse-marking-scheme-class-10": {
     "sha256": "39a8562aed44ad364264baf7af8d31c538320545a3ff6719c22d3abeeb6f80fc",
@@ -130,6 +130,10 @@
   "/check-your-answer": {
     "sha256": "3a8bb1902a75f47dfd3d5f723003c2961d969502db6222357fc5c5649580658a",
     "lastmod": "2026-11-28"
+  },
+  "/class-10-crash-course-2027": {
+    "sha256": "c58acb2a54a33741adc93f5e2b6a0fc935d3414f053760b1a6a89875cccbbb32",
+    "lastmod": "2026-11-29"
   },
   "/contact": {
     "sha256": "b68df816b4f4b9d22730b3f58bcd8b5f9438ccce37839b8d716ef82b07aba76e",
@@ -640,16 +644,16 @@
     "lastmod": "2026-11-28"
   },
   "/packs": {
-    "sha256": "72381c94f0a099efe1beb8bad54a13930ffbd468641c942416762ac30deb76b0",
-    "lastmod": "2026-11-28"
+    "sha256": "971b60cab2a95bc1c63813ce060b13db5828c0abc7e2a2699c9641793239d748",
+    "lastmod": "2026-11-29"
   },
   "/practice-hub": {
     "sha256": "e044d8fc72f5a60395ff416ac6ccb541c1e0c4b6d29ee0ac0a24b326d2e71bb2",
     "lastmod": "2026-11-28"
   },
   "/pricing": {
-    "sha256": "d0dfca61a75afa06e180e85fc316f09aa0245415432e10bda2f97e8e4913b6ef",
-    "lastmod": "2026-11-28"
+    "sha256": "f9f6cf1726c54ec2b493faa98cec9dbf5a47e4eeb9118a93889e483ac2bccd09",
+    "lastmod": "2026-11-29"
   },
   "/question-bank-class-10": {
     "sha256": "0e00cd11c8a7c0cf5a06f4c9edf0f671c1eeaaf95bb9dd64f878c5094c6571ae",
@@ -660,8 +664,8 @@
     "lastmod": "2026-11-29"
   },
   "/test-series": {
-    "sha256": "1bb8e044c6b252b6f3f69021e17aa154aea00bc1cee4840485814870f1bb8365",
-    "lastmod": "2026-11-28"
+    "sha256": "f695cfa362f23b67e3631c5234cf0f4d9a9eacef673a738c0db023f0a8498e85",
+    "lastmod": "2026-11-29"
   },
   "/topic-hub/acids-bases-and-salts": {
     "sha256": "90b982b23945af2d74c4bfce354d16721b5f88156fc744544b0e1136da183939",

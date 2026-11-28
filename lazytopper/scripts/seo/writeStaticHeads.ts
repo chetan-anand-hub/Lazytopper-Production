@@ -336,6 +336,7 @@ export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   { prefix: "/free-mcq-class-10/", exact: false, modules: ["FreeMcqChapterPage"] },
   // SEO-PAGES-1 — the three search-landing pages (lazy routes in App.tsx).
   { prefix: "/mock-test-class-10", exact: true, modules: ["MockTestClass10Page"] },
+  { prefix: "/class-10-crash-course-2027", exact: true, modules: ["CrashCourse2027Page"] }, // CC27-SITE-1
   { prefix: "/question-bank-class-10", exact: true, modules: ["QuestionBankClass10Page"] },
   { prefix: "/cbse-marking-scheme-class-10", exact: true, modules: ["MarkingSchemeClass10Page"] },
   // SEO-SELL-3 - the sample-paper landing (lazy route in App.tsx).

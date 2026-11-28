@@ -6,6 +6,7 @@
 // ever turned off (contract §1). The licensee comes from the server's own auth record for the VERIFIED
 // uid (deps.getLicensee) - never from a header, query or body.
 
+const { entitledFileKeys, isCc27Disabled, CC27_FILES } = require('../services/cc27Bonus.cjs');
 const { listPacks } = require('../services/packGrant.cjs');
 const { deriveEffectiveTier } = require('../services/entitlement.cjs');
 const { readRawBody } = require('./payments.cjs');
@@ -34,6 +35,8 @@ function isServerPdfDisabled(env = process.env) {
 }
 // BONUS-BOOK-1: the CBQ Pack's bonus complete book (one pre-built PDF per subject), as a 15-minute signed link. POST, credentialed.
 const PACKS_BONUS_LINK_PATH = '/api/packs/bonus-link';
+// CC27-SITE-1: the Crash Course 2027 bonus (books + chapter sheets), a 15-minute signed link. POST, credentialed.
+const PACKS_CC27_LINK_PATH = '/api/packs/cc27-link';
 /** Kill switch: BONUS_BOOK_DISABLED=1 -> no row in /mine and the link route answers 404. The row is also hidden until the file is uploaded. */
 function isBonusBookDisabled(env = process.env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.BONUS_BOOK_DISABLED) || '').trim());
@@ -204,6 +207,13 @@ function createPackRoutes(deps = {}) {
     } catch {
       bonusBooks = [];
     }
+    // CC27-SITE-1: the Crash Course 2027 file keys this caller is entitled to AND that are uploaded (absent = no rows). Never fails the response.
+    let cc27 = [];
+    try {
+      cc27 = await cc27EntitledPresent(packs, uid);
+    } catch {
+      cc27 = [];
+    }
     return sendJson(res, 200, {
       packs,
       licensee,
@@ -214,6 +224,7 @@ function createPackRoutes(deps = {}) {
       ...(testSeries ? { testSeries } : {}),
       ...(freeTest ? { freeTest } : {}),
       ...(bonusBooks.length > 0 ? { bonusBooks } : {}),
+      ...(cc27.length > 0 ? { cc27 } : {}),
     });
   }
 
@@ -295,6 +306,39 @@ function createPackRoutes(deps = {}) {
     if (cbq.length === 0) return [];
     const present = new Set(await packPdf.bonusBooksPresent([...new Set(cbq.map((p) => bonusSubjectOf(p.packId)))]));
     return cbq.filter((p) => present.has(bonusSubjectOf(p.packId))).map((p) => p.packId);
+  }
+
+  /** CC27-SITE-1: the entitled file keys (ladder in cc27Bonus.cjs) whose object is uploaded. Off while CC27_BONUS_DISABLED or the server PDFs are off. */
+  async function cc27EntitledPresent(openPacks, uid) {
+    if (isCc27Disabled(env) || isServerPdfDisabled(env) || !packPdf || typeof packPdf.cc27FilesPresent !== 'function') return [];
+    const keys = entitledFileKeys(openPacks.map((p) => p && p.packId), await paidBoardPass(uid));
+    return keys.length === 0 ? [] : packPdf.cc27FilesPresent(keys);
+  }
+
+  /**
+   * CC27-SITE-1: POST /api/packs/cc27-link {fileKey} -> a 15-minute signed link to one Crash Course 2027 file. The entitlement is the
+   * server's ladder (verified uid, packs inside their re-download window, or a running paid Board Pass); anything else is 403.
+   */
+  async function handleCc27Link(req, res) {
+    if (isCc27Disabled(env) || isServerPdfDisabled(env) || !packPdf || typeof packPdf.cc27Link !== 'function') return unavailable(res);
+    const buyer = await resolveBuyer(req, res, 'cc27_link');
+    if (!buyer) return undefined;
+    const body = await readBody(req, res);
+    if (!body) return undefined;
+    const { fileKey } = body;
+    if (typeof fileKey !== 'string' || !ID_PATTERN.test(fileKey)) return sendJson(res, 400, { ok: false, error: 'bad_request' });
+    if (!Object.prototype.hasOwnProperty.call(CC27_FILES, fileKey)) return sendJson(res, 404, { ok: false, error: 'unknown_file' });
+    const entitled = entitledFileKeys(buyer.open.map((p) => p && p.packId), await paidBoardPass(buyer.uid));
+    if (!entitled.includes(fileKey)) return sendJson(res, 403, { ok: false, error: 'not_owned' });
+    if (limited(`c:${buyer.uid}`, LINKS_PER_HOUR)) return sendJson(res, 429, { ok: false, error: 'too_many_requests' });
+    try {
+      const link = await packPdf.cc27Link({ fileKey });
+      await packPdf.recordDownloads(buyer.uid, 1);
+      emit('packs.cc27_link.issued');
+      return sendJson(res, 200, { ok: true, ...link });
+    } catch (e) {
+      return failure(res, e, 'cc27_link');
+    }
   }
 
   /**
@@ -386,7 +430,7 @@ function createPackRoutes(deps = {}) {
     }
   }
 
-  return { handleMine, handleFileLink, handleZipLink, handleBonusLink };
+  return { handleMine, handleFileLink, handleZipLink, handleBonusLink, handleCc27Link };
 }
 
-module.exports = { createPackRoutes, PACKS_MINE_PATH, PACKS_FILE_LINK_PATH, PACKS_ZIP_LINK_PATH, PACKS_BONUS_LINK_PATH, isServerPdfDisabled, isBonusBookDisabled, bonusSubjectOf };
+module.exports = { createPackRoutes, PACKS_MINE_PATH, PACKS_FILE_LINK_PATH, PACKS_ZIP_LINK_PATH, PACKS_BONUS_LINK_PATH, PACKS_CC27_LINK_PATH, isServerPdfDisabled, isBonusBookDisabled, bonusSubjectOf };
