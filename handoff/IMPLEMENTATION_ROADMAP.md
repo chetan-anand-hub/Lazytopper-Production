@@ -1,3 +1,14 @@
+## 2026-11-28/29 (daily; covers IST merges 28 Nov 15:57 to 29 Nov 00:34, i.e. 10:27 to 19:04 UTC 28 Nov; written 29 Nov early morning IST) - #1833 - #1920 - #1919 - #1921 - #1922 - #1924 - #1923 - #1925 - #1927 - #1926 - #1929 - MERGED
+
+- DONE, grading transport. `#1833` (`242b9bb`) GRADE-SINGLE-JOB-1 (single Answer Checker as a job; `GRADING_SINGLE_JOBS` default OFF). Closes the "in progress" line of the previous block. Live verify owed before the flag is switched on.
+- DONE, payments. `#1920` (`3b90f22`) PAY-FAIL-1A; `#1919` (`df98613`) INAPP-GAP-1; `#1921` (`361b7ae`) PRICE-HOLD-1 (no 1 Dec price change); `#1925` (`d3b9ba1`) TRIAL-3DAY-1 (cutover 00:00 IST 30 Nov); `#1926` (`221354b`) SEO-SELL-3 B (base + GST on pack buttons).
+- DONE, SEO and selling. `#1922` (`b325501`) SEO-SELL-1; `#1924` (`47cdcf5`) SEO-SELL-2; `#1929` (`cfa18a8`) SEO-SELL-3 A (/sample-paper-class-10); `#1927` (`6637539`) HOME-LINKS-1.
+- DONE, Home / email. `#1923` (`9c8b459`) PASS-START-1 (card live; email flag OFF).
+- IN PROGRESS: `#1928` CC27-SITE-1 (Crash Course 2027 site; waits for reviewed content and the owner's upload); the crash-course independent review.
+- CANCELLED: the 1 Dec price switch (`#1921`).
+- NEXT: live verifies, `#1928`, the single-job switch after a two-surface live check, the owner to-dos.
+
+
 ## 2026-11-26/28 (daily; covers IST merges 26 Nov 18:17 to 28 Nov 15:36, i.e. 12:47 UTC 26 Nov to 10:06 UTC 28 Nov; written 28 Nov afternoon IST) - #1892 - #1893 - #1894 - #1895 - #1896 - #1897 - #1898 - #1899 - #1900 - #1903 - #1904 - #1905 - #1913 - #1908 - #1909 - #1911 - #1910 - #1912 - #1914 - #1915 - #1916 - #1917 - MERGED
 
 - DONE, payments. `#1894` (`2e9bd5a3`) ORDER-DEDUP-2 (signed-in Board Pass, packs, top-up) + top-up analytics; closes `[FU-ORDER-DEDUP-SIGNED-IN]`, `[FU-TOPUP-NO-ANALYTICS]`. `#1893` (`f6d44a82`) AICOST-LOG-1; closes `[FU-AICOST-SILENT-CATCH]`. Live verify owed.

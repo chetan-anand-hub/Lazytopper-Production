@@ -1,3 +1,21 @@
+## 2026-11-28/29 (daily; covers IST merges 28 Nov 15:57 to 29 Nov 00:34, i.e. 10:27 to 19:04 UTC 28 Nov; written 29 Nov early morning IST) - #1833 - #1920 - #1919 - #1921 - #1922 - #1924 - #1923 - #1925 - #1927 - #1926 - #1929: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
+
+> **SCOPE.** No D number is minted. Rulings are the owner's **[owner]** with the date and IST time given; the rest are the cofounder's calls under them **[coordinator]**.
+
+| decision | what it says | the reason |
+|---|---|---|
+| **1. No price change on 1 Dec** [owner, 28 Nov 18:44] | `#1921`: Board Pass stays Rs 1,917 + GST, Test Series Rs 999 + GST; no deadline copy; the founding offer has no close. | Owner ruling: "we are not changing the price on 1st December." |
+| **2. Free trial is 3 days for new accounts from 00:00 IST 30 Nov; running 7-day trials keep their end** [owner, 28 Nov 21:18] | `#1925`; one rule in client and server keyed on the trial start. | 30-day data: of 9 Board Pass buyers with a trial, 5 paid in the first hour, 2 on day 1-2, 1 on day 6. The trial end is derived from the start date, so lowering one constant would have shortened every running trial. |
+| **3. One price format on pack buy buttons, "Rs X + GST (Rs Y total)"; Board Pass button unchanged** [owner, 28 Nov] | `#1926`. | A buyer must not see the total alone; `BoardPassPage` parses the first rupee figure from the label (pack-credit breakup), so a change there is a separate, riskier lane. |
+| **4. `Welcome.tsx` and `App.tsx` edited by explicit owner OK, narrowly** [owner, 28 Nov 20:50, 22:39, 23:56] | Welcome.tsx: the Exam practice block only (`#1927`); App.tsx: 2 lines each for /sample-paper-class-10 (`#1929`) and /class-10-crash-course-2027 (`#1928`). | Both are globally forbidden files (CLAUDE.md section 4); the grants are per change. |
+| **5. Footer Exam practice group has 4 links, no static /packs** [owner, 28 Nov] | `#1927` footer; the homepage block carries 5. | Keeps the standing rulings: no pack offers to Premium, no /packs on /test-series. |
+| **6. Crash Course 2027 free-bonus ladder** [owner, 28-29 Nov] | Board Pass, Test Series and Bundle: both books + all chapters; Subject Pack: its book + chapters; CBQ: its book; Chapter: its sheet(s). One book per subject + chapter PDFs. | The crash course is a bonus that lifts the existing packs, not a product sold alone. |
+| **7. Crash Course figures and review** [owner, 28-29 Nov] | NCERT figures credited "Source: NCERT" for launch, the most-used redrawn later; content must pass an independent page-by-page review before going public. | Speed to launch with an honest credit; no unreviewed study content goes live. |
+| **8. Google Ads rules** [owner, 28-29 Nov] | No learning-restarting changes; learning-cap rule: cut the budget 40 percent when 7-day cost is at least Rs 20,000 with 0 conversions (floor Rs 500), Board Pass excluded until 30 Nov; parent Board Pass RSA added on the morning of 29 Nov; purchase campaigns widened to 8 AM-midnight around 14 Dec. | Edits that restart learning waste spend; the cap stops a non-converting campaign from burning budget; schools close around 14 Dec. |
+| **9. `#1833` merged with the flag OFF** [owner, 28 Nov 15:22; coordinator] | "If it is necessary then complete this": merged, `GRADING_SINGLE_JOBS` stays default OFF. | Production showed 2 x 504 at 108 s and p90 88.5 s on single checks; the sync ceiling cannot be raised. Switching on waits for a two-surface live check (CLAUDE.md section 4a). |
+| **10. Pass-holder email stays OFF** [coordinator] | `#1923`: `PASS_START_EMAIL_ENABLED` default OFF, card live. | New outbound email waits for a live read of the card and a dry run. |
+
+
 ## 2026-11-26/28 (daily; covers IST merges 26 Nov 18:17 to 28 Nov 15:36, i.e. 12:47 UTC 26 Nov to 10:06 UTC 28 Nov; written 28 Nov afternoon IST) - #1892 to #1917: DECISIONS AND RULINGS (RECORDED UNDER CLAUDE.md section 10)
 
 > **SCOPE.** No D number is minted. Rulings are the owner's **[owner]** with the date and IST time given; the rest are the cofounder's calls and findings under them **[coordinator]**.

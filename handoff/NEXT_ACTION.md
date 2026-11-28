@@ -1,3 +1,16 @@
+## 2026-11-28/29 (daily; covers IST merges 28 Nov 15:57 to 29 Nov 00:34, i.e. 10:27 to 19:04 UTC 28 Nov; written 29 Nov early morning IST) - #1833 - #1920 - #1919 - #1921 - #1922 - #1924 - #1923 - #1925 - #1927 - #1926 - #1929
+
+*(The owner items of every block below stand, except where this block narrows or cancels them.)* Trunk at writing: **`cfa18a88`** (`#1929`) [git: `git ls-remote origin base/approved-thru-437`].
+
+- **CANCELLED:** the 1 Dec price switch and every "update on 1 Dec" item that depended on it (`#1921`, owner ruling 28 Nov 18:44 IST). The owner to **disable the two 1 Dec scheduled tasks** [owner]; also check any ad text that says "till 30 Nov" (Rs 999 + GST) [owner; coordinator].
+- **Owner, still open [owner]:** set the GitHub repo back to PRIVATE; Resend paid plan; Vercel 2FA; AI Studio backup payment card; GoDaddy auto-renew; upload the two CBQ bonus-book PDFs; upload the 29 Crash Course files to `packs/bonus/cc27/` once the reviewed content is final.
+- **Next lane, in order [coordinator]:** (1) `#1928` CC27-SITE-1 once the independent page-by-page review (Maths, Biology, Chemistry + Physics) passes and the owner has uploaded the files; (2) live verifies of `#1925` (sign up a new account after the 30 Nov 00:00 IST cutover: 3 days left, "day 1 of 3"; an existing trial keeps its date), `#1919`, `#1923`, `#1926`, `#1929` (`[FU-28-29NOV-LIVE-VERIFIES]`); (3) switch `GRADING_SINGLE_JOBS=1` on Railway ONLY after a live check on Answer Checker single typed + photo AND a second surface (CLAUDE.md section 4a).
+- **Switches [owner]:** `PASS_START_EMAIL_ENABLED` stays OFF until the Home card is seen live and one email dry run is read.
+- **Google Ads [owner; coordinator]:** make no learning-restarting change; apply the learning-cap rule (cut the budget 40 percent when 7-day cost is at least Rs 20,000 with 0 conversions, floor Rs 500), Board Pass excluded until 30 Nov; add the parent Board Pass RSA on the morning of 29 Nov; widen the purchase campaigns to 8 AM-midnight around 14 Dec (schools close).
+- **Watch:** `[grade-timing]` single-check 504s; Razorpay attempts; admin Browser chip on unpaid orders (`#1919`); trial counts after the 30 Nov cutover.
+- **Process:** merge only on an explicit `quality-gate:success` on the PR head; CLAUDE.md section 5 still says "7-day trial" and needs an owner-approved docs change (`[FU-TRIAL-3DAY-CLAUDEMD]`).
+
+
 ## 2026-11-26/28 (daily; covers IST merges 26 Nov 18:17 to 28 Nov 15:36, i.e. 12:47 UTC 26 Nov to 10:06 UTC 28 Nov; written 28 Nov afternoon IST) - #1892 - #1893 - #1894 - #1895 - #1896 - #1897 - #1898 - #1899 - #1900 - #1903 - #1904 - #1905 - #1913 - #1908 - #1909 - #1911 - #1910 - #1912 - #1914 - #1915 - #1916 - #1917
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`3dc6782c`** (`#1917`) [git: `git ls-remote origin base/approved-thru-437`].
