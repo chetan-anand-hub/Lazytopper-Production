@@ -103,7 +103,8 @@ describe("CONTACT-INDEX-1 (e) — the public footer links to /contact", () => {
     const contact = within(footer).getByRole("link", { name: "Contact" });
     expect(contact.getAttribute("href")).toBe("/contact");
     expect(contact.getAttribute("target")).toBeNull();
-    const hrefs = Array.from(footer.querySelectorAll("a")).map((a) => a.getAttribute("href") ?? "");
+    // HOME-LINKS-1: the "Exam practice" group is the footer's own last row (internal links, after the social row).
+    const hrefs = Array.from(footer.querySelectorAll("a:not([data-testid=footer-exam-practice] a)")).map((a) => a.getAttribute("href") ?? "");
     const at = hrefs.indexOf("/contact");
     expect(at).toBe(hrefs.indexOf("/legal/refund") + 1);
     expect(hrefs.slice(at + 1).every((h) => h.startsWith("https://"))).toBe(true);

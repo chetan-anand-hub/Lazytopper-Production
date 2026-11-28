@@ -3,6 +3,7 @@ import { FOOTER_SOCIAL } from "../../config/socialProfiles";
 import { LEGAL_ENTITY_NAME } from "../../config/legalEntity";
 import { withParentFlag } from "../../lib/parentReturn";
 import { PacksEntry } from "../../lib/packs/packEntryLazy";
+import { EXAM_PRACTICE_LINKS } from "../seoPages/ExamPracticeStrip";
 
 /**
  * PublicLegalFooter — a slim, persistent legal row for the SIGNED-OUT public
@@ -80,6 +81,15 @@ const FOOTER_CSS = `
     color: hsl(222, 47%, 24%);
     text-decoration: underline;
   }
+  .lt-public-legal__practice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    flex-basis: 100%;
+    gap: 2px 14px;
+  }
+  .lt-public-legal__practice-lead { font-weight: 700; }
   @media (max-width: 389px) {
     .lt-public-legal {
       gap: 4px 12px;
@@ -143,6 +153,18 @@ export default function PublicLegalFooter({ className, fromParents = false, pack
           {label}
         </a>
       ))}
+      {/* HOME-LINKS-1 (owner OK, 28 Nov 2026) - the exam-practice links as one compact group on its own last row. FOUR links, not
+          five: "PDF packs" is already this footer's PacksEntry link above (flag-gated, hidden from paid Premium by the 25 Oct ruling,
+          and /test-series pins that it carries no /packs link), so a static /packs anchor here would break those rules. Router
+          <Link>s: every target is an SPA route. */}
+      <nav className="lt-public-legal__practice" aria-label="Exam practice" data-testid="footer-exam-practice">
+        <span className="lt-public-legal__practice-lead">Exam practice:</span>
+        {EXAM_PRACTICE_LINKS.map((l) => (
+          <Link key={l.to} to={to(l.to)}>
+            {l.label}
+          </Link>
+        ))}
+      </nav>
     </footer>
   );
 }
