@@ -704,6 +704,8 @@ export interface PageTrayProps {
   /** Render the crop step inline (the QR page, which is already one full-screen card)
    *  instead of in a modal over the host page. */
   inlineCrop?: boolean;
+  /** TUTOR-PASTE-1: override the crop step's instruction line (default: Answer Checker's). */
+  cropCopy?: string;
 }
 
 /**
@@ -711,7 +713,7 @@ export interface PageTrayProps {
  * nothing at all until the student has picked a photo, so a host with no tray in use
  * looks exactly as it did.
  */
-export default function PageTray({ tray, disabled = false, inlineCrop = false }: PageTrayProps) {
+export default function PageTray({ tray, disabled = false, inlineCrop = false, cropCopy }: PageTrayProps) {
   const addInputRef = useRef<HTMLInputElement>(null);
   const coarse = useCoarsePointer();
   const { pages, cropSession, busy, notice, allowMultiPage, optimising, skipOptimise } = tray;
@@ -733,6 +735,7 @@ export default function PageTray({ tray, disabled = false, inlineCrop = false }:
             }`
           : undefined
       }
+      description={cropCopy}
       busy={busy}
       onConfirm={tray.confirmCrop}
       onCancel={tray.cancelCrop}

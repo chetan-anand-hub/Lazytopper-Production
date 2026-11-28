@@ -151,4 +151,87 @@ describe("TUTOR-IMAGE-1 composer", () => {
     mount();
     expect(screen.getByTestId("tutor-attach-input").getAttribute("accept")).toBe("image/jpeg,image/png");
   });
+
+  describe("TUTOR-PASTE-1 paste a screenshot", () => {
+    const form = () => screen.getByTestId("tutor-attach").closest("form") as HTMLFormElement;
+    const paste = (files: File[], text = "") =>
+      fireEvent.paste(form(), { clipboardData: { files, getData: () => text, items: [] } });
+
+    it("an image on the clipboard attaches through the tray and is intercepted", async () => {
+      mount();
+      const ev = new Event("paste", { bubbles: true, cancelable: true }) as Event & { clipboardData?: unknown };
+      ev.clipboardData = { files: [jpeg()], getData: () => "", items: [] };
+      form().dispatchEvent(ev);
+      expect(ev.defaultPrevented).toBe(true);
+      await screen.findByTestId("tutor-photo-preview");
+    });
+
+    it("a second paste replaces the first photo", async () => {
+      mount();
+      paste([jpeg()]);
+      await screen.findByTestId("tutor-photo-preview");
+      paste([new File([new Uint8Array([255, 216, 255, 224, 9, 9])], "second.jpg", { type: "image/jpeg" })]);
+      await waitFor(() => expect(screen.getAllByTestId("tutor-photo-preview").length).toBe(1));
+    });
+
+    it("text paste is not intercepted", () => {
+      mount();
+      const ev = new Event("paste", { bubbles: true, cancelable: true }) as Event & { clipboardData?: unknown };
+      ev.clipboardData = { files: [], getData: () => "hello", items: [] };
+      form().dispatchEvent(ev);
+      expect(ev.defaultPrevented).toBe(false);
+      expect(screen.queryByTestId("tutor-photo-preview")).toBeNull();
+    });
+
+    it("kill switch disables image paste", () => {
+      vi.stubEnv("VITE_TUTOR_IMAGE_DISABLED", "1");
+      mount();
+      const f = document.querySelector("form.lt-tutor__composer") as HTMLFormElement;
+      const ev = new Event("paste", { bubbles: true, cancelable: true }) as Event & { clipboardData?: unknown };
+      ev.clipboardData = { files: [jpeg()], getData: () => "", items: [] };
+      f.dispatchEvent(ev);
+      expect(ev.defaultPrevented).toBe(false);
+      expect(screen.queryByTestId("tutor-photo-preview")).toBeNull();
+    });
+
+    it("short hint shows on every device, sits outside the Send row, and goes once a photo is attached", async () => {
+      mount();
+      const hint = screen.getByTestId("tutor-paste-hint");
+      expect(hint.textContent).toBe("Photo or paste a screenshot");
+      expect(hint.closest(".lt-tutor__cbar")).toBeNull();
+      const css = Array.from(document.querySelectorAll("style")).map((n) => n.textContent).join("");
+      expect(css).toMatch(/\.lt-tutor__phint \{[^}]*white-space: nowrap/);
+      paste([jpeg()]);
+      await screen.findByTestId("tutor-photo-preview");
+      expect(screen.queryByTestId("tutor-paste-hint")).toBeNull();
+    });
+
+    it("kill switch hides the hint", () => {
+      vi.stubEnv("VITE_TUTOR_IMAGE_DISABLED", "1");
+      mount();
+      expect(screen.queryByTestId("tutor-paste-hint")).toBeNull();
+    });
+
+    it("Android: an image exposed only as a clipboard ITEM still attaches", async () => {
+      mount();
+      const file = jpeg();
+      const ev = new Event("paste", { bubbles: true, cancelable: true }) as Event & { clipboardData?: unknown };
+      ev.clipboardData = { files: [], getData: () => "", items: [{ kind: "file", type: "image/jpeg", getAsFile: () => file }] };
+      form().dispatchEvent(ev);
+      expect(ev.defaultPrevented).toBe(true);
+      await screen.findByTestId("tutor-photo-preview");
+    });
+
+    it("a pasted image sends exactly what an attached one sends (same wire payload)", async () => {
+      mount();
+      await attach(jpeg());
+      fireEvent.click(screen.getByRole("button", { name: "Send" }));
+      await waitFor(() => expect(screen.queryByTestId("tutor-photo-preview")).toBeNull());
+      paste([jpeg()]);
+      await screen.findByTestId("tutor-photo-preview");
+      fireEvent.click(screen.getByRole("button", { name: "Send" }));
+      expect(H.send).toHaveBeenCalledTimes(2);
+      expect(H.send.mock.calls[1]).toEqual(H.send.mock.calls[0]);
+    });
+  });
 });
