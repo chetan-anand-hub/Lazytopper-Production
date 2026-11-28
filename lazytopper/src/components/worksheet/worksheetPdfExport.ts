@@ -810,17 +810,22 @@ export const SETS_RASTER_SCALE = 1.5;
 
 /**
  * PACK-PDF-SIZE-1 (owner 28 Nov 2026): a pack TEMPLATE page is a full-page JPEG; at scale 2 / quality 0.95 a Science chapter ZIP
- * reached ~200 MB and a phone buyer could not download it. Templates (and only templates, `opts.template`) are rasterised at 1.56x
+ * reached ~200 MB and a phone buyer could not download it. LOSSY option (off, TEMPLATE_LOSSY_TUNING): templates (and only templates, `opts.template`) are rasterised at 1.56x
  * (a 794 px page -> ~1240 px, ~150 dpi on A4) and JPEG quality 0.62, and the PDF streams are Flate-compressed (jsPDF `compress`).
  * Measured on a real chapter: 210 MB -> ~69 MB, text still crisp at phone and print size. The browser-built (non-template) paths keep
  * their own scale/quality. Kill switch: set TEMPLATE_SIZE_TUNING = false and re-publish the templates.
  */
 export const TEMPLATE_SIZE_TUNING = true;
+/**
+ * LOSSY step (resample + lower JPEG quality). OFF: owner ruling 28 Nov 12:29 "don't reduce the quality" - it ships only with the
+ * owner's sign-off. The lossless step (jsPDF Flate compression of the raw images/streams) is TEMPLATE_SIZE_TUNING alone.
+ */
+export const TEMPLATE_LOSSY_TUNING = false;
 export const TEMPLATE_RASTER_SCALE = 1.56;
 export const TEMPLATE_JPEG_QUALITY = 0.62;
 /** Raster scale / JPEG quality for a render: the size-tuned pair for a template, else the caller's own. */
 export function rasterTuning(isTemplate: boolean, scale: number, quality: number): { scale: number; quality: number } {
-  if (!isTemplate || !TEMPLATE_SIZE_TUNING) return { scale, quality };
+  if (!isTemplate || !TEMPLATE_SIZE_TUNING || !TEMPLATE_LOSSY_TUNING) return { scale, quality };
   return { scale: Math.min(scale, TEMPLATE_RASTER_SCALE), quality: Math.min(quality, TEMPLATE_JPEG_QUALITY) };
 }
 /** jsPDF constructor options: Flate-compress streams (raw logo/footer images, content) for a template only. */
