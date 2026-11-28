@@ -309,6 +309,14 @@ describe("GUEST-ZIP-1 - the signed-out whole-pack ZIP", () => {
   const proof = { orderId: "order_1", paymentId: "pay_1", signature: "ab".repeat(32) };
   const zipBody = () => okBody({ filename: "lazytopper-pack-cbq-maths.zip", files: [{ fileId: "f1", filename: "a.pdf", label: "A", codes: ["PK-M-RN-CT1"] }] });
 
+  it("PACK-PDF-SIZE-1: a group id is sent as `group`; without one the body is exactly the proof (legacy)", async () => {
+    const f = vi.fn(async () => resp(200, zipBody()));
+    await requestGuestZipLink(proof, { fetchImpl: f as never }, "real-numbers");
+    expect(JSON.parse(String((f.mock.calls[0] as unknown as [string, RequestInit])[1].body))).toEqual({ ...proof, group: "real-numbers" });
+    await downloadGuestZipFromServer({ proof, groupId: "polynomials" }, { fetchImpl: f as never, startDownload: vi.fn(), nowIso: () => NOW });
+    expect(JSON.parse(String((f.mock.calls[1] as unknown as [string, RequestInit])[1].body)).group).toBe("polynomials");
+  });
+
   it("posts ONLY the receipt proof to the guest endpoint with NO auth header, and the longer ZIP timeout", async () => {
     const f = vi.fn(async () => resp(200, zipBody()));
     const r = await requestGuestZipLink(proof, { fetchImpl: f as never });

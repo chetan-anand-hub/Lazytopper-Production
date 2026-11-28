@@ -69,8 +69,8 @@ export async function downloadZipFromServer(args: { packId: string; groupId: str
 }
 
 /** GUEST-ZIP-1: the whole pack as one ZIP for a signed-out buyer (the receipt proof is the credential). `{ok:false}` means nothing was downloaded. */
-export async function downloadGuestZipFromServer(args: { proof: { orderId: string; paymentId: string; signature: string }; expectCodes?: readonly string[] }, deps: ServerDownloadDeps = {}): Promise<Done> {
-  return finish(await requestGuestZipLink(args.proof, deps), null, deps, args.expectCodes);
+export async function downloadGuestZipFromServer(args: { proof: { orderId: string; paymentId: string; signature: string }; groupId?: string; expectCodes?: readonly string[] }, deps: ServerDownloadDeps = {}): Promise<Done> {
+  return finish(await requestGuestZipLink(args.proof, deps, args.groupId), null, deps, args.expectCodes);
 }
 
 /** BONUS-BOOK-1: the CBQ Pack's complete book. `{ok:false}` means nothing was downloaded (the row offers Retry; there is no browser build). */

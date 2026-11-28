@@ -22,6 +22,12 @@ export const GUEST_ZIP_LINK_ENDPOINT = "/api/pay/guest/zip-link";
 export const SERVER_LINK_TIMEOUT_MS = 20_000;
 /** A ZIP of a cold chapter is stamped file by file on the server and can take well over 20 s: it waits longer (the button says "Preparing" meanwhile). */
 export const SERVER_ZIP_TIMEOUT_MS = 90_000;
+/**
+ * PACK-PDF-SIZE-1: a signed-out buyer of a multi-chapter pack gets one ZIP PER CHAPTER (each ~70-200 MB, one request, one link) instead
+ * of ONE ZIP of the whole pack (the Maths + Science Bundle is ~600 files and could not be built inside SERVER_ZIP_TIMEOUT_MS or saved
+ * on a phone). Kill switch: false restores the single "Download all (ZIP)" button.
+ */
+export const GUEST_ZIP_PER_GROUP = true;
 
 export type ServerLinkFailure = "disabled" | "unavailable" | "not_ready" | "busy" | "refused" | "expired" | "timeout" | "network" | "bad_response";
 
@@ -133,8 +139,9 @@ export function requestZipLink(packId: string, group: string, deps: LinkDeps = {
 }
 
 /** GUEST-ZIP-1: ONE ZIP of the whole pack for a signed-out buyer. The pack, licensee and files all come from the stored order on the server. */
-export function requestGuestZipLink(proof: { orderId: string; paymentId: string; signature: string }, deps: LinkDeps = {}): Promise<LinkResult<ServerZipLink>> {
-  return post(GUEST_ZIP_LINK_ENDPOINT, { orderId: proof.orderId, paymentId: proof.paymentId, signature: proof.signature }, readZip, { timeoutMs: SERVER_ZIP_TIMEOUT_MS, headers: async () => ({}), ...deps });
+export function requestGuestZipLink(proof: { orderId: string; paymentId: string; signature: string }, deps: LinkDeps = {}, groupId?: string): Promise<LinkResult<ServerZipLink>> {
+  // PACK-PDF-SIZE-1: `groupId` asks for ONE chapter's ZIP (the same per-group ZIP a signed-in buyer gets); omitted = the whole pack (legacy).
+  return post(GUEST_ZIP_LINK_ENDPOINT, { orderId: proof.orderId, paymentId: proof.paymentId, signature: proof.signature, ...(groupId ? { group: groupId } : {}) }, readZip, { timeoutMs: SERVER_ZIP_TIMEOUT_MS, headers: async () => ({}), ...deps });
 }
 
 /** BONUS-BOOK-1: a signed link to the complete book of an owned CBQ Pack (`pack_cbq:<subject>`). No papers are printed in it. */

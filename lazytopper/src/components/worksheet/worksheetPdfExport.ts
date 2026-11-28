@@ -500,11 +500,12 @@ function templateCoverProps(lines: 1 | 2 = 1): { licenseeLine: string; edition: 
  * to page 1 when the buyer's line needs two lines, and drops it otherwise. Template renders only.
  */
 async function renderTemplateCover2(cover: NonNullable<CoreOptions["cover"]>, marks: TemplateMarks, html2canvas: Html2Canvas, quality: number): Promise<string> {
+  const tune = rasterTuning(true, 2, quality);
   const { PrintCover, COVER_W } = await import("./PrintCover");
   return withHost(COVER_W, createElement(PrintCover, { ...cover, ...templateCoverProps(2) }), async (coverHost) => {
-    const c = await html2canvas(coverHost, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
+    const c = await html2canvas(coverHost, { scale: tune.scale, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
     recordCoverMarks(marks, coverHost, "cover2");
-    return c.toDataURL("image/jpeg", quality);
+    return c.toDataURL("image/jpeg", tune.quality);
   });
 }
 
@@ -589,9 +590,10 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
       paidAtMs: opts.paidAtMs,
       ...(opts.template ? templateCoverProps() : {}),
     }), async (coverHost) => {
-      const c = await html2canvas(coverHost, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
+      const tune = rasterTuning(Boolean(opts.template), 2, 0.95);
+      const c = await html2canvas(coverHost, { scale: tune.scale, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
       if (opts.template) recordCoverMarks(opts.template.marks, coverHost);
-      return c.toDataURL("image/jpeg", 0.95);
+      return c.toDataURL("image/jpeg", tune.quality);
     });
   }
 
@@ -615,8 +617,9 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
     }
     const hostH = host.getBoundingClientRect().height;
 
+    const bodyTune = rasterTuning(Boolean(opts.template), 2, 0.95);
     const canvas = await html2canvas(host, {
-      scale: 2,
+      scale: bodyTune.scale,
       backgroundColor: "#ffffff",
       useCORS: true,
       logging: false,
@@ -624,7 +627,7 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
     });
 
     // 2. Paginate the tall raster across A4, leaving room for the crisp jsPDF page chrome.
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const pdf = new jsPDF(pdfCtorOptions(Boolean(opts.template)));
     // PACK-SAMPLE-1: the sample's pack + price travel in the PDF's Subject field (the price line itself is an image).
     if (opts.sample) pdf.setProperties({ title: "LazyTopper free sample page", subject: opts.sample.meta ?? "", author: "LazyTopper" });
     // GRADE-ROUTE-2 - the paper's code travels in the file itself (Title/Subject/Keywords), so a renamed file still
@@ -678,7 +681,7 @@ async function renderElementToPdf(element: ReactElement, filename: string, opts:
         sctx.drawImage(canvas, 0, yPx, canvas.width, hPx, 0, 0, canvas.width, hPx);
       }
       if (page > 0 || coverJpeg) pdf.addPage();
-      pdf.addImage(slice.toDataURL("image/jpeg", opts.sample ? 0.78 : 0.95), "JPEG", MARGIN_X, geom.top, imgW, hPx / pxPerMm);
+      pdf.addImage(slice.toDataURL("image/jpeg", opts.sample ? 0.78 : bodyTune.quality), "JPEG", MARGIN_X, geom.top, imgW, hPx / pxPerMm);
       drawChrome(pdf, page + 1 + offset, totalPages, page, opts, brand, qrRows);
     }
 
@@ -708,8 +711,9 @@ export function bridgeImagesReady(host: HTMLElement): boolean {
   return Array.from(host.querySelectorAll("img")).every((img) => img.complete && img.naturalWidth > 0);
 }
 /** Exported for tests only. */
-export async function renderBridgePages(data: BridgePagesData, html2canvas: Html2Canvas, imageTimeoutMs?: number): Promise<BridgePageRaster[]> {
-  const key = JSON.stringify(data);
+export async function renderBridgePages(data: BridgePagesData, html2canvas: Html2Canvas, imageTimeoutMs?: number, template = false): Promise<BridgePageRaster[]> {
+  const key = JSON.stringify(data) + (template ? "|tpl" : "");
+  const tune = rasterTuning(template, 2, 0.72);
   const hit = bridgeCache.get(key);
   if (hit) return hit;
   const job = (async (): Promise<BridgePageRaster[]> => {
@@ -730,8 +734,8 @@ export async function renderBridgePages(data: BridgePagesData, html2canvas: Html
               const r = el.getBoundingClientRect();
               return { x: (r.left - box.left) * mm, y: (r.top - box.top) * mm, w: r.width * mm, h: r.height * mm, url: el.dataset.pdfLink ?? "" };
             });
-            const c = await html2canvas(h, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: mod.BRIDGE_W });
-            return { jpeg: c.toDataURL("image/jpeg", 0.72), links: areas.filter((a) => a.url && a.w > 0 && a.h > 0) };
+            const c = await html2canvas(h, { scale: tune.scale, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: mod.BRIDGE_W });
+            return { jpeg: c.toDataURL("image/jpeg", tune.quality), links: areas.filter((a) => a.url && a.w > 0 && a.h > 0) };
           }, imageTimeoutMs),
         );
       }
@@ -804,6 +808,26 @@ export const SETS_BODY_JPEG_QUALITY = 0.8;
  */
 export const SETS_RASTER_SCALE = 1.5;
 
+/**
+ * PACK-PDF-SIZE-1 (owner 28 Nov 2026): a pack TEMPLATE page is a full-page JPEG; at scale 2 / quality 0.95 a Science chapter ZIP
+ * reached ~200 MB and a phone buyer could not download it. Templates (and only templates, `opts.template`) are rasterised at 1.56x
+ * (a 794 px page -> ~1240 px, ~150 dpi on A4) and JPEG quality 0.62, and the PDF streams are Flate-compressed (jsPDF `compress`).
+ * Measured on a real chapter: 210 MB -> ~69 MB, text still crisp at phone and print size. The browser-built (non-template) paths keep
+ * their own scale/quality. Kill switch: set TEMPLATE_SIZE_TUNING = false and re-publish the templates.
+ */
+export const TEMPLATE_SIZE_TUNING = true;
+export const TEMPLATE_RASTER_SCALE = 1.56;
+export const TEMPLATE_JPEG_QUALITY = 0.62;
+/** Raster scale / JPEG quality for a render: the size-tuned pair for a template, else the caller's own. */
+export function rasterTuning(isTemplate: boolean, scale: number, quality: number): { scale: number; quality: number } {
+  if (!isTemplate || !TEMPLATE_SIZE_TUNING) return { scale, quality };
+  return { scale: Math.min(scale, TEMPLATE_RASTER_SCALE), quality: Math.min(quality, TEMPLATE_JPEG_QUALITY) };
+}
+/** jsPDF constructor options: Flate-compress streams (raw logo/footer images, content) for a template only. */
+export function pdfCtorOptions(isTemplate: boolean): { orientation: "portrait"; unit: "mm"; format: "a4"; compress?: boolean } {
+  return { orientation: "portrait", unit: "mm", format: "a4", ...(isTemplate && TEMPLATE_SIZE_TUNING ? { compress: true } : {}) };
+}
+
 /** One rasterised body page of a multi-paper file. */
 interface SetPage {
   jpeg: string;
@@ -853,10 +877,11 @@ export async function exportWorksheetSetsPdf(
       paidAtMs: opts.paidAtMs,
       ...(opts.template ? templateCoverProps() : {}),
     }), async (coverHost) => {
-      const c = await html2canvas(coverHost, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
+      const tune = rasterTuning(Boolean(opts.template), 2, SETS_BODY_JPEG_QUALITY);
+      const c = await html2canvas(coverHost, { scale: tune.scale, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: COVER_W });
       if (opts.template) recordCoverMarks(opts.template.marks, coverHost);
       // a several-paper file's cover: the same quality as its body pages (a CBQ part stays small; owner 8 Nov 22:45)
-      return c.toDataURL("image/jpeg", SETS_BODY_JPEG_QUALITY);
+      return c.toDataURL("image/jpeg", tune.quality);
     });
   }
   const coverJpeg2 = coverJpeg && opts.template && opts.cover ? await renderTemplateCover2(opts.cover, opts.template.marks, html2canvas, SETS_BODY_JPEG_QUALITY) : null;
@@ -867,6 +892,7 @@ export async function exportWorksheetSetsPdf(
   const usableH = PAGE_H - geom.top - geom.footerH;
   const pages: SetPage[] = [];
   const todo = opts.sample ? sets.slice(0, 1) : sets;
+  const setsTune = rasterTuning(Boolean(opts.template), opts.rasterScale ?? SETS_RASTER_SCALE, SETS_BODY_JPEG_QUALITY);
   for (let si = 0; si < todo.length; si += 1) {
     const { ws, code } = todo[si];
     try {
@@ -887,7 +913,7 @@ export async function exportWorksheetSetsPdf(
         atomsCss.push({ top: r.top - top0, bottom: r.bottom - top0 });
       });
       const hostH = host.getBoundingClientRect().height;
-      const canvas = await html2canvas(host, { scale: opts.rasterScale ?? SETS_RASTER_SCALE, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: HOST_WIDTH });
+      const canvas = await html2canvas(host, { scale: setsTune.scale, backgroundColor: "#ffffff", useCORS: true, logging: false, windowWidth: HOST_WIDTH });
       const pxPerMm = canvas.width / imgW || 1;
       const sliceHpx = Math.max(1, Math.floor(usableH * pxPerMm));
       const yScale = hostH > 0 ? canvas.height / hostH : 1;
@@ -916,7 +942,7 @@ export async function exportWorksheetSetsPdf(
         }
         // Review 1643: 0.80 at the same scale (2x) - about 40% smaller than 0.95 with no visible loss; the QR is drawn as vector
         // squares by the page chrome, never through this JPEG.
-        pages.push({ jpeg: slice.toDataURL("image/jpeg", opts.sample ? 0.78 : SETS_BODY_JPEG_QUALITY), hMm: hPx / pxPerMm, set: si, bodyIndex: page });
+        pages.push({ jpeg: slice.toDataURL("image/jpeg", opts.sample ? 0.78 : setsTune.quality), hMm: hPx / pxPerMm, set: si, bodyIndex: page });
       }
       // Release this set's raster before the next set is drawn.
       canvas.width = 0;
@@ -924,7 +950,7 @@ export async function exportWorksheetSetsPdf(
     });
   }
 
-  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const pdf = new jsPDF(pdfCtorOptions(Boolean(opts.template)));
   if (opts.sample) pdf.setProperties({ title: "LazyTopper free sample page", subject: opts.sample.meta ?? "", author: "LazyTopper" });
   const qrs = withQr ? await Promise.all(todo.map((t) => buildPaperQrMatrix(t.code))) : todo.map(() => null);
   const offset = (coverJpeg ? 1 : 0) + bridgePages.length;

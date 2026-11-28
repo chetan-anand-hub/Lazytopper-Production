@@ -29,7 +29,7 @@ import type { PackLicensee, PackSku } from "../../services/packs";
 import { meCardPackTitle } from "../../lib/packs/packTitle";
 import { trackPackEvent } from "../../lib/packs/packAnalytics";
 import { recoverFromChunkError } from "../../lib/chunkReload";
-import { isServerPdfDisabled } from "../../lib/packs/serverPdfLinks";
+import { GUEST_ZIP_PER_GROUP, isServerPdfDisabled } from "../../lib/packs/serverPdfLinks";
 import "./purchaseCard.css";
 
 type Files = { phase: "idle" } | { phase: "loading" } | { phase: "ready"; groups: Array<{ group: string; files: PackFile[] }> } | { phase: "error" };
@@ -62,6 +62,10 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
   const [zipSaved, setZipSaved] = useState(false);
   const [zipExpired, setZipExpired] = useState(false);
   const [zipOff, setZipOff] = useState<boolean>(() => isServerPdfDisabled());
+  // PACK-PDF-SIZE-1: a multi-chapter pack (the bundle ~2.5 GB) is offered as one ZIP PER CHAPTER, each its own "Download" row.
+  const [zipGroupBusy, setZipGroupBusy] = useState<string | null>(null);
+  const [zipGroupFailed, setZipGroupFailed] = useState<string | null>(null);
+  const [zipGroupSaved, setZipGroupSaved] = useState<ReadonlySet<string>>(() => new Set());
   const alive = useRef(true);
   useEffect(() => {
     alive.current = true;
@@ -127,23 +131,37 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
   }
 
   const payLine = hidePaymentLine ? null : <p className="lt-rcpt__ok" role="status">{RECEIPT_PAYMENT_RECEIVED}</p>;
-  async function downloadZip(groups: Array<{ files: PackFile[] }>) {
-    if (zipBusy || busyId) return;
-    setZipBusy(true);
-    setZipFailed(false);
+  async function downloadZip(groups: Array<{ files: PackFile[] }>, groupId?: string) {
+    if (zipBusy || busyId || zipGroupBusy) return;
+    if (groupId) {
+      setZipGroupBusy(groupId);
+      setZipGroupFailed(null);
+    } else {
+      setZipBusy(true);
+      setZipFailed(false);
+    }
     try {
       const { downloadGuestZipFromServer } = await import("../../lib/packs/serverPdfDownload");
       const expectCodes = [...new Set(groups.flatMap((g) => g.files.flatMap((f) => f.codes ?? (f.code ? [f.code] : []))))];
-      const res = await downloadGuestZipFromServer({ proof, expectCodes });
+      const res = await downloadGuestZipFromServer({ proof, expectCodes, ...(groupId ? { groupId } : {}) });
       if (!alive.current) return;
-      if (res.ok) setZipSaved(true);
-      else if (res.reason === "expired") setZipExpired(true);
+      if (res.ok) {
+        if (groupId) setZipGroupSaved((prev) => new Set(prev).add(groupId));
+        else setZipSaved(true);
+      } else if (res.reason === "expired") setZipExpired(true);
       else if (res.reason === "disabled" || res.reason === "unavailable") setZipOff(true);
+      else if (groupId) setZipGroupFailed(groupId);
       else setZipFailed(true);
     } catch (err) {
-      if (!recoverFromChunkError(err) && alive.current) setZipFailed(true);
+      if (!recoverFromChunkError(err) && alive.current) {
+        if (groupId) setZipGroupFailed(groupId);
+        else setZipFailed(true);
+      }
     } finally {
-      if (alive.current) setZipBusy(false);
+      if (alive.current) {
+        setZipBusy(false);
+        setZipGroupBusy(null);
+      }
     }
   }
 
@@ -204,9 +222,11 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
       </section>
     );
   }
+  // PACK-PDF-SIZE-1: more than one chapter -> one ZIP per chapter instead of the all-pack ZIP (kill switch: GUEST_ZIP_PER_GROUP).
+  const perGroupZip = GUEST_ZIP_PER_GROUP && files.phase === "ready" && files.groups.length > 1;
   const zipEl = zipExpired ? (
     <p className="lt-rcpt__line" role="status" data-testid="receipt-zip-expired">{ZIP_EXPIRED}</p>
-  ) : files.phase === "ready" && !zipOff && fileCount >= 2 ? (
+  ) : files.phase === "ready" && !zipOff && fileCount >= 2 && !perGroupZip ? (
       <div className="lt-rcpt__zip" data-testid="receipt-zip-row">
         <button
           type="button"
@@ -226,8 +246,18 @@ export default function PurchaseCard({ proof, onHide, hidePaymentLine = false, f
       {zipEl}
       {files.phase === "ready" &&
   files.groups.map((g) => {
+    const zipGroupId = perGroupZip && !zipOff && !zipExpired && g.files.length >= 2 ? g.files[0]?.groupId : "";
     const list = (
       <ul className="lt-rcpt__files">
+        {zipGroupId ? (
+          <li className="lt-rcpt__zip" data-testid="receipt-zip-group-row">
+            <span>All {g.files.length} files of this chapter (ZIP)</span>
+            <button type="button" className="lt-rcpt__btn lt-rcpt__btn--small" disabled={zipBusy || zipGroupBusy !== null || busyId !== null} onClick={() => void downloadZip([g], zipGroupId)} data-testid="receipt-zip-group">
+              {zipGroupBusy === zipGroupId ? "Preparing ZIP\u2026" : zipGroupFailed === zipGroupId ? "Try again" : zipGroupSaved.has(zipGroupId) ? "Saved \u2713" : "Download"}
+            </button>
+            {zipGroupFailed === zipGroupId && <span className="lt-rcpt__bad" role="alert">That didn&rsquo;t work. Try again, or download the files one by one.</span>}
+          </li>
+        ) : null}
         {g.files.map((f) => (
           <li key={f.id}>
             <span>{f.label}</span>

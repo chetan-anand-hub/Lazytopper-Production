@@ -232,4 +232,40 @@ describe("GUEST-ZIP-1 - Download all (ZIP)", () => {
     const fold = await screen.findByTestId("receipt-files-fold");
     expect(fold.contains(screen.getByTestId("receipt-zip"))).toBe(true);
   });
+
+  // PACK-PDF-SIZE-1: a multi-chapter pack = one ZIP per chapter, never the all-pack ZIP.
+  describe("PACK-PDF-SIZE-1 - one ZIP per chapter", () => {
+    const two = [
+      { id: "f1", label: "A", group: "Real Numbers", groupId: "real-numbers", filename: "a.pdf", codes: ["C1"], build: build.fileBuild },
+      { id: "f2", label: "B", group: "Real Numbers", groupId: "real-numbers", filename: "b.pdf", codes: ["C2"], build: build.fileBuild },
+      { id: "f3", label: "C", group: "Polynomials", groupId: "polynomials", filename: "c.pdf", codes: ["C3"], build: build.fileBuild },
+      { id: "f4", label: "D", group: "Polynomials", groupId: "polynomials", filename: "d.pdf", codes: ["C4"], build: build.fileBuild },
+    ];
+    beforeEach(() => build.buildPackFiles.mockResolvedValue(two));
+
+    it("no all-pack ZIP button; each chapter has its own ZIP row asking the server for THAT group with only its codes", async () => {
+      render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} />);
+      const rows = await screen.findAllByTestId("receipt-zip-group");
+      expect(rows).toHaveLength(2);
+      expect(screen.queryByTestId("receipt-zip")).toBeNull();
+      fireEvent.click(rows[1]);
+      await waitFor(() => expect(screen.getAllByTestId("receipt-zip-group")[1].textContent).toBe("Saved \u2713"));
+      expect(zip.download).toHaveBeenCalledTimes(1);
+      expect(zip.download).toHaveBeenCalledWith({ proof: PROOF, expectCodes: ["C3", "C4"], groupId: "polynomials" });
+      expect(screen.getAllByTestId("receipt-zip-group")[0].textContent).toBe("Download");
+    });
+
+    it("a failed chapter ZIP says Try again on that row only; an expired link hides every ZIP row", async () => {
+      zip.download.mockResolvedValue({ ok: false, reason: "timeout" });
+      render(<PurchaseCard proof={PROOF} fetchReceiptImpl={async () => PACK} />);
+      fireEvent.click((await screen.findAllByTestId("receipt-zip-group"))[0]);
+      await waitFor(() => expect(screen.getAllByTestId("receipt-zip-group")[0].textContent).toBe("Try again"));
+      expect(screen.getAllByTestId("receipt-zip-group")[1].textContent).toBe("Download");
+      zip.download.mockResolvedValue({ ok: false, reason: "expired" });
+      fireEvent.click(screen.getAllByTestId("receipt-zip-group")[1]);
+      await screen.findByTestId("receipt-zip-expired");
+      expect(screen.queryAllByTestId("receipt-zip-group")).toHaveLength(0);
+      expect(screen.getAllByTestId("receipt-download")).toHaveLength(4);
+    });
+  });
 });

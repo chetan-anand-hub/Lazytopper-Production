@@ -2904,8 +2904,8 @@ async function zipRoutes(t, over = {}) {
 test('GUEST-ZIP · a valid guest proof gets ONE whole-pack ZIP link; owned + masked licensee are rebuilt from the ORDER, stamped under guest_<orderId>, nothing recorded', async (t) => {
   const { srv, packPdf } = await zipRoutes(t);
   const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
-  // a hostile body cannot choose the pack, the group or the licensee
-  const r = await zipLink(srv, paid, { packId: 'pack_bundle:all', group: 'x', uid: 'u9', licensee: { name: 'Evil' } });
+  // a hostile body cannot choose the pack or the licensee (PACK-PDF-SIZE-1: it MAY name a group, tested below)
+  const r = await zipLink(srv, paid, { packId: 'pack_bundle:all', uid: 'u9', licensee: { name: 'Evil' } });
   assert.equal(r.status, 200, r.text);
   assert.equal(r.json.ok, true);
   assert.equal(r.json.url, 'https://storage.example/z.zip');
@@ -2919,6 +2919,29 @@ test('GUEST-ZIP · a valid guest proof gets ONE whole-pack ZIP link; owned + mas
   assert.deepEqual(a.owned, [{ packId: 'pack_cbq:maths', sku: 'pack_cbq', target: 'maths', pricePaidInr: 0, paidAt: NOW, orderId: paid.orderId }]);
   assert.equal(JSON.stringify(a).includes('9876543948'), false, 'never the full number');
   assert.deepEqual(packPdf.recorded, [], 'no download event: there is no uid to record it against');
+});
+
+test('GUEST-ZIP · PACK-PDF-SIZE-1: a `group` asks for ONE chapter ZIP (same proof, same owned/licensee); a bad group id is refused; an unknown group is the service 404', async (t) => {
+  const { srv, packPdf } = await zipRoutes(t);
+  const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  const r = await zipLink(srv, paid, { group: 'real-numbers', packId: 'pack_bundle:all' });
+  assert.equal(r.status, 200, r.text);
+  assert.equal(packPdf.calls.length, 1);
+  assert.equal(packPdf.calls[0].groupId, 'real-numbers');
+  assert.equal(packPdf.calls[0].packId, 'pack_cbq:maths', 'the pack still comes from the order');
+  assert.equal(packPdf.calls[0].uid, `guest_${paid.orderId}`);
+  for (const bad of ['', '__all__', 'a b', 'x/../y', 5, {}]) {
+    const b = await zipLink(srv, paid, { group: bad });
+    assert.equal(b.status, 400, `group ${JSON.stringify(bad)} is malformed`);
+  }
+  assert.equal(packPdf.calls.length, 1, 'a malformed group makes nothing');
+  const legacy = await zipLink(srv, paid, { group: null });
+  assert.equal(legacy.status, 200);
+  assert.equal(packPdf.calls[1].groupId, '__all__', 'no group = the legacy whole-pack ZIP');
+  const missing = await zipRoutes(t);
+  missing.packPdf.zipLink = async () => { const e = new Error('unknown_group'); e.code = 'unknown_group'; throw e; };
+  const paid2 = await paidAttach(missing.srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  assert.equal((await zipLink(missing.srv, paid2, { group: 'nope' })).status, 404);
 });
 
 test('GUEST-ZIP · a wrong signature, another payment id, an unpaid order, a signed-in caller, a Board Pass order: refused, no ZIP made', async (t) => {
@@ -2994,11 +3017,11 @@ test('GUEST-ZIP · guards pinned: flags off 404; a flood is rate limited; anothe
   assert.equal(ng.status, 400);
   assert.equal(packPdf.calls.length, 0);
 
-  // the per-order hourly cap: the 31st call inside the hour is refused (429), the ZIP is not built again
-  for (let i = 0; i < 30; i += 1) assert.equal((await zipLink(srv, paid)).status, 200);
+  // the per-order hourly cap: the 61st call inside the hour is refused (429), the ZIP is not built again (PACK-PDF-SIZE-1: 30 -> 60, one ZIP per chapter)
+  for (let i = 0; i < 60; i += 1) assert.equal((await zipLink(srv, paid)).status, 200);
   const capped = await zipLink(srv, paid);
   assert.equal(capped.status, 429);
-  assert.equal(packPdf.calls.length, 30);
+  assert.equal(packPdf.calls.length, 60);
 });
 
 test('GUEST-ZIP · the per-client limiter counts this route (a flood of calls gets 429)', async (t) => {
