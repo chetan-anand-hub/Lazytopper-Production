@@ -338,6 +338,8 @@ export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   { prefix: "/mock-test-class-10", exact: true, modules: ["MockTestClass10Page"] },
   { prefix: "/question-bank-class-10", exact: true, modules: ["QuestionBankClass10Page"] },
   { prefix: "/cbse-marking-scheme-class-10", exact: true, modules: ["MarkingSchemeClass10Page"] },
+  // SEO-SELL-3 - the sample-paper landing (lazy route in App.tsx).
+  { prefix: "/sample-paper-class-10", exact: true, modules: ["SamplePaperClass10Page"] },
 ];
 
 /** The route-chunk module names for one advertised path. THROWS for a path with no entry. */

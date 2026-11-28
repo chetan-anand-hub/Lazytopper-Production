@@ -65,6 +65,7 @@ export const ROUTE_PARENTS: ReadonlyArray<readonly [string, RouteNavEntry]> = [
   ["/mock-test-class-10", { parent: "/" }],
   ["/question-bank-class-10", { parent: "/" }],
   ["/cbse-marking-scheme-class-10", { parent: "/" }],
+  ["/sample-paper-class-10", { parent: "/" }],
   ["/cbq-class-10/:chapterSlug", { parent: "/cbq-class-10" }],
   // SEO-DAILY-1: public Google pages, not in the product nav; a question returns to its hub, the hub to Home.
   ["/important-question-of-the-day", { parent: "/" }],
