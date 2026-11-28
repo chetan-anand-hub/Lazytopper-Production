@@ -45,12 +45,12 @@ export const HUB_EYEBROW = "CBSE CLASS 10 · BOARDS 2027";
 export const TEST_SERIES_CARD_NAME = "Test Series";
 
 /**
- * The four cards, in the owner's order (PRICING-4CARD-1, owner 18 Nov 2026 22:02 IST: "4 cards, Test Series second"): the ONLINE pair
- * (Board Pass, Test Series), then the ON PAPER pair (CBQ Packs, Question Bank + Mocks). `id` is the card's element id - the three
+ * The four cards, in the owner's order (CBQ-PRICING-2ND, 26 Nov 2026: CBQ Packs back to 2nd, the best seller; Test Series was 2nd under
+ * PRICING-4CARD-1): Board Pass, CBQ Packs, Test Series, Question Bank + Mocks. `id` is the card's element id - the three
  * legacy ids are kept (inbound links use them); the Test Series card is `#test-series`.
  */
 export type HubCardKey = "pass" | "ts" | "cbq" | "bank";
-export const HUB_CARD_ORDER: readonly HubCardKey[] = ["pass", "ts", "cbq", "bank"];
+export const HUB_CARD_ORDER: readonly HubCardKey[] = ["pass", "cbq", "ts", "bank"];
 export const HUB_CARD_ID: Readonly<Record<HubCardKey, string>> = { pass: "lt-premium-card", ts: "test-series", cbq: "cbq", bank: "packs" };
 export const HUB_CARD_NAME: Readonly<Record<HubCardKey, string>> = {
   pass: BOARD_PASS_NAME,
@@ -61,12 +61,9 @@ export const HUB_CARD_NAME: Readonly<Record<HubCardKey, string>> = {
 /** The phone tabs' short names (two words each, so a tab may wrap to two lines at 320 px and never cuts a word). */
 export const HUB_TAB_NAME: Readonly<Record<HubCardKey, string>> = { pass: BOARD_PASS_NAME, ts: TEST_SERIES_CARD_NAME, cbq: CBQ_PACKS_NAME, bank: "Question Bank" };
 
-/** The two groups the cards fall into, shown as labels (tabs on phones, above each pair on tablet and desktop). */
+/** CBQ-PRICING-2ND: the Online / On paper group labels are retired - CBQ is 2nd, so the pairs no longer sit together (each card's own tag still says ONLINE / ON PAPER). */
 export type HubGroupKey = "online" | "paper";
-export const HUB_GROUPS: ReadonlyArray<{ key: HubGroupKey; label: string; cards: readonly HubCardKey[] }> = [
-  { key: "online", label: "Online", cards: ["pass", "ts"] },
-  { key: "paper", label: "On paper", cards: ["cbq", "bank"] },
-];
+export const HUB_GROUPS: ReadonlyArray<{ key: HubGroupKey; label: string; cards: readonly HubCardKey[] }> = [];
 
 /** The tab's price: the bare base figure (the caption says "+ GST"). The Board Pass figure follows the date: read after mount. */
 export function hubTabPrice(key: HubCardKey, now: Date | number = Date.now()): string {
@@ -160,7 +157,11 @@ export function hubTsInsideRows(t: SeriesTotals = seriesTotals()): ReadonlyArray
     line: `${t.chapterTestsPerSubject[s]} chapter tests + ${SERIES_MOCKS_PER_SUBJECT} full-length papers`,
   }));
 }
-export const HUB_TS_TRY_LINE = `Try ${FREE_TESTS_ALLOWED === 1 ? "one test" : `${FREE_TESTS_ALLOWED} tests`} first: its MCQs are marked free.`;
+/** TS-FREE-CHECK-1 (owner, 23 Nov 2026): the free test now includes written-answer marking (was "Try one test first: its MCQs are marked free."). */
+export const HUB_TS_TRY_LINE = `Your ${FREE_TESTS_ALLOWED === 1 ? "first test is" : `first ${FREE_TESTS_ALLOWED} tests are`} free, written answers marked too.`;
+/** Trunk's line - still the true one while the free written check is switched off (VITE_TS_FREE_WRITTEN_CHECK_DISABLED=1). */
+export const HUB_TS_TRY_LINE_MCQ = `Try ${FREE_TESTS_ALLOWED === 1 ? "one test" : `${FREE_TESTS_ALLOWED} tests`} first: its MCQs are marked free.`;
+
 
 /**
  * Where "Get the Test Series" goes: the same link /test-series uses, or - while TS-PACK-1's client kill switch is on
@@ -270,3 +271,47 @@ export const HUB_FOLD_VIDEO = "See the Answer Checker at work";
 export function hubBundleStickyCopy(name: string): { label: string; button: string } {
   return { label: `${name} ${packPriceLabel("pack_bundle")}`, button: `Buy ${packPayLabel("pack_bundle")}` };
 }
+
+/* ── PRICING-CTA-UP-1 v1.1 (owner, 24 Nov 2026): the slim card faces ─────────────────────────────────
+ * Each card's FACE is tag · name (one link to the product page, "Details ›") · hook · at most three bullets · price line · ONE Buy.
+ * Everything else moves into the card's folded "more" row (or lives on the product page). Counts come from the pinned constants. */
+
+/** The visible cue on the face's link (the whole top area opens the product page). */
+export const HUB_OPEN_CUE = "Details ›";
+/** The face link's accessible name: "Board Pass details". */
+export function hubOpenAria(name: string): string {
+  return `${name} details`;
+}
+export const HUB_PASS_FACE_BULLETS: readonly string[] = [
+  // PRICING-HUB-2 H1 (owner 11 Nov 23:14): the pass's bank reads as ONLINE practice, the Bundle's as print.
+  `${BANK_QUESTIONS_CLAIM} questions online · ${BANK_CBQS_CLAIM} CBQs, every type`,
+  "Personal tutor: explains the step you got wrong",
+  "Graded tests, mocks + Mistake Intelligence",
+];
+export const HUB_TS_FACE_BULLETS: readonly string[] = [
+  "Written answers marked step by step",
+  "Scorecard and graded answer sheet",
+  "Your pre-boards calendar",
+];
+export const HUB_CBQ_FACE_BULLETS: readonly string[] = [
+  `${CBQ_SUBJECT_CLAIM} per subject, ${CBQ_MIN_PER_CHAPTER}+ per chapter`,
+  `Every type: ${CBQ_QUESTION_TYPES.join(", ")}`,
+  "Printable PDF, step-wise solutions",
+];
+export const HUB_BANK_FACE_BULLETS: readonly string[] = [
+  `${BUNDLE_QUESTIONS_CLAIM} questions to print`,
+  "Full board papers with the marking guide",
+  "Worked solutions, step by step",
+];
+/** The folded row under each card's Buy: what the face no longer shows (never a sales option lost from /pricing). */
+export const HUB_PASS_MORE = "7-day free trial and more";
+export const HUB_TS_MORE = "How checking works and more";
+export const HUB_CBQ_MORE = "What's inside and more";
+export function hubBankMore(): string {
+  return `Smaller packs from ${formatInr(PACK_PRICE_INR.pack_chapter)} + GST and more`;
+}
+/** The full Test Series feature line (the face bullet is its short form). */
+export const HUB_TS_ANALYSIS_LINE = HUB_TS_TICKS[0].text;
+
+/** Inside the Board Pass details: the compact face Pay hides PassCheckout's own link. Pinned equal to SOMEONE_ELSE_LINK by a test. */
+export const HUB_PASS_SOMEONE_ELSE = "Buying for someone else?";

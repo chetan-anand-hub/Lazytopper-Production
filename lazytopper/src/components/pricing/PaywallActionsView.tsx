@@ -112,6 +112,10 @@ export interface PaywallActionsViewProps {
   product?: ParentPayPackProduct;
   /** PARENT-PACKS-1 - no "Share QR code" button (a tight card); the text share stays. */
   noQr?: boolean;
+  /** PARENT-PAY-FIRST-1 - the closed-sheet rescue: "Forward link to parents" first and primary, then the QR button (no Pay). Absent: unchanged. */
+  parentFirst?: boolean;
+  /** PARENT-PAY-FIRST-1 - fires with each fresh tap on the QR button. */
+  onQr?: () => void;
   deps: ParentShareDeps;
 }
 
@@ -126,7 +130,7 @@ function errorName(e: unknown): string {
   return e && typeof e === "object" && "name" in e ? String((e as { name: unknown }).name) : "";
 }
 
-export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly = false, onAsk, forwardLabel = ASK_PARENT_LABEL, qrLabel = QR_LABEL, product, noQr = false, deps }: PaywallActionsViewProps) {
+export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly = false, onAsk, forwardLabel = ASK_PARENT_LABEL, qrLabel = QR_LABEL, product, noQr = false, parentFirst = false, onQr, deps }: PaywallActionsViewProps) {
   const [link, setLink] = useState<LinkState>({ kind: "idle" });
   const [lang, setLang] = useState<ParentPayLang>("en");
   const [panel, setPanel] = useState<Panel>(null);
@@ -174,7 +178,7 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
   const messageOf = (s: Extract<LinkState, { kind: "ready" }>, l: ParentPayLang) =>
     // PARENT-PACKS-1: a pack link's message names the pack at the SERVER's price (from the mint), never a typed figure.
     product && s.link.pack
-      ? buildAskParentPackMessage({ lang: l, name: product.name, priceInr: s.link.pack.totalInr ?? s.link.pack.priceInr, url: urlOf(s), days: daysLeft(s.link.expiresAt, deps.now()) })
+      ? buildAskParentPackMessage({ lang: l, name: product.name, sku: product.sku, priceInr: s.link.pack.totalInr ?? s.link.pack.priceInr, url: urlOf(s), days: daysLeft(s.link.expiresAt, deps.now()) })
       : buildAskParentMessage({
       lang: l,
       prices: s.link.prices,
@@ -214,7 +218,10 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
   /** `retry` = the panel's "Share" after an expired tap: the same action, not a new one. */
   async function handleQr(retry = false) {
     if (busy) return;
-    if (!retry) trackPaywallAction("qr", surface);
+    if (!retry) {
+      trackPaywallAction("qr", surface);
+      onQr?.();
+    }
     setNotice(null);
     setBusy(true);
     try {
@@ -250,6 +257,13 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
       const s = await ensureLink();
       if (s.kind !== "ready") {
         setPanel(null);
+        return;
+      }
+      if (parentFirst) {
+        // PARENT-WA-DIRECT-1 (owner 26 Nov 2026): the closed-sheet rescue's "Send to Mummy/Papa on WhatsApp" opens WhatsApp itself
+        // (wa.me, the same text and link), never the device share sheet. A blocked popup opens the panel: its "Send on WhatsApp" link
+        // and "Copy link" are the fallback. Every other caller of this action keeps the share-sheet-first path below.
+        setPanel(openWhatsAppLink(messageOf(s, lang), deps.openWindow) ? null : { kind: "forward", retryNative: false });
         return;
       }
       const result = await shareTextNative(s);
@@ -322,20 +336,25 @@ export function PaywallActionsView({ surface, onPay, payTo, showParent, askOnly 
       {!askOnly && payAction}
       {showParent && (
         <>
-          {!askOnly && !noQr && (
+          {!askOnly && !noQr && !parentFirst && (
             <button type="button" className="lt-paywall-parent" data-testid="paywall-qr" onClick={() => void handleQr()} disabled={busy}>
               {qrLabel}
             </button>
           )}
           <button
             type="button"
-            className={askOnly ? "lt-paywall-parent lt-paywall-parent--primary" : "lt-paywall-parent"}
+            className={askOnly || parentFirst ? "lt-paywall-parent lt-paywall-parent--primary" : "lt-paywall-parent"}
             data-testid="paywall-forward"
             onClick={() => void handleForward()}
             disabled={busy}
           >
             {forwardLabel}
           </button>
+          {parentFirst && !noQr && (
+            <button type="button" className="lt-paywall-parent" data-testid="paywall-qr" onClick={() => void handleQr()} disabled={busy}>
+              {qrLabel}
+            </button>
+          )}
           {link.kind === "loading" && (
             <p className="lt-parent-share-note" role="status">
               Preparing your link…
@@ -493,7 +512,7 @@ export function resetPackLinkCacheForTests(): void {
 }
 
 /** The live actions: Pay always (when given); the parent pair only for a signed-in account. */
-export default function PaywallActionsLive({ surface, onPay, payTo, showParent, askOnly, onAsk, forwardLabel, qrLabel, product, noQr }: PaywallActionsLiveProps) {
+export default function PaywallActionsLive({ surface, onPay, payTo, showParent, askOnly, onAsk, forwardLabel, qrLabel, product, noQr, parentFirst, onQr }: PaywallActionsLiveProps) {
   const { user } = useAuth();
   const uid = user?.uid ?? "";
   const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -530,6 +549,8 @@ export default function PaywallActionsLive({ surface, onPay, payTo, showParent, 
       qrLabel={qrLabel}
       product={product}
       noQr={noQr}
+      parentFirst={parentFirst}
+      onQr={onQr}
       deps={deps}
     />
   );

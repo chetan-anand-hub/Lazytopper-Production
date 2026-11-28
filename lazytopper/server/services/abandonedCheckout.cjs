@@ -349,8 +349,25 @@ function orderPriceText(order, nowMs, finishQuote) {
   return later || rupee(inr);
 }
 
+/**
+ * FOUNDING-MSG-PRICE-2 (owner, 25 Nov 2026: "there should be no wrong price from 1st december") - is `nowMs` (the SEND
+ * time) inside the founding offer AND is this a product whose price changes when it closes? Only the Board Pass
+ * (passPricing tillBoardsPriceInr: 1,917 -> 2,499) and the Test Series Pack (packProducts packBaseInrAt: 999 -> 1,499)
+ * do; every other pack has one price. An email (or the WhatsApp text it pre-fills) is read later than it is sent, so
+ * while this is true the message names NO amount; from the close the price no longer changes and the line is as before.
+ * A missing clock falls back to the process clock (as orderPriceText already does). PURE apart from that fallback.
+ */
+function priceChangesAtClose(product, nowMs) {
+  if (!product || (product.kind !== BOARD_PASS && product.sku !== 'test_series')) return false;
+  return pricing.foundingOfferOpen(Number.isFinite(nowMs) ? nowMs : Date.now());
+}
+
 /** The price line, from the order's own amount; null (no line) when the order has no usable amount. PURE. */
 function priceLine(product, order, nowMs, finishQuote) {
+  // FOUNDING-MSG-PRICE-2: while the founding offer is open, a price that changes at the close is not named.
+  if (priceChangesAtClose(product, nowMs)) {
+    return product.kind === BOARD_PASS ? `The Board Pass is one payment, valid till ${VALIDITY_LABEL}.` : 'A one-time payment. It never renews.';
+  }
   const text = orderPriceText(order, nowMs, finishQuote);
   if (text === null) return null;
   if (product.kind === BOARD_PASS) return `Board Pass: ${text}, one payment, valid till ${VALIDITY_LABEL}.`;
@@ -380,8 +397,13 @@ function buildAbandonedCheckoutEmail({ product, order, marksLine, appUrl, unsubs
   const name = productName(product);
   if (!name) return null;
   const finish = finishPayingUrl(appUrl, product);
-  const priceText = orderPriceText(order, nowMs, finishQuote);
-  const price = priceText === null ? '' : product.kind === BOARD_PASS ? ` (${priceText}, one payment, valid till ${VALIDITY_LABEL})` : ` (${priceText}, one-time)`;
+  // FOUNDING-MSG-PRICE-2: the parent reads this WhatsApp text later - while the founding offer is open it names no amount
+  // for a product whose price changes at the close (the client's parent messages, PR #1855, say the same).
+  const hidePrice = priceChangesAtClose(product, nowMs);
+  const priceText = hidePrice ? null : orderPriceText(order, nowMs, finishQuote);
+  const price = hidePrice
+    ? product.kind === BOARD_PASS ? ` (one payment, valid till ${VALIDITY_LABEL})` : ' (a one-time payment)'
+    : priceText === null ? '' : product.kind === BOARD_PASS ? ` (${priceText}, one payment, valid till ${VALIDITY_LABEL})` : ` (${priceText}, one-time)`;
   const ask =
     product.kind === BOARD_PASS
       ? `Hi, I want to get the LazyTopper Board Pass for my board exam prep${price}. Can you help me pay for it? ${appUrl}/pricing`
@@ -456,6 +478,7 @@ module.exports = {
   parentPayPageUrl,
   whatsappShareUrl,
   benefitLine,
+  priceChangesAtClose,
   priceLine,
   finishPayingQuote,
   quotePriceText,

@@ -9,7 +9,7 @@ import { ensureAllBankChapters } from "../../data/bankChapters/loader";
 import { PACK_CHAPTER_SLUGS, packIdOf } from "../../services/packs";
 import { buildPackFiles, cbqParts, type BuildContext } from "./buildPackFiles";
 import { cbqSets } from "./cbqSets";
-import { cbqPackRows } from "./packContent";
+import { PACK_LEDGER_HELD_IDS, cbqPackRows } from "./packContent";
 import { allCbqPins, cbqSetsFor, partSizes, type CbqChapterPins } from "./cbqPins";
 
 const FILE = resolve(__dirname, "packCbqSetIds.json");
@@ -50,6 +50,15 @@ describe("CBQ-PIN-1 pins", () => {
     const pins = allCbqPins();
     for (const slug of PACK_CHAPTER_SLUGS) {
       const today = cbqSets(cbqPackRows(slug)).map((s) => s.map((q) => q.id));
+      if ([...(pins[slug]?.sets ?? [])].flat().some((id) => PACK_LEDGER_HELD_IDS.has(id))) {
+        // CBQ-PACK-HOLDS: a ledger-held id stays in the (append-only) pin but is never printed. The pin is today's dealing WITH the held ids,
+        // so a re-deal over the eligible rows differs; what must hold is that the pin minus the held ids is exactly the eligible rows, and
+        // that every pinned set number and the part split are unchanged (the codes stay).
+        const pinned = (pins[slug]?.sets ?? []).map((ids) => ids.filter((id) => !PACK_LEDGER_HELD_IDS.has(id)));
+        expect(pinned.flat().sort(), `${slug} pin minus holds = eligible rows`).toEqual(today.flat().sort());
+        expect(pins[slug].parts, `${slug} parts`).toEqual(partSizes(pins[slug].sets.length));
+        continue;
+      }
       expect(pins[slug]?.sets ?? [], slug).toEqual(today);
       expect(pins[slug]?.parts ?? [], `${slug} parts`).toEqual(cbqParts(today).map((p) => p.length));
     }
@@ -74,28 +83,36 @@ describe("CBQ-PIN-1 pins", () => {
     expect(added).toEqual({ c: 1 });
   });
 
-  it("the whole CBQ packs build identically with the pins on and with VITE_CBQ_PIN_DISABLED (files, codes, sets, covers)", async () => {
+  it("the whole CBQ packs build identically with the pins on and with VITE_CBQ_PIN_DISABLED (files, codes, sets, covers), except the chapters that hold a ledger-held row", async () => {
+    // CBQ-PACK-HOLDS: a held id stays in the pin and is never printed, so those chapters' pinned sets differ from the kill-switch re-deal by design.
+    const heldChapters = PACK_CHAPTER_SLUGS.filter((slug) => allCbqPins()[slug]?.sets.flat().some((id) => PACK_LEDGER_HELD_IDS.has(id)));
+    expect(heldChapters.length).toBeGreaterThan(0);
     const run = async () => {
-      const sink: unknown[] = [];
+      const sink: Array<{ at: string; v: unknown }> = [];
+      let at = "";
       for (const s of ["maths", "science"] as const) {
         const ctx: BuildContext = {
           licensee: { name: "T", email: "t@example.in" },
           owned: [],
           nowIso: () => "2026-11-05T00:00:00.000Z",
-          exportPdf: async (ws, m, code) => (sink.push({ ws, m, code }), "x.pdf"),
-          exportSetsPdf: async (sets, m, opts) => (sink.push({ sets, m, opts }), "x.pdf"),
+          exportPdf: async (ws, m, code) => (sink.push({ at, v: { ws, m, code } }), "x.pdf"),
+          exportSetsPdf: async (sets, m, opts) => (sink.push({ at, v: { sets, m, opts } }), "x.pdf"),
         };
         const files = await buildPackFiles({ packId: packIdOf("pack_cbq", s), sku: "pack_cbq", target: s }, ctx);
-        sink.push(files.map((f) => [f.id, f.label, f.filename, f.codes, f.code]));
-        for (const f of files) await f.build();
+        sink.push({ at: "list", v: files.map((f) => [f.id, f.label, f.filename, f.codes, f.code]) });
+        for (const f of files) {
+          at = f.id;
+          await f.build();
+        }
       }
-      return JSON.stringify(sink);
+      return sink;
     };
+    const keep = (e: { at: string }) => !heldChapters.some((slug) => e.at.includes(`|${slug}|`));
     const pinned = await run();
     vi.stubEnv("VITE_CBQ_PIN_DISABLED", "1");
     const legacy = await run();
-    expect(pinned.length).toBeGreaterThan(500_000);
-    expect(pinned === legacy).toBe(true);
+    expect(JSON.stringify(pinned).length).toBeGreaterThan(500_000);
+    expect(JSON.stringify(pinned.filter(keep)) === JSON.stringify(legacy.filter(keep))).toBe(true);
   }, 600_000);
 
   it("pinned sets still cover at least the claimed CBQ floors (per chapter and per subject), so the pack copy stays true", async () => {

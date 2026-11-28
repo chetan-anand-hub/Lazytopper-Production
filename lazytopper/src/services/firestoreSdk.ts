@@ -134,13 +134,21 @@ export function getFirestore(): Promise<FirestoreHandle> {
   if (pending) return pending;
   const firebaseApp = app;
   if (!firebaseApp) return Promise.reject(new Error("[firestoreSdk] Firebase is not configured"));
-  const attempt: Promise<FirestoreHandle> = loadSdk().then((fs) => ({
-    fs,
-    // ignoreUndefinedProperties: the SDK otherwise THROWS on any `undefined` field value,
-    // which silently killed every practiceInsights/attempts write (attempt docs carry optional
-    // undefined fields like bloomSkill/topicName). Do NOT remove this. (D32)
-    db: fs.initializeFirestore(firebaseApp, { ignoreUndefinedProperties: true }),
-  }));
+  const attempt: Promise<FirestoreHandle> = loadSdk().then((fs) => {
+    const handle: FirestoreHandle = {
+      fs,
+      // ignoreUndefinedProperties: the SDK otherwise THROWS on any `undefined` field value,
+      // which silently killed every practiceInsights/attempts write (attempt docs carry optional
+      // undefined fields like bloomSkill/topicName). Do NOT remove this. (D32)
+      db: fs.initializeFirestore(firebaseApp, { ignoreUndefinedProperties: true }),
+    };
+    // UI-E2E-2 — TEST BUILDS ONLY (tests/e2e/buildEnv.signedIn.json); dead code, dropped by Vite,
+    // in every other build (scripts/ops/e2e_emulator_absent.mjs checks dist/). Never set in Vercel.
+    if (import.meta.env.VITE_E2E_FIREBASE_EMULATOR === "1") {
+      fs.connectFirestoreEmulator(handle.db, "127.0.0.1", 8080);
+    }
+    return handle;
+  });
   pending = attempt;
   // FIRST reaction — see "WHY ORDER HOLDS".
   attempt.then(

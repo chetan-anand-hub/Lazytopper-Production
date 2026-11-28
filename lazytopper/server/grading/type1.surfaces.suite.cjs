@@ -333,7 +333,9 @@ test('GRADER-TYPE-1 — GRADER_TYPE_1_DISABLED=1 at process start selects the pr
 });
 
 test('GRADER-TYPE-1 B2 — GRADER_TYPE_1_DISABLED=1 restores the TRUNK PROMPT BYTE-FOR-BYTE (the pinned sha c9c7d082…, not substrings) and drops omittedAsk from the request schema', () => {
-  const TRUNK = 'c9c7d082996e62ca538d48ff795b3b0d58713dbbc6b0fb62e56dd4e60eb48860';
+  // GRADE-SECOND-LOOK-1: the trunk prompt now carries the unplacedAnswers ask (30cafe67…); with GRADING_SECOND_LOOK_DISABLED=1
+  // as well it is the pre-second-look trunk c9c7d082…, which the acceptance test pins too.
+  const TRUNK = '30cafe67f5b295207dab42af6f5b87669cf74f7553409e4408e5466944b346be';
   const env = { ...process.env, GRADER_TYPE_1_DISABLED: '1' };
   delete env.NODE_TEST_CONTEXT; // a nested `node --test` inside a test run must report on its own stdout
   // routes/checkSolution.test.cjs §7.1 is the pinned-prompt acceptance test; under the switch it pins the TRUNK sha.

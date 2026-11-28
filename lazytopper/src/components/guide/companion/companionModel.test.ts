@@ -180,6 +180,15 @@ describe("4 · milestones — once each, ONE badge at a time", () => {
     expect(achievedMilestones({ records: [r("check-improve")], gradedAnswers: 0 })).toEqual(["firstWritten"]);
   });
 
+  it("TS-THEMES-1: a graded Test Series FOCUS SET (a full-mock record with an fm-tsfs- id) is never the first full mock", () => {
+    const focus = { surface: "full-mock", status: "graded", gradedAt: 5, topicKeys: [], subject: "maths", worksheetId: "fm-tsfs-mla1--x" } as never;
+    const real = { surface: "full-mock", status: "graded", gradedAt: 9, topicKeys: [], subject: "maths", worksheetId: "fm-ts1-m2--x" } as never;
+    expect(achievedMilestones({ records: [focus], gradedAnswers: 0 })).toEqual([]);
+    expect(milestoneCrossings([focus], []).firstFullMock).toBeUndefined();
+    expect(achievedMilestones({ records: [focus, real], gradedAnswers: 0 })).toEqual(["firstFullMock"]);
+    expect(milestoneCrossings([focus, real], []).firstFullMock).toBe(9);
+  });
+
   it("★ several reached at once → ONE badge (the furthest) and all are marked; then never again", () => {
     expect(milestoneToShow(["firstWritten", "firstChapterTest", "answers10"], [])).toEqual({
       show: "answers10",

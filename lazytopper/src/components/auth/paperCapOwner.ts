@@ -46,7 +46,37 @@ export function readTestSeriesOwner(uid: string): Promise<boolean> {
   return p;
 }
 
+/**
+ * FREE-TS-WEEKLY: the same read, THREE-state. A wall that refuses an ordinary paper must never fire on a failed read (an owner on a
+ * network blip): "unknown" fails OPEN. Shares the cache and the in-flight request of `readTestSeriesOwner`.
+ */
+export type TestSeriesOwnerState = "owner" | "not-owner" | "unknown";
+const unknownReads = new Map<string, Promise<TestSeriesOwnerState>>();
+export function readTestSeriesOwnerState(uid: string): Promise<TestSeriesOwnerState> {
+  if (owners.has(uid)) return Promise.resolve("owner");
+  const pending = unknownReads.get(uid);
+  if (pending) return pending;
+  const p = (async (): Promise<TestSeriesOwnerState> => {
+    try {
+      const { fetchMyPacks } = await import("../../services/packs");
+      const mine = await fetchMyPacks();
+      if (mine.ownsTestSeries === true) {
+        owners.add(uid);
+        return "owner";
+      }
+      return "not-owner";
+    } catch {
+      return "unknown";
+    } finally {
+      unknownReads.delete(uid);
+    }
+  })();
+  unknownReads.set(uid, p);
+  return p;
+}
+
 export function resetPaperCapOwnerForTests(): void {
   owners.clear();
+  unknownReads.clear();
   inflight.clear();
 }

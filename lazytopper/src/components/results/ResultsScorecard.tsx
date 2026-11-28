@@ -1,3 +1,4 @@
+import { stripStepMarks } from "../../lib/marks/objectiveSteps";
 import { lazy, Suspense, useEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { CheckSolutionAnnotatedStep } from "../../ai/aiClient";
@@ -32,6 +33,8 @@ const WrittenCheckOffers = lazy(() => import("../testSeries/WrittenCheckGate").t
 import PackPromo from "../packs/PackPromoLazy";
 import { ScorecardGuide } from "../guide/lazyGuide";
 import { formatScoreNumber } from "./scoreNumber";
+import { NOT_FOUND_ADD_PAGE_ACTION } from "../../lib/notFoundNotAttempted";
+import { MARK_ON_PHOTO_ACTION } from "../../services/markOnPhoto";
 import { useDetailLock, type DetailLimitKey } from "./useDetailLock";
 import type {
   ScorecardAllPending,
@@ -98,6 +101,8 @@ interface ResultsScorecardProps {
 const LockedDetail = lazy(() => import("./LockedDetail"));
 // SCORECARD-SECTION-TYPE-1 - the by-section / by-type tables load on demand (entry-chunk budget).
 const SectionTypeLens = lazy(() => import("./SectionTypeLens"));
+// TS-BOARDSCORE-1 - the full-length board view (score line, trend, board estimate) loads on demand (entry-chunk budget).
+const BoardScoreBlock = lazy(() => import("./BoardScoreBlock"));
 
 /** "11 of 20" / "7 of 10" from the card's own numbers, for the locked-detail card. */
 function scoreLine(score: ScorecardScore): string {
@@ -113,7 +118,7 @@ function ScoreHero({ score }: { score: ScorecardScore }) {
     // (the LIVE worksheet variant always passes them; a stored re-open may omit them to
     // avoid a fabricated count — honest-or-silent).
     const hasCounts = score.gradedCount != null && score.totalQuestions != null;
-    return (
+    const top = (
       <div className="lt-sc__top">
         <div className="lt-sc__big">
           {/* GUIDE-SCORE-1 — one number format for the hero and the guide's lines (no float noise). */}
@@ -128,6 +133,15 @@ function ScoreHero({ score }: { score: ScorecardScore }) {
           </div>
         )}
       </div>
+    );
+    // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:59 IST) — Full Mock / Chapter Test: the hero is out of the paper's FULL
+    // marks, and the marks that could not be marked are named right under it (never scored 0, never lost).
+    if (!score.notMarked) return top;
+    return (
+      <>
+        {top}
+        <p className="lt-sc__notmarked" data-testid="score-not-marked">{score.notMarked.line}</p>
+      </>
     );
   }
   // attempts — "X of N attempted" (never marks/total, D-PROG-2).
@@ -477,7 +491,7 @@ function WrongAnswersBlock({ answers }: { answers: ScorecardWrongAnswer[] }) {
               <ol className="lt-sc__wr-steps">
                 {a.steps.map((s, i) => (
                   <li key={i}>
-                    <MathText text={s} />
+                    <MathText text={stripStepMarks(s)} />
                   </li>
                 ))}
               </ol>
@@ -729,7 +743,7 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                 );
                 return (
                   <>
-                    {notFound > 0 && (
+                    {notFound > 0 && variant.notFoundNotAttempted?.mode !== "not-marked" && (
                       <div className="lt-sc__pend" data-grade-state="not-found">
                         <b>
                           {notFound} question{notFound === 1 ? "" : "s"} not answered on your pages
@@ -763,8 +777,50 @@ export default function ResultsScorecard({ variant, onClose, belowScore, hideSha
                 );
               })()}
 
+              {/* LIVE-FIX-1 #5 (owner ruling 23 Nov 2026, 23:05 IST) - Chapter Test / Full Mock: questions NOT FOUND on the uploaded
+                  pages count "Not attempted · 0" (in the score, never a mistake), with ONE helper line and the existing re-upload step. */}
+              {variant.notFoundNotAttempted && variant.notFoundNotAttempted.questions.length > 0 && (
+                <div className="lt-sc__nfna" data-testid="sc-not-found-not-attempted">
+                  <b>{variant.notFoundNotAttempted.lead}</b> {variant.notFoundNotAttempted.line}.
+                  {variant.notFoundNotAttempted.onAddPage && (
+                    <button type="button" className="lt-sc__nfna-btn" data-testid="sc-add-page" onClick={variant.notFoundNotAttempted.onAddPage}>
+                      {NOT_FOUND_ADD_PAGE_ACTION}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* MARK-ON-PHOTO-2 - Chapter Test / Full Mock / Worksheet: point to an answer on the photo; only that question is marked. */}
+              {variant.markOnPhoto && variant.markOnPhoto.items.length > 0 && (
+                <div className="lt-sc__nfna lt-sc__mop" data-testid="sc-mark-on-photo">
+                  <b>{MARK_ON_PHOTO_ACTION}</b> — point to your answer on the photo; only that question is marked.
+                  <div className="lt-sc__mop-row">
+                    {variant.markOnPhoto.items.map((it) => (
+                      <button
+                        key={it.index}
+                        type="button"
+                        className="lt-sc__nfna-btn lt-sc__mop-btn"
+                        data-testid="sc-mark-on-photo-btn"
+                        aria-label={`${MARK_ON_PHOTO_ACTION} for ${it.label}`}
+                        disabled={variant.markOnPhoto?.busy === true}
+                        onClick={() => variant.markOnPhoto?.onMark(it.index)}
+                      >
+                        {it.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {variant.message && <p className="lt-sc__msg">{variant.message}</p>}
               {variant.note && <p className="lt-sc__note">{variant.note}</p>}
+
+              {/* TS-BOARDSCORE-1 (owner ruling 23 Nov 2026) - a fully graded full-length paper only; absent renders nothing. */}
+              {variant.boardScore && (
+                <Suspense fallback={null}>
+                  <BoardScoreBlock view={variant.boardScore} />
+                </Suspense>
+              )}
 
               {variant.sectionLens && variant.sectionLens.length > 0 && (
                 <Suspense fallback={null}>
@@ -963,12 +1019,28 @@ const SC_CSS = `
 .lt-sc__big small { font-size: 28px; color: #8294ad; }
 .lt-sc__desc { font-size: 14px; color: #cfd7e2; padding-bottom: 6px; line-height: 1.3; }
 .lt-sc__mcq { color: #9fb0c6; }
+.lt-sc__notmarked { margin: -6px 0 16px; font-size: 13px; line-height: 1.5; font-weight: 600; color: #f0cf9a; }
 
 .lt-sc__pend {
   background: rgba(232, 183, 101, 0.12); border-left: 3px solid #e8b765; border-radius: 8px;
   padding: 11px 15px; font-size: 12.5px; color: #f0cf9a; margin-bottom: 26px; line-height: 1.55;
 }
 .lt-sc__pend b { color: #f6dcab; }
+/* LIVE-FIX-1 #5 - "Not attempted · 0" for questions not found on the pages: calm (not a warning), with the add-page step. */
+.lt-sc__nfna {
+  background: rgba(255, 255, 255, 0.06); border-left: 3px solid #8294ad; border-radius: 8px;
+  padding: 11px 15px; font-size: 12.5px; color: #cfd7e2; margin-bottom: 26px; line-height: 1.55;
+}
+.lt-sc__nfna b { color: #e3e9f1; }
+.lt-sc__nfna-btn {
+  display: block; min-height: 44px; margin-top: 10px; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28); background: transparent; color: #fff;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.lt-sc__nfna-btn:hover { border-color: rgba(255, 255, 255, 0.6); }
+.lt-sc__mop-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.lt-sc__mop-btn { display: inline-block; min-width: 56px; }
+.lt-sc__mop-btn:disabled { opacity: 0.6; cursor: default; }
 
 /* Quick-practice honest framing + nudge (navy body). */
 .lt-sc__msg { font-size: 13.5px; color: #e3e9f1; margin: 0 0 10px; line-height: 1.55; font-weight: 600; }
@@ -1163,7 +1235,7 @@ const SC_CSS = `
   border-radius: 13px; padding: 15px 16px; cursor: pointer; border: none; text-align: center;
 }
 .lt-sc__btn--ghost { background: #fff; color: #15233a; border: 1.5px solid hsl(152, 55%, 45%); }
-.lt-sc__btn--primary { background: hsl(152, 55%, 45%); color: #fff; box-shadow: 0 4px 12px hsla(152, 55%, 45%, 0.32); }
+.lt-sc__btn--primary { background: var(--lt-green-fill, #257e55); color: #fff; box-shadow: 0 4px 12px hsla(152, 55%, 45%, 0.32); }
 .lt-sc__btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
 /* Quick-practice what-next menu (white footer). */
@@ -1176,7 +1248,7 @@ const SC_CSS = `
   border-radius: 12px; padding: 13px 15px;
 }
 .lt-sc__mi--plain { background: #f2f5f9; color: #15233a; border: 1px solid #e4e9f0; }
-.lt-sc__mi--primary { background: hsl(152, 55%, 45%); color: #fff; border: none; box-shadow: 0 4px 12px hsla(152, 55%, 45%, 0.28); }
+.lt-sc__mi--primary { background: var(--lt-green-fill, #257e55); color: #fff; border: none; box-shadow: 0 4px 12px hsla(152, 55%, 45%, 0.28); }
 .lt-sc__mi:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 .lt-sc__mitag { font-size: 10.5px; font-weight: 800; letter-spacing: 0.04em; min-width: 34px; opacity: 0.7; }
 .lt-sc__mi--primary .lt-sc__mitag { opacity: 0.85; }

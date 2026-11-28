@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+// FREE-TS-WEEKLY: this file pins TODAY's daily gate / copy, which the kill switch VITE_FREE_TS_WEEKLY_DISABLED=1 restores exactly.
+vi.hoisted(() => vi.stubEnv("VITE_FREE_TS_WEEKLY_DISABLED", "1"));
 import { render, screen, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
@@ -230,4 +232,9 @@ describe("TS-MORE-1 · the daily gate with series papers", () => {
     expect(visit(`${CT_ROUTE}?series=1&paper=3`)).toBe(true);
     expect(visit(CT_ROUTE)).toBe(false);
   });
+});
+
+
+beforeEach(() => {
+  vi.stubEnv("VITE_FREE_TS_WEEKLY_DISABLED", "1");
 });

@@ -1,5 +1,6 @@
 // src/pages/PracticePage.tsx
 /* eslint-disable react-hooks/exhaustive-deps */
+import { stripStepMarks } from "../lib/marks/objectiveSteps";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -763,7 +764,7 @@ const QP_CONFIRM_CSS = `
 .qp-cf__row{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1px solid hsl(220,18%,90%);border-radius:10px;margin-bottom:8px;font-size:0.86rem;line-height:1.4}
 .qp-cf__tag{font-size:0.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:hsl(220,20%,95%);color:hsl(220,15%,42%);flex:none}
 .qp-cf__row--good{background:hsl(152,55%,95%);border-color:hsl(152,50%,82%)}
-.qp-cf__row--good .qp-cf__tag{background:hsl(152,55%,45%);color:#fff}
+.qp-cf__row--good .qp-cf__tag{background:var(--lt-green-fill, #257e55);color:#fff}
 .qp-cf__row--miss{background:#fff1f4;border-color:#fecdd3}
 .qp-cf__row--miss .qp-cf__tag{background:#e11d48;color:#fff}
 .qp-cf__row--pending{background:#fff7ed;border-color:#fed7aa}
@@ -771,7 +772,7 @@ const QP_CONFIRM_CSS = `
 .qp-cf__row--diagnose{background:#f5f3ff;border-color:#ddd6fe}
 .qp-cf__row--diagnose .qp-cf__tag{background:#7c3aed;color:#fff}
 .qp-cf__note{font-size:0.76rem;color:hsl(220,15%,42%);margin:12px 0 10px;line-height:1.5}
-.qp-cf__cta{display:block;width:100%;text-align:center;background:hsl(152,55%,45%);color:#fff;border:none;font:inherit;font-weight:700;font-size:0.92rem;padding:13px;border-radius:11px;cursor:pointer;margin-top:5px}
+.qp-cf__cta{display:block;width:100%;text-align:center;background:var(--lt-green-fill, #257e55);color:#fff;border:none;font:inherit;font-weight:700;font-size:0.92rem;padding:13px;border-radius:11px;cursor:pointer;margin-top:5px}
 .qp-cf__cta[disabled]{background:hsl(152,30%,62%);cursor:not-allowed}
 .qp-cf__cta--sec{background:#fff;color:hsl(220,25%,12%);border:1px solid hsl(220,18%,90%);margin-top:8px;font-weight:600}
 .qp-cf__err{margin-top:10px;padding:9px 12px;border-radius:9px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444;font-size:0.8rem;line-height:1.45}
@@ -5021,7 +5022,7 @@ const packTopicKey = useMemo(() => {
             label: `Question ${i + 1}`,
             yourAnswer,
             correctAnswer: correct >= 0 && opts[correct] ? opts[correct] : null,
-            steps: (Array.isArray(q.solutionSteps) ? q.solutionSteps : []).map(String).filter((s) => s.trim()),
+            steps: (Array.isArray(q.solutionSteps) ? q.solutionSteps : []).map((s) => stripStepMarks(String(s))).filter((s) => s.trim()),
             tutorAsk: tutorAskFor(q, { qNumber: i + 1, pick: yourAnswer }),
           }];
         }),
@@ -5125,7 +5126,7 @@ const packTopicKey = useMemo(() => {
       label: `Question ${r.qNumber}`,
       yourAnswer: storedPickedOption(r),
       correctAnswer: correct >= 0 && opts[correct] ? opts[correct] : null,
-      steps: (Array.isArray(row?.solutionSteps) ? row!.solutionSteps! : []).map(String).filter((t) => t.trim()),
+      steps: (Array.isArray(row?.solutionSteps) ? row!.solutionSteps! : []).map((t) => stripStepMarks(String(t))).filter((t) => t.trim()),
       tutorAsk: qid
         ? {
             onAsk: () => {

@@ -23,6 +23,9 @@ const CURRENT_PATH = 'packs/current.json';
 const LINK_TTL_MS = 15 * 60 * 1000;
 const MANIFEST_TTL_MS = 60 * 1000;
 const ZIP_STAMP_CONCURRENCY = 3;
+/** PACK-PDF-SIZE-1: how long an async ZIP request waits for a quick (cached) answer, and how long a finished/abandoned job is remembered. */
+const ZIP_ASYNC_GRACE_MS = 1500;
+const ZIP_JOB_KEEP_MS = 15 * 60 * 1000;
 /** GUEST-ZIP-1: the internal group id that means "every file of the pack, as ONE ZIP" (a signed-out buyer has no chapter groups to pick). Never a real group id. */
 const ZIP_ALL_GROUP = '__all__';
 /** Process-wide bounds on the heavy work (pdf-lib holds a whole template in memory): stamps at once, ZIP builds at once, requests per buyer at once. */
@@ -62,7 +65,7 @@ function createGate(slots) {
 }
 
 function createPackPdfService(deps = {}) {
-  const { bucket, now = () => Date.now(), telemetry, firestore, firestoreApi, fontsLoader = loadFonts } = deps;
+  const { bucket, now = () => Date.now(), telemetry, firestore, firestoreApi, fontsLoader = loadFonts, zipAsyncGraceMs = ZIP_ASYNC_GRACE_MS } = deps;
 
   function emit(event) {
     try {
@@ -275,9 +278,87 @@ function createPackPdfService(deps = {}) {
 
   /** A group of files as one store-only ZIP (stamped 3 at a time), kept and signed. */
   async function zipLink(args) {
+    if (args.async === true) return perUid(args.uid, () => zipLinkAsync(args));
     return perUid(args.uid, () => zipLinkInner(args));
   }
-  async function zipLinkInner({ uid, buyer, owned, packId, groupId, boardPass }) {
+  /**
+   * PACK-PDF-SIZE-1: a cold chapter ZIP (~30 stamped files, ~200 MB) can take longer than a phone is willing to wait on one request.
+   * With `async: true` the build runs DETACHED (cached under stamped/<uid>/<contentHash>/zip/ as before) and this answers at once:
+   * the finished link when the ZIP is already built (or finishes within ZIP_ASYNC_GRACE_MS), else { status: 'building', done, total }.
+   * The client polls the same call; a finished job is dropped and the next call is a cache hit. Per instance: a poll that lands on
+   * another instance starts that instance's own (idempotent) build of the same object.
+   */
+  const zipJobs = new Map();
+  const ZIP_JOBS_PER_UID = 2;
+  const ZIP_FAILED_KEEP_MS = 30 * 1000;
+  const jobUid = (key) => key.slice(0, key.indexOf('|'));
+  /** True while a background build for this buyer + group is running: a poll for it is not a new request (the routes do not charge it). */
+  function zipJobPending(uid, groupId) {
+    for (const [key, job] of zipJobs) {
+      if (job.state === 'building' && jobUid(key) === uid && key.endsWith(`|${groupId}`)) return true;
+    }
+    return false;
+  }
+  async function zipLinkAsync(args) {
+    const key = `${args.uid}|${args.packId}|${args.groupId}`;
+    let job = zipJobs.get(key);
+    if (job && job.state === 'done') {
+      zipJobs.delete(key);
+      return zipLinkInner({ ...args, progress: null });
+    }
+    if (job && job.state === 'failed') {
+      zipJobs.delete(key);
+      // a stale failure is not returned to a fresh click: only a failure from the last 30 s is (the poll that was waiting for it)
+      if (now() - job.finishedAt <= ZIP_FAILED_KEEP_MS) throw job.error;
+      job = undefined;
+    }
+    if (!job) {
+      let live = 0;
+      for (const [k, j] of zipJobs) if (j.state === 'building' && jobUid(k) === args.uid) live += 1;
+      if (live >= ZIP_JOBS_PER_UID) {
+        const e = new Error('busy');
+        e.code = 'busy';
+        throw e;
+      }
+      job = { state: 'building', done: 0, total: 0, startedAt: now() };
+      zipJobs.set(key, job);
+      const mine = job;
+      const finished = () => {
+        mine.finishedAt = now();
+        // a finished/failed job nobody collects is dropped later; a BUILDING job is never dropped from the map
+        const t = setTimeout(() => {
+          if (zipJobs.get(key) === mine) zipJobs.delete(key);
+        }, ZIP_JOB_KEEP_MS);
+        if (t && t.unref) t.unref();
+      };
+      mine.promise = zipLinkInner({ ...args, progress: mine }).then(
+        (r) => {
+          mine.state = 'done';
+          mine.result = r;
+          finished();
+        },
+        (e) => {
+          mine.state = 'failed';
+          mine.error = e;
+          finished();
+        },
+      );
+    }
+    await Promise.race([job.promise, new Promise((resolve) => {
+      const t = setTimeout(resolve, zipAsyncGraceMs);
+      if (t && t.unref) t.unref();
+    })]);
+    if (job.state === 'done') {
+      zipJobs.delete(key);
+      return job.result;
+    }
+    if (job.state === 'failed') {
+      zipJobs.delete(key);
+      throw job.error;
+    }
+    return { status: 'building', done: job.done, total: job.total };
+  }
+  async function zipLinkInner({ uid, buyer, owned, packId, groupId, boardPass, progress }) {
     const manifest = await getManifest();
     const pack = manifest.packs[packId];
     const group = pack && (groupId === ZIP_ALL_GROUP ? { groupId: ZIP_ALL_GROUP, group: packId, files: pack.files } : pack.groups.find((g) => g.groupId === groupId));
@@ -287,6 +368,7 @@ function createPackPdfService(deps = {}) {
       throw e;
     }
     const plans = group.files.map((templateId) => planFile({ manifest, uid, buyer, owned, packId, templateId, boardPass }));
+    if (progress) progress.total = plans.length;
     const zipKey = sha256Hex(JSON.stringify(plans.map((p) => p.stampKey)));
     const zipName = `lazytopper-${slug(group.group || group.groupId)}.zip`;
     const zipPath = `stamped/${uid}/${manifest.contentHash}/zip/${safeName(`${packId}|${group.groupId}`)}.zip`;
@@ -337,6 +419,7 @@ function createPackPdfService(deps = {}) {
                 for (let n = 2; used.has(name); n += 1) name = plans[i].file.filename.replace(/(\.[^.]*)?$/, ` (${n})$1`);
                 used.add(name);
                 archive.append(r.bytes, { name, store: true });
+                if (progress) progress.done = i + 1;
               }
               await archive.finalize();
             })().catch(fail);
@@ -394,7 +477,52 @@ function createPackPdfService(deps = {}) {
     }
   }
 
-  return { getManifest, fileLink, zipLink, recordDownloads, _planFile: planFile };
+  // ---- BONUS-BOOK-1: the CBQ Pack's bonus "complete book" (one pre-built PDF per subject, uploaded by the owner) ----
+  // Not stamped and not in the manifest: a fixed object under packs/bonus/. Until that object exists the row stays hidden
+  // (bonusBooksPresent says no) and a link request is not_ready. The ROUTE checks the entitlement (pack_cbq:<subject>, open window).
+  const bonusSeen = new Map(); // subject -> {at, present}
+  async function bonusPresent(subject) {
+    const path = BONUS_BOOK_PATHS[subject];
+    if (!path) return false;
+    const t = now();
+    const c = bonusSeen.get(subject);
+    if (c && t - c.at < MANIFEST_TTL_MS) return c.present;
+    let present = false;
+    try {
+      [present] = await theBucket().file(path).exists();
+      present = Boolean(present);
+    } catch {
+      present = false;
+    }
+    bonusSeen.set(subject, { at: t, present });
+    return present;
+  }
+  /** The subjects (of `subjects`) whose bonus book is uploaded. Never throws: an unreadable bucket is "none". */
+  async function bonusBooksPresent(subjects) {
+    const out = [];
+    for (const s of subjects) if (await bonusPresent(s)) out.push(s);
+    return out;
+  }
+  /** A 15-minute signed link to one subject's bonus book. Throws not_ready while it is not uploaded. */
+  async function bonusLink({ subject }) {
+    const path = BONUS_BOOK_PATHS[subject];
+    if (!path) {
+      const e = new Error('unknown_file');
+      e.code = 'unknown_file';
+      throw e;
+    }
+    bonusSeen.delete(subject);
+    if (!(await bonusPresent(subject))) throw new NotReady(`missing ${path}`);
+    const filename = BONUS_BOOK_FILENAMES[subject];
+    const signed = await sign(path, filename, 'application/pdf');
+    return { ...signed, filename, papers: [] };
+  }
+
+  return { getManifest, fileLink, zipLink, zipJobPending, recordDownloads, bonusBooksPresent, bonusLink, _planFile: planFile };
 }
 
-module.exports = { createPackPdfService, ZIP_ALL_GROUP, NotReady, templateIdForPackFile, fileIdFor, LINK_TTL_MS, CURRENT_PATH };
+/** BONUS-BOOK-1: where the owner uploads each subject's complete book (private bucket, same rules as the rest of packs/). */
+const BONUS_BOOK_PATHS = Object.freeze({ maths: 'packs/bonus/cbq-maths-complete-book.pdf', science: 'packs/bonus/cbq-science-complete-book.pdf' });
+const BONUS_BOOK_FILENAMES = Object.freeze({ maths: 'LazyTopper-CBQ-Maths-Complete-Book.pdf', science: 'LazyTopper-CBQ-Science-Complete-Book.pdf' });
+
+module.exports = { createPackPdfService, ZIP_ALL_GROUP, NotReady, templateIdForPackFile, fileIdFor, LINK_TTL_MS, CURRENT_PATH, BONUS_BOOK_PATHS, BONUS_BOOK_FILENAMES };

@@ -138,6 +138,21 @@ describe("PURCHASE-EVENT-1 · pack purchase", () => {
     expect(screen.queryByTestId("pay-rescue")).toBeNull();
   });
 
+  it("PARENT-PAY-FIRST-1: with parent pay on, the closed pack's card leads with the minted-link hand-off; the kill switch restores the plain page share", async () => {
+    vi.stubEnv("VITE_PAYMENTS_ENABLED", "true");
+    vi.stubEnv("VITE_PARENT_PAY_ENABLED", "true");
+    buyMock.mockResolvedValue({ status: "dismissed" });
+    shop("/pricing?buy=pack_bundle");
+    expect((await screen.findByTestId("paywall-forward", {}, { timeout: 4000 })).textContent).toBe("Send to Mummy/Papa on WhatsApp");
+    expect(screen.queryByTestId("pay-rescue-ask-pack")).toBeNull();
+    cleanup();
+    vi.stubEnv("VITE_PARENT_PAY_FIRST_DISABLED", "1");
+    buyMock.mockResolvedValue({ status: "dismissed" });
+    shop("/pricing?buy=pack_bundle");
+    expect(await screen.findByTestId("pay-rescue-ask-pack")).toBeTruthy();
+    vi.unstubAllEnvs();
+  });
+
   it("PAY-RESCUE-1: a failed or paid pack checkout never shows the rescue card", async () => {
     buyMock.mockResolvedValue({ status: "failed" });
     shop("/pricing?buy=pack_bundle");

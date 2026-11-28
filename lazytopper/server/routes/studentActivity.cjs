@@ -132,6 +132,8 @@ const ACTIVITY_EVENTS = Object.freeze([
   'trial_end_screen_parent',
   'trial_end_screen_basic',
   'scorecard_upgrade_shown',
+  'download_paywall_shown',
+  'download_paywall_pay_tap',
   'scorecard_upgrade_click',
   // FEEDBACK-1 - the "help us improve" prompt: shown / dismissed per moment, and the
   // one-tap reason per moment. Names only, never text. Additive only.

@@ -54,6 +54,8 @@ const buyPack = vi.hoisted(() =>
   vi.fn(async (..._a: unknown[]): Promise<{ status: "dismissed" | "paid" | "pending"; orderId?: string }> => ({ status: "dismissed" })),
 );
 const packsOn = vi.hoisted(() => ({ on: true }));
+/** PRICING-CTA-UP-1: the server's TS-UPGRADE-CREDIT-1 upgrade for a Test Series owner (null for everyone else). */
+const tsUp = vi.hoisted(() => ({ value: null as null | { creditInr: number; fullBaseInr: number; baseInr: number; gstInr: number; payInr: number } }));
 const checkOrder = vi.hoisted(() => vi.fn(async (..._a: unknown[]): Promise<{ state: string }> => ({ state: "pending" })));
 vi.mock("../../services/packs", async (orig) => {
   const actual = await orig<typeof import("../../services/packs")>();
@@ -64,6 +66,7 @@ vi.mock("../../services/packs", async (orig) => {
       packs: owned.packs.map((p, i) => ({ packId: `${p.sku}:${p.target}`, sku: p.sku, target: p.target, paidAt: 1_700_000_000_000 + i })),
       licensee: { name: "Asha", email: "a@b.in" },
       boardPassCredit: null,
+      ...(tsUp.value ? { testSeriesUpgrade: tsUp.value } : {}),
     })),
     buyPack,
     checkPackOrder: (...a: unknown[]) => checkOrder(...a),
@@ -153,6 +156,7 @@ beforeEach(() => {
   vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
   auth.user = null;
   owned.packs = [];
+  tsUp.value = null;
   packsOn.on = true;
   monthBuyer.on = false;
   setSub({}, { hydrated: false });
@@ -204,10 +208,11 @@ describe("the page, top to bottom (§2)", () => {
     const body = document.body.textContent ?? "";
     for (const gone of ["Pick where you want to start", "Three ways to prepare", "take them together", "take one"]) expect(body).not.toContain(gone);
     const cards = Array.from(screen.getByTestId("hub-cards").querySelectorAll(":scope > [data-card]")).map((c) => c.id);
-    expect(cards).toEqual(["lt-premium-card", "test-series", "cbq", "packs"]);
+    expect(cards).toEqual(["lt-premium-card", "cbq", "test-series", "packs"]);
   });
 
   it("Board Pass card: 1 MINUTE hero, the pinned bank claims, tutor, ticks, price from config, Pay, payline, trial, details link", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); the v1.1 face is pinned below.
     await renderAt("/pricing");
     const c = card("pass");
     expect(within(c).getByText("START HERE")).toBeInTheDocument();
@@ -228,6 +233,7 @@ describe("the page, top to bottom (§2)", () => {
   });
 
   it("CBQ card: hero, claims, ticks, price + GST, two Buys naming the total, 'Not in the Bundle.', details link", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); the v1.1 face is pinned below.
     await renderAt("/pricing");
     const c = card("cbq");
     expect(c).toHaveTextContent("ON PAPER · MOST ASKED-FOR");
@@ -244,6 +250,7 @@ describe("the page, top to bottom (§2)", () => {
   });
 
   it("Question Bank card: season tag, tiles, the pinned Bundle claim, ticks with config prices, Bundle Buy, separate line, details", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); the v1.1 face is pinned below.
     await renderAt("/pricing");
     const c = card("bank");
     expect(within(c).getByTestId("hub-bank-tag")).toHaveTextContent(hubBankTag());
@@ -259,23 +266,23 @@ describe("the page, top to bottom (§2)", () => {
     expect(within(c).getByTestId("hub-bank-details")).toHaveAttribute("href", "/packs");
   });
 
-  it("tabs: four real buttons with aria-pressed; caption; pager '1 of 4 · next: Test Series'; a tab tap selects its card", async () => {
+  it("tabs: four real buttons with aria-pressed; caption; pager '1 of 4 · next: CBQ Packs'; a tab tap selects its card", async () => {
     await renderAt("/pricing");
     const tabs = within(screen.getByTestId("hub-tabs")).getAllByRole("button");
     expect(tabs.map((t) => t.textContent)).toEqual([
       `Board Pass${hubTabPrice("pass")}`,
-      `Test Series${hubTabPrice("ts")}`,
       `CBQ Packs${hubTabPrice("cbq")}`,
+      `Test Series${hubTabPrice("ts")}`,
       `Question Bank${hubTabPrice("bank")}`,
     ]);
     expect(hubTabPrice("cbq")).toBe("₹199");
     expect(hubTabPrice("ts")).toBe(`₹${TEST_SERIES_PRICE_INR}`);
     expect(tabs.map((t) => t.getAttribute("aria-pressed"))).toEqual(["true", "false", "false", "false"]);
-    expect(tabs.map((t) => t.getAttribute("aria-controls"))).toEqual(["lt-premium-card", "test-series", "cbq", "packs"]);
+    expect(tabs.map((t) => t.getAttribute("aria-controls"))).toEqual(["lt-premium-card", "cbq", "test-series", "packs"]);
     expect(screen.getByText("4 options · tap or swipe · all prices + GST")).toBeInTheDocument();
-    expect(screen.getByTestId("hub-position")).toHaveTextContent("1 of 4 · next: Test Series");
+    expect(screen.getByTestId("hub-position")).toHaveTextContent("1 of 4 · next: CBQ Packs");
     fireEvent.click(tabs[1]);
-    expect(screen.getByTestId("hub-position")).toHaveTextContent("2 of 4 · next: CBQ Packs");
+    expect(screen.getByTestId("hub-position")).toHaveTextContent("2 of 4 · next: Test Series");
     fireEvent.click(tabs[3]);
     expect(tabs.map((t) => t.getAttribute("aria-pressed"))).toEqual(["false", "false", "false", "true"]);
     expect(screen.getByTestId("hub-position")).toHaveTextContent("4 of 4 · next: Board Pass");
@@ -434,8 +441,8 @@ describe("§0a.3 account states", () => {
 
 describe("§0a.4 inbound links", () => {
   it("#cbq / #packs / #lt-premium-card select their card (and the tab); the pure helpers agree", async () => {
-    expect([cardForHash("#cbq"), cardForHash("#packs"), cardForHash("#lt-premium-card"), cardForHash(""), cardForHash("#pricing-video")]).toEqual([2, 3, 0, 0, 0]);
-    expect(cardForHash("#test-series")).toBe(1);
+    expect([cardForHash("#cbq"), cardForHash("#packs"), cardForHash("#lt-premium-card"), cardForHash(""), cardForHash("#pricing-video")]).toEqual([1, 3, 0, 0, 0]);
+    expect(cardForHash("#test-series")).toBe(2);
     await renderAt("/pricing#cbq");
     expect(screen.getByTestId("hub-tab-cbq")).toHaveAttribute("aria-pressed", "true");
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
@@ -569,6 +576,7 @@ describe("round 2", () => {
   });
 
   it("R1: desktop extras - CBQ 'What's inside' and the smaller-pack rows linking to their /packs pop-ups (no buy path)", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); the v1.1 face is pinned below.
     await renderAt("/pricing?subject=science&from=for_parents");
     const inside = screen.getByTestId("hub-cbq-inside");
     expect(inside).toHaveTextContent("What's inside");
@@ -592,10 +600,12 @@ describe("round 2", () => {
     expect(HUB_CSS).toMatch(/body:has\(\.lt-ph\) \.lt-wa-fab \{\s*width: 44px;\s*height: 44px;\s*right: 4px;/);
   });
 
-  it("R4: the Basic line is the legacy one - 'limited practice' with the limits on", async () => {
+  it("R4 / GUEST-WALL: the Basic line, limits on, states no download and no checking (owner ruling 26 Nov 2026)", async () => {
     vi.stubEnv("VITE_LIMITS_ENABLED", "1");
     await renderAt("/pricing");
-    expect(screen.getByTestId("pricing-basic-line")).toHaveTextContent("Basic: free forever, with notes, NCERT solutions and limited practice (1 download a week; marking your written practice answers comes with the Board Pass)");
+    const line = screen.getByTestId("pricing-basic-line");
+    expect(line).toHaveTextContent("Basic: free forever, with notes, NCERT solutions and practice sets");
+    expect(line.textContent).not.toMatch(/download|marking|limited/i);
   });
 });
 
@@ -658,14 +668,12 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
 
   it("the online pair, then the paper pair: card order, group labels on the tabs and in the grid, tags", async () => {
     await renderAt("/pricing");
-    expect(HUB_CARD_ORDER).toEqual(["pass", "ts", "cbq", "bank"]);
-    expect(HUB_GROUPS.map((g) => [g.label, g.cards])).toEqual([["Online", ["pass", "ts"]], ["On paper", ["cbq", "bank"]]]);
+    expect(HUB_CARD_ORDER).toEqual(["pass", "cbq", "ts", "bank"]);
+    expect(HUB_GROUPS).toEqual([]);
     const track = screen.getByTestId("hub-cards");
-    expect(Array.from(track.querySelectorAll(":scope > [data-card]")).map((c) => (c as HTMLElement).dataset.card)).toEqual(["pass", "ts", "cbq", "bank"]);
-    expect(screen.getByTestId("hub-group-online")).toHaveTextContent("Online");
-    expect(screen.getByTestId("hub-group-paper")).toHaveTextContent("On paper");
-    expect(screen.getByTestId("hub-tabgroup-online")).toHaveTextContent("Online");
-    expect(screen.getByTestId("hub-tabgroup-paper")).toHaveTextContent("On paper");
+    expect(Array.from(track.querySelectorAll(":scope > [data-card]")).map((c) => (c as HTMLElement).dataset.card)).toEqual(["pass", "cbq", "ts", "bank"]);
+    expect(screen.queryByTestId("hub-group-online")).toBeNull();
+    expect(screen.queryByTestId("hub-tabgroup-paper")).toBeNull();
     expect(card("pass")).toHaveTextContent("ONLINE · EVERYTHING CHECKED");
     expect(card("ts")).toHaveTextContent("ONLINE · TESTS CHECKED");
     expect(card("cbq")).toHaveTextContent("ON PAPER");
@@ -678,12 +686,13 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
 
   it("the layout CSS: phones a carousel with a peek, 768-1279 px a 2x2 grid, 1280 px four across with a divider", () => {
     expect(HUB_CSS).toContain("flex: 0 0 min(340px, calc(100% - 36px));");
-    expect(HUB_CSS).toMatch(/@media \(min-width: 768px\) \{[\s\S]*?grid-template-areas:\s*"go go"\s*"c1 c2"\s*"gp gp"\s*"c3 c4";/);
-    expect(HUB_CSS).toMatch(/@media \(min-width: 1280px\) \{[\s\S]*?grid-template-areas:\s*"go go \. gp gp"\s*"c1 c2 dv c3 c4";/);
+    expect(HUB_CSS).toMatch(/@media \(min-width: 768px\) \{[\s\S]*?grid-template-areas:\s*"c1 c2"\s*"c3 c4";/);
+    expect(HUB_CSS).toMatch(/@media \(min-width: 1280px\) \{[\s\S]*?grid-template-areas:\s*"c1 c2 c3 c4";/);
     expect(HUB_CSS).toMatch(/align-items: stretch;/);
   });
 
   it("Test Series card: headline counts from the series config, ticks, the Board Pass line, price + GST, Buy and 'See all N tests'", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); the v1.1 face is pinned below.
     await renderAt("/pricing");
     const c = card("ts");
     expect(within(c).getByRole("heading", { level: 2 })).toHaveTextContent("Test Series");
@@ -919,6 +928,7 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
 
 describe("PRICING-HUB-2 H1 - the two 10,000+ claims read as two different things", () => {
   it("Board Pass: questions ONLINE with solutions; Question Bank: questions to PRINT in the Bundle; each from its pinned constant", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); the v1.1 face is pinned below.
     await renderAt("/pricing");
     const pass = screen.getByTestId("hub-pass-tile-questions").textContent ?? "";
     const bank = screen.getByTestId("hub-bank-claim").textContent ?? "";
@@ -930,8 +940,8 @@ describe("PRICING-HUB-2 H1 - the two 10,000+ claims read as two different things
 
 describe("PRICING-HUB-2 H2 - Back restores the card the visitor left", () => {
   it("pure: a card-naming hash wins, then the saved card of this history entry, then the Board Pass", () => {
-    expect([hashCard(""), hashCard("#cbq"), hashCard("#packs"), hashCard("#lt-premium-card"), hashCard("#pricing-video")]).toEqual([null, 2, 3, 0, null]);
-    expect(hashCard("#test-series")).toBe(1);
+    expect([hashCard(""), hashCard("#cbq"), hashCard("#packs"), hashCard("#lt-premium-card"), hashCard("#pricing-video")]).toEqual([null, 1, 3, 0, null]);
+    expect(hashCard("#test-series")).toBe(2);
     expect(savedCard({ [HUB_CARD_STATE_KEY]: 2, idx: 3 })).toBe(2);
     expect([savedCard(null), savedCard({}), savedCard({ [HUB_CARD_STATE_KEY]: 7 }), savedCard({ [HUB_CARD_STATE_KEY]: "1" })]).toEqual([null, null, null, null]);
     expect(initialCard("", { [HUB_CARD_STATE_KEY]: 1 })).toBe(1);
@@ -1080,6 +1090,7 @@ describe("PRICING-HUB-2 H3 - a VERIFIED pack payment on the hub gets the legacy 
 
 describe("PRICING-HUB-2 H6 - the parent-share actions sit in one row under the pack Buys", () => {
   it("signed in, nothing owned: the CBQ row holds both subjects' actions, the Bundle row its own; both rows sit after the Buys", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1"); // PRICING-CTA-UP-1: pins TODAY's card (the kill switch); v1.1 keeps the rows in the details panel.
     vi.stubEnv("VITE_PARENT_PAY_ENABLED", "1");
     auth.user = { uid: "u1" };
     setSub({});
@@ -1108,10 +1119,361 @@ describe("pure helpers", () => {
   });
   it("hubPositionLine names the next card and wraps", () => {
     expect([0, 1, 2, 3].map(hubPositionLine)).toEqual([
-      "1 of 4 · next: Test Series",
-      "2 of 4 · next: CBQ Packs",
+      "1 of 4 · next: CBQ Packs",
+      "2 of 4 · next: Test Series",
       "3 of 4 · next: Question Bank",
       "4 of 4 · next: Board Pass",
     ]);
+  });
+});
+
+describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest bar for a Test Series owner", () => {
+  const FOLLOWS = Node.DOCUMENT_POSITION_FOLLOWING;
+  /** a comes before b in the document. */
+  const before = (a: Element, b: Element) => expect(a.compareDocumentPosition(b) & FOLLOWS).toBeTruthy();
+  const q = (root: Element, sel: string) => {
+    const el = root.querySelector(sel);
+    expect(el, sel).not.toBeNull();
+    return el as Element;
+  };
+  /** Per card: its hero line, its price (or Buy-area first line), its Buy, a feature (ticks / tiles) and its details link. */
+  const parts = (k: "pass" | "ts" | "cbq" | "bank") => {
+    const c = card(k);
+    const hero = { pass: '[data-testid="hub-pass-minute"]', ts: '[data-testid="hub-ts-headline"]', cbq: ".lt-ph-hero", bank: ".lt-ph-hero" }[k];
+    const price = { pass: '[data-testid="pricing-passes"]', ts: '[data-testid="hub-ts-price"]', cbq: '[data-testid="hub-cbq-price"]', bank: '[data-testid="hub-bank-price"]' }[k];
+    const buy = { pass: ".lt-pricing-pay--boards", ts: '[data-testid="hub-buy-test_series"]', cbq: '[data-testid="hub-buy-pack_cbq-maths"]', bank: '[data-testid="hub-buy-pack_bundle"]' }[k];
+    const feature = { pass: '[data-testid="hub-pass-tutor"]', ts: ".lt-ph-ticks", cbq: ".lt-ph-tiles", bank: ".lt-ph-tiles" }[k];
+    return {
+      c,
+      tag: q(c, ".lt-ph-tag"),
+      name: q(c, ".lt-ph-name"),
+      hero: q(c, hero),
+      price: q(c, price),
+      buy: q(c, buy),
+      feature: q(c, feature),
+      ticks: q(c, ".lt-ph-ticks"),
+      details: q(c, ".lt-ph-details"),
+      foot: q(c, ".lt-ph-foot"),
+    };
+  };
+
+  /** v1.1 - the card's face (one link), its foot (price + Buy) and its folded row. */
+  const v11 = (k: "pass" | "ts" | "cbq" | "bank") => {
+    const c = card(k);
+    return { c, face: q(c, ".lt-ph-face"), foot: q(c, ".lt-ph-foot"), more: c.querySelector(".lt-ph-panel") as HTMLElement | null };
+  };
+  const PAGE = { pass: "/board-pass", ts: "/test-series", cbq: "/cbq-packs", bank: "/packs" } as const;
+  const NAME = { pass: "Board Pass", ts: "Test Series", cbq: "CBQ Packs", bank: "Question Bank + Mocks" } as const;
+
+  it("v1.1 face: tag · name (ONE link to the product page, 'Details ›') · hook · at most 3 ticks · price · the Buy, then a closed fold", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    expect(screen.getByTestId("hub-cards")).toHaveClass("lt-ph-cards--up");
+    for (const k of ["pass", "ts", "cbq", "bank"] as const) {
+      const { c, face, foot, more } = v11(k);
+      // The face holds exactly one interactive control: the name's link, stretched over the top area. The Buy is outside it.
+      const controls = face.querySelectorAll("a, button, input, select, textarea, summary");
+      expect(controls).toHaveLength(1);
+      const link = controls[0] as HTMLAnchorElement;
+      expect(link).toHaveClass("lt-ph-open");
+      expect(link).toHaveAttribute("href", PAGE[k]);
+      expect(link).toHaveAttribute("aria-label", `${NAME[k]} details`);
+      expect(link).toHaveTextContent("Details ›");
+      // The heading keeps the product's own name (the link is not inside it, so it does not rename it).
+      expect(link.closest("h2")).toBeNull();
+      expect(within(face as HTMLElement).getByRole("heading", { level: 2 })).toHaveAccessibleName(NAME[k]);
+      expect(face.querySelectorAll(".lt-ph-ticks li").length).toBeLessThanOrEqual(3);
+      before(q(face, ".lt-ph-tag"), q(face, "h2"));
+      // Order: [face + its details panel] (the stage) -> foot (price, Buy) -> "…and more"; the panel starts hidden, over the face only.
+      expect(foot.parentElement).toBe(c);
+      expect(more).not.toBeNull();
+      const stage = q(c, ".lt-ph-stage");
+      expect(stage.contains(face) && stage.contains(more as Element)).toBe(true);
+      before(stage, foot);
+      expect((more as HTMLElement).hidden).toBe(true);
+      expect(more).toHaveAttribute("role", "region");
+      const btn = q(c, ".lt-ph-morebtn");
+      before(foot, btn);
+      expect(btn).toHaveAttribute("aria-expanded", "false");
+      expect(btn).toHaveAttribute("aria-controls", (more as HTMLElement).id);
+      expect(face.contains(foot)).toBe(false);
+    }
+    // ONE Buy per face (the CBQ card's Buy is its per-subject pair).
+    expect(v11("pass").foot.querySelectorAll("button")).toHaveLength(1);
+    expect(v11("pass").foot.querySelector(".lt-pricing-pay--boards")).not.toBeNull();
+    expect(v11("ts").foot.querySelectorAll("button, a")).toHaveLength(1);
+    expect(v11("cbq").foot.querySelectorAll("button")).toHaveLength(2);
+    expect(v11("bank").foot.querySelectorAll("button, a")).toHaveLength(1);
+    // Nothing else on the Board Pass face: no WhatsApp box, no GST breakup, no "Buying for someone else?", no trial, no payline.
+    const passFoot = v11("pass").foot;
+    for (const id of ["pass-checkout-gst", "pricing-trial", "pricing-payline", "pricing-parent-share"]) {
+      expect(passFoot.querySelector(`[data-testid="${id}"]`), id).toBeNull();
+    }
+    expect(passFoot.querySelector("input")).toBeNull();
+    // ... they sit in its fold instead (the trial: owner 24 Nov, "inside the card after the click, in details").
+    const passMore = v11("pass").more as HTMLElement;
+    expect(within(passMore).getByTestId("pricing-trial")).toHaveTextContent("Try the Board Pass free for 7 days");
+    expect(within(passMore).getByTestId("pricing-payline")).toBeInTheDocument();
+    expect(within(passMore).getByTestId("hub-pass-validity")).toHaveTextContent("valid till 28 Feb 2027");
+  });
+
+  it("review nit (a): 'Buying for someone else?' sits INSIDE the Board Pass details (signed in, Who on) and opens /board-pass; never on the face", async () => {
+    const { SOMEONE_ELSE_LINK } = await import("../../components/checkoutWho/SomeoneElseLink");
+    const { HUB_PASS_SOMEONE_ELSE } = await import("./hubCopy");
+    expect(HUB_PASS_SOMEONE_ELSE).toBe(SOMEONE_ELSE_LINK);
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "1");
+    auth.user = { uid: "u1" };
+    await renderAt("/pricing");
+    const { foot, more } = v11("pass");
+    expect(foot.querySelector('[data-testid="hub-pass-someone-else"]')).toBeNull();
+    const link = within(more as HTMLElement).getByTestId("hub-pass-someone-else");
+    expect(link).toHaveTextContent("Buying for someone else?");
+    expect(link.getAttribute("href")).toBe("/board-pass");
+    cleanup();
+    auth.user = null;
+    await renderAt("/pricing");
+    expect(screen.queryByTestId("hub-pass-someone-else")).toBeNull();
+    vi.stubEnv("VITE_CHECKOUT_WHO_ENABLED", "");
+  });
+
+  it("v1.1 Board Pass face: the 1 MINUTE hook, three ticks from the pinned constants (ONLINE questions), the price from config, Pay total", async () => {
+    await renderAt("/pricing");
+    const { face, foot, more } = v11("pass");
+    expect(within(face as HTMLElement).getByText("START HERE")).toBeInTheDocument();
+    expect(within(face as HTMLElement).getByTestId("hub-pass-minute")).toHaveTextContent("1MINUTE1 minute: CBSE-style marking of your answer");
+    expect(Array.from(face.querySelectorAll(".lt-ph-ticks li")).map((li) => li.textContent)).toEqual([
+      `✓${BANK_QUESTIONS_CLAIM} questions online · ${BANK_CBQS_CLAIM} CBQs, every type`,
+      "✓Personal tutor: explains the step you got wrong",
+      "✓Graded tests, mocks + Mistake Intelligence",
+    ]);
+    expect(within(foot as HTMLElement).getByTestId("till-boards-figures")).toHaveTextContent(boardPassPriceDisplay());
+    expect((foot.querySelector(".lt-pricing-pay--boards") as HTMLElement).textContent).toBe(`Pay ${boardPassPayDisplay()} once · valid till 28 Feb 2027`);
+    expect(more).not.toBeNull();
+  });
+
+  it("v1.1 Test Series face: counts from the series config, the founding clause by the price, the Buy total; the fold keeps the rest", async () => {
+    const series = seriesTotals();
+    await renderAt("/pricing?from=for_parents");
+    const { face, foot, more } = v11("ts");
+    expect(within(face as HTMLElement).getByTestId("hub-ts-headline").textContent).toBe(`${series.chapterTests} chapter tests + ${series.fullMocks} full-length board papers`);
+    expect(within(face as HTMLElement).getByTestId("hub-ts-details")).toHaveAttribute("href", "/test-series?from=for_parents");
+    expect(Array.from(face.querySelectorAll(".lt-ph-ticks li")).map((li) => li.textContent)).toEqual([
+      "✓Written answers marked step by step",
+      "✓Scorecard and graded answer sheet",
+      "✓Your pre-boards calendar",
+    ]);
+    expect(face.textContent).not.toMatch(/tutor|Answer Checker/i);
+    expect(within(foot as HTMLElement).getByTestId("hub-ts-price")).toHaveTextContent(packPriceLabel("test_series"));
+    expect(within(foot as HTMLElement).getByTestId("hub-buy-test_series")).toHaveTextContent(`Get the Test Series · ${packPayLabel("test_series")}`);
+    const m = more as HTMLElement;
+    expect(within(m).getByTestId("hub-ts-checks")).toHaveTextContent("Each paper can be checked twice");
+    expect(within(m).getByTestId("hub-ts-try")).toHaveTextContent("Your first test is free, written answers marked too.");
+    expect(within(m).getByTestId("hub-ts-analysis")).toHaveTextContent("after-test analysis: weakest chapters, time per question, mistake notebook");
+    expect(within(m).getByTestId("hub-ts-inside-maths")).toHaveTextContent(`${series.chapterTestsPerSubject.Maths} chapter tests`);
+    expect(within(m).getByTestId("hub-ts-upsell")).toHaveTextContent("Want the tutor and Answer Checker too? Board Pass →");
+    expect(document.body.textContent).not.toContain("its MCQs are marked free");
+    cleanup();
+    // While the free written check is switched off (as on /test-series), the line says only what is true.
+    vi.stubEnv("VITE_TS_FREE_WRITTEN_CHECK_DISABLED", "1");
+    await renderAt("/pricing");
+    expect(within(v11("ts").more as HTMLElement).getByTestId("hub-ts-try")).toHaveTextContent("Try one test first: its MCQs are marked free.");
+    // The hub reads the flag inline (entry budget); it must agree with /test-series' own reader for every value.
+    const { freeWrittenCheckDisabled } = await import("../../lib/testSeries/seriesAccess");
+    const { hubTsTryLine } = await import("./PricingHub");
+    for (const v of ["1", "", "0", "true"]) {
+      vi.stubEnv("VITE_TS_FREE_WRITTEN_CHECK_DISABLED", v);
+      expect(hubTsTryLine().includes("MCQs"), v).toBe(freeWrittenCheckDisabled());
+    }
+  });
+
+  it("v1.1 CBQ + Question Bank faces: ticks from the pinned constants, 'Not in the Bundle.' / 'CBQ Packs are separate.' in the details, smaller packs in the fold", async () => {
+    await renderAt("/pricing?subject=science&from=for_parents");
+    const cbq = v11("cbq");
+    expect(cbq.face).toHaveTextContent("Half your board paper is competency-based. Practise every type.");
+    expect(Array.from(cbq.face.querySelectorAll(".lt-ph-ticks li")).map((li) => li.textContent)).toEqual([
+      `✓${CBQ_SUBJECT_CLAIM} per subject, 100+ per chapter`,
+      `✓Every type: ${CBQ_QUESTION_TYPES.join(", ")}`,
+      "✓Printable PDF, step-wise solutions",
+    ]);
+    // Owner (25 Nov 00:57): "Not in the Bundle." is off the CBQ face, kept in its details panel.
+    expect(within(cbq.foot as HTMLElement).queryByTestId("hub-cbq-not-in-bundle")).toBeNull();
+    expect(within(cbq.more as HTMLElement).getByTestId("hub-cbq-not-in-bundle")).toHaveTextContent("Not in the Bundle.");
+    expect(within(cbq.more as HTMLElement).getByTestId("hub-cbq-inside")).toHaveTextContent(`Download again any time until ${REDOWNLOAD_UNTIL}`);
+    const bank = v11("bank");
+    expect(within(bank.face as HTMLElement).getByTestId("hub-bank-tile-chapters")).toHaveTextContent("26chapters, Maths + Science");
+    expect(Array.from(bank.face.querySelectorAll(".lt-ph-ticks li")).map((li) => li.textContent)).toEqual([
+      `✓${BUNDLE_QUESTIONS_CLAIM} questions to print`,
+      "✓Full board papers with the marking guide",
+      "✓Worked solutions, step by step",
+    ]);
+    // Owner (25 Nov 05:25, "keep them aligned"): off the Bundle face too, so the four Buys line up; kept in its details panel.
+    expect(within(bank.foot as HTMLElement).queryByTestId("hub-bank-separate")).toBeNull();
+    expect(within(bank.more as HTMLElement).getByTestId("hub-bank-separate")).toHaveTextContent("CBQ Packs are separate.");
+    // The smaller packs stay reachable from /pricing at every size (no desktop-only class), as links to their /packs pop-ups.
+    const m = bank.more as HTMLElement;
+    expect(m.querySelector(".lt-ph-panel__title")).toHaveTextContent(`Smaller packs from ₹${PACK_PRICE_INR.pack_chapter} + GST and more`);
+    expect(screen.getByTestId("hub-bank-more-open")).toHaveTextContent(`Smaller packs from ₹${PACK_PRICE_INR.pack_chapter} + GST and more`);
+    const rows = within(m).getByTestId("hub-bank-rows");
+    expect(rows).not.toHaveClass("lt-ph-extra");
+    expect(within(rows).getByTestId("hub-bank-row-subject")).toHaveAttribute("href", "/packs?pack=subject&subject=science&from=for_parents");
+    expect(within(rows).getByTestId("hub-bank-row-mock")).toHaveAttribute("href", "/packs?mock=science&from=for_parents");
+    expect(within(rows).getByTestId("hub-bank-row-chapter")).toHaveAttribute("href", "/packs?pack=chapter&from=for_parents");
+    expect(rows.querySelector("button")).toBeNull();
+  });
+
+  it("v1.1 parent share rows sit in the details panels; the ad anchors are on their cards", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    const cbq = v11("cbq");
+    // In the card's details panel (not on the face, not inside the Buy row).
+    const share = within(cbq.more as HTMLElement).getByTestId("hub-cbq-share");
+    expect(cbq.foot.contains(share)).toBe(false);
+    expect(within(v11("bank").more as HTMLElement).getByTestId("hub-bank-share")).toBeInTheDocument();
+    expect(card("pass").id).toBe("lt-premium-card");
+    expect(card("ts").id).toBe("test-series");
+    expect(card("cbq").id).toBe("cbq");
+    expect(card("bank").id).toBe("packs");
+  });
+
+  it("v1.1 details panel: '…and more' opens it inside the card (focus to ✕), ✕ and Esc close it (focus back), one panel at a time, Buy outside it", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    const ts = v11("ts");
+    const btn = screen.getByTestId("hub-ts-more-open");
+    const panel = ts.more as HTMLElement;
+    expect(panel.hidden).toBe(true);
+    fireEvent.click(btn);
+    expect(panel.hidden).toBe(false);
+    expect(btn).toHaveAttribute("aria-expanded", "true");
+    expect(document.activeElement).toBe(screen.getByTestId("hub-ts-more-close"));
+    expect(panel).toHaveAccessibleName(/Test Series/);
+    // The Buy is not inside the panel, so it stays visible below it.
+    expect(panel.contains(screen.getByTestId("hub-buy-test_series"))).toBe(false);
+    // Opening another card's panel closes this one.
+    fireEvent.click(screen.getByTestId("hub-bank-more-open"));
+    expect(panel.hidden).toBe(true);
+    expect((v11("bank").more as HTMLElement).hidden).toBe(false);
+    fireEvent.click(screen.getByTestId("hub-bank-more-close"));
+    expect((v11("bank").more as HTMLElement).hidden).toBe(true);
+    expect(document.activeElement).toBe(screen.getByTestId("hub-bank-more-open"));
+    // Esc inside the panel closes it and returns focus to its trigger.
+    fireEvent.click(btn);
+    fireEvent.keyDown(screen.getByTestId("hub-ts-more-close"), { key: "Escape" });
+    expect(panel.hidden).toBe(true);
+    expect(document.activeElement).toBe(btn);
+    // The trial (owner 24 Nov: "inside the card after the click") is in the Board Pass panel.
+    expect(within(v11("pass").more as HTMLElement).getByTestId("pricing-trial")).toBeInTheDocument();
+  });
+
+  it("CSS v1.1: the face link is stretched over the top area; equal-size cards; the details panel overlays the card", () => {
+    expect(HUB_CSS).toMatch(/\.lt-ph-face \{\s*position: relative;/);
+    expect(HUB_CSS).toMatch(/\.lt-ph-open::after \{\s*content: "";\s*position: absolute;/);
+    expect(HUB_CSS).toMatch(/\.lt-ph-card--face \.lt-ph-foot \{\s*margin-top: 0;/);
+    // Equal size: every card in a row stretches (phones: the carousel track too); 768-1279 px both card rows share one height.
+    expect(HUB_CSS).toMatch(/\.lt-ph-cards--up \{\s*align-items: stretch;/);
+    expect(HUB_CSS).toMatch(/@media \(min-width: 768px\) \{\s*\.lt-ph-cards--up \{\s*grid-template-rows: auto 1fr auto 1fr;/);
+    expect(HUB_CSS).toMatch(/@media \(min-width: 1280px\) \{\s*\.lt-ph-cards--up \{\s*grid-template-rows: auto 1fr;/);
+    // The details panel overlays the card's own top area (absolute, scrollable): opening it never changes the card's size.
+    expect(HUB_CSS).toMatch(/\.lt-ph-stage \{\s*position: relative;/);
+    expect(HUB_CSS).toMatch(/\.lt-ph-panel \{\s*position: absolute;[\s\S]*?overflow-y: auto;/);
+    // Today's pinned foot is still the rule the kill switch falls back to.
+    expect(HUB_CSS).toMatch(/\.lt-ph-foot \{\s*margin-top: auto;/);
+  });
+
+  it("kill switch VITE_PRICING_CTA_UP_DISABLED=1: today's layout exactly - features first, the Buy area (with the details link) at the foot", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1");
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    expect(screen.getByTestId("hub-cards")).not.toHaveClass("lt-ph-cards--up");
+    for (const k of ["pass", "ts", "cbq", "bank"] as const) {
+      const p = parts(k);
+      before(p.hero, p.feature);
+      before(p.ticks, p.price);
+      before(p.price, p.buy);
+      expect(p.foot.contains(p.details)).toBe(true);
+      expect(p.c.lastElementChild).toBe(p.foot);
+    }
+    cleanup();
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "true"); // only "1" switches it off (the documented value)
+    await renderAt("/pricing");
+    expect(screen.getByTestId("hub-cards")).toHaveClass("lt-ph-cards--up");
+  });
+
+  it("signed out, trial, Board Pass owner, pack owner, Test Series owner: every card renders, and nothing owned is sold again", async () => {
+    await renderAt("/pricing");
+    for (const k of ["pass", "ts", "cbq", "bank"] as const) expect(card(k)).toBeInTheDocument();
+    expect(within(card("pass")).getByTestId("pricing-passes")).toBeInTheDocument();
+    cleanup();
+    auth.user = { uid: "u1" };
+    setSub({ tier: "premium", plan: "pass_till_boards", passEnd: new Date(Date.now() + 60 * DAY).toISOString() });
+    await renderAt("/pricing");
+    expect(within(card("pass")).getByTestId("hub-pass-owned")).toBeInTheDocument();
+    expect(within(card("pass")).queryByTestId("pricing-payline")).toBeNull();
+    expect(within(card("ts")).getByTestId("hub-ts-included")).toBeInTheDocument();
+    expect(within(card("ts")).queryByTestId("hub-buy-test_series")).toBeNull();
+    cleanup();
+    setSub({});
+    owned.packs = [{ sku: "test_series", target: "all" }, { sku: "pack_bundle", target: "all" }];
+    await renderAt("/pricing");
+    expect(await screen.findByTestId("hub-ts-owned")).toBeInTheDocument();
+    expect(within(card("ts")).queryByTestId("hub-buy-test_series")).toBeNull();
+    expect(await screen.findByTestId("hub-buy-pack_bundle-owned")).toBeInTheDocument();
+    // The owned states sit where the Buy sat: in the card's foot, under its face.
+    expect((card("ts").querySelector(".lt-ph-foot") as Element).contains(screen.getByTestId("hub-ts-owned"))).toBe(true);
+  });
+
+  it("§2.4 a Test Series owner: the bar says 'Board Pass upgrade' / the card's own Pay ₹1,083, never the list total - also while Pay opens", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    owned.packs = [{ sku: "test_series", target: "all" }];
+    tsUp.value = { creditInr: 999, fullBaseInr: 1917, baseInr: 918, gstInr: 165, payInr: 1083 };
+    await renderAt("/pricing");
+    expect(await screen.findByTestId("pass-checkout-ts-upgrade")).toBeInTheDocument();
+    const payBtn = card("pass").querySelector(".lt-pricing-pay--boards") as HTMLButtonElement;
+    expect(payBtn).toHaveTextContent("Pay ₹1,083");
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    const bar = () => screen.getByTestId("pricing-sticky-bar");
+    expect(bar()).toHaveTextContent("Board Pass upgrade");
+    expect(screen.getByTestId("pricing-sticky-bar-go")).toHaveTextContent("Pay ₹1,083");
+    expect(bar().textContent).not.toContain(boardPassPayDisplay());
+    // The card's Pay now reads "Opening secure payment…" (no figure): the bar keeps the last figure, never the list total.
+    await act(async () => {
+      fireEvent.click(payBtn);
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(payBtn.textContent).not.toMatch(/₹/);
+    expect(screen.getByTestId("pricing-sticky-bar-go")).toHaveTextContent("Pay ₹1,083");
+    expect(bar().textContent).not.toContain(boardPassPayDisplay());
+  });
+
+  it("§2.4 kill switch on: the bar is trunk's exactly for a Test Series owner (the hero figure; no upgrade wording)", async () => {
+    vi.stubEnv("VITE_PRICING_CTA_UP_DISABLED", "1");
+    auth.user = { uid: "u1" };
+    setSub({});
+    owned.packs = [{ sku: "test_series", target: "all" }];
+    tsUp.value = { creditInr: 999, fullBaseInr: 1917, baseInr: 918, gstInr: 165, payInr: 1083 };
+    await renderAt("/pricing");
+    expect(await screen.findByTestId("pass-checkout-ts-upgrade")).toBeInTheDocument();
+    await act(async () => {
+      window.dispatchEvent(new Event("resize"));
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(screen.getByTestId("pricing-sticky-bar")).toHaveTextContent(`Board Pass ${boardPassPriceDisplay()}`);
+    expect(screen.getByTestId("pricing-sticky-bar")).not.toHaveTextContent("upgrade");
+  });
+
+  it("§2.4 everyone else: the bar is today's ('Board Pass <price>' / the card's Pay total)", async () => {
+    auth.user = { uid: "u1" };
+    setSub({});
+    await renderAt("/pricing");
+    expect(screen.getByTestId("pricing-sticky-bar")).toHaveTextContent(`Board Pass ${boardPassPriceDisplay()}`);
+    expect(screen.getByTestId("pricing-sticky-bar-go")).toHaveTextContent(`Pay ${boardPassPayDisplay()}`);
+    expect(screen.getByTestId("pricing-sticky-bar")).not.toHaveTextContent("upgrade");
   });
 });

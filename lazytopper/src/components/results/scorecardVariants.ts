@@ -32,6 +32,10 @@ import { deriveSectionLens, deriveTypeLens, stampFromPaper, type PaperLensQuesti
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
 import { formatScoreNumber } from "./scoreNumber";
+import { notFoundAddPageLine, notFoundLead, notFoundSummary } from "../../lib/notFoundNotAttempted";
+import { bankMarkableRows } from "../../services/markOnPhoto";
+import type { BoardScoreView } from "../../lib/fullmock/boardEstimate";
+import { awaitingSheetScore, paperGradeStatus, paperMarksScore, type ScoreNotMarked } from "./scoreTotals";
 import {
   ANSWER_MISMATCH_COPY,
   NOT_GRADED_TRY_AGAIN_COPY,
@@ -42,6 +46,7 @@ import {
   isCarelessType,
   isGradedQuestion,
   isQuestionNotAttempted,
+  marksLostToWork,
   paperMarksLost,
   type GradeState,
   type MarksLostByType,
@@ -73,6 +78,10 @@ export type ScorecardScore =
        *  score without a fabricated count. */
       gradedCount?: number;
       totalQuestions?: number;
+      /** TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:59 IST) - Full Mock / Chapter Test: `total` is the paper's FULL marks and
+       *  these are the marks that could NOT be marked yet (never scored 0, never lost, never earned). Absent everywhere else, and
+       *  when every question was marked. Anything measuring "lost" uses `gradedTotalOf` (scoreTotals.ts). */
+      notMarked?: ScoreNotMarked | null;
     }
   | {
       kind: "attempts";
@@ -172,7 +181,17 @@ export interface ScorecardConceptLensRow {
   total: number;
   /** Marks lost on this concept (total − awarded, clamped ≥ 0) — drives the sort. */
   lost: number;
+  /** LIVE-FIX-1 - the part of `lost` lost to MISTAKES (lib/mistakeDisplay `marksLostToWork`: the loss minus anything not
+   *  attempted). Never a not-marked question (those are not in the row at all). Drives "the single biggest loss" line;
+   *  absent -> the row never names a loss. */
+  mistakeLost?: number;
 }
+
+/** LIVE-FIX-1 - one graded result's marks lost to mistakes (never not-attempted; a not-marked result is 0). */
+function mistakeLossOf(r: Parameters<typeof marksLostToWork>[0]): number {
+  return isGradedQuestion(r) ? marksLostToWork(r) : 0;
+}
+const round2m = (x: number) => Math.round(x * 100) / 100;
 
 /* ── BATCH-2 · THE QUICK PRACTICE GRADED ANSWER SHEET ────────────────────────────
  *
@@ -356,6 +375,13 @@ export interface ScorecardVariant {
    *  biggest loss on this paper." Honest-or-silent: null when nothing was lost. */
   chapterLensNote?: string | null;
   pending?: ScorecardPending | null;
+  /** LIVE-FIX-1 #5 (owner ruling 23 Nov 2026, 23:05 IST) - Chapter Test / Full Mock: the questions not found on the uploaded pages,
+   *  counted "Not attempted · 0" (lib/notFoundNotAttempted), with ONE helper line and the host's add-page action (the existing
+   *  re-upload step). Absent/null -> nothing. */
+  notFoundNotAttempted?: ScorecardNotFoundNotAttempted | null;
+  /** MARK-ON-PHOTO-2 - Chapter Test / Full Mock / Worksheet: the questions the student may mark on their photo (not found,
+   *  couldn't be read, answered as another question), each a button to the host's dialog. Absent/null -> nothing. */
+  markOnPhoto?: ScorecardMarkOnPhoto | null;
   allPending?: ScorecardAllPending | null;
   /** BATCH-2 · the set scorecard's MCQ/written split. Absent everywhere else. */
   split?: ScorecardSplit | null;
@@ -401,6 +427,11 @@ export interface ScorecardVariant {
   /** TS-UX-SCORE-1 - the series paper this scorecard is for (its worksheet id): lets the upsell line see a Test Series owner on a
    *  series paper. Display only. */
   seriesWorksheetId?: string | null;
+  /** TS-BOARDSCORE-1 - a FULL-LENGTH test (Full Mock / Test Series full-length) that is fully graded out of 80: the honest
+   *  full-paper score line, the trend across the student's own full tests of this subject, and the board estimate (owner
+   *  ruling 23 Nov 2026). Built by lib/fullmock/boardEstimate from the student's own graded records; absent/null renders
+   *  nothing. Display only - never a mark. */
+  boardScore?: BoardScoreView | null;
 }
 
 /** SALE-MOMENT-2 - marks a Full Mock variant with its subject so the buying line offers that subject's Mock Pack. */
@@ -1266,6 +1297,8 @@ export interface ChapterTestVariantInput {
   onDownloadGraded?: () => void;
   onDownloadSolution?: () => void;
   onRevisit?: () => void;
+  /** LIVE-FIX-1 #5 - FULL phase: the existing re-upload step, offered beside "If you answered these, upload all your pages again, including the missing one". */
+  onAddPage?: () => void;
   /** GUIDE-SCORE-1 — FULL phase only: the honest change since the last graded test of the SAME
    *  chapter with the SAME paper total (`chapterTestDeltaLine`), shown under the hero. */
   deltaLine?: string | null;
@@ -1305,6 +1338,8 @@ export interface StoredChapterTestVariantInput {
   onDownloadGraded?: () => void;
   onDownloadSolution?: () => void;
   downloading?: boolean;
+  /** LIVE-FIX-1 #5 - the existing re-upload step for a record with questions counted "Not attempted · 0" (not found on the pages). */
+  onAddPage?: () => void;
 }
 
 // ── LIVE variant: FULL MOCK (fills PR-2's deferred seam — Full Mock spec §5) ───────
@@ -1314,8 +1349,14 @@ export interface StoredChapterTestVariantInput {
 // right/wrong, not a WHY) → FULL (total + honest mock-to-mock delta + BY-SECTION
 // A–E + BY-CHAPTER marks-lost bars + four-type from written answers). All lenses
 // are DERIVED at render (sectionBreakdown stays null — owner decision 2026-07-12).
-// NO board-readiness projection, ever (spec §5 — a fabricated "68/80" to a student
-// who scores 52 is harm; [FU-BOARD-READINESS-MODEL] tracks any future model).
+// TS-BOARDSCORE-1 — OWNER RULING (23 Nov 2026, 19:04 IST) supersedes the old "NO
+// board-readiness projection, ever" line ([FU-BOARD-READINESS-MODEL]): build (a) the
+// honest full-paper score line, (b) a trend across the student's full tests, and (c) a
+// board-readiness ESTIMATE. The original harm (a fabricated "68/80" to a student who
+// scores 52) stays ruled out by HOW it is built: only fully graded 80-mark papers of the
+// same subject, only the student's own scores, never a partial paper extrapolated, a
+// RANGE labelled "an estimate, not a promise", and only with >= 2 such papers (`boardScore`,
+// lib/fullmock/boardEstimate.ts). Kill switch: VITE_BOARD_ESTIMATE_DISABLED.
 
 /** A full-mock question's identity for the render-time lens joins: qNumber (to
  *  match a grade row) + the paper's REAL section + canonical chapter. Satisfied
@@ -1345,7 +1386,7 @@ export function deriveFullMockChapterLens(
   const byQNumber = new Map<number, FullMockLensQuestion>();
   for (const q of questions) byQNumber.set(q.qNumber, q);
 
-  const buckets = new Map<string, { label: string; awarded: number; total: number }>();
+  const buckets = new Map<string, { label: string; awarded: number; total: number; mistakeLost: number }>();
   for (const r of response.results) {
     if (!isGradedQuestion(r)) continue; // PR-2: not graded (unreadable / mismatch) is never a 0
     const q = byQNumber.get(r.qNumber);
@@ -1355,9 +1396,11 @@ export function deriveFullMockChapterLens(
       label: q?.topicLabel || resolveTopicDisplayName("", slug),
       awarded: 0,
       total: 0,
+      mistakeLost: 0,
     };
     b.awarded += Number(r.marksAwarded) || 0;
     b.total += Number(r.totalMarks) || 0;
+    b.mistakeLost = round2m(b.mistakeLost + mistakeLossOf(r));
     buckets.set(slug, b);
   }
   if (buckets.size === 0) return null;
@@ -1368,6 +1411,7 @@ export function deriveFullMockChapterLens(
     awarded: b.awarded,
     total: b.total,
     lost: Math.max(0, b.total - b.awarded),
+    mistakeLost: b.mistakeLost,
   }));
   rows.sort((a, b) => b.lost - a.lost || b.total - a.total || a.key.localeCompare(b.key));
   return rows;
@@ -1376,12 +1420,27 @@ export function deriveFullMockChapterLens(
 // BANK-LEAN-1 (C3): `topicKeyForQuestionId` + `deriveStoredFullMockChapterLens` (the
 // stored re-open chapter join over the canonical bank) live in ./scorecardBankLenses.
 
-/** The one honest sentence under the chapter bars — from the worst row, only
- *  when marks were actually lost (silent on a clean paper, never invented). */
+/**
+ * LIVE-FIX-1 (live run 23 Nov 2026: "Triangles cost you 3 marks" on a paper with NO mistakes - the 3 marks were questions left
+ * unattempted) - the row whose marks lost to MISTAKES (`mistakeLost`) are the most, or null when no row lost a mark to a mistake.
+ * Not-attempted marks and not-marked questions never make a chapter "the biggest loss". Ties keep the rows' own order.
+ */
+export function biggestMistakeLossRow(rows: ScorecardConceptLensRow[] | null | undefined): ScorecardConceptLensRow | null {
+  let best: ScorecardConceptLensRow | null = null;
+  for (const r of rows ?? []) {
+    const m = Number(r.mistakeLost) || 0;
+    if (m > 0 && (!best || m > (Number(best.mistakeLost) || 0))) best = r;
+  }
+  return best;
+}
+
+/** The one honest sentence under the chapter bars — the chapter with the most marks lost to MISTAKES (LIVE-FIX-1), only when a
+ *  mark was lost to one (silent on a clean paper or one whose only losses were not attempted / not marked; never invented). */
 export function fullMockChapterLensNote(rows: ScorecardConceptLensRow[] | null): string | null {
-  const worst = rows?.[0];
-  if (!worst || worst.lost <= 0) return null;
-  return `${worst.label} cost you ${worst.lost} mark${worst.lost === 1 ? "" : "s"} — the single biggest loss on this paper.`;
+  const worst = biggestMistakeLossRow(rows);
+  if (!worst) return null;
+  const n = Number(worst.mistakeLost) || 0;
+  return `${worst.label} cost you ${formatScoreNumber(n)} mark${n === 1 ? "" : "s"} — the single biggest loss on this paper.`;
 }
 
 /** Format the §8b focus aggregates into the neutral scorecard line —
@@ -1425,6 +1484,8 @@ export interface FullMockVariantInput {
   /** §8b focus line — measured aggregates only, neutral framing; null when
    *  unmeasured (see fullMockFocusLine). */
   focusLine?: string | null;
+  /** TS-BOARDSCORE-1 - FULL phase only: the board view the host built (lib/fullmock/boardEstimate). null/omitted -> nothing. */
+  boardScore?: BoardScoreView | null;
   downloading?: boolean;
   // Partial-phase handlers:
   onUpload?: () => void;
@@ -1437,8 +1498,69 @@ export interface FullMockVariantInput {
   onPractiseChapter?: () => void;
   onDownloadGraded?: () => void;
   onDownloadSolution?: () => void;
+  /** LIVE-FIX-1 #5 - FULL phase: the existing re-upload step, offered beside "If you answered these, upload all your pages again, including the missing one". */
+  onAddPage?: () => void;
 }
 
+
+/** MARK-ON-PHOTO-2 - the scorecard's "Mark it on your photo" row: one button per markable question. */
+export interface ScorecardMarkOnPhoto {
+  /** One per markable row: its index in the response's results and its label ("Q7"). */
+  items: Array<{ index: number; label: string }>;
+  onMark: (index: number) => void;
+  /** A mark is in flight: the buttons wait. */
+  busy?: boolean;
+}
+
+/** MARK-ON-PHOTO-2 - the variant with its "Mark it on your photo" row for `response`'s markable rows (bankMarkableRows), or the
+ *  variant unchanged when there is none or no handler. PURE. */
+export function withMarkOnPhoto<V extends ScorecardVariant>(
+  variant: V,
+  response: WorksheetGradeResponse | null | undefined,
+  onMark: ((index: number) => void) | null | undefined,
+  busy = false,
+): V {
+  if (!onMark) return variant;
+  const items = bankMarkableRows(response).map((r) => ({ index: r.index, label: `Q${r.qNumber}` }));
+  return items.length > 0 ? { ...variant, markOnPhoto: { items, onMark, ...(busy ? { busy } : {}) } } : variant;
+}
+
+/** LIVE-FIX-1 #5 - the scorecard's block for the questions not found on the uploaded pages: "Not attempted · 0" when the check
+ *  was counted, else still "not marked yet" (REVIEW S3), with the one helper line and the upload step. */
+export interface ScorecardNotFoundNotAttempted {
+  mode: "not-attempted" | "not-marked";
+  /** "Q12", "Q15" - paper order. */
+  questions: string[];
+  /** The lead (notFoundLead): "Q12, Q15: Not attempted · 0 — not found on the pages you uploaded." */
+  lead: string;
+  /** "If you answered these, upload all your pages again, including the missing one" (notFoundAddPageLine). */
+  line: string;
+  /** The host's upload step; absent -> the line names no button. */
+  onAddPage?: () => void;
+}
+
+/** LIVE-FIX-1 #5 - the block for a FULL-phase / re-opened Chapter Test or Full Mock response, or null when no question is
+ *  missing from the pages. PURE. */
+export function notFoundNotAttemptedBlock(
+  response: WorksheetGradeResponse | null | undefined,
+  onAddPage?: () => void,
+): ScorecardNotFoundNotAttempted | null {
+  const sum = notFoundSummary(response?.results);
+  if (!sum) return null;
+  return {
+    mode: sum.mode,
+    questions: sum.qNumbers.map((n) => `Q${n}`),
+    lead: notFoundLead(sum.mode, sum.qNumbers),
+    line: notFoundAddPageLine(sum.qNumbers.length),
+    ...(onAddPage ? { onAddPage } : {}),
+  };
+}
+
+/** TS-BOARDSCORE-1 - a paper with anything not marked yet keeps only the board view's score line (the "So far" line). */
+export function boardScoreFor(view: BoardScoreView | null, incomplete: boolean): BoardScoreView | null {
+  if (!view) return null;
+  return incomplete ? { ...view, trend: null, estimate: null, estimateHint: null } : view;
+}
 
 /** TS-UX-SCORE-1 - tag a live scorecard with the paper's worksheet id so the upsell line can recognise a Test Series owner on a series paper. */
 export function withSeriesWorksheet(variant: ScorecardVariant, worksheetId: string | null | undefined): ScorecardVariant {
@@ -1475,17 +1597,39 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
       0,
       (Number(response.worksheetTotalMarks) || 0) - (Number(response.gradedMarksTotal) || 0),
     );
-    const noUpload = input.uploadNotAllowed ? noUploadPartial(objectiveMarks, "Sections B–E") : null;
+    // TS-THEMES-1: a paper with NO objective section (a Test Series focus set: written questions only) has no "0/0" to report and
+    // no MCQs to explain - its awaiting-sheet card names only the written marks it is waiting for.
+    const noObjective = (Number(response.gradedMarksTotal) || 0) === 0 && notYetGraded > 0;
+    const noUpload = input.uploadNotAllowed
+      ? noObjective
+        ? {
+            ...noUploadPartial(objectiveMarks, "Sections B–E"),
+            message: `Your written answers (${notYetGraded} marks) are checked with the Test Series or the Board Pass.`,
+            footnote: "No mistake breakdown yet \u2014 that view appears once your written work is graded.",
+          }
+        : noUploadPartial(objectiveMarks, "Sections B–E")
+      : null;
+    // TS-BOARDSCORE-1 - out of the paper's FULL marks; the written sections are named as waiting for the answer sheet.
+    const waiting = awaitingSheetScore(
+      {
+        awarded: response.gradedMarksAwarded,
+        gradedTotal: response.gradedMarksTotal,
+        paperTotal: response.worksheetTotalMarks,
+        writtenQuestions: Math.max(0, (Number(response.totalQuestions) || 0) - (Number(response.gradedCount) || 0)),
+      },
+      !input.uploadNotAllowed,
+    );
     return {
       surface: "full-mock",
       title: name,
       subtitle: `${code} · submitted & scored`,
-      score: { kind: "marks", awarded: response.gradedMarksAwarded, total: response.gradedMarksTotal },
+      score: { kind: "marks", awarded: waiting.awarded, total: waiting.total, ...(waiting.notMarked ? { notMarked: waiting.notMarked } : {}) },
       awaitingSheet: true,
-      message:
-        `Objective section scored (${objectiveMarks}). Upload your written answers ` +
-        `(Sections B–E, ${notYetGraded} marks) to complete your score — with a ` +
-        `chapter-wise breakdown and mistake analysis.`,
+      message: noObjective
+        ? `Upload your written answers (${notYetGraded} marks) for your score — with a chapter-wise breakdown and mistake analysis.`
+        : `Objective section scored (${objectiveMarks}). Upload your written answers ` +
+          `(Sections B–E, ${notYetGraded} marks) to complete your score — with a ` +
+          `chapter-wise breakdown and mistake analysis.`,
       note: input.focusLine ?? null,
       fourType: null, // MCQs tell us right/wrong, not why (spec §5)
       sectionLens: null,
@@ -1495,8 +1639,9 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
       allPending: null,
       actionsHeading: "For now",
       stackActions: true,
-      footnote:
-        "No mistake breakdown yet — MCQs only tell us right or wrong, not why. That view appears once your written work is graded.",
+      footnote: noObjective
+        ? "No mistake breakdown yet — that view appears once your written work is graded."
+        : "No mistake breakdown yet — MCQs only tell us right or wrong, not why. That view appears once your written work is graded.",
       actions: [
         {
           label: "Upload answer sheet for the full result",
@@ -1520,9 +1665,10 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
   // FULL
   const chapterLens = input.questions ? deriveFullMockChapterLens(response, input.questions) : null;
   const chapterLensNote = fullMockChapterLensNote(chapterLens);
-  const worstChapter = chapterLens?.[0];
+  // LIVE-FIX-1 - "your biggest loss" is the same chapter the note names (marks lost to mistakes), never not-attempted marks.
+  const worstChapter = biggestMistakeLossRow(chapterLens);
   const practiseLabel =
-    worstChapter && worstChapter.lost > 0
+    worstChapter
       ? `Worksheet on ${worstChapter.label} — your biggest loss`
       : "Build a worksheet on this subject";
 
@@ -1562,20 +1708,27 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
   ];
 
   const fmGradedAnswers = buildGradedAnswersFromWorksheetResponse(response, input.questions);
+  // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:59 IST) - out of the paper's FULL marks; unmarked questions listed apart.
+  const paperScore = paperMarksScore(response);
 
   return {
     surface: "full-mock",
     title: name,
-    subtitle: `${code} · fully graded · saved to your progress`,
+    // LIVE-FIX-1 - "fully graded" only when every mark was marked (paperGradeStatus, the result card's own word).
+    subtitle: `${code} · ${paperGradeStatus(response)} · saved to your progress`,
     score: {
       kind: "marks",
-      awarded: response.gradedMarksAwarded,
-      total: response.gradedMarksTotal,
+      awarded: paperScore.awarded,
+      total: paperScore.total,
       gradedCount: response.gradedCount,
       totalQuestions: response.totalQuestions,
+      ...(paperScore.notMarked ? { notMarked: paperScore.notMarked } : {}),
     },
     message: input.deltaLine ?? null,
     note: input.focusLine ?? null,
+    // TS-BOARDSCORE-1 - the host's board view. With anything not marked yet only the "So far" line may show: the trend and the
+    // estimate use fully marked papers only (re-checked here, whatever the host passed).
+    boardScore: boardScoreFor(input.boardScore ?? null, paperScore.notMarked != null || response.pendingCount > 0),
     fourType: aggregateFourType(response),
     marksLost: aggregateMarksLost(response),
     // SCORECARD-SECTION-TYPE-1 - the bank row's real A-E section and the question type, from the paper's
@@ -1588,6 +1741,7 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
     chapterLens,
     chapterLensNote,
     pending: pendingStrip(response),
+    notFoundNotAttempted: notFoundNotAttemptedBlock(response, input.onAddPage),
     allPending: null,
     actionsHeading: "What next?",
     stackActions: true,
@@ -1611,6 +1765,11 @@ export interface StoredFullMockVariantInput {
   awaitingDetail?: string;
   /** PAPER-REBUILD-1 (D103d): the no-paper state's "Start a new test". */
   onStartNew?: () => void;
+  /** TS-BOARDSCORE-1 - the board view AS OF this record (only papers graded at or before it), so a re-opened card reads as the
+   *  live one did. Rendered only on a fully graded record; null/omitted -> nothing. */
+  boardScore?: BoardScoreView | null;
+  /** LIVE-FIX-1 #5 - the existing re-upload step for a record with questions counted "Not attempted · 0" (not found on the pages). */
+  onAddPage?: () => void;
 }
 
 // BANK-LEAN-1 (C3): `storedFullMockScorecardVariant` (it needs the bank-backed chapter
@@ -1622,7 +1781,9 @@ export interface StoredFullMockVariantInput {
 // note/fourType/pending/allPending/actions all pre-exist. Lenses: FOUR-TYPE ONLY in
 // PR-1 — the spec's by-topic lens is Step-2-gated (per-question topic doesn't exist
 // yet: omitted entirely for single-topic papers, unknowable for MIX until PR-3).
-// NO board-readiness projection (spec §5, the Full-Mock reasoning applies as-is).
+// NO board-readiness projection (spec §5). TS-BOARDSCORE-1's owner ruling (23 Nov 2026) lifts
+// that only for FULL-LENGTH 80-mark papers (Full Mock / Test Series full-length); a student's own
+// questions here are not a CBSE-pattern paper, so this surface keeps none.
 // The quiet provenance line is DISPLAY-ONLY in PR-1 (a post-grade "Change"
 // affordance is PR-2's confirm-step scope). The page's bespoke graded views stay
 // byte-intact underneath as "the graded sheet" behind the primary action.
@@ -1664,7 +1825,7 @@ const CI_MIXED_MESSAGE =
 export function deriveCheckImproveTopicLens(
   response: WorksheetGradeResponse,
 ): ScorecardConceptLensRow[] | null {
-  const buckets = new Map<string, { label: string; awarded: number; total: number }>();
+  const buckets = new Map<string, { label: string; awarded: number; total: number; mistakeLost: number }>();
   for (const r of response.results) {
     if (!isGradedQuestion(r)) continue; // PR-2: not graded (unreadable / mismatch) is never a 0
     const raw = String(r.topicSlug || "").trim();
@@ -1674,9 +1835,11 @@ export function deriveCheckImproveTopicLens(
       label: r.topicLabel || resolveTopicDisplayName("", key),
       awarded: 0,
       total: 0,
+      mistakeLost: 0,
     };
     b.awarded += Number(r.marksAwarded) || 0;
     b.total += Number(r.totalMarks) || 0;
+    b.mistakeLost = round2m(b.mistakeLost + mistakeLossOf(r)); // LIVE-FIX-1 - the shared note names mistake losses only
     buckets.set(key, b);
   }
   if (buckets.size < 2) return null; // single-topic (or none) → omit the lens (spec §5)
@@ -1687,6 +1850,7 @@ export function deriveCheckImproveTopicLens(
     awarded: b.awarded,
     total: b.total,
     lost: Math.max(0, b.total - b.awarded),
+    mistakeLost: b.mistakeLost,
   }));
   rows.sort((a, b) => b.lost - a.lost || b.total - a.total || a.key.localeCompare(b.key));
   return rows;

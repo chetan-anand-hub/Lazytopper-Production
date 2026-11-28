@@ -423,19 +423,17 @@ describe("PRICING-B-1 — one product name, honest copy", () => {
     expect(flat(line)).not.toMatch(/limited/i); // limits off: nothing is capped, so no "limited"
   });
 
-  it("BASIC-LINE-1 — limits on: the line says limited practice with the real Basic caps (the compare table's figures)", () => {
+  it("BASIC-LINE-1 / GUEST-WALL — limits on: the line is the plain one (no download, no checking; owner ruling 26 Nov 2026)", () => {
     vi.stubEnv("VITE_LIMITS_ENABLED", "1");
     const { inner } = renderPricing();
     const line = inner.querySelector('[data-testid="pricing-basic-line"]');
-    expect(flat(line)).toBe(
-      "Basic: free forever, with notes, NCERT solutions and limited practice (1 download a week; marking your written practice answers comes with the Board Pass)Start free",
-    );
+    expect(flat(line)).toBe("Basic: free forever, with notes, NCERT solutions and practice setsStart free");
   });
 });
 
 /* ── The FAQ ────────────────────────────────────────────────────────────────── */
 describe("PRICING-B-1 — Questions parents ask", () => {
-  it("Why both? and Is it a subscription? open, word for word; the old items folded under More questions", () => {
+  it("The Board Pass vs Question Bank + Mocks question and Is it a subscription? open, word for word; the old items folded under More questions", () => {
     vi.stubEnv("VITE_PAYMENTS_ENABLED", "1");
     const { inner } = renderPricing();
     const faq = inner.querySelector('[data-testid="pricing-faq"]')!;
@@ -444,7 +442,10 @@ describe("PRICING-B-1 — Questions parents ask", () => {
       flat(i.querySelector(".lt-pricing-faq-a")),
     ]);
     expect(open.slice(0, 2)).toEqual([
-      ["Why both?", "They do different jobs. The Board Pass marks your child's written answers like a CBSE examiner. Packs are the same questions organised to print, for practice away from the screen."],
+      [
+        "How is the Board Pass different from Question Bank + Mocks?",
+        "The Board Pass is online: your child writes answers on paper, uploads a photo, and LazyTopper marks every step like a CBSE examiner. Question Bank + Mocks is for offline practice: printable questions and full papers with worked solutions and the marking scheme. LazyTopper does not mark these; your child checks their own answers.",
+      ],
       ["Is it a subscription?", "No. You pay once. Nothing renews."],
     ]);
     const more = faq.querySelector('[data-testid="pricing-faq-more"]') as HTMLDetailsElement;

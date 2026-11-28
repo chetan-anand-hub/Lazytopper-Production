@@ -14,12 +14,26 @@ import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 
 export const PACK_FILE_LINK_ENDPOINT = "/api/packs/file-link";
 export const PACK_ZIP_LINK_ENDPOINT = "/api/packs/zip-link";
+/** BONUS-BOOK-1: the CBQ Pack's complete book (one pre-built PDF per subject; same entitlement check as every pack file). */
+export const PACK_BONUS_LINK_ENDPOINT = "/api/packs/bonus-link";
 /** GUEST-ZIP-1: the signed-out buyer's whole-pack ZIP; proof = the receipt's (order id, payment id, Razorpay signature), no sign-in. */
 export const GUEST_ZIP_LINK_ENDPOINT = "/api/pay/guest/zip-link";
 /** How long the browser waits for a link before it builds the file itself. */
 export const SERVER_LINK_TIMEOUT_MS = 20_000;
 /** A ZIP of a cold chapter is stamped file by file on the server and can take well over 20 s: it waits longer (the button says "Preparing" meanwhile). */
 export const SERVER_ZIP_TIMEOUT_MS = 90_000;
+/**
+ * PACK-PDF-SIZE-1: a cold chapter ZIP (~30 files, ~200 MB) is built on the server in the background; the client asks again every
+ * ZIP_POLL_MS until it is ready, for at most ZIP_BUILD_MAX_MS (5 min), instead of giving up after one 90 s request.
+ */
+export const ZIP_POLL_MS = 4_000;
+export const ZIP_BUILD_MAX_MS = 5 * 60_000;
+/**
+ * PACK-PDF-SIZE-1: a signed-out buyer of a multi-chapter pack gets one ZIP PER CHAPTER (each ~70-200 MB, one request, one link) instead
+ * of ONE ZIP of the whole pack (the Maths + Science Bundle is ~600 files and could not be built inside SERVER_ZIP_TIMEOUT_MS or saved
+ * on a phone). Kill switch: false restores the single "Download all (ZIP)" button.
+ */
+export const GUEST_ZIP_PER_GROUP = true;
 
 export type ServerLinkFailure = "disabled" | "unavailable" | "not_ready" | "busy" | "refused" | "expired" | "timeout" | "network" | "bad_response";
 
@@ -48,6 +62,11 @@ export interface LinkDeps {
   timeoutMs?: number;
   /** Test seam: replaces the env read. */
   disabled?: boolean;
+  /** PACK-PDF-SIZE-1 (ZIPs): called with (filesDone, filesTotal) while the server is still building the ZIP. */
+  onProgress?: (done: number, total: number) => void;
+  /** Test seams for the ZIP poll: the wait between polls and the clock. */
+  sleep?: (ms: number) => Promise<void>;
+  now?: () => number;
 }
 
 /** `VITE_PACK_SERVER_PDF_DISABLED` is on: 1 / true / on / yes (any case), the same words as the server's kill switch. */
@@ -91,6 +110,32 @@ function readZip(body: unknown): ServerZipLink | null {
   return { ...base, files };
 }
 
+type ZipAnswer = ServerZipLink | { building: true; done: number; total: number };
+function readZipAnswer(body: unknown): ZipAnswer | null {
+  if (isRecord(body) && body.status === "building") {
+    return { building: true, done: Number(body.done) || 0, total: Number(body.total) || 0 };
+  }
+  return readZip(body);
+}
+/** POST with `async: true` and poll until the ZIP is ready (or the budget is spent: "timeout"). */
+async function postZipPolling(endpoint: string, payload: Record<string, string>, deps: LinkDeps): Promise<LinkResult<ServerZipLink>> {
+  const clock = deps.now ?? Date.now;
+  const sleep = deps.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+  const deadline = clock() + ZIP_BUILD_MAX_MS;
+  for (;;) {
+    const res = await post<ZipAnswer>(endpoint, { ...payload, async: true } as unknown as Record<string, string>, readZipAnswer, deps);
+    if (!res.ok) return res;
+    if (!("building" in res.link)) return { ok: true, link: res.link };
+    try {
+      deps.onProgress?.(res.link.done, res.link.total);
+    } catch {
+      /* a progress listener never stops a download */
+    }
+    if (clock() >= deadline) return { ok: false, reason: "timeout" };
+    await sleep(ZIP_POLL_MS);
+  }
+}
+
 async function post<T>(endpoint: string, payload: Record<string, string>, read: (body: unknown) => T | null, deps: LinkDeps): Promise<LinkResult<T>> {
   if (deps.disabled ?? isServerPdfDisabled()) return { ok: false, reason: "disabled" };
   const ctl = new AbortController();
@@ -127,10 +172,16 @@ export function requestFileLink(packId: string, fileId: string, deps: LinkDeps =
 }
 
 export function requestZipLink(packId: string, group: string, deps: LinkDeps = {}): Promise<LinkResult<ServerZipLink>> {
-  return post(PACK_ZIP_LINK_ENDPOINT, { packId, group }, readZip, { timeoutMs: SERVER_ZIP_TIMEOUT_MS, ...deps });
+  return postZipPolling(PACK_ZIP_LINK_ENDPOINT, { packId, group }, { timeoutMs: SERVER_ZIP_TIMEOUT_MS, ...deps });
 }
 
 /** GUEST-ZIP-1: ONE ZIP of the whole pack for a signed-out buyer. The pack, licensee and files all come from the stored order on the server. */
-export function requestGuestZipLink(proof: { orderId: string; paymentId: string; signature: string }, deps: LinkDeps = {}): Promise<LinkResult<ServerZipLink>> {
-  return post(GUEST_ZIP_LINK_ENDPOINT, { orderId: proof.orderId, paymentId: proof.paymentId, signature: proof.signature }, readZip, { timeoutMs: SERVER_ZIP_TIMEOUT_MS, headers: async () => ({}), ...deps });
+export function requestGuestZipLink(proof: { orderId: string; paymentId: string; signature: string }, deps: LinkDeps = {}, groupId?: string): Promise<LinkResult<ServerZipLink>> {
+  // PACK-PDF-SIZE-1: `groupId` asks for ONE chapter's ZIP (the same per-group ZIP a signed-in buyer gets); omitted = the whole pack (legacy).
+  return postZipPolling(GUEST_ZIP_LINK_ENDPOINT, { orderId: proof.orderId, paymentId: proof.paymentId, signature: proof.signature, ...(groupId ? { group: groupId } : {}) }, { timeoutMs: SERVER_ZIP_TIMEOUT_MS, headers: async () => ({}), ...deps });
+}
+
+/** BONUS-BOOK-1: a signed link to the complete book of an owned CBQ Pack (`pack_cbq:<subject>`). No papers are printed in it. */
+export function requestBonusLink(packId: string, deps: LinkDeps = {}): Promise<LinkResult<ServerFileLink>> {
+  return post(PACK_BONUS_LINK_ENDPOINT, { packId }, readLink, deps);
 }

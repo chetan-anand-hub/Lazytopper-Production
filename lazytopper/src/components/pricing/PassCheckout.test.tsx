@@ -77,6 +77,13 @@ import {
   type RazorpayConstructor,
 } from "../../services/checkout";
 
+/** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
+const withoutAdSignals = (b: Record<string, unknown>): Record<string, unknown> => {
+  const { adSignals, ...rest } = b;
+  expect((adSignals as { attemptId?: string } | undefined)?.attemptId).toMatch(/^lt_/);
+  return rest;
+};
+
 // PRICING-1 — the founding offer is read from the CALENDAR at render. These suites assert the
 // offer-OPEN page, so they run at a pinned instant (Date only; a test's own fake timers layer on
 // top) and pass at any real or shifted clock. The closed page is pinned explicitly where asserted.
@@ -226,7 +233,7 @@ describe("Z3 · the buy buttons", () => {
     await waitFor(() => expect(fetchSpy).toHaveBeenCalled());
     const [url, init] = fetchSpy.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe("/api/pay/order");
-    expect(JSON.parse(String(init.body))).toEqual({ passType: "till_boards" });
+    expect(withoutAdSignals(JSON.parse(String(init.body)))).toEqual({ passType: "till_boards" });
     expect((init.headers as Record<string, string>).Authorization).toBe("Bearer id-token");
   });
 });
@@ -704,5 +711,47 @@ describe("TS-UPGRADE-CREDIT-1 · the Test Series -> Board Pass upgrade (/pricing
     render(<MemoryRouter initialEntries={["/pricing"]}><PassCheckout /></MemoryRouter>);
     await waitFor(() => expect(screen.getByRole("button", { name: tillBoardsButtonLabel() })).toBeTruthy());
     expect(screen.queryByTestId("pass-checkout-ts-upgrade")).toBeNull();
+  });
+});
+
+/* ── PRICING-CTA-UP-1 v1.1 · `compact` is display-only ──────────────────── */
+
+describe("PRICING-CTA-UP-1 v1.1 · compact (the /pricing card face): hides the three extras, changes nothing else", () => {
+  const UPGRADE = { creditInr: 999, fullBaseInr: 1917, baseInr: 918, gstInr: 165, payInr: 1083 };
+  const WHO = { selfMasked: "a***@b.in", onSignIn: () => undefined, onSignInWithNumber: () => undefined, onSignInWithEmail: () => undefined };
+  const props = (o: Partial<Parameters<typeof PassCheckoutView>[0]> = {}) => ({
+    signedIn: true, showMonth: false, offerOpen: true, activePassEnd: null, onSignIn: () => undefined,
+    onBuy: async () => ({ status: "dismissed" as const }), who: WHO, ...o,
+  });
+
+  it("default (no prop) is byte-identical to compact={false}", () => {
+    expect(renderToStaticMarkup(<PassCheckoutView {...props()} />)).toBe(renderToStaticMarkup(<PassCheckoutView {...props({ compact: false })} />));
+    expect(renderToStaticMarkup(<PassCheckoutView {...props({ tsUpgrade: UPGRADE })} />)).toBe(
+      renderToStaticMarkup(<PassCheckoutView {...props({ tsUpgrade: UPGRADE, compact: false })} />),
+    );
+  });
+
+  it("compact: no WhatsApp box, no GST breakup, no 'Buying for someone else?'; the upgrade line and the server's Pay total stay", () => {
+    view({ ...props({ tsUpgrade: UPGRADE }) });
+    expect(screen.getByTestId("pass-wa-optin")).toBeTruthy();
+    expect(screen.getByTestId("pass-checkout-gst")).toBeTruthy();
+    expect(screen.getByTestId("checkout-someone-else")).toBeTruthy();
+    cleanup();
+    view({ ...props({ tsUpgrade: UPGRADE, compact: true }) });
+    expect(screen.queryByTestId("pass-wa-optin")).toBeNull();
+    expect(screen.queryByTestId("pass-checkout-gst")).toBeNull();
+    expect(screen.queryByTestId("checkout-someone-else")).toBeNull();
+    expect(screen.getByTestId("pass-checkout-ts-upgrade").textContent).toBe("Upgrade for ₹918 + GST — you've already paid for the Test Series");
+    expect(screen.getByRole("button", { name: "Pay ₹1,083 once · valid till 28 Feb 2027" })).toBeTruthy();
+  });
+
+  it("compact: a Pay tap is the same purchase (till_boards through onBuy)", async () => {
+    const onBuy = vi.fn(async () => ({ status: "dismissed" as const }));
+    view({ ...props({ compact: true, onBuy, who: undefined }) });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: tillBoardsButtonLabel() }));
+    });
+    expect(onBuy).toHaveBeenCalledTimes(1);
+    expect((onBuy.mock.calls[0] as unknown[])[0]).toBe("till_boards");
   });
 });

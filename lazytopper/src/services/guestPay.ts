@@ -20,9 +20,10 @@ import { confirmServerPrice, serverPriceFields, razorpaySheetDescription } from 
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
-import { adSignalFields } from "../analytics/adSignals";
+import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
 import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gstBuyerOrder";
 import { beginPendingCheckout, razorpayHangOption, successFromReceipt } from "./payReturn";
+import { dedupeInFlight } from "./orderInFlight";
 
 export const GUEST_ORDER_ENDPOINT = "/api/pay/guest/order";
 export const GUEST_VERIFY_ENDPOINT = "/api/pay/guest/verify";
@@ -153,6 +154,7 @@ async function postJson(url: string, body: unknown, headers: Record<string, stri
 /** Exported for tests; the default `buyAsGuest` path. */
 export async function createGuestOrder(item: GuestItem, phone: string): Promise<GuestOrder> {
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null) : {};
+  const signals = adSignalFields(); // META-IC-1
   const json = await postJson(GUEST_ORDER_ENDPOINT, {
     sku: item.sku,
     ...(item.kind === "pack" && item.target ? { target: item.target } : {}),
@@ -160,12 +162,13 @@ export async function createGuestOrder(item: GuestItem, phone: string): Promise<
     ...gst,
     ...waOptInOrderFields(), // WHATSAPP-OPTIN-1: only a valid number + the tick
     ...orderSourceFields(), // ORDER-SOURCE-1
-    ...adSignalFields(), // SERVER-EVENTS-1
+    ...signals, // SERVER-EVENTS-1
   });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") {
     throw new GuestPayError("failed");
   }
+  metaIcAfterOrder(signals, json, item.sku);
   return { orderId, keyId, amountPaise, ...(typeof json.statusProof === "string" ? { statusProof: json.statusProof } : {}), ...serverPriceFields(json) };
 }
 
@@ -192,7 +195,12 @@ const DEFAULT_DEPS: GuestBuyDeps = {
 /**
  * Order (server-priced) -> Razorpay with the number prefilled and READ-ONLY -> server verify. Never throws.
  */
-export async function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestBuyDeps = DEFAULT_DEPS): Promise<GuestBuyOutcome> {
+export function buyAsGuest(item: GuestItem, rawPhone: string, deps: GuestBuyDeps = DEFAULT_DEPS): Promise<GuestBuyOutcome> {
+  // ORDER-DEDUP-1: same product + same number while pending -> one order.
+  return dedupeInFlight(`guest|${item.kind}|${item.sku}|${item.kind === "pack" ? item.target ?? "" : ""}|${normaliseIndianMobile(rawPhone) ?? rawPhone}`, () => buyAsGuestOnce(item, rawPhone, deps));
+}
+
+async function buyAsGuestOnce(item: GuestItem, rawPhone: string, deps: GuestBuyDeps): Promise<GuestBuyOutcome> {
   const phone = normaliseIndianMobile(rawPhone);
   if (!phone) return { status: "invalid_phone" };
   const phoneMasked = maskIndianMobile(phone);

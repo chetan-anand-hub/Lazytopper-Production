@@ -9,7 +9,7 @@
 // is injected; bank-sourced calls, the autoDetect path, objective questions and
 // every caller WITHOUT the dep are byte-identical to before. Plus dispatch
 // required-test (e): no student answer/PII ever enters the cache.
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createCheckSolutionRoute } from "../../server/routes/checkSolution.cjs";
 import {
   getOrCreateModelSolution,
@@ -207,6 +207,11 @@ describe("handleCheckSolution — scheme-first hook", () => {
 });
 
 describe("gradeStructuredSet (via handleGradeWorksheet) — scheme-first hook", () => {
+  // LOCATE-FIRST-1 (#1875): this harness serves queued model replies; the locate step would take one, so it is
+  // switched off here exactly as in the server suites that do the same (locate.test.cjs covers it switched on).
+  let prevLocate: string | undefined;
+  beforeAll(() => { prevLocate = process.env.GRADING_LOCATE_DISABLED; process.env.GRADING_LOCATE_DISABLED = "1"; });
+  afterAll(() => { if (prevLocate === undefined) delete process.env.GRADING_LOCATE_DISABLED; else process.env.GRADING_LOCATE_DISABLED = prevLocate; });
   const WORKSHEET_PAYLOAD = {
     worksheetId: "ci:test",
     subject: "Science",

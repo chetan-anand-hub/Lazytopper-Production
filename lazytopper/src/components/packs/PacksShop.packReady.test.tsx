@@ -4,6 +4,7 @@
  * "Sign in with this number" returning to /packs#my-packs from the pricing strip too.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { __resetOrderInFlightForTests } from "../../services/orderInFlight"; // ORDER-DEDUP-1: an open (never-awaited) buy must not leak into the next test
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
@@ -70,6 +71,7 @@ function shop(url = "/packs", props: { embedded?: boolean; returnPath?: string }
 const claimedDetail = (items: Array<{ kind: "pack" | "pass"; sku: string; target: string | null; name: string }>) =>
   new CustomEvent(GUEST_CLAIMED_EVENT, { detail: { count: items.length, items } });
 
+afterEach(() => __resetOrderInFlightForTests());
 beforeEach(() => {
   auth.user = { uid: "u1" };
   paid.premium = false;

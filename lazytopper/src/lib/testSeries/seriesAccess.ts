@@ -1,3 +1,4 @@
+import { seriesPaperKeyOfWorksheetId } from "./testSeries";
 /**
  * TEST-SERIES-1 — who may have Chapter Test / Full Mock WRITTEN answers (Sections B–E) checked, and download / print the papers
  * (owner rulings 18 Nov 2026, 19:31 + 19:38 IST): a Board Pass holder (PAID premium) OR an owner of the `test_series` pack.
@@ -55,20 +56,89 @@ export function scorecardUploadNotAllowed(a: { canCheck: boolean; createdMs: num
   return !(a.canCheck || isBeforeSeriesRules(a.createdMs)) && !a.checking && !a.failed;
 }
 
-export function countTestsTaken(records: ReadonlyArray<{ surface: string; gradedAt?: number }>): number {
-  return records.filter(
-    (r) => (r.surface === "chapter-test" || r.surface === "full-mock") && !isBeforeSeriesRules(typeof r.gradedAt === "number" ? r.gradedAt : null),
-  ).length;
+/**
+ * FREE-TEST-SERIES-ONLY (owner ruling 26 Nov 2026, 23:43 IST): a Basic account's ONE free test must be a TEST SERIES paper, so only a
+ * sitting of a series paper (chapter test / full mock / focus set with a series key) after the rules started counts against it. An
+ * ordinary (non-series) chapter test or full mock no longer uses it up. The server already marks the free series test on its own
+ * (testSeriesChecks.freeTestGrade); this only decides what the client SHOWS and lets START. PURE.
+ */
+function isCountedFreeTestRecord(r: { surface: string; gradedAt?: number; worksheetId?: string }): boolean {
+  if (r.surface !== "chapter-test" && r.surface !== "full-mock") return false;
+  if (isBeforeSeriesRules(typeof r.gradedAt === "number" && Number.isFinite(r.gradedAt) ? r.gradedAt : null)) return false;
+  return seriesPaperKeyOfWorksheetId(r.worksheetId) !== null;
 }
 
-/** "This is your 1 free test": a signed-in free / trial account that has not used its one test yet. */
-export const FREE_TEST_NOTE = "This is your 1 free test. Its MCQs (Section A) are marked free.";
+export function countTestsTaken(records: ReadonlyArray<{ surface: string; gradedAt?: number; worksheetId?: string }>): number {
+  return records.filter(isCountedFreeTestRecord).length;
+}
+
+/**
+ * "This is your 1 free test": a signed-in free / trial account that has not used its one test yet.
+ * TS-FREE-CHECK-1 (owner ruling 23 Nov 2026, 19:59 IST): the free test now includes written-answer marking (the photo of the answer
+ * sheet, checked step by step, 2 checks on that paper). The server pins the free paper at the first written check
+ * (server/services/testSeriesChecks.cjs) and refuses every other paper; this copy only describes it.
+ */
+export const FREE_TEST_NOTE = "This is your 1 free test — written answers marked step by step, like a CBSE examiner.";
+/** The pre-TS-FREE-CHECK-1 note: still shown with the kill switch on, and on a paper the free written check cannot reach. */
+export const FREE_TEST_NOTE_MCQ_ONLY = "This is your 1 free test. Its MCQs (Section A) are marked free.";
+
+/**
+ * TS-FREE-CHECK-1 client kill switch: VITE_TS_FREE_WRITTEN_CHECK_DISABLED=1 restores today's MCQ-only free test on the page (copy and
+ * upload). The server's twin is TS_FREE_WRITTEN_CHECK_DISABLED (it also stops sending `freeTest`, which turns the page off by itself).
+ */
+export function freeWrittenCheckDisabled(): boolean {
+  return import.meta.env?.VITE_TS_FREE_WRITTEN_CHECK_DISABLED === "1";
+}
+
+/** The free-test note for a paper: the written-marking line only when this paper's written answers will be checked. PURE. */
+export function freeTestNote(written: boolean): string {
+  return written ? FREE_TEST_NOTE : FREE_TEST_NOTE_MCQ_ONLY;
+}
+
+/**
+ * The worksheetId of the account's FIRST counted test (the one FREE_TESTS_ALLOWED spends): the earliest SERIES-paper chapter-test /
+ * full-mock record after the rules started, by `gradedAt`. null when none is counted yet. PURE.
+ */
+export function firstCountedTestWorksheetId(records: ReadonlyArray<{ surface: string; gradedAt?: number; worksheetId?: string }>): string | null {
+  let best: { at: number; id: string } | null = null;
+  for (const r of records) {
+    if (!isCountedFreeTestRecord(r)) continue;
+    const at = typeof r.gradedAt === "number" && Number.isFinite(r.gradedAt) ? r.gradedAt : null;
+    const key = at ?? Number.POSITIVE_INFINITY;
+    if (!best || key < best.at) best = { at: key, id: typeof r.worksheetId === "string" ? r.worksheetId : "" };
+  }
+  return best ? best.id : null;
+}
+
+/**
+ * TS-FREE-CHECK-1 - may this (signed-in, not entitled) account upload written answers on this paper as its free test? PURE.
+ *   - never with the kill switch, never on a non-series paper (`paperKey` null), never without the server's `freeTest` state;
+ *   - the SERVER's pin wins: once a free paper is pinned, only that paper;
+ *   - no pin yet: the paper the one-test rule picks - no test counted yet (this is it), or the first counted test is this paper.
+ * The server decides every grade (it pins at the first written check and refuses any other paper); this only decides what is SHOWN.
+ */
+export function freeTestWrittenAllowed(args: {
+  disabled: boolean;
+  paperKey: string | null;
+  server: { paperKey: string | null } | null;
+  testsTaken: number;
+  /** The paper key of the first counted test (null when it was not a series paper, or nothing is counted). */
+  firstTestPaperKey: string | null;
+}): boolean {
+  if (args.disabled || !args.paperKey || !args.server) return false;
+  if (args.server.paperKey !== null) return args.server.paperKey === args.paperKey;
+  if (args.testsTaken < FREE_TESTS_ALLOWED) return true;
+  return args.firstTestPaperKey === args.paperKey;
+}
 
 export type SeriesStartDecision = "start" | "sign-in" | "upgrade";
 
 /** May this account START a new Chapter Test / Full Mock? (A resume of a paper already started is never asked.) */
-export function seriesStartDecision(args: { entitled: boolean; signedIn: boolean; testsTaken: number }): SeriesStartDecision {
+export function seriesStartDecision(args: { entitled: boolean; signedIn: boolean; testsTaken: number; weeklyOpens?: boolean }): SeriesStartDecision {
   if (args.entitled) return "start";
   if (!args.signedIn) return "sign-in";
+  // FREE-TS-WEEKLY (owner ruling 27 Nov 2026): a signed-in free / trial account may OPEN 3 Test Series papers a week (MockViewGate and the
+  // server count them); the one-free-test limit now governs only the written-answer MARKING (the server's free-test pin), not the start.
+  if (args.weeklyOpens) return "start";
   return args.testsTaken < FREE_TESTS_ALLOWED ? "start" : "upgrade";
 }

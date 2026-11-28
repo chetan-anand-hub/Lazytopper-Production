@@ -30,7 +30,7 @@ import {
   trackPurchase,
   type CheckoutDetails,
 } from "../../analytics/analytics";
-import { formatInr, GST_RATE_PERCENT } from "../../config/pricing";
+import { chargedValueInr, formatInr, GST_RATE_PERCENT } from "../../config/pricing";
 import { formatPassDate, PAY_PENDING_TTL_MS, type PassType } from "../../services/checkout";
 import { trackPackCheckout, trackPackPurchase, type PackCheckoutDetails } from "../../lib/packs/packAnalytics";
 import { packChapterLabel } from "../../lib/packs/packLabels";
@@ -44,6 +44,8 @@ import {
   type ParentPayLang,
 } from "../../services/parentPay";
 import { buyPackAsParent, parentPackName, viewParentLinkWithPack, type ParentPackRef } from "../../services/parentPayPack";
+import { seriesTotals } from "../../lib/testSeries/testSeries";
+import type { PackSku } from "../../services/packs";
 
 /** PARENT-PACKS-1 - what a parent buys from a link: a pass type (Board Pass link) or the link's own pack. */
 type ParentBuyItem = PassType | "pack";
@@ -76,7 +78,8 @@ interface Copy {
   more: string;
   /** PARENT-PACKS-1 — a pack link. `pack` is the pack's name ("Maths CBQ Pack"). */
   packTitle: (name: string, pack: string) => string;
-  packIntro: (name: string, pack: string) => string;
+  /** TS-PARENT-FORWARD-1: `sku` "test_series" -> the Test Series' own intro (online tests, printable papers, step marking; never "practice PDFs"); any other pack unchanged. */
+  packIntro: (name: string, pack: string, sku?: PackSku) => string;
   packPay: (price: string) => string;
   packFine: (name: string, pack: string) => string;
   packPaid: (name: string, pack: string) => string;
@@ -121,8 +124,10 @@ const COPY: Record<ParentPayLang, Copy> = {
     },
     more: "See all LazyTopper plans",
     packTitle: (name, pack) => (name ? `Pay for ${name}'s ${pack}` : `Pay for your child's ${pack}`),
-    packIntro: (name, pack) =>
-      `${name || "Your child"} sent you this link for the ${pack} on LazyTopper: printable CBSE Class 10 practice PDFs. It's a one-time payment — nothing renews.`,
+    packIntro: (name, pack, sku) =>
+      sku === "test_series"
+        ? `${name || "Your child"} sent you this link for the Test Series on LazyTopper: ${seriesTotals().total} CBSE Class 10 board-pattern tests to take online (the papers can also be printed), with written answers marked step by step like a CBSE examiner. It's a one-time payment — nothing renews.`
+        : `${name || "Your child"} sent you this link for the ${pack} on LazyTopper: printable CBSE Class 10 practice PDFs. It's a one-time payment — nothing renews.`,
     packPay: (price) => `Pay ${price} once`,
     packFine: (name, pack) =>
       `The ${pack} goes to ${name ? `${name}'s` : "your child's"} account, not yours — you don't need an account or any password. You pay on Razorpay's secure checkout; LazyTopper never sees your card, UPI or bank details. This link can be used for one payment.`,
@@ -166,8 +171,10 @@ const COPY: Record<ParentPayLang, Copy> = {
     },
     more: "LazyTopper के सभी प्लान देखें",
     packTitle: (name, pack) => (name ? `${name} के ${pack} का भुगतान करें` : `अपने बच्चे के ${pack} का भुगतान करें`),
-    packIntro: (name, pack) =>
-      `${name || "आपके बच्चे"} ने आपको LazyTopper के ${pack} के लिए यह लिंक भेजा है: CBSE कक्षा 10 की प्रिंट करने वाली प्रैक्टिस PDF। यह एक बार का भुगतान है — कुछ भी अपने-आप रिन्यू नहीं होता।`,
+    packIntro: (name, pack, sku) =>
+      sku === "test_series"
+        ? `${name || "आपके बच्चे"} ने आपको LazyTopper की Test Series के लिए यह लिंक भेजा है: CBSE कक्षा 10 के ${seriesTotals().total} बोर्ड-पैटर्न टेस्ट, जो ऑनलाइन दिए जाते हैं (पेपर प्रिंट भी किए जा सकते हैं), और जिनमें लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं। यह एक बार का भुगतान है — कुछ भी अपने-आप रिन्यू नहीं होता।`
+        : `${name || "आपके बच्चे"} ने आपको LazyTopper के ${pack} के लिए यह लिंक भेजा है: CBSE कक्षा 10 की प्रिंट करने वाली प्रैक्टिस PDF। यह एक बार का भुगतान है — कुछ भी अपने-आप रिन्यू नहीं होता।`,
     packPay: (price) => `एक बार ${price} दें`,
     packFine: (name, pack) =>
       `${pack} ${name ? `${name} के` : "आपके बच्चे के"} अकाउंट में जाएगा, आपके नहीं — आपको कोई अकाउंट या पासवर्ड नहीं चाहिए। भुगतान Razorpay के सुरक्षित चेकआउट पर होगा; LazyTopper आपका कार्ड, UPI या बैंक विवरण कभी नहीं देखता। यह लिंक एक ही भुगतान के लिए है।`,
@@ -310,7 +317,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
       // flagged `duplicate` (the child already had the pack) is NOT a conversion: no purchase event at all.
       if (!outcome.duplicate) trackPackPurchase({
         ...details,
-        ...(outcome.amountInr !== undefined ? { valueInr: outcome.amountInr } : {}),
+        valueInr: chargedValueInr(outcome.amountInr, details.valueInr),
         transactionId: outcome.orderId || outcome.paymentId || attemptId, // META-PURCHASE-DEDUP-1: the order id
       });
       setPackPaid({ name: outcome.firstName || name, duplicate: outcome.duplicate === true });
@@ -397,7 +404,7 @@ export function ParentPayPanelView({ token, view, buy, scrubAddress, pendingHold
 
         {state.kind === "ready" && pack && !packPaid && (
           <>
-            <p className="lt-parent-pay-text">{t.packIntro(name, packName)}</p>
+            <p className="lt-parent-pay-text">{t.packIntro(name, packName, pack.sku)}</p>
             <button
               type="button"
               className="lt-parent-pay-buy lt-parent-pay-buy--primary"

@@ -35,6 +35,8 @@ const { buildGradingContents } = require('./prompt.cjs');
 const { chooseNonce } = require('./fence.cjs');
 const { GRADING_RESPONSE_SCHEMA, GRADING_RESPONSE_SCHEMA_AUTODETECT, GRADING_RESPONSE_SCHEMA_INVENTORY } = require('./schema.cjs');
 const { normaliseQuestionResult, inventoryStable } = require('./postprocess.cjs');
+const secondLookLib = require('./secondLook.cjs');
+const locateLib = require('./locate.cjs');
 const timingLib = require('./timing.cjs');
 const gradeTimingLib = require('./gradeTiming.cjs');
 const { isChargeable } = require('./charge.cjs');
@@ -76,6 +78,8 @@ const SET_MAX_OUTPUT_TOKENS = 32000;
 // (set), never above the ceiling (the model's own output limit is higher; this is a cost guard).
 const RETRY_MAX_OUTPUT_TOKENS_FACTOR = 1.5;
 const RETRY_MAX_OUTPUT_TOKENS_CEILING = 48000;
+// LOCATE-FIRST-1: the locate call's output cap (a list of answers' first lines, no thinking).
+const LOCATE_MAX_OUTPUT_TOKENS = 8000;
 const FALLBACK_COUNTER = 'grading.model_fallback';
 const THINKING_REJECTED_COUNTER = 'grading.thinking_cap_rejected';
 const PROOF_RE = /\b(prove|proof|show that|hence show|verify that|justify)\b/i;
@@ -352,7 +356,11 @@ function createGradingCore(deps) {
     // rulebook switches, so every chunk's prompt starts with the same bytes (implicit caching).
     const nonce = c.nonce || chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce);
     const { contents, transport } = buildGradingContents({ questions, uploadByNumber, document, subject, nonce, buildGeminiImagePart, autoDetect, otherQuestionsInDocument: others,
-      paperHasAnyTyped: c.paperHasAnyTyped, paperAnyScheme: c.paperAnyScheme });
+      paperHasAnyTyped: c.paperHasAnyTyped, paperAnyScheme: c.paperAnyScheme,
+      // LOCATE-FIRST-1: only when the locate step succeeded for this paper; absent, the request is byte-identical.
+      ...(c.located ? { located: c.located } : {}),
+      // GRADE-SECOND-LOOK-1: only the second-look call carries it; every other call renders as before.
+      ...(c.secondLook ? { secondLook: c.secondLook } : {}) });
     // GRADE-SPEED-1 S6: the transport for the [grade-timing] line (a closed set, never content).
     if (c.timingSink && typeof c.timingSink === 'object' && typeof transport === 'string') c.timingSink.transport = transport;
     // D23: ONE document for the whole set is the only transport where the server cannot know
@@ -413,7 +421,7 @@ function createGradingCore(deps) {
       single: ctx.single, autoDetect: ctx.autoDetect, label: ctx.label, attempt, timeoutMs, deadlineAt,
       others: ctx.document ? Math.max(0, ctx.total - qs.length) : 0, chunkKey: keyOf(qs),
       nonce: ctx.nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme, meters: ctx.meters,
-      timingSink: ctx.timingSink, ...(extra || {}),
+      timingSink: ctx.timingSink, located: ctx.located, ...(extra || {}),
     });
     const left0 = ctx.callDeadlineAt - now();
     if (left0 <= 0) return [{ questions: chunk.questions, attempt: { error: deadlineError(0), model: chunk.model, timedOut: true } }];
@@ -464,6 +472,49 @@ function createGradingCore(deps) {
   }
 
   /**
+   * LOCATE-FIRST-1 — the ONE locate call (locate.cjs) for a one-document paper. Never throws, never blocks grading past
+   * its own cap: resolves { ok, map?, n, ms, why? }. Fail-open on everything (error, timeout, unparseable, a number not
+   * in the request, nothing placed). No thinking, temperature 0, the grading model (its counted fallback when that is
+   * active). Its usage is metered with the whole paper's questions. Its nonce comes from crypto (never the injected
+   * test generator), so a fail-open grade draws exactly the nonces it drew before.
+   */
+  async function runLocate({ questions, document, label, meters, callDeadlineAt, capMs }) {
+    const t0 = now();
+    const cap = Math.min(capMs, callDeadlineAt - t0);
+    if (!(cap > 0)) return { ok: false, why: 'noTime', n: 0, ms: 0 };
+    try {
+      const nonce = chooseNonce(questions.map((q) => q.questionText));
+      const contents = locateLib.buildLocateContents({ questions, document, nonce, buildGeminiImagePart });
+      const model = fallback.active && chosenModel !== GRADING_FALLBACK_MODEL ? GRADING_FALLBACK_MODEL : chosenModel;
+      const meter = createMeterGroup();
+      meters.push({ questions, meter });
+      const cfg = {
+        temperature: 0,
+        maxOutputTokens: LOCATE_MAX_OUTPUT_TOKENS,
+        responseMimeType: 'application/json',
+        responseSchema: locateLib.LOCATE_RESPONSE_SCHEMA,
+        thinkingConfig: { thinkingBudget: 0 },
+        // TELEMETRY hints only (never on the wire): a find-the-answers call, closest to the detect workload.
+        workloadClass: 'detect-question',
+        timeoutMs: Math.max(1, Math.floor(cap)),
+        deadlineAt: t0 + cap,
+        chunkKey: 'locate',
+        attempt: 1,
+      };
+      const reply = await withinBudget(runInMeterGroup(meter, () => callGemini(model, contents, cfg)), cap);
+      const parsed = extractJsonObjectFromText(reply && reply.text);
+      const v = locateLib.validateLocate(parsed, questions);
+      if (!v.ok) console.warn(label + ' locate step gave no usable map (' + v.why + ') — grading proceeds as before.');
+      return { ...v, n: v.n || 0, ms: now() - t0 };
+    } catch (err) {
+      const timedOut = timingLib.isTimeoutError(err);
+      console.warn(label + ' locate step ' + (timedOut ? 'timed out' : 'failed (HTTP ' + ((err && (err.status || err.statusCode)) || '?') + ')') +
+        ' after ' + (now() - t0) + ' ms — grading proceeds as before.');
+      return { ok: false, why: timedOut ? 'timeout' : 'error', n: 0, ms: now() - t0 };
+    }
+  }
+
+  /**
    * @param {{
    *   questions: Array<object>, document?: {imageBase64, imageMimeType}|null,
    *   uploads?: Array<{qNumber, imageBase64, imageMimeType}>, subject?: string,
@@ -510,6 +561,20 @@ function createGradingCore(deps) {
     // A17 ruling 5: every model call this request makes, with the questions it is for.
     const meters = [];
     const timingSink = input.timingSink && typeof input.timingSink === 'object' ? input.timingSink : null;
+    // LOCATE-FIRST-1: ONE locate call for ONE uploaded document holding two or more questions' answers (not the
+    // auto-detect single path), started NOW so it runs in parallel with the scheme pre-phase below.
+    // (Transport 'document' only: per-question photos already say which answer is which.)
+    const locateDoc = input.document && String(input.document.imageBase64 || '').trim() ? input.document : null;
+    const anyUpload = (Array.isArray(input.uploads) ? input.uploads : []).some((u) => Number(u && u.qNumber) > 0 && u.imageBase64);
+    // Its cap (review S3): a job keeps LOCATE_TIMEOUT_MS; a SYNCHRONOUS grade never waits for it past the scheme pre-phase
+    // window: min(LOCATE_TIMEOUT_MS, max(time left in that window, LOCATE_SYNC_MIN_MS)). `timing.locateTimeoutMs` and
+    // `timing.locateSyncMinMs` are TEST seams only (gradingTimingOverride); production uses the constants.
+    const locateMaxMs = Number.isFinite(timing.locateTimeoutMs) ? timing.locateTimeoutMs : timingLib.LOCATE_TIMEOUT_MS;
+    const locateSyncMinMs = Number.isFinite(timing.locateSyncMinMs) ? timing.locateSyncMinMs : timingLib.LOCATE_SYNC_MIN_MS;
+    const locateCapMs = job ? locateMaxMs : Math.min(locateMaxMs, Math.max(startedAt + timing.cacheBudgetMs - now(), locateSyncMinMs));
+    const locating = locateDoc && !anyUpload && !autoDetect && questions.length >= 2 && !locateLib.locateDisabled(process.env)
+      ? runLocate({ questions, document: locateDoc, label, meters, callDeadlineAt, capMs: locateCapMs })
+      : null;
     if (timingSink) {
       // GRADE-SPEED-1 S6: closed-set / numeric facts about this request for the [grade-timing] line.
       timingSink.marks = single || questions.length === 1 ? (Number(questions[0] && questions[0].marks) || null) : null;
@@ -519,6 +584,7 @@ function createGradingCore(deps) {
       if (keyless.length === 0 && timingSink) timingSink.cacheHit = true; // S6: no scheme was needed
       if (keyless.length > 0) {
         const arrived = new Map();
+        const arrivedSolutions = new Map(); // AC-SOLUTION-1: display-only structured steps, keyed like `arrived`
         const generated = new Set(); // S6: a scheme that had to be generated (not read from the cache)
         const hooks = Promise.all(keyless.map(async (q) => {
           try {
@@ -527,6 +593,9 @@ function createGradingCore(deps) {
             const cached = await runInMeterGroup(meter, () => solutionCache.getOrCreateModelSolution(schemeFieldsOf(q, input.subject)));
             if (cached && Array.isArray(cached.schemeSteps) && cached.schemeSteps.length > 0) {
               arrived.set(q, cached.schemeSteps);
+              // AC-SOLUTION-1 · DISPLAY ONLY: keep the structured steps beside (never instead of) the prompt strings.
+              // Non-enumerable: invisible to the prompt, logs and any spread of `q`; read back only at the end of gradeSet.
+              if (Array.isArray(cached.solutionSteps) && cached.solutionSteps.length > 0) arrivedSolutions.set(q, cached.solutionSteps);
               if (cached.fromCache !== true) generated.add(q);
               // GRADE-SPEED-1b: which stored scheme (first 8 hex of its question hash, never text) and whether this grade
               // WAITED for an in-flight generation (e.g. the early prepare still running) rather than reading a stored one.
@@ -552,6 +621,8 @@ function createGradingCore(deps) {
         // Only what arrived IN TIME is used — a late scheme can never change a prompt mid-grade.
         for (const [q, steps] of [...arrived]) {
           q.solutionSteps = steps;
+          // AC-SOLUTION-1: only a scheme that actually went into the prompt (arrived in time) may reach the card.
+          if (arrivedSolutions.has(q)) Object.defineProperty(q, '_modelSolutionSteps', { value: arrivedSolutions.get(q), configurable: true });
           // HOTFIX-1: a MODEL-GENERATED solution guides the grade, but it is never the STORED
           // marking scheme the scheme-copy check compares against (postprocess.cjs
           // copiesScheme). A correct textbook-worded answer matches a generated solution by
@@ -621,6 +692,7 @@ function createGradingCore(deps) {
     // (typed answers, per-question photos) a question's result depends on its own reply only, so it is
     // final at once; on one document it is final only in the stable case (postprocess inventoryStable).
     const inventoryPossible = Boolean(document) && !autoDetect;
+    const secondLookOn = !secondLookLib.secondLookDisabled(process.env);
     const emitRows = (rows) => {
       if (!onPartSettled || rows.length === 0) return;
       try { onPartSettled(rows); } catch { /* a progress hook never affects the grade */ }
@@ -640,9 +712,12 @@ function createGradingCore(deps) {
         const n = Number(q.qNumber);
         const own = a.inventory ? { present: a.inventory.has(n), firstLines: [...(a.inventory.get(n) || [])], partial } : null;
         const unread = !raw || raw.couldNotRead === true || raw.couldNotRead === 'true';
-        const final = !inventoryPossible || unread || inventoryStable(own, raw);
         // A copy of the reply: the final pass below reads the same object.
-        return { index: idOf.get(q), final, result: normaliseQuestionResult(q, raw ? structuredClone(raw) : null, normCtx(q, own, null, siblings)) };
+        const result = normaliseQuestionResult(q, raw ? structuredClone(raw) : null, normCtx(q, own, null, siblings));
+        // GRADE-SECOND-LOOK-1 (review #5): a row the second look may still change is never published as final.
+        const mayLookAgain = inventoryPossible && secondLookOn && secondLookLib.SECOND_LOOK_REASONS.includes(result && result._reason);
+        const final = !mayLookAgain && (!inventoryPossible || unread || inventoryStable(own, raw));
+        return { index: idOf.get(q), final, result };
       });
     };
     if (onPartSettled && deterministic.size > 0) {
@@ -650,10 +725,20 @@ function createGradingCore(deps) {
         result: normaliseQuestionResult(questions[id], structuredClone(raw), normCtx(questions[id], null, null)) })));
     }
 
+    // LOCATE-FIRST-1: the located map, or null (fail-open: every grading request is then byte-identical to before).
+    let located = null;
+    if (locating) {
+      const loc = await locating;
+      // Review S2/N1: hints only for questions that can carry one; none left → no block anywhere (byte-identical).
+      if (loc.ok && loc.map instanceof Map) located = locateLib.hintableMap(loc.map, questions);
+      if (timingSink) timingSink.locate = { ms: loc.ms, ok: Boolean(located), n: loc.n || 0 };
+    }
     const ctx = {
       idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length, chunked, meters, job, startedAt, timingSink,
-      // D31: request-level, so all chunks share them (see attemptChunk).
-      nonce: chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce),
+      located,
+      // D31: request-level, so all chunks share them (see attemptChunk). The located labels/first lines are student text
+      // fenced with the same nonce, so it must occur in none of them either (absent a map: the same texts as before).
+      nonce: chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]).concat(located ? locateLib.locatedTexts(located) : []), makeFenceNonce),
       paperHasAnyTyped: questions.some((q) => String((q && q.textAnswer) || '').trim().length > 0),
       paperAnyScheme: questions.some((q) => Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0),
     };
@@ -682,6 +767,7 @@ function createGradingCore(deps) {
     // chunk saw is never "not found", and any chunk's quoted first line for it counts.
     const paperInventory = new Map(); // printed number → Set of first lines
     let anyInventory = false;
+    const paperUnplaced = []; // GRADE-SECOND-LOOK-1: answers on the pages that a chunk's reply listed under no number
     const gradedIds = [];
     const modelsUsed = [];
     let summary = '';
@@ -714,6 +800,8 @@ function createGradingCore(deps) {
       }
       if (a.inventory) {
         anyInventory = true;
+        const un = a.parsed && Array.isArray(a.parsed.unplacedAnswers) ? a.parsed.unplacedAnswers : [];
+        for (const l of un) if (typeof l === 'string' && l.trim()) paperUnplaced.push(l.trim());
         for (const [n, lines] of a.inventory) {
           if (!paperInventory.has(n)) paperInventory.set(n, new Set());
           for (const l of lines) paperInventory.get(n).add(l);
@@ -771,6 +859,20 @@ function createGradingCore(deps) {
       notGradedById.has(i) ? null : rawById.get(i) || null,
       normCtx(q, inventoryById.get(i) || null, notGradedById.get(i) || null, siblingsById.get(i) || null),
     ));
+    // GRADE-SECOND-LOOK-1 — ONE extra call on a one-document paper whose first reading left questions
+    // "not found" / "no working": look again for THOSE questions only, by content (secondLook.cjs). A
+    // rescue replaces a result only when every guard passes; anything else keeps the first reading.
+    if (document && !autoDetect && anyInventory && secondLookOn) {
+      try {
+        const look = await runSecondLook({ questions, results, inventoryById, siblingsById, chunks, ctx, job, callDeadlineAt, normCtx, label, timingSink, unplaced: paperUnplaced });
+        // The first reading's summary was written about the paper BEFORE the rescue (live 25 Nov: "answers 1 to 4 ... cannot be
+        // awarded marks" above a 12/12 score). After a rescue the second look's own summary is used; if it gave none, the first
+        // summary is dropped rather than shown contradicting the marks.
+        if (look && look.rescued > 0) summary = look.summary || '';
+      } catch (e) {
+        console.warn(label + ' second look failed (first reading kept): ' + (e && e.message ? e.message : e));
+      }
+    }
     // A17 ruling 5 · the premium meter counts graded questions only: each call's usage is written
     // scaled by the chargeable share of the questions IT graded (0 when none was graded). A chunk's
     // failed first attempt and its retries are metered against their own questions the same way.
@@ -778,7 +880,123 @@ function createGradingCore(deps) {
       const ids = qs.map((q) => idOf.get(q)).filter((id) => id !== undefined);
       settleMeterGroup(meter, ids.length ? ids.filter((id) => isChargeable(results[id])).length / ids.length : 0);
     }
+    // GRADE-MISS-1 — how many questions of this paper the page check dropped, by kind (numbers only).
+    if (timingSink) {
+      try { timingSink.outcomes = gradeTimingLib.outcomeCounts(results, { inventory: anyInventory }); } catch { /* telemetry only */ }
+    }
+    // AC-SOLUTION-1 · DISPLAY ONLY — attached after every grade/rescue step, so nothing the grader decided can depend on it.
+    if (input.modelSolution === true && !/^(1|true|yes|on)$/i.test(String(process.env.AC_MODEL_SOLUTION_DISABLED || '').trim())) {
+      questions.forEach((q, i) => {
+        const steps = q && q._modelSolutionSteps;
+        if (results[i] && Array.isArray(steps) && steps.length > 0) {
+          const totalMarks = Math.round(steps.reduce((t, x) => t + (Number(x.marks) || 0), 0) * 2) / 2;
+          results[i].modelSolution = { steps: steps.map((x) => ({ description: x.description, working: x.working, marks: x.marks })), totalMarks };
+        }
+      });
+    }
     return { ok: true, results, summary, modelUsed, detection, chunkCount: chunks.length };
+  }
+
+  /**
+   * GRADE-SECOND-LOOK-1 — see secondLook.cjs for the why and the guards (G1–G5). Mutates `results` in place,
+   * ONLY at the indices it rescues. Never throws past gradeSet (caught there); a failed or late call changes
+   * nothing. Its usage is metered with the questions it was for (ctx.meters), so a rescued question that is
+   * graded is charged like any graded question and an unrescued one is not.
+   */
+  async function runSecondLook({ questions, results, inventoryById, siblingsById, chunks, ctx, job, callDeadlineAt, normCtx, label, timingSink, unplaced }) {
+    const candidates0 = secondLookLib.missedIndices(questions, results);
+    if (candidates0.length === 0) return;
+    // The answers the first reading GRADED (G4): their quoted first lines go to the prompt, their work to the guard.
+    const claimed = [];
+    const claimedWorks = [];
+    results.forEach((r, i) => {
+      if (!r || r._reason !== 'graded') return;
+      claimedWorks.push(secondLookLib.workOf(r));
+      const inv = inventoryById.get(i);
+      const line = inv && Array.isArray(inv.firstLines) ? inv.firstLines.find((l) => String(l || '').trim()) : '';
+      if (line) claimed.push({ qNumber: questions[i].qNumber, firstLine: line });
+    });
+    // G0 (cost): a question the first reading did not find is looked for again ONLY when the page holds an
+    // answer it could not place; a question it SAW (a quoted first line, no working) always is. A paper whose
+    // missing questions were simply skipped by the student costs nothing extra.
+    const questionTexts = questions.map((q) => q.questionText);
+    // An answer the first reading put under the WRONG number (answerMismatch) is an answer still looking for its
+    // question: its quoted lines count as unplaced (eval 25 Nov: "1)" = Q5's answer under Q1 left Q5 "not found").
+    const mismatchLines = [];
+    results.forEach((r, i) => {
+      if (!r || r._reason !== 'answerMismatch') return;
+      const inv = inventoryById.get(i);
+      for (const l of (inv && Array.isArray(inv.firstLines) ? inv.firstLines : [])) mismatchLines.push(l);
+    });
+    const open = secondLookLib.openUnplaced((Array.isArray(unplaced) ? unplaced : []).concat(mismatchLines), claimedWorks, questionTexts);
+    const missed = secondLookLib.worthALook(candidates0, results, open);
+    if (missed.length === 0) {
+      if (timingSink) timingSink.secondLook = { asked: 0, rescued: 0, skipped: 0 };
+      return;
+    }
+    const left = job ? Math.min(job.perCallMs, callDeadlineAt - now()) : callDeadlineAt - now();
+    if (left < secondLookLib.SECOND_LOOK_MIN_MS) {
+      if (timingSink) timingSink.secondLook = { asked: missed.length, rescued: 0, skipped: 1 };
+      return;
+    }
+    const nonce = chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]).concat(claimed.map((c) => c.firstLine), open), makeFenceNonce);
+    // One call per routed group (model + subject rules) the missed questions belong to — a mixed Maths + Science paper is
+    // graded under each question's own subject rules, exactly as its first reading was. The calls run in parallel.
+    const groupsOf = new Map();
+    for (const i of missed) {
+      const chunk = chunks.find((c) => c.questions.includes(questions[i])) || chunks[0];
+      const key = chunk.model + '\u0000' + subjectModeOf(chunk.subject);
+      if (!groupsOf.has(key)) groupsOf.set(key, { chunk, ids: [] });
+      groupsOf.get(key).ids.push(i);
+    }
+    let failed = 0;
+    let lookSummary = '';
+    const settledLook = await Promise.all([...groupsOf.values()].map(async ({ chunk, ids }) => {
+      const qs = ids.map((i) => questions[i]);
+      const outcome = await attemptChunk({
+        model: chunk.model, questions: qs, uploadByNumber: new Map(), document: ctx.document, subject: chunk.subject,
+        single: false, autoDetect: null, label, attempt: 1, timeoutMs: Math.min(left, secondLookLib.SECOND_LOOK_MAX_MS),
+        deadlineAt: callDeadlineAt, others: Math.max(0, questions.length - qs.length),
+        chunkKey: 'look2:' + ids.map((i) => 'q' + i).join('+'),
+        nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme, meters: ctx.meters,
+        // Review S1: the second look never repeats the locate map (it may be what the first reading got wrong).
+        timingSink, secondLook: { claimed, unplaced: open },
+      });
+      if (!outcome || !outcome.results) { failed += 1; return []; }
+      if (!lookSummary) lookSummary = String((outcome.parsed && outcome.parsed.summary) || '').trim();
+      const byNumber = new Map();
+      for (const r of outcome.results) if (r && r.qNumber != null) byNumber.set(Number(r.qNumber), r);
+      return ids.map((i) => {
+        const q = questions[i];
+        const n = Number(q.qNumber);
+        const raw = byNumber.get(n) || null;
+        const lines = outcome.inventory ? [...(outcome.inventory.get(n) || [])] : [];
+        // The strict test (partial: false): its OWN quoted first line must be in its OWN work (G2).
+        const inv = outcome.inventory ? { present: outcome.inventory.has(n), firstLines: lines, partial: false } : null;
+        // Balancing evidence comes from the second look's OWN reply (review #8), never the first reading's.
+        const result = raw && inv ? normaliseQuestionResult(q, structuredClone(raw), normCtx(q, inv, null, siblingStepsOf(byNumber, qs, q))) : null;
+        return { index: i, raw, result, firstLines: lines };
+      });
+    }));
+    const candidates = settledLook.flat();
+    // G4 runs across ALL groups' rescues together: two questions may never take the same answer.
+    const rescued = secondLookLib.acceptedRescues(candidates, claimedWorks, questionTexts);
+    for (const i of rescued) results[i] = candidates.find((c) => c.index === i).result;
+    // An answer the first reading put under the WRONG number, now marked under its real question: the question it was
+    // wrongly put under had no answer of its own on the page, so it reads "not found" (pending, never a 0), not
+    // "does not address the question" (eval 25 Nov: a skipped Q1 whose "1)" was Q5's answer).
+    const rescuedWorks = rescued.map((i) => secondLookLib.workOf(results[i]));
+    let reassigned = 0;
+    results.forEach((r, i) => {
+      if (!r || r._reason !== 'answerMismatch' || rescued.includes(i)) return;
+      const inv = inventoryById.get(i);
+      const lines = inv && Array.isArray(inv.firstLines) ? inv.firstLines : [];
+      if (lines.length === 0 || !rescuedWorks.some((w) => secondLookLib.sharesAnswer(lines, w))) return;
+      results[i] = normaliseQuestionResult(questions[i], { qNumber: questions[i].qNumber, couldNotRead: true, note: 'not found on the uploaded pages' }, normCtx(questions[i], null, null, null));
+      reassigned += 1;
+    });
+    if (timingSink) timingSink.secondLook = { asked: missed.length, rescued: rescued.length, skipped: 0, failed, reassigned };
+    return { rescued: rescued.length, summary: lookSummary };
   }
 
   return { gradeSet, chosenModel, routerMode, lightModel, fallbackState: fallback, timing };

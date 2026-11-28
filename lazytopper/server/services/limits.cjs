@@ -48,6 +48,7 @@ const { LIMITS_CONFIG } = require('./limitsConfig.cjs');
 const { chargeableCountOf } = require('../grading/charge.cjs');
 const { PACK_CHAPTERS, PACK_SUBJECTS, ownsChapter, ownsMocks } = require('./packProducts.cjs');
 const { splitByRedownload } = require('./packTerms.cjs');
+const markPass = require('./markPass.cjs');
 
 const USAGE_LEDGER_COLLECTION = 'usageLedger';
 // An object member (not a bare constant) on purpose, like usageLedger.cjs LEDGER_SEGMENTS: this is a
@@ -59,6 +60,7 @@ const USAGE_LIMITS_PATH = '/api/usage/limits';
 const USAGE_LIMITS_DOWNLOAD_PATH = '/api/usage/limits/download';
 const USAGE_LIMITS_QP_PATH = '/api/usage/limits/qp';
 const USAGE_LIMITS_DETAIL_PATH = '/api/usage/limits/detail';
+const USAGE_LIMITS_OPEN_PATH = '/api/usage/limits/open';
 const CHECK_SOLUTION_PATH = '/api/check-solution';
 const GRADE_WORKSHEET_PATH = '/api/grade-worksheet';
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
@@ -146,6 +148,29 @@ const LIMIT_ENV = Object.freeze({
 /** GATE-QP-1 kill switch: GATE_QP_DISABLED=1 restores Basic's first-free graded Quick Practice set. */
 function gateQpDisabled(env) {
   return /^(1|true|on|yes)$/i.test(String((env && env.GATE_QP_DISABLED) || '').trim());
+}
+
+/**
+ * BASIC-CTFM-FREE-1 (owner ruling 26 Nov 2026, 23:00 IST; FU-BASIC-SERVER-FIRST-FREE): a Basic account's ONE free marked test is the
+ * Test Series free test (testSeriesChecks: pinned at the first written check, 2 checks a paper) - there is no separate first-free
+ * chapter-test / full-mock grade. Kill switch BASIC_CTFM_FIRST_FREE_RESTORE=1 (ONLY "1") restores that old first-free grade.
+ */
+function basicCtFmFirstFreeRestored(env) {
+  return String((env && env.BASIC_CTFM_FIRST_FREE_RESTORE) || '').trim() === '1';
+}
+const BASIC_NO_FIRST_FREE_KINDS = new Set(['chapter-test', 'full-mock']);
+
+/**
+ * FREE-TS-WEEKLY (owner ruling 27 Nov 2026, 13:14 IST): Basic and trial accounts open ONLY Test Series papers, FREE_TS_OPENS_PER_WEEK a
+ * rolling 7 days (the same window as the weekly download / grade limits), counted per paper (the `ts` bucket; re-opening the same
+ * paper inside the window spends nothing). Board Pass holders (tier premium) and Test Series owners are never counted. The same ruling
+ * makes a Test Series paper VIEW-ONLY for Basic / trial: the download mint refuses it (a covering PDF pack owner is unchanged).
+ * Kill switch FREE_TS_WEEKLY_DISABLED=1 (ONLY "1"): the open mint serves without counting and the download mint is as before.
+ * Refusals only with LIMITS_ENFORCE on; otherwise the honest count moves and `limits.open.would_refuse` is counted.
+ */
+const FREE_TS_OPENS_PER_WEEK = 3;
+function freeTsWeeklyDisabled(env) {
+  return String((env && env.FREE_TS_WEEKLY_DISABLED) || '').trim() === '1';
 }
 
 function isEnforced(env) {
@@ -293,11 +318,33 @@ function readState(snap) {
   return {
     dl: cleanEntries(d.dl),
     qp: cleanEntries(d.qp),
+    ts: cleanEntries(d.ts),
     gr,
     firstFree: { download: ff.download === true, qp: ff.qp === true, grade },
     detail,
     cohortMs: Number.isFinite(d.cohortMs) ? d.cohortMs : null,
+    mk: cleanMarks(d.mk),
   };
+}
+
+/** MARK-ON-PHOTO-1 (owner ruling 25 Nov 22:17): graded marks per `<paper slot>|<question>`, for the cap of 3. */
+const MARK_CAP = 3;
+const MARK_KEEP_MS = 8 * 24 * 60 * 60 * 1000;
+const MARK_MAX_KEYS = 200;
+function cleanMarks(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object') return out;
+  for (const [k, v] of Object.entries(raw)) {
+    if (typeof k !== 'string' || k.length > 80 || !v || typeof v !== 'object') continue;
+    const n = Number(v.n);
+    const at = Number(v.at);
+    if (Number.isInteger(n) && n > 0 && Number.isFinite(at)) out[k] = { n, at };
+  }
+  return out;
+}
+function pruneMarks(mk, nowMs) {
+  const kept = Object.entries(mk || {}).filter(([, v]) => nowMs - v.at <= MARK_KEEP_MS).sort((a, b) => b[1].at - a[1].at).slice(0, MARK_MAX_KEYS);
+  return Object.fromEntries(kept);
 }
 
 /** The ONE document shape every mutation writes back whole (a partial set would drop the rest). */
@@ -308,9 +355,11 @@ function serializeState(state, nowMs, cohortMs) {
     cohortMs: cohortMs !== undefined && cohortMs !== null ? cohortMs : state.cohortMs,
     dl: state.dl,
     qp: state.qp,
+    ...(state.ts && state.ts.length ? { ts: state.ts } : {}),
     gr,
     firstFree: { download: state.firstFree.download === true, qp: state.firstFree.qp === true, grade: { ...state.firstFree.grade } },
     detail: { ...state.detail },
+    ...(state.mk && Object.keys(state.mk).length ? { mk: pruneMarks(state.mk, nowMs) } : {}),
     updatedMs: nowMs,
   };
 }
@@ -319,26 +368,31 @@ function serializeState(state, nowMs, cohortMs) {
 function bucketOf(state, bucket) {
   if (bucket === 'dl') return state.dl;
   if (bucket === 'qp') return state.qp;
+  if (bucket === 'ts') return state.ts || [];
   return state.gr[bucket.slice(3)] || [];
 }
 function setBucket(state, bucket, list) {
   if (bucket === 'dl') state.dl = list;
   else if (bucket === 'qp') state.qp = list;
+  else if (bucket === 'ts') state.ts = list;
   else state.gr[bucket.slice(3)] = list;
 }
 function firstFreeOf(state, bucket) {
   if (bucket === 'dl') return state.firstFree.download === true;
   if (bucket === 'qp') return state.firstFree.qp === true;
+  if (bucket === 'ts') return true; // no first-free open: every distinct paper counts
   return state.firstFree.grade[bucket.slice(3)] === true;
 }
 function markFirstFree(state, bucket) {
   if (bucket === 'dl') state.firstFree.download = true;
   else if (bucket === 'qp') state.firstFree.qp = true;
+  else if (bucket === 'ts') { /* no first-free flag for opens */ }
   else state.firstFree.grade[bucket.slice(3)] = true;
 }
 function unmarkFirstFree(state, bucket) {
   if (bucket === 'dl') state.firstFree.download = false;
   else if (bucket === 'qp') state.firstFree.qp = false;
+  else if (bucket === 'ts') { /* nothing to undo */ }
   else delete state.firstFree.grade[bucket.slice(3)];
 }
 function windowOf(bucket) {
@@ -397,6 +451,26 @@ function createLimits(deps = {}) {
       return false;
     }
   }
+  /**
+   * TS-FREE-CHECK-1: (uid, kind, worksheetId) -> Promise<boolean>, true for a sitting of a NON-owner's pinned free-test series paper
+   * (testSeriesChecks.freeTestPaper). Used ONLY to keep that paper's scorecard breakdown open, as for an owner's series paper; the
+   * download mint is not widened. Absent -> exactly today's limits.
+   */
+  const seriesFreeTestPaper = typeof deps.seriesFreeTestPaper === 'function' ? deps.seriesFreeTestPaper : null;
+  async function isSeriesFreeTestPaper(uid, kind, worksheetId) {
+    if (!seriesFreeTestPaper || (kind !== 'chapter-test' && kind !== 'full-mock') || typeof worksheetId !== 'string' || !worksheetId) return false;
+    try {
+      return (await seriesFreeTestPaper(uid, kind, worksheetId)) === true;
+    } catch {
+      return false;
+    }
+  }
+  /**
+   * FREE-TS-WEEKLY: (kind, worksheetId) -> boolean, true when the id is a Test Series paper of that kind (testSeriesChecks.isSeriesPaperId);
+   * (uid) -> true/false/null, a live Test Series Pack owner (testSeriesChecks.ownsActive; null = unreadable). Absent -> no weekly rule.
+   */
+  const isSeriesPaperId = typeof deps.isSeriesPaperId === 'function' ? deps.isSeriesPaperId : null;
+  const ownsSeriesPack = typeof deps.ownsSeriesPack === 'function' ? deps.ownsSeriesPack : null;
   const resolveFirestore = typeof deps.resolveFirestore === 'function' ? deps.resolveFirestore : defaultResolveFirestore;
   const getCreationMs = typeof deps.getCreationMs === 'function' ? deps.getCreationMs : defaultGetCreationMs;
 
@@ -503,6 +577,10 @@ function createLimits(deps = {}) {
 
   /** Never throws: any failure (no Firestore, a read error, a slow read) is "not owned". */
   async function ownsCover(uid, kind, cover) {
+    return (await ownsCoverState(uid, kind, cover)) === true;
+  }
+  /** FREE-TS-WEEKLY: the same read, three-state - true / false, or null when the read failed or timed out (unknown, never "not owned"). */
+  async function ownsCoverState(uid, kind, cover) {
     let timer = null;
     try {
       const packs = await Promise.race([
@@ -513,7 +591,7 @@ function createLimits(deps = {}) {
       return coverIsOwned(kind, cover, splitByRedownload(packs, now()).open);
     } catch {
       emit('limits.download.pack_read_failed');
-      return false;
+      return null;
     } finally {
       if (timer) clearTimeout(timer);
     }
@@ -569,6 +647,39 @@ function createLimits(deps = {}) {
     const enforced = isEnforced(env);
     const plan = await planFor(uid, req);
     if (!plan) return failOpen(res, null, enforced);
+    // FREE-TS-WEEKLY: a Test Series paper is VIEW-ONLY for Basic and trial (any trial, metered or not). A Board Pass holder (tier
+    // premium), a Test Series owner and an owner of a PDF pack covering the paper are unchanged. Never a 500: any doubt serves.
+    if (plan.tier !== 'premium' && !freeTsWeeklyDisabled(env) && isSeriesPaperId && (kind === 'chapter-test' || kind === 'full-mock')) {
+      let seriesId = false;
+      try {
+        seriesId = isSeriesPaperId(kind, paperKey) === true;
+      } catch {
+        seriesId = false;
+      }
+      if (seriesId && !(await isSeriesOwnerPaper(uid, kind, paperKey))) {
+        // Refuse ONLY on a definitive "not an owner": an unreadable / timed-out series-ownership or pack read SERVES (an owner is never
+        // refused on a blip), the same fail-open rule as the open mint.
+        let owns = null;
+        if (ownsSeriesPack) {
+          try {
+            owns = await ownsSeriesPack(uid);
+          } catch {
+            owns = null;
+          }
+        }
+        const cover = parseCover(body.cover);
+        const covered = cover ? await ownsCoverState(uid, kind, cover) : false;
+        if (owns === false && covered === false) {
+          if (enforced) {
+            emit('limits.download.view_only');
+            return sendJson(res, 409, { error: 'download_view_only', tier: plan.tier, window: 'view_only', limit: 0, used: 0, remaining: 0, resetAt: null });
+          }
+          emit('limits.download.would_view_only');
+        } else if (owns === null || covered === null) {
+          emit('limits.download.view_only_unknown');
+        }
+      }
+    }
     if (!plan.metered) {
       emit('limits.download.unmetered');
       return sendJson(res, 200, {
@@ -684,6 +795,68 @@ function createLimits(deps = {}) {
     });
   }
 
+
+  /**
+   * POST /api/usage/limits/open { paperKey } - FREE-TS-WEEKLY: one Test Series paper OPEN for a Basic / trial account.
+   *   200 { ok, counted, reused, enforced, limit, used, remaining, resetAt }  (premium / Test Series owner: unmetered, nothing written)
+   *   409 { error: "open_limit", window: "7d", limit, used, resetAt }          (LIMITS_ENFORCE only)
+   *   401 sign_in_required - 400 invalid_limits_request. FAILS OPEN on any doubt (unknown tier, unreadable ledger / packs).
+   * The paperKey is the series paper (its manifest key, "TS-CT-M01"); opening the same paper again inside the rolling week is a reuse.
+   */
+  async function handleOpenMint(req, res) {
+    const uid = await verifiedUidOf(req);
+    if (!uid) return sendJson(res, 401, { error: 'sign_in_required' });
+    let body;
+    try {
+      body = await readJson(req, MINT_MAX_BYTES);
+    } catch {
+      return sendJson(res, 400, { error: 'invalid_limits_request' });
+    }
+    const paperKey = body && typeof body === 'object' && typeof body.paperKey === 'string' ? body.paperKey.trim() : '';
+    if (!paperKey || paperKey.length > PAPER_KEY_MAX) return sendJson(res, 400, { error: 'invalid_limits_request' });
+
+    const enforced = isEnforced(env);
+    const off = { ok: true, counted: false, reused: false, enforced, limit: null, used: null, remaining: null, resetAt: null };
+    if (freeTsWeeklyDisabled(env)) return sendJson(res, 200, { ...off, disabled: true });
+    const tier = await tierFor(uid, req);
+    if (tier === 'premium') {
+      emit('limits.open.unmetered');
+      return sendJson(res, 200, off);
+    }
+    if (tier !== 'free' && tier !== 'trial') return failOpen(res, null, enforced);
+    // A Test Series owner is never capped. Unreadable ownership fails open (an owner is never walled by a blip).
+    let owns = null;
+    if (ownsSeriesPack) {
+      try {
+        owns = await ownsSeriesPack(uid);
+      } catch {
+        owns = null;
+      }
+    }
+    if (owns === true) {
+      emit('limits.open.test_series_owner');
+      return sendJson(res, 200, off);
+    }
+    if (owns === null) return failOpen(res, null, enforced);
+    const plan = { tier, limit: FREE_TS_OPENS_PER_WEEK };
+    const db = ledgerDb();
+    if (!db || typeof db.runTransaction !== 'function') return failOpen(res, plan, enforced);
+    let outcome;
+    try {
+      outcome = await spendIn(db, uid, { bucket: 'ts', id: hashKey('ts', paperKey), limit: FREE_TS_OPENS_PER_WEEK, createdMs: undefined, enforced, nowMs: now() });
+    } catch {
+      return failOpen(res, plan, enforced);
+    }
+    const { decision } = outcome;
+    if (decision.kind === 'refused' && enforced) {
+      emit('limits.open.refused');
+      return sendJson(res, 409, { error: 'open_limit', tier, window: '7d', limit: FREE_TS_OPENS_PER_WEEK, used: decision.used, remaining: 0, resetAt: decision.resetAt });
+    }
+    if (decision.kind === 'refused') emit('limits.open.would_refuse');
+    emit(decision.kind === 'reused' ? 'limits.open.reused' : 'limits.open.counted');
+    return sendOk(res, plan, decision.kind === 'refused' ? { ...decision, counted: true } : decision, enforced, decision.kind === 'reused');
+  }
+
   /** POST /api/usage/limits/qp { paperKey } — one graded Quick Practice set. */
   async function handleQpMint(req, res) {
     const uid = await verifiedUidOf(req);
@@ -757,6 +930,10 @@ function createLimits(deps = {}) {
       emit('limits.detail.test_series');
       return open({ testSeries: true });
     }
+    if (worksheetId && worksheetId.length <= PAPER_KEY_MAX && (await isSeriesFreeTestPaper(uid, kind, worksheetId))) {
+      emit('limits.detail.test_series_free_test');
+      return open({ testSeries: true, freeTest: true });
+    }
     const db = ledgerDb();
     if (!db || typeof db.runTransaction !== 'function') {
       emit('limits.fail_open');
@@ -810,6 +987,9 @@ function createLimits(deps = {}) {
       // TS-PACK-JOBFIX (review P0 #1): a VERIFIED Test Series Pack owner grading a series paper (manifest paper + its exact written
       // questions) is not metered here at all - no trial cap, no reservation, no "first free" bypass. The entitlement gate then
       // admits it on the pack, whose 2-per-paper rule is the only cap. Any other grade is decided exactly as before.
+      // TS-FREE-CHECK-1: index.cjs's `seriesOwnerGrade` also answers true for a NON-owner's free-test grade (testSeriesChecks
+      // .freeTestGrade): it spends no trial weekly chapter-test / full-mock grade and no Basic "first free" grade; the free test's
+      // own 2-per-paper rule (entitlement gate -> testSeriesChecks.hold) is its only cap. The Answer Checker bucket is never touched.
       if (reqPath === GRADE_WORKSHEET_PATH && typeof opts.seriesOwnerGrade === 'function') {
         let owner = false;
         try {
@@ -831,6 +1011,14 @@ function createLimits(deps = {}) {
         emit('limits.grade.qp_board_pass_only');
         return none;
       }
+      // BASIC-CTFM-FREE-1 (owner ruling 26 Nov 2026, 23:00 IST): a Basic (tier free) chapter-test / full-mock grade gets NO first-free
+      // bypass and no reservation: the entitlement gate answers its ordinary 402. The ONE free marked test is the Test Series free
+      // test, already let through above (seriesOwnerGrade -> testSeriesChecks.freeTestGrade) and capped by its own 2-per-paper rule.
+      // Trial (metered weekly caps), premium (not metered), Answer Checker and worksheet first-free: unchanged.
+      if (BASIC_NO_FIRST_FREE_KINDS.has(kind) && info.tier === 'free' && !basicCtFmFirstFreeRestored(env)) {
+        emit('limits.grade.basic_ctfm_no_first_free');
+        return none;
+      }
       const db = ledgerDb();
       if (!db || typeof db.runTransaction !== 'function') {
         emit('limits.fail_open');
@@ -839,12 +1027,45 @@ function createLimits(deps = {}) {
       const bucket = kind === 'quick-practice' ? 'qp' : `gr:${kind}`;
       const passKey = typeof opts.paperKeyOf === 'function' ? opts.paperKeyOf(req, kind) : null;
       const idemKey = String((req.headers && req.headers['idempotency-key']) || '').trim();
-      const id = hashKey(`grade|${kind}`, passKey || idemKey || crypto.randomUUID());
+      // MARK-ON-PHOTO-1 (owner ruling 25 Nov 2026): one answer marked on the photo of an Answer Checker paper re-uses
+      // that paper's slot id (a server-signed mark pass for this uid, services/markPass.cjs): `reused` while the paper's
+      // slot is held, a real slot once it is gone. The route then refuses a body the pass does not allow.
+      const ridden = kind === 'check-improve' && reqPath === GRADE_WORKSHEET_PATH ? markPass.verifiedMarkPassOf(req, uid, env, now()) : null;
+      if (ridden) emit('limits.grade.mark_on_photo');
+      const id = ridden ? ridden.slot : hashKey(`grade|${kind}`, passKey || idemKey || crypto.randomUUID());
       const limit = info.tier === 'free' ? 1 : resolveGradeLimit(kind);
+      // MARK-ON-PHOTO-2: a Chapter Test / Full Mock / Worksheet mark carries the paper's OWN verified paper pass (so `id` above
+      // is that paper's slot id) and names its one question (X-Lazytopper-Mark-Q). It is counted toward the cap of 3 under
+      // `<paper slot id>|<q>` exactly as an Answer Checker mark, and the route refuses a body that is not that one mark.
+      const bankQ = !ridden && reqPath === GRADE_WORKSHEET_PATH && passKey && markPass.BANK_MARK_KINDS.has(kind) ? markPass.bankMarkQOf(req) : null;
+      if (bankQ) {
+        markPass.noteBankMark(req, { paperKey: passKey, slot: id, q: bankQ });
+        emit('limits.grade.mark_on_photo_bank');
+      }
 
       // ONE transaction: read the bucket, decide and RESERVE the slot. Parallel requests (different
       // idempotency keys) serialise on the document, so the cap cannot be passed.
-      const r = await reserveGrade(db, uid, { bucket, id, limit, tier: info.tier, createdMs: info.createdMs, nowMs: now() });
+      const markKey = ridden ? `${ridden.slot}|${ridden.q}` : bankQ ? `${id}|${bankQ}` : null;
+      const r = await reserveGrade(db, uid, { bucket, id, limit, tier: info.tier, createdMs: info.createdMs, nowMs: now(), markKey });
+      if (r.kind === 'markCapped') {
+        emit('limits.grade.mark_capped');
+        sendJson(res, 409, { ok: false, error: markPass.MARK_LIMIT_COPY, code: 'mark_limit', limit: MARK_CAP });
+        return { refused: true };
+      }
+      if (markKey && (r.kind === 'reused' || r.kind === 'reserved')) {
+        // The count was taken at admission; only a mark that came back GRADED keeps it.
+        let done = false;
+        const giveBack = () => {
+          if (done) return;
+          done = true;
+          releaseMark(db, uid, markKey, info.createdMs).then(() => emit('limits.grade.mark_released'), () => emit('limits.fail_open'));
+        };
+        res.once('finish', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300 && chargeableCountOf(res) !== 0) { done = true; return; }
+          giveBack();
+        });
+        res.once('close', () => { if (!res.writableFinished) giveBack(); });
+      }
       if (r.kind === 'none') return none; // Basic, first free already used: the ordinary 402 follows
       if (r.kind === 'refused') {
         emit('limits.grade.refused');
@@ -882,10 +1103,21 @@ function createLimits(deps = {}) {
   }
 
   /** The decision + the reservation in ONE transaction. */
-  function reserveGrade(db, uid, { bucket, id, limit, tier, createdMs, nowMs }) {
+  function reserveGrade(db, uid, { bucket, id, limit, tier, createdMs, nowMs, markKey = null }) {
     return db.runTransaction(async (tx) => {
       const ref = stateRef(db, uid);
       const state = readState(await tx.get(ref));
+      // MARK-ON-PHOTO-1: the same question of the same paper is marked on the photo at most MARK_CAP times.
+      if (markKey && state.mk[markKey] && state.mk[markKey].n >= MARK_CAP && nowMs - state.mk[markKey].at <= MARK_KEEP_MS) {
+        return { kind: 'markCapped' };
+      }
+      // The mark's count is taken HERE, in the same transaction that admits it, so parallel marks serialise on the
+      // document and cannot pass the cap; a mark that comes back ungraded gives it back (releaseMark).
+      const takeMark = () => {
+        if (!markKey) return;
+        const prev = state.mk[markKey];
+        state.mk[markKey] = { n: (prev ? prev.n : 0) + 1, at: nowMs };
+      };
       const all = bucketOf(state, bucket);
       const isStale = (e) => e.p === 1 && nowMs - e.at > RESERVATION_TTL_MS;
       const held = all.filter((e) => !isStale(e));
@@ -901,15 +1133,35 @@ function createLimits(deps = {}) {
       } else {
         const d = decideCounted({ metered: true, limit, entries: held, firstFreeUsed: ffUsed, id, nowMs, window: windowOf(bucket) });
         if (d.kind === 'refused') return { kind: 'refused', used: d.used, resetAt: d.resetAt };
-        if (d.kind === 'reused') return { kind: 'reused' };
+        if (d.kind === 'reused') {
+          if (markKey) {
+            takeMark();
+            tx.set(ref, serializeState(state, nowMs, createdMs));
+          }
+          return { kind: 'reused' };
+        }
         entries = d.entries;
         free = d.free;
       }
       const entry = { at: nowMs, id, free, p: 1, ...(bucket === 'qp' ? { g: 1 } : {}) };
       setBucket(state, bucket, entries.concat([entry]).sort((x, y) => x.at - y.at).slice(-MAX_ENTRIES));
       markFirstFree(state, bucket);
+      takeMark();
       tx.set(ref, serializeState(state, nowMs, createdMs));
       return { kind: 'reserved', free };
+    });
+  }
+
+  /** MARK-ON-PHOTO-1: a mark that came back ungraded (or never finished) gives its count back. */
+  function releaseMark(db, uid, markKey, createdMs) {
+    return db.runTransaction(async (tx) => {
+      const ref = stateRef(db, uid);
+      const state = readState(await tx.get(ref));
+      const prev = state.mk[markKey];
+      if (!prev) return;
+      if (prev.n <= 1) delete state.mk[markKey];
+      else state.mk[markKey] = { n: prev.n - 1, at: prev.at };
+      tx.set(ref, serializeState(state, now(), createdMs));
     });
   }
 
@@ -976,8 +1228,10 @@ function createLimits(deps = {}) {
     const qpLimit = info.tier === 'free' ? LIMITS_CONFIG.basic.quickPracticeGradedPerDay : LIMITS_CONFIG.trial.quickPracticeGradedPerDay;
     const grade = {};
     for (const kind of GR_BUCKET_KINDS) {
+      // BASIC-CTFM-FREE-1: no Basic first-free chapter-test / full-mock grade, so none is reported (My Packs' "free mark left").
+      const noFirstFree = BASIC_NO_FIRST_FREE_KINDS.has(kind) && !basicCtFmFirstFreeRestored(env);
       grade[kind] = info.tier === 'free'
-        ? { limit: 0, used: 0, remaining: 0, firstFreeAvailable: !firstFreeOf(state, `gr:${kind}`), resetAt: null }
+        ? { limit: 0, used: 0, remaining: 0, firstFreeAvailable: !noFirstFree && !firstFreeOf(state, `gr:${kind}`), resetAt: null }
         : counter(`gr:${kind}`, resolveGradeLimit(kind));
     }
     return {
@@ -1028,7 +1282,7 @@ function createLimits(deps = {}) {
     }
   }
 
-  return { handleDownloadMint, handleLimitsMe, handleQpMint, handleDetailClaim, gradingGate, settleDeferred };
+  return { handleDownloadMint, handleOpenMint, handleLimitsMe, handleQpMint, handleDetailClaim, gradingGate, settleDeferred };
 }
 
 module.exports = {
@@ -1040,11 +1294,15 @@ module.exports = {
   entryId,
   isEnforced,
   gateQpDisabled,
+  basicCtFmFirstFreeRestored,
   resolveLimits,
   USAGE_LIMITS_PATH,
   USAGE_LIMITS_DOWNLOAD_PATH,
   USAGE_LIMITS_QP_PATH,
   USAGE_LIMITS_DETAIL_PATH,
+  USAGE_LIMITS_OPEN_PATH,
+  FREE_TS_OPENS_PER_WEEK,
+  freeTsWeeklyDisabled,
   decideCounted,
   istDayStartMs,
   TRIAL_COHORT_START_MS,

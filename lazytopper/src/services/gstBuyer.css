@@ -103,7 +103,7 @@ textarea.lt-gst__input {
 }
 .lt-gst__go {
   border: 0;
-  background: #16a34a;
+  background: var(--lt-green-fill, #257e55);
   color: #ffffff;
 }
 .lt-gst__cancel {

@@ -10,8 +10,10 @@
  * proof is about answers checked, which a PDF pack does not do.
  */
 import { orderSourceFields } from "../analytics/visitSource";
-import { adSignalFields } from "../analytics/adSignals";
-import { formatInr } from "../config/pricing";
+import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
+import { formatInr, foundingOfferOpen } from "../config/pricing";
+import { BOARD_CHAPTER_KEYS, chapterUnit } from "../config/syllabusUnits2026-27";
+import { SERIES_MOCKS_PER_SUBJECT, SERIES_PAPERS_PER_CHAPTER } from "../lib/testSeries/seriesCounts";
 import type { PackSku } from "./packs";
 import {
   childAuthHeaders,
@@ -119,9 +121,11 @@ export interface ParentPackBuyDeps {
 export async function createParentPackOrder(token: string) {
   // GST-INVOICE-1: the PARENT (the payer) confirms their state.
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null, { postPay: true }) : {}; // host: ParentPayPanel's paid / pending screen mounts PostPayGst
-  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, product: "pack", ...gst, ...orderSourceFields(), ...adSignalFields() });
+  const signals = adSignalFields(); // META-IC-1
+  const json = await postJson(PARENT_ORDER_ENDPOINT, { token, product: "pack", ...gst, ...orderSourceFields(), ...signals });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new ParentLinkError("failed");
+  metaIcAfterOrder(signals, json, null); // the server names the pack sku in its reply
   return { orderId, keyId, amountPaise, ...serverPriceFields(json) };
 }
 
@@ -226,15 +230,22 @@ export interface AskParentPackMessageInput {
   lang: ParentPayLang;
   /** "Maths CBQ Pack" (parentPackName). */
   name: string;
+  /** TS-PARENT-FORWARD-1 (review A): the pack's SKU - picks the message (the Test Series has its own), never the name. */
+  sku: PackSku;
   /** The SERVER's price from the mint response, rupees. */
   priceInr: number;
   url: string;
   days: number;
+  /** The clock (tests). The Test Series price changes when the founding offer closes, so it is only quoted once closed. */
+  now?: Date | number;
 }
 
 /** The child's message to a parent for ONE pack: the pack, its one-time price, the link and how long it works. */
-export function buildAskParentPackMessage({ lang, name, priceInr, url, days }: AskParentPackMessageInput): string {
+export function buildAskParentPackMessage({ lang, name, sku, priceInr, url, days, now = Date.now() }: AskParentPackMessageInput): string {
   const price = formatInr(priceInr);
+  // TS-PARENT-FORWARD-1 (owner ruling 18 Nov 2026): the Test Series is taken online (its papers can be printed) and is never presented
+  // like a PDF pack. Chosen by SKU (review A), so renaming parentPackName can never send the Test Series the PDF-pack message.
+  if (sku === "test_series") return buildAskParentSeriesMessage(lang, seriesQuotedPrice(price, now), url, days);
   if (lang === "hi") {
     return [
       `मम्मी/पापा, क्या आप मुझे LazyTopper पर ${name} दिला देंगे? यह एक बार का ${price} है — मेरी CBSE कक्षा 10 बोर्ड की तैयारी के लिए प्रिंट करने वाली PDF।`,
@@ -249,4 +260,70 @@ export function buildAskParentPackMessage({ lang, name, priceInr, url, days }: A
     url,
     `(The link works for ${days} ${days === 1 ? "day" : "days"}.)`,
   ].join("\n\n");
+}
+
+/**
+ * TS-PARENT-FORWARD-1 - the child's message for the Test Series: the tests (online or printed) and the step-by-step marking, never "PDFs". The price is
+ * the SERVER's (the mint's total); the test count is parentSeriesTestCount() (never typed). The link / no-password / validity lines are the
+ * pack message's own.
+ */
+/**
+ * The Test Series' test count WITHOUT lib/testSeries/testSeries.ts (review: that module put ~5 KB gz on every paywall surface's
+ * PaywallActionsView). Same arithmetic as hubTsFlag's hub card: board chapters x papers per chapter + full-length per subject x 2.
+ * A test pins it equal to seriesTotals().total.
+ */
+export function parentSeriesTestCount(): number {
+  const chapters = BOARD_CHAPTER_KEYS.filter((k) => chapterUnit(k) !== null && chapterUnit(k) !== undefined).length;
+  return chapters * SERIES_PAPERS_PER_CHAPTER + SERIES_MOCKS_PER_SUBJECT * 2;
+}
+
+/**
+ * FOUNDING-MSG-PRICE-1 (owner, 25 Nov 2026: "there should be no wrong price from 1st december") - a forwarded message is read
+ * later than it is sent, and the Test Series price changes at 00:00 IST 1 Dec. So while the founding offer is open the message
+ * names NO amount (the parent sees the real total on the page before paying); from the close it quotes the price, which no
+ * longer changes. null = leave the amount out.
+ */
+export function seriesQuotedPrice(price: string, now: Date | number = Date.now()): string | null {
+  return foundingOfferOpen(now) ? null : price;
+}
+
+/** The Test Series' opening sentence (price + tests + marking): ONE copy for the per-account link and the signed-out share. */
+function seriesAskLine(lang: ParentPayLang, price: string | null): string {
+  const tests = parentSeriesTestCount();
+  if (lang === "hi") {
+    const cost = price ? `यह एक बार का ${price} है` : "यह एक बार का भुगतान है";
+    return `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? ${cost} और मेरे बोर्ड तक चलेगी: ${tests} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं।`;
+  }
+  const cost = price ? `It's ${price}, one time` : "It's a one-time payment";
+  return `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? ${cost}, valid till my boards: ${tests} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner.`;
+}
+
+function buildAskParentSeriesMessage(lang: ParentPayLang, price: string | null, url: string, days: number): string {
+  if (lang === "hi") {
+    return [
+      seriesAskLine(lang, price),
+      "यह लिंक सिर्फ़ मेरे अकाउंट के लिए है — आपको कोई अकाउंट बनाने या पासवर्ड बताने की ज़रूरत नहीं:",
+      url,
+      `(यह लिंक ${days} दिन तक चलेगा।)`,
+    ].join("\n\n");
+  }
+  return [
+    seriesAskLine(lang, price),
+    "This link is only for my account — you don't need to sign up or share any password:",
+    url,
+    `(The link works for ${days} ${days === 1 ? "day" : "days"}.)`,
+  ].join("\n\n");
+}
+
+/**
+ * TS-PARENT-FORWARD-2 (owner, 25 Nov 2026: no sign-in in any pay path) - a SIGNED-OUT student's message to a parent. No per-account
+ * link exists without an account, so it sends the public /test-series page: the parent pays there signed out (pay-first) and, after
+ * paying, "Who will use it?" puts the series on the child's number.
+ * TS-PAYPATH-1 (owner rule: no forwarded message may carry a price that is wrong after 1 Dec): this message is a non-expiring PAGE
+ * link, read days after it is sent, so it NEVER names an amount - before or after the founding close ("a one-time payment"; the page
+ * shows the live price), exactly as PARENT-PAY-FIRST-1's guest message. `price` / `now` are accepted for old callers and ignored.
+ */
+export function buildParentSeriesShareMessage({ lang, url }: { lang: ParentPayLang; price?: string; url: string; now?: Date | number }): string {
+  const pay = lang === "hi" ? "यहाँ भुगतान करें, फिर मेरा नंबर डालें ताकि यह मेरे अकाउंट पर खुल जाए:" : "Pay here, then enter my number so it opens on my account:";
+  return `${seriesAskLine(lang, null)} ${pay} ${url}`;
 }

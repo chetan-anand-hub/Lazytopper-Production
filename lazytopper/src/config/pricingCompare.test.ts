@@ -10,7 +10,6 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
-  BASIC_FOOTNOTE,
   BASIC_INCLUDES,
   BASIC_INCLUDES_HEAD,
   BASIC_LIMITS_HEAD,
@@ -27,21 +26,20 @@ import {
 } from "./pricingCompare";
 import { PRICE_FREE_DISPLAY } from "./pricing";
 import { LIMITS_CONFIG } from "./limitsConfig";
-import { basicDownloadCell, basicQuickPracticeCell } from "./limitsPlanCopy";
 import { basicLineRest } from "../components/pricing/pricingPlansCopy";
 
 describe("L4 · the Basic card", () => {
-  it("'Basic includes:' then the six rows, in order", () => {
+  it("'Basic includes:' then the seven rows, in order (GUEST-WALL: opens only, and the first free test)", () => {
     expect(BASIC_INCLUDES_HEAD).toBe("Basic includes:");
     expect(BASIC_INCLUDES.map((i) => i.label)).toEqual([
       "Exam Trends — chapters ranked from ten years of papers",
       "Notes, formulae, NCERT books and solutions",
       "Practice sets and worksheet generation",
-      "Open or download 3 chapter tests or mocks a day (1 when signed out)",
+      "Open 3 Test Series papers a week (1 when signed out)",
+      "Your first test is free, marking included.",
       "Your first answer check free",
       "Basic topic insights",
     ]);
-    expect(BASIC_FOOTNOTE).toBe("Written answers on tests and mocks are not checked on Basic.");
   });
 
   it("ONLY the free-check row is conditional, and it links to Check & Improve", () => {
@@ -80,7 +78,7 @@ describe("L4 · the compare table data", () => {
     expect(comparePremiumHeader(before)).not.toMatch(/599|999|from/);
   });
 
-  it("six sections, in order, with 3/3/2/3/3/1 rows", () => {
+  it("six sections, in order, with 3/3/3/3/3/1 rows (GUEST-WALL: Tests & papers gains 'Download papers', a dash on Basic)", () => {
     const sections = compareSections({ freeCheck: true });
     expect(sections.map((s) => s.title)).toEqual([
       "Study",
@@ -90,7 +88,10 @@ describe("L4 · the compare table data", () => {
       "Coaching",
       "Limits",
     ]);
-    expect(sections.map((s) => s.rows.length)).toEqual([3, 3, 2, 3, 3, 1]);
+    expect(sections.map((s) => s.rows.length)).toEqual([3, 3, 3, 3, 3, 1]);
+    const tp = sections.find((s) => s.title === "Tests & papers")!.rows;
+    expect(tp.map((r) => r.label)).toEqual(["Open chapter tests and full mocks", "Download papers", "Chapter tests, mocks and worksheets graded"]);
+    expect(tp.find((r) => r.label === "Download papers")?.basic).toEqual({ kind: "no" });
   });
 
   it("Basic's answer-checking cell is 'First check free' only while the free check is on", () => {
@@ -213,25 +214,15 @@ describe("Owner ruling — 'Limited' on Basic only when backed by a constant", (
     expect(unbackedLimited([desc, ...answers], PAGE_SOURCE + COPY_SOURCE + COMPARE_SOURCE)).toEqual([]);
   });
 
-  it("BASIC-LINE-1 — with the limits on, the last line says 'limited practice' and the guard accepts it only via its constants", () => {
-    // The template lives in pricingPlansCopy.ts (COPY_SOURCE, scanned); render it exactly as the page does.
-    const m = /export const BASIC_LINE_REST_LIMITED = `([^`]*)`/.exec(COPY_SOURCE);
-    expect(m, "BASIC_LINE_REST_LIMITED template not found").not.toBeNull();
-    expect(m![1]).toMatch(/\$\{[A-Z][A-Z0-9_]*\}/);
-    expect(basicLineRest(true).replace(/^,\s*/, "")).toBe(
-      "with notes, NCERT solutions and limited practice (1 download a week; marking your written practice answers comes with the Board Pass)",
-    );
-    // GATE-QP-1 (19 Nov 2026): the Basic cell no longer carries a number for graded Quick Practice - Board Pass only; the download figure is the compare table's.
-    expect(basicQuickPracticeCell()).toBe("Board Pass only");
-    expect(basicDownloadCell()).toMatch(/^1 a week/);
-    expect(LIMITS_CONFIG.basic.quickPracticeWrittenGradedPerDay).toBe(0); // a change here needs a copy review (the line and the cell say "Board Pass only")
-    expect(LIMITS_CONFIG.basic.downloadsPerWeek).toBe(1);
-    expect(unbackedLimited([basicLineRest(true)], COPY_SOURCE)).toEqual([]); // the template as rendered, leading comma included
+  it("BASIC-LINE-1 / GUEST-WALL — the last line is the same with the limits on or off: no 'limited', no download, no checking", () => {
+    // GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST) retired BASIC_LINE_REST_LIMITED ("limited practice (1 download a week; ...)").
+    expect(COPY_SOURCE).not.toMatch(/export const BASIC_LINE_REST_LIMITED/);
+    expect(basicLineRest().replace(/^,\s*/, "")).toBe("with notes, NCERT solutions and practice sets");
+    expect(basicLineRest()).not.toMatch(/limited|download|marking|checked/i);
+    expect(LIMITS_CONFIG.basic.quickPracticeWrittenGradedPerDay).toBe(0); // a change here needs a copy review (the compare cell is a dash)
     // CONTROL — the same words with the digits typed (not interpolated) are caught.
     const typed = "const R = `, with notes, NCERT solutions and limited practice (1 download a week; marking your written practice answers comes with the Board Pass)`;";
     expect(unbackedLimited(["with notes, NCERT solutions and limited practice (1 download a week; marking your written practice answers comes with the Board Pass)"], typed)).toHaveLength(1);
-    // Limits off: nothing is capped, so no "limited".
-    expect(basicLineRest(false)).not.toMatch(/limited/i);
   });
 
   it("CONTROL — the guard catches the OLD wording of both strings", () => {
@@ -304,5 +295,19 @@ describe("PRICING-1 · what Basic does not include is stated, and it is TRUE tod
     const all = basicLimits({ freeCheck: true }).map(i => i.label).join(" | ");
     expect(all).not.toMatch(/\d/); // no invented quota figure
     expect(BASIC_LIMITS_HEAD).toBe("Not on Basic:");
+  });
+});
+
+describe("TS-FAIRUSE-1 - /pricing fair-use copy matches production (per day and per 30 days)", () => {
+  it("the box, the table row and the FAQ say day + 30 days, never 5 hours / week; the Test Series clause follows the flag", async () => {
+    const { fairUseCopy, compareSections, FAIR_USE_RESETS, tsFairUseSentence } = await import("./pricingCompare");
+    expect(FAIR_USE_RESETS).toBe("every day and every 30 days");
+    expect(fairUseCopy()).toContain("resets — every day and every 30 days.");
+    expect(fairUseCopy()).not.toMatch(/5 hours|every week/);
+    expect(fairUseCopy()).toContain("The Test Series has the same fair use.");
+    const row = JSON.stringify(compareSections({ freeCheck: false }));
+    expect(row).toContain("Usage bars · reset every day and every 30 days");
+    expect(row).not.toMatch(/5 hours|day and week/);
+    expect(tsFairUseSentence(false)).toBe("");
   });
 });

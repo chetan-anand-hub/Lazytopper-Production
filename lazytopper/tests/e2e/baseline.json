@@ -1,0 +1,5 @@
+{
+  "_about": "UI-E2E-1 known-issues baseline. Read tests/e2e/support/baseline.ts before editing. Only NEW defects fail; entries here are defects that existed when the suite went live and are tracked to be fixed, not accepted.",
+  "contrast": {},
+  "ctaBelowFold": {}
+}

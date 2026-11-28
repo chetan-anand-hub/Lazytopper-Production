@@ -18,6 +18,7 @@
  */
 import { VALIDITY_SHORT } from "../../config/validity";
 import InAppPayRescue, { buyTargetFromItem } from "../payRescue/InAppPayRescue";
+import ParentForwardGuest from "../payRescue/ParentForwardGuest";
 import PayReturnHint from "../payReturn/PayReturnHint";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -203,6 +204,7 @@ export default function CheckoutSheet({
   // CHECKOUT-ONE-TAP-1: decided once at mount (like selfOutFirst).
   const [autoSelf] = useState(() => autoPaySelf === true && selfOutFirst && showAttach && audience !== "parent" && !holder);
   const autoRan = useRef(false);
+  const payingRef = useRef(false); // ORDER-DEDUP-1: synchronous in-flight flag (the `busy` closure only updates after a re-render)
   const goTo = onGoTo || ((path: string) => window.location.assign(path));
   // SELFPAY-ATTACH-1: the title the after-payment flow wants, and whether closing now needs the "your payment is safe" line.
   const [attachTitle, setAttachTitle] = useState("");
@@ -271,11 +273,17 @@ export default function CheckoutSheet({
 
   async function pay() {
     setTouched(true);
-    if (!recipient || busy) return;
+    if (!recipient || busy || payingRef.current) return;
+    payingRef.current = true;
     trackNamedEvent("guest_pay_start", { recipient: "other", ...surfaceData });
     setStep({ name: "busy" });
     const attemptId = newCheckoutAttemptId();
-    const outcome = await buy(item, recipient, signedIn);
+    let outcome: Awaited<ReturnType<typeof buy>>;
+    try {
+      outcome = await buy(item, recipient, signedIn);
+    } finally {
+      payingRef.current = false;
+    }
     if (outcome.status === "paid") {
       trackNamedEvent("guest_pay_paid", { recipient: "other", ...surfaceData });
       // The sale itself, only once the SERVER verified it (the same helper and event names as pay-by-phone).
@@ -301,14 +309,20 @@ export default function CheckoutSheet({
   }
 
   async function paySelf() {
-    if (busy) return;
+    if (busy || payingRef.current) return;
+    payingRef.current = true;
     // The funnel stays comparable: guest_pay_start fires for BOTH paths (recipient "self" here, "other" for the box); the new
     // event marks the new primary tap. Names + the path only - nothing about the buyer.
     if (!parentPayFirst) trackNamedEvent("guest_pay_self_start", { recipient: "self", ...surfaceData });
     trackNamedEvent("guest_pay_start", { recipient: selfRecipient, ...surfaceData });
     setStep({ name: "selfBusy" });
     const attemptId = newCheckoutAttemptId();
-    const outcome = await buySelf(item);
+    let outcome: Awaited<ReturnType<typeof buySelf>>;
+    try {
+      outcome = await buySelf(item);
+    } finally {
+      payingRef.current = false;
+    }
     if (outcome.status === "paid") {
       trackNamedEvent("guest_pay_paid", { recipient: selfRecipient, ...surfaceData });
       if (outcome.confirmed) trackGuestPurchase(item, outcome, attemptId);
@@ -348,9 +362,13 @@ export default function CheckoutSheet({
         {selfError && <p className="lt-gps__error" role="alert">{selfError}</p>}
         {step.name === "selfOut" && step.closed && <p className="lt-gps__fine" role="status">{WHO_CLOSED}</p>}
         {step.name === "selfOut" && step.closed && <InAppPayRescue buy={buyTargetFromItem(item)} />}
+        {/* PARENT-PAY-FIRST-1: signed out, pay-first (the parent pays, then enters the child's number): the closed sheet leads with "Send to Mummy/Papa". */}
+        {step.name === "selfOut" && (step.closed || step.error) && !signedIn && showAttach && audience !== "parent" && (
+          <ParentForwardGuest item={{ kind: item.kind, sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), label: item.label }} flow="attach" />
+        )}
         {/* PAY-RETURN-1: one line, in-app browsers only. */}
         <PayReturnHint />
-        <button type="button" className="lt-gps__primary" disabled={busy} data-testid="who-pay-self-out" onClick={() => void paySelf()}>
+        <button type="button" className="lt-gps__primary" disabled={busy} aria-busy={busy} data-testid="who-pay-self-out" onClick={() => void paySelf()}>
           {busy ? CHECKOUT_OPENING_COPY : payReadBack(item.priceDisplay, "")}
         </button>
         {busy && slowOpen && <p className="lt-gps__fine" role="status" data-testid="who-slow-open">{CHECKOUT_SLOW_COPY}</p>}
@@ -469,7 +487,7 @@ export default function CheckoutSheet({
         {step.name === "form" && step.closed && <p className="lt-gps__fine" role="status">{WHO_CLOSED}</p>}
         {step.name === "form" && step.closed && <InAppPayRescue buy={buyTargetFromItem(item)} />}
         {!signedIn && <PayReturnHint />}
-        <button type="submit" className="lt-gps__primary lt-who__pay" disabled={busy || !recipient} data-testid="who-pay">
+        <button type="submit" className="lt-gps__primary lt-who__pay" disabled={busy || !recipient} aria-busy={busy} data-testid="who-pay">
           {busy ? CHECKOUT_OPENING_COPY : payReadBack(item.priceDisplay, first)}
         </button>
         {busy && slowOpen && <p className="lt-gps__fine" role="status" data-testid="who-slow-open">{CHECKOUT_SLOW_COPY}</p>}

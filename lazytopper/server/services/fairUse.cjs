@@ -339,6 +339,35 @@ function isEnforced(env) {
   return String((env && env[ENFORCE_ENV]) || '').trim() === '1';
 }
 
+/**
+ * FAIRUSE-TS-OWNER-1 (Board Pass half) kill switch: FAIRUSE_BP_FRESH_TIER_DISABLED (1 / true / on / yes) -> a trial refusal is
+ * never re-checked against an uncached tier read (exactly the behaviour before this lane). PURE.
+ */
+const BP_FRESH_TIER_DISABLED_ENV = 'FAIRUSE_BP_FRESH_TIER_DISABLED';
+function bpFreshTierDisabled(env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env[BP_FRESH_TIER_DISABLED_ENV]) || '').trim());
+}
+
+/** FAIRUSE-TS-OWNER-1: does this trial state have a SPENT paper allowance (a paper wall could show)? PURE. */
+function trialPaperSpent(st) {
+  return !!st && (st.chapterTestsLeftToday < 1 || st.mocksLeft < 1 || st.worksheetsLeft < 1);
+}
+
+/** FAIRUSE-TS-OWNER-1 kill switch: FAIRUSE_TS_OWNER_EXEMPT_DISABLED (1 / true / on / yes) -> no Test Series owner exemption. PURE. */
+const TS_OWNER_EXEMPT_DISABLED_ENV = 'FAIRUSE_TS_OWNER_EXEMPT_DISABLED';
+function tsOwnerExemptDisabled(env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env[TS_OWNER_EXEMPT_DISABLED_ENV]) || '').trim());
+}
+
+/**
+ * TS-FAIRUSE-1 kill switch: TS_FAIRUSE_CAP_DISABLED (1 / true / on / yes) -> a Test Series owner (tier "free" on the entitlement gate)
+ * is NOT held to the Premium cost windows - trunk behaviour, byte for byte. PURE.
+ */
+const TS_FAIRUSE_CAP_DISABLED_ENV = 'TS_FAIRUSE_CAP_DISABLED';
+function tsFairUseCapDisabled(env) {
+  return /^(1|true|on|yes)$/i.test(String((env && env[TS_FAIRUSE_CAP_DISABLED_ENV]) || '').trim());
+}
+
 /* ── Paper-pass crypto (F1 / F2) ───────────────────────────────────────────── */
 
 /** The pass secret from `env`, or '' (the dark / unconfigured state). */
@@ -992,6 +1021,8 @@ function snapshotData(snap) {
  * @param deps.resolveFirestore () => ({ db } | null) — the ledger Firestore the F1 mint
  *                              transaction (R2) and the R1 graded mark run on; defaults to
  *                              firebase-admin, the same resolution usageLedger.cjs uses.
+ * @param deps.seriesOwnerPaper (uid, surface, paperKey) => Promise<boolean> - FAIRUSE-TS-OWNER-1: true for a live Test Series
+ *                              owner on a series paper of that kind (testSeriesChecks.ownerSeriesPaper). Absent -> today's rule.
  * @param deps.sendJson, deps.telemetry, deps.now, deps.env
  */
 function createFairUse(deps = {}) {
@@ -1051,6 +1082,10 @@ function createFairUse(deps = {}) {
     }
   }
 
+  // FAIRUSE-TS-OWNER-1 (Board Pass half): an UNCACHED tier read, asked ONLY when a trial verdict is about to refuse or to
+  // draw a spent paper allowance. The silent gate below caches a TRIAL verdict for up to its TTL (a trial is "entitled"),
+  // so a student who has just bought the Board Pass could otherwise be refused as a trial for up to a minute.
+  let freshTierOf = typeof deps.freshTierOf === 'function' ? deps.freshTierOf : null;
   let tierOf = deps.tierOf;
   // ALL-AI-METERING-1: the whole decision (tier + derived trial end, for the free 402's
   // `trialEndedAt`); null when the tier is injected (tests), which then gives the tier only.
@@ -1062,6 +1097,29 @@ function createFairUse(deps = {}) {
     const tiers = createEntitlementGate({ adminFirestore, telemetry: null, sendJson: null, logger: SILENT_LOGGER });
     tierDecisionOf = (uid, req) => tiers.resolve(uid, req);
     tierOf = async (uid, req) => (await tiers.resolve(uid, req)).tier;
+    if (!freshTierOf) {
+      const fresh = createEntitlementGate({ adminFirestore, telemetry: null, sendJson: null, logger: SILENT_LOGGER, cacheTtlMs: 0 });
+      freshTierOf = async (uid, req) => (await fresh.resolve(uid, req)).tier;
+    }
+  }
+
+  /**
+   * FAIRUSE-TS-OWNER-1 (Board Pass half): true ONLY when an uncached read says this uid is PAID Premium now (a Board Pass
+   * bought during the trial, or as an upgrade from the Test Series, while the cached verdict still says trial). Any doubt -
+   * no reader, a failed / fail-open read, any other tier, the kill switch - is false: the trial verdict stands.
+   */
+  async function nowPremium(uid, req) {
+    if (!freshTierOf || bpFreshTierDisabled(env)) return false;
+    try {
+      const fresh = await freshTierOf(uid, req);
+      if (fresh === 'premium') {
+        emit('fair_use.fresh_tier.premium');
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
   }
 
   function emit(event) {
@@ -1069,6 +1127,46 @@ function createFairUse(deps = {}) {
       if (telemetry && typeof telemetry.increment === 'function') telemetry.increment(event, 1);
     } catch {
       /* a counter must never fail a request */
+    }
+  }
+
+  /**
+   * FAIRUSE-TS-OWNER-1 (owner ruling 23 Nov 2026, DECISION_LOG 16): a TRIAL student who OWNS the Test Series is not held to
+   * the trial's paper limit on a SERIES paper (a manifest chapter test / full-length test / focus set) - exactly as a
+   * non-trial tier is not. `deps.seriesOwnerPaper` is testSeriesChecks.ownerSeriesPaper (index.cjs): manifest paper of that
+   * kind + a live Test Series Pack, false on any doubt. Worksheets are never exempt. A failed / thrown read, a missing dep
+   * or FAIRUSE_TS_OWNER_EXEMPT_DISABLED (1 / true / on / yes) -> false: today's trial rule, byte for byte.
+   */
+  const seriesOwnerPaper = typeof deps.seriesOwnerPaper === 'function' ? deps.seriesOwnerPaper : null;
+  async function tsOwnerExempt(uid, surface, paperKey) {
+    if (!seriesOwnerPaper || tsOwnerExemptDisabled(env)) return false;
+    if (surface !== SURFACES.CHAPTER_TEST && surface !== SURFACES.FULL_MOCK) return false;
+    if (typeof paperKey !== 'string' || !paperKey) return false;
+    try {
+      return (await seriesOwnerPaper(uid, surface, paperKey)) === true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * TS-FAIRUSE-1: is this grade-worksheet request a live Test Series owner's grade of a series paper? Reads the body through the
+   * shared pre-read (never twice) and asks testSeriesChecks.ownerSeriesPaper for each paper kind. False on any doubt.
+   */
+  async function tsOwnerOnSeriesPaper(uid, req) {
+    try {
+      const pending = req[BODY_KEY] || readJson(req, GRADE_WORKSHEET_MAX_BYTES);
+      pending.catch(() => {});
+      req[BODY_KEY] = pending;
+      const body = await pending;
+      const paperKey = body && typeof body === 'object' ? String(body.worksheetId || '').trim() : '';
+      if (!paperKey) return false;
+      for (const surface of [SURFACES.CHAPTER_TEST, SURFACES.FULL_MOCK]) {
+        if ((await seriesOwnerPaper(uid, surface, paperKey)) === true) return true;
+      }
+      return false;
+    } catch {
+      return false;
     }
   }
 
@@ -1171,7 +1269,18 @@ function createFairUse(deps = {}) {
     const uid = typeof verifiedUid === 'string' ? verifiedUid.trim() : '';
     if (!uid) return false;
 
-    const tier = await tierFor(uid, req);
+    let tier = await tierFor(uid, req);
+    // TS-FAIRUSE-1 (owner ruling 26 Nov 2026): a live Test Series owner who is neither trial nor Premium (tier "free" on the gate)
+    // is held to the SAME 30-day + day cost windows as a Board Pass holder on a series paper. Their 2 checks per paper are
+    // unchanged; this is an additional ceiling. Any doubt (no dep, kill switch, unread body, not an owner) -> uncapped, as before.
+    let tsOwnerCapped = false;
+    if (tier === 'free' && !tsFairUseCapDisabled(env) && seriesOwnerPaper && reqPath === GRADE_WORKSHEET_PATH) {
+      tsOwnerCapped = await tsOwnerOnSeriesPaper(uid, req);
+      if (tsOwnerCapped) {
+        tier = 'premium';
+        emit('fair_use.ts_owner_capped');
+      }
+    }
     if (tier !== 'trial' && tier !== 'premium') {
       if (tier === null) emit('fair_use.tier_unknown');
       return false;
@@ -1240,6 +1349,8 @@ function createFairUse(deps = {}) {
     }
 
     if (!decision.allowed) {
+      // FAIRUSE-TS-OWNER-1: a trial refusal for a student who has just bought the Board Pass is not a refusal.
+      if (tier === 'trial' && isEnforced(env) && (await nowPremium(uid, req))) return false;
       if (isEnforced(env)) {
         // TOPUP-1: a Premium request at cap is served from credit when it covers the call.
         if (await creditServes(uid, tier, decision, PER_QUESTION_SURFACES.has(surface) && countQuestions(reqPath, body) <= 1 ? 'answer_check' : 'papers', countQuestions(reqPath, body), nowMs)) return false;
@@ -1407,7 +1518,7 @@ function createFairUse(deps = {}) {
     // F5: whether limits are actually refused right now — additive, so the UI stays
     // dark exactly as long as the server does.
     const enforced = isEnforced(env);
-    const tier = await tierFor(uid, req);
+    let tier = await tierFor(uid, req);
     if (tier === null) return sendJson(res, 503, { error: 'usage_unavailable' });
     if (tier !== 'trial' && tier !== 'premium') return sendJson(res, 200, { tier, trial: null, premium: null, enforced });
 
@@ -1419,6 +1530,17 @@ function createFairUse(deps = {}) {
     } catch {
       emit('fair_use.ledger_unreadable');
       return sendJson(res, 503, { error: 'usage_unavailable' });
+    }
+    // FAIRUSE-TS-OWNER-1 (Board Pass half): a trial view with a SPENT paper allowance would draw the paper wall. Before it
+    // goes out, an uncached read confirms the student is still on trial; a Board Pass bought moments ago answers as Premium.
+    if (tier === 'trial' && enforced && trialPaperSpent(trialState(days, nowMs, limits)) && (await nowPremium(uid, req))) {
+      tier = 'premium';
+      try {
+        days = await ledger.readDays(uid, windowDayKeysFor(tier, nowMs, limits));
+      } catch {
+        emit('fair_use.ledger_unreadable');
+        return sendJson(res, 503, { error: 'usage_unavailable' });
+      }
     }
     const body = {
       tier,
@@ -1506,6 +1628,13 @@ function createFairUse(deps = {}) {
       emit('fair_use.paper_pass.minted');
       return issue(nowMs, false);
     }
+    // FAIRUSE-TS-OWNER-1: a trial Test Series owner on a series chapter test / full-length test / focus set is minted as a
+    // non-trial tier is - no ledger read, no refusal, nothing spent. Any doubt (read failed, not a series paper) -> below.
+    if (await tsOwnerExempt(uid, surface, paperKey)) {
+      emit('fair_use.paper_pass.ts_owner');
+      emit('fair_use.paper_pass.minted');
+      return issue(nowMs, false);
+    }
 
     const passId = paperPassId(surface, paperKey);
     const enforced = isEnforced(env);
@@ -1546,6 +1675,11 @@ function createFairUse(deps = {}) {
       return issue(outcome.issuedAt, true);
     }
     if (outcome && outcome.kind === 'refused') {
+      // FAIRUSE-TS-OWNER-1: a Board Pass bought moments ago is minted as Premium (the refusal wrote nothing).
+      if (await nowPremium(uid, req)) {
+        emit('fair_use.paper_pass.minted');
+        return issue(nowMs, false);
+      }
       emit(`fair_use.refused.${outcome.decision.rule}`);
       return sendJson(res, outcome.decision.status, outcome.decision.body);
     }
@@ -1587,6 +1721,12 @@ function createFairUse(deps = {}) {
    */
   async function markPaperGraded(uid, pass) {
     try {
+      // FAIRUSE-TS-OWNER-1: a Test Series owner's series paper is never written to the trial ledger (its mint wrote nothing
+      // either), so grading it does not spend the trial's paper allowance - as for a non-trial tier.
+      if (pass && (await tsOwnerExempt(uid, pass.surface, pass.paperKey))) {
+        emit('fair_use.paper_pass.graded_ts_owner');
+        return 'ts_owner';
+      }
       const db = ledgerDb();
       if (!db || typeof db.runTransaction !== 'function' || !pass) throw new Error('fairUse: ledger unavailable');
       const passId = paperPassId(pass.surface, pass.paperKey);
@@ -1922,6 +2062,12 @@ module.exports = {
   countQuestions,
   resolveLimits,
   isEnforced,
+  tsOwnerExemptDisabled,
+  TS_OWNER_EXEMPT_DISABLED_ENV,
+  TS_FAIRUSE_CAP_DISABLED_ENV,
+  tsFairUseCapDisabled,
+  bpFreshTierDisabled,
+  BP_FRESH_TIER_DISABLED_ENV,
   trialState,
   premiumState,
   windowDayKeys,

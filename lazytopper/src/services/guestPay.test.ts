@@ -3,6 +3,7 @@
  * Razorpay opened with the number prefilled READ-ONLY, honest outcomes, and the claim once per session.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { __resetOrderInFlightForTests } from "./orderInFlight"; // ORDER-DEDUP-1: an open (never-awaited) buy must not leak into the next test
 import {
   GUEST_CLAIMED_EVENT,
   buyAsGuest,
@@ -15,6 +16,13 @@ import {
   type GuestBuyDeps,
   type GuestItem,
 } from "./guestPay";
+
+/** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
+const withoutAdSignals = (b: Record<string, unknown>): Record<string, unknown> => {
+  const { adSignals, ...rest } = b;
+  expect((adSignals as { attemptId?: string } | undefined)?.attemptId).toMatch(/^lt_/);
+  return rest;
+};
 
 const ITEM: GuestItem = { kind: "pack", sku: "pack_mock", target: "maths", label: "Mock Pack · Maths", description: "Maths Mock Pack · 8 board-pattern mock papers" };
 
@@ -174,6 +182,7 @@ function deps(over: Partial<GuestBuyDeps> & { outcome?: "success" | "dismiss" } 
 // The claim path lazily mounts PackReadyToast; a unit test of guestPay must not render it (a late render after the
 // test's DOM is torn down raised "window is not defined" and failed random CI shards).
 vi.mock("../components/packs/PackReadyToast", () => ({ showPackReadyToast: vi.fn(), closePackReadyToastForTests: vi.fn() }));
+afterEach(() => __resetOrderInFlightForTests());
 beforeEach(() => resetGuestClaimSessionForTests());
 afterEach(() => vi.unstubAllEnvs());
 
@@ -250,7 +259,7 @@ describe("PAY-PHONE-1 · buyAsGuest", () => {
     fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify({ ok: false, error: "account_exists" }), { status: 409 }));
     expect(await buyAsGuest(ITEM, "9876543948", d)).toEqual({ status: "account_exists", phoneMasked: "+91 98•••••948", phone: "+919876543948" });
     const sent = JSON.parse(String((fetchSpy.mock.calls[0][1] as RequestInit).body));
-    expect(sent).toEqual({ sku: "pack_mock", target: "maths", phone: "+919876543948" });
+    expect(withoutAdSignals(sent)).toEqual({ sku: "pack_mock", target: "maths", phone: "+919876543948" });
     fetchSpy.mockRestore();
   });
 });

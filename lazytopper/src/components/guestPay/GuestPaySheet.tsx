@@ -11,6 +11,7 @@
  * The number never goes into a URL, storage or an analytics event.
  */
 import InAppPayRescue, { buyTargetFromItem } from "../payRescue/InAppPayRescue";
+import ParentForwardGuest from "../payRescue/ParentForwardGuest";
 import PayReturnHint from "../payReturn/PayReturnHint";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -49,7 +50,7 @@ export function formatRupees(inr: number | undefined): string {
   return typeof inr === "number" && Number.isFinite(inr) && inr > 0 ? `₹${inr.toLocaleString("en-IN")}` : "";
 }
 
-const PACK_SKU_NAMES: readonly PackSkuName[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq"];
+const PACK_SKU_NAMES: readonly PackSkuName[] = ["pack_chapter", "pack_mock", "pack_subject", "pack_bundle", "pack_cbq", "test_series"];
 
 /**
  * BUY-PATH-1 - a pay-by-phone purchase counts as a sale in the funnel, exactly like a signed-in one: `purchase` (Board Pass) or
@@ -110,6 +111,7 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
   const panelRef = useRef<HTMLDivElement | null>(null);
   const inApp = inAppBrowser(userAgent ?? readUserAgent()) !== null;
   const shown = useRef(false);
+  const payingRef = useRef(false); // ORDER-DEDUP-1: synchronous in-flight flag
 
   useEffect(() => {
     if (shown.current) return;
@@ -132,14 +134,20 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
   const valid = normaliseIndianMobile(digits) !== null && digits.length === 10;
 
   async function pay() {
-    if (!valid || step.name === "busy") {
+    if (!valid || step.name === "busy" || payingRef.current) {
       if (!valid) setStep({ name: "phone", error: GUEST_PAY_BAD_NUMBER });
       return;
     }
+    payingRef.current = true;
     trackNamedEvent("guest_pay_start");
     setStep({ name: "busy" });
     const attemptId = newCheckoutAttemptId();
-    const outcome = await buy(item, digits);
+    let outcome: Awaited<ReturnType<typeof buy>>;
+    try {
+      outcome = await buy(item, digits);
+    } finally {
+      payingRef.current = false;
+    }
     if (outcome.status === "paid") {
       trackNamedEvent("guest_pay_paid");
       // BUY-PATH-1: the sale itself, only once the SERVER verified it (an unconfirmed success is recorded by the webhook,
@@ -214,8 +222,10 @@ export default function GuestPaySheet({ item, onSignInFirst, onSignInWithNumber,
         {error && <p className="lt-gps__error" role="alert">{error}</p>}
         {step.name === "phone" && step.closed && <p className="lt-gps__fine" role="status">Payment window closed. Tap Continue to try again.</p>}
         {step.name === "phone" && step.closed && <InAppPayRescue buy={buyTargetFromItem(item)} />}
+        {/* PARENT-PAY-FIRST-1: number-first guest sheet - the parent opens the page, enters the child's number, then pays. */}
+        {step.name === "phone" && step.closed && <ParentForwardGuest item={{ kind: item.kind, sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), label: item.label }} flow="number" />}
         <PayReturnHint />
-        <button type="submit" className="lt-gps__primary" disabled={busy || !valid} data-testid="guest-pay-continue">
+        <button type="submit" className="lt-gps__primary" disabled={busy || !valid} aria-busy={busy} data-testid="guest-pay-continue">
           {busy ? CHECKOUT_OPENING_COPY : "Continue"}
         </button>
         {busy && slowOpen && <p className="lt-gps__fine" role="status" data-testid="guest-pay-slow-open">{CHECKOUT_SLOW_COPY}</p>}

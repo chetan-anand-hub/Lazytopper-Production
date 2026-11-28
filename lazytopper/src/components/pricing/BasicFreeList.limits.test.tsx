@@ -1,14 +1,14 @@
 /**
- * LIMITS-1 PR-2 — the Basic list's papers row with the limits ON comes from a LAZY chunk (PERF-3), so the
- * entry carries none of it whichever way the flag is set; with the limits off the row is unchanged.
- * MUTATION: import limitsPlanCopy statically in BasicFreeList.tsx -> "lazy" test RED.
+ * LIMITS-1 PR-2 gave the Basic list a limits-on papers row (a weekly download, from a LAZY chunk). GUEST-WALL (owner ruling
+ * 26 Nov 2026, 22:43 IST: "remove the download or checking option from basic plan") retires it: the list is the same with the
+ * limits on or off, and states no download and no written-answer check as a Basic allowance.
+ * MUTATION: restore the lazy `basicPapersRow` override in BasicFreeList.tsx -> "limits on" RED.
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { basicDownloadLine } from "../../config/limitsPlanCopy";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 afterEach(() => {
@@ -23,23 +23,23 @@ async function mount(flag: string) {
   render(<BasicFreeList />);
 }
 
-describe("BasicFreeList papers row", () => {
-  it("limits off: the old wording, no limits copy", async () => {
-    await mount("");
-    expect(screen.getByTestId("basic-free-list").textContent).toMatch(/Open or download \d+ chapter tests or mocks a day/);
-  });
-  it("limits on (any case the other readers accept): the weekly download line from the config, via the lazy row", async () => {
-    for (const flag of ["1", "TRUE", "On"]) {
-      cleanup();
+const ROW = "Open 3 Test Series papers a week (1 when signed out)";
+const FIRST = "Your first test is free, marking included.";
+
+describe("BasicFreeList papers row (GUEST-WALL)", () => {
+  for (const flag of ["", "1", "TRUE", "On"]) {
+    it(`limits ${flag ? `on (${flag})` : "off"}: opens only, the first free test, no download or checking`, async () => {
       await mount(flag);
-      await screen.findByText(new RegExp(basicDownloadLine().replace(/^Download/, "download").replace(/[—]/g, ".")));
-      expect(screen.getByTestId("basic-free-list").textContent).not.toMatch(/Open or download/);
-    }
-  });
-  it("lazy: BasicFreeList imports neither limitsPlanCopy nor limitsConfig statically", () => {
+      // let any (retired) lazy import settle before reading
+      await new Promise((r) => setTimeout(r, 0));
+      const text = screen.getByTestId("basic-free-list").textContent || "";
+      expect(text).toContain(ROW);
+      expect(text).toContain(FIRST);
+      expect(text).not.toMatch(/download|not checked|written answers/i);
+    });
+  }
+  it("BasicFreeList imports neither limitsPlanCopy nor limitsConfig (statically or lazily)", () => {
     const t = readFileSync(path.join(here, "BasicFreeList.tsx"), "utf8");
-    expect(t).not.toMatch(/from "\.\.\/\.\.\/config\/limits/);
-    expect(t).toMatch(/import\("\.\.\/\.\.\/config\/limitsPlanCopy"\)/);
-    expect(t).toMatch(/\(1\|true\|on\|yes\)\$\/i/);
+    expect(t).not.toMatch(/config\/limits/);
   });
 });

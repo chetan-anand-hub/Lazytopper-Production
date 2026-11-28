@@ -161,6 +161,14 @@ describe("BUY-PATH-1 · a pay-by-phone sale is a purchase in the funnel", () => 
     expect(track.trackPurchase).not.toHaveBeenCalled();
   });
 
+  it("F1: a server-verified TEST SERIES payment -> ONE pack_purchase (test_series), like every other pack", async () => {
+    const TS: GuestItem = { kind: "pack", sku: "test_series", label: "Test Series Pack", description: "d" };
+    await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 1178, paymentId: "pay_G3", orderId: "order_G3" }, TS);
+    await screen.findByTestId("guest-pay-paid");
+    expect(packTrack.trackPackPurchase).toHaveBeenCalledTimes(1);
+    expect(packTrack.trackPackPurchase.mock.calls[0][0]).toEqual({ sku: "test_series", itemName: "Test Series Pack", valueInr: 1178, transactionId: "order_G3" });
+  });
+
   it("a server-verified BOARD PASS payment -> ONE purchase (till_boards), same id / value rule", async () => {
     await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 1917, paymentId: "pay_G2", orderId: "order_G2" }, PASS);
     await screen.findByTestId("guest-pay-paid");
@@ -198,5 +206,28 @@ describe("BUY-PATH-1 · a pay-by-phone sale is a purchase in the funnel", () => 
     await payWith({ status: "paid", confirmed: true, phoneMasked: "+91 98•••••948", phone: "+919876543948", amountInr: 99, paymentId: "pay_G3" });
     await screen.findByTestId("guest-pay-paid");
     expect(allArgs()).not.toMatch(/9876543948|98•••••948/);
+  });
+});
+
+describe("PARENT-PAY-FIRST-1 · GuestPaySheet closed sheet", () => {
+  async function closeIt() {
+    sheet({ buy: vi.fn(async (): Promise<GuestBuyOutcome> => ({ status: "dismissed" })) });
+    fireEvent.click(screen.getByTestId("guest-pay-phone"));
+    fireEvent.change(screen.getByTestId("guest-pay-input"), { target: { value: "9876543948" } });
+    fireEvent.click(screen.getByTestId("guest-pay-continue"));
+  }
+  it("a dismissed payment shows the parent hand-off (WhatsApp, then QR); Continue stays as the retry", async () => {
+    await closeIt();
+    expect(await screen.findByTestId("parent-forward")).toBeTruthy();
+    expect(screen.getByTestId("parent-forward-send")).toBeTruthy();
+    expect(screen.getByTestId("parent-forward-qr")).toBeTruthy();
+    expect(screen.getByTestId("guest-pay-continue")).toBeTruthy();
+  });
+  it("kill switch: the sheet is as before", async () => {
+    vi.stubEnv("VITE_PARENT_PAY_FIRST_DISABLED", "1");
+    await closeIt();
+    await screen.findByText("Payment window closed. Tap Continue to try again.");
+    expect(screen.queryByTestId("parent-forward")).toBeNull();
+    vi.unstubAllEnvs();
   });
 });

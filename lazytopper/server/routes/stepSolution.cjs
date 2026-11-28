@@ -27,7 +27,13 @@ function __setPoolForTests(pool) {
 // Increment this when the prompt structure changes to automatically bypass stale cache entries.
 // v3 (CI-CACHE-BANKMATCH-1 PR-1): the key text is normalised (normalizeQuestionForKey); old v2
 // entries simply miss and regenerate under the new key.
-const CACHE_VERSION = 'v3';
+// v4 (SCHEME-CACHE-V4, owner 25 Nov 2026, [FU-SCHEME-CACHE-VERSION]): schemes cached before #1822
+// (SCHEME-GEN-1, 23 Nov: no truncated schemes, prompt rules 13-15) were written by the old prompt and
+// stayed in use on every cache hit. Bumping makes every keyless question regenerate ONCE under the
+// current generator (golden eval for #1822: truncated schemes 73 -> 0; targeted re-check 5 equal,
+// 1 better, 0 worse). Cost: one scheme generation per distinct question, spread over use; the first
+// check of a previously cached question waits for its scheme again (p95 ~9.5 s at #1822).
+const CACHE_VERSION = 'v4';
 
 // CI-CACHE-BANKMATCH-1 PR-1 — the same question typed or photographed with different spacing,
 // width/ligature forms, minus/hyphen or times glyphs, or sentence case hits the same cache entry.
@@ -582,6 +588,19 @@ function renderSolutionSchemeSteps(solution) {
     .filter(Boolean);
 }
 
+// AC-SOLUTION-1 · DISPLAY ONLY. The same scored steps renderSolutionSchemeSteps keeps (marks > 0, something to
+// show), as structured data for the student's "Complete correct solution" card. Never reaches the grading prompt.
+function solutionDisplaySteps(solution) {
+  return (solution && Array.isArray(solution.steps) ? solution.steps : [])
+    .filter((s) => s && Number(s.marks) > 0)
+    .map((s) => ({
+      description: String(s.description || '').trim(),
+      working: String(s.working || '').trim(),
+      marks: Number(s.marks),
+    }))
+    .filter((s) => s.working || s.description);
+}
+
 // ── C&I PR-3: the cache-first model-solution entry point for the GRADER ────────
 // hash -> read -> on miss generate from the question text alone -> Gate-2a quality
 // check -> write-if-pass. Returns { schemeSteps, fromCache, hash } ready for the
@@ -616,7 +635,7 @@ async function getOrCreateModelSolution(fields, deps) {
       const joined = await pending;
       // Each caller gets its OWN array: the grade writes it onto its question.
       // `joined: true` tells the caller it waited for ANOTHER caller's in-flight generation (telemetry: schemeJoined).
-      return joined && Array.isArray(joined.schemeSteps) ? { ...joined, schemeSteps: [...joined.schemeSteps], joined: true } : joined;
+      return joined && Array.isArray(joined.schemeSteps) ? { ...joined, schemeSteps: [...joined.schemeSteps], ...(Array.isArray(joined.solutionSteps) ? { solutionSteps: joined.solutionSteps.map((x) => ({ ...x })) } : {}), joined: true } : joined;
     }
     const work = readOrGenerateModelSolution(fields, deps, hash, question, marks)
       .finally(() => { if (inflightSolutions.get(hash) === work) inflightSolutions.delete(hash); });
@@ -635,7 +654,7 @@ async function readOrGenerateModelSolution(fields, deps, hash, question, marks) 
     if (cached) {
       const schemeSteps = renderSolutionSchemeSteps(cached);
       if (schemeSteps.length === 0) console.warn('[solution-cache] stored row renders no scheme steps hash=' + hash.slice(0, 8));
-      return schemeSteps.length > 0 ? { schemeSteps, fromCache: true, hash } : null;
+      return schemeSteps.length > 0 ? { schemeSteps, solutionSteps: solutionDisplaySteps(cached), fromCache: true, hash } : null;
     }
 
     const isObj = fields.isObjective === true;
@@ -669,7 +688,7 @@ async function readOrGenerateModelSolution(fields, deps, hash, question, marks) 
     }
 
     const schemeSteps = renderSolutionSchemeSteps(gen.solution);
-    return schemeSteps.length > 0 ? { schemeSteps, fromCache: false, hash } : null;
+    return schemeSteps.length > 0 ? { schemeSteps, solutionSteps: solutionDisplaySteps(gen.solution), fromCache: false, hash } : null;
   } catch (e) {
     console.warn('[solution-cache] getOrCreateModelSolution failed:', e.message);
     return null;

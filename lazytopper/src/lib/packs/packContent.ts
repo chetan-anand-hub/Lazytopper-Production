@@ -13,6 +13,7 @@ import { ensureBankChapters, ensureBankSubject, getBankRowsForSubject } from "..
 import { selectBankQuestions } from "../../data/bankQuery";
 import type { CanonicalQuestion } from "../../data/predictionTypes";
 import { needsMissingFigure } from "../figureSafe";
+import { isOrStep } from "../../../scripts/seo/publishability";
 import { isCbq } from "../cbq/cbqClassification";
 import { packChapterLabel } from "./packLabels";
 import type { ServedAt } from "../freshSet/servedHistory";
@@ -92,9 +93,41 @@ export function isSyllabusExcludedFromPacks(q: { id: string }): boolean {
   return PACK_SYLLABUS_EXCLUDED.has(q.id);
 }
 
-/** True when the row is left out of packs: it needs a supplied figure and none is bound to it, or it is a syllabus exclusion. */
+/**
+ * CBQ-PACK-HOLDS (cofounder ruling 27 Nov 2026: a question the solution ledgers HOLD is not sold). Rows whose ledger status is "hold"
+ * and that sat in a sold pack: 7 Maths rows held by SOLUTIONS-3 ruling 3 (solutions2Ledger.ts: conversion of solids / single solid,
+ * deleted for 2026-27) and 7 Science rows held on quality (solutionsSciLedger.ts: off-book content, or a wrong equation:
+ * CHEM-EXMPLR-1-LONG-006 shows the concentrated-acid equation for a dilute-acid question). An explicit list, NOT derived from the
+ * ledgers at runtime: the ledgers are ~300 KB of notes that must not ride in the pack code's bundle, and the ledgers hold hundreds of
+ * other rows that are not in this lane's ruling. packLedgerHolds.guard.test.ts reads the ledgers and fails if any of these 14 stops
+ * being "hold", and reports any ledger-held row that is still sold in a pack so the next one is added here deliberately.
+ * The rows stay served elsewhere; no pack (Chapter / Subject / Bundle / Mock / CBQ) sells or prints them.
+ */
+export const PACK_LEDGER_HELD_IDS: ReadonlySet<string> = new Set([
+  "SAV-N-EXEM2-12-LA-002",
+  "SAV-N-EXEM2-12-LA-003",
+  "SAV-N-EXEM2-12-LA-004",
+  "SAV-N-EXEM2-12-LA-006",
+  "SAV-N-EXEM2-12-LA-007",
+  "SAV-N-EXEM2-12-LA-012",
+  "SAV-N-EXEM2-12-LA-013",
+  "METAL-NCERT-3-VSA-014",
+  "METAL-NCERT-3-SA-008",
+  "METAL-NCERT-3-VSA-015",
+  "ACID-EXMPLR-2-MCQ-003",
+  "ACID-EXMPLR-2-SA-007",
+  "ELEC-EXMPLR-11-LA-003",
+  "CHEM-EXMPLR-1-LONG-006",
+]);
+
+/** True when the row is held by a solution ledger and so is never sold in any pack (see PACK_LEDGER_HELD_IDS). */
+export function isLedgerHeldFromPacks(q: { id: string }): boolean {
+  return PACK_LEDGER_HELD_IDS.has(String(q.id));
+}
+
+/** True when the row is left out of packs: it needs a supplied figure and none is bound to it, it is a syllabus exclusion, or a ledger holds it. */
 export function isExcludedFromPacks(q: CanonicalQuestion): boolean {
-  return needsMissingFigure(q) || isSyllabusExcludedFromPacks(q);
+  return needsMissingFigure(q) || isSyllabusExcludedFromPacks(q) || isLedgerHeldFromPacks(q);
 }
 
 const sectionRank = (s: string): number => {
@@ -120,6 +153,10 @@ function markValue(raw: string): number {
  * True when the question has FULL step marks: every solution step carries its own `[N mark]` mark and they sum to
  * `marks`. A 1-mark objective question (MCQ / Assertion-Reason, i.e. Section A) counts as step-marked: CBSE scores it
  * 0 or 1 on the answer alone, and the key shows one "1 mark" chip for the whole solution.
+ *
+ * OR-AWARE (STEPMARK-3, owner ruling 23 Nov 2026): an OR question carries two routes through the same marks. When the
+ * steps do not sum to `marks` but some are OR alternatives (`isOrStep`, publishability Rule 3's own test), the steps
+ * that are NOT OR alternatives (the main route) must sum to `marks`. Same convention as Rule 3, shared, not copied.
  */
 export function isStepMarked(q: { marks: number | string; options?: readonly string[]; solutionSteps?: readonly string[] }): boolean {
   const marks = Number(q.marks) || 0;
@@ -127,14 +164,19 @@ export function isStepMarked(q: { marks: number | string; options?: readonly str
   const steps = Array.isArray(q.solutionSteps) ? q.solutionSteps.filter(Boolean) : [];
   if (steps.length === 0 || marks <= 0) return false;
   let sum = 0;
+  let main = 0;
+  let hasOr = false;
   for (const st of steps) {
     const m = LEADING_MARK.exec(st) ?? TRAILING_MARK.exec(st);
     if (!m) return false;
     const v = markValue(m[1]);
     if (!Number.isFinite(v)) return false;
     sum += v;
+    if (isOrStep(st)) hasOr = true;
+    else main += v;
   }
-  return Math.abs(sum - marks) < 1e-9;
+  if (Math.abs(sum - marks) < 1e-9) return true;
+  return hasOr && Math.abs(main - marks) < 1e-9;
 }
 
 /** Stable partition: step-marked rows first, the rest after, each keeping its relative order. */
@@ -307,7 +349,7 @@ export function drawPackWorksheetRows(rows: readonly CanonicalQuestion[], seed: 
  * other question stays where it was. A worksheet that holds no excluded row is unchanged.
  */
 export function drawPackWorksheetRowsSafe(drawRows: readonly CanonicalQuestion[], seed: number): CanonicalQuestion[] {
-  return drawPackWorksheetRows(drawRows, seed, isSyllabusExcludedFromPacks);
+  return drawPackWorksheetRows(drawRows, seed, (q) => isSyllabusExcludedFromPacks(q) || isLedgerHeldFromPacks(q));
 }
 
 /** The exact number of questions in a chapter pack (page copy). The chapter must be loaded. */

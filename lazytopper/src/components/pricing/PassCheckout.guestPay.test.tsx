@@ -1,4 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
+import { __resetOrderInFlightForTests } from "../../services/orderInFlight"; // ORDER-DEDUP-1: an open (never-awaited) buy must not leak into the next test
 import { render, cleanup, waitFor, fireEvent, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
@@ -75,6 +76,7 @@ beforeEach(() => {
   loginState = undefined;
 });
 afterEach(() => {
+  __resetOrderInFlightForTests();
   cleanup();
   vi.useRealTimers();
 });

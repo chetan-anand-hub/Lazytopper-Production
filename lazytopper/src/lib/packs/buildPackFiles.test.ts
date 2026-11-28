@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { CBQ_SETS_PER_PART, buildPackFiles, cbqParts, groupPackFiles, type BuildContext, type PackFile } from "./buildPackFiles";
-import { CBQ_PACK_EXCLUDED_IDS, CBQ_MIN_CASE_CHARS, cbqPackRows, isCbqPackRow, chapterPackRows, countChapterQuestions, groupBySection, isExcludedFromPacks, isStepMarked, loadChapter, splitIntoParts, MAX_QUESTIONS_PER_DOC } from "./packContent";
+import { CBQ_SETS_PER_PART, buildPackFiles, groupPackFiles, type BuildContext, type PackFile } from "./buildPackFiles";
+import { PACK_LEDGER_HELD_IDS, CBQ_PACK_EXCLUDED_IDS, CBQ_MIN_CASE_CHARS, cbqPackRows, isCbqPackRow, chapterPackRows, countChapterQuestions, groupBySection, isExcludedFromPacks, isStepMarked, loadChapter, splitIntoParts, MAX_QUESTIONS_PER_DOC } from "./packContent";
 import { PACK_CHAPTER_SLUGS, chaptersOfSubject, type OwnedPack } from "../../services/packs";
 import { CBQ_CHAPTER_CLAIM, CBQ_MIN_PER_CHAPTER, CBQ_MIN_PER_SUBJECT, CBQ_SUBJECT_CLAIM } from "./packLabels";
 import { CBQ_QUESTION_TYPES } from "./cbqPackTypes";
-import { cbqSets } from "./cbqSets";
+import { allCbqPins, cbqSetsFor } from "./cbqPins";
 import { packPaperCode } from "./packPaperCode";
 import { isCbq } from "../cbq/cbqClassification";
 import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
@@ -340,14 +340,17 @@ describe("CBQ-PACK-1: Board CBQ Pack contents", () => {
         expect(rows.length, slug).toBeGreaterThan(0);
         // BRIDGE-CODES-1 (owner 8 Nov 21:20 + 22:45): the chapter's sets come in PART files of ~3 sets (questions + key each); each part
         // holds its sets in order (the stub exporter sees each set); together the parts hold EVERY CBQ of the chapter exactly once.
-        const sets = cbqSets(rows);
-        const parts = cbqParts(sets);
+        // CBQ-PACK-HOLDS: the sets are the PINNED sets (CBQ-PIN-1) minus any ledger-held id; a set keeps its number (its code) and its other questions.
+        const pinned = allCbqPins()[slug].sets
+          .map((ids, i) => ({ k: i + 1, ids: ids.filter((id) => !PACK_LEDGER_HELD_IDS.has(id)) }))
+          .filter((s) => s.ids.length > 0);
+        const partKs = (await cbqSetsFor(slug)).partKs;
         const qFiles = files.filter((f) => f.id.includes(`|${slug}|cbq-part-`) && f.id.endsWith("-questions"));
-        expect(qFiles.length, slug).toBe(parts.length);
-        for (const p of parts) expect(p.length, slug).toBeLessThanOrEqual(CBQ_SETS_PER_PART);
-        expect(qFiles.flatMap((f) => f.codes!), slug).toEqual(sets.map((_, i) => packPaperCode({ kind: "cbq", chapter: slug, set: i + 1 })));
+        expect(qFiles.length, slug).toBe(partKs.length);
+        for (const p of partKs) expect(p.length, slug).toBeLessThanOrEqual(CBQ_SETS_PER_PART);
+        expect(qFiles.flatMap((f) => f.codes!), slug).toEqual(pinned.map((s) => packPaperCode({ kind: "cbq", chapter: slug, set: s.k })));
         const built = qFiles.flatMap((f) => seen.filter((s) => s.file === f.filename).map((s) => s.ids));
-        expect(built, slug).toEqual(sets.map((set) => set.map((r) => r.id)));
+        expect(built, slug).toEqual(pinned.map((s) => s.ids));
         expect([...built.flat()].sort(), slug).toEqual(rows.map((r) => r.id).sort());
         expect(new Set(built.flat()).size, slug).toBe(rows.length);
         const kFiles = files.filter((f) => f.id.includes(`|${slug}|cbq-part-`) && f.id.endsWith("-answers"));

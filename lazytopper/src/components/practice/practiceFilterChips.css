@@ -43,7 +43,7 @@
   line-height: 1;
   cursor: pointer;
 }
-.qp-filter-help-btn[aria-expanded="true"] { background-color: hsl(152, 55%, 45%); color: #ffffff; }
+.qp-filter-help-btn[aria-expanded="true"] { background-color: var(--lt-green-fill, #257e55); color: #ffffff; }
 .qp-filter-help-btn:focus-visible { outline: 3px solid hsl(152, 55%, 30%); outline-offset: 2px; }
 /* GUIDE-FILTER-1 (#1302 review) - the honest "No X questions in this chapter - showing a mixed set."
    line under the built-set badges: a full line of the flex-wrap bar, wraps at 320px. */

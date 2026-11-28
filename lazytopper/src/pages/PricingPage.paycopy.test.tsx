@@ -38,7 +38,7 @@ vi.mock("../services/firebaseClient", () => ({
 
 import PricingPage from "./PricingPage";
 import { BASIC_FREE_LABELS, FREE_FEATURES } from "../components/pricing/BasicFreeList";
-import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../config/mockViewLimits";
+import { BASIC_PAPERS_ROW } from "../config/mockViewLimits";
 
 // ── OFF (PRICING-B-1: one product name, "Board Pass"; the page has no subtitle any more) ─────────────
 const MANUAL_OFF = "Manual activation during beta. Payment checkout coming soon. The Board Pass is not activated automatically.";
@@ -243,10 +243,9 @@ describe("SEO-PAGES-1 (D) — the free check (PRICING-B-1: the Basic card is gon
       { label: "Basic topic insights", included: true },
       { label: "Solution Checker / Answer Checker", included: false },
       { label: "Deep Mistake Intelligence", included: false },
-      {
-        label: `Open or download ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out) — written answers not checked`,
-        included: true,
-      },
+      // GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST): opens only, then the one free test.
+      { label: BASIC_PAPERS_ROW, included: true },
+      { label: "Your first test is free, marking included.", included: true },
       { label: "Richer Me / Progress recommendations", included: false },
     ]);
     expect(BASIC_FREE_LABELS).toEqual(FREE_FEATURES.filter((f) => f.included).map((f) => f.label));

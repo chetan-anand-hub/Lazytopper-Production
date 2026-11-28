@@ -1,3 +1,197 @@
+## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890 (trunk `9b221f79`)
+
+**PROVENANCE.** *(Merge SHA and time [git: REST `pulls/1890`]. Everything else: this cofounder session [coordinator]; owner messages quoted by time.)*
+
+- **About 17:40-17:45 IST.** Owner: Railway `TOPUP_ENABLED=1` and Vercel `VITE_TOPUP_ENABLED=1` set, production redeployed; student top-up (`#1884`) is live.
+- **17:50.** Owner test of `#1889` inside the Facebook app on his Android phone: the Chrome hop worked, so Copy payment link correctly did not show; the stuck path is unverified on a real device.
+- **17:52.** `#1890` (ORDER-DEDUP-1) merged after the test-only fix (module-level state reset in 7 test files; 90 s reuse ceiling); green quality-gate.
+- **About 18:15.** Coordinator live reads: Razorpay 0 customer attempts since `#1889` (only the owner's 17:49 test); Visit quality card live (96 visits, 26% quick-leave); True AI cost card `recorded:false` for 24-26 Nov (no defect found; silent `.catch`); top-ups emit no analytics event.
+- **18:11.** Owner asked whether the Pricing nav was removed. Finding: no; `#1577` NAV-PRICING-1 still renders and is hidden for Board Pass holders by design; the owner's admin account is a holder (DECISION_LOG).
+
+## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889 (trunk `661301f2`)
+
+**PROVENANCE.** *(Merge SHAs and times [git: REST `merged_at`]. Everything else: this cofounder session [coordinator]; owner rulings by day.)*
+
+- **07:32 IST.** `#1879` (UI-E2E-4) merged.
+- **13:18-14:29.** `#1881` (TS-FAIRUSE-1) merged 13:18; `#1882` (COST-TRUTH-1) merged 14:29.
+- **15:14-15:49.** `#1884` (TOPUP-GO-1: Rs 49 / Rs 149 + GST for 35 / 110 credits, owner ruling) 15:14; `#1885` (PARENT-PAY-FIRST-1) 15:31 after a review blocker (no rupee figure in the guest message); `#1886` (prerender refresh after `#1881`) 15:49.
+- **16:01.** `#1887` (QUICK-LEAVE-1) merged.
+- **Parity eval.** TOPIC-BATCH-1 evaluated on the owner's laptop eval checkout: 69/69 topic and subject agreement, prompt tokens -92.5%; run on `gemini-3.8-flash` because the Eval key gets 404 for `gemini-2.5-flash`. **17:13** `#1883` and `#1888` (PARENT-WA-DIRECT-1) merged.
+- **17:30.** `#1889` (INAPP-STUCK-1) merged, from the 26 Nov live data (65 `inapp_pay_open_external` events from 5 visitors, zero Razorpay attempts, 14 guest orders).
+- **About 17:45.** Railway `TOPUP_ENABLED=1` set; Vercel `VITE_TOPUP_ENABLED=1` saved, redeploy waiting on the owner's Vercel email-code verification.
+- **Ads.** PIN test campaign "Search | PDF Packs #2" created and funded from PDF Packs; 39 PINs excluded from the three main campaigns; review 30 Nov.
+- **Open at writing.** `#1890` ORDER-DEDUP-1 (CI red, PAY-HANG-1 tests).
+
+## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877 (trunk `40c9cfca`)
+
+**PROVENANCE.** *(Merge SHAs and times [git: REST `merged_at`]. Everything else: this cofounder session [coordinator]; owner messages quoted by time.)*
+
+- **20:05.** Owner: "do it" (mark on photo; live second-surface check; docs).
+- **20:45-21:05.** Chapter Test live check of `#1870`: the own-numbered sheet hit 268 s and lost answers; eval (trunk vs second look) showed the same failure on trunk.
+- **21:30.** Owner: a mark counts as the same paper ("Same paper, no new slot"). Mark-pass design; two review rounds. **21:58** `#1873` merged; live PASS.
+- **22:17.** Owner: cap marks at 3; find and fix the reason for the timeouts; PR-2 for bank surfaces; record that the slot was not checked live. **22:27/22:38** use the optimised method of previous sessions (coordinator + builder lanes + fresh reviewers + paired evals).
+- **22:37** `#1874` merged (cap; review C1/C2 fixed).
+- **22:45-23:20.** Cause found (labels; Rs 13 paired run); locate probe (Rs 2); builder lane LOCATE-FIRST-1; fresh review; eval rounds. **23:23** `#1875` merged (before CI finished — slip); **23:40** `#1876` fixed the red vitest. Live PASS on Chapter Test and Answer Checker multi.
+- **00:18 (26 Nov).** Owner: also write a dispatch message for the next cofounder session.
+- **01:49** `#1877` merged (PR-2; review rounds S1/S2, cold-run flake, firstGraded guard). Live PASS on a reopened Chapter Test.
+
+## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871 (trunk `6d9ab1e8`)
+
+**PROVENANCE.** *(Third daily docs PR of 25 Nov. Merge SHAs and times [git: REST `merged_at`]. Everything else: this cofounder session [coordinator]; owner messages quoted by time.)*
+
+- **15:42.** `#1867` (signed-in UI tests) merged.
+- **15:47.** Owner: a coaching-institute student's answer sheet (3 answers) lost 2 questions; "check your questions" showed no topic; no concept-level mistakes on the scorecard.
+- **15:55.** Owner: find out why the read stopped showing topics. Found: `#935` removed a wrong paper-level chapter; `#416` had put per-question chapters after grading. `#1868` merged 17:27; live PASS.
+- **16:00-17:00.** Repro on the admin account (clean images: all answers found). Railway `[grade-timing]` for the demo grade: one call, STOP, 55 s. No concept types were shown because the dropped questions were stored as not attempted.
+- **17:41-17:51.** Owner approved the plan (counter, second look, mark on photo) and added: answers in any order, no drop in quality, no big change in time or cost, all surfaces; approved the laptop eval.
+- **18:12.** `#1869` (counter) merged.
+- **18:15-19:30.** Eval run in two arms; the first result (a skipped question also triggered a look) led to the `unplacedAnswers` signal; the colliding-numbers failure was found; two independent reviews.
+- **19:35.** `#1870` merged; live 12/12 on the admin account. **20:01** `#1871` merged.
+- **20:05.** Owner: "do it" (mark on photo); asked why a kill switch: answered that it is an unused off button, the change is already live.
+
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 (trunk `ec5ba0e7`)
+
+**PROVENANCE.** *(Second daily docs PR of 25 Nov. Merge SHAs, titles, times and file lists [git: first-parent trunk log, 4 commits after `c7e4b44e` (#1861)]. Diagnoses, reviews, measurements and rulings: this cofounder session (owner messages 25 Nov 12:11 and 12:17 IST; independent Opus reviews of #1862 and #1863) [coordinator]. Merge table: CURRENT_STATE. Reasons: DECISION_LOG.)*
+
+- **12:11.** Session start. Repo already private (GitHub REST). Docs PR `#1861` for `#1858`/`#1859` merged 12:52.
+- **12:17.** Owner: urgent demo prep for a coaching institute; items 8 (scheme cache v4, avatar grant) and 9 (free test before Buy) "you do now".
+- **12:20-13:05.** Handwritten demo sheets made and tested live (CURRENT_STATE). The trial account's 5 daily checks were used up; owner told to demo on a Board Pass account or a fresh trial.
+- **12:40.** `[FU-FM-UNCOUNTED-NOTE]` diagnosed from live data as a settle race, not copy; `#1862` built, reviewed, merged 13:16.
+- **13:17 / 13:21 / 13:30.** `#1864`, `#1865`, `#1863` merged (CURRENT_STATE).
+- **Not live-checked yet:** the owner's laptop went offline (demo), so the avatar, the night door and the `#1862` note were not seen live.
+
+## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859: parents FAQ wording, Test Series paper navigation (trunk `32ba8d0b`)
+
+**PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1851`. Merge SHAs, titles, times and file lists [git: first-parent trunk log, 2 commits after `047493cb` (#1851)]. What each PR does beyond its commit message, reviews, live checks and rulings: the cofounder addendum `claude/HANDOFF_COFOUNDER_SESSION_2026-11-25_ADDENDUM.md` [coordinator]. Repo visibility read from the GitHub REST API this session [git: `gh api repos/chetan-anand-hub/Lazytopper-Production` -> `private: true`]. Merge table: CURRENT_STATE. Reasons: DECISION_LOG.)*
+
+**How the morning went (IST).**
+- **06:39.** `#1851`, the 24-25 Nov daily docs, merged (`047493cb`).
+- **06:59-07:06.** The owner found the /pricing FAQ "Why both?" unclear; the new question and answer were approved at 07:06.
+- **07:24.** `#1858` FAQ-WHY-BOTH-1 merged (copy only; prerender refreshed).
+- **07:33.** `#1859` TS-NAV-2 merged after an independent review (APPROVE-WITH-NITS).
+- **Before 08:00.** Live check of TS-NAV-2 on freelance.iitian: PASS (CURRENT_STATE). Search Console indexing requested for /pricing (again) and /test-series.
+- **By about 12:15.** The repo is PRIVATE (GitHub REST `private: true`).
+
+**Review nits from `#1859` (new follow-ups).** `[FU-TS-INPROGRESS-LABEL]`, `[FU-TS-BACK-SCROLL-SETTLE]`, `[FU-TS-RETAKE-NAMES]`, `[FU-PAPER-LINE-COPY]`.
+
+**Not recorded before (minted now).** `[FU-UI-E2E-PHASE2-PAGES]` was named in the 25 Nov cofounder handoff but had no board entry.
+
+## 2026-11-24 (daily; covers 24-25 Nov IST: merges 14:39 IST 24 Nov to 06:22 IST 25 Nov, i.e. 09:09 UTC 24 Nov to 00:52 UTC 25 Nov; written 24 Nov, updated about 23:05 IST 24 Nov and about 06:30 IST 25 Nov) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 - #1854 - #1852 - #1856 - #1855 - #1853 - #1857: /test-series h1 keyword, sameAs directories, admin mistake-type split, schools booklet, Meta InitiateCheckout at order, packs as standard Purchase, buyer score; Test Series owner paper-limit exemption, parent forward, signed-in UI tests, /pricing four slim cards, founding-price wording (trunk `0ae599c7`; was `2d851629` at first writing)
+
+**PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1843`. Covers eight product PRs squash-merged on 24 Nov, 09:09 to 17:25 UTC. Merge SHAs, titles, merge times and file lists [git: first-parent trunk log, 8 commits after `ec9b437d`]. Everything else is from the cofounder session handoff `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` sections 2-4 and the coordinator's messages from this session (https://claude.ai/code/session_01QscBGog9Fe4ZxiPQ6vdGo7), as relayed by the coordinator [coordinator]. The docs builder did not open the handoff doc itself and did not re-read the PR bodies. Merge table: CURRENT_STATE. Reasons for every ruling: DECISION_LOG.)*
+
+**PROVENANCE OF THE 25 NOV UPDATE.** *(Same PR, before merge. Trunk merged into the branch again; six more product PRs, `#1854`, `#1852`, `#1856`, `#1855`, `#1853`, `#1857`, squash-merged 18:29 UTC 24 Nov to 00:52 UTC 25 Nov (23:59 IST 24 Nov to 06:22 IST 25 Nov). Merge SHAs, titles, times and file lists [git: first-parent trunk log, 6 commits after `2d851629`]. Everything else in the 25 Nov paragraphs (what each PR does beyond its title, reviews, the 06:45 IST live checks, owner rulings, follow-ups) is from the coordinator's messages from this session (https://claude.ai/code/session_01QscBGog9Fe4ZxiPQ6vdGo7) [coordinator]. The docs builder did not re-read the PR bodies and did not run the live checks.)*
+
+**How the day went (IST).**
+- **13:24-13:27.** The owner's own Google Ads edits: Target ROAS 15% on Search | PDF Packs, and "Leads from messages" re-added as a goal (later changed back to Purchases only, below).
+- **14:39.** `#1846` TS-H1-KEYWORD-1: the /test-series h1 starts with "CBSE Class 10 Test Series"; "mock tests" wording. Owner approved it to lift Google Ads relevance for "class 10 test series" searches.
+- **17:52.** `#1847` SAMEAS-DIRECTORIES-1: Crunchbase and Wellfound added to the Organization `sameAs` (10 URLs pinned by the guard test).
+- **18:01.** `#1848` MISTAKE-SPLIT-1: read-only admin GET `/api/admin/mistake-split`.
+- **18:15 and 18:30.** `#1849` SCHOOLS-BOOKLET-1 hosts the schools booklet PDF; `#1850` SCHOOLS-BOOKLET-2 gives it a new cover.
+- **About 21:35.** Owner rulings: the Meta deploy (`#1811`, `#1816`, `#1819`) happens TONIGHT; the Test Series checkout keeps Buy and adds "Forward link to parents" (spec first). Reasons in DECISION_LOG.
+- **21:54.** `#1811` META-IC-1 merged (independent review APPROVE; the trunk merges since its earlier approval at `9bf021d6` were checked).
+- **22:04.** `#1816` META-PURCHASE-UNIFY-1 merged (review APPROVE-WITH-NITS); live on Vercel and Railway.
+- **22:08.** The owner ran the school-outreach scheduled task by hand; it ended in about 1.5 min without touching the tracker (the task has no computer attached).
+- **22:20.** Owner accepted PRICING-CTA-UP-1 (/pricing price and Buy moved up on every card; an honest sticky-bar price for Test Series owners). He also wants slimmer card faces (USPs only, each card clickable to its page); an independent UX review is running.
+- **22:55.** `#1819` BUYER-SCORE-1 merged, after a fix for the PERF-3 entry budget (below).
+- **Evening.** The cofounder ran the owed `#1840` live checks on a Chapter Test (PASS, below). The `login_abandon` question was settled from the code (below).
+- **23:59 [git].** `#1854` FAIRUSE-TS-OWNER-1: Test Series owners and Board Pass holders are never stopped by the trial weekly paper limit (server pass and client gate; uncached tier read right after payment) [coordinator]. Confirmed live.
+- **25 Nov 00:08 [git].** `#1852` TS-PARENT-FORWARD-1: "Forward link to parents" under each Test Series Buy for a signed-in student.
+- **05:38 [git].** `#1856` UI-E2E-2-SIGNIN: CI-only signed-in Playwright smoke against the Firebase emulators; independent security review APPROVE-WITH-NITS [coordinator].
+- **06:10 [git].** `#1855` TS-PARENT-FORWARD-2 + FOUNDING-MSG-PRICE-1: the signed-out forward shares /test-series with no sign-in; parent messages name no amount while the founding offer is open. Two reviews APPROVE-WITH-NITS [coordinator].
+- **06:22 [git].** `#1853` PRICING-CTA-UP-1 (/pricing four equal-size slim cards, details inside each card; owner approved the screenshots) and, twelve seconds later, `#1857` FOUNDING-MSG-PRICE-2 (server emails dated "founding price till 30 Nov, then ₹2,499 + GST"). Reviews APPROVE-WITH-NITS [coordinator].
+- **About 06:45 [coordinator].** Live checks on lazytopper.com at `0ae599c7` (below).
+
+**Measurement [coordinator].** First reading of `/api/admin/mistake-split`: 1,178 mistake logs from 163 students, 20 Apr to 23 Nov: conceptual 57.2%, presentation 22.7%, calculation 12.9%, silly 7.2%.
+
+**`#1819` entry-budget catch [coordinator].** Before merge, `#1819` was 217 B over the PERF-3 entry budget in the production-flag build (170,844 vs 170,627 gz). The local build without the production flags had hidden it. Fixed in `84ff18c4` by moving the score into `engaged10.ts`'s late chunk: entry went from trunk 170,396 to 170,593, leaving **34 B** (`[FU-PERF3-HEADROOM-34B]`). Lesson: measure the entry chunk on a production-flag build.
+
+**Reviews [coordinator].** `#1811` APPROVE. `#1816` APPROVE-WITH-NITS (N1 `trackGuestPurchase` has no fallback value; N2 a pre-existing `paymentId` fallback). `#1819` APPROVE-WITH-NITS (`[FU-BUYERSCORE-LAZY-TEST]`).
+
+**Live check, `#1840` LIVE-FIX-1 on a Chapter Test [coordinator].** Run by the cofounder on freelance.iitian (a Test Series owner since tonight), Real Numbers Chapter Test 1. (a) 6 of 9 written answered: "fully graded - 16 / 31", Q13-Q15 "Not attempted · 0". (b) One answer only: "graded - 4 / 31 · 23 marks not marked yet", "This check wasn't counted", checks stayed 2 of 2. (c) "Upload all pages again" works from the live result and from a reopened record. (d) Checks left went 2 to 1. **Chapter Test: PASS. Full Mock: still OWED (`#1840` stays PARTIAL there).**
+
+**`login_abandon` at `google_redirect_started` is NOT a bug [coordinator; code read by the docs builder, git].** `lazytopper/src/utils/loginAbandon.ts` (header comment, about lines 37-40, and `EXPECTED_UNLOAD` at line 60) records the Google redirect and the Chrome hand-off with `leave: "expected"`, because those steps unload the page on purpose; a real abandonment is `leave: "abandon"`. `[FU-LOGIN-ABANDON-REDIRECT-STEP]` is closed with this evidence.
+
+**Test Series checkout finding [coordinator].** 9 Test Series checkouts in about 15 h, with 0 payment attempts. Most were students at night who cannot pay themselves. Hence the owner's ruling: keep Buy and add "Forward link to parents" (lane TS-PARENT-FORWARD-1, in build). Its pre-flight found the parent message and landing called the Test Series "printable PDFs"; corrected to "board-pattern tests I can take online or print", because series owners can download and print papers (18 Nov ruling).
+
+**Google Ads, 24 Nov [coordinator, handoff doc section 3].**
+- **Diagnosis:** no site or payment fault. The owner's 13:24-13:27 edits had set Target ROAS 15% on PDF Packs and re-added "Leads from messages" as a goal.
+- **Changes, each on the owner's words:** Search | PDF Packs goals set to Purchases only (tROAS 15% and ₹9,750/day kept until the Thu 26 Nov evening review). Search | Test Series ₹2,000 to ₹1,000/day, Purchases only; 8 phrase negatives added (important questions, important question, half yearly, notes, ncert, solutions, pdf, chapter 1); 2 conflicting "syllabus" negatives removed; new headlines and a sitelink about the free first test; one keyword paused. The disapproved Price asset removed (no appeal). The stale "Month pass ₹599" sitelink removed.
+- **Rulings:** the goal is purchases; the Board Pass is not online coaching (keep the "coaching" negatives); a remarketing campaign at ₹500/day (created by the owner).
+
+**Growth listings and outreach, not code [coordinator].**
+- Startup and directory listings were made. Crunchbase and Wellfound are in `sameAs` (`#1847`); F6S (after approval), Tracxn, and Product Hunt (after launch) are to follow (`[FU-SAMEAS-MORE-DIRECTORIES]`).
+- School outreach batch 1: 49 metro CBSE schools emailed, 2 bounced. Follow-ups on 1 Dec. The scheduled task (next batch of about 50 every 3 days; next run 25 Nov 11:37 IST) has **no computer attached**; the owner will fix it himself ("Require this computer" in the desktop app) before that run. The emails link the booklet hosted by `#1849` / `#1850`.
+
+**UI tests [coordinator].** Phase 2 (signed-in real-browser checks): the preview/test-only sign-in spec is written (Firebase emulator in the CI build, no server change), waiting for the owner's OK (`[FU-UI-E2E-PHASE2-TEST-SIGNIN]`).
+
+**Meta, still to do [coordinator].** The owner and Pallabi run Meta Test Events at the end of tonight's session, else next session; then `META_TEST_EVENT_CODE` must be removed from Railway.
+
+**25 Nov: what the six later PRs did [coordinator; files git].**
+- **`#1854` FAIRUSE-TS-OWNER-1.** Closes the 23 Nov scope item `[FU-FAIRUSE-TS-OWNER-EXEMPT]`: the server paper pass and the client gate both exempt Test Series owners and Board Pass holders from the trial weekly paper limit. The tier is read uncached right after payment. Follow-ups: `[FU-LIMITS-POSTPAY-CACHE]` (downloads, `limits.cjs` 60 s cache), `[FU-FAIRUSE-ISPREMIUM-CACHE]` (5-min overload cache).
+- **`#1852` / `#1855` parent forward.** Owner ruling "both options": the Test Series keeps Buy AND gets "Forward link to parents". Signed in (`#1852`) and signed out (`#1855`); the signed-out forward shares /test-series through the share sheet or WhatsApp with NO sign-in, because the owner removed sign-in from every pay path earlier to cut friction. The parent pays signed out; "Who will use it?" then puts it on the child's number; the forward is gated on Who + self + attach. Follow-up `[FU-TS-PARENT-HEADING]` (the parent page heading says "Pack" for the Test Series).
+- **Founding-price wording (`#1855`, `#1857`).** Owner, 25 Nov: "there should be no wrong price from 1st december". Parent messages for the Test Series and the Board Pass name no amount while the founding offer is open; server emails say "founding price till 30 Nov, then ₹2,499 + GST"; the concierge `checkout_help` names no amount. Nits: `[FU-FMP2-NITS]`.
+- **`#1853` PRICING-CTA-UP-1.** /pricing has four equal-size slim cards, one Buy each, the details inside each card behind "…and more" (✕ or Esc closes). The 7-day free trial, the parent forward, "Not in the Bundle.", "CBQ Packs are separate." and "Buying for someone else?" sit inside the details. The sticky bar shows an honest upgrade price. Owner approved the screenshots. "Your first test is free, written answers marked too." stays inside the Test Series details (owner, 25 Nov). The black band in a full-page screenshot is the sticky bar, not a layout bug (owner satisfied once explained). Follow-ups: `[FU-PRICING-MUTATIONOBSERVER-SCOPE]`, `[FU-BOARDPASS-PAY-ALIGN]`.
+- **`#1856` UI-E2E-2-SIGNIN.** The signed-in smoke runs only in CI against the Firebase emulators; `VITE_E2E_FIREBASE_EMULATOR` lives only in `tests/e2e/buildEnv.signedIn.json`, and the build refuses it on Vercel. Closes `[FU-UI-E2E-PHASE2-TEST-SIGNIN]`; Phase 2 page coverage is next. Nits: `[FU-UIE2E2-NITS]`.
+
+**Entry budget, 25 Nov [coordinator].** About 16 B left under the 170,627 gz PERF-3 entry budget. A new entry export alias alone added 6 B and failed CI tonight. Any PR touching entry-chunk imports must compare raw entry bytes with trunk on a production-flag build (`[FU-PERF3-HEADROOM]`).
+
+**Live checks, 25 Nov about 06:45 IST [coordinator].** On lazytopper.com at trunk `0ae599c7`, signed in as freelance.iitian (Test Series owner):
+- /pricing: four cards equal height (734 px); Board Pass Pay "₹1,083" with "Upgrade for ₹918 + GST — you've already paid for the Test Series"; the sticky bar "Board Pass upgrade / Pay ₹1,083" sits at the top and hides while Pay is on screen; Pay opened Razorpay, closed unpaid; the Bundle Buy opens its pack pop-up.
+- /cbq-packs already shows the WhatsApp opt-in box inside its buy pop-up (PackDialog `packs-wa`): no change needed; lane CBQ-WA-OPTIN-1 dropped (a page-level box would be wiped by the pop-up's own).
+- Full Mock after `#1854`: no wall, Start works, a one-answer sheet graded, checks stayed 2 of 2. **The "This check wasn't counted" note is missing on Full Mock** (`[FU-FM-UNCOUNTED-NOTE]`, copy only). **`#1840` (a) and (d) on Full Mock still owed** (`[FU-1840-FM-LIVE]`).
+
+**Owner items, 25 Nov [coordinator].** Repo to go PRIVATE after tonight's PRs (the owner types the GitHub code); GitHub shows an overdue bill, pay by 30 Nov, and private repos consume Actions minutes (`[FU-GITHUB-BILL]`). The school-outreach task still has no computer attached (`[FU-OUTREACH-TASK-NO-COMPUTER]`). Meta Test Events still to run, then remove `META_TEST_EVENT_CODE` (`[FU-META-TEST-EVENT-CODE-REMOVE]`).
+
+**Grading.** No PR in this window changes grading behaviour (CLAUDE.md section 4a), including the six added on 25 Nov (`#1854` changes only the paper-limit gate); see SURFACE_TRACKER.
+
+## 2026-11-23 (daily; UTC day 23 Nov, merges 14:34 IST 23 Nov to 01:26 IST 24 Nov; written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840: in-app Chrome-first pay, marking-scheme fix, Test Series upgrades, step marks, progress display, real-browser checks, live-run fixes (trunk `91624151`)
+
+**PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1818`. Covers 22 product PRs, all squash-merged at reviewed heads with CI green, 23 Nov 09:04 to 19:56 UTC. Merge SHAs, titles and merge times [git: first-parent trunk log, 22 commits after `53d6c1d2`]. Everything else (owner rulings, evals, reviews, live results, the open-PR plan) is from the cofounder session handoff `claude/HANDOFF_COFOUNDER_SESSION_2026-11-23.md` [coordinator]; the source chat is https://claude.ai/code/session_01QscBGmR7ojiUDe6Hqyx24U. The docs builder did not re-run any eval or re-read the PR bodies. Merge table: CURRENT_STATE. Reasons for every ruling: DECISION_LOG.)*
+
+**How the day went (IST).**
+- **14:34 and 15:16.** `#1820` INAPP-PAY-FIRST-1 and `#1821` (1b): in Instagram/Facebook on Android, Buy opens Chrome first. Trigger: 6 orders timed out on 22 Nov in the in-app hang.
+- **16:13.** Owner granted the step-mark backfill: `src/data/questionBanks/**`, field `solutionSteps` only, plus the ratchet and derived artifacts.
+- **18:13 / 18:28.** Owner: "okay to spend, fix and merge if everything is alright"; `#1822` SCHEME-GEN-1 merged (eval below).
+- **19:04.** Owner rulings on the Test Series: Easier/Standard/Harder labels and themed sets; the full-length scorecard shows "X / 80", a trend and a board-readiness estimate (overrides the old "no board-readiness projection, ever" rule); board score in Test Series ad visuals; lead /test-series and the ads with "written answers marked step by step in minutes"; fix grader slowness.
+- **19:59.** Owner: scorecards always show marks out of the paper's full marks with unmarked listed separately; the free test includes written-answer marking (about ₹6-8 each); Buy above the fold on phones.
+- **20:26 to 21:00.** Owner: build the progress display, merge `#1830` and `#1831`, accept `isOrStep()`. `#1830` TS-HERO-1 (20:28), `#1831` TS-DIFF-1 (20:50), `#1824` OR-aware `isStepMarked` (20:55), `#1835` GRADE-PROGRESS-1 (21:00).
+- **About 20:40.** Owner: Phase 1 real-browser E2E tests, yes (UI tests were missing: 588 jsdom tests, no real browser, no phone layout, no visual diff).
+- **21:13.** Owner corrected the cofounder: uneven CBSE splits are valid (PQMS 2023-24 Q25 is 1 + 1/2 + 1/2; Q24 and Q26 are 1/2 + 1/2 + 1). Later shipped in `#1842`.
+- **21:15.** Owner: the free paper, if later bought, keeps its used written-check count (option a). The owner recreated freelance.iitian@gmail.com fresh and left it signed in on Chrome for tests.
+- **21:16 to 22:09.** STEPMARK-3 data PRs `#1823` (reproduction, 60), `#1825` (carbon, 54), `#1826` (control and coordination, 46); `#1832` TS-BOARDSCORE-1 (22:09).
+- **22:08.** Owner standing merge permission: "henceforth you don't need to ask permission for merges" (independent reviews for money, auth, entitlement and free-access PRs are still required).
+- **22:23 to 22:48.** `#1838` UI-E2E-1 (22:23), `#1827` magnetic effects, 38 (22:28), `#1836` TS-FREE-CHECK-1 (22:48).
+- **22:34.** Owner: fix all three `ui-e2e` findings (/pricing desktop buy button below the fold; brand green with white text at 2.69:1; grey text at about 3.5:1); `Welcome.tsx` edited for colour values only.
+- **23:04 to 23:40.** `#1828` human eye, 33 (23:04), `#1829` heredity, 26 (23:21), `#1839` UI-FIX-1 (23:36), `#1834` mixed Science, 15 (23:40).
+- **About 23:05.** The owner's live run on a fresh trial account (Maths Full-Length 1, the free test) found the bugs fixed in `#1840` (below). Same time: ruling that unfound written questions count as "Not attempted · 0", like CBSE.
+- **23:16.** Owner: finish ALL white-on-light-green buttons this session.
+- **00:08 to 00:28 (24 Nov).** `#1837` TS-THEMES-1 (00:08), `#1841` UI-FIX-2 (00:14), `#1842` STEPMARK-3 tail (00:28).
+- **About 00:15.** Cofounder rulings 13-16 (the 0.5 unreadable-share line, TS-RECHECK-1 kept, "Upload all pages again", the weekly-limit skip reverted). The owner was told.
+- **01:26.** `#1840` LIVE-FIX-1 merged, after a BLOCK and an APPROVE-WITH-NITS re-review.
+
+**Evals and measurements [coordinator].**
+- **SCHEME-GEN-1 (`#1822`), full golden eval, 231 jobs per side:** truncated schemes 73 to 0; scheme p95 17.3 s to 9.5 s; the scheme step costs 70% less. Two regressions were traced to scheme content and fixed with prompt rules 13-15. The first prompt example copied a golden item (kettle/fuse) and was swapped; its replacement (a copper vessel) contradicted NCERT, so it was swapped again for zinc in iron sulphate. Final re-check, ₹27.7: 6 questions, 5 equal, 1 better (OA2-Q14), 0 worse. Evidence gap: truncation was measured on the stand-in model gemini-3.8-flash, production runs gemini-2.5-flash; confirm in Railway. Resolved: the generator now retries without thinking like the grading core.
+- **Thinking-setting eval (₹340 ledger): no ship candidate; keep dynamic thinking.** "low" turns thinking off and failed quality. "medium" and a 6144 budget: exact 88.7 vs 90.7, three questions worse each, and not faster (p50 19.6-20.5 s vs 19.6 s). The budget is not enforced: 6144 still saw 9,721 thought tokens. Files were in `/home/claude/evalruns/think2/` (session sandbox, not durable).
+- **Grader speed, measured, correcting an earlier claim.** The cofounder had said "80-second wall, 30 ms from failing"; the single-check deadline has been 110 s (ceiling 112 s) since `#1804`, with no Railway override. Answer Checker singles since 4 Nov: p50 24.6 s, p90 47 s. The 23 Nov 79.97 s check had about 30 s of headroom; the 10 Nov 500 at 78 s was under the old 80 s limit. Levers left: fewer output tokens (about 6 s; an optional ~₹150 "shorter feedback" eval) and perceived speed (`#1835`).
+- **STEPMARK-3 measurement, corrects the 18 Nov handoff.** "About 1,875 rows lack `solutionSteps`" was a stale misreading of a 25 Oct figure. At `66ffe1f7`: 10,175 served rows; every 2-5-mark row already has `solutionSteps`; only 328 lacked step MARKS (311 Science, 17 Maths). The ratchet in `config/publishability.guard.test.ts` went 928 to 647. **26 rows stay flagged and withheld:** 5 figure missing; 3 stem asks for a diagram the steps lack; 5 garbled or extraction residue; 2 wrong content (CARB-EXMPLR-4-LONG-010, HERED-NCERT-8-SA-005); 11 one-clause 2-mark rows with one value point. Independent ~10% sample review: 29 OK, 8 NIT, 0 WRONG; one targeted WRONG row (PYQ-S-MAG-009) fixed in `#1827`. Seeded Chapter Test draws moved for several chapters (drift acknowledged in the tests); pinned papers are unchanged.
+- **AC rows correction (cofounder error, owner told).** AC/DC, 50 Hz and the advantage of AC are in the 2026-27 syllabus (asked in the 2026 board paper, PYQ-S-2026-ACID-018); only motor, EMI and generator are formative-only. Nothing was withheld.
+
+**The owner's live run, about 23:05 [coordinator]** (fresh trial account freelance.iitian, Maths Full-Length 1, the free test). Worked: the new /test-series copy and difficulty chip; the free-test note; "1 / 80 · 60 marks waiting for your answer sheet"; the free written check accepted and graded in about 1.5 min; "3 / 80, So far: 3 / 80 · 58 marks not marked yet"; no estimate shown (correct). Bugs, all fixed in `#1840`: (1) the header said "fully graded" with marks unmarked; (2) "Checks left 2 of 2" did not drop (a client cache bug in `useTestSeriesOwnership`; the server's 2-per-paper cap was always right, so nobody got extra checks, and in that run the check was the uncounted free re-check because 17 of 18 answers were not on the page); (3) the second-test wall offered only the Board Pass; (4) "Triangles cost you 3 marks" counted unattempted marks; (5) the "Not attempted · 0" rule and its share line.
+
+**Independent reviews [coordinator].**
+- `#1836` TS-FREE-CHECK-1: APPROVE-WITH-NITS, no bypass found. Pre-existing finding `[FU-ISLIVEPACK-REFUND]`.
+- `#1832` TS-BOARDSCORE-1: the share image said "17/80 Board-ready" on a partly marked paper. Fixed: no sharing until fully marked.
+- `#1837` TS-THEMES-1: APPROVE-WITH-NITS, six items fixed before merge (the server kill switch did not stop focus sets counting as the free test; the free-test note claimed Section A MCQs on focus sets; section labels; the `seriesNav` kill switch did not cover `?focus=` links; focus sets counted as "full mocks" in Progress and the companion milestone, which was fake progress; wrong mark totals in the PR body). Syllabus guard clean across 161 focus-set rows; marks sum to the pins.
+- `#1840` LIVE-FIX-1: first review BLOCK (B1 pre-start bypass, B2 add-page overwrite, S3 share); re-review APPROVE-WITH-NITS (SF1 the client share missed `firstLineNotInWork`, so it now counts `NO_ANSWER_ON_PAGE_NOTE` rows, the safe direction; SF2 "check again free" was false, since there is one free re-check per paper; copy accuracy; focus sets use `onSeriesPaper`). All fixed before merge.
+- The reviews also caught a kill-switch bypass, a paper a paying trial user could write but not get marked, and a re-upload that turned marked answers into 0. Do not skip them.
+
+**Competitor scan, 23 Nov [coordinator].** Vedantu Board Score Booster: handwritten upload, step marking, under 24 h, first evaluation free, waitlist of 1,509 (the closest copy of our product). Career Launcher: ₹499 per subject, faculty-checked. PW: Test Pass with 280+ tests, themed series, MCQ-led, Easy/Medium/Hard in its sample-paper book. Super Tutor: ₹499 a month. Unacademy: MCQ-only. Our edge: marked step by step in minutes, not 24 h, plus a board estimate.
+
+**Ads, sales and Meta [coordinator].** Sales by day (Razorpay, owner test payments excluded): 18 Nov 1; 19 Nov 2; 20 Nov 0; 21 Nov 6; 22 Nov 2 (plus 6 timed out in the Instagram in-app hang `#1820`/`#1821` fix); 23 Nov 0. The owner's incognito sign-up on his phone worked on 23 Nov; zero sign-ups 13:30-17:30 was a quiet weekday afternoon with ads running. PDF Packs ads were running and not in learning; Google Ads funds ₹69,261. YouTube 23 Nov: ₹877, 191 clicks, 0 sign-ups by the afternoon; the owner capped YouTube at ₹1,500/day, sign-ups only. A buyer-propensity model and targeting playbook was built (https://claude.ai/artifact/W4QiU7SPEgTMXTSvpWNAey; 53 real orders, only 10 Board Pass, no Test Series sale yet; re-run weekly). Not done, owner's words needed: Test Series ad visuals with the scorecard (product screenshots, no text overlays); Google Ads Test Series copy "marked step by step in minutes · first test free (marking included)"; the Meta brief for Pallabi.
+
+**What the next session inherits [coordinator].** Merge plan for Tue 24 Nov night and the owed live checks: NEXT_ACTION. New follow-ups: OPEN_QUESTIONS. Working-method notes that held: one builder per lane in its own worktree, builders open drafts and never merge; the merge helper checks every check run on the SHA and that the head has not moved; REST only (GraphQL blocked); an independent read-only review for every PR touching money, entitlement, free access or what students see as their score; measure before trusting a figure; the shared sandbox gets OOM-killed (retry `tsc` and build with `NODE_OPTIONS=--max-old-space-size=3500`; the full test typecheck runs in CI).
+
 ## 2026-11-22b (first daily of UTC day 22 Nov; written 22 Nov about 18:15 IST) - #1810 - #1815 - #1813 - #1812 - #1814 - #1808 - #1817 - #1805 - #1809: AI billing alerts, payment-path guards, in-app pay choice, unpaid-orders list, grader typing, faster checkout (trunk `883cb9ee`)
 
 **PROVENANCE.** *(Daily handoff, CLAUDE.md section 10, after `#1807`. Covers nine PRs merged 22 Nov 04:58 to 10:56 UTC (10:28 to 16:26 IST). Merge SHAs and times [gh], each SHA an ancestor of trunk [git], nine first-parent commits after `b0c4ff35` [git]; PR bodies, file lists and squash commit messages [gh]; live results, rulings and the open-PR plan [coordinator]. Not re-checked by the docs builder except where tagged [gh] or [git].)*

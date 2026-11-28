@@ -148,6 +148,12 @@ export interface PaidCallOptions {
    *  200 and the call behaves exactly as before. Only the signed-in Answer Checker single check passes it.
    *  Ignored on a free check and by every other endpoint. */
   singleJob?: boolean;
+  /** MARK-ON-PHOTO-1: the server-signed mark pass of the Answer Checker paper this ONE answer belongs to
+   *  (WorksheetGradeResponse.markPass), sent as X-Lazytopper-Mark-Pass so the mark rides that paper's slot. */
+  markPass?: string;
+  /** MARK-ON-PHOTO-1: the ONE question number this mark is for (X-Lazytopper-Mark-Q); sent with markPass, or (MARK-ON-PHOTO-2)
+   *  with a bank paper's own paper pass (surface + paperKey) on a Chapter Test / Full Mock / Worksheet mark. */
+  markQ?: number;
 }
 
 /**
@@ -215,6 +221,8 @@ const API_BASE = "/api"; // Vite dev proxy or same origin in production
 
 /** The header a paper grade carries its pass in (server/services/fairUse.cjs PAPER_HEADER). */
 export const PAPER_PASS_HEADER = "X-Lazytopper-Paper";
+/** MARK-ON-PHOTO-1 — the server's own sentence for the 4th mark of one question (server/services/markPass.cjs). */
+export const MARK_LIMIT_COPY = "You've already marked this answer 3 times. To mark it again, check the whole paper again.";
 export const PAPER_PASS_ENDPOINT = `${API_BASE}/usage/paper`;
 const PAPER_SURFACES: ReadonlySet<string> = new Set(["chapter-test", "full-mock", "worksheet"]);
 /** The server honours a pass for 24 h; the client re-mints an hour early (a re-mint of the
@@ -697,6 +705,9 @@ export interface GradeV2Fields {
   departureKind?: "different-problem" | "invalid-method" | null;
   marksLostByType?: GradeMarksLostByType;
   rubric?: GradeRubricPoint[] | null;
+  /** AC-SOLUTION-1 · DISPLAY ONLY: the complete step-marked correct solution the server already had for this
+   *  question. Absent when unavailable (never an empty placeholder). Never read by grading, MI or marks. */
+  modelSolution?: { steps: Array<{ description: string; working: string; marks: number }>; totalMarks: number };
   /** On an objective question: false = the chosen option could not be read. When `couldNotRead`
    *  is also true, the client shows "couldn't read this answer" (it always wins — R3). */
   objectiveResolved?: boolean | null;
@@ -889,6 +900,8 @@ export interface DetectQuestionResponse {
    *  questions before the cut (absent on a complete read). `readCount` is how many. */
   partial?: boolean;
   readCount?: number;
+  /** TOPIC-BATCH-1 — purpose "topics" only: one entry per question the server tagged (absent entries = not tagged). */
+  topics?: Array<{ questionNumber: number; detectedSubject?: "Maths" | "Science" | null; detectedTopic?: string | null }>;
   error?: string;
 }
 
@@ -903,7 +916,9 @@ export async function detectQuestion(req: {
   sectionMarks?: boolean;
   /** GRADE-SPEED-1 — "topic": a per-question TOPIC-ONLY re-detect of an already-read paper (resolvePerQuestionGradeTopics).
    *  The server never prepares a grading scheme for it. Absent = the ordinary question-reading detect. */
-  purpose?: "topic";
+  purpose?: "topic" | "topics";
+  /** TOPIC-BATCH-1 — with purpose "topics": the already-read questions to tag in ONE call. */
+  questions?: Array<{ questionNumber: number; questionText: string }>;
 }, opts?: PaidCallOptions): Promise<DetectQuestionResponse> {
   const res = await sendWithTokenRefresh(
     opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),
@@ -1018,6 +1033,10 @@ export interface WorksheetQuestionGrade extends GradeV2Fields {
   objective?: boolean;
   /** Present only when couldNotRead is true. */
   note?: string;
+  /** LIVE-FIX-1 (owner ruling 23 Nov 2026, 23:05 IST) - CLIENT-SET on a Chapter Test / Full Mock only: the grader found NO answer
+   *  to this question on the uploaded pages, and the paper counts it as "Not attempted · 0" (like a CBSE board paper) instead of
+   *  "not marked yet". The row is GRADED (0, its whole loss not attempted - never a mistake). Never set by the grader. */
+  notFoundOnPages?: true;
   /** Check & Improve PR-2 per-question topic (client-populated AFTER grading — the
    *  grader NEVER emits these). Resolved by re-running the existing /detect-question
    *  read per question against the topics.ts vocabulary (A2), canonicalised through
@@ -1060,6 +1079,9 @@ export interface WorksheetGradeResponse {
   /** FREECHECK-ONEQ-1: present ONLY when an admitted signed-out free check carried more questions than it was
    *  allowed to grade; the server marked `graded` of the `total` it received. */
   freeCheckGradedOf?: { graded: number; total: number };
+  /** MARK-ON-PHOTO-1: present on an Answer Checker whole paper that left questions unmarked — the server-signed
+   *  pass a later "Mark it on your photo" of one of them carries (24 h). Opaque to the client. */
+  markPass?: string;
 }
 
 /** BATCH-1 (additive, absent by default) — ONE answer photo for ONE question, for a
@@ -1098,7 +1120,14 @@ export async function gradeWorksheet(req: {
   // FAIR-USE-2 (F3): a paper (surface + paperKey) carries its server-issued pass. No pass
   // (signed out, passes not configured, mint failed) -> sent without one, graded as before.
   const paperPass = await paperPassHeaders(identity, opts);
-  const extra: Record<string, string> = { ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}), ...paperPass };
+  const extra: Record<string, string> = {
+    ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}),
+    ...paperPass,
+    ...(opts?.markPass && !opts.freeCheck ? { "X-Lazytopper-Mark-Pass": opts.markPass, "X-Lazytopper-Mark-Q": String(opts.markQ ?? "") } : {}),
+    // MARK-ON-PHOTO-2: a Chapter Test / Full Mock / Worksheet mark has no mark pass - it carries the paper's OWN paper pass
+    // (above) and names its ONE question, so the server counts it toward the cap of 3 for that question of that paper.
+    ...(!opts?.markPass && !opts?.freeCheck && opts?.markQ !== undefined && Object.keys(paperPass).length > 0 ? { "X-Lazytopper-Mark-Q": String(opts.markQ) } : {}),
+  };
   // GRADING-JOBS-1 J2: a background job ONLY when the caller opted in — never a free check.
   if (opts?.job && !opts.freeCheck) {
     const { gradeWorksheetJob, PREFER_HEADER, PREFER_ASYNC_VALUE } = await import("./gradingJobs");

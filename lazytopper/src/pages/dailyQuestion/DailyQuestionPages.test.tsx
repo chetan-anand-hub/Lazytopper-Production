@@ -35,7 +35,8 @@ describe("SEO-DAILY-1 question page", () => {
     const details = document.querySelector("details.lt-dq__sol") as HTMLDetailsElement;
     expect(details.open).toBe(false);
     expect(details.querySelector("summary")?.textContent).toBe("Show the step-marking answer");
-    expect(details.textContent).toMatch(/\[1 mark\]/);
+    // OBJ-NO-STEPMARK-1: a 1-mark objective question shows its steps as plain explanation, never "[1 mark]" prefixes.
+    expect(details.textContent).not.toMatch(/\[\s*[\d\u00bd.]+\s*marks?\s*\]/);
     expect(details.textContent).toMatch(/Answer:/);
   });
 

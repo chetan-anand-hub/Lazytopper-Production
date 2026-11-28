@@ -323,6 +323,48 @@ for (const [label, payload, withCache] of [
   });
 }
 
+/* ═════════════════════════ IDENTITY · AC-SOLUTION-1 modelSolution (single path) ═════════════════════════ */
+// A WRONG answer whose stored scheme carries structured steps: the sync 200 and the job's `final` must both
+// carry the SAME `modelSolution` (byte-equal), and AC_MODEL_SOLUTION_DISABLED must remove it on BOTH paths.
+const MS_STEPS = [
+  { description: 'Subtract 3 from both sides', working: '2x = 14', marks: 1 },
+  { description: 'Divide by 2', working: 'x = 7', marks: 1 },
+  { description: 'State the answer', working: 'x = 7', marks: 1 },
+];
+const msCache = { async getOrCreateModelSolution() {
+  return { schemeSteps: ['Step 1: 2x = 14 [1]', 'Step 2: x = 7 [1]', 'Answer: x = 7 [1]'], solutionSteps: MS_STEPS, fromCache: true, hash: 'abcdef0123456789' };
+} };
+
+for (const disabled of [false, true]) {
+  test('GRADE-SINGLE-JOB-1 IDENTITY · modelSolution on a WRONG answer is ' + (disabled ? 'absent on BOTH paths (AC_MODEL_SOLUTION_DISABLED)' : 'present and byte-equal on the sync 200 and the job final'), async () => {
+    const prev = process.env.AC_MODEL_SOLUTION_DISABLED;
+    if (disabled) process.env.AC_MODEL_SOLUTION_DISABLED = '1'; else delete process.env.AC_MODEL_SOLUTION_DISABLED;
+    try {
+      const h = harness({ model: stubModel({ verdict: 'wrong' }), solutionCache: msCache });
+      const sync = await h.submit({ key: KEY(110), prefer: false, payload: TYPED });
+      assert.equal(sync.statusCode, 200, sync.body);
+      const syncBody = JSON.parse(sync.body);
+      assert.equal(syncBody.marksAwarded, 0, 'control: the answer is graded wrong');
+      const res = await h.submit({ key: KEY(111), payload: TYPED });
+      assert.equal(res.statusCode, 202, res.body);
+      const { jobId } = JSON.parse(res.body);
+      await until(h.doneOf(jobId), 'job done');
+      const finalBytes = finalBytesOf(h, jobId);
+      assert.equal(finalBytes, sync.body, 'final bytes === sync body bytes (modelSolution included)');
+      const finalBody = JSON.parse(finalBytes);
+      if (disabled) {
+        assert.equal(syncBody.modelSolution, undefined, 'sync: kill switch removes it');
+        assert.equal(finalBody.modelSolution, undefined, 'job: kill switch removes it');
+      } else {
+        assert.deepEqual(syncBody.modelSolution, { steps: MS_STEPS, totalMarks: 3 }, 'sync carries the model solution');
+        assert.deepEqual(finalBody.modelSolution, syncBody.modelSolution, 'the job final carries the same one');
+      }
+    } finally {
+      if (prev === undefined) delete process.env.AC_MODEL_SOLUTION_DISABLED; else process.env.AC_MODEL_SOLUTION_DISABLED = prev;
+    }
+  });
+}
+
 /* ═════════════════════════ 1 · happy path ═════════════════════════ */
 test('GRADE-SINGLE-JOB-1 PIN 1 · a check becomes a 1-question job: the 202 charges nothing, done charges 1 exactly once', async () => {
   const h = harness();

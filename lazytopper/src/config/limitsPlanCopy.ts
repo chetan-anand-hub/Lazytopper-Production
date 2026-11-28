@@ -11,7 +11,6 @@
  * than importing the limits client, which pulls in the auth and network layer.
  */
 import { LIMITS_CONFIG as C } from "./limitsConfig";
-import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "./mockViewLimits";
 
 /** Read as a LITERAL `import.meta.env.VITE_…` so Vite and Vitest both rewrite it. */
 export function limitsCopyOn(): boolean {
@@ -24,10 +23,6 @@ export function limitsCopyOn(): boolean {
 }
 
 const n = (v: number, one: string, many: string): string => `${v} ${v === 1 ? one : many}`;
-
-/** "1 paper download a week" */
-export const basicDownloadLine = (): string =>
-  `Download ${n(C.basic.downloadsPerWeek, "paper", "papers")} a week — your first is free`;
 
 /**
  * GATE-QP-1 (owner ruling 19 Nov 2026): Basic no longer gets a graded (written-answer) Quick Practice set. Said plainly, with no number:
@@ -52,11 +47,9 @@ export function trialLimitsSentence(): string {
   );
 }
 
-/** Compare-table cells. */
-export const basicDownloadCell = (): string => `${C.basic.downloadsPerWeek} a week (first free)`;
-export const basicQuickPracticeCell = (): string =>
-  C.basic.quickPracticeWrittenGradedPerDay === 0 ? "Board Pass only" : `${C.basic.quickPracticeWrittenGradedPerDay} a day (first free)`;
-
-/** The Basic list's "papers" row with the limits on. BasicFreeList loads this module lazily (PERF-3). */
-export const basicPapersRow = (): string =>
-  `Open ${SIGNED_IN_DAILY_MOCK_LIMIT} chapter tests or mocks a day (${ANON_DAILY_MOCK_LIMIT} when signed out); ${basicDownloadLine().replace(/^Download/, "download")} — written answers on tests and mocks are not checked on Basic`;
+/*
+ * GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST: "remove the download or checking option from basic plan"): the Basic download
+ * line (`basicDownloadLine`), its compare cell (`basicDownloadCell`), the Basic list's limits-on papers row (`basicPapersRow`) and
+ * the Quick Practice compare cell's text (`basicQuickPracticeCell`) are retired - no Basic copy states a download or a written-answer
+ * check as an allowance; the compare table marks both "not included". The server-side LIMITS-1 numbers (limitsConfig) are untouched.
+ */

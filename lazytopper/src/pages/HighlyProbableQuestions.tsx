@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/HighlyProbableQuestions.tsx
 
+import { stripStepMarks } from "../lib/marks/objectiveSteps";
 import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
   Navigate,
@@ -1996,7 +1997,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                                 lineHeight: 1.5,
                                               }}
                                             >
-                                              <MathText text={step.working} />
+                                              <MathText text={stripStepMarks(step.working)} />
                                             </div>
                                           ) : (
                                             <>

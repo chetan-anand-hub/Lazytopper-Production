@@ -258,7 +258,7 @@ function fakeReq({ surface, body, headers = {} } = {}) {
 const rawReadJson = async (req) => req.__body || {};
 
 /** A fair-use gate over an injected tier, ledger and clock. */
-function rig({ tier = 'trial', days = {}, env = { FAIR_USE_ENFORCE: '1' }, now = NOW, failRead = false, tierOf } = {}) {
+function rig({ tier = 'trial', days = {}, env = { FAIR_USE_ENFORCE: '1' }, now = NOW, failRead = false, tierOf, seriesOwnerPaper, freshTierOf } = {}) {
   const clock = { now };
   const ledger = fakeLedger(days, { failRead });
   // The mint transaction and the graded mark run on the SAME day objects the ledger reads.
@@ -268,6 +268,8 @@ function rig({ tier = 'trial', days = {}, env = { FAIR_USE_ENFORCE: '1' }, now =
   let tierReads = 0;
   const gate = createFairUse({
     tierOf: tierOf || (async () => { tierReads += 1; return tier; }),
+    ...(seriesOwnerPaper ? { seriesOwnerPaper } : {}),
+    ...(freshTierOf ? { freshTierOf } : {}),
     ledger,
     telemetry,
     env,
@@ -2318,3 +2320,251 @@ test('WIRING · REAL index.cjs, C9: a 200 that graded NOTHING is stored and repl
     assert.deepEqual([retry.status, retry.text, retry.headers['idempotent-replayed']], [200, first.text, 'true']);
     assert.equal(count(delta, /GEMINI_FETCH|trialChecks/g), 0, `the replay is neither graded nor charged\n${delta}`);
   });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FAIRUSE-TS-OWNER-1 · a paying student is never held to the TRIAL's paper limit
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const SERIES_CT = 'ct-ts1-real-numbers--ct-1-a';
+const SERIES_FM = 'fm-ts1-m2--fm-1-a';
+const SERIES_FS = 'fm-tsfs-mla1--fm-1-a';
+/** testSeriesChecks.ownerSeriesPaper's contract, faked: an owner, and only on a series paper of the matching kind. */
+const ownerOf = (owns) => {
+  const calls = [];
+  const fn = async (uid, kind, worksheetId) => {
+    calls.push({ uid, kind, worksheetId });
+    const k = worksheetId.startsWith('ct-ts1') ? 'chapter-test' : /^fm-ts(1|fs)-/.test(worksheetId) ? 'full-mock' : '';
+    return owns === true && k === kind;
+  };
+  fn.calls = calls;
+  return fn;
+};
+/** Every trial paper allowance spent: today's chapter test, this week's mock and worksheet. */
+const SPENT = () => ({ [TODAY]: { trialChapterTests: 1, trialMocks: 1, trialWorksheets: 1 } });
+
+test('TS-OWNER · a trial Test Series owner is minted on a series chapter test, full-length test and focus set beyond the limit, nothing spent', async () => {
+  for (const [surface, paperKey] of [['chapter-test', SERIES_CT], ['full-mock', SERIES_FM], ['full-mock', SERIES_FS]]) {
+    const r = rig({ env: PASS_ENV, days: SPENT(), seriesOwnerPaper: ownerOf(true) });
+    const out = await mint(r, { surface, paperKey });
+    assert.equal(out.status, 200, `${surface} ${paperKey}`);
+    assert.equal(typeof out.body.token, 'string');
+    assert.equal(r.fs.mintWrites().length, 0, 'an owner\'s series paper writes nothing to the trial ledger');
+    assert.equal(r.fs.txReads.length, 0, 'no ledger transaction at all, as for a non-trial tier');
+    assert.equal(r.telemetry.count('fair_use.paper_pass.ts_owner'), 1);
+    assert.equal(r.telemetry.count('fair_use.paper_pass.minted'), 1);
+  }
+});
+
+test('TS-OWNER · grading an owner\'s series paper writes no graded mark (it never spends the trial allowance)', async () => {
+  const r = rig({ env: PASS_ENV, days: {}, seriesOwnerPaper: ownerOf(true) });
+  const m = await mint(r, { surface: 'full-mock', paperKey: SERIES_FM });
+  r.clock.now = NOW + HOUR;
+  await gradePaper(r, 'full-mock', SERIES_FM, m.body.token);
+  assert.equal(r.fs.gradedWrites().length, 0);
+  assert.equal(r.telemetry.count('fair_use.paper_pass.graded_ts_owner'), 1);
+  assert.equal((await usageMe(r)).body.trial.mocksLeft, 1, 'the week\'s mock is still there for a fresh paper');
+  // The deferred (background-job) path settles through the same mark.
+  assert.equal(await r.gate.markPaperGraded('stu-1', { surface: 'full-mock', paperKey: SERIES_FM, issuedAt: NOW }), 'ts_owner');
+});
+
+test('TS-OWNER · a trial NON-owner is still refused on a series paper', async () => {
+  const r = rig({ env: PASS_ENV, days: SPENT(), seriesOwnerPaper: ownerOf(false) });
+  for (const [surface, paperKey] of [['chapter-test', SERIES_CT], ['full-mock', SERIES_FM]]) {
+    const out = await mint(r, { surface, paperKey });
+    assert.equal(out.status, 409, `${surface}`);
+    assert.equal(out.body.error, 'trial_limit');
+  }
+  assert.equal(r.telemetry.count('fair_use.paper_pass.ts_owner'), 0);
+});
+
+test('TS-OWNER · an owner on a FRESH (non-series) paper, and on any WORKSHEET, keeps today\'s trial rule', async () => {
+  const owner = ownerOf(true);
+  const r = rig({ env: PASS_ENV, days: SPENT(), seriesOwnerPaper: owner });
+  assert.equal((await mint(r, { surface: 'full-mock', paperKey: 'fm-fresh-1' })).status, 409);
+  assert.equal((await mint(r, { surface: 'chapter-test', paperKey: 'ct-fresh-1' })).status, 409);
+  assert.equal((await mint(r, { surface: 'worksheet', paperKey: SERIES_CT })).status, 409, 'worksheets are never exempt');
+  assert.ok(!owner.calls.some((c) => c.kind === 'worksheet'), 'the ownership read is never asked for a worksheet');
+  // Allowance left: a worksheet is minted AND counted exactly as before.
+  const fresh = rig({ env: PASS_ENV, days: {}, seriesOwnerPaper: owner });
+  assert.equal((await mint(fresh, { surface: 'worksheet', paperKey: 'ws-1' })).status, 200);
+  assert.deepEqual(mintedSurfaces(fresh), ['worksheet']);
+});
+
+test('TS-OWNER · an ownership read that fails, throws or is absent -> refused exactly as today', async () => {
+  for (const seriesOwnerPaper of [async () => null, async () => { throw new Error('firestore down'); }, async () => 'yes', undefined]) {
+    const r = rig({ env: PASS_ENV, days: SPENT(), seriesOwnerPaper });
+    const out = await mint(r, { surface: 'full-mock', paperKey: SERIES_FM });
+    assert.equal(out.status, 409);
+    assert.equal(r.telemetry.count('fair_use.paper_pass.ts_owner'), 0);
+  }
+});
+
+test('TS-OWNER · kill switch FAIRUSE_TS_OWNER_EXEMPT_DISABLED restores the refusal and never asks for ownership', async () => {
+  for (const v of ['1', 'true', 'ON', 'yes']) {
+    const owner = ownerOf(true);
+    const r = rig({ env: { ...PASS_ENV, FAIRUSE_TS_OWNER_EXEMPT_DISABLED: v }, days: SPENT(), seriesOwnerPaper: owner });
+    assert.equal((await mint(r, { surface: 'full-mock', paperKey: SERIES_FM })).status, 409, v);
+    assert.equal(owner.calls.length, 0);
+    // ...and the graded mark is written as before.
+    const g = rig({ env: { ...PASS_ENV, FAIRUSE_TS_OWNER_EXEMPT_DISABLED: v }, days: {}, seriesOwnerPaper: owner });
+    const m = await mint(g, { surface: 'full-mock', paperKey: SERIES_FM });
+    assert.deepEqual(mintedSurfaces(g), ['full-mock']);
+    await gradePaper(g, 'full-mock', SERIES_FM, m.body.token);
+    assert.equal(g.fs.gradedWrites().length, 1);
+  }
+});
+
+test('TS-OWNER · the written-answer cap is untouched: an owner\'s pass carries no check allowance (testSeriesChecks decides it)', async () => {
+  const r = rig({ env: PASS_ENV, days: { [TODAY]: { trialChecks: 5 } }, seriesOwnerPaper: ownerOf(true) });
+  const m = await mint(r, { surface: 'chapter-test', paperKey: SERIES_CT });
+  const out = await run(r, { path: GRADE_WORKSHEET_PATH, surface: 'chapter-test', body: PAPER_BODY(SERIES_CT, 3), headers: paperHeaders(m.body.token) });
+  assert.equal(out.answered, false);
+  assert.deepEqual(r.ledger.trialWrites, [], 'a paper grade spends no answer checks, as before');
+});
+
+/* ── The Board Pass half: a student who has PAID is never walled or refused as a trial ── */
+
+test('BP · a paid-Premium (Board Pass) student is minted on every paper surface with every trial allowance spent, nothing read or written', async () => {
+  for (const [surface, paperKey] of [['chapter-test', SERIES_CT], ['chapter-test', 'ct-1'], ['full-mock', SERIES_FM], ['full-mock', SERIES_FS], ['full-mock', 'fm-1'], ['worksheet', 'ws-1']]) {
+    const r = rig({ tier: 'premium', env: PASS_ENV, days: SPENT() });
+    const out = await mint(r, { surface, paperKey });
+    assert.equal(out.status, 200, `${surface} ${paperKey}`);
+    assert.equal(r.fs.txReads.length, 0);
+    assert.equal(r.fs.mintWrites().length, 0);
+  }
+  const me = await usageMe(rig({ tier: 'premium', env: PASS_ENV, days: SPENT() }));
+  assert.equal(me.body.tier, 'premium');
+  assert.equal(me.body.trial, null, 'a Board Pass holder\'s view carries no trial paper counts, so no wall can be drawn');
+});
+
+test('BP · bought during the trial / as an upgrade from the Test Series: a STALE cached trial verdict does not refuse (mint, grade, usage view)', async () => {
+  // The cached tier still says trial; the uncached read says premium.
+  const fresh = async () => 'premium';
+  for (const [surface, paperKey] of [['chapter-test', 'ct-1'], ['full-mock', SERIES_FM], ['worksheet', 'ws-1']]) {
+    const r = rig({ tier: 'trial', env: PASS_ENV, days: SPENT(), freshTierOf: fresh, seriesOwnerPaper: ownerOf(false) });
+    const out = await mint(r, { surface, paperKey });
+    assert.equal(out.status, 200, `${surface}`);
+    assert.equal(r.fs.mintWrites().length, 0, 'the refused transaction wrote nothing; the Premium mint writes nothing');
+    assert.equal(r.telemetry.count('fair_use.fresh_tier.premium'), 1);
+  }
+  // A grade without a pass (per-question path) is not refused either.
+  const g = rig({ tier: 'trial', env: PASS_ENV, days: { [TODAY]: { trialChecks: 5 } }, freshTierOf: fresh });
+  assert.equal((await run(g, { surface: 'check-improve' })).answered, false);
+  // The usage view answers Premium, so the client draws no trial wall.
+  const me = await usageMe(rig({ tier: 'trial', env: PASS_ENV, days: SPENT(), freshTierOf: fresh }));
+  assert.equal(me.body.tier, 'premium');
+  assert.equal(me.body.trial, null);
+});
+
+test('BP · the uncached read is asked ONLY on a would-be refusal / spent view, and only "premium" overrides', async () => {
+  let asked = 0;
+  const counting = async () => { asked += 1; return 'premium'; };
+  const ok = rig({ tier: 'trial', env: PASS_ENV, days: {}, freshTierOf: counting });
+  assert.equal((await usageMe(ok)).body.tier, 'trial', 'nothing spent -> no re-read');
+  assert.equal((await mint(ok, { surface: 'full-mock', paperKey: 'fm-1' })).status, 200);
+  assert.equal(asked, 0, 'an allowed mint never asks');
+  for (const freshTierOf of [async () => 'trial', async () => 'free', async () => null, async () => { throw new Error('down'); }]) {
+    const r = rig({ tier: 'trial', env: PASS_ENV, days: SPENT(), freshTierOf });
+    assert.equal((await mint(r, { surface: 'full-mock', paperKey: 'fm-1' })).status, 409);
+    assert.equal((await usageMe(r)).body.tier, 'trial');
+  }
+});
+
+test('BP · kill switch FAIRUSE_BP_FRESH_TIER_DISABLED: the stale trial verdict refuses exactly as before', async () => {
+  let asked = 0;
+  const r = rig({ tier: 'trial', env: { ...PASS_ENV, FAIRUSE_BP_FRESH_TIER_DISABLED: '1' }, days: SPENT(), freshTierOf: async () => { asked += 1; return 'premium'; } });
+  assert.equal((await mint(r, { surface: 'full-mock', paperKey: 'fm-1' })).status, 409);
+  assert.equal((await usageMe(r)).body.tier, 'trial');
+  assert.equal(asked, 0);
+});
+
+test('TS-OWNER · wired to the REAL testSeriesChecks.ownerSeriesPaper (manifest on disk): owner minted on a series paper only', async () => {
+  const { createTestSeriesChecks } = require('./testSeriesChecks.cjs');
+  const owned = new Set(['stu-1']);
+  const adminFirestore = {
+    collection: () => ({
+      doc: (uid) => ({
+        collection: () => ({
+          doc: (packId) => ({
+            get: async () => (owned.has(uid) && packId === 'test_series:all'
+              ? { exists: true, data: () => ({ packId: 'test_series:all', sku: 'test_series', target: 'all' }) }
+              : { exists: false, data: () => undefined }),
+          }),
+        }),
+      }),
+    }),
+  };
+  const checks = createTestSeriesChecks({ adminFirestore, now: () => NOW, logger: { error() {}, warn() {}, log() {} } });
+  const seriesOwnerPaper = (uid, surface, paperKey) => checks.ownerSeriesPaper(uid, surface, paperKey);
+  const r = rig({ env: PASS_ENV, days: SPENT(), seriesOwnerPaper });
+  assert.equal((await mint(r, { surface: 'full-mock', paperKey: 'fm-ts1-m2--fm-x' })).status, 200, 'Full-Length Test 2');
+  assert.equal((await mint(r, { surface: 'chapter-test', paperKey: 'ct-ts1-real-numbers--ct-x' })).status, 200);
+  assert.equal((await mint(r, { surface: 'full-mock', paperKey: 'fm-tsfs-mla1--fm-x' })).status, 200, 'a focus set');
+  assert.equal((await mint(r, { surface: 'chapter-test', paperKey: 'fm-ts1-m2--fm-x' })).status, 409, 'kind must match');
+  assert.equal((await mint(r, { surface: 'full-mock', paperKey: 'fm-plain-1' })).status, 409, 'a fresh mock keeps the limit');
+  owned.clear();
+  const nonOwner = rig({ env: PASS_ENV, days: SPENT(), seriesOwnerPaper });
+  assert.equal((await mint(nonOwner, { surface: 'full-mock', paperKey: 'fm-ts1-m2--fm-x' })).status, 409);
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TS-FAIRUSE-1 · a Test Series owner (tier "free") is held to the Premium cost windows
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const TSF_BODY = (paperKey) => ({ worksheetId: paperKey, questions: questions(2) });
+const tsfRun = (r, paperKey = SERIES_CT) => run(r, { path: GRADE_WORKSHEET_PATH, surface: 'chapter-test', body: TSF_BODY(paperKey) });
+
+test('TS-FAIRUSE · a free-tier Test Series owner at the DAY cost window gets the Premium 429 on a series paper, with resetAt', async () => {
+  const r = rig({ tier: 'free', days: { [TODAY]: { costMicroInr: 38 * INR } }, seriesOwnerPaper: ownerOf(true) });
+  const out = await tsfRun(r);
+  assert.deepEqual(out.res.sent, { status: 429, body: { error: 'usage_limit', window: 'day', resetAt: NEXT_IST_MIDNIGHT } });
+  assert.equal(r.telemetry.count('fair_use.ts_owner_capped'), 1);
+  const full = rig({ tier: 'free', days: { [TODAY]: { costMicroInr: 38 * INR } }, seriesOwnerPaper: ownerOf(true) });
+  assert.equal((await tsfRun(full, SERIES_FM)).res.sent.status, 429, 'a full-length test paper is capped too');
+});
+
+test('TS-FAIRUSE · under the cap a Test Series owner is served; the 30-day window applies when FAIR_USE_PREMIUM_30DAY_INR is set', async () => {
+  const under = rig({ tier: 'free', days: { [TODAY]: { costMicroInr: 37.99 * INR } }, seriesOwnerPaper: ownerOf(true) });
+  assert.equal((await tsfRun(under)).answered, false);
+  const env = { FAIR_USE_ENFORCE: '1', FAIR_USE_PREMIUM_30DAY_INR: '900', FAIR_USE_PREMIUM_DAY_INR: '150' };
+  const spent = { [dayOf(10)]: { costMicroInr: 450 * INR }, [dayOf(20)]: { costMicroInr: 450 * INR } };
+  const capped = rig({ tier: 'free', env, days: spent, seriesOwnerPaper: ownerOf(true) });
+  const out = await tsfRun(capped);
+  assert.equal(out.res.sent.status, 429);
+  assert.equal(out.res.sent.body.window, 'thirtyDay');
+});
+
+test('TS-FAIRUSE · NOT applied to a non-owner, a non-series paper, or a trial / Premium tier (their rules are unchanged)', async () => {
+  const days = { [TODAY]: { costMicroInr: 500 * INR } };
+  assert.equal((await tsfRun(rig({ tier: 'free', days, seriesOwnerPaper: ownerOf(false) }))).answered, false, 'non-owner: uncapped as before');
+  assert.equal((await tsfRun(rig({ tier: 'free', days, seriesOwnerPaper: ownerOf(true) }), 'ws-plain-1')).answered, false, 'non-series paper');
+  assert.equal((await tsfRun(rig({ tier: 'free', days }))).answered, false, 'no owner dep: today\'s behaviour');
+  const trialOwner = rig({ tier: 'trial', days, seriesOwnerPaper: ownerOf(true) });
+  const out = await tsfRun(trialOwner);
+  assert.equal(trialOwner.telemetry.count('fair_use.ts_owner_capped'), 0, 'a trial owner is never routed through the premium branch');
+  assert.notEqual(out.res.sent && out.res.sent.body && out.res.sent.body.error, 'usage_limit');
+  const bp = rig({ tier: 'premium', days, seriesOwnerPaper: ownerOf(true) });
+  assert.equal((await tsfRun(bp)).res.sent.status, 429, 'Board Pass keeps its own cap');
+});
+
+test('TS-FAIRUSE · kill switch TS_FAIRUSE_CAP_DISABLED -> trunk behaviour, owner uncapped and the ownership dep never asked', async () => {
+  const days = { [TODAY]: { costMicroInr: 500 * INR } };
+  for (const v of ['1', 'true', 'on', 'yes']) {
+    const owner = ownerOf(true);
+    const r = rig({ tier: 'free', env: { FAIR_USE_ENFORCE: '1', TS_FAIRUSE_CAP_DISABLED: v }, days, seriesOwnerPaper: owner });
+    const out = await tsfRun(r);
+    assert.equal(out.answered, false, v);
+    assert.equal(owner.calls.length, 0, v);
+    assert.equal(r.telemetry.count('fair_use.ts_owner_capped'), 0, v);
+  }
+});
+
+test('TS-FAIRUSE · dark (FAIR_USE_ENFORCE unset) serves and only counts would_refuse; a throwing owner read leaves the owner uncapped', async () => {
+  const days = { [TODAY]: { costMicroInr: 500 * INR } };
+  const dark = rig({ tier: 'free', env: {}, days, seriesOwnerPaper: ownerOf(true) });
+  assert.equal((await tsfRun(dark)).answered, false);
+  assert.equal(dark.telemetry.count('fair_use.ts_owner_capped'), 1);
+  assert.ok(['premium_five_hour', 'premium_day', 'premium_week'].some((k) => dark.telemetry.count(`fair_use.would_refuse.${k}`) === 1));
+  const broken = rig({ tier: 'free', days, seriesOwnerPaper: async () => { throw new Error('down'); } });
+  assert.equal((await tsfRun(broken)).answered, false);
+});

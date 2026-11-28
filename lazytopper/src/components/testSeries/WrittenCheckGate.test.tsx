@@ -112,9 +112,21 @@ describe("TS-PACK-1 · ownsTestSeries unlocks the series papers; the checks-left
     resetTestSeriesOwnershipForTests();
     sub.tier = "free";
     mine.value = { packs: [], licensee: { name: "A", email: "a@b.in" }, ownsTestSeries: true, testSeries: { validUntilMs: 1, checksPerPaper: 2, used: {}, freeRecheck: { "TS-CT-M01": true } } };
-    render(<SeriesChecksLeftLine uid="u4" worksheetId="ct-ts1-real-numbers--abc" />);
+    // LIVE-FIX-1 (edited expectation): the unreadable wording now shows when the page KNOWS the check's pages were unreadable;
+    // without a reason the neutral line fits both causes of the free re-check (an unreadable page, an answer not on the pages).
+    render(<SeriesChecksLeftLine uid="u4" worksheetId="ct-ts1-real-numbers--abc" notCountedReason="unreadable" />);
     expect((await screen.findByTestId("series-recheck-note")).textContent).toBe(
       "We couldn't read most of your sheet, so this check wasn't counted. Retake the photo in good light and upload again. This free re-check is given once per paper.",
+    );
+    cleanup();
+    render(<SeriesChecksLeftLine uid="u4" worksheetId="ct-ts1-real-numbers--abc" notCountedReason="not-found" />);
+    expect((await screen.findByTestId("series-recheck-note")).textContent).toBe(
+      "This check wasn't counted — half or more of the answers couldn't be found or read on the pages. Add all your pages and check again. This free re-check is given once per paper.",
+    );
+    cleanup();
+    render(<SeriesChecksLeftLine uid="u4" worksheetId="ct-ts1-real-numbers--abc" />);
+    expect((await screen.findByTestId("series-recheck-note")).textContent).toBe(
+      "This check wasn't counted — add any missing or unclear pages and check again. This free re-check is given once per paper.",
     );
     expect(screen.getByTestId("series-checks-left").textContent).toBe("Checks left on this paper: 2 of 2");
     expect(screen.getByTestId("series-recheck-note").textContent).not.toMatch(/\bAI\b/);

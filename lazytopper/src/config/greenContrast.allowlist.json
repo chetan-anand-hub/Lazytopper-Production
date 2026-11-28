@@ -1,0 +1,10 @@
+{
+  "_about": "UI-FIX-2. Intentional exceptions to greenContrast.guard.test.ts: a light green background with white text in the same rule / style object. Match is by file (relative to src/) + the exact colour literal. Every entry needs a reason; remove it when the file is edited.",
+  "exceptions": [
+    {
+      "file": "components/contact/whatsAppFab.css",
+      "value": "#25d366",
+      "reason": "WhatsApp's own brand green behind its logo glyph (an icon, not text); the colour is mandated by WhatsApp branding."
+    }
+  ]
+}

@@ -20,6 +20,8 @@ export const LIMITS_ENDPOINT = "/api/usage/limits";
 export const LIMITS_DOWNLOAD_ENDPOINT = "/api/usage/limits/download";
 export const LIMITS_QP_ENDPOINT = "/api/usage/limits/qp";
 export const LIMITS_DETAIL_ENDPOINT = "/api/usage/limits/detail";
+/** FREE-TS-WEEKLY: the signed-in weekly count of Test Series papers a Basic / trial account opens. */
+export const LIMITS_OPEN_ENDPOINT = "/api/usage/limits/open";
 /** The mint is abandoned (and the download allowed) after this long. */
 export const MINT_TIMEOUT_MS = 4000;
 
@@ -127,7 +129,7 @@ export async function mintDownload(kind: DownloadKind, paperKey: string, signedI
   } finally {
     clearTimeout(timer);
   }
-  if (res.status === 409 && body.error === "download_limit") {
+  if (res.status === 409 && (body.error === "download_limit" || body.error === "download_view_only")) {
     return { status: "blocked", resetAt: str(body.resetAt), limit: num(body.limit), tier: str(body.tier) };
   }
   if (!res.ok) return { status: "open" };
@@ -144,6 +146,40 @@ export async function mintDownload(kind: DownloadKind, paperKey: string, signedI
     limit: num(body.limit),
     resetAt: str(body.resetAt),
   };
+}
+
+/**
+ * FREE-TS-WEEKLY (owner ruling 27 Nov 2026): ask the server to count ONE Test Series paper open (Basic / trial). Independent of
+ * VITE_LIMITS_ENABLED (its own kill switches: VITE_FREE_TS_WEEKLY_DISABLED here, FREE_TS_WEEKLY_DISABLED on the server).
+ * `refused`: the server (LIMITS_ENFORCE on) says this week's allowance is spent. Everything else - signed out, offline, a slow or
+ * failing server - is `allow` (fail open: a student is never walled by a blip). Never throws.
+ */
+export async function mintOpen(paperKey: string): Promise<{ refused: boolean; resetAt: string | null }> {
+  let headers: Record<string, string>;
+  try {
+    headers = await paidJsonHeaders();
+  } catch {
+    return { refused: false, resetAt: null };
+  }
+  if (!headers["X-Lazytopper-Uid"]) return { refused: false, resetAt: null };
+  const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+  const timer = setTimeout(() => ctl?.abort(), MINT_TIMEOUT_MS);
+  try {
+    const res = await fetch(LIMITS_OPEN_ENDPOINT, { method: "POST", headers, body: JSON.stringify({ paperKey }), ...(ctl ? { signal: ctl.signal } : {}) });
+    let body: Record<string, unknown> = {};
+    try {
+      const parsed: unknown = JSON.parse(await res.text());
+      if (parsed && typeof parsed === "object") body = parsed as Record<string, unknown>;
+    } catch {
+      /* unreadable = fail open */
+    }
+    if (res.status === 409 && body.error === "open_limit") return { refused: true, resetAt: str(body.resetAt) };
+    return { refused: false, resetAt: null };
+  } catch {
+    return { refused: false, resetAt: null };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 type PostResult =

@@ -55,6 +55,9 @@
 // ⚠ Student-facing wording elsewhere says "the way a CBSE examiner marks", never "official".
 
 const GRADER_TYPE_1_OFF = process.env.GRADER_TYPE_1_DISABLED === '1';
+// GRADE-SECOND-LOOK-1 kill switch, read at process start for the PROMPT (core reads it per grade for the extra call):
+// GRADING_SECOND_LOOK_DISABLED=1 restores the previous request byte-for-byte (no "unplacedAnswers" ask) and no second look.
+const SECOND_LOOK_OFF = /^(1|true|yes)$/i.test(String(process.env.GRADING_SECOND_LOOK_DISABLED || '').trim());
 // nit: the taxonomy's "copied wrongly = silly" sentence points at case law 13 (a dropped power/factor: silly only where the page shows the rule).
 const SILLY_CASE13_REF = GRADER_TYPE_1_OFF ? '' : ' (A power or factor DROPPED from a correct factorisation is NOT automatically a miscopy — see case law 13: silly only where the page shows the rule applied elsewhere.)';
 
@@ -202,7 +205,9 @@ const READING_FIDELITY_PROMPT =
 const PAGE_INVENTORY_PROMPT =
   'PAGE INVENTORY FIRST — before you grade anything, fill "pageInventory": for EACH page of the upload, in page order, list EVERY question number that appears on that page as the label of an answer (written by the student, or printed beside an answer space), each with "firstLine" = the first line of the student\'s own writing for that answer, quoted VERBATIM exactly as written (never from the question, the marking scheme or your own solution). Where the number appears with NOTHING written after it, or only a non-attempt ("Don\'t know", a blank space, an answer struck out with nothing in its place), give "firstLine": "" — or the non-attempt exactly as written.\n' +
   '   - Do NOT list a question whose number appears on NO answer page (a question printed only on the question paper is not on the answer pages). A question you did not list was NOT FOUND: return { "qNumber": N, "couldNotRead": true, "note": "not found on the uploaded pages" } for it — never a grade, never 0.\n' +
-  '   - Then grade from that inventory: a question you listed with an empty "firstLine" (or only a non-attempt) is UNATTEMPTED (one "unattempted" step, no marks, no type). For a question you listed with an answer, the "studentWork" of its first step begins with that same first line.';
+  '   - Then grade from that inventory: a question you listed with an empty "firstLine" (or only a non-attempt) is UNATTEMPTED (one "unattempted" step, no marks, no type). For a question you listed with an answer, the "studentWork" of its first step begins with that same first line.' +
+  (SECOND_LOOK_OFF ? '' : '\n' +
+  '   - Fill "unplacedAnswers" with the first line, verbatim, of EVERY answer written on the pages that you did not list under any question number (an answer with no number, with a number that is not one of the questions, or one you could not match to a question). Give [] when every answer on the pages is listed. Never put the printed question paper or a struck-out line there.');
 
 /** C3 comments truth: the deterministic half is enforced after the model too (postprocess.cjs). */
 const COMMENTS_TRUTH_PROMPT =
@@ -390,6 +395,7 @@ module.exports = {
   KNOWLEDGE_EVIDENCE_FIELD,
   OMITTED_ASK_FIELD,
   GRADER_TYPE_1_OFF,
+  SECOND_LOOK_OFF,
   EQUATION_FAULT_FIELD,
   EQUATION_FAULTS,
   BALANCING_EVIDENCE_FIELD,

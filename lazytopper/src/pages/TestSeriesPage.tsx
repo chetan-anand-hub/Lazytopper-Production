@@ -1,20 +1,31 @@
-import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
 import { getSessionRecordsFromCloud } from "../services/sessionRecords";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import { boardPassPriceDisplay, FOUNDING_OFFER_LAST_DAY_LABEL, foundingOfferOpen } from "../config/pricing";
-import { isTestSeriesPackOffered, packPayLabel, packPriceLabel, testSeriesFoundingClause, testSeriesPriceLine, TEST_SERIES_CHECKS_PER_PAPER } from "../services/packs";
+import { isPacksClientEnabled, isTestSeriesPackOffered, packPayLabel, packPriceLabel, testSeriesFoundingClause, testSeriesPriceLine, TEST_SERIES_CHECKS_PER_PAPER } from "../services/packs";
 import { isPaidPremium } from "../services/subscriptionService";
 import { useTestSeriesOwnership } from "../components/testSeries/testSeriesOwnership";
+import { freeWrittenCheckDisabled } from "../lib/testSeries/seriesAccess";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import { TestSeriesExaminerLine, TestSeriesPerTest } from "../components/packs/TestSeriesPerTest";
 import { TsClockSlot } from "../components/packs/TestSeriesFoundingClause";
 import PacksShop, { warmPacksCheckout, type PacksShopApi } from "../components/packs/PacksShop";
 import { isCheckoutWarmDisabled } from "../lib/packs/packsMobilePreload";
+import { isPaymentsClientEnabled } from "../services/checkout";
+import { isParentPayClientEnabled } from "../services/parentPay";
+import { ASK_PARENT_LABEL } from "../components/pricing/PaywallActions";
+import { isCheckoutWhoClientEnabled } from "../services/checkoutWhoFlag";
+import { buildParentSeriesShareMessage } from "../services/parentPayPack";
+import { trackPaywallAction } from "../analytics/analytics";
+import { openWhatsAppLink, type ShareNavigator } from "../components/results/share/shareScore";
+import { whatsAppShareUrl } from "../components/results/share/shareCardModel";
 import PayReturnResume from "../components/payReturn/PayReturnResume";
+import { isParentPayFirstDisabled, trackParentForward } from "../components/payRescue/parentForward";
 import TestSeriesPaperPicker from "../components/testSeries/TestSeriesPaperPicker";
+import TsFreeSamplePicker, { tsFreePickerOn } from "../components/testSeries/TsFreeSamplePicker";
 import { TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_VALIDITY_LONG, TEST_SERIES_WRITTEN_SECTIONS } from "../lib/packs/packLabels";
 import {
   TEST_SERIES_BUY_FROM_PATH,
@@ -31,8 +42,39 @@ import {
   type SeriesScheduleRow,
   type SeriesSubject,
 } from "../lib/testSeries/testSeries";
+import { focusSetCount, focusSetProgress, focusSets as allFocusSets, tsFocusSetsDisabled, type FocusSetProgress } from "../lib/testSeries/focusSets";
+import SalesFaq from "../components/salesPages/SalesFaq";
+import { fairUseFaq } from "../components/salesPages/salesPagesCopy";
 import "../components/salesPages/salesPages.css";
 import "./testSeriesPage.css";
+
+/**
+ * TS-PARENT-FORWARD-2 - the pay-first "Who will use it?" gate, read here (not imported from services/checkoutWho, which would pull that
+ * chunk into /test-series up front, nor moved into checkoutWhoFlag, which would grow the entry). MUST equal checkoutWho's
+ * isSelfAttachClientEnabled - a test pins that.
+ */
+export function tsSelfAttachOn(): boolean {
+  // Only isCheckoutWhoClientEnabled is borrowed from the entry chunk (it was already); the two kill switches are read here, so the
+  // entry gains no new export (PERF-3 headroom is a few bytes).
+  const off = (raw: unknown) => /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  try {
+    return isCheckoutWhoClientEnabled() && !off(import.meta.env.VITE_CHECKOUT_SELF_DISABLED) && !off(import.meta.env.VITE_CHECKOUT_SELF_ATTACH_DISABLED);
+  } catch {
+    return false;
+  }
+}
+
+// TS-PAYPATH-1 — the signed-out parent forward (WhatsApp + QR, PARENT-PAY-FIRST-1's own panel): its own chunk, fetched on the tap only.
+const ParentForwardGuest = lazy(() => import("../components/payRescue/ParentForwardGuest"));
+
+/** TS-PAYPATH-1: once the panel's chunk has drawn it, bring its WhatsApp + QR buttons onto a phone's screen (they open below the fold). */
+function RevealPanel() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    ref.current?.parentElement?.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
+  }, []);
+  return <span ref={ref} hidden />;
+}
 
 // TS-ANALYSIS-1 — the Mistake notebook (signed-in only, its own chunk, opened from the progress line).
 const MistakeNotebookSection = lazy(() => import("../components/testAnalysis/MistakeNotebookSection"));
@@ -57,14 +99,77 @@ const MistakeNotebookSection = lazy(() => import("../components/testAnalysis/Mis
 const SUBJECTS: readonly SeriesSubject[] = ["Maths", "Science"];
 /** Owner ruling 18 Nov 2026, 19:31 IST — said plainly on the page. */
 export const TEST_SERIES_ACCESS_LINE = "MCQs marked free · written answers checked with the Test Series or the Board Pass";
+
+/**
+ * TS-FREE-CHECK-1 (owner ruling 23 Nov 2026, 19:59 IST): the ONE free test includes written-answer marking. The page's three
+ * free-test lines say so while the client flag is on (VITE_TS_FREE_WRITTEN_CHECK_DISABLED unset - the default, and what the static
+ * capture renders); with the flag set, today's lines exactly. The server decides every grade (testSeriesChecks.cjs).
+ */
+export const TEST_SERIES_ACCESS_LINE_FREE_WRITTEN =
+  "Your first test is free, written answers included · after that, written answers are checked with the Test Series or the Board Pass";
+export const TS_HERO_FREE_LEDE = "try one test free";
+export const TS_HERO_FREE_LEDE_WRITTEN = "your first test is free — written answers marked too";
+export const TS_PLANS_LEDE = "Free and trial accounts can take one test, with its MCQs marked. Pick the plan that fits you.";
+export const TS_PLANS_LEDE_WRITTEN = "Free and trial accounts can take one test, with its written answers marked too. Pick the plan that fits you.";
+/** The page's free-test copy for the current client flag. */
+export function testSeriesFreeCopy(): { heroLede: string; accessLine: string; plansLede: string } {
+  return freeWrittenCheckDisabled()
+    ? { heroLede: TS_HERO_FREE_LEDE, accessLine: TEST_SERIES_ACCESS_LINE, plansLede: TS_PLANS_LEDE }
+    : { heroLede: TS_HERO_FREE_LEDE_WRITTEN, accessLine: TEST_SERIES_ACCESS_LINE_FREE_WRITTEN, plansLede: TS_PLANS_LEDE_WRITTEN };
+}
 const LOGIN_HREF = `/login?redirect=${encodeURIComponent(TEST_SERIES_PATH)}`;
+
+/**
+ * TS-PARENT-FORWARD-1 (owner ruling 24 Nov 2026, ~21:35 IST: "both the options, for buying directly or forwarding link to parents").
+ * Under each Test Series Buy, "Forward link to parents" (PaywallActions' own label and event, `surface: "test_series"`).
+ * TS-PARENT-FORWARD-2 (owner, 25 Nov 2026 00:25: no sign-in in any pay path): signed out, the button opens the device's share sheet
+ * (else WhatsApp) with a message and THIS page's link; the parent pays here signed out (pay-first) and "Who will use it?" puts the
+ * series on the child's number after payment. VITE_TS_PARENT_FORWARD_DISABLED=1 -> the page exactly as before both lanes.
+ */
+export function tsParentForwardDisabled(): boolean {
+  return import.meta.env?.VITE_TS_PARENT_FORWARD_DISABLED === "1";
+}
+/** The page the parent opens: this one, tagged as a parent share (the admin Students list reads `utm_source=parent_share`). */
+export const TS_PARENT_SHARE_PATH = `${TEST_SERIES_PATH}?utm_source=parent_share&utm_medium=whatsapp&utm_campaign=test_series_forward`;
+export const TS_PARENT_SHARE_FALLBACK = "Send it on WhatsApp";
+
+/**
+ * TS-PAYPATH-1 (24-26 Nov 2026: 22 Test Series checkouts, 0 payment attempts; 21 signed out, mostly a student who cannot pay). The
+ * hero's parent action is an EQUAL action beside Buy, not a secondary link: "Ask Mummy/Papa to pay".
+ *   Signed out -> opens PARENT-PAY-FIRST-1's own panel (ParentForwardGuest: WhatsApp first, then a QR the parent scans). Its message
+ *                 names NO rupee figure (a page link outlives the 1 Dec price switch); the parent pays signed out, then "Who will use
+ *                 it?" puts the series on the child's number.
+ *   Signed in  -> the shop's per-account parent link in its parent-first layout (WhatsApp straight away, then the QR).
+ * Events: parent_forward_clicked / parent_forward_qr_shown (+ _shown on the panel) with `surface: "ts_hero"`.
+ * Also: the prerendered (static) Buy - the /packs fallback link, since the capture is built with packs off - points at THIS page's
+ * own `?buy=test_series` (PacksShop's in-place resume opens the checkout here), so a tap before hydration never leaves the page.
+ * VITE_TS_PARENT_HERO_DISABLED=1 -> today's hero exactly (the "Forward link to parents" button, the /packs fallback link).
+ */
+export function tsParentHeroDisabled(): boolean {
+  try {
+    const raw: unknown = import.meta.env.VITE_TS_PARENT_HERO_DISABLED;
+    return /^(1|true|on|yes)$/i.test(raw === undefined || raw === null ? "" : String(raw).trim());
+  } catch {
+    return false;
+  }
+}
+export const TS_PARENT_HERO_LABEL = "Ask Mummy/Papa to pay";
+export const TS_PARENT_HERO_SURFACE = "ts_hero";
+/** The pre-hydration Buy: this page, with the in-place resume PacksShop honours (readBuyResume). Never /packs. */
+export const TS_SELF_BUY_PATH = `${TEST_SERIES_PATH}?buy=test_series`;
+
+function shareErrorName(e: unknown): string {
+  return e && typeof e === "object" && "name" in e ? String((e as { name: unknown }).name) : "";
+}
 const TESTS_ANCHOR = "ts-tests";
+/** TS-HERO-1 (owner, 23 Nov 2026): the three steps under the headline. "Try one test free" = one free test (seriesAccess FREE_TESTS_ALLOWED); TS-FREE-CHECK-1: its written answers are marked too (testSeriesFreeCopy). */
+const TS_HERO_STEPS: readonly string[] = ["Take the test", "Upload your answer sheet", "See marks for every step and where you lost them"];
 
 function istToday(now: Date): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
 }
 
-type Load = { state: "signed-out" } | { state: "loading" } | { state: "ready"; progress: SeriesProgress };
+type Load = { state: "signed-out" } | { state: "loading" } | { state: "ready"; progress: SeriesProgress; focus?: Record<string, FocusSetProgress> };
 function CalendarRibbon({ rows, current }: { rows: SeriesScheduleRow[]; current: SeriesScheduleRow["id"] | null }) {
   return (
     <ol className="lt-ts-cal" data-testid="ts-schedule">
@@ -132,12 +237,15 @@ function MockTrend({ load }: { load: Load }) {
 
 export default function TestSeriesPage() {
   const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const subscription = useSubscription();
   const signedIn = Boolean(user?.uid) && !user?.isLocalSession;
   const totals = useMemo(() => seriesTotals(), []);
   const chapters = useMemo(() => seriesChapterTests(), []);
   const mocks = useMemo(() => seriesFullMocks(), []);
   const rounds = useMemo(() => seriesMockRounds(), []);
+  // TS-THEMES-1: the BONUS focus sets (not in `totals`: the series' own counts and copy are unchanged). None under the kill switch.
+  const focusSets = useMemo(() => (tsFocusSetsDisabled() ? [] : allFocusSets()), []);
   const schedule = useMemo(() => seriesSchedule(predictCbseExamDate("10")), []);
 
   // After mount only: today's schedule row, the founding line and the prices (the capture strips every price and clock node).
@@ -160,6 +268,15 @@ export default function TestSeriesPage() {
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [plansOpen, setPlansOpen] = useState(false);
   const [buyFrom, setBuyFrom] = useState<string | null>(null);
+  const forwardOn = !tsParentForwardDisabled();
+  // TS-PARENT-FORWARD-2: the wa.me link to show when neither the share sheet nor a WhatsApp window could open (a popup blocker).
+  const [shareFallback, setShareFallback] = useState<{ testId: string; href: string } | null>(null);
+  const parentHeroOn = !tsParentHeroDisabled();
+  const freePickerOn = tsFreePickerOn();
+  // Review blocker (#1898): shown only once auth has RESOLVED to signed out (PricingPage's showFreeCheck rule), never while it loads.
+  const freePickerShown = !authLoading && !signedIn;
+  // TS-PAYPATH-1: the signed-out hero's parent panel, opened by "Ask Mummy/Papa to pay" (a tap: no first-paint shift).
+  const [parentPanel, setParentPanel] = useState(false);
 
   // CHECKOUT-FAST-1: the Buy opens the checkout sheet / Razorpay. On INTENT only (the first touch, or the Buy scrolling into view; never on idle) fetch the
   // sheet chunk, open Razorpay's connections and load checkout.js - never at first paint, no order. VITE_CHECKOUT_WARM_DISABLED=1 = today's on-tap load.
@@ -181,10 +298,10 @@ export default function TestSeriesPage() {
     setLoad({ state: "loading" });
     getSessionRecordsFromCloud(user.uid)
       .then((records) => {
-        if (live) setLoad({ state: "ready", progress: seriesProgress(records) });
+        if (live) setLoad({ state: "ready", progress: seriesProgress(records), focus: focusSetProgress(records) });
       })
       .catch(() => {
-        if (live) setLoad({ state: "ready", progress: seriesProgress([]) });
+        if (live) setLoad({ state: "ready", progress: seriesProgress([]), focus: focusSetProgress([]) });
       });
     return () => {
       live = false;
@@ -204,6 +321,27 @@ export default function TestSeriesPage() {
   const phase = (ownership as { phase?: string }).phase;
   const ownershipKnown = phase !== undefined ? phase === "ready" : load.state === "ready";
   const ownerUnknown = signedIn && (!subscription.hydrated || (!holdsPremium && !ownershipKnown));
+
+  /**
+   * TS-PARENT-FORWARD-2 - signed out: share the message + this page's link. The share sheet first (Android / iOS: WhatsApp, SMS, any
+   * app); a cancelled sheet is the student's choice. No sheet (desktop) or a refused one -> wa.me with the text in a new tab; if a
+   * popup blocker stops that too, a real wa.me link appears under the button. Same event as the signed-in forward.
+   */
+  async function forwardSignedOut(testId: string) {
+    trackPaywallAction("ask", "test_series");
+    setShareFallback(null);
+    const text = buildParentSeriesShareMessage({ lang: "en", url: `${window.location.origin}${TS_PARENT_SHARE_PATH}` });
+    const nav = (typeof navigator !== "undefined" ? navigator : undefined) as ShareNavigator | undefined;
+    if (nav && typeof nav.share === "function") {
+      try {
+        await nav.share({ text });
+        return;
+      } catch (e) {
+        if (shareErrorName(e) === "AbortError") return;
+      }
+    }
+    if (!openWhatsAppLink(text, (url, target) => window.open(url, target))) setShareFallback({ testId, href: whatsAppShareUrl(text) });
+  }
 
   const allTests = useMemo(() => [...chapters, ...mocks], [chapters, mocks]);
   const nextTest = progress ? allTests.find((t) => (progress.byCode[t.code]?.status ?? "not-started") === "not-started") ?? null : null;
@@ -230,10 +368,112 @@ export default function TestSeriesPage() {
         showStatus: (buyFrom ?? "ts-hero-buy") === testId,
       })
     ) : (
-      <Link className={className} to={TEST_SERIES_BUY_FROM_PATH} data-testid={testId}>
+      <Link
+        className={className}
+        to={parentHeroOn && isTestSeriesPackOffered() ? TS_SELF_BUY_PATH : TEST_SERIES_BUY_FROM_PATH}
+        data-testid={testId}
+        onClick={(e) => {
+          // #1898 review nit: a modified or middle click (open in a new tab / window) is the browser's, never intercepted.
+          if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+          // TS-FREE-PICKER (#1896 review nit): the static file's Buy is this page's `?buy=test_series` (the capture is built with packs
+          // off, so the href must stay that for a tap before hydration - a production build has packs on and opens the checkout in
+          // place). Once the page is LIVE, that self link is used only when the shop can sell here (packs on and the series offered);
+          // otherwise the tap goes to the previous /packs fallback instead of reloading this page to do nothing.
+          if (parentHeroOn && !(isPacksClientEnabled() && isTestSeriesPackOffered())) {
+            e.preventDefault();
+            navigate(TEST_SERIES_BUY_FROM_PATH);
+          }
+        }}
+      >
         {buyLabel}
       </Link>
     );
+
+  /**
+   * TS-PARENT-FORWARD-1 - "Forward link to parents" under a Buy. Signed in: the shop's own parent action for the Test Series (null when
+   * owned, paying, packs off or parent pay off), no QR (a tight card; the parent is on another phone). Signed out (TS-PARENT-FORWARD-2):
+   * a button that shares this page (forwardSignedOut) - no sign-in. Only beside the in-place Buy (packs on, the series offered), while
+   * payments are on, and - signed in - parent pay, or - signed out - pay-first "Who will use it?" (isSelfAttachClientEnabled: Who + self +
+   * attach, all three - how a parent's payment reaches the child; any one off and the message's "pay, then enter my number" is untrue).
+   * ★ CLS: the static capture is built with packs off (its Buy is the /packs link), so the SIGNED-OUT box is always rendered (a
+   * reserved height, `--out`) and only its contents wait for the live flags: the first paint never moves when the button arrives.
+   */
+  const forwardArea = (api: PacksShopApi, hero: boolean) => {
+    if (!forwardOn) return null;
+    const inPlace = Boolean(api.buyEnabled && api.buyButton) && isTestSeriesPackOffered() && isPaymentsClientEnabled();
+    const testId = hero ? "ts-hero-forward" : "ts-offer-forward";
+    // TS-PAYPATH-1: the hero's equal-weight parent action (see tsParentHeroDisabled). The plan card below keeps today's button.
+    if (hero && parentHeroOn) {
+      if (signedIn) {
+        return inPlace && isParentPayClientEnabled() ? (
+          <div className="lt-ts-forward lt-ts-forward--hero" data-testid={testId}>
+            {api.parentAsk("test_series", undefined, {
+              surface: "test_series",
+              parentFirst: true,
+              forwardLabel: TS_PARENT_HERO_LABEL,
+              onAsk: () => trackParentForward("clicked", true, "test_series", TS_PARENT_HERO_SURFACE),
+              onQr: () => trackParentForward("qr_shown", true, "test_series", TS_PARENT_HERO_SURFACE),
+            })}
+          </div>
+        ) : null;
+      }
+      const guestOn = inPlace && tsSelfAttachOn() && !isParentPayFirstDisabled();
+      return (
+        <div className="lt-ts-forward lt-ts-forward--out lt-ts-forward--hero" data-testid={testId}>
+          {guestOn && (
+            <>
+              <button
+                type="button"
+                className="lt-ts-btn lt-ts-forward__btn lt-ts-forward__btn--hero"
+                aria-expanded={parentPanel}
+                data-testid="ts-hero-parent"
+                onClick={() => {
+                  // #1896 review nit: the tap that OPENS the panel counts as the page's "ask" (paywall_action {ask, test_series}), as the
+                  // old signed-out forward did; closing it is not a second ask. The panel's own parent_forward_* events (surface ts_hero)
+                  // are separate names, so nothing is counted twice.
+                  if (!parentPanel) trackPaywallAction("ask", "test_series");
+                  setParentPanel((v) => !v);
+                }}
+              >
+                {TS_PARENT_HERO_LABEL}
+              </button>
+              {parentPanel && (
+                <div className="lt-ts-forward__panel" data-testid="ts-hero-parent-panel">
+                  <Suspense fallback={null}>
+                    <ParentForwardGuest item={{ kind: "pack", sku: "test_series", label: "Test Series" }} flow="attach" surface={TS_PARENT_HERO_SURFACE} />
+                    <RevealPanel />
+                  </Suspense>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      );
+    }
+    if (signedIn) {
+      return inPlace && isParentPayClientEnabled() ? (
+        <div className="lt-ts-forward" data-testid={testId}>
+          {api.parentAsk("test_series", undefined, { noQr: true, surface: "test_series" })}
+        </div>
+      ) : null;
+    }
+    return (
+      <div className="lt-ts-forward lt-ts-forward--out" data-testid={testId}>
+        {inPlace && tsSelfAttachOn() && (
+          <>
+            <button type="button" className="lt-ts-btn lt-ts-forward__btn" data-testid={`${testId}-share`} onClick={() => void forwardSignedOut(testId)}>
+              {ASK_PARENT_LABEL}
+            </button>
+            {shareFallback?.testId === testId && (
+              <a className="lt-ts-forward__wa" href={shareFallback.href} target="_blank" rel="noopener noreferrer" data-testid={`${testId}-wa`}>
+                {TS_PARENT_SHARE_FALLBACK}
+              </a>
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
 
   /** The Test Series offer card. `hero`: the compact one in the hero (price, validity, per-test, Buy, the checks line); else the full plan card. */
   const tsOffer = (api: PacksShopApi, hero: boolean) => (
@@ -253,6 +493,7 @@ export default function TestSeriesPage() {
             Written answers, {TEST_SERIES_WRITTEN_SECTIONS}, checked step by step: <strong>{TEST_SERIES_CHECKS_PER_PAPER} checks per paper</strong>
           </li>
           <li>Full scorecard and your graded answer sheet on screen</li>
+          <li>After-test analysis: weakest chapters, time per question, mistake notebook</li>
           <li>Download and print every paper</li>
         </ul>
       )}
@@ -269,7 +510,10 @@ export default function TestSeriesPage() {
           Checking your plan…
         </p>
       ) : (
-        buyButton(api, hero ? "ts-hero-buy" : "ts-cta-buy", "lt-ts-btn lt-ts-btn--primary lt-ts-offer__btn")
+        <>
+          {buyButton(api, hero ? "ts-hero-buy" : "ts-cta-buy", "lt-ts-btn lt-ts-btn--primary lt-ts-offer__btn")}
+          {forwardArea(api, hero)}
+        </>
       )}
       {!ownsSeries && !holdsPremium && !ownerUnknown && (
         <p className="lt-ts-offer__checks" data-testid={hero ? "ts-hero-checks" : "ts-offer-checks"}>
@@ -313,17 +557,30 @@ export default function TestSeriesPage() {
               <header className="lt-ts-hero" aria-labelledby="ts-h1">
                 <div className="lt-sp__w lt-ts-hero__in">
                   <div className="lt-ts-hero__copy">
-                    <p className="lt-sp-eyebrow lt-ts-hero__eyebrow">{TEST_SERIES_NAME.toUpperCase()} · 2026-27</p>
                     <h1 id="ts-h1" className="lt-ts-hero__h1">
-                      {/* Two fixed lines from 768 px: Fraunces swapping in for its fallback re-wrapped one line into two (a desktop shift). */}
-                      <span className="lt-ts-hero__h1-l">CBSE Class 10 Test Series:</span>{" "}
-                      <span className="lt-ts-hero__h1-l">Maths &amp; Science</span>
+                      {/* TS-H1-KEYWORD-1 (owner, 24 Nov 2026): the eyebrow lives INSIDE the h1 so the crawled/accessible heading starts with
+                          "CBSE Class 10 Test Series" (Google Ads relevance); it is styled as the eyebrow (display:block, uppercase via CSS). */}
+                      <span className="lt-sp-eyebrow lt-ts-hero__eyebrow">CBSE Class 10 Test Series · Maths &amp; Science</span>{" "}
+                      {/* TS-HERO-1 (owner, 23 Nov 2026): the page leads with the promise. Two fixed lines from 768 px (Fraunces swapping in for its
+                          fallback re-wrapped one line into two: a desktop shift). */}
+                      <span className="lt-ts-hero__h1-l">Write on paper. Snap a photo.</span>{" "}
+                      <span className="lt-ts-hero__h1-l">Get every step marked like a CBSE examiner — in minutes.</span>
                     </h1>
+                    <ol className="lt-ts-hero__steps" data-testid="ts-hero-steps">
+                      {TS_HERO_STEPS.map((t, i) => (
+                        <li key={t} className="lt-ts-hero__step">
+                          <span className="lt-ts-hero__stepn" aria-hidden="true">
+                            {i + 1}
+                          </span>
+                          <span>{t}</span>
+                        </li>
+                      ))}
+                    </ol>
                     <p className="lt-ts-hero__lede" data-testid="ts-contents">
                       <strong>
-                        {totals.chapterTests} chapter tests + {totals.fullMocks} full-length board papers
+                        {totals.chapterTests} chapter tests + {totals.fullMocks} full-length mock tests
                       </strong>{" "}
-                      · written answers checked step by step
+                      · {testSeriesFreeCopy().heroLede}
                     </p>
                   </div>
                   {/* Price + action beside the headline (desktop) / straight under it (phone): above the fold. */}
@@ -376,10 +633,25 @@ export default function TestSeriesPage() {
                       )}
                     </div>
                   </div>
+                  {/* TS-FREE-PICKER: signed out only - "Take 1 test free", the four sample papers that open without sign-in. After the
+                      Buy / Ask Mummy/Papa box on a phone (never pushes them down); under the headline column on desktop (CSS grid area
+                      "free").
+                      ★ Review blocker (#1898): while auth is still loading `user` is null, so a paying student would have been told "no
+                      sign-in needed". The box is IN the DOM (space reserved: no shift when it shows) but INVISIBLE - `visibility: hidden`
+                      by default in CSS - until auth has resolved to signed out; then the `lt-ts-free-on` marker just before it reveals it
+                      (an adjacent-sibling rule). Signed in, the whole block goes. The marker carries `data-lt-clock`, so the prerender
+                      capture strips it: the STATIC file always has the box hidden, whoever opens it. While hidden it is also aria-hidden
+                      and inert, its links leave the tab order, and a tap sends nothing. */}
+                  {!signedIn && freePickerOn && freePickerShown && <span className="lt-ts-free-on" data-lt-clock="" hidden />}
+                  {!signedIn && freePickerOn && (
+                    <div className="lt-ts-hero__free" data-testid="ts-free-slot" aria-hidden={freePickerShown ? undefined : true} inert={!freePickerShown}>
+                      <TsFreeSamplePicker hidden={!freePickerShown} />
+                    </div>
+                  )}
                   <div className="lt-ts-hero__more">
                     <TestSeriesExaminerLine testId="ts-hero-examiner" />
                     <p className="lt-ts-hero__rule" data-testid="ts-rule">
-                      {TEST_SERIES_ACCESS_LINE}
+                      {testSeriesFreeCopy().accessLine}
                     </p>
                   </div>
                 </div>
@@ -391,9 +663,18 @@ export default function TestSeriesPage() {
                 </h2>
                 <p className="lt-sp-lede" data-testid="ts-picker-lede">
                   {totals.papersPerChapter > 1 ? `${totals.papersPerChapter} board-pattern tests per chapter` : "One board-pattern test per chapter"}, plus{" "}
-                  {totals.mocksPerSubject} full-length papers per subject. Pick one and start.
+                  {totals.mocksPerSubject} full-length mock tests per subject. Pick one and start.
                 </p>
-                <TestSeriesPaperPicker chapters={chapters} mocks={mocks} rounds={rounds} progress={progress} mocksPerSubject={totals.mocksPerSubject} />
+                <TestSeriesPaperPicker
+                  chapters={chapters}
+                  mocks={mocks}
+                  rounds={rounds}
+                  progress={progress}
+                  mocksPerSubject={totals.mocksPerSubject}
+                  focusSets={focusSets}
+                  focusProgress={load.state === "ready" ? load.focus ?? null : null}
+                  focusCount={focusSets.length > 0 ? focusSetCount() : 0}
+                />
                 {load.state === "ready" && <MockTrend load={load} />}
               </section>
 
@@ -422,7 +703,7 @@ export default function TestSeriesPage() {
                     <h2 id="ts-offers-h" className="lt-sp-h2">
                       Take all {totals.total} tests
                     </h2>
-                    <p className="lt-sp-lede">Free and trial accounts can take one test, with its MCQs marked. Pick the plan that fits you.</p>
+                    <p className="lt-sp-lede">{testSeriesFreeCopy().plansLede}</p>
                     {/* The Board Pass founding-price line sits here, beside the plan comparison (the products sell each other). Clock-derived:
                         written after mount and stripped from the capture. Not shown to anyone who already owns the series. */}
                     {!ownerUnknown && (
@@ -451,6 +732,10 @@ export default function TestSeriesPage() {
                   </ul>
                 </div>
               </section>
+
+              <div className="lt-sp__w lt-ts-sec">
+                <SalesFaq items={[fairUseFaq()]} headingId="ts-faq-h" testId="ts-faq" />
+              </div>
 
               {schedule && (
                 <section className="lt-sp__w lt-ts-sec" aria-labelledby="ts-cal-h">

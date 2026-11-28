@@ -23,8 +23,6 @@ import {
   PREBOARDS_PICK_BADGE,
   REDOWNLOAD_UNTIL,
 } from "../../lib/packs/packLabels";
-import { LIMITS_CONFIG } from "../../config/limitsConfig";
-import { limitsCopyOn } from "../../config/limitsPlanCopy";
 import { isCheckoutWhoClientEnabled } from "../../services/checkoutWhoFlag";
 
 export { BOARD_PASS_NAME };
@@ -234,9 +232,14 @@ export const PROOF_TITLE = "See the Answer Checker at work";
 export const FAQ_TITLE = "Questions parents ask";
 export const FAQ_MORE_SUMMARY = "More questions";
 
+/**
+ * FAQ-WHY-BOTH-1 (owner, 25 Nov 2026): the question must say WHICH two products differ, and the answer must say the Question Bank
+ * + Mocks pack is offline practice that LazyTopper does NOT mark - the student checks it against the worked solutions and the
+ * marking scheme. (No "answer key" in new copy - the 19 Nov ads ruling.)
+ */
 export const FAQ_WHY_BOTH = {
-  q: "Why both?",
-  a: `They do different jobs. The ${BOARD_PASS_NAME} marks your child's written answers like a CBSE examiner. Packs are the same questions organised to print, for practice away from the screen.`,
+  q: `How is the ${BOARD_PASS_NAME} different from Question Bank + Mocks?`,
+  a: `The ${BOARD_PASS_NAME} is online: your child writes answers on paper, uploads a photo, and LazyTopper marks every step like a CBSE examiner. Question Bank + Mocks is for offline practice: printable questions and full papers with worked solutions and the marking scheme. LazyTopper does not mark these; your child checks their own answers.`,
 } as const;
 export const FAQ_SUBSCRIPTION = { q: "Is it a subscription?", a: "No. You pay once. Nothing renews." } as const;
 export const FAQ_PAY_FOR_CHILD_Q = "Can I pay for my child?";
@@ -248,17 +251,14 @@ export function payForChildAnswer(checkoutWho: boolean): string {
 
 export const BASIC_LINE_STRONG = "Basic: free forever";
 /**
- * The last line's description. Basic DOES have limited practice (owner ruling 4 Nov 2026): it can read every question, but graded
- * practice and downloads are capped. With the limits ON the line says so, and BOTH figures come from the same constants the compare
- * table's Basic cells read (limitsPlanCopy: basicQuickPracticeCell / basicDownloadCell) - never typed here. That is what the #1190
- * guard (config/pricingCompare.test.ts) demands of any "limited" on Basic: a number interpolated from a CONSTANT, in a template
- * literal in a file the guard scans (this one). With the limits OFF nothing is capped, so the line keeps its old, unlimited wording.
+ * The last line's description. GUEST-WALL (owner ruling 26 Nov 2026, 22:43 IST: "remove the download or checking option from basic
+ * plan") retires the limits-on variant (BASIC_LINE_REST_LIMITED, "limited practice (1 download a week; ...)"): its only figure WAS
+ * the Basic download, so the line now reads the same with the limits on or off, with no "limited" (the #1190 guard's rule: a Basic
+ * "limited" needs an enforced, interpolated number).
  */
 export const BASIC_LINE_REST = ", with notes, NCERT solutions and practice sets";
-const BASIC_DOWNLOADS_PER_WEEK = LIMITS_CONFIG.basic.downloadsPerWeek;
-export const BASIC_LINE_REST_LIMITED = `, with notes, NCERT solutions and limited practice (${BASIC_DOWNLOADS_PER_WEEK} download a week; marking your written practice answers comes with the Board Pass)`;
-export function basicLineRest(limitsOn: boolean = limitsCopyOn()): string {
-  return limitsOn ? BASIC_LINE_REST_LIMITED : BASIC_LINE_REST;
+export function basicLineRest(): string {
+  return BASIC_LINE_REST;
 }
 export const START_FREE_LABEL = "Start free";
 

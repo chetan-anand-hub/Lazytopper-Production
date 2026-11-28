@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+// FREE-TS-WEEKLY: this file pins TODAY's daily gate / copy, which the kill switch VITE_FREE_TS_WEEKLY_DISABLED=1 restores exactly.
+vi.hoisted(() => vi.stubEnv("VITE_FREE_TS_WEEKLY_DISABLED", "1"));
 import { render, screen, cleanup, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
@@ -210,4 +212,9 @@ describe("TS-DAILY-CAP-1 — the daily paper-open limit never walls a Test Serie
     expect(claimNewPaperView(route, UID, true)).toBe(true);
     expect(viewsToday()).toBe(SIGNED_IN_DAILY_MOCK_LIMIT);
   });
+});
+
+
+beforeEach(() => {
+  vi.stubEnv("VITE_FREE_TS_WEEKLY_DISABLED", "1");
 });

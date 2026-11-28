@@ -316,6 +316,24 @@ describe("CHECKOUT-SELF-2 - signed out opens at \"Buy for yourself\"", () => {
     expect(screen.getByTestId("who-paid-whatsapp").getAttribute("href")).toMatch(/^https:\/\/wa\.me\//);
   });
 
+  it("ORDER-DEDUP-1: two rapid Pay taps call buySelf once; the button is aria-busy and disabled; after a failure it re-enables and a retry buys again", async () => {
+    let finish!: (o: SelfBuyOutcome) => void;
+    const buySelf = vi.fn(() => new Promise<SelfBuyOutcome>((r) => (finish = r)));
+    mount({ item: CBQ_GST, selfFirst: true, buySelf });
+    const btn = screen.getByTestId("who-pay-self-out");
+    fireEvent.click(btn);
+    fireEvent.click(btn);
+    expect(buySelf).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("who-pay-self-out").getAttribute("aria-busy")).toBe("true");
+    expect((screen.getByTestId("who-pay-self-out") as HTMLButtonElement).disabled).toBe(true);
+    finish({ status: "failed" });
+    await screen.findByRole("alert");
+    const again = screen.getByTestId("who-pay-self-out") as HTMLButtonElement;
+    expect(again.disabled).toBe(false);
+    fireEvent.click(again);
+    expect(buySelf).toHaveBeenCalledTimes(2);
+  });
+
   it("dismissed / failed return to the same screen, nothing charged claimed", async () => {
     const buySelf = vi.fn(async (): Promise<SelfBuyOutcome> => ({ status: "dismissed" }));
     mount({ item: CBQ_GST, selfFirst: true, buySelf });
@@ -489,6 +507,42 @@ describe("GST-AFTER-PAY-1 - a signed-in payer buying for someone else gets the b
     await screen.findByTestId("who-paid");
     expect(await screen.findByTestId("postpay-gst")).toBeTruthy();
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+});
+
+describe("PARENT-PAY-FIRST-1 - a closed or failed sheet (signed out, pay-first) leads with the parent hand-off", () => {
+  it.each([
+    ["Board Pass", PASS],
+    ["pack", CBQ],
+    ["Test Series", { kind: "pack", sku: "test_series", label: "Test Series", description: "x", priceDisplay: "₹1,179" } as CheckoutSheetItem],
+  ])("%s: dismissed -> WhatsApp first, QR second, the Pay button still there to try again", async (_n, item) => {
+    const buySelf = vi.fn(async (): Promise<SelfBuyOutcome> => ({ status: "dismissed" }));
+    mount({ item, selfFirst: true, attachOn: true, autoPaySelf: true, buySelf });
+    expect(await screen.findByTestId("parent-forward")).toBeTruthy();
+    const texts = screen.getAllByRole("button").map((b) => b.textContent);
+    expect(texts.indexOf("Send to Mummy/Papa on WhatsApp")).toBeGreaterThan(-1);
+    expect(texts.indexOf("Send to Mummy/Papa on WhatsApp")).toBeLessThan(texts.indexOf("Show QR for parent to scan"));
+    expect(texts.indexOf("Show QR for parent to scan")).toBeLessThan(texts.findIndex((t) => /^Pay ₹/.test(t ?? "")));
+  });
+
+  it("a failed payment shows it too; the first, not-yet-closed Pay step does not", async () => {
+    mount({ item: CBQ, selfFirst: true, attachOn: true, buySelf: vi.fn(async (): Promise<SelfBuyOutcome> => ({ status: "failed" })) });
+    expect(screen.queryByTestId("parent-forward")).toBeNull();
+    fireEvent.click(screen.getByTestId("who-pay-self-out"));
+    expect(await screen.findByTestId("parent-forward")).toBeTruthy();
+  });
+
+  it("not when the attach flow is off (the message's 'enter my number' would be untrue), for a parent audience, or with the kill switch", async () => {
+    const dismissed = () => vi.fn(async (): Promise<SelfBuyOutcome> => ({ status: "dismissed" }));
+    mount({ item: CBQ, selfFirst: true, attachOn: false, autoPaySelf: true, buySelf: dismissed() });
+    await screen.findByTestId("who-pay-self-out");
+    expect(screen.queryByTestId("parent-forward")).toBeNull();
+    cleanup();
+    vi.stubEnv("VITE_PARENT_PAY_FIRST_DISABLED", "1");
+    mount({ item: CBQ, selfFirst: true, attachOn: true, autoPaySelf: true, buySelf: dismissed() });
+    await screen.findByText("Payment window closed. Tap Pay to try again.");
+    expect(screen.queryByTestId("parent-forward")).toBeNull();
     vi.unstubAllEnvs();
   });
 });

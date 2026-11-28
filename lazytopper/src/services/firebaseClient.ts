@@ -3,6 +3,7 @@ import {
   browserLocalPersistence,
   browserPopupRedirectResolver,
   browserSessionPersistence,
+  connectAuthEmulator,
   indexedDBLocalPersistence,
   initializeAuth,
   type Auth,
@@ -61,6 +62,12 @@ if (firebaseConfigured) {
   authClient = initializeAuth(app, {
     persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence],
   });
+  // UI-E2E-2 — TEST BUILDS ONLY (tests/e2e/buildEnv.signedIn.json). Vite replaces the flag at
+  // build time, so in every other build this block is dead code and is dropped, with
+  // connectAuthEmulator (scripts/ops/e2e_emulator_absent.mjs checks dist/). Never set in Vercel.
+  if (import.meta.env.VITE_E2E_FIREBASE_EMULATOR === "1") {
+    connectAuthEmulator(authClient, "http://127.0.0.1:9099", { disableWarnings: true });
+  }
   // PERF-3: Firestore is no longer initialised here. services/firestoreSdk.ts makes the SAME
   // single `initializeFirestore(app, { ignoreUndefinedProperties: true })` call (D32 — do NOT
   // drop that option) on the first real Firestore call, after loading the SDK on demand.

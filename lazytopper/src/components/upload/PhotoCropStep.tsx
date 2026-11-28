@@ -50,6 +50,11 @@ export interface PhotoCropStepProps {
   onCancel: () => void;
   /** Test seam: jsdom has no canvas. */
   renderPreview?: (photo: DecodedPhoto, rotation: PhotoRotation) => { url: string };
+  /** MARK-ON-PHOTO-1 (optional, additive): a box must be drawn — no "Use whole photo" anywhere, and the main
+   *  button stays off until the box is smaller than the whole photo. Default false: today's behaviour. */
+  requireCrop?: boolean;
+  /** TUTOR-PASTE-1 (optional): the instruction line under the title. Default is Answer Checker's copy, byte-identical. */
+  description?: string;
 }
 
 /** Turn a fractional selection a quarter turn clockwise WITH the photo, so a crop the
@@ -68,6 +73,8 @@ export default function PhotoCropStep({
   onConfirm,
   onCancel,
   renderPreview = renderPhotoPreview,
+  requireCrop = false,
+  description = "Drag the corners to just the answer you want checked — or use the whole photo.",
 }: PhotoCropStepProps) {
   const [rotation, setRotation] = useState<PhotoRotation>(initialRotation);
   const [crop, setCrop] = useState<CropFraction>(initialCrop ?? FULL_FRAME_CROP);
@@ -183,9 +190,7 @@ export default function PhotoCropStep({
       <style>{PCS_CSS}</style>
       <h2 className="lt-pcs__h">{title}</h2>
       {pageLabel && <p className="lt-pcs__page">{pageLabel}</p>}
-      <p className="lt-pcs__d">
-        Drag the corners to just the answer you want checked — or use the whole photo.
-      </p>
+      <p className="lt-pcs__d">{description}</p>
 
       <div className="lt-pcs__stage">
         {preview ? (
@@ -241,12 +246,12 @@ export default function PhotoCropStep({
         type="button"
         className="lt-pcs__cta"
         onClick={() => confirm(false)}
-        disabled={busy || !preview}
+        disabled={busy || !preview || (requireCrop && whole)}
         data-testid="pcs-confirm"
       >
-        {busy ? "Preparing…" : whole ? "Use whole photo" : "Use this part"}
+        {busy ? "Preparing…" : whole && !requireCrop ? "Use whole photo" : "Use this part"}
       </button>
-      {!whole && (
+      {!whole && !requireCrop && (
         <button
           type="button"
           className="lt-pcs__ghost"

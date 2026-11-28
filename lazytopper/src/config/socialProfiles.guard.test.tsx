@@ -10,7 +10,7 @@ import { SAME_AS, FOOTER_SOCIAL, WHATSAPP_URL } from "./socialProfiles";
  * ORG-SAMEAS-1 — the site declares its own social profiles, once, and says so in two places.
  *
  *   (a) the shell `index.html` has exactly ONE ld+json block (head.guard pins that too), and its
- *       Organization node's `sameAs` deep-equals `socialProfiles.ts`'s `SAME_AS` — the 8 URLs, in
+ *       Organization node's `sameAs` deep-equals `socialProfiles.ts`'s `SAME_AS` — the 10 URLs, in
  *       order. `index.html` cannot import the module, so THIS is what stops the two drifting.
  *   (b) the retired Facebook handle appears in no source file.
  *   (c) the public footer renders the 7 social links with `rel` ⊇ {me, noopener}, no `nofollow`,
@@ -78,7 +78,7 @@ describe("ORG-SAMEAS-1 (a) — the shell's Organization sameAs equals config/soc
     expect(ldJsonBlocks(html).length).toBe(1);
   });
 
-  it("sameAs is the 8 profile URLs, in order, and equals SAME_AS", () => {
+  it("sameAs is the 10 profile URLs, in order, and equals SAME_AS", () => {
     const org = organizationNode(html);
     expect(org, "no Organization node in the shell's ld+json").not.toBeNull();
     expect(org!.sameAs).toEqual([...SAME_AS]);
@@ -91,6 +91,8 @@ describe("ORG-SAMEAS-1 (a) — the shell's Organization sameAs equals config/soc
       "https://whatsapp.com/channel/0029Vb8hcIcKmCPVMpgEwi1P",
       "https://telegram.me/lazytopper_cbse",
       "https://discord.gg/rqv5vGxwYX",
+      "https://www.crunchbase.com/organization/lazytopper",
+      "https://wellfound.com/company/lazytopper",
     ]);
   });
 

@@ -97,3 +97,21 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+/* GUEST-WALL - the Sign in link under the signed-out "used today's free paper" line (Chapter Test / Full Mock). */
+.lt-guest-signin {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  margin-top: 10px;
+  padding: 8px 18px;
+  border-radius: 10px;
+  background: #15803d;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.lt-guest-signin:hover {
+  background: #166534;
+}

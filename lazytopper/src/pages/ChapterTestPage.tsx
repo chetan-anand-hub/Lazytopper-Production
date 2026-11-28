@@ -57,7 +57,9 @@ import {
 } from "../components/chaptertest/chapterTestBlueprint";
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
 import { CT_PROGRESS_PREFIX, paperRouteKey } from "../lib/papers/resumablePaper";
+import { freeTsWeeklyDisabled } from "../config/mockViewLimits";
 import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
+import { GuestPaperSignInLink, paperLimitLineFor } from "../components/auth/GuestPaperSignIn";
 import { useSubscription } from "../hooks/useSubscription";
 import { useLimitedDownload } from "../hooks/useLimitedDownload";
 import LimitChip from "../components/limits/LimitChip";
@@ -76,8 +78,10 @@ import {
   buildChapterTestResponse,
   writeChapterTestPartialRecord,
   gradeChapterTestUpload,
+  markChapterTestQuestion,
   type ObjectiveScore,
 } from "../services/chapterTestGradeService";
+import { MARK_ON_PHOTO_ACTION, MARK_STILL_UNREAD_COPY, bankMarkableRows, markErrorMessage, uploadedPhotoPages } from "../services/markOnPhoto";
 import {
   saveChapterTestPaper,
   loadChapterTestPaper,
@@ -109,6 +113,7 @@ import { downloadStoredPaperGradedSheet, hasStoredPaperSheet } from "../services
 import {
   chapterTestDeltaLine,
   withGuideTarget,
+  withMarkOnPhoto,
   withPaperTutorAsks,
   withSeriesWorksheet,
   type ScorecardTutorAsk,
@@ -124,13 +129,18 @@ import {
 } from "./tutor/tutorRoundTrip";
 import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
 import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintDoc";
+import { resultCardParts } from "../components/results/scoreTotals";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
+import NotFoundAddPageLine from "../components/chaptertest/NotFoundAddPageLine";
+import { ADD_PAGES_UPLOAD_BANNER, ADD_PAGES_USES_CHECK_LINE, notCountedReasonOf, notFoundSummary } from "../lib/notFoundNotAttempted";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
 import ChapterTestHistoryRail from "../components/chaptertest/ChapterTestHistoryRail";
 import { useQuestionTimes } from "../components/testAnalysis/questionTimes";
 import { chapterTestSecondsPerMark } from "../components/testAnalysis/testAnalysisModel";
 // TS-ANALYSIS-1 — after-test analysis, its own chunk, mounted at the END of the results body.
 const TestAnalysisPanel = lazy(() => import("../components/testAnalysis/TestAnalysisPanel"));
+// MARK-ON-PHOTO-2 — the "Mark it on your photo" dialog, its own chunk (fetched on the first tap).
+const MarkOnPhotoDialog = lazy(() => import("../components/checkimprove/MarkOnPhoto").then((m) => ({ default: m.MarkOnPhotoDialog })));
 import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadPanel";
 import PreSubmitConfirm from "../components/chaptertest/PreSubmitConfirm";
 import { useBankChapters } from "../data/bankChapters/useBankChapters";
@@ -139,6 +149,9 @@ import { useBankChapters } from "../data/bankChapters/useBankChapters";
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import UsageWarning from "../components/usage/UsageWarning";
 import { useFairUse } from "../components/usage/useFairUse";
+// FAIRUSE-TS-OWNER-1 - who the trial paper wall is not for (a Board Pass holder; a Test Series owner on a series paper).
+import { paperWallVerdict, tsOwnerWallExemptDisabled } from "../components/usage/fairUseGate";
+import { isPaidPremium } from "../services/subscriptionService";
 import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../ai/gradingTransport";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
 import { isPremiumRequiredRefusal, isTrialLimitRefusal } from "../components/limits/limitsCopy";
@@ -146,13 +159,29 @@ import { resumableJob, sessionJobStore, type GradingJobInterruptedError } from "
 import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesChecksLeftLine, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesAccess } from "../components/testSeries/WrittenCheckGate";
+import { ACCESS_CHECKING_LINE, ACCESS_FAILED_LINE, AccessChecking, AccessFailed, DownloadPaywall, DownloadWithPlanLink, downloadPaywallOn, FreeTestNote, ResultAccessSlot, SeriesChecksLeftLine, SeriesOwnerNotice, SeriesOfferButtons, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUploadNotAllowed, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
-import { CT_PAPER_PARAM, CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterPaperNumber, seriesChapterTestOf, seriesChapterWorksheetId, seriesKeyOfWorksheetId } from "../lib/testSeries/testSeries";
+import { CT_PAPER_PARAM, CT_SERIES_PARAM, chapterTestSeriesLabel, chapterTestSeriesSeed, isChapterTestSeriesRequest, seriesChapterPaperNumber, seriesChapterTestOf, seriesChapterWorksheetId, seriesKeyOfWorksheetId, seriesPaperKeyOfWorksheetId } from "../lib/testSeries/testSeries";
 import { tsPinDisabledFor } from "../lib/testSeries/tsPinFlag";
 import { useDerivedWrittenGraded } from "../hooks/useDerivedWrittenGraded";
+// TS-FREE-SIGNEDOUT — a signed-out visitor sits a Test Series paper; sign-in is asked for only to get it marked.
+import SignInToMarkCard from "../components/testSeries/SignInToMarkCard";
+import TimeUpSubmitCard from "../components/testSeries/TimeUpSubmitCard";
+import {
+  SIGNED_OUT_ATTEMPT_KEPT_LINE,
+  SIGNED_OUT_ATTEMPT_RESTORED_LINE,
+  SIGNED_OUT_TAKING_NOTE,
+  TIME_UP_TITLE,
+  clearSignedOutAttempt,
+  paperQuestionIds,
+  readSignedOutAttempt,
+  saveSignedOutAttempt,
+  signInToMarkPath,
+  isSignedOutSample,
+  tsFreeSignedOutDisabled,
+} from "../lib/testSeries/signedOutAttempt";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
 type Phase = "setup" | "taking" | "results" | "pick";
@@ -246,10 +275,19 @@ export default function ChapterTestPage() {
       ? seriesChapterTestOf(seriesTopicKey, seriesPaperK)
       : null;
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
+  // TS-FREE-SIGNEDOUT (owner ruling 26 Nov 2026, 19:23 IST): a SIGNED-OUT visitor may open and sit a Test Series paper; the account is
+  // asked for only at "get my answers marked". Nothing is marked, written or recorded signed out. Kill switch VITE_TS_FREE_SIGNEDOUT_DISABLED.
+  // Owner decision (26 Nov ~20:10 IST): only the fixed signed-out SAMPLE papers (SIGNED_OUT_SAMPLE_CODES) open signed out.
+  const signedOutSitting = !isSignedIn && !!seriesTest && isSignedOutSample(seriesTest.code) && !tsFreeSignedOutDisabled();
+  const tsNav2Off = (() => {
+    const v = import.meta.env?.VITE_TS_NAV2_DISABLED;
+    return typeof v === "string" && !["", "0", "false"].includes(v.trim().toLowerCase());
+  })();
   const fairUse = useFairUse("chapter-test", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live, so a student who pays
   // mid-session (or whose cloud status lands after the gate ran) is never refused a new paper.
-  const { isPremium } = useSubscription();
+  const { isPremium, status: subscriptionStatus } = useSubscription();
+  const paidPremium = isPaidPremium(subscriptionStatus);
 
   const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const topicBackTo = navState?.back || `/topic-hub/${grade}/${subject.toLowerCase()}/${topicKey}`;
@@ -339,14 +377,17 @@ export default function ChapterTestPage() {
           attempt: seq + attemptsLogged(log, "chapter-test", scope),
         }),
       });
-      setNomen({ code: nm.code, name: nm.name });
+      // TS-NAV-2 (owner, 25 Nov 2026) - ONE name per paper: a NEW sitting of a series paper is named for the PAPER, in the picker's
+      // words ("Real Numbers · Paper 2"), not the student's personal count ("Real Numbers · Test #3"). The code (CT-M-REAL-03) is
+      // unchanged; a resumed / saved paper keeps the name it was saved with; a non-series test is unchanged. Kill switch VITE_TS_NAV2_DISABLED.
+      setNomen({ code: nm.code, name: seriesTest && !tsNav2Off ? `${seriesTest.label} · Paper ${seriesTest.paper}` : nm.name });
       setRecordsLoading(false);
     })();
     return () => {
       live = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid, topicKey, sessionSubject, mintNonce]);
+  }, [user?.uid, topicKey, sessionSubject, mintNonce, seriesTest?.code]);
 
   // BANK-SPLIT-1 PR-2 (L4): the draw reads this chapter from the per-chapter cache, so it
   // waits until the chapter chunk has loaded (the "Building your test…" state covers it).
@@ -456,11 +497,39 @@ export default function ChapterTestPage() {
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [elapsed, setElapsed] = useState(0);
   const [showConfirm, setShowConfirm] = useState(false);
+  // TS-FREE-SIGNEDOUT: the signed-out visitor submitted (or ran out of time) - the sign-in card in place of the paper.
+  const [signInAsk, setSignInAsk] = useState<{ timeUp: boolean } | null>(null);
+  // TS-FREE-SIGNEDOUT: the kept signed-out attempt was put back on this paper after sign-in (cleared when the paper starts).
+  const [signedOutRestored, setSignedOutRestored] = useState(false);
+  // TS-FREE-SIGNEDOUT (review blocker): THIS sitting was started signed out - latched at Start, never re-derived from the live auth
+  // state, so an account that appears mid-sitting (a sign-in in another tab) can never submit a paper its start rules never ran for.
+  const signedOutLatch = useRef(false);
+  const signedOutRestoreDone = useRef(false);
+  // review nit 1 (PR #1897): a kept attempt back after sign-in with its time already run out - the answers are LOCKED (the time-up card
+  // stands in place of the paper; the clock neither runs on nor auto-submits) and the student taps submit to get it marked.
+  const [timeUpLocked, setTimeUpLocked] = useState(false);
+  const timeUpLockedRef = useRef(false);
+  timeUpLockedRef.current = timeUpLocked;
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── Results state (two-phase) ────────────────────────────────────────────────
   const [objective, setObjective] = useState<ObjectiveScore | null>(null);
   const [resultsPhase, setResultsPhase] = useState<"partial" | "full">("partial");
+  // LIVE-FIX-1 #5 - "If you answered these, upload all your pages again, including the missing one": back to THIS paper's upload step (the same step the first upload used;
+  // the grade then replaces this result under the same code). Re-upload rules and check counts are the server's, unchanged.
+  // REVIEW B2: the upload step it opens says to upload EVERY page (the new check replaces the last one; grades are not merged).
+  const [addingPages, setAddingPages] = useState(false);
+  const addMissingPage = useCallback(() => {
+    setScorecardOpen(false);
+    setAddingPages(true);
+    setResultsPhase("partial");
+  }, []);
+  useEffect(() => {
+    if (resultsPhase === "full") setAddingPages(false);
+  }, [resultsPhase]);
+  useEffect(() => {
+    if (phase !== "results") setAddingPages(false); // leaving the paper ends the add-pages step
+  }, [phase]);
   const [scorecardOpen, setScorecardOpen] = useState(false);
   const [fullResponse, setFullResponse] = useState<WorksheetGradeResponse | null>(null);
   // SHEET-HEADER-1 — when THIS fullResponse was marked (set beside it; it is only ever set from a fresh grade).
@@ -481,7 +550,35 @@ export default function ChapterTestPage() {
   // MYPACKS-TS-1: three-state (checking / failed / decided); downloads also open for a PDF pack that covers this chapter.
   const seriesAccess = useSeriesAccess(user?.uid ?? null, { kind: "chapter-test", chapterSlug: resolveCanonicalSlug(topicKey) || null });
   const seriesPaperAccess = seriesAccess.canCheck;
+  // LIVE-FIX-1 (live run 23 Nov 2026): on a Test Series paper the fair-use panel offers the Test Series beside its Board Pass - only
+  // once access is DECIDED and the account can't check (a Board Pass holder or a Test Series owner never sees it; the panel itself
+  // also draws it on a trial refusal only).
+  const fairUseSeriesOffer =
+    !!seriesTest && !seriesAccess.checking && !seriesAccess.failed && !seriesAccess.canCheck ? <SeriesOfferButtons testIdPrefix="fair-use" only="test-series" showTotal /> : null;
   const seriesDownloadAccess = seriesAccess.canDownload;
+  // FREE-TS-WEEKLY (owner addition 27 Nov 13:19 IST): a Test Series paper is view-only for Basic / trial / signed out; tapping Download
+  // (the paper or its solutions) opens the Test Series + Board Pass offer instead of hiding the button. Kill switch VITE_FREE_TS_WEEKLY_DISABLED.
+  const [dlPaywall, setDlPaywall] = useState(false);
+  const dlPaywallOn = downloadPaywallOn() && !!seriesTest && !seriesDownloadAccess && !seriesAccess.checking;
+  const openDlPaywall = useCallback(() => setDlPaywall(true), []);
+  // FAIRUSE-TS-OWNER-1: the trial paper wall is never drawn for a Board Pass holder, nor for a Test Series owner on a series
+  // paper (the server mints both without the trial limit). `seriesPaper` is decided by the caller (this page's URL, or the saved
+  // paper's worksheetId on the continue path). Kill switch VITE_FAIRUSE_TS_OWNER_EXEMPT_DISABLED.
+  const wallVerdictFor = useCallback(
+    (seriesPaper: boolean) =>
+      paperWallVerdict({
+        disabled: tsOwnerWallExemptDisabled(),
+        paidPremium,
+        seriesPaper,
+        ownsSeries: seriesAccess.ownsSeries,
+        checking: seriesAccess.checking,
+        failed: seriesAccess.failed,
+      }),
+    [paidPremium, seriesAccess.ownsSeries, seriesAccess.checking, seriesAccess.failed],
+  );
+  // FAIRUSE-TS-OWNER-1: a Test Series owner's series paper never downloads against the weekly count (limits.cjs), and a Board Pass
+  // holder is not metered - so the LIMITS-1 "first download is free" chip is not theirs to read.
+  const hideDownloadChip = !tsOwnerWallExemptDisabled() && (paidPremium || (!!seriesTest && seriesAccess.ownsSeries));
   // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
   const boardPassHolder = useBoardPassHolder();
   const [startWall, setStartWall] = useState(false);
@@ -501,7 +598,21 @@ export default function ChapterTestPage() {
     awaitingDetail?: string;
     /** PAPER-REBUILD-1 (D102): the paper lookup already failed, so the modal offers no upload action. */
     noPaper?: boolean;
+    /** REVIEW NIT4: this paper's saved copy is there, so "Upload all pages again" can open its upload step (else no button). */
+    canAddPages?: boolean;
+    /** MARK-ON-PHOTO-2: that saved copy's paper and chapter (only with canAddPages), so a question can be marked on its photo. */
+    paper?: PersistedWorksheet;
+    topicKey?: string;
   } | null>(null);
+
+  // MARK-ON-PHOTO-2 (owner rulings 25 Nov 2026) — "Mark it on your photo" on a fresh result and on a re-opened one that offers
+  // "Upload all pages again". `index` is the row in the result on screen; `where` says which result that is.
+  const [mark, setMark] = useState<{ index: number; where: "fresh" | "reopen" } | null>(null);
+  const [markBusy, setMarkBusy] = useState(false);
+  const [markError, setMarkError] = useState<string | null>(null);
+  // The result a mark belongs to: leaving it (another paper, another phase, the re-open closed) drops a reply still in flight
+  // from the screen (the grade itself is real and is still saved).
+  const markSeq = useRef(0);
 
   // TUTOR-RETURN-SHEET-1 - the restored card's graded-sheet download (the page re-mounted on the
   // tutor trip, so the live paper is gone: the sheet is rebuilt from the stored payload + the
@@ -535,6 +646,11 @@ export default function ChapterTestPage() {
   // CT-RELOAD-1 — the paper of an in-progress attempt, restored after a reload (see below).
   const [restoredPaper, setRestoredPaper] = useState<PersistedWorksheet | null>(null);
   const paper = resumedCt?.paper ?? restoredPaper ?? draw?.paper ?? null;
+  // TS-FREE-CHECK-1 (owner ruling 23 Nov 2026): a free / trial account's ONE free test includes written-answer checking on a Test
+  // Series paper - this paper's key (the sitting's, else the series paper opened) against the server's free-test pin + the
+  // one-test rule's records. The SERVER pins the free paper and refuses every other one; this only decides what the page SHOWS.
+  const freeTestPaperKey = seriesPaperKeyOfWorksheetId(paper?.worksheetId) ?? (seriesTest ? `TS-${seriesTest.code}` : null);
+  const freeWritten = isSignedIn && seriesFreeTestWritten(seriesAccess, freeTestPaperKey, records);
   // CT-RESUME-2 — the start screen describes the paper the student will actually sit: the SAVED
   // paper when one is being offered for resume (its counts, marks, sections and CBQ share), else
   // this visit's fresh draw. Never the hidden new draw behind a resume.
@@ -553,6 +669,9 @@ export default function ChapterTestPage() {
     };
   }, [restoredPaper, bank.ready, draw]);
   const timeLimitSeconds = useMemo(() => Math.max(15, Math.round((paper?.totalMarks ?? 40) * 1.2)) * 60, [paper]);
+  // TS-FREE-PICKER (review nit, #1897): a kept or saved sitting is back on the start screen with its time ALREADY run out. The "Timed"
+  // switch is locked on then - switching the clock off there would reopen a past-time paper editable.
+  const keptTimeUp = (signedOutRestored || !!restoredPaper) && timerEnabled && elapsed >= timeLimitSeconds;
   // TS-MORE-1: a series paper 2..5 saves under its STABLE paper code (ts.CT-M01-3), never the chapter's attempt counter: that counter
   // moves on whenever any other sitting is saved, which would strand (and the cleanup below would delete) a paper in progress. Paper 1
   // and non-series sittings keep exactly today's key (the attempt code), so sittings already in progress still resume.
@@ -561,6 +680,23 @@ export default function ChapterTestPage() {
       ? `lazytopper.ct.progress.ts.${seriesTest.code}`
       : `lazytopper.ct.progress.${nomen.code}`
     : null;
+
+  /** TS-FREE-SIGNEDOUT: a saved signed-out sitting (its in-tab autosave) -> the kept signed-out attempt, unless one is already kept. */
+  const keepSignedOutSitting = (saved: unknown) => {
+    const v = saved as { paper?: { questions?: Array<{ id?: unknown }> }; answers?: Record<number, string>; flags?: number[]; elapsed?: number; currentQNumber?: number; timerEnabled?: boolean } | null;
+    const ids = paperQuestionIds(v?.paper && Array.isArray(v.paper.questions) ? { questions: v.paper.questions } : null);
+    if (!ids.length || readSignedOutAttempt("chapter-test", ids)) return;
+    saveSignedOutAttempt({
+      surface: "chapter-test",
+      path: location.pathname + location.search,
+      ids,
+      answers: v?.answers ?? {},
+      flags: Array.isArray(v?.flags) ? v.flags : [],
+      currentQNumber: Number(v?.currentQNumber) || 1,
+      elapsedMs: (Number(v?.elapsed) || 0) * 1000,
+      ...(typeof v?.timerEnabled === "boolean" ? { timerEnabled: v.timerEnabled } : {}),
+    });
+  };
 
   // Autosave restore (honest "✓ saved") — CT-RELOAD-1. A reload mid-test used to land on the
   // setup screen with a NEW draw and then restore the saved answers (keyed by question NUMBER)
@@ -583,8 +719,10 @@ export default function ChapterTestPage() {
         const key = window.sessionStorage.key(i);
         if (!key || key === progressKey || !key.startsWith(CT_PROGRESS_PREFIX)) continue;
         try {
-          const other = JSON.parse(window.sessionStorage.getItem(key) || "null") as { route?: unknown } | null;
+          const other = JSON.parse(window.sessionStorage.getItem(key) || "null") as { route?: unknown; signedOut?: unknown } | null;
           if (other && typeof other.route === "string" && paperRouteKey(other.route) === route) {
+            // TS-FREE-SIGNEDOUT: a signed-out sitting of this paper is KEPT (as the signed-out attempt), never thrown away here.
+            if (isSignedIn && other.signedOut === true) keepSignedOutSitting(other);
             window.sessionStorage.removeItem(key);
           }
         } catch {
@@ -606,6 +744,13 @@ export default function ChapterTestPage() {
         window.sessionStorage.removeItem(progressKey);
         return;
       }
+      // TS-FREE-SIGNEDOUT (review blocker): signed in, a sitting started SIGNED OUT is never resumed around the start rules - it becomes
+      // the kept signed-out attempt (put back on the paper below), and Start then runs the signed-in rules.
+      if (isSignedIn && (saved as { signedOut?: unknown }).signedOut === true) {
+        keepSignedOutSitting(saved);
+        window.sessionStorage.removeItem(progressKey);
+        return;
+      }
       setRestoredPaper(sp);
       setAnswers(saved.answers ?? {});
       setFlags(new Set(Array.isArray(saved.flags) ? saved.flags : []));
@@ -616,7 +761,8 @@ export default function ChapterTestPage() {
     } catch {
       /* best-effort */
     }
-  }, [progressKey, location.pathname, location.search, seriesTest?.code]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [progressKey, location.pathname, location.search, seriesTest?.code, isSignedIn]);
 
   // Autosave write while taking — the paper rides along so a reload restores THIS paper.
   useEffect(() => {
@@ -626,7 +772,8 @@ export default function ChapterTestPage() {
         progressKey,
         // CT-RESUME-2: `route` lets the daily paper gate (MockViewGate) recognise a reload of THIS
         // chapter's saved paper as a resume — not a new paper (lib/papers/resumablePaper).
-        JSON.stringify({ answers, flags: [...flags], elapsed, currentQNumber, timerEnabled, paper, route: paperRouteKey(location.pathname, location.search) }),
+        // TS-FREE-SIGNEDOUT: `signedOut` marks a sitting started signed out (a signed-in page converts it, never resumes it).
+        JSON.stringify({ answers, flags: [...flags], elapsed, currentQNumber, timerEnabled, paper, route: paperRouteKey(location.pathname, location.search), ...(signedOutLatch.current ? { signedOut: true } : {}) }),
       );
     } catch {
       /* quota — best-effort */
@@ -665,6 +812,27 @@ export default function ChapterTestPage() {
   const finishToPartial = useCallback(() => {
     if (!paper || !nomen) return;
     if (timerRef.current) clearInterval(timerRef.current);
+    // TS-FREE-SIGNEDOUT: signed out, a submit marks NOTHING and writes nothing - the attempt is kept in this tab and the visitor is
+    // asked to sign in to get it marked (the signed-in submit below then runs unchanged).
+    if (signedOutLatch.current) {
+      // An account appeared mid-sitting: back to the start screen with the answers kept (the signed-in start rules run first).
+      if (isSignedIn) {
+        bounceRef.current();
+        return;
+      }
+      saveSignedOutAttempt({
+        surface: "chapter-test",
+        path: location.pathname + location.search,
+        ids: paperQuestionIds(paper),
+        answers,
+        flags: [...flags],
+        currentQNumber,
+        elapsedMs: elapsed * 1000,
+        timerEnabled,
+      });
+      setSignInAsk({ timeUp: timerEnabled && elapsed + 1 >= timeLimitSeconds });
+      return;
+    }
     const obj = scoreObjectiveSection(objectiveQs, answers);
     setObjective(obj);
     const partialResponse = buildChapterTestResponse({
@@ -706,11 +874,61 @@ export default function ChapterTestPage() {
         /* best-effort */
       }
     }
+    // TS-FREE-PICKER (review nit, #1897): submitted - the time-up lock has done its job; the next sitting starts unlocked.
+    setTimeUpLocked(false);
     setResultsPhase("partial");
     setScorecardOpen(true);
     setPhase("results");
     void loadRecords();
-  }, [paper, nomen, objectiveQs, subjectiveQs, answers, user, sessionSubject, subject, topicKey, progressKey, loadRecords, moveCtPaper]);
+  }, [paper, nomen, objectiveQs, subjectiveQs, answers, user, sessionSubject, subject, topicKey, progressKey, loadRecords, moveCtPaper, isSignedIn, location.pathname, location.search, flags, currentQNumber, elapsed, timerEnabled, timeLimitSeconds]);
+
+  /** TS-FREE-SIGNEDOUT (review blocker): the signed-out sitting ends when an account appears - its answers are kept for this paper
+   *  and the page returns to its start screen, where Start runs the signed-in rules (one free test, fair use) before anything is marked. */
+  const bounceRef = useRef<() => void>(() => {});
+  bounceRef.current = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (paper) {
+      saveSignedOutAttempt({
+        surface: "chapter-test",
+        path: location.pathname + location.search,
+        ids: paperQuestionIds(paper),
+        answers,
+        flags: [...flags],
+        currentQNumber,
+        elapsedMs: elapsed * 1000,
+        timerEnabled,
+      });
+    }
+    if (progressKey && typeof window !== "undefined") {
+      try {
+        window.sessionStorage.removeItem(progressKey);
+      } catch {
+        /* best-effort */
+      }
+    }
+    signedOutLatch.current = false;
+    signedOutRestoreDone.current = false;
+    setSignInAsk(null);
+    setShowConfirm(false);
+    setRestoredPaper(null);
+    setPhase("setup");
+  };
+  useEffect(() => {
+    if (isSignedIn && signedOutLatch.current && phase === "taking") bounceRef.current();
+  }, [isSignedIn, phase]);
+
+  /** TS-FREE-SIGNEDOUT: "Sign in to get my answers marked" - the kept attempt goes with the visitor; the in-tab autosave of this signed-out
+   *  sitting is dropped so the signed-in page never resumes it around its own start rules. */
+  const goSignInToMark = useCallback(() => {
+    if (progressKey && typeof window !== "undefined") {
+      try {
+        window.sessionStorage.removeItem(progressKey);
+      } catch {
+        /* best-effort */
+      }
+    }
+    navigate(signInToMarkPath(location.pathname, location.search));
+  }, [progressKey, navigate, location.pathname, location.search]);
 
   // Keep a LIVE ref to the latest finishToPartial so the timer's auto-submit scores
   // with CURRENT answers — the interval effect must NOT re-subscribe on every keystroke
@@ -722,7 +940,7 @@ export default function ChapterTestPage() {
 
   // Timer.
   useEffect(() => {
-    if (phase !== "taking") return;
+    if (phase !== "taking" || signInAsk || timeUpLocked) return;
     timerRef.current = setInterval(() => {
       setElapsed((e) => {
         const next = e + 1;
@@ -738,7 +956,22 @@ export default function ChapterTestPage() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, timerEnabled, timeLimitSeconds]);
+  }, [phase, timerEnabled, timeLimitSeconds, signInAsk, timeUpLocked]);
+
+  // TS-FREE-SIGNEDOUT: back from sign-in - the attempt kept for THIS paper (same question ids) goes back on it, once. Nothing starts:
+  // Start runs the signed-in start rules unchanged (one free test, fair use, the server's free-test state), and a refused start shows
+  // the existing wall. An account's own saved sitting (restoredPaper) wins.
+  useEffect(() => {
+    if (!(isSignedIn ? !!seriesTest : signedOutSitting) || tsFreeSignedOutDisabled() || signedOutRestoreDone.current || restoredPaper || phase !== "setup" || !draw) return;
+    const kept = readSignedOutAttempt("chapter-test", paperQuestionIds(draw.paper));
+    if (!kept) return;
+    signedOutRestoreDone.current = true;
+    setAnswers(kept.answers);
+    setFlags(new Set(kept.flags));
+    setElapsed(Math.round(kept.elapsedMs / 1000));
+    if (typeof kept.timerEnabled === "boolean") setTimerEnabled(kept.timerEnabled);
+    setSignedOutRestored(true);
+  }, [isSignedIn, seriesTest, signedOutSitting, restoredPaper, phase, draw]);
 
   // CT-KATEX-2 (LOW-END-1 L6/R6): the start screen shows no maths, so KaTeX is fetched on
   // the student's FIRST INTERACTION with it (pointerdown / touchstart / keydown / scroll —
@@ -766,12 +999,36 @@ export default function ChapterTestPage() {
 
   const [starting, setStarting] = useState(false);
   const startTest = useCallback(async () => {
-    // FAIR-USE-UI-1 (UI3): today's chapter test already used -> the panel, not the paper.
-    if (fairUse.blockPaperStart()) return;
     // TEST-SERIES-1 (owner 19:44 IST): a free / trial account takes ONE test in total; signed out signs in first.
-    const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records) });
+    // LIVE-FIX-1 (live run 23 Nov 2026): decided BEFORE the daily fair-use check - a trial account that has used its one free
+    // test is told THAT, with the Test Series AND the Board Pass, not the fair-use limit with the Board Pass alone.
+    const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records), weeklyOpens: !freeTsWeeklyDisabled() && !!seriesTest });
     if (startDecision === "upgrade" && seriesAccess.checking) {
       setLimitNotice(ACCESS_CHECKING_LINE);
+      return;
+    }
+    if (startDecision === "sign-in" && signedOutSitting) {
+      // TS-FREE-SIGNEDOUT: the paper opens signed out - no fair-use read, no ownership read, nothing served or recorded. The
+      // day's paper view is the device's own count (MockViewGate), as for any signed-out paper; a kept sitting is a resume.
+      if (!signedOutRestored && !claimNewPaperView(location.pathname, null, false, location.search)) {
+        setLimitNotice(NEW_PAPER_LIMIT_LINE);
+        return;
+      }
+      setStarting(true);
+      try {
+        await loadKatex();
+      } catch {
+        /* MathText fetches it again when a question needs it */
+      }
+      setStarting(false);
+      signedOutLatch.current = true;
+      setTimeUpLocked(false);
+      setSignedOutRestored(false);
+      // review nit (a): the kept time had already run out -> straight to the sign-in card (nothing is marked signed out)
+      setSignInAsk(signedOutRestored && timerEnabled && elapsed >= timeLimitSeconds ? { timeUp: true } : null);
+      setPhase("taking");
+      setCurrentQNumber(1);
+      trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject, signedOut: true });
       return;
     }
     if (startDecision === "sign-in") {
@@ -782,6 +1039,19 @@ export default function ChapterTestPage() {
       setStartWall(true);
       return;
     }
+    // FAIR-USE-UI-1 (UI3): today's chapter test already used -> the panel, not the paper. FAIRUSE-TS-OWNER-1 (resolves
+    // [FU-FAIRUSE-TS-OWNER-EXEMPT]): the server now mints a trial Test Series owner's series paper and a Board Pass holder's paper
+    // without the trial limit, so neither is walled here; while ownership is unknown the page waits.
+    const wall = wallVerdictFor(!!seriesTest);
+    if (wall === "wait") {
+      setLimitNotice(ACCESS_CHECKING_LINE);
+      return;
+    }
+    if (wall === "unconfirmed") {
+      setStartWall(true);
+      return;
+    }
+    if (wall !== "exempt" && fairUse.blockPaperStart()) return;
     // CT-RESUME-2: starting a paper is a NEW paper. A visit the daily gate let through uncounted
     // (it looked like a resume) is counted now — or refused at today's limit.
     if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && !!seriesTest), location.search)) {
@@ -799,10 +1069,23 @@ export default function ChapterTestPage() {
     }
     setStarting(false);
     markServed(paper);
+    // TS-FREE-SIGNEDOUT: the kept signed-out attempt is now this sitting (the in-tab autosave takes over).
+    signedOutLatch.current = false;
+    setTimeUpLocked(false);
+    if (signedOutRestored) {
+      clearSignedOutAttempt();
+      setSignedOutRestored(false);
+      // review nit 1: the kept time had already run out - the answers are locked and the paper opens at its submit step (the time-up
+      // card); no instant auto-submit, and the clock is NOT switched off (that let answers be changed past time).
+      if (timerEnabled && elapsed >= timeLimitSeconds) {
+        setShowConfirm(false);
+        setTimeUpLocked(true);
+      }
+    }
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
-  }, [topicKey, subject, fairUse.blockPaperStart, markServed, paper, location.pathname, location.search, user?.uid, isPremium, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, seriesTest, isSignedIn, records, navigate]);
+  }, [topicKey, subject, fairUse.blockPaperStart, wallVerdictFor, markServed, paper, location.pathname, location.search, user?.uid, isPremium, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, seriesTest, isSignedIn, records, navigate, signedOutSitting, signedOutRestored, timerEnabled, elapsed, timeLimitSeconds]);
 
   // CT-RELOAD-1 — continue the restored paper where it was left. A resume, not a new start:
   // never re-counted against the fair-use allowance.
@@ -815,8 +1098,31 @@ export default function ChapterTestPage() {
       /* MathText fetches it again when a question needs it */
     }
     setStarting(false);
+    // TS-FREE-SIGNEDOUT: a signed-out reload of a signed-out sitting stays signed out (latched); time already up -> the sign-in card.
+    signedOutLatch.current = signedOutSitting;
+    setTimeUpLocked(false);
+    // TS-FREE-PICKER (review nit, #1897): signed in, a saved sitting whose time had already run out (a reload on the time-up card, or
+    // a timed paper left past its time) opens straight into the time-up lock - the answers as saved, submit only. It used to open
+    // the paper editable until the clock's next tick auto-submitted it (~1 s).
+    if (!signedOutSitting && timerEnabled && elapsed >= timeLimitSeconds) {
+      setShowConfirm(false);
+      setTimeUpLocked(true);
+    }
+    if (signedOutSitting && timerEnabled && elapsed >= timeLimitSeconds) {
+      saveSignedOutAttempt({
+        surface: "chapter-test",
+        path: location.pathname + location.search,
+        ids: paperQuestionIds(restoredPaper),
+        answers,
+        flags: [...flags],
+        currentQNumber,
+        elapsedMs: elapsed * 1000,
+        timerEnabled,
+      });
+      setSignInAsk({ timeUp: true });
+    }
     setPhase("taking");
-  }, [restoredPaper]);
+  }, [restoredPaper, signedOutSitting, timerEnabled, elapsed, timeLimitSeconds, location.pathname, location.search, answers, flags, currentQNumber]);
   /** Drop the restored attempt (unsubmitted, nothing graded) and show this visit's fresh draw. */
   const discardRestored = useCallback(() => {
     // CT-RESUME-2: this visit was let through as a RESUME (not counted). A new paper instead is
@@ -840,6 +1146,8 @@ export default function ChapterTestPage() {
   }, [progressKey, location.pathname, user?.uid, isPremium]);
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {
+    // review nit 1: past time on a kept attempt, the answers are locked (belt and braces - the paper is not rendered then).
+    if (timeUpLockedRef.current) return;
     setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
   }, []);
   const toggleFlag = useCallback((qNumber: number) => {
@@ -896,7 +1204,8 @@ export default function ChapterTestPage() {
           fairUse.noteGraded();
           // Fully graded: the record + per-question payload are the durable copy now.
           const gradedAs = adoptSavedCode(outcome.savedCode, nomen);
-          if (outcome.response.pendingCount === 0) {
+          // LIVE-FIX-1 #5: a paper with answers not found on the pages keeps its copy - "Upload all pages again" re-opens its upload step.
+          if (outcome.response.pendingCount === 0 && notFoundSummary(outcome.response.results) === null) {
             // only THIS paper's saved copy (by identity), under the code it was saved under and the one it was graded as
             deleteChapterTestPaper(user, nomen.code, paper.worksheetId);
             if (gradedAs.code !== nomen.code) deleteChapterTestPaper(user, gradedAs.code, paper.worksheetId);
@@ -1074,7 +1383,7 @@ export default function ChapterTestPage() {
     [pickPaper, user, sessionSubject, loadRecords],
   );
   const downloadSolution = useCallback(async () => {
-    if (!paper || !nomen || downloading) return;
+    if (!paper || !nomen || downloading || !seriesDownloadAccess) return;
     setDownloading(true);
     if (!(await guardDownload("chapter-test", paper.worksheetId, chapterCover(topicKey)))) {
       setDownloading(false);
@@ -1087,7 +1396,7 @@ export default function ChapterTestPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paper, nomen, downloading, guardDownload]);
+  }, [paper, nomen, downloading, guardDownload, seriesDownloadAccess]);
   // LIMITS-1 PR-2 — the graded sheet is the per-answer detail: the SAME server lock as the scorecard
   // (same kind + key) decides whether this page may print it. "open" when the flag is off.
   const gradedSheetOpen =
@@ -1155,8 +1464,18 @@ export default function ChapterTestPage() {
       // AWAIT-1: a downloaded paper first takes its Section A picks (then continueFromPicks).
       if (snap && needsSectionAPicks(snap)) {
         // The same fair-use gate as an in-app start (UI3): an exhausted allowance is stopped
-        // BEFORE a client-scored partial record could be written.
-        if (fairUse.blockPaperStart()) return;
+        // BEFORE a client-scored partial record could be written. FAIRUSE-TS-OWNER-1: "series" is the SAVED paper's own id.
+        const wall = wallVerdictFor(seriesPaperKeyOfWorksheetId(snap.paper?.worksheetId) !== null);
+        if (wall === "wait") {
+          setLimitNotice(ACCESS_CHECKING_LINE);
+          return;
+        }
+        if (wall === "unconfirmed") {
+          setLimitNotice(`${ACCESS_FAILED_LINE} - please try again.`);
+          seriesAccess.retry();
+          return;
+        }
+        if (wall !== "exempt" && fairUse.blockPaperStart()) return;
         setReopen(null);
         setPickPaper(snap);
         setPhase("pick");
@@ -1185,7 +1504,7 @@ export default function ChapterTestPage() {
           "This test was taken before papers were saved, so it can't be uploaded. Start a new test to practise this chapter.",
       });
     },
-    [user, fairUse.blockPaperStart],
+    [user, fairUse.blockPaperStart, wallVerdictFor, seriesAccess.retry],
   );
 
   const openStored = useCallback(
@@ -1202,13 +1521,100 @@ export default function ChapterTestPage() {
         await openPendingUpload(record);
         return;
       }
-      setReopen({ record, response: payload?.response ?? null });
+      // REVIEW NIT4: "Upload all pages again" only when this paper's saved copy is there to open (never the no-paper dead end).
+      let canAddPages = false;
+      if (notFoundSummary(payload?.response?.results)) {
+        const snap = await loadChapterTestPaper(user, record.id);
+        canAddPages = Boolean(snap && snap.objective && !needsSectionAPicks(snap));
+        if (canAddPages && snap) {
+          setReopen({ record, response: payload?.response ?? null, canAddPages, paper: snap.paper, topicKey: snap.topicKey });
+          return;
+        }
+      }
+      setReopen({ record, response: payload?.response ?? null, ...(canAddPages ? { canAddPages } : {}) });
     },
-    [user?.uid, openPendingUpload],
+    [user, openPendingUpload],
   );
   useEffect(() => {
     openStoredRef.current = openStored;
   }, [openStored]);
+
+  // MARK-ON-PHOTO-2 — leaving the result the mark belongs to closes the dialog and drops a reply still in flight from the screen.
+  const reopenId = reopen?.record.id ?? null;
+  useEffect(() => {
+    markSeq.current += 1;
+    setMark(null);
+    setMarkBusy(false);
+    setMarkError(null);
+  }, [phase, resultsPhase, nomen?.code, reopenId]);
+
+  /** The result a mark is made on: the paper, its code and chapter, and the rows on screen; null when it is not there. */
+  const markContext = useCallback(
+    (where: "fresh" | "reopen") => {
+      if (where === "fresh") {
+        return paper && nomen && fullResponse && resultsPhase === "full"
+          ? { paper, code: nomen.code, subject: sessionSubject, topicKey, response: fullResponse }
+          : null;
+      }
+      return reopen && reopen.canAddPages && reopen.paper && reopen.response
+        ? { paper: reopen.paper, code: reopen.record.id, subject: reopen.record.subject, topicKey: reopen.topicKey || topicKey, response: reopen.response }
+        : null;
+    },
+    [paper, nomen, fullResponse, resultsPhase, sessionSubject, topicKey, reopen],
+  );
+
+  const submitMark = useCallback(
+    async (image: { imageBase64: string; imageMimeType: string }) => {
+      const m = mark;
+      const ctx = m ? markContext(m.where) : null;
+      if (!m || !ctx || markBusy) return;
+      const token = ++markSeq.current;
+      const stillShowing = () => markSeq.current === token;
+      setMarkBusy(true);
+      setMarkError(null);
+      fairUse.clearLimit();
+      try {
+        const out = await markChapterTestQuestion({ user, ...ctx, index: m.index, image });
+        if (out.kind === "unread") {
+          if (stillShowing()) setMarkError(MARK_STILL_UNREAD_COPY);
+          return;
+        }
+        fairUse.noteGraded();
+        void loadRecords();
+        // As the fresh grade does: once no answer is missing from the pages and nothing is pending, this paper's saved copy has
+        // done its job (only THIS paper's copy, by identity, under the code it was saved under and the one it now carries).
+        if (out.response.pendingCount === 0 && notFoundSummary(out.response.results) === null) {
+          deleteChapterTestPaper(user, ctx.code, ctx.paper.worksheetId);
+          if (out.savedCode && out.savedCode !== ctx.code) deleteChapterTestPaper(user, out.savedCode, ctx.paper.worksheetId);
+        }
+        if (!stillShowing()) return;
+        if (m.where === "fresh") {
+          setFullResponse(out.response);
+          if (nomen) adoptSavedCode(out.savedCode, nomen);
+        } else {
+          // S1: a re-opened scorecard reads its score, types and status from the RECORD: swap in the one just re-saved.
+          setReopen((r) => (r && r.record.id === ctx.code ? { ...r, ...(out.record ? { record: out.record } : {}), response: out.response } : r));
+        }
+        setMark(null);
+      } catch (e) {
+        if (!stillShowing()) return;
+        // A fair-use limit shows the calm limit panel inside the dialog; anything else reads its own sentence.
+        if (await fairUse.handleRefusal(e)) return;
+        setMarkError(markErrorMessage(e));
+      } finally {
+        if (stillShowing()) setMarkBusy(false);
+      }
+    },
+    [mark, markContext, markBusy, user, nomen, adoptSavedCode, loadRecords, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
+  );
+  const openMark = useCallback(
+    (where: "fresh" | "reopen") => (index: number) => {
+      setMarkError(null);
+      fairUse.clearLimit();
+      setMark({ index, where });
+    },
+    [fairUse.clearLimit],
+  );
 
   // FOLLOWUPS-1 B — "Ask the tutor why I lost this mark" on a SAVED test's scorecard (the QP /
   // C&I hop): the tutor reads the student's OWN record (`from`) and the question (`q` = its bank
@@ -1308,6 +1714,7 @@ export default function ChapterTestPage() {
       <style>{CT_CSS}</style>
       <UsageWarning scope="chapter-test" snapshot={fairUse.snapshot} />
       {downloadWall}
+      {dlPaywall && dlPaywallOn && seriesTest && <DownloadPaywall paperCode={seriesTest.code} signedIn={isSignedIn} onClose={() => setDlPaywall(false)} />}
       {tutorWall && <TutorBoardPassWall onClose={() => setTutorWall(false)} />}
       {paperNotice && (
         <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="paper-notice">
@@ -1319,7 +1726,7 @@ export default function ChapterTestPage() {
       {reopen && (
         <ResultsScorecard
           limitKey={{ kind: "chapter-test", resultKey: reopen.record.id, worksheetId: reopen.record.worksheetId }} // LIMITS-1 PR-2 — stored re-open
-          variant={withPaperTutorAsks(withGuideTarget(storedChapterTestScorecardVariant(reopen.record, {
+          variant={withMarkOnPhoto(withPaperTutorAsks(withGuideTarget(storedChapterTestScorecardVariant(reopen.record, {
             gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
               day: "numeric",
               month: "short",
@@ -1336,6 +1743,14 @@ export default function ChapterTestPage() {
               reopen.record.status !== "graded" && !reopen.response && !reopen.noPaper
                 ? () => void openPendingUpload(reopen.record)
                 : undefined,
+            // LIVE-FIX-1 #5 - a record with answers not found on the pages offers its own upload step, only when its saved copy is
+            // there (REVIEW NIT4); the step says to upload every page (REVIEW B2).
+            onAddPage: reopen.canAddPages
+              ? () => {
+                  setAddingPages(true);
+                  void openPendingUpload(reopen.record);
+                }
+              : undefined,
             // The no-paper state's way forward (D103a): a new test of this chapter, through the
             // same start as the setup button (fair-use gate included).
             onStartNew: reopen.noPaper
@@ -1345,9 +1760,36 @@ export default function ChapterTestPage() {
                 }
               : undefined,
             onDone: () => setReopen(null),
-          }), ctGuideTarget), reopen.response, ctTutorAskFor(reopen.record, reopen.response))}
+          }), ctGuideTarget), reopen.response, ctTutorAskFor(reopen.record, reopen.response)), reopen.response, markContext("reopen") ? openMark("reopen") : null, markBusy)}
           onClose={() => setReopen(null)}
         />
+      )}
+
+      {/* MARK-ON-PHOTO-2 — point to one answer on the photo; only that question is graded and slotted back into this paper. */}
+      {mark && markContext(mark.where)?.response.results[mark.index] && (
+        <Suspense fallback={null}>
+          <MarkOnPhotoDialog
+            onTop
+            label={`Q${markContext(mark.where)!.response.results[mark.index].qNumber}`}
+            pages={mark.where === "fresh" ? uploadedPhotoPages(lastUploadRef.current) : []}
+            busy={markBusy}
+            error={markError}
+            notice={
+              fairUse.limit ? (
+                <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} tsOwner={seriesAccess.ownsSeries} />
+              ) : !boardPassHolder && seriesPaperKeyOfWorksheetId(markContext(mark.where)!.paper.worksheetId) !== null ? (
+                <p className="lt-mop-sub" data-testid="mark-uses-check">{ADD_PAGES_USES_CHECK_LINE}</p>
+              ) : null
+            }
+            onSubmit={(image) => void submitMark(image)}
+            onClose={() => {
+              if (!markBusy) {
+                setMark(null);
+                setMarkError(null);
+              }
+            }}
+          />
+        </Suspense>
       )}
 
       {/* ─────────────── SETUP ─────────────── */}
@@ -1379,7 +1821,7 @@ export default function ChapterTestPage() {
                 </div>
                 <div className="lt-ct__title lt-ct__fr">Ready for a board-pattern test?</div>
                 <div className="lt-ct__sub">
-                  {seriesPaperAccess
+                  {seriesPaperAccess || freeWritten
                     ? "Objective questions are scored the moment you submit. Write the rest on paper, upload, and get your full graded result with a mistake breakdown."
                     : "Objective questions (MCQs) are scored the moment you submit. Written answers are checked step by step with the Test Series or the Board Pass."}
                 </div>
@@ -1455,17 +1897,27 @@ export default function ChapterTestPage() {
                       <div className="lt-ct__toggle-lab">
                         <b>⏱ Timed (board practice)</b>
                         <p>{Math.round(timeLimitSeconds / 60)}-min countdown. Turn off to practise without the clock.</p>
+                        {/* #1898 review nit: why the switch is locked */}
+                        {keptTimeUp && (
+                          <p className="lt-ct__toggle-why" data-testid="ct-timer-locked">
+                            {TIME_UP_TITLE}. The clock stays on.
+                          </p>
+                        )}
                       </div>
                       <button
                         type="button"
                         className={`lt-ct__tg${timerEnabled ? "" : " lt-ct__tg--off"}`}
                         aria-pressed={timerEnabled}
                         aria-label="Toggle timer"
-                        onClick={() => setTimerEnabled((p) => !p)}
+                        data-testid="ct-timer-toggle"
+                        disabled={keptTimeUp}
+                        onClick={() => {
+                          if (!keptTimeUp) setTimerEnabled((p) => !p);
+                        }}
                       />
                     </div>
 
-                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} /> : null}
+                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} tsOwner={seriesAccess.ownsSeries} /> : null}
 
                     {restoredPaper && (
                       <div className="lt-ct__honest" data-testid="ct-resume-note">
@@ -1503,17 +1955,30 @@ export default function ChapterTestPage() {
                       ) : seriesAccess.checking ? (
                         <AccessChecking />
                       ) : (
-                        <DownloadWithPlanLink />
+                        <DownloadWithPlanLink onPaywall={dlPaywallOn ? openDlPaywall : undefined} />
                       )}
-                      {seriesDownloadAccess && <LimitChip />}
+                      {seriesDownloadAccess && !hideDownloadChip && <LimitChip />}
                     </div>
-                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote />}
+                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && freeTestPaperKey !== null && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote written={freeWritten} />}
+                    {signedOutSitting && (
+                      <p className="lt-wcg__line" data-testid="ts-signed-out-note">
+                        {SIGNED_OUT_TAKING_NOTE}
+                      </p>
+                    )}
+                    {signedOutRestored && (
+                      <p className="lt-wcg__line" role="status" data-testid="ts-signed-out-restored">
+                        {isSignedIn ? SIGNED_OUT_ATTEMPT_RESTORED_LINE : SIGNED_OUT_ATTEMPT_KEPT_LINE}
+                      </p>
+                    )}
                     {startWall && !seriesPaperAccess && (seriesAccess.failed ? <AccessFailed onRetry={seriesAccess.retry} /> : seriesAccess.checking ? <AccessChecking /> : <SeriesStartWall />)}
                     {limitNotice && (
                       <div className="lt-ct__honest" role="alert" data-testid="ct-limit-notice">
                         <span>·</span>
-                        <span>{limitNotice}</span>
+                        <span>{paperLimitLineFor(limitNotice, isSignedIn)}</span>
                       </div>
+                    )}
+                    {limitNotice === NEW_PAPER_LIMIT_LINE && !isSignedIn && (
+                      <GuestPaperSignInLink pathname={location.pathname} search={location.search} />
                     )}
 
                     {downloadedNote && (
@@ -1613,7 +2078,19 @@ export default function ChapterTestPage() {
       )}
 
       {/* ─────────────── TAKING (full screen) ─────────────── */}
-      {phase === "taking" && paper && currentQuestion && (
+      {/* TS-FREE-SIGNEDOUT: a signed-out submit - sign in to get the kept answers marked (nothing is marked here). */}
+      {phase === "taking" && signInAsk && (
+        <div className="lt-ct__fs">
+          <SignInToMarkCard onSignIn={goSignInToMark} onBack={signInAsk.timeUp ? null : () => setSignInAsk(null)} />
+        </div>
+      )}
+      {/* review nit 1: a kept attempt back after sign-in with its time run out - answers locked; the student taps submit. */}
+      {phase === "taking" && !signInAsk && timeUpLocked && paper && (
+        <div className="lt-ct__fs">
+          <TimeUpSubmitCard onSubmit={() => finishRef.current()} />
+        </div>
+      )}
+      {phase === "taking" && !signInAsk && !timeUpLocked && paper && currentQuestion && (
         <div className="lt-ct__fs">
           <div className="lt-ct__fsbar">
             <div className="lt-ct__fsbar-l">
@@ -1778,7 +2255,7 @@ export default function ChapterTestPage() {
             {seriesNavOn && seriesBack.to !== TEST_SERIES_NAV_PATH && <SeriesCrumb />}
           </div>
 
-          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
+          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} tsOwner={seriesAccess.ownsSeries} /> : null}
           {paperWall && (seriesAccess.ownsSeries ? (
             <SeriesOwnerNotice onClose={() => setPaperWall(false)} worksheetId={paper.worksheetId} status={seriesAccess.status} />
           ) : (
@@ -1788,7 +2265,7 @@ export default function ChapterTestPage() {
           {resultsPhase === "partial" ? (
             <ResultAccessSlot
               access={seriesAccess}
-              uploadAllowed={seriesPaperAccess || isBeforeSeriesRules(Date.parse(paper.createdAt))}
+              uploadAllowed={seriesPaperAccess || freeWritten || isBeforeSeriesRules(Date.parse(paper.createdAt))}
               worksheetId={paper.worksheetId}
               upgrade={
                 <WrittenCheckUpgradeCard
@@ -1802,8 +2279,15 @@ export default function ChapterTestPage() {
               }
               upload={
                 <>
+                  {/* REVIEW B2 - the upload step opened by "Upload all pages again": every page, and what it costs on a series paper. */}
+                  {addingPages && (
+                    <p className="lt-ct__nfna" data-testid="add-pages-banner">
+                      <b>{ADD_PAGES_UPLOAD_BANNER}</b>
+                      {!!seriesTest && !boardPassHolder ? ` ${ADD_PAGES_USES_CHECK_LINE}` : ""}
+                    </p>
+                  )}
                   {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
-                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
+                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} notCountedReason={addingPages ? notCountedReasonOf(fullResponse?.results) : null} />
                   <ChapterTestUploadPanel
                     name={nomen.name}
                     code={nomen.code}
@@ -1824,15 +2308,32 @@ export default function ChapterTestPage() {
                 <div className="lt-ct__eyebrow">Chapter Test · Result</div>
                 <div className="lt-ct__title lt-ct__fr">{nomen.name}</div>
                 <div className="lt-ct__sub">
-                  {nomen.code} · fully graded —{" "}
-                  <b>
-                    {fullResponse?.gradedMarksAwarded}/{fullResponse?.gradedMarksTotal}
-                  </b>
-                  {fullResponse && fullResponse.pendingCount > 0
-                    ? ` · ${fullResponse.pendingCount} page(s) pending`
-                    : ""}
+                  {/* TS-BOARDSCORE-1 - consistent with the hero: out of the paper's full marks; "fully graded" only when it is. */}
+                  {nomen.code} · {fullResponse ? resultCardParts(fullResponse).status : "graded"} —{" "}
+                  <b>{fullResponse ? resultCardParts(fullResponse).score : null}</b>
+                  {fullResponse ? resultCardParts(fullResponse).tail : ""}
                 </div>
-                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
+                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} notCountedReason={notCountedReasonOf(fullResponse?.results)} />
+                <NotFoundAddPageLine response={fullResponse} onAddPage={addMissingPage} />
+                {/* MARK-ON-PHOTO-2 — the same action as the scorecard's, for each question that can be pointed to on the photo. */}
+                {bankMarkableRows(fullResponse).length > 0 && (
+                  <p className="lt-ct__nfna" data-testid="ct-mark-on-photo">
+                    <b>{MARK_ON_PHOTO_ACTION}</b> — point to your answer on the photo; only that question is marked.
+                    {bankMarkableRows(fullResponse).map((r) => (
+                      <button
+                        key={r.index}
+                        type="button"
+                        className="lt-ct__nfna-btn"
+                        data-testid="ct-mark-on-photo-btn"
+                        aria-label={`${MARK_ON_PHOTO_ACTION} for Q${r.qNumber}`}
+                        disabled={markBusy}
+                        onClick={() => openMark("fresh")(r.index)}
+                      >
+                        Q{r.qNumber}
+                      </button>
+                    ))}
+                  </p>
+                )}
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
@@ -1858,6 +2359,11 @@ export default function ChapterTestPage() {
                     onClick={downloadSolution}
                     disabled={downloading}
                   >
+                    ↓ Solution key
+                  </button>
+                  )}
+                  {!seriesDownloadAccess && dlPaywallOn && (
+                  <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={openDlPaywall} data-testid="solution-key-paywall">
                     ↓ Solution key
                   </button>
                   )}
@@ -1924,7 +2430,7 @@ export default function ChapterTestPage() {
               variant={withSeriesWorksheet(chapterTestScorecardVariant({
                 // TS-UX-SCORE-1: the SAME allow-logic the paywall below uses (ResultAccessSlot `uploadAllowed`); while the read is
                 // pending or failed the page shows neither paywall nor card, so the scorecard keeps today's upload prompt.
-                uploadNotAllowed: scorecardUploadNotAllowed({ canCheck: seriesPaperAccess, createdMs: Date.parse(paper.createdAt), checking: seriesAccess.checking, failed: seriesAccess.failed }),
+                uploadNotAllowed: scorecardUploadNotAllowed({ canCheck: seriesPaperAccess || freeWritten, createdMs: Date.parse(paper.createdAt), checking: seriesAccess.checking, failed: seriesAccess.failed }),
                 name: nomen.name,
                 code: nomen.code,
                 phase: "partial",
@@ -1948,7 +2454,7 @@ export default function ChapterTestPage() {
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               limitKey={{ kind: "chapter-test", resultKey: nomen.code, worksheetId: paper.worksheetId }} // LIMITS-1 PR-2 — Chapter Test surface
-              variant={withSeriesWorksheet(withPaperTutorAsks(withGuideTarget(chapterTestScorecardVariant({
+              variant={withMarkOnPhoto(withSeriesWorksheet(withPaperTutorAsks(withGuideTarget(chapterTestScorecardVariant({
                 name: nomen.name,
                 code: nomen.code,
                 phase: "full",
@@ -1966,6 +2472,8 @@ export default function ChapterTestPage() {
                 // has no such view, so closing dropped the student onto a summary card whose only
                 // primary action reopened the panel they had just left - a loop with no way on.
                 onReadSheet: revealGradedSheet,
+                // LIVE-FIX-1 #5 - "If you answered these, upload all your pages again, including the missing one": back to this paper's upload step (re-upload rules unchanged).
+                onAddPage: addMissingPage,
                 onPractise: practiseTopic,
                 // TEST-SERIES-1: the PDFs are for a Test Series / Board Pass holder.
                 ...(seriesDownloadAccess
@@ -1979,9 +2487,11 @@ export default function ChapterTestPage() {
                         void downloadSolution();
                       },
                     }
-                  : {}),
+                  : dlPaywallOn
+                    ? { onDownloadSolution: openDlPaywall }
+                    : {}),
                 onRevisit: () => navigate(topicBackTo),
-              }), ctGuideTarget), fullResponse, liveTutorAskFor), paper.worksheetId)}
+              }), ctGuideTarget), fullResponse, liveTutorAskFor), paper.worksheetId), fullResponse, openMark("fresh"), markBusy)}
               onClose={() => setScorecardOpen(false)}
             />
           )}

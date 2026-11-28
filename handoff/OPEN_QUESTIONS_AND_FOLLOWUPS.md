@@ -23,6 +23,276 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Status of existing entries.** `#1890` ORDER-DEDUP-1 is merged (the "open" line of the block below is superseded). `[FU-ORDER-DEDUP-SIGNED-IN]` stays OPEN (not covered by `#1890`). `[FU-26NOV-LIVE-VERIFIES]` stays OPEN; the Vercel redeploy it waits on for `#1884` is done.
+
+### [FU-ORDER-DEDUP-SIGNED-IN] (still OPEN; scope pinned)
+`#1890` covers guest / pay-first checkout only. The same double-tap pattern is present in `PassCheckout.tsx`, `PacksShop.tsx` and `topupBuy.ts` (signed-in buyers), not covered. [coordinator]
+
+### [FU-ORDER-DEDUP-LIVE] (minted)
+OPEN, live verify owed for `#1890`: signed out, double-tap Pay -> one order in the unpaid orders list; dismiss the sheet, tap Pay again -> a fresh sheet. [coordinator]
+
+### [FU-AICOST-SILENT-CATCH] (minted)
+OPEN. The admin True AI cost card shows `recorded:false` for 24-26 Nov. No code defect was found; likely no Gemini call since the deploy, but the write's `.catch` in `aiCostDaily.cjs` is silent, so a failure would be invisible. Add an error log or counter there. [coordinator, live read 26 Nov about 18:15 IST]
+
+### [FU-TOPUP-NO-ANALYTICS] (minted)
+OPEN. A top-up purchase emits NO analytics event, so top-up funnel and revenue cannot be measured. [coordinator]
+
+### [FU-INAPP-STUCK-REAL-DEVICE] (minted)
+OPEN. The owner's 17:50 IST test inside the Facebook app on his Android phone hopped to Chrome, so Copy payment link correctly did not show. The stuck path (hop fails, Copy payment link leads) is unverified on a real device; see also `[FU-INAPP-INTENT-NO-PACKAGE]`. [owner]
+
+## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Status of existing entries.** None closed by these PRs. `#1890` ORDER-DEDUP-1 is open (CI red).
+
+### [FU-1883-PROD-MODEL-PARITY] (minted)
+OPEN. The `#1883` parity eval (69/69) ran on `gemini-3.8-flash`, because the Eval key gets 404 for `gemini-2.5-flash`. Production still runs `gemini-2.5-flash` (`/api/health`). Re-run the parity on `gemini-2.5-flash` if a key can reach it, or when production moves to 3.8. [coordinator]
+
+### [FU-TOPUP-PARENT-LINK] (minted)
+OPEN, not built in `#1884`: buying a top-up through the parent link. [coordinator]
+
+### [FU-TOPUP-TUTOR-ENTRY] (minted)
+OPEN, not built in `#1884`: a top-up entry point in the tutor error view. [coordinator]
+
+### [FU-1881-NITS] (minted)
+OPEN, review nits of `#1881`: `fairUseFaq.test.ts:16` has a vacuous regex `/\bAI\\b/`; "pass" wording on /test-series; Test Series owners see no usage bars; stale docstring at `fairUse.cjs:1061`. [coordinator]
+
+### [FU-ORDER-DEDUP-SIGNED-IN] (minted)
+OPEN. `#1890` fixes one order per Pay tap on guest/pay-first checkout. `PassCheckout`, `PacksShop` and `topupBuy` have the same pattern for signed-in buyers. [coordinator]
+
+### [FU-INAPP-INTENT-NO-PACKAGE] (minted)
+OPEN. Try `intent://` without `package=` on a real Android device (Facebook/Instagram in-app browser), as a possible way to make the Chrome hop work. [coordinator]
+
+### [FU-COST-LT_USD_INR] (minted)
+OPEN, owner action. `LT_USD_INR` is unset on Railway, so the cost ledger uses the Rs 88 default. Set it to the rate to use. [coordinator]
+
+### [FU-26NOV-LIVE-VERIFIES] (minted)
+OPEN, live verifies owed: `#1882` (admin cost card), `#1884` (top-up sheet; needs the Vercel redeploy first), `#1885` (parent-first WhatsApp + QR; no rupee figure in the message), `#1887` (admin quick-leave card), `#1888` (signed-in direct WhatsApp), `#1889` (Android Facebook/Instagram: Copy payment link leads once stuck). [coordinator]
+
+## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Status of existing entries.**
+- `[FU-MARK-ON-PHOTO-BANK]`: **CLOSED by `#1877`.**
+- `[FU-MARK-ON-PHOTO-FAIRUSE]`: **CLOSED** — owner ruling 25 Nov 21:30 "Same paper, no new slot" (`#1873`) and 22:17 "cap it to 3" (`#1874`).
+- `[FU-LOOK2-BANK-LIVE]`: **CLOSED** — Chapter Test live, 25 Nov 23:45 (second look reached the job path; with `#1875` the paper graded without needing it).
+- `[FU-LOOK2-SLOW-PAPERS]`: narrowed — the slow papers were own-numbered sheets; `#1875` removes that cause. Still watch `[grade-timing]`.
+
+### [FU-MARK-ON-PHOTO-TRIAL-LIVE] (minted)
+OPEN, live verify. The slot riding (`#1873`), the 3-mark cap (`#1874`) and a Test Series paper mark (`#1877`) were not checked live: the admin account is premium. On a TRIAL account: mark an unread row → the weekly count does not move; the 4th graded mark of one question is refused with "You've already marked this answer 3 times…". [coordinator]
+
+### [FU-MARK-ON-PHOTO-REOPEN-PASS] (minted)
+OPEN, owner. A trial paper reopened more than 24 h later and marked on the photo mints a new paper pass (spends a fair-use paper; after 7 days also a new weekly slot), exactly like "Upload all pages again". Keep, or tell the student in the dialog. [coordinator, from the `#1877` review]
+
+### [FU-MARK-CAP-SCOPE] (minted)
+OPEN, note. The cap of 3 is not enforced for premium, pre-cohort trials, Test Series owners or with `LIMITS_ENFORCE` off (they could already re-upload whole papers); fail-open under heavy contention like all LIMITS-1; a crash between admission and finish loses one count (fails closed). [coordinator, from the reviews]
+
+### [FU-LOCATE-SYNC-SLOW] (minted)
+OPEN, watch. On a SYNC grade (jobs off or refused) a locate call that times out can add up to ~10 s; read `[grade-timing]` `locate.ms` / `ok`. The locate call is tagged `detect-question` in workload telemetry (a `locate` class needs `geminiClient.cjs`). [coordinator, from the `#1875` review]
+
+### [FU-MARK-ON-PHOTO-BANK-BOXING] (minted)
+OPEN, low. A multi-photo or PDF Chapter Test / Full Mock upload cannot be boxed on its pages (the pages live in `ChapterTestUploadPanel.tsx`); the student picks "a photo of just this answer". [coordinator]
+
+### [FU-FIRST-GRADED-SECOND-DEVICE] (minted)
+OPEN, low (analytics only). A first paper graded on device A and marked on device B fires `first_graded` twice. [coordinator, from the `#1877` review]
+
+## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Status of existing entries.**
+- `[FU-UI-E2E-PHASE2-PAGES]`: **partly done by `#1867`** (Answer Checker, Board Pass Pay unpaid); Chapter Test upload and full test remain. Still OPEN.
+
+### [FU-LOOK2-BANK-LIVE] (minted)
+OPEN. `#1870` was live-checked on Answer Checker multi only (12/12, 25 Nov). CLAUDE.md section 4a needs one live run on a bank surface through the job path (Chapter Test or Worksheet upload) before it counts as PASS. [coordinator]
+
+### [FU-LOOK2-REAL-RATE] (minted)
+OPEN, measure. From 26 Nov read `[grade-timing]` `outcomes` (`#1869`) and `secondLook` (`#1870`) on real papers: how many answers are not found / matched to the wrong question, and how many the second look rescues. The eval was synthetic handwriting; real photos are the open question (`[FU-NO-REAL-HANDWRITING-EVAL]`). [coordinator]
+
+### [FU-LOOK2-SLOW-PAPERS] (minted)
+OPEN, watch. On a paper that needs the second look, grading takes about 35 s longer (eval median 117 s vs 82 s on the hardest sheets; up to about 150 s with a first-reading timeout). Cap 90 s, starts only with 20 s or more left. If real papers show it often, consider starting the second look before every chunk has settled. [coordinator]
+
+### [FU-MARK-ON-PHOTO-BANK] (minted)
+OPEN, in build. "Mark it on your photo" for Chapter Test, Full Mock and Worksheet result rows (PR-2 after the Answer Checker PR-1). [coordinator]
+
+### [FU-MARK-ON-PHOTO-FAIRUSE] (minted)
+OPEN, owner. A question marked on the photo is an ordinary graded check (a trial uses one of its 5 a day). Making it free changes fair use and needs the owner's ruling. [coordinator, 25 Nov]
+
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+**Status of existing entries.**
+- `[FU-FM-UNCOUNTED-NOTE]`: **CLOSED by `#1862`** (a settle race, not copy; see CURRENT_STATE). Live verify owed.
+- `[FU-PERF3-HEADROOM]`: **CLOSED by `#1865`** (entry gz 170,613 -> 164,069).
+- `[FU-DESKTOPSHELL-AVATAR-CONTRAST]`: **CLOSED by `#1864`.**
+- `[FU-SCHEME-CACHE-VERSION]`: **CLOSED by `#1863`.** Live verify owed.
+
+### [FU-SCHEME-V3-ROWS] (minted)
+OPEN, small. After `#1863`, the v3 rows stay in Postgres `step_solutions` as dead weight (nothing deletes them). Consider a one-off cleanup once v4 is warm. Also: committed golden-eval run records and scheme files are keyed by v3 hashes, so replays find no scheme (scheme files are already refused when `stepSolution.cjs` changes unless `--scheme-file-force`). [review of `#1863`]
+
+### [FU-TRIAL-CHECKS-DEMO] (minted)
+OPEN, owner. A trial account has 5 Answer Checker checks a day and no admin bypass (`fairUse.cjs`); a 4-question paper uses 4. For demos, use a Board Pass account. [coordinator, 25 Nov]
+
+## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*(Source: the cofounder addendum and the 25 Nov cofounder handoff section 5 [coordinator]. The board was searched first for each tag; none had an entry. Older entries are left as written (standing rule 3).)*
+
+**Status of existing entries.**
+- `[FU-GITHUB-BILL]`: **still OPEN** (owner, by 30 Nov). The repo is now private (GitHub REST `private: true`), so Actions minutes now count against the plan.
+
+### [FU-UI-E2E-PHASE2-PAGES] (minted)
+OPEN. Named in the 25 Nov cofounder handoff section 5 without a board entry. The signed-in harness shipped in `#1856`; next is signed-in page coverage on it: an Answer Checker check, a Chapter Test upload, a full test, and opening Razorpay unpaid, with recorded `/api` replies (no live grading, no payment). After it is clean, propose making `ui-e2e` a required check (`[FU-UI-E2E-REQUIRED-CHECK]`). [coordinator]
+
+### [FU-TS-INPROGRESS-LABEL] (minted)
+OPEN, small (from the `#1859` review). A series paper started but never saved still says "Start:" in the picker, because there is no record and so no status. [coordinator]
+
+### [FU-TS-BACK-SCROLL-SETTLE] (minted)
+OPEN, small (from the `#1859` review). The back flag is consumed by the next /test-series visit, and the scroll can land early while the hero is still loading. [coordinator]
+
+### [FU-TS-RETAKE-NAMES] (minted)
+OPEN, small (from the `#1859` review). Retakes of one series paper share a name (their codes differ); with `VITE_TS_MORE_DISABLED` set, a one-paper chapter is named "… · Paper 1". [coordinator]
+
+### [FU-PAPER-LINE-COPY] (minted)
+OPEN, copy. `salesPagesCopy.ts:85` `PAPER_LINE` "The same questions, organised to print." — check it against the new FAQ framing (`#1858`: packs are offline practice, self-checked, not marked by LazyTopper). [coordinator; line from the addendum, not re-read by the docs builder]
+
+## 2026-11-24 (daily; covers 24-25 Nov IST: merges 14:39 IST 24 Nov to 06:22 IST 25 Nov, i.e. 09:09 UTC 24 Nov to 00:52 UTC 25 Nov; written 24 Nov, updated about 23:05 IST 24 Nov and about 06:30 IST 25 Nov) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 - #1854 - #1852 - #1856 - #1855 - #1853 - #1857 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*(Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` and the coordinator's messages from this session [coordinator]. All tags below are minted here: the board was searched first (sameAs, directories, `login_abandon`, `google_redirect_started`, parent pay link, ui-e2e, Phase 2, buyer score, PERF-3 headroom) and none had an entry with the same meaning. `[FU-UI-E2E-REQUIRED-CHECK]` already exists (23 Nov) and is NOT duplicated; see its status line below. Older entries are left as written (standing rule 3).)*
+
+**Status of existing entries.**
+- `[FU-UI-E2E-REQUIRED-CHECK]` (23 Nov entry stays as written): **still OPEN.** Make `ui-e2e` a required check after a few clean days. Nothing changed on 24 Nov.
+- `#1840` LIVE-FIX-1 live verify (23 Nov, NEXT_ACTION and SURFACE_TRACKER): **Chapter Test surface PASSED** on 24 Nov (checks (a)-(d), Real Numbers Chapter Test 1, freelance.iitian). **Full Mock surface still OWED**, so `#1840` stays PARTIAL there.
+
+### [FU-TS-CHECKOUT-BOTH-OPTIONS] (minted)
+OPEN, IN BUILD as lane TS-PARENT-FORWARD-1; money path. The Test Series checkout keeps Buy and adds "Forward link to parents" (owner ruling, 24 Nov about 21:35 IST; DECISION_LOG 2026-11-24 ruling 2). Evidence: 9 Test Series checkouts in about 15 h with 0 payment attempts, mostly students at night who cannot pay themselves. The lane's pre-flight found the parent message and landing called the Test Series "printable PDFs"; corrected to "board-pattern tests I can take online or print", because series owners can download and print papers (18 Nov ruling). Needs an independent review and a kill switch. Related, not the same: `[FU-TS-UPGRADE-PARENT-GUEST]` (no Test Series upgrade credit on parent pay-link and guest Board Pass checkouts). [coordinator]
+
+### [FU-SAMEAS-MORE-DIRECTORIES] (minted)
+OPEN, small. `#1847` added Crunchbase and Wellfound to the Organization `sameAs` (10 URLs, pinned in `socialProfiles.guard.test.tsx`). Add, each only once its listing is live: F6S (after its approval), Tracxn, and Product Hunt (after the launch). Each addition must update `config/socialProfiles.ts`, `index.html` and the guard test together. [coordinator]
+
+### [FU-LOGIN-ABANDON-REDIRECT-STEP] (minted)
+**CLOSED, not a bug.** The question was whether `login_abandon` events at the `google_redirect_started` step are a measurement bug. They are not: `lazytopper/src/utils/loginAbandon.ts` (header comment, about lines 37-40, and `EXPECTED_UNLOAD` at line 60) records the Google redirect and the Chrome hand-off with `leave: "expected"`, because those steps unload the page on purpose; a real abandonment is `leave: "abandon"`. Count drop-off with `leave: "abandon"` only. Events came from `#1601` LOGIN-FIX-2. [coordinator; code read at trunk `2d851629`, git]
+
+### [FU-UI-E2E-PHASE2-TEST-SIGNIN] (minted)
+OPEN, spec written, **waiting for the owner's OK.** UI tests Phase 2 (signed-in real-browser checks) needs a sign-in that works only in the test build: the spec uses the Firebase emulator in the CI build, with no server change. Auth path: independent review before merge. Phase 1 is `#1838` (six signed-out pages). [coordinator]
+
+### [FU-BUYERSCORE-LAZY-TEST] (minted)
+OPEN, review nits on `#1819` BUYER-SCORE-1 (APPROVE-WITH-NITS): (1) lazy-load test 2 is misnamed and near-vacuous; (2) no test pins the about 2 s late load of the score; (3) the kill-switch regex lost its `.trim()`; (4) `engaged10` now depends on the buyerScore chunks; (5) stacked JSDoc blocks. [coordinator]
+
+### [FU-PERF3-HEADROOM-34B] (minted)
+OPEN, budget decision needed. After `#1819` the PERF-3 entry chunk is 170,593 of the 170,627 gz budget: **34 B left**. The next PR that adds any byte to the entry chunk needs a budget decision (raise the budget with a reason, or move code out of the entry). `#1819` was first 217 B over (170,844) in the production-flag build while the local non-flag build hid it, so measure the production-flag build. [coordinator]
+
+### [FU-OUTREACH-TASK-NO-COMPUTER] (minted)
+OPEN, owner action. The school-outreach scheduled task has no computer attached: the owner's 22:08 IST manual run on 24 Nov ended in about 1.5 min without touching the tracker. The owner will fix it himself (desktop app, "Require this computer") before the next run, 25 Nov 11:37 IST. Check after that run that the tracker moved. [coordinator]
+
+### [FU-META-TEST-EVENT-CODE-REMOVE] (minted)
+OPEN, after Meta Test Events. The owner and Pallabi run Meta Test Events (one Board Pass order plus one pack order, one deduplicated InitiateCheckout each) at the end of the 24 Nov session, else the next session. Then remove `META_TEST_EVENT_CODE` from Railway (it is only for the test run). [coordinator]
+
+### 25 NOV UPDATE (same PR, before merge; `#1854`, `#1852`, `#1856`, `#1855`, `#1853`, `#1857`)
+*(Source: the coordinator's messages from this session (https://claude.ai/code/session_01QscBGog9Fe4ZxiPQ6vdGo7) [coordinator]; PR numbers and SHAs [git]. The board was searched for every tag below before minting (`grep -c` = 0 for each new ID, and for "MutationObserver" in this sense). Where the coordinator proposed an ID whose meaning already has an entry minted earlier in this same section, the existing entry is updated instead of minting a duplicate, as named in each status line. Older dated entries are left as written (standing rule 3).)*
+
+**Status of existing entries.**
+- `[FU-FAIRUSE-TS-OWNER-EXEMPT]` (23 Nov entry stays as written): **CLOSED by `#1854`** (`e634c25c`) FAIRUSE-TS-OWNER-1: the server paper pass and the client gate exempt Test Series owners and Board Pass holders from the trial weekly paper limit; the tier is read uncached right after payment. Confirmed live on Full Mock (no wall, Start works) [coordinator]. Remaining caches: `[FU-LIMITS-POSTPAY-CACHE]`, `[FU-FAIRUSE-ISPREMIUM-CACHE]`.
+- `[FU-TS-CHECKOUT-BOTH-OPTIONS]` (above): **CLOSED by `#1852`** (signed in) **and `#1855`** (signed out, no sign-in). Remaining copy nit: `[FU-TS-PARENT-HEADING]`. `[FU-TS-UPGRADE-PARENT-GUEST]` is unchanged and still OPEN.
+- `[FU-UI-E2E-PHASE2-TEST-SIGNIN]` (above): **CLOSED by `#1856`** (`714e4325`) UI-E2E-2-SIGNIN (CI-only signed-in smoke on the Firebase emulators; independent security review APPROVE-WITH-NITS). The next step is Phase 2 page coverage on this harness. Nits: `[FU-UIE2E2-NITS]`.
+- `[FU-PERF3-HEADROOM-34B]` (above): **SUPERSEDED by `[FU-PERF3-HEADROOM]`** (the headroom is no longer 34 B).
+- `[FU-OUTREACH-TASK-NO-COMPUTER]` (above): **still OPEN.** The coordinator's proposed ID FU-OUTREACH-COMPUTER (not a board tag) has the same meaning and is NOT minted (standing rule 2: the first writer records it). The 24 Nov 22:08 run did nothing; the owner toggles "Require this computer".
+- `[FU-META-TEST-EVENT-CODE-REMOVE]` (above): **still OPEN.** The proposed ID FU-META-TEST-EVENTS (not a board tag) has the same meaning and is NOT minted: the owner and Pallabi run Meta Test Events, then remove `META_TEST_EVENT_CODE` from Railway.
+- `[FU-BUYERSCORE-LAZY-TEST]` (above): **still OPEN**, unchanged; already minted, not duplicated.
+- `[FU-UI-E2E-REQUIRED-CHECK]` (23 Nov): still OPEN, unchanged.
+
+### [FU-PERF3-HEADROOM] (minted)
+OPEN, standing budget rule. The PERF-3 entry chunk is about **16 B** under the 170,627 gz budget after tonight's merges. A new entry export alias alone added 6 B and failed CI tonight. **Any PR touching entry-chunk imports must compare raw entry bytes with trunk on a production-flag build** (the local non-flag build has hidden overruns before: `#1819`, 217 B). Next addition needs a budget decision (raise with a reason, or move code out of the entry). Supersedes `[FU-PERF3-HEADROOM-34B]`. [coordinator]
+
+### [FU-FM-UNCOUNTED-NOTE] (minted)
+OPEN, copy only. On Full Mock, after `#1854`, a one-answer sheet was graded and checks stayed 2 of 2 (correct), but the "This check wasn't counted" note that Chapter Test shows is missing on Full Mock (live check 25 Nov about 06:45 IST, freelance.iitian, trunk `0ae599c7`). Not a grading change: marks and counting are right; only the note is absent. [coordinator]
+
+### [FU-1840-FM-LIVE] (minted)
+OPEN, live check owed. `#1840` LIVE-FIX-1 checks (a) (fully graded with not-attempted rows) and (d) (checks left go down) are still owed on a **Full Mock**; the Chapter Test surface PASSED on 24 Nov, and (b) on Full Mock was seen on 25 Nov apart from the missing note (`[FU-FM-UNCOUNTED-NOTE]`). Until (a) and (d) pass, `#1840` stays PARTIAL on Full Mock. [coordinator]
+
+### [FU-LIMITS-POSTPAY-CACHE] (minted)
+OPEN, entitlement. `limits.cjs` caches the trial tier for 60 s, so a download right after payment can still see the trial tier. `#1854` reads the tier uncached for the paper pass only. [coordinator]
+
+### [FU-FAIRUSE-ISPREMIUM-CACHE] (minted)
+OPEN, entitlement. The fair-use overload path keeps a 5-minute cache of premium status, so a fresh payment may not be seen there for up to 5 minutes. Recorded with `#1854`. [coordinator]
+
+### [FU-TS-PARENT-HEADING] (minted)
+OPEN, copy. The parent pay page heading says "Pack" when the item is the Test Series (after `#1852` / `#1855`). [coordinator]
+
+### [FU-UIE2E2-NITS] (minted)
+OPEN, review nits on `#1856` UI-E2E-2-SIGNIN (security review APPROVE-WITH-NITS): (1) `tests/e2e/buildEnv.signedIn.json` cites a nonexistent `--sources` flag; (2) `scripts/ops/e2e_emulator_absent.mjs` says it runs in the Railway image, but `Dockerfile:49` builds the backend only; (3) the `demo-` project id (relayed as a nit without further detail). [coordinator]
+
+### [FU-FMP2-NITS] (minted)
+OPEN, review nits on `#1857` FOUNDING-MSG-PRICE-2 (APPROVE-WITH-NITS): (1) `abandonedCheckout.cjs` hardcodes `'test_series'` as the only founding-priced pack; (2) an empty if-branch in `guestAbandonEmail.cjs`; (3) `rupees()` is now unused in `nudgeConciergeTemplates.cjs`; (4) **Test Series abandoned-checkout emails are null** because `packDisplayName` lacks `test_series`, so no abandoned-checkout email goes out for the Test Series. Item 4 is a real gap, not only style. [coordinator]
+
+### [FU-PRICING-MUTATIONOBSERVER-SCOPE] (minted)
+OPEN, review nit on `#1853` PRICING-CTA-UP-1 (reviews APPROVE-WITH-NITS): the scope of the MutationObserver added on /pricing. The coordinator relayed only the ID; take the detail from the `#1853` review before building. [coordinator]
+
+### [FU-BOARDPASS-PAY-ALIGN] (minted)
+OPEN, cosmetic, partly by design. Signed out, the Board Pass Pay button sits 8 px above the others because its label wraps to two lines. For a Test Series owner the upgrade line ("Upgrade for ₹918 + GST — you've already paid for the Test Series") pushes it about 58 px up: that is by design. Owner ruling: Buys aligned (DECISION_LOG 2026-11-24 ruling 11). [coordinator]
+
+### [FU-GITHUB-BILL] (minted)
+OPEN, owner action, uptime risk. GitHub shows an overdue bill; pay by 30 Nov. The repo goes PRIVATE after tonight's PRs, and private repos consume Actions minutes, so an unpaid bill can stop CI. [coordinator]
+
+## 2026-11-23 (daily; UTC day 23 Nov, written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
+
+*(Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-23.md` section 6 [coordinator]. Tags the handoff gave are used as written; a tag marked "minted" had none in the handoff and was named here so it has its own heading (standing rule 1). Older entries are left as written (standing rule 3); the corrections are here.)*
+
+**Closed or corrected this window.**
+- `[FU-BANK-SOLUTIONSTEPS-1875]` (its 18 Nov entry stays as written): **CLOSED as mis-stated.** "About 1,875 B to E rows lack `solutionSteps`" was a stale misreading of a 25 Oct figure. Measured at trunk `66ffe1f7`: 10,175 served rows, 0 rows without `solutionSteps` (every 2-5-mark row has them), 328 rows lacking step MARKS (311 Science, 17 Maths). The real work was STEPMARK-3 (below).
+- `[FU-STEPMARK-REMAINING-1875]` (its older entry stays as written): **UPDATED.** The step-mark backfill is done: 328 rows without step marks, now **26 flagged and withheld** (`[FU-STEPMARK-26-FLAGGED]`). The "every question step-marked" copy (ads, `/packs`, creatives; the variant copy is ready) can now say "all but a few flagged questions"; do not say "every" until the 26 are fixed or retired. Grep the whole claim family when flipping (PackDialog, ledes, alt text).
+- `[FU-BOARD-READINESS-MODEL]`: **SUPERSEDED** by the owner's 23 Nov 19:04 IST ruling. The old rule "no board-readiness projection, ever" (cited in `scorecardVariants.ts` and `boardEstimate.ts`; there was no heading for it on this board) no longer stands: the board estimate shipped in `#1832` (full-length scorecards out of 80, a trend, and an estimate with a range, shown only after at least two fully graded same-subject 80-mark full tests; 20 internal-assessment marks not included; kill switch `VITE_BOARD_ESTIMATE_DISABLED`). Reason: students and parents want to know where they stand, and competitors (Vedantu Board Score Booster) are moving there. What stays open: the estimate is not yet seen live, and its model is simple (weighted mean of the last five, with a +/- band); revisit when real scores exist.
+- `[FU-SCHEME-GEN-EMPTY]` (P0 in the 22 Nov entries; those entries stay as written): **FIX MERGED in `#1822`; do NOT close yet.** Truncated schemes went from 73 to 0 on the golden eval, but that evidence is from the stand-in model gemini-3.8-flash. Close it after the Railway `[scheme-gen]` line and `scheme_gen.{ok,max_tokens,parse_fail,error}` counters confirm production (`[FU-SCHEME-GEN-PROD-LOGS]`).
+
+### [FU-FAIRUSE-TS-OWNER-EXEMPT]
+OPEN. The server's FAIR-USE paper pass (`fairUse.cjs` `handlePaperPass`) has no Test Series owner exemption. So a trial-tier Test Series buyer could write a whole paper and then be refused at grade time (409 `trial_limit`). `#1840` first skipped the client weekly-limit check for series owners (unrequested); that was **reverted** (cofounder ruling 16, DECISION_LOG). Fix order: add the exemption server-side first, then relax the client so series owners can start a second paper in a week. Money / entitlement path: needs a spec, an independent review and a kill switch. [coordinator]
+
+### [FU-ADD-PAGE-MERGE-GRADES]
+OPEN, possible later lane. A re-upload ("Upload all pages again") replaces the earlier check; grades are NOT merged (cofounder ruling 15). Merging a re-upload with the earlier grade would let a student add only the missing page. Grading path: needs an eval, and CLAUDE.md section 4a applies (all six surfaces, two live). [coordinator]
+
+### [FU-STEPMARK-26-FLAGGED]
+OPEN, content. Hand-fix the 26 bank rows left without step marks, all flagged and withheld (`#1842`'s PR body lists them by id): 5 with the figure missing from the row; 3 whose stem asks for a diagram the steps do not include; 5 with garbled text or extraction residue; 2 with wrong content (CARB-EXMPLR-4-LONG-010, HERED-NCERT-8-SA-005); 11 one-clause 2-mark rows with a single value point (this group, and SCQ-S-EYE-021, stay flagged). `src/data/` is globally forbidden unless scoped; re-read `syllabusGuard.ts` first. [coordinator]
+
+### [FU-SCHEME-CP04-SUPPORT-VALUE]
+OPEN, needs its own eval. CP04-Q03 is over-credited on BOTH trunk and the `#1822` fix: a supporting value plus its formula gets 1 mark where the board gives 1/2. Fix idea: cap at 1/2 in "Can...? give reason" questions. [coordinator]
+
+### [FU-SCHEME-CACHE-VERSION] (minted)
+OPEN, owner decision. Schemes cached under the old prompt stay in use, so the `#1822` prompt rules 13-15 only reach cache misses. Bumping `CACHE_VERSION` (v3) regenerates every cached scheme and costs money. [coordinator]
+
+### [FU-SCHEME-EXAMPLE-S13] (minted)
+OPEN, small prompt fix plus a re-check. The `#1822` prompt example (iron / copper sulphate) merges "balanced equation" and "state symbols" into one step; CLAUDE.md section 13 says two separate 1/2 steps. [coordinator]
+
+### [FU-SCHEME-GEN-PROD-LOGS] (minted)
+OPEN, Railway. Confirm the production `[scheme-gen]` log line and the `scheme_gen.{ok,max_tokens,parse_fail,error}` counters. The truncation evidence came from the eval stand-in gemini-3.8-flash, while production runs gemini-2.5-flash. [coordinator]
+
+### [FU-ISLIVEPACK-REFUND]
+OPEN, low priority (pre-existing, found in the `#1836` review). `isLivePack` ignores `refundedAt` / `revokedAt`, so a refunded owner would keep pack access. Not urgent because there are never refunds. [coordinator]
+
+### [FU-DESKTOPSHELL-AVATAR-CONTRAST]
+OPEN. The desktop sidebar avatar gradient is still white on light green (2.70:1). `DesktopShell.tsx` is globally forbidden, so this needs a scoped owner grant. [coordinator]
+
+### [FU-GREEN-GUARD-LIMIT] (minted)
+OPEN, accept or extend. `greenContrast.guard.test.ts` (`#1841`) only catches a background and white text in the same CSS rule. [coordinator]
+
+### [FU-UI-E2E-REQUIRED-CHECK] (minted)
+OPEN. Make `ui-e2e` a required check after a few clean days. Keep `tests/e2e/buildEnv.json` in sync with Vercel production `VITE_*` flags; optionally set the flags on Vercel Preview. It runs on every PR now (about 2.5 min). [coordinator]
+
+### [FU-UI-E2E-SNAPSHOT-REFRESH] (minted)
+Method. Refresh screenshots by running the ui-e2e workflow with `update_snapshots` ticked, then commit the artifact; refresh only intended changes and look at them first. [coordinator]
+
+### [FU-PRERENDER-CAPTURE-ARTIFACT] (minted)
+Method, hit twice this session. Any CSS or copy change on a prerendered page fails `capture` until the capture job's own artifact is committed unedited. [coordinator]
+
+### [FU-FOCUS-SET-SNAPSHOT] (minted)
+OPTIONAL. The `/test-series` ui-e2e snapshot covers only the top of the page; the focus-set picker tab sits below it. A lower snapshot would cover it. [coordinator]
+
+### [FU-SHORTER-FEEDBACK-EVAL] (minted)
+OPTIONAL, needs the owner's spend OK (about ₹150). Fewer output tokens could save about 6 s on a single check. The thinking-setting eval (₹340) found no ship candidate; keep dynamic thinking. [coordinator]
+
+### [FU-SERVER-UNREADABLE-SHARE]
+OPEN, small server change plus a test. The server should send `{unreadable, total}` in the grade response so the client stops mirroring the share (`UNREADABLE_SHARE` 0.5). Today the client also counts genuine blank slots, so a student who truly skipped half the written questions stays "partial" with no final /80. The safe direction today. [coordinator]
+
+### [FU-OWNERSHIP-EXTRA-READ] (minted)
+NIT, accepted. `useTestSeriesOwnership` adds one `/api/packs/mine` read per mount of a `refreshKey` reader (from `#1840`). [coordinator]
+
+**Carried from 22 Nov, still open [coordinator]** (their entries are above): INAPP-SIGNED-IN-HANDOFF (spec first); `[FU-TS-UPGRADE-SIGNED-OUT]`; `[FU-NUDGE-BAD-PRODUCT]`; reviewer nits on `#1808`, `#1817` and `#1809`; CI flakes (`[FU-FLAKY-TRIAL-TUTOR-SUMMARY]`, `[FU-FLAKY-GUESTPAY-PUT-ON-THIS-ACCOUNT]`); laptop worktree cleanup; the 21 Nov queue (speed lane for ad landing pages, free MCQ pages, signed-out free-check phone test).
+
 ## 2026-11-22b (first daily of UTC day 22 Nov; written 22 Nov about 18:15 IST) - #1810 - #1815 - #1813 - #1812 - #1814 - #1808 - #1817 - #1805 - #1809 FOLLOW-UPS (recorded by the docs builder under CLAUDE.md section 10)
 
 **Closed:** `[FU-RESULT-LIST-BACKFILL]` by `#1814` (read-time derivation, no data write; checked on the owner's account [coordinator]). Its 22 Nov entry below is left as written (standing rule 3).

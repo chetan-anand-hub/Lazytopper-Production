@@ -40,6 +40,15 @@
   font-size: 0.85rem;
   line-height: 1.35;
 }
+/* LIVE-FIX-1 - the amount charged (GST included), as on every Pay button; keeps its line until the clock-derived figure arrives. */
+.lt-wcg__pay {
+  display: block;
+  min-height: 1.35em;
+  margin-top: 2px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
 .lt-wcg__dl {
   display: inline-flex;
   align-items: center;
@@ -56,6 +65,10 @@
 @media (min-width: 560px) {
   .lt-wcg__offers {
     grid-template-columns: 1fr 1fr;
+  }
+  /* One offer (a wall that carries the other offer itself): full width, never half a grid. */
+  .lt-wcg__offers--one {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -102,3 +115,26 @@
   font-weight: 600;
   color: #0e7c47;
 }
+
+/* TS-FREE-SIGNEDOUT - the signed-out "sign in to get your answers marked" card (in place of the paper, mobile-first). */
+.lt-wcg--signin {
+  max-width: 520px;
+  margin: 24px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lt-wcg__sub {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #3d4a5f;
+}
+.lt-wcg__btn--block {
+  width: 100%;
+  border: 0;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button.lt-wcg__dl { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; text-align: left; }

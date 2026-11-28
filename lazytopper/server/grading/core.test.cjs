@@ -21,6 +21,10 @@
 //
 // Run: node --test server/grading/core.test.cjs   (from lazytopper/)
 
+// LOCATE-FIRST-1: this harness stubs the model with a queue of GRADING replies; the locate call (one per one-document
+// paper) would consume one of them. The locate step is tested in locate.test.cjs; here it is switched OFF explicitly,
+// which restores the trunk request byte-for-byte (the kill switch).
+process.env.GRADING_LOCATE_DISABLED = '1';
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
@@ -826,6 +830,7 @@ test('§P0.11 router mode: each routed group is held to ITS OWN reply\'s invento
       : WITH_INV(INV([1, '(c) TtWW']), R(1, [S({ studentWork: '(c) TtWW' })], { finalAnswerCorrect: true }))),
   });
   const body = (await h.sheet(sheet(qs, DOC))).body;
+  // GRADE-SECOND-LOOK-1 (G0): neither reply reports an unplaced answer, so the missing Q2 costs no second look.
   assert.deepEqual(h.calls.map((c) => c.model).sort(), ['light-model', 'strong-model'], 'one call per routed group');
   assert.deepEqual(body.results.map((r) => r.marksAwarded), [1, 0], 'Q1 listed by its group keeps its mark; Q2 is absent from ITS group\'s inventory');
 });

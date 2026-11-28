@@ -13,7 +13,7 @@
 // light, green hsl(152,55%,45%), Fraunces + Inter. Two-panel scaffold; the
 // explanation panel stays a CLOSED Stage-3 placeholder.
 
-import { Fragment, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ClipboardEvent, type FormEvent, type KeyboardEvent } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 // TUTOR-FIX-2 (S-C) — chapter-first cold entry, the deterministic offer rule, typed errors.
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
@@ -37,6 +37,12 @@ import TutorCheckCard, { TutorNextFix } from "../../components/tutorSticky/Tutor
 import "../../components/question/katexEager";
 import NcertPageModal, { type NcertPageRef } from "../../components/notes/NcertPageModal";
 import { useTutorSession } from "./useTutorSession";
+// TUTOR-IMAGE-1 - attach a photo of a question/page: Answer Checker's own upload step (crop, upright, compress, guard).
+import PageTray, { usePageTray, type TrayPayload } from "../../components/upload/PageTray";
+import { checkUploadFile } from "../../services/uploadLimits";
+// TUTOR-PASTE-1: the crop dialog names what the TUTOR wants (Answer Checker keeps its own default line).
+const TUTOR_CROP_COPY = "Drag the corners to just the question you want explained — or use the whole photo.";
+import { TUTOR_IMAGE_ONLY_TEXT, isTutorImageDisabled } from "../../ai/tutorImage";
 import TutorCheckImproveOverlay from "./TutorCheckImproveOverlay";
 import TutorQuickPracticeOverlay from "./TutorQuickPracticeOverlay";
 import { safeInternalReturnTo } from "./tutorPath";
@@ -293,11 +299,74 @@ function TutorSession() {
     setArrivalDecided(true);
     setArrivalIdx(arrivalDividerIndex({ concept, messages, pending }));
   }, [arrivalDecided, messages, concept, pending]);
-  const send = (text: string) => {
+  const send = (text: string, image?: TutorTurn["image"]) => {
     studentSentRef.current = true;
-    sendToTutor(text);
+    return image ? sendToTutor(text, image) : sendToTutor(text);
   };
-  const composerRef = useRef<HTMLInputElement | null>(null);
+  const composerRef = useRef<HTMLTextAreaElement | null>(null);
+  // TUTOR-IMAGE-1: one photo per message, held until Send. A PDF is refused here (the tutor reads photos).
+  const imageEnabled = !isTutorImageDisabled();
+  const [photo, setPhoto] = useState<TrayPayload | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
+  const photoTray = usePageTray({
+    allowMultiPage: false,
+    check: (file) =>
+      file.type === "application/pdf"
+        ? { ok: false, message: "Please attach a photo (JPG or PNG), not a PDF." }
+        : checkUploadFile(file, "question"),
+    onPayload: (p) => {
+      setPhoto(p);
+      if (p) setPhotoError(null);
+    },
+    onError: setPhotoError,
+  });
+  // TUTOR-PASTE-1: a pasted clipboard IMAGE goes through the same tray as the camera button (crop, upright,
+  // compress, guard; one photo, a second paste replaces the first). Text paste is never intercepted: with no
+  // image file on the clipboard we return without preventDefault.
+  const onComposerPaste = (e: ClipboardEvent<HTMLFormElement>) => {
+    if (!imageEnabled || status === "sending" || photoTray.busy) return;
+    const cd = e.clipboardData;
+    const fromFiles = cd?.files ? Array.from(cd.files) : [];
+    let img = fromFiles.find((f) => f.type.startsWith("image/"));
+    if (!img && cd?.items) {
+      // Android keyboards (Gboard, Samsung) can expose a pasted image only as a clipboard item.
+      for (const it of Array.from(cd.items)) {
+        if (it.kind === "file" && it.type.startsWith("image/")) {
+          const f = it.getAsFile();
+          if (f) {
+            img = f;
+            break;
+          }
+        }
+      }
+    }
+    if (!img) return;
+    e.preventDefault();
+    setPhotoError(null);
+    photoTray.addFiles([img], { replace: true });
+  };
+  // TUTOR-INPUT-1: the composer grows with the text (1 line -> ~6 lines, then scrolls).
+  useEffect(() => {
+    const el = composerRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 144)}px`;
+  }, [draft]);
+  // Enter sends only with a mouse/keyboard (fine pointer); on touch it is a newline and Send sends.
+  // Shift+Enter is always a newline.
+  const onComposerKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
+    let fine = false;
+    try {
+      fine = typeof window.matchMedia === "function" && window.matchMedia("(pointer: fine)").matches;
+    } catch {
+      fine = false;
+    }
+    if (!fine) return;
+    e.preventDefault();
+    e.currentTarget.form?.requestSubmit();
+  };
 
   // ── TUTOR-STICKY-1 — every explanation ends in a one-tap check ─────────────────────────────────────────
   // A LIVE reply (the status went sending -> idle) is followed by ONE similar objective bank question, graded
@@ -429,9 +498,18 @@ function TutorSession() {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const text = draft.trim();
-    if (!text || status === "sending") return;
+    if ((!text && !photo) || status === "sending") return;
+    // Clear the draft and the photo only once the message was accepted (never a silent drop).
+    if (photo && (photo.imageMimeType === "image/jpeg" || photo.imageMimeType === "image/png")) {
+      const image = { imageBase64: photo.imageBase64, imageMimeType: photo.imageMimeType };
+      if (send(text || TUTOR_IMAGE_ONLY_TEXT, image) === false) return;
+      setDraft("");
+      photoTray.clear();
+      setPhoto(null);
+      return;
+    }
+    if (send(text) === false) return;
     setDraft("");
-    send(text);
   };
 
   // TUTOR-FIX-2 T4.3 — at phone width the diagram is a BOTTOM SHEET docked ABOVE the composer
@@ -464,7 +542,16 @@ function TutorSession() {
         return (
           <div key={i} className="lt-tutor__s">
             <span>
-              <MathText text={m.content} />
+              {m.image ? (
+                <img
+                  className="lt-tutor__simg"
+                  src={`data:${m.image.imageMimeType};base64,${m.image.imageBase64}`}
+                  alt="The photo you attached"
+                />
+              ) : m.hasImage ? (
+                <em className="lt-tutor__simgnote">Photo attached</em>
+              ) : null}
+              <MathText text={m.content.trim()} />
             </span>
           </div>
         );
@@ -709,7 +796,7 @@ function TutorSession() {
             </div>
           )}
 
-          <form className="lt-tutor__composer" onSubmit={onSubmit}>
+          <form className="lt-tutor__composer" onSubmit={onSubmit} onPaste={onComposerPaste}>
             {/* TUTOR-FIX-2 T11 — the two round trips, PERMANENT, next to the composer at every
                 width: they open the overlays directly, never waiting on the model's wording. */}
             <div className="lt-tutor__tools" role="group" aria-label="Your work">
@@ -732,13 +819,81 @@ function TutorSession() {
                 Practise this chapter
               </button>
             </div>
+            {imageEnabled && <PageTray tray={photoTray} disabled={status === "sending"} cropCopy={TUTOR_CROP_COPY} />}
+            {imageEnabled && photo && photoTray.pages.length === 0 && (
+              <div className="lt-tutor__prev" data-testid="tutor-photo-preview">
+                <img
+                  src={`data:${photo.imageMimeType};base64,${photo.imageBase64}`}
+                  alt="The photo you are sending"
+                  className="lt-tutor__previmg"
+                />
+                <span className="lt-tutor__prevname">Photo ready to send</span>
+                <button
+                  type="button"
+                  className="lt-tutor__prevdel"
+                  data-testid="tutor-photo-remove"
+                  aria-label="Remove the photo"
+                  onClick={() => {
+                    photoTray.clear();
+                    setPhoto(null);
+                  }}
+                  disabled={status === "sending"}
+                >
+                  &times;
+                </button>
+              </div>
+            )}
+            {imageEnabled && photoError && (
+              <p className="lt-tutor__photoerr" role="alert" data-testid="tutor-photo-error">
+                {photoError}
+              </p>
+            )}
+            {imageEnabled && !photo && photoTray.pages.length === 0 && (
+              <p className="lt-tutor__phint" data-testid="tutor-paste-hint">
+                Photo or paste a screenshot
+              </p>
+            )}
             <div className="lt-tutor__cbar">
-              <input
+              {imageEnabled && (
+                <>
+                  <button
+                    type="button"
+                    className="lt-tutor__attach"
+                    data-testid="tutor-attach"
+                    aria-label="Attach a photo of a question or page"
+                    title="Attach a photo"
+                    disabled={status === "sending" || photoTray.busy || Boolean(photo)}
+                    onClick={() => photoInputRef.current?.click()}
+                  >
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
+                      <circle cx="12" cy="12.5" r="3.5" />
+                    </svg>
+                  </button>
+                  {/* No `capture`, never `multiple`: a phone offers Camera or Gallery, a desktop its file picker. */}
+                  <input
+                    ref={photoInputRef}
+                    className="lt-tutor__file"
+                    type="file"
+                    accept="image/jpeg,image/png"
+                    data-testid="tutor-attach-input"
+                    onChange={(e) => {
+                      const files = e.target.files ? Array.from(e.target.files) : [];
+                      e.target.value = "";
+                      setPhotoError(null);
+                      photoTray.addFiles(files.slice(0, 1), { replace: true });
+                    }}
+                  />
+                </>
+              )}
+              <textarea
                 ref={composerRef}
                 className="lt-tutor__input"
+                rows={1}
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder={`Ask about ${topicLabel.toLowerCase()} in English, Hindi, or Hinglish...`}
+                onKeyDown={onComposerKeyDown}
+                placeholder="Ask a doubt — English, Hindi or Hinglish"
                 aria-label={`Ask about ${topicLabel}`}
                 disabled={status === "sending"}
                 autoComplete="off"
@@ -747,7 +902,7 @@ function TutorSession() {
                 type="submit"
                 className="lt-tutor__send"
                 aria-label="Send"
-                disabled={status === "sending" || !draft.trim()}
+                disabled={status === "sending" || (!draft.trim() && !photo)}
               >
                 <span aria-hidden="true">&uarr;</span>
               </button>
@@ -903,7 +1058,24 @@ const TUTOR_CSS = `
   max-width: 96%;
 }
 .lt-tutor__s { display: flex; justify-content: flex-end; margin: 0 0 15px; }
+.lt-tutor__simg { display: block; max-width: 100%; max-height: 180px; border-radius: 10px; margin: 0 0 6px; object-fit: contain; background: rgba(255,255,255,0.15); }
+.lt-tutor__simgnote { display: block; font-size: 12.5px; opacity: 0.9; margin: 0 0 4px; }
+.lt-tutor__attach {
+  flex: none; width: 34px; height: 34px; border-radius: 10px; border: none; background: transparent;
+  color: var(--lt-ink); display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.lt-tutor__attach:disabled { opacity: 0.4; cursor: default; }
+.lt-tutor__file { display: none; }
+.lt-tutor__attach { margin-left: -8px; }
+.lt-tutor__prev { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; padding: 6px; border: 1px solid var(--lt-line); border-radius: 12px; background: #fff; }
+.lt-tutor__previmg { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; }
+.lt-tutor__prevname { flex: 1; font-size: 13px; color: var(--lt-ink); }
+.lt-tutor__prevdel { flex: none; width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--lt-line); background: #fff; font-size: 18px; line-height: 1; cursor: pointer; color: var(--lt-ink); }
+.lt-tutor__phint { margin: 0 0 4px 2px; font-size: 12px; line-height: 1.3; color: var(--lt-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lt-tutor__photoerr { margin: 0 0 6px; font-size: 13px; line-height: 1.4; color: #b42318; font-weight: 600; }
 .lt-tutor__s span {
+  display: block;
+  width: fit-content;
   background: var(--lt-green);
   color: #fff;
   font-size: 14.5px;
@@ -1077,7 +1249,7 @@ const TUTOR_CSS = `
 }
 .lt-tutor__cbar {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 9px;
   background: var(--lt-bg);
   border: 1px solid var(--lt-line);
@@ -1091,8 +1263,14 @@ const TUTOR_CSS = `
   background: transparent;
   font-family: var(--font-body, "Inter", system-ui, sans-serif);
   font-size: 14px;
+  line-height: 1.45;
   color: var(--lt-ink);
   outline: none;
+  resize: none;
+  min-height: 22px;
+  max-height: 144px;
+  overflow-y: auto;
+  padding: 6px 0;
 }
 .lt-tutor__input::placeholder { color: var(--lt-faint); }
 .lt-tutor__send {

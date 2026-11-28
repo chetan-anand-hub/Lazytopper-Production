@@ -192,7 +192,7 @@ function fakeRazorpay() {
 }
 
 /* ── parent-pay routes AND the existing payment routes, behind one real HTTP server ── */
-async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), clock, displayNames = { child1: 'Aarav Sharma' }, rateLimiter, receiptEmailer } = {}) {
+async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRazorpay(), clock, displayNames = { child1: 'Aarav Sharma' }, rateLimiter, receiptEmailer, serverEvents } = {}) {
   const { sendJson } = createHttpUtils('*');
   const events = [];
   const telemetry = { increment: (e) => events.push(e) };
@@ -208,6 +208,7 @@ async function startRoutes({ env = ENV_ON, db = memoryFirestore(), rzp = fakeRaz
     sendJson, verifiedCaller, adminFirestore: db, telemetry, env, fetchImpl: rzp.fetchImpl, now,
     foundingOfferOpen: true,
     ...(receiptEmailer ? { receiptEmailer } : {}),
+    ...(serverEvents ? { serverEvents } : {}), // META-IC-1
     getDisplayName: async (uid) => displayNames[uid] || '',
     ...(rateLimiter ? { rateLimiter } : {}),
   });
@@ -1514,6 +1515,71 @@ test('TS-PRICE-2 · parent link: a founding-member child gets no exemption for a
   assert.equal(r.status, 400, r.text);
   assert.equal(r.json.reason, 'order_expired');
   assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0);
+});
+
+// ---- TS-PARENT-FORWARD-1: the two parent-link steps for the Test Series that had no test (tests only; no server change) ---------
+test('TS-PARENT-FORWARD-1 · VIEW: a Test Series link shows the Test Series at the SERVER price (target "all"); an owner child gets "owned"', async (t) => {
+  const CUT = Date.parse('2026-12-01T00:00:00+05:30');
+  const srv = await startRoutes({ env: ENV_PACKS, clock: { t: CUT - 1 } });
+  t.after(srv.close);
+  const m = await mintPack(srv, { sku: 'test_series' });
+  assert.equal(m.status, 200, m.text);
+  const v = await request(srv.port, PARENT_VIEW_PATH, { body: { token: m.json.token } });
+  assert.equal(v.status, 200, v.text);
+  assert.deepEqual(v.json.pack, { sku: 'test_series', target: 'all', priceInr: 999, totalInr: 1179, gstInr: 180 });
+  // The child comes to own the Test Series another way: the same link now refuses to show a price.
+  ownPack(srv.db, 'child1', 'test_series:all');
+  const owned = await request(srv.port, PARENT_VIEW_PATH, { body: { token: m.json.token } });
+  assert.equal(owned.json.reason, 'owned', owned.text);
+  assert.equal(owned.json.pack, undefined);
+});
+
+test('TS-PARENT-FORWARD-1 · VERIFY: a paid Test Series parent order writes test_series:all to the CHILD (never the parent, never grantPass)', async (t) => {
+  const CUT = Date.parse('2026-12-01T00:00:00+05:30');
+  const srv = await startRoutes({ env: ENV_PACKS, clock: { t: CUT - 1 } });
+  t.after(srv.close);
+  const m = await mintPack(srv, { sku: 'test_series' });
+  const o = await request(srv.port, PARENT_ORDER_PATH, { body: { token: m.json.token, product: 'pack' } });
+  assert.equal(o.status, 200, o.text);
+  assert.equal(o.json.amountPaise, 117900);
+  const p = srv.rzp.pay(o.json.orderId);
+  const v = await parentVerify(srv, m.json.token, o.json.orderId, p.id, asUid('parentOwnAccount'));
+  assert.equal(v.status, 200, v.text);
+  assert.equal(v.json.kind, 'pack');
+  assert.equal(v.json.pack.sku, 'test_series');
+  const owned = srv.db.read('packEntitlements/child1/packs/test_series:all');
+  assert.ok(owned, 'test_series:all was not written');
+  assert.equal(owned.sku, 'test_series');
+  assert.equal(owned.target, 'all');
+  assert.equal(owned.orderId, o.json.orderId);
+  assert.equal(owned.paymentRef, p.id);
+  assert.equal(srv.db.keys('packEntitlements/parentOwnAccount').length, 0, 'the PARENT got the Test Series');
+  assert.equal(srv.db.read('subscriptions/child1'), undefined, 'a Test Series never reaches grantPass');
+  assert.equal(srv.db.read(`parentPayLinks/${linkIdOf(m.json.token)}`).status, 'paid');
+});
+
+// ---- META-IC-1: the parent-pay order routes fire InitiateCheckout once per created order --------------------------------------
+test('META-IC-1 · a parent pass order and a parent pack order each fire ONE orderCreated (uid = the child) with the browser attempt id', async (t) => {
+  const created = [];
+  const serverEvents = {
+    signalsField: (body) => ({ adSignals: { attemptId: body && body.adSignals && body.adSignals.attemptId } }),
+    orderCreated: async (a) => { created.push(a); },
+    orderPaid: async () => {},
+  };
+  const srv = await startRoutes({ env: ENV_PACKS, serverEvents });
+  t.after(srv.close);
+  const link = await mint(srv);
+  const pass = await parentOrder(srv, link.token, 'till_boards', { adSignals: { attemptId: 'lt_ic_parent_01' } });
+  assert.equal(pass.status, 200, pass.text);
+  const packLink = await mintPack(srv, { sku: 'pack_cbq', target: 'maths', priceInr: 1 });
+  assert.equal(packLink.status, 200, packLink.text);
+  const pack = await request(srv.port, PARENT_ORDER_PATH, { body: { token: packLink.json.token, product: 'pack', adSignals: { attemptId: 'lt_ic_parent_02' } } });
+  assert.equal(pack.status, 200, pack.text);
+  assert.equal(pack.json.sku, 'pack_cbq', 'the pack order names its sku so the browser event carries the same content_ids');
+  assert.deepEqual(created.map((c) => [c.orderId, c.passType, c.amountPaise, c.uid, c.signals.attemptId]), [
+    [pass.json.orderId, 'till_boards', pass.json.amountPaise, 'child1', 'lt_ic_parent_01'],
+    [pack.json.orderId, 'pack_cbq', pack.json.amountPaise, 'child1', 'lt_ic_parent_02'],
+  ]);
 });
 
 /* ── LATE-AUTH-GUARD-1 v1.1 · parent verify: payment age only; a refusal is PENDING ─────────────────────────────────── */

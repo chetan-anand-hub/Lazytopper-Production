@@ -8,7 +8,9 @@
 // computed from Date.now(); never a ticking counter that dies with the tab) ·
 // per-interaction autosave + resume + guarded exit · §8b focus aggregates ·
 // subject-scoped history OVERLAY panel + pending banner (worksheet pattern) ·
-// scorecard with the section AND chapter lenses. NO board-readiness projection.
+// scorecard with the section AND chapter lenses. TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, superseding the old
+// "NO board-readiness projection"): a fully graded 80-mark paper also shows the full-paper line, the trend across the
+// student's own full tests and a labelled board ESTIMATE range (lib/fullmock/boardEstimate.ts).
 //
 // Reused byte-unchanged: ChapterTestNavigator, PreSubmitConfirm +
 // ChapterTestUploadPanel (additive copy props only), scoreObjectiveSection +
@@ -55,7 +57,9 @@ import {
   buildFullMockResponse,
   writeFullMockPartialRecord,
   gradeFullMockUpload,
+  markFullMockQuestion,
 } from "../services/fullMockGradeService";
+import { MARK_ON_PHOTO_ACTION, MARK_STILL_UNREAD_COPY, bankMarkableRows, markErrorMessage, uploadedPhotoPages } from "../services/markOnPhoto";
 import {
   saveFullMockPaperSnapshot,
   fetchFullMockPaperSnapshot,
@@ -83,7 +87,9 @@ import {
   type FMSubject,
 } from "../components/fullmock/fullMockBlueprint";
 import { CbqShareNote } from "../lib/cbq/CbqShareNote";
+import { freeTsWeeklyDisabled } from "../config/mockViewLimits";
 import { claimNewPaperView, NEW_PAPER_LIMIT_LINE, NEW_PAPER_LIMIT_SAVED_LINE } from "../components/auth/MockViewGate";
+import { GuestPaperSignInLink, paperLimitLineFor } from "../components/auth/GuestPaperSignIn";
 import { useSubscription } from "../hooks/useSubscription";
 import { useLimitedDownload } from "../hooks/useLimitedDownload";
 import LimitChip from "../components/limits/LimitChip";
@@ -115,9 +121,11 @@ import {
 import {
   fullMockScorecardVariant,
   deriveFullMockChapterLens,
+  biggestMistakeLossRow,
   fullMockFocusLine,
   withPaperTutorAsks,
   withGuideTarget,
+  withMarkOnPhoto,
   type ScorecardTutorAsk,
   withSaleMock,
   withSeriesWorksheet,
@@ -148,8 +156,29 @@ import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/work
 import { GRADED_SHEET_KIND } from "../components/worksheet/WorksheetGradedPrintDoc";
 import { buildDesktopWorksheetPath } from "../lib/desktop/navigation";
 import { formatScoreNumber } from "../components/results/scoreNumber";
+import { buildBoardScoreView, fullTestScores } from "../lib/fullmock/boardEstimate";
+import { paperMarksScore, resultCardParts } from "../components/results/scoreTotals";
+import { boardEstimateDisabled } from "../lib/fullmock/boardEstimateFlag";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
+import NotFoundAddPageLine from "../components/chaptertest/NotFoundAddPageLine";
+import { ADD_PAGES_UPLOAD_BANNER, ADD_PAGES_USES_CHECK_LINE, notCountedReasonOf, notFoundSummary } from "../lib/notFoundNotAttempted";
 import { FM_CSS } from "../components/fullmock/fullMockStyles";
+// TS-FREE-SIGNEDOUT — a signed-out visitor sits a Test Series paper; sign-in is asked for only to get it marked.
+import SignInToMarkCard from "../components/testSeries/SignInToMarkCard";
+import TimeUpSubmitCard from "../components/testSeries/TimeUpSubmitCard";
+import {
+  SIGNED_OUT_ATTEMPT_RESTORED_LINE,
+  SIGNED_OUT_TAKING_NOTE,
+  clearSignedOutAttempt,
+  paperQuestionIds,
+  readSignedOutAttempt,
+  saveSignedOutAttempt,
+  signInToMarkPath,
+  SIGNED_OUT_ATTEMPT_KEPT_LINE,
+  isSignedOutSample,
+  tsFreeSignedOutDisabled,
+  type SignedOutAttempt,
+} from "../lib/testSeries/signedOutAttempt";
 import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator";
 import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadPanel";
 import PreSubmitConfirm from "../components/chaptertest/PreSubmitConfirm";
@@ -158,6 +187,8 @@ import { useQuestionTimes } from "../components/testAnalysis/questionTimes";
 import { FULL_MOCK_SECONDS_PER_MARK } from "../components/testAnalysis/testAnalysisModel";
 // TS-ANALYSIS-1 — after-test analysis, its own chunk, mounted at the END of the results body.
 const TestAnalysisPanel = lazy(() => import("../components/testAnalysis/TestAnalysisPanel"));
+// MARK-ON-PHOTO-2 — the "Mark it on your photo" dialog, its own chunk (fetched on the first tap).
+const MarkOnPhotoDialog = lazy(() => import("../components/checkimprove/MarkOnPhoto").then((m) => ({ default: m.MarkOnPhotoDialog })));
 import FullMockPendingBanner from "../components/fullmock/FullMockPendingBanner";
 import { pendingMockRecords } from "../components/fullmock/pendingMocks";
 // FAIR-USE-UI-1 — the fair-use panel (UI1 at grading, UI3 before the mock starts).
@@ -165,6 +196,9 @@ import { pendingMockRecords } from "../components/fullmock/pendingMocks";
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import UsageWarning from "../components/usage/UsageWarning";
 import { useFairUse } from "../components/usage/useFairUse";
+// FAIRUSE-TS-OWNER-1 - who the trial paper wall is not for (a Board Pass holder; a Test Series owner on a series paper).
+import { paperWallVerdict, tsOwnerWallExemptDisabled } from "../components/usage/fairUseGate";
+import { isPaidPremium } from "../services/subscriptionService";
 import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../ai/gradingTransport";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
 import { isPremiumRequiredRefusal, isTrialLimitRefusal } from "../components/limits/limitsCopy";
@@ -173,11 +207,12 @@ import GradingJobRows from "../components/grading/GradingJobRows";
 import { useGradingJob } from "../components/grading/useGradingJob";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 import { useScrollTopOnChange } from "../hooks/useScrollTopOnRouteChange";
-import { ACCESS_CHECKING_LINE, AccessChecking, AccessFailed, DownloadWithPlanLink, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
+import { ACCESS_CHECKING_LINE, ACCESS_FAILED_LINE, AccessChecking, AccessFailed, DownloadPaywall, DownloadWithPlanLink, downloadPaywallOn, FreeTestNote, ResultAccessSlot, SeriesOwnerNotice, SeriesOfferButtons, SeriesStartWall, TutorBoardPassWall, WrittenCheckUpgradeCard, seriesFreeTestWritten, useBoardPassHolder, useSeriesAccess, SeriesChecksLeftLine } from "../components/testSeries/WrittenCheckGate";
 import { FREE_TESTS_ALLOWED, countTestsTaken, isBeforeSeriesRules, scorecardUploadNotAllowed, seriesStartDecision } from "../lib/testSeries/seriesAccess";
 import SeriesCrumb from "../components/testSeries/SeriesCrumb";
 import { TEST_SERIES_NAV_PATH, seriesPaperBackTarget, seriesPaperPath, tsNavDisabled, withSeriesReturn } from "../lib/testSeries/seriesNav";
-import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId } from "../lib/testSeries/testSeries";
+import { FM_PAPER_PARAM, fullMockSeriesLabel, seriesMockNumber, seriesMockWorksheetId, seriesPaperKeyOfWorksheetId } from "../lib/testSeries/testSeries";
+import { FOCUS_PARAM, focusSectionsLabel, focusSetCodeOfWorksheetId, focusSetLabel, focusSetOf, focusSetWorksheetId } from "../lib/testSeries/focusSets";
 import { useDerivedWrittenGraded } from "../hooks/useDerivedWrittenGraded";
 
 // "pick" (AWAIT-1): a downloaded paper's Section A picks, before its upload step.
@@ -209,6 +244,16 @@ function mintFullMockId(): string {
 }
 /** Product-voice coaching line for the graded PDF (mirrors the CT page's local
  *  helper — a page-level presentation string, not shared logic). */
+/** TS-BOARDSCORE-1 - a re-opened result's paper for the board view: out of the paper's full marks (owner ruling 23 Nov 2026,
+ *  19:59 IST). With the stored payload, its own full/graded totals; without it, the record (a graded record is fully marked). */
+function reopenBoardPaper(record: SessionRecord, response: WorksheetGradeResponse | null | undefined) {
+  if (response) {
+    const ps = paperMarksScore(response);
+    return { awarded: record.marksAwarded, total: ps.total, pendingCount: Number(response.pendingCount) || 0, notMarkedMarks: ps.notMarked?.marks ?? 0 };
+  }
+  return { awarded: record.marksAwarded, total: record.marksTotal, pendingCount: record.status === "graded" ? 0 : 1 };
+}
+
 function coachingLine(resp: WorksheetGradeResponse): string {
   // SCORECARD-MI-1 — the ONE coaching function (lib/mistakeDisplay): owner's groups, counts in
   // mistakes, and never "Clean" while marks were lost (GA-24).
@@ -250,23 +295,73 @@ export default function FullMockPage() {
   // TEST-SERIES-1 — `?paper=<n>` opens series Full Mock #n: the SAME paper as PDF Mock #n, for every student.
   // Kill switch: VITE_TEST_SERIES_DISABLED=1 (the param is then ignored and the fresh mock opens, as before).
   const seriesN = import.meta.env?.VITE_TEST_SERIES_DISABLED === "1" ? null : seriesMockNumber(sp.get(FM_PAPER_PARAM));
+  // TS-THEMES-1 — `?focus=FS-M-LA-1` opens a Test Series FOCUS SET (a short one-question-type paper, pinned) on this page: the same
+  // grading, access rules and server admission as a series Full-Length Test. A `?paper=` wins; VITE_TS_FOCUS_SETS_DISABLED (inside
+  // focusSetOf) or VITE_TEST_SERIES_DISABLED -> the param is ignored and the ordinary fresh mock opens.
+  const focusSet = seriesN !== null || import.meta.env?.VITE_TEST_SERIES_DISABLED === "1" ? null : focusSetOf(sp.get(FOCUS_PARAM), subject);
+  const onSeriesPaper = seriesN !== null || focusSet !== null;
+  // TS-NAV-2 (owner, 25 Nov 2026) - ONE name per paper: on a series paper the page and the record it saves name the PAPER
+  // ("Maths · Full-Length Test 2"; a focus set "Maths · Long answers · Set 2"), never the student's personal attempt count
+  // ("Maths · Mock #3"). The record CODE (FM-M-03) is unchanged; old records keep their names; a non-series mock is unchanged.
+  // Kill switch VITE_TS_NAV2_DISABLED -> the personal name, as before.
+  const tsNav2Off = (() => {
+    const v = import.meta.env?.VITE_TS_NAV2_DISABLED;
+    return typeof v === "string" && !["", "0", "false"].includes(v.trim().toLowerCase());
+  })();
+  const seriesPaperName = tsNav2Off ? null : seriesN !== null ? `${subject} · Full-Length Test ${seriesN}` : focusSet ? `${subject} · ${focusSet.themeTitle} · Set ${focusSet.n}` : null;
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
+  // TS-FREE-SIGNEDOUT (owner ruling 26 Nov 2026, 19:23 IST): a SIGNED-OUT visitor may open and sit a Test Series paper (a full-length
+  // test or a focus set); the account is asked for only at "get my answers marked". Nothing is marked, written or recorded signed out.
+  // Kill switch VITE_TS_FREE_SIGNEDOUT_DISABLED.
+  // Owner decision (26 Nov ~20:10 IST): only the fixed signed-out SAMPLE papers (SIGNED_OUT_SAMPLE_CODES: Full-Length Test 1 of each
+  // subject) open signed out; every other paper and every focus set keeps the sign-in-first path.
+  const signedOutSitting =
+    !isSignedIn && seriesN !== null && !focusSet && isSignedOutSample(`FM-${subject === "Science" ? "S" : "M"}${seriesN}`) && !tsFreeSignedOutDisabled();
   const fairUse = useFairUse("full-mock", isSignedIn);
   // CT-RESUME-2: premium is unlimited on the daily paper gate — read live (see ChapterTestPage).
-  const { isPremium } = useSubscription();
+  const { isPremium, status: subscriptionStatus } = useSubscription();
+  const paidPremium = isPaidPremium(subscriptionStatus);
   // TEST-SERIES-1 (owner ruling 18 Nov 19:31 IST) — written-answer checking and the paper download need the Test Series or the Board Pass here.
   // TS-PACK-1: a signed-in Test Series Pack owner gets through too (ownsTestSeries from /api/packs/mine).
   // MYPACKS-TS-1: three-state (checking / failed / decided); downloads also open for a PDF pack that covers this subject's mocks.
   const seriesAccess = useSeriesAccess(user?.uid ?? null, { kind: "full-mock", subject: subject === "Science" ? "science" : "maths" });
   const seriesPaperAccess = seriesAccess.canCheck;
+  // LIVE-FIX-1 (live run 23 Nov 2026): on a Test Series paper the fair-use panel offers the Test Series beside its Board Pass - only
+  // once access is DECIDED and the account can't check (a Board Pass holder or a Test Series owner never sees it; the panel itself
+  // also draws it on a trial refusal only).
+  const fairUseSeriesOffer =
+    onSeriesPaper && !seriesAccess.checking && !seriesAccess.failed && !seriesAccess.canCheck ? <SeriesOfferButtons testIdPrefix="fair-use" only="test-series" showTotal /> : null;
   const seriesDownloadAccess = seriesAccess.canDownload;
+  // FREE-TS-WEEKLY (owner addition 27 Nov 13:19 IST): see ChapterTestPage - the same view-only paywall on a series full-length test / focus set.
+  const [dlPaywall, setDlPaywall] = useState(false);
+  const dlPaywallOn = downloadPaywallOn() && onSeriesPaper && !seriesDownloadAccess && !seriesAccess.checking;
+  const dlPaywallCode = focusSet ? focusSet.code : seriesN !== null ? `FM-${subject === "Science" ? "S" : "M"}${seriesN}` : "";
+  const openDlPaywall = useCallback(() => setDlPaywall(true), []);
+  // FAIRUSE-TS-OWNER-1: the trial paper wall is never drawn for a Board Pass holder, nor for a Test Series owner on a series
+  // paper / focus set (the server mints both without the trial limit). `seriesPaper` is decided by the caller (this page's URL,
+  // or the saved paper's worksheetId on the continue path). Kill switch VITE_FAIRUSE_TS_OWNER_EXEMPT_DISABLED.
+  const wallVerdictFor = useCallback(
+    (seriesPaper: boolean) =>
+      paperWallVerdict({
+        disabled: tsOwnerWallExemptDisabled(),
+        paidPremium,
+        seriesPaper,
+        ownsSeries: seriesAccess.ownsSeries,
+        checking: seriesAccess.checking,
+        failed: seriesAccess.failed,
+      }),
+    [paidPremium, seriesAccess.ownsSeries, seriesAccess.checking, seriesAccess.failed],
+  );
+  // FAIRUSE-TS-OWNER-1: a Test Series owner on a series paper never downloads against the weekly count (limits.cjs), and a Board
+  // Pass holder is not metered - so the LIMITS-1 "first download is free" chip is not theirs to read.
+  const hideDownloadChip = !tsOwnerWallExemptDisabled() && (paidPremium || (onSeriesPaper && seriesAccess.ownsSeries));
   // TEST-SERIES-1 (owner 19:44 IST): one test in total for free / trial; the scorecard's tutor entry is Board Pass only.
   const boardPassHolder = useBoardPassHolder();
   const [startWall, setStartWall] = useState(false);
   const [tutorWall, setTutorWall] = useState(false);
   const sessionUid = user?.uid ?? null;
   // TS-NAV-1 — a Test Series paper's parent is /test-series, not Practice (kill switch VITE_TS_NAV_DISABLED -> Practice, as before).
-  const seriesNavOn = seriesN !== null && !tsNavDisabled();
+  const seriesNavOn = onSeriesPaper && !tsNavDisabled();
   // TS-UX-SCORE-1: a paper opened from the Practice-hub chooser carries a safe `returnTo` and Back leads there; else /test-series.
   const seriesBack = seriesPaperBackTarget(location.search);
   const backTo = seriesNavOn ? seriesBack.to : "/practice-hub";
@@ -355,23 +450,32 @@ export default function FullMockPage() {
   // A paper that cannot be drawn falls back to the ordinary fresh mock rather than a blank page.
   // TS-PIN-1 - the paper is built from its PINNED question ids (seriesFullMock.buildSeriesFullMock); `missingIds` are pinned ids that no
   // longer exist anywhere (left out, never swapped). VITE_TS_PIN_DISABLED / no pinned entry -> today's seeded draw.
-  const [series, setSeries] = useState<{ key: string; drawn: DrawnFullMock | null; failed: boolean; missingIds: string[] } | null>(null);
-  const seriesKey = nomen && seriesN ? `${nomen.code}|${subject}|${seriesN}` : null;
+  // TS-THEMES-1: a focus set rides the same state (its own builder, lazy chunk) and carries its own time limit (`durationMs`).
+  const [series, setSeries] = useState<{ key: string; drawn: DrawnFullMock | null; failed: boolean; missingIds: string[]; durationMs?: number } | null>(null);
+  const seriesKey = nomen && (seriesN || focusSet) ? `${nomen.code}|${subject}|${seriesN ?? focusSet?.code}` : null;
   useEffect(() => {
-    if (!seriesKey || !nomen || !seriesN || !bank.ready) return undefined;
+    if (!seriesKey || !nomen || !(seriesN || focusSet) || !bank.ready) return undefined;
     let live = true;
     const timer = setTimeout(() => {
-      import("../lib/testSeries/seriesFullMock")
-        .then((m) =>
-          m.buildSeriesFullMock(subject, seriesN, {
-            worksheetId: seriesMockWorksheetId(mintFullMockId(), subject, seriesN),
-            code: nomen.code,
-            name: nomen.name,
-          }),
-        )
+      const build: Promise<{ drawn: DrawnFullMock; missingIds: string[]; durationMs?: number } | null> = focusSet
+        ? import("../lib/testSeries/pinnedFocusSet").then((m) =>
+            m.buildFocusSet(focusSet, {
+              worksheetId: focusSetWorksheetId(mintFullMockId(), focusSet),
+              code: nomen.code,
+              name: seriesPaperName ?? nomen.name,
+            }),
+          )
+        : import("../lib/testSeries/seriesFullMock").then((m) =>
+            m.buildSeriesFullMock(subject, seriesN as number, {
+              worksheetId: seriesMockWorksheetId(mintFullMockId(), subject, seriesN as number),
+              code: nomen.code,
+              name: seriesPaperName ?? nomen.name,
+            }),
+          );
+      build
         .then((r) => {
           if (!live) return;
-          setSeries({ key: seriesKey, drawn: r ? r.drawn : null, failed: !r, missingIds: r ? r.missingIds : [] });
+          setSeries({ key: seriesKey, drawn: r ? r.drawn : null, failed: !r, missingIds: r ? r.missingIds : [], ...(r?.durationMs ? { durationMs: r.durationMs } : {}) });
         })
         .catch(() => {
           if (live) setSeries({ key: seriesKey, drawn: null, failed: true, missingIds: [] });
@@ -384,7 +488,12 @@ export default function FullMockPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seriesKey, bank.ready]);
   const seriesState = series && series.key === seriesKey ? series : null;
-  const seriesActive = !!seriesN && !seriesState?.failed;
+  const seriesActive = onSeriesPaper && !seriesState?.failed;
+  // TS-THEMES-1: the focus set is what is on screen (not its fresh-mock fallback).
+  const focusActive = !!focusSet && seriesActive;
+  // TS-NAV-2: the name on screen and on the NEXT record - the paper's name while the series paper is what is drawn (its fresh-mock
+  // fallback keeps the personal name).
+  const paperName = seriesActive && seriesPaperName ? seriesPaperName : nomen?.name;
   const freshDraw: DrawnFullMock | null = useMemo(() => {
     if (!nomen || !bank.ready || seriesActive) return null;
     return drawFullMock({
@@ -406,6 +515,18 @@ export default function FullMockPage() {
   const [phase, setPhase] = useState<Phase>("setup");
   useScrollTopOnChange(phase); // SCROLL-TOP-1 — each phase/view opens at the top
   const [activeMock, setActiveMock] = useState<ActiveMock | null>(null);
+  // TS-FREE-CHECK-1 (owner ruling 23 Nov 2026): a free / trial account's ONE free test includes written-answer checking on a Test
+  // Series paper - this paper's key (the sitting's, else the series paper opened) against the server's free-test pin + the
+  // one-test rule's records. The SERVER pins the free paper and refuses every other one; this only decides what the page SHOWS.
+  const freeTestPaperKey =
+    seriesPaperKeyOfWorksheetId(activeMock?.paper.worksheetId) ??
+    (seriesN !== null
+      ? seriesPaperKeyOfWorksheetId(seriesMockWorksheetId("fm-0-0", subject === "Science" ? "Science" : "Maths", seriesN))
+      : // TS-THEMES-1: a focus set can be the free test too (its server key "TS-FS-M-LA-1").
+        focusSet
+        ? seriesPaperKeyOfWorksheetId(focusSetWorksheetId("fm-0-0", focusSet))
+        : null);
+  const freeWritten = isSignedIn && seriesFreeTestWritten(seriesAccess, freeTestPaperKey, records);
   // RECORD-SAFE-1: when a record had to be saved under a different code than the paper was drawn with (that code
   // belonged to another paper), the sitting follows it - scorecard, graded sheet, detail lock, delta line and
   // downloads all read `activeMock.code`.
@@ -419,6 +540,22 @@ export default function FullMockPage() {
   const [flags, setFlags] = useState<Set<number>>(new Set());
   const [currentQNumber, setCurrentQNumber] = useState(1);
   const [focusSeed, setFocusSeed] = useState<SessionFocusAggregates>(EMPTY_FOCUS);
+  // TS-FREE-SIGNEDOUT: the signed-out visitor submitted (or the clock ran out) - the sign-in card in place of the paper.
+  const [signInAsk, setSignInAsk] = useState<{ timeUp: boolean } | null>(null);
+  // TS-FREE-SIGNEDOUT: the kept signed-out attempt for this paper, back after sign-in (used, then cleared, when the paper starts).
+  const [signedOutKept, setSignedOutKept] = useState<SignedOutAttempt | null>(null);
+  // TS-FREE-SIGNEDOUT (review blocker): THIS sitting was started signed out - latched at Start, never re-derived from the live auth
+  // state, so an account that appears mid-sitting (a sign-in in another tab) can never submit a paper its start rules never ran for.
+  const signedOutLatch = useRef(false);
+  // review nit (a): a kept sitting whose time had run out opens at its submit step - the clock does not auto-submit it.
+  const noAutoSubmitRef = useRef(false);
+  // review nit 1 (PR #1897): ...and its answers are LOCKED - the time-up card stands in place of the paper (no option, flag or
+  // question is rendered), so nothing can be changed past time; the student taps submit to get it marked.
+  const [timeUpLocked, setTimeUpLocked] = useState(false);
+  // TS-FREE-PICKER (review nit, #1897): the lock as a ref, the one thing pickOption reads (as on the Chapter Test page).
+  const timeUpLockedRef = useRef(false);
+  timeUpLockedRef.current = timeUpLocked;
+  const signedOutRestoreDone = useRef(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [nowTick, setNowTick] = useState(() => Date.now());
@@ -477,6 +614,19 @@ export default function FullMockPage() {
   const persistTaking = useCallback(() => {
     const a = activeRef.current;
     if (!a || phaseRef.current !== "taking") return;
+    // TS-FREE-SIGNEDOUT (review nit b): a signed-out sitting is kept in THIS TAB only (the signed-out attempt), never on the device.
+    if (signedOutLatch.current) {
+      saveSignedOutAttempt({
+        surface: "full-mock",
+        path: window.location.pathname + window.location.search,
+        ids: paperQuestionIds(a.paper),
+        answers: answersRef.current,
+        flags: [...flagsRef.current],
+        currentQNumber: currentQRef.current,
+        elapsedMs: Math.max(0, Math.min(a.durationMs, Date.now() - a.startedAt)),
+      });
+      return;
+    }
     saveFullMockSession(sessionUid, {
       code: a.code,
       name: a.name,
@@ -534,6 +684,21 @@ export default function FullMockPage() {
     [moveFmPaper],
   );
   const [resultsPhase, setResultsPhase] = useState<"partial" | "full">("partial");
+  // LIVE-FIX-1 #5 - "If you answered these, upload all your pages again, including the missing one": back to THIS paper's upload step (the same step the first upload used;
+  // the grade then replaces this result under the same code). Re-upload rules and check counts are the server's, unchanged.
+  // REVIEW B2: the upload step it opens says to upload EVERY page (the new check replaces the last one; grades are not merged).
+  const [addingPages, setAddingPages] = useState(false);
+  const addMissingPage = useCallback(() => {
+    setScorecardOpen(false);
+    setAddingPages(true);
+    setResultsPhase("partial");
+  }, []);
+  useEffect(() => {
+    if (resultsPhase === "full") setAddingPages(false);
+  }, [resultsPhase]);
+  useEffect(() => {
+    if (phase !== "results") setAddingPages(false); // leaving the paper ends the add-pages step
+  }, [phase]);
   const [scorecardOpen, setScorecardOpen] = useState(false);
   const [fullResponse, setFullResponse] = useState<WorksheetGradeResponse | null>(null);
   // TS-ANALYSIS-1 (feature 2) — time on screen per question while the mock is being taken (device-local).
@@ -565,7 +730,20 @@ export default function FullMockPage() {
     awaitingDetail?: string;
     /** PAPER-REBUILD-1 (D103a): the paper lookup failed; the scorecard offers "Start a new test". */
     noPaper?: boolean;
+    /** REVIEW NIT4: this paper's saved copy is there, so "Upload all pages again" can open its upload step (else no button). */
+    canAddPages?: boolean;
+    /** MARK-ON-PHOTO-2: that saved copy's paper and the sitting's focus figures (only with canAddPages), so a question can be
+     *  marked on its photo and the record re-saved as it was. */
+    paper?: PersistedWorksheet;
+    focus?: SessionFocusAggregates;
   } | null>(null);
+
+  // MARK-ON-PHOTO-2 (owner rulings 25 Nov 2026) — "Mark it on your photo" on a fresh result and on a re-opened one that offers
+  // "Upload all pages again". `index` is the row in the result on screen; `where` says which result that is.
+  const [mark, setMark] = useState<{ index: number; where: "fresh" | "reopen" } | null>(null);
+  const [markBusy, setMarkBusy] = useState(false);
+  const [markError, setMarkError] = useState<string | null>(null);
+  const markSeq = useRef(0);
 
   // TUTOR-RETURN-SHEET-1 - the restored card's graded-sheet download (the page re-mounted on the
   // tutor trip, so the live paper is gone: the sheet is rebuilt from the stored payload + the
@@ -644,6 +822,27 @@ export default function FullMockPage() {
     (a: ActiveMock, currentAnswers: Record<number, string>, focus: SessionFocusAggregates) => {
       if (submittedRef.current) return;
       submittedRef.current = true;
+      // TS-FREE-SIGNEDOUT: signed out, a submit marks NOTHING and writes nothing - the attempt is kept in this tab and the visitor is
+      // asked to sign in to get it marked (the signed-in submit below then runs unchanged).
+      if (signedOutLatch.current) {
+        // An account appeared mid-sitting: back to the start screen with the answers kept (the signed-in start rules run first).
+        if (isSignedIn) {
+          submittedRef.current = false;
+          bounceRef.current();
+          return;
+        }
+        saveSignedOutAttempt({
+          surface: "full-mock",
+          path: location.pathname + location.search,
+          ids: paperQuestionIds(a.paper),
+          answers: currentAnswers,
+          flags: [...flagsRef.current],
+          currentQNumber: currentQRef.current,
+          elapsedMs: Math.max(0, Math.min(a.durationMs, Date.now() - a.startedAt)),
+        });
+        setSignInAsk({ timeUp: remainingMs(a, Date.now()) <= 0 });
+        return;
+      }
       const objQs = fullMockObjectiveQuestions(a.paper);
       const subjQs = fullMockSubjectiveQuestions(a.paper);
       const obj = scoreObjectiveSection(objQs, currentAnswers);
@@ -706,6 +905,10 @@ export default function FullMockPage() {
       });
       focusRef.current = focus;
       setObjective(obj);
+      // TS-FREE-PICKER (review nit, #1897): submitted - the time-up lock has done its job; the next sitting starts unlocked.
+      noAutoSubmitRef.current = false;
+      timeUpLockedRef.current = false;
+      setTimeUpLocked(false);
       setResultsPhase("partial");
       setScorecardOpen(true);
       setPhase("results");
@@ -729,8 +932,62 @@ export default function FullMockPage() {
         }
       });
     },
-    [user, sessionSubject, sessionUid, subject, grade, loadRecords, moveFmPaper],
+    [user, sessionSubject, sessionUid, subject, grade, loadRecords, moveFmPaper, isSignedIn, location.pathname, location.search],
   );
+
+  /** TS-FREE-SIGNEDOUT (review blocker): an account appeared mid-sitting - the answers are kept for this paper and the page returns to
+   *  its start screen, where Start runs the signed-in rules (one free test, the focus-set rule, fair use) before anything is marked. */
+  const bounceRef = useRef<() => void>(() => {});
+  bounceRef.current = () => {
+    const a = activeRef.current;
+    if (a) {
+      saveSignedOutAttempt({
+        surface: "full-mock",
+        path: location.pathname + location.search,
+        ids: paperQuestionIds(a.paper),
+        answers: answersRef.current,
+        flags: [...flagsRef.current],
+        currentQNumber: currentQRef.current,
+        elapsedMs: Math.max(0, Math.min(a.durationMs, Date.now() - a.startedAt)),
+      });
+    }
+    signedOutLatch.current = false;
+    signedOutRestoreDone.current = false;
+    phaseRef.current = "setup";
+    activeRef.current = null;
+    setActiveMock(null);
+    setSignInAsk(null);
+    setShowConfirm(false);
+    setPhase("setup");
+  };
+  useEffect(() => {
+    if (isSignedIn && signedOutLatch.current && phase === "taking") bounceRef.current();
+  }, [isSignedIn, phase]);
+
+  /** TS-FREE-SIGNEDOUT: back to the paper from the sign-in card (the clock never paused - the exam-hall rule). */
+  const backToPaperSignedOut = useCallback(() => {
+    submittedRef.current = false;
+    setSignInAsk(null);
+  }, []);
+  /** TS-FREE-SIGNEDOUT: "Sign in to get my answers marked" - the kept attempt goes with the visitor; this device's signed-out autosave
+   *  of the sitting is dropped (nothing of it stays on the device). */
+  const goSignInToMark = useCallback(() => {
+    // the sitting ends here: no later autosave (focus flush on unmount) may write it again; the kept attempt goes with the visitor
+    phaseRef.current = "setup";
+    activeRef.current = null;
+    navigate(signInToMarkPath(location.pathname, location.search));
+  }, [navigate, location.pathname, location.search]);
+
+  // TS-FREE-SIGNEDOUT: back from sign-in - the attempt kept for THIS paper (same question ids) is held for Start, once. Nothing starts
+  // here: Start runs the signed-in start rules unchanged (one free test, the focus-set rule, fair use), and a refused start shows the
+  // existing wall. A saved sitting of the account's own (inProgress) wins.
+  useEffect(() => {
+    if (!(isSignedIn ? onSeriesPaper : signedOutSitting) || !onSeriesPaper || tsFreeSignedOutDisabled() || signedOutRestoreDone.current || inProgress || phase !== "setup" || !draw) return;
+    const kept = readSignedOutAttempt("full-mock", paperQuestionIds(draw.paper));
+    if (!kept) return;
+    signedOutRestoreDone.current = true;
+    setSignedOutKept(kept);
+  }, [isSignedIn, onSeriesPaper, signedOutSitting, inProgress, phase, draw]);
 
   const finishToPartial = useCallback(() => {
     const a = activeRef.current;
@@ -741,8 +998,8 @@ export default function FullMockPage() {
   // Auto-submit when the wall clock runs out — like the board hall, once.
   useEffect(() => {
     if (phase !== "taking" || !activeMock) return;
-    if (remaining <= 0 && !submittedRef.current) finishToPartial();
-  }, [phase, activeMock, remaining, finishToPartial]);
+    if (remaining <= 0 && !submittedRef.current && !noAutoSubmitRef.current && !timeUpLocked) finishToPartial();
+  }, [phase, activeMock, remaining, finishToPartial, timeUpLocked]);
 
   // Guarded exit (§8a): confirm before the tab closes mid-test. Answers + timer
   // are saved, but a silent loss of the sitting flow deserves a stop.
@@ -759,13 +1016,52 @@ export default function FullMockPage() {
   // ── Start / resume ───────────────────────────────────────────────────────────
   const startTest = useCallback(() => {
     if (!draw || !nomen || !draw.enoughQuestions) return;
-    // FAIR-USE-UI-1 (UI3): this week's mock already used -> the panel, not the paper.
-    // A RESUME is not a start and is never blocked.
-    if (fairUse.blockPaperStart()) return;
     // TEST-SERIES-1 (owner 19:44 IST): a free / trial account takes ONE test in total; signed out signs in first.
-    const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records) });
+    // LIVE-FIX-1 (live run 23 Nov 2026): decided BEFORE the weekly fair-use check. A trial account that has used its one free
+    // test is told THAT ("You've used your 1 free test") with the Test Series AND the Board Pass - not the weekly mock limit
+    // with the Board Pass alone (the week resetting would not let it start anyway). Entitled accounts decide "start" here.
+    const startDecision = seriesStartDecision({ entitled: seriesPaperAccess, signedIn: isSignedIn, testsTaken: countTestsTaken(records), weeklyOpens: !freeTsWeeklyDisabled() && onSeriesPaper });
     if (startDecision === "upgrade" && seriesAccess.checking) {
       setPaperNotice(ACCESS_CHECKING_LINE);
+      return;
+    }
+    if (startDecision === "sign-in" && signedOutSitting) {
+      // TS-FREE-SIGNEDOUT: the paper opens signed out - no fair-use read, no ownership read, nothing served or recorded. The day's
+      // paper view is the device's own count (MockViewGate), as for any signed-out paper.
+      // a signed-out reload of this sitting: its kept answers and time (this tab only) - a RESUME, never counted as a new paper
+      const soKept = signedOutKept && signedOutKept.ids.join("|") === paperQuestionIds(draw.paper).join("|") ? signedOutKept : null;
+      if (!soKept && !claimNewPaperView(location.pathname, null, false, location.search)) {
+        setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
+        return;
+      }
+      submittedRef.current = false;
+      downloadedRef.current = false;
+      noAutoSubmitRef.current = false;
+      setTimeUpLocked(false);
+      const so: ActiveMock = {
+        paper: draw.paper,
+        code: nomen.code,
+        name: paperName ?? nomen.name,
+        startedAt: Date.now() - (soKept ? soKept.elapsedMs : 0),
+        durationMs: focusActive && seriesState?.durationMs ? seriesState.durationMs : FM_DURATION_MS,
+        pyqCount: draw.pyqCount,
+        freshCount: draw.freshCount,
+      };
+      setActiveMock(so);
+      activeRef.current = so;
+      setAnswers(soKept ? soKept.answers : {});
+      answersRef.current = soKept ? soKept.answers : {};
+      setFlags(new Set(soKept ? soKept.flags : []));
+      setCurrentQNumber(soKept && draw.paper.questions.some((q) => q.qNumber === soKept.currentQNumber) ? soKept.currentQNumber : 1);
+      setFocusSeed({ ...EMPTY_FOCUS });
+      focusRef.current = { ...EMPTY_FOCUS };
+      setSignedOutKept(null);
+      signedOutLatch.current = true;
+      // review nit (a): the kept time had already run out -> straight to the sign-in card (nothing is marked signed out)
+      setSignInAsk(soKept && remainingMs(so, Date.now()) <= 0 ? { timeUp: true } : null);
+      if (soKept && remainingMs(so, Date.now()) <= 0) submittedRef.current = true;
+      setPhase("taking");
+      trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code, signedOut: true });
       return;
     }
     if (startDecision === "sign-in") {
@@ -776,28 +1072,67 @@ export default function FullMockPage() {
       setStartWall(true);
       return;
     }
+    // TS-THEMES-1 (review fix): a focus set has NO Section A, so as a free / trial account's one free test it is worth taking only when
+    // its WRITTEN answers will be marked (TS-FREE-CHECK-1). When they will not (server switch off, the free test pinned elsewhere, or
+    // the access read not settled) the set never becomes the free test: the upgrade card, not a sitting where nothing is marked.
+    if (focusActive && !seriesPaperAccess && !freeWritten) {
+      if (seriesAccess.checking) {
+        setPaperNotice(ACCESS_CHECKING_LINE);
+        return;
+      }
+      setStartWall(true);
+      return;
+    }
+    // FAIR-USE-UI-1 (UI3): this week's mock already used -> the panel, not the paper. A RESUME is not a start and is never blocked.
+    // FAIRUSE-TS-OWNER-1 (resolves [FU-FAIRUSE-TS-OWNER-EXEMPT]): the server now mints a trial Test Series owner's series paper and
+    // a Board Pass holder's paper without the trial limit, so neither is walled here; while ownership is unknown the page waits.
+    const wall = wallVerdictFor(onSeriesPaper);
+    if (wall === "wait") {
+      setPaperNotice(ACCESS_CHECKING_LINE);
+      return;
+    }
+    if (wall === "unconfirmed") {
+      setStartWall(true);
+      return;
+    }
+    if (wall !== "exempt" && fairUse.blockPaperStart()) return;
     // CT-RESUME-2: a visit let through as a RESUME of a saved mock was not counted. Starting a NEW
     // mock instead is counted now — or refused when today's papers are used up.
-    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && seriesN !== null), location.search)) {
+    if (!claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && onSeriesPaper), location.search)) {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
     submittedRef.current = false;
     downloadedRef.current = false;
+    // TS-FREE-SIGNEDOUT: the attempt kept from before sign-in (this paper's ids) becomes this sitting - its answers, and the time it
+    // had already used (the clock is not reset by signing in).
+    const kept = signedOutKept && signedOutKept.ids.join("|") === paperQuestionIds(draw.paper).join("|") ? signedOutKept : null;
     const a: ActiveMock = {
       paper: draw.paper,
       code: nomen.code,
-      name: nomen.name,
-      startedAt: Date.now(),
-      durationMs: FM_DURATION_MS,
+      name: paperName ?? nomen.name,
+      startedAt: Date.now() - (kept ? kept.elapsedMs : 0),
+      // TS-THEMES-1: a focus set is timed at the Full Mock's pace for ITS marks (80 marks in 3 hours), e.g. 20 marks -> 45 minutes.
+      durationMs: focusActive && seriesState?.durationMs ? seriesState.durationMs : FM_DURATION_MS,
       pyqCount: draw.pyqCount,
       freshCount: draw.freshCount,
     };
     setActiveMock(a);
     activeRef.current = a;
-    setAnswers({});
-    setFlags(new Set());
-    setCurrentQNumber(1);
+    setAnswers(kept ? kept.answers : {});
+    answersRef.current = kept ? kept.answers : {};
+    setFlags(new Set(kept ? kept.flags : []));
+    setCurrentQNumber(kept && draw.paper.questions.some((q) => q.qNumber === kept.currentQNumber) ? kept.currentQNumber : 1);
+    signedOutLatch.current = false;
+    // review nit (a): the kept time had already run out - the paper opens at its submit step, not an instant auto-submit.
+    noAutoSubmitRef.current = !!kept && remainingMs(a, Date.now()) <= 0;
+    // review nit 1: answers locked, no "keep working" - the time-up card (not the dismissible confirm) is the only way on.
+    setTimeUpLocked(noAutoSubmitRef.current);
+    setShowConfirm(false);
+    if (signedOutKept) {
+      clearSignedOutAttempt();
+      setSignedOutKept(null);
+    }
     setFocusSeed({ ...EMPTY_FOCUS });
     focusRef.current = { ...EMPTY_FOCUS };
     recordServed(servedOwnerId, {
@@ -807,11 +1142,14 @@ export default function FullMockPage() {
     });
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
-  }, [draw, nomen, subject, fairUse.blockPaperStart, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, seriesN, isSignedIn, records, navigate]);
+  }, [draw, nomen, paperName, subject, fairUse.blockPaperStart, wallVerdictFor, servedOwnerId, sessionSubject, location.pathname, location.search, user?.uid, isPremium, inProgress, seriesPaperAccess, seriesAccess.checking, seriesAccess.ownsSeries, onSeriesPaper, focusActive, freeWritten, seriesState?.durationMs, isSignedIn, records, navigate, signedOutSitting, signedOutKept]);
 
   const resumeMock = useCallback(() => {
     const s = inProgress ?? findInProgressSession(sessionUid);
     if (!s) return;
+    signedOutLatch.current = false;
+    noAutoSubmitRef.current = false;
+    setTimeUpLocked(false);
     setPanelOpen(false);
     downloadedRef.current = false;
     const a: ActiveMock = {
@@ -843,6 +1181,10 @@ export default function FullMockPage() {
   }, [inProgress, sessionUid, doSubmit, subject]);
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {
+    // review nit 1: past time on a kept attempt, the answers are locked (belt and braces - the paper is not rendered then).
+    // TS-FREE-PICKER: reads the LOCK (timeUpLockedRef), as the Chapter Test page does - not noAutoSubmitRef, which only stops the
+    // clock's auto-submit.
+    if (timeUpLockedRef.current) return;
     setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
   }, []);
   const toggleFlag = useCallback((qNumber: number) => {
@@ -905,8 +1247,11 @@ export default function FullMockPage() {
           clearFullMockSession(sessionUid, a.code);
           // Fully graded — the durable record + perQuestion payload exist; the
           // cross-device paper snapshot has done its job. Only THIS paper's copy (by identity).
-          deleteFullMockPaperSnapshot(user, a.code, a.paper.worksheetId);
-          if (gradedAs.code !== a.code) deleteFullMockPaperSnapshot(user, gradedAs.code, a.paper.worksheetId);
+          // LIVE-FIX-1 #5: a paper with answers not found on the pages keeps its snapshot - "Upload all pages again" re-opens its upload step.
+          if (notFoundSummary(outcome.response.results) === null) {
+            deleteFullMockPaperSnapshot(user, a.code, a.paper.worksheetId);
+            if (gradedAs.code !== a.code) deleteFullMockPaperSnapshot(user, gradedAs.code, a.paper.worksheetId);
+          }
           trackUxEvent("full_mock_complete", "FullMockPage", {
             subject,
             score: `${outcome.response.gradedMarksAwarded}/${outcome.response.gradedMarksTotal}`,
@@ -988,8 +1333,18 @@ export default function FullMockPage() {
         // AWAIT-1: a downloaded paper first takes its Section A picks (then continueFromPicks).
         if (snap && snap.downloaded === true && !snap.objective) {
           // The same fair-use gate as an in-app start (UI3): an exhausted allowance is stopped
-          // BEFORE a client-scored partial record could be written.
-          if (fairUse.blockPaperStart()) return;
+          // BEFORE a client-scored partial record could be written. FAIRUSE-TS-OWNER-1: "series" is the SAVED paper's own id.
+          const wall = wallVerdictFor(seriesPaperKeyOfWorksheetId(snap.paper?.worksheetId) !== null);
+          if (wall === "wait") {
+            setPaperNotice(ACCESS_CHECKING_LINE);
+            return;
+          }
+          if (wall === "unconfirmed") {
+            setPaperNotice(`${ACCESS_FAILED_LINE} - please try again.`);
+            seriesAccess.retry();
+            return;
+          }
+          if (wall !== "exempt" && fairUse.blockPaperStart()) return;
           setReopen(null);
           setPickSnap(snap);
           setPhase("pick");
@@ -1057,7 +1412,7 @@ export default function FullMockPage() {
         });
       }
     },
-    [sessionUid, user, fairUse.blockPaperStart],
+    [sessionUid, user, fairUse.blockPaperStart, wallVerdictFor, seriesAccess.retry],
   );
 
   // ── Re-open a stored mock read-only ──────────────────────────────────────────
@@ -1068,10 +1423,109 @@ export default function FullMockPage() {
         const payload = await getSessionPerQuestion(user?.uid, record.perQuestionRef);
         response = payload?.response ?? null;
       }
+      // REVIEW NIT4: "Upload all pages again" only when this paper's saved copy is there to open (never the no-paper dead end).
+      let canAddPages = false;
+      // MARK-ON-PHOTO-2: the saved copy's paper (and the sitting's focus figures, as the record carries them) for a mark.
+      let saved: { paper: PersistedWorksheet; focus?: SessionFocusAggregates } | null = null;
+      if (notFoundSummary(response?.results)) {
+        const local = loadFullMockSession(sessionUid, record.id);
+        if (local && local.phase === "awaiting-upload" && local.objective) {
+          canAddPages = true;
+          saved = { paper: local.paper };
+        } else {
+          const snap = await fetchFullMockPaperSnapshot(user, record.id);
+          canAddPages = Boolean(snap?.objective);
+          if (snap && snap.objective) saved = { paper: snap.paper };
+        }
+        if (saved && record.focus) saved.focus = record.focus;
+      }
       setPanelOpen(false);
-      setReopen({ record, response });
+      setReopen({ record, response, ...(canAddPages ? { canAddPages, ...(saved ? saved : {}) } : {}) });
     },
-    [user?.uid],
+    [user, sessionUid],
+  );
+
+  // MARK-ON-PHOTO-2 — leaving the result the mark belongs to closes the dialog and drops a reply still in flight from the screen.
+  const reopenId = reopen?.record.id ?? null;
+  useEffect(() => {
+    markSeq.current += 1;
+    setMark(null);
+    setMarkBusy(false);
+    setMarkError(null);
+  }, [phase, resultsPhase, activeMock?.code, reopenId]);
+
+  /** The result a mark is made on: the paper, its code, and the rows on screen; null when it is not there. */
+  const markContext = useCallback(
+    (where: "fresh" | "reopen") => {
+      if (where === "fresh") {
+        return activeMock && fullResponse && resultsPhase === "full"
+          ? {
+              paper: activeMock.paper,
+              code: activeMock.code,
+              subject: sessionSubject,
+              response: fullResponse,
+              // AWAIT-1: a mock sat on paper has no measured focus — none is recorded (never zeros), as on its grade.
+              focus: downloadedRef.current ? undefined : focusRef.current,
+            }
+          : null;
+      }
+      return reopen && reopen.canAddPages && reopen.paper && reopen.response
+        ? { paper: reopen.paper, code: reopen.record.id, subject: reopen.record.subject, response: reopen.response, focus: reopen.focus }
+        : null;
+    },
+    [activeMock, fullResponse, resultsPhase, sessionSubject, reopen],
+  );
+
+  const submitMark = useCallback(
+    async (image: { imageBase64: string; imageMimeType: string }) => {
+      const m = mark;
+      const ctx = m ? markContext(m.where) : null;
+      if (!m || !ctx || markBusy) return;
+      const token = ++markSeq.current;
+      const stillShowing = () => markSeq.current === token;
+      setMarkBusy(true);
+      setMarkError(null);
+      fairUse.clearLimit();
+      try {
+        const out = await markFullMockQuestion({ user, ...ctx, index: m.index, image });
+        if (out.kind === "unread") {
+          if (stillShowing()) setMarkError(MARK_STILL_UNREAD_COPY);
+          return;
+        }
+        fairUse.noteGraded();
+        void loadRecords();
+        // As the fresh grade does: once no answer is missing from the pages, this paper's snapshot has done its job (by identity).
+        if (notFoundSummary(out.response.results) === null) {
+          deleteFullMockPaperSnapshot(user, ctx.code, ctx.paper.worksheetId);
+          if (out.savedCode && out.savedCode !== ctx.code) deleteFullMockPaperSnapshot(user, out.savedCode, ctx.paper.worksheetId);
+        }
+        if (!stillShowing()) return;
+        if (m.where === "fresh") {
+          setFullResponse(out.response);
+          if (activeMock) adoptFmCode(out.savedCode, activeMock);
+        } else {
+          // S1: a re-opened scorecard reads its score, types, status and board view from the RECORD: swap in the one just re-saved.
+          setReopen((r) => (r && r.record.id === ctx.code ? { ...r, ...(out.record ? { record: out.record } : {}), response: out.response } : r));
+        }
+        setMark(null);
+      } catch (e) {
+        if (!stillShowing()) return;
+        // A fair-use limit shows the calm limit panel inside the dialog; anything else reads its own sentence.
+        if (await fairUse.handleRefusal(e)) return;
+        setMarkError(markErrorMessage(e));
+      } finally {
+        if (stillShowing()) setMarkBusy(false);
+      }
+    },
+    [mark, markContext, markBusy, user, activeMock, adoptFmCode, loadRecords, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
+  );
+  const openMark = useCallback(
+    (where: "fresh" | "reopen") => (index: number) => {
+      setMarkError(null);
+      fairUse.clearLimit();
+      setMark({ index, where });
+    },
+    [fairUse.clearLimit],
   );
 
   // FOLLOWUPS-1 B — "Ask the tutor why I lost this mark" on a SAVED mock's scorecard (the QP /
@@ -1198,13 +1652,13 @@ export default function FullMockPage() {
   // ── Downloads (the triad — name + code on all three) ─────────────────────────
   const paperForExport = activeMock?.paper ?? draw?.paper ?? null;
   const codeForExport = activeMock?.code ?? nomen?.code;
-  const nameForExport = activeMock?.name ?? nomen?.name;
+  const nameForExport = activeMock?.name ?? paperName;
   // LIMITS-1: the weekly download limit (dark until VITE_LIMITS_ENABLED). A paper + its solutions share one key.
   const { guard: guardDownload, wall: downloadWall } = useLimitedDownload();
   const downloadPaper = useCallback(async () => {
     if (!paperForExport || downloading || !seriesDownloadAccess) return;
     // CT-RESUME-2: downloading the NEW draw (not the mock being sat) is a new paper.
-    if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && seriesN !== null), location.search)) {
+    if (!activeMock && !claimNewPaperView(location.pathname, user?.uid ?? null, isPremium || (seriesAccess.ownsSeries && onSeriesPaper), location.search)) {
       setPaperNotice(inProgress ? NEW_PAPER_LIMIT_SAVED_LINE : NEW_PAPER_LIMIT_LINE);
       return;
     }
@@ -1269,7 +1723,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress, guardDownload, seriesDownloadAccess, seriesAccess.ownsSeries, seriesN]);
+  }, [paperForExport, codeForExport, nameForExport, downloading, isSignedIn, activeMock, draw, user, sessionSubject, subject, grade, loadRecords, servedOwnerId, location.pathname, isPremium, inProgress, guardDownload, seriesDownloadAccess, seriesAccess.ownsSeries, onSeriesPaper]);
 
   // AWAIT-1-PAPERS (owner ruling, option a): a downloaded mock's Section A was answered on
   // paper. The student taps those picks in; the EXISTING scorer scores them (0-or-full), and
@@ -1368,7 +1822,7 @@ export default function FullMockPage() {
     [pickSnap, user, sessionSubject, sessionUid, loadRecords, openStored, openPendingUpload],
   );
   const downloadSolution = useCallback(async () => {
-    if (!paperForExport || downloading) return;
+    if (!paperForExport || downloading || !seriesDownloadAccess) return;
     setDownloading(true);
     if (!(await guardDownload("full-mock", paperForExport.worksheetId, { subject: sessionSubject }))) {
       setDownloading(false);
@@ -1381,7 +1835,7 @@ export default function FullMockPage() {
     } finally {
       setDownloading(false);
     }
-  }, [paperForExport, codeForExport, downloading, guardDownload]);
+  }, [paperForExport, codeForExport, downloading, guardDownload, seriesDownloadAccess]);
   // LIMITS-1 PR-2 — the graded sheet is the per-answer detail: the SAME server lock as the scorecard
   // (same kind + key) decides whether this page may print it. "open" when the flag is off.
   const gradedSheetOpen =
@@ -1419,13 +1873,37 @@ export default function FullMockPage() {
         r.status === "graded" &&
         r.id !== activeMock.code &&
         r.marksTotal === fullResponse.gradedMarksTotal &&
-        r.marksTotal > 0,
+        r.marksTotal > 0 &&
+        // TS-THEMES-1: a full mock compares only with full mocks, a focus set only with an earlier sitting of the SAME set.
+        focusSetCodeOfWorksheetId(r.worksheetId) === focusSetCodeOfWorksheetId(activeMock.paper.worksheetId),
     );
     if (!prev) return null;
     const d = fullResponse.gradedMarksAwarded - prev.marksAwarded;
     if (d === 0) return null;
     // GUIDE-SCORE-1 — the hero's number format (no float noise), so Ziggy's line quotes it exactly.
     return `${d > 0 ? "▲" : "▼"} ${formatScoreNumber(Math.abs(d))} mark${Math.abs(d) === 1 ? "" : "s"} vs ${prev.title || prev.id}`;
+  }, [fullResponse, activeMock, mockRecords, sessionSubject]);
+
+  // TS-BOARDSCORE-1 (owner ruling 23 Nov 2026, 19:04 IST) - the board view: the honest full-paper line, the trend and the board
+  // estimate, from THIS student's fully graded 80-mark full tests of THIS subject (graded SessionRecords - never
+  // mockScoreHistory, which this page does not write). The paper on screen is the newest point; null unless it is fully graded
+  // out of 80. Read-only: nothing is written.
+  const boardScore = useMemo(() => {
+    if (!fullResponse || !activeMock) return null;
+    // TS-THEMES-1: a focus set is not a full board paper - no full-paper line, trend or board estimate on its scorecard.
+    if (focusSetCodeOfWorksheetId(activeMock.paper.worksheetId)) return null;
+    const current = {
+      id: activeMock.code,
+      score: fullResponse.gradedMarksAwarded,
+      gradedAt: Number.MAX_SAFE_INTEGER, // always the newest point (fullTestScores appends it last)
+    };
+    // Owner ruling 23 Nov 2026, 19:59 IST: out of the paper's FULL marks; marks not marked yet are listed, never extrapolated.
+    const ps = paperMarksScore(fullResponse);
+    return buildBoardScoreView({
+      paper: { awarded: ps.awarded, total: ps.total, pendingCount: fullResponse.pendingCount, notMarkedMarks: ps.notMarked?.marks ?? 0 },
+      scores: fullTestScores(mockRecords, sessionSubject, { current }),
+      estimateDisabled: boardEstimateDisabled(),
+    });
   }, [fullResponse, activeMock, mockRecords, sessionSubject]);
 
   // Cheap per-render read: focusRef is frozen once the test ends, which is the
@@ -1440,8 +1918,9 @@ export default function FullMockPage() {
     const a = activeRef.current;
     const lens =
       a && fullResponse ? deriveFullMockChapterLens(fullResponse, a.paper.questions) : null;
-    const worst = lens?.[0];
-    const single = !!worst && worst.lost > 0;
+    // LIVE-FIX-1 #4 - the SAME chapter the scorecard names as "your biggest loss": marks lost to mistakes, never not attempted.
+    const worst = biggestMistakeLossRow(lens);
+    const single = !!worst;
     const built = buildDesktopWorksheetPath({
       ...(single ? { scope: "topic" as const, topic: worst!.key } : { scope: "full-subject" as const }),
       subject,
@@ -1457,6 +1936,11 @@ export default function FullMockPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate, subject, grade, fullResponse, seriesPaperUrl]);
 
+  // TS-THEMES-1 (review nit): the written section(s) the upload / upgrade cards name - a focus set's own (e.g. "Section D"), else B–E.
+  const writtenSectionsLabel =
+    activeMock && focusSetCodeOfWorksheetId(activeMock.paper.worksheetId)
+      ? focusSectionsLabel(fullMockSubjectiveQuestions(activeMock.paper).map((q) => String(q.section)))
+      : "Sections B–E";
   const currentQuestion = activeMock?.paper.questions.find((q) => q.qNumber === currentQNumber) ?? null;
   const currentIsObjective = currentQuestion ? String(currentQuestion.section).toUpperCase() === "A" : false;
   const unansweredObjective = activeMock
@@ -1479,10 +1963,16 @@ export default function FullMockPage() {
       <style>{FM_CSS}</style>
       <UsageWarning scope="full-mock" snapshot={fairUse.snapshot} />
       {downloadWall}
+      {dlPaywall && dlPaywallOn && <DownloadPaywall paperCode={dlPaywallCode} signedIn={isSignedIn} onClose={() => setDlPaywall(false)} />}
       {tutorWall && <TutorBoardPassWall onClose={() => setTutorWall(false)} />}
       {paperNotice && (
         <div className="lt-paper-dl lt-paper-dl--signedout" role="status" data-testid="paper-notice">
-          {paperNotice}
+          {paperLimitLineFor(paperNotice, isSignedIn)}
+          {paperNotice === NEW_PAPER_LIMIT_LINE && !isSignedIn && (
+            <div>
+              <GuestPaperSignInLink pathname={location.pathname} search={location.search} />
+            </div>
+          )}
         </div>
       )}
 
@@ -1490,7 +1980,7 @@ export default function FullMockPage() {
       {reopen && (
         <ResultsScorecard
           limitKey={{ kind: "full-mock", resultKey: reopen.record.id, worksheetId: reopen.record.worksheetId }} // LIMITS-1 PR-2 — stored re-open
-          variant={withPaperTutorAsks(storedFullMockScorecardVariant(reopen.record, {
+          variant={withMarkOnPhoto(withPaperTutorAsks(storedFullMockScorecardVariant(reopen.record, {
             gradedDateLabel: new Date(reopen.record.gradedAt).toLocaleDateString("en-GB", {
               day: "numeric",
               month: "short",
@@ -1498,10 +1988,28 @@ export default function FullMockPage() {
             }),
             response: reopen.response,
             awaitingDetail: reopen.awaitingDetail,
+            // TS-BOARDSCORE-1 - the board view as of THIS record (papers graded at or before it), so it reads as the live card did.
+            boardScore: focusSetCodeOfWorksheetId(reopen.record.worksheetId)
+              ? null // TS-THEMES-1: a re-opened focus set has no board view either.
+              : buildBoardScoreView({
+                  paper: reopenBoardPaper(reopen.record, reopen.response),
+                  scores: fullTestScores(mockRecords, reopen.record.subject, { asOf: { id: reopen.record.id, gradedAt: reopen.record.gradedAt } }),
+                  estimateDisabled: boardEstimateDisabled(),
+                }),
             ...(seriesDownloadAccess && reopenSheetOpen && hasStoredPaperSheet(reopen.response)
               ? { onDownloadGraded: () => void downloadReopenSheet(), downloading: reopenDownloading }
               : {}),
             onDone: () => setReopen(null),
+            // LIVE-FIX-1 #5 - a record with answers not found on the pages offers its own upload step, only when its saved copy is
+            // there (REVIEW NIT4); the step says to upload every page (REVIEW B2).
+            onAddPage: reopen.canAddPages
+              ? () => {
+                  const record = reopen.record;
+                  setReopen(null);
+                  setAddingPages(true);
+                  void openPendingUpload(record);
+                }
+              : undefined,
             // PAPER-REBUILD-1 (D103a): the no-paper state's way forward, through the setup's own start.
             onStartNew: reopen.noPaper
               ? () => {
@@ -1509,9 +2017,36 @@ export default function FullMockPage() {
                   startTest();
                 }
               : undefined,
-          }), reopen.response, fmTutorAskFor(reopen.record, reopen.response))}
+          }), reopen.response, fmTutorAskFor(reopen.record, reopen.response)), reopen.response, markContext("reopen") ? openMark("reopen") : null, markBusy)}
           onClose={() => setReopen(null)}
         />
+      )}
+
+      {/* MARK-ON-PHOTO-2 — point to one answer on the photo; only that question is graded and slotted back into this paper. */}
+      {mark && markContext(mark.where)?.response.results[mark.index] && (
+        <Suspense fallback={null}>
+          <MarkOnPhotoDialog
+            onTop
+            label={`Q${markContext(mark.where)!.response.results[mark.index].qNumber}`}
+            pages={mark.where === "fresh" ? uploadedPhotoPages(lastUploadRef.current) : []}
+            busy={markBusy}
+            error={markError}
+            notice={
+              fairUse.limit ? (
+                <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} tsOwner={seriesAccess.ownsSeries} />
+              ) : !boardPassHolder && seriesPaperKeyOfWorksheetId(markContext(mark.where)!.paper.worksheetId) !== null ? (
+                <p className="lt-mop-sub" data-testid="mark-uses-check">{ADD_PAGES_USES_CHECK_LINE}</p>
+              ) : null
+            }
+            onSubmit={(image) => void submitMark(image)}
+            onClose={() => {
+              if (!markBusy) {
+                setMark(null);
+                setMarkError(null);
+              }
+            }}
+          />
+        </Suspense>
       )}
 
       {/* History overlay panel (worksheet pattern — spec §4). */}
@@ -1559,13 +2094,25 @@ export default function FullMockPage() {
               <div className="lt-fm__headrow">
                 <div>
                   <div className="lt-ct__eyebrow" data-testid={seriesActive ? "fm-series-label" : undefined}>
-                    {seriesActive && seriesN ? `${fullMockSeriesLabel(seriesN)} · ${subject}` : `Full mock · ${subject}`}
+                    {focusActive && focusSet
+                      ? `${focusSetLabel(focusSet)} · ${subject}`
+                      : seriesActive && seriesN
+                        ? tsNav2Off
+                          ? `${fullMockSeriesLabel(seriesN)} · ${subject}`
+                          : `Test Series · ${subject}`
+                        : `Full mock · ${subject}`}
                   </div>
-                  <h1 className="lt-ct__fr">{nomen?.name ?? `${subject} · Mock`}</h1>
+                  <h1 className="lt-ct__fr" data-testid="fm-title">{paperName ?? `${subject} · Mock`}</h1>
                 </div>
                 <button type="button" className="lt-fm__hctl" onClick={() => setPanelOpen(true)}>
                   <span>Your mocks</span>
                   <span className="lt-fm__hctl-cnt">· {mockRecords.length}</span>
+                  {/* TS-NAV-2: "Your mocks · 2 · 1 awaiting" - not "· 21 awaiting". */}
+                  {awaitingCount > 0 && !tsNav2Off && (
+                    <span className="lt-fm__hctl-cnt" data-testid="fm-hctl-sep">
+                      {" "}·{" "}
+                    </span>
+                  )}
                   {awaitingCount > 0 && (
                     <span className="lt-fm__hctl-await">{awaitingCount} awaiting</span>
                   )}
@@ -1598,10 +2145,18 @@ export default function FullMockPage() {
               )}
 
               <div className="lt-ct__card">
+                {focusActive ? (
+                  // TS-THEMES-1 — a focus set is one question type, written answers only: say so (no full-paper claims).
+                  <div className="lt-ct__sub" data-testid="fm-focus-sub">
+                    A short Test Series focus set: one question type, from different chapters, timed at board pace. Write your
+                    answers on paper and upload them for step-by-step marking.
+                  </div>
+                ) : (
                 <div className="lt-ct__sub">
                   A complete board paper — every chapter, CBSE&rsquo;s unit marks, real timing. Objective is
                   scored the moment you submit; write the rest on paper and upload for the full result.
                 </div>
+                )}
 
                 {!draw && bank.error ? (
                   <div className="lt-ct__empty">
@@ -1630,17 +2185,23 @@ export default function FullMockPage() {
                       <span className="lt-ct__chip">
                         <b>{draw.totalMarks}</b> marks
                       </span>
+                      {focusActive ? (
+                        <span className="lt-ct__chip" data-testid="fm-focus-minutes">
+                          <b>{Math.round((seriesState?.durationMs ?? FM_DURATION_MS) / 60000)}</b> minutes
+                        </span>
+                      ) : (
+                        <span className="lt-ct__chip">
+                          <b>3</b> hours
+                        </span>
+                      )}
                       <span className="lt-ct__chip">
-                        <b>3</b> hours
-                      </span>
-                      <span className="lt-ct__chip">
-                        Sections <b>A–E</b>
+                        {focusActive ? "Written answers" : <>Sections <b>A–E</b></>}
                       </span>
                       <span className="lt-ct__chip">⏱ always timed</span>
                     </div>
 
                     <div className="lt-ct__blueprint">
-                      {draw.blueprint.map((row) => (
+                      {draw.blueprint.filter((row) => !focusActive || row.actualCount > 0).map((row) => (
                         <div
                           key={row.section}
                           className={`lt-ct__bp-row${row.actualCount === 0 ? " lt-ct__bp-row--empty" : ""}`}
@@ -1660,6 +2221,9 @@ export default function FullMockPage() {
                       ))}
                     </div>
 
+                    {/* TS-THEMES-1: a one-type focus set has no unit-marks or CBQ-share target - those lines are for the full paper. */}
+                    {!focusActive && (
+                    <>
                     {/* SYLLABUS-FIX-CODE F3: marks per CBSE UNIT, the only split CBSE publishes
                         (src/config/syllabus2026-27.ts). No per-chapter claim. A unit the bank
                         could not fill shows its real marks against CBSE's, never a padded total. */}
@@ -1684,6 +2248,8 @@ export default function FullMockPage() {
                         </div>
                       ))}
                     </div>
+                    </>
+                    )}
 
                     <div className="lt-fm__mix">
                       This draw: <b>{draw.pyqCount}</b> past-year board question
@@ -1692,6 +2258,7 @@ export default function FullMockPage() {
                     </div>
 
                     {/* CBQ-1 PR-2: the paper's REAL CBQ share (target ≥ 40 of 80; CBSE pattern 50% competency); an honest note when short. */}
+                    {!focusActive && (
                     <CbqShareNote
                       cbqMarks={draw.cbqMarks}
                       totalMarks={draw.totalMarks}
@@ -1701,8 +2268,9 @@ export default function FullMockPage() {
                       scope="subject"
                       scopeName={subject}
                     />
+                    )}
 
-                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} /> : null}
+                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} tsOwner={seriesAccess.ownsSeries} /> : null}
 
                     {/* GUIDE-PAGES-1 — reserved for COMPANION-1's optional pre-test "breathe" moment (renders nothing today). */}
                     <PreTestSlot surface="full_mock" />
@@ -1717,16 +2285,33 @@ export default function FullMockPage() {
                           onClick={downloadPaper}
                           disabled={downloading}
                         >
-                          {downloading ? "Preparing…" : "⤓ Download this paper (PDF) — recommended for a 3-hour sitting"}
+                          {downloading ? "Preparing…" : focusActive ? "⤓ Download this paper (PDF)" : "⤓ Download this paper (PDF) — recommended for a 3-hour sitting"}
                         </button>
                       ) : seriesAccess.checking ? (
                         <AccessChecking />
                       ) : (
-                        <DownloadWithPlanLink />
+                        <DownloadWithPlanLink onPaywall={dlPaywallOn ? openDlPaywall : undefined} />
                       )}
-                      {seriesDownloadAccess && <LimitChip />}
+                      {seriesDownloadAccess && !hideDownloadChip && <LimitChip />}
                     </div>
-                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && countTestsTaken(records) < FREE_TESTS_ALLOWED && <FreeTestNote />}
+                    {/* TS-THEMES-1: on a focus set the free-test note shows only when its written answers WILL be marked (no "MCQs marked free"
+                        line on a paper with no MCQs); otherwise starting it shows the upgrade card below. */}
+                    {isSignedIn && !seriesPaperAccess && !seriesAccess.checking && freeTestPaperKey !== null && countTestsTaken(records) < FREE_TESTS_ALLOWED && (!focusActive || freeWritten) && <FreeTestNote written={freeWritten} />}
+                    {signedOutSitting && (
+                      <p className="lt-wcg__line" data-testid="ts-signed-out-note">
+                        {SIGNED_OUT_TAKING_NOTE}
+                      </p>
+                    )}
+                    {signedOutKept && (
+                      <p className="lt-wcg__line" role="status" data-testid="ts-signed-out-restored">
+                        {isSignedIn ? SIGNED_OUT_ATTEMPT_RESTORED_LINE : SIGNED_OUT_ATTEMPT_KEPT_LINE}
+                      </p>
+                    )}
+                    {startWall && !seriesPaperAccess && focusActive && !freeWritten && !seriesAccess.checking && !seriesAccess.failed && (
+                      <p className="lt-wcg__line" data-testid="fm-focus-free-unavailable">
+                        A focus set has only written answers, and written marking for a free test is not available on it right now.
+                      </p>
+                    )}
                     {startWall && !seriesPaperAccess && (seriesAccess.failed ? <AccessFailed onRetry={seriesAccess.retry} /> : seriesAccess.checking ? <AccessChecking /> : <SeriesStartWall />)}
 
                     {downloadedNote && (
@@ -1758,13 +2343,21 @@ export default function FullMockPage() {
                     <div className="lt-ct__honest">
                       <span>·</span>
                       <span>
-                        This is a 3-hour paper. Your answers and timer are saved — if you’re
+                        {focusActive ? `This is a ${Math.round((seriesState?.durationMs ?? FM_DURATION_MS) / 60000)}-minute paper.` : "This is a 3-hour paper."} Your answers and timer are saved — if you’re
                         interrupted you can resume exactly where you left off. Your on-screen time is
                         recorded, like the real exam hall; leaving doesn’t pause the clock.{" "}
                         {seriesActive ? (
                           // TEST-SERIES-1 — a fixed paper: not a fresh draw, so no freshness claim.
                           <span data-testid="fm-series-line">
-                            <b>A Test Series paper</b> — every student gets the same {subject} Full-Length Test {seriesN}.
+                            {focusActive && focusSet ? (
+                              <>
+                                <b>A Test Series focus set</b> — every student gets the same {subject} {focusSet.themeTitle.toLowerCase()} set {focusSet.n} ({focusSet.code}).
+                              </>
+                            ) : (
+                              <>
+                                <b>A Test Series paper</b> — every student gets the same {subject} Full-Length Test {seriesN}.
+                              </>
+                            )}
                             {seriesState && seriesState.missingIds.length > 0 ? (
                               // TS-PIN-1 - a pinned question that no longer exists anywhere is left out, never swapped for another.
                               <span data-testid="fm-series-missing">
@@ -1831,7 +2424,20 @@ export default function FullMockPage() {
       )}
 
       {/* ─────────────── TAKING (full screen, always timed) ─────────────── */}
-      {phase === "taking" && activeMock && currentQuestion && (
+      {/* TS-FREE-SIGNEDOUT: a signed-out submit - sign in to get the kept answers marked (nothing is marked here). */}
+      {phase === "taking" && signInAsk && (
+        <div className="lt-ct__fs">
+          <SignInToMarkCard onSignIn={goSignInToMark} onBack={signInAsk.timeUp ? null : backToPaperSignedOut} />
+        </div>
+      )}
+      {/* review nit 1: a kept attempt back after sign-in with its time run out - answers locked; the student taps submit. */}
+      {phase === "taking" && !signInAsk && timeUpLocked && activeMock && (
+        <div className="lt-ct__fs">
+          {/* the lock is cleared by the submit itself (doSubmit, as it leaves "taking" for the results); every Start / resume resets it too */}
+          <TimeUpSubmitCard onSubmit={finishToPartial} />
+        </div>
+      )}
+      {phase === "taking" && !signInAsk && !timeUpLocked && activeMock && currentQuestion && (
         <div className="lt-ct__fs">
           <div className="lt-ct__fsbar">
             <div className="lt-ct__fsbar-l">
@@ -2055,7 +2661,7 @@ export default function FullMockPage() {
             {seriesNavOn && seriesBack.to !== TEST_SERIES_NAV_PATH && <SeriesCrumb />}
           </div>
 
-          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} /> : null}
+          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} offers={paperOffers} seriesOffer={fairUseSeriesOffer} tsOwner={seriesAccess.ownsSeries} /> : null}
           {paperWall && (seriesAccess.ownsSeries ? (
             <SeriesOwnerNotice onClose={() => setPaperWall(false)} worksheetId={activeMock.paper.worksheetId} status={seriesAccess.status} />
           ) : (
@@ -2077,7 +2683,7 @@ export default function FullMockPage() {
           {resultsPhase === "partial" ? (
             <ResultAccessSlot
               access={seriesAccess}
-              uploadAllowed={seriesPaperAccess || isBeforeSeriesRules(Date.parse(activeMock.paper.createdAt))}
+              uploadAllowed={seriesPaperAccess || freeWritten || isBeforeSeriesRules(Date.parse(activeMock.paper.createdAt))}
               worksheetId={activeMock.paper.worksheetId}
               upgrade={
                 <WrittenCheckUpgradeCard
@@ -2085,17 +2691,24 @@ export default function FullMockPage() {
                   name={activeMock.name}
                   code={activeMock.code}
                   objective={{ awarded: objective.awarded, total: objective.total }}
-                  sectionsLabel="Sections B–E"
+                  sectionsLabel={writtenSectionsLabel}
                   onDone={() => setPhase("setup")}
                 />
               }
               upload={
                 <>
+                  {/* REVIEW B2 - the upload step opened by "Upload all pages again": every page, and what it costs on a series paper. */}
+                  {addingPages && (
+                    <p className="lt-ct__nfna" data-testid="add-pages-banner">
+                      <b>{ADD_PAGES_UPLOAD_BANNER}</b>
+                      {onSeriesPaper && !boardPassHolder ? ` ${ADD_PAGES_USES_CHECK_LINE}` : ""}
+                    </p>
+                  )}
                   {/* TS-PACK-1: a Test Series Pack owner sees how many checks this series paper has left. */}
-                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
+                  <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} notCountedReason={addingPages ? notCountedReasonOf(fullResponse?.results) : null} />
                   <ChapterTestUploadPanel
                     eyebrow="Full Mock · Result"
-                    sectionsLabel="Sections B–E"
+                    sectionsLabel={writtenSectionsLabel}
                     name={activeMock.name}
                     code={activeMock.code}
                     objective={{ awarded: objective.awarded, total: objective.total }}
@@ -2115,15 +2728,32 @@ export default function FullMockPage() {
                 <div className="lt-ct__eyebrow">Full Mock · Result</div>
                 <div className="lt-ct__title lt-ct__fr">{activeMock.name}</div>
                 <div className="lt-ct__sub">
-                  {activeMock.code} · fully graded —{" "}
-                  <b>
-                    {fullResponse?.gradedMarksAwarded}/{fullResponse?.gradedMarksTotal}
-                  </b>
-                  {fullResponse && fullResponse.pendingCount > 0
-                    ? ` · ${fullResponse.pendingCount} page(s) pending`
-                    : ""}
+                  {/* TS-BOARDSCORE-1 - consistent with the hero: out of the paper's full marks; "fully graded" only when it is. */}
+                  {activeMock.code} · {fullResponse ? resultCardParts(fullResponse).status : "graded"} —{" "}
+                  <b>{fullResponse ? resultCardParts(fullResponse).score : null}</b>
+                  {fullResponse ? resultCardParts(fullResponse).tail : ""}
                 </div>
-                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} />
+                <SeriesChecksLeftLine uid={user?.uid ?? null} worksheetId={activeMock.paper.worksheetId} refreshKey={`${resultsPhase}:${grading}`} freeTest={freeWritten} notCountedReason={notCountedReasonOf(fullResponse?.results)} />
+                <NotFoundAddPageLine response={fullResponse} onAddPage={addMissingPage} />
+                {/* MARK-ON-PHOTO-2 — the same action as the scorecard's, for each question that can be pointed to on the photo. */}
+                {bankMarkableRows(fullResponse).length > 0 && (
+                  <p className="lt-ct__nfna" data-testid="fm-mark-on-photo">
+                    <b>{MARK_ON_PHOTO_ACTION}</b> — point to your answer on the photo; only that question is marked.
+                    {bankMarkableRows(fullResponse).map((r) => (
+                      <button
+                        key={r.index}
+                        type="button"
+                        className="lt-ct__nfna-btn"
+                        data-testid="fm-mark-on-photo-btn"
+                        aria-label={`${MARK_ON_PHOTO_ACTION} for Q${r.qNumber}`}
+                        disabled={markBusy}
+                        onClick={() => openMark("fresh")(r.index)}
+                      >
+                        Q{r.qNumber}
+                      </button>
+                    ))}
+                  </p>
+                )}
                 <div className="lt-ct__startrow">
                   <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => setScorecardOpen(true)}>
                     View scorecard
@@ -2149,6 +2779,11 @@ export default function FullMockPage() {
                     onClick={downloadSolution}
                     disabled={downloading}
                   >
+                    ⤓ Solution key
+                  </button>
+                  )}
+                  {!seriesDownloadAccess && dlPaywallOn && (
+                  <button type="button" className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm" onClick={openDlPaywall} data-testid="solution-key-paywall">
                     ⤓ Solution key
                   </button>
                   )}
@@ -2201,7 +2836,7 @@ export default function FullMockPage() {
               variant={withSeriesWorksheet(fullMockScorecardVariant({
                 // TS-UX-SCORE-1: the SAME allow-logic the paywall below uses (ResultAccessSlot `uploadAllowed`); while the read is
                 // pending or failed the page shows neither paywall nor card, so the scorecard keeps today's upload prompt.
-                uploadNotAllowed: scorecardUploadNotAllowed({ canCheck: seriesPaperAccess, createdMs: Date.parse(activeMock.paper.createdAt), checking: seriesAccess.checking, failed: seriesAccess.failed }),
+                uploadNotAllowed: scorecardUploadNotAllowed({ canCheck: seriesPaperAccess || freeWritten, createdMs: Date.parse(activeMock.paper.createdAt), checking: seriesAccess.checking, failed: seriesAccess.failed }),
                 name: activeMock.name,
                 code: activeMock.code,
                 phase: "partial",
@@ -2226,7 +2861,7 @@ export default function FullMockPage() {
             <ResultsScorecard
               askFirstFeedback // FIRST-FEEDBACK-1 — live, just-graded scorecard only
               limitKey={{ kind: "full-mock", resultKey: activeMock.code, worksheetId: activeMock.paper.worksheetId }} // LIMITS-1 PR-2 — Full Mock surface
-              variant={withSeriesWorksheet(withSaleMock(withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
+              variant={withMarkOnPhoto(withSeriesWorksheet(withSaleMock(withPaperTutorAsks(withGuideTarget(fullMockScorecardVariant({
                 name: activeMock.name,
                 code: activeMock.code,
                 phase: "full",
@@ -2234,6 +2869,7 @@ export default function FullMockPage() {
                 questions: activeMock.paper.questions,
                 deltaLine,
                 focusLine,
+                boardScore,
                 downloading,
                 // GRADED-STEP-BLOCK - the read-sheet action now TAKES the student to their
                 // graded answer sheet inside the open scorecard, instead of closing the panel.
@@ -2242,6 +2878,8 @@ export default function FullMockPage() {
                 // has no such view, so closing dropped the student onto a summary card whose only
                 // primary action reopened the panel they had just left - a loop with no way on.
                 onReadSheet: revealGradedSheet,
+                // LIVE-FIX-1 #5 - "If you answered these, upload all your pages again, including the missing one": back to this paper's upload step (re-upload rules unchanged).
+                onAddPage: addMissingPage,
                 onPractiseChapter: () => {
                   setScorecardOpen(false);
                   practiseWorstChapter();
@@ -2258,8 +2896,10 @@ export default function FullMockPage() {
                         void downloadSolution();
                       },
                     }
-                  : {}),
-              }), worstChapterPractice().target), fullResponse, liveTutorAskFor), sessionSubject), activeMock.paper.worksheetId)}
+                  : dlPaywallOn
+                    ? { onDownloadSolution: openDlPaywall }
+                    : {}),
+              }), worstChapterPractice().target), fullResponse, liveTutorAskFor), sessionSubject), activeMock.paper.worksheetId), fullResponse, openMark("fresh"), markBusy)}
               onClose={() => setScorecardOpen(false)}
             />
           )}

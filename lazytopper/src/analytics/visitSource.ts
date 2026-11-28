@@ -276,7 +276,7 @@ export function isTaggedSource(source: Partial<VisitSource> | null | undefined):
   );
 }
 
-function parseStored(raw: string | null): VisitSource | null {
+export function parseStored(raw: string | null): VisitSource | null {
   if (raw === null) return null;
   try {
     const v = JSON.parse(raw);
@@ -287,7 +287,7 @@ function parseStored(raw: string | null): VisitSource | null {
 }
 
 /** Rebuild a stored touch from allow-listed fields only, through the same cleaners as a fresh capture. */
-function sanitiseStored(v: unknown): VisitSource | null {
+export function sanitiseStored(v: unknown): VisitSource | null {
   if (!v || typeof v !== "object" || Array.isArray(v)) return null;
   const o = v as Record<string, unknown>;
   const str = (x: unknown) => (typeof x === "string" ? x : null);
@@ -311,7 +311,7 @@ function sanitiseStored(v: unknown): VisitSource | null {
 }
 
 /** The unexpired 7-day copy, or null. Never throws. Expired entries are removed. */
-function readLongKeep(): VisitSource | null {
+export function readLongKeep(): VisitSource | null {
   try {
     const raw = window.localStorage.getItem(LONG_KEEP_KEY);
     if (raw === null) return null; // no clock read unless a copy exists

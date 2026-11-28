@@ -17,9 +17,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import StudentDetailPanel from "./StudentDetailPanel";
 import GraderHealthCard from "./GraderHealthCard";
+import TrueAiCostCard from "./TrueAiCostCard";
 import KeyDisputesCard from "./KeyDisputesCard";
 import PurchasesCard from "./PurchasesCard";
 import UnpaidOrdersCard from "./UnpaidOrdersCard";
+import VisitQualityCard from "./VisitQualityCard";
 import MergeAccountsCard from "./MergeAccountsCard";
 import GstInvoicesCard from "./GstInvoicesCard";
 import AiCostSummaryCard, { useAiCostSummary } from "./AiCostSummaryCard";
@@ -46,6 +48,7 @@ import {
   type SummaryResponse,
 } from "./studentsAdminModel";
 import { adSourceLines } from "./adSourceNames";
+import BUYER_POINTS from "../../config/buyerScorePoints.json";
 import "./studentsAdmin.css";
 import { readGuidePreview, setGuidePreview, type GuidePreview } from "../../components/guide/guideVariant";
 
@@ -316,6 +319,9 @@ export default function StudentsAdminPage() {
     };
   }, [period, stableGetToken]);
 
+  // BUYER-SCORE-1: the column exists only while the server sends the field (BUYER_SCORE_ADMIN_DISABLED=1 omits it).
+  const showBuyer = list.status === "ok" && list.data.rows.some((r) => r.buyerScore !== undefined);
+
   if (list.status === "refused" && list.refusal === "not-authorised") {
     return (
       <main className="sa-page">
@@ -388,6 +394,9 @@ export default function StudentsAdminPage() {
           {/* HARDEN-1 PR-2: read-only, loads on request, only once the admin API has answered. */}
           {list.status === "ok" && <GraderHealthCard getToken={stableGetToken} />}
 
+          {/* COST-TRUTH-1: true AI cost from the global ledger (every Gemini call), read-only, loads on request. */}
+          {list.status === "ok" && <TrueAiCostCard getToken={stableGetToken} />}
+
           {/* TUTOR-KEY-TRUST-1: disputed answer keys, loads on request, admin API answered OK. */}
           {list.status === "ok" && <KeyDisputesCard getToken={stableGetToken} />}
 
@@ -396,6 +405,9 @@ export default function StudentsAdminPage() {
 
           {/* UNPAID-ORDERS-LIST-1: ordered-not-paid list (24 h / 7 days), read-only; contact masked unless consent; hidden when the server switch is off. */}
           {list.status === "ok" && <UnpaidOrdersCard getToken={stableGetToken} />}
+
+          {/* QUICK-LEAVE-1: left-without-engaging rate by source x landing page, counts only, loads on request. */}
+          {list.status === "ok" && <VisitQualityCard getToken={stableGetToken} />}
 
           {/* ADMIN-MERGE-REAL-1: merge two real accounts (keep one, remove the other). Collapsed; typed confirmation; the server decides. */}
           {list.status === "ok" && <MergeAccountsCard getToken={stableGetToken} />}
@@ -446,6 +458,7 @@ export default function StudentsAdminPage() {
                         <th scope="col">Email</th>
                         <th scope="col">Method</th>
                         <th scope="col">Source</th>
+                        {showBuyer ? <th scope="col">Buyer score</th> : null}
                         <th scope="col">Plan</th>
                         <th scope="col">Days active</th>
                         <th scope="col">C&amp;I sessions</th>
@@ -479,6 +492,20 @@ export default function StudentsAdminPage() {
                           <td data-label="Source" title={sourceTitle((row as { source?: RowSource | null }).source)}>
                             <SourceCell source={(row as { source?: RowSource | null }).source} />
                           </td>
+                          {showBuyer ? (
+                            <td data-label="Buyer score" title={`Source + landing page + sign-up hour. Hot ${BUYER_POINTS.tiers.hot} or more, Warm ${BUYER_POINTS.tiers.warm} to ${BUYER_POINTS.tiers.hot - 1}.`}>
+                              {row.buyerScore ? (
+                                <span data-testid="sa-buyer-score">
+                                  {row.buyerScore.points}{" "}
+                                  <span className={`sa-plan sa-buyer-${row.buyerScore.tier}`}>
+                                    {row.buyerScore.tier === "hot" ? "Hot" : row.buyerScore.tier === "warm" ? "Warm" : "Cold"}
+                                  </span>
+                                </span>
+                              ) : (
+                                "—"
+                              )}
+                            </td>
+                          ) : null}
                           <td data-label="Plan">
                             <span className={`sa-plan sa-plan-${row.plan.kind}`}>{planLabel(row.plan)}</span>
                           </td>

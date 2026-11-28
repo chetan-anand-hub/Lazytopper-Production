@@ -100,7 +100,9 @@ test('§T.1 check-solution: ONE line with route, surface, status, preMs, attempt
   assert.deepEqual(rec.attempts, [{ n: 1, ms: rec.attempts[0].ms, finishReason: 'STOP', thoughtsTokenCount: 9120, outputTokens: 1840, promptTokens: 5000, parseMiss: false, retryReason: null }]);
   assert.ok(Number.isInteger(rec.totalMs) && rec.totalMs >= rec.attempts[0].ms);
   // GRADE-SPEED-1 S6: cacheHit / transport / marks are new, in this order, beside cacheMs.
-  assert.deepEqual(Object.keys(rec), ['route', 'surface', 'status', 'preMs', 'cacheMs', 'cacheHit', 'schemeHash', 'schemeJoined', 'transport', 'marks', 'attempts', 'totalMs']);
+  // GRADE-MISS-1: outcomes (per-result counts) comes last, once the grade produced results.
+  assert.deepEqual(Object.keys(rec), ['route', 'surface', 'status', 'preMs', 'cacheMs', 'cacheHit', 'schemeHash', 'schemeJoined', 'transport', 'marks', 'attempts', 'totalMs', 'outcomes']);
+  assert.deepEqual(rec.outcomes, { q: 1, graded: 1, notFound: 0, noWork: 0, schemeCopy: 0, blank: 0, mismatch: 0, unread: 0, notGraded: 0, other: 0, inv: 0 }, 'one typed question, graded, no page inventory');
   assert.deepEqual([rec.cacheHit, rec.transport, rec.marks], [null, 'typedOnly', 3], 'no cache wired -> cacheHit null; typed answer -> typedOnly; the question\'s marks');
   // CONTENT FIREWALL: no answer text, question text or identity.
   assert.ok(!h.lines[0].includes('SECRET-ANSWER-MARKER') && !h.lines[0].includes('factorisation'));
@@ -721,4 +723,37 @@ test('§I.1 the done record keeps claimedAtMs (never overwritten) beside complet
   assert.equal(rec.claimedAtMs, claimedAt, 'the start time survives the completed write');
   assert.equal(rec.completedAtMs, claimedAt + 75_000);
   assert.equal(rec.completedAtMs - rec.claimedAtMs, 75_000, 'the duration is recoverable');
+});
+
+/* ══ §M · GRADE-MISS-1 (25 Nov 2026): the [grade-timing] line counts the questions the page check dropped ══ */
+
+const reasoned = (reason, extra = {}) => {
+  const o = { ...extra };
+  Object.defineProperty(o, '_reason', { value: reason });
+  return o;
+};
+
+test('§M.1 outcomeCounts sorts every result by its reason; numbers only', () => {
+  const copy = reasoned('unattempted');
+  Object.defineProperty(copy, '_schemeCopy', { value: true });
+  const c = gt.outcomeCounts([
+    reasoned('graded'), reasoned('graded'), reasoned('notInInventory'), reasoned('firstLineNotInWork'), copy,
+    reasoned('blankInInventory'), reasoned('unattempted'), reasoned('answerMismatch'), reasoned('couldNotRead'),
+    reasoned('timeout'), reasoned('failed'), reasoned('objectiveUnresolved'), null,
+  ], { inventory: true });
+  assert.deepEqual(c, { q: 12, graded: 2, notFound: 1, noWork: 1, schemeCopy: 1, blank: 2, mismatch: 1, unread: 1, notGraded: 2, other: 1, inv: 1 });
+  assert.deepEqual(gt.outcomeCounts(undefined), { q: 0, graded: 0, notFound: 0, noWork: 0, schemeCopy: 0, blank: 0, mismatch: 0, unread: 0, notGraded: 0, other: 0, inv: 0 });
+});
+
+test('§M.2 the line carries outcomes only as numbers in a closed key set; absent when no results', () => {
+  const sink = gt.createTimingSink();
+  const none = parseLine(gt.formatGradeTimingLine({ route: '/api/grade-worksheet', mode: 'job', surface: 'worksheet', preMs: null, sink, totalMs: 1 }));
+  assert.equal('outcomes' in none, false, 'no outcomes before a grade produced results');
+  sink.outcomes = { q: 4, graded: 1, notFound: 2, noWork: 1, schemeCopy: 0, blank: 0, mismatch: 0, unread: 0, notGraded: 0, other: 0, inv: 1, uid: 'stu-1', note: 'Q6 text' };
+  const rec = parseLine(gt.formatGradeTimingLine({ route: '/api/grade-worksheet', mode: 'job', surface: 'check-improve', preMs: null, sink, totalMs: 1 }));
+  assert.deepEqual(rec.outcomes, { q: 4, graded: 1, notFound: 2, noWork: 1, schemeCopy: 0, blank: 0, mismatch: 0, unread: 0, notGraded: 0, other: 0, inv: 1 });
+  sink.outcomes = { q: 'four', graded: -1 };
+  const junk = parseLine(gt.formatGradeTimingLine({ route: '/api/grade-worksheet', surface: 'worksheet', status: 200, preMs: 1, sink, totalMs: 1 }));
+  assert.equal(junk.outcomes.q, null);
+  assert.equal(junk.outcomes.graded, null);
 });

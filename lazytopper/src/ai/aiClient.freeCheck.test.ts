@@ -120,6 +120,8 @@ describe("free-check requests carry a FRESH limited-use App Check token, every c
   });
 
   it("the N per-question detects after a whole-paper grade each get their OWN token", async () => {
+    // TOPIC-BATCH-1: the per-question path (kill switch). The batched path is pinned in the next test.
+    vi.stubEnv("VITE_TOPIC_BATCH_DISABLED", "1");
     nextResponse = () => ({ status: 200, body: { ok: true, detectedTopic: null, detectedSubject: null } });
     await resolvePerQuestionGradeTopics(
       [
@@ -136,6 +138,24 @@ describe("free-check requests carry a FRESH limited-use App Check token, every c
       assertFreeShape(c.headers);
     });
     expect(new Set(calls.map((c) => c.headers[APP_CHECK_HEADER])).size).toBe(3);
+    expect(H.getToken).not.toHaveBeenCalled();
+    vi.unstubAllEnvs();
+  });
+
+  it("TOPIC-BATCH-1: the ONE batched topics call carries the marker and its own limited-use token; a failed batch's fallback calls each get their own", async () => {
+    nextResponse = () => ({ status: 200, body: { ok: true, topics: [
+      { questionNumber: 1, detectedTopic: null, detectedSubject: null },
+      { questionNumber: 2, detectedTopic: null, detectedSubject: null },
+    ] } });
+    const qs = [{ questionNumber: 1, questionText: "one" }, { questionNumber: 2, questionText: "two" }, { questionNumber: 3, questionText: "three" }];
+    await resolvePerQuestionGradeTopics(qs, [], FREE);
+    // 1 batched call + 1 fallback for the uncovered question 3
+    expect(calls).toHaveLength(2);
+    calls.forEach((c) => {
+      expect(c.url).toBe("/api/detect-question");
+      assertFreeShape(c.headers);
+    });
+    expect(new Set(calls.map((c) => c.headers[APP_CHECK_HEADER])).size).toBe(2);
     expect(H.getToken).not.toHaveBeenCalled();
   });
 

@@ -24,7 +24,8 @@ import { gstBuyerOrderFields, gstStateFieldOn, isGstBuyerCancelled } from "./gst
 import { isCheckoutSelfClientEnabled } from "./checkoutWhoFlag";
 import { waOptInOrderFields } from "./waOptIn";
 import { orderSourceFields } from "../analytics/visitSource";
-import { adSignalFields } from "../analytics/adSignals";
+import { adSignalFields, metaIcAfterOrder } from "../analytics/adSignals";
+import { dedupeInFlight } from "./orderInFlight";
 
 export { isCheckoutWhoClientEnabled, isPayAutoAccountClientEnabled, isCheckoutSelfClientEnabled } from "./checkoutWhoFlag";
 
@@ -455,6 +456,7 @@ export async function createWhoOrder(item: GuestItem, recipient: Recipient, sign
   }
   // GST-INVOICE-1: the PAYER's state (a signed-in payer's remembered state is used without asking).
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(signedIn && headers.Authorization ? headers : null, { postPay: true }) : {}; // host: CheckoutSheet (paid / attach steps mount PostPayGst)
+  const signals = adSignalFields(); // META-IC-1
   const json = await postJson(
     GUEST_ORDER_ENDPOINT,
     {
@@ -464,12 +466,13 @@ export async function createWhoOrder(item: GuestItem, recipient: Recipient, sign
       ...gst,
       ...waOptInOrderFields(), // WHATSAPP-OPTIN-1: the payer's own number + tick, never the recipient's
       ...orderSourceFields(), // ORDER-SOURCE-1
-      ...adSignalFields(), // SERVER-EVENTS-1
+      ...signals, // SERVER-EVENTS-1
     },
     headers,
   );
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new WhoError("failed");
+  metaIcAfterOrder(signals, json, item.sku);
   return { orderId, keyId, amountPaise, ...(typeof json.statusProof === "string" ? { statusProof: json.statusProof } : {}), ...serverPriceFields(json) };
 }
 
@@ -520,7 +523,12 @@ function gstProofOf(success: RazorpaySuccess): { gstProof?: AttachProof } {
 }
 
 /** Order (server-priced) -> Razorpay -> server verify. Never throws. */
-export async function buyForRecipient(item: GuestItem, recipient: Recipient, signedIn: boolean, deps: WhoBuyDeps = DEFAULT_DEPS): Promise<WhoBuyOutcome> {
+export function buyForRecipient(item: GuestItem, recipient: Recipient, signedIn: boolean, deps: WhoBuyDeps = DEFAULT_DEPS): Promise<WhoBuyOutcome> {
+  // ORDER-DEDUP-1: same product + same buyer + same recipient while pending -> one order.
+  return dedupeInFlight(`who|${signedIn ? "in" : "out"}|${item.kind}|${item.sku}|${item.kind === "pack" ? item.target ?? "" : ""}|${recipient.phone ?? ""}|${recipient.email ?? ""}`, () => buyForRecipientOnce(item, recipient, signedIn, deps));
+}
+
+async function buyForRecipientOnce(item: GuestItem, recipient: Recipient, signedIn: boolean, deps: WhoBuyDeps): Promise<WhoBuyOutcome> {
   let pending: ReturnType<typeof beginPendingCheckout> | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item, recipient, signedIn), deps.loadScript()]);
@@ -594,9 +602,11 @@ export interface SelfBuyDeps {
 /** Exported for tests. The body carries the SKU (+ target) and `self: true`; never an amount, an account phone or an email. WHATSAPP-OPTIN-1: plus `waOptIn` ({ phone, consent: true }) ONLY when the visitor typed a valid WhatsApp number AND ticked - it is not the account's contact. */
 export async function createSelfOrder(item: GuestItem): Promise<WhoOrder> {
   const gst = gstStateFieldOn() ? await gstBuyerOrderFields(null, { postPay: true }) : {}; // host: CheckoutSheet (attach / paidSelf steps mount PostPayGst)
-  const json = await postJson(GUEST_ORDER_ENDPOINT, { sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), self: true, ...(isSelfAttachClientEnabled() ? { attach: true } : {}), ...gst, ...waOptInOrderFields(), ...orderSourceFields(), ...adSignalFields() });
+  const signals = adSignalFields(); // META-IC-1
+  const json = await postJson(GUEST_ORDER_ENDPOINT, { sku: item.sku, ...(item.kind === "pack" && item.target ? { target: item.target } : {}), self: true, ...(isSelfAttachClientEnabled() ? { attach: true } : {}), ...gst, ...waOptInOrderFields(), ...orderSourceFields(), ...signals });
   const { orderId, keyId, amountPaise } = json;
   if (typeof orderId !== "string" || typeof keyId !== "string" || typeof amountPaise !== "number") throw new WhoError("failed");
+  metaIcAfterOrder(signals, json, item.sku);
   return { orderId, keyId, amountPaise, ...(typeof json.statusProof === "string" ? { statusProof: json.statusProof } : {}), ...serverPriceFields(json) };
 }
 
@@ -621,7 +631,12 @@ export function readSelfContact(raw: unknown): Recipient | null {
 const SELF_DEPS: SelfBuyDeps = { createOrder: createSelfOrder, loadScript: () => loadCheckoutScript(), verify: verifySelfPayment };
 
 /** Order (server-priced, no identifier) -> Razorpay (no prefill: it asks the buyer) -> server verify -> the contact it read. Never throws. */
-export async function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS): Promise<SelfBuyOutcome> {
+export function buyForSelf(item: GuestItem, deps: SelfBuyDeps = SELF_DEPS): Promise<SelfBuyOutcome> {
+  // ORDER-DEDUP-1: a second tap while this buy is pending shares it (one order); a different product is a different key.
+  return dedupeInFlight(`self|${item.kind}|${item.sku}|${item.kind === "pack" ? item.target ?? "" : ""}`, () => buyForSelfOnce(item, deps));
+}
+
+async function buyForSelfOnce(item: GuestItem, deps: SelfBuyDeps): Promise<SelfBuyOutcome> {
   let pending: ReturnType<typeof beginPendingCheckout> | null = null;
   try {
     const [order, Razorpay] = await Promise.all([deps.createOrder(item), deps.loadScript()]);

@@ -79,12 +79,12 @@ describe("TRACK-2 · checkout events", () => {
     expect(typeof params.value).toBe("number");
   });
 
-  it("begin_checkout reaches GA4 (ecommerce shape), Meta (InitiateCheckout) and Vercel", () => {
+  it("begin_checkout reaches GA4 (ecommerce shape) and Vercel; META-IC-1: NOT Meta (InitiateCheckout is sent when the order is created)", () => {
     trackBeginCheckout(month);
     const [, name, params] = ga4Events()[0] as [string, string, Record<string, unknown>];
     expect(name).toBe("begin_checkout");
     expect(params).toMatchObject({ currency: "INR", value: 599, items: [{ item_id: "month", item_name: month.itemName }] });
-    expect(meta).toEqual([["track", "InitiateCheckout", { currency: "INR", value: 599 }]]);
+    expect(meta).toEqual([]);
     expect(vercel[0][1]).toEqual({ name: "begin_checkout", data: { currency: "INR", value: 599, pass: "month" } });
     expect(recordActivity).toHaveBeenCalledTimes(1);
   });

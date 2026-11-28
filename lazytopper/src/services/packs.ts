@@ -40,6 +40,7 @@ import { confirmServerPrice, razorpaySheetDescription } from "./priceConfirm";
 import { watchSheetForHang } from "./payReturn";
 import { razorpayUpiFirstOption } from "./razorpayDisplay";
 import { isGstBuyerCancelled } from "./gstBuyerOrder";
+import { dedupeSignedInBuy } from "./orderInFlight";
 
 /* ── catalogue ──────────────────────────────────────────────────────────────── */
 
@@ -258,6 +259,40 @@ export interface MyPacks {
   testSeries?: TestSeriesStatus;
   /** TS-UPGRADE-CREDIT-1 - the server's Board Pass upgrade price for a Test Series owner; absent for everyone else. */
   testSeriesUpgrade?: TestSeriesUpgrade;
+  /** TS-FREE-CHECK-1 - a NON-owner's one free test (written answers checked): the server's pin + count; absent when the rule is off. */
+  freeTest?: TestSeriesFreeTest;
+  /** BONUS-BOOK-1 - the owned CBQ Packs (`pack_cbq:<subject>`) whose complete-book bonus PDF the server can hand out; absent until uploaded. */
+  bonusBooks?: string[];
+}
+
+/** BONUS-BOOK-1 - the server's `bonusBooks` -> only CBQ Pack ids, or an empty list. PURE. */
+export function readBonusBooks(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return [...new Set(raw.filter((v): v is string => typeof v === "string" && /^pack_cbq:(maths|science)$/.test(v)))];
+}
+
+/**
+ * TS-FREE-CHECK-1 (owner ruling 23 Nov 2026) - the server's view of a student's ONE free Test Series test (GET /api/packs/mine
+ * `freeTest`, present only for a student WITHOUT the pack while the rule is on). `paperKey` is the paper the SERVER pinned at the
+ * first written check ("TS-CT-M01"), or null when no written check has been taken yet. Display only: the server decides every grade.
+ */
+export interface TestSeriesFreeTest {
+  paperKey: string | null;
+  checksPerPaper: number;
+  used: number;
+  /** TS-RECHECK-1 on the free paper: its latest check was NOT counted (the sheet could not be read). */
+  freeRecheck?: true;
+}
+
+/** The server's `freeTest` object -> a sane value, or null (then the page shows today's MCQ-only free test). PURE. */
+export function readTestSeriesFreeTest(raw: unknown): TestSeriesFreeTest | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const r = raw as { paperKey?: unknown; checksPerPaper?: unknown; used?: unknown; freeRecheck?: unknown };
+  const paperKey = typeof r.paperKey === "string" && /^TS-[A-Z0-9-]{2,40}$/.test(r.paperKey) ? r.paperKey : r.paperKey === null ? null : undefined;
+  if (paperKey === undefined) return null;
+  const per = typeof r.checksPerPaper === "number" && Number.isInteger(r.checksPerPaper) && r.checksPerPaper > 0 ? r.checksPerPaper : TEST_SERIES_CHECKS_PER_PAPER;
+  const used = typeof r.used === "number" && Number.isFinite(r.used) && r.used > 0 ? Math.min(per, Math.floor(r.used)) : 0;
+  return { paperKey, checksPerPaper: per, used: paperKey ? used : 0, ...(paperKey && r.freeRecheck === true ? { freeRecheck: true as const } : {}) };
 }
 
 /**
@@ -315,6 +350,27 @@ export function readTestSeriesStatus(raw: unknown): TestSeriesStatus | null {
 /** TS-RECHECK-1 - the plain note shown when the server did not count a check because the sheet could not be read. */
 export const SHEET_UNREADABLE_NOT_COUNTED_LINE =
   "We couldn't read most of your sheet, so this check wasn't counted. Retake the photo in good light and upload again. This free re-check is given once per paper.";
+
+/**
+ * LIVE-FIX-1 (coordinator ruling 24 Nov 2026) - the server's free re-check covers BOTH a sheet it could not read and answers that
+ * were not on the uploaded pages (TS-RECHECK-1, unchanged). The note names the reason only when the page KNOWS it from the check
+ * it just showed; otherwise one neutral line fits both.
+ */
+// RE-REVIEW SF2: the free re-check has JUST been used (one per paper) - the next check counts, so neither line says "free".
+// NIT: "half or more ... couldn't be found or read" is true in every case TS-RECHECK-1 triggers (exactly half; another question's answer).
+export const ANSWERS_NOT_FOUND_NOT_COUNTED_LINE =
+  "This check wasn't counted — half or more of the answers couldn't be found or read on the pages. Add all your pages and check again. This free re-check is given once per paper.";
+export const CHECK_NOT_COUNTED_NEUTRAL_LINE =
+  "This check wasn't counted — add any missing or unclear pages and check again. This free re-check is given once per paper.";
+
+export type NotCountedReason = "not-found" | "unreadable" | null;
+
+/** The not-counted note for a reason (null / unknown -> the neutral line). PURE. */
+export function checkNotCountedLine(reason: NotCountedReason | undefined): string {
+  if (reason === "not-found") return ANSWERS_NOT_FOUND_NOT_COUNTED_LINE;
+  if (reason === "unreadable") return SHEET_UNREADABLE_NOT_COUNTED_LINE;
+  return CHECK_NOT_COUNTED_NEUTRAL_LINE;
+}
 
 /** True when the server says this paper's latest check was not counted (free re-check). PURE. */
 export function testSeriesRecheckNote(status: TestSeriesStatus | null | undefined, paperKey: string): boolean {
@@ -454,7 +510,7 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     }
     throw new Error(`request failed: ${res.status}`);
   }
-  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown; ownsTestSeries?: unknown; testSeries?: unknown };
+  const json = (await res.json()) as { packs?: unknown; licensee?: { name?: unknown; email?: unknown; phone?: unknown }; boardPassCredit?: unknown; tutorTaste?: unknown; ownsTestSeries?: unknown; testSeries?: unknown; freeTest?: unknown; bonusBooks?: unknown };
   const packs = Array.isArray(json.packs) ? json.packs.map(readOwned).filter((p): p is OwnedPack => p !== null) : [];
   const licensee: PackLicensee = {
     name: typeof json.licensee?.name === "string" ? json.licensee.name : "",
@@ -470,6 +526,10 @@ export async function fetchMyPacks(): Promise<MyPacks> {
   // TS-PACK-1: only the server's literal `true` unlocks the series; the status is display only.
   const testSeries = readTestSeriesStatus(json.testSeries);
   const testSeriesUpgrade = readTestSeriesUpgrade(json.boardPassCredit);
+  // TS-FREE-CHECK-1: never for an owner (the owner view applies), whatever the server sent.
+  const freeTest = json.ownsTestSeries === true ? null : readTestSeriesFreeTest(json.freeTest);
+  // BONUS-BOOK-1: only for a CBQ Pack this response also lists as owned.
+  const bonusBooks = readBonusBooks(json.bonusBooks).filter((id) => packs.some((p) => p.packId === id));
   return {
     packs,
     licensee,
@@ -478,6 +538,8 @@ export async function fetchMyPacks(): Promise<MyPacks> {
     ...(json.ownsTestSeries === true ? { ownsTestSeries: true } : {}),
     ...(testSeries ? { testSeries } : {}),
     ...(testSeriesUpgrade ? { testSeriesUpgrade } : {}),
+    ...(freeTest ? { freeTest } : {}),
+    ...(bonusBooks.length > 0 ? { bonusBooks } : {}),
   };
 }
 
@@ -553,12 +615,22 @@ const DEFAULT_BUY_DEPS: PackBuyDeps = {
  * order -> Razorpay's checkout -> server verify. Never throws. The amount charged is the SERVER order's.
  * `chapterName` only words the Razorpay sheet's description.
  */
-export async function buyPack(
+export function buyPack(
   sku: PackSku,
   target?: string,
   options: { chapterName?: string; deps?: PackBuyDeps; /** the host mounts the paid-screen GST block (PaidSheet with an order id) */ postPay?: boolean } = {},
 ): Promise<PackBuyOutcome> {
   const deps = options.deps ?? DEFAULT_BUY_DEPS;
+  // ORDER-DEDUP-2: same pack + same chapter while this buy is pending -> one order (a different pack / chapter is its own order).
+  return dedupeSignedInBuy(`pack|${sku}|${target ?? ""}|${options.postPay ? "post" : "pre"}`, deps, () => buyPackOnce(sku, target, options, deps));
+}
+
+async function buyPackOnce(
+  sku: PackSku,
+  target: string | undefined,
+  options: { chapterName?: string; postPay?: boolean },
+  deps: PackBuyDeps,
+): Promise<PackBuyOutcome> {
   if (!isValidPackTarget(sku, target)) return { status: "failed" };
   try {
     const sendTarget = sku === "pack_bundle" || sku === "test_series" ? undefined : target;

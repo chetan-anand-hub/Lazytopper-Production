@@ -11,7 +11,7 @@ import { BUNDLE_CHAPTERS, BUNDLE_MOCKS, BUNDLE_NAME, MOCKS_PER_SUBJECT } from ".
  *
  * ★ A SIGNED-OUT, PRERENDERED, INDEXED SEARCH LANDING. Every claim restates something the product or CLAUDE.md §13 already says:
  * the paper pattern (about 50% competency-based, 20% MCQ, 30% short and long answer), the five sections, the free chapter-test /
- * full-mock allowance (Basic: opened or downloaded within a daily limit, written answers not checked), the Mock Pack (eight
+ * full-mock allowance (Basic: opened within a daily limit; GUEST-WALL 26 Nov 2026 - no Basic download or checking is stated), the Mock Pack (eight
  * full 80-mark papers per subject with a marking guide) and the Bundle. Prices are read from the pack helpers, never typed. No
  * "AI", no refund promise, no comparison, no affiliation claim, no testimonial or student count.
  */
@@ -80,8 +80,8 @@ export default function MockTestClass10Page() {
         <h2 id="mock-free">Take a Class 10 mock test free online</h2>
         <p>
           Start a full mock for either subject, or a chapter test when you want to check one chapter before the next.
-          On the free Basic plan you can open or download chapter tests and full mocks every day within a daily limit,
-          and the limit is higher once you sign in.
+          On the free Basic plan you can open a few Test Series papers every week,
+          and the allowance is higher once you sign in.
         </p>
         <div className="lt-seol__actions">
           <Link className="lt-seol__btn" to="/full-mock/10/Maths" data-testid="mock-free-maths">

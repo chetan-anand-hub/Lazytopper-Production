@@ -42,6 +42,8 @@ import { isGradedQuestion, objectiveMarksLost, v2GradeFields, withEffectiveCount
 // never edited): its punctuation / option-letter bridging today, and GRADER-CORE-1 PR-2's case
 // rule (options that differ only by case compared case-sensitively) once that lands there.
 import { scoreObjective } from "../lib/objectiveScoring";
+import { notFoundAsNotAttempted } from "../lib/notFoundNotAttempted";
+import { adoptBankMark } from "./markOnPhoto";
 import { conceptForBankQuestionId } from "./mistakeConcept";
 import { recordAttempt } from "./practiceInsights";
 import {
@@ -49,6 +51,7 @@ import {
   writeSessionRecordResolved,
   currentCodeForPaper,
   writeSessionPerQuestion,
+  type SessionRecord,
   type SessionSubject,
 } from "./sessionRecords";
 
@@ -175,7 +178,9 @@ export function buildChapterTestResponse(args: {
   const { paper, objective, subjectiveQuestions, subjectiveResponse } = args;
   const rows: WorksheetQuestionGrade[] = [
     ...objectiveGradeRows(objective),
-    ...(subjectiveResponse ? subjectiveResponse.results : pendingSubjectiveRows(subjectiveQuestions)),
+    // LIVE-FIX-1 #5 (owner ruling 23 Nov 2026, 23:05 IST): a written answer NOT FOUND on the uploaded pages is "Not attempted · 0"
+    // (lib/notFoundNotAttempted) - graded, in the paper's total - when the sheet was read; unreadable / mismatched stay pending.
+    ...(subjectiveResponse ? notFoundAsNotAttempted(subjectiveResponse.results) : pendingSubjectiveRows(subjectiveQuestions)),
   ];
   // PR-2 — graded totals over GRADED questions only (an unreadable or mismatched answer is
   // neither a 0 nor part of the total; it is pending, and the paper total still counts it).
@@ -272,6 +277,70 @@ export interface ChapterTestGradeOutcome {
   savedCode?: string;
 }
 
+/** The ONE question of a paper as the grader is sent it — the SAME fields for the whole sheet and for a mark on the photo
+ *  (MARK-ON-PHOTO-2). TS-PACK-1: the bank id + the exact persisted text let the server verify a Test Series paper's questions. */
+export function chapterTestQuestionInput(q: PersistedWorksheetQuestion) {
+  return {
+    qNumber: q.qNumber,
+    ...(q.id !== undefined && q.id !== null && String(q.id) ? { questionId: String(q.id) } : {}),
+    marks: q.marks,
+    topic: q.topicLabel,
+    topicLabel: q.topicLabel,
+    questionText: q.questionText,
+    section: q.section,
+    answer: q.answer,
+    options: q.options,
+    solutionSteps: q.solutionSteps,
+    finalAnswer: q.finalAnswer,
+  };
+}
+
+/** ONE graded question → the MI front door + its score twin, on the question's stable id (`ct:<worksheetId>:q<n>`), so a
+ *  re-upload or a mark on the photo REPLACES that question's entries rather than adding a second. */
+export async function recordChapterTestQuestion(
+  user: AuthUser | null | undefined,
+  worksheetId: string,
+  q: PersistedWorksheetQuestion | undefined,
+  g: WorksheetQuestionGrade,
+): Promise<ChapterTestMiOutcome | null> {
+  // PR-2 — not graded (unreadable, option unread, answer does not match its question) feeds
+  // nothing: no MI entry, no attempt, never a 0.
+  if (!isGradedQuestion(g) || !q) return null;
+  const csr = toCheckSolutionResponse(g);
+  const questionId = chapterTestQuestionId(worksheetId, g.qNumber);
+  // Sequential await (callers loop): recordMistake reads+writes the device-local dedup list.
+  const rec = await recordMistake(user, csr, {
+    subject: q.subject,
+    topic: q.topicLabel,
+    topicKey: q.topicKey,
+    question: q.questionText,
+    questionId,
+    // SCORECARD-MI-1 (D5) — stable identity: a re-upload of this paper REPLACES its entries.
+    surface: "chapter-test",
+    submissionId: worksheetId,
+    // MI-CONCEPT-1 — `questionId` above is the SYNTHETIC attempt id (`ct:…`), which
+    // is not a bank id and cannot resolve. The BANK id is `q.id` on the persisted
+    // question, so resolve here and hand the concept to the front door. Unresolvable
+    // (withheld / deleted) → undefined, and the entry carries no concept.
+    concept: conceptForBankQuestionId(q.id),
+  });
+  recordAttempt(user, {
+    subject: q.subject,
+    topic: q.topicLabel,
+    topicKey: q.topicKey,
+    question: q.questionText,
+    questionId,
+    marksScored: csr.marksAwarded,
+    marksAvailable: csr.totalMarks,
+    mode: "graded",
+    // H1 — the same submission identity as the MI entry: a re-upload replaces the attempt.
+    surface: "chapter-test",
+    submissionId: worksheetId,
+    grade: csr,
+  });
+  return { qNumber: g.qNumber, mistakeOutcome: rec.outcome, bridged: rec.bridged };
+}
+
 /**
  * Phase 2 — grade the uploaded answer sheet (Sections B–D) against the KNOWN scheme
  * in one structured call, feed each legible result through MI, then overwrite the
@@ -305,45 +374,8 @@ export async function gradeChapterTestUpload(args: {
 
   /** ONE graded question → the MI front door + its score twin (the one per-question path). */
   const recordGraded = async (g: WorksheetQuestionGrade): Promise<void> => {
-    // PR-2 — not graded (unreadable, option unread, answer does not match its question) feeds
-    // nothing: no MI entry, no attempt, never a 0.
-    if (!isGradedQuestion(g)) return;
-    const q = qByNumber.get(g.qNumber);
-    if (!q) return;
-    const csr = toCheckSolutionResponse(g);
-    const questionId = chapterTestQuestionId(paper.worksheetId, g.qNumber);
-    // Sequential await: recordMistake reads+writes the device-local dedup list.
-    // eslint-disable-next-line no-await-in-loop
-    const rec = await recordMistake(user, csr, {
-      subject: q.subject,
-      topic: q.topicLabel,
-      topicKey: q.topicKey,
-      question: q.questionText,
-      questionId,
-      // SCORECARD-MI-1 (D5) — stable identity: a re-upload of this paper REPLACES its entries.
-      surface: "chapter-test",
-      submissionId: paper.worksheetId,
-      // MI-CONCEPT-1 — `questionId` above is the SYNTHETIC attempt id (`ct:…`), which
-      // is not a bank id and cannot resolve. The BANK id is `q.id` on the persisted
-      // question, so resolve here and hand the concept to the front door. Unresolvable
-      // (withheld / deleted) → undefined, and the entry carries no concept.
-      concept: conceptForBankQuestionId(q.id),
-    });
-    recordAttempt(user, {
-      subject: q.subject,
-      topic: q.topicLabel,
-      topicKey: q.topicKey,
-      question: q.questionText,
-      questionId,
-      marksScored: csr.marksAwarded,
-      marksAvailable: csr.totalMarks,
-      mode: "graded",
-      // H1 — the same submission identity as the MI entry: a re-upload replaces the attempt.
-      surface: "chapter-test",
-      submissionId: paper.worksheetId,
-      grade: csr,
-    });
-    miOutcomes.push({ qNumber: g.qNumber, mistakeOutcome: rec.outcome, bridged: rec.bridged });
+    const out = await recordChapterTestQuestion(user, paper.worksheetId, qByNumber.get(g.qNumber), g);
+    if (out) miOutcomes.push(out);
   };
 
   let subjectiveResponse: WorksheetGradeResponse;
@@ -351,20 +383,7 @@ export async function gradeChapterTestUpload(args: {
     subjectiveResponse = await gradeWorksheet({
     worksheetId: paper.worksheetId,
     subject: paper.subject,
-    questions: subjectiveQuestions.map((q) => ({
-      qNumber: q.qNumber,
-      // TS-PACK-1: the bank id + the exact persisted text below let the server verify a Test Series paper's questions.
-      ...(q.id !== undefined && q.id !== null && String(q.id) ? { questionId: String(q.id) } : {}),
-      marks: q.marks,
-      topic: q.topicLabel,
-      topicLabel: q.topicLabel,
-      questionText: q.questionText,
-      section: q.section,
-      answer: q.answer,
-      options: q.options,
-      solutionSteps: q.solutionSteps,
-      finalAnswer: q.finalAnswer,
-    })),
+    questions: subjectiveQuestions.map(chapterTestQuestionInput),
     imageBase64: upload.imageBase64,
     imageMimeType: upload.imageMimeType,
   }, { surface: "chapter-test", paperKey: paper.worksheetId, ...(args.onStage ? { onStage: args.onStage } : {}), ...(args.job ? { job: args.job } : {}) });
@@ -413,21 +432,104 @@ export async function gradeChapterTestUpload(args: {
     const uid = user?.uid;
     if (uid && !user?.isLocalSession) {
       const record = buildChapterTestSessionRecord({ paper, code, subject, topicKey, response, uid });
-      const written = await writeSessionRecordResolved(user, record);
+      const written = await writeFullRecord(user, uid, record, paper.worksheetId, response);
       savedCode = written.code;
-      noteFirstGraded(uid, written.record, "chapter_test"); // MEASURE-1 B — observe only
-      writeSessionPerQuestion(user, {
-        ref: written.record.perQuestionRef,
-        code: written.code,
-        worksheetId: paper.worksheetId,
-        surface: "chapter-test",
-        gradedAt: written.record.gradedAt,
-        response,
-      });
     }
   } catch (error) {
     console.warn("[chapterTestGradeService] full record write failed", error);
   }
 
   return { ok: true, response, miOutcomes, ...(savedCode ? { savedCode } : {}) };
+}
+
+/**
+ * THE full-record save of a graded Chapter Test — ONE seam for a fresh grade and a mark on the photo (MARK-ON-PHOTO-2): the record
+ * (RECORD-SAFE-1: its final code resolved first), the first-graded report on the record AS WRITTEN, and its per-question payload
+ * rewritten whole under the code it landed on.
+ */
+async function writeFullRecord(
+  user: AuthUser,
+  uid: string,
+  record: SessionRecord,
+  worksheetId: string,
+  response: WorksheetGradeResponse,
+): Promise<{ code: string; record: SessionRecord }> {
+  const written = await writeSessionRecordResolved(user, record);
+  noteFirstGraded(uid, written.record, "chapter_test"); // MEASURE-1 B — observe only
+  writeSessionPerQuestion(user, {
+    ref: written.record.perQuestionRef,
+    code: written.code,
+    worksheetId,
+    surface: "chapter-test",
+    gradedAt: written.record.gradedAt,
+    response,
+  });
+  return written;
+}
+
+export type BankMarkOutcome =
+  | { kind: "marked"; response: WorksheetGradeResponse; savedCode?: string; record?: SessionRecord }
+  | { kind: "unread" };
+
+/**
+ * MARK-ON-PHOTO-2 (owner rulings 25 Nov 2026) — "Mark it on your photo" on a Chapter Test result: ONE question of the paper is
+ * graded from the ONE image the student pointed to (the per-question upload transport), with the SAME fields the paper sent
+ * (chapterTestQuestionInput), under the paper's OWN worksheetId and paper pass (so it rides the paper's fair-use allowance and
+ * its LIMITS-1 slot) and naming the question (X-Lazytopper-Mark-Q: the cap of 3). Synchronous, never a job.
+ *
+ * A row that comes back graded replaces the old one (services/markOnPhoto.ts adoptBankMark), is fed to Mistake Intelligence
+ * ONCE on its stable id, and the paper is re-saved through the SAME save path as a fresh grade (device cache, the record under
+ * the same code, its per-question payload rewritten whole). A row that comes back not graded changes nothing. Errors throw
+ * (the page shows them in the dialog).
+ */
+export async function markChapterTestQuestion(args: {
+  user: AuthUser | null | undefined;
+  paper: PersistedWorksheet;
+  code: string;
+  subject: SessionSubject;
+  topicKey: string;
+  /** The unified result on screen (objective + written rows). */
+  response: WorksheetGradeResponse;
+  /** The row's index in `response.results`. */
+  index: number;
+  image: { imageBase64: string; imageMimeType: string };
+}): Promise<BankMarkOutcome> {
+  const { user, paper, subject, topicKey, response, index, image } = args;
+  const row = response.results[index];
+  const q = row ? paper.questions.find((x) => x.qNumber === row.qNumber) : undefined;
+  if (!row || !q) return { kind: "unread" };
+  const reply = await gradeWorksheet(
+    {
+      worksheetId: paper.worksheetId,
+      subject: paper.subject,
+      questions: [chapterTestQuestionInput(q)],
+      uploads: [{ qNumber: q.qNumber, imageBase64: image.imageBase64, imageMimeType: image.imageMimeType }],
+    },
+    { surface: "chapter-test", paperKey: paper.worksheetId, markQ: q.qNumber },
+  );
+  const merged = adoptBankMark(response, index, reply);
+  if (!merged) return { kind: "unread" };
+  saveWorksheetGrade(paper.worksheetId, merged);
+  try {
+    await recordChapterTestQuestion(user, paper.worksheetId, q, merged.results[index]);
+  } catch (e) {
+    console.warn("[chapterTestGradeService] MI record for a marked answer failed (grade preserved)", e);
+  }
+  let savedCode: string | undefined;
+  // The record as re-saved (S1): a re-opened scorecard reads its score, types and status from the RECORD, so the page swaps it in.
+  let savedRecord: SessionRecord | undefined;
+  try {
+    const uid = user?.uid;
+    if (uid && !user?.isLocalSession) {
+      const code = currentCodeForPaper(user, paper.worksheetId, "chapter-test", args.code);
+      const record = buildChapterTestSessionRecord({ paper, code, subject, topicKey, response: merged, uid });
+      savedRecord = record;
+      const written = await writeFullRecord(user, uid, record, paper.worksheetId, merged);
+      savedCode = written.code;
+      savedRecord = written.record;
+    }
+  } catch (error) {
+    console.warn("[chapterTestGradeService] marked record write failed", error);
+  }
+  return { kind: "marked", response: merged, ...(savedCode ? { savedCode } : {}), ...(savedRecord ? { record: savedRecord } : {}) };
 }

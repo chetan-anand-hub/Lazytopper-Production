@@ -155,6 +155,8 @@ const EVENT_LABELS: Record<string, string> = {
   trial_end_screen_parent: "Sent the trial-ended offer to a parent",
   trial_end_screen_basic: "Chose Basic on the trial-ended screen",
   scorecard_upgrade_shown: "Saw the upgrade line on a scorecard",
+  download_paywall_shown: "Saw the download offer on a Test Series paper",
+  download_paywall_pay_tap: "Tapped Pay on the download offer",
   scorecard_upgrade_click: "Tapped the upgrade line on a scorecard",
   // FEEDBACK-1 — the "help us improve" prompt (shown / dismissed / answered), built below.
   ...feedbackEventLabels(),

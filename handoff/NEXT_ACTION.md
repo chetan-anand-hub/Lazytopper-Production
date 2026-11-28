@@ -1,3 +1,122 @@
+## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`9b221f79`** (`#1890`) [git: `git ls-remote origin base/approved-thru-437`].
+
+- **Done (owner):** the Vercel redeploy for `VITE_TOPUP_ENABLED=1` is done (with Railway `TOPUP_ENABLED=1`), so the top-up sheet is live. This removes the "finish Vercel verification / pending redeploy" item of the block below. Still owed: a live top-up on a test account (`#1884`).
+- **Live verify owed (owner):** `#1890` (signed out, double-tap Pay -> one order in unpaid orders; dismiss, Pay again -> a fresh sheet). `#1889` on an Android Facebook/Instagram browser where the Chrome hop FAILS (the owner's 17:50 test hopped fine, so Copy payment link did not show). The earlier owed checks of the block below stand.
+- **Next product lanes (cofounder):** `[FU-ORDER-DEDUP-SIGNED-IN]` (same double-tap pattern in `PassCheckout.tsx`, `PacksShop.tsx`, `topupBuy.ts`); `[FU-AICOST-SILENT-CATCH]` (error log or counter in the `aiCostDaily.cjs` `.catch`); `[FU-TOPUP-NO-ANALYTICS]` (a top-up event).
+- **Watch:** Razorpay customer attempts (0 since `#1889` went live, 18:15 IST read); Visit quality card (26% quick-leave; meta 40%).
+- **Unchanged:** set `LT_USD_INR` on Railway if Rs 88 is not the rate to use; review the PIN test campaign on 30 Nov; 1 Dec price switch and the earlier dated checks stand.
+- **Process:** merge only on an explicit `quality-gate:success` on the PR head; builders run the FULL vitest suite before pushing.
+
+## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`661301f2`** (`#1889`) [git]. Open: `#1890` ORDER-DEDUP-1 (CI red: the PAY-HANG-1 tests; being fixed).
+
+- **Owner, now:** finish the Vercel email-code verification so the pending redeploy of `VITE_TOPUP_ENABLED=1` can go out (Railway `TOPUP_ENABLED=1` is already set); then a live top-up on a test account (`#1884`).
+- **Live verify owed (owner):** `#1889` on an Android Facebook/Instagram browser (does Copy payment link lead once the hop is stuck?); `#1885` and `#1888` (parent WhatsApp flow, guest and signed-in); `#1884` (top-up sheet, a TS-only owner sees no dead button); `#1882` (admin cost card shows today's row); `#1887` (admin quick-leave card shows rows).
+- **Merge `#1890`** only on an explicit `quality-gate:success` on the PR head, after the PAY-HANG-1 test fix.
+- **Set `LT_USD_INR` on Railway** if the Rs 88 default is not the rate to use (`[FU-COST-LT_USD_INR]`).
+- **Ads:** review the PIN test campaign "Search | PDF Packs #2" on 30 Nov.
+- **Dated:** 1 Dec price switch and the earlier dated checks stand.
+- **Process:** merge only on an explicit `quality-gate:success` on the PR head; builders run the FULL vitest suite before pushing.
+
+## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`40c9cfca`** (`#1877`) [git].
+
+- **Live verify owed:** on a TRIAL test account, an Answer Checker paper mark → the weekly count does not move; the 4th graded mark of one question is refused; one Test Series paper mark holds/commits a check (`[FU-MARK-ON-PHOTO-TRIAL-LIVE]`).
+- **Watch from 26 Nov:** `[grade-timing]` `locate.ms` / `ok` (a slow locate on a SYNC grade can add up to ~10 s, `[FU-LOCATE-SYNC-SLOW]`); `outcomes` and `secondLook` (`[FU-LOOK2-REAL-RATE]`).
+- **Owner decision:** a trial paper reopened > 24 h later and marked on the photo mints a new paper pass, as "Upload all pages again" does (`[FU-MARK-ON-PHOTO-REOPEN-PASS]`).
+- **Process:** merge only on an explicit `quality-gate:success` on the PR head; builders run the FULL vitest suite before pushing.
+
+## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`6d9ab1e8`** (`#1871`) [git].
+
+- **In build (cofounder):** MARK-ON-PHOTO-1 PR-1 (Answer Checker: "Mark it on your photo" on not-found / wrong-question rows; independent review running), then PR-2 for Chapter Test, Full Mock and Worksheet (`[FU-MARK-ON-PHOTO-BANK]`).
+- **Live verify owed:** the second look on one bank surface (`[FU-LOOK2-BANK-LIVE]`); the earlier owed checks stand (`#1862`, `#1863`, `#1864`, `#1865`, `[FU-1840-FM-LIVE]`).
+- **Watch from 26 Nov:** `[grade-timing]` `outcomes` and `secondLook` on real papers (`[FU-LOOK2-REAL-RATE]`).
+- **Owner:** fair use for "Mark it on your photo" stays an ordinary check unless he rules otherwise (`[FU-MARK-ON-PHOTO-FAIRUSE]`).
+
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863
+
+*(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`ec5ba0e7`** (`#1863`) [git, `git fetch origin base/approved-thru-437`]; live `version.json` = `eeac414f` when last read (13:35 IST; `#1863` is server-only, Railway).
+
+- **Live checks owed:** `#1862` (a Full Mock one-answer series sheet shows "This check wasn't counted" within about 8 s); `#1863` (Answer Checker typed question + one structured surface); `#1864` avatar and `#1865` night door on desktop; `[FU-1840-FM-LIVE]`.
+- **Entry chunk headroom is now about 6.5 KB gz** (`#1865`); `[FU-PERF3-HEADROOM]` is closed. Keep measuring raw bytes on a production-flag build.
+- **Next lanes:** `[FU-UI-E2E-PHASE2-PAGES]`; then propose `ui-e2e` as a required check after clean days counted from `#1865` (its failures on 25 Nov were the gz budget, now fixed).
+- **Owner (asked 13:35):** add the Test Series ad lines to the 1 Dec 10:12 ads task? Re-run or inspect the school-outreach run that ended in 4 s at 11:50?
+
+## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859
+
+*(The owner items of every block below stand, except where this block narrows them. Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-25.md` and its addendum [coordinator].)* Trunk at writing: **`32ba8d0b`** (`#1859`) [git, re-derived with `git ls-remote origin base/approved-thru-437`]; live `version.json` = `32ba8d0b` [live].
+
+- **Done [git]:** `#1858` FAQ-WHY-BOTH-1 and `#1859` TS-NAV-2 merged; neither changes grading behaviour. **The repo is private** (done; no owner action left for it).
+- **Next product lanes, in order:** `[FU-FM-UNCOUNTED-NOTE]` (Full Mock "This check wasn't counted", copy only), then `[FU-PERF3-HEADROOM]` (free entry-chunk headroom BEFORE any more entry-touching work), then `[FU-UI-E2E-PHASE2-PAGES]` on the `#1856` harness, then propose `ui-e2e` as a required check (`[FU-UI-E2E-REQUIRED-CHECK]`).
+- **Live checks owed:** `[FU-1840-FM-LIVE]` (Full Mock (a) and (d)); TS-NAV-2 picker arrows on a real iPhone (owner's phone); the signed-out parent forward on a real phone (needs a real payment: owner decides).
+- **Owner actions:** Meta Test Events, then remove `META_TEST_EVENT_CODE` (`[FU-META-TEST-EVENT-CODE-REMOVE]`); "Require this computer" on the school-outreach task (`[FU-OUTREACH-TASK-NO-COMPUTER]`); GitHub bill by 30 Nov (`[FU-GITHUB-BILL]`).
+- **Dated:** Thu 26 Nov evening ads review (PDF Packs, Test Series) on Razorpay sales, nothing changed without the owner's words; 1 Dec price switch, re-captures and ad copy (scheduled tasks), and parent messages/emails flipping at 00:00 IST.
+
+## 2026-11-24 (daily; covers 24-25 Nov IST: merges 14:39 IST 24 Nov to 06:22 IST 25 Nov, i.e. 09:09 UTC 24 Nov to 00:52 UTC 25 Nov; written 24 Nov, updated about 23:05 IST 24 Nov and about 06:30 IST 25 Nov) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 - #1854 - #1852 - #1856 - #1855 - #1853 - #1857
+
+*(The owner items of every block below stand, except where this block narrows them. Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-24.md` and the coordinator's messages from this session [coordinator].)* Trunk at writing: **`2d851629`** [git]. **Trunk at the 25 Nov update: `0ae599c7`** [git].
+
+- **25 Nov update, read first [coordinator unless marked]:**
+  - **Done [git]:** six more PRs merged: `#1854` FAIRUSE-TS-OWNER-1, `#1852` TS-PARENT-FORWARD-1, `#1856` UI-E2E-2-SIGNIN, `#1855` TS-PARENT-FORWARD-2 + FOUNDING-MSG-PRICE-1, `#1853` PRICING-CTA-UP-1, `#1857` FOUNDING-MSG-PRICE-2. None changes grading behaviour. The "Lanes in build tonight" below are therefore merged.
+  - **Repo to go PRIVATE** after tonight's PRs; the owner types the GitHub code. **Pay the overdue GitHub bill by 30 Nov**; private repos consume Actions minutes (`[FU-GITHUB-BILL]`).
+  - **Entry budget about 16 B:** a new entry export alias alone added 6 B and failed CI. Any PR touching entry-chunk imports compares raw entry bytes with trunk on a production-flag build (`[FU-PERF3-HEADROOM]`).
+  - **Next small product lanes:** the Full Mock "This check wasn't counted" note (`[FU-FM-UNCOUNTED-NOTE]`, copy only); the parent page heading says "Pack" for the Test Series (`[FU-TS-PARENT-HEADING]`); Phase 2 UI-test page coverage on the new signed-in harness.
+  - **Live check owed:** `#1840` (a) and (d) on a Full Mock (`[FU-1840-FM-LIVE]`).
+  - **Owner actions:** Meta Test Events, then remove `META_TEST_EVENT_CODE` from Railway (`[FU-META-TEST-EVENT-CODE-REMOVE]`); turn on "Require this computer" for the school-outreach task (`[FU-OUTREACH-TASK-NO-COMPUTER]`).
+  - **Do not rebuild:** CBQ-WA-OPTIN-1 is dropped (/cbq-packs already has the WhatsApp box in its buy pop-up). No sign-in before payment in any path (DECISION_LOG 2026-11-24 ruling 10). Until 30 Nov, no new message names a founding amount without its date (ruling 12).
+- **Done [git]:** the eight PRs in CURRENT_STATE merged (`#1846` to `#1850`, then the Meta set `#1811`, `#1816`, `#1819` tonight, as the owner ruled). None changes grading behaviour.
+- **Meta, finish tonight or next session [coordinator]:** the owner and Pallabi run Meta Test Events (one Board Pass order plus one pack order, expecting one deduplicated InitiateCheckout each). **Then remove `META_TEST_EVENT_CODE` from Railway.** Do NOT touch the 6 ad sets on InitiateCheckout. If a pack Purchase must be turned off, flip `VITE_META_PACK_AS_PURCHASE_DISABLED` (Vercel) and `META_PACK_AS_PURCHASE_DISABLED` (Railway) TOGETHER.
+- **Entry budget, 34 B left [coordinator]:** after `#1819` the entry chunk is 170,593 of 170,627 gz. Any PR that adds to the entry chunk needs a budget decision first; measure the production-flag build (`[FU-PERF3-HEADROOM-34B]`).
+- **Lanes in build tonight [coordinator]:**
+  - TS-PARENT-FORWARD-1: the Test Series checkout keeps Buy and adds "Forward link to parents" (owner ruling; DECISION_LOG 2026-11-24 ruling 2). Its pre-flight found the parent message and landing called the Test Series "printable PDFs"; corrected to "board-pattern tests I can take online or print", because series owners can download and print papers (18 Nov ruling). Money path: independent review and kill switch. `[FU-TS-CHECKOUT-BOTH-OPTIONS]`.
+  - PRICING-CTA-UP-1: /pricing price and Buy moved up on every card, and an honest sticky-bar price for Test Series owners (accepted by the owner at 22:20).
+  - Owner wants slimmer /pricing card faces (USPs only, each card clickable to its page). An independent UX review is running; no build until it reports.
+- **UI tests Phase 2 [coordinator]:** the preview/test-only sign-in spec is written (Firebase emulator in the CI build, no server change). **Waiting for the owner's OK.** `[FU-UI-E2E-PHASE2-TEST-SIGNIN]`. Make `ui-e2e` a required check after clean days (`[FU-UI-E2E-REQUIRED-CHECK]`, already on the board).
+- **Live checks still owed [coordinator]:** `#1840` on a **Full Mock** (the Chapter Test surface PASSED tonight on freelance.iitian, Real Numbers Chapter Test 1); STEPMARK-3; a second surface for `#1822` plus the Railway `[scheme-gen]` counters; the board estimate (`#1832`).
+- **Closed tonight:** `login_abandon` at `google_redirect_started` is NOT a measurement bug; those events are marked `leave: "expected"` (`[FU-LOGIN-ABANDON-REDIRECT-STEP]`, CLOSED). Count real drop-off with `leave: "abandon"` only.
+- **School outreach, not code [coordinator]:** batch 1 sent on 24 Nov: 49 metro CBSE schools, 2 bounced. Follow-ups on 1 Dec. **The scheduled task has no computer attached:** the owner's 22:08 manual run ended in about 1.5 min without touching the tracker. **The owner will fix it himself (desktop app, "Require this computer") before 25 Nov 11:37 IST**, the next batch. The emails link the booklet hosted by `#1849` / `#1850`.
+- **Growth, not code [coordinator]:** startup and directory listings were made on 24 Nov; Crunchbase and Wellfound went into `sameAs` (`#1847`). Add F6S after it is approved, Tracxn, and Product Hunt after the launch (`[FU-SAMEAS-MORE-DIRECTORIES]`).
+- **Google Ads [coordinator, handoff doc section 3]:** the **Thu 26 Nov evening review** judges Search | PDF Packs on Purchases only with tROAS 15% and ₹9,750/day, and Search | Test Series at ₹1,000/day on Purchases only. Changes and rulings: SESSION_LOG and DECISION_LOG. Ads still change only on the owner's words.
+- **Dated checks [coordinator]:** tonight or next session Meta Test Events, then remove `META_TEST_EVENT_CODE`; Wed 25 Nov 11:37 IST outreach batch 2 (after the owner fixes the task) and the YouTube decision; Thu 26 Nov evening the Google Ads review; 30 Nov founding prices end; 1 Dec price switch and the school follow-ups.
+- **Standing rules carried, unchanged [coordinator]:** no refunds, ever; check the AI Studio balance before any paid eval; ads change only on the owner's words; copy is "₹X + GST" with the total on the button, no "AI" or "answer key" in new copy, "7-day free trial", "Answer Checker"; never pay, never type passwords or codes; the product is live with paying students, so nothing may break, including purchase; grading quality must never decrease; never create worktrees on the owner's laptop.
+
+## 2026-11-23 (daily; UTC day 23 Nov, written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840
+
+*(The owner items of every block below stand, except where this block narrows them. Source: `claude/HANDOFF_COFOUNDER_SESSION_2026-11-23.md` [coordinator].)* Trunk at writing: **`91624151`** [git].
+
+- **Done [git]:** the 22 PRs in CURRENT_STATE merged. **Standing merge permission (owner, 23 Nov 22:08): the coordinator no longer asks before merging.** This supersedes "ask me for merge permission" in the dispatch. Independent reviews for money, auth, entitlement or free-access PRs are still required first.
+- **Owner to-dos, remind at the start of the session [coordinator]:**
+  1. Make the repo private again (it was public for the 23 Nov session).
+  2. Google Ads top-up by 24-25 Nov (funds were ₹69,261 on 23 Nov).
+  3. Resend paid plan this month (the free 100/day is shared with sign-in codes and receipts; nudges hit the cap on 22 Nov).
+  4. AI Studio: add a backup payment method and move the Eval / Default / POC projects off the shared prepaid billing account (balance ₹15,256 at 19:45 IST on 23 Nov, from about ₹18,405 that morning; the ledger under-counts the real bill by about 1.5-2x). Check the balance before any paid eval.
+  5. Vercel two-factor sign-in; GoDaddy auto-renew (both open since 22 Nov).
+  6. Pallabi: accept the Google Ads invite.
+- **Live checks owed by the owner; nothing on the grading path is "done" without them [coordinator]:**
+  - **`#1840` LIVE-FIX-1, on BOTH a Chapter Test and a Full Mock:** (a) a sheet with a page or two missing, under half the written answers missing: the missing questions show "Not attempted · 0" and the paper is graded X/80; (b) a sheet with most answers missing or unreadable: they stay "not marked yet", the paper stays partial, and the "This check wasn't counted" note shows; (c) "Upload all pages again", from both the live result and a reopened record; (d) after a normal check, "Checks left" drops to 1 of 2. Until both surfaces are run, `#1840` is PARTIAL (section 4a).
+  - **STEPMARK-3 (`#1823` to `#1842`):** one graded Chapter Test from a changed chapter (carbon, control and coordination, magnetic effects, human eye, heredity, reproduction), plus one Worksheet or Quick Practice.
+  - **`#1822` SCHEME-GEN-1:** a second surface. Answer Checker (own question) and Quick Practice were checked by the cofounder in the owner's Chrome on 23 Nov. Also read the Railway `[scheme-gen]` log line and the `scheme_gen.{ok,max_tokens,parse_fail,error}` counters.
+  - **Board estimate (`#1832`):** needs an account with two fully graded same-subject full tests; not yet seen live.
+- **Tue 24 Nov night, in this order [coordinator]:** (1) mark `#1811` META-IC-1 READY first (it was converted to draft on 23 Nov only so lane-overlap would let `#1835` merge), merge trunk in, re-run CI, merge; (2) `#1816` META-PURCHASE-UNIFY-1, after its follow-ups; (3) `#1819`, after a re-review of head `792004f6`. Then tell the owner so he can run Meta Test Events with Pallabi: one Board Pass order plus one pack order, expecting one deduplicated InitiateCheckout each. Do NOT touch the 6 ad sets on InitiateCheckout. The entry chunk must stay at or under 170,627 gz (169,251 after `#1837`). `[FU-TRUNK-RULESET-REQUIRED-CHECKS]` still means the ruleset will not catch a stale base.
+- **Stays a draft on purpose:** `#1833` GRADE-SINGLE-JOB-1 (flag `GRADING_SINGLE_JOBS` default OFF; a safety net, not needed now).
+- **Follow-ups to pick up, from the 23 Nov list (bodies in OPEN_QUESTIONS) [coordinator]:**
+  - Money / entitlement, needs a spec, an independent review and a kill switch: `[FU-FAIRUSE-TS-OWNER-EXEMPT]` (server-side exemption first, then the client).
+  - Grading, needs an eval and the owner's spend OK: `[FU-ADD-PAGE-MERGE-GRADES]`, `[FU-SCHEME-CP04-SUPPORT-VALUE]`, the scheme example's section 13 fix, an optional shorter-feedback eval (about ₹150).
+  - Owner decision: the scheme cache version (bumping regenerates every cached scheme and costs money).
+  - Content: `[FU-STEPMARK-26-FLAGGED]` (hand-fix 26 bank rows); then the "every question step-marked" copy can say "all but a few flagged questions" (`[FU-STEPMARK-REMAINING-1875]`).
+  - Server: `[FU-SERVER-UNREADABLE-SHARE]`. Scoped owner grant needed: `[FU-DESKTOPSHELL-AVATAR-CONTRAST]` (DesktopShell.tsx is globally forbidden).
+  - Low priority: `[FU-ISLIVEPACK-REFUND]`; the green guard's limit; ui-e2e housekeeping (make it a required check after a few clean days; keep `tests/e2e/buildEnv.json` in sync with Vercel prod `VITE_*` flags).
+- **Carried from 22 Nov, still open [coordinator]:** INAPP-SIGNED-IN-HANDOFF ("Pay in Chrome" for signed-in buyers; spec first); `[FU-TS-UPGRADE-SIGNED-OUT]`; `[FU-NUDGE-BAD-PRODUCT]`; reviewer nits on `#1808`, `#1817`, `#1809`; CI flakes (TrialTutorSummary, guestPay 20 ms timer); laptop worktree cleanup (`C:\Projects\LT-worktrees\eval-type1`, then `git worktree prune`, the one git write allowed there); the 21 Nov queue (speed lane for ad landing pages, free MCQ pages, signed-out free-check phone test).
+- **Ads, only on the owner's words [coordinator]:** Test Series ad visuals with the scorecard (product screenshots, no text overlays); Google Ads Test Series copy "marked step by step in minutes · first test free (marking included)"; the Meta brief for Pallabi. Ads review 24-25 Nov: Test Series on the ₹40 cap ("Limited by bid" to ₹60; back to Purchases after 5-10 sales), Board Pass ₹3,500/day, Purchases-only goals.
+- **Dated checks:** Tue 24 Nov night Meta deploy; 24-25 Nov Google Ads top-up and ads review; Wed 25 Nov YouTube decision (₹1,500/day cap, sign-ups only; 23 Nov ₹877 / 191 clicks / 0 sign-ups); 30 Nov founding prices end; 1 Dec price switch (Board Pass ₹2,499 + GST, Test Series ₹1,499 + GST at ₹8 per test; prerender re-capture; ad copy; scheduled tasks exist); about 11 Dec GSC re-check of the free-MCQ pages; before 15 Feb 2027 the sale cutoff and the improvement-exam product.
+- **Standing rules carried, unchanged [coordinator]:** no refunds, ever; check the AI Studio balance before any paid eval; ads change only on the owner's words; copy is "₹X + GST" with the total on the button, no "AI" or "answer key" in new copy, "7-day free trial", "Answer Checker"; never pay, never type passwords or codes; the product is live with paying students, so nothing may break, including purchase; grading quality must never decrease; never create worktrees on the owner's laptop.
+
 ## 2026-11-22b (first daily of UTC day 22 Nov; written 22 Nov about 18:15 IST) - #1810 - #1815 - #1813 - #1812 - #1814 - #1808 - #1817 - #1805 - #1809
 
 *(The owner items of every block below stand, except where this block narrows them.)* Trunk at writing: **`883cb9ee`** [git].

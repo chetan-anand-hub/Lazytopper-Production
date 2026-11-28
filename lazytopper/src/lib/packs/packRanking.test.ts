@@ -10,6 +10,7 @@ import {
   stepMarkedFirst,
 } from "./packContent";
 import { drawPackMocks } from "./buildPackFiles";
+import { isPublishable } from "../../../scripts/seo/publishability";
 import { packPaperCode } from "./packPaperCode";
 import { BUNDLE_NAME, ALL_NCERT_CHAPTERS, MATHS_NCERT_CHAPTERS, SCIENCE_NCERT_CHAPTERS, MOCKS_PER_SUBJECT, packChapterLabel } from "./packLabels";
 import { drawChapterTest } from "../../components/chaptertest/chapterTestBlueprint";
@@ -25,6 +26,26 @@ describe("isStepMarked", () => {
     expect(isStepMarked(q({ marks: 3, solutionSteps: ["[1 mark] a", "[1 mark] b", "x [1]"] }))).toBe(true);
     expect(isStepMarked(q({ marks: 1, solutionSteps: ["x [½]", "y [½]"] }))).toBe(true);
     expect(isStepMarked(q({ solutionSteps: [] }))).toBe(false);
+  });
+  it("OR-aware (STEPMARK-3): an OR row is step-marked when its MAIN route sums to the marks, as in publishability Rule 3", () => {
+    // main route 1 + 1 + 1 + 1 = 4; the OR alternative is not added on top
+    const orRow = { marks: 4, solutionSteps: ["[1 mark] (a) x", "[1 mark] (b) y", "[1 mark] (c)(i) z", "[1 mark] (c)(ii) w", "[2 marks] OR (c) v"] };
+    expect(isStepMarked(q(orRow))).toBe(true);
+    expect(isPublishable({ id: "T", marks: 4, questionText: "q", solutionSteps: orRow.solutionSteps } as never, new Set()).ok).toBe(true);
+    // "OR (alternative):" is an OR step too
+    expect(isStepMarked(q({ marks: 5, solutionSteps: ["[2 marks] a", "[3 marks] b", "[5 marks] OR (alternative): c"] }))).toBe(true);
+  });
+  it("OR-aware: an OR row whose main route does NOT sum to the marks is not step-marked", () => {
+    expect(isStepMarked(q({ marks: 4, solutionSteps: ["[1 mark] (a) x", "[1 mark] (b) y", "[1 mark] (c)(i) z", "[2 marks] OR (c) w"] }))).toBe(false); // main 3, all 5
+    expect(isStepMarked(q({ marks: 4, solutionSteps: ["[1 mark] a", "[2 marks] b", "[2 marks] OR c"] }))).toBe(false);
+    // an OR step still needs its own mark
+    expect(isStepMarked(q({ marks: 2, solutionSteps: ["[1 mark] a", "[1 mark] b", "OR c"] }))).toBe(false);
+  });
+  it("OR-aware: non-OR rows are judged exactly as before (all steps sum); 'OR = ...' names a segment and is not an OR step", () => {
+    expect(isStepMarked(q({ marks: 2, solutionSteps: ["[1 mark] a", "[2 marks] b"] }))).toBe(false);
+    expect(isStepMarked(q({ marks: 3, solutionSteps: ["[1 mark] a", "[2 marks] b"] }))).toBe(true);
+    expect(isStepMarked(q({ marks: 2, solutionSteps: ["[2 marks] OP = 10 units", "[2 marks] OR = √(400 + 441) = 29 units"] }))).toBe(false);
+    expect(isStepMarked(q({ marks: 4, solutionSteps: ["[2 marks] OP = 10 units", "[2 marks] OR = √(400 + 441) = 29 units"] }))).toBe(true);
   });
   it("a 1-mark objective question counts as step-marked even with no prefix; a 2-mark one with options does not", () => {
     expect(isStepMarked(q({ marks: 1, options: ["a", "b"], solutionSteps: ["because"] }))).toBe(true);
@@ -88,7 +109,7 @@ describe("mock packs: 8 papers per subject, little overlap", () => {
       await loadSubjectBank(subject);
       const papers = drawPackMocks(subject);
       expect(papers.map((p) => p.n), subject).toEqual(Array.from({ length: MOCKS_PER_SUBJECT }, (_, i) => i + 1));
-      expect(packPaperCode({ kind: "mock", subject, n: 8 })).toBe(`PK-${subject === "maths" ? "M" : "S"}-FULL-M8`);
+      expect(packPaperCode({ kind: "mock", subject, n: 8 }).replace(/-V2$/, "")).toBe(`PK-${subject === "maths" ? "M" : "S"}-FULL-M8`); // maths M8 is -V2 since CBQ-PACK-HOLDS
       const sets = papers.map((p) => new Set(p.drawn.paper.questions.map((x) => x.id)));
       const sizes = sets.map((s) => s.size);
       let maxOverlap = 0;

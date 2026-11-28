@@ -205,7 +205,7 @@ const { runWithRequestContext, bindRequestUid } = require('./services/usageLedge
 // RAZORPAY-1: a student buys a pass. DARK unless the server env PAYMENTS_ENABLED is on —
 // off, all three routes answer this file's own 404. Keys only from env; see the module.
 const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH, PAY_STATUS_PATH } = require('./routes/payments.cjs');
-const { createPackRoutes, PACKS_MINE_PATH, PACKS_FILE_LINK_PATH, PACKS_ZIP_LINK_PATH } = require('./routes/packs.cjs'); // PACKS-SERVER-1
+const { createPackRoutes, PACKS_MINE_PATH, PACKS_FILE_LINK_PATH, PACKS_ZIP_LINK_PATH, PACKS_BONUS_LINK_PATH } = require('./routes/packs.cjs'); // PACKS-SERVER-1
 const { createPackPdfService } = require('./services/packPdfService.cjs'); // SERVER-PDF-1 PR-B
 const { createFreeResourceRoutes, FREE_LIST_PATH, FREE_LINK_PATH } = require('./routes/freeResources.cjs'); // FREE-RES-1
 const { __internals: { resolveBucketName } } = require('./services/qrUploadChannel.cjs');
@@ -233,6 +233,7 @@ const {
   USAGE_LIMITS_DOWNLOAD_PATH,
   USAGE_LIMITS_QP_PATH,
   USAGE_LIMITS_DETAIL_PATH,
+  USAGE_LIMITS_OPEN_PATH,
 } = require('./services/limits.cjs');
 const { createFairUse, cachedReadJson, USAGE_ME_PATH, USAGE_PAPER_PATH, createGradingIdempotency, GRADING_IN_PROGRESS_BODY } = require('./services/fairUse.cjs');
 const fairUseModule = require('./services/fairUse.cjs');
@@ -393,11 +394,24 @@ const testSeriesChecks = createTestSeriesChecks({
   readBody: (r) => fairUseModule.preReadGradingBody(r, readJson),
 });
 const entitlementGate = createEntitlementGate({ adminFirestore, firebaseAdmin, telemetry, sendJson, cbqTutorTaste, testSeriesChecks });
-const fairUse = createFairUse({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
+// FAIRUSE-TS-OWNER-1: a trial Test Series owner's series paper is minted without the trial paper limit (kill switch
+// FAIRUSE_TS_OWNER_EXEMPT_DISABLED). The same server-truth helper LIMITS-1 uses below.
+const fairUse = createFairUse({
+  adminFirestore, telemetry, sendJson, verifiedCaller, readJson,
+  seriesOwnerPaper: (uid, surface, paperKey) => testSeriesChecks.ownerSeriesPaper(uid, surface, paperKey),
+});
 // LIMITS-1: download limits (dark until LIMITS_ENFORCE=1). See services/limits.cjs.
 // TS-PACK-JOBFIX (review P0 #1): a Test Series Pack owner's series paper is not metered by LIMITS-1 (testSeriesChecks is created below;
 // this is called per request, long after both exist).
-const limits = createLimits({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson, seriesOwnerPaper: (uid, kind, worksheetId) => testSeriesChecks.ownerSeriesPaper(uid, kind, worksheetId) });
+// TS-FREE-CHECK-1: a NON-owner's pinned free-test paper keeps its scorecard breakdown (downloads are not widened).
+const limits = createLimits({
+  adminFirestore, telemetry, sendJson, verifiedCaller, readJson,
+  seriesOwnerPaper: (uid, kind, worksheetId) => testSeriesChecks.ownerSeriesPaper(uid, kind, worksheetId),
+  seriesFreeTestPaper: (uid, kind, worksheetId) => testSeriesChecks.freeTestPaper(uid, kind, worksheetId),
+  // FREE-TS-WEEKLY: weekly Test Series opens + view-only downloads for Basic / trial.
+  isSeriesPaperId: (kind, worksheetId) => testSeriesChecks.isSeriesPaperId(kind, worksheetId),
+  ownsSeriesPack: (uid) => testSeriesChecks.ownsActive(uid),
+});
 // LOW-END-1 R4: a retried grade (same verified uid + Idempotency-Key, 24 h) is answered
 // from its stored result — never graded or charged twice. See fairUse.cjs.
 const gradingIdempotency = createGradingIdempotency({ telemetry, corsOrigin: config.CORS_ORIGIN });
@@ -738,6 +752,8 @@ async function handleRequest(req, res) {
       // SERVER-PDF-1 PR-B: credentialed POSTs - without these entries the preflight fails and the link never leaves the browser.
       reqPath === PACKS_FILE_LINK_PATH ||
       reqPath === PACKS_ZIP_LINK_PATH ||
+      // BONUS-BOOK-1: the CBQ Pack's complete-book link, a credentialed POST.
+      reqPath === PACKS_BONUS_LINK_PATH ||
       // FREE-RES-1: the credentialed POST for a free download link, preflighted for the same reason.
       reqPath === FREE_LINK_PATH ||
       // GST-INVOICE-1: credentialed GETs, preflighted for the same reason.
@@ -755,6 +771,7 @@ async function handleRequest(req, res) {
       reqPath === USAGE_LIMITS_DOWNLOAD_PATH ||
       reqPath === USAGE_LIMITS_QP_PATH ||
       reqPath === USAGE_LIMITS_DETAIL_PATH ||
+      reqPath === USAGE_LIMITS_OPEN_PATH ||
       // GRADING-JOBS-1 J1: the job poll — a credentialed GET, preflighted like the export.
       JOB_POLL_PATH_RE.test(reqPath) ||
       /^\/api\/qr-upload\/pickup\/[^/]+$/.test(reqPath) ||
@@ -770,7 +787,7 @@ async function handleRequest(req, res) {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': config.CORS_ORIGIN,
       'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID, X-Firebase-AppCheck, X-Lazytopper-Free-Check, X-Lazytopper-Surface, X-Lazytopper-Paper, Idempotency-Key, Prefer',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID, X-Firebase-AppCheck, X-Lazytopper-Free-Check, X-Lazytopper-Surface, X-Lazytopper-Paper, X-Lazytopper-Mark-Pass, X-Lazytopper-Mark-Q, Idempotency-Key, Prefer',
       'Access-Control-Max-Age': '86400',
     });
     return res.end();
@@ -879,12 +896,15 @@ async function handleRequest(req, res) {
     // byte-identical, so every non-free-check caller is decided exactly as before.
     // LIMITS-1 PR-2: the per-kind graded limits. A no-op unless LIMITS_ENFORCE=1. It may refuse a
     // trial student over a kind's weekly cap (409), or let a Basic student's first free grade of a
-    // kind past the 402 ONCE. Everyone else is decided exactly as before.
+    // kind past the 402 ONCE (BASIC-CTFM-FREE-1, 26 Nov 2026: not chapter-test / full-mock - Basic's one free
+    // marked test is the Test Series free test). Everyone else is decided exactly as before.
     const limitsVerdict = freeCheckAdmitted || !verifiedUid
       ? {}
       : await limits.gradingGate(req, res, reqPath, verifiedUid, {
           // TS-PACK-JOBFIX (review P0 #1): an owner's series-paper grade skips LIMITS-1 (the pack's 2-per-paper rule caps it).
-          seriesOwnerGrade: (r) => testSeriesChecks.ownerSeriesGrade(r, verifiedUid),
+          // TS-FREE-CHECK-1: so does a NON-owner's free-test grade (its own 2-per-paper rule caps it; no trial / Basic grade spent).
+          seriesOwnerGrade: async (r) => (await testSeriesChecks.ownerSeriesGrade(r, verifiedUid)) === true
+            || (await testSeriesChecks.freeTestGrade(r, verifiedUid)) === true,
           paperKeyOf: (r, surface) => {
             const pass = fairUseModule.verifyPaperPass(r.headers[fairUseModule.PAPER_HEADER], {
               uid: verifiedUid, surface, nowMs: Date.now(), secret: process.env[fairUseModule.PAPER_SECRET_ENV],
@@ -941,6 +961,10 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && reqPath === USAGE_LIMITS_DETAIL_PATH) {
     return limits.handleDetailClaim(req, res);
   }
+  // FREE-TS-WEEKLY: the weekly Test Series open count for Basic / trial (a no-op when FREE_TS_WEEKLY_DISABLED=1).
+  if (req.method === 'POST' && reqPath === USAGE_LIMITS_OPEN_PATH) {
+    return limits.handleOpenMint(req, res);
+  }
 
   const SHARE_SECRET = process.env.SESSION_SECRET;
   if (!SHARE_SECRET && (
@@ -982,6 +1006,7 @@ async function handleRequest(req, res) {
   if (req.method === 'POST' && reqPath === '/api/trial/ensure-signup') return require('./routes/trialEnsure.cjs').handleEnsureSignupTrialRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // TRIAL-SAVE-1: restores a NEW (<24h) account's sign-up trial whose browser write was lost; create-only transaction, verified uid, never for an older account (see the module)
   if (req.method === 'POST' && reqPath === '/api/signup-source') return require('./routes/signupSource.cjs').handleSignupSourceRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore, serverEvents }); // SOURCE-1: a NEW account's one-visit source, once, create-only, server-only (see the module)
   if (req.method === 'POST' && reqPath === '/api/whatsapp/optin') return require('./routes/whatsappOptIn.cjs').handleWhatsappOptInRequest(req, res, { sendJson, adminFirestore, telemetry }); // WHATSAPP-OPTIN-1: a visitor's WhatsApp number + consent tick on a free sample - waOptIns/{sha256(phone)}, Admin SDK only, per-IP limited, number never logged
+  if (req.method === 'POST' && reqPath === '/api/metrics/visit') return require('./routes/visitMetrics.cjs').handleVisitMetricsRequest(req, res, { sendJson, firebaseAdmin, adminFirestore }); // QUICK-LEAVE-1: one anonymous visit beacon -> daily counters only (visitDaily); bots 204, per-IP cap, VISIT_METRICS_DISABLED=1 -> 204 (see the module)
   if (req.method === 'POST' && reqPath === '/api/pack-sample-seen') return require('./routes/packSampleSeen.cjs').handlePackSampleSeenRequest(req, res, { sendJson, verifiedCaller, firebaseAdmin, adminFirestore }); // SAMPLE-FOLLOWUP-1: a SIGNED-IN student saved a pack's free sample - first save per pack, in their own nudgeEmails row (see the module)
   if ((req.method === 'GET' || req.method === 'POST') && reqPath === GUEST_EMAIL_UNSUBSCRIBE_PATH) return nudgeEmailer.handleGuestUnsubscribe(req, res, reqUrlRaw); // GUEST-ABANDON-1: the guest checkout email's stop link (HMAC over the email key; GET confirms, POST records emailSuppression/{key})
   if ((req.method === 'GET' || req.method === 'POST') && reqPath === TRIAL_EMAIL_UNSUBSCRIBE_PATH) return trialEndingEmailer.handleUnsubscribe(req, res, reqUrlRaw); // TRIAL-END-1: the trial email's unsubscribe link (HMAC token; GET confirms, POST records; see services/trialEndingEmail.cjs)
@@ -997,6 +1022,7 @@ async function handleRequest(req, res) {
   if (req.method === 'GET' && reqPath === PACKS_MINE_PATH) return packRoutes.handleMine(req, res); // PACKS-SERVER-1
   if (req.method === 'POST' && reqPath === PACKS_FILE_LINK_PATH) return packRoutes.handleFileLink(req, res); // SERVER-PDF-1 PR-B: one stamped file, 15-minute link (404 while PACK_SERVER_PDF_DISABLED)
   if (req.method === 'POST' && reqPath === PACKS_ZIP_LINK_PATH) return packRoutes.handleZipLink(req, res); // SERVER-PDF-1 PR-B: one group as a ZIP
+  if (req.method === 'POST' && reqPath === PACKS_BONUS_LINK_PATH) return packRoutes.handleBonusLink(req, res); // BONUS-BOOK-1: CBQ Pack complete book (hidden until uploaded)
   if (req.method === 'GET' && reqPath === FREE_LIST_PATH) return freeResourceRoutes.handleList(req, res); // FREE-RES-1: public list, no storage paths
   if (req.method === 'POST' && reqPath === FREE_LINK_PATH) return freeResourceRoutes.handleLink(req, res); // FREE-RES-1: signed-in only, 15-minute signed link
   // GST-INVOICE-1 - read-only. checkout-context is behind PAYMENTS_ENABLED, the invoice list behind GST_INVOICE_ENABLED;
@@ -1211,6 +1237,9 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'GET' && (reqPath === '/api/admin/students' || reqPath.startsWith('/api/admin/students/'))) return require('./routes/adminStudents.cjs').handleAdminStudents(req, res, { sendJson, sendJsonWithHeaders, firebaseAdmin, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // STUDENT-ACTIVITY-1 PR-2: admin "Students" page, READ-ONLY, behind the shared ADMIN_FIREBASE_UIDS gate (see the module)
   if ((req.method === 'GET' && reqPath === '/api/admin/key-disputes') || (req.method === 'POST' && reqPath === '/api/admin/key-disputes/resolve')) return require('./routes/adminKeyDisputes.cjs').handleAdminKeyDisputes(req, res, { sendJson, sendJsonWithHeaders, readJson, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // TUTOR-KEY-TRUST-1: disputed answer keys queue, behind the SAME ADMIN_FIREBASE_UIDS gate; same-origin from /admin/students
+  if (req.method === 'GET' && reqPath === '/api/admin/ai-cost-daily') return require('./routes/adminAiCostDaily.cjs').handleAdminAiCostDaily(req, res, { sendJson, sendJsonWithHeaders, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // COST-TRUTH-1: true daily AI cost (every Gemini call), read-only, SAME ADMIN_FIREBASE_UIDS gate; same-origin from /admin/students
+  if (req.method === 'GET' && reqPath === '/api/admin/visit-quality') return require('./routes/adminVisitQuality.cjs').handleAdminVisitQuality(req, res, { sendJson, sendJsonWithHeaders, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // QUICK-LEAVE-1: quick-leave rate by source x landing page, read-only, SAME ADMIN_FIREBASE_UIDS gate; same-origin from /admin/students
+  if (req.method === 'GET' && reqPath === '/api/admin/mistake-split') return require('./routes/adminMistakeSplit.cjs').handleAdminMistakeSplit(req, res, { sendJson, sendJsonWithHeaders, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // MISTAKE-SPLIT-1: mistake-type totals across all students, read-only, counts only, SAME ADMIN_FIREBASE_UIDS gate
   if (req.method === 'GET' && reqPath === '/api/admin/purchases') return require('./routes/adminPurchases.cjs').handleAdminPurchases(req, res, { sendJson, sendJsonWithHeaders, adminFirestore, firebaseAdmin, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // ADMIN-PURCHASES-1: who bought what, read-only, SAME ADMIN_FIREBASE_UIDS gate
   if (req.method === 'GET' && reqPath === '/api/admin/unpaid-orders') return require('./routes/adminUnpaidOrders.cjs').handleAdminUnpaidOrders(req, res, { sendJson, sendJsonWithHeaders, adminFirestore, firebaseAdmin, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // UNPAID-ORDERS-LIST-1: ordered-not-paid list, read-only, SAME ADMIN_FIREBASE_UIDS gate; contact masked unless the order carries the WhatsApp consent tick
   if (req.method === 'POST' && reqPath === '/api/admin/purchases/move') return require('./routes/adminPurchases.cjs').handleAdminMovePurchase(req, res, { sendJson, sendJsonWithHeaders, readJson, adminFirestore, firebaseAdmin, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // ADMIN-MOVE-1: admin moves one paid pack order to another account, SAME ADMIN_FIREBASE_UIDS gate; same-origin from /admin/students

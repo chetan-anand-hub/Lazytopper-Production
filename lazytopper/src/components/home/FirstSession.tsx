@@ -112,7 +112,7 @@ const FIRST_SESSION_CSS = `
   }
   .lt-first .lt-first-cta {
     display: inline-flex; align-items: center; gap: 7px;
-    background: hsl(152, 55%, 45%); color: #fff; text-decoration: none;
+    background: var(--lt-green-fill, #257e55); color: #fff; text-decoration: none;
     border-radius: 10px; padding: 11px 19px; font-size: 14px; font-weight: 700;
   }
   .lt-first .lt-first-cta:hover { background: hsl(152, 57%, 40%); }

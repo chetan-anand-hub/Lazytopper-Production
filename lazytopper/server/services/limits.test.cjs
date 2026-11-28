@@ -16,7 +16,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { EventEmitter } = require('node:events');
 const { setChargeableCount } = require('../grading/charge.cjs');
-const { createLimits, parseCover, limitsDeferredOf, decideDownload, decideCounted, istDayStartMs, entryId, TRIAL_COHORT_START_MS, WINDOW_MS } = require('./limits.cjs');
+const { createLimits, parseCover, limitsDeferredOf, decideDownload, decideCounted, istDayStartMs, entryId, TRIAL_COHORT_START_MS, WINDOW_MS, basicCtFmFirstFreeRestored } = require('./limits.cjs');
 
 const DAY = 86400000;
 const NOW = Date.UTC(2026, 10, 2, 6, 0, 0); // 2 Nov 2026 11:30 IST
@@ -57,7 +57,7 @@ function fakeFirestore({ failTx = false } = {}) {
   return { db, docs };
 }
 
-function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, created = NOW - 30 * DAY, failTx = false, unauth = false, listPacks, seriesOwnerPaper } = {}) {
+function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, created = NOW - 30 * DAY, failTx = false, unauth = false, listPacks, seriesOwnerPaper, seriesFreeTestPaper } = {}) {
   const clock = { now: NOW };
   const f = fakeFirestore({ failTx });
   const counters = {};
@@ -75,6 +75,7 @@ function rig({ tier = 'free', env = { LIMITS_ENFORCE: '1' }, created = NOW - 30 
     verifiedCaller: { resolveVerifiedUid: async () => (unauth ? '' : 'stu-1') },
     ...(listPacks ? { listPacks } : {}),
     ...(seriesOwnerPaper ? { seriesOwnerPaper } : {}),
+    ...(seriesFreeTestPaper ? { seriesFreeTestPaper } : {}),
   });
   return { l, f, clock, counters, creationReads: () => creationReads };
 }
@@ -381,8 +382,11 @@ test('GRADE · Basic: the first grade of each kind bypasses the 402 once, a fail
   assert.equal(first.verdict.bypassEntitlement, true, 'the 500 above spent nothing');
   const second = await gate(r, { surface: 'worksheet' });
   assert.deepEqual(second.verdict, {}, 'now the ordinary 402 follows');
+  // BASIC-CTFM-FREE-1 (owner ruling 26 Nov 2026): chapter tests and full mocks have NO Basic first free (the free Test Series test is it)
   const other = await gate(r, { surface: 'chapter-test' });
-  assert.equal(other.verdict.bypassEntitlement, true, 'each kind has its own first free');
+  assert.deepEqual(other.verdict, {}, 'no first free chapter-test grade for Basic');
+  const old = rig({ env: { LIMITS_ENFORCE: '1', BASIC_CTFM_FIRST_FREE_RESTORE: '1' } });
+  assert.equal((await gate(old, { surface: 'chapter-test' })).verdict.bypassEntitlement, true, 'kill switch: each kind has its own first free, as before');
   const ci = await gate(r, { path: '/api/check-solution' });
   assert.equal(ci.verdict.bypassEntitlement, true);
   assert.deepEqual((await gate(r, { path: '/api/check-solution' })).verdict, {});
@@ -438,10 +442,10 @@ test('GATE-QP-1 · kill switch GATE_QP_DISABLED=1 restores Basic\'s first free g
 test('GATE-QP-1 · every OTHER Basic allowance is exactly as before (check-improve, worksheet, chapter-test, full-mock first-free)', async () => {
   const r = rig();
   assert.equal((await gate(r, { path: '/api/check-solution' })).verdict.bypassEntitlement, true);
-  for (const surface of ['worksheet', 'chapter-test', 'full-mock']) {
-    assert.equal((await gate(r, { surface })).verdict.bypassEntitlement, true, surface);
-    assert.deepEqual((await gate(r, { surface })).verdict, {}, `${surface} then the 402`);
-  }
+  assert.equal((await gate(r, { surface: 'worksheet' })).verdict.bypassEntitlement, true, 'worksheet');
+  assert.deepEqual((await gate(r, { surface: 'worksheet' })).verdict, {}, 'worksheet then the 402');
+  // BASIC-CTFM-FREE-1: chapter-test / full-mock no longer have a Basic first free
+  for (const surface of ['chapter-test', 'full-mock']) assert.deepEqual((await gate(r, { surface })).verdict, {}, surface);
   // Quick Practice per-question checks arrive on /api/check-solution and stay metered as Check & Improve.
   assert.deepEqual((await gate(r, { path: '/api/check-solution', surface: 'quick-practice' })).verdict, {});
 });
@@ -511,7 +515,7 @@ test('GRADE · RESERVE: Basic first free is claimed by ONE of N parallel request
   const r = rig();
   const calls = await Promise.all(Array.from({ length: 6 }, async (_, i) => {
     const res = new EventEmitter(); res.statusCode = 200;
-    return r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'full-mock', 'idempotency-key': `b${i}` } }, res, '/api/grade-worksheet', 'stu-1');
+    return r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'worksheet', 'idempotency-key': `b${i}` } }, res, '/api/grade-worksheet', 'stu-1');
   }));
   assert.equal(calls.filter((v) => v.bypassEntitlement).length, 1);
 });
@@ -873,7 +877,10 @@ test('TS-PACK-JOBFIX · FREE OWNER: a series grade is not "first free" (no bypas
   const owner = rig({ tier: 'free', created: NEW_ACCT });
   for (let i = 0; i < 3; i += 1) assert.deepEqual((await seriesGate(owner, { surface: 'full-mock', idem: `fo-${i}`, owner: true })).verdict, {});
   const non = rig({ tier: 'free', created: NEW_ACCT });
-  assert.deepEqual((await seriesGate(non, { surface: 'full-mock', idem: 'fn-1', owner: false })).verdict, { bypassEntitlement: true });
+  // BASIC-CTFM-FREE-1: a non-owner's full-mock grade no longer has a first free (the ordinary 402); the kill switch restores it
+  assert.deepEqual((await seriesGate(non, { surface: 'full-mock', idem: 'fn-1', owner: false })).verdict, {});
+  const old = rig({ tier: 'free', created: NEW_ACCT, env: { LIMITS_ENFORCE: '1', BASIC_CTFM_FIRST_FREE_RESTORE: '1' } });
+  assert.deepEqual((await seriesGate(old, { surface: 'full-mock', idem: 'fn-1', owner: false })).verdict, { bypassEntitlement: true });
 });
 
 test('TS-PACK-JOBFIX · DOWNLOADS: an owner downloads 5 series papers uncounted; a non-series paper and a non-owner are counted as before', async () => {
@@ -909,4 +916,299 @@ test('TS-PACK-JOBFIX · DETAIL: a free owner keeps the breakdown on the 2nd seri
   const noId = rig({ tier: 'free', seriesOwnerPaper: seriesPred(true) });
   await claim(noId, 'FM-1');
   assert.equal((await claim(noId, 'FM-2')).body.unlocked, false, 'without the worksheetId nothing changes');
+});
+
+/* ── TS-FREE-CHECK-1 (owner ruling 23 Nov 2026) · the non-owner's ONE free test ───────────────────────────────────────────────── */
+// The predicate stands in for testSeriesChecks.freeTestPaper ("this worksheetId is a sitting of THIS non-owner's pinned free-test
+// paper"), pinned in testSeriesChecks.test.cjs. index.cjs folds testSeriesChecks.freeTestGrade into `seriesOwnerGrade`.
+const freePaperPred = (pinnedPrefix) => async (uid, kind, wid) => uid === 'stu-1' && typeof wid === 'string' && wid.startsWith(pinnedPrefix)
+  && ((kind === 'chapter-test' && wid.startsWith('ct-ts1-')) || (kind === 'full-mock' && wid.startsWith('fm-ts1-')));
+
+test('TS-FREE-CHECK-1 · TRIAL free test: both checks + the free re-check of the free paper are never 409 and spend no trial weekly chapter-test grade', async () => {
+  const r = rig({ tier: 'trial', created: NEW_ACCT });
+  for (let i = 0; i < 3; i += 1) {
+    const g = await seriesGate(r, { idem: `free-${i}`, owner: true /* = ownerSeriesGrade || freeTestGrade */ });
+    assert.deepEqual(g.verdict, {}, `check #${i + 1}`);
+    assert.equal(g.sent, undefined);
+  }
+  assert.equal(r.counters['limits.grade.recorded'], undefined, 'nothing reserved / recorded: the trial chapter-test allowance is untouched');
+  // the trial's own (non-series) chapter-test allowance is still whole afterwards: first free + 1 a week, then 409 - as before
+  assert.deepEqual((await seriesGate(r, { idem: 'plain-1', owner: false })).verdict, {});
+  assert.deepEqual((await seriesGate(r, { idem: 'plain-2', owner: false })).verdict, {});
+  assert.equal((await seriesGate(r, { idem: 'plain-3', owner: false })).verdict.refused, true);
+});
+
+test('TS-FREE-CHECK-1 · BASIC free test: no "first free" grade is spent (no bypass) - the entitlement gate admits it on the free test', async () => {
+  const r = rig({ tier: 'free', created: NEW_ACCT });
+  assert.deepEqual((await seriesGate(r, { surface: 'chapter-test', idem: 'bf-1', owner: true })).verdict, {});
+  // BASIC-CTFM-FREE-1 (owner ruling 26 Nov 2026): the free test is Basic's ONE free marked test - no other chapter-test grade is free
+  assert.deepEqual((await seriesGate(r, { surface: 'chapter-test', idem: 'bf-2', owner: false })).verdict, {});
+});
+
+test('TS-FREE-CHECK-1 · DETAIL: the pinned free-test paper keeps its breakdown on a re-check; any other paper is locked as before; downloads are NOT widened', async () => {
+  const claim = (r, resultKey, worksheetId) => post(r, 'handleDetailClaim', { kind: 'chapter-test', resultKey, ...(worksheetId ? { worksheetId } : {}) });
+  const r = rig({ tier: 'free', seriesOwnerPaper: seriesPred(false), seriesFreeTestPaper: freePaperPred('ct-ts1-real-numbers--') });
+  assert.equal((await claim(r, 'CT-1', 'ct-ts1-real-numbers--a')).body.unlocked, true);
+  const recheck = await claim(r, 'CT-1b', 'ct-ts1-real-numbers--a');
+  assert.equal(recheck.body.unlocked, true, 'the free paper\'s second check keeps its breakdown');
+  assert.equal(recheck.body.freeTest, true);
+  // the free paper never spent Basic's first-of-the-kind breakdown: the first OTHER result is open, the next is locked (as before)
+  assert.equal((await claim(r, 'CT-2', 'ct-ts1-polynomials--b')).body.unlocked, true, 'first other result of the kind: open (unchanged)');
+  assert.equal((await claim(r, 'CT-3', 'ct-ts1-triangles--c')).body.unlocked, false, 'another paper after that: locked as before');
+  // a wrong kind for the free paper is not the free paper
+  const wrong = await post(r, 'handleDetailClaim', { kind: 'full-mock', resultKey: 'FM-9', worksheetId: 'ct-ts1-real-numbers--a' });
+  assert.notEqual(wrong.body.freeTest, true);
+  // downloads: the free paper is counted exactly like any other paper (first free, then counted)
+  assert.equal((await mint(r, { kind: 'chapter-test', paperKey: 'ct-ts1-real-numbers--a' })).body.free, true);
+  const second = await mint(r, { kind: 'chapter-test', paperKey: 'ct-ts1-real-numbers--c' });
+  assert.notEqual(second.body.testSeries, true);
+  assert.notEqual(second.body.counted, false);
+});
+
+test('MARK-ON-PHOTO-1: a mark with a valid pass re-uses the PAPER\'s slot id (free while it is held; a real slot once released); a forged pass counts as before', async () => {
+  const markPass = require('./markPass.cjs');
+  const { limitsDeferredOf } = require('./limits.cjs');
+  const env = { LIMITS_ENFORCE: '1', FAIR_USE_PAPER_SECRET: 's' };
+  const r = rig({ tier: 'trial', created: NEW_ACCT, env });
+  const call = async (headers, charged) => {
+    const res = new EventEmitter(); res.statusCode = 200;
+    const req = { headers: { 'x-lazytopper-surface': 'check-improve', ...headers } };
+    const verdict = await r.l.gradingGate(req, res, '/api/grade-worksheet', 'stu-1');
+    const slot = limitsDeferredOf(res);
+    setChargeableCount(res, charged); res.emit('finish');
+    await new Promise((resolve) => setImmediate(resolve)); await new Promise((resolve) => setImmediate(resolve));
+    return { verdict, req, slot };
+  };
+  const held = () => ([...r.f.docs.values()][0].gr['check-improve'] || []).length;
+  // the paper: graded 3 questions, left Q6 unread; it holds ONE slot
+  const paper = await call({ 'idempotency-key': 'paper' }, 3);
+  assert.equal(held(), 1);
+  const token = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-TRIG-03', slot: paper.slot.id, questions: [{ qNumber: 6, questionText: 'q6' }], nowMs: NOW });
+  const a = await call({ 'idempotency-key': 'm1', [markPass.MARK_PASS_HEADER]: token, [markPass.MARK_Q_HEADER]: '6' }, 1);
+  assert.deepEqual(a.verdict, {});
+  assert.ok(markPass.acceptedMarkPassOf(a.req), 'the route sees the accepted pass');
+  assert.equal(held(), 1, 'the mark rode the paper slot');
+  assert.equal(r.counters['limits.grade.mark_on_photo'], 1);
+  // CONTROL: a forged pass is ignored and the grade takes a slot exactly as before
+  const b = await call({ 'idempotency-key': 'm2', [markPass.MARK_PASS_HEADER]: token.slice(0, -2) + 'xx', [markPass.MARK_Q_HEADER]: '6' }, 1);
+  assert.equal(markPass.acceptedMarkPassOf(b.req), null);
+  assert.equal(held(), 2);
+  // a pass never applies to a bank surface
+  const c = await call({ 'x-lazytopper-surface': 'worksheet', 'idempotency-key': 'm3', [markPass.MARK_PASS_HEADER]: token, [markPass.MARK_Q_HEADER]: '6' }, 1);
+  assert.equal(markPass.acceptedMarkPassOf(c.req), null);
+  // a paper that charged NOTHING gave its slot back: a mark on its pass takes a real slot
+  const r2 = rig({ tier: 'trial', created: NEW_ACCT, env });
+  const res0 = new EventEmitter(); res0.statusCode = 200;
+  await r2.l.gradingGate({ headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': 'p0' } }, res0, '/api/grade-worksheet', 'stu-1');
+  const slot0 = limitsDeferredOf(res0).id;
+  setChargeableCount(res0, 0); res0.emit('finish');
+  await new Promise((resolve) => setImmediate(resolve)); await new Promise((resolve) => setImmediate(resolve));
+  const t0 = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-X-01', slot: slot0, questions: [{ qNumber: 1, questionText: 'q1' }], nowMs: NOW });
+  const res1 = new EventEmitter(); res1.statusCode = 200;
+  await r2.l.gradingGate({ headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': 'mk', [markPass.MARK_PASS_HEADER]: t0, [markPass.MARK_Q_HEADER]: '1' } }, res1, '/api/grade-worksheet', 'stu-1');
+  setChargeableCount(res1, 1); res1.emit('finish');
+  await new Promise((resolve) => setImmediate(resolve)); await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(([...r2.f.docs.values()][0].gr['check-improve'] || []).length, 1, 'the free paper did not make the mark free');
+});
+
+test('MARK-ON-PHOTO-1: one question of one paper is marked on the photo at most 3 times (owner ruling 25 Nov 22:17); only GRADED marks count', async () => {
+  const markPass = require('./markPass.cjs');
+  const { limitsDeferredOf } = require('./limits.cjs');
+  const env = { LIMITS_ENFORCE: '1', FAIR_USE_PAPER_SECRET: 's' };
+  const r = rig({ tier: 'trial', created: NEW_ACCT, env });
+  const tick = async () => { await new Promise((resolve) => setImmediate(resolve)); await new Promise((resolve) => setImmediate(resolve)); };
+  const res0 = new EventEmitter(); res0.statusCode = 200;
+  await r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': 'paper' } }, res0, '/api/grade-worksheet', 'stu-1');
+  const slot = limitsDeferredOf(res0).id;
+  setChargeableCount(res0, 2); res0.emit('finish'); await tick();
+  const token = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-TRIG-03', slot, questions: [{ qNumber: 6, questionText: 'q6' }, { qNumber: 7, questionText: 'q7' }], nowMs: NOW });
+  const mark = async (q, charged, i) => {
+    const res = new EventEmitter(); res.statusCode = 200;
+    const v = await r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': `m${q}-${i}`, [markPass.MARK_PASS_HEADER]: token, [markPass.MARK_Q_HEADER]: String(q) } }, res, '/api/grade-worksheet', 'stu-1');
+    setChargeableCount(res, charged); res.emit('finish'); await tick();
+    return v;
+  };
+  assert.deepEqual(await mark(6, 0, 0), {}, 'an unreadable mark does not count');
+  for (let i = 1; i <= 3; i += 1) assert.deepEqual(await mark(6, 1, i), {}, `graded mark ${i}`);
+  const fourth = await mark(6, 1, 4);
+  assert.equal(fourth.refused, true, 'the 4th graded mark of Q6 is refused');
+  const sent = r.counters['limits.grade.mark_capped'];
+  assert.equal(sent, 1);
+  assert.deepEqual(await mark(7, 1, 1), {}, 'another question of the same paper still marks');
+  assert.equal(([...r.f.docs.values()][0].gr['check-improve'] || []).length, 1, 'still the paper\'s one slot');
+});
+
+test('MARK-CAP-1 (review C2): parallel marks of one question cannot pass the cap; an ungraded or dropped mark gives its count back', async () => {
+  const markPass = require('./markPass.cjs');
+  const { limitsDeferredOf } = require('./limits.cjs');
+  const env = { LIMITS_ENFORCE: '1', FAIR_USE_PAPER_SECRET: 's' };
+  const r = rig({ tier: 'trial', created: NEW_ACCT, env });
+  const tick = async () => { await new Promise((resolve) => setImmediate(resolve)); await new Promise((resolve) => setImmediate(resolve)); };
+  const res0 = new EventEmitter(); res0.statusCode = 200;
+  await r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': 'paper' } }, res0, '/api/grade-worksheet', 'stu-1');
+  const slot = limitsDeferredOf(res0).id;
+  setChargeableCount(res0, 2); res0.emit('finish'); await tick();
+  const token = markPass.issueMarkPass({ env, uid: 'stu-1', worksheetId: 'ci:CI-M-TRIG-03', slot, questions: [{ qNumber: 6, questionText: 'q6' }], nowMs: NOW });
+  const gateOnly = (i) => {
+    const res = new EventEmitter(); res.statusCode = 200;
+    return r.l.gradingGate({ headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': `p${i}`, [markPass.MARK_PASS_HEADER]: token, [markPass.MARK_Q_HEADER]: '6' } }, res, '/api/grade-worksheet', 'stu-1')
+      .then((v) => ({ v, res }));
+  };
+  // a mark that comes back unreadable gives its count back
+  const u = await gateOnly('u'); setChargeableCount(u.res, 0); u.res.emit('finish'); await tick();
+  // a mark whose connection drops before finishing gives its count back
+  const d = await gateOnly('d'); d.res.writableFinished = false; d.res.emit('close'); await tick();
+  // four marks in flight at once (none finished yet): exactly three are admitted
+  const burst = await Promise.all([1, 2, 3, 4].map(gateOnly));
+  assert.equal(burst.filter((b) => b.v.refused).length, 1, 'the 4th concurrent mark is refused');
+  for (const b of burst.filter((x) => !x.v.refused)) { setChargeableCount(b.res, 1); b.res.emit('finish'); }
+  await tick();
+  assert.equal((await gateOnly('after')).v.refused, true, 'three graded marks: the cap holds');
+});
+
+test('MARK-ON-PHOTO-2: a Chapter Test / Full Mock / Worksheet mark rides the PAPER\'s own pass and slot, and is capped at 3 per question (only graded marks count)', async () => {
+  const markPass = require('./markPass.cjs');
+  const fairUse = require('./fairUse.cjs');
+  const env = { LIMITS_ENFORCE: '1', FAIR_USE_PAPER_SECRET: 's' };
+  const tick = async () => { await new Promise((resolve) => setImmediate(resolve)); await new Promise((resolve) => setImmediate(resolve)); };
+  for (const kind of ['chapter-test', 'full-mock', 'worksheet']) {
+    const r = rig({ tier: 'trial', created: NEW_ACCT, env });
+    const paperKey = `${kind}-paper-1`;
+    const pass = fairUse.encodePaperPass('s', 'stu-1', kind, paperKey, NOW);
+    // EXACTLY server/index.cjs's paperKeyOf: the paper pass verified for this uid and this surface.
+    const opts = {
+      paperKeyOf: (req, surface) => {
+        const p = fairUse.verifyPaperPass(req.headers[fairUse.PAPER_HEADER], { uid: 'stu-1', surface, nowMs: NOW, secret: 's' });
+        return p ? p.paperKey : null;
+      },
+    };
+    const call = async (headers, charged) => {
+      const res = new EventEmitter(); res.statusCode = 200;
+      const req = { headers: { 'x-lazytopper-surface': kind, ...headers } };
+      const verdict = await r.l.gradingGate(req, res, '/api/grade-worksheet', 'stu-1', opts);
+      setChargeableCount(res, charged); res.emit('finish');
+      await tick();
+      return { verdict, req, res };
+    };
+    const held = () => ([...r.f.docs.values()][0].gr[kind] || []).length;
+    // the paper itself: one weekly slot
+    await call({ 'idempotency-key': 'paper', [fairUse.PAPER_HEADER]: pass }, 4);
+    assert.equal(held(), 1, `${kind}: the paper holds one slot`);
+    // a mark of Q7 with the SAME paper pass rides that slot; the route is told which one mark it is
+    const m0 = await call({ 'idempotency-key': 'u', [fairUse.PAPER_HEADER]: pass, [markPass.MARK_Q_HEADER]: '7' }, 0);
+    assert.deepEqual(m0.verdict, {}, `${kind}: an unreadable mark is served`);
+    const seen = markPass.acceptedMarkPassOf(m0.req);
+    assert.equal(seen && seen.bank, true);
+    assert.equal(seen.paperKey, paperKey);
+    assert.equal(seen.q, 7);
+    for (let i = 1; i <= 3; i += 1) {
+      const m = await call({ 'idempotency-key': `m${i}`, [fairUse.PAPER_HEADER]: pass, [markPass.MARK_Q_HEADER]: '7' }, 1);
+      assert.deepEqual(m.verdict, {}, `${kind}: graded mark ${i}`);
+    }
+    assert.equal(held(), 1, `${kind}: every mark rode the paper's one slot`);
+    const fourth = await call({ 'idempotency-key': 'm4', [fairUse.PAPER_HEADER]: pass, [markPass.MARK_Q_HEADER]: '7' }, 1);
+    assert.equal(fourth.verdict.refused, true, `${kind}: the 4th graded mark of Q7 is refused`);
+    assert.equal(fourth.res.sent.status, 409);
+    assert.equal(fourth.res.sent.body.error, markPass.MARK_LIMIT_COPY);
+    assert.equal(fourth.res.sent.body.code, 'mark_limit');
+    const q8 = await call({ 'idempotency-key': 'q8', [fairUse.PAPER_HEADER]: pass, [markPass.MARK_Q_HEADER]: '8' }, 1);
+    assert.deepEqual(q8.verdict, {}, `${kind}: another question of the paper still marks`);
+    assert.equal(r.counters['limits.grade.mark_on_photo_bank'], 6);
+    // CONTROLS: no paper pass -> not a bank mark (no count, nothing for the route); a pass for ANOTHER surface does not verify
+    const bare = await call({ 'idempotency-key': 'bare', [markPass.MARK_Q_HEADER]: '7' }, 1);
+    assert.equal(markPass.acceptedMarkPassOf(bare.req), null);
+    const other = fairUse.encodePaperPass('s', 'stu-1', kind === 'worksheet' ? 'chapter-test' : 'worksheet', paperKey, NOW);
+    const wrong = await call({ 'idempotency-key': 'wrong', [fairUse.PAPER_HEADER]: other, [markPass.MARK_Q_HEADER]: '7' }, 1);
+    assert.equal(markPass.acceptedMarkPassOf(wrong.req), null);
+    // a malformed question number is not a mark
+    const junk = await call({ 'idempotency-key': 'junk', [fairUse.PAPER_HEADER]: pass, [markPass.MARK_Q_HEADER]: '7; drop' }, 1);
+    assert.equal(markPass.acceptedMarkPassOf(junk.req), null);
+  }
+});
+
+test('MARK-ON-PHOTO-2: the Answer Checker mark pass and a bank mark never cross (a bank header on an Answer Checker grade is ignored)', async () => {
+  const markPass = require('./markPass.cjs');
+  const env = { LIMITS_ENFORCE: '1', FAIR_USE_PAPER_SECRET: 's' };
+  const r = rig({ tier: 'trial', created: NEW_ACCT, env });
+  const res = new EventEmitter(); res.statusCode = 200;
+  const req = { headers: { 'x-lazytopper-surface': 'check-improve', 'idempotency-key': 'x', [markPass.MARK_Q_HEADER]: '3' } };
+  await r.l.gradingGate(req, res, '/api/grade-worksheet', 'stu-1', { paperKeyOf: () => 'ci:CI-1' });
+  assert.equal(markPass.acceptedMarkPassOf(req), null);
+  assert.equal(r.counters['limits.grade.mark_on_photo_bank'], undefined);
+});
+
+
+/* ── BASIC-CTFM-FREE-1 (owner ruling 26 Nov 2026, 23:00 IST; FU-BASIC-SERVER-FIRST-FREE) ─────────────────────────────────────
+ * A Basic account's ONE free marked test is the Test Series free test. The server's separate first-free chapter-test / full-mock
+ * grade is gone. Per tier: Basic CT/FM -> no bypass, nothing written; the free test -> still exempt (seriesOwnerGrade); Basic
+ * Answer Checker / worksheet first free -> unchanged; trial -> weekly caps unchanged; premium -> not metered; kill switch only "1". */
+
+test('BASIC-CTFM-FREE-1 · Basic chapter-test / full-mock grades: no bypass, no reservation, nothing written (the ordinary 402 follows)', async () => {
+  const r = rig();
+  for (const surface of ['chapter-test', 'full-mock']) {
+    for (let i = 0; i < 2; i += 1) {
+      const g = await gate(r, { surface, idem: `${surface}-${i}` });
+      assert.deepEqual(g.verdict, {}, surface);
+      assert.equal(g.sent, undefined, 'the limits gate itself refuses nothing');
+    }
+  }
+  assert.equal(r.f.docs.size, 0, 'nothing reserved or written');
+  assert.equal(r.counters['limits.grade.basic_ctfm_no_first_free'], 4);
+});
+
+test('BASIC-CTFM-FREE-1 · the free Test Series test is still exempt before the rule (no slot, no 402 from here)', async () => {
+  const r = rig();
+  for (const surface of ['chapter-test', 'full-mock']) {
+    assert.deepEqual((await seriesGate(r, { surface, idem: `ft-${surface}`, owner: true })).verdict, {});
+  }
+  assert.equal(r.f.docs.size, 0);
+  assert.equal(r.counters['limits.grade.test_series'], 2);
+  assert.equal(r.counters['limits.grade.basic_ctfm_no_first_free'] || 0, 0, 'the free test never reaches the new rule');
+});
+
+test('BASIC-CTFM-FREE-1 · Basic Answer Checker and worksheet first free: unchanged', async () => {
+  const r = rig();
+  assert.equal((await gate(r, { path: '/api/check-solution' })).verdict.bypassEntitlement, true);
+  assert.equal((await gate(r, { surface: 'worksheet' })).verdict.bypassEntitlement, true);
+  assert.deepEqual((await gate(r, { surface: 'worksheet' })).verdict, {});
+});
+
+test('BASIC-CTFM-FREE-1 · trial: chapter-test / full-mock weekly caps unchanged (first reserves, cap then 409)', async () => {
+  const r = rig({ tier: 'trial', created: NEW_ACCT });
+  const a = await gate(r, { surface: 'chapter-test', idem: 't1', charged: 3 });
+  assert.equal(a.sent, undefined);
+  const doc = [...r.f.docs.values()][0];
+  assert.ok((doc.gr['chapter-test'] || []).length >= 1, 'the trial grade is recorded as before');
+  assert.equal(r.counters['limits.grade.basic_ctfm_no_first_free'] || 0, 0);
+});
+
+test('BASIC-CTFM-FREE-1 · premium is never metered', async () => {
+  const r = rig({ tier: 'premium' });
+  assert.deepEqual((await gate(r, { surface: 'chapter-test' })).verdict, {});
+  assert.equal(r.f.docs.size, 0);
+  assert.equal(r.counters['limits.grade.basic_ctfm_no_first_free'] || 0, 0);
+});
+
+test('BASIC-CTFM-FREE-1 · kill switch BASIC_CTFM_FIRST_FREE_RESTORE accepts ONLY "1"', async () => {
+  assert.equal(basicCtFmFirstFreeRestored({ BASIC_CTFM_FIRST_FREE_RESTORE: '1' }), true);
+  for (const v of ['true', 'on', 'yes', '0', '', ' 2']) assert.equal(basicCtFmFirstFreeRestored({ BASIC_CTFM_FIRST_FREE_RESTORE: v }), false, v);
+  const on = rig({ env: { LIMITS_ENFORCE: '1', BASIC_CTFM_FIRST_FREE_RESTORE: 'true' } });
+  assert.deepEqual((await gate(on, { surface: 'full-mock' })).verdict, {}, '"true" does not restore');
+  const old = rig({ env: { LIMITS_ENFORCE: '1', BASIC_CTFM_FIRST_FREE_RESTORE: '1' } });
+  assert.equal((await gate(old, { surface: 'full-mock' })).verdict.bypassEntitlement, true);
+  assert.deepEqual((await gate(old, { surface: 'full-mock' })).verdict, {}, 'then the 402, as before');
+});
+
+test('BASIC-CTFM-FREE-1 · GET /api/usage/limits never reports a Basic first free for chapter-test / full-mock (My Packs "free mark left")', async () => {
+  const me = async (r) => {
+    const res = {};
+    await r.l.handleLimitsMe({ headers: {} }, res);
+    return res.sent.body;
+  };
+  const b = await me(rig());
+  assert.equal(b.grade['chapter-test'].firstFreeAvailable, false);
+  assert.equal(b.grade['full-mock'].firstFreeAvailable, false);
+  assert.equal(b.grade.worksheet.firstFreeAvailable, true, 'worksheet unchanged');
+  const old = await me(rig({ env: { LIMITS_ENFORCE: '1', BASIC_CTFM_FIRST_FREE_RESTORE: '1' } }));
+  assert.equal(old.grade['chapter-test'].firstFreeAvailable, true, 'kill switch: as before');
 });

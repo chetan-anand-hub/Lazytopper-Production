@@ -2904,8 +2904,8 @@ async function zipRoutes(t, over = {}) {
 test('GUEST-ZIP · a valid guest proof gets ONE whole-pack ZIP link; owned + masked licensee are rebuilt from the ORDER, stamped under guest_<orderId>, nothing recorded', async (t) => {
   const { srv, packPdf } = await zipRoutes(t);
   const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
-  // a hostile body cannot choose the pack, the group or the licensee
-  const r = await zipLink(srv, paid, { packId: 'pack_bundle:all', group: 'x', uid: 'u9', licensee: { name: 'Evil' } });
+  // a hostile body cannot choose the pack or the licensee (PACK-PDF-SIZE-1: it MAY name a group, tested below)
+  const r = await zipLink(srv, paid, { packId: 'pack_bundle:all', uid: 'u9', licensee: { name: 'Evil' } });
   assert.equal(r.status, 200, r.text);
   assert.equal(r.json.ok, true);
   assert.equal(r.json.url, 'https://storage.example/z.zip');
@@ -2919,6 +2919,57 @@ test('GUEST-ZIP · a valid guest proof gets ONE whole-pack ZIP link; owned + mas
   assert.deepEqual(a.owned, [{ packId: 'pack_cbq:maths', sku: 'pack_cbq', target: 'maths', pricePaidInr: 0, paidAt: NOW, orderId: paid.orderId }]);
   assert.equal(JSON.stringify(a).includes('9876543948'), false, 'never the full number');
   assert.deepEqual(packPdf.recorded, [], 'no download event: there is no uid to record it against');
+});
+
+test('GUEST-ZIP · PACK-PDF-SIZE-1: a `group` asks for ONE chapter ZIP (same proof, same owned/licensee); a bad group id is refused; an unknown group is the service 404', async (t) => {
+  const { srv, packPdf } = await zipRoutes(t);
+  const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  const r = await zipLink(srv, paid, { group: 'real-numbers', packId: 'pack_bundle:all' });
+  assert.equal(r.status, 200, r.text);
+  assert.equal(packPdf.calls.length, 1);
+  assert.equal(packPdf.calls[0].groupId, 'real-numbers');
+  assert.equal(packPdf.calls[0].packId, 'pack_cbq:maths', 'the pack still comes from the order');
+  assert.equal(packPdf.calls[0].uid, `guest_${paid.orderId}`);
+  for (const bad of ['', '__all__', 'a b', 'x/../y', 5, {}]) {
+    const b = await zipLink(srv, paid, { group: bad });
+    assert.equal(b.status, 400, `group ${JSON.stringify(bad)} is malformed`);
+  }
+  assert.equal(packPdf.calls.length, 1, 'a malformed group makes nothing');
+  const legacy = await zipLink(srv, paid, { group: null });
+  assert.equal(legacy.status, 200);
+  assert.equal(packPdf.calls[1].groupId, '__all__', 'no group = the legacy whole-pack ZIP');
+  const missing = await zipRoutes(t);
+  missing.packPdf.zipLink = async () => { const e = new Error('unknown_group'); e.code = 'unknown_group'; throw e; };
+  const paid2 = await paidAttach(missing.srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  assert.equal((await zipLink(missing.srv, paid2, { group: 'nope' })).status, 404);
+});
+
+test('GUEST-ZIP · PACK-PDF-SIZE-1: async=true is passed to the service; a "building" answer is a 202 (no link, nothing emitted as issued); without async it is not passed', async (t) => {
+  const { srv, packPdf } = await zipRoutes(t);
+  packPdf.zipLink = async (args) => { packPdf.calls.push(args); return args.async ? { status: 'building', done: 4, total: 30 } : { url: 'https://storage.example/z.zip', expiresAtMs: NOW + 900000, filename: 'z.zip', files: [], papers: [] }; };
+  const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  const r = await zipLink(srv, paid, { group: 'real-numbers', async: true });
+  assert.equal(r.status, 202, r.text);
+  assert.deepEqual(r.json, { ok: true, status: 'building', done: 4, total: 30 });
+  assert.equal(packPdf.calls[0].async, true);
+  const plain = await zipLink(srv, paid, { group: 'real-numbers' });
+  assert.equal(plain.status, 200);
+  assert.equal(packPdf.calls[1].async, false);
+});
+
+test('GUEST-ZIP · PACK-PDF-SIZE-1: polls for a ZIP already being built are free (per-client 120/day, per-order 60/h); the receipt and a fresh ZIP still work after', async (t) => {
+  const { srv, packPdf } = await zipRoutes(t);
+  let pending = false;
+  packPdf.zipJobPending = () => pending;
+  packPdf.zipLink = async (args) => { packPdf.calls.push(args); return args.async ? { status: 'building', done: 1, total: 30 } : { url: 'https://storage.example/z.zip', expiresAtMs: NOW + 900000, filename: 'z.zip', files: [], papers: [] }; };
+  const paid = await paidAttach(srv, { contact: '+919876543948' }, { sku: 'pack_cbq', target: 'maths' });
+  assert.equal((await zipLink(srv, paid, { group: 'real-numbers', async: true })).status, 202);
+  pending = true;
+  for (let i = 0; i < 150; i += 1) assert.equal((await zipLink(srv, paid, { group: 'real-numbers', async: true })).status, 202, `poll ${i}`);
+  pending = false;
+  assert.equal((await zipLink(srv, paid, { group: 'polynomials' })).status, 200, 'not rate limited after 150 polls');
+  const rc = await request(srv.port, GUEST_RECEIPT_PATH, { body: { orderId: paid.orderId, paymentId: paid.paymentId, signature: checkoutSig(paid.orderId, paid.paymentId) } });
+  assert.notEqual(rc.status, 429, 'the receipt still works');
 });
 
 test('GUEST-ZIP · a wrong signature, another payment id, an unpaid order, a signed-in caller, a Board Pass order: refused, no ZIP made', async (t) => {
@@ -2994,11 +3045,11 @@ test('GUEST-ZIP · guards pinned: flags off 404; a flood is rate limited; anothe
   assert.equal(ng.status, 400);
   assert.equal(packPdf.calls.length, 0);
 
-  // the per-order hourly cap: the 31st call inside the hour is refused (429), the ZIP is not built again
-  for (let i = 0; i < 30; i += 1) assert.equal((await zipLink(srv, paid)).status, 200);
+  // the per-order hourly cap: the 61st call inside the hour is refused (429), the ZIP is not built again (PACK-PDF-SIZE-1: 30 -> 60, one ZIP per chapter)
+  for (let i = 0; i < 60; i += 1) assert.equal((await zipLink(srv, paid)).status, 200);
   const capped = await zipLink(srv, paid);
   assert.equal(capped.status, 429);
-  assert.equal(packPdf.calls.length, 30);
+  assert.equal(packPdf.calls.length, 60);
 });
 
 test('GUEST-ZIP · the per-client limiter counts this route (a flood of calls gets 429)', async (t) => {
@@ -3447,7 +3498,7 @@ test('ORDER-SOURCE-1 · who-order and self-order store the source too', async (t
 });
 
 
-test('SERVER-EVENTS-1 · a guest pack: ONE PackPurchase for verify + webhook + replay, hashed Razorpay email + phone, event_id = order id', async (t) => {
+test('SERVER-EVENTS-1 · a guest pack: ONE Meta Purchase (META-PURCHASE-UNIFY-1; was PackPurchase) for verify + webhook + replay, hashed Razorpay email + phone, event_id = order id', async (t) => {
   const { createServerEvents } = require('../services/serverEvents.cjs');
   const calls = [];
   const fetchImpl = async (url, init) => { calls.push({ url: String(url), body: JSON.parse(init.body) }); return { ok: true, status: 200 }; };
@@ -3464,7 +3515,8 @@ test('SERVER-EVENTS-1 · a guest pack: ONE PackPurchase for verify + webhook + r
   await new Promise((r) => setTimeout(r, 60));
   assert.equal(calls.length, 1);
   const ev = calls[0].body.data[0];
-  assert.equal(ev.event_name, 'PackPurchase');
+  assert.equal(ev.event_name, 'Purchase');
+  assert.deepEqual(ev.custom_data.content_ids, ['pack_mock']);
   assert.equal(ev.event_id, o.json.orderId);
   assert.equal(ev.user_data.em[0], crypto.createHash('sha256').update('parent@example.com').digest('hex'));
   assert.equal(ev.user_data.fbp, 'fb.1.1700000000000.12345678');
@@ -3663,7 +3715,7 @@ test('PR · concurrent: status x3 + a webhook + a verify on one captured order -
   const stored = srv.db.read(`payOrders/${o.json.orderId}`);
   assert.equal(stored.status, 'paid_unclaimed');
   assert.equal(stored.paymentId, p.id);
-  assert.equal(metaCalls.length, 1, 'one PackPurchase for the sale, whoever recorded it');
+  assert.equal(metaCalls.length, 1, 'one Meta Purchase for the sale, whoever recorded it');
   assert.equal(h.resend.sent.length, 1, 'one receipt email');
   assert.equal(packDocs(srv.db).length, 0);
   assert.equal(subsDocs(srv.db).length, 0);
@@ -3873,6 +3925,44 @@ test('PR · concurrent status calls alone: the purchase event, the invoice step 
   await new Promise((r) => setTimeout(r, 30));
   assert.equal(paidEvents, 1, 'a later status call fires nothing');
   assert.equal(receipts, 1);
+});
+
+// ---- META-IC-1: the server sends InitiateCheckout for EVERY guest order route, once per created order ------------------------
+function icRecorder() {
+  const created = [];
+  return {
+    created,
+    serverEvents: {
+      signalsField: (body) => ({ adSignals: { attemptId: body && body.adSignals && body.adSignals.attemptId } }),
+      orderCreated: async (a) => { created.push(a); },
+      orderPaid: async () => {},
+      metaOn: true,
+      ga4On: false,
+    },
+  };
+}
+
+test('META-IC-1 · pay-by-phone, pay-for-someone and pay-for-myself orders each fire ONE orderCreated carrying the browser attempt id; a refused order fires none', async (t) => {
+  const rec = icRecorder();
+  const srv = await startRoutes({ env: PR_ENV, serverEvents: rec.serverEvents });
+  t.after(srv.close);
+  const phone = await guestOrder(srv, { sku: 'till_boards', phone: PHONE, adSignals: { attemptId: 'lt_ic_phone_001' } });
+  assert.equal(phone.status, 200, phone.text);
+  const who = await whoOrder(srv, { sku: 'till_boards', recipient: { email: EMAIL }, adSignals: { attemptId: 'lt_ic_who_0001' } });
+  assert.equal(who.status, 200, who.text);
+  const self = await selfOrder(srv, { sku: 'pack_cbq', target: 'maths', adSignals: { attemptId: 'lt_ic_self_001' } });
+  assert.equal(self.status, 200, self.text);
+  await srv.idle();
+  assert.deepEqual(rec.created.map((c) => [c.orderId, c.passType, c.amountPaise, c.uid, c.signals.attemptId]), [
+    [phone.json.orderId, 'till_boards', phone.json.amountPaise, null, 'lt_ic_phone_001'],
+    [who.json.orderId, 'till_boards', who.json.amountPaise, null, 'lt_ic_who_0001'],
+    [self.json.orderId, 'pack_cbq', self.json.amountPaise, null, 'lt_ic_self_001'],
+  ]);
+  const before = rec.created.length;
+  const bad = await guestOrder(srv, { sku: 'not_a_sku', phone: PHONE, adSignals: { attemptId: 'lt_ic_bad_00001' } });
+  assert.notEqual(bad.status, 200);
+  await srv.idle();
+  assert.equal(rec.created.length, before, 'no order -> no InitiateCheckout');
 });
 
 /* ══ CHECKOUT-FAST-1 · the order routes' critical path (parallel independent reads) ═════════

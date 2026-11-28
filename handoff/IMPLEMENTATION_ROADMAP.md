@@ -1,3 +1,82 @@
+## 2026-11-26 (daily, second part; covers IST merge 26 Nov 17:52, i.e. 12:22 UTC; written 26 Nov evening IST) - #1890 - MERGED
+
+- DONE, payments. `#1890` (`9b221f79`) ORDER-DEDUP-1 (one order per Pay tap on guest / pay-first checkout). Live verify owed.
+- DONE (owner), top-up go-live: Railway and Vercel flags on, redeployed; `#1884` is live.
+- NEXT: `[FU-ORDER-DEDUP-SIGNED-IN]`, `[FU-AICOST-SILENT-CATCH]`, `[FU-TOPUP-NO-ANALYTICS]`; the owed live verifies.
+
+## 2026-11-26 (daily; covers IST merges 26 Nov 07:32 to 17:30, i.e. 02:02 to 12:00 UTC; written 26 Nov evening IST) - #1879 - #1881 - #1882 - #1884 - #1885 - #1886 - #1887 - #1883 - #1888 - #1889 - MERGED
+
+- DONE, UI tests. `#1879` (`e24f707e`) UI-E2E-4: signed-in Chapter Test + Full Mock upload and grade. Part of `[FU-UI-E2E-PHASE2-PAGES]`.
+- DONE, fair use. `#1881` (`acef94ab`) TS-FAIRUSE-1 + `#1886` (`425e02f7`) prerender refresh.
+- DONE, admin. `#1882` (`07ce9855`) COST-TRUTH-1 (AI cost ledger); `#1887` (`cc51b26e`) QUICK-LEAVE-1 (quick-leave card).
+- DONE, payments. `#1884` (`735f9985`) TOPUP-GO-1 (Vercel flag pending); `#1885` (`25e6bebc`) PARENT-PAY-FIRST-1; `#1888` (`b9ba0b12`) PARENT-WA-DIRECT-1; `#1889` (`661301f2`) INAPP-STUCK-1.
+- DONE, Answer Checker multi-question. `#1883` (`d49d3066`) TOPIC-BATCH-1 (one batched detect call per paper).
+- IN FLIGHT: `#1890` ORDER-DEDUP-1 (CI red).
+- NEXT: Vercel redeploy for top-up; the owed live verifies; `[FU-ORDER-DEDUP-SIGNED-IN]`.
+
+## 2026-11-25/26 (daily, fourth part; covers IST merges 25 Nov 21:58 to 26 Nov 01:49, i.e. 16:28 to 20:19 UTC 25 Nov; written 26 Nov about 02:10 IST) - #1873 - #1874 - #1875 - #1876 - #1877 - MERGED
+
+- DONE, Answer Checker. `#1873` (`8797dcc0`) MARK-ON-PHOTO-1 PR-1 + mark pass. Live PASS (admin).
+- DONE, limits. `#1874` (`2879f423`) MARK-CAP-1 (3 per question per paper).
+- DONE, grading speed. `#1875` (`e47b4be0`) LOCATE-FIRST-1 + `#1876` (`613987f8`) test fix. Live PASS on Chapter Test + Answer Checker multi.
+- DONE, bank surfaces. `#1877` (`40c9cfca`) MARK-ON-PHOTO-2 (Chapter Test, Full Mock, Worksheet). Live PASS (reopened Chapter Test).
+- NEXT: `[FU-MARK-ON-PHOTO-TRIAL-LIVE]`.
+
+## 2026-11-25 (daily, third part; covers 25 Nov IST merges 15:42 to 20:01 IST, i.e. 10:12 to 14:31 UTC 25 Nov; written 25 Nov about 20:40 IST) - #1867 - #1868 - #1869 - #1870 - #1871 - MERGED
+
+- DONE, UI tests. `#1867` (`7b91e503`) UI-E2E-3: signed-in Answer Checker + Board Pass Pay (unpaid). Part of `[FU-UI-E2E-PHASE2-PAGES]`.
+- DONE, Answer Checker. `#1868` (`5c27aa43`) CI-READ-TOPICS-1: each question's own chapter at "Read the question". Live PASS.
+- DONE, grading telemetry. `#1869` (`182b13cf`) GRADE-MISS-1: dropped-question counts per paper.
+- DONE, grading. `#1870` (`3a06e6a6`) GRADE-SECOND-LOOK-1 + `#1871` (`6d9ab1e8`) summary fix. Answer Checker multi live PASS; bank surface OWED (`[FU-LOOK2-BANK-LIVE]`).
+- NEXT: MARK-ON-PHOTO-1 PR-1 (Answer Checker) and PR-2 (`[FU-MARK-ON-PHOTO-BANK]`).
+
+## 2026-11-25 (daily, second part; covers 25 Nov IST merges 13:16 to 13:30 IST; written 25 Nov about 13:40 IST) - #1862 - #1864 - #1865 - #1863 - MERGED
+
+- DONE, Test Series display. `#1862` (`2bbdcb41`) FM-RECHECK-NOTE-1 (settle re-read). Closes `[FU-FM-UNCOUNTED-NOTE]`.
+- DONE, desktop shell. `#1864` (`9eca5db9`) AVATAR-CONTRAST-1. Closes `[FU-DESKTOPSHELL-AVATAR-CONTRAST]`.
+- DONE, speed. `#1865` (`eeac414f`) PERF3-HEADROOM-1 (entry gz -6.5 KB). Closes `[FU-PERF3-HEADROOM]`.
+- DONE, grading cache. `#1863` (`ec5ba0e7`) SCHEME-CACHE-V4. Closes `[FU-SCHEME-CACHE-VERSION]`; live verify owed.
+
+## 2026-11-25 (daily; covers 25 Nov IST merges 07:24 and 07:33 IST, i.e. 01:54 and 02:03 UTC 25 Nov; written 25 Nov about 12:30 IST) - #1858 - #1859 - MERGED
+
+- DONE, /pricing FAQ. `#1858` (`aaffbc9f`) FAQ-WHY-BOTH-1: "How is the Board Pass different from Question Bank + Mocks?" (Board Pass online and marked; Question Bank + Mocks offline, self-checked).
+- DONE, Test Series navigation. `#1859` (`32ba8d0b`) TS-NAV-2: one name per series paper, Back keeps your place, "Open:" for taken papers, "Your mocks · N · M awaiting", dropdown chevrons; kill switch `VITE_TS_NAV2_DISABLED`. Live-checked PASS (iPhone arrows owed).
+- DONE (owner), repo private.
+- NEXT: `[FU-FM-UNCOUNTED-NOTE]`, `[FU-PERF3-HEADROOM]`, `[FU-UI-E2E-PHASE2-PAGES]`, `[FU-UI-E2E-REQUIRED-CHECK]`. OWED: `[FU-1840-FM-LIVE]`. The earlier lists stand.
+
+## 2026-11-24 (daily; covers 24-25 Nov IST: merges 14:39 IST 24 Nov to 06:22 IST 25 Nov, i.e. 09:09 UTC 24 Nov to 00:52 UTC 25 Nov; written 24 Nov, updated about 23:05 IST 24 Nov and about 06:30 IST 25 Nov) - #1846 - #1847 - #1848 - #1849 - #1850 - #1811 - #1816 - #1819 - #1854 - #1852 - #1856 - #1855 - #1853 - #1857 - MERGED
+
+- DONE, Test Series SEO. `#1846` (`dacd6ae4`) TS-H1-KEYWORD-1: the /test-series h1 starts with "CBSE Class 10 Test Series"; "mock tests" wording.
+- DONE, structured data. `#1847` (`27ff3d02`) SAMEAS-DIRECTORIES-1: Crunchbase and Wellfound in the Organization `sameAs` (10 URLs pinned). More directories later: `[FU-SAMEAS-MORE-DIRECTORIES]`.
+- DONE, admin measurement. `#1848` (`4f02d397`) MISTAKE-SPLIT-1: read-only GET `/api/admin/mistake-split` (first reading: conceptual 57.2%, presentation 22.7%, calculation 12.9%, silly 7.2%; 1,178 logs, 163 students).
+- DONE, schools. `#1849` (`3da53c09`) SCHOOLS-BOOKLET-1 hosts the schools booklet PDF; `#1850` (`5783881e`) SCHOOLS-BOOKLET-2 gives it a new cover.
+- DONE, Meta measurement. `#1811` (`96fc6d4b`) META-IC-1 (InitiateCheckout only at Razorpay order creation, browser + CAPI, one `event_id`); `#1816` (`581fdea3`) META-PURCHASE-UNIFY-1 (a paid pack is a standard Purchase, GST-inclusive value); `#1819` (`2d851629`) BUYER-SCORE-1 (GA4 `buyer_tier`, Meta BuyerTierWarm/Hot, admin "Buyer score"). OWED: Meta Test Events, then remove `META_TEST_EVENT_CODE` from Railway.
+- DONE (Chapter Test surface), `#1840` LIVE-FIX-1 live check (a)-(d) PASS on Real Numbers Chapter Test 1. Full Mock surface still OWED, so PARTIAL.
+- (24 Nov) IN BUILD, **now MERGED (below):** TS-PARENT-FORWARD-1 (Test Series "Forward link to parents" next to Buy, `[FU-TS-CHECKOUT-BOTH-OPTIONS]`); PRICING-CTA-UP-1 (/pricing price and Buy up on every card, honest sticky-bar price for Test Series owners). Slimmer /pricing card faces wait on an independent UX review.
+- SPEC WRITTEN, waiting for the owner's OK: UI-E2E Phase 2 test-only sign-in (`[FU-UI-E2E-PHASE2-TEST-SIGNIN]`). **Update 25 Nov: shipped as `#1856`.**
+- BUDGET: PERF-3 entry chunk has 34 B left (`[FU-PERF3-HEADROOM-34B]`). **Update 25 Nov: about 16 B left (`[FU-PERF3-HEADROOM]`).**
+- OWED: `#1840` on a Full Mock; STEPMARK-3; `#1822` second surface; board estimate. `#1833` stays a draft. The earlier lists stand.
+- DONE (25 Nov), fair use. `#1854` (`e634c25c`) FAIRUSE-TS-OWNER-1: Test Series owners and Board Pass holders exempt from the trial weekly paper limit (server and client); confirmed live. Closes `[FU-FAIRUSE-TS-OWNER-EXEMPT]`; the Test Series Scope leaves Settling.
+- DONE (25 Nov), parent forward. `#1852` (`33032a3a`) TS-PARENT-FORWARD-1 (signed in) and `#1855` (`dc17fffc`) TS-PARENT-FORWARD-2 + FOUNDING-MSG-PRICE-1 (signed out, no sign-in; parent messages name no amount during the founding offer). Closes `[FU-TS-CHECKOUT-BOTH-OPTIONS]`.
+- DONE (25 Nov), /pricing. `#1853` (`b085695a`) PRICING-CTA-UP-1: four equal-size slim cards, one Buy each, details inside; honest sticky-bar upgrade price. Live-checked 25 Nov 06:45 IST.
+- DONE (25 Nov), emails. `#1857` (`0ae599c7`) FOUNDING-MSG-PRICE-2: server emails dated "founding price till 30 Nov, then ₹2,499 + GST".
+- DONE (25 Nov), UI tests Phase 2 sign-in. `#1856` (`714e4325`) UI-E2E-2-SIGNIN (CI-only, Firebase emulators). NEXT: Phase 2 page coverage.
+- DROPPED: CBQ-WA-OPTIN-1 (/cbq-packs already has the box in its buy pop-up).
+- OWED (25 Nov): `[FU-FM-UNCOUNTED-NOTE]` (copy), `[FU-1840-FM-LIVE]` (Full Mock (a)/(d)).
+
+## 2026-11-23 (daily; UTC day 23 Nov, written 24 Nov IST) - #1820 - #1821 - #1822 - #1830 - #1831 - #1824 - #1835 - #1823 - #1825 - #1826 - #1832 - #1838 - #1827 - #1836 - #1828 - #1829 - #1839 - #1834 - #1837 - #1841 - #1842 - #1840 - MERGED
+
+- DONE, Test Series. `#1830` (`b8ff26c4`) TS-HERO-1 (hero line "written answers marked step by step in minutes"; Buy above the fold on phones). `#1831` (`02e8aef0`) TS-DIFF-1 (Easier / Standard / Harder). `#1832` (`fad42a83`) TS-BOARDSCORE-1 (scorecards out of full marks, trend, board estimate). `#1836` (`19720249`) TS-FREE-CHECK-1 (the free test includes written marking). `#1837` (`0756d13f`) TS-THEMES-1 (30 focus sets).
+- DONE, STEPMARK-3 COMPLETE (328 rows without step marks, now 26 flagged and withheld). `#1824` (`69893e90`) OR-aware `isStepMarked`; data PRs `#1823` (`9ad53fbe`, reproduction 60), `#1825` (`d02df856`, carbon 54), `#1826` (`91371f9b`, control and coordination 46), `#1827` (`0844ef4a`, magnetic effects 38), `#1828` (`b347a4d7`, human eye 33), `#1829` (`8c96da9a`, heredity 26), `#1834` (`ce38ae82`, mixed Science 15), `#1842` (`0e2bd715`, uneven CBSE splits, 9). The remaining 26 are hand content work: `[FU-STEPMARK-26-FLAGGED]`. The old "1,875 rows" stage was mis-stated (measured: 0 rows without steps).
+- DONE, SCHEME-GEN-1. `#1822` (`ddccf6ab`) the AI-written marking scheme is no longer cut off (truncated 73 to 0 on the 231-job golden eval; kill switch `SCHEME_GEN_LEGACY=1`). Owed: a second-surface live check and the Railway `[scheme-gen]` counters.
+- DONE, UI-E2E Phase 1. `#1838` (`9847e93c`) real-browser checks for six signed-out pages at 360 and 1280 (the `ui-e2e` check). Later phases not started.
+- DONE, UI-FIX-1 and UI-FIX-2. `#1839` (`a3d5c3c3`) readable landing colours, darker grey text, /pricing Pay bar on desktop; `#1841` (`312bd004`) one shared readable green behind white text everywhere plus a guard test. Left: `[FU-DESKTOPSHELL-AVATAR-CONTRAST]`.
+- DONE, LIVE-FIX-1. `#1840` (`91624151`) the four live-run bugs plus "Not attempted · 0". PARTIAL until the owner runs it on a Chapter Test and a Full Mock.
+- DONE, GRADE-PROGRESS-1. `#1835` (`acca64a8`) honest progress display while an answer is being marked.
+- DONE, INAPP-PAY-FIRST-1. `#1820` (`3238d5d6`) and `#1821` (`66ffe1f7`) in Instagram/Facebook on Android, Buy opens Chrome first. A signed-in version is a separate stage: INAPP-SIGNED-IN-HANDOFF (spec first).
+- NEXT (Tue 24 Nov night, in order): `#1811` META-IC-1 (mark ready first), then `#1816` META-PURCHASE-UNIFY-1, then `#1819` after a re-review of `792004f6`. `#1833` stays a draft.
+- OWED: the `#1840` live checks (both surfaces), STEPMARK-3 live check, the `#1822` second surface, the board estimate seen live. The earlier lists stand.
+
 ## 2026-11-22b (first daily of UTC day 22 Nov; written 22 Nov about 18:15 IST) - #1810 - #1815 - #1813 - #1812 - #1814 - #1808 - #1817 - #1805 - #1809 - MERGED
 
 - DONE. `#1810` (`a09cf52c`) AI-BILLING-ALERT-1 (owner email and WhatsApp when Gemini fails on key or billing). `#1815` (`3067c57d`) AI-ALERT-TELEGRAM-1 (Telegram as a third channel). `#1813` (`b0275dac`) LATE-AUTH-GUARD-1 (never manually capture past Razorpay's window; refusals answer pending). `#1812` (`f5ee414b`) PAY-HANG-1 (stuck sheet after a UPI-app return: Check status first, Try again only after a confirmed failure). `#1814` (`16429db9`) RESULT-LIST-BACKFILL-1 (old graded papers stop reading "Awaiting sheet", read-time, no writes; closes `[FU-RESULT-LIST-BACKFILL]`). `#1808` (`39dbd676`) INAPP-PAY-CHOICE-1 (Pay in Chrome/Safari option in in-app browsers). `#1817` (`08ca006d`) UNPAID-ORDERS-LIST-1 (admin "Ordered, not paid" list). `#1805` (`a8c3e0b0`) GRADER-TYPE-1 (blank asked-for reason and dropped-power typing by evidence; evals include the scheme). `#1809` (`883cb9ee`) CHECKOUT-FAST-1 (Razorpay opens faster, honest wait copy, open-time events).

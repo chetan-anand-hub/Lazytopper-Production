@@ -6,6 +6,7 @@ import {
   checkSolutionImage,
   detectQuestion,
   gradeWorksheet,
+  MARK_LIMIT_COPY,
   type CheckSolutionResponse,
   type CheckSolutionAnnotatedStep,
   type MistakeType,
@@ -36,6 +37,8 @@ import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import ParentReturnLink from "../../components/parents/ParentReturnLink";
 import "./checkImproveParentReturn.css";
+import GradeProgressPanel from "../../components/grading/GradeProgressPanel";
+import { gradeProgressDisabled } from "../../components/grading/gradeProgressFlag";
 import {
   buildConfirmedDetection,
   withSubjectCorrected,
@@ -45,11 +48,14 @@ import {
   perQuestionFiling,
   resolveCiQuestionText,
   resolvePerQuestionGradeTopics,
+  questionSetSignature,
   SHOW_DETECTION_META,
   detectedTextForResult,
   detectedItemForResult,
   type ConfirmedDetection,
+  type PerQuestionTopic,
 } from "../../utils/checkImproveDetection";
+import PaperChaptersLine from "../../components/checkimprove/PaperChaptersLine";
 // SCORECARD-MI-1 — every group, label, step state and count on this page comes from the ONE
 // display module (owner rulings 5 Oct 2026).
 import {
@@ -159,6 +165,7 @@ import {
   isUnreadAllPending,
   usePublicMomentAudience,
 } from "../../components/guide/moments/moments";
+import { gradeHint, isAcTypedAutoreadDisabled, typedAnswerCounts } from "./acTypedGate";
 import {
   FREE_CHECK_COPY,
   FREE_CHECK_SIGNIN_PATH,
@@ -179,6 +186,9 @@ import { clearAllSavedFreeCheckResults, clearSavedFreeCheckResult, getSavedFreeC
 import { FreeCheckRestoredResult } from "../../components/checkimprove/FreeCheckRestoredResult";
 import { FreeCheckLockedRows, FreeCheckOneQuestionLine } from "../../components/checkimprove/FreeCheckLockedRows";
 import PaperMarksEditor, { isLockedObjective, LockedMarksNote, sendAsObjective } from "../../components/checkimprove/PaperMarksEditor";
+import { MarkOnPhotoButton, MarkOnPhotoDialog } from "../../components/checkimprove/MarkOnPhoto";
+import { isMarkableRow, mergeMarkedRow } from "../../services/markOnPhoto";
+import { isTrialLimitRefusal } from "../../components/limits/limitsCopy";
 import { finalMarksSummary } from "../../components/results/finalMarksSummary";
 import { showPackLine } from "../../components/limits/packLine";
 import {
@@ -220,6 +230,7 @@ import { readFairUseLimit } from "../../services/usageClient";
 import { readTypeOf, sectionBasisOfRead, stampLens } from "../../components/results/sectionTypeLens";
 import TrialPaperNote from "../../components/usage/TrialPaperNote";
 import { trialPaperCut, trialPaperNoteCopy } from "../../components/usage/fairUseGate";
+import { ModelSolutionCard } from "../../components/results/ModelSolutionCard";
 import { prefetchKatexWhenIdle } from "../../components/question/MathText";
 
 // CT-KATEX-2: KaTeX's background idle prefetch is no longer armed by MathText for every
@@ -291,7 +302,7 @@ const CARD_BG = "#ffffff";
 const MUTED_BG = "hsl(220, 20%, 97%)";
 const SECONDARY_BG = "hsl(150, 35%, 94%)";
 
-const ACCENT_FG = "hsl(152, 55%, 35%)";
+const ACCENT_FG = "hsl(152, 55%, 30%)"; // UI-FIX-1: was 35% (4.30:1 on white, 3.85 on #eaf5f0); now #22774f = 5.50 / 4.93
 const ACCENT_SOFT = "hsl(150, 60%, 92%)";
 
 /* ── CONVERGENCE (§2.1) — the fluid layout constants ─────────────────────────
@@ -1277,6 +1288,12 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Every question read from the upload. `length > 1` switches the UI to the
   // multi-question grade path (grade ALL via the worksheet structured grader).
   const [detectedQuestions, setDetectedQuestions] = useState<DetectedQuestion[] | null>(null);
+  // CI-READ-TOPICS-1 — each question's OWN chapter, looked up right after a paid whole-paper read
+  // (the same per-question reads the grade used to make afterwards), keyed to the read question SET
+  // (questionSetSignature) so a marks edit keeps it and a new paper drops it. The grade reuses the
+  // lookup for the same set instead of repeating it.
+  const [readTopics, setReadTopics] = useState<{ sig: string; topics: PerQuestionTopic[] | null } | null>(null);
+  const readTopicsRef = useRef<{ sig: string; promise: Promise<PerQuestionTopic[]> } | null>(null);
 
   // SHW-2 type-first move (see ciZeroGraded above). SHW-4: it happens only on a page nobody has
   // started - once the student typed / uploaded a question, a read is running or done (a whole paper
@@ -1417,6 +1434,18 @@ const DesktopCheckImprovePageInner: React.FC<{
   }, [user?.uid, funnelOff]);
   // The whole-paper grade result + its session code (CI-{S}-{TOPIC}-{NN}).
   const [wsResult, setWsResult] = useState<WorksheetGradeResponse | null>(null);
+  // MARK-ON-PHOTO-1 — the whole-paper row the student is pointing to, and that one-question grade's state.
+  const [markIndex, setMarkIndex] = useState<number | null>(null);
+  const [markBusy, setMarkBusy] = useState(false);
+  const [markError, setMarkError] = useState<string | null>(null);
+  // Bumped whenever the paper on screen is cleared, so a mark still in flight never puts it back.
+  const markPaperSeq = useRef(0);
+  const leaveMarkedPaper = () => {
+    markPaperSeq.current += 1;
+    setMarkIndex(null);
+    setMarkError(null);
+    setMarkBusy(false);
+  };
   const [ciCode, setCiCode] = useState<string | null>(null);
   // LIMITS-1 PR-2 — the SAME server lock as the scorecard (same kind + key), applied to this page's own
   // per-question detail, so closing the scorecard does not reveal what it withheld. "open" when the flag is off.
@@ -1737,7 +1766,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   // GRADE-MARKS-1 (§13) — the single question is a detect-objective one: its marks chip is locked at 1.
   const singleObjectiveLocked = !isMultiQuestion && Boolean(detectedQuestions?.[0] && isLockedObjective(detectedQuestions[0]));
   const hasAnswer =
-    tab === "upload" ? Boolean(imageBase64) : textAnswer.trim().length >= 10;
+    tab === "upload" ? Boolean(imageBase64) : typedAnswerCounts(textAnswer);
   // SCORECARD-MI-1 (B1/D6) — what a single-question grade will send as the question: the typed
   // text, else the text read from the photo / PDF / QR upload. Empty → the student is asked to
   // type the question (the grader is never handed the chapter name instead of the question).
@@ -1745,10 +1774,33 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Grade only after the question has been read + confirmed AND an answer exists.
   // Multi-question grading REQUIRES an uploaded answer sheet (image or PDF) — the
   // whole-paper grader reads the answers from that one upload.
-  const canGrade =
+  const canGradeConfirmed =
     Boolean(confirmed) &&
     (isMultiQuestion ? Boolean(imageBase64) : hasAnswer && singleQuestionText.length > 0) &&
     status !== "loading";
+  // AC-TYPED-1: an unread question no longer blocks Grade - the tap reads it first (see handleGradeTap).
+  const canGradeUnread =
+    !isAcTypedAutoreadDisabled() &&
+    !confirmed &&
+    hasQuestion &&
+    (tab === "upload" ? Boolean(imageBase64) : typedAnswerCounts(textAnswer)) &&
+    !detecting &&
+    status !== "loading";
+  const canGrade = canGradeConfirmed;
+  const gradeEnabled = canGradeConfirmed || canGradeUnread;
+  const [gradeAfterRead, setGradeAfterRead] = useState(false);
+  const gradeHintText = gradeEnabled
+    ? null
+    : gradeHint({
+        confirmed: Boolean(confirmed),
+        hasQuestion,
+        hasAnswer,
+        isMultiQuestion,
+        questionCount: detectedQuestions?.length ?? 0,
+        hasAnswerPhoto: Boolean(imageBase64),
+        hasTypedAnswer: textAnswer.trim().length > 0,
+        singleQuestionTextMissing: !singleQuestionText,
+      });
 
   // UPLOAD-2 — the shared upload step for the ANSWER. A photo is cropped (optional),
   // turned upright and compressed BEFORE the guard, so a phone photo never meets a size
@@ -1853,6 +1905,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     // A NEW question read starts a fresh session — drop the prior multi-question
     // detection, its grade, and its code (the next grade gets a new CI sequence).
     setDetectedQuestions(null);
+    leaveMarkedPaper();
     setWsResult(null);
     setCiCode(null);
     // C&I PR-1: the fresh session also resets its nomenclature + provenance state.
@@ -2049,6 +2102,25 @@ const DesktopCheckImprovePageInner: React.FC<{
       // Multi-question: keep every detected question. A single-item (or absent)
       // array leaves the existing single-question flow exactly as before.
       setDetectedQuestions(readQs && readQs.length > 0 ? readQs : null);
+      // CI-READ-TOPICS-1 — a paid whole-paper read looks up each question's own chapter now, while
+      // the student adds the answer sheet. The free check keeps its fixed request shape (one graded
+      // question; its chapter is read at grade time, as before).
+      if (!freeCallOpts && readQs && readQs.length > 1) {
+        const sig = questionSetSignature(readQs);
+        const promise = resolvePerQuestionGradeTopics(
+          readQs.map((x) => ({ questionNumber: x.questionNumber, questionText: x.questionText })),
+          CANONICAL_TOPIC_VOCAB,
+        );
+        readTopicsRef.current = { sig, promise };
+        setReadTopics({ sig, topics: null });
+        void promise.then(
+          (topics) => { if (readTopicsRef.current?.sig === sig) setReadTopics({ sig, topics }); },
+          () => { if (readTopicsRef.current?.sig === sig) setReadTopics({ sig, topics: [] }); },
+        );
+      } else {
+        readTopicsRef.current = null;
+        setReadTopics(null);
+      }
       // FU-CI-TYPEFIRST-MULTI: a WHOLE PAPER grades from the answer PHOTO, so a type-first default
       // (SHW-2) moves to "Upload image" - never when the student picked a tab or typed an answer.
       if ((d.questions?.length ?? 0) > 1 && tab === "type" && !ciAnswerTouchedRef.current && textAnswer.trim().length === 0) {
@@ -2105,6 +2177,7 @@ const DesktopCheckImprovePageInner: React.FC<{
   }
 
   function resetToInput() {
+    leaveMarkedPaper();
     setStatus("idle");
     setGradeStage(null);
     setErrorMessage(null);
@@ -2360,6 +2433,99 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Multi-question grade: grade the WHOLE detected paper in one structured call
   // (the surface-agnostic worksheet grader), then fan each legible result through
   // Mistake Intelligence exactly as the worksheet grade loop does.
+  /**
+   * MARK-ON-PHOTO-1 (owner, 25 Nov 2026) — grade ONE question of the paper on screen from the part of the photo the
+   * student pointed to, and slot it back into the same paper. Sent as that question's own answer image (the per-question
+   * upload transport), so the grader is never asked to find a number. A grade that does not come back graded changes
+   * nothing. The paper record is re-written under the SAME code and the question's MI entry keeps its stable id, so
+   * nothing is counted twice.
+   */
+  async function submitMarkedAnswer(image: { imageBase64: string; imageMimeType: string }) {
+    const gi = markIndex;
+    if (gi === null || !wsResult || !confirmed || !ciCode || !detectedQuestions || isFreeMode) return;
+    const row = wsResult.results[gi];
+    const dq = detectedItemForResult(detectedQuestions, wsResult.results, gi);
+    if (!row || !dq) return;
+    setMarkBusy(true);
+    setMarkError(null);
+    // The paper this mark belongs to: if the student leaves it while the mark is in flight, the reply still saves
+    // (the grade is real) but never puts the old paper back on screen.
+    const paperToken = ++markPaperSeq.current;
+    const stillShowing = () => markPaperSeq.current === paperToken;
+    try {
+      const q0 = sendAsObjective(dq) ? dq : { ...dq, objective: false };
+      const response = await gradeWorksheet({
+        worksheetId: `ci:${ciCode}:mark:${gi}`,
+        subject: confirmed.subject,
+        questions: [{
+          qNumber: dq.questionNumber,
+          marks: dq.marks,
+          topic: confirmed.topicName || undefined,
+          topicLabel: confirmed.topicName || undefined,
+          questionText: dq.questionText,
+          objective: q0.objective === true,
+          ...detectedKeyFields(dq, false),
+        }],
+        uploads: [{ qNumber: dq.questionNumber, imageBase64: image.imageBase64, imageMimeType: image.imageMimeType }],
+        // The paper's mark pass (owner ruling 25 Nov): the mark rides this paper's weekly slot, not a new one.
+      }, wsResult.markPass ? { ...CI_GRADE_CALL, markPass: wsResult.markPass, markQ: dq.questionNumber } : CI_GRADE_CALL);
+      const one = response && response.ok !== false && response.results?.[0] ? withEffectiveCounts(response).results[0] : null;
+      if (!one || !isGradedQuestion(one)) {
+        if (stillShowing()) setMarkError("We still couldn't mark this answer from that part of the photo. Try a tighter box, or a clearer photo of just this answer.");
+        return;
+      }
+      const merged = mergeMarkedRow(wsResult, gi, one);
+      fairUse.noteGraded();
+      if (stillShowing()) {
+        setWsResult(merged);
+        setMarkIndex(null);
+        setReadProps(null); // the "Read on screen" sheet was built from the paper before this mark
+      }
+      const paperMixed = isMixedPaper(merged.results);
+      const mixLabel = ciPaperMixLabel(merged);
+      // TUTOR-RETURN-SHEET-1 - the payload write replaces the saved copy whole, so the question texts ride it again.
+      noteSessionQuestionTexts(
+        `ci:${ciCode}`,
+        boundedQuestionTexts(merged.results.map((_, i) => detectedTextForResult(detectedQuestions, merged.results, i))),
+      );
+      const persistOutcome = persistCheckImproveSession({
+        user,
+        code: ciCode,
+        title: mixLabel ? `${mixLabel} · ${ciCode}` : ciName ?? `Answer Checker · ${ciCode}`,
+        subject: toSessionSubject(confirmed.subject),
+        topicSlug: paperMixed ? "" : confirmed.topicSlug,
+        topicSource: paperMixed ? "mixed" : ciTopicSource ?? deriveTopicSource(confirmed.topicSlug, topicTouched),
+        response: merged,
+        path: "multi",
+      });
+      if (persistOutcome === "recorded") void loadCiRecords();
+      if (stillShowing() && persistOutcome === "recorded") setCiSaved(true);
+      try {
+        const filing = { subject: confirmed.subject, topicName: confirmed.topicName, topicSlug: confirmed.topicSlug };
+        await recordCiQuestion(merged.results[gi], gi, merged.results, ciQuestionIds(ciCode, merged.results), ciCode, filing, paperMixed);
+      } catch (e) {
+        console.warn("[check-improve] MI record for a marked answer failed (grade preserved):", e);
+      }
+    } catch (e) {
+      if (!stillShowing()) return;
+      // A refusal is told in the dialog, in its own words — never "try again" for something a retry cannot fix.
+      // A fair-use limit shows the calm limit panel inside the dialog (fairUse.limit); a paid-access refusal reads the
+      // server's own plain sentence, as the detection step on this page does.
+      if (await fairUse.handleRefusal(e)) return;
+      if (isPremiumRequiredError(e) || isTrialLimitRefusal(e)) {
+        setMarkError(e instanceof Error && e.message ? e.message : "Marking this answer needs a pass that includes the Answer Checker.");
+        return;
+      }
+      if (e instanceof Error && e.name === "SignInAgainError") {
+        setMarkError(e.message);
+        return;
+      }
+      setMarkError(e instanceof Error && (e.name === "GradingNetworkError" || e.name === "UploadTooLargeError" || e.message === MARK_LIMIT_COPY) ? e.message : "Marking didn't go through — please try again.");
+    } finally {
+      if (stillShowing()) setMarkBusy(false);
+    }
+  }
+
   /** ONE graded C&I paper question → the MI front door + its score twin. Returns whether the
    *  front door took it (the save-status signal). Shared by a finished grade and, J2b (D30-2),
    *  by the FINAL graded rows of an interrupted background grade. */
@@ -2535,14 +2701,21 @@ const DesktopCheckImprovePageInner: React.FC<{
       // the by-topic lens + counted "N topics" chip for a mixed paper. Best-effort: a
       // detect miss leaves that question's topic empty and NEVER blocks the shown grade.
       try {
-        const perQTopics = await resolvePerQuestionGradeTopics(
-          questionsToGrade.map((q) => ({
-            questionNumber: q.questionNumber,
-            questionText: q.questionText,
-          })),
-          CANONICAL_TOPIC_VOCAB,
-          freeCallOpts,
-        );
+        // CI-READ-TOPICS-1 — reuse the chapters looked up at "Read the question" for this SAME
+        // question set (never for a different paper); otherwise look them up now, as before.
+        const pre = !freeCallOpts && readTopicsRef.current && readTopicsRef.current.sig === questionSetSignature(detectedQuestions)
+          ? readTopicsRef.current.promise
+          : null;
+        const perQTopics = pre
+          ? await pre.catch(() => [] as PerQuestionTopic[])
+          : await resolvePerQuestionGradeTopics(
+            questionsToGrade.map((q) => ({
+              questionNumber: q.questionNumber,
+              questionText: q.questionText,
+            })),
+            CANONICAL_TOPIC_VOCAB,
+            freeCallOpts,
+          );
         const topicByQ = new Map(perQTopics.map((t) => [t.qNumber, t]));
         for (const r of response.results) {
           const t = topicByQ.get(r.qNumber);
@@ -2749,6 +2922,24 @@ const DesktopCheckImprovePageInner: React.FC<{
     void gradeMultiQuestion(ciLastLimitRef.current, { resume: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ciResumePending, confirmed, detectedQuestions, ciCode]);
+
+  // AC-TYPED-1: tapping Grade with the question not yet read runs the SAME read as "Read the question",
+  // takes what it detected as confirmed, then grades (effect below). A failed read never grades.
+  function handleGradeTap() {
+    if (canGradeUnread) {
+      setGradeAfterRead(true);
+      void handleReadQuestion();
+      return;
+    }
+    void handleGrade();
+  }
+  useEffect(() => {
+    if (!gradeAfterRead || detecting) return;
+    setGradeAfterRead(false);
+    if (confirmed && canGrade) void handleGrade();
+    // handleGrade is a fresh closure each render; re-run only when the read settles.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gradeAfterRead, detecting, confirmed]);
 
   async function handleGrade() {
     if (!canGrade || !confirmed) return;
@@ -3624,8 +3815,11 @@ const DesktopCheckImprovePageInner: React.FC<{
                     lineHeight: 1.5,
                   }}
                 >
-                  <strong>{detectedQuestions.length} questions detected</strong> · each question&rsquo;s
-                  subject and chapter are read when it is graded
+                  <strong>{detectedQuestions.length} questions detected</strong>
+                  <PaperChaptersLine
+                    questionNumbers={detectedQuestions.map((q) => q.questionNumber)}
+                    topics={readTopics && readTopics.sig === questionSetSignature(detectedQuestions) ? readTopics.topics : undefined}
+                  />
                   {/* GRADE-MARKS-1 — each question's marks, editable before grading; guesses flagged. */}
                   <PaperMarksEditor questions={detectedQuestions} onMarksChange={correctPaperMarks} />
                   <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4 }}>
@@ -4089,32 +4283,28 @@ const DesktopCheckImprovePageInner: React.FC<{
             />
           )}
 
-          {!canGrade && status !== "loading" && (
-            <span style={{ fontSize: 12, color: TEXT_MUTED }}>
-              {!confirmed
-                ? "Read the question first (step 1)"
-                : !isMultiQuestion && !singleQuestionText
-                  ? "We couldn't read the question's text — type it in step 1 so it can be marked against the right question"
-                  : "Add an answer (image or text) to continue"}
+          {gradeHintText && status !== "loading" && (
+            <span role="status" style={{ fontSize: 13, color: "hsl(220, 25%, 25%)", lineHeight: 1.45, fontWeight: 600 }}>
+              {gradeHintText}
             </span>
           )}
           <button
             type="button"
-            onClick={handleGrade}
-            disabled={!canGrade}
+            onClick={handleGradeTap}
+            disabled={!gradeEnabled}
             style={{
               ...buttonAccent,
-              background: canGrade ? PRIMARY_GREEN : "hsl(220, 18%, 85%)",
-              border: `1px solid ${canGrade ? PRIMARY_GREEN : "hsl(220, 18%, 85%)"}`,
-              cursor: canGrade ? "pointer" : "not-allowed",
-              opacity: canGrade ? 1 : 0.85,
+              background: gradeEnabled ? PRIMARY_GREEN : "hsl(220, 18%, 85%)",
+              border: `1px solid ${gradeEnabled ? PRIMARY_GREEN : "hsl(220, 18%, 85%)"}`,
+              cursor: gradeEnabled ? "pointer" : "not-allowed",
+              opacity: gradeEnabled ? 1 : 0.85,
               paddingLeft: 18,
               paddingRight: 18,
             }}
           >
             {status === "loading" ? (
               <>
-                <SpinnerGlyph color="#ffffff" /> {gradeStage ? gradingStageLabel(gradeStage) : "Grading…"}
+                <SpinnerGlyph color="#ffffff" /> {gradeStage && !(gradeStage.kind === "retrying" && gradeStage.reason === "slow" && !isMultiQuestion && !gradeProgressDisabled()) ? gradingStageLabel(gradeStage) : "Grading…"}
               </>
             ) : status === "error" ? (
               <>Retry grading <ChevronRightGlyph /></>
@@ -4123,6 +4313,13 @@ const DesktopCheckImprovePageInner: React.FC<{
             )}
           </button>
         </div>
+
+        {/* GRADE-PROGRESS-1 - honest waiting panel, single-question grade only (a paper shows rows arriving). */}
+        {status === "loading" && !isMultiQuestion && !gradeProgressDisabled() && (
+          <GradeProgressPanel
+            slowLabel={gradeStage?.kind === "retrying" && gradeStage.reason === "slow" ? gradingStageLabel(gradeStage) : null}
+          />
+        )}
 
         {/* MOMENTS-1 M5 — first session, while the grader works: Ziggy, then Byte in his place. */}
         <GuideMomentSlot
@@ -4246,6 +4443,19 @@ const DesktopCheckImprovePageInner: React.FC<{
             </>
           }
         />
+
+        {/* MARK-ON-PHOTO-1 — the student points to one answer; only that question is graded and slotted back. */}
+        {markIndex !== null && ws.results[markIndex] && (
+          <MarkOnPhotoDialog
+            label={`Q${ws.results[markIndex].qNumber}`}
+            pages={answerTray.pages.map((p) => ({ id: p.id, prepared: p.prepared, thumbUrl: p.thumbUrl }))}
+            busy={markBusy}
+            error={markError}
+            notice={fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
+            onSubmit={(image) => void submitMarkedAnswer(image)}
+            onClose={() => { if (!markBusy) { setMarkIndex(null); setMarkError(null); } }}
+          />
+        )}
 
         {/* C&I PR-1 — the 5th <ResultsScorecard> variant, opened on grade. The
             bespoke graded views below stay byte-intact underneath as "the graded
@@ -4470,6 +4680,10 @@ const DesktopCheckImprovePageInner: React.FC<{
                 </div>
                 {/* PR-2 (B8) — a question that was not graded says so in the owner's words. */}
                 <GradeStateNotice question={g} />
+                {/* MARK-ON-PHOTO-1 — point to the answer instead of re-uploading the paper (signed-in only). */}
+                {!isFreeMode && isMarkableRow(g) && (
+                  <MarkOnPhotoButton label={`Q${g.qNumber}`} disabled={markBusy} onClick={() => { setMarkError(null); setMarkIndex(qi); }} />
+                )}
                 {graded && g.teacherNote && (
                   <p style={{ margin: "10px 0 0", fontSize: 13, color: TEXT_MUTED, lineHeight: 1.55 }}>
                     <EquationRender text={g.teacherNote} />
@@ -4507,6 +4721,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                     ))}
                     <WithdrawnWorkBlock steps={withdrawn} />
                     <RubricBlock rubric={g.rubric} />
+                    <ModelSolutionCard modelSolution={g.modelSolution} question={g} steps={steps} />
                   </div>
                 )}
               </div>
@@ -4793,6 +5008,9 @@ const DesktopCheckImprovePageInner: React.FC<{
               </div>
             )}
           </div>
+
+          {/* AC-SOLUTION-1 — the complete correct solution (display only); nothing when the server had none. */}
+          <ModelSolutionCard modelSolution={result.modelSolution} question={result} steps={markedSteps} />
 
           {result.teacherNote && (
             <div style={{ ...cardStyle, padding: 24 }}>

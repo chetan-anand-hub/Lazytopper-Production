@@ -6,8 +6,9 @@ import { useAuth } from "../../context/AuthContext";
 import { withSigninRedirect } from "../../services/freeCheckClient";
 import { WHATSAPP_URL } from "../../config/socialProfiles";
 import { clearReceiptProof, readReceiptProof, type ReceiptProof } from "../../services/paidReceiptProof";
-import { newCheckoutAttemptId } from "../../analytics/analytics";
+import { newCheckoutAttemptId, type PaywallSurface } from "../../analytics/analytics";
 import { trackPackCheckout, trackPackEvent, trackPackPurchase, type PackCheckoutDetails, type PackCheckoutFrom } from "../../lib/packs/packAnalytics";
+import { chargedValueInr } from "../../config/pricing";
 import {
   PACK_ALREADY_OWNED_COPY,
   PACK_CHAPTER_SLUGS,
@@ -290,6 +291,20 @@ interface BuyState {
 }
 
 /** What the catalogue (hero tiles on /packs, the strip on /pricing) can do: open a pack's pop-up, optionally on a subject. */
+/**
+ * The options of `parentAsk`. `surface` (TS-PARENT-FORWARD-1) names the page in the `paywall_action` event; absent -> "pricing",
+ * exactly as before, so every existing caller is unchanged.
+ */
+export interface ParentAskOpts {
+  noQr?: boolean;
+  surface?: Extract<PaywallSurface, "pricing" | "test_series">;
+  /** TS-PAYPATH-1 (additive, PaywallActions' own props): the parent-first layout (WhatsApp first, then QR), its label and tap hooks. */
+  parentFirst?: boolean;
+  forwardLabel?: string;
+  onAsk?: () => void;
+  onQr?: () => void;
+}
+
 export interface PacksShopApi {
   openPack: (sku: PackSku) => void;
   openCbq: (subject: PackSubject) => void;
@@ -315,7 +330,7 @@ export interface PacksShopApi {
    * PARENT-PACKS-1 - "Forward link to parents" (+ "Share QR code" unless `noQr`) for this pack: a link that carries ONLY this pack,
    * minted by the server for the signed-in student. null when it does not apply (signed out, packs dark, owned, paying).
    */
-  parentAsk: (sku: PackSku, target?: string, opts?: { noQr?: boolean }) => ReactNode;
+  parentAsk: (sku: PackSku, target?: string, opts?: ParentAskOpts) => ReactNode;
   /**
    * PACKS-TIDY-1 (additive, read-only): the pack whose pop-up is open (or null) and the subject the shop currently holds (a deep link,
    * a Buy, the pop-up's own switch). /packs uses them to open the matching collapsed row and preselect its Maths / Science switch.
@@ -754,7 +769,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     // (the student navigated away). trackPackPurchase dedupes per transaction id; only the screen updates need a mounted shop.
     if (outcome.status === "paid") {
       resetOwnedPacksCache(); // client cache only: the sale-moment rows must re-ask the server, not offer what was just bought
-      trackPackPurchase({ ...details, valueInr: outcome.amountInr ?? details.valueInr, transactionId: outcome.orderId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
+      trackPackPurchase({ ...details, valueInr: chargedValueInr(outcome.amountInr, details.valueInr), transactionId: outcome.orderId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
     }
     if (!mounted.current && outcome.status !== "pending") return;
     if (outcome.status === "paid") {
@@ -777,7 +792,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
         const status = await checkPackOrder(outcome.orderId);
         if (status.state === "paid") {
           resetOwnedPacksCache();
-          trackPackPurchase({ ...details, valueInr: status.amountInr ?? details.valueInr, transactionId: status.orderId || outcome.orderId || status.paymentId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
+          trackPackPurchase({ ...details, valueInr: chargedValueInr(status.amountInr, details.valueInr), transactionId: status.orderId || outcome.orderId || status.paymentId || outcome.paymentId || attemptId }); // META-PURCHASE-DEDUP-1: order id first
           settled = true;
           settledOrderId = status.orderId || outcome.orderId || "";
           break;
@@ -903,7 +918,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
    * while this pack's own checkout is open / settling (the rescue card owns the closed-sheet moment). Payments / parent pay dark:
    * PaywallActions renders nothing at all.
    */
-  function parentAskFor(sku: PackSku, target: string | undefined, opts: { noQr?: boolean } = {}): ReactNode {
+  function parentAskFor(sku: PackSku, target: string | undefined, opts: ParentAskOpts = {}): ReactNode {
     const t = packHasNoTarget(sku) ? undefined : target;
     if (!enabled || !signedIn || !isValidPackTarget(sku, t)) return null;
     const key = packIdOf(sku, t);
@@ -913,9 +928,13 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     return (
       <PaywallActions
         key={key}
-        surface="pricing"
+        surface={opts.surface ?? "pricing"}
         product={{ kind: "pack", sku, ...(t ? { target: t } : {}), name }}
         noQr={opts.noQr}
+        {...(opts.parentFirst ? { parentFirst: true } : {})}
+        {...(opts.forwardLabel ? { forwardLabel: opts.forwardLabel } : {})}
+        {...(opts.onAsk ? { onAsk: opts.onAsk } : {})}
+        {...(opts.onQr ? { onQr: opts.onQr } : {})}
       />
     );
   }
@@ -987,6 +1006,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             kind="pack"
             buy={{ kind: "pack", sku, ...(target ? { target } : {}) }}
             packLabel={packDescription(sku, target, target ? chapterLabel(target) : undefined)}
+            product={{ kind: "pack", sku, ...(target ? { target } : {}), name: parentPackName(sku, target, sku === "pack_chapter" && target ? chapterLabel(target) : undefined) }}
             onRetry={() => void handleBuy(sku, target)}
             onClose={() => setBuy({ key: "", phase: "idle" })}
           />
@@ -1322,6 +1342,7 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
             kind="pack"
             buy={{ kind: "pack", sku }}
             packLabel={packDescription(sku, undefined, undefined)}
+            product={{ kind: "pack", sku, name: parentPackName(sku, undefined, undefined) }}
             onRetry={() => void handleBuy(sku, undefined)}
             onClose={() => setBuy({ key: "", phase: "idle" })}
           />
@@ -1560,6 +1581,41 @@ function OwnedTestSeriesRow({ pack, mine, when, tidy }: { pack: OwnedPack; mine:
   );
 }
 
+/**
+ * BONUS-BOOK-1 (owner 27 Nov 2026) - a CBQ Pack buyer's bonus: the complete subject book as ONE PDF. Shown only when the server listed
+ * this pack in `bonusBooks` (it is uploaded and the pack is owned and open); the server checks the same entitlement again on the tap.
+ * A server-only file (no browser build): a refusal says so and offers Retry; a switched-off route hides the row.
+ */
+function BonusBookRow({ packId }: { packId: string }) {
+  const [phase, setPhase] = useState<"idle" | "busy" | "saved" | "failed" | "off">("idle");
+  async function get() {
+    if (phase === "busy") return;
+    setPhase("busy");
+    try {
+      const { downloadBonusBookFromServer } = await import("../../lib/packs/serverPdfDownload");
+      const res = await downloadBonusBookFromServer({ packId });
+      if (res.ok) setPhase("saved");
+      else setPhase(res.reason === "disabled" || res.reason === "unavailable" ? "off" : "failed");
+    } catch (err) {
+      if (!recoverFromChunkError(err)) setPhase("failed");
+    }
+  }
+  if (phase === "off") return null;
+  return (
+    <div className="lt-packs__grp" data-testid="bonus-book-row">
+      <ul className="lt-packs__files">
+        <li>
+          <span>Bonus: complete book (PDF)</span>
+          <button type="button" className="lt-packs__btn lt-packs__btn--small" disabled={phase === "busy"} aria-label="Download the bonus complete book (PDF)" data-testid="bonus-book-download" onClick={() => void get()}>
+            {phase === "busy" ? "Preparing PDF\u2026" : phase === "failed" ? "Retry" : phase === "saved" ? "Saved \u2713" : "Download"}
+          </button>
+          {phase === "failed" && <span className="lt-packs__note lt-packs__note--bad" role="alert">That didn&rsquo;t work. Try again.</span>}
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack; mine: MyPacks; openRequest?: number; tidy?: TidyRow }) {
   const { user } = useAuth();
   const [state, setState] = useState<FilesState>({ phase: "closed" });
@@ -1572,6 +1628,8 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
   // SERVER-PDF-1 PR-C: "Download all (ZIP)" per group. A ZIP only ever comes from the server, so when the server cannot make one
   // (kill switch, not ready) the button is simply not shown and each file keeps its own button.
   const [zipBusy, setZipBusy] = useState<string | null>(null);
+  // PACK-PDF-SIZE-1: "Preparing... (n of N files)" while the server builds a big ZIP in the background.
+  const [zipProgress, setZipProgress] = useState<string | null>(null);
   const [zipFailed, setZipFailed] = useState<string | null>(null);
   const [zipSaved, setZipSaved] = useState<ReadonlySet<string>>(() => new Set());
   const [zipOff, setZipOff] = useState<boolean>(() => isServerPdfDisabled());
@@ -1644,9 +1702,10 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
     if (zipBusy || busyId || !groupId) return;
     setZipBusy(groupId);
     setZipFailed(null);
+    setZipProgress(null);
     try {
       const { downloadZipFromServer } = await import("../../lib/packs/serverPdfDownload");
-      const res = await downloadZipFromServer({ packId: pack.packId, groupId, user, expectCodes: [...new Set(g.files.flatMap((f) => f.codes ?? (f.code ? [f.code] : [])))] });
+      const res = await downloadZipFromServer({ packId: pack.packId, groupId, user, expectCodes: [...new Set(g.files.flatMap((f) => f.codes ?? (f.code ? [f.code] : [])))] }, { onProgress: (d, t) => setZipProgress(t > 0 ? `Preparing\u2026 (${d} of ${t} files)` : null) });
       if (res.ok) setZipSaved((prev) => new Set(prev).add(groupId));
       else if (res.reason === "disabled" || res.reason === "unavailable") setZipOff(true);
       else setZipFailed(groupId);
@@ -1654,8 +1713,11 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
       if (!recoverFromChunkError(err)) setZipFailed(groupId);
     } finally {
       setZipBusy(null);
+      setZipProgress(null);
     }
   }
+  // PACK-PDF-SIZE-1: on a touch phone the chapter ZIP is large - the paper rows come first, the ZIP last, with a one-line hint.
+  const coarsePointer = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(pointer: coarse)").matches;
   /** One "Download all (ZIP)" row for a group of two or more files (a one-file group has nothing to zip). */
   function zipRow(g: { group: string; files: Array<{ packId?: string; groupId?: string }> }): ReactNode {
     const groupId = g.files[0]?.groupId;
@@ -1670,9 +1732,10 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
           data-testid="zip-download"
           onClick={() => void downloadZip(g)}
         >
-          {zipBusy === groupId ? "Preparing ZIP\u2026" : zipFailed === groupId ? "Retry" : zipSaved.has(groupId) ? "Saved \u2713" : "Download all (ZIP)"}
+          {zipBusy === groupId ? zipProgress ?? "Preparing ZIP\u2026" : zipFailed === groupId ? "Retry" : zipSaved.has(groupId) ? "Saved \u2713" : "Download all (ZIP)"}
         </button>
         {zipFailed === groupId && <span className="lt-packs__note lt-packs__note--bad" role="alert">That didn&rsquo;t work. Try again.</span>}
+        {coarsePointer && <span className="lt-packs__note" data-testid="zip-phone-hint">On a phone, download one paper at a time &mdash; the full ZIP is large.</span>}
       </div>
     );
   }
@@ -1710,6 +1773,7 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
   }
   const filesBody = (
     <>
+      {pack.sku === "pack_cbq" && mine.bonusBooks?.includes(pack.packId) && <BonusBookRow packId={pack.packId} />}
       {state.phase === "error" && (
         <p className="lt-packs__note lt-packs__note--bad" role="alert">
           We couldn&rsquo;t prepare these files. <button type="button" className="lt-packs__link" onClick={() => void open()}>Retry</button>
@@ -1724,7 +1788,7 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
             g.files.length > 0 && g.files.every((f) => f.codes && f.codes.length > 0) ? (
               <div key={g.group} className="lt-packs__grp" data-testid="cbq-chapter-row">
                 {!tidy && <h4>{g.group}</h4>}
-                {zipRow(g)}
+                {!coarsePointer && zipRow(g)}
                 {(["questions", "answers"] as const).map((mode) => {
                   const parts = g.files.filter((f) => f.id.endsWith(`-${mode}`));
                   if (parts.length === 0) return null;
@@ -1758,11 +1822,12 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
                     </div>
                   );
                 })}
+                {coarsePointer && zipRow(g)}
               </div>
             ) : (
             <div key={g.group} className="lt-packs__grp">
               {!tidy && <h4>{g.group}</h4>}
-              {zipRow(g)}
+              {!coarsePointer && zipRow(g)}
               <ul className="lt-packs__files">
                 {g.files.map((f) => (
                   <li key={f.id}>
@@ -1779,6 +1844,7 @@ function OwnedPackCard({ pack, mine, openRequest = 0, tidy }: { pack: OwnedPack;
                   </li>
                 ))}
               </ul>
+              {coarsePointer && zipRow(g)}
             </div>
             ),
           ))
