@@ -6,6 +6,8 @@
 // built from the text (React escapes it), so there is nothing to inject. A `**` that sits inside an
 // open math span (\( ... \) or \[ ... \]) is left alone, so a product in a formula is never eaten.
 // Pipe tables are not rendered: the prompt forbids them.
+// TUTOR-BULLETS-1 — likewise a line that starts with a markdown bullet (`* ` or `- `) shows as `• `,
+// so the student never sees a stray asterisk. Only at the start of a line, never inside a math span.
 
 import React from "react";
 import { MathText } from "../../components/question/MathText";
@@ -25,6 +27,15 @@ function insideMath(text: string, at: number): boolean {
   return open > 0 || openDisplay > 0;
 }
 
+const LINE_BULLET = /^([ \t]*)[*-][ \t]+(?=\S)/gm;
+
+/** `* point` / `- point` at the start of a line becomes `• point`. Pure; math spans are left alone. */
+export function tidyBullets(text: string): string {
+  return text.replace(LINE_BULLET, (m: string, indent: string, at: number) =>
+    insideMath(text, at) ? m : `${indent}\u2022 `,
+  );
+}
+
 /** Split `text` into plain and bold parts. Pure; concatenating the parts' text (with `**` restored) gives the input. */
 export function splitBold(text: string): TextPart[] {
   const parts: TextPart[] = [];
@@ -40,7 +51,8 @@ export function splitBold(text: string): TextPart[] {
   return parts.length ? parts : [{ text, bold: false }];
 }
 
-export function TutorText({ text }: { text: string }): React.ReactElement {
+export function TutorText({ text: raw }: { text: string }): React.ReactElement {
+  const text = tidyBullets(String(raw ?? ""));
   const parts = splitBold(text);
   if (parts.length === 1 && !parts[0].bold) return <MathText text={text} />;
   return (
