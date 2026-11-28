@@ -289,7 +289,7 @@
       "src/pages/ChapterTestPage.uploadNow.test.tsx": "runtime recorder: repo code read the clock (D54b pin: mintChapterTestId + record gradedAt)",
       "src/pages/desktop/DesktopCheckImprovePage.activation2.test.tsx": "ACT-FIRST-1: the first-action read falls back on the account's age (accountIsNew reads Date.now) while the zero-graded answer is loading",
       "src/pages/desktop/DesktopCheckImprovePage.activationDraft.test.tsx": "ACTIVATION-1: the draft's 30-minute expiry reads the clock (src/services/checkImproveDraft.ts) - the test ages a saved draft across that boundary",
-      "src/pages/desktop/DesktopCheckImprovePage.acTyped.test.tsx": "GST-EXCL-1: price copy is \"+ GST\" from 00:00 IST 7 Nov 2026, read at render (first call site: chapterPackPriceTag)",
+      "src/pages/desktop/DesktopCheckImprovePage.acTyped.test.tsx": "AC-TYPED-1: mounts the real page; the Grade tap reads the clock for the fair-use plan (src/components/usage/useFairUse.ts planGrade) and the price tag at render (chapterPackPriceTag)",
       "src/pages/desktop/DesktopCheckImprovePage.appCheckIntent.test.tsx": "ACTIVATION-1: typing signed-out starts the debounced draft save, which reads the clock to age the draft (src/services/checkImproveDraft.ts saveCiDraft)",
       "src/pages/desktop/DesktopCheckImprovePage.ciDemo.test.tsx": "PRICING-1 runtime recorder: reads the clock at render, at monthlyInline (src/config/pricing.ts:207:78)",
       "src/pages/desktop/DesktopCheckImprovePage.fairUse.test.tsx": "runtime recorder: repo code read the clock at C:\\Projects\\LT-worktrees\\a17-ci-speed-1\\lazytopper\\src\\pages\\desktop\\DesktopCheckImprovePage.fairUse.test.tsx:43:32",
