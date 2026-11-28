@@ -20,6 +20,12 @@ export const QUESTION_BANK_PATH = "/question-bank-class-10";
 export const MARKING_SCHEME_PATH = "/cbse-marking-scheme-class-10";
 /** CC27-SITE-1: the Crash Course 2027 landing. It shares the shell, head and breadcrumb model but is NOT one of the three cross-linked pages. */
 export const CRASH_COURSE_PATH = "/class-10-crash-course-2027";
+/**
+ * SEO-SELL-3 (owner, 28 Nov 2026): the sample-paper search landing, "class 10 maths sample paper". It has a spec (so its head, breadcrumb
+ * and prerender come from this model like the three above) but is NOT in SEO_PAGES_PATHS: that list is the three pages' own cross-link
+ * set. SeoLandingShell links it from "More for Class 10" separately.
+ */
+export const SAMPLE_PAPER_PATH = "/sample-paper-class-10";
 
 /** The three paths, in the order the cross-links list them. */
 export const SEO_PAGES_PATHS: readonly string[] = [MOCK_TEST_PATH, QUESTION_BANK_PATH, MARKING_SCHEME_PATH];
@@ -62,6 +68,15 @@ export const SEO_PAGE_SPECS: Readonly<Record<string, SeoPageSpec>> = {
     description:
       "CBSE Class 10 question bank 2027, chapter-wise for Maths and Science: CBSE pattern, step-marked worked solutions, CBQs and printable packs.",
     linkLabel: "Class 10 question bank",
+  },
+  [SAMPLE_PAPER_PATH]: {
+    path: SAMPLE_PAPER_PATH,
+    crumb: "Class 10 Sample Paper",
+    h1: "CBSE Class 10 Sample Paper 2026-27 \u2014 Maths & Science (2027 Boards)",
+    title: "Class 10 Sample Paper 2026-27: Maths & Science | LazyTopper",
+    description:
+      "CBSE Class 10 sample papers 2026-27 for Maths and Science: 80-mark board-pattern papers, sections A to E, marked step by step like a CBSE examiner.",
+    linkLabel: "Class 10 sample papers",
   },
   [MARKING_SCHEME_PATH]: {
     path: MARKING_SCHEME_PATH,

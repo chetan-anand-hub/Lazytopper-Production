@@ -213,6 +213,14 @@ export function displayPlusGst(baseInr: number, now: Date | number = Date.now())
 export function payDisplay(baseInr: number, now: Date | number = Date.now()): string {
   return formatInr(priceWithGst(baseInr, now));
 }
+/**
+ * SEO-SELL-3 (owner ruling, 28 Nov 2026): what a Buy/Pay BUTTON names for a base price at `now` - the base price WITH its GST
+ * and the amount CHARGED, never the total alone: "₹199 + GST (₹235 total)". Before the GST cut-off the price was all-in: "₹199".
+ * The total is `priceWithGst` (the one GST computation), never typed.
+ */
+export function buyDisplay(baseInr: number, now: Date | number = Date.now()): string {
+  return boardPassGstExclusive(now) ? `${formatInr(baseInr)} + GST (${payDisplay(baseInr, now)} total)` : formatInr(baseInr);
+}
 /** The checkout-step breakup for a base price at `now`: "₹49 + ₹9 GST (18%) = ₹58". Null before the cut-off. */
 export function gstBreakdownFor(baseInr: number, now: Date | number = Date.now()): string | null {
   const c = chargeFor(baseInr, now);

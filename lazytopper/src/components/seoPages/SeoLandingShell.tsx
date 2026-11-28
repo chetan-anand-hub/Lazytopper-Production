@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import PublicLegalFooter from "../ux/PublicLegalFooter";
 import SeoFaq from "../seo/SeoFaq";
 import type { FaqItem } from "../seo/faqContent";
-import { SEO_PAGE_SPECS, SEO_PAGES_PATHS } from "./seoPages";
+import { SAMPLE_PAPER_PATH, SEO_PAGE_SPECS, SEO_PAGES_PATHS } from "./seoPages";
 import "./seoLanding.css";
 
 /**
@@ -57,6 +57,11 @@ export default function SeoLandingShell({ path, testId, eyebrow, sub, cta, heroB
                 <Link to={p}>{SEO_PAGE_SPECS[p].linkLabel}</Link>
               </li>
             ))}
+            {path !== SAMPLE_PAPER_PATH && (
+              <li>
+                <Link to={SAMPLE_PAPER_PATH}>{SEO_PAGE_SPECS[SAMPLE_PAPER_PATH].linkLabel}</Link>
+              </li>
+            )}
             <li>
               <Link to="/practice-hub">Practice hub</Link>
             </li>

@@ -12,7 +12,7 @@
  */
 import { VALIDITY_SHORT } from "../../config/validity";
 import { BOARD_PASS_NAME } from "../../config/pricing";
-import { chaptersOfSubject, packPayLabel, packPriceLabel, subjectLabel, subjectOfChapter, type PackSubject } from "../../services/packs";
+import { chaptersOfSubject, packBuyLabel, packPriceLabel, subjectLabel, subjectOfChapter, type PackSubject } from "../../services/packs";
 import {
   BUNDLE_CHAPTERS,
   BUNDLE_MOCKS,
@@ -91,7 +91,7 @@ export const SEE_INSIDE_LABEL = "See inside + free sample page";
 
 export function cbqBuyLabel(s: PackSubject): string {
   // GST-EXCL-1: a buy button names the amount CHARGED (base + GST from 7 Nov 2026).
-  return `${subjectLabel(s)} CBQ · ${packPayLabel("pack_cbq")}`;
+  return `${subjectLabel(s)} CBQ · ${packBuyLabel("pack_cbq")}`;
 }
 
 /* ── More printed practice (#packs) ──────────────────────────────────────── */
@@ -104,13 +104,13 @@ export function bundleBadge(now: Date | number = Date.now()): string {
   return isPreboardsSeason(now) ? `${PREBOARDS_PICK_BADGE} · both subjects` : "Both subjects";
 }
 export const BUNDLE_BODY = `Both Subject Packs: all ${BUNDLE_CHAPTERS} chapters of chapter-wise questions + all ${BUNDLE_MOCKS} board mock papers. CBQ Packs are separate.`;
-export const BUNDLE_BUY_LABEL = `Buy the Bundle · ${packPayLabel("pack_bundle")}`;
+export const BUNDLE_BUY_LABEL = `Buy the Bundle · ${packBuyLabel("pack_bundle")}`;
 export { BUNDLE_NAME };
 
 export const CHAPTER_TITLE = "Chapter Pack";
 export const CHAPTER_BODY = "One weak chapter: its important questions with the marking guide.";
 export function chapterBuyLabel(s: PackSubject): string {
-  return `Choose a ${subjectLabel(s)} chapter · ${packPayLabel("pack_chapter")}`;
+  return `Choose a ${subjectLabel(s)} chapter · ${packBuyLabel("pack_chapter")}`;
 }
 
 export const ONE_SUBJECT_TITLE = "Only need one subject?";
@@ -269,7 +269,7 @@ export function stickyPassCopy(price: string, payPrice: string = price): { label
   return { label: `${BOARD_PASS_NAME} ${price}`, button: `Pay ${payPrice}` };
 }
 export function stickyCbqCopy(s: PackSubject): { label: string; button: string } {
-  return { label: `${subjectLabel(s)} CBQ Pack ${packPriceLabel("pack_cbq")}`, button: `Buy ${packPayLabel("pack_cbq")}` };
+  return { label: `${subjectLabel(s)} CBQ Pack ${packPriceLabel("pack_cbq")}`, button: `Buy ${packBuyLabel("pack_cbq")}` };
 }
 
 /* ── The subject the packs follow ────────────────────────────────────────── */

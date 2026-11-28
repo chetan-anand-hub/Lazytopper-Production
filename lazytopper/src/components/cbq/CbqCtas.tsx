@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { packPayLabel, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
+import { packBuyLabel, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
 import { buyHrefFor } from "../packs/offersModel";
 
 /**
@@ -23,7 +23,7 @@ export function cbqBuyHref(subject: PackSubject): string {
 
 /** "Buy Maths CBQ · ₹199" - the button label (price from the pack constants). */
 export function cbqBuyLabel(subject: PackSubject): string {
-  return `Buy ${subjectLabel(subject)} CBQ · ${packPayLabel("pack_cbq")}`;
+  return `Buy ${subjectLabel(subject)} CBQ · ${packBuyLabel("pack_cbq")}`;
 }
 
 /**

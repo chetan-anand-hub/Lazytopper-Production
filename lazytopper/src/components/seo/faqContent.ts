@@ -136,6 +136,39 @@ export const MOCK_TEST_FAQ: readonly FaqItem[] = [
   },
 ];
 
+// SEO-SELL-3 (owner, 28 Nov 2026) - the FAQ on /sample-paper-class-10 (src/pages/SamplePaperClass10Page.tsx). Number-free like the rest; the
+// banned words (free, answer key, solutions, app) never appear. Every sentence restates the paper pattern or a rule the product already shows.
+export const SAMPLE_PAPER_FAQ: readonly FaqItem[] = [
+  {
+    question: "Where can I find CBSE Class 10 sample papers for 2026-27?",
+    answer: `CBSE publishes its own official sample papers and marking schemes on its website. LazyTopper adds ${MOCKS_PER_SUBJECT} separate board-pattern practice papers for Maths and ${MOCKS_PER_SUBJECT} for Science, each with the same sections and marks as the board paper.`,
+  },
+  {
+    question: "What is the pattern of the Class 10 Maths sample paper?",
+    answer:
+      "Each Maths paper is 80 marks in five sections: Section A has 20 questions of 1 mark, Section B has 5 of 2 marks, Section C has 6 of 3 marks, Section D has 4 of 5 marks and Section E has 3 case-based questions of 4 marks. The Maths papers follow the Standard (041) pattern, and about half of each paper is competency-based.",
+  },
+  {
+    question: "Is the Science sample paper built the same way?",
+    answer:
+      "Yes. Each Science paper is also 80 marks across Sections A to E with the same number of questions and marks in each section, and about half of the paper is competency-based.",
+  },
+  {
+    question: "How is my sample paper marked?",
+    answer:
+      "Board answers are marked in steps, so the formula, the working, the final answer and the unit can each earn marks. Photograph your written answers and the paper is marked step by step like a CBSE examiner, with the lost marks shown. Section A questions score full marks or zero on the answer alone.",
+  },
+  {
+    question: "Can I print the sample papers?",
+    answer: `Yes. The Mock Pack is a printable PDF of ${MOCKS_PER_SUBJECT} board-pattern papers for one subject, each with a marking guide. The ${BUNDLE_NAME} adds every chapter question bank and both subjects' papers.`,
+  },
+  {
+    question: "Is this the real 2027 board paper?",
+    answer:
+      "No. A sample paper is practice in the board pattern, not the actual paper. LazyTopper is an independent platform and is not affiliated with CBSE.",
+  },
+];
+
 export const QUESTION_BANK_FAQ: readonly FaqItem[] = [
   {
     question: "What is in the LazyTopper Class 10 question bank?",
@@ -300,6 +333,7 @@ export function faqItemsForPath(path: string): readonly FaqItem[] | null {
   // SEO-PAGES-1 — the three search-landing pages.
   if (path === "/mock-test-class-10") return MOCK_TEST_FAQ;
   if (path === "/question-bank-class-10") return QUESTION_BANK_FAQ;
+  if (path === "/sample-paper-class-10") return SAMPLE_PAPER_FAQ;
   if (path === "/cbse-marking-scheme-class-10") return MARKING_SCHEME_FAQ;
   if (path === "/class-10-crash-course-2027") return CRASH_COURSE_FAQ; // CC27-SITE-1
   // SEO-LLM-2 — the pack pages and the two important-questions pages.

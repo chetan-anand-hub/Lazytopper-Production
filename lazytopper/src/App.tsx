@@ -80,6 +80,7 @@ const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
 const MockTestClass10Page = lazy(() => import("./pages/MockTestClass10Page"));
 const CrashCourse2027Page = lazy(() => import("./pages/CrashCourse2027Page"));
 const QuestionBankClass10Page = lazy(() => import("./pages/QuestionBankClass10Page"));
+const SamplePaperClass10Page = lazy(() => import("./pages/SamplePaperClass10Page"));
 const MarkingSchemeClass10Page = lazy(() => import("./pages/MarkingSchemeClass10Page"));
 const ForParentsPage = lazy(() => import("./pages/ForParentsPage"));
 // CBQ-SEO-1 — the public CBQ hub and per-chapter pages.
@@ -1163,6 +1164,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
           <Route path="/class-10-crash-course-2027" element={withRouteSuspense(<CrashCourse2027Page />)} />
           <Route path="/question-bank-class-10" element={withRouteSuspense(<QuestionBankClass10Page />)} />
           <Route path="/cbse-marking-scheme-class-10" element={withRouteSuspense(<MarkingSchemeClass10Page />)} />
+          <Route path="/sample-paper-class-10" element={withRouteSuspense(<SamplePaperClass10Page />)} />
           <Route path="/for-parents" element={withRouteSuspense(<ForParentsPage />)} />
           {/* CBQ-SEO-1 — public, signed-out readable; self-canonical (canonicalUrl.ts) and prerendered. */}
           <Route path="/cbq-class-10" element={withRouteSuspense(<CbqHubPage />)} />

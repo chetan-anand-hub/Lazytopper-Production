@@ -26,7 +26,7 @@ vi.mock("../../services/firebaseClient", () => ({ authClient: { currentUser: nul
 
 import { PassCheckoutView, boardPassActiveUntilCopy, tillBoardsButtonLabel } from "./PassCheckout";
 // GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
-import { packPayLabel } from "../../services/packs";
+import { packBuyLabel } from "../../services/packs";
 
 afterEach(() => {
   cleanup();
@@ -80,8 +80,8 @@ describe("the Board Pass payment-success screen", () => {
     expect((await screen.findByTestId("pass-checkout-paid")).textContent).toBe("Your Board Pass is active until 17 February 2027.");
     const offer = await screen.findByTestId("pass-offer-pass_success");
     expect(offer.textContent).toContain("Your Board Pass is on. Prefer practising on paper too? The CBQ Packs put the case-based questions in print");
-    expect(screen.getByTestId("pass-offer-buy-pack_cbq-maths").textContent).toBe(`Maths ${packPayLabel("pack_cbq")}`);
-    expect(screen.getByTestId("pass-offer-buy-pack_cbq-science").textContent).toBe(`Science ${packPayLabel("pack_cbq")}`);
+    expect(screen.getByTestId("pass-offer-buy-pack_cbq-maths").textContent).toBe(`Maths ${packBuyLabel("pack_cbq")}`);
+    expect(screen.getByTestId("pass-offer-buy-pack_cbq-science").textContent).toBe(`Science ${packBuyLabel("pack_cbq")}`);
     expect(screen.getAllByTestId(/^pass-offer-pass_/)).toHaveLength(1);
   });
   it("packs dark: the success screen is exactly today's (no offer, nothing loaded)", async () => {

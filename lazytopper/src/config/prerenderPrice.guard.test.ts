@@ -17,7 +17,7 @@ import { join, resolve, relative } from "node:path";
 import { parentPriceModel } from "../pages/ForParentsPage";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import { PACK_PRICE_INR, packBaseInr, packGstBreakdown, type PackSku } from "../services/packs";
-import { boardPassFoundingPriceLine, boardPassGstBreakdown, boardPassGstExclusive, displayPlusGst, GST_EXCLUSIVE_FROM_MS, payDisplay } from "./pricing";
+import { boardPassFoundingPriceLine, boardPassGstBreakdown, boardPassGstExclusive, displayPlusGst, GST_EXCLUSIVE_FROM_MS, payDisplay, buyDisplay } from "./pricing";
 
 const ROOT = resolve(__dirname, "../../prerendered");
 
@@ -37,6 +37,8 @@ const LABELS = Object.keys(PACK_BY_LABEL).map((l) => l.replace(/[+]/g, "\\+")).j
 // GST-EXCL-1: a price TAG may carry " + GST" (from 7 Nov 2026); the captured group is the WHOLE shown figure, so a snapshot
 // that drops or adds the suffix is a mismatch exactly like a changed number.
 const AMT = "₹([\\d,]+(?: \\+ GST)?)";
+// SEO-SELL-3: a Buy button names the tag AND the total: "₹199 + GST (₹235 total)" (the whole shown figure is captured).
+const AMTB = "₹([\\d,]+(?: \\+ GST \\(₹[\\d,]+ total\\))?)";
 
 function listHtml(dir: string): string[] {
   const out: string[] = [];
@@ -55,15 +57,15 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   const claimed = new Set<number>();
   const take = (re: RegExp, product: (m: RegExpExecArray) => string, expected: (m: RegExpExecArray) => string | null) => {
     for (const m of html.matchAll(new RegExp(re.source, "g"))) {
-      const amtIdx = m.index! + m[0].lastIndexOf("₹");
-      claimed.add(amtIdx);
+      // SEO-SELL-3: the shown figure may hold two rupee tokens ("₹199 + GST (₹235 total)"): the whole figure is checked, so claim both.
+      for (let i = m[0].indexOf("₹"); i !== -1; i = m[0].indexOf("₹", i + 1)) claimed.add(m.index! + i);
       const exp = expected(m as RegExpExecArray);
       found.push({ file, product: product(m as RegExpExecArray), shown: `₹${m[m.length - 1]}`, expected: exp ?? "(unquotable)" });
     }
   };
   // GST-EXCL-1 (owner scope, 4 Nov 18:23 IST): a TAG is "₹49 + GST" from the cut-off; a Buy/Pay BUTTON names the amount CHARGED.
   const packExp = (label: string) => displayPlusGst(packBaseInr(PACK_BY_LABEL[label], now), now);
-  const packPay = (label: string) => payDisplay(packBaseInr(PACK_BY_LABEL[label], now), now);
+  const packPay = (label: string) => buyDisplay(packBaseInr(PACK_BY_LABEL[label], now), now);
   // /for-parents Board Pass (ForParentsPage: <span class="lt-fp__price-amt">). PRICE-FIXED-1: there is no Month pass line.
   // PARENTS-V2-1: the hero price card (`fp-price-amt`), the two Pay buttons (hero + second), the founding-price line and the CBQ price.
   take(new RegExp(`data-testid="fp-price-amt">${AMT}`), () => "Board Pass", () => model?.boardPassDisplay ?? null);
@@ -98,7 +100,7 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
   take(new RegExp(`(?:>|\\. |^)(${LABELS}) · ${AMT}<`), (m) => m[1], (m) => packExp(m[1]));
   take(new RegExp(`(${LABELS}) ${AMT}(?: ·|\\.)`), (m) => m[1], (m) => packExp(m[1]));
   // BYTE-CBQ-1: the one-tap "Buy Maths CBQ · ₹199" buttons (hub hero + every CBQ chapter page) and the hub hero's price line.
-  take(new RegExp(`Buy (Maths|Science) CBQ · ${AMT}<`), (m) => `${m[1]} CBQ Pack (one-tap button)`, (m) => packPay(`${m[1]} CBQ Pack`));
+  take(new RegExp(`Buy (Maths|Science) CBQ · ${AMTB}<`), (m) => `${m[1]} CBQ Pack (one-tap button)`, (m) => packPay(`${m[1]} CBQ Pack`));
   take(new RegExp(`CBQ Pack ${AMT} per subject`), () => "CBQ Pack (hub hero price line)", () => packExp("Maths CBQ Pack"));
   take(new RegExp(`One-time ${AMT} per pack`), () => "CBQ Pack (one-time line)", () => packExp("Maths CBQ Pack"));
   // PACKS-TIDY-2: /packs as "Question Bank + Mocks" (captured with packs dark): the Bundle's price, each row's summary price, the
@@ -109,7 +111,7 @@ export function scanSnapshot(file: string, html: string, now: Date, boardIso: st
     take(new RegExp(`class="lt-pk-row__name">(${LABELS})</span><span class="lt-pk-row__price">${AMT}`), (m) => m[1], (m) => packExp(m[1]));
     // Review N1: the static neutral buttons name the TOTAL charged, as the app's Buy does ("Bundle · ₹353", a row's "₹235").
     const neutralSku: Record<string, string> = { bundle: "Maths + Science Bundle", subject: "Subject Pack", mock: "Mock Pack", "test-series": "Test Series Pack" };
-    take(new RegExp(`data-testid="pk-buy-(bundle|subject|mock|test-series)-neutral">(?:Bundle · |Test Series · )?${AMT}<`), (m) => `${neutralSku[m[1]]} (neutral button)`, (m) => packPay(neutralSku[m[1]]));
+    take(new RegExp(`data-testid="pk-buy-(bundle|subject|mock|test-series)-neutral">(?:Bundle · |Test Series · )?${AMTB}<`), (m) => `${neutralSku[m[1]]} (neutral button)`, (m) => packPay(neutralSku[m[1]]));
     // v1.2: the accessible names that carry a price (a compact button's "<Pack> · <price>", the CBQ link's full line).
     take(new RegExp(`aria-label="(${LABELS}) · ${AMT}"`), (m) => `${m[1]} (accessible name)`, (m) => packExp(m[1]));
     take(new RegExp(`aria-label="CBQ Packs · [^"·]*· ${AMT}\\.`), () => "CBQ Pack (packs link name)", () => packExp("Maths CBQ Pack"));
@@ -309,12 +311,12 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     expect(mismatchMessages(bad.found).sort()).toEqual([
       `x.html: snapshot shows ₹${PACK_PRICE_INR.pack_mock} for Mock Pack, live price is ₹${PACK_PRICE_INR.pack_mock} + GST — re-capture the prerender (capture job artifact flow)`,
       "x.html: snapshot shows ₹1,917 for Board Pass (Pay button), live price is ₹2,262 — re-capture the prerender (capture job artifact flow)",
-      `x.html: snapshot shows ₹${PACK_PRICE_INR.pack_cbq} for Maths CBQ Pack (one-tap button), live price is ${payDisplay(PACK_PRICE_INR.pack_cbq, after)} — re-capture the prerender (capture job artifact flow)`,
+      `x.html: snapshot shows ₹${PACK_PRICE_INR.pack_cbq} for Maths CBQ Pack (one-tap button), live price is ${buyDisplay(PACK_PRICE_INR.pack_cbq, after)} — re-capture the prerender (capture job artifact flow)`,
     ].sort());
     const fresh =
       `<li class="lt-fpk__item"><span class="lt-fpk__name">Mock Pack</span><span class="lt-fpk__price" data-testid="fp-packs-price">₹${PACK_PRICE_INR.pack_mock} + GST</span></li>` +
       `<button data-testid="fp-pay-hero">Pay for my child · ₹2,262</button>` +
-      `<a>Buy Maths CBQ · ${payDisplay(PACK_PRICE_INR.pack_cbq, after)}</a>`;
+      `<a>Buy Maths CBQ · ${buyDisplay(PACK_PRICE_INR.pack_cbq, after)}</a>`;
     const good = scanSnapshot("x.html", fresh, after, board);
     expect(good.unclaimed).toEqual([]);
     expect(mismatchMessages(good.found)).toEqual([]);

@@ -25,7 +25,7 @@ import {
   isAlreadyOwned,
   ownsCbq,
   ownsTestSeries,
-  packPayLabel,
+  packBuyLabel,
   packPriceLabel,
   testSeriesPriceLine,
   subjectLabel,
@@ -127,12 +127,12 @@ function boardPassItem(i: CrossSellInput): CrossSellItem | null {
 function testSeriesItem(i: CrossSellInput): CrossSellItem | null {
   if (!i.packsOn || !i.tsOffered || i.packs === null || i.paidPremium !== false) return null;
   if (i.ownsTestSeriesFlag === true || ownsTestSeries(i.packs)) return null;
-  return { id: "test_series", title: "Test Series", benefit: testSeriesXsellBenefit(), price: testSeriesPriceLine(i.now), cta: `Add the Test Series — ${packPayLabel("test_series", i.now)}`, href: TEST_SERIES_BUY_PATH };
+  return { id: "test_series", title: "Test Series", benefit: testSeriesXsellBenefit(), price: testSeriesPriceLine(i.now), cta: `Add the Test Series — ${packBuyLabel("test_series", i.now)}`, href: TEST_SERIES_BUY_PATH };
 }
 
 function pdfItem(i: CrossSellInput): CrossSellItem | null {
   if (!i.packsOn || i.packs === null || isAlreadyOwned(i.packs, "pack_bundle")) return null;
-  return { id: "pdf_packs", title: `PDF Packs · ${BUNDLE_NAME}`, benefit: PDF_XSELL_BENEFIT, price: packPriceLabel("pack_bundle", i.now), cta: `Get the Bundle — ${packPayLabel("pack_bundle", i.now)}`, href: PDF_XSELL_HREF };
+  return { id: "pdf_packs", title: `PDF Packs · ${BUNDLE_NAME}`, benefit: PDF_XSELL_BENEFIT, price: packPriceLabel("pack_bundle", i.now), cta: `Get the Bundle — ${packBuyLabel("pack_bundle", i.now)}`, href: PDF_XSELL_HREF };
 }
 
 function cbqItem(i: CrossSellInput): CrossSellItem | null {
@@ -141,7 +141,7 @@ function cbqItem(i: CrossSellInput): CrossSellItem | null {
   const open = PACK_SUBJECTS.filter((s) => !ownsCbq(packs, s));
   if (open.length === 0) return null;
   const price = packPriceLabel("pack_cbq", i.now);
-  const pay = packPayLabel("pack_cbq", i.now);
+  const pay = packBuyLabel("pack_cbq", i.now);
   if (open.length === 2) return { id: "cbq_packs", title: "CBQ Packs", benefit: CBQ_XSELL_BENEFIT, price: `${price} per subject`, cta: `Get the CBQ Packs — ${pay} each`, href: CBQ_PAGE_HREF };
   const s: PackSubject = open[0];
   return { id: "cbq_packs", title: `${subjectLabel(s)} CBQ Pack`, benefit: CBQ_XSELL_BENEFIT, price, cta: `Get the ${subjectLabel(s)} CBQ Pack — ${pay}`, href: `/packs?buy=pack_cbq&t=${s}` };

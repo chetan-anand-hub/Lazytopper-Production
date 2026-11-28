@@ -17,7 +17,7 @@ import { isParentPayClientEnabled } from "../../services/parentPay";
 import { COMPARE_BASIC_HEADER, COMPARE_FEATURE_HEADER, FAIR_USE_TITLE, compareSections, fairUseCopy, type CompareCell } from "../../config/pricingCompare";
 import { isPaymentsClientEnabled } from "../../services/checkout";
 import { isGuestPayClientEnabled } from "../../services/guestPay";
-import { PACK_PAID_COPY, isTestSeriesPackOffered, packPayLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
+import { PACK_PAID_COPY, isTestSeriesPackOffered, packBuyLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import ParentReturnLink from "../../components/parents/ParentReturnLink";
 import { FOUNDER_BADGE_TEXT } from "../../components/brand/FounderBadge";
 import { useMonthPassAvailable } from "../../components/pricing/useMonthPassAvailable";
@@ -891,10 +891,10 @@ export default function PricingHub({ parts }: { parts: HubLegacyParts }) {
   };
   const series = seriesTotals();
   const tsHead = hubTsHeadline(series);
-  /** TS-UX-PAGE-1: "Get the Test Series · ₹1,179" - the total CHARGED (packPayLabel), written after mount like every clock figure. */
+  /** TS-UX-PAGE-1: "Get the Test Series · ₹1,179" - the total CHARGED (packBuyLabel), written after mount like every clock figure. */
   const tsBuyLabel = (
     <span>
-      {HUB_TS_BUY} · <TsClockSlot variant="amt">{packPayLabel("test_series")}</TsClockSlot>
+      {HUB_TS_BUY} · <TsClockSlot variant="buy">{packBuyLabel("test_series")}</TsClockSlot>
     </span>
   );
   const tsCard = (api: PacksShopApi) => {

@@ -129,6 +129,10 @@
       "destination": "/__shell.html"
     },
     {
+      "source": "/:path(sample-paper-class-10/?)",
+      "destination": "/__shell.html"
+    },
+    {
       "source": "/:path(for-parents/?)",
       "destination": "/__shell.html"
     },

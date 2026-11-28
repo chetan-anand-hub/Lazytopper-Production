@@ -69,7 +69,7 @@ vi.mock("../components/pricing/PaywallActions", async (orig) => {
 import TestSeriesPage, { TS_PARENT_SHARE_FALLBACK, TS_PARENT_SHARE_PATH } from "./TestSeriesPage";
 import { buildParentSeriesShareMessage } from "../services/parentPayPack";
 import * as analytics from "../analytics/analytics";
-import { packPayLabel } from "../services/packs";
+import { packBuyLabel } from "../services/packs";
 
 function Where() {
   const l = useLocation();
@@ -96,7 +96,7 @@ const card = (id: "ts-hero-offer" | "ts-offer-ts") => within(screen.getByTestId(
 function expectBuyUnchanged() {
   for (const [offer, id] of [["ts-hero-offer", "ts-hero-buy"], ["ts-offer-ts", "ts-cta-buy"]] as const) {
     const buy = card(offer).getByTestId(id);
-    expect(buy.textContent).toBe(`Get the Test Series · ${packPayLabel("test_series")}`);
+    expect(buy.textContent).toBe(`Get the Test Series · ${packBuyLabel("test_series")}`);
     expect(buy.className).toContain("lt-ts-btn lt-ts-btn--primary lt-ts-offer__btn");
   }
 }

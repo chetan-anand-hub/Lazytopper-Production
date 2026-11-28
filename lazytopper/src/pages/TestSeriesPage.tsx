@@ -7,7 +7,7 @@ import { useSubscription } from "../hooks/useSubscription";
 import { getSessionRecordsFromCloud } from "../services/sessionRecords";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import { boardPassPriceDisplay, FOUNDING_OFFER_LAST_DAY_LABEL, foundingOfferOpen } from "../config/pricing";
-import { isPacksClientEnabled, isTestSeriesPackOffered, packPayLabel, packPriceLabel, testSeriesFoundingClause, testSeriesPriceLine, TEST_SERIES_CHECKS_PER_PAPER } from "../services/packs";
+import { isPacksClientEnabled, isTestSeriesPackOffered, packBuyLabel, packPriceLabel, testSeriesFoundingClause, testSeriesPriceLine, TEST_SERIES_CHECKS_PER_PAPER } from "../services/packs";
 import { isPaidPremium } from "../services/subscriptionService";
 import { useTestSeriesOwnership } from "../components/testSeries/testSeriesOwnership";
 import { freeWrittenCheckDisabled } from "../lib/testSeries/seriesAccess";
@@ -348,12 +348,12 @@ export default function TestSeriesPage() {
   const allTests = useMemo(() => [...chapters, ...mocks], [chapters, mocks]);
   const nextTest = progress ? allTests.find((t) => (progress.byCode[t.code]?.status ?? "not-started") === "not-started") ?? null : null;
 
-  // The Buy label: the TOTAL charged (packPayLabel, never typed here, so the 1 Dec switch flows through), written after mount like every
+  // The Buy label: the TOTAL charged (packBuyLabel, never typed here, so the 1 Dec switch flows through), written after mount like every
   // clock-derived figure (the prerender capture strips it; the reserved slot keeps the button's size).
   const buyLabel = (
     // One <span>: the button is an inline-flex box, which would otherwise swallow the space before the figure ("·₹1,179").
     <span>
-      Get the Test Series · <TsClockSlot variant="amt">{packPayLabel("test_series")}</TsClockSlot>
+      Get the Test Series · <TsClockSlot variant="buy">{packBuyLabel("test_series")}</TsClockSlot>
     </span>
   );
   // ONE Buy per card, each its own button: in place (the shop's own checkout sheet opens HERE and closing it leaves the student on this

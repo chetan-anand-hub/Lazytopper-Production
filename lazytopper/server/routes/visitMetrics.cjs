@@ -53,7 +53,7 @@ const ROUTE_PREFIXES = Object.freeze([
   'check-improve', 'check-your-answer', 'contact', 'exam-simulation', 'exam-trends', 'for-parents', 'free-mcq-class-10', 'full-mock',
   'highly-probable', 'important-question-of-the-day', 'intent', 'invoice-details', 'legal', 'login', 'me', 'mentor', 'mock-builder',
   'mock-paper', 'mock-test-class-10', 'ncert-class-10', 'ncert-exemplar', 'ncert-solutions', 'notes', 'onboarding', 'packs', 'practice',
-  'practice-hub', 'pricing', 'profile', 'question-bank-class-10', 'sign-up', 'teacher', 'test-series', 'topic-hub', 'topic-mock', 'tutor',
+  'practice-hub', 'pricing', 'profile', 'question-bank-class-10', 'sample-paper-class-10', 'sign-up', 'teacher', 'test-series', 'topic-hub', 'topic-mock', 'tutor',
   'u', 'weak-area-practice', 'welcome',
 ]);
 const SLUG_PREFIXES = Object.freeze(['cbq-class-10', 'free-mcq-class-10', 'important-question-of-the-day', 'legal', 'mock-paper', 'ncert-exemplar', 'ncert-solutions', 'notes']);

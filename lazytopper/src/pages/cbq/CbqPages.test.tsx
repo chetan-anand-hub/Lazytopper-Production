@@ -8,7 +8,7 @@ import { cbqChapterPath, cbqChapterSlugs, cbqChapterTopics } from "../../compone
 import { PACK_PRICE_INR } from "../../services/packs";
 import { CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
 // GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
-import { packPayLabel } from "../../services/packs";
+import { packBuyLabel } from "../../services/packs";
 
 afterEach(() => cleanup());
 
@@ -72,8 +72,8 @@ describe("CBQ-SEO-1 hub page", () => {
     expect(hero.textContent).toContain(`₹${PACK_PRICE_INR.pack_cbq}`);
     const maths = screen.getByTestId("cbq-hero-buy-maths");
     const science = screen.getByTestId("cbq-hero-buy-science");
-    expect(maths.textContent).toBe(`Buy Maths CBQ · ${packPayLabel("pack_cbq")}`);
-    expect(science.textContent).toBe(`Buy Science CBQ · ${packPayLabel("pack_cbq")}`);
+    expect(maths.textContent).toBe(`Buy Maths CBQ · ${packBuyLabel("pack_cbq")}`);
+    expect(science.textContent).toBe(`Buy Science CBQ · ${packBuyLabel("pack_cbq")}`);
     expect(maths.getAttribute("href")).toBe("/packs?buy=pack_cbq&t=maths");
     expect(science.getAttribute("href")).toBe("/packs?buy=pack_cbq&t=science");
     const h1 = screen.getByRole("heading", { level: 1 }).textContent ?? "";

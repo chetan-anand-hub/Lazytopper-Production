@@ -1,0 +1,450 @@
+{
+ "FM-M1": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Standard"
+ },
+ "FM-M2": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Standard"
+ },
+ "FM-M3": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Standard"
+ },
+ "FM-M4": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Easier"
+ },
+ "FM-M5": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 41,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Standard"
+ },
+ "FM-M6": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Easier"
+ },
+ "FM-M7": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Standard"
+ },
+ "FM-M8": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Harder"
+ },
+ "FM-S1": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 41,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Easier"
+ },
+ "FM-S2": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 41,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Harder"
+ },
+ "FM-S3": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Easier"
+ },
+ "FM-S4": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Easier"
+ },
+ "FM-S5": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Easier"
+ },
+ "FM-S6": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Standard"
+ },
+ "FM-S7": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Standard"
+ },
+ "FM-S8": {
+  "marks": 80,
+  "questions": 38,
+  "cbqMarks": 40,
+  "sections": {
+   "A": {
+    "count": 20,
+    "marks": 20
+   },
+   "B": {
+    "count": 5,
+    "marks": 10
+   },
+   "C": {
+    "count": 6,
+    "marks": 18
+   },
+   "D": {
+    "count": 4,
+    "marks": 20
+   },
+   "E": {
+    "count": 3,
+    "marks": 12
+   }
+  },
+  "difficulty": "Harder"
+ }
+}
