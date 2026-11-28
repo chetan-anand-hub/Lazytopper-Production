@@ -26,10 +26,11 @@ export function isPassStartDisabled(): boolean {
 }
 
 /** A PAID pass that has not ended: premium with a readable, future `passEnd`. A legacy premium with no passEnd is not a pass. PURE. */
-export function isActivePassHolder(status: SubscriptionStatus | null | undefined, nowMs: number = Date.now()): boolean {
+export function isActivePassHolder(status: SubscriptionStatus | null | undefined, nowMs?: number): boolean {
   if (!status || status.tier !== "premium" || typeof status.passEnd !== "string") return false;
   const end = Date.parse(status.passEnd);
-  return Number.isFinite(end) && end > nowMs;
+  // The clock is read only once the account has a stored paid-pass end to compare it with.
+  return Number.isFinite(end) && end > (nowMs ?? Date.now());
 }
 
 export function isPassStartDismissed(uid: string): boolean {
