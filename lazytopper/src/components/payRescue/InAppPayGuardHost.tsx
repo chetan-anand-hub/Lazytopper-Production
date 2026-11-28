@@ -32,9 +32,8 @@ const leaderNow = (): symbol | null => hosts[0] ?? null;
 const notifyHosts = () => hostListeners.forEach((l) => l());
 
 export default function InAppPayGuardHost() {
-  const idRef = useRef<symbol>(Symbol("guard-host"));
+  const [id] = useState<symbol>(() => Symbol("guard-host"));
   useEffect(() => {
-    const id = idRef.current;
     hosts.push(id);
     notifyHosts();
     return () => {
@@ -42,8 +41,8 @@ export default function InAppPayGuardHost() {
       if (i >= 0) hosts.splice(i, 1);
       notifyHosts();
     };
-  }, []);
-  const leader = useSyncExternalStore(subscribeHosts, leaderNow, () => null) === idRef.current;
+  }, [id]);
+  const leader = useSyncExternalStore(subscribeHosts, leaderNow, () => null) === id;
   const req = useSyncExternalStore(subscribeInAppGuard, currentInAppGuard, () => null);
   const [notice, setNotice] = useState<string | null>(null);
   const shownFor = useRef<unknown>(null);
