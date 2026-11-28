@@ -693,6 +693,10 @@
 .lt-ts .lt-tsclk--amt {
   min-width: 5.5ch;
 }
+/* SEO-SELL-3: a Buy button names base + GST AND the total, so its reserved slot is wider. */
+.lt-ts .lt-tsclk--buy {
+  min-width: 25ch;
+}
 .lt-ts button.lt-ts-btn {
   cursor: pointer;
   font-family: inherit;

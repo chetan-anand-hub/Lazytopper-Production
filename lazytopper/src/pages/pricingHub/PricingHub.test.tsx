@@ -103,7 +103,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { BANK_CBQS_CLAIM, BANK_QUESTIONS_CLAIM, BUNDLE_QUESTIONS_CLAIM, CBQ_SUBJECT_CLAIM } from "../../lib/packs/packLabels";
 import { boardPassPayDisplay, boardPassPriceDisplay } from "../../config/pricing";
-import { PACK_PRICE_INR, isTestSeriesPackOffered, packPayLabel, packPriceLabel } from "../../services/packs";
+import { PACK_PRICE_INR, isTestSeriesPackOffered, packBuyLabel, packPriceLabel } from "../../services/packs";
 import { FOUNDER_BADGE_TEXT } from "../../components/brand/FounderBadge";
 import { PRICING_H1 } from "../../components/pricing/pricingPlansCopy";
 import { SERIES_MOCKS_PER_SUBJECT, TEST_SERIES_BUY_PATH, seriesChapterTests, seriesTotals } from "../../lib/testSeries/testSeries";
@@ -243,8 +243,8 @@ describe("the page, top to bottom (§2)", () => {
     expect(c).toHaveTextContent("Step-wise worked solutions");
     expect(c).toHaveTextContent("Printable PDF, your name on every page");
     expect(within(c).getByTestId("hub-cbq-price")).toHaveTextContent(packPriceLabel("pack_cbq"));
-    expect(within(c).getByTestId("hub-buy-pack_cbq-maths")).toHaveTextContent(`Maths · ${packPayLabel("pack_cbq")}`);
-    expect(within(c).getByTestId("hub-buy-pack_cbq-science")).toHaveTextContent(`Science · ${packPayLabel("pack_cbq")}`);
+    expect(within(c).getByTestId("hub-buy-pack_cbq-maths")).toHaveTextContent(`Maths · ${packBuyLabel("pack_cbq")}`);
+    expect(within(c).getByTestId("hub-buy-pack_cbq-science")).toHaveTextContent(`Science · ${packBuyLabel("pack_cbq")}`);
     expect(within(c).getByTestId("hub-cbq-not-in-bundle")).toHaveTextContent("Not in the Bundle.");
     expect(within(c).getByTestId("hub-cbq-details")).toHaveAttribute("href", "/cbq-packs");
   });
@@ -261,7 +261,7 @@ describe("the page, top to bottom (§2)", () => {
     expect(within(c).getByTestId("hub-bank-claim")).toHaveTextContent(`${BUNDLE_QUESTIONS_CLAIM} questions to print in the Bundle`);
     expect(c).toHaveTextContent("Smaller packs: chapter ₹49 · mocks ₹99 · subject ₹199 (+ GST)");
     expect(within(c).getByTestId("hub-bank-price")).toHaveTextContent(packPriceLabel("pack_bundle"));
-    expect(within(c).getByTestId("hub-buy-pack_bundle")).toHaveTextContent(`Buy the Bundle · ${packPayLabel("pack_bundle")}`);
+    expect(within(c).getByTestId("hub-buy-pack_bundle")).toHaveTextContent(`Buy the Bundle · ${packBuyLabel("pack_bundle")}`);
     expect(within(c).getByTestId("hub-bank-separate")).toHaveTextContent("CBQ Packs are separate.");
     expect(within(c).getByTestId("hub-bank-details")).toHaveAttribute("href", "/packs");
   });
@@ -558,7 +558,7 @@ describe("every Buy is the legacy buy path, with the legacy events (§3)", () =>
     });
     expect(buyPack).toHaveBeenCalledWith("pack_cbq", "science", expect.anything());
     fireEvent.click(screen.getByTestId("hub-tab-bank"));
-    expect(bar()).toHaveTextContent(`Buy ${packPayLabel("pack_bundle")}`);
+    expect(bar()).toHaveTextContent(`Buy ${packBuyLabel("pack_bundle")}`);
   });
 });
 
@@ -709,7 +709,7 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
     expect(packPriceLabel("test_series")).toBe(`₹${TEST_SERIES_PRICE_INR} + GST`);
     expect(TEST_SERIES_PRICE_INR).toBe(999);
     // TS-UX-PAGE-1: its own Buy button (in place, not a link to /packs) carrying the TOTAL charged, and the "2 checks per paper" explainer.
-    expect(within(c).getByTestId("hub-buy-test_series")).toHaveTextContent(`Get the Test Series · ${packPayLabel("test_series")}`);
+    expect(within(c).getByTestId("hub-buy-test_series")).toHaveTextContent(`Get the Test Series · ${packBuyLabel("test_series")}`);
     expect(within(c).getByTestId("hub-buy-test_series").tagName).toBe("BUTTON");
     expect(within(c).getByTestId("hub-buy-test_series")).not.toHaveAttribute("href");
     expect(within(c).getByTestId("hub-ts-checks")).toHaveTextContent("Each paper can be checked twice: upload your answers, see your marks, then fix and upload once more. If we can't read your photo, that check isn't counted.");
@@ -817,7 +817,7 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
     fireEvent.click(screen.getByTestId("hub-tab-ts"));
     const bar = screen.getByTestId("pricing-sticky-bar");
     expect(bar).toHaveTextContent(`Test Series ₹${TEST_SERIES_PRICE_INR} + GST`);
-    expect(bar).toHaveTextContent(`Get the Test Series · ${packPayLabel("test_series")}`);
+    expect(bar).toHaveTextContent(`Get the Test Series · ${packBuyLabel("test_series")}`);
     await act(async () => {
       fireEvent.click(screen.getByTestId("pricing-sticky-bar-go"));
       await new Promise((r) => setTimeout(r, 0));
@@ -828,16 +828,16 @@ describe("PRICING-4CARD-1 - four cards, Test Series second (owner 18 Nov 2026 22
     expect(analytics.named).toHaveBeenCalledWith("pricing_ts_buy_tap");
   });
 
-  it("PRICE-HOLD-1: from 1 Dec the card's Buy and the phone bar STILL carry the 999 total (₹1,179) - no switch to 1,499 / ₹1,769", async () => {
+  it("PRICE-HOLD-1: from 1 Dec the card's Buy and the phone bar STILL carry the 999 base + GST and its ₹1,179 total - no switch to 1,499 / ₹1,769", async () => {
     vi.setSystemTime(new Date("2026-12-02T12:00:00+05:30"));
     try {
       auth.user = { uid: "u1" };
       setSub({});
       await renderAt("/pricing");
-      expect(packPayLabel("test_series")).toContain("1,179");
-      expect(screen.getByTestId("hub-buy-test_series")).toHaveTextContent("Get the Test Series · ₹1,179");
+      expect(packBuyLabel("test_series")).toContain("1,179");
+      expect(screen.getByTestId("hub-buy-test_series")).toHaveTextContent("Get the Test Series · ₹999 + GST (₹1,179 total)");
       fireEvent.click(screen.getByTestId("hub-tab-ts"));
-      expect(screen.getByTestId("pricing-sticky-bar")).toHaveTextContent("Get the Test Series · ₹1,179");
+      expect(screen.getByTestId("pricing-sticky-bar")).toHaveTextContent("Get the Test Series · ₹999 + GST (₹1,179 total)");
       expect(document.body.textContent).not.toContain("1,769");
     } finally {
       vi.setSystemTime(new Date("2026-11-11T12:00:00+05:30"));
@@ -1265,7 +1265,7 @@ describe("PRICING-CTA-UP-1 - price + Buy near the top of every card; an honest b
     ]);
     expect(face.textContent).not.toMatch(/tutor|Answer Checker/i);
     expect(within(foot as HTMLElement).getByTestId("hub-ts-price")).toHaveTextContent(packPriceLabel("test_series"));
-    expect(within(foot as HTMLElement).getByTestId("hub-buy-test_series")).toHaveTextContent(`Get the Test Series · ${packPayLabel("test_series")}`);
+    expect(within(foot as HTMLElement).getByTestId("hub-buy-test_series")).toHaveTextContent(`Get the Test Series · ${packBuyLabel("test_series")}`);
     const m = more as HTMLElement;
     expect(within(m).getByTestId("hub-ts-checks")).toHaveTextContent("Each paper can be checked twice");
     expect(within(m).getByTestId("hub-ts-try")).toHaveTextContent("Your first test is free, written answers marked too.");

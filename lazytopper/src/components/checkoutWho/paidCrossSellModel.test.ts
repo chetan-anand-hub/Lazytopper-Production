@@ -1,7 +1,7 @@
 /** PAID-XSELL-1 - the selection matrix: each bought product x owned state x Test Series paused -> the exact items, best first. */
 import { describe, expect, it } from "vitest";
 import { GST_EXCLUSIVE_FROM_MS, boardPassPayDisplay, boardPassPriceDisplay, formatInr } from "../../config/pricing";
-import { packPayLabel, packPriceLabel, testSeriesFoundingClause, testSeriesPriceLine } from "../../services/packs";
+import { packBuyLabel, packPriceLabel, testSeriesFoundingClause, testSeriesPriceLine } from "../../services/packs";
 import { seriesTotals } from "../../lib/testSeries/testSeries";
 import {
   BOARD_PASS_XSELL_BENEFIT,
@@ -94,8 +94,8 @@ describe("PAID-XSELL-1 - never something already owned", () => {
     const both = pickPaidCrossSell(base({ bought: "pdf" })).find((x) => x.id === "cbq_packs");
     expect(both?.href).toBe(CBQ_PAGE_HREF);
     expect(both?.price).toBe(`${packPriceLabel("pack_cbq", NOW)} per subject`);
-    expect(both?.cta).toBe(`Get the CBQ Packs — ${packPayLabel("pack_cbq", NOW)} each`);
-    expect(one?.cta).toBe(`Get the Science CBQ Pack — ${packPayLabel("pack_cbq", NOW)}`);
+    expect(both?.cta).toBe(`Get the CBQ Packs — ${packBuyLabel("pack_cbq", NOW)} each`);
+    expect(one?.cta).toBe(`Get the Science CBQ Pack — ${packBuyLabel("pack_cbq", NOW)}`);
   });
   it("everything owned -> nothing", () => {
     expect(ids(base({ bought: "pass", paidPremium: true, packs: P(BUNDLE, ...CBQ_BOTH) }))).toEqual([]);
@@ -153,15 +153,15 @@ describe("PAID-XSELL-1 - prices, copy and links", () => {
     expect(testSeriesFoundingClause(NOW)).toBeNull(); // PRICE-HOLD-1: no deadline clause
     expect(ts.price).toBe(packPriceLabel("test_series", NOW));
     expect(ts.href).toBe("/packs?buy=test_series");
-    expect(ts.cta).toBe(`Add the Test Series — ${packPayLabel("test_series", NOW)}`);
+    expect(ts.cta).toBe(`Add the Test Series — ${packBuyLabel("test_series", NOW)}`);
     expect(testSeriesXsellBenefit()).toBe(`Get your written answers checked step by step, 2 checks per paper, ${seriesTotals().total} board-pattern tests`);
     expect(cbq.id).toBe("cbq_packs");
     const pdf = pickPaidCrossSell(base({ bought: "cbq" })).find((x) => x.id === "pdf_packs");
     expect(pdf?.price).toBe(packPriceLabel("pack_bundle", NOW));
     expect(pdf?.href).toBe(PDF_XSELL_HREF);
     expect(pdf?.price).toMatch(/^₹299 \+ GST$/);
-    expect(pdf?.cta).toBe(`Get the Bundle — ${packPayLabel("pack_bundle", NOW)}`);
-    expect(pdf?.cta).toBe("Get the Bundle — ₹353");
+    expect(pdf?.cta).toBe(`Get the Bundle — ${packBuyLabel("pack_bundle", NOW)}`);
+    expect(pdf?.cta).toBe("Get the Bundle — ₹299 + GST (₹353 total)");
   });
   it("copy is additive: no overlap / 'already included' / 'don't need' / urgency words, and only internal links", () => {
     const all = (["test_series", "pdf", "cbq", "pass"] as const).flatMap((b) => pickPaidCrossSell(base({ bought: b, paidPremium: b === "pass", credit })));

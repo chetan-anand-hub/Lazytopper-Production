@@ -51,7 +51,7 @@ import * as packs from "../services/packs";
 import { seriesTotals } from "../lib/testSeries/testSeries";
 import { testSeriesPerTestLine, testSeriesExaminerLine } from "../lib/testSeries/seriesPerTest";
 // GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
-import { packPayLabel } from "../services/packs";
+import { packBuyLabel } from "../services/packs";
 
 function Where() {
   const l = useLocation();
@@ -246,7 +246,7 @@ describe("PacksPage", () => {
     fireEvent.change(screen.getByLabelText("Pick your chapter"), { target: { value: "real-numbers" } });
     await waitFor(() => expect(screen.getByTestId("pack-slides").textContent).toMatch(/120 questions/));
     expect(b().disabled).toBe(false);
-    expect(b().textContent).toBe(`Buy · ${packPayLabel("pack_chapter")}`);
+    expect(b().textContent).toBe(`Buy · ${packBuyLabel("pack_chapter")}`);
   });
 
   it("Trigonometry is labelled with both chapters in the picker", async () => {
@@ -325,7 +325,7 @@ describe("PacksPage", () => {
     page();
     tap("bundle");
     const b = await screen.findByTestId("packs-buy-pack_bundle");
-    expect(b.textContent).toBe(`Buy · ${packPayLabel("pack_bundle")}`);
+    expect(b.textContent).toBe(`Buy · ${packBuyLabel("pack_bundle")}`);
     expect(screen.getByTestId("packs-signin-note").textContent).toBe("Quick sign-in (Google, 1 tap), then payment opens.");
     fireEvent.click(b);
     await waitFor(() => expect(screen.getByText("LOGIN")).toBeTruthy());
@@ -670,7 +670,7 @@ describe("TS-PACK-1 · /packs Test Series card", () => {
     buyMock.mockClear();
     page();
     const buy = await screen.findByTestId("tile-buy-test_series");
-    expect(buy.textContent).toBe(`Buy · ${packPayLabel("test_series")}`);
+    expect(buy.textContent).toBe(`Buy · ${packBuyLabel("test_series")}`);
     fireEvent.click(buy);
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));
     expect(buyMock.mock.calls[0][0]).toBe("test_series");

@@ -60,7 +60,7 @@ vi.mock("../services/referralService", () => ({ generateQRDataUrl: vi.fn(async (
 import TestSeriesPage, { TS_PARENT_HERO_LABEL, TS_SELF_BUY_PATH } from "./TestSeriesPage";
 import { TEST_SERIES_BUY_FROM_PATH } from "../lib/testSeries/testSeries";
 import * as analytics from "../analytics/analytics";
-import { packPayLabel } from "../services/packs";
+import { packBuyLabel } from "../services/packs";
 import { PARENT_FORWARD_LABEL, PARENT_FORWARD_QR_LABEL } from "../components/payRescue/parentForward";
 
 function LocProbe() {
@@ -105,7 +105,7 @@ describe("TS-PAYPATH-1 · signed out", () => {
   it("the hero shows 'Ask Mummy/Papa to pay' right after the Buy (the Buy unchanged); the plan card keeps today's button", async () => {
     await mount();
     const buy = hero().getByTestId("ts-hero-buy");
-    expect(buy.textContent).toBe(`Get the Test Series · ${packPayLabel("test_series")}`);
+    expect(buy.textContent).toBe(`Get the Test Series · ${packBuyLabel("test_series")}`);
     const ask = hero().getByTestId("ts-hero-parent");
     expect(ask.textContent).toBe(TS_PARENT_HERO_LABEL);
     expect(ask.className).toContain("lt-ts-forward__btn--hero");

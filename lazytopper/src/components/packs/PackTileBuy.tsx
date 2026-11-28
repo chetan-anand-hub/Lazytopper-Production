@@ -1,4 +1,4 @@
-import { packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
+import { packGstBreakdown, packBuyLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import { OTHER_PAYMENT_BUSY_COPY, type PacksShopApi } from "./PacksShop";
 import type { SampleBuy } from "./PackSampleLink";
 import InAppPayChoice from "../payRescue/InAppPayChoice";
@@ -73,7 +73,7 @@ function GstNote({ sku, show }: { sku: PackSku; show: boolean }) {
 export default function PackTileBuy({ sku, api, tone = "light", subject }: { sku: PackSku; api: PacksShopApi; tone?: "light" | "on-dark"; /** PACKS-TIDY-1 (opt-in): Subject / Mock Pack - show the Buy of ONE chosen subject instead of both. */ subject?: PackSubject }) {
   if (!api.buyEnabled) return null;
   // GST-EXCL-1: a Buy button names the amount CHARGED (base + GST from 7 Nov 2026).
-  const price = packPayLabel(sku);
+  const price = packBuyLabel(sku);
   const cls = tone === "on-dark" ? "lt-ptb lt-ptb--dark" : "lt-ptb";
 
   if (sku === "pack_chapter") {
@@ -147,7 +147,7 @@ export function PackCbqBuy({ subject, api, testPrefix }: { subject: PackSubject;
           onClick={() => api.buyNow("pack_cbq", subject)}
           testId={`tile-buy-pack_cbq-${subject}`}
         >
-          {`Buy ${subjectLabel(subject)} CBQ · ${packPayLabel("pack_cbq")}`}
+          {`Buy ${subjectLabel(subject)} CBQ · ${packBuyLabel("pack_cbq")}`}
         </BuyButton>
       )}
       <TileChoice api={api} sku="pack_cbq" target={subject} />

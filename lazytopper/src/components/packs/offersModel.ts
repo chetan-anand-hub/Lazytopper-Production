@@ -16,7 +16,7 @@ import {
   testSeriesPriceLine,
   isAlreadyOwned,
   isValidPackTarget,
-  packPayLabel,
+  packBuyLabel,
   packPriceLabel,
   subjectLabel,
   subjectOfChapter,
@@ -103,7 +103,7 @@ function row(sku: PackSku, target: string, name: string, line: string, badge: st
     line,
     // TS-PRICE-2: the Test Series row carries the founding line while the offer is open; every other pack is its tag.
     price: sku === "test_series" ? testSeriesPriceLine() : packPriceLabel(sku),
-    payPrice: packPayLabel(sku),
+    payPrice: packBuyLabel(sku),
     priceInr: packBaseInr(sku),
     badge,
     buyHref: buyHrefFor(sku, target),

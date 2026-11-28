@@ -8,7 +8,7 @@ import { readPacksQuery } from "../../lib/packs/packEntry";
 import { PREBOARDS_PICK_LINE, isPreboardsSeason } from "../../lib/packs/packLabels";
 import { OFFER_LINES, buyHrefFor, insideHrefFor, offerRows, unownedRows, type OfferContext, type OfferKind } from "./offersModel";
 // GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
-import { packPriceLabel, packPayLabel } from "../../services/packs";
+import { packPriceLabel, packBuyLabel } from "../../services/packs";
 // GST-EXCL-1: expected prices are read through the shared helpers, so the copy is right on both sides of 7 Nov 2026.
 import { displayPlusGst } from "../../config/pricing";
 
@@ -59,7 +59,7 @@ describe("rows by surface (price high to low; Subject before CBQ on a tie)", () 
     for (const r of offerRows({ kind: "check-improve", subject: "maths", chapterSlug: "triangles" })) {
       expect(r.priceInr).toBe(PACK_PRICE_INR[r.sku]);
       expect(r.price).toBe(packPriceLabel(r.sku));
-      expect(r.payPrice).toBe(packPayLabel(r.sku));
+      expect(r.payPrice).toBe(packBuyLabel(r.sku));
     }
     expect(offerRows({ kind: "check-improve", subject: "maths", chapterSlug: "triangles" }).map((r) => r.price)).toEqual([299, 199, 199, 99, 49].map((n) => displayPlusGst(n)));
   });

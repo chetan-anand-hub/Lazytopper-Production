@@ -3,13 +3,13 @@
  * legacy page's own constants wherever the words already exist (one source each); only what is NEW to the hub lives here.
  *
  * ★ NO PRICE, COUNT OR DATE IS TYPED HERE. Prices come from src/config/pricing (the Board Pass) and services/packs (PACK_PRICE_INR,
- *   packPriceLabel / packPayLabel); counts from lib/packs/packLabels.ts (each pinned by a test on the real bank).
+ *   packPriceLabel / packBuyLabel); counts from lib/packs/packLabels.ts (each pinned by a test on the real bank).
  * ★ Owner copy rules (11 Nov): "₹X + GST" with the total on the button; never "AI", "answer key", "optional", the word "ask" for the
  *   parent route, a refund promise, a crossed-out price or "save"; nothing that makes a card optional or pushes all three.
  * ★ PURE: no React, no services that pull checkout code.
  */
 import { BOARD_PASS_NAME, formatInr, tillBoardsPriceInr } from "../../config/pricing";
-import { PACK_PRICE_INR, isTestSeriesPackOffered, packBaseInr, packPayLabel, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
+import { PACK_PRICE_INR, isTestSeriesPackOffered, packBaseInr, packBuyLabel, packPriceLabel, subjectLabel, type PackSubject } from "../../services/packs";
 import { subjectPackRow } from "../../components/pricing/pricingPlansCopy";
 import {
   BANK_CBQS_CLAIM,
@@ -173,7 +173,7 @@ export function hubTsBuyPath(): string {
 export const HUB_TS_OWNED = `${TEST_SERIES_CARD_NAME} · You own this`;
 /** The phone bar's words for the Test Series card. */
 export function hubTsStickyCopy(): { label: string; button: string } {
-  return { label: `${TEST_SERIES_CARD_NAME} ${hubTsPrice()}`, button: `${HUB_TS_BUY} · ${packPayLabel("test_series")}` };
+  return { label: `${TEST_SERIES_CARD_NAME} ${hubTsPrice()}`, button: `${HUB_TS_BUY} · ${packBuyLabel("test_series")}` };
 }
 
 /* ── Card 3: CBQ Packs ──────────────────────────────────────────────────── */
@@ -195,10 +195,10 @@ export function hubCbqPrice(): string {
 export const HUB_CBQ_PRICE_META = "per subject · pay once";
 /** "Maths · ₹235" - the button names the total charged; the aria-label names the pack. */
 export function hubCbqBuyLabel(s: PackSubject): string {
-  return `${subjectLabel(s)} · ${packPayLabel("pack_cbq")}`;
+  return `${subjectLabel(s)} · ${packBuyLabel("pack_cbq")}`;
 }
 export function hubCbqBuyAria(s: PackSubject): string {
-  return `Buy ${subjectLabel(s)} CBQ Pack, ${packPayLabel("pack_cbq")}`;
+  return `Buy ${subjectLabel(s)} CBQ Pack, ${packBuyLabel("pack_cbq")}`;
 }
 export const HUB_CBQ_NOT_IN_BUNDLE = "Not in the Bundle.";
 /**
@@ -269,7 +269,7 @@ export const HUB_FOLD_VIDEO = "See the Answer Checker at work";
 
 /** The Bundle bar's words ("Maths + Science Bundle ₹299 + GST" / "Buy ₹353"). */
 export function hubBundleStickyCopy(name: string): { label: string; button: string } {
-  return { label: `${name} ${packPriceLabel("pack_bundle")}`, button: `Buy ${packPayLabel("pack_bundle")}` };
+  return { label: `${name} ${packPriceLabel("pack_bundle")}`, button: `Buy ${packBuyLabel("pack_bundle")}` };
 }
 
 /* ── PRICING-CTA-UP-1 v1.1 (owner, 24 Nov 2026): the slim card faces ─────────────────────────────────

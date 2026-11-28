@@ -16,7 +16,7 @@
  * the PDF exporter live in src/lib/packs/** and are reached only through dynamic imports.
  */
 import { BUNDLE_CHAPTERS, BUNDLE_MOCKS } from "../lib/packs/packLabels";
-import { FOUNDING_OFFER_LAST_DAY_LABEL, boardPassGstExclusive, displayPlusGst, foundingOfferOpen, gstBreakdownFor, payDisplay, priceWithGst } from "../config/pricing";
+import { FOUNDING_OFFER_LAST_DAY_LABEL, boardPassGstExclusive, buyDisplay, displayPlusGst, foundingOfferOpen, gstBreakdownFor, payDisplay, priceWithGst } from "../config/pricing";
 import { ACTIVITY_TOPIC_SLUGS } from "./activityPages";
 import {
   authHeaders,
@@ -124,16 +124,24 @@ export function testSeriesPriceLine(now: Date | number = Date.now()): string {
 
 /**
  * The pack's price TAG at `now` ("₹49"; GST-EXCL-1: "₹49 + GST" from 00:00 IST 7 Nov 2026). Read at RENDER time.
- * ⚠ Never on a Buy/Pay button - a button names what is CHARGED: `packPayLabel`.
+ * ⚠ Never alone on a Buy/Pay button - a button names this tag AND the total: `packBuyLabel` (SEO-SELL-3).
  */
 export function packPriceLabel(sku: PackSku, now: Date | number = Date.now()): string {
   const base = packBaseInr(sku, now);
   return boardPassGstExclusive(now) ? displayPlusGst(base, now) : `₹${base}`;
 }
-/** GST-EXCL-1 - what a pack's Buy/Pay button names: the amount CHARGED ("₹49" before the cut-off; "₹58" from it). */
+/** GST-EXCL-1 - the bare amount CHARGED (checkout sheet, parent messages; a BUTTON uses `packBuyLabel`) ("₹49" before the cut-off; "₹58" from it). */
 export function packPayLabel(sku: PackSku, now: Date | number = Date.now()): string {
   const base = packBaseInr(sku, now);
   return boardPassGstExclusive(now) ? payDisplay(base, now) : `₹${base}`;
+}
+/**
+ * SEO-SELL-3 (owner ruling, 28 Nov 2026) - what a pack's Buy/Pay BUTTON names: the base price + GST AND the total, never the total
+ * alone ("₹199 + GST (₹235 total)"; "₹49" before the GST cut-off). Every pack button reads this; `packPayLabel` stays the bare total for
+ * the checkout sheet, which prints the full breakup beside it.
+ */
+export function packBuyLabel(sku: PackSku, now: Date | number = Date.now()): string {
+  return buyDisplay(packBaseInr(sku, now), now);
 }
 /** GST-EXCL-1 - the rupees CHARGED for a pack at `now`. */
 export function packChargeInr(sku: PackSku, now: Date | number = Date.now()): number {

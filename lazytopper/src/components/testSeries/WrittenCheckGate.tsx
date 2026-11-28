@@ -38,7 +38,7 @@ import { useOwnedPacks } from "../packs/useOwnedPacks";
 import { ownsChapter, ownsMocks, type PackSubject } from "../../services/packs";
 import type { TestSeriesFreeTest, TestSeriesStatus } from "../../services/packs";
 import { TEST_SERIES_BUY_PATH, seriesPaperKeyOfWorksheetId, seriesTotals } from "../../lib/testSeries/testSeries";
-import { checkNotCountedLine, type NotCountedReason, packPayLabel, packPriceLabel, testSeriesChecksLeftLine, testSeriesPriceLine, testSeriesRecheckNote } from "../../services/packs";
+import { checkNotCountedLine, type NotCountedReason, packBuyLabel, packPriceLabel, testSeriesChecksLeftLine, testSeriesPriceLine, testSeriesRecheckNote } from "../../services/packs";
 import { useTestSeriesOwnership } from "./testSeriesOwnership";
 import "./writtenCheckGate.css";
 
@@ -360,7 +360,7 @@ export function useBoardPassHolder(): boolean {
 
 /**
  * The two offers, equal weight: the Test Series and the Board Pass (its price is date-driven, so read after mount).
- * LIVE-FIX-1 `showTotal`: each button also names what is CHARGED ("Pay ₹1,179" - packPayLabel / boardPassPayDisplay, GST included),
+ * LIVE-FIX-1 `showTotal`: each button also names what is CHARGED ("Pay ₹1,179" - packBuyLabel / boardPassPayDisplay, GST included),
  * the convention every Pay button follows. The links and the buy entries they lead to are unchanged.
  */
 export function SeriesOfferButtons({
@@ -391,7 +391,7 @@ export function SeriesOfferButtons({
       <Link className="lt-wcg__btn" to={tagWhenSeriesPaper(TEST_SERIES_BUY_PATH, pathname, search)} data-testid={`${testIdPrefix}-ts`} onClick={onTap ? () => onTap("test_series") : undefined}>
         <span className="lt-wcg__main">Test Series</span>
         <span className="lt-wcg__price">{testSeriesPriceLine()} · all {seriesTotals().total} tests</span>
-        {showTotal && <span className="lt-wcg__pay" data-testid={`${testIdPrefix}-ts-pay`}>Pay {packPayLabel("test_series")}</span>}
+        {showTotal && <span className="lt-wcg__pay" data-testid={`${testIdPrefix}-ts-pay`}>Pay {packBuyLabel("test_series")}</span>}
       </Link>
       )}
       {only !== "test-series" && (

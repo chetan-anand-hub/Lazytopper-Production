@@ -15,7 +15,7 @@ import { cbqRedirectTarget } from "../lib/packs/cbqRedirect";
 import { usePaidPremium } from "../lib/packs/usePaidPremium";
 import { TsClockSlot } from "../components/packs/TestSeriesFoundingClause";
 import { TestSeriesExaminerLine, TestSeriesPerTest } from "../components/packs/TestSeriesPerTest";
-import { chaptersOfSubject, isTestSeriesPackOffered, testSeriesFoundingClause, testSeriesPriceLine, packGstBreakdown, packPayLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
+import { chaptersOfSubject, isTestSeriesPackOffered, testSeriesFoundingClause, testSeriesPriceLine, packGstBreakdown, packBuyLabel, packPriceLabel, subjectLabel, type PackSku, type PackSubject } from "../services/packs";
 import PackSampleLink, { PackSampleChoice, SampleBuyNext } from "../components/packs/PackSampleLink";
 import SubjectSwitch from "../components/packs/SubjectSwitch";
 import PackTileBuy, { sampleBuyFor, InAppTileChoice } from "../components/packs/PackTileBuy";
@@ -300,7 +300,7 @@ function Hero({ api }: { api: PacksShopApi }) {
             <span className="lt-pk-bundle__amt">{packPriceLabel("pack_bundle")}</span>
             <span className="lt-pk-bundle__per"> · both subjects · pay once</span>
           </p>
-          <BuyBox twin="pk-buy-bundle" api={api} neutral={`Bundle · ${packPayLabel("pack_bundle")}`} gstSku="pack_bundle" onNeutral={() => api.openPack("pack_bundle")}>
+          <BuyBox twin="pk-buy-bundle" api={api} neutral={`Bundle · ${packBuyLabel("pack_bundle")}`} gstSku="pack_bundle" onNeutral={() => api.openPack("pack_bundle")}>
             <PackTileBuy sku="pack_bundle" api={api} />
           </BuyBox>
           {/* v1.2 L1: "See inside" and the free sample side by side on one line. */}
@@ -423,7 +423,7 @@ function TestSeriesCard({ api }: { api: PacksShopApi }) {
                 {TEST_SERIES_INCLUDED_LINE} &rarr;
               </Link>
             ) : (
-            <BuyBox twin="pk-buy-test-series" api={api} neutral={<>Test Series · <TsClockSlot variant="amt">{packPayLabel("test_series")}</TsClockSlot></>} gstSku="test_series" onNeutral={() => api.openPack("test_series")}>
+            <BuyBox twin="pk-buy-test-series" api={api} neutral={<>Test Series · <TsClockSlot variant="buy">{packBuyLabel("test_series")}</TsClockSlot></>} gstSku="test_series" onNeutral={() => api.openPack("test_series")}>
               <PackTileBuy sku="test_series" api={api} />
             </BuyBox>
             )}
@@ -551,7 +551,7 @@ function CompactBuy({ t, api, subject }: { t: Tile; api: PacksShopApi; subject: 
     const onNeutral = () => (sku === "pack_chapter" ? api.chooseChapter({ subject }) : api.openPackWith ? api.openPackWith(sku, subject) : api.openPack(sku));
     return (
       <button type="button" className="lt-pk-cbuy" onClick={onNeutral} aria-haspopup="dialog" aria-label={`${t.name} · ${packPriceLabel(sku)}`} data-testid={`pk-buy-${t.id}-neutral`}>
-        {sku === "pack_chapter" ? "Choose chapter" : packPayLabel(sku)}
+        {sku === "pack_chapter" ? "Choose chapter" : packBuyLabel(sku)}
       </button>
     );
   }
@@ -565,7 +565,7 @@ function CompactBuy({ t, api, subject }: { t: Tile; api: PacksShopApi; subject: 
         disabled={blocked}
         aria-disabled={blocked}
         aria-haspopup="dialog"
-        aria-label={`Choose a ${subj} chapter · ${packPayLabel(sku)}`}
+        aria-label={`Choose a ${subj} chapter · ${packBuyLabel(sku)}`}
         title={blocked ? OTHER_PAYMENT_BUSY_COPY : undefined}
         data-testid="tile-buy-pack_chapter"
       >
@@ -589,11 +589,11 @@ function CompactBuy({ t, api, subject }: { t: Tile; api: PacksShopApi; subject: 
       onClick={() => api.buyNow(sku, subject)}
       disabled={blocked}
       aria-disabled={blocked}
-      aria-label={`Buy ${subj} ${t.name} · ${packPayLabel(sku)}`}
+      aria-label={`Buy ${subj} ${t.name} · ${packBuyLabel(sku)}`}
       title={blocked ? OTHER_PAYMENT_BUSY_COPY : undefined}
       data-testid={`tile-buy-${sku}-${subject}`}
     >
-      {`Buy ${packPayLabel(sku)}`}
+      {`Buy ${packBuyLabel(sku)}`}
     </button>
     <InAppTileChoice api={api} sku={sku} target={subject} />
     </>
@@ -638,7 +638,7 @@ function BundleStickyBar({ api }: { api: PacksShopApi }) {
       watch={STICKY_WATCH}
       ignoreFooter
       requireFullyVisible={!isPacksMobilePreloadDisabled()}
-      copy={() => ({ label: `${BUNDLE_NAME} · ${packPriceLabel("pack_bundle")}`, button: `Buy · ${packPayLabel("pack_bundle")}` })}
+      copy={() => ({ label: `${BUNDLE_NAME} · ${packPriceLabel("pack_bundle")}`, button: `Buy · ${packBuyLabel("pack_bundle")}` })}
       onGo={() => api.buyNow("pack_bundle")}
       ariaLabel="Buy the Maths + Science Bundle"
       testId="packs-sticky"

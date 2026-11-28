@@ -71,7 +71,7 @@ vi.mock("./PackDialog", () => ({ default: () => <div role="dialog" data-testid="
 
 import TestSeriesPage from "./TestSeriesPage";
 import { seriesChapterTests, seriesFullMocks, seriesTotals } from "../lib/testSeries/testSeries";
-import { packPayLabel, testSeriesPriceLine } from "../services/packs";
+import { packBuyLabel, testSeriesPriceLine } from "../services/packs";
 import { TEST_SERIES_CHECKS_EXPLAINER, TEST_SERIES_VALIDITY, TEST_SERIES_VALIDITY_LONG } from "../lib/packs/packLabels";
 
 function Where() {
@@ -187,8 +187,8 @@ describe("/test-series — signed out", () => {
     expect(within(hero).getByTestId("ts-hero-valid").textContent).toBe(TEST_SERIES_VALIDITY_LONG);
     expect(TEST_SERIES_VALIDITY).toBe("valid till 28 Feb 2027");
     expect(within(hero).getByTestId("ts-hero-per-test").textContent).toContain("₹6 per test");
-    expect(screen.getByTestId("ts-hero-buy").textContent).toBe(`Get the Test Series · ${packPayLabel("test_series")}`);
-    expect(screen.getByTestId("ts-hero-buy").textContent).toBe("Get the Test Series · ₹1,179");
+    expect(screen.getByTestId("ts-hero-buy").textContent).toBe(`Get the Test Series · ${packBuyLabel("test_series")}`);
+    expect(screen.getByTestId("ts-hero-buy").textContent).toBe("Get the Test Series · ₹999 + GST (₹1,179 total)");
     expect(within(hero).getByTestId("ts-hero-checks").textContent).toBe(TEST_SERIES_CHECKS_EXPLAINER);
     expect(screen.getByTestId("ts-hero-examiner").textContent).toBe("Your written answers marked step by step like a CBSE examiner, by CBSE's step-marking rules.");
     // The Board Pass founding line is NOT in the hero; it is beside the plan comparison.
@@ -208,7 +208,7 @@ describe("/test-series — signed out", () => {
     expect(ts.textContent).not.toMatch(/30 Nov|1,499|then ₹/);
     expect(ts.textContent).toContain("2 checks per paper");
     expect(ts.textContent).toContain("Sections B–D (B–E in full-length tests)");
-    expect(within(ts).getByTestId("ts-cta-buy").textContent).toBe("Get the Test Series · ₹1,179");
+    expect(within(ts).getByTestId("ts-cta-buy").textContent).toBe("Get the Test Series · ₹999 + GST (₹1,179 total)");
     expect(within(ts).getByTestId("ts-offer-checks").textContent).toBe(TEST_SERIES_CHECKS_EXPLAINER);
     const bp = screen.getByTestId("ts-offer-bp");
     expect(within(bp).getByTestId("till-boards-figures").textContent).toBe("₹1,917 + GST");
@@ -231,7 +231,7 @@ describe("/test-series — signed out", () => {
     expect(screen.getByTestId("ts-offer-bp").textContent).toContain("₹1,917 + GST");
     expect(screen.getByTestId("ts-offer-ts").textContent).toContain("₹999 + GST");
     expect(document.body.textContent).not.toMatch(/2,499|1,499|30 Nov|1 Dec/);
-    expect(screen.getByTestId("ts-hero-buy").textContent).toBe("Get the Test Series · ₹1,179");
+    expect(screen.getByTestId("ts-hero-buy").textContent).toBe("Get the Test Series · ₹999 + GST (₹1,179 total)");
     expect(screen.getByTestId("ts-urgency").textContent).toBe("");
   });
   it("carries none of the banned words, and never calls the series free", async () => {
@@ -334,7 +334,7 @@ describe("/test-series — TS-UX-PAGE-1 buy in place", () => {
     await mount();
     const b = screen.getByTestId("ts-hero-buy");
     expect(b.getAttribute("href")).toBe("/test-series?buy=test_series");
-    expect(b.textContent).toBe(`Get the Test Series · ${packPayLabel("test_series")}`);
+    expect(b.textContent).toBe(`Get the Test Series · ${packBuyLabel("test_series")}`);
   });
   it("no pack_view is sent by this page (events unchanged)", async () => {
     await mount();

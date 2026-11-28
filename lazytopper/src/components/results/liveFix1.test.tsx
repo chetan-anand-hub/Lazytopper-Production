@@ -105,7 +105,7 @@ describe("#3 - the fair-use panel on a Test Series paper offers the Test Series 
     expect(screen.getByTestId("fair-use-board-pass")).toBeTruthy();
     expect(screen.getByTestId("fair-use-test-series")).toBeTruthy();
     expect(screen.getByTestId("fair-use-ts").getAttribute("href")).toBe("/packs?buy=test_series");
-    expect(screen.getByTestId("fair-use-ts-pay").textContent).toMatch(/^Pay ₹[\d,]+$/);
+    expect(screen.getByTestId("fair-use-ts-pay").textContent).toMatch(/^Pay ₹[\d,]+ \+ GST \(₹[\d,]+ total\)$/);
     expect(screen.queryByTestId("fair-use-bp")).toBeNull(); // the panel's own Board Pass offer is not repeated
   });
 
