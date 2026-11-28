@@ -497,7 +497,8 @@
       "src/services/weakAreaAggregator.marks.test.ts": "runtime recorder: repo code read the clock at practised (C:\\Projects\\LT-worktrees\\a17-ci-speed-1\\lazytopper\\src\\services\\weakAreaAggregator.marks.test.ts:36:90)",
       "src/services/weakAreaAggregator.saturation.test.ts": "runtime recorder: repo code read the clock at Module.getWeakAreas (C:\\Projects\\LT-worktrees\\a17-ci-speed-1\\lazytopper\\src\\services\\weakAreaAggregator.ts:238:27)",
       "src/services/weakAreaAggregator.syllabus.test.ts": "runtime recorder: repo code read the clock at Module.getWeakAreas (C:\\Projects\\LT-worktrees\\a17-ci-speed-1\\lazytopper\\src\\services\\weakAreaAggregator.ts:238:27)",
-      "src/test/testClock.test.ts": "runtime recorder: repo code read the clock at C:\\Projects\\LT-worktrees\\a17-ci-speed-1\\lazytopper\\src\\test\\testClock.test.ts:43:22"
+      "src/test/testClock.test.ts": "runtime recorder: repo code read the clock at C:\\Projects\\LT-worktrees\\a17-ci-speed-1\\lazytopper\\src\\test\\testClock.test.ts:43:22",
+      "src/utils/inAppPayGuard.test.tsx": "INAPP-GAP-1: drives the real PacksShop signed-out Buy, whose pack price reads the clock at the GST cut-off (src/services/packs.ts packBaseInr)"
     }
   },
   "vitest": [
@@ -1187,6 +1188,7 @@
     "src/services/weakAreaAggregator.syllabus.test.ts",
     "src/test/testClock.test.ts",
     "src/utils/authSignal.test.ts",
-    "src/utils/inAppPayFirst.test.tsx"
+    "src/utils/inAppPayFirst.test.tsx",
+    "src/utils/inAppPayGuard.test.tsx"
   ]
 }

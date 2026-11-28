@@ -178,6 +178,9 @@ describe("INAPP-PAY-FIRST-1 · Instagram / Facebook on Android, signed out", () 
     });
     expect(screen.getByTestId("inapp-pay-choice-chrome").getAttribute("href")).toContain("intent://");
     p.pay();
+    // INAPP-GAP-1: a stuck hop -> the copy-link guard comes first; Buy works in the webview after "Pay here anyway".
+    expect(p.onSignIn).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("inapp-pay-guard-here"));
     expect(p.onSignIn).toHaveBeenCalledTimes(1);
   });
 });
@@ -214,6 +217,9 @@ describe("INAPP-PAY-FIRST-1b · review follow-ups", () => {
     p.pay();
     expect(loc.href).toBe(before);
     expect(hops()).toHaveLength(0);
+    // INAPP-GAP-1: no hop exists for the YouTube webview -> the guard, then "Pay here anyway".
+    expect(p.onSignIn).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("inapp-pay-guard-here"));
     expect(p.onSignIn).toHaveBeenCalledTimes(1);
   });
 
@@ -281,12 +287,18 @@ describe("INAPP-PAY-FIRST-1 · everything else is unchanged", () => {
     const p = pass();
     expect(screen.queryByTestId("inapp-pay-first")).toBeNull();
     p.pay();
+    if (ua === UA.igIos) {
+      // INAPP-GAP-1: iOS has no hop -> the guard first; a normal browser is untouched.
+      expect(p.onSignIn).not.toHaveBeenCalled();
+      fireEvent.click(screen.getByTestId("inapp-pay-guard-here"));
+    }
     expect(p.onSignIn).toHaveBeenCalledTimes(1);
     expect(hops()).toHaveLength(0);
   });
-  it("kill switch VITE_INAPP_PAY_FIRST_DISABLED=1: today exactly (choice option under Pay, Pay opens checkout, no hop)", () => {
+  it("kill switch VITE_INAPP_PAY_FIRST_DISABLED=1 (+ VITE_INAPP_GAP_DISABLED=1): today exactly (choice option under Pay, Pay opens checkout, no hop, no guard)", () => {
     setUa(UA.igAndroid);
     vi.stubEnv("VITE_INAPP_PAY_FIRST_DISABLED", "1");
+    vi.stubEnv("VITE_INAPP_GAP_DISABLED", "1");
     const p = pass();
     expect(screen.queryByTestId("inapp-pay-first")).toBeNull();
     expect(screen.getByTestId("inapp-pay-choice-chrome")).toBeTruthy();

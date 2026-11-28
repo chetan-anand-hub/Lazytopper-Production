@@ -1,5 +1,5 @@
 import { trackOnboardingEvent } from "../analytics/analytics";
-import { handoffSourceParams } from "../analytics/visitSource";
+import { handoffSourceParams, setOrderHopProvider, type OrderHop } from "../analytics/visitSource";
 import { currentInAppPayChoice, inAppChoiceChromeIntent, type InAppBuyTarget } from "./inAppPay";
 
 /**
@@ -76,6 +76,24 @@ export function inAppPayFirstPayHere(): void {
   bypass = true;
   notify();
 }
+
+/** INAPP-GAP-1: "Pay here instead" (or the guard's "Pay here anyway") was chosen on this page view. */
+export function inAppPayFirstBypassed(): boolean {
+  return bypass;
+}
+
+/** INAPP-GAP-1: the hop state recorded on an order created now: bypass | stuck | hopped (arrived through our own hop link) | none. */
+export function inAppHopState(): OrderHop {
+  if (bypass) return "bypass";
+  if (stuck || chromeTapStuck) return "stuck";
+  try {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("via") === "inapp") return "hopped";
+  } catch {
+    /* none */
+  }
+  return "none";
+}
+setOrderHopProvider(inAppHopState);
 
 /** True once a hop failed to leave the page: the caller shows the existing choice options. */
 export function inAppPayFirstStuck(): boolean {

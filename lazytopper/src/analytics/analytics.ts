@@ -2353,6 +2353,10 @@ export interface OnboardingEventParams {
   inapp_pay_first_hop: { surface: string; sku: string };
   /** INAPP-STUCK-1: Chrome did not open (the hop or a "Pay in Chrome" tap left the page visible for 2.5 s); once per stuck detection. */
   inapp_pay_open_external_stuck: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
+  /** INAPP-GAP-1: a signed-out Buy tap in an in-app browser with no (working) hop showed the "copy link / pay here anyway" guard; copy; pay here anyway. */
+  inapp_pay_guard_shown: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
+  inapp_pay_guard_copy: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
+  inapp_pay_guard_payhere: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
   inapp_pay_copy_link: { app: "instagram" | "facebook" | "youtube" | "other"; platform: "android" | "ios" | "other"; surface: string };
 }
 

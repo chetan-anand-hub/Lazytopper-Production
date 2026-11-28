@@ -20,6 +20,9 @@ export interface AdSourceFields {
   fbclid?: boolean;
   gbraid?: boolean;
   wbraid?: boolean;
+  /** INAPP-GAP-1: the browser class the order was created in (UaClass) and the in-app hop state. */
+  ua?: string | null;
+  hop?: string | null;
 }
 
 /** utm_campaign value -> the name the owner knows the campaign by. */

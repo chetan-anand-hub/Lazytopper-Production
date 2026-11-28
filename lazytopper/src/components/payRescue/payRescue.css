@@ -257,3 +257,53 @@
     padding: 16px 20px;
   }
 }
+
+/* INAPP-GAP-1 - the guard sheet before Razorpay opens in an in-app browser. Bottom sheet, 44px+ targets, fits 360px. */
+.lt-pay-guard {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(11, 27, 58, 0.55);
+}
+
+.lt-pay-guard__sheet {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-radius: 16px 16px 0 0;
+  background: #ffffff;
+  color: var(--lt-ink, #0b1b3a);
+}
+
+.lt-pay-guard__h {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.lt-pay-guard__line {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--lt-ink-2, #4a5a73);
+  overflow-wrap: anywhere;
+}
+
+.lt-pay-guard__close {
+  appearance: none;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--lt-ink-2, #4a5a73);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}

@@ -60,6 +60,8 @@ import "./forParents.css";
 import PayReturnResume from "../components/payReturn/PayReturnResume";
 import { currentInAppPayChoice } from "../utils/inAppPay";
 import { inAppPayFirstHop } from "../utils/inAppPayFirst";
+import { inAppPayGuard } from "../utils/inAppPayGuard";
+import InAppPayGuardHost from "../components/payRescue/InAppPayGuardHost";
 
 /** The signed-out Board Pass checkout (pay first, then "Who will use it?"), lazy: fetched when the page is idle, opened on a Pay tap. */
 const CheckoutSheet = lazy(() => import("../components/checkoutWho/CheckoutSheet"));
@@ -366,9 +368,12 @@ export default function ForParentsPage() {
     return () => window.clearTimeout(t);
   }, []);
 
+  const onPayRef = useRef<() => void>(() => undefined);
   const onPay = useCallback(() => {
     // INAPP-PAY-FIRST-1: Instagram / Facebook on Android, signed out: straight to Chrome (this page; the parent taps Pay again there), no checkout opened here.
     if (inAppPayFirstHop({ signedIn, surface: "for_parents" })) return;
+    // INAPP-GAP-1: no working hop (iOS / YouTube / other webview, or a stuck hop): the copy-link guard first; "Pay here anyway" re-runs this tap.
+    if (inAppPayGuard({ signedIn, surface: "for_parents", proceed: () => onPayRef.current() })) return;
     // `begin_checkout` at the TAP (no PII), tagged `surface: "for_parents"`; the checkout itself is the shared one.
     trackBeginCheckoutTap(
       { passType: "till_boards", itemName: "Premium pass till your boards", valueInr: tillBoardsPriceInr(), surface: "for_parents" },
@@ -381,6 +386,9 @@ export default function ForParentsPage() {
     }
     setPayOpen(true);
   }, [navigate, signedIn]);
+  useEffect(() => {
+    onPayRef.current = onPay;
+  }, [onPay]);
 
   const second = (
     <div className="lt-fp__second" data-testid="fp-pay-area-second" data-lt-pay-area="second">
@@ -394,6 +402,7 @@ export default function ForParentsPage() {
     <main className="lt-fp" data-testid="for-parents-page">
       {/* PAY-RETURN-1 (review N3): this page mounts CheckoutSheet directly, so the resume lives here. */}
       <PayReturnResume />
+      <InAppPayGuardHost />
       <div className="lt-fp__top">
         <header className="lt-fp__hero">
           <div className="lt-fp__hero-in">

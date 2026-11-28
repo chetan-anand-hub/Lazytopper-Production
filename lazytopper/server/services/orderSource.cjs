@@ -9,6 +9,7 @@
  *   - an Indian-mobile-shaped run in any string drops that string;
  *   - click ids (gclid / fbclid / gbraid / wbraid) are kept ONLY as the boolean `true`; a string value is dropped, never stored;
  *   - nothing usable -> `{}` so the order document is byte-identical to today.
+ * INAPP-GAP-1: `ua` (UaClass enum) and `hop` (none|hopped|stuck|bypass) are kept only as exact enum members.
  * Never stored: a click-id value, an email, a phone, a full URL, a query string.
  *
  * Server kill switch: ORDER_SOURCE_DISABLED=1 -> never stored.
@@ -18,6 +19,10 @@ const MAX_LEN = 100;
 const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'];
 const TERM_KEY = 'utm_term'; // SOURCE-3 (owner, 18 Nov 2026): the Google Ads keyword; spaces allowed, whitespace collapsed
 const CLICK_KEYS = ['gclid', 'fbclid', 'gbraid', 'wbraid'];
+
+// INAPP-GAP-1: the browser class the order was created in (the coarse UaClass label, never a raw user agent) and the in-app hop state.
+const UA_CLASSES = new Set(['inapp_youtube', 'inapp_instagram', 'inapp_facebook', 'android_webview', 'ios_webview', 'chrome_android', 'desktop', 'other']);
+const HOP_STATES = new Set(['none', 'hopped', 'stuck', 'bypass']);
 
 const TAG_CHARSET = /^[A-Za-z0-9_.\-{}]+$/;
 const TERM_CHARSET = /^[A-Za-z0-9_.\-{}]+(?: [A-Za-z0-9_.\-{}]+)*$/;
@@ -54,6 +59,9 @@ function sanitiseOrderSource(raw) {
   const landing = clean(raw.landing, PATH_CHARSET);
   if (landing) out.landing = landing;
   for (const k of CLICK_KEYS) if (raw[k] === true) out[k] = true;
+  // Exact enum members only; anything else is dropped.
+  if (typeof raw.ua === 'string' && UA_CLASSES.has(raw.ua)) out.ua = raw.ua;
+  if (typeof raw.hop === 'string' && HOP_STATES.has(raw.hop)) out.hop = raw.hop;
   return out;
 }
 
@@ -64,4 +72,4 @@ function orderSourceField(body, env = process.env) {
   return Object.keys(s).length ? { source: s } : {};
 }
 
-module.exports = { MAX_LEN, isOrderSourceDisabled, sanitiseOrderSource, orderSourceField };
+module.exports = { UA_CLASSES, HOP_STATES, MAX_LEN, isOrderSourceDisabled, sanitiseOrderSource, orderSourceField };

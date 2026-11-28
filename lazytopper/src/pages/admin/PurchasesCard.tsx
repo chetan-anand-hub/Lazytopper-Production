@@ -173,6 +173,11 @@ function SourceRow({ source, id }: { source?: OrderSourceInfo; id: string }) {
     <span className="pu-reason sa-muted pu-source" data-testid={`pu-source-${id}`}>
       <span className="pu-source-main">Source: {main}</span>
       {detail ? <span className="pu-source-detail">{detail}</span> : null}
+      {source.ua || source.hop ? (
+        <span className="pu-source-detail" data-testid={`pu-ua-${id}`}>
+          Browser: {source.ua ?? "unknown"}{source.hop ? ` · hop: ${source.hop}` : ""}
+        </span>
+      ) : null}
     </span>
   );
 }

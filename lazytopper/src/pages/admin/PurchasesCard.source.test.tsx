@@ -22,4 +22,10 @@ describe("ORDER-SOURCE-1 abandoned row", () => {
     expect(screen.getByTestId("pu-source-ab-s1").querySelector(".pu-source-detail")?.textContent).toBe("\u201Cclass 10 question bank\u201D · landed /packs");
     expect(screen.queryByTestId("pu-source-ab-s2")).toBeNull();
   });
+
+  it("INAPP-GAP-1: shows the browser class + hop chip when the order carries them", () => {
+    render(<AbandonedList abandoned={{ items: [{ ...base, orderId: "s3", source: { ref: "m.facebook.com", ua: "inapp_facebook", hop: "none" } }, { ...base, orderId: "s4", source: { ref: "m.facebook.com" } }] }} />);
+    expect(screen.getByTestId("pu-ua-ab-s3").textContent).toBe("Browser: inapp_facebook · hop: none");
+    expect(screen.queryByTestId("pu-ua-ab-s4")).toBeNull();
+  });
 });
