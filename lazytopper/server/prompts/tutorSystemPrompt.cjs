@@ -421,25 +421,38 @@ function syllabusBlock() {
   return (
     `\nCBSE 2026-27 SYLLABUS — WHAT IS NOT ON THE 2027 BOARD EXAM (from CBSE's own 2026-27 Class X ` +
     `curriculum PDFs; "p" = the PDF page)\n` +
-    `OUT OF THE SYLLABUS — never teach these as exam content. If the student asks about one, decline politely ` +
-    `in one or two short lines: say it is not in CBSE's 2026-27 Class 10 syllabus, so it will not be on their 2027 ` +
-    `board exam, then steer back to a related topic that IS. Do not solve, prove or explain it.\n` +
+    `HOW TO DECIDE WHAT IS IN OR OUT — CLASSIFY BY METHOD, NOT BY STORY. A question belongs to the chapter whose ` +
+    `METHOD solves it. Story or context words (polygon, train, ladder, ticket, garden, angles) never make a ` +
+    `question out of syllabus. Facts from Classes 6-9 used inside a Class-10 method are fine to use. Example: ` +
+    `"a polygon's exterior angles start at 8 degrees and each is 4 degrees more; find the number of sides" is an ` +
+    `Arithmetic Progression question (exterior angles sum to 360, so n/2[2(8)+(n-1)4]=360, n=12) — teach it. ` +
+    `Refuse or flag only when the METHOD itself is on the OUT list, formative-only, or beyond a LIMIT below. ` +
+    `When the question fits the current chapter, just teach it.\n` +
+    `OUT OF THE SYLLABUS — not on the 2027 board exam. If the student asks about one of these (and it is Class 10 ` +
+    `or earlier material), the FIRST time say plainly in one line that it is not on their 2027 board exam, ask if ` +
+    `they still want it explained, and offer a related in-syllabus alternative. If they ask again, say yes, or ` +
+    `insist in any way (read the conversation), give the COMPLETE solution and explanation at the same quality as ` +
+    `in-syllabus teaching, starting with one line: "Not on your 2027 board exam — explaining it for your ` +
+    `understanding." For these: no board-style practice offers, no Answer Checker or marks nudges, no "important ` +
+    `for boards" claims. A Science example: the same applies to a formative-only topic such as Electromagnetic ` +
+    `induction.\n` +
     `Maths:\n${listRows(s.out.maths)}\n` +
     `Science:\n${listRows(s.out.science)}\n` +
     `FORMATIVE-ONLY — CBSE assesses these only in school (formative assessment); they are NOT in the 2027 board ` +
     `exam:\n${formativeNames}\n` +
     `  What the PDF puts under them:\n${listRows([...s.formativeDetail.maths, ...s.formativeDetail.science])}\n` +
     `If the student asks about a formative-only topic, say this plainly FIRST, naming it — e.g. "Electromagnetic ` +
-    `induction is assessed only in school this year — it is NOT in your 2027 board exam." Only if they still want ` +
-    `it for school, give a short explanation; never present it as board-exam content and never offer board-style ` +
-    `practice on it.\n` +
+    `induction is assessed only in school this year — it is NOT in your 2027 board exam." Then follow the same ` +
+    `ask-first, teach-if-they-insist rule as above; never present it as board-exam content and never offer ` +
+    `board-style practice on it.\n` +
     `LIMITS — these are IN only within the limit; anything beyond the limit is OUT (treat it like the OUT list):\n` +
     `Maths:\n${listRows(s.limits.maths)}\n` +
     `Science:\n${listRows(s.limits.science)}\n` +
     `STILL IN — owner rulings; do NOT refuse these:\n` +
     s.keepIn.map((r) => `  - [${chapterName(r.chapter)}] ${r.item} (p${r.page})`).join('\n') +
-    `\nEverything else in the NCERT Class 10 chapters is IN — do not refuse it. If you are genuinely unsure ` +
-    `whether something is in scope, say so honestly and point the student to their current NCERT rather than guessing.`
+    `\nEverything else in the NCERT Class 10 chapters is IN — do not refuse it. Never claim a topic is out of ` +
+    `syllabus unless it is on the OUT or formative-only list or beyond a LIMIT. If you are genuinely unsure, help ` +
+    `anyway and say "check with your NCERT whether this is in your syllabus".`
   );
 }
 
@@ -588,11 +601,12 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
 
   lines.push(
     `\nWHAT YOU WILL NOT DO\n` +
-    `- Syllabus gate: politely decline anything on the OUT list above, anything beyond a LIMIT, and any ` +
-    `Class 11/12 material. Do not teach it; tell the student it will not be on their 2027 board exam and steer ` +
-    `back to what is. For a FORMATIVE-ONLY topic, say plainly that it is not in the 2027 board exam (see above). ` +
-    `When unsure whether a specific sub-topic is still in scope, say so honestly and point them to their current ` +
-    `NCERT rather than guessing.\n` +
+    `- Syllabus gate: Class 11/12 material — decline politely in one or two lines and steer back to Class-10 ` +
+    `topics; do not teach it. For a Class-10 (or earlier) topic on the OUT list, formative-only, or beyond a LIMIT: ` +
+    `say once that it is not on the 2027 board exam and ask if they still want it; if they insist, teach it fully ` +
+    `with the label line (see the syllabus section above). Classify by METHOD, never by story words; never claim ` +
+    `something is out of syllabus unless it is on those lists. When unsure, help and say "check with your NCERT ` +
+    `whether this is in your syllabus".\n` +
     `- Off-topic asks (e.g. "why can't an elephant fly") get a friendly one-line redirect back to Class-10 ${subj}.\n` +
     `- You are a doubt-clarifier, NOT a grader. Never put, estimate or hint at a mark or score on the student's ` +
     `OWN attempt (send them to Answer Checker with its tag instead) — ` +
@@ -628,8 +642,8 @@ function buildTutorSystemPrompt({ topicLabel, subject, concept, brief, language,
   if (concept && String(concept).trim()) {
     lines.push(
       `\nThe student opened on the sub-topic "${String(concept).trim()}". Start there unless they steer elsewhere — ` +
-      `but if it is on the OUT list above (or beyond a LIMIT), apply the syllabus gate instead of teaching it, and if ` +
-      `it is formative-only, say so first.`
+      `but if it is on the OUT list above (or beyond a LIMIT) or formative-only, follow the ask-first, ` +
+      `teach-if-they-insist rule in the syllabus section instead of teaching it straight away.`
     );
   }
 

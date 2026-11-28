@@ -136,6 +136,38 @@ describe("F5 — tutor syllabus lists (drift + coverage)", () => {
       concept: "Areas of similar triangles ∝ (sides)²",
     });
     expect(prompt).toMatch(/opened on the sub-topic "Areas of similar triangles/);
-    expect(prompt).toMatch(/OUT list[^\n]*syllabus gate|syllabus gate[^\n]*OUT list/i);
+    // TUTOR-SYLLABUS-1: the old "apply the syllabus gate instead of teaching it" wording is gone;
+    // an OUT/formative opening now follows the ask-first, teach-if-they-insist rule.
+    expect(prompt).toMatch(/OUT list[^\n]*(\n[^\n]*)?ask-first, teach-if-they-insist/i);
+  });
+
+  describe("TUTOR-SYLLABUS-1 — classify by method, teach Class-10 off-syllabus on insistence", () => {
+    const prompt = () => mod.buildTutorSystemPrompt({ topicLabel: "Arithmetic Progression", subject: "maths" });
+
+    it("carries the method-not-story rule and the polygon example", () => {
+      const p = prompt();
+      expect(p).toMatch(/CLASSIFY BY METHOD, NOT BY STORY/);
+      expect(p).toMatch(/polygon/);
+      expect(p).toMatch(/n=12/);
+    });
+
+    it("no longer forbids solving/explaining an OUT topic", () => {
+      expect(prompt()).not.toContain("Do not solve, prove or explain it");
+    });
+
+    it("has the insist rule with its exact first line", () => {
+      const p = prompt().replace(/\s+/g, " ");
+      expect(p).toContain("Not on your 2027 board exam — explaining it for your understanding.");
+      expect(p).toMatch(/insist in any way/);
+      expect(p).toMatch(/no board-style practice offers|no board-style practice/);
+      expect(p).toMatch(/no Answer Checker or marks nudges/);
+    });
+
+    it("keeps declining Class 11/12 material and the unsure-help rule", () => {
+      const p = prompt().replace(/\s+/g, " ");
+      expect(p).toMatch(/Class 11\/12 material — decline politely/);
+      expect(p).toContain("check with your NCERT whether this is in your syllabus");
+      expect(p).toMatch(/never claim something is out of syllabus unless/i);
+    });
   });
 });
