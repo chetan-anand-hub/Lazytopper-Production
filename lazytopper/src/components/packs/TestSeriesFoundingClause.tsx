@@ -32,7 +32,7 @@ export function TestSeriesFoundingClause({ prefix = "", suffix = "", className, 
  *   only AFTER MOUNT: the prerender capture strips it (captureStaticBodies.ts rule 4), so the build machine's clock is never frozen into
  *   a static file as a price that goes false at the cut-off. Same mechanism as the Board Pass founding line.
  */
-export function TsClockSlot({ children, variant = "tag", testId }: { children: ReactNode; variant?: "tag" | "amt" | "line"; testId?: string }) {
+export function TsClockSlot({ children, variant = "tag", testId }: { children: ReactNode; variant?: "tag" | "amt" | "buy" | "line"; testId?: string }) {
   const [on, setOn] = useState(false);
   useEffect(() => setOn(true), []);
   return (

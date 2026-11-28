@@ -50,7 +50,7 @@ import { currentSalesPageSurface } from "../analytics/analytics";
 import * as packs from "../services/packs";
 import { CBQ_CHAPTER_CLAIM, CBQ_SUBJECT_CLAIM } from "../lib/packs/packLabels";
 import { CBQ_H1 } from "../components/salesPages/salesPagesCopy";
-import { packPayLabel, packPriceLabel } from "../services/packs";
+import { packBuyLabel, packPriceLabel } from "../services/packs";
 
 const buyMock = packs.buyPack as unknown as ReturnType<typeof vi.fn>;
 let where = "";
@@ -94,7 +94,7 @@ describe("PRICING-PAGES-1 /cbq-packs", () => {
     expect(screen.getByTestId("cq-tile-subject").textContent).toContain(CBQ_SUBJECT_CLAIM);
     expect(screen.getByTestId("cq-tile-chapter").textContent).toContain(CBQ_CHAPTER_CLAIM);
     expect(screen.getByTestId("cbq-band").textContent).toContain(packPriceLabel("pack_cbq"));
-    expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe(`Buy Maths CBQ · ${packPayLabel("pack_cbq")}`);
+    expect(screen.getByTestId("tile-buy-pack_cbq-maths").textContent).toBe(`Buy Maths CBQ · ${packBuyLabel("pack_cbq")}`);
   });
 
   it("the switch defaults to Maths and reads ?subject=science in the first render; both subjects one tap away", async () => {

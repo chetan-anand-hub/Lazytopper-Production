@@ -64,22 +64,22 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
   it("every tile has its Buy, priced from PACK_PRICE_INR only", async () => {
     page();
     const P = packs.PACK_PRICE_INR;
-    expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe(`Buy · ${packs.packPayLabel("pack_bundle")}`);
+    expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe(`Buy · ${packs.packBuyLabel("pack_bundle")}`);
     // v1.2 L2: a compact row Buy shows "Buy <total>"; its accessible name says which pack and subject.
-    expect(screen.getByTestId("tile-buy-pack_mock-maths").textContent).toBe(`Buy ${packs.packPayLabel("pack_mock")}`);
-    expect(screen.getByTestId("tile-buy-pack_mock-maths").getAttribute("aria-label")).toBe(`Buy Maths Mock Pack · ${packs.packPayLabel("pack_mock")}`);
+    expect(screen.getByTestId("tile-buy-pack_mock-maths").textContent).toBe(`Buy ${packs.packBuyLabel("pack_mock")}`);
+    expect(screen.getByTestId("tile-buy-pack_mock-maths").getAttribute("aria-label")).toBe(`Buy Maths Mock Pack · ${packs.packBuyLabel("pack_mock")}`);
     expect(screen.queryByTestId("tile-buy-pack_mock-science")).toBeNull(); // one Buy, for the chosen subject
     pick("mock", "science");
-    expect(screen.getByTestId("tile-buy-pack_mock-science").getAttribute("aria-label")).toBe(`Buy Science Mock Pack · ${packs.packPayLabel("pack_mock")}`);
+    expect(screen.getByTestId("tile-buy-pack_mock-science").getAttribute("aria-label")).toBe(`Buy Science Mock Pack · ${packs.packBuyLabel("pack_mock")}`);
     expect(screen.queryByTestId("tile-buy-pack_mock-maths")).toBeNull();
     // the one switch moved the Subject Pack's Buy with it (Science)
-    expect(screen.getByTestId("tile-buy-pack_subject-science").getAttribute("aria-label")).toBe(`Buy Science Subject Pack · ${packs.packPayLabel("pack_subject")}`);
+    expect(screen.getByTestId("tile-buy-pack_subject-science").getAttribute("aria-label")).toBe(`Buy Science Subject Pack · ${packs.packBuyLabel("pack_subject")}`);
     expect(screen.getByTestId("tile-buy-pack_chapter").textContent).toBe("Choose chapter");
-    expect(screen.getByTestId("tile-buy-pack_chapter").getAttribute("aria-label")).toBe(`Choose a Science chapter · ${packs.packPayLabel("pack_chapter")}`);
+    expect(screen.getByTestId("tile-buy-pack_chapter").getAttribute("aria-label")).toBe(`Choose a Science chapter · ${packs.packBuyLabel("pack_chapter")}`);
     pick("subject", "maths");
-    expect(screen.getByTestId("tile-buy-pack_subject-maths").textContent).toBe(`Buy ${packs.packPayLabel("pack_subject")}`);
-    expect(screen.getByTestId("tile-buy-pack_subject-maths").getAttribute("aria-label")).toBe(`Buy Maths Subject Pack · ${packs.packPayLabel("pack_subject")}`);
-    expect(screen.getByTestId("tile-buy-pack_chapter").getAttribute("aria-label")).toBe(`Choose a Maths chapter · ${packs.packPayLabel("pack_chapter")}`);
+    expect(screen.getByTestId("tile-buy-pack_subject-maths").textContent).toBe(`Buy ${packs.packBuyLabel("pack_subject")}`);
+    expect(screen.getByTestId("tile-buy-pack_subject-maths").getAttribute("aria-label")).toBe(`Buy Maths Subject Pack · ${packs.packBuyLabel("pack_subject")}`);
+    expect(screen.getByTestId("tile-buy-pack_chapter").getAttribute("aria-label")).toBe(`Choose a Maths chapter · ${packs.packBuyLabel("pack_chapter")}`);
     // PACKS-TIDY-2: no CBQ Buy on /packs (it is on /cbq-packs); the CBQ link card says the price from the pack config.
     expect(screen.queryByTestId("tile-buy-pack_cbq-maths")).toBeNull();
     expect(screen.getByTestId("packs-link-cbq").textContent).toContain(packs.packPriceLabel("pack_cbq"));
@@ -151,8 +151,8 @@ describe("PACKS-TILE-BUY-1 · /packs tiles", () => {
     expect(screen.queryByTestId("tile-buy-pack_bundle")).toBeNull();
     // PACKS-TIDY-2: a neutral button (no "Buy") holds each Buy's place; it only opens the pack's pop-up.
     // review N1: the neutral buttons name the TOTAL (as the app's Buy does); the GST breakup is under / beside them.
-    expect(screen.getByTestId("pk-buy-bundle-neutral").textContent).toBe(`Bundle · ${packs.packPayLabel("pack_bundle")}`);
-    expect(screen.getByTestId("pk-buy-mock-neutral").textContent).toBe(packs.packPayLabel("pack_mock"));
+    expect(screen.getByTestId("pk-buy-bundle-neutral").textContent).toBe(`Bundle · ${packs.packBuyLabel("pack_bundle")}`);
+    expect(screen.getByTestId("pk-buy-mock-neutral").textContent).toBe(packs.packBuyLabel("pack_mock"));
     expect(screen.getByTestId("pk-buy-mock-neutral").getAttribute("aria-label")).toBe(`Mock Pack · ${packs.packPriceLabel("pack_mock")}`);
     expect(screen.getByTestId("pk-buy-chapter-neutral").textContent).toBe("Choose chapter");
     expect(document.body.textContent).not.toMatch(/\bBuy\b[^?]/);
@@ -242,7 +242,7 @@ describe("GST-EXCL-1 · the breakup next to every tile Buy and the pop-up Buy", 
 
     vi.setSystemTime(CUT);
     page();
-    expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe("Buy · ₹353");
+    expect(screen.getByTestId("tile-buy-pack_bundle").textContent).toBe("Buy · ₹299 + GST (₹353 total)");
     expect(screen.getByTestId("tile-gst-pack_bundle").textContent).toBe("₹299 + ₹54 GST (18%) = ₹353");
     expect(screen.getByTestId("tile-gst-pack_chapter").textContent).toBe("₹49 + ₹9 GST (18%) = ₹58");
     expect(screen.getByTestId("tile-gst-pack_mock").textContent).toBe("₹99 + ₹18 GST (18%) = ₹117");

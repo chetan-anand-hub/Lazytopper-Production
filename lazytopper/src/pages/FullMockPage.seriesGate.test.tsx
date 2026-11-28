@@ -236,7 +236,7 @@ describe("LIVE-FIX-1 · the one-free-test wall comes before the weekly fair-use 
     expect(wall.textContent).toContain("You've used your 1 free test.");
     expect(wall.textContent).toContain(`Upgrade to the Test Series (${packPriceLabel("test_series")}) or the Board Pass to take all ${seriesTotals().total} tests`);
     expect(screen.getByTestId("series-start-wall-ts").getAttribute("href")).toBe("/packs?buy=test_series");
-    expect(screen.getByTestId("series-start-wall-ts-pay").textContent).toMatch(/^Pay ₹[\d,]+$/);
+    expect(screen.getByTestId("series-start-wall-ts-pay").textContent).toMatch(/^Pay ₹[\d,]+ \+ GST \(₹[\d,]+ total\)$/);
     expect(screen.getByTestId("series-start-wall-bp").getAttribute("href")).toBe("/board-pass");
     await waitFor(() => expect(screen.getByTestId("series-start-wall-bp-pay").textContent).toMatch(/^Pay ₹[\d,]+$/));
     expect(screen.queryByTestId("fair-use-limit-panel")).toBeNull();

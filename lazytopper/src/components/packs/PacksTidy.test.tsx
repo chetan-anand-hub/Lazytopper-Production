@@ -153,7 +153,7 @@ describe("PACKS-TIDY-1 · signed out", () => {
     flags.guest = false;
     page();
     fireEvent.click(screen.getByTestId("packs-subject-science"));
-    expect(screen.getByTestId("tile-buy-pack_subject-science").getAttribute("aria-label")).toBe(`Buy Science Subject Pack · ${packs.packPayLabel("pack_subject")}`);
+    expect(screen.getByTestId("tile-buy-pack_subject-science").getAttribute("aria-label")).toBe(`Buy Science Subject Pack · ${packs.packBuyLabel("pack_subject")}`);
   });
 });
 
@@ -200,7 +200,7 @@ describe("PACKS-TIDY-2 · the phone's Bundle bar", () => {
     // owner 13 Nov: up from the first screen on a phone, with NO scroll event
     const bar = await screen.findByTestId("packs-sticky");
     expect(document.body.classList.contains("lt-has-pk-sticky")).toBe(true);
-    expect(bar.textContent).toContain(packs.packPayLabel("pack_bundle"));
+    expect(bar.textContent).toContain(packs.packBuyLabel("pack_bundle"));
     await waitFor(() => expect(mineMock).toHaveBeenCalled());
     fireEvent.click(screen.getByTestId("packs-sticky-go"));
     await waitFor(() => expect(buyMock).toHaveBeenCalledTimes(1));

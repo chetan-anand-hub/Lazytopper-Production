@@ -34,6 +34,7 @@ import {
   packIdOf,
   packGstBreakdown,
   packPayLabel,
+  packBuyLabel,
   packCheckoutDescription,
   subjectOfChapter,
   type MyPacks,
@@ -956,15 +957,15 @@ export default function PacksShop({ returnPath = PACKS_RETURN_PATH, embedded = f
     const dismissed = mine_ && buy.phase === "dismissed";
     const blocked = ready && otherBusy(key);
     // GST-EXCL-1: every Buy/Pay label names the amount CHARGED (base + GST from 7 Nov 2026).
-    let label = `Buy for ${packPayLabel(sku)}`;
+    let label = `Buy for ${packBuyLabel(sku)}`;
     if (!enabled) label = "Opens soon";
     else if (!ready) label = CHOOSE_CHAPTER_FIRST;
     else if (isOwned) label = "You own this";
     else if (confirming) label = PACK_CHECKING_COPY;
     else if (busy) label = buy.phase === "checking" ? PACK_CHECKING_COPY : CHECKOUT_OPENING_COPY;
-    else if (!signedIn && !authLoading) label = `Buy · ${packPayLabel(sku)}`;
+    else if (!signedIn && !authLoading) label = `Buy · ${packBuyLabel(sku)}`;
     // PAY-PHONE-1 (C) - the sheet was closed without paying: the student stays one tap from paying.
-    else if (dismissed) label = `Pay ${packPayLabel(sku)}`;
+    else if (dismissed) label = `Pay ${packBuyLabel(sku)}`;
     const showSigninNote = enabled && ready && !isOwned && !busy && !blocked && !signedIn && !authLoading;
     // SELFPAY-ATTACH-1: a signed-in owner's "You own this" is a tap that opens the owner card (checkout-who on only).
     const ownerCard = whoEnabled && signedIn && enabled && ready && isOwned && !busy && !confirming && !blocked && !checkoutAudience;

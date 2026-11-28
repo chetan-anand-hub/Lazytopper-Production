@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { packSampleFor, packSampleHref, PACK_SAMPLE_LINK_TEXT, type PackSampleSurface } from "../../lib/packs/packSamples";
 import { trackPackSampleDownload } from "../../lib/packs/packAnalytics";
 import { BUNDLE_NAME, TEST_SERIES_NAME } from "../../lib/packs/packLabels";
-import { packPayLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
+import { packBuyLabel, subjectLabel, type PackSku, type PackSubject } from "../../services/packs";
 import "./packSampleLink.css";
 
 /**
@@ -81,7 +81,7 @@ export function sampleBuyName(sku: PackSku, subject?: PackSubject | null): strin
 
 export function sampleBuyLabel(sku: PackSku, subject?: PackSubject | null): string {
   // GST-EXCL-1: a buy link names the amount CHARGED (base + GST from 7 Nov 2026).
-  return `Liked the sample? Get the ${sampleBuyName(sku, subject)} \u00b7 ${packPayLabel(sku)}`;
+  return `Liked the sample? Get the ${sampleBuyName(sku, subject)} \u00b7 ${packBuyLabel(sku)}`;
 }
 
 export function SampleBuyNext({ sku, subject, buy, tone = "light" }: { sku: PackSku; subject?: PackSubject | null; buy: SampleBuy; tone?: "light" | "on-dark" }) {
