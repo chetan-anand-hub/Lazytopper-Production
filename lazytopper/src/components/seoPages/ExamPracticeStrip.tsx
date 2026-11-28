@@ -13,12 +13,29 @@ export const EXAM_PRACTICE_LINKS: ReadonlyArray<{ to: string; label: string }> =
   { to: "/test-series", label: "Pre-boards test series" },
 ];
 
-export default function ExamPracticeStrip({ testId = "exam-practice-strip" }: { testId?: string }) {
+/** HOME-LINKS-1: the four links above plus the PDF packs page, for the homepage, the public footer and /practice-hub. */
+export const EXAM_PRACTICE_LINKS_WITH_PACKS: ReadonlyArray<{ to: string; label: string }> = [
+  ...EXAM_PRACTICE_LINKS,
+  { to: "/packs", label: "PDF packs" },
+];
+
+export default function ExamPracticeStrip({
+  testId = "exam-practice-strip",
+  includePacks = false,
+  onLinkClick,
+}: {
+  testId?: string;
+  /** Adds the "PDF packs" link (/packs). Default false: the notes / NCERT / MCQ pages render the original four. */
+  includePacks?: boolean;
+  /** Optional click hook (analytics); the links stay plain anchors. */
+  onLinkClick?: () => void;
+}) {
+  const links = includePacks ? EXAM_PRACTICE_LINKS_WITH_PACKS : EXAM_PRACTICE_LINKS;
   return (
     <nav className="lt-eps" aria-label="Exam practice" data-testid={testId}>
       <span className="lt-eps__lead">Exam practice:</span>
-      {EXAM_PRACTICE_LINKS.map((l) => (
-        <Link key={l.to} to={l.to} className="lt-eps__link">
+      {links.map((l) => (
+        <Link key={l.to} to={l.to} className="lt-eps__link" onClick={onLinkClick}>
           {l.label}
         </Link>
       ))}

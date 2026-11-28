@@ -1,14 +1,16 @@
 /**
  * TRIAL-END-1 (owner ruling 18 Oct 2026) — the PURE half of the trial-ending banner.
  *
- * A 7-day trial used to end silently. On the last days of a running trial the Home page now
+ * A trial used to end silently. On the last days of a running trial the Home page now
  * says, plainly, when it ends and what the student actually did during it. Everything here is
  * pure (no React, no storage, no network) so every rule is pinned by a test with a fixed clock.
  *
  * ★ WHEN IT SHOWS — IST CALENDAR DAYS, NOT ROLLING 24-HOUR BLOCKS. Trial day 1 is the IST
- * calendar day the trial started on (the server-pinned `trialStartDate`). The banner shows on
- * trial days 5, 6 and 7 and on the final morning (day 8) until the exact end instant
- * (start + TRIAL_DAYS — the same derivation subscriptionService uses; the end is never stored).
+ * calendar day the trial started on (the server-pinned `trialStartDate`). On a legacy 7-day trial
+ * the banner shows on trial days 5, 6 and 7 and on the final morning (day 8); on a 3-day trial
+ * (TRIAL-3DAY-1) it shows on day 3 and the final morning (day 4) — in both cases until the exact end
+ * instant (start + the trial's length — `trialDaysForStart`, the derivation subscriptionService
+ * uses; the end is never stored).
  * Day boundaries come from the repo's one IST helper, `istDayStartMs` (progressStore.ts), so a
  * device in another time zone and the CI "ist-midnight" clock both see the same days.
  *
@@ -21,7 +23,7 @@
  * This module never starts, extends or reads a trial on its own: it is handed the status that
  * useSubscription already resolved. When the trial starts is unchanged (owner, 18 Oct 2026).
  */
-import { TRIAL_DAYS } from "../../services/subscriptionService";
+import { trialDaysForStart } from "../../services/subscriptionService";
 import { istDayStartMs } from "../../services/progressStore";
 import type { SessionRecord } from "../../services/sessionRecords";
 
@@ -31,18 +33,29 @@ const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
 /** Mirror of subscriptionService's skew tolerance: a start this far ahead of the device is clamped, beyond it is not a start. */
 const CLOCK_SKEW_TOLERANCE_MS = 5 * 60 * 1000;
 
-/** The first trial day (IST calendar) the banner appears on. */
+/** The first trial day (IST calendar) the banner appears on, on a legacy 7-day trial. */
 export const TRIAL_BANNER_FIRST_DAY = 5;
-/** ASK-FIX-1 - the one-line countdown bar (every main page) starts a day earlier, on trial day 4. */
+/** ASK-FIX-1 - the one-line countdown bar (every main page) starts a day earlier, on trial day 4 (legacy 7-day trial). */
 export const TRIAL_BAR_FIRST_DAY = 4;
+
+/** TRIAL-3DAY-1: the banner's first day for a trial of `trialDays` - the last 3 days of a 7-day trial (5), day 3 of a 3-day one. */
+export function trialBannerFirstDay(trialDays: number): number {
+  return trialDays > 3 ? TRIAL_BANNER_FIRST_DAY : 3;
+}
+/** TRIAL-3DAY-1: the countdown bar's first day - a day before the banner (4 on a 7-day trial, 2 on a 3-day one). */
+export function trialBarFirstDay(trialDays: number): number {
+  return trialBannerFirstDay(trialDays) - 1;
+}
 
 export interface TrialBannerTiming {
   /** 1-based IST calendar day of the trial (5, 6, 7, or 8 on the final morning). */
   dayOfTrial: number;
   /** IST calendar days from today to the day the trial ends: 3, 2, 1, or 0 (ends today). */
   daysLeft: number;
-  /** The exact end instant (epoch ms) = server-pinned start + TRIAL_DAYS. */
+  /** The exact end instant (epoch ms) = server-pinned start + the trial's length. */
   endMs: number;
+  /** The length of THIS trial in days (7 for a legacy trial, 3 for a TRIAL-3DAY-1 one). */
+  trialDays: number;
   /** The trial start (epoch ms), clamped exactly as subscriptionService clamps it. */
   startMs: number;
 }
@@ -54,19 +67,21 @@ export interface TrialBannerTiming {
 export function trialBannerTiming(
   trialStartIso: string | null | undefined,
   nowMs: number,
-  firstDay: number = TRIAL_BANNER_FIRST_DAY,
+  firstDay: number | "banner" | "bar" = "banner",
 ): TrialBannerTiming | null {
   if (!trialStartIso) return null;
   const raw = Date.parse(trialStartIso);
   if (!Number.isFinite(raw) || !Number.isFinite(nowMs)) return null;
   if (raw > nowMs + CLOCK_SKEW_TOLERANCE_MS) return null;
   const startMs = Math.min(raw, nowMs);
-  const endMs = startMs + TRIAL_DAYS * DAY_MS;
+  const trialDays = trialDaysForStart(raw);
+  const endMs = startMs + trialDays * DAY_MS;
   if (nowMs >= endMs) return null;
   const dayOfTrial = Math.round((istDayStartMs(nowMs) - istDayStartMs(startMs)) / DAY_MS) + 1;
-  if (dayOfTrial < firstDay) return null;
+  const first = typeof firstDay === "number" ? firstDay : firstDay === "bar" ? trialBarFirstDay(trialDays) : trialBannerFirstDay(trialDays);
+  if (dayOfTrial < first) return null;
   const daysLeft = Math.round((istDayStartMs(endMs) - istDayStartMs(nowMs)) / DAY_MS);
-  return { dayOfTrial, daysLeft, endMs, startMs };
+  return { dayOfTrial, daysLeft, endMs, startMs, trialDays };
 }
 
 /** "YYYY-MM-DD" of the IST calendar day containing `ms` — the dismissal and shown-once key. */

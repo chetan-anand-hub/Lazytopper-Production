@@ -215,7 +215,7 @@ import {
 } from "../tutor/tutorRoundTrip";
 import type { ScorecardTutorAsk } from "../../components/results/scorecardVariants";
 import { askedQuestionsOf, markQuestionAsked } from "../tutor/scorecardAsked";
-import { TRIAL_DAYS } from "../../services/subscriptionService";
+import { trialDaysForStart } from "../../services/subscriptionService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R).
 // Dark unless /api/usage/me says `enforced: true`; never asked in free-check mode.
 import FairUseLimitPanel from "../../components/usage/FairUseLimitPanel";
@@ -5335,7 +5335,7 @@ const FREE_CHECK_MODE: FreeCheckInnerMode = { mode: "free" };
  * the stored start of the trial that already began.
  */
 function trialEndsOnLabel(startMs: number): string {
-  return new Date(startMs + TRIAL_DAYS * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", {
+  return new Date(startMs + trialDaysForStart(startMs) * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -5397,7 +5397,7 @@ const FreeCheckCheckImprovePage: React.FC = () => {
   }
   // TRIAL-ON-SIGNUP-1 · T2 — a NEW account whose trial THIS session started at sign-up
   // gets the confirmation instead of the offer. The date is the trial's REAL end, derived
-  // from the hydrated record's stored start (start + TRIAL_DAYS), never from today.
+  // from the hydrated record's stored start (start + the trial's length), never from today.
   // "Check my next answer" closes it: the gate remounts fresh, open (the trial is cached).
   const trialStartMsForLabel = subscription.status.trialStartDate
     ? Date.parse(subscription.status.trialStartDate)

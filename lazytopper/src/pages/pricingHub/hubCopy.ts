@@ -304,7 +304,7 @@ export const HUB_BANK_FACE_BULLETS: readonly string[] = [
   "Worked solutions, step by step",
 ];
 /** The folded row under each card's Buy: what the face no longer shows (never a sales option lost from /pricing). */
-export const HUB_PASS_MORE = "7-day free trial and more";
+export const HUB_PASS_MORE = "3-day free trial and more";
 export const HUB_TS_MORE = "How checking works and more";
 export const HUB_CBQ_MORE = "What's inside and more";
 export function hubBankMore(): string {

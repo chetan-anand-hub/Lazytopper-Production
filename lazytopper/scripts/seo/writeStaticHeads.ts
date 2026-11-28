@@ -276,7 +276,7 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
     // no-refund policy (OR-P4), so the head may not promise a refund window.
     title: "Cancellation Policy | LazyTopper",
     description:
-      "LazyTopper's cancellation policy — the 7-day free trial, month and " +
+      "LazyTopper's cancellation policy — the 3-day free trial, month and " +
       "till-boards passes. All payments are final; LazyTopper does not give refunds.",
   },
 };

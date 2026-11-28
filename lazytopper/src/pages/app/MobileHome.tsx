@@ -434,8 +434,8 @@ export default function MobileHome() {
   const { user, mistakeLogsHydrated } = useAuth();
   // START-HERE-1 — asked ONCE: the card at the top, and the older FirstSession card stands down
   // while it is up (two start cards for the same student is noise).
-  const startHere = useStartHere(user?.uid ?? null);
   const { isTrialActive, isPremium, isTrialExpired, hydrated, status: subStatus } = useSubscription();
+  const startHere = useStartHere(user?.uid ?? null, subStatus ?? null);
   // FEEDBACK-1 — once per trial end, the gentle "help us improve" prompt (never blocks).
   useTrialEndFeedback({
     uid: user?.uid,
@@ -601,7 +601,7 @@ export default function MobileHome() {
             ? "Try one board question now. It takes about a minute."
             : isSignedIn
             ? "Pick up where you left off, or start fresh."
-            : "Sign in to explore everything for free (7 days)."}
+            : "Sign in to explore everything for free (3 days)."}
         </p>
         <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 11 }}>
           <span style={crumbChipStyle()}>Class {fallbackGrade}</span>

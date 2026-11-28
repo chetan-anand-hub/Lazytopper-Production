@@ -410,15 +410,15 @@ describe("ASK-COPY-1: title and trial-first lead", () => {
     subState.tier = "trial";
     subState.trialStartDate = "2026-10-20T00:00:00.000Z";
     renderSheet({ featureLabel: "Your full marks breakdown" });
-    expect(screen.getByRole("heading", { name: "Keep your full marks breakdown after your free week" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Keep your full marks breakdown after your free trial" })).toBeInTheDocument();
     expect(screen.queryByText(/is a Premium feature/)).toBeNull();
-    expect(screen.getByTestId("upgrade-sheet")).toHaveAttribute("aria-label", "Keep your full marks breakdown after your free week");
+    expect(screen.getByTestId("upgrade-sheet")).toHaveAttribute("aria-label", "Keep your full marks breakdown after your free trial");
   });
 
   it("an eligible account (never had a trial) sees the trial FIRST, Board Pass second; the tap starts it once and closes", () => {
     const { onClose } = renderSheet();
     const trial = screen.getByTestId("start-trial-cta");
-    expect(trial).toHaveTextContent("Start your free 7-day trial");
+    expect(trial).toHaveTextContent("Start your free 3-day trial");
     expect(trial.compareDocumentPosition(screen.getByTestId("upgrade-sheet-board-pass")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(trialSvc.activateTrial).not.toHaveBeenCalled(); // never on mount
     fireEvent.click(trial);
@@ -500,7 +500,7 @@ describe("ASK-COPY-1: tutor 402 card", () => {
   it("trial-eligible: leads with the free week before the Board Pass, starts it only on the tap, then asks again", () => {
     const onRetry = showCard();
     const trial = screen.getByTestId("start-trial-cta");
-    expect(trial).toHaveTextContent("Start your free 7-day trial");
+    expect(trial).toHaveTextContent("Start your free 3-day trial");
     expect(trial.compareDocumentPosition(screen.getByTestId("tutor-see-board-pass")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(trialSvc.activateTrial).not.toHaveBeenCalled();
     fireEvent.click(trial);
@@ -644,7 +644,7 @@ describe("FairUseLimitPanel on a trial paper refusal", () => {
   });
 });
 
-describe("7-day trial refusal copy", () => {
+describe("3-day trial refusal copy", () => {
   it("says this week, not today, when the server named the week window", () => {
     const week: LimitState = { tier: "trial", scope: "checks", resetAt: null, window: "week", allowance: 5 };
     const c = limitCopy(week);

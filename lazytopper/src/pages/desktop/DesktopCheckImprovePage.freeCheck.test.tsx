@@ -179,7 +179,7 @@ describe("flag OFF — Check & Improve behaves exactly as today (N12)", () => {
     H.auth = { user: SIGNED_IN, loading: false };
     const { container } = renderPage();
     expect(container.textContent).toContain("Answer Checker comes with the Board Pass");
-    expect(container.textContent).toMatch(/Start my free 7-day trial/);
+    expect(container.textContent).toMatch(/Start my free 3-day trial/);
     expect(screen.queryByRole("button", { name: /Read the question/ })).toBeNull();
   });
 
@@ -392,10 +392,10 @@ describe("R1 — the mark is set ONLY on a successful result", () => {
 });
 
 describe("each refusal reason → its copy, with the one sign-in link (N13 catch mapping)", () => {
-  const QUOTA = "Today's free checks are all used up. Come back tomorrow — or sign up free now and start your 7-day trial to check today.";
-  const BROWSER = "We couldn't start a free check in this browser. Sign up free and your 7-day trial covers it.";
+  const QUOTA = "Today's free checks are all used up. Come back tomorrow — or sign up free now and start your 3-day trial to check today.";
+  const BROWSER = "We couldn't start a free check in this browser. Sign up free and your 3-day trial covers it.";
   // OR-14 — `unavailable` has its own line; the App Check line is for app_check_* only.
-  const UNAVAILABLE = "Free checks aren't available right now. Sign up free and your 7-day trial covers it.";
+  const UNAVAILABLE = "Free checks aren't available right now. Sign up free and your 3-day trial covers it.";
   it.each([
     ["ceiling_reached", QUOTA],
     ["budget", QUOTA],

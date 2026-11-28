@@ -206,7 +206,7 @@ export function isFreeCheckRefusedError(err: unknown): err is FreeCheckRefusedEr
 export const FREE_CHECK_COPY = {
   /** CI-UPLOAD-Q-1 — the Upload-question hint for a signed-out free check (marks question 1 only). */
   uploadHintFree:
-    "Upload a photo or PDF of your question paper. Your free check marks question 1 \u2014 sign up for a 7-day free trial to mark every question.",
+    "Upload a photo or PDF of your question paper. Your free check marks question 1 \u2014 sign up for a 3-day free trial to mark every question.",
   /** After a free result. */
   afterResult: "Sign up free to save this and build your mistake pattern.",
   /**
@@ -226,14 +226,14 @@ export const FREE_CHECK_COPY = {
   keepThis: "Sign up free to keep this",
   /** R3 / R5 — `ceiling_reached` and `budget`. */
   quota:
-    "Today's free checks are all used up. Come back tomorrow — or sign up free now and start your 7-day trial to check today.",
+    "Today's free checks are all used up. Come back tomorrow — or sign up free now and start your 3-day trial to check today.",
   /** `app_check_missing` / `app_check_invalid` ONLY (OR-14). */
-  browser: "We couldn't start a free check in this browser. Sign up free and your 7-day trial covers it.",
+  browser: "We couldn't start a free check in this browser. Sign up free and your 3-day trial covers it.",
   /**
    * OR-14 — `unavailable` gets its own line. It is also what a plain 402 in free mode maps
    * to (the client flag on, the server's free check off), so it must not blame the browser.
    */
-  unavailable: "Free checks aren't available right now. Sign up free and your 7-day trial covers it.",
+  unavailable: "Free checks aren't available right now. Sign up free and your 3-day trial covers it.",
   /**
    * R9 — the trial offer after a saved free result. TRIAL-ON-SIGNUP-1b: the general line's
    * two sentences, with the trial's end date between them (the T2 confirmation's order).
@@ -248,11 +248,11 @@ export const FREE_CHECK_COPY = {
   /**
    * TRIAL-ON-SIGNUP-1 · T2 — a NEW account's trial already started at sign-up, so the
    * offer is replaced by this confirmation. Owner copy, word for word (TRIAL-ON-SIGNUP-1b
-   * addendum): "Your 7-day trial is on ✅ Ends <date>. No card, nothing to cancel. After
+   * addendum): "Your 3-day trial is on ✅ Ends <date>. No card, nothing to cancel. After
    * that, keep free Basic or upgrade to Premium at {MONTHLY_INLINE}." — <date> is the
    * trial's real end date ("8 October 2026").
    */
-  confirmTitle: "Your 7-day trial is on ✅",
+  confirmTitle: "Your 3-day trial is on ✅",
   confirmBody: (endsOn: string) =>
     `Ends ${endsOn}. No card, nothing to cancel. ${TRIAL_WORDING.afterLine}`,
   confirmCta: "Check my next answer",
@@ -260,17 +260,17 @@ export const FREE_CHECK_COPY = {
   signUpCta: "Sign up free",
   /** FREECHECK-ONEQ-1 - before grading, a signed-out visitor with more than one question on the page. */
   oneQuestionPreGrade: (n: number) =>
-    `Your free check marks question ${n}. Sign up for a 7-day free trial to mark the whole page.`,
+    `Your free check marks question ${n}. Sign up for a 3-day free trial to mark the whole page.`,
   /** FREECHECK-ONEQ-1 - the scorecard line, from the question that was actually marked. */
   oneQuestionMarked: (n: number) => `Your free check marked question ${n}.`,
   /** FREECHECK-ONEQ-1 - the locked rows' heading and the line under them. `range` from freeCheckQuestionRange. */
   lockedTitle: "Not marked yet",
   lockedLine: (range: string, plural: boolean) =>
-    `Start your 7-day free trial to get marks for question${plural ? "s" : ""} ${range}.`,
+    `Start your 3-day free trial to get marks for question${plural ? "s" : ""} ${range}.`,
   lockedChip: "Locked",
   /** FREECHECK-ONEQ-1 - the restored (signed-up) card: the rest is not marked yet and the page is not kept. */
   restoredLockedLine: (range: string, plural: boolean) =>
-    `Question${plural ? "s" : ""} ${range} ${plural ? "are" : "is"} not marked yet. Open the Answer Checker, add this page again, and your 7-day free trial marks the rest.`,
+    `Question${plural ? "s" : ""} ${range} ${plural ? "are" : "is"} not marked yet. Open the Answer Checker, add this page again, and your 3-day free trial marks the rest.`,
   markRest: "Mark the rest now",
   /** FREECHECK-2 · F2 — the save could not reach the network. Retried on `online`. */
   saveOffline: "You're offline — we'll save your answer as soon as you're back.",

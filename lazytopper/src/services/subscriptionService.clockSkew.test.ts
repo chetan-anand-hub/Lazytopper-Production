@@ -29,7 +29,7 @@ vi.mock("firebase/firestore", () => ({
 }));
 
 import {
-  TRIAL_DAYS,
+  LEGACY_TRIAL_DAYS,
   getDaysLeftInTrial,
   hydrateSubscriptionFromCloud,
   isPremiumAccess,
@@ -82,7 +82,7 @@ describe("TRIAL-CLOCK-1 · a server-pinned start ahead of a SLOW device clock", 
 
     expect(resolved.tier).toBe("trial");
     expect(isPremiumAccess(resolved)).toBe(true);
-    expect(getDaysLeftInTrial(resolved)).toBe(TRIAL_DAYS);
+    expect(getDaysLeftInTrial(resolved)).toBe(LEGACY_TRIAL_DAYS);
     expect(trialHasRunItsCourse(resolved.trialStartDate)).toBe(false);
     expect(cloudWrites()).toEqual([]); // ★ no downgrade written over the server's record
 

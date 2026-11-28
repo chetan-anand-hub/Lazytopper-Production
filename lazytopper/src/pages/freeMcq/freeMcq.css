@@ -92,3 +92,7 @@
 /* While the questions load (the prerendered page already holds them) keep the list's box, so nothing below jumps. */
 .lt-mcq__note[data-testid="free-mcq-loading"] { min-height: 420px; }
 .lt-mcq__cta2 { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; }
+
+/* SEO-SELL-2: reserved height of the top pack card while its lazy chunk loads (same numbers as packNoteCard.css). */
+.lt-note__pack--ph { margin: 14px 0; min-height: 188px; box-sizing: border-box; }
+@media (max-width: 560px) { .lt-note__pack--ph { min-height: 232px; } }

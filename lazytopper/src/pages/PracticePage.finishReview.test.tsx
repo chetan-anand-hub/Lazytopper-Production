@@ -347,7 +347,7 @@ describe("QP-GUEST-SIGNIN-1 · sign-in card on the signed-out MCQ-only scorecard
     const card = await screen.findByTestId("qp-guest-signin-card");
     expect(card.textContent).toContain("Want to keep going?");
     expect(card.textContent).toContain(
-      "Sign in free: your practice from now on is saved, and the 7-day trial marks your written answers the way a CBSE examiner does.",
+      "Sign in free: your practice from now on is saved, and the 3-day trial marks your written answers the way a CBSE examiner does.",
     );
     expect(screen.getByTestId("qp-guest-signin").textContent).toBe("Sign in free");
     expect(screen.getByRole("button", { name: "Not now" })).toBeInTheDocument();

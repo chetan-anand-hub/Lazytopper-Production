@@ -59,7 +59,7 @@ export const afterTrialRest = (): string => ` ${TRIAL_WORDING.afterLine}`;
 /**
  * BUY-PATH-1 - the trial lead without the word "full": the trial is metered (fair-use caps), so "full" over-promised.
  */
-export const TRIAL_LEAD = "7-day trial, then free Basic";
+export const TRIAL_LEAD = "3-day trial, then free Basic";
 
 /**
  * What the visitor was buying when sign-in interrupted them, read from the login page's own `?redirect=`. A pack `sku` is only

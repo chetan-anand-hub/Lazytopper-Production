@@ -158,7 +158,7 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
     expect(txt).toContain("Board Pass: ₹1,917 + GST");
     expect(txt).not.toMatch(/until the (student's )?first board exam|till your boards/);
     expect(txt).not.toMatch(/less than paying monthly|for a month/i);
-    expect(txt).toContain("7-day free trial");
+    expect(txt).toContain("3-day free trial");
     expect(txt).not.toMatch(/Premium|refunds/); // GST-EXCL-1 review G6
   });
 });

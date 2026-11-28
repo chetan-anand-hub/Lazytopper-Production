@@ -47,7 +47,7 @@ export function lockHeadline(featureLabel?: string): string {
 export const LOCK_CARD_TITLE = BOARD_PASS_NAME;
 
 /** Under the headline, only for a student who can still start the free week (the trial button shows below, as before). */
-export const LOCK_TRIAL_LINE = `Try the ${BOARD_PASS_NAME} free for 7 days.`;
+export const LOCK_TRIAL_LINE = `Try the ${BOARD_PASS_NAME} free for 3 days.`;
 
 /** The one quiet way out. */
 export const CONTINUE_WITH_BASIC = "Continue with Basic";

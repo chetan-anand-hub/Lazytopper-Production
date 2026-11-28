@@ -210,13 +210,13 @@ describe("PACK-OWNER-GATES-1 - gate x packs x trial matrix", () => {
     S.packs = "chapter";
     await mount(GATES[0].el());
     await screen.findByTestId("pack-owner-line");
-    expect(screen.getByText("Start my free 7-day trial")).toBeTruthy();
+    expect(screen.getByText("Start my free 3-day trial")).toBeTruthy();
     cleanup();
     resetOwnedPacksCache();
     S.trialStartDate = "2026-10-01T00:00:00.000Z";
     await mount(GATES[0].el());
     await screen.findByTestId("pack-owner-line");
-    expect(screen.queryByText("Start my free 7-day trial")).toBeNull();
+    expect(screen.queryByText("Start my free 3-day trial")).toBeNull();
   });
 
   it("a Premium student meets no gate and no pack-owner line", async () => {

@@ -97,7 +97,8 @@ describe("trialEarlyStripModel", () => {
   });
 
   it("the copy: real day, config price, no deadline note on any date (PRICE-HOLD-1)", () => {
-    expect(trialEarlyStripDayText(2)).toBe("Trial: day 2 of 7");
+    expect(trialEarlyStripDayText(2, 7)).toBe("Trial: day 2 of 7"); // a legacy 7-day trial
+    expect(trialEarlyStripDayText(1)).toBe("Trial: day 1 of 3"); // TRIAL-3DAY-1: the default is a new trial
     expect(trialEarlyStripOfferText(ist(2026, 11, 3, 12))).toBe("Board Pass ₹1,917 · valid till 28 Feb 2027");
     expect(trialEarlyStripOfferText(Date.parse("2026-11-30T23:59:59+05:30"))).toContain("₹1,917");
     expect(trialEarlyStripOfferText(Date.parse("2026-12-01T00:00:00+05:30"))).toBe("Board Pass ₹1,917 + GST · valid till 28 Feb 2027"); // GST-EXCL-1; PRICE-HOLD-1: no switch, no deadline note

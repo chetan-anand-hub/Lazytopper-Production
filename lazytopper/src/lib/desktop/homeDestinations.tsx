@@ -210,8 +210,8 @@ export function composeTutorEntry(input: {
 /** Pop-card footer note — SPEC §3. Trial framing is frozen: never "then paid". */
 export function tutorGateNote(isSignedIn: boolean): string {
   return isSignedIn
-    ? `Premium · part of the 7-day trial — ${TRIAL_WORDING.shortFragment}`
-    : "Sign up free — 7 days of the tutor and step marking. We'll bring you straight back to this chapter.";
+    ? `Premium · part of the 3-day trial — ${TRIAL_WORDING.shortFragment}`
+    : "Sign up free — 3 days of the tutor and step marking. We'll bring you straight back to this chapter.";
 }
 
 // ── PRIMARY ACTION CARDS (5: SPEC §2, journey order, + NCERT-HUB-1) ── ───────────

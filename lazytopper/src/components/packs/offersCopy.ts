@@ -52,7 +52,7 @@ export function paperWallCopy(kind: OfferKind, onTrial: boolean, trialEndedLine:
   if (onTrial) {
     return {
       title: `${saved} Want it marked now?`,
-      body: `You've used this week's graded ${kind === "full-mock" || kind === "chapter-test" || kind === "worksheet" ? word : "paper"} from your free week.`,
+      body: `You've used this week's graded ${kind === "full-mock" || kind === "chapter-test" || kind === "worksheet" ? word : "paper"} from your free trial.`,
       benefit: `Get this ${kind === "full-mock" || kind === "chapter-test" || kind === "worksheet" ? word : "paper"} marked today, and every mock, chapter test and handwritten answer, valid till 28 Feb 2027.`,
       dismiss: WALL_DISMISS_TRIAL,
     };

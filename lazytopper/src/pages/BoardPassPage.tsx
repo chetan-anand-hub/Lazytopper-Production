@@ -4,7 +4,7 @@ import RestoredPurchaseCard from "../components/checkoutWho/RestoredPurchaseCard
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSubscription } from "../hooks/useSubscription";
-import { TRIAL_DAYS } from "../services/subscriptionService";
+import { trialDaysForStart } from "../services/subscriptionService";
 import { currentSalesPageSurface, setSalesPageSurface, trackNamedEvent, trackPaywallAction } from "../analytics/analytics";
 import { isPaymentsClientEnabled, warmCheckoutOnPage } from "../services/checkout";
 import { isParentPayClientEnabled } from "../services/parentPay";
@@ -200,11 +200,11 @@ function trackBoardPassPayTap(e: { target: EventTarget | null }): void {
   if (el && typeof el.closest === "function" && el.closest(".lt-pricing-pay")) trackPaywallAction("pay", "board-pass");
 }
 
-/** "<d Month yyyy>" - the trial's end, derived from the stored start plus TRIAL_DAYS (as /pricing). */
+/** "<d Month yyyy>" - the trial's end, derived from the stored start plus the trial's length (trialDaysForStart) (as /pricing). */
 function trialEndsOn(trialStartDate: string | null): string | null {
   const startMs = trialStartDate ? new Date(trialStartDate).getTime() : NaN;
   if (!Number.isFinite(startMs)) return null;
-  return new Date(startMs + TRIAL_DAYS * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+  return new Date(startMs + trialDaysForStart(startMs) * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 }
 
 /** The hero Pay's label right now (for the phone bar, which reads its copy when it mounts). */
@@ -298,7 +298,7 @@ export default function BoardPassPage() {
   if (!user || (!subscription.hydrated && !trialStartedHere)) trialAction = trialButton;
   else if (trialStartedHere) {
     const endsOn = trialEndsOn(subscription.status.trialStartDate);
-    trialAction = trialState(endsOn ? `Your 7-day trial has started. It ends on ${endsOn}.` : "Your 7-day trial has started.", true);
+    trialAction = trialState(endsOn ? `Your 3-day trial has started. It ends on ${endsOn}.` : "Your 3-day trial has started.", true);
   } else if (subscription.status.tier === "premium") trialAction = null;
   else if (subscription.isTrialActive) {
     const n = subscription.daysLeftInTrial;

@@ -3,7 +3,7 @@ import { render, waitFor, cleanup } from "@testing-library/react";
 
 // [FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT] — the SECOND write site. AuthContext's post-login
 // hydration used to call activateTrial(uid) UNCONDITIONALLY inside
-// hydrateSubscriptionFromCloud(uid).then(...), starting every student's 7-day trial on
+// hydrateSubscriptionFromCloud(uid).then(...), starting every student's 3-day trial on
 // login. This test drives a signed-in (non-local) firebase user so the real post-login
 // hydration effect fires, then asserts activateTrial is never called — the READ stays,
 // the WRITE is gone. Restoring the .then(activateTrial) turns this red (mutation-verified),

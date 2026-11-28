@@ -45,7 +45,8 @@ import {
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { trackUxEvent } from "../services/uxTelemetry";
-import { isPacksEntryEnabled } from "../lib/packs/packEntryLazy";
+import { isPacksEntryEnabled, PacksEntry } from "../lib/packs/packEntryLazy";
+import ExamPracticeStrip from "../components/seoPages/ExamPracticeStrip";
 import { showPackLine } from "../components/limits/packLine";
 import OffersBlock from "../components/packs/OffersBlock";
 import OffersSummary from "../components/packs/OffersSummary";
@@ -445,6 +446,21 @@ function ImportantQsOffers({ subject, topic }: { subject: HPQSubject; topic: str
         benefit={BOARD_PASS_BENEFIT["important-qs"]}
       />
     </OffersSummary>
+  );
+}
+
+/**
+ * SEO-SELL-2 - the subject CBQ Pack card (+ Board Pass link) and the "Exam practice" link strip at the end of the Important Questions page.
+ * The card is for the SIGNED-OUT visitor only (the search / ad traffic): a signed-in student already gets ImportantQsOffers above, and nothing
+ * about their page changes. Flag off: no card (PacksEntry); the strip (plain links) stays.
+ */
+function SeoSellHpqEnd({ subject }: { subject: HPQSubject }) {
+  const uid = useOptionalUid();
+  return (
+    <>
+      {uid ? null : <PacksEntry kind="cbq-card" subject={subject} surface="hpq" boardPass />}
+      <ExamPracticeStrip />
+    </>
   );
 }
 
@@ -2092,6 +2108,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
           </section>
         )}
         <ImportantQsOffers subject={subjectKey} topic={topicFilter} />
+        <SeoSellHpqEnd subject={subjectKey} />
         {/* SEO-LLM-2: always-visible quick answers (the FAQPage JSON-LD in the head is these same items). */}
         <SeoFaq headingId="hpq-faq-h" heading={`Class 10 ${subjectKey} important questions: quick answers`} items={importantQuestionsFaq(subjectKey === "Science" ? "Science" : "Maths")} />
       </div>

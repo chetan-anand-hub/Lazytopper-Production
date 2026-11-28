@@ -1493,7 +1493,7 @@ export type WorksheetSaveFailReason = "write_failed" | "signed_out" | "code_coll
 
 /** ACTIVATION-2 A — which focused first-run surface was shown: absent = the practice picker
  *  (every page before), "check_one" = Check & Improve's "Check one answer" takeover. */
-export type StartHereVariant = "check_one";
+export type StartHereVariant = "check_one" | "pass";
 
 export interface OnboardingEventParams {
   start_here_shown: { surface: StartHereSurface | StartHereFocusSurface; variant?: StartHereVariant };

@@ -14,10 +14,13 @@ import {
 } from "../../components/dailyQuestion/dailyQuestions";
 import { useDailyQuestion } from "../../components/dailyQuestion/useDailyQuestion";
 import PublicLegalFooter from "../../components/ux/PublicLegalFooter";
+import { PacksEntry } from "../../lib/packs/packEntryLazy";
+import { isPackChapterSlug } from "../../lib/packs/packEntry";
+import ExamPracticeStrip from "../../components/seoPages/ExamPracticeStrip";
 import "./dailyQuestion.css";
 
-/** The hero call to action: the Answer Checker, with the 7-day free trial. */
-export const DAILY_CTA_LABEL = "Check your own answer — Answer Checker (7-day free trial)";
+/** The hero call to action: the Answer Checker, with the 3-day free trial. */
+export const DAILY_CTA_LABEL = "Check your own answer — Answer Checker (3-day free trial)";
 export const DAILY_CTA_TO = "/check-improve";
 
 /**
@@ -109,6 +112,15 @@ export default function DailyQuestionPage() {
             </li>
           </ul>
         </section>
+
+        {/* SEO-SELL-2 - the chapter's pack when the question names a pack chapter, else the subject CBQ Pack line (lazy; flag off: nothing). */}
+        {isPackChapterSlug(entry.chapterSlug) ? (
+          <PacksEntry kind="note-card" topicKey={entry.chapterSlug} title={chapter} subject={entry.subject} surface="iqotd" position="end" />
+        ) : (
+          <PacksEntry kind="cbq-card" subject={entry.subject} surface="iqotd" />
+        )}
+
+        <ExamPracticeStrip />
 
         {(prev || next) && (
           <nav aria-label="More questions" className="lt-dq__pn" data-testid="daily-prevnext">

@@ -7,7 +7,7 @@ import "./packNoteCard.css";
 import { Link } from "react-router-dom";
 import { chapterPackPriceTag, firePackEntryClick, isPackChapterSlug, packsHref, type PackEntrySource } from "./packEntry";
 
-export type PackCardSurface = "notes" | "ncert";
+export type PackCardSurface = "notes" | "ncert" | "freemcq" | "iqotd";
 export type PackCardPosition = "top" | "end";
 
 /** CBQ packs are sold on /cbq-packs (owner ruling 14 Nov: never the free /cbq-class-10 page); `?subject=` selects the switch. */

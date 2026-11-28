@@ -3,7 +3,7 @@
 // PRICING-LIGHT-1 · L7 — the pricing page's numbers are MIRRORS; this file proves each
 // mirror agrees with what is actually enforced.
 //
-//  1. The trial's fair-use allowances shown on /pricing ("The 7-day trial includes, each
+//  1. The trial's fair-use allowances shown on /pricing ("The 3-day trial includes, each
 //     day: …") are copies of the SERVER defaults in `server/services/fairUse.cjs`
 //     (DEFAULT_LIMITS, AI_DEFAULT_LIMITS). The client bundle must not import server code,
 //     so the copy lives in `pricingCompare.ts` and this file re-reads the server module

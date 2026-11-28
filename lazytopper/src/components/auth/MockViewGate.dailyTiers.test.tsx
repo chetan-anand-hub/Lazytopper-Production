@@ -145,7 +145,7 @@ describe("MockViewGate — the tiers the owner published", () => {
 
   it("★ A TRIAL-EXPIRED STUDENT IS SIGNED-IN FREE — 3 a day, not zero", async () => {
     // This branch used to return early with NO allowance at all. Because a new account's
-    // 7-day trial makes it premium until it lapses, trial-expired is HOW a student
+    // 3-day trial makes it premium until it lapses, trial-expired is HOW a student
     // becomes signed-in free — so the early return left the entire signed-in free tier
     // unreachable and its published allowance untestable.
     currentUser = { uid: "u-expired", isLocalSession: false };

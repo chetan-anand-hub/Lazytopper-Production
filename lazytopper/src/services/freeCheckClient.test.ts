@@ -218,10 +218,10 @@ describe("OR-18 — the sign-in intent marker", () => {
 
 describe("refusal reason → copy (the spec's lines, verbatim)", () => {
   const QUOTA =
-    "Today's free checks are all used up. Come back tomorrow — or sign up free now and start your 7-day trial to check today.";
-  const BROWSER = "We couldn't start a free check in this browser. Sign up free and your 7-day trial covers it.";
+    "Today's free checks are all used up. Come back tomorrow — or sign up free now and start your 3-day trial to check today.";
+  const BROWSER = "We couldn't start a free check in this browser. Sign up free and your 3-day trial covers it.";
   // OR-14 — `unavailable` has its own line; the App Check line is for app_check_* only.
-  const UNAVAILABLE = "Free checks aren't available right now. Sign up free and your 7-day trial covers it.";
+  const UNAVAILABLE = "Free checks aren't available right now. Sign up free and your 3-day trial covers it.";
   it.each([
     ["ceiling_reached", QUOTA],
     ["budget", QUOTA],
@@ -247,12 +247,12 @@ describe("refusal reason → copy (the spec's lines, verbatim)", () => {
     expect(FREE_CHECK_COPY.usedChecked).toBe("Your answer was checked like a CBSE examiner.");
     expect(FREE_CHECK_COPY.usedBody).toBe("Sign up in one tap to keep this result and keep checking answers.");
     expect(FREE_CHECK_COPY.usedTrial).toBe(
-      `Try Premium free for 7 days — no card needed. After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`,
+      `Try Premium free for 3 days — no card needed. After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`,
     );
     expect(FREE_CHECK_COPY.keepThis).toBe("Sign up free to keep this");
     expect(FREE_CHECK_COPY.offerTitle).toBe("Your answer is saved.");
     expect(FREE_CHECK_COPY.offerBody("2 October 2026")).toBe(
-      `Try Premium free for 7 days — no card needed. Ends 2 October 2026. After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`,
+      `Try Premium free for 3 days — no card needed. Ends 2 October 2026. After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`,
     );
     expect(FREE_CHECK_COPY.offerPattern).toBe("Every answer you check helps build your mistake pattern.");
     expect(FREE_CHECK_COPY.offerStart).toBe("Start my free trial");

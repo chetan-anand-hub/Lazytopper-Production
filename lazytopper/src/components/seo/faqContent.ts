@@ -32,7 +32,7 @@ export const CHECK_ANSWER_FAQ: readonly FaqItem[] = [
   {
     question: "Is checking an answer free?",
     answer:
-      "Your first check is free without an account. A new account also gets a 7-day Premium trial with no card needed. After that you can keep the free Basic plan, or pay once for the Board Pass, which is valid till 28 Feb 2027. The current price is on the pricing page.",
+      "Your first check is free without an account. A new account also gets a 3-day Premium trial with no card needed. After that you can keep the free Basic plan, or pay once for the Board Pass, which is valid till 28 Feb 2027. The current price is on the pricing page.",
   },
   {
     question: "Which classes and subjects does LazyTopper cover?",
@@ -217,7 +217,7 @@ export const PACKS_ANSWER_FAQ: readonly FaqItem[] = [
   {
     question: "What is free?",
     answer:
-      "Each pack has a free one-page sample PDF with no sign-up. Chapter notes, NCERT solutions, free practice and a first answer check are also free, and every new account gets a 7-day free trial.",
+      "Each pack has a free one-page sample PDF with no sign-up. Chapter notes, NCERT solutions, free practice and a first answer check are also free, and every new account gets a 3-day free trial.",
   },
   {
     question: "Are there full mock papers in the PDF packs?",

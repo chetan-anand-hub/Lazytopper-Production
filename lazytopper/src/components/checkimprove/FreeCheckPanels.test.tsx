@@ -142,8 +142,8 @@ describe("the copy is the spec's, verbatim", () => {
   });
 
   describe("OR-14 — `unavailable` has its own line; the App Check line is for app_check_* only", () => {
-    const BROWSER = "We couldn't start a free check in this browser. Sign up free and your 7-day trial covers it.";
-    const UNAVAILABLE = "Free checks aren't available right now. Sign up free and your 7-day trial covers it.";
+    const BROWSER = "We couldn't start a free check in this browser. Sign up free and your 3-day trial covers it.";
+    const UNAVAILABLE = "Free checks aren't available right now. Sign up free and your 3-day trial covers it.";
 
     it("unavailable → 'Free checks aren't available right now…', linking to /login?redirect=%2Fcheck-improve", () => {
       const { container } = mount(<FreeCheckRefusalPanel reason="unavailable" />);
@@ -183,7 +183,7 @@ describe("R9 — the trial offer starts NOTHING until tapped", () => {
     const text = container.textContent ?? "";
     expect(text).toContain("Your answer is saved.");
     expect(text).toContain(
-      `Try Premium free for 7 days — no card needed. Ends 2 October 2026. After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`,
+      `Try Premium free for 3 days — no card needed. Ends 2 October 2026. After that, keep free Basic or get the Board Pass: ${boardPassPriceLine()}.`,
     );
     expect(text).not.toMatch(/upgrade anytime/i);
     expect(text).toContain("Every answer you check helps build your mistake pattern.");

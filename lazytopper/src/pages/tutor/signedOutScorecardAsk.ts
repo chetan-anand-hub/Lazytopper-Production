@@ -18,7 +18,7 @@ export const SIGNED_OUT_ASK_KEY = "lazytopper.tutorSignupAsk.v1";
 export const SIGNED_OUT_ASK_TTL_MS = 60 * 60 * 1000;
 /** The prompt's line (owner ruling, TUTOR-FIX-2 T12). */
 export const SIGNUP_TO_ASK_COPY =
-  "Sign up free to ask the tutor why you lost this mark - your 7-day trial starts when you sign up.";
+  "Sign up free to ask the tutor why you lost this mark - your 3-day trial starts when you sign up.";
 
 export interface SignedOutAsk {
   /** The bank question id (the same value as the tutor URL's `q`). */

@@ -13,10 +13,12 @@ import {
 import { dollarMathToParen, MCQ_LETTERS, optionLabel, parseMcqBlocks } from "../../components/freeMcq/mcqBlocks";
 import { useFreeMcq, type FreeMcqQuestion } from "../../components/freeMcq/useFreeMcq";
 import PublicLegalFooter from "../../components/ux/PublicLegalFooter";
+import { PacksEntry } from "../../lib/packs/packEntryLazy";
+import ExamPracticeStrip from "../../components/seoPages/ExamPracticeStrip";
 import "./freeMcq.css";
 
-/** The secondary call to action: the Answer Checker, with the 7-day free trial. */
-export const FREE_MCQ_CHECKER_LABEL = "Check your written answers — Answer Checker (7-day free trial)";
+/** The secondary call to action: the Answer Checker, with the 3-day free trial. */
+export const FREE_MCQ_CHECKER_LABEL = "Check your written answers — Answer Checker (3-day free trial)";
 export const FREE_MCQ_CHECKER_TO = "/check-improve";
 
 export function freeMcqDownloadLabel(chapter: string): string {
@@ -128,6 +130,9 @@ export default function FreeMcqChapterPage() {
       </header>
 
       <div className="lt-mcq__w lt-mcq__body">
+        {/* SEO-SELL-2 - the chapter's Chapter Pack card after the hero (lazy, height reserved; flag off or paid Premium: nothing). */}
+        <PacksEntry kind="note-card" topicKey={entry.parentSlug} title={parent} subject={entry.subject} surface="freemcq" position="top" />
+
         <section aria-labelledby="mcq-questions">
           <h2 id="mcq-questions">{entry.chapter} MCQs</h2>
           {state.status === "loading" && <p className="lt-mcq__note" data-testid="free-mcq-loading">Loading the questions…</p>}
@@ -162,6 +167,10 @@ export default function FreeMcqChapterPage() {
             </li>
           </ul>
         </section>
+
+        <PacksEntry kind="note-card" topicKey={entry.parentSlug} title={parent} subject={entry.subject} surface="freemcq" position="end" />
+
+        <ExamPracticeStrip />
 
         {(prev || next) && (
           <nav aria-label="More chapters" className="lt-mcq__pn" data-testid="free-mcq-prevnext">

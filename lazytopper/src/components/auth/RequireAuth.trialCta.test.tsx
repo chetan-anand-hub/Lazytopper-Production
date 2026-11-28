@@ -67,7 +67,7 @@ describe("RequirePremium — trial CTA + eligibility", () => {
   it("FRESH user sees the trial CTA; clicking startTrial once unlocks the gated child", async () => {
     hydrate.mockResolvedValue(FREE);
     renderGate();
-    const cta = await screen.findByText("Start my free 7-day trial");
+    const cta = await screen.findByText("Start my free 3-day trial");
     // TRIAL-ON-SIGNUP-1b (owner addendum): the short fragment, CHECKOUT-1: the monthly price.
     expect(screen.getByText(`then free Basic, or the Board Pass ${boardPassPriceDisplay()}, valid till 28 Feb 2027.`)).toBeInTheDocument();
     expect(screen.queryByText(/upgrade anytime/i)).toBeNull();
@@ -87,7 +87,7 @@ describe("RequirePremium — trial CTA + eligibility", () => {
     hydrate.mockImplementation(() => new Promise<SubscriptionStatus>(() => {}));
     // Not the tutor gate: the tutor gate (CBQ-TUTOR-GATE-1) holds on "Checking your session" until hydrated.
     renderGate("Weak Area Practice");
-    fireEvent.click(await screen.findByText("Start my free 7-day trial"));
+    fireEvent.click(await screen.findByText("Start my free 3-day trial"));
     expect(activate).not.toHaveBeenCalled();
     expect(trialStarts()).toBe(0);
   });
@@ -96,7 +96,7 @@ describe("RequirePremium — trial CTA + eligibility", () => {
     hydrate.mockImplementation(() => new Promise<SubscriptionStatus>(() => {}));
     renderGate();
     await screen.findByText("Checking your session...");
-    expect(screen.queryByText("Start my free 7-day trial")).toBeNull();
+    expect(screen.queryByText("Start my free 3-day trial")).toBeNull();
     expect(screen.queryByText(/comes with the Board Pass/)).toBeNull();
     expect(activate).not.toHaveBeenCalled();
     expect(track).not.toHaveBeenCalled();
@@ -123,7 +123,7 @@ describe("RequirePremium — trial CTA + eligibility", () => {
     hydrate.mockResolvedValue(EXPIRED);
     renderGate();
     // Once hydration resolves to expired, the trial CTA must be gone.
-    await waitFor(() => expect(screen.queryByText("Start my free 7-day trial")).toBeNull());
+    await waitFor(() => expect(screen.queryByText("Start my free 3-day trial")).toBeNull());
     // CBQ-TUTOR-GATE-1: the lock arrives a tick after hydration (the pack allowance is read first).
     expect(await screen.findByText("Unlock Full Access")).toBeInTheDocument();
     fireEvent.click(screen.getByText("Unlock Full Access"));
@@ -135,7 +135,7 @@ describe("RequirePremium — trial CTA + eligibility", () => {
     hydrate.mockResolvedValue(ACTIVE);
     renderGate();
     await waitFor(() => expect(screen.getByText("UNLOCKED_CHILD")).toBeInTheDocument());
-    expect(screen.queryByText("Start my free 7-day trial")).toBeNull();
+    expect(screen.queryByText("Start my free 3-day trial")).toBeNull();
     expect(activate).not.toHaveBeenCalled();
   });
 
@@ -143,7 +143,7 @@ describe("RequirePremium — trial CTA + eligibility", () => {
     hydrate.mockResolvedValue(PREMIUM);
     renderGate();
     await waitFor(() => expect(screen.getByText("UNLOCKED_CHILD")).toBeInTheDocument());
-    expect(screen.queryByText("Start my free 7-day trial")).toBeNull();
+    expect(screen.queryByText("Start my free 3-day trial")).toBeNull();
     expect(activate).not.toHaveBeenCalled();
   });
 });

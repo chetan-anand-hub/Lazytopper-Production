@@ -1,7 +1,7 @@
 /**
  * TRIAL-CTA-1 · T2 — Pricing's Premium button is state-aware.
  *
- * Before: "Start 7-day trial" navigated to /login for EVERYONE — a signed-in student
+ * Before: "Start 3-day trial" navigated to /login for EVERYONE — a signed-in student
  * just bounced back with no trial. Now:
  *
  *   signed out            -> the unchanged button -> the sign-in door with the intent (T1)
@@ -56,7 +56,7 @@ function status(over: Partial<SubscriptionStatus>): SubscriptionStatus {
   return { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null, ...over };
 }
 const FREE = status({});
-const ACTIVE = status({ tier: "trial", plan: "trial_7day", trialStartDate: new Date(Date.now() - 2 * DAY).toISOString() });
+const ACTIVE = status({ tier: "trial", plan: "trial_7day", trialStartDate: new Date(Date.now() - 1 * DAY).toISOString() });
 const TRIAL_USED = status({ trialStartDate: new Date(Date.now() - 10 * DAY).toISOString() });
 const PREMIUM = status({ tier: "premium", plan: "premium_monthly", premiumSince: new Date(Date.now() - DAY).toISOString() });
 
@@ -90,12 +90,12 @@ function renderPricing() {
 function premiumCard(): HTMLElement {
   return screen.getByTestId("pricing-board-pass");
 }
-const trialButton = () => screen.queryByRole("button", { name: "Try the Board Pass free for 7 days" });
+const trialButton = () => screen.queryByRole("button", { name: "Try the Board Pass free for 3 days" });
 /** The state sentence (the role=status paragraph — the sibling <style> is not text). */
 const trialMsg = () => screen.getByRole("status").textContent;
 const trialStarts = () => track.mock.calls.filter(([name]) => name === "trial_start").length;
 const endsOnFrom = (startIso: string) =>
-  new Date(new Date(startIso).getTime() + svc.TRIAL_DAYS * DAY).toLocaleDateString("en-IN", {
+  new Date(new Date(startIso).getTime() + svc.trialDaysForStartIso(startIso) * DAY).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -117,7 +117,7 @@ describe("T2 · signed out — the render is unchanged", () => {
     expect(btn).not.toBeNull();
     // PRICING-B-1: the owner's wording; the same action (payments dark in tests -> the primary style), no disabled attribute.
     expect(btn!.outerHTML).toBe(
-      '<button type="button" class="lt-pricing-cta lt-pricing-cta--primary" data-testid="pricing-trial">Try the Board Pass free for 7 days</button>',
+      '<button type="button" class="lt-pricing-cta lt-pricing-cta--primary" data-testid="pricing-trial">Try the Board Pass free for 3 days</button>',
     );
     expect(screen.queryByTestId("pricing-trial-state")).toBeNull();
 
@@ -150,7 +150,7 @@ describe("T2 · signed in", () => {
     expect(stored.tier).toBe("trial");
     const state = screen.getByTestId("pricing-trial-state");
     expect(state.textContent).toContain(
-      `Your 7-day trial has started. It ends on ${endsOnFrom(stored.trialStartDate as string)}.`,
+      `Your 3-day trial has started. It ends on ${endsOnFrom(stored.trialStartDate as string)}.`,
     );
     const link = screen.getByRole("link", { name: "Start practising" });
     expect(link.getAttribute("href")).toBe("/practice-hub");

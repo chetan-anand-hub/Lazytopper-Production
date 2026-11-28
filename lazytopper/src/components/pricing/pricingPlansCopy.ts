@@ -49,7 +49,7 @@ export const BOARD_PASS_TICKS: ReadonlyArray<{ id: string; strong?: string; text
 export const BOARD_PASS_ONCE = "once";
 
 /** The trial action's label (same action and states as before; owner wording). */
-export const TRIAL_LINK_LABEL = `Try the ${BOARD_PASS_NAME} free for 7 days`;
+export const TRIAL_LINK_LABEL = `Try the ${BOARD_PASS_NAME} free for 3 days`;
 
 /** The parent-pay actions' labels on /pricing (the same actions as every paywall; owner wording for this page). */
 export const FORWARD_TO_PARENTS_LABEL = "Forward link to parents";

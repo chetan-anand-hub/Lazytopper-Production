@@ -1,538 +1,538 @@
 {
   "/": {
-    "sha256": "3e7722e78f2a4b087c7a8cc0e7df502d7cd9a63ad7459768daf19bf07900197d",
-    "lastmod": "2026-11-23"
+    "sha256": "7075a7882fbb58b94b4a91253b6adcba7f2840f66e61efe529a96666551a96f6",
+    "lastmod": "2026-11-28"
   },
   "/board-pass": {
-    "sha256": "c818d636bb6a4be3e753e4e78c227c7cfac8fe56e7bc41194169926b4e51e6e5",
+    "sha256": "8e23b96a9f867242fa44e571e02db64ec90c747e6006ae9a77fae32b61dc54d1",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10": {
-    "sha256": "be66c1322b9b0eca1e6a99d3869f8d65973378e6bdf9822cdec2f3fea4a4f8a9",
-    "lastmod": "2026-11-17"
+    "sha256": "aec0737885ba90dbb92185672f44b3d74fcddb484827a84f669a58da6614ea2a",
+    "lastmod": "2026-11-28"
   },
   "/cbq-class-10/acids-bases-and-salts": {
-    "sha256": "618aa4f753732b2736020a45bb8c88c720b2f3f3dd1acbffba7c3a244d883167",
+    "sha256": "71d309632005aff8df2a028adfd46d2f76a2806ef27712f4bfd12da449174847",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/areas-related-to-circles": {
-    "sha256": "640ff79194fe88350e01854f1828842b641b7199fb0627964c54cbec4d38118e",
+    "sha256": "758a332808c134ecd061a697d9f15368dca9f6120b3eeb457808b3b67fea7733",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/arithmetic-progression": {
-    "sha256": "e05dd694eedeb3e954b679fcc74757844452a337f73ae96a8b7b84fdf5726918",
+    "sha256": "5558c35b195397f63872c8c775098845c699d3c6b5f8dd3701c518b0efa7439a",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/carbon-and-its-compounds": {
-    "sha256": "d566b7d5276d49e1b79570301db04184a906be3e8ef34f054c9bfe367787b975",
+    "sha256": "6a362c058772bfdfb364b8f17eed8a231e793eb3e3cadd15daa7bc8f045e68c7",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/chemical-reactions-and-equations": {
-    "sha256": "9c2537e7dee237ccd5d4dbc2bda008a4578bb0e305dbd93eada9614e24f824aa",
+    "sha256": "381d1add69d0253b0e986f469da118c514d989920a63c2f5b0e8eba08564ec52",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/circles": {
-    "sha256": "dd2eff548e3291b76f39fc9e270994507625b2a4d3071fe0cd5b3ffb51fdb6fb",
+    "sha256": "04920d552d06cb287e78f5e7465183ac14d56531a07f043236e6f9cbf0e96e93",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/control-and-coordination": {
-    "sha256": "edf91be04f7694dffa530aec4e2ecf944ce6587c25e0785ae90a1f5bb1974478",
+    "sha256": "c61165d890076d187ffa79718d156c629b2890ed4e3ecc0ec70cd1a61e975e03",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/coordinate-geometry": {
-    "sha256": "c42680a84f07464c37535be036132b0ce7030e9fbbde484450b691a1a10f6679",
+    "sha256": "8adebf1d1d3ec2e7f84cf6bcb49da63ce928236c868ad19ab10afeab5b1458c9",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/electricity": {
-    "sha256": "1b7e027235a572e2de04daab534db10e1ddaf76b2dee25b5e663001187d1cc87",
+    "sha256": "89f17f4969fc1d01b1ac1fb17c88996a51509978cf7f524001340e0ea97ed0e6",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/heredity": {
-    "sha256": "44af50294670a1e6d5df221971709d1f9152b7f8c0d98f97b9605131ec90c995",
+    "sha256": "2e369c6bd405f1967e483ee31232cea873eb10739dff1c9b56ff68cf14d64dac",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/how-do-organisms-reproduce": {
-    "sha256": "6faeac8cb82ca6a0602fceef4aa745a83a5fcf217dd34b6eaf1e40bd70e57abd",
+    "sha256": "27caef6d106dc8312f86c06fedcc1c01368bb2e4384364deb6ef598da48c2475",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/human-eye-and-colourful-world": {
-    "sha256": "cbe9c296a44347b7330077c6cc3d52a46aae6818896fae01475405c5c89f6464",
+    "sha256": "fab4369d64813db8518b36137e1c7dd77d60dde72bd2e46517c4dc82473c4b0e",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/life-processes": {
-    "sha256": "075dcb27c82b448816c3183f89f7eb9ec067ee9aaa5bc671b7b1e8fb03206a4a",
+    "sha256": "0d52c9770744bddbd53f82eafdf812265960c9e42b39a1802bf9d013a4c4cbee",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/light-reflection-and-refraction": {
-    "sha256": "224e438e9fb6478003c12503cf49ce16bc1b65b638147f2cd234b12369afdb9c",
+    "sha256": "9b14bebaedde09660b1f900367d7708e7c7806e722a4b520960a48cfd1bdbf99",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/magnetic-effects-of-electric-current": {
-    "sha256": "4a9952d7e1c55dc277fc269d3aaec40a37b4e000f4e17caf3494d4fc8f9cc77e",
+    "sha256": "038281ec163f90a5670aff9a002227034c36bdc097837c1ba735403315ef3673",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/metals-and-non-metals": {
-    "sha256": "9fd06861164fc57a8c93f7980e915bd2d7482c513a46bc89ff0c058209290450",
+    "sha256": "3d33317c925b16eccc264c7938eccaa16c4779471aa10730ba0dc0c66aa4225c",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/our-environment": {
-    "sha256": "42f1bae559b0d15dee507f7c285628e1995bc3a5e0217c51679e6baea2cee915",
+    "sha256": "2307393f1a7b6cf8ecd4dd990f72681b444e529c97a20f95cf7ef515719b077a",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/pair-of-linear-equations": {
-    "sha256": "913ea941900844f96091d70a77fc8f68ee730493018e799d4ba45b258442093a",
+    "sha256": "32dcc0c7278a1c860c1b2ec64be3d2541b5c0a331c2029dc431952a9eddde6fe",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/polynomials": {
-    "sha256": "4df360e3b46df6d2732c5e39619a8a637a4e76cab66add48cf1222b5db669d29",
+    "sha256": "1b74a275ef9ca3359798ae1dc3b5e4d18844380ca67bac0ce9020aefc852491e",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/probability": {
-    "sha256": "2815f6e349e7ebb1cdd48c3255129679b37fcc0c991a47226af6f0cbd137bfbe",
+    "sha256": "d304e8d3c03ad5e32d59357aae31ded46a0978133a783d44b95da2307522553c",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/quadratic-equations": {
-    "sha256": "682601bd4a633940dcefe9f4c3faedd764a1ac782135d4e76e94c878f1225ad2",
+    "sha256": "7fcf26dcbfa813db118aaf8eb5a0525b379e5a8d381286bb70e3c28dee948cff",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/real-numbers": {
-    "sha256": "552643a47162d84336d15fd211ef2f228b152526eb9e58d31ddee65c7150075a",
+    "sha256": "99a8bc9899793e755fb52a8f860cba700313c249311c81dfe9025b5ae2e7fbf5",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/statistics": {
-    "sha256": "37d5ac912f382a485df2c8a8fc48919e926f52f429e897e5f77899b8738e0453",
+    "sha256": "e05261b34b7b63e66b42381f26488e29a8cc1470abf8a15d5002511c809cc2b9",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/surface-areas-and-volumes": {
-    "sha256": "48bd3be062bb4ef87b7c4fee37c2659e81acef326362d348cfcf9dc49cfdf831",
+    "sha256": "1c8f67c8e4e03226073ab05ea0685e961b6a6ac9251a4f531e4ada44eceb4d76",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/triangles": {
-    "sha256": "4c988924154daa7a904f871504b741649fa0a112acf04d0803d295a958327fcb",
+    "sha256": "2e72ecf4a80e8f65fa4af89210f8ba80a00b3e352435ef8ea7fd781a966e112d",
     "lastmod": "2026-11-28"
   },
   "/cbq-class-10/trigonometry": {
-    "sha256": "1fc1527bc3a87c0779d7789589ccf2f6f7aa39162bdf84223d102aee8d86fdd0",
+    "sha256": "49b9eaeaea996e1aeea70c183549c3432ac865231acfee2014406b8458676c13",
     "lastmod": "2026-11-28"
   },
   "/cbq-packs": {
-    "sha256": "6dd340e73111c6ff30bbf1ee795520278a4eb421edcd5d30668247fb1c8b0400",
-    "lastmod": "2026-11-18"
+    "sha256": "6dd8828c251b1dbdf269c682c7a85521920d563ae008f712411235e9ba3a1173",
+    "lastmod": "2026-11-28"
   },
   "/cbse-marking-scheme-class-10": {
-    "sha256": "c2da5616cb8f61313f783340c9c0ad9435069da222565af4beaa149ab96f9b81",
-    "lastmod": "2026-11-17"
+    "sha256": "925b6d7f6f26d7f9bb68072617f440918a659f4508bc6e783c3527cac1f67d19",
+    "lastmod": "2026-11-28"
   },
   "/cbse/class-10": {
     "sha256": "f5d8cb2b2f49026e076c33ae0e4ab46b938d97761e3fd0e404787cb3d0f23af9",
     "lastmod": "2026-11-18"
   },
   "/check-your-answer": {
-    "sha256": "33306d7a126425ab391c40888b96ed2063651d52a97d1ed8e2ba9942528c3298",
-    "lastmod": "2026-11-20"
+    "sha256": "3a8bb1902a75f47dfd3d5f723003c2961d969502db6222357fc5c5649580658a",
+    "lastmod": "2026-11-28"
   },
   "/contact": {
-    "sha256": "c72444e997be8681a2527e13c7f0efd66a4a5df7991ebd759c1103b15bb00383",
-    "lastmod": "2026-11-17"
+    "sha256": "b68df816b4f4b9d22730b3f58bcd8b5f9438ccce37839b8d716ef82b07aba76e",
+    "lastmod": "2026-11-28"
   },
   "/exam-trends": {
     "sha256": "9ffa2851ff587b567c10554355bbbf0163c29377fed5014283f853200471b8d9",
     "lastmod": "2026-11-14"
   },
   "/for-parents": {
-    "sha256": "a8095fe226595e037e5eddd30e63836a6d77297d71df0c059ced064e22efd102",
+    "sha256": "9bae17223ec4b9af825a4c536f3e0f6679fc56bdb7bcb4a27ed5febbbf28739d",
     "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10": {
-    "sha256": "8b003a09fa4825e25afe5e26f34d396e1f9a0e7277307f598ed336156f2e773b",
-    "lastmod": "2026-11-17"
+    "sha256": "04a816e86abcc33b4e87174afdd934dfe81c173e5ef5d26abf0bb569c5e9556e",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/acids-bases-and-salts": {
-    "sha256": "029f0af0a3358071a1fc576d4a56008d01a2ad7e4c621f7135d78848e0311df4",
-    "lastmod": "2026-11-17"
+    "sha256": "88080eb702383eeb5dad9b88a63440440ae590fff759eb1febafd2be878c0108",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/areas-related-to-circles": {
-    "sha256": "80b31d1887bde026625089d9b08bcb15f151990a7e28eabaee9c4279a5e79b3a",
-    "lastmod": "2026-11-17"
+    "sha256": "b94c8046b93b084989e114508c20b4fd213b65756445d5e4bf67da8225f1ad1e",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/arithmetic-progression": {
-    "sha256": "197b1e0c972870c422660301b7cf15b3642f5cb90b0ab1a920baf9ab4ad40bdc",
-    "lastmod": "2026-11-17"
+    "sha256": "e818d1a827a860c257cc9daa0c0cccba5c5b8afb2e12c3e6fb126d4688b9c65e",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/carbon-and-its-compounds": {
-    "sha256": "8000d8ea3730103825f058ab32fa475cfb5a509cb1110e78b16d4e71bd06dd75",
-    "lastmod": "2026-11-17"
+    "sha256": "df8d2b57ea57eef92e3020e3c14d196fb1731e705459769d5670c33c8619089a",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/chemical-reactions-and-equations": {
-    "sha256": "ca81ac6a63157e7f1af17feae054df0725642a84040fb916aedd4066f9e2c6c5",
-    "lastmod": "2026-11-17"
+    "sha256": "4ec2c5ac5f41a9b6218e8ddf6e2d7dbe22619a1aa929e5a6ce1116debb9abfc2",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/circles": {
-    "sha256": "1eb605cdf940cd9ff08f5bfb7f317fd26c282f0410623906dfc529b9d0184ff6",
-    "lastmod": "2026-11-17"
+    "sha256": "e5818f0b8b3dd99bbcbcd2aad3240b24ac83bfddb328a7f021fc595577dc1d62",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/control-and-coordination": {
-    "sha256": "7dd9a6d07a4023c953ccbf78b3bc94380cd66a0476e077a1d8e149ea5b694a77",
-    "lastmod": "2026-11-17"
+    "sha256": "3f2c5c4fae798999631e477f0ab8c4dbcc533b44131652fcb3fcee3ef03cd140",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/coordinate-geometry": {
-    "sha256": "dbaba2cf67d4ebea2aa9ee7ad84c02cc997fee9594d2e3eae4df635e3e008181",
-    "lastmod": "2026-11-17"
+    "sha256": "c210aa2a9805900c5e2e53a3f0be2ede64db2d40842f0803901af4262711dde7",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/electricity": {
-    "sha256": "92f22ed844f9fe6891c4295fc8940070f7cd7cada88caf0ba9e989e3f503ad6a",
-    "lastmod": "2026-11-17"
+    "sha256": "78b424911810b80dc039b252c74a9ef37040a673e2e4ce3e4203351ccee1eded",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/heights-and-distances": {
-    "sha256": "c9b462c81d5addf2c1e9ebd7cad034c0d2fbe1881c8782b1acfb0335c4dc42ad",
-    "lastmod": "2026-11-17"
+    "sha256": "41c42e9f162d1d1a05f5df60ccfc9b4234b3e9f539ac0ccd2fc742c1e56e6710",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/heredity": {
-    "sha256": "878ea5bb1328cc651ead35fb44c70501de847b3a77f9b631c17319d50e9e9a80",
-    "lastmod": "2026-11-17"
+    "sha256": "9b9a4d56f18c5d1adbe065f45b0788201d17cba6045c37f0d441b7e32dd05a49",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/how-do-organisms-reproduce": {
-    "sha256": "9d8fd334a934e42d40f0c0a6a1931dcabec6326f8109a035f6152e54c92da60b",
-    "lastmod": "2026-11-17"
+    "sha256": "f8d12f6e27184e4c4cb672594cf941fab8ca40634219baf83a0036160685fb25",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/human-eye-and-colourful-world": {
-    "sha256": "ca4bd9127d50097df303f9a67572d1a6db769f18e1632907f59ab01180841c35",
-    "lastmod": "2026-11-17"
+    "sha256": "3aba00417ffd94c5ead6f0bc1c8dfb0c7dce9574509f4e4820579c188635e113",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/life-processes": {
-    "sha256": "f24879dfc73933433b991aa4faa929d28d627cf7a5816b703a493170117dacb0",
-    "lastmod": "2026-11-17"
+    "sha256": "58bab1b3f3f649bba4fd1765bc6478f4465ed295b39c1e97326f65d994a442ca",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/light-reflection-and-refraction": {
-    "sha256": "bf7e36776ce57500e0312f2cdb016ea32c1d18fd5691b4a6db70c5345fff6a6c",
-    "lastmod": "2026-11-17"
+    "sha256": "f4e5cd1dc3568cdaccc96adced9aee05e33090bc069efd2c8b344eba81a6e5bd",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/magnetic-effects-of-electric-current": {
-    "sha256": "da1210394d0539e4413755fd97f1c53756547a18269770ccdfb6b8b911b49390",
-    "lastmod": "2026-11-17"
+    "sha256": "26217e0287338ecc53bd64270ae41c723520263a5ba449280bb77ff3169c0969",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/metals-and-non-metals": {
-    "sha256": "9162336048135a800d3a6f0968e4fe733b6d9ba68adaae58668708fd84bb212b",
-    "lastmod": "2026-11-17"
+    "sha256": "cbec3dc5c29d1357ee44cff7b09a6419498edccc15f2229fb98bc059dbd397f8",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/our-environment": {
-    "sha256": "5c5f05e891a03f1fe2d039873d4856728ffa4c080fe0411edb545bed7161901a",
-    "lastmod": "2026-11-17"
+    "sha256": "71a4c5d23708520e8255a68e2f306e0d4077f85b8e4a8f0716bc5d07387ed640",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/pair-of-linear-equations": {
-    "sha256": "3f04e976febbbdfd87684676040bd3ab32d01541412d9327c0615edeae62d0ef",
-    "lastmod": "2026-11-17"
+    "sha256": "f335d6e744f29fe787d501270302c4fcb6991865112a92d4835b65fed661327e",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/polynomials": {
-    "sha256": "15bc2fb6a40b6d754725435b4e0db2cb0ad288650789980dfd1aebad6de6a6f5",
-    "lastmod": "2026-11-17"
+    "sha256": "dcceb6e00bfa406f18fd726c01091dfaa5e327dd41cd68d53b20820a0803c9f1",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/probability": {
-    "sha256": "12f6024dde6eb931b4349b09c6e420d3d78070a8831095ddc41ece738e10b6cd",
-    "lastmod": "2026-11-17"
+    "sha256": "4c197badc02a47dc358795363cf6ed0c96aba71163d4a72d89ac8b9efa6e15d0",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/quadratic-equations": {
-    "sha256": "f9b671a9b7e097f571a7caad108088bfcf97b383db069f81cc88bed723197b95",
-    "lastmod": "2026-11-17"
+    "sha256": "16d499dc706c7afc840a191369c91ea2fd3cdd28922824744994ec35d9edf5de",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/real-numbers": {
-    "sha256": "cfc05e30956a3b651e2b577f6e54299c15cde2109f03df8ef79b9db3ba292c16",
-    "lastmod": "2026-11-17"
+    "sha256": "802c46bd3ac6280a54aa4a4c394219bcaa0c1ff6507f89615bed62c4efe815af",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/statistics": {
-    "sha256": "89c5d11eee646beb1378b206a60d5e70e8322a5afad4a5f1dcef9e4edfafe5cd",
-    "lastmod": "2026-11-17"
+    "sha256": "f79a6e895fe297916f851841ce37e5243ae3572492deb13661ae0210e1d8169b",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/surface-areas-and-volumes": {
-    "sha256": "6b090a15d32a3c6a83dfae7c2dee2e466ce253a75f9e47f2559fdaae883263fc",
-    "lastmod": "2026-11-17"
+    "sha256": "56223783f570f511d670348f101c8e905fbbdccf0e4e1708603f0f55f4839919",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/triangles": {
-    "sha256": "411bbc5b4b2f99d287d0915f4f11322c663e36ff56a53a96e85adf784070403e",
-    "lastmod": "2026-11-17"
+    "sha256": "89c18fc3894e54f5725b044f8b7a64172c16e263565b0c97d4a68d9e956cc0cb",
+    "lastmod": "2026-11-28"
   },
   "/free-mcq-class-10/trigonometry": {
-    "sha256": "a214d0ccb046f8f77e7b844c604a270615a500f1d8b6c93e06957534b48aeaa4",
-    "lastmod": "2026-11-17"
+    "sha256": "7696ddc87d370ab1dee4c831e8d810c73f131bf96bb7a14d721ddbd925dd887b",
+    "lastmod": "2026-11-28"
   },
   "/highly-probable/10/Maths": {
-    "sha256": "148f84ba613890fbad313df160c5cb6c57665598a69e452888a6c9a33369ceeb",
-    "lastmod": "2026-11-18"
+    "sha256": "3cec7315c275ab549e538bf9b0faf40f7f4418e88cd57d0989a755f53ba49476",
+    "lastmod": "2026-11-28"
   },
   "/highly-probable/10/Science": {
-    "sha256": "0a0967f0549c048cdca1a32dfc65cf3e223ba2cd876537cfabef0a81a5da00fc",
-    "lastmod": "2026-11-18"
+    "sha256": "74b95c880d1145d58116fe0780efd183ad5be71b52e0300780d562d0cc9c49bf",
+    "lastmod": "2026-11-28"
   },
   "/important-question-of-the-day": {
-    "sha256": "dc68ae3ca69614c287c31c07186721db8753c4db3f82b617cfce1dcdb4b72bf1",
-    "lastmod": "2026-11-18"
+    "sha256": "88c42ffa64aa618c97dfe5f8ac5fad3fd872743702857ab13d24ec73845bf327",
+    "lastmod": "2026-11-28"
   },
   "/important-question-of-the-day/arithmetic-progression-sum-double-answer-5-marks": {
-    "sha256": "e973d23a0807338a6b39e42573f9a49bb9beb2fc0bd752c7a930a5a8d792e777",
-    "lastmod": "2026-11-17"
+    "sha256": "e91bc00d15b07e28bc9e765138cc3d3f159bd392fb947536afd986844c94e363",
+    "lastmod": "2026-11-28"
   },
   "/important-question-of-the-day/chemical-reactions-lead-nitrate-potassium-iodide-3-marks": {
-    "sha256": "3dff5f3623024d5f317b951af23e9f92fd26dd4f9b0c38582b17cbd2dddf3bc8",
-    "lastmod": "2026-11-17"
+    "sha256": "92a045d90a4df7c9802b7a9a1586cba647e40fcd5e78a46f5fbf7a11aedb0ec4",
+    "lastmod": "2026-11-28"
   },
   "/important-question-of-the-day/coordinate-geometry-distance-between-points-1-mark": {
-    "sha256": "d891d4b1c732999ed2819e27a921380bd0044f8410c6f816a768899c4a7de3fd",
-    "lastmod": "2026-11-17"
+    "sha256": "621c45b918bd49c95a29768a7b6c119568515db89ad2cf1a03584e6192d9ada5",
+    "lastmod": "2026-11-28"
   },
   "/important-question-of-the-day/electricity-wire-cut-in-five-parts-1-mark": {
-    "sha256": "378c60ce4f2e38703cc153b9eb7a21efbe53f8189ed65886870723cb08dd7fb9",
-    "lastmod": "2026-11-17"
+    "sha256": "b090fbd5c7027b93e3ea5c9647cdd693a862b91d1888d55ea39a43b5eadc823d",
+    "lastmod": "2026-11-28"
   },
   "/important-question-of-the-day/heredity-pure-tall-pure-short-cross-3-marks": {
-    "sha256": "41627385a62d4fd5f3cd34db2dec7adbe07ff7920cf00cd6dceb02a336ccf53c",
-    "lastmod": "2026-11-17"
+    "sha256": "a9f09f531ae4525f6e1e80b81053dac6dcd674e8e0980c5680d69d6230cbfa71",
+    "lastmod": "2026-11-28"
   },
   "/important-question-of-the-day/life-processes-left-ventricle-wall-1-mark": {
-    "sha256": "ec6f174a6c3df73317c447f13a95a940d9124e1a5406da0791c3c4624b45e9f1",
-    "lastmod": "2026-11-17"
+    "sha256": "c67549c8f974f381da73790ca95a6b19353b23960a2c5fd831561cbe605e861b",
+    "lastmod": "2026-11-28"
   },
   "/important-question-of-the-day/light-concave-mirror-image-3-marks": {
-    "sha256": "bdc95d246856d39fac3b7ad5ae94e1e50eb78c3d8be2091aa2068752dccbbdf2",
-    "lastmod": "2026-11-17"
+    "sha256": "f195b26eec2498595ab5d4e1524925ad14a9342a065aa4f3502ceebc218115d6",
+    "lastmod": "2026-11-28"
   },
   "/important-question-of-the-day/pair-of-linear-equations-two-digit-number-3-marks": {
-    "sha256": "2ba9a695229a50e18b22a995eedb0519d034c5de0a6a168d8241a048e8a16bf1",
-    "lastmod": "2026-11-17"
+    "sha256": "0b0613150aedfa164c80a68481d2d0cbbe18b86b24c1146f46a05b533cb90868",
+    "lastmod": "2026-11-28"
   },
   "/important-question-of-the-day/probability-prime-on-a-die-1-mark": {
-    "sha256": "6014e5e05442abf1bb40839fd60f0b9749146b076fb31a4062b6777493cfd6f2",
+    "sha256": "25891883c60681b217923bee0d0599b90ac1e155b8a4294849ae9d9bfa0f1fbf",
     "lastmod": "2026-11-28"
   },
   "/important-question-of-the-day/quadratic-equations-find-roots-1-mark": {
-    "sha256": "9509b8bdfd1132306ccd55f4485a0d8da9eb009b64af3a9d53681b60c61e9201",
+    "sha256": "3e144a7ecf11518ca2416d9ae77f7f140f3cd86dfd7440ee43c61a08d42eb1db",
     "lastmod": "2026-11-28"
   },
   "/important-question-of-the-day/trigonometry-simplify-sec-a-tan-a-1-mark": {
-    "sha256": "7bfe3422d63b0c7a4e100518436bec661eda7788ea935c9b7a9a2b5cd88b90f6",
-    "lastmod": "2026-11-17"
+    "sha256": "af85667c157ce790af60fe17a971705db3d969abc38dc89210595f8c32b22edf",
+    "lastmod": "2026-11-28"
   },
   "/legal/privacy": {
     "sha256": "a039345f89a525878e563c46e38492aa34c738e727bc401918e496cce050907a",
     "lastmod": "2026-11-18"
   },
   "/legal/refund": {
-    "sha256": "0fad287a3931b4ae01bb3b514a1a358d9620282053d01e9bf611b7dc4abfe0c2",
-    "lastmod": "2026-11-21"
+    "sha256": "7101652c3eeee92a3a065f0511140e903e705c21b159d091db1f4457c3bbfd58",
+    "lastmod": "2026-11-28"
   },
   "/legal/terms": {
     "sha256": "6e4c92b2496561a5da18312e4eb4e9a0bf89b3704a8932d2619cb197db2f2b97",
     "lastmod": "2026-11-05"
   },
   "/mock-test-class-10": {
-    "sha256": "60b1b0ce44c7a7470969bafc8b7f48d4b34fedaa9275b8ebc2be134cbe30182b",
-    "lastmod": "2026-11-27"
+    "sha256": "bd413cde9ea0e6ec3e2c6f0221cc69b542bd5ba151ef74b3402ee251df51ee25",
+    "lastmod": "2026-11-28"
   },
   "/ncert-class-10": {
-    "sha256": "a419578673e353e93ae66e5deb521b906b51ed5213ab5a1d77b97b0e1af0c9bc",
-    "lastmod": "2026-11-17"
+    "sha256": "a09ee468c9b5ced68b616993156bf2e1bd42cbcc0ed093112b09c9b83802d72c",
+    "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/acids-bases-and-salts": {
-    "sha256": "6c10f5b72bef5ca5e22103892fb527c0e7270e575ed2d55d69560a99d981c6d7",
+    "sha256": "02cf9d7f7f8d36ae37a3ef63473a1a4bae8181bc6904b95ba79744dc42a73c41",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/areas-related-to-circles": {
-    "sha256": "489d2a8041c0678cb425a8371411ccda34c125bb1b60cfea3872129e8505fa7e",
+    "sha256": "76430da27fae377748032da7b3b23a3cfaaae6329acafe1ebd03beffb35316ae",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/arithmetic-progression": {
-    "sha256": "75200765086abfefac52fb7e15bb3cd84fc28f371b7eb224e891eb9e045c8813",
+    "sha256": "15f02f76c8e3f2abaf4ba2689ec6e694f12c50708b7e2a0a0b740e8f4853b5f0",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/carbon-and-its-compounds": {
-    "sha256": "be826aea66957e7e129929428847c5b8e010be59bbb212f74c1dfe1f7562ac8e",
+    "sha256": "ef26559091f89b4be68116700b05c045c340bcfb818f2a259ae0d055f001ce63",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/chemical-reactions-and-equations": {
-    "sha256": "4672c590da17338d9ab3a2019163172f0d13eff645afe1ad1ecaac9a478e1952",
+    "sha256": "a046cfac33e502108b730c20aedd89beb189e840d037f3e249c185afda0e95c9",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/circles": {
-    "sha256": "35f11164bee2a934b75c9fd2c672fb62e1d1d1b831c89e95ee0e4b9396183b56",
+    "sha256": "7ef0d8cfe85b9a855602e354bbefa81e53e854860152f8bb7b1187b2d0a92a79",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/control-and-coordination": {
-    "sha256": "1187344160687620d49a93b7c4c4c31b294425a5609a03454864d4001994495d",
+    "sha256": "4c99808fed7f28569688de5906b0f863c924c19652d8a3a165ced73b907ac8c8",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/coordinate-geometry": {
-    "sha256": "09f1f3e39dd89d0bc59f5462aba0b00ccd7b75dd1332fffb024e93aff6dcdeab",
+    "sha256": "90d807fbe6127de64a1e433c0004cc08c0d7a4aa51148f514bb504f2c12d24b3",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/electricity": {
-    "sha256": "83828bd964007242886571a5be765f09327d5141ab9593e8d3a1e2f4fa68f3d9",
+    "sha256": "bd600a2e76559ee77462001a8bdf8c189f3b0ab49e6531e0c531c4b1d9b1f653",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/heredity": {
-    "sha256": "3ac84004bb41fe8fc2037a053cf85f27bec83853bb783231fc7153af8f1a1aca",
+    "sha256": "d3ce6206713d5f21ce0dc30e913afb90f07ac39a89b1855c2100b691bcb4312a",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/how-do-organisms-reproduce": {
-    "sha256": "143640afb7e8520c0a0e9878f4bf3c449aeae3bbc600e6d64bce46b5f3dfb7d6",
+    "sha256": "0bd08d3ae1ae7eecd434dc2f2ba9568a1fa6dc8e2df9e97bef8ad8534a0a9886",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/human-eye-and-colourful-world": {
-    "sha256": "ea1513fb0b6a76967d4b0155adf86248f8fd2fc2948b3ad6905bc24ed1583bbe",
+    "sha256": "2263214c511aad0a7de6e129e2b2d595b34e988f7568d12c5e1c36ece0f50596",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/introduction-to-trigonometry": {
-    "sha256": "2cdccd303d50ce8e5d0c4aed734a758206407ae8214203b4b4c27453fdd982d6",
+    "sha256": "f476983c16992e1608b36dbf4330d671280d18561b176ed5c1844ae67707b8ad",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/life-processes": {
-    "sha256": "9b5a96474be9500ba8e65e3296595cb445544baaa9123e0b9db88c020684e9da",
+    "sha256": "45b30939a8d87ea1a6b87a7724e884a061456aed69585abac86b088ad712f390",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/light-reflection-and-refraction": {
-    "sha256": "02b0516a2c1d1ee7f498af5de3eb651bcf3aa0f6513a0ca702c32af32aad961b",
+    "sha256": "b1582cadb3d390b28c23596a1344be52a51cb559776dc36030a526f6af1aefe2",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/metals-and-non-metals": {
-    "sha256": "b1e4cafdee0c90d4a10e074d9e098d0b7998744f53ccbc0c5cd7a36ca11710ce",
+    "sha256": "7e2012c3678d7117def73848499334e356a1e6250ed289094d62d30a894453f3",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/pair-of-linear-equations": {
-    "sha256": "2ea44d41a4f26d4cc062f842b3675a197d2f9c5fdbc0d3dd31e206c9e197e269",
+    "sha256": "3a07e0a0e8718b4c6a7cc3c6204a6adcefc79c023fd12c2820fa22d617cc2144",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/polynomials": {
-    "sha256": "1ad7e87c9376e930791e456d672f94a1941d326f3bdd95337e3931e483f43ac5",
+    "sha256": "828986f4294cc69fc5a0297eebaefa2c690a345043cf1ede9e2b711e5a88be15",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/probability": {
-    "sha256": "340f6027895ba7244f43d5783a5941737c30087a07dd5c3336dde16fe1a83004",
+    "sha256": "1e1fdb0698ef39c89c483c25f31681077a1d219377be8de209fc738b4be004c0",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/quadratic-equations": {
-    "sha256": "974a160b97977db6e64437a84c770ef14ecdd6bf087161f9befc9493a46c9b4e",
+    "sha256": "6294abc5ddb33e7686ffcffd9726ca0e2d95d73d2560479ef7f62e2f89b2afa6",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/real-numbers": {
-    "sha256": "5d68ea85a3f748f3d07f1d6dbb76124e07adf913cf3f4d0d76226a1fbd58ea27",
+    "sha256": "4b744653f45dab155008273bac6418e57e8f019af559f5e364a7109a3662aa88",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/some-applications-of-trigonometry": {
-    "sha256": "3542448900da5e7a55e40178fc4db55fe4aad4830254daf9391446c917f8b3d5",
+    "sha256": "487e0ac8c2604281805d7cc73dfe1c226ec94145cdafb185e352faaf8a3eb957",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/statistics": {
-    "sha256": "08f9e8072c545f7f06accab8804858a42068473f485a8bbbbd51fef2883142d8",
+    "sha256": "29bf39f9fd505dfeba4965bcd8991820d7e8e0f14af0003a91d231aac3269bb7",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/surface-areas-and-volumes": {
-    "sha256": "bcfa598ef798de2a24bc227d6e9b500d9d8624badd3cd585757ad4eb8f092a42",
+    "sha256": "713f97ef948c79bc6db059304c0d31dddb4e8f878de9e92be7f1a3531011e940",
     "lastmod": "2026-11-28"
   },
   "/ncert-exemplar/triangles": {
-    "sha256": "827e8aa9b77e35923e5323df4aa5aa5a324fa8c17d8e27b927ce8bda894a561a",
+    "sha256": "3fec69c129c750e094c6d41437b6ee1602f1abe4dd09ebef172c5ce588b04b5b",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/acids-bases-and-salts": {
-    "sha256": "3fa7a0b945656c0e08eb4e79694014aff247d03e62a5005c5e964dd84ed7a0fe",
+    "sha256": "86c5f310b6d1533e9bfb3a92240668b87b9e713495e745a67d6b181f92e7fc92",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/areas-related-to-circles": {
-    "sha256": "e03d70ea748ad440745182a0cdea471d5bec038c6594b91fb8bba293f5bb17c7",
+    "sha256": "3c97d8ae7334e23031b86467904bc8d5b012d50994452665994f88a28bf58197",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/arithmetic-progression": {
-    "sha256": "1520452dbcea8aa62bbef9f047f209fdeba0de27609b22f7fed4e507940b9078",
+    "sha256": "d7e60f2bc28f895ba3df57d02437100396ce280ace27b2a4c8c685e9749cce69",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/carbon-and-its-compounds": {
-    "sha256": "6be613b4853f6c173c9e83454b7d44fef5db67256925e767e503aad8f855197a",
+    "sha256": "82932daf14982885a3eb5841b3e37a6928fed314c7f7e1621d791d86d9433cff",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/chemical-reactions-and-equations": {
-    "sha256": "85cd123ad2bfb145d36b332e8012f40ddefefa5edb5ca56676f468ab0117a4e2",
+    "sha256": "68708356b1b632c6769496965a4a0c7f256a0fc7c3760c5d81910fd490962ed8",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/circles": {
-    "sha256": "9d7256d9c10b9749aeb19a28b53caf0ccd686bd1e1f880a82b51398c38a0fdc3",
+    "sha256": "a7deb719146737b9094ac13dfff3ab4a7be39deab3db1697ccf56113d80de1f8",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/control-and-coordination": {
-    "sha256": "3c1d297d27b2e599acf745181cebdcf0d33524a3ae2a9fd011e1127640826ac1",
+    "sha256": "b9c0e5620179f0032b6f1b809b7831ed7358172ed1a50fd54df741593698b517",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/coordinate-geometry": {
-    "sha256": "7ab7a6af674479b140212aa8de209e4778b8bd1b33b2cec2f5f58819f0df77bb",
+    "sha256": "d0e69862988fb42f3ed3ac5974c823b2bae9d947d506bdabfe6a786ceb379c97",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/electricity": {
-    "sha256": "9ddb3063e35e1a2126acb56c42f5fabbb4c4616d178bd8d9da44d92b83566d87",
+    "sha256": "8e6fe68646f00a2375125a2ac6085ef8b680faea988043ddca64f80dc5586450",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/how-do-organisms-reproduce": {
-    "sha256": "a3472d5dc7eb2bff0d239aa0ca16b8603945a6bfe843c10defe9ef82f511a35f",
+    "sha256": "b8db9d64355572ecf4dbe5991984e7a4abcb575efe41090ca6ddc81126c37dd2",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/human-eye-and-colourful-world": {
-    "sha256": "b94477a01a23845912258088fc94eb73f56fb7c33d9a58a4e0404a976b18d3c0",
+    "sha256": "da9db115a4a93973521ca7bf96df36fe6a282f855bef94f9951ed93c2ac2eb13",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/introduction-to-trigonometry": {
-    "sha256": "1c44d9ca5ee052a0f60f9722decc4893aa41945cd41fceceb04b689f21cbd9c4",
+    "sha256": "14995b624db3f0c3d9d95c2e428d2fea807d388da514ff8a538d138b86caa5fd",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/life-processes": {
-    "sha256": "42e62e5948b6653d74f5333c7b099c22bcd6f3fbd9668ba7a24cdfa00bb7a60f",
+    "sha256": "a4c3d33980d1694227b279cdfcc55a440cbd19a498647bbb8f001c52b5cb27b4",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/light-reflection-and-refraction": {
-    "sha256": "1b1aa913fb3f08518d9b0fc93cca3204f967c607e6e5f336103afda6b0db67a1",
+    "sha256": "9bad955cf362a9d200f07a2aa0c6895b1577826e401ccd84108ea20e3c7d2946",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/magnetic-effects-of-electric-current": {
-    "sha256": "08bdcdd82be0e02731fd5c5f84834381e0e79070bd44eda58d85a251987b194f",
+    "sha256": "8963e598f7781ebcb1834cad90778f58cd442227d62d74d1df7c4e80d5fce452",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/metals-and-non-metals": {
-    "sha256": "ad3ff225ff4ac3f9bbc3cb7e6a6641baf72b39934467a55e7898299ed3a50b59",
+    "sha256": "94390a175edd6d1dc80ae29b3d5d81c9b96e6f0daacefd35e7f5e98b18cb67d0",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/our-environment": {
-    "sha256": "6180e9a7d6656b92e3b11072ef6d0c1aaada82cc8022169b05749b8e074de554",
+    "sha256": "35704935d8e9bad261cbf0f9c8c5d95c626e67819b42673870e58cd9cdd8d9e4",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/pair-of-linear-equations": {
-    "sha256": "c274b191a2414f3623025aa141d56eade2cee9d3f2c02b4e0500bc729feffe13",
+    "sha256": "accf78d1ffd6953ccaa6ab5707234cb93440c7494c7a37d4316a5024cae5b065",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/polynomials": {
-    "sha256": "85fa5bab0498474a3bbf5d682fcabe624e41fe572b2258ef5c29dfb501d0aeb9",
+    "sha256": "9e1f9fd9fb8e49658101122e3a5c9e73889aec97b697eedec1a76876600b145d",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/probability": {
-    "sha256": "bf8f1d39cbc8082aa520a2e2f91d0f7aba849ae3ee54dc97d137dc6cd0572609",
+    "sha256": "5e3a7ee4c208fc6c5b7c95e31b426d7217c1bf0f96d6a096d812b2a652b86036",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/quadratic-equations": {
-    "sha256": "909ce2b0ae363e96b8698c41c9d31ba2fa8f788833038c5bcb852b4f3c72a786",
+    "sha256": "61c4ef228cb42109bbe5d702eb7fe49260461397ded23b3262cccf48ad5f63ac",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/real-numbers": {
-    "sha256": "ad574b4b5042ccc98f5f56c7b788fe9f0b7ae0747713daf60b378e3f3e0da23e",
+    "sha256": "e67a2262bcb687f9e7b33ef441467f4b6f6872db264adb7c00e93006ad40d484",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/some-applications-of-trigonometry": {
-    "sha256": "2b0dea8fa9f164b42624b4d5127871c45d1b9c13d74dcfdd6de2ee80620abdf6",
+    "sha256": "fac86e316e9728db9725d2853d9258558633bfb4c68b3c860f5cbd2417f6be46",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/statistics": {
-    "sha256": "76685f372e81654c25499cd77698c75f72fac8e781ade0f245530d74b7be934a",
+    "sha256": "2b378c49fb1a177b0fc696cdd63a1e7d5640808a6a77004e26842542533491ce",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/surface-areas-and-volumes": {
-    "sha256": "c720254c96ca1989ef1c8276aef745109cb54d53a862240786a333cc1242671f",
+    "sha256": "a8e85d53aa65f36984e4fc6c93ef384a9f8b7e83056f71046e707030a5577e61",
     "lastmod": "2026-11-28"
   },
   "/ncert-solutions/triangles": {
-    "sha256": "850fc3135b0e58da7075fa39598ac7b0ac101659ea6db2d87425482bde693c8b",
+    "sha256": "9a86fd139bf99b072a354d2b2de427b288026f52a333e79a7be972ec1e02d908",
     "lastmod": "2026-11-28"
   },
   "/notes/acids-bases-and-salts": {
@@ -640,24 +640,24 @@
     "lastmod": "2026-11-28"
   },
   "/packs": {
-    "sha256": "100821c3834d27276e7dff78aa2492c906abb47078a6bb429640fdb77089463f",
-    "lastmod": "2026-11-20"
+    "sha256": "fc7946497e81f43194e8ef65601c6298c1ce5df9e1c02a0ce60172956f9683e0",
+    "lastmod": "2026-11-28"
   },
   "/practice-hub": {
-    "sha256": "8ad60add48093a5f48b033ba0acc7424c24b928d3017e049982371d40605551a",
-    "lastmod": "2026-11-24"
+    "sha256": "e044d8fc72f5a60395ff416ac6ccb541c1e0c4b6d29ee0ac0a24b326d2e71bb2",
+    "lastmod": "2026-11-28"
   },
   "/pricing": {
-    "sha256": "15fc329f86fd82abd2f38363691f8eb263db0ae76affdac8f83dd8415e253df2",
+    "sha256": "69d30edc8fc57b4063e0296d400fd70652073b64482f327d04a17eb10503b960",
     "lastmod": "2026-11-28"
   },
   "/question-bank-class-10": {
-    "sha256": "f2f274d1aab87db0d36ab864d7d3d2feed190fb3db1b28fdc1bc767df109a259",
-    "lastmod": "2026-11-18"
+    "sha256": "4d201e6af42fcbe392600bf3132dc7159b73a69b80e582abe3198be45b9d2e1a",
+    "lastmod": "2026-11-28"
   },
   "/test-series": {
-    "sha256": "ae185250f6b923d4308058608ee8fd54b5c4ba2d27ea79fd3deb0b6ec6ef9819",
-    "lastmod": "2026-11-26"
+    "sha256": "452df1addfd93012f0d2dcfbfdb1aaed2a3e4683e687e0d635116f2bf4036874",
+    "lastmod": "2026-11-28"
   },
   "/topic-hub/acids-bases-and-salts": {
     "sha256": "90b982b23945af2d74c4bfce354d16721b5f88156fc744544b0e1136da183939",
