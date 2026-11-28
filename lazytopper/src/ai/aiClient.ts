@@ -700,6 +700,9 @@ export interface GradeV2Fields {
   departureKind?: "different-problem" | "invalid-method" | null;
   marksLostByType?: GradeMarksLostByType;
   rubric?: GradeRubricPoint[] | null;
+  /** AC-SOLUTION-1 · DISPLAY ONLY: the complete step-marked correct solution the server already had for this
+   *  question. Absent when unavailable (never an empty placeholder). Never read by grading, MI or marks. */
+  modelSolution?: { steps: Array<{ description: string; working: string; marks: number }>; totalMarks: number };
   /** On an objective question: false = the chosen option could not be read. When `couldNotRead`
    *  is also true, the client shows "couldn't read this answer" (it always wins — R3). */
   objectiveResolved?: boolean | null;

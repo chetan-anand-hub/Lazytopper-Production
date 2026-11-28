@@ -588,6 +588,19 @@ function renderSolutionSchemeSteps(solution) {
     .filter(Boolean);
 }
 
+// AC-SOLUTION-1 · DISPLAY ONLY. The same scored steps renderSolutionSchemeSteps keeps (marks > 0, something to
+// show), as structured data for the student's "Complete correct solution" card. Never reaches the grading prompt.
+function solutionDisplaySteps(solution) {
+  return (solution && Array.isArray(solution.steps) ? solution.steps : [])
+    .filter((s) => s && Number(s.marks) > 0)
+    .map((s) => ({
+      description: String(s.description || '').trim(),
+      working: String(s.working || '').trim(),
+      marks: Number(s.marks),
+    }))
+    .filter((s) => s.working || s.description);
+}
+
 // ── C&I PR-3: the cache-first model-solution entry point for the GRADER ────────
 // hash -> read -> on miss generate from the question text alone -> Gate-2a quality
 // check -> write-if-pass. Returns { schemeSteps, fromCache, hash } ready for the
@@ -622,7 +635,7 @@ async function getOrCreateModelSolution(fields, deps) {
       const joined = await pending;
       // Each caller gets its OWN array: the grade writes it onto its question.
       // `joined: true` tells the caller it waited for ANOTHER caller's in-flight generation (telemetry: schemeJoined).
-      return joined && Array.isArray(joined.schemeSteps) ? { ...joined, schemeSteps: [...joined.schemeSteps], joined: true } : joined;
+      return joined && Array.isArray(joined.schemeSteps) ? { ...joined, schemeSteps: [...joined.schemeSteps], ...(Array.isArray(joined.solutionSteps) ? { solutionSteps: joined.solutionSteps.map((x) => ({ ...x })) } : {}), joined: true } : joined;
     }
     const work = readOrGenerateModelSolution(fields, deps, hash, question, marks)
       .finally(() => { if (inflightSolutions.get(hash) === work) inflightSolutions.delete(hash); });
@@ -641,7 +654,7 @@ async function readOrGenerateModelSolution(fields, deps, hash, question, marks) 
     if (cached) {
       const schemeSteps = renderSolutionSchemeSteps(cached);
       if (schemeSteps.length === 0) console.warn('[solution-cache] stored row renders no scheme steps hash=' + hash.slice(0, 8));
-      return schemeSteps.length > 0 ? { schemeSteps, fromCache: true, hash } : null;
+      return schemeSteps.length > 0 ? { schemeSteps, solutionSteps: solutionDisplaySteps(cached), fromCache: true, hash } : null;
     }
 
     const isObj = fields.isObjective === true;
@@ -675,7 +688,7 @@ async function readOrGenerateModelSolution(fields, deps, hash, question, marks) 
     }
 
     const schemeSteps = renderSolutionSchemeSteps(gen.solution);
-    return schemeSteps.length > 0 ? { schemeSteps, fromCache: false, hash } : null;
+    return schemeSteps.length > 0 ? { schemeSteps, solutionSteps: solutionDisplaySteps(gen.solution), fromCache: false, hash } : null;
   } catch (e) {
     console.warn('[solution-cache] getOrCreateModelSolution failed:', e.message);
     return null;

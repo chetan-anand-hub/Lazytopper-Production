@@ -230,6 +230,7 @@ import { readFairUseLimit } from "../../services/usageClient";
 import { readTypeOf, sectionBasisOfRead, stampLens } from "../../components/results/sectionTypeLens";
 import TrialPaperNote from "../../components/usage/TrialPaperNote";
 import { trialPaperCut, trialPaperNoteCopy } from "../../components/usage/fairUseGate";
+import { ModelSolutionCard } from "../../components/results/ModelSolutionCard";
 import { prefetchKatexWhenIdle } from "../../components/question/MathText";
 
 // CT-KATEX-2: KaTeX's background idle prefetch is no longer armed by MathText for every
@@ -4717,6 +4718,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                     ))}
                     <WithdrawnWorkBlock steps={withdrawn} />
                     <RubricBlock rubric={g.rubric} />
+                    <ModelSolutionCard modelSolution={g.modelSolution} question={g} steps={steps} />
                   </div>
                 )}
               </div>
@@ -5003,6 +5005,9 @@ const DesktopCheckImprovePageInner: React.FC<{
               </div>
             )}
           </div>
+
+          {/* AC-SOLUTION-1 — the complete correct solution (display only); nothing when the server had none. */}
+          <ModelSolutionCard modelSolution={result.modelSolution} question={result} steps={markedSteps} />
 
           {result.teacherNote && (
             <div style={{ ...cardStyle, padding: 24 }}>
