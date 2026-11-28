@@ -41,6 +41,8 @@ import { useMonthPassAvailable } from "./useMonthPassAvailable";
 import PayRescueCard from "../payRescue/PayRescueCard";
 import InAppPayChoice, { inAppChoiceSurface } from "../payRescue/InAppPayChoice";
 import { inAppPayFirstHop } from "../../utils/inAppPayFirst";
+import { inAppPayGuard } from "../../utils/inAppPayGuard";
+import InAppPayGuardHost from "../payRescue/InAppPayGuardHost";
 import SigninLinkCardLazy from "../signinLink/SigninLinkCardLazy";
 import PostPayGstLazy from "../gstInvoice/PostPayGstLazy";
 import PaidSheetLazy, { paidSheetEnabled, paidSheetReceiptLine, preloadPaidSheet } from "../checkoutWho/PaidSheetLazy";
@@ -478,6 +480,8 @@ export function PassCheckoutView({
     // INAPP-PAY-FIRST-1: Instagram / Facebook on Android, signed out: the Board Pass tap goes straight to Chrome (/board-pass?buy=board_pass), no order, no begin_checkout.
     // (The month pass and an automatic ?buy= arrival are unchanged.)
     if (passType === "till_boards" && inAppPayFirstHop({ automatic: opts.resumed === true || opts.fromWho === true, signedIn, surface: inAppChoiceSurface(window.location.pathname), sku: "board_pass", buy: { kind: "pass" } })) return;
+    // INAPP-GAP-1: no working hop (iOS / YouTube / other webview, or a stuck hop): the copy-link guard first; "Pay here anyway" re-runs this tap.
+    if (passType === "till_boards" && inAppPayGuard({ automatic: opts.resumed === true || opts.fromWho === true, signedIn, surface: inAppChoiceSurface(window.location.pathname), buy: { kind: "pass" }, proceed: () => void handleBuy(passType, opts) })) return;
     buyStartedRef.current = true;
     const resumed = opts.resumed === true;
     const details = checkoutEventDetails(passType, offerOpen);
@@ -695,6 +699,7 @@ export function PassCheckoutView({
 
   return (
     <div className="lt-pricing-checkout" data-testid="pass-checkout">
+      <InAppPayGuardHost />
       {activeLabel && (
         <p className="lt-pricing-plan-desc lt-pricing-checkout-note lt-pricing-checkout-note--top" data-testid="pass-checkout-already-active">
           {runningMonth ? monthPassActiveUntilCopy(activeLabel) : fullAccessActiveUntilCopy(activeLabel)}

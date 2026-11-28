@@ -13,7 +13,9 @@ import { createParentPackOrder } from "./parentPayPack";
 vi.mock("./firebaseClient", () => ({ authClient: { currentUser: { getIdToken: async () => "tok" } } }));
 
 const STORED = { ref: null, utm_source: "google", utm_medium: "cpc", utm_campaign: "PDF_Packs", utm_content: null, landing: "/packs", gclid: true, fbclid: false };
-const WANT = { utm_source: "google", utm_medium: "cpc", utm_campaign: "PDF_Packs", landing: "/packs", gclid: true };
+// INAPP-GAP-1: every order also carries the coarse browser class (jsdom reads as "desktop") and the hop state.
+const BROWSER = { ua: "desktop", hop: "none" };
+const WANT = { utm_source: "google", utm_medium: "cpc", utm_campaign: "PDF_Packs", landing: "/packs", gclid: true, ...BROWSER };
 
 beforeEach(() => {
   window.sessionStorage.clear();
@@ -46,19 +48,19 @@ const sites: Array<[string, () => Promise<unknown>]> = [
 ];
 
 describe("orderSourceForCheckout", () => {
-  it("nothing stored -> undefined", () => {
-    expect(orderSourceForCheckout()).toBeUndefined();
+  it("nothing stored -> only the browser class + hop (no visit source invented)", () => {
+    expect(orderSourceForCheckout()).toEqual(BROWSER);
   });
   it("reads the tab copy; click ids are booleans; no value, query or url can come out", () => {
     window.sessionStorage.setItem(ORDER_SOURCE_KEY, JSON.stringify({ ...STORED, gclid: "REAL-CLICK-ID", landing: "/packs?gclid=abc", utm_source: "a@b.com" }));
     const out = orderSourceForCheckout();
-    expect(out).toEqual({ utm_medium: "cpc", utm_campaign: "PDF_Packs", landing: "/" });
+    expect(out).toEqual({ utm_medium: "cpc", utm_campaign: "PDF_Packs", landing: "/", ...BROWSER });
     expect(JSON.stringify(out)).not.toContain("REAL-CLICK-ID");
   });
   it("survives sign-up: the tab order copy is still there after the sign-up copy is taken", () => {
     rememberVisitSourceOnce({ pathname: "/packs", search: "?utm_source=google&utm_medium=cpc&gclid=ABC" }, "", "lazytopper.com");
     window.sessionStorage.removeItem(VISIT_SOURCE_KEY);
-    expect(orderSourceForCheckout()).toEqual({ utm_source: "google", utm_medium: "cpc", landing: "/packs", gclid: true });
+    expect(orderSourceForCheckout()).toEqual({ utm_source: "google", utm_medium: "cpc", landing: "/packs", gclid: true, ...BROWSER });
   });
   it("kill switch -> undefined", () => {
     window.sessionStorage.setItem(ORDER_SOURCE_KEY, JSON.stringify(STORED));
@@ -75,10 +77,10 @@ describe("every order-create request carries `source`", () => {
     expect(calls).toHaveLength(1);
     expect(calls[0].body.source).toEqual(WANT);
   });
-  it.each(sites)("%s: nothing stored -> no source key", async (_name, run) => {
+  it.each(sites)("%s: nothing stored -> browser class only", async (_name, run) => {
     const calls = stubFetch();
     await run();
-    expect("source" in calls[0].body).toBe(false);
+    expect(calls[0].body.source).toEqual(BROWSER);
   });
   it.each(sites)("%s: kill switch -> no source key", async (_name, run) => {
     window.sessionStorage.setItem(ORDER_SOURCE_KEY, JSON.stringify(STORED));

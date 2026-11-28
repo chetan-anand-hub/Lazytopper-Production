@@ -1,5 +1,6 @@
 import { getAdditionalUserInfo, type UserCredential } from "firebase/auth";
 import { normalisePath } from "./analytics";
+import { uaClass, type UaClass } from "../utils/inAppBrowser";
 import { START_HERE_SUBJECT_HINT_KEY, subjectHintFromLanding } from "../components/startHere/startHereModel";
 
 /**
@@ -430,6 +431,27 @@ export interface OrderSource {
   fbclid?: true;
   gbraid?: true;
   wbraid?: true;
+  /** INAPP-GAP-1: the coarse browser class the order is created in (UaClass enum; never a raw user agent). */
+  ua?: UaClass;
+  /** INAPP-GAP-1: the in-app hop state of this page view. */
+  hop?: OrderHop;
+}
+
+export type OrderHop = "none" | "hopped" | "stuck" | "bypass";
+let hopProvider: () => OrderHop = () => "none";
+/** INAPP-GAP-1: inAppPayFirst registers how to read the hop state (avoids an import cycle). */
+export function setOrderHopProvider(fn: () => OrderHop): void {
+  hopProvider = fn;
+}
+
+function currentUaClass(): UaClass | undefined {
+  try {
+    if (typeof navigator === "undefined") return undefined;
+    const nav = navigator as Navigator & { standalone?: boolean };
+    return uaClass(nav.userAgent, nav.standalone === true);
+  } catch {
+    return undefined;
+  }
 }
 
 /** Client kill switch: VITE_ORDER_SOURCE_DISABLED=1 -> no `source` is ever sent. */
@@ -449,6 +471,15 @@ function isOrderSourceClientDisabled(): boolean {
  */
 export function orderSourceForCheckout(): OrderSource | undefined {
   if (isOrderSourceClientDisabled()) return undefined;
+  // INAPP-GAP-1: which browser class the order is created in + the hop state, even when no visit source was kept (or storage throws).
+  const ua = currentUaClass();
+  let hop: OrderHop = "none";
+  try {
+    hop = hopProvider();
+  } catch {
+    /* none */
+  }
+  const browser: OrderSource = { ...(ua ? { ua } : {}), hop };
   try {
     let v: VisitSource | null = null;
     for (const key of [ORDER_SOURCE_KEY, VISIT_SOURCE_KEY]) {
@@ -456,8 +487,8 @@ export function orderSourceForCheckout(): OrderSource | undefined {
       if (v) break;
     }
     if (!v) v = readLongKeep();
-    if (!v) return undefined;
-    const out: OrderSource = {};
+    if (!v) return browser;
+    const out: OrderSource = { ...browser };
     if (v.ref) out.ref = v.ref;
     for (const k of UTM_KEYS) if (v[k]) out[k] = v[k] as string; // includes SOURCE-3 utm_term
     out.landing = v.landing;
@@ -467,7 +498,7 @@ export function orderSourceForCheckout(): OrderSource | undefined {
     if (v.wbraid) out.wbraid = true;
     return out;
   } catch {
-    return undefined;
+    return browser;
   }
 }
 

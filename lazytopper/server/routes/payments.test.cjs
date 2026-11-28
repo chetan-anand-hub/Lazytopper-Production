@@ -2486,6 +2486,15 @@ test('ORDER-SOURCE · sanitiser: drops unknown keys, caps length, rejects click-
   assert.deepEqual(sanitiseOrderSource({ landing: '/' }), { landing: '/' });
 });
 
+test('INAPP-GAP-1 · sanitiser keeps ua / hop only as exact enum members', () => {
+  assert.deepEqual(sanitiseOrderSource({ ua: 'inapp_facebook', hop: 'stuck' }), { ua: 'inapp_facebook', hop: 'stuck' });
+  for (const ua of ['inapp_instagram', 'inapp_youtube', 'android_webview', 'ios_webview', 'chrome_android', 'desktop', 'other']) assert.deepEqual(sanitiseOrderSource({ ua }), { ua });
+  for (const hop of ['none', 'hopped', 'bypass']) assert.deepEqual(sanitiseOrderSource({ hop }), { hop });
+  for (const junk of ['Mozilla/5.0 (Linux; Android 13; wv) FBAV/1', 'Desktop', 'inapp_facebook ', 5, true, null, ['desktop'], { a: 1 }, '']) {
+    assert.deepEqual(sanitiseOrderSource({ ua: junk, hop: junk }), {}, String(junk));
+  }
+});
+
 test('ORDER-SOURCE · a valid source is stored on the order (pass and pack); absent / invalid -> no field, doc keys identical to before', async (t) => {
   const srv = await startRoutes({ env: { ...ENV_ON, PACKS_ENABLED: '1' } });
   t.after(srv.close);

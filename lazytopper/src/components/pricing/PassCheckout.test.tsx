@@ -79,7 +79,9 @@ import {
 
 /** META-IC-1: every order-create body now carries `adSignals` (cookie ids + the checkout attempt id); these tests pin the REST of the body. */
 const withoutAdSignals = (b: Record<string, unknown>): Record<string, unknown> => {
-  const { adSignals, ...rest } = b;
+  // INAPP-GAP-1: `source` now always carries the coarse browser class; its own tests are orderSource.test.ts.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { adSignals, source: _source, ...rest } = b;
   expect((adSignals as { attemptId?: string } | undefined)?.attemptId).toMatch(/^lt_/);
   return rest;
 };
