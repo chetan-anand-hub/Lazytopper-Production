@@ -29,6 +29,10 @@
  *   SAMPLE_FOLLOWUP_EMAIL_ENABLED="1" (default off): a SIGNED-IN student who saved a pack's free sample 24-72 h ago and does not
  *   own that pack (or one that includes it) nor a paid Board Pass. The "sample saved" marker is written by routes/packSampleSeen.cjs
  *   into `nudgeEmails/{uid}.sampleSeenAt_<pack>`. Runs after the pack nudges, before d1/d3. Pure rules + template: sampleFollowup.cjs.
+ *   PASS-START-1 (owner go-ahead 28 Nov 2026): `passstart`, at most ONCE per student ever, behind PASS_START_EMAIL_ENABLED="1" (default
+ *   off): an active Board Pass granted 24-72 h ago (subscriptions.passStart) and NO graded record and NO practice attempt. One link to
+ *   Home (where the pass-holder Start-here card is). The student only: no payer address is stored, none is used. Served right after
+ *   GUEST-ABANDON-1. Pure rules + template: passStartEmail.cjs.
  *   GUEST-ABANDON-1 (owner ruling 6 Nov 2026): `abandoned_<product>` in `guestNudgeEmails/{emailKey}`, at most ONCE per
  *   recipient address per product ever, behind GUEST_ABANDON_EMAIL_ENABLED="1" (default off): a SIGNED-OUT guest checkout
  *   that carries an email address, still 'created' 1-36 h after it was opened, nothing paid for it since. Runs right after
@@ -106,6 +110,7 @@ const { resolveSendWindow } = require('./emailSendWindow.cjs'); // EMAIL-SEND-WI
 const { packIdFor } = require('./packProducts.cjs');
 const abandoned = require('./abandonedCheckout.cjs'); // CHECKOUT-NUDGE-1
 const sampleFu = require('./sampleFollowup.cjs'); // SAMPLE-FOLLOWUP-1
+const passStartEmail = require('./passStartEmail.cjs'); // PASS-START-1
 const { listPacks } = require('./packGrant.cjs');
 const guestEmail = require('./guestAbandonEmail.cjs'); // GUEST-ABANDON-1
 const { isSuppressedTx } = require('./emailSuppression.cjs');
@@ -252,6 +257,8 @@ function resolveNudgeConfig(env = process.env) {
     abandonedCheckoutEnabled: abandoned.abandonedCheckoutEnabled(e),
     // SAMPLE-FOLLOWUP-1: the free-sample follow-up email has its OWN switch, default OFF, exactly "1" enables, on top of NUDGE_EMAIL_ENABLED.
     sampleFollowupEnabled: sampleFu.sampleFollowupEnabled(e),
+    // PASS-START-1: the pass-holder "start here" email has its OWN switch, default OFF, exactly "1" enables, on top of NUDGE_EMAIL_ENABLED.
+    passStartEnabled: passStartEmail.passStartEmailEnabled(e),
     // GUEST-ABANDON-1: the signed-out abandoned-checkout email has its OWN switch, default OFF, exactly "1" enables, on top of NUDGE_EMAIL_ENABLED.
     guestAbandonEnabled: guestEmail.guestAbandonEmailEnabled(e),
     // Never emailed: the admin allowlist (the same ADMIN_FIREBASE_UIDS the admin pages use).
@@ -1717,6 +1724,190 @@ function createNudgeEmailer(deps = {}) {
   }
 
   /**
+   * PASS-START-1: ONE email to a student whose Board Pass was granted 24-72 h ago and who has no graded record and no practice
+   * attempt. At most once per student, ever (ledger key `passstart` in nudgeEmails/{uid}). Candidates come from ONE single-field
+   * range query on subscriptions.passStart (server-written, so a client can never put itself in the window). Same rails as every
+   * other nudge: claim + durable daily cap + opt-out re-read in ONE transaction, 24 h spacing (another nudge or a trial email within
+   * 24 h defers it), verified email only, admin / @lazytopper.com never. Counts only in the log. Returns true when the cap is full.
+   */
+  async function runPassStart({ summary, skip: skipAll, nowMs, day }) {
+    if (!config.passStartEnabled) return false;
+    const own = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {} };
+    const skip = (reason) => {
+      own.skipped[reason] = (own.skipped[reason] || 0) + 1;
+      skipAll(reason);
+    };
+    const kind = passStartEmail.KIND;
+    const metric = passStartEmail.METRIC;
+    try {
+      let docs = [];
+      try {
+        const qs = await adminFirestore
+          .collection(SUBSCRIPTIONS_COLLECTION)
+          .where('passStart', '>=', timestampFromMillis(nowMs - passStartEmail.PASS_START_MAX_AGE_MS))
+          .where('passStart', '<', timestampFromMillis(nowMs - passStartEmail.PASS_START_MIN_AGE_MS + 1))
+          .orderBy('passStart', 'desc')
+          .limit(passStartEmail.CAP_PASS_START)
+          .get();
+        docs = qs.docs;
+      } catch {
+        skip('pass-rows-unavailable');
+        return false;
+      }
+      for (const d of docs) {
+        const uid = d.id;
+        const sub = d.data() || {};
+        own.candidates += 1;
+        summary.candidates += 1;
+        const grantedMs = msOf(sub.passStart);
+        if (grantedMs === null || !passStartEmail.passStartDue(nowMs - grantedMs)) {
+          skip('no-window');
+          continue;
+        }
+        if (config.adminUids.has(uid)) {
+          skip('internal');
+          continue;
+        }
+        // An ACTIVE paid pass only (server-written passType + passEnd; a lapsed or legacy premium is not a pass).
+        if (deriveEffectiveTier(sub, nowMs).tier !== 'premium' || (sub.passType !== 'month' && sub.passType !== 'till_boards')) {
+          skip('no-active-pass');
+          continue;
+        }
+        const ledgerSnap = await adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid).get();
+        const ledger = ledgerSnap.exists ? ledgerSnap.data() || {} : {};
+        if (ledger[kind]) {
+          skip('already-sent');
+          continue;
+        }
+        if (ledger.skip && !isDueSkipMarker(ledger.skip, nowMs)) {
+          skip(`marked-${ledger.skip.reason || 'skipped'}`);
+          continue;
+        }
+        if (typeof ledger.lastClaimMs === 'number' && nowMs - ledger.lastClaimMs < SPACING_MS) {
+          skip('spaced');
+          continue;
+        }
+        const trialSnap = await adminFirestore.collection(TRIAL_EMAILS_COLLECTION).doc(uid).get();
+        const trialRow = trialSnap.exists ? trialSnap.data() || {} : {};
+        if (trialRow.optedOut) {
+          skip('opted-out');
+          continue;
+        }
+        const trialRecent = trialEmailRecentMs(trialRow);
+        if (trialRecent !== null && nowMs - trialRecent < SPACING_MS) {
+          skip('spaced');
+          continue;
+        }
+        // Activity: any graded record, or any practice attempt, ends it. An unreadable answer skips (never email blind).
+        const records = await readRecords(uid, 0);
+        if (records === null) {
+          skip('activity-unavailable');
+          continue;
+        }
+        if (records.length > 0) {
+          skip('already-active');
+          continue;
+        }
+        const attempted = await hasPracticeAttempts(uid);
+        if (attempted === null) {
+          skip('activity-unavailable');
+          continue;
+        }
+        if (attempted) {
+          skip('already-active');
+          continue;
+        }
+
+        let user = null;
+        try {
+          user = await firebaseAdmin.auth().getUser(uid);
+        } catch {
+          skip('no-account');
+          continue;
+        }
+        const who = emailEligibility(user);
+        if (!who.ok) {
+          skip(who.reason);
+          if (config.mode === 'send' && (PERMANENT_SKIP_REASONS.has(who.reason) || who.reason === 'email-unverified')) {
+            await writeSkipMarker(uid, who.reason, nowMs);
+          }
+          continue;
+        }
+        if (isInternalAccount(uid, who.email, config.adminUids)) {
+          skip('internal');
+          continue;
+        }
+
+        if (config.mode !== 'send') {
+          own.wouldSend += 1;
+          summary.wouldSend += 1;
+          summary.byKind[metric] += 1;
+          const key = `${uid}:${kind}`;
+          if (!dryRunLogged.has(key)) {
+            dryRunLogged.add(key);
+            log(`[nudge-email] dry-run: would email kind=${metric} uid=${uid} to=${maskEmail(who.email)}`);
+          }
+          continue;
+        }
+
+        let claim;
+        try {
+          claim = await claimWithinCap(uid, kind, day, nowMs, who.email);
+        } catch (e) {
+          skip(isAlreadyExists(e) ? 'claimed-elsewhere' : 'claim-error');
+          continue;
+        }
+        if (claim !== 'claimed') {
+          skip(claim);
+          if (claim === 'daily-cap') return true;
+          continue;
+        }
+
+        const unsubscribeUrl = unsubscribeUrlFor(config.appUrl, uid, config.unsubscribeSecret);
+        const message = passStartEmail.buildPassStartEmail({ displayName: user && user.displayName, appUrl: config.appUrl, unsubscribeUrl });
+        const result = fetchImpl
+          ? await sendViaResend({
+              fetchImpl,
+              apiKey: config.apiKey,
+              from: config.from,
+              replyTo: config.replyTo || packNudge.DEFAULT_REPLY_TO,
+              to: who.email,
+              subject: message.subject,
+              text: message.text,
+              html: message.html,
+              unsubscribeUrl,
+              idempotencyKey: `nudge-${kind}-${uid}`,
+              category: 'nudge_pass_start',
+            })
+          : { ok: false, retryable: false, code: 'no-fetch' };
+        try {
+          const ref = adminFirestore.collection(NUDGE_EMAILS_COLLECTION).doc(uid);
+          if (result.ok) await ref.set({ [kind]: { status: 'sent', sentAt: serverTimestamp(), providerMessageId: result.id || null } }, { merge: true });
+          else if (result.retryable) await releaseClaim(uid, kind, day);
+          else await ref.set({ [kind]: { status: 'failed', failedAt: serverTimestamp(), error: result.code } }, { merge: true });
+        } catch {
+          /* the claim stays: at most once */
+        }
+        if (result.ok) {
+          own.sent += 1;
+          summary.sent += 1;
+          summary.byKind[metric] += 1;
+          bump(`nudge_email_sent_${metric}`);
+          log(`[nudge-email] nudge_email_sent kind=${metric} uid=${uid}`);
+        } else {
+          own.failed += 1;
+          summary.failed += 1;
+          bump(`nudge_email_failed_${metric}`);
+          log(`[nudge-email] send failed kind=${metric} uid=${uid} code=${result.code} retry=${result.retryable ? 'next-run' : 'never'}`);
+        }
+      }
+    } finally {
+      log(passStartEmail.runCountLine(own));
+    }
+    return false;
+  }
+
+  /**
    * GUEST-ABANDON-1: ONE email for a signed-out (guest) checkout opened 1-36 h ago and not paid, ONLY when the order
    * carries an email address. Behind GUEST_ABANDON_EMAIL_ENABLED="1" (default off). Same rails as CHECKOUT-NUDGE-1:
    * claim + durable daily cap + opt-out re-read in ONE transaction, 24 h one-a-day spacing per recipient, at most once
@@ -2065,7 +2256,7 @@ function createNudgeEmailer(deps = {}) {
 
   /** One pass. Never throws; returns a summary (also logged). */
   async function runOnce() {
-    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0, comeback: 0, pack_nudge_1: 0, pack_nudge_2: 0, abandoned_checkout: 0, sample_followup: 0, guest_abandoned_checkout: 0 } };
+    const summary = { mode: config.mode, candidates: 0, wouldSend: 0, sent: 0, failed: 0, skipped: {}, byKind: { d1: 0, d3: 0, founding: 0, checkout_help: 0, founder_checkin: 0, comeback: 0, pack_nudge_1: 0, pack_nudge_2: 0, abandoned_checkout: 0, sample_followup: 0, pass_start: 0, guest_abandoned_checkout: 0 } };
     const skip = (reason) => {
       summary.skipped[reason] = (summary.skipped[reason] || 0) + 1;
     };
@@ -2126,6 +2317,14 @@ function createNudgeEmailer(deps = {}) {
       } catch (e) {
         skip('guest-abandoned-phase-error');
         log(`[nudge-email] guest abandoned-checkout phase failed: ${e && e.message ? e.message : 'error'}`);
+      }
+      // PASS-START-1: a pass holder who has not started, right after the signed-out checkout email (paid students are served
+      // before the free-trial and sample mail). A failure here must not abort the rest.
+      try {
+        if (!capFull) capFull = await runPassStart({ summary, skip, nowMs, day });
+      } catch (e) {
+        skip('pass-start-phase-error');
+        log(`[nudge-email] pass-start phase failed: ${e && e.message ? e.message : 'error'}`);
       }
       // EMAIL-CONCIERGE-1: checkout_help runs next so the shared daily cap serves it before d1/d3/founding;
       // founder_checkin runs after them.

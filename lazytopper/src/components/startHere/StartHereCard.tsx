@@ -15,6 +15,8 @@ import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { ChapterPickerModal } from "../../lib/desktop/homeDestinations";
 import { START_HERE_AVAILABILITY } from "./startHereAvailability.generated";
 import { useZeroGraded } from "./zeroGraded";
+import { usePassStart } from "./passStart";
+import type { SubscriptionStatus } from "../../services/subscriptionService";
 import { useFirstActionZeroGraded, type FirstActionReason } from "./firstActionRead";
 import { reportFirstActionShown, reportFirstActionTap } from "./firstAction";
 import { wasTrialStartedAtSignUp } from "../../services/newAccountTrial";
@@ -222,13 +224,15 @@ export interface StartHereState {
   momentsConfirmed?: boolean;
   /** ACT-FIRST-1 — why the card shows: the server's zero-graded answer, or a new-account signal. Measurement only. */
   reason?: FirstActionReason | null;
+  /** PASS-START-1 — the pass-holder variant is THE card here (an active Board Pass, no graded work, no practice attempt). */
+  passStart?: boolean;
 }
 
 /**
  * Whether the card shows. Split out so Home can ask ONCE and also stand the older
  * FirstSession card down while this one is up (two start cards on one screen is noise).
  */
-export function useStartHere(uid?: string | null): StartHereState {
+export function useStartHere(uid?: string | null, subscription?: SubscriptionStatus | null): StartHereState {
   // The tri-state zero-graded read (./zeroGraded): local first, then ONE cloud ask per uid per tab.
   const graded = useZeroGraded(uid);
   const [dismissed, setDismissed] = useState<boolean>(() => isDismissedThisSession());
@@ -243,6 +247,20 @@ export function useStartHere(uid?: string | null): StartHereState {
   const audience = (graded === "none" && firstAction.zeroGraded !== "some") || newBySignup || (!!uid && guidePreviewActive());
   // MOMENTS-1: the server-confirmed read, for the guide arm only (it joins the read above: no new ask).
   const confirmed = useZeroGraded(resolveGuideVariant(uid) === "guide" ? uid : null, { serverOnly: true });
+
+  // PASS-START-1: for an active Board Pass holder with no activity the card is the pass variant (never two cards). Others: unchanged.
+  const pass = usePassStart(uid, subscription, graded);
+  if (pass.variant && uid) {
+    return {
+      visible: !pass.dismissed,
+      dismiss: pass.dismiss,
+      eligible: true,
+      uid,
+      momentsConfirmed: false,
+      reason: null,
+      passStart: true,
+    };
+  }
 
   return {
     visible: !!uid && audience && !dismissed,
@@ -390,6 +408,11 @@ export function StartHereView({
     if (visible && surface === "home") reportFirstActionShown("home", state.reason ?? null);
   }, [visible, surface, state.reason]);
 
+  // PASS-START-1: the pass-holder card stands in for the generic card and for Byte's inline arm (one card, never two).
+  if (state.passStart) {
+    return visible ? <PassStartCard returnTo={returnTo} spaced={spaced} onNotNow={() => state.dismiss()} /> : null;
+  }
+
   if (arm === "guide" && !mascotsHidden && (byteAllowed || !visible)) {
     return (
       <GuideInlineArm
@@ -417,6 +440,57 @@ export function StartHereView({
       <section className={spaced ? "lt-shc lt-shc--spaced" : "lt-shc"} data-testid="start-here-card">
         <AdminPreviewBadge />
         <StartHerePanel testIdPrefix="start-here" returnTo={returnTo} onNotNow={onNotNow} />
+      </section>
+    </>
+  );
+}
+
+/* ── PASS-START-1 — the pass-holder card ───────────────────────────────────────────────── */
+
+const PASS_START_COPY = {
+  kicker: "Your Board Pass is active",
+  heading: "Start with a 5-minute Quick Practice",
+  start: "Start a 5-minute Quick Practice",
+  checker: "Or check one of your answers in Answer Checker",
+  notNow: "Not now",
+} as const;
+
+function PassStartCard({ returnTo, spaced, onNotNow }: { returnTo: string; spaced: boolean; onNotNow: () => void }) {
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    trackOnboardingEvent("start_here_shown", { surface: "home" });
+  }, []);
+  const start = async () => {
+    if (busy) return;
+    setBusy(true);
+    // The card's own default chapter (the one-tap button's pre-selection); the Practice hub if no set can launch.
+    const target = oneTapTarget("Science") ?? oneTapTarget("Maths");
+    const ok = target
+      ? await launchStartHereSet({ navigate, subject: target.subject, chapter: target.slug, qtype: "mcq", returnTo, mode: "one_tap" })
+      : false;
+    if (!ok) navigate("/practice-hub");
+    setBusy(false);
+  };
+  return (
+    <>
+      <style>{CSS}</style>
+      <section className={spaced ? "lt-shc lt-shc--spaced" : "lt-shc"} data-testid="pass-start-card">
+        <p className="lt-shc-k">{PASS_START_COPY.kicker}</p>
+        <h2 className="lt-shc-h">{PASS_START_COPY.heading}</h2>
+        <div className="lt-shc-ready">
+          <button type="button" className="lt-shc-go" data-testid="pass-start-go" disabled={busy} onClick={() => void start()}>
+            {PASS_START_COPY.start}
+          </button>
+          <button type="button" className="lt-shc-go lt-shc-go--alt" data-testid="pass-start-checker" onClick={() => navigate("/check-improve")}>
+            {PASS_START_COPY.checker}
+          </button>
+        </div>
+        <div className="lt-shc-ctas">
+          <button type="button" className="lt-shc-later" data-testid="pass-start-not-now" onClick={onNotNow}>
+            {PASS_START_COPY.notNow}
+          </button>
+        </div>
       </section>
     </>
   );
@@ -1192,7 +1266,7 @@ export interface StartHereFocusViewProps {
  */
 export function StartHereFocusView({ uid, surface, returnTo, state, checkOneAnswer, onClosed }: StartHereFocusViewProps) {
   const [closed, setClosed] = useState(false);
-  const eligible = state.visible && !!uid && !closed;
+  const eligible = state.visible && !state.passStart && !!uid && !closed;
   // The device memory is read only once the audience rule says yes.
   const allowed = useMemo(() => (eligible ? focusAllowed(uid) : false), [eligible, uid]);
   // BYTE-TRYONE-1: the full-screen / overlay Byte on Home has no question box either.
