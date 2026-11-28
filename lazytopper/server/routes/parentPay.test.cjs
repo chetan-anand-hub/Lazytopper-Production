@@ -780,7 +780,7 @@ test('V · an AUTHORIZED payment is captured for the STORED amount, then granted
   assert.equal(cap.body.amount, 59900);
 });
 
-test('PRICING-1 · V · a founding order only AUTHORIZED 24 h+ after the close is not captured and not granted; a CAPTURED one still is', async (t) => {
+test('PRICE-HOLD-1 · V · a founding order AUTHORIZED 24 h+ after 1 Dec is NOT refused (no close, no order_expired) and is granted at its own price', async (t) => {
   // PRICE-FIXED-1: after 1 Nov a month order needs a prior paid month order on the CHILD's account.
   const srv = await startRoutes({ db: memoryFirestore({ 'payOrders/order_old_month': { uid: 'child1', passType: 'month', status: 'paid', amountPaise: 59900 } }), clock: { t: Date.parse('2026-11-30T23:59:00+05:30') } });
   t.after(srv.close);
@@ -789,16 +789,10 @@ test('PRICING-1 · V · a founding order only AUTHORIZED 24 h+ after the close i
   const auth = srv.rzp.pay(o.orderId, { id: 'pay_auth', status: 'authorized' });
   srv.clock.t = Date.parse('2026-12-02T00:00:01+05:30');
   const r = await parentVerify(srv, token, o.orderId, auth.id);
-  assert.equal(r.status, 400, r.text);
-  assert.equal(r.json.reason, 'order_expired');
-  assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0, 'a stale founding order was captured');
-  assert.equal(srv.db.read('subscriptions/child1'), undefined);
-  const done = srv.rzp.pay(o.orderId, { id: 'pay_done' });
-  const ok = await parentVerify(srv, token, o.orderId, done.id);
-  assert.equal(ok.status, 200, ok.text);
+  assert.equal(r.status, 200, r.text);
+  assert.notEqual(r.json.reason, 'order_expired');
   assert.equal(srv.db.read('subscriptions/child1').pricePaidInr, 707);
 });
-
 test('V · a payment captured after the link EXPIRED, for an order made while it was live, is still honoured', async (t) => {
   const srv = await startRoutes();
   t.after(srv.close);
@@ -1466,7 +1460,7 @@ test('RECEIPT · a parent-paid PACK: ONE receipt to the parent and the child acc
   assert.match(sent[0].text, /My packs to download/);
 });
 
-test('TS-PRICE-2 · a parent link for the Test Series carries the price AT THE SERVER CLOCK: 999 before 00:00 IST 1 Dec 2026, 1,499 from it, and the order is charged that amount', async (t) => {
+test('PRICE-HOLD-1 · a parent link for the Test Series carries 999 at the SERVER clock before 1 Dec, at it, and after it (no switch), and the order is charged that amount', async (t) => {
   const CUT = Date.parse('2026-12-01T00:00:00+05:30');
   const srv = await startRoutes({ env: ENV_PACKS, clock: { t: CUT - 1 } });
   t.after(srv.close);
@@ -1476,16 +1470,16 @@ test('TS-PRICE-2 · a parent link for the Test Series carries the price AT THE S
   const o1 = await request(srv.port, PARENT_ORDER_PATH, { body: { token: early.json.token, product: 'pack' } });
   assert.equal(o1.status, 200, o1.text);
   assert.equal(o1.json.amountPaise, 117900);
-  // the SAME link opened after the cut-off is re-priced by the server clock (the price a parent sees = what is charged)
+  // the SAME link opened after 1 Dec is charged the same amount
   srv.clock.t = CUT;
   const o2 = await request(srv.port, PARENT_ORDER_PATH, { body: { token: early.json.token, product: 'pack' } });
   assert.equal(o2.status, 200, o2.text);
-  assert.equal(o2.json.amountPaise, 176900);
+  assert.equal(o2.json.amountPaise, 117900);
   const late = await mintPack(srv, { sku: 'test_series' });
-  assert.deepEqual(late.json.pack, { sku: 'test_series', target: 'all', priceInr: 1499, totalInr: 1769, gstInr: 270 });
+  assert.deepEqual(late.json.pack, { sku: 'test_series', target: 'all', priceInr: 999, totalInr: 1179, gstInr: 180 });
 });
 
-test('TS-PRICE-2 · parent link: a 999 founding Test Series order only AUTHORIZED 24 h+ after the cut-off is not captured (order_expired); +10 s is granted', async (t) => {
+test('PRICE-HOLD-1 · parent link: a 999 Test Series order AUTHORIZED 25 h after 1 Dec is captured and granted (no order_expired)', async (t) => {
   const CUT = Date.parse('2026-12-01T00:00:00+05:30');
   const srv = await startRoutes({ env: ENV_PACKS, clock: { t: CUT - 5000 } });
   t.after(srv.close);
@@ -1495,15 +1489,11 @@ test('TS-PRICE-2 · parent link: a 999 founding Test Series order only AUTHORIZE
   const p = srv.rzp.pay(o.json.orderId, { id: 'pay_ts_auth', status: 'authorized' });
   srv.clock.t = CUT + 25 * 3600 * 1000;
   const r = await parentVerify(srv, m.json.token, o.json.orderId, p.id);
-  assert.equal(r.status, 400, r.text);
-  assert.equal(r.json.reason, 'order_expired');
-  assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0);
-  srv.clock.t = CUT + 10000;
-  const ok = await parentVerify(srv, m.json.token, o.json.orderId, p.id);
-  assert.equal(ok.status, 200, ok.text);
+  assert.equal(r.status, 200, r.text);
+  assert.notEqual(r.json.reason, 'order_expired');
 });
 
-test('TS-PRICE-2 · parent link: a founding-member child gets no exemption for a stale 999 Test Series order (order_expired, not captured)', async (t) => {
+test('PRICE-HOLD-1 · parent link: a founding-member child is treated like anyone (no stale-order rule): authorized 25 h after 1 Dec is granted', async (t) => {
   const CUT = Date.parse('2026-12-01T00:00:00+05:30');
   const srv = await startRoutes({ env: ENV_PACKS, db: memoryFirestore({ 'subscriptions/child1': { foundingMember: true } }), clock: { t: CUT - 5000 } });
   t.after(srv.close);
@@ -1512,12 +1502,10 @@ test('TS-PRICE-2 · parent link: a founding-member child gets no exemption for a
   const p = srv.rzp.pay(o.json.orderId, { id: 'pay_fm_ts', status: 'authorized' });
   srv.clock.t = CUT + 25 * 3600 * 1000;
   const r = await parentVerify(srv, m.json.token, o.json.orderId, p.id);
-  assert.equal(r.status, 400, r.text);
-  assert.equal(r.json.reason, 'order_expired');
-  assert.equal(srv.rzp.calls.filter((c) => c.url.endsWith('/capture')).length, 0);
+  assert.equal(r.status, 200, r.text);
+  assert.notEqual(r.json.reason, 'order_expired');
 });
 
-// ---- TS-PARENT-FORWARD-1: the two parent-link steps for the Test Series that had no test (tests only; no server change) ---------
 test('TS-PARENT-FORWARD-1 · VIEW: a Test Series link shows the Test Series at the SERVER price (target "all"); an owner child gets "owned"', async (t) => {
   const CUT = Date.parse('2026-12-01T00:00:00+05:30');
   const srv = await startRoutes({ env: ENV_PACKS, clock: { t: CUT - 1 } });

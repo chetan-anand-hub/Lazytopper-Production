@@ -237,12 +237,12 @@ describe("UpgradeSheet — copy, price and treatment", () => {
     expect(document.querySelector(".lt-upsheet")?.textContent ?? "").not.toMatch(/599|999|for a month/);
   });
 
-  it("PRICE-FIXED-1 - the Board Pass price follows the DATE (1,917 then 2,499), whatever the founding state", () => {
+  it("PRICE-FIXED-1 - the Board Pass price is 1,917 on every date (PRICE-HOLD-1: no 2,499 switch), whatever the founding state", () => {
     for (const [now, founding, price] of [
       ["2026-10-25T06:30:00Z", undefined, "\u20B91,917"],
-      ["2026-12-01T00:00:00+05:30", undefined, "\u20B92,499"],
-      ["2026-12-05T10:00:00+05:30", true, "\u20B92,499"],
-      ["2026-12-05T10:00:00+05:30", false, "\u20B92,499"],
+      ["2026-12-01T00:00:00+05:30", undefined, "\u20B91,917"],
+      ["2026-12-05T10:00:00+05:30", true, "\u20B91,917"],
+      ["2026-12-05T10:00:00+05:30", false, "\u20B91,917"],
     ] as const) {
       vi.useFakeTimers({ now: new Date(now), toFake: ["Date"] });
       subState.foundingMember = founding;

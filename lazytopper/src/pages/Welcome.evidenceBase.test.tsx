@@ -174,15 +174,15 @@ describe("Welcome — the price is read from the pricing config, never typed", (
     expect(card?.querySelector("s")).toBeNull();
   });
 
-  it("PRICE-FIXED-1 - before the deadline the card carries the Founding member offer label; from 00:00 IST 1 Dec the label is gone and the price is 2,499 (no deploy)", () => {
+  it("PRICE-HOLD-1 - the card carries the Founding member offer label (no date) and the 1,917 price both before AND from 00:00 IST 1 Dec (no switch)", () => {
     renderWelcome();
     expect(screen.getByTestId("landing-founding-label")).toHaveTextContent("Founding member offer");
     cleanup();
     vi.setSystemTime(new Date("2026-12-01T00:00:00+05:30"));
     renderWelcome();
-    expect(screen.queryByTestId("landing-founding-label")).toBeNull();
-    expect(screen.getByTestId("landing-board-pass").textContent).toContain("₹2,499");
-    expect(screen.getByTestId("landing-board-pass").textContent).not.toContain("₹1,917");
+    expect(screen.getByTestId("landing-founding-label")).toHaveTextContent("Founding member offer");
+    expect(screen.getByTestId("landing-board-pass").textContent).toContain("₹1,917");
+    expect(screen.getByTestId("landing-board-pass").textContent).not.toContain("₹2,499");
   });
 
   it("PaidPlanHead takes no props: the date (not a flag) decides what it shows", () => {

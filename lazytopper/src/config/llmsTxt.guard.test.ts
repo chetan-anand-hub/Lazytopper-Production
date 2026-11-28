@@ -135,10 +135,11 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
     expect(txt).toContain(`Subject pack ₹${PACK_PRICE_INR.pack_subject}`);
     expect(txt).toContain(`Bundle ₹${PACK_PRICE_INR.pack_bundle}`);
     // PRICE-FIXED-1 (owner, 31 Oct 2026): the Board Pass is one fixed price and the month price is hidden.
-    expect(txt).toContain(`${formatInr(TILL_BOARDS_FOUNDING_INR)} + GST as the Founding member offer until 30 November 2026`);
-    expect(txt).toContain(`${formatInr(TILL_BOARDS_AFTER_FOUNDING_INR)} + GST from 1 December 2026`);
+    // PRICE-HOLD-1 (owner, 28 Nov 2026): the price has no end date and no "then" price - llms.txt names neither.
+    expect(txt).toContain(`${formatInr(TILL_BOARDS_FOUNDING_INR)} + GST (Founding member price)`);
+    expect(txt).not.toMatch(/30 November|1 December|2,499|1,499|until 30 Nov|from 1 Dec/);
     // GST-EXCL-1 (owner, 4 Nov 2026): every price is "+ GST" and the example totals are the code's own arithmetic.
-    for (const n of [PACK_PRICE_INR.pack_cbq, PACK_PRICE_INR.pack_chapter, PACK_PRICE_INR.pack_mock, PACK_PRICE_INR.pack_subject, PACK_PRICE_INR.pack_bundle, TILL_BOARDS_FOUNDING_INR, TILL_BOARDS_AFTER_FOUNDING_INR]) {
+    for (const n of [PACK_PRICE_INR.pack_cbq, PACK_PRICE_INR.pack_chapter, PACK_PRICE_INR.pack_mock, PACK_PRICE_INR.pack_subject, PACK_PRICE_INR.pack_bundle, TILL_BOARDS_FOUNDING_INR]) {
       expect(txt).toContain(`${formatInr(n)} + GST`);
     }
     const cut = GST_EXCLUSIVE_FROM_MS;
@@ -153,7 +154,7 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
     // The Test Series founding price is also 999 (owner, 19 Nov 2026): the month list price may not appear anywhere else.
     expect(txt.replace(/₹999 \+ GST/g, "")).not.toContain(String(PRICE_MONTHLY_LIST_INR));
     // VALIDITY-FEB27 + owner 19 Nov 2026: the Test Series line, its prices and its validity.
-    expect(txt).toContain("₹999 + GST founding price until 30 November 2026, then ₹1,499 + GST; valid till 28 Feb 2027");
+    expect(txt).toContain("₹999 + GST founding price; valid till 28 Feb 2027");
     expect(txt).toContain("Board Pass: ₹1,917 + GST");
     expect(txt).not.toMatch(/until the (student's )?first board exam|till your boards/);
     expect(txt).not.toMatch(/less than paying monthly|for a month/i);

@@ -14,7 +14,6 @@ const { createHttpUtils } = require('../services/httpUtils.cjs');
 const g = require('../services/gstInvoice.cjs');
 const { invoiceTextBlocks } = require('../services/gstInvoicePdf.cjs');
 const { movePackOrder } = require('../services/adminMovePurchase.cjs');
-const { FOUNDING_OFFER_CLOSES_AT_MS } = require('../services/passPricing.cjs');
 
 const KEY_ID = 'rzp_test_KEYID';
 const KEY_SECRET = 'test_key_secret_never_sent';
@@ -23,7 +22,7 @@ const ENV_ON = { PAYMENTS_ENABLED: '1', PACKS_ENABLED: '1', RAZORPAY_KEY_ID: KEY
 /** 20 Nov 2026, 12:00 IST: after the GST cut-off (7 Nov), inside the founding offer (Board Pass base 1917). */
 const NOW = Date.parse('2026-11-20T12:00:00+05:30');
 /** 1 Dec 2026 00:00 IST, exactly: the after-founding Board Pass base (2499) applies from this instant. */
-const AFTER_FOUNDING = FOUNDING_OFFER_CLOSES_AT_MS;
+const AFTER_FOUNDING = Date.parse('2026-12-01T00:00:00+05:30'); // PRICE-HOLD-1: the retired 1 Dec switch instant - the amounts below do NOT change at it
 
 const hmac = (secret, data) => crypto.createHmac('sha256', secret).update(data).digest('hex');
 const checkoutSig = (orderId, paymentId) => hmac(KEY_SECRET, `${orderId}|${paymentId}`);
@@ -277,72 +276,54 @@ test('MONEY · founding: Test Series owner pays 918 + 165 = 1083 (1179 + 1083 = 
   assert.equal(srv.db.read('packEntitlements/ts1/packs/test_series:all').creditedToPass, false, 'creating the order does not spend the credit');
 });
 
-test('MONEY · 1 Dec 00:00 IST boundary: 1 ms before -> 1083; exactly at it -> 1500 + 270 = 1770 (1179 + 1770 = 2949)', async (t) => {
-  const db = memoryFirestore();
-  seedTs(db, 'ts1');
-  const before = await start({ db, nowMs: AFTER_FOUNDING - 1 });
-  t.after(before.close);
-  assert.equal((await orderOk(before, 'ts1', 'till_boards')).amountPaise, 108300);
-  const db2 = memoryFirestore();
-  seedTs(db2, 'ts1');
-  const at = await start({ db: db2, nowMs: AFTER_FOUNDING });
-  t.after(at.close);
-  const plain = await orderOk(at, 'nobody', 'till_boards');
-  assert.equal(plain.amountPaise, 294900, 'the full after-founding price: 2499 + 450');
-  const r = await orderOk(at, 'ts1', 'till_boards');
-  assert.equal(r.amountPaise, 177000);
-  assert.deepEqual(r.gst, { baseInr: 1500, gstInr: 270, totalInr: 1770 });
-  assert.equal(117900 + r.amountPaise, plain.amountPaise, '1179 + 1770 = 2949');
-  assert.equal(at.db.read(`payOrders/${r.orderId}`).tsUpgradeFullBaseInr, 2499);
+test('PRICE-HOLD-1 · MONEY · 1 Dec 00:00 IST is NOT a boundary: 1 ms before, exactly at it and a day after all charge 918 + 165 = 1083 (1179 + 1083 = 2262)', async (t) => {
+  for (const nowMs of [AFTER_FOUNDING - 1, AFTER_FOUNDING, AFTER_FOUNDING + 86400000]) {
+    const db = memoryFirestore();
+    seedTs(db, 'ts1');
+    const srv = await start({ db, nowMs });
+    t.after(srv.close);
+    const plain = await orderOk(srv, 'nobody', 'till_boards');
+    assert.equal(plain.amountPaise, 226200, 'the full Board Pass price: 1917 + 345 (never 2499)');
+    const r = await orderOk(srv, 'ts1', 'till_boards');
+    assert.equal(r.amountPaise, 108300, String(nowMs));
+    assert.deepEqual(r.gst, { baseInr: 918, gstInr: 165, totalInr: 1083 });
+    assert.equal(117900 + r.amountPaise, plain.amountPaise, '1179 + 1083 = 2262');
+    assert.equal(srv.db.read(`payOrders/${r.orderId}`).tsUpgradeFullBaseInr, 1917);
+  }
 });
 
-test('TS-PRICE-2 MONEY · the credit is what the student ACTUALLY PAID: a founding buyer (999) after 1 Dec pays 1500 + 270 = 1770; a 1,499 buyer pays 1000 + 180 = 1180', async (t) => {
-  // founding buyer (seedTs default: base 999 / 1179), upgrading after the cut-off
+test('PRICE-HOLD-1 · MONEY · the credit is what the student ACTUALLY PAID: a 999 buyer upgrading after 1 Dec pays 918 + 165 = 1083; a legacy 1,499 order (unreachable now) would pay 418 + GST', async (t) => {
   const db = memoryFirestore();
   seedTs(db, 'f1');
   const srv = await start({ db, nowMs: AFTER_FOUNDING + 86400000 });
   t.after(srv.close);
   const f = await orderOk(srv, 'f1', 'till_boards');
-  assert.equal(f.amountPaise, 177000);
-  assert.deepEqual(f.gst, { baseInr: 1500, gstInr: 270, totalInr: 1770 });
-  assert.equal(f.tsUpgradeCreditInr, 999, 'NOT today\'s 1,499 list price');
-  assert.equal(lastRzpOrder(srv).body.amount, 177000);
+  assert.equal(f.amountPaise, 108300);
+  assert.deepEqual(f.gst, { baseInr: 918, gstInr: 165, totalInr: 1083 });
+  assert.equal(f.tsUpgradeCreditInr, 999, 'the base the order carried');
+  assert.equal(lastRzpOrder(srv).body.amount, 108300);
 
-  // a buyer who paid the 1,499 list price
+  // a record that carries the 1,499 base (kept accepted in the catalogue) is credited ITS OWN base against today's 1917
   const db2 = memoryFirestore();
   seedTs(db2, 'l1', { order: { amountPaise: 176900, baseInr: 1499, gstInr: 270, totalInr: 1769 }, pack: { pricePaidInr: 1769 } });
   const srv2 = await start({ db: db2, nowMs: AFTER_FOUNDING + 86400000, licensees: LIC(['l1']) });
   t.after(srv2.close);
   const plain = await orderOk(srv2, 'nobody', 'till_boards');
-  assert.equal(plain.amountPaise, 294900);
+  assert.equal(plain.amountPaise, 226200);
   const l = await orderOk(srv2, 'l1', 'till_boards');
-  assert.equal(l.amountPaise, 118000);
-  assert.deepEqual(l.gst, { baseInr: 1000, gstInr: 180, totalInr: 1180 });
   assert.equal(l.tsUpgradeCreditInr, 1499);
-  assert.equal(176900 + l.amountPaise, plain.amountPaise, '1769 + 1180 = 2949');
+  assert.deepEqual(l.gst, { baseInr: 418, gstInr: 75, totalInr: 493 });
+  assert.equal(l.amountPaise, 49300);
   const stored = srv2.db.read(`payOrders/${l.orderId}`);
-  assert.equal(stored.tsUpgradeFullBaseInr, 2499);
-  assert.equal(stored.baseInr, 1000);
-  assert.equal(lastRzpOrder(srv2).body.notes.tsUpgradeCreditInr, '1499');
-  // /api/packs/mine tells the 1,499 buyer the same figure
-  const m = await mine(srv2, 'l1');
-  assert.equal(m.status, 200, m.text);
-  assert.deepEqual(m.json.boardPassCredit, { creditInr: 1499, expiresAtMs: null, payInr: 1180, kind: 'test_series_upgrade', baseInr: 1000, gstInr: 180, fullBaseInr: 2499 });
-  // the 1,499 buyer's upgrade GRANTS (verify) at 1180 and spends the credit once
-  const pl = srv2.rzp.pay(l.orderId);
-  const vl = await verify(srv2, 'l1', l.orderId, pl.id);
-  assert.equal(vl.status, 200, vl.text);
-  assert.equal(db2.read('subscriptions/l1').pricePaidInr, 1180);
-  assert.equal(db2.read('packEntitlements/l1/packs/test_series:all').creditedToPass, true);
+  assert.equal(stored.tsUpgradeFullBaseInr, 1917);
+  assert.equal(stored.baseInr, 418);
   // a record whose base is neither price is not credited and the purchase is still sold at full price
   const db3 = memoryFirestore();
   seedTs(db3, 'x1', { order: { amountPaise: 118000, baseInr: 1000, gstInr: 180, totalInr: 1180 }, pack: { pricePaidInr: 1180 } });
   const srv3 = await start({ db: db3, nowMs: AFTER_FOUNDING + 86400000 });
   t.after(srv3.close);
-  assert.equal((await orderOk(srv3, 'x1', 'till_boards')).amountPaise, 294900);
+  assert.equal((await orderOk(srv3, 'x1', 'till_boards')).amountPaise, 226200);
 });
-
-/* ── grant: verify, webhook, status, replays ─────────────────────────────────────────────────────────────────────── */
 
 test('GRANT · verify grants the Board Pass for 1083, marks the Test Series credited ONCE; verify / webhook / status replays change nothing', async (t) => {
   const db = memoryFirestore();
@@ -607,7 +588,7 @@ test('/MINE · a Test Series owner gets boardPassCredit { creditInr 999, payInr 
   const after = await start({ db, nowMs: AFTER_FOUNDING, licensees: LIC(['ts1']) });
   t.after(after.close);
   const ma = await mine(after, 'ts1');
-  assert.deepEqual(ma.json.boardPassCredit, { creditInr: 999, expiresAtMs: null, payInr: 1770, kind: 'test_series_upgrade', baseInr: 1500, gstInr: 270, fullBaseInr: 2499 });
+  assert.deepEqual(ma.json.boardPassCredit, { creditInr: 999, expiresAtMs: null, payInr: 1083, kind: 'test_series_upgrade', baseInr: 918, gstInr: 165, fullBaseInr: 1917 }, 'PRICE-HOLD-1: the same figure after 1 Dec');
 });
 
 /* ── admin-moved purchases ───────────────────────────────────────────────────────────────────────────────────────── */

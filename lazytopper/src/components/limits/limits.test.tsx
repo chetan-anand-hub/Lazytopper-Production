@@ -92,7 +92,7 @@ describe("copy: numbers come from the server", () => {
 
 describe("wall offer: the Board Pass is the only plan named (PRICE-FIXED-1)", () => {
   it("the data carries the Board Pass at its fixed price and nothing else - on both sides of the old founding close", () => {
-    for (const [at, price, label] of [["2026-11-02T06:00:00Z", "₹1,917", "Founding member offer"], ["2026-12-02T06:00:00Z", "₹2,499 \\+ GST", null]] as const) { // GST-EXCL-1: "+ GST" from 7 Nov 2026
+    for (const [at, price, label] of [["2026-11-02T06:00:00Z", "₹1,917", "Founding member offer"], ["2026-12-02T06:00:00Z", "₹1,917 \\+ GST", "Founding member offer"]] as const) { // GST-EXCL-1: "+ GST" from 7 Nov 2026
       const o = wallOfferLines(new Date(at));
       expect(Object.keys(o)).toEqual(["boardPass", "foundingLabel"]);
       expect(o.foundingLabel).toBe(label);

@@ -42,6 +42,7 @@ afterEach(() => {
 });
 
 /** FOUNDING-MSG-PRICE-1: the price-quoting text is the post-founding message; before the close no amount is named (tests below). */
+// PRICE-HOLD-1: the founding offer never closes, so 2 Dec behaves exactly like 25 Nov: NO Board Pass / Test Series amount is ever quoted in a forwarded message.
 const AFTER_FOUNDING = Date.parse("2026-12-02T10:00:00+05:30");
 const BEFORE_FOUNDING = Date.parse("2026-11-25T10:00:00+05:30");
 
@@ -127,7 +128,8 @@ describe("the message — honest by construction", () => {
     // PRICE-FIXED-1: the message names ONLY the Board Pass; the month price (even if the server sent one) is never quoted.
     expect(text).not.toContain("₹777");
     expect(text).not.toMatch(/for a month|599/);
-    expect(text).toContain("₹3,108 once");
+    expect(text).not.toContain("₹3,108"); // PRICE-HOLD-1: no amount while the (endless) founding offer is open
+    expect(text).toContain("The Board Pass is one payment for everything till my boards.");
     expect(text).toContain(base.url);
     expect(text).toContain("step by step");
     expect(text).toContain("CBSE examiner");
@@ -154,7 +156,8 @@ describe("the message — honest by construction", () => {
   it("Hindi carries the same facts: prices, real count, link, validity", () => {
     const text = buildAskParentMessage({ ...base, lang: "hi", checkedCount: 5 });
     expect(text).not.toContain("₹777");
-    expect(text).toContain("₹3,108");
+    expect(text).not.toContain("₹3,108"); // PRICE-HOLD-1
+    expect(text).toContain("Board Pass बोर्ड परीक्षा तक सब कुछ के लिए एक बार का भुगतान है।");
     expect(text).toContain("5 उत्तर");
     expect(text).toContain(base.url);
     expect(text).toContain("3 दिन");
@@ -256,7 +259,8 @@ describe("TRIAL-SELL-1 - the parent's proof line, from real graded results only"
     const text = buildAskParentMessage({ ...base, lang: "en", checkedCount: 3, proof: { answers: 3, marksLost: 1.5, group: "careless" } });
     expect(text).toContain("In the 3 answers it checked for me in the last 30 days, it found 1.5 marks I was losing (mostly careless slips).");
     expect(text).not.toMatch(/I've had 3 answers checked/);
-    expect(text).toContain("₹1,917 once");
+    expect(text).not.toContain("₹1,917"); // PRICE-HOLD-1: no amount
+    expect(text).toContain("The Board Pass is one payment for everything till my boards.");
     expect(text).toContain(base.url);
     expect(buildAskParentMessage({ ...base, lang: "en", checkedCount: 1, proof: { answers: 1, marksLost: 1, group: null } })).toContain(
       "In the 1 answer it checked for me in the last 30 days, it found 1 mark I was losing.",
@@ -287,11 +291,11 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
     for (const lang of ["en", "hi"] as const) {
       const text = buildAskParentMessage({ lang, prices: { month: 599, till_boards: 1917 }, checkedCount: 3, url, days: 3, now: AFTER_FOUNDING });
       expect(text).toContain("Board Pass");
-      expect(text).toContain("₹1,917");
+      expect(text).not.toContain("₹1,917"); // PRICE-HOLD-1: no amount
       expect(text).not.toMatch(/premium/i);
     }
     expect(buildAskParentMessage({ lang: "en", prices: { month: null, till_boards: 1917 }, checkedCount: null, url, days: 3, now: AFTER_FOUNDING })).toContain(
-      "The Board Pass is ₹1,917 once for everything till my boards.",
+      "The Board Pass is one payment for everything till my boards.",
     );
   });
 
@@ -318,7 +322,7 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
     const text = buildAskParentPackMessage({ lang: "en", name: parentPackName("test_series", undefined), sku: "test_series", priceInr: 1179, url, days: 3, now: AFTER_FOUNDING });
     expect(text).toBe(
       [
-        `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? It's ₹1,179, one time, valid till my boards: ${n} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner.`,
+        `Hi Mummy/Papa, can you get me the Test Series on LazyTopper? It's a one-time payment, valid till my boards: ${n} board-pattern tests I can take online or print, and my written answers are marked step by step like a CBSE examiner.`,
         "This link is only for my account — you don't need to sign up or share any password:",
         url,
         "(The link works for 3 days.)",
@@ -332,7 +336,7 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
     const text = buildAskParentPackMessage({ lang: "hi", name: parentPackName("test_series", undefined), sku: "test_series", priceInr: 1769, url, days: 1, now: AFTER_FOUNDING });
     expect(text).toBe(
       [
-        `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का ₹1,769 है और मेरे बोर्ड तक चलेगी: ${n} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं।`,
+        `मम्मी/पापा, क्या आप मुझे LazyTopper पर Test Series दिला देंगे? यह एक बार का भुगतान है और मेरे बोर्ड तक चलेगी: ${n} बोर्ड-पैटर्न टेस्ट, जिन्हें मैं ऑनलाइन दे सकता/सकती हूँ या प्रिंट कर सकता/सकती हूँ, और मेरे लिखे उत्तर CBSE परीक्षक की तरह स्टेप-बाय-स्टेप जाँचे जाते हैं।`,
         "यह लिंक सिर्फ़ मेरे अकाउंट के लिए है — आपको कोई अकाउंट बनाने या पासवर्ड बताने की ज़रूरत नहीं:",
         url,
         "(यह लिंक 1 दिन तक चलेगा।)",
@@ -372,10 +376,10 @@ describe("PARENT-PACKS-1 - a link that carries one pack", () => {
 
   it("TS-PARENT-FORWARD-1 review A: the message is chosen by SKU, never by the name (a renamed Test Series still gets its own text)", () => {
     const renamed = buildAskParentPackMessage({ lang: "en", name: "Pre-Boards Test Series", sku: "test_series", priceInr: 1179, url, days: 3, now: AFTER_FOUNDING });
-    expect(renamed).toContain("can you get me the Test Series on LazyTopper? It's ₹1,179, one time, valid till my boards");
+    expect(renamed).toContain("can you get me the Test Series on LazyTopper? It's a one-time payment, valid till my boards");
     expect(renamed).not.toMatch(/PDF/);
     expect(buildAskParentPackMessage({ lang: "hi", name: "Pre-Boards Test Series", sku: "test_series", priceInr: 1179, url, days: 3, now: AFTER_FOUNDING })).toContain(
-      "LazyTopper पर Test Series दिला देंगे? यह एक बार का ₹1,179 है और मेरे बोर्ड तक चलेगी:",
+      "LazyTopper पर Test Series दिला देंगे? यह एक बार का भुगतान है और मेरे बोर्ड तक चलेगी:",
     );
     // A pack that merely carries the Test Series' display name is still a PDF pack.
     expect(buildAskParentPackMessage({ lang: "en", name: parentPackName("test_series", undefined), sku: "pack_bundle", priceInr: 471, url, days: 3 })).toContain(
@@ -499,14 +503,14 @@ describe("FOUNDING-MSG-PRICE-1 - no price that will change is quoted while the f
   const url = "https://www.lazytopper.com/pricing#pp=x";
   const page = "https://www.lazytopper.com/test-series?utm_source=parent_share";
 
-  it("Board Pass: before 1 Dec the price line is left out; from 1 Dec it is quoted", () => {
+  it("Board Pass: the price line is left out before AND from 1 Dec (PRICE-HOLD-1: there is no close)", () => {
     for (const lang of ["en", "hi"] as const) {
       const before = buildAskParentMessage({ lang, prices: { month: null, till_boards: 2499 }, checkedCount: 2, url, days: 3, now: BEFORE_FOUNDING });
       expect(before).not.toMatch(/₹/);
       expect(before).toContain(url);
       expect(before).toContain(lang === "en" ? "The Board Pass is one payment for everything till my boards." : "Board Pass बोर्ड परीक्षा तक सब कुछ के लिए एक बार का भुगतान है।");
       const after = buildAskParentMessage({ lang, prices: { month: null, till_boards: 2499 }, checkedCount: 2, url, days: 3, now: AFTER_FOUNDING });
-      expect(after).toContain("₹2,499");
+      expect(after).not.toMatch(/₹/); // PRICE-HOLD-1: 1 Dec is not a close - still no amount
     }
   });
 

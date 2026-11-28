@@ -80,37 +80,25 @@ describe("trialEndActivityLine", () => {
   });
 });
 
-// TRIAL-END-OFFER-1 - the founding line and the whole-day count, against the IST midnight the offer closes at.
-describe("founding line and days left (TRIAL-END-OFFER-1)", () => {
+// TRIAL-END-OFFER-1 / PRICE-HOLD-1 - the founding line and the whole-day count are RETIRED: the price has no end, so neither renders on any date.
+describe("founding line and days left (PRICE-HOLD-1: none)", () => {
   const IST_H = 60 * 60 * 1000;
   const ist = (mo: number, d: number, h = 0, mi = 0) => Date.UTC(2026, mo - 1, d, h, mi) - 5.5 * IST_H;
-  const LINE = "Founding price \u20b91,917 till 30 Nov \u2014 \u20b92,499 from 1 Dec";
 
-  it("shows the real deadline before, and on, 30 November; hides it from 1 December 00:00 IST", () => {
-    expect(trialEndFoundingLine(ist(11, 4, 12))).toBe(LINE);
-    // GST-EXCL-1 (owner, 4 Nov 18:20 IST): from 00:00 IST 7 Nov both figures read "+ GST".
-    expect(trialEndFoundingLine(ist(11, 6, 23, 59))).toBe(LINE);
-    expect(trialEndFoundingLine(Date.parse("2026-11-07T00:00:00+05:30") - 1)).toBe(LINE);
-    const GST_LINE = "Founding price \u20b91,917 + GST till 30 Nov \u2014 \u20b92,499 + GST from 1 Dec";
-    expect(trialEndFoundingLine(ist(11, 7, 0, 0))).toBe(GST_LINE);
-    expect(trialEndFoundingLine(ist(11, 30, 23, 59))).toBe(GST_LINE);
-    expect(trialEndFoundingLine(ist(12, 1, 0, 0))).toBeNull();
-    expect(trialEndFoundingLine(ist(12, 20, 12))).toBeNull();
+  it("shows NO deadline line on any date - before, on and after 30 November / 1 December", () => {
+    for (const t of [ist(11, 4, 12), ist(11, 6, 23, 59), ist(11, 7, 0, 0), ist(11, 30, 23, 59), ist(12, 1, 0, 0), ist(12, 20, 12)]) {
+      expect(trialEndFoundingLine(t), String(t)).toBeNull();
+    }
     expect(trialEndFoundingLine(Number.NaN)).toBeNull();
   });
 
-  it("counts whole IST days, today included, with no off-by-one at midnight", () => {
-    expect(foundingDaysLeft(ist(11, 30, 23, 59))).toBe(1); // the last minute
-    expect(foundingDaysLeft(ist(11, 30, 0, 0))).toBe(1); // 30 Nov, first minute
-    expect(foundingDaysLeft(ist(11, 29, 23, 59))).toBe(2); // 29 Nov, last minute
-    expect(foundingDaysLeft(ist(11, 29, 0, 0))).toBe(2);
-    expect(foundingDaysLeft(ist(11, 4, 15, 55))).toBe(27); // 4 Nov .. 30 Nov inclusive
-    expect(foundingDaysLeft(ist(12, 1, 0, 0))).toBeNull();
+  it("counts NO days left on any date", () => {
+    for (const t of [ist(11, 30, 23, 59), ist(11, 30, 0, 0), ist(11, 29, 23, 59), ist(11, 4, 15, 55), ist(12, 1, 0, 0)]) {
+      expect(foundingDaysLeft(t), String(t)).toBeNull();
+    }
   });
 
-  it("words it plainly, singular and plural, and says nothing once the offer has closed", () => {
-    expect(foundingDaysLeftLine(ist(11, 4, 12))).toBe("27 days left at this price");
-    expect(foundingDaysLeftLine(ist(11, 30, 9))).toBe("1 day left at this price");
-    expect(foundingDaysLeftLine(ist(12, 1, 9))).toBeNull();
+  it("says nothing about days left, singular or plural, on any date", () => {
+    for (const t of [ist(11, 4, 12), ist(11, 30, 9), ist(12, 1, 9)]) expect(foundingDaysLeftLine(t), String(t)).toBeNull();
   });
 });

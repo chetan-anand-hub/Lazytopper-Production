@@ -40,7 +40,6 @@ import * as svc from "../services/subscriptionService";
 import {
   FOUNDING_LOCK_COPY,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
-  PRICE_MONTHLY_LIST_DISPLAY,
 } from "../config/pricing";
 
 const hydrate = svc.hydrateSubscriptionFromCloud as unknown as ReturnType<typeof vi.fn>;
@@ -96,27 +95,25 @@ describe("PricingPage after 1 Dec 2026", () => {
     expect(premium.querySelector('[data-testid="pricing-founding-until"]')).toBeNull();
   });
 
-  it("a month buyer WITHOUT the founding rate sees the list price, no lock promise, and a Pay button at the list price", async () => {
+  it("PRICE-HOLD-1: a month buyer WITHOUT the founder flag sees the SAME founding month price after 1 Dec (no list-price switch) and a Pay button at it", async () => {
     const premium = await renderAs(status({}));
     expect(premium.querySelector('[data-testid="pricing-monthly-price"] .lt-pricing-amount')?.textContent).toBe(
-      `${PRICE_MONTHLY_LIST_DISPLAY} + GST`, // GST-EXCL-1
+      `${PRICE_MONTHLY_FOUNDING_DISPLAY} + GST`, // GST-EXCL-1
     );
-    expect(premium.textContent).not.toContain(FOUNDING_LOCK_COPY);
-    expect(await screen.findByRole("button", { name: "Pay ₹1,179 for a month" })).toBeInTheDocument(); // 999 + 180 GST
-    expect(premium.querySelector(".lt-pricing-founding-flag")).toBeNull();
-    expect(premium.querySelector('[data-testid="pricing-founding-until"]')).toBeNull();
+    expect(await screen.findByRole("button", { name: "Pay ₹707 for a month" })).toBeInTheDocument(); // 599 + 108 GST
+    expect(premium.querySelector('[data-testid="pricing-founding-until"]')).toBeNull(); // PRICE-HOLD-1: no end-date line
   });
 
-  it("PRICE-FIXED-1: a student who is NOT a month buyer sees only the Board Pass at the after-founding price: no month tile, no 599/999, no founding label", async () => {
+  it("PRICE-HOLD-1: a student who is NOT a month buyer sees only the Board Pass at the SAME 1,917 price after 1 Dec: no month tile, no 599/999, no deadline line", async () => {
     monthState.buyer = false;
     const premium = await renderAs(status({ foundingMember: true }));
     expect(premium.querySelector('[data-testid="pricing-monthly-price"]')).toBeNull();
     expect(premium.textContent).not.toMatch(/599|999|for a month/);
-    expect(premium.textContent).toContain("₹2,499");
-    expect(premium.querySelector('[data-testid="till-boards-founding-label"]')).toBeNull();
+    expect(premium.textContent).toContain("₹1,917");
+    expect(premium.textContent).not.toContain("2,499");
     expect(premium.querySelector('[data-testid="till-boards-deadline"]')).toBeNull();
-    // GST-EXCL-1: the Pay button names the amount charged, 2499 + 18% GST.
-    expect(await screen.findByRole("button", { name: "Pay ₹2,949 once · valid till 28 Feb 2027" })).toBeInTheDocument();
+    // GST-EXCL-1: the Pay button names the amount charged, 1917 + 18% GST (PRICE-HOLD-1: unchanged after 1 Dec).
+    expect(await screen.findByRole("button", { name: "Pay ₹2,262 once · valid till 28 Feb 2027" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /for a month/i })).toBeNull();
   });
 });

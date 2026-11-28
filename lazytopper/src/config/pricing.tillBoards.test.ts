@@ -36,25 +36,25 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("tillBoardsQuote - the Board Pass: 1,917 until the founding deadline, 2,499 from it", () => {
-  it("the constants are 1,917 and 2,499 and are displayed as such", () => {
+describe("tillBoardsQuote - PRICE-HOLD-1: the Board Pass is 1,917 on EVERY date (no founding deadline, no 2,499 switch)", () => {
+  it("the constants are 1,917 (live) and 2,499 (retained, unreachable) and the price is displayed as 1,917 on every date", () => {
     expect(TILL_BOARDS_FOUNDING_INR).toBe(1917);
     expect(TILL_BOARDS_AFTER_FOUNDING_INR).toBe(2499);
     expect(boardPassPriceDisplay(istNoon("2026-10-31"))).toBe("₹1,917");
     // GST-EXCL-1: from 7 Nov 2026 the tag is "+ GST" (the charge, base + 18%, is on the Pay button / checkout).
     expect(boardPassPriceDisplay(istNoon("2026-11-04"))).toBe("₹1,917");
     expect(boardPassPriceDisplay(istNoon("2026-11-07"))).toBe("₹1,917 + GST");
-    expect(boardPassPriceDisplay(istNoon("2026-12-02"))).toBe("₹2,499 + GST");
+    expect(boardPassPriceDisplay(istNoon("2026-12-02"))).toBe("₹1,917 + GST");
     expect(boardPassPriceLine(istNoon("2026-10-31"))).toBe("₹1,917 — one payment, valid till 28 Feb 2027");
-    expect(boardPassPriceLine(istNoon("2026-12-02"))).toBe("₹2,499 + GST — one payment, valid till 28 Feb 2027");
+    expect(boardPassPriceLine(istNoon("2026-12-02"))).toBe("₹1,917 + GST — one payment, valid till 28 Feb 2027");
   });
 
   it.each([
     ["2026-10-31", 1917],
     ["2026-11-15", 1917],
-    ["2026-12-02", 2499],
-    ["2027-02-01", 2499],
-    ["2027-02-17", 2499],
+    ["2026-12-02", 1917],
+    ["2027-02-01", 1917],
+    ["2027-02-17", 1917],
   ])("%s -> %i, whatever the founding flag says (the date decides)", (today, price) => {
     for (const founding of [true, false]) {
       const quote = tillBoardsQuote(istNoon(today), BOARD, founding);
@@ -64,32 +64,30 @@ describe("tillBoardsQuote - the Board Pass: 1,917 until the founding deadline, 2
     }
   });
 
-  it("every day from 1 Mar 2026 to the board date: one price before the deadline, one from it - it never shrinks", () => {
+  it("every day from 1 Mar 2026 to the board date: ONE price, 1,917 - it never shrinks and never switches", () => {
     const start = Date.UTC(2026, 2, 1);
     const end = Date.UTC(2027, 1, 17);
     let checked = 0;
     for (let t = start; t <= end; t += 86_400_000) {
       const iso = new Date(t).toISOString().slice(0, 10);
-      const want = istNoon(iso).getTime() < FOUNDING_OFFER_CLOSES_AT_MS ? 1917 : 2499;
-      expect(tillBoardsQuote(istNoon(iso), BOARD)!.priceInr).toBe(want);
+      expect(tillBoardsQuote(istNoon(iso), BOARD)!.priceInr).toBe(1917);
       checked += 1;
     }
     expect(checked).toBeGreaterThan(300);
   });
 
-  it("switches exactly at the founding deadline: 23:59:59 IST 30 Nov -> 1,917; 00:00:00 IST 1 Dec -> 2,499", () => {
+  it("does NOT switch at 00:00 IST 1 Dec: 23:59:59 IST 30 Nov, 00:00:00 IST 1 Dec and 00:00:01 IST 1 Dec are all 1,917", () => {
     expect(tillBoardsQuote(new Date("2026-11-30T23:59:59+05:30"), BOARD)!.priceInr).toBe(1917);
-    expect(tillBoardsQuote(new Date("2026-12-01T00:00:00+05:30"), BOARD)!.priceInr).toBe(2499);
+    expect(tillBoardsQuote(new Date("2026-12-01T00:00:00+05:30"), BOARD)!.priceInr).toBe(1917);
+    expect(tillBoardsQuote(new Date("2026-12-01T00:00:01+05:30"), BOARD)!.priceInr).toBe(1917);
+    expect(FOUNDING_OFFER_CLOSES_AT_MS).toBe(Number.POSITIVE_INFINITY);
   });
 
-  it("the founding label and the one deadline line exist before the deadline only, with no strike or saving claim", () => {
-    expect(boardPassFoundingLabel(new Date("2026-11-30T23:59:59+05:30"))).toBe("Founding member offer");
-    expect(boardPassDeadlineLine(new Date("2026-11-30T23:59:59+05:30"))).toBe(
-      "Founding member offer ends 30 November. From 1 December: ₹2,499 + GST.",
-    );
-    expect(boardPassFoundingLabel(new Date("2026-12-01T00:00:00+05:30"))).toBeNull();
-    expect(boardPassDeadlineLine(new Date("2026-12-01T00:00:00+05:30"))).toBeNull();
-    expect(boardPassDeadlineLine(new Date("2026-11-01T10:00:00+05:30"))).not.toMatch(/\b(save|off|shrinks?)\b|%/i);
+  it("the founding label stays (no date attached) and the deadline line is null on EVERY date, with no strike or saving claim", () => {
+    for (const iso of ["2026-11-01T10:00:00+05:30", "2026-11-30T23:59:59+05:30", "2026-12-01T00:00:00+05:30", "2027-02-01T00:00:00+05:30"]) {
+      expect(boardPassFoundingLabel(new Date(iso)), iso).toBe("Founding member offer");
+      expect(boardPassDeadlineLine(new Date(iso)), iso).toBeNull();
+    }
   });
 
   it("the quote carries no saving claim, struck price or monthly figure", () => {
@@ -102,7 +100,7 @@ describe("tillBoardsQuote - the rules that stay", () => {
   it("k is never 0 - on the day of the first paper the plan still covers one month", () => {
     const q = tillBoardsQuote(istNoon(BOARD), BOARD)!;
     expect(q.monthsLeft).toBe(1);
-    expect(q.priceInr).toBe(2499);
+    expect(q.priceInr).toBe(1917);
   });
 
   it("uses the IST calendar date, not UTC: 16 Dec 20:00 UTC is already 17 Dec in India", () => {
@@ -143,14 +141,12 @@ describe("tillBoardsQuote - wired to the same board date as the landing countdow
   });
 });
 
-describe("BP-PREBOARDS-1 - the founding countdown line", () => {
+describe("BP-PREBOARDS-1 / PRICE-HOLD-1 - there is no founding countdown", () => {
   const at = (iso: string) => new Date(iso);
-  it("counts IST calendar days to the last day, says today on it, and is null from the closing instant", () => {
-    expect(foundingDaysLeft(at("2026-11-18T23:59:00+05:30"))).toBe(12);
-    expect(boardPassFoundingCountdownLine(at("2026-11-18T10:00:00+05:30"))).toBe("Founding price ends in 12 days (30 Nov) \u00b7 then \u20b92,499 + GST");
-    expect(boardPassFoundingCountdownLine(at("2026-11-29T10:00:00+05:30"))).toContain("ends in 1 day (30 Nov)");
-    expect(boardPassFoundingCountdownLine(at("2026-11-30T23:59:59+05:30"))).toContain("ends today (30 Nov)");
-    expect(boardPassFoundingCountdownLine(new Date(FOUNDING_OFFER_CLOSES_AT_MS))).toBeNull();
-    expect(foundingDaysLeft(new Date(FOUNDING_OFFER_CLOSES_AT_MS))).toBeNull();
+  it("no days-left count and no countdown line on any date (the price has no end)", () => {
+    for (const iso of ["2026-11-18T23:59:00+05:30", "2026-11-29T10:00:00+05:30", "2026-11-30T23:59:59+05:30", "2026-12-01T00:00:00+05:30", "2027-02-01T00:00:00+05:30"]) {
+      expect(foundingDaysLeft(at(iso)), iso).toBeNull();
+      expect(boardPassFoundingCountdownLine(at(iso)), iso).toBeNull();
+    }
   });
 });

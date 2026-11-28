@@ -261,12 +261,11 @@ describe("PRERENDER-PRICE-GUARD-1 — saved snapshot prices match the live price
     expect(mismatchMessages(r.found)).toEqual([
       "for-parents.html: snapshot shows ₹2,396 for Board Pass, live price is ₹1,917 + GST — re-capture the prerender (capture job artifact flow)",
     ]);
-    // ...and the live price steps to 2,499 at the founding deadline.
-    // ...and the live price steps to "+ GST" at the GST cut-off and to 2,499 at the founding deadline (GST-EXCL-1).
+    // ...and the live price steps to "+ GST" at the GST cut-off (GST-EXCL-1); PRICE-HOLD-1: it does NOT step at 1 Dec.
     expect(parentPriceModel(new Date("2026-11-06T23:59:59+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917");
     expect(parentPriceModel(new Date("2026-11-30T23:59:59+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917 + GST");
-    expect(parentPriceModel(new Date("2026-12-01T00:00:00+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹2,499 + GST");
-    expect(parentPriceModel(new Date("2026-12-01T00:00:00+05:30"), "2027-02-17")?.boardPassPayDisplay).toBe("₹2,949");
+    expect(parentPriceModel(new Date("2026-12-01T00:00:00+05:30"), "2027-02-17")?.boardPassDisplay).toBe("₹1,917 + GST");
+    expect(parentPriceModel(new Date("2026-12-01T00:00:00+05:30"), "2027-02-17")?.boardPassPayDisplay).toBe("₹2,262");
   });
 
   it("MUTATION PROOF (PACKS-TIDY-2): a stale /packs row price, neutral button or GST breakup is caught", () => {

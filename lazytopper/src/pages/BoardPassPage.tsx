@@ -15,7 +15,7 @@ import {
   FOUNDING_PRICE_LEAD,
   boardPassFoundingCountdownLine,
   boardPassFoundingPriceLine,
-  foundingOfferOpen,
+  foundingDaysLeft,
   boardPassGstBreakdown,
   boardPassPayDisplay,
   boardPassPriceDisplay,
@@ -78,7 +78,7 @@ export const BP_PAY_HERO_TESTID = "bp-pay-hero";
 export const BP_PAY_SECOND_TESTID = "bp-pay-second";
 
 /**
- * "Founding price ends 30 November. From 1 December: ₹2,499 + GST." with the offer's name in bold (as /pricing's DeadlineLine).
+ * (A deadline line, when the owner ever rules a date again) with the offer's name in bold (as /pricing's DeadlineLine).
  */
 function DeadlineLine({ line }: { line: string }) {
   if (!line.startsWith(FOUNDING_PRICE_LEAD)) return <>{line}</>;
@@ -97,7 +97,7 @@ function DeadlineLine({ line }: { line: string }) {
  * nothing renders. Kill switch: VITE_BP_COUNTDOWN_DISABLED=1.
  */
 export function FoundingCountdown() {
-  const [open] = useState(() => import.meta.env?.VITE_BP_COUNTDOWN_DISABLED !== "1" && foundingOfferOpen(Date.now()));
+  const [open] = useState(() => import.meta.env?.VITE_BP_COUNTDOWN_DISABLED !== "1" && foundingDaysLeft(Date.now()) !== null); // PRICE-HOLD-1: no deadline, so no slot
   const [line, setLine] = useState<string | null>(null);
   useEffect(() => {
     setLine(boardPassFoundingCountdownLine(Date.now()));

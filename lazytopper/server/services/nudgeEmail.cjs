@@ -185,6 +185,7 @@ const ENGAGED_GRADED = 2;
 /** The founding-price email: 3 Nov 2026 00:00 IST (owner ruling 3 Nov 2026: start now, not 10 Nov) up to (not including) 1 Dec 2026 00:00 IST. */
 const FOUNDING_LAST_DAY_IST = '2026-11-30';
 const FOUNDING_FROM_MS = Date.parse('2026-11-03T00:00:00.000+05:30');
+// PRICE-HOLD-1: this is the email CAMPAIGN window only (not an offer deadline - the price has no end and the email names no date).
 const FOUNDING_UNTIL_MS = Date.parse('2026-12-01T00:00:00.000+05:30');
 
 const DEFAULT_INTERVAL_MS = HOUR_MS;
@@ -426,19 +427,8 @@ function foundingPriceLine(nowMs = Date.now()) {
   // it - "₹1,917 + GST (founding price till 30 Nov, then ₹2,499 + GST)" - and is never wrong on 1 Dec. (No server-side
   // founding-clause helper exists; the wording matches the client's TS-PRICE-2 "founding price till 30 Nov, then ...".)
   // From the close the price no longer changes: the line is as before. `nowMs` is the SEND time (default: the clock).
-  const after = pricing.displayPlusGst(pricing.TILL_BOARDS_AFTER_FOUNDING_INR, nowMs);
-  if (pricing.foundingOfferOpen(nowMs)) {
-    const founding = pricing.displayPlusGst(pricing.TILL_BOARDS_FOUNDING_INR, nowMs);
-    return `Board Pass: ${founding} (founding price till ${foundingLastDayLabel()}, then ${after}), one payment, valid till ${VALIDITY_LABEL}.`;
-  }
+  // PRICE-HOLD-1: the price never changes, so the line never carries a deadline or a "then" price.
   return `Board Pass: ${pricing.displayPlusGst(pricing.tillBoardsPriceInr(nowMs), nowMs)}, one payment, valid till ${VALIDITY_LABEL}.`;
-}
-
-/** "30 Nov" - the last IST day of the founding offer, from the pricing mirror's close instant (never typed). PURE. */
-function foundingLastDayLabel() {
-  const ist = new Date(pricing.FOUNDING_OFFER_CLOSES_AT_MS - 1 + 330 * 60 * 1000);
-  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${ist.getUTCDate()} ${MONTHS[ist.getUTCMonth()]}`;
 }
 
 function activityLine(counts) {

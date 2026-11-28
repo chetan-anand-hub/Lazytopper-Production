@@ -219,7 +219,7 @@ describe("Share QR code", () => {
     expect(arg.files[0].name).toBe(QR_FILENAME);
     expect(arg.files[0].type).toBe("image/png");
     expect(arg.text).toContain(LINK);
-    expect(arg.text).toContain("₹2,396 once for everything till my boards");
+    expect(arg.text).toContain("The Board Pass is one payment for everything till my boards"); // PRICE-HOLD-1: no amount while the founding offer is open (it never closes)
     expect(arg.text).not.toMatch(/for a month|599/);
     expect(screen.queryByTestId("parent-share-panel")).toBeNull();
     expect(track.mock.calls).toEqual([["qr", "lock"]]);
@@ -491,11 +491,11 @@ describe("PARENT-PACKS-1 · a pack link", () => {
     );
     await tap(FORWARD_LABEL);
     const en = screen.getByTestId("parent-share-message").textContent || "";
-    expect(en).toContain("can you get me the Test Series on LazyTopper? It's ₹1,179, one time, valid till my boards:");
+    expect(en).toContain("can you get me the Test Series on LazyTopper? It's a one-time payment, valid till my boards:");
     expect(en).not.toMatch(/PDF|printable/);
     fireEvent.click(screen.getByRole("button", { name: "हिंदी" }));
     const hi = screen.getByTestId("parent-share-message").textContent || "";
-    expect(hi).toContain("यह एक बार का ₹1,179 है और मेरे बोर्ड तक चलेगी:");
+    expect(hi).toContain("यह एक बार का भुगतान है और मेरे बोर्ड तक चलेगी:");
     expect(hi).not.toMatch(/PDF/);
   });
 
@@ -515,7 +515,7 @@ describe("PARENT-PACKS-1 · a pack link", () => {
     view(deps());
     await tap(FORWARD_LABEL);
     const text = screen.getByTestId("parent-share-message").textContent || "";
-    expect(text).toContain("The Board Pass is ₹2,396 once");
+    expect(text).toContain("The Board Pass is one payment for everything till my boards"); // PRICE-HOLD-1
     expect(text).not.toMatch(/premium/i);
   });
 });

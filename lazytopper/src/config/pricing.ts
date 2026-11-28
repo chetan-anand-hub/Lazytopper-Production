@@ -74,43 +74,25 @@ export const PRICE_MONTHLY_FOUNDING_INR = 599;
 // published promise it cannot keep.
 
 /**
- * The first instant the founding offer is CLOSED: 00:00 on 1 December 2026, IST
- * (owner ruling, PRICING-1, 25 Oct 2026: "the founding price ends on last day of
- * November 2026, december will start with 999/month"). A fixed UTC+05:30 offset,
- * not the host's zone — a student's device clock zone must not move the switch.
- * The server mirrors this instant in `server/services/passPricing.cjs`, and
- * `passPricing.parity.test.ts` proves the two agree.
+ * PRICE-HOLD-1 (owner ruling, 28 Nov 2026 18:44 IST: "we are not changing the price on 1st December"): the founding
+ * price has NO END. The closing instant of PRICING-1 / PRICE-FIXED-1 (00:00 IST 1 Dec 2026) is retired, and no
+ * replacement date is invented: the offer never closes, so `FOUNDING_OFFER_CLOSES_AT_MS` is Infinity and the ISO
+ * string is null. The server mirrors this in `server/services/passPricing.cjs`; `passPricing.parity.test.ts` proves
+ * the two agree. Every deadline / countdown / "then Rs X" line below renders null, and the end-date labels are null
+ * (no date exists to print). To restore a deadline, the owner must rule a NEW date - put it here and in the mirror.
  */
-export const FOUNDING_OFFER_CLOSES_AT_ISO = "2026-12-01T00:00:00+05:30";
-export const FOUNDING_OFFER_CLOSES_AT_MS = Date.parse(FOUNDING_OFFER_CLOSES_AT_ISO);
+export const FOUNDING_OFFER_CLOSES_AT_ISO: string | null = null;
+export const FOUNDING_OFFER_CLOSES_AT_MS: number = Number.POSITIVE_INFINITY;
 
-/**
- * The last day the founding price is charged, as copy ("30 November"). DERIVED from
- * `FOUNDING_OFFER_CLOSES_AT_ISO` (the day before the closing instant, in IST), so the date a
- * student reads and the instant the offer closes cannot drift apart. A real date, never a countdown.
- */
-export const FOUNDING_OFFER_LAST_DAY_LABEL = (() => {
-  const lastDay = new Date(FOUNDING_OFFER_CLOSES_AT_MS - 1 + 5.5 * 3_600_000);
-  const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
-  ];
-  return `${lastDay.getUTCDate()} ${months[lastDay.getUTCMonth()]}`;
-})();
-/** The first day of the list price, as copy ("1 December"). Derived the same way. */
-export const FOUNDING_OFFER_LIST_FROM_LABEL = (() => {
-  const first = new Date(FOUNDING_OFFER_CLOSES_AT_MS + 5.5 * 3_600_000);
-  const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
-  ];
-  return `${first.getUTCDate()} ${months[first.getUTCMonth()]}`;
-})();
+/** No end date exists (PRICE-HOLD-1), so there is no "last day" label. Kept as an export so callers fail closed (null). */
+export const FOUNDING_OFFER_LAST_DAY_LABEL: string | null = null;
+/** No list-price date exists (PRICE-HOLD-1). */
+export const FOUNDING_OFFER_LIST_FROM_LABEL: string | null = null;
 
 /** Is the founding offer open at the instant `now`? PURE: the clock is an argument. */
 export function foundingOfferOpen(now: Date | number = Date.now()): boolean {
   const ms = now instanceof Date ? now.getTime() : now;
-  return Number.isFinite(ms) && ms < FOUNDING_OFFER_CLOSES_AT_MS;
+  return Number.isFinite(ms) && ms < FOUNDING_OFFER_CLOSES_AT_MS; // PRICE-HOLD-1: Infinity, so true for any finite time
 }
 
 /**
@@ -367,7 +349,8 @@ export function boardPassFoundingLabel(now: Date | number = Date.now()): string 
  * From the deadline on it is null.
  */
 export function boardPassDeadlineLine(now: Date | number = Date.now()): string | null {
-  if (!foundingOfferOpen(now)) return null;
+  // PRICE-HOLD-1: no deadline exists, so there is no deadline line.
+  if (!foundingOfferOpen(now) || FOUNDING_OFFER_LAST_DAY_LABEL === null || FOUNDING_OFFER_LIST_FROM_LABEL === null) return null;
   return `${FOUNDING_OFFER_BADGE} ends ${FOUNDING_OFFER_LAST_DAY_LABEL}. From ${FOUNDING_OFFER_LIST_FROM_LABEL}: ${boardPassTagFor(TILL_BOARDS_AFTER_FOUNDING_INR, now)}.`;
 }
 /** URGENCY-1 (owner, 11 Nov 2026): the lead of the founding-price line; one string so the bold span and the text agree. */
@@ -378,7 +361,7 @@ export const FOUNDING_PRICE_LEAD = "Founding price";
  * No crossed-out price, no saving claim.
  */
 export function boardPassFoundingPriceLine(now: Date | number = Date.now()): string | null {
-  if (!foundingOfferOpen(now)) return null;
+  if (!foundingOfferOpen(now) || FOUNDING_OFFER_LAST_DAY_LABEL === null) return null; // PRICE-HOLD-1: no deadline
   const [day = "", month = ""] = FOUNDING_OFFER_LAST_DAY_LABEL.split(" ");
   return `${FOUNDING_PRICE_LEAD} ends ${day} ${month.slice(0, 3)} \u00b7 ${boardPassTagFor(TILL_BOARDS_FOUNDING_INR, now)}, then ${boardPassTagFor(TILL_BOARDS_AFTER_FOUNDING_INR, now)}`;
 }
@@ -387,7 +370,7 @@ export function boardPassFoundingPriceLine(now: Date | number = Date.now()): str
  * Derived from FOUNDING_OFFER_CLOSES_AT_MS (the same constant foundingOfferOpen reads); no date is typed here.
  */
 export function foundingDaysLeft(now: Date | number = Date.now()): number | null {
-  if (!foundingOfferOpen(now)) return null;
+  if (!foundingOfferOpen(now) || !Number.isFinite(FOUNDING_OFFER_CLOSES_AT_MS)) return null; // PRICE-HOLD-1: no deadline, no days left
   const ms = now instanceof Date ? now.getTime() : now;
   const IST = 5.5 * 3_600_000;
   const lastDay = Math.floor((FOUNDING_OFFER_CLOSES_AT_MS - 1 + IST) / 86_400_000);
@@ -399,7 +382,7 @@ export function foundingDaysLeft(now: Date | number = Date.now()): number | null
  */
 export function boardPassFoundingCountdownLine(now: Date | number = Date.now()): string | null {
   const n = foundingDaysLeft(now);
-  if (n === null) return null;
+  if (n === null || FOUNDING_OFFER_LAST_DAY_LABEL === null) return null;
   const [day = "", month = ""] = FOUNDING_OFFER_LAST_DAY_LABEL.split(" ");
   const when = n === 0 ? "today" : `in ${n} ${n === 1 ? "day" : "days"}`;
   return `${FOUNDING_PRICE_LEAD} ends ${when} (${day} ${month.slice(0, 3)}) \u00b7 then ${boardPassTagFor(TILL_BOARDS_AFTER_FOUNDING_INR, now)}`;
@@ -410,7 +393,7 @@ export function boardPassFoundingCountdownLine(now: Date | number = Date.now()):
  * no renewals". No crossed-out price, no saving claim.
  */
 export function boardPassFromLine(now: Date | number = Date.now()): string {
-  if (!boardPassDeadlineLine(now)) return "One payment, no renewals";
+  if (!boardPassDeadlineLine(now) || FOUNDING_OFFER_LIST_FROM_LABEL === null) return "One payment, no renewals";
   const [day = "", month = ""] = FOUNDING_OFFER_LIST_FROM_LABEL.split(" ");
   return `One payment \u00b7 ${boardPassTagFor(TILL_BOARDS_AFTER_FOUNDING_INR, now)} from ${day} ${month.slice(0, 3)}`;
 }
@@ -439,12 +422,7 @@ export const FOUNDING_LOCK_COPY = "Your founding month price stays locked for ev
  * `FOUNDING_COHORT_COPY` (a "First N students." seat line).
  */
 export const FOUNDING_OFFER_BADGE = `${FOUNDING_LABEL} offer`;
-/**
- * PRICING-1: the real end date, beside the badge. Plain words, a calendar date, no
- * timer. After the close nothing renders it (the badge and this line are gated on
- * `foundingOfferOpen(Date.now())`).
- */
-export const FOUNDING_OFFER_UNTIL_COPY = `Founding price until ${FOUNDING_OFFER_LAST_DAY_LABEL}. From ${FOUNDING_OFFER_LIST_FROM_LABEL}, Premium is ${PRICE_MONTHLY_LIST_DISPLAY} for a month.`;
+// PRICE-HOLD-1: the PRICING-1 'Founding price until <date>' copy constant (FOUNDING_OFFER_UNTIL_COPY) is deleted: no end date exists to print.
 
 // NOTE: there is deliberately no `FOUNDING_REGULAR_PRICE_COPY` constant. A first
 // draft exported one and nothing ever consumed it — the "Regular price ⟨x⟩" line
